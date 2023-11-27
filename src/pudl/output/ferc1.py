@@ -117,6 +117,71 @@ EXPLOSION_CALCULATION_TOLERANCES: dict[str, GroupMetricChecks] = {
     ),
 }
 
+MANUAL_DBF_METADATA_FIXES: dict[str, dict[str, str]] = {
+    "less_noncurrent_portion_of_allowances": {
+        "dbf2020_row_number": 53,
+        "dbf2020_table_name": "f1_comp_balance_db",
+        "dbf2020_row_literal": "(Less) Noncurrent Portion of Allowances",
+    },
+    "less_derivative_instrument_assets_long_term": {
+        "dbf2020_row_number": 64,
+        "dbf2020_table_name": "f1_comp_balance_db",
+        "dbf2020_row_literal": "(Less) Long-Term Portion of Derivative Instrument Assets (175)",
+    },
+    "less_derivative_instrument_assets_hedges_long_term": {
+        "dbf2020_row_number": 66,
+        "dbf2020_table_name": "f1_comp_balance_db",
+        "dbf2020_row_literal": "(Less) Long-Term Portion of Derivative Instrument Assets - Hedges (176)",
+    },
+    "less_long_term_portion_of_derivative_instrument_liabilities": {
+        "dbf2020_row_number": 51,
+        "dbf2020_table_name": "f1_bal_sheet_cr",
+        "dbf2020_row_literal": "(Less) Long-Term Portion of Derivative Instrument Liabilities",
+    },
+    "less_long_term_portion_of_derivative_instrument_liabilities_hedges": {
+        "dbf2020_row_number": 53,
+        "dbf2020_table_name": "f1_bal_sheet_cr",
+        "dbf2020_row_literal": "(Less) Long-Term Portion of Derivative Instrument Liabilities-Hedges",
+    },
+    "other_miscellaneous_operating_revenues": {
+        "dbf2020_row_number": 25,
+        "dbf2020_table_name": "f1_elctrc_oper_rev",
+        "dbf2020_row_literal": "",
+    },
+    "amortization_limited_term_electric_plant": {
+        "dbf2020_row_number": pd.NA,
+        "dbf2020_table_name": "f1_dacs_epda",
+        "dbf2020_row_literal": "Amortization of Limited Term Electric Plant (Account 404) (d)",
+    },
+    "amortization_other_electric_plant": {
+        "dbf2020_row_number": pd.NA,
+        "dbf2020_table_name": "f1_dacs_epda",
+        "dbf2020_row_literal": "Amortization of Other Electric Plant (Acc 405) (e)",
+    },
+    "depreciation_amortization_total": {
+        "dbf2020_row_number": pd.NA,
+        "dbf2020_table_name": "f1_dacs_epda",
+        "dbf2020_row_literal": "Total (f)",
+    },
+    "depreciation_expense": {
+        "dbf2020_row_number": pd.NA,
+        "dbf2020_table_name": "f1_dacs_epda",
+        "dbf2020_row_literal": "Depreciation Expense (Account 403) (b)",
+    },
+    "depreciation_expense_asset_retirement": {
+        "dbf2020_row_number": pd.NA,
+        "dbf2020_table_name": "f1_dacs_epda",
+        "dbf2020_row_literal": "Depreciation Expense for Asset Retirement Costs (Account 403.1) (c)",
+    },
+}
+"""Manually compiled metadata from DBF-only or PUDL-generated xbrl_factios.
+
+Note: the factoids beginning with "less" here could be removed after a transition
+of expectations from assuming the calculation components in any given explosion
+is a tree structure to being a dag. These xbrl_factoids were added in
+`transform.ferc1` and could be removed upon this transition.
+"""
+
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def denorm_plants_utilities_ferc1(
@@ -1005,11 +1070,29 @@ class NodeId(NamedTuple):
 
 @asset
 def _out_ferc1__explosion_tags(table_dimensions_ferc1) -> pd.DataFrame:
-    """Grab the stored table of tags and add infered dimension."""
-    # NOTE: there are a bunch of duplicate records in xbrl_factoid_rate_base_tags.csv
-    # Also, these tags are only applicable to the balance_sheet_assets_ferc1 table, but
+    """Grab the stored tables of tags and add inferred dimension."""
+    # Also, these tags may not be applicable to all exploded tables, but
     # we need to pass in a dataframe with the right structure to all of the exploders,
     # so we're just re-using this one for the moment.
+    rate_base_tags = _rate_base_tags(table_dimensions_ferc1=table_dimensions_ferc1)
+    plant_status_tags = _aggregatable_dimension_tags(
+        table_dimensions_ferc1=table_dimensions_ferc1, dimension="plant_status"
+    )
+    plant_function_tags = _aggregatable_dimension_tags(
+        table_dimensions_ferc1=table_dimensions_ferc1, dimension="plant_function"
+    )
+    # We shouldn't have more than one row per tag, so we use a 1:1 validation here.
+    plant_tags = plant_status_tags.merge(
+        plant_function_tags, how="outer", on=list(NodeId._fields), validate="1:1"
+    )
+    tags_df = pd.merge(
+        rate_base_tags, plant_tags, on=list(NodeId._fields), how="outer"
+    ).astype(pd.StringDtype())
+    return tags_df
+
+
+def _rate_base_tags(table_dimensions_ferc1: pd.DataFrame) -> pd.DataFrame:
+    # NOTE: there are a bunch of duplicate records in xbrl_factoid_rate_base_tags.csv
     tags_csv = (
         importlib.resources.files("pudl.package_data.ferc1")
         / "xbrl_factoid_rate_base_tags.csv"
@@ -1017,14 +1100,7 @@ def _out_ferc1__explosion_tags(table_dimensions_ferc1) -> pd.DataFrame:
     tags_df = (
         pd.read_csv(
             tags_csv,
-            usecols=[
-                "table_name",
-                "xbrl_factoid",
-                "in_rate_base",
-                "utility_type",
-                "plant_function",
-                "plant_status",
-            ],
+            usecols=list(NodeId._fields) + ["in_rate_base"],
         )
         .drop_duplicates()
         .dropna(subset=["table_name", "xbrl_factoid"], how="any")
@@ -1033,9 +1109,46 @@ def _out_ferc1__explosion_tags(table_dimensions_ferc1) -> pd.DataFrame:
             table_dimensions_ferc1,
             dimensions=["utility_type", "plant_function", "plant_status"],
         )
-        .astype(pd.StringDtype())
     )
     return tags_df
+
+
+def _aggregatable_dimension_tags(
+    table_dimensions_ferc1: pd.DataFrame,
+    dimension: Literal["plant_status", "plant_function"],
+) -> pd.DataFrame:
+    # make a new lil csv w the manually compiled plant status or dimension
+    # add in the rest from the table_dims
+    # merge it into _out_ferc1__explosion_tags
+    aggregatable_col = f"aggregatable_{dimension}"
+    tags_csv = (
+        importlib.resources.files("pudl.package_data.ferc1")
+        / f"xbrl_factoid_{dimension}_tags.csv"
+    )
+    dimensions = ["utility_type", "plant_function", "plant_status"]
+    idx = list(NodeId._fields)
+    tags_df = (
+        pd.read_csv(tags_csv)
+        .assign(**{dim: pd.NA for dim in dimensions})
+        .pipe(
+            pudl.transform.ferc1.make_calculation_dimensions_explicit,
+            table_dimensions_ferc1,
+            dimensions=dimensions,
+        )
+        .astype(pd.StringDtype())
+        .set_index(idx)
+    )
+    table_dimensions_ferc1 = table_dimensions_ferc1.set_index(idx)
+    tags_df = pd.concat(
+        [
+            tags_df,
+            table_dimensions_ferc1.loc[
+                table_dimensions_ferc1.index.difference(tags_df.index)
+            ],
+        ]
+    ).reset_index()
+    tags_df[aggregatable_col] = tags_df[aggregatable_col].fillna(tags_df[dimension])
+    return tags_df[tags_df[aggregatable_col] != "total"]
 
 
 def exploded_table_asset_factory(
@@ -1129,7 +1242,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 NodeId(
                     table_name="balance_sheet_assets_ferc1",
                     xbrl_factoid="assets_and_other_debits",
-                    utility_type=pd.NA,
+                    utility_type="total",
                     plant_status=pd.NA,
                     plant_function=pd.NA,
                 )
@@ -1148,7 +1261,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 NodeId(
                     table_name="balance_sheet_liabilities_ferc1",
                     xbrl_factoid="liabilities_and_other_credits",
-                    utility_type=pd.NA,
+                    utility_type="total",
                     plant_status=pd.NA,
                     plant_function=pd.NA,
                 )
@@ -1353,6 +1466,14 @@ class Exploder:
             on=["table_name", "xbrl_factoid"],
             validate="many_to_one",
         )
+
+        # Add manual fixes for created factoids
+        fixes = pd.DataFrame(MANUAL_DBF_METADATA_FIXES).T
+        exploded_metadata = exploded_metadata.set_index("xbrl_factoid")
+        # restrict fixes to only those that are actually in the meta.
+        fixes = fixes.loc[fixes.index.intersection(exploded_metadata.index)]
+        exploded_metadata.loc[fixes.index, fixes.columns] = fixes
+        exploded_metadata = exploded_metadata.reset_index()
 
         return exploded_metadata
 
@@ -1741,10 +1862,17 @@ class XbrlCalculationForestFerc1(BaseModel):
         tags_dict = (
             self.tags.convert_dtypes().set_index(self.calc_cols).to_dict(orient="index")
         )
+        # Drop None tags created by combining multiple tagging CSVs
+        clean_tags_dict = {
+            k: {a: b for a, b in v.items() if b is not None}
+            for k, v in tags_dict.items()
+        }
         node_attrs = (
             pd.DataFrame(
-                index=pd.MultiIndex.from_tuples(tags_dict.keys(), names=self.calc_cols),
-                data={"tags": list(tags_dict.values())},
+                index=pd.MultiIndex.from_tuples(
+                    clean_tags_dict.keys(), names=self.calc_cols
+                ),
+                data={"tags": list(clean_tags_dict.values())},
             )
             .reset_index()
             # Type conversion is necessary to get pd.NA in the index:
@@ -1752,16 +1880,29 @@ class XbrlCalculationForestFerc1(BaseModel):
             # We need a dictionary for *all* nodes, not just those with tags.
             .merge(
                 self.exploded_meta.loc[:, self.calc_cols],
-                how="right",
+                how="left",
                 on=self.calc_cols,
                 validate="one_to_many",
+                indicator=True,
             )
             # For nodes with no tags, we assign an empty dictionary:
             .assign(tags=lambda x: np.where(x["tags"].isna(), {}, x["tags"]))
+        )
+        lefties = node_attrs[
+            (node_attrs._merge == "left_only")
+            & (node_attrs.table_name.isin(self.table_names))
+        ]
+        if not lefties.empty:
+            logger.warning(
+                f"Found {len(lefties)} tags that only exist in our manually compiled "
+                "tags when expected none. Ensure the compiled tags match the metadata."
+                f"Mismatched tags:\n{lefties}"
+            )
+        return (
+            node_attrs.drop(columns=["_merge"])
             .set_index(self.calc_cols)
             .to_dict(orient="index")
         )
-        return node_attrs
 
     @cached_property
     def edge_attrs(self: Self) -> dict[Any, Any]:

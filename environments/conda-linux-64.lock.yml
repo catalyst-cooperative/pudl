@@ -284,7 +284,7 @@ dependencies:
   - toolz=0.12.0=pyhd8ed1ab_0
   - toposort=1.10=pyhd8ed1ab_0
   - tornado=6.3.3=py311h459d7ec_1
-  - traitlets=5.13.0=pyhd8ed1ab_0
+  - traitlets=5.14.0=pyhd8ed1ab_0
   - types-python-dateutil=2.8.19.14=pyhd8ed1ab_0
   - types-pyyaml=6.0.12.12=pyhd8ed1ab_0
   - typing_extensions=4.8.0=pyha770c72_0
@@ -399,7 +399,7 @@ dependencies:
   - arrow=1.3.0=pyhd8ed1ab_0
   - async-timeout=4.0.3=pyhd8ed1ab_0
   - aws-c-s3=0.4.1=hfadff92_0
-  - botocore=1.32.6=pyhd8ed1ab_0
+  - botocore=1.32.7=pyhd8ed1ab_0
   - branca=0.7.0=pyhd8ed1ab_1
   - croniter=2.0.1=pyhd8ed1ab_0
   - cryptography=41.0.5=py311h63ff55d_0
@@ -463,7 +463,7 @@ dependencies:
   - h3-py=3.7.6=py311hb755f60_1
   - httpx=0.25.2=pyhd8ed1ab_0
   - identify=2.5.32=pyhd8ed1ab_0
-  - ipython=8.18.0=pyh0d859eb_0
+  - ipython=8.18.1=pyh31011fe_1
   - isoduration=20.11.0=pyhd8ed1ab_0
   - jsonschema=4.20.0=pyhd8ed1ab_0
   - jupyter_client=8.6.0=pyhd8ed1ab_0
@@ -539,12 +539,12 @@ dependencies:
   - tableschema=1.19.3=pyh9f0ad1d_0
   - datapackage=1.15.2=pyh44b312d_0
   - google-cloud-storage=2.13.0=pyhca7485f_0
-  - jupyter_server=2.10.1=pyhd8ed1ab_0
+  - jupyter_server=2.11.1=pyhd8ed1ab_0
   - libarrow-dataset=14.0.1=h59595ed_3_cpu
   - libarrow-flight-sql=14.0.1=h61ff412_3_cpu
   - nbconvert-pandoc=7.11.0=pyhd8ed1ab_0
   - gcsfs=2023.10.0=pyhd8ed1ab_0
-  - jupyter-lsp=2.2.0=pyhd8ed1ab_0
+  - jupyter-lsp=2.2.1=pyhd8ed1ab_0
   - jupyter-resource-usage=1.0.1=pyhd8ed1ab_0
   - jupyterlab_server=2.25.2=pyhd8ed1ab_0
   - libarrow-substrait=14.0.1=h61ff412_3_cpu
