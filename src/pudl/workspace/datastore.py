@@ -186,6 +186,7 @@ class ZenodoDoiSettings(BaseSettings):
     phmsagas: ZenodoDoi = "10.5281/zenodo.8346646"
     model_config = SettingsConfigDict(env_prefix="pudl_zenodo_doi_", env_file=".env")
 
+
 class ZenodoFetcher:
     """API for fetching datapackage descriptors and resource contents from zenodo."""
 
