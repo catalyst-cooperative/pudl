@@ -8,6 +8,7 @@ from . import (
     convert,
     etl,
     extract,
+    ferc_to_sqlite,
     glue,
     helpers,
     io_managers,
