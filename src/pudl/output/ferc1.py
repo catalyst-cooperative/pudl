@@ -1489,7 +1489,7 @@ class Exploder:
         )
 
     @cached_property
-    def other_dimensions(self: Self) -> list[str]:
+    def dimensions(self: Self) -> list[str]:
         """Get all of the column names for the other dimensions."""
         return pudl.transform.ferc1.other_dimensions(table_names=self.table_names)
 
@@ -1552,16 +1552,13 @@ class Exploder:
         """
         exploded = (
             self.initial_explosion_concatenation(tables_to_explode)
-            # .pipe(self.indentify_and_correct_sizable_minority_utility_reporting)
-            .pipe(self.reconcile_intertable_calculations).pipe(
-                self.calculation_forest.leafy_data, value_col=self.value_col
-            )
+            .pipe(self.indentify_and_correct_sizable_minority_utility_reporting)
+            .pipe(self.reconcile_intertable_calculations)
+            .pipe(self.calculation_forest.leafy_data, value_col=self.value_col)
         )
         # Identify which columns should be kept in the output...
         # TODO: Define schema for the tables explicitly.
-        cols_to_keep = list(
-            set(self.exploded_pks + self.other_dimensions + [self.value_col])
-        )
+        cols_to_keep = list(set(self.exploded_pks + self.dimensions + [self.value_col]))
         if ("utility_type" in cols_to_keep) and (
             "utility_type_other" in exploded.columns
         ):
@@ -1632,6 +1629,8 @@ class Exploder:
         self: Self, exploded: pd.DataFrame
     ) -> pd.DataFrame:
         """Identify and fix the utilities that report calculations differently."""
+        # NOTE: up to making of calculated_df from calculate_values_from_components
+        # is all copy/paste from reconcile_intertable_calculations
         calculations_intertable = self.exploded_calcs[
             ~self.exploded_calcs.is_within_table_calc
         ]
@@ -1651,39 +1650,53 @@ class Exploder:
             metric_tolerance=self.group_metric_checks.group_metric_tolerances.ungrouped.error_frequency,
         ).is_not_close(calculated_df)
 
-        idx = list(NodeId._fields) + ["report_year", "utility_id_ferc1"]
-        calc_cols = ["calculated_value", "abs_diff", "rel_diff"]
-
+        cols = calc_idx + [
+            "report_year",
+            "utility_id_ferc1",
+            self.value_col,
+            "calculated_value",
+        ]
         # Idenfity the calculations with one missing other fact
-        not_close = calculated_df[calculated_df.is_not_close]
+        not_close = calculated_df[calculated_df.is_not_close].assign(
+            diff=lambda x: x[self.value_col] - x.calculated_value
+        )[
+            [col for col in cols if col not in [self.value_col, "calculated_value"]]
+            + ["diff"]
+        ]
+        missing_fact = calculated_df.loc[
+            calculated_df.row_type_xbrl != "correction", cols
+        ]
         # when the diff is the same as the value of another fact, then that
         # calculated value could have been perfect with the addition of the
         # missing facoid.
         calcs_missing_xbrl_children = pd.merge(
-            not_close[idx + calc_cols],
-            calculated_df[calculated_df.row_type_xbrl != "correction"][
-                idx + [self.value_col] + calc_cols
-            ],
-            left_on=["utility_id_ferc1", "report_year", "abs_diff"]
-            + self.other_dimensions,
+            not_close,
+            missing_fact,
+            left_on=["utility_id_ferc1", "report_year", "diff"] + self.dimensions,
             right_on=["utility_id_ferc1", "report_year", self.value_col]
-            + self.other_dimensions,
+            + self.dimensions,
             how="inner",
             suffixes=("", "_missing"),
-        ).convert_dtypes()
+        )
         # Grab the worst offenders and fix them
         # NOTE: is it possible that we could have two missing facts from the same
         # parent fact that are releated?
-        fix_idx = ["xbrl_factoid", "xbrl_factoid_missing"] + self.other_dimensions
+        fix_idx = ["xbrl_factoid", "xbrl_factoid_missing"] + self.dimensions
         facts_to_fix = pd.DataFrame(
             calcs_missing_xbrl_children[fix_idx].value_counts(dropna=False)
         )
-        facts_to_fix = facts_to_fix[facts_to_fix["count"] > 100]
+        facts_to_fix = facts_to_fix[
+            facts_to_fix["count"] > 25
+        ]  # number here is somewhat arbitrary
         facts_to_fix = facts_to_fix.reset_index().convert_dtypes().set_index(fix_idx)
-
-        exploded = self.add_sizable_minority_data_corrections(
-            exploded, calcs_missing_xbrl_children, facts_to_fix
+        logger.info(
+            f"Found {len(facts_to_fix)} with a sizable minority of utilities reporting "
+            f"differently. ({facts_to_fix})"
         )
+        if not facts_to_fix.empty:
+            exploded = self.add_sizable_minority_data_corrections(
+                exploded, calcs_missing_xbrl_children, facts_to_fix
+            )
         return exploded
 
     def add_sizable_minority_data_corrections(
@@ -1695,23 +1708,18 @@ class Exploder:
         """Add data corrections for the sizable minority of differently reporting utilities."""
         idx = list(NodeId._fields) + ["report_year", "utility_id_ferc1"]
         data_corrections = (
-            calcs_missing_xbrl_children.set_index(facts_to_fix.index.names).loc[
-                facts_to_fix.index
-            ]
-            # use a dict/kwarg for assign so we can dynamically set the name of value_col
+            calcs_missing_xbrl_children.set_index(facts_to_fix.index.names)
+            .loc[facts_to_fix.index]
             .assign(
-                **{
-                    "xbrl_factoid": (
-                        lambda x: "correction_"
-                        + x.index.get_level_values("xbrl_factoid")
-                        + "_missing_"
-                        + x.index.get_level_values("xbrl_factoid_missing")
-                    ),
-                    self.value_col: lambda x: x[f"{self.value_col}_missing"],
-                }
+                xbrl_factoid=(
+                    lambda x: "correction_"
+                    + x.index.get_level_values("xbrl_factoid")
+                    + "_missing_"
+                    + x.index.get_level_values("xbrl_factoid_missing")
+                ),
             )
             # pop the dim columns out of the index
-            .reset_index(level=self.other_dimensions)
+            .reset_index(level=self.dimensions)
             # drop the two factoid cols
             .reset_index(drop=True)[idx + [self.value_col]]
         )
@@ -1964,7 +1972,8 @@ class XbrlCalculationForestFerc1(BaseModel):
                     clean_tags_dict.keys(), names=self.calc_cols
                 ),
                 data={"tags": list(clean_tags_dict.values())},
-            ).reset_index()
+            )
+            .reset_index()
             # Type conversion is necessary to get pd.NA in the index:
             .astype({col: pd.StringDtype() for col in self.calc_cols})
             # We need a dictionary for *all* nodes, not just those with tags.
