@@ -256,7 +256,7 @@ def test_migrations_match_metadata(tmp_path, monkeypatch):
     # alembic wants current directory to be the one with `alembic.ini` in it
     monkeypatch.chdir(Path(__file__).parent.parent.parent)
     # alembic knows to use PudlPaths().pudl_db - so we need to set PUDL_OUTPUT env var
-    monkeypatch.setenv("PUDL_OUTPUT", tmp_path)
+    monkeypatch.setenv("PUDL_OUTPUT", str(tmp_path))
     # run all the migrations on a fresh DB at tmp_path/pudl.sqlite
     alembic.config.main(["upgrade", "head"])
 
