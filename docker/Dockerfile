@@ -59,9 +59,9 @@ RUN ${CONDA_RUN} curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
     unzip awscliv2.zip && \
     ./aws/install
 
-# Install flyctl
-RUN ${CONDA_RUN} curl -L https://fly.io/install.sh | sh
-ENV PATH="${CONTAINER_HOME}/.fly/bin:$PATH"
+# # Install flyctl
+# RUN ${CONDA_RUN} curl -L https://fly.io/install.sh | sh
+# ENV PATH="${CONTAINER_HOME}/.fly/bin:$PATH"
 
 USER $MAMBA_USER
 
