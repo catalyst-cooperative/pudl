@@ -335,13 +335,13 @@ def configure_paths_for_tests(tmp_path_factory, request):
         gha_override_input = "PUDL_INPUT" not in os.environ
         gha_override_output = "PUDL_OUTPUT" not in os.environ
         logger.info(
-            "Running in GitHub Actions environment, using"
-            f" temporary input dir: {gha_override_input}, and"
-            f" temporary output dir: {gha_override_output}"
+            "Running in GitHub Actions environment. Overriding"
+            f" temporary input dir: {PudlPaths().input_dir}, and"
+            f" temporary output dir: {PudlPaths().output_dir}"
         )
     pudl_tmpdir = tmp_path_factory.mktemp("pudl")
-    if gha_override_output or request.config.getoption("--tmp-data"):
-        in_tmp = pudl_tmpdir / "data"
+    if gha_override_input or request.config.getoption("--tmp-data"):
+        in_tmp = pudl_tmpdir / "input"
         in_tmp.mkdir()
         PudlPaths.set_path_overrides(
             input_dir=str(Path(in_tmp).resolve()),
