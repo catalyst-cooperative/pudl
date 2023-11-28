@@ -4,11 +4,11 @@ USER root
 
 SHELL [ "/bin/bash", "-exo", "pipefail", "-c" ]
 
-# Install curl and js
+# Install some linux packages
 # awscli requires unzip, less, groff and mandoc
 # hadolint ignore=DL3008
 RUN apt-get update && \
-    apt-get install --no-install-recommends -y git curl jq unzip less groff mandoc && \
+    apt-get install --no-install-recommends -y git jq unzip less groff mandoc && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -16,19 +16,10 @@ RUN apt-get update && \
 # hadolint ignore=DL3059
 RUN printf '[GoogleCompute]\nservice_account = default' > /etc/boto.cfg
 
-# Install awscli2
-RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
-    unzip awscliv2.zip && \
-    ./aws/install
-
 # Switch back to being non-root user and get into the home directory
 USER $MAMBA_USER
 ENV CONTAINER_HOME=/home/$MAMBA_USER
 WORKDIR ${CONTAINER_HOME}
-
-# Install flyctl
-RUN curl -L https://fly.io/install.sh | sh
-ENV PATH="${CONTAINER_HOME}/.fly/bin:$PATH"
 
 ENV CONDA_PREFIX=${CONTAINER_HOME}/env
 ENV PUDL_REPO=${CONTAINER_HOME}/pudl
@@ -60,6 +51,15 @@ RUN --mount=type=bind,source=.git,target=${PUDL_REPO}/.git \
     ${CONDA_RUN} pip install --no-cache-dir --no-deps --editable . && \
     # Run the PUDL setup script so we know where to read and write data
     ${CONDA_RUN} pudl_setup
+
+# Install awscli2
+RUN ${CONDA_RUN} curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+    unzip awscliv2.zip && \
+    ./aws/install
+
+# Install flyctl
+RUN ${CONDA_RUN} curl -L https://fly.io/install.sh | sh
+ENV PATH="${CONTAINER_HOME}/.fly/bin:$PATH"
 
 # Run the unit tests:
 CMD ["micromamba", "run", "--prefix", "${CONDA_PREFIX}", "--attach", "''", "pytest", "test/unit"]
