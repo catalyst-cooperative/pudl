@@ -85,6 +85,9 @@ jobs:
           conda config --show
           printenv | sort
 
+      - name: Make input, output and dagster dirs
+        run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
+
       - name: Log SQLite3 version
         run: |
           which sqlite3
