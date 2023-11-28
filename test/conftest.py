@@ -335,9 +335,9 @@ def configure_paths_for_tests(tmp_path_factory, request):
         gha_override_input = "PUDL_INPUT" not in os.environ
         gha_override_output = "PUDL_OUTPUT" not in os.environ
         logger.info(
-            "Running in GitHub Actions environment. Overriding"
-            f" temporary input dir: {PudlPaths().input_dir}, and"
-            f" temporary output dir: {PudlPaths().output_dir}"
+            "Running in GitHub Actions environment. "
+            f"{gha_override_input=}"
+            f"{gha_override_output=}"
         )
     pudl_tmpdir = tmp_path_factory.mktemp("pudl")
     if gha_override_input or request.config.getoption("--tmp-data"):
@@ -346,12 +346,14 @@ def configure_paths_for_tests(tmp_path_factory, request):
         PudlPaths.set_path_overrides(
             input_dir=str(Path(in_tmp).resolve()),
         )
+        logger.info(f"Using temporary PUDL_INPUT: {in_tmp}")
     if gha_override_output or not request.config.getoption("--live-dbs"):
         out_tmp = pudl_tmpdir / "output"
         out_tmp.mkdir()
         PudlPaths.set_path_overrides(
             output_dir=str(Path(out_tmp).resolve()),
         )
+        logger.info(f"Using temporary PUDL_OUTPUT: {out_tmp}")
     logger.info(f"Starting unit tests with output path {PudlPaths().output_dir}")
     pudl.workspace.setup.init()
 
