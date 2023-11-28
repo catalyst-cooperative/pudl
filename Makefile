@@ -54,6 +54,7 @@ conda-lock.yml: pyproject.toml
 .PHONY: pudl-dev
 pudl-dev:
 	${mamba} run --name base ${mamba} env remove --name pudl-dev
+	${mamba} run --name base ${mamba} install --yes conda-lock
 	${mamba} run --name base conda-lock install \
 		--name pudl-dev \
 		--${mamba} \

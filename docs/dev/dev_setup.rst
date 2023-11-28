@@ -65,6 +65,14 @@ command. You only need to run it once, from within the cloned repo:
 
     $ git config --local merge.ours.driver true
 
+.. note::
+
+   Because we default to retaining the version of the lockfiles present in the branch
+   that's being merged into, when you merge a branch like ``dev`` into your local git
+   branch, if there have been changes to the environment you will need to regenerate the
+   lockfiles. You can either do this locally (see below) or allow the GitHub Actions we
+   have set up to do it for you automatically the next time you push.
+
 -------------------------------------------------------------------------------
 Create the PUDL Dev Environment
 -------------------------------------------------------------------------------
