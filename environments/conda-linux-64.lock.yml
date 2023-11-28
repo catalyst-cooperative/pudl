@@ -62,7 +62,7 @@ dependencies:
   - lzo=2.10=h516909a_1000
   - ncurses=6.4=h59595ed_2
   - nspr=4.35=h27087fc_0
-  - openssl=3.1.4=hd590300_0
+  - openssl=3.2.0=hd590300_0
   - pixman=0.42.2=h59595ed_0
   - pthread-stubs=0.4=h36c2ea0_1001
   - rdma-core=28.9=h59595ed_1
@@ -321,7 +321,7 @@ dependencies:
   - cached-property=1.5.2=hd8ed1ab_1
   - cairo=1.18.0=h3faef2a_0
   - cffi=1.16.0=py311hb3a22ac_0
-  - cfitsio=4.3.0=hbdc6101_0
+  - cfitsio=4.3.1=hbdc6101_0
   - click-default-group=1.2.4=pyhd8ed1ab_0
   - click-default-group-wheel=1.2.2=pyhd8ed1ab_0
   - click-plugins=1.1.1=py_0
@@ -392,14 +392,14 @@ dependencies:
   - urllib3=1.26.18=pyhd8ed1ab_0
   - watchdog=3.0.0=py311h38be061_1
   - xerces-c=3.2.4=hac6953d_3
-  - yarl=1.9.3=py311h459d7ec_0
+  - yarl=1.9.2=py311h459d7ec_1
   - addfips=0.4.0=pyhd8ed1ab_1
   - aniso8601=9.0.1=pyhd8ed1ab_0
   - argon2-cffi-bindings=21.2.0=py311h459d7ec_4
   - arrow=1.3.0=pyhd8ed1ab_0
   - async-timeout=4.0.3=pyhd8ed1ab_0
   - aws-c-s3=0.4.1=hfadff92_0
-  - botocore=1.33.1=pyhd8ed1ab_0
+  - botocore=1.32.7=pyhd8ed1ab_0
   - branca=0.7.0=pyhd8ed1ab_1
   - croniter=2.0.1=pyhd8ed1ab_0
   - cryptography=41.0.5=py311h63ff55d_0
@@ -447,7 +447,7 @@ dependencies:
   - watchfiles=0.21.0=py311h46250e7_0
   - aiohttp=3.8.6=py311h459d7ec_1
   - alembic=1.12.1=pyhd8ed1ab_0
-  - arelle-release=2.17.6=pyhd8ed1ab_0
+  - arelle-release=2.17.4=pyhd8ed1ab_0
   - argon2-cffi=23.1.0=pyhd8ed1ab_0
   - aws-crt-cpp=0.24.7=h97e63c7_6
   - bottleneck=1.3.7=py311h1f0f07a_1
@@ -467,7 +467,7 @@ dependencies:
   - isoduration=20.11.0=pyhd8ed1ab_0
   - jsonschema=4.20.0=pyhd8ed1ab_0
   - jupyter_client=8.6.0=pyhd8ed1ab_0
-  - libgdal=3.8.0=he7dcfe9_6
+  - libgdal=3.8.0=h4d9a814_7
   - numba=0.58.1=py311h96b013e_0
   - numexpr=2.8.7=py311h039bad6_104
   - oauthlib=3.2.2=pyhd8ed1ab_0
@@ -487,14 +487,14 @@ dependencies:
   - typer=0.9.0=pyhd8ed1ab_0
   - uvicorn-standard=0.24.0=h38be061_0
   - aws-sdk-cpp=1.11.182=h8beafcf_7
-  - boto3=1.33.1=pyhd8ed1ab_0
+  - boto3=1.29.7=pyhd8ed1ab_0
   - cachecontrol-with-filecache=0.13.1=pyhd8ed1ab_0
   - dagster=1.5.9=pyhd8ed1ab_0
   - datasette=0.64.4=pyhd8ed1ab_1
   - doc8=1.1.1=pyhd8ed1ab_0
   - email-validator=2.1.0.post1=pyhd8ed1ab_0
   - frictionless=4.40.8=pyh6c4a22f_0
-  - gdal=3.8.0=py311h815a124_6
+  - gdal=3.8.0=py311h815a124_7
   - geopandas-base=0.14.1=pyha770c72_0
   - google-auth=2.23.4=pyhca7485f_0
   - gql-with-requests=3.4.1=pyhd8ed1ab_0
