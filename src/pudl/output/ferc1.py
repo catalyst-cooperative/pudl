@@ -1068,6 +1068,21 @@ class NodeId(NamedTuple):
     plant_function: str | pandas_NAType
 
 
+class BadFact(NamedTuple):
+    """Fact to fix."""
+
+    table_name: str
+    xbrl_factoid: str
+    utility_type: str | pandas_NAType
+    plant_status: str | pandas_NAType
+    plant_function: str | pandas_NAType
+    table_name_missing: str
+    xbrl_factoid_missing: str
+    utility_type_missing: str | pandas_NAType
+    plant_status_missing: str | pandas_NAType
+    plant_function_missing: str | pandas_NAType
+
+
 @asset
 def _out_ferc1__explosion_tags(table_dimensions_ferc1) -> pd.DataFrame:
     """Grab the stored tables of tags and add inferred dimension."""
@@ -1153,9 +1168,10 @@ def _aggregatable_dimension_tags(
 
 def exploded_table_asset_factory(
     root_table: str,
-    table_names_to_explode: list[str],
+    table_names: list[str],
     seed_nodes: list[NodeId],
     group_metric_checks: GroupMetricChecks,
+    facts_to_fix_list: list[BadFact],
     io_manager_key: str | None = None,
 ) -> AssetsDefinition:
     """Create an exploded table based on a set of related input tables."""
@@ -1166,7 +1182,7 @@ def exploded_table_asset_factory(
         ),
         "_out_ferc1__explosion_tags": AssetIn("_out_ferc1__explosion_tags"),
     }
-    ins |= {table_name: AssetIn(table_name) for table_name in table_names_to_explode}
+    ins |= {table_name: AssetIn(table_name) for table_name in table_names}
 
     @asset(name=f"exploded_{root_table}", ins=ins, io_manager_key=io_manager_key)
     def exploded_tables_asset(
@@ -1183,6 +1199,7 @@ def exploded_table_asset_factory(
                 "metadata_xbrl_ferc1",
                 "calculation_components_xbrl_ferc1",
                 "_out_ferc1__explosion_tags",
+                "facts_to_fix_list",
             ]
         }
         return Exploder(
@@ -1193,6 +1210,7 @@ def exploded_table_asset_factory(
             seed_nodes=seed_nodes,
             tags=tags,
             group_metric_checks=group_metric_checks,
+            facts_to_fix_list=facts_to_fix_list,
         ).boom(tables_to_explode=tables_to_explode)
 
     return exploded_tables_asset
@@ -1208,7 +1226,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
     explosion_args = [
         {
             "root_table": "income_statement_ferc1",
-            "table_names_to_explode": [
+            "table_names": [
                 "income_statement_ferc1",
                 "depreciation_amortization_summary_ferc1",
                 "electric_operating_expenses_ferc1",
@@ -1226,10 +1244,11 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                     plant_function=pd.NA,
                 ),
             ],
+            "facts_to_fix_list": [],
         },
         {
             "root_table": "balance_sheet_assets_ferc1",
-            "table_names_to_explode": [
+            "table_names": [
                 "balance_sheet_assets_ferc1",
                 "utility_plant_summary_ferc1",
                 "plant_in_service_ferc1",
@@ -1247,10 +1266,48 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                     plant_function=pd.NA,
                 )
             ],
+            "facts_to_fix_list": [
+                BadFact(
+                    "utility_plant_summary_ferc1",
+                    "utility_plant_in_service_classified_and_property_under_capital_leases",
+                    "electric",
+                    pd.NA,
+                    pd.NA,
+                    "utility_plant_summary_ferc1",
+                    "utility_plant_in_service_completed_construction_not_classified",
+                    "electric",
+                    pd.NA,
+                    pd.NA,
+                ),
+                BadFact(
+                    "utility_plant_summary_ferc1",
+                    "utility_plant_in_service_classified_and_property_under_capital_leases",
+                    "electric",
+                    pd.NA,
+                    pd.NA,
+                    "utility_plant_summary_ferc1",
+                    "utility_plant_in_service_property_under_capital_leases",
+                    "electric",
+                    pd.NA,
+                    pd.NA,
+                ),
+                BadFact(
+                    "utility_plant_summary_ferc1",
+                    "utility_plant_in_service_classified_and_property_under_capital_leases",
+                    "electric",
+                    pd.NA,
+                    pd.NA,
+                    "utility_plant_summary_ferc1",
+                    "utility_plant_in_service_property_under_capital_leases",
+                    "electric",
+                    pd.NA,
+                    pd.NA,
+                ),
+            ],
         },
         {
             "root_table": "balance_sheet_liabilities_ferc1",
-            "table_names_to_explode": [
+            "table_names": [
                 "balance_sheet_liabilities_ferc1",
                 "retained_earnings_ferc1",
             ],
@@ -1266,6 +1323,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                     plant_function=pd.NA,
                 )
             ],
+            "facts_to_fix_list": [],
         },
     ]
     return [exploded_table_asset_factory(**kwargs) for kwargs in explosion_args]
@@ -1286,6 +1344,7 @@ class Exploder:
         seed_nodes: list[NodeId],
         tags: pd.DataFrame = pd.DataFrame(),
         group_metric_checks: GroupMetricChecks = GroupMetricChecks(),
+        facts_to_fix_list: list[BadFact] = None,
     ):
         """Instantiate an Exploder class.
 
@@ -1304,6 +1363,7 @@ class Exploder:
         self.calculation_components_xbrl_ferc1 = calculation_components_xbrl_ferc1
         self.seed_nodes = seed_nodes
         self.tags = tags
+        self.facts_to_fix_list = facts_to_fix_list
 
     @cached_property
     def exploded_calcs(self: Self):
@@ -1629,12 +1689,14 @@ class Exploder:
         self: Self, exploded: pd.DataFrame
     ) -> pd.DataFrame:
         """Identify and fix the utilities that report calculations differently."""
+        if not self.facts_to_fix_list:
+            return exploded
         # NOTE: up to making of calculated_df from calculate_values_from_components
         # is all copy/paste from reconcile_intertable_calculations
         calculations_intertable = self.exploded_calcs[
             ~self.exploded_calcs.is_within_table_calc
         ]
-        calc_idx = [col for col in list(NodeId._fields) if col in self.exploded_pks]
+        calc_idx = list(NodeId._fields)
         calculated_df = pudl.transform.ferc1.calculate_values_from_components(
             calculation_components=calculations_intertable[
                 ~calculations_intertable.is_total_to_subdimensions_calc
@@ -1650,78 +1712,71 @@ class Exploder:
             metric_tolerance=self.group_metric_checks.group_metric_tolerances.ungrouped.error_frequency,
         ).is_not_close(calculated_df)
 
-        cols = calc_idx + [
-            "report_year",
-            "utility_id_ferc1",
-            self.value_col,
-            "calculated_value",
+        cols = calc_idx + ["report_year", "utility_id_ferc1"]
+        not_close_value = "abs_diff"
+        missing_value = self.value_col
+        facts_to_fix = pd.DataFrame(self.facts_to_fix_list)
+        # we calculate the non-abs diff here because many times the
+        # bad utility reporters include components that are not in the
+        # stock calculation so we need to remove it. the value of the
+        # correction record needs to be the raw diff.
+        not_close = (
+            calculated_df[calculated_df.is_not_close]
+            .set_index(list(NodeId._fields))
+            .loc[facts_to_fix.set_index(list(NodeId._fields)).index.unique()]
+            .reset_index()
+            .assign(diff=lambda x: x[self.value_col] - x.calculated_value)[
+                cols + [not_close_value, "diff"]
+            ]
+        )
+        missing_fact = (
+            calculated_df.set_index(list(NodeId._fields))
+            .loc[
+                facts_to_fix.set_index(
+                    [f"{col}_missing" for col in list(NodeId._fields)]
+                ).index
+            ]
+            .reset_index()
+            .loc[calculated_df.row_type_xbrl != "correction", cols + [missing_value]]
+        )
+        cols_wo_factoid = [
+            col
+            for col in cols
+            if col not in ["xbrl_factoid", "table_name"] + self.dimensions
         ]
         # Idenfity the calculations with one missing other fact
-        not_close = calculated_df[calculated_df.is_not_close].assign(
-            diff=lambda x: x[self.value_col] - x.calculated_value
-        )[
-            [col for col in cols if col not in [self.value_col, "calculated_value"]]
-            + ["diff"]
-        ]
-        missing_fact = calculated_df.loc[
-            calculated_df.row_type_xbrl != "correction", cols
-        ]
         # when the diff is the same as the value of another fact, then that
         # calculated value could have been perfect with the addition of the
         # missing facoid.
-        calcs_missing_xbrl_children = pd.merge(
-            not_close,
-            missing_fact,
-            left_on=["utility_id_ferc1", "report_year", "diff"] + self.dimensions,
-            right_on=["utility_id_ferc1", "report_year", self.value_col]
-            + self.dimensions,
-            how="inner",
-            suffixes=("", "_missing"),
-        )
-        # Grab the worst offenders and fix them
-        # NOTE: is it possible that we could have two missing facts from the same
-        # parent fact that are releated?
-        fix_idx = ["xbrl_factoid", "xbrl_factoid_missing"] + self.dimensions
-        facts_to_fix = pd.DataFrame(
-            calcs_missing_xbrl_children[fix_idx].value_counts(dropna=False)
-        )
-        facts_to_fix = facts_to_fix[
-            facts_to_fix["count"] > 25
-        ]  # number here is somewhat arbitrary
-        facts_to_fix = facts_to_fix.reset_index().convert_dtypes().set_index(fix_idx)
-        logger.info(
-            f"Found {len(facts_to_fix)} with a sizable minority of utilities reporting "
-            f"differently. ({facts_to_fix})"
-        )
-        if not facts_to_fix.empty:
-            exploded = self.add_sizable_minority_data_corrections(
-                exploded, calcs_missing_xbrl_children, facts_to_fix
-            )
-        return exploded
-
-    def add_sizable_minority_data_corrections(
-        self: Self,
-        exploded: pd.DataFrame,
-        calcs_missing_xbrl_children: pd.DataFrame,
-        facts_to_fix: pd.DataFrame,
-    ) -> pd.DataFrame:
-        """Add data corrections for the sizable minority of differently reporting utilities."""
-        idx = list(NodeId._fields) + ["report_year", "utility_id_ferc1"]
         data_corrections = (
-            calcs_missing_xbrl_children.set_index(facts_to_fix.index.names)
-            .loc[facts_to_fix.index]
-            .assign(
-                xbrl_factoid=(
-                    lambda x: "correction_"
-                    + x.index.get_level_values("xbrl_factoid")
-                    + "_missing_"
-                    + x.index.get_level_values("xbrl_factoid_missing")
-                ),
+            pd.merge(
+                left=not_close,
+                right=missing_fact,
+                left_on=cols_wo_factoid + [not_close_value],
+                right_on=cols_wo_factoid + [missing_value],
+                how="inner",
+                suffixes=("", "_missing"),
             )
-            # pop the dim columns out of the index
-            .reset_index(level=self.dimensions)
-            # drop the two factoid cols
-            .reset_index(drop=True)[idx + [self.value_col]]
+            # use a dict/kwarg for assign so we can dynamically set the name of value_col
+            .assign(
+                **{
+                    "xbrl_factoid": (
+                        lambda x: "correction_"
+                        + x.xbrl_factoid
+                        + "_off_by_"
+                        + x.xbrl_factoid_missing
+                    ),
+                    self.value_col: lambda x: x["diff"],
+                    "row_type_xbrl": "correction",
+                }
+            )[
+                # drop all the _missing and calc cols
+                cols + [self.value_col, "row_type_xbrl"]
+            ]
+        )
+        bad_utils = data_corrections.utility_id_ferc1.unique()
+        logger.info(
+            f"Adding {len(data_corrections)} from {len(bad_utils)} utilities that report differently."
         )
         return pd.concat([exploded, data_corrections]).reset_index(drop=True)
 
