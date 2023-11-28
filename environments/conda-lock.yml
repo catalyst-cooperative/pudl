@@ -536,7 +536,7 @@ package:
     category: main
     optional: false
   - name: arelle-release
-    version: 2.17.4
+    version: 2.17.6
     manager: conda
     platform: linux-64
     dependencies:
@@ -549,14 +549,14 @@ package:
       python: ">=3.8"
       python-dateutil: 2.*
       regex: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.17.4-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.17.6-pyhd8ed1ab_0.conda
     hash:
-      md5: 66972cbec7556aa94aba3da76b408f19
-      sha256: a30a66c040021c396a99bf862ad78181a4888e67b2ac51ac7e21422c4165986c
+      md5: abbc31cff3faff06a9734e98a0d61ea1
+      sha256: f9d27fd8bf19b11b679715bbd26349901dd2306548c4c6f7eb555458a48065a0
     category: main
     optional: false
   - name: arelle-release
-    version: 2.17.4
+    version: 2.17.6
     manager: conda
     platform: osx-64
     dependencies:
@@ -569,14 +569,14 @@ package:
       lxml: 4.*
       openpyxl: 3.*
       pyparsing: 3.*
-    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.17.4-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.17.6-pyhd8ed1ab_0.conda
     hash:
-      md5: 66972cbec7556aa94aba3da76b408f19
-      sha256: a30a66c040021c396a99bf862ad78181a4888e67b2ac51ac7e21422c4165986c
+      md5: abbc31cff3faff06a9734e98a0d61ea1
+      sha256: f9d27fd8bf19b11b679715bbd26349901dd2306548c4c6f7eb555458a48065a0
     category: main
     optional: false
   - name: arelle-release
-    version: 2.17.4
+    version: 2.17.6
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -589,10 +589,10 @@ package:
       lxml: 4.*
       openpyxl: 3.*
       pyparsing: 3.*
-    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.17.4-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.17.6-pyhd8ed1ab_0.conda
     hash:
-      md5: 66972cbec7556aa94aba3da76b408f19
-      sha256: a30a66c040021c396a99bf862ad78181a4888e67b2ac51ac7e21422c4165986c
+      md5: abbc31cff3faff06a9734e98a0d61ea1
+      sha256: f9d27fd8bf19b11b679715bbd26349901dd2306548c4c6f7eb555458a48065a0
     category: main
     optional: false
   - name: argon2-cffi
@@ -1914,52 +1914,52 @@ package:
     category: main
     optional: false
   - name: boto3
-    version: 1.29.7
+    version: 1.33.0
     manager: conda
     platform: linux-64
     dependencies:
-      botocore: ">=1.32.7,<1.33.0"
+      botocore: ">=1.33.0,<1.34.0"
       jmespath: ">=0.7.1,<2.0.0"
       python: ">=3.7"
       s3transfer: ">=0.8.0,<0.9.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/boto3-1.29.7-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/boto3-1.33.0-pyhd8ed1ab_0.conda
     hash:
-      md5: f20e114fa86dbdca7534aa0af7664c0e
-      sha256: 44fe95ed89d0db0c421968d1e79c8372a15136a9146b9a9bd0c66795194eb81d
+      md5: d308c65184cef05b98cb4461d220e5af
+      sha256: c9f512549b95ff0db24b2727ccf6822520e1ee0544b6d4769bb6db1645f40765
     category: main
     optional: false
   - name: boto3
-    version: 1.29.7
+    version: 1.33.0
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.7"
       jmespath: ">=0.7.1,<2.0.0"
-      botocore: ">=1.32.7,<1.33.0"
       s3transfer: ">=0.8.0,<0.9.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/boto3-1.29.7-pyhd8ed1ab_0.conda
+      botocore: ">=1.33.0,<1.34.0"
+    url: https://conda.anaconda.org/conda-forge/noarch/boto3-1.33.0-pyhd8ed1ab_0.conda
     hash:
-      md5: f20e114fa86dbdca7534aa0af7664c0e
-      sha256: 44fe95ed89d0db0c421968d1e79c8372a15136a9146b9a9bd0c66795194eb81d
+      md5: d308c65184cef05b98cb4461d220e5af
+      sha256: c9f512549b95ff0db24b2727ccf6822520e1ee0544b6d4769bb6db1645f40765
     category: main
     optional: false
   - name: boto3
-    version: 1.29.7
+    version: 1.33.0
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.7"
       jmespath: ">=0.7.1,<2.0.0"
-      botocore: ">=1.32.7,<1.33.0"
       s3transfer: ">=0.8.0,<0.9.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/boto3-1.29.7-pyhd8ed1ab_0.conda
+      botocore: ">=1.33.0,<1.34.0"
+    url: https://conda.anaconda.org/conda-forge/noarch/boto3-1.33.0-pyhd8ed1ab_0.conda
     hash:
-      md5: f20e114fa86dbdca7534aa0af7664c0e
-      sha256: 44fe95ed89d0db0c421968d1e79c8372a15136a9146b9a9bd0c66795194eb81d
+      md5: d308c65184cef05b98cb4461d220e5af
+      sha256: c9f512549b95ff0db24b2727ccf6822520e1ee0544b6d4769bb6db1645f40765
     category: main
     optional: false
   - name: botocore
-    version: 1.32.7
+    version: 1.33.0
     manager: conda
     platform: linux-64
     dependencies:
@@ -1967,14 +1967,14 @@ package:
       python: ">=3.7"
       python-dateutil: ">=2.1,<3.0.0"
       urllib3: ">=1.25.4,<1.27"
-    url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.32.7-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.33.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 9e5a1d24c1fcd8017ac713c28dffc871
-      sha256: cf405020da251ff2007d5fbc5f1ee61966e925e8d7e9a12525a7ac042afb038d
+      md5: 8c33d5b6003262d71c73383b04813d59
+      sha256: 705517443318c269a7a78b30f4df14755636b0e799ac91af19857b4849eb9a78
     category: main
     optional: false
   - name: botocore
-    version: 1.32.7
+    version: 1.33.0
     manager: conda
     platform: osx-64
     dependencies:
@@ -1982,14 +1982,14 @@ package:
       python-dateutil: ">=2.1,<3.0.0"
       jmespath: ">=0.7.1,<2.0.0"
       urllib3: ">=1.25.4,<1.27"
-    url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.32.7-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.33.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 9e5a1d24c1fcd8017ac713c28dffc871
-      sha256: cf405020da251ff2007d5fbc5f1ee61966e925e8d7e9a12525a7ac042afb038d
+      md5: 8c33d5b6003262d71c73383b04813d59
+      sha256: 705517443318c269a7a78b30f4df14755636b0e799ac91af19857b4849eb9a78
     category: main
     optional: false
   - name: botocore
-    version: 1.32.7
+    version: 1.33.0
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -1997,10 +1997,10 @@ package:
       python-dateutil: ">=2.1,<3.0.0"
       jmespath: ">=0.7.1,<2.0.0"
       urllib3: ">=1.25.4,<1.27"
-    url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.32.7-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.33.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 9e5a1d24c1fcd8017ac713c28dffc871
-      sha256: cf405020da251ff2007d5fbc5f1ee61966e925e8d7e9a12525a7ac042afb038d
+      md5: 8c33d5b6003262d71c73383b04813d59
+      sha256: 705517443318c269a7a78b30f4df14755636b0e799ac91af19857b4849eb9a78
     category: main
     optional: false
   - name: bottleneck
