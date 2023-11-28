@@ -7,7 +7,7 @@ etl_fast_yml := src/pudl/package_data/settings/etl_fast.yml
 etl_full_yml := src/pudl/package_data/settings/etl_full.yml
 
 # We use mamba locally, but micromamba in CI, so choose the right binary:
-ifdef GITHUB_ACTION
+ifdef GITHUB_ACTIONS
   mamba := micromamba
 else
   mamba := mamba

@@ -172,8 +172,8 @@ class ZenodoDoiSettings(BaseSettings):
 
     censusdp1tract: ZenodoDoi = "10.5281/zenodo.4127049"
     eia860: ZenodoDoi = "10.5281/zenodo.10067566"
-    eia860m: ZenodoDoi = "10.5281/zenodo.8188017"
-    eia861: ZenodoDoi = "10.5281/zenodo.10093091"
+    eia860m: ZenodoDoi = "10.5281/zenodo.10204686"
+    eia861: ZenodoDoi = "10.5281/zenodo.10204708"
     eia923: ZenodoDoi = "10.5281/zenodo.8172818"
     eia_bulk_elec: ZenodoDoi = "10.5281/zenodo.7067367"
     epacamd_eia: ZenodoDoi = "10.5281/zenodo.7900974"
