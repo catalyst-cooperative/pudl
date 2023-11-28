@@ -16,5 +16,5 @@ PUDL_SCRIPTS = [
 @pytest.mark.script_launch_mode("inprocess")
 def test_pudl_scripts(script_runner, script_name):
     """Run each console script in --help mode for testing."""
-    ret = script_runner.run(script_name, "--help", print_result=False)
+    ret = script_runner.run([script_name, "--help"], print_result=False)
     assert ret.success

@@ -15,14 +15,14 @@ import re
 from abc import abstractmethod
 from collections import namedtuple
 from collections.abc import Mapping
-from typing import Any, Literal, Self
+from typing import Annotated, Any, Literal, Self
 
 import numpy as np
 import pandas as pd
 import sqlalchemy as sa
 from dagster import AssetIn, AssetsDefinition, asset
 from pandas.core.groupby import DataFrameGroupBy
-from pydantic import BaseModel, confloat, validator
+from pydantic import BaseModel, Field, field_validator
 
 import pudl
 from pudl.analysis.classify_plants_ferc1 import (
@@ -205,13 +205,13 @@ class RenameColumnsFerc1(TransformParams):
 class WideToTidy(TransformParams):
     """Parameters for converting a wide table to a tidy table with value types."""
 
-    idx_cols: list[str] | None
+    idx_cols: list[str] | None = None
     """List of column names to treat as the table index."""
 
     stacked_column_name: str | None = None
     """Name of column that will contain the stacked categories."""
 
-    value_types: list[str] | None
+    value_types: list[str] | None = None
     """List of names of value types that will end up being the column names.
 
     Some of the FERC tables have multiple data types spread across many different
@@ -643,7 +643,8 @@ class CombineAxisColumnsXbrl(TransformParams):
     new_axis_column_name: str | None = None
     """The name of the combined axis column -- must end with the suffix ``_axis``!."""
 
-    @validator("new_axis_column_name")
+    @field_validator("new_axis_column_name")
+    @classmethod
     def doesnt_end_with_axis(cls, v):
         """Ensure that new axis column ends in _axis."""
         if v is not None and not v.endswith("_axis"):
@@ -724,10 +725,10 @@ def combine_axis_columns_xbrl(
 class IsCloseTolerance(TransformParams):
     """Info for testing a particular check."""
 
-    isclose_rtol: confloat(ge=0.0) = 1e-5
+    isclose_rtol: Annotated[float, Field(ge=0.0)] = 1e-5
     """Relative tolerance to use in :func:`np.isclose` for determining equality."""
 
-    isclose_atol: confloat(ge=0.0, le=0.01) = 1e-8
+    isclose_atol: Annotated[float, Field(ge=0.0, le=0.01)] = 1e-8
     """Absolute tolerance to use in :func:`np.isclose` for determining equality."""
 
 
@@ -744,12 +745,12 @@ class CalculationIsCloseTolerance(TransformParams):
 class MetricTolerances(TransformParams):
     """Tolerances for all data checks to be preformed within a grouped df."""
 
-    error_frequency: confloat(ge=0.0, le=1.0) = 0.01
-    relative_error_magnitude: confloat(ge=0.0) = 0.02
-    null_calculated_value_frequency: confloat(ge=0.0, le=1.0) = 0.7
+    error_frequency: Annotated[float, Field(ge=0.0, le=1.0)] = 0.01
+    relative_error_magnitude: Annotated[float, Field(ge=0.0)] = 0.02
+    null_calculated_value_frequency: Annotated[float, Field(ge=0.0, le=1.0)] = 0.7
     """Fraction of records with non-null reported values and null calculated values."""
-    absolute_error_magnitude: confloat(ge=0.0) = np.inf
-    null_reported_value_frequency: confloat(ge=0.0, le=1.0) = 1.0
+    absolute_error_magnitude: Annotated[float, Field(ge=0.0)] = np.inf
+    null_reported_value_frequency: Annotated[float, Field(ge=0.0, le=1.0)] = 1.0
     # ooof this one is just bad
 
 
@@ -820,22 +821,25 @@ class GroupMetricChecks(TransformParams):
     group_metric_tolerances: GroupMetricTolerances = GroupMetricTolerances()
     is_close_tolerance: CalculationIsCloseTolerance = CalculationIsCloseTolerance()
 
-    # @root_validator
-    # def grouped_tol_ge_ungrouped_tol(cls, values):
-    #     """Grouped tolerance should always be greater than or equal to ungrouped."""
-    #     group_metric_tolerances = values["group_metric_tolerances"]
-    #     groups_to_check = values["groups_to_check"]
-    #     for group in groups_to_check:
-    #         metric_tolerances = group_metric_tolerances.dict().get(group)
-    #         for metric_name, tolerance in metric_tolerances.items():
-    #             ungrouped_tolerance = group_metric_tolerances.dict()["ungrouped"].get(
-    #                 metric_name
-    #             )
-    #             if tolerance < ungrouped_tolerance:
-    #                 raise AssertionError(
-    #                     f"In {group=}, {tolerance=} for {metric_name} should be greater than {ungrouped_tolerance=}."
-    #                 )
-    #     return values
+    # TODO: The mechanics of this validation are a pain, given the bajillion combos
+    # of tolerances we have in the matrix of checks. It works, but actually specifying
+    # all of the relative values is not currently ergonomic, so it is disabled for the
+    # moment.
+    # @model_validator(mode="after")
+    def grouped_tol_ge_ungrouped_tol(self: Self):
+        """Grouped tolerance should always be greater than or equal to ungrouped."""
+        for group in self.groups_to_check:
+            metric_tolerances = self.group_metric_tolerances.model_dump().get(group)
+            for metric_name, tolerance in metric_tolerances.items():
+                ungrouped_tolerance = self.group_metric_tolerances.model_dump()[
+                    "ungrouped"
+                ].get(metric_name)
+                if tolerance < ungrouped_tolerance:
+                    raise AssertionError(
+                        f"In {group=}, {tolerance=} for {metric_name} should be "
+                        f"greater than {ungrouped_tolerance=}."
+                    )
+        return self
 
 
 class ReconcileTableCalculations(TransformParams):
@@ -1179,14 +1183,16 @@ def check_calculation_metrics_by_group(
         for (
             metric_name,
             metric_tolerance,
-        ) in group_metric_checks.group_metric_tolerances.dict()[group_name].items():
+        ) in group_metric_checks.group_metric_tolerances.model_dump()[
+            group_name
+        ].items():
             if metric_name in group_metric_checks.metrics_to_check:
                 # this feels icky. the param name for the metrics are all snake_case while
                 # the metric classes are all TitleCase. So we convert to TitleCase
                 title_case_test = metric_name.title().replace("_", "")
                 group_metric_checker = globals()[title_case_test](
                     by=group_name,
-                    is_close_tolerance=group_metric_checks.is_close_tolerance.dict()[
+                    is_close_tolerance=group_metric_checks.is_close_tolerance.model_dump()[
                         metric_name
                     ],
                     metric_tolerance=metric_tolerance,
@@ -1537,7 +1543,7 @@ class Ferc1TableTransformParams(TableTransformParams):
 # FERC 1 transform helper functions. Probably to be integrated into a class
 # below as methods or moved to a different module once it's clear where they belong.
 ################################################################################
-def get_ferc1_dbf_rows_to_map(ferc1_engine: sa.engine.Engine) -> pd.DataFrame:
+def get_ferc1_dbf_rows_to_map(ferc1_engine: sa.Engine) -> pd.DataFrame:
     """Identify DBF rows that need to be mapped to XBRL columns.
 
     Select all records in the ``f1_row_lit_tbl`` where the row literal associated with a
@@ -1558,7 +1564,7 @@ def get_ferc1_dbf_rows_to_map(ferc1_engine: sa.engine.Engine) -> pd.DataFrame:
     return row_lit.loc[row_lit.changed, idx_cols + data_cols]
 
 
-def update_dbf_to_xbrl_map(ferc1_engine: sa.engine.Engine) -> pd.DataFrame:
+def update_dbf_to_xbrl_map(ferc1_engine: sa.Engine) -> pd.DataFrame:
     """Regenerate the FERC 1 DBF+XBRL glue while retaining existing mappings.
 
     Reads all rows that need to be mapped out of the ``f1_row_lit_tbl`` and appends

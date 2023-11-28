@@ -10,6 +10,7 @@
 
 import datetime
 import importlib.metadata
+import os
 import shutil
 from pathlib import Path
 
@@ -18,6 +19,11 @@ from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.resources import RESOURCE_METADATA
 
 DOCS_DIR = Path(__file__).parent.resolve()
+if os.environ.get("READTHEDOCS"):
+    pudl_input = Path(os.environ["PUDL_INPUT"])
+    pudl_input.mkdir(parents=True, exist_ok=True)
+    pudl_output = Path(os.environ["PUDL_OUTPUT"])
+    pudl_output.mkdir(parents=True, exist_ok=True)
 
 # -- Path setup --------------------------------------------------------------
 # We are building and installing the pudl package in order to get access to
