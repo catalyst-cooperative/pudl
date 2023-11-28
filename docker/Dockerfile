@@ -52,19 +52,18 @@ RUN --mount=type=bind,source=.git,target=${PUDL_REPO}/.git \
     # Run the PUDL setup script so we know where to read and write data
     ${CONDA_RUN} pudl_setup
 
-USER root
 
 # Install awscli2
-RUN ${CONDA_RUN} curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
-    unzip awscliv2.zip && \
-    ./aws/install
+# Change back to root because the install script needs access to /usr/local/aws-cli
+USER root
+RUN ${CONDA_RUN} bash -c 'curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && unzip awscliv2.zip && ./aws/install'
+USER $MAMBA_USER
 
 # Install flyctl
-RUN ${CONDA_RUN} curl -L https://fly.io/install.sh -o "install_fly.sh"
-RUN ${CONDA_RUN} sh install_fly.sh
+# hadolint ignore=DL3059
+RUN ${CONDA_RUN} bash -c 'curl -L https://fly.io/install.sh | sh'
 ENV PATH="${CONTAINER_HOME}/.fly/bin:$PATH"
 
-USER $MAMBA_USER
 
 # Run the unit tests:
 CMD ["micromamba", "run", "--prefix", "${CONDA_PREFIX}", "--attach", "''", "pytest", "test/unit"]
