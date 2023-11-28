@@ -328,33 +328,42 @@ def pudl_engine(pudl_sql_io_manager: PudlSQLiteIOManager) -> sa.Engine:
 
 @pytest.fixture(scope="session", autouse=True)
 def configure_paths_for_tests(tmp_path_factory, request):
-    """Configures PudlPaths for tests."""
-    gha_override_input = False
-    gha_override_output = False
-    if os.environ.get("GITHUB_ACTIONS", False):
-        gha_override_input = "PUDL_INPUT" not in os.environ
-        gha_override_output = "PUDL_OUTPUT" not in os.environ
-        logger.info(
-            "Running in GitHub Actions environment. "
-            f"{gha_override_input=}"
-            f"{gha_override_output=}"
-        )
+    """Configures PudlPaths for tests.
+
+    Typically PUDL_INPUT and PUDL_OUTPUT will be read from the environment.
+    If we are running in GitHub Actions and they are NOT set, we'll use temp dirs.
+    If we are NOT running in GitHub Actions (e.g. we're running locally) then we always
+    want to use a temporary output directory, so we don't overwrite a user's existing
+    databases.
+    """
+    # Just in case we need this later...
     pudl_tmpdir = tmp_path_factory.mktemp("pudl")
-    if gha_override_input or request.config.getoption("--tmp-data"):
+    # Are we running in GitHub Actions?
+    gha = os.environ.get("GITHUB_ACTIONS", False)
+    # Under what circumstances do we want to use a temporary input directory?
+    # This will force a re-download of raw inputs from Zenodo or the GCS cache:
+    if (gha and "PUDL_INPUT" not in os.environ) or (
+        request.config.getoption("--tmp-data")
+    ):
         in_tmp = pudl_tmpdir / "input"
         in_tmp.mkdir()
         PudlPaths.set_path_overrides(
             input_dir=str(Path(in_tmp).resolve()),
         )
         logger.info(f"Using temporary PUDL_INPUT: {in_tmp}")
-    if gha_override_output or not request.config.getoption("--live-dbs"):
+
+    # Use a temporary output dir if we're on GHA and PUDL_OUTPUT is unset:
+    if (gha and "PUDL_OUTPUT" not in os.environ) or (
+        # Use a temporary output dir if we're not on GHA and we're not using live DBs.
+        # This will typically be the case when running local unit/integration tests:
+        not gha and not request.config.getoption("--live-dbs")
+    ):
         out_tmp = pudl_tmpdir / "output"
         out_tmp.mkdir()
         PudlPaths.set_path_overrides(
             output_dir=str(Path(out_tmp).resolve()),
         )
         logger.info(f"Using temporary PUDL_OUTPUT: {out_tmp}")
-    logger.info(f"Starting unit tests with output path {PudlPaths().output_dir}")
     pudl.workspace.setup.init()
 
 
