@@ -1420,7 +1420,7 @@ class Exploder:
             .sort_index()
             .reset_index()
         )
-
+        calc_explode = self.add_sizable_minority_corrections_to_calcs(calc_explode)
         ##############################################################################
         # Everything below here is error checking / debugging / temporary fixes
         dupes = calc_explode.duplicated(subset=parent_cols + calc_cols, keep=False)
@@ -1453,6 +1453,34 @@ class Exploder:
         assert calc_explode.table_name_parent.notna().all()
 
         return calc_explode
+
+    def add_sizable_minority_corrections_to_calcs(
+        self: Self, exploded_calcs: pd.DataFrame
+    ) -> pd.DataFrame:
+        """Add correction calculation records for the sizable fuck up utilities."""
+        if not self.facts_to_fix_list:
+            return exploded_calcs
+        facts_to_fix = (
+            pd.DataFrame(self.facts_to_fix_list)
+            .rename(columns={col: f"{col}_parent" for col in NodeId._fields})
+            .assign(
+                xbrl_factoid=(
+                    lambda x: "correction_"
+                    + x.xbrl_factoid_parent
+                    + "_off_by_"
+                    + x.xbrl_factoid_missing
+                ),
+                weight=1,
+                is_total_to_subdimensions_calc=False,
+                # theses fixes rn are only from inter-table calcs.
+                # if they weren't we'd need to check within the group of
+                # the parent fact like in process_xbrl_metadata_calculations
+                is_within_table_calc=False,
+            )
+            .drop(columns=["xbrl_factoid_missing"])
+        )
+        facts_to_fix.columns = facts_to_fix.columns.str.removesuffix("_missing")
+        return pd.concat([exploded_calcs, facts_to_fix[exploded_calcs.columns]])
 
     @cached_property
     def exploded_meta(self: Self) -> pd.DataFrame:
