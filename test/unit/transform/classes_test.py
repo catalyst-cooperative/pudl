@@ -358,7 +358,7 @@ MIXED_TYPE_DATA: pd.DataFrame = pd.DataFrame(
         "id": int,
         "year": pd.Int64Dtype(),
         "capacity_mw": float,
-        "plant_name": str,
+        "plant_name": pd.StringDtype(),
     }
 )
 MIXED_TYPE_DATA["report_date"] = pd.to_datetime(
@@ -384,7 +384,7 @@ SPOT_FIXED_MIXED_TYPE_DATA: pd.DataFrame = pd.DataFrame(
         "id": int,
         "year": pd.Int64Dtype(),
         "capacity_mw": float,
-        "plant_name": str,
+        "plant_name": pd.StringDtype(),
     }
 )
 SPOT_FIXED_MIXED_TYPE_DATA["report_date"] = pd.to_datetime(
@@ -427,15 +427,15 @@ MULTICOL_TEST_DF = pd.DataFrame(
 MULTICOL_DROP_EXPECTED = pd.DataFrame(
     columns=["a_filled", "b_filled", "c_filled"],
     data=[
-        (0.0, 1.0, 2.0),
-        (42.0, 17.0, 0.0),
+        (0.0, 1, 2.0),
+        (42.0, 17, 0.0),
     ],
 )
 MULTICOL_NODROP_EXPECTED = pd.DataFrame(
     columns=["a", "b", "c", "a_filled", "b_filled", "c_filled"],
     data=[
-        (0.0, 1, 2.0, 0.0, 1.0, 2.0),
-        (np.nan, pd.NA, None, 42.0, 17.0, 0.0),
+        (0.0, 1, 2.0, 0.0, 1, 2.0),
+        (np.nan, pd.NA, None, 42.0, 17, 0.0),
     ],
 )
 
