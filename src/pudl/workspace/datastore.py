@@ -9,13 +9,14 @@ import zipfile
 from collections import defaultdict
 from collections.abc import Iterator
 from pathlib import Path
-from typing import Any, Self
+from typing import Annotated, Any, Self
 from urllib.parse import ParseResult, urlparse
 
 import datapackage
 import requests
 from google.auth.exceptions import DefaultCredentialsError
-from pydantic import BaseSettings, HttpUrl, constr
+from pydantic import HttpUrl, StringConstraints
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
@@ -27,9 +28,12 @@ from pudl.workspace.setup import PudlPaths
 logger = pudl.logging_helpers.get_logger(__name__)
 
 PUDL_YML = Path.home() / ".pudl.yml"
-ZenodoDoi = constr(
-    strict=True, min_length=16, regex=r"(10\.5072|10\.5281)/zenodo.([\d]+)"
-)
+ZenodoDoi = Annotated[
+    str,
+    StringConstraints(
+        strict=True, min_length=16, pattern=r"(10\.5072|10\.5281)/zenodo.([\d]+)"
+    ),
+]
 
 
 class ChecksumMismatchError(ValueError):
@@ -180,13 +184,7 @@ class ZenodoDoiSettings(BaseSettings):
     ferc60: ZenodoDoi = "10.5281/zenodo.8326695"
     ferc714: ZenodoDoi = "10.5281/zenodo.8326694"
     phmsagas: ZenodoDoi = "10.5281/zenodo.8346646"
-
-    class Config:
-        """Pydantic config, reads from .env file."""
-
-        env_prefix = "pudl_zenodo_doi_"
-        env_file = ".env"
-
+    model_config = SettingsConfigDict(env_prefix="pudl_zenodo_doi_", env_file=".env")
 
 class ZenodoFetcher:
     """API for fetching datapackage descriptors and resource contents from zenodo."""
@@ -292,12 +290,12 @@ class Datastore:
 
         Args:
             local_cache_path: if provided, LocalFileCache pointed at the data
-              subdirectory of this path will be used with this Datastore.
+                subdirectory of this path will be used with this Datastore.
             gcs_cache_path: if provided, GoogleCloudStorageCache will be used
-              to retrieve data files. The path is expected to have the following
-              format: gs://bucket[/path_prefix]
+                to retrieve data files. The path is expected to have the following
+                format: gs://bucket[/path_prefix]
             timeout: connection timeouts (in seconds) to use when connecting
-              to Zenodo servers.
+                to Zenodo servers.
         """
         self._cache = resource_cache.LayeredCache()
         self._datapackage_descriptors: dict[str, DatapackageDescriptor] = {}

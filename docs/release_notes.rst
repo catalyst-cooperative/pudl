@@ -331,6 +331,8 @@ Miscellaneous
 * Switched to using ``conda-lock`` and ``Makefile`` to manage testing and python
   environment. Moved away from packaging PUDL for distribution via PyPI and
   ``conda-forge`` and toward treating it as an application.  See :pr:`2968`
+* The two-point-ohening: We now require Pandas v2 (see :pr:`2320`), SQLAlchemy v2 (see
+  :pr:`2267`) and Pydantic v2 (see :pr:`3051`).
 
 .. _release-v2022.11.30:
 
