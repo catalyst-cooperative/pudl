@@ -32,7 +32,7 @@ dependencies:
   - libuv=1.46.0=h0c2f820_0
   - libwebp-base=1.3.2=h0dc2134_0
   - libzlib=1.2.13=h8a1eda9_5
-  - llvm-openmp=17.0.5=hb6ac08f_0
+  - llvm-openmp=17.0.6=hb6ac08f_0
   - lzo=2.10=haf1e3a3_1000
   - poppler-data=0.4.12=hd8ed1ab_0
   - pthread-stubs=0.4=hc929b4f_1001
@@ -381,7 +381,7 @@ dependencies:
   - arrow=1.3.0=pyhd8ed1ab_0
   - async-timeout=4.0.3=pyhd8ed1ab_0
   - aws-crt-cpp=0.24.7=hf3941dc_6
-  - botocore=1.33.1=pyhd8ed1ab_0
+  - botocore=1.33.2=pyhd8ed1ab_0
   - branca=0.7.0=pyhd8ed1ab_1
   - croniter=2.0.1=pyhd8ed1ab_0
   - cryptography=41.0.5=py311hd51016d_0
@@ -463,7 +463,7 @@ dependencies:
   - readthedocs-sphinx-ext=2.2.3=pyhd8ed1ab_0
   - requests-toolbelt=0.10.1=pyhd8ed1ab_0
   - responses=0.24.1=pyhd8ed1ab_0
-  - s3transfer=0.8.0=pyhd8ed1ab_0
+  - s3transfer=0.8.1=pyhd8ed1ab_0
   - scipy=1.11.4=py311he0bea55_0
   - send2trash=1.8.2=pyhd1c38e8_0
   - shapely=2.0.2=py311h4c12f3d_1
@@ -495,10 +495,10 @@ dependencies:
   - requests-oauthlib=1.3.1=pyhd8ed1ab_0
   - scikit-learn=1.3.2=py311h66081b9_1
   - timezonefinder=6.2.0=py311he705e18_2
-  - catalystcoop.ferc_xbrl_extractor=1.2.1=pyhd8ed1ab_0
+  - catalystcoop.ferc_xbrl_extractor=1.3.0=pyhd8ed1ab_1
   - conda-lock=2.5.1=pyhd8ed1ab_0
   - dagster-graphql=1.5.9=pyhd8ed1ab_0
-  - dagster-postgres=0.21.9=pyhd8ed1ab_0
+  - dagster-postgres=0.21.9=pyhd8ed1ab_1
   - fiona=1.9.5=py311h809632c_1
   - google-api-core=2.14.0=pyhd8ed1ab_0
   - google-auth-oauthlib=1.1.0=pyhd8ed1ab_0
