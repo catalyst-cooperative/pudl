@@ -32,7 +32,7 @@ dependencies:
   - libuv=1.46.0=hb547adb_0
   - libwebp-base=1.3.2=hb547adb_0
   - libzlib=1.2.13=h53f4e23_5
-  - llvm-openmp=17.0.5=hcd81f8e_0
+  - llvm-openmp=17.0.6=hcd81f8e_0
   - lzo=2.10=h642e427_1000
   - pandoc=3.1.3=hce30654_0
   - poppler-data=0.4.12=hd8ed1ab_0
@@ -381,7 +381,7 @@ dependencies:
   - arrow=1.3.0=pyhd8ed1ab_0
   - async-timeout=4.0.3=pyhd8ed1ab_0
   - aws-crt-cpp=0.24.7=hba4ac3b_6
-  - botocore=1.33.1=pyhd8ed1ab_0
+  - botocore=1.33.2=pyhd8ed1ab_0
   - branca=0.7.0=pyhd8ed1ab_1
   - croniter=2.0.1=pyhd8ed1ab_0
   - cryptography=41.0.5=py311h71175c2_0
@@ -495,7 +495,7 @@ dependencies:
   - requests-oauthlib=1.3.1=pyhd8ed1ab_0
   - scikit-learn=1.3.2=py311ha25ca4d_1
   - timezonefinder=6.2.0=py311h05b510d_2
-  - catalystcoop.ferc_xbrl_extractor=1.2.1=pyhd8ed1ab_0
+  - catalystcoop.ferc_xbrl_extractor=1.3.0=pyhd8ed1ab_1
   - conda-lock=2.5.1=pyhd8ed1ab_0
   - dagster-graphql=1.5.9=pyhd8ed1ab_0
   - dagster-postgres=0.21.9=pyhd8ed1ab_0
