@@ -22,13 +22,6 @@ from pudl.workspace.datastore import Datastore
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
-warnings.filterwarnings(
-    action="once",
-    module="pudl.extract.dbf",
-    category=FutureWarning,
-    message="The behavior of DataFrame concatenation with empty or all-NA entries is deprecated",
-)
-
 
 class DbcFileMissingError(Exception):
     """This is raised when the DBC index file is missing."""
@@ -541,7 +534,14 @@ class FercDbfExtractor:
         """
         if not dfs:
             return None
-        return pd.concat([df.df for df in dfs])
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                action="ignore",
+                category=FutureWarning,
+                message="The behavior of DataFrame concatenation with empty or all-NA entries is deprecated",
+            )
+            aggregated_df = pd.concat([df.df for df in dfs])
+        return aggregated_df
 
     def load_table_data(self):
         """Loads all tables from fox pro database and writes them to sqlite."""

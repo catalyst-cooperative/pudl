@@ -17,7 +17,6 @@ repos:
       - id: check-merge-conflict # Watch for lingering merge markers.
       - id: check-yaml # Validate all YAML files.
       - id: check-toml
-      - id: check-json
       - id: check-case-conflict # Avoid case sensitivity in file names.
       - id: debug-statements # Watch for lingering debugger calls.
       - id: mixed-line-ending # Use Unix line-endings to avoid big no-op CSV diffs.

@@ -19,16 +19,6 @@ import pandas as pd
 
 from pudl.workspace.datastore import Datastore
 
-# Unfortunately, the date formats in the EIA bulk electricity data are not uniform,
-# and so for now we need to fall back on dateutil. Currently this warning is emitted
-# thousands of times, clogging up the logs. Just warn us once!
-warnings.filterwarnings(
-    action="once",
-    message="Could not infer format, so each element will be parsed individually",
-    category=UserWarning,
-    module="pudl.extract.eia_bulk_elec",
-)
-
 
 def _filter_for_fuel_receipts_costs_series(df: pd.DataFrame) -> pd.DataFrame:
     """Pick out the desired data series.
@@ -80,14 +70,23 @@ def _parse_data_column(elec_df: pd.DataFrame) -> pd.DataFrame:
         is_monthly = (
             data_df.iloc[0:5, data_df.columns.get_loc("date")].str.match(r"\d{6}").all()
         )
-        if is_monthly:
-            data_df.loc[:, "date"] = pd.to_datetime(
-                data_df.loc[:, "date"], format="%Y%m", errors="raise"
+        # Unfortunately, the date formats in the EIA bulk electricity data are not
+        # uniform, and so for now we need to fall back on dateutil. Currently this
+        # warning is emitted thousands of times, clogging up the logs.
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                action="ignore",
+                message="Could not infer format, so each element will be parsed individually",
+                category=UserWarning,
             )
-        else:
-            data_df.loc[:, "date"] = pd.to_datetime(
-                data_df.loc[:, "date"], errors="raise"
-            )
+            if is_monthly:
+                data_df.loc[:, "date"] = pd.to_datetime(
+                    data_df.loc[:, "date"], format="%Y%m", errors="raise"
+                )
+            else:
+                data_df.loc[:, "date"] = pd.to_datetime(
+                    data_df.loc[:, "date"], errors="raise"
+                )
         data_df["series_id"] = elec_df.at[idx, "series_id"]
         out.append(data_df)
     out = pd.concat(out, ignore_index=True, axis=0)
