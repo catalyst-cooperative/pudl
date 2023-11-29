@@ -1,5 +1,5 @@
 ---
-name: Code validation
+name: pytest
 
 on:
   pull_request:
@@ -64,7 +64,6 @@ jobs:
           path: coverage.xml
 
   ci-unit:
-    name: Unit tests
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -111,7 +110,6 @@ jobs:
           path: coverage.xml
 
   ci-integration:
-    name: Integration (fast ETL run)
     needs:
       - ci-unit
     runs-on: ubuntu-22.04-4core
