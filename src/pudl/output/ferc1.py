@@ -1722,62 +1722,62 @@ class Exploder:
     def add_sizable_minority_corrections(
         self: Self, exploded: pd.DataFrame
     ) -> pd.DataFrame:
-        """Identify and fix the utilities that report calculations differently."""
+        """Identify and fix the utilities that report calcs off-by one other fact.
+
+        We noticed that there are a sizable minority of utilities that report some
+        calculated values with a different set of child subcomponents. Our tooling
+        for these calculation expects all utilities to report in the same manner.
+        So we have identified the handful of worst calculable ``xbrl_factiod``
+        offenders :attr:`self.off_by_facts`. This method identifies data corrections
+        for those :attr:`self.off_by_facts` and adds them into the exploded data table.
+
+        The data corrections are identified by calculating the absolute difference
+        between the reported value and calculable value from the standard set of
+        subcomponents (via :func:`pudl.transform.ferc1.calculate_values_from_components`)
+        and finding the child factiods that have the same value as the absolute difference.
+        This indicates that the calculable parent factiod is off by that cooresponding
+        child fact.
+
+        Relatedly, :meth:`add_sizable_minority_corrections_to_calcs` adds these
+        :attr:`self.off_by_facts` to :attr:`self.exploded_calcs`.
+        """
         if not self.off_by_facts:
             return exploded
-        # NOTE: up to making of calculated_df from calculate_values_from_components
-        # is all copy/paste from reconcile_intertable_calculations
-        calculations_intertable = self.exploded_calcs[
-            ~self.exploded_calcs.is_within_table_calc
-        ]
-        calc_idx = list(NodeId._fields)
+        # add the abs_diff column for the calculated fields
         calculated_df = pudl.transform.ferc1.calculate_values_from_components(
-            calculation_components=calculations_intertable[
-                ~calculations_intertable.is_total_to_subdimensions_calc
+            calculation_components=self.exploded_calcs[
+                ~self.exploded_calcs.is_within_table_calc
+                & ~self.exploded_calcs.is_total_to_subdimensions_calc
             ],
             data=exploded,
-            calc_idx=calc_idx,
+            calc_idx=list(NodeId._fields),
             value_col=self.value_col,
         )
-        # add the ungrouped is_not_close column
-        calculated_df["is_not_close"] = pudl.transform.ferc1.ErrorFrequency(
-            by="ungrouped",
-            is_close_tolerance=self.group_metric_checks.is_close_tolerance.error_frequency,
-            metric_tolerance=self.group_metric_checks.group_metric_tolerances.ungrouped.error_frequency,
-        ).is_not_close(calculated_df)
 
-        cols = calc_idx + ["report_year", "utility_id_ferc1"]
-        not_close_value = "abs_diff"
-        missing_value = self.value_col
-        facts_to_fix = pd.DataFrame(self.off_by_facts)
+        off_by = pd.DataFrame(self.off_by_facts)
         # we calculate the non-abs diff here because many times the
         # bad utility reporters include components that are not in the
         # stock calculation so we need to remove it. the value of the
         # correction record needs to be the raw diff.
         not_close = (
-            calculated_df[calculated_df.is_not_close]
+            calculated_df[calculated_df.abs_diff != 0]
             .set_index(list(NodeId._fields))
-            .loc[facts_to_fix.set_index(list(NodeId._fields)).index.unique()]
+            # grab the parent side of the off_by facts
+            .loc[off_by.set_index(list(NodeId._fields)).index.unique()]
             .reset_index()
-            .assign(diff=lambda x: x[self.value_col] - x.calculated_value)[
-                cols + [not_close_value, "diff"]
-            ]
+            .assign(diff=lambda x: x[self.value_col] - x.calculated_value)
         )
-        missing_fact = (
-            calculated_df.set_index(list(NodeId._fields))
+        off_by_fact = (
+            calculated_df[calculated_df.row_type_xbrl != "correction"]
+            .set_index(list(NodeId._fields))
+            # grab the child side of the off_by facts
             .loc[
-                facts_to_fix.set_index(
+                off_by.set_index(
                     [f"{col}_off_by" for col in list(NodeId._fields)]
-                ).index
+                ).index.unique()
             ]
             .reset_index()
-            .loc[calculated_df.row_type_xbrl != "correction", cols + [missing_value]]
         )
-        cols_wo_factoid = [
-            col
-            for col in cols
-            if col not in ["xbrl_factoid", "table_name"] + self.dimensions
-        ]
         # Idenfity the calculations with one missing other fact
         # when the diff is the same as the value of another fact, then that
         # calculated value could have been perfect with the addition of the
@@ -1785,13 +1785,15 @@ class Exploder:
         data_corrections = (
             pd.merge(
                 left=not_close,
-                right=missing_fact,
-                left_on=cols_wo_factoid + [not_close_value],
-                right_on=cols_wo_factoid + [missing_value],
+                right=off_by_fact,
+                left_on=["report_year", "utility_id_ferc1", "abs_diff"],
+                right_on=["report_year", "utility_id_ferc1", self.value_col],
                 how="inner",
                 suffixes=("", "_off_by"),
             )
             # use a dict/kwarg for assign so we can dynamically set the name of value_col
+            # the correction value is the diff - not the abs_diff from not_close or value_col
+            # from off_by_fact bc often the utility included a fact so this diff is negative
             .assign(
                 **{
                     "xbrl_factoid": (
@@ -1805,7 +1807,8 @@ class Exploder:
                 }
             )[
                 # drop all the _off_by and calc cols
-                cols + [self.value_col, "row_type_xbrl"]
+                list(NodeId._fields)
+                + ["report_year", "utility_id_ferc1", self.value_col, "row_type_xbrl"]
             ]
         )
         bad_utils = data_corrections.utility_id_ferc1.unique()
