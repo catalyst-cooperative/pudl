@@ -70,8 +70,8 @@ EXPLOSION_CALCULATION_TOLERANCES: dict[str, GroupMetricChecks] = {
         ],
         group_metric_tolerances=GroupMetricTolerances(
             ungrouped=MetricTolerances(
-                error_frequency=0.014,
-                relative_error_magnitude=0.04,
+                error_frequency=0.011,
+                relative_error_magnitude=0.004,
                 null_calculated_value_frequency=1.0,
             ),
             report_year=MetricTolerances(
@@ -1299,12 +1299,12 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 ),
                 BadFact(
                     "utility_plant_summary_ferc1",
-                    "utility_plant_in_service_classified_and_property_under_capital_leases",
+                    "depreciation_utility_plant_in_service",
                     "electric",
                     pd.NA,
                     pd.NA,
                     "utility_plant_summary_ferc1",
-                    "utility_plant_in_service_property_under_capital_leases",
+                    "amortization_of_other_utility_plant_utility_plant_in_service",
                     "electric",
                     pd.NA,
                     pd.NA,
