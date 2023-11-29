@@ -235,7 +235,7 @@ class Ferc1DbfExtractor(FercDbfExtractor):
     """Wrapper for running the foxpro to sqlite conversion of FERC1 dataset."""
 
     DATASET = "ferc1"
-    DATABASE_NAME = "ferc1.sqlite"
+    DATABASE_NAME = "ferc1_dbf.sqlite"
 
     def get_settings(
         self, global_settings: FercToSqliteSettings
