@@ -186,7 +186,7 @@ jobs:
       - name: Run integration tests
         run: |
           coverage run ${{ env.COVERAGE_OPTIONS }} \
-           -n auto -m pytest --live-dbs test/integration
+           -m pytest -n auto --live-dbs test/integration
       - name: Generate coverage
         run: |
           coverage combine
