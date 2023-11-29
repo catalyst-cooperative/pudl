@@ -2,6 +2,7 @@
 import contextlib
 import csv
 import importlib.resources
+import warnings
 import zipfile
 from collections import defaultdict
 from collections.abc import Iterator
@@ -20,6 +21,13 @@ from pudl.settings import FercToSqliteSettings, GenericDatasetSettings
 from pudl.workspace.datastore import Datastore
 
 logger = pudl.logging_helpers.get_logger(__name__)
+
+warnings.filterwarnings(
+    action="once",
+    module="pudl.extract.dbf",
+    category=FutureWarning,
+    message="The behavior of DataFrame concatenation with empty or all-NA entries is deprecated",
+)
 
 
 class DbcFileMissingError(Exception):

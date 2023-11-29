@@ -24,7 +24,7 @@ from pudl.workspace.datastore import Datastore
 # thousands of times, clogging up the logs. Just warn us once!
 warnings.filterwarnings(
     action="once",
-    message="Could not infer format, so each element will be parsed individually, falling back to `dateutil`.",
+    message="Could not infer format, so each element will be parsed individually",
     category=UserWarning,
     module="pudl.extract.eia_bulk_elec",
 )
