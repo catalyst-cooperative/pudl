@@ -18,7 +18,7 @@ env:
   DAGSTER_HOME: /home/runner/pudl-work/dagster_home/
   ETL_CONFIG: src/pudl/package_data/settings/etl_fast.yml
   ETL_COMMANDLINE_OPTIONS: --gcs-cache-path=gs://zenodo-cache.catalyst.coop
-  COVERAGE_OPTIONS: --concurrency=multiprocessing --parallel-mode
+  COVERAGE_OPTIONS: --concurrency=multiprocessing
 
 jobs:
   ci-docs:
@@ -175,15 +175,21 @@ jobs:
           service_account: "tox-pytest-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
 
       - name: Run ferc_to_sqlite
+        env:
+          COVERAGE_FILE: .coverage.ferc_to_sqlite
         run: |
           coverage run ${{ env.COVERAGE_OPTIONS }} \
             src/pudl/ferc_to_sqlite/cli.py --clobber ${{ env.ETL_COMMANDLINE_OPTIONS }} ${{ env.ETL_CONFIG }}
       - name: Run pudl_etl
+        env:
+          COVERAGE_FILE: .coverage.pudl_etl
         run: |
           alembic upgrade head
           coverage run ${{ env.COVERAGE_OPTIONS }} \
             src/pudl/cli/etl.py ${{ env.ETL_COMMANDLINE_OPTIONS }} ${{ env.ETL_CONFIG }}
       - name: Run integration tests
+        env:
+          COVERAGE_FILE: .coverage.pytest
         run: |
           coverage run ${{ env.COVERAGE_OPTIONS }} \
            -m pytest -n auto --live-dbs test/integration
