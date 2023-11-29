@@ -133,7 +133,7 @@ jobs:
           cache-environment: true
 
       - name: Install PUDL and its dependencies
-        run: pip install --no-deps --editable .[test,datasette]
+        run: pip install --no-deps --no-cache-dir .
 
       - name: Log environment details
         run: |
@@ -186,8 +186,7 @@ jobs:
       - name: Run integration tests
         run: |
           coverage run ${{ env.COVERAGE_OPTIONS }} \
-            \
-            -m pytest --live-dbs test/integration
+           -n auto -m pytest --live-dbs test/integration
       - name: Generate coverage
         run: |
           coverage combine
