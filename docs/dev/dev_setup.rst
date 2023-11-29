@@ -67,11 +67,13 @@ command. You only need to run it once, from within the cloned repo:
 
 .. note::
 
-   Because we default to retaining the version of the lockfiles present in the branch
-   that's being merged into, when you merge a branch like ``dev`` into your local git
-   branch, if there have been changes to the environment you will need to regenerate the
-   lockfiles. You can either do this locally (see below) or allow the GitHub Actions we
-   have set up to do it for you automatically the next time you push.
+   If there have been changes to the environment on a branch (e.g. ``dev``) that you
+   merge into your own branch, the lockfiles will need to be regenerated. This can be
+   done automatically by a GitHub action by pushing the merged changes to your branch
+   on GitHub, waiting a couple of minutes for the ``update-conda-lockfile`` action to
+   run and merge its changes into your branch, and then pulling the fresh lockfiles to
+   your local development environment. You can also regenerate the lockfiles locally
+   (see below).
 
 -------------------------------------------------------------------------------
 Create the PUDL Dev Environment
