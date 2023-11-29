@@ -24,7 +24,7 @@ class PudlPaths(BaseSettings):
 
     pudl_input: PotentialDirectoryPath
     pudl_output: PotentialDirectoryPath
-    model_config = SettingsConfigDict(env_file=".env")
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     @property
     def input_dir(self) -> Path:
