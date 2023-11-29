@@ -39,7 +39,7 @@ conda-clean:
 
 # Regenerate the conda lockfile and render platform specific conda environments.
 conda-lock.yml: pyproject.toml
-	${mamba} run --name base ${mamba} install --yes conda-lock prettier
+	${mamba} run --name base ${mamba} install --quiet --yes conda-lock prettier
 	${mamba} run --name base conda-lock \
 		--${mamba} \
 		--file=pyproject.toml \
@@ -54,6 +54,7 @@ conda-lock.yml: pyproject.toml
 .PHONY: pudl-dev
 pudl-dev:
 	${mamba} run --name base ${mamba} env remove --name pudl-dev
+	${mamba} run --name base ${mamba} install --quiet --yes conda-lock
 	${mamba} run --name base conda-lock install \
 		--name pudl-dev \
 		--${mamba} \
