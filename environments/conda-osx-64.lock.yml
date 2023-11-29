@@ -498,7 +498,7 @@ dependencies:
   - catalystcoop.ferc_xbrl_extractor=1.3.0=pyhd8ed1ab_1
   - conda-lock=2.5.1=pyhd8ed1ab_0
   - dagster-graphql=1.5.9=pyhd8ed1ab_0
-  - dagster-postgres=0.21.9=pyhd8ed1ab_0
+  - dagster-postgres=0.21.9=pyhd8ed1ab_1
   - fiona=1.9.5=py311h809632c_1
   - google-api-core=2.14.0=pyhd8ed1ab_0
   - google-auth-oauthlib=1.1.0=pyhd8ed1ab_0
