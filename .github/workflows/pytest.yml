@@ -217,6 +217,7 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           directory: coverage
+          fail_ci_if_error: true
 
   # TODO(rousik): The following slack notification gives no value and
   # needs to be fixed. Until then, it might be better to do nothing
