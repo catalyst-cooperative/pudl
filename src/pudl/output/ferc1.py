@@ -1074,19 +1074,19 @@ class NodeId(NamedTuple):
     plant_function: str | pandas_NAType
 
 
-class BadFact(NamedTuple):
-    """Fact to fix."""
+class OffByFactoid(NamedTuple):
+    """A factoid which is reported incorrectly as off-by another factoid."""
 
     table_name: str
     xbrl_factoid: str
     utility_type: str | pandas_NAType
     plant_status: str | pandas_NAType
     plant_function: str | pandas_NAType
-    table_name_missing: str
-    xbrl_factoid_missing: str
-    utility_type_missing: str | pandas_NAType
-    plant_status_missing: str | pandas_NAType
-    plant_function_missing: str | pandas_NAType
+    table_name_off_by: str
+    xbrl_factoid_off_by: str
+    utility_type_off_by: str | pandas_NAType
+    plant_status_off_by: str | pandas_NAType
+    plant_function_off_by: str | pandas_NAType
 
 
 @asset
@@ -1177,7 +1177,7 @@ def exploded_table_asset_factory(
     table_names: list[str],
     seed_nodes: list[NodeId],
     group_metric_checks: GroupMetricChecks,
-    facts_to_fix_list: list[BadFact],
+    off_by_facts: list[OffByFactoid],
     io_manager_key: str | None = None,
 ) -> AssetsDefinition:
     """Create an exploded table based on a set of related input tables."""
@@ -1205,7 +1205,7 @@ def exploded_table_asset_factory(
                 "metadata_xbrl_ferc1",
                 "calculation_components_xbrl_ferc1",
                 "_out_ferc1__explosion_tags",
-                "facts_to_fix_list",
+                "off_by_facts",
             ]
         }
         return Exploder(
@@ -1216,7 +1216,7 @@ def exploded_table_asset_factory(
             seed_nodes=seed_nodes,
             tags=tags,
             group_metric_checks=group_metric_checks,
-            facts_to_fix_list=facts_to_fix_list,
+            off_by_facts=off_by_facts,
         ).boom(tables_to_explode=tables_to_explode)
 
     return exploded_tables_asset
@@ -1250,7 +1250,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                     plant_function=pd.NA,
                 ),
             ],
-            "facts_to_fix_list": [],
+            "off_by_facts": [],
         },
         {
             "root_table": "balance_sheet_assets_ferc1",
@@ -1272,8 +1272,8 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                     plant_function=pd.NA,
                 )
             ],
-            "facts_to_fix_list": [
-                BadFact(
+            "off_by_facts": [
+                OffByFactoid(
                     "utility_plant_summary_ferc1",
                     "utility_plant_in_service_classified_and_property_under_capital_leases",
                     "electric",
@@ -1285,7 +1285,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                     pd.NA,
                     pd.NA,
                 ),
-                BadFact(
+                OffByFactoid(
                     "utility_plant_summary_ferc1",
                     "utility_plant_in_service_classified_and_property_under_capital_leases",
                     "electric",
@@ -1297,7 +1297,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                     pd.NA,
                     pd.NA,
                 ),
-                BadFact(
+                OffByFactoid(
                     "utility_plant_summary_ferc1",
                     "depreciation_utility_plant_in_service",
                     "electric",
@@ -1329,7 +1329,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                     plant_function=pd.NA,
                 )
             ],
-            "facts_to_fix_list": [],
+            "off_by_facts": [],
         },
     ]
     return [exploded_table_asset_factory(**kwargs) for kwargs in explosion_args]
@@ -1350,7 +1350,7 @@ class Exploder:
         seed_nodes: list[NodeId],
         tags: pd.DataFrame = pd.DataFrame(),
         group_metric_checks: GroupMetricChecks = GroupMetricChecks(),
-        facts_to_fix_list: list[BadFact] = None,
+        off_by_facts: list[OffByFactoid] = None,
     ):
         """Instantiate an Exploder class.
 
@@ -1369,7 +1369,7 @@ class Exploder:
         self.calculation_components_xbrl_ferc1 = calculation_components_xbrl_ferc1
         self.seed_nodes = seed_nodes
         self.tags = tags
-        self.facts_to_fix_list = facts_to_fix_list
+        self.off_by_facts = off_by_facts
 
     @cached_property
     def exploded_calcs(self: Self):
@@ -1458,17 +1458,17 @@ class Exploder:
         self: Self, exploded_calcs: pd.DataFrame
     ) -> pd.DataFrame:
         """Add correction calculation records for the sizable fuck up utilities."""
-        if not self.facts_to_fix_list:
+        if not self.off_by_facts:
             return exploded_calcs
         facts_to_fix = (
-            pd.DataFrame(self.facts_to_fix_list)
+            pd.DataFrame(self.off_by_facts)
             .rename(columns={col: f"{col}_parent" for col in NodeId._fields})
             .assign(
                 xbrl_factoid=(
-                    lambda x: "correction_"
-                    + x.xbrl_factoid_parent
+                    lambda x: x.xbrl_factoid_parent
                     + "_off_by_"
-                    + x.xbrl_factoid_missing
+                    + x.xbrl_factoid_off_by
+                    + "_correction"
                 ),
                 weight=1,
                 is_total_to_subdimensions_calc=False,
@@ -1477,9 +1477,9 @@ class Exploder:
                 # the parent fact like in process_xbrl_metadata_calculations
                 is_within_table_calc=False,
             )
-            .drop(columns=["xbrl_factoid_missing"])
+            .drop(columns=["xbrl_factoid_off_by"])
         )
-        facts_to_fix.columns = facts_to_fix.columns.str.removesuffix("_missing")
+        facts_to_fix.columns = facts_to_fix.columns.str.removesuffix("_off_by")
         return pd.concat([exploded_calcs, facts_to_fix[exploded_calcs.columns]])
 
     @cached_property
@@ -1646,7 +1646,7 @@ class Exploder:
         """
         exploded = (
             self.initial_explosion_concatenation(tables_to_explode)
-            .pipe(self.indentify_and_correct_sizable_minority_utility_reporting)
+            .pipe(self.add_sizable_minority_corrections)
             .pipe(self.reconcile_intertable_calculations)
             .pipe(self.calculation_forest.leafy_data, value_col=self.value_col)
         )
@@ -1719,11 +1719,11 @@ class Exploder:
         )
         return exploded
 
-    def indentify_and_correct_sizable_minority_utility_reporting(
+    def add_sizable_minority_corrections(
         self: Self, exploded: pd.DataFrame
     ) -> pd.DataFrame:
         """Identify and fix the utilities that report calculations differently."""
-        if not self.facts_to_fix_list:
+        if not self.off_by_facts:
             return exploded
         # NOTE: up to making of calculated_df from calculate_values_from_components
         # is all copy/paste from reconcile_intertable_calculations
@@ -1749,7 +1749,7 @@ class Exploder:
         cols = calc_idx + ["report_year", "utility_id_ferc1"]
         not_close_value = "abs_diff"
         missing_value = self.value_col
-        facts_to_fix = pd.DataFrame(self.facts_to_fix_list)
+        facts_to_fix = pd.DataFrame(self.off_by_facts)
         # we calculate the non-abs diff here because many times the
         # bad utility reporters include components that are not in the
         # stock calculation so we need to remove it. the value of the
@@ -1767,7 +1767,7 @@ class Exploder:
             calculated_df.set_index(list(NodeId._fields))
             .loc[
                 facts_to_fix.set_index(
-                    [f"{col}_missing" for col in list(NodeId._fields)]
+                    [f"{col}_off_by" for col in list(NodeId._fields)]
                 ).index
             ]
             .reset_index()
@@ -1789,22 +1789,22 @@ class Exploder:
                 left_on=cols_wo_factoid + [not_close_value],
                 right_on=cols_wo_factoid + [missing_value],
                 how="inner",
-                suffixes=("", "_missing"),
+                suffixes=("", "_off_by"),
             )
             # use a dict/kwarg for assign so we can dynamically set the name of value_col
             .assign(
                 **{
                     "xbrl_factoid": (
-                        lambda x: "correction_"
-                        + x.xbrl_factoid
+                        lambda x: x.xbrl_factoid
                         + "_off_by_"
-                        + x.xbrl_factoid_missing
+                        + x.xbrl_factoid_off_by
+                        + "_correction"
                     ),
                     self.value_col: lambda x: x["diff"],
                     "row_type_xbrl": "correction",
                 }
             )[
-                # drop all the _missing and calc cols
+                # drop all the _off_by and calc cols
                 cols + [self.value_col, "row_type_xbrl"]
             ]
         )
