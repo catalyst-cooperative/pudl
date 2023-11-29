@@ -55,7 +55,6 @@ def harmonize_eia_epa_orispl(
     ).filter(
         lambda x: x.plant_id_eia.nunique() > 1  # noqa: PD101
     )
-
     if not one_to_many.empty:
         raise AssertionError(
             "The epacamd_eia crosswalk has more than one plant_id_eia value per "

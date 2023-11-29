@@ -23,7 +23,7 @@ from pudl.workspace.setup import PudlPaths
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-YearPartitions = namedtuple("YearPartitions", ["year", "states"])
+YearPartitions = namedtuple("YearPartitions", ["year", "quarters"])
 
 
 @op(
@@ -64,23 +64,23 @@ def process_single_year(
     partitioned_path = PudlPaths().output_dir / "hourly_emissions_epacems"
     partitioned_path.mkdir(exist_ok=True)
 
-    for state in epacems_settings.states:
-        logger.info(f"Processing EPA CEMS hourly data for {year}-{state}")
-        df = pudl.extract.epacems.extract(year=year, state=state, ds=ds)
+    for quarter in epacems_settings.quarters:
+        logger.info(f"Processing EPA CEMS hourly data for {year}-{quarter}")
+        df = pudl.extract.epacems.extract(year=year, quarter=quarter, ds=ds)
         if not df.empty:  # If state-year combination has data
             df = pudl.transform.epacems.transform(df, epacamd_eia, plants_entity_eia)
         table = pa.Table.from_pandas(df, schema=schema, preserve_index=False)
 
         # Write to a directory of partitioned parquet files
         with pq.ParquetWriter(
-            where=partitioned_path / f"epacems-{year}-{state}.parquet",
+            where=partitioned_path / f"epacems-{year}-{quarter}.parquet",
             schema=schema,
             compression="snappy",
             version="2.6",
         ) as partitioned_writer:
             partitioned_writer.write_table(table)
 
-    return YearPartitions(year, epacems_settings.states)
+    return YearPartitions(year, epacems_settings.quarters)
 
 
 @op
@@ -98,11 +98,11 @@ def consolidate_partitions(context, partitions: list[YearPartitions]) -> None:
     with pq.ParquetWriter(
         where=monolithic_path, schema=schema, compression="snappy", version="2.6"
     ) as monolithic_writer:
-        for year, states in partitions:
-            for state in states:
+        for year, quarters in partitions:
+            for quarter in quarters:
                 monolithic_writer.write_table(
                     pq.read_table(
-                        source=partitioned_path / f"epacems-{year}-{state}.parquet",
+                        source=partitioned_path / f"epacems-{year}-{quarter}.parquet",
                         schema=schema,
                     )
                 )

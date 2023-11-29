@@ -134,7 +134,7 @@ class EpaCemsDatastore:
             "epacems", **partition.get_filters()
         )
 
-        with archive.open(str(partition.get_annual_file()), "r") as csv_file:
+        with archive.open(str(partition.get_quarterly_file()), "r") as csv_file:
             df = self._csv_to_dataframe(
                 csv_file, ignore_cols=API_IGNORE_COLS, rename_dict=API_RENAME_DICT
             )
@@ -159,24 +159,24 @@ class EpaCemsDatastore:
         ).rename(columns=rename_dict)
 
 
-def extract(year: int, state: str, ds: Datastore):
+def extract(year: int, quarter: int, ds: Datastore):
     """Coordinate the extraction of EPA CEMS hourly DataFrames.
 
     Args:
         year: report year of the data to extract
-        state: report state of the data to extract
+        quarter: report quarter of the data to extract
         ds: Initialized datastore
     Yields:
         pandas.DataFrame: A single state-year of EPA CEMS hourly emissions data.
     """
     ds = EpaCemsDatastore(ds)
-    partition = EpaCemsPartition(state=state, year=year)
+    partition = EpaCemsPartition(quarter=quarter, year=year)
     # We have to assign the reporting year for partitioning purposes
     try:
         df = ds.get_data_frame(partition).assign(year=year)
     except KeyError:  # If no state-year combination found, return empty df.
         logger.warning(
-            f"No data found for {state} in {year}. Returning empty dataframe."
+            f"No data found for {quarter} in {year}. Returning empty dataframe."
         )
         res = Resource.from_id("hourly_emissions_epacems")
         df = res.format_df(pd.DataFrame())

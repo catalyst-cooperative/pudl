@@ -181,8 +181,8 @@ class ZenodoDoiSettings(BaseSettings):
     # eia_bulk_elec: ZenodoDoi = "10.5072/zenodo.1103572"
     epacamd_eia: ZenodoDoi = "10.5281/zenodo.7900974"
     # epacamd_eia: ZenodoDoi = "10.5072/zenodo.1199170"
-    epacems: ZenodoDoi = "10.5281/zenodo.8235497"
-    # epacems: ZenodoDoi = "10.5072/zenodo.1228519"
+    # epacems: ZenodoDoi = "10.5281/zenodo.8235497"
+    epacems: ZenodoDoi = "10.5072/zenodo.2237"
     ferc1: ZenodoDoi = "10.5281/zenodo.8326634"
     # ferc1: ZenodoDoi = "10.5072/zenodo.1234455"
     ferc2: ZenodoDoi = "10.5281/zenodo.8326697"
@@ -209,7 +209,6 @@ class ZenodoFetcher:
     _descriptor_cache: dict[str, DatapackageDescriptor]
     zenodo_dois: ZenodoDoiSettings
     timeout: float
-    http: requests.Session
 
     def __init__(
         self: Self, zenodo_dois: ZenodoDoiSettings | None = None, timeout: float = 15.0

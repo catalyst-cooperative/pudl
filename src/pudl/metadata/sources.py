@@ -2,7 +2,6 @@
 from typing import Any
 
 from pudl.metadata.constants import CONTRIBUTORS, KEYWORDS, LICENSES
-from pudl.metadata.enums import EPACEMS_STATES
 
 SOURCES: dict[str, Any] = {
     "censusdp1tract": {
@@ -272,8 +271,8 @@ SOURCES: dict[str, Any] = {
         },
         "field_namespace": "epacems",
         "working_partitions": {
-            "years": sorted(set(range(1995, 2023))),
-            "states": sorted(EPACEMS_STATES),
+            "years": sorted(set(range(1995, 2024))),
+            "quarters": sorted(set(range(1, 5))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
