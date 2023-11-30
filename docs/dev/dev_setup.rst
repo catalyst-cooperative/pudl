@@ -65,6 +65,15 @@ command. You only need to run it once, from within the cloned repo:
 
     $ git config --local merge.ours.driver true
 
+.. note::
+
+   If there have been changes to the environment on a branch (e.g. ``dev``) that you
+   merge into your own branch, the lockfiles will need to be regenerated. This can be
+   done automatically by pushing the merged changes to your branch on GitHub, waiting a
+   couple of minutes for the ``update-conda-lockfile`` GitHub Action to run, and then
+   pulling the fresh lockfiles to your local development environment. You can also
+   regenerate the lockfiles locally (see below).
+
 -------------------------------------------------------------------------------
 Create the PUDL Dev Environment
 -------------------------------------------------------------------------------
