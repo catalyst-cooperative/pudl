@@ -114,10 +114,15 @@ def deploy_datasette(deploy: str) -> int:
     """Generate deployment files and run the deploy."""
     pudl_out = PudlPaths().pudl_output
     metadata_yml = metadata(pudl_out)
-    datasets = [str(p.name) for p in pudl_out.glob("*.sqlite")]
+    # Order the databases to highlight PUDL
+    datasets = (
+        ["pudl.sqlite"]
+        + sorted(str(p.name) for p in pudl_out.glob("ferc*.sqlite"))
+        + ["censusdp1tract.sqlite"]
+    )
 
     if deploy == "fly":
-        logging.info("Deploying to fly.io!")
+        logging.info("Deploying to fly.io...")
         fly_dir = Path(__file__).parent.absolute() / "fly"
         docker_path = fly_dir / "Dockerfile"
         inspect_path = fly_dir / "inspect-data.json"
@@ -128,7 +133,7 @@ def deploy_datasette(deploy: str) -> int:
         with inspect_path.open("w") as f:
             f.write(json.dumps(inspect_output))
 
-        logging.info("Writing metadata...")
+        logging.info(f"Writing Datasette metadata to: {metadata_path}")
         with metadata_path.open("w") as f:
             f.write(metadata_yml)
 
@@ -148,8 +153,8 @@ def deploy_datasette(deploy: str) -> int:
 
     elif deploy == "local":
         logging.info("Running Datasette locally...")
-        logging.info("Writing metadata...")
         metadata_path = pudl_out / "metadata.yml"
+        logging.info(f"Writing Datasette metadata to: {metadata_path}")
         with metadata_path.open("w") as f:
             f.write(metadata_yml)
 
@@ -159,8 +164,8 @@ def deploy_datasette(deploy: str) -> int:
         )
 
     elif deploy == "metadata":
-        logging.info("Generating Datasette metadata.yml.")
         metadata_path = Path.cwd() / "metadata.yml"
+        logging.info(f"Writing Datasette metadata to: {metadata_path}")
         with metadata_path.open("w") as f:
             f.write(metadata_yml)
 
