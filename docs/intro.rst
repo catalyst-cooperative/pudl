@@ -30,11 +30,11 @@ difficult to parse inputs, especially the old Visual FoxPro (DBF, pre-2021) and 
 data (2021+) published by FERC:
 * `FERC Form 1 (DBF) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc1_dbf.sqlite.gz>`__
 * `FERC Form 1 (XBRL) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc1_xbrl.sqlite.gz>`__
-* `FERC Form 2 (XBRL) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc2_dbf.sqlite.gz>`__
+* `FERC Form 2 (DBF) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc2_dbf.sqlite.gz>`__
 * `FERC Form 2 (XBRL) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc2_xbrl.sqlite.gz>`__
-* `FERC Form 6 (XBRL) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc6_dbf.sqlite.gz>`__
+* `FERC Form 6 (DBF) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc6_dbf.sqlite.gz>`__
 * `FERC Form 6 (XBRL) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc6_xbrl.sqlite.gz>`__
-* `FERC Form 60 (XBRL) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc60_dbf.sqlite.gz>`__
+* `FERC Form 60 (DBF) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc60_dbf.sqlite.gz>`__
 * `FERC Form 60 (XBRL) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc60_xbrl.sqlite.gz>`__
 * `FERC Form 714 (XBRL) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc714_xbrl.sqlite.gz>`__
 
