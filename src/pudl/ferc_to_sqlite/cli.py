@@ -155,9 +155,7 @@ def main():  # noqa: C901
                 "config": etl_settings.ferc_to_sqlite_settings.model_dump()
             },
             "datastore": {
-                "config": {
-                    "gcs_cache_path": args.gcs_cache_path
-                },
+                "config": {"gcs_cache_path": args.gcs_cache_path},
             },
         },
         "ops": {

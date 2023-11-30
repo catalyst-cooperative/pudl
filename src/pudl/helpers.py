@@ -1795,7 +1795,7 @@ def scale_by_ownership(
     )
     return gens
 
-  
+
 def get_dagster_execution_config(num_workers: int = 0):
     """Get the dagster execution config for a given number of workers.
 
