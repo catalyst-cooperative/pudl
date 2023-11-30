@@ -11,14 +11,26 @@ import re
 
 import numpy as np
 import pandas as pd
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import MinMaxScaler, Normalizer
 
 import pudl
-from pudl.analysis.record_linkage.cleaning_steps import CompanyNameCleaner
-from pudl.analysis.record_linkage.cross_year import ColumnTransform, CrossYearLinker
+from pudl.analysis.record_linkage.models import (
+    ColumnTransformation,
+    CrossYearLinker,
+    ReducedDimDataFrameEmbedder,
+)
+from pudl.analysis.record_linkage.name_cleaner import CompanyNameCleaner
 
 logger = pudl.logging_helpers.get_logger(__name__)
+
+
+_FUEL_COLS = [
+    "coal_fraction_mmbtu",
+    "gas_fraction_mmbtu",
+    "nuclear_fraction_mmbtu",
+    "oil_fraction_mmbtu",
+    "other_fraction_mmbtu",
+    "waste_fraction_mmbtu",
+]
 
 
 def plants_steam_assign_plant_ids(
@@ -44,20 +56,9 @@ def plants_steam_assign_plant_ids(
         how="left",
     )
 
-    fuel_cols = list(ferc1_steam_df.filter(regex=".*_fraction_mmbtu$").columns)
-
     # Train the classifier using DEFAULT weights, parameters not listed here.
-    clf = construct_ferc1_plant_matching_model(fuel_cols)
-    ferc1_steam_df = clf.fit_predict(ferc1_steam_df)
-
-    # Set the construction year back to numeric because it is.
-    ferc1_steam_df["construction_year"] = pd.to_numeric(
-        ferc1_steam_df["construction_year"], errors="coerce"
-    )
-    # We don't actually want to save the fuel fractions in this table... they
-    # were only here to help us match up the plants.
-    ferc1_steam_df = ferc1_steam_df.drop(ffc, axis=1)
-    ferc1_steam_df = revert_filled_in_string_nulls(ferc1_steam_df)
+    classifier = Ferc1PlantClassifier()
+    ferc1_steam_df["plant_id_ferc1"] = classifier(ferc1_steam_df)
 
     return ferc1_steam_df
 
@@ -297,71 +298,40 @@ def fuel_by_plant_ferc1(
     return df
 
 
-def construct_ferc1_plant_matching_model(fuel_cols: list[str]) -> CrossYearLinker:
-    """Create a CrossYearLinker configured to match FERC1 plants."""
-    return CrossYearLinker(
-        **{
-            "id_column": "plant_id_ferc1",
-            "column_transforms": [
-                ColumnTransform(
-                    **{
-                        "step_name": "plant_name_ferc1",
-                        "columns": ["plant_name_ferc1"],
-                        "transformer": "string",
-                        "weight": 2.0,
-                        "cleaning_ops": [CompanyNameCleaner()],
-                    }
-                ),
-                ColumnTransform(
-                    **{
-                        "step_name": "plant_type",
-                        "columns": ["plant_type"],
-                        "transformer": "category",
-                        "weight": 2.0,
-                        "cleaning_ops": ["null_to_empty_str"],
-                    }
-                ),
-                ColumnTransform(
-                    **{
-                        "step_name": "construction_type",
-                        "columns": ["construction_type"],
-                        "transformer": "category",
-                        "cleaning_ops": ["null_to_empty_str"],
-                    }
-                ),
-                ColumnTransform(
-                    **{
-                        "step_name": "capacity_mw",
-                        "columns": ["capacity_mw"],
-                        "transformer": "number",
-                        "cleaning_ops": ["null_to_zero"],
-                    }
-                ),
-                ColumnTransform(
-                    **{
-                        "step_name": "construction_year",
-                        "columns": ["construction_year"],
-                        "transformer": "category",
-                        "cleaning_ops": ["fix_int_na"],
-                    }
-                ),
-                ColumnTransform(
-                    **{
-                        "step_name": "utility_id_ferc1",
-                        "columns": ["utility_id_ferc1"],
-                        "transformer": "category",
-                    }
-                ),
-                ColumnTransform(
-                    **{
-                        "step_name": "fuel_fraction_mmbtu",
-                        "columns": fuel_cols,
-                        "transformer": Pipeline(
-                            [("scaler", MinMaxScaler()), ("norm", Normalizer())]
-                        ),
-                        "cleaning_ops": ["null_to_zero"],
-                    }
-                ),
-            ],
+class Ferc1PlantClassifier(CrossYearLinker):
+    """Create model for linking ferc1 plants between years."""
+
+    embedding_step: ReducedDimDataFrameEmbedder = ReducedDimDataFrameEmbedder(
+        transformations={
+            "plant_name": ColumnTransformation(
+                transformations=[CompanyNameCleaner(), "string"],
+                weight=2.0,
+                columns=["plant_name_ferc1"],
+            ),
+            "plant_type": ColumnTransformation(
+                transformations=["null_to_empty_str", "category"],
+                weight=2.0,
+                columns=["plant_type"],
+            ),
+            "construction_type": ColumnTransformation(
+                transformations=["null_to_empty_str", "category"],
+                columns=["construction_type"],
+            ),
+            "capacity_mw": ColumnTransformation(
+                transformations=["null_to_zero", "number"],
+                columns=["capacity_mw"],
+            ),
+            "construction_year": ColumnTransformation(
+                transformations=["fix_int_na", "category"],
+                columns=["construction_year"],
+            ),
+            "utility_id_ferc1": ColumnTransformation(
+                transformations=["category"],
+                columns=["utility_id_ferc1"],
+            ),
+            "fuel_fractions": ColumnTransformation(
+                transformations=["null_to_zero", "number", "norm"],
+                columns=_FUEL_COLS,
+            ),
         }
     )

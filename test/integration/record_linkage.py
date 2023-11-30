@@ -8,9 +8,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pudl.analysis.record_linkage.classify_plants_ferc1 import (
-    construct_ferc1_plant_matching_model,
-)
+from pudl.analysis.record_linkage.classify_plants_ferc1 import Ferc1PlantClassifier
 from pudl.transform.params.ferc1 import (
     CONSTRUCTION_TYPE_CATEGORIES,
     PLANT_TYPE_CATEGORIES,
@@ -196,16 +194,16 @@ def mock_ferc1_plants_df():
 
 def test_classify_plants_ferc1(mock_ferc1_plants_df):
     """Test the FERC inter-year plant linking model."""
-    linker = construct_ferc1_plant_matching_model(_FUEL_COLS)
-    df = linker.fit_predict(mock_ferc1_plants_df)
+    linker = Ferc1PlantClassifier()
+    mock_ferc1_plants_df["plant_id_ferc1"] = linker(mock_ferc1_plants_df)
 
     # Compute percent of records assigned correctly
     correctly_matched = (
-        df.groupby("base_plant_name")["plant_id_ferc1"]
+        mock_ferc1_plants_df.groupby("base_plant_name")["plant_id_ferc1"]
         .apply(lambda plant_ids: plant_ids.value_counts().iloc[0])
         .sum()
     )
 
     assert (
-        correctly_matched / len(df) > 0.85
+        correctly_matched / len(mock_ferc1_plants_df) > 0.85
     ), "Percent of correctly matched FERC records below 85%."
