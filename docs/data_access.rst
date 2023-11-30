@@ -63,7 +63,7 @@ data you've selected.
 
 .. note::
 
-   The only SQLite database containing cleaned and integrated is `the core PUDL database
+   The only SQLite database containing cleaned and integrated data is `the core PUDL database
    <https://data.catalyst.coop/pudl>`__. There are also several FERC SQLite databases
    derived from their old Visual FoxPro and new XBRL data formats, which we publish as
    SQLite to improve accessibility of the raw inputs, but they should generally not be

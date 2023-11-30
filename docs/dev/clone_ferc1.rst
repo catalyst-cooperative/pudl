@@ -2,7 +2,7 @@
 Converting raw FERC data to SQLite
 ===============================================================================
 
-FERC publishes its data (e.g. :doc:`../data_sources/ferc1`) in particularly difficutl
+FERC publishes its data (e.g. :doc:`../data_sources/ferc1`) in particularly difficult
 to use formats.  From 1994-2020 it used the proprietary `FoxPro database
 <https://en.wikipedia.org/wiki/FoxPro>`__ binary format. Then in 2021 it switched to
 `XBRL <https://en.wikipedia.org/wiki/XBRL>`__, a dialect of XML used for financial
