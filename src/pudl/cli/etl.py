@@ -55,6 +55,7 @@ def parse_command_line(argv):
         "--gcs-cache-path",
         type=str,
         help="Load datastore resources from Google Cloud Storage. Should be gs://bucket[/path_prefix]",
+        default="",
     )
     parser.add_argument(
         "--loglevel",
@@ -142,9 +143,7 @@ def main():
             "dataset_settings": {"config": dataset_settings_config},
             "datastore": {
                 "config": {
-                    "gcs_cache_path": args.gcs_cache_path
-                    if args.gcs_cache_path
-                    else "",
+                    "gcs_cache_path": args.gcs_cache_path,
                 },
             },
         },
