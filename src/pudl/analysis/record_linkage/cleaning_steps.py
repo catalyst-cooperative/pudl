@@ -94,7 +94,7 @@ class CompanyNameCleaner(BaseModel):
     legal_term_location: LegalTermLocation = LegalTermLocation.AT_THE_END
 
     #: Define if the letters with accents are replaced with non-accented ones
-    remove_accents = False
+    remove_accents: bool = False
 
     def _apply_regex_rules(
         self, str_value: str, dict_regex_rules: dict[str, list[str]]

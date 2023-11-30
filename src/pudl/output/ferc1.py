@@ -12,7 +12,13 @@ from dagster import AssetIn, AssetsDefinition, Field, Mapping, asset
 from matplotlib import pyplot as plt
 from networkx.drawing.nx_agraph import graphviz_layout
 from pandas._libs.missing import NAType as pandas_NAType
-from pydantic import BaseModel, validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    ValidationInfo,
+    field_validator,
+    model_validator,
+)
 
 import pudl
 from pudl.transform.ferc1 import (
@@ -116,6 +122,71 @@ EXPLOSION_CALCULATION_TOLERANCES: dict[str, GroupMetricChecks] = {
         ),
     ),
 }
+
+MANUAL_DBF_METADATA_FIXES: dict[str, dict[str, str]] = {
+    "less_noncurrent_portion_of_allowances": {
+        "dbf2020_row_number": 53,
+        "dbf2020_table_name": "f1_comp_balance_db",
+        "dbf2020_row_literal": "(Less) Noncurrent Portion of Allowances",
+    },
+    "less_derivative_instrument_assets_long_term": {
+        "dbf2020_row_number": 64,
+        "dbf2020_table_name": "f1_comp_balance_db",
+        "dbf2020_row_literal": "(Less) Long-Term Portion of Derivative Instrument Assets (175)",
+    },
+    "less_derivative_instrument_assets_hedges_long_term": {
+        "dbf2020_row_number": 66,
+        "dbf2020_table_name": "f1_comp_balance_db",
+        "dbf2020_row_literal": "(Less) Long-Term Portion of Derivative Instrument Assets - Hedges (176)",
+    },
+    "less_long_term_portion_of_derivative_instrument_liabilities": {
+        "dbf2020_row_number": 51,
+        "dbf2020_table_name": "f1_bal_sheet_cr",
+        "dbf2020_row_literal": "(Less) Long-Term Portion of Derivative Instrument Liabilities",
+    },
+    "less_long_term_portion_of_derivative_instrument_liabilities_hedges": {
+        "dbf2020_row_number": 53,
+        "dbf2020_table_name": "f1_bal_sheet_cr",
+        "dbf2020_row_literal": "(Less) Long-Term Portion of Derivative Instrument Liabilities-Hedges",
+    },
+    "other_miscellaneous_operating_revenues": {
+        "dbf2020_row_number": 25,
+        "dbf2020_table_name": "f1_elctrc_oper_rev",
+        "dbf2020_row_literal": "",
+    },
+    "amortization_limited_term_electric_plant": {
+        "dbf2020_row_number": pd.NA,
+        "dbf2020_table_name": "f1_dacs_epda",
+        "dbf2020_row_literal": "Amortization of Limited Term Electric Plant (Account 404) (d)",
+    },
+    "amortization_other_electric_plant": {
+        "dbf2020_row_number": pd.NA,
+        "dbf2020_table_name": "f1_dacs_epda",
+        "dbf2020_row_literal": "Amortization of Other Electric Plant (Acc 405) (e)",
+    },
+    "depreciation_amortization_total": {
+        "dbf2020_row_number": pd.NA,
+        "dbf2020_table_name": "f1_dacs_epda",
+        "dbf2020_row_literal": "Total (f)",
+    },
+    "depreciation_expense": {
+        "dbf2020_row_number": pd.NA,
+        "dbf2020_table_name": "f1_dacs_epda",
+        "dbf2020_row_literal": "Depreciation Expense (Account 403) (b)",
+    },
+    "depreciation_expense_asset_retirement": {
+        "dbf2020_row_number": pd.NA,
+        "dbf2020_table_name": "f1_dacs_epda",
+        "dbf2020_row_literal": "Depreciation Expense for Asset Retirement Costs (Account 403.1) (c)",
+    },
+}
+"""Manually compiled metadata from DBF-only or PUDL-generated xbrl_factios.
+
+Note: the factoids beginning with "less" here could be removed after a transition
+of expectations from assuming the calculation components in any given explosion
+is a tree structure to being a dag. These xbrl_factoids were added in
+`transform.ferc1` and could be removed upon this transition.
+"""
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
@@ -1009,11 +1080,29 @@ class NodeId(NamedTuple):
 
 @asset
 def _out_ferc1__explosion_tags(table_dimensions_ferc1) -> pd.DataFrame:
-    """Grab the stored table of tags and add infered dimension."""
-    # NOTE: there are a bunch of duplicate records in xbrl_factoid_rate_base_tags.csv
-    # Also, these tags are only applicable to the balance_sheet_assets_ferc1 table, but
+    """Grab the stored tables of tags and add inferred dimension."""
+    # Also, these tags may not be applicable to all exploded tables, but
     # we need to pass in a dataframe with the right structure to all of the exploders,
     # so we're just re-using this one for the moment.
+    rate_base_tags = _rate_base_tags(table_dimensions_ferc1=table_dimensions_ferc1)
+    plant_status_tags = _aggregatable_dimension_tags(
+        table_dimensions_ferc1=table_dimensions_ferc1, dimension="plant_status"
+    )
+    plant_function_tags = _aggregatable_dimension_tags(
+        table_dimensions_ferc1=table_dimensions_ferc1, dimension="plant_function"
+    )
+    # We shouldn't have more than one row per tag, so we use a 1:1 validation here.
+    plant_tags = plant_status_tags.merge(
+        plant_function_tags, how="outer", on=list(NodeId._fields), validate="1:1"
+    )
+    tags_df = pd.merge(
+        rate_base_tags, plant_tags, on=list(NodeId._fields), how="outer"
+    ).astype(pd.StringDtype())
+    return tags_df
+
+
+def _rate_base_tags(table_dimensions_ferc1: pd.DataFrame) -> pd.DataFrame:
+    # NOTE: there are a bunch of duplicate records in xbrl_factoid_rate_base_tags.csv
     tags_csv = (
         importlib.resources.files("pudl.package_data.ferc1")
         / "xbrl_factoid_rate_base_tags.csv"
@@ -1021,14 +1110,7 @@ def _out_ferc1__explosion_tags(table_dimensions_ferc1) -> pd.DataFrame:
     tags_df = (
         pd.read_csv(
             tags_csv,
-            usecols=[
-                "table_name",
-                "xbrl_factoid",
-                "in_rate_base",
-                "utility_type",
-                "plant_function",
-                "plant_status",
-            ],
+            usecols=list(NodeId._fields) + ["in_rate_base"],
         )
         .drop_duplicates()
         .dropna(subset=["table_name", "xbrl_factoid"], how="any")
@@ -1037,9 +1119,46 @@ def _out_ferc1__explosion_tags(table_dimensions_ferc1) -> pd.DataFrame:
             table_dimensions_ferc1,
             dimensions=["utility_type", "plant_function", "plant_status"],
         )
-        .astype(pd.StringDtype())
     )
     return tags_df
+
+
+def _aggregatable_dimension_tags(
+    table_dimensions_ferc1: pd.DataFrame,
+    dimension: Literal["plant_status", "plant_function"],
+) -> pd.DataFrame:
+    # make a new lil csv w the manually compiled plant status or dimension
+    # add in the rest from the table_dims
+    # merge it into _out_ferc1__explosion_tags
+    aggregatable_col = f"aggregatable_{dimension}"
+    tags_csv = (
+        importlib.resources.files("pudl.package_data.ferc1")
+        / f"xbrl_factoid_{dimension}_tags.csv"
+    )
+    dimensions = ["utility_type", "plant_function", "plant_status"]
+    idx = list(NodeId._fields)
+    tags_df = (
+        pd.read_csv(tags_csv)
+        .assign(**{dim: pd.NA for dim in dimensions})
+        .pipe(
+            pudl.transform.ferc1.make_calculation_dimensions_explicit,
+            table_dimensions_ferc1,
+            dimensions=dimensions,
+        )
+        .astype(pd.StringDtype())
+        .set_index(idx)
+    )
+    table_dimensions_ferc1 = table_dimensions_ferc1.set_index(idx)
+    tags_df = pd.concat(
+        [
+            tags_df,
+            table_dimensions_ferc1.loc[
+                table_dimensions_ferc1.index.difference(tags_df.index)
+            ],
+        ]
+    ).reset_index()
+    tags_df[aggregatable_col] = tags_df[aggregatable_col].fillna(tags_df[dimension])
+    return tags_df[tags_df[aggregatable_col] != "total"]
 
 
 def exploded_table_asset_factory(
@@ -1133,7 +1252,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 NodeId(
                     table_name="balance_sheet_assets_ferc1",
                     xbrl_factoid="assets_and_other_debits",
-                    utility_type=pd.NA,
+                    utility_type="total",
                     plant_status=pd.NA,
                     plant_function=pd.NA,
                 )
@@ -1152,7 +1271,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                 NodeId(
                     table_name="balance_sheet_liabilities_ferc1",
                     xbrl_factoid="liabilities_and_other_credits",
-                    utility_type=pd.NA,
+                    utility_type="total",
                     plant_status=pd.NA,
                     plant_function=pd.NA,
                 )
@@ -1357,6 +1476,14 @@ class Exploder:
             on=["table_name", "xbrl_factoid"],
             validate="many_to_one",
         )
+
+        # Add manual fixes for created factoids
+        fixes = pd.DataFrame(MANUAL_DBF_METADATA_FIXES).T
+        exploded_metadata = exploded_metadata.set_index("xbrl_factoid")
+        # restrict fixes to only those that are actually in the meta.
+        fixes = fixes.loc[fixes.index.intersection(exploded_metadata.index)]
+        exploded_metadata.loc[fixes.index, fixes.columns] = fixes
+        exploded_metadata = exploded_metadata.reset_index()
 
         return exploded_metadata
 
@@ -1609,68 +1736,73 @@ class XbrlCalculationForestFerc1(BaseModel):
 
     # Not sure if dynamically basing this on NodeId is really a good idea here.
     calc_cols: list[str] = list(NodeId._fields)
-    parent_cols: list[str] | None = None
     exploded_meta: pd.DataFrame = pd.DataFrame()
     exploded_calcs: pd.DataFrame = pd.DataFrame()
     seeds: list[NodeId] = []
     tags: pd.DataFrame = pd.DataFrame()
     group_metric_checks: GroupMetricChecks = GroupMetricChecks()
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True, ignored_types=(cached_property,)
+    )
 
-    class Config:
-        """Allow the class to store a dataframe."""
+    @property
+    def parent_cols(self: Self) -> list[str]:
+        """Construct parent_cols based on the provided calc_cols."""
+        return [col + "_parent" for col in self.calc_cols]
 
-        arbitrary_types_allowed = True
-        keep_untouched = (cached_property,)
-
-    @validator("parent_cols", always=True)
-    def set_parent_cols(cls, v, values) -> list[str]:
-        """A convenience property to generate parent column."""
-        return [col + "_parent" for col in values["calc_cols"]]
-
-    @validator("exploded_calcs")
-    def unique_associations(cls, v: pd.DataFrame, values) -> pd.DataFrame:
+    @model_validator(mode="after")
+    def unique_associations(self: Self):
         """Ensure parent-child associations in exploded calculations are unique."""
-        pks = values["calc_cols"] + values["parent_cols"]
-        dupes = v.duplicated(subset=pks, keep=False)
+        pks = self.calc_cols + self.parent_cols
+        dupes = self.exploded_calcs.duplicated(subset=pks, keep=False)
         if dupes.any():
             logger.warning(
                 "Consolidating non-unique associations found in exploded_calcs:\n"
-                f"{v.loc[dupes]}"
+                f"{self.exploded_calcs.loc[dupes]}"
             )
-        # Drop all duplicates with null weights -- this is a temporary fix to an issue
-        # from upstream.
-        assert not v.duplicated(subset=pks, keep=False).any()
-        return v
+        assert not self.exploded_calcs.duplicated(subset=pks, keep=False).any()
+        return self
 
-    @validator("exploded_calcs")
-    def calcs_have_required_cols(cls, v: pd.DataFrame, values) -> pd.DataFrame:
+    @model_validator(mode="after")
+    def calcs_have_required_cols(self: Self):
         """Ensure exploded calculations include all required columns."""
-        required_cols = values["parent_cols"] + values["calc_cols"] + ["weight"]
-        missing_cols = [col for col in required_cols if col not in v.columns]
+        required_cols = self.parent_cols + self.calc_cols + ["weight"]
+        missing_cols = [
+            col for col in required_cols if col not in self.exploded_calcs.columns
+        ]
         if missing_cols:
             raise ValueError(
                 f"Exploded calculations missing expected columns: {missing_cols=}"
             )
-        return v[required_cols]
+        self.exploded_calcs = self.exploded_calcs.loc[:, required_cols]
+        return self
 
-    @validator("exploded_calcs")
-    def calc_parents_notna(cls, v: pd.DataFrame) -> pd.DataFrame:
+    @model_validator(mode="after")
+    def calc_parents_notna(self: Self):
         """Ensure that parent table_name and xbrl_factoid columns are non-null."""
-        if v[["table_name_parent", "xbrl_factoid_parent"]].isna().any(axis=None):
+        if (
+            self.exploded_calcs[["table_name_parent", "xbrl_factoid_parent"]]
+            .isna()
+            .any(axis=None)
+        ):
             raise AssertionError("Null parent table name or xbrl_factoid found.")
-        return v
+        return self
 
-    @validator("tags")
-    def tags_have_required_cols(cls, v: pd.DataFrame, values) -> pd.DataFrame:
+    @field_validator("tags")
+    @classmethod
+    def tags_have_required_cols(
+        cls, v: pd.DataFrame, info: ValidationInfo
+    ) -> pd.DataFrame:
         """Ensure tagging dataframe contains all required index columns."""
-        missing_cols = [col for col in values["calc_cols"] if col not in v.columns]
+        missing_cols = [col for col in info.data["calc_cols"] if col not in v.columns]
         if missing_cols:
             raise ValueError(
                 f"Tagging dataframe was missing expected columns: {missing_cols=}"
             )
         return v
 
-    @validator("tags")
+    @field_validator("tags")
+    @classmethod
     def tags_cols_notnull(cls, v: pd.DataFrame) -> pd.DataFrame:
         """Ensure all tags have non-null table_name and xbrl_factoid."""
         null_idx_rows = v[v.table_name.isna() | v.xbrl_factoid.isna()]
@@ -1683,29 +1815,30 @@ class XbrlCalculationForestFerc1(BaseModel):
         v = v.dropna(subset=["table_name", "xbrl_factoid"])
         return v
 
-    @validator("tags")
-    def single_valued_tags(cls, v: pd.DataFrame, values) -> pd.DataFrame:
+    @field_validator("tags")
+    @classmethod
+    def single_valued_tags(cls, v: pd.DataFrame, info: ValidationInfo) -> pd.DataFrame:
         """Ensure all tags have unique values."""
-        dupes = v.duplicated(subset=values["calc_cols"], keep=False)
+        dupes = v.duplicated(subset=info.data["calc_cols"], keep=False)
         if dupes.any():
             logger.warning(
                 f"Found {dupes.sum()} duplicate tag records:\n{v.loc[dupes]}"
             )
         return v
 
-    @validator("seeds")
-    def seeds_within_bounds(cls, v: pd.DataFrame, values) -> pd.DataFrame:
+    @model_validator(mode="after")
+    def seeds_within_bounds(self: Self):
         """Ensure that all seeds are present within exploded_calcs index.
 
         For some reason this validator is being run before exploded_calcs has been
         added to the values dictionary, which doesn't make sense, since "seeds" is
         defined after exploded_calcs in the model.
         """
-        all_nodes = values["exploded_calcs"].set_index(values["parent_cols"]).index
-        bad_seeds = [seed for seed in v if seed not in all_nodes]
+        all_nodes = self.exploded_calcs.set_index(self.parent_cols).index
+        bad_seeds = [seed for seed in self.seeds if seed not in all_nodes]
         if bad_seeds:
             raise ValueError(f"Seeds missing from exploded_calcs index: {bad_seeds=}")
-        return v
+        return self
 
     def exploded_calcs_to_digraph(
         self: Self,
@@ -1745,10 +1878,17 @@ class XbrlCalculationForestFerc1(BaseModel):
         tags_dict = (
             self.tags.convert_dtypes().set_index(self.calc_cols).to_dict(orient="index")
         )
+        # Drop None tags created by combining multiple tagging CSVs
+        clean_tags_dict = {
+            k: {a: b for a, b in v.items() if b is not None}
+            for k, v in tags_dict.items()
+        }
         node_attrs = (
             pd.DataFrame(
-                index=pd.MultiIndex.from_tuples(tags_dict.keys(), names=self.calc_cols),
-                data={"tags": list(tags_dict.values())},
+                index=pd.MultiIndex.from_tuples(
+                    clean_tags_dict.keys(), names=self.calc_cols
+                ),
+                data={"tags": list(clean_tags_dict.values())},
             )
             .reset_index()
             # Type conversion is necessary to get pd.NA in the index:
@@ -1756,16 +1896,29 @@ class XbrlCalculationForestFerc1(BaseModel):
             # We need a dictionary for *all* nodes, not just those with tags.
             .merge(
                 self.exploded_meta.loc[:, self.calc_cols],
-                how="right",
+                how="left",
                 on=self.calc_cols,
                 validate="one_to_many",
+                indicator=True,
             )
             # For nodes with no tags, we assign an empty dictionary:
             .assign(tags=lambda x: np.where(x["tags"].isna(), {}, x["tags"]))
+        )
+        lefties = node_attrs[
+            (node_attrs._merge == "left_only")
+            & (node_attrs.table_name.isin(self.table_names))
+        ]
+        if not lefties.empty:
+            logger.warning(
+                f"Found {len(lefties)} tags that only exist in our manually compiled "
+                "tags when expected none. Ensure the compiled tags match the metadata."
+                f"Mismatched tags:\n{lefties}"
+            )
+        return (
+            node_attrs.drop(columns=["_merge"])
             .set_index(self.calc_cols)
             .to_dict(orient="index")
         )
-        return node_attrs
 
     @cached_property
     def edge_attrs(self: Self) -> dict[Any, Any]:
