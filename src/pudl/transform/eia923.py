@@ -476,9 +476,8 @@ def _coalmine_cleanup(cmi_df: pd.DataFrame) -> pd.DataFrame:
             ),
         )
         # No leading or trailing whitespace:
-        .pipe(pudl.helpers.simplify_strings, columns=["mine_name"]).pipe(
-            pudl.helpers.add_fips_ids, county_col=None
-        )
+        .pipe(pudl.helpers.simplify_strings, columns=["mine_name"])
+        .pipe(pudl.helpers.add_fips_ids, county_col=None)
     )
     # join state and partial county FIPS into five digit county FIPS
     cmi_df["county_id_fips"] = cmi_df["state_id_fips"] + cmi_df["county_id_fips"]
@@ -656,7 +655,8 @@ def _core_eia_923__generation_fuel_eia923(raw_eia923__generation_fuel: pd.DataFr
     gen_fuel["prime_mover_code"] = (
         # one plant in 2004. Pre-2004, it was '',
         # post-2004, it was broken into combined cycle parts
-        gen_fuel["prime_mover_code"].replace({"CC": ""})
+        gen_fuel["prime_mover_code"]
+        .replace({"CC": ""})
         # Empty strings and whitespace that should be NA.
         .replace(to_replace=r"^\s*$", value=pd.NA, regex=True)
     )
@@ -852,7 +852,7 @@ def _core_eia923__boiler_fuel(raw_eia923__boiler_fuel: pd.DataFrame) -> pd.DataF
         "balancing_authority_code_eia",
         "early_release",
         "reporting_frequency_code",
-        "data_maturity",
+        # "data_maturity",
     ]
     bf_df = bf_df.drop(cols_to_drop, axis=1)
 

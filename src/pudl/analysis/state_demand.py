@@ -128,13 +128,13 @@ def local_to_utc(local: pd.Series, tz: Iterable, **kwargs: Any) -> pd.Series:
     """Convert local times to UTC.
 
     Args:
-        local: Local times (tz-naive `datetime64[ns]`).
+        local: Local times (tz-naive ``datetime64[ns]``).
         tz: For each time, a timezone (see :meth:`DatetimeIndex.tz_localize`)
-          or UTC offset in hours (`int` or `float`).
+            or UTC offset in hours (``int`` or ``float``).
         kwargs: Optional arguments to :meth:`DatetimeIndex.tz_localize`.
 
     Returns:
-        UTC times (tz-naive `datetime64[ns]`).
+        UTC times (tz-naive ``datetime64[ns]``).
 
     Examples:
         >>> s = pd.Series([pd.Timestamp(2020, 1, 1), pd.Timestamp(2020, 1, 1)])
@@ -147,7 +147,7 @@ def local_to_utc(local: pd.Series, tz: Iterable, **kwargs: Any) -> pd.Series:
         1   2020-01-01 06:00:00
         dtype: datetime64[ns]
     """
-    return local.groupby(tz).transform(
+    return local.groupby(tz, observed=True).transform(
         lambda x: x.dt.tz_localize(
             datetime.timezone(datetime.timedelta(hours=x.name))
             if isinstance(x.name, int | float)
@@ -161,12 +161,12 @@ def utc_to_local(utc: pd.Series, tz: Iterable) -> pd.Series:
     """Convert UTC times to local.
 
     Args:
-        utc: UTC times (tz-naive `datetime64[ns]` or `datetime64[ns, UTC]`).
+        utc: UTC times (tz-naive ``datetime64[ns]`` or ``datetime64[ns, UTC]``).
         tz: For each time, a timezone (see :meth:`DatetimeIndex.tz_localize`)
-          or UTC offset in hours (`int` or `float`).
+          or UTC offset in hours (``int`` or ``float``).
 
     Returns:
-        Local times (tz-naive `datetime64[ns]`).
+        Local times (tz-naive ``datetime64[ns]``).
 
     Examples:
         >>> s = pd.Series([pd.Timestamp(2020, 1, 1), pd.Timestamp(2020, 1, 1)])
@@ -181,7 +181,7 @@ def utc_to_local(utc: pd.Series, tz: Iterable) -> pd.Series:
     """
     if utc.dt.tz is None:
         utc = utc.dt.tz_localize("UTC")
-    return utc.groupby(tz).transform(
+    return utc.groupby(tz, observed=True).transform(
         lambda x: x.dt.tz_convert(
             datetime.timezone(datetime.timedelta(hours=x.name))
             if isinstance(x.name, int | float)

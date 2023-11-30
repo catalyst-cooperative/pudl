@@ -27,7 +27,7 @@ from dagster import (
 
 import pudl
 from pudl.helpers import get_dagster_execution_config
-from pudl.settings import EtlSettings
+from pudl.settings import EpaCemsSettings, EtlSettings
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -118,7 +118,7 @@ def main():
 
     etl_settings = EtlSettings.from_yaml(args.settings_file)
 
-    dataset_settings_config = etl_settings.datasets.dict()
+    dataset_settings_config = etl_settings.datasets.model_dump()
     process_epacems = True
     if etl_settings.datasets.epacems is None:
         process_epacems = False
@@ -126,7 +126,7 @@ def main():
         # the CEMS assets will not be executed. Fill in the config dictionary
         # with default cems values. Replace this workaround once dagster pydantic
         # config classes are available.
-        dataset_settings_config["epacems"] = pudl.settings.EpaCemsSettings().dict()
+        dataset_settings_config["epacems"] = EpaCemsSettings().model_dump()
 
     pudl_etl_reconstructable_job = build_reconstructable_job(
         "pudl.cli.etl",

@@ -56,7 +56,7 @@ def plants_ferc1_raw(dataset_settings_config) -> pd.DataFrame:
 
 @pytest.fixture(scope="module")
 def glue_test_dfs(
-    pudl_out,
+    pudl_out: PudlTabl,
     ferc1_engine_xbrl,
     ferc1_engine_dbf,
     etl_settings,
@@ -86,7 +86,7 @@ def glue_test_dfs(
     )
     # Make everything lowercase
     glue_test_dfs = {
-        df_name: df.applymap(lambda x: x.lower() if isinstance(x, str) else x)
+        df_name: df.map(lambda x: x.lower() if isinstance(x, str) else x)
         for (df_name, df) in glue_test_dfs.items()
     }
 

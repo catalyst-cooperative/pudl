@@ -50,7 +50,7 @@ def parse_command_line(argv):
         "--clobber",
         action="store_true",
         help="""Clobber existing sqlite database if it exists. If clobber is
-        not included but the sqlite databse already exists the _build will
+        not included but the sqlite databse already exists the build will
         fail.""",
         default=False,
     )
@@ -72,6 +72,7 @@ def parse_command_line(argv):
         "--gcs-cache-path",
         type=str,
         help="Load datastore resources from Google Cloud Storage. Should be gs://bucket[/path_prefix]",
+        default="",
     )
     parser.add_argument(
         "--loglevel",
@@ -151,13 +152,11 @@ def main():  # noqa: C901
     run_config = {
         "resources": {
             "ferc_to_sqlite_settings": {
-                "config": etl_settings.ferc_to_sqlite_settings.dict()
+                "config": etl_settings.ferc_to_sqlite_settings.model_dump()
             },
             "datastore": {
                 "config": {
                     "gcs_cache_path": args.gcs_cache_path
-                    if args.gcs_cache_path
-                    else "",
                 },
             },
         },

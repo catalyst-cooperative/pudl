@@ -2,9 +2,11 @@
 import importlib.resources
 import pathlib
 from collections import defaultdict
+from io import BytesIO
 
 import dbfread
 import pandas as pd
+import regex as re
 from dagster import (
     AssetsDefinition,
     DynamicOut,
@@ -200,10 +202,18 @@ class GenericExtractor:
         ``self.cols_added``.
         """
         maturity = "final"
-        if "early_release" in self.excel_filename(page, **partition).lower():
+        file_name = self.excel_filename(page, **partition)
+        if "early_release" in file_name.lower():
             maturity = "provisional"
         elif self._dataset_name == "eia860m":
             maturity = "monthly_update"
+        elif "EIA923_Schedules_2_3_4_5_M_" in file_name:
+            release_month = re.search(
+                r"EIA923_Schedules_2_3_4_5_M_(\d{2})",
+                file_name,
+            ).group(1)
+            if release_month != "12":
+                maturity = "incremental_ytd"
         df = df.assign(data_maturity=maturity)
         self.cols_added.append("data_maturity")
         return df
@@ -344,7 +354,7 @@ class GenericExtractor:
                     )
                     excel_file = pudl.helpers.convert_df_to_excel_file(df, index=False)
                 else:
-                    excel_file = pd.ExcelFile(zf.read(xlsx_filename))
+                    excel_file = pd.ExcelFile(BytesIO(zf.read(xlsx_filename)))
             finally:
                 self._file_cache[xlsx_filename] = excel_file
         # TODO(rousik): this _file_cache could be replaced with @cache or @memoize annotations

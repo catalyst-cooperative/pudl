@@ -10,6 +10,7 @@
 
 import datetime
 import importlib.metadata
+import os
 import shutil
 from pathlib import Path
 
@@ -18,6 +19,11 @@ from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.resources import RESOURCE_METADATA
 
 DOCS_DIR = Path(__file__).parent.resolve()
+if os.environ.get("READTHEDOCS"):
+    pudl_input = Path(os.environ["PUDL_INPUT"])
+    pudl_input.mkdir(parents=True, exist_ok=True)
+    pudl_output = Path(os.environ["PUDL_OUTPUT"])
+    pudl_output.mkdir(parents=True, exist_ok=True)
 
 # -- Path setup --------------------------------------------------------------
 # We are building and installing the pudl package in order to get access to
@@ -80,18 +86,21 @@ issues_github_path = "catalyst-cooperative/pudl"
 # we need to define these package to URL mappings:
 intersphinx_mapping = {
     "arrow": ("https://arrow.apache.org/docs/", None),
+    "dagster": ("https://docs.dagster.io/", None),
     "dask": ("https://docs.dask.org/en/latest/", None),
+    "datasette": ("https://docs.datasette.io/en/stable/", None),
     "geopandas": ("https://geopandas.org/en/stable/", None),
+    "hypothesis": ("https://hypothesis.readthedocs.io/en/latest/", None),
     "networkx": ("https://networkx.org/documentation/stable/", None),
     "numpy": ("https://numpy.org/doc/stable/", None),
     "pandas": ("https://pandas.pydata.org/pandas-docs/stable", None),
+    "pandera": ("https://pandera.readthedocs.io/en/stable/", None),
+    "pydantic": ("https://docs.pydantic.dev/latest/", None),
     "pytest": ("https://docs.pytest.org/en/latest/", None),
     "python": ("https://docs.python.org/3", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/", None),
-    "setuptools": ("https://setuptools.pypa.io/en/latest/", None),
     "sklearn": ("https://scikit-learn.org/stable", None),
     "sqlalchemy": ("https://docs.sqlalchemy.org/en/latest/", None),
-    "tox": ("https://tox.wiki/en/latest/", None),
 }
 
 # Add any paths that contain templates here, relative to this directory.

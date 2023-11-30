@@ -360,7 +360,8 @@ def allocate_gen_fuel_by_generator_energy_source(
     # Add any startup energy source codes to the list of energy source codes
     gens_at_freq = adjust_msw_energy_source_codes(gens_at_freq, gf, bf)
     gens_at_freq = add_missing_energy_source_codes_to_gens(gens_at_freq, gf, bf)
-    # do the association!
+    # do the association! --> this step is where a small no. of plants are dropped for
+    # an unknown reason. Investigate in issue #2978.
     gen_assoc = associate_generator_tables(
         gens=gens_at_freq, gf=gf, gen=gen, bf=bf, bga=bga
     )
@@ -1011,7 +1012,7 @@ def _allocate_unassociated_pm_records(
     eia_generators_connected = gen_assoc.loc[connected_mask].assign(
         capacity_mw_minus_one=lambda x: x.groupby(idx_minus_one)[
             "capacity_mw"
-        ].transform(sum),
+        ].transform("sum"),
         frac_cap_minus_one=lambda x: x.capacity_mw / x.capacity_mw_minus_one,
     )
 
@@ -1191,7 +1192,7 @@ def prep_alloction_fraction(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     )
     gen_pm_fuel["capacity_mw_fuel_in_bf_tbl_group"] = gen_pm_fuel.groupby(
         IDX_PM_ESC + ["in_bf_tbl"], dropna=False
-    )[["capacity_mw"]].transform(sum, min_count=1)
+    )[["capacity_mw"]].transform("sum", min_count=1)
 
     return gen_pm_fuel
 
@@ -1308,8 +1309,7 @@ def allocate_gen_fuel_by_gen_esc(gen_pm_fuel: pd.DataFrame) -> pd.DataFrame:
         net_gen_alloc.assign(
             # we could x.net_generation_mwh_g_tbl.fillna here if we wanted to
             # take the net gen
-            net_generation_mwh=lambda x: x.net_generation_mwh_gf_tbl
-            * x.frac,
+            net_generation_mwh=lambda x: x.net_generation_mwh_gf_tbl * x.frac,
         )
         .pipe(apply_pudl_dtypes, group="eia")
         .dropna(how="all")
@@ -1533,7 +1533,7 @@ def distribute_annually_reported_data_to_months_if_annual(
                 | np.isclose(reporters[data_column_name], 0)
             )
             .groupby(key_columns_annual, dropna=False)[["missing_data"]]
-            .transform(sum)
+            .transform("sum")
         )
 
         # seperate annual and monthly reporters

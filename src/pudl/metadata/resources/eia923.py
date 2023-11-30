@@ -18,8 +18,7 @@ associations between individual boilers and generators are incomplete and can be
 complex.
 
 Note that a small number of respondents only report annual fuel consumption, and all of
-it is reported in December.
-"""
+it is reported in December."""
     ),
     "fuel_receipts_costs_eia923": (
         """Data describing fuel deliveries to power plants, reported in EIA-923 Schedule 2, Part A.
@@ -44,8 +43,7 @@ likely fuel to have its price redacted. This means, for instance, that the entir
 Northeastern US reports essentially no fine-grained data about its natural gas prices.
 
 Additional data which we haven't yet integrated is available in a similar format from
-2002-2008 via the EIA-423, and going back as far as 1972 from the FERC-423.
-"""
+2002-2008 via the EIA-423, and going back as far as 1972 from the FERC-423."""
     ),
     "generation_eia923": (
         """EIA-923 Monthly Generating Unit Net Generation. From EIA-923 Schedule 3.
@@ -62,8 +60,7 @@ those calculations depend on plant-level fuel costs and sometimes uncertain or
 incomplete boiler-generator associations.
 
 Note that a small number of respondents only report annual net generation, and all of
-it is reported in December.
-"""
+it is reported in December."""
     ),
     "generation_fuel_eia923": (
         """EIA-923 Monthly Generation and Fuel Consumption Time Series. From EIA-923 Schedule 3.
@@ -83,8 +80,7 @@ and also provide high temperature process heat at the expense of net electricity
 generation.
 
 Note that a small number of respondents only report annual fuel consumption and net
-generation, and all of it is reported in December.
-"""
+generation, and all of it is reported in December."""
     ),
     "generation_fuel_nuclear_eia923": (
         """EIA-923 Monthly Generation and Fuel Consumption Time Series. From EIA-923 Schedule 3.
@@ -93,8 +89,7 @@ Monthly electricity generation and fuel consumption reported for each combinatio
 fuel and prime mover within a nuclear generation unit. This data is originally reported
 alongside similar information for fossil fuel plants, but the nuclear data is reported
 by (nuclear) generation unit rather than fuel type and prime mover, and so has a
-different primary key.
-"""
+different primary key."""
     ),
     "generation_fuel_combined_eia923": (
         """EIA-923 Monthly Generation and Fuel Consumption Time Series. From EIA-923 Schedule 3.
@@ -102,8 +97,7 @@ different primary key.
 Denormalized, combined data from the ``generation_fuel_eia923`` and
 ``generation_fuel_nuclear_eia923`` with nuclear generation aggregated from the nuclear
 generation unit level up to the plant prime mover level, so as to be compatible with
-fossil fuel generation data.
-"""
+fossil fuel generation data."""
     ),
 }
 
@@ -122,8 +116,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "fuel_mmbtu_per_unit",
                 "sulfur_content_pct",
                 "ash_content_pct",
-                # No data_maturity field
-                # see: https://github.com/catalyst-cooperative/pudl/issues/1847
+                "data_maturity",
             ],
             "primary_key": [
                 "plant_id_eia",
@@ -158,8 +151,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "fuel_consumed_mmbtu",
                 "sulfur_content_pct",
                 "ash_content_pct",
-                # No data_maturity field
-                # see: https://github.com/catalyst-cooperative/pudl/issues/1847
+                "data_maturity",
             ],
             "primary_key": [
                 "plant_id_eia",
@@ -194,8 +186,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "fuel_consumed_mmbtu",
                 "sulfur_content_pct",
                 "ash_content_pct",
-                # No data_maturity field
-                # see: https://github.com/catalyst-cooperative/pudl/issues/1847
+                "data_maturity",
             ],
             "primary_key": [
                 "plant_id_eia",
@@ -230,8 +221,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "fuel_consumed_mmbtu",
                 "sulfur_content_pct",
                 "ash_content_pct",
-                # No data_maturity field
-                # see: https://github.com/catalyst-cooperative/pudl/issues/1847
+                "data_maturity",
             ],
             "primary_key": [
                 "plant_id_eia",
@@ -260,8 +250,7 @@ records in this table that correspond to the same mines in reality.
 We have not yet taken the time to rigorously clean this data, but it could be linked
 with both Mining Safety and Health Administration (MSHA) and USGS data to provide more
 insight into where coal is coming from, and what the employment and geological context
-is for those supplies.
-"""
+is for those supplies."""
         ),
         "schema": {
             "fields": [
@@ -382,6 +371,7 @@ is for those supplies.
                 "mercury_content_ppm",
                 "moisture_content_pct",
                 "chlorine_content_ppm",
+                "data_maturity",
             ],
         },
         "field_namespace": "eia",
@@ -412,6 +402,7 @@ is for those supplies.
                 "mercury_content_ppm",
                 "moisture_content_pct",
                 "chlorine_content_ppm",
+                "data_maturity",
             ],
         },
         "field_namespace": "eia",
@@ -470,6 +461,7 @@ is for those supplies.
                 "generator_id",
                 "unit_id_pudl",
                 "net_generation_mwh",
+                "data_maturity",
             ],
             "primary_key": ["plant_id_eia", "generator_id", "report_date"],
         },
@@ -491,6 +483,7 @@ is for those supplies.
                 "generator_id",
                 "unit_id_pudl",
                 "net_generation_mwh",
+                "data_maturity",
             ],
             "primary_key": ["plant_id_eia", "generator_id", "report_date"],
         },
@@ -581,6 +574,7 @@ is for those supplies.
                 "fuel_consumed_mmbtu",
                 "fuel_consumed_for_electricity_mmbtu",
                 "net_generation_mwh",
+                "data_maturity",
             ],
             "primary_key": [
                 "plant_id_eia",
@@ -613,6 +607,7 @@ is for those supplies.
                 "fuel_consumed_mmbtu",
                 "fuel_consumed_for_electricity_mmbtu",
                 "net_generation_mwh",
+                "data_maturity",
             ],
             "primary_key": [
                 "plant_id_eia",

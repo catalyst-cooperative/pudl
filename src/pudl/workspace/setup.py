@@ -4,36 +4,15 @@ import os
 import pathlib
 import shutil
 from pathlib import Path
-from typing import Any
 
-from pydantic import BaseSettings, DirectoryPath
-from pydantic.validators import path_validator
+from pydantic import DirectoryPath, NewPath
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 import pudl.logging_helpers
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
-
-class MissingPath(Path):
-    """Validates potential path that doesn't exist."""
-
-    @classmethod
-    def __get_validators__(cls) -> Any:
-        """Validates that path doesn't exist and is path-like."""
-        yield path_validator
-        yield cls.validate
-
-    @classmethod
-    def validate(cls, value: Path) -> Path:
-        """Validates that path doesn't exist."""
-        if value.exists():
-            raise ValueError("path exists")
-
-        return value
-
-
-# TODO: The following could be replaced with NewPath from pydantic v2
-PotentialDirectoryPath = DirectoryPath | MissingPath
+PotentialDirectoryPath = DirectoryPath | NewPath
 
 
 class PudlPaths(BaseSettings):
@@ -45,21 +24,17 @@ class PudlPaths(BaseSettings):
 
     pudl_input: PotentialDirectoryPath
     pudl_output: PotentialDirectoryPath
-
-    class Config:
-        """Pydantic config, reads from .env file."""
-
-        env_file = ".env"
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     @property
     def input_dir(self) -> Path:
         """Path to PUDL input directory."""
-        return Path(self.pudl_input)
+        return Path(self.pudl_input).absolute()
 
     @property
     def output_dir(self) -> Path:
         """Path to PUDL output directory."""
-        return Path(self.pudl_output)
+        return Path(self.pudl_output).absolute()
 
     @property
     def settings_dir(self) -> Path:
@@ -73,18 +48,22 @@ class PudlPaths(BaseSettings):
         return self.input_dir
 
     @property
-    def pudl_db(self) -> Path:
+    def pudl_db(self) -> str:
         """Returns url of locally stored pudl sqlite database."""
-        return self.sqlite_db("pudl")
+        return self.sqlite_db_uri("pudl")
 
-    def sqlite_db(self, name: str) -> str:
-        """Returns url of locally stored pudl slqlite database with given name.
+    def sqlite_db_uri(self, name: str) -> str:
+        """Returns url of locally stored pudl sqlite database with given name.
 
         The name is expected to be the name of the database without the .sqlite
         suffix. E.g. pudl, ferc1 and so on.
         """
-        db_path = PudlPaths().output_dir / f"{name}.sqlite"
-        return f"sqlite:///{db_path}"
+        # SQLite URI has 3 slashes - 2 to separate URI scheme, 1 to separate creds
+        # sqlite://{credentials}/{db_path}
+        return f"sqlite:///{self.sqlite_db_path(name)}"
+
+    def sqlite_db_path(self, name: str) -> Path:
+        """Return path to locally stored SQLite DB file."""
         return self.output_dir / f"{name}.sqlite"
 
     def output_file(self, filename: str) -> Path:

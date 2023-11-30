@@ -761,9 +761,7 @@ class MakePlantParts:
             )
         ]
 
-        assert (
-            double_df.empty
-        ), f"The following record ids have >1 faked part. Double-check these records or move them to the ferc1_eia_null.csv: {one_to_many.loc[one_to_many.gen_id.isin(orig_ids.record_id_eia), 'record_id_ferc1'].drop_duplicates().tolist()}"
+        assert double_df.empty, f"The following record ids have >1 faked part. Double-check these records or move them to the ferc1_eia_null.csv: {one_to_many.loc[one_to_many.gen_id.isin(orig_ids.record_id_eia), 'record_id_ferc1'].drop_duplicates().tolist()}"
 
         return pd.concat([plant_parts_eia, part_df])
 
