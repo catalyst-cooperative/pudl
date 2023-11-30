@@ -53,8 +53,8 @@ conda-lock.yml: pyproject.toml
 # Create the pudl-dev conda environment based on the universal lockfile
 .PHONY: pudl-dev
 pudl-dev:
-	${mamba} run --name base ${mamba} env remove --name pudl-dev
 	${mamba} run --name base ${mamba} install --quiet --yes conda-lock
+	${mamba} run --name base ${mamba} env remove --name pudl-dev
 	${mamba} run --name base conda-lock install \
 		--name pudl-dev \
 		--${mamba} \
