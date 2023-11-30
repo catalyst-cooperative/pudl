@@ -8,24 +8,15 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pudl.analysis.record_linkage.classify_plants_ferc1 import Ferc1PlantClassifier
+from pudl.analysis.record_linkage.classify_plants_ferc1 import (
+    _FUEL_COLS,
+    Ferc1PlantClassifier,
+)
 from pudl.transform.params.ferc1 import (
     CONSTRUCTION_TYPE_CATEGORIES,
     PLANT_TYPE_CATEGORIES,
     VALID_PLANT_YEARS,
 )
-
-_FUEL_COLS = [
-    "coal_fraction_mmbtu",
-    "gas_fraction_mmbtu",
-    "hydro_fraction_mmbtu",
-    "nuclear_fraction_mmbtu",
-    "oil_fraction_mmbtu",
-    "other_fraction_mmbtu",
-    "solar_fraction_mmbtu",
-    "waste_fraction_mmbtu",
-    "wind_fraction_mmbtu",
-]
 
 _RANDOM_GENERATOR = np.random.default_rng(12335)
 
