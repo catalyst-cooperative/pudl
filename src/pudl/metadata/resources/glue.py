@@ -18,8 +18,7 @@ to create a temporal version of the crosswalk at some point.
 
 Our version of the crosswalk clarifies some of the column names and removes unmatched
 rows. The :func:`pudl.etl.glue_assets.epacamd_eia` function doc strings explain
-what changes are made from the EPA's version.
-""",
+what changes are made from the EPA's version.""",
         "schema": {
             "fields": [
                 "report_year",
@@ -71,8 +70,7 @@ These are the smallest coherent units of aggregation.
 This table does not have primary keys because the primary keys would have been:
 plant_id_eia, generator_id, subplant_id and emissions_unit_id_epa, but there are some
 null records in the generator_id column because ~2 percent of all EPA CAMD records are not
-successfully mapped to EIA generators.
-""",
+successfully mapped to EIA generators.""",
         "schema": {
             "fields": [
                 "plant_id_eia",

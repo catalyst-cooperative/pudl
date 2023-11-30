@@ -8,12 +8,12 @@ import sqlalchemy as sa
 from sqlalchemy.dialects.sqlite import DATETIME as SQLITE_DATETIME
 
 FIELD_DTYPES_PANDAS: dict[str, str] = {
-    "string": "string",
-    "number": "float64",
-    "integer": "Int64",
     "boolean": "boolean",
     "date": "datetime64[s]",
     "datetime": "datetime64[s]",
+    "integer": "Int64",
+    "number": "float64",
+    "string": "string",
     "year": "datetime64[s]",
 }
 """Pandas data type by PUDL field type (Data Package `field.type`)."""
@@ -43,13 +43,13 @@ FIELD_DTYPES_SQL: dict[str, type] = {
 """SQLAlchemy column types by PUDL field type (Data Package `field.type`)."""
 
 CONSTRAINT_DTYPES: dict[str, type] = {
-    "string": str,
-    "integer": int,
-    "year": int,
-    "number": float,
     "boolean": bool,
     "date": datetime.date,
     "datetime": datetime.datetime,
+    "integer": int,
+    "number": float,
+    "string": str,
+    "year": int,
 }
 """Python types for field constraints by PUDL field type (Data Package `field.type`)."""
 

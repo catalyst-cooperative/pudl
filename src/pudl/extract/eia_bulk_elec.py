@@ -11,12 +11,23 @@ of timestamp/value pairs. This structure leads to a natural normalization into t
 tables: one of metadata and one of timeseries. That is the format delivered by this
 module.
 """
+import warnings
 from io import BytesIO
 from pathlib import Path
 
 import pandas as pd
 
 from pudl.workspace.datastore import Datastore
+
+# Unfortunately, the date formats in the EIA bulk electricity data are not uniform,
+# and so for now we need to fall back on dateutil. Currently this warning is emitted
+# thousands of times, clogging up the logs. Just warn us once!
+warnings.filterwarnings(
+    action="once",
+    message="Could not infer format, so each element will be parsed individually, falling back to `dateutil`.",
+    category=UserWarning,
+    module="pudl.extract.eia_bulk_elec",
+)
 
 
 def _filter_for_fuel_receipts_costs_series(df: pd.DataFrame) -> pd.DataFrame:

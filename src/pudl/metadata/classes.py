@@ -4,10 +4,11 @@ import datetime
 import json
 import re
 import sys
+import warnings
 from collections.abc import Callable, Iterable
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Literal
+from typing import Annotated, Any, Literal, Self
 
 import jinja2
 import pandas as pd
@@ -15,7 +16,21 @@ import pyarrow as pa
 import pydantic
 import sqlalchemy as sa
 from pandas._libs.missing import NAType
-from pydantic.types import DirectoryPath
+from pydantic import (
+    AnyHttpUrl,
+    BaseModel,
+    ConfigDict,
+    DirectoryPath,
+    EmailStr,
+    StrictBool,
+    StrictFloat,
+    StrictInt,
+    StrictStr,
+    StringConstraints,
+    ValidationInfo,
+    field_validator,
+    model_validator,
+)
 
 import pudl.logging_helpers
 from pudl.metadata.codes import CODE_METADATA
@@ -46,6 +61,15 @@ from pudl.workspace.datastore import Datastore, ZenodoDoi
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
+
+# The BaseModel.schema attribute is deprecated and we are shadowing it to avoid needing
+# to define an inconvenient alias for it.
+warnings.filterwarnings(
+    action="ignore",
+    message='Field name "schema" shadows an attribute in parent "PudlMeta"',
+    category=UserWarning,
+    module="pydantic._internal._fields",
+)
 
 # ---- Helpers ---- #
 
@@ -139,151 +163,36 @@ def _get_jinja_environment(template_dir: DirectoryPath = None):
     )
 
 
-# ---- Base ---- #
-
-
-class Base(pydantic.BaseModel):
-    """Custom Pydantic base class.
-
-    It overrides :meth:`fields` and :meth:`schema` to allow properties with those names.
-    To use them in a class, use an underscore prefix and an alias.
-
-    Examples:
-        >>> class Class(Base):
-        ...     fields_: list[str] = pydantic.Field(alias="fields")
-        >>> m = Class(fields=['x'])
-        >>> m
-        Class(fields=['x'])
-        >>> m.fields
-        ['x']
-        >>> m.fields = ['y']
-        >>> m.dict()
-        {'fields': ['y']}
-    """
-
-    class Config:
-        """Custom Pydantic configuration."""
-
-        validate_all: bool = True
-        validate_assignment: bool = True
-        extra: str = "forbid"
-        arbitrary_types_allowed = True
-
-    def dict(self, *args, by_alias=True, **kwargs) -> dict:  # noqa: A003
-        """Return as a dictionary."""
-        return super().dict(*args, by_alias=by_alias, **kwargs)
-
-    def json(self, *args, by_alias=True, **kwargs) -> str:
-        """Return as JSON."""
-        return super().json(*args, by_alias=by_alias, **kwargs)
-
-    def __getattribute__(self, name: str) -> Any:
-        """Get attribute."""
-        if name in ("fields", "schema") and f"{name}_" in self.__dict__:
-            name = f"{name}_"
-        return super().__getattribute__(name)
-
-    def __setattr__(self, name, value) -> None:
-        """Set attribute."""
-        if name in ("fields", "schema") and f"{name}_" in self.__dict__:
-            name = f"{name}_"
-        super().__setattr__(name, value)
-
-    def __repr_args__(self) -> list[tuple[str, Any]]:
-        """Returns the attributes to show in __str__, __repr__, and __pretty__."""
-        return [
-            (a[:-1] if a in ("fields_", "schema_") else a, v)
-            for a, v in self.__dict__.items()
-        ]
-
-
 # ---- Class attribute types ---- #
 
 # NOTE: Using regex=r"^\S(.*\S)*$" to fail on whitespace is too slow
-String = pydantic.constr(min_length=1, strict=True, regex=r"^\S+(\s+\S+)*$")
+String = Annotated[
+    str, StringConstraints(min_length=1, strict=True, pattern=r"^\S+(\s+\S+)*$")
+]
 """Non-empty :class:`str` with no trailing or leading whitespace."""
 
-SnakeCase = pydantic.constr(
-    min_length=1, strict=True, regex=r"^[a-z_][a-z0-9_]*(_[a-z0-9]+)*$"
-)
+SnakeCase = Annotated[
+    str,
+    StringConstraints(
+        min_length=1, strict=True, pattern=r"^[a-z_][a-z0-9_]*(_[a-z0-9]+)*$"
+    ),
+]
 """Snake-case variable name :class:`str` (e.g. 'pudl', 'entity_eia860')."""
 
-Bool = pydantic.StrictBool
-"""Any :class:`bool` (`True` or `False`)."""
-
-Float = pydantic.StrictFloat
-"""Any :class:`float`."""
-
-Int = pydantic.StrictInt
-"""Any :class:`int`."""
-
-PositiveInt = pydantic.conint(ge=0, strict=True)
+PositiveInt = Annotated[int, pydantic.Field(ge=0, strict=True)]
 """Positive :class:`int`."""
 
-PositiveFloat = pydantic.confloat(ge=0, strict=True)
+PositiveFloat = Annotated[float, pydantic.Field(ge=0, strict=True)]
 """Positive :class:`float`."""
 
-Email = pydantic.EmailStr
-"""String representing an email."""
 
-HttpUrl = pydantic.AnyHttpUrl
-"""Http(s) URL."""
-
-
-class BaseType:
-    """Base class for custom pydantic types."""
-
-    @classmethod
-    def __get_validators__(cls) -> Callable:
-        """Yield validator methods."""
-        yield cls.validate
-
-
-class Date(BaseType):
-    """Any :class:`datetime.date`."""
-
-    @classmethod
-    def validate(cls, value: Any) -> datetime.date:
-        """Validate as date."""
-        if not isinstance(value, datetime.date):
-            raise TypeError("value is not a date")
-        return value
-
-
-class Datetime(BaseType):
-    """Any :class:`datetime.datetime`."""
-
-    @classmethod
-    def validate(cls, value: Any) -> datetime.datetime:
-        """Validate as datetime."""
-        if not isinstance(value, datetime.datetime):
-            raise TypeError("value is not a datetime")
-        return value
-
-
-class Pattern(BaseType):
-    """Regular expression pattern."""
-
-    @classmethod
-    def validate(cls, value: Any) -> re.Pattern:
-        """Validate as pattern."""
-        if not isinstance(value, str | re.Pattern):
-            raise TypeError("value is not a string or compiled regular expression")
-        if isinstance(value, str):
-            try:
-                value = re.compile(value)
-            except re.error:
-                raise ValueError("string is not a valid regular expression")
-        return value
-
-
-def StrictList(item_type: type = Any) -> pydantic.ConstrainedList:  # noqa: N802
+def StrictList(item_type: type = Any) -> type:  # noqa: N802
     """Non-empty :class:`list`.
 
     Allows :class:`list`, :class:`tuple`, :class:`set`, :class:`frozenset`,
     :class:`collections.deque`, or generators and casts to a :class:`list`.
     """
-    return pydantic.conlist(item_type=item_type, min_items=1)
+    return Annotated[list[item_type], pydantic.Field(min_length=1)]
 
 
 # ---- Class attribute validators ---- #
@@ -303,43 +212,60 @@ def _validator(*names, fn: Callable) -> Callable:
 
     Args:
         names: Names of attributes to validate.
-        fn: Validation function (see :meth:`pydantic.validator`).
+        fn: Validation function (see :meth:`pydantic.field_validator`).
 
     Examples:
-        >>> class Class(Base):
+        >>> class Class(BaseModel):
         ...     x: list = None
         ...     _check_unique = _validator("x", fn=_check_unique)
-        >>> Class(y=[0, 0])
+        >>> Class(x=[0, 0])
         Traceback (most recent call last):
         ValidationError: ...
     """
-    return pydantic.validator(*names, allow_reuse=True)(fn)
+    return field_validator(*names)(fn)
 
 
-# ---- Classes: Field ---- #
+########################################################################################
+# PUDL Metadata Classes
+########################################################################################
+class PudlMeta(BaseModel):
+    """A base model that configures some options for PUDL metadata classes."""
+
+    model_config = ConfigDict(
+        extra="forbid",
+        validate_default=True,
+        validate_assignment=True,
+    )
 
 
-class FieldConstraints(Base):
+class FieldConstraints(PudlMeta):
     """Field constraints (`resource.schema.fields[...].constraints`).
 
     See https://specs.frictionlessdata.io/table-schema/#constraints.
     """
 
-    required: Bool = False
-    unique: Bool = False
-    min_length: PositiveInt = None
-    max_length: PositiveInt = None
-    minimum: Int | Float | Date | Datetime = None
-    maximum: Int | Float | Date | Datetime = None
-    pattern: Pattern = None
-    # TODO: Replace with String (min_length=1) once "" removed from enums
-    enum: StrictList(pydantic.StrictStr | Int | Float | Bool | Date | Datetime) = None
+    required: StrictBool = False
+    unique: StrictBool = False
+    min_length: PositiveInt | None = None
+    max_length: PositiveInt | None = None
+    minimum: StrictInt | StrictFloat | datetime.date | datetime.datetime | None = None
+    maximum: StrictInt | StrictFloat | datetime.date | datetime.datetime | None = None
+    pattern: re.Pattern | None = None
+    enum: StrictList(
+        String
+        | StrictInt
+        | StrictFloat
+        | StrictBool
+        | datetime.date
+        | datetime.datetime
+    ) | None = None
 
     _check_unique = _validator("enum", fn=_check_unique)
 
-    @pydantic.validator("max_length")
-    def _check_max_length(cls, value, values):  # noqa: N805
-        minimum, maximum = values.get("min_length"), value
+    @field_validator("max_length")
+    @classmethod
+    def _check_max_length(cls, value, info: ValidationInfo):
+        minimum, maximum = info.data.get("min_length"), value
         if minimum is not None and maximum is not None:
             if type(minimum) is not type(maximum):
                 raise ValueError("must be same type as min_length")
@@ -347,9 +273,10 @@ class FieldConstraints(Base):
                 raise ValueError("must be greater or equal to min_length")
         return value
 
-    @pydantic.validator("maximum")
-    def _check_max(cls, value, values):  # noqa: N805
-        minimum, maximum = values.get("minimum"), value
+    @field_validator("maximum")
+    @classmethod
+    def _check_max(cls, value, info: ValidationInfo):
+        minimum, maximum = info.data.get("minimum"), value
         if minimum is not None and maximum is not None:
             if type(minimum) is not type(maximum):
                 raise ValueError("must be same type as minimum")
@@ -358,7 +285,7 @@ class FieldConstraints(Base):
         return value
 
 
-class FieldHarvest(Base):
+class FieldHarvest(PudlMeta):
     """Field harvest parameters (`resource.schema.fields[...].harvest`)."""
 
     # NOTE: Callables with defaults must use pydantic.Field() to not bind to self
@@ -371,7 +298,7 @@ class FieldHarvest(Base):
     """Fraction of invalid groups above which result is considered invalid."""
 
 
-class Encoder(Base):
+class Encoder(PudlMeta):
     """A class that allows us to standardize reported categorical codes.
 
     Often the original data we are integrating uses short codes to indicate a
@@ -416,14 +343,14 @@ class Encoder(Base):
     values.
     """
 
-    ignored_codes: list[Int | str] = []
+    ignored_codes: list[StrictInt | str] = []
     """A list of non-standard codes which appear in the data, and will be set to NA.
 
     These codes may be the result of data entry errors, and we are unable to map them to
     the appropriate canonical code. They are discarded from the raw input data.
     """
 
-    code_fixes: dict[Int | String, Int | String] = {}
+    code_fixes: dict[StrictInt | String, StrictInt | String] = {}
     """A dictionary mapping non-standard codes to canonical, standardized codes.
 
     The intended meanings of some non-standard codes are clear, and therefore they can
@@ -431,11 +358,15 @@ class Encoder(Base):
     the result of data entry errors or changes in the stanard codes over time.
     """
 
-    name: String = None
+    name: String | None = None
     """The name of the code."""
 
-    @pydantic.validator("df")
-    def _df_is_encoding_table(cls, df):  # noqa: N805
+    # Required to allow DataFrame
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    @field_validator("df")
+    @classmethod
+    def _df_is_encoding_table(cls, df: pd.DataFrame):
         """Verify that the coding table provides both codes and descriptions."""
         errors = []
         if "code" not in df.columns or "description" not in df.columns:
@@ -449,52 +380,56 @@ class Encoder(Base):
             raise ValueError(format_errors(*errors, pydantic=True))
         return df
 
-    @pydantic.validator("ignored_codes")
-    def _good_and_ignored_codes_are_disjoint(cls, ignored_codes, values):  # noqa: N805
+    @field_validator("ignored_codes")
+    @classmethod
+    def _good_and_ignored_codes_are_disjoint(cls, ignored_codes, info: ValidationInfo):
         """Check that there's no overlap between good and ignored codes."""
-        if "df" not in values:
+        if "df" not in info.data:
             return ignored_codes
         errors = []
-        overlap = set(values["df"]["code"]).intersection(ignored_codes)
+        overlap = set(info.data["df"]["code"]).intersection(ignored_codes)
         if overlap:
             errors.append(f"Overlap found between good and ignored codes: {overlap}.")
         if errors:
             raise ValueError(format_errors(*errors, pydantic=True))
         return ignored_codes
 
-    @pydantic.validator("code_fixes")
-    def _good_and_fixable_codes_are_disjoint(cls, code_fixes, values):  # noqa: N805
+    @field_validator("code_fixes")
+    @classmethod
+    def _good_and_fixable_codes_are_disjoint(cls, code_fixes, info: ValidationInfo):
         """Check that there's no overlap between the good and fixable codes."""
-        if "df" not in values:
+        if "df" not in info.data:
             return code_fixes
         errors = []
-        overlap = set(values["df"]["code"]).intersection(code_fixes)
+        overlap = set(info.data["df"]["code"]).intersection(code_fixes)
         if overlap:
             errors.append(f"Overlap found between good and fixable codes: {overlap}")
         if errors:
             raise ValueError(format_errors(*errors, pydantic=True))
         return code_fixes
 
-    @pydantic.validator("code_fixes")
-    def _fixable_and_ignored_codes_are_disjoint(cls, code_fixes, values):  # noqa: N805
+    @field_validator("code_fixes")
+    @classmethod
+    def _fixable_and_ignored_codes_are_disjoint(cls, code_fixes, info: ValidationInfo):
         """Check that there's no overlap between the ignored and fixable codes."""
-        if "ignored_codes" not in values:
+        if "ignored_codes" not in info.data:
             return code_fixes
         errors = []
-        overlap = set(code_fixes).intersection(values["ignored_codes"])
+        overlap = set(code_fixes).intersection(info.data["ignored_codes"])
         if overlap:
             errors.append(f"Overlap found between fixable and ignored codes: {overlap}")
         if errors:
             raise ValueError(format_errors(*errors, pydantic=True))
         return code_fixes
 
-    @pydantic.validator("code_fixes")
-    def _check_fixed_codes_are_good_codes(cls, code_fixes, values):  # noqa: N805
+    @field_validator("code_fixes")
+    @classmethod
+    def _check_fixed_codes_are_good_codes(cls, code_fixes, info: ValidationInfo):
         """Check that every every fixed code is also one of the good codes."""
-        if "df" not in values:
+        if "df" not in info.data:
             return code_fixes
         errors = []
-        bad_codes = set(code_fixes.values()).difference(values["df"]["code"])
+        bad_codes = set(code_fixes.values()).difference(info.data["df"]["code"])
         if bad_codes:
             errors.append(
                 f"Some fixed codes aren't in the list of good codes: {bad_codes}"
@@ -545,7 +480,7 @@ class Encoder(Base):
         return cls(**copy.deepcopy(CODE_METADATA[x]), name=x)
 
     def to_rst(
-        self, top_dir: DirectoryPath, csv_subdir: DirectoryPath, is_header: Bool
+        self, top_dir: DirectoryPath, csv_subdir: DirectoryPath, is_header: StrictBool
     ) -> String:
         """Ouput dataframe to a csv for use in jinja template.
 
@@ -564,7 +499,7 @@ class Encoder(Base):
         return rendered
 
 
-class Field(Base):
+class Field(PudlMeta):
     """Field (`resource.schema.fields[...]`).
 
     See https://specs.frictionlessdata.io/table-schema/#field-descriptors.
@@ -581,6 +516,7 @@ class Field(Base):
     """
 
     name: SnakeCase
+    # Shadows built-in type.
     type: Literal[  # noqa: A003
         "string",
         "number",
@@ -590,19 +526,21 @@ class Field(Base):
         "datetime",
         "year",
     ]
-    title: String = None
-    format: Literal["default"] = "default"  # noqa: A003
-    description: String = None
-    unit: String = None
-    constraints: FieldConstraints = {}
-    harvest: FieldHarvest = {}
-    encoder: Encoder = None
+    title: String | None = None
+    # Alias required to avoid shadowing Python built-in format()
+    format_: Literal["default"] = pydantic.Field(alias="format", default="default")
+    description: String | None = None
+    unit: String | None = None
+    constraints: FieldConstraints = FieldConstraints()
+    harvest: FieldHarvest = FieldHarvest()
+    encoder: Encoder | None = None
 
-    @pydantic.validator("constraints")
-    def _check_constraints(cls, value, values):  # noqa: N805, C901
-        if "type" not in values:
+    @field_validator("constraints")
+    @classmethod
+    def _check_constraints(cls, value, info: ValidationInfo):  # noqa: C901
+        if "type" not in info.data:
             return value
-        dtype = values["type"]
+        dtype = info.data["type"]
         errors = []
         for key in ("min_length", "max_length", "pattern"):
             if getattr(value, key) is not None and dtype != "string":
@@ -622,12 +560,13 @@ class Field(Base):
             raise ValueError(format_errors(*errors, pydantic=True))
         return value
 
-    @pydantic.validator("encoder")
-    def _check_encoder(cls, value, values):  # noqa: N805
-        if "type" not in values or value is None:
+    @field_validator("encoder")
+    @classmethod
+    def _check_encoder(cls, value, info: ValidationInfo):
+        if "type" not in info.data or value is None:
             return value
         errors = []
-        dtype = values["type"]
+        dtype = info.data["type"]
         if dtype not in ["string", "integer"]:
             errors.append(
                 "Encoding only supported for string and integer fields, found "
@@ -749,32 +688,33 @@ class Field(Base):
 # ---- Classes: Resource ---- #
 
 
-class ForeignKeyReference(Base):
+class ForeignKeyReference(PudlMeta):
     """Foreign key reference (`resource.schema.foreign_keys[...].reference`).
 
     See https://specs.frictionlessdata.io/table-schema/#foreign-keys.
     """
 
     resource: SnakeCase
-    fields_: StrictList(SnakeCase) = pydantic.Field(alias="fields")
+    fields: StrictList(SnakeCase)
 
-    _check_unique = _validator("fields_", fn=_check_unique)
+    _check_unique = _validator("fields", fn=_check_unique)
 
 
-class ForeignKey(Base):
+class ForeignKey(PudlMeta):
     """Foreign key (`resource.schema.foreign_keys[...]`).
 
     See https://specs.frictionlessdata.io/table-schema/#foreign-keys.
     """
 
-    fields_: StrictList(SnakeCase) = pydantic.Field(alias="fields")
+    fields: StrictList(SnakeCase)
     reference: ForeignKeyReference
 
-    _check_unique = _validator("fields_", fn=_check_unique)
+    _check_unique = _validator("fields", fn=_check_unique)
 
-    @pydantic.validator("reference")
-    def _check_fields_equal_length(cls, value, values):  # noqa: N805
-        if "fields_" in values and len(value.fields) != len(values["fields_"]):
+    @field_validator("reference")
+    @classmethod
+    def _check_fields_equal_length(cls, value, info: ValidationInfo):
+        if "fields" in info.data and len(value.fields) != len(info.data["fields"]):
             raise ValueError("fields and reference.fields are not equal length")
         return value
 
@@ -790,53 +730,60 @@ class ForeignKey(Base):
         )
 
 
-class Schema(Base):
+class Schema(PudlMeta):
     """Table schema (`resource.schema`).
 
     See https://specs.frictionlessdata.io/table-schema.
     """
 
-    fields_: StrictList(Field) = pydantic.Field(alias="fields")
-    missing_values: list[pydantic.StrictStr] = [""]
-    primary_key: StrictList(SnakeCase) = None
+    fields: StrictList(Field)
+    missing_values: list[StrictStr] = [""]
+    primary_key: StrictList(SnakeCase) | None = None
     foreign_keys: list[ForeignKey] = []
 
     _check_unique = _validator(
         "missing_values", "primary_key", "foreign_keys", fn=_check_unique
     )
 
-    @pydantic.validator("fields_")
-    def _check_field_names_unique(cls, value):  # noqa: N805
-        _check_unique([f.name for f in value])
-        return value
+    @field_validator("fields")
+    @classmethod
+    def _check_field_names_unique(cls, fields: list[Field]):
+        _check_unique([f.name for f in fields])
+        return fields
 
-    @pydantic.validator("primary_key")
-    def _check_primary_key_in_fields(cls, value, values):  # noqa: N805
-        if value is not None and "fields_" in values:
+    @field_validator("primary_key")
+    @classmethod
+    def _check_primary_key_in_fields(cls, pk, info: ValidationInfo):
+        """Verify that all primary key elements also appear in the schema fields."""
+        if pk is not None and "fields" in info.data:
             missing = []
-            names = [f.name for f in values["fields_"]]
-            for name in value:
+            names = [f.name for f in info.data["fields"]]
+            for name in pk:
                 if name in names:
                     # Flag primary key fields as required
-                    field = values["fields_"][names.index(name)]
+                    field = info.data["fields"][names.index(name)]
                     field.constraints.required = True
                 else:
                     missing.append(field.name)
             if missing:
                 raise ValueError(f"names {missing} missing from fields")
-        return value
+        return pk
 
-    @pydantic.validator("foreign_keys", each_item=True)
-    def _check_foreign_key_in_fields(cls, value, values):  # noqa: N805
-        if value and "fields_" in values:
-            names = [f.name for f in values["fields_"]]
-            missing = [x for x in value.fields if x not in names]
-            if missing:
-                raise ValueError(f"names {missing} missing from fields")
-        return value
+    @model_validator(mode="after")
+    def _check_foreign_key_in_fields(self: Self):
+        """Verify that all foreign key elements also appear in the schema fields."""
+        if self.foreign_keys:
+            schema_field_names = [field.name for field in self.fields]
+            for fk in self.foreign_keys:
+                missing_field_names = set(fk.fields).difference(schema_field_names)
+                if missing_field_names:
+                    raise ValueError(
+                        f"Foreign key fields {missing_field_names} not found in schema."
+                    )
+        return self
 
 
-class License(Base):
+class License(PudlMeta):
     """Data license (`package|resource.licenses[...]`).
 
     See https://specs.frictionlessdata.io/data-package/#licenses.
@@ -844,7 +791,7 @@ class License(Base):
 
     name: String
     title: String
-    path: HttpUrl
+    path: AnyHttpUrl
 
     @staticmethod
     def dict_from_id(x: str) -> dict:
@@ -857,15 +804,15 @@ class License(Base):
         return cls(**cls.dict_from_id(x))
 
 
-class Contributor(Base):
+class Contributor(PudlMeta):
     """Data contributor (`package.contributors[...]`).
 
     See https://specs.frictionlessdata.io/data-package/#contributors.
     """
 
     title: String
-    path: HttpUrl = None
-    email: Email = None
+    path: AnyHttpUrl | None = None
+    email: EmailStr | None = None
     role: Literal[
         "author", "contributor", "maintainer", "publisher", "wrangler"
     ] = "contributor"
@@ -890,8 +837,8 @@ class Contributor(Base):
         "supervisor",
         "work package leader",
     ] = "project member"
-    organization: String = None
-    orcid: String = None
+    organization: String | None = None
+    orcid: String | None = None
 
     @staticmethod
     def dict_from_id(x: str) -> dict:
@@ -911,7 +858,7 @@ class Contributor(Base):
         return hash(str(self))
 
 
-class DataSource(Base):
+class DataSource(PudlMeta):
     """A data source that has been integrated into PUDL.
 
     This metadata is used for:
@@ -927,19 +874,19 @@ class DataSource(Base):
     """
 
     name: SnakeCase
-    title: String = None
-    description: String = None
-    field_namespace: String = None
+    title: String | None = None
+    description: String | None = None
+    field_namespace: String | None = None
     keywords: list[str] = []
-    path: HttpUrl = None
+    path: AnyHttpUrl | None = None
     contributors: list[Contributor] = []
     license_raw: License
     license_pudl: License
-    concept_doi: ZenodoDoi = None
+    concept_doi: ZenodoDoi | None = None
     working_partitions: dict[SnakeCase, Any] = {}
     source_file_dict: dict[SnakeCase, Any] = {}
     # agency: Agency  # needs to be defined
-    email: Email = None
+    email: EmailStr | None = None
 
     def get_resource_ids(self) -> list[str]:
         """Compile list of resource IDs associated with this data source."""
@@ -1026,7 +973,6 @@ class DataSource(Base):
         """Look up the source by source name in the metadata."""
         # If ID ends with _xbrl strip end to find data source
         lookup_id = x.replace("_xbrl", "")
-
         return {"name": x, **copy.deepcopy(SOURCES[lookup_id])}
 
     @classmethod
@@ -1035,10 +981,10 @@ class DataSource(Base):
         return cls(**cls.dict_from_id(x))
 
 
-class ResourceHarvest(Base):
+class ResourceHarvest(PudlMeta):
     """Resource harvest parameters (`resource.harvest`)."""
 
-    harvest: Bool = False
+    harvest: StrictBool = False
     """Whether to harvest from dataframes based on field names.
 
     If `False`, the dataframe with the same name is used and the process is limited to
@@ -1049,7 +995,7 @@ class ResourceHarvest(Base):
     """Fraction of invalid fields above which result is considerd invalid."""
 
 
-class Resource(Base):
+class Resource(PudlMeta):
     """Tabular data resource (`package.resources[...]`).
 
     See https://specs.frictionlessdata.io/tabular-data-resource.
@@ -1172,20 +1118,21 @@ class Resource(Base):
     """
 
     name: SnakeCase
-    title: String = None
-    description: String = None
-    harvest: ResourceHarvest = {}
-    schema_: Schema = pydantic.Field(alias="schema")
-    format_: String = pydantic.Field(alias="format", default=None)
-    mediatype: String = None
-    path: String = None
-    dialect: dict[str, str] = None
+    title: String | None = None
+    description: String | None = None
+    harvest: ResourceHarvest = ResourceHarvest()
+    schema: Schema
+    # Alias required to avoid shadowing Python built-in format()
+    format_: String | None = pydantic.Field(alias="format", default=None)
+    mediatype: String | None = None
+    path: String | None = None
+    dialect: dict[str, str] | None = None
     profile: String = "tabular-data-resource"
     contributors: list[Contributor] = []
     licenses: list[License] = []
     sources: list[DataSource] = []
     keywords: list[String] = []
-    encoder: Encoder = None
+    encoder: Encoder | None = None
     field_namespace: Literal[
         "eia",
         "epacems",
@@ -1195,7 +1142,7 @@ class Resource(Base):
         "pudl",
         "ppe",
         "eia_bulk_elec",
-    ] = None
+    ] | None = None
     etl_group: Literal[
         "eia860",
         "eia861",
@@ -1215,16 +1162,17 @@ class Resource(Base):
         "state_demand",
         "static_pudl",
         "service_territories",
-    ] = None
+    ] | None = None
     create_database_schema: bool = True
 
     _check_unique = _validator(
         "contributors", "keywords", "licenses", "sources", fn=_check_unique
     )
 
-    @pydantic.validator("schema_")
-    def _check_harvest_primary_key(cls, value, values):  # noqa: N805
-        if values["harvest"].harvest and not value.primary_key:
+    @field_validator("schema")
+    @classmethod
+    def _check_harvest_primary_key(cls, value, info: ValidationInfo):
+        if info.data["harvest"].harvest and not value.primary_key:
             raise ValueError("Harvesting requires a primary key")
         return value
 
@@ -1713,7 +1661,7 @@ class Resource(Base):
 # ---- Package ---- #
 
 
-class Package(Base):
+class Package(PudlMeta):
     """Tabular data package.
 
     See https://specs.frictionlessdata.io/data-package.
@@ -1741,29 +1689,31 @@ class Package(Base):
     """
 
     name: String
-    title: String = None
-    description: String = None
+    title: String | None = None
+    description: String | None = None
     keywords: list[String] = []
-    homepage: HttpUrl = "https://catalyst.coop/pudl"
-    created: Datetime = datetime.datetime.utcnow()
+    homepage: AnyHttpUrl = AnyHttpUrl("https://catalyst.coop/pudl")
+    created: datetime.datetime = datetime.datetime.utcnow()
     contributors: list[Contributor] = []
     sources: list[DataSource] = []
     licenses: list[License] = []
     resources: StrictList(Resource)
     profile: String = "tabular-data-package"
+    model_config = ConfigDict(validate_assignment=False)
 
-    @pydantic.validator("resources")
-    def _check_foreign_keys(cls, value):  # noqa: N805
-        rnames = [resource.name for resource in value]
+    @field_validator("resources")
+    @classmethod
+    def _check_foreign_keys(cls, resources: list[Resource]):
+        rnames = [resource.name for resource in resources]
         errors = []
-        for resource in value:
+        for resource in resources:
             for foreign_key in resource.schema.foreign_keys:
                 rname = foreign_key.reference.resource
                 tag = f"[{resource.name} -> {rname}]"
                 if rname not in rnames:
                     errors.append(f"{tag}: Reference not found")
                     continue
-                reference = value[rnames.index(rname)]
+                reference = resources[rnames.index(rname)]
                 if not reference.schema.primary_key:
                     errors.append(f"{tag}: Reference missing primary key")
                     continue
@@ -1778,15 +1728,23 @@ class Package(Base):
             raise ValueError(
                 format_errors(*errors, title="Foreign keys", pydantic=True)
             )
-        return value
+        return resources
 
-    @pydantic.root_validator(skip_on_failure=True)
-    def _populate_from_resources(cls, values):  # noqa: N805
+    @model_validator(mode="after")
+    def _populate_from_resources(self: Self):
+        """Populate Package attributes from similar deduplicated Resource attributes.
+
+        Resources and Packages share some descriptive attributes. When building a
+        Package out of a collection of Resources, we want the Package to reflect the
+        union of all the analogous values found in the Resources, but we don't want
+        any duplicates. We may also get values directly from the Package inputs.
+        """
         for key in ("keywords", "contributors", "sources", "licenses"):
-            values[key] = _unique(
-                values[key], *[getattr(r, key) for r in values["resources"]]
-            )
-        return values
+            package_value = getattr(self, key)
+            resource_values = [getattr(resource, key) for resource in self.resources]
+            deduped_values = _unique(package_value, *resource_values)
+            setattr(self, key, deduped_values)
+        return self
 
     @classmethod
     @lru_cache
@@ -1899,7 +1857,7 @@ class Package(Base):
         return metadata
 
 
-class CodeMetadata(Base):
+class CodeMetadata(PudlMeta):
     """A list of Encoders for standardizing and documenting categorical codes.
 
     Used to export static coding metadata to PUDL documentation automatically
@@ -1934,7 +1892,7 @@ class CodeMetadata(Base):
                 f.write(rendered)
 
 
-class DatasetteMetadata(Base):
+class DatasetteMetadata(PudlMeta):
     """A collection of Data Sources and Resources for metadata export.
 
     Used to create metadata YAML file to accompany Datasette.
