@@ -470,7 +470,7 @@ dependencies:
   - stevedore=5.1.0=pyhd8ed1ab_0
   - typeguard=4.1.5=pyhd8ed1ab_1
   - typer=0.9.0=pyhd8ed1ab_0
-  - uvicorn-standard=0.24.0.post1=ha1ab1f8_0
+  - uvicorn-standard=0.24.0=ha1ab1f8_0
   - boto3=1.33.3=pyhd8ed1ab_0
   - cachecontrol-with-filecache=0.13.1=pyhd8ed1ab_0
   - dagster=1.5.9=pyhd8ed1ab_0
