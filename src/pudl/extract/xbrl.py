@@ -4,23 +4,16 @@ from collections.abc import Callable
 from datetime import date
 from pathlib import Path
 
-from dagster import ConfigurableResource, op
+from dagster import op
 from ferc_xbrl_extractor.cli import run_main
 
 import pudl
+from pudl.resources import RuntimeSettings
 from pudl.settings import FercGenericXbrlToSqliteSettings, XbrlFormNumber
 from pudl.workspace.datastore import Datastore
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
-
-
-class XbrlRuntimeSettings(ConfigurableResource):
-    """Encodes runtime setting for the XBRL extraction."""
-    # TODO(rousik): Using BaseSettings here might allow configuring this via environment variables.
-    clobber: bool = False
-    num_workers: None | int = None
-    batch_size: int = 50
 
 
 class FercXbrlDatastore:
@@ -52,22 +45,33 @@ class FercXbrlDatastore:
             )
         )
 
+
 def xbrl2sqlite_op_factory(form: XbrlFormNumber) -> Callable:
     """Generates xbrl2sqlite op for a given FERC form."""
+
     @op(
         name=f"ferc{form.value}_xbrl",
-        required_resource_keys={"ferc_to_sqlite_settings", "datastore", "xbrl_runtime_settings"}
+        required_resource_keys={
+            "ferc_to_sqlite_settings",
+            "datastore",
+            "runtime_settings",
+        },
     )
-    def inner_xbrl2sqlite(context) -> None:
+    def inner_op(context) -> None:
         output_path = PudlPaths().output_dir
-        runtime_settings: XbrlRuntimeSettings = context.resources.xbrl_runtime_settings
-        settings = context.resources.ferc_to_sqlite_settings.get_xbrl_dataset_settings(form)
+        runtime_settings: RuntimeSettings = context.resources.runtime_settings
+        settings = context.resources.ferc_to_sqlite_settings.get_xbrl_dataset_settings(
+            form
+        )
         datastore = FercXbrlDatastore(context.resources.datastore)
 
         if settings is None or settings.disabled:
-            logger.info(f"Skipping dataset ferc{form}_xbrl: no config or is disabled.")
-        sql_path = PudlPaths().sqlite_db_path(f"ferc{form.value}_xbrl")
+            logger.info(
+                f"Skipping dataset ferc{form.value}_xbrl: no config or is disabled."
+            )
+            return
 
+        sql_path = PudlPaths().sqlite_db_path(f"ferc{form.value}_xbrl")
         if sql_path.exists():
             if runtime_settings.clobber:
                 sql_path.unlink()
@@ -82,10 +86,12 @@ def xbrl2sqlite_op_factory(form: XbrlFormNumber) -> Callable:
             datastore,
             output_path=output_path,
             sql_path=sql_path,
-            batch_size=runtime_settings.batch_size,
-            workers=runtime_settings.num_workers,
+            batch_size=runtime_settings.xbrl_batch_size,
+            workers=runtime_settings.xbrl_num_workers,
         )
-    return inner_xbrl2sqlite
+
+    return inner_op
+
 
 def convert_form(
     form_settings: FercGenericXbrlToSqliteSettings,

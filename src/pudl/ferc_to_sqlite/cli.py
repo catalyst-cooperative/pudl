@@ -154,17 +154,12 @@ def main():  # noqa: C901
                         else "",
                     },
                 },
-            },
-            "ops": {
-                "xbrl2sqlite": {
+                "runtime_settings": {
                     "config": {
-                        "workers": args.workers,
-                        "batch_size": args.batch_size,
                         "clobber": args.clobber,
+                        "xbrl_num_workers": args.workers,
+                        "xbrl_batch_size": args.batch_size,
                     },
-                },
-                "dbf2sqlite": {
-                    "config": {"clobber": args.clobber},
                 },
             },
         },
