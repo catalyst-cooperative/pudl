@@ -1,6 +1,6 @@
 [build-system]
 build-backend = "setuptools.build_meta"
-requires = ["setuptools>=66,<69", "setuptools_scm[toml]>=3.5.0", "wheel"]
+requires = ["setuptools>=66", "setuptools_scm[toml]>=3.5.0", "wheel"]
 
 [project]
 name = "catalystcoop.pudl"
@@ -298,3 +298,4 @@ pip = ">=23"
 prettier = ">=3.0"
 python = ">=3.11,<3.12"
 sqlite = ">=3.43"
+curl = ">=8.4.0"
