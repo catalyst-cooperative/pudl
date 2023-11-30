@@ -416,7 +416,7 @@ dependencies:
   - harfbuzz=8.3.0=h3d44ed6_0
   - httpcore=1.0.2=pyhd8ed1ab_0
   - importlib_metadata=6.8.0=hd8ed1ab_0
-  - jsonschema-specifications=2023.11.1=pyhd8ed1ab_0
+  - jsonschema-specifications=2023.11.2=pyhd8ed1ab_0
   - jupyter_core=5.5.0=py311h38be061_0
   - jupyter_server_terminals=0.4.4=pyhd8ed1ab_1
   - kealib=1.5.2=hcd42e92_1
@@ -444,7 +444,7 @@ dependencies:
   - starlette=0.32.0.post1=pyhd8ed1ab_0
   - tiledb=2.16.3=h8c794c1_3
   - ukkonen=1.0.1=py311h9547e67_4
-  - uvicorn=0.24.0=py311h38be061_0
+  - uvicorn=0.24.0.post1=py311h38be061_0
   - virtualenv=20.24.7=pyhd8ed1ab_0
   - watchfiles=0.21.0=py311h46250e7_0
   - aiohttp=3.8.6=py311h459d7ec_1
@@ -488,7 +488,7 @@ dependencies:
   - stevedore=5.1.0=pyhd8ed1ab_0
   - typeguard=4.1.5=pyhd8ed1ab_1
   - typer=0.9.0=pyhd8ed1ab_0
-  - uvicorn-standard=0.24.0=h38be061_0
+  - uvicorn-standard=0.24.0.post1=h38be061_0
   - aws-sdk-cpp=1.11.182=h8beafcf_7
   - boto3=1.33.3=pyhd8ed1ab_0
   - cachecontrol-with-filecache=0.13.1=pyhd8ed1ab_0
@@ -499,7 +499,7 @@ dependencies:
   - frictionless=4.40.8=pyh6c4a22f_0
   - gdal=3.8.0=py311h815a124_6
   - geopandas-base=0.14.1=pyha770c72_0
-  - google-auth=2.23.4=pyhca7485f_0
+  - google-auth=2.24.0=pyhca7485f_0
   - gql-with-requests=3.4.1=pyhd8ed1ab_0
   - gtk2=2.24.33=h90689f9_2
   - ipykernel=6.26.0=pyhf8b6a83_0
