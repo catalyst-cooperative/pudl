@@ -223,7 +223,7 @@ def ferc1_xbrl_extract(
 
     @graph
     def local_xbrl_ferc1_graph():
-        xbrl2sqlite_op_factory(XbrlFormNumber.FERC1)()
+        xbrl2sqlite_op_factory(XbrlFormNumber.FORM1)()
 
     if not live_dbs:
         local_xbrl_ferc1_graph.to_job(
