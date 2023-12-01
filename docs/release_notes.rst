@@ -333,6 +333,8 @@ Miscellaneous
   ``conda-forge`` and toward treating it as an application.  See :pr:`2968`
 * The two-point-ohening: We now require Pandas v2 (see :pr:`2320`), SQLAlchemy v2 (see
   :pr:`2267`) and Pydantic v2 (see :pr:`3051`).
+* Update the names of our FERC SQLite DBs to indicate what source data they come from.
+  See issue :issue:`3079` and` :pr:`3094`.
 
 .. _release-v2022.11.30:
 
