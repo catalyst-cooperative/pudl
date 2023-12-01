@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: 74460703322c458f7185502b360325ceaa57699985898e73cfba0fe85b343112
-    osx-64: 84d829289bcc9447b519b5ef1003de9a87b33c825aefe64c768630f2b560d152
-    osx-arm64: 4af60a188a5341a583519edb866207f4e68583e87831447441cb1088e6d9349a
+    linux-64: 566bcbefc936d18bbf3a48ce8800e5d3209d9925447fc48984c419514bfaa6f6
+    osx-64: 39e56673d0def5503b315f36cec2b3e4bfd804758ec3bcea79dad417c6b146a2
+    osx-arm64: c275fe8ff3012ad83a98252ba570f9b278f142720b73f42abfd4c4a1107f67e2
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -9244,45 +9244,45 @@ package:
     category: main
     optional: false
   - name: jsonschema-specifications
-    version: 2023.11.1
+    version: 2023.11.2
     manager: conda
     platform: linux-64
     dependencies:
       importlib_resources: ">=1.4.0"
       python: ">=3.8"
       referencing: ">=0.31.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/jsonschema-specifications-2023.11.1-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/jsonschema-specifications-2023.11.2-pyhd8ed1ab_0.conda
     hash:
-      md5: 094ff9cf36957f95bb74cee42ab140b2
-      sha256: 17ac31b620a7bb81c6468b4ba9ad4aeb1c6c6669e9dd7e4ad909da48702a6091
+      md5: 73884ca36d6d96cbce498cde99fab40f
+      sha256: e26115d02dc208a05b557c8dd670923270803b9b3b8af4e22b93d659d1ec77ec
     category: main
     optional: false
   - name: jsonschema-specifications
-    version: 2023.11.1
+    version: 2023.11.2
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.8"
       importlib_resources: ">=1.4.0"
       referencing: ">=0.31.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/jsonschema-specifications-2023.11.1-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/jsonschema-specifications-2023.11.2-pyhd8ed1ab_0.conda
     hash:
-      md5: 094ff9cf36957f95bb74cee42ab140b2
-      sha256: 17ac31b620a7bb81c6468b4ba9ad4aeb1c6c6669e9dd7e4ad909da48702a6091
+      md5: 73884ca36d6d96cbce498cde99fab40f
+      sha256: e26115d02dc208a05b557c8dd670923270803b9b3b8af4e22b93d659d1ec77ec
     category: main
     optional: false
   - name: jsonschema-specifications
-    version: 2023.11.1
+    version: 2023.11.2
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.8"
       importlib_resources: ">=1.4.0"
       referencing: ">=0.31.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/jsonschema-specifications-2023.11.1-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/jsonschema-specifications-2023.11.2-pyhd8ed1ab_0.conda
     hash:
-      md5: 094ff9cf36957f95bb74cee42ab140b2
-      sha256: 17ac31b620a7bb81c6468b4ba9ad4aeb1c6c6669e9dd7e4ad909da48702a6091
+      md5: 73884ca36d6d96cbce498cde99fab40f
+      sha256: e26115d02dc208a05b557c8dd670923270803b9b3b8af4e22b93d659d1ec77ec
     category: main
     optional: false
   - name: jsonschema-with-format-nongpl
@@ -14502,8 +14502,8 @@ package:
       entrypoints: ">=0.2.2"
       traitlets: ">=5.0"
       markupsafe: ">=2.0"
-      pandocfilters: ">=1.4.1"
       jupyter_core: ">=4.7"
+      pandocfilters: ">=1.4.1"
       nbformat: ">=5.1"
       pygments: ">=2.4.1"
       nbclient: ">=0.5.0"
@@ -14530,8 +14530,8 @@ package:
       entrypoints: ">=0.2.2"
       traitlets: ">=5.0"
       markupsafe: ">=2.0"
-      pandocfilters: ">=1.4.1"
       jupyter_core: ">=4.7"
+      pandocfilters: ">=1.4.1"
       nbformat: ">=5.1"
       pygments: ">=2.4.1"
       nbclient: ">=0.5.0"
@@ -22694,7 +22694,7 @@ package:
     category: main
     optional: false
   - name: uvicorn
-    version: 0.24.0
+    version: 0.24.0.post1
     manager: conda
     platform: linux-64
     dependencies:
@@ -22702,14 +22702,14 @@ package:
       h11: ">=0.8"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/uvicorn-0.24.0-py311h38be061_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/uvicorn-0.24.0.post1-py311h38be061_0.conda
     hash:
-      md5: a6eb331b0b42251227dbdfb5838c287b
-      sha256: df5269d01ba7ae8fa7cc0d822a63db7a646005c689e8a90083f145a707df6035
+      md5: 2b1938535dcb0385f024f6fa66eb63ad
+      sha256: e79e66a3baa0fc0ae6d3ca28305a5222f9f3f451d95369a9a6a8a13fbaa20eaa
     category: main
     optional: false
   - name: uvicorn
-    version: 0.24.0
+    version: 0.24.0.post1
     manager: conda
     platform: osx-64
     dependencies:
@@ -22717,14 +22717,14 @@ package:
       h11: ">=0.8"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/uvicorn-0.24.0-py311h6eed73b_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/uvicorn-0.24.0.post1-py311h6eed73b_0.conda
     hash:
-      md5: 62249aa566e8be9286966278a6582e1a
-      sha256: ab7aa3875fbafd7912b97616573741508e140446fa9819ba870788677ba8fba3
+      md5: 84b59bc83d504ffdceaa08a16fbb0b03
+      sha256: 092a4960fff7aa0263974cfdbf0eee85d53032633293be73bcf971f259fdf869
     category: main
     optional: false
   - name: uvicorn
-    version: 0.24.0
+    version: 0.24.0.post1
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -22732,14 +22732,14 @@ package:
       h11: ">=0.8"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/uvicorn-0.24.0-py311h267d04e_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/uvicorn-0.24.0.post1-py311h267d04e_0.conda
     hash:
-      md5: ed05fec89baaa5869db4e27bf4d510dc
-      sha256: 275934feb0e2cdfacd65414d8e54d3a9aa0e703f11a52ca3a0485df04a51cf77
+      md5: 72fa7ae2d42c1b919afc2a05c94366da
+      sha256: 092af8de831585eea0c8980a06194ffcd558a41744b17028f7d81dc333726351
     category: main
     optional: false
   - name: uvicorn-standard
-    version: 0.24.0
+    version: 0.24.0.post1
     manager: conda
     platform: linux-64
     dependencies:
@@ -22747,18 +22747,18 @@ package:
       python-dotenv: ">=0.13"
       python_abi: 3.11.*
       pyyaml: ">=5.1"
-      uvicorn: 0.24.0
+      uvicorn: 0.24.0.post1
       uvloop: ">=0.14.0,!=0.15.0,!=0.15.1"
       watchfiles: ">=0.13"
       websockets: ">=10.4"
-    url: https://conda.anaconda.org/conda-forge/linux-64/uvicorn-standard-0.24.0-h38be061_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/uvicorn-standard-0.24.0.post1-h38be061_0.conda
     hash:
-      md5: e8143a99cadb40ba9542e6e9ff15d862
-      sha256: dc23a3aff61791522ab1d924c0f6b67468c3c72772c5ca690158c160ae42ac33
+      md5: bc7779ba8fab689013281f98989f321e
+      sha256: c0cd1953e1bc87120dce855ee38828bfdf9c66d64dc2796c49b40cd69cfc09cd
     category: dev
     optional: true
   - name: uvicorn-standard
-    version: 0.24.0
+    version: 0.24.0.post1
     manager: conda
     platform: osx-64
     dependencies:
@@ -22766,18 +22766,18 @@ package:
       python-dotenv: ">=0.13"
       python_abi: 3.11.*
       pyyaml: ">=5.1"
-      uvicorn: 0.24.0
+      uvicorn: 0.24.0.post1
       uvloop: ">=0.14.0,!=0.15.0,!=0.15.1"
       watchfiles: ">=0.13"
       websockets: ">=10.4"
-    url: https://conda.anaconda.org/conda-forge/osx-64/uvicorn-standard-0.24.0-h6eed73b_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/uvicorn-standard-0.24.0.post1-h6eed73b_0.conda
     hash:
-      md5: fcfded7537383dc21fc53708048fb40f
-      sha256: 30476332eed1f448bfe769dcdf8a5a68e55587980026eae317c2a84b17daac2b
+      md5: fc3f047cd7236a5d906b828a9bbec38b
+      sha256: b8885240415223f1e176c8a0af7f3dd5b39cf303338425f75befb591e23c7c1d
     category: dev
     optional: true
   - name: uvicorn-standard
-    version: 0.24.0
+    version: 0.24.0.post1
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -22785,14 +22785,14 @@ package:
       python-dotenv: ">=0.13"
       python_abi: 3.11.*
       pyyaml: ">=5.1"
-      uvicorn: 0.24.0
+      uvicorn: 0.24.0.post1
       uvloop: ">=0.14.0,!=0.15.0,!=0.15.1"
       watchfiles: ">=0.13"
       websockets: ">=10.4"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/uvicorn-standard-0.24.0-ha1ab1f8_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/uvicorn-standard-0.24.0.post1-ha1ab1f8_0.conda
     hash:
-      md5: e35093930996a0cd5668b020f880e0f2
-      sha256: 391af506e734bd59d1a3b4611e27393b26ea6aa585070a63a45d4522a1fbd500
+      md5: e4c1c55ae8b7aab529ecf8211f4cc4e4
+      sha256: 92230fa9751494f3bc00c552803050cddf578e216421b3b7825a5d40dacea4d0
     category: dev
     optional: true
   - name: uvloop
