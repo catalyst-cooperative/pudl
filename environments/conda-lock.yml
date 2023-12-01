@@ -21167,45 +21167,45 @@ package:
     category: main
     optional: false
   - name: starlette
-    version: 0.32.0.post1
+    version: 0.33.0
     manager: conda
     platform: linux-64
     dependencies:
       anyio: <5,>=3.4.0
       python: ">=3.8"
       typing_extensions: ">=3.10.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/starlette-0.32.0.post1-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/starlette-0.33.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 9aa6d56db739eee2ff473becbe178fd1
-      sha256: 9692b83467670b473dc71137376f735249ef2ee6eeefce9068b0dec94810c24c
+      md5: 55027cf7f50803f0f5ece8b661eff47b
+      sha256: 3923f4c3e31d8c3a9c574779585137ff834a6108558a8956ef93022d4fcb37a8
     category: dev
     optional: true
   - name: starlette
-    version: 0.32.0.post1
+    version: 0.33.0
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.8"
       typing_extensions: ">=3.10.0"
       anyio: <5,>=3.4.0
-    url: https://conda.anaconda.org/conda-forge/noarch/starlette-0.32.0.post1-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/starlette-0.33.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 9aa6d56db739eee2ff473becbe178fd1
-      sha256: 9692b83467670b473dc71137376f735249ef2ee6eeefce9068b0dec94810c24c
+      md5: 55027cf7f50803f0f5ece8b661eff47b
+      sha256: 3923f4c3e31d8c3a9c574779585137ff834a6108558a8956ef93022d4fcb37a8
     category: dev
     optional: true
   - name: starlette
-    version: 0.32.0.post1
+    version: 0.33.0
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.8"
       typing_extensions: ">=3.10.0"
       anyio: <5,>=3.4.0
-    url: https://conda.anaconda.org/conda-forge/noarch/starlette-0.32.0.post1-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/starlette-0.33.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 9aa6d56db739eee2ff473becbe178fd1
-      sha256: 9692b83467670b473dc71137376f735249ef2ee6eeefce9068b0dec94810c24c
+      md5: 55027cf7f50803f0f5ece8b661eff47b
+      sha256: 3923f4c3e31d8c3a9c574779585137ff834a6108558a8956ef93022d4fcb37a8
     category: dev
     optional: true
   - name: stevedore
