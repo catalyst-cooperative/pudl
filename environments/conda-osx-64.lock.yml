@@ -421,7 +421,7 @@ dependencies:
   - rich=13.7.0=pyhd8ed1ab_0
   - sqlalchemy=2.0.23=py311he705e18_0
   - stack_data=0.6.2=pyhd8ed1ab_0
-  - starlette=0.32.0.post1=pyhd8ed1ab_0
+  - starlette=0.33.0=pyhd8ed1ab_0
   - tiledb=2.16.3=hd3a41d5_3
   - ukkonen=1.0.1=py311h5fe6e05_4
   - uvicorn=0.24.0.post1=py311h6eed73b_0
