@@ -64,6 +64,7 @@ function shutdown_vm() {
 function copy_outputs_to_gcs() {
     echo "Copying outputs to GCP bucket $PUDL_GCS_OUTPUT"
     gsutil -m cp -r $PUDL_OUTPUT ${PUDL_GCS_OUTPUT}
+    rm ${PUDL_OUTPUT}/success
 }
 
 function copy_outputs_to_distribution_bucket() {
@@ -100,6 +101,8 @@ run_pudl_etl 2>&1 | tee $LOGFILE
 
 ETL_SUCCESS=${PIPESTATUS[0]}
 
+copy_outputs_to_gcs
+
 # if pipeline is successful, distribute + publish datasette
 if [[ $ETL_SUCCESS == 0 ]]; then
     # Deploy the updated data to datasette
@@ -134,5 +137,4 @@ else
     notify_slack "failure"
 fi
 
-copy_outputs_to_gcs
 shutdown_vm
