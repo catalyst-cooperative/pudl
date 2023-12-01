@@ -12,8 +12,12 @@ from pudl.workspace.setup import PudlPaths
 logger = logging.getLogger(__name__)
 
 
-def test_datasette_metadata_to_yml():
-    """Test the ability to export metadata as YML for use with Datasette."""
+def test_datasette_metadata_to_yml(ferc1_engine_xbrl):
+    """Test the ability to export metadata as YML for use with Datasette.
+
+    Requires the ferc1_engine_xbrl because we construct Datasette metadata from the
+    datapackage.json files which annotate the XBRL derived FERC SQLite DBs.
+    """
     metadata_yml = PudlPaths().output_dir / "metadata.yml"
     logger.info(f"Writing Datasette Metadata to {metadata_yml}")
 
