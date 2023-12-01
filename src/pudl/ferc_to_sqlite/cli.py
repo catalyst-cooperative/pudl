@@ -7,6 +7,7 @@ main PUDL ETL process. The underlying work in the script is being done in
 """
 import argparse
 import sys
+import time
 from collections.abc import Callable
 
 from dagster import (
@@ -18,6 +19,7 @@ from dagster import (
 
 import pudl
 from pudl import ferc_to_sqlite
+from pudl.helpers import get_dagster_execution_config
 from pudl.settings import EtlSettings
 
 # Create a logger to output any messages we might have...
@@ -70,11 +72,20 @@ def parse_command_line(argv):
         "--gcs-cache-path",
         type=str,
         help="Load datastore resources from Google Cloud Storage. Should be gs://bucket[/path_prefix]",
+        default="",
     )
     parser.add_argument(
         "--loglevel",
         help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
         default="INFO",
+    )
+    parser.add_argument(
+        "--dagster-workers",
+        type=int,
+        help="""Set the max number of processes that dagster can launch.
+        If set to 1, in-process serial executor will be used. If set to 0,
+        dagster will saturate available CPUs (this is the default).""",
+        default=0,
     )
     arguments = parser.parse_args(argv[1:])
     return arguments
@@ -138,33 +149,34 @@ def main():  # noqa: C901
         "ferc_to_sqlite_job_factory",
         reconstructable_kwargs={"loglevel": args.loglevel, "logfile": args.logfile},
     )
-
-    result = execute_job(
-        ferc_to_sqlite_reconstructable_job,
-        instance=DagsterInstance.get(),
-        run_config={
-            "resources": {
-                "ferc_to_sqlite_settings": {
-                    "config": etl_settings.ferc_to_sqlite_settings.model_dump()
-                },
-                "datastore": {
-                    "config": {
-                        "gcs_cache_path": args.gcs_cache_path
-                        if args.gcs_cache_path
-                        else "",
-                    },
-                },
-                "runtime_settings": {
-                    "config": {
-                        "clobber": args.clobber,
-                        "xbrl_num_workers": args.workers,
-                        "xbrl_batch_size": args.batch_size,
-                    },
+    run_config = {
+        "resources": {
+            "ferc_to_sqlite_settings": {
+                "config": etl_settings.ferc_to_sqlite_settings.model_dump()
+            },
+            "datastore": {
+                "config": {"gcs_cache_path": args.gcs_cache_path},
+            },
+            "runtime_settings": {
+                "config": {
+                    "clobber": args.clobber,
+                    "xbrl_num_workers": args.workers,
+                    "xbrl_batch_size": args.batch_size,
                 },
             },
         },
+    }
+    run_config.update(get_dagster_execution_config(args.dagster_workers))
+
+    start_time = time.time()
+    result = execute_job(
+        ferc_to_sqlite_reconstructable_job,
+        instance=DagsterInstance.get(),
+        run_config=run_config,
         raise_on_error=True,
     )
+    end_time = time.time()
+    logger.info(f"FERC to SQLite job completed in {end_time - start_time} seconds.")
 
     # Workaround to reliably getting full stack trace
     if not result.success:
