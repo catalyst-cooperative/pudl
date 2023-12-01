@@ -31,10 +31,11 @@ PUDL_INPUT
   └── tmp
 
 PUDL_OUTPUT
-  ├── ferc1.sqlite
+  ├── ferc1_dbf.sqlite
+  ├── ferc1_xbrl.sqlite
   ...
   ├── pudl.sqlite
-  └── hourly_emissions_cems
+  └── hourly_emissions_cems.parquet
 
 Initially, the directories in the data store will be empty. The pudl_datastore or
 pudl_etl commands will download data from public sources and organize it for

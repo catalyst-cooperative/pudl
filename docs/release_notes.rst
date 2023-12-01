@@ -86,10 +86,13 @@ succesfully migrated to pulling data directly from ``pudl.sqlite``.
 Data Coverage
 ^^^^^^^^^^^^^
 
-* Updated :doc:`data_sources/eia860` to include final release data from 2022.
-* Updated :doc:`data_sources/eia861` to include final release data from 2022.
+* Updated :doc:`data_sources/eia860` to include final release data from 2022, see
+  :issue:`3008` & PR :pr:`3040`.
+* Updated :doc:`data_sources/eia861` to include final release data from 2022, see
+  :issue:`3034` & PR :pr:`3048`.
 * Updated :doc:`data_sources/eia923` to include final release data from 2022 and
-  monthly YTD data as of October 2023.
+  monthly YTD data as of October 2023, see :issue:`3009` & PR :pr:`#3073`.
+* Extracted the raw ``raw_eia923__emissions_control`` table, see PR :pr:`3100`.
 * Updated :doc:`data_sources/epacems` to switch from the old FTP server to the new
   CAMPD API, and to include 2022 data. Due to changes in the ETL, Alaska, Puerto Rico
   and Hawaii are now included in CEMS processing. See issue :issue:`1264` & PRs
@@ -370,6 +373,8 @@ Miscellaneous
   ``conda-forge`` and toward treating it as an application.  See :pr:`2968`
 * The two-point-ohening: We now require Pandas v2 (see :pr:`2320`), SQLAlchemy v2 (see
   :pr:`2267`) and Pydantic v2 (see :pr:`3051`).
+* Update the names of our FERC SQLite DBs to indicate what source data they come from.
+  See issue :issue:`3079` and` :pr:`3094`.
 
 .. _release-v2022.11.30:
 

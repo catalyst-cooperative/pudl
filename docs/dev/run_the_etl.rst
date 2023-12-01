@@ -493,23 +493,22 @@ years.
 
 Additional Notes
 ----------------
-The commands above should result in a bunch of Python :mod:`logging` output
-describing what the script is doing, and file outputs in the ``output``
-directory within your workspace. When the ETL is complete, you
-should see new files at ``output/ferc1.sqlite`` and ``output/pudl.sqlite`` as
-well as a new directory at ``output/core_epacems__hourly_emissions`` containing
-nested directories named by year and state.
+The commands above should result in a bunch of Python :mod:`logging` output describing
+what the script is doing, and file outputs in your ``$PUDL_OUTPUT`` directory. When the
+ETL is complete, you should see new files at e.g. ``$PUDL_OUTPUT/ferc1_dbf.sqlite`` and
+``output/pudl.sqlite`` as well as a new directory at
+``output/core_epacems__hourly_emissions`` containing nested directories named by year
+and state.
 
-If you need to re-run ``ferc_to_sqlite`` and want to overwrite
-their previous outputs you can add ``--clobber`` (run ``ferc_to_sqlite --clobber``).
-All of the PUDL scripts also have help messages if you want additional information
-(run ``script_name --help``).
+If you need to re-run ``ferc_to_sqlite`` and want to overwrite their previous outputs
+you can add ``--clobber`` (run ``ferc_to_sqlite --clobber``).  All of the PUDL scripts
+also have help messages if you want additional information (run ``script_name --help``).
 
 .. note::
 
-  The ``pudl_etl`` command does not have a ``--clobber`` option because
-  each etl run uses the same database file to read and write tables.
-  This enables re-running portions of the ETL.
+  The ``pudl_etl`` command does not have a ``--clobber`` option because each etl run
+  uses the same database file to read and write tables.  This enables re-running
+  portions of the ETL.
 
 Foreign Keys
 ------------

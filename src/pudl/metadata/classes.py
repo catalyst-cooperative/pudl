@@ -1934,22 +1934,26 @@ class DatasetteMetadata(PudlMeta):
     def from_data_source_ids(
         cls,
         output_path: Path,
-        data_source_ids: Iterable[str] = [
+        data_source_ids: list[str] = [
             "pudl",
-            "ferc1",
             "eia860",
-            "eia861",
             "eia860m",
+            "eia861",
             "eia923",
+            "ferc1",
+            "ferc2",
+            "ferc6",
+            "ferc60",
+            "ferc714",
         ],
-        xbrl_ids: Iterable[str] = [
+        xbrl_ids: list[str] = [
             "ferc1_xbrl",
             "ferc2_xbrl",
             "ferc6_xbrl",
             "ferc60_xbrl",
             "ferc714_xbrl",
         ],
-        extra_etl_groups: Iterable[str] = [
+        extra_etl_groups: list[str] = [
             "entity_eia",
             "glue",
             "static_eia",
@@ -1967,9 +1971,7 @@ class DatasetteMetadata(PudlMeta):
             extra_etl_groups: ETL groups with resources that should be included
         """
         # Compile a list of DataSource objects for use in the template
-        data_sources = [
-            DataSource.from_id(ds_id) for ds_id in data_source_ids + xbrl_ids
-        ]
+        data_sources = [DataSource.from_id(ds_id) for ds_id in data_source_ids]
 
         # Instantiate all possible resources in a Package:
         pkg = Package.from_resource_ids()

@@ -252,7 +252,7 @@ class GenericPlantFerc1TableTransformer(Ferc1AbstractTableTransformer):
 def get_plants_ferc1_raw_job() -> JobDefinition:
     """Pull all plants in the FERC Form 1 DBF and XBRL DB for given years.
 
-    This job expects ferc1.sqlite and ferc_xbrl.sqlite databases to be populated.
+    This job expects ferc1_dbf.sqlite and ferc_xbrl.sqlite databases to be populated.
     """
     plant_tables = [
         "core_ferc1__yearly_hydroelectric_plants_sched406",

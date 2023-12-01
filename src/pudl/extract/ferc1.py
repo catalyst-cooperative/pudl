@@ -235,7 +235,7 @@ class Ferc1DbfExtractor(FercDbfExtractor):
     """Wrapper for running the foxpro to sqlite conversion of FERC1 dataset."""
 
     DATASET = "ferc1"
-    DATABASE_NAME = "ferc1.sqlite"
+    DATABASE_NAME = "ferc1_dbf.sqlite"
 
     def get_settings(
         self, global_settings: FercToSqliteSettings
@@ -450,7 +450,7 @@ def extract_dbf_generic(
     Args:
         table_names: The name of the raw dbf tables you want to combine
             under dbf. These are the tables you want to combine.
-        io_manager: IO Manager that extracts tables from ferc1.sqlite as dataframes.
+        io_manager: IO Manager that reads tables out of ``ferc1_dbf.sqlite``.
         dataset_settings: object containing desired years to extract.
 
     Return:
@@ -478,7 +478,7 @@ def extract_xbrl_generic(
     Args:
         table_names: The name of the raw dbf tables you want to combine
             under xbrl. These are the tables you want to combine.
-        io_manager: IO Manager that extracts tables from ferc1.sqlite as dataframes.
+        io_manager: IO Manager that reads tables out of ``ferc1_xbrl.sqlite``.
         dataset_settings: object containing desired years to extract.
         period: Either duration or instant, specific to xbrl data.
 
