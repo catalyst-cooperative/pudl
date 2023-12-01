@@ -1,4 +1,7 @@
 [run]
+source =
+    src
+    test
 omit =
     *__main__.py
     *__init__.py
