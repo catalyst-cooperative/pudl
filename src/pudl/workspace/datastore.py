@@ -9,13 +9,14 @@ import zipfile
 from collections import defaultdict
 from collections.abc import Iterator
 from pathlib import Path
-from typing import Any, Self
+from typing import Annotated, Any, Self
 from urllib.parse import ParseResult, urlparse
 
 import datapackage
 import requests
 from google.auth.exceptions import DefaultCredentialsError
-from pydantic import BaseSettings, HttpUrl, constr
+from pydantic import HttpUrl, StringConstraints
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
@@ -27,9 +28,12 @@ from pudl.workspace.setup import PudlPaths
 logger = pudl.logging_helpers.get_logger(__name__)
 
 PUDL_YML = Path.home() / ".pudl.yml"
-ZenodoDoi = constr(
-    strict=True, min_length=16, regex=r"(10\.5072|10\.5281)/zenodo.([\d]+)"
-)
+ZenodoDoi = Annotated[
+    str,
+    StringConstraints(
+        strict=True, min_length=16, pattern=r"(10\.5072|10\.5281)/zenodo.([\d]+)"
+    ),
+]
 
 
 class ChecksumMismatchError(ValueError):
@@ -166,41 +170,21 @@ class DatapackageDescriptor:
 class ZenodoDoiSettings(BaseSettings):
     """Digital Object Identifiers pointing to currently used Zenodo archives."""
 
-    # Sandbox DOIs are provided for reference
     censusdp1tract: ZenodoDoi = "10.5281/zenodo.4127049"
-    # censusdp1tract: ZenodoDoi = "10.5072/zenodo.674992"
     eia860: ZenodoDoi = "10.5281/zenodo.10067566"
-    # eia860: ZenodoDoi = "10.5072/zenodo.1222854"
     eia860m: ZenodoDoi = "10.5281/zenodo.10204686"
-    # eia860m: ZenodoDoi = "10.5072/zenodo.1225517"
     eia861: ZenodoDoi = "10.5281/zenodo.10204708"
-    # eia861: ZenodoDoi = "10.5072/zenodo.1229930"
-    eia923: ZenodoDoi = "10.5281/zenodo.8172818"
-    # eia923: ZenodoDoi = "10.5072/zenodo.1217724"
+    eia923: ZenodoDoi = "10.5281/zenodo.10067550"
     eia_bulk_elec: ZenodoDoi = "10.5281/zenodo.7067367"
-    # eia_bulk_elec: ZenodoDoi = "10.5072/zenodo.1103572"
     epacamd_eia: ZenodoDoi = "10.5281/zenodo.7900974"
-    # epacamd_eia: ZenodoDoi = "10.5072/zenodo.1199170"
     epacems: ZenodoDoi = "10.5281/zenodo.8235497"
-    # epacems: ZenodoDoi = "10.5072/zenodo.1228519"
     ferc1: ZenodoDoi = "10.5281/zenodo.8326634"
-    # ferc1: ZenodoDoi = "10.5072/zenodo.1234455"
     ferc2: ZenodoDoi = "10.5281/zenodo.8326697"
-    # ferc2: ZenodoDoi = "10.5072/zenodo.1236695"
     ferc6: ZenodoDoi = "10.5281/zenodo.8326696"
-    # ferc6: ZenodoDoi = "10.5072/zenodo.1236703"
     ferc60: ZenodoDoi = "10.5281/zenodo.8326695"
-    # ferc60: ZenodoDoi = "10.5072/zenodo.1236694"
     ferc714: ZenodoDoi = "10.5281/zenodo.8326694"
-    # ferc714: ZenodoDoi = "10.5072/zenodo.1237565"
     phmsagas: ZenodoDoi = "10.5281/zenodo.8346646"
-    # phmsagas: ZenodoDoi = "10.5072/zenodo.1239253"
-
-    class Config:
-        """Pydantic config, reads from .env file."""
-
-        env_prefix = "pudl_zenodo_doi_"
-        env_file = ".env"
+    model_config = SettingsConfigDict(env_prefix="pudl_zenodo_doi_", env_file=".env")
 
 
 class ZenodoFetcher:
@@ -307,12 +291,12 @@ class Datastore:
 
         Args:
             local_cache_path: if provided, LocalFileCache pointed at the data
-              subdirectory of this path will be used with this Datastore.
+                subdirectory of this path will be used with this Datastore.
             gcs_cache_path: if provided, GoogleCloudStorageCache will be used
-              to retrieve data files. The path is expected to have the following
-              format: gs://bucket[/path_prefix]
+                to retrieve data files. The path is expected to have the following
+                format: gs://bucket[/path_prefix]
             timeout: connection timeouts (in seconds) to use when connecting
-              to Zenodo servers.
+                to Zenodo servers.
         """
         self._cache = resource_cache.LayeredCache()
         self._datapackage_descriptors: dict[str, DatapackageDescriptor] = {}

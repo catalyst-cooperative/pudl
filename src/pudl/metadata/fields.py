@@ -665,7 +665,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Boiler efficiency percentage when burning at 50 percent load to the nearest 0.1 percent.",
     },
-    "eia_code": {"type": "integer"},
+    "eia_code": {
+        "type": "integer",
+        "description": (
+            "EIA utility or balancing area authority ID associated with this FERC Form "
+            "714 respondent. Note that many utilities are also balancing authorities "
+            "and in many cases EIA uses the same integer ID to identify a utility in "
+            "its role as a balancing authority AND as a utility, but there is no "
+            "requirement that these IDs be the same, and in a number of cases they are "
+            "different."
+        ),
+    },
     "electric_plant": {
         "type": "number",
         "description": "Electric Plant In Service (USD).",
@@ -2262,8 +2272,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             )
         },
     },
-    "respondent_id_ferc714": {"type": "integer"},
-    "respondent_name_ferc714": {"type": "string"},
+    "respondent_id_ferc714": {
+        "type": "integer",
+        "description": "FERC Form 714 respondent ID. Note that this ID does not correspond to FERC respondent IDs from other forms.",
+    },
+    "respondent_name_ferc714": {
+        "type": "string",
+        "description": "Name of the utility, balancing area authority, or planning authority responding to FERC Form 714.",
+    },
     "respondent_type": {
         "type": "string",
         "constraints": {"enum": ["utility", "balancing_authority"]},

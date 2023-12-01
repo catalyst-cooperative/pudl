@@ -26,7 +26,8 @@ from dagster import (
 )
 
 import pudl
-from pudl.settings import EtlSettings
+from pudl.helpers import get_dagster_execution_config
+from pudl.settings import EpaCemsSettings, EtlSettings
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -54,6 +55,7 @@ def parse_command_line(argv):
         "--gcs-cache-path",
         type=str,
         help="Load datastore resources from Google Cloud Storage. Should be gs://bucket[/path_prefix]",
+        default="",
     )
     parser.add_argument(
         "--loglevel",
@@ -61,7 +63,8 @@ def parse_command_line(argv):
         default="INFO",
     )
     parser.add_argument(
-        "--max-concurrent",
+        "--dagster-workers",
+        type=int,
         help="Set the max number of processes dagster can launch. Defaults to use the number of CPUs on the machine.",
         default=0,
     )
@@ -116,7 +119,7 @@ def main():
 
     etl_settings = EtlSettings.from_yaml(args.settings_file)
 
-    dataset_settings_config = etl_settings.datasets.dict()
+    dataset_settings_config = etl_settings.datasets.model_dump()
     process_epacems = True
     if etl_settings.datasets.epacems is None:
         process_epacems = False
@@ -124,7 +127,7 @@ def main():
         # the CEMS assets will not be executed. Fill in the config dictionary
         # with default cems values. Replace this workaround once dagster pydantic
         # config classes are available.
-        dataset_settings_config["epacems"] = pudl.settings.EpaCemsSettings().dict()
+        dataset_settings_config["epacems"] = EpaCemsSettings().model_dump()
 
     pudl_etl_reconstructable_job = build_reconstructable_job(
         "pudl.cli.etl",
@@ -135,28 +138,22 @@ def main():
             "process_epacems": process_epacems,
         },
     )
-    result = execute_job(
-        pudl_etl_reconstructable_job,
-        instance=DagsterInstance.get(),
-        run_config={
-            "execution": {
+    run_config = {
+        "resources": {
+            "dataset_settings": {"config": dataset_settings_config},
+            "datastore": {
                 "config": {
-                    "multiprocess": {
-                        "max_concurrent": int(args.max_concurrent),
-                    },
-                }
-            },
-            "resources": {
-                "dataset_settings": {"config": dataset_settings_config},
-                "datastore": {
-                    "config": {
-                        "gcs_cache_path": args.gcs_cache_path
-                        if args.gcs_cache_path
-                        else "",
-                    },
+                    "gcs_cache_path": args.gcs_cache_path,
                 },
             },
         },
+    }
+    run_config.update(get_dagster_execution_config(args.dagster_workers))
+
+    result = execute_job(
+        pudl_etl_reconstructable_job,
+        instance=DagsterInstance.get(),
+        run_config=run_config,
     )
 
     # Workaround to reliably getting full stack trace

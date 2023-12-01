@@ -61,10 +61,13 @@ creates a REST API allowing the data in the database to be queried programmatica
 All the query parameters are stored in the URL so you can also share links to the
 data you've selected.
 
-Note that only data that has been fully integrated into the SQLite databases are
-available here. Currently this includes `the core PUDL database
-<https://data.catalyst.coop/pudl>`__ and our concatenation of `all historical FERC
-Form 1 databases <https://data.catalyst.coop/ferc1>`__.
+.. note::
+
+   The only SQLite database containing cleaned and integrated data is `the core PUDL database
+   <https://data.catalyst.coop/pudl>`__. There are also several FERC SQLite databases
+   derived from their old Visual FoxPro and new XBRL data formats, which we publish as
+   SQLite to improve accessibility of the raw inputs, but they should generally not be
+   used directly if the data you need has integrated into the PUDL database.
 
 .. _access-nightly-builds:
 
@@ -88,28 +91,28 @@ HTTPS using the following links:
 
 * Raw FERC Form 1:
 
-  * `FERC-1 SQLite derived from DBF (1994-2020) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc1.sqlite.gz>`__
+  * `FERC-1 SQLite derived from DBF (1994-2020) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc1_dbf.sqlite.gz>`__
   * `FERC-1 SQLite derived from XBRL (2021-2022) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc1_xbrl.sqlite.gz>`__
   * `FERC-1 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc1_xbrl_datapackage.json>`__
   * `FERC-1 XBRL Taxonomy Metadata as JSON (2021-2022) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc1_xbrl_taxonomy_metadata.json>`__
 
 * Raw FERC Form 2:
 
-  * `FERC-2 SQLite derived from DBF (1996-2020) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc2.sqlite.gz>`__
+  * `FERC-2 SQLite derived from DBF (1996-2020) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc2_dbf.sqlite.gz>`__
   * `FERC-2 SQLite derived from XBRL (2021-2022) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc2_xbrl.sqlite.gz>`__
   * `FERC-2 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc2_xbrl_datapackage.json>`__
   * `FERC-2 XBRL Taxonomy Metadata as JSON (2021-2022) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc2_xbrl_taxonomy_metadata.json>`__
 
 * Raw FERC Form 6:
 
-  * `FERC-6 SQLite derived from DBF (2000-2020) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc6.sqlite.gz>`__
+  * `FERC-6 SQLite derived from DBF (2000-2020) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc6_dbf.sqlite.gz>`__
   * `FERC-6 SQLite derived from XBRL (2021-2022) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc6_xbrl.sqlite.gz>`__
   * `FERC-6 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc6_xbrl_datapackage.json>`__
   * `FERC-6 XBRL Taxonomy Metadata as JSON (2021-2022) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc6_xbrl_taxonomy_metadata.json>`__
 
 * Raw FERC Form 60:
 
-  * `FERC-60 SQLite derived from DBF (2006-2020) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc60.sqlite.gz>`__
+  * `FERC-60 SQLite derived from DBF (2006-2020) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc60_dbf.sqlite.gz>`__
   * `FERC-60 SQLite derived from XBRL (2021-2022) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc60_xbrl.sqlite.gz>`__
   * `FERC-60 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc60_xbrl_datapackage.json>`__
   * `FERC-60 XBRL Taxonomy Metadata as JSON (2021) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/ferc60_xbrl_taxonomy_metadata.json>`__
