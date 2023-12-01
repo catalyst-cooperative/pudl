@@ -121,6 +121,11 @@ jobs:
     defaults:
       run:
         shell: bash -l {0}
+    strategy:
+      fail-fast: false
+      matrix:
+        dagster_workers: [0, 1, 2, 4]
+        xbrl_workers: [1, 2, 3, 4, 8]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -181,8 +186,11 @@ jobs:
         run: |
           coverage run ${{ env.COVERAGE_OPTIONS }} \
             src/pudl/ferc_to_sqlite/cli.py \
-              --workers ${{ env.XBRL_WORKERS }} \
+              --dagster-workers ${{ matrix.dagster_workers }} \
+              --workers ${{ matrix.xbrl_workers }} \
               --clobber ${{ env.ETL_COMMANDLINE_OPTIONS }} ${{ env.ETL_CONFIG }}
+      - name: Fail pipeline early
+        run: exit 1
       - name: Run pudl_etl
         env:
           COVERAGE_FILE: .coverage.pudl_etl
