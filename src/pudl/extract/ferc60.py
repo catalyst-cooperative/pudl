@@ -16,7 +16,7 @@ class Ferc60DbfExtractor(FercDbfExtractor):
     """Extracts FERC Form 60 data from the legacy DBF archives."""
 
     DATASET = "ferc60"
-    DATABASE_NAME = "ferc60.sqlite"
+    DATABASE_NAME = "ferc60_dbf.sqlite"
 
     def get_settings(
         self, global_settings: FercToSqliteSettings
