@@ -193,8 +193,11 @@ jobs:
         run: |
           coverage run ${{ env.COVERAGE_OPTIONS }} \
            -m pytest -n auto --live-dbs test/integration
+      - name: Checksum coverage files
+        run: ls .coverage* | xargs md5sum | sort
       - name: Generate coverage
         run: |
+          coverage --version
           coverage combine --append
           coverage xml
           coverage report
