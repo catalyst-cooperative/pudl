@@ -16,7 +16,7 @@ import pudl
 from pudl.analysis.record_linkage.models import (
     ColumnTransformation,
     CrossYearLinker,
-    ReducedDimDataFrameEmbedder,
+    ReducedDimDataFrameEmbedderSparse,
 )
 from pudl.analysis.record_linkage.name_cleaner import CompanyNameCleaner
 
@@ -301,37 +301,39 @@ def fuel_by_plant_ferc1(
 class Ferc1PlantClassifier(CrossYearLinker):
     """Create model for linking ferc1 plants between years."""
 
-    embedding_step: ReducedDimDataFrameEmbedder = ReducedDimDataFrameEmbedder(
-        transformations={
-            "plant_name": ColumnTransformation(
-                transformations=[CompanyNameCleaner(), "string"],
-                weight=2.0,
-                columns=["plant_name_ferc1"],
-            ),
-            "plant_type": ColumnTransformation(
-                transformations=["null_to_empty_str", "category"],
-                weight=2.0,
-                columns=["plant_type"],
-            ),
-            "construction_type": ColumnTransformation(
-                transformations=["null_to_empty_str", "category"],
-                columns=["construction_type"],
-            ),
-            "capacity_mw": ColumnTransformation(
-                transformations=["null_to_zero", "number"],
-                columns=["capacity_mw"],
-            ),
-            "construction_year": ColumnTransformation(
-                transformations=["fix_int_na", "category"],
-                columns=["construction_year"],
-            ),
-            "utility_id_ferc1": ColumnTransformation(
-                transformations=["category"],
-                columns=["utility_id_ferc1"],
-            ),
-            "fuel_fractions": ColumnTransformation(
-                transformations=["null_to_zero", "number", "norm"],
-                columns=_FUEL_COLS,
-            ),
-        }
+    embedding_step: ReducedDimDataFrameEmbedderSparse = (
+        ReducedDimDataFrameEmbedderSparse(
+            transformations={
+                "plant_name": ColumnTransformation(
+                    transformations=[CompanyNameCleaner(), "string"],
+                    weight=2.0,
+                    columns=["plant_name_ferc1"],
+                ),
+                "plant_type": ColumnTransformation(
+                    transformations=["null_to_empty_str", "category"],
+                    weight=2.0,
+                    columns=["plant_type"],
+                ),
+                "construction_type": ColumnTransformation(
+                    transformations=["null_to_empty_str", "category"],
+                    columns=["construction_type"],
+                ),
+                "capacity_mw": ColumnTransformation(
+                    transformations=["null_to_zero", "number"],
+                    columns=["capacity_mw"],
+                ),
+                "construction_year": ColumnTransformation(
+                    transformations=["fix_int_na", "category"],
+                    columns=["construction_year"],
+                ),
+                "utility_id_ferc1": ColumnTransformation(
+                    transformations=["category"],
+                    columns=["utility_id_ferc1"],
+                ),
+                "fuel_fractions": ColumnTransformation(
+                    transformations=["null_to_zero", "number", "norm"],
+                    columns=_FUEL_COLS,
+                ),
+            }
+        )
     )

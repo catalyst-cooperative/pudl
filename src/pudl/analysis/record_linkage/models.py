@@ -9,7 +9,7 @@ from pydantic import BaseModel, ConfigDict
 from sklearn.base import BaseEstimator
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.compose import ColumnTransformer
-from sklearn.decomposition import PCA
+from sklearn.decomposition import PCA, IncrementalPCA
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import pairwise_distances
 from sklearn.pipeline import Pipeline
@@ -37,7 +37,7 @@ class ModelComponent(BaseModel, ABC):
     @abstractmethod
     def __call__(self, *args, **kwargs):
         """Every model component should be callable."""
-        pass
+        ...
 
 
 _GENERIC_COLUMN_TRANSFORMS = {
@@ -124,7 +124,7 @@ class DataFrameEmbedder(ModelComponent):
 
     #: Applying column transformations may produce a sparse matrix.
     #: If this flag is set, the matrix will automatically be made dense before returning.
-    make_dense: bool = True
+    make_dense: bool
 
     def _construct_transformer(self) -> ColumnTransformer:
         """Use configuration to construct :class:`sklearn.compose.ColumnTransformer`."""
@@ -154,12 +154,38 @@ class ReducedDimDataFrameEmbedder(DataFrameEmbedder):
     """Subclass of :class:`DataFrameEmbedder`, which applies PCA to reduce dimensions of the output."""
 
     #: Passed to :class:`sklearn.decomposition.PCA` param n_components
-    output_dims: int | float | None = None
+    output_dims: int | float | None = 500
+    make_dense: bool = True
 
     def __call__(self, df: pd.DataFrame):
         """Apply PCA to output of :class:`DataFrameEmbedder`."""
         transformed = super().__call__(df)
-        pca = PCA(copy=False, n_components=self.output_dims)
+        pca = PCA(copy=False, n_components=self.output_dims, batch_size=500)
+
+        return pca.fit_transform(transformed)
+
+
+class ReducedDimDataFrameEmbedderSparse(DataFrameEmbedder):
+    """Subclass of :class:`DataFrameEmbedder`, which applies IncrementalPCA to reduce dimensions of the output.
+
+    This class differs from :class:`ReducedDimDataFrameEmbedder` in that it applies
+    IncrementalPCA instead of a normal PCA implementation. This implementation is
+    an approximation of a true PCA, but it operates with constant memory usage of
+    batch_size * n_features (where n_features is the number of columns in the input
+    matrix) and it can operate on a sparse input matrix.
+    """
+
+    #: Passed to :class:`sklearn.decomposition.PCA` param n_components
+    output_dims: int | None = 500
+    make_dense: bool = False
+    batch_size: int = 500
+
+    def __call__(self, df: pd.DataFrame):
+        """Apply PCA to output of :class:`DataFrameEmbedder`."""
+        transformed = super().__call__(df)
+        pca = IncrementalPCA(
+            copy=False, n_components=self.output_dims, batch_size=self.batch_size
+        )
 
         return pca.fit_transform(transformed)
 
@@ -177,7 +203,6 @@ class HierarchicalClusteringClassifier(ModelComponent):
             metric="precomputed",
             linkage="average",
             distance_threshold=self.distance_threshold,
-            compute_distances=True,
         )
 
         return classifier.fit_predict(distance_matrix)
@@ -196,7 +221,7 @@ class DistanceCalculator(ModelComponent):
 class PenalizeReportYearDistanceCalculator(DistanceCalculator):
     """Compute distance between records and add penalty to records from same year."""
 
-    distance_penalty: float = 1.5
+    distance_penalty: float = 1000.0
 
     def __call__(
         self, feature_matrix: np.ndarray, original_df: pd.DataFrame
@@ -206,11 +231,9 @@ class PenalizeReportYearDistanceCalculator(DistanceCalculator):
 
         # First create distance matrix of just report years (same year will be 0)
         report_years = np.array(original_df.report_year)
-        year_dist_matrix = pairwise_distances(report_years.reshape(-1, 1))
-        records_from_same_year = np.isclose(year_dist_matrix, 0)
+        penalty_matrix = pairwise_distances(report_years.reshape(-1, 1))
+        penalty_matrix = np.isclose(penalty_matrix, 0) * self.distance_penalty
 
-        penalty_matrix = np.zeros_like(feature_matrix)
-        penalty_matrix[records_from_same_year] = self.distance_penalty
         # Don't add penalty to diagonal (represents distance from record to itself)
         np.fill_diagonal(penalty_matrix, 0)
 
