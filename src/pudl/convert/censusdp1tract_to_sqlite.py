@@ -1,17 +1,10 @@
 """Convert the US Census DP1 ESRI GeoDatabase into an SQLite Database.
 
-This is a thin wrapper around the GDAL ogr2ogr command line tool. We use it
-to convert the Census DP1 data which is distributed as an ESRI GeoDB into an
-SQLite DB. The module provides ogr2ogr with the Census DP 1 data from the
-PUDL datastore, and directs it to be output into the user's SQLite directory
-alongside our other SQLite Databases (ferc1.sqlite and pudl.sqlite)
-
-Note that the ogr2ogr command line utility must be available on the user's
-system for this to work. This tool is part of the ``pudl-dev`` conda
-environment, but if you are using PUDL outside of the conda environment, you
-will need to install ogr2ogr separately. On Debian Linux based systems such
-as Ubuntu it can be installed with ``sudo apt-get install gdal-bin`` (which
-is what we do in our CI setup and Docker images.)
+This is a thin wrapper around the GDAL ogr2ogr command line tool. We use it to convert
+the Census DP1 data which is distributed as an ESRI GeoDB into an SQLite DB. The module
+provides ogr2ogr with the Census DP 1 data from the PUDL datastore, and writes the
+output into the output directory indicated by the ``$PUDL_OUTPUT`` environment variable
+alongside the FERC and PUDL SQLite databases.
 """
 
 import os

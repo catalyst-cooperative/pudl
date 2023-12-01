@@ -134,7 +134,7 @@ class SQLiteIOManager(IOManager):
             table_name = context.get_identifier()
         return table_name
 
-    def _setup_database(self, timeout: float = 1_000.0) -> sa.engine.Engine:
+    def _setup_database(self, timeout: float = 1_000.0) -> sa.Engine:
         """Create database and metadata if they don't exist.
 
         Args:
@@ -572,10 +572,7 @@ class FercSQLiteIOManager(SQLiteIOManager):
         """
         super().__init__(base_dir, db_name, md, timeout)
 
-    def _setup_database(
-        self,
-        timeout: float = 1_000.0,
-    ) -> sa.engine.Engine:
+    def _setup_database(self, timeout: float = 1_000.0) -> sa.Engine:
         """Create database engine and read the metadata.
 
         Args:
@@ -674,7 +671,7 @@ def ferc1_dbf_sqlite_io_manager(init_context) -> FercDBFSQLiteIOManager:
     """Create a SQLiteManager dagster resource for the ferc1 dbf database."""
     return FercDBFSQLiteIOManager(
         base_dir=PudlPaths().output_dir,
-        db_name="ferc1",
+        db_name="ferc1_dbf",
     )
 
 
@@ -692,17 +689,19 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
     ) -> pd.DataFrame:
         """Get most updated values for each XBRL context.
 
-        An XBRL context includes an entity ID, the time period the data applies
-        to, and other dimensions such as utility type. Each context has its own
-        ID, but they are frequently redefined with the same contents but
-        different IDs - so we identify them by their actual content.
+        An XBRL context includes an entity ID, the time period the data applies to, and
+        other dimensions such as utility type. Each context has its own ID, but they are
+        frequently redefined with the same contents but different IDs - so we identify
+        them by their actual content.
 
-        Each row in our SQLite database includes all the facts for one
-        context/filing pair.
+        Each row in our SQLite database includes all the facts for one context/filing
+        pair.
 
-        If one context is represented in multiple filings, we take the facts from the most recently-published filing.
+        If one context is represented in multiple filings, we take the facts from the
+        most recently-published filing.
 
-        This means that if a recently-published filing does not include a value for a fact that was previously reported, then that value will remain null. We do not
+        This means that if a recently-published filing does not include a value for a
+        fact that was previously reported, then that value will remain null. We do not
         forward-fill facts on a fact-by-fact basis.
         """
         filing_metadata_cols = {"publication_time", "filing_name"}
@@ -734,13 +733,13 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
     def refine_report_year(df: pd.DataFrame, xbrl_years: list[int]) -> pd.DataFrame:
         """Set a fact's report year by its actual dates.
 
-        Sometimes a fact belongs to a context which has no ReportYear
-        associated with it; other times there are multiple ReportYears
-        associated with a single filing. In these cases the report year of a
-        specific fact may be associated with the other years in the filing.
+        Sometimes a fact belongs to a context which has no ReportYear associated with
+        it; other times there are multiple ReportYears associated with a single filing.
+        In these cases the report year of a specific fact may be associated with the
+        other years in the filing.
 
-        In many cases we can infer the actual report year from the fact's
-        associated time period - either duration or instant.
+        In many cases we can infer the actual report year from the fact's associated
+        time period - either duration or instant.
         """
         is_duration = len({"start_date", "end_date"} - set(df.columns)) == 0
         is_instant = "date" in df.columns

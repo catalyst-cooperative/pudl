@@ -8,6 +8,8 @@
 docs/data_dictionaries/pudl_db.rst
 .ipynb_checkpoints/
 .cache/
+.ruff_cache/
+.mypy_cache/
 .pytest_cache/*
 .DS_Store
 build/
