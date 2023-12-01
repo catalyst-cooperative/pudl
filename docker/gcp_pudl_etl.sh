@@ -2,6 +2,7 @@
 # This script runs the entire ETL and validation tests in a docker container on a Google Compute Engine instance.
 # This script won't work locally because it needs adequate GCP permissions.
 
+# Set PUDL_GCS_OUTPUT *only* if it is currently unset
 : "${PUDL_GCS_OUTPUT:=gs://nightly-build-outputs.catalyst.coop/$ACTION_SHA-$GITHUB_REF}"
 
 set -x
