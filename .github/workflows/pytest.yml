@@ -195,8 +195,9 @@ jobs:
            -m pytest -n auto --live-dbs test/integration
       - name: Generate coverage
         run: |
-          coverage combine
+          coverage combine --append
           coverage xml
+          coverage report
       - name: Upload coverage
         uses: actions/upload-artifact@v3
         with:
