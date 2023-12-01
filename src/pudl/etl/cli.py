@@ -15,6 +15,7 @@ from dagster import (
 )
 
 import pudl
+from pudl.helpers import get_dagster_execution_config
 from pudl.settings import EpaCemsSettings, EtlSettings
 from pudl.workspace.setup import PudlPaths
 
@@ -70,7 +71,7 @@ def pudl_etl_job_factory(
     ),
 )
 @click.option(
-    "--max-concurrent",
+    "--dagster-workers",
     default=0,
     type=int,
     help="Max number of processes Dagster can launch. Defaults to the number of CPUs.",
@@ -105,7 +106,7 @@ def pudl_etl_job_factory(
 )
 def pudl_etl(
     etl_settings_yml: pathlib.Path,
-    max_concurrent: int,
+    dagster_workers: int,
     gcs_cache_path: str,
     logfile: pathlib.Path,
     loglevel: str,
@@ -134,26 +135,22 @@ def pudl_etl(
             "process_epacems": process_epacems,
         },
     )
-    result = execute_job(
-        pudl_etl_reconstructable_job,
-        instance=DagsterInstance.get(),
-        run_config={
-            "execution": {
+    run_config = {
+        "resources": {
+            "dataset_settings": {"config": dataset_settings_config},
+            "datastore": {
                 "config": {
-                    "multiprocess": {
-                        "max_concurrent": max_concurrent,
-                    },
-                }
-            },
-            "resources": {
-                "dataset_settings": {"config": dataset_settings_config},
-                "datastore": {
-                    "config": {
-                        "gcs_cache_path": gcs_cache_path if gcs_cache_path else "",
-                    },
+                    "gcs_cache_path": gcs_cache_path,
                 },
             },
         },
+    }
+    run_config.update(get_dagster_execution_config(dagster_workers))
+
+    result = execute_job(
+        pudl_etl_reconstructable_job,
+        instance=DagsterInstance.get(),
+        run_config=run_config,
     )
 
     # Workaround to reliably getting full stack trace
