@@ -339,9 +339,7 @@ def _out_eia__plants_utilities(
             "utility_name_eia",
         ],
         axis="columns",
-    ).dropna(
-        subset=["utility_id_eia"]
-    )  # Drop unmergable records
+    ).dropna(subset=["utility_id_eia"])  # Drop unmergable records
 
     # to avoid duplicate columns on the merge...
     out_df = pd.merge(

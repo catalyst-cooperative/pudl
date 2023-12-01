@@ -529,9 +529,7 @@ def _core_eia860__utilities(raw_eia860__utility: pd.DataFrame) -> pd.DataFrame:
         # using noqa to get past flake8 test that give a false positive thinking
         # that the regex string is supposed to be an f-string and is missing
         # the it's designated prefix.
-        return p_num.replace(
-            regex=r"^(?!.*\d{3}-\d{3}-\d{4}).*$", value=pd.NA
-        )  # noqa: FS003
+        return p_num.replace(regex=r"^(?!.*\d{3}-\d{3}-\d{4}).*$", value=pd.NA)  # noqa: FS003
 
     u_df = u_df.assign(
         phone_number=_make_phone_number(

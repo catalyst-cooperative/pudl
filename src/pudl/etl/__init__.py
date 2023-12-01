@@ -21,6 +21,7 @@ from pudl.resources import dataset_settings, datastore, ferc_to_sqlite_settings
 from pudl.settings import EtlSettings
 
 from . import (
+    check_foreign_keys,
     eia_bulk_elec_assets,
     epacems_assets,
     glue_assets,
@@ -121,7 +122,7 @@ def load_dataset_settings_from_file(setting_filename: str) -> dict:
     dataset_settings = EtlSettings.from_yaml(
         importlib.resources.files("pudl.package_data.settings")
         / f"{setting_filename}.yml"
-    ).datasets.dict()
+    ).datasets.model_dump()
 
     return dataset_settings
 

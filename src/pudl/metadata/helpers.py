@@ -582,7 +582,7 @@ def groupby_aggregate(  # noqa: C901
         result = df[by].drop_duplicates().set_index(by)
     if not raised:
         # Move errors to report and replace errors with nulls
-        is_error = result.applymap(lambda x: isinstance(x, AggregationError))
+        is_error = result.map(lambda x: isinstance(x, AggregationError))
         for col in data_columns:
             report = result[col][is_error[col]]
             if not report.empty:

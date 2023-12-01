@@ -501,8 +501,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             """The cost, type, operating status, retirement date, and install year of
 emissions control equipment reported to EIA. Includes control ids for sulfur dioxide
-(SO2), particulate matter, mercury, nitrogen oxide (NOX), and acid (HCl) gas monitoring.
-"""
+(SO2), particulate matter, mercury, nitrogen oxide (NOX), and acid (HCl) gas
+monitoring."""
         ),
         "schema": {
             "fields": [
@@ -533,8 +533,7 @@ emissions control equipment reported to EIA. Includes control ids for sulfur dio
 emissions control equipment reported to EIA. Includes control ids for sulfur dioxide
 (SO2), particulate matter, mercury, nitrogen oxide (NOX), and acid (HCl) gas monitoring.
 The denormalized version contains plant name, utility id, pudl id, and utility name
-columns.
-"""
+columns."""
         ),
         "schema": {
             "fields": [
@@ -569,8 +568,7 @@ columns.
         "description": (
             """A table that links EIA boiler IDs to emissions control IDs for NOx, SO2,
 mercury, and particulate monitoring. The relationship between the IDs is sometimes many
-to many.
-"""
+to many."""
         ),
         "schema": {
             "fields": [
@@ -617,8 +615,7 @@ to many.
     "core_eia860__assn_boiler_stack_flue": {
         "description": (
             """A table that links EIA boiler IDs to EIA stack and/or flue
-system IDs.
-"""
+system IDs."""
         ),
         "schema": {
             "fields": [

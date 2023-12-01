@@ -44,14 +44,6 @@ with the following commands:
     $ mamba update mamba
     $ conda config --set channel_priority strict
 
-At this point you should have a ``base`` ``conda`` environment. You'll need to install
-``conda-lock`` to work with our environment lockfiles, discussed below:
-
-.. code-block:: console
-
-    $ mamba activate base
-    $ mamba install conda-lock
-
 ------------------------------------------------------------------------------
 Fork and Clone the PUDL Repository
 ------------------------------------------------------------------------------
@@ -64,6 +56,23 @@ Then, `clone the repository <https://help.github.com/articles/cloning-a-reposito
 from your fork to your local computer where you'll be editing the code or docs.  This
 will download the whole history of the project, including the most recent version, and
 put it in a local directory where you can make changes.
+
+Note that we use a special merge method for our environment lockfiles, which you need
+to explicitly enable locally in your git configuration for the PUDL repository with this
+command. You only need to run it once, from within the cloned repo:
+
+.. code-block:: console
+
+    $ git config --local merge.ours.driver true
+
+.. note::
+
+   If there have been changes to the environment on a branch (e.g. ``dev``) that you
+   merge into your own branch, the lockfiles will need to be regenerated. This can be
+   done automatically by pushing the merged changes to your branch on GitHub, waiting a
+   couple of minutes for the ``update-conda-lockfile`` GitHub Action to run, and then
+   pulling the fresh lockfiles to your local development environment. You can also
+   regenerate the lockfiles locally (see below).
 
 -------------------------------------------------------------------------------
 Create the PUDL Dev Environment
@@ -79,39 +88,23 @@ listed in the project's ``pyproject.toml`` file.  The conda lockfile is updated
 automatically by a GitHub Action workflow that runs once a week, or any time
 ``pyproject.toml`` is changed.
 
-Use ``conda-lock`` to create a new ``pudl-dev`` environment and activate it:
-
-.. code-block:: console
-
-    $ mamba activate base
-    $ conda-lock install --name pudl-dev --mamba --dev environments/conda-lock.yml
-    $ mamba deactivate
-    $ mamba activate pudl-dev
-
-Now we need to install the PUDL package defined by the repository into the ``pudl-dev``
-conda environment. We use ``pip`` since this is just a local package, and since all of
-the required packages should have already been satisfied by the locked conda
-environment, we tell ``pip`` not to try and install any dependencies.
-
-.. code-block:: console
-
-    $ pip install --no-cache-dir --no-deps --editable .
-
--------------------------------------------------------------------------------
-Automating tasks with Make
--------------------------------------------------------------------------------
-We use the GNU build tool ``make`` to remember and automate some repetitive tasks in the
+We use a ``Makefile`` to remember and automate some common shared tasks in the
 PUDL repository, including creating and updating the ``pudl-dev`` conda environment. If
-you are on a Unix-based platform (Linux or MacOS) it should already be installed.
-Typically, rather than running the commands in the section above, you'll want to use
-the predefined ``make`` commands. If you'd like to learn more about how Makefiles work,
-check out `this excellent Makefile tutorial <https://makefiletutorial.com/>`__
+you are on a Unix-based platform (Linux or MacOS) the ``make`` command should already be
+installed. You'll typically want to use the predefined ``make`` commands rather than
+running the individual commands they wrap. If you'd like to learn more about how
+Makefiles work, check out `this excellent Makefile tutorial
+<https://makefiletutorial.com/>`__
 
-To create the ``pudl-dev`` environment and install the local PUDL package, run:
+To create the ``pudl-dev`` environment and install the local PUDL package using
+``make``, run:
 
 .. code-block:: console
 
     $ make install-pudl
+
+If you want to see all the bundled commands we've defined, open up the ``Makefile``.
+There's also some additional information in the :doc:`testing` documentation.
 
 -------------------------------------------------------------------------------
 Updating the PUDL Development Environment
@@ -130,13 +123,13 @@ creating it the first time:
     $ make install-pudl
 
 If you happen to be changing the dependencies listed in ``pyproject.toml`` and you want
-to re-create the conda lockfile from scratch, resolving for any newly updated
-dependencies, and then create a fresh ``pudl-dev`` environment using the new lockfile,
-you can use:
+to re-create the conda lockfile from scratch to include any newly defined dependencies,
+and then create a fresh ``pudl-dev`` environment using the new lockfile, you can do:
 
 .. code-block:: console
 
     $ make conda-clean
+    $ make conda-lock.yml
     $ make install-pudl
 
 However, unless you are adding or removing dependencies from ``pyproject.toml`` it is
@@ -202,25 +195,22 @@ The scripts that run are configured in the ``.pre-commit-config.yaml`` file.
     * `Real Python Code Quality Tools and Best Practices <https://realpython.com/python-code-quality/>`__
       gives a good overview of available linters and static code analysis tools.
 
-Code and Docs Linters
-^^^^^^^^^^^^^^^^^^^^^
+Linting and Formatting
+^^^^^^^^^^^^^^^^^^^^^^
 
 * `ruff <https://docs.astral.sh/ruff/>`__ is a popular, fast Python
   `linting <https://en.wikipedia.org/wiki/Lint_(software)>`__ and autofix framework,
   with a large selection of rules that can be configured (often mirroring plugins
   originally developed for ``flake8``). We use it to check the formatting and syntax of
   the code and to ensure that we're all using modern python syntax, type hinting, etc.
+* We also use `ruff to format our code <https://docs.astral.sh/ruff/formatter/>`__. It
+  serves as a much faster drop-in replacement for longtime crowd favorite `black
+  <https://black.readthedocs.io/en/stable/>`__
 * `doc8 <https://github.com/PyCQA/doc8>`__ , lints our documentation files, which are
   written in the reStructuredText format and built by `Sphinx
   <https://www.sphinx-doc.org/en/master/>`__. This is the de-facto standard for Python
   documentation. The ``doc8`` tool checks for syntax errors and other formatting issues
   in the documentation source files under the ``docs/`` directory.
-
-Automatic Formatting
-^^^^^^^^^^^^^^^^^^^^
-We are using the the `black <https://black.readthedocs.io/en/stable/>`__ code formatter
-and style. It's automatically applied by oure pre-commit hooks, and can probably be
-integrated directly into your code editor.
 
 Linting Within Your Editor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -228,8 +218,7 @@ If you are using an editor designed for Python development many of these code li
 and formatting tools can be run automatically in the background while you write code or
 documentation. Popular editors that work with the above tools include:
 
-* `Visual Studio Code <https://code.visualstudio.com/>`__, from Microsoft (free, but
-   controlled by the hegemon).
+* `Visual Studio Code <https://code.visualstudio.com/>`__, from Microsoft (free, but...)
 * `NeoVim <https://neovim.io/>`__, (free and open source; for diehard Unix lovers)
 * `PyCharm <https://www.jetbrains.com/pycharm/>`__ (paid).
 * `Sublime Text <https://www.sublimetext.com/>`__ (paid).

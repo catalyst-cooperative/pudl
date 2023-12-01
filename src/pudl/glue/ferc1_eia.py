@@ -148,7 +148,7 @@ def get_mapped_plants_eia():
 ##########################
 # Raw Plants and Utilities
 ##########################
-def get_util_ids_ferc1_raw_xbrl(ferc1_engine_xbrl: sa.engine.Engine) -> pd.DataFrame:
+def get_util_ids_ferc1_raw_xbrl(ferc1_engine_xbrl: sa.Engine) -> pd.DataFrame:
     """Grab the utility ids (reported as `entity_id`) in the FERC1 XBRL database."""
     all_utils_ferc1_xbrl = (
         pd.read_sql(
@@ -170,7 +170,7 @@ def get_util_ids_ferc1_raw_xbrl(ferc1_engine_xbrl: sa.engine.Engine) -> pd.DataF
     return all_utils_ferc1_xbrl
 
 
-def get_util_ids_ferc1_raw_dbf(ferc1_engine_dbf: sa.engine.Engine) -> pd.DataFrame:
+def get_util_ids_ferc1_raw_dbf(ferc1_engine_dbf: sa.Engine) -> pd.DataFrame:
     """Grab the utility ids (reported as `respondent_id`) in the FERC1 DBF database."""
     all_utils_ferc1_dbf = (
         pd.read_sql_table("f1_respondent_id", ferc1_engine_dbf)
@@ -421,7 +421,7 @@ def get_utility_most_recent_capacity(pudl_engine) -> pd.DataFrame:
     gen_caps["utility_id_eia"] = gen_caps["utility_id_eia"].astype("Int64")
 
     most_recent_gens_idx = (
-        gen_caps.groupby("utility_id_eia")["report_date"].transform(max)
+        gen_caps.groupby("utility_id_eia")["report_date"].transform("max")
         == gen_caps["report_date"]
     )
     most_recent_gens = gen_caps.loc[most_recent_gens_idx]

@@ -45,7 +45,7 @@ class PudlTabl:
 
     def __init__(
         self: Self,
-        pudl_engine: sa.engine.Engine,
+        pudl_engine: sa.Engine,
         freq: Literal["AS", "MS", None] = None,
         start_date: str | date | datetime | pd.Timestamp = None,
         end_date: str | date | datetime | pd.Timestamp = None,
@@ -99,7 +99,7 @@ class PudlTabl:
                 "PudlTabl needs pudl_engine to be a SQLAlchemy Engine, but we "
                 f"got a {type(pudl_engine)}."
             )
-        self.pudl_engine: sa.engine.Engine = pudl_engine
+        self.pudl_engine: sa.Engine = pudl_engine
 
         if freq not in (None, "AS", "MS"):
             raise ValueError(

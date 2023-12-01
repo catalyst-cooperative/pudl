@@ -217,6 +217,31 @@ def fake_pudl_sqlite_io_manager_fixture(tmp_path, test_pkg, monkeypatch):
     return PudlSQLiteIOManager(base_dir=tmp_path, db_name="fake", package=test_pkg)
 
 
+def test_pudl_sqlite_io_manager_delete_stmt(fake_pudl_sqlite_io_manager_fixture):
+    """Test we are replacing the data without dropping the table schema."""
+    manager = fake_pudl_sqlite_io_manager_fixture
+
+    asset_key = "artist"
+    artist = pd.DataFrame({"artistid": [1], "artistname": ["Co-op Mop"]})
+    output_context = build_output_context(asset_key=AssetKey(asset_key))
+    manager.handle_output(output_context, artist)
+
+    # Read the table back into pandas
+    input_context = build_input_context(asset_key=AssetKey(asset_key))
+    returned_df = manager.load_input(input_context)
+    assert len(returned_df) == 1
+
+    # Rerun the asset
+    # Load the dataframe to a sqlite table
+    output_context = build_output_context(asset_key=AssetKey(asset_key))
+    manager.handle_output(output_context, artist)
+
+    # Read the table back into pandas
+    input_context = build_input_context(asset_key=AssetKey(asset_key))
+    returned_df = manager.load_input(input_context)
+    assert len(returned_df) == 1
+
+
 def test_migrations_match_metadata(tmp_path, monkeypatch):
     """If you create a `PudlSQLiteIOManager` that points at a non-existing
     `pudl.sqlite` - it will initialize the DB based on the `package`.
@@ -231,7 +256,7 @@ def test_migrations_match_metadata(tmp_path, monkeypatch):
     # alembic wants current directory to be the one with `alembic.ini` in it
     monkeypatch.chdir(Path(__file__).parent.parent.parent)
     # alembic knows to use PudlPaths().pudl_db - so we need to set PUDL_OUTPUT env var
-    monkeypatch.setenv("PUDL_OUTPUT", tmp_path)
+    monkeypatch.setenv("PUDL_OUTPUT", str(tmp_path))
     # run all the migrations on a fresh DB at tmp_path/pudl.sqlite
     alembic.config.main(["upgrade", "head"])
 

@@ -18,8 +18,7 @@ associations between individual boilers and generators are incomplete and can be
 complex.
 
 Note that a small number of respondents only report annual fuel consumption, and all of
-it is reported in December.
-"""
+it is reported in December."""
     ),
     "core_eia923__monthly_fuel_receipts_costs": (
         """Data describing fuel deliveries to power plants, reported in EIA-923 Schedule 2, Part A.
@@ -44,8 +43,7 @@ likely fuel to have its price redacted. This means, for instance, that the entir
 Northeastern US reports essentially no fine-grained data about its natural gas prices.
 
 Additional data which we haven't yet integrated is available in a similar format from
-2002-2008 via the EIA-423, and going back as far as 1972 from the FERC-423.
-"""
+2002-2008 via the EIA-423, and going back as far as 1972 from the FERC-423."""
     ),
     "core_eia923__monthly_generation": (
         """EIA-923 Monthly Generating Unit Net Generation. From EIA-923 Schedule 3.
@@ -62,8 +60,7 @@ those calculations depend on plant-level fuel costs and sometimes uncertain or
 incomplete boiler-generator associations.
 
 Note that a small number of respondents only report annual net generation, and all of
-it is reported in December.
-"""
+it is reported in December."""
     ),
     "core_eia923__monthly_generation_fuel": (
         """EIA-923 Monthly Generation and Fuel Consumption Time Series. From EIA-923 Schedule 3.
@@ -83,8 +80,7 @@ and also provide high temperature process heat at the expense of net electricity
 generation.
 
 Note that a small number of respondents only report annual fuel consumption and net
-generation, and all of it is reported in December.
-"""
+generation, and all of it is reported in December."""
     ),
     "core_eia923__monthly_generation_fuel_nuclear": (
         """EIA-923 Monthly Generation and Fuel Consumption Time Series. From EIA-923 Schedule 3.
@@ -93,8 +89,7 @@ Monthly electricity generation and fuel consumption reported for each combinatio
 fuel and prime mover within a nuclear generation unit. This data is originally reported
 alongside similar information for fossil fuel plants, but the nuclear data is reported
 by (nuclear) generation unit rather than fuel type and prime mover, and so has a
-different primary key.
-"""
+different primary key."""
     ),
     "generation_fuel_combined_eia923": (
         """EIA-923 Monthly Generation and Fuel Consumption Time Series. From EIA-923 Schedule 3.
@@ -102,8 +97,7 @@ different primary key.
 Denormalized, combined data from the ``core_eia923__monthly_generation_fuel`` and
 ``core_eia923__monthly_generation_fuel_nuclear`` with nuclear generation aggregated from the nuclear
 generation unit level up to the plant prime mover level, so as to be compatible with
-fossil fuel generation data.
-"""
+fossil fuel generation data."""
     ),
 }
 
@@ -256,8 +250,7 @@ records in this table that correspond to the same mines in reality.
 We have not yet taken the time to rigorously clean this data, but it could be linked
 with both Mining Safety and Health Administration (MSHA) and USGS data to provide more
 insight into where coal is coming from, and what the employment and geological context
-is for those supplies.
-"""
+is for those supplies."""
         ),
         "schema": {
             "fields": [
