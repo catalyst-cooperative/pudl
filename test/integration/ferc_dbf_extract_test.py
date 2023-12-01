@@ -16,10 +16,8 @@ logger = logging.getLogger(__name__)
 
 def test_ferc1_dbf2sqlite(ferc1_engine_dbf):
     """Attempt to access the DBF based FERC 1 SQLite DB fixture."""
-    assert isinstance(ferc1_engine_dbf, sa.engine.Engine)  # nosec: B101
-    assert (  # nosec: B101
-        "f1_respondent_id" in sa.inspect(ferc1_engine_dbf).get_table_names()
-    )
+    assert isinstance(ferc1_engine_dbf, sa.Engine)
+    assert "f1_respondent_id" in sa.inspect(ferc1_engine_dbf).get_table_names()
 
 
 @pytest.mark.parametrize(

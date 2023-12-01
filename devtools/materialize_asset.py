@@ -38,7 +38,7 @@ def main(asset_id):
                 config={
                     "resources": {
                         "dataset_settings": {
-                            "config": etl_fast_settings.dict(),
+                            "config": etl_fast_settings.model_dump(),
                         },
                     },
                 },

@@ -1096,7 +1096,7 @@ class Timeseries:
             )
         df = pd.concat(stats, names=["column", "flag"]).reset_index()
         # Sort flags by flagged order
-        ordered = df["flag"].astype(pd.CategoricalDtype(pd.unique(self.flagged)))
+        ordered = df["flag"].astype(pd.CategoricalDtype(set(self.flagged)))
         return df.assign(flag=ordered).sort_values(["column", "flag"])
 
     def plot_flags(self, name: Any = 0) -> None:
