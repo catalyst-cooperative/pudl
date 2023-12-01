@@ -8,7 +8,7 @@ channels:
 dependencies:
   - aws-c-common=0.9.8=h93a5062_0
   - bzip2=1.0.8=h93a5062_5
-  - c-ares=1.22.1=h93a5062_0
+  - c-ares=1.23.0=h93a5062_0
   - ca-certificates=2023.11.17=hf0a4a13_0
   - font-ttf-dejavu-sans-mono=2.37=hab24e00_0
   - font-ttf-inconsolata=3.000=h77eed37_0
@@ -381,7 +381,7 @@ dependencies:
   - arrow=1.3.0=pyhd8ed1ab_0
   - async-timeout=4.0.3=pyhd8ed1ab_0
   - aws-crt-cpp=0.24.7=hba4ac3b_6
-  - botocore=1.33.3=pyhd8ed1ab_0
+  - botocore=1.33.5=pyhd8ed1ab_0
   - branca=0.7.0=pyhd8ed1ab_1
   - croniter=2.0.1=pyhd8ed1ab_0
   - cryptography=41.0.5=py311h71175c2_0
@@ -471,7 +471,7 @@ dependencies:
   - typeguard=4.1.5=pyhd8ed1ab_1
   - typer=0.9.0=pyhd8ed1ab_0
   - uvicorn-standard=0.24.0.post1=ha1ab1f8_0
-  - boto3=1.33.3=pyhd8ed1ab_0
+  - boto3=1.33.5=pyhd8ed1ab_0
   - cachecontrol-with-filecache=0.13.1=pyhd8ed1ab_0
   - dagster=1.5.9=pyhd8ed1ab_0
   - datasette=0.64.4=pyhd8ed1ab_1
@@ -480,7 +480,7 @@ dependencies:
   - frictionless=4.40.8=pyh6c4a22f_0
   - gdal=3.8.0=py311h32a4f3d_6
   - geopandas-base=0.14.1=pyha770c72_0
-  - google-auth=2.23.4=pyhca7485f_0
+  - google-auth=2.24.0=pyhca7485f_0
   - gql-with-requests=3.4.1=pyhd8ed1ab_0
   - graphviz=9.0.0=h3face73_1
   - ipykernel=6.26.0=pyh3cd1d5f_0

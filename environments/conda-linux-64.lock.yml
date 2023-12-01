@@ -26,7 +26,7 @@ dependencies:
   - libgcc-ng=13.2.0=h807b86a_3
   - aws-c-common=0.9.8=hd590300_0
   - bzip2=1.0.8=hd590300_5
-  - c-ares=1.22.1=hd590300_0
+  - c-ares=1.23.0=hd590300_0
   - fribidi=1.0.10=h36c2ea0_0
   - geos=3.12.1=h59595ed_0
   - gettext=0.21.1=h27087fc_0
@@ -65,7 +65,7 @@ dependencies:
   - openssl=3.1.4=hd590300_0
   - pixman=0.42.2=h59595ed_0
   - pthread-stubs=0.4=h36c2ea0_1001
-  - rdma-core=28.9=h59595ed_1
+  - rdma-core=49.0=hd3aeb46_1
   - snappy=1.1.10=h9fff704_0
   - tzcode=2023c=h0b41bf4_0
   - uriparser=0.9.7=hcb278e6_1
@@ -106,7 +106,7 @@ dependencies:
   - readline=8.2=h8228510_1
   - s2n=1.3.56=h06160fa_0
   - tk=8.6.13=noxft_h4845f30_101
-  - ucx=1.15.0=h64cca9d_0
+  - ucx=1.15.0=hae80064_1
   - xorg-libsm=1.2.4=h7391055_0
   - zeromq=4.3.5=h59595ed_0
   - zlib=1.2.13=hd590300_5
@@ -401,7 +401,7 @@ dependencies:
   - arrow=1.3.0=pyhd8ed1ab_0
   - async-timeout=4.0.3=pyhd8ed1ab_0
   - aws-c-s3=0.4.1=hfadff92_0
-  - botocore=1.33.3=pyhd8ed1ab_0
+  - botocore=1.33.5=pyhd8ed1ab_0
   - branca=0.7.0=pyhd8ed1ab_1
   - croniter=2.0.1=pyhd8ed1ab_0
   - cryptography=41.0.5=py311h63ff55d_0
@@ -490,7 +490,7 @@ dependencies:
   - typer=0.9.0=pyhd8ed1ab_0
   - uvicorn-standard=0.24.0.post1=h38be061_0
   - aws-sdk-cpp=1.11.182=h8beafcf_7
-  - boto3=1.33.3=pyhd8ed1ab_0
+  - boto3=1.33.5=pyhd8ed1ab_0
   - cachecontrol-with-filecache=0.13.1=pyhd8ed1ab_0
   - dagster=1.5.9=pyhd8ed1ab_0
   - datasette=0.64.4=pyhd8ed1ab_1
@@ -499,7 +499,7 @@ dependencies:
   - frictionless=4.40.8=pyh6c4a22f_0
   - gdal=3.8.0=py311h815a124_6
   - geopandas-base=0.14.1=pyha770c72_0
-  - google-auth=2.23.4=pyhca7485f_0
+  - google-auth=2.24.0=pyhca7485f_0
   - gql-with-requests=3.4.1=pyhd8ed1ab_0
   - gtk2=2.24.33=h90689f9_2
   - ipykernel=6.26.0=pyhf8b6a83_0
