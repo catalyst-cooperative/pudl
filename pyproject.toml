@@ -18,6 +18,7 @@ dependencies = [
     "build>=1.0",
     "catalystcoop.dbfread>=3.0,<3.1",
     "catalystcoop.ferc-xbrl-extractor>=1.2.0,<2",
+    "click>=8.1",
     "coloredlogs>=14.0", # Dagster requires 14.0
     "conda-lock>=2.5.1",
     "coverage>=7",
