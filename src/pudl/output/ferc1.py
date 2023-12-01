@@ -1075,7 +1075,13 @@ class NodeId(NamedTuple):
 
 
 class OffByFactoid(NamedTuple):
-    """A factoid which is reported incorrectly as off-by another factoid."""
+    """A calculated factoid which is off by one other factoid.
+
+    A factoid where a sizeable majority of utilities using a non-standard and
+    non-reported calculation to generate it. These calculated factoids are either
+    missing one factoid, or include an additional factoid not included in the FERC
+    metadata. Thus, the calculations are 'off by' this factoid.
+    """
 
     table_name: str
     xbrl_factoid: str
@@ -1755,17 +1761,12 @@ class Exploder:
         )
 
         off_by = pd.DataFrame(self.off_by_facts)
-        # we calculate the non-abs diff here because many times the
-        # bad utility reporters include components that are not in the
-        # stock calculation so we need to remove it. the value of the
-        # correction record needs to be the raw diff.
         not_close = (
-            calculated_df[calculated_df.abs_diff != 0]
+            calculated_df[~np.isclose(calculated_df.abs_diff, 0)]
             .set_index(list(NodeId._fields))
             # grab the parent side of the off_by facts
             .loc[off_by.set_index(list(NodeId._fields)).index.unique()]
             .reset_index()
-            .assign(diff=lambda x: x[self.value_col] - x.calculated_value)
         )
         off_by_fact = (
             calculated_df[calculated_df.row_type_xbrl != "correction"]
