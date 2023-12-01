@@ -179,6 +179,9 @@ def mock_ferc1_plants_df():
             _generate_random_test_df("huntington beach"),
             _generate_random_test_df("long beach"),
             _generate_random_test_df("san onofre 2&3"),
+            _generate_random_test_df("allen e. kintigh", capacity_mean=150),
+            _generate_random_test_df("hawthorn 6", capacity_mean=150),
+            _generate_random_test_df("venice c.t.", capacity_mean=500),
         ]
     )
 
