@@ -310,7 +310,7 @@ dependencies:
   - comm=0.1.4=pyhd8ed1ab_0
   - coverage=7.3.2=py311h2725bcf_0
   - curl=8.4.0=h726d00d_0
-  - fonttools=4.45.1=py311he705e18_0
+  - fonttools=4.46.0=py311he705e18_0
   - gitdb=4.0.11=pyhd8ed1ab_0
   - graphql-core=3.2.3=pyhd8ed1ab_0
   - grpcio=1.59.2=py311hfd95bfa_0
