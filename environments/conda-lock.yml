@@ -5440,7 +5440,7 @@ package:
     category: main
     optional: false
   - name: fonttools
-    version: 4.45.1
+    version: 4.46.0
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -5448,10 +5448,10 @@ package:
       munkres: ""
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/fonttools-4.45.1-py311h05b510d_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/fonttools-4.46.0-py311h05b510d_0.conda
     hash:
-      md5: 40c7471beb6af15161a202c0ddf04d82
-      sha256: 7d8d2c8de468dc5a432e8d083f3b56eeec4380749bcfd09a44c81d42cacceece
+      md5: 1bac60f34700b22c8e8364f32b502211
+      sha256: 300d8cc1cc987ab913e3b24c38f8eaf679acff0e885747a3f71471fd92db3e33
     category: main
     optional: false
   - name: fqdn
