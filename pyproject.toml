@@ -124,7 +124,7 @@ ferc_to_sqlite = "pudl.ferc_to_sqlite.cli:main"
 pudl_datastore = "pudl.workspace.datastore:main"
 pudl_etl = "pudl.etl.cli:pudl_etl"
 pudl_setup = "pudl.workspace.setup_cli:main"
-pudl_check_fks = "pudl.etl.check_foreign_keys:main"
+pudl_check_fks = "pudl.etl.check_foreign_keys:pudl_check_fks"
 # pudl_territories currently blows up memory usage to 100+ GB.
 # See https://github.com/catalyst-cooperative/pudl/issues/1174
 # pudl_territories = "pudl.analysis.service_territory:main"
@@ -271,11 +271,7 @@ log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
 log_date_format = "%Y-%m-%d %H:%M:%S"
 log_cli = "true"
 log_cli_level = "DEBUG"
-doctest_optionflags = [
-    "NORMALIZE_WHITESPACE",
-    "IGNORE_EXCEPTION_DETAIL",
-    "ELLIPSIS",
-]
+doctest_optionflags = ["NORMALIZE_WHITESPACE", "IGNORE_EXCEPTION_DETAIL", "ELLIPSIS"]
 
 [tool.conda-lock]
 channels = ["conda-forge", "defaults"]
