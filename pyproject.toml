@@ -120,7 +120,6 @@ keywords = [
 
 [project.scripts]
 metadata_to_rst = "pudl.convert.metadata_to_rst:main"
-epacems_to_parquet = "pudl.convert.epacems_to_parquet:main"
 ferc_to_sqlite = "pudl.ferc_to_sqlite.cli:main"
 pudl_datastore = "pudl.workspace.datastore:main"
 pudl_etl = "pudl.etl.cli:pudl_etl"

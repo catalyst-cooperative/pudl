@@ -295,10 +295,6 @@ Deprecations
 * ``pudl.transform.eia860.transform()`` and ``pudl.transform.eia923.transform()``
   functions have been deprecated. The table level EIA cleaning funtions are now
   coordinated using dagster.
-* The :mod:`pudl.convert.epacems_to_parquet` command now executes the
-  ``hourly_emissions_epacems`` asset as a dagster job. The ``—partition`` option
-  is no longer supported. Now only creates a directory of parquet files
-  for each year/state partition.
 * ``pudl.transform.ferc1.transform()`` has been removed. The ferc1 table
     transformations are now being orchestrated with Dagster.
 * ``pudl.transform.ferc1.transform`` can no longer be executed as a script.
@@ -316,6 +312,7 @@ Deprecations
   :mod:`pudl.settings` no longer have table attributes because the ETL no longer
   supports loading specific tables via settings. Use dagster to select subsets of
   tables to process.
+* The ``epacems_to_parquet`` script has been retired in favor of using the Dagster UI.
 
 Miscellaneous
 ^^^^^^^^^^^^^
