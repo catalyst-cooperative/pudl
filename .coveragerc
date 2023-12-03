@@ -1,5 +1,5 @@
 [run]
-source = src/pudl/
+source = src/pudl
 omit =
     *__main__.py
     *__init__.py
