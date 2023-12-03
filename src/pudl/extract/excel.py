@@ -2,6 +2,7 @@
 import importlib.resources
 import pathlib
 from collections import defaultdict
+from io import BytesIO
 
 import dbfread
 import pandas as pd
@@ -353,7 +354,7 @@ class GenericExtractor:
                     )
                     excel_file = pudl.helpers.convert_df_to_excel_file(df, index=False)
                 else:
-                    excel_file = pd.ExcelFile(zf.read(xlsx_filename))
+                    excel_file = pd.ExcelFile(BytesIO(zf.read(xlsx_filename)))
             finally:
                 self._file_cache[xlsx_filename] = excel_file
         # TODO(rousik): this _file_cache could be replaced with @cache or @memoize annotations

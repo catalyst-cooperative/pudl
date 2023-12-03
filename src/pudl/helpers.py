@@ -78,7 +78,7 @@ def find_new_ferc1_strings(
     table: str,
     field: str,
     strdict: dict[str, list[str]],
-    ferc1_engine: sa.engine.Engine,
+    ferc1_engine: sa.Engine,
 ) -> set[str]:
     """Identify as-of-yet uncategorized freeform strings in FERC Form 1.
 
@@ -1047,7 +1047,7 @@ def simplify_columns(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def drop_tables(engine: sa.engine.Engine, clobber: bool = False) -> None:
+def drop_tables(engine: sa.Engine, clobber: bool = False) -> None:
     """Drops all tables from a SQLite database.
 
     Creates an sa.schema.MetaData object reflecting the structure of the
@@ -1218,9 +1218,7 @@ def generate_rolling_avg(
             freq="MS",
             name="report_date",
         )
-    ).assign(
-        tmp=1
-    )  # assiging a temp column to merge on
+    ).assign(tmp=1)  # assiging a temp column to merge on
     groups = (
         df[group_cols + ["report_date"]]
         .drop_duplicates()
@@ -1488,9 +1486,8 @@ def calc_capacity_factor(
             capacity_factor=lambda x: x.net_generation_mwh / (x.capacity_mw * x.hours)
         )
         # Replace unrealistic capacity factors with NaN
-        .pipe(oob_to_nan, ["capacity_factor"], lb=min_cap_fact, ub=max_cap_fact).drop(
-            ["hours"], axis=1
-        )
+        .pipe(oob_to_nan, ["capacity_factor"], lb=min_cap_fact, ub=max_cap_fact)
+        .drop(["hours"], axis=1)
     )
     return df
 
@@ -1597,21 +1594,20 @@ def flatten_list(xs: Iterable) -> Generator:
 
 
 def convert_df_to_excel_file(df: pd.DataFrame, **kwargs) -> pd.ExcelFile:
-    """Converts a pandas dataframe to a pandas ExcelFile object.
+    """Convert a :class:`pandas.DataFrame` into a :class:`pandas.ExcelFile`.
 
-    You can pass parameters for pandas.to_excel() function.
+    Args:
+        df: The DataFrame to convert.
+        kwargs: Additional arguments to pass into :meth:`pandas.to_excel`.
+
+    Returns:
+        The contents of the input DataFrame, represented as an ExcelFile.
     """
     bio = BytesIO()
-
-    writer = pd.ExcelWriter(bio, engine="xlsxwriter")
-    df.to_excel(writer, **kwargs)
-
-    writer.close()
-
+    with pd.ExcelWriter(bio, engine="xlsxwriter") as writer:
+        df.to_excel(writer, **kwargs)
     bio.seek(0)
-    workbook = bio.read()
-
-    return pd.ExcelFile(workbook)
+    return pd.ExcelFile(bio)
 
 
 def get_asset_keys(
@@ -1798,6 +1794,41 @@ def scale_by_ownership(
         gens["fraction_owned"], axis="index"
     )
     return gens
+
+
+def get_dagster_execution_config(num_workers: int = 0):
+    """Get the dagster execution config for a given number of workers.
+
+    If num_workers is 0, then the dagster execution config will not include
+    any limits. With num_workesr set to 1, we will use in-process serial
+    executor, otherwise multi-process executor with maximum of num_workers
+    will be used.
+
+    Args:
+        num_workers: The number of workers to use for the dagster execution config.
+            If 0, then the dagster execution config will not include a multiprocess
+            executor.
+
+    Returns:
+        A dagster execution config.
+    """
+    if not num_workers:
+        return {}
+    if num_workers == 1:
+        return {
+            "execution": {
+                "config": {
+                    "in_process": {},
+                },
+            },
+        }
+    return {
+        "execution": {
+            "config": {
+                "multiprocess": {"max_concurrent": num_workers},
+            },
+        },
+    }
 
 
 def assert_cols_areclose(

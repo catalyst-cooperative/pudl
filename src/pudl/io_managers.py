@@ -134,7 +134,7 @@ class SQLiteIOManager(IOManager):
             table_name = context.get_identifier()
         return table_name
 
-    def _setup_database(self, timeout: float = 1_000.0) -> sa.engine.Engine:
+    def _setup_database(self, timeout: float = 1_000.0) -> sa.Engine:
         """Create database and metadata if they don't exist.
 
         Args:
@@ -193,7 +193,7 @@ class SQLiteIOManager(IOManager):
         method collapses foreign keys with multiple fields into one record for
         readability.
         """
-        with self.engine.connect() as con:
+        with self.engine.begin() as con:
             table_fks = pd.read_sql_query(f"PRAGMA foreign_key_list({table});", con)
 
         # Foreign keys with multiple fields are reported in separate records.
@@ -224,7 +224,7 @@ class SQLiteIOManager(IOManager):
             ForeignKeyErrors: if data in the database violate foreign key constraints.
         """
         logger.info(f"Running foreign key check on {self.db_name} database.")
-        with self.engine.connect() as con:
+        with self.engine.begin() as con:
             fk_errors = pd.read_sql_query("PRAGMA foreign_key_check;", con)
 
         if not fk_errors.empty:
@@ -284,10 +284,11 @@ class SQLiteIOManager(IOManager):
             )
 
         engine = self.engine
-        with engine.connect() as con:
+        with engine.begin() as con:
             # Remove old table records before loading to db
             con.execute(sa_table.delete())
 
+        with engine.begin() as con:
             df.to_sql(
                 table_name,
                 con,
@@ -314,7 +315,7 @@ class SQLiteIOManager(IOManager):
         # Make sure the metadata has been created for the view
         _ = self._get_sqlalchemy_table(table_name)
 
-        with engine.connect() as con:
+        with engine.begin() as con:
             # Drop the existing view if it exists and create the new view.
             # TODO (bendnorman): parameterize this safely.
             con.execute(f"DROP VIEW IF EXISTS {table_name}")
@@ -357,7 +358,7 @@ class SQLiteIOManager(IOManager):
 
         engine = self.engine
 
-        with engine.connect() as con:
+        with engine.begin() as con:
             try:
                 df = pd.read_sql_table(table_name, con)
             except ValueError:
@@ -369,7 +370,7 @@ class SQLiteIOManager(IOManager):
             if df.empty:
                 raise AssertionError(
                     f"The {table_name} table is empty. Materialize "
-                    "the {table_name} asset so it is available in the database."
+                    f"the {table_name} asset so it is available in the database."
                 )
             return df
 
@@ -461,7 +462,7 @@ class PudlSQLiteIOManager(SQLiteIOManager):
                 "it's a work in progress or is distributed in Apache Parquet format."
             )
 
-        with engine.connect() as con:
+        with engine.begin() as con:
             # Drop the existing view if it exists and create the new view.
             # TODO (bendnorman): parameterize this safely.
             con.execute(f"DROP VIEW IF EXISTS {table_name}")
@@ -476,7 +477,7 @@ class PudlSQLiteIOManager(SQLiteIOManager):
 
         df = res.enforce_schema(df)
 
-        with self.engine.connect() as con:
+        with self.engine.begin() as con:
             # Remove old table records before loading to db
             con.execute(sa_table.delete())
 
@@ -510,7 +511,7 @@ class PudlSQLiteIOManager(SQLiteIOManager):
                 "it's a work in progress or is distributed in Apache Parquet format."
             )
 
-        with self.engine.connect() as con:
+        with self.engine.begin() as con:
             try:
                 df = pd.concat(
                     [
@@ -571,10 +572,7 @@ class FercSQLiteIOManager(SQLiteIOManager):
         """
         super().__init__(base_dir, db_name, md, timeout)
 
-    def _setup_database(
-        self,
-        timeout: float = 1_000.0,
-    ) -> sa.engine.Engine:
+    def _setup_database(self, timeout: float = 1_000.0) -> sa.Engine:
         """Create database engine and read the metadata.
 
         Args:
@@ -656,7 +654,7 @@ class FercDBFSQLiteIOManager(FercSQLiteIOManager):
 
         engine = self.engine
 
-        with engine.connect() as con:
+        with engine.begin() as con:
             return pd.read_sql_query(
                 f"SELECT * FROM {table_name} "  # noqa: S608
                 "WHERE report_year BETWEEN :min_year AND :max_year;",
@@ -673,7 +671,7 @@ def ferc1_dbf_sqlite_io_manager(init_context) -> FercDBFSQLiteIOManager:
     """Create a SQLiteManager dagster resource for the ferc1 dbf database."""
     return FercDBFSQLiteIOManager(
         base_dir=PudlPaths().output_dir,
-        db_name="ferc1",
+        db_name="ferc1_dbf",
     )
 
 
@@ -691,17 +689,19 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
     ) -> pd.DataFrame:
         """Get most updated values for each XBRL context.
 
-        An XBRL context includes an entity ID, the time period the data applies
-        to, and other dimensions such as utility type. Each context has its own
-        ID, but they are frequently redefined with the same contents but
-        different IDs - so we identify them by their actual content.
+        An XBRL context includes an entity ID, the time period the data applies to, and
+        other dimensions such as utility type. Each context has its own ID, but they are
+        frequently redefined with the same contents but different IDs - so we identify
+        them by their actual content.
 
-        Each row in our SQLite database includes all the facts for one
-        context/filing pair.
+        Each row in our SQLite database includes all the facts for one context/filing
+        pair.
 
-        If one context is represented in multiple filings, we take the facts from the most recently-published filing.
+        If one context is represented in multiple filings, we take the facts from the
+        most recently-published filing.
 
-        This means that if a recently-published filing does not include a value for a fact that was previously reported, then that value will remain null. We do not
+        This means that if a recently-published filing does not include a value for a
+        fact that was previously reported, then that value will remain null. We do not
         forward-fill facts on a fact-by-fact basis.
         """
         filing_metadata_cols = {"publication_time", "filing_name"}
@@ -733,13 +733,13 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
     def refine_report_year(df: pd.DataFrame, xbrl_years: list[int]) -> pd.DataFrame:
         """Set a fact's report year by its actual dates.
 
-        Sometimes a fact belongs to a context which has no ReportYear
-        associated with it; other times there are multiple ReportYears
-        associated with a single filing. In these cases the report year of a
-        specific fact may be associated with the other years in the filing.
+        Sometimes a fact belongs to a context which has no ReportYear associated with
+        it; other times there are multiple ReportYears associated with a single filing.
+        In these cases the report year of a specific fact may be associated with the
+        other years in the filing.
 
-        In many cases we can infer the actual report year from the fact's
-        associated time period - either duration or instant.
+        In many cases we can infer the actual report year from the fact's associated
+        time period - either duration or instant.
         """
         is_duration = len({"start_date", "end_date"} - set(df.columns)) == 0
         is_instant = "date" in df.columns
@@ -812,7 +812,7 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
         engine = self.engine
 
         sched_table_name = re.sub("_instant|_duration", "", table_name)
-        with engine.connect() as con:
+        with engine.begin() as con:
             df = pd.read_sql(
                 f"SELECT {table_name}.* FROM {table_name}",  # noqa: S608 - table names not supplied by user
                 con=con,
@@ -861,7 +861,6 @@ class PandasParquetIOManager(UPathIOManager):
         logger.info(f"Reading parquet file from {path}")
         return dd.read_parquet(
             path,
-            use_nullable_dtypes=True,
             engine="pyarrow",
             index=False,
             split_row_groups=True,

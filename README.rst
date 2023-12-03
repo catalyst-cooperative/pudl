@@ -8,9 +8,9 @@ The Public Utility Data Liberation Project (PUDL)
    :target: https://www.repostatus.org/#active
    :alt: Project Status: Active
 
-.. image:: https://github.com/catalyst-cooperative/pudl/workflows/tox-pytest/badge.svg
-   :target: https://github.com/catalyst-cooperative/pudl/actions?query=workflow%3Atox-pytest
-   :alt: Tox-PyTest Status
+.. image:: https://github.com/catalyst-cooperative/pudl/workflows/pytest/badge.svg
+   :target: https://github.com/catalyst-cooperative/pudl/actions?query=workflow%3Apytest
+   :alt: PyTest Status
 
 .. image:: https://img.shields.io/codecov/c/github/catalyst-cooperative/pudl?style=flat&logo=codecov
    :target: https://codecov.io/gh/catalyst-cooperative/pudl
@@ -19,18 +19,6 @@ The Public Utility Data Liberation Project (PUDL)
 .. image:: https://img.shields.io/readthedocs/catalystcoop-pudl?style=flat&logo=readthedocs
    :target: https://catalystcoop-pudl.readthedocs.io/en/latest/
    :alt: Read the Docs Build Status
-
-.. image:: https://img.shields.io/pypi/v/catalystcoop.pudl
-   :target: https://pypi.org/project/catalystcoop.pudl/
-   :alt: PyPI Latest Version
-
-.. image:: https://img.shields.io/conda/vn/conda-forge/catalystcoop.pudl
-   :target: https://anaconda.org/conda-forge/catalystcoop.pudl
-   :alt: conda-forge Version
-
-.. image:: https://img.shields.io/pypi/pyversions/catalystcoop.pudl
-   :target: https://pypi.org/project/catalystcoop.pudl/
-   :alt: Supported Python Versions
 
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
    :target: https://github.com/psf/black
@@ -64,11 +52,11 @@ What data is available?
 
 PUDL currently integrates data from:
 
-* `EIA Form 860 <https://www.eia.gov/electricity/data/eia860/>`__: 2001-2022
+* `EIA Form 860 <https://www.eia.gov/electricity/data/eia860/>`__: 2001 - 2022
 * `EIA Form 860m <https://www.eia.gov/electricity/data/eia860m/>`__: 2023-06
-* `EIA Form 861 <https://www.eia.gov/electricity/data/eia861/>`__: 2001-2022
-* `EIA Form 923 <https://www.eia.gov/electricity/data/eia923/>`__: 2001-2022
-* `EPA Continuous Emissions Monitoring System (CEMS) <https://campd.epa.gov/>`__: 1995-2022
+* `EIA Form 861 <https://www.eia.gov/electricity/data/eia861/>`__: 2001 - 2022
+* `EIA Form 923 <https://www.eia.gov/electricity/data/eia923/>`__: 2001 - 2023-08
+* `EPA Continuous Emissions Monitoring System (CEMS) <https://campd.epa.gov/>`__: 1995 - 2022
 * `FERC Form 1 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual>`__: 1994-2021
 * `FERC Form 714 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-no-714-annual-electric/data>`__: 2006-2020
 * `US Census Demographic Profile 1 Geodatabase <https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html>`__: 2010

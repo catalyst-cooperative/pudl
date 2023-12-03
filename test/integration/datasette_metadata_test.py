@@ -13,25 +13,35 @@ logger = logging.getLogger(__name__)
 
 
 def test_datasette_metadata_to_yml(ferc1_engine_xbrl):
-    """Test the ability to export metadata as YML for use with Datasette."""
+    """Test the ability to export metadata as YML for use with Datasette.
+
+    Requires the ferc1_engine_xbrl because we construct Datasette metadata from the
+    datapackage.json files which annotate the XBRL derived FERC SQLite DBs.
+    """
     metadata_yml = PudlPaths().output_dir / "metadata.yml"
     logger.info(f"Writing Datasette Metadata to {metadata_yml}")
 
     dm = DatasetteMetadata.from_data_source_ids(PudlPaths().output_dir)
-    dm.to_yaml(path=metadata_yml)
+    with metadata_yml.open("w") as f:
+        f.write(dm.to_yaml())
 
     logger.info("Parsing generated metadata using datasette utils.")
     metadata_json = json.dumps(yaml.safe_load(metadata_yml.open()))
     parsed_metadata = datasette.utils.parse_metadata(metadata_json)
-    assert set(parsed_metadata["databases"]) == {
-        "pudl",
-        "ferc1",
-        "ferc1_xbrl",
-        "ferc2_xbrl",
-        "ferc6_xbrl",
-        "ferc60_xbrl",
-        "ferc714_xbrl",
-    }
+    assert sorted(set(parsed_metadata["databases"])) == sorted(
+        {
+            "ferc1_dbf",
+            "ferc1_xbrl",
+            "ferc2_dbf",
+            "ferc2_xbrl",
+            "ferc60_dbf",
+            "ferc60_xbrl",
+            "ferc6_dbf",
+            "ferc6_xbrl",
+            "ferc714_xbrl",
+            "pudl",
+        }
+    )
     assert parsed_metadata["license"] == "CC-BY-4.0"
     assert (
         parsed_metadata["databases"]["pudl"]["source_url"]
@@ -44,7 +54,5 @@ def test_datasette_metadata_to_yml(ferc1_engine_xbrl):
         == "plant_name_eia"
     )
     for tbl_name in parsed_metadata["databases"]["pudl"]["tables"]:
-        assert (
-            parsed_metadata["databases"]["pudl"]["tables"][tbl_name]["columns"]
-            is not None
-        )
+        if parsed_metadata["databases"]["pudl"]["tables"][tbl_name]["columns"] is None:
+            raise AssertionError(f"pudl.{tbl_name}.columns is None")

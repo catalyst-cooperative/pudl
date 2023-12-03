@@ -92,7 +92,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "ash_impoundment_lined": {
         "type": "boolean",
-        "description": "If there is an ash impoundment at the plant, is the impoundment lined?"
+        "description": "If there is an ash impoundment at the plant, is the impoundment lined?",
         # TODO: Is this really boolean? Or do we have non-null strings that mean False?
     },
     "ash_impoundment_status": {
@@ -665,7 +665,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Boiler efficiency percentage when burning at 50 percent load to the nearest 0.1 percent.",
     },
-    "eia_code": {"type": "integer"},
+    "eia_code": {
+        "type": "integer",
+        "description": (
+            "EIA utility or balancing area authority ID associated with this FERC Form "
+            "714 respondent. Note that many utilities are also balancing authorities "
+            "and in many cases EIA uses the same integer ID to identify a utility in "
+            "its role as a balancing authority AND as a utility, but there is no "
+            "requirement that these IDs be the same, and in a number of cases they are "
+            "different."
+        ),
+    },
     "electric_plant": {
         "type": "number",
         "description": "Electric Plant In Service (USD).",
@@ -804,7 +814,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "energy_storage": {
         "type": "boolean",
-        "description": "Indicates if the facility has energy storage capabilities."
+        "description": "Indicates if the facility has energy storage capabilities.",
         # TODO: Is this really boolean? Or do we have non-null strings that mean False?
     },
     "energy_storage_capacity_mwh": {
@@ -873,12 +883,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "ferc_cogen_status": {
         "type": "boolean",
-        "description": "Indicates whether the plant has FERC qualifying facility cogenerator status. See FERC Form 556."
+        "description": "Indicates whether the plant has FERC qualifying facility cogenerator status. See FERC Form 556.",
         # TODO: Is this really boolean? Or do we have non-null strings that mean False?
     },
     "ferc_exempt_wholesale_generator": {
         "type": "boolean",
-        "description": "Indicates whether the plant has FERC qualifying facility exempt wholesale generator status"
+        "description": "Indicates whether the plant has FERC qualifying facility exempt wholesale generator status",
         # TODO: Is this really boolean? Or do we have non-null strings that mean False?
     },
     "ferc_exempt_wholesale_generator_docket_no": {
@@ -1303,7 +1313,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "liquefied_natural_gas_storage": {
         "type": "boolean",
-        "description": "Indicates if the facility have the capability to store the natural gas in the form of liquefied natural gas."
+        "description": "Indicates if the facility have the capability to store the natural gas in the form of liquefied natural gas.",
         # TODO: Is this really boolean? Or do we have non-null strings that mean False?
     },
     "load_management_annual_actual_peak_reduction_mw": {"type": "number", "unit": "MW"},
@@ -1457,7 +1467,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "natural_gas_storage": {
         "type": "boolean",
-        "description": "Indicates if the facility have on-site storage of natural gas."
+        "description": "Indicates if the facility have on-site storage of natural gas.",
         # TODO: Is this really boolean? Or do we have non-null strings that mean False?
     },
     "natural_gas_transport_code": {
@@ -1517,7 +1527,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "net_metering": {
         "type": "boolean",
-        "description": "Did this plant have a net metering agreement in effect during the reporting year?  (Only displayed for facilities that report the sun or wind as an energy source). This field was only reported up until 2015"
+        "description": "Did this plant have a net metering agreement in effect during the reporting year?  (Only displayed for facilities that report the sun or wind as an energy source). This field was only reported up until 2015",
         # TODO: Is this really boolean? Or do we have non-null strings that mean False?
     },
     "net_power_exchanged_mwh": {"type": "number", "unit": "MWh"},
@@ -2262,8 +2272,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             )
         },
     },
-    "respondent_id_ferc714": {"type": "integer"},
-    "respondent_name_ferc714": {"type": "string"},
+    "respondent_id_ferc714": {
+        "type": "integer",
+        "description": "FERC Form 714 respondent ID. Note that this ID does not correspond to FERC respondent IDs from other forms.",
+    },
+    "respondent_name_ferc714": {
+        "type": "string",
+        "description": "Name of the utility, balancing area authority, or planning authority responding to FERC Form 714.",
+    },
     "respondent_type": {
         "type": "string",
         "constraints": {"enum": ["utility", "balancing_authority"]},

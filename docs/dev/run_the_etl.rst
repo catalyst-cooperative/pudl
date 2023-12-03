@@ -157,8 +157,8 @@ Both definitions have two preconfigured jobs:
 
 .. _run-dagster-ui:
 
-Running the ETL with Dagit
---------------------------
+Running the ETL via the Dagster UI
+----------------------------------
 
 Dagster needs a directory to store run logs and some interim assets. We don't
 distribute these outputs, so we want to store them separately from
@@ -289,7 +289,7 @@ To view the status of the run, click the date next to "Latest run:".
 
 .. image:: ../images/dagster_ui_pudl_etl.png
   :width: 800
-  :alt: Dagit pudl_etl
+  :alt: Dagster UI pudl_etl
 
 You can also re-execute specific assets by selecting one or
 multiple assets in the "Overview" tab and clicking "Materialize selected".
@@ -298,14 +298,14 @@ want to rerun the entire ETL.
 
 .. note::
 
-  Dagster does not allow you to select asset groups for a specific job.
-  For example, if you click on the ``raw_eia860`` asset group in Dagit,
-  click "Materialize All", the default configuration values will be used
-  so all available years of the data will be extracted.
+  Dagster does not allow you to select asset groups for a specific job.  For example, if
+  you click on the ``raw_eia860`` asset group in the Dagster UI click "Materialize All",
+  the default configuration values will be used so all available years of the data will
+  be extracted.
 
-  To process a subset of years for a specific asset group, select the
-  asset group, shift+click "Materialize all" and configure the
-  ``dataset_settings`` resource with the desired years.
+  To process a subset of years for a specific asset group, select the asset group,
+  shift+click "Materialize all" and configure the ``dataset_settings`` resource with the
+  desired years.
 
 .. note::
 
@@ -325,7 +325,7 @@ Dagster's job execution API.
 
 .. note::
 
-  We recommend using Dagit to execute the ETL as it provides additional
+  We recommend using the Dagster UI to execute the ETL as it provides additional
   functionality for re-execution and viewing asset dependences.
 
 There are two main CLI commands for executing the PUDL processing pipeline:
@@ -333,6 +333,13 @@ There are two main CLI commands for executing the PUDL processing pipeline:
 1. ``ferc_to_sqlite`` executes the ``pudl.ferc_to_sqlite`` dagster graph.
    You must run this script before you can run ``pudl_etl``.
 2. ``pudl_etl`` executes the ``pudl.etl`` asset graph.
+
+We also have targets set up in the ``Makefile`` for running these scripts:
+
+.. code-block:: console
+
+    $ make ferc
+    $ make pudl
 
 Settings Files
 --------------
@@ -486,23 +493,21 @@ years.
 
 Additional Notes
 ----------------
-The commands above should result in a bunch of Python :mod:`logging` output
-describing what the script is doing, and file outputs in the ``output``
-directory within your workspace. When the ETL is complete, you
-should see new files at ``output/ferc1.sqlite`` and ``output/pudl.sqlite`` as
-well as a new directory at ``output/hourly_emissions_epacems`` containing
-nested directories named by year and state.
+The commands above should result in a bunch of Python :mod:`logging` output describing
+what the script is doing, and file outputs in your ``$PUDL_OUTPUT`` directory. When the
+ETL is complete, you should see new files at e.g. ``$PUDL_OUTPUT/ferc1_dbf.sqlite`` and
+``output/pudl.sqlite`` as well as a new directory at ``output/hourly_emissions_epacems``
+containing nested directories named by year and state.
 
-If you need to re-run ``ferc_to_sqlite`` and want to overwrite
-their previous outputs you can add ``--clobber`` (run ``ferc_to_sqlite --clobber``).
-All of the PUDL scripts also have help messages if you want additional information
-(run ``script_name --help``).
+If you need to re-run ``ferc_to_sqlite`` and want to overwrite their previous outputs
+you can add ``--clobber`` (run ``ferc_to_sqlite --clobber``).  All of the PUDL scripts
+also have help messages if you want additional information (run ``script_name --help``).
 
 .. note::
 
-  The ``pudl_etl`` command does not have a ``--clobber`` option because
-  each etl run uses the same database file to read and write tables.
-  This enables re-running portions of the ETL.
+  The ``pudl_etl`` command does not have a ``--clobber`` option because each etl run
+  uses the same database file to read and write tables.  This enables re-running
+  portions of the ETL.
 
 Foreign Keys
 ------------
