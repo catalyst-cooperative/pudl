@@ -62,7 +62,7 @@ dependencies:
   - lzo=2.10=h516909a_1000
   - ncurses=6.4=h59595ed_2
   - nspr=4.35=h27087fc_0
-  - openssl=3.1.4=hd590300_0
+  - openssl=3.2.0=hd590300_1
   - pixman=0.42.2=h59595ed_0
   - pthread-stubs=0.4=h36c2ea0_1001
   - rdma-core=49.0=hd3aeb46_1
@@ -204,7 +204,7 @@ dependencies:
   - libblas=3.9.0=20_linux64_openblas
   - libcurl=8.4.0=hca28451_0
   - libgrpc=1.59.2=hd6c4280_0
-  - libpq=16.1=hfc447b1_0
+  - libpq=16.1=hfc447b1_2
   - libwebp=1.3.2=h658648e_1
   - llvmlite=0.41.1=py311ha6695c7_0
   - locket=1.0.0=pyhd8ed1ab_0
@@ -321,7 +321,7 @@ dependencies:
   - cached-property=1.5.2=hd8ed1ab_1
   - cairo=1.18.0=h3faef2a_0
   - cffi=1.16.0=py311hb3a22ac_0
-  - cfitsio=4.3.0=hbdc6101_0
+  - cfitsio=4.3.1=hbdc6101_0
   - click-default-group=1.2.4=pyhd8ed1ab_0
   - click-default-group-wheel=1.2.2=pyhd8ed1ab_0
   - click-plugins=1.1.1=py_0
@@ -331,7 +331,7 @@ dependencies:
   - comm=0.1.4=pyhd8ed1ab_0
   - coverage=7.3.2=py311h459d7ec_0
   - curl=8.4.0=hca28451_0
-  - fonttools=4.45.1=py311h459d7ec_0
+  - fonttools=4.46.0=py311h459d7ec_0
   - gitdb=4.0.11=pyhd8ed1ab_0
   - graphql-core=3.2.3=pyhd8ed1ab_0
   - grpcio=1.59.2=py311ha6695c7_0
@@ -340,7 +340,7 @@ dependencies:
   - hdf5=1.14.2=nompi_h4f84152_100
   - html5lib=1.1=pyh9f0ad1d_0
   - hypothesis=6.91.0=pyha770c72_0
-  - importlib-metadata=6.8.0=pyha770c72_0
+  - importlib-metadata=6.9.0=pyha770c72_0
   - importlib_resources=6.1.1=pyhd8ed1ab_0
   - isodate=0.6.1=pyhd8ed1ab_0
   - janus=1.0.0=pyhd8ed1ab_0
@@ -367,7 +367,7 @@ dependencies:
   - pint=0.22=pyhd8ed1ab_1
   - pip=23.3.1=pyhd8ed1ab_0
   - platformdirs=4.0.0=pyhd8ed1ab_0
-  - postgresql=16.1=h8972f4a_0
+  - postgresql=16.1=h8972f4a_2
   - proj=9.3.0=h1d62c97_2
   - prompt-toolkit=3.0.41=pyha770c72_0
   - protobuf=4.24.4=py311h46cbc50_0
@@ -401,10 +401,10 @@ dependencies:
   - arrow=1.3.0=pyhd8ed1ab_0
   - async-timeout=4.0.3=pyhd8ed1ab_0
   - aws-c-s3=0.4.1=hfadff92_0
-  - botocore=1.33.5=pyhd8ed1ab_0
+  - botocore=1.33.6=pyhd8ed1ab_0
   - branca=0.7.0=pyhd8ed1ab_1
   - croniter=2.0.1=pyhd8ed1ab_0
-  - cryptography=41.0.5=py311h63ff55d_0
+  - cryptography=41.0.7=py311hcb13ee4_1
   - fqdn=1.5.1=pyhd8ed1ab_0
   - geotiff=1.7.1=hf074850_14
   - gitpython=3.1.40=pyhd8ed1ab_0
@@ -415,7 +415,7 @@ dependencies:
   - grpcio-health-checking=1.59.2=pyhd8ed1ab_0
   - harfbuzz=8.3.0=h3d44ed6_0
   - httpcore=1.0.2=pyhd8ed1ab_0
-  - importlib_metadata=6.8.0=hd8ed1ab_0
+  - importlib_metadata=6.9.0=hd8ed1ab_0
   - jsonschema-specifications=2023.11.2=pyhd8ed1ab_0
   - jupyter_core=5.5.0=py311h38be061_0
   - jupyter_server_terminals=0.4.4=pyhd8ed1ab_1
@@ -445,17 +445,17 @@ dependencies:
   - tiledb=2.16.3=h8c794c1_3
   - ukkonen=1.0.1=py311h9547e67_4
   - uvicorn=0.24.0.post1=py311h38be061_0
-  - virtualenv=20.24.7=pyhd8ed1ab_0
+  - virtualenv=20.25.0=pyhd8ed1ab_0
   - watchfiles=0.21.0=py311h46250e7_0
   - aiohttp=3.8.6=py311h459d7ec_1
-  - alembic=1.12.1=pyhd8ed1ab_0
+  - alembic=1.13.0=pyhd8ed1ab_0
   - arelle-release=2.17.7=pyhd8ed1ab_0
   - argon2-cffi=23.1.0=pyhd8ed1ab_0
   - aws-crt-cpp=0.24.7=h97e63c7_6
   - bottleneck=1.3.7=py311h1f0f07a_1
   - cachecontrol=0.13.1=pyhd8ed1ab_0
   - contourpy=1.2.0=py311h9547e67_0
-  - dask-core=2023.11.0=pyhd8ed1ab_0
+  - dask-core=2023.12.0=pyhd8ed1ab_0
   - dnspython=2.4.2=pyhd8ed1ab_1
   - ensureconda=1.4.3=pyhd8ed1ab_0
   - folium=0.15.0=pyhd8ed1ab_0
@@ -469,7 +469,7 @@ dependencies:
   - isoduration=20.11.0=pyhd8ed1ab_0
   - jsonschema=4.20.0=pyhd8ed1ab_0
   - jupyter_client=8.6.0=pyhd8ed1ab_0
-  - libgdal=3.8.0=he7dcfe9_6
+  - libgdal=3.8.1=h4d9a814_0
   - numba=0.58.1=py311h96b013e_0
   - numexpr=2.8.7=py311h039bad6_104
   - oauthlib=3.2.2=pyhd8ed1ab_0
@@ -490,14 +490,14 @@ dependencies:
   - typer=0.9.0=pyhd8ed1ab_0
   - uvicorn-standard=0.24.0.post1=h38be061_0
   - aws-sdk-cpp=1.11.182=h8beafcf_7
-  - boto3=1.33.5=pyhd8ed1ab_0
+  - boto3=1.33.6=pyhd8ed1ab_0
   - cachecontrol-with-filecache=0.13.1=pyhd8ed1ab_0
   - dagster=1.5.10=pyhd8ed1ab_0
   - datasette=0.64.4=pyhd8ed1ab_1
   - doc8=1.1.1=pyhd8ed1ab_0
   - email-validator=2.1.0.post1=pyhd8ed1ab_0
   - frictionless=4.40.8=pyh6c4a22f_0
-  - gdal=3.8.0=py311h815a124_6
+  - gdal=3.8.1=py311h815a124_0
   - geopandas-base=0.14.1=pyha770c72_0
   - google-auth=2.24.0=pyhca7485f_0
   - gql-with-requests=3.4.1=pyhd8ed1ab_0
