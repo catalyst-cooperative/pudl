@@ -124,9 +124,7 @@ ferc_to_sqlite = "pudl.ferc_to_sqlite.cli:main"
 pudl_datastore = "pudl.workspace.datastore:pudl_datastore"
 pudl_etl = "pudl.etl.cli:pudl_etl"
 pudl_check_fks = "pudl.etl.check_foreign_keys:pudl_check_fks"
-# pudl_territories currently blows up memory usage to 100+ GB.
-# See https://github.com/catalyst-cooperative/pudl/issues/1174
-# pudl_territories = "pudl.analysis.service_territory:main"
+pudl_service_territories = "pudl.analysis.service_territory:pudl_service_territories"
 
 [project.urls]
 "Homepage" = "https://catalyst.coop/pudl/"
