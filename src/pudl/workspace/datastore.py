@@ -420,9 +420,13 @@ def print_partitions(dstore: Datastore, datasets: list[str]) -> None:
 
         print(f"\nPartitions for {single_ds} ({ZenodoFetcher().get_doi(single_ds)}):")
         for partition_key in sorted(partitions):
-            print(
-                f'  {partition_key}: {", ".join(str(x) for x in sorted(partitions[partition_key]))}'
-            )
+            # try-except required because ferc2 has parts with heterogenous types that
+            # therefore can't be sorted: [1, 2, None]
+            try:
+                parts = sorted(partitions[partition_key])
+            except TypeError:
+                parts = partitions[partition_key]
+            print(f'  {partition_key}: {", ".join(str(x) for x in parts)}')
         if not partitions:
             print("  -- no known partitions --")
 
