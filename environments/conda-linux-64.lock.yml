@@ -404,7 +404,7 @@ dependencies:
   - botocore=1.33.6=pyhd8ed1ab_0
   - branca=0.7.0=pyhd8ed1ab_1
   - croniter=2.0.1=pyhd8ed1ab_0
-  - cryptography=41.0.5=py311h63ff55d_0
+  - cryptography=41.0.7=py311hcb13ee4_1
   - fqdn=1.5.1=pyhd8ed1ab_0
   - geotiff=1.7.1=hf074850_14
   - gitpython=3.1.40=pyhd8ed1ab_0

@@ -3658,7 +3658,7 @@ package:
     category: main
     optional: false
   - name: cryptography
-    version: 41.0.5
+    version: 41.0.7
     manager: conda
     platform: linux-64
     dependencies:
@@ -3667,14 +3667,14 @@ package:
       openssl: ">=3.1.4,<4.0a0"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/cryptography-41.0.5-py311h63ff55d_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/cryptography-41.0.7-py311hcb13ee4_1.conda
     hash:
-      md5: 22584e5c97ed8f1a6b63a0ff43dba827
-      sha256: 236ed2218fb857fecaa11fc7fee23574f683b3d03576f8f26f628b7fd2ced5fa
+      md5: ca6e04ac7262ecaec846e483d6fdc6c8
+      sha256: 0959d015727ae5f55f385556a0a19b9f6036752ea05f78a99cb534803e325cab
     category: main
     optional: false
   - name: cryptography
-    version: 41.0.5
+    version: 41.0.7
     manager: conda
     platform: osx-64
     dependencies:
@@ -3682,14 +3682,14 @@ package:
       openssl: ">=3.1.4,<4.0a0"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/cryptography-41.0.5-py311hd51016d_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/cryptography-41.0.7-py311h48c7838_1.conda
     hash:
-      md5: 99f1edef251a9fe4edf620b527ee70ea
-      sha256: 26ee22b99771f0d338eca6299cbe866f695c544d855d5eab82539497b0a24fc1
+      md5: 65293feff96135571de02c047ecbd5a2
+      sha256: f4c5e683386acf06cfa85805d264c9cd540361ec6e86740cb03312e560aa706a
     category: main
     optional: false
   - name: cryptography
-    version: 41.0.5
+    version: 41.0.7
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -3697,10 +3697,10 @@ package:
       openssl: ">=3.1.4,<4.0a0"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/cryptography-41.0.5-py311h71175c2_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/cryptography-41.0.7-py311h08c85a6_1.conda
     hash:
-      md5: adc55f424334b834098d50e57efe0789
-      sha256: 00c9b389b51b6e951a1f639aa04dceca9e329e144275c79b4f6baacd3fb90345
+      md5: 729546a91873db64ab8e675008845fb5
+      sha256: 9d51ba743069d19aae08361a7b051ca1f281fb3b3ccb162e96c2503cf5a7d365
     category: main
     optional: false
   - name: curl
