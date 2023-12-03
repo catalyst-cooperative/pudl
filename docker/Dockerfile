@@ -48,8 +48,7 @@ ENV LD_LIBRARY_PATH=${CONDA_PREFIX}/lib
 # We need information from .git to get version with setuptools_scm so we mount that
 # directory without copying it into the image.
 RUN --mount=type=bind,source=.git,target=${PUDL_REPO}/.git \
-    ${CONDA_RUN} pip install --no-cache-dir --no-deps --editable . && \
-
+    ${CONDA_RUN} pip install --no-cache-dir --no-deps --editable .
 
 # Install awscli2
 # Change back to root because the install script needs access to /usr/local/aws-cli
