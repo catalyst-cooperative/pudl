@@ -28,7 +28,6 @@ from dagster import AssetOut, Field, asset, multi_asset
 import pudl.analysis.timeseries_cleaning
 import pudl.logging_helpers
 import pudl.output.pudltabl
-import pudl.workspace.setup
 from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
 
 logger = pudl.logging_helpers.get_logger(__name__)

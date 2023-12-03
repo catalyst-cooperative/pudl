@@ -22,7 +22,6 @@ function run_pudl_etl() {
     send_slack_msg ":large_yellow_circle: Deployment started for $ACTION_SHA-$GITHUB_REF :floppy_disk:"
     authenticate_gcp && \
     alembic upgrade head && \
-    pudl_setup && \
     ferc_to_sqlite \
         --loglevel DEBUG \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \

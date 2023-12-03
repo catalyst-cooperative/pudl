@@ -49,8 +49,6 @@ ENV LD_LIBRARY_PATH=${CONDA_PREFIX}/lib
 # directory without copying it into the image.
 RUN --mount=type=bind,source=.git,target=${PUDL_REPO}/.git \
     ${CONDA_RUN} pip install --no-cache-dir --no-deps --editable . && \
-    # Run the PUDL setup script so we know where to read and write data
-    ${CONDA_RUN} pudl_setup
 
 
 # Install awscli2

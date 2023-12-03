@@ -312,7 +312,14 @@ Deprecations
   :mod:`pudl.settings` no longer have table attributes because the ETL no longer
   supports loading specific tables via settings. Use dagster to select subsets of
   tables to process.
-* The ``epacems_to_parquet`` script has been retired in favor of using the Dagster UI.
+* The ``epacems_to_parquet`` and ``state_demand`` scripts have been retired in favor of
+  using the Dagster UI. See :issue:`3107` and :pr:`3086`. Visualizations of hourly
+  state-level electricity demand have been moved into our example notebooks which can
+  be found both `on Kaggle <https://www.kaggle.com/code/catalystcooperative/02-state-hourly-electricity-demand>`__
+  and `on GitHub <https://github.com/catalyst-cooperative/pudl-examples/>`__
+* The ``pudl_setup`` script has been retired. All input/output locations are now set
+  using the ``$PUDL_INPUT`` and ``$PUDL_OUTPUT`` environment variables.  See
+  :issue:`3107` and :pr:`3086`.
 
 Miscellaneous
 ^^^^^^^^^^^^^

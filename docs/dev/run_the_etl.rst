@@ -343,14 +343,14 @@ We also have targets set up in the ``Makefile`` for running these scripts:
 
 Settings Files
 --------------
-These CLI commands use YAML settings files in place of command line arguments.
-This avoids undue complexity and preserves a record of how the script was run.
-The YAML file dictates which years, or states get run through the the processing
-pipeline. Two example files are deployed in the ``settings`` folder that is created when
-you run ``pudl_setup``. (see: :ref:`install-workspace`).
+These CLI commands use YAML settings files in place of command line arguments.  This
+avoids undue complexity and preserves a record of how the script was run.  The YAML file
+dictates which years or states get run through the the processing pipeline. There are
+two standard settings files that we use to run the integration tests and the nightly
+builds included in the repository:
 
-- ``etl_fast.yml`` processes one year of data
-- ``etl_full.yml`` processes all years of data
+- ``src/pudl/package_data/settings/etl_fast.yml`` processes 1-2 years of data.
+- ``src/pudl/package_data/settings/etl_full.yml`` processes all available data.
 
 .. warning::
 
@@ -372,8 +372,8 @@ needs. The layout of these files is depicted below:
         |   └── years
         ├── ferc1_xbrl_to_sqlite_settings
         |   └── years
-        ├── ferc2_xbrl_to_sqlite_settings
-        |   └── years
+        └── ferc2_xbrl_to_sqlite_settings
+            └── years
 
       # PUDL ETL settings
       name : unique name identifying the etl outputs
@@ -381,9 +381,9 @@ needs. The layout of these files is depicted below:
       description : a longer description of the etl outputs
       datasets:
         ├── dataset name
-        │    └── dataset etl parameter (e.g. years) : editable list of years
+        │    └── dataset etl parameter (e.g. years) : editable list of years
         └── dataset name
-        │    └── dataset etl parameter (e.g. years) : editable list of years
+             └── dataset etl parameter (e.g. years) : editable list of years
 
 Both scripts enable you to choose which **years** you want to include:
 

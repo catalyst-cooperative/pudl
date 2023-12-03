@@ -28,7 +28,6 @@ from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
-PUDL_YML = Path.home() / ".pudl.yml"
 ZenodoDoi = Annotated[
     str,
     StringConstraints(
