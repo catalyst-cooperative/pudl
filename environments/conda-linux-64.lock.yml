@@ -200,7 +200,7 @@ dependencies:
   - jsonpointer=2.4=py311h38be061_3
   - jupyterlab_widgets=3.0.9=pyhd8ed1ab_0
   - kiwisolver=1.4.5=py311h9547e67_1
-  - lcms2=2.15=hb7c19ff_3
+  - lcms2=2.16=hb7c19ff_0
   - libblas=3.9.0=20_linux64_openblas
   - libcurl=8.4.0=hca28451_0
   - libgrpc=1.59.2=hd6c4280_0

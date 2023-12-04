@@ -5909,10 +5909,10 @@ package:
       openssl: ">=3.2.0,<4.0a0"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/gdal-3.8.1-py311h5646c56_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/gdal-3.8.1-py311h5646c56_1.conda
     hash:
-      md5: e071942c705866ed7dfe588fa66957c2
-      sha256: 9983d2c28a4235212d5069361496544e5509a4649ff84070cec76153b9124441
+      md5: 040c7cfdae3033444b9f193f9ac7dda2
+      sha256: dc12757089d571dc33a5be6428bb50374fcfe2839230d8bc2b6aecf019545e64
     category: main
     optional: false
   - name: gdal
@@ -5929,10 +5929,10 @@ package:
       openssl: ">=3.2.0,<4.0a0"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/gdal-3.8.1-py311h32a4f3d_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/gdal-3.8.1-py311h32a4f3d_1.conda
     hash:
-      md5: e1108e28e7ce2370228657ea159056a4
-      sha256: 2a08f6671b971ef34dce66f97561b875d8b6ccc8ca9eb8fcfa93fb68057f8e08
+      md5: 22050ed6dfba916d82f470c4e5c820e9
+      sha256: f6f8555e164a37371dc729b9aa0773e60716218ed706cd621b3f5cbfbe2ea51e
     category: main
     optional: false
   - name: gdk-pixbuf
@@ -10273,43 +10273,43 @@ package:
     category: main
     optional: false
   - name: lcms2
-    version: "2.15"
+    version: "2.16"
     manager: conda
     platform: linux-64
     dependencies:
       libgcc-ng: ">=12"
       libjpeg-turbo: ">=3.0.0,<4.0a0"
       libtiff: ">=4.6.0,<4.7.0a0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/lcms2-2.15-hb7c19ff_3.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/lcms2-2.16-hb7c19ff_0.conda
     hash:
-      md5: e96637dd92c5f340215c753a5c9a22d7
-      sha256: cc0b2ddab52b20698b26fe8622ebe37e0d462d8691a1f324e7b00f7d904765e3
+      md5: 51bb7010fc86f70eee639b4bb7a894f5
+      sha256: 5c878d104b461b7ef922abe6320711c0d01772f4cd55de18b674f88547870041
     category: main
     optional: false
   - name: lcms2
-    version: "2.15"
+    version: "2.16"
     manager: conda
     platform: osx-64
     dependencies:
       libjpeg-turbo: ">=3.0.0,<4.0a0"
       libtiff: ">=4.6.0,<4.7.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/lcms2-2.15-hd6ba6f3_3.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/lcms2-2.16-ha2f27b4_0.conda
     hash:
-      md5: 8059507d52f477fbd4b81841e085e25b
-      sha256: b2234f24e3b0030762430ec3414410119d1129804a95ef65af50ad36cabd9bd5
+      md5: 1442db8f03517834843666c422238c9b
+      sha256: 222ebc0a55544b9922f61e75015d02861e65b48f12113af41d48ba0814e14e4e
     category: main
     optional: false
   - name: lcms2
-    version: "2.15"
+    version: "2.16"
     manager: conda
     platform: osx-arm64
     dependencies:
       libjpeg-turbo: ">=3.0.0,<4.0a0"
       libtiff: ">=4.6.0,<4.7.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/lcms2-2.15-hf2736f0_3.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/lcms2-2.16-ha0e7c42_0.conda
     hash:
-      md5: bbaac531169fed3e09ae31aff80aa069
-      sha256: 3d07ba04602617c3084b302c8a6fa30b2e4b20511180f45992b289c312298018
+      md5: 66f6c134e76fe13cce8a9ea5814b5dd5
+      sha256: 151e0c84feb7e0747fabcc85006b8973b22f5abbc3af76a9add0b0ef0320ebe4
     category: main
     optional: false
   - name: ld_impl_linux-64
@@ -11594,17 +11594,17 @@ package:
       openjpeg: ">=2.5.0,<3.0a0"
       openssl: ">=3.2.0,<4.0a0"
       pcre2: ">=10.42,<10.43.0a0"
-      poppler: ">=23.11.0,<23.12.0a0"
+      poppler: ">=23.12.0,<23.13.0a0"
       postgresql: ""
       proj: ">=9.3.0,<9.3.1.0a0"
       tiledb: ">=2.16,<2.17.0a0"
       xerces-c: ">=3.2.4,<3.3.0a0"
       xz: ">=5.2.6,<6.0a0"
       zstd: ">=1.5.5,<1.6.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/libgdal-3.8.1-h5c58ba9_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/libgdal-3.8.1-hb7f764b_1.conda
     hash:
-      md5: e0cce3c57c64d4476f6a3c41272a8759
-      sha256: 8b33a0f7d4f037ba704f374ab260f3b25b0b632541999ee3878436699c88a617
+      md5: eee8b19233a243e229af4399af2c4a10
+      sha256: efe25d85efe856c1db71e2a40ce9736e07cf5c06e53285248866a62a43363a0d
     category: main
     optional: false
   - name: libgdal
@@ -11646,17 +11646,17 @@ package:
       openjpeg: ">=2.5.0,<3.0a0"
       openssl: ">=3.2.0,<4.0a0"
       pcre2: ">=10.42,<10.43.0a0"
-      poppler: ">=23.11.0,<23.12.0a0"
+      poppler: ">=23.12.0,<23.13.0a0"
       postgresql: ""
       proj: ">=9.3.0,<9.3.1.0a0"
       tiledb: ">=2.16,<2.17.0a0"
       xerces-c: ">=3.2.4,<3.3.0a0"
       xz: ">=5.2.6,<6.0a0"
       zstd: ">=1.5.5,<1.6.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/libgdal-3.8.1-hcefe9de_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/libgdal-3.8.1-hac00559_1.conda
     hash:
-      md5: 409e7e509cefc1f68f8254d8445db6c3
-      sha256: c893c008bff1632695efeb4f9a711f44a9739b5a5cc2bfade0ec63b95faa8183
+      md5: a65e999f85ab35663d7e9753ca7eaa13
+      sha256: 636ff5b1f95edc083dc7b3ba9f35a87fe18695349b1bd57ae72c54d00ef5034e
     category: main
     optional: false
   - name: libgfortran
@@ -16441,7 +16441,7 @@ package:
     category: main
     optional: false
   - name: poppler
-    version: 23.11.0
+    version: 23.12.0
     manager: conda
     platform: osx-64
     dependencies:
@@ -16454,24 +16454,24 @@ package:
       lcms2: ">=2.15,<3.0a0"
       libcurl: ">=8.4.0,<9.0a0"
       libcxx: ">=16.0.6"
-      libglib: ">=2.78.0,<3.0a0"
+      libglib: ">=2.78.1,<3.0a0"
       libiconv: ">=1.17,<2.0a0"
       libjpeg-turbo: ">=3.0.0,<4.0a0"
       libpng: ">=1.6.39,<1.7.0a0"
       libtiff: ">=4.6.0,<4.7.0a0"
       libzlib: ">=1.2.13,<1.3.0a0"
       nspr: ">=4.35,<5.0a0"
-      nss: ">=3.94,<4.0a0"
+      nss: ">=3.95,<4.0a0"
       openjpeg: ">=2.5.0,<3.0a0"
       poppler-data: ""
-    url: https://conda.anaconda.org/conda-forge/osx-64/poppler-23.11.0-hdd5a5e8_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/poppler-23.12.0-hdd5a5e8_0.conda
     hash:
-      md5: 60ffe2d3a09ff99eb2601487d6ddaeea
-      sha256: fb6a53ddac3fa8c097b4a0b7d2f40219b13bfa3324147aaf6c5a14ee5fb27521
+      md5: e1cb9f8e9e21dfa600b08be85d905e5f
+      sha256: 1271e3c8163125fc1ff14833ddba3f2c6465df5b1d13db76912415bd5a39b492
     category: main
     optional: false
   - name: poppler
-    version: 23.11.0
+    version: 23.12.0
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -16484,20 +16484,20 @@ package:
       lcms2: ">=2.15,<3.0a0"
       libcurl: ">=8.4.0,<9.0a0"
       libcxx: ">=16.0.6"
-      libglib: ">=2.78.0,<3.0a0"
+      libglib: ">=2.78.1,<3.0a0"
       libiconv: ">=1.17,<2.0a0"
       libjpeg-turbo: ">=3.0.0,<4.0a0"
       libpng: ">=1.6.39,<1.7.0a0"
       libtiff: ">=4.6.0,<4.7.0a0"
       libzlib: ">=1.2.13,<1.3.0a0"
       nspr: ">=4.35,<5.0a0"
-      nss: ">=3.94,<4.0a0"
+      nss: ">=3.95,<4.0a0"
       openjpeg: ">=2.5.0,<3.0a0"
       poppler-data: ""
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/poppler-23.11.0-hcdd998b_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/poppler-23.12.0-hcdd998b_0.conda
     hash:
-      md5: 19386a03a7c57a378953bafb4f598156
-      sha256: a6677b507cbdb6202c872aa461b4bf8cfcbe5791721fe1f42615b89205d4a4a6
+      md5: e072f524004eee193e30d243d68c520f
+      sha256: 13ebaac3bf9b77e92e777d3ed245c2f0a8ac93985e334b0cd797a39f321ae5dd
     category: main
     optional: false
   - name: poppler-data

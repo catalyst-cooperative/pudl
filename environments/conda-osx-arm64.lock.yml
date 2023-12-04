@@ -114,7 +114,7 @@ dependencies:
   - gdk-pixbuf=2.42.10=h15fa40c_4
   - gts=0.7.6=he42f4ea_4
   - krb5=1.21.2=h92f50d5_0
-  - lcms2=2.15=hf2736f0_3
+  - lcms2=2.16=ha0e7c42_0
   - libopenblas=0.3.25=openmp_h6c19121_0
   - libthrift=0.19.0=h026a170_1
   - libwebp=1.3.2=hf30222e_1
@@ -345,7 +345,7 @@ dependencies:
   - pint=0.22=pyhd8ed1ab_1
   - pip=23.3.1=pyhd8ed1ab_0
   - platformdirs=4.0.0=pyhd8ed1ab_0
-  - poppler=23.11.0=hcdd998b_0
+  - poppler=23.12.0=hcdd998b_0
   - postgresql=16.1=hc6ab77f_2
   - proj=9.3.0=h52fb9d0_2
   - prompt-toolkit=3.0.41=pyha770c72_0
@@ -451,7 +451,7 @@ dependencies:
   - jsonschema=4.20.0=pyhd8ed1ab_0
   - jupyter_client=8.6.0=pyhd8ed1ab_0
   - keyring=24.3.0=py311h267d04e_0
-  - libgdal=3.8.1=hcefe9de_0
+  - libgdal=3.8.1=hac00559_1
   - librsvg=2.56.3=h0db3404_0
   - numba=0.58.1=py311h9ec4793_0
   - numexpr=2.8.7=py311h6e08293_4
@@ -478,7 +478,7 @@ dependencies:
   - doc8=1.1.1=pyhd8ed1ab_0
   - email-validator=2.1.0.post1=pyhd8ed1ab_0
   - frictionless=4.40.8=pyh6c4a22f_0
-  - gdal=3.8.1=py311h32a4f3d_0
+  - gdal=3.8.1=py311h32a4f3d_1
   - geopandas-base=0.14.1=pyha770c72_0
   - google-auth=2.24.0=pyhca7485f_0
   - gql-with-requests=3.4.1=pyhd8ed1ab_0
