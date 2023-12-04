@@ -34,14 +34,12 @@ def test_epacems_subset(epacems_year_and_quarter, epacems_parquet_path):
         pytest.skip("EPA CEMS not in settings file and so is not being tested.")
     path = epacems_parquet_path
     years = epacems_year_and_quarter.years
-    # Use only Idaho if multiple quarters are given
-    quarters = (
-        epacems_year_and_quarter.quarters
-        if len(epacems_year_and_quarter.quarters) == 1
-        else [1]
-    )
+    states = ["ID"]  # Test on Idaho
     actual = epacems(
-        columns=["gross_load_mw"], epacems_path=path, years=years, quarters=quarters
+        columns=["gross_load_mw"],
+        epacems_path=path,
+        years=years,
+        states=states,
     )
     assert isinstance(actual, dd.DataFrame)  # nosec: B101
     assert actual.shape[0].compute() > 0  # nosec: B101  n rows
@@ -52,7 +50,7 @@ def test_epacems_missing_partition(pudl_datastore_fixture):
 
     Note that this should pass for both the Fast and Full ETL because the behavior
     towards a missing file is identical."""
-    df = extract(year=1996, quarter=1, ds=pudl_datastore_fixture)
+    df = extract(year=1994, quarter=4, ds=pudl_datastore_fixture)
     epacems_res = Resource.from_id("hourly_emissions_epacems")
     expected_cols = list(epacems_res.get_field_names())
     assert df.shape[0] == 0  # Check that no rows of data are there
@@ -68,28 +66,16 @@ def test_epacems_subset_input_validation(
         pytest.skip("EPA CEMS not in settings file and so is not being tested.")
     path = epacems_parquet_path
     valid_year = epacems_year_and_quarter.years[-1]
-    valid_quarter = epacems_year_and_quarter.quarters[-1]
+    valid_state = "ID"
     valid_column = "gross_load_mw"
 
-    invalid_quarter = 6
+    invalid_state = "confederacy"
     invalid_year = 1775
     invalid_column = "clean_coal"
     combos = [
-        {
-            "years": [valid_year],
-            "quarters": [valid_quarter],
-            "columns": [invalid_column],
-        },
-        {
-            "years": [valid_year],
-            "quarters": [invalid_quarter],
-            "columns": [valid_column],
-        },
-        {
-            "years": [invalid_year],
-            "quarters": [valid_quarter],
-            "columns": [valid_column],
-        },
+        {"years": [valid_year], "states": [valid_state], "columns": [invalid_column]},
+        {"years": [valid_year], "states": [invalid_state], "columns": [valid_column]},
+        {"years": [invalid_year], "states": [valid_state], "columns": [valid_column]},
     ]
     for combo in combos:
         with pytest.raises(ValueError):
@@ -103,7 +89,7 @@ def test_epacems_parallel(pudl_engine, epacems_parquet_path):
     # monolithic outputs.
     df = dd.read_parquet(
         epacems_parquet_path,
-        filters=year_state_filter(years=[2020], quarters=["ME"]),
+        filters=year_state_filter(years=[2020], states=["ME"]),
         index=False,
         engine="pyarrow",
         split_row_groups=True,

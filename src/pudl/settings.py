@@ -160,14 +160,23 @@ class EpaCemsSettings(GenericDatasetSettings):
 
     years: list[int] = data_source.working_partitions["years"]
     quarters: list[int] = data_source.working_partitions["quarters"]
+    states: list[str] = data_source.working_partitions["states"]
 
     @field_validator("quarters")
     @classmethod
-    def allow_all_keyword(cls, quarters):  # noqa: N805
+    def allow_all_keyword_quarters(cls, quarters):  # noqa: N805
         """Allow users to specify ['all'] to get all quarters."""
         if quarters == ["all"]:
             quarters = cls.data_source.working_partitions["quarters"]
         return quarters
+
+    @field_validator("states")
+    @classmethod
+    def allow_all_keyword_states(cls, states):  # noqa: N805
+        """Allow users to specify ['all'] to get all quarters."""
+        if states == ["all"]:
+            states = cls.data_source.working_partitions["states"]
+        return states
 
 
 class Eia923Settings(GenericDatasetSettings):
