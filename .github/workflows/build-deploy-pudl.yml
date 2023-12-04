@@ -28,7 +28,7 @@ jobs:
           echo "This action was triggered by a schedule." && echo "GCE_INSTANCE=pudl-deployment-dev" >> $GITHUB_ENV && echo "GITHUB_REF=dev" >> $GITHUB_ENV
 
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ env.GITHUB_REF }}
 
