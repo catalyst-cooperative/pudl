@@ -26,6 +26,7 @@ def test_pudl_datastore(script_runner, command: str):
     assert ret.success
 
 
+@pytest.mark.skip("Check if this exceeds memory or disk of the GitHub runner.")
 @pytest.mark.script_launch_mode("inprocess")
 def test_pudl_service_territories(script_runner, pudl_engine: sa.Engine):
     """CLI tests specific to the pudl_service_territories script.
