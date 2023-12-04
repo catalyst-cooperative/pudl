@@ -1,7 +1,6 @@
 covargs := --append --source=src/pudl
 gcs_cache_path := --gcs-cache-path=gs://zenodo-cache.catalyst.coop
 pytest_covargs := --cov-append --cov=src/pudl --cov-report=xml
-coverage_report := coverage report --omit src/pudl/validate.py --sort=miss
 pytest_args := --durations 20 ${pytest_covargs} ${gcs_cache_path}
 etl_fast_yml := src/pudl/package_data/settings/etl_fast.yml
 etl_full_yml := src/pudl/package_data/settings/etl_full.yml
@@ -130,7 +129,7 @@ coverage-erase:
 
 .PHONY: pytest-coverage
 pytest-coverage: coverage-erase docs-build pytest-ci
-	${coverage_report}
+	coverage report
 
 .PHONY: pytest-ci
 pytest-ci: pytest-unit pytest-integration
@@ -154,7 +153,7 @@ nuke: coverage-erase docs-build pytest-unit ferc pudl
 	pudl_check_fks
 	pytest ${pytest_args} -n auto --live-dbs --etl-settings ${etl_full_yml} test/integration
 	pytest ${pytest_args} -n auto --live-dbs test/validate
-	${coverage_report}
+	coverage report
 
 # Check that designated Jupyter notebooks can be run against the current DB
 .PHONY: pytest-jupyter

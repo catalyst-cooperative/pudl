@@ -291,3 +291,34 @@ prettier = ">=3.0"
 python = ">=3.11,<3.12"
 sqlite = ">=3.43"
 curl = ">=8.4.0"
+
+[tool.coverage.run]
+source = [
+    "docs/conf.py",
+    "src/pudl/",
+    "test/integration/",
+    "test/unit/",
+]
+omit = [
+    # Never hit by integration tests:
+    "src/pudl/validate.py",
+]
+
+[tool.coverage.report]
+precision = 1
+sort = "miss"
+exclude_lines = [
+    # Have to re-enable the standard pragma
+    "pragma: no cover",
+
+    # Don't complain if tests don't hit defensive assertion code:
+    "raise AssertionError",
+    "raise NotImplementedError",
+
+    # Don't complain if non-runnable code isn't run:
+    "if 0:",
+    "if __name__ == .__main__.:",
+
+    # Stuff that's not expected to run normally...
+    "logger.debug",
+]
