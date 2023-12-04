@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: f1a35a905a1ea26c7a7868da28f213b07ecdea4843f49df33429e4084db2f85f
-    osx-64: 8c4552b7d146687f368d916b0870822b71a80c1527fd70fd59b1182c43f0d53a
-    osx-arm64: 936607bfa621c9affd5c24993409889744cac75961dffd98d5f2c3f23599f86e
+    linux-64: 566bcbefc936d18bbf3a48ce8800e5d3209d9925447fc48984c419514bfaa6f6
+    osx-64: 39e56673d0def5503b315f36cec2b3e4bfd804758ec3bcea79dad417c6b146a2
+    osx-arm64: c275fe8ff3012ad83a98252ba570f9b278f142720b73f42abfd4c4a1107f67e2
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -14335,55 +14335,6 @@ package:
       sha256: f86fb22b58e93d04b6f25e0d811b56797689d598788b59dcb47f59045b568306
     category: main
     optional: false
-  - name: mypy
-    version: 1.7.1
-    manager: conda
-    platform: linux-64
-    dependencies:
-      libgcc-ng: ">=12"
-      mypy_extensions: ">=1.0.0"
-      psutil: ">=4.0"
-      python: ">=3.11,<3.12.0a0"
-      python_abi: 3.11.*
-      typing_extensions: ">=4.1.0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/mypy-1.7.1-py311h459d7ec_0.conda
-    hash:
-      md5: 8f9fd891c222781fc9df8210a2266a52
-      sha256: ecfb60275988d7843a09e9700621c0f643ab016e8d47d1a7f08d3c49191fa645
-    category: dev
-    optional: true
-  - name: mypy
-    version: 1.7.1
-    manager: conda
-    platform: osx-64
-    dependencies:
-      mypy_extensions: ">=1.0.0"
-      psutil: ">=4.0"
-      python: ">=3.11,<3.12.0a0"
-      python_abi: 3.11.*
-      typing_extensions: ">=4.1.0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/mypy-1.7.1-py311he705e18_0.conda
-    hash:
-      md5: d6ee705ffbc2eddc43221be852846ecb
-      sha256: dda57d4771350f816988ebf0ce43d6e215ff7ec67e3298b056edc9e36c40b5cd
-    category: dev
-    optional: true
-  - name: mypy
-    version: 1.7.1
-    manager: conda
-    platform: osx-arm64
-    dependencies:
-      mypy_extensions: ">=1.0.0"
-      psutil: ">=4.0"
-      python: ">=3.11,<3.12.0a0"
-      python_abi: 3.11.*
-      typing_extensions: ">=4.1.0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/mypy-1.7.1-py311h05b510d_0.conda
-    hash:
-      md5: 687fbf3fdc9e8f40ea0540d4224404b7
-      sha256: 2eee3e790f43eb83246bb35875147d530e9b73dd59977ac76d1c1d466a7488f9
-    category: dev
-    optional: true
   - name: mypy_extensions
     version: 1.0.0
     manager: conda
