@@ -261,17 +261,36 @@ def _save_geoparquet(
     entity_type: Literal["util", "ba"],
     dissolve: bool,
     limit_by_state: bool,
-    output_dir: pathlib.Path,
+    output_dir: pathlib.Path | None = None,
 ) -> None:
-    # Construct output filenames based on input args:
-    entity = "balancing_authority" if entity_type == "ba" else "utility"
+    """Save utility or balancing authority service territory geometries to GeoParquet.
+
+    In order to prevent the geometry data from exceeding the 2GB maximum size of an
+    Arrow object, we need to keep the row groups small. Sort the dataframe by the
+    primary key columns to minimize the number of values in any row group.  Output
+    filename is constructed based on input arguments.
+
+    Args:
+        gdf: GeoDataframe containing utility or balancing authority geometries.
+        entity_type: short string indicating whether we're outputting utility or
+            balancing authority geometries.
+        dissolve: Wether the individual county geometries making up the service
+            territories have been merged together. Used to construct filename.
+        limit_by_state: Whether service territories have been limited to include only
+            counties in states where the utilities reported sales. Used to construct
+            filename.
+        output_dir: Path to the directory where the GeoParquet file will be written.
+
+    """
+    entity_name = "balancing_authority" if entity_type == "ba" else "utility"
     dissolved = "_dissolved" if dissolve else ""
     limited = "_limited" if limit_by_state else ""
     if output_dir is None:
         output_dir = pathlib.Path.cwd()
-    filename = output_dir / f"{entity}_geometry{limited}{dissolved}.parquet"
-    # Save the geometries to a GeoParquet file
-    gdf.to_parquet(filename, compression="snappy", index=False)
+    file_path = output_dir / f"{entity_name}_geometry{limited}{dissolved}.parquet"
+    gdf.sort_values(["report_date", f"{entity_name}_id_eia"]).to_parquet(
+        file_path, row_group_size=512, compression="snappy", index=False
+    )
 
 
 def compile_geoms(
