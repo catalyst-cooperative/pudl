@@ -305,6 +305,7 @@ def compile_geoms(
     output_dir: pathlib.Path | None = None,
     dissolve: bool = False,
     limit_by_state: bool = True,
+    years: list[int] = [],
 ):
     """Compile all available utility or balancing authority geometries.
 
@@ -314,10 +315,22 @@ def compile_geoms(
     balancing authority, with geometries available at the county level.
     """
     logger.info(
-        f"Compiling {entity_type} geometries with {dissolve=} and {limit_by_state=}."
+        f"Compiling {entity_type} geometries with {dissolve=}, {limit_by_state=}, "
+        f"and {years=}."
     )
     if save_format == "geoparquet" and output_dir is None:
         raise ValueError("No output_dir provided while writing geoparquet.")
+
+    if years:
+
+        def _limit_years(df: pd.DataFrame) -> pd.DataFrame:
+            return df[df.report_date.dt.year.isin(years)]
+
+        balancing_authority_eia861 = _limit_years(balancing_authority_eia861)
+        balancing_authority_assn_eia861 = _limit_years(balancing_authority_assn_eia861)
+        denorm_utilities_eia = _limit_years(denorm_utilities_eia)
+        service_territory_eia861 = _limit_years(service_territory_eia861)
+        utility_assn_eia861 = _limit_years(utility_assn_eia861)
 
     utilids_all_eia = utility_ids_all_eia(
         denorm_utilities_eia, service_territory_eia861
@@ -579,6 +592,20 @@ def plot_all_territories(
     show_default=True,
 )
 @click.option(
+    "--year",
+    "-y",
+    "years",
+    type=click.IntRange(min=2001),
+    default=[],
+    multiple=True,
+    help=(
+        "Limit service territories generated to those from the given year. This can "
+        "dramatically reduce the memory and CPU intensity of the geospatial "
+        "operations. Especially useful for testing. Option can be used multiple times "
+        "toselect multiple years."
+    ),
+)
+@click.option(
     "--dissolve/--no-dissolve",
     default=True,
     help=(
@@ -632,6 +659,7 @@ def pudl_service_territories(
     dissolve: bool,
     output_dir: pathlib.Path,
     limit_by_state: bool,
+    years: list[int],
     logfile: pathlib.Path,
     loglevel: str,
 ):
@@ -688,6 +716,7 @@ FROM
         output_dir=output_dir,
         entity_type=entity_type,
         limit_by_state=limit_by_state,
+        years=years,
     )
 
 
