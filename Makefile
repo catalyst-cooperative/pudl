@@ -1,7 +1,7 @@
 covargs := --append --source=src/pudl
 gcs_cache_path := --gcs-cache-path=gs://zenodo-cache.catalyst.coop
 pytest_covargs := --cov-append --cov=src/pudl --cov-report=xml
-coverage_report := coverage report --sort=cover
+coverage_report := coverage report --omit src/pudl/validate.py --sort=miss
 pytest_args := --durations 20 ${pytest_covargs} ${gcs_cache_path}
 etl_fast_yml := src/pudl/package_data/settings/etl_fast.yml
 etl_full_yml := src/pudl/package_data/settings/etl_full.yml

@@ -283,7 +283,7 @@ def compile_geoms(
     census_counties: pd.DataFrame,
     entity_type: Literal["ba", "util"],
     save_format: Literal["geoparquet", "geodataframe", "dataframe"],
-    output_dir: pathlib.Path,
+    output_dir: pathlib.Path | None = None,
     dissolve: bool = False,
     limit_by_state: bool = True,
 ):
@@ -295,11 +295,10 @@ def compile_geoms(
     balancing authority, with geometries available at the county level.
     """
     logger.info(
-        "Compiling %s geometries with dissolve=%s and limit_by_state=%s.",
-        entity_type,
-        dissolve,
-        limit_by_state,
+        f"Compiling {entity_type} geometries with {dissolve=} and {limit_by_state=}."
     )
+    if save_format == "geoparquet" and output_dir is None:
+        raise ValueError("No output_dir provided while writing geoparquet.")
 
     utilids_all_eia = utility_ids_all_eia(
         denorm_utilities_eia, service_territory_eia861
