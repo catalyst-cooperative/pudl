@@ -146,6 +146,7 @@ dev = [
     "jupyterlab>3.2",
     "jupyter-resource-usage",
     "pygraphviz",
+    "mypy",
 ]
 
 [tool.setuptools]
