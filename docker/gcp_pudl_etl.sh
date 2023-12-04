@@ -2,6 +2,9 @@
 # This script runs the entire ETL and validation tests in a docker container on a Google Compute Engine instance.
 # This script won't work locally because it needs adequate GCP permissions.
 
+# Set PUDL_GCS_OUTPUT *only* if it is currently unset
+: "${PUDL_GCS_OUTPUT:=gs://nightly-build-outputs.catalyst.coop/$ACTION_SHA-$GITHUB_REF}"
+
 set -x
 
 function send_slack_msg() {
@@ -27,26 +30,26 @@ function run_pudl_etl() {
         --loglevel DEBUG \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
         --workers 8 \
-        $PUDL_SETTINGS_YML && \
-    pudl_etl \
+        $PUDL_SETTINGS_YML \
+    && pudl_etl \
         --loglevel DEBUG \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
-        $PUDL_SETTINGS_YML && \
-    pytest \
+        $PUDL_SETTINGS_YML \
+    && pytest \
         -n auto \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
         --etl-settings $PUDL_SETTINGS_YML \
-        --live-dbs test/integration test/unit && \
-    pytest \
+        --live-dbs test/integration test/unit \
+    && pytest \
         -n auto \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
         --etl-settings $PUDL_SETTINGS_YML \
         --live-dbs test/validate
+    && touch ${PUDL_OUTPUT}/success
 }
 
 function shutdown_vm() {
     # Copy the outputs to the GCS bucket
-    gsutil -m cp -r $PUDL_OUTPUT "gs://nightly-build-outputs.catalyst.coop/$ACTION_SHA-$GITHUB_REF"
 
     upload_file_to_slack $LOGFILE "pudl_etl logs for $ACTION_SHA-$GITHUB_REF:"
 
@@ -57,6 +60,12 @@ function shutdown_vm() {
         -H "Metadata-Flavor: Google" | jq -r '.access_token'`
 
     curl -X POST -H "Content-Length: 0" -H "Authorization: Bearer ${ACCESS_TOKEN}" https://compute.googleapis.com/compute/v1/projects/catalyst-cooperative-pudl/zones/$GCE_INSTANCE_ZONE/instances/$GCE_INSTANCE/stop
+}
+
+function copy_outputs_to_gcs() {
+    echo "Copying outputs to GCP bucket $PUDL_GCS_OUTPUT"
+    gsutil -m cp -r $PUDL_OUTPUT ${PUDL_GCS_OUTPUT}
+    rm ${PUDL_OUTPUT}/success
 }
 
 function copy_outputs_to_distribution_bucket() {
@@ -93,6 +102,8 @@ run_pudl_etl 2>&1 | tee $LOGFILE
 
 ETL_SUCCESS=${PIPESTATUS[0]}
 
+copy_outputs_to_gcs
+
 # if pipeline is successful, distribute + publish datasette
 if [[ $ETL_SUCCESS == 0 ]]; then
     # Deploy the updated data to datasette
@@ -109,6 +120,9 @@ if [[ $ETL_SUCCESS == 0 ]]; then
     ETL_SUCCESS=${PIPESTATUS[0]}
 
     # Dump outputs to s3 bucket if branch is dev or build was triggered by a tag
+    # TODO: this behavior should be controlled by on/off switch here and this logic
+    # should be moved to the triggering github action. Having it here feels
+    # fragmented.
     if [ $GITHUB_ACTION_TRIGGER = "push" ] || [ $GITHUB_REF = "dev" ]; then
         copy_outputs_to_distribution_bucket
         ETL_SUCCESS=${PIPESTATUS[0]}
