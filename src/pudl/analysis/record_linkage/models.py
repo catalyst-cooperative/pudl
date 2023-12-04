@@ -7,11 +7,12 @@ import numpy as np
 import pandas as pd
 from pydantic import BaseModel, ConfigDict
 from sklearn.base import BaseEstimator
-from sklearn.cluster import AgglomerativeClustering
+from sklearn.cluster import DBSCAN, AgglomerativeClustering
 from sklearn.compose import ColumnTransformer
 from sklearn.decomposition import PCA, IncrementalPCA
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import pairwise_distances
+from sklearn.neighbors import NearestNeighbors
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import (
     FunctionTransformer,
@@ -21,6 +22,8 @@ from sklearn.preprocessing import (
 )
 
 import pudl
+
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 class ModelComponent(BaseModel, ABC):
@@ -190,22 +193,126 @@ class ReducedDimDataFrameEmbedderSparse(DataFrameEmbedder):
         return pca.fit_transform(transformed)
 
 
-class HierarchicalClusteringClassifier(ModelComponent):
+class ClusteringClassifier(ModelComponent):
     """Apply agglomerative clustering algorithm to distance matrix to classif records."""
 
-    n_clusters: int | None = None
-    distance_threshold: float = 1.5
+    distance_threshold: float = 0.1
 
     def __call__(self, distance_matrix: np.ndarray) -> np.ndarray:
         """Use agglomerative clustering algorithm to classify records."""
+        neighbor_computer = NearestNeighbors(
+            radius=self.distance_threshold, metric="precomputed"
+        )
+        neighbor_computer.fit(distance_matrix)
+        neighbor_graph = neighbor_computer.radius_neighbors_graph(mode="distance")
+
+        classifier = DBSCAN(
+            metric="precomputed", eps=self.distance_threshold, min_samples=2
+        )
+        return classifier.fit_predict(neighbor_graph)
+
+
+def _generate_cluster_ids(max_cluster_id: int) -> int:
+    """Get new unique cluster id."""
+    while True:
+        max_cluster_id += 1
+        yield max_cluster_id
+
+
+class SplitOvermergedClusters(ModelComponent):
+    """DBSCAN has a tendency to merge similar clusters together that should be distinct."""
+
+    distance_threshold: float = 1.5
+
+    def __call__(
+        self,
+        distance_matrix: np.ndarray,
+        original_df: pd.DataFrame,
+        cluster_id_generator,
+    ) -> pd.Series:
+        """Apply AgglomerativeClustering to all clusters with more than one record from the same year."""
         classifier = AgglomerativeClustering(
-            n_clusters=self.n_clusters,
             metric="precomputed",
             linkage="average",
             distance_threshold=self.distance_threshold,
+            n_clusters=None,
+        )
+        duplicated_ids = original_df.loc[
+            original_df.duplicated(subset=["report_year", "plant_id_ferc1"]),
+            "plant_id_ferc1",
+        ]
+
+        for duplicated_id in duplicated_ids.unique():
+            # IDs of -1 will be handled seperately
+            if duplicated_id == -1:
+                continue
+
+            cluster_inds = original_df[
+                original_df.plant_id_ferc1 == duplicated_id
+            ].index.to_numpy()
+            cluster_size = len(cluster_inds)
+
+            dist_inds = np.array(np.meshgrid(cluster_inds, cluster_inds)).T.reshape(
+                -1, 2
+            )
+            cluster_distances = distance_matrix[
+                dist_inds[:, 0], dist_inds[:, 1]
+            ].reshape((cluster_size, cluster_size))
+
+            new_labels = classifier.fit_predict(cluster_distances)
+            for new_label in np.unique(new_labels):
+                df_inds = cluster_inds[new_labels == new_label]
+                original_df.loc[df_inds, "plant_id_ferc1"] = next(cluster_id_generator)
+
+        return original_df.plant_id_ferc1
+
+
+def _average_dist_between_clusters(
+    distance_matrix: np.ndarray, set_1: list[int], set_2: list[int]
+) -> float:
+    dist_inds = np.array(np.meshgrid(set_1, set_2)).T.reshape(-1, 2)
+    dists = distance_matrix[dist_inds[:, 0], dist_inds[:, 1]]
+    return dists.mean()
+
+
+class MatchOrpahnedRecords(ModelComponent):
+    """DBSCAN assigns 'noisy' records a label of '-1', which will be labeled by this step."""
+
+    distance_threshold: float = 0.5
+
+    def __call__(
+        self,
+        distance_matrix: np.ndarray,
+        original_df: pd.DataFrame,
+        cluster_id_generator,
+    ) -> pd.Series:
+        """Compute average distance from orphaned records to existing clusters, and merge."""
+        classifier = AgglomerativeClustering(
+            metric="precomputed",
+            linkage="average",
+            distance_threshold=self.distance_threshold,
+            n_clusters=None,
         )
 
-        return classifier.fit_predict(distance_matrix)
+        label_inds = original_df.groupby("plant_id_ferc1").indices
+        label_groups = [[ind] for ind in label_inds[-1]]
+        label_groups += [inds for key, inds in label_inds.items() if key != -1]
+
+        # Prepare a reduced distance matrix
+        dist_matrix_size = len(label_groups)
+        reduced_dist_matrix = np.zeros((dist_matrix_size, dist_matrix_size))
+        for i, x_cluster_inds in enumerate(label_groups):
+            for j, y_cluster_inds in enumerate(label_groups[:i]):
+                reduced_dist_matrix[i, j] = _average_dist_between_clusters(
+                    distance_matrix, x_cluster_inds, y_cluster_inds
+                )
+                reduced_dist_matrix[j, i] = reduced_dist_matrix[i, j]
+
+        new_labels = classifier.fit_predict(reduced_dist_matrix)
+        for inds, label in zip(label_groups, new_labels):
+            original_df.loc[inds, "plant_id_ferc1"] = label
+
+        return original_df["plant_id_ferc1"]
 
 
 class DistanceCalculator(ModelComponent):
@@ -221,7 +328,7 @@ class DistanceCalculator(ModelComponent):
 class PenalizeReportYearDistanceCalculator(DistanceCalculator):
     """Compute distance between records and add penalty to records from same year."""
 
-    distance_penalty: float = 1000.0
+    distance_penalty: float = 10000.0
 
     def __call__(
         self, feature_matrix: np.ndarray, original_df: pd.DataFrame
@@ -230,14 +337,17 @@ class PenalizeReportYearDistanceCalculator(DistanceCalculator):
         distance_matrix = super().__call__(feature_matrix)
 
         # First create distance matrix of just report years (same year will be 0)
-        report_years = np.array(original_df.report_year)
-        penalty_matrix = pairwise_distances(report_years.reshape(-1, 1))
-        penalty_matrix = np.isclose(penalty_matrix, 0) * self.distance_penalty
+        year_inds = original_df.groupby("report_year").indices
+        for inds in year_inds.values():
+            matching_year_inds = np.array(np.meshgrid(inds, inds)).T.reshape(-1, 2)
+            distance_matrix[
+                matching_year_inds[:, 0], matching_year_inds[:, 1]
+            ] = self.distance_penalty
 
         # Don't add penalty to diagonal (represents distance from record to itself)
-        np.fill_diagonal(penalty_matrix, 0)
+        np.fill_diagonal(distance_matrix, 0)
 
-        return penalty_matrix + distance_matrix
+        return distance_matrix
 
 
 class CrossYearLinker(ModelComponent):
@@ -245,11 +355,27 @@ class CrossYearLinker(ModelComponent):
 
     embedding_step: DataFrameEmbedder
     distance_calculator: DistanceCalculator = PenalizeReportYearDistanceCalculator()
-    classifier: ModelComponent = HierarchicalClusteringClassifier()
+    classifier: ModelComponent = ClusteringClassifier(
+        distance_metric=PenalizeReportYearDistanceCalculator()
+    )
+    split_overmerged_clusters: SplitOvermergedClusters = SplitOvermergedClusters()
+    match_orphaned_records: MatchOrpahnedRecords = MatchOrpahnedRecords()
 
     def __call__(self, df: pd.DataFrame):  # noqa: N803
         """Apply model and return column of estimated record labels."""
+        df = df.copy().reset_index()
         feature_matrix = self.embedding_step(df)
         distance_matrix = self.distance_calculator(feature_matrix, df)
+        logger.info("Starting classification.")
 
-        return self.classifier(distance_matrix)
+        # Add column of report years to right of all features to use in distance calcs
+        df["plant_id_ferc1"] = self.classifier(distance_matrix)
+        id_generator = _generate_cluster_ids(df.plant_id_ferc1.max())
+        df["plant_id_ferc1"] = self.split_overmerged_clusters(
+            distance_matrix, df, id_generator
+        )
+        df["plant_id_ferc1"] = self.match_orphaned_records(
+            distance_matrix, df, id_generator
+        )
+
+        return df["plant_id_ferc1"]
