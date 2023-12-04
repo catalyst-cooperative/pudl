@@ -26,21 +26,31 @@ def test_pudl_datastore(script_runner, command: str):
     assert ret.success
 
 
-# @pytest.mark.skip("Test exceeds memory or disk limits of GitHub runner.")
+@pytest.mark.parametrize(
+    "command,filename",
+    [
+        (
+            "pudl_service_territories --entity-type ba -y 2022 --no-dissolve -o ",
+            "balancing_authority_geometry.parquet",
+        ),
+        (
+            "pudl_service_territories --entity-type util -y 2022 --dissolve -o ",
+            "utility_geometry_dissolved.parquet",
+        ),
+    ],
+)
 @pytest.mark.script_launch_mode("inprocess")
 def test_pudl_service_territories(
-    script_runner, tmp_path: Path, pudl_engine: sa.Engine
+    script_runner, command: str, tmp_path: Path, filename: str, pudl_engine: sa.Engine
 ):
     """CLI tests specific to the pudl_service_territories script.
 
     Depends on the ``pudl_engine`` fixture to ensure that the censusdp1tract.sqlite
     database has been generated, since that data is required for the script to run.
     """
-    out_path = tmp_path / "balancing_authority_geometry.parquet"
+    out_path = tmp_path / filename
     assert not out_path.exists()
-    command = (
-        f"pudl_service_territories --entity-type ba -y 2022 --no-dissolve -o {tmp_path}"
-    )
+    command += str(tmp_path)
     ret = script_runner.run(command.split(" "), print_result=True)
     assert ret.success
     assert out_path.exists()
