@@ -8,14 +8,14 @@ from pudl.workspace.setup import PudlPaths
 @pytest.mark.parametrize(
     "command",
     [
-        "pudl_datastore -d ferc60 --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop --partition year=2006",
-        "pudl_datastore --dataset ferc60 --bypass-local-cache --partition year=2006",
-        "pudl_datastore -d ferc60 --validate --partition year=2006",
-        "pudl_datastore -d ferc1 --validate --partition year=2021",
-        "pudl_datastore -d ferc2 --validate --partition year=2020",
-        "pudl_datastore -d ferc6 --validate --partition year=2021",
+        # Force the download of one small partition from Zenodo
+        "pudl_datastore --dataset ferc60 --bypass-local-cache --partition year=2020",
+        # Force the download of one small partition from GCS
+        "pudl_datastore -d ferc60 --bypass-local-cache --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop --partition year=2020",
+        # Exercise the datastore validation code
         "pudl_datastore -d ferc60 --validate --partition year=2020",
-        "pudl_datastore -d ferc714 --validate --partition year=2021",
+        # Ensure that all data source partitions are legible
+        "pudl_datastore --list-partitions --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop",
     ],
 )
 @pytest.mark.script_launch_mode("inprocess")
@@ -33,7 +33,10 @@ def test_pudl_service_territories(script_runner, pudl_engine: sa.Engine):
     Depends on the ``pudl_engine`` fixture to ensure that the censusdp1tract.sqlite
     database has been generated, since that data is required for the script to run.
     """
-    command = f"pudl_service_territories --entity-type ba --no-dissolve --limit-by-state -o {PudlPaths().output_dir}"
+    command = f"pudl_service_territories --entity-type ba --no-dissolve -o {PudlPaths().output_dir}"
     runner_args = command.split(" ")
     ret = script_runner.run(runner_args, print_result=True)
     assert ret.success
+    out_path = PudlPaths().output_dir / "balancing_authority_geometry.parquet"
+    assert out_path.exists()
+    assert out_path.is_file()
