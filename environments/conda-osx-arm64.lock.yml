@@ -217,6 +217,7 @@ dependencies:
   - pillow=10.1.0=py311hb9c5795_0
   - pkginfo=1.9.6=pyhd8ed1ab_0
   - pkgutil-resolve-name=1.3.10=pyhd8ed1ab_1
+  - platformdirs=4.1.0=pyhd8ed1ab_0
   - pluggy=1.3.0=pyhd8ed1ab_0
   - prometheus_client=0.19.0=pyhd8ed1ab_0
   - psutil=5.9.5=py311heffc1b2_1
@@ -329,6 +330,7 @@ dependencies:
   - jinja2=3.1.2=pyhd8ed1ab_1
   - joblib=1.3.2=pyhd8ed1ab_0
   - jsonlines=4.0.0=pyhd8ed1ab_0
+  - jupyter_core=5.5.0=py311h267d04e_0
   - jupyterlab_pygments=0.3.0=pyhd8ed1ab_0
   - latexcodec=2.0.1=pyh9f0ad1d_0
   - libcblas=3.9.0=20_osxarm64_openblas
@@ -344,7 +346,6 @@ dependencies:
   - pexpect=4.8.0=pyh1a96a4e_2
   - pint=0.22=pyhd8ed1ab_1
   - pip=23.3.1=pyhd8ed1ab_0
-  - platformdirs=4.0.0=pyhd8ed1ab_0
   - poppler=23.12.0=hcdd998b_0
   - postgresql=16.1=hc6ab77f_2
   - proj=9.3.0=h52fb9d0_2
@@ -371,6 +372,7 @@ dependencies:
   - typing_inspect=0.9.0=pyhd8ed1ab_0
   - universal_pathlib=0.1.4=pyhd8ed1ab_0
   - urllib3=1.26.18=pyhd8ed1ab_0
+  - virtualenv=20.25.0=pyhd8ed1ab_0
   - watchdog=3.0.0=py311heffc1b2_1
   - xerces-c=3.2.4=hd886eac_3
   - yarl=1.9.3=py311h05b510d_0
@@ -396,7 +398,6 @@ dependencies:
   - httpcore=1.0.2=pyhd8ed1ab_0
   - importlib_metadata=7.0.0=hd8ed1ab_0
   - jsonschema-specifications=2023.11.2=pyhd8ed1ab_0
-  - jupyter_core=5.5.0=py311h267d04e_0
   - jupyter_server_terminals=0.4.4=pyhd8ed1ab_1
   - kealib=1.5.2=h47b5e36_1
   - libnetcdf=4.9.2=nompi_hb2fb864_112
@@ -425,11 +426,10 @@ dependencies:
   - tiledb=2.16.3=he15c4da_3
   - ukkonen=1.0.1=py311he4fd1f5_4
   - uvicorn=0.24.0.post1=py311h267d04e_0
-  - virtualenv=20.25.0=pyhd8ed1ab_0
   - watchfiles=0.21.0=py311h94f323b_0
   - aiohttp=3.8.6=py311h05b510d_1
   - alembic=1.13.0=pyhd8ed1ab_0
-  - arelle-release=2.17.7=pyhd8ed1ab_0
+  - arelle-release=2.18.0=pyhd8ed1ab_0
   - argon2-cffi=23.1.0=pyhd8ed1ab_0
   - aws-sdk-cpp=1.11.182=h31542fa_7
   - bottleneck=1.3.7=py311hb49d859_1
@@ -446,7 +446,7 @@ dependencies:
   - h3-py=3.7.6=py311ha891d26_1
   - httpx=0.25.2=pyhd8ed1ab_0
   - identify=2.5.32=pyhd8ed1ab_0
-  - ipython=8.18.1=pyh31011fe_1
+  - ipython=8.18.1=pyh31011fe_2
   - isoduration=20.11.0=pyhd8ed1ab_0
   - jsonschema=4.20.0=pyhd8ed1ab_0
   - jupyter_client=8.6.0=pyhd8ed1ab_0
@@ -519,18 +519,18 @@ dependencies:
   - google-cloud-core=2.3.3=pyhd8ed1ab_0
   - libarrow-dataset=14.0.1=had9dd58_3_cpu
   - libarrow-flight-sql=14.0.1=h660fe36_3_cpu
-  - nbconvert-core=7.11.0=pyhd8ed1ab_0
+  - nbconvert-core=7.12.0=pyhd8ed1ab_0
   - tableschema=1.19.3=pyh9f0ad1d_0
   - datapackage=1.15.2=pyh44b312d_0
   - google-cloud-storage=2.13.0=pyhca7485f_0
-  - jupyter_server=2.11.1=pyhd8ed1ab_0
+  - jupyter_server=2.11.2=pyhd8ed1ab_0
   - libarrow-substrait=14.0.1=h594d712_3_cpu
-  - nbconvert-pandoc=7.11.0=pyhd8ed1ab_0
+  - nbconvert-pandoc=7.12.0=pyhd8ed1ab_0
   - gcsfs=2023.12.0=pyhd8ed1ab_0
   - jupyter-lsp=2.2.1=pyhd8ed1ab_0
   - jupyter-resource-usage=1.0.1=pyhd8ed1ab_0
   - jupyterlab_server=2.25.2=pyhd8ed1ab_0
-  - nbconvert=7.11.0=pyhd8ed1ab_0
+  - nbconvert=7.12.0=pyhd8ed1ab_0
   - notebook-shim=0.2.3=pyhd8ed1ab_0
   - pyarrow=14.0.1=py311h637fcfe_3_cpu
   - jupyterlab=4.0.9=pyhd8ed1ab_0
