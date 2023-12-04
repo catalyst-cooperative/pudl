@@ -8533,16 +8533,16 @@ package:
       matplotlib-inline: ""
       pexpect: ">4.3"
       pickleshare: ""
-      prompt-toolkit: ">=3.0.30,<3.1.0,!=3.0.37"
+      prompt-toolkit: ">=3.0.41,<3.1.0"
       pygments: ">=2.4.0"
       python: ">=3.9"
       stack_data: ""
       traitlets: ">=5"
       typing_extensions: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/ipython-8.18.1-pyh31011fe_1.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/ipython-8.18.1-pyh31011fe_2.conda
     hash:
-      md5: ac2f9c2e10c2e90e8d135cef51f9753a
-      sha256: 67490e640faa372d663a5c5cd2d61f417cce22a019a4de82a9e5ddb1cf2ee181
+      md5: 5e23d20fc6e33061c063220146579990
+      sha256: c956b70ed41b7f61a780a7e584f03f68e7e5073c8c138960bfbc5e705d9124b1
     category: main
     optional: false
   - name: ipython
@@ -8562,11 +8562,11 @@ package:
       traitlets: ">=5"
       jedi: ">=0.16"
       pexpect: ">4.3"
-      prompt-toolkit: ">=3.0.30,<3.1.0,!=3.0.37"
-    url: https://conda.anaconda.org/conda-forge/noarch/ipython-8.18.1-pyh31011fe_1.conda
+      prompt-toolkit: ">=3.0.41,<3.1.0"
+    url: https://conda.anaconda.org/conda-forge/noarch/ipython-8.18.1-pyh31011fe_2.conda
     hash:
-      md5: ac2f9c2e10c2e90e8d135cef51f9753a
-      sha256: 67490e640faa372d663a5c5cd2d61f417cce22a019a4de82a9e5ddb1cf2ee181
+      md5: 5e23d20fc6e33061c063220146579990
+      sha256: c956b70ed41b7f61a780a7e584f03f68e7e5073c8c138960bfbc5e705d9124b1
     category: main
     optional: false
   - name: ipython
@@ -8586,11 +8586,11 @@ package:
       traitlets: ">=5"
       jedi: ">=0.16"
       pexpect: ">4.3"
-      prompt-toolkit: ">=3.0.30,<3.1.0,!=3.0.37"
-    url: https://conda.anaconda.org/conda-forge/noarch/ipython-8.18.1-pyh31011fe_1.conda
+      prompt-toolkit: ">=3.0.41,<3.1.0"
+    url: https://conda.anaconda.org/conda-forge/noarch/ipython-8.18.1-pyh31011fe_2.conda
     hash:
-      md5: ac2f9c2e10c2e90e8d135cef51f9753a
-      sha256: 67490e640faa372d663a5c5cd2d61f417cce22a019a4de82a9e5ddb1cf2ee181
+      md5: 5e23d20fc6e33061c063220146579990
+      sha256: c956b70ed41b7f61a780a7e584f03f68e7e5073c8c138960bfbc5e705d9124b1
     category: main
     optional: false
   - name: ipywidgets

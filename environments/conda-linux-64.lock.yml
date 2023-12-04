@@ -465,7 +465,7 @@ dependencies:
   - h3-py=3.7.6=py311hb755f60_1
   - httpx=0.25.2=pyhd8ed1ab_0
   - identify=2.5.32=pyhd8ed1ab_0
-  - ipython=8.18.1=pyh31011fe_1
+  - ipython=8.18.1=pyh31011fe_2
   - isoduration=20.11.0=pyhd8ed1ab_0
   - jsonschema=4.20.0=pyhd8ed1ab_0
   - jupyter_client=8.6.0=pyhd8ed1ab_0
