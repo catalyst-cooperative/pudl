@@ -274,6 +274,10 @@ Analysis
   :ref:`compiled_geometry_utility_eia861`), and the estimated total hourly electricity
   demand for each US state in :ref:`predicted_state_hourly_demand`. See :issue:`1973`
   and :pr:`2550`.
+* The :func:`pudl.analysis.service_territory.pudl_service_territories` script has been
+  fixed, and can be used to generate `GeoParquet <https://geoparquet.org/>`__
+  outputs describing historical utility and balancing authority service territories. See
+  :issue:`1174` and :pr:`3086`.
 
 Deprecations
 ^^^^^^^^^^^^

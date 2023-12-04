@@ -296,6 +296,7 @@ curl = ">=8.4.0"
 source = [
     "docs/conf.py",
     "src/pudl/",
+    "test/conftest.py",
     "test/integration/",
     "test/unit/",
 ]
