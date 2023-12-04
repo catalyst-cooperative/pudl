@@ -4528,8 +4528,8 @@ package:
     dependencies:
       sniffio: ""
       python: ">=3.8.0,<4.0.0"
-      cryptography: ">=2.6,<42.0"
       httpcore: ">=0.17.3"
+      cryptography: ">=2.6,<42.0"
       idna: ">=2.1,<4.0"
     url: https://conda.anaconda.org/conda-forge/noarch/dnspython-2.4.2-pyhd8ed1ab_1.conda
     hash:
@@ -4544,8 +4544,8 @@ package:
     dependencies:
       sniffio: ""
       python: ">=3.8.0,<4.0.0"
-      cryptography: ">=2.6,<42.0"
       httpcore: ">=0.17.3"
+      cryptography: ">=2.6,<42.0"
       idna: ">=2.1,<4.0"
     url: https://conda.anaconda.org/conda-forge/noarch/dnspython-2.4.2-pyhd8ed1ab_1.conda
     hash:
@@ -5104,7 +5104,7 @@ package:
     category: main
     optional: false
   - name: folium
-    version: 0.15.0
+    version: 0.15.1
     manager: conda
     platform: linux-64
     dependencies:
@@ -5113,42 +5113,45 @@ package:
       numpy: ""
       python: ">=3.7"
       requests: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/folium-0.15.0-pyhd8ed1ab_0.conda
+      xyzservices: ""
+    url: https://conda.anaconda.org/conda-forge/noarch/folium-0.15.1-pyhd8ed1ab_0.conda
     hash:
-      md5: 25f5dbce4f946240dea7d2ee79d34254
-      sha256: afe869f136fca1dbda8be0c342392fda99d951c4c4612f134a70efbf5449ef30
+      md5: 4fdfc338f6fb875b1078a7e20dbc99e2
+      sha256: c0730ddfaf35e39ac92b7fd07315843e7948b2ce3361d164ec1b722dd0440c2b
     category: main
     optional: false
   - name: folium
-    version: 0.15.0
+    version: 0.15.1
     manager: conda
     platform: osx-64
     dependencies:
       numpy: ""
       requests: ""
+      xyzservices: ""
       python: ">=3.7"
       jinja2: ">=2.9"
       branca: ">=0.7.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/folium-0.15.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/folium-0.15.1-pyhd8ed1ab_0.conda
     hash:
-      md5: 25f5dbce4f946240dea7d2ee79d34254
-      sha256: afe869f136fca1dbda8be0c342392fda99d951c4c4612f134a70efbf5449ef30
+      md5: 4fdfc338f6fb875b1078a7e20dbc99e2
+      sha256: c0730ddfaf35e39ac92b7fd07315843e7948b2ce3361d164ec1b722dd0440c2b
     category: main
     optional: false
   - name: folium
-    version: 0.15.0
+    version: 0.15.1
     manager: conda
     platform: osx-arm64
     dependencies:
       numpy: ""
       requests: ""
+      xyzservices: ""
       python: ">=3.7"
       jinja2: ">=2.9"
       branca: ">=0.7.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/folium-0.15.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/folium-0.15.1-pyhd8ed1ab_0.conda
     hash:
-      md5: 25f5dbce4f946240dea7d2ee79d34254
-      sha256: afe869f136fca1dbda8be0c342392fda99d951c4c4612f134a70efbf5449ef30
+      md5: 4fdfc338f6fb875b1078a7e20dbc99e2
+      sha256: c0730ddfaf35e39ac92b7fd07315843e7948b2ce3361d164ec1b722dd0440c2b
     category: main
     optional: false
   - name: font-ttf-dejavu-sans-mono
