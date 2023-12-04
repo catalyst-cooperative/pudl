@@ -307,6 +307,7 @@ omit = [
 [tool.coverage.report]
 precision = 1
 sort = "miss"
+skip_empty = true
 exclude_lines = [
     # Have to re-enable the standard pragma
     "pragma: no cover",

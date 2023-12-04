@@ -1,6 +1,6 @@
-covargs := --append --source=src/pudl
+covargs := --append
 gcs_cache_path := --gcs-cache-path=gs://zenodo-cache.catalyst.coop
-pytest_covargs := --cov-append --cov=src/pudl --cov-report=xml
+pytest_covargs := --cov-append --cov-report=xml
 pytest_args := --durations 20 ${pytest_covargs} ${gcs_cache_path}
 etl_fast_yml := src/pudl/package_data/settings/etl_fast.yml
 etl_full_yml := src/pudl/package_data/settings/etl_full.yml
