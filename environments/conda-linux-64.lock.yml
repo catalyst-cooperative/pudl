@@ -458,7 +458,7 @@ dependencies:
   - dask-core=2023.12.0=pyhd8ed1ab_0
   - dnspython=2.4.2=pyhd8ed1ab_1
   - ensureconda=1.4.3=pyhd8ed1ab_0
-  - folium=0.15.0=pyhd8ed1ab_0
+  - folium=0.15.1=pyhd8ed1ab_0
   - google-resumable-media=2.6.0=pyhd8ed1ab_0
   - graphene=3.3=pyhd8ed1ab_0
   - grpcio-status=1.59.2=pyhd8ed1ab_0
