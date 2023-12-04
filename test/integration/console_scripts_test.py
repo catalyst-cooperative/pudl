@@ -1,6 +1,7 @@
 """Test the PUDL console scripts from within PyTest."""
 from pathlib import Path
 
+import geopandas as gpd
 import pytest
 import sqlalchemy as sa
 
@@ -27,21 +28,61 @@ def test_pudl_datastore(script_runner, command: str):
 
 
 @pytest.mark.parametrize(
-    "command,filename",
+    "command,filename,expected_cols",
     [
         (
-            "pudl_service_territories --entity-type ba -y 2022 --no-dissolve -o ",
+            "pudl_service_territories --entity-type ba -y 2022 --limit-by-state --no-dissolve -o ",
+            "balancing_authority_geometry_limited.parquet",
+            {
+                "area_km2",
+                "balancing_authority_id_eia",
+                "county",
+                "county_id_fips",
+                "county_name_census",
+                "geometry",
+                "population",
+                "report_date",
+                "state",
+                "state_id_fips",
+            },
+        ),
+        (
+            "pudl_service_territories --entity-type ba -y 2021 -y 2022 --no-dissolve -o ",
             "balancing_authority_geometry.parquet",
+            {
+                "area_km2",
+                "balancing_authority_id_eia",
+                "county",
+                "county_id_fips",
+                "county_name_census",
+                "geometry",
+                "population",
+                "report_date",
+                "state",
+                "state_id_fips",
+            },
         ),
         (
             "pudl_service_territories --entity-type util -y 2022 --dissolve -o ",
             "utility_geometry_dissolved.parquet",
+            {
+                "area_km2",
+                "geometry",
+                "population",
+                "report_date",
+                "utility_id_eia",
+            },
         ),
     ],
 )
 @pytest.mark.script_launch_mode("inprocess")
 def test_pudl_service_territories(
-    script_runner, command: str, tmp_path: Path, filename: str, pudl_engine: sa.Engine
+    script_runner,
+    command: str,
+    tmp_path: Path,
+    filename: str,
+    expected_cols: set[str],
+    pudl_engine: sa.Engine,
 ):
     """CLI tests specific to the pudl_service_territories script.
 
@@ -55,3 +96,6 @@ def test_pudl_service_territories(
     assert ret.success
     assert out_path.exists()
     assert out_path.is_file()
+    gdf = gpd.read_parquet(out_path)
+    assert set(gdf.columns) == expected_cols
+    assert not gdf.empty
