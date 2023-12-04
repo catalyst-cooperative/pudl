@@ -1,7 +1,6 @@
-covargs := --append
 gcs_cache_path := --gcs-cache-path=gs://zenodo-cache.catalyst.coop
-pytest_covargs := --cov-append --cov-report=xml
-pytest_args := --durations 20 ${pytest_covargs} ${gcs_cache_path}
+covargs := --append
+pytest_args := --durations 20 ${gcs_cache_path}
 etl_fast_yml := src/pudl/package_data/settings/etl_fast.yml
 etl_full_yml := src/pudl/package_data/settings/etl_full.yml
 
@@ -80,7 +79,7 @@ docs-clean:
 .PHONY: docs-build
 docs-build: docs-clean
 	doc8 docs/ README.rst
-	coverage run ${covargs} -- ${CONDA_PREFIX}/bin/sphinx-build -W -b html docs docs/_build/html
+	coverage run --append --source=src/pudl -- ${CONDA_PREFIX}/bin/sphinx-build -W -b html docs docs/_build/html
 	coverage xml
 
 ########################################################################################
@@ -127,12 +126,12 @@ pytest-integration:
 coverage-erase:
 	coverage erase
 
+.PHONY: pytest-ci
+pytest-ci: pytest-unit pytest-integration
+
 .PHONY: pytest-coverage
 pytest-coverage: coverage-erase docs-build pytest-ci
 	coverage report
-
-.PHONY: pytest-ci
-pytest-ci: pytest-unit pytest-integration
 
 .PHONY: pytest-integration-full
 pytest-integration-full:
