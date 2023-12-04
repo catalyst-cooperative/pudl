@@ -14,6 +14,7 @@ from pudl.helpers import (
     convert_df_to_excel_file,
     convert_to_date,
     date_merge,
+    diff_wide_tables,
     expand_timeseries,
     fix_eia_na,
     flatten_list,
@@ -666,3 +667,63 @@ def test_convert_col_to_bool(df):
         .isin([False, np.nan])
         .all()
     )
+
+
+def test_diff_wide_tables():
+    # has 2020-2021 data for utils 1 and 2; fact 2 for utility 1 just never reported
+    old = pd.DataFrame.from_records(
+        [
+            {"u_id": 1, "year": 2020, "fact1": "u1f1y20"},
+            {"u_id": 1, "year": 2021, "fact1": "u1f1y21"},
+            {"u_id": 2, "year": 2020, "fact1": "u2f1y20", "fact2": "u2f2y20"},
+            {"u_id": 2, "year": 2021, "fact1": "u2f1y21", "fact2": "u2f2y21"},
+        ]
+    )
+
+    # has 2020-2022 data for utils 1 and 2, but:
+    # - utility 1 is missing 2020 data for fact 1 and fact 2; otherwise, just missing fact 2 as usual
+    # - utility 2 has an updated value for 2021 fact 1
+    new = pd.DataFrame.from_records(
+        [
+            {"u_id": 1, "year": 2020},
+            {"u_id": 1, "year": 2021, "fact1": "u1f1y21"},
+            {"u_id": 1, "year": 2022, "fact1": "u1f1y22"},
+            {"u_id": 2, "year": 2020, "fact1": "u2f1y20", "fact2": "u2f2y20"},
+            {"u_id": 2, "year": 2021, "fact1": "u2f1y21_updated", "fact2": "u2f2y21"},
+            {"u_id": 2, "year": 2022, "fact1": "u2f1y22", "fact2": "u2f2y22"},
+        ]
+    )
+
+    def assert_diff_equal(observed, expected):
+        observed_reshaped = observed.droplevel(level=0, axis="columns")
+        expected_reshaped = expected.set_index(observed_reshaped.index.names)
+        assert_frame_equal(observed_reshaped, expected_reshaped)
+
+    diff_output = diff_wide_tables(primary_key=["u_id", "year"], old=old, new=new)
+
+    expected_deleted = pd.DataFrame.from_records(
+        [{"u_id": 1, "year": 2020, "field": "fact1", "old": "u1f1y20", "new": None}]
+    )
+    assert_diff_equal(diff_output.deleted, expected_deleted)
+
+    expected_added = pd.DataFrame.from_records(
+        [
+            {"u_id": 1, "year": 2022, "field": "fact1", "old": None, "new": "u1f1y22"},
+            {"u_id": 2, "year": 2022, "field": "fact1", "old": None, "new": "u2f1y22"},
+            {"u_id": 2, "year": 2022, "field": "fact2", "old": None, "new": "u2f2y22"},
+        ]
+    )
+    assert_diff_equal(diff_output.added, expected_added)
+
+    expected_changed = pd.DataFrame.from_records(
+        [
+            {
+                "u_id": 2,
+                "year": 2021,
+                "field": "fact1",
+                "old": "u2f1y21",
+                "new": "u2f1y21_updated",
+            }
+        ]
+    )
+    assert_diff_equal(diff_output.changed, expected_changed)

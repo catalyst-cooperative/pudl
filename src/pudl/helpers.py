@@ -15,7 +15,7 @@ from collections import defaultdict
 from collections.abc import Generator, Iterable
 from functools import partial
 from io import BytesIO
-from typing import Any, Literal
+from typing import Any, Literal, NamedTuple
 
 import addfips
 import numpy as np
@@ -1857,3 +1857,43 @@ def assert_cols_areclose(
             f"{message} Mismatch ratio {mismatch_ratio:.01%} > "
             f"threshold {mismatch_threshold:.01%}."
         )
+
+
+class TableDiff(NamedTuple):
+    """Represent a diff between two versions of the same table."""
+
+    deleted: pd.DataFrame
+    added: pd.DataFrame
+    changed: pd.DataFrame
+    old_df: pd.DataFrame
+    new_df: pd.DataFrame
+
+
+def diff_wide_tables(
+    primary_key: Iterable[str], old: pd.DataFrame, new: pd.DataFrame
+) -> TableDiff:
+    """Diff values across multiple iterations of the same wide table.
+
+    We often have tables with many value columns; a straightforward comparison of two
+    versions of the same table will show you that two rows are different, but
+    won't show which of the many values changed.
+
+    So we melt the table based on some sort of primary key columns then diff
+    the old and new values.
+    """
+    old_melted = old.melt(id_vars=primary_key, var_name="field").set_index(
+        primary_key + ["field"]
+    )
+    new_melted = new.melt(id_vars=primary_key, var_name="field").set_index(
+        primary_key + ["field"]
+    )
+    old_aligned, new_aligned = old_melted.align(new_melted)
+    comparison = old_aligned.compare(new_aligned, result_names=("old", "new"))
+    old_values = comparison[("value", "old")]
+    new_values = comparison[("value", "new")]
+    added = comparison[old_values.isna() & new_values.notna()]
+    deleted = comparison[old_values.notna() & new_values.isna()]
+    changed = comparison[old_values.notna() & new_values.notna()]
+    return TableDiff(
+        deleted=deleted, added=added, changed=changed, old_df=old, new_df=new
+    )
