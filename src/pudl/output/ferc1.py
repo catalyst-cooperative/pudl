@@ -1486,7 +1486,12 @@ class Exploder:
             .drop(columns=["xbrl_factoid_off_by"])
         )
         facts_to_fix.columns = facts_to_fix.columns.str.removesuffix("_off_by")
-        return pd.concat([exploded_calcs, facts_to_fix[exploded_calcs.columns]])
+        return pd.concat(
+            [
+                exploded_calcs,
+                facts_to_fix[exploded_calcs.columns].astype(exploded_calcs.dtypes),
+            ]
+        )
 
     @cached_property
     def exploded_meta(self: Self) -> pd.DataFrame:
@@ -1636,6 +1641,11 @@ class Exploder:
         value_col = list(set(value_cols))[0]
         return value_col
 
+    @property
+    def calc_idx(self: Self) -> list[str]:
+        """Primary key columns for calculations in this explosion."""
+        return [col for col in list(NodeId._fields) if col in self.exploded_pks]
+
     def boom(self: Self, tables_to_explode: dict[str, pd.DataFrame]) -> pd.DataFrame:
         """Explode a set of nested tables.
 
@@ -1652,6 +1662,7 @@ class Exploder:
         """
         exploded = (
             self.initial_explosion_concatenation(tables_to_explode)
+            .pipe(self.calculate_intertable_non_total_calculations)
             .pipe(self.add_sizable_minority_corrections)
             .pipe(self.reconcile_intertable_calculations)
             .pipe(self.calculation_forest.leafy_data, value_col=self.value_col)
@@ -1725,8 +1736,24 @@ class Exploder:
         )
         return exploded
 
+    def calculate_intertable_non_total_calculations(
+        self, exploded: pd.DataFrame
+    ) -> pd.DataFrame:
+        """Calculate the inter-table non-total calculable xbrl_factoids."""
+        # add the abs_diff column for the calculated fields
+        calculated_df = pudl.transform.ferc1.calculate_values_from_components(
+            calculation_components=self.exploded_calcs[
+                ~self.exploded_calcs.is_within_table_calc
+                & ~self.exploded_calcs.is_total_to_subdimensions_calc
+            ],
+            data=exploded,
+            calc_idx=self.calc_idx,
+            value_col=self.value_col,
+        )
+        return calculated_df
+
     def add_sizable_minority_corrections(
-        self: Self, exploded: pd.DataFrame
+        self: Self, calculated_df: pd.DataFrame
     ) -> pd.DataFrame:
         """Identify and fix the utilities that report calcs off-by one other fact.
 
@@ -1748,17 +1775,7 @@ class Exploder:
         :attr:`self.off_by_facts` to :attr:`self.exploded_calcs`.
         """
         if not self.off_by_facts:
-            return exploded
-        # add the abs_diff column for the calculated fields
-        calculated_df = pudl.transform.ferc1.calculate_values_from_components(
-            calculation_components=self.exploded_calcs[
-                ~self.exploded_calcs.is_within_table_calc
-                & ~self.exploded_calcs.is_total_to_subdimensions_calc
-            ],
-            data=exploded,
-            calc_idx=list(NodeId._fields),
-            value_col=self.value_col,
-        )
+            return calculated_df
 
         off_by = pd.DataFrame(self.off_by_facts)
         not_close = (
@@ -1816,7 +1833,30 @@ class Exploder:
         logger.info(
             f"Adding {len(data_corrections)} from {len(bad_utils)} utilities that report differently."
         )
-        return pd.concat([exploded, data_corrections]).reset_index(drop=True)
+        dtype_calced = {
+            col: dtype
+            for (col, dtype) in calculated_df.dtypes.items()
+            if col in data_corrections.columns
+        }
+        corrected = (
+            pd.concat([calculated_df, data_corrections.astype(dtype_calced)])
+            .reset_index(drop=True)
+            .set_index(list(NodeId._fields))
+        )
+        # now we are going to re-calculate just the fixed facts
+        fixed_facts = corrected.loc[
+            off_by.set_index(list(NodeId._fields)).index.unique()
+        ]
+        unfixed_facts = corrected.loc[
+            corrected.index.difference(
+                off_by.set_index(list(NodeId._fields)).index.unique()
+            )
+        ].reset_index()
+        fixed_facts = self.calculate_intertable_non_total_calculations(
+            exploded=fixed_facts.drop(columns=["calculated_value"]).reset_index()
+        )
+
+        return pd.concat([unfixed_facts, fixed_facts.astype(unfixed_facts.dtypes)])
 
     def reconcile_intertable_calculations(
         self: Self, exploded: pd.DataFrame
@@ -1841,18 +1881,10 @@ class Exploder:
             f"{self.root_table}: Reconcile inter-table calculations: "
             f"{list(calculations_intertable.xbrl_factoid.unique())}."
         )
-        calc_idx = [col for col in list(NodeId._fields) if col in self.exploded_pks]
         logger.info("Checking inter-table, non-total to subtotal calcs.")
-        calculated_df = pudl.transform.ferc1.calculate_values_from_components(
-            calculation_components=calculations_intertable[
-                ~calculations_intertable.is_total_to_subdimensions_calc
-            ],
-            data=exploded,
-            calc_idx=calc_idx,
-            value_col=self.value_col,
-        )
+        # we've added calculated fields via calculate_intertable_non_total_calculations
         calculated_df = pudl.transform.ferc1.check_calculation_metrics(
-            calculated_df=calculated_df, group_metric_checks=self.group_metric_checks
+            calculated_df=exploded, group_metric_checks=self.group_metric_checks
         )
         calculated_df = pudl.transform.ferc1.add_corrections(
             calculated_df=calculated_df,
@@ -1865,8 +1897,8 @@ class Exploder:
             calculation_components=calculations_intertable[
                 calculations_intertable.is_total_to_subdimensions_calc
             ],
-            data=exploded,
-            calc_idx=calc_idx,
+            data=exploded.drop(columns="calculated_value"),
+            calc_idx=self.calc_idx,
             value_col=self.value_col,
         )
         subtotal_calcs = pudl.transform.ferc1.check_calculation_metrics(
