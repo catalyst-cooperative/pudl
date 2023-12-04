@@ -79,7 +79,7 @@ docs-clean:
 .PHONY: docs-build
 docs-build: docs-clean
 	doc8 docs/ README.rst
-	coverage run --append --source=src/pudl -- ${CONDA_PREFIX}/bin/sphinx-build -W -b html docs docs/_build/html
+	coverage run ${covargs} -- ${CONDA_PREFIX}/bin/sphinx-build -W -b html docs docs/_build/html
 	coverage xml
 
 ########################################################################################
@@ -94,10 +94,7 @@ ferc:
 	rm -f ${PUDL_OUTPUT}/ferc*.sqlite
 	rm -f ${PUDL_OUTPUT}/ferc*_xbrl_datapackage.json
 	rm -f ${PUDL_OUTPUT}/ferc*_xbrl_taxonomy_metadata.json
-	coverage run ${covargs} -- \
-		src/pudl/ferc_to_sqlite/cli.py \
-		${gcs_cache_path} \
-		${etl_full_yml}
+	coverage run ${covargs} -- src/pudl/ferc_to_sqlite/cli.py ${gcs_cache_path} ${etl_full_yml}
 
 # Remove the existing PUDL DB if it exists.
 # Create a new empty DB using alembic.
@@ -106,10 +103,7 @@ ferc:
 pudl:
 	rm -f ${PUDL_OUTPUT}/pudl.sqlite
 	alembic upgrade head
-	coverage run ${covargs} -- \
-		src/pudl/etl/cli.py \
-		${gcs_cache_path} \
-		${etl_full_yml}
+	coverage run ${covargs} -- src/pudl/etl/cli.py ${gcs_cache_path} ${etl_full_yml}
 
 ########################################################################################
 # Targets that are coordinated by pytest -- mostly they're actual tests.
