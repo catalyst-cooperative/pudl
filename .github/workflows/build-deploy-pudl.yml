@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     tags:
-      - "v**"
+      - "v20*"
   schedule:
     - cron: "0 6 * * 1-5" # Weekdays at midnight on MST
 
