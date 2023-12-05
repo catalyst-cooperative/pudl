@@ -114,6 +114,11 @@ jobs:
     #  - ci-unit
     runs-on: ubuntu-22.04-4core
     if: github.event.pull_request.draft == false
+    strategy:
+      fail-fast: false
+      matrix:
+        dagster_workers: [0, 1]
+        
     permissions:
       contents: read
       id-token: write
@@ -179,7 +184,9 @@ jobs:
           COVERAGE_FILE: .coverage.ferc_to_sqlite
         run: |
           coverage run ${{ env.COVERAGE_OPTIONS }} \
-            src/pudl/ferc_to_sqlite/cli.py --clobber ${{ env.ETL_COMMANDLINE_OPTIONS }} ${{ env.ETL_CONFIG }}
+            src/pudl/ferc_to_sqlite/cli.py \
+              --dagster-workers=${{ matrix.dagster_workers }}
+              --clobber ${{ env.ETL_COMMANDLINE_OPTIONS }} ${{ env.ETL_CONFIG }}
       #      - name: Run pudl_etl
       #        env:
       #          COVERAGE_FILE: .coverage.pudl_etl
