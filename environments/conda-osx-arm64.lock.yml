@@ -240,14 +240,14 @@ dependencies:
   - pywin32-on-windows=0.1.0=pyh1179c8e_3
   - pyxlsb=1.0.10=pyhd8ed1ab_0
   - pyyaml=6.0.1=py311heffc1b2_1
-  - pyzmq=25.1.1=py311he9c0408_2
+  - pyzmq=25.1.2=py311h6727e71_0
   - regex=2023.10.3=py311heffc1b2_0
   - rfc3986=2.0.0=pyhd8ed1ab_0
   - rfc3986-validator=0.1.1=pyh9f0ad1d_0
   - rpds-py=0.13.2=py311h94f323b_0
   - rtree=1.1.0=py311hd698ff7_0
   - ruamel.yaml.clib=0.2.7=py311heffc1b2_2
-  - ruff=0.1.6=py311h6fc163c_0
+  - ruff=0.1.7=py311h6fc163c_0
   - setuptools=68.2.2=pyhd8ed1ab_0
   - shellingham=1.5.4=pyhd8ed1ab_0
   - simpleeval=0.9.13=pyhd8ed1ab_1
@@ -351,7 +351,7 @@ dependencies:
   - proj=9.3.0=h52fb9d0_2
   - prompt-toolkit=3.0.41=pyha770c72_0
   - protobuf=4.24.4=py311h4d1eceb_0
-  - psycopg2=2.9.7=py311h589e011_1
+  - psycopg2=2.9.9=py311h589e011_0
   - pyasn1-modules=0.3.0=pyhd8ed1ab_0
   - pyobjc-core=10.0=py311hb702dc4_0
   - pyproject_hooks=1.0.0=pyhd8ed1ab_0
@@ -383,7 +383,7 @@ dependencies:
   - arrow=1.3.0=pyhd8ed1ab_0
   - async-timeout=4.0.3=pyhd8ed1ab_0
   - aws-crt-cpp=0.24.7=hba4ac3b_6
-  - botocore=1.33.6=pyhd8ed1ab_0
+  - botocore=1.33.7=pyhd8ed1ab_0
   - branca=0.7.0=pyhd8ed1ab_1
   - croniter=2.0.1=pyhd8ed1ab_0
   - cryptography=41.0.7=py311h08c85a6_1
@@ -408,7 +408,7 @@ dependencies:
   - pbr=6.0.0=pyhd8ed1ab_0
   - pendulum=2.1.2=py311heffc1b2_6
   - prompt_toolkit=3.0.41=hd8ed1ab_0
-  - psycopg2-binary=2.9.7=pyhd8ed1ab_1
+  - psycopg2-binary=2.9.9=pyhd8ed1ab_0
   - pybtex=0.24.0=pyhd8ed1ab_2
   - pydantic-core=2.14.5=py311h94f323b_0
   - pyobjc-framework-cocoa=10.0=py311hb702dc4_1
