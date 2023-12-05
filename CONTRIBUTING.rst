@@ -1,6 +1,6 @@
---------------------
-Contributing to PUDL
---------------------
+-------------------------
+Contributing Code to PUDL
+-------------------------
 
 Welcome! We're so glad you're interested in contributing to PUDL! We would love
 some help making PUDL data as complete as possible.
@@ -9,8 +9,8 @@ some help making PUDL data as complete as possible.
 
 .. IMPORTANT:: Already have a dataset in mind?
 
-   If you **need data that's not in PUDL** that we're missing in PUDL,
-   `open an issue <https://github.com/catalyst-cooperative/pudl/issues/new?assignees=&labels=new-data&projects=&template=new_dataset.md&title=>`__
+   If you **need data that's not in PUDL**, `open an issue
+   <https://github.com/catalyst-cooperative/pudl/issues/new?assignees=&labels=new-data&projects=&template=new_dataset.md&title=>`__
    to tell us more about it!
 
    If you've **already written some code to wrangle a dataset**, find us at
@@ -35,15 +35,18 @@ You'll need to fork this repository and get the
   are issues that don't require a ton of PUDL-specific context, and are
   relatively tightly scoped.
 
-* Comment on the issue and tag ``@com-dev`` (our Community Development Team) to
-  let us know you're working on it. Feel free to ask any questions you might
-  have!
+* Comment on the issue and tag ``@catalyst-cooperative/com-dev`` (our Community
+  Development Team) to let us know you're working on it. Feel free to ask any
+  questions you might have!
 
 * Once you have an idea of how you want to tackle this issue, write out your
   plan so we can guide you around obstacles in your way! Post a comment outlining:
   * what steps have you broken this down into?
   * what is the output of each step?
   * how will one know that each step is working?
+
+* Once you've talked through your plan with someone from Catalyst, go forth and
+  develop!
 
 **Work on it!**
 
@@ -64,9 +67,9 @@ You'll need to fork this repository and get the
 
 **Get it merged in!**
 
-* Turn the draft PR into a normal PR and ping ``@com-dev``. We'll try to get
-  back to you within a few days - the smaller/simpler the PR, the faster we'll
-  be able to get back to you.
+* Turn the draft PR into a normal PR and tag ``@catalyst-cooperative/com-dev``
+  in a comment. We'll try to get back to you within a few days - the
+  smaller/simpler the PR, the faster we'll be able to get back to you.
 
 * The reviewer will leave comments - if they request changes, address their
   concerns and re-request review.

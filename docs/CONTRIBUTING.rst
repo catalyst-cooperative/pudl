@@ -9,6 +9,10 @@ Data Liberation effort!
 We need lots of help with :ref:`user-feedback`, we welcome :ref:`code-contribs`, and
 it would be great to :ref:`connect-orgs` that we can work with.
 
+Finally, `financial donations
+<https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=PZBZDFNKBJW5E&source=url>`__
+are welcome too!
+
 ---------------
 Code of Conduct
 ---------------
