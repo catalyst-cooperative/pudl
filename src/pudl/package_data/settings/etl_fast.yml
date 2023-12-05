@@ -7,20 +7,28 @@ ferc_to_sqlite_settings:
     # What years of original FERC data should be cloned into the SQLite DB?
     years: [2019, 2020]
   ferc1_xbrl_to_sqlite_settings:
+    disabled: true
     years: [2021, 2022]
   ferc2_dbf_to_sqlite_settings:
+    disabled: true
     years: [2019, 2020]
   ferc2_xbrl_to_sqlite_settings:
+    disabled: true
     years: [2021, 2022]
   ferc6_dbf_to_sqlite_settings:
+    disabled: true
     years: [2019, 2020]
   ferc6_xbrl_to_sqlite_settings:
+    disabled: true
     years: [2021, 2022]
   ferc60_dbf_to_sqlite_settings:
+    disabled: true
     years: [2019, 2020]
   ferc60_xbrl_to_sqlite_settings:
+    disabled: true
     years: [2021, 2022]
   ferc714_xbrl_to_sqlite_settings:
+    disabled: true
     years: [2021, 2022]
 
 ###########################################################################

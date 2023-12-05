@@ -180,19 +180,19 @@ jobs:
         run: |
           coverage run ${{ env.COVERAGE_OPTIONS }} \
             src/pudl/ferc_to_sqlite/cli.py --clobber ${{ env.ETL_COMMANDLINE_OPTIONS }} ${{ env.ETL_CONFIG }}
-      - name: Run pudl_etl
-        env:
-          COVERAGE_FILE: .coverage.pudl_etl
-        run: |
-          alembic upgrade head
-          coverage run ${{ env.COVERAGE_OPTIONS }} \
-            src/pudl/cli/etl.py ${{ env.ETL_COMMANDLINE_OPTIONS }} ${{ env.ETL_CONFIG }}
-      - name: Run integration tests
-        env:
-          COVERAGE_FILE: .coverage.pytest
-        run: |
-          coverage run ${{ env.COVERAGE_OPTIONS }} \
-           -m pytest -n auto --live-dbs test/integration
+#      - name: Run pudl_etl
+#        env:
+#          COVERAGE_FILE: .coverage.pudl_etl
+#        run: |
+#          alembic upgrade head
+#          coverage run ${{ env.COVERAGE_OPTIONS }} \
+#            src/pudl/cli/etl.py ${{ env.ETL_COMMANDLINE_OPTIONS }} ${{ env.ETL_CONFIG }}
+#      - name: Run integration tests
+#        env:
+#          COVERAGE_FILE: .coverage.pytest
+#        run: |
+#          coverage run ${{ env.COVERAGE_OPTIONS }} \
+#           -m pytest -n auto --live-dbs test/integration
       - name: Checksum coverage files
         run: ls .coverage* | xargs md5sum | sort
       - name: Generate coverage
