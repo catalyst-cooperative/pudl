@@ -1,4 +1,4 @@
-"""This module defines an interface record linkage models can conform to and implements common functionality."""
+"""Define a record linkage model interface and implement common functionality."""
 from abc import ABC, abstractmethod
 from collections.abc import Callable
 from typing import Any
@@ -27,7 +27,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 
 class ModelComponent(BaseModel, ABC):
-    """:class:`ModelComponent`s are the basic building blocks of a record linkage model.
+    """A :class:`ModelComponent` is the basic building block of a record linkage model.
 
     :class:`ModelComponent` defines a simple interface that should be implemented to
     create basic model steps that can be combined and reused at will. This interface
@@ -111,15 +111,16 @@ class ColumnTransformation(BaseModel):
 class DataFrameEmbedder(ModelComponent):
     """This ModelComponent performs a series of column transformations on a DataFrame.
 
-    Under the hood this uses :class:`sklearn.compose.ColumnTransformer`. As configuration
-    it takes as configuration a mapping of column names to a list of transformations to apply.
-    Transformations can be specified either by passing an instance of a
-    :class:`sklearn.base.BaseEstimator`, or a string to select from several common/generic
-    transformers defined by this class. If a string is used, it should be one of the following:
+    Under the hood this uses :class:`sklearn.compose.ColumnTransformer`. As
+    configuration it takes as configuration a mapping of column names to a list of
+    transformations to apply. Transformations can be specified either by passing an
+    instance of a :class:`sklearn.base.BaseEstimator`, or a string to select from
+    several common/generic transformers defined by this class. If a string is used, it
+    should be one of the following:
 
-    'string' - Applies a TfidfVectorizer to the column.
-    'category' - Applies a OneHotEncoder to the column.
-    'number' - Applies a MinMaxScaler to the column.
+    * ``string`` - Applies a TfidfVectorizer to the column.
+    * ``category`` - Applies a OneHotEncoder to the column.
+    * ``number`` - Applies a MinMaxScaler to the column.
     """
 
     #: Maps step name to list of transformations.
@@ -154,7 +155,7 @@ class DataFrameEmbedder(ModelComponent):
 
 
 class ReducedDimDataFrameEmbedder(DataFrameEmbedder):
-    """Subclass of :class:`DataFrameEmbedder`, which applies PCA to reduce dimensions of the output."""
+    """:class:`DataFrameEmbedder` subclass that reduces output dimensions using PCA."""
 
     #: Passed to :class:`sklearn.decomposition.PCA` param n_components
     output_dims: int | float | None = 500
@@ -169,7 +170,7 @@ class ReducedDimDataFrameEmbedder(DataFrameEmbedder):
 
 
 class ReducedDimDataFrameEmbedderSparse(DataFrameEmbedder):
-    """Subclass of :class:`DataFrameEmbedder`, which applies IncrementalPCA to reduce dimensions of the output.
+    """:class:`DataFrameEmbedder` subclass, using IncrementalPCA to reduce dimensions.
 
     This class differs from :class:`ReducedDimDataFrameEmbedder` in that it applies
     IncrementalPCA instead of a normal PCA implementation. This implementation is
