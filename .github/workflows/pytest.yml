@@ -185,7 +185,7 @@ jobs:
         run: |
           coverage run ${{ env.COVERAGE_OPTIONS }} \
             src/pudl/ferc_to_sqlite/cli.py \
-              --dagster-workers=${{ matrix.dagster_workers }}
+              --dagster-workers=${{ matrix.dagster_workers }} \
               --clobber ${{ env.ETL_COMMANDLINE_OPTIONS }} ${{ env.ETL_CONFIG }}
       #      - name: Run pudl_etl
       #        env:
