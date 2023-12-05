@@ -70,9 +70,14 @@ Then you can go to the `Google Compute Engine
 <https://console.cloud.google.com/compute/instances?project=catalyst-cooperative-pudl>`__
 page and restart it.
 
-Once that's started, you should be able to SSH to the VM via ``gcloud ssh
-vm-name``. You may run into some permissions issues here, in which case you
-probably need the ``Service Account User`` role on your gcloud user.
+Once that's started, you should be able to SSH to the VM using a command like:
+
+.. code::
+
+    gcloud compute ssh pudl-deployment-tag --zone=us-west1-a
+
+You may run into some permissions issues here, in which case you probably need the
+``Service Account User`` role on your gcloud user.
 
 Now you want to get some logs about what's failing.
 

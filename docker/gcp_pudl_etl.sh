@@ -25,7 +25,6 @@ function run_pudl_etl() {
     send_slack_msg ":large_yellow_circle: Deployment started for $ACTION_SHA-$GITHUB_REF :floppy_disk:"
     authenticate_gcp && \
     alembic upgrade head && \
-    pudl_setup && \
     ferc_to_sqlite \
         --loglevel DEBUG \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
@@ -44,7 +43,7 @@ function run_pudl_etl() {
         -n auto \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
         --etl-settings $PUDL_SETTINGS_YML \
-        --live-dbs test/validate
+        --live-dbs test/validate \
     && touch ${PUDL_OUTPUT}/success
 }
 

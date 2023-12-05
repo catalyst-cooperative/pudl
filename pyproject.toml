@@ -18,7 +18,7 @@ dependencies = [
     "build>=1.0",
     "catalystcoop.dbfread>=3.0,<3.1",
     "catalystcoop.ferc-xbrl-extractor>=1.2.0,<2",
-    "click>=8.1",
+    "click>=8",
     "coloredlogs>=14.0", # Dagster requires 14.0
     "conda-lock>=2.5.1",
     "coverage>=7",
@@ -119,17 +119,12 @@ keywords = [
 ]
 
 [project.scripts]
-metadata_to_rst = "pudl.convert.metadata_to_rst:main"
-epacems_to_parquet = "pudl.convert.epacems_to_parquet:main"
+metadata_to_rst = "pudl.convert.metadata_to_rst:metadata_to_rst"
 ferc_to_sqlite = "pudl.ferc_to_sqlite.cli:main"
-pudl_datastore = "pudl.workspace.datastore:main"
-pudl_etl = "pudl.cli.etl:main"
-pudl_setup = "pudl.workspace.setup_cli:main"
-state_demand = "pudl.analysis.state_demand:main"
-pudl_check_fks = "pudl.etl.check_foreign_keys:main"
-# pudl_territories currently blows up memory usage to 100+ GB.
-# See https://github.com/catalyst-cooperative/pudl/issues/1174
-# pudl_territories = "pudl.analysis.service_territory:main"
+pudl_datastore = "pudl.workspace.datastore:pudl_datastore"
+pudl_etl = "pudl.etl.cli:pudl_etl"
+pudl_check_fks = "pudl.etl.check_foreign_keys:pudl_check_fks"
+pudl_service_territories = "pudl.analysis.service_territory:pudl_service_territories"
 
 [project.urls]
 "Homepage" = "https://catalyst.coop/pudl/"
@@ -268,16 +263,16 @@ filterwarnings = [
     "once:The behavior of DataFrame concatenation with empty or all-NA entries is deprecated.:FutureWarning",
 ]
 
-addopts = "--verbose --pdbcls=IPython.terminal.debugger:TerminalPdb"
+# Oddly, despite the use of --cov-config=pyproject.toml here, pytest does not seem to
+# pick up the source directories specified in the [tool.coverage.run] section below.
+# (though it *does* pick up the omit parameters!). This means we need to specify the
+# source directories we want to collect coverage twice, and keep the two in sync.
+addopts = "--verbose --pdbcls=IPython.terminal.debugger:TerminalPdb --cov-append --cov-config=pyproject.toml --cov-report=xml --cov=src/pudl --cov=test/integration --cov=test/unit"
 log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
 log_date_format = "%Y-%m-%d %H:%M:%S"
 log_cli = "true"
 log_cli_level = "DEBUG"
-doctest_optionflags = [
-    "NORMALIZE_WHITESPACE",
-    "IGNORE_EXCEPTION_DETAIL",
-    "ELLIPSIS",
-]
+doctest_optionflags = ["NORMALIZE_WHITESPACE", "IGNORE_EXCEPTION_DETAIL", "ELLIPSIS"]
 
 [tool.conda-lock]
 channels = ["conda-forge", "defaults"]
@@ -300,3 +295,31 @@ prettier = ">=3.0"
 python = ">=3.11,<3.12"
 sqlite = ">=3.43"
 curl = ">=8.4.0"
+
+[tool.coverage.run]
+# See note above on need to specify separate sources for pytest-coverage and coverage.
+source = ["src/pudl/", "test/integration/", "test/unit/"]
+omit = [
+    # Never hit by integration tests:
+    "src/pudl/validate.py",
+]
+
+[tool.coverage.report]
+precision = 1
+sort = "miss"
+skip_empty = true
+exclude_lines = [
+    # Have to re-enable the standard pragma
+    "pragma: no cover",
+
+    # Don't complain if tests don't hit defensive assertion code:
+    "raise AssertionError",
+    "raise NotImplementedError",
+
+    # Don't complain if non-runnable code isn't run:
+    "if 0:",
+    "if __name__ == .__main__.:",
+
+    # Stuff that's not expected to run normally...
+    "logger.debug",
+]
