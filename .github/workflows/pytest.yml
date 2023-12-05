@@ -119,7 +119,7 @@ jobs:
       fail-fast: false
       matrix:
         dagster_workers: [0, 1]
-        
+
     permissions:
       contents: read
       id-token: write
