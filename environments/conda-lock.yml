@@ -1959,7 +1959,7 @@ package:
     category: main
     optional: false
   - name: botocore
-    version: 1.33.6
+    version: 1.33.7
     manager: conda
     platform: linux-64
     dependencies:
@@ -1967,14 +1967,14 @@ package:
       python: ">=3.7"
       python-dateutil: ">=2.1,<3.0.0"
       urllib3: ">=1.25.4,<1.27"
-    url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.33.6-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.33.7-pyhd8ed1ab_0.conda
     hash:
-      md5: e1c7565a0bfba34c3be07a3ad882356f
-      sha256: 06549a55df5711e0306395e8187f03c46f25337fb7e9ab6c014cf26a76ca9cef
+      md5: a37114efb8799b3c885bb845ffe40b85
+      sha256: 6fc3a3d9212db34e20a7496f8737b4c3e506caf37c1b0afa0a3dabb3c450109f
     category: main
     optional: false
   - name: botocore
-    version: 1.33.6
+    version: 1.33.7
     manager: conda
     platform: osx-64
     dependencies:
@@ -1982,14 +1982,14 @@ package:
       python-dateutil: ">=2.1,<3.0.0"
       jmespath: ">=0.7.1,<2.0.0"
       urllib3: ">=1.25.4,<1.27"
-    url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.33.6-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.33.7-pyhd8ed1ab_0.conda
     hash:
-      md5: e1c7565a0bfba34c3be07a3ad882356f
-      sha256: 06549a55df5711e0306395e8187f03c46f25337fb7e9ab6c014cf26a76ca9cef
+      md5: a37114efb8799b3c885bb845ffe40b85
+      sha256: 6fc3a3d9212db34e20a7496f8737b4c3e506caf37c1b0afa0a3dabb3c450109f
     category: main
     optional: false
   - name: botocore
-    version: 1.33.6
+    version: 1.33.7
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -1997,10 +1997,10 @@ package:
       python-dateutil: ">=2.1,<3.0.0"
       jmespath: ">=0.7.1,<2.0.0"
       urllib3: ">=1.25.4,<1.27"
-    url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.33.6-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.33.7-pyhd8ed1ab_0.conda
     hash:
-      md5: e1c7565a0bfba34c3be07a3ad882356f
-      sha256: 06549a55df5711e0306395e8187f03c46f25337fb7e9ab6c014cf26a76ca9cef
+      md5: a37114efb8799b3c885bb845ffe40b85
+      sha256: 6fc3a3d9212db34e20a7496f8737b4c3e506caf37c1b0afa0a3dabb3c450109f
     category: main
     optional: false
   - name: bottleneck
@@ -16935,87 +16935,87 @@ package:
     category: main
     optional: false
   - name: psycopg2
-    version: 2.9.7
+    version: 2.9.9
     manager: conda
     platform: linux-64
     dependencies:
       libgcc-ng: ">=12"
-      libpq: ">=16.0,<17.0a0"
+      libpq: ">=16.1,<17.0a0"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/psycopg2-2.9.7-py311h03dec38_1.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/psycopg2-2.9.9-py311h03dec38_0.conda
     hash:
-      md5: 894f0e7a734b1f1182f87081f1ddffa3
-      sha256: 047fe0687432b83762d4d77a31cd01572044a231f945f83e10f2cd3c2b44077d
+      md5: 3cc2decd316838bce14d73818e0bf7a4
+      sha256: 4e78d9fe1799d028d9a2da3636a3a68a531aeca5d2c679d4fc78627a426b11cb
     category: main
     optional: false
   - name: psycopg2
-    version: 2.9.7
+    version: 2.9.9
     manager: conda
     platform: osx-64
     dependencies:
-      libpq: ">=16.0,<17.0a0"
-      openssl: ">=3.1.3,<4.0a0"
+      libpq: ">=16.1,<17.0a0"
+      openssl: ">=3.2.0,<4.0a0"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/psycopg2-2.9.7-py311h187f0af_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/psycopg2-2.9.9-py311h187f0af_0.conda
     hash:
-      md5: f777a0c47ebe4c2cc2eca6f19aea9347
-      sha256: dce8bdee2b563927c71493ad26997c9897939d8fbb0376df80b6c04154ce0412
+      md5: 2177c8943bbf9bfc45421ecaebd5be11
+      sha256: 73c0cf543b0ddd41993956969f665999f5801e027e3d3524604892baedbd2626
     category: main
     optional: false
   - name: psycopg2
-    version: 2.9.7
+    version: 2.9.9
     manager: conda
     platform: osx-arm64
     dependencies:
-      libpq: ">=16.0,<17.0a0"
-      openssl: ">=3.1.3,<4.0a0"
+      libpq: ">=16.1,<17.0a0"
+      openssl: ">=3.2.0,<4.0a0"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/psycopg2-2.9.7-py311h589e011_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/psycopg2-2.9.9-py311h589e011_0.conda
     hash:
-      md5: e5fd933c7c34b5c02a95e28f05b07f46
-      sha256: 30fb7c0c8e1651694dcb9b5b62b7cdc801ce45e06ead0a5d281ce950e1f498f5
+      md5: cf560a3c0e56cf6a168f885958ec31ff
+      sha256: a6340fa9458824b9681ba6cc1de0a618ffd6b19272c4eedcf787a6e627025aa5
     category: main
     optional: false
   - name: psycopg2-binary
-    version: 2.9.7
+    version: 2.9.9
     manager: conda
     platform: linux-64
     dependencies:
-      psycopg2: ">=2.9.7,<2.9.8.0a0"
+      psycopg2: ">=2.9.9,<2.9.10.0a0"
       python: ">=3.6"
-    url: https://conda.anaconda.org/conda-forge/noarch/psycopg2-binary-2.9.7-pyhd8ed1ab_1.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/psycopg2-binary-2.9.9-pyhd8ed1ab_0.conda
     hash:
-      md5: 0212a5c5ae1ab578853364bfc5d9f657
-      sha256: 5d82cb8b90daff6c12a4b6e0848fd32172522d82ceb5f093bfd55bfec09b3797
+      md5: c15b2ec0570f8988819eea58286dbc19
+      sha256: bb6184a3de8a6fddaed9104539ada9ac7c5e2bd900284ccf96ef5e4e285e75db
     category: main
     optional: false
   - name: psycopg2-binary
-    version: 2.9.7
+    version: 2.9.9
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.6"
-      psycopg2: ">=2.9.7,<2.9.8.0a0"
-    url: https://conda.anaconda.org/conda-forge/noarch/psycopg2-binary-2.9.7-pyhd8ed1ab_1.conda
+      psycopg2: ">=2.9.9,<2.9.10.0a0"
+    url: https://conda.anaconda.org/conda-forge/noarch/psycopg2-binary-2.9.9-pyhd8ed1ab_0.conda
     hash:
-      md5: 0212a5c5ae1ab578853364bfc5d9f657
-      sha256: 5d82cb8b90daff6c12a4b6e0848fd32172522d82ceb5f093bfd55bfec09b3797
+      md5: c15b2ec0570f8988819eea58286dbc19
+      sha256: bb6184a3de8a6fddaed9104539ada9ac7c5e2bd900284ccf96ef5e4e285e75db
     category: main
     optional: false
   - name: psycopg2-binary
-    version: 2.9.7
+    version: 2.9.9
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.6"
-      psycopg2: ">=2.9.7,<2.9.8.0a0"
-    url: https://conda.anaconda.org/conda-forge/noarch/psycopg2-binary-2.9.7-pyhd8ed1ab_1.conda
+      psycopg2: ">=2.9.9,<2.9.10.0a0"
+    url: https://conda.anaconda.org/conda-forge/noarch/psycopg2-binary-2.9.9-pyhd8ed1ab_0.conda
     hash:
-      md5: 0212a5c5ae1ab578853364bfc5d9f657
-      sha256: 5d82cb8b90daff6c12a4b6e0848fd32172522d82ceb5f093bfd55bfec09b3797
+      md5: c15b2ec0570f8988819eea58286dbc19
+      sha256: bb6184a3de8a6fddaed9104539ada9ac7c5e2bd900284ccf96ef5e4e285e75db
     category: main
     optional: false
   - name: pthread-stubs
@@ -18810,7 +18810,7 @@ package:
     category: main
     optional: false
   - name: pyzmq
-    version: 25.1.1
+    version: 25.1.2
     manager: conda
     platform: linux-64
     dependencies:
@@ -18820,40 +18820,44 @@ package:
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
       zeromq: ">=4.3.5,<4.4.0a0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/pyzmq-25.1.1-py311h34ded2d_2.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/pyzmq-25.1.2-py311h34ded2d_0.conda
     hash:
-      md5: ea365280db99687905b4d76cf6a3568c
-      sha256: a5ed6592f32b0caf3883a2f863e8a6258845310d4eebeab2eaf1c5abed04d6b8
+      md5: 819aa640a0493d4b52faf938e94d129e
+      sha256: 54ccdde1370d8a373e516b84bd7fe4af394f8c6f3778eb050de82f04ffb86160
     category: main
     optional: false
   - name: pyzmq
-    version: 25.1.1
+    version: 25.1.2
     manager: conda
     platform: osx-64
     dependencies:
+      __osx: ">=10.9"
+      libcxx: ">=16.0.6"
       libsodium: ">=1.0.18,<1.0.19.0a0"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
       zeromq: ">=4.3.5,<4.4.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/pyzmq-25.1.1-py311he3804a1_2.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/pyzmq-25.1.2-py311h889d6d6_0.conda
     hash:
-      md5: 9b1ea037c51fcdb06bd2d95804270860
-      sha256: 7a9af16e04752c50675ca99ab06888aaf8305efb5d292f62f7268ad911c967f4
+      md5: 241fde77a74bd223562662af26f4828b
+      sha256: a8cb598edd68b3d2ca88cd2cdbc60c9180a392c393dd58aaf25e9897697d28d3
     category: main
     optional: false
   - name: pyzmq
-    version: 25.1.1
+    version: 25.1.2
     manager: conda
     platform: osx-arm64
     dependencies:
+      __osx: ">=10.9"
+      libcxx: ">=16.0.6"
       libsodium: ">=1.0.18,<1.0.19.0a0"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
       zeromq: ">=4.3.5,<4.4.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/pyzmq-25.1.1-py311he9c0408_2.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/pyzmq-25.1.2-py311h6727e71_0.conda
     hash:
-      md5: 51b7458a36011c4982261478fcc62026
-      sha256: 03b78fe912c02547b284bc3404194bb4c1d9a2680e4b46f45c131a0d13d10b48
+      md5: c0ab7687c09ec2c12d4110c2d5ba7050
+      sha256: 684dc254a778600fb4ce31d6e3a82f18bf3a2779d71b06d237e76357dda8be9e
     category: main
     optional: false
   - name: qtconsole-base
@@ -19806,7 +19810,7 @@ package:
     category: main
     optional: false
   - name: ruff
-    version: 0.1.6
+    version: 0.1.7
     manager: conda
     platform: linux-64
     dependencies:
@@ -19814,14 +19818,14 @@ package:
       libstdcxx-ng: ">=12"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/ruff-0.1.6-py311h7145743_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/ruff-0.1.7-py311h7145743_0.conda
     hash:
-      md5: aff8387edd5157da054c4b46cc38ffdc
-      sha256: dd8f7a3e2e7bc65fb6c2c32aae79ebc8623c6b87cbdbc8d2651be9ccd63e29d0
+      md5: 7e4329efd6a902a64470bfbe21a83e21
+      sha256: c82eb1b904671ab0eb3212f18aa7af14e51b66a8e893d18a3089d29a334e1e0d
     category: main
     optional: false
   - name: ruff
-    version: 0.1.6
+    version: 0.1.7
     manager: conda
     platform: osx-64
     dependencies:
@@ -19829,14 +19833,14 @@ package:
       libcxx: ">=16.0.6"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/ruff-0.1.6-py311hec6fdf1_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/ruff-0.1.7-py311hec6fdf1_0.conda
     hash:
-      md5: f0fa30260ad0ac05ef120b758c68d7ba
-      sha256: 2587bd6a04c6a1178b63438de97c091bcfca15f9bb5ea0d6a1f109a66187e33e
+      md5: d21a7d577aa62ce3a2b1eb124da50446
+      sha256: 8aac6c5324504cd6b453be725b0ba8cca478468fb5c328cec79301b552477dc7
     category: main
     optional: false
   - name: ruff
-    version: 0.1.6
+    version: 0.1.7
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -19844,10 +19848,10 @@ package:
       libcxx: ">=16.0.6"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/ruff-0.1.6-py311h6fc163c_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/ruff-0.1.7-py311h6fc163c_0.conda
     hash:
-      md5: c9ff47502a21c1d072e8da209d9efba3
-      sha256: 8bde8b2d66f34a242ea6759df3c21f3321d17a8cdb4d421ae489f97f42452920
+      md5: 86298e47df0a6b448df8632df3d1f4a9
+      sha256: 37d5b2a72c3a5114d43d49a250dffd81d1b064d673e5faf3932c6bf56f2e7c76
     category: main
     optional: false
   - name: s2n
