@@ -304,7 +304,7 @@ omit = [
     "src/pudl/validate.py",
 ]
 sigterm = true
-concurrency = "multiprocessing"
+concurrency = ["multiprocessing"]
 
 [tool.coverage.report]
 precision = 1
