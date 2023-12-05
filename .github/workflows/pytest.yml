@@ -169,7 +169,7 @@ jobs:
       - name: Set default GCP credentials
         id: gcloud-auth
         continue-on-error: true
-        uses: "google-github-actions/auth@v1"
+        uses: "google-github-actions/auth@v2"
         with:
           workload_identity_provider: "projects/345950277072/locations/global/workloadIdentityPools/gh-actions-pool/providers/gh-actions-provider"
           service_account: "tox-pytest-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
@@ -180,19 +180,19 @@ jobs:
         run: |
           coverage run ${{ env.COVERAGE_OPTIONS }} \
             src/pudl/ferc_to_sqlite/cli.py --clobber ${{ env.ETL_COMMANDLINE_OPTIONS }} ${{ env.ETL_CONFIG }}
-#      - name: Run pudl_etl
-#        env:
-#          COVERAGE_FILE: .coverage.pudl_etl
-#        run: |
-#          alembic upgrade head
-#          coverage run ${{ env.COVERAGE_OPTIONS }} \
-#            src/pudl/cli/etl.py ${{ env.ETL_COMMANDLINE_OPTIONS }} ${{ env.ETL_CONFIG }}
-#      - name: Run integration tests
-#        env:
-#          COVERAGE_FILE: .coverage.pytest
-#        run: |
-#          coverage run ${{ env.COVERAGE_OPTIONS }} \
-#           -m pytest -n auto --live-dbs test/integration
+      #      - name: Run pudl_etl
+      #        env:
+      #          COVERAGE_FILE: .coverage.pudl_etl
+      #        run: |
+      #          alembic upgrade head
+      #          coverage run ${{ env.COVERAGE_OPTIONS }} \
+      #            src/pudl/cli/etl.py ${{ env.ETL_COMMANDLINE_OPTIONS }} ${{ env.ETL_CONFIG }}
+      #      - name: Run integration tests
+      #        env:
+      #          COVERAGE_FILE: .coverage.pytest
+      #        run: |
+      #          coverage run ${{ env.COVERAGE_OPTIONS }} \
+      #           -m pytest -n auto --live-dbs test/integration
       - name: Checksum coverage files
         run: ls .coverage* | xargs md5sum | sort
       - name: Generate coverage

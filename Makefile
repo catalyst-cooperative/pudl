@@ -1,8 +1,6 @@
-covargs := --append --source=src/pudl
 gcs_cache_path := --gcs-cache-path=gs://zenodo-cache.catalyst.coop
-pytest_covargs := --cov-append --cov=src/pudl --cov-report=xml
-coverage_report := coverage report --sort=cover
-pytest_args := --durations 20 ${pytest_covargs} ${gcs_cache_path}
+covargs := --append
+pytest_args := --durations 20 ${gcs_cache_path}
 etl_fast_yml := src/pudl/package_data/settings/etl_fast.yml
 etl_full_yml := src/pudl/package_data/settings/etl_full.yml
 
@@ -96,10 +94,7 @@ ferc:
 	rm -f ${PUDL_OUTPUT}/ferc*.sqlite
 	rm -f ${PUDL_OUTPUT}/ferc*_xbrl_datapackage.json
 	rm -f ${PUDL_OUTPUT}/ferc*_xbrl_taxonomy_metadata.json
-	coverage run ${covargs} -- \
-		src/pudl/ferc_to_sqlite/cli.py \
-		${gcs_cache_path} \
-		${etl_full_yml}
+	coverage run ${covargs} -- src/pudl/ferc_to_sqlite/cli.py ${gcs_cache_path} ${etl_full_yml}
 
 # Remove the existing PUDL DB if it exists.
 # Create a new empty DB using alembic.
@@ -108,7 +103,7 @@ ferc:
 pudl:
 	rm -f ${PUDL_OUTPUT}/pudl.sqlite
 	alembic upgrade head
-	coverage run ${covargs} -- src/pudl/cli/etl.py ${gcs_cache_path} ${etl_full_yml}
+	coverage run ${covargs} -- src/pudl/etl/cli.py ${gcs_cache_path} ${etl_full_yml}
 
 ########################################################################################
 # Targets that are coordinated by pytest -- mostly they're actual tests.
@@ -125,12 +120,12 @@ pytest-integration:
 coverage-erase:
 	coverage erase
 
-.PHONY: pytest-coverage
-pytest-coverage: coverage-erase docs-build pytest-ci
-	${coverage_report}
-
 .PHONY: pytest-ci
 pytest-ci: pytest-unit pytest-integration
+
+.PHONY: pytest-coverage
+pytest-coverage: coverage-erase docs-build pytest-ci
+	coverage report
 
 .PHONY: pytest-integration-full
 pytest-integration-full:
@@ -151,7 +146,7 @@ nuke: coverage-erase docs-build pytest-unit ferc pudl
 	pudl_check_fks
 	pytest ${pytest_args} -n auto --live-dbs --etl-settings ${etl_full_yml} test/integration
 	pytest ${pytest_args} -n auto --live-dbs test/validate
-	${coverage_report}
+	coverage report
 
 # Check that designated Jupyter notebooks can be run against the current DB
 .PHONY: pytest-jupyter
