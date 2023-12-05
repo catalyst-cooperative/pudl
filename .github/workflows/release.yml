@@ -33,7 +33,7 @@ jobs:
       - build-distribution
     runs-on: ubuntu-latest
     environment:
-      name: pypi
+      name: test-pypi
       url: https://test.pypi.org/p/catalystcoop.pudl
     permissions:
       id-token: write
