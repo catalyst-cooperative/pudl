@@ -18,7 +18,6 @@ from pydantic import (
 from pydantic_settings import BaseSettings
 
 import pudl
-import pudl.workspace.setup
 from pudl.metadata.classes import DataSource
 from pudl.workspace.datastore import Datastore, ZenodoDoi
 
