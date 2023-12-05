@@ -167,14 +167,14 @@ def extract(year: int, quarter: int, ds: Datastore):
         quarter: report quarter of the data to extract
         ds: Initialized datastore
     Yields:
-        pandas.DataFrame: A single state-year of EPA CEMS hourly emissions data.
+        pandas.DataFrame: A single quarter-year of EPA CEMS hourly emissions data.
     """
     ds = EpaCemsDatastore(ds)
     partition = EpaCemsPartition(quarter=quarter, year=year)
     # We have to assign the reporting year for partitioning purposes
     try:
         df = ds.get_data_frame(partition).assign(year=year)
-    except KeyError:  # If no state-year combination found, return empty df.
+    except KeyError:  # If no quarter-year combination found, return empty df.
         logger.warning(
             f"No data found for {quarter} in {year}. Returning empty dataframe."
         )

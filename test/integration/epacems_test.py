@@ -94,4 +94,5 @@ def test_epacems_parallel(pudl_engine, epacems_parquet_path):
         engine="pyarrow",
         split_row_groups=True,
     ).compute()
-    assert df.shape == (96_624, 16)  # nosec: B101
+    assert df.year.unique() == [2020]
+    assert df.state.unique() == ["ME"]

@@ -18,6 +18,7 @@ from dagster import AssetIn, DynamicOut, DynamicOutput, asset, graph_asset, op
 
 import pudl
 from pudl.metadata.classes import Resource
+from pudl.metadata.enums import EPACEMS_STATES
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -99,11 +100,20 @@ def consolidate_partitions(context, partitions: list[YearPartitions]) -> None:
         where=monolithic_path, schema=schema, compression="snappy", version="2.6"
     ) as monolithic_writer:
         for year, quarters in partitions:
-            for quarter in quarters:
+            for state in EPACEMS_STATES:
                 monolithic_writer.write_table(
-                    pq.read_table(
-                        source=partitioned_path / f"epacems-{year}-{quarter}.parquet",
-                        schema=schema,
+                    # Concat a slice of all state data from all quarters in a year
+                    # and write to parquet to create year-state row groups
+                    pa.concat_tables(
+                        [
+                            pq.read_table(
+                                source=partitioned_path
+                                / f"epacems-{year}-{quarter}.parquet",
+                                filters=[[("state", "=", state.upper())]],
+                                schema=schema,
+                            )
+                            for quarter in quarters
+                        ]
                     )
                 )
 
