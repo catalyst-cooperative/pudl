@@ -117,7 +117,7 @@ dependencies:
   - freetype=2.12.1=h267a509_2
   - krb5=1.21.2=h659d440_0
   - libarchive=3.7.2=h039dbb9_0
-  - libglib=2.78.1=h783c2da_1
+  - libglib=2.78.2=h783c2da_0
   - libllvm15=15.0.7=h5cf9203_3
   - libopenblas=0.3.25=pthreads_h413a1c8_0
   - libthrift=0.19.0=hb90f79a_1
@@ -178,9 +178,9 @@ dependencies:
   - fontconfig=2.14.2=h14ed4e7_0
   - freexl=2.0.0=h743c826_0
   - frozenlist=1.4.0=py311h459d7ec_1
-  - fsspec=2023.12.0=pyhca7485f_0
+  - fsspec=2023.12.1=pyhca7485f_0
   - gdk-pixbuf=2.42.10=h829c605_4
-  - google-cloud-sdk=455.0.0=py311h38be061_0
+  - google-cloud-sdk=456.0.0=py311h38be061_0
   - greenlet=3.0.1=py311hb755f60_0
   - gts=0.7.6=h977cf35_4
   - hpack=4.0.0=pyh9f0ad1d_0
@@ -490,7 +490,7 @@ dependencies:
   - typer=0.9.0=pyhd8ed1ab_0
   - uvicorn-standard=0.24.0.post1=h38be061_0
   - aws-sdk-cpp=1.11.182=h8beafcf_7
-  - boto3=1.33.6=pyhd8ed1ab_0
+  - boto3=1.33.7=pyhd8ed1ab_0
   - cachecontrol-with-filecache=0.13.1=pyhd8ed1ab_0
   - dagster=1.5.10=pyhd8ed1ab_0
   - datasette=0.64.4=pyhd8ed1ab_1
@@ -547,7 +547,7 @@ dependencies:
   - libarrow-dataset=14.0.1=h59595ed_3_cpu
   - libarrow-flight-sql=14.0.1=h61ff412_3_cpu
   - nbconvert-pandoc=7.12.0=pyhd8ed1ab_0
-  - gcsfs=2023.12.0=pyhd8ed1ab_0
+  - gcsfs=2023.12.1=pyhd8ed1ab_0
   - jupyter-lsp=2.2.1=pyhd8ed1ab_0
   - jupyter-resource-usage=1.0.1=pyhd8ed1ab_0
   - jupyterlab_server=2.25.2=pyhd8ed1ab_0
