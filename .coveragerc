@@ -1,4 +1,6 @@
 [run]
+sigterm = True
+concurrency = multiprocessing
 source = src/pudl
 omit =
     *__main__.py
