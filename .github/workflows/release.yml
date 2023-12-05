@@ -1,5 +1,5 @@
 ---
-name: build-package-release
+name: release
 
 on: push
 
