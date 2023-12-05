@@ -1,18 +1,8 @@
-"""A command line interface (CLI) to check foreign key constraints in the PUDL database.
-
-Assets are executed once their upstream dependencies have been executed.  However, this
-order is non deterministic because they are executed in parallel.  This means the order
-that tables are loaded into ``pudl.sqlite`` will not satisfy foreign key constraints.
-
-Foreign key constraints on ``pudl.sqlite`` are disabled so dagster can load tables into
-the database without a foreign key error being raised. However, foreign key constraints
-can be evaluated after all of the data has been loaded into the database.  To check the
-constraints, run the ``pudl_check_fks`` cli command once the data has been loaded into
-``pudl.sqlite``.
-"""
-import argparse
+"""Check that foreign key constraints in the PUDL database are respected."""
+import pathlib
 import sys
 
+import click
 from dagster import build_init_resource_context
 from dotenv import load_dotenv
 
@@ -22,39 +12,43 @@ from pudl.io_managers import pudl_sqlite_io_manager
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-def parse_command_line(argv):
-    """Parse script command line arguments. See the -h option.
+@click.command(
+    context_settings={"help_option_names": ["-h", "--help"]},
+)
+@click.option(
+    "--logfile",
+    help="If specified, write logs to this file.",
+    type=click.Path(
+        exists=False,
+        resolve_path=True,
+        path_type=pathlib.Path,
+    ),
+)
+@click.option(
+    "--loglevel",
+    default="INFO",
+    type=click.Choice(
+        ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"], case_sensitive=False
+    ),
+)
+def pudl_check_fks(logfile: pathlib.Path, loglevel: str):
+    """Check that foreign key constraints in the PUDL database are respected.
 
-    Args:
-        argv (list): command line arguments including caller file name.
+    Dagster manages the dependencies between various assets in our ETL pipeline,
+    attempting to materialize tables only after their upstream dependencies have been
+    satisfied. However, this order is non deterministic because they are executed in
+    parallel, and doesn't necessarily correspond to the foreign-key constraints within
+    the database, so durint the ETL we disable foreign key constraints within
+    ``pudl.sqlite``.
 
-    Returns:
-        dict: A dictionary mapping command line arguments to their values.
+    However, we still expect foreign key constraints to be satisfied once all of the
+    tables have been loaded, so we check that they are valid after the ETL has
+    completed. This script runs the same check.
     """
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "--logfile",
-        default=None,
-        help="If specified, write logs to this file.",
-    )
-    parser.add_argument(
-        "--loglevel",
-        help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
-        default="INFO",
-    )
-    arguments = parser.parse_args(argv[1:])
-    return arguments
-
-
-def main():
-    """Parse command line and check PUDL foreign key constraints."""
     load_dotenv()
-    args = parse_command_line(sys.argv)
 
     # Display logged output from the PUDL package:
-    pudl.logging_helpers.configure_root_logger(
-        logfile=args.logfile, loglevel=args.loglevel
-    )
+    pudl.logging_helpers.configure_root_logger(logfile=logfile, loglevel=loglevel)
 
     context = build_init_resource_context()
     io_manager = pudl_sqlite_io_manager(context)
@@ -63,7 +57,8 @@ def main():
     logger.info(f"Checking foreign key constraints in {database_path}")
 
     io_manager.check_foreign_keys()
+    return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(pudl_check_fks())
