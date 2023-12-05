@@ -303,6 +303,8 @@ omit = [
     # Never hit by integration tests:
     "src/pudl/validate.py",
 ]
+sigterm = true
+concurrency = "multiprocessing"
 
 [tool.coverage.report]
 precision = 1
