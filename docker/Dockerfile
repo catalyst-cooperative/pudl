@@ -7,10 +7,10 @@ SHELL [ "/bin/bash", "-exo", "pipefail", "-c" ]
 # Install some linux packages
 # awscli requires unzip, less, groff and mandoc
 # hadolint ignore=DL3008
-RUN apt-get update && \
-    apt-get install --no-install-recommends -y git jq unzip less groff mandoc && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+# RUN apt-get update && \
+#     apt-get install --no-install-recommends -y git jq unzip less groff mandoc && \
+#     apt-get clean && \
+#     rm -rf /var/lib/apt/lists/*
 
 # Configure gsutil authentication
 # hadolint ignore=DL3059
@@ -53,16 +53,16 @@ RUN --mount=type=bind,source=.git,target=${PUDL_REPO}/.git \
     ${CONDA_RUN} pudl_setup
 
 
-# Install awscli2
-# Change back to root because the install script needs access to /usr/local/aws-cli
-USER root
-RUN ${CONDA_RUN} bash -c 'curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && unzip awscliv2.zip && ./aws/install'
-USER $MAMBA_USER
+# # Install awscli2
+# # Change back to root because the install script needs access to /usr/local/aws-cli
+# USER root
+# RUN ${CONDA_RUN} bash -c 'curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && unzip awscliv2.zip && ./aws/install'
+# USER $MAMBA_USER
 
-# Install flyctl
-# hadolint ignore=DL3059
-RUN ${CONDA_RUN} bash -c 'curl -L https://fly.io/install.sh | sh'
-ENV PATH="${CONTAINER_HOME}/.fly/bin:$PATH"
+# # Install flyctl
+# # hadolint ignore=DL3059
+# RUN ${CONDA_RUN} bash -c 'curl -L https://fly.io/install.sh | sh'
+# ENV PATH="${CONTAINER_HOME}/.fly/bin:$PATH"
 
 
 # Run the unit tests:
