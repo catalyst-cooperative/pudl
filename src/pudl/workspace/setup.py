@@ -1,11 +1,9 @@
 """Tools for setting up and managing PUDL workspaces."""
-import importlib.resources
 import os
-import pathlib
-import shutil
 from pathlib import Path
+from typing import Self
 
-from pydantic import DirectoryPath, NewPath
+from pydantic import DirectoryPath, NewPath, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 import pudl.logging_helpers
@@ -25,6 +23,12 @@ class PudlPaths(BaseSettings):
     pudl_input: PotentialDirectoryPath
     pudl_output: PotentialDirectoryPath
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+    @model_validator(mode="after")
+    def create_directories(self: Self):
+        """Create PUDL input and output directories if they don't already exist."""
+        self.input_dir.mkdir(parents=True, exist_ok=True)
+        self.output_dir.mkdir(parents=True, exist_ok=True)
 
     @property
     def input_dir(self) -> Path:
@@ -85,75 +89,3 @@ class PudlPaths(BaseSettings):
             os.environ["PUDL_INPUT"] = input_dir
         if output_dir:
             os.environ["PUDL_OUTPUT"] = output_dir
-
-
-def init(clobber=False):
-    """Set up a new PUDL working environment based on the user settings.
-
-    Args:
-        clobber (bool): if True, replace existing files. If False (the default)
-            do not replace existing files.
-
-    Returns:
-        None
-    """
-    # Create tmp directory
-    tmp_dir = PudlPaths().data_dir / "tmp"
-    tmp_dir.mkdir(parents=True, exist_ok=True)
-
-    # These are files that may exist in the package_data directory, but that
-    # we do not want to deploy into a user workspace:
-    ignore_files = ["__init__.py", ".gitignore"]
-
-    # TODO(janrous): perhaps we don't need to do this?
-    # Make a settings directory in the workspace, and deploy settings files:
-    settings_dir = PudlPaths().settings_dir
-    settings_dir.mkdir(parents=True, exist_ok=True)
-    settings_pkg = "pudl.package_data.settings"
-    deploy(settings_pkg, settings_dir, ignore_files, clobber=clobber)
-
-    # Make output directory:
-    PudlPaths().output_dir.mkdir(parents=True, exist_ok=True)
-    # TODO(rousik): it might make sense to turn this into a method of
-    # PudlPaths object and to move this to settings.py from this module.
-    # Unclear whether deployment of settings files makes much sense.
-
-
-def deploy(
-    pkg_path: str,
-    deploy_dir: pathlib.Path,
-    ignore_files: list[str],
-    clobber: bool = False,
-) -> None:
-    """Deploy all files from a package_data directory into a workspace.
-
-    Args:
-        pkg_path: Dotted module path to the subpackage inside of package_data containing
-            the resources to be deployed.
-        deploy_dir: Directory on the filesystem to which the files within pkg_path
-            should be deployed.
-        ignore_files: List of filenames (strings) that may be present in the pkg_path
-            subpackage, but that should be ignored.
-        clobber: if True, replace existing copies of the files that are being deployed
-            from pkg_path to deploy_dir. If False, do not replace existing files.
-
-    Returns:
-        None
-    """
-    files = [
-        path
-        for path in importlib.resources.files(pkg_path).iterdir()
-        if path.is_file() and path.name not in ignore_files
-    ]
-    for file in files:
-        dest_file = pathlib.Path(deploy_dir, file)
-        if pathlib.Path.exists(dest_file):
-            if clobber:
-                logger.info(f"CLOBBERING existing file at {dest_file}.")
-            else:
-                logger.info(f"Skipping existing file at {dest_file}")
-                continue
-
-            pkg_source = importlib.resources.files(pkg_path) / file
-            with importlib.resources.as_file(pkg_source) as f:
-                shutil.copy(f, dest_file)

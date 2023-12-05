@@ -274,6 +274,10 @@ Analysis
   :ref:`compiled_geometry_utility_eia861`), and the estimated total hourly electricity
   demand for each US state in :ref:`predicted_state_hourly_demand`. See :issue:`1973`
   and :pr:`2550`.
+* The :func:`pudl.analysis.service_territory.pudl_service_territories` script has been
+  fixed, and can be used to generate `GeoParquet <https://geoparquet.org/>`__
+  outputs describing historical utility and balancing authority service territories. See
+  :issue:`1174` and :pr:`3086`.
 
 Deprecations
 ^^^^^^^^^^^^
@@ -295,10 +299,6 @@ Deprecations
 * ``pudl.transform.eia860.transform()`` and ``pudl.transform.eia923.transform()``
   functions have been deprecated. The table level EIA cleaning funtions are now
   coordinated using dagster.
-* The :mod:`pudl.convert.epacems_to_parquet` command now executes the
-  ``hourly_emissions_epacems`` asset as a dagster job. The ``—partition`` option
-  is no longer supported. Now only creates a directory of parquet files
-  for each year/state partition.
 * ``pudl.transform.ferc1.transform()`` has been removed. The ferc1 table
     transformations are now being orchestrated with Dagster.
 * ``pudl.transform.ferc1.transform`` can no longer be executed as a script.
@@ -316,6 +316,14 @@ Deprecations
   :mod:`pudl.settings` no longer have table attributes because the ETL no longer
   supports loading specific tables via settings. Use dagster to select subsets of
   tables to process.
+* The ``epacems_to_parquet`` and ``state_demand`` scripts have been retired in favor of
+  using the Dagster UI. See :issue:`3107` and :pr:`3086`. Visualizations of hourly
+  state-level electricity demand have been moved into our example notebooks which can
+  be found both `on Kaggle <https://www.kaggle.com/code/catalystcooperative/02-state-hourly-electricity-demand>`__
+  and `on GitHub <https://github.com/catalyst-cooperative/pudl-examples/>`__
+* The ``pudl_setup`` script has been retired. All input/output locations are now set
+  using the ``$PUDL_INPUT`` and ``$PUDL_OUTPUT`` environment variables.  See
+  :issue:`3107` and :pr:`3086`.
 
 Miscellaneous
 ^^^^^^^^^^^^^
@@ -749,7 +757,7 @@ SQLite and Parquet Outputs
   :issue:`1176,806`.
 * Data types, specified value constraints, and the uniqueness / non-null
   constraints on primary keys are validated during insertion into the SQLite DB.
-* The PUDL ETL CLI :mod:`pudl.cli` now has flags to toggle various constraint
+* The PUDL ETL CLI :mod:`pudl.etl.cli` now has flags to toggle various constraint
   checks including ``--ignore-foreign-key-constraints``
   ``--ignore-type-constraints`` and ``--ignore-value-constraints``.
 
