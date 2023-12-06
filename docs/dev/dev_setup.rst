@@ -239,20 +239,13 @@ Creating a Workspace
 PUDL Workspace Setup
 ^^^^^^^^^^^^^^^^^^^^
 
-.. note::
+PUDL needs to know where to store its big piles of inputs and outputs.  The
+``PUDL_OUTPUT`` and ``PUDL_INPUT`` environment variables let PUDL know where all this
+stuff should go. We call this a "PUDL workspace".
 
-    If you used ``pudl_setup`` to set up your pudl workspace already,
-    skip ahead to :ref:`Legacy PUDL Setup`. If you haven't setup
-    a PUDL workspace before, read the remainder of this section.
-
-PUDL needs to know where to store its big piles of inputs and outputs.
-The ``PUDL_OUTPUT`` and ``PUDL_INPUT`` environment variables let PUDL know where
-all this stuff should go. We call this a "PUDL workspace".
-
-First, create a directory to store local caches of raw PUDL data. You can put
-this anywhere, but we put this in ``~/pudl_input`` in the documentation.
-Then create an environment variable called ``PUDL_INPUT`` to store the path to
-this new directory:
+First, create a directory to store local caches of raw PUDL data. You can put this
+anywhere, but we put this in ``~/pudl_input`` in the documentation.  Then create an
+environment variable called ``PUDL_INPUT`` to store the path to this new directory:
 
 .. code-block:: console
 
@@ -260,8 +253,8 @@ this new directory:
     $ echo "export PUDL_INPUT=/absolute/path/to/pudl_input" >> ~/.bashrc # if you are using bash
     $ set -Ux PUDL_INPUT /absolute/path/to/pudl_input # if you are using fish shell
 
-The directory stored in ``PUDL_INPUT`` contains versions of PUDL's
-raw data archives on Zenodo for each datasource:
+The directory stored in ``PUDL_INPUT`` contains versions of PUDL's raw data archives on
+Zenodo for each datasource:
 
 .. code-block::
 
@@ -281,16 +274,15 @@ raw data archives on Zenodo for each datasource:
 
 .. warning::
 
-    The data stored at the ``PUDL_INPUT`` directory can grow to be dozens
-    of gigabytes in size. This is because when the raw data are updated,
-    a new version of the archive is downloaded to the ``PUDL_INPUT``
-    directory. To slim down the size you can always delete
-    out of date archives the code no longer depends on.
+    The data stored at the ``PUDL_INPUT`` directory can grow to be dozens of gigabytes
+    in size. This is because when the raw data are updated, a new version of the archive
+    is downloaded to the ``PUDL_INPUT`` directory. To slim down the size you can always
+    delete out of date archives the code no longer depends on.
 
-Next, create a directory to store the outputs of the PUDL ETL. As above, you
-can put this anywhere, but typically this is ``~/pudl_output``. Then, as
-with ``PUDL_INPUT``, create an environment variable called ``PUDL_OUTPUT`` to
-store the path to this new directory:
+Next, create a directory to store the outputs of the PUDL ETL. As above, you can put
+this anywhere, but typically this is ``~/pudl_output``. Then, as with ``PUDL_INPUT``,
+create an environment variable called ``PUDL_OUTPUT`` to store the path to this new
+directory:
 
 .. code-block:: console
 
@@ -298,64 +290,20 @@ store the path to this new directory:
     $ echo "export PUDL_OUTPUT=/absolute/path/to/pudl_output" >> ~/.bashrc # bash
     $ set -Ux PUDL_OUTPUT /absolute/path/to/pudl_output # fish
 
-The path stored in ``PUDL_OUTPUT`` contains all ETL outputs like
-``pudl.sqlite`` and ``hourly_emissions_epacems.parquet``.
+The path stored in ``PUDL_OUTPUT`` contains all ETL outputs like ``pudl.sqlite`` and
+``hourly_emissions_epacems.parquet``.
 
-**Make sure you create separate directories for these environment variables!
-It is recommended you create these directories outside of the pudl repository
-directory so the inputs and outputs are not tracked in git.**
+.. warning::
 
-Also, activate profile changes above in the current session.
+    Make sure you set these environment variables to point at separate directories!  It
+    is also **strongly recommended** that you create these directories outside of the
+    pudl repository directory so the inputs and outputs are not tracked in git.
+
+Remember that you'll need to either source your shell profile after adding the new
+environment variable definitions above, or export them at the command line for them to
+be active in the current shell:
 
 .. code-block:: console
 
     $ export PUDL_OUTPUT=/absolute/path/to/pudl_output
     $ export PUDL_INPUT=/absolute/path/to/pudl_input
-
-.. _Legacy PUDL Setup:
-
-PUDL Workspace Setup (legacy method)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-In previous versions of PUDL, the ``pudl_setup`` script created workspace directories.
-PUDL is moving towards using the ``PUDL_OUTPUT`` and ``PUDL_INPUT`` environment
-variables instead of the ``pudl_setup`` script because the environment variables are
-easier to reference in the codebase.
-
-.. note::
-
-    If you set up your workspace using ``pudl_setup`` you don't need to change
-    anything about your setup. Just re-run ``pudl_setup`` and a new directory
-    called ``output/`` will be created in your <PUDL_DIR>. You will need to
-    point ``PUDL_OUTPUT`` at this new directory and ``PUDL_INPUT`` at the
-    ``data/`` directory in <PUDL_DIR>.
-
-.. warning::
-
-    In a future release the ``pudl_setup`` command will be removed.
-
-The ``pudl_setup`` script lets PUDL know where to store inputs and outputs.
-The script will not create a new directory based on your arguemnts, so make
-sure whatever directory path you pass as <PUDL_DIR> already exists.
-
-.. code-block:: console
-
-    $ pudl_setup <PUDL_DIR>
-
-<PUDL_DIR> is the path to the directory where you want PUDL to do its
-business -- this is where the datastore will be located and where any outputs
-that are generated end up. The script will also put a configuration file called
-``.pudl.yml`` in your home directory that records the location of this
-workspace and uses it by default in the future. If you run ``pudl_setup`` with
-no arguments, it assumes you want to use the current working directory.
-
-The workspace is laid out like this:
-
-==================== ==========================================================
-**Directory / File** **Contents**
--------------------- ----------------------------------------------------------
-``data/``            Raw data, automatically organized by source, year, etc.
-                     This is the path ``PUDL_INPUT`` should point to.
--------------------- ----------------------------------------------------------
-``output/``          The directory into which all the durable products of the
-                     PUDL data processing pipeline will be written.
-==================== ==========================================================
