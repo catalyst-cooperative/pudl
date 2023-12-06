@@ -73,9 +73,6 @@ function copy_outputs_to_distribution_bucket() {
 
     echo "Copying outputs to AWS distribution bucket"
     aws s3 cp "$PUDL_OUTPUT/" "s3://pudl.catalyst.coop/$GITHUB_REF" --recursive
-    echo "Copying outputs to AWS intake bucket"
-    # This is temporary as we migrate people to pudl.catalyst.coop
-    aws s3 cp "$PUDL_OUTPUT/" "s3://intake.catalyst.coop/$GITHUB_REF" --recursive
 }
 
 
