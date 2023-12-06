@@ -88,7 +88,7 @@ default_resources = {
     "epacems_io_manager": epacems_io_manager,
 }
 
-# By default, limit CEMS year processing concurrency to 4 to prevent memory overload.
+# By default, limit CEMS year processing concurrency to prevent memory overload.
 default_config = {
     "execution": {
         "config": {
@@ -97,7 +97,7 @@ default_config = {
                     {
                         "key": "datasource",
                         "value": "epacems",
-                        "limit": 4,
+                        "limit": 2,
                     }
                 ],
             },

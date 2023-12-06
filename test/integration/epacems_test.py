@@ -89,10 +89,10 @@ def test_epacems_parallel(pudl_engine, epacems_parquet_path):
     # monolithic outputs.
     df = dd.read_parquet(
         epacems_parquet_path,
-        filters=year_state_filter(years=[2020], states=["ME"]),
+        filters=year_state_filter(years=[2022], states=["ME"]),
         index=False,
         engine="pyarrow",
         split_row_groups=True,
     ).compute()
-    assert df.year.unique() == [2020]
+    assert df.year.unique() == [2022]
     assert df.state.unique() == ["ME"]
