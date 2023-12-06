@@ -42,7 +42,10 @@ def get_years_from_settings(context):
         yield DynamicOutput(year, mapping_key=str(year))
 
 
-@op(required_resource_keys={"datastore", "dataset_settings"})
+@op(
+    required_resource_keys={"datastore", "dataset_settings"},
+    tags={"datasource": "epacems"},
+)
 def process_single_year(
     context,
     year,
