@@ -1077,7 +1077,7 @@ class NodeId(NamedTuple):
 class OffByFactoid(NamedTuple):
     """A calculated factoid which is off by one other factoid.
 
-    A factoid where a sizeable majority of utilities using a non-standard and
+    A factoid where a sizeable majority of utilities are using a non-standard and
     non-reported calculation to generate it. These calculated factoids are either
     missing one factoid, or include an additional factoid not included in the FERC
     metadata. Thus, the calculations are 'off by' this factoid.
@@ -1838,11 +1838,9 @@ class Exploder:
             for (col, dtype) in calculated_df.dtypes.items()
             if col in data_corrections.columns
         }
-        corrected = (
-            pd.concat([calculated_df, data_corrections.astype(dtype_calced)])
-            .reset_index(drop=True)
-            .set_index(self.calc_idx)
-        )
+        corrected = pd.concat(
+            [calculated_df, data_corrections.astype(dtype_calced)]
+        ).set_index(self.calc_idx)
         # now we are going to re-calculate just the fixed facts
         fixed_facts = corrected.loc[off_by.set_index(self.calc_idx).index.unique()]
         unfixed_facts = corrected.loc[
