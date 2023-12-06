@@ -4647,10 +4647,10 @@ package:
     dependencies:
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/docutils-0.20.1-py311h38be061_2.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/docutils-0.20.1-py311h38be061_3.conda
     hash:
-      md5: 33f8066e53679dd4be2355fec849bf01
-      sha256: 4e90bbc89f9ab192cb247d8b8ebe54c33e57652f8a057f9f176d9d9dd32993b9
+      md5: 1c33f55e5cdcc2a2b973c432b5225bfe
+      sha256: 0011a2193a5995a6706936156ea5d1021153ec11eb8869b6abfe15a8f6f22ea8
     category: main
     optional: false
   - name: docutils
@@ -4660,10 +4660,10 @@ package:
     dependencies:
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/docutils-0.20.1-py311h6eed73b_2.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/docutils-0.20.1-py311h6eed73b_3.conda
     hash:
-      md5: d56b49f1a2c908d05d1ca6b3f85d0fd5
-      sha256: 869e919066b308794e399bc551fc508c175da5f9324b7a324eb259cef8adabf2
+      md5: 2919376c4957faadc7b96f8894759bfb
+      sha256: 0fae62e203900a8a013ba2ede852645b87b1568980ddd8e11390c11dc24c3e3c
     category: main
     optional: false
   - name: docutils
@@ -4673,10 +4673,10 @@ package:
     dependencies:
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/docutils-0.20.1-py311h267d04e_2.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/docutils-0.20.1-py311h267d04e_3.conda
     hash:
-      md5: e82ee6e9db96d5f7ddf289399744240d
-      sha256: 3bc810b946ef8f87681ea4bee2610e8c418f9f61772f5d1ff3ffa803ae7cfbb6
+      md5: 29944e93a6f38b2e0fd4f6b743558959
+      sha256: 21af625c067faa77cd3aa2bfd8ca2449cdacdb1b531da8b4cbb476f4a928fdd9
     category: main
     optional: false
   - name: email-validator
@@ -15566,8 +15566,8 @@ package:
     dependencies:
       numpy: ""
       pandas: ""
-      packaging: ""
       typing_extensions: ""
+      packaging: ""
       pydantic: ""
       wrapt: ""
       multimethod: ""
@@ -15587,8 +15587,8 @@ package:
     dependencies:
       numpy: ""
       pandas: ""
-      packaging: ""
       typing_extensions: ""
+      packaging: ""
       pydantic: ""
       wrapt: ""
       multimethod: ""

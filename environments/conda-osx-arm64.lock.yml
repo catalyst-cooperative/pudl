@@ -159,7 +159,7 @@ dependencies:
   - defusedxml=0.7.1=pyhd8ed1ab_0
   - distlib=0.3.7=pyhd8ed1ab_0
   - docstring_parser=0.15=pyhd8ed1ab_0
-  - docutils=0.20.1=py311h267d04e_2
+  - docutils=0.20.1=py311h267d04e_3
   - entrypoints=0.4=pyhd8ed1ab_0
   - et_xmlfile=1.1.0=pyhd8ed1ab_0
   - exceptiongroup=1.2.0=pyhd8ed1ab_0
