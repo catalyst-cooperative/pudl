@@ -167,8 +167,8 @@ dependencies:
   - executing=2.0.1=pyhd8ed1ab_0
   - filelock=3.13.1=pyhd8ed1ab_0
   - frozenlist=1.4.0=py311heffc1b2_1
-  - fsspec=2023.12.0=pyhca7485f_0
-  - google-cloud-sdk=455.0.0=py311h267d04e_0
+  - fsspec=2023.12.1=pyhca7485f_0
+  - google-cloud-sdk=456.0.0=py311h267d04e_0
   - greenlet=3.0.1=py311hbaf5611_0
   - hpack=4.0.0=pyh9f0ad1d_0
   - httptools=0.6.1=py311h05b510d_0
@@ -471,7 +471,7 @@ dependencies:
   - typeguard=4.1.5=pyhd8ed1ab_1
   - typer=0.9.0=pyhd8ed1ab_0
   - uvicorn-standard=0.24.0.post1=ha1ab1f8_0
-  - boto3=1.33.6=pyhd8ed1ab_0
+  - boto3=1.33.7=pyhd8ed1ab_0
   - cachecontrol-with-filecache=0.13.1=pyhd8ed1ab_0
   - dagster=1.5.10=pyhd8ed1ab_0
   - datasette=0.64.4=pyhd8ed1ab_1
@@ -526,7 +526,7 @@ dependencies:
   - jupyter_server=2.11.2=pyhd8ed1ab_0
   - libarrow-substrait=14.0.1=h594d712_3_cpu
   - nbconvert-pandoc=7.12.0=pyhd8ed1ab_0
-  - gcsfs=2023.12.0=pyhd8ed1ab_0
+  - gcsfs=2023.12.1=pyhd8ed1ab_0
   - jupyter-lsp=2.2.1=pyhd8ed1ab_0
   - jupyter-resource-usage=1.0.1=pyhd8ed1ab_0
   - jupyterlab_server=2.25.2=pyhd8ed1ab_0
