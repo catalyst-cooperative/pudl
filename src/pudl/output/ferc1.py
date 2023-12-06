@@ -1841,16 +1841,12 @@ class Exploder:
         corrected = (
             pd.concat([calculated_df, data_corrections.astype(dtype_calced)])
             .reset_index(drop=True)
-            .set_index(list(NodeId._fields))
+            .set_index(self.calc_idx)
         )
         # now we are going to re-calculate just the fixed facts
-        fixed_facts = corrected.loc[
-            off_by.set_index(list(NodeId._fields)).index.unique()
-        ]
+        fixed_facts = corrected.loc[off_by.set_index(self.calc_idx).index.unique()]
         unfixed_facts = corrected.loc[
-            corrected.index.difference(
-                off_by.set_index(list(NodeId._fields)).index.unique()
-            )
+            corrected.index.difference(off_by.set_index(self.calc_idx).index.unique())
         ].reset_index()
         fixed_facts = self.calculate_intertable_non_total_calculations(
             exploded=fixed_facts.drop(columns=["calculated_value"]).reset_index()
