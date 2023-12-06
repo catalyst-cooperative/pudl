@@ -1889,6 +1889,15 @@ def diff_wide_tables(
     )
     old_aligned, new_aligned = old_melted.align(new_melted)
     comparison = old_aligned.compare(new_aligned, result_names=("old", "new"))
+    if comparison.empty:
+        return TableDiff(
+            deleted=pd.DataFrame(),
+            added=pd.DataFrame(),
+            changed=pd.DataFrame(),
+            old_df=old,
+            new_df=new,
+        )
+
     old_values = comparison[("value", "old")]
     new_values = comparison[("value", "new")]
     added = comparison[old_values.isna() & new_values.notna()]
