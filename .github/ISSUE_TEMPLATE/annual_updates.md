@@ -9,16 +9,16 @@ assignees: ''
 
 ### New year of data integration check-list:
 
-Based on the [Annual Updates Docs](https://catalystcoop-pudl.readthedocs.io/en/dev/dev/annual_updates.html)
+Based on the [Existing Data Updates Docs](https://catalystcoop-pudl.readthedocs.io/en/dev/dev/existing_data_updates.html)
 
 
-- [ ] [Obtain fresh data](https://catalystcoop-pudl.readthedocs.io/en/latest/dev/annual_updates.html#obtain-fresh-data)
-- [ ] [Map the structure of the new data](https://catalystcoop-pudl.readthedocs.io/en/latest/dev/annual_updates.html#map-the-structure-of-the-new-data)
-- [ ] [Test data extraction](https://catalystcoop-pudl.readthedocs.io/en/latest/dev/annual_updates.html#test-data-extraction)
-- [ ] [Update table and column transformations](https://catalystcoop-pudl.readthedocs.io/en/latest/dev/annual_updates.html#update-table-column-transformations)
-- [ ] [Update the PUDL db schema](https://catalystcoop-pudl.readthedocs.io/en/latest/dev/annual_updates.html#update-the-pudl-db-schema)
-- [ ] [Connect datasets](https://catalystcoop-pudl.readthedocs.io/en/latest/dev/annual_updates.html#connect-datasets)
-- [ ] [Run the ETL](https://catalystcoop-pudl.readthedocs.io/en/latest/dev/annual_updates.html#run-the-etl)
-- [ ] [Update the output routines and run full tests](https://catalystcoop-pudl.readthedocs.io/en/latest/dev/annual_updates.html#update-the-output-routines-and-run-full-tests)
-- [ ] [Run and update data validations](https://catalystcoop-pudl.readthedocs.io/en/latest/dev/annual_updates.html#run-and-update-data-validations)
-- [ ] [Update the documentation](https://catalystcoop-pudl.readthedocs.io/en/latest/dev/annual_updates.html#update-the-documentation)
+- [ ] [Obtain fresh data](https://catalystcoop-pudl.readthedocs.io/en/latest/dev/existing_data_updates.html#obtain-fresh-data)
+- [ ] [Map the structure of the new data](https://catalystcoop-pudl.readthedocs.io/en/latest/dev/existing_data_updates.html#map-the-structure-of-the-new-data)
+- [ ] [Test data extraction](https://catalystcoop-pudl.readthedocs.io/en/latest/dev/existing_data_updates.html#test-data-extraction)
+- [ ] [Update table and column transformations](https://catalystcoop-pudl.readthedocs.io/en/latest/dev/existing_data_updates.html#update-table-column-transformations)
+- [ ] [Update the PUDL db schema](https://catalystcoop-pudl.readthedocs.io/en/latest/dev/existing_data_updates.html#update-the-pudl-db-schema)
+- [ ] [Connect datasets](https://catalystcoop-pudl.readthedocs.io/en/latest/dev/existing_data_updates.html#connect-datasets)
+- [ ] [Run the ETL](https://catalystcoop-pudl.readthedocs.io/en/latest/dev/existing_data_updates.html#run-the-etl)
+- [ ] [Update the output routines and run full tests](https://catalystcoop-pudl.readthedocs.io/en/latest/dev/existing_data_updates.html#update-the-output-routines-and-run-full-tests)
+- [ ] [Run and update data validations](https://catalystcoop-pudl.readthedocs.io/en/latest/dev/existing_data_updates.html#run-and-update-data-validations)
+- [ ] [Update the documentation](https://catalystcoop-pudl.readthedocs.io/en/latest/dev/existing_data_updates.html#update-the-documentation)
