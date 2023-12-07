@@ -31,6 +31,85 @@ _FUEL_COLS = [
     "waste_fraction_mmbtu",
 ]
 
+_MODEL_CONFIG = {
+    "link_ids_cross_year": {
+        "ops": {
+            "train_dataframe_embedder": {
+                "config": {
+                    "transform_steps": {
+                        "plant_name": {
+                            "transforms": [
+                                column_transform_from_key("name_cleaner_transform"),
+                                column_transform_from_key("string_transform"),
+                            ],
+                            "weight": 2.0,
+                            "columns": ["plant_name_ferc1"],
+                        },
+                        "plant_type": {
+                            "transforms": [
+                                column_transform_from_key(
+                                    "cleaning_function_transform",
+                                    transform_function="null_to_empty_str",
+                                ),
+                                column_transform_from_key("categorical_transform"),
+                            ],
+                            "weight": 2.0,
+                            "columns": ["plant_type"],
+                        },
+                        "construction_type": {
+                            "transforms": [
+                                column_transform_from_key(
+                                    "cleaning_function_transform",
+                                    transform_function="null_to_empty_str",
+                                ),
+                                column_transform_from_key("categorical_transform"),
+                            ],
+                            "columns": ["construction_type"],
+                        },
+                        "capacity_mw": {
+                            "transforms": [
+                                column_transform_from_key(
+                                    "cleaning_function_transform",
+                                    transform_function="null_to_zero",
+                                ),
+                                column_transform_from_key("numerical_transform"),
+                            ],
+                            "columns": ["capacity_mw"],
+                        },
+                        "construction_year": {
+                            "transforms": [
+                                column_transform_from_key(
+                                    "cleaning_function_transform",
+                                    transform_function="fix_int_na",
+                                ),
+                                column_transform_from_key("categorical_transform"),
+                            ],
+                            "columns": ["construction_year"],
+                        },
+                        "utility_id_ferc1": {
+                            "transforms": [
+                                column_transform_from_key("categorical_transform")
+                            ],
+                            "columns": ["utility_id_ferc1"],
+                        },
+                        "fuel_fractions": {
+                            "transforms": [
+                                column_transform_from_key(
+                                    "cleaning_function_transform",
+                                    transform_function="null_to_zero",
+                                ),
+                                column_transform_from_key("numerical_transform"),
+                                column_transform_from_key("normalize_transform"),
+                            ],
+                            "columns": _FUEL_COLS,
+                        },
+                    }
+                }
+            },
+        }
+    }
+}
+
 
 @op
 def plants_steam_validate_ids(
@@ -92,86 +171,7 @@ def merge_steam_fuel_dfs(
     )
 
 
-@graph(
-    config={
-        "link_ids_cross_year": {
-            "ops": {
-                "train_dataframe_embedder": {
-                    "config": {
-                        "transform_steps": {
-                            "plant_name": {
-                                "transforms": [
-                                    column_transform_from_key("name_cleaner_transform"),
-                                    column_transform_from_key("string_transform"),
-                                ],
-                                "weight": 2.0,
-                                "columns": ["plant_name_ferc1"],
-                            },
-                            "plant_type": {
-                                "transforms": [
-                                    column_transform_from_key(
-                                        "cleaning_function_transform",
-                                        transform_function="null_to_empty_str",
-                                    ),
-                                    column_transform_from_key("categorical_transform"),
-                                ],
-                                "weight": 2.0,
-                                "columns": ["plant_type"],
-                            },
-                            "construction_type": {
-                                "transforms": [
-                                    column_transform_from_key(
-                                        "cleaning_function_transform",
-                                        transform_function="null_to_empty_str",
-                                    ),
-                                    column_transform_from_key("categorical_transform"),
-                                ],
-                                "columns": ["construction_type"],
-                            },
-                            "capacity_mw": {
-                                "transforms": [
-                                    column_transform_from_key(
-                                        "cleaning_function_transform",
-                                        transform_function="null_to_zero",
-                                    ),
-                                    column_transform_from_key("numerical_transform"),
-                                ],
-                                "columns": ["capacity_mw"],
-                            },
-                            "construction_year": {
-                                "transforms": [
-                                    column_transform_from_key(
-                                        "cleaning_function_transform",
-                                        transform_function="fix_int_na",
-                                    ),
-                                    column_transform_from_key("categorical_transform"),
-                                ],
-                                "columns": ["construction_year"],
-                            },
-                            "utility_id_ferc1": {
-                                "transforms": [
-                                    column_transform_from_key("categorical_transform")
-                                ],
-                                "columns": ["utility_id_ferc1"],
-                            },
-                            "fuel_fractions": {
-                                "transforms": [
-                                    column_transform_from_key(
-                                        "cleaning_function_transform",
-                                        transform_function="null_to_zero",
-                                    ),
-                                    column_transform_from_key("numerical_transform"),
-                                    column_transform_from_key("normalize_transform"),
-                                ],
-                                "columns": _FUEL_COLS,
-                            },
-                        }
-                    }
-                },
-            }
-        }
-    },
-)
+@graph(config=_MODEL_CONFIG)
 def plants_steam_assign_plant_ids(
     ferc1_steam_df: pd.DataFrame,
     ferc1_fuel_df: pd.DataFrame,

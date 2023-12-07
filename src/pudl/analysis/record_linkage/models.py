@@ -326,8 +326,8 @@ def cluster_records_dbscan(
     neighbor_graph = neighbor_computer.radius_neighbors_graph(mode="distance")
 
     classifier = DBSCAN(metric="precomputed", eps=config.eps, min_samples=2)
-    id_year_df = original_df[["report_year", "plant_name_ferc1"]]
-    id_year_df.loc[:, "record_labels"] = classifier.fit_predict(neighbor_graph)
+    id_year_df = original_df.loc[:, ["report_year", "plant_name_ferc1"]]
+    id_year_df["record_label"] = classifier.fit_predict(neighbor_graph)
     return id_year_df
 
 
@@ -352,7 +352,7 @@ def split_clusters(
             max_cluster_id += 1
             yield max_cluster_id
 
-    cluster_id_generator = _generate_cluster_ids(id_year_df.record_labels.max())
+    cluster_id_generator = _generate_cluster_ids(id_year_df.record_label.max())
     classifier = AgglomerativeClustering(
         metric="precomputed",
         linkage="average",
@@ -360,8 +360,8 @@ def split_clusters(
         n_clusters=None,
     )
     duplicated_ids = id_year_df.loc[
-        id_year_df.duplicated(subset=["report_year", "record_labels"]),
-        "record_labels",
+        id_year_df.duplicated(subset=["report_year", "record_label"]),
+        "record_label",
     ]
 
     for duplicated_id in duplicated_ids.unique():
@@ -370,14 +370,14 @@ def split_clusters(
             continue
 
         cluster_inds = id_year_df[
-            id_year_df.record_labels == duplicated_id
+            id_year_df.record_label == duplicated_id
         ].index.to_numpy()
         cluster_distances = distance_matrix.get_cluster_distance_matrix(cluster_inds)
 
         new_labels = classifier.fit_predict(cluster_distances)
         for new_label in np.unique(new_labels):
             df_inds = cluster_inds[new_labels == new_label]
-            id_year_df.loc[df_inds, "record_labels"] = next(cluster_id_generator)
+            id_year_df.loc[df_inds, "record_label"] = next(cluster_id_generator)
 
     return id_year_df
 
@@ -402,7 +402,7 @@ def match_orphaned_records(
         n_clusters=None,
     )
 
-    label_inds = id_year_df.groupby("record_labels").indices
+    label_inds = id_year_df.groupby("record_label").indices
     label_groups = [[ind] for ind in label_inds[-1]]
     label_groups += [inds for key, inds in label_inds.items() if key != -1]
 
@@ -418,7 +418,7 @@ def match_orphaned_records(
 
     new_labels = classifier.fit_predict(reduced_dist_matrix)
     for inds, label in zip(label_groups, new_labels):
-        id_year_df.loc[inds, "record_labels"] = label
+        id_year_df.loc[inds, "record_label"] = label
 
     return id_year_df
 
