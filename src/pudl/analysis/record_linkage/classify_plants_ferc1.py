@@ -124,7 +124,7 @@ def plants_steam_validate_ids(
         The input dataframe, to enable method chaining.
     """
     # Add column of labels to steam df
-    ferc1_steam_df.loc[:, "plant_id_ferc1"] = label_df["record_labels"]
+    ferc1_steam_df.loc[:, "plant_id_ferc1"] = label_df["record_label"]
 
     ##########################################################################
     # FERC PLANT ID ERROR CHECKING STUFF
