@@ -8,8 +8,7 @@ from importlib.resources import as_file, files
 from typing import Literal
 
 import pandas as pd
-
-from pudl.analysis.record_linkage.models import ModelComponent
+from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +55,7 @@ class LegalTermLocation(enum.Enum):
     ANYWHERE = 2
 
 
-class CompanyNameCleaner(ModelComponent):
+class CompanyNameCleaner(BaseModel):
     """Class to normalize/clean up text based company names."""
 
     # Constants used internally by the class
@@ -252,7 +251,7 @@ class CompanyNameCleaner(ModelComponent):
 
         return clean_company_name
 
-    def __call__(
+    def apply_name_cleaning(
         self,
         df: pd.DataFrame,
     ) -> pd.Series:

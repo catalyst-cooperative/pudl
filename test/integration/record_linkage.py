@@ -8,10 +8,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pudl.analysis.record_linkage.classify_plants_ferc1 import (
-    _FUEL_COLS,
-    Ferc1PlantClassifier,
-)
+from pudl.analysis.record_linkage.classify_plants_ferc1 import _FUEL_COLS, _MODEL_CONFIG
+from pudl.analysis.record_linkage.models import link_ids_cross_year
 from pudl.transform.params.ferc1 import (
     CONSTRUCTION_TYPE_CATEGORIES,
     PLANT_TYPE_CATEGORIES,
@@ -183,13 +181,15 @@ def mock_ferc1_plants_df():
             _generate_random_test_df("hawthorn 6", capacity_mean=150),
             _generate_random_test_df("venice c.t.", capacity_mean=500),
         ]
-    )
+    ).reset_index()
 
 
 def test_classify_plants_ferc1(mock_ferc1_plants_df):
     """Test the FERC inter-year plant linking model."""
-    linker = Ferc1PlantClassifier()
-    mock_ferc1_plants_df["plant_id_ferc1"] = linker(mock_ferc1_plants_df)
+    linker_job = link_ids_cross_year.to_job(config=_MODEL_CONFIG["link_ids_cross_year"])
+    mock_ferc1_plants_df["plant_id_ferc1"] = linker_job.execute_in_process(
+        input_values={"df": mock_ferc1_plants_df}
+    )
 
     # Compute percent of records assigned correctly
     correctly_matched = (
