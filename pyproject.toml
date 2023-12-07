@@ -23,7 +23,7 @@ dependencies = [
     "conda-lock>=2.5.1",
     "coverage>=7",
     "dagster>=1.5.6",
-    "dagster-postgres>=0.21.6,<0.21.10", # Update when dagster-postgres graduates to 1.x
+    "dagster-postgres>=0.21.6,<1", # Update when dagster-postgres graduates to 1.x
     "dask>=2023",
     "datapackage>=1.15,<2", # Transition datastore to use frictionless.
     "datasette>=0.64",
@@ -47,6 +47,7 @@ dependencies = [
     "numexpr>=2.8.0", # pandas[performance]
     "numpy>=1.26,<2.0a0",
     "openpyxl>=3.0.10", # pandas[excel]
+    "openssl>=3.1.4,!=3.2.0", # double free error
     "pandas>=2.1",
     "pandera>=0.17.2",
     "pre-commit>=3",
