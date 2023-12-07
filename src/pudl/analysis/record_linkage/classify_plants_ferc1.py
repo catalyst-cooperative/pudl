@@ -11,14 +11,13 @@ import re
 
 import numpy as np
 import pandas as pd
+from dagster import graph, op
 
 import pudl
 from pudl.analysis.record_linkage.models import (
-    ColumnTransformation,
-    CrossYearLinker,
-    ReducedDimDataFrameEmbedderSparse,
+    column_transform_from_key,
+    link_ids_cross_year,
 )
-from pudl.analysis.record_linkage.name_cleaner import CompanyNameCleaner
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -33,6 +32,146 @@ _FUEL_COLS = [
 ]
 
 
+@op
+def plants_steam_validate_ids(
+    ferc1_steam_df: pd.DataFrame, label_df: pd.DataFrame
+) -> pd.DataFrame:
+    """Tests that plant_id_ferc1 times series includes one record per year.
+
+    Args:
+        ferc1_steam_df: A DataFrame of the data from the FERC 1 Steam table.
+
+    Returns:
+        The input dataframe, to enable method chaining.
+    """
+    # Add column of labels to steam df
+    ferc1_steam_df.loc[:, "plant_id_ferc1"] = label_df["record_labels"]
+
+    ##########################################################################
+    # FERC PLANT ID ERROR CHECKING STUFF
+    ##########################################################################
+
+    # Test to make sure that we don't have any plant_id_ferc1 time series
+    # which include more than one record from a given year. Warn the user
+    # if we find such cases (which... we do, as of writing)
+    year_dupes = (
+        ferc1_steam_df.groupby(["plant_id_ferc1", "report_year"])["utility_id_ferc1"]
+        .count()
+        .reset_index()
+        .rename(columns={"utility_id_ferc1": "year_dupes"})
+        .query("year_dupes>1")
+    )
+    if len(year_dupes) > 0:
+        for dupe in year_dupes.itertuples():
+            logger.error(
+                f"Found report_year={dupe.report_year} "
+                f"{dupe.year_dupes} times in "
+                f"plant_id_ferc1={dupe.plant_id_ferc1}"
+            )
+    else:
+        logger.info("No duplicate years found in any plant_id_ferc1. Hooray!")
+
+    return ferc1_steam_df
+
+
+@op
+def merge_steam_fuel_dfs(
+    ferc1_steam_df: pd.DataFrame,
+    ferc1_fuel_df: pd.DataFrame,
+    fuel_categories: list[str],
+) -> pd.DataFrame:
+    """Merge steam plants and fuel dfs to prepare inputs for ferc plant matching."""
+    # Grab fuel consumption proportions for use in assigning plant IDs:
+    fuel_fractions = fuel_by_plant_ferc1(ferc1_fuel_df, fuel_categories)
+    ffc = list(fuel_fractions.filter(regex=".*_fraction_mmbtu$").columns)
+
+    return ferc1_steam_df.merge(
+        fuel_fractions[["utility_id_ferc1", "plant_name_ferc1", "report_year"] + ffc],
+        on=["utility_id_ferc1", "plant_name_ferc1", "report_year"],
+        how="left",
+    )
+
+
+@graph(
+    config={
+        "link_ids_cross_year": {
+            "ops": {
+                "train_dataframe_embedder": {
+                    "config": {
+                        "transform_steps": {
+                            "plant_name": {
+                                "transforms": [
+                                    column_transform_from_key("name_cleaner_transform"),
+                                    column_transform_from_key("string_transform"),
+                                ],
+                                "weight": 2.0,
+                                "columns": ["plant_name_ferc1"],
+                            },
+                            "plant_type": {
+                                "transforms": [
+                                    column_transform_from_key(
+                                        "cleaning_function_transform",
+                                        transform_function="null_to_empty_str",
+                                    ),
+                                    column_transform_from_key("categorical_transform"),
+                                ],
+                                "weight": 2.0,
+                                "columns": ["plant_type"],
+                            },
+                            "construction_type": {
+                                "transforms": [
+                                    column_transform_from_key(
+                                        "cleaning_function_transform",
+                                        transform_function="null_to_empty_str",
+                                    ),
+                                    column_transform_from_key("categorical_transform"),
+                                ],
+                                "columns": ["construction_type"],
+                            },
+                            "capacity_mw": {
+                                "transforms": [
+                                    column_transform_from_key(
+                                        "cleaning_function_transform",
+                                        transform_function="null_to_zero",
+                                    ),
+                                    column_transform_from_key("numerical_transform"),
+                                ],
+                                "columns": ["capacity_mw"],
+                            },
+                            "construction_year": {
+                                "transforms": [
+                                    column_transform_from_key(
+                                        "cleaning_function_transform",
+                                        transform_function="fix_int_na",
+                                    ),
+                                    column_transform_from_key("categorical_transform"),
+                                ],
+                                "columns": ["construction_year"],
+                            },
+                            "utility_id_ferc1": {
+                                "transforms": [
+                                    column_transform_from_key("categorical_transform")
+                                ],
+                                "columns": ["utility_id_ferc1"],
+                            },
+                            "fuel_fractions": {
+                                "transforms": [
+                                    column_transform_from_key(
+                                        "cleaning_function_transform",
+                                        transform_function="null_to_zero",
+                                    ),
+                                    column_transform_from_key("numerical_transform"),
+                                    column_transform_from_key("normalize_transform"),
+                                ],
+                                "columns": _FUEL_COLS,
+                            },
+                        }
+                    }
+                },
+            }
+        }
+    },
+)
 def plants_steam_assign_plant_ids(
     ferc1_steam_df: pd.DataFrame,
     ferc1_fuel_df: pd.DataFrame,
@@ -46,21 +185,10 @@ def plants_steam_assign_plant_ids(
     # do this for us.
     logger.info("Identifying distinct large FERC plants for ID assignment.")
 
-    # Grab fuel consumption proportions for use in assigning plant IDs:
-    fuel_fractions = fuel_by_plant_ferc1(ferc1_fuel_df, fuel_categories)
-    ffc = list(fuel_fractions.filter(regex=".*_fraction_mmbtu$").columns)
+    input_df = merge_steam_fuel_dfs(ferc1_steam_df, ferc1_fuel_df, fuel_categories)
+    label_df = link_ids_cross_year(input_df)
 
-    ferc1_steam_df = ferc1_steam_df.merge(
-        fuel_fractions[["utility_id_ferc1", "plant_name_ferc1", "report_year"] + ffc],
-        on=["utility_id_ferc1", "plant_name_ferc1", "report_year"],
-        how="left",
-    )
-
-    # Train the classifier using DEFAULT weights, parameters not listed here.
-    classifier = Ferc1PlantClassifier()
-    ferc1_steam_df["plant_id_ferc1"] = classifier(ferc1_steam_df)
-
-    return ferc1_steam_df
+    return plants_steam_validate_ids(ferc1_steam_df, label_df)
 
 
 def revert_filled_in_string_nulls(df: pd.DataFrame) -> pd.DataFrame:
@@ -100,42 +228,6 @@ def revert_filled_in_float_nulls(df: pd.DataFrame) -> pd.DataFrame:
     if float_cols:
         df.loc[:, float_cols] = df.loc[:, float_cols].replace(0, np.nan)
     return df
-
-
-def plants_steam_validate_ids(ferc1_steam_df: pd.DataFrame) -> pd.DataFrame:
-    """Tests that plant_id_ferc1 times series includes one record per year.
-
-    Args:
-        ferc1_steam_df: A DataFrame of the data from the FERC 1 Steam table.
-
-    Returns:
-        The input dataframe, to enable method chaining.
-    """
-    ##########################################################################
-    # FERC PLANT ID ERROR CHECKING STUFF
-    ##########################################################################
-
-    # Test to make sure that we don't have any plant_id_ferc1 time series
-    # which include more than one record from a given year. Warn the user
-    # if we find such cases (which... we do, as of writing)
-    year_dupes = (
-        ferc1_steam_df.groupby(["plant_id_ferc1", "report_year"])["utility_id_ferc1"]
-        .count()
-        .reset_index()
-        .rename(columns={"utility_id_ferc1": "year_dupes"})
-        .query("year_dupes>1")
-    )
-    if len(year_dupes) > 0:
-        for dupe in year_dupes.itertuples():
-            logger.error(
-                f"Found report_year={dupe.report_year} "
-                f"{dupe.year_dupes} times in "
-                f"plant_id_ferc1={dupe.plant_id_ferc1}"
-            )
-    else:
-        logger.info("No duplicate years found in any plant_id_ferc1. Hooray!")
-
-    return ferc1_steam_df
 
 
 def fuel_by_plant_ferc1(
@@ -296,44 +388,3 @@ def fuel_by_plant_ferc1(
     ].fillna("")
 
     return df
-
-
-class Ferc1PlantClassifier(CrossYearLinker):
-    """Create model for linking ferc1 plants between years."""
-
-    embedding_step: ReducedDimDataFrameEmbedderSparse = (
-        ReducedDimDataFrameEmbedderSparse(
-            transformations={
-                "plant_name": ColumnTransformation(
-                    transformations=[CompanyNameCleaner(), "string"],
-                    weight=2.0,
-                    columns=["plant_name_ferc1"],
-                ),
-                "plant_type": ColumnTransformation(
-                    transformations=["null_to_empty_str", "category"],
-                    weight=2.0,
-                    columns=["plant_type"],
-                ),
-                "construction_type": ColumnTransformation(
-                    transformations=["null_to_empty_str", "category"],
-                    columns=["construction_type"],
-                ),
-                "capacity_mw": ColumnTransformation(
-                    transformations=["null_to_zero", "number"],
-                    columns=["capacity_mw"],
-                ),
-                "construction_year": ColumnTransformation(
-                    transformations=["fix_int_na", "category"],
-                    columns=["construction_year"],
-                ),
-                "utility_id_ferc1": ColumnTransformation(
-                    transformations=["category"],
-                    columns=["utility_id_ferc1"],
-                ),
-                "fuel_fractions": ColumnTransformation(
-                    transformations=["null_to_zero", "number", "norm"],
-                    columns=_FUEL_COLS,
-                ),
-            }
-        )
-    )

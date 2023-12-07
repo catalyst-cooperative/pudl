@@ -20,12 +20,22 @@ from typing import Annotated, Any, Literal, Self
 import numpy as np
 import pandas as pd
 import sqlalchemy as sa
-from dagster import AssetIn, AssetsDefinition, asset
+from dagster import (
+    AssetIn,
+    AssetOut,
+    AssetsDefinition,
+    Out,
+    asset,
+    graph_multi_asset,
+    op,
+)
 from pandas.core.groupby import DataFrameGroupBy
 from pydantic import BaseModel, Field, field_validator
 
 import pudl
-from pudl.analysis.record_linkage import classify_plants_ferc1
+from pudl.analysis.record_linkage.classify_plants_ferc1 import (
+    plants_steam_assign_plant_ids,
+)
 from pudl.extract.ferc1 import TABLE_NAME_MAP_FERC1
 from pudl.helpers import assert_cols_areclose, convert_cols_dtypes
 from pudl.metadata.fields import apply_pudl_dtypes
@@ -3209,39 +3219,6 @@ class PlantsSteamFerc1TableTransformer(Ferc1AbstractTableTransformer):
 
     table_id: TableIdFerc1 = TableIdFerc1.PLANTS_STEAM_FERC1
 
-    @cache_df(key="main")
-    def transform_main(
-        self, df: pd.DataFrame, transformed_fuel: pd.DataFrame
-    ) -> pd.DataFrame:
-        """Perform table transformations for the :ref:`plants_steam_ferc1` table.
-
-        Note that this method has a non-standard call signature, since the
-        :ref:`plants_steam_ferc1` table depends on the :ref:`fuel_ferc1` table.
-
-        Args:
-            df: The pre-processed steam plants table.
-            transformed_fuel: The fully transformed :ref:`fuel_ferc1` table. This is
-                required because fuel consumption information is used to help link
-                steam plant records together across years using
-                :func:`plants_steam_assign_plant_ids`
-        """
-        fuel_categories = list(
-            FuelFerc1TableTransformer()
-            .params.categorize_strings["fuel_type_code_pudl"]
-            .categories.keys()
-        )
-        plants_steam = (
-            super()
-            .transform_main(df)
-            .pipe(
-                classify_plants_ferc1.plants_steam_assign_plant_ids,
-                ferc1_fuel_df=transformed_fuel,
-                fuel_categories=fuel_categories,
-            )
-            .pipe(classify_plants_ferc1.plants_steam_validate_ids)
-        )
-        return plants_steam
-
     def transform(
         self,
         raw_dbf: pd.DataFrame,
@@ -6129,7 +6106,62 @@ def create_ferc1_transform_assets() -> list[AssetsDefinition]:
 ferc1_assets = create_ferc1_transform_assets()
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager")
+@op(out={"steam_transformer": Out()})
+def construct_plants_steam_transformer(
+    clean_xbrl_metadata_json: dict[str, dict[str, list[dict[str, Any]]]],
+):
+    """Return initialized PlantsSteamFerc1TableTransformer."""
+    return PlantsSteamFerc1TableTransformer(
+        xbrl_metadata_json=clean_xbrl_metadata_json["plants_steam_ferc1"]
+    )
+
+
+@op(out={"steam_matching_input": Out()})
+def prep_plants_steam_for_matching(
+    steam_transformer: PlantsSteamFerc1TableTransformer,
+    raw_ferc1_dbf__f1_steam: pd.DataFrame,
+    raw_ferc1_xbrl__steam_electric_generating_plant_statistics_large_plants_402_duration: pd.DataFrame,
+    raw_ferc1_xbrl__steam_electric_generating_plant_statistics_large_plants_402_instant: pd.DataFrame,
+) -> pd.DataFrame:
+    """Prepare inputs for FERC plant matching."""
+    df = steam_transformer.transform_start(
+        raw_dbf=raw_ferc1_dbf__f1_steam,
+        raw_xbrl_instant=raw_ferc1_xbrl__steam_electric_generating_plant_statistics_large_plants_402_instant,
+        raw_xbrl_duration=raw_ferc1_xbrl__steam_electric_generating_plant_statistics_large_plants_402_duration,
+    ).pipe(steam_transformer.transform_main)
+
+    return df.reset_index()
+
+
+@op(out={"plants_steam_ferc1": Out()})
+def finish_plants_steam_transformation(
+    steam_transformer: PlantsSteamFerc1TableTransformer,
+    plants_steam_matched: pd.DataFrame,
+):
+    """Apply transform_end to plants_steam_ferc1 table after performing plant matching."""
+    df = steam_transformer.transform_end(plants_steam_matched)
+    if steam_transformer.clear_cached_dfs:
+        logger.debug(
+            f"{steam_transformer.table_id.value}: Clearing cached dfs: "
+            f"{sorted(steam_transformer._cached_dfs.keys())}"
+        )
+        steam_transformer._cached_dfs.clear()
+    return convert_cols_dtypes(df, data_source="ferc1")
+
+
+@op(out={"fuel_types": Out()})
+def get_fuel_types() -> list[str]:
+    """Return fuel types from FuelFerc1TableTransformer class."""
+    return list(
+        FuelFerc1TableTransformer()
+        .params.categorize_strings["fuel_type_code_pudl"]
+        .categories.keys()
+    )
+
+
+@graph_multi_asset(
+    outs={"plants_steam_ferc1": AssetOut(io_manager_key="pudl_sqlite_io_manager")}
+)
 def plants_steam_ferc1(
     clean_xbrl_metadata_json: dict[str, dict[str, list[dict[str, Any]]]],
     raw_ferc1_dbf__f1_steam: pd.DataFrame,
@@ -6149,15 +6181,20 @@ def plants_steam_ferc1(
     Returns:
         Clean plants_steam_ferc1 table.
     """
-    df = PlantsSteamFerc1TableTransformer(
-        xbrl_metadata_json=clean_xbrl_metadata_json["plants_steam_ferc1"]
-    ).transform(
-        raw_dbf=raw_ferc1_dbf__f1_steam,
-        raw_xbrl_instant=raw_ferc1_xbrl__steam_electric_generating_plant_statistics_large_plants_402_instant,
-        raw_xbrl_duration=raw_ferc1_xbrl__steam_electric_generating_plant_statistics_large_plants_402_duration,
-        transformed_fuel=fuel_ferc1,
+    steam_transformer = construct_plants_steam_transformer(clean_xbrl_metadata_json)
+    steam_matching_input = prep_plants_steam_for_matching(
+        steam_transformer,
+        raw_ferc1_dbf__f1_steam,
+        raw_ferc1_xbrl__steam_electric_generating_plant_statistics_large_plants_402_duration,
+        raw_ferc1_xbrl__steam_electric_generating_plant_statistics_large_plants_402_instant,
     )
-    return convert_cols_dtypes(df, data_source="ferc1")
+    plants_steam_matched = plants_steam_assign_plant_ids(
+        steam_matching_input,
+        fuel_ferc1,
+        get_fuel_types(),
+    )
+
+    return finish_plants_steam_transformation(steam_transformer, plants_steam_matched)
 
 
 def other_dimensions(table_names: list[str]) -> list[str]:
