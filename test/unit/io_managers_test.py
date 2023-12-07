@@ -242,6 +242,7 @@ def test_pudl_sqlite_io_manager_delete_stmt(fake_pudl_sqlite_io_manager_fixture)
     assert len(returned_df) == 1
 
 
+@pytest.mark.slow
 def test_migrations_match_metadata(tmp_path, monkeypatch):
     """If you create a `PudlSQLiteIOManager` that points at a non-existing
     `pudl.sqlite` - it will initialize the DB based on the `package`.
