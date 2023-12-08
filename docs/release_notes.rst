@@ -3,7 +3,23 @@ PUDL Release Notes
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-v2023.XX.XX
+v2023.12.XX
+---------------------------------------------------------------------------------------
+* The ``epacems_to_parquet`` and ``state_demand`` scripts have been retired in favor of
+  using the Dagster UI. See :issue:`3107` and :pr:`3086`. Visualizations of hourly
+  state-level electricity demand have been moved into our example notebooks which can
+  be found both `on Kaggle <https://www.kaggle.com/code/catalystcooperative/02-state-hourly-electricity-demand>`__
+  and `on GitHub <https://github.com/catalyst-cooperative/pudl-examples/>`__
+* The ``pudl_setup`` script has been retired. All input/output locations are now set
+  using the ``$PUDL_INPUT`` and ``$PUDL_OUTPUT`` environment variables.  See
+  :issue:`3107` and :pr:`3086`.
+* The :func:`pudl.analysis.service_territory.pudl_service_territories` script has been
+  fixed, and can be used to generate `GeoParquet <https://geoparquet.org/>`__
+  outputs describing historical utility and balancing authority service territories. See
+  :issue:`1174` and :pr:`3086`.
+
+---------------------------------------------------------------------------------------
+v2023.12.01
 ---------------------------------------------------------------------------------------
 
 Dagster Adoption
@@ -70,10 +86,13 @@ Dagster Adoption
 Data Coverage
 ^^^^^^^^^^^^^
 
-* Updated :doc:`data_sources/eia860` to include final release data from 2022.
-* Updated :doc:`data_sources/eia861` to include final release data from 2022.
+* Updated :doc:`data_sources/eia860` to include final release data from 2022, see
+  :issue:`3008` & PR :pr:`3040`.
+* Updated :doc:`data_sources/eia861` to include final release data from 2022, see
+  :issue:`3034` & PR :pr:`3048`.
 * Updated :doc:`data_sources/eia923` to include final release data from 2022 and
-  monthly YTD data as of October 2023.
+  monthly YTD data as of October 2023, see :issue:`3009` & PR :pr:`#3073`.
+* Extracted the raw ``raw_eia923__emissions_control`` table, see PR :pr:`3100`.
 * Updated :doc:`data_sources/epacems` to switch from the old FTP server to the new
   CAMPD API, and to include 2022 data. Due to changes in the ETL, Alaska, Puerto Rico
   and Hawaii are now included in CEMS processing. See issue :issue:`1264` & PRs
@@ -204,7 +223,6 @@ Data Coverage
     centralized service companies. `FERC Form 60 will also be available on Datasette
     <https://data.catalyst.coop/ferc6>`__.
 
-
 Data Cleaning
 ^^^^^^^^^^^^^
 
@@ -292,10 +310,6 @@ Deprecations
 * ``pudl.transform.eia860.transform()`` and ``pudl.transform.eia923.transform()``
   functions have been deprecated. The table level EIA cleaning funtions are now
   coordinated using dagster.
-* The :mod:`pudl.convert.epacems_to_parquet` command now executes the
-  ``hourly_emissions_epacems`` asset as a dagster job. The ``—partition`` option
-  is no longer supported. Now only creates a directory of parquet files
-  for each year/state partition.
 * ``pudl.transform.ferc1.transform()`` has been removed. The ferc1 table
     transformations are now being orchestrated with Dagster.
 * ``pudl.transform.ferc1.transform`` can no longer be executed as a script.
@@ -746,7 +760,7 @@ SQLite and Parquet Outputs
   :issue:`1176,806`.
 * Data types, specified value constraints, and the uniqueness / non-null
   constraints on primary keys are validated during insertion into the SQLite DB.
-* The PUDL ETL CLI :mod:`pudl.cli` now has flags to toggle various constraint
+* The PUDL ETL CLI :mod:`pudl.etl.cli` now has flags to toggle various constraint
   checks including ``--ignore-foreign-key-constraints``
   ``--ignore-type-constraints`` and ``--ignore-value-constraints``.
 

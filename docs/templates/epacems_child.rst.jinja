@@ -66,15 +66,13 @@ encompassing a year of data.
 CEMS is enourmous
 -----------------
 CEMS is by far the largest dataset in PUDL what with hourly records for
-thousands of plants spanning decades. For this reason, we house CEMS data in `Apache
-Parquet <https://parquet.apache.org/>`__ files rather than the main PUDL database.
-Still, running the ETL with all of the CEMS data can take a long time. Note that you can
-:ref:`process CEMS Data seperately <add-cems-later>` from the main ETL
-script if you'd like.
+thousands of plants spanning decades. For this reason, we distribute CEMS data using `Apache
+Parquet <https://parquet.apache.org/>`__ files rather than in the main PUDL database.
 
-Check out the `EPA CEMS example notebook <https://github.com/catalyst-cooperative/pudl-examples/blob/main/notebooks/03-pudl-parquet.ipynb>`__
-in our `pudl-examples repository <https://github.com/catalyst-cooperative/pudl-examples>`__
-on GitHub for pointers on how to access this dataset efficiently using :mod:`dask`.
+Check out the `PUDL data access example notebook on Kaggle
+<https://www.kaggle.com/code/catalystcooperative/01-pudl-data-access>`__ or in our
+`pudl-examples repository <https://github.com/catalyst-cooperative/pudl-examples>`__ on
+GitHub for pointers on how to access this dataset efficiently using :mod:`dask`.
 
 EPA units vs. EIA units
 -----------------------

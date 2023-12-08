@@ -1,20 +1,9 @@
-"""A command line interface (CLI) to the main PUDL ETL functionality.
-
-This script cordinates the PUDL ETL process, based on parameters provided via a YAML
-settings file.
-
-If the settings for a dataset has empty parameters (meaning there are no years or tables
-included), no outputs will be generated. See :doc:`/dev/run_the_etl` for details.
-
-The output SQLite and Parquet files will be stored in ``PUDL_OUTPUT``.  To
-setup your default ``PUDL_INPUT`` and ``PUDL_OUTPUT`` directories see
-``pudl_setup --help``.
-"""
-
-import argparse
+"""A command line interface (CLI) to the main PUDL ETL functionality."""
+import pathlib
 import sys
 from collections.abc import Callable
 
+import click
 import fsspec
 from dagster import (
     DagsterInstance,
@@ -26,47 +15,11 @@ from dagster import (
 )
 
 import pudl
+from pudl.helpers import get_dagster_execution_config
 from pudl.settings import EpaCemsSettings, EtlSettings
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
-
-
-def parse_command_line(argv):
-    """Parse script command line arguments. See the -h option.
-
-    Args:
-        argv (list): command line arguments including caller file name.
-
-    Returns:
-        dict: A dictionary mapping command line arguments to their values.
-    """
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        dest="settings_file", type=str, default="", help="path to ETL settings file."
-    )
-    parser.add_argument(
-        "--logfile",
-        default=None,
-        help="If specified, write logs to this file.",
-    )
-    parser.add_argument(
-        "--gcs-cache-path",
-        type=str,
-        help="Load datastore resources from Google Cloud Storage. Should be gs://bucket[/path_prefix]",
-    )
-    parser.add_argument(
-        "--loglevel",
-        help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
-        default="INFO",
-    )
-    parser.add_argument(
-        "--max-concurrent",
-        help="Set the max number of processes dagster can launch. Defaults to use the number of CPUs on the machine.",
-        default=0,
-    )
-    arguments = parser.parse_args(argv[1:])
-    return arguments
 
 
 def pudl_etl_job_factory(
@@ -105,16 +58,63 @@ def pudl_etl_job_factory(
     return get_pudl_etl_job
 
 
-def main():
-    """Parse command line and initialize PUDL DB."""
-    args = parse_command_line(sys.argv)
-
+@click.command(
+    context_settings={"help_option_names": ["-h", "--help"]},
+)
+@click.argument(
+    "etl_settings_yml",
+    type=click.Path(
+        exists=True,
+        dir_okay=False,
+        resolve_path=True,
+        path_type=pathlib.Path,
+    ),
+)
+@click.option(
+    "--dagster-workers",
+    default=0,
+    type=int,
+    help="Max number of processes Dagster can launch. Defaults to the number of CPUs.",
+)
+@click.option(
+    "--gcs-cache-path",
+    type=str,
+    help=(
+        "Load cached inputs from Google Cloud Storage if possible. This is usually "
+        "much faster and more reliable than downloading from Zenodo directly. The "
+        "path should be a URL of the form gs://bucket[/path_prefix]. Internally we use "
+        "gs://internal-zenodo-cache.catalyst.coop. A public cache is available at "
+        "gs://zenodo-cache.catalyst.coop but requires GCS authentication and a billing "
+        "project to pay data egress costs."
+    ),
+)
+@click.option(
+    "--logfile",
+    help="If specified, write logs to this file.",
+    type=click.Path(
+        exists=False,
+        resolve_path=True,
+        path_type=pathlib.Path,
+    ),
+)
+@click.option(
+    "--loglevel",
+    default="INFO",
+    type=click.Choice(
+        ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"], case_sensitive=False
+    ),
+)
+def pudl_etl(
+    etl_settings_yml: pathlib.Path,
+    dagster_workers: int,
+    gcs_cache_path: str,
+    logfile: pathlib.Path,
+    loglevel: str,
+):
+    """Use Dagster to run the PUDL ETL, as specified by the file ETL_SETTINGS_YML."""
     # Display logged output from the PUDL package:
-    pudl.logging_helpers.configure_root_logger(
-        logfile=args.logfile, loglevel=args.loglevel
-    )
-
-    etl_settings = EtlSettings.from_yaml(args.settings_file)
+    pudl.logging_helpers.configure_root_logger(logfile=logfile, loglevel=loglevel)
+    etl_settings = EtlSettings.from_yaml(etl_settings_yml)
 
     dataset_settings_config = etl_settings.datasets.model_dump()
     process_epacems = True
@@ -127,36 +127,30 @@ def main():
         dataset_settings_config["epacems"] = EpaCemsSettings().model_dump()
 
     pudl_etl_reconstructable_job = build_reconstructable_job(
-        "pudl.cli.etl",
+        "pudl.etl.cli",
         "pudl_etl_job_factory",
         reconstructable_kwargs={
-            "loglevel": args.loglevel,
-            "logfile": args.logfile,
+            "loglevel": loglevel,
+            "logfile": logfile,
             "process_epacems": process_epacems,
         },
     )
-    result = execute_job(
-        pudl_etl_reconstructable_job,
-        instance=DagsterInstance.get(),
-        run_config={
-            "execution": {
+    run_config = {
+        "resources": {
+            "dataset_settings": {"config": dataset_settings_config},
+            "datastore": {
                 "config": {
-                    "multiprocess": {
-                        "max_concurrent": int(args.max_concurrent),
-                    },
-                }
-            },
-            "resources": {
-                "dataset_settings": {"config": dataset_settings_config},
-                "datastore": {
-                    "config": {
-                        "gcs_cache_path": args.gcs_cache_path
-                        if args.gcs_cache_path
-                        else "",
-                    },
+                    "gcs_cache_path": gcs_cache_path,
                 },
             },
         },
+    }
+    run_config.update(get_dagster_execution_config(dagster_workers))
+
+    result = execute_job(
+        pudl_etl_reconstructable_job,
+        instance=DagsterInstance.get(),
+        run_config=run_config,
     )
 
     # Workaround to reliably getting full stack trace
@@ -177,4 +171,4 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(pudl_etl())

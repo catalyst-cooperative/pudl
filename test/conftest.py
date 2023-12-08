@@ -11,9 +11,8 @@ import pytest
 import sqlalchemy as sa
 from dagster import build_init_resource_context, materialize_to_memory
 
-import pudl
 from pudl import resources
-from pudl.cli.etl import pudl_etl_job_factory
+from pudl.etl.cli import pudl_etl_job_factory
 from pudl.extract.ferc1 import raw_xbrl_metadata_json
 from pudl.ferc_to_sqlite.cli import ferc_to_sqlite_job_factory
 from pudl.io_managers import (
@@ -364,7 +363,6 @@ def configure_paths_for_tests(tmp_path_factory, request):
             output_dir=str(Path(out_tmp).resolve()),
         )
         logger.info(f"Using temporary PUDL_OUTPUT: {out_tmp}")
-    pudl.workspace.setup.init()
 
 
 @pytest.fixture(scope="session")
