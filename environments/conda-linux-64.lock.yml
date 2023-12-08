@@ -117,7 +117,7 @@ dependencies:
   - freetype=2.12.1=h267a509_2
   - krb5=1.21.2=h659d440_0
   - libarchive=3.7.2=h039dbb9_0
-  - libglib=2.78.2=h783c2da_0
+  - libglib=2.78.3=h783c2da_0
   - libllvm15=15.0.7=h5cf9203_3
   - libopenblas=0.3.25=pthreads_h413a1c8_0
   - libthrift=0.19.0=hb90f79a_1
@@ -218,7 +218,6 @@ dependencies:
   - msgpack-python=1.0.7=py311h9547e67_0
   - multidict=6.0.4=py311h459d7ec_1
   - multimethod=1.9.1=pyhd8ed1ab_0
-  - munch=4.0.0=pyhd8ed1ab_0
   - munkres=1.1.4=pyh9f0ad1d_0
   - mypy_extensions=1.0.0=pyha770c72_0
   - nest-asyncio=1.5.8=pyhd8ed1ab_0
@@ -380,7 +379,7 @@ dependencies:
   - python-slugify=8.0.1=pyhd8ed1ab_2
   - pyu2f=0.1.5=pyhd8ed1ab_0
   - qtpy=2.4.1=pyhd8ed1ab_0
-  - referencing=0.31.1=pyhd8ed1ab_0
+  - referencing=0.32.0=pyhd8ed1ab_0
   - restructuredtext_lint=1.4.0=pyhd8ed1ab_0
   - rfc3339-validator=0.1.4=pyhd8ed1ab_0
   - rsa=4.9=pyhd8ed1ab_0
@@ -411,7 +410,7 @@ dependencies:
   - geotiff=1.7.1=hf074850_14
   - gitpython=3.1.40=pyhd8ed1ab_0
   - google-crc32c=1.1.2=py311h9b08b9c_5
-  - googleapis-common-protos=1.61.0=pyhd8ed1ab_0
+  - googleapis-common-protos=1.62.0=pyhd8ed1ab_0
   - gql=3.4.1=pyhd8ed1ab_0
   - graphql-relay=3.2.0=pyhd8ed1ab_0
   - grpcio-health-checking=1.59.2=pyhd8ed1ab_0
@@ -499,7 +498,7 @@ dependencies:
   - frictionless=4.40.8=pyh6c4a22f_0
   - gdal=3.8.0=py311h815a124_6
   - geopandas-base=0.14.1=pyha770c72_0
-  - google-auth=2.24.0=pyhca7485f_0
+  - google-auth=2.25.1=pyhca7485f_0
   - gql-with-requests=3.4.1=pyhd8ed1ab_0
   - gtk2=2.24.33=h90689f9_2
   - ipykernel=6.26.0=pyhf8b6a83_0
@@ -519,8 +518,8 @@ dependencies:
   - conda-lock=2.5.1=pyhd8ed1ab_0
   - dagster-graphql=1.5.10=pyhd8ed1ab_0
   - dagster-postgres=0.21.10=pyhd8ed1ab_0
-  - fiona=1.9.5=py311hf8e0aa6_1
-  - google-api-core=2.14.0=pyhd8ed1ab_0
+  - fiona=1.9.5=py311hf8e0aa6_2
+  - google-api-core=2.15.0=pyhd8ed1ab_0
   - google-auth-oauthlib=1.1.0=pyhd8ed1ab_0
   - graphviz=9.0.0=h78e8752_1
   - jupyter_console=6.6.3=pyhd8ed1ab_0
@@ -533,7 +532,7 @@ dependencies:
   - tabulator=1.53.5=pyhd8ed1ab_0
   - dagster-webserver=1.5.10=pyhd8ed1ab_0
   - geopandas=0.14.1=pyhd8ed1ab_0
-  - google-cloud-core=2.3.3=pyhd8ed1ab_0
+  - google-cloud-core=2.4.1=pyhd8ed1ab_0
   - libarrow-acero=14.0.1=h59595ed_3_cpu
   - libarrow-flight=14.0.1=h120cb0d_3_cpu
   - libarrow-gandiva=14.0.1=hacb8726_3_cpu
