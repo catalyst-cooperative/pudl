@@ -263,6 +263,9 @@ filterwarnings = [
     "once:The behavior of DataFrame concatenation with empty or all-NA entries is deprecated.:FutureWarning",
 ]
 
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+]
 # Oddly, despite the use of --cov-config=pyproject.toml here, pytest does not seem to
 # pick up the source directories specified in the [tool.coverage.run] section below.
 # (though it *does* pick up the omit parameters!). This means we need to specify the
