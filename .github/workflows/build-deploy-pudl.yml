@@ -139,4 +139,5 @@ jobs:
           channel-id: "C03FHB9N0PQ"
           slack-message: "build-deploy-pudl status: ${{ job.status }}\n${{ env.COMMIT_TIME}}-${{ env.SHORT_SHA }}-${{ env.COMMIT_BRANCH }}"
         env:
+          channel-id: "C03FHB9N0PQ"
           SLACK_BOT_TOKEN: ${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }}
