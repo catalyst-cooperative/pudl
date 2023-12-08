@@ -242,6 +242,7 @@ def test_pudl_sqlite_io_manager_delete_stmt(fake_pudl_sqlite_io_manager_fixture)
     assert len(returned_df) == 1
 
 
+@pytest.mark.slow
 def test_migrations_match_metadata(tmp_path, monkeypatch):
     """If you create a `PudlSQLiteIOManager` that points at a non-existing
     `pudl.sqlite` - it will initialize the DB based on the `package`.
@@ -422,7 +423,10 @@ example_schema = pandera.DataFrameSchema(
 )
 
 
-@hypothesis.settings(print_blob=True, deadline=400)
+# ridiculous deadline - dataframe generation is always slow and sometimes
+# *very* slow
+@pytest.mark.slow
+@hypothesis.settings(print_blob=True, deadline=2_000)
 @hypothesis.given(example_schema.strategy(size=3))
 def test_filter_for_freshest_data(df):
     # XBRL context is the identifying metadata for reported values
