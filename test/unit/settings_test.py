@@ -276,6 +276,7 @@ def test_partitions_with_json_normalize(pudl_etl_settings):
         )
 
 
+@pytest.mark.slow
 def test_partitions_for_datasource_table(pudl_etl_settings):
     """Test whether or not we can make the datasource table."""
     ds = Datastore(local_cache_path=PudlPaths().data_dir)
