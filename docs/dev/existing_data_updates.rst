@@ -10,7 +10,9 @@ We update EIA monthly data and EPA CEMS hourly data on a quarterly basis.
 
 EIA typically publishes an "early release" version of their annual data in the summer
 followed by a final release in the fall. Our ``data_maturity`` column indicates
-which version has been integrated into PUDL.
+which version has been integrated into PUDL ("final" vs. "provisional"). This column
+also shows when data are derrived from monthly updates ("monthly_update") or contain
+incomplete year-to-date data ("incremental_ytd").
 
 FERC publishes form submissions on a rolling basis meaning there is no official
 date that the data are considered final or complete. To figure out when the data are
@@ -39,18 +41,17 @@ archivers themselves.
 **1.2)** Update the dictionary of production DOIs in :mod:`pudl.workspace.datastore` to
 refer to the new raw input archives.
 
-**1.3)** If you're adding a new year, in :py:const:`pudl.metadata.sources.SOURCES`,
-update the ``working_partitions`` to reflect the years of data that are available
-within each dataset and the ``records_liberated`` to show how many records are
-available. Check to make sure other fields such as ``source_format`` or ``path`` are
-still accurate.
+**1.3)** In :py:const:`pudl.metadata.sources.SOURCES`, update the ``working_partitions``
+to reflect the years, months, or quarters of data that are available for each dataset
+and the ``records_liberated`` to show how many records are available. Check to make
+sure other fields such as ``source_format`` or ``path`` are still accurate.
 
 .. note::
 
   If you're updating EIA861, you can skip the rest of the steps in this section and
   all steps after step two because 861 is not yet included in the ETL.
 
-**1.4)** If you're adding a new year, update the years of data to be processed in
+**1.4)** Update the partitions of data to be processed in
 the ``etl_full.yml`` and ``etl_fast.yml`` settings files stored under
 ``src/pudl/package_data/settings`` in the PUDL repo.
 
