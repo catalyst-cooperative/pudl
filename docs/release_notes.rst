@@ -3,7 +3,23 @@ PUDL Release Notes
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-v2023.XX.XX
+v2023.12.XX
+---------------------------------------------------------------------------------------
+* The ``epacems_to_parquet`` and ``state_demand`` scripts have been retired in favor of
+  using the Dagster UI. See :issue:`3107` and :pr:`3086`. Visualizations of hourly
+  state-level electricity demand have been moved into our example notebooks which can
+  be found both `on Kaggle <https://www.kaggle.com/code/catalystcooperative/02-state-hourly-electricity-demand>`__
+  and `on GitHub <https://github.com/catalyst-cooperative/pudl-examples/>`__
+* The ``pudl_setup`` script has been retired. All input/output locations are now set
+  using the ``$PUDL_INPUT`` and ``$PUDL_OUTPUT`` environment variables.  See
+  :issue:`3107` and :pr:`3086`.
+* The :func:`pudl.analysis.service_territory.pudl_service_territories` script has been
+  fixed, and can be used to generate `GeoParquet <https://geoparquet.org/>`__
+  outputs describing historical utility and balancing authority service territories. See
+  :issue:`1174` and :pr:`3086`.
+
+---------------------------------------------------------------------------------------
+v2023.12.01
 ---------------------------------------------------------------------------------------
 
 Dagster Adoption
@@ -207,7 +223,6 @@ Data Coverage
     centralized service companies. `FERC Form 60 will also be available on Datasette
     <https://data.catalyst.coop/ferc6>`__.
 
-
 Data Cleaning
 ^^^^^^^^^^^^^
 
@@ -274,10 +289,6 @@ Analysis
   :ref:`compiled_geometry_utility_eia861`), and the estimated total hourly electricity
   demand for each US state in :ref:`predicted_state_hourly_demand`. See :issue:`1973`
   and :pr:`2550`.
-* The :func:`pudl.analysis.service_territory.pudl_service_territories` script has been
-  fixed, and can be used to generate `GeoParquet <https://geoparquet.org/>`__
-  outputs describing historical utility and balancing authority service territories. See
-  :issue:`1174` and :pr:`3086`.
 
 Deprecations
 ^^^^^^^^^^^^
@@ -316,14 +327,6 @@ Deprecations
   :mod:`pudl.settings` no longer have table attributes because the ETL no longer
   supports loading specific tables via settings. Use dagster to select subsets of
   tables to process.
-* The ``epacems_to_parquet`` and ``state_demand`` scripts have been retired in favor of
-  using the Dagster UI. See :issue:`3107` and :pr:`3086`. Visualizations of hourly
-  state-level electricity demand have been moved into our example notebooks which can
-  be found both `on Kaggle <https://www.kaggle.com/code/catalystcooperative/02-state-hourly-electricity-demand>`__
-  and `on GitHub <https://github.com/catalyst-cooperative/pudl-examples/>`__
-* The ``pudl_setup`` script has been retired. All input/output locations are now set
-  using the ``$PUDL_INPUT`` and ``$PUDL_OUTPUT`` environment variables.  See
-  :issue:`3107` and :pr:`3086`.
 
 Miscellaneous
 ^^^^^^^^^^^^^
