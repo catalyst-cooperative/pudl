@@ -426,21 +426,16 @@ def match_orphaned_records(
 @graph
 def link_ids_cross_year(df: pd.DataFrame):
     """Apply model and return column of estimated record labels."""
-    logger.info("Train DataFrame embedder.")
+    # Embed dataframe
     transformer = train_dataframe_embedder(df)
-    logger.info("Embedding dataframe.")
     feature_matrix = embed_dataframe(df, transformer)
-    logger.info("Training PCA step.")
-    # pca = train_incremental_pca(feature_matrix)
-    logger.info("Apply PCA to feature matrix.")
-    # feature_matrix = apply_incremental_pca(feature_matrix, pca)
-    logger.info("Computing distance matrix.")
+
+    # Compute distances and apply penalty for records from same year
     distance_matrix = compute_distance_with_year_penalty(feature_matrix, df)
-    logger.info("Generate initial record pairing.")
+
+    # Label records
     id_year_df = cluster_records_dbscan(distance_matrix, df)
-    logger.info("Split overmerged clusters.")
     id_year_df = split_clusters(distance_matrix, id_year_df)
-    logger.info("Assign orphaned records.")
     id_year_df = match_orphaned_records(distance_matrix, id_year_df)
 
     return id_year_df
