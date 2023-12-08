@@ -47,6 +47,7 @@ dependencies = [
     "numexpr>=2.8.0", # pandas[performance]
     "numpy>=1.26,<2.0a0",
     "openpyxl>=3.0.10", # pandas[excel]
+    "openssl>=3.1.4,!=3.2.0", # 3.2.0 produced a double free error in nightly builds. See #3133
     "pandas>=2.1",
     "pandera>=0.17.2",
     "pre-commit>=3",
