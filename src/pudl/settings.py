@@ -1,5 +1,4 @@
 """Module for validating pudl etl settings."""
-import itertools
 import json
 from enum import Enum, unique
 from typing import Any, ClassVar, Self
@@ -96,11 +95,8 @@ class GenericDatasetSettings(FrozenBaseModel):
         ``pd.json_normalize``.
         """
         partitions = []
-        if hasattr(cls, "years") and hasattr(cls, "quarters"):
-            partitions = [
-                {"year": year, "quarter": quarter}
-                for year, quarter in itertools.product(cls.years, cls.quarters)
-            ]
+        if hasattr(cls, "year_quarters"):
+            partitions = [{"year_quarters": part} for part in cls.year_quarters]
         elif hasattr(cls, "years"):
             partitions = [{"year": part} for part in cls.years]
         return partitions
@@ -157,25 +153,15 @@ class EpaCemsSettings(GenericDatasetSettings):
 
     data_source: ClassVar[DataSource] = DataSource.from_id("epacems")
 
-    years: list[int] = data_source.working_partitions["years"]
-    quarters: list[int] = data_source.working_partitions["quarters"]
-    states: list[str] = data_source.working_partitions["states"]
+    year_quarters: list[str] = data_source.working_partitions["year_quarters"]
 
-    @field_validator("quarters")
+    @field_validator("year_quarters")
     @classmethod
-    def allow_all_keyword_quarters(cls, quarters):  # noqa: N805
+    def allow_all_keyword_year_quarters(cls, year_quarters):  # noqa: N805
         """Allow users to specify ['all'] to get all quarters."""
-        if quarters == ["all"]:
-            quarters = cls.data_source.working_partitions["quarters"]
-        return quarters
-
-    @field_validator("states")
-    @classmethod
-    def allow_all_keyword_states(cls, states):  # noqa: N805
-        """Allow users to specify ['all'] to get all quarters."""
-        if states == ["all"]:
-            states = cls.data_source.working_partitions["states"]
-        return states
+        if year_quarters == ["all"]:
+            year_quarters = cls.data_source.working_partitions["year_quarters"]
+        return year_quarters
 
 
 class Eia923Settings(GenericDatasetSettings):

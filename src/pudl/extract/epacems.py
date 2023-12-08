@@ -100,20 +100,24 @@ API_IGNORE_COLS = {
 class EpaCemsPartition(NamedTuple):
     """Represents EpaCems partition identifying unique resource file."""
 
-    year: str
-    quarter: str
+    year_quarter: str
 
     def get_key(self):
         """Returns hashable key for use with EpaCemsDatastore."""
-        return (self.year, self.quarter)
+        return self.year_quarter
+
+    @property
+    def year(self):
+        """Returns the year associated with this year_quarter partion."""
+        return pd.to_datetime(self.year_quarter).year
 
     def get_filters(self):
         """Returns filters for retrieving given partition resource from Datastore."""
-        return {"year": self.year, "quarter": self.quarter}
+        return {"year_quarter": self.year_quarter}
 
     def get_quarterly_file(self) -> Path:
         """Return the name of the CSV file that holds annual hourly data."""
-        return Path(f"epacems-{self.year}-{self.quarter}.csv")
+        return Path(f"epacems-{self.year}-{self.year_quarter[-1]}.csv")
 
 
 class EpaCemsDatastore:
@@ -129,7 +133,7 @@ class EpaCemsDatastore:
         self.datastore = datastore
 
     def get_data_frame(self, partition: EpaCemsPartition) -> pd.DataFrame:
-        """Constructs dataframe from a zipfile for a given (year, quarter) partition."""
+        """Constructs dataframe from a zipfile for a given (year_quarter) partition."""
         archive = self.datastore.get_zipfile_resource(
             "epacems", **partition.get_filters()
         )
@@ -159,25 +163,23 @@ class EpaCemsDatastore:
         ).rename(columns=rename_dict)
 
 
-def extract(year: int, quarter: int, ds: Datastore):
+def extract(year_quarter: str, ds: Datastore):
     """Coordinate the extraction of EPA CEMS hourly DataFrames.
 
     Args:
-        year: report year of the data to extract
-        quarter: report quarter of the data to extract
+        year_quarter: report year and quarter of the data to extract
         ds: Initialized datastore
     Yields:
         pandas.DataFrame: A single quarter-year of EPA CEMS hourly emissions data.
     """
     ds = EpaCemsDatastore(ds)
-    partition = EpaCemsPartition(quarter=quarter, year=year)
+    partition = EpaCemsPartition(year_quarter=year_quarter)
+    year = partition.year
     # We have to assign the reporting year for partitioning purposes
     try:
         df = ds.get_data_frame(partition).assign(year=year)
     except KeyError:  # If no quarter-year combination found, return empty df.
-        logger.warning(
-            f"No data found for {quarter} in {year}. Returning empty dataframe."
-        )
+        logger.warning(f"No data found for {year_quarter}. Returning empty dataframe.")
         res = Resource.from_id("hourly_emissions_epacems")
         df = res.format_df(pd.DataFrame())
     return df

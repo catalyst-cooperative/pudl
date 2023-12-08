@@ -180,11 +180,11 @@ def transform(
     """Transform EPA CEMS hourly data and ready it for export to Parquet.
 
     Args:
-        raw_df: An extracted by not yet transformed state-year of EPA CEMS data.
+        raw_df: An extracted by not yet transformed year_quarter of EPA CEMS data.
         pudl_engine: SQLAlchemy connection engine for connecting to an existing PUDL DB.
 
     Returns:
-        A single year-state of EPA CEMS data
+        A single year_quarter of EPA CEMS data
     """
     # Create all the table inputs used for the subtransform functions below
 
