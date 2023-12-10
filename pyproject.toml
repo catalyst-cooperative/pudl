@@ -301,14 +301,14 @@ curl = ">=8.4.0"
 
 [tool.coverage.run]
 # See note above on need to specify separate sources for pytest-coverage and coverage.
-source = ["src/pudl/*.py", "test/integration/", "test/unit/"]
+source = ["src/pudl/**.py", "test/integration/**.py", "test/unit/**.py"]
 omit = [
     # Never hit by integration tests:
     "src/pudl/validate.py",
 ]
 sigterm = true
 concurrency = ["multiprocessing"]
-debug = ["config", "trace", "multiproc", "process", "dataop", "self"]
+debug = ["config", "trace", "multiproc"]
 
 [tool.coverage.report]
 precision = 1
