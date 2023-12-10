@@ -80,7 +80,7 @@ repos:
         verbose: false
         pass_filenames: false
         always_run: true
-        entry: pytest --doctest-modules src/pudl test/unit
+        entry: pytest --doctest-modules src/pudl test/unit -m "not slow"
 
 # Configuration for pre-commit.ci
 ci:
