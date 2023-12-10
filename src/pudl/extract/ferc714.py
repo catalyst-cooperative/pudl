@@ -3,7 +3,6 @@ from collections import OrderedDict
 
 import pandas as pd
 from dagster import AssetsDefinition, asset
-from tomlkit import table
 
 import pudl
 
@@ -78,7 +77,6 @@ def generate_raw_ferc714_asset(table_name: str) -> AssetsDefinition:
         Args:
             context: dagster keyword that provides access to resources and config.
         """
-        assert table
         ds = context.resources.datastore
         ferc714_settings = context.resources.dataset_settings.ferc714
         years = ", ".join(map(str, ferc714_settings.years))
