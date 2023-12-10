@@ -7,9 +7,13 @@ import string
 import numpy as np
 import pandas as pd
 import pytest
+from dagster import graph
 
-from pudl.analysis.record_linkage.classify_plants_ferc1 import _FUEL_COLS, _MODEL_CONFIG
-from pudl.analysis.record_linkage.models import link_ids_cross_year
+from pudl.analysis.record_linkage.classify_plants_ferc1 import (
+    _FUEL_COLS,
+    embed_dataframe,
+)
+from pudl.analysis.record_linkage.link_cross_year import link_ids_cross_year
 from pudl.transform.params.ferc1 import (
     CONSTRUCTION_TYPE_CATEGORIES,
     PLANT_TYPE_CATEGORIES,
@@ -186,8 +190,14 @@ def mock_ferc1_plants_df():
 
 def test_classify_plants_ferc1(mock_ferc1_plants_df):
     """Test the FERC inter-year plant linking model."""
-    linker_job = link_ids_cross_year.to_job(config=_MODEL_CONFIG["link_ids_cross_year"])
-    mock_ferc1_plants_df["plant_id_ferc1"] = linker_job.execute_in_process(
+
+    @graph
+    def _link_ids(df: pd.DataFrame):
+        feature_matrix = embed_dataframe(df)
+        label_df = link_ids_cross_year(df, feature_matrix)
+        return label_df
+
+    mock_ferc1_plants_df["plant_id_ferc1"] = _link_ids.to_job().execute_in_process(
         input_values={"df": mock_ferc1_plants_df}
     )
 

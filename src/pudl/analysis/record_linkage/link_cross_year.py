@@ -1,233 +1,18 @@
 """Define a record linkage model interface and implement common functionality."""
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Literal, Union
 
 import numpy as np
 import pandas as pd
 from dagster import Config, graph, op
-from pydantic import Field
 from sklearn.cluster import DBSCAN, AgglomerativeClustering
-from sklearn.compose import ColumnTransformer
-from sklearn.decomposition import IncrementalPCA
-from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import pairwise_distances_chunked
 from sklearn.neighbors import NearestNeighbors
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import (
-    FunctionTransformer,
-    MinMaxScaler,
-    Normalizer,
-    OneHotEncoder,
-)
 
 import pudl
-from pudl.analysis.record_linkage.name_cleaner import CompanyNameCleaner
+from pudl.analysis.record_linkage.embed_dataframe import FeatureMatrix
 
 logger = pudl.logging_helpers.get_logger(__name__)
-
-
-def _apply_cleaning_func(df, function_key: str = None):
-    function_transforms = {
-        "null_to_zero": lambda df: df.fillna(value=0.0),
-        "null_to_empty_str": lambda df: df.fillna(value=""),
-        "fix_int_na": lambda df: pudl.helpers.fix_int_na(df, columns=list(df.columns)),
-    }
-
-    return function_transforms[function_key](df)
-
-
-class TfidfVectorizerConfig(Config):
-    """Implement ColumnTransformation for TfidfVectorizer."""
-
-    transformation_type: Literal["string_transform"]
-    options: dict = {"analyzer": "char", "ngram_range": (2, 10)}
-
-    def as_transformer(self):
-        """Return configured TfidfVectorizer."""
-        return TfidfVectorizer(**self.options)
-
-
-class OneHotEncoderConfig(Config):
-    """Implement ColumnTransformation for OneHotEncoder."""
-
-    transformation_type: Literal["categorical_transform"]
-    options: dict = {"categories": "auto"}
-
-    def as_transformer(self):
-        """Return configured OneHotEncoder."""
-        return OneHotEncoder(**self.options)
-
-
-class MinMaxScalerConfig(Config):
-    """Implement ColumnTransformation for MinMaxScaler."""
-
-    transformation_type: Literal["numerical_transform"]
-
-    def as_transformer(self):
-        """Return configured MinMaxScalerConfig."""
-        return MinMaxScaler()
-
-
-class NormalizerConfig(Config):
-    """Implement ColumnTransformation for Normalizer."""
-
-    transformation_type: Literal["normalize_transform"]
-
-    def as_transformer(self):
-        """Return configured NormalizerConfig."""
-        return Normalizer()
-
-
-class CleaningFuncConfig(Config):
-    """Implement ColumnTransformation for cleaning functions."""
-
-    transformation_type: Literal["cleaning_function_transform"]
-    transform_function: str
-
-    def as_transformer(self):
-        """Return configured NormalizerConfig."""
-        return FunctionTransformer(
-            _apply_cleaning_func, kw_args={"function_key": self.transform_function}
-        )
-
-
-class NameCleanerConfig(Config):
-    """Implement ColumnTransformation for CompanyNameCleaner."""
-
-    transformation_type: Literal["name_cleaner_transform"]
-
-    def as_transformer(self):
-        """Return configured CompanyNameCleaner."""
-        cleaner = CompanyNameCleaner()
-        return FunctionTransformer(cleaner.apply_name_cleaning)
-
-
-class ColumnTransform(Config):
-    """Union of all transform classes."""
-
-    transform: Union[  # noqa: UP007
-        TfidfVectorizerConfig,
-        OneHotEncoderConfig,
-        MinMaxScalerConfig,
-        NormalizerConfig,
-        CleaningFuncConfig,
-        NameCleanerConfig,
-    ] = Field(discriminator="transformation_type")
-
-
-def column_transform_from_key(key: str, **options) -> "ColumnTransform":
-    """Format column transform config for dagster."""
-    return {"transform": {key: options}}
-
-
-class TransformGrouping(Config):
-    """Define a set of transformations to apply to one or more columns."""
-
-    transforms: list[ColumnTransform]
-    weight: float = 1.0
-    columns: list[str]
-
-    def as_pipeline(self):
-        """Return :class:`sklearn.pipeline.Pipeline` with configuration."""
-        return Pipeline(
-            [
-                (
-                    config.transform.transformation_type,
-                    config.transform.as_transformer(),
-                )
-                for config in self.transforms
-            ]
-        )
-
-
-class EmbedDataFrameTrainConfig(Config):
-    """This ModelComponent performs a series of column transformations on a DataFrame.
-
-    Under the hood this uses :class:`sklearn.compose.ColumnTransformer`. As
-    configuration it takes as configuration a mapping of column names to a list of
-    transformations to apply. Transformations can be specified either by passing an
-    instance of a :class:`sklearn.base.BaseEstimator`, or a string to select from
-    several common/generic transformers defined by this class. If a string is used, it
-    should be one of the following:
-
-    * ``string`` - Applies a TfidfVectorizer to the column.
-    * ``category`` - Applies a OneHotEncoder to the column.
-    * ``number`` - Applies a MinMaxScaler to the column.
-    """
-
-    #: Maps step name to list of transformations.
-    transform_steps: dict[str, TransformGrouping]
-
-    def _construct_transformer(self) -> ColumnTransformer:
-        """Use configuration to construct :class:`sklearn.compose.ColumnTransformer`."""
-        return ColumnTransformer(
-            transformers=[
-                (name, column_transform.as_pipeline(), column_transform.columns)
-                for name, column_transform in self.transform_steps.items()
-            ],
-            transformer_weights={
-                name: column_transform.weight
-                for name, column_transform in self.transform_steps.items()
-            },
-        )
-
-
-@op
-def train_dataframe_embedder(config: EmbedDataFrameTrainConfig, df: pd.DataFrame):
-    """Train :class:`sklearn.compose.ColumnTransformer` on input."""
-    transformer = config._construct_transformer()
-    return transformer.fit(df)
-
-
-class EmbedDataFrameConfig(Config):
-    """Define embed step config."""
-
-    #: Applying column transformations may produce a sparse matrix.
-    #: If this flag is set, the matrix will automatically be made dense before returning.
-    make_dense: bool = False
-
-
-@op
-def embed_dataframe(config: EmbedDataFrameConfig, df: pd.DataFrame, transformer):
-    """Use :class:`sklearn.compose.ColumnTransformer` to transform input."""
-    transformed = transformer.fit_transform(df)
-
-    if config.make_dense:
-        transformed = np.array(transformed.todense())
-
-    return transformed
-
-
-class IncrementalPCAConfig(Config):
-    """:class:`DataFrameEmbedder` subclass, using IncrementalPCA to reduce dimensions.
-
-    This class differs from :class:`ReducedDimDataFrameEmbedder` in that it applies
-    IncrementalPCA instead of a normal PCA implementation. This implementation is
-    an approximation of a true PCA, but it operates with constant memory usage of
-    batch_size * n_features (where n_features is the number of columns in the input
-    matrix) and it can operate on a sparse input matrix.
-    """
-
-    #: Passed to :class:`sklearn.decomposition.IncrementalPCA` param n_components
-    output_dims: int | None = 500
-    batch_size: int = 500
-
-
-@op
-def train_incremental_pca(config: IncrementalPCAConfig, X):  # noqa: N803
-    """Apply PCA to output of :class:`DataFrameEmbedder`."""
-    pca = IncrementalPCA(
-        copy=False, n_components=config.output_dims, batch_size=config.batch_size
-    )
-
-    return pca.fit(X)
-
-
-@op
-def apply_incremental_pca(X, pca):  # noqa: N803
-    """Apply PCA to output of :class:`DataFrameEmbedder`."""
-    return pca.transform(X)
 
 
 class PenalizeReportYearDistanceConfig(Config):
@@ -302,10 +87,12 @@ class DistanceMatrix:
 
 @op
 def compute_distance_with_year_penalty(
-    config: PenalizeReportYearDistanceConfig, feature_matrix, original_df: pd.DataFrame
+    config: PenalizeReportYearDistanceConfig,
+    feature_matrix: FeatureMatrix,
+    original_df: pd.DataFrame,
 ) -> DistanceMatrix:
     """Create penalty matrix and add to distances."""
-    return DistanceMatrix(feature_matrix, original_df, config)
+    return DistanceMatrix(feature_matrix.matrix, original_df, config)
 
 
 class DBSCANConfig(Config):
@@ -424,12 +211,8 @@ def match_orphaned_records(
 
 
 @graph
-def link_ids_cross_year(df: pd.DataFrame):
+def link_ids_cross_year(df: pd.DataFrame, feature_matrix: FeatureMatrix):
     """Apply model and return column of estimated record labels."""
-    # Embed dataframe
-    transformer = train_dataframe_embedder(df)
-    feature_matrix = embed_dataframe(df, transformer)
-
     # Compute distances and apply penalty for records from same year
     distance_matrix = compute_distance_with_year_penalty(feature_matrix, df)
 
