@@ -311,6 +311,12 @@ sigterm = true
 concurrency = ["multiprocessing"]
 debug = ["config", "trace", "multiproc"]
 
+[tool.coverage.paths]
+pudl_sources = [
+  "src/pudl/",
+  "*/site-packages/pudl/",
+]
+
 [tool.coverage.report]
 precision = 1
 sort = "miss"
