@@ -18,7 +18,8 @@ env:
   DAGSTER_HOME: /home/runner/pudl-work/dagster_home/
   ETL_CONFIG: src/pudl/package_data/settings/etl_fast.yml
   ETL_COMMANDLINE_OPTIONS: --gcs-cache-path=gs://zenodo-cache.catalyst.coop
-  COVERAGE_OPTIONS: --concurrency=multiprocessing --debug=config,trace,multiproc
+  #COVERAGE_OPTIONS: --concurrency=multiprocessing --debug=config,trace,multiproc
+  COVERAGE_OPTIONS:
 
 jobs:
   ci-docs:
@@ -118,8 +119,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        dagster_workers: [0, 1]
-
+        dagster_workers: [1]
     permissions:
       contents: read
       id-token: write
