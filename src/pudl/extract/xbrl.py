@@ -68,6 +68,8 @@ def xbrl2sqlite(context) -> None:
     clobber = context.op_config["clobber"]
     batch_size = context.op_config["batch_size"]
     workers = context.op_config["workers"]
+    if workers == 0:
+        workers = None
     ferc_to_sqlite_settings = context.resources.ferc_to_sqlite_settings
     datastore = context.resources.datastore
     datastore = FercXbrlDatastore(datastore)
