@@ -70,8 +70,8 @@ EXPLOSION_CALCULATION_TOLERANCES: dict[str, GroupMetricChecks] = {
         ],
         group_metric_tolerances=GroupMetricTolerances(
             ungrouped=MetricTolerances(
-                error_frequency=0.014,
-                relative_error_magnitude=0.04,
+                error_frequency=0.011,
+                relative_error_magnitude=0.004,
                 null_calculated_value_frequency=1.0,
             ),
             report_year=MetricTolerances(
@@ -1074,6 +1074,27 @@ class NodeId(NamedTuple):
     plant_function: str | pandas_NAType
 
 
+class OffByFactoid(NamedTuple):
+    """A calculated factoid which is off by one other factoid.
+
+    A factoid where a sizeable majority of utilities are using a non-standard and
+    non-reported calculation to generate it. These calculated factoids are either
+    missing one factoid, or include an additional factoid not included in the FERC
+    metadata. Thus, the calculations are 'off by' this factoid.
+    """
+
+    table_name: str
+    xbrl_factoid: str
+    utility_type: str | pandas_NAType
+    plant_status: str | pandas_NAType
+    plant_function: str | pandas_NAType
+    table_name_off_by: str
+    xbrl_factoid_off_by: str
+    utility_type_off_by: str | pandas_NAType
+    plant_status_off_by: str | pandas_NAType
+    plant_function_off_by: str | pandas_NAType
+
+
 @asset
 def _out_ferc1__explosion_tags(table_dimensions_ferc1) -> pd.DataFrame:
     """Grab the stored tables of tags and add inferred dimension."""
@@ -1159,9 +1180,10 @@ def _aggregatable_dimension_tags(
 
 def exploded_table_asset_factory(
     root_table: str,
-    table_names_to_explode: list[str],
+    table_names: list[str],
     seed_nodes: list[NodeId],
     group_metric_checks: GroupMetricChecks,
+    off_by_facts: list[OffByFactoid],
     io_manager_key: str | None = None,
 ) -> AssetsDefinition:
     """Create an exploded table based on a set of related input tables."""
@@ -1172,7 +1194,7 @@ def exploded_table_asset_factory(
         ),
         "_out_ferc1__explosion_tags": AssetIn("_out_ferc1__explosion_tags"),
     }
-    ins |= {table_name: AssetIn(table_name) for table_name in table_names_to_explode}
+    ins |= {table_name: AssetIn(table_name) for table_name in table_names}
 
     @asset(name=f"exploded_{root_table}", ins=ins, io_manager_key=io_manager_key)
     def exploded_tables_asset(
@@ -1189,6 +1211,7 @@ def exploded_table_asset_factory(
                 "metadata_xbrl_ferc1",
                 "calculation_components_xbrl_ferc1",
                 "_out_ferc1__explosion_tags",
+                "off_by_facts",
             ]
         }
         return Exploder(
@@ -1199,6 +1222,7 @@ def exploded_table_asset_factory(
             seed_nodes=seed_nodes,
             tags=tags,
             group_metric_checks=group_metric_checks,
+            off_by_facts=off_by_facts,
         ).boom(tables_to_explode=tables_to_explode)
 
     return exploded_tables_asset
@@ -1214,7 +1238,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
     explosion_args = [
         {
             "root_table": "income_statement_ferc1",
-            "table_names_to_explode": [
+            "table_names": [
                 "income_statement_ferc1",
                 "depreciation_amortization_summary_ferc1",
                 "electric_operating_expenses_ferc1",
@@ -1232,10 +1256,11 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                     plant_function=pd.NA,
                 ),
             ],
+            "off_by_facts": [],
         },
         {
             "root_table": "balance_sheet_assets_ferc1",
-            "table_names_to_explode": [
+            "table_names": [
                 "balance_sheet_assets_ferc1",
                 "utility_plant_summary_ferc1",
                 "plant_in_service_ferc1",
@@ -1253,10 +1278,48 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                     plant_function=pd.NA,
                 )
             ],
+            "off_by_facts": [
+                OffByFactoid(
+                    "utility_plant_summary_ferc1",
+                    "utility_plant_in_service_classified_and_property_under_capital_leases",
+                    "electric",
+                    pd.NA,
+                    pd.NA,
+                    "utility_plant_summary_ferc1",
+                    "utility_plant_in_service_completed_construction_not_classified",
+                    "electric",
+                    pd.NA,
+                    pd.NA,
+                ),
+                OffByFactoid(
+                    "utility_plant_summary_ferc1",
+                    "utility_plant_in_service_classified_and_property_under_capital_leases",
+                    "electric",
+                    pd.NA,
+                    pd.NA,
+                    "utility_plant_summary_ferc1",
+                    "utility_plant_in_service_property_under_capital_leases",
+                    "electric",
+                    pd.NA,
+                    pd.NA,
+                ),
+                OffByFactoid(
+                    "utility_plant_summary_ferc1",
+                    "depreciation_utility_plant_in_service",
+                    "electric",
+                    pd.NA,
+                    pd.NA,
+                    "utility_plant_summary_ferc1",
+                    "amortization_of_other_utility_plant_utility_plant_in_service",
+                    "electric",
+                    pd.NA,
+                    pd.NA,
+                ),
+            ],
         },
         {
             "root_table": "balance_sheet_liabilities_ferc1",
-            "table_names_to_explode": [
+            "table_names": [
                 "balance_sheet_liabilities_ferc1",
                 "retained_earnings_ferc1",
             ],
@@ -1272,6 +1335,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
                     plant_function=pd.NA,
                 )
             ],
+            "off_by_facts": [],
         },
     ]
     return [exploded_table_asset_factory(**kwargs) for kwargs in explosion_args]
@@ -1292,6 +1356,7 @@ class Exploder:
         seed_nodes: list[NodeId],
         tags: pd.DataFrame = pd.DataFrame(),
         group_metric_checks: GroupMetricChecks = GroupMetricChecks(),
+        off_by_facts: list[OffByFactoid] = None,
     ):
         """Instantiate an Exploder class.
 
@@ -1310,6 +1375,7 @@ class Exploder:
         self.calculation_components_xbrl_ferc1 = calculation_components_xbrl_ferc1
         self.seed_nodes = seed_nodes
         self.tags = tags
+        self.off_by_facts = off_by_facts
 
     @cached_property
     def exploded_calcs(self: Self):
@@ -1360,7 +1426,7 @@ class Exploder:
             .sort_index()
             .reset_index()
         )
-
+        calc_explode = self.add_sizable_minority_corrections_to_calcs(calc_explode)
         ##############################################################################
         # Everything below here is error checking / debugging / temporary fixes
         dupes = calc_explode.duplicated(subset=parent_cols + calc_cols, keep=False)
@@ -1393,6 +1459,39 @@ class Exploder:
         assert calc_explode.table_name_parent.notna().all()
 
         return calc_explode
+
+    def add_sizable_minority_corrections_to_calcs(
+        self: Self, exploded_calcs: pd.DataFrame
+    ) -> pd.DataFrame:
+        """Add correction calculation records for the sizable fuck up utilities."""
+        if not self.off_by_facts:
+            return exploded_calcs
+        facts_to_fix = (
+            pd.DataFrame(self.off_by_facts)
+            .rename(columns={col: f"{col}_parent" for col in NodeId._fields})
+            .assign(
+                xbrl_factoid=(
+                    lambda x: x.xbrl_factoid_parent
+                    + "_off_by_"
+                    + x.xbrl_factoid_off_by
+                    + "_correction"
+                ),
+                weight=1,
+                is_total_to_subdimensions_calc=False,
+                # theses fixes rn are only from inter-table calcs.
+                # if they weren't we'd need to check within the group of
+                # the parent fact like in process_xbrl_metadata_calculations
+                is_within_table_calc=False,
+            )
+            .drop(columns=["xbrl_factoid_off_by"])
+        )
+        facts_to_fix.columns = facts_to_fix.columns.str.removesuffix("_off_by")
+        return pd.concat(
+            [
+                exploded_calcs,
+                facts_to_fix[exploded_calcs.columns].astype(exploded_calcs.dtypes),
+            ]
+        )
 
     @cached_property
     def exploded_meta(self: Self) -> pd.DataFrame:
@@ -1495,7 +1594,7 @@ class Exploder:
         )
 
     @cached_property
-    def other_dimensions(self: Self) -> list[str]:
+    def dimensions(self: Self) -> list[str]:
         """Get all of the column names for the other dimensions."""
         return pudl.transform.ferc1.other_dimensions(table_names=self.table_names)
 
@@ -1542,6 +1641,11 @@ class Exploder:
         value_col = list(set(value_cols))[0]
         return value_col
 
+    @property
+    def calc_idx(self: Self) -> list[str]:
+        """Primary key columns for calculations in this explosion."""
+        return [col for col in list(NodeId._fields) if col in self.exploded_pks]
+
     def boom(self: Self, tables_to_explode: dict[str, pd.DataFrame]) -> pd.DataFrame:
         """Explode a set of nested tables.
 
@@ -1558,14 +1662,14 @@ class Exploder:
         """
         exploded = (
             self.initial_explosion_concatenation(tables_to_explode)
+            .pipe(self.calculate_intertable_non_total_calculations)
+            .pipe(self.add_sizable_minority_corrections)
             .pipe(self.reconcile_intertable_calculations)
             .pipe(self.calculation_forest.leafy_data, value_col=self.value_col)
         )
         # Identify which columns should be kept in the output...
         # TODO: Define schema for the tables explicitly.
-        cols_to_keep = list(
-            set(self.exploded_pks + self.other_dimensions + [self.value_col])
-        )
+        cols_to_keep = list(set(self.exploded_pks + self.dimensions + [self.value_col]))
         if ("utility_type" in cols_to_keep) and (
             "utility_type_other" in exploded.columns
         ):
@@ -1632,6 +1736,122 @@ class Exploder:
         )
         return exploded
 
+    def calculate_intertable_non_total_calculations(
+        self, exploded: pd.DataFrame
+    ) -> pd.DataFrame:
+        """Calculate the inter-table non-total calculable xbrl_factoids."""
+        # add the abs_diff column for the calculated fields
+        calculated_df = pudl.transform.ferc1.calculate_values_from_components(
+            calculation_components=self.exploded_calcs[
+                ~self.exploded_calcs.is_within_table_calc
+                & ~self.exploded_calcs.is_total_to_subdimensions_calc
+            ],
+            data=exploded,
+            calc_idx=self.calc_idx,
+            value_col=self.value_col,
+        )
+        return calculated_df
+
+    def add_sizable_minority_corrections(
+        self: Self, calculated_df: pd.DataFrame
+    ) -> pd.DataFrame:
+        """Identify and fix the utilities that report calcs off-by one other fact.
+
+        We noticed that there are a sizable minority of utilities that report some
+        calculated values with a different set of child subcomponents. Our tooling
+        for these calculation expects all utilities to report in the same manner.
+        So we have identified the handful of worst calculable ``xbrl_factiod``
+        offenders :attr:`self.off_by_facts`. This method identifies data corrections
+        for those :attr:`self.off_by_facts` and adds them into the exploded data table.
+
+        The data corrections are identified by calculating the absolute difference
+        between the reported value and calculable value from the standard set of
+        subcomponents (via :func:`pudl.transform.ferc1.calculate_values_from_components`)
+        and finding the child factiods that have the same value as the absolute difference.
+        This indicates that the calculable parent factiod is off by that cooresponding
+        child fact.
+
+        Relatedly, :meth:`add_sizable_minority_corrections_to_calcs` adds these
+        :attr:`self.off_by_facts` to :attr:`self.exploded_calcs`.
+        """
+        if not self.off_by_facts:
+            return calculated_df
+
+        off_by = pd.DataFrame(self.off_by_facts)
+        not_close = (
+            calculated_df[~np.isclose(calculated_df.abs_diff, 0)]
+            .set_index(list(NodeId._fields))
+            # grab the parent side of the off_by facts
+            .loc[off_by.set_index(list(NodeId._fields)).index.unique()]
+            .reset_index()
+        )
+        off_by_fact = (
+            calculated_df[calculated_df.row_type_xbrl != "correction"]
+            .set_index(list(NodeId._fields))
+            # grab the child side of the off_by facts
+            .loc[
+                off_by.set_index(
+                    [f"{col}_off_by" for col in list(NodeId._fields)]
+                ).index.unique()
+            ]
+            .reset_index()
+        )
+        # Idenfity the calculations with one missing other fact
+        # when the diff is the same as the value of another fact, then that
+        # calculated value could have been perfect with the addition of the
+        # missing facoid.
+        data_corrections = (
+            pd.merge(
+                left=not_close,
+                right=off_by_fact,
+                left_on=["report_year", "utility_id_ferc1", "abs_diff"],
+                right_on=["report_year", "utility_id_ferc1", self.value_col],
+                how="inner",
+                suffixes=("", "_off_by"),
+            )
+            # use a dict/kwarg for assign so we can dynamically set the name of value_col
+            # the correction value is the diff - not the abs_diff from not_close or value_col
+            # from off_by_fact bc often the utility included a fact so this diff is negative
+            .assign(
+                **{
+                    "xbrl_factoid": (
+                        lambda x: x.xbrl_factoid
+                        + "_off_by_"
+                        + x.xbrl_factoid_off_by
+                        + "_correction"
+                    ),
+                    self.value_col: lambda x: x["diff"],
+                    "row_type_xbrl": "correction",
+                }
+            )[
+                # drop all the _off_by and calc cols
+                list(NodeId._fields)
+                + ["report_year", "utility_id_ferc1", self.value_col, "row_type_xbrl"]
+            ]
+        )
+        bad_utils = data_corrections.utility_id_ferc1.unique()
+        logger.info(
+            f"Adding {len(data_corrections)} from {len(bad_utils)} utilities that report differently."
+        )
+        dtype_calced = {
+            col: dtype
+            for (col, dtype) in calculated_df.dtypes.items()
+            if col in data_corrections.columns
+        }
+        corrected = pd.concat(
+            [calculated_df, data_corrections.astype(dtype_calced)]
+        ).set_index(self.calc_idx)
+        # now we are going to re-calculate just the fixed facts
+        fixed_facts = corrected.loc[off_by.set_index(self.calc_idx).index.unique()]
+        unfixed_facts = corrected.loc[
+            corrected.index.difference(off_by.set_index(self.calc_idx).index.unique())
+        ].reset_index()
+        fixed_facts = self.calculate_intertable_non_total_calculations(
+            exploded=fixed_facts.drop(columns=["calculated_value"]).reset_index()
+        )
+
+        return pd.concat([unfixed_facts, fixed_facts.astype(unfixed_facts.dtypes)])
+
     def reconcile_intertable_calculations(
         self: Self, exploded: pd.DataFrame
     ) -> pd.DataFrame:
@@ -1655,18 +1875,10 @@ class Exploder:
             f"{self.root_table}: Reconcile inter-table calculations: "
             f"{list(calculations_intertable.xbrl_factoid.unique())}."
         )
-        calc_idx = [col for col in list(NodeId._fields) if col in self.exploded_pks]
         logger.info("Checking inter-table, non-total to subtotal calcs.")
-        calculated_df = pudl.transform.ferc1.calculate_values_from_components(
-            calculation_components=calculations_intertable[
-                ~calculations_intertable.is_total_to_subdimensions_calc
-            ],
-            data=exploded,
-            calc_idx=calc_idx,
-            value_col=self.value_col,
-        )
+        # we've added calculated fields via calculate_intertable_non_total_calculations
         calculated_df = pudl.transform.ferc1.check_calculation_metrics(
-            calculated_df=calculated_df, group_metric_checks=self.group_metric_checks
+            calculated_df=exploded, group_metric_checks=self.group_metric_checks
         )
         calculated_df = pudl.transform.ferc1.add_corrections(
             calculated_df=calculated_df,
@@ -1679,8 +1891,8 @@ class Exploder:
             calculation_components=calculations_intertable[
                 calculations_intertable.is_total_to_subdimensions_calc
             ],
-            data=exploded,
-            calc_idx=calc_idx,
+            data=exploded.drop(columns="calculated_value"),
+            calc_idx=self.calc_idx,
             value_col=self.value_col,
         )
         subtotal_calcs = pudl.transform.ferc1.check_calculation_metrics(
