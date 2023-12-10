@@ -301,7 +301,7 @@ curl = ">=8.4.0"
 
 [tool.coverage.run]
 # See note above on need to specify separate sources for pytest-coverage and coverage.
-source = ["src/pudl/**.py", "test/integration/**.py", "test/unit/**.py"]
+source = ["src/pudl/", "test/integration/", "test/unit/"]
 omit = [
     # Never hit by integration tests:
     "src/pudl/validate.py",
