@@ -114,7 +114,7 @@ jobs:
     # needs:
     #  - ci-unit
     # runs-on: ubuntu-22.04-4core
-    runs-on: ubuntu-latest   # make the tests cheaper.
+    runs-on: ubuntu-latest # make the tests cheaper.
     if: github.event.pull_request.draft == false
     strategy:
       fail-fast: false
