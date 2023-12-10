@@ -23,8 +23,8 @@ connect specific slices of EIA plants to other datasets.
 Because generators are often owned by multiple utilities, another dimension of
 this plant part table involves generating two records for each owner: one for the
 portion of the plant part they own and one for the plant part as a whole. The
-portion records are labeled in the "ownership_record_type" column as "owned"
-and the total records are labeled as "total".
+portion records are labeled in the ``ownership_record_type`` column as ``owned``
+and the total records are labeled as ``total``.
 
 This table includes A LOT of duplicative information about EIA plants. It is primarily
 meant for use as an input into the record linkage between FERC1 plants and EIA.""",
