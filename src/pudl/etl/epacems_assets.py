@@ -17,6 +17,7 @@ import pyarrow.parquet as pq
 from dagster import AssetIn, DynamicOut, DynamicOutput, asset, graph_asset, op
 
 import pudl
+from pudl.extract.epacems import EpaCemsPartition
 from pudl.metadata.classes import Resource
 from pudl.metadata.enums import EPACEMS_STATES
 from pudl.workspace.setup import PudlPaths
@@ -38,7 +39,9 @@ def get_years_from_settings(context):
     parallel.
     """
     epacems_settings = context.resources.dataset_settings.epacems
-    years = {pd.to_datetime(yq).year for yq in epacems_settings.year_quarters}
+    years = {
+        EpaCemsPartition(year_quarter=yq).year for yq in epacems_settings.year_quarters
+    }
     for year in years:
         yield DynamicOutput(year, mapping_key=str(year))
 
@@ -69,11 +72,13 @@ def process_single_year(
     partitioned_path = PudlPaths().output_dir / "hourly_emissions_epacems"
     partitioned_path.mkdir(exist_ok=True)
 
-    year_quaters_in_year = {
-        yq for yq in epacems_settings.year_quarters if pd.to_datetime(yq).year == year
+    year_quarters_in_year = {
+        yq
+        for yq in epacems_settings.year_quarters
+        if EpaCemsPartition(year_quarter=yq).year == year
     }
 
-    for year_quarter in year_quaters_in_year:
+    for year_quarter in year_quarters_in_year:
         logger.info(f"Processing EPA CEMS hourly data for {year_quarter}")
         df = pudl.extract.epacems.extract(year_quarter=year_quarter, ds=ds)
         if not df.empty:  # If state-year combination has data
@@ -89,7 +94,7 @@ def process_single_year(
         ) as partitioned_writer:
             partitioned_writer.write_table(table)
 
-    return YearPartitions(year_quaters_in_year)
+    return YearPartitions(year_quarters_in_year)
 
 
 @op

@@ -20,9 +20,10 @@ Hence, we've called it `plant_id_epa` until it gets transformed into `plant_id_e
 during the transform process with help from the crosswalk.
 """
 from pathlib import Path
-from typing import NamedTuple
+from typing import Annotated
 
 import pandas as pd
+from pydantic import BaseModel, StringConstraints
 
 import pudl.logging_helpers
 from pudl.metadata.classes import Resource
@@ -97,19 +98,21 @@ API_IGNORE_COLS = {
 """Set: The set of EPA CEMS columns to ignore when reading data."""
 
 
-class EpaCemsPartition(NamedTuple):
+class EpaCemsPartition(BaseModel):
     """Represents EpaCems partition identifying unique resource file."""
 
-    year_quarter: str
+    year_quarter: Annotated[
+        str, StringConstraints(strict=True, pattern=r"^(19|20)\d{2}[q][1-4]$")
+    ]
+
+    @property
+    def year(self):
+        """Return the year associated with the year_quarter."""
+        return pd.to_datetime(self.year_quarter).year
 
     def get_key(self):
         """Returns hashable key for use with EpaCemsDatastore."""
         return self.year_quarter
-
-    @property
-    def year(self):
-        """Returns the year associated with this year_quarter partion."""
-        return pd.to_datetime(self.year_quarter).year
 
     def get_filters(self):
         """Returns filters for retrieving given partition resource from Datastore."""
@@ -117,7 +120,9 @@ class EpaCemsPartition(NamedTuple):
 
     def get_quarterly_file(self) -> Path:
         """Return the name of the CSV file that holds annual hourly data."""
-        return Path(f"epacems-{self.year}-{self.year_quarter[-1]}.csv")
+        return Path(
+            f"epacems-{self.year}-{pd.to_datetime(self.year_quarter).quarter}.csv"
+        )
 
 
 class EpaCemsDatastore:
