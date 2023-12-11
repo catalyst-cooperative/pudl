@@ -94,19 +94,21 @@ class TestEpaCemsSettings:
     def test_not_working_quarter(self: Self):
         """Make sure a validation error is being thrown when given an invalid quarter."""
         with pytest.raises(ValidationError):
-            EpaCemsSettings(quarters=[5])
+            EpaCemsSettings(year_quarters=["1990q4"])
 
-    def test_duplicate_sort_quarters(self: Self):
-        """Test quarters are sorted and deduplicated."""
+    def test_duplicate_quarters(self: Self):
+        """Test year_quarters are deduplicated."""
         with pytest.raises(ValidationError):
-            _ = EpaCemsSettings(quarters=[4, 4, 2])
+            _ = EpaCemsSettings(year_quarters=["1999q4", "1999q4"])
 
     def test_default_quarters(self: Self):
         """Test all quarters are used as default."""
         returned_settings = EpaCemsSettings()
 
-        expected_quarters = DataSource.from_id("epacems").working_partitions["quarters"]
-        assert expected_quarters == returned_settings.quarters
+        expected_year_quarters = DataSource.from_id("epacems").working_partitions[
+            "year_quarters"
+        ]
+        assert expected_year_quarters == returned_settings.year_quarters
 
     def test_none_quarters_raise(self: Self):
         """Test that setting a required partition to None raises an error."""
@@ -248,10 +250,10 @@ class TestDatasetsSettingsResource:
 
     def test_default_values(self: Self):
         """Test the correct default values are created for dagster config."""
-        expected_quarters = EpaCemsSettings().quarters
+        expected_year_quarters = EpaCemsSettings().year_quarters
         assert (
-            dataset_settings.config_schema.default_value["epacems"]["quarters"]
-            == expected_quarters
+            dataset_settings.config_schema.default_value["epacems"]["year_quarters"]
+            == expected_year_quarters
         )
 
 
@@ -267,9 +269,9 @@ def test_partitions_with_json_normalize(pudl_etl_settings):
         )
 
     cems_parts = json_normalize(datasets["epacems"].partitions)
-    if list(cems_parts.columns) != ["year", "quarter"]:
+    if list(cems_parts.columns) != ["year_quarters"]:
         raise AssertionError(
-            "CEMS paritions should have year and quarter columns only, found:"
+            "CEMS paritions should have year_quarters columns only, found:"
             f"{cems_parts}"
         )
 
