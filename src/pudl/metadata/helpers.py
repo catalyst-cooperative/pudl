@@ -87,7 +87,7 @@ def _parse_foreign_key_rule(rule: dict, name: str, key: list[str]) -> list[dict]
 
 
 def _build_foreign_key_tree(
-    resources: dict[str, dict]
+    resources: dict[str, dict],
 ) -> dict[str, dict[tuple[str, ...], dict]]:
     """Build foreign key tree.
 
