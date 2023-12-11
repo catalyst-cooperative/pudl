@@ -145,19 +145,15 @@ class EpaCemsSettings(GenericDatasetSettings):
 
     Args:
         data_source: DataSource metadata object
-        years: list of years to validate.
-        quarters: list of quarters to validate.
-        partition: Whether to output year-state partitioned Parquet files. If True,
-            all available threads / CPUs will be used in parallel.
+        year_quarters: list of year_quarters to validate.
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("epacems")
-
     year_quarters: list[str] = data_source.working_partitions["year_quarters"]
 
     @field_validator("year_quarters")
     @classmethod
-    def allow_all_keyword_year_quarters(cls, year_quarters):  # noqa: N805
+    def allow_all_keyword_year_quarters(cls, year_quarters):
         """Allow users to specify ['all'] to get all quarters."""
         if year_quarters == ["all"]:
             year_quarters = cls.data_source.working_partitions["year_quarters"]
@@ -210,7 +206,7 @@ class Eia860Settings(GenericDatasetSettings):
 
     @field_validator("eia860m")
     @classmethod
-    def check_eia860m_date(cls, eia860m: bool) -> bool:  # noqa: N805
+    def check_eia860m_date(cls, eia860m: bool) -> bool:
         """Check 860m date-year is exactly one year after most recent working 860 year.
 
         Args:

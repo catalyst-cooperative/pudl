@@ -168,14 +168,14 @@ class EpaCemsDatastore:
         ).rename(columns=rename_dict)
 
 
-def extract(year_quarter: str, ds: Datastore):
+def extract(year_quarter: str, ds: Datastore) -> pd.DataFrame:
     """Coordinate the extraction of EPA CEMS hourly DataFrames.
 
     Args:
         year_quarter: report year and quarter of the data to extract
         ds: Initialized datastore
     Yields:
-        pandas.DataFrame: A single quarter-year of EPA CEMS hourly emissions data.
+        A single quarter of EPA CEMS hourly emissions data.
     """
     ds = EpaCemsDatastore(ds)
     partition = EpaCemsPartition(year_quarter=year_quarter)
@@ -183,7 +183,8 @@ def extract(year_quarter: str, ds: Datastore):
     # We have to assign the reporting year for partitioning purposes
     try:
         df = ds.get_data_frame(partition).assign(year=year)
-    except KeyError:  # If no quarter-year combination found, return empty df.
+    # If the requested quarter is not found, return an empty df with expected columns:
+    except KeyError:
         logger.warning(f"No data found for {year_quarter}. Returning empty dataframe.")
         res = Resource.from_id("hourly_emissions_epacems")
         df = res.format_df(pd.DataFrame())
