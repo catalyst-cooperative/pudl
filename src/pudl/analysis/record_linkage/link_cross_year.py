@@ -69,7 +69,7 @@ class DistanceMatrix:
         )
 
     def get_cluster_distance_matrix(self, cluster_inds: np.ndarray) -> np.ndarray:
-        """Return a small distance matrix with distances between points in a cluster."""
+        """Return a distance matrix with only distances within a cluster."""
         cluster_size = len(cluster_inds)
         dist_inds = np.array(np.meshgrid(cluster_inds, cluster_inds)).T.reshape(-1, 2)
         return self.distance_matrix[dist_inds[:, 0], dist_inds[:, 1]].reshape(
@@ -79,7 +79,7 @@ class DistanceMatrix:
     def average_dist_between_clusters(
         self, set_1: list[int], set_2: list[int]
     ) -> float:
-        """Compute average distance between two sets of clusters given indices into the distance matrix."""
+        """Compute average distance between two clusters of records given indices of each cluster."""
         dist_inds = np.array(np.meshgrid(set_1, set_2)).T.reshape(-1, 2)
         dists = self.distance_matrix[dist_inds[:, 0], dist_inds[:, 1]]
         return dists.mean()
@@ -91,7 +91,7 @@ def compute_distance_with_year_penalty(
     feature_matrix: FeatureMatrix,
     original_df: pd.DataFrame,
 ) -> DistanceMatrix:
-    """Create penalty matrix and add to distances."""
+    """Compute a distance matrix and penalize records from the same year."""
     return DistanceMatrix(feature_matrix.matrix, original_df, config)
 
 
@@ -107,15 +107,22 @@ class DBSCANConfig(Config):
 def cluster_records_dbscan(
     config: DBSCANConfig, distance_matrix: DistanceMatrix, original_df: pd.DataFrame
 ) -> pd.DataFrame:
-    """Use dbscan clustering algorithm to classify records."""
+    """Generate initial IDs using DBSCAN algorithm."""
+    # DBSCAN is very efficient when passed a sparse radius neighbor graph
     neighbor_computer = NearestNeighbors(radius=config.eps, metric="precomputed")
     neighbor_computer.fit(distance_matrix.distance_matrix)
     neighbor_graph = neighbor_computer.radius_neighbors_graph(mode="distance")
 
+    # Classify records
     classifier = DBSCAN(metric="precomputed", eps=config.eps, min_samples=2)
-    id_year_df = original_df.loc[:, ["report_year", "plant_name_ferc1"]]
-    id_year_df["record_label"] = classifier.fit_predict(neighbor_graph)
-    return id_year_df
+
+    # Create dataframe containing only report year and label columns
+    return pd.DataFrame(
+        {
+            "report_year": original_df.loc[:, "report_year"],
+            "record_label": classifier.fit_predict(neighbor_graph),
+        }
+    )
 
 
 class SplitClustersConfig(Config):
@@ -131,7 +138,16 @@ def split_clusters(
     distance_matrix: DistanceMatrix,
     id_year_df: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Apply AgglomerativeClustering to all clusters with more than one record from the same year."""
+    """Split clusters with multiple records from same report_year.
+
+    DBSCAN will sometimes match records from the same report year, which breaks the
+    assumption that there should only be one record for each entity from a single
+    report year. To fix this, agglomerative clustering will be applied to each
+    such cluster. Agglomerative clustering could replace DBSCAN in the initial linkage
+    step to avoid these matches in the first place, however, it is very inneficient on
+    a large number of records, so applying to smaller sets of overmerged records is
+    much faster and uses much less memory.
+    """
 
     def _generate_cluster_ids(max_cluster_id: int) -> int:
         """Get new unique cluster id."""
@@ -170,8 +186,9 @@ def split_clusters(
 
 
 class MatchOrpahnedRecordsConfig(Config):
-    """DBSCAN assigns 'noisy' records a label of '-1', which will be labeled by this step."""
+    """Configuration for :func:`match_orphaned_records` op."""
 
+    #: See :class:`sklearn.cluster.AgglomerativeClustering` for details.
     distance_threshold: float = 0.3
 
 
@@ -181,7 +198,14 @@ def match_orphaned_records(
     distance_matrix: DistanceMatrix,
     id_year_df: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Compute average distance from orphaned records to existing clusters, and merge."""
+    """DBSCAN assigns 'noisy' records a label of '-1', which will be labeled by this step.
+
+    To label orphaned records, points are seperated into clusters where each orphaned record
+    is a cluster of a single point. Then, a distance matrix is computed with the average
+    distance between each cluster, and is used in a round of agglomerative clustering.
+    This will match orphaned records to existing clusters, or assign them unique ID's if
+    they don't appear close enough to any existing clusters.
+    """
     classifier = AgglomerativeClustering(
         metric="precomputed",
         linkage="average",
@@ -189,22 +213,30 @@ def match_orphaned_records(
         n_clusters=None,
     )
 
-    label_inds = id_year_df.groupby("record_label").indices
-    label_groups = [[ind] for ind in label_inds[-1]]
-    label_groups += [inds for key, inds in label_inds.items() if key != -1]
+    cluster_inds = id_year_df.groupby("record_label").indices
 
-    # Prepare a reduced distance matrix
-    dist_matrix_size = len(label_groups)
-    reduced_dist_matrix = np.zeros((dist_matrix_size, dist_matrix_size))
-    for i, x_cluster_inds in enumerate(label_groups):
-        for j, y_cluster_inds in enumerate(label_groups[:i]):
-            reduced_dist_matrix[i, j] = distance_matrix.average_dist_between_clusters(
+    # Orphaned records are considered a cluster of a single record
+    cluster_groups = [[ind] for ind in cluster_inds[-1]]
+
+    # Get list of all points in each assigned cluster
+    cluster_groups += [inds for key, inds in cluster_inds.items() if key != -1]
+
+    # Prepare a distance matrix of (n_clusters x n_clusters)
+    # Distance matrix contains average distance between each cluster
+    n_clusters = len(cluster_groups)
+    average_dist_matrix = np.zeros((n_clusters, n_clusters))
+
+    # TODO(zschira): Major model bottleneck. If optimizations become required, start here.
+    for i, x_cluster_inds in enumerate(cluster_groups):
+        for j, y_cluster_inds in enumerate(cluster_groups[:i]):
+            average_dist_matrix[i, j] = distance_matrix.average_dist_between_clusters(
                 x_cluster_inds, y_cluster_inds
             )
-            reduced_dist_matrix[j, i] = reduced_dist_matrix[i, j]
+            average_dist_matrix[j, i] = average_dist_matrix[i, j]
 
-    new_labels = classifier.fit_predict(reduced_dist_matrix)
-    for inds, label in zip(label_groups, new_labels):
+    # Assign new labels to all points
+    new_labels = classifier.fit_predict(average_dist_matrix)
+    for inds, label in zip(cluster_groups, new_labels):
         id_year_df.loc[inds, "record_label"] = label
 
     return id_year_df
