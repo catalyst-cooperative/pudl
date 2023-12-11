@@ -694,6 +694,11 @@ def test_diff_wide_tables():
         ]
     )
 
+    empty_diff = diff_wide_tables(primary_key=["u_id", "year"], old=old, new=old)
+    assert empty_diff.added.empty
+    assert empty_diff.deleted.empty
+    assert empty_diff.changed.empty
+
     def assert_diff_equal(observed, expected):
         observed_reshaped = observed.droplevel(level=0, axis="columns")
         expected_reshaped = expected.set_index(observed_reshaped.index.names)
