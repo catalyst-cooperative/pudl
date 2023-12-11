@@ -2,7 +2,7 @@
 from collections import OrderedDict
 
 import pandas as pd
-from dagster import AssetOut, Output, multi_asset
+from dagster import AssetsDefinition, asset
 
 import pudl
 
@@ -63,40 +63,40 @@ FERC714_FILES: OrderedDict[str, dict[str, str]] = OrderedDict(
 """Dictionary mapping PUDL tables to FERC-714 filenames and character encodings."""
 
 
-@multi_asset(
-    outs={"raw_ferc714__" + table_name: AssetOut() for table_name in FERC714_FILES},
-    required_resource_keys={"datastore", "dataset_settings"},
-)
-def extract_ferc714(context):
-    """Extract the raw FERC Form 714 dataframes from their original CSV files.
+def generate_raw_ferc714_asset(table_name: str) -> AssetsDefinition:
+    """Generates an asset for building the raw FERC 714 dataframe."""
+    assert table_name in FERC714_FILES
 
-    Args:
-        context: dagster keyword that provides access to resources and config.
+    @asset(
+        name=f"raw_ferc714__{table_name}",
+        required_resource_keys={"datastore", "dataset_settings"},
+    )
+    def _extract_raw_ferc714(context):
+        """Extract the raw FERC Form 714 dataframes from their original CSV files.
 
-    Returns:
-        A tuple of extracted FERC-714 dataframes.
-    """
-    ds = context.resources.datastore
-    ferc714_settings = context.resources.dataset_settings.ferc714
-    years = ", ".join(map(str, ferc714_settings.years))
+        Args:
+            context: dagster keyword that provides access to resources and config.
+        """
+        ds = context.resources.datastore
+        ferc714_settings = context.resources.dataset_settings.ferc714
+        years = ", ".join(map(str, ferc714_settings.years))
 
-    raw_dfs: OrderedDict[str, pd.DataFrame] = OrderedDict({})
-    for table_name in FERC714_FILES:
         logger.info(
             f"Extracting {table_name} from CSV into pandas DataFrame (years: {years})."
         )
-        with ds.get_zipfile_resource("ferc714", name="ferc714.zip").open(
-            FERC714_FILES[table_name]["name"]
-        ) as f:
-            raw_dfs[table_name] = pd.read_csv(
-                f, encoding=FERC714_FILES[table_name]["encoding"]
-            )
+        df = pd.read_csv(
+            ds.get_zipfile_resource("ferc714", name="ferc714.zip").open(
+                FERC714_FILES[table_name]["name"]
+            ),
+            encoding=FERC714_FILES[table_name]["encoding"],
+        )
         if table_name != "respondent_id":
-            raw_dfs[table_name] = raw_dfs[table_name].query(
-                "report_yr in @ferc714_settings.years"
-            )
+            df = df.query("report_yr in @ferc714_settings.years")
+        return df
 
-    return (
-        Output(output_name="raw_ferc714__" + table_name, value=df)
-        for table_name, df in raw_dfs.items()
-    )
+    return _extract_raw_ferc714
+
+
+raw_ferc714_assets = [
+    generate_raw_ferc714_asset(table_name) for table_name in FERC714_FILES
+]
