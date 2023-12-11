@@ -5877,7 +5877,7 @@ package:
     manager: conda
     platform: linux-64
     dependencies:
-      hdf5: ">=1.14.2,<1.14.4.0a0"
+      hdf5: ">=1.14.3,<1.14.4.0a0"
       libgcc-ng: ">=12"
       libgdal: 3.8.1
       libstdcxx-ng: ">=12"
@@ -5886,10 +5886,10 @@ package:
       openssl: ">=3.2.0,<4.0a0"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/gdal-3.8.1-py311h815a124_1.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/gdal-3.8.1-py311h67923c1_2.conda
     hash:
-      md5: 6e9577466e5f1d18bd659746a5d948b7
-      sha256: 6f1de976174089589b1ff7a6dd0d627f107f051a15cb046cb4703c0fc18480e3
+      md5: 36bdf6d2872decceaa4e5c97e128351c
+      sha256: 18e1c4276dfa5c7b11a796f4317a57b288b1bca82dcab5c466c16694773afff2
     category: main
     optional: false
   - name: gdal
@@ -5898,7 +5898,7 @@ package:
     platform: osx-64
     dependencies:
       __osx: ">=10.9"
-      hdf5: ">=1.14.2,<1.14.4.0a0"
+      hdf5: ">=1.14.3,<1.14.4.0a0"
       libcxx: ">=16.0.6"
       libgdal: 3.8.1
       libxml2: ">=2.11.6,<2.12.0a0"
@@ -5906,10 +5906,10 @@ package:
       openssl: ">=3.2.0,<4.0a0"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/gdal-3.8.1-py311h5646c56_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/gdal-3.8.1-py311h06f03dd_2.conda
     hash:
-      md5: 040c7cfdae3033444b9f193f9ac7dda2
-      sha256: dc12757089d571dc33a5be6428bb50374fcfe2839230d8bc2b6aecf019545e64
+      md5: 9db36469ab5aad24176f0579c83d837c
+      sha256: 1f821540d3856eb0e341746acd7b506a137214030816b01df96b6272617c8d03
     category: main
     optional: false
   - name: gdal
@@ -5918,7 +5918,7 @@ package:
     platform: osx-arm64
     dependencies:
       __osx: ">=10.9"
-      hdf5: ">=1.14.2,<1.14.4.0a0"
+      hdf5: ">=1.14.3,<1.14.4.0a0"
       libcxx: ">=16.0.6"
       libgdal: 3.8.1
       libxml2: ">=2.11.6,<2.12.0a0"
@@ -5926,10 +5926,10 @@ package:
       openssl: ">=3.2.0,<4.0a0"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/gdal-3.8.1-py311h32a4f3d_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/gdal-3.8.1-py311hff5d751_2.conda
     hash:
-      md5: 22050ed6dfba916d82f470c4e5c820e9
-      sha256: f6f8555e164a37371dc729b9aa0773e60716218ed706cd621b3f5cbfbe2ea51e
+      md5: bacb4115610a2238864ae8cdbd13e040
+      sha256: bc852f0ec27d10a03334f2dceef34dfb8be05f76623a28d3fb51e20b0e096920
     category: main
     optional: false
   - name: gdk-pixbuf
@@ -9795,42 +9795,42 @@ package:
     category: main
     optional: false
   - name: jupyter_server_terminals
-    version: 0.4.4
+    version: 0.5.0
     manager: conda
     platform: linux-64
     dependencies:
       python: ">=3.8"
       terminado: ">=0.8.3"
-    url: https://conda.anaconda.org/conda-forge/noarch/jupyter_server_terminals-0.4.4-pyhd8ed1ab_1.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/jupyter_server_terminals-0.5.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 7c0965e1d4a0ee1529e8eaa03a78a5b3
-      sha256: 9f4c5fef9beef9fceed628db7a10b888f3308b37ae257ad3d50046088317ebf1
+      md5: 37a8b4098d428ecd40e58f8ec8a8e77d
+      sha256: b2c769977c258e5a81d541fd526d01083fc6b8c8dfdd4822795a898626bc81e6
     category: main
     optional: false
   - name: jupyter_server_terminals
-    version: 0.4.4
+    version: 0.5.0
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.8"
       terminado: ">=0.8.3"
-    url: https://conda.anaconda.org/conda-forge/noarch/jupyter_server_terminals-0.4.4-pyhd8ed1ab_1.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/jupyter_server_terminals-0.5.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 7c0965e1d4a0ee1529e8eaa03a78a5b3
-      sha256: 9f4c5fef9beef9fceed628db7a10b888f3308b37ae257ad3d50046088317ebf1
+      md5: 37a8b4098d428ecd40e58f8ec8a8e77d
+      sha256: b2c769977c258e5a81d541fd526d01083fc6b8c8dfdd4822795a898626bc81e6
     category: main
     optional: false
   - name: jupyter_server_terminals
-    version: 0.4.4
+    version: 0.5.0
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.8"
       terminado: ">=0.8.3"
-    url: https://conda.anaconda.org/conda-forge/noarch/jupyter_server_terminals-0.4.4-pyhd8ed1ab_1.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/jupyter_server_terminals-0.5.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 7c0965e1d4a0ee1529e8eaa03a78a5b3
-      sha256: 9f4c5fef9beef9fceed628db7a10b888f3308b37ae257ad3d50046088317ebf1
+      md5: 37a8b4098d428ecd40e58f8ec8a8e77d
+      sha256: b2c769977c258e5a81d541fd526d01083fc6b8c8dfdd4822795a898626bc81e6
     category: main
     optional: false
   - name: jupyterlab
@@ -11513,13 +11513,13 @@ package:
       geotiff: ">=1.7.1,<1.8.0a0"
       giflib: ">=5.2.1,<5.3.0a0"
       hdf4: ">=4.2.15,<4.2.16.0a0"
-      hdf5: ">=1.14.2,<1.14.4.0a0"
+      hdf5: ">=1.14.3,<1.14.4.0a0"
       json-c: ">=0.17,<0.18.0a0"
       kealib: ">=1.5.2,<1.6.0a0"
       lerc: ">=4.0.0,<5.0a0"
       libaec: ">=1.1.2,<2.0a0"
       libarchive: ">=3.7.2,<3.8.0a0"
-      libcurl: ">=8.4.0,<9.0a0"
+      libcurl: ">=8.5.0,<9.0a0"
       libdeflate: ">=1.19,<1.20.0a0"
       libexpat: ">=2.5.0,<3.0a0"
       libgcc-ng: ">=12"
@@ -11544,14 +11544,14 @@ package:
       poppler: ">=23.12.0,<23.13.0a0"
       postgresql: ""
       proj: ">=9.3.0,<9.3.1.0a0"
-      tiledb: ">=2.16,<2.17.0a0"
+      tiledb: ">=2.18.2,<2.19.0a0"
       xerces-c: ">=3.2.4,<3.3.0a0"
       xz: ">=5.2.6,<6.0a0"
       zstd: ">=1.5.5,<1.6.0a0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/libgdal-3.8.1-hcae7082_1.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/libgdal-3.8.1-hd0089ee_2.conda
     hash:
-      md5: e96d24ccc597439cda2859fe948aac77
-      sha256: 9d6a19f03ea1437e951ba5e09c12faf11aa47a375a76f80f9bab1d2c3aed4aa9
+      md5: feb838eaf49fd1608413759f7b54c74c
+      sha256: ba4431f8bf3ae13130827c4f81520ce49f9b22f6f44da137b516a1f51b9bdcb8
     category: main
     optional: false
   - name: libgdal
@@ -11567,13 +11567,13 @@ package:
       geotiff: ">=1.7.1,<1.8.0a0"
       giflib: ">=5.2.1,<5.3.0a0"
       hdf4: ">=4.2.15,<4.2.16.0a0"
-      hdf5: ">=1.14.2,<1.14.4.0a0"
+      hdf5: ">=1.14.3,<1.14.4.0a0"
       json-c: ">=0.17,<0.18.0a0"
       kealib: ">=1.5.2,<1.6.0a0"
       lerc: ">=4.0.0,<5.0a0"
       libaec: ">=1.1.2,<2.0a0"
       libarchive: ">=3.7.2,<3.8.0a0"
-      libcurl: ">=8.4.0,<9.0a0"
+      libcurl: ">=8.5.0,<9.0a0"
       libcxx: ">=16.0.6"
       libdeflate: ">=1.19,<1.20.0a0"
       libexpat: ">=2.5.0,<3.0a0"
@@ -11596,14 +11596,14 @@ package:
       poppler: ">=23.12.0,<23.13.0a0"
       postgresql: ""
       proj: ">=9.3.0,<9.3.1.0a0"
-      tiledb: ">=2.16,<2.17.0a0"
+      tiledb: ">=2.18.2,<2.19.0a0"
       xerces-c: ">=3.2.4,<3.3.0a0"
       xz: ">=5.2.6,<6.0a0"
       zstd: ">=1.5.5,<1.6.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/libgdal-3.8.1-hb7f764b_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/libgdal-3.8.1-h7bb8e92_2.conda
     hash:
-      md5: eee8b19233a243e229af4399af2c4a10
-      sha256: efe25d85efe856c1db71e2a40ce9736e07cf5c06e53285248866a62a43363a0d
+      md5: bf37886bd95ab0afcf6e07b51ae6b813
+      sha256: b34bd433ae5a2378e472daa2ffdef4201ecbd654b1c62261e6c77d948efb689e
     category: main
     optional: false
   - name: libgdal
@@ -11619,13 +11619,13 @@ package:
       geotiff: ">=1.7.1,<1.8.0a0"
       giflib: ">=5.2.1,<5.3.0a0"
       hdf4: ">=4.2.15,<4.2.16.0a0"
-      hdf5: ">=1.14.2,<1.14.4.0a0"
+      hdf5: ">=1.14.3,<1.14.4.0a0"
       json-c: ">=0.17,<0.18.0a0"
       kealib: ">=1.5.2,<1.6.0a0"
       lerc: ">=4.0.0,<5.0a0"
       libaec: ">=1.1.2,<2.0a0"
       libarchive: ">=3.7.2,<3.8.0a0"
-      libcurl: ">=8.4.0,<9.0a0"
+      libcurl: ">=8.5.0,<9.0a0"
       libcxx: ">=16.0.6"
       libdeflate: ">=1.19,<1.20.0a0"
       libexpat: ">=2.5.0,<3.0a0"
@@ -11648,14 +11648,14 @@ package:
       poppler: ">=23.12.0,<23.13.0a0"
       postgresql: ""
       proj: ">=9.3.0,<9.3.1.0a0"
-      tiledb: ">=2.16,<2.17.0a0"
+      tiledb: ">=2.18.2,<2.19.0a0"
       xerces-c: ">=3.2.4,<3.3.0a0"
       xz: ">=5.2.6,<6.0a0"
       zstd: ">=1.5.5,<1.6.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/libgdal-3.8.1-hac00559_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/libgdal-3.8.1-h1ac08d9_2.conda
     hash:
-      md5: a65e999f85ab35663d7e9753ca7eaa13
-      sha256: 636ff5b1f95edc083dc7b3ba9f35a87fe18695349b1bd57ae72c54d00ef5034e
+      md5: 01eb49a277330eaa5aba72efcfd78b85
+      sha256: 8b4f6b74de89820dc02905ab97e0277ae654c062dd7b2106829bf9b7ffb545ed
     category: main
     optional: false
   - name: libgfortran
@@ -11918,11 +11918,11 @@ package:
     manager: conda
     platform: linux-64
     dependencies:
-      libgcc-ng: ">=10.3.0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/libiconv-1.17-h166bdaf_0.tar.bz2
+      libgcc-ng: ">=12"
+    url: https://conda.anaconda.org/conda-forge/linux-64/libiconv-1.17-hd590300_1.conda
     hash:
-      md5: b62b52da46c39ee2bc3c162ac7f1804d
-      sha256: 6a81ebac9f1aacdf2b4f945c87ad62b972f0f69c8e0981d68e111739e6720fd7
+      md5: 4b06b43d0eca61db2899e4d7a289c302
+      sha256: a9364735ef2542558ed59aa5f404707dab674df465cbdf312edeaf5e827b55ed
     category: main
     optional: false
   - name: libiconv
@@ -11930,10 +11930,10 @@ package:
     manager: conda
     platform: osx-64
     dependencies: {}
-    url: https://conda.anaconda.org/conda-forge/osx-64/libiconv-1.17-hac89ed1_0.tar.bz2
+    url: https://conda.anaconda.org/conda-forge/osx-64/libiconv-1.17-hd75f5a5_1.conda
     hash:
-      md5: 691d103d11180486154af49c037b7ed9
-      sha256: 4a3294037d595754f7da7c11a41f3922f995aaa333f3cb66f02d8afa032a7bc2
+      md5: c4069fa5c051d41093d3fd52caffa285
+      sha256: c479e7e0df4a59117ee02152fb85565aa6e4091bbb8e044f3367e52b0ccd8970
     category: main
     optional: false
   - name: libiconv
@@ -11941,10 +11941,10 @@ package:
     manager: conda
     platform: osx-arm64
     dependencies: {}
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/libiconv-1.17-he4db4b2_0.tar.bz2
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/libiconv-1.17-h0d3ecfb_1.conda
     hash:
-      md5: 686f9c755574aa221f29fbcf36a67265
-      sha256: 2eb33065783b802f71d52bef6f15ce0fafea0adc8506f10ebd0d490244087bec
+      md5: df3fbfc1fddc8fa40122206a4e47ea4e
+      sha256: d407ebd1e72ebb20716ea325cdebdd018bdc3c3d3424e67825db3eaa8809164e
     category: main
     optional: false
   - name: libjpeg-turbo
@@ -21533,65 +21533,66 @@ package:
     category: main
     optional: false
   - name: tiledb
-    version: 2.16.3
+    version: 2.18.2
     manager: conda
     platform: linux-64
     dependencies:
       bzip2: ">=1.0.8,<2.0a0"
-      libabseil: ">=20230802.0,<20230803.0a0"
+      libabseil: ">=20230802.1,<20230803.0a0"
       libgcc-ng: ">=12"
       libgoogle-cloud: ">=2.12.0,<2.13.0a0"
       libstdcxx-ng: ">=12"
-      libxml2: ">=2.11.5,<2.12.0a0"
+      libxml2: ">=2.11.6,<2.12.0a0"
       libzlib: ">=1.2.13,<1.3.0a0"
       lz4-c: ">=1.9.3,<1.10.0a0"
-      openssl: ">=3.1.2,<4.0a0"
+      openssl: ">=3.2.0,<4.0a0"
       zstd: ">=1.5.5,<1.6.0a0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/tiledb-2.16.3-h8c794c1_3.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/tiledb-2.18.2-h8c794c1_0.conda
     hash:
-      md5: 7de728789b0aba16018f726dc5ddbec2
-      sha256: f021df4b9cfd1a54aac87a6c0bac604edc8ffb36d5b2c4aa20bf2d759ae04a11
+      md5: e824b951c15a74d0a2d3e42676370791
+      sha256: c73704c36661193a040e4f1c454ef181277b97d3dc225febac9f3093e60f36bf
     category: main
     optional: false
   - name: tiledb
-    version: 2.16.3
+    version: 2.18.2
     manager: conda
     platform: osx-64
     dependencies:
-      __osx: ">=10.13"
+      __osx: ">=10.9"
       bzip2: ">=1.0.8,<2.0a0"
-      libabseil: ">=20230802.0,<20230803.0a0"
-      libcxx: ">=15.0.7"
+      libabseil: ">=20230802.1,<20230803.0a0"
+      libcxx: ">=16.0.6"
       libgoogle-cloud: ">=2.12.0,<2.13.0a0"
-      libxml2: ">=2.11.5,<2.12.0a0"
+      libxml2: ">=2.11.6,<2.12.0a0"
       libzlib: ">=1.2.13,<1.3.0a0"
       lz4-c: ">=1.9.3,<1.10.0a0"
-      openssl: ">=3.1.2,<4.0a0"
+      openssl: ">=3.2.0,<4.0a0"
       zstd: ">=1.5.5,<1.6.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/tiledb-2.16.3-hd3a41d5_3.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/tiledb-2.18.2-h9fe0a6a_0.conda
     hash:
-      md5: 53c2d2746f21a60d0c498c36fb32ec56
-      sha256: 9144ad40adb982107dd4f5084d1e488b216025eed91a3feeb3506ee4d5bc98dd
+      md5: 0615fdde1c114affe6a0250b9d342328
+      sha256: daccccc133c363360379e9efa525835cd20ed8ca12381641ccb1353c3d7c34c0
     category: main
     optional: false
   - name: tiledb
-    version: 2.16.3
+    version: 2.18.2
     manager: conda
     platform: osx-arm64
     dependencies:
+      __osx: ">=10.9"
       bzip2: ">=1.0.8,<2.0a0"
-      libabseil: ">=20230802.0,<20230803.0a0"
-      libcxx: ">=15.0.7"
+      libabseil: ">=20230802.1,<20230803.0a0"
+      libcxx: ">=16.0.6"
       libgoogle-cloud: ">=2.12.0,<2.13.0a0"
-      libxml2: ">=2.11.5,<2.12.0a0"
+      libxml2: ">=2.11.6,<2.12.0a0"
       libzlib: ">=1.2.13,<1.3.0a0"
       lz4-c: ">=1.9.3,<1.10.0a0"
-      openssl: ">=3.1.2,<4.0a0"
+      openssl: ">=3.2.0,<4.0a0"
       zstd: ">=1.5.5,<1.6.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/tiledb-2.16.3-he15c4da_3.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/tiledb-2.18.2-h555b8a3_0.conda
     hash:
-      md5: fcf3711dd1817fd6e8ab59be86aa8dd9
-      sha256: c2576bf0344b441f4c7d9212cfa68fe64de88dc9da735cb541c7faa0595d260f
+      md5: c223398e541fce9cfe1abe47df687909
+      sha256: da9227601b2bf5607fee33b62ed364561363f994ba41fd82e48d45a2f584210e
     category: main
     optional: false
   - name: timezonefinder
