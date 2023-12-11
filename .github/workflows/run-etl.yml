@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Docker Metadata
         id: docker_metadata
-        uses: docker/metadata-action@v4.4.0
+        uses: docker/metadata-action@v5.3.0
         # TODO(rousik): we could consider YYYY-MM-DD-HHMM-branch-sha
         with:
           images: catalystcoop/pudl-etl-ci
