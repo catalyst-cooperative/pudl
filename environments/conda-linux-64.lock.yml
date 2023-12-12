@@ -47,7 +47,7 @@ dependencies:
   - libexpat=2.5.0=hcb278e6_1
   - libffi=3.4.2=h7f98852_5
   - libgfortran5=13.2.0=ha4646dd_3
-  - libiconv=1.17=h166bdaf_0
+  - libiconv=1.17=hd590300_1
   - libjpeg-turbo=3.0.0=hd590300_1
   - libnsl=2.0.1=hd590300_0
   - libnuma=2.0.16=h0b41bf4_1
@@ -418,7 +418,7 @@ dependencies:
   - httpcore=1.0.2=pyhd8ed1ab_0
   - importlib_metadata=7.0.0=hd8ed1ab_0
   - jsonschema-specifications=2023.11.2=pyhd8ed1ab_0
-  - jupyter_server_terminals=0.4.4=pyhd8ed1ab_1
+  - jupyter_server_terminals=0.5.0=pyhd8ed1ab_0
   - kealib=1.5.2=hcd42e92_1
   - libnetcdf=4.9.2=nompi_h80fb2b6_112
   - libspatialite=5.1.0=h7385560_2
@@ -442,7 +442,7 @@ dependencies:
   - sqlalchemy=2.0.23=py311h459d7ec_0
   - stack_data=0.6.2=pyhd8ed1ab_0
   - starlette=0.33.0=pyhd8ed1ab_0
-  - tiledb=2.16.3=h8c794c1_3
+  - tiledb=2.18.2=h8c794c1_0
   - ukkonen=1.0.1=py311h9547e67_4
   - uvicorn=0.24.0.post1=py311h38be061_0
   - watchfiles=0.21.0=py311h46250e7_0
@@ -468,7 +468,7 @@ dependencies:
   - isoduration=20.11.0=pyhd8ed1ab_0
   - jsonschema=4.20.0=pyhd8ed1ab_0
   - jupyter_client=8.6.0=pyhd8ed1ab_0
-  - libgdal=3.8.1=hcae7082_1
+  - libgdal=3.8.1=hd0089ee_2
   - numba=0.58.1=py311h96b013e_0
   - numexpr=2.8.7=py311h039bad6_104
   - oauthlib=3.2.2=pyhd8ed1ab_0
@@ -496,7 +496,7 @@ dependencies:
   - doc8=1.1.1=pyhd8ed1ab_0
   - email-validator=2.1.0.post1=pyhd8ed1ab_0
   - frictionless=4.40.8=pyh6c4a22f_0
-  - gdal=3.8.1=py311h815a124_1
+  - gdal=3.8.1=py311h67923c1_2
   - geopandas-base=0.14.1=pyha770c72_0
   - google-auth=2.25.2=pyhca7485f_0
   - gql-with-requests=3.4.1=pyhd8ed1ab_0
