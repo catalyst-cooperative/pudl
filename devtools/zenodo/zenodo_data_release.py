@@ -10,12 +10,43 @@ from typing import BinaryIO
 
 import click
 import requests
+from pydantic import AnyHttpUrl, BaseModel, Field
 
 SANDBOX = "sandbox"
 PRODUCTION = "production"
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
+
+
+class _LegacyLinks(BaseModel):
+    html: AnyHttpUrl
+
+
+class _LegacyMetadata(BaseModel):
+    upload_type: str = "dataset"
+    title: str
+    access_right: str
+    creators: list[dict]
+    license_: str = Field(alias="license", default="cc-by-4.0")
+    publication_date: str = ""
+    description: str = ""
+
+
+class _LegacyDeposition(BaseModel):
+    id_: int = Field(alias="id")
+    conceptrecid: int
+    links: _LegacyLinks
+    metadata: _LegacyMetadata
+
+
+class _NewFile(BaseModel):
+    id_: str = Field(alias="id")
+
+
+class _NewRecord(BaseModel):
+    id_: int = Field(alias="id")
+    files: list[_NewFile]
 
 
 class ZenodoClient:
@@ -49,52 +80,55 @@ class ZenodoClient:
                 f"Got unexpected {env=}, expected {SANDBOX} or {PRODUCTION}"
             )
 
-    def get_deposition(self, deposition_id: int) -> requests.Response:
+    def get_deposition(self, deposition_id: int) -> _LegacyDeposition:
         """LEGACY API: Get JSON describing a deposition.
 
         Depositions can be published *or* unpublished.
         """
-        return requests.get(
+        response = requests.get(
             f"{self.base_url}/deposit/depositions/{deposition_id}",
             headers=self.auth_headers,
             timeout=10,
         )
+        return _LegacyDeposition(**response.json())
 
-    def get_record(self, record_id: int) -> requests.Response:
+    def get_record(self, record_id: int) -> _NewRecord:
         """NEW API: Get JSON describing a record.
 
         All records are published records.
         """
-        return requests.get(
+        response = requests.get(
             f"{self.base_url}/records/{record_id}",
             headers=self.auth_headers,
             timeout=10,
         )
+        return _NewRecord(**response.json())
 
-    def new_record_version(self, record_id: int) -> requests.Response:
+    def new_record_version(self, record_id: int) -> _NewRecord:
         """NEW API: get or create the draft associated with a record ID.
 
         Finds the latest record in the concept that record_id points to, and
         makes a new version unless one exists already.
         """
-        return requests.post(
+        response = requests.post(
             f"{self.base_url}/records/{record_id}/versions",
             headers=self.auth_headers,
             timeout=10,
         )
+        return _NewRecord(**response.json())
 
     def update_deposition_metadata(
-        self, deposition_id: int, metadata: dict
-    ) -> requests.Response:
+        self, deposition_id: int, metadata: _LegacyMetadata
+    ) -> _LegacyDeposition:
         """LEGACY API: Update deposition metadata.
 
         Replaces the existing metadata completely - so make sure to pass in
         complete metadata. You cannot update metadata fields one at a time.
         """
         url = f"{self.base_url}/deposit/depositions/{deposition_id}"
-        data = {"metadata": metadata}
+        data = {"metadata": metadata.model_dump()}
         response = requests.put(url, json=data, headers=self.auth_headers, timeout=10)
-        return response
+        return _LegacyDeposition(**response.json())
 
     def delete_deposition_file(self, deposition_id: int, file_id) -> requests.Response:
         """LEGACY API: Delete file from deposition.
@@ -121,14 +155,14 @@ class ZenodoClient:
         )
         return response
 
-    def publish_deposition(self, deposition_id: int) -> requests.Response:
+    def publish_deposition(self, deposition_id: int) -> _LegacyDeposition:
         """LEGACY API: publish deposition."""
-        resp = requests.post(
+        response = requests.post(
             f"{self.base_url}/deposit/depositions/{deposition_id}/actions/publish",
             headers=self.auth_headers,
             timeout=10,
         )
-        return resp
+        return _LegacyDeposition(**response.json())
 
 
 class SourceData:
@@ -180,36 +214,37 @@ class InitialDataset(State):
         in the draft.
         """
         logger.info(f"Getting new version for {self.record_id}")
-        latest_record = self.zenodo_client.get_record(self.record_id).json()
-        new_version = self.zenodo_client.new_record_version(latest_record["id"]).json()
-        new_rec_id = new_version["id"]
-        existing_files = new_version["files"]
+        latest_record = self.zenodo_client.get_record(self.record_id)
+        new_version = self.zenodo_client.new_record_version(latest_record.id_)
+        new_rec_id = new_version.id_
+        existing_files = new_version.files
         logger.info(
             f"Draft {new_rec_id} has {len(existing_files)} existing files, deleting..."
         )
-        new_version = self.zenodo_client.new_record_version(self.record_id).json()
         for f in existing_files:
-            self.zenodo_client.delete_deposition_file(new_rec_id, f["id"])
+            self.zenodo_client.delete_deposition_file(new_rec_id, f.id_)
         return EmptyDraft(record_id=new_rec_id, zenodo_client=self.zenodo_client)
 
 
 class EmptyDraft(State):
     """We can only sync the directory once we've gotten an empty draft."""
 
-    def sync_directory(self, source_dir: SourceData) -> "CompleteDraft":
+    def sync_directory(self, source_dir: SourceData) -> "ContentComplete":
         """Read data from source_dir and upload it."""
         logger.info(f"Syncing files from {source_dir} to draft {self.record_id}...")
         for name, blob in source_dir.iter_files():
             self.zenodo_client.create_deposition_file(self.record_id, name, blob)
 
-        return CompleteDraft(record_id=self.record_id, zenodo_client=self.zenodo_client)
+        return ContentComplete(
+            record_id=self.record_id, zenodo_client=self.zenodo_client
+        )
 
 
-class CompleteDraft(State):
-    """Now that we've uploaded all the data, we can publish."""
+class ContentComplete(State):
+    """Now that we've uploaded all the data, we need to update metadata."""
 
-    def publish(self) -> None:
-        """Publish the draft.
+    def update_metadata(self):
+        """Copy over old metadata and update publication date.
 
         We need to make sure there is complete metadata, including a publication date.
 
@@ -224,29 +259,37 @@ class CompleteDraft(State):
         metadata format. But the legacy concept DOI -> published record mapping
         is broken, so we have to take a detour through the new API.
         """
-        deposition_info = self.zenodo_client.get_deposition(self.record_id).json()
-        concept_rec_id = deposition_info["conceptrecid"]
-        concept_info = self.zenodo_client.get_record(concept_rec_id).json()
+        deposition_info = self.zenodo_client.get_deposition(self.record_id)
+        concept_rec_id = deposition_info.conceptrecid
+        concept_info = self.zenodo_client.get_record(concept_rec_id)
         latest_published_deposition = self.zenodo_client.get_deposition(
-            concept_info["id"]
-        ).json()
+            concept_info.id_
+        )
         base_metadata = {
             k: v
-            for k, v in latest_published_deposition["metadata"].items()
+            for k, v in latest_published_deposition.metadata.model_dump().items()
             if k not in {"doi", "prereserve_doi", "publication_date"}
         }
         logger.info(
-            f"Using metadata from {latest_published_deposition['id']} to publish {self.record_id}..."
+            f"Using metadata from {latest_published_deposition.id_} to publish {self.record_id}..."
         )
         pub_date = {"publication_date": datetime.date.today().isoformat()}
         self.zenodo_client.update_deposition_metadata(
-            self.record_id, metadata=base_metadata | pub_date
+            self.record_id, metadata=_LegacyMetadata(**(base_metadata | pub_date))
         )
+        return CompleteDraft(record_id=self.record_id, zenodo_client=self.zenodo_client)
+
+
+class CompleteDraft(State):
+    """Now that we've uploaded all the data, we can publish."""
+
+    def publish(self) -> None:
+        """Publish the draft."""
         self.zenodo_client.publish_deposition(self.record_id)
 
     def get_html_url(self):
         """A URL for viewing this draft."""
-        return self.zenodo_client.get_deposition(self.record_id).json()["links"]["html"]
+        return self.zenodo_client.get_deposition(self.record_id).links.html
 
 
 @click.command()
@@ -264,7 +307,9 @@ class CompleteDraft(State):
 )
 @click.option(
     "--source-dir",
-    type=Path,
+    type=click.Path(
+        exists=True, file_okay=False, dir_okay=True, readable=True, path_type=Path
+    ),
     required=True,
     help="What directory to sync up to this concept DOI.",
 )
@@ -282,6 +327,7 @@ def pudl_zenodo_data_release(env: bool, concept_rec_id, source_dir, publish):
         InitialDataset(zenodo_client=zenodo_client, record_id=concept_rec_id)
         .get_empty_draft()
         .sync_directory(source_data)
+        .update_metadata()
     )
 
     if publish:
