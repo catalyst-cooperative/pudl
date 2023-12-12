@@ -110,6 +110,14 @@ class TestEpaCemsSettings:
         ]
         assert expected_year_quarters == returned_settings.year_quarters
 
+    def test_all_year_quarters(self: Self):
+        """Test the `all` option for the cems settings."""
+        epacems_settings_all = EpaCemsSettings(year_quarters=["all"])
+        working_partitions_all = DataSource.from_id("epacems").working_partitions[
+            "year_quarters"
+        ]
+        assert epacems_settings_all.year_quarters == working_partitions_all
+
     def test_none_quarters_raise(self: Self):
         """Test that setting a required partition to None raises an error."""
         with pytest.raises(ValidationError):

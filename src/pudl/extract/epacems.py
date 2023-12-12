@@ -110,10 +110,6 @@ class EpaCemsPartition(BaseModel):
         """Return the year associated with the year_quarter."""
         return pd.to_datetime(self.year_quarter).year
 
-    def get_key(self):
-        """Returns hashable key for use with EpaCemsDatastore."""
-        return self.year_quarter
-
     def get_filters(self):
         """Returns filters for retrieving given partition resource from Datastore."""
         return {"year_quarter": self.year_quarter}
