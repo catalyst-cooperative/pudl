@@ -11,7 +11,7 @@ import re
 
 import numpy as np
 import pandas as pd
-from dagster import graph, op
+from dagster import graph_asset, op
 
 import pudl
 from pudl.analysis.record_linkage import embed_dataframe
@@ -25,7 +25,6 @@ _FUEL_COLS = [
     "gas_fraction_mmbtu",
     "nuclear_fraction_mmbtu",
     "oil_fraction_mmbtu",
-    "other_fraction_mmbtu",
     "waste_fraction_mmbtu",
 ]
 
@@ -130,26 +129,23 @@ def plants_steam_validate_ids(
 @op
 def merge_steam_fuel_dfs(
     ferc1_steam_df: pd.DataFrame,
-    ferc1_fuel_df: pd.DataFrame,
-    fuel_categories: list[str],
+    fuel_fractions: pd.DataFrame,
 ) -> pd.DataFrame:
     """Merge steam plants and fuel dfs to prepare inputs for ferc plant matching."""
-    # Grab fuel consumption proportions for use in assigning plant IDs:
-    fuel_fractions = fuel_by_plant_ferc1(ferc1_fuel_df, fuel_categories)
     ffc = list(fuel_fractions.filter(regex=".*_fraction_mmbtu$").columns)
 
+    # Grab fuel consumption proportions for use in assigning plant IDs:
     return ferc1_steam_df.merge(
         fuel_fractions[["utility_id_ferc1", "plant_name_ferc1", "report_year"] + ffc],
         on=["utility_id_ferc1", "plant_name_ferc1", "report_year"],
         how="left",
-    )
+    ).astype({"plant_type": str, "construction_type": str})
 
 
-@graph
-def plants_steam_assign_plant_ids(
-    ferc1_steam_df: pd.DataFrame,
-    ferc1_fuel_df: pd.DataFrame,
-    fuel_categories: list[str],
+@graph_asset
+def _out_ferc1__yearly_steam_plants_sched402(
+    plants_steam_ferc1: pd.DataFrame,
+    denorm_fuel_by_plant_ferc1: pd.DataFrame,
 ) -> pd.DataFrame:
     """Assign IDs to the large steam plants."""
     ###########################################################################
@@ -159,11 +155,11 @@ def plants_steam_assign_plant_ids(
     # do this for us.
     logger.info("Identifying distinct large FERC plants for ID assignment.")
 
-    input_df = merge_steam_fuel_dfs(ferc1_steam_df, ferc1_fuel_df, fuel_categories)
+    input_df = merge_steam_fuel_dfs(plants_steam_ferc1, denorm_fuel_by_plant_ferc1)
     feature_matrix = embed_dataframe(input_df)
     label_df = link_ids_cross_year(input_df, feature_matrix)
 
-    return plants_steam_validate_ids(ferc1_steam_df, label_df)
+    return plants_steam_validate_ids(plants_steam_ferc1, label_df)
 
 
 def revert_filled_in_string_nulls(df: pd.DataFrame) -> pd.DataFrame:

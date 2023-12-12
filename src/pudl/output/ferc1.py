@@ -200,7 +200,8 @@ def denorm_plants_utilities_ferc1(
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def denorm_plants_steam_ferc1(
-    denorm_plants_utilities_ferc1: pd.DataFrame, plants_steam_ferc1: pd.DataFrame
+    denorm_plants_utilities_ferc1: pd.DataFrame,
+    _out_ferc1__yearly_steam_plants_sched402: pd.DataFrame,
 ) -> pd.DataFrame:
     """Select and joins some useful fields from the FERC Form 1 steam table.
 
@@ -219,7 +220,7 @@ def denorm_plants_steam_ferc1(
         A DataFrame containing useful fields from the FERC Form 1 steam table.
     """
     steam_df = (
-        plants_steam_ferc1.merge(
+        _out_ferc1__yearly_steam_plants_sched402.merge(
             denorm_plants_utilities_ferc1,
             on=["utility_id_ferc1", "plant_name_ferc1"],
             how="left",
