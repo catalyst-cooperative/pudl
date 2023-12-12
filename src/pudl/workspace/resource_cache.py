@@ -102,6 +102,7 @@ class LocalFileCache(AbstractCache):
 
     def add(self, resource: PudlResourceKey, content: bytes):
         """Adds (or updates) resource to the cache with given value."""
+        logger.debug(f"Adding {resource} to {self._resource_path}")
         if self.is_read_only():
             logger.debug(f"Read only cache: ignoring set({resource})")
             return
@@ -154,6 +155,7 @@ class GoogleCloudStorageCache(AbstractCache):
 
     def add(self, resource: PudlResourceKey, value: bytes):
         """Adds (or updates) resource to the cache with given value."""
+        logger.debug(f"Adding {resource} to {self._blob.__name__}")
         return self._blob(resource).upload_from_string(value)
 
     def delete(self, resource: PudlResourceKey):

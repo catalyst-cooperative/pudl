@@ -45,7 +45,7 @@ jobs:
 
       - name: Docker Metadata
         id: docker_metadata
-        uses: docker/metadata-action@v4.4.0
+        uses: docker/metadata-action@v5.3.0
         with:
           images: catalystcoop/pudl-etl
           flavor: |
@@ -83,7 +83,7 @@ jobs:
 
       # Setup gcloud CLI
       - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v1
+        uses: google-github-actions/setup-gcloud@v2
 
       - name: Determine commit information
         run: |-
