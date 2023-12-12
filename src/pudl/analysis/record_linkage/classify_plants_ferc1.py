@@ -29,7 +29,7 @@ _FUEL_COLS = [
 ]
 
 
-embed_dataframe = embed_dataframe.dataframe_embedder_factory(
+ferc_datframe_embedder = embed_dataframe.dataframe_embedder_factory(
     {
         "plant_name": embed_dataframe.ColumnVectorizer(
             transform_steps=[
@@ -156,7 +156,7 @@ def _out_ferc1__yearly_steam_plants_sched402(
     logger.info("Identifying distinct large FERC plants for ID assignment.")
 
     input_df = merge_steam_fuel_dfs(plants_steam_ferc1, denorm_fuel_by_plant_ferc1)
-    feature_matrix = embed_dataframe(input_df)
+    feature_matrix = ferc_datframe_embedder(input_df)
     label_df = link_ids_cross_year(input_df, feature_matrix)
 
     return plants_steam_validate_ids(plants_steam_ferc1, label_df)
