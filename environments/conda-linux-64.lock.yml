@@ -520,7 +520,7 @@ dependencies:
   - dagster-postgres=0.21.12=pyhd8ed1ab_0
   - fiona=1.9.5=py311hf8e0aa6_2
   - google-api-core=2.15.0=pyhd8ed1ab_0
-  - google-auth-oauthlib=1.1.0=pyhd8ed1ab_0
+  - google-auth-oauthlib=1.2.0=pyhd8ed1ab_0
   - graphviz=9.0.0=h78e8752_1
   - jupyter_console=6.6.3=pyhd8ed1ab_0
   - jupyter_events=0.9.0=pyhd8ed1ab_0

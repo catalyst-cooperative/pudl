@@ -6527,7 +6527,7 @@ package:
     category: main
     optional: false
   - name: google-auth-oauthlib
-    version: 1.1.0
+    version: 1.2.0
     manager: conda
     platform: linux-64
     dependencies:
@@ -6535,14 +6535,14 @@ package:
       google-auth: ">=2.15.0"
       python: ">=3.6"
       requests-oauthlib: ">=0.7.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/google-auth-oauthlib-1.1.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/google-auth-oauthlib-1.2.0-pyhd8ed1ab_0.conda
     hash:
-      md5: ffa1e2fd52bc00ec0fc5680a2f4bd167
-      sha256: fc12c5a06b4d073c855cc2c43edff0b444af7b0db860f578fee1486769af0f21
+      md5: 2057f12885a73b4d621c075423cec969
+      sha256: 39d031780d9ac2da430ead078a40ff67db3ad57e24ab1e3c68b4e0f2b48a2311
     category: main
     optional: false
   - name: google-auth-oauthlib
-    version: 1.1.0
+    version: 1.2.0
     manager: conda
     platform: osx-64
     dependencies:
@@ -6550,14 +6550,14 @@ package:
       requests-oauthlib: ">=0.7.0"
       click: ">=6.0.0"
       google-auth: ">=2.15.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/google-auth-oauthlib-1.1.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/google-auth-oauthlib-1.2.0-pyhd8ed1ab_0.conda
     hash:
-      md5: ffa1e2fd52bc00ec0fc5680a2f4bd167
-      sha256: fc12c5a06b4d073c855cc2c43edff0b444af7b0db860f578fee1486769af0f21
+      md5: 2057f12885a73b4d621c075423cec969
+      sha256: 39d031780d9ac2da430ead078a40ff67db3ad57e24ab1e3c68b4e0f2b48a2311
     category: main
     optional: false
   - name: google-auth-oauthlib
-    version: 1.1.0
+    version: 1.2.0
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -6565,10 +6565,10 @@ package:
       requests-oauthlib: ">=0.7.0"
       click: ">=6.0.0"
       google-auth: ">=2.15.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/google-auth-oauthlib-1.1.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/google-auth-oauthlib-1.2.0-pyhd8ed1ab_0.conda
     hash:
-      md5: ffa1e2fd52bc00ec0fc5680a2f4bd167
-      sha256: fc12c5a06b4d073c855cc2c43edff0b444af7b0db860f578fee1486769af0f21
+      md5: 2057f12885a73b4d621c075423cec969
+      sha256: 39d031780d9ac2da430ead078a40ff67db3ad57e24ab1e3c68b4e0f2b48a2311
     category: main
     optional: false
   - name: google-cloud-core
