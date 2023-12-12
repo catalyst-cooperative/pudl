@@ -89,7 +89,7 @@ def dataframe_embedder_factory(vectorizers: dict[str, ColumnVectorizer]):
         return column_transformer.fit(df)
 
     @op
-    def apply_embed_dataframe(df: pd.DataFrame, transformer: ColumnTransformer):
+    def apply_dataframe_embedder(df: pd.DataFrame, transformer: ColumnTransformer):
         """Use :class:`sklearn.compose.ColumnTransformer` to transform input."""
         return FeatureMatrix(matrix=transformer.transform(df))
 
@@ -97,7 +97,7 @@ def dataframe_embedder_factory(vectorizers: dict[str, ColumnVectorizer]):
     def embed_dataframe(df: pd.DataFrame) -> FeatureMatrix:
         """Train dataframe embedder and apply to input df."""
         transformer = train_dataframe_embedder(df)
-        return apply_embed_dataframe(df, transformer)
+        return apply_dataframe_embedder(df, transformer)
 
     return embed_dataframe
 
