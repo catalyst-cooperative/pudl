@@ -1,5 +1,4 @@
 """Module for validating pudl etl settings."""
-import itertools
 import json
 from enum import Enum, unique
 from typing import Any, ClassVar, Self
@@ -96,11 +95,8 @@ class GenericDatasetSettings(FrozenBaseModel):
         ``pd.json_normalize``.
         """
         partitions = []
-        if hasattr(cls, "years") and hasattr(cls, "states"):
-            partitions = [
-                {"year": year, "state": state}
-                for year, state in itertools.product(cls.years, cls.states)
-            ]
+        if hasattr(cls, "year_quarters"):
+            partitions = [{"year_quarters": part} for part in cls.year_quarters]
         elif hasattr(cls, "years"):
             partitions = [{"year": part} for part in cls.years]
         return partitions
@@ -149,24 +145,19 @@ class EpaCemsSettings(GenericDatasetSettings):
 
     Args:
         data_source: DataSource metadata object
-        years: list of years to validate.
-        states: list of states to validate.
-        partition: Whether to output year-state partitioned Parquet files. If True,
-            all available threads / CPUs will be used in parallel.
+        year_quarters: list of year_quarters to validate.
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("epacems")
+    year_quarters: list[str] = data_source.working_partitions["year_quarters"]
 
-    years: list[int] = data_source.working_partitions["years"]
-    states: list[str] = data_source.working_partitions["states"]
-
-    @field_validator("states")
+    @field_validator("year_quarters")
     @classmethod
-    def allow_all_keyword(cls, states):  # noqa: N805
-        """Allow users to specify ['all'] to get all states."""
-        if states == ["all"]:
-            states = cls.data_source.working_partitions["states"]
-        return states
+    def allow_all_keyword_year_quarters(cls, year_quarters):
+        """Allow users to specify ['all'] to get all quarters."""
+        if year_quarters == ["all"]:
+            year_quarters = cls.data_source.working_partitions["year_quarters"]
+        return year_quarters
 
 
 class Eia923Settings(GenericDatasetSettings):
@@ -215,7 +206,7 @@ class Eia860Settings(GenericDatasetSettings):
 
     @field_validator("eia860m")
     @classmethod
-    def check_eia860m_date(cls, eia860m: bool) -> bool:  # noqa: N805
+    def check_eia860m_date(cls, eia860m: bool) -> bool:
         """Check 860m date-year is exactly one year after most recent working 860 year.
 
         Args:
