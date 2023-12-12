@@ -122,7 +122,8 @@ def epacems(
             from :mod:`pudl.workspace`
 
     Returns:
-        The requested epacems data
+        The requested epacems data. If requested states or years are not available, no
+        error will be raised.
     """
     # columns=None is handled by dd.read_parquet; gives all columns
     if columns is not None:
