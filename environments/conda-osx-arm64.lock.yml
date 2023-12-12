@@ -152,12 +152,12 @@ dependencies:
   - colorama=0.4.6=pyhd8ed1ab_0
   - crashtest=0.4.1=pyhd8ed1ab_0
   - cycler=0.12.1=pyhd8ed1ab_0
-  - dagster-pipes=1.5.11=pyhd8ed1ab_0
+  - dagster-pipes=1.5.12=pyhd8ed1ab_0
   - dataclasses=0.8=pyhc8e2a94_3
   - debugpy=1.8.0=py311ha891d26_1
   - decorator=5.1.1=pyhd8ed1ab_0
   - defusedxml=0.7.1=pyhd8ed1ab_0
-  - distlib=0.3.7=pyhd8ed1ab_0
+  - distlib=0.3.8=pyhd8ed1ab_0
   - docstring_parser=0.15=pyhd8ed1ab_0
   - docutils=0.20.1=py311h267d04e_3
   - entrypoints=0.4=pyhd8ed1ab_0
@@ -382,7 +382,7 @@ dependencies:
   - arrow=1.3.0=pyhd8ed1ab_0
   - async-timeout=4.0.3=pyhd8ed1ab_0
   - aws-crt-cpp=0.24.7=hba4ac3b_6
-  - botocore=1.33.11=pyhd8ed1ab_0
+  - botocore=1.33.12=pyhd8ed1ab_0
   - branca=0.7.0=pyhd8ed1ab_1
   - croniter=2.0.1=pyhd8ed1ab_0
   - cryptography=41.0.7=py311h08c85a6_1
@@ -470,9 +470,9 @@ dependencies:
   - typeguard=4.1.5=pyhd8ed1ab_1
   - typer=0.9.0=pyhd8ed1ab_0
   - uvicorn-standard=0.24.0.post1=ha1ab1f8_0
-  - boto3=1.33.11=pyhd8ed1ab_0
+  - boto3=1.33.12=pyhd8ed1ab_0
   - cachecontrol-with-filecache=0.13.1=pyhd8ed1ab_0
-  - dagster=1.5.11=pyhd8ed1ab_0
+  - dagster=1.5.12=pyhd8ed1ab_0
   - datasette=0.64.4=pyhd8ed1ab_1
   - doc8=1.1.1=pyhd8ed1ab_0
   - email-validator=2.1.0.post1=pyhd8ed1ab_0
@@ -496,8 +496,8 @@ dependencies:
   - timezonefinder=6.2.0=py311h05b510d_2
   - catalystcoop.ferc_xbrl_extractor=1.3.1=pyhd8ed1ab_0
   - conda-lock=2.5.1=pyhd8ed1ab_0
-  - dagster-graphql=1.5.11=pyhd8ed1ab_0
-  - dagster-postgres=0.21.11=pyhd8ed1ab_0
+  - dagster-graphql=1.5.12=pyhd8ed1ab_0
+  - dagster-postgres=0.21.12=pyhd8ed1ab_0
   - fiona=1.9.5=py311h4760b73_2
   - google-api-core=2.15.0=pyhd8ed1ab_0
   - google-auth-oauthlib=1.1.0=pyhd8ed1ab_0
@@ -513,7 +513,7 @@ dependencies:
   - qtconsole-base=5.5.1=pyha770c72_0
   - recordlinkage=0.16=pyhd8ed1ab_0
   - tabulator=1.53.5=pyhd8ed1ab_0
-  - dagster-webserver=1.5.11=pyhd8ed1ab_0
+  - dagster-webserver=1.5.12=pyhd8ed1ab_0
   - geopandas=0.14.1=pyhd8ed1ab_0
   - google-cloud-core=2.4.1=pyhd8ed1ab_0
   - libarrow-dataset=14.0.1=had9dd58_3_cpu
