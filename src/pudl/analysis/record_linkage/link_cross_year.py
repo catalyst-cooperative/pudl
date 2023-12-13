@@ -5,6 +5,8 @@ from tempfile import TemporaryDirectory
 import numpy as np
 import pandas as pd
 from dagster import Config, graph, op
+from numba import njit
+from numba.typed import List
 from sklearn.cluster import DBSCAN, AgglomerativeClustering
 from sklearn.metrics import pairwise_distances_chunked
 from sklearn.neighbors import NearestNeighbors
@@ -68,21 +70,42 @@ class DistanceMatrix:
             shape=(feature_matrix.shape[0], feature_matrix.shape[0]),
         )
 
-    def get_cluster_distance_matrix(self, cluster_inds: np.ndarray) -> np.ndarray:
-        """Return a distance matrix with only distances within a cluster."""
-        cluster_size = len(cluster_inds)
-        dist_inds = np.array(np.meshgrid(cluster_inds, cluster_inds)).T.reshape(-1, 2)
-        return self.distance_matrix[dist_inds[:, 0], dist_inds[:, 1]].reshape(
-            (cluster_size, cluster_size)
-        )
 
-    def average_dist_between_clusters(
-        self, set_1: list[int], set_2: list[int]
-    ) -> float:
-        """Compute average distance between two clusters of records given indices of each cluster."""
-        dist_inds = np.array(np.meshgrid(set_1, set_2)).T.reshape(-1, 2)
-        dists = self.distance_matrix[dist_inds[:, 0], dist_inds[:, 1]]
-        return dists.mean()
+def get_cluster_distance_matrix(
+    distance_matrix: np.ndarray, cluster_inds: np.ndarray
+) -> np.ndarray:
+    """Return a distance matrix with only distances within a cluster."""
+    cluster_size = len(cluster_inds)
+    dist_inds = np.array(np.meshgrid(cluster_inds, cluster_inds)).T.reshape(-1, 2)
+    return distance_matrix[dist_inds[:, 0], dist_inds[:, 1]].reshape(
+        (cluster_size, cluster_size)
+    )
+
+
+@njit
+def get_average_distance_matrix(
+    distance_matrix: np.ndarray,
+    cluster_groups: list[list[int]],
+) -> np.ndarray:
+    """Compute average distance between two clusters of records given indices of each cluster."""
+    # Prepare a distance matrix of (n_clusters x n_clusters)
+    # Distance matrix contains average distance between each cluster
+    n_clusters = len(cluster_groups)
+    average_dist_matrix = np.zeros((n_clusters, n_clusters))
+
+    # Heavy nested looping optimized by numba
+    for i, cluster_i in enumerate(cluster_groups):
+        for j, cluster_j in enumerate(cluster_groups[:i]):
+            total_dist = 0
+            for cluster_i_ind in cluster_i:
+                for cluster_j_ind in cluster_j:
+                    total_dist += distance_matrix[cluster_i_ind, cluster_j_ind]
+
+            average_dist = total_dist / (len(cluster_i) + len(cluster_j))
+            average_dist_matrix[i, j] = average_dist
+            average_dist_matrix[j, i] = average_dist
+
+    return average_dist_matrix
 
 
 @op
@@ -175,7 +198,9 @@ def split_clusters(
         cluster_inds = id_year_df[
             id_year_df.record_label == duplicated_id
         ].index.to_numpy()
-        cluster_distances = distance_matrix.get_cluster_distance_matrix(cluster_inds)
+        cluster_distances = get_cluster_distance_matrix(
+            distance_matrix.distance_matrix, cluster_inds
+        )
 
         new_labels = classifier.fit_predict(cluster_distances)
         for new_label in np.unique(new_labels):
@@ -216,23 +241,15 @@ def match_orphaned_records(
     cluster_inds = id_year_df.groupby("record_label").indices
 
     # Orphaned records are considered a cluster of a single record
-    cluster_groups = [[ind] for ind in cluster_inds[-1]]
+    cluster_groups = [List([ind]) for ind in cluster_inds[-1]]
 
     # Get list of all points in each assigned cluster
-    cluster_groups += [inds for key, inds in cluster_inds.items() if key != -1]
+    cluster_groups += [List(inds) for key, inds in cluster_inds.items() if key != -1]
+    cluster_groups = List(cluster_groups)
 
-    # Prepare a distance matrix of (n_clusters x n_clusters)
-    # Distance matrix contains average distance between each cluster
-    n_clusters = len(cluster_groups)
-    average_dist_matrix = np.zeros((n_clusters, n_clusters))
-
-    # TODO(zschira): Major model bottleneck. If optimizations become required, start here.
-    for i, x_cluster_inds in enumerate(cluster_groups):
-        for j, y_cluster_inds in enumerate(cluster_groups[:i]):
-            average_dist_matrix[i, j] = distance_matrix.average_dist_between_clusters(
-                x_cluster_inds, y_cluster_inds
-            )
-            average_dist_matrix[j, i] = average_dist_matrix[i, j]
+    average_dist_matrix = get_average_distance_matrix(
+        distance_matrix.distance_matrix, cluster_groups
+    )
 
     # Assign new labels to all points
     new_labels = classifier.fit_predict(average_dist_matrix)
