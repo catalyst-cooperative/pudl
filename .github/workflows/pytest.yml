@@ -298,10 +298,11 @@ jobs:
           name: raw-coverage
           path: raw-coverage
       - name: Combine raw coverage files (from integration)
-        runs: |
+        run: |
           mkdir -p coverage/coverage-integration
           coverage combine raw-coverage/
           coverage xml -o coverage/coverage-integration/coverage.xml
+          coverage report
       - name: Download docs coverage
         id: download-coverage
         uses: actions/download-artifact@v3
