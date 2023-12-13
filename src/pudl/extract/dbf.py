@@ -11,7 +11,6 @@ from pathlib import Path
 from typing import IO, Any, Protocol, Self
 
 import pandas as pd
-from pudl.resources import RuntimeSettings
 import sqlalchemy as sa
 from dagster import op
 from dbfread import DBF, FieldParser
@@ -19,6 +18,7 @@ from dbfread import DBF, FieldParser
 import pudl
 import pudl.logging_helpers
 from pudl.metadata.classes import DataSource
+from pudl.resources import RuntimeSettings
 from pudl.settings import FercToSqliteSettings, GenericDatasetSettings
 from pudl.workspace.datastore import Datastore
 from pudl.workspace.setup import PudlPaths
@@ -483,7 +483,10 @@ class FercDbfExtractor:
         def inner_method(context) -> None:
             rs: RuntimeSettings = context.resources.runtime_settings
             """Instantiates dbf extractor and runs it."""
-            if rs.dataset_only and rs.dataset_only.lower() != f"{cls.DATASET.lower()}_dbf":
+            if (
+                rs.dataset_only
+                and rs.dataset_only.lower() != f"{cls.DATASET.lower()}_dbf"
+            ):
                 logger.info(
                     f"Skipping dataset {cls.DATASET} because it is not in the "
                     f"dataset_only list."

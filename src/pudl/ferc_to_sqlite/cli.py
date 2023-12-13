@@ -150,7 +150,7 @@ def ferc_to_sqlite_job_factory(
         "execution into several parallel small jobs that should finish faster. "
         "Other operations are still going to be invoked, but they will terminate "
         "early if this setting is in use."
-    )
+    ),
 )
 def main(
     etl_settings_yml: pathlib.Path,
@@ -161,7 +161,7 @@ def main(
     gcs_cache_path: str,
     logfile: pathlib.Path,
     loglevel: str,
-    dataset_only:  str,
+    dataset_only: str,
 ):
     """Use Dagster to convert FERC data fom DBF and XBRL to SQLite databases.
 
