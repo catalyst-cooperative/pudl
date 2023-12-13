@@ -330,12 +330,6 @@ class CompleteDraft(State):
     show_default=True,
 )
 @click.option(
-    "--rec-id",
-    type=int,
-    required=True,
-    help="Record ID of the Zenodo archive to create a new version of.",
-)
-@click.option(
     "--source-dir",
     type=click.Path(
         exists=True, file_okay=False, dir_okay=True, readable=True, path_type=Path
@@ -349,11 +343,17 @@ class CompleteDraft(State):
     help="Whether to publish the new record without confirmation, or leave it as a draft to be reviewed.",
     show_default=True,
 )
-def pudl_zenodo_data_release(env: str, rec_id: int, source_dir: Path, publish: bool):
+def pudl_zenodo_data_release(env: str, source_dir: Path, publish: bool):
     """Publish a new PUDL data release to Zenodo."""
     # TODO (daz): if the source-dir is actually an S3 or GCS uri, then, well. Do that instead.
     source_data = LocalSource(path=source_dir)
     zenodo_client = ZenodoClient(env)
+    if env == SANDBOX:
+        rec_id = 5563
+    elif env == PRODUCTION:
+        rec_id = 3653158
+    else:
+        raise ValueError(f"{env=}, expected {SANDBOX} or {PRODUCTION}")
     completed_draft = (
         InitialDataset(zenodo_client=zenodo_client, record_id=rec_id)
         .get_empty_draft()
