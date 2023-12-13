@@ -12,7 +12,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def _read_static_encoding_tables(
-    etl_group: Literal["static_eia", "static_ferc1"]
+    etl_group: Literal["static_eia", "static_ferc1"],
 ) -> dict[str, pd.DataFrame]:
     """Build dataframes of static tables from a data source for use as foreign keys.
 

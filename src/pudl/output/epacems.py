@@ -5,7 +5,6 @@ from pathlib import Path
 
 import dask.dataframe as dd
 
-from pudl.settings import EpaCemsSettings
 from pudl.workspace.setup import PudlPaths
 
 
@@ -123,10 +122,9 @@ def epacems(
             from :mod:`pudl.workspace`
 
     Returns:
-        The requested epacems data
+        The requested epacems data. If requested states or years are not available, no
+        error will be raised.
     """
-    epacems_settings = EpaCemsSettings(states=states, years=years)
-
     # columns=None is handled by dd.read_parquet; gives all columns
     if columns is not None:
         # nonexistent columns are handled by dd.read_parquet; raises ValueError
@@ -142,8 +140,8 @@ def epacems(
         index=False,
         split_row_groups=True,
         filters=year_state_filter(
-            states=epacems_settings.states,
-            years=epacems_settings.years,
+            states=states,
+            years=years,
         ),
     )
     return epacems
