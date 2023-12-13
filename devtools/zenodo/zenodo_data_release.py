@@ -92,7 +92,7 @@ class ZenodoClient:
         response = requests.get(
             f"{self.base_url}/deposit/depositions/{deposition_id}",
             headers=self.auth_headers,
-            timeout=10,
+            timeout=5,
         )
         logger.debug(
             f"License from JSON for {deposition_id} is "
@@ -108,7 +108,7 @@ class ZenodoClient:
         response = requests.get(
             f"{self.base_url}/records/{record_id}",
             headers=self.auth_headers,
-            timeout=10,
+            timeout=5,
         )
         return _NewRecord(**response.json())
 
@@ -121,7 +121,7 @@ class ZenodoClient:
         response = requests.post(
             f"{self.base_url}/records/{record_id}/versions",
             headers=self.auth_headers,
-            timeout=10,
+            timeout=5,
         )
         return _NewRecord(**response.json())
 
@@ -136,7 +136,7 @@ class ZenodoClient:
         url = f"{self.base_url}/deposit/depositions/{deposition_id}"
         data = {"metadata": metadata.model_dump()}
         logger.debug(f"Setting metadata for {deposition_id} to {data}")
-        response = requests.put(url, json=data, headers=self.auth_headers, timeout=10)
+        response = requests.put(url, json=data, headers=self.auth_headers, timeout=5)
         return _LegacyDeposition(**response.json())
 
     def delete_deposition_file(self, deposition_id: int, file_id) -> requests.Response:
@@ -147,7 +147,7 @@ class ZenodoClient:
         return requests.delete(
             f"{self.base_url}/deposit/depositions/{deposition_id}/files/{file_id}",
             headers=self.auth_headers,
-            timeout=10,
+            timeout=5,
         )
 
     def create_bucket_file(
@@ -160,11 +160,14 @@ class ZenodoClient:
         """
         url = f"{bucket_url}/{file_name}"
         logger.info(f"Uploading file to {url}")
+
+        # don't worry about timeout=5s - that's "time for the server to
+        # connect", not "time to upload whole file."
         response = requests.put(
             url,
             headers=self.auth_headers,
             data=file_content,
-            timeout=3_600,  # 1 hour
+            timeout=5,
         )
         return response
 
@@ -173,7 +176,7 @@ class ZenodoClient:
         response = requests.post(
             f"{self.base_url}/deposit/depositions/{deposition_id}/actions/publish",
             headers=self.auth_headers,
-            timeout=10,
+            timeout=5,
         )
         return _LegacyDeposition(**response.json())
 
