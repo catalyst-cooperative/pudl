@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import IO, Any, Protocol, Self
 
 import pandas as pd
+from pudl.resources import RuntimeSettings
 import sqlalchemy as sa
 from dagster import op
 from dbfread import DBF, FieldParser
@@ -472,7 +473,7 @@ class FercDbfExtractor:
         """Returns dagstger op that runs this extractor."""
 
         @op(
-            name=f"dbf_{cls.DATASET}",
+            name=f"{cls.DATASET}_dbf",
             required_resource_keys={
                 "ferc_to_sqlite_settings",
                 "datastore",
@@ -480,11 +481,19 @@ class FercDbfExtractor:
             },
         )
         def inner_method(context) -> None:
+            rs: RuntimeSettings = context.resources.runtime_settings
             """Instantiates dbf extractor and runs it."""
+            if rs.dataset_only and rs.dataset_only.lower() != f"{cls.DATASET.lower()}_dbf":
+                logger.info(
+                    f"Skipping dataset {cls.DATASET} because it is not in the "
+                    f"dataset_only list."
+                )
+                return
+
             dbf_extractor = cls(
                 datastore=context.resources.datastore,
                 settings=context.resources.ferc_to_sqlite_settings,
-                clobber=context.resources.runtime_settings.clobber,
+                clobber=rs.clobber,
                 output_path=PudlPaths().output_dir,
             )
             dbf_extractor.execute()

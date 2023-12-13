@@ -59,21 +59,28 @@ def xbrl2sqlite_op_factory(form: XbrlFormNumber) -> Callable:
     )
     def inner_op(context) -> None:
         output_path = PudlPaths().output_dir
-        runtime_settings: RuntimeSettings = context.resources.runtime_settings
+        rs: RuntimeSettings = context.resources.runtime_settings
         settings = context.resources.ferc_to_sqlite_settings.get_xbrl_dataset_settings(
             form
         )
         datastore = FercXbrlDatastore(context.resources.datastore)
 
+        logger.info(f"====== xbrl2sqlite runtime_settings: {rs}")
         if settings is None or settings.disabled:
             logger.info(
                 f"Skipping dataset ferc{form.value}_xbrl: no config or is disabled."
             )
             return
 
+        if rs.dataset_only and rs.dataset_only.lower() != f"ferc{form.value}_xbrl":
+            logger.info(
+                f"Skipping dataset ferc{form.value}_xbrl because of dataset_only exclusion."
+            )
+            return
+
         sql_path = PudlPaths().sqlite_db_path(f"ferc{form.value}_xbrl")
         if sql_path.exists():
-            if runtime_settings.clobber:
+            if rs.clobber:
                 sql_path.unlink()
             else:
                 raise RuntimeError(
@@ -86,8 +93,8 @@ def xbrl2sqlite_op_factory(form: XbrlFormNumber) -> Callable:
             datastore,
             output_path=output_path,
             sql_path=sql_path,
-            batch_size=runtime_settings.xbrl_batch_size,
-            workers=runtime_settings.xbrl_num_workers,
+            batch_size=rs.xbrl_batch_size,
+            workers=rs.xbrl_num_workers,
         )
 
     return inner_op
