@@ -15,12 +15,16 @@ from pydantic import AnyHttpUrl, BaseModel, Field
 SANDBOX = "sandbox"
 PRODUCTION = "production"
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s: %(levelname)s - %(message)s (%(filename)s:%(lineno)s)",
+)
 logger = logging.getLogger()
 
 
 class _LegacyLinks(BaseModel):
     html: AnyHttpUrl
+    bucket: AnyHttpUrl
 
 
 class _LegacyMetadata(BaseModel):
@@ -28,7 +32,7 @@ class _LegacyMetadata(BaseModel):
     title: str
     access_right: str
     creators: list[dict]
-    license_: str = Field(alias="license", default="cc-by-4.0")
+    license: str = "cc-by-4.0"  # noqa: A003
     publication_date: str = ""
     description: str = ""
 
@@ -90,6 +94,10 @@ class ZenodoClient:
             headers=self.auth_headers,
             timeout=10,
         )
+        logger.debug(
+            f"License from JSON for {deposition_id} is "
+            f"{response.json()['metadata'].get('license')}"
+        )
         return _LegacyDeposition(**response.json())
 
     def get_record(self, record_id: int) -> _NewRecord:
@@ -127,6 +135,7 @@ class ZenodoClient:
         """
         url = f"{self.base_url}/deposit/depositions/{deposition_id}"
         data = {"metadata": metadata.model_dump()}
+        logger.debug(f"Setting metadata for {deposition_id} to {data}")
         response = requests.put(url, json=data, headers=self.auth_headers, timeout=10)
         return _LegacyDeposition(**response.json())
 
@@ -141,17 +150,21 @@ class ZenodoClient:
             timeout=10,
         )
 
-    def create_deposition_file(
-        self, deposition_id: int, file_name: str, file_content: BinaryIO
+    def create_bucket_file(
+        self, bucket_url: str, file_name: str, file_content: BinaryIO
     ) -> requests.Response:
-        """LEGACY API: Create file in deposition."""
-        url = f"{self.base_url}/deposit/depositions/{deposition_id}/files"
-        files = {"file": file_content, "name": file_name}
-        response = requests.post(
+        """LEGACY API: Upload a file to a deposition's file bucket.
+
+        Prefer this over the /deposit/depositions/{id}/files endpoint because
+        it allows for files >100MB.
+        """
+        url = f"{bucket_url}/{file_name}"
+        logger.info(f"Uploading file to {url}")
+        response = requests.put(
             url,
             headers=self.auth_headers,
-            files=files,
-            timeout=1_000,
+            data=file_content,
+            timeout=3_600,  # 1 hour
         )
         return response
 
@@ -182,7 +195,10 @@ class LocalSource(SourceData):
     def iter_files(self) -> Iterable[tuple[str, BinaryIO]]:
         """Loop through all files in the directory."""
         for f in self.path.iterdir():
-            yield f.name, f.open()
+            if f.is_file():
+                yield f.name, f.open("rb")
+            else:
+                continue
 
 
 @dataclass
@@ -232,8 +248,19 @@ class EmptyDraft(State):
     def sync_directory(self, source_dir: SourceData) -> "ContentComplete":
         """Read data from source_dir and upload it."""
         logger.info(f"Syncing files from {source_dir} to draft {self.record_id}...")
+        bucket_url = self.zenodo_client.get_deposition(self.record_id).links.bucket
+
+        # TODO: if we want to have 'resumable' archives - we would need to get
+        # hashes from iter_files() and we'd also need to do deletion of all the
+        # extra files in the draft. in that case we won't want to delete all
+        # the files before getting to this state, so EmptyDraft would become
+        # InProgressDraft.
+
         for name, blob in source_dir.iter_files():
-            self.zenodo_client.create_deposition_file(self.record_id, name, blob)
+            response = self.zenodo_client.create_bucket_file(
+                bucket_url=bucket_url, file_name=name, file_content=blob
+            )
+            logger.info(f"Upload to {bucket_url}/{name} got {response.text}")
 
         return ContentComplete(
             record_id=self.record_id, zenodo_client=self.zenodo_client
@@ -274,9 +301,8 @@ class ContentComplete(State):
             f"Using metadata from {latest_published_deposition.id_} to publish {self.record_id}..."
         )
         pub_date = {"publication_date": datetime.date.today().isoformat()}
-        self.zenodo_client.update_deposition_metadata(
-            self.record_id, metadata=_LegacyMetadata(**(base_metadata | pub_date))
-        )
+        metadata = _LegacyMetadata(**(base_metadata | pub_date))
+        self.zenodo_client.update_deposition_metadata(self.record_id, metadata=metadata)
         return CompleteDraft(record_id=self.record_id, zenodo_client=self.zenodo_client)
 
 
@@ -300,10 +326,10 @@ class CompleteDraft(State):
     help="Use the Zenodo sandbox rather than the production server.",
 )
 @click.option(
-    "--concept-rec-id",
+    "--rec-id",
     type=int,
     required=True,
-    help="The concept record ID we'd like to sync to.",
+    help="The record ID we'd like to sync to.",
 )
 @click.option(
     "--source-dir",
@@ -318,13 +344,13 @@ class CompleteDraft(State):
     default=False,
     help="Whether to publish automatically after syncing, or to give you a chance to review.",
 )
-def pudl_zenodo_data_release(env: bool, concept_rec_id, source_dir, publish):
+def pudl_zenodo_data_release(env: bool, rec_id, source_dir, publish):
     """Publish a new PUDL data release to Zenodo."""
     # TODO (daz): if the source-dir is actually an S3 or GCS uri, then, well. Do that instead.
     source_data = LocalSource(path=source_dir)
     zenodo_client = ZenodoClient(env)
     completed_draft = (
-        InitialDataset(zenodo_client=zenodo_client, record_id=concept_rec_id)
+        InitialDataset(zenodo_client=zenodo_client, record_id=rec_id)
         .get_empty_draft()
         .sync_directory(source_data)
         .update_metadata()
