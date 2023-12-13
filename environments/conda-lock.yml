@@ -18998,7 +18998,7 @@ package:
     category: main
     optional: false
   - name: readthedocs-sphinx-ext
-    version: 2.2.3
+    version: 2.2.4
     manager: conda
     platform: linux-64
     dependencies:
@@ -19006,14 +19006,14 @@ package:
       packaging: ""
       python: ">=3.6"
       requests: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/readthedocs-sphinx-ext-2.2.3-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/readthedocs-sphinx-ext-2.2.4-pyhd8ed1ab_0.conda
     hash:
-      md5: 6bc1a00f5502f9ed13526e4c6bea6900
-      sha256: 464cfb706266a2dfbee7d0226c83114c9868a65f9fc7e05b223faac8bd2b3f8e
+      md5: 86dd35106fb71b2e2060b557e3bdd49a
+      sha256: 9c0568d4df3b34a54e4c0a3c9780bf947797e4d453ad6c1511467eae188f8232
     category: main
     optional: false
   - name: readthedocs-sphinx-ext
-    version: 2.2.3
+    version: 2.2.4
     manager: conda
     platform: osx-64
     dependencies:
@@ -19021,14 +19021,14 @@ package:
       packaging: ""
       python: ">=3.6"
       jinja2: ">=2.9"
-    url: https://conda.anaconda.org/conda-forge/noarch/readthedocs-sphinx-ext-2.2.3-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/readthedocs-sphinx-ext-2.2.4-pyhd8ed1ab_0.conda
     hash:
-      md5: 6bc1a00f5502f9ed13526e4c6bea6900
-      sha256: 464cfb706266a2dfbee7d0226c83114c9868a65f9fc7e05b223faac8bd2b3f8e
+      md5: 86dd35106fb71b2e2060b557e3bdd49a
+      sha256: 9c0568d4df3b34a54e4c0a3c9780bf947797e4d453ad6c1511467eae188f8232
     category: main
     optional: false
   - name: readthedocs-sphinx-ext
-    version: 2.2.3
+    version: 2.2.4
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -19036,10 +19036,10 @@ package:
       packaging: ""
       python: ">=3.6"
       jinja2: ">=2.9"
-    url: https://conda.anaconda.org/conda-forge/noarch/readthedocs-sphinx-ext-2.2.3-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/readthedocs-sphinx-ext-2.2.4-pyhd8ed1ab_0.conda
     hash:
-      md5: 6bc1a00f5502f9ed13526e4c6bea6900
-      sha256: 464cfb706266a2dfbee7d0226c83114c9868a65f9fc7e05b223faac8bd2b3f8e
+      md5: 86dd35106fb71b2e2060b557e3bdd49a
+      sha256: 9c0568d4df3b34a54e4c0a3c9780bf947797e4d453ad6c1511467eae188f8232
     category: main
     optional: false
   - name: recordlinkage

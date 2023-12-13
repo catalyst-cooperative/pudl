@@ -477,7 +477,7 @@ dependencies:
   - pybtex-docutils=1.0.3=py311h38be061_1
   - pydantic=2.5.2=pyhd8ed1ab_0
   - pyopenssl=23.3.0=pyhd8ed1ab_0
-  - readthedocs-sphinx-ext=2.2.3=pyhd8ed1ab_0
+  - readthedocs-sphinx-ext=2.2.4=pyhd8ed1ab_0
   - requests-toolbelt=0.10.1=pyhd8ed1ab_0
   - responses=0.24.1=pyhd8ed1ab_0
   - s3transfer=0.8.2=pyhd8ed1ab_0
