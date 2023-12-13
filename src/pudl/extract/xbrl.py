@@ -1,12 +1,14 @@
 """Generic extractor for all FERC XBRL data."""
 import io
+from collections.abc import Callable
 from datetime import date
 from pathlib import Path
 
-from dagster import Field, Noneable, op
+from dagster import op
 from ferc_xbrl_extractor.cli import run_main
 
 import pudl
+from pudl.resources import RuntimeSettings
 from pudl.settings import FercGenericXbrlToSqliteSettings, XbrlFormNumber
 from pudl.workspace.datastore import Datastore
 from pudl.workspace.setup import PudlPaths
@@ -44,53 +46,41 @@ class FercXbrlDatastore:
         )
 
 
-@op(
-    config_schema={
-        "clobber": Field(
-            bool, description="Clobber existing ferc1 database.", default_value=False
-        ),
-        "workers": Field(
-            Noneable(int),
-            description="Specify number of worker processes for parsing XBRL filings.",
-            default_value=None,
-        ),
-        "batch_size": Field(
-            int,
-            description="Specify number of XBRL instances to be processed at a time (defaults to 50)",
-            default_value=50,
-        ),
-    },
-    required_resource_keys={"ferc_to_sqlite_settings", "datastore"},
-)
-def xbrl2sqlite(context) -> None:
-    """Clone the FERC Form 1 XBRL Database to SQLite."""
-    output_path = PudlPaths().output_dir
-    clobber = context.op_config["clobber"]
-    batch_size = context.op_config["batch_size"]
-    workers = context.op_config["workers"]
-    if workers == 0:
-        workers = None
-    ferc_to_sqlite_settings = context.resources.ferc_to_sqlite_settings
-    datastore = context.resources.datastore
-    datastore = FercXbrlDatastore(datastore)
+def xbrl2sqlite_op_factory(form: XbrlFormNumber) -> Callable:
+    """Generates xbrl2sqlite op for a given FERC form."""
 
-    # Loop through all other forms and perform conversion
-    for form in XbrlFormNumber:
-        # Get desired settings object
-        settings = ferc_to_sqlite_settings.get_xbrl_dataset_settings(form)
+    @op(
+        name=f"ferc{form.value}_xbrl",
+        required_resource_keys={
+            "ferc_to_sqlite_settings",
+            "datastore",
+            "runtime_settings",
+        },
+    )
+    def inner_op(context) -> None:
+        output_path = PudlPaths().output_dir
+        rs: RuntimeSettings = context.resources.runtime_settings
+        settings = context.resources.ferc_to_sqlite_settings.get_xbrl_dataset_settings(
+            form
+        )
+        datastore = FercXbrlDatastore(context.resources.datastore)
 
-        # If no settings for form in question, skip
-        if settings is None:
-            continue
+        logger.info(f"====== xbrl2sqlite runtime_settings: {rs}")
+        if settings is None or settings.disabled:
+            logger.info(
+                f"Skipping dataset ferc{form.value}_xbrl: no config or is disabled."
+            )
+            return
 
-        if settings.disabled:
-            logger.info(f"Dataset ferc{form}_xbrl is disabled, skipping")
-            continue
+        if rs.dataset_only and rs.dataset_only.lower() != f"ferc{form.value}_xbrl":
+            logger.info(
+                f"Skipping dataset ferc{form.value}_xbrl because of dataset_only exclusion."
+            )
+            return
 
         sql_path = PudlPaths().sqlite_db_path(f"ferc{form.value}_xbrl")
-
         if sql_path.exists():
-            if clobber:
+            if rs.clobber:
                 sql_path.unlink()
             else:
                 raise RuntimeError(
@@ -103,9 +93,11 @@ def xbrl2sqlite(context) -> None:
             datastore,
             output_path=output_path,
             sql_path=sql_path,
-            batch_size=batch_size,
-            workers=workers,
+            batch_size=rs.xbrl_batch_size,
+            workers=rs.xbrl_num_workers,
         )
+
+    return inner_op
 
 
 def convert_form(
@@ -133,6 +125,8 @@ def convert_form(
     """
     datapackage_path = str(output_path / f"ferc{form.value}_xbrl_datapackage.json")
     metadata_path = str(output_path / f"ferc{form.value}_xbrl_taxonomy_metadata.json")
+    if workers == 0:
+        workers = None
     # Process XBRL filings for each year requested
     for year in form_settings.years:
         taxonomy_archive, taxonomy_entry_point = datastore.get_taxonomy(year, form)

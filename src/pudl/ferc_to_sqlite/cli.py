@@ -96,7 +96,7 @@ def ferc_to_sqlite_job_factory(
     "-w",
     "--workers",
     type=int,
-    default=0,
+    default=2,
     help=(
         "Number of worker processes to use when parsing XBRL filings. "
         "Defaults to using the number of CPUs."
@@ -140,6 +140,18 @@ def ferc_to_sqlite_job_factory(
     ),
     default="INFO",
 )
+@click.option(
+    "--dataset-only",
+    type=str,
+    help=(
+        "If specified, restricts processing to only a given dataset. This is"
+        "expected to be in the form of ferc1_dbf, ferc1_xbrl. "
+        "This is intended for ci-integration purposes where we fan-out the "
+        "execution into several parallel small jobs that should finish faster. "
+        "Other operations are still going to be invoked, but they will terminate "
+        "early if this setting is in use."
+    ),
+)
 def main(
     etl_settings_yml: pathlib.Path,
     batch_size: int,
@@ -149,6 +161,7 @@ def main(
     gcs_cache_path: str,
     logfile: pathlib.Path,
     loglevel: str,
+    dataset_only: str,
 ):
     """Use Dagster to convert FERC data fom DBF and XBRL to SQLite databases.
 
@@ -167,6 +180,7 @@ def main(
         "ferc_to_sqlite_job_factory",
         reconstructable_kwargs={"loglevel": loglevel, "logfile": logfile},
     )
+
     run_config = {
         "resources": {
             "ferc_to_sqlite_settings": {
@@ -175,17 +189,13 @@ def main(
             "datastore": {
                 "config": {"gcs_cache_path": gcs_cache_path},
             },
-        },
-        "ops": {
-            "xbrl2sqlite": {
+            "runtime_settings": {
                 "config": {
-                    "workers": workers,
-                    "batch_size": batch_size,
+                    "xbrl_num_workers": workers,
+                    "xbrl_batch_size": batch_size,
                     "clobber": clobber,
+                    "dataset_only": dataset_only,
                 },
-            },
-            "dbf2sqlite": {
-                "config": {"clobber": clobber},
             },
         },
     }

@@ -1,9 +1,11 @@
 """Tests for xbrl extraction module."""
 
 import pytest
-from dagster import build_op_context
+from dagster import ResourceDefinition, build_op_context
 
-from pudl.extract.xbrl import FercXbrlDatastore, convert_form, xbrl2sqlite
+from pudl.extract.xbrl import FercXbrlDatastore, convert_form, xbrl2sqlite_op_factory
+from pudl.ferc_to_sqlite import ferc_to_sqlite_xbrl_only
+from pudl.resources import RuntimeSettings
 from pudl.settings import (
     Ferc1DbfToSqliteSettings,
     Ferc1XbrlToSqliteSettings,
@@ -99,28 +101,21 @@ def test_xbrl2sqlite(settings, forms, mocker, tmp_path):
     mock_datastore = mocker.MagicMock()
     mocker.patch("pudl.extract.xbrl.FercXbrlDatastore", return_value=mock_datastore)
 
-    # always use tmp path here so that we don't clobber the live DB when --live-dbs is passed
-    mock_pudl_paths = mocker.MagicMock(
-        spec=PudlPaths(),
-        sqlite_db_path=lambda form_name: tmp_path / f"{form_name}.sqlite",
-        output_dir=PudlPaths().output_dir,
-    )
-    mocker.patch("pudl.extract.xbrl.PudlPaths", return_value=mock_pudl_paths)
-
-    # Construct xbrl2sqlite op context
-    context = build_op_context(
+    # always use tmp ath here so that we don't clobber the live DB when --live-dbs is passed
+    ferc_to_sqlite_xbrl_only.execute_in_process(
         resources={
             "ferc_to_sqlite_settings": settings,
-            "datastore": "datastore",
-        },
-        config={
-            "workers": 10,
-            "batch_size": 20,
-            "clobber": True,
-        },
+            "datastore": ResourceDefinition.mock_resource(),
+            "runtime_settings": RuntimeSettings(
+                xbrl_batch_size=20,
+                xbrl_num_workers=10,
+                clobber=True,
+            ),
+        }
     )
 
-    xbrl2sqlite(context)
+    # TODO(rousik): do we need to use this, or can we simply set PUDL_OUTPUT env
+    # variable to some random path?
 
     assert convert_form_mock.call_count == len(forms)
 
@@ -130,13 +125,16 @@ def test_xbrl2sqlite(settings, forms, mocker, tmp_path):
             form,
             mock_datastore,
             output_path=PudlPaths().output_dir,
-            sql_path=tmp_path / f"ferc{form.value}_xbrl.sqlite",
+            sql_path=PudlPaths().output_dir / f"ferc{form.value}_xbrl.sqlite",
             batch_size=20,
             workers=10,
         )
 
 
-def test_xbrl2sqlite_db_exists_no_clobber(mocker):
+def test_xbrl2sqlite_db_exists_no_clobber(mocker, live_dbs):
+    if live_dbs:
+        return
+
     convert_form_mock = mocker.MagicMock()
     mocker.patch("pudl.extract.xbrl.convert_form", new=convert_form_mock)
 
@@ -147,31 +145,30 @@ def test_xbrl2sqlite_db_exists_no_clobber(mocker):
     ferc1_sqlite_path = PudlPaths().output_dir / "ferc1_xbrl.sqlite"
     ferc1_sqlite_path.touch()
     settings = FercToSqliteSettings(
-        ferc1_dbf_to_sqlite_settings=Ferc1DbfToSqliteSettings(),
         ferc1_xbrl_to_sqlite_settings=Ferc1XbrlToSqliteSettings(),
-        ferc2_xbrl_to_sqlite_settings=None,
-        ferc6_xbrl_to_sqlite_settings=None,
-        ferc60_xbrl_to_sqlite_settings=None,
-        ferc714_xbrl_to_sqlite_settings=None,
     )
-    # Construct xbrl2sqlite op context
     context = build_op_context(
         resources={
             "ferc_to_sqlite_settings": settings,
             "datastore": "datastore",
-        },
-        config={
-            "workers": 10,
-            "batch_size": 20,
-            "clobber": False,
+            "runtime_settings": RuntimeSettings(
+                clobber=False,
+                xbrl_batch_size=20,
+                xbrl_num_workers=10,
+            ),
         },
     )
 
+    assert ferc1_sqlite_path.exists()
     with pytest.raises(RuntimeError, match="Found existing DB"):
-        xbrl2sqlite(context)
+        xbrl2sqlite_op_factory(XbrlFormNumber.FORM1)(context)
+    assert ferc1_sqlite_path.exists()
 
 
-def test_xbrl2sqlite_db_exists_yes_clobber(mocker, tmp_path):
+def test_xbrl2sqlite_db_exists_yes_clobber(mocker, live_dbs):
+    if live_dbs:
+        return
+
     convert_form_mock = mocker.MagicMock()
     mocker.patch("pudl.extract.xbrl.convert_form", new=convert_form_mock)
 
@@ -180,40 +177,27 @@ def test_xbrl2sqlite_db_exists_yes_clobber(mocker, tmp_path):
     mocker.patch("pudl.extract.xbrl.FercXbrlDatastore", return_value=mock_datastore)
 
     # always use tmp path here so that we don't clobber the live DB when --live-dbs is passed
-    ferc1_sqlite_path = tmp_path / "ferc1_xbrl.sqlite"
+    ferc1_sqlite_path = PudlPaths().output_dir / "ferc1_xbrl.sqlite"
     ferc1_sqlite_path.touch()
-
-    # mock the db path so we can assert it gets clobbered
-    mock_db_path = mocker.MagicMock(spec=ferc1_sqlite_path)
-    mock_pudl_paths = mocker.MagicMock(
-        spec=PudlPaths(), sqlite_db_path=lambda _x: mock_db_path
-    )
-    mocker.patch("pudl.extract.xbrl.PudlPaths", return_value=mock_pudl_paths)
-
     settings = FercToSqliteSettings(
-        ferc1_dbf_to_sqlite_settings=Ferc1DbfToSqliteSettings(),
         ferc1_xbrl_to_sqlite_settings=Ferc1XbrlToSqliteSettings(),
-        ferc2_xbrl_to_sqlite_settings=None,
-        ferc6_xbrl_to_sqlite_settings=None,
-        ferc60_xbrl_to_sqlite_settings=None,
-        ferc714_xbrl_to_sqlite_settings=None,
     )
 
     context = build_op_context(
         resources={
             "ferc_to_sqlite_settings": settings,
             "datastore": "datastore",
-        },
-        config={
-            "workers": 10,
-            "batch_size": 20,
-            "clobber": True,
+            "runtime_settings": RuntimeSettings(
+                clobber=True,
+                xbrl_batch_size=20,
+                xbrl_num_workers=10,
+            ),
         },
     )
 
-    xbrl2sqlite(context)
-
-    mock_db_path.unlink.assert_any_call()
+    assert ferc1_sqlite_path.exists()
+    xbrl2sqlite_op_factory(XbrlFormNumber.FORM1)(context)
+    assert not ferc1_sqlite_path.exists()
 
 
 def test_convert_form(mocker):
