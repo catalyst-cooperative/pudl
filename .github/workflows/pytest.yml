@@ -123,8 +123,10 @@ jobs:
     strategy:
       matrix:
         format: ["xbrl", "dbf"]
-        dataset: ["ferc1", "ferc2"]
-        # TODO(rousik): add remaining ones here...
+        dataset: ["ferc1"]
+        # TODO(rousik): the above will skip many of the ferc_to_sqlite
+        # datasets, which might be okay for the sake of efficiency, but
+        # will lead to coverage loss on the non-ferc1 steps.
     steps:
       - uses: actions/checkout@v4
         with:
@@ -171,24 +173,18 @@ jobs:
             src/pudl/ferc_to_sqlite/cli.py \
             --dataset-only ${{ matrix.dataset}}_${{ matrix.format }} \
             --clobber ${{ env.ETL_COMMANDLINE_OPTIONS }} ${{ env.ETL_CONFIG }}
-      - name: Generate coverage
-        run: |
-          coverage --version
-          coverage combine
-          coverage xml
-          coverage report
 
-      - name: Upload coverage
+      - name: Upload raw coverage
         uses: actions/upload-artifact@v3
         with:
-          name: coverage-ferc-to-sqlite-${{ matrix.dataset }}-${{ matrix.format }}
-          path: coverage.xml
+          name: raw-coverage
+          path: .coverage.*
 
       - name: Upload ferc_to_sqlite outputs
         uses: actions/upload-artifact@v3
         with:
           name: ferc-to-sqlite
-          path: ${{ env.PUDL_OUTPUT }}/*.sqlite
+          path: ${{ env.PUDL_OUTPUT }}/*
 
   ci-integration:
     needs:
@@ -244,9 +240,6 @@ jobs:
       - name: Make input, output and dagster dirs
         run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
 
-      - name: List workspace contents
-        run: find /home/runner/pudl-work
-
       - name: Set default GCP credentials
         id: gcloud-auth
         continue-on-error: true
@@ -260,6 +253,9 @@ jobs:
         with:
           name: ferc-to-sqlite
           path: ${{ env.PUDL_OUTPUT }}
+
+      - name: List workspace contents
+        run: find /home/runner/pudl-work
 
       - name: Run pudl_etl
         env:
@@ -282,12 +278,11 @@ jobs:
           coverage combine
           coverage xml
           coverage report
-      - name: Upload coverage
+      - name: Upload raw coverage
         uses: actions/upload-artifact@v3
         with:
-          name: coverage-integration
-          path: coverage.xml
-
+          name: raw-coverage
+          path: .coverage.*
   ci-coverage:
     name: Upload coverage to CodeCov
     runs-on: ubuntu-latest
@@ -297,11 +292,27 @@ jobs:
       - ci-integration
     steps:
       - uses: actions/checkout@v4
-      - name: Download coverage
+      - name: Download coverage raw files
+        uses: actions/download-artifact@v3
+        with:
+          name: raw-coverage
+          path: raw-coverage
+      - name: Combine raw coverage files (from integration)
+        runs: |
+          mkdir -p coverage/coverage-integration
+          coverage combine raw-coverage/
+          coverage xml -o coverage/coverage-integration/coverage.xml
+      - name: Download docs coverage
         id: download-coverage
         uses: actions/download-artifact@v3
         with:
-          path: coverage
+          name: coverage-docs
+          path: coverage/coverage-docs
+      - name: Download unit test coverage
+        uses: actions/download-artifact@v3
+        with:
+          name: coverage-unit
+          path: coverage/coverage-unit
       - name: List downloaded files
         run: ls -Rh coverage/
       - name: Upload test coverage report to CodeCov
