@@ -106,25 +106,19 @@ This access mode is good for casual data explorers or anyone who just wants to g
 small subset of the data. It also lets you share links to a particular subset of the
 data and provides a REST API for querying the data from other applications.
 
-Docker + Jupyter
-^^^^^^^^^^^^^^^^
-Want access to all the published data in bulk? If you're familiar with Python
-and `Jupyter Notebooks <https://jupyter.org/>`__ and are willing to install Docker you
-can:
+Kaggle
+^^^^^^
+Want to explore the PUDL data interactively in a Jupyter Notebook without needing to do
+any setup? Our nightly build outputs (see below) automatically update `the PUDL Project
+Dataset on Kaggle <https://www.kaggle.com/datasets/catalystcooperative/pudl-project>`__
+once a week. There are `several notebooks <https://www.kaggle.com/datasets/catalystcooperative/pudl-project/code>`__
+associated with the dataset, both curated by Catalyst and contributed by other Kaggle
+users which you can use to get oriented to the PUDL database.
 
-* `Download a PUDL data release <https://zenodo.org/record/3653158>`__ from
-  CERN's `Zenodo <https://zenodo.org>`__ archiving service.
-* `Install Docker <https://docs.docker.com/get-docker/>`__
-* Run the archived image using ``docker-compose up``
-* Access the data via the resulting Jupyter Notebook server running on your machine.
-
-If you'd rather work with the PUDL `SQLite <https://sqlite.org>`__ Databases and
-`Apache Parquet <https://parquet.apache.org>`__ files directly, they are accessible
-within the same Zenodo archive.
-
-The `PUDL Examples repository <https://github.com/catalyst-cooperative/pudl-examples>`__
-has more detailed instructions on how to work with the Zenodo data archive and Docker
-image.
+Zenodo
+^^^^^^
+If you need long-term stability and a DOI to cite our data in your work, you can find
+`versioned PUDL data releases on Zenodo <https://doi.org/10.5281/zenodo.3653158>`__.
 
 The PUDL Development Environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
