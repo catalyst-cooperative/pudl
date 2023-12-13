@@ -45,11 +45,7 @@ fields such as ``source_format`` or ``path`` are still accurate.
 ``etl_fast.yml`` settings files stored under ``src/pudl/package_data/settings`` in the
 PUDL repo.
 
-**1.5)** Update the settings files in your PUDL workspace to reflect the new
-years by running ``pudl_setup {path to your pudl_work directory} -c``. Don't worry, it
-won't remove any custom settings files you've added under a diffrent name.
-
-**1.6)** Use the ``pudl_datastore`` script (see :doc:`datastore`) to download the new
+**1.5)** Use the ``pudl_datastore`` script (see :doc:`datastore`) to download the new
 raw data archives in bulk so that network hiccups don't cause issues during the ETL.
 
 2. Map the Structure of the New Data

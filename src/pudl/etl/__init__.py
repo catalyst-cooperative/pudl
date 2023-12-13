@@ -22,6 +22,7 @@ from pudl.settings import EtlSettings
 
 from . import (
     check_foreign_keys,
+    cli,
     eia_bulk_elec_assets,
     epacems_assets,
     glue_assets,
@@ -93,6 +94,23 @@ default_resources = {
     "epacems_io_manager": epacems_io_manager,
 }
 
+# By default, limit CEMS year processing concurrency to prevent memory overload.
+default_config = {
+    "execution": {
+        "config": {
+            "multiprocess": {
+                "tag_concurrency_limits": [
+                    {
+                        "key": "datasource",
+                        "value": "epacems",
+                        "limit": 2,
+                    }
+                ],
+            },
+        }
+    }
+}
+
 
 def create_non_cems_selection(all_assets: list[AssetsDefinition]) -> AssetSelection:
     """Create a selection of assets excluding CEMS and all downstream assets.
@@ -132,7 +150,9 @@ defs: Definitions = Definitions(
     resources=default_resources,
     jobs=[
         define_asset_job(
-            name="etl_full", description="This job executes all years of all assets."
+            name="etl_full",
+            description="This job executes all years of all assets.",
+            config=default_config,
         ),
         define_asset_job(
             name="etl_full_no_cems",
@@ -142,7 +162,8 @@ defs: Definitions = Definitions(
         ),
         define_asset_job(
             name="etl_fast",
-            config={
+            config=default_config
+            | {
                 "resources": {
                     "dataset_settings": {
                         "config": load_dataset_settings_from_file("etl_fast")

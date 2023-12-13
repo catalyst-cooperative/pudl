@@ -17,13 +17,15 @@ import pyarrow.parquet as pq
 from dagster import AssetIn, DynamicOut, DynamicOutput, asset, graph_asset, op
 
 import pudl
+from pudl.extract.epacems import EpaCemsPartition
 from pudl.metadata.classes import Resource
+from pudl.metadata.enums import EPACEMS_STATES
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-YearPartitions = namedtuple("YearPartitions", ["year", "states"])
+YearPartitions = namedtuple("YearPartitions", ["year_quarters"])
 
 
 @op(
@@ -37,11 +39,17 @@ def get_years_from_settings(context):
     parallel.
     """
     epacems_settings = context.resources.dataset_settings.epacems
-    for year in epacems_settings.years:
+    years = {
+        EpaCemsPartition(year_quarter=yq).year for yq in epacems_settings.year_quarters
+    }
+    for year in years:
         yield DynamicOutput(year, mapping_key=str(year))
 
 
-@op(required_resource_keys={"datastore", "dataset_settings"})
+@op(
+    required_resource_keys={"datastore", "dataset_settings"},
+    tags={"datasource": "epacems"},
+)
 def process_single_year(
     context,
     year,
@@ -64,9 +72,15 @@ def process_single_year(
     partitioned_path = PudlPaths().output_dir / "core_epacems__hourly_emissions"
     partitioned_path.mkdir(exist_ok=True)
 
-    for state in epacems_settings.states:
-        logger.info(f"Processing EPA CEMS hourly data for {year}-{state}")
-        df = pudl.extract.epacems.extract(year=year, state=state, ds=ds)
+    year_quarters_in_year = {
+        yq
+        for yq in epacems_settings.year_quarters
+        if EpaCemsPartition(year_quarter=yq).year == year
+    }
+
+    for year_quarter in year_quarters_in_year:
+        logger.info(f"Processing EPA CEMS hourly data for {year_quarter}")
+        df = pudl.extract.epacems.extract(year_quarter=year_quarter, ds=ds)
         if not df.empty:  # If state-year combination has data
             df = pudl.transform.epacems.transform(
                 df, core_epa__assn_eia_epacamd, core_eia__entity_plants
@@ -75,14 +89,14 @@ def process_single_year(
 
         # Write to a directory of partitioned parquet files
         with pq.ParquetWriter(
-            where=partitioned_path / f"epacems-{year}-{state}.parquet",
+            where=partitioned_path / f"epacems-{year_quarter}.parquet",
             schema=schema,
             compression="snappy",
             version="2.6",
         ) as partitioned_writer:
             partitioned_writer.write_table(table)
 
-    return YearPartitions(year, epacems_settings.states)
+    return YearPartitions(year_quarters_in_year)
 
 
 @op
@@ -100,12 +114,21 @@ def consolidate_partitions(context, partitions: list[YearPartitions]) -> None:
     with pq.ParquetWriter(
         where=monolithic_path, schema=schema, compression="snappy", version="2.6"
     ) as monolithic_writer:
-        for year, states in partitions:
-            for state in states:
+        for year_partition in partitions:
+            for state in EPACEMS_STATES:
                 monolithic_writer.write_table(
-                    pq.read_table(
-                        source=partitioned_path / f"epacems-{year}-{state}.parquet",
-                        schema=schema,
+                    # Concat a slice of each state's data from all quarters in a year
+                    # and write to parquet to create year-state row groups
+                    pa.concat_tables(
+                        [
+                            pq.read_table(
+                                source=partitioned_path
+                                / f"epacems-{year_quarter}.parquet",
+                                filters=[[("state", "=", state.upper())]],
+                                schema=schema,
+                            )
+                            for year_quarter in year_partition.year_quarters
+                        ]
                     )
                 )
 

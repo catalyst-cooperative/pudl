@@ -20,9 +20,10 @@ Hence, we've called it `plant_id_epa` until it gets transformed into `plant_id_e
 during the transform process with help from the crosswalk.
 """
 from pathlib import Path
-from typing import NamedTuple
+from typing import Annotated
 
 import pandas as pd
+from pydantic import BaseModel, StringConstraints
 
 import pudl.logging_helpers
 from pudl.metadata.classes import Resource
@@ -97,32 +98,35 @@ API_IGNORE_COLS = {
 """Set: The set of EPA CEMS columns to ignore when reading data."""
 
 
-class EpaCemsPartition(NamedTuple):
+class EpaCemsPartition(BaseModel):
     """Represents EpaCems partition identifying unique resource file."""
 
-    year: str
-    state: str
+    year_quarter: Annotated[
+        str, StringConstraints(strict=True, pattern=r"^(19|20)\d{2}[q][1-4]$")
+    ]
 
-    def get_key(self):
-        """Returns hashable key for use with EpaCemsDatastore."""
-        return (self.year, self.state.lower())
+    @property
+    def year(self):
+        """Return the year associated with the year_quarter."""
+        return pd.to_datetime(self.year_quarter).year
 
     def get_filters(self):
         """Returns filters for retrieving given partition resource from Datastore."""
-        return {"year": self.year, "state": self.state.lower()}
+        return {"year_quarter": self.year_quarter}
 
-    def get_annual_file(self) -> Path:
+    def get_quarterly_file(self) -> Path:
         """Return the name of the CSV file that holds annual hourly data."""
-        return Path(f"epacems-{self.year}-{self.state.lower()}.csv")
+        return Path(
+            f"epacems-{self.year}-{pd.to_datetime(self.year_quarter).quarter}.csv"
+        )
 
 
 class EpaCemsDatastore:
     """Helper class to extract EpaCems resources from datastore.
 
-    EpaCems resources are identified by a year and a state. Each of these zip files
-    contain monthly zip files that in turn contain csv files. This class implements
-    get_data_frame method that will concatenate tables for a given state and month
-    across all months.
+    EpaCems resources are identified by a year and a quarter. Each of these zip files
+    contains one csv file. This class implements get_data_frame method that will
+    rename columns for a quarterly CSV file.
     """
 
     def __init__(self, datastore: Datastore):
@@ -130,23 +134,16 @@ class EpaCemsDatastore:
         self.datastore = datastore
 
     def get_data_frame(self, partition: EpaCemsPartition) -> pd.DataFrame:
-        """Constructs dataframe from a zipfile for a given (year, state) partition."""
+        """Constructs dataframe from a zipfile for a given (year_quarter) partition."""
         archive = self.datastore.get_zipfile_resource(
             "epacems", **partition.get_filters()
         )
 
-        # Get names of files in zip file
-        files = self.datastore.get_zipfile_file_names(archive)
-
-        # If archive has one csv file in it, this is a yearly CSV (archived after 08/23)
-        # and this CSV does not need to be concatenated.
-        if len(files) == 1 and files[0].endswith(".csv"):
-            with archive.open(str(partition.get_annual_file()), "r") as csv_file:
-                df = self._csv_to_dataframe(
-                    csv_file, ignore_cols=API_IGNORE_COLS, rename_dict=API_RENAME_DICT
-                )
-            return df
-        raise AssertionError(f"Unexpected archive format. Found files: {files}.")
+        with archive.open(str(partition.get_quarterly_file()), "r") as csv_file:
+            df = self._csv_to_dataframe(
+                csv_file, ignore_cols=API_IGNORE_COLS, rename_dict=API_RENAME_DICT
+            )
+        return df
 
     def _csv_to_dataframe(
         self, csv_file: Path, ignore_cols: dict[str, str], rename_dict: dict[str, str]
@@ -167,25 +164,24 @@ class EpaCemsDatastore:
         ).rename(columns=rename_dict)
 
 
-def extract(year: int, state: str, ds: Datastore):
+def extract(year_quarter: str, ds: Datastore) -> pd.DataFrame:
     """Coordinate the extraction of EPA CEMS hourly DataFrames.
 
     Args:
-        year: report year of the data to extract
-        state: report state of the data to extract
+        year_quarter: report year and quarter of the data to extract
         ds: Initialized datastore
     Yields:
-        pandas.DataFrame: A single state-year of EPA CEMS hourly emissions data.
+        A single quarter of EPA CEMS hourly emissions data.
     """
     ds = EpaCemsDatastore(ds)
-    partition = EpaCemsPartition(state=state, year=year)
+    partition = EpaCemsPartition(year_quarter=year_quarter)
+    year = partition.year
     # We have to assign the reporting year for partitioning purposes
     try:
         df = ds.get_data_frame(partition).assign(year=year)
-    except KeyError:  # If no state-year combination found, return empty df.
-        logger.warning(
-            f"No data found for {state} in {year}. Returning empty dataframe."
-        )
+    # If the requested quarter is not found, return an empty df with expected columns:
+    except KeyError:
+        logger.warning(f"No data found for {year_quarter}. Returning empty dataframe.")
         res = Resource.from_id("core_epacems__hourly_emissions")
         df = res.format_df(pd.DataFrame())
     return df

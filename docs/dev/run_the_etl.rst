@@ -343,14 +343,14 @@ We also have targets set up in the ``Makefile`` for running these scripts:
 
 Settings Files
 --------------
-These CLI commands use YAML settings files in place of command line arguments.
-This avoids undue complexity and preserves a record of how the script was run.
-The YAML file dictates which years, or states get run through the the processing
-pipeline. Two example files are deployed in the ``settings`` folder that is created when
-you run ``pudl_setup``. (see: :ref:`install-workspace`).
+These CLI commands use YAML settings files in place of command line arguments.  This
+avoids undue complexity and preserves a record of how the script was run.  The YAML file
+dictates which years or states get run through the the processing pipeline. There are
+two standard settings files that we use to run the integration tests and the nightly
+builds included in the repository:
 
-- ``etl_fast.yml`` processes one year of data
-- ``etl_full.yml`` processes all years of data
+- ``src/pudl/package_data/settings/etl_fast.yml`` processes 1-2 years of data.
+- ``src/pudl/package_data/settings/etl_full.yml`` processes all available data.
 
 .. warning::
 
@@ -372,8 +372,8 @@ needs. The layout of these files is depicted below:
         |   └── years
         ├── ferc1_xbrl_to_sqlite_settings
         |   └── years
-        ├── ferc2_xbrl_to_sqlite_settings
-        |   └── years
+        └── ferc2_xbrl_to_sqlite_settings
+            └── years
 
       # PUDL ETL settings
       name : unique name identifying the etl outputs
@@ -381,9 +381,9 @@ needs. The layout of these files is depicted below:
       description : a longer description of the etl outputs
       datasets:
         ├── dataset name
-        │    └── dataset etl parameter (e.g. years) : editable list of years
+        │    └── dataset etl parameter (e.g. years) : editable list of years
         └── dataset name
-        │    └── dataset etl parameter (e.g. years) : editable list of years
+             └── dataset etl parameter (e.g. years) : editable list of years
 
 Both scripts enable you to choose which **years** you want to include:
 
@@ -427,7 +427,7 @@ settings:
 
 - EPA CEMS cannot be loaded without EIA data unless you have existing PUDL database.
 
-Now that your settings are configured, you're ready to run the scripts
+Now that your settings are configured, you're ready to run the scripts.
 
 The Fast ETL
 ------------
@@ -450,8 +450,8 @@ CEMS should take around 2 hours.
 
 .. code-block:: console
 
-    $ ferc_to_sqlite settings/etl_full.yml
-    $ pudl_etl settings/etl_full.yml
+    $ ferc_to_sqlite src/pudl/package_data/settings/etl_full.yml
+    $ pudl_etl src/pudl/package_data/settings/etl_full.yml
 
 Custom ETL
 ----------
@@ -459,46 +459,17 @@ You've changed the settings and renamed the file to CUSTOM_ETL.yml
 
 .. code-block:: console
 
-    $ ferc_to_sqlite settings/CUSTOM_ETL.yml
-    $ pudl_etl settings/CUSTOM_ETL.yml
+    $ ferc_to_sqlite the/path/to/your/custom_etl.yml
+    $ pudl_etl the/path/to/your/custom_etl.yml
 
-
-.. _add-cems-later:
-
-Processing EPA CEMS Separately
-------------------------------
-As mentioned above, CEMS takes a while to process. Luckily, we've designed PUDL so that
-if you delete or comment out CEMS lines in the settings file, you can process it
-independently later without reprocessing the FERC and EIA data. The following script
-will refer to your existing PUDL database for the information it needs and act as if the
-FERC and EIA ETL had just been run. This may go without saying, but you need an existing
-PUDL DB with the appropriate EIA files in order for the script to work.
-
-.. code-block:: console
-
-    $ epacems_to_parquet -y [YEARS] -s [STATES]
-
-This script does not have a YAML settings file, so you must specify which years and
-states to include via command line arguments. Run ``epacems_to_parquet --help`` to
-verify your options. Changing CEMS settings in a YAML file will not inform this script!
-Running the script without any arguments will automatically process all states and
-years.
-
-.. warning::
-
-    If you process the EPA CEMS data after the fact (i.e., with the
-    ``epacems_to_parquet`` script), be careful that the version of PUDL used to generate
-    the DB is the same as the one you're using to process the CEMS data. Otherwise the
-    process and data may be incompatible with unpredictable results.
 
 Additional Notes
 ----------------
 The commands above should result in a bunch of Python :mod:`logging` output describing
-what the script is doing, and file outputs in your ``$PUDL_OUTPUT`` directory. When the
-ETL is complete, you should see new files at e.g. ``$PUDL_OUTPUT/ferc1_dbf.sqlite`` and
-``output/pudl.sqlite`` as well as a new directory at
-``output/core_epacems__hourly_emissions`` containing nested directories named by year
-and state.
+what the script is doing, and file outputs the directory you specified via the
+``$PUDL_OUTPUT`` environment variable. When the ETL is complete, you should see new
+files at e.g. ``$PUDL_OUTPUT/ferc1_dbf.sqlite``, ``$PUDL_OUTPUT/pudl.sqlite`` and
+``$PUDL_OUTPUT/core_epacems__hourly_emissions.parquet``.
 
 If you need to re-run ``ferc_to_sqlite`` and want to overwrite their previous outputs
 you can add ``--clobber`` (run ``ferc_to_sqlite --clobber``).  All of the PUDL scripts
@@ -507,8 +478,8 @@ also have help messages if you want additional information (run ``script_name --
 .. note::
 
   The ``pudl_etl`` command does not have a ``--clobber`` option because each etl run
-  uses the same database file to read and write tables.  This enables re-running
-  portions of the ETL.
+  uses the same database file to read and write tables.  This facilitates re-running
+  small portions of the ETL using Dagster.
 
 Foreign Keys
 ------------

@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     tags:
-      - "v**"
+      - "v20*"
   schedule:
     - cron: "0 6 * * 1-5" # Weekdays at midnight on MST
 
@@ -45,7 +45,7 @@ jobs:
 
       - name: Docker Metadata
         id: docker_metadata
-        uses: docker/metadata-action@v4.4.0
+        uses: docker/metadata-action@v5.3.0
         with:
           images: catalystcoop/pudl-etl
           flavor: |
@@ -83,7 +83,7 @@ jobs:
 
       # Setup gcloud CLI
       - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v1
+        uses: google-github-actions/setup-gcloud@v2
 
       - name: Determine commit information
         run: |-
@@ -139,4 +139,5 @@ jobs:
           channel-id: "C03FHB9N0PQ"
           slack-message: "build-deploy-pudl status: ${{ job.status }}\n${{ env.COMMIT_TIME}}-${{ env.SHORT_SHA }}-${{ env.COMMIT_BRANCH }}"
         env:
+          channel-id: "C03FHB9N0PQ"
           SLACK_BOT_TOKEN: ${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }}

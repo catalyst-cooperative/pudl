@@ -91,34 +91,37 @@ class TestFerc1Settings:
 class TestEpaCemsSettings:
     """Test EpaCems settings validation."""
 
-    def test_not_working_state(self: Self):
-        """Make sure a validation error is being thrown when given an invalid state."""
+    def test_not_working_quarter(self: Self):
+        """Make sure a validation error is being thrown when given an invalid quarter."""
         with pytest.raises(ValidationError):
-            EpaCemsSettings(states=["fake_state"])
+            EpaCemsSettings(year_quarters=["1990q4"])
 
-    def test_duplicate_sort_states(self: Self):
-        """Test states are sorted and deduplicated."""
+    def test_duplicate_quarters(self: Self):
+        """Test year_quarters are deduplicated."""
         with pytest.raises(ValidationError):
-            _ = EpaCemsSettings(states=["CA", "CA", "AL"])
+            _ = EpaCemsSettings(year_quarters=["1999q4", "1999q4"])
 
-    def test_default_states(self: Self):
-        """Test all states are used as default."""
+    def test_default_quarters(self: Self):
+        """Test all quarters are used as default."""
         returned_settings = EpaCemsSettings()
 
-        expected_states = DataSource.from_id("epacems").working_partitions["states"]
-        assert expected_states == returned_settings.states
+        expected_year_quarters = DataSource.from_id("epacems").working_partitions[
+            "year_quarters"
+        ]
+        assert expected_year_quarters == returned_settings.year_quarters
 
-    def test_all_states(self: Self):
-        """Test all states are used as default."""
-        returned_settings = EpaCemsSettings(states=["all"])
+    def test_all_year_quarters(self: Self):
+        """Test the `all` option for the cems settings."""
+        epacems_settings_all = EpaCemsSettings(year_quarters=["all"])
+        working_partitions_all = DataSource.from_id("epacems").working_partitions[
+            "year_quarters"
+        ]
+        assert epacems_settings_all.year_quarters == working_partitions_all
 
-        expected_states = DataSource.from_id("epacems").working_partitions["states"]
-        assert expected_states == returned_settings.states
-
-    def test_none_states_raise(self: Self):
+    def test_none_quarters_raise(self: Self):
         """Test that setting a required partition to None raises an error."""
         with pytest.raises(ValidationError):
-            _ = EpaCemsSettings(states=None)
+            _ = EpaCemsSettings(quarters=None)
 
 
 class TestEIA860Settings:
@@ -255,10 +258,10 @@ class TestDatasetsSettingsResource:
 
     def test_default_values(self: Self):
         """Test the correct default values are created for dagster config."""
-        expected_states = EpaCemsSettings().states
+        expected_year_quarters = EpaCemsSettings().year_quarters
         assert (
-            dataset_settings.config_schema.default_value["epacems"]["states"]
-            == expected_states
+            dataset_settings.config_schema.default_value["epacems"]["year_quarters"]
+            == expected_year_quarters
         )
 
 
@@ -274,13 +277,14 @@ def test_partitions_with_json_normalize(pudl_etl_settings):
         )
 
     cems_parts = json_normalize(datasets["epacems"].partitions)
-    if list(cems_parts.columns) != ["year", "state"]:
+    if list(cems_parts.columns) != ["year_quarters"]:
         raise AssertionError(
-            "CEMS paritions should have year and state columns only, found:"
+            "CEMS paritions should have year_quarters columns only, found:"
             f"{cems_parts}"
         )
 
 
+@pytest.mark.slow
 def test_partitions_for_datasource_table(pudl_etl_settings):
     """Test whether or not we can make the datasource table."""
     ds = Datastore(local_cache_path=PudlPaths().data_dir)
