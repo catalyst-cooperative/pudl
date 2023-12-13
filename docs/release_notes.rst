@@ -18,6 +18,12 @@ v2023.12.XX
   outputs describing historical utility and balancing authority service territories. See
   :issue:`1174` and :pr:`3086`.
 
+Data Coverage
+^^^^^^^^^^^^^
+* Updated :doc:`data_sources/epacems` to switch to pulling the quarterly updates of
+  CEMS instead of the annual files. Integrates CEMS through 2023q3. See issue
+  :issue:`2973` & PR :pr:`3096`.
+
 ---------------------------------------------------------------------------------------
 v2023.12.01
 ---------------------------------------------------------------------------------------
