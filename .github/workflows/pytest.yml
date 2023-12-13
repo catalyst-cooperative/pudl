@@ -108,9 +108,91 @@ jobs:
           name: coverage-unit
           path: coverage.xml
 
+  # TODO(rousik): for speedup, we might consider splitting out
+  # core ferc_to_sqlite datasets needed by ETL and those that
+  # are just running for coverage sake (those could be run in
+  # parallel with ETL step)
+  ci-ferc-to-sqlite:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        shell: bash -l {0}
+    strategy:
+      matrix:
+        format: ["xbrl", "dbf"]
+        dataset: ["ferc1", "ferc2"]
+        # TODO(rousik): add remaining ones here...
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Install conda-lock environment with micromamba
+        uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-file: environments/conda-lock.yml
+          environment-name: pudl-dev
+          cache-environment: true
+
+      - name: Install PUDL and its dependencies
+        run: pip install --no-deps --no-cache-dir .
+
+      - name: Compile Zenodo datastore DOIs for cache invalidation
+        run:
+          grep -e '.*10\.\(5281\|5072\)/zenodo\..*' src/pudl/workspace/datastore.py
+          | sed -e 's/",*$//g' | sed -e 's/^.*"//g' | sort > datastore-dois.txt
+
+      - name: Restore Zenodo datastore from cache if possible
+        uses: actions/cache@v3
+        id: cache-zenodo-datastore
+        with:
+          path: ${{ env.PUDL_INPUT }}
+          key: zenodo-datastore-${{ hashFiles('datastore-dois.txt') }}
+
+      - name: Make input, output and dagster dirs
+        run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
+
+      - name: Set default GCP credentials
+        id: gcloud-auth
+        continue-on-error: true
+        uses: "google-github-actions/auth@v2"
+        with:
+          workload_identity_provider: "projects/345950277072/locations/global/workloadIdentityPools/gh-actions-pool/providers/gh-actions-provider"
+          service_account: "tox-pytest-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
+
+      - name: Run ferc_to_sqlite
+        env:
+          COVERAGE_FILE: .coverage.ferc_to_sqlite.${{ matrix.dataset }}.${{ matrix.format }}
+        run: |
+          coverage run --concurrency=multiprocessing \
+            src/pudl/ferc_to_sqlite/cli.py \
+            --dataset-only ${{ matrix.dataset}}_${{ matrix.format }} \
+            --clobber ${{ env.ETL_COMMANDLINE_OPTIONS }} ${{ env.ETL_CONFIG }}
+      - name: Generate coverage
+        run: |
+          coverage --version
+          coverage combine
+          coverage xml
+          coverage report
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-ferc-to-sqlite-${{ matrix.dataset }}-${{ matrix.format }}
+          path: coverage.xml
+
+      - name: Upload ferc_to_sqlite outputs
+        uses: actions/upload-artifact@v3
+        with:
+          name: ferc-to-sqlite
+          path: ${{ env.PUDL_OUTPUT }}/*.sqlite
+
   ci-integration:
     needs:
-      - ci-unit
+      - ci-ferc-to-sqlite
     runs-on: ubuntu-22.04-4core
     if: github.event.pull_request.draft == false
     permissions:
@@ -173,12 +255,12 @@ jobs:
           workload_identity_provider: "projects/345950277072/locations/global/workloadIdentityPools/gh-actions-pool/providers/gh-actions-provider"
           service_account: "tox-pytest-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
 
-      - name: Run ferc_to_sqlite
-        env:
-          COVERAGE_FILE: .coverage.ferc_to_sqlite
-        run: |
-          coverage run --concurrency=multiprocessing \
-            src/pudl/ferc_to_sqlite/cli.py --clobber ${{ env.ETL_COMMANDLINE_OPTIONS }} ${{ env.ETL_CONFIG }}
+      - name: Download ferc databases
+        uses: actions/download-artifact@v3
+        with:
+          name: ferc-to-sqlite
+          path: ${{ env.PUDL_OUTPUT }}
+
       - name: Run pudl_etl
         env:
           COVERAGE_FILE: .coverage.pudl_etl
@@ -221,7 +303,7 @@ jobs:
         with:
           path: coverage
       - name: List downloaded files
-        run: find -type f
+        run: ls -Rh coverage/
       - name: Upload test coverage report to CodeCov
         uses: codecov/codecov-action@v3
         with:
