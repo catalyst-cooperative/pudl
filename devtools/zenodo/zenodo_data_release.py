@@ -194,7 +194,7 @@ class LocalSource(SourceData):
 
     def iter_files(self) -> Iterable[tuple[str, BinaryIO]]:
         """Loop through all files in the directory."""
-        for f in self.path.iterdir():
+        for f in sorted(self.path.iterdir()):
             if f.is_file():
                 yield f.name, f.open("rb")
             else:
@@ -323,13 +323,14 @@ class CompleteDraft(State):
     "--env",
     type=click.Choice([SANDBOX, PRODUCTION], case_sensitive=False),
     default=SANDBOX,
-    help="Use the Zenodo sandbox rather than the production server.",
+    help="Whether to use the Zenodo sandbox server (for testing) or the production server.",
+    show_default=True,
 )
 @click.option(
     "--rec-id",
     type=int,
     required=True,
-    help="The record ID we'd like to sync to.",
+    help="Record ID of the Zenodo archive to create a new version of.",
 )
 @click.option(
     "--source-dir",
@@ -337,14 +338,15 @@ class CompleteDraft(State):
         exists=True, file_okay=False, dir_okay=True, readable=True, path_type=Path
     ),
     required=True,
-    help="What directory to sync up to this concept DOI.",
+    help="Path to a directory whose contents will be uploaded to Zenodo. Subdirectories are ignored.",
 )
 @click.option(
     "--publish/--no-publish",
     default=False,
-    help="Whether to publish automatically after syncing, or to give you a chance to review.",
+    help="Whether to publish the new record without confirmation, or leave it as a draft to be reviewed.",
+    show_default=True,
 )
-def pudl_zenodo_data_release(env: bool, rec_id, source_dir, publish):
+def pudl_zenodo_data_release(env: str, rec_id: int, source_dir: Path, publish: bool):
     """Publish a new PUDL data release to Zenodo."""
     # TODO (daz): if the source-dir is actually an S3 or GCS uri, then, well. Do that instead.
     source_data = LocalSource(path=source_dir)
