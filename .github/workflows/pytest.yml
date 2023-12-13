@@ -177,27 +177,27 @@ jobs:
         env:
           COVERAGE_FILE: .coverage.ferc_to_sqlite
         run: |
-          coverage run \
+          coverage run --concurrency=multiprocessing \
             src/pudl/ferc_to_sqlite/cli.py --clobber ${{ env.ETL_COMMANDLINE_OPTIONS }} ${{ env.ETL_CONFIG }}
       - name: Run pudl_etl
         env:
           COVERAGE_FILE: .coverage.pudl_etl
         run: |
           alembic upgrade head
-          coverage run \
+          coverage run --concurrency=multiprocessing \
             src/pudl/etl/cli.py ${{ env.ETL_COMMANDLINE_OPTIONS }} ${{ env.ETL_CONFIG }}
       - name: Run integration tests
         env:
           COVERAGE_FILE: .coverage.pytest
         run: |
-          coverage run \
+          coverage run --concurrency=multiprocessing \
            -m pytest -n auto --live-dbs test/integration
       - name: Checksum coverage files
         run: ls .coverage* | xargs md5sum | sort
       - name: Generate coverage
         run: |
           coverage --version
-          coverage combine --append
+          coverage combine
           coverage xml
           coverage report
       - name: Upload coverage
