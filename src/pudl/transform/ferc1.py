@@ -48,7 +48,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 @asset
 def clean_xbrl_metadata_json(
-    raw_xbrl_metadata_json: dict[str, dict[str, list[dict[str, Any]]]]
+    raw_xbrl_metadata_json: dict[str, dict[str, list[dict[str, Any]]]],
 ) -> dict[str, dict[str, list[dict[str, Any]]]]:
     """Generate cleaned json xbrl metadata.
 
@@ -58,7 +58,7 @@ def clean_xbrl_metadata_json(
 
 
 def add_source_tables_to_xbrl_metadata(
-    raw_xbrl_metadata_json: dict[str, dict[str, list[dict[str, Any]]]]
+    raw_xbrl_metadata_json: dict[str, dict[str, list[dict[str, Any]]]],
 ) -> dict[str, dict[str, list[dict[str, Any]]]]:
     """Add a ``source_tables`` field into metadata calculation components.
 
@@ -1151,7 +1151,8 @@ def calculate_values_from_components(
         {value_col: "float64", "calculated_value": "float64"}
     )
     calculated_df = calculated_df.assign(
-        abs_diff=lambda x: abs(x[value_col] - x.calculated_value),
+        diff=lambda x: x[value_col] - x.calculated_value,
+        abs_diff=lambda x: abs(x["diff"]),
         rel_diff=lambda x: np.where(
             (x[value_col] != 0.0),
             abs(x.abs_diff / x[value_col]),

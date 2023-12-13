@@ -1,8 +1,9 @@
 """Metadata and operational constants."""
 from typing import Any
 
+import pandas as pd
+
 from pudl.metadata.constants import CONTRIBUTORS, KEYWORDS, LICENSES
-from pudl.metadata.enums import EPACEMS_STATES
 
 SOURCES: dict[str, Any] = {
     "censusdp1tract": {
@@ -272,8 +273,10 @@ SOURCES: dict[str, Any] = {
         },
         "field_namespace": "epacems",
         "working_partitions": {
-            "years": sorted(set(range(1995, 2023))),
-            "states": sorted(EPACEMS_STATES),
+            "year_quarters": [
+                str(q).lower()
+                for q in pd.period_range(start="1995q1", end="2023q3", freq="Q")
+            ]
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
