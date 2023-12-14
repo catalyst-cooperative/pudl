@@ -125,6 +125,7 @@ jobs:
             --container-env DAGSTER_PG_HOST="104.154.182.24" \
             --container-env DAGSTER_PG_DB="dagster-storage" \
             --container-env FLY_ACCESS_TOKEN=${{ secrets.FLY_ACCESS_TOKEN }} \
+            --container-env ZENODO_SANDBOX_TOKEN_PUBLISH=${{ secrets.ZENODO_SANDBOX_TOKEN_PUBLISH }} \
             --container-env PUDL_SETTINGS_YML="/home/mambauser/src/pudl/package_data/settings/etl_full.yml" \
             --container-env PUDL_GCS_OUTPUT=${{ env.GCS_OUTPUT_BUCKET }}/${{ env.COMMIT_TIME }}-${{ env.SHORT_SHA }}-${{ env.COMMIT_BRANCH }}
 
