@@ -145,7 +145,13 @@ def pudl_etl(
             },
         },
     }
-    run_config.update(get_dagster_execution_config(dagster_workers))
+
+    run_config.update(
+        get_dagster_execution_config(
+            num_workers=dagster_workers,
+            tag_concurrency_limits=pudl.etl.default_tag_concurrency_limits,
+        )
+    )
 
     result = execute_job(
         pudl_etl_reconstructable_job,
