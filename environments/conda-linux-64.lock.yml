@@ -262,7 +262,7 @@ dependencies:
   - rpds-py=0.13.2=py311h46250e7_0
   - rtree=1.1.0=py311h3bb2b0f_0
   - ruamel.yaml.clib=0.2.7=py311h459d7ec_2
-  - ruff=0.1.7=py311h7145743_0
+  - ruff=0.1.8=py311h7145743_0
   - send2trash=1.8.2=pyh41d4057_0
   - setuptools=68.2.2=pyhd8ed1ab_0
   - shellingham=1.5.4=pyhd8ed1ab_0
@@ -329,7 +329,7 @@ dependencies:
   - clikit=0.6.2=pyhd8ed1ab_2
   - coloredlogs=14.0=pyhd8ed1ab_3
   - comm=0.1.4=pyhd8ed1ab_0
-  - coverage=7.3.2=py311h459d7ec_0
+  - coverage=7.3.3=py311h459d7ec_0
   - curl=8.5.0=hca28451_0
   - fonttools=4.46.0=py311h459d7ec_0
   - gitdb=4.0.11=pyhd8ed1ab_0
@@ -402,7 +402,7 @@ dependencies:
   - arrow=1.3.0=pyhd8ed1ab_0
   - async-timeout=4.0.3=pyhd8ed1ab_0
   - aws-c-s3=0.4.1=hfadff92_0
-  - botocore=1.33.13=pyhd8ed1ab_0
+  - botocore=1.34.0=pyhd8ed1ab_0
   - branca=0.7.0=pyhd8ed1ab_1
   - croniter=2.0.1=pyhd8ed1ab_0
   - cryptography=41.0.7=py311hcb13ee4_1
@@ -480,7 +480,7 @@ dependencies:
   - readthedocs-sphinx-ext=2.2.4=pyhd8ed1ab_0
   - requests-toolbelt=0.10.1=pyhd8ed1ab_0
   - responses=0.24.1=pyhd8ed1ab_0
-  - s3transfer=0.8.2=pyhd8ed1ab_0
+  - s3transfer=0.9.0=pyhd8ed1ab_0
   - scipy=1.11.4=py311h64a7726_0
   - secretstorage=3.3.3=py311h38be061_2
   - shapely=2.0.2=py311h2032efe_1
@@ -489,7 +489,7 @@ dependencies:
   - typer=0.9.0=pyhd8ed1ab_0
   - uvicorn-standard=0.24.0.post1=h38be061_0
   - aws-sdk-cpp=1.11.182=h8beafcf_7
-  - boto3=1.33.13=pyhd8ed1ab_0
+  - boto3=1.34.0=pyhd8ed1ab_0
   - cachecontrol-with-filecache=0.13.1=pyhd8ed1ab_0
   - dagster=1.5.12=pyhd8ed1ab_0
   - datasette=0.64.4=pyhd8ed1ab_1
