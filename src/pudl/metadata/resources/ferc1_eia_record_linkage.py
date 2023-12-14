@@ -2,7 +2,7 @@
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
-    "plant_parts_eia": {
+    "out_eia__yearly_plant_parts": {
         "description": """Output table with the aggregation of all EIA plant parts. For use with matching to FERC 1.
 
 Practically speaking, a plant is a collection of generator(s). There are many
@@ -80,7 +80,7 @@ meant for use as an input into the record linkage between FERC1 plants and EIA."
         "etl_group": "outputs",
         "field_namespace": "eia",
     },
-    "mega_generators_eia": {
+    "out_eia__yearly_generators_by_ownership": {
         "description": "A mega table of all EIA generators with ownership integrated.",
         "schema": {
             "fields": [

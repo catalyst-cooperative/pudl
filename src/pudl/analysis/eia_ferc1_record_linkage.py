@@ -1051,7 +1051,7 @@ def add_null_overrides(connects_ferc1_eia):
     logger.debug(f"Found {len(null_overrides)} null overrides")
     # List of EIA columns to null. Ideally would like to get this from elsewhere, but
     # compiling this here for now...
-    eia_cols_to_null = Resource.from_id("plant_parts_eia").get_field_names()
+    eia_cols_to_null = Resource.from_id("out_eia__yearly_plant_parts").get_field_names()
     # Make all EIA values NA for record_id_ferc1 values in the Null overrides list and
     # make the match_type column say "overriden"
     connects_ferc1_eia.loc[

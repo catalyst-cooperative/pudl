@@ -303,13 +303,13 @@ Analysis
   complete estimates of generator heat rates and thus fuel costs and emissions. Thanks
   to :user:`grgmiller` for his contribution, which was integrated by :user:`cmgosnell`!
   See PRs :pr:`1096,1608` and issues :issue:`1468,1478`.
-* Integrated :mod:`pudl.analysis.ferc1_eia` from our RMI collaboration repo, which uses
-  logistic regression to match FERC1 plants data to EIA 860 records. While far from
-  perfect, this baseline model utilizes the manually created training data and plant IDs
-  to perform record linkage on the FERC1 data and EIA plant parts list created in
-  :mod:`pudl.analysis.plant_parts_eia`. See issue :issue:`1064` & PR :pr:`2224`. To
-  account for 1:m matches in the manual data, we added ``plant_match_ferc1`` as a plant
-  part in :mod:`pudl.analysis.plant_parts_eia`.
+* Integrated :mod:`pudl.analysis.eia_ferc1_record_linkage` from our RMI collaboration
+  repo, which uses logistic regression to match FERC1 plants data to EIA 860 records.
+  While far from perfect, this baseline model utilizes the manually created training
+  data and plant IDs to perform record linkage on the FERC1 data and EIA plant parts
+  list created in :mod:`pudl.analysis.plant_parts_eia`. See issue :issue:`1064` & PR
+  :pr:`2224`. To account for 1:m matches in the manual data, we added
+  ``plant_match_ferc1`` as a plant part in :mod:`pudl.analysis.plant_parts_eia`.
 * Refined how we are associating generation and fuel data in
   :mod:`pudl.analysis.allocate_gen_fuel`, which was renamed from ``allocate_net_gen``.
   Energy source codes that show up in the :ref:`core_eia923__monthly_generation_fuel` or

@@ -802,16 +802,6 @@ columns.""",
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "retained_earnings_appropriations_ferc1": {
-        "description": "Retained Earnings - some of the unstructed part of schedule 118.",
-        "schema": {
-            "fields": ["utility_id_ferc1", "report_year", "utility_type", "record_id"],
-        },
-        "sources": ["ferc1"],
-        "etl_group": "ferc1_disabled",
-        "field_namespace": "ferc1",
-        "create_database_schema": False,
-    },
     "core_ferc1__yearly_operating_revenues_sched300": {
         "description": (
             "Electric operating revenues - The structed part of schedule 300."
