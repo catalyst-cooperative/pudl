@@ -2497,7 +2497,7 @@ def core_eia861__assn_utility(**data_dfs: dict[str, pd.DataFrame]) -> pd.DataFra
     io_manager_key="pudl_sqlite_io_manager",
 )
 def core_eia861__assn_balancing_authority(
-    **dfs: dict[str, pd.DataFrame]
+    **dfs: dict[str, pd.DataFrame],
 ) -> pd.DataFrame:
     """Compile a balancing authority, utility, state association table.
 
