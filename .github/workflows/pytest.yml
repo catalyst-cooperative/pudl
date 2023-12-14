@@ -123,7 +123,7 @@ jobs:
     strategy:
       matrix:
         format: ["xbrl", "dbf"]
-        dataset: ["ferc1"]
+        dataset: ["ferc1", "ferc2"]
         # TODO(rousik): the above will skip many of the ferc_to_sqlite
         # datasets, which might be okay for the sake of efficiency, but
         # will lead to coverage loss on the non-ferc1 steps.
