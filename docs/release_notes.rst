@@ -339,7 +339,8 @@ Deprecations
 * Replace references to deprecated ``pudl-scrapers`` and
   ``pudl-zenodo-datastore`` repositories with references to `pudl-archiver
   <https://www.github.com/catalyst-cooperative/pudl-archiver>`__ repository in
-  ``intro``, :doc:`dev/datastore`, and :doc:`dev/annual_updates`. See :pr:`2190`.
+  :doc:`intro`, :doc:`dev/datastore`, and :doc:`dev/existing_data_updates`. See
+  :pr:`2190`.
 * :mod:`pudl.etl` is now a subpackage that collects all pudl assets into a dagster
   `Definition <https://docs.dagster.io/concepts/code-locations>`__. All
   ``pudl.etl._etl_{datasource}`` functions have been deprecated. The coordination
