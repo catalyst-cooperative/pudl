@@ -323,6 +323,8 @@ debug = ["config", "trace"]
 pudl_sources = [
   "src/pudl/",
   "*/site-packages/pudl/",
+  "test/unit",
+  "test/integration",
 ]
 
 [tool.coverage.report]
