@@ -95,6 +95,11 @@ jobs:
           --discussion-category Announcements
           --generate-notes
           --repo '${{ github.repository }}'
+      - name: Tag stable release
+        uses: EndBug/latest-tag@1
+        with:
+          ref: stable
+          description: "The current stable release of catalystcoop.pudl"
 
   notify-slack:
     runs-on: ubuntu-latest
