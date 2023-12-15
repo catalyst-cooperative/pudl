@@ -95,21 +95,16 @@ default_resources = {
 }
 
 # By default, limit CEMS year processing concurrency to prevent memory overload.
-default_config = {
-    "execution": {
-        "config": {
-            "multiprocess": {
-                "tag_concurrency_limits": [
-                    {
-                        "key": "datasource",
-                        "value": "epacems",
-                        "limit": 2,
-                    }
-                ],
-            },
-        }
+default_tag_concurrency_limits = [
+    {
+        "key": "datasource",
+        "value": "epacems",
+        "limit": 2,
     }
-}
+]
+default_config = pudl.helpers.get_dagster_execution_config(
+    tag_concurrency_limits=default_tag_concurrency_limits
+)
 
 
 def create_non_cems_selection(all_assets: list[AssetsDefinition]) -> AssetSelection:
