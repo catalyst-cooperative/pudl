@@ -30,14 +30,17 @@ which one is right for you and your use case.
        Select data to download as CSVs for local analysis in spreadsheets.
        Create sharable links to a particular selection of data.
        Access PUDL data via a REST API.
+   * - :ref:`access-kaggle`
+     - Data scientist, data analyst, Jupyter notebook user
+     - Easy Jupyter notebook access to all PUDL data products, including example
+       notebooks. Updated weekly based on the nightly builds.
    * - :ref:`access-nightly-builds`
      - Cloud Developer, Database User, Beta Tester
-     - Get the freshest data that has passed all data validations, updated most weekday
-       mornings. Fast downloads from AWS S3 storage buckets.
+     - Get the freshest data that has passed all of our data validations, updated most
+       weekday mornings. Fast, free downloads from AWS S3 storage buckets.
    * - :ref:`access-zenodo`
      - Researcher, Database User, Notebook Analyst
      - Use a stable, citable, fully processed version of the PUDL on your own computer.
-       Use PUDL in Jupyer Notebooks running in a stable, archived Docker container.
        Access the SQLite DB and Parquet files directly using any toolset.
    * - :ref:`access-development`
      - Python Developer, Data Wrangler
@@ -68,6 +71,19 @@ data you've selected.
    derived from their old Visual FoxPro and new XBRL data formats, which we publish as
    SQLite to improve accessibility of the raw inputs, but they should generally not be
    used directly if the data you need has integrated into the PUDL database.
+
+.. _access-kaggle:
+
+---------------------------------------------------------------------------------------
+Kaggle
+---------------------------------------------------------------------------------------
+
+Want to explore the PUDL data interactively in a Jupyter Notebook without needing to do
+any setup? Our nightly build outputs (see below) automatically update `the PUDL Project
+Dataset on Kaggle <https://www.kaggle.com/datasets/catalystcooperative/pudl-project>`__
+once a week. There are `several notebooks <https://www.kaggle.com/datasets/catalystcooperative/pudl-project/code>`__
+associated with the dataset, both curated by Catalyst and contributed by other Kaggle
+users which you can use to get oriented to the PUDL database.
 
 .. _access-nightly-builds:
 
@@ -129,42 +145,22 @@ HTTPS using the following links:
    be quite large when uncompressed. To decompress them locally, you can use the
    ``gunzip`` command.
 
-
    .. code-block:: console
 
       $ gunzip *.sqlite.gz
 
-
 .. _access-zenodo:
 
 ---------------------------------------------------------------------------------------
-Zenodo Archives
+Zenodo
 ---------------------------------------------------------------------------------------
 
-We use Zenodo to archive our fully processed data as SQLite databases and
-Parquet files. We also archive a Docker image that contains the software environment
-required to use PUDL within Jupyter Notebooks. You can find all our archived data
-products in `the Catalyst Cooperative Community on Zenodo
-<https://zenodo.org/communities/catalyst-cooperative/>`__.
-
-* The current version of the archived data and Docker container can be
-  downloaded from `This Zenodo archive <https://doi.org/10.5281/zenodo.3653158>`__
-* Detailed instructions on how to access the archived PUDL data using a Docker
-  container can be found in our `PUDL Examples repository
-  <https://github.com/catalyst-cooperative/pudl-examples/>`__.
-* The SQLite databases and Parquet files containing the PUDL data, the complete FERC 1
-  database, and EPA CEMS hourly data are contained in that same archive, if you want
-  to access them directly without using PUDL.
-
-.. note::
-
-   If you're already familiar with Docker, you can also pull
-   `the image we use <https://hub.docker.com/r/catalystcoop/pudl-jupyter>`__ to run
-   Jupyter directly:
-
-   .. code-block:: console
-
-      $ docker pull catalystcoop/pudl-jupyter:latest
+We use Zenodo to archive and version our raw data inputs, the fully processed outputs,
+and the PUDL software repositories. You can find all of our archives in
+`the Catalyst Cooperative Community <https://zenodo.org/communities/catalyst-cooperative/>`__.
+Zenodo assigns long-lived DOIs to each archive, suitable for citation in academic
+journals and other publications. The most recent versioned PUDL data release can be
+found using this Concept DOI: https://doi.org/10.5281/zenodo.3653158
 
 .. _access-development:
 

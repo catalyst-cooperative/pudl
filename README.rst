@@ -47,6 +47,19 @@ it's often difficult to work with. PUDL takes the original spreadsheets, CSV fil
 and databases and turns them into a unified resource. This allows users to spend more
 time on novel analysis and less time on data preparation.
 
+Who is PUDL for?
+----------------
+
+The project is focused on serving researchers, activists, journalists, policy makers,
+and small businesses that might not otherwise be able to afford access to this data from
+commercial sources and who may not have the time or expertise to do all the data
+processing themselves from scratch.
+
+We want to make this data accessible and easy to work with for as wide an audience as
+possible: anyone from a grassroots youth climate organizers working with Google sheets
+to university researchers with access to scalable cloud computing resources and everyone
+in between!
+
 What data is available?
 -----------------------
 
@@ -73,84 +86,37 @@ Program <https://sloan.org/programs/research/energy-and-environment>`__, from
 * `PHMSA Natural Gas Annual Report <https://www.phmsa.dot.gov/data-and-statistics/pipeline/gas-distribution-gas-gathering-gas-transmission-hazardous-liquids>`__
 * Machine Readable Specifications of State Clean Energy Standards
 
-Who is PUDL for?
-----------------
-
-The project is focused on serving researchers, activists, journalists, policy makers,
-and small businesses that might not otherwise be able to afford access to this data
-from commercial sources and who may not have the time or expertise to do all the
-data processing themselves from scratch.
-
-We want to make this data accessible and easy to work with for as wide an audience as
-possible: anyone from a grassroots youth climate organizers working with Google
-sheets to university researchers with access to scalable cloud computing
-resources and everyone in between!
-
 How do I access the data?
 -------------------------
 
-There are several ways to access PUDL outputs. For more details you'll want
-to check out `the complete documentation
-<https://catalystcoop-pudl.readthedocs.io>`__, but here's a quick overview:
+For details on how to access PUDL data, see the `data access documentation
+<https://catalystcoop-pudl.readthedocs.io/en/latest/data_access.html>`__. A quick
+summary:
 
-Datasette
-^^^^^^^^^
-We publish a lot of the data on https://data.catalyst.coop using a tool called
-`Datasette <https://datasette.io>`__ that lets us wrap our databases in a relatively
-friendly web interface. You can browse and query the data, make simple charts and
-maps, and download portions of the data as CSV files or JSON so you can work with it
-locally. For a quick introduction to what you can do with the Datasette interface,
-check out `this 17 minute video <https://simonwillison.net/2021/Feb/7/video/>`__.
-
-This access mode is good for casual data explorers or anyone who just wants to grab a
-small subset of the data. It also lets you share links to a particular subset of the
-data and provides a REST API for querying the data from other applications.
-
-Kaggle
-^^^^^^
-Want to explore the PUDL data interactively in a Jupyter Notebook without needing to do
-any setup? Our nightly build outputs (see below) automatically update `the PUDL Project
-Dataset on Kaggle <https://www.kaggle.com/datasets/catalystcooperative/pudl-project>`__
-once a week. There are `several notebooks <https://www.kaggle.com/datasets/catalystcooperative/pudl-project/code>`__
-associated with the dataset, both curated by Catalyst and contributed by other Kaggle
-users which you can use to get oriented to the PUDL database.
-
-Zenodo
-^^^^^^
-If you need long-term stability and a DOI to cite our data in your work, you can find
-`versioned PUDL data releases on Zenodo <https://doi.org/10.5281/zenodo.3653158>`__.
-
-The PUDL Development Environment
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-If you're more familiar with the Python data science stack and are comfortable working
-with git, ``conda`` environments, and the Unix command line, then you can set up the
-whole PUDL Development Environment on your own computer. This will allow you to run the
-full data processing pipeline yourself, tweak the underlying source code, and (we hope!)
-make contributions back to the project.
-
-This is by far the most involved way to access the data and isn't recommended for
-most users. You should check out the `Development section <https://catalystcoop-pudl.readthedocs.io/en/latest/dev/dev_setup.html>`__
-of the main `PUDL documentation <https://catalystcoop-pudl.readthedocs.io>`__ for more
-details.
-
-Nightly Data Builds
-^^^^^^^^^^^^^^^^^^^
-If you are less concerned with reproducibility and want the freshest possible data
-we automatically upload the outputs of our nightly builds to public S3 storage buckets
-as part of the `AWS Open Data Registry
-<https://registry.opendata.aws/catalyst-cooperative-pudl/>`__.  This data is based on
-the `dev branch <https://github.com/catalyst-cooperative/pudl/tree/dev>`__, of PUDL, and
-is updated most weekday mornings. It is also the data used to populate Datasette.
-
-The nightly build outputs can be accessed using the AWS CLI, the S3 API, or downloaded
-directly via the web. See `Accessing Nightly Builds <https://catalystcoop-pudl.readthedocs.io/en/latest/data_access.html#access-nightly-builds>`__
-for links to the individual SQLite, JSON, and Apache Parquet outputs.
+* `Datasette <https://catalystcoop-pudl.readthedocs.io/en/latest/data_access.html#-access-datasette>`__
+  provides browsable and queryable data from our nightly builds on the web:
+  https://data.catalyst.coop
+* `Kaggle <https://catalystcoop-pudl.readthedocs.io/en/latest/data_access.html#access-kaggle>`__
+  provides easy Jupyter notebook access to the PUDL data, updated weekly:
+  https://www.kaggle.com/datasets/catalystcooperative/pudl-project
+* `Zenodo <https://catalystcoop-pudl.readthedocs.io/en/latest/data_access.html#access-zenodo>`__
+  provides stable long-term access to our versioned data releases with a citeable DOI:
+  https://doi.org/10.5281/zenodo.3653158
+* `Nightly Data Builds <https://catalystcoop-pudl.readthedocs.io/en/latest/data_access.html#access-nightly-builds>`__
+  push their outputs to the AWS Open Data Registry:
+  https://registry.opendata.aws/catalyst-cooperative-pudl/
+  See `the nightly build docs <https://catalystcoop-pudl.readthedocs.io/en/latest/data_access.html#access-nightly-builds>`__
+  for direct download links.
+* `The PUDL Development Environment <https://catalystcoop-pudl.readthedocs.io/en/latest/dev/dev_setup.html>`__
+  lets you run the PUDL data processing pipeline locally.
 
 Contributing to PUDL
 --------------------
+
 Find PUDL useful? Want to help make it better? There are lots of ways to help!
 
-* First, be sure to read our `Code of Conduct <https://catalystcoop-pudl.readthedocs.io/en/latest/code_of_conduct.html>`__.
+* Check out our `contribution guide <https://catalystcoop-pudl.readthedocs.io/en/latest/CONTRIBUTING.html>`__
+  including our `Code of Conduct <https://catalystcoop-pudl.readthedocs.io/en/latest/code_of_conduct.html>`__.
 * You can file a bug report, make a feature request, or ask questions in the
   `Github issue tracker <https://github.com/catalyst-cooperative/pudl/issues>`__.
 * Feel free to fork the project and make a pull request with new code, better
@@ -159,8 +125,6 @@ Find PUDL useful? Want to help make it better? There are lots of ways to help!
   to support our work liberating public energy data.
 * `Hire us to do some custom analysis <https://catalyst.coop/hire-catalyst/>`__ and
   allow us to integrate the resulting code into PUDL.
-* For more information check out the Contributing section of the
-  `PUDL Documentation <https://catalystcoop-pudl.readthedocs.io>`__
 
 Licensing
 ---------
@@ -187,10 +151,15 @@ Contact Us
 * Want to schedule a time to chat with us one-on-one about your PUDL use case, ideas
   for improvement, or get some personalized support? Join us for
   `Office Hours <https://calend.ly/catalyst-cooperative/pudl-office-hours>`__
+* `Follow us here on GitHub <https://github.com/catalyst-cooperative/>`__
+* Follow us on Mastodon: `@CatalystCoop@mastodon.energy <https://mastodon.energy/@CatalystCoop>`__
+* Follow us on BlueSky:  `@catalyst.coop <https://bsky.app/profile/catalyst.coop>`__
+* `Follow us on LinkedIn <https://www.linkedin.com/company/catalyst-cooperative/>`__
+* `Follow us on HuggingFace <https://huggingface.co/catalystcooperative>`__
 * Follow us on Twitter: `@CatalystCoop <https://twitter.com/CatalystCoop>`__
+* `Follow us on Kaggle <https://www.kaggle.com/catalystcooperative/>`__
 * More info on our website: https://catalyst.coop
-* To hire us to provide customized data
-  extraction and analysis, you can email the maintainers:
+* Email us if you'd like to hire us to provide customized data extraction and analysis:
   `hello@catalyst.coop <mailto:hello@catalyst.coop>`__
 
 About Catalyst Cooperative
