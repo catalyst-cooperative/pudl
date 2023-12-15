@@ -1101,7 +1101,13 @@ def _out_ferc1__explosion_tags(table_dimensions_ferc1) -> pd.DataFrame:
     # Also, these tags may not be applicable to all exploded tables, but
     # we need to pass in a dataframe with the right structure to all of the exploders,
     # so we're just re-using this one for the moment.
-    rate_base_tags = _rate_base_tags(table_dimensions_ferc1=table_dimensions_ferc1)
+    rate_base_tags = pd.merge(
+        _rate_base_tags(table_dimensions_ferc1),
+        _rate_base_category_tags(table_dimensions_ferc1),
+        how="outer",
+        on=list(NodeId._fields),
+        validate="1:1",
+    )
     plant_status_tags = _aggregatable_dimension_tags(
         table_dimensions_ferc1=table_dimensions_ferc1, dimension="plant_status"
     )
@@ -1135,6 +1141,24 @@ def _rate_base_tags(table_dimensions_ferc1: pd.DataFrame) -> pd.DataFrame:
             pudl.transform.ferc1.make_calculation_dimensions_explicit,
             table_dimensions_ferc1,
             dimensions=["utility_type", "plant_function", "plant_status"],
+        )
+    )
+    return tags_df
+
+
+def _rate_base_category_tags(table_dimensions_ferc1: pd.DataFrame) -> pd.DataFrame:
+    tags_csv = (
+        importlib.resources.files("pudl.package_data.ferc1")
+        / "xbrl_factoid_rate_base_category_tags.csv"
+    )
+    dim_cols = ["utility_type", "plant_function", "plant_status"]
+    tags_df = (
+        pd.read_csv(tags_csv)
+        # .assign(**{dim: pd.NA for dim in dim_cols})
+        .pipe(
+            pudl.transform.ferc1.make_calculation_dimensions_explicit,
+            table_dimensions_ferc1,
+            dimensions=dim_cols,
         )
     )
     return tags_df
