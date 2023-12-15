@@ -1796,7 +1796,9 @@ def scale_by_ownership(
     return gens
 
 
-def get_dagster_execution_config(num_workers: int = 0):
+def get_dagster_execution_config(
+    num_workers: int = 0, tag_concurrency_limits: list[dict] = []
+):
     """Get the dagster execution config for a given number of workers.
 
     If num_workers is 0, then the dagster execution config will not include
@@ -1808,12 +1810,19 @@ def get_dagster_execution_config(num_workers: int = 0):
         num_workers: The number of workers to use for the dagster execution config.
             If 0, then the dagster execution config will not include a multiprocess
             executor.
+        tag_concurrency_limits: A set of limits that are applied to steps with
+            particular tags. This is helpful for applying concurrency limits to
+            highly concurrent and memory intensive portions of the ETL like CEMS.
+
+            Dagster description: If a value is set, the limit is applied to only
+            that key-value pair. If no value is set, the limit is applied across
+            all values of that key. If the value is set to a dict with
+            `applyLimitPerUniqueValue: true`, the limit will apply to the number
+            of unique values for that key. Note that these limits are per run, not global.
 
     Returns:
         A dagster execution config.
     """
-    if not num_workers:
-        return {}
     if num_workers == 1:
         return {
             "execution": {
@@ -1825,7 +1834,10 @@ def get_dagster_execution_config(num_workers: int = 0):
     return {
         "execution": {
             "config": {
-                "multiprocess": {"max_concurrent": num_workers},
+                "multiprocess": {
+                    "max_concurrent": num_workers,
+                    "tag_concurrency_limits": tag_concurrency_limits,
+                },
             },
         },
     }
