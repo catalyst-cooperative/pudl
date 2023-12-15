@@ -75,10 +75,10 @@ Checking for Unmapped Records
 -----------------------------
 
 With every new year of data comes the possibility of new plants and utilities. Once
-you've integrated the new data into PUDL :doc:`(see instructions) <annual_updates>`,
-you'll need to check for unmapped utility and plants. To do this,
-run the glue tests with specific arguments, or directly run the following ``make``
-command.
+you've integrated the new data into PUDL
+:doc:`(see instructions) <existing_data_updates>`, you'll need to check for unmapped
+utility and plants. To do this, run the glue tests with specific arguments, or directly
+run the following ``make`` command.
 
 .. code-block:: console
 
@@ -236,4 +236,4 @@ Once you’ve successfully mapped all unmapped PUDL IDs, you’ll want to rerun 
 This ensures that the newly mapped IDs get integrated into the PUDL database and output
 tables that folks are using. Make sure to tell everyone else to do so as well so that
 you can all use the newly mapped PUDL IDs. But furst, make sure to head back to the
-:doc:`annual_updates` page to wrap up the validation tests!
+:doc:`existing_data_updates` page to wrap up the validation tests!
