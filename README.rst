@@ -47,36 +47,81 @@ it's often difficult to work with. PUDL takes the original spreadsheets, CSV fil
 and databases and turns them into a unified resource. This allows users to spend more
 time on novel analysis and less time on data preparation.
 
-Who is PUDL for?
-----------------
-
 The project is focused on serving researchers, activists, journalists, policy makers,
-and small businesses that might not otherwise be able to afford access to this data from
-commercial sources and who may not have the time or expertise to do all the data
-processing themselves from scratch.
+and small businesses that might not otherwise be able to afford access to this data
+from commercial sources and who may not have the time or expertise to do all the
+data processing themselves from scratch.
 
 We want to make this data accessible and easy to work with for as wide an audience as
-possible: anyone from a grassroots youth climate organizers working with Google sheets
-to university researchers with access to scalable cloud computing resources and everyone
-in between!
+possible: anyone from a grassroots youth climate organizers working with Google
+sheets to university researchers with access to scalable cloud computing
+resources and everyone in between!
+
+PUDL is comprised of three core components:
+
+- **Raw Data Archives**
+
+  - PUDL `archives <https://github.com/catalyst-cooperative/pudl-archiver>`__
+    all the raw data inputs on `Zenodo <https://zenodo.org/communities/catalyst-cooperative/?page=1&size=20>`__
+    to ensure perminant, versioned access to the data. In the event that an agency
+    changes how they publish data or deletes old files, the ETL will still have access
+    to the original inputs. Each of the data inputs may have several different versions
+    archived, and all are assigned a unique DOI and made available through the REST API.
+    You can read more about the Raw Data Archives in the
+    `docs <https://catalystcoop-pudl.readthedocs.io/en/dev/intro.html#raw-data-archives>`__.
+- **ETL Pipeline**
+
+  - The ETL pipeline (this repo) ingests the raw archives, cleans them,
+    integrates them, and outputs them to a series of tables stored in SQLite Databases,
+    Parquet files, and pickle files (the Data Warehouse). Each release of the PUDL
+    Python package is embedded with a set of of DOIs to indicate which version of the
+    raw inputs it is meant to process. This process helps ensure that the ETL and it's
+    outputs are replicable. You can read more about the ETL in the
+    `docs <https://catalystcoop-pudl.readthedocs.io/en/dev/intro.html#the-etl-process>`__.
+- **Data Warehouse**
+
+  - The outputs from the ETL, sometimes called "PUDL outputs",
+    are stored in a data warehouse as a collection of SQLite and Parquet files so that
+    users can access the data without having to run any code. Learn more about how to
+    access the data `here <https://catalystcoop-pudl.readthedocs.io/en/dev/data_access.html>`__.
 
 What data is available?
 -----------------------
 
 PUDL currently integrates data from:
 
-* `EIA Form 860 <https://www.eia.gov/electricity/data/eia860/>`__: 2001 - 2022
-* `EIA Form 860m <https://www.eia.gov/electricity/data/eia860m/>`__: 2023-06
-* `EIA Form 861 <https://www.eia.gov/electricity/data/eia861/>`__: 2001 - 2022
-* `EIA Form 923 <https://www.eia.gov/electricity/data/eia923/>`__: 2001 - 2023-08
-* `EPA Continuous Emissions Monitoring System (CEMS) <https://campd.epa.gov/>`__: 1995 - 2022
-* `FERC Form 1 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual>`__: 1994-2021
-* `FERC Form 714 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-no-714-annual-electric/data>`__: 2006-2020
-* `US Census Demographic Profile 1 Geodatabase <https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html>`__: 2010
+* **EIA Form 860**: 2001-2022
+  - `Source Docs <https://www.eia.gov/electricity/data/eia860/>`__
+  - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/dev/data_sources/eia860.html>`__
+* **EIA Form 860m**: 2023-06
+  - `Source Docs <https://www.eia.gov/electricity/data/eia860m/>`__
+* **EIA Form 861**: 2001-2022
+  - `Source Docs <https://www.eia.gov/electricity/data/eia861/>`__
+  - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/dev/data_sources/eia861.html>`__
+* **EIA Form 923**: 2001-2022
+  - `Source Docs <https://www.eia.gov/electricity/data/eia923/>`__
+  - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/dev/data_sources/eia923.html>`__
+* **EPA Continuous Emissions Monitoring System (CEMS)**: 1995-2022
+  - `Source Docs <https://campd.epa.gov/>`__
+  - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/dev/data_sources/epacems.html>`__
+* **FERC Form 1**: 1994-2021
+  - `Source Docs <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual>`__
+  - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/dev/data_sources/ferc1.html>`__
+* **FERC Form 714**: 2006-2020
+  - `Source Docs <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-no-714-annual-electric/data>`__
+  - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/dev/data_sources/ferc714.html>`__
+* **FERC Form 2**: 2021 (raw only)
+  - `Source Docs <https://www.ferc.gov/industries-data/natural-gas/industry-forms/form-2-2a-3-q-gas-historical-vfp-data>`__
+* **FERC Form 6**: 2021 (raw only)
+  - `Source Docs <https://www.ferc.gov/general-information-1/oil-industry-forms/form-6-6q-historical-vfp-data>`__
+* **FERC Form 60**: 2021 (raw only)
+  - `Source Docs <https://www.ferc.gov/form-60-annual-report-centralized-service-companies>`__
+* **US Census Demographic Profile 1 Geodatabase**: 2010
+  - `Source Docs <https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html>`__
 
 Thanks to support from the `Alfred P. Sloan Foundation Energy & Environment
 Program <https://sloan.org/programs/research/energy-and-environment>`__, from
-2021 to 2024 we will be integrating the following data as well:
+2021 to 2024 we will be cleaning and integrating the following data as well:
 
 * `EIA Form 176 <https://www.eia.gov/dnav/ng/TblDefs/NG_DataSources.html#s176>`__
   (The Annual Report of Natural Gas Supply and Disposition)

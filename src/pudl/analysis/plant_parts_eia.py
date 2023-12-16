@@ -281,7 +281,7 @@ SUM_COLS: list[str] = [
 
 WTAVG_DICT = {
     "fuel_cost_per_mwh": "capacity_mw",
-    "heat_rate_mmbtu_mwh": "capacity_mw",
+    "unit_heat_rate_mmbtu_per_mwh": "capacity_mw",
     "fuel_cost_per_mmbtu": "capacity_mw",
 }
 """Dict: a dictionary of columns (keys) to perform weighted averages on and the weight
@@ -367,34 +367,32 @@ PPE_COLS = [
 
 
 @asset(
-    name="mega_generators_eia",
     compute_kind="Python",
 )
-def mega_gens_asset(
-    mcoe_generators_yearly: pd.DataFrame, denorm_ownership_eia860: pd.DataFrame
+def out_eia__yearly_generators_by_ownership(
+    out_eia__yearly_generators: pd.DataFrame, out_eia860__yearly_ownership: pd.DataFrame
 ) -> pd.DataFrame:
     """Create mega generators table asset."""
     return MakeMegaGenTbl().execute(
-        mcoe=mcoe_generators_yearly,
-        own_eia860=denorm_ownership_eia860,
+        mcoe=out_eia__yearly_generators,
+        own_eia860=out_eia860__yearly_ownership,
     )
 
 
 @asset(
-    name="plant_parts_eia",
     io_manager_key="pudl_sqlite_io_manager",
     compute_kind="Python",
 )
-def plant_parts_eia_asset(
-    mega_generators_eia: pd.DataFrame,
-    denorm_plants_eia: pd.DataFrame,
-    denorm_utilities_eia: pd.DataFrame,
+def out_eia__yearly_plant_parts(
+    out_eia__yearly_generators_by_ownership: pd.DataFrame,
+    out_eia__yearly_plants: pd.DataFrame,
+    out_eia__yearly_utilities: pd.DataFrame,
 ) -> pd.DataFrame:
     """Create plant parts list asset."""
     return MakePlantParts().execute(
-        gens_mega=mega_generators_eia,
-        plants_eia860=denorm_plants_eia,
-        utils_eia860=denorm_utilities_eia,
+        gens_mega=out_eia__yearly_generators_by_ownership,
+        plants_eia860=out_eia__yearly_plants,
+        utils_eia860=out_eia__yearly_utilities,
     )
 
 
@@ -647,7 +645,7 @@ class MakePlantParts:
             plant_parts_eia=plant_parts_eia,
             part_name="plant_match_ferc1",
             path_to_one_to_many=resources.files("pudl.package_data.glue").joinpath(
-                "ferc1_eia_one_to_many.csv",
+                "eia_ferc1_one_to_many.csv",
             ),
         )
         self.plant_parts_eia = TrueGranLabeler().execute(self.plant_parts_eia)
@@ -660,7 +658,7 @@ class MakePlantParts:
             )
             .pipe(pudl.helpers.organize_cols, FIRST_COLS)
             .pipe(self._clean_plant_parts)
-            .pipe(Resource.from_id("plant_parts_eia").format_df)
+            .pipe(Resource.from_id("out_eia__yearly_plant_parts").format_df)
         )
         return self.plant_parts_eia
 
@@ -761,7 +759,7 @@ class MakePlantParts:
             )
         ]
 
-        assert double_df.empty, f"The following record ids have >1 faked part. Double-check these records or move them to the ferc1_eia_null.csv: {one_to_many.loc[one_to_many.gen_id.isin(orig_ids.record_id_eia), 'record_id_ferc1'].drop_duplicates().tolist()}"
+        assert double_df.empty, f"The following record ids have >1 faked part. Double-check these records or move them to the eia_ferc1_null.csv: {one_to_many.loc[one_to_many.gen_id.isin(orig_ids.record_id_eia), 'record_id_ferc1'].drop_duplicates().tolist()}"
 
         return pd.concat([plant_parts_eia, part_df])
 

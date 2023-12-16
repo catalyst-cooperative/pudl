@@ -160,8 +160,8 @@ def test_outputs_by_table_suffix(fast_out, table_suffix):
 @pytest.mark.parametrize(
     "df_name",
     [
-        "summarized_demand_ferc714",
-        "fipsified_respondents_ferc714",
+        "out_ferc714__summarized_demand",
+        "out_ferc714__respondents_with_fips",
     ],
 )
 def test_ferc714_outputs(pudl_engine, df_name):
@@ -175,8 +175,8 @@ def test_ferc714_outputs(pudl_engine, df_name):
 @pytest.mark.parametrize(
     "df_name",
     [
-        "compiled_geometry_balancing_authority_eia861",
-        "compiled_geometry_utility_eia861",
+        "out_eia861__compiled_geometry_balancing_authorities",
+        "out_eia861__compiled_geometry_utilities",
     ],
 )
 def test_service_territory_outputs(pudl_engine, df_name):
@@ -190,7 +190,7 @@ def test_service_territory_outputs(pudl_engine, df_name):
 @pytest.mark.parametrize(
     "df_name",
     [
-        "predicted_state_hourly_demand",
+        "out_ferc714__hourly_predicted_state_demand",
     ],
 )
 def test_state_demand_outputs(pudl_engine, df_name):

@@ -108,72 +108,81 @@ def test_minmax_rows(
 @pytest.mark.parametrize(
     "df_name,unique_subset",
     [
-        ("bf_eia923", Resource.from_id("boiler_fuel_eia923").schema.primary_key),
+        (
+            "bf_eia923",
+            Resource.from_id("core_eia923__monthly_boiler_fuel").schema.primary_key,
+        ),
         (
             "bga_eia860",
-            Resource.from_id("boiler_generator_assn_eia860").schema.primary_key,
+            Resource.from_id("core_eia860__assn_boiler_generator").schema.primary_key,
         ),
         (
             "boil_eia860",
-            Resource.from_id("boilers_eia860").schema.primary_key,
+            Resource.from_id("core_eia860__scd_boilers").schema.primary_key,
         ),
         (
             "gen_eia923",
-            Resource.from_id("generation_eia923").schema.primary_key,
+            Resource.from_id("core_eia923__monthly_generation").schema.primary_key,
         ),
         (
             "gens_eia860",
-            Resource.from_id("generators_eia860").schema.primary_key,
+            Resource.from_id("core_eia860__scd_generators").schema.primary_key,
         ),
         (
             "gf_eia923",
-            Resource.from_id(
-                "denorm_generation_fuel_combined_eia923"
-            ).schema.primary_key,
+            Resource.from_id("out_eia923__generation_fuel_combined").schema.primary_key,
         ),
         (
             "own_eia860",
-            Resource.from_id("ownership_eia860").schema.primary_key,
+            Resource.from_id("core_eia860__scd_ownership").schema.primary_key,
         ),
         (
             "plants_eia860",
-            Resource.from_id("plants_eia860").schema.primary_key,
+            Resource.from_id("core_eia860__scd_plants").schema.primary_key,
         ),
         (
             "pu_eia860",
-            Resource.from_id("denorm_plants_utilities_eia").schema.primary_key,
+            Resource.from_id("_out_eia__plants_utilities").schema.primary_key,
         ),
         (
             "utils_eia860",
-            Resource.from_id("utilities_eia860").schema.primary_key,
+            Resource.from_id("core_eia860__scd_utilities").schema.primary_key,
         ),
         (
             "denorm_emissions_control_equipment_eia860",
             (
                 Resource.from_id(
-                    "denorm_emissions_control_equipment_eia860"
+                    "out_eia860__yearly_emissions_control_equipment"
                 ).schema.primary_key
             ),
         ),
         (
             "emissions_control_equipment_eia860",
-            (Resource.from_id("emissions_control_equipment_eia860").schema.primary_key),
+            (
+                Resource.from_id(
+                    "core_eia860__scd_emissions_control_equipment"
+                ).schema.primary_key
+            ),
         ),
         (
             "boiler_emissions_control_equipment_assn_eia860",
             (
                 Resource.from_id(
-                    "boiler_emissions_control_equipment_assn_eia860"
+                    "core_eia860__assn_yearly_boiler_emissions_control_equipment"
                 ).schema.primary_key
             ),
         ),
         (
             "boiler_cooling_assn_eia860",
-            (Resource.from_id("boiler_cooling_assn_eia860").schema.primary_key),
+            (Resource.from_id("core_eia860__assn_boiler_cooling").schema.primary_key),
         ),
         (
             "boiler_stack_flue_assn_eia860",
-            (Resource.from_id("boiler_stack_flue_assn_eia860").schema.primary_key),
+            (
+                Resource.from_id(
+                    "core_eia860__assn_boiler_stack_flue"
+                ).schema.primary_key
+            ),
         ),
     ],
 )
