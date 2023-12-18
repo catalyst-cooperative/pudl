@@ -93,6 +93,14 @@ jobs:
           which sqlite3
           sqlite3 --version
 
+      - name: Test pushing a tag
+        run: |
+          echo "NIGHTLY_TAG=nightly-$(date +%Y-%m-%d)" >> $GITHUB_ENV
+          git config user.email "pudl@catalyst.coop"
+          git config user.name "PudlBot"
+          git tag -a -m "$NIGHTLY_TAG" $NIGHTLY_TAG
+          git push origin $NIGHTLY_TAG
+
       - name: Run PUDL unit tests and collect test coverage
         run: |
           pip install --no-deps --editable .
@@ -103,14 +111,6 @@ jobs:
         with:
           name: coverage-unit
           path: coverage.xml
-
-      - name: Test pushing a tag
-        run: |
-          echo "NIGHTLY_TAG=nightly-$(date +%Y-%m-%d)" >> $GITHUB_ENV
-          git config user.email "pudl@catalyst.coop"
-          git config user.name "PudlBot"
-          git tag -a -m "$NIGHTLY_TAG" $NIGHTLY_TAG
-          git push origin $NIGHTLY_TAG
 
   ci-integration:
     runs-on:
