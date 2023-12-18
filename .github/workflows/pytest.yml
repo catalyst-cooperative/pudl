@@ -93,12 +93,17 @@ jobs:
           which sqlite3
           sqlite3 --version
 
-      - name: Test pushing a tag
+      - name: Set the nightly tag
         run: |
           echo "NIGHTLY_TAG=nightly-$(date +%Y-%m-%d)" >> $GITHUB_ENV
+
+      - name: Test pushing a tag
+        run: |
+          echo "1 NIGHTLY_TAG: $NIGHTLY_TAG"
+          echo "2 NIGHTLY_TAG: ${{ env.NIGHTLY_TAG}}"
+          echo "3 NIGHTLY_TAG: " ${{ env.NIGHTLY_TAG}}
           git config user.email "pudl@catalyst.coop"
           git config user.name "PudlBot"
-          echo "nightly tag is: $NIGHTLY_TAG"
           git tag -a -m "$NIGHTLY_TAG" $NIGHTLY_TAG
           git push origin $NIGHTLY_TAG
 
