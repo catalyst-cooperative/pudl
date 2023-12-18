@@ -98,6 +98,7 @@ jobs:
           echo "NIGHTLY_TAG=nightly-$(date +%Y-%m-%d)" >> $GITHUB_ENV
           git config user.email "pudl@catalyst.coop"
           git config user.name "PudlBot"
+          echo "nightly tag is: $NIGHTLY_TAG"
           git tag -a -m "$NIGHTLY_TAG" $NIGHTLY_TAG
           git push origin $NIGHTLY_TAG
 
