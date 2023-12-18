@@ -469,7 +469,7 @@ The commands above should result in a bunch of Python :mod:`logging` output desc
 what the script is doing, and file outputs the directory you specified via the
 ``$PUDL_OUTPUT`` environment variable. When the ETL is complete, you should see new
 files at e.g. ``$PUDL_OUTPUT/ferc1_dbf.sqlite``, ``$PUDL_OUTPUT/pudl.sqlite`` and
-``$PUDL_OUTPUT/hourly_emissions_epacems.parquet``.
+``$PUDL_OUTPUT/core_epacems__hourly_emissions.parquet``.
 
 If you need to re-run ``ferc_to_sqlite`` and want to overwrite their previous outputs
 you can add ``--clobber`` (run ``ferc_to_sqlite --clobber``).  All of the PUDL scripts

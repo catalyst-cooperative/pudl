@@ -3,7 +3,7 @@
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
-    "fuel_receipts_costs_aggs_eia": {
+    "core_eia__yearly_fuel_receipts_costs_aggs": {
         "description": (
             "Aggregated fuel receipts and costs from the EIA bulk electricty data."
         ),

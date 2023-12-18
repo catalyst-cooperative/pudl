@@ -263,7 +263,7 @@ all_electric_power,3
     ),
 )
 """Association table describing the many-to-many relationships between plant sectors and
-various aggregates in fuel_receipts_costs_aggs_eia."""
+various aggregates in core_eia__yearly_fuel_receipts_costs_aggs."""
 
 
 EIA_FUEL_AGGREGATE_ASSN = pd.read_csv(
@@ -288,7 +288,7 @@ petroleum_liquids,WO
     ),
 )
 """Association table describing the many-to-many relationships between fuel types and
-various aggregates in fuel_receipts_costs_aggs_eia.
+various aggregates in core_eia__yearly_fuel_receipts_costs_aggs.
 
 Missing from these aggregates are all the "other" categories of gases: OG, BFG, SGP, SC,
 PG. But those gases combine for about 0.2% of total MMBTU of reported fuel receipts.
