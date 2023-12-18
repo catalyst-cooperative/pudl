@@ -26,19 +26,21 @@ jobs:
         if: ${{ (github.event_name == 'schedule') }}
         run: |
           echo "This action was triggered by a schedule." && echo "GCE_INSTANCE=pudl-deployment-dev" >> $GITHUB_ENV && echo "GITHUB_REF=dev" >> $GITHUB_ENV
-          echo "RUN_DATE=$(date +%Y-%m-%d)" >> $GITHUB_ENV
-
-      - name: Tag nightly build
-        if: ${{ (github.event_name == 'schedule') }}
-        uses: EndBug/latest-tag@1
-        with:
-          ref: nightly-${{ env.RUN_DATE }}
-          description: "Nightly build for ${{ env.RUN_DATE }}"
+          echo "NIGHTLY_TAG=nightly-$(date +%Y-%m-%d)" >> $GITHUB_ENV
+          echo "NIGHTLY_TAG: $NIGHTLY_TAG"
 
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           ref: ${{ env.GITHUB_REF }}
+
+      - name: Tag nightly build
+        if: ${{ (github.event_name == 'schedule') }}
+        run: |
+          git config user.email "pudl@catalyst.coop"
+          git config user.name "PudlBot"
+          git tag -a -m "$NIGHTLY_TAG" $NIGHTLY_TAG
+          git push origin $NIGHTLY_TAG
 
       - name: Get HEAD of the branch (main or dev)
         run: |
