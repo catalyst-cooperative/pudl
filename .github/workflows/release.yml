@@ -95,11 +95,12 @@ jobs:
           --discussion-category Announcements
           --generate-notes
           --repo '${{ github.repository }}'
-      - name: Tag stable release
-        uses: EndBug/latest-tag@1
-        with:
-          ref: stable
-          description: "The current stable release of catalystcoop.pudl"
+      - name: Tag the current stable commit
+        run: |
+          git config user.email "pudl@catalyst.coop"
+          git config user.name "PudlBot"
+          git tag -a -m "stable" stable
+          git push origin stable
 
   notify-slack:
     runs-on: ubuntu-latest
