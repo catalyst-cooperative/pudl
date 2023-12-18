@@ -83,7 +83,7 @@ jobs:
           name: python-package-distributions
           path: dist/
       - name: Sign dist with Sigstore
-        uses: sigstore/gh-action-sigstore-python@v2.1.0
+        uses: sigstore/gh-action-sigstore-python@v2
         with:
           inputs: ./dist/*.tar.gz ./dist/*.whl
       - name: Upload artifact signatures to GitHub Release
