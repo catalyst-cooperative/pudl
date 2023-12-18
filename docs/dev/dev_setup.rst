@@ -291,7 +291,7 @@ directory:
     $ set -Ux PUDL_OUTPUT /absolute/path/to/pudl_output # fish
 
 The path stored in ``PUDL_OUTPUT`` contains all ETL outputs like ``pudl.sqlite`` and
-``hourly_emissions_epacems.parquet``.
+``core_epacems__hourly_emissions.parquet``.
 
 .. warning::
 

@@ -7,26 +7,24 @@ from pudl.metadata.codes import CODE_METADATA
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
-def denorm_ownership_eia860(
-    denorm_plants_utilities_eia: pd.DataFrame,
-    utilities_eia: pd.DataFrame,
-    ownership_eia860: pd.DataFrame,
+def out_eia860__yearly_ownership(
+    _out_eia__plants_utilities: pd.DataFrame,
+    core_eia860__scd_ownership: pd.DataFrame,
+    core_pudl__assn_eia_pudl_utilities: pd.DataFrame,
 ) -> pd.DataFrame:
     """A denormalized version of the EIA 860 ownership table.
 
-    TODO: Convert to SQL view?
-
     Args:
-        denorm_plants_utilities_eia: Denormalized table containing plant and utility
+        _out_eia__plants_utilities: Denormalized table containing plant and utility
             names and IDs.
-        utilities_eia: Table of associations between EIA utility IDs and
+        core_eia860__scd_ownership: EIA 860 ownership table.
+        core_pudl__assn_eia_pudl_utilities: Table of associations between EIA utility IDs and
             PUDL Utility IDs.
-        ownership_eia860: EIA 860 ownership table.
 
     Returns:
         A denormalized version of the EIA 860 ownership table.
     """
-    pu_df = denorm_plants_utilities_eia.loc[
+    pu_df = _out_eia__plants_utilities.loc[
         :,
         [
             "plant_id_eia",
@@ -36,11 +34,16 @@ def denorm_ownership_eia860(
         ],
     ]
     own_df = pd.merge(
-        ownership_eia860, pu_df, on=["report_date", "plant_id_eia"], how="left"
+        core_eia860__scd_ownership,
+        pu_df,
+        on=["report_date", "plant_id_eia"],
+        how="left",
     ).dropna(
         subset=["report_date", "plant_id_eia", "generator_id", "owner_utility_id_eia"]
     )
-    util_df = utilities_eia.loc[:, ["utility_id_eia", "utility_id_pudl"]]
+    util_df = core_pudl__assn_eia_pudl_utilities.loc[
+        :, ["utility_id_eia", "utility_id_pudl"]
+    ]
     own_df = own_df.merge(
         util_df, how="left", left_on="owner_utility_id_eia", right_on="utility_id_eia"
     )
@@ -60,21 +63,21 @@ def denorm_ownership_eia860(
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
-def denorm_emissions_control_equipment_eia860(
-    emissions_control_equipment_eia860: pd.DataFrame,
-    denorm_plants_utilities_eia: pd.DataFrame,
+def out_eia860__yearly_emissions_control_equipment(
+    core_eia860__scd_emissions_control_equipment: pd.DataFrame,
+    _out_eia__plants_utilities: pd.DataFrame,
 ) -> pd.DataFrame:
     """A denormalized version of the EIA 860 emission control equipment table.
 
     Args:
-        emissions_control_equipment_eia860: EIA 860 emissions control equipment table.
-        denorm_plants_utilities_eia: Denormalized table containing plant and utility
+        core_eia860__scd_emissions_control_equipment: EIA 860 emissions control equipment table.
+        _out_eia__plants_utilities: Denormalized table containing plant and utility
             names and IDs.
 
     Returns:
         A denormalized version of the EIA 860 emissions control equipment table.
     """
-    pu_df = denorm_plants_utilities_eia.loc[
+    pu_df = _out_eia__plants_utilities.loc[
         :,
         [
             "plant_id_eia",
@@ -90,7 +93,7 @@ def denorm_emissions_control_equipment_eia860(
         columns=["report_date"]
     )
     emce_df = pd.merge(
-        emissions_control_equipment_eia860,
+        core_eia860__scd_emissions_control_equipment,
         pu_df,
         on=["report_year", "plant_id_eia"],
         how="left",
@@ -99,7 +102,7 @@ def denorm_emissions_control_equipment_eia860(
     # Add a column for operational status
     emce_df["operational_status"] = emce_df.operational_status_code.str.upper().map(
         pudl.helpers.label_map(
-            CODE_METADATA["operational_status_eia"]["df"],
+            CODE_METADATA["core_eia__codes_operational_status"]["df"],
             from_col="code",
             to_col="operational_status",
             null_value=pd.NA,

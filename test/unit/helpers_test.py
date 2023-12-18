@@ -21,6 +21,7 @@ from pudl.helpers import (
     remove_leading_zeros_from_numeric_strings,
     zero_pad_numeric_string,
 )
+from pudl.metadata.helpers import _format_resource_name_cross_ref
 from pudl.output.sql.helpers import sql_asset_factory
 
 MONTHLY_GEN_FUEL = pd.DataFrame(
@@ -626,9 +627,9 @@ def test_flatten_mix_types():
 def test_cems_selection():
     """Test CEMS asset selection remove cems assets."""
     cems_selection = pudl.etl.create_non_cems_selection(pudl.etl.default_assets)
-    assert AssetKey("hourly_emissions_epacems") not in cems_selection.resolve(
+    assert AssetKey("core_epacems__hourly_emissions") not in cems_selection.resolve(
         pudl.etl.default_assets
-    ), "hourly_emissions_epacems or downstream asset present in selection."
+    ), "core_epacems__hourly_emissions or downstream asset present in selection."
 
 
 def test_sql_asset_factory_missing_file():
@@ -667,6 +668,19 @@ def test_convert_col_to_bool(df):
         .isin([False, np.nan])
         .all()
     )
+
+
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        ("out_eia__yearly_generators", "out_eia__yearly_generators"),
+        ("_out_eia__yearly_generators", "i_out_eia__yearly_generators"),
+        ("__out_eia__yearly_generators", "i__out_eia__yearly_generators"),
+        ("", ""),
+    ],
+)
+def test_format_resource_name_cross_ref(test_input, expected):
+    assert _format_resource_name_cross_ref(test_input) == expected
 
 
 def test_diff_wide_tables():

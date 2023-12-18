@@ -344,10 +344,10 @@ A. FERC 1 & EIA Plants & Utilities
 B. Missing EIA Plant Locations from CEMS
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 **6.B.1)** If there are any plants that appear in the EPA CEMS dataset that do not
-appear in the ``plants_entity_eia`` table, or that are missing latitude and longitude
-values, you'll get a warning when you try and materialize the ``epacamd`` asset group in
-Dagster. You'll need to manually compile the missing information and add it to
-``src/pudl/package_data/epacems/additional_epacems_plants.csv`` to enable accurate
+appear in the ``core_eia__entity_plants`` table, or that are missing latitude and
+longitude values, you'll get a warning when you try and materialize the ``core_epacamd``
+asset group in Dagster. You'll need to manually compile the missing information and add
+it to ``src/pudl/package_data/epacems/additional_epacems_plants.csv`` to enable accurate
 adjustment of the EPA CEMS timestamps to UTC. Using the Plant ID from the warning, look
 up the plant coordinates in the
 `EPA FACT API <https://www.epa.gov/airmarkets/field-audit-checklist-tool-fact-api>`__.

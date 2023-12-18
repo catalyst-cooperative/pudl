@@ -15,7 +15,7 @@ def census_asset_factory(layer: str) -> AssetsDefinition:
 
     @asset(
         ins={"censusdp1tract_to_sqlite": AssetIn("censusdp1tract_to_sqlite")},
-        name=f"{layer}_censusdp1",
+        name=f"core_censusdp1__entity_{layer}",
     )
     def census_layer(censusdp1tract_to_sqlite, **kwargs) -> gpd.GeoDataFrame:
         """Select one layer from the Census DP1 database.
