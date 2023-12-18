@@ -74,9 +74,7 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
         self.plants_df = plants_df
         self._years = self.plants_df.report_year.unique()  # could we list() here?
 
-    def fit(
-        self, X, y=None  # noqa: N803 Canonical capital letter...
-    ) -> "FERCPlantClassifier":
+    def fit(self, X, y=None) -> "FERCPlantClassifier":  # noqa: N803
         """Use weighted FERC plant features to group records into time series.
 
         The fit method takes the vectorized, normalized, weighted FERC plant
@@ -147,7 +145,8 @@ class FERCPlantClassifier(BaseEstimator, ClassifierMixin):
                 # Grab the index values of the rows in the masked dataframe which
                 # are NOT all NaN -- these are the indices of the *other* records
                 # which found the record x to be one of their best matches.
-                .dropna(how="all").index.to_numpy()
+                .dropna(how="all")
+                .index.to_numpy()
             )
 
             # Now look up the indices of the records which were found to be
@@ -625,7 +624,7 @@ def fuel_by_plant_ferc1(
 
     Args:
         fuel_df: Pandas DataFrame resembling the post-transform
-            result for the fuel_ferc1 table.
+            result for the core_ferc1__yearly_steam_plants_fuel_sched402 table.
         thresh: A value between 0.5 and 1.0 indicating the minimum fraction of
             overall heat content that must have been provided by a fuel in a plant-year
             for it to be considered the "primary" fuel for the plant in that year.
@@ -633,11 +632,11 @@ def fuel_by_plant_ferc1(
 
     Returns:
         DataFrame with a single record for each plant-year, including the columns
-        required to merge it with the plants_steam_ferc1 table/DataFrame (report_year,
-        utility_id_ferc1, and plant_name) as well as totals for fuel mmbtu consumed in
-        that plant-year, and the cost of fuel in that year, the proportions of heat
-        content and fuel costs for each fuel in that year, and a column that labels the
-        plant's primary fuel for that year.
+        required to merge it with the :ref:`core_ferc1__yearly_steam_plants_sched402`
+        table/DataFrame (report_year, utility_id_ferc1, and plant_name) as well as
+        totals for fuel mmbtu consumed in that plant-year, and the cost of fuel in that
+        year, the proportions of heat content and fuel costs for each fuel in that year,
+        and a column that labels the plant's primary fuel for that year.
 
     Raises:
         AssertionError: If the DataFrame input does not have the columns required to
@@ -654,14 +653,17 @@ def fuel_by_plant_ferc1(
     ]
 
     # Ensure that the dataframe we've gotten has all the information we need:
-    for col in keep_cols:
-        if col not in fuel_df.columns:
-            raise AssertionError(f"Required column {col} not found in input fuel_df.")
+    missing_cols = [col for col in keep_cols if col not in fuel_df.columns]
+    if missing_cols:
+        raise AssertionError(
+            f"Required columns not found in input fuel_df: {missing_cols}"
+        )
 
     # Calculate per-fuel derived values and add them to the DataFrame
     df = (
         # Really there should *not* be any duplicates here but... there's a
-        # bug somewhere that introduces them into the fuel_ferc1 table.
+        # bug somewhere that introduces them into the
+        # core_ferc1__yearly_steam_plants_fuel_sched402 table.
         fuel_df[keep_cols]
         .drop_duplicates()
         # Calculate totals for each record based on per-unit values:
@@ -679,7 +681,8 @@ def fuel_by_plant_ferc1(
                 "plant_name_ferc1",
                 "report_year",
                 "fuel_type_code_pudl",
-            ]
+            ],
+            observed=True,
         )
         .sum()
         .reset_index()
@@ -732,6 +735,13 @@ def fuel_by_plant_ferc1(
     ).reset_index()
 
     # Label each plant-year record by primary fuel:
+    df.loc[:, ["primary_fuel_by_cost", "primary_fuel_by_mmbtu"]] = pd.NA
+    df = df.astype(
+        {
+            "primary_fuel_by_cost": pd.StringDtype(),
+            "primary_fuel_by_mmbtu": pd.StringDtype(),
+        }
+    )
     for fuel_str in fuel_categories:
         try:
             mmbtu_mask = df[f"{fuel_str}_fraction_mmbtu"] > thresh

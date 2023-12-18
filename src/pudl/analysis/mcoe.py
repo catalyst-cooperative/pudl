@@ -41,7 +41,6 @@ the final table.
 
 def mcoe_asset_factory(
     freq: Literal["AS", "MS"],
-    io_manager_key: str | None = None,
 ) -> list[AssetsDefinition]:
     """Build MCOE related assets at yearly and monthly frequencies."""
     agg_freqs = {"AS": "yearly", "MS": "monthly"}
@@ -49,28 +48,28 @@ def mcoe_asset_factory(
         raise ValueError(f"freq must be one of {agg_freqs.keys()}, got: {freq}.")
 
     @asset(
-        name=f"heat_rate_by_unit_{agg_freqs[freq]}",
+        name=f"_out_eia__{agg_freqs[freq]}_heat_rate_by_unit",
         ins={
             "gen": AssetIn(
-                key=f"generation_fuel_by_generator_energy_source_{agg_freqs[freq]}_eia923"
+                key=f"out_eia923__{agg_freqs[freq]}_generation_fuel_by_generator_energy_source"
             ),
-            "bga": AssetIn(key="boiler_generator_assn_eia860"),
+            "bga": AssetIn(key="core_eia860__assn_boiler_generator"),
         },
-        io_manager_key=io_manager_key,
         compute_kind="Python",
+        io_manager_key="pudl_sqlite_io_manager",
     )
     def hr_by_unit_asset(gen: pd.DataFrame, bga: pd.DataFrame) -> pd.DataFrame:
         return heat_rate_by_unit(gen_fuel_by_energy_source=gen, bga=bga)
 
     @asset(
-        name=f"heat_rate_by_generator_{agg_freqs[freq]}",
+        name=f"_out_eia__{agg_freqs[freq]}_heat_rate_by_generator",
         ins={
-            "bga": AssetIn(key="boiler_generator_assn_eia860"),
-            "hr_by_unit": AssetIn(key=f"heat_rate_by_unit_{agg_freqs[freq]}"),
-            "gens": AssetIn(key="denorm_generators_eia"),
+            "bga": AssetIn(key="core_eia860__assn_boiler_generator"),
+            "hr_by_unit": AssetIn(key=f"_out_eia__{agg_freqs[freq]}_heat_rate_by_unit"),
+            "gens": AssetIn(key="_out_eia__yearly_generators"),
         },
-        io_manager_key=io_manager_key,
         compute_kind="Python",
+        io_manager_key="pudl_sqlite_io_manager",
     )
     def hr_by_gen_asset(
         bga: pd.DataFrame, hr_by_unit: pd.DataFrame, gens: pd.DataFrame
@@ -78,14 +77,16 @@ def mcoe_asset_factory(
         return heat_rate_by_gen(bga=bga, hr_by_unit=hr_by_unit, gens=gens)
 
     @asset(
-        name=f"fuel_cost_by_generator_{agg_freqs[freq]}",
+        name=f"_out_eia__{agg_freqs[freq]}_fuel_cost_by_generator",
         ins={
-            "hr_by_gen": AssetIn(key=f"heat_rate_by_generator_{agg_freqs[freq]}"),
-            "gens": AssetIn(key="denorm_generators_eia"),
-            "frc": AssetIn(key=f"denorm_fuel_receipts_costs_{agg_freqs[freq]}_eia923"),
+            "hr_by_gen": AssetIn(
+                key=f"_out_eia__{agg_freqs[freq]}_heat_rate_by_generator"
+            ),
+            "gens": AssetIn(key="_out_eia__yearly_generators"),
+            "frc": AssetIn(key=f"out_eia923__{agg_freqs[freq]}_fuel_receipts_costs"),
         },
-        io_manager_key=io_manager_key,
         compute_kind="Python",
+        io_manager_key="pudl_sqlite_io_manager",
     )
     def fc_asset(
         hr_by_gen: pd.DataFrame, gens: pd.DataFrame, frc: pd.DataFrame
@@ -93,28 +94,29 @@ def mcoe_asset_factory(
         return fuel_cost(hr_by_gen=hr_by_gen, gens=gens, frc=frc)
 
     @asset(
-        name=f"capacity_factor_by_generator_{agg_freqs[freq]}",
+        name=f"_out_eia__{agg_freqs[freq]}_capacity_factor_by_generator",
         ins={
             "gen": AssetIn(
-                key=f"generation_fuel_by_generator_{agg_freqs[freq]}_eia923"
+                key=f"out_eia923__{agg_freqs[freq]}_generation_fuel_by_generator"
             ),
-            "gens": AssetIn(key="denorm_generators_eia"),
+            "gens": AssetIn(key="_out_eia__yearly_generators"),
         },
-        io_manager_key=io_manager_key,
         compute_kind="Python",
+        io_manager_key="pudl_sqlite_io_manager",
     )
     def cf_asset(gens: pd.DataFrame, gen: pd.DataFrame) -> pd.DataFrame:
         return capacity_factor(gens=gens, gen=gen, freq=freq)
 
     @asset(
-        name=f"mcoe_{agg_freqs[freq]}",
+        name=f"_out_eia__{agg_freqs[freq]}_derived_generator_attributes",
         ins={
-            "fuel_cost": AssetIn(key=f"fuel_cost_by_generator_{agg_freqs[freq]}"),
+            "fuel_cost": AssetIn(
+                key=f"_out_eia__{agg_freqs[freq]}_fuel_cost_by_generator"
+            ),
             "capacity_factor": AssetIn(
-                key=f"capacity_factor_by_generator_{agg_freqs[freq]}"
+                key=f"_out_eia__{agg_freqs[freq]}_capacity_factor_by_generator"
             ),
         },
-        io_manager_key=io_manager_key,
         compute_kind="Python",
         config_schema={
             "min_heat_rate": Field(
@@ -155,6 +157,7 @@ def mcoe_asset_factory(
                 ),
             ),
         },
+        io_manager_key="pudl_sqlite_io_manager",
     )
     def mcoe_asset(
         context, fuel_cost: pd.DataFrame, capacity_factor: pd.DataFrame
@@ -169,12 +172,14 @@ def mcoe_asset_factory(
         )
 
     @asset(
-        name=f"mcoe_generators_{agg_freqs[freq]}",
+        name=f"out_eia__{agg_freqs[freq]}_generators",
         ins={
-            "mcoe": AssetIn(key=f"mcoe_{agg_freqs[freq]}"),
-            "gens": AssetIn(key="denorm_generators_eia"),
+            "mcoe": AssetIn(
+                key=f"_out_eia__{agg_freqs[freq]}_derived_generator_attributes"
+            ),
+            "gens": AssetIn(key="_out_eia__yearly_generators"),
         },
-        io_manager_key=io_manager_key,
+        io_manager_key="pudl_sqlite_io_manager",
         compute_kind="Python",
         config_schema={
             "all_gens": Field(
@@ -182,7 +187,7 @@ def mcoe_asset_factory(
                 default_value=True,
                 description=(
                     "If True, include attributes of all generators in the "
-                    ":ref:`generators_eia860` table, rather than just the generators "
+                    ":ref:`core_eia860__scd_generators` table, rather than just the generators "
                     "which have records in the derived MCOE values. True by default."
                 ),
             ),
@@ -223,7 +228,6 @@ mcoe_assets = [
     for freq in ["AS", "MS"]
     for mcoe_asset in mcoe_asset_factory(
         freq=freq,
-        io_manager_key="pudl_sqlite_io_manager",
     )
 ]
 
@@ -255,7 +259,7 @@ def heat_rate_by_unit(gen_fuel_by_energy_source: pd.DataFrame, bga: pd.DataFrame
     - unit_id_pudl
     - net_generation_mwh
     - fuel_consumed_for_electricity_mmbtu
-    - heat_rate_mmbtu_mwh
+    - unit_heat_rate_mmbtu_per_mwh
     """
     gen_fuel_by_unit = pudl.helpers.date_merge(
         left=gen_fuel_by_energy_source,
@@ -271,7 +275,7 @@ def heat_rate_by_unit(gen_fuel_by_energy_source: pd.DataFrame, bga: pd.DataFrame
         .sum()
         .convert_dtypes()
         .assign(
-            heat_rate_mmbtu_mwh=lambda x: x.fuel_consumed_for_electricity_mmbtu
+            unit_heat_rate_mmbtu_per_mwh=lambda x: x.fuel_consumed_for_electricity_mmbtu
             / x.net_generation_mwh
         )
     )
@@ -296,7 +300,7 @@ def heat_rate_by_gen(
 
     Returns:
         DataFrame with columns report_date, plant_id_eia, unit_id_pudl, generator_id,
-        heat_rate_mmbtu_mwh, fuel_type_code_pudl, fuel_type_count, prime_mover_code.
+        unit_heat_rate_mmbtu_per_mwh, fuel_type_code_pudl, fuel_type_count, prime_mover_code.
         The output will have a time frequency corresponding to that of the input
         pudl_out. Output data types are set to their canonical values before returning.
     """
@@ -309,7 +313,7 @@ def heat_rate_by_gen(
             "report_date",
             "plant_id_eia",
             "unit_id_pudl",
-            "heat_rate_mmbtu_mwh",
+            "unit_heat_rate_mmbtu_per_mwh",
         ],
     ]
 
@@ -374,7 +378,7 @@ def fuel_cost(
             "generator_id",
             "unit_id_pudl",
             "report_date",
-            "heat_rate_mmbtu_mwh",
+            "unit_heat_rate_mmbtu_per_mwh",
         ],
     ]
     gens = gens.loc[
@@ -485,7 +489,7 @@ def fuel_cost(
                 "plant_id_eia",
                 "report_date",
                 "generator_id",
-                "heat_rate_mmbtu_mwh",
+                "unit_heat_rate_mmbtu_per_mwh",
                 "fuel_cost_from_eiaapi",
             ]
         ],
@@ -502,7 +506,7 @@ def fuel_cost(
             "report_date",
             "generator_id",
             "fuel_cost_per_mmbtu",
-            "heat_rate_mmbtu_mwh",
+            "unit_heat_rate_mmbtu_per_mwh",
             "fuel_cost_from_eiaapi",
         ]
     ]
@@ -510,13 +514,14 @@ def fuel_cost(
     fc = (
         pd.concat([one_fuel, multi_fuel], sort=True)
         .assign(
-            fuel_cost_per_mwh=lambda x: x.fuel_cost_per_mmbtu * x.heat_rate_mmbtu_mwh
+            fuel_cost_per_mwh=lambda x: x.fuel_cost_per_mmbtu
+            * x.unit_heat_rate_mmbtu_per_mwh
         )
         .sort_values(["report_date", "plant_id_eia", "generator_id"])
     )
 
     out_df = (
-        gen_w_ft.drop("heat_rate_mmbtu_mwh", axis=1)
+        gen_w_ft.drop("unit_heat_rate_mmbtu_per_mwh", axis=1)
         .drop_duplicates()
         .merge(fc, on=["report_date", "plant_id_eia", "generator_id"])
     )
@@ -603,7 +608,7 @@ def mcoe(
                     "unit_id_pudl",
                     "fuel_cost_from_eiaapi",
                     "fuel_cost_per_mmbtu",
-                    "heat_rate_mmbtu_mwh",
+                    "unit_heat_rate_mmbtu_per_mwh",
                     "fuel_cost_per_mwh",
                 ],
             ],
@@ -615,12 +620,12 @@ def mcoe(
         )
         # Calculate a couple more derived values:
         .assign(
-            total_mmbtu=lambda x: x.net_generation_mwh * x.heat_rate_mmbtu_mwh,
+            total_mmbtu=lambda x: x.net_generation_mwh * x.unit_heat_rate_mmbtu_per_mwh,
             total_fuel_cost=lambda x: x.total_mmbtu * x.fuel_cost_per_mmbtu,
         )
         .pipe(
             pudl.helpers.oob_to_nan_with_dependent_cols,
-            cols=["heat_rate_mmbtu_mwh"],
+            cols=["unit_heat_rate_mmbtu_per_mwh"],
             dependent_cols=["total_mmbtu", "fuel_cost_per_mwh"],
             lb=min_heat_rate,
             ub=None,
@@ -667,7 +672,7 @@ def mcoe_generators(
         mcoe: The MCOE dataframe outputted from the `mcoe` analysis function.
         gens: The denormalized dataframe of all EIA generators.
         all_gens: if True, include attributes of all generators in the
-            :ref:`generators_eia860` table, rather than just the generators
+            :ref:`core_eia860__scd_generators` table, rather than just the generators
             which have records in the derived MCOE values. True by default.
         timeseries_fillin: if True, fill in the full timeseries for each generator in
             the output dataframe. The data in the timeseries will be filled

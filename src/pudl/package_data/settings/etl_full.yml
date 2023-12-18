@@ -38,7 +38,7 @@ ferc_to_sqlite_settings:
       # A list of tables to be loaded into the local SQLite database. These are
       # the table names as they appear in the 2015 FERC Form 1 database.
   ferc1_xbrl_to_sqlite_settings:
-    years: [2021]
+    years: [2021, 2022]
     # A list of tables to be loaded into the local SQLite database. These are
     # the table names as created from the 2022 XBRL taxonomy.
   ferc2_dbf_to_sqlite_settings:
@@ -71,7 +71,7 @@ ferc_to_sqlite_settings:
         2020,
       ]
   ferc2_xbrl_to_sqlite_settings:
-    years: [2021]
+    years: [2021, 2022]
   ferc6_dbf_to_sqlite_settings:
     years:
       [
@@ -98,7 +98,7 @@ ferc_to_sqlite_settings:
         2020,
       ]
   ferc6_xbrl_to_sqlite_settings:
-    years: [2021]
+    years: [2021, 2022]
   ferc60_dbf_to_sqlite_settings:
     years:
       [
@@ -119,9 +119,9 @@ ferc_to_sqlite_settings:
         2020,
       ]
   ferc60_xbrl_to_sqlite_settings:
-    years: [2021]
+    years: [2021, 2022]
   ferc714_xbrl_to_sqlite_settings:
-    years: [2021]
+    years: [2021, 2022]
 
 ###########################################################################
 # Settings for pudl_etl script
@@ -164,6 +164,7 @@ datasets:
         2019,
         2020,
         2021,
+        2022,
       ]
   ferc714:
     years:
@@ -210,6 +211,7 @@ datasets:
           2020,
           2021,
           2022,
+          2023,
         ]
     eia860:
       years:
@@ -268,9 +270,35 @@ datasets:
     # Note that the CEMS data relies on EIA 860 data for plant locations,
     # so if you're loading CEMS data for a particular year, you should
     # also load the EIA 860 data for that year if possible
-    states: [all]
+    year_quarters: ["all"]
+  phmsagas:
     years:
       [
+        1970,
+        1971,
+        1972,
+        1973,
+        1974,
+        1975,
+        1976,
+        1977,
+        1978,
+        1979,
+        1980,
+        1981,
+        1982,
+        1983,
+        1984,
+        1985,
+        1986,
+        1987,
+        1988,
+        1989,
+        1990,
+        1991,
+        1992,
+        1993,
+        1994,
         1995,
         1996,
         1997,
@@ -300,5 +328,3 @@ datasets:
         2021,
         2022,
       ]
-  phmsagas:
-    start_years: [1970, 2001, 2004, 2010]

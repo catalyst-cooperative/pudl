@@ -8,12 +8,12 @@ import sqlalchemy as sa
 from sqlalchemy.dialects.sqlite import DATETIME as SQLITE_DATETIME
 
 FIELD_DTYPES_PANDAS: dict[str, str] = {
-    "string": "string",
-    "number": "float64",
-    "integer": "Int64",
     "boolean": "boolean",
     "date": "datetime64[s]",
     "datetime": "datetime64[s]",
+    "integer": "Int64",
+    "number": "float64",
+    "string": "string",
     "year": "datetime64[s]",
 }
 """Pandas data type by PUDL field type (Data Package `field.type`)."""
@@ -43,13 +43,13 @@ FIELD_DTYPES_SQL: dict[str, type] = {
 """SQLAlchemy column types by PUDL field type (Data Package `field.type`)."""
 
 CONSTRAINT_DTYPES: dict[str, type] = {
-    "string": str,
-    "integer": int,
-    "year": int,
-    "number": float,
     "boolean": bool,
     "date": datetime.date,
     "datetime": datetime.datetime,
+    "integer": int,
+    "number": float,
+    "string": str,
+    "year": int,
 }
 """Python types for field constraints by PUDL field type (Data Package `field.type`)."""
 
@@ -62,7 +62,7 @@ LICENSES: dict[str, dict[str, str]] = {
     "us-govt": {
         "name": "other-pd",
         "title": "U.S. Government Works",
-        "path": "https://www.usa.gov/government-works",
+        "path": "https://www.usa.gov/publicdomain/label/1.0/",
     },
 }
 """License attributes."""
@@ -83,6 +83,7 @@ CONTRIBUTORS: dict[str, dict[str, str]] = {
         "email": "pudl@catalyst.coop",
         "path": "https://catalyst.coop",
         "role": "publisher",
+        "zenodo_role": "distributor",
         "organization": "Catalyst Cooperative",
     },
     "zane-selvans": {
@@ -90,6 +91,7 @@ CONTRIBUTORS: dict[str, dict[str, str]] = {
         "email": "zane.selvans@catalyst.coop",
         "path": "https://amateurearthling.org",
         "role": "wrangler",
+        "zenodo_role": "project member",
         "organization": "Catalyst Cooperative",
         "orcid": "0000-0002-9961-7208",
     },
@@ -97,6 +99,7 @@ CONTRIBUTORS: dict[str, dict[str, str]] = {
         "title": "Christina Gosnell",
         "email": "christina.gosnell@catalyst.coop",
         "role": "contributor",
+        "zenodo_role": "project member",
         "organization": "Catalyst Cooperative",
         "orcid": "0009-0004-2979-6142",
     },
@@ -104,12 +107,14 @@ CONTRIBUTORS: dict[str, dict[str, str]] = {
         "title": "Steven Winter",
         "email": "steven.winter@catalyst.coop",
         "role": "contributor",
+        "zenodo_role": "project member",
         "organization": "Catalyst Cooperative",
     },
     "alana-wilson": {
         "title": "Alana Wilson",
         "email": "alana.wilson@catalyst.coop",
         "role": "contributor",
+        "zenodo_role": "project member",
         "organization": "Catalyst Cooperative",
     },
     "karl-dunkle-werner": {
@@ -117,6 +122,7 @@ CONTRIBUTORS: dict[str, dict[str, str]] = {
         "email": "karldw@berkeley.edu",
         "path": "https://karldw.org",
         "role": "contributor",
+        "zenodo_role": "project member",
         "organization": "UC Berkeley",
         "orcid": "0000-0003-0523-7309",
     },
@@ -124,6 +130,7 @@ CONTRIBUTORS: dict[str, dict[str, str]] = {
         "title": "Greg Schivley",
         "path": "https://gschivley.github.io",
         "role": "contributor",
+        "zenodo_role": "project member",
         "organization": "Carbon Impact Consulting",
         "orcid": "0000-0002-8947-694X",
     },
@@ -131,30 +138,35 @@ CONTRIBUTORS: dict[str, dict[str, str]] = {
         "title": "Austen Sharpe",
         "email": "austen.sharpe@catalyst.coop",
         "role": "contributor",
+        "zenodo_role": "project member",
         "organization": "Catalyst Cooperative",
     },
     "katherine-lamb": {
         "title": "Katherine Lamb",
         "email": "katherine.lamb@catalyst.coop",
         "role": "contributor",
+        "zenodo_role": "project member",
         "organization": "Catalyst Cooperative",
     },
     "bennett-norman": {
         "title": "Bennett Norman",
         "email": "bennett.norman@catalyst.coop",
         "role": "contributor",
+        "zenodo_role": "project member",
         "organization": "Catalyst Cooperative",
     },
     "trenton-bush": {
         "title": "Trenton Bush",
         "email": "trenton.bush@catalyst.coop",
         "role": "contributor",
+        "zenodo_role": "project member",
         "organization": "Catalyst Cooperative",
     },
     "ethan-welty": {
         "title": "Ethan Welty",
         "email": "ethan.welty@gmail.com",
         "role": "contributor",
+        "zenodo_role": "project member",
         "organization": "Catalyst Cooperative",
         "orcid": "0000-0001-8046-2210",
     },
@@ -162,12 +174,14 @@ CONTRIBUTORS: dict[str, dict[str, str]] = {
         "title": "Dazhong Xia",
         "email": "dazhong.xia@catalyst.coop",
         "role": "contributor",
+        "zenodo_role": "project member",
         "organization": "Catalyst Cooperative",
     },
     "ella-belfer": {
         "title": "Ella Belfer",
         "email": "ella.belfer@catalyst.coop",
         "role": "contributor",
+        "zenodo_role": "project member",
         "organization": "Catalyst Cooperative",
         "orcid": "0000-0001-9784-8531",
     },

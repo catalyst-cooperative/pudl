@@ -2,7 +2,7 @@
 
 import sys
 
-import pudl.cli
+from pudl.etl.cli import pudl_etl
 
 if __name__ == "__main__":
-    sys.exit(pudl.cli.etl.main())
+    sys.exit(pudl_etl())

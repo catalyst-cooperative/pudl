@@ -1,8 +1,9 @@
 """Metadata and operational constants."""
 from typing import Any
 
+import pandas as pd
+
 from pudl.metadata.constants import CONTRIBUTORS, KEYWORDS, LICENSES
-from pudl.metadata.enums import EPACEMS_STATES
 
 SOURCES: dict[str, Any] = {
     "censusdp1tract": {
@@ -20,6 +21,7 @@ SOURCES: dict[str, Any] = {
         ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
+        "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
     },
     "eia176": {
         "title": "EIA Form 176 -- Annual Report of Natural and Supplemental Gas Supply and Disposition",
@@ -75,10 +77,6 @@ SOURCES: dict[str, Any] = {
         "field_namespace": "eia",
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
-            CONTRIBUTORS["zane-selvans"],
-            CONTRIBUTORS["christina-gosnell"],
-            CONTRIBUTORS["steven-winter"],
-            CONTRIBUTORS["alana-wilson"],
         ],
         "working_partitions": {
             "years": sorted(set(range(2001, 2023))),
@@ -191,14 +189,10 @@ SOURCES: dict[str, Any] = {
         },
         "field_namespace": "eia",
         "working_partitions": {
-            "years": sorted(set(range(2001, 2023))),
+            "years": sorted(set(range(2001, 2024))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
-            CONTRIBUTORS["zane-selvans"],
-            CONTRIBUTORS["christina-gosnell"],
-            CONTRIBUTORS["steven-winter"],
-            CONTRIBUTORS["katherine-lamb"],
         ],
         "keywords": sorted(
             set(
@@ -240,8 +234,6 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {},
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
-            CONTRIBUTORS["zane-selvans"],
-            CONTRIBUTORS["trenton-bush"],
         ],
         "keywords": sorted(
             set(
@@ -281,13 +273,13 @@ SOURCES: dict[str, Any] = {
         },
         "field_namespace": "epacems",
         "working_partitions": {
-            "years": sorted(set(range(1995, 2023))),
-            "states": sorted(EPACEMS_STATES),
+            "year_quarters": [
+                str(q).lower()
+                for q in pd.period_range(start="1995q1", end="2023q3", freq="Q")
+            ]
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
-            CONTRIBUTORS["karl-dunkle-werner"],
-            CONTRIBUTORS["zane-selvans"],
         ],
         "keywords": sorted(
             set(
@@ -307,7 +299,7 @@ SOURCES: dict[str, Any] = {
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
-    "epacamd_eia": {
+    "core_epa__assn_eia_epacamd": {
         "title": "EPA CAMD to EIA Power Sector Data Crosswalk",
         "path": "https://github.com/USEPA/camd-eia-crosswalk",
         "description": (
@@ -325,7 +317,6 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {},
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
-            CONTRIBUTORS["austen-sharpe"],
         ],
         "keywords": sorted(
             set(
@@ -365,15 +356,10 @@ SOURCES: dict[str, Any] = {
         },
         "field_namespace": "ferc1",
         "working_partitions": {
-            "years": sorted(set(range(1994, 2022))),
+            "years": sorted(set(range(1994, 2023))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
-            CONTRIBUTORS["zane-selvans"],
-            CONTRIBUTORS["christina-gosnell"],
-            CONTRIBUTORS["steven-winter"],
-            CONTRIBUTORS["alana-wilson"],
-            CONTRIBUTORS["austen-sharpe"],
         ],
         "keywords": sorted(
             set(
@@ -405,7 +391,7 @@ SOURCES: dict[str, Any] = {
             # Years 1991-1995 use strange formats that need to be investigated further.
             # Years 1996-1999 come in split archives and full archives and we are going
             # to be using the aggregated archives (part=None).
-            "years": sorted(set(range(1996, 2022))),
+            "years": sorted(set(range(1996, 2023))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -463,7 +449,7 @@ SOURCES: dict[str, Any] = {
         ),
         "field_namespace": "ferc60",
         "working_partitions": {
-            "years": sorted(set(range(2006, 2022))),
+            "years": sorted(set(range(2006, 2023))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -566,7 +552,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             # 1970 - 1989 are all in one CSV in multiple tabs with multi-column headers
             # and will need to be more extensively processed, not currently integrated.
-            "start_years": {1970, 2001, 2004, 2010},
+            "years": sorted(set(range(1970, 2023))),
         },
         "keywords": sorted(set(KEYWORDS["phmsa"] + KEYWORDS["us_govt"])),
         "license_raw": LICENSES["us-govt"],
@@ -586,9 +572,6 @@ SOURCES: dict[str, Any] = {
         ),
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
-            CONTRIBUTORS["zane-selvans"],
-            CONTRIBUTORS["christina-gosnell"],
-            CONTRIBUTORS["steven-winter"],
         ],
         "field_namespace": "pudl",
         "keywords": ["us", "electricity", "open data", "open source"],

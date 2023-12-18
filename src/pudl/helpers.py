@@ -15,7 +15,7 @@ from collections import defaultdict
 from collections.abc import Generator, Iterable
 from functools import partial
 from io import BytesIO
-from typing import Any, Literal
+from typing import Any, Literal, NamedTuple
 
 import addfips
 import numpy as np
@@ -78,7 +78,7 @@ def find_new_ferc1_strings(
     table: str,
     field: str,
     strdict: dict[str, list[str]],
-    ferc1_engine: sa.engine.Engine,
+    ferc1_engine: sa.Engine,
 ) -> set[str]:
     """Identify as-of-yet uncategorized freeform strings in FERC Form 1.
 
@@ -480,11 +480,11 @@ def date_merge(
 
     Args:
         left: The left dataframe in the merge. Typically monthly in our use
-            cases if doing a left merge E.g. ``generation_eia923``.
+            cases if doing a left merge E.g. ``core_eia923__monthly_generation``.
             Must contain columns specified by ``left_date_col`` and
             ``on`` argument.
         right: The right dataframe in the merge. Typically annual in our uses
-            cases if doing a left merge E.g. ``generators_eia860``.
+            cases if doing a left merge E.g. ``core_eia860__scd_generators``.
             Must contain columns specified by ``right_date_col`` and ``on`` argument.
         on: The columns to merge on that are shared between both
             dataframes. Typically ID columns like ``plant_id_eia``, ``generator_id``
@@ -1047,7 +1047,7 @@ def simplify_columns(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def drop_tables(engine: sa.engine.Engine, clobber: bool = False) -> None:
+def drop_tables(engine: sa.Engine, clobber: bool = False) -> None:
     """Drops all tables from a SQLite database.
 
     Creates an sa.schema.MetaData object reflecting the structure of the
@@ -1218,9 +1218,7 @@ def generate_rolling_avg(
             freq="MS",
             name="report_date",
         )
-    ).assign(
-        tmp=1
-    )  # assiging a temp column to merge on
+    ).assign(tmp=1)  # assiging a temp column to merge on
     groups = (
         df[group_cols + ["report_date"]]
         .drop_duplicates()
@@ -1488,9 +1486,8 @@ def calc_capacity_factor(
             capacity_factor=lambda x: x.net_generation_mwh / (x.capacity_mw * x.hours)
         )
         # Replace unrealistic capacity factors with NaN
-        .pipe(oob_to_nan, ["capacity_factor"], lb=min_cap_fact, ub=max_cap_fact).drop(
-            ["hours"], axis=1
-        )
+        .pipe(oob_to_nan, ["capacity_factor"], lb=min_cap_fact, ub=max_cap_fact)
+        .drop(["hours"], axis=1)
     )
     return df
 
@@ -1597,21 +1594,20 @@ def flatten_list(xs: Iterable) -> Generator:
 
 
 def convert_df_to_excel_file(df: pd.DataFrame, **kwargs) -> pd.ExcelFile:
-    """Converts a pandas dataframe to a pandas ExcelFile object.
+    """Convert a :class:`pandas.DataFrame` into a :class:`pandas.ExcelFile`.
 
-    You can pass parameters for pandas.to_excel() function.
+    Args:
+        df: The DataFrame to convert.
+        kwargs: Additional arguments to pass into :meth:`pandas.to_excel`.
+
+    Returns:
+        The contents of the input DataFrame, represented as an ExcelFile.
     """
     bio = BytesIO()
-
-    writer = pd.ExcelWriter(bio, engine="xlsxwriter")
-    df.to_excel(writer, **kwargs)
-
-    writer.close()
-
+    with pd.ExcelWriter(bio, engine="xlsxwriter") as writer:
+        df.to_excel(writer, **kwargs)
     bio.seek(0)
-    workbook = bio.read()
-
-    return pd.ExcelFile(workbook)
+    return pd.ExcelFile(bio)
 
 
 def get_asset_keys(
@@ -1737,7 +1733,7 @@ def scale_by_ownership(
         gens: table with records at the generator level and generator attributes
             to be scaled by ownership, must have columns ``plant_id_eia``,
             ``generator_id``, and ``report_date``
-        own_eia860: the ``ownership_eia860`` table
+        own_eia860: the ``core_eia860__scd_ownership`` table
         scale_cols: a list of columns in the generator table to slice by ownership
             fraction
         validate: how to validate merging the ownership table onto the
@@ -1798,3 +1794,127 @@ def scale_by_ownership(
         gens["fraction_owned"], axis="index"
     )
     return gens
+
+
+def get_dagster_execution_config(
+    num_workers: int = 0, tag_concurrency_limits: list[dict] = []
+):
+    """Get the dagster execution config for a given number of workers.
+
+    If num_workers is 0, then the dagster execution config will not include
+    any limits. With num_workesr set to 1, we will use in-process serial
+    executor, otherwise multi-process executor with maximum of num_workers
+    will be used.
+
+    Args:
+        num_workers: The number of workers to use for the dagster execution config.
+            If 0, then the dagster execution config will not include a multiprocess
+            executor.
+        tag_concurrency_limits: A set of limits that are applied to steps with
+            particular tags. This is helpful for applying concurrency limits to
+            highly concurrent and memory intensive portions of the ETL like CEMS.
+
+            Dagster description: If a value is set, the limit is applied to only
+            that key-value pair. If no value is set, the limit is applied across
+            all values of that key. If the value is set to a dict with
+            `applyLimitPerUniqueValue: true`, the limit will apply to the number
+            of unique values for that key. Note that these limits are per run, not global.
+
+    Returns:
+        A dagster execution config.
+    """
+    if num_workers == 1:
+        return {
+            "execution": {
+                "config": {
+                    "in_process": {},
+                },
+            },
+        }
+    return {
+        "execution": {
+            "config": {
+                "multiprocess": {
+                    "max_concurrent": num_workers,
+                    "tag_concurrency_limits": tag_concurrency_limits,
+                },
+            },
+        },
+    }
+
+
+def assert_cols_areclose(
+    df: pd.DataFrame,
+    a_cols: list[str],
+    b_cols: list[str],
+    mismatch_threshold: float,
+    message: str,
+):
+    """Check if two column sets of a dataframe are close to each other.
+
+    Ignores NANs and raises if there are too many mismatches.
+    """
+    # we use df.loc, so if we use a debugger in here we can see the actual data
+    # instead of just whether or not there are matches.
+    mismatch = df.loc[
+        ~np.isclose(
+            np.ma.masked_where(np.isnan(df[a_cols]), df[a_cols]),
+            np.ma.masked_where(np.isnan(df[b_cols]), df[b_cols]),
+            equal_nan=True,
+        ).filled()
+    ]
+    mismatch_ratio = len(mismatch) / len(df)
+    if mismatch_ratio > mismatch_threshold:
+        raise AssertionError(
+            f"{message} Mismatch ratio {mismatch_ratio:.01%} > "
+            f"threshold {mismatch_threshold:.01%}."
+        )
+
+
+class TableDiff(NamedTuple):
+    """Represent a diff between two versions of the same table."""
+
+    deleted: pd.DataFrame
+    added: pd.DataFrame
+    changed: pd.DataFrame
+    old_df: pd.DataFrame
+    new_df: pd.DataFrame
+
+
+def diff_wide_tables(
+    primary_key: Iterable[str], old: pd.DataFrame, new: pd.DataFrame
+) -> TableDiff:
+    """Diff values across multiple iterations of the same wide table.
+
+    We often have tables with many value columns; a straightforward comparison of two
+    versions of the same table will show you that two rows are different, but
+    won't show which of the many values changed.
+
+    So we melt the table based on some sort of primary key columns then diff
+    the old and new values.
+    """
+    old_melted = old.melt(id_vars=primary_key, var_name="field").set_index(
+        primary_key + ["field"]
+    )
+    new_melted = new.melt(id_vars=primary_key, var_name="field").set_index(
+        primary_key + ["field"]
+    )
+    old_aligned, new_aligned = old_melted.align(new_melted)
+    comparison = old_aligned.compare(new_aligned, result_names=("old", "new"))
+    if comparison.empty:
+        return TableDiff(
+            deleted=pd.DataFrame(),
+            added=pd.DataFrame(),
+            changed=pd.DataFrame(),
+            old_df=old,
+            new_df=new,
+        )
+
+    old_values = comparison[("value", "old")]
+    new_values = comparison[("value", "new")]
+    added = comparison[old_values.isna() & new_values.notna()]
+    deleted = comparison[old_values.notna() & new_values.isna()]
+    changed = comparison[old_values.notna() & new_values.notna()]
+    return TableDiff(
+        deleted=deleted, added=added, changed=changed, old_df=old, new_df=new
+    )

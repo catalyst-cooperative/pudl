@@ -4,12 +4,13 @@ from typing import Any
 from pudl.metadata.codes import CODE_METADATA
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
-    "balance_sheet_assets_ferc1": {
+    "core_ferc1__yearly_balance_sheet_assets_sched110": {
         "description": "Comparative Balance Sheet (Assets and Other Debits). Schedule 110.",
         "schema": {
             "fields": [
                 "utility_id_ferc1",
                 "report_year",
+                "utility_type",
                 "record_id",
                 "asset_type",
                 "ending_balance",
@@ -28,7 +29,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "balance_sheet_liabilities_ferc1": {
+    "core_ferc1__yearly_balance_sheet_liabilities_sched110": {
         "description": "Comparative balance sheet (liabilities and other credits)",
         "schema": {
             "fields": [
@@ -41,6 +42,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "balance",
                 "ferc_account",
                 "row_type_xbrl",
+                "utility_type",
             ],
             "primary_key": [
                 "utility_id_ferc1",
@@ -52,7 +54,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "cash_flow_ferc1": {
+    "core_ferc1__yearly_cash_flows_sched120": {
         "description": "The structured portion of the FERC1 cash flow table - Schedule 120.",
         "schema": {
             "fields": [
@@ -74,7 +76,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "depreciation_amortization_summary_ferc1": {
+    "core_ferc1__yearly_depreciation_summary_sched336": {
         "description": (
             "Depreciation and Amortization of Electric Plant (Account 403, 404, 405) "
             "Section A: Summary of depreciation and amortization changes. "
@@ -103,7 +105,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "electric_energy_sources_ferc1": {
+    "core_ferc1__yearly_energy_sources_sched401": {
         "description": (
             "Electric Energy Account, sources only. Schedule 401a. Amount of "
             "electricity the utility obtained from each of several sources, by year."
@@ -127,7 +129,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "electric_energy_dispositions_ferc1": {
+    "core_ferc1__yearly_energy_dispositions_sched401": {
         "description": (
             "Electric Energy Account, dispositions only. Schedule 401a. Electricity "
             "utilities delived to end users, internal losses, etc."
@@ -151,7 +153,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "electric_operating_expenses_ferc1": {
+    "core_ferc1__yearly_operating_expenses_sched320": {
         "description": (
             "Operating and maintenance costs associated with producing electricty, "
             "reported in Schedule 320 of FERC Form 1."
@@ -173,7 +175,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "electric_plant_depreciation_changes_ferc1": {
+    "core_ferc1__yearly_depreciation_changes_sched219": {
         "description": (
             "Accumulated provision for depreciation of electric utility plant "
             "(Account 108). Schedule 219 Section A: balances and changes during year."
@@ -203,7 +205,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "electric_plant_depreciation_functional_ferc1": {
+    "core_ferc1__yearly_depreciation_by_function_sched219": {
         "description": (
             "Accumulated provision for depreciation of electric utility plant "
             "(Account 108). Schedule 219 Section B: Functional plant classifications."
@@ -233,7 +235,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "electricity_sales_by_rate_schedule_ferc1": {
+    "core_ferc1__yearly_sales_by_rate_schedules_sched304": {
         "description": (
             """The pre-2021 data in this table (extracted from FoxProDB vs. XBRL) is
 extremely unstructured. Where the post-2020 data (from XBRL) sorts the data
@@ -307,7 +309,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "ferc_accounts": {
+    "core_ferc__codes_accounts": {
         "description": "Account numbers from the FERC Uniform System of Accounts for Electric Plant, which is defined in Code of Federal Regulations (CFR) Title 18, Chapter I, Subchapter C, Part 101. (See e.g. https://www.law.cornell.edu/cfr/text/18/part-101).",
         "schema": {
             "fields": ["ferc_account_id", "ferc_account_description"],
@@ -317,7 +319,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "static_ferc1",
         "field_namespace": "ferc1",
     },
-    "fuel_ferc1": {
+    "core_ferc1__yearly_steam_plants_fuel_sched402": {
         "description": "Annual fuel cost and quantity for steam plants with a capacity of 25+ MW, internal combustion and gas-turbine plants of 10+ MW, and all nuclear plants. As reported on page 402 of FERC Form 1 and extracted from the f1_fuel table in FERC's FoxPro Database.",
         "schema": {
             "fields": [
@@ -338,7 +340,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "income_statement_ferc1": {
+    "core_ferc1__yearly_income_statements_sched114": {
         "description": "Statement of Income. Schedule 114.",
         "schema": {
             "fields": [
@@ -363,7 +365,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "other_regulatory_liabilities_ferc1": {
+    "core_ferc1__yearly_other_regulatory_liabilities_sched278": {
         "description": "Other regulatory liabilities, including rate order docket number.",
         "schema": {
             "fields": [
@@ -381,7 +383,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "plant_in_service_ferc1": {
+    "core_ferc1__yearly_plant_in_service_sched204": {
         "description": (
             "Balances and changes to FERC Electric Plant in Service accounts, as "
             "reported on FERC Form 1, Schedule 204. Data originally from the "
@@ -410,6 +412,7 @@ any cleaning mechanisms in place to account for this."""
                 "ending_balance",
                 "record_id",
                 "utility_type",
+                "plant_status",
             ],
             "primary_key": ["utility_id_ferc1", "report_year", "ferc_account_label"],
         },
@@ -417,7 +420,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "plants_ferc1": {
+    "core_pudl__assn_ferc1_pudl_plants": {
         "description": "FERC 1 Plants and their associated manually assigned PUDL Plant IDs",
         "schema": {
             "fields": ["utility_id_ferc1", "plant_name_ferc1", "plant_id_pudl"],
@@ -432,7 +435,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "glue",
         "field_namespace": "ferc1",
     },
-    "plants_hydro_ferc1": {
+    "core_ferc1__yearly_hydroelectric_plants_sched406": {
         "description": (
             "Hydroelectric generating plant statistics for large plants. Large plants "
             "have an installed nameplate capacity of more than 10 MW. As reported on "
@@ -484,7 +487,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "plants_pumped_storage_ferc1": {
+    "core_ferc1__yearly_pumped_storage_plants_sched408": {
         "description": (
             "Generating plant statistics for hydroelectric pumped storage plants with "
             "an installed nameplate capacity of 10+ MW. As reported in Scheudle 408 of "
@@ -540,7 +543,7 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "plants_small_ferc1": {
+    "core_ferc1__yearly_small_plants_sched410": {
         "description": """The generating plant statistics for internal combustion
 plants, gas turbine-plants, conventional hydro plants, and pumped storage plants with
 less than 10 MW installed nameplate capacity and steam plants with less than 25 MW
@@ -581,7 +584,7 @@ columns.""",
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "plants_steam_ferc1": {
+    "core_ferc1__yearly_steam_plants_sched402": {
         "description": (
             "Generating plant statistics for steam plants with a capacity of 25+ MW, "
             "internal combustion and gas-turbine plants of 10+ MW, and all nuclear "
@@ -636,19 +639,19 @@ columns.""",
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "power_purchase_types_ferc1": {
+    "core_ferc1__codes_power_purchase_types": {
         "description": "Coding table defining different types of electricity power purchases.",
         "schema": {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
             "foreign_key_rules": {"fields": [["purchase_type_code"]]},
         },
-        "encoder": CODE_METADATA["power_purchase_types_ferc1"],
+        "encoder": CODE_METADATA["core_ferc1__codes_power_purchase_types"],
         "sources": ["ferc1"],
         "etl_group": "static_ferc1",
         "field_namespace": "ferc1",
     },
-    "purchased_power_ferc1": {
+    "core_ferc1__yearly_purchased_power_and_exchanges_sched326": {
         "description": (
             "Purchased Power (Account 555) including power exchanges (transactions "
             "involving a balancing of debits and credits for energy, capacity, etc.) "
@@ -682,7 +685,7 @@ columns.""",
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "transmission_statistics_ferc1": {
+    "core_ferc1__yearly_transmission_lines_sched422": {
         "description": (
             "Transmission Line Statistics. Schedule 422 of FERC Form 1. Information "
             "describing transmission lines, the cost of lines, annual operating and "
@@ -715,7 +718,7 @@ columns.""",
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "utilities_ferc1": {
+    "core_pudl__assn_ferc1_pudl_utilities": {
         "description": "This table maps two manually assigned utility IDs: a PUDL ID and a FERC1 ID. The PUDL ID maps EIA and FERC1 utilities. The FERC1 ID maps the older DBF respondent IDs to new XBRL entity IDs. This table is generated from a table stored in the PUDL repository: src/package_data/glue/utility_id_pudl.csv",
         "schema": {
             "fields": ["utility_id_ferc1", "utility_name_ferc1", "utility_id_pudl"],
@@ -726,7 +729,7 @@ columns.""",
         "etl_group": "glue",
         "field_namespace": "ferc1",
     },
-    "utilities_ferc1_dbf": {
+    "core_pudl__assn_ferc1_dbf_pudl_utilities": {
         "description": "This table maps the assign utility ID FERC1 to the native utility ID from the FERC1 DBF inputs - originally reported as respondent_id.",
         "schema": {
             "fields": ["utility_id_ferc1", "utility_id_ferc1_dbf"],
@@ -736,7 +739,7 @@ columns.""",
         "etl_group": "glue",
         "field_namespace": "ferc1",
     },
-    "utilities_ferc1_xbrl": {
+    "core_pudl__assn_ferc1_xbrl_pudl_utilities": {
         "description": "This table maps the assign utility ID FERC1 to the native utility ID from the FERC1 XBRL inputs - originally reported as entity_id.",
         "schema": {
             "fields": ["utility_id_ferc1", "utility_id_ferc1_xbrl"],
@@ -746,7 +749,7 @@ columns.""",
         "etl_group": "glue",
         "field_namespace": "ferc1",
     },
-    "utility_plant_summary_ferc1": {
+    "core_ferc1__yearly_utility_plant_summary_sched200": {
         "description": (
             "Summary of utility plant and accumulated provisions for depreciation, "
             "amortization and depletion of utilty plant assets reported annually at "
@@ -774,7 +777,7 @@ columns.""",
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "retained_earnings_ferc1": {
+    "core_ferc1__yearly_retained_earnings_sched118": {
         "description": "Retained Earnings - The structed part of schedule 118.",
         "schema": {
             "fields": [
@@ -787,6 +790,7 @@ columns.""",
                 "balance",
                 "ferc_account",
                 "row_type_xbrl",
+                "utility_type",
             ],
             "primary_key": [
                 "utility_id_ferc1",
@@ -798,17 +802,7 @@ columns.""",
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "retained_earnings_appropriations_ferc1": {
-        "description": "Retained Earnings - some of the unstructed part of schedule 118.",
-        "schema": {
-            "fields": ["utility_id_ferc1", "report_year", "utility_type", "record_id"],
-        },
-        "sources": ["ferc1"],
-        "etl_group": "ferc1_disabled",
-        "field_namespace": "ferc1",
-        "create_database_schema": False,
-    },
-    "electric_operating_revenues_ferc1": {
+    "core_ferc1__yearly_operating_revenues_sched300": {
         "description": (
             "Electric operating revenues - The structed part of schedule 300."
             "There are a number of revenue_type's that do not have sales_mwh,"
@@ -838,7 +832,7 @@ columns.""",
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "denorm_plants_utilities_ferc1": {
+    "_out_ferc1__yearly_plants_utilities": {
         "description": "Denormalized table that contains FERC plant and utility information.",
         "schema": {
             "fields": [
@@ -854,7 +848,7 @@ columns.""",
         "etl_group": "outputs",
         "sources": ["ferc1"],
     },
-    "denorm_balance_sheet_assets_ferc1": {
+    "out_ferc1__yearly_balance_sheet_assets_sched110": {
         "description": "Denormalized table that contains FERC balance sheet asset information.",
         "schema": {
             "fields": [
@@ -869,6 +863,7 @@ columns.""",
                 "ferc_account",
                 "row_type_xbrl",
                 "starting_balance",
+                "utility_type",
             ],
             "primary_key": [
                 "utility_id_ferc1",
@@ -880,7 +875,7 @@ columns.""",
         "etl_group": "outputs",
         "sources": ["ferc1"],
     },
-    "denorm_balance_sheet_liabilities_ferc1": {
+    "out_ferc1__yearly_balance_sheet_liabilities_sched110": {
         "description": "Denormalized table that contains FERC balance sheet liability information.",
         "schema": {
             "fields": [
@@ -895,6 +890,7 @@ columns.""",
                 "balance",
                 "ferc_account",
                 "row_type_xbrl",
+                "utility_type",
             ],
             "primary_key": [
                 "utility_id_ferc1",
@@ -906,7 +902,7 @@ columns.""",
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_cash_flow_ferc1": {
+    "out_ferc1__yearly_cash_flows_sched120": {
         "description": "Denormalized table that contains FERC cash flow information.",
         "schema": {
             "fields": [
@@ -930,7 +926,7 @@ columns.""",
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_depreciation_amortization_summary_ferc1": {
+    "out_ferc1__yearly_depreciation_summary_sched336": {
         "description": "Denormalized table that contains FERC depreciation amortization information.",
         "schema": {
             "fields": [
@@ -956,7 +952,7 @@ columns.""",
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_electric_energy_dispositions_ferc1": {
+    "out_ferc1__yearly_energy_dispositions_sched401": {
         "description": "Denormalized table that contains FERC electric energy dispositions information.",
         "schema": {
             "fields": [
@@ -979,7 +975,7 @@ columns.""",
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_electric_energy_sources_ferc1": {
+    "out_ferc1__yearly_energy_sources_sched401": {
         "description": "Denormalized table that contains FERC electric energy sources information.",
         "schema": {
             "fields": [
@@ -1002,7 +998,7 @@ columns.""",
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_electric_operating_expenses_ferc1": {
+    "out_ferc1__yearly_operating_expenses_sched320": {
         "description": "Denormalized table that contains FERC electric operating expense information.",
         "schema": {
             "fields": [
@@ -1023,7 +1019,7 @@ columns.""",
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_electric_operating_revenues_ferc1": {
+    "out_ferc1__yearly_operating_revenues_sched300": {
         "description": "Denormalized table that contains FERC electric operating revenue information.",
         "schema": {
             "fields": [
@@ -1050,7 +1046,7 @@ columns.""",
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_electric_plant_depreciation_changes_ferc1": {
+    "out_ferc1__yearly_depreciation_changes_sched219": {
         "description": "Denormalized table that contains FERC electric plant depreciation changes information.",
         "schema": {
             "fields": [
@@ -1079,7 +1075,7 @@ columns.""",
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_electric_plant_depreciation_functional_ferc1": {
+    "out_ferc1__yearly_depreciation_by_function_sched219": {
         "description": (
             "Denormalized accumulated provision for depreciation of electric utility "
             "plant (Account 108). Schedule 219 Section B: Functional plant classifications."
@@ -1111,7 +1107,7 @@ columns.""",
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_electricity_sales_by_rate_schedule_ferc1": {
+    "out_ferc1__yearly_sales_by_rate_schedules_sched304": {
         "description": "Denormalized table that contains FERC electricity sales by rate schedule information.",
         "schema": {
             "fields": [
@@ -1134,7 +1130,7 @@ columns.""",
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_income_statement_ferc1": {
+    "out_ferc1__yearly_income_statements_sched114": {
         "description": "Denormalized table that contains FERC income statement information.",
         "schema": {
             "fields": [
@@ -1161,7 +1157,7 @@ columns.""",
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_other_regulatory_liabilities_ferc1": {
+    "out_ferc1__yearly_other_regulatory_liabilities_sched278": {
         "description": "Denormalized table that contains FERC other regulatory liabilities information.",
         "schema": {
             "fields": [
@@ -1181,7 +1177,7 @@ columns.""",
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_retained_earnings_ferc1": {
+    "out_ferc1__yearly_retained_earnings_sched118": {
         "description": "Denormalized table that contains FERC retained earnings information.",
         "schema": {
             "fields": [
@@ -1196,6 +1192,7 @@ columns.""",
                 "balance",
                 "ferc_account",
                 "row_type_xbrl",
+                "utility_type",
             ],
             "primary_key": [
                 "utility_id_ferc1",
@@ -1207,7 +1204,7 @@ columns.""",
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_transmission_statistics_ferc1": {
+    "out_ferc1__yearly_transmission_lines_sched422": {
         "description": "Denormalized table that contains FERC transmission statistics information.",
         "schema": {
             "fields": [
@@ -1238,7 +1235,7 @@ columns.""",
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_utility_plant_summary_ferc1": {
+    "out_ferc1__yearly_utility_plant_summary_sched200": {
         "description": "Denormalized table that contains FERC utility plant summary information.",
         "schema": {
             "fields": [
@@ -1264,7 +1261,7 @@ columns.""",
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_plants_steam_ferc1": {
+    "_out_ferc1__yearly_steam_plants_sched402": {
         "description": "Denormalized table that contains steam plant information from FERC Form 1.",
         "schema": {
             "fields": [
@@ -1332,7 +1329,7 @@ columns.""",
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_plants_small_ferc1": {
+    "_out_ferc1__yearly_small_plants_sched410": {
         "description": "Denormalized table that contains small plant information from FERC Form 1.",
         "schema": {
             "fields": [
@@ -1367,7 +1364,7 @@ columns.""",
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_plants_hydro_ferc1": {
+    "_out_ferc1__yearly_hydroelectric_plants_sched406": {
         "description": "Denormalized table that contains small plant information from FERC Form 1.",
         "schema": {
             "fields": [
@@ -1422,7 +1419,7 @@ columns.""",
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_plants_pumped_storage_ferc1": {
+    "_out_ferc1__yearly_pumped_storage_plants_sched408": {
         "description": "Denormalized table that contains pumped storage plant information from FERC Form 1.",
         "schema": {
             "fields": [
@@ -1481,7 +1478,7 @@ columns.""",
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_fuel_ferc1": {
+    "out_ferc1__yearly_steam_plants_fuel_sched402": {
         "description": "Denormalized table that contains fuel information from FERC Form 1.",
         "schema": {
             "fields": [
@@ -1510,7 +1507,7 @@ columns.""",
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_purchased_power_ferc1": {
+    "out_ferc1__yearly_purchased_power_and_exchanges_sched326": {
         "description": "Denormalized table of FERC Form 1 Purchased Power data.",
         "schema": {
             "fields": [
@@ -1540,7 +1537,7 @@ columns.""",
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_plant_in_service_ferc1": {
+    "out_ferc1__yearly_plant_in_service_sched204": {
         "description": "Denormalized table of FERC Form 1 Electric Plant in Service data.",
         "schema": {
             "fields": [
@@ -1549,6 +1546,7 @@ columns.""",
                 "utility_id_pudl",
                 "utility_name_ferc1",
                 "utility_type",
+                "plant_status",
                 "record_id",
                 "additions",
                 "adjustments",
@@ -1566,7 +1564,7 @@ columns.""",
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_plants_all_ferc1": {
+    "out_ferc1__yearly_all_plants": {
         "description": "Denormalized table combining the steam, small generators, hydro, and pumped storage tables from FERC Form 1.",
         "schema": {
             "fields": [
@@ -1655,7 +1653,7 @@ columns.""",
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "denorm_fuel_by_plant_ferc1": {
+    "out_ferc1__yearly_steam_plants_fuel_by_plant_sched402": {
         "description": "A table summarizing FERC fuel data by plant, using FERC Form 1 data.",
         "schema": {
             "fields": [

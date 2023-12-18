@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     tags:
-      - "v**"
+      - "v20*"
   schedule:
     - cron: "0 6 * * 1-5" # Weekdays at midnight on MST
 
@@ -12,6 +12,7 @@ env:
   GITHUB_REF: ${{ github.ref_name }} # This is changed to dev if running on a schedule
   GCE_INSTANCE: pudl-deployment-tag # This is changed to pudl-deployment-dev if running on a schedule
   GCE_INSTANCE_ZONE: ${{ secrets.GCE_INSTANCE_ZONE }}
+  GCS_OUTPUT_BUCKET: gs://nightly-build-outputs.catalyst.coop
 
 jobs:
   build_and_deploy_pudl:
@@ -27,13 +28,14 @@ jobs:
           echo "This action was triggered by a schedule." && echo "GCE_INSTANCE=pudl-deployment-dev" >> $GITHUB_ENV && echo "GITHUB_REF=dev" >> $GITHUB_ENV
 
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ env.GITHUB_REF }}
 
       - name: Get HEAD of the branch (main or dev)
         run: |
           echo "ACTION_SHA=$(git rev-parse HEAD)" >> $GITHUB_ENV
+          echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
       - name: Print action vars
         run: |
@@ -43,7 +45,7 @@ jobs:
 
       - name: Docker Metadata
         id: docker_metadata
-        uses: docker/metadata-action@v4.4.0
+        uses: docker/metadata-action@v5.3.0
         with:
           images: catalystcoop/pudl-etl
           flavor: |
@@ -53,17 +55,17 @@ jobs:
             type=ref,event=tag
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2.5.0
+        uses: docker/setup-buildx-action@v3.0.0
 
       - name: Login to DockerHub
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@v2.1.0
+        uses: docker/login-action@v3.0.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build image and push to Docker Hub
-        uses: docker/build-push-action@v4.0.0
+        uses: docker/build-push-action@v5.1.0
         with:
           context: .
           file: docker/Dockerfile
@@ -74,17 +76,26 @@ jobs:
           cache-to: type=gha,mode=max
 
       - id: "auth"
-        uses: "google-github-actions/auth@v1"
+        uses: "google-github-actions/auth@v2"
         with:
           workload_identity_provider: "projects/345950277072/locations/global/workloadIdentityPools/gh-actions-pool/providers/gh-actions-provider"
           service_account: "deploy-pudl-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
 
       # Setup gcloud CLI
       - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v1
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Determine commit information
+        run: |-
+          echo "COMMIT_BRANCH=$(echo ${GITHUB_REF#refs/heads/} | tr / -)" >> $GITHUB_ENV
+          echo "COMMIT_TIME=$(git log -1 --format=%cd --date=format:%Y-%m-%d-%H%M)" >> $GITHUB_ENV
+          echo "RUN_TIMESTAMP=$(date +%Y-%m-%d-%H%M)" >> $GITHUB_ENV
 
       # Deploy PUDL image to GCE
       - name: Deploy
+        env:
+          DAGSTER_PG_PASSWORD: ${{ secrets.DAGSTER_PG_PASSWORD }}
+          PUDL_OUTPUT_PATH: ${{ env.GCS_OUTPUT_BUCKET }}/${{ env.RUN_TIMESTAMP }}-${{ env.SHORT_SHA }}-${{ env.COMMIT_BRANCH }}
         run: |-
           gcloud compute instances add-metadata "$GCE_INSTANCE" \
             --zone "$GCE_INSTANCE_ZONE" \
@@ -92,11 +103,12 @@ jobs:
           gcloud compute instances update-container "$GCE_INSTANCE" \
             --zone "$GCE_INSTANCE_ZONE" \
             --container-image "docker.io/catalystcoop/pudl-etl:${{ env.GITHUB_REF }}" \
-            --container-command "conda" \
+            --container-command "micromamba" \
             --container-arg="run" \
-            --container-arg="--no-capture-output" \
-            --container-arg="-p" \
-            --container-arg="/home/catalyst/env" \
+            --container-arg="--prefix" \
+            --container-arg="/home/mambauser/env" \
+            --container-arg="--attach" \
+            --container-arg='' \
             --container-arg="bash" \
             --container-arg="./docker/gcp_pudl_etl.sh" \
             --container-env-file="./docker/.env" \
@@ -110,6 +122,14 @@ jobs:
             --container-env AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
             --container-env AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
             --container-env AWS_DEFAULT_REGION=${{ secrets.AWS_DEFAULT_REGION }} \
+            --container-env DAGSTER_PG_USERNAME="postgres" \
+            --container-env DAGSTER_PG_PASSWORD="$DAGSTER_PG_PASSWORD" \
+            --container-env DAGSTER_PG_HOST="104.154.182.24" \
+            --container-env DAGSTER_PG_DB="dagster-storage" \
+            --container-env FLY_ACCESS_TOKEN=${{ secrets.FLY_ACCESS_TOKEN }} \
+            --container-env ZENODO_SANDBOX_TOKEN_PUBLISH=${{ secrets.ZENODO_SANDBOX_TOKEN_PUBLISH }} \
+            --container-env PUDL_SETTINGS_YML="/home/mambauser/src/pudl/package_data/settings/etl_full.yml" \
+            --container-env PUDL_GCS_OUTPUT=${{ env.PUDL_OUTPUT_PATH }}
 
       # Start the VM
       - name: Start the deploy-pudl-vm
@@ -120,6 +140,7 @@ jobs:
         uses: slackapi/slack-github-action@v1.24.0
         with:
           channel-id: "C03FHB9N0PQ"
-          slack-message: "build-deploy-pudl status: ${{ job.status }}\n${{ env.ACTION_SHA }}-${{ env.GITHUB_REF }}"
+          slack-message: "build-deploy-pudl status: ${{ job.status }}\n${{ env.GCS_OUTPUT_BUCKET }}/${{ env.RUN_TIMESTAMP}}-${{ env.SHORT_SHA }}-${{ env.COMMIT_BRANCH }}"
         env:
+          channel-id: "C03FHB9N0PQ"
           SLACK_BOT_TOKEN: ${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }}

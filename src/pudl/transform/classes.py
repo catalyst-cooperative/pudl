@@ -69,11 +69,18 @@ from abc import ABC, abstractmethod
 from collections.abc import Callable
 from functools import wraps
 from itertools import combinations
-from typing import Any, Protocol
+from typing import Annotated, Any, Protocol, Self
 
 import numpy as np
 import pandas as pd
-from pydantic import BaseModel, conset, root_validator, validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    ValidationInfo,
+    field_validator,
+    model_validator,
+)
 
 import pudl.logging_helpers
 import pudl.transform.params.ferc1
@@ -92,11 +99,7 @@ class TransformParams(BaseModel):
     when applied by their associated function.
     """
 
-    class Config:
-        """Prevent parameters from changing part way through."""
-
-        allow_mutation = False
-        extra = "forbid"
+    model_config = ConfigDict(frozen=True, extra="forbid")
 
 
 class MultiColumnTransformParams(TransformParams):
@@ -118,16 +121,16 @@ class MultiColumnTransformParams(TransformParams):
     https://pydantic-docs.helpmanual.io/blog/pydantic-v2/#validation-without-a-model
     """
 
-    @root_validator
-    def single_param_type(cls, params):  # noqa: N805
+    @model_validator(mode="after")
+    def single_param_type(self: Self, info: ValidationInfo):
         """Check that all TransformParams in the dictionary are of the same type."""
-        param_types = {type(params[col]) for col in params}
+        param_types = {type(info.data[col]) for col in info.data}
         if len(param_types) > 1:
             raise ValueError(
                 "Found multiple parameter types in multi-column transform params: "
                 f"{param_types}"
             )
-        return params
+        return self
 
 
 #####################################################################################
@@ -395,7 +398,9 @@ def strip_non_numeric_values(
     if params is None:
         params = StripNonNumericValues(strip_non_numeric_values=True)
     if params.strip_non_numeric_values:
-        col = col.astype(str).str.extract(
+        col = col.astype(
+            str
+        ).str.extract(
             rf"(?P<{col.name}>(?<![a-z-A-Z])[-+]?\d+\.?\d*|[-+]?\.\d+)",  # name the series
             expand=False,
         )
@@ -422,7 +427,8 @@ class StringCategories(TransformParams):
     :func:`categorize_strings` to see how it is used.
     """
 
-    @validator("categories")
+    @field_validator("categories")
+    @classmethod
     def categories_are_disjoint(cls, v):
         """Ensure that each string to be categorized only appears in one category."""
         for cat1, cat2 in combinations(v, 2):
@@ -434,7 +440,8 @@ class StringCategories(TransformParams):
                 )
         return v
 
-    @validator("categories")
+    @field_validator("categories")
+    @classmethod
     def categories_are_idempotent(cls, v):
         """Ensure that every category contains the string it will map to.
 
@@ -501,17 +508,17 @@ class UnitConversion(TransformParams):
     from_unit: str = ""  # If it's the empty string, no renaming will happen.
     to_unit: str = ""  # If it's the empty string, no renaming will happen.
 
-    @root_validator
-    def both_or_neither_units_are_none(cls, params):
+    @model_validator(mode="after")
+    def both_or_neither_units_are_none(self: Self):
         """Ensure that either both or neither of the units strings are None."""
-        if (params["from_unit"] == "" and params["to_unit"] != "") or (
-            params["from_unit"] != "" and params["to_unit"] == ""
+        if (self.from_unit == "" and self.to_unit != "") or (
+            self.from_unit != "" and self.to_unit == ""
         ):
             raise ValueError(
                 "Either both or neither of from_unit and to_unit must be non-empty. "
-                f"Got {params['from_unit']=} {params['to_unit']=}."
+                f"Got {self.from_unit=} {self.to_unit=}."
             )
-        return params
+        return self
 
     def inverse(self) -> "UnitConversion":
         """Construct a :class:`UnitConversion` that is the inverse of self.
@@ -570,12 +577,13 @@ class ValidRange(TransformParams):
     lower_bound: float = -np.inf
     upper_bound: float = np.inf
 
-    @validator("upper_bound")
-    def upper_bound_gte_lower_bound(cls, v, values):
+    @field_validator("upper_bound")
+    @classmethod
+    def upper_bound_gte_lower_bound(cls, upper_bound: float, info: ValidationInfo):
         """Require upper bound to be greater than or equal to lower bound."""
-        if values["lower_bound"] > v:
+        if info.data["lower_bound"] > upper_bound:
             raise ValueError("upper_bound must be greater than or equal to lower_bound")
-        return v
+        return upper_bound
 
 
 def nullify_outliers(col: pd.Series, params: ValidRange) -> pd.Series:
@@ -620,7 +628,8 @@ class UnitCorrections(TransformParams):
     unit_conversions: list[UnitConversion]
     """A list of unit conversions to use to identify errors and correct them."""
 
-    @validator("unit_conversions")
+    @field_validator("unit_conversions")
+    @classmethod
     def no_column_rename(cls, params: list[UnitConversion]) -> list[UnitConversion]:
         """Ensure that the unit conversions used in corrections don't rename the column.
 
@@ -634,8 +643,8 @@ class UnitCorrections(TransformParams):
             )
         return new_conversions
 
-    @root_validator
-    def distinct_domains(cls, params):
+    @model_validator(mode="after")
+    def distinct_domains(self: Self):
         """Verify that all unit conversions map distinct domains to the valid range.
 
         If the domains being mapped to the valid range overlap, then it is ambiguous
@@ -652,12 +661,12 @@ class UnitCorrections(TransformParams):
           corrected to be 2.
         """
         input_vals = pd.Series(
-            [params["valid_range"].lower_bound, params["valid_range"].upper_bound],
+            [self.valid_range.lower_bound, self.valid_range.upper_bound],
             name="dude",
         )
         # We need to make sure that the unit conversion doesn't map the valid range
         # onto itself either, so add an additional conversion that does nothing:
-        uc_combos = combinations(params["unit_conversions"] + [UnitConversion()], 2)
+        uc_combos = combinations(self.unit_conversions + [UnitConversion()], 2)
         for uc1, uc2 in uc_combos:
             out1 = convert_units(input_vals, uc1.inverse())
             out2 = convert_units(input_vals, uc2.inverse())
@@ -665,11 +674,11 @@ class UnitCorrections(TransformParams):
                 raise ValueError(
                     "The following pair of unit corrections are incompatible due to "
                     "overlapping domains.\n"
-                    f"{params['valid_range']=}\n"
+                    f"{self.valid_range=}\n"
                     f"{uc1=}\n"
                     f"{uc2=}\n"
                 )
-        return params
+        return self
 
 
 def correct_units(df: pd.DataFrame, params: UnitCorrections) -> pd.DataFrame:
@@ -732,7 +741,7 @@ def correct_units(df: pd.DataFrame, params: UnitCorrections) -> pd.DataFrame:
 class InvalidRows(TransformParams):
     """Pameters that identify invalid rows to drop."""
 
-    invalid_values: conset(Any, min_items=1) | None = None
+    invalid_values: Annotated[set[Any], Field(min_length=1)] | None = None
     """A list of values that should be considered invalid in the selected columns."""
 
     required_valid_cols: list[str] | None = None
@@ -751,16 +760,16 @@ class InvalidRows(TransformParams):
     regex: str | None = None
     """A regular expression to use as the ``regex`` argument to :meth:`pd.filter`."""
 
-    @root_validator
-    def one_filter_argument(cls, values):
+    @model_validator(mode="after")
+    def one_filter_argument(self: Self):
         """Validate that only one argument is specified for :meth:`pd.filter`."""
         num_args = sum(
             int(bool(val))
             for val in [
-                values["required_valid_cols"],
-                values["allowed_invalid_cols"],
-                values["like"],
-                values["regex"],
+                self.required_valid_cols,
+                self.allowed_invalid_cols,
+                self.like,
+                self.regex,
             ]
         )
         if num_args > 1:
@@ -769,7 +778,7 @@ class InvalidRows(TransformParams):
                 f"{num_args} were found."
             )
 
-        return values
+        return self
 
 
 def drop_invalid_rows(df: pd.DataFrame, params: InvalidRows) -> pd.DataFrame:
@@ -899,8 +908,8 @@ def spot_fix_values(df: pd.DataFrame, params: SpotFixes) -> pd.DataFrame:
     )
 
     # Convert input datatypes to match corresponding df columns.
-    for x in spot_fixes_df.columns:
-        spot_fixes_df[x] = spot_fixes_df[x].astype(df[x].dtypes.name)
+    for col in spot_fixes_df.columns:
+        spot_fixes_df[col] = spot_fixes_df[col].astype(df[col].dtypes.name)
 
     spot_fixes_df = spot_fixes_df.set_index(params.idx_cols)
     df = df.set_index(params.idx_cols)
@@ -908,7 +917,8 @@ def spot_fix_values(df: pd.DataFrame, params: SpotFixes) -> pd.DataFrame:
     if params.expect_unique is True and not df.index.is_unique:
         cols_list = ", ".join(params.idx_cols)
         raise ValueError(
-            f"This spot fix expects a unique set of idx_col, but the idx_cols provided are not uniquely identifying: {cols_list}."
+            "This spot fix expects a unique set of idx_col, but the idx_cols provided "
+            f"are not uniquely identifying: {cols_list}."
         )
 
     # Only keep spot fix values found in the dataframe index.
@@ -1082,7 +1092,7 @@ class AbstractTableTransformer(ABC):
     single dataframe. Since Python is lazy about enforcing types and interfaces you can
     get away with other kinds of arguments when they're sometimes necessary, but this
     isn't a good arrangement and we should figure out how to do it right. See the
-    :class:`pudl.transform.ferc1.PlantsSteamFerc1TableTransformer` class for an example.
+    :class:`pudl.transform.ferc1.SteamPlantsTableTransformer` class for an example.
     """
 
     table_id: enum.Enum
@@ -1171,7 +1181,7 @@ class AbstractTableTransformer(ABC):
         return a single dataframe, and that pattern is implemented in the
         :meth:`AbstractTableTransformer.transform` method. In cases where transforms
         take or return more than one dataframe, you will need to define a new transform
-        method within the child class. See :class:`PlantsSteamFerc1TableTransformer`
+        method within the child class. See :class:`SteamPlantsTableTransformer`
         as an example.
         """
         ...

@@ -11,47 +11,54 @@ import sqlalchemy as sa
 from dagster import build_init_resource_context
 
 import pudl
+from pudl.io_managers import PudlSQLiteIOManager
 
 logger = logging.getLogger(__name__)
 
 
-def test_pudl_engine(pudl_engine, pudl_sql_io_manager, check_foreign_keys):
+def test_pudl_engine(
+    pudl_engine: sa.Engine,
+    pudl_sql_io_manager: PudlSQLiteIOManager,
+    check_foreign_keys: bool,
+):
     """Get pudl_engine and do basic inspection.
 
     By default the foreign key checks are not enabled in pudl.sqlite. This test will
     check if there are any foregin key errors if check_foreign_keys is True.
     """
-    assert isinstance(pudl_engine, sa.engine.Engine)  # nosec: B101
+    assert isinstance(pudl_engine, sa.Engine)
     insp = sa.inspect(pudl_engine)
-    assert "plants_pudl" in insp.get_table_names()  # nosec: B101
-    assert "utilities_pudl" in insp.get_table_names()  # nosec: B101
+    assert "core_pudl__entity_plants_pudl" in insp.get_table_names()
+    assert "core_pudl__entity_utilities_pudl" in insp.get_table_names()
 
     if check_foreign_keys:
         # Raises ForeignKeyErrors if there are any
         pudl_sql_io_manager.check_foreign_keys()
 
 
-def test_ferc1_xbrl2sqlite(ferc1_engine_xbrl, ferc1_xbrl_taxonomy_metadata):
+def test_ferc1_xbrl2sqlite(ferc1_engine_xbrl: sa.Engine, ferc1_xbrl_taxonomy_metadata):
     """Attempt to access the XBRL based FERC 1 SQLite DB & XBRL taxonomy metadata.
 
     We're testing both the SQLite & JSON taxonomy here because they are generated
     together by the FERC 1 XBRL ETL.
     """
     # Does the database exist, and contain a table we expect it to contain?
-    assert isinstance(ferc1_engine_xbrl, sa.engine.Engine)  # nosec: B101
-    assert (  # nosec: B101
+    assert isinstance(ferc1_engine_xbrl, sa.Engine)
+    assert (
         "identification_001_duration" in sa.inspect(ferc1_engine_xbrl).get_table_names()
     )
 
     # Has the metadata we've read in from JSON contain a long list of entities?
-    assert isinstance(ferc1_xbrl_taxonomy_metadata, dict)  # nosec: B101
-    assert "plants_steam_ferc1" in ferc1_xbrl_taxonomy_metadata  # nosec: B101
-    assert len(ferc1_xbrl_taxonomy_metadata) > 10  # nosec: B101
-    assert len(ferc1_xbrl_taxonomy_metadata) < 100  # nosec: B101
+    assert isinstance(ferc1_xbrl_taxonomy_metadata, dict)
+    assert "core_ferc1__yearly_steam_plants_sched402" in ferc1_xbrl_taxonomy_metadata
+    assert len(ferc1_xbrl_taxonomy_metadata) > 10
+    assert len(ferc1_xbrl_taxonomy_metadata) < 100
 
     # Can we normalize that list of entities and find data in it that we expect?
     df = pd.json_normalize(
-        ferc1_xbrl_taxonomy_metadata["plant_in_service_ferc1"]["instant"]
+        ferc1_xbrl_taxonomy_metadata["core_ferc1__yearly_plant_in_service_sched204"][
+            "instant"
+        ]
     )
     assert (
         df.loc[
@@ -191,6 +198,6 @@ class TestFerc1ExtractDebugFunctions:
             for table_type, df in xbrl_tables.items():
                 # Some raw xbrl tables are empty
                 if not df.empty and table_type == "duration":
-                    assert (df.report_year >= 2021).all() and (
+                    assert (df.report_year >= 2020).all() and (
                         df.report_year < 2022
                     ).all(), f"Unexpected years found in table: {table_name}"

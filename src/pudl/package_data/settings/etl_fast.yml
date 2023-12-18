@@ -5,23 +5,23 @@
 ferc_to_sqlite_settings:
   ferc1_dbf_to_sqlite_settings:
     # What years of original FERC data should be cloned into the SQLite DB?
-    years: [2020]
+    years: [2019, 2020]
   ferc1_xbrl_to_sqlite_settings:
-    years: [2021]
+    years: [2021, 2022]
   ferc2_dbf_to_sqlite_settings:
-    years: [2020]
+    years: [2019, 2020]
   ferc2_xbrl_to_sqlite_settings:
-    years: [2021]
+    years: [2021, 2022]
   ferc6_dbf_to_sqlite_settings:
-    years: [2020]
+    years: [2019, 2020]
   ferc6_xbrl_to_sqlite_settings:
-    years: [2021]
+    years: [2021, 2022]
   ferc60_dbf_to_sqlite_settings:
-    years: [2020]
+    years: [2019, 2020]
   ferc60_xbrl_to_sqlite_settings:
-    years: [2021]
+    years: [2021, 2022]
   ferc714_xbrl_to_sqlite_settings:
-    years: [2021]
+    years: [2021, 2022]
 
 ###########################################################################
 # Settings for pudl_etl script
@@ -34,12 +34,12 @@ description: >
 version: 0.1.0
 datasets:
   ferc1:
-    years: [2020, 2021]
+    years: [2020, 2021, 2022]
   ferc714:
     years: [2019, 2020]
   eia:
     eia923:
-      years: [2020, 2022]
+      years: [2020, 2023]
     eia860:
       years: [2020, 2022]
       eia860m: true
@@ -75,7 +75,6 @@ datasets:
     # Note that the CEMS data relies on EIA 860 data for plant locations,
     # so if you're loading CEMS data for a particular year, you should
     # also load the EIA 860 data for that year if possible
-    states: [ID, ME]
-    years: [2020, 2022]
+    year_quarters: ["2022q1"]
   phmsagas:
-    start_years: [2010]
+    years: [2020, 2022]

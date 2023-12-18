@@ -42,12 +42,15 @@ databases:
       <a href="https://catalyst.coop">Catalyst Cooperative</a> as part of the
       <a href="https://github.com/catalyst-cooperative/pudl">Public Utility
       Data Liberation Project</a>.</p>
-      <h2>Caution:</h2>
+      <h2>Note:</h2>
       <ul>
-      <li>Please note that tables beginning with "denorm_" are temporary tables whose
-      names and metadata will shortly change, as we migrate new tables into our database.</li>
-      <li>The structure of the data and the API are not necessarily stable, so don't
-      build any critical infrastructure on top of this just yet.</li>
+      <li><strong>We recommend working
+      with tables with the ``out_`` prefix as these tables contain the most complete
+      data.</strong>
+      </li>
+      <li>For more information about the different types of tables, read through
+      <a href="https://catalystcoop-pudl.readthedocs.io/en/dev/naming_conventions.html#asset-naming">PUDL's naming conventions</a>
+      </li>
       <li>If you find something wrong, please
       <a href="https://github.com/catalyst-cooperative/pudl/issues">make an issue
       on GitHub</a> to let us know.</li>
@@ -76,7 +79,8 @@ databases:
           {%- endif %}
         {%- endfor %}
     {%- endfor %}
-  ferc1:
+
+  ferc1_dbf:
   {%- for ferc_ds in data_sources if ferc_ds.name == 'ferc1' %}
     source: Raw FERC Form 1 DBF Files
     source_url: https://doi.org/10.5281/zenodo.4127043
@@ -115,6 +119,7 @@ databases:
     tables:
       f1_respondent_id:
         label_column: respondent_name
+
   ferc1_xbrl:
   {%- for ferc1_xbrl_ds in data_sources if ferc1_xbrl_ds.name == 'ferc1_xbrl' %}
     source: Raw FERC Form 1 XBRL Files
@@ -167,6 +172,45 @@ databases:
           {%- endif %}
         {%- endfor %}
     {%- endfor %}
+
+  ferc2_dbf:
+  {%- for ferc_ds in data_sources if ferc_ds.name == 'ferc2' %}
+    source: Raw FERC Form 2 DBF Files
+    source_url: https://doi.org/10.5281/zenodo.8326697
+    about: {{ ferc_ds.title }}
+    about_url: {{ ferc_ds.path }}
+    license: {{ ferc_ds.license_pudl.name }}
+    license_url: {{ ferc_ds.license_pudl.path }}
+    description_html: |
+      <p>{{ ferc_ds.description }}</p>
+      <p>This database is a concatenation of all the individual annual
+      <a href="{{ ferc_ds.path }}">{{ ferc_ds.title }}</a> Visual FoxPro
+      databases published from {{ ferc_ds.get_temporal_coverage() }}. It has been minimally altered
+      to allow all years of data to coexist in the same database. It contains a
+      wealth of data about the operating costs and financial structures of US
+      electric utilities, much of which is not publicly available from any
+      other source. It was produced by <a href="https://catalyst.coop">Catalyst
+      Cooperative</a> as part of the
+      <a href="https://github.com/catalyst-cooperative/pudl">Public Utility
+      Data Liberation Project</a>.</p>
+      <h2>Caution:</h2>
+      <ul>
+      <li>The structure of the data and the API are not necessarily stable, so don't
+      build any critical infrastructure on top of this just yet.</li>
+      <li>If you find something wrong, please
+      <a href="https://github.com/catalyst-cooperative/pudl/issues">make an issue
+      on GitHub</a> to let us know.</li>
+      <li>If you have a question about the data, you can
+      <a href="https://github.com/orgs/catalyst-cooperative/discussions/new?category=help-me">start a discussion on GitHub</a>.</li>
+      <li>If you find our work useful, please consider
+      <a href="https://www.paypal.com/donate/?cmd=_s-xclick&hosted_button_id=PZBZDFNKBJW5E&source=url">making
+      a recurring contribution</a> to support it.</li>
+      </ul></p>
+  {%- endfor %}
+    tables:
+      f2_respondent_id:
+        label_column: respondent_name
+
   ferc2_xbrl:
   {%- for ferc2_xbrl_ds in data_sources if ferc2_xbrl_ds.name == 'ferc2_xbrl' %}
     source: Raw FERC Form 2 XBRL Files
@@ -219,6 +263,45 @@ databases:
           {%- endif %}
         {%- endfor %}
     {%- endfor %}
+
+  ferc6_dbf:
+  {%- for ferc_ds in data_sources if ferc_ds.name == 'ferc6' %}
+    source: Raw FERC Form 6 DBF Files
+    source_url: https://doi.org/10.5281/zenodo.8326696
+    about: {{ ferc_ds.title }}
+    about_url: {{ ferc_ds.path }}
+    license: {{ ferc_ds.license_pudl.name }}
+    license_url: {{ ferc_ds.license_pudl.path }}
+    description_html: |
+      <p>{{ ferc_ds.description }}</p>
+      <p>This database is a concatenation of all the individual annual
+      <a href="{{ ferc_ds.path }}">{{ ferc_ds.title }}</a> Visual FoxPro
+      databases published from {{ ferc_ds.get_temporal_coverage() }}. It has been minimally altered
+      to allow all years of data to coexist in the same database. It contains a
+      wealth of data about the operating costs and financial structures of US
+      electric utilities, much of which is not publicly available from any
+      other source. It was produced by <a href="https://catalyst.coop">Catalyst
+      Cooperative</a> as part of the
+      <a href="https://github.com/catalyst-cooperative/pudl">Public Utility
+      Data Liberation Project</a>.</p>
+      <h2>Caution:</h2>
+      <ul>
+      <li>The structure of the data and the API are not necessarily stable, so don't
+      build any critical infrastructure on top of this just yet.</li>
+      <li>If you find something wrong, please
+      <a href="https://github.com/catalyst-cooperative/pudl/issues">make an issue
+      on GitHub</a> to let us know.</li>
+      <li>If you have a question about the data, you can
+      <a href="https://github.com/orgs/catalyst-cooperative/discussions/new?category=help-me">start a discussion on GitHub</a>.</li>
+      <li>If you find our work useful, please consider
+      <a href="https://www.paypal.com/donate/?cmd=_s-xclick&hosted_button_id=PZBZDFNKBJW5E&source=url">making
+      a recurring contribution</a> to support it.</li>
+      </ul></p>
+  {%- endfor %}
+    tables:
+      f6_respondent_id:
+        label_column: respondent_name
+
   ferc6_xbrl:
   {%- for ferc6_xbrl_ds in data_sources if ferc6_xbrl_ds.name == 'ferc6_xbrl' %}
     source: Raw FERC Form 6 XBRL Files
@@ -271,6 +354,45 @@ databases:
           {%- endif %}
         {%- endfor %}
     {%- endfor %}
+
+  ferc60_dbf:
+  {%- for ferc_ds in data_sources if ferc_ds.name == 'ferc60' %}
+    source: Raw FERC Form 60 DBF Files
+    source_url: https://doi.org/10.5281/zenodo.8326695
+    about: {{ ferc_ds.title }}
+    about_url: {{ ferc_ds.path }}
+    license: {{ ferc_ds.license_pudl.name }}
+    license_url: {{ ferc_ds.license_pudl.path }}
+    description_html: |
+      <p>{{ ferc_ds.description }}</p>
+      <p>This database is a concatenation of all the individual annual
+      <a href="{{ ferc_ds.path }}">{{ ferc_ds.title }}</a> Visual FoxPro
+      databases published from {{ ferc_ds.get_temporal_coverage() }}. It has been minimally altered
+      to allow all years of data to coexist in the same database. It contains a
+      wealth of data about the operating costs and financial structures of US
+      electric utilities, much of which is not publicly available from any
+      other source. It was produced by <a href="https://catalyst.coop">Catalyst
+      Cooperative</a> as part of the
+      <a href="https://github.com/catalyst-cooperative/pudl">Public Utility
+      Data Liberation Project</a>.</p>
+      <h2>Caution:</h2>
+      <ul>
+      <li>The structure of the data and the API are not necessarily stable, so don't
+      build any critical infrastructure on top of this just yet.</li>
+      <li>If you find something wrong, please
+      <a href="https://github.com/catalyst-cooperative/pudl/issues">make an issue
+      on GitHub</a> to let us know.</li>
+      <li>If you have a question about the data, you can
+      <a href="https://github.com/orgs/catalyst-cooperative/discussions/new?category=help-me">start a discussion on GitHub</a>.</li>
+      <li>If you find our work useful, please consider
+      <a href="https://www.paypal.com/donate/?cmd=_s-xclick&hosted_button_id=PZBZDFNKBJW5E&source=url">making
+      a recurring contribution</a> to support it.</li>
+      </ul></p>
+  {%- endfor %}
+    tables:
+      f6_respondent_id:
+        label_column: respondent_name
+
   ferc60_xbrl:
   {%- for ferc60_xbrl_ds in data_sources if ferc60_xbrl_ds.name == 'ferc60_xbrl' %}
     source: Raw FERC Form 60 XBRL Files
@@ -323,6 +445,7 @@ databases:
           {%- endif %}
         {%- endfor %}
     {%- endfor %}
+
   ferc714_xbrl:
   {%- for ferc714_xbrl_ds in data_sources if ferc714_xbrl_ds.name == 'ferc714_xbrl' %}
     source: Raw FERC Form 714 XBRL Files

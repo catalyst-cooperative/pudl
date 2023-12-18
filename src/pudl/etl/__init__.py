@@ -21,6 +21,8 @@ from pudl.resources import dataset_settings, datastore, ferc_to_sqlite_settings
 from pudl.settings import EtlSettings
 
 from . import (
+    check_foreign_keys,
+    cli,
     eia_bulk_elec_assets,
     epacems_assets,
     glue_assets,
@@ -30,27 +32,31 @@ from . import (
 logger = pudl.logging_helpers.get_logger(__name__)
 
 default_assets = (
-    *load_assets_from_modules([eia_bulk_elec_assets], group_name="eia_bulk_elec"),
-    *load_assets_from_modules([epacems_assets], group_name="epacems"),
+    *load_assets_from_modules([eia_bulk_elec_assets], group_name="core_eia_bulk_elec"),
+    *load_assets_from_modules([epacems_assets], group_name="core_epacems"),
     *load_assets_from_modules([pudl.extract.phmsagas], group_name="raw_phmsagas"),
     *load_assets_from_modules([pudl.extract.eia860], group_name="raw_eia860"),
     *load_assets_from_modules([pudl.transform.eia860], group_name="_core_eia860"),
     *load_assets_from_modules([pudl.extract.eia861], group_name="raw_eia861"),
-    *load_assets_from_modules([pudl.transform.eia861], group_name="clean_eia861"),
+    *load_assets_from_modules(
+        [pudl.transform.eia861], group_name="core_eia861"
+    ),  # TODO: move one _core asset to separate module?
     *load_assets_from_modules([pudl.extract.eia923], group_name="raw_eia923"),
     *load_assets_from_modules([pudl.transform.eia923], group_name="_core_eia923"),
-    *load_assets_from_modules([pudl.transform.eia], group_name="norm_eia"),
+    *load_assets_from_modules([pudl.transform.eia], group_name="core_eia"),
     *load_assets_from_modules([pudl.extract.ferc1], group_name="raw_ferc1"),
-    *load_assets_from_modules([pudl.transform.ferc1], group_name="norm_ferc1"),
+    *load_assets_from_modules([pudl.transform.ferc1], group_name="core_ferc1"),
     *load_assets_from_modules([pudl.extract.ferc714], group_name="raw_ferc714"),
-    *load_assets_from_modules([pudl.transform.ferc714], group_name="clean_ferc714"),
-    *load_assets_from_modules([pudl.output.ferc714], group_name="respondents_ferc714"),
+    *load_assets_from_modules([pudl.transform.ferc714], group_name="core_ferc714"),
+    *load_assets_from_modules(
+        [pudl.output.ferc714], group_name="out_respondents_ferc714"
+    ),
     *load_assets_from_modules(
         [pudl.convert.censusdp1tract_to_sqlite, pudl.output.censusdp1tract],
-        group_name="censusdp1",
+        group_name="core_censusdp1",
     ),
-    *load_assets_from_modules([glue_assets], group_name="glue"),
-    *load_assets_from_modules([static_assets], group_name="static"),
+    *load_assets_from_modules([glue_assets], group_name="core_assn"),
+    *load_assets_from_modules([static_assets], group_name="core_codes"),
     *load_assets_from_modules(
         [
             pudl.output.eia,
@@ -58,22 +64,24 @@ default_assets = (
             pudl.output.eia923,
             pudl.output.eia_bulk_elec,
         ],
-        group_name="denorm_eia",
+        group_name="out_eia",
     ),
     *load_assets_from_modules(
-        [pudl.analysis.allocate_gen_fuel], group_name="allocate_gen_fuel"
-    ),
-    *load_assets_from_modules([pudl.analysis.mcoe], group_name="mcoe"),
-    *load_assets_from_modules([pudl.output.ferc1], group_name="denorm_ferc1"),
-    *load_assets_from_modules(
-        [pudl.analysis.service_territory], group_name="service_territory_eia861"
+        [pudl.analysis.allocate_gen_fuel], group_name="out_allocate_gen_fuel"
     ),
     *load_assets_from_modules(
-        [pudl.analysis.state_demand], group_name="state_demand_ferc714"
+        [pudl.analysis.mcoe], group_name="out_derived_gen_attributes"
+    ),
+    *load_assets_from_modules([pudl.output.ferc1], group_name="out_ferc1"),
+    *load_assets_from_modules(
+        [pudl.analysis.service_territory], group_name="out_service_territory_eia861"
     ),
     *load_assets_from_modules(
-        [pudl.analysis.plant_parts_eia, pudl.analysis.ferc1_eia_record_linkage],
-        group_name="ferc1_eia_record_linkage",
+        [pudl.analysis.state_demand], group_name="out_state_demand_ferc714"
+    ),
+    *load_assets_from_modules(
+        [pudl.analysis.plant_parts_eia, pudl.analysis.eia_ferc1_record_linkage],
+        group_name="eia_ferc1_record_linkage",
     ),
 )
 
@@ -86,6 +94,18 @@ default_resources = {
     "ferc_to_sqlite_settings": ferc_to_sqlite_settings,
     "epacems_io_manager": epacems_io_manager,
 }
+
+# By default, limit CEMS year processing concurrency to prevent memory overload.
+default_tag_concurrency_limits = [
+    {
+        "key": "datasource",
+        "value": "epacems",
+        "limit": 2,
+    }
+]
+default_config = pudl.helpers.get_dagster_execution_config(
+    tag_concurrency_limits=default_tag_concurrency_limits
+)
 
 
 def create_non_cems_selection(all_assets: list[AssetsDefinition]) -> AssetSelection:
@@ -100,7 +120,7 @@ def create_non_cems_selection(all_assets: list[AssetsDefinition]) -> AssetSelect
     all_asset_keys = pudl.helpers.get_asset_keys(all_assets)
     all_selection = AssetSelection.keys(*all_asset_keys)
 
-    cems_selection = AssetSelection.keys(AssetKey("hourly_emissions_epacems"))
+    cems_selection = AssetSelection.keys(AssetKey("core_epacems__hourly_emissions"))
     return all_selection - cems_selection.downstream()
 
 
@@ -116,7 +136,7 @@ def load_dataset_settings_from_file(setting_filename: str) -> dict:
     dataset_settings = EtlSettings.from_yaml(
         importlib.resources.files("pudl.package_data.settings")
         / f"{setting_filename}.yml"
-    ).datasets.dict()
+    ).datasets.model_dump()
 
     return dataset_settings
 
@@ -126,17 +146,20 @@ defs: Definitions = Definitions(
     resources=default_resources,
     jobs=[
         define_asset_job(
-            name="etl_full", description="This job executes all years of all assets."
+            name="etl_full",
+            description="This job executes all years of all assets.",
+            config=default_config,
         ),
         define_asset_job(
             name="etl_full_no_cems",
             selection=create_non_cems_selection(default_assets),
             description="This job executes all years of all assets except the "
-            "hourly_emissions_epacems asset and all assets downstream.",
+            "core_epacems__hourly_emissions asset and all assets downstream.",
         ),
         define_asset_job(
             name="etl_fast",
-            config={
+            config=default_config
+            | {
                 "resources": {
                     "dataset_settings": {
                         "config": load_dataset_settings_from_file("etl_fast")
@@ -156,7 +179,7 @@ defs: Definitions = Definitions(
                 }
             },
             description="This job executes the most recent year of each asset except the "
-            "hourly_emissions_epacems asset and all assets downstream.",
+            "core_epacems__hourly_emissions asset and all assets downstream.",
         ),
     ],
 )

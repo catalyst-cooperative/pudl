@@ -1,4 +1,4 @@
-"""Predict state-level electricity demand.
+"""Estimate historical hourly state-level electricity demand.
 
 Using hourly electricity demand reported at the balancing authority and utility level in
 the FERC 714, and service territories for utilities and balancing autorities inferred
@@ -15,27 +15,19 @@ The compilation of historical service territories based on the EIA 861 data is s
 manual and could certainly be improved, but overall the results seem reasonable.
 Additional predictive spatial variables will be required to obtain more granular
 electricity demand estimates (e.g. at the county level).
-
-Currently the script takes no arguments and simply runs a predefined analysis across all
-states and all years for which both EIA 861 and FERC 714 data are available, and outputs
-the results as a CSV in PUDL_DIR/local/state-demand/demand.csv
 """
-import argparse
 import datetime
-import sys
 from collections.abc import Iterable
 from typing import Any
 
 import geopandas as gpd
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from dagster import AssetKey, AssetOut, Field, asset, multi_asset
+from dagster import AssetOut, Field, asset, multi_asset
 
 import pudl.analysis.timeseries_cleaning
 import pudl.logging_helpers
 import pudl.output.pudltabl
-import pudl.workspace.setup
 from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -128,13 +120,13 @@ def local_to_utc(local: pd.Series, tz: Iterable, **kwargs: Any) -> pd.Series:
     """Convert local times to UTC.
 
     Args:
-        local: Local times (tz-naive `datetime64[ns]`).
+        local: Local times (tz-naive ``datetime64[ns]``).
         tz: For each time, a timezone (see :meth:`DatetimeIndex.tz_localize`)
-          or UTC offset in hours (`int` or `float`).
+            or UTC offset in hours (``int`` or ``float``).
         kwargs: Optional arguments to :meth:`DatetimeIndex.tz_localize`.
 
     Returns:
-        UTC times (tz-naive `datetime64[ns]`).
+        UTC times (tz-naive ``datetime64[ns]``).
 
     Examples:
         >>> s = pd.Series([pd.Timestamp(2020, 1, 1), pd.Timestamp(2020, 1, 1)])
@@ -147,7 +139,7 @@ def local_to_utc(local: pd.Series, tz: Iterable, **kwargs: Any) -> pd.Series:
         1   2020-01-01 06:00:00
         dtype: datetime64[ns]
     """
-    return local.groupby(tz).transform(
+    return local.groupby(tz, observed=True).transform(
         lambda x: x.dt.tz_localize(
             datetime.timezone(datetime.timedelta(hours=x.name))
             if isinstance(x.name, int | float)
@@ -161,12 +153,12 @@ def utc_to_local(utc: pd.Series, tz: Iterable) -> pd.Series:
     """Convert UTC times to local.
 
     Args:
-        utc: UTC times (tz-naive `datetime64[ns]` or `datetime64[ns, UTC]`).
+        utc: UTC times (tz-naive ``datetime64[ns]`` or ``datetime64[ns, UTC]``).
         tz: For each time, a timezone (see :meth:`DatetimeIndex.tz_localize`)
-          or UTC offset in hours (`int` or `float`).
+          or UTC offset in hours (``int`` or ``float``).
 
     Returns:
-        Local times (tz-naive `datetime64[ns]`).
+        Local times (tz-naive ``datetime64[ns]``).
 
     Examples:
         >>> s = pd.Series([pd.Timestamp(2020, 1, 1), pd.Timestamp(2020, 1, 1)])
@@ -181,7 +173,7 @@ def utc_to_local(utc: pd.Series, tz: Iterable) -> pd.Series:
     """
     if utc.dt.tz is None:
         utc = utc.dt.tz_localize("UTC")
-    return utc.groupby(tz).transform(
+    return utc.groupby(tz, observed=True).transform(
         lambda x: x.dt.tz_convert(
             datetime.timezone(datetime.timedelta(hours=x.name))
             if isinstance(x.name, int | float)
@@ -267,17 +259,17 @@ def load_ventyx_hourly_state_demand(path: str) -> pd.DataFrame:
 @multi_asset(
     compute_kind="Python",
     outs={
-        "raw_hourly_demand_matrix_ferc714": AssetOut(),
-        "utc_offset_ferc714": AssetOut(),
+        "_out_ferc714__hourly_pivoted_demand_matrix": AssetOut(),
+        "_out_ferc714__utc_offset": AssetOut(),
     },
 )
 def load_hourly_demand_matrix_ferc714(
-    demand_hourly_pa_ferc714: pd.DataFrame,
+    core_ferc714__hourly_demand_pa: pd.DataFrame,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Read and format FERC 714 hourly demand into matrix form.
 
     Args:
-        demand_hourly_pa_ferc714: FERC 714 hourly demand time series by planning area.
+        core_ferc714__hourly_demand_pa: FERC 714 hourly demand time series by planning area.
 
     Returns:
         Hourly demand as a matrix with a `datetime` row index
@@ -288,19 +280,22 @@ def load_hourly_demand_matrix_ferc714(
         of each `respondent_id_ferc714` and reporting `year` (int).
     """
     # Convert UTC to local time (ignoring daylight savings)
-    demand_hourly_pa_ferc714["utc_offset"] = demand_hourly_pa_ferc714["timezone"].map(
-        STANDARD_UTC_OFFSETS
-    )
-    demand_hourly_pa_ferc714["datetime"] = utc_to_local(
-        demand_hourly_pa_ferc714["utc_datetime"], demand_hourly_pa_ferc714["utc_offset"]
+    core_ferc714__hourly_demand_pa["utc_offset"] = core_ferc714__hourly_demand_pa[
+        "timezone"
+    ].map(STANDARD_UTC_OFFSETS)
+    core_ferc714__hourly_demand_pa["datetime"] = utc_to_local(
+        core_ferc714__hourly_demand_pa["utc_datetime"],
+        core_ferc714__hourly_demand_pa["utc_offset"],
     )
     # Pivot to demand matrix: timestamps x respondents
-    matrix = demand_hourly_pa_ferc714.pivot(
+    matrix = core_ferc714__hourly_demand_pa.pivot(
         index="datetime", columns="respondent_id_ferc714", values="demand_mwh"
     )
     # List timezone by year for each respondent
-    demand_hourly_pa_ferc714["year"] = demand_hourly_pa_ferc714["report_date"].dt.year
-    utc_offset = demand_hourly_pa_ferc714.groupby(
+    core_ferc714__hourly_demand_pa["year"] = core_ferc714__hourly_demand_pa[
+        "report_date"
+    ].dt.year
+    utc_offset = core_ferc714__hourly_demand_pa.groupby(
         ["respondent_id_ferc714", "year"], as_index=False
     )["utc_offset"].first()
     return matrix, utc_offset
@@ -454,13 +449,13 @@ def melt_ferc714_hourly_demand_matrix(
         ),
     },
 )
-def clean_hourly_demand_matrix_ferc714(
-    context, raw_hourly_demand_matrix_ferc714: pd.DataFrame
+def _out_ferc714__hourly_demand_matrix(
+    context, _out_ferc714__hourly_pivoted_demand_matrix: pd.DataFrame
 ) -> pd.DataFrame:
     """Cleaned and nulled FERC 714 hourly demand matrix.
 
     Args:
-        raw_hourly_demand_matrix_ferc714: FERC 714 hourly demand data in a matrix form.
+        _out_ferc714__hourly_pivoted_demand_matrix: FERC 714 hourly demand data in a matrix form.
 
     Returns:
         df: Matrix with nulled anomalous values, where respondent-years with too few responses
@@ -468,7 +463,7 @@ def clean_hourly_demand_matrix_ferc714(
     """
     min_data = context.op_config["min_data"]
     min_data_fraction = context.op_config["min_data_fraction"]
-    df = clean_ferc714_hourly_demand_matrix(raw_hourly_demand_matrix_ferc714)
+    df = clean_ferc714_hourly_demand_matrix(_out_ferc714__hourly_pivoted_demand_matrix)
     df = filter_ferc714_hourly_demand_matrix(
         df, min_data=min_data, min_data_fraction=min_data_fraction
     )
@@ -476,8 +471,9 @@ def clean_hourly_demand_matrix_ferc714(
 
 
 @asset(compute_kind="Python")
-def imputed_hourly_demand_ferc714(
-    clean_hourly_demand_matrix_ferc714: pd.DataFrame, utc_offset_ferc714: pd.DataFrame
+def _out_ferc714__hourly_imputed_demand(
+    _out_ferc714__hourly_demand_matrix: pd.DataFrame,
+    _out_ferc714__utc_offset: pd.DataFrame,
 ) -> pd.DataFrame:
     """Imputed FERC714 hourly demand in long format.
 
@@ -486,14 +482,14 @@ def imputed_hourly_demand_ferc714(
     melt data into a long format.
 
     Args:
-        clean_hourly_demand_matrix_ferc714: Cleaned hourly demand matrix from FERC 714.
-        utc_offset_ferc714: Timezone by year for each respondent.
+        _out_ferc714__hourly_demand_matrix: Cleaned hourly demand matrix from FERC 714.
+        _out_ferc714__utc_offset: Timezone by year for each respondent.
 
     Returns:
         df: DataFrame with imputed FERC714 hourly demand.
     """
-    df = impute_ferc714_hourly_demand_matrix(clean_hourly_demand_matrix_ferc714)
-    df = melt_ferc714_hourly_demand_matrix(df, utc_offset_ferc714)
+    df = impute_ferc714_hourly_demand_matrix(_out_ferc714__hourly_demand_matrix)
+    df = melt_ferc714_hourly_demand_matrix(df, _out_ferc714__utc_offset)
     return df
 
 
@@ -501,19 +497,19 @@ def imputed_hourly_demand_ferc714(
 
 
 def county_assignments_ferc714(
-    fipsified_respondents_ferc714,
+    out_ferc714__respondents_with_fips,
 ) -> pd.DataFrame:
     """Load FERC 714 county assignments.
 
     Args:
-        fipsified_respondents_ferc714: From `pudl.output.ferc714`, FERC 714 respondents
+        out_ferc714__respondents_with_fips: From `pudl.output.ferc714`, FERC 714 respondents
             with county FIPS IDs.
 
     Returns:
         Dataframe with columns
         `respondent_id_ferc714`, report `year` (int), and `county_id_fips`.
     """
-    df = fipsified_respondents_ferc714[
+    df = out_ferc714__respondents_with_fips[
         ["respondent_id_ferc714", "county_id_fips", "report_date"]
     ]
     # Drop rows where county is blank or a duplicate
@@ -524,7 +520,9 @@ def county_assignments_ferc714(
     return df
 
 
-def census_counties(county_censusdp1: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+def census_counties(
+    core_censusdp1__entity_county: gpd.GeoDataFrame,
+) -> gpd.GeoDataFrame:
     """Load county attributes.
 
     Args:
@@ -533,7 +531,7 @@ def census_counties(county_censusdp1: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     Returns:
         Dataframe with columns `county_id_fips` and `population`.
     """
-    return county_censusdp1[["geoid10", "dp0010001"]].rename(
+    return core_censusdp1__entity_county[["geoid10", "dp0010001"]].rename(
         columns={"geoid10": "county_id_fips", "dp0010001": "population"}
     )
 
@@ -542,17 +540,17 @@ def census_counties(county_censusdp1: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
 
 
 def total_state_sales_eia861(
-    sales_eia861,
+    core_eia861__yearly_sales,
 ) -> pd.DataFrame:
     """Read and format EIA 861 sales by state and year.
 
     Args:
-        sales_eia861: Electricity sales data from EIA 861.
+        core_eia861__yearly_sales: Electricity sales data from EIA 861.
 
     Returns:
         Dataframe with columns `state_id_fips`, `year`, `demand_mwh`.
     """
-    df = sales_eia861.groupby(["state", "report_date"], as_index=False)[
+    df = core_eia861__yearly_sales.groupby(["state", "report_date"], as_index=False)[
         "sales_mwh"
     ].sum()
     # Convert report_date to year
@@ -581,40 +579,41 @@ def total_state_sales_eia861(
         ),
     },
 )
-def predicted_state_hourly_demand(
+def out_ferc714__hourly_predicted_state_demand(
     context,
-    imputed_hourly_demand_ferc714: pd.DataFrame,
-    county_censusdp1: pd.DataFrame,
-    fipsified_respondents_ferc714: pd.DataFrame,
-    sales_eia861: pd.DataFrame = None,
+    _out_ferc714__hourly_imputed_demand: pd.DataFrame,
+    core_censusdp1__entity_county: pd.DataFrame,
+    out_ferc714__respondents_with_fips: pd.DataFrame,
+    core_eia861__yearly_sales: pd.DataFrame = None,
 ) -> pd.DataFrame:
     """Predict state hourly demand.
 
     Args:
-        imputed_hourly_demand_ferc714: Hourly demand timeseries, with columns
+        _out_ferc714__hourly_imputed_demand: Hourly demand timeseries, with columns
           `respondent_id_ferc714`, report `year`, `utc_datetime`, and `demand_mwh`.
-        county_censusdp1: The county layer of the Census DP1 shapefile.
-        fipsified_respondents_ferc714: Annual respondents with the county FIPS IDs
+        core_censusdp1__entity_county: The county layer of the Census DP1 shapefile.
+        out_ferc714__respondents_with_fips: Annual respondents with the county FIPS IDs
             for their service territories.
-        sales_eia861: EIA 861 sales data. If provided, the predicted hourly demand is
+        core_eia861__yearly_sales: EIA 861 sales data. If provided, the predicted hourly demand is
             scaled to match these totals.
 
     Returns:
-        Dataframe with columns
-        `state_id_fips`, `utc_datetime`, `demand_mwh`, and
-        (if `state_totals` was provided) `scaled_demand_mwh`.
+        Dataframe with columns ``state_id_fips``, ``utc_datetime``, ``demand_mwh``, and
+        (if ``state_totals`` was provided) ``scaled_demand_mwh``.
     """
     # Get config
     mean_overlaps = context.op_config["mean_overlaps"]
 
     # Call necessary functions
-    count_assign_ferc714 = county_assignments_ferc714(fipsified_respondents_ferc714)
-    counties = census_counties(county_censusdp1)
-    total_sales_eia861 = total_state_sales_eia861(sales_eia861)
+    count_assign_ferc714 = county_assignments_ferc714(
+        out_ferc714__respondents_with_fips
+    )
+    counties = census_counties(core_censusdp1__entity_county)
+    total_sales_eia861 = total_state_sales_eia861(core_eia861__yearly_sales)
 
     # Pre-compute list of respondent-years with demand
     with_demand = (
-        imputed_hourly_demand_ferc714.groupby(
+        _out_ferc714__hourly_imputed_demand.groupby(
             ["respondent_id_ferc714", "year"], as_index=False
         )["demand_mwh"]
         .sum()
@@ -648,7 +647,7 @@ def predicted_state_hourly_demand(
     )["weight"].sum()
     # Multiply respondent-state weights with demands
     df = weights.merge(
-        imputed_hourly_demand_ferc714, on=["respondent_id_ferc714", "year"]
+        _out_ferc714__hourly_imputed_demand, on=["respondent_id_ferc714", "year"]
     )
     df["demand_mwh"] *= df["weight"]
     # Scale estimates using state totals
@@ -665,233 +664,3 @@ def predicted_state_hourly_demand(
     # Sum demand by state by matching UTC time
     fields = [x for x in ["demand_mwh", "scaled_demand_mwh"] if x in df]
     return df.groupby(["state_id_fips", "utc_datetime"], as_index=False)[fields].sum()
-
-
-def plot_demand_timeseries(
-    a: pd.DataFrame,
-    b: pd.DataFrame = None,
-    window: int = 168,
-    title: str = None,
-    path: str = None,
-) -> None:
-    """Make a timeseries plot of predicted and reference demand.
-
-    Args:
-        a: Predicted demand with columns `utc_datetime` and any of
-          `demand_mwh` (in grey) and `scaled_demand_mwh` (in orange).
-        b: Reference demand with columns `utc_datetime` and `demand_mwh` (in red).
-        window: Width of window (in rows) to use to compute rolling means,
-          or `None` to plot raw values.
-        title: Plot title.
-        path: Plot path. If provided, the figure is saved to file and closed.
-    """
-    plt.figure(figsize=(16, 8))
-    # Plot predicted
-    for field, color in [("demand_mwh", "grey"), ("scaled_demand_mwh", "orange")]:
-        if field not in a:
-            continue
-        y = a[field]
-        if window:
-            y = y.rolling(window).mean()
-        plt.plot(
-            a["utc_datetime"], y, color=color, alpha=0.5, label=f"Predicted ({field})"
-        )
-    # Plot expected
-    if b is not None:
-        y = b["demand_mwh"]
-        if window:
-            y = y.rolling(window).mean()
-        plt.plot(
-            b["utc_datetime"], y, color="red", alpha=0.5, label="Reference (demand_mwh)"
-        )
-    if title:
-        plt.title(title)
-    plt.ylabel("Demand (MWh)")
-    plt.legend()
-    if path:
-        plt.savefig(path, bbox_inches="tight")
-        plt.close()
-
-
-def plot_demand_scatter(
-    a: pd.DataFrame,
-    b: pd.DataFrame,
-    title: str = None,
-    path: str = None,
-) -> None:
-    """Make a scatter plot comparing predicted and reference demand.
-
-    Args:
-        a: Predicted demand with columns `utc_datetime` and any of
-          `demand_mwh` (in grey) and `scaled_demand_mwh` (in orange).
-        b: Reference demand with columns `utc_datetime` and `demand_mwh`.
-          Every element in `utc_datetime` must match the one in `a`.
-        title: Plot title.
-        path: Plot path. If provided, the figure is saved to file and closed.
-
-    Raises:
-        ValueError: Datetime columns do not match.
-    """
-    if not a["utc_datetime"].equals(b["utc_datetime"]):
-        raise ValueError("Datetime columns do not match")
-    plt.figure(figsize=(8, 8))
-    plt.gca().set_aspect("equal")
-    plt.axline((0, 0), (1, 1), linestyle=":", color="grey")
-    for field, color in [("demand_mwh", "grey"), ("scaled_demand_mwh", "orange")]:
-        if field not in a:
-            continue
-        plt.scatter(
-            b["demand_mwh"],
-            a[field],
-            c=color,
-            s=0.1,
-            alpha=0.5,
-            label=f"Prediction ({field})",
-        )
-    if title:
-        plt.title(title)
-    plt.xlabel("Reference (MWh)")
-    plt.ylabel("Predicted (MWh)")
-    plt.legend()
-    if path:
-        plt.savefig(path, bbox_inches="tight")
-        plt.close()
-
-
-def compare_state_demand(
-    a: pd.DataFrame, b: pd.DataFrame, scaled: bool = True
-) -> pd.DataFrame:
-    """Compute statistics comparing predicted and reference demand.
-
-    Statistics are computed for each year.
-
-    Args:
-        a: Predicted demand with columns `utc_datetime` and either
-          `demand_mwh` (if `scaled=False) or `scaled_demand_mwh` (if `scaled=True`).
-        b: Reference demand with columns `utc_datetime` and `demand_mwh`.
-          Every element in `utc_datetime` must match the one in `a`.
-
-    Returns:
-        Dataframe with columns `year`,
-        `rmse` (root mean square error), and `mae` (mean absolute error).
-
-    Raises:
-        ValueError: Datetime columns do not match.
-    """
-    if not a["utc_datetime"].equals(b["utc_datetime"]):
-        raise ValueError("Datetime columns do not match")
-    field = "scaled_demand_mwh" if scaled else "demand_mwh"
-    df = pd.DataFrame(
-        {
-            "year": a["utc_datetime"].dt.year,
-            "diff": a[field] - b["demand_mwh"],
-        }
-    )
-    return df.groupby(["year"], as_index=False)["diff"].agg(
-        {
-            "rmse": lambda x: np.sqrt(np.sum(x**2) / x.size),
-            "mae": lambda x: np.sum(np.abs(x)) / x.size,
-        }
-    )
-
-
-# --- Parse Command Line Args --- #
-def parse_command_line(argv):
-    """Skeletal command line argument parser to provide a help message."""
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "--logfile",
-        default=None,
-        type=str,
-        help="If specified, write logs to this file.",
-    )
-    parser.add_argument(
-        "--loglevel",
-        help="Set logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL).",
-        default="INFO",
-    )
-    return parser.parse_args(argv[1:])
-
-
-# --- Example usage --- #
-
-
-def main():
-    """Predict state demand."""
-    # --- Parse command line args --- #
-    args = parse_command_line(sys.argv)
-
-    # --- Connect to PUDL logger --- #
-    pudl.logging_helpers.configure_root_logger(
-        logfile=args.logfile, loglevel=args.loglevel
-    )
-
-    # --- Connect to PUDL database --- #
-
-    # --- Read in inputs from PUDL + dagster cache --- #
-    prediction = pudl.etl.defs.load_asset_value(
-        AssetKey("predicted_state_hourly_demand")
-    )
-
-    # --- Export results --- #
-
-    local_dir = pudl.workspace.setup.PudlPaths().data_dir / "local"
-    ventyx_path = local_dir / "ventyx/state_level_load_2007_2018.csv"
-    base_dir = local_dir / "state-demand"
-    base_dir.mkdir(parents=True, exist_ok=True)
-    demand_path = base_dir / "demand.csv"
-    stats_path = base_dir / "demand-stats.csv"
-    timeseries_dir = base_dir / "timeseries"
-    timeseries_dir.mkdir(parents=True, exist_ok=True)
-    scatter_dir = base_dir / "scatter"
-    scatter_dir.mkdir(parents=True, exist_ok=True)
-
-    # Write predicted hourly state demand
-    prediction.to_csv(
-        demand_path, index=False, date_format="%Y%m%dT%H", float_format="%.1f"
-    )
-
-    # Load Ventyx as reference if available
-    reference = None
-    if ventyx_path.exists():
-        reference = load_ventyx_hourly_state_demand(ventyx_path)
-
-    # Plots and statistics
-    stats = []
-    for fips in prediction["state_id_fips"].unique():
-        state = lookup_state(fips)
-        # Filter demand by state
-        a = prediction.query(f"state_id_fips == '{fips}'")
-        b = None
-        title = f'{state["fips"]}: {state["name"]} ({state["code"]})'
-        plot_name = f'{state["fips"]}-{state["name"]}.png'
-        if reference is not None:
-            b = reference.query(f"state_id_fips == '{fips}'")
-        # Save timeseries plot
-        plot_demand_timeseries(
-            a, b=b, window=168, title=title, path=timeseries_dir / plot_name
-        )
-        if b is None or b.empty:
-            continue
-        # Align predicted and reference demand
-        a = a.set_index("utc_datetime")
-        b = b.set_index("utc_datetime")
-        index = a.index.intersection(b.index)
-        a = a.loc[index].reset_index()
-        b = b.loc[index].reset_index()
-        # Compute statistics
-        stat = compare_state_demand(a, b, scaled=True)
-        stat["state_id_fips"] = fips
-        stats.append(stat)
-        # Save scatter plot
-        plot_demand_scatter(a, b=b, title=title, path=scatter_dir / plot_name)
-
-    # Write statistics
-    if reference is not None:
-        pd.concat(stats, ignore_index=True).to_csv(
-            stats_path, index=False, float_format="%.1f"
-        )
-
-
-if __name__ == "__main__":
-    sys.exit(main())
