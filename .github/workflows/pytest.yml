@@ -106,11 +106,11 @@ jobs:
 
       - name: Test pushing a tag
         run: |
-          echo "RUN_DATE=$(date +%Y-%m-%d)" >> $GITHUB_ENV
+          echo "NIGHTLY_TAG=nightly-$(date +%Y-%m-%d)" >> $GITHUB_ENV
           git config user.email "pudl@catalyst.coop"
           git config user.name "PudlBot"
-          git tag -a -m "Testy McTesterTag" test-${{ env.RUN_DATE }}
-          git push origin test-${{ env.RUN_DATE }}
+          git tag -a -m "$NIGHTLY_TAG" $NIGHTLY_TAG
+          git push origin $NIGHTLY_TAG
 
   ci-integration:
     runs-on:
