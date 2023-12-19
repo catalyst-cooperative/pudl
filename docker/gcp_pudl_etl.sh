@@ -68,9 +68,13 @@ function copy_outputs_to_gcs() {
 }
 
 function copy_outputs_to_distribution_bucket() {
+    echo "Removing old outputs from GCP distributon bucket."
+    gsutil -m -u $GCP_BILLING_PROJECT rm -r "gs://pudl.catalyst.coop/$GITHUB_REF"
     echo "Copying outputs to GCP distribution bucket"
     gsutil -m -u $GCP_BILLING_PROJECT cp -r "$PUDL_OUTPUT/*" "gs://pudl.catalyst.coop/$GITHUB_REF"
 
+    echo "Removing old outputs from AWS distributon bucket."
+    aws s3 rm "s3://pudl.catalyst.coop/$GITHUB_REF" --recursive
     echo "Copying outputs to AWS distribution bucket"
     aws s3 cp "$PUDL_OUTPUT/" "s3://pudl.catalyst.coop/$GITHUB_REF" --recursive
 }
