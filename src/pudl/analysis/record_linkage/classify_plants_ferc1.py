@@ -143,9 +143,9 @@ def merge_steam_fuel_dfs(
 
 
 @graph_asset
-def _out_ferc1__yearly_steam_plants_sched402(
-    plants_steam_ferc1: pd.DataFrame,
-    denorm_fuel_by_plant_ferc1: pd.DataFrame,
+def _out_ferc1__yearly_steam_plants_sched402_with_plant_ids(
+    core_ferc1__yearly_steam_plants_sched402: pd.DataFrame,
+    out_ferc1__yearly_steam_plants_fuel_by_plant_sched402: pd.DataFrame,
 ) -> pd.DataFrame:
     """Assign IDs to the large steam plants."""
     ###########################################################################
@@ -155,11 +155,14 @@ def _out_ferc1__yearly_steam_plants_sched402(
     # do this for us.
     logger.info("Identifying distinct large FERC plants for ID assignment.")
 
-    input_df = merge_steam_fuel_dfs(plants_steam_ferc1, denorm_fuel_by_plant_ferc1)
+    input_df = merge_steam_fuel_dfs(
+        core_ferc1__yearly_steam_plants_sched402,
+        out_ferc1__yearly_steam_plants_fuel_by_plant_sched402,
+    )
     feature_matrix = ferc_datframe_embedder(input_df)
     label_df = link_ids_cross_year(input_df, feature_matrix)
 
-    return plants_steam_validate_ids(plants_steam_ferc1, label_df)
+    return plants_steam_validate_ids(core_ferc1__yearly_steam_plants_sched402, label_df)
 
 
 def revert_filled_in_string_nulls(df: pd.DataFrame) -> pd.DataFrame:

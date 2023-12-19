@@ -2,7 +2,7 @@
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
-    "boilers_eia860": {
+    "core_eia860__scd_boilers": {
         "description": (
             "Annually varying boiler attributes, compiled from across all EIA-860 data."
         ),
@@ -104,13 +104,13 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "foreign_key_rules": {
                 "fields": [["plant_id_eia", "boiler_id", "report_date"]],
                 # TODO: Excluding monthly data tables since their report_date
-                # values don't match up with generators_eia860, which is annual,
+                # values don't match up with core_eia860__scd_generators, which is annual,
                 # so non-january records violate the constraint.
                 # See: https://github.com/catalyst-cooperative/pudl/issues/1196
                 "exclude": [
-                    "boiler_fuel_eia923",
-                    "denorm_boiler_fuel_eia923",
-                    "denorm_boiler_fuel_monthly_eia923",
+                    "core_eia923__monthly_boiler_fuel",
+                    "out_eia923__boiler_fuel",
+                    "out_eia923__monthly_boiler_fuel",
                 ],
             },
         },
@@ -118,7 +118,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia860", "eia923"],
         "etl_group": "eia860",
     },
-    "boiler_generator_assn_eia860": {
+    "core_eia860__assn_boiler_generator": {
         "description": (
             "Associations between boilers and generators as reported in EIA-860 "
             "Schedule 6, Part A. Augmented with various heuristics within PUDL."
@@ -142,7 +142,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia860", "eia923"],
         "etl_group": "eia860",
     },
-    "generators_eia860": {
+    "core_eia860__scd_generators": {
         "description": (
             "Annually varying generator attributes compiled from across EIA-860 and "
             "EIA-923 data."
@@ -223,23 +223,23 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "foreign_key_rules": {
                 "fields": [["plant_id_eia", "generator_id", "report_date"]],
                 # TODO: Excluding monthly data tables since their report_date
-                # values don't match up with generators_eia860, which is annual,
+                # values don't match up with core_eia860__scd_generators, which is annual,
                 # so non-january records violate the constraint.
                 # See: https://github.com/catalyst-cooperative/pudl/issues/1196
                 "exclude": [
-                    "boiler_fuel_eia923",
-                    "capacity_factor_by_generator_monthly",
-                    "denorm_generation_eia923",
-                    "denorm_generation_monthly_eia923",
-                    "fuel_cost_by_generator_monthly",
-                    "fuel_receipts_costs_eia923",
-                    "generation_eia923",
-                    "generation_fuel_by_generator_energy_source_monthly_eia923",
-                    "generation_fuel_by_generator_monthly_eia923",
-                    "generation_fuel_eia923",
-                    "heat_rate_by_generator_monthly",
-                    "mcoe_monthly",
-                    "mcoe_generators_monthly",
+                    "core_eia923__monthly_boiler_fuel",
+                    "_out_eia__monthly_capacity_factor_by_generator",
+                    "out_eia923__generation",
+                    "out_eia923__monthly_generation",
+                    "_out_eia__monthly_fuel_cost_by_generator",
+                    "core_eia923__monthly_fuel_receipts_costs",
+                    "core_eia923__monthly_generation",
+                    "out_eia923__monthly_generation_fuel_by_generator_energy_source",
+                    "out_eia923__monthly_generation_fuel_by_generator",
+                    "core_eia923__monthly_generation_fuel",
+                    "_out_eia__monthly_heat_rate_by_generator",
+                    "_out_eia__monthly_derived_generator_attributes",
+                    "out_eia__monthly_generators",
                 ],
             },
         },
@@ -247,7 +247,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia860", "eia923"],
         "etl_group": "eia860",
     },
-    "ownership_eia860": {
+    "core_eia860__scd_ownership": {
         "description": (
             "Generator Ownership, reported in EIA-860 Schedule 4. Includes only "
             "jointly or third-party owned generators."
@@ -278,7 +278,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia860"],
         "etl_group": "eia860",
     },
-    "denorm_ownership_eia860": {
+    "out_eia860__yearly_ownership": {
         "description": (
             "Generator Ownership, reported in EIA-860 Schedule 4. Includes only "
             "jointly or third-party owned generators. Denormalized to include plant "
@@ -313,7 +313,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia860"],
         "etl_group": "outputs",
     },
-    "plants_eia860": {
+    "core_eia860__scd_plants": {
         "description": (
             "Annually varying plant attributes, compiled from across all EIA-860 and "
             "EIA-923 data."
@@ -366,31 +366,31 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "foreign_key_rules": {
                 "fields": [["plant_id_eia", "report_date"]],
                 # TODO: Excluding monthly data tables since their report_date
-                # values don't match up with plants_eia860, which is annual, so
+                # values don't match up with core_eia860__scd_plants, which is annual, so
                 # non-january records fail.
                 # See: https://github.com/catalyst-cooperative/pudl/issues/1196
                 "exclude": [
-                    "boiler_fuel_eia923",
-                    "denorm_boiler_fuel_eia923",
-                    "denorm_boiler_fuel_monthly_eia923",
-                    "denorm_fuel_receipts_costs_eia923",
-                    "denorm_fuel_receipts_costs_monthly_eia923",
-                    "denorm_generation_eia923",
-                    "denorm_generation_monthly_eia923",
-                    "denorm_generation_fuel_combined_eia923",
-                    "denorm_generation_fuel_combined_monthly_eia923",
-                    "generation_fuel_by_generator_energy_source_monthly_eia923",
-                    "generation_fuel_by_generator_monthly_eia923",
-                    "fuel_receipts_costs_eia923",
-                    "generation_eia923",
-                    "generation_fuel_eia923",
-                    "generation_fuel_nuclear_eia923",
-                    "heat_rate_by_unit_monthly",
-                    "heat_rate_by_generator_monthly",
-                    "fuel_cost_by_generator_monthly",
-                    "capacity_factor_by_generator_monthly",
-                    "mcoe_monthly",
-                    "mcoe_generators_monthly",
+                    "core_eia923__monthly_boiler_fuel",
+                    "out_eia923__boiler_fuel",
+                    "out_eia923__monthly_boiler_fuel",
+                    "out_eia923__fuel_receipts_costs",
+                    "out_eia923__monthly_fuel_receipts_costs",
+                    "out_eia923__generation",
+                    "out_eia923__monthly_generation",
+                    "out_eia923__generation_fuel_combined",
+                    "out_eia923__monthly_generation_fuel_combined",
+                    "out_eia923__monthly_generation_fuel_by_generator_energy_source",
+                    "out_eia923__monthly_generation_fuel_by_generator",
+                    "core_eia923__monthly_fuel_receipts_costs",
+                    "core_eia923__monthly_generation",
+                    "core_eia923__monthly_generation_fuel",
+                    "core_eia923__monthly_generation_fuel_nuclear",
+                    "_out_eia__monthly_heat_rate_by_unit",
+                    "_out_eia__monthly_heat_rate_by_generator",
+                    "_out_eia__monthly_fuel_cost_by_generator",
+                    "_out_eia__monthly_capacity_factor_by_generator",
+                    "_out_eia__monthly_derived_generator_attributes",
+                    "out_eia__monthly_generators",
                 ],
             },
         },
@@ -398,7 +398,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia860", "eia923"],
         "etl_group": "eia860",
     },
-    "utilities_eia860": {
+    "core_eia860__scd_utilities": {
         "description": (
             "Annually varying utility attributes, compiled from all EIA data."
         ),
@@ -437,59 +437,59 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     ["owner_utility_id_eia", "report_date"],
                 ],
                 # TODO: Excluding monthly data tables since their report_date
-                # values don't match up with plants_eia860, which is annual, so
+                # values don't match up with core_eia860__scd_plants, which is annual, so
                 # non-january records fail.
                 # See: https://github.com/catalyst-cooperative/pudl/issues/1196
                 # NOTE: EIA-861 has not gone through harvesting / normalization yet.
                 "exclude": [
-                    "advanced_metering_infrastructure_eia861",
-                    "balancing_authority_assn_eia861",
-                    "compiled_geometry_utility_eia861",
-                    "demand_response_eia861",
-                    "demand_response_water_heater_eia861",
-                    "demand_side_management_ee_dr_eia861",
-                    "demand_side_management_misc_eia861",
-                    "demand_side_management_sales_eia861",
-                    "denorm_boiler_fuel_eia923",
-                    "denorm_boiler_fuel_monthly_eia923",
-                    "denorm_fuel_receipts_costs_eia923",
-                    "denorm_fuel_receipts_costs_monthly_eia923",
-                    "denorm_generation_eia923",
-                    "denorm_generation_monthly_eia923",
-                    "denorm_generation_fuel_combined_eia923",
-                    "denorm_generation_fuel_combined_monthly_eia923",
-                    "fuel_cost_by_generator_monthly",
-                    "generation_fuel_by_generator_energy_source_monthly_eia923",
-                    "generation_fuel_by_generator_monthly_eia923",
+                    "core_eia861__yearly_advanced_metering_infrastructure",
+                    "core_eia861__assn_balancing_authority",
+                    "out_eia861__compiled_geometry_utilities",
+                    "core_eia861__yearly_demand_response",
+                    "core_eia861__yearly_demand_response_water_heater",
+                    "core_eia861__yearly_demand_side_management_ee_dr",
+                    "core_eia861__yearly_demand_side_management_misc",
+                    "core_eia861__yearly_demand_side_management_sales",
+                    "out_eia923__boiler_fuel",
+                    "out_eia923__monthly_boiler_fuel",
+                    "out_eia923__fuel_receipts_costs",
+                    "out_eia923__monthly_fuel_receipts_costs",
+                    "out_eia923__generation",
+                    "out_eia923__monthly_generation",
+                    "out_eia923__generation_fuel_combined",
+                    "out_eia923__monthly_generation_fuel_combined",
+                    "_out_eia__monthly_fuel_cost_by_generator",
+                    "out_eia923__monthly_generation_fuel_by_generator_energy_source",
+                    "out_eia923__monthly_generation_fuel_by_generator",
                     # Utility IDs in this table are owners, not operators, and we are
-                    # not yet harvesting owner_utility_id_eia from ownership_eia860.
+                    # not yet harvesting owner_utility_id_eia from core_eia860__scd_ownership.
                     # See https://github.com/catalyst-cooperative/pudl/issues/1393
-                    "generation_fuel_by_generator_energy_source_owner_yearly_eia923",
-                    "distributed_generation_fuel_eia861",
-                    "distributed_generation_misc_eia861",
-                    "distributed_generation_tech_eia861",
-                    "distribution_systems_eia861",
-                    "dynamic_pricing_eia861",
-                    "energy_efficiency_eia861",
-                    "fipsified_respondents_ferc714",
-                    "green_pricing_eia861",
-                    "mcoe_monthly",
-                    "mcoe_generators_monthly",
-                    "mergers_eia861",
-                    "net_metering_customer_fuel_class_eia861",
-                    "net_metering_misc_eia861",
-                    "non_net_metering_customer_fuel_class_eia861",
-                    "non_net_metering_misc_eia861",
-                    "operational_data_misc_eia861",
-                    "operational_data_revenue_eia861",
-                    "reliability_eia861",
-                    "sales_eia861",
-                    "service_territory_eia861",
-                    "summarized_demand_ferc714",
-                    "utility_assn_eia861",
-                    "utility_data_misc_eia861",
-                    "utility_data_nerc_eia861",
-                    "utility_data_rto_eia861",
+                    "out_eia923__yearly_generation_fuel_by_generator_energy_source_owner",
+                    "core_eia861__yearly_distributed_generation_fuel",
+                    "core_eia861__yearly_distributed_generation_misc",
+                    "core_eia861__yearly_distributed_generation_tech",
+                    "core_eia861__yearly_distribution_systems",
+                    "core_eia861__yearly_dynamic_pricing",
+                    "core_eia861__yearly_energy_efficiency",
+                    "out_ferc714__respondents_with_fips",
+                    "core_eia861__yearly_green_pricing",
+                    "_out_eia__monthly_derived_generator_attributes",
+                    "out_eia__monthly_generators",
+                    "core_eia861__yearly_mergers",
+                    "core_eia861__yearly_net_metering_customer_fuel_class",
+                    "core_eia861__yearly_net_metering_misc",
+                    "core_eia861__yearly_non_net_metering_customer_fuel_class",
+                    "core_eia861__yearly_non_net_metering_misc",
+                    "core_eia861__yearly_operational_data_misc",
+                    "core_eia861__yearly_operational_data_revenue",
+                    "core_eia861__yearly_reliability",
+                    "core_eia861__yearly_sales",
+                    "core_eia861__yearly_service_territory",
+                    "out_ferc714__summarized_demand",
+                    "core_eia861__assn_utility",
+                    "core_eia861__yearly_utility_data_misc",
+                    "core_eia861__yearly_utility_data_nerc",
+                    "core_eia861__yearly_utility_data_rto",
                 ],
             },
         },
@@ -497,7 +497,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia860", "eia923"],
         "etl_group": "eia860",
     },
-    "emissions_control_equipment_eia860": {
+    "core_eia860__scd_emissions_control_equipment": {
         "description": (
             """The cost, type, operating status, retirement date, and install year of
 emissions control equipment reported to EIA. Includes control ids for sulfur dioxide
@@ -527,7 +527,7 @@ monitoring."""
         "sources": ["eia860"],
         "etl_group": "eia860",
     },
-    "denorm_emissions_control_equipment_eia860": {
+    "out_eia860__yearly_emissions_control_equipment": {
         "description": (
             """The cost, type, operating status, retirement date, and install year of
 emissions control equipment reported to EIA. Includes control ids for sulfur dioxide
@@ -564,7 +564,7 @@ columns."""
         "sources": ["eia860"],
         "etl_group": "eia860",
     },
-    "boiler_emissions_control_equipment_assn_eia860": {
+    "core_eia860__assn_yearly_boiler_emissions_control_equipment": {
         "description": (
             """A table that links EIA boiler IDs to emissions control IDs for NOx, SO2,
 mercury, and particulate monitoring. The relationship between the IDs is sometimes many
@@ -591,7 +591,7 @@ to many."""
         "sources": ["eia860"],
         "etl_group": "eia860",
     },
-    "boiler_cooling_assn_eia860": {
+    "core_eia860__assn_boiler_cooling": {
         "description": "A table that links EIA boiler IDs to EIA cooling system IDs.",
         "schema": {
             "fields": [
@@ -612,7 +612,7 @@ to many."""
         "sources": ["eia860"],
         "etl_group": "eia860",
     },
-    "boiler_stack_flue_assn_eia860": {
+    "core_eia860__assn_boiler_stack_flue": {
         "description": (
             """A table that links EIA boiler IDs to EIA stack and/or flue
 system IDs."""

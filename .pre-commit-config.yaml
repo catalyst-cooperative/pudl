@@ -29,7 +29,7 @@ repos:
   # Formatters: hooks that re-write Python & documentation files
   ####################################################################################
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.7
+    rev: v0.1.8
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
@@ -82,6 +82,15 @@ repos:
         always_run: true
         entry: pytest --doctest-modules src/pudl test/unit -m "not slow"
 
+      - id: conda-lock
+        name: conda-lock
+        stages: [commit]
+        language: system
+        verbose: false
+        files: "pyproject.toml"
+        always_run: false
+        entry: make conda-clean conda-lock.yml
+
 # Configuration for pre-commit.ci
 ci:
   autofix_commit_msg: |
@@ -92,5 +101,5 @@ ci:
   autoupdate_branch: dev
   autoupdate_commit_msg: "[pre-commit.ci] pre-commit autoupdate"
   autoupdate_schedule: weekly
-  skip: [unit-tests, nb-output-clear]
+  skip: [unit-tests, nb-output-clear, conda-lock]
   submodules: false

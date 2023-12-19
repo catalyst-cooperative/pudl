@@ -255,11 +255,11 @@ def get_plants_ferc1_raw_job() -> JobDefinition:
     This job expects ferc1_dbf.sqlite and ferc_xbrl.sqlite databases to be populated.
     """
     plant_tables = [
-        "plants_hydro_ferc1",
-        "plants_small_ferc1",
-        "plants_pumped_storage_ferc1",
-        "plants_steam_ferc1",
-        "fuel_ferc1",  # bc it has plants/is associated w/ the steam table
+        "core_ferc1__yearly_hydroelectric_plants_sched406",
+        "core_ferc1__yearly_small_plants_sched410",
+        "core_ferc1__yearly_pumped_storage_plants_sched408",
+        "core_ferc1__yearly_steam_plants_sched402",
+        "core_ferc1__yearly_steam_plants_fuel_sched402",  # bc it has plants/is associated w/ the steam table
     ]
 
     @asset(ins={table_name: AssetIn() for table_name in plant_tables})
@@ -392,19 +392,21 @@ def label_plants_eia(pudl_out: pudl.output.pudltabl.PudlTabl):
 
 
 def label_utilities_ferc1_dbf(
-    utilities_ferc1_dbf: pd.DataFrame, util_ids_ferc1_raw_dbf: pd.DataFrame
+    core_pudl__assn_ferc1_dbf_pudl_utilities: pd.DataFrame,
+    util_ids_ferc1_raw_dbf: pd.DataFrame,
 ) -> pd.DataFrame:
     """Get the DBF FERC1 utilities with their names."""
-    return utilities_ferc1_dbf.merge(
+    return core_pudl__assn_ferc1_dbf_pudl_utilities.merge(
         util_ids_ferc1_raw_dbf, how="outer", on="utility_id_ferc1_dbf"
     )
 
 
 def label_utilities_ferc1_xbrl(
-    utilities_ferc1_xbrl: pd.DataFrame, util_ids_ferc1_raw_xbrl: pd.DataFrame
+    core_pudl__assn_ferc1_xbrl_pudl_utilities: pd.DataFrame,
+    util_ids_ferc1_raw_xbrl: pd.DataFrame,
 ) -> pd.DataFrame:
     """Get the XBRL FERC1 utilities with their names."""
-    return utilities_ferc1_xbrl.merge(
+    return core_pudl__assn_ferc1_xbrl_pudl_utilities.merge(
         util_ids_ferc1_raw_xbrl, how="outer", on="utility_id_ferc1_xbrl"
     )
 
@@ -412,7 +414,7 @@ def label_utilities_ferc1_xbrl(
 def get_utility_most_recent_capacity(pudl_engine) -> pd.DataFrame:
     """Calculate total generation capacity by utility in most recent reported year."""
     gen_caps = pd.read_sql(
-        "SELECT utility_id_eia, capacity_mw, report_date FROM generators_eia860",
+        "SELECT utility_id_eia, capacity_mw, report_date FROM core_eia860__scd_generators",
         con=pudl_engine,
         parse_dates=["report_date"],
     )
@@ -516,16 +518,16 @@ def glue(ferc1=False, eia=False):
         - utilities: Unique id and name for each utility for use across the
           PUDL DB.
         - plants: Unique id and name for each plant for use across the PUDL DB.
-        - utilities_eia: EIA operator ids and names attached to a PUDL
+        - core_pudl__assn_eia_pudl_utilities: EIA operator ids and names attached to a PUDL
           utility id.
-        - plants_eia: EIA plant ids and names attached to a PUDL plant id.
+        - core_pudl__assn_eia_pudl_plants: EIA plant ids and names attached to a PUDL plant id.
         - utilities_ferc: FERC respondent ids & names attached to a PUDL
           utility id.
         - plants_ferc: A combination of FERC plant names and respondent ids,
           associated with a PUDL plant ID. This is necessary because FERC does
           not provide plant ids, so the unique plant identifier is a
           combination of the respondent id and plant name.
-        - utility_plant_assn: An association table which describes which plants
+        - core_pudl__assn_utilities_plants: An association table which describes which plants
           have relationships with what utilities. If a record exists in this
           table then combination of PUDL utility id & PUDL plant id does have
           an association of some kind. The nature of that association is
@@ -553,36 +555,36 @@ def glue(ferc1=False, eia=False):
     # from other tables.
     plant_map = get_plant_map()
 
-    plants_pudl = (
+    core_pudl__entity_plants_pudl = (
         plant_map.loc[:, ["plant_id_pudl", "plant_name_pudl"]]
         .drop_duplicates("plant_id_pudl")
         .dropna(how="all")
     )
-    plants_eia = (
+    core_pudl__assn_eia_pudl_plants = (
         plant_map.loc[:, ["plant_id_eia", "plant_name_eia", "plant_id_pudl"]]
         .drop_duplicates("plant_id_eia")
         .dropna(subset=["plant_id_eia"])
     )
-    plants_ferc1 = (
+    core_pudl__assn_ferc1_pudl_plants = (
         plant_map.loc[:, ["plant_name_ferc1", "utility_id_ferc1", "plant_id_pudl"]]
         .drop_duplicates(["plant_name_ferc1", "utility_id_ferc1"])
         .dropna(subset=["utility_id_ferc1", "plant_name_ferc1"])
     )
 
     utility_map_pudl = get_utility_map_pudl()
-    utilities_pudl = (
+    core_pudl__entity_utilities_pudl = (
         utility_map_pudl.loc[:, ["utility_id_pudl", "utility_name_pudl"]]
         .drop_duplicates("utility_id_pudl")
         .dropna(how="all")
     )
-    utilities_eia = (
+    core_pudl__assn_eia_pudl_utilities = (
         utility_map_pudl.loc[
             :, ["utility_id_eia", "utility_name_eia", "utility_id_pudl"]
         ]
         .drop_duplicates("utility_id_eia")
         .dropna(subset=["utility_id_eia"])
     )
-    utilities_ferc1 = (
+    core_pudl__assn_ferc1_pudl_utilities = (
         utility_map_pudl.loc[
             :, ["utility_id_ferc1", "utility_name_ferc1", "utility_id_pudl"]
         ]
@@ -591,12 +593,12 @@ def glue(ferc1=False, eia=False):
     )
 
     utility_map_ferc1 = get_utility_map_ferc1()
-    utilities_ferc1_dbf = (
+    core_pudl__assn_ferc1_dbf_pudl_utilities = (
         utility_map_ferc1.loc[:, ["utility_id_ferc1", "utility_id_ferc1_dbf"]]
         .drop_duplicates("utility_id_ferc1_dbf")
         .dropna(subset=["utility_id_ferc1_dbf"])
     )
-    utilities_ferc1_xbrl = (
+    core_pudl__assn_ferc1_xbrl_pudl_utilities = (
         utility_map_ferc1.loc[:, ["utility_id_ferc1", "utility_id_ferc1_xbrl"]]
         .drop_duplicates("utility_id_ferc1_xbrl")
         .dropna(subset=["utility_id_ferc1_xbrl"])
@@ -619,16 +621,24 @@ def glue(ferc1=False, eia=False):
     # Now we can concatenate the two dataframes, and get rid of all the columns
     # except for plant_id and utility_id (which determine the  utility to plant
     # association), and get rid of any duplicates or lingering NaN values...
-    utility_plant_assn = pd.concat(
+    core_pudl__assn_utilities_plants = pd.concat(
         [
-            pd.merge(utilities_eia, plants_utilities_eia, on="utility_id_eia"),
-            pd.merge(utilities_ferc1, plants_utilities_ferc1, on="utility_id_ferc1"),
+            pd.merge(
+                core_pudl__assn_eia_pudl_utilities,
+                plants_utilities_eia,
+                on="utility_id_eia",
+            ),
+            pd.merge(
+                core_pudl__assn_ferc1_pudl_utilities,
+                plants_utilities_ferc1,
+                on="utility_id_ferc1",
+            ),
         ],
         sort=True,
     )
 
-    utility_plant_assn = (
-        utility_plant_assn.loc[:, ["plant_id_pudl", "utility_id_pudl"]]
+    core_pudl__assn_utilities_plants = (
+        core_pudl__assn_utilities_plants.loc[:, ["plant_id_pudl", "utility_id_pudl"]]
         .dropna()
         .drop_duplicates()
     )
@@ -641,7 +651,12 @@ def glue(ferc1=False, eia=False):
     # Is this check still meaningful with all the EIA plants and utilities that
     # we're harvesting IDs for, with no names?
     for df, df_n in zip(
-        [plants_eia, plants_ferc1, utilities_eia, utilities_ferc1],
+        [
+            core_pudl__assn_eia_pudl_plants,
+            core_pudl__assn_ferc1_pudl_plants,
+            core_pudl__assn_eia_pudl_utilities,
+            core_pudl__assn_ferc1_pudl_utilities,
+        ],
         ["plants_eia", "plants_ferc1", "utilities_eia", "utilities_ferc1"],
     ):
         if df[pd.isnull(df).any(axis="columns")].shape[0] > 1:
@@ -655,20 +670,20 @@ def glue(ferc1=False, eia=False):
     # sanity checks to ensure that it's (at least kind of) clean.
     # INSERT SANITY HERE
 
-    # Any FERC respondent_id that appears in plants_ferc1 must also exist in
-    # utilities_ferc1:
+    # Any FERC respondent_id that appears in core_pudl__assn_ferc1_pudl_plants must also exist in
+    # core_pudl__assn_ferc1_pudl_utilities:
     # INSERT MORE SANITY HERE
 
     glue_dfs = {
-        "plants_pudl": plants_pudl,
-        "utilities_pudl": utilities_pudl,
-        "plants_ferc1": plants_ferc1,
-        "utilities_ferc1": utilities_ferc1,
-        "utilities_ferc1_dbf": utilities_ferc1_dbf,
-        "utilities_ferc1_xbrl": utilities_ferc1_xbrl,
-        "plants_eia": plants_eia,
-        "utilities_eia": utilities_eia,
-        "utility_plant_assn": utility_plant_assn,
+        "core_pudl__entity_plants_pudl": core_pudl__entity_plants_pudl,
+        "core_pudl__entity_utilities_pudl": core_pudl__entity_utilities_pudl,
+        "core_pudl__assn_ferc1_pudl_plants": core_pudl__assn_ferc1_pudl_plants,
+        "core_pudl__assn_ferc1_pudl_utilities": core_pudl__assn_ferc1_pudl_utilities,
+        "core_pudl__assn_ferc1_dbf_pudl_utilities": core_pudl__assn_ferc1_dbf_pudl_utilities,
+        "core_pudl__assn_ferc1_xbrl_pudl_utilities": core_pudl__assn_ferc1_xbrl_pudl_utilities,
+        "core_pudl__assn_eia_pudl_plants": core_pudl__assn_eia_pudl_plants,
+        "core_pudl__assn_eia_pudl_utilities": core_pudl__assn_eia_pudl_utilities,
+        "core_pudl__assn_utilities_plants": core_pudl__assn_utilities_plants,
     }
 
     return glue_dfs

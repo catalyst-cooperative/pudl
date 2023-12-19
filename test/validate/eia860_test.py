@@ -189,7 +189,7 @@ def test_nuclear_units_are_generators(pudl_out_eia, live_dbs):
     # Drop all nuclear units that don't have a nuclear_unit_id.
     all_nuke_gf = (
         pd.read_sql(
-            "generation_fuel_nuclear_eia923",
+            "core_eia923__monthly_generation_fuel_nuclear",
             pudl_out_eia.pudl_engine,
             columns=[
                 "plant_id_eia",
