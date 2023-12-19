@@ -111,6 +111,12 @@ copy_outputs_to_gcs
 
 # if pipeline is successful, distribute + publish datasette
 if [[ $ETL_SUCCESS == 0 ]]; then
+    if [ $GITHUB_ACTION_TRIGGER = "schedule" ]; then
+        # Tag the nightly build
+        git config user.email "pudl@catalyst.coop"
+        git config user.name "PudlBot"
+        git tag -a -m "The most recent successful nightly build." nightly $GITHUB_REF
+        git push origin nightly
     # Deploy the updated data to datasette
     if [ $GITHUB_REF = "dev" ]; then
         python ~/devtools/datasette/publish.py 2>&1 | tee -a $LOGFILE
