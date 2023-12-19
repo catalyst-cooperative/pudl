@@ -268,7 +268,7 @@ SOURCES: dict[str, Any] = {
         ),
         "source_file_dict": {
             "respondents": "Coal and high-sulfur fueled plants over 25MW",
-            "records_liberated": "~800 million",
+            "records_liberated": "924 million",
             "source_format": "Comma Separated Value (.csv)",
         },
         "field_namespace": "epacems",
