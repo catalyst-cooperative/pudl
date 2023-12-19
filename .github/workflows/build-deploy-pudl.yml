@@ -39,7 +39,7 @@ jobs:
         run: |
           git config user.email "pudl@catalyst.coop"
           git config user.name "PudlBot"
-          git tag -a -m "$NIGHTLY_TAG" $NIGHTLY_TAG
+          git tag -a -m "$NIGHTLY_TAG" $NIGHTLY_TAG $GITHUB_REF
           git push origin $NIGHTLY_TAG
 
       - name: Get HEAD of the branch (main or dev)
