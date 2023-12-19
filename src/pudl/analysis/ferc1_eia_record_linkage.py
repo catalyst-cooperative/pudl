@@ -45,10 +45,134 @@ from sklearn.model_selection import GridSearchCV  # , cross_val_score
 import pudl
 import pudl.helpers
 from pudl.analysis.plant_parts_eia import match_to_single_plant_part
+from pudl.analysis.record_linkage import embed_dataframe
 from pudl.metadata.classes import DataSource, Resource
 
 logger = pudl.logging_helpers.get_logger(__name__)
 # Silence the recordlinkage logger, which is out of control
+
+dataframe_embedder = embed_dataframe.dataframe_embedder_factory(
+    {
+        "plant_name": embed_dataframe.ColumnVectorizer(
+            transform_steps=[
+                embed_dataframe.StringSimilarityScorer(
+                    metric="jaro_winkler",
+                    col1="plant_name_ferc1",
+                    col2="plant_name_eia",
+                    output_name="plant_name",
+                )
+            ],
+            columns=["plant_name_ferc1", "plant_name_eia"],
+        ),
+        "net_generation_mwh": embed_dataframe.ColumnVectorizer(
+            transform_steps=[
+                embed_dataframe.NumericSimilarityScorer(
+                    method="exponential",
+                    col1="net_generation_mwh_ferc1",
+                    col2="net_generation_mwh_eia",
+                    output_name="net_generation_mwh",
+                    scale=1000,
+                )
+            ],
+            columns=["net_generation_mwh_ferc1", "net_generation_mwh_eia"],
+        ),
+        "capacity_mw": embed_dataframe.ColumnVectorizer(
+            transform_steps=[
+                embed_dataframe.NumericSimilarityScorer(
+                    method="exponential",
+                    col1="capacity_mw_ferc1",
+                    col2="capacity_mw_eia",
+                    output_name="capacity_mw",
+                    scale=10,
+                )
+            ],
+            columns=["capacity_mw_ferc1", "capacity_mw_eia"],
+        ),
+        "total_fuel_cost": embed_dataframe.ColumnVectorizer(
+            transform_steps=[
+                embed_dataframe.NumericSimilarityScorer(
+                    method="exponential",
+                    col1="total_fuel_cost_ferc1",
+                    col2="total_fuel_cost_eia",
+                    output_name="total_fuel_cost",
+                    scale=10000,
+                    offset=2500,
+                    missing_value=0.5,
+                )
+            ],
+            columns=["total_fuel_cost_ferc1", "total_fuel_cost_eia"],
+        ),
+        "total_mmbtu": embed_dataframe.ColumnVectorizer(
+            transform_steps=[
+                embed_dataframe.NumericSimilarityScorer(
+                    method="exponential",
+                    col1="total_mmbtu_ferc1",
+                    col2="total_mmbtu_eia",
+                    output_name="total_mmbtu",
+                    scale=100,
+                    offset=1,
+                    missing_value=0.5,
+                )
+            ],
+            columns=["total_mmbtu_ferc1", "total_mmbtu_eia"],
+        ),
+        "capacity_factor": embed_dataframe.ColumnVectorizer(
+            transform_steps=[
+                embed_dataframe.NumericSimilarityScorer(
+                    method="linear",
+                    col1="capacity_factor_ferc1",
+                    col2="capacity_factor_eia",
+                    output_name="capacity_factor",
+                )
+            ],
+            columns=["capacity_factor_ferc1", "capacity_factor_eia"],
+        ),
+        "fuel_cost_per_mmbtu": embed_dataframe.ColumnVectorizer(
+            transform_steps=[
+                embed_dataframe.NumericSimilarityScorer(
+                    method="linear",
+                    col1="fuel_cost_per_mmbtu_ferc1",
+                    col2="fuel_cost_per_mmbtu_eia",
+                    output_name="fuel_cost_per_mmbtu",
+                )
+            ],
+            columns=["fuel_cost_per_mmbtu_ferc1", "fuel_cost_per_mmbtu_eia"],
+        ),
+        "heat_rate_mmbtu_mwh": embed_dataframe.ColumnVectorizer(
+            transform_steps=[
+                embed_dataframe.NumericSimilarityScorer(
+                    method="linear",
+                    col1="heat_rate_mmbtu_mwh_ferc1",
+                    col2="heat_rate_mmbtu_mwh_eia",
+                    output_name="heat_rate_mmbtu_mwh",
+                )
+            ],
+            columns=["heat_rate_mmbtu_mwh_ferc1", "heat_rate_mmbtu_mwh_eia"],
+        ),
+        "fuel_type_code_pudl": embed_dataframe.ColumnVectorizer(
+            transform_steps=[
+                embed_dataframe.NumericSimilarityScorer(
+                    method="exact",
+                    col1="fuel_type_code_pudl_ferc1",
+                    col2="fuel_type_code_pudl_eia",
+                    output_name="fuel_type_code_pudl",
+                )
+            ],
+            columns=["fuel_type_code_pudl_ferc1", "fuel_type_code_pudl_eia"],
+        ),
+        "installation_year": embed_dataframe.ColumnVectorizer(
+            transform_steps=[
+                embed_dataframe.NumericSimilarityScorer(
+                    method="linear",
+                    col1="installation_year_ferc1",
+                    col2="installation_year_eia",
+                    output_name="installation_year",
+                )
+            ],
+            columns=["installation_year_ferc1", "installation_year_eia"],
+        ),
+    }
+)
 
 
 @asset(
@@ -94,7 +218,9 @@ def out__yearly_plants_all_ferc1_plant_parts_eia(
         train_df=inputs.get_train_df(),
         plant_parts_eia_true=inputs.get_plant_parts_eia_true(),
         plants_ferc1=inputs.get_plants_ferc1(),
-    ).pipe(add_null_overrides)  # Override specified values with NA record_id_eia
+    ).pipe(
+        add_null_overrides
+    )  # Override specified values with NA record_id_eia
     connects_ferc1_eia = Resource.from_id(
         "out__yearly_plants_all_ferc1_plant_parts_eia"
     ).enforce_schema(connects_ferc1_eia)
