@@ -35,12 +35,11 @@ RUN mkdir -p ${PUDL_INPUT} ${PUDL_OUTPUT} ${DAGSTER_HOME}
 # Copy dagster configuration file
 COPY docker/dagster.yaml ${DAGSTER_HOME}/dagster.yaml
 
-# Create a conda environment based on the specification in the repo
-COPY environments/conda-lock.yml environments/conda-lock.yml
-RUN micromamba create --prefix ${CONDA_PREFIX} --yes --file environments/conda-lock.yml && \
-    micromamba clean -afy
 # Copy the cloned pudl repository into the user's home directory
 COPY --chown=${MAMBA_USER}:${MAMBA_USER} . ${CONTAINER_HOME}
+# Create a conda environment based on the specification in the repo
+RUN micromamba create --prefix ${CONDA_PREFIX} --yes --file environments/conda-lock.yml && \
+    micromamba clean -afy
 
 # TODO(rousik): The following is a workaround for sudden breakage where conda
 # can't find libraries contained within the environment. It's unclear why!
