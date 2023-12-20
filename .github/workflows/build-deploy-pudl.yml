@@ -124,6 +124,7 @@ jobs:
             --container-env-file="./docker/.env" \
             --container-env ACTION_SHA=$ACTION_SHA \
             --container-env GITHUB_REF=${{ env.GITHUB_REF }} \
+            --container-env NIGHTLY_TAG=${{ env.NIGHTLY_TAG }} \
             --container-env GITHUB_ACTION_TRIGGER=${{ github.event_name }} \
             --container-env SLACK_TOKEN=${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }} \
             --container-env GCE_INSTANCE=${{ env.GCE_INSTANCE }} \
