@@ -121,7 +121,7 @@ if [[ $ETL_SUCCESS == 0 ]]; then
         git push
     fi
     # Deploy the updated data to datasette
-    if [ "$GITHUB_REF" = "dev" ]; then
+    if [ "$GITHUB_REF" = "main" ]; then
         python ~/devtools/datasette/publish.py 2>&1 | tee -a "$LOGFILE"
         ETL_SUCCESS=${PIPESTATUS[0]}
     fi
@@ -133,11 +133,11 @@ if [[ $ETL_SUCCESS == 0 ]]; then
     rm -f "$PUDL_OUTPUT/metadata.yml"
     ETL_SUCCESS=${PIPESTATUS[0]}
 
-    # Dump outputs to s3 bucket if branch is dev or build was triggered by a tag
+    # Dump outputs to s3 bucket if branch is main or build was triggered by a tag
     # TODO: this behavior should be controlled by on/off switch here and this logic
     # should be moved to the triggering github action. Having it here feels
     # fragmented.
-    if [ "$GITHUB_ACTION_TRIGGER" = "push" ] || [ "$GITHUB_REF" = "dev" ]; then
+    if [ "$GITHUB_ACTION_TRIGGER" = "push" ] || [ "$GITHUB_REF" = "main" ]; then
         copy_outputs_to_distribution_bucket
         ETL_SUCCESS=${PIPESTATUS[0]}
         zenodo_data_release 2>&1 | tee -a "$LOGFILE"

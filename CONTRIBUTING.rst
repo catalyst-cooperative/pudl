@@ -55,9 +55,8 @@ You'll need to fork this repository and get the
 **Work on it!**
 
 * Make a branch on your fork and open a draft pull request (PR) early so we can
-  discuss concrete code! **Set the base branch to ``dev`` unless there's a good
-  reason otherwise.** Please don't wait until it's all polished up - it's much
-  easier for us to help you when we can see the code evolve over time.
+  discuss concrete code! Please don't wait until it's all polished up - it's
+  much easier for us to help you when we can see the code evolve over time.
 
 * Please make sure to write tests and documentation for your code - if you run
   into trouble with writing tests, let us know in the comments and we can help!

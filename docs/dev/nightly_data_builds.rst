@@ -5,7 +5,7 @@ Nightly Data Builds
 ===============================================================================
 
 The complete ETL and tests run every night on a Google Compute Engine (GCE)
-instance so new code merged into ``dev`` can be fully tested. These complete builds
+instance so new code merged into ``main`` can be fully tested. These complete builds
 also enable continuous deployment of PUDL's data outputs.
 
 The builds are kicked off by the ``build-deploy-pudl`` GitHub Action, which builds and
@@ -15,36 +15,36 @@ tests, then copies the outputs to a public AWS s3 bucket for distribution.
 
 Breaking the Builds
 -------------------
-The nightly data builds based on the ``dev`` branch are our comprehensive integration
+The nightly data builds based on the ``main`` branch are our comprehensive integration
 tests. When they pass, we consider the results fit for public consumption.  The builds
 are expected to pass. If they don't then someone needs to take responsibility for
 getting them working again with some urgency.
 
 Because of how long the full build & tests take, we don’t typically run them
-individually before merging every PR into ``dev``. However, running ``make nuke``
+individually before merging every PR into ``main``. However, running ``make nuke``
 (the equivalent of the full builds) is recommended when you've added a new year of data
 or made other changes that would be expected to break the data validations, so that the
-appropriate changes can be made prior to those changes hitting ``dev`` and the nightly
+appropriate changes can be made prior to those changes hitting ``main`` and the nightly
 builds.
 
 If your PR causes the build to fail, you are probably the best person to fix the
 problem, since you already have context on all of the changes that went into it.
 
-Having multiple PRs merged into ``dev`` simultaneously when the builds are breaking
+Having multiple PRs merged into ``main`` simultaneously when the builds are breaking
 makes it ambiguous where the problem is coming from, makes debugging harder, and
 diffuses responsibility for the breakage across several people, so it's important to fix
-the breakage quickly. In some cases we may delay merging additional PRs into ``dev``
+the breakage quickly. In some cases we may delay merging additional PRs into ``main``
 if the builds are failing to avoid ambiguity and facilitate debugging.
 
 Therefore, we've adopted the following etiquette regarding build breakage: On the
-morning after you merge a PR into ``dev``, you should check whether the nightly builds
+morning after you merge a PR into ``main``, you should check whether the nightly builds
 succeeded by looking in the ``pudl-deployments`` Slack channel (which all team members
 should be subscribed to). If the builds failed, look at the logging output (which is
 included as an attachment to the notification) and figure out what kind of failure
 occurred:
 
   * If the failure is due to your changes, then you are responsible for fixing the
-    problem and making a new PR to ``dev`` that resolves it, and it should be a high
+    problem and making a new PR to ``main`` that resolves it, and it should be a high
     priority. If you're stumped, ask for help!
   * If the failure is due to an infrastructural issue like the build server running out
     of memory and the build process getting killed, then you need to notify the member
@@ -121,10 +121,6 @@ pushed to the PUDL repository. This way, new data outputs are automatically upda
 on code releases, and PUDL's code and data are tested every night. The action is
 modeled after an `example from the setup-gcloud GitHub action repository <https://github.com/google-github-actions/setup-gcloud/tree/main/example-workflows/gce>`__.
 
-Unfortunately, scheduled actions only run on the default branch. To run scheduled
-builds on the ``dev`` branch, the `actions/checkout <https://github.com/actions/checkout>`__
-step checks out the ``dev`` branch if a schedule triggers the action and the ``main``
-branch if a tag triggers the action.
 
 The ``gcloud`` command in ``build-deploy-pudl`` requires certain Google Cloud
 Platform (GCP) permissions to start and update the GCE instance. The
@@ -136,13 +132,14 @@ role on the GCE instances to update the container and start the instance.
 
 Google Compute Engine
 ---------------------
+
 The PUDL image is deployed on a `Container Optimized GCE
 <https://cloud.google.com/container-optimized-os/docs/concepts/features-and-benefits>`__
 instance, a type of virtual machine (VM) built to run containers. The
 ``pudl-deployment-dev`` and ``pudl-deployment-tag`` instances in the
-``catalyst-cooperative-pudl`` GCP project handle deployments from the ``dev`` branch and
-tags, respectively. There are two VMs so a scheduled and a tag build can run
-at the same time.
+``catalyst-cooperative-pudl`` GCP project handle deployments from the ``main``
+branch and tags, respectively. There are two VMs so a scheduled and a tag build
+can run at the same time.
 
 .. note::
 
@@ -210,7 +207,7 @@ You should see a list of directories with version names:
 
 .. code-block::
 
-   PRE dev/
+   PRE nightly/
    PRE v2022.11.30/
    ...
 
@@ -230,14 +227,14 @@ the ``aws s3 cp`` command, which behaves very much like the Unix ``cp`` command:
 
 .. code::
 
-   aws s3 cp s3://pudl.catalyst.coop/dev/pudl.sqlite ./ --no-sign-request
+   aws s3 cp s3://pudl.catalyst.coop/latest/pudl.sqlite ./ --no-sign-request
 
 If you wanted to download all of the build outputs (more than 10GB!) you could use ``cp
 --recursive`` flag on the whole directory:
 
 .. code::
 
-   aws s3 cp --recursive s3://pudl.catalyst.coop/dev/ ./ --no-sign-request
+   aws s3 cp --recursive s3://pudl.catalyst.coop/latest/ ./ --no-sign-request
 
 For more details on how to use ``aws`` in general see the
 `online documentation <https://docs.aws.amazon.com/cli/latest/reference/s3/>`__ or run:
