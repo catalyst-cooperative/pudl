@@ -948,16 +948,12 @@ def out_ferc1__yearly_steam_plants_fuel_by_plant_sched402(
     fbp_df = (
         core_ferc1__yearly_steam_plants_fuel_sched402.pipe(drop_other_fuel_types)
         .pipe(
-            pudl.analysis.record_linkage.classify_plants_ferc1.fuel_by_plant_ferc1,
+            pudl.analysis.fuel_by_plant.fuel_by_plant_ferc1,
             fuel_categories=fuel_categories,
             thresh=thresh,
         )
-        .pipe(
-            pudl.analysis.record_linkage.classify_plants_ferc1.revert_filled_in_float_nulls
-        )
-        .pipe(
-            pudl.analysis.record_linkage.classify_plants_ferc1.revert_filled_in_string_nulls
-        )
+        .pipe(pudl.analysis.fuel_by_plant.revert_filled_in_float_nulls)
+        .pipe(pudl.analysis.fuel_by_plant.revert_filled_in_string_nulls)
         .merge(
             _out_ferc1__yearly_plants_utilities,
             on=["utility_id_ferc1", "plant_name_ferc1"],
