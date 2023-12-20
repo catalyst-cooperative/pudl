@@ -39,6 +39,8 @@ COPY docker/dagster.yaml ${DAGSTER_HOME}/dagster.yaml
 # COPY --chown=${MAMBA_USER}:${MAMBA_USER} . ${CONTAINER_HOME}
 RUN git clone --depth 2 https://github.com/catalyst-cooperative/pudl.git
 WORKDIR ${PUDL_REPO}
+RUN env
+ENV GITHUB_REF=${GITHUB_REF}
 RUN git checkout "$GITHUB_REF"
 
 # Create a conda environment based on the specification in the repo
