@@ -131,20 +131,22 @@ class NumericalVectorizer(TransformStep):
     """Implement ColumnTransformation for MinMaxScaler."""
 
     name: str = "numerical_vectorizer"
+    options: dict = {}
 
     def as_transformer(self):
         """Return configured MinMaxScalerConfig."""
-        return MinMaxScaler()
+        return MinMaxScaler(**self.options)
 
 
 class NumericalNormalizer(TransformStep):
     """Implement ColumnTransformation for Normalizer."""
 
     name: str = "numerical_normalizer"
+    options: dict = {}
 
     def as_transformer(self):
         """Return configured NormalizerConfig."""
-        return Normalizer()
+        return Normalizer(**self.options)
 
 
 def _apply_cleaning_func(df, function_key: str = None):
