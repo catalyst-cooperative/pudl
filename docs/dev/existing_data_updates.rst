@@ -1,14 +1,27 @@
 ===============================================================================
-Annual Updates
+Existing Data Updates
 ===============================================================================
-Much of the data we work with is released in a "final" state annually. We typically
-integrate the new year of data over 2-4 weeks in October since, by that
-time, the final release for the previous year have been published by EIA and FERC. We
-also integrate EIA early release data when available. The ``data_maturity`` field will
-indicate whether the data is final or provisional. To see what data we have available
-for each dataset, click on the links below and look at the "Years Liberated" field.
 
-As of spring 2023 the annual updates include:
+Many of the raw data inputs for PUDL are published on a annual or monthly basis. These
+instructions explain the process for integrating new versions of existing data into
+PUDL.
+
+We update EIA monthly data and EPA CEMS hourly data on a quarterly basis.
+
+EIA typically publishes an "early release" version of their annual data in the summer
+followed by a final release in the fall. Our ``data_maturity`` column indicates
+which version has been integrated into PUDL ("final" vs. "provisional"). This column
+also shows when data are derrived from monthly updates ("monthly_update") or contain
+incomplete year-to-date data ("incremental_ytd").
+
+FERC publishes form submissions on a rolling basis meaning there is no official
+date that the data are considered final or complete. To figure out when the data are
+likely complete, we compare the number of respondents from prior years to the number of
+current respondents. We usually update FERC once a year around when we integrate EIA's
+final release in the fall.
+
+To see what data we have available for each dataset, click on the links below and look
+at the "Years Liberated" field.
 
 * :doc:`/data_sources/eia860` (and eia860m)
 * :doc:`/data_sources/eia861`
@@ -16,9 +29,6 @@ As of spring 2023 the annual updates include:
 * :doc:`/data_sources/epacems`
 * :doc:`/data_sources/ferc1`
 * :doc:`/data_sources/ferc714`
-
-This document outlines all the tasks required to complete the annual update based on
-our experience in 2022.
 
 1. Obtain Fresh Data
 --------------------
@@ -32,18 +42,18 @@ archivers themselves.
 refer to the new raw input archives.
 
 **1.3)** In :py:const:`pudl.metadata.sources.SOURCES`, update the ``working_partitions``
-to reflect the years of data that are available within each dataset and the
-``records_liberated`` to show how many records are available. Check to make sure other
-fields such as ``source_format`` or ``path`` are still accurate.
+to reflect the years, months, or quarters of data that are available for each dataset
+and the ``records_liberated`` to show how many records are available. Check to make
+sure other fields such as ``source_format`` or ``path`` are still accurate.
 
 .. note::
 
   If you're updating EIA861, you can skip the rest of the steps in this section and
   all steps after step two because 861 is not yet included in the ETL.
 
-**1.4)** Update the years of data to be processed in the ``etl_full.yml`` and
-``etl_fast.yml`` settings files stored under ``src/pudl/package_data/settings`` in the
-PUDL repo.
+**1.4)** Update the partitions of data to be processed in
+the ``etl_full.yml`` and ``etl_fast.yml`` settings files stored under
+``src/pudl/package_data/settings`` in the PUDL repo.
 
 **1.5)** Use the ``pudl_datastore`` script (see :doc:`datastore`) to download the new
 raw data archives in bulk so that network hiccups don't cause issues during the ETL.
@@ -79,21 +89,21 @@ the years (e.g. ``boiler_fuel``). However ``page_name`` does not necessarily cor
 directly to PUDL database table names because we don't load the data from all pages, and
 some pages result in more than one database table after normalization.
 
-**2.A.1)** Add a column for the new year of data to each of the aforementioned files. If
-there are any changes to prior years, make sure to address those too. (See note above).
-If you are updating early release data with final release data, replace the values in
-the appropriate year column.
+**2.A.1)** If you're adding a new year, add a column for the new year of data to each of
+the aforementioned files. If there are any changes to prior years, make sure to address
+those too. (See note above). If you are updating early release data with final release
+data, replace the values in the appropriate year column.
 
 .. note::
 
-   If you are adding EIA's early release data, make sure the raw files have
+   **If you are adding EIA's early release data**, make sure the raw files have
    ``Early_Release`` at the end of the file name. This is how the excel extractor knows
    to label the data as provisional vs. final.
 
-   Early release files also tend to have one extra row at the top and one extra column
-   on the right of each file indicating that it is early release. This means that the
-   skiprows and column map values will probably be off by 1 when you update from early
-   release to final release.
+   **If you are updating early release data to final release data** - early release
+   files tend to have one extra row at the top and one extra column on the right of each
+   file indicating that it is early release. This means that the skiprows and column map
+   values will probably be off by 1.
 
 **2.A.2)** If there are files, spreadsheet pages, or individual columns with new
 semantic meaning (i.e. they don't correspond to any of the previously mapped files,
@@ -334,10 +344,10 @@ A. FERC 1 & EIA Plants & Utilities
 B. Missing EIA Plant Locations from CEMS
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 **6.B.1)** If there are any plants that appear in the EPA CEMS dataset that do not
-appear in the ``plants_entity_eia`` table, or that are missing latitude and longitude
-values, you'll get a warning when you try and materialize the ``epacamd`` asset group in
-Dagster. You'll need to manually compile the missing information and add it to
-``src/pudl/package_data/epacems/additional_epacems_plants.csv`` to enable accurate
+appear in the ``core_eia__entity_plants`` table, or that are missing latitude and
+longitude values, you'll get a warning when you try and materialize the ``core_epacamd``
+asset group in Dagster. You'll need to manually compile the missing information and add
+it to ``src/pudl/package_data/epacems/additional_epacems_plants.csv`` to enable accurate
 adjustment of the EPA CEMS timestamps to UTC. Using the Plant ID from the warning, look
 up the plant coordinates in the
 `EPA FACT API <https://www.epa.gov/airmarkets/field-audit-checklist-tool-fact-api>`__.

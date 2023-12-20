@@ -73,9 +73,11 @@ function copy_outputs_to_distribution_bucket() {
 
     echo "Copying outputs to AWS distribution bucket"
     aws s3 cp "$PUDL_OUTPUT/" "s3://pudl.catalyst.coop/$GITHUB_REF" --recursive
-    echo "Copying outputs to AWS intake bucket"
-    # This is temporary as we migrate people to pudl.catalyst.coop
-    aws s3 cp "$PUDL_OUTPUT/" "s3://intake.catalyst.coop/$GITHUB_REF" --recursive
+}
+
+function zenodo_data_release() {
+    echo "Creating a new PUDL data release on Zenodo."
+    ~/devtools/zenodo/zenodo_data_release.py --publish --env sandbox --source-dir $PUDL_OUTPUT
 }
 
 
@@ -125,8 +127,13 @@ if [[ $ETL_SUCCESS == 0 ]]; then
     if [ $GITHUB_ACTION_TRIGGER = "push" ] || [ $GITHUB_REF = "dev" ]; then
         copy_outputs_to_distribution_bucket
         ETL_SUCCESS=${PIPESTATUS[0]}
+        zenodo_data_release 2>&1 | tee -a $LOGFILE
+        ETL_SUCCESS=${PIPESTATUS[0]}
     fi
 fi
+
+# This way we also save the logs from latter steps in the script
+gsutil cp $LOGFILE ${PUDL_GCS_OUTPUT}
 
 # Notify slack about entire pipeline's success or failure;
 # PIPESTATUS[0] either refers to the failed ETL run or the last distribution

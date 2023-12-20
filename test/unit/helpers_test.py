@@ -14,12 +14,14 @@ from pudl.helpers import (
     convert_df_to_excel_file,
     convert_to_date,
     date_merge,
+    diff_wide_tables,
     expand_timeseries,
     fix_eia_na,
     flatten_list,
     remove_leading_zeros_from_numeric_strings,
     zero_pad_numeric_string,
 )
+from pudl.metadata.helpers import _format_resource_name_cross_ref
 from pudl.output.sql.helpers import sql_asset_factory
 
 MONTHLY_GEN_FUEL = pd.DataFrame(
@@ -625,9 +627,9 @@ def test_flatten_mix_types():
 def test_cems_selection():
     """Test CEMS asset selection remove cems assets."""
     cems_selection = pudl.etl.create_non_cems_selection(pudl.etl.default_assets)
-    assert AssetKey("hourly_emissions_epacems") not in cems_selection.resolve(
+    assert AssetKey("core_epacems__hourly_emissions") not in cems_selection.resolve(
         pudl.etl.default_assets
-    ), "hourly_emissions_epacems or downstream asset present in selection."
+    ), "core_epacems__hourly_emissions or downstream asset present in selection."
 
 
 def test_sql_asset_factory_missing_file():
@@ -666,3 +668,81 @@ def test_convert_col_to_bool(df):
         .isin([False, np.nan])
         .all()
     )
+
+
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        ("out_eia__yearly_generators", "out_eia__yearly_generators"),
+        ("_out_eia__yearly_generators", "i_out_eia__yearly_generators"),
+        ("__out_eia__yearly_generators", "i__out_eia__yearly_generators"),
+        ("", ""),
+    ],
+)
+def test_format_resource_name_cross_ref(test_input, expected):
+    assert _format_resource_name_cross_ref(test_input) == expected
+
+
+def test_diff_wide_tables():
+    # has 2020-2021 data for utils 1 and 2; fact 2 for utility 1 just never reported
+    old = pd.DataFrame.from_records(
+        [
+            {"u_id": 1, "year": 2020, "fact1": "u1f1y20"},
+            {"u_id": 1, "year": 2021, "fact1": "u1f1y21"},
+            {"u_id": 2, "year": 2020, "fact1": "u2f1y20", "fact2": "u2f2y20"},
+            {"u_id": 2, "year": 2021, "fact1": "u2f1y21", "fact2": "u2f2y21"},
+        ]
+    )
+
+    # has 2020-2022 data for utils 1 and 2, but:
+    # - utility 1 is missing 2020 data for fact 1 and fact 2; otherwise, just missing fact 2 as usual
+    # - utility 2 has an updated value for 2021 fact 1
+    new = pd.DataFrame.from_records(
+        [
+            {"u_id": 1, "year": 2020},
+            {"u_id": 1, "year": 2021, "fact1": "u1f1y21"},
+            {"u_id": 1, "year": 2022, "fact1": "u1f1y22"},
+            {"u_id": 2, "year": 2020, "fact1": "u2f1y20", "fact2": "u2f2y20"},
+            {"u_id": 2, "year": 2021, "fact1": "u2f1y21_updated", "fact2": "u2f2y21"},
+            {"u_id": 2, "year": 2022, "fact1": "u2f1y22", "fact2": "u2f2y22"},
+        ]
+    )
+
+    empty_diff = diff_wide_tables(primary_key=["u_id", "year"], old=old, new=old)
+    assert empty_diff.added.empty
+    assert empty_diff.deleted.empty
+    assert empty_diff.changed.empty
+
+    def assert_diff_equal(observed, expected):
+        observed_reshaped = observed.droplevel(level=0, axis="columns")
+        expected_reshaped = expected.set_index(observed_reshaped.index.names)
+        assert_frame_equal(observed_reshaped, expected_reshaped)
+
+    diff_output = diff_wide_tables(primary_key=["u_id", "year"], old=old, new=new)
+
+    expected_deleted = pd.DataFrame.from_records(
+        [{"u_id": 1, "year": 2020, "field": "fact1", "old": "u1f1y20", "new": None}]
+    )
+    assert_diff_equal(diff_output.deleted, expected_deleted)
+
+    expected_added = pd.DataFrame.from_records(
+        [
+            {"u_id": 1, "year": 2022, "field": "fact1", "old": None, "new": "u1f1y22"},
+            {"u_id": 2, "year": 2022, "field": "fact1", "old": None, "new": "u2f1y22"},
+            {"u_id": 2, "year": 2022, "field": "fact2", "old": None, "new": "u2f2y22"},
+        ]
+    )
+    assert_diff_equal(diff_output.added, expected_added)
+
+    expected_changed = pd.DataFrame.from_records(
+        [
+            {
+                "u_id": 2,
+                "year": 2021,
+                "field": "fact1",
+                "old": "u2f1y21",
+                "new": "u2f1y21_updated",
+            }
+        ]
+    )
+    assert_diff_equal(diff_output.changed, expected_changed)

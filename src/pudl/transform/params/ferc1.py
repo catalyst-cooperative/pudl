@@ -2161,7 +2161,7 @@ inclusive so that variants of conventional (e.g. "conventional full") and outdoo
 # Fully assembled set of FERC 1 transformation parameters
 ##############################################################################
 TRANSFORM_PARAMS = {
-    "fuel_ferc1": {
+    "core_ferc1__yearly_steam_plants_fuel_sched402": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -2247,7 +2247,7 @@ TRANSFORM_PARAMS = {
             },
         ],
     },
-    "plants_steam_ferc1": {
+    "core_ferc1__yearly_steam_plants_sched402": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -2416,7 +2416,7 @@ TRANSFORM_PARAMS = {
             },
         ],
     },
-    "plants_hydro_ferc1": {
+    "core_ferc1__yearly_hydroelectric_plants_sched406": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -2554,7 +2554,7 @@ TRANSFORM_PARAMS = {
             },
         ],
     },
-    "plants_small_ferc1": {
+    "core_ferc1__yearly_small_plants_sched410": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -2652,7 +2652,7 @@ TRANSFORM_PARAMS = {
             },
         ],
     },
-    "plant_in_service_ferc1": {
+    "core_ferc1__yearly_plant_in_service_sched204": {
         "rename_columns_ferc1": {
             "xbrl": {
                 "columns": {
@@ -2754,7 +2754,7 @@ TRANSFORM_PARAMS = {
             },
         },
     },
-    "plants_pumped_storage_ferc1": {
+    "core_ferc1__yearly_pumped_storage_plants_sched408": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -2899,7 +2899,7 @@ TRANSFORM_PARAMS = {
             },
         ],
     },
-    "purchased_power_ferc1": {
+    "core_ferc1__yearly_purchased_power_and_exchanges_sched326": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -2978,7 +2978,7 @@ TRANSFORM_PARAMS = {
             }
         ],
     },
-    "transmission_statistics_ferc1": {
+    "core_ferc1__yearly_transmission_lines_sched422": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -3060,7 +3060,7 @@ TRANSFORM_PARAMS = {
             }
         ],
     },
-    "electric_energy_sources_ferc1": {
+    "core_ferc1__yearly_energy_sources_sched401": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -3137,7 +3137,7 @@ TRANSFORM_PARAMS = {
         },
         "align_row_numbers_dbf": {"dbf_table_names": ["f1_elctrc_erg_acct"]},
     },
-    "electric_energy_dispositions_ferc1": {
+    "core_ferc1__yearly_energy_dispositions_sched401": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -3202,7 +3202,7 @@ TRANSFORM_PARAMS = {
         },
         "align_row_numbers_dbf": {"dbf_table_names": ["f1_elctrc_erg_acct"]},
     },
-    "utility_plant_summary_ferc1": {
+    "core_ferc1__yearly_utility_plant_summary_sched200": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -3376,7 +3376,7 @@ TRANSFORM_PARAMS = {
             },
         },
     },
-    "balance_sheet_assets_ferc1": {
+    "core_ferc1__yearly_balance_sheet_assets_sched110": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -3418,7 +3418,7 @@ TRANSFORM_PARAMS = {
         },
         "drop_duplicate_rows_dbf": {
             "data_columns": ["ending_balance", "starting_balance"],
-            "table_name": "balance_sheet_assets_ferc1",
+            "table_name": "core_ferc1__yearly_balance_sheet_assets_sched110",
         },
         "align_row_numbers_dbf": {"dbf_table_names": ["f1_comp_balance_db"]},
         "merge_xbrl_metadata": {
@@ -3434,7 +3434,7 @@ TRANSFORM_PARAMS = {
             },
         },
     },
-    "balance_sheet_liabilities_ferc1": {
+    "core_ferc1__yearly_balance_sheet_liabilities_sched110": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -3477,7 +3477,7 @@ TRANSFORM_PARAMS = {
         },
         "drop_duplicate_rows_dbf": {
             "data_columns": ["ending_balance", "starting_balance"],
-            "table_name": "balance_sheet_liabilities_ferc1",
+            "table_name": "core_ferc1__yearly_balance_sheet_liabilities_sched110",
         },
         "align_row_numbers_dbf": {"dbf_table_names": ["f1_bal_sheet_cr"]},
         "merge_xbrl_metadata": {
@@ -3486,7 +3486,7 @@ TRANSFORM_PARAMS = {
         },
         "reconcile_table_calculations": {"column_to_check": "ending_balance"},
     },
-    "depreciation_amortization_summary_ferc1": {
+    "core_ferc1__yearly_depreciation_summary_sched336": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -3566,7 +3566,7 @@ TRANSFORM_PARAMS = {
             },
         },
     },
-    "electric_operating_revenues_ferc1": {
+    "core_ferc1__yearly_operating_revenues_sched300": {
         "rename_columns_ferc1": {
             "duration_xbrl": {
                 "columns": {
@@ -3713,7 +3713,7 @@ TRANSFORM_PARAMS = {
             },
         },
     },
-    "retained_earnings_ferc1": {
+    "core_ferc1__yearly_retained_earnings_sched118": {
         "rename_columns_ferc1": {
             "duration_xbrl": {
                 "columns": {
@@ -3794,7 +3794,7 @@ TRANSFORM_PARAMS = {
             },
         },
     },
-    "income_statement_ferc1": {
+    "core_ferc1__yearly_income_statements_sched114": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -3926,7 +3926,7 @@ TRANSFORM_PARAMS = {
         },
         "drop_duplicate_rows_dbf": {
             "data_columns": ["dollar_value"],
-            "table_name": "income_statement_ferc1",
+            "table_name": "core_ferc1__yearly_income_statements_sched114",
         },
         "align_row_numbers_dbf": {
             "dbf_table_names": ["f1_income_stmnt", "f1_incm_stmnt_2"]
@@ -3970,7 +3970,7 @@ TRANSFORM_PARAMS = {
             },
         },
     },
-    "electric_plant_depreciation_changes_ferc1": {
+    "core_ferc1__yearly_depreciation_changes_sched219": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -4091,7 +4091,7 @@ TRANSFORM_PARAMS = {
             },
         },
     },
-    "electric_plant_depreciation_functional_ferc1": {
+    "core_ferc1__yearly_depreciation_by_function_sched219": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -4192,7 +4192,7 @@ TRANSFORM_PARAMS = {
             "subtotal_column": "plant_status",
         },
     },
-    "cash_flow_ferc1": {
+    "core_ferc1__yearly_cash_flows_sched120": {
         "rename_columns_ferc1": {
             "instant_xbrl": {
                 "columns": {
@@ -4313,7 +4313,7 @@ TRANSFORM_PARAMS = {
             "on": "amount_type",
         },
     },
-    "electric_operating_expenses_ferc1": {
+    "core_ferc1__yearly_operating_expenses_sched320": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -4530,7 +4530,7 @@ TRANSFORM_PARAMS = {
         },
         "drop_duplicate_rows_dbf": {
             "data_columns": ["dollar_value"],
-            "table_name": "electric_operating_expenses_ferc1",
+            "table_name": "core_ferc1__yearly_operating_expenses_sched320",
         },
         "merge_xbrl_metadata": {
             "rename_columns": {"xbrl_factoid": "expense_type"},
@@ -4554,7 +4554,7 @@ TRANSFORM_PARAMS = {
             },
         },
     },
-    "other_regulatory_liabilities_ferc1": {
+    "core_ferc1__yearly_other_regulatory_liabilities_sched278": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -4602,7 +4602,7 @@ TRANSFORM_PARAMS = {
             },
         ],
     },
-    "electricity_sales_by_rate_schedule_ferc1": {
+    "core_ferc1__yearly_sales_by_rate_schedules_sched304": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
