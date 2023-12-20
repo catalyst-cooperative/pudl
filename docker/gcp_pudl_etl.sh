@@ -101,6 +101,8 @@ function notify_slack() {
 
 if [ "$GITHUB_ACTION_TRIGGER" = "workflow_dispatch" ]; then
     echo "Deployed via workflow_dispatch, testing git authentication!"
+    # Remove the read-only authentication header
+    git config --unset http.https://github.com/.extraheader
     git config user.email "pudl@catalyst.coop"
     git config user.name "pudlbot"
     git remote set-url origin "https://pudlbot:$PUDL_BOT_PAT@github.com/catalyst-cooperative/pudl.git"
