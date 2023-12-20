@@ -98,9 +98,10 @@ jobs:
       - name: Tag the current stable commit
         run: |
           git config user.email "pudl@catalyst.coop"
-          git config user.name "PudlBot"
-          git tag -a -m "stable" stable
-          git push origin stable
+          git config user.name "pudlbot"
+          git checkout stable
+          git merge --ff-only ${{ github.ref_name }}
+          git push
 
   notify-slack:
     runs-on: ubuntu-latest

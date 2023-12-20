@@ -68,22 +68,23 @@ function copy_outputs_to_gcs() {
 }
 
 function copy_outputs_to_distribution_bucket() {
-    echo "Removing old outputs from GCP distributon bucket."
-    gsutil -m -u $GCP_BILLING_PROJECT rm -r "gs://pudl.catalyst.coop/$GITHUB_REF"
-    echo "Copying outputs to GCP distribution bucket"
-    gsutil -m -u $GCP_BILLING_PROJECT cp -r "$PUDL_OUTPUT/*" "gs://pudl.catalyst.coop/$GITHUB_REF"
+    # Only attempt to update outputs if we have a real value of GITHUB_REF
+    if [ -n "$GITHUB_REF" ]; then
+        echo "Removing old $GITHUB_REF outputs from GCP distributon bucket."
+        gsutil -m -u $GCP_BILLING_PROJECT rm -r "gs://pudl.catalyst.coop/$GITHUB_REF"
+        echo "Copying outputs to GCP distribution bucket"
+        gsutil -m -u $GCP_BILLING_PROJECT cp -r "$PUDL_OUTPUT/*" "gs://pudl.catalyst.coop/$GITHUB_REF"
 
-    echo "Removing old outputs from AWS distributon bucket."
-    aws s3 rm "s3://pudl.catalyst.coop/$GITHUB_REF" --recursive
-    echo "Copying outputs to AWS distribution bucket"
-    aws s3 cp "$PUDL_OUTPUT/" "s3://pudl.catalyst.coop/$GITHUB_REF" --recursive
+        echo "Removing old $GITHUB_REF outputs from AWS distributon bucket."
+        aws s3 rm "s3://pudl.catalyst.coop/$GITHUB_REF" --recursive
+        echo "Copying outputs to AWS distribution bucket"
+        aws s3 cp "$PUDL_OUTPUT/" "s3://pudl.catalyst.coop/$GITHUB_REF" --recursive
 }
 
 function zenodo_data_release() {
     echo "Creating a new PUDL data release on Zenodo."
     ~/devtools/zenodo/zenodo_data_release.py --publish --env sandbox --source-dir $PUDL_OUTPUT
 }
-
 
 function notify_slack() {
     # Notify pudl-builds slack channel of deployment status
@@ -112,11 +113,12 @@ copy_outputs_to_gcs
 # if pipeline is successful, distribute + publish datasette
 if [[ $ETL_SUCCESS == 0 ]]; then
     if [ $GITHUB_ACTION_TRIGGER = "schedule" ]; then
-        # Tag the nightly build
+        # Update the nightly branch to point at newly successful nightly build tag
         git config user.email "pudl@catalyst.coop"
-        git config user.name "PudlBot"
-        git tag -a -m "The most recent successful nightly build." nightly $GITHUB_REF
-        git push origin nightly
+        git config user.name "pudlbot"
+        git checkout nightly
+        git merge --ff-only $NIGHTLY_TAG
+        git push
     # Deploy the updated data to datasette
     if [ $GITHUB_REF = "dev" ]; then
         python ~/devtools/datasette/publish.py 2>&1 | tee -a $LOGFILE
