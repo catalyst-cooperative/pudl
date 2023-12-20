@@ -106,10 +106,10 @@ def plants_steam_validate_ids(
     # which include more than one record from a given year. Warn the user
     # if we find such cases (which... we do, as of writing)
     year_dupes = (
-        ferc1_steam_df.groupby(["plant_id_ferc1", "report_year"])["utility_id_ferc1"]
-        .count()
+        ferc1_steam_df.groupby(["plant_id_ferc1", "report_year"])
+        .size()
+        .rename("year_dupes")
         .reset_index()
-        .rename(columns={"utility_id_ferc1": "year_dupes"})
         .query("year_dupes>1")
     )
     if len(year_dupes) > 0:
