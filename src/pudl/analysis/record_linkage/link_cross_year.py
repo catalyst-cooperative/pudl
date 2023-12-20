@@ -21,7 +21,7 @@ class PenalizeReportYearDistanceConfig(Config):
     """Compute distance between records and add penalty to records from same year."""
 
     distance_penalty: float = 10000.0
-    metric: str = "euclidean"
+    metric: str = "cosine"
 
 
 class DistanceMatrix:
@@ -122,8 +122,8 @@ class DBSCANConfig(Config):
     """Configuration for DBSCAN step."""
 
     #: See :class:`sklearn.cluster.DBSCAN` for details.
-    eps: float = 0.1
-    min_samples: int = 2
+    eps: float = 0.5
+    min_samples: int = 1
 
 
 @op

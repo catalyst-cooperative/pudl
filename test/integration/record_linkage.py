@@ -9,6 +9,7 @@ import pandas as pd
 import pytest
 from dagster import graph
 
+import pudl
 from pudl.analysis.record_linkage.classify_plants_ferc1 import (
     _FUEL_COLS,
     ferc_dataframe_embedder,
@@ -21,6 +22,8 @@ from pudl.transform.params.ferc1 import (
 )
 
 _RANDOM_GENERATOR = np.random.default_rng(12335)
+
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def _randomly_modify_string(input_str: str, k: int = 5) -> str:
@@ -232,7 +235,6 @@ def test_classify_plants_ferc1(mock_ferc1_plants_df):
         .apply(lambda plant_ids: plant_ids.value_counts().iloc[0])
         .sum()
     )
-
-    assert (
-        correctly_matched / len(mock_ferc1_plants_df) > 0.85
-    ), "Percent of correctly matched FERC records below 85%."
+    ratio_correct = correctly_matched / len(mock_ferc1_plants_df)
+    logger.info(f"Percent correctly matched: {ratio_correct*100:.2f}%")
+    assert ratio_correct > 0.95, "Percent of correctly matched FERC records below 85%."
