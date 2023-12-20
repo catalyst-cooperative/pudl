@@ -37,7 +37,7 @@ COPY docker/dagster.yaml ${DAGSTER_HOME}/dagster.yaml
 
 # Copy the cloned pudl repository into the user's home directory
 # COPY --chown=${MAMBA_USER}:${MAMBA_USER} . ${CONTAINER_HOME}
-RUN "git clone --depth 2 --single-branch ${GITHUB_REF} https://github.com/catalyst-cooperative/pudl.git"
+RUN git clone --depth 2 --single-branch "$GITHUB_REF" https://github.com/catalyst-cooperative/pudl.git
 WORKDIR ${PUDL_REPO}
 # Create a conda environment based on the specification in the repo
 RUN micromamba create --prefix ${CONDA_PREFIX} --yes --file environments/conda-lock.yml && \
