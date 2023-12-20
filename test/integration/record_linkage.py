@@ -11,7 +11,7 @@ from dagster import graph
 
 from pudl.analysis.record_linkage.classify_plants_ferc1 import (
     _FUEL_COLS,
-    embed_dataframe,
+    ferc_dataframe_embedder,
 )
 from pudl.analysis.record_linkage.link_cross_year import link_ids_cross_year
 from pudl.transform.params.ferc1 import (
@@ -33,7 +33,11 @@ def _randomly_modify_string(input_str: str, k: int = 5) -> str:
     # Possible characters to select from when performing "add" or "substitute"
     # Letters are included twice to increase odds of selecting a letter
     characters = (
-        string.digits + string.ascii_letters + string.ascii_letters + string.punctuation
+        string.digits
+        + string.ascii_letters
+        + string.ascii_letters
+        + string.punctuation
+        + string.whitespace
     )
 
     # Generate random number between 0-k many times and taking min
@@ -51,6 +55,24 @@ def _randomly_modify_string(input_str: str, k: int = 5) -> str:
             input_list[position] = random.choice(characters)
 
     return "".join(input_list)
+
+
+def _generate_fuel_cols(plant_type: str, size: int) -> pd.DataFrame:
+    fuel_cols = pd.DataFrame([[pd.NA] * len(_FUEL_COLS)] * size, columns=_FUEL_COLS)
+    if plant_type == "nuclear":
+        fuel_cols["nuclear_fraction_mmbtu"] = 1.0
+    elif plant_type == "steam":
+        fuel_cols["coal_fraction_mmbtu"] = random.uniform(0.6, 1)
+        fuel_cols["gas_fraction_mmbtu"] = 1 - fuel_cols["coal_fraction_mmbtu"]
+    elif (
+        plant_type == "internal_combustion"
+        or plant_type == "combustion_turbine"
+        or plant_type == "combined_cycle"
+    ):
+        fuel_cols["gas_fraction_mmbtu"] = random.uniform(0, 1)
+        fuel_cols["oil_fraction_mmbtu"] = 1 - fuel_cols["gas_fraction_mmbtu"]
+
+    return fuel_cols
 
 
 def _noisify(col: pd.Series, sigma: float = 0.01, probability: float = 1) -> pd.Series:
@@ -76,6 +98,10 @@ def _generate_random_test_df(
     default_plant_name: str,
     size: int = 2022 - 1994,
     plant_name_max_edits: int = 5,
+    plant_type=random.choice(list(PLANT_TYPE_CATEGORIES["categories"].keys())),
+    construction_type=random.choice(
+        list(CONSTRUCTION_TYPE_CATEGORIES["categories"].keys())
+    ),
     plant_type_error_prob: float = 0.01,
     construction_type_error_prob: float = 0.01,
     construction_year_error_prob: float = 0.01,
@@ -90,15 +116,9 @@ def _generate_random_test_df(
     generated_df = pd.DataFrame(
         {
             "base_plant_name": [default_plant_name] * size,
-            "plant_type": [
-                random.choice(list(PLANT_TYPE_CATEGORIES["categories"].keys()))
-            ]
-            * size,
+            "plant_type": [plant_type] * size,
             "report_year": list(range(1994, 1994 + size)),
-            "construction_type": [
-                random.choice(list(CONSTRUCTION_TYPE_CATEGORIES["categories"].keys()))
-            ]
-            * size,
+            "construction_type": [construction_type] * size,
             "capacity_mw": [capacity_mean] * size,
             "construction_year": [
                 random.randrange(
@@ -142,10 +162,8 @@ def _generate_random_test_df(
         plant_type_error_prob,
     )
 
-    # Generate l1 unit vector to represent fuel fractions (all add up to 1)
-    fuel_frac_vec = abs(_RANDOM_GENERATOR.normal(size=len(_FUEL_COLS)))
-    fuel_frac_vec = fuel_frac_vec / np.linalg.norm(fuel_frac_vec, ord=1)
-    generated_df[_FUEL_COLS] = fuel_frac_vec
+    # Generate vectors of fuel fractions
+    generated_df[_FUEL_COLS] = _generate_fuel_cols(plant_type, size)
 
     # Add minor noise to fuel fractions
     for col in _FUEL_COLS:
@@ -184,6 +202,11 @@ def mock_ferc1_plants_df():
             _generate_random_test_df("allen e. kintigh", capacity_mean=150),
             _generate_random_test_df("hawthorn 6", capacity_mean=150),
             _generate_random_test_df("venice c.t.", capacity_mean=500),
+            _generate_random_test_df("keystone *", capacity_mean=1872.0, size=3),
+            _generate_random_test_df("keystone", capacity_mean=50.0, size=21),
+            _generate_random_test_df(
+                "keystone 1&2 (3.70%)", capacity_mean=69.3, size=5
+            ),
         ]
     ).reset_index()
 
@@ -193,12 +216,14 @@ def test_classify_plants_ferc1(mock_ferc1_plants_df):
 
     @graph
     def _link_ids(df: pd.DataFrame):
-        feature_matrix = embed_dataframe(df)
+        feature_matrix = ferc_dataframe_embedder(df)
         label_df = link_ids_cross_year(df, feature_matrix)
         return label_df
 
-    mock_ferc1_plants_df["plant_id_ferc1"] = _link_ids.to_job().execute_in_process(
-        input_values={"df": mock_ferc1_plants_df}
+    mock_ferc1_plants_df["plant_id_ferc1"] = (
+        _link_ids.to_job()
+        .execute_in_process(input_values={"df": mock_ferc1_plants_df})
+        .output_value()["record_label"]
     )
 
     # Compute percent of records assigned correctly
