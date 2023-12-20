@@ -36,19 +36,17 @@ RUN mkdir -p ${PUDL_INPUT} ${PUDL_OUTPUT} ${DAGSTER_HOME}
 COPY docker/dagster.yaml ${DAGSTER_HOME}/dagster.yaml
 
 # Copy the cloned pudl repository into the user's home directory
-COPY --chown=${MAMBA_USER}:${MAMBA_USER} . ${CONTAINER_HOME}
+COPY --chown=${MAMBA_USER}:${MAMBA_USER} . ${PUDL_REPO}
 
 # Create a conda environment based on the specification in the repo
-RUN micromamba create --prefix ${CONDA_PREFIX} --yes --file environments/conda-lock.yml && \
+RUN ls -a && \
+    micromamba create --prefix ${CONDA_PREFIX} --yes --file ${PUDL_REPO}/environments/conda-lock.yml && \
     micromamba clean -afy
 
 # TODO(rousik): The following is a workaround for sudden breakage where conda
 # can't find libraries contained within the environment. It's unclear why!
 ENV LD_LIBRARY_PATH=${CONDA_PREFIX}/lib
-# We need information from .git to get version with setuptools_scm so we mount that
-# directory without copying it into the image.
-#RUN --mount=type=bind,source=.git,target=${PUDL_REPO}/.git \
-RUN ${CONDA_RUN} pip install --no-cache-dir --no-deps --editable .
+RUN ${CONDA_RUN} pip install --no-cache-dir --no-deps --editable ${PUDL_REPO}
 
 # Install awscli2
 # Change back to root because the install script needs access to /usr/local/aws-cli
@@ -61,5 +59,6 @@ USER $MAMBA_USER
 RUN ${CONDA_RUN} bash -c 'curl -L https://fly.io/install.sh | sh'
 ENV PATH="${CONTAINER_HOME}/.fly/bin:$PATH"
 
+WORKDIR ${PUDL_REPO}
 # Run the unit tests:
 CMD ["micromamba", "run", "--prefix", "${CONDA_PREFIX}", "--attach", "''", "pytest", "test/unit"]
