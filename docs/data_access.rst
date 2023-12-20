@@ -107,7 +107,7 @@ AWS CLI, or programmatically via the S3 API. They can also be downloaded directl
 HTTPS using the following links:
 
 * `PUDL SQLite DB <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/pudl.sqlite.gz>`__
-* `EPA CEMS Hourly Emissions Parquet (1995-2023Q3) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/core_epacems__hourly_emissions.parquet>`__
+* `EPA CEMS Hourly Emissions Parquet (1995Q1-2023Q3) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/core_epacems__hourly_emissions.parquet>`__
 * `Census DP1 SQLite DB (2010) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/dev/censusdp1tract.sqlite.gz>`__
 
 * Raw FERC Form 1:
