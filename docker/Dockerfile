@@ -39,7 +39,7 @@ COPY docker/dagster.yaml ${DAGSTER_HOME}/dagster.yaml
 COPY --chown=${MAMBA_USER}:${MAMBA_USER} . ${PUDL_REPO}
 
 # Create a conda environment based on the specification in the repo
-RUN ls -a && \
+RUN ls -a pudl pudl_work && \
     micromamba create --prefix ${CONDA_PREFIX} --yes --file ${PUDL_REPO}/environments/conda-lock.yml && \
     micromamba clean -afy
 
@@ -51,14 +51,17 @@ RUN ${CONDA_RUN} pip install --no-cache-dir --no-deps --editable ${PUDL_REPO}
 # Install awscli2
 # Change back to root because the install script needs access to /usr/local/aws-cli
 USER root
-RUN ${CONDA_RUN} bash -c 'curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && unzip awscliv2.zip && ./aws/install'
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+    unzip awscliv2.zip && \
+    ./aws/install
 USER $MAMBA_USER
 
 # Install flyctl
 # hadolint ignore=DL3059
-RUN ${CONDA_RUN} bash -c 'curl -L https://fly.io/install.sh | sh'
+RUN curl -L https://fly.io/install.sh | sh
 ENV PATH="${CONTAINER_HOME}/.fly/bin:$PATH"
 
 WORKDIR ${PUDL_REPO}
+RUN git config -l
 # Run the unit tests:
 CMD ["micromamba", "run", "--prefix", "${CONDA_PREFIX}", "--attach", "''", "pytest", "test/unit"]
