@@ -17,22 +17,29 @@ logger = logging.getLogger(__name__)
 @pytest.mark.parametrize(
     "cases",
     [
-        pytest.param(pv.plants_steam_ferc1_capacity, id="capacity"),
-        pytest.param(pv.plants_steam_ferc1_expenses, id="expenses"),
-        pytest.param(pv.plants_steam_ferc1_capacity_ratios, id="capacity_ratios"),
         pytest.param(
-            pv.plants_steam_ferc1_connected_hours,
+            pv.core_ferc1__yearly_steam_plants_sched402_capacity, id="capacity"
+        ),
+        pytest.param(
+            pv.core_ferc1__yearly_steam_plants_sched402_expenses, id="expenses"
+        ),
+        pytest.param(
+            pv.core_ferc1__yearly_steam_plants_sched402_capacity_ratios,
+            id="capacity_ratios",
+        ),
+        pytest.param(
+            pv.core_ferc1__yearly_steam_plants_sched402_connected_hours,
             id="connected_hours",
             marks=pytest.mark.xfail(reason="FERC 1 data reporting errors."),
         ),
     ],
 )
 def test_vs_bounds(pudl_out_ferc1, live_dbs, cases):
-    """Test distributions of reported plants_steam_ferc1 columns."""
+    """Test distributions of reported core_ferc1__yearly_steam_plants_sched402 columns."""
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
     validate_df = pd.read_sql(
-        "denorm_plants_steam_ferc1", pudl_out_ferc1.pudl_engine
+        "_out_ferc1__yearly_steam_plants_sched402", pudl_out_ferc1.pudl_engine
     ).assign(
         water_limited_ratio=lambda x: x.water_limited_capacity_mw / x.capacity_mw,
         not_water_limited_ratio=lambda x: x.not_water_limited_capacity_mw
@@ -49,7 +56,7 @@ def test_self_vs_historical(pudl_out_ferc1, live_dbs):
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
     validate_df = pd.read_sql(
-        "denorm_plants_steam_ferc1", pudl_out_ferc1.pudl_engine
+        "_out_ferc1__yearly_steam_plants_sched402", pudl_out_ferc1.pudl_engine
     ).assign(
         water_limited_ratio=lambda x: x.water_limited_capacity_mw / x.capacity_mw,
         not_water_limited_ratio=lambda x: x.not_water_limited_capacity_mw
@@ -57,7 +64,7 @@ def test_self_vs_historical(pudl_out_ferc1, live_dbs):
         peak_demand_ratio=lambda x: x.peak_demand_mw / x.capacity_mw,
         capability_ratio=lambda x: x.plant_capability_mw / x.capacity_mw,
     )
-    for args in pv.plants_steam_ferc1_self:
+    for args in pv.core_ferc1__yearly_steam_plants_sched402_self:
         pudl.validate.vs_self(validate_df, **args)
 
 
@@ -69,7 +76,9 @@ def test_dupe_years_in_plant_id_ferc1(pudl_out_ferc1):
     more than one record from a given year. Fail the test if we find such cases
     (which... we do, as of writing).
     """
-    steam_df = pd.read_sql("denorm_plants_steam_ferc1", pudl_out_ferc1.pudl_engine)
+    steam_df = pd.read_sql(
+        "_out_ferc1__yearly_steam_plants_sched402", pudl_out_ferc1.pudl_engine
+    )
     year_dupes = (
         steam_df.groupby(["plant_id_ferc1", "report_year"])["utility_id_ferc1"]
         .count()
@@ -97,7 +106,9 @@ def test_plant_id_clash(pudl_out_ferc1):
     only ever appear within a single PUDL Plant ID. Test this assertion and fail if it
     is untrue (as... we know it is right now).
     """
-    steam_df = pd.read_sql("denorm_plants_steam_ferc1", pudl_out_ferc1.pudl_engine)
+    steam_df = pd.read_sql(
+        "_out_ferc1__yearly_steam_plants_sched402", pudl_out_ferc1.pudl_engine
+    )
     bad_plant_ids_ferc1 = (
         steam_df[["plant_id_pudl", "plant_id_ferc1"]]
         .drop_duplicates()

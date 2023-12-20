@@ -152,29 +152,29 @@ def drop_ytd_for_annual_tables(df: pd.DataFrame, freq: str) -> pd.DataFrame:
 # Simple Denormalized Assets
 #####################################################################################
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
-def denorm_generation_eia923(
-    generation_eia923: pd.DataFrame,
-    denorm_plants_utilities_eia: pd.DataFrame,
-    boiler_generator_assn_eia860: pd.DataFrame,
+def out_eia923__generation(
+    core_eia923__monthly_generation: pd.DataFrame,
+    _out_eia__plants_utilities: pd.DataFrame,
+    core_eia860__assn_boiler_generator: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Denormalize the :ref:`generation_eia923` table."""
+    """Denormalize the :ref:`core_eia923__monthly_generation` table."""
     return denorm_by_gen(
-        generation_eia923,
-        pu=denorm_plants_utilities_eia,
-        bga=boiler_generator_assn_eia860,
+        core_eia923__monthly_generation,
+        pu=_out_eia__plants_utilities,
+        bga=core_eia860__assn_boiler_generator,
     )
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
-def denorm_generation_fuel_combined_eia923(
-    generation_fuel_eia923: pd.DataFrame,
-    generation_fuel_nuclear_eia923: pd.DataFrame,
-    denorm_plants_utilities_eia: pd.DataFrame,
+def out_eia923__generation_fuel_combined(
+    core_eia923__monthly_generation_fuel: pd.DataFrame,
+    core_eia923__monthly_generation_fuel_nuclear: pd.DataFrame,
+    _out_eia__plants_utilities: pd.DataFrame,
 ) -> pd.DataFrame:
     """Denormalize the `generation_fuel_combined_eia923` table.
 
-    This asset first combines the :ref:`generation_fuel_eia923` and
-    :ref:`generation_fuel_nuclear_eia923` into a single table with a uniform primary
+    This asset first combines the :ref:`core_eia923__monthly_generation_fuel` and
+    :ref:`core_eia923__monthly_generation_fuel_nuclear` into a single table with a uniform primary
     key (consolidating multiple nuclear unit IDs into a single plant record) and then
     denormalizes it by merging in some addition plant and utility level columns.
 
@@ -201,11 +201,11 @@ def denorm_generation_fuel_combined_eia923(
     # Rather than enumerating all of the non-data columns, identify them by process of
     # elimination, in case they change in the future.
     non_data_cols = list(
-        set(generation_fuel_nuclear_eia923.columns)
+        set(core_eia923__monthly_generation_fuel_nuclear.columns)
         - set(primary_key + sum_cols + other_cols)
     )
 
-    gfn_gb = generation_fuel_nuclear_eia923.groupby(primary_key)
+    gfn_gb = core_eia923__monthly_generation_fuel_nuclear.groupby(primary_key)
     # Ensure that all non-data columns are homogeneous within groups
     if gfn_gb[non_data_cols].nunique().ne(1).any(axis=None):
         raise ValueError(
@@ -230,34 +230,33 @@ def denorm_generation_fuel_combined_eia923(
         )
     ).reset_index()
     gf = (
-        pd.concat([gfn_agg, generation_fuel_eia923])
+        pd.concat([gfn_agg, core_eia923__monthly_generation_fuel])
         .sort_values(primary_key)
         .reset_index(drop=True)
     )
-    return denorm_by_plant(gf, pu=denorm_plants_utilities_eia)
+    return denorm_by_plant(gf, pu=_out_eia__plants_utilities)
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
-def denorm_boiler_fuel_eia923(
-    boiler_fuel_eia923: pd.DataFrame,
-    denorm_plants_utilities_eia: pd.DataFrame,
-    boiler_generator_assn_eia860: pd.DataFrame,
+def out_eia923__boiler_fuel(
+    core_eia923__monthly_boiler_fuel: pd.DataFrame,
+    _out_eia__plants_utilities: pd.DataFrame,
+    core_eia860__assn_boiler_generator: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Denormalize the :ref:`boiler_fuel_eia923` table.
+    """Denormalize the :ref:`core_eia923__monthly_boiler_fuel` table.
 
     The total heat content is also calculated as it's useful in its own right and
     required later to calculate average heat content per unit of fuel.
     """
-    boiler_fuel_eia923["fuel_consumed_mmbtu"] = (
-        boiler_fuel_eia923["fuel_consumed_units"]
-        * boiler_fuel_eia923["fuel_mmbtu_per_unit"]
+    core_eia923__monthly_boiler_fuel["fuel_consumed_mmbtu"] = (
+        core_eia923__monthly_boiler_fuel["fuel_consumed_units"]
+        * core_eia923__monthly_boiler_fuel["fuel_mmbtu_per_unit"]
     )
-    dd = denorm_by_boil(
-        boiler_fuel_eia923,
-        pu=denorm_plants_utilities_eia,
-        bga=boiler_generator_assn_eia860,
+    return denorm_by_boil(
+        core_eia923__monthly_boiler_fuel,
+        pu=_out_eia__plants_utilities,
+        bga=core_eia860__assn_boiler_generator,
     )
-    return dd
 
 
 @asset(
@@ -278,21 +277,23 @@ def denorm_boiler_fuel_eia923(
     },
     compute_kind="Python",
 )
-def denorm_fuel_receipts_costs_eia923(
+def out_eia923__fuel_receipts_costs(
     context,
-    fuel_receipts_costs_eia923: pd.DataFrame,
-    coalmine_eia923: pd.DataFrame,
-    denorm_plants_utilities_eia: pd.DataFrame,
+    core_eia923__monthly_fuel_receipts_costs: pd.DataFrame,
+    core_eia923__entity_coalmine: pd.DataFrame,
+    _out_eia__plants_utilities: pd.DataFrame,
     state_average_fuel_costs_eia: pd.DataFrame,
-    plants_entity_eia: pd.DataFrame,
+    core_eia__entity_plants: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Denormalize the :ref:`fuel_receipts_costs_eia923` table."""
-    coalmine_eia923 = coalmine_eia923.drop(columns=["data_maturity"])
-    plant_states = plants_entity_eia[["plant_id_eia", "state"]]
+    """Denormalize the :ref:`core_eia923__monthly_fuel_receipts_costs` table."""
+    core_eia923__entity_coalmine = core_eia923__entity_coalmine.drop(
+        columns=["data_maturity"]
+    )
+    plant_states = core_eia__entity_plants[["plant_id_eia", "state"]]
     frc_df = (
         pd.merge(
-            fuel_receipts_costs_eia923,
-            coalmine_eia923.rename(
+            core_eia923__monthly_fuel_receipts_costs,
+            core_eia923__entity_coalmine.rename(
                 columns={
                     "state": "mine_state",
                     "county_id_fips": "coalmine_county_id_fips",
@@ -332,7 +333,7 @@ def denorm_fuel_receipts_costs_eia923(
     frc_df["total_fuel_cost"] = (
         frc_df["fuel_consumed_mmbtu"] * frc_df["fuel_cost_per_mmbtu"]
     )
-    return denorm_by_plant(frc_df, pu=denorm_plants_utilities_eia)
+    return denorm_by_plant(frc_df, pu=_out_eia__plants_utilities)
 
 
 #####################################################################################
@@ -346,20 +347,20 @@ def time_aggregated_eia923_asset_factory(
     agg_freqs = {"AS": "yearly", "MS": "monthly"}
 
     @asset(
-        name=f"denorm_generation_{agg_freqs[freq]}_eia923",
+        name=f"out_eia923__{agg_freqs[freq]}_generation",
         io_manager_key=io_manager_key,
         compute_kind="Python",
     )
     def generation_agg_eia923(
-        denorm_generation_eia923: pd.DataFrame,
-        denorm_plants_utilities_eia: pd.DataFrame,
-        boiler_generator_assn_eia860: pd.DataFrame,
+        out_eia923__generation: pd.DataFrame,
+        _out_eia__plants_utilities: pd.DataFrame,
+        core_eia860__assn_boiler_generator: pd.DataFrame,
     ) -> pd.DataFrame:
-        """Aggregate :ref:`generation_eia923` monthly or annually."""
+        """Aggregate :ref:`out_eia923__generation` monthly or annually."""
         return (
             # Create a date index for grouping based on freq
-            denorm_generation_eia923.set_index(
-                pd.DatetimeIndex(denorm_generation_eia923.report_date)
+            out_eia923__generation.set_index(
+                pd.DatetimeIndex(out_eia923__generation.report_date)
             )
             .pipe(drop_ytd_for_annual_tables, freq)
             .groupby(
@@ -370,25 +371,25 @@ def time_aggregated_eia923_asset_factory(
             .reset_index()
             .pipe(
                 denorm_by_gen,
-                pu=denorm_plants_utilities_eia,
-                bga=boiler_generator_assn_eia860,
+                pu=_out_eia__plants_utilities,
+                bga=core_eia860__assn_boiler_generator,
             )
         )
 
     @asset(
-        name=f"denorm_generation_fuel_combined_{agg_freqs[freq]}_eia923",
+        name=f"out_eia923__{agg_freqs[freq]}_generation_fuel_combined",
         io_manager_key=io_manager_key,
         compute_kind="Python",
     )
     def generation_fuel_combined_agg_eia923(
-        denorm_generation_fuel_combined_eia923: pd.DataFrame,
-        denorm_plants_utilities_eia: pd.DataFrame,
+        out_eia923__generation_fuel_combined: pd.DataFrame,
+        _out_eia__plants_utilities: pd.DataFrame,
     ) -> pd.DataFrame:
         """Aggregate :ref:`generation_fuel_combined_eia923` monthly or annually."""
         gf_both = (
             # Create a date index for temporal resampling:
-            denorm_generation_fuel_combined_eia923.set_index(
-                pd.DatetimeIndex(denorm_generation_fuel_combined_eia923.report_date)
+            out_eia923__generation_fuel_combined.set_index(
+                pd.DatetimeIndex(out_eia923__generation_fuel_combined.report_date)
             )
             .pipe(drop_ytd_for_annual_tables, freq)
             .groupby(
@@ -441,29 +442,29 @@ def time_aggregated_eia923_asset_factory(
                 ]
             )
             .reset_index(drop=True)
-            .pipe(denorm_by_plant, pu=denorm_plants_utilities_eia)
+            .pipe(denorm_by_plant, pu=_out_eia__plants_utilities)
         )
 
     @asset(
-        name=f"denorm_boiler_fuel_{agg_freqs[freq]}_eia923",
+        name=f"out_eia923__{agg_freqs[freq]}_boiler_fuel",
         io_manager_key=io_manager_key,
         compute_kind="Python",
     )
     def boiler_fuel_agg_eia923(
-        denorm_boiler_fuel_eia923: pd.DataFrame,
-        denorm_plants_utilities_eia: pd.DataFrame,
-        boiler_generator_assn_eia860: pd.DataFrame,
+        out_eia923__boiler_fuel: pd.DataFrame,
+        _out_eia__plants_utilities: pd.DataFrame,
+        core_eia860__assn_boiler_generator: pd.DataFrame,
     ) -> pd.DataFrame:
-        """Aggregate :ref:`boiler_fuel_eia923` monthly or annually."""
+        """Aggregate :ref:`core_eia923__monthly_boiler_fuel` monthly or annually."""
         # In order to calculate the weighted average sulfur
         # content and ash content we need to calculate these totals.
         return (
-            denorm_boiler_fuel_eia923.assign(
+            out_eia923__boiler_fuel.assign(
                 total_sulfur_content=lambda x: x.fuel_consumed_units
                 * x.sulfur_content_pct,
                 total_ash_content=lambda x: x.fuel_consumed_units * x.ash_content_pct,
             )
-            .set_index(pd.DatetimeIndex(denorm_boiler_fuel_eia923.report_date))
+            .set_index(pd.DatetimeIndex(out_eia923__boiler_fuel.report_date))
             .pipe(drop_ytd_for_annual_tables, freq)
             .groupby(
                 by=[
@@ -498,24 +499,24 @@ def time_aggregated_eia923_asset_factory(
             .reset_index()
             .pipe(
                 denorm_by_boil,
-                pu=denorm_plants_utilities_eia,
-                bga=boiler_generator_assn_eia860,
+                pu=_out_eia__plants_utilities,
+                bga=core_eia860__assn_boiler_generator,
             )
         )
 
     @asset(
-        name=f"denorm_fuel_receipts_costs_{agg_freqs[freq]}_eia923",
+        name=f"out_eia923__{agg_freqs[freq]}_fuel_receipts_costs",
         io_manager_key=io_manager_key,
         compute_kind="Python",
     )
     def fuel_receipts_costs_agg_eia923(
-        denorm_fuel_receipts_costs_eia923: pd.DataFrame,
-        denorm_plants_utilities_eia: pd.DataFrame,
+        out_eia923__fuel_receipts_costs: pd.DataFrame,
+        _out_eia__plants_utilities: pd.DataFrame,
     ) -> pd.DataFrame:
-        """Aggregate the :ref:`fuel_receipts_costs_eia923` table monthly or annually."""
+        """Aggregate the :ref:`core_eia923__monthly_fuel_receipts_costs` table monthly or annually."""
         return (
-            denorm_fuel_receipts_costs_eia923.set_index(
-                pd.DatetimeIndex(denorm_fuel_receipts_costs_eia923.report_date)
+            out_eia923__fuel_receipts_costs.set_index(
+                pd.DatetimeIndex(out_eia923__fuel_receipts_costs.report_date)
             )
             .assign(
                 total_ash_content=lambda x: x.ash_content_pct * x.fuel_received_units,
@@ -572,7 +573,7 @@ def time_aggregated_eia923_asset_factory(
                 ]
             )
             .reset_index()
-            .pipe(denorm_by_plant, pu=denorm_plants_utilities_eia)
+            .pipe(denorm_by_plant, pu=_out_eia__plants_utilities)
         )
 
     return [

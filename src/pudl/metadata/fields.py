@@ -106,7 +106,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "asset_type": {
         "type": "string",
-        "description": "Type of asset being reported to the balance_sheet_assets_ferc1 table.",
+        "description": "Type of asset being reported to the core_ferc1__yearly_balance_sheet_assets_sched110 table.",
     },
     "associated_combined_heat_power": {
         "type": "boolean",
@@ -719,7 +719,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "energy_displaced_mwh": {"type": "number", "unit": "MWh"},
     "energy_disposition_type": {
         "type": "string",
-        "description": "Type of energy disposition reported in the electric_energy_dispositions_ferc1. Dispositions include sales to customers, re-sales of energy, energy used internally, losses, etc.",
+        "description": "Type of energy disposition reported in the core_ferc1__yearly_energy_dispositions_sched401. Dispositions include sales to customers, re-sales of energy, energy used internally, losses, etc.",
     },
     "energy_efficiency_annual_actual_peak_reduction_mw": {
         "type": "number",
@@ -810,7 +810,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "energy_source_type": {
         "type": "string",
-        "description": "Type of energy source reported in the electric_energy_sources_ferc1 table. There are three groups of energy sources: generation, power exchanges and transmission.",
+        "description": "Type of energy source reported in the core_ferc1__yearly_energy_sources_sched401 table. There are three groups of energy sources: generation, power exchanges and transmission.",
     },
     "energy_storage": {
         "type": "boolean",
@@ -1058,7 +1058,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Original fuel from which this refined fuel was derived.",
         "constraints": {
             "enum": sorted(
-                set(CODE_METADATA["energy_sources_eia"]["df"]["fuel_derived_from"])
+                set(
+                    CODE_METADATA["core_eia__codes_energy_sources"]["df"][
+                        "fuel_derived_from"
+                    ]
+                )
             )
         },
     },
@@ -1074,7 +1078,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "High level fuel group defined in the 2021-2023 EIA Form 860 instructions, Table 28.",
         "constraints": {
             "enum": sorted(
-                set(CODE_METADATA["energy_sources_eia"]["df"]["fuel_group_eia"])
+                set(
+                    CODE_METADATA["core_eia__codes_energy_sources"]["df"][
+                        "fuel_group_eia"
+                    ]
+                )
             )
         },
     },
@@ -1089,7 +1097,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Physical phase of matter of the fuel.",
         "constraints": {
             "enum": sorted(
-                set(CODE_METADATA["energy_sources_eia"]["df"]["fuel_phase"].dropna())
+                set(
+                    CODE_METADATA["core_eia__codes_energy_sources"]["df"][
+                        "fuel_phase"
+                    ].dropna()
+                )
             )
         },
     },
@@ -1116,7 +1128,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Simplified fuel type code used in PUDL",
         "constraints": {
             "enum": sorted(
-                set(CODE_METADATA["energy_sources_eia"]["df"].fuel_type_code_pudl)
+                set(
+                    CODE_METADATA["core_eia__codes_energy_sources"][
+                        "df"
+                    ].fuel_type_code_pudl
+                )
             )
         },
     },
@@ -1125,7 +1141,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Simplified fuel type code used in PUDL",
         "constraints": {
             "enum": sorted(
-                set(CODE_METADATA["energy_sources_eia"]["df"].fuel_type_code_pudl)
+                set(
+                    CODE_METADATA["core_eia__codes_energy_sources"][
+                        "df"
+                    ].fuel_type_code_pudl
+                )
             )
         },
     },
@@ -1134,7 +1154,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Simplified fuel type code used in PUDL",
         "constraints": {
             "enum": sorted(
-                set(CODE_METADATA["energy_sources_eia"]["df"].fuel_type_code_pudl)
+                set(
+                    CODE_METADATA["core_eia__codes_energy_sources"][
+                        "df"
+                    ].fuel_type_code_pudl
+                )
             )
         },
     },
@@ -1217,17 +1241,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "The energy contained in fuel burned, measured in million BTU.",
         "unit": "MMBtu",
     },
-    "heat_rate_mmbtu_mwh": {
+    "unit_heat_rate_mmbtu_per_mwh": {
         "type": "number",
         "description": "Fuel content per unit of electricity generated. Coming from MCOE calculation.",
         "unit": "MMBtu_MWh",
     },
-    "heat_rate_mmbtu_mwh_eia": {
+    "unit_heat_rate_mmbtu_per_mwh_eia": {
         "type": "number",
         "description": "Fuel content per unit of electricity generated. Coming from MCOE calculation.",
         "unit": "MMBtu_MWh",
     },
-    "heat_rate_mmbtu_mwh_ferc1": {
+    "unit_heat_rate_mmbtu_per_mwh_ferc1": {
         "type": "number",
         "description": "Fuel content per unit of electricity generated. Calculated from FERC reported fuel consumption and net generation.",
         "unit": "MMBtu_MWh",
@@ -1300,7 +1324,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "liability_type": {
         "type": "string",
-        "description": "Type of liability being reported to the balance_sheet_liabilities_ferc1 table.",
+        "description": "Type of liability being reported to the core_ferc1__yearly_balance_sheet_liabilities_sched110 table.",
     },
     "license_id_ferc1": {
         "type": "integer",
@@ -1507,7 +1531,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Net electricity generation for the specified period in megawatt-hours (MWh).",
         "unit": "MWh",
         # TODO: disambiguate as this column means something different in
-        # generation_fuel_eia923:
+        # core_eia923__monthly_generation_fuel:
         # "description": "Net generation, year to date in megawatthours (MWh). This is total electrical output net of station service.  In the case of combined heat and power plants, this value is intended to include internal consumption of electricity for the purposes of a production process, as well as power put on the grid.",
     },
     "net_generation_mwh_eia": {
@@ -2268,7 +2292,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Code that specifies what time period data has to be reported (i.e. monthly data or annual totals) and how often the power plant reports this data to EIA. See reporting_frequencies_eia for more details.",
         "constraints": {
             "enum": sorted(
-                set(CODE_METADATA["reporting_frequencies_eia"]["df"]["code"])
+                set(
+                    CODE_METADATA["core_eia__codes_reporting_frequencies"]["df"]["code"]
+                )
             )
         },
     },
@@ -2782,6 +2808,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "utility_id_eia": {
         "type": "integer",
         "description": "The EIA Utility Identification number.",
+        # TODO: Disambiguate column name. In some cases this specifically refers to
+        # the utility which operates a given plant or generator, but comes from the
+        # same set of IDs as all the utility IDs.
+        # E.g. in core_eia860__scd_ownership or core_eia860__scd_generators it would be something like:
+        # "description": "EIA-assigned identification number for the company that is responsible for the day-to-day operations of the generator.",
     },
     "utility_id_ferc1": {
         "type": "integer",
@@ -2811,7 +2842,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "utility_owned_capacity_mw": {"type": "number", "unit": "MW"},
     "utility_plant_asset_type": {
         "type": "string",
-        "description": "Type of utility plant asset reported in the utility_plant_summary_ferc1 table. Assets include those leased to others, held for future use, construction work-in-progress and details of accumulated depreciation.",
+        "description": "Type of utility plant asset reported in the core_ferc1__yearly_utility_plant_summary_sched200 table. Assets include those leased to others, held for future use, construction work-in-progress and details of accumulated depreciation.",
     },
     "utility_pobox": {"type": "string"},
     "utility_type": {
@@ -2820,7 +2851,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "utility_type_other": {
         "type": "string",
-        "description": "Freeform description of type of utility reported in one of the other three other utility_type sections in the utility_plant_summary_ferc1 table. This field is reported only in the DBF reporting years (1994-2020).",
+        "description": "Freeform description of type of utility reported in one of the other three other utility_type sections in the core_ferc1__yearly_utility_plant_summary_sched200 table. This field is reported only in the DBF reporting years (1994-2020).",
     },
     "variable_peak_pricing": {"type": "boolean"},
     "virtual_capacity_mw": {"type": "number", "unit": "MW"},
@@ -2942,7 +2973,7 @@ elements which should be overridden need to be specified.
 
 FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     "sector_consolidated_eia": {"code": {"type": "integer"}},
-    "plants_hydro_ferc1": {
+    "core_ferc1__yearly_hydroelectric_plants_sched406": {
         "plant_type": {
             "type": "string",
             "constraints": {
@@ -2960,7 +2991,7 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
             },
         }
     },
-    "plants_steam_ferc1": {
+    "core_ferc1__yearly_steam_plants_sched402": {
         "plant_type": {
             "type": "string",
             "constraints": {
@@ -2985,14 +3016,18 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     },
     "plant_parts_eia": {
         "energy_source_code_1": {
-            "constraints": {"enum": set(CODE_METADATA["energy_sources_eia"]["df"].code)}
+            "constraints": {
+                "enum": set(CODE_METADATA["core_eia__codes_energy_sources"]["df"].code)
+            }
         },
         "prime_movers_eia": {
-            "constraints": {"enum": set(CODE_METADATA["prime_movers_eia"]["df"].code)}
+            "constraints": {
+                "enum": set(CODE_METADATA["core_eia__codes_prime_movers"]["df"].code)
+            }
         },
         "technology_description": {"constraints": {"enum": set(TECH_DESCRIPTIONS)}},
     },
-    "transmission_statistics_ferc1": {
+    "core_ferc1__yearly_transmission_lines_sched422": {
         "capex_land": {
             "description": "Cost of Land and land rights for the transmission line."
         },
@@ -3009,7 +3044,7 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
         "opex_rents": {"description": "Rent expenses for the transmission line."},
         "opex_total": {"description": "Overall expenses for the transmission line."},
     },
-    "demand_hourly_pa_ferc714": {
+    "core_ferc714__hourly_demand_pa": {
         "timezone": {
             "constraints": {
                 "enum": [

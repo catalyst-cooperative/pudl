@@ -20,7 +20,7 @@ import numpy as np
 import pandas as pd
 
 CODE_METADATA: dict[str, dict[str, Any]] = {
-    "boiler_status_eia": {
+    "core_eia__codes_boiler_status": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -71,7 +71,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         },
         "ignored_codes": [0, "OC", "T", "0", "df"],
     },
-    "boiler_types_eia": {
+    "core_eia__codes_boiler_types": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -105,7 +105,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {},
         "ignored_codes": [],
     },
-    "coalmine_types_eia": {
+    "core_eia__codes_coalmine_types": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -138,7 +138,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         },
         "ignored_codes": [],
     },
-    "environmental_equipment_manufacturers_eia": {
+    "core_eia__codes_environmental_equipment_manufacturers": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -353,7 +353,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {},
         "ignored_codes": ["NA", "IN"],
     },
-    "emission_control_equipment_types_eia": {
+    "core_eia__codes_emission_control_equipment_types": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -442,7 +442,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         },
         "ignored_codes": ["HRSG1", "HRSG2", "FGD", "OV"],
     },
-    "firing_types_eia": {
+    "core_eia__codes_firing_types": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -483,7 +483,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         },
         "ignored_codes": [],
     },
-    "nox_compliance_strategies_eia": {
+    "core_eia__codes_nox_compliance_strategies": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -527,7 +527,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {"H2": "H2O", "NH": "NH3", "ST": "STM", "ln": "LN"},
         "ignored_codes": ["NA"],
     },
-    "nox_control_status_eia": {
+    "core_eia__codes_nox_control_status": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -571,7 +571,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {},
         "ignored_codes": ["NA"],
     },
-    "nox_units_eia": {
+    "core_eia__codes_nox_units": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -602,7 +602,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {},
         "ignored_codes": [],
     },
-    "averaging_periods_eia": {
+    "core_eia__codes_averaging_periods": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -628,7 +628,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {},
         "ignored_codes": [],
     },
-    "particulate_compliance_strategies_eia": {
+    "core_eia__codes_particulate_compliance_strategies": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -650,7 +650,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {},
         "ignored_codes": [],
     },
-    "particulate_units_eia": {
+    "core_eia__codes_particulate_units": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -690,7 +690,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {"DP": "PB"},
         "ignored_codes": [],
     },
-    "power_purchase_types_ferc1": {
+    "core_ferc1__codes_power_purchase_types": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -771,7 +771,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
             "0",
         ],
     },
-    "momentary_interruptions_eia": {
+    "core_eia__codes_momentary_interruptions": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -890,7 +890,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         },
         "ignored_codes": [],
     },
-    "boiler_generator_assn_types_eia": {
+    "core_eia__codes_boiler_generator_assn_types": {
         "df": pd.DataFrame(
             columns=[
                 "code",
@@ -905,7 +905,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {"t": "T", "a": "A"},
         "ignored_codes": ["1"],
     },
-    "operational_status_eia": {
+    "core_eia__codes_operational_status": {
         "df": pd.DataFrame(
             columns=["code", "label", "description", "operational_status"],
             data=[
@@ -1035,7 +1035,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         },
         "ignored_codes": ["CS"],
     },
-    "energy_sources_eia": {
+    "core_eia__codes_energy_sources": {
         "df": pd.DataFrame(
             columns=[
                 "code",
@@ -1581,7 +1581,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
             "ST",
         ],
     },
-    "fuel_transportation_modes_eia": {
+    "core_eia__codes_fuel_transportation_modes": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -1647,7 +1647,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         },
         "ignored_codes": ["UN"],
     },
-    "fuel_types_aer_eia": {
+    "core_eia__codes_fuel_types_aer": {
         "df": pd.DataFrame(
             columns=["code", "description"],
             data=[
@@ -1674,7 +1674,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {},
         "ignored_codes": [],
     },
-    "contract_types_eia": {
+    "core_eia__codes_contract_types": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -1699,7 +1699,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {"N": "NC"},
         "ignored_codes": [],
     },
-    "prime_movers_eia": {
+    "core_eia__codes_prime_movers": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -1776,7 +1776,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {"ic": "IC"},  # there is literally one 'ic' from 2002.
         "ignored_codes": [],
     },
-    "sector_consolidated_eia": {
+    "core_eia__codes_sector_consolidated": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -1816,7 +1816,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {},
         "ignored_codes": [],
     },
-    "steam_plant_types_eia": {
+    "core_eia__codes_steam_plant_types": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -1845,7 +1845,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {},
         "ignored_codes": [],
     },
-    "reporting_frequencies_eia": {
+    "core_eia__codes_reporting_frequencies": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -1869,7 +1869,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {},
         "ignored_codes": [],
     },
-    "data_maturities": {
+    "core_pudl__codes_data_maturities": {
         "df": pd.DataFrame(
             columns=["code", "description"],
             data=[
@@ -1894,7 +1894,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {},
         "ignored_codes": [],
     },
-    "balancing_authorities_eia": {
+    "core_eia__codes_balancing_authorities": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -2144,7 +2144,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
             "GRID",  # 2022 860m code for plant ID 55328 (code: CSTO for previous years)
         ],
     },
-    "regulations_eia": {
+    "core_eia__codes_regulations": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -2168,7 +2168,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {"St": "ST"},
         "ignored_codes": ["NA", "XX"],
     },
-    "so2_compliance_strategies_eia": {  # TO DO: harmonize these columns with envr equip data when integrated.
+    "core_eia__codes_so2_compliance_strategies": {  # TO DO: harmonize these columns with envr equip data when integrated.
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -2223,7 +2223,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {"NC": "NP"},
         "ignored_codes": ["NA", "DB"],
     },
-    "so2_units_eia": {
+    "core_eia__codes_so2_units": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -2265,7 +2265,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {},
         "ignored_codes": [],
     },
-    "mercury_compliance_strategies_eia": {  # TO DO: harmonize with 2021 data and equip data (most cols here should move to equip table.)
+    "core_eia__codes_mercury_compliance_strategies": {  # TO DO: harmonize with 2021 data and equip data (most cols here should move to equip table.)
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[
@@ -2371,7 +2371,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {},
         "ignored_codes": ["NA", "MC", "NP"],
     },
-    "wet_dry_bottom_eia": {
+    "core_eia__codes_wet_dry_bottom": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
             data=[

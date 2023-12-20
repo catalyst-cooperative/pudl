@@ -77,6 +77,15 @@ def pudl_etl_job_factory(
     help="Max number of processes Dagster can launch. Defaults to the number of CPUs.",
 )
 @click.option(
+    "--epacems-workers",
+    default=2,
+    type=int,
+    help=(
+        "Max number of processes Dagster can launch for EPA CEMS assets. Defaults "
+        "to max number of processes our typical local machines can handle."
+    ),
+)
+@click.option(
     "--gcs-cache-path",
     type=str,
     help=(
@@ -107,6 +116,7 @@ def pudl_etl_job_factory(
 def pudl_etl(
     etl_settings_yml: pathlib.Path,
     dagster_workers: int,
+    epacems_workers: int,
     gcs_cache_path: str,
     logfile: pathlib.Path,
     loglevel: str,
@@ -145,7 +155,21 @@ def pudl_etl(
             },
         },
     }
-    run_config.update(get_dagster_execution_config(dagster_workers))
+
+    tag_concurrency_limits = [
+        {
+            "key": "datasource",
+            "value": "epacems",
+            "limit": epacems_workers,
+        }
+    ]
+
+    run_config.update(
+        get_dagster_execution_config(
+            num_workers=dagster_workers,
+            tag_concurrency_limits=tag_concurrency_limits,
+        )
+    )
 
     result = execute_job(
         pudl_etl_reconstructable_job,

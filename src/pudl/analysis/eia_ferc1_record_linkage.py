@@ -179,21 +179,23 @@ dataframe_embedder = embed_dataframe.dataframe_embedder_factory(
     io_manager_key="pudl_sqlite_io_manager",
     compute_kind="Python",
 )
-def out__yearly_plants_all_ferc1_plant_parts_eia(
-    denorm_plants_all_ferc1: pd.DataFrame,
-    denorm_fuel_by_plant_ferc1: pd.DataFrame,
-    plant_parts_eia: pd.DataFrame,
+def out_pudl__yearly_assn_eia_ferc1_plant_parts(
+    out_ferc1__yearly_all_plants: pd.DataFrame,
+    out_ferc1__yearly_steam_plants_fuel_by_plant_sched402: pd.DataFrame,
+    out_eia__yearly_plant_parts: pd.DataFrame,
 ) -> pd.DataFrame:
     """Coordinate the connection between FERC1 plants and EIA plant-parts.
 
     Args:
-        denorm_plants_all_ferc1: Table of all of the FERC1-reporting plants.
-        denorm_fuel_by_plant_ferc1: Table of the fuel reported aggregated to the FERC1
-            plant-level.
-        plant_parts_eia: The EIA plant parts list.
+        out_ferc1__yearly_all_plants: Table of all of the FERC1-reporting plants.
+        out_ferc1__yearly_steam_plants_fuel_by_plant_sched402: Table of the fuel
+            reported aggregated to the FERC1 plant-level.
+        out_eia__yearly_plant_parts: The EIA plant parts list.
     """
     inputs = InputManager(
-        denorm_plants_all_ferc1, denorm_fuel_by_plant_ferc1, plant_parts_eia
+        out_ferc1__yearly_all_plants,
+        out_ferc1__yearly_steam_plants_fuel_by_plant_sched402,
+        out_eia__yearly_plant_parts,
     )
     # compile/cache inputs upfront. Hopefully we can catch any errors in inputs early.
     inputs.execute()
@@ -218,11 +220,9 @@ def out__yearly_plants_all_ferc1_plant_parts_eia(
         train_df=inputs.get_train_df(),
         plant_parts_eia_true=inputs.get_plant_parts_eia_true(),
         plants_ferc1=inputs.get_plants_ferc1(),
-    ).pipe(
-        add_null_overrides
-    )  # Override specified values with NA record_id_eia
+    ).pipe(add_null_overrides)  # Override specified values with NA record_id_eia
     connects_ferc1_eia = Resource.from_id(
-        "out__yearly_plants_all_ferc1_plant_parts_eia"
+        "out_pudl__yearly_assn_eia_ferc1_plant_parts"
     ).enforce_schema(connects_ferc1_eia)
     return connects_ferc1_eia
 
@@ -331,7 +331,9 @@ class InputManager:
                         x.plant_id_report_year + "_" + x.utility_id_pudl.map(str)
                     ),
                     fuel_cost_per_mmbtu=lambda x: (x.fuel_cost / x.fuel_mmbtu),
-                    heat_rate_mmbtu_mwh=lambda x: (x.fuel_mmbtu / x.net_generation_mwh),
+                    unit_heat_rate_mmbtu_per_mwh=lambda x: (
+                        x.fuel_mmbtu / x.net_generation_mwh
+                    ),
                 )
                 .rename(
                     columns={
@@ -541,9 +543,9 @@ class Features:
                     label="fuel_cost_per_mmbtu",
                 ),
                 Numeric(
-                    "heat_rate_mmbtu_mwh",
-                    "heat_rate_mmbtu_mwh",
-                    label="heat_rate_mmbtu_mwh",
+                    "unit_heat_rate_mmbtu_per_mwh",
+                    "unit_heat_rate_mmbtu_per_mwh",
+                    label="unit_heat_rate_mmbtu_per_mwh",
                 ),
                 Exact(
                     "fuel_type_code_pudl",
@@ -818,7 +820,7 @@ def prep_train_connections(
     one_to_many = (
         pd.read_csv(
             importlib.resources.files("pudl.package_data.glue")
-            / "ferc1_eia_one_to_many.csv"
+            / "eia_ferc1_one_to_many.csv"
         )
         .pipe(pudl.helpers.cleanstrings_snake, ["record_id_eia"])
         .drop_duplicates(subset=["record_id_ferc1", "record_id_eia"])
@@ -866,7 +868,7 @@ def prep_train_connections(
 
     train_df = (
         pd.read_csv(
-            importlib.resources.files("pudl.package_data.glue") / "ferc1_eia_train.csv"
+            importlib.resources.files("pudl.package_data.glue") / "eia_ferc1_train.csv"
         )
         .pipe(pudl.helpers.cleanstrings_snake, ["record_id_eia"])
         .drop_duplicates(subset=["record_id_ferc1", "record_id_eia"])
@@ -1154,7 +1156,7 @@ def add_null_overrides(connects_ferc1_eia):
     logger.info("Overriding specified record_id_ferc1 values with NA record_id_eia")
     # Get record_id_ferc1 values that should be overriden to have no EIA match
     null_overrides = pd.read_csv(
-        importlib.resources.files("pudl.package_data.glue") / "ferc1_eia_null.csv"
+        importlib.resources.files("pudl.package_data.glue") / "eia_ferc1_null.csv"
     ).pipe(
         restrict_train_connections_on_date_range,
         id_col="record_id_ferc1",
@@ -1173,7 +1175,7 @@ def add_null_overrides(connects_ferc1_eia):
     logger.debug(f"Found {len(null_overrides)} null overrides")
     # List of EIA columns to null. Ideally would like to get this from elsewhere, but
     # compiling this here for now...
-    eia_cols_to_null = Resource.from_id("plant_parts_eia").get_field_names()
+    eia_cols_to_null = Resource.from_id("out_eia__yearly_plant_parts").get_field_names()
     # Make all EIA values NA for record_id_ferc1 values in the Null overrides list and
     # make the match_type column say "overriden"
     connects_ferc1_eia.loc[

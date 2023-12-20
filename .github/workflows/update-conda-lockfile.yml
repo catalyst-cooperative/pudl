@@ -5,12 +5,6 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "0 9 * * 1" # Mondays at 9AM UTC
-  push:
-    paths:
-      - "Makefile"
-      - "pyproject.toml"
-      - "environments/*"
-      - ".github/workflows/update-conda-lockfile.yml"
 
 # What branch does this action run on?
 # - workflow_dispatch: Whatever branch it was run against.
