@@ -35,7 +35,8 @@ RUN mkdir -p ${PUDL_INPUT} ${PUDL_OUTPUT} ${DAGSTER_HOME} ${PUDL_REPO}
 # Copy dagster configuration file
 COPY docker/dagster.yaml ${DAGSTER_HOME}/dagster.yaml
 
-# Copy the cloned pudl repository into the user's home directory
+# Copy the cloned pudl repository into the container
+# This includes the .git directory, so it is a whole repo
 COPY --chown=${MAMBA_USER}:${MAMBA_USER} . ${PUDL_REPO}
 
 # Create a conda environment based on the specification in the repo
@@ -60,6 +61,5 @@ RUN ${CONDA_RUN} bash -c 'curl -L https://fly.io/install.sh | sh'
 ENV PATH="${CONTAINER_HOME}/.fly/bin:$PATH"
 
 WORKDIR ${PUDL_REPO}
-RUN git config -l
 # Run the unit tests:
 CMD ["micromamba", "run", "--prefix", "${CONDA_PREFIX}", "--attach", "''", "pytest", "test/unit"]

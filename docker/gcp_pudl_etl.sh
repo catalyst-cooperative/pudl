@@ -48,16 +48,12 @@ function run_pudl_etl() {
 }
 
 function shutdown_vm() {
-    # Copy the outputs to the GCS bucket
-
     upload_file_to_slack $LOGFILE "pudl_etl logs for $ACTION_SHA-$GITHUB_REF:"
-
+    # Shut down the vm instance when the etl is done.
     echo "Shutting down VM."
-    # # Shut down the vm instance when the etl is done.
     ACCESS_TOKEN=`curl \
         "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" \
         -H "Metadata-Flavor: Google" | jq -r '.access_token'`
-
     curl -X POST -H "Content-Length: 0" -H "Authorization: Bearer ${ACCESS_TOKEN}" https://compute.googleapis.com/compute/v1/projects/catalyst-cooperative-pudl/zones/$GCE_INSTANCE_ZONE/instances/$GCE_INSTANCE/stop
 }
 
@@ -102,6 +98,14 @@ function notify_slack() {
     send_slack_msg "$message"
 }
 
+if [ $GITHUB_ACTION_TRIGGER = "workflow_dispatch" ]; then
+    git config user.email "pudl@catalyst.coop"
+    git config user.name "pudlbot"
+    git remote set-url origin https://pudlbot:$PUDL_BOT_PAT@github.com/catalyst-cooperative/pudl.git
+    git tag -a -m "Nightly test tag" nightly-tag-test
+    git push origin nightly-tag-test
+    shutdown_vm
+
 # # Run ETL. Copy outputs to GCS and shutdown VM if ETL succeeds or fails
 # 2>&1 redirects stderr to stdout.
 run_pudl_etl 2>&1 | tee $LOGFILE
@@ -116,6 +120,7 @@ if [[ $ETL_SUCCESS == 0 ]]; then
         # Update the nightly branch to point at newly successful nightly build tag
         git config user.email "pudl@catalyst.coop"
         git config user.name "pudlbot"
+        git remote set-url origin https://pudlbot:$PUDL_BOT_PAT@github.com/catalyst-cooperative/pudl.git
         git checkout nightly
         git merge --ff-only $NIGHTLY_TAG
         git push
