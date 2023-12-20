@@ -152,7 +152,7 @@ class SplitClustersConfig(Config):
     """Configuration for AgglomerativeClustering used to split overmerged clusters."""
 
     #: See :class:`sklearn.cluster.AgglomerativeClustering` for details.
-    distance_threshold: float = 0.3
+    distance_threshold: float = 0.5
 
 
 @op
@@ -214,7 +214,7 @@ class MatchOrpahnedRecordsConfig(Config):
     """Configuration for :func:`match_orphaned_records` op."""
 
     #: See :class:`sklearn.cluster.AgglomerativeClustering` for details.
-    distance_threshold: float = 0.3
+    distance_threshold: float = 0.5
 
 
 @op
@@ -241,7 +241,7 @@ def match_orphaned_records(
     cluster_inds = id_year_df.groupby("record_label").indices
 
     # Orphaned records are considered a cluster of a single record
-    cluster_groups = [List([ind]) for ind in cluster_inds[-1]]
+    cluster_groups = [List([ind]) for ind in cluster_inds.get(-1, [])]
 
     # Get list of all points in each assigned cluster
     cluster_groups += [List(inds) for key, inds in cluster_inds.items() if key != -1]
