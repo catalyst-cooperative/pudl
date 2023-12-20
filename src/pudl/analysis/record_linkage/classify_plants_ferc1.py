@@ -92,6 +92,7 @@ def plants_steam_validate_ids(
 
     Args:
         ferc1_steam_df: A DataFrame of the data from the FERC 1 Steam table.
+        label_df: A DataFrame containing column of newly assigned plant labels.
 
     Returns:
         The input dataframe, to enable method chaining.
