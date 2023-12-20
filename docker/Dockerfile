@@ -30,7 +30,7 @@ ENV PUDL_INPUT=${CONTAINER_PUDL_WORKSPACE}/input
 ENV PUDL_OUTPUT=${CONTAINER_PUDL_WORKSPACE}/output
 ENV DAGSTER_HOME=${CONTAINER_PUDL_WORKSPACE}/dagster_home
 
-RUN mkdir -p ${PUDL_INPUT} ${PUDL_OUTPUT} ${DAGSTER_HOME}
+RUN mkdir -p ${PUDL_INPUT} ${PUDL_OUTPUT} ${DAGSTER_HOME} ${PUDL_REPO}
 
 # Copy dagster configuration file
 COPY docker/dagster.yaml ${DAGSTER_HOME}/dagster.yaml
@@ -39,8 +39,7 @@ COPY docker/dagster.yaml ${DAGSTER_HOME}/dagster.yaml
 COPY --chown=${MAMBA_USER}:${MAMBA_USER} . ${PUDL_REPO}
 
 # Create a conda environment based on the specification in the repo
-RUN ls -a pudl pudl_work && \
-    micromamba create --prefix ${CONDA_PREFIX} --yes --file ${PUDL_REPO}/environments/conda-lock.yml && \
+RUN micromamba create --prefix ${CONDA_PREFIX} --yes --file ${PUDL_REPO}/environments/conda-lock.yml && \
     micromamba clean -afy
 
 # TODO(rousik): The following is a workaround for sudden breakage where conda
@@ -50,15 +49,14 @@ RUN ${CONDA_RUN} pip install --no-cache-dir --no-deps --editable ${PUDL_REPO}
 
 # Install awscli2
 # Change back to root because the install script needs access to /usr/local/aws-cli
+# curl commands run within conda environment because curl is installed by conda.
 USER root
-RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
-    unzip awscliv2.zip && \
-    ./aws/install
+RUN ${CONDA_RUN} bash -c 'curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && unzip awscliv2.zip && ./aws/install'
 USER $MAMBA_USER
 
 # Install flyctl
 # hadolint ignore=DL3059
-RUN curl -L https://fly.io/install.sh | sh
+RUN ${CONDA_RUN} bash -c 'curl -L https://fly.io/install.sh | sh'
 ENV PATH="${CONTAINER_HOME}/.fly/bin:$PATH"
 
 WORKDIR ${PUDL_REPO}
