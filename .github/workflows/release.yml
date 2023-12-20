@@ -83,7 +83,7 @@ jobs:
           name: python-package-distributions
           path: dist/
       - name: Sign dist with Sigstore
-        uses: sigstore/gh-action-sigstore-python@v2.1.0
+        uses: sigstore/gh-action-sigstore-python@v2
         with:
           inputs: ./dist/*.tar.gz ./dist/*.whl
       - name: Upload artifact signatures to GitHub Release
@@ -95,6 +95,13 @@ jobs:
           --discussion-category Announcements
           --generate-notes
           --repo '${{ github.repository }}'
+      - name: Tag the current stable commit
+        run: |
+          git config user.email "pudl@catalyst.coop"
+          git config user.name "pudlbot"
+          git checkout stable
+          git merge --ff-only ${{ github.ref_name }}
+          git push
 
   notify-slack:
     runs-on: ubuntu-latest
