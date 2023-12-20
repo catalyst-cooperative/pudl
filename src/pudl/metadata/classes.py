@@ -914,6 +914,10 @@ class DataSource(PudlMeta):
             return f"{min(partitions['years'])}-{max(partitions['years'])}"
         if "year_month" in partitions:
             return f"through {partitions['year_month']}"
+        if "year_quarters" in partitions:
+            return (
+                f"{min(partitions['year_quarters'])}-{max(partitions['year_quarters'])}"
+            )
         return ""
 
     def add_datastore_metadata(self) -> None:
@@ -927,7 +931,6 @@ class DataSource(PudlMeta):
             partitions["years"] = partitions["year"]
         elif "year_month" in partitions:
             partitions["year_month"] = max(partitions["year_month"])
-        self.source_file_dict["source_years"] = self.get_temporal_coverage(partitions)
         self.source_file_dict["download_size"] = dp_desc.get_download_size()
 
     def to_rst(
