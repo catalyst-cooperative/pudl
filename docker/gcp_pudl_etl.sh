@@ -51,9 +51,9 @@ function shutdown_vm() {
     upload_file_to_slack $LOGFILE "pudl_etl logs for $ACTION_SHA-$GITHUB_REF:"
     # Shut down the vm instance when the etl is done.
     echo "Shutting down VM."
-    ACCESS_TOKEN=`curl \
+    ACCESS_TOKEN=$(curl \
         "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" \
-        -H "Metadata-Flavor: Google" | jq -r '.access_token'`
+        -H "Metadata-Flavor: Google" | jq -r '.access_token')
     curl -X POST -H "Content-Length: 0" -H "Authorization: Bearer ${ACCESS_TOKEN}" https://compute.googleapis.com/compute/v1/projects/catalyst-cooperative-pudl/zones/$GCE_INSTANCE_ZONE/instances/$GCE_INSTANCE/stop
 }
 
@@ -75,6 +75,7 @@ function copy_outputs_to_distribution_bucket() {
         aws s3 rm "s3://pudl.catalyst.coop/$GITHUB_REF" --recursive
         echo "Copying outputs to AWS distribution bucket"
         aws s3 cp "$PUDL_OUTPUT/" "s3://pudl.catalyst.coop/$GITHUB_REF" --recursive
+    fi
 }
 
 function zenodo_data_release() {
@@ -98,13 +99,16 @@ function notify_slack() {
     send_slack_msg "$message"
 }
 
-if [ $GITHUB_ACTION_TRIGGER = "workflow_dispatch" ]; then
+if [ "$GITHUB_ACTION_TRIGGER" = "workflow_dispatch" ]; then
+    echo "Deployed via workflow_dispatch, testing git authentication!"
     git config user.email "pudl@catalyst.coop"
     git config user.name "pudlbot"
-    git remote set-url origin https://pudlbot:$PUDL_BOT_PAT@github.com/catalyst-cooperative/pudl.git
+    git remote set-url origin "https://pudlbot:$PUDL_BOT_PAT@github.com/catalyst-cooperative/pudl.git"
+    git config -l
     git tag -a -m "Nightly test tag" nightly-tag-test
     git push origin nightly-tag-test
     shutdown_vm
+fi
 
 # # Run ETL. Copy outputs to GCS and shutdown VM if ETL succeeds or fails
 # 2>&1 redirects stderr to stdout.
@@ -124,6 +128,7 @@ if [[ $ETL_SUCCESS == 0 ]]; then
         git checkout nightly
         git merge --ff-only $NIGHTLY_TAG
         git push
+    fi
     # Deploy the updated data to datasette
     if [ $GITHUB_REF = "dev" ]; then
         python ~/devtools/datasette/publish.py 2>&1 | tee -a $LOGFILE
