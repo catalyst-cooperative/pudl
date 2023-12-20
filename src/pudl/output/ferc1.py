@@ -1158,64 +1158,56 @@ def _out_ferc1__explosion_tags(table_dimensions_ferc1) -> pd.DataFrame:
     # Also, these tags may not be applicable to all exploded tables, but
     # we need to pass in a dataframe with the right structure to all of the exploders,
     # so we're just re-using this one for the moment.
-    rate_base_tags = pd.merge(
-        _rate_base_tags(table_dimensions_ferc1),
-        _rate_base_category_tags(table_dimensions_ferc1),
-        how="outer",
-        on=list(NodeId._fields),
-        validate="1:1",
+
+    # rate_tags = _rate_base_tags(table_dimensions_ferc1)
+    # rev_req_tags = _revenue_requrirement_tags(table_dimensions_ferc1)
+    # rate_cats = _rate_base_category_tags(table_dimensions_ferc1)
+    rate_tags = _get_tags("xbrl_factoid_rate_base_tags.csv", table_dimensions_ferc1)
+    rev_req_tags = _get_tags(
+        "xbrl_factoid_revenue_requirement_tags.csv", table_dimensions_ferc1
+    )
+    rate_cats = _get_tags(
+        "xbrl_factoid_rate_base_category_tags.csv", table_dimensions_ferc1
     )
     plant_status_tags = _aggregatable_dimension_tags(
-        table_dimensions_ferc1=table_dimensions_ferc1, dimension="plant_status"
+        table_dimensions_ferc1, "plant_status"
     )
     plant_function_tags = _aggregatable_dimension_tags(
-        table_dimensions_ferc1=table_dimensions_ferc1, dimension="plant_function"
+        table_dimensions_ferc1, "plant_function"
     )
-    # We shouldn't have more than one row per tag, so we use a 1:1 validation here.
-    plant_tags = plant_status_tags.merge(
-        plant_function_tags, how="outer", on=list(NodeId._fields), validate="1:1"
-    )
-    tags_df = pd.merge(
-        rate_base_tags, plant_tags, on=list(NodeId._fields), how="outer"
-    ).astype(pd.StringDtype())
-    return tags_df
-
-
-def _rate_base_tags(table_dimensions_ferc1: pd.DataFrame) -> pd.DataFrame:
-    # NOTE: there are a bunch of duplicate records in xbrl_factoid_rate_base_tags.csv
-    tags_csv = (
-        importlib.resources.files("pudl.package_data.ferc1")
-        / "xbrl_factoid_rate_base_tags.csv"
-    )
-    tags_df = (
-        pd.read_csv(
-            tags_csv,
-            usecols=list(NodeId._fields) + ["in_rate_base"],
+    tag_dfs = [
+        rate_tags,
+        rev_req_tags,
+        rate_cats,
+        plant_status_tags,
+        plant_function_tags,
+    ]
+    tags_all = (
+        pd.concat(
+            [df.set_index(list(NodeId._fields)) for df in tag_dfs],
+            join="outer",
+            verify_integrity=True,
+            ignore_index=False,
+            axis="columns",
         )
+        .reset_index()
+        .drop(columns=["notes"])
+    )
+    return tags_all
+
+
+def _get_tags(file_name: str, table_dimensions_ferc1: pd.DataFrame) -> pd.DataFrame:
+    """Grab tags from a stored CSV file and apply :func:`make_calculation_dimensions_explicit`."""
+    tags_csv = importlib.resources.files("pudl.package_data.ferc1") / file_name
+    tags_df = (
+        pd.read_csv(tags_csv)
         .drop_duplicates()
         .dropna(subset=["table_name", "xbrl_factoid"], how="any")
+        .astype(pd.StringDtype())
         .pipe(
             pudl.transform.ferc1.make_calculation_dimensions_explicit,
             table_dimensions_ferc1,
             dimensions=["utility_type", "plant_function", "plant_status"],
-        )
-    )
-    return tags_df
-
-
-def _rate_base_category_tags(table_dimensions_ferc1: pd.DataFrame) -> pd.DataFrame:
-    tags_csv = (
-        importlib.resources.files("pudl.package_data.ferc1")
-        / "xbrl_factoid_rate_base_category_tags.csv"
-    )
-    dim_cols = ["utility_type", "plant_function", "plant_status"]
-    tags_df = (
-        pd.read_csv(tags_csv)
-        # .assign(**{dim: pd.NA for dim in dim_cols})
-        .pipe(
-            pudl.transform.ferc1.make_calculation_dimensions_explicit,
-            table_dimensions_ferc1,
-            dimensions=dim_cols,
         )
     )
     return tags_df
@@ -1238,12 +1230,12 @@ def _aggregatable_dimension_tags(
     tags_df = (
         pd.read_csv(tags_csv)
         .assign(**{dim: pd.NA for dim in dimensions})
+        .astype(pd.StringDtype())
         .pipe(
             pudl.transform.ferc1.make_calculation_dimensions_explicit,
             table_dimensions_ferc1,
             dimensions=dimensions,
         )
-        .astype(pd.StringDtype())
         .set_index(idx)
     )
     table_dimensions_ferc1 = table_dimensions_ferc1.set_index(idx)
