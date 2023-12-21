@@ -27,9 +27,7 @@ jobs:
         run: |
           echo "This action was triggered by a schedule."
           echo "GCE_INSTANCE=pudl-deployment-dev" >> $GITHUB_ENV
-          echo "GCE_INSTANCE: $GCE_INSTANCE"
           echo "GITHUB_REF=dev" >> $GITHUB_ENV
-          echo "GITHUB_REF: $GITHUB_REF"
 
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -39,12 +37,17 @@ jobs:
       - name: Set action environment variables
         run: |
           echo "NIGHTLY_TAG=nightly-$(date +%Y-%m-%d)" >> $GITHUB_ENV
-          echo "NIGHTLY_TAG: $NIGHTLY_TAG"
           echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-          echo "SHORT_SHA: $SHORT_SHA"
           echo "BUILD_TIMESTAMP=$(date +%Y-%m-%d-%H%M)" >> $GITHUB_ENV
-          echo "BUILD_TIMESTAMP: $BUILD_TIMESTAMP"
           echo "BUILD_ID=${BUILD_TIMESTAMP}-${SHORT_SHA}-${GITHUB_REF}" >> $GITHUB_ENV
+
+      - name: Show freshly set envvars
+        run: |
+          echo "GCE_INSTANCE: $GCE_INSTANCE"
+          echo "GITHUB_REF: $GITHUB_REF"
+          echo "NIGHTLY_TAG: $NIGHTLY_TAG"
+          echo "SHORT_SHA: $SHORT_SHA"
+          echo "BUILD_TIMESTAMP: $BUILD_TIMESTAMP"
           echo "BUILD_ID: $BUILD_ID"
 
       - name: Tag nightly build
