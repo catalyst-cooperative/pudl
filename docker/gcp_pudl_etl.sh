@@ -64,17 +64,17 @@ function copy_outputs_to_gcs() {
 }
 
 function copy_outputs_to_distribution_bucket() {
-    # Only attempt to update outputs if we have a real value of GITHUB_REF
-    if [ -n "$GITHUB_REF" ]; then
-        echo "Removing old $GITHUB_REF outputs from GCP distributon bucket."
-        gsutil -m -u "$GCP_BILLING_PROJECT" rm -r "gs://pudl.catalyst.coop/$GITHUB_REF"
+    # Only attempt to update outputs if we have a real value of BUILD_REF
+    if [ -n "$BUILD_REF" ]; then
+        echo "Removing old $BUILD_REF outputs from GCP distributon bucket."
+        gsutil -m -u "$GCP_BILLING_PROJECT" rm -r "gs://pudl.catalyst.coop/$BUILD_REF"
         echo "Copying outputs to GCP distribution bucket"
-        gsutil -m -u "$GCP_BILLING_PROJECT" cp -r "$PUDL_OUTPUT/*" "gs://pudl.catalyst.coop/$GITHUB_REF"
+        gsutil -m -u "$GCP_BILLING_PROJECT" cp -r "$PUDL_OUTPUT/*" "gs://pudl.catalyst.coop/$BUILD_REF"
 
-        echo "Removing old $GITHUB_REF outputs from AWS distributon bucket."
-        aws s3 rm "s3://pudl.catalyst.coop/$GITHUB_REF" --recursive
+        echo "Removing old $BUILD_REF outputs from AWS distributon bucket."
+        aws s3 rm "s3://pudl.catalyst.coop/$BUILD_REF" --recursive
         echo "Copying outputs to AWS distribution bucket"
-        aws s3 cp "$PUDL_OUTPUT/" "s3://pudl.catalyst.coop/$GITHUB_REF" --recursive
+        aws s3 cp "$PUDL_OUTPUT/" "s3://pudl.catalyst.coop/$BUILD_REF" --recursive
     fi
 }
 
@@ -87,7 +87,7 @@ function notify_slack() {
     # Notify pudl-builds slack channel of deployment status
     if [ "$1" = "success" ]; then
         message=":large_green_circle: :sunglasses: :unicorn_face: :rainbow: The deployment succeeded!! :partygritty: :database_parrot: :blob-dance: :large_green_circle:\n\n "
-        message+="<https://github.com/catalyst-cooperative/pudl/compare/main...${GITHUB_REF}|Make a PR for \`${GITHUB_REF}\` into \`main\`!>\n\n"
+        message+="<https://github.com/catalyst-cooperative/pudl/compare/main...${BUILD_REF}|Make a PR for \`${BUILD_REF}\` into \`main\`!>\n\n"
     elif [ "$1" = "failure" ]; then
         message=":large_red_square: Oh bummer the deployment failed ::fiiiiine: :sob: :cry_spin:\n\n "
     else
@@ -121,7 +121,7 @@ if [[ $ETL_SUCCESS == 0 ]]; then
         git push
     fi
     # Deploy the updated data to datasette
-    if [ "$GITHUB_REF" = "dev" ]; then
+    if [ "$BUILD_REF" = "dev" ]; then
         python ~/devtools/datasette/publish.py 2>&1 | tee -a "$LOGFILE"
         ETL_SUCCESS=${PIPESTATUS[0]}
     fi
@@ -137,7 +137,7 @@ if [[ $ETL_SUCCESS == 0 ]]; then
     # TODO: this behavior should be controlled by on/off switch here and this logic
     # should be moved to the triggering github action. Having it here feels
     # fragmented.
-    if [ "$GITHUB_ACTION_TRIGGER" = "push" ] || [ "$GITHUB_REF" = "dev" ]; then
+    if [ "$GITHUB_ACTION_TRIGGER" = "push" ] || [ "$BUILD_REF" = "dev" ]; then
         copy_outputs_to_distribution_bucket
         ETL_SUCCESS=${PIPESTATUS[0]}
         zenodo_data_release 2>&1 | tee -a "$LOGFILE"
