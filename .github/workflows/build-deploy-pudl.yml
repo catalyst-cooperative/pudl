@@ -47,6 +47,7 @@ jobs:
           echo "BUILD_ID: $BUILD_ID"
 
       - name: Tag nightly build
+        # TESTING -- SHOULD ONLY RUN ON SCHEDULE
         if: ${{ (github.event_name == 'schedule') || (github.event_name == 'workflow_dispatch') }}
         run: |
           git config user.email "pudl@catalyst.coop"

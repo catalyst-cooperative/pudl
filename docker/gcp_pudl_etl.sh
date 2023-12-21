@@ -117,7 +117,7 @@ if [[ $ETL_SUCCESS == 0 ]]; then
         git remote set-url origin "https://pudlbot:$PUDL_BOT_PAT@github.com/catalyst-cooperative/pudl.git"
         # Update the nightly branch to point at newly successful nightly build tag
         echo "Updating nightly branch to point at $NIGHTLY_TAG."
-        git checkout nightly
+        git checkout origin/nightly
         git merge --ff-only "$NIGHTLY_TAG"
         git push
     # fi
