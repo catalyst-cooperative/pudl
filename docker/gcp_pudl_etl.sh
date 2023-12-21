@@ -116,6 +116,7 @@ if [[ $ETL_SUCCESS == 0 ]]; then
         git config user.name "pudlbot"
         git remote set-url origin "https://pudlbot:$PUDL_BOT_PAT@github.com/catalyst-cooperative/pudl.git"
         # Update the nightly branch to point at newly successful nightly build tag
+        echo "Updating nightly branch to point at $NIGHTLY_TAG."
         git checkout nightly
         git merge --ff-only "$NIGHTLY_TAG"
         git push
@@ -147,7 +148,7 @@ if [[ $ETL_SUCCESS == 0 ]]; then
 fi
 
 # This way we also save the logs from latter steps in the script
-#sutil cp "$LOGFILE" "$PUDL_GCS_OUTPUT"
+#gsutil cp "$LOGFILE" "$PUDL_GCS_OUTPUT"
 
 # Notify slack about entire pipeline's success or failure;
 # PIPESTATUS[0] either refers to the failed ETL run or the last distribution
