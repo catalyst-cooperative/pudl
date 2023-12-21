@@ -19,7 +19,7 @@ jobs:
     name: Build Docker image, push to Docker Hub and deploy to a GCE VM
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       id-token: write
     steps:
       - name: Use pudl-deployment-dev vm and dev branch if running on a schedule
