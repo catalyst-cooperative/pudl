@@ -109,7 +109,7 @@ copy_outputs_to_gcs
 
 # if pipeline is successful, distribute + publish datasette
 if [[ $ETL_SUCCESS == 0 ]]; then
-    if [ "$GITHUB_ACTION_TRIGGER" = "schedule" ]; then
+    if [ "$GITHUB_ACTION_TRIGGER" = "workflow_dispatch" ]; then
         # Remove read-only authentication header added by git checkout
         git config --unset http.https://github.com/.extraheader
         git config user.email "pudl@catalyst.coop"
@@ -121,7 +121,7 @@ if [[ $ETL_SUCCESS == 0 ]]; then
         git push
     fi
     # Deploy the updated data to datasette
-    if [ "$BUILD_REF" = "dev" ]; then
+    if [ "$BUILD_REF" = "dev" ] || [ "$GITHUB_ACTION_TRIGGER" = "workflow_dispatch" ]; then
         python ~/devtools/datasette/publish.py 2>&1 | tee -a "$LOGFILE"
         ETL_SUCCESS=${PIPESTATUS[0]}
     fi
@@ -137,9 +137,10 @@ if [[ $ETL_SUCCESS == 0 ]]; then
     # TODO: this behavior should be controlled by on/off switch here and this logic
     # should be moved to the triggering github action. Having it here feels
     # fragmented.
-    if [ "$GITHUB_ACTION_TRIGGER" = "push" ] || [ "$BUILD_REF" = "dev" ]; then
+    if [ "$GITHUB_ACTION_TRIGGER" = "push" ] || [ "$BUILD_REF" = "dev" ] || [ "$GITHUB_ACTION_TRIGGER" = "workflow_dispatch" ]; then
         copy_outputs_to_distribution_bucket
         ETL_SUCCESS=${PIPESTATUS[0]}
+        # TEMPORARY: this currently just makes a sandbox release, for testing:
         zenodo_data_release 2>&1 | tee -a "$LOGFILE"
         ETL_SUCCESS=${PIPESTATUS[0]}
     fi
