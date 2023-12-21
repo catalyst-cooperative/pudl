@@ -35,9 +35,7 @@ from typing import Literal
 
 import numpy as np
 import pandas as pd
-import recordlinkage as rl
 from dagster import asset
-from recordlinkage.compare import Exact, Numeric, String  # , Date
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import precision_recall_fscore_support
 from sklearn.model_selection import GridSearchCV  # , cross_val_score
@@ -468,7 +466,11 @@ class Features:
         }
 
     def make_features(
-        self, ferc1_df: pd.DataFrame, eia_df: pd.DataFrame, block_col: str | None = None
+        self,
+        ferc1_df: pd.DataFrame,
+        eia_df: pd.DataFrame,
+        # block_col: str | None = None
+        block_col=None,
     ) -> pd.DataFrame:
         """Generate comparison features based on defined features.
 
@@ -495,6 +497,7 @@ class Features:
 
         Returns:
             a dataframe of feature vectors between FERC and EIA.
+        """
         """
         compare_cl = rl.Compare(
             features=[
@@ -559,14 +562,20 @@ class Features:
                 #      label='utility_id_pudl'),
             ]
         )
+        """
 
         # generate the index of all candidate features
-        indexer = rl.Index()
-        indexer.block(block_col)
-        feature_index = indexer.index(ferc1_df, eia_df)
+        # indexer = rl.Index()
+        # indexer.block(block_col)
+        # feature_index = indexer.index(ferc1_df, eia_df)
 
-        features = compare_cl.compute(feature_index, ferc1_df, eia_df)
-        return features
+        pairs_df = ferc1_df.merge(
+            eia_df, how="inner", on=block_col, suffixes=("_ferc1", "_eia")
+        )
+
+        # features = compare_cl.compute(feature_index, ferc1_df, eia_df)
+        feature_matrix = dataframe_embedder(pairs_df)
+        return feature_matrix
 
     def get_features(self, clobber=False):
         """Get the feature vectors for the training matches."""
