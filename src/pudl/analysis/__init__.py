@@ -7,7 +7,6 @@ post-ETL derived database tables for distribution at some point.
 """
 from . import (
     allocate_gen_fuel,
-    eia_ferc1_record_linkage,
     epacamd_eia,
     mcoe,
     plant_parts_eia,
