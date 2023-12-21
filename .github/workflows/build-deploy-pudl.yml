@@ -44,7 +44,7 @@ jobs:
           echo "SHORT_SHA: $SHORT_SHA"
           echo "BUILD_TIMESTAMP=$(date +%Y-%m-%d-%H%M)" >> $GITHUB_ENV
           echo "BUILD_TIMESTAMP: $BUILD_TIMESTAMP"
-          echo "BUILD_ID=${BUILD_TIMESTAMP}-${SHORT_SHA}-${GITHUB_REF}
+          echo "BUILD_ID=${BUILD_TIMESTAMP}-${SHORT_SHA}-${GITHUB_REF}" >> $GITHUB_ENV
           echo "BUILD_ID: $BUILD_ID"
 
       - name: Tag nightly build
