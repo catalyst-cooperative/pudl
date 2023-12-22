@@ -117,69 +117,68 @@ if [[ $ETL_SUCCESS == 0 ]]; then
 else
     notify_slack "failure"
 fi
-shutdown_vm
+#shutdown_vm
 ########################################################################################
 ########################################################################################
 ########################################################################################
 
-# # Run ETL. Copy outputs to GCS and shutdown VM if ETL succeeds or fails
-# 2>&1 redirects stderr to stdout.
-run_pudl_etl 2>&1 | tee "$LOGFILE"
-ETL_SUCCESS=${PIPESTATUS[0]}
+# # # Run ETL. Copy outputs to GCS and shutdown VM if ETL succeeds or fails
+# # 2>&1 redirects stderr to stdout.
+# run_pudl_etl 2>&1 | tee "$LOGFILE"
+# ETL_SUCCESS=${PIPESTATUS[0]}
 
+# copy_outputs_to_gcs
 
-copy_outputs_to_gcs
+# # if pipeline is successful, distribute + publish datasette
+# if [[ $ETL_SUCCESS == 0 ]]; then
+#     if [ "$GITHUB_ACTION_TRIGGER" = "schedule" ]; then
+#         # Remove read-only authentication header added by git checkout
+#         git config --unset http.https://github.com/.extraheader
+#         git config user.email "pudl@catalyst.coop"
+#         git config user.name "pudlbot"
+#         git remote set-url origin "https://pudlbot:$PUDL_BOT_PAT@github.com/catalyst-cooperative/pudl.git"
+#         # Update the nightly branch to point at newly successful nightly build tag
+#         echo "Updating nightly branch to point at $NIGHTLY_TAG."
+#         git checkout origin/nightly
+#         git merge --ff-only "$NIGHTLY_TAG"
+#         git push
+#     fi
+#     # Deploy the updated data to datasette
+#     if [ "$BUILD_REF" = "dev" ]; then
+#         python ~/devtools/datasette/publish.py 2>&1 | tee -a "$LOGFILE"
+#         ETL_SUCCESS=${PIPESTATUS[0]}
+#     fi
 
-# if pipeline is successful, distribute + publish datasette
-if [[ $ETL_SUCCESS == 0 ]]; then
-    if [ "$GITHUB_ACTION_TRIGGER" = "schedule" ]; then
-        # Remove read-only authentication header added by git checkout
-        git config --unset http.https://github.com/.extraheader
-        git config user.email "pudl@catalyst.coop"
-        git config user.name "pudlbot"
-        git remote set-url origin "https://pudlbot:$PUDL_BOT_PAT@github.com/catalyst-cooperative/pudl.git"
-        # Update the nightly branch to point at newly successful nightly build tag
-        echo "Updating nightly branch to point at $NIGHTLY_TAG."
-        git checkout origin/nightly
-        git merge --ff-only "$NIGHTLY_TAG"
-        git push
-    fi
-    # Deploy the updated data to datasette
-    if [ "$BUILD_REF" = "dev" ]; then
-        python ~/devtools/datasette/publish.py 2>&1 | tee -a "$LOGFILE"
-        ETL_SUCCESS=${PIPESTATUS[0]}
-    fi
+#     # Compress the SQLite DBs for easier distribution
+#     # Remove redundant multi-file EPA CEMS outputs prior to distribution
+#     gzip --verbose "$PUDL_OUTPUT"/*.sqlite && \
+#     rm -rf "$PUDL_OUTPUT/core_epacems__hourly_emissions/" && \
+#     rm -f "$PUDL_OUTPUT/metadata.yml"
+#     ETL_SUCCESS=${PIPESTATUS[0]}
 
-    # Compress the SQLite DBs for easier distribution
-    # Remove redundant multi-file EPA CEMS outputs prior to distribution
-    gzip --verbose "$PUDL_OUTPUT"/*.sqlite && \
-    rm -rf "$PUDL_OUTPUT/core_epacems__hourly_emissions/" && \
-    rm -f "$PUDL_OUTPUT/metadata.yml"
-    ETL_SUCCESS=${PIPESTATUS[0]}
+#     # Dump outputs to s3 bucket if branch is dev or build was triggered by a tag
+#     # TODO: this behavior should be controlled by on/off switch here and this logic
+#     # should be moved to the triggering github action. Having it here feels
+#     # fragmented.
+#     if [ "$GITHUB_ACTION_TRIGGER" = "push" ] || [ "$BUILD_REF" = "dev" ]; then
+#         copy_outputs_to_distribution_bucket
+#         ETL_SUCCESS=${PIPESTATUS[0]}
+#         # TEMPORARY: this currently just makes a sandbox release, for testing:
+#         zenodo_data_release 2>&1 | tee -a "$LOGFILE"
+#         ETL_SUCCESS=${PIPESTATUS[0]}
+#     fi
+# fi
 
-    # Dump outputs to s3 bucket if branch is dev or build was triggered by a tag
-    # TODO: this behavior should be controlled by on/off switch here and this logic
-    # should be moved to the triggering github action. Having it here feels
-    # fragmented.
-    if [ "$GITHUB_ACTION_TRIGGER" = "push" ] || [ "$BUILD_REF" = "dev" ]; then
-        copy_outputs_to_distribution_bucket
-        ETL_SUCCESS=${PIPESTATUS[0]}
-        # TEMPORARY: this currently just makes a sandbox release, for testing:
-        zenodo_data_release 2>&1 | tee -a "$LOGFILE"
-        ETL_SUCCESS=${PIPESTATUS[0]}
-    fi
-fi
+# # This way we also save the logs from latter steps in the script
+# gsutil cp "$LOGFILE" "$PUDL_GCS_OUTPUT"
 
-# This way we also save the logs from latter steps in the script
-gsutil cp "$LOGFILE" "$PUDL_GCS_OUTPUT"
+# # Notify slack about entire pipeline's success or failure;
+# # PIPESTATUS[0] either refers to the failed ETL run or the last distribution
+# # task that was run above
+# if [[ $ETL_SUCCESS == 0 ]]; then
+#     notify_slack "success"
+# else
+#     notify_slack "failure"
+# fi
 
-# Notify slack about entire pipeline's success or failure;
-# PIPESTATUS[0] either refers to the failed ETL run or the last distribution
-# task that was run above
-if [[ $ETL_SUCCESS == 0 ]]; then
-    notify_slack "success"
-else
-    notify_slack "failure"
-fi
-
-shutdown_vm
+# shutdown_vm
