@@ -104,7 +104,7 @@ function update_nightly_branch() {
     git config user.email "pudl@catalyst.coop"
     git config user.name "pudlbot"
     git remote set-url origin "https://pudlbot:$PUDL_BOT_PAT@github.com/catalyst-cooperative/pudl.git"
-    echo "WTAF: Updating nightly branch to point at $NIGHTLY_TAG."
+    echo "BOGUS: Updating nightly branch to point at $NIGHTLY_TAG."
     git fetch origin nightly:nightly
     git checkout nightly
     git merge --ff-only "$NIGHTLY_TAG"
