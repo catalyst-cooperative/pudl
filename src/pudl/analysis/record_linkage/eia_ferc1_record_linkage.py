@@ -182,6 +182,24 @@ def get_compiled_input_manager(plants_all_ferc1, fbp_ferc1, plant_parts_eia):
 
 
 @op
+def get_all_pairs_df(inputs):
+    ferc1_df = inputs.get_plants_ferc1()
+    eia_df = inputs.get_plant_parts_eia_true()
+    return ferc1_df.merge(
+        eia_df, how="inner", on=block_col, suffixes=("_ferc1", "_eia")
+    )
+
+
+@op
+def get_train_pairs_df(inputs):
+    ferc1_df = inputs.get_train_ferc1()
+    eia_df = inputs.get_train_eia()
+    return ferc1_df.merge(
+        eia_df, how="inner", on=block_col, suffixes=("_ferc1", "_eia")
+    )
+
+
+@op
 def get_compiled_all_features(inputs):
     return Features(feature_type="all", inputs=inputs).get_features(clobber=False)
 
@@ -213,7 +231,9 @@ def get_match_full_records(best_match_df, inputs):
         inputs=inputs.get_train_df(),
         plant_parts_eia_true=inputs.get_plant_parts_eia_true(),
         plants_ferc1=inputs.get_plants_ferc1(),
-    ).pipe(add_null_overrides)  # Override specified values with NA record_id_eia
+    ).pipe(
+        add_null_overrides
+    )  # Override specified values with NA record_id_eia
     return Resource.from_id(
         "out_pudl__yearly_assn_eia_ferc1_plant_parts"
     ).enforce_schema(connected_df)
@@ -244,7 +264,11 @@ def out_pudl__yearly_assn_eia_ferc1_plant_parts(
         out_ferc1__yearly_steam_plants_fuel_by_plant_sched402,
         out_eia__yearly_plant_parts,
     )
-    features_all = get_compiled_all_features(inputs=inputs)
+    all_pairs_df = get_all_pairs_df(inputs)
+    # train_pairs_df = get_train_pairs_df(inputs)
+    features_all = dataframe_embedder(all_pairs_df)
+    # features_train = dataframe_embedder(train_pairs_df)
+    # features_all = get_compiled_all_features(inputs=inputs)
     features_train = get_compiled_train_features(inputs=inputs)
     match_df = run_matching_model(
         features_train=features_train,
@@ -606,9 +630,9 @@ class Features:
             eia_df, how="inner", on=block_col, suffixes=("_ferc1", "_eia")
         )
 
-        # features = compare_cl.compute(feature_index, ferc1_df, eia_df)
-        feature_matrix = dataframe_embedder(pairs_df)
-        return feature_matrix
+        features = compare_cl.compute(feature_index, ferc1_df, eia_df)
+        # feature_matrix = dataframe_embedder(pairs_df)
+        return features
 
     def get_features(self, clobber=False):
         """Get the feature vectors for the training matches."""
