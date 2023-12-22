@@ -1155,13 +1155,6 @@ class OffByFactoid(NamedTuple):
 @asset
 def _out_ferc1__explosion_tags(table_dimensions_ferc1) -> pd.DataFrame:
     """Grab the stored tables of tags and add inferred dimension."""
-    # Also, these tags may not be applicable to all exploded tables, but
-    # we need to pass in a dataframe with the right structure to all of the exploders,
-    # so we're just re-using this one for the moment.
-
-    # rate_tags = _rate_base_tags(table_dimensions_ferc1)
-    # rev_req_tags = _revenue_requrirement_tags(table_dimensions_ferc1)
-    # rate_cats = _rate_base_category_tags(table_dimensions_ferc1)
     rate_tags = _get_tags("xbrl_factoid_rate_base_tags.csv", table_dimensions_ferc1)
     rev_req_tags = _get_tags(
         "xbrl_factoid_revenue_requirement_tags.csv", table_dimensions_ferc1
@@ -1175,12 +1168,16 @@ def _out_ferc1__explosion_tags(table_dimensions_ferc1) -> pd.DataFrame:
     plant_function_tags = _aggregatable_dimension_tags(
         table_dimensions_ferc1, "plant_function"
     )
+    utility_type_tags = _aggregatable_dimension_tags(
+        table_dimensions_ferc1, "utility_type"
+    )
     tag_dfs = [
         rate_tags,
         rev_req_tags,
         rate_cats,
         plant_status_tags,
         plant_function_tags,
+        utility_type_tags,
     ]
     tags_all = (
         pd.concat(
