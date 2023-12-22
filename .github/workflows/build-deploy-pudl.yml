@@ -9,7 +9,7 @@ on:
 
 env:
   GCP_BILLING_PROJECT: ${{ secrets.GCP_BILLING_PROJECT }}
-  GITHUB_REF: ${{ github.ref_name }} # This is changed to dev if running on a schedule
+  BUILD_REF: ${{ github.ref_name }} # This is changed to dev if running on a schedule
   GCE_INSTANCE: pudl-deployment-tag # This is changed to pudl-deployment-dev if running on a schedule
   GCE_INSTANCE_ZONE: ${{ secrets.GCE_INSTANCE_ZONE }}
   GCS_OUTPUT_BUCKET: gs://nightly-build-outputs.catalyst.coop
@@ -19,7 +19,7 @@ jobs:
     name: Build Docker image, push to Docker Hub and deploy to a GCE VM
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       id-token: write
     steps:
       - name: Use pudl-deployment-dev vm and dev branch if running on a schedule
@@ -27,24 +27,23 @@ jobs:
         run: |
           echo "This action was triggered by a schedule."
           echo "GCE_INSTANCE=pudl-deployment-dev" >> $GITHUB_ENV
-          echo "GCE_INSTANCE: $GCE_INSTANCE"
-          echo "GITHUB_REF=dev" >> $GITHUB_ENV
-          echo "GITHUB_REF: $GITHUB_REF"
+          echo "BUILD_REF=dev" >> $GITHUB_ENV
 
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ env.GITHUB_REF }}
+          ref: ${{ env.BUILD_REF }}
 
       - name: Set action environment variables
         run: |
           echo "NIGHTLY_TAG=nightly-$(date +%Y-%m-%d)" >> $GITHUB_ENV
+          echo "BUILD_ID=$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short HEAD)-${BUILD_REF}" >> $GITHUB_ENV
+
+      - name: Show freshly set envvars
+        run: |
+          echo "GCE_INSTANCE: $GCE_INSTANCE"
+          echo "BUILD_REF: $BUILD_REF"
           echo "NIGHTLY_TAG: $NIGHTLY_TAG"
-          echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-          echo "SHORT_SHA: $SHORT_SHA"
-          echo "BUILD_TIMESTAMP=$(date +%Y-%m-%d-%H%M)" >> $GITHUB_ENV
-          echo "BUILD_TIMESTAMP: $BUILD_TIMESTAMP"
-          echo "BUILD_ID=${BUILD_TIMESTAMP}-${SHORT_SHA}-${GITHUB_REF}
           echo "BUILD_ID: $BUILD_ID"
 
       - name: Tag nightly build
@@ -52,7 +51,7 @@ jobs:
         run: |
           git config user.email "pudl@catalyst.coop"
           git config user.name "pudlbot"
-          git tag -a -m "$NIGHTLY_TAG" $NIGHTLY_TAG $GITHUB_REF
+          git tag -a -m "$NIGHTLY_TAG" $NIGHTLY_TAG $BUILD_REF
           git push origin $NIGHTLY_TAG
 
       - name: Docker Metadata
@@ -63,7 +62,7 @@ jobs:
           flavor: |
             latest=auto
           tags: |
-            type=raw,value=${{ env.GITHUB_REF }}
+            type=raw,value=${{ env.BUILD_REF}}
             type=ref,event=tag
 
       - name: Set up Docker Buildx
@@ -108,7 +107,7 @@ jobs:
             --metadata-from-file startup-script=./docker/vm_startup_script.sh
           gcloud compute instances update-container "$GCE_INSTANCE" \
             --zone "$GCE_INSTANCE_ZONE" \
-            --container-image "docker.io/catalystcoop/pudl-etl:${{ env.GITHUB_REF }}" \
+            --container-image "docker.io/catalystcoop/pudl-etl:${{ env.BUILD_REF}}" \
             --container-command "micromamba" \
             --container-arg="run" \
             --container-arg="--prefix" \
@@ -118,7 +117,7 @@ jobs:
             --container-arg="bash" \
             --container-arg="./docker/gcp_pudl_etl.sh" \
             --container-env-file="./docker/.env" \
-            --container-env GITHUB_REF=${{ env.GITHUB_REF }} \
+            --container-env BUILD_REF=${{ env.BUILD_REF}} \
             --container-env BUILD_ID=${{ env.BUILD_ID }} \
             --container-env NIGHTLY_TAG=${{ env.NIGHTLY_TAG }} \
             --container-env GITHUB_ACTION_TRIGGER=${{ github.event_name }} \
