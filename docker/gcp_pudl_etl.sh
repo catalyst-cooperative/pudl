@@ -105,9 +105,8 @@ function update_nightly_branch() {
     git config user.name "pudlbot"
     git remote set-url origin "https://pudlbot:$PUDL_BOT_PAT@github.com/catalyst-cooperative/pudl.git"
     echo "WTAF: Updating nightly branch to point at $NIGHTLY_TAG."
+    git fetch origin nightly:nightly
     git checkout nightly
-    git branch --set-upstream-to=origin/nightly
-    git pull
     git merge --ff-only "$NIGHTLY_TAG"
     ETL_SUCCESS=${PIPESTATUS[0]}
     git push
