@@ -47,16 +47,6 @@ function run_pudl_etl() {
     && touch "$PUDL_OUTPUT/success"
 }
 
-function shutdown_vm() {
-    # upload_file_to_slack "$LOGFILE" "pudl_etl logs for $BUILD_ID:"
-    # Shut down the vm instance when the etl is done.
-    echo "Shutting down VM."
-    ACCESS_TOKEN=$(curl \
-        "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" \
-        -H "Metadata-Flavor: Google" | jq -r '.access_token')
-    curl -X POST -H "Content-Length: 0" -H "Authorization: Bearer ${ACCESS_TOKEN}" "https://compute.googleapis.com/compute/v1/projects/catalyst-cooperative-pudl/zones/$GCE_INSTANCE_ZONE/instances/$GCE_INSTANCE/stop"
-}
-
 function copy_outputs_to_gcs() {
     echo "Copying outputs to GCP bucket $PUDL_GCS_OUTPUT"
     gsutil -m cp -r "$PUDL_OUTPUT" "$PUDL_GCS_OUTPUT"
@@ -114,61 +104,3 @@ function update_nightly_branch() {
 
 # Short circut the script to debug the nightly branch update
 update_nightly_branch
-if [[ $ETL_SUCCESS == 0 ]]; then
-    notify_slack "success"
-else
-    notify_slack "failure"
-fi
-shutdown_vm
-
-# # Run ETL. Copy outputs to GCS and shutdown VM if ETL succeeds or fails
-# 2>&1 redirects stderr to stdout.
-run_pudl_etl 2>&1 | tee "$LOGFILE"
-ETL_SUCCESS=${PIPESTATUS[0]}
-
-copy_outputs_to_gcs
-
-# if pipeline is successful, distribute + publish datasette
-if [[ $ETL_SUCCESS == 0 ]]; then
-    if [ "$GITHUB_ACTION_TRIGGER" = "schedule" ]; then
-        update_nightly_branch
-    fi
-    # Deploy the updated data to datasette
-    if [ "$BUILD_REF" = "dev" ]; then
-        python ~/devtools/datasette/publish.py 2>&1 | tee -a "$LOGFILE"
-        ETL_SUCCESS=${PIPESTATUS[0]}
-    fi
-
-    # Compress the SQLite DBs for easier distribution
-    # Remove redundant multi-file EPA CEMS outputs prior to distribution
-    gzip --verbose "$PUDL_OUTPUT"/*.sqlite && \
-    rm -rf "$PUDL_OUTPUT/core_epacems__hourly_emissions/" && \
-    rm -f "$PUDL_OUTPUT/metadata.yml"
-    ETL_SUCCESS=${PIPESTATUS[0]}
-
-    # Dump outputs to s3 bucket if branch is dev or build was triggered by a tag
-    # TODO: this behavior should be controlled by on/off switch here and this logic
-    # should be moved to the triggering github action. Having it here feels
-    # fragmented.
-    if [ "$GITHUB_ACTION_TRIGGER" = "push" ] || [ "$BUILD_REF" = "dev" ]; then
-        copy_outputs_to_distribution_bucket
-        ETL_SUCCESS=${PIPESTATUS[0]}
-        # TEMPORARY: this currently just makes a sandbox release, for testing:
-        zenodo_data_release 2>&1 | tee -a "$LOGFILE"
-        ETL_SUCCESS=${PIPESTATUS[0]}
-    fi
-fi
-
-# This way we also save the logs from latter steps in the script
-gsutil cp "$LOGFILE" "$PUDL_GCS_OUTPUT"
-
-# Notify slack about entire pipeline's success or failure;
-# PIPESTATUS[0] either refers to the failed ETL run or the last distribution
-# task that was run above
-if [[ $ETL_SUCCESS == 0 ]]; then
-    notify_slack "success"
-else
-    notify_slack "failure"
-fi
-
-shutdown_vm
