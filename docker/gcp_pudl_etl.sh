@@ -133,6 +133,7 @@ if [[ $ETL_SUCCESS == 0 ]]; then
     if [ "$GITHUB_ACTION_TRIGGER" = "schedule" ]; then
         update_nightly_branch
     fi
+
     # Deploy the updated data to datasette
     if [ "$BUILD_REF" = "dev" ]; then
         python ~/devtools/datasette/publish.py 2>&1 | tee -a "$LOGFILE"
