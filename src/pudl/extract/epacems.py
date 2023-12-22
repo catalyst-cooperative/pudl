@@ -117,7 +117,7 @@ class EpaCemsPartition(BaseModel):
     def get_quarterly_file(self) -> Path:
         """Return the name of the CSV file that holds annual hourly data."""
         return Path(
-            f"epacems-{self.year}-{pd.to_datetime(self.year_quarter).quarter}.csv"
+            f"epacems-{self.year}q{pd.to_datetime(self.year_quarter).quarter}.csv"
         )
 
 
@@ -138,7 +138,6 @@ class EpaCemsDatastore:
         archive = self.datastore.get_zipfile_resource(
             "epacems", **partition.get_filters()
         )
-
         with archive.open(str(partition.get_quarterly_file()), "r") as csv_file:
             df = self._csv_to_dataframe(
                 csv_file, ignore_cols=API_IGNORE_COLS, rename_dict=API_RENAME_DICT
