@@ -141,9 +141,7 @@ jobs:
 
       # Start the VM
       - name: Start the deploy-pudl-vm
-        run: |
-          gcloud compute instances start "$GCE_INSTANCE" --zone="$GCE_INSTANCE_ZONE"
-          gcloud compute ssh "$GCE_INSTANCE" --zone="$GCE_INSTANCE_ZONE" -- "docker image ls catalyst-coop/pudl-etl --digests"
+        run: gcloud compute instances start "$GCE_INSTANCE" --zone="$GCE_INSTANCE_ZONE"
 
       - name: Post to a pudl-deployments channel
         id: slack
