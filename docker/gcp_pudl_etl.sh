@@ -99,29 +99,28 @@ function notify_slack() {
     send_slack_msg "$message"
 }
 
-########################################################################################
-# Short circuit to test git operations:
-########################################################################################
-git config --unset http.https://github.com/.extraheader
-git config user.email "pudl@catalyst.coop"
-git config user.name "pudlbot"
-git remote set-url origin "https://pudlbot:$PUDL_BOT_PAT@github.com/catalyst-cooperative/pudl.git"
-# Update the nightly branch to point at newly successful nightly build tag
-echo "Updating nightly branch to point at $NIGHTLY_TAG."
-git checkout nightly
-git merge --ff-only "$NIGHTLY_TAG"
-ETL_SUCCESS=${PIPESTATUS[0]}
-git push
+function update_nightly_branch() {
+    git config --unset http.https://github.com/.extraheader
+    git config user.email "pudl@catalyst.coop"
+    git config user.name "pudlbot"
+    git remote set-url origin "https://pudlbot:$PUDL_BOT_PAT@github.com/catalyst-cooperative/pudl.git"
+    echo "Updating nightly branch to point at $NIGHTLY_TAG."
+    git checkout nightly
+    git branch --set-upstream-to=origin/nightly
+    git pull
+    git merge --ff-only "$NIGHTLY_TAG"
+    ETL_SUCCESS=${PIPESTATUS[0]}
+    git push
+}
+
+# Short circut the script to debug the nightly branch update
+update_nightly_branch
 if [[ $ETL_SUCCESS == 0 ]]; then
     notify_slack "success"
 else
     notify_slack "failure"
 fi
 shutdown_vm
-
-########################################################################################
-########################################################################################
-########################################################################################
 
 # # Run ETL. Copy outputs to GCS and shutdown VM if ETL succeeds or fails
 # 2>&1 redirects stderr to stdout.
@@ -133,16 +132,7 @@ copy_outputs_to_gcs
 # if pipeline is successful, distribute + publish datasette
 if [[ $ETL_SUCCESS == 0 ]]; then
     if [ "$GITHUB_ACTION_TRIGGER" = "schedule" ]; then
-        # Remove read-only authentication header added by git checkout
-        git config --unset http.https://github.com/.extraheader
-        git config user.email "pudl@catalyst.coop"
-        git config user.name "pudlbot"
-        git remote set-url origin "https://pudlbot:$PUDL_BOT_PAT@github.com/catalyst-cooperative/pudl.git"
-        # Update the nightly branch to point at newly successful nightly build tag
-        echo "Updating nightly branch to point at $NIGHTLY_TAG."
-        git checkout nightly
-        git merge --ff-only "$NIGHTLY_TAG"
-        git push
+        update_nightly_branch
     fi
     # Deploy the updated data to datasette
     if [ "$BUILD_REF" = "dev" ]; then
