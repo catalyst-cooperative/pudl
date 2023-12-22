@@ -109,7 +109,7 @@ function update_nightly_branch() {
     git checkout nightly
     git merge --ff-only "$NIGHTLY_TAG"
     ETL_SUCCESS=${PIPESTATUS[0]}
-    git push
+    git push -u origin
 }
 
 # Short circut the script to debug the nightly branch update
