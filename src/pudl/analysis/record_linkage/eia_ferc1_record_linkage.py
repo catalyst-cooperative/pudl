@@ -35,10 +35,10 @@ from typing import Literal
 
 import numpy as np
 import pandas as pd
-from dagster import asset
+from dagster import AssetOut, graph_multi_asset, op
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import precision_recall_fscore_support
-from sklearn.model_selection import GridSearchCV  # , cross_val_score
+from sklearn.model_selection import GridSearchCV, train_test_split
 
 import pudl
 import pudl.helpers
@@ -173,9 +173,58 @@ dataframe_embedder = embed_dataframe.dataframe_embedder_factory(
 )
 
 
-@asset(
-    io_manager_key="pudl_sqlite_io_manager",
-    compute_kind="Python",
+@op
+def get_compiled_input_manager(plants_all_ferc1, fbp_ferc1, plant_parts_eia):
+    inputs = InputManager(plants_all_ferc1, fbp_ferc1, plant_parts_eia)
+    # compile/cache inputs upfront. Hopefully we can catch any errors in inputs early.
+    inputs.execute()
+    return inputs
+
+
+@op
+def get_compiled_all_features(inputs):
+    return Features(feature_type="all", inputs=inputs).get_features(clobber=False)
+
+
+@op
+def get_compiled_train_features(inputs):
+    return Features(feature_type="train", inputs=inputs).get_features(clobber=False)
+
+
+@op
+def get_best_matches_with_overwrites(match_df, inputs):
+    return find_best_matches(match_df).pipe(overwrite_bad_predictions, inputs.train_df)
+
+
+@op
+def run_matching_model(features_train, features_all, inputs):
+    return run_model(
+        features_train=features_train,
+        features_all=features_all,
+        train_df=inputs.train_df,
+    )
+
+
+@op
+def get_match_full_records(best_match_df, inputs):
+    connected_df = prettyify_best_matches(
+        best_match_df,
+        train_df=inputs.get_train_df(),
+        inputs=inputs.get_train_df(),
+        plant_parts_eia_true=inputs.get_plant_parts_eia_true(),
+        plants_ferc1=inputs.get_plants_ferc1(),
+    ).pipe(add_null_overrides)  # Override specified values with NA record_id_eia
+    return Resource.from_id(
+        "out_pudl__yearly_assn_eia_ferc1_plant_parts"
+    ).enforce_schema(connected_df)
+
+
+@graph_multi_asset(
+    outs={
+        "out_pudl__yearly_assn_eia_ferc1_plant_parts": AssetOut(
+            io_manager_key="pudl_sqlite_io_manager"
+        )
+    }
 )
 def out_pudl__yearly_assn_eia_ferc1_plant_parts(
     out_ferc1__yearly_all_plants: pd.DataFrame,
@@ -190,39 +239,23 @@ def out_pudl__yearly_assn_eia_ferc1_plant_parts(
             reported aggregated to the FERC1 plant-level.
         out_eia__yearly_plant_parts: The EIA plant parts list.
     """
-    inputs = InputManager(
+    inputs = get_compiled_input_manager(
         out_ferc1__yearly_all_plants,
         out_ferc1__yearly_steam_plants_fuel_by_plant_sched402,
         out_eia__yearly_plant_parts,
     )
-    # compile/cache inputs upfront. Hopefully we can catch any errors in inputs early.
-    inputs.execute()
-    features_all = Features(feature_type="all", inputs=inputs).get_features(
-        clobber=False
-    )
-    features_train = Features(feature_type="training", inputs=inputs).get_features(
-        clobber=False
-    )
-    match_df = run_model(
+    features_all = get_compiled_all_features(inputs=inputs)
+    features_train = get_compiled_train_features(inputs=inputs)
+    match_df = run_matching_model(
         features_train=features_train,
         features_all=features_all,
-        train_df=inputs.train_df,
+        inputs=inputs,
     )
     # choose one EIA match for each FERC record
-    best_match_df = find_best_matches(match_df).pipe(
-        overwrite_bad_predictions, inputs.train_df
-    )
+    best_match_df = get_best_matches_with_overwrites(match_df, inputs)
     # join EIA and FERC columns back on
-    connects_ferc1_eia = prettyify_best_matches(
-        best_match_df,
-        train_df=inputs.get_train_df(),
-        plant_parts_eia_true=inputs.get_plant_parts_eia_true(),
-        plants_ferc1=inputs.get_plants_ferc1(),
-    ).pipe(add_null_overrides)  # Override specified values with NA record_id_eia
-    connects_ferc1_eia = Resource.from_id(
-        "out_pudl__yearly_assn_eia_ferc1_plant_parts"
-    ).enforce_schema(connects_ferc1_eia)
-    return connects_ferc1_eia
+    ferc1_eia_connected_df = get_match_full_records(best_match_df, inputs)
+    return ferc1_eia_connected_df
 
 
 class InputManager:
@@ -632,8 +665,8 @@ def run_model(
             "l1_ratio": [0.1, 0.3, 0.5, 0.7, 0.9],
         },
     ]
-    x_train = features_train.to_numpy()
-    y_train = np.where(
+    X = features_train.to_numpy()
+    y = np.where(
         features_train.merge(
             train_df,
             how="left",
@@ -645,12 +678,15 @@ def run_model(
         1,
         0,
     )
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.25, random_state=16
+    )
     lrc = LogisticRegression()
     clf = GridSearchCV(estimator=lrc, param_grid=param_grid, verbose=True, n_jobs=-1)
-    clf.fit(X=x_train, y=y_train)
-    y_pred = clf.predict(x_train)
+    clf.fit(X=X_train, y=y_train)
+    y_pred = clf.predict(X_test)
     precision, recall, f_score, _ = precision_recall_fscore_support(
-        y_train, y_pred, average="binary"
+        y_test, y_pred, average="binary"
     )
     accuracy = clf.best_score_
     logger.info(
