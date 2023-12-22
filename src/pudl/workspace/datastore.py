@@ -104,7 +104,6 @@ class DatapackageDescriptor:
                     f"Resource filter values should be all lowercase: {k}={v}"
                 )
         parts = res.get("parts", {})
-
         # If partitions are list, match whole list if it contains desired element
         if set(map(type, parts.values())) == {list}:
             return all(
@@ -180,7 +179,7 @@ class ZenodoDoiSettings(BaseSettings):
 
     censusdp1tract: ZenodoDoi = "10.5281/zenodo.4127049"
     eia860: ZenodoDoi = "10.5281/zenodo.10067566"
-    eia860m: ZenodoDoi = "10.5281/zenodo.10204686"
+    eia860m: ZenodoDoi = "10.5281/zenodo.10423813"
     eia861: ZenodoDoi = "10.5281/zenodo.10204708"
     eia923: ZenodoDoi = "10.5281/zenodo.10067550"
     eia_bulk_elec: ZenodoDoi = "10.5281/zenodo.7067367"
