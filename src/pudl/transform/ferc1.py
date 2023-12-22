@@ -4865,6 +4865,39 @@ class BalanceSheetAssetsTableTransformer(Ferc1AbstractTableTransformer):
     table_id: TableIdFerc1 = TableIdFerc1.BALANCE_SHEET_ASSETS
     has_unique_record_ids: bool = False
 
+    def selectively_replace_utility_type(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Assign utility_type as total in almost all cases.
+
+        Nearly all of hte ``utility_type
+        """
+        fact_to_utility_type_map = {
+            "nuclear_fuel_in_process_of_refinement_conversion_enrichment_and_fabrication": "electric",
+            "nuclear_fuel_materials_and_assemblies_stock_account_major_only": "electric",
+            "nuclear_fuel_assemblies_in_reactor_major_only": "electric",
+            "spent_nuclear_fuel_major_only": "electric",
+            "nuclear_fuel_under_capital_leases": "electric",
+            "accumulated_provision_for_amortization_of_nuclear_fuel_assemblies": "electric",
+            "other_electric_plant_adjustments": "electric",
+            "gas_stored_underground_noncurrent": "gas",
+            "fuel_stock": "electric",
+            "fuel_stock_expenses_undistributed": "electric",
+            "residuals": "electric",
+            "nuclear_materials_held_for_sale": "electric",
+            "preliminary_survey_and_investigation_charges": "electric",
+            "preliminary_natural_gas_survey_and_investigation_charges": "gas",
+            "other_preliminary_survey_and_investigation_charges": "other",
+            "nuclear_fuel": "electric",
+        }
+        xbrl_factoid_col = (
+            "xbrl_factoid"
+            if "xbrl_factoid" in df.columns
+            else self.params.xbrl_factoid_name
+        )
+        df = df.set_index([xbrl_factoid_col])
+        for asset_type, utility_type in fact_to_utility_type_map.items():
+            df.loc[asset_type, "utility_type"] = utility_type
+        return df.reset_index()
+
     @cache_df("process_xbrl_metadata")
     def process_xbrl_metadata(
         self: Self,
@@ -4876,11 +4909,13 @@ class BalanceSheetAssetsTableTransformer(Ferc1AbstractTableTransformer):
         Beyond the standard :meth:`Ferc1AbstractTableTransformer.process_xbrl_metadata`
         processing, assign utility type.
         """
-        return (
+        df = (
             super()
             .process_xbrl_metadata(xbrl_metadata_converted, xbrl_calculations)
             .assign(utility_type="total")
+            .pipe(self.selectively_replace_utility_type)
         )
+        return df
 
     @cache_df(key="main")
     def transform_main(self: Self, df: pd.DataFrame) -> pd.DataFrame:
@@ -4894,7 +4929,12 @@ class BalanceSheetAssetsTableTransformer(Ferc1AbstractTableTransformer):
         data and associated it with newly defined facts, which we will also add to
         the metadata and calculations.
         """
-        df = super().transform_main(df).assign(utility_type="total")
+        df = (
+            super()
+            .transform_main(df)
+            .assign(utility_type="total")
+            .pipe(self.selectively_replace_utility_type)
+        )
         facts_to_duplicate = [
             "noncurrent_portion_of_allowances",
             "derivative_instrument_assets_long_term",
