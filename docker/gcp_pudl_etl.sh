@@ -48,7 +48,7 @@ function run_pudl_etl() {
 }
 
 function shutdown_vm() {
-    upload_file_to_slack "$LOGFILE" "pudl_etl logs for $BUILD_ID:"
+    # upload_file_to_slack "$LOGFILE" "pudl_etl logs for $BUILD_ID:"
     # Shut down the vm instance when the etl is done.
     echo "Shutting down VM."
     ACCESS_TOKEN=$(curl \

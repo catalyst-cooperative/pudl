@@ -33,6 +33,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ env.BUILD_REF }}
+          fetch-depth: 0
 
       - name: Set action environment variables
         run: |
