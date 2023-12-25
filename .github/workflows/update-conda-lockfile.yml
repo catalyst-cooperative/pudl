@@ -13,7 +13,7 @@ on:
 jobs:
   update-conda-lockfile:
     runs-on: ubuntu-latest
-    if: (github.event_name == 'schedule' && github.repository == 'catalyst-cooperative/pudl') || (github.event_name == 'workflow_dispatch') }}
+    if: ${{ (github.event_name == 'schedule' && github.repository == 'catalyst-cooperative/pudl') || (github.event_name == 'workflow_dispatch') }}
     defaults:
       run:
         shell: bash -l {0}
