@@ -205,7 +205,7 @@ def _out_ferc1__yearly_plants_utilities(
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def _out_ferc1__yearly_steam_plants_sched402(
     _out_ferc1__yearly_plants_utilities: pd.DataFrame,
-    core_ferc1__yearly_steam_plants_sched402: pd.DataFrame,
+    _out_ferc1__yearly_steam_plants_sched402_with_plant_ids: pd.DataFrame,
 ) -> pd.DataFrame:
     """Select and joins some useful fields from the FERC Form 1 steam table.
 
@@ -218,13 +218,14 @@ def _out_ferc1__yearly_steam_plants_sched402(
     Args:
         _out_ferc1__yearly_plants_utilities: Denormalized dataframe of FERC Form 1 plants and
             utilities data.
-        core_ferc1__yearly_steam_plants_sched402: The normalized FERC Form 1 steam table.
+        _out_ferc1__yearly_steam_plants_sched402_with_plant_ids: The FERC Form 1 steam table
+            with imputed plant IDs to group plants across report years.
 
     Returns:
         A DataFrame containing useful fields from the FERC Form 1 steam table.
     """
     steam_df = (
-        core_ferc1__yearly_steam_plants_sched402.merge(
+        _out_ferc1__yearly_steam_plants_sched402_with_plant_ids.merge(
             _out_ferc1__yearly_plants_utilities,
             on=["utility_id_ferc1", "plant_name_ferc1"],
             how="left",
@@ -908,7 +909,7 @@ def out_ferc1__yearly_steam_plants_fuel_by_plant_sched402(
     """Summarize FERC fuel data by plant for output.
 
     This is mostly a wrapper around
-    :func:`pudl.analysis.classify_plants_ferc1.fuel_by_plant_ferc1`
+    :func:`pudl.analysis.record_linkage.classify_plants_ferc1.fuel_by_plant_ferc1`
     which calculates some summary values on a per-plant basis (as indicated
     by ``utility_id_ferc1`` and ``plant_name_ferc1``) related to fuel
     consumption.
@@ -947,12 +948,12 @@ def out_ferc1__yearly_steam_plants_fuel_by_plant_sched402(
     fbp_df = (
         core_ferc1__yearly_steam_plants_fuel_sched402.pipe(drop_other_fuel_types)
         .pipe(
-            pudl.analysis.classify_plants_ferc1.fuel_by_plant_ferc1,
+            pudl.analysis.fuel_by_plant.fuel_by_plant_ferc1,
             fuel_categories=fuel_categories,
             thresh=thresh,
         )
-        .pipe(pudl.analysis.classify_plants_ferc1.revert_filled_in_float_nulls)
-        .pipe(pudl.analysis.classify_plants_ferc1.revert_filled_in_string_nulls)
+        .pipe(pudl.analysis.fuel_by_plant.revert_filled_in_float_nulls)
+        .pipe(pudl.analysis.fuel_by_plant.revert_filled_in_string_nulls)
         .merge(
             _out_ferc1__yearly_plants_utilities,
             on=["utility_id_ferc1", "plant_name_ferc1"],
