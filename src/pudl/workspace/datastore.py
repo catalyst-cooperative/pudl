@@ -141,7 +141,10 @@ class DatapackageDescriptor:
             if name and res["name"] != name:
                 continue
             for k, v in res.get("parts", {}).items():
-                partitions[k].add(v)
+                if isinstance(v, list):
+                    partitions[k] |= set(v)  # Add all items from list
+                else:
+                    partitions[k].add(v)
         return partitions
 
     def get_partition_filters(self, **filters: Any) -> Iterator[dict[str, str]]:
