@@ -152,13 +152,13 @@ where = ["src"]
 [tool.setuptools_scm]
 tag_regex = "^v(?P<version>20\\d{2}\\.\\d{1,2}\\.\\d{1,2})$"
 git_describe_command = [
-    'git',
-    'describe',
-    '--dirty',
-    '--tags',
-    '--long',
-    '--match',
-    'v20*',
+    "git",
+    "describe",
+    "--dirty",
+    "--tags",
+    "--long",
+    "--match",
+    "v20*",
 ]
 
 [tool.ruff]
