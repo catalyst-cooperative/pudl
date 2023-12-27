@@ -50,6 +50,7 @@ ferc_dataframe_embedder = embed_dataframe.dataframe_embedder_factory(
                 embed_dataframe.ColumnCleaner(cleaning_function="null_to_empty_str"),
                 embed_dataframe.CategoricalVectorizer(),
             ],
+            weight=1.0,
             columns=["construction_type"],
         ),
         "capacity_mw": embed_dataframe.ColumnVectorizer(
@@ -57,6 +58,7 @@ ferc_dataframe_embedder = embed_dataframe.dataframe_embedder_factory(
                 embed_dataframe.ColumnCleaner(cleaning_function="null_to_zero"),
                 embed_dataframe.NumericalVectorizer(),
             ],
+            weight=1.0,
             columns=["capacity_mw"],
         ),
         "construction_year": embed_dataframe.ColumnVectorizer(
@@ -64,10 +66,12 @@ ferc_dataframe_embedder = embed_dataframe.dataframe_embedder_factory(
                 embed_dataframe.ColumnCleaner(cleaning_function="fix_int_na"),
                 embed_dataframe.CategoricalVectorizer(),
             ],
+            weight=1.0,
             columns=["construction_year"],
         ),
         "utility_id_ferc1": embed_dataframe.ColumnVectorizer(
             transform_steps=[embed_dataframe.CategoricalVectorizer()],
+            weight=1.0,
             columns=["utility_id_ferc1"],
         ),
         "fuel_fractions": embed_dataframe.ColumnVectorizer(
@@ -76,6 +80,7 @@ ferc_dataframe_embedder = embed_dataframe.dataframe_embedder_factory(
                 embed_dataframe.NumericalVectorizer(),
                 embed_dataframe.NumericalNormalizer(),
             ],
+            weight=1.0,
             columns=_FUEL_COLS,
         ),
     }
