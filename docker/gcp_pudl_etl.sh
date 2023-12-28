@@ -2,9 +2,6 @@
 # This script runs the entire ETL and validation tests in a docker container on a Google Compute Engine instance.
 # This script won't work locally because it needs adequate GCP permissions.
 
-# Set PUDL_GCS_OUTPUT *only* if it is currently unset
-: "${PUDL_GCS_OUTPUT:=gs://nightly-build-outputs.catalyst.coop/$BUILD_ID}"
-
 set -x
 
 function send_slack_msg() {
@@ -131,6 +128,9 @@ DATASETTE_SUCCESS=0
 CLEAN_UP_OUTPUTS_SUCCESS=0
 DISTRIBUTION_BUCKET_SUCCESS=0
 ZENODO_SUCCESS=0
+
+# Set PUDL_GCS_OUTPUT *only* if it is currently unset
+: "${PUDL_GCS_OUTPUT:=gs://nightly-build-outputs.catalyst.coop/$BUILD_ID}"
 
 # Run ETL. Copy outputs to GCS and shutdown VM if ETL succeeds or fails
 # 2>&1 redirects stderr to stdout.
