@@ -102,7 +102,9 @@ function update_nightly_branch() {
     git config user.name "pudlbot" && \
     git remote set-url origin "https://pudlbot:$PUDL_BOT_PAT@github.com/catalyst-cooperative/pudl.git" && \
     echo "Updating nightly branch to point at $NIGHTLY_TAG." && \
+    git tag && \
     git fetch --tags origin && \
+    git tag && \
     git fetch origin nightly:nightly && \
     git checkout nightly && \
     git merge --ff-only "$NIGHTLY_TAG" && \
