@@ -133,15 +133,15 @@ ZENODO_SUCCESS=0
 
 # Run ETL. Copy outputs to GCS and shutdown VM if ETL succeeds or fails
 # 2>&1 redirects stderr to stdout.
-run_pudl_etl 2>&1 | tee "$LOGFILE"
-ETL_SUCCESS=${PIPESTATUS[0]}
+#run_pudl_etl 2>&1 | tee "$LOGFILE"
+#ETL_SUCCESS=${PIPESTATUS[0]}
 
-save_outputs_to_gcs 2>&1 | tee -a "$LOGFILE"
-SAVE_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
+#save_outputs_to_gcs 2>&1 | tee -a "$LOGFILE"
+#SAVE_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
 
 # if pipeline is successful, distribute + publish datasette
 if [[ $ETL_SUCCESS == 0 ]]; then
-    if [[ "$GITHUB_ACTION_TRIGGER" == "schedule" ]]; then
+    if [[ "$GITHUB_ACTION_TRIGGER" == "schedule" || "$GITHUB_ACTION_TRIGGER" == "workflow_dispatch" ]]; then
         update_nightly_branch 2>&1 | tee -a "$LOGFILE"
         UPDATE_NIGHTLY_SUCCESS=${PIPESTATUS[0]}
     fi
@@ -170,7 +170,7 @@ if [[ $ETL_SUCCESS == 0 ]]; then
 fi
 
 # This way we also save the logs from latter steps in the script
-gsutil cp "$LOGFILE" "$PUDL_GCS_OUTPUT"
+# gsutil cp "$LOGFILE" "$PUDL_GCS_OUTPUT"
 
 # Notify slack about entire pipeline's success or failure;
 if [[ $ETL_SUCCESS == 0 && \
