@@ -80,7 +80,7 @@ function copy_outputs_to_distribution_bucket() {
 
 function zenodo_data_release() {
     echo "Creating a new PUDL data release on Zenodo."
-    ~/devtools/zenodo/zenodo_data_release.py --publish --env sandbox --source-dir "$PUDL_OUTPUT"
+    ~/pudl/devtools/zenodo/zenodo_data_release.py --publish --env sandbox --source-dir "$PUDL_OUTPUT"
 }
 
 function notify_slack() {
@@ -136,7 +136,7 @@ if [[ $ETL_SUCCESS == 0 ]]; then
 
     # Deploy the updated data to datasette
     if [ "$BUILD_REF" = "dev" ]; then
-        python ~/devtools/datasette/publish.py 2>&1 | tee -a "$LOGFILE"
+        python ~/pudl/devtools/datasette/publish.py 2>&1 | tee -a "$LOGFILE"
         ETL_SUCCESS=${PIPESTATUS[0]}
     fi
 

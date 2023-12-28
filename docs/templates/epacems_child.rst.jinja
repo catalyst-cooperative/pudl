@@ -1,11 +1,10 @@
 {% extends "data_source_parent.rst.jinja" %}
 {% block database_text %}
 Clicking on the links will show you a description of the table as well as
-the names and descriptions of each of its fields. You can access the data via the
-EPACEMS Intake catalog.
+the names and descriptions of each of its fields.
 {% endblock %}
 
-{% block browse_online %}- Available via `PUDL Data Catalog <https://github.com/catalyst-cooperative/pudl-catalog>`__{% endblock %}
+{% block browse_online %}- Not browsable due to file size.{% endblock %}
 
 {% block background %}
 `Continuous Emissions Monitoring Systems
@@ -25,10 +24,9 @@ Irregularities"; it gets complicated.
 {% endblock %}
 
 {% block accessible %}
-All of it! Data is currently available via the `PUDL Data Catalog <https://github.com/catalyst-cooperative/pudl-catalog>`__.
+All of it! We typically update the EPA CEMS dataset quarterly, as new data releases are
+made.
 
-Thanks to `Karl Dunkle Werner <https://github.com/karldw>`__ for contributing
-much of the EPA CEMS Hourly ETL code!
 {% endblock %}
 
 {% block fill_out_form_title %}
@@ -56,18 +54,20 @@ A plain English explanation of the requirements of Part 75 is available in secti
 
 {% block original_data %}
 EPA CAMD publishes the CEMS data in an online `data portal <https://campd.epa.gov/>`__.
-The files are available in a prepackaged format, accessible via a `user interface <https://campd.epa.gov/data/custom-data-download>`__
-or `FTP site <https://gaftp.epa.gov/DMDnLoad/>`__ with each downloadable zip file
-encompassing a year of data.
+The files are available in a prepackaged format, accessible via a `user interface
+<https://campd.epa.gov/data/custom-data-download>`__, and also through the
+`EPA Clean Air Markets API <https://www.epa.gov/power-sector/cam-api-portal>`__ (which
+we use to produce archives of the data).
 {% endblock %}
 
 {% block notable_irregularities %}
 
-CEMS is enourmous
------------------
-CEMS is by far the largest dataset in PUDL what with hourly records for
-thousands of plants spanning decades. For this reason, we distribute CEMS data using `Apache
-Parquet <https://parquet.apache.org/>`__ files rather than in the main PUDL database.
+CEMS is enormous
+----------------
+CEMS is the largest dataset in PUDL, with hourly records for thousands of
+plants spanning decades. To make this large table more usable, we distribute the CEMS
+data using the `Apache Parquet <https://parquet.apache.org/>`__ file format rather than
+SQLite.
 
 Check out the `PUDL data access example notebook on Kaggle
 <https://www.kaggle.com/code/catalystcooperative/01-pudl-data-access>`__ or in our
