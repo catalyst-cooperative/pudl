@@ -48,7 +48,7 @@ function run_pudl_etl() {
 }
 
 function shutdown_vm() {
-    # upload_file_to_slack "$LOGFILE" "pudl_etl logs for $BUILD_ID:"
+    upload_file_to_slack "$LOGFILE" "pudl_etl logs for $BUILD_ID:"
     # Shut down the vm instance when the etl is done.
     echo "Shutting down VM."
     ACCESS_TOKEN=$(curl \
@@ -111,15 +111,6 @@ function update_nightly_branch() {
     ETL_SUCCESS=${PIPESTATUS[0]}
     git push -u origin
 }
-
-# Short circut the script to debug the nightly branch update
-update_nightly_branch
-if [[ $ETL_SUCCESS == 0 ]]; then
-    notify_slack "success"
-else
-    notify_slack "failure"
-fi
-shutdown_vm
 
 # # Run ETL. Copy outputs to GCS and shutdown VM if ETL succeeds or fails
 # 2>&1 redirects stderr to stdout.
