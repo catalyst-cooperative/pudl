@@ -47,7 +47,7 @@ jobs:
           echo "BUILD_ID: $BUILD_ID"
 
       - name: Tag nightly build
-        if: ${{ (github.event_name == 'schedule') }}
+        if: ${{ (github.event_name == 'schedule') || (github.event_name == 'workflow_dispatch') }}
         run: |
           git config user.email "pudl@catalyst.coop"
           git config user.name "pudlbot"
