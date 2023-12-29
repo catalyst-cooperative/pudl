@@ -164,8 +164,9 @@ def _out_ferc1__yearly_steam_plants_sched402_with_plant_ids(
         out_ferc1__yearly_steam_plants_fuel_by_plant_sched402,
     )
     vectorizers = get_vectorizers()
-    transformer = embed_dataframe.train_dataframe_embedder_new(input_df, vectorizers)
-    feature_matrix = embed_dataframe.apply_dataframe_embedder_new(input_df, transformer)
+    # transformer = embed_dataframe.train_dataframe_embedder_new(input_df, vectorizers)
+    # feature_matrix = embed_dataframe.apply_dataframe_embedder_new(input_df, transformer)
+    feature_matrix = embed_dataframe.embed_dataframe_new(input_df, vectorizers)
     # feature_matrix = ferc_dataframe_embedder(input_df)
     label_df = link_ids_cross_year(input_df, feature_matrix)
 

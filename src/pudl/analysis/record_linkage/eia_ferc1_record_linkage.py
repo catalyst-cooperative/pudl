@@ -271,10 +271,11 @@ def out_pudl__yearly_assn_eia_ferc1_plant_parts(
     all_pairs_df = get_all_pairs_df(inputs)
     # train_pairs_df = get_train_pairs_df(inputs)
     vectorizer = get_pair_vectorizers()
-    transformer = embed_dataframe.train_dataframe_embedder_new(all_pairs_df, vectorizer)
-    features_all = embed_dataframe.apply_dataframe_embedder_new(
-        all_pairs_df, transformer
-    )
+    # transformer = embed_dataframe.train_dataframe_embedder_new(all_pairs_df, vectorizer)
+    # features_all = embed_dataframe.apply_dataframe_embedder_new(
+    #     all_pairs_df, transformer
+    # )
+    features_all = embed_dataframe.embed_dataframe_new(all_pairs_df, vectorizer)
     # features_all = dataframe_embedder(all_pairs_df)
     # features_train = dataframe_embedder(train_pairs_df)
     # features_all = get_compiled_all_features(inputs=inputs)

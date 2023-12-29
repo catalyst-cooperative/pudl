@@ -94,6 +94,13 @@ def apply_dataframe_embedder_new(df: pd.DataFrame, transformer: ColumnTransforme
     """Use :class:`sklearn.compose.ColumnTransformer` to transform input."""
     return FeatureMatrix(matrix=transformer.transform(df))
 
+@graph
+def embed_dataframe_new(df: pd.DataFrame, vectorizers) -> FeatureMatrix:
+    """Train dataframe embedder and apply to input df."""
+    transformer = train_dataframe_embedder_new(df, vectorizers)
+    return apply_dataframe_embedder_new(df, transformer)
+
+
 
 def dataframe_embedder_factory(vectorizers: dict[str, ColumnVectorizer]):
     """Return a configured op graph to embed an input dataframe."""
