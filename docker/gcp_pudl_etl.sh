@@ -25,11 +25,7 @@ function run_pudl_etl() {
     send_slack_msg ":large_yellow_circle: Deployment started for $BUILD_ID :floppy_disk:"
     authenticate_gcp && \
     alembic upgrade head && \
-    pudl_datastore \
-        --dataset epacems \
-        --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
-        --partition year_quarters="2022q1" \
-    && ferc_to_sqlite \
+    ferc_to_sqlite \
         --loglevel DEBUG \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
         --workers 8 \
