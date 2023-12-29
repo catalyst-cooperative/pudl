@@ -13,7 +13,11 @@ some help making PUDL data as complete as possible.
    <https://github.com/catalyst-cooperative/pudl/issues/new?assignees=&labels=new-data&projects=&template=new_dataset.md&title=>`__
    to tell us more about it!
 
-   If you've **already written some code to wrangle a dataset**, find us at
+   If you've **already spent a bunch of time wrangling a dataset**, we welcome
+   "knowledge contributions" in our `pudl-knowledge
+   <https://github.com/catalyst-cooperative/pudl-knowledge>`__ repository!
+
+   If you're **looking to help us integrate a specific dataset into PUDL**, find us at
    `office hours <https://calend.ly/catalyst-cooperative/pudl-office-hours>`__ and we
    can talk through next steps.
 

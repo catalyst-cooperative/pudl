@@ -1,0 +1,222 @@
+{
+    "reference_license": "//SPDX-License-Identifier: CC0-1.0",
+    "reference_url": "https://www.gleif.org/en/about-lei/code-lists/iso-20275-entity-legal-forms-code-list",
+    "reference_version": "1.3",
+    "created": "2021-09-20",
+    "updated": "2022-06-09",
+    "legal_forms": {
+        "en": {
+                "registered limited liability limited partnership": [
+                        "r.l.l.l.p.",
+                        "r.l.l.l.p",
+                        "rlllp.",
+                        "rlllp"
+                ],
+                "registered limited liability partnership": [
+                        "r.l.l.p.",
+                        "r.l.l.p",
+                        "rllp.",
+                        "rllp"
+                ],
+                "professional limited liability limited partnership": [
+                        "p.l.l.l.p.",
+                        "p.l.l.l.p",
+                        "plllp.",
+                        "plllp"
+                ],
+                "limited liability limited partnership": [
+                        "lllp.",
+                        "lllp",
+                        "l.l.l.p.",
+                        "l.l.l.p"
+                ],
+                "professional limited liabity partnership": [
+                        "p.l.l.p.",
+                        "p.l.l.p",
+                        "pllp.",
+                        "pllp"
+                ],
+                "professional limited liability company": [
+                        "p.l.l.c.",
+                        "p.l.l.c",
+                        "pllc.",
+                        "pllc"
+                ],
+                "limited liability partnership": [
+                        "l.l.p.",
+                        "l.l.p",
+                        "llp.",
+                        "llp"
+                ],
+                "low-profit limited liability company": [
+                        "l3c.",
+                        "l3c",
+                        "l.3.c.",
+                        "l.3.c",
+                        "lllc.",
+                        "lllc",
+                        "l.l.l.c.",
+                        "l.l.l.c"
+                ],
+                "limited liability company": [
+                        "ltd. liability co.",
+                        "ltd. liability co",
+                        "ltd liability co.",
+                        "ltd liability co",
+                        "l.l.c.",
+                        "l.l.c",
+                        "llc.",
+                        "llc"
+                ],
+                "public limited company": [
+                        "public lc.",
+                        "public lc",
+                        "pub. lc.",
+                        "pub. lc",
+                        "pub lc.",
+                        "pub lc",
+                        "p.l.c.",
+                        "p.l.c",
+                        "plc.",
+                        "plc"
+                ],
+                "limited partnership": [
+                        "lp.",
+                        "lp",
+                        "l.p.",
+                        "l.p",
+                        "lp"
+                ],
+                "professional corporation": [
+                        "prof. corp.",
+                        "prof corp.",
+                        "prof corp",
+                        "pro. corp.",
+                        "pro corp.",
+                        "pro corp",
+                        "pc.",
+                        "p.c.",
+                        "p.c",
+                        "pc"
+                ],
+                "professional association": [
+                        "prof. assoc.",
+                        "prof assoc.",
+                        "prof assoc",
+                        "prof. assn.",
+                        "prof assn.",
+                        "prof assn",
+                        "pro. assoc.",
+                        "pro assoc.",
+                        "pro assoc",
+                        "pro. assn.",
+                        "pro assn.",
+                        "pro assn",
+                        "pa.",
+                        "p.a.",
+                        "p.a",
+                        "pa"
+                ],
+                "corporation": [
+                        "corp.",
+                        "corp"
+                ],
+                "company": [
+                        "c.o.",
+                        "co.",
+                        "c.o",
+                        "co"
+                ],
+                "real state investment trust": [
+                        "reit.",
+                        "reit",
+                        "r.e.i.t.",
+                        "r.e.i.t"
+                ],
+                "general partnership": [
+                        "gp.",
+                        "g.p.",
+                        "gp"
+                ],
+                "commercial registered agent": [
+                        "c.r.a.",
+                        "cra.",
+                        "cra"
+                ],
+                "national trust and savings association": [
+                        "nt&sa",
+                        "nt & sa",
+                        "nt. & sa.",
+                        "nt. & sa",
+                        "nt & sa."
+                ],
+                "national association": [
+                        "n.a.",
+                        "n.a",
+                        "n. assoc.",
+                        "n. assoc",
+                        "n assoc.",
+                        "n assoc"
+                ],
+                "authority": [
+                        "auth.",
+                        "auth"
+                ],
+                "foundation": [
+                        "fdn.",
+                        "fdn",
+                        "f.d.n.",
+                        "f.d.n"
+                ],
+                "cooperative": [
+                        "co-op.",
+                        "co-op",
+                        "coop.",
+                        "coop"
+                ],
+                "association": [
+                        "assoc.",
+                        "assoc",
+                        "assn.",
+                        "assn"
+                ],
+                "basin irrigation district": [
+                        "basin irr district",
+                        "basin irr. dist",
+                        "basin irr dist.",
+                        "basin irr. dist.",
+                        "basin irr dist"
+                ],
+                "limited": [
+                        "limited.",
+                        "limit",
+                        "ltd.",
+                        "ltd",
+                        "l.t.d.",
+                        "l.t.d",
+                        "lt.",
+                        "lt"
+                ],
+                "unlimited": [
+                        "ultd.",
+                        "unltd",
+                        "ult.",
+                        "ult"
+                ],
+                "incorporated": [
+                        "inc.",
+                        "inc",
+                        "incorp.",
+                        "incorp"
+                ],
+                "district": [
+                        "dist.",
+                        "dist"
+                ],
+                "commission": [
+                        "comm.",
+                        "comm"
+                ]
+        }
+    }
+}

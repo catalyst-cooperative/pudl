@@ -480,11 +480,11 @@ def date_merge(
 
     Args:
         left: The left dataframe in the merge. Typically monthly in our use
-            cases if doing a left merge E.g. ``generation_eia923``.
+            cases if doing a left merge E.g. ``core_eia923__monthly_generation``.
             Must contain columns specified by ``left_date_col`` and
             ``on`` argument.
         right: The right dataframe in the merge. Typically annual in our uses
-            cases if doing a left merge E.g. ``generators_eia860``.
+            cases if doing a left merge E.g. ``core_eia860__scd_generators``.
             Must contain columns specified by ``right_date_col`` and ``on`` argument.
         on: The columns to merge on that are shared between both
             dataframes. Typically ID columns like ``plant_id_eia``, ``generator_id``
@@ -1733,7 +1733,7 @@ def scale_by_ownership(
         gens: table with records at the generator level and generator attributes
             to be scaled by ownership, must have columns ``plant_id_eia``,
             ``generator_id``, and ``report_date``
-        own_eia860: the ``ownership_eia860`` table
+        own_eia860: the ``core_eia860__scd_ownership`` table
         scale_cols: a list of columns in the generator table to slice by ownership
             fraction
         validate: how to validate merging the ownership table onto the
@@ -1796,7 +1796,9 @@ def scale_by_ownership(
     return gens
 
 
-def get_dagster_execution_config(num_workers: int = 0):
+def get_dagster_execution_config(
+    num_workers: int = 0, tag_concurrency_limits: list[dict] = []
+):
     """Get the dagster execution config for a given number of workers.
 
     If num_workers is 0, then the dagster execution config will not include
@@ -1808,12 +1810,19 @@ def get_dagster_execution_config(num_workers: int = 0):
         num_workers: The number of workers to use for the dagster execution config.
             If 0, then the dagster execution config will not include a multiprocess
             executor.
+        tag_concurrency_limits: A set of limits that are applied to steps with
+            particular tags. This is helpful for applying concurrency limits to
+            highly concurrent and memory intensive portions of the ETL like CEMS.
+
+            Dagster description: If a value is set, the limit is applied to only
+            that key-value pair. If no value is set, the limit is applied across
+            all values of that key. If the value is set to a dict with
+            `applyLimitPerUniqueValue: true`, the limit will apply to the number
+            of unique values for that key. Note that these limits are per run, not global.
 
     Returns:
         A dagster execution config.
     """
-    if not num_workers:
-        return {}
     if num_workers == 1:
         return {
             "execution": {
@@ -1825,7 +1834,10 @@ def get_dagster_execution_config(num_workers: int = 0):
     return {
         "execution": {
             "config": {
-                "multiprocess": {"max_concurrent": num_workers},
+                "multiprocess": {
+                    "max_concurrent": num_workers,
+                    "tag_concurrency_limits": tag_concurrency_limits,
+                },
             },
         },
     }

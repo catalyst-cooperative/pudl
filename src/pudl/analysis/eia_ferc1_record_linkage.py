@@ -55,21 +55,23 @@ logger = pudl.logging_helpers.get_logger(__name__)
     io_manager_key="pudl_sqlite_io_manager",
     compute_kind="Python",
 )
-def out__yearly_plants_all_ferc1_plant_parts_eia(
-    denorm_plants_all_ferc1: pd.DataFrame,
-    denorm_fuel_by_plant_ferc1: pd.DataFrame,
-    plant_parts_eia: pd.DataFrame,
+def out_pudl__yearly_assn_eia_ferc1_plant_parts(
+    out_ferc1__yearly_all_plants: pd.DataFrame,
+    out_ferc1__yearly_steam_plants_fuel_by_plant_sched402: pd.DataFrame,
+    out_eia__yearly_plant_parts: pd.DataFrame,
 ) -> pd.DataFrame:
     """Coordinate the connection between FERC1 plants and EIA plant-parts.
 
     Args:
-        denorm_plants_all_ferc1: Table of all of the FERC1-reporting plants.
-        denorm_fuel_by_plant_ferc1: Table of the fuel reported aggregated to the FERC1
-            plant-level.
-        plant_parts_eia: The EIA plant parts list.
+        out_ferc1__yearly_all_plants: Table of all of the FERC1-reporting plants.
+        out_ferc1__yearly_steam_plants_fuel_by_plant_sched402: Table of the fuel
+            reported aggregated to the FERC1 plant-level.
+        out_eia__yearly_plant_parts: The EIA plant parts list.
     """
     inputs = InputManager(
-        denorm_plants_all_ferc1, denorm_fuel_by_plant_ferc1, plant_parts_eia
+        out_ferc1__yearly_all_plants,
+        out_ferc1__yearly_steam_plants_fuel_by_plant_sched402,
+        out_eia__yearly_plant_parts,
     )
     # compile/cache inputs upfront. Hopefully we can catch any errors in inputs early.
     inputs.execute()
@@ -96,7 +98,7 @@ def out__yearly_plants_all_ferc1_plant_parts_eia(
         plants_ferc1=inputs.get_plants_ferc1(),
     ).pipe(add_null_overrides)  # Override specified values with NA record_id_eia
     connects_ferc1_eia = Resource.from_id(
-        "out__yearly_plants_all_ferc1_plant_parts_eia"
+        "out_pudl__yearly_assn_eia_ferc1_plant_parts"
     ).enforce_schema(connects_ferc1_eia)
     return connects_ferc1_eia
 
@@ -205,7 +207,9 @@ class InputManager:
                         x.plant_id_report_year + "_" + x.utility_id_pudl.map(str)
                     ),
                     fuel_cost_per_mmbtu=lambda x: (x.fuel_cost / x.fuel_mmbtu),
-                    heat_rate_mmbtu_mwh=lambda x: (x.fuel_mmbtu / x.net_generation_mwh),
+                    unit_heat_rate_mmbtu_per_mwh=lambda x: (
+                        x.fuel_mmbtu / x.net_generation_mwh
+                    ),
                 )
                 .rename(
                     columns={
@@ -415,9 +419,9 @@ class Features:
                     label="fuel_cost_per_mmbtu",
                 ),
                 Numeric(
-                    "heat_rate_mmbtu_mwh",
-                    "heat_rate_mmbtu_mwh",
-                    label="heat_rate_mmbtu_mwh",
+                    "unit_heat_rate_mmbtu_per_mwh",
+                    "unit_heat_rate_mmbtu_per_mwh",
+                    label="unit_heat_rate_mmbtu_per_mwh",
                 ),
                 Exact(
                     "fuel_type_code_pudl",
@@ -692,7 +696,7 @@ def prep_train_connections(
     one_to_many = (
         pd.read_csv(
             importlib.resources.files("pudl.package_data.glue")
-            / "ferc1_eia_one_to_many.csv"
+            / "eia_ferc1_one_to_many.csv"
         )
         .pipe(pudl.helpers.cleanstrings_snake, ["record_id_eia"])
         .drop_duplicates(subset=["record_id_ferc1", "record_id_eia"])
@@ -740,7 +744,7 @@ def prep_train_connections(
 
     train_df = (
         pd.read_csv(
-            importlib.resources.files("pudl.package_data.glue") / "ferc1_eia_train.csv"
+            importlib.resources.files("pudl.package_data.glue") / "eia_ferc1_train.csv"
         )
         .pipe(pudl.helpers.cleanstrings_snake, ["record_id_eia"])
         .drop_duplicates(subset=["record_id_ferc1", "record_id_eia"])
@@ -935,24 +939,31 @@ def check_match_consistency(
     train_df: pd.DataFrame,
     match_set: Literal["all", "overrides"] = "all",
 ) -> pd.DataFrame:
-    """Check how consistent matches are across time.
+    """Check how consistent FERC-EIA matches are with FERC-FERC matches.
+
+    We have two record linkage processes: one that links FERC plant records across time,
+    and another that links FERC plant records to EIA plant-parts. This function checks
+    that the two processes are as consistent with each other as we expect.  Here
+    "consistent" means that each FERC plant ID is associated with a single EIA plant
+    parts ID across time. The reverse is not necessarily required -- a single EIA plant
+    part ID may be associated with various FERC plant IDs across time.
 
     Args:
         connects_ferc1_eia: Matches of FERC1 to EIA.
         train_df: training data.
         match_set: either ``all`` - to check all of the matches - or ``overrides`` - to
-            check just the overrides. Default is'``all``. The overrides are less
+            check just the overrides. Default is ``all``. The overrides are less
             consistent than all of the data, so this argument changes the consistency
             threshold for this check.
     """
     # these are the default
-    consistency = 0.75
-    consistency_one_cap_ferc = 0.85
+    expected_consistency = 0.74
+    expected_uniform_capacity_consistency = 0.85
     mask = connects_ferc1_eia.record_id_eia.notnull()
 
     if match_set == "overrides":
-        consistency = 0.39
-        consistency_one_cap_ferc = 0.75
+        expected_consistency = 0.39
+        expected_uniform_capacity_consistency = 0.75
         train_ferc1 = train_df.reset_index()
         # these bbs were missing from connects_ferc1_eia. not totally sure why
         missing = [
@@ -985,28 +996,32 @@ def check_match_consistency(
         .groupby(["plant_id_ferc1"])[["plant_part_id_eia", "capacity_mw_ferc1"]]
         .nunique()
     )
-    consist = len(count[count.plant_part_id_eia == 1]) / len(count)
+    actual_consistency = len(count[count.plant_part_id_eia == 1]) / len(count)
     logger.info(
         f"Matches with consistency across years of {match_set} matches is "
-        f"{consist:.1%}"
+        f"{actual_consistency:.1%}"
     )
-    if consist < consistency:
+    if actual_consistency < expected_consistency:
         raise AssertionError(
-            f"Consistency of {match_set} matches across years dipped below "
-            f"{consistency:.1%} to {consist:.1%}"
+            "Inter-year consistency between plant_id_ferc1 and plant_part_id_eia of "
+            f"{match_set} matches {actual_consistency:.1%} is less than the expected "
+            f"value of {expected_consistency:.1%}."
         )
-    consist_one_cap_ferc = (
+    actual_uniform_capacity_consistency = (
         len(count)
         - len(count[(count.plant_part_id_eia > 1) & (count.capacity_mw_ferc1 == 1)])
     ) / len(count)
     logger.info(
-        "Matches with completely consistent FERC capacity have a consistency "
-        f"of {consist_one_cap_ferc:.1%}"
+        "Matches with a uniform FERC 1 capacity have an inter-year consistency between "
+        "plant_id_ferc1 and plant_part_id_eia of "
+        f"{actual_uniform_capacity_consistency:.1%}"
     )
-    if consist_one_cap_ferc < consistency_one_cap_ferc:
+    if actual_uniform_capacity_consistency < expected_uniform_capacity_consistency:
         raise AssertionError(
-            "Consistency of matches with consistent FERC capcity dipped below "
-            f"{consistency_one_cap_ferc:.1%} to {consist_one_cap_ferc:.1%}"
+            "Inter-year consistency between plant_id_ferc1 and plant_part_id_eia of "
+            "matches with uniform FERC 1 capacity "
+            f"{actual_uniform_capacity_consistency:.1%} is less than the expected "
+            f"value of {expected_uniform_capacity_consistency:.1%}."
         )
     return count
 
@@ -1028,7 +1043,7 @@ def add_null_overrides(connects_ferc1_eia):
     logger.info("Overriding specified record_id_ferc1 values with NA record_id_eia")
     # Get record_id_ferc1 values that should be overriden to have no EIA match
     null_overrides = pd.read_csv(
-        importlib.resources.files("pudl.package_data.glue") / "ferc1_eia_null.csv"
+        importlib.resources.files("pudl.package_data.glue") / "eia_ferc1_null.csv"
     ).pipe(
         restrict_train_connections_on_date_range,
         id_col="record_id_ferc1",
@@ -1047,7 +1062,7 @@ def add_null_overrides(connects_ferc1_eia):
     logger.debug(f"Found {len(null_overrides)} null overrides")
     # List of EIA columns to null. Ideally would like to get this from elsewhere, but
     # compiling this here for now...
-    eia_cols_to_null = Resource.from_id("plant_parts_eia").get_field_names()
+    eia_cols_to_null = Resource.from_id("out_eia__yearly_plant_parts").get_field_names()
     # Make all EIA values NA for record_id_ferc1 values in the Null overrides list and
     # make the match_type column say "overriden"
     connects_ferc1_eia.loc[
