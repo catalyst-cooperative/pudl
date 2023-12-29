@@ -108,6 +108,8 @@ function update_nightly_branch() {
     git tag && \
     git fetch origin nightly:nightly && \
     git checkout nightly && \
+    git show-ref nightly "$NIGHTLY_TAG" && \
+    git merge-base nightly "$NIGHTLY_TAG" && \
     git merge --ff-only "$NIGHTLY_TAG" && \
     git push -u origin
 }
