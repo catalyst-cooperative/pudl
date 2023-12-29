@@ -70,6 +70,31 @@ class ColumnVectorizer(BaseModel):
         )
 
 
+@op
+def train_dataframe_embedder_new(
+    df: pd.DataFrame, vectorizers: dict[str, ColumnVectorizer]
+):
+    """Train :class:`sklearn.compose.ColumnTransformer` on input."""
+    column_transformer = ColumnTransformer(
+        transformers=[
+            (name, column_transform.as_pipeline(), column_transform.columns)
+            for name, column_transform in vectorizers.items()
+        ],
+        transformer_weights={
+            name: column_transform.weight
+            for name, column_transform in vectorizers.items()
+        },
+    )
+
+    return column_transformer.fit(df)
+
+
+@op
+def apply_dataframe_embedder_new(df: pd.DataFrame, transformer: ColumnTransformer):
+    """Use :class:`sklearn.compose.ColumnTransformer` to transform input."""
+    return FeatureMatrix(matrix=transformer.transform(df))
+
+
 def dataframe_embedder_factory(vectorizers: dict[str, ColumnVectorizer]):
     """Return a configured op graph to embed an input dataframe."""
 

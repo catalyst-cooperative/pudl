@@ -18,10 +18,14 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 
 class PenalizeReportYearDistanceConfig(Config):
-    """Compute distance between records and add penalty to records from same year."""
+    """Compute distance between records and add penalty to records from same year.
+
+    The metric can be any string accepted by :func:`scipy.spatial.distance.pdist`, e.g.
+    ``cosine`` or ``euclidean``.
+    """
 
     distance_penalty: float = 10000.0
-    metric: str = "cosine"
+    metric: str = "euclidean"
 
 
 class DistanceMatrix:

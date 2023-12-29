@@ -27,59 +27,59 @@ _FUEL_COLS = [
 ]
 
 
-ferc_dataframe_embedder = embed_dataframe.dataframe_embedder_factory(
-    {
-        "plant_name": embed_dataframe.ColumnVectorizer(
-            transform_steps=[
-                embed_dataframe.NameCleaner(),
-                embed_dataframe.TextVectorizer(),
-            ],
-            weight=2.0,
-            columns=["plant_name_ferc1"],
-        ),
-        "plant_type": embed_dataframe.ColumnVectorizer(
-            transform_steps=[
-                embed_dataframe.ColumnCleaner(cleaning_function="null_to_empty_str"),
-                embed_dataframe.CategoricalVectorizer(),
-            ],
-            weight=2.0,
-            columns=["plant_type"],
-        ),
-        "construction_type": embed_dataframe.ColumnVectorizer(
-            transform_steps=[
-                embed_dataframe.ColumnCleaner(cleaning_function="null_to_empty_str"),
-                embed_dataframe.CategoricalVectorizer(),
-            ],
-            columns=["construction_type"],
-        ),
-        "capacity_mw": embed_dataframe.ColumnVectorizer(
-            transform_steps=[
-                embed_dataframe.ColumnCleaner(cleaning_function="null_to_zero"),
-                embed_dataframe.NumericalVectorizer(),
-            ],
-            columns=["capacity_mw"],
-        ),
-        "construction_year": embed_dataframe.ColumnVectorizer(
-            transform_steps=[
-                embed_dataframe.ColumnCleaner(cleaning_function="fix_int_na"),
-                embed_dataframe.CategoricalVectorizer(),
-            ],
-            columns=["construction_year"],
-        ),
-        "utility_id_ferc1": embed_dataframe.ColumnVectorizer(
-            transform_steps=[embed_dataframe.CategoricalVectorizer()],
-            columns=["utility_id_ferc1"],
-        ),
-        "fuel_fractions": embed_dataframe.ColumnVectorizer(
-            transform_steps=[
-                embed_dataframe.ColumnCleaner(cleaning_function="null_to_zero"),
-                embed_dataframe.NumericalVectorizer(),
-                embed_dataframe.NumericalNormalizer(),
-            ],
-            columns=_FUEL_COLS,
-        ),
-    }
-)
+# ferc_dataframe_embedder = embed_dataframe.dataframe_embedder_factory(
+dataframe_vectorizers = {
+    "plant_name": embed_dataframe.ColumnVectorizer(
+        transform_steps=[
+            embed_dataframe.NameCleaner(),
+            embed_dataframe.TextVectorizer(),
+        ],
+        weight=2.0,
+        columns=["plant_name_ferc1"],
+    ),
+    "plant_type": embed_dataframe.ColumnVectorizer(
+        transform_steps=[
+            embed_dataframe.ColumnCleaner(cleaning_function="null_to_empty_str"),
+            embed_dataframe.CategoricalVectorizer(),
+        ],
+        weight=2.0,
+        columns=["plant_type"],
+    ),
+    "construction_type": embed_dataframe.ColumnVectorizer(
+        transform_steps=[
+            embed_dataframe.ColumnCleaner(cleaning_function="null_to_empty_str"),
+            embed_dataframe.CategoricalVectorizer(),
+        ],
+        columns=["construction_type"],
+    ),
+    "capacity_mw": embed_dataframe.ColumnVectorizer(
+        transform_steps=[
+            embed_dataframe.ColumnCleaner(cleaning_function="null_to_zero"),
+            embed_dataframe.NumericalVectorizer(),
+        ],
+        columns=["capacity_mw"],
+    ),
+    "construction_year": embed_dataframe.ColumnVectorizer(
+        transform_steps=[
+            embed_dataframe.ColumnCleaner(cleaning_function="fix_int_na"),
+            embed_dataframe.CategoricalVectorizer(),
+        ],
+        columns=["construction_year"],
+    ),
+    "utility_id_ferc1": embed_dataframe.ColumnVectorizer(
+        transform_steps=[embed_dataframe.CategoricalVectorizer()],
+        columns=["utility_id_ferc1"],
+    ),
+    "fuel_fractions": embed_dataframe.ColumnVectorizer(
+        transform_steps=[
+            embed_dataframe.ColumnCleaner(cleaning_function="null_to_zero"),
+            embed_dataframe.NumericalVectorizer(),
+            embed_dataframe.NumericalNormalizer(),
+        ],
+        columns=_FUEL_COLS,
+    ),
+}
+# )
 
 
 @op
@@ -141,6 +141,11 @@ def merge_steam_fuel_dfs(
     ).astype({"plant_type": str, "construction_type": str})
 
 
+@op
+def get_vectorizers():
+    return dataframe_vectorizers
+
+
 @graph_asset
 def _out_ferc1__yearly_steam_plants_sched402_with_plant_ids(
     core_ferc1__yearly_steam_plants_sched402: pd.DataFrame,
@@ -158,7 +163,10 @@ def _out_ferc1__yearly_steam_plants_sched402_with_plant_ids(
         core_ferc1__yearly_steam_plants_sched402,
         out_ferc1__yearly_steam_plants_fuel_by_plant_sched402,
     )
-    feature_matrix = ferc_dataframe_embedder(input_df)
+    vectorizers = get_vectorizers()
+    transformer = embed_dataframe.train_dataframe_embedder_new(input_df, vectorizers)
+    feature_matrix = embed_dataframe.apply_dataframe_embedder_new(input_df, transformer)
+    # feature_matrix = ferc_dataframe_embedder(input_df)
     label_df = link_ids_cross_year(input_df, feature_matrix)
 
     return plants_steam_validate_ids(core_ferc1__yearly_steam_plants_sched402, label_df)
