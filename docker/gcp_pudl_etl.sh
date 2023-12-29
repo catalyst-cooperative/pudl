@@ -105,10 +105,11 @@ function update_nightly_branch() {
     git tag -d "$NIGHTLY_TAG" && \
     git fetch --tags origin "$NIGHTLY_TAG" && \
     git checkout "$NIGHTLY_TAG" && \
+    git show-ref HEAD && \
     git tag && \
     git fetch origin nightly:nightly && \
     git checkout nightly && \
-    git show-ref nightly "$NIGHTLY_TAG" && \
+    git show-ref HEAD nightly "$NIGHTLY_TAG" && \
     git merge-base nightly "$NIGHTLY_TAG" && \
     git merge --ff-only "$NIGHTLY_TAG" && \
     git push -u origin
