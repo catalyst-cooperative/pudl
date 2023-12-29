@@ -169,12 +169,10 @@ jobs:
           workload_identity_provider: "projects/345950277072/locations/global/workloadIdentityPools/gh-actions-pool/providers/gh-actions-provider"
           service_account: "tox-pytest-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
 
-      - name: Cache most recent CEMS data.
-        run: pudl_datastore --datasets epacems --p year_quarter=2022q1
-
       - name: Run integration tests, trying to use GCS cache if possible
         run: |
           pip install --no-deps --editable .
+          pudl_datastore --datasets epacems --p year_quarter=2022q1
           make pytest-integration
 
       - name: Upload coverage
