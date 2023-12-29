@@ -30,6 +30,10 @@ function run_pudl_etl() {
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
         --workers 8 \
         "$PUDL_SETTINGS_YML" \
+    && pudl_datastore \
+        --dataset epacems \
+        --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
+        --partition year_quarters="2023q1" \
     && pudl_etl \
         --loglevel DEBUG \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
