@@ -407,6 +407,7 @@ class Datastore:
 
     def get_zipfile_resource(self, dataset: str, **filters: Any) -> zipfile.ZipFile:
         """Retrieves unique resource and opens it as a ZipFile."""
+        # TODO: add some check if the result of get_unique_resource isn't a zip file.
         return zipfile.ZipFile(io.BytesIO(self.get_unique_resource(dataset, **filters)))
 
     def get_zipfile_resources(

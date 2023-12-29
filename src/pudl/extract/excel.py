@@ -327,36 +327,20 @@ class GenericExtractor:
             pd.ExcelFile instance with the parsed excel spreadsheet frame
         """
         xlsx_filename = self.excel_filename(page, **partition)
-
         if xlsx_filename not in self._file_cache:
-            excel_file = None
-            try:
-                # eia860m exports the resources as raw xlsx files that are not
-                # embedded in zip archives. To support this, we will first try
-                # to retrieve the resource directly. If this fails, we will attempt
-                # to open zip archive and locate the xlsx file inside that.
-
-                # TODO(rousik): if we can make it so, it would be useful to normalize
-                # the eia860m and zip the xlsx files. Then we could simplify this code.
-                res = self.ds.get_unique_resource(
-                    self._dataset_name, name=xlsx_filename
+            zf = self.ds.get_zipfile_resource(self._dataset_name, **partition)
+            # try to open a dbf file.
+            extension = pathlib.Path(xlsx_filename).suffix.lower()
+            if extension == ".dbf":
+                dbf_filepath = zf.open(xlsx_filename)
+                df = pd.DataFrame(
+                    iter(dbfread.DBF(xlsx_filename, filedata=dbf_filepath))
                 )
-                excel_file = pd.ExcelFile(res)
-            except KeyError:
-                zf = self.ds.get_zipfile_resource(self._dataset_name, **partition)
+                excel_file = pudl.helpers.convert_df_to_excel_file(df, index=False)
+            else:
+                excel_file = pd.ExcelFile(BytesIO(zf.read(xlsx_filename)))
 
-                # If loading the excel file from the zip fails then try to open a dbf file.
-                extension = pathlib.Path(xlsx_filename).suffix.lower()
-                if extension == ".dbf":
-                    dbf_filepath = zf.open(xlsx_filename)
-                    df = pd.DataFrame(
-                        iter(dbfread.DBF(xlsx_filename, filedata=dbf_filepath))
-                    )
-                    excel_file = pudl.helpers.convert_df_to_excel_file(df, index=False)
-                else:
-                    excel_file = pd.ExcelFile(BytesIO(zf.read(xlsx_filename)))
-            finally:
-                self._file_cache[xlsx_filename] = excel_file
+            self._file_cache[xlsx_filename] = excel_file
         # TODO(rousik): this _file_cache could be replaced with @cache or @memoize annotations
         return self._file_cache[xlsx_filename]
 
