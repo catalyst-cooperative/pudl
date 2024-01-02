@@ -33,6 +33,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ env.BUILD_REF }}
+          depth: 0
 
       - name: Skip the build if no changes since the last successful nightly build.
         run: |
