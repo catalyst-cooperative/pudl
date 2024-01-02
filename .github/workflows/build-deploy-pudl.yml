@@ -34,12 +34,24 @@ jobs:
         with:
           ref: ${{ env.BUILD_REF }}
 
+      - name: Skip the build if no changes since the last successful nightly build.
+        run: |
+          CURRENT_COMMIT=$(git rev-parse HEAD)
+          NIGHTLY_COMMIT=$(git rev-parse nightly)
+          if [[ "$CURRENT_COMMIT" == "$NIGHTLY_COMMIT" ]]; then
+            echo "::notice::No changes since last successful nightly build. Skipping."
+            echo "SKIP_BUILD=true" >> $GITHUB_ENV
+            exit 0
+          fi
+
       - name: Set action environment variables
+        if: ${{ env.SKIP_BUILD != 'true' }}
         run: |
           echo "NIGHTLY_TAG=testing-$(date +%Y-%m-%d)" >> $GITHUB_ENV
           echo "BUILD_ID=$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short HEAD)-${BUILD_REF}" >> $GITHUB_ENV
 
       - name: Show freshly set envvars
+        if: ${{ env.SKIP_BUILD != 'true' }}
         run: |
           echo "GCE_INSTANCE: $GCE_INSTANCE"
           echo "BUILD_REF: $BUILD_REF"
@@ -47,7 +59,7 @@ jobs:
           echo "BUILD_ID: $BUILD_ID"
 
       - name: Tag nightly build
-        if: ${{ (github.event_name == 'schedule') || (github.event_name == 'workflow_dispatch') }}
+        if: ${{ (github.event_name == 'schedule') || (github.event_name == 'workflow_dispatch') && (env.SKIP_BUILD != 'true')}}
         run: |
           git config user.email "pudl@catalyst.coop"
           git config user.name "pudlbot"
@@ -59,6 +71,7 @@ jobs:
 
       - name: Docker Metadata
         id: docker_metadata
+        if: ${{ env.SKIP_BUILD != 'true' }}
         uses: docker/metadata-action@v5
         with:
           images: catalystcoop/pudl-etl
@@ -69,16 +82,18 @@ jobs:
             type=ref,event=tag
 
       - name: Set up Docker Buildx
+        if: ${{ env.SKIP_BUILD != 'true' }}
         uses: docker/setup-buildx-action@v3
 
       - name: Login to DockerHub
-        if: github.event_name != 'pull_request'
+        if: ${{ (github.event_name != 'pull_request') && (env.SKIP_BUILD != 'true')}}
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build image and push to Docker Hub
+        if: ${{ env.SKIP_BUILD != 'true' }}
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -90,6 +105,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - id: "auth"
+        if: ${{ env.SKIP_BUILD != 'true' }}
         uses: "google-github-actions/auth@v2"
         with:
           workload_identity_provider: "projects/345950277072/locations/global/workloadIdentityPools/gh-actions-pool/providers/gh-actions-provider"
@@ -97,10 +113,12 @@ jobs:
 
       # Setup gcloud CLI
       - name: Set up Cloud SDK
+        if: ${{ env.SKIP_BUILD != 'true' }}
         uses: google-github-actions/setup-gcloud@v2
 
       # Deploy PUDL image to GCE
       - name: Deploy
+        if: ${{ env.SKIP_BUILD != 'true' }}
         env:
           DAGSTER_PG_PASSWORD: ${{ secrets.DAGSTER_PG_PASSWORD }}
           PUDL_OUTPUT_PATH: ${{ env.GCS_OUTPUT_BUCKET }}/${{ env.BUILD_ID }}
@@ -143,6 +161,7 @@ jobs:
 
       # Start the VM
       - name: Start the deploy-pudl-vm
+        if: ${{ env.SKIP_BUILD != 'true' }}
         run: gcloud compute instances start "$GCE_INSTANCE" --zone="$GCE_INSTANCE_ZONE"
 
       - name: Post to a pudl-deployments channel
