@@ -2,8 +2,11 @@
 
 This modules pulls data from PHMSA's published Excel spreadsheets.
 """
-import zipfile as zf
 
+import pathlib
+from io import BytesIO
+
+import dbfread
 import pandas as pd
 
 import pudl.logging_helpers
@@ -21,39 +24,14 @@ class Extractor(excel.GenericExtractor):
         Args:
             ds (:class:datastore.Datastore): Initialized datastore.
         """
+        pkg = f"pudl.package_data.{self._dataset_name}"
         self.METADATA = excel.Metadata("phmsagas")
         self.cols_added = []
+        self._form_name = self._load_csv(pkg, "form_map.csv")
         super().__init__(*args, **kwargs)
 
-    def process_raw(self, df, page, **partition):
-        """Apply necessary pre-processing to the dataframe.
-
-        * Rename columns based on our compiled spreadsheet metadata
-        * Add report_year if it is missing
-        """
-        df = df.rename(columns=self._metadata.get_column_map(page, **partition))
-        if "report_year" not in df.columns:
-            df["report_year"] = list(partition.values())[0]  # Fix
-        self.cols_added = ["report_year"]
-        # Eventually we should probably make this a transform
-        # for col in ["generator_id", "boiler_id"]:
-        #     if col in df.columns:
-        #         df = remove_leading_zeros_from_numeric_strings(df=df, col_name=col)
-        df = self.add_data_maturity(df, page, **partition)
-        return df
-
-    @staticmethod
-    def get_dtypes(page, **partition):
-        """Returns dtypes for plant id columns."""
-        return {
-            "Plant ID": pd.Int64Dtype(),
-            "Plant Id": pd.Int64Dtype(),
-        }
-
     def load_excel_file(self, page, **partition):
-        """Produce the ExcelFile object for the given (partition, page).
-
-        We adapt this method because PHMSA has multiple files per partition.
+        """Produce the Excel file, loading the zipfile using the form and year.
 
         Args:
             page (str): pudl name for the dataset contents, eg
@@ -64,27 +42,40 @@ class Extractor(excel.GenericExtractor):
         Returns:
             pd.ExcelFile instance with the parsed excel spreadsheet frame
         """
-        # Get all zipfiles for partitions
-        files = self.ds.get_zipfile_resources(self._dataset_name, **partition)
+        xlsx_filename = self.excel_filename(page, **partition)
+        logger.info(xlsx_filename)
 
-        # For each zipfile, get a list of file names.
-        for file_name, file in files:
-            file_names = self.ds.get_zipfile_file_names(file)
-            for xlsx_filename in file_names:
-                if xlsx_filename not in self._file_cache and file.endswith(".xlsx"):
-                    excel_file = pd.ExcelFile(zf.read(xlsx_filename))
-                    self._file_cache[xlsx_filename] = excel_file
+        if xlsx_filename not in self._file_cache:
+            excel_file = None
+            zf = self.ds.get_zipfile_resource(
+                self._dataset_name, form=self._form_name[page], **partition
+            )
 
-        return self._file_cache[xlsx_filename]  # FIX THIS, obviously.
+            # If loading the excel file from the zip fails then try to open a dbf file.
+            extension = pathlib.Path(xlsx_filename).suffix.lower()
+            if extension == ".dbf":
+                dbf_filepath = zf.open(xlsx_filename)
+                df = pd.DataFrame(
+                    iter(dbfread.DBF(xlsx_filename, filedata=dbf_filepath))
+                )
+                excel_file = pudl.helpers.convert_df_to_excel_file(df, index=False)
+            else:
+                excel_file = pd.ExcelFile(BytesIO(zf.read(xlsx_filename)))
+            self._file_cache[xlsx_filename] = excel_file
+        # TODO(rousik): this _file_cache could be replaced with @cache or @memoize annotations
+        return self._file_cache[xlsx_filename]
 
 
 # TODO (bendnorman): Add this information to the metadata
-raw_table_names = ("raw_phmsagas__distribution",)
+# raw_table_names = ("raw_phmsagas__distribution", "raw_phmsagas__transmission")
 
 # phmsa_raw_dfs = excel.raw_df_factory(Extractor, name="phmsagas")
 
+# @asset(out={"raw_phmsagas__distribution": AssetOut()},
+#     required_resource_keys={"datastore", "dataset_settings"},)
 
-# # TODO (bendnorman): Figure out type hint for context keyword and mutli_asset return
+
+# # TODO (bendnorman): Figure out type hint for context keyword and multi_asset return
 # @multi_asset(
 #     outs={table_name: AssetOut() for table_name in sorted(raw_table_names)},
 #     required_resource_keys={"datastore", "dataset_settings"},
