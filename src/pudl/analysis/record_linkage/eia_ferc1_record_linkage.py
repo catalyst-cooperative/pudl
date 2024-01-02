@@ -49,7 +49,6 @@ from pudl.metadata.classes import DataSource, Resource
 logger = pudl.logging_helpers.get_logger(__name__)
 # Silence the recordlinkage logger, which is out of control
 
-# dataframe_embedder = embed_dataframe.dataframe_embedder_factory(
 
 pair_vectorizers = {
     "plant_name": embed_dataframe.ColumnVectorizer(
@@ -141,12 +140,15 @@ pair_vectorizers = {
         transform_steps=[
             embed_dataframe.NumericSimilarityScorer(
                 method="linear",
-                col1="heat_rate_mmbtu_mwh_ferc1",
-                col2="heat_rate_mmbtu_mwh_eia",
+                col1="unit_heat_rate_mmbtu_per_mwh_ferc1",
+                col2="unit_heat_rate_mmbtu_per_mwh_eia",
                 output_name="heat_rate_mmbtu_mwh",
             )
         ],
-        columns=["heat_rate_mmbtu_mwh_ferc1", "heat_rate_mmbtu_mwh_eia"],
+        columns=[
+            "unit_heat_rate_mmbtu_per_mwh_ferc1",
+            "unit_heat_rate_mmbtu_per_mwh_eia",
+        ],
     ),
     "fuel_type_code_pudl": embed_dataframe.ColumnVectorizer(
         transform_steps=[
@@ -171,11 +173,11 @@ pair_vectorizers = {
         columns=["installation_year_ferc1", "installation_year_eia"],
     ),
 }
-# )
 
 
 @op
 def get_compiled_input_manager(plants_all_ferc1, fbp_ferc1, plant_parts_eia):
+    """Get :class:`InputManager` object with compiled inputs for model."""
     inputs = InputManager(plants_all_ferc1, fbp_ferc1, plant_parts_eia)
     # compile/cache inputs upfront. Hopefully we can catch any errors in inputs early.
     inputs.execute()
@@ -184,54 +186,88 @@ def get_compiled_input_manager(plants_all_ferc1, fbp_ferc1, plant_parts_eia):
 
 @op
 def get_all_pairs_df(inputs):
-    ferc1_df = inputs.get_plants_ferc1()
-    eia_df = inputs.get_plant_parts_eia_true()
-    return ferc1_df.merge(
+    """Get a dataframe with all possible FERC to EIA record pairs.
+
+    Merge the FERC and EIA records on ``block_col`` to generate possible
+    record pairs for the matching model.
+
+    Arguments:
+        inputs: :class:`InputManager` object.
+    """
+    ferc1_df = inputs.get_plants_ferc1().reset_index()
+    eia_df = inputs.get_plant_parts_eia_true().reset_index()
+    block_col = "plant_id_report_year_util_id"
+    out = ferc1_df.merge(
         eia_df, how="inner", on=block_col, suffixes=("_ferc1", "_eia")
-    )
+    ).set_index(["record_id_ferc1", "record_id_eia"])
+    return out
 
 
 @op
 def get_train_pairs_df(inputs):
-    ferc1_df = inputs.get_train_ferc1()
-    eia_df = inputs.get_train_eia()
-    return ferc1_df.merge(
+    """Get a dataframe with possible FERC to EIA record pairs from training data.
+
+    Merge the FERC and EIA records on ``block_col`` to generate possible
+    record pairs for the matching model.
+
+    Arguments:
+        inputs: :class:`InputManager` object.
+    """
+    ferc1_df = inputs.get_train_ferc1().reset_index()
+    eia_df = inputs.get_train_eia().reset_index()
+    block_col = "plant_id_report_year_util_id"
+    out = ferc1_df.merge(
         eia_df, how="inner", on=block_col, suffixes=("_ferc1", "_eia")
+    ).set_index(["record_id_ferc1", "record_id_eia"])
+    return out
+
+
+@op
+def get_y_label_df(train_pairs_df, inputs):
+    """Get the dataframe of y labels.
+
+    For each record pair in ``train_pairs_df``, a 0 if the pair is not
+    a match and a 1 if the pair is a match.
+    """
+    label_df = np.where(
+        train_pairs_df.merge(
+            inputs.get_train_df(),
+            how="left",
+            left_index=True,
+            right_index=True,
+            indicator=True,
+        )["_merge"]
+        == "both",
+        1,
+        0,
     )
-
-
-@op
-def get_compiled_all_features(inputs):
-    return Features(feature_type="all", inputs=inputs).get_features(clobber=False)
-
-
-@op
-def get_compiled_train_features(inputs):
-    return Features(feature_type="train", inputs=inputs).get_features(clobber=False)
+    return label_df
 
 
 @op
 def get_best_matches_with_overwrites(match_df, inputs):
+    """Get dataframe with the best EIA match for each FERC record."""
     return find_best_matches(match_df).pipe(overwrite_bad_predictions, inputs.train_df)
 
 
 @op
-def run_matching_model(features_train, features_all, inputs):
+def run_matching_model(features_train, features_all, y_df):
+    """Run model to match EIA to FERC records."""
     return run_model(
         features_train=features_train,
         features_all=features_all,
-        train_df=inputs.train_df,
+        y_df=y_df,
     )
 
 
 @op
 def get_match_full_records(best_match_df, inputs):
+    """Join full dataframe onto matches to make usable and get stats."""
     connected_df = prettyify_best_matches(
-        best_match_df,
-        train_df=inputs.get_train_df(),
-        inputs=inputs.get_train_df(),
+        matches_best=best_match_df,
         plant_parts_eia_true=inputs.get_plant_parts_eia_true(),
         plants_ferc1=inputs.get_plants_ferc1(),
+        train_df=inputs.get_train_df(),
     ).pipe(add_null_overrides)  # Override specified values with NA record_id_eia
     return Resource.from_id(
         "out_pudl__yearly_assn_eia_ferc1_plant_parts"
@@ -240,6 +276,7 @@ def get_match_full_records(best_match_df, inputs):
 
 @op
 def get_pair_vectorizers():
+    """Get dictionary of vectorizers for each column in input dataframe."""
     return pair_vectorizers
 
 
@@ -269,21 +306,15 @@ def out_pudl__yearly_assn_eia_ferc1_plant_parts(
         out_eia__yearly_plant_parts,
     )
     all_pairs_df = get_all_pairs_df(inputs)
-    # train_pairs_df = get_train_pairs_df(inputs)
+    train_pairs_df = get_train_pairs_df(inputs)
     vectorizer = get_pair_vectorizers()
-    # transformer = embed_dataframe.train_dataframe_embedder_new(all_pairs_df, vectorizer)
-    # features_all = embed_dataframe.apply_dataframe_embedder_new(
-    #     all_pairs_df, transformer
-    # )
     features_all = embed_dataframe.embed_dataframe_new(all_pairs_df, vectorizer)
-    # features_all = dataframe_embedder(all_pairs_df)
-    # features_train = dataframe_embedder(train_pairs_df)
-    # features_all = get_compiled_all_features(inputs=inputs)
-    features_train = get_compiled_train_features(inputs=inputs)
+    features_train = embed_dataframe.embed_dataframe_new(train_pairs_df, vectorizer)
+    y_df = get_y_label_df(train_pairs_df, inputs)
     match_df = run_matching_model(
         features_train=features_train,
         features_all=features_all,
-        inputs=inputs,
+        y_df=y_df,
     )
     # choose one EIA match for each FERC record
     best_match_df = get_best_matches_with_overwrites(match_df, inputs)
@@ -499,169 +530,8 @@ class InputManager:
         return
 
 
-class Features:
-    """Generate feature vectors for connecting FERC and EIA."""
-
-    def __init__(self, feature_type: Literal["training", "all"], inputs: InputManager):
-        """Initialize feature generator.
-
-        Args:
-            feature_type: Type of features to compile. Either 'training' or 'all'.
-            inputs: Instance of :class:`InputManager`.
-        """
-        self.inputs: InputManager = inputs
-        self.features_df: pd.DataFrame | None = None
-
-        if feature_type not in ["all", "training"]:
-            raise ValueError(
-                f"feature_type {feature_type} not allowable. Must be either "
-                "'all' or 'training'"
-            )
-        self.feature_type = feature_type
-        # the input_dict is going to help in standardizing how we generate
-        # features. Based on the feature_type (keys), the latter methods will
-        # know which dataframes to use as inputs for ``make_features()``
-        self.input_dict = {
-            "all": {
-                "ferc1_df": self.inputs.get_plants_ferc1,
-                "eia_df": self.inputs.get_plant_parts_eia_true,
-            },
-            "training": {
-                "ferc1_df": self.inputs.get_train_ferc1,
-                "eia_df": self.inputs.get_train_eia,
-            },
-        }
-
-    def make_features(
-        self,
-        ferc1_df: pd.DataFrame,
-        eia_df: pd.DataFrame,
-        # block_col: str | None = None
-        block_col=None,
-    ) -> pd.DataFrame:
-        """Generate comparison features based on defined features.
-
-        The recordlinkage package helps us create feature vectors. For each column that
-        we have in both datasets, this method generates a column of feature vecotrs,
-        which contain values between 0 and 1 that are measures of the similarity between
-        each datapoint the two datasets (1 meaning the two datapoints were exactly the
-        same and 0 meaning they were not similar at all).
-
-        For more details see recordlinkage's documentaion:
-        https://recordlinkage.readthedocs.io/en/latest/ref-compare.html
-
-        Args:
-            ferc1_df: Either training or all records from ferc plants table
-                (via :meth:`InputManager.get_train_ferc1` or :meth:`InputManager.get_plants_ferc1`).
-            eia_df: Either training or all records from the
-                EIA plant-parts (:meth:`InputManager.get_train_eia` or
-                `plant_parts_eia_true`).
-            block_col:  If you want to restrict possible matches
-                between ferc_df and eia_df based on a particular column,
-                block_col is the column name of blocking column. Default is
-                None. If None, this method will generate features between all
-                possible matches.
-
-        Returns:
-            a dataframe of feature vectors between FERC and EIA.
-        """
-        """
-        compare_cl = rl.Compare(
-            features=[
-                String(
-                    "plant_name_ferc1",
-                    "plant_name_ppe",
-                    label="plant_name",
-                    method="jarowinkler",
-                ),
-                Numeric(
-                    "net_generation_mwh",
-                    "net_generation_mwh",
-                    label="net_generation_mwh",
-                    method="exp",
-                    scale=1000,
-                ),
-                Numeric(
-                    "capacity_mw",
-                    "capacity_mw",
-                    label="capacity_mw",
-                    method="exp",
-                    scale=10,
-                ),
-                Numeric(
-                    "total_fuel_cost",
-                    "total_fuel_cost",
-                    label="total_fuel_cost",
-                    method="exp",
-                    offset=2500,
-                    scale=10000,
-                    missing_value=0.5,
-                ),
-                Numeric(
-                    "total_mmbtu",
-                    "total_mmbtu",
-                    label="total_mmbtu",
-                    method="exp",
-                    offset=1,
-                    scale=100,
-                    missing_value=0.5,
-                ),
-                Numeric("capacity_factor", "capacity_factor", label="capacity_factor"),
-                Numeric(
-                    "fuel_cost_per_mmbtu",
-                    "fuel_cost_per_mmbtu",
-                    label="fuel_cost_per_mmbtu",
-                ),
-                Numeric(
-                    "unit_heat_rate_mmbtu_per_mwh",
-                    "unit_heat_rate_mmbtu_per_mwh",
-                    label="unit_heat_rate_mmbtu_per_mwh",
-                ),
-                Exact(
-                    "fuel_type_code_pudl",
-                    "fuel_type_code_pudl",
-                    label="fuel_type_code_pudl",
-                ),
-                Numeric(
-                    "installation_year", "installation_year", label="installation_year"
-                ),
-                # Exact('utility_id_pudl', 'utility_id_pudl',
-                #      label='utility_id_pudl'),
-            ]
-        )
-        """
-
-        # generate the index of all candidate features
-        # indexer = rl.Index()
-        # indexer.block(block_col)
-        # feature_index = indexer.index(ferc1_df, eia_df)
-
-        pairs_df = ferc1_df.merge(
-            eia_df, how="inner", on=block_col, suffixes=("_ferc1", "_eia")
-        )
-
-        features = compare_cl.compute(feature_index, ferc1_df, eia_df)
-        # feature_matrix = dataframe_embedder(pairs_df)
-        return features
-
-    def get_features(self, clobber=False):
-        """Get the feature vectors for the training matches."""
-        # generate feature matrixes for known/training data
-        if clobber or self.features_df is None:
-            self.features_df = self.make_features(
-                ferc1_df=self.input_dict[self.feature_type]["ferc1_df"](),
-                eia_df=self.input_dict[self.feature_type]["eia_df"](),
-                block_col="plant_id_report_year_util_id",
-            )
-            logger.info(
-                f"Generated {len(self.features_df)} {self.feature_type} "
-                "candidate features."
-            )
-        return self.features_df
-
-
 def run_model(
-    features_train: pd.DataFrame, features_all: pd.DataFrame, train_df: pd.DataFrame
+    features_train: pd.DataFrame, features_all: pd.DataFrame, y_df: pd.DataFrame
 ) -> pd.DataFrame:
     """Train Logistic Regression model using GridSearch cross validation.
 
@@ -672,7 +542,8 @@ def run_model(
     Args:
         features_train: Dataframe of the feature vectors for the training data.
         features_all: Dataframe of the feature vectors for all the input data.
-        train_df: Dataframe of the training data.
+        y_df: Dataframe with 1 if a pair in ``features_train`` is a match and 0
+            if a pair is not a match.
 
     Returns:
         A dataframe of matches with record_id_ferc1 and record_id_eia as the
@@ -699,21 +570,9 @@ def run_model(
             "l1_ratio": [0.1, 0.3, 0.5, 0.7, 0.9],
         },
     ]
-    X = features_train.to_numpy()
-    y = np.where(
-        features_train.merge(
-            train_df,
-            how="left",
-            left_index=True,
-            right_index=True,
-            indicator=True,
-        )["_merge"]
-        == "both",
-        1,
-        0,
-    )
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.25, random_state=16
+    X = features_train.matrix  # noqa: N806
+    X_train, X_test, y_train, y_test = train_test_split(  # noqa: N806
+        X, y_df, test_size=0.25, random_state=16
     )
     lrc = LogisticRegression()
     clf = GridSearchCV(estimator=lrc, param_grid=param_grid, verbose=True, n_jobs=-1)
@@ -730,8 +589,8 @@ def run_model(
         f"    Precision: {precision:.02}\n"
         f"    Recall:    {recall:.02}\n"
     )
-    preds = clf.predict(features_all.to_numpy())
-    probs = clf.predict_proba(features_all.to_numpy())
+    preds = clf.predict(features_all.matrix)
+    probs = clf.predict_proba(features_all.matrix)
     final_df = pd.DataFrame(
         index=features_all.index, data={"match": preds, "prob_of_match": probs[:, 1]}
     )
@@ -1153,7 +1012,7 @@ def check_match_consistency(
             threshold for this check.
     """
     # these are the default
-    consistency = 0.75
+    consistency = 0.73
     consistency_one_cap_ferc = 0.85
     mask = connects_ferc1_eia.record_id_eia.notnull()
 

@@ -22,6 +22,8 @@ from sklearn.preprocessing import (
 import pudl
 from pudl.analysis.record_linkage.name_cleaner import CompanyNameCleaner
 
+logger = pudl.logging_helpers.get_logger(__name__)
+
 
 @dataclass
 class FeatureMatrix:
@@ -33,6 +35,7 @@ class FeatureMatrix:
     """
 
     matrix: np.ndarray | scipy.sparse.csr_matrix
+    index: pd.Index
 
 
 class TransformStep(BaseModel, ABC):
@@ -92,14 +95,14 @@ def train_dataframe_embedder_new(
 @op
 def apply_dataframe_embedder_new(df: pd.DataFrame, transformer: ColumnTransformer):
     """Use :class:`sklearn.compose.ColumnTransformer` to transform input."""
-    return FeatureMatrix(matrix=transformer.transform(df))
+    return FeatureMatrix(matrix=transformer.transform(df), index=df.index)
+
 
 @graph
 def embed_dataframe_new(df: pd.DataFrame, vectorizers) -> FeatureMatrix:
     """Train dataframe embedder and apply to input df."""
     transformer = train_dataframe_embedder_new(df, vectorizers)
     return apply_dataframe_embedder_new(df, transformer)
-
 
 
 def dataframe_embedder_factory(vectorizers: dict[str, ColumnVectorizer]):
@@ -260,7 +263,10 @@ def _apply_numeric_similarity_func(
             raise ValueError("The scale must be larger than 0.")
         d = abs(df[col1] - df[col2] - origin).clip(offset, None)
         return (
-            2 ** (-(d - offset) / scale).fillna(missing_value).rename(label).to_frame()
+            (2 ** (-(d - offset) / scale))
+            .fillna(missing_value)
+            .rename(label)
+            .to_frame()
         )
 
     def _linear_sim(df, col1, col2, scale, offset, origin, missing_value, label):
@@ -269,10 +275,10 @@ def _apply_numeric_similarity_func(
         if scale <= 0:
             raise ValueError("The scale must be larger than 0.")
         d = (abs(df[col1] - df[col2] - origin)).clip(offset, offset + 2 * scale)
-        return 1 - (d - offset) / (2 * scale).fillna(missing_value).to_frame()
+        return (1 - (d - offset) / (2 * scale)).fillna(missing_value).to_frame()
 
     def _exact(df, missing_value, label):
-        compare = pd.Series(0, index=df[col1])
+        compare = pd.Series(0, index=df.index)
         compare[df[col1] == df[col2]] = 1
         if missing_value != 0:
             compare[(df[col1].isnull() | df[col2].isnull())] = missing_value
