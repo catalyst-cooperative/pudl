@@ -25,10 +25,6 @@ from pandas.core.groupby import DataFrameGroupBy
 from pydantic import BaseModel, Field, field_validator
 
 import pudl
-from pudl.analysis.classify_plants_ferc1 import (
-    plants_steam_assign_plant_ids,
-    plants_steam_validate_ids,
-)
 from pudl.extract.ferc1 import TABLE_NAME_MAP_FERC1
 from pudl.helpers import assert_cols_areclose, convert_cols_dtypes
 from pudl.metadata.fields import apply_pudl_dtypes
@@ -3211,70 +3207,6 @@ class SteamPlantsTableTransformer(Ferc1AbstractTableTransformer):
 
     table_id: TableIdFerc1 = TableIdFerc1.STEAM_PLANTS
 
-    @cache_df(key="main")
-    def transform_main(
-        self, df: pd.DataFrame, transformed_fuel: pd.DataFrame
-    ) -> pd.DataFrame:
-        """Perform table transformations for the :ref:`core_ferc1__yearly_steam_plants_sched402` table.
-
-        Note that this method has a non-standard call signature, since the
-        :ref:`core_ferc1__yearly_steam_plants_sched402` table depends on the :ref:`core_ferc1__yearly_steam_plants_fuel_sched402` table.
-
-        Args:
-            df: The pre-processed steam plants table.
-            transformed_fuel: The fully transformed :ref:`core_ferc1__yearly_steam_plants_fuel_sched402` table. This is
-                required because fuel consumption information is used to help link
-                steam plant records together across years using
-                :func:`plants_steam_assign_plant_ids`
-        """
-        fuel_categories = list(
-            SteamPlantsFuelTableTransformer()
-            .params.categorize_strings["fuel_type_code_pudl"]
-            .categories.keys()
-        )
-        plants_steam = (
-            super()
-            .transform_main(df)
-            .pipe(
-                plants_steam_assign_plant_ids,
-                ferc1_fuel_df=transformed_fuel,
-                fuel_categories=fuel_categories,
-            )
-            .pipe(plants_steam_validate_ids)
-        )
-        return plants_steam
-
-    def transform(
-        self,
-        raw_dbf: pd.DataFrame,
-        raw_xbrl_instant: pd.DataFrame,
-        raw_xbrl_duration: pd.DataFrame,
-        transformed_fuel: pd.DataFrame,
-    ) -> pd.DataFrame:
-        """Redfine the transform method to accommodate the use of transformed_fuel.
-
-        This is duplicating code from the parent class, but is necessary because the
-        steam table needs the fuel table for its transform. Is there a better way to do
-        this that doesn't require cutting and pasting the whole method just to stick the
-        extra dataframe input into transform_main()?
-        """
-        df = (
-            self.transform_start(
-                raw_dbf=raw_dbf,
-                raw_xbrl_instant=raw_xbrl_instant,
-                raw_xbrl_duration=raw_xbrl_duration,
-            )
-            .pipe(self.transform_main, transformed_fuel=transformed_fuel)
-            .pipe(self.transform_end)
-        )
-        if self.clear_cached_dfs:
-            logger.debug(
-                f"{self.table_id.value}: Clearing cached dfs: "
-                f"{sorted(self._cached_dfs.keys())}"
-            )
-            self._cached_dfs.clear()
-        return df
-
 
 class HydroelectricPlantsTableTransformer(Ferc1AbstractTableTransformer):
     """A table transformer specific to the :ref:`core_ferc1__yearly_hydroelectric_plants_sched406` table."""
@@ -6026,9 +5958,7 @@ def ferc1_transform_asset_factory(
     """Create an asset that pulls in raw ferc Form 1 assets and applies transformations.
 
     This is a convenient way to create assets for tables that only depend on raw dbf,
-    raw xbrl instant and duration tables and xbrl metadata. For tables with additional
-    upstream dependencies, create a stand alone asset using an asset decorator. See
-    the core_ferc1__yearly_steam_plants_sched402 asset.
+    raw xbrl instant and duration tables and xbrl metadata.
 
     Args:
         table_name: The name of the table to create an asset for.
@@ -6114,47 +6044,11 @@ def create_ferc1_transform_assets() -> list[AssetsDefinition]:
     """
     assets = []
     for table_name, tfr_class in FERC1_TFR_CLASSES.items():
-        # Bespoke exception. fuel must come before steam b/c fuel proportions are used to
-        # aid in FERC plant ID assignment.
-        if table_name != "core_ferc1__yearly_steam_plants_sched402":
-            assets.append(ferc1_transform_asset_factory(table_name, tfr_class))
+        assets.append(ferc1_transform_asset_factory(table_name, tfr_class))
     return assets
 
 
 ferc1_assets = create_ferc1_transform_assets()
-
-
-@asset(io_manager_key="pudl_sqlite_io_manager")
-def core_ferc1__yearly_steam_plants_sched402(
-    clean_xbrl_metadata_json: dict[str, dict[str, list[dict[str, Any]]]],
-    raw_ferc1_dbf__f1_steam: pd.DataFrame,
-    raw_ferc1_xbrl__steam_electric_generating_plant_statistics_large_plants_402_duration: pd.DataFrame,
-    raw_ferc1_xbrl__steam_electric_generating_plant_statistics_large_plants_402_instant: pd.DataFrame,
-    core_ferc1__yearly_steam_plants_fuel_sched402: pd.DataFrame,
-) -> pd.DataFrame:
-    """Create the clean core_ferc1__yearly_steam_plants_sched402 table.
-
-    Args:
-            clean_xbrl_metadata_json: XBRL metadata json for all tables.
-            raw_ferc1_dbf__f1_steam: Raw f1_steam table.
-            raw_ferc1_xbrl__steam_electric_generating_plant_statistics_large_plants_402_duration: raw XBRL duration table.
-            raw_ferc1_xbrl__steam_electric_generating_plant_statistics_large_plants_402_instant: raw XBRL instant table.
-            core_ferc1__yearly_steam_plants_fuel_sched402: Transformed core_ferc1__yearly_steam_plants_fuel_sched402 table.
-
-    Returns:
-        Clean core_ferc1__yearly_steam_plants_sched402 table.
-    """
-    df = SteamPlantsTableTransformer(
-        xbrl_metadata_json=clean_xbrl_metadata_json[
-            "core_ferc1__yearly_steam_plants_sched402"
-        ]
-    ).transform(
-        raw_dbf=raw_ferc1_dbf__f1_steam,
-        raw_xbrl_instant=raw_ferc1_xbrl__steam_electric_generating_plant_statistics_large_plants_402_instant,
-        raw_xbrl_duration=raw_ferc1_xbrl__steam_electric_generating_plant_statistics_large_plants_402_duration,
-        transformed_fuel=core_ferc1__yearly_steam_plants_fuel_sched402,
-    )
-    return convert_cols_dtypes(df, data_source="ferc1")
 
 
 def other_dimensions(table_names: list[str]) -> list[str]:

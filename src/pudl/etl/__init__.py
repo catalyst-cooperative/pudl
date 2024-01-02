@@ -79,6 +79,10 @@ default_assets = (
         [pudl.analysis.state_demand], group_name="out_state_demand_ferc714"
     ),
     *load_assets_from_modules(
+        [pudl.analysis.record_linkage.classify_plants_ferc1],
+        group_name="out_ferc1",
+    ),
+    *load_assets_from_modules(
         [pudl.analysis.plant_parts_eia, pudl.analysis.eia_ferc1_record_linkage],
         group_name="eia_ferc1_record_linkage",
     ),

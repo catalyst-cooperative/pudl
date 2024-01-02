@@ -150,6 +150,16 @@ include-package-data = true
 where = ["src"]
 
 [tool.setuptools_scm]
+tag_regex = "^v(?P<version>20\\d{2}\\.\\d{1,2}\\.\\d{1,2})$"
+git_describe_command = [
+    "git",
+    "describe",
+    "--dirty",
+    "--tags",
+    "--long",
+    "--match",
+    "v20*",
+]
 
 [tool.ruff]
 select = [
@@ -263,9 +273,7 @@ filterwarnings = [
     "once:The behavior of DataFrame concatenation with empty or all-NA entries is deprecated.:FutureWarning",
 ]
 
-markers = [
-    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-]
+markers = ["slow: marks tests as slow (deselect with '-m \"not slow\"')"]
 # Oddly, despite the use of --cov-config=pyproject.toml here, pytest does not seem to
 # pick up the source directories specified in the [tool.coverage.run] section below.
 # (though it *does* pick up the omit parameters!). This means we need to specify the
