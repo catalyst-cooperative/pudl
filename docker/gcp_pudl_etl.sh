@@ -111,7 +111,7 @@ function update_nightly_branch() {
     git show-ref -d HEAD nightly "$NIGHTLY_TAG" && \
     git merge-base nightly "$NIGHTLY_TAG" && \
     git merge --ff-only "$NIGHTLY_TAG^0" && \
-    git push -u origin
+    git push -u origin nightly
 }
 
 function clean_up_outputs_for_distribution() {
