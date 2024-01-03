@@ -28,8 +28,8 @@ def test_pudl_engine(
     """
     assert isinstance(pudl_engine, sa.Engine)
     insp = sa.inspect(pudl_engine)
-    assert "plants_pudl" in insp.get_table_names()
-    assert "utilities_pudl" in insp.get_table_names()
+    assert "core_pudl__entity_plants_pudl" in insp.get_table_names()
+    assert "core_pudl__entity_utilities_pudl" in insp.get_table_names()
 
     if check_foreign_keys:
         # Raises ForeignKeyErrors if there are any
@@ -50,13 +50,15 @@ def test_ferc1_xbrl2sqlite(ferc1_engine_xbrl: sa.Engine, ferc1_xbrl_taxonomy_met
 
     # Has the metadata we've read in from JSON contain a long list of entities?
     assert isinstance(ferc1_xbrl_taxonomy_metadata, dict)
-    assert "plants_steam_ferc1" in ferc1_xbrl_taxonomy_metadata
+    assert "core_ferc1__yearly_steam_plants_sched402" in ferc1_xbrl_taxonomy_metadata
     assert len(ferc1_xbrl_taxonomy_metadata) > 10
     assert len(ferc1_xbrl_taxonomy_metadata) < 100
 
     # Can we normalize that list of entities and find data in it that we expect?
     df = pd.json_normalize(
-        ferc1_xbrl_taxonomy_metadata["plant_in_service_ferc1"]["instant"]
+        ferc1_xbrl_taxonomy_metadata["core_ferc1__yearly_plant_in_service_sched204"][
+            "instant"
+        ]
     )
     assert (
         df.loc[

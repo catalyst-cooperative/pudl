@@ -15,7 +15,7 @@
    * - {{ field.replace("_", " ").title() }}
      - {{ description }}{% if field == "download_size" %} MB{% endif %}
    {%- endfor %}
-   * - Years Liberated
+   * - Temporal Coverage
      - {{ source.get_temporal_coverage() }}
    * - PUDL Code
      - ``{{ source.name }}``

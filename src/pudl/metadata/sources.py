@@ -1,8 +1,9 @@
 """Metadata and operational constants."""
 from typing import Any
 
+import pandas as pd
+
 from pudl.metadata.constants import CONTRIBUTORS, KEYWORDS, LICENSES
-from pudl.metadata.enums import EPACEMS_STATES
 
 SOURCES: dict[str, Any] = {
     "censusdp1tract": {
@@ -267,13 +268,15 @@ SOURCES: dict[str, Any] = {
         ),
         "source_file_dict": {
             "respondents": "Coal and high-sulfur fueled plants over 25MW",
-            "records_liberated": "~800 million",
+            "records_liberated": "~1 billion",
             "source_format": "Comma Separated Value (.csv)",
         },
         "field_namespace": "epacems",
         "working_partitions": {
-            "years": sorted(set(range(1995, 2023))),
-            "states": sorted(EPACEMS_STATES),
+            "year_quarters": [
+                str(q).lower()
+                for q in pd.period_range(start="1995q1", end="2023q3", freq="Q")
+            ]
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -296,7 +299,7 @@ SOURCES: dict[str, Any] = {
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
-    "epacamd_eia": {
+    "core_epa__assn_eia_epacamd": {
         "title": "EPA CAMD to EIA Power Sector Data Crosswalk",
         "path": "https://github.com/USEPA/camd-eia-crosswalk",
         "description": (

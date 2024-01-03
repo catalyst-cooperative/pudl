@@ -2,7 +2,7 @@
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
-    "plant_parts_eia": {
+    "out_eia__yearly_plant_parts": {
         "description": """Output table with the aggregation of all EIA plant parts. For use with matching to FERC 1.
 
 Practically speaking, a plant is a collection of generator(s). There are many
@@ -23,8 +23,8 @@ connect specific slices of EIA plants to other datasets.
 Because generators are often owned by multiple utilities, another dimension of
 this plant part table involves generating two records for each owner: one for the
 portion of the plant part they own and one for the plant part as a whole. The
-portion records are labeled in the "ownership_record_type" column as "owned"
-and the total records are labeled as "total".
+portion records are labeled in the ``ownership_record_type`` column as ``owned``
+and the total records are labeled as ``total``.
 
 This table includes A LOT of duplicative information about EIA plants. It is primarily
 meant for use as an input into the record linkage between FERC1 plants and EIA.""",
@@ -54,7 +54,7 @@ meant for use as an input into the record linkage between FERC1 plants and EIA."
                 "fuel_cost_per_mwh",
                 "fuel_type_code_pudl",
                 "generator_retirement_date",
-                "heat_rate_mmbtu_mwh",
+                "unit_heat_rate_mmbtu_per_mwh",
                 "installation_year",
                 "net_generation_mwh",
                 "generator_operating_year",
@@ -80,7 +80,7 @@ meant for use as an input into the record linkage between FERC1 plants and EIA."
         "etl_group": "outputs",
         "field_namespace": "eia",
     },
-    "mega_generators_eia": {
+    "out_eia__yearly_generators_by_ownership": {
         "description": "A mega table of all EIA generators with ownership integrated.",
         "schema": {
             "fields": [
@@ -106,7 +106,7 @@ meant for use as an input into the record linkage between FERC1 plants and EIA."
                 "fuel_cost_from_eiaapi",
                 "fuel_cost_per_mmbtu",
                 "fuel_cost_per_mwh",
-                "heat_rate_mmbtu_mwh",
+                "unit_heat_rate_mmbtu_per_mwh",
                 "net_generation_mwh",
                 "total_fuel_cost",
                 "total_mmbtu",
@@ -122,7 +122,7 @@ meant for use as an input into the record linkage between FERC1 plants and EIA."
         "etl_group": "outputs",
         "field_namespace": "eia",
     },
-    "out__yearly_plants_all_ferc1_plant_parts_eia": {
+    "out_pudl__yearly_assn_eia_ferc1_plant_parts": {
         "description": """This table links power plant data reported in FERC Form 1 to related EIA data. It
 answers the question "What EIA data reported about plants or generators should be
 associated with a given plant record found in the FERC Form 1."
@@ -173,7 +173,7 @@ plant, across both physical characteristics and utility ownership.""",
                 "capacity_mw_eia",
                 "capacity_factor_eia",
                 "total_mmbtu_eia",
-                "heat_rate_mmbtu_mwh_eia",
+                "unit_heat_rate_mmbtu_per_mwh_eia",
                 "fuel_type_code_pudl_eia",
                 "installation_year_eia",
                 "plant_part_id_eia",
@@ -256,7 +256,7 @@ plant, across both physical characteristics and utility ownership.""",
                 "total_fuel_cost_ferc1",
                 "total_mmbtu_ferc1",
                 "fuel_type_code_pudl_ferc1",
-                "heat_rate_mmbtu_mwh_ferc1",
+                "unit_heat_rate_mmbtu_per_mwh_ferc1",
             ],
             "primary_key": ["record_id_ferc1"],
         },

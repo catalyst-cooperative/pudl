@@ -4,6 +4,21 @@
 Work in Progress & Future Datasets
 ===============================================================================
 
+
+.. IMPORTANT:: Looking for a specific dataset?
+
+   If you **need data that's not in PUDL**, `open an issue
+   <https://github.com/catalyst-cooperative/pudl/issues/new?assignees=&labels=new-data&projects=&template=new_dataset.md&title=>`__
+   to tell us more about it!
+
+   If you've **already spent a bunch of time wrangling a dataset**, we welcome
+   "knowledge contributions" in our `pudl-knowledge
+   <https://github.com/catalyst-cooperative/pudl-knowledge>`__ repository!
+
+   If you're **looking to help us integrate a specific dataset into PUDL**, find us at
+   `office hours <https://calend.ly/catalyst-cooperative/pudl-office-hours>`__ and we
+   can talk through next steps.
+
 -------------------------------------------------------------------------------
 Work in Progress
 -------------------------------------------------------------------------------
