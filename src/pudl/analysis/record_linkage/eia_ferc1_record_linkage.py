@@ -49,45 +49,60 @@ from pudl.metadata.classes import DataSource, Resource
 logger = pudl.logging_helpers.get_logger(__name__)
 # Silence the recordlinkage logger, which is out of control
 
-
 pair_vectorizers = {
     "plant_name": embed_dataframe.ColumnVectorizer(
         transform_steps=[
+            embed_dataframe.NameCleaner(),
             embed_dataframe.StringSimilarityScorer(
                 metric="jaro_winkler",
                 col1="plant_name_ferc1",
                 col2="plant_name_eia",
                 output_name="plant_name",
-            )
+            ),
         ],
         columns=["plant_name_ferc1", "plant_name_eia"],
     ),
+    "utility_name": embed_dataframe.ColumnVectorizer(
+        transform_steps=[
+            embed_dataframe.NameCleaner(),
+            embed_dataframe.StringSimilarityScorer(
+                metric="jaro_winkler",
+                col1="utility_name_ferc1",
+                col2="utility_name_eia",
+                output_name="utility_name",
+            ),
+        ],
+        columns=["utility_name_ferc1", "utility_name_eia"],
+    ),
     "net_generation_mwh": embed_dataframe.ColumnVectorizer(
         transform_steps=[
+            embed_dataframe.ColumnCleaner(cleaning_function="null_to_zero"),
             embed_dataframe.NumericSimilarityScorer(
                 method="exponential",
                 col1="net_generation_mwh_ferc1",
                 col2="net_generation_mwh_eia",
                 output_name="net_generation_mwh",
                 scale=1000,
-            )
+            ),
         ],
         columns=["net_generation_mwh_ferc1", "net_generation_mwh_eia"],
     ),
     "capacity_mw": embed_dataframe.ColumnVectorizer(
         transform_steps=[
+            embed_dataframe.ColumnCleaner(cleaning_function="null_to_zero"),
             embed_dataframe.NumericSimilarityScorer(
                 method="exponential",
                 col1="capacity_mw_ferc1",
                 col2="capacity_mw_eia",
                 output_name="capacity_mw",
                 scale=10,
-            )
+            ),
         ],
         columns=["capacity_mw_ferc1", "capacity_mw_eia"],
     ),
     "total_fuel_cost": embed_dataframe.ColumnVectorizer(
         transform_steps=[
+            embed_dataframe.ColumnCleaner(cleaning_function="null_to_zero"),
             embed_dataframe.NumericSimilarityScorer(
                 method="exponential",
                 col1="total_fuel_cost_ferc1",
@@ -96,12 +111,13 @@ pair_vectorizers = {
                 scale=10000,
                 offset=2500,
                 missing_value=0.5,
-            )
+            ),
         ],
         columns=["total_fuel_cost_ferc1", "total_fuel_cost_eia"],
     ),
     "total_mmbtu": embed_dataframe.ColumnVectorizer(
         transform_steps=[
+            embed_dataframe.ColumnCleaner(cleaning_function="null_to_zero"),
             embed_dataframe.NumericSimilarityScorer(
                 method="exponential",
                 col1="total_mmbtu_ferc1",
@@ -110,40 +126,43 @@ pair_vectorizers = {
                 scale=100,
                 offset=1,
                 missing_value=0.5,
-            )
+            ),
         ],
         columns=["total_mmbtu_ferc1", "total_mmbtu_eia"],
     ),
     "capacity_factor": embed_dataframe.ColumnVectorizer(
         transform_steps=[
+            embed_dataframe.ColumnCleaner(cleaning_function="null_to_zero"),
             embed_dataframe.NumericSimilarityScorer(
                 method="linear",
                 col1="capacity_factor_ferc1",
                 col2="capacity_factor_eia",
                 output_name="capacity_factor",
-            )
+            ),
         ],
         columns=["capacity_factor_ferc1", "capacity_factor_eia"],
     ),
     "fuel_cost_per_mmbtu": embed_dataframe.ColumnVectorizer(
         transform_steps=[
+            embed_dataframe.ColumnCleaner(cleaning_function="null_to_zero"),
             embed_dataframe.NumericSimilarityScorer(
                 method="linear",
                 col1="fuel_cost_per_mmbtu_ferc1",
                 col2="fuel_cost_per_mmbtu_eia",
                 output_name="fuel_cost_per_mmbtu",
-            )
+            ),
         ],
         columns=["fuel_cost_per_mmbtu_ferc1", "fuel_cost_per_mmbtu_eia"],
     ),
     "heat_rate_mmbtu_mwh": embed_dataframe.ColumnVectorizer(
         transform_steps=[
+            embed_dataframe.ColumnCleaner(cleaning_function="null_to_zero"),
             embed_dataframe.NumericSimilarityScorer(
                 method="linear",
                 col1="unit_heat_rate_mmbtu_per_mwh_ferc1",
                 col2="unit_heat_rate_mmbtu_per_mwh_eia",
                 output_name="heat_rate_mmbtu_mwh",
-            )
+            ),
         ],
         columns=[
             "unit_heat_rate_mmbtu_per_mwh_ferc1",
@@ -152,12 +171,13 @@ pair_vectorizers = {
     ),
     "fuel_type_code_pudl": embed_dataframe.ColumnVectorizer(
         transform_steps=[
+            embed_dataframe.ColumnCleaner(cleaning_function="null_to_empty_str"),
             embed_dataframe.NumericSimilarityScorer(
                 method="exact",
                 col1="fuel_type_code_pudl_ferc1",
                 col2="fuel_type_code_pudl_eia",
                 output_name="fuel_type_code_pudl",
-            )
+            ),
         ],
         columns=["fuel_type_code_pudl_ferc1", "fuel_type_code_pudl_eia"],
     ),
@@ -308,8 +328,8 @@ def out_pudl__yearly_assn_eia_ferc1_plant_parts(
     all_pairs_df = get_all_pairs_df(inputs)
     train_pairs_df = get_train_pairs_df(inputs)
     vectorizer = get_pair_vectorizers()
-    features_all = embed_dataframe.embed_dataframe_new(all_pairs_df, vectorizer)
-    features_train = embed_dataframe.embed_dataframe_new(train_pairs_df, vectorizer)
+    features_all = embed_dataframe.embed_dataframe_graph(all_pairs_df, vectorizer)
+    features_train = embed_dataframe.embed_dataframe_graph(train_pairs_df, vectorizer)
     y_df = get_y_label_df(train_pairs_df, inputs)
     match_df = run_matching_model(
         features_train=features_train,
@@ -1012,7 +1032,7 @@ def check_match_consistency(
             threshold for this check.
     """
     # these are the default
-    consistency = 0.73
+    consistency = 0.74
     consistency_one_cap_ferc = 0.85
     mask = connects_ferc1_eia.record_id_eia.notnull()
 

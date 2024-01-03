@@ -74,7 +74,7 @@ class ColumnVectorizer(BaseModel):
 
 
 @op
-def train_dataframe_embedder_new(
+def train_dataframe_embedder(
     df: pd.DataFrame, vectorizers: dict[str, ColumnVectorizer]
 ):
     """Train :class:`sklearn.compose.ColumnTransformer` on input."""
@@ -93,49 +93,16 @@ def train_dataframe_embedder_new(
 
 
 @op
-def apply_dataframe_embedder_new(df: pd.DataFrame, transformer: ColumnTransformer):
+def apply_dataframe_embedder(df: pd.DataFrame, transformer: ColumnTransformer):
     """Use :class:`sklearn.compose.ColumnTransformer` to transform input."""
     return FeatureMatrix(matrix=transformer.transform(df), index=df.index)
 
 
 @graph
-def embed_dataframe_new(df: pd.DataFrame, vectorizers) -> FeatureMatrix:
+def embed_dataframe_graph(df: pd.DataFrame, vectorizers) -> FeatureMatrix:
     """Train dataframe embedder and apply to input df."""
-    transformer = train_dataframe_embedder_new(df, vectorizers)
-    return apply_dataframe_embedder_new(df, transformer)
-
-
-def dataframe_embedder_factory(vectorizers: dict[str, ColumnVectorizer]):
-    """Return a configured op graph to embed an input dataframe."""
-
-    @op
-    def train_dataframe_embedder(df: pd.DataFrame):
-        """Train :class:`sklearn.compose.ColumnTransformer` on input."""
-        column_transformer = ColumnTransformer(
-            transformers=[
-                (name, column_transform.as_pipeline(), column_transform.columns)
-                for name, column_transform in vectorizers.items()
-            ],
-            transformer_weights={
-                name: column_transform.weight
-                for name, column_transform in vectorizers.items()
-            },
-        )
-
-        return column_transformer.fit(df)
-
-    @op
-    def apply_dataframe_embedder(df: pd.DataFrame, transformer: ColumnTransformer):
-        """Use :class:`sklearn.compose.ColumnTransformer` to transform input."""
-        return FeatureMatrix(matrix=transformer.transform(df))
-
-    @graph
-    def embed_dataframe(df: pd.DataFrame) -> FeatureMatrix:
-        """Train dataframe embedder and apply to input df."""
-        transformer = train_dataframe_embedder(df)
-        return apply_dataframe_embedder(df, transformer)
-
-    return embed_dataframe
+    transformer = train_dataframe_embedder(df, vectorizers)
+    return apply_dataframe_embedder(df, transformer)
 
 
 class TextVectorizer(TransformStep):
@@ -186,12 +153,13 @@ class NumericalNormalizer(TransformStep):
 
 
 def _apply_cleaning_func(df, function_key: str = None):
+    category_cols = df.select_dtypes(include="category").columns
+    df[category_cols] = df[category_cols].astype("str")
     function_transforms = {
         "null_to_zero": lambda df: df.fillna(value=0.0),
         "null_to_empty_str": lambda df: df.fillna(value=""),
         "fix_int_na": lambda df: pudl.helpers.fix_int_na(df, columns=list(df.columns)),
     }
-
     return function_transforms[function_key](df)
 
 

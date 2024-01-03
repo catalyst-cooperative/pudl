@@ -143,6 +143,7 @@ def merge_steam_fuel_dfs(
 
 @op
 def get_vectorizers():
+    """Get the dictionary of vectorizer transforms for each column."""
     return dataframe_vectorizers
 
 
@@ -164,10 +165,7 @@ def _out_ferc1__yearly_steam_plants_sched402_with_plant_ids(
         out_ferc1__yearly_steam_plants_fuel_by_plant_sched402,
     )
     vectorizers = get_vectorizers()
-    # transformer = embed_dataframe.train_dataframe_embedder_new(input_df, vectorizers)
-    # feature_matrix = embed_dataframe.apply_dataframe_embedder_new(input_df, transformer)
-    feature_matrix = embed_dataframe.embed_dataframe_new(input_df, vectorizers)
-    # feature_matrix = ferc_dataframe_embedder(input_df)
+    feature_matrix = embed_dataframe.embed_dataframe_graph(input_df, vectorizers)
     label_df = link_ids_cross_year(input_df, feature_matrix)
 
     return plants_steam_validate_ids(core_ferc1__yearly_steam_plants_sched402, label_df)
