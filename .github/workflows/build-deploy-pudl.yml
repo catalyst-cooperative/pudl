@@ -48,7 +48,7 @@ jobs:
       - name: Set action environment variables
         if: ${{ env.SKIP_BUILD != 'true' }}
         run: |
-          echo "NIGHTLY_TAG=testing-$(date +%Y-%m-%d)" >> $GITHUB_ENV
+          echo "NIGHTLY_TAG=nightly-$(date +%Y-%m-%d)" >> $GITHUB_ENV
           echo "BUILD_ID=$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short HEAD)-${BUILD_REF}" >> $GITHUB_ENV
 
       - name: Show freshly set envvars
