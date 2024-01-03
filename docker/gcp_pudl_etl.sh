@@ -95,18 +95,18 @@ function notify_slack() {
 }
 
 function update_nightly_branch() {
+    # When building the image, GHA adds an HTTP basic auth header in git
+    # config, which overrides the auth we set below. So we unset it.
     git config --unset http.https://github.com/.extraheader && \
     git config user.email "pudl@catalyst.coop" && \
     git config user.name "pudlbot" && \
     git remote set-url origin "https://pudlbot:$PUDL_BOT_PAT@github.com/catalyst-cooperative/pudl.git" && \
     echo "Updating nightly branch to point at $NIGHTLY_TAG." && \
-    git tag -d "$NIGHTLY_TAG" && \
-    git fetch --tags origin "$NIGHTLY_TAG" && \
-    git checkout "$NIGHTLY_TAG" && \
-    git tag && \
+    git fetch --force --tags origin "$NIGHTLY_TAG" && \
     git fetch origin nightly:nightly && \
     git checkout nightly && \
-    git merge --ff-only "$NIGHTLY_TAG^0" && \
+    git show-ref -d nightly "$NIGHTLY_TAG" && \
+    git merge --ff-only "$NIGHTLY_TAG" && \
     git push -u origin nightly
 }
 

@@ -36,6 +36,7 @@ jobs:
           fetch-depth: 0
 
       - name: Skip the build if no changes since the last successful nightly build.
+        if: ${{ (github.event_name == 'schedule') }}
         run: |
           CURRENT_COMMIT=$(git rev-parse HEAD)
           NIGHTLY_COMMIT=$(git rev-parse origin/nightly)
@@ -66,9 +67,6 @@ jobs:
           git config user.name "pudlbot"
           git tag -a -m "$NIGHTLY_TAG" $NIGHTLY_TAG $BUILD_REF
           git push origin $NIGHTLY_TAG
-          git tag
-          git fetch --tags origin
-          git tag
 
       - name: Docker Metadata
         id: docker_metadata
