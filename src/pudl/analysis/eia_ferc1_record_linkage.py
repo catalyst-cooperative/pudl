@@ -939,24 +939,31 @@ def check_match_consistency(
     train_df: pd.DataFrame,
     match_set: Literal["all", "overrides"] = "all",
 ) -> pd.DataFrame:
-    """Check how consistent matches are across time.
+    """Check how consistent FERC-EIA matches are with FERC-FERC matches.
+
+    We have two record linkage processes: one that links FERC plant records across time,
+    and another that links FERC plant records to EIA plant-parts. This function checks
+    that the two processes are as consistent with each other as we expect.  Here
+    "consistent" means that each FERC plant ID is associated with a single EIA plant
+    parts ID across time. The reverse is not necessarily required -- a single EIA plant
+    part ID may be associated with various FERC plant IDs across time.
 
     Args:
         connects_ferc1_eia: Matches of FERC1 to EIA.
         train_df: training data.
         match_set: either ``all`` - to check all of the matches - or ``overrides`` - to
-            check just the overrides. Default is'``all``. The overrides are less
+            check just the overrides. Default is ``all``. The overrides are less
             consistent than all of the data, so this argument changes the consistency
             threshold for this check.
     """
     # these are the default
-    consistency = 0.75
-    consistency_one_cap_ferc = 0.85
+    expected_consistency = 0.74
+    expected_uniform_capacity_consistency = 0.85
     mask = connects_ferc1_eia.record_id_eia.notnull()
 
     if match_set == "overrides":
-        consistency = 0.39
-        consistency_one_cap_ferc = 0.75
+        expected_consistency = 0.39
+        expected_uniform_capacity_consistency = 0.75
         train_ferc1 = train_df.reset_index()
         # these bbs were missing from connects_ferc1_eia. not totally sure why
         missing = [
@@ -989,28 +996,32 @@ def check_match_consistency(
         .groupby(["plant_id_ferc1"])[["plant_part_id_eia", "capacity_mw_ferc1"]]
         .nunique()
     )
-    consist = len(count[count.plant_part_id_eia == 1]) / len(count)
+    actual_consistency = len(count[count.plant_part_id_eia == 1]) / len(count)
     logger.info(
         f"Matches with consistency across years of {match_set} matches is "
-        f"{consist:.1%}"
+        f"{actual_consistency:.1%}"
     )
-    if consist < consistency:
+    if actual_consistency < expected_consistency:
         raise AssertionError(
-            f"Consistency of {match_set} matches across years dipped below "
-            f"{consistency:.1%} to {consist:.1%}"
+            "Inter-year consistency between plant_id_ferc1 and plant_part_id_eia of "
+            f"{match_set} matches {actual_consistency:.1%} is less than the expected "
+            f"value of {expected_consistency:.1%}."
         )
-    consist_one_cap_ferc = (
+    actual_uniform_capacity_consistency = (
         len(count)
         - len(count[(count.plant_part_id_eia > 1) & (count.capacity_mw_ferc1 == 1)])
     ) / len(count)
     logger.info(
-        "Matches with completely consistent FERC capacity have a consistency "
-        f"of {consist_one_cap_ferc:.1%}"
+        "Matches with a uniform FERC 1 capacity have an inter-year consistency between "
+        "plant_id_ferc1 and plant_part_id_eia of "
+        f"{actual_uniform_capacity_consistency:.1%}"
     )
-    if consist_one_cap_ferc < consistency_one_cap_ferc:
+    if actual_uniform_capacity_consistency < expected_uniform_capacity_consistency:
         raise AssertionError(
-            "Consistency of matches with consistent FERC capcity dipped below "
-            f"{consistency_one_cap_ferc:.1%} to {consist_one_cap_ferc:.1%}"
+            "Inter-year consistency between plant_id_ferc1 and plant_part_id_eia of "
+            "matches with uniform FERC 1 capacity "
+            f"{actual_uniform_capacity_consistency:.1%} is less than the expected "
+            f"value of {expected_uniform_capacity_consistency:.1%}."
         )
     return count
 

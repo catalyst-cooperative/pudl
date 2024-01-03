@@ -205,7 +205,7 @@ def _out_ferc1__yearly_plants_utilities(
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def _out_ferc1__yearly_steam_plants_sched402(
     _out_ferc1__yearly_plants_utilities: pd.DataFrame,
-    core_ferc1__yearly_steam_plants_sched402: pd.DataFrame,
+    _out_ferc1__yearly_steam_plants_sched402_with_plant_ids: pd.DataFrame,
 ) -> pd.DataFrame:
     """Select and joins some useful fields from the FERC Form 1 steam table.
 
@@ -218,13 +218,14 @@ def _out_ferc1__yearly_steam_plants_sched402(
     Args:
         _out_ferc1__yearly_plants_utilities: Denormalized dataframe of FERC Form 1 plants and
             utilities data.
-        core_ferc1__yearly_steam_plants_sched402: The normalized FERC Form 1 steam table.
+        _out_ferc1__yearly_steam_plants_sched402_with_plant_ids: The FERC Form 1 steam table
+            with imputed plant IDs to group plants across report years.
 
     Returns:
         A DataFrame containing useful fields from the FERC Form 1 steam table.
     """
     steam_df = (
-        core_ferc1__yearly_steam_plants_sched402.merge(
+        _out_ferc1__yearly_steam_plants_sched402_with_plant_ids.merge(
             _out_ferc1__yearly_plants_utilities,
             on=["utility_id_ferc1", "plant_name_ferc1"],
             how="left",
@@ -908,7 +909,7 @@ def out_ferc1__yearly_steam_plants_fuel_by_plant_sched402(
     """Summarize FERC fuel data by plant for output.
 
     This is mostly a wrapper around
-    :func:`pudl.analysis.classify_plants_ferc1.fuel_by_plant_ferc1`
+    :func:`pudl.analysis.record_linkage.classify_plants_ferc1.fuel_by_plant_ferc1`
     which calculates some summary values on a per-plant basis (as indicated
     by ``utility_id_ferc1`` and ``plant_name_ferc1``) related to fuel
     consumption.
@@ -947,12 +948,12 @@ def out_ferc1__yearly_steam_plants_fuel_by_plant_sched402(
     fbp_df = (
         core_ferc1__yearly_steam_plants_fuel_sched402.pipe(drop_other_fuel_types)
         .pipe(
-            pudl.analysis.classify_plants_ferc1.fuel_by_plant_ferc1,
+            pudl.analysis.fuel_by_plant.fuel_by_plant_ferc1,
             fuel_categories=fuel_categories,
             thresh=thresh,
         )
-        .pipe(pudl.analysis.classify_plants_ferc1.revert_filled_in_float_nulls)
-        .pipe(pudl.analysis.classify_plants_ferc1.revert_filled_in_string_nulls)
+        .pipe(pudl.analysis.fuel_by_plant.revert_filled_in_float_nulls)
+        .pipe(pudl.analysis.fuel_by_plant.revert_filled_in_string_nulls)
         .merge(
             _out_ferc1__yearly_plants_utilities,
             on=["utility_id_ferc1", "plant_name_ferc1"],
@@ -1155,39 +1156,52 @@ class OffByFactoid(NamedTuple):
 @asset
 def _out_ferc1__explosion_tags(table_dimensions_ferc1) -> pd.DataFrame:
     """Grab the stored tables of tags and add inferred dimension."""
-    # Also, these tags may not be applicable to all exploded tables, but
-    # we need to pass in a dataframe with the right structure to all of the exploders,
-    # so we're just re-using this one for the moment.
-    rate_base_tags = _rate_base_tags(table_dimensions_ferc1=table_dimensions_ferc1)
+    rate_tags = _get_tags("xbrl_factoid_rate_base_tags.csv", table_dimensions_ferc1)
+    rev_req_tags = _get_tags(
+        "xbrl_factoid_revenue_requirement_tags.csv", table_dimensions_ferc1
+    )
+    rate_cats = _get_tags(
+        "xbrl_factoid_rate_base_category_tags.csv", table_dimensions_ferc1
+    )
     plant_status_tags = _aggregatable_dimension_tags(
-        table_dimensions_ferc1=table_dimensions_ferc1, dimension="plant_status"
+        table_dimensions_ferc1, "plant_status"
     )
     plant_function_tags = _aggregatable_dimension_tags(
-        table_dimensions_ferc1=table_dimensions_ferc1, dimension="plant_function"
+        table_dimensions_ferc1, "plant_function"
     )
-    # We shouldn't have more than one row per tag, so we use a 1:1 validation here.
-    plant_tags = plant_status_tags.merge(
-        plant_function_tags, how="outer", on=list(NodeId._fields), validate="1:1"
+    utility_type_tags = _aggregatable_dimension_tags(
+        table_dimensions_ferc1, "utility_type"
     )
-    tags_df = pd.merge(
-        rate_base_tags, plant_tags, on=list(NodeId._fields), how="outer"
-    ).astype(pd.StringDtype())
-    return tags_df
-
-
-def _rate_base_tags(table_dimensions_ferc1: pd.DataFrame) -> pd.DataFrame:
-    # NOTE: there are a bunch of duplicate records in xbrl_factoid_rate_base_tags.csv
-    tags_csv = (
-        importlib.resources.files("pudl.package_data.ferc1")
-        / "xbrl_factoid_rate_base_tags.csv"
-    )
-    tags_df = (
-        pd.read_csv(
-            tags_csv,
-            usecols=list(NodeId._fields) + ["in_rate_base"],
+    tag_dfs = [
+        rate_tags,
+        rev_req_tags,
+        rate_cats,
+        plant_status_tags,
+        plant_function_tags,
+        utility_type_tags,
+    ]
+    tags_all = (
+        pd.concat(
+            [df.set_index(list(NodeId._fields)) for df in tag_dfs],
+            join="outer",
+            verify_integrity=True,
+            ignore_index=False,
+            axis="columns",
         )
+        .reset_index()
+        .drop(columns=["notes"])
+    )
+    return tags_all
+
+
+def _get_tags(file_name: str, table_dimensions_ferc1: pd.DataFrame) -> pd.DataFrame:
+    """Grab tags from a stored CSV file and apply :func:`make_calculation_dimensions_explicit`."""
+    tags_csv = importlib.resources.files("pudl.package_data.ferc1") / file_name
+    tags_df = (
+        pd.read_csv(tags_csv)
         .drop_duplicates()
         .dropna(subset=["table_name", "xbrl_factoid"], how="any")
+        .astype(pd.StringDtype())
         .pipe(
             pudl.transform.ferc1.make_calculation_dimensions_explicit,
             table_dimensions_ferc1,
@@ -1214,12 +1228,12 @@ def _aggregatable_dimension_tags(
     tags_df = (
         pd.read_csv(tags_csv)
         .assign(**{dim: pd.NA for dim in dimensions})
+        .astype(pd.StringDtype())
         .pipe(
             pudl.transform.ferc1.make_calculation_dimensions_explicit,
             table_dimensions_ferc1,
             dimensions=dimensions,
         )
-        .astype(pd.StringDtype())
         .set_index(idx)
     )
     table_dimensions_ferc1 = table_dimensions_ferc1.set_index(idx)
