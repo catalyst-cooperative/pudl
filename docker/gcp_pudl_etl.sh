@@ -21,9 +21,19 @@ function authenticate_gcp() {
     gcloud config set project "$GCP_BILLING_PROJECT"
 }
 
+function initialize_postgres() {
+    echo "initializing postgres"
+    pg_ctlcluster 15 dagster start && \
+    createdb -h127.0.0.1 -p5433 && \
+    psql -v "ON_ERROR_STOP=1" -h127.0.0.1 -p5433 && \
+    psql -c "CREATE USER dagster WITH SUPERUSER PASSWORD 'dagster_password'" -h127.0.0.1 -p5433 && \
+    psql -c "CREATE DATABASE dagster OWNER dagster" -h127.0.0.1 -p5433
+}
+
 function run_pudl_etl() {
     echo "Running PUDL ETL"
     send_slack_msg ":large_yellow_circle: Deployment started for $BUILD_ID :floppy_disk:"
+    initialize_postgres && \
     authenticate_gcp && \
     alembic upgrade head && \
     ferc_to_sqlite \
@@ -46,16 +56,6 @@ function run_pudl_etl() {
         --etl-settings "$PUDL_SETTINGS_YML" \
         --live-dbs test/validate \
     && touch "$PUDL_OUTPUT/success"
-}
-
-function shutdown_vm() {
-    upload_file_to_slack "$LOGFILE" "pudl_etl logs for $BUILD_ID:"
-    # Shut down the vm instance when the etl is done.
-    echo "Shutting down VM."
-    ACCESS_TOKEN=$(curl \
-        "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" \
-        -H "Metadata-Flavor: Google" | jq -r '.access_token')
-    curl -X POST -H "Content-Length: 0" -H "Authorization: Bearer ${ACCESS_TOKEN}" "https://compute.googleapis.com/compute/v1/projects/catalyst-cooperative-pudl/zones/$GCE_INSTANCE_ZONE/instances/$GCE_INSTANCE/stop"
 }
 
 function save_outputs_to_gcs() {
@@ -133,7 +133,8 @@ function notify_slack() {
     message+="DISTRIBUTION_BUCKET_SUCCESS: $DISTRIBUTION_BUCKET_SUCCESS\n"
     message+="ZENODO_SUCCESS: $ZENODO_SUCCESS\n\n"
 
-    message+="See https://console.cloud.google.com/storage/browser/builds.catalyst.coop/$BUILD_ID for logs and outputs."
+    message+="Logs on <https://console.cloud.google.com/batch/jobsDetail/regions/us-west1/jobs/run-etl-$BUILD_ID/logs?project=catalyst-cooperative-pudl|Google Batch Console>.\n\n"
+    message+="See <https://console.cloud.google.com/storage/browser/builds.catalyst.coop/$BUILD_ID|GCS> for outputs."
 
     send_slack_msg "$message"
 }
@@ -232,6 +233,5 @@ if [[ $ETL_SUCCESS == 0 && \
     notify_slack "success"
 else
     notify_slack "failure"
+    exit 1
 fi
-
-shutdown_vm

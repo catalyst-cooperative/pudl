@@ -12,8 +12,12 @@ instances update-container`.
 import argparse
 import itertools
 import json
+import logging
 from collections import OrderedDict
 from pathlib import Path
+
+logging.basicConfig()
+logger = logging.getLogger()
 
 
 def _flat(ls: list[list]) -> list:
@@ -23,23 +27,19 @@ def _flat(ls: list[list]) -> list:
 def to_config(
     *,
     container_image: str,
-    container_env_file: Path,
     container_env: str,
     container_command: str,
     container_arg: str,
 ) -> dict:
     """Munge arguments into a configuration dictionary."""
-    if container_env_file is None or not container_env_file.is_file():
-        env_from_file = []
-    else:
-        with container_env_file.open("r") as f:
-            env_from_file = [line.strip() for line in f.readlines()]
-    complete_env = sorted(env_from_file + _flat(container_env))
+    complete_env = sorted(_flat(container_env))
     env_dict = OrderedDict(
         (name, value.strip('"'))
         for name, value in (pair.split("=", maxsplit=1) for pair in complete_env)
     )
 
+    # NOTE (daz): the best documentation of the actual data structure I've found is at
+    # https://cloud.google.com/python/docs/reference/batch/latest/google.cloud.batch_v1.types.Job
     config = {
         "taskGroups": [
             {
@@ -52,14 +52,20 @@ def to_config(
                             },
                             "environment": {"variables": env_dict},
                         }
-                    ]
+                    ],
+                    "computeResource": {
+                        "cpuMilli": 8000,
+                        "memoryMib": 32768,
+                        "bootDiskMib": 204800,
+                    },
+                    "maxRunDuration": f"{60 * 60 * 8}s",
                 }
             }
         ],
         "allocationPolicy": {
             "serviceAccount": {
                 "email": "deploy-pudl-vm-service-account@catalyst-cooperative-pudl.iam.gserviceaccount.com"
-            }
+            },
         },
         "logsPolicy": {"destination": "CLOUD_LOGGING"},
     }
@@ -75,21 +81,19 @@ def generate_batch_config():
     parser = argparse.ArgumentParser()
     parser.add_argument("--container-image")
     parser.add_argument("--container-command")
-    parser.add_argument("--container-env-file", type=Path)
     parser.add_argument("--container-env", action="append", nargs="*", default=[])
     parser.add_argument("--container-arg", action="append", nargs="*", default=[])
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
+
     config = to_config(
         container_image=args.container_image,
         container_command=args.container_command,
         container_arg=args.container_arg,
-        container_env_file=args.container_env_file,
         container_env=args.container_env,
     )
-    # no-op change to see if the two jobs both get kicked off with different
-    # digests
 
+    logger.info(f"Writing to {args.output}")
     with args.output.open("w") as f:
         f.write(json.dumps(config, indent=2))
 
