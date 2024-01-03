@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - "v20*"
+    branches:
+      - try-google-batch
   schedule:
     # 6am UTC daily (11pm PDT, 2am EDT)
     # But only if there are changes since the last nightly build.
@@ -14,6 +16,7 @@ env:
   GCE_INSTANCE: pudl-deployment-tag # This is changed to pudl-deployment-dev if running on a schedule
   GCE_INSTANCE_ZONE: ${{ secrets.GCE_INSTANCE_ZONE }}
   GCS_OUTPUT_BUCKET: gs://builds.catalyst.coop
+  BATCH_JOB_JSON: batch_job.json
 
 jobs:
   build_and_deploy_pudl:
@@ -115,18 +118,14 @@ jobs:
         uses: google-github-actions/setup-gcloud@v2
 
       # Deploy PUDL image to GCE
-      - name: Deploy
+      - name: Make GCP Batch config file
         if: ${{ env.SKIP_BUILD != 'true' }}
         env:
           DAGSTER_PG_PASSWORD: ${{ secrets.DAGSTER_PG_PASSWORD }}
           PUDL_GCS_OUTPUT: ${{ env.GCS_OUTPUT_BUCKET }}/${{ env.BUILD_ID }}
         run: |-
-          gcloud compute instances add-metadata "$GCE_INSTANCE" \
-            --zone "$GCE_INSTANCE_ZONE" \
-            --metadata-from-file startup-script=./docker/vm_startup_script.sh
-          gcloud compute instances update-container "$GCE_INSTANCE" \
-            --zone "$GCE_INSTANCE_ZONE" \
-            --container-image "docker.io/catalystcoop/pudl-etl@${{ steps.docker-build.outputs.digest }}" \
+          ./devtools/generate_batch_config.py \
+            --container-image "docker.io/catalystcoop/pudl-etl:${{ env.BUILD_REF}}" \
             --container-command "micromamba" \
             --container-arg="run" \
             --container-arg="--prefix" \
@@ -157,11 +156,11 @@ jobs:
             --container-env ZENODO_TOKEN_UPLOAD=${{ secrets.ZENODO_TOKEN_UPLOAD }} \
             --container-env PUDL_SETTINGS_YML="/home/mambauser/pudl/src/pudl/package_data/settings/etl_full.yml" \
             --container-env PUDL_GCS_OUTPUT=${{ env.PUDL_GCS_OUTPUT }}
+            --output ${{ env.BATCH_JOB_JSON }}
 
       # Start the VM
-      - name: Start the deploy-pudl-vm
-        if: ${{ env.SKIP_BUILD != 'true' }}
-        run: gcloud compute instances start "$GCE_INSTANCE" --zone="$GCE_INSTANCE_ZONE"
+      - name: Kick off batch job
+        run: gcloud batch jobs submit --job-prefix run-etl-test --config ${{ env.BATCH_JOB_JSON }} --location us-west1
 
       - name: Post to a pudl-deployments channel
         id: slack
