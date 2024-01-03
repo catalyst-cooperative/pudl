@@ -2,8 +2,6 @@
 # This script runs the entire ETL and validation tests in a docker container on a Google Compute Engine instance.
 # This script won't work locally because it needs adequate GCP permissions.
 
-set -x
-
 function send_slack_msg() {
     curl -X POST -H "Content-type: application/json" -H "Authorization: Bearer ${SLACK_TOKEN}" https://slack.com/api/chat.postMessage --data "{\"channel\": \"C03FHB9N0PQ\", \"text\": \"$1\"}"
 }
@@ -77,7 +75,7 @@ function copy_outputs_to_distribution_bucket() {
 
 function zenodo_data_release() {
     echo "Creating a new PUDL data release on Zenodo." && \
-    ~/pudl/devtools/zenodo/zenodo_data_release.py --publish --env sandbox --source-dir "$PUDL_OUTPUT"
+    ~/pudl/devtools/zenodo/zenodo_data_release.py --publish --env "$1" --source-dir "$PUDL_OUTPUT"
 }
 
 function notify_slack() {
@@ -108,8 +106,6 @@ function update_nightly_branch() {
     git tag && \
     git fetch origin nightly:nightly && \
     git checkout nightly && \
-    git show-ref -d HEAD nightly "$NIGHTLY_TAG" && \
-    git merge-base nightly "$NIGHTLY_TAG" && \
     git merge --ff-only "$NIGHTLY_TAG^0" && \
     git push -u origin nightly
 }
@@ -139,15 +135,15 @@ ZENODO_SUCCESS=0
 
 # Run ETL. Copy outputs to GCS and shutdown VM if ETL succeeds or fails
 # 2>&1 redirects stderr to stdout.
-#run_pudl_etl 2>&1 | tee "$LOGFILE"
-#ETL_SUCCESS=${PIPESTATUS[0]}
+run_pudl_etl 2>&1 | tee "$LOGFILE"
+ETL_SUCCESS=${PIPESTATUS[0]}
 
-#save_outputs_to_gcs 2>&1 | tee -a "$LOGFILE"
-#SAVE_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
+save_outputs_to_gcs 2>&1 | tee -a "$LOGFILE"
+SAVE_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
 
 # if pipeline is successful, distribute + publish datasette
 if [[ $ETL_SUCCESS == 0 ]]; then
-    if [[ "$GITHUB_ACTION_TRIGGER" == "schedule" || "$GITHUB_ACTION_TRIGGER" == "workflow_dispatch" ]]; then
+    if [[ "$GITHUB_ACTION_TRIGGER" == "schedule" ]]; then
         update_nightly_branch 2>&1 | tee -a "$LOGFILE"
         UPDATE_NIGHTLY_SUCCESS=${PIPESTATUS[0]}
     fi
@@ -168,15 +164,16 @@ if [[ $ETL_SUCCESS == 0 ]]; then
         # Copy cleaned up outputs to the S3 and GCS distribution buckets
         copy_outputs_to_distribution_bucket | tee -a "$LOGFILE"
         DISTRIBUTION_BUCKET_SUCCESS=${PIPESTATUS[0]}
-        # TEMPORARY: this currently just makes a sandbox release, for testing:
+        # TODO: this currently just makes a sandbox release, for testing. Should be
+        # switched to production and only run on push of a version tag eventually.
         # Push a data release to Zenodo for long term accessiblity
-        zenodo_data_release 2>&1 | tee -a "$LOGFILE"
+        zenodo_data_release sandbox 2>&1 | tee -a "$LOGFILE"
         ZENODO_SUCCESS=${PIPESTATUS[0]}
     fi
 fi
 
 # This way we also save the logs from latter steps in the script
-# gsutil cp "$LOGFILE" "$PUDL_GCS_OUTPUT"
+gsutil cp "$LOGFILE" "$PUDL_GCS_OUTPUT"
 
 # Notify slack about entire pipeline's success or failure;
 if [[ $ETL_SUCCESS == 0 && \
