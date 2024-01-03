@@ -87,6 +87,8 @@ def generate_batch_config():
         container_env_file=args.container_env_file,
         container_env=args.container_env,
     )
+    # no-op change to see if the two jobs both get kicked off with different
+    # digests
 
     with args.output.open("w") as f:
         f.write(json.dumps(config, indent=2))

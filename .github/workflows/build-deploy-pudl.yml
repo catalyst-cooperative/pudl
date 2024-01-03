@@ -105,6 +105,10 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: inspect docker manifest right after pushing
+        continue-on-error: true
+        run: docker inspect docker.io/catalystcoop/pudl-etl:${{ env.BUILD_REF}}
+
       - id: "auth"
         if: ${{ env.SKIP_BUILD != 'true' }}
         uses: "google-github-actions/auth@v2"
@@ -117,6 +121,14 @@ jobs:
         if: ${{ env.SKIP_BUILD != 'true' }}
         uses: google-github-actions/setup-gcloud@v2
 
+      - name: inspect docker tag manifest right before submitting Batch job
+        continue-on-error: true
+        run: docker inspect docker.io/catalystcoop/pudl-etl:${{ env.BUILD_REF}}
+
+      - name: inspect docker hash manifest right before submitting Batch job
+        continue-on-error: true
+        run: docker inspect docker.io/catalystcoop/pudl-etl:${{ steps.docker-build.outputs.digest }}
+
       # Deploy PUDL image to GCE
       - name: Make GCP Batch config file
         if: ${{ env.SKIP_BUILD != 'true' }}
@@ -125,7 +137,7 @@ jobs:
           PUDL_GCS_OUTPUT: ${{ env.GCS_OUTPUT_BUCKET }}/${{ env.BUILD_ID }}
         run: |-
           ./devtools/generate_batch_config.py \
-            --container-image "docker.io/catalystcoop/pudl-etl:${{ env.BUILD_REF}}" \
+            --container-image "docker.io/catalystcoop/pudl-etl@${{ steps.docker-build.outputs.digest }}" \
             --container-command "micromamba" \
             --container-arg="run" \
             --container-arg="--prefix" \
@@ -134,31 +146,31 @@ jobs:
             --container-arg='' \
             --container-arg="bash" \
             --container-arg="./docker/gcp_pudl_etl.sh" \
-            --container-env BUILD_REF=${{ github.ref_name }} \
+            --container-env AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
+            --container-env AWS_DEFAULT_REGION=${{ secrets.AWS_DEFAULT_REGION }} \
+            --container-env AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
             --container-env BUILD_ID=${{ env.BUILD_ID }} \
-            --container-env NIGHTLY_TAG=${{ env.NIGHTLY_TAG }} \
-            --container-env GITHUB_ACTION_TRIGGER=${{ github.event_name }} \
-            --container-env SLACK_TOKEN=${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }} \
+            --container-env BUILD_REF=${{ env.BUILD_REF }} \
+            --container-env DAGSTER_PG_DB="dagster-storage" \
+            --container-env DAGSTER_PG_HOST="104.154.182.24" \
+            --container-env DAGSTER_PG_PASSWORD="$DAGSTER_PG_PASSWORD" \
+            --container-env DAGSTER_PG_USERNAME="postgres" \
+            --container-env FLY_ACCESS_TOKEN=${{ secrets.FLY_ACCESS_TOKEN }} \
             --container-env GCE_INSTANCE=${{ env.GCE_INSTANCE }} \
             --container-env GCE_INSTANCE_ZONE=${{ env.GCE_INSTANCE_ZONE }} \
             --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }} \
-            --container-env AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
-            --container-env AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
-            --container-env AWS_DEFAULT_REGION=${{ secrets.AWS_DEFAULT_REGION }} \
-            --container-env DAGSTER_PG_USERNAME="postgres" \
-            --container-env DAGSTER_PG_PASSWORD="$DAGSTER_PG_PASSWORD" \
-            --container-env DAGSTER_PG_HOST="104.154.182.24" \
-            --container-env DAGSTER_PG_DB="dagster-storage" \
-            --container-env FLY_ACCESS_TOKEN=${{ secrets.FLY_ACCESS_TOKEN }} \
+            --container-env GITHUB_ACTION_TRIGGER=${{ github.event_name }} \
+            --container-env NIGHTLY_TAG=${{ env.NIGHTLY_TAG }} \
             --container-env PUDL_BOT_PAT=${{ secrets.PUDL_BOT_PAT }} \
+            --container-env PUDL_GCS_OUTPUT=${{ env.PUDL_GCS_OUTPUT }}
+            --container-env PUDL_SETTINGS_YML="/home/mambauser/pudl/src/pudl/package_data/settings/etl_full.yml" \
+            --container-env SLACK_TOKEN=${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }} \
             --container-env ZENODO_SANDBOX_TOKEN_PUBLISH=${{ secrets.ZENODO_SANDBOX_TOKEN_PUBLISH }} \
             --container-env ZENODO_TARGET_ENV=${{ (startsWith(github.ref_name, 'v20') && 'production') || 'sandbox' }} \
             --container-env ZENODO_TOKEN_UPLOAD=${{ secrets.ZENODO_TOKEN_UPLOAD }} \
-            --container-env PUDL_SETTINGS_YML="/home/mambauser/pudl/src/pudl/package_data/settings/etl_full.yml" \
-            --container-env PUDL_GCS_OUTPUT=${{ env.PUDL_GCS_OUTPUT }}
             --output ${{ env.BATCH_JOB_JSON }}
 
-      # Start the VM
+      # Start the batch job
       - name: Kick off batch job
         run: gcloud batch jobs submit --job-prefix run-etl-test --config ${{ env.BATCH_JOB_JSON }} --location us-west1
 
