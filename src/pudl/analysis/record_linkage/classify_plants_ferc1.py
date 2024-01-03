@@ -27,7 +27,6 @@ _FUEL_COLS = [
 ]
 
 
-# ferc_dataframe_embedder = embed_dataframe.dataframe_embedder_factory(
 dataframe_vectorizers = {
     "plant_name": embed_dataframe.ColumnVectorizer(
         transform_steps=[
@@ -79,7 +78,6 @@ dataframe_vectorizers = {
         columns=_FUEL_COLS,
     ),
 }
-# )
 
 
 @op
