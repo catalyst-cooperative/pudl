@@ -1191,7 +1191,22 @@ def _out_ferc1__explosion_tags(table_dimensions_ferc1) -> pd.DataFrame:
         .reset_index()
         .drop(columns=["notes"])
     )
-    return tags_all
+    # Add the correction records to the tags with the same tags as the parent
+    idx = list(NodeId._fields)
+    correction_index = (
+        table_dimensions_ferc1[
+            ~table_dimensions_ferc1.xbrl_factoid.str.endswith("_correction")
+        ]
+        .set_index(idx)
+        .index
+    )
+    corrections = tags_all.set_index(idx)
+    corrections = (
+        corrections.loc[corrections.index.intersection(correction_index)]
+        .reset_index()
+        .assign(xbrl_factoid=lambda x: x.xbrl_factoid + "_correction")
+    )
+    return pd.concat([tags_all, corrections])
 
 
 def _get_tags(file_name: str, table_dimensions_ferc1: pd.DataFrame) -> pd.DataFrame:
@@ -1236,7 +1251,10 @@ def _aggregatable_dimension_tags(
         )
         .set_index(idx)
     )
-    table_dimensions_ferc1 = table_dimensions_ferc1.set_index(idx)
+    # don't include the corrections
+    table_dimensions_ferc1 = table_dimensions_ferc1[
+        ~table_dimensions_ferc1.xbrl_factoid.str.endswith("_correction")
+    ].set_index(idx)
     tags_df = pd.concat(
         [
             tags_df,
@@ -2774,3 +2792,20 @@ def nodes_to_df(calc_forest: nx.DiGraph, nodes: list[NodeId]) -> pd.DataFrame:
     except AttributeError:
         tags = pd.DataFrame()
     return pd.concat([index, tags], axis="columns")
+
+
+def out_ferc1__yearly_rate_base(
+    exploded_balance_sheet_assets_ferc1, exploded_balance_sheet_liabilities_ferc1
+):
+    """Make a table of only rate-base data."""
+    in_rate_base = pd.concat(
+        [
+            exploded_balance_sheet_assets_ferc1[
+                exploded_balance_sheet_assets_ferc1.tags_in_rate_base == "yes"
+            ],
+            exploded_balance_sheet_liabilities_ferc1[
+                exploded_balance_sheet_liabilities_ferc1.tags_in_rate_base == "yes"
+            ],
+        ]
+    ).drop(columns=["tags_in_rate_base"])
+    return in_rate_base
