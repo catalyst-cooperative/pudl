@@ -378,7 +378,7 @@ class Datastore:
             if self._cache.contains(res):
                 logger.info(f"Retrieved {res} from cache.")
                 contents = self._cache.get(res)
-                logger.debug(f"Got resource {res} from cache.")
+                logger.info(f"Got resource {res} from cache.")
                 if not self._cache.is_optimally_cached(res):
                     logger.info(f"{res} was not optimally cached yet, adding.")
                     self._cache.add(res, contents)
