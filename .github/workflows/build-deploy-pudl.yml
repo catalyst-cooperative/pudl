@@ -92,6 +92,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build image and push to Docker Hub
+        id: docker-build
         if: ${{ env.SKIP_BUILD != 'true' }}
         uses: docker/build-push-action@v5
         with:
@@ -127,7 +128,7 @@ jobs:
             --metadata-from-file startup-script=./docker/vm_startup_script.sh
           gcloud compute instances update-container "$GCE_INSTANCE" \
             --zone "$GCE_INSTANCE_ZONE" \
-            --container-image "docker.io/catalystcoop/pudl-etl:${{ env.BUILD_REF }}" \
+            --container-image "docker.io/catalystcoop/pudl-etl@${{ steps.docker-build.outputs.digest }}" \
             --container-command "micromamba" \
             --container-arg="run" \
             --container-arg="--prefix" \
