@@ -97,6 +97,44 @@ API_IGNORE_COLS = {
 }
 """Set: The set of EPA CEMS columns to ignore when reading data."""
 
+API_DTYPE_DICT = {
+    "State": pd.CategoricalDtype(),
+    "Facility Name": pd.StringDtype(),  # Not reading from CSV
+    "Facility ID": pd.Int16Dtype(),  # unique facility id for internal EPA database management (ORIS code)
+    "Unit ID": pd.StringDtype(),
+    "Associated Stacks": pd.StringDtype(),
+    # These op_date, op_hour, and op_time variables get converted to
+    # operating_date, operating_datetime and operating_time_interval in
+    # transform/epacems.py
+    "Date": pd.StringDtype(),
+    "Hour": pd.Int16Dtype(),
+    "Operating Time": pd.Float32Dtype(),
+    "Gross Load (MW)": pd.Float64Dtype(),
+    "Steam Load (1000 lb/hr)": pd.Float64Dtype(),
+    "SO2 Mass (lbs)": pd.Float64Dtype(),
+    "SO2 Mass Measure Indicator": pd.CategoricalDtype(),
+    "SO2 Rate (lbs/mmBtu)": pd.Float64Dtype(),  # Not reading from CSV
+    "SO2 Rate Measure Indicator": pd.CategoricalDtype(),  # Not reading from CSV
+    "NOx Rate (lbs/mmBtu)": pd.Float64Dtype(),  # Not reading from CSV
+    "NOx Rate Measure Indicator": pd.CategoricalDtype(),  # Not reading from CSV
+    "NOx Mass (lbs)": pd.Float64Dtype(),
+    "NOx Mass Measure Indicator": pd.CategoricalDtype(),
+    "CO2 Mass (short tons)": pd.Float64Dtype(),
+    "CO2 Mass Measure Indicator": pd.CategoricalDtype(),
+    "CO2 Rate (short tons/mmBtu)": pd.Float64Dtype(),  # Not reading from CSV
+    "CO2 Rate Measure Indicator": pd.CategoricalDtype(),  # Not reading from CSV
+    "Heat Input (mmBtu)": pd.Float64Dtype(),
+    "Heat Input Measure Indicator": pd.CategoricalDtype(),
+    "Primary Fuel Type": pd.CategoricalDtype(),
+    "Secondary Fuel Type": pd.CategoricalDtype(),
+    "Unit Type": pd.CategoricalDtype(),
+    "SO2 Controls": pd.CategoricalDtype(),
+    "NOx Controls": pd.CategoricalDtype(),
+    "PM Controls": pd.CategoricalDtype(),
+    "Hg Controls": pd.CategoricalDtype(),
+    "Program Code": pd.CategoricalDtype(),
+}
+
 
 class EpaCemsPartition(BaseModel):
     """Represents EpaCems partition identifying unique resource file."""
@@ -143,13 +181,20 @@ class EpaCemsDatastore:
         with archive.open(str(partition.get_quarterly_file()), "r") as csv_file:
             logger.info(f"Opened zipfile for partition {partition}")
             df = self._csv_to_dataframe(
-                csv_file, ignore_cols=API_IGNORE_COLS, rename_dict=API_RENAME_DICT
+                csv_file,
+                ignore_cols=API_IGNORE_COLS,
+                rename_dict=API_RENAME_DICT,
+                dtype_dict=API_DTYPE_DICT,
             )
             logger.info(f"Returning DF for {partition}.")
         return df
 
     def _csv_to_dataframe(
-        self, csv_file: Path, ignore_cols: dict[str, str], rename_dict: dict[str, str]
+        self,
+        csv_file: Path,
+        ignore_cols: dict[str, str],
+        rename_dict: dict[str, str],
+        dtype_dict: dict[str, type],
     ) -> pd.DataFrame:
         """Convert a CEMS csv file into a :class:`pandas.DataFrame`.
 
@@ -163,6 +208,7 @@ class EpaCemsDatastore:
             csv_file,
             index_col=False,
             usecols=lambda col: col not in ignore_cols,
+            dtype=dtype_dict,
             low_memory=False,
         ).rename(columns=rename_dict)
 
