@@ -135,16 +135,17 @@ class EpaCemsDatastore:
 
     def get_data_frame(self, partition: EpaCemsPartition) -> pd.DataFrame:
         """Constructs dataframe from a zipfile for a given (year_quarter) partition."""
-        logger.debug(f"Getting dataframe for {partition}")
+        logger.info(f"Getting dataframe for {partition}")
         archive = self.datastore.get_zipfile_resource(
             "epacems", **partition.get_filters()
         )
-        logger.debug(f"Got zipfile for partition {partition}")
+        logger.info(f"Got zipfile for partition {partition}")
         with archive.open(str(partition.get_quarterly_file()), "r") as csv_file:
-            logger.debug(f"Opened zipfile for partition {partition}")
+            logger.info(f"Opened zipfile for partition {partition}")
             df = self._csv_to_dataframe(
                 csv_file, ignore_cols=API_IGNORE_COLS, rename_dict=API_RENAME_DICT
             )
+            logger.info(f"Returning DF for {partition}.")
         return df
 
     def _csv_to_dataframe(
@@ -180,6 +181,7 @@ def extract(year_quarter: str, ds: Datastore) -> pd.DataFrame:
     year = partition.year
     # We have to assign the reporting year for partitioning purposes
     try:
+        logger.info(f"Processing data frame for {partition}")
         df = ds.get_data_frame(partition).assign(year=year)
     # If the requested quarter is not found, return an empty df with expected columns:
     except KeyError:
