@@ -381,14 +381,8 @@ class InputManager:
         self.plant_parts_eia_true = None
         self.plants_ferc1 = None
         self.train_df = None
-        self.train_index = None
         self.train_ferc1 = None
         self.train_eia = None
-
-    def get_train_index(self) -> pd.MultiIndex:
-        """Get the index for the training data."""
-        self.train_index = self.get_train_df().index
-        return self.train_index
 
     def get_plant_parts_eia_true(self, clobber: bool = False) -> pd.DataFrame:
         """Get the EIA plant-parts with only the unique granularities."""
@@ -541,7 +535,6 @@ class InputManager:
         # we want both the df version and just the index; skl uses just the
         # index and we use the df in merges and such
         self.train_df = self.get_train_df()
-        self.train_index = self.get_train_index()
 
         # generate the list of the records in the EIA and FERC records that
         # exist in the training data

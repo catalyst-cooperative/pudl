@@ -227,6 +227,7 @@ def _prep_ppe(ppe, utils_eia860) -> pd.DataFrame:
     logger.debug("Prepping Plant Parts Table")
 
     # Add utilty name eia and only take relevant columns
+    """
     ppe_out = (
         ppe.reset_index()
         .merge(
@@ -237,6 +238,8 @@ def _prep_ppe(ppe, utils_eia860) -> pd.DataFrame:
         )[RELEVANT_COLS_PPE]
         .copy()
     )
+    """
+    ppe_out = ppe.reset_index()[RELEVANT_COLS_PPE].copy()
 
     return ppe_out
 

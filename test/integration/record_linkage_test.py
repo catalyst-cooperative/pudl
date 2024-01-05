@@ -10,9 +10,10 @@ import pytest
 from dagster import graph
 
 import pudl
+from pudl.analysis.record_linkage import embed_dataframe
 from pudl.analysis.record_linkage.classify_plants_ferc1 import (
     _FUEL_COLS,
-    ferc_dataframe_embedder,
+    dataframe_vectorizers,
 )
 from pudl.analysis.record_linkage.link_cross_year import link_ids_cross_year
 from pudl.transform.params.ferc1 import (
@@ -218,14 +219,19 @@ def test_classify_plants_ferc1(mock_ferc1_plants_df):
     """Test the FERC inter-year plant linking model."""
 
     @graph
-    def _link_ids(df: pd.DataFrame):
-        feature_matrix = ferc_dataframe_embedder(df)
+    def _link_ids(df: pd.DataFrame, vectorizers: dict):
+        feature_matrix = embed_dataframe.embed_dataframe_graph(df, vectorizers)
         label_df = link_ids_cross_year(df, feature_matrix)
         return label_df
 
     mock_ferc1_plants_df["plant_id_ferc1"] = (
         _link_ids.to_job()
-        .execute_in_process(input_values={"df": mock_ferc1_plants_df})
+        .execute_in_process(
+            input_values={
+                "df": mock_ferc1_plants_df,
+                "vectorizers": dataframe_vectorizers,
+            }
+        )
         .output_value()["record_label"]
     )
 

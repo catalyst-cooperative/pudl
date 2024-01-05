@@ -19,12 +19,12 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from pudl.analysis.eia_ferc1_train import (
-    generate_all_override_spreadsheets,
-    validate_override_fixes,
-)
 from pudl.analysis.record_linkage.eia_ferc1_record_linkage import (
     restrict_train_connections_on_date_range,
+)
+from pudl.analysis.record_linkage.eia_ferc1_train import (
+    generate_all_override_spreadsheets,
+    validate_override_fixes,
 )
 
 logger = logging.getLogger(__name__)

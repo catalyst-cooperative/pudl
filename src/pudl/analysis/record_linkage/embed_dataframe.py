@@ -269,10 +269,10 @@ class NumericSimilarityScorer(TransformStep):
 
     # TODO: include docstring about what they parameters are
     name: str = "numeric_sim"
-    col1: str
-    col2: str
+    col1: str  # name of the first column to compare
+    col2: str  # name of the second column to compare
     output_name: str
-    method: str = "linear"
+    method: str = "linear"  # name of the function transform method
     scale: float = 1.0
     offset: float = 0.0
     origin: float = 0.0
