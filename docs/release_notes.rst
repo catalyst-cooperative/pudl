@@ -3,7 +3,7 @@ PUDL Release Notes
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-v2023.12.XX
+v2024.01.XX
 ---------------------------------------------------------------------------------------
 * The ``epacems_to_parquet`` and ``state_demand`` scripts have been retired in favor of
   using the Dagster UI. See :issue:`3107` and :pr:`3086`. Visualizations of hourly
@@ -17,6 +17,13 @@ v2023.12.XX
   fixed, and can be used to generate `GeoParquet <https://geoparquet.org/>`__
   outputs describing historical utility and balancing authority service territories. See
   :issue:`1174` and :pr:`3086`.
+* Deprecated the ``dev`` branch and updated our nightly builds and GitHub workflow to
+  use three persistent branches: ``main`` for bleeding edge changes, ``nightly`` for the
+  most recent commit to have a successful nightly build output, and ``stable`` for the
+  most recently released version of PUDL. The ``nightly`` and ``stable`` branches are
+  protected and automatically updated. Build outputs are now written to
+  ``gs://builds.catalyst.coop`` and retained for 30 days. See issues :issue:`3140,3179`
+  and PRs :pr:`3195,3206,3212`
 
 Data Coverage
 ^^^^^^^^^^^^^
