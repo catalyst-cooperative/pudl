@@ -100,7 +100,7 @@ API_IGNORE_COLS = {
 API_DTYPE_DICT = {
     "State": pd.CategoricalDtype(),
     "Facility Name": pd.StringDtype(),  # Not reading from CSV
-    "Facility ID": pd.Int16Dtype(),  # unique facility id for internal EPA database management (ORIS code)
+    "Facility ID": pd.Int32Dtype(),  # unique facility id for internal EPA database management (ORIS code)
     "Unit ID": pd.StringDtype(),
     "Associated Stacks": pd.StringDtype(),
     # These op_date, op_hour, and op_time variables get converted to
@@ -109,21 +109,21 @@ API_DTYPE_DICT = {
     "Date": pd.StringDtype(),
     "Hour": pd.Int16Dtype(),
     "Operating Time": pd.Float32Dtype(),
-    "Gross Load (MW)": pd.Float64Dtype(),
-    "Steam Load (1000 lb/hr)": pd.Float64Dtype(),
-    "SO2 Mass (lbs)": pd.Float64Dtype(),
+    "Gross Load (MW)": pd.Float32Dtype(),
+    "Steam Load (1000 lb/hr)": pd.Float32Dtype(),
+    "SO2 Mass (lbs)": pd.Float32Dtype(),
     "SO2 Mass Measure Indicator": pd.CategoricalDtype(),
-    "SO2 Rate (lbs/mmBtu)": pd.Float64Dtype(),  # Not reading from CSV
+    "SO2 Rate (lbs/mmBtu)": pd.Float32Dtype(),  # Not reading from CSV
     "SO2 Rate Measure Indicator": pd.CategoricalDtype(),  # Not reading from CSV
-    "NOx Rate (lbs/mmBtu)": pd.Float64Dtype(),  # Not reading from CSV
+    "NOx Rate (lbs/mmBtu)": pd.Float32Dtype(),  # Not reading from CSV
     "NOx Rate Measure Indicator": pd.CategoricalDtype(),  # Not reading from CSV
-    "NOx Mass (lbs)": pd.Float64Dtype(),
+    "NOx Mass (lbs)": pd.Float32Dtype(),
     "NOx Mass Measure Indicator": pd.CategoricalDtype(),
-    "CO2 Mass (short tons)": pd.Float64Dtype(),
+    "CO2 Mass (short tons)": pd.Float32Dtype(),
     "CO2 Mass Measure Indicator": pd.CategoricalDtype(),
-    "CO2 Rate (short tons/mmBtu)": pd.Float64Dtype(),  # Not reading from CSV
+    "CO2 Rate (short tons/mmBtu)": pd.Float32Dtype(),  # Not reading from CSV
     "CO2 Rate Measure Indicator": pd.CategoricalDtype(),  # Not reading from CSV
-    "Heat Input (mmBtu)": pd.Float64Dtype(),
+    "Heat Input (mmBtu)": pd.Float32Dtype(),
     "Heat Input Measure Indicator": pd.CategoricalDtype(),
     "Primary Fuel Type": pd.CategoricalDtype(),
     "Secondary Fuel Type": pd.CategoricalDtype(),
@@ -191,26 +191,32 @@ class EpaCemsDatastore:
 
     def _csv_to_dataframe(
         self,
-        csv_file: Path,
+        csv_path: Path,
         ignore_cols: dict[str, str],
         rename_dict: dict[str, str],
         dtype_dict: dict[str, type],
+        chunksize: int = 100_000,
     ) -> pd.DataFrame:
         """Convert a CEMS csv file into a :class:`pandas.DataFrame`.
 
         Args:
-            csv (file-like object): data to be read
+            csv_path: Path to CSV file containing data to read.
 
         Returns:
-            A DataFrame containing the contents of the CSV file.
+            A DataFrame containing the filtered and dtyped contents of the CSV file.
         """
-        return pd.read_csv(
-            csv_file,
+        chunk_iter = pd.read_csv(
+            csv_path,
             index_col=False,
             usecols=lambda col: col not in ignore_cols,
             dtype=dtype_dict,
-            low_memory=False,
-        ).rename(columns=rename_dict)
+            chunksize=chunksize,
+            low_memory=True,
+            parse_dates=["Date"],
+        )
+        df = pd.concat(chunk_iter)
+        dtypes = {k: v for k, v in dtype_dict.items() if k in df.columns}
+        return df.astype(dtypes).rename(columns=rename_dict)
 
 
 def extract(year_quarter: str, ds: Datastore) -> pd.DataFrame:
