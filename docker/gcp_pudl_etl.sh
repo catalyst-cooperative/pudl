@@ -62,14 +62,34 @@ function copy_outputs_to_distribution_bucket() {
     # Only attempt to update outputs if we have a real value of BUILD_REF
     # This avoids accidentally blowing away the whole bucket if it's not set.
     if [[ -n "$BUILD_REF" ]]; then
-        echo "Removing old $BUILD_REF outputs from GCP distributon bucket." && \
-        gsutil -m -u "$GCP_BILLING_PROJECT" rm -r "gs://pudl.catalyst.coop/$BUILD_REF" && \
-        echo "Copying outputs to GCP distribution bucket" && \
-        gsutil -m -u "$GCP_BILLING_PROJECT" cp -r "$PUDL_OUTPUT/*" "gs://pudl.catalyst.coop/$BUILD_REF" && \
-        echo "Removing old $BUILD_REF outputs from AWS distributon bucket." && \
-        aws s3 rm "s3://pudl.catalyst.coop/$BUILD_REF" --recursive && \
+        if [[ "$GITHUB_ACTION_TRIGGER" == "schedule" ]]; then
+            # If running nightly builds, copy outputs to the "nightly" bucket path
+            DIST_PATH="nightly"
+        else
+            # Otherwise we want to copy them to a directory named after the tag/ref
+            DIST_PATH="$BUILD_REF"
+        fi
+        echo "Removing old $DIST_PATH outputs from GCS distributon bucket." && \
+        gsutil -m -u "$GCP_BILLING_PROJECT" rm -r "gs://pudl.catalyst.coop/$DIST_PATH" && \
+        echo "Copying outputs to GCS distribution bucket" && \
+        gsutil -m -u "$GCP_BILLING_PROJECT" cp -r "$PUDL_OUTPUT/*" "gs://pudl.catalyst.coop/$DIST_PATH" && \
+        echo "Removing old $DIST_PATH outputs from AWS distributon bucket." && \
+        aws s3 rm "s3://pudl.catalyst.coop/$DIST_PATH" --recursive && \
         echo "Copying outputs to AWS distribution bucket" && \
-        aws s3 cp "$PUDL_OUTPUT/" "s3://pudl.catalyst.coop/$BUILD_REF" --recursive
+        aws s3 cp "$PUDL_OUTPUT/" "s3://pudl.catalyst.coop/$DIST_PATH" --recursive
+
+        # If running a tagged release, ALSO update the stable distribution bucket path:
+        if [[ "$GITHUB_ACTION_TRIGGER" == "push" && "$BUILD_REF" == v20* ]]; then
+            echo "Removing old stable outputs from GCS distributon bucket." && \
+            gsutil -m -u "$GCP_BILLING_PROJECT" rm -r "gs://pudl.catalyst.coop/stable" && \
+            echo "Copying tagged version outputs to stable GCS distribution bucket" && \
+            gsutil -m -u "$GCP_BILLING_PROJECT" cp -r "$PUDL_OUTPUT/*" "gs://pudl.catalyst.coop/stable" && \
+            echo "Removing old stable outputs from AWS S3 distributon bucket." && \
+            aws s3 rm "s3://pudl.catalyst.coop/stable" --recursive && \
+            echo "Copying tagged version outputs to stable AWS S3 distribution bucket" && \
+            aws s3 cp "$PUDL_OUTPUT/" "s3://pudl.catalyst.coop/stable" --recursive
+
+        fi
     fi
 }
 
@@ -89,7 +109,7 @@ function notify_slack() {
         echo "Invalid deployment status"
         exit 1
     fi
-    message+="See https://console.cloud.google.com/storage/browser/nightly-build-outputs.catalyst.coop/$BUILD_ID for logs and outputs."
+    message+="See https://console.cloud.google.com/storage/browser/builds.catalyst.coop/$BUILD_ID for logs and outputs."
 
     send_slack_msg "$message"
 }
@@ -130,8 +150,9 @@ CLEAN_UP_OUTPUTS_SUCCESS=0
 DISTRIBUTION_BUCKET_SUCCESS=0
 ZENODO_SUCCESS=0
 
-# Set PUDL_GCS_OUTPUT *only* if it is currently unset
-: "${PUDL_GCS_OUTPUT:=gs://nightly-build-outputs.catalyst.coop/$BUILD_ID}"
+# Set these variables *only* if they are not already set by the container or workflow:
+: "${PUDL_GCS_OUTPUT:=gs://builds.catalyst.coop/$BUILD_ID}"
+: "${PUDL_SETTINGS_YML:=home/mambauser/pudl/src/pudl/package_data/settings/etl_full.yml}"
 
 # Run ETL. Copy outputs to GCS and shutdown VM if ETL succeeds or fails
 # 2>&1 redirects stderr to stdout.
@@ -148,16 +169,16 @@ if [[ $ETL_SUCCESS == 0 ]]; then
         UPDATE_NIGHTLY_SUCCESS=${PIPESTATUS[0]}
     fi
 
-    # Deploy the updated data to datasette if we're on dev
-    if [[ "$BUILD_REF" == "dev" ]]; then
+    # Deploy the updated data to datasette if we're on main
+    if [[ "$BUILD_REF" == "main" ]]; then
         python ~/pudl/devtools/datasette/publish.py 2>&1 | tee -a "$LOGFILE"
         DATASETTE_SUCCESS=${PIPESTATUS[0]}
     fi
 
     # TODO: this behavior should be controlled by on/off switch here and this logic
     # should be moved to the triggering github action. Having it here feels fragmented.
-    # Distribute outputs if branch is dev or the build was triggered by tag push
-    if [[ "$GITHUB_ACTION_TRIGGER" == "push" || "$BUILD_REF" == "dev" ]]; then
+    # Distribute outputs if branch is main or the build was triggered by tag push
+    if [[ "$GITHUB_ACTION_TRIGGER" == "push" || "$BUILD_REF" == "main" ]]; then
         # Remove some cruft from the builds that we don't want to distribute
         clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
         CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}

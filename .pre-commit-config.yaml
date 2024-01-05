@@ -98,7 +98,7 @@ ci:
 
     For more information, see https://pre-commit.ci
   autofix_prs: true
-  autoupdate_branch: dev
+  autoupdate_branch: main
   autoupdate_commit_msg: "[pre-commit.ci] pre-commit autoupdate"
   autoupdate_schedule: weekly
   skip: [unit-tests, nb-output-clear, conda-lock]
