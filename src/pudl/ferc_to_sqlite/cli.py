@@ -115,6 +115,7 @@ def ferc_to_sqlite_job_factory(
 @click.option(
     "--gcs-cache-path",
     type=str,
+    default="",
     help=(
         "Load cached inputs from Google Cloud Storage if possible. This is usually "
         "much faster and more reliable than downloading from Zenodo directly. The "
