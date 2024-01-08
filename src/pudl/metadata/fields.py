@@ -372,6 +372,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "city": {
         "type": "string",
         # TODO: Disambiguate column. City means different things in different tables.
+        "description": "Name of the city.",
     },
     "co2_mass_measurement_code": {
         "type": "string",
@@ -2581,6 +2582,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "street_address": {
         "type": "string",
         # TODO: Disambiguate as this means different things in different tables.
+        "description": "Physical street address.",
     },
     "subcritical_tech": {
         "type": "boolean",
