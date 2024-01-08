@@ -35,7 +35,7 @@ from typing import Literal
 
 import numpy as np
 import pandas as pd
-from dagster import AssetOut, graph_multi_asset, op
+from dagster import Out, asset, graph_asset, op
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import precision_recall_fscore_support
 from sklearn.model_selection import GridSearchCV, train_test_split
@@ -204,6 +204,37 @@ def get_compiled_input_manager(plants_all_ferc1, fbp_ferc1, plant_parts_eia):
     return inputs
 
 
+@op(out={"all_pairs_df": Out(), "train_pairs_df": Out()})
+def get_pairs_dfs(inputs):
+    """Get a dataframe with all possible FERC to EIA record pairs.
+
+    Merge the FERC and EIA records on ``block_col`` to generate possible
+    record pairs for the matching model. First do this with all record
+    pairs, then with only the training data records.
+
+    Arguments:
+        inputs: :class:`InputManager` object.
+
+    Returns:
+        all_pairs_df: Dataframe with all possible record pairs
+        train_pairs_df: Dataframe with all possible record pairs from the
+            training data.
+    """
+    ferc1_df = inputs.get_plants_ferc1().reset_index()
+    eia_df = inputs.get_plant_parts_eia_true().reset_index()
+    block_col = "plant_id_report_year_util_id"
+    all_pairs_df = ferc1_df.merge(
+        eia_df, how="inner", on=block_col, suffixes=("_ferc1", "_eia")
+    ).set_index(["record_id_ferc1", "record_id_eia"])
+    ferc1_train_df = inputs.get_train_ferc1().reset_index()
+    eia_train_df = inputs.get_train_eia().reset_index()
+    block_col = "plant_id_report_year_util_id"
+    train_pairs_df = ferc1_train_df.merge(
+        eia_train_df, how="inner", on=block_col, suffixes=("_ferc1", "_eia")
+    ).set_index(["record_id_ferc1", "record_id_eia"])
+    return (all_pairs_df, train_pairs_df)
+
+
 @op
 def get_all_pairs_df(inputs):
     """Get a dataframe with all possible FERC to EIA record pairs.
@@ -300,14 +331,8 @@ def get_pair_vectorizers():
     return pair_vectorizers
 
 
-@graph_multi_asset(
-    outs={
-        "out_pudl__yearly_assn_eia_ferc1_plant_parts": AssetOut(
-            io_manager_key="pudl_sqlite_io_manager"
-        )
-    }
-)
-def out_pudl__yearly_assn_eia_ferc1_plant_parts(
+@graph_asset
+def _out_pudl__yearly_assn_eia_ferc1_plant_parts(
     out_ferc1__yearly_all_plants: pd.DataFrame,
     out_ferc1__yearly_steam_plants_fuel_by_plant_sched402: pd.DataFrame,
     out_eia__yearly_plant_parts: pd.DataFrame,
@@ -325,8 +350,9 @@ def out_pudl__yearly_assn_eia_ferc1_plant_parts(
         out_ferc1__yearly_steam_plants_fuel_by_plant_sched402,
         out_eia__yearly_plant_parts,
     )
-    all_pairs_df = get_all_pairs_df(inputs)
-    train_pairs_df = get_train_pairs_df(inputs)
+    # all_pairs_df = get_all_pairs_df(inputs)
+    # train_pairs_df = get_train_pairs_df(inputs)
+    all_pairs_df, train_pairs_df = get_pairs_dfs(inputs)
     vectorizer = get_pair_vectorizers()
     features_all = embed_dataframe.embed_dataframe_graph(all_pairs_df, vectorizer)
     features_train = embed_dataframe.embed_dataframe_graph(train_pairs_df, vectorizer)
@@ -341,6 +367,22 @@ def out_pudl__yearly_assn_eia_ferc1_plant_parts(
     # join EIA and FERC columns back on
     ferc1_eia_connected_df = get_match_full_records(best_match_df, inputs)
     return ferc1_eia_connected_df
+
+
+@asset(
+    name="out_pudl__yearly_assn_eia_ferc1_plant_parts",
+    io_manager_key="pudl_sqlite_io_manager",
+    compute_kind="Python",
+)
+def out_pudl__yearly_assn_eia_ferc1_plant_parts(
+    _out_pudl__yearly_assn_eia_ferc1_plant_parts: pd.DataFrame,
+) -> pd.DataFrame:
+    """Linkage between FERC1 plants and EIA plant parts for persistent storage.
+
+    Args:
+        out_eia__yearly_plant_parts: The EIA plant parts list.
+    """
+    return _out_pudl__yearly_assn_eia_ferc1_plant_parts
 
 
 class InputManager:
