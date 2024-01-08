@@ -2,22 +2,30 @@
 # This script runs the entire ETL and validation tests in a docker container on a Google Compute Engine instance.
 # This script won't work locally because it needs adequate GCP permissions.
 
+LOGFILE="${PUDL_OUTPUT}/${BUILD_ID}-pudl-etl.log"
+
 function send_slack_msg() {
+    echo "sending Slack message"
     curl -X POST -H "Content-type: application/json" -H "Authorization: Bearer ${SLACK_TOKEN}" https://slack.com/api/chat.postMessage --data "{\"channel\": \"C03FHB9N0PQ\", \"text\": \"$1\"}"
 }
 
 function upload_file_to_slack() {
+    echo "Uploading file to slack with comment $2"
     curl -F "file=@$1" -F "initial_comment=$2" -F channels=C03FHB9N0PQ -H "Authorization: Bearer ${SLACK_TOKEN}" https://slack.com/api/files.upload
 }
 
 function authenticate_gcp() {
     # Set the default gcloud project id so the zenodo-cache bucket
     # knows what project to bill for egress
+    echo "Authenticating to GCP"
     gcloud config set project "$GCP_BILLING_PROJECT"
 }
 
 function run_pudl_etl() {
+    echo "Running PUDL ETL"
     send_slack_msg ":large_yellow_circle: Deployment started for $BUILD_ID :floppy_disk:"
+    echo "Short circuiting run_pudl_etl" >> $LOGFILE
+    return 1
     authenticate_gcp && \
     alembic upgrade head && \
     ferc_to_sqlite \
@@ -53,6 +61,8 @@ function shutdown_vm() {
 }
 
 function save_outputs_to_gcs() {
+    echo "Short circuiting save_outputs_to_gcs" >> $LOGFILE
+    return 1
     echo "Copying outputs to GCP bucket $PUDL_GCS_OUTPUT" && \
     gsutil -m cp -r "$PUDL_OUTPUT" "$PUDL_GCS_OUTPUT" && \
     rm "$PUDL_OUTPUT/success"
@@ -61,6 +71,9 @@ function save_outputs_to_gcs() {
 function copy_outputs_to_distribution_bucket() {
     # Only attempt to update outputs if we have a real value of BUILD_REF
     # This avoids accidentally blowing away the whole bucket if it's not set.
+    echo "Copying outputs to distribution buckets"
+    echo "Short circuiting copy_outputs_to_distribution_bucket" >> $LOGFILE
+    return 1
     if [[ -n "$BUILD_REF" ]]; then
         if [[ "$GITHUB_ACTION_TRIGGER" == "schedule" ]]; then
             # If running nightly builds, copy outputs to the "nightly" bucket path
@@ -94,12 +107,15 @@ function copy_outputs_to_distribution_bucket() {
 }
 
 function zenodo_data_release() {
+    echo "Short circuiting zenodo_data_release" >> $LOGFILE
+    return 1
     echo "Creating a new PUDL data release on Zenodo." && \
     ~/pudl/devtools/zenodo/zenodo_data_release.py --publish --env "$1" --source-dir "$PUDL_OUTPUT"
 }
 
 function notify_slack() {
-    # Notify pudl-builds slack channel of deployment status
+    # Notify pudl-deployment slack channel of deployment status
+    echo "Notifying Slack about deployment status"
     if [[ "$1" == "success" ]]; then
         message=":large_green_circle: :sunglasses: :unicorn_face: :rainbow: The deployment succeeded!! :partygritty: :database_parrot: :blob-dance: :large_green_circle:\n\n "
     elif [[ "$1" == "failure" ]]; then
@@ -116,6 +132,8 @@ function notify_slack() {
 function update_nightly_branch() {
     # When building the image, GHA adds an HTTP basic auth header in git
     # config, which overrides the auth we set below. So we unset it.
+    echo "Short circuiting update_nightly_branch" >> $LOGFILE
+    return 1
     git config --unset http.https://github.com/.extraheader && \
     git config user.email "pudl@catalyst.coop" && \
     git config user.name "pudlbot" && \
@@ -131,6 +149,8 @@ function update_nightly_branch() {
 
 function clean_up_outputs_for_distribution() {
     # Compress the SQLite DBs for easier distribution
+    echo "Short circuiting clean_up_outputs_for_distribution" >> $LOGFILE
+    return 1
     gzip --verbose "$PUDL_OUTPUT"/*.sqlite && \
     # Remove redundant multi-file EPA CEMS outputs prior to distribution
     rm -rf "$PUDL_OUTPUT/core_epacems__hourly_emissions/" && \
