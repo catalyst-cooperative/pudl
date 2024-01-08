@@ -13,7 +13,7 @@ import pudl
 from pudl.analysis.record_linkage import embed_dataframe
 from pudl.analysis.record_linkage.classify_plants_ferc1 import (
     _FUEL_COLS,
-    dataframe_vectorizers,
+    get_vectorizers,
 )
 from pudl.analysis.record_linkage.link_cross_year import link_ids_cross_year
 from pudl.transform.params.ferc1 import (
@@ -229,7 +229,7 @@ def test_classify_plants_ferc1(mock_ferc1_plants_df):
         .execute_in_process(
             input_values={
                 "df": mock_ferc1_plants_df,
-                "vectorizers": dataframe_vectorizers,
+                "vectorizers": get_vectorizers(),
             }
         )
         .output_value()["record_label"]
