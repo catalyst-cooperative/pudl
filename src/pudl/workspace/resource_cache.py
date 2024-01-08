@@ -203,11 +203,8 @@ class LayeredCache(AbstractCache):
 
     def get(self, resource: PudlResourceKey) -> bytes:
         """Returns content of a given resource."""
-        logger.info(f"Getting resource {resource}")
         for i, cache in enumerate(self._caches):
-            logger.info(f"Getting {i}, {cache}")
             if cache.contains(resource):
-                logger.info(f"Cache contains {resource}. Getting cache.")
                 logger.debug(
                     f"get:{resource} found in {i}-th layer ({cache.__class__.__name__})."
                 )

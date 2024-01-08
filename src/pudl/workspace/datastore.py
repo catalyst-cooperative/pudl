@@ -376,13 +376,11 @@ class Datastore:
                 logger.info(f"{res} is already optimally cached.")
                 continue
             if self._cache.contains(res):
-                logger.info(f"Retrieved {res} from cache.")
                 contents = self._cache.get(res)
-                logger.info(f"Got resource {res} from cache.")
+                logger.info(f"Retrieved {res} from cache.")
                 if not self._cache.is_optimally_cached(res):
                     logger.info(f"{res} was not optimally cached yet, adding.")
                     self._cache.add(res, contents)
-                logger.info("Yielding resource {res} from cache")
                 yield (res, contents)
             elif not cached_only:
                 logger.info(f"Retrieved {res} from zenodo.")
@@ -396,7 +394,6 @@ class Datastore:
 
     def get_unique_resource(self, dataset: str, **filters: Any) -> bytes:
         """Returns content of a resource assuming there is exactly one that matches."""
-        logger.info("Getting unique resource.")
         res = self.get_resources(dataset, **filters)
         try:
             _, content = next(res)
@@ -410,7 +407,6 @@ class Datastore:
 
     def get_zipfile_resource(self, dataset: str, **filters: Any) -> zipfile.ZipFile:
         """Retrieves unique resource and opens it as a ZipFile."""
-        logger.info("Getting zipfile resource.")
         return zipfile.ZipFile(io.BytesIO(self.get_unique_resource(dataset, **filters)))
 
     def get_zipfile_resources(
