@@ -1,16 +1,14 @@
 ---
 name: Integrate New Year of Data
 about: Check-list for integrating a new year of data
-title: ''
+title: ""
 labels: new-data
-assignees: ''
-
+assignees: ""
 ---
 
 ### New year of data integration check-list:
 
-Based on the [Existing Data Updates Docs](https://catalystcoop-pudl.readthedocs.io/en/dev/dev/existing_data_updates.html)
-
+Based on the [Existing Data Updates Docs](https://catalystcoop-pudl.readthedocs.io/en/latest/dev/existing_data_updates.html)
 
 - [ ] [Obtain fresh data](https://catalystcoop-pudl.readthedocs.io/en/latest/dev/existing_data_updates.html#obtain-fresh-data)
 - [ ] [Map the structure of the new data](https://catalystcoop-pudl.readthedocs.io/en/latest/dev/existing_data_updates.html#map-the-structure-of-the-new-data)
