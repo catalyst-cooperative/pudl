@@ -624,7 +624,9 @@ class Field(PudlMeta):
             name=self.name,
             type=self.to_pyarrow_dtype(),
             nullable=(not self.constraints.required),
-            metadata={"description": self.description},
+            metadata={
+                "description": self.description if self.description is not None else ""
+            },
         )
 
     def to_sql(  # noqa: C901
@@ -1318,9 +1320,10 @@ class Resource(PudlMeta):
         """Construct a PyArrow schema for the resource."""
         fields = [field.to_pyarrow() for field in self.schema.fields]
         metadata = {
-            "description": self.description,
-            "primary_key": ",".join(self.schema.primary_key),
+            "description": self.description if self.description is not None else ""
         }
+        if self.schema.primary_key is not None:
+            metadata |= {"primary_key": ",".join(self.schema.primary_key)}
         return pa.schema(fields=fields, metadata=metadata)
 
     def to_pandas_dtypes(self, **kwargs: Any) -> dict[str, str | pd.CategoricalDtype]:
