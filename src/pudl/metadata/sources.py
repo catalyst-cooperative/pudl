@@ -299,7 +299,7 @@ SOURCES: dict[str, Any] = {
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
-    "core_epa__assn_eia_epacamd": {
+    "epacamd_eia": {
         "title": "EPA CAMD to EIA Power Sector Data Crosswalk",
         "path": "https://github.com/USEPA/camd-eia-crosswalk",
         "description": (
