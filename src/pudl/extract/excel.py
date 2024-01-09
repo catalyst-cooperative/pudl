@@ -44,6 +44,12 @@ class Metadata:
     * column_map/${page}.csv currently informs us how to translate input column
       names to standardized pudl names for given (partition, input_col_name).
       Relevant page is encoded in the filename.
+
+    Optional file:
+
+    * page_part_map.csv tells us what page is connected to an additional partition
+      outside the partition included in the rest of the mapping files (usually year).
+
     """
 
     # TODO: we could validate whether metadata is valid for all year. We should have
@@ -63,6 +69,13 @@ class Metadata:
         self._skipfooter = self._load_csv(pkg, "skipfooter.csv")
         self._sheet_name = self._load_csv(pkg, "page_map.csv")
         self._file_name = self._load_csv(pkg, "file_map.csv")
+        # Most excel extracted datasets do not have a page to part map. If they
+        # don't, assign null.
+        try:
+            self._page_part_map = self._load_csv(pkg, "page_part_map.csv")
+        except FileNotFoundError:
+            self._page_part_map = pd.DataFrame()
+
         column_map_pkg = pkg + ".column_maps"
         self._column_map = {}
         for res_path in importlib.resources.files(column_map_pkg).iterdir():
@@ -233,6 +246,17 @@ class GenericExtractor:
         """Provide custom dtypes for given page and partition."""
         return {}
 
+    def zipfile_resource_partitions(self, page, **partition) -> dict:
+        """Get partition used for the returning a zipfile from the datastore.
+
+        This method appends any page to partition mapping in
+        :attr:`METADATA._page_part_map`. Most datasets do not have page to part
+        maps and just return the same partition that is passed in.
+        """
+        if not self.METADATA._page_part_map.empty:
+            partition.update(self.METADATA._page_part_map.loc[page])
+        return partition
+
     def extract(self, **partitions):
         """Extracts dataframes.
 
@@ -343,7 +367,10 @@ class GenericExtractor:
                 )
                 excel_file = pd.ExcelFile(res)
             except KeyError:
-                zf = self.ds.get_zipfile_resource(self._dataset_name, **partition)
+                zf = self.ds.get_zipfile_resource(
+                    self._dataset_name,
+                    **self.zipfile_resource_partitions(page, **partition),
+                )
 
                 # If loading the excel file from the zip fails then try to open a dbf file.
                 extension = pathlib.Path(xlsx_filename).suffix.lower()
