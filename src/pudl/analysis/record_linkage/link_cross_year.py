@@ -214,7 +214,7 @@ def split_clusters(
     return id_year_df
 
 
-class MatchOrpahnedRecordsConfig(Config):
+class MatchOrphanedRecordsConfig(Config):
     """Configuration for :func:`match_orphaned_records` op."""
 
     #: See :class:`sklearn.cluster.AgglomerativeClustering` for details.
@@ -223,7 +223,7 @@ class MatchOrpahnedRecordsConfig(Config):
 
 @op
 def match_orphaned_records(
-    config: MatchOrpahnedRecordsConfig,
+    config: MatchOrphanedRecordsConfig,
     distance_matrix: DistanceMatrix,
     id_year_df: pd.DataFrame,
 ) -> pd.DataFrame:
