@@ -8,7 +8,7 @@ on:
 
 # What branch does this action run on?
 # - workflow_dispatch: Whatever branch it was run against.
-# - schedule: Always the same branch (will be dev or main)
+# - schedule: Always runs on main
 
 jobs:
   update-conda-lockfile:
@@ -21,21 +21,9 @@ jobs:
       - name: Get today's date
         run: |
           echo "TODAY=$(date +%Y-%m-%d)" >> $GITHUB_ENV
-      - name: Set GITHUB_REF for use with workflow_dispatch
-        if: ${{ (github.event_name == 'workflow_dispatch') }}
-        run: |
-          echo "GITHUB_REF="${{ github.ref_name }} >> $GITHUB_ENV
-      - name: Set GITHUB_REF for use with schedule
-        if: ${{ (github.event_name == 'schedule') }}
-        run: |
-          echo "GITHUB_REF=dev" >> $GITHUB_ENV
-      - name: Log final value of GITHUB_REF
-        run: |
-          echo "Final GITHUB_REF:" ${{ env.GITHUB_REF }}
       - uses: actions/checkout@v4
         with:
           token: ${{ secrets.PUDL_BOT_PAT }}
-          ref: ${{ env.GITHUB_REF }}
       - name: Install Micromamba
         uses: mamba-org/setup-micromamba@v1
         with:
@@ -64,5 +52,5 @@ jobs:
           labels: dependencies, conda-lock
           reviewers: zaneselvans
           branch: update-conda-lockfile
-          base: ${{ env.GITHUB_REF }}
+          base: ${{ github.ref_name }}
           delete-branch: true
