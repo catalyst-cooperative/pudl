@@ -1729,7 +1729,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "operator_name": {
         "type": "string",
-        "descripion": "The name of the EIA operator utility.",
+        "description": "The name of the EIA operator utility.",
     },
     "operator_state": {
         "type": "string",
@@ -1737,7 +1737,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "operator_utility_id_eia": {
         "type": "integer",
-        "descrption": "The EIA utility Identification number for the operator utility.",
+        "description": "The EIA utility Identification number for the operator utility.",
     },
     "opex_allowances": {"type": "number", "description": "Allowances.", "unit": "USD"},
     "opex_boiler": {
