@@ -1,6 +1,5 @@
 """Dagster IO Managers."""
 import json
-import os
 import re
 from pathlib import Path
 from sqlite3 import sqlite_version
@@ -8,8 +7,8 @@ from sqlite3 import sqlite_version
 import dask.dataframe as dd
 import pandas as pd
 import pyarrow as pa
-import sqlalchemy as sa
 import pyarrow.parquet as pq
+import sqlalchemy as sa
 from alembic.autogenerate.api import compare_metadata
 from alembic.migration import MigrationContext
 from dagster import (
@@ -19,12 +18,11 @@ from dagster import (
     OutputContext,
     UPathIOManager,
     io_manager,
-    ConfigurableIOManager,
 )
 from packaging import version
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy.exc import SQLAlchemyError
 from upath import UPath
-from pydantic_settings import BaseSettings, SettingsConfigDict
 
 import pudl
 from pudl.metadata.classes import Package, Resource
@@ -99,7 +97,8 @@ class ParquetSettings(BaseSettings):
     Eventually, we may also envision this mechanism to be used to suppress the use of sqlite files
     altogether, if needed.
     """
-    model_config = SettingsConfigDict(env_prefix='pudl_')
+
+    model_config = SettingsConfigDict(env_prefix="pudl_")
 
     write_to_parquet: bool = False
     """If True, data will be also written to parquet files into PUDL_OUTPUT/parquet/{db_name}/{table_name}.pq"""
@@ -405,6 +404,7 @@ class PudlSQLiteIOManager(SQLiteIOManager):
     This class extends the SQLiteIOManager class to manage database metadata and dtypes
     using the :class:`pudl.metadata.classes.Package` class.
     """
+
     # TODO(rousik): now that this experimentally supports also writing to parquet
     # as an alternative storage format, we should probably rename this class
     # to be less sqlite-centric.
@@ -508,7 +508,6 @@ class PudlSQLiteIOManager(SQLiteIOManager):
         res = self.package.get_resource(table_name)
 
         df = res.enforce_schema(df)
-
 
         if self.settings.write_to_parquet:
             logger.info(f"Writing {self.db_name}/{table_name} to parquet.")

@@ -1,7 +1,6 @@
 """Tools for setting up and managing PUDL workspaces."""
 import os
 from pathlib import Path
-from re import L
 from typing import Self
 
 from pydantic import DirectoryPath, NewPath, model_validator
