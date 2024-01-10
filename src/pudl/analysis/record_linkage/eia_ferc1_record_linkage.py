@@ -397,7 +397,7 @@ class InputManager:
     def get_plants_ferc1(self, clobber: bool = False) -> pd.DataFrame:
         """Prepare FERC1 plants data for record linkage with EIA plant-parts.
 
-        This method grabs two tables (``plants_all_ferc1`` and ``fuel_by_plant_ferc1`` -
+        This method grabs two tables (``plants_all_ferc1`` and ``fuel_by_plant_ferc1``,
         accessed originally via :meth:`pudl.output.pudltabl.PudlTabl.plants_all_ferc1`
         and :meth:`pudl.output.pudltabl.PudlTabl.fbp_ferc1` respectively) and ensures
         that the columns the same as their EIA counterparts, because the output of this
