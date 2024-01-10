@@ -444,15 +444,17 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
-    "entity_types_eia": {
-        "description": "Descriptive labels for EIA entity type and ownership codes, taken from the EIA-861 form instructions, valid through 2023-05-31.",
-        "schema": {"fields": ["code", "label", "description"], "primary_key": ["code"]},
-        "encoder": CODE_METADATA["entity_types_eia"],
-        "sources": ["eia861"],
-        "etl_group": "static_eia_disabled",  # currently not being loaded into the db
-        "field_namespace": "eia",
-        "create_database_schema": False,
-    },
+    # The entity types were never fully reconciled. Preserving for future reference.
+    # See https://github.com/catalyst-cooperative/pudl/issues/1392
+    # "core_eia__codes_entity_types": {
+    #    "description": "Descriptive labels for EIA entity type and ownership codes, taken from the EIA-861 form instructions, valid through 2023-05-31.",
+    #    "schema": {"fields": ["code", "label", "description"], "primary_key": ["code"]},
+    #    "encoder": CODE_METADATA["core_eia__codes_entity_types"],
+    #    "sources": ["eia861"],
+    #    "etl_group": "static_eia_disabled",  # currently not being loaded into the db
+    #    "field_namespace": "eia",
+    #    "create_database_schema": False,
+    # },
     "core_eia__codes_fuel_transportation_modes": {
         "description": "Long descriptions of the fuel transportation modes reported in the EIA-860 and EIA-923.",
         "schema": {
