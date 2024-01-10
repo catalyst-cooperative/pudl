@@ -1,6 +1,7 @@
 """Tools for setting up and managing PUDL workspaces."""
 import os
 from pathlib import Path
+from re import L
 from typing import Self
 
 from pydantic import DirectoryPath, NewPath, model_validator
@@ -65,6 +66,10 @@ class PudlPaths(BaseSettings):
         # SQLite URI has 3 slashes - 2 to separate URI scheme, 1 to separate creds
         # sqlite://{credentials}/{db_path}
         return f"sqlite:///{self.sqlite_db_path(name)}"
+
+    def parquet_path(self, db_name: str, table_name: str) -> Path:
+        """Return path to parquet file for given databae and table."""
+        return self.output_dir / "parquet" / f"{table_name}.parquet"
 
     def sqlite_db_path(self, name: str) -> Path:
         """Return path to locally stored SQLite DB file."""
