@@ -2795,17 +2795,55 @@ def nodes_to_df(calc_forest: nx.DiGraph, nodes: list[NodeId]) -> pd.DataFrame:
 
 
 def out_ferc1__yearly_rate_base(
-    exploded_balance_sheet_assets_ferc1, exploded_balance_sheet_liabilities_ferc1
-):
+    exploded_balance_sheet_assets_ferc1: pd.DataFrame,
+    exploded_balance_sheet_liabilities_ferc1: pd.DataFrame,
+    core_ferc1__yearly_operating_expenses_sched320: pd.DataFrame,
+) -> pd.DataFrame:
     """Make a table of only rate-base data."""
-    in_rate_base = pd.concat(
-        [
-            exploded_balance_sheet_assets_ferc1[
-                exploded_balance_sheet_assets_ferc1.tags_in_rate_base == "yes"
-            ],
-            exploded_balance_sheet_liabilities_ferc1[
-                exploded_balance_sheet_liabilities_ferc1.tags_in_rate_base == "yes"
-            ],
+    # First grab the cash on hand out of the operating expense table.
+    xbrl_factoid_name = pudl.transform.ferc1.FERC1_TFR_CLASSES[
+        "core_ferc1__yearly_operating_expenses_sched320"
+    ]().params.xbrl_factoid_name
+    pks = pudl.metadata.classes.Resource.from_id(
+        "core_ferc1__yearly_operating_expenses_sched320"
+    ).schema.primary_key
+    cash_working_capital = (
+        core_ferc1__yearly_operating_expenses_sched320[
+            core_ferc1__yearly_operating_expenses_sched320[xbrl_factoid_name].isin(
+                [
+                    f"operations_and_maintenance_expenses_electric{suffix}"
+                    for suffix in ["", "_correction"]
+                ]
+            )
         ]
-    ).drop(columns=["tags_in_rate_base"])
+        .groupby(pks + ["utility_type"], as_index=False)[["dollar_value"]]
+        .sum(min_count=1)
+        .assign(
+            dollar_value=lambda x: x.dollar_value / 8,
+            xbrl_factoid="cash_on_hand",  # newly definied (do we need to add it anywhere?)
+            tags_rate_base_category="net_working_capital",
+            tags_aggregatable_utility_type="electric",
+            table_name="core_ferc1__yearly_operating_expenses_sched320",
+        )
+        .drop(columns=[xbrl_factoid_name])
+        .rename(columns={"dollar_value": "ending_balance"})
+    )
+    # then select only the leafy exploded records that are in rate base and concat
+    in_rate_base = (
+        pd.concat(
+            [
+                exploded_balance_sheet_assets_ferc1[
+                    exploded_balance_sheet_assets_ferc1.tags_in_rate_base == "yes"
+                ],
+                exploded_balance_sheet_liabilities_ferc1[
+                    exploded_balance_sheet_liabilities_ferc1.tags_in_rate_base == "yes"
+                ],
+                cash_working_capital,
+            ]
+        )
+        .drop(columns=["tags_in_rate_base"])
+        .sort_values(
+            by=["report_year", "utility_id_ferc1", "table_name"], ascending=False
+        )
+    )
     return in_rate_base
