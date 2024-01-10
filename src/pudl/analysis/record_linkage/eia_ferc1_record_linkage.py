@@ -35,7 +35,7 @@ from typing import Literal
 
 import numpy as np
 import pandas as pd
-from dagster import Out, asset, graph_asset, op
+from dagster import Out, graph_asset, op
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import precision_recall_fscore_support
 from sklearn.model_selection import GridSearchCV, train_test_split
@@ -277,7 +277,13 @@ def run_matching_model(features_train, features_all, y_df):
     )
 
 
-@op
+@op(
+    out={
+        "out_pudl__yearly_assn_eia_ferc1_plant_parts": Out(
+            io_manager_key="pudl_sqlite_io_manager"
+        )
+    }
+)
 def get_match_full_records(best_match_df, inputs):
     """Join full dataframe onto matches to make usable and get stats."""
     connected_df = prettyify_best_matches(
@@ -292,7 +298,7 @@ def get_match_full_records(best_match_df, inputs):
 
 
 @graph_asset
-def _out_pudl__yearly_assn_eia_ferc1_plant_parts(
+def out_pudl__yearly_assn_eia_ferc1_plant_parts(
     out_ferc1__yearly_all_plants: pd.DataFrame,
     out_ferc1__yearly_steam_plants_fuel_by_plant_sched402: pd.DataFrame,
     out_eia__yearly_plant_parts: pd.DataFrame,
@@ -325,22 +331,6 @@ def _out_pudl__yearly_assn_eia_ferc1_plant_parts(
     # join EIA and FERC columns back on
     ferc1_eia_connected_df = get_match_full_records(best_match_df, inputs)
     return ferc1_eia_connected_df
-
-
-@asset(
-    name="out_pudl__yearly_assn_eia_ferc1_plant_parts",
-    io_manager_key="pudl_sqlite_io_manager",
-    compute_kind="Python",
-)
-def out_pudl__yearly_assn_eia_ferc1_plant_parts(
-    _out_pudl__yearly_assn_eia_ferc1_plant_parts: pd.DataFrame,
-) -> pd.DataFrame:
-    """Linkage between FERC1 plants and EIA plant parts for persistent storage.
-
-    Args:
-        out_eia__yearly_plant_parts: The EIA plant parts list.
-    """
-    return _out_pudl__yearly_assn_eia_ferc1_plant_parts
 
 
 class InputManager:
