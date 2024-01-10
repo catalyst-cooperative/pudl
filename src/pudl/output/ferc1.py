@@ -2818,26 +2818,17 @@ def out_ferc1__yearly_rate_base(
     exploded data.
 
     """
-    # First grab the cash on hand out of the operating expense table.
+    # get the factoid name to grab the right part of the table
     xbrl_factoid_name = pudl.transform.ferc1.FERC1_TFR_CLASSES[
         "core_ferc1__yearly_operating_expenses_sched320"
     ]().params.xbrl_factoid_name
-    pks = pudl.metadata.classes.Resource.from_id(
-        "core_ferc1__yearly_operating_expenses_sched320"
-    ).schema.primary_key
-    # grab the factoid and its correction records - then group them together
-    # to produce on cash_on_hand factoid to concat
+    # First grab the cash on hand out of the operating expense table.
+    # then prep it for concating. Calculate cash on hand & add tags
     cash_working_capital = (
         core_ferc1__yearly_operating_expenses_sched320[
-            core_ferc1__yearly_operating_expenses_sched320[xbrl_factoid_name].isin(
-                [
-                    f"operations_and_maintenance_expenses_electric{suffix}"
-                    for suffix in ["", "_correction"]
-                ]
-            )
+            core_ferc1__yearly_operating_expenses_sched320[xbrl_factoid_name]
+            == "operations_and_maintenance_expenses_electric"
         ]
-        .groupby(pks + ["utility_type"], as_index=False)[["dollar_value"]]
-        .sum(min_count=1)
         .assign(
             dollar_value=lambda x: x.dollar_value / 8,
             xbrl_factoid="cash_on_hand",  # newly definied (do we need to add it anywhere?)
