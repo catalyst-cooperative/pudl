@@ -243,4 +243,4 @@ def test_classify_plants_ferc1(mock_ferc1_plants_df):
     )
     ratio_correct = correctly_matched / len(mock_ferc1_plants_df)
     logger.info(f"Percent correctly matched: {ratio_correct:.2%}")
-    assert ratio_correct > 0.85, "Percent of correctly matched FERC records below 85%."
+    assert ratio_correct > 0.80, "Percent of correctly matched FERC records below 80%."

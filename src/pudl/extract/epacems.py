@@ -97,6 +97,44 @@ API_IGNORE_COLS = {
 }
 """Set: The set of EPA CEMS columns to ignore when reading data."""
 
+API_DTYPE_DICT = {
+    "State": pd.CategoricalDtype(),
+    "Facility Name": pd.StringDtype(),  # Not reading from CSV
+    "Facility ID": pd.Int32Dtype(),  # unique facility id for internal EPA database management (ORIS code)
+    "Unit ID": pd.StringDtype(),
+    "Associated Stacks": pd.StringDtype(),
+    # These op_date, op_hour, and op_time variables get converted to
+    # operating_date, operating_datetime and operating_time_interval in
+    # transform/epacems.py
+    "Date": pd.StringDtype(),
+    "Hour": pd.Int16Dtype(),
+    "Operating Time": pd.Float32Dtype(),
+    "Gross Load (MW)": pd.Float32Dtype(),
+    "Steam Load (1000 lb/hr)": pd.Float32Dtype(),
+    "SO2 Mass (lbs)": pd.Float32Dtype(),
+    "SO2 Mass Measure Indicator": pd.CategoricalDtype(),
+    "SO2 Rate (lbs/mmBtu)": pd.Float32Dtype(),  # Not reading from CSV
+    "SO2 Rate Measure Indicator": pd.CategoricalDtype(),  # Not reading from CSV
+    "NOx Rate (lbs/mmBtu)": pd.Float32Dtype(),  # Not reading from CSV
+    "NOx Rate Measure Indicator": pd.CategoricalDtype(),  # Not reading from CSV
+    "NOx Mass (lbs)": pd.Float32Dtype(),
+    "NOx Mass Measure Indicator": pd.CategoricalDtype(),
+    "CO2 Mass (short tons)": pd.Float32Dtype(),
+    "CO2 Mass Measure Indicator": pd.CategoricalDtype(),
+    "CO2 Rate (short tons/mmBtu)": pd.Float32Dtype(),  # Not reading from CSV
+    "CO2 Rate Measure Indicator": pd.CategoricalDtype(),  # Not reading from CSV
+    "Heat Input (mmBtu)": pd.Float32Dtype(),
+    "Heat Input Measure Indicator": pd.CategoricalDtype(),
+    "Primary Fuel Type": pd.CategoricalDtype(),
+    "Secondary Fuel Type": pd.CategoricalDtype(),
+    "Unit Type": pd.CategoricalDtype(),
+    "SO2 Controls": pd.CategoricalDtype(),
+    "NOx Controls": pd.CategoricalDtype(),
+    "PM Controls": pd.CategoricalDtype(),
+    "Hg Controls": pd.CategoricalDtype(),
+    "Program Code": pd.CategoricalDtype(),
+}
+
 
 class EpaCemsPartition(BaseModel):
     """Represents EpaCems partition identifying unique resource file."""
@@ -117,7 +155,7 @@ class EpaCemsPartition(BaseModel):
     def get_quarterly_file(self) -> Path:
         """Return the name of the CSV file that holds annual hourly data."""
         return Path(
-            f"epacems-{self.year}-{pd.to_datetime(self.year_quarter).quarter}.csv"
+            f"epacems-{self.year}q{pd.to_datetime(self.year_quarter).quarter}.csv"
         )
 
 
@@ -138,30 +176,43 @@ class EpaCemsDatastore:
         archive = self.datastore.get_zipfile_resource(
             "epacems", **partition.get_filters()
         )
-
         with archive.open(str(partition.get_quarterly_file()), "r") as csv_file:
             df = self._csv_to_dataframe(
-                csv_file, ignore_cols=API_IGNORE_COLS, rename_dict=API_RENAME_DICT
+                csv_file,
+                ignore_cols=API_IGNORE_COLS,
+                rename_dict=API_RENAME_DICT,
+                dtype_dict=API_DTYPE_DICT,
             )
         return df
 
     def _csv_to_dataframe(
-        self, csv_file: Path, ignore_cols: dict[str, str], rename_dict: dict[str, str]
+        self,
+        csv_path: Path,
+        ignore_cols: dict[str, str],
+        rename_dict: dict[str, str],
+        dtype_dict: dict[str, type],
+        chunksize: int = 100_000,
     ) -> pd.DataFrame:
         """Convert a CEMS csv file into a :class:`pandas.DataFrame`.
 
         Args:
-            csv (file-like object): data to be read
+            csv_path: Path to CSV file containing data to read.
 
         Returns:
-            A DataFrame containing the contents of the CSV file.
+            A DataFrame containing the filtered and dtyped contents of the CSV file.
         """
-        return pd.read_csv(
-            csv_file,
+        chunk_iter = pd.read_csv(
+            csv_path,
             index_col=False,
             usecols=lambda col: col not in ignore_cols,
-            low_memory=False,
-        ).rename(columns=rename_dict)
+            dtype=dtype_dict,
+            chunksize=chunksize,
+            low_memory=True,
+            parse_dates=["Date"],
+        )
+        df = pd.concat(chunk_iter)
+        dtypes = {k: v for k, v in dtype_dict.items() if k in df.columns}
+        return df.astype(dtypes).rename(columns=rename_dict)
 
 
 def extract(year_quarter: str, ds: Datastore) -> pd.DataFrame:
@@ -178,6 +229,7 @@ def extract(year_quarter: str, ds: Datastore) -> pd.DataFrame:
     year = partition.year
     # We have to assign the reporting year for partitioning purposes
     try:
+        logger.info(f"Extracting data frame for {year_quarter}")
         df = ds.get_data_frame(partition).assign(year=year)
     # If the requested quarter is not found, return an empty df with expected columns:
     except KeyError:
