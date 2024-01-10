@@ -12,7 +12,6 @@ on:
 env:
   INTERNAL_ZENODO_CACHE_BUCKET: gs://internal-zenodo-cache.catalyst.coop
   PUBLIC_ZENODO_CACHE_BUCKET: gs://zenodo-cache.catalyst.coop
-  GITHUB_REF: ${{ github.ref_name }} # This is changed to dev if running on a schedule
   PUDL_OUTPUT: ~/pudl-work/output
   PUDL_INPUT: ~/pudl-work/input/
 
@@ -29,16 +28,6 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      - name: Use dev branch if running on a schedule
-        if: ${{ (github.event_name == 'schedule') }}
-        run: |
-          echo "This action was triggered by a schedule." && echo "GITHUB_REF=dev" >> $GITHUB_ENV
-
-      - name: Log value of github ref
-        if: ${{ (github.event_name == 'pull_request') }}
-        run: |
-          echo "This action was triggered by a pull request." && echo "GITHUB_REF="${{ github.head_ref }} >> $GITHUB_ENV
-
       - name: Checkout desired branch
         uses: actions/checkout@v4
 

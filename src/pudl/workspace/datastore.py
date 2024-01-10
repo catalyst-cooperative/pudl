@@ -104,6 +104,13 @@ class DatapackageDescriptor:
                     f"Resource filter values should be all lowercase: {k}={v}"
                 )
         parts = res.get("parts", {})
+        # If partitions are list, match whole list if it contains desired element
+        if set(map(type, parts.values())) == {list}:
+            return all(
+                any(part.lower() == str(v).lower() for part in parts.get(k))
+                for k, v in filters.items()
+            )
+        # Otherwise return matches to int/str partitions
         return all(
             str(parts.get(k)).lower() == str(v).lower() for k, v in filters.items()
         )
@@ -134,7 +141,10 @@ class DatapackageDescriptor:
             if name and res["name"] != name:
                 continue
             for k, v in res.get("parts", {}).items():
-                partitions[k].add(v)
+                if isinstance(v, list):
+                    partitions[k] |= set(v)  # Add all items from list
+                else:
+                    partitions[k].add(v)
         return partitions
 
     def get_partition_filters(self, **filters: Any) -> Iterator[dict[str, str]]:
@@ -172,12 +182,12 @@ class ZenodoDoiSettings(BaseSettings):
 
     censusdp1tract: ZenodoDoi = "10.5281/zenodo.4127049"
     eia860: ZenodoDoi = "10.5281/zenodo.10067566"
-    eia860m: ZenodoDoi = "10.5281/zenodo.10204686"
+    eia860m: ZenodoDoi = "10.5281/zenodo.10423813"
     eia861: ZenodoDoi = "10.5281/zenodo.10204708"
     eia923: ZenodoDoi = "10.5281/zenodo.10067550"
     eia_bulk_elec: ZenodoDoi = "10.5281/zenodo.7067367"
     epacamd_eia: ZenodoDoi = "10.5281/zenodo.7900974"
-    epacems: ZenodoDoi = "10.5281/zenodo.10306114"
+    epacems: ZenodoDoi = "10.5281/zenodo.10425497"
     ferc1: ZenodoDoi = "10.5281/zenodo.8326634"
     ferc2: ZenodoDoi = "10.5281/zenodo.8326697"
     ferc6: ZenodoDoi = "10.5281/zenodo.8326696"
@@ -366,8 +376,8 @@ class Datastore:
                 logger.info(f"{res} is already optimally cached.")
                 continue
             if self._cache.contains(res):
-                logger.info(f"Retrieved {res} from cache.")
                 contents = self._cache.get(res)
+                logger.info(f"Retrieved {res} from cache.")
                 if not self._cache.is_optimally_cached(res):
                     logger.info(f"{res} was not optimally cached yet, adding.")
                     self._cache.add(res, contents)

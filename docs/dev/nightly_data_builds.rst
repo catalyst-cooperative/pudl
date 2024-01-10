@@ -4,47 +4,48 @@
 Nightly Data Builds
 ===============================================================================
 
-The complete ETL and tests run every night on a Google Compute Engine (GCE)
-instance so new code merged into ``dev`` can be fully tested. These complete builds
-also enable continuous deployment of PUDL's data outputs.
+The complete ETL and tests are run each night on a Google Compute Engine (GCE) instance
+to ensure that any new changes merged into ``main`` are fully tested. These complete
+builds also enable continuous deployment of PUDL's data outputs. If no changes have been
+merged into ``main`` since the last time the builds ran, the builds are skipped.
 
 The builds are kicked off by the ``build-deploy-pudl`` GitHub Action, which builds and
 pushes a Docker image with PUDL installed to `Docker Hub <https://hub.docker.com/r/catalystcoop/pudl-etl>`__
 and deploys the image as a container to a GCE instance. The container runs the ETL and
-tests, then copies the outputs to a public AWS s3 bucket for distribution.
+tests, then copies the outputs to a public AWS S3 bucket for distribution.
 
 Breaking the Builds
 -------------------
-The nightly data builds based on the ``dev`` branch are our comprehensive integration
+The nightly data builds based on the ``main`` branch are our comprehensive integration
 tests. When they pass, we consider the results fit for public consumption.  The builds
 are expected to pass. If they don't then someone needs to take responsibility for
 getting them working again with some urgency.
 
-Because of how long the full build & tests take, we don’t typically run them
-individually before merging every PR into ``dev``. However, running ``make nuke``
-(the equivalent of the full builds) is recommended when you've added a new year of data
-or made other changes that would be expected to break the data validations, so that the
-appropriate changes can be made prior to those changes hitting ``dev`` and the nightly
-builds.
+Because of how long the full build & tests take, we don't typically run them
+individually before merging every PR into ``main``. However, running ``make nuke``
+(roughly equivalent to the full builds) is recommended when you've added a new year of
+data or made other changes that would be expected to break the data validations, so that
+the appropriate changes can be made prior to those changes hitting ``main`` and the
+nightly builds.
 
 If your PR causes the build to fail, you are probably the best person to fix the
 problem, since you already have context on all of the changes that went into it.
 
-Having multiple PRs merged into ``dev`` simultaneously when the builds are breaking
+Having multiple PRs merged into ``main`` simultaneously when the builds are breaking
 makes it ambiguous where the problem is coming from, makes debugging harder, and
 diffuses responsibility for the breakage across several people, so it's important to fix
-the breakage quickly. In some cases we may delay merging additional PRs into ``dev``
+the breakage quickly. In some cases we may delay merging additional PRs into ``main``
 if the builds are failing to avoid ambiguity and facilitate debugging.
 
 Therefore, we've adopted the following etiquette regarding build breakage: On the
-morning after you merge a PR into ``dev``, you should check whether the nightly builds
+morning after you merge a PR into ``main``, you should check whether the nightly builds
 succeeded by looking in the ``pudl-deployments`` Slack channel (which all team members
 should be subscribed to). If the builds failed, look at the logging output (which is
 included as an attachment to the notification) and figure out what kind of failure
 occurred:
 
   * If the failure is due to your changes, then you are responsible for fixing the
-    problem and making a new PR to ``dev`` that resolves it, and it should be a high
+    problem and making a new PR to ``main`` that resolves it, and it should be a high
     priority. If you're stumped, ask for help!
   * If the failure is due to an infrastructural issue like the build server running out
     of memory and the build process getting killed, then you need to notify the member
@@ -121,11 +122,6 @@ pushed to the PUDL repository. This way, new data outputs are automatically upda
 on code releases, and PUDL's code and data are tested every night. The action is
 modeled after an `example from the setup-gcloud GitHub action repository <https://github.com/google-github-actions/setup-gcloud/tree/main/example-workflows/gce>`__.
 
-Unfortunately, scheduled actions only run on the default branch. To run scheduled
-builds on the ``dev`` branch, the `actions/checkout <https://github.com/actions/checkout>`__
-step checks out the ``dev`` branch if a schedule triggers the action and the ``main``
-branch if a tag triggers the action.
-
 The ``gcloud`` command in ``build-deploy-pudl`` requires certain Google Cloud
 Platform (GCP) permissions to start and update the GCE instance. The
 ``gcloud`` command authenticates using a service account key for the
@@ -140,18 +136,18 @@ The PUDL image is deployed on a `Container Optimized GCE
 <https://cloud.google.com/container-optimized-os/docs/concepts/features-and-benefits>`__
 instance, a type of virtual machine (VM) built to run containers. The
 ``pudl-deployment-dev`` and ``pudl-deployment-tag`` instances in the
-``catalyst-cooperative-pudl`` GCP project handle deployments from the ``dev`` branch and
-tags, respectively. There are two VMs so a scheduled and a tag build can run
-at the same time.
+``catalyst-cooperative-pudl`` GCP project handle deployments from the ``main`` branch
+and tags or manually initiated ``workflow_dispatch`` runs respectively. There are two
+VMs so a scheduled and a tag build can run at the same time.
 
 .. note::
 
     If a tag build starts before the previous tag build has finished, the previous build
     will be interrupted.
 
-PUDL's VMs use the e2-highmem-8 machine type (64 GB of RAM and 8 CPUs) to accommodate
+The build VMs use the e2-highmem-8 machine type (64 GB of RAM and 8 CPUs) to accommodate
 the PUDL ETL's memory-intensive steps. Currently, these VMs do not have swap space
-enabled.
+enabled, so if they run out of memory, the build will immediately terminate.
 
 Each GCE VM has a service account that gives the VM permissions to GCP resources.
 The two PUDL deployment VMs share the ``deploy-pudl-vm-service-account``. This
@@ -163,7 +159,7 @@ service account has permissions to:
 3. Bill the ``catalyst-cooperative-pudl`` project for egress fees from accessing
    the ``zenodo-cache.catalyst.coop`` bucket. Note: The ``catalyst-cooperative-pudl``
    won't be charged anything because the data stays within Google's network.
-4. Write logs and outputs to the ``gs://nightly-build-outputs.catalyst.coop``,
+4. Write logs and outputs to the ``gs://builds.catalyst.coop``,
    ``gs://pudl.catalyst.coop`` and ``s3://pudl.catalyst.coop`` buckets.
    The egress and storage fees of the s3 bucket are covered by
    `Amazon Web Services's Open Data Sponsorship Program
@@ -184,13 +180,7 @@ are configured to run the ``docker/gcp_pudl_etl.sh`` script. This script:
 5. Notifies the ``pudl-deployments`` Slack channel with the final build status.
 
 The ``gcp_pudl_etl.sh script`` is only intended to run on a GCE VM with adequate
-permissions. The full ETL and tests can be run locally by running these commands
-from the ``pudl`` directory:
-
-.. code-block::
-
-    docker compose -f docker/docker-compose.yml build
-    docker compose -f docker/docker-compose.yml up
+permissions.
 
 How to access the nightly build outputs from AWS
 ------------------------------------------------
@@ -210,8 +200,10 @@ You should see a list of directories with version names:
 
 .. code-block::
 
-   PRE dev/
+   PRE nightly/
+   PRE stable/
    PRE v2022.11.30/
+   PRE v2023.12.01/
    ...
 
 The ``--no-sign-request`` flag allows you to make requsts to the
@@ -225,19 +217,19 @@ bucket, ``aws`` will give you an authentication error.
    updating them, making sure you have the right version, putting them in the right
    place on your computer, etc.
 
-To copy these files directly to your computer you can use
-the ``aws s3 cp`` command, which behaves very much like the Unix ``cp`` command:
+To copy these files directly to your computer you can use the ``aws s3 cp`` command,
+which behaves very much like the Unix ``cp`` command:
 
 .. code::
 
-   aws s3 cp s3://pudl.catalyst.coop/dev/pudl.sqlite ./ --no-sign-request
+   aws s3 cp s3://pudl.catalyst.coop/nightly/pudl.sqlite ./ --no-sign-request
 
 If you wanted to download all of the build outputs (more than 10GB!) you could use ``cp
 --recursive`` flag on the whole directory:
 
 .. code::
 
-   aws s3 cp --recursive s3://pudl.catalyst.coop/dev/ ./ --no-sign-request
+   aws s3 cp --recursive s3://pudl.catalyst.coop/nightly/ ./ --no-sign-request
 
 For more details on how to use ``aws`` in general see the
 `online documentation <https://docs.aws.amazon.com/cli/latest/reference/s3/>`__ or run:
@@ -292,37 +284,58 @@ that are available:
 
 .. code::
 
-   gsutil ls gs://nightly-build-outputs.catalyst.coop
+   gsutil ls -lh gs://builds.catalyst.coop
 
-You should see a list of directories with the naming convention
-``<git commit SHA>-<git branch>``.
+You should see a list of directories with build IDs that have a naming convention:
+``<YYYY-MM-DD-HHMM>-<short git commit SHA>-<git branch>``.
 
-To see what the outputs are for a given nightly build, you can use ``gsutil``
-like this:
+To see what the outputs are for a given nightly build, you can use ``gsutil`` like this:
 
 .. code::
 
-   gsutil ls -l gs://nightly-build-outputs.catalyst.coop/<build name of interest>
+    gsutil ls -lh gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/
 
-      1152800  2022-11-22T12:51:02Z  gs://nightly-build-outputs.catalyst.coop/<build name of interest>/pudl-etl.log
-                                 gs://nightly-build-outputs.catalyst.coop/<build name of interest>/parquet/
-                                 gs://nightly-build-outputs.catalyst.coop/<build name of interest>/pudl_out/
-                                 gs://nightly-build-outputs.catalyst.coop/<build name of interest>/sqlite/
-   TOTAL: 1 objects, 1152800 bytes (1.1 MiB)
+    804.57 MiB  2024-01-03T11:19:15Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/censusdp1tract.sqlite
+      5.01 GiB  2024-01-03T11:20:02Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/core_epacems__hourly_emissions.parquet
+    759.32 MiB  2024-01-03T11:19:17Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc1_dbf.sqlite
+    813.52 MiB  2024-01-03T11:19:18Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc1_xbrl.sqlite
+      1.65 MiB  2024-01-03T11:18:18Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc1_xbrl_datapackage.json
+      6.94 MiB  2024-01-03T11:18:19Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc1_xbrl_taxonomy_metadata.json
+    282.71 MiB  2024-01-03T11:19:02Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc2_dbf.sqlite
+     89.55 MiB  2024-01-03T11:18:40Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc2_xbrl.sqlite
+      1.88 MiB  2024-01-03T11:18:18Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc2_xbrl_datapackage.json
+      6.78 MiB  2024-01-03T11:18:18Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc2_xbrl_taxonomy_metadata.json
+      8.25 MiB  2024-01-03T11:18:20Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc60_dbf.sqlite
+     20.02 MiB  2024-01-03T11:18:22Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc60_xbrl.sqlite
+    731.31 KiB  2024-01-03T11:18:18Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc60_xbrl_datapackage.json
+      1.77 MiB  2024-01-03T11:18:19Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc60_xbrl_taxonomy_metadata.json
+    153.72 MiB  2024-01-03T11:18:54Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc6_dbf.sqlite
+     62.01 MiB  2024-01-03T11:18:28Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc6_xbrl.sqlite
+      1.02 MiB  2024-01-03T11:18:18Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc6_xbrl_datapackage.json
+      2.74 MiB  2024-01-03T11:18:18Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc6_xbrl_taxonomy_metadata.json
+    905.31 MiB  2024-01-03T11:19:17Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc714_xbrl.sqlite
+     58.41 KiB  2024-01-03T11:18:18Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc714_xbrl_datapackage.json
+    187.86 KiB  2024-01-03T11:18:18Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc714_xbrl_taxonomy_metadata.json
+      4.05 MiB  2024-01-03T11:18:19Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/metadata.yml
+         4 MiB  2024-01-03T12:09:34Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/pudl-etl.log
+      13.1 GiB  2024-01-03T11:21:41Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/pudl.sqlite
+           0 B  2024-01-03T11:18:18Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/success
+                                     gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/core_epacems__hourly_emissions/
+    TOTAL: 25 objects, 23557650395 bytes (21.94 GiB)
 
 If you want to copy these files down directly to your computer, you can use
 the ``gsutil cp`` command, which behaves very much like the Unix ``cp`` command:
 
 .. code::
 
-   gsutil cp gs://nightly-build-outputs.catalyst.coop/<build name of interest>/pudl.sqlite ./
+   gsutil cp gs://builds.catalyst.coop/<build ID>/pudl.sqlite ./
 
 If you wanted to download all of the build outputs (more than 10GB!) you could use ``cp
 -r`` on the whole directory:
 
 .. code::
 
-   gsutil cp -r gs://nightly-build-outputs.catalyst.coop/<build name of interest>/ ./
+   gsutil cp -r gs://builds.catalyst.coop/<build ID>/ ./
 
 For more details on how to use ``gsutil`` in general see the
 `online documentation <https://cloud.google.com/storage/docs/gsutil>`__ or run:

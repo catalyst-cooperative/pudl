@@ -372,6 +372,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "city": {
         "type": "string",
         # TODO: Disambiguate column. City means different things in different tables.
+        "description": "Name of the city.",
     },
     "co2_mass_measurement_code": {
         "type": "string",
@@ -1728,7 +1729,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "operator_name": {
         "type": "string",
-        "descripion": "The name of the EIA operator utility.",
+        "description": "The name of the EIA operator utility.",
     },
     "operator_state": {
         "type": "string",
@@ -1736,7 +1737,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "operator_utility_id_eia": {
         "type": "integer",
-        "descrption": "The EIA utility Identification number for the operator utility.",
+        "description": "The EIA utility Identification number for the operator utility.",
     },
     "opex_allowances": {"type": "number", "description": "Allowances.", "unit": "USD"},
     "opex_boiler": {
@@ -2581,6 +2582,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "street_address": {
         "type": "string",
         # TODO: Disambiguate as this means different things in different tables.
+        "description": "Physical street address.",
     },
     "subcritical_tech": {
         "type": "boolean",

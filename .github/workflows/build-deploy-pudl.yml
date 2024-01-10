@@ -5,14 +5,15 @@ on:
     tags:
       - "v20*"
   schedule:
-    - cron: "0 6 * * 1-5" # Weekdays at midnight on MST
+    # 6am UTC daily (11pm PDT, 2am EDT)
+    # But only if there are changes since the last nightly build.
+    - cron: "0 6 * * *"
 
 env:
   GCP_BILLING_PROJECT: ${{ secrets.GCP_BILLING_PROJECT }}
-  BUILD_REF: ${{ github.ref_name }} # This is changed to dev if running on a schedule
   GCE_INSTANCE: pudl-deployment-tag # This is changed to pudl-deployment-dev if running on a schedule
   GCE_INSTANCE_ZONE: ${{ secrets.GCE_INSTANCE_ZONE }}
-  GCS_OUTPUT_BUCKET: gs://nightly-build-outputs.catalyst.coop
+  GCS_OUTPUT_BUCKET: gs://builds.catalyst.coop
 
 jobs:
   build_and_deploy_pudl:
@@ -22,17 +23,15 @@ jobs:
       contents: write
       id-token: write
     steps:
-      - name: Use pudl-deployment-dev vm and dev branch if running on a schedule
+      - name: Use pudl-deployment-dev vm if running on a schedule
         if: ${{ (github.event_name == 'schedule') }}
         run: |
           echo "This action was triggered by a schedule."
           echo "GCE_INSTANCE=pudl-deployment-dev" >> $GITHUB_ENV
-          echo "BUILD_REF=dev" >> $GITHUB_ENV
 
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ env.BUILD_REF }}
           fetch-depth: 0
 
       - name: Skip the build if no changes since the last successful nightly build.
@@ -50,13 +49,12 @@ jobs:
         if: ${{ env.SKIP_BUILD != 'true' }}
         run: |
           echo "NIGHTLY_TAG=nightly-$(date +%Y-%m-%d)" >> $GITHUB_ENV
-          echo "BUILD_ID=$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short HEAD)-${BUILD_REF}" >> $GITHUB_ENV
+          echo "BUILD_ID=$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short HEAD)-${{ github.ref_name }}" >> $GITHUB_ENV
 
       - name: Show freshly set envvars
         if: ${{ env.SKIP_BUILD != 'true' }}
         run: |
           echo "GCE_INSTANCE: $GCE_INSTANCE"
-          echo "BUILD_REF: $BUILD_REF"
           echo "NIGHTLY_TAG: $NIGHTLY_TAG"
           echo "BUILD_ID: $BUILD_ID"
 
@@ -65,7 +63,7 @@ jobs:
         run: |
           git config user.email "pudl@catalyst.coop"
           git config user.name "pudlbot"
-          git tag -a -m "$NIGHTLY_TAG" $NIGHTLY_TAG $BUILD_REF
+          git tag -a -m "$NIGHTLY_TAG" $NIGHTLY_TAG ${{ github.ref_name }}
           git push origin $NIGHTLY_TAG
 
       - name: Docker Metadata
@@ -77,7 +75,7 @@ jobs:
           flavor: |
             latest=auto
           tags: |
-            type=raw,value=${{ env.BUILD_REF}}
+            type=raw,value=${{ github.ref_name }}
             type=ref,event=tag
 
       - name: Set up Docker Buildx
@@ -121,7 +119,7 @@ jobs:
         if: ${{ env.SKIP_BUILD != 'true' }}
         env:
           DAGSTER_PG_PASSWORD: ${{ secrets.DAGSTER_PG_PASSWORD }}
-          PUDL_OUTPUT_PATH: ${{ env.GCS_OUTPUT_BUCKET }}/${{ env.BUILD_ID }}
+          PUDL_GCS_OUTPUT: ${{ env.GCS_OUTPUT_BUCKET }}/${{ env.BUILD_ID }}
         run: |-
           gcloud compute instances add-metadata "$GCE_INSTANCE" \
             --zone "$GCE_INSTANCE_ZONE" \
@@ -137,8 +135,7 @@ jobs:
             --container-arg='' \
             --container-arg="bash" \
             --container-arg="./docker/gcp_pudl_etl.sh" \
-            --container-env-file="./docker/.env" \
-            --container-env BUILD_REF=${{ env.BUILD_REF }} \
+            --container-env BUILD_REF=${{ github.ref_name }} \
             --container-env BUILD_ID=${{ env.BUILD_ID }} \
             --container-env NIGHTLY_TAG=${{ env.NIGHTLY_TAG }} \
             --container-env GITHUB_ACTION_TRIGGER=${{ github.event_name }} \
@@ -157,7 +154,7 @@ jobs:
             --container-env PUDL_BOT_PAT=${{ secrets.PUDL_BOT_PAT }} \
             --container-env ZENODO_SANDBOX_TOKEN_PUBLISH=${{ secrets.ZENODO_SANDBOX_TOKEN_PUBLISH }} \
             --container-env PUDL_SETTINGS_YML="/home/mambauser/pudl/src/pudl/package_data/settings/etl_full.yml" \
-            --container-env PUDL_GCS_OUTPUT=${{ env.PUDL_OUTPUT_PATH }}
+            --container-env PUDL_GCS_OUTPUT=${{ env.PUDL_GCS_OUTPUT }}
 
       # Start the VM
       - name: Start the deploy-pudl-vm
