@@ -2799,7 +2799,25 @@ def out_ferc1__yearly_rate_base(
     exploded_balance_sheet_liabilities_ferc1: pd.DataFrame,
     core_ferc1__yearly_operating_expenses_sched320: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Make a table of only rate-base data."""
+    """Make a table of granular utility rate-base data.
+
+    This table contains granular data consisting of what utilities can
+    include in their rate bases. This information comes from two core
+    inputs: ``exploded_balance_sheet_assets_ferc1`` and
+    ``exploded_balance_sheet_liabilities_ferc1``. These tables include granular
+    data from the nested calculations that are build into the accounting tables.
+    See :class:`Exploder` for more details.
+
+    This rate base table also contains one specific addition from
+    :ref:`core_ferc1__yearly_operating_expenses_sched320`. In standard ratemaking
+    processes, utilities are enabled to include working capital - sometimes referred
+    to as cash on hand or cash reverves. A standard ratemaking process is to consider
+    the available rate-baseable working capital to be one eigth of the average
+    operations and maintenance expense. This function grabs that expense and
+    concatenates it with the rest of the assets and liabilities from the granular
+    exploded data.
+
+    """
     # First grab the cash on hand out of the operating expense table.
     xbrl_factoid_name = pudl.transform.ferc1.FERC1_TFR_CLASSES[
         "core_ferc1__yearly_operating_expenses_sched320"
@@ -2807,6 +2825,8 @@ def out_ferc1__yearly_rate_base(
     pks = pudl.metadata.classes.Resource.from_id(
         "core_ferc1__yearly_operating_expenses_sched320"
     ).schema.primary_key
+    # grab the factoid and its correction records - then group them together
+    # to produce on cash_on_hand factoid to concat
     cash_working_capital = (
         core_ferc1__yearly_operating_expenses_sched320[
             core_ferc1__yearly_operating_expenses_sched320[xbrl_factoid_name].isin(
@@ -2826,6 +2846,7 @@ def out_ferc1__yearly_rate_base(
             table_name="core_ferc1__yearly_operating_expenses_sched320",
         )
         .drop(columns=[xbrl_factoid_name])
+        # the assets/liabilites both use ending_balance for its main $$ column
         .rename(columns={"dollar_value": "ending_balance"})
     )
     # then select only the leafy exploded records that are in rate base and concat
