@@ -110,7 +110,12 @@ def metadata(pudl_out: Path) -> str:
     flag_value="metadata",
     help="Generate the Datasette metadata.yml in current directory, but do not deploy.",
 )
-def deploy_datasette(deploy: str) -> int:
+@click.option(
+    "--build-only",
+    is_flag=True,
+    help="Only for fly.io deployments - try building the image without actually deploying.",
+)
+def deploy_datasette(deploy: str, build_only: bool) -> int:
     """Generate deployment files and run the deploy."""
     pudl_out = PudlPaths().pudl_output
     metadata_yml = metadata(pudl_out)
@@ -148,7 +153,10 @@ def deploy_datasette(deploy: str) -> int:
         )
 
         logging.info("Running fly deploy...")
-        check_call(["/usr/bin/env", "flyctl", "deploy"], cwd=fly_dir)  # noqa: S603
+        cmd = ["/usr/bin/env", "flyctl", "deploy"]
+        if build_only:
+            cmd.append("--build-only")
+        check_call(cmd, cwd=fly_dir)  # noqa: S603
         logging.info("Deploy finished!")
 
     elif deploy == "local":
