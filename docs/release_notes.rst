@@ -24,6 +24,9 @@ v2024.01.XX
   protected and automatically updated. Build outputs are now written to
   ``gs://builds.catalyst.coop`` and retained for 30 days. See issues :issue:`3140,3179`
   and PRs :pr:`3195,3206,3212`
+* The :mod:`pudl.analysis.record_linkage.eia_ferc1_record_linkage` module has been
+  refactored to use PUDL record linkage infrastructure and include extra cleaning
+  steps. This resulted in around 500 or 2% of matches changing.
 
 Data Coverage
 ^^^^^^^^^^^^^
