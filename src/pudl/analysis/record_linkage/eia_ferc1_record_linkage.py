@@ -220,9 +220,9 @@ def get_pairs_dfs(inputs):
         inputs: :class:`InputManager` object.
 
     Returns:
-        all_pairs_df: Dataframe with all possible record pairs
-        train_pairs_df: Dataframe with all possible record pairs from the
-            training data.
+        A dataframe with all possible record pairs from all the input
+        data and a dataframe with all possible record pairs from the
+        training data.
     """
     ferc1_df = inputs.get_plants_ferc1().reset_index()
     eia_df = inputs.get_plant_parts_eia_true().reset_index()
