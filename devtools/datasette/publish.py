@@ -116,7 +116,7 @@ def metadata(pudl_out: Path) -> str:
     nargs=-1,
 )
 def deploy_datasette(deploy: str, fly_args: tuple[str]) -> int:
-    """Generate deployment files and deploy Datasette to fly.io.
+    """Generate deployment files and deploy Datasette either locally or to fly.io.
 
     Any additional arguments after -- will be passed through to flyctl if deploying to
     fly.io. E.g. the following would build ouputs for fly.io, but not actually deploy:
