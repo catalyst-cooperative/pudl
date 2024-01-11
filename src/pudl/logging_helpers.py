@@ -16,6 +16,10 @@ def configure_root_logger(logfile: str | None = None, loglevel: str = "INFO"):
         logfile: Path to logfile or None.
         loglevel: Level of detail at which to log, by default INFO.
     """
+    # Set numba log-level to warning to suppress excessive logs
+    numba_logger = logging.getLogger("numba")
+    numba_logger.setLevel(logging.WARNING)
+
     logger = logging.getLogger("catalystcoop")
     log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
     coloredlogs.install(fmt=log_format, level=loglevel, logger=logger)

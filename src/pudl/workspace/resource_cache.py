@@ -98,6 +98,7 @@ class LocalFileCache(AbstractCache):
 
     def get(self, resource: PudlResourceKey) -> bytes:
         """Retrieves value associated with a given resource."""
+        logger.debug(f"Getting {resource} from local file cache.")
         return self._resource_path(resource).open("rb").read()
 
     def add(self, resource: PudlResourceKey, content: bytes):
@@ -151,6 +152,7 @@ class GoogleCloudStorageCache(AbstractCache):
 
     def get(self, resource: PudlResourceKey) -> bytes:
         """Retrieves value associated with given resource."""
+        logger.debug(f"Getting {resource} from {self._blob.__name__}")
         return self._blob(resource).download_as_bytes(retry=gcs_retry)
 
     def add(self, resource: PudlResourceKey, value: bytes):
@@ -218,9 +220,10 @@ class LayeredCache(AbstractCache):
         for cache_layer in self._caches:
             if cache_layer.is_read_only():
                 continue
+            logger.debug(f"Adding {resource} to cache {cache_layer.__class__.__name__}")
             cache_layer.add(resource, value)
             logger.debug(
-                f"Add {resource} to cache layer {cache_layer.__class__.__name__})"
+                f"Added {resource} to cache layer {cache_layer.__class__.__name__})"
             )
             break
 
