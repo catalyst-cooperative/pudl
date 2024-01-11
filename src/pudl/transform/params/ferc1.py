@@ -3447,8 +3447,8 @@ TRANSFORM_PARAMS = {
                     "begin_yr_balance": "starting_balance",
                     "end_yr_balance": "ending_balance",
                     "report_prd": "report_prd",
-                    "end_qtr_bal": "end_qtr_bal",
-                    "pri_yr_q4_bal": "pri_yr_q4_bal",
+                    "end_qtr_bal": "ending_balance_qtr",
+                    "pri_yr_q4_bal": "starting_balance_qtr",
                     "xbrl_factoid": "liability_type",
                 }
             },
