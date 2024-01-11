@@ -229,7 +229,8 @@ def _apply_numeric_similarity_func(
             raise ValueError("The offset must be positive.")
         if scale <= 0:
             raise ValueError("The scale must be larger than 0.")
-        d = abs(df[col1] - df[col2] - origin).clip(offset, None)
+        diff = df[col1] - df[col2]
+        d = (abs(diff - origin)).clip(offset, None)
         return (
             (2 ** (-(d - offset) / scale))
             .fillna(missing_value)
@@ -242,8 +243,14 @@ def _apply_numeric_similarity_func(
             raise ValueError("The offset must be positive.")
         if scale <= 0:
             raise ValueError("The scale must be larger than 0.")
-        d = (abs(df[col1] - df[col2] - origin)).clip(offset, offset + 2 * scale)
-        return (1 - (d - offset) / (2 * scale)).fillna(missing_value).to_frame()
+        diff = df[col1] - df[col2]
+        d = (abs(diff - origin)).clip(offset, offset + 2 * scale)
+        return (
+            (1 - (d - offset) / (2 * scale))
+            .fillna(missing_value)
+            .rename(label)
+            .to_frame()
+        )
 
     def _exact(df, missing_value, label):
         compare = pd.Series(0, index=df.index)
@@ -254,25 +261,61 @@ def _apply_numeric_similarity_func(
 
     function_transforms = {
         "exponential": lambda df: _exp_sim(
-            df, col1, col2, scale, offset, origin, missing_value, label
+            df=df,
+            col1=col1,
+            col2=col2,
+            scale=scale,
+            offset=offset,
+            origin=origin,
+            missing_value=missing_value,
+            label=label,
         ),
         "linear": lambda df: _linear_sim(
-            df, col1, col2, scale, offset, origin, missing_value, label
+            df=df,
+            col1=col1,
+            col2=col2,
+            scale=scale,
+            offset=offset,
+            origin=origin,
+            missing_value=missing_value,
+            label=label,
         ),
-        "exact": lambda df: _exact(df, missing_value, label),
+        "exact": lambda df: _exact(df=df, missing_value=missing_value, label=label),
     }
     return function_transforms[function_key](df)
 
 
 class NumericSimilarityScorer(TransformStep):
-    """Vectorize two numeric columns with an expoential similarity score."""
+    """Vectorize two numeric columns with a similarity score.
 
-    # TODO: include docstring about what they parameters are
+    If two values are the same the similarity is 1 and in case of complete
+    disagreement it is 0. The implementation is adapted from the recordlinkage
+    Python package Numeric comparison library and is similar with numeric
+    comparing in ElasticSearch, a full-text search tool.
+
+    Arguments:
+        name: The name of the transformation step. Default is numeric_sim.
+        col1: The name of the first column to compare. Must be a numeric column.
+        col2: The name of the second column to compare. Must be a numeric column.
+        output_name: The name of the output Series of compared values.
+        method: The metric used. Options are "exponential", "linear", "exact".
+        scale : The rate of decay, how quickly the score should drop the further
+            from the origin that a value lies. Default is 1.0.
+        offset: Setting a nonzero offset expands the central point to cover a
+            range of values instead of just the single point specified by the
+            origin. Default is 0.
+        origin : The central point, or the best possible value for the difference
+            between records. Differences that fall at the origin will get a
+            similarity score of 1.0. The default is 0.
+        missing_value: The value if one or both records have a missing value on the
+            compared field. Default 0.
+    """
+
     name: str = "numeric_sim"
-    col1: str  # name of the first column to compare
-    col2: str  # name of the second column to compare
+    col1: str
+    col2: str
     output_name: str
-    method: str = "linear"  # name of the function transform method
+    method: str = "linear"
     scale: float = 1.0
     offset: float = 0.0
     origin: float = 0.0
