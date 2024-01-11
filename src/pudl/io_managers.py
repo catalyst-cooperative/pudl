@@ -520,7 +520,7 @@ class PudlSQLiteIOManager(SQLiteIOManager):
                 compression="snappy",
                 version="2.6",
             ) as writer:
-                writer.write_table(df)
+                writer.write_table(pa.Table.from_pandas(df, schema=schema, preserve_index=False))
 
         with self.engine.begin() as con:
             # Remove old table records before loading to db
