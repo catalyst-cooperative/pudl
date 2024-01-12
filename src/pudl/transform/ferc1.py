@@ -4733,7 +4733,7 @@ class BalanceSheetLiabilitiesTableTransformer(Ferc1AbstractTableTransformer):
         annual_cols = ["starting_balance", "ending_balance"]
         bad_years_mask = df.report_year.between(2005, 2020)
         # ensure this filling in treatment is necessary!
-        if not df.loc[bad_years_mask, annual_cols].isnull().all().all():
+        if not df.loc[bad_years_mask, annual_cols].isnull().all(axis=None):
             raise AssertionError(
                 "We expected that all balance data between 2005 and 2020 are all null. "
                 "Found non-null records, so the annual columns may no longer need to "
