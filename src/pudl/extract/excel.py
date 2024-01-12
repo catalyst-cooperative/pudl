@@ -469,13 +469,12 @@ def years_from_settings_factory(name: str) -> OpDefinition:
     """Construct a Dagster op to get target years from settings in the Dagster context.
 
     Args:
-        name: Name of an Excel based dataset (e.g. "eia860"). Currently this must be
-            one of the attributes of :class:`pudl.settings.EiaSettings`
+        name: Name of an Excel based dataset (e.g. "eia860").
 
     """
 
     def years_from_settings(context) -> DynamicOutput:
-        """Produce target years for the given dataset from the EIA settings object.
+        """Produce target years for the given dataset from the dataset settings object.
 
         These will be used to kick off worker processes to extract each year of data in
         parallel.
@@ -485,8 +484,11 @@ def years_from_settings_factory(name: str) -> OpDefinition:
             extracted. See the Dagster API documentation for more details:
             https://docs.dagster.io/_apidocs/dynamic#dagster.DynamicOut
         """
-        eia_settings = context.resources.dataset_settings.eia
-        for year in getattr(eia_settings, name).years:
+        if "eia" in name:  # Account for nested settings if EIA
+            year_settings = context.resources.dataset_settings.eia
+        else:
+            year_settings = context.resources.dataset_settings
+        for year in getattr(year_settings, name).years:
             yield DynamicOutput(year, mapping_key=str(year))
 
     return op(
@@ -504,8 +506,7 @@ def raw_df_factory(
     Args:
         extractor_cls: The dataset-specific Excel extractor used to extract the data.
             Needs to correspond to the dataset identified by ``name``.
-        name: Name of an Excel based dataset (e.g. "eia860"). Currently this must be
-            one of the attributes of :class:`pudl.settings.EiaSettings`
+        name: Name of an Excel based dataset (e.g. "eia860").
     """
     # Build a Dagster op that can extract a single year of data
     year_extractor = year_extractor_factory(extractor_cls, name)
@@ -514,7 +515,7 @@ def raw_df_factory(
     years_from_settings = years_from_settings_factory(name)
 
     def raw_dfs() -> dict[str, pd.DataFrame]:
-        """Produce a dictionary of extracted EIA dataframes."""
+        """Produce a dictionary of extracted dataframes."""
         years = years_from_settings()
         # Clone dagster op for each year using DynamicOut.map()
         # See https://docs.dagster.io/_apidocs/dynamic#dagster.DynamicOut

@@ -196,7 +196,7 @@ class ZenodoDoiSettings(BaseSettings):
     ferc6: ZenodoDoi = "10.5281/zenodo.8326696"
     ferc60: ZenodoDoi = "10.5281/zenodo.8326695"
     ferc714: ZenodoDoi = "10.5281/zenodo.8326694"
-    phmsagas: ZenodoDoi = "10.5281/zenodo.10231982"
+    phmsagas: ZenodoDoi = "10.5281/zenodo.10493790"
 
     model_config = SettingsConfigDict(env_prefix="pudl_zenodo_doi_", env_file=".env")
 
