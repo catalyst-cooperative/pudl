@@ -1863,33 +1863,6 @@ class Package(PudlMeta):
                 )
         return metadata
 
-    def get_sorted_resources(self) -> StrictList(Resource):
-        """Get a list of sorted Resources.
-
-        Currently Resources are listed in reverse alphabetical order based
-        on their name which results in the following order to promote output
-        tables to users and push intermediate tables to the bottom of the
-        docs: output, core, intermediate.
-
-        In the future we might want to have more fine grain control over how
-        Resources are sorted.
-
-        Returns:
-            A sorted list of resources.
-        """
-        resources = self.resources
-
-        def sort_resource_names(resource: Resource):
-            pattern = re.compile(r"(_out_|out_|core_)")
-
-            matches = pattern.findall(resource.name)
-            prefix = matches[0] if matches else ""
-
-            prefix_order = {"out_": 1, "core_": 2, "_out_": 3}
-            return prefix_order.get(prefix, float("inf"))
-
-        return sorted(resources, key=sort_resource_names, reverse=False)
-
 
 class CodeMetadata(PudlMeta):
     """A list of Encoders for standardizing and documenting categorical codes.
@@ -1933,7 +1906,7 @@ class DatasetteMetadata(PudlMeta):
     """
 
     data_sources: list[DataSource]
-    resources: list[Resource] = Package.from_resource_ids().get_sorted_resources()
+    resources: list[Resource] = Package.from_resource_ids()
     xbrl_resources: dict[str, list[Resource]] = {}
     label_columns: dict[str, str] = {
         "core_eia__entity_plants": "plant_name_eia",
@@ -1967,7 +1940,6 @@ class DatasetteMetadata(PudlMeta):
             "ferc60_xbrl",
             "ferc714_xbrl",
         ],
-        exclude_intermediate_resources: bool = False,
     ) -> "DatasetteMetadata":
         """Construct a dictionary of DataSources from data source names.
 
@@ -1977,18 +1949,12 @@ class DatasetteMetadata(PudlMeta):
             output_path: PUDL_OUTPUT path.
             data_source_ids: ids of data sources currently included in Datasette
             xbrl_ids: ids of data converted XBRL data to be included in Datasette
-            exclude_intermediate_resources: exlude intermediate resources if True
         """
         # Compile a list of DataSource objects for use in the template
         data_sources = [DataSource.from_id(ds_id) for ds_id in data_source_ids]
 
         # Instantiate all possible resources in a Package:
-        resources = Package.from_resource_ids().get_sorted_resources()
-
-        if exclude_intermediate_resources:
-            resources = [
-                resource for resource in resources if not resource.name.startswith("_")
-            ]
+        resources = Package.from_resource_ids().resources
 
         # Get XBRL based resources
         xbrl_resources = {}

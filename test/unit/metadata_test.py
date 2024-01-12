@@ -39,25 +39,3 @@ def test_get_etl_group_tables() -> None:
     """Test that a Value error is raised for non existent etl group."""
     with pytest.raises(ValueError):
         Package.get_etl_group_tables("not_an_etl_group")
-
-
-def test_get_sorted_resources() -> None:
-    """Test that resources are returned in this order (out, core, _out)."""
-    # Grab resources that
-    resource_ids = (
-        "_out_eia__plants_utilities",
-        "core_eia__entity_boilers",
-        "out_eia__yearly_boilers",
-    )
-    resources = Package.from_resource_ids(
-        resource_ids=resource_ids, resolve_foreign_keys=True
-    ).get_sorted_resources()
-
-    first_resource_name = resources[0].name
-    last_resource_name = resources[-1].name
-    assert first_resource_name.startswith(
-        "out"
-    ), f"{first_resource_name} is the first resource. Expected a resource with the prefix 'out'"
-    assert last_resource_name.startswith(
-        "_out"
-    ), f"{last_resource_name} is the last resource. Expected a resource with the prefix '_out'"
