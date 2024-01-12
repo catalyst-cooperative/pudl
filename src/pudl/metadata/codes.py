@@ -795,101 +795,6 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {"5": "F"},
         "ignored_codes": [],
     },
-    "entity_types_eia": {
-        "df": pd.DataFrame(
-            columns=[
-                "code",
-                "label",
-                "description",
-            ],
-            data=[
-                (
-                    "A",
-                    "municipal_marketing_authority",
-                    "Municipal Marketing Authority. Voted into existence by the residents of a municipality and given authority for creation by the state government. They are nonprofit organizations",
-                ),
-                (
-                    "B",
-                    "behind_the_meter",
-                    "Behind the Meter. Entities that install, own, and/or operate a system (usually photovoltaic), and sell, under a long term power purchase agreement (PPA) or lease, all the production from the system to the homeowner or business with which there is a net metering agreement. Third Party Owners (TPOs) of PV solar installations use this ownership code.",
-                ),
-                ("C", "cooperative", "Cooperative. Member-owned organizations."),
-                ("COM", "commercial", "Commercial facility."),
-                (
-                    "D",
-                    "nonutility_dsm_administrator",
-                    "Non-utility DSM Administrator. Only involved with Demand-Side Management activities.",
-                ),
-                (
-                    "F",
-                    "federal",
-                    "Federal. Government agencies with the authority to deliver energy to end-use customers.",
-                ),
-                ("G", "community_choice_aggregator", "Community Choice Aggregator."),
-                (
-                    "I",
-                    "investor_owned",
-                    "Investor-owned Utilities. Entities that are privately owned and provide a public service.",
-                ),
-                ("IND", "industrial", "Industrial facility."),
-                (
-                    "M",
-                    "municipal",
-                    "Municipal: Entities that are organized under authority of state statute to provide a public service to residents of that area.",
-                ),
-                ("O", "other", "Other entity type."),
-                (
-                    "P",
-                    "political_subdivision",
-                    'Political Subdivision. (also called "public utility district"): Independent of city or county government and voted into existence by a majority of the residents of any given area for the specific purpose of providing utility service to the voters. State laws provide for the formation of such districts.',
-                ),
-                ("PO", "power_marketer", "Power marketer."),
-                ("PR", "private", "Private entity."),
-                (
-                    "Q",
-                    "independent_power_producer",
-                    "Independent Power Producer or Qualifying Facility. Entities that own power plants and sell their power into the wholesale market.",
-                ),
-                (
-                    "R",
-                    "retail_power_marketer",
-                    "Retail Power Marketer or Energy Service Provider: Entities that market power to customers in restructured markets.",
-                ),
-                (
-                    "S",
-                    "state",
-                    "State entities that own or operate facilities or provide a public service.",
-                ),
-                (
-                    "T",
-                    "transmission",
-                    "Transmission: Entities that operate or own high voltage transmission wires that provide bulk power services.",
-                ),
-                ("U", "unknown", "Unknown entity type."),
-                (
-                    "W",
-                    "wholesale_power_marketer",
-                    "Wholesale Power Marketer: Entities that buy and sell power in the wholesale market.",
-                ),
-            ],
-        ).convert_dtypes(),
-        "code_fixes": {
-            "Behind the Meter": "B",
-            "Community Choice Aggregator": "G",
-            "Cooperative": "C",
-            "Facility": "Q",
-            "Federal": "F",
-            "Investor Owned": "I",
-            "Municipal": "M",
-            "Political Subdivision": "P",
-            "Power Marketer": "PO",
-            "Retail Power Marketer": "R",
-            "State": "S",
-            "Unregulated": "Q",
-            "Wholesale Power Marketer": "W",
-        },
-        "ignored_codes": [],
-    },
     "core_eia__codes_boiler_generator_assn_types": {
         "df": pd.DataFrame(
             columns=[
@@ -2390,4 +2295,104 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {},
         "ignored_codes": [],
     },
+}
+
+# The entity type codes were never fully reconciled. Preserving this work for reference.
+# See https://github.com/catalyst-cooperative/pudl/issues/1392
+DISABLED_CODE_METADATA = {
+    "core_eia__codes_entity_types": {
+        "df": pd.DataFrame(
+            columns=[
+                "code",
+                "label",
+                "description",
+            ],
+            data=[
+                (
+                    "A",
+                    "municipal_marketing_authority",
+                    "Municipal Marketing Authority. Voted into existence by the residents of a municipality and given authority for creation by the state government. They are nonprofit organizations",
+                ),
+                (
+                    "B",
+                    "behind_the_meter",
+                    "Behind the Meter. Entities that install, own, and/or operate a system (usually photovoltaic), and sell, under a long term power purchase agreement (PPA) or lease, all the production from the system to the homeowner or business with which there is a net metering agreement. Third Party Owners (TPOs) of PV solar installations use this ownership code.",
+                ),
+                ("C", "cooperative", "Cooperative. Member-owned organizations."),
+                ("COM", "commercial", "Commercial facility."),
+                (
+                    "D",
+                    "nonutility_dsm_administrator",
+                    "Non-utility DSM Administrator. Only involved with Demand-Side Management activities.",
+                ),
+                (
+                    "F",
+                    "federal",
+                    "Federal. Government agencies with the authority to deliver energy to end-use customers.",
+                ),
+                ("G", "community_choice_aggregator", "Community Choice Aggregator."),
+                (
+                    "I",
+                    "investor_owned",
+                    "Investor-owned Utilities. Entities that are privately owned and provide a public service.",
+                ),
+                ("IND", "industrial", "Industrial facility."),
+                (
+                    "M",
+                    "municipal",
+                    "Municipal: Entities that are organized under authority of state statute to provide a public service to residents of that area.",
+                ),
+                ("O", "other", "Other entity type."),
+                (
+                    "P",
+                    "political_subdivision",
+                    'Political Subdivision. (also called "public utility district"): Independent of city or county government and voted into existence by a majority of the residents of any given area for the specific purpose of providing utility service to the voters. State laws provide for the formation of such districts.',
+                ),
+                ("PO", "power_marketer", "Power marketer."),
+                ("PR", "private", "Private entity."),
+                (
+                    "Q",
+                    "independent_power_producer",
+                    "Independent Power Producer or Qualifying Facility. Entities that own power plants and sell their power into the wholesale market.",
+                ),
+                (
+                    "R",
+                    "retail_power_marketer",
+                    "Retail Power Marketer or Energy Service Provider: Entities that market power to customers in restructured markets.",
+                ),
+                (
+                    "S",
+                    "state",
+                    "State entities that own or operate facilities or provide a public service.",
+                ),
+                (
+                    "T",
+                    "transmission",
+                    "Transmission: Entities that operate or own high voltage transmission wires that provide bulk power services.",
+                ),
+                ("U", "unknown", "Unknown entity type."),
+                (
+                    "W",
+                    "wholesale_power_marketer",
+                    "Wholesale Power Marketer: Entities that buy and sell power in the wholesale market.",
+                ),
+            ],
+        ).convert_dtypes(),
+        "code_fixes": {
+            "Behind the Meter": "B",
+            "Community Choice Aggregator": "G",
+            "Cooperative": "C",
+            "Facility": "Q",
+            "Federal": "F",
+            "Investor Owned": "I",
+            "Municipal": "M",
+            "Political Subdivision": "P",
+            "Power Marketer": "PO",
+            "Retail Power Marketer": "R",
+            "State": "S",
+            "Unregulated": "Q",
+            "Wholesale Power Marketer": "W",
+        },
+        "ignored_codes": [],
+    }
 }

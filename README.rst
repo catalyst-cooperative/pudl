@@ -42,48 +42,54 @@ What is PUDL?
 The `PUDL <https://catalyst.coop/pudl/>`__ Project is an open source data processing
 pipeline that makes US energy data easier to access and use programmatically.
 
-Hundreds of gigabytes of valuable data are published by US government agencies, but
-it's often difficult to work with. PUDL takes the original spreadsheets, CSV files,
-and databases and turns them into a unified resource. This allows users to spend more
-time on novel analysis and less time on data preparation.
+Hundreds of gigabytes of valuable data are published by US government agencies, but it's
+often difficult to work with. PUDL takes the original spreadsheets, CSV files, and
+databases and turns them into a unified resource. This allows users to spend more time
+on novel analysis and less time on data preparation.
 
 The project is focused on serving researchers, activists, journalists, policy makers,
-and small businesses that might not otherwise be able to afford access to this data
-from commercial sources and who may not have the time or expertise to do all the
-data processing themselves from scratch.
+and small businesses that might not otherwise be able to afford access to this data from
+commercial sources and who may not have the time or expertise to do all the data
+processing themselves from scratch.
 
 We want to make this data accessible and easy to work with for as wide an audience as
-possible: anyone from a grassroots youth climate organizers working with Google
-sheets to university researchers with access to scalable cloud computing
-resources and everyone in between!
+possible: anyone from a grassroots youth climate organizers working with Google sheets
+to university researchers with access to scalable cloud computing resources and everyone
+in between!
 
 PUDL is comprised of three core components:
 
-- **Raw Data Archives**
+Raw Data Archives
+^^^^^^^^^^^^^^^^^
+PUDL `archives <https://github.com/catalyst-cooperative/pudl-archiver>`__ all our raw
+inputs on `Zenodo
+<https://zenodo.org/communities/catalyst-cooperative/?page=1&size=20>`__ to ensure
+permanent, versioned access to the data. In the event that an agency changes how they
+publish data or deletes old files, the data processing pipeline will still have access
+to the original inputs. Each of the data inputs may have several different versions
+archived, and all are assigned a unique DOI (digital object identifier) and made
+available through Zenodo's REST API.  You can read more about the Raw Data Archives in
+the `docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/#raw-data-archives>`__.
 
-  - PUDL `archives <https://github.com/catalyst-cooperative/pudl-archiver>`__
-    all the raw data inputs on `Zenodo <https://zenodo.org/communities/catalyst-cooperative/?page=1&size=20>`__
-    to ensure perminant, versioned access to the data. In the event that an agency
-    changes how they publish data or deletes old files, the ETL will still have access
-    to the original inputs. Each of the data inputs may have several different versions
-    archived, and all are assigned a unique DOI and made available through the REST API.
-    You can read more about the Raw Data Archives in the
-    `docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/#raw-data-archives>`__.
-- **ETL Pipeline**
+Data Pipeline
+^^^^^^^^^^^^^
+The data pipeline (this repo) ingests raw data from the archives, cleans and integrates
+it, and writes the resulting tables to `SQLite <https://sqlite.org>`__ and `Apache
+Parquet <https://parquet.apache.org/>`__ files, with some acompanying metadata stored as
+JSON.  Each release of the PUDL software contains a set of of DOIs indicating which
+versions of the raw inputs it processes. This helps ensure that the outputs are
+replicable. You can read more about our ETL (extract, transform, load) process in the
+`PUDL documentation <https://catalystcoop-pudl.readthedocs.io/en/nightly/#the-etl-process>`__.
 
-  - The ETL pipeline (this repo) ingests the raw archives, cleans them,
-    integrates them, and outputs them to a series of tables stored in SQLite Databases,
-    Parquet files, and pickle files (the Data Warehouse). Each release of the PUDL
-    Python package is embedded with a set of of DOIs to indicate which version of the
-    raw inputs it is meant to process. This process helps ensure that the ETL and it's
-    outputs are replicable. You can read more about the ETL in the
-    `docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/#the-etl-process>`__.
-- **Data Warehouse**
-
-  - The outputs from the ETL, sometimes called "PUDL outputs",
-    are stored in a data warehouse as a collection of SQLite and Parquet files so that
-    users can access the data without having to run any code. Learn more about how to
-    access the data `here <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html>`__.
+Data Warehouse
+^^^^^^^^^^^^^^
+The SQLite, Parquet, and JSON outputs from the data pipeline, sometimes called "PUDL
+outputs", are updated each night by an automated build process, and periodically
+archived so that users can access the data without having to install and run our data
+processing system. These outputs contain hundreds of tables and comprise a small
+file-based data warehouse that can be used for a variety of energy system analyses.
+Learn more about `how to access the PUDL data
+<https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html>`__.
 
 What data is available?
 -----------------------
@@ -98,23 +104,23 @@ PUDL currently integrates data from:
 * **EIA Form 861**: 2001-2022
   - `Source Docs <https://www.eia.gov/electricity/data/eia861/>`__
   - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/eia861.html>`__
-* **EIA Form 923**: 2001-2022
+* **EIA Form 923**: 2001-2023
   - `Source Docs <https://www.eia.gov/electricity/data/eia923/>`__
   - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/eia923.html>`__
-* **EPA Continuous Emissions Monitoring System (CEMS)**: 1995-2022
+* **EPA Continuous Emissions Monitoring System (CEMS)**: 1995Q1-2023Q3
   - `Source Docs <https://campd.epa.gov/>`__
   - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/epacems.html>`__
-* **FERC Form 1**: 1994-2021
+* **FERC Form 1**: 1994-2022
   - `Source Docs <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual>`__
   - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/ferc1.html>`__
-* **FERC Form 714**: 2006-2020
+* **FERC Form 714**: 2006-2022 (mostly raw)
   - `Source Docs <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-no-714-annual-electric/data>`__
   - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/ferc714.html>`__
-* **FERC Form 2**: 2021 (raw only)
+* **FERC Form 2**: 1996-2022 (raw only)
   - `Source Docs <https://www.ferc.gov/industries-data/natural-gas/industry-forms/form-2-2a-3-q-gas-historical-vfp-data>`__
-* **FERC Form 6**: 2021 (raw only)
+* **FERC Form 6**: 2000-2022 (raw only)
   - `Source Docs <https://www.ferc.gov/general-information-1/oil-industry-forms/form-6-6q-historical-vfp-data>`__
-* **FERC Form 60**: 2021 (raw only)
+* **FERC Form 60**: 2006-2022 (raw only)
   - `Source Docs <https://www.ferc.gov/form-60-annual-report-centralized-service-companies>`__
 * **US Census Demographic Profile 1 Geodatabase**: 2010
   - `Source Docs <https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html>`__

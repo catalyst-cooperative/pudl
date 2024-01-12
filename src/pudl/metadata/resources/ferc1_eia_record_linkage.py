@@ -71,6 +71,7 @@ meant for use as an input into the record linkage between FERC1 plants and EIA."
                 "total_fuel_cost",
                 "total_mmbtu",
                 "utility_id_pudl",
+                "utility_name_eia",
                 "report_year",
                 "plant_id_report_year",
             ],
