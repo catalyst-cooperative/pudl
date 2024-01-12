@@ -4720,7 +4720,7 @@ class BalanceSheetLiabilitiesTableTransformer(Ferc1AbstractTableTransformer):
             .assign(utility_type="total")
         )
 
-    def process_dbf(self: Self, df: pd.DataFrame):
+    def process_dbf_test(self: Self, df: pd.DataFrame):
         """Standard dbf process plus converting quarterly data to annual.
 
         For some reason in the dbf data for this table reported all of the
@@ -4739,8 +4739,10 @@ class BalanceSheetLiabilitiesTableTransformer(Ferc1AbstractTableTransformer):
                 "Found non-null records, so the annual columns may no longer need to "
                 "be filled in with quarterly data."
             )
-        for col in annual_cols:
-            df.loc[bad_years_mask, col] = df.loc[bad_years_mask, f"{col}_qtr"]
+
+        df.loc[bad_years_mask, annual_cols] = df.loc[
+            bad_years_mask, ["pri_yr_q4_bal", "end_qtr_bal"]
+        ].to_numpy()
         return df
 
     @cache_df(key="main")
