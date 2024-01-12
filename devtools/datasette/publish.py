@@ -110,8 +110,19 @@ def metadata(pudl_out: Path) -> str:
     flag_value="metadata",
     help="Generate the Datasette metadata.yml in current directory, but do not deploy.",
 )
-def deploy_datasette(deploy: str) -> int:
-    """Generate deployment files and run the deploy."""
+@click.argument(
+    "fly_args",
+    required=False,
+    nargs=-1,
+)
+def deploy_datasette(deploy: str, fly_args: tuple[str]) -> int:
+    """Generate deployment files and deploy Datasette either locally or to fly.io.
+
+    Any additional arguments after -- will be passed through to flyctl if deploying to
+    fly.io. E.g. the following would build ouputs for fly.io, but not actually deploy:
+
+    python publish.py --fly -- --build-only
+    """
     pudl_out = PudlPaths().pudl_output
     metadata_yml = metadata(pudl_out)
     # Order the databases to highlight PUDL
@@ -148,7 +159,10 @@ def deploy_datasette(deploy: str) -> int:
         )
 
         logging.info("Running fly deploy...")
-        check_call(["/usr/bin/env", "flyctl", "deploy"], cwd=fly_dir)  # noqa: S603
+        cmd = ["/usr/bin/env", "flyctl", "deploy"]
+        if fly_args:
+            cmd = cmd + list(fly_args)
+        check_call(cmd, cwd=fly_dir)  # noqa: S603
         logging.info("Deploy finished!")
 
     elif deploy == "local":
