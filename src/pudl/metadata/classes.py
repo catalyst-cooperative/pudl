@@ -1866,6 +1866,32 @@ class Package(PudlMeta):
                 )
         return metadata
 
+    def get_sorted_resources(self) -> StrictList(Resource):
+        """Get a list of sorted Resources.
+
+        Currently Resources are listed in reverse alphabetical order based
+        on their name which results in the following order to promote output
+        tables to users and push intermediate tables to the bottom of the
+        docs: output, core, intermediate.
+        In the future we might want to have more fine grain control over how
+        Resources are sorted.
+
+        Returns:
+            A sorted list of resources.
+        """
+        resources = self.resources
+
+        def sort_resource_names(resource: Resource):
+            pattern = re.compile(r"(_out_|out_|core_)")
+
+            matches = pattern.findall(resource.name)
+            prefix = matches[0] if matches else ""
+
+            prefix_order = {"out_": 1, "core_": 2, "_out_": 3}
+            return prefix_order.get(prefix, float("inf"))
+
+        return sorted(resources, key=sort_resource_names, reverse=False)
+
 
 class CodeMetadata(PudlMeta):
     """A list of Encoders for standardizing and documenting categorical codes.
