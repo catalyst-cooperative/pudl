@@ -29,7 +29,7 @@ class Extractor(excel.GenericExtractor):
 # TODO (bendnorman): Add this information to the metadata
 raw_table_names = (
     "raw_phmsagas__distribution",
-    "raw_phmsagas__yearly_transmission_gathering_summary_by_commodity_group",
+    "raw_phmsagas__yearly_transmission_gathering_summary_by_commodity",
     "raw_phmsagas__yearly_miles_of_gathering_pipe_by_nps",
     "raw_phmsagas__yearly_miles_of_transmission_pipe_by_nps",
 )
