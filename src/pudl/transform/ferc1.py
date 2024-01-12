@@ -4720,6 +4720,31 @@ class BalanceSheetLiabilitiesTableTransformer(Ferc1AbstractTableTransformer):
             .assign(utility_type="total")
         )
 
+    def process_dbf_test(self: Self, df: pd.DataFrame):
+        """Standard dbf process plus converting quarterly data to annual.
+
+        For some reason in the dbf data for this table reported all of the
+        balance data as quarterly data between 2005 and 2020. We already choose
+        the end of the year in :meth:`select_annual_rows_dbf`.
+
+        https://github.com/catalyst-cooperative/pudl/issues/3233
+        """
+        df = super().process_dbf(df)
+        annual_cols = ["starting_balance", "ending_balance"]
+        bad_years_mask = df.report_year.between(2005, 2020)
+        # ensure this filling in treatment is necessary!
+        if not df.loc[bad_years_mask, annual_cols].isnull().all(axis=None):
+            raise AssertionError(
+                "We expected that all balance data between 2005 and 2020 are all null. "
+                "Found non-null records, so the annual columns may no longer need to "
+                "be filled in with quarterly data."
+            )
+
+        df.loc[bad_years_mask, annual_cols] = df.loc[
+            bad_years_mask, ["pri_yr_q4_bal", "end_qtr_bal"]
+        ].to_numpy()
+        return df
+
     @cache_df(key="main")
     def transform_main(self: Self, df: pd.DataFrame) -> pd.DataFrame:
         """Duplicate data that appears in multiple distinct calculations.

@@ -137,7 +137,7 @@ def data_dictionary_metadata_to_rst(app):
     """Export data dictionary metadata to RST for inclusion in the documentation."""
     # Create an RST Data Dictionary for the PUDL DB:
     print("Exporting PUDL DB data dictionary metadata to RST.")
-    skip_names = ["datasets", "accumulated_depreciation_ferc1", "entity_types_eia"]
+    skip_names = ["datasets", "accumulated_depreciation_ferc1"]
     names = [name for name in RESOURCE_METADATA if name not in skip_names]
     package = Package.from_resource_ids(resource_ids=tuple(sorted(names)))
     # Sort fields within each resource by name:
