@@ -39,8 +39,11 @@ class Extractor(excel.GenericExtractor):
             if c not in self._metadata.get_all_columns(page)
             and c not in self.cols_added
         ]
-        logger.warning(f"Dropping columns {to_drop} that are not mapped to this asset.")
-        df = df.drop(columns=to_drop, errors="ignore")
+        if to_drop:
+            logger.warning(
+                f"Dropping columns {to_drop} that are not mapped to this asset."
+            )
+            df = df.drop(columns=to_drop, errors="ignore")
         return df
 
 
