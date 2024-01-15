@@ -237,14 +237,13 @@ class GenericExtractor:
         return df
 
     @staticmethod
-    def process_final_page(df, page):
-        """Final processing stage applied to a page DataFrame."""
-        return df
-
-    @staticmethod
     def get_dtypes(page, **partition):
         """Provide custom dtypes for given page and partition."""
         return {}
+
+    def process_final_page(self, df, page):
+        """Final processing stage applied to a page DataFrame."""
+        return df
 
     def zipfile_resource_partitions(self, page, **partition) -> dict:
         """Get partition used for the returning a zipfile from the datastore.
@@ -335,7 +334,7 @@ class GenericExtractor:
             )
             df = pd.concat([df, pd.DataFrame(columns=missing_cols)], sort=True)
 
-            raw_dfs[page] = self.process_final_page(df, page)
+            raw_dfs[page] = self.process_final_page(df=df, page=page)
         return raw_dfs
 
     def load_excel_file(self, page, **partition):

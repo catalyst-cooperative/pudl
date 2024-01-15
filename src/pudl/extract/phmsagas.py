@@ -25,10 +25,28 @@ class Extractor(excel.GenericExtractor):
         self.cols_added = []
         super().__init__(*args, **kwargs)
 
+    def process_final_page(self, df, page):
+        """Drop columns that get mapped to other assets.
+
+        Older years of PHMSA data may have fewer pages and tables of data than newer
+        data. This means one page may get split into multiple tables by column. To
+        prevent each table from containing all columns from these older years, filter by
+        the list of columns specified for the page, with a warning.
+        """
+        to_drop = [
+            c
+            for c in df.columns
+            if c not in self._metadata.get_all_columns(page)
+            and c not in self.cols_added
+        ]
+        logger.warning(f"Dropping columns {to_drop} that are not mapped to this asset.")
+        df = df.drop(columns=to_drop, errors="ignore")
+        return df
+
 
 # TODO (bendnorman): Add this information to the metadata
 raw_table_names = (
-    "raw_phmsagas__distribution",
+    "raw_phmsagas__yearly_distribution",
     "raw_phmsagas__yearly_transmission_gathering_summary_by_commodity",
     "raw_phmsagas__yearly_miles_of_gathering_pipe_by_nps",
     "raw_phmsagas__yearly_miles_of_transmission_pipe_by_nps",
