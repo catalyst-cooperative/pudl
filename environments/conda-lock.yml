@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: cceb79809ed03685e0a18809880629a4746051175e328067a36aed4f3b1f9772
-    osx-64: 2b6f16811734dd45a65699cd78eab3c469c6eb96fc7d6409ff7623cc672fbf5a
-    osx-arm64: 20b0083c78b9accd225f55f3c59a03d34808f766ec83bc1a924dae798b96d424
+    linux-64: a94ce1081d54c82931f58616985e5261ac1f9a1471c91852e1d0b53e9306b923
+    osx-64: a183514478e1919b8fb62d0d6d4b45a20ca9e0d600412ea1685c6e7d76b79f58
+    osx-arm64: 36ae6768b8517ef3b018f1e8fce32dcb5fea0df8341e951712a7ee4b08b6a361
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -19101,63 +19101,6 @@ package:
       sha256: cf8660b64d62fb5a631bb9344fd4c2fbc6b2529799c8a38ecaf996b05652567d
     category: main
     optional: false
-  - name: recordlinkage
-    version: "0.16"
-    manager: conda
-    platform: linux-64
-    dependencies:
-      jellyfish: ">=1"
-      joblib: ""
-      numexpr: ""
-      numpy: ">=1.13"
-      pandas: ">=1,<3"
-      python: ">=3.8"
-      scikit-learn: ">=1"
-      scipy: ">=1"
-    url: https://conda.anaconda.org/conda-forge/noarch/recordlinkage-0.16-pyhd8ed1ab_0.conda
-    hash:
-      md5: 948205d11a8b036e065c46462db0632a
-      sha256: 3f3c03719d6bdef41f8a08f51fb3e58a80223a321ffca413eda0c332bfa75bf0
-    category: main
-    optional: false
-  - name: recordlinkage
-    version: "0.16"
-    manager: conda
-    platform: osx-64
-    dependencies:
-      joblib: ""
-      numexpr: ""
-      python: ">=3.8"
-      numpy: ">=1.13"
-      scikit-learn: ">=1"
-      pandas: ">=1,<3"
-      scipy: ">=1"
-      jellyfish: ">=1"
-    url: https://conda.anaconda.org/conda-forge/noarch/recordlinkage-0.16-pyhd8ed1ab_0.conda
-    hash:
-      md5: 948205d11a8b036e065c46462db0632a
-      sha256: 3f3c03719d6bdef41f8a08f51fb3e58a80223a321ffca413eda0c332bfa75bf0
-    category: main
-    optional: false
-  - name: recordlinkage
-    version: "0.16"
-    manager: conda
-    platform: osx-arm64
-    dependencies:
-      joblib: ""
-      numexpr: ""
-      python: ">=3.8"
-      numpy: ">=1.13"
-      scikit-learn: ">=1"
-      pandas: ">=1,<3"
-      scipy: ">=1"
-      jellyfish: ">=1"
-    url: https://conda.anaconda.org/conda-forge/noarch/recordlinkage-0.16-pyhd8ed1ab_0.conda
-    hash:
-      md5: 948205d11a8b036e065c46462db0632a
-      sha256: 3f3c03719d6bdef41f8a08f51fb3e58a80223a321ffca413eda0c332bfa75bf0
-    category: main
-    optional: false
   - name: referencing
     version: 0.32.1
     manager: conda
@@ -19845,10 +19788,10 @@ package:
       libcxx: ">=15"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/ruff-0.1.13-py311ha071555_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/ruff-0.1.13-py311ha071555_1.conda
     hash:
-      md5: dcd486bb0740c36578456122a7ff4719
-      sha256: 3690153cc2f78902a709a3713920733d60d413074a9d8c2e02725c766a26be00
+      md5: 25d6563a275402a2c6d10d3f4586b14e
+      sha256: a19524f4dca7885627588f4e1ff2fa557c6ccae09a699477100f0734859b5e17
     category: main
     optional: false
   - name: ruff
@@ -19859,10 +19802,10 @@ package:
       libcxx: ">=15"
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/ruff-0.1.13-py311h8c97afb_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/ruff-0.1.13-py311h8c97afb_1.conda
     hash:
-      md5: 54cf3893e52eb2cc43cbb27a5e9d7602
-      sha256: da0dfa1ae8603630d7bc964baa48542b6fbc995205ecd740d63b1c1733a15d86
+      md5: ef2cb83fd40327ffbf5a73036c7fd081
+      sha256: 48aef38def62df1f61144dae0deacace0331c532b3b621439f0e8ab24adbd09f
     category: main
     optional: false
   - name: s2n
