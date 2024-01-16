@@ -27,8 +27,10 @@ _FUEL_COLS = [
 ]
 
 
-ferc_dataframe_embedder = embed_dataframe.dataframe_embedder_factory(
-    {
+@op
+def get_vectorizers():
+    """Get the dictionary of vectorizer transforms for each column."""
+    return {
         "plant_name": embed_dataframe.ColumnVectorizer(
             transform_steps=[
                 embed_dataframe.NameCleaner(),
@@ -50,7 +52,6 @@ ferc_dataframe_embedder = embed_dataframe.dataframe_embedder_factory(
                 embed_dataframe.ColumnCleaner(cleaning_function="null_to_empty_str"),
                 embed_dataframe.CategoricalVectorizer(),
             ],
-            weight=1.0,
             columns=["construction_type"],
         ),
         "capacity_mw": embed_dataframe.ColumnVectorizer(
@@ -58,7 +59,6 @@ ferc_dataframe_embedder = embed_dataframe.dataframe_embedder_factory(
                 embed_dataframe.ColumnCleaner(cleaning_function="null_to_zero"),
                 embed_dataframe.NumericalVectorizer(),
             ],
-            weight=1.0,
             columns=["capacity_mw"],
         ),
         "construction_year": embed_dataframe.ColumnVectorizer(
@@ -66,12 +66,10 @@ ferc_dataframe_embedder = embed_dataframe.dataframe_embedder_factory(
                 embed_dataframe.ColumnCleaner(cleaning_function="fix_int_na"),
                 embed_dataframe.CategoricalVectorizer(),
             ],
-            weight=1.0,
             columns=["construction_year"],
         ),
         "utility_id_ferc1": embed_dataframe.ColumnVectorizer(
             transform_steps=[embed_dataframe.CategoricalVectorizer()],
-            weight=1.0,
             columns=["utility_id_ferc1"],
         ),
         "fuel_fractions": embed_dataframe.ColumnVectorizer(
@@ -80,11 +78,9 @@ ferc_dataframe_embedder = embed_dataframe.dataframe_embedder_factory(
                 embed_dataframe.NumericalVectorizer(),
                 embed_dataframe.NumericalNormalizer(),
             ],
-            weight=1.0,
             columns=_FUEL_COLS,
         ),
     }
-)
 
 
 @op
@@ -163,7 +159,8 @@ def _out_ferc1__yearly_steam_plants_sched402_with_plant_ids(
         core_ferc1__yearly_steam_plants_sched402,
         out_ferc1__yearly_steam_plants_fuel_by_plant_sched402,
     )
-    feature_matrix = ferc_dataframe_embedder(input_df)
+    vectorizers = get_vectorizers()
+    feature_matrix = embed_dataframe.embed_dataframe_graph(input_df, vectorizers)
     label_df = link_ids_cross_year(input_df, feature_matrix)
 
     return plants_steam_validate_ids(core_ferc1__yearly_steam_plants_sched402, label_df)
