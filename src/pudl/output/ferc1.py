@@ -1154,7 +1154,10 @@ class OffByFactoid(NamedTuple):
 
 
 @asset
-def _out_ferc1__explosion_tags(table_dimensions_ferc1) -> pd.DataFrame:
+def _out_ferc1__explosion_tags(
+    table_dimensions_ferc1: pd.DataFrame,
+    calculation_components_xbrl_ferc1: pd.DataFrame,
+) -> pd.DataFrame:
     """Grab the stored tables of tags and add inferred dimension."""
     rate_tags = _get_tags("xbrl_factoid_rate_base_tags.csv", table_dimensions_ferc1)
     rev_req_tags = _get_tags(
@@ -1180,9 +1183,10 @@ def _out_ferc1__explosion_tags(table_dimensions_ferc1) -> pd.DataFrame:
         plant_function_tags,
         utility_type_tags,
     ]
-    tags_all = (
+    tag_idx = list(NodeId._fields)
+    tags = (
         pd.concat(
-            [df.set_index(list(NodeId._fields)) for df in tag_dfs],
+            [df.set_index(tag_idx) for df in tag_dfs],
             join="outer",
             verify_integrity=True,
             ignore_index=False,
@@ -1191,22 +1195,10 @@ def _out_ferc1__explosion_tags(table_dimensions_ferc1) -> pd.DataFrame:
         .reset_index()
         .drop(columns=["notes"])
     )
-    # Add the correction records to the tags with the same tags as the parent
-    idx = list(NodeId._fields)
-    correction_index = (
-        table_dimensions_ferc1[
-            ~table_dimensions_ferc1.xbrl_factoid.str.endswith("_correction")
-        ]
-        .set_index(idx)
-        .index
-    )
-    corrections = tags_all.set_index(idx)
-    corrections = (
-        corrections.loc[corrections.index.intersection(correction_index)]
-        .reset_index()
-        .assign(xbrl_factoid=lambda x: x.xbrl_factoid + "_correction")
-    )
-    return pd.concat([tags_all, corrections])
+    # Add the correction records to the tags...
+    corrections = make_correction_tags(tags, calculation_components_xbrl_ferc1)
+    tags = pd.concat([tags, corrections])
+    return tags
 
 
 def _get_tags(file_name: str, table_dimensions_ferc1: pd.DataFrame) -> pd.DataFrame:
@@ -1251,7 +1243,7 @@ def _aggregatable_dimension_tags(
         )
         .set_index(idx)
     )
-    # don't include the corrections
+    # don't include the corrections because we will add those in later
     table_dimensions_ferc1 = table_dimensions_ferc1[
         ~table_dimensions_ferc1.xbrl_factoid.str.endswith("_correction")
     ].set_index(idx)
@@ -1265,6 +1257,64 @@ def _aggregatable_dimension_tags(
     ).reset_index()
     tags_df[aggregatable_col] = tags_df[aggregatable_col].fillna(tags_df[dimension])
     return tags_df[tags_df[aggregatable_col] != "total"]
+
+
+def make_correction_tags(
+    tags_all: pd.DataFrame, calc_components: pd.DataFrame
+) -> pd.DataFrame:
+    """Make tags for correction records.
+
+    We need to check to see if any of the tags in each of the calculated
+    parent factoids are the same for all of their child components. So in this
+    function, we're going to merge on the tags to the children then groupby the
+    parents. For each tag, see if the childrens'tags contains only one unique value.
+    If so grab the tag to associate with the correction record of the parent. If not,
+    no tag will be associated with the record.
+    """
+    tag_idx = list(NodeId._fields)
+    calcs_w_tags = (
+        pd.merge(  # remove the correction records bc those are the ones we want to
+            calc_components[~calc_components.xbrl_factoid.str.contains("_correction")],
+            tags_all,
+            on=tag_idx,
+            how="left",
+            validate="m:1",
+        )
+    )
+    # use the same groupby to get the number of unique tags and the first one
+    # we will only use the first tag if the tags are unique
+    tag_cols = list(tags_all.drop(columns=tag_idx).columns)
+    tag_gb = calcs_w_tags.groupby([f"{c}_parent" for c in tag_idx], dropna=False)[
+        tag_cols
+    ]
+    tag_check = pd.merge(
+        tag_gb.nunique(
+            dropna=False
+        ),  # bc if null and non-null tag we want to know that
+        tag_gb.first(),
+        right_index=True,
+        left_index=True,
+        suffixes=("_n", ""),
+        validate="1:1",
+    )
+    # null out all of the tags that have non-unique tags for each parent
+    for col in tag_cols:
+        non_unique_mask = tag_check[f"{col}_n"] != 1
+        tag_check.loc[non_unique_mask, col] = pd.NA
+    # specifically for in_rate_base assign partial when it is a mix
+    tag_check.loc[tag_check["in_rate_base_n"] > 1, "in_rate_base"] = "partial"
+    # remove the fully null tags bc there's nothing new in there and
+    # drop all of the _n columns
+    tag_check = tag_check.dropna(how="all", subset=tag_cols)[tag_cols]
+    # remove the parent from the index name
+    tag_check.index.names = [
+        col.removesuffix("_parent") for col in tag_check.index.names
+    ]
+    correction_tags = tag_check.reset_index().assign(
+        xbrl_factoid=lambda x: x.xbrl_factoid + "_correction"
+    )
+    logger.info(f"Found {len(correction_tags)=}")
+    return correction_tags
 
 
 def exploded_table_asset_factory(
@@ -2794,6 +2844,7 @@ def nodes_to_df(calc_forest: nx.DiGraph, nodes: list[NodeId]) -> pd.DataFrame:
     return pd.concat([index, tags], axis="columns")
 
 
+@asset
 def out_ferc1__yearly_rate_base(
     exploded_balance_sheet_assets_ferc1: pd.DataFrame,
     exploded_balance_sheet_liabilities_ferc1: pd.DataFrame,
@@ -2822,16 +2873,16 @@ def out_ferc1__yearly_rate_base(
     xbrl_factoid_name = pudl.transform.ferc1.FERC1_TFR_CLASSES[
         "core_ferc1__yearly_operating_expenses_sched320"
     ]().params.xbrl_factoid_name
-    # First grab the cash on hand out of the operating expense table.
-    # then prep it for concating. Calculate cash on hand & add tags
+    # First grab the working capital out of the operating expense table.
+    # then prep it for concating. Calculate working capital & add tags
     cash_working_capital = (
         core_ferc1__yearly_operating_expenses_sched320[
             core_ferc1__yearly_operating_expenses_sched320[xbrl_factoid_name]
             == "operations_and_maintenance_expenses_electric"
         ]
         .assign(
-            dollar_value=lambda x: x.dollar_value / 8,
-            xbrl_factoid="cash_on_hand",  # newly definied (do we need to add it anywhere?)
+            dollar_value=lambda x: x.dollar_value.divide(8),
+            xbrl_factoid="cash_working_capital",  # newly definied (do we need to add it anywhere?)
             tags_rate_base_category="net_working_capital",
             tags_aggregatable_utility_type="electric",
             table_name="core_ferc1__yearly_operating_expenses_sched320",
@@ -2845,15 +2896,19 @@ def out_ferc1__yearly_rate_base(
         pd.concat(
             [
                 exploded_balance_sheet_assets_ferc1[
-                    exploded_balance_sheet_assets_ferc1.tags_in_rate_base == "yes"
+                    exploded_balance_sheet_assets_ferc1.tags_in_rate_base.isin(
+                        ["yes", "partial"]
+                    )
                 ],
                 exploded_balance_sheet_liabilities_ferc1[
-                    exploded_balance_sheet_liabilities_ferc1.tags_in_rate_base == "yes"
+                    exploded_balance_sheet_liabilities_ferc1.tags_in_rate_base.isin(
+                        ["yes", "partial"]
+                    )
                 ],
                 cash_working_capital,
             ]
         )
-        .drop(columns=["tags_in_rate_base"])
+        # .drop(columns=["tags_in_rate_base"])
         .sort_values(
             by=["report_year", "utility_id_ferc1", "table_name"], ascending=False
         )
