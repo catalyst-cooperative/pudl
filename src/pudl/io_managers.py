@@ -1,8 +1,10 @@
 """Dagster IO Managers."""
 import json
+import os
 import re
 from pathlib import Path
 from sqlite3 import sqlite_version
+from typing import Any
 
 import dask.dataframe as dd
 import pandas as pd
@@ -12,6 +14,7 @@ import sqlalchemy as sa
 from alembic.autogenerate.api import compare_metadata
 from alembic.migration import MigrationContext
 from dagster import (
+    ConfigurableIOManager,
     InitResourceContext,
     InputContext,
     IOManager,
@@ -20,7 +23,6 @@ from dagster import (
     io_manager,
 )
 from packaging import version
-from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy.exc import SQLAlchemyError
 from upath import UPath
 
@@ -85,26 +87,66 @@ class ForeignKeyErrors(SQLAlchemyError):  # noqa: N818
         return self.fk_errors[idx]
 
 
-class ParquetSettings(BaseSettings):
-    """Controls how parquet files are used by pudl infrastructure.
+def get_table_name_from_context(context: OutputContext) -> str:
+    """Retrieves the table name from the context object."""
+    # TODO(rousik): Figure out which kind of identifier is used when.
+    if context.has_asset_key:
+        return context.asset_key.to_python_identifier()
+    return context.get_identifier()
 
-    This settings structure is used to control how parquet file formats are integrated with the PUDL
-    ETL pipeline. In addition to the original sqlite format, we may emit data into parquet files, using
-    pyarrow with schemas. In addition, we may also choose, whether sqlite or parquet should be treated
-    as the source of truth for subsequent data reads. I.e. when subsequent steps need to read the data,
-    we can control whether this data is read from sqlite or parquet files.
+class PudlMixedFormatIOManager(ConfigurableIOManager):
+    """Format switching IOManager that supports sqlite and parquet.
 
-    Eventually, we may also envision this mechanism to be used to suppress the use of sqlite files
-    altogether, if needed.
+    We currently support both sqlite and parquet formats. This io manager
+    allows us to choose which formats should be used for reading and which
+    should be used for reading.
+
+    This should allow us to develop support for parquet format without
+    affecting the existing sqlite-based functionality.
+
+    Switching between reads from sqlite and parquet should allow us
+    to test the two formats for eqivalence during development.
     """
-
-    model_config = SettingsConfigDict(env_prefix="pudl_")
+    # TODO(rousik): the folowing EnvVars should really be booleans but
+    # dagster EnvVar doesn't recognize anything but str/int types here
+    # and AFAIK there's no way to set default value if the env variable
+    # is not set.
 
     write_to_parquet: bool = False
-    """If True, data will be also written to parquet files into PUDL_OUTPUT/parquet/{db_name}/{table_name}.pq"""
+    """If true, data will be written to parquet files."""
 
     read_from_parquet: bool = False
-    """If True, data will be read from parquet files instead of being read from sqlite tables."""
+    """If true, data will be read from parquet files instead of sqlite."""
+
+    def __init__(self, **kwargs):
+        """Creates new instace of the IO Manager."""
+        super().__init__(**kwargs)
+        # TODO(rousik): Init arguments are fixed but we do not expect
+        # any variability here. If we do, we should add this to the
+        # configuration.
+        self._sqlite_io_manager = PudlSQLiteIOManager(
+            base_dir=PudlPaths().output_dir,
+            db_name="pudl",
+        )
+        self._parquet_io_manager = PudlParquetIOManager()
+
+        # TODO(rousik): Move the following diagnostics to debug level once
+        # we know what is happening.
+        write_fmt = "parquet" if self.write_to_parquet else "sqlite"
+        read_fmt = "parquet" if self.read_from_parquet else "sqlite"
+        logger.warning(f"pudl_io_manager will be reading from {read_fmt}, writing to {write_fmt}.")
+
+    def handle_output(self, context: OutputContext, obj: Any) -> Any:
+        """Passes the output to the appropriate IO manager instance."""
+        self._sqlite_io_manager.handle_output(context, obj)
+        if self.write_to_parquet:
+            self._parquet_io_manager.handle_output(context, obj)
+
+    def load_input(self, context: InputContext) -> Any:
+        """Reads input from the appropriate IO manager instance."""
+        if self.read_from_parquet:
+            return self._parquet_io_manager.load_input(context)
+        return self._sqlite_io_manager.load_input(context)
 
 
 class SQLiteIOManager(IOManager):
@@ -152,11 +194,7 @@ class SQLiteIOManager(IOManager):
 
     def _get_table_name(self, context) -> str:
         """Get asset name from dagster context object."""
-        if context.has_asset_key:
-            table_name = context.asset_key.to_python_identifier()
-        else:
-            table_name = context.get_identifier()
-        return table_name
+        return get_table_name_from_context(context)
 
     def _setup_database(self, timeout: float = 1_000.0) -> sa.Engine:
         """Create database and metadata if they don't exist.
@@ -398,6 +436,38 @@ class SQLiteIOManager(IOManager):
             return df
 
 
+class PudlParquetIOManager(IOManager):
+    """IOManager that writes pudl tables to pyarrow parquet files."""
+
+    def handle_output(self, context: OutputContext, df: Any) -> None:
+        """Writes pudl dataframe to parquet file."""
+        assert isinstance(df, pd.DataFrame), "Only panda dataframes are supported."
+        table_name = get_table_name_from_context(context)
+        parquet_path = PudlPaths().parquet_path("pudl", table_name)
+        parquet_path.parent.mkdir(parents=True, exist_ok=True)
+        res = Resource.from_id(table_name)
+
+        df = res.enforce_schema(df)
+        schema = res.to_pyarrow()
+        with pq.ParquetWriter(
+            where=parquet_path,
+            schema=schema,
+            compression="snappy",
+            version="2.6",
+        ) as writer:
+            writer.write_table(
+                pa.Table.from_pandas(df, schema=schema, preserve_index=False)
+            )
+
+    def load_input(self, context: InputContext) -> Any:
+        """Loads pudl table from parquet file."""
+        table_name = get_table_name_from_context(context)
+        parquet_path = PudlPaths().parquet_path("pudl", table_name)
+        res = Resource.from_id(table_name)
+        df = pq.read_table(source=parquet_path, schema=res.to_pyarrow()).to_pandas()
+        return res.enforce_schema(df)
+
+
 class PudlSQLiteIOManager(SQLiteIOManager):
     """IO Manager that writes and retrieves dataframes from a SQLite database.
 
@@ -415,7 +485,6 @@ class PudlSQLiteIOManager(SQLiteIOManager):
         db_name: str,
         package: Package | None = None,
         timeout: float = 1_000.0,
-        settings: ParquetSettings = ParquetSettings(),
     ):
         """Initialize PudlSQLiteIOManager.
 
@@ -448,8 +517,6 @@ class PudlSQLiteIOManager(SQLiteIOManager):
         if package is None:
             package = Package.from_resource_ids()
         self.package = package
-        self.settings = settings
-        logger.info(f"Instantiated pudl io manager with settings: {settings}")
         md = self.package.to_sql()
         sqlite_path = Path(base_dir) / f"{db_name}.sqlite"
         if not sqlite_path.exists():
@@ -508,22 +575,6 @@ class PudlSQLiteIOManager(SQLiteIOManager):
         res = self.package.get_resource(table_name)
 
         df = res.enforce_schema(df)
-
-        if self.settings.write_to_parquet:
-            logger.info(f"Writing {self.db_name}/{table_name} to parquet.")
-            parquet_path = PudlPaths().parquet_path(self.db_name, table_name)
-            parquet_path.parent.mkdir(parents=True, exist_ok=True)
-            schema = res.to_pyarrow()
-            with pq.ParquetWriter(
-                where=parquet_path,
-                schema=schema,
-                compression="snappy",
-                version="2.6",
-            ) as writer:
-                writer.write_table(
-                    pa.Table.from_pandas(df, schema=schema, preserve_index=False)
-                )
-
         with self.engine.begin() as con:
             # Remove old table records before loading to db
             con.execute(sa_table.delete())
@@ -557,13 +608,6 @@ class PudlSQLiteIOManager(SQLiteIOManager):
                 "the tables that does not get loaded into the PUDL SQLite DB because "
                 "it's a work in progress or is distributed in Apache Parquet format."
             )
-        if self.settings.read_from_parquet:
-            logger.info(f"Reading table {self.db_name}/{table_name} from parquet.")
-            schema = res.to_pyarrow()
-            return pq.read_table(
-                source=PudlPaths().parquet_path(self.db_name, table_name),
-                schema=schema,
-            ).to_pandas()
 
         with self.engine.begin() as con:
             try:
@@ -590,11 +634,19 @@ class PudlSQLiteIOManager(SQLiteIOManager):
 
 
 @io_manager
-def pudl_sqlite_io_manager(init_context) -> PudlSQLiteIOManager:
+def pudl_sqlite_io_manager(init_context) -> IOManager:
     """Create a SQLiteManager dagster resource for the pudl database."""
-    # TODO(rousik): this is now controlled with env variable, but that should be turned into
-    # dagster configuration value.
-    return PudlSQLiteIOManager(base_dir=PudlPaths().output_dir, db_name="pudl")
+    # TODO(rousik): Ideally, we would like to be able to link fields to
+    # env variables directly in the IOManager, but it doesn't seem like
+    # it's currently easily  possible.
+
+    kwargs = {
+        "write_to_parquet": os.getenv("PUDL_WRITE_TO_PARQUET", None),
+        "read_from_parquet": os.getenv("PUDL_READ_FROM_PARQUET", None),
+    }
+    # Convert values to bool and drop Nones
+    kwargs = {k: bool(v) for k, v in kwargs.items() if v is not None}
+    return PudlMixedFormatIOManager(**kwargs)
 
 
 class FercSQLiteIOManager(SQLiteIOManager):
