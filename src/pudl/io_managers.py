@@ -94,6 +94,7 @@ def get_table_name_from_context(context: OutputContext) -> str:
         return context.asset_key.to_python_identifier()
     return context.get_identifier()
 
+
 class PudlMixedFormatIOManager(ConfigurableIOManager):
     """Format switching IOManager that supports sqlite and parquet.
 
@@ -107,6 +108,7 @@ class PudlMixedFormatIOManager(ConfigurableIOManager):
     Switching between reads from sqlite and parquet should allow us
     to test the two formats for eqivalence during development.
     """
+
     # TODO(rousik): the folowing EnvVars should really be booleans but
     # dagster EnvVar doesn't recognize anything but str/int types here
     # and AFAIK there's no way to set default value if the env variable
@@ -134,7 +136,9 @@ class PudlMixedFormatIOManager(ConfigurableIOManager):
         # we know what is happening.
         write_fmt = "parquet" if self.write_to_parquet else "sqlite"
         read_fmt = "parquet" if self.read_from_parquet else "sqlite"
-        logger.warning(f"pudl_io_manager will be reading from {read_fmt}, writing to {write_fmt}.")
+        logger.warning(
+            f"pudl_io_manager will be reading from {read_fmt}, writing to {write_fmt}."
+        )
 
     def handle_output(self, context: OutputContext, obj: Any) -> Any:
         """Passes the output to the appropriate IO manager instance."""
