@@ -327,7 +327,9 @@ def pudl_engine(pudl_sql_io_manager: IOManager) -> sa.Engine:
         return pudl_sql_io_manager.engine
     if isinstance(pudl_sqlite_io_manager, PudlMixedFormatIOManager):
         return pudl_sql_io_manager._sqlite_io_manager.engine
-    raise ValueError(f"Unexpected type for the pudl io manager: {type(pudl_sql_io_manager)}")
+    raise ValueError(
+        f"Unexpected type for the pudl io manager: {type(pudl_sql_io_manager)}"
+    )
 
 
 @pytest.fixture(scope="session", autouse=True)
