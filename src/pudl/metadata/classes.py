@@ -521,15 +521,7 @@ class Field(PudlMeta):
 
     name: SnakeCase
     # Shadows built-in type.
-    type: Literal[  # noqa: A003
-        "string",
-        "number",
-        "integer",
-        "boolean",
-        "date",
-        "datetime",
-        "year",
-    ]
+    type: Literal["string", "number", "integer", "boolean", "date", "datetime", "year"]  # noqa: A003
     title: String | None = None
     # Alias required to avoid shadowing Python built-in format()
     format_: Literal["default"] = pydantic.Field(alias="format", default="default")
@@ -606,7 +598,7 @@ class Field(PudlMeta):
                 return "float32"
         return FIELD_DTYPES_PANDAS[self.type]
 
-    def to_sql_dtype(self) -> type:
+    def to_sql_dtype(self) -> type:  # noqa: A003
         """Return SQLAlchemy data type."""
         if self.constraints.enum and self.type == "string":
             return sa.Enum(*self.constraints.enum)
@@ -686,7 +678,7 @@ class Field(PudlMeta):
             comment=self.description,
         )
 
-    def encode(self, col: pd.Series, dtype: type | None = None) -> pd.Series:
+    def encode(self, col: pd.Series, dtype: type | None = None) -> pd.Series:  # noqa: A003
         """Recode the Field if it has an associated encoder."""
         return self.encoder.encode(col, dtype=dtype) if self.encoder else col
 
