@@ -2088,6 +2088,7 @@ class XbrlCalculationForestFerc1(BaseModel):
     exploded_calcs: pd.DataFrame = pd.DataFrame()
     seeds: list[NodeId] = []
     tags: pd.DataFrame = pd.DataFrame()
+    # TODO: remove the group metric checks and see if things still build / tests still pass
     group_metric_checks: GroupMetricChecks = GroupMetricChecks()
     model_config = ConfigDict(
         arbitrary_types_allowed=True, ignored_types=(cached_property,)
@@ -2203,14 +2204,13 @@ class XbrlCalculationForestFerc1(BaseModel):
         Then we compile a dictionary of node attributes, based on the individual
         calculation components in the exploded calcs dataframe.
         """
-        source_nodes = list(
-            exploded_calcs.loc[:, self.parent_cols]
-            .rename(columns=lambda x: x.removesuffix("_parent"))
-            .itertuples(name="NodeId", index=False)
-        )
-        target_nodes = list(
-            exploded_calcs.loc[:, self.calc_cols].itertuples(name="NodeId", index=False)
-        )
+        source_nodes = [
+            NodeId(*x)
+            for x in exploded_calcs.set_index(self.parent_cols).index.to_list()
+        ]
+        target_nodes = [
+            NodeId(*x) for x in exploded_calcs.set_index(self.calc_cols).index.to_list()
+        ]
         edgelist = pd.DataFrame({"source": source_nodes, "target": target_nodes})
         forest = nx.from_pandas_edgelist(edgelist, create_using=nx.DiGraph)
         return forest

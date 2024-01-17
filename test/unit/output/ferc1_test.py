@@ -18,59 +18,68 @@ Stuff to test:
 
 """
 
-import json
 import logging
 
 import pandas as pd
 
-# from pudl.output.ferc1 import NodeId, XbrlCalculationForestFerc1
+from pudl.output.ferc1 import NodeId, XbrlCalculationForestFerc1
 
 logger = logging.getLogger(__name__)
 
-EXPLODED_META_IDX = ["table_name", "xbrl_factoid"]
-TEST_CALC_1 = [
-    {"name": "reported_1", "weight": 1.0, "source_tables": ["table_1"]},
-    {"name": "reported_2", "weight": -1.0, "source_tables": ["table_1"]},
-]
 
-TEST_CALC_2 = [
-    {"name": "reported_1", "weight": 1.0, "source_tables": ["table_1", "table_2"]},
-    {"name": "reported_2", "weight": -1.0, "source_tables": ["table_1"]},
-]
-
-TEST_CALC_3 = [
-    {"name": "reported_1", "weight": 1.0, "source_tables": ["table_1"]},
-    {"name": "reported_3", "weight": 1.0, "source_tables": ["table_3"]},
-]
-
-TEST_EXPLODED_META: pd.DataFrame = (
-    pd.DataFrame(
-        columns=["table_name", "xbrl_factoid", "calculations", "xbrl_factoid_original"],
-        data=[
-            ("table_1", "reported_1", "[]", "reported_original_1"),
-            ("table_1", "reported_2", "[]", "reported_original_2"),
-            ("table_1", "calc_1", json.dumps(TEST_CALC_1), "calc_original_1"),
-            ("table_2", "calc_2", json.dumps(TEST_CALC_2), "calc_original_2"),
-            ("table_1", "calc_3", json.dumps(TEST_CALC_3), "calc_original_3"),
-        ],
+# TODO: give this a better name once we know what behavior we're actually testing
+def test_annotated_forest():
+    tags = pd.DataFrame(
+        columns=[
+            "table_name",
+            "xbrl_factoid",
+            "utility_type",
+            "plant_status",
+            "plant_function",
+        ]
     )
-    .convert_dtypes()
-    .set_index(EXPLODED_META_IDX)
-)
+    parent = NodeId(
+        table_name="table_1",
+        xbrl_factoid="reported_1",
+        utility_type="electric",
+        plant_status=pd.NA,
+        plant_function=pd.NA,
+    )
+    child1 = NodeId(
+        table_name="table_1",
+        xbrl_factoid="reported_1_1",
+        utility_type="electric",
+        plant_status=pd.NA,
+        plant_function=pd.NA,
+    )
+    child2 = NodeId(
+        table_name="table_1",
+        xbrl_factoid="reported_1_2",
+        utility_type="electric",
+        plant_status=pd.NA,
+        plant_function=pd.NA,
+    )
 
-# LEAF_NODE_1 = XbrlCalculationForestFerc1(
-#    exploded_meta=TEST_EXPLODED_META,
-#    seeds=[NodeId("table_1", "reported_1")],
-# )
-# LEAF_NODE_2 = XbrlCalculationForestFerc1(
-#    exploded_meta=TEST_EXPLODED_META,
-#    seeds=[NodeId("table_1", "reported_2")],
-# )
-# CALC_TREE_1 = XbrlCalculationForestFerc1(
-#    exploded_meta=TEST_EXPLODED_META,
-#    seeds=[NodeId("table_1", "calc_1")],
-# )
-# CALC_TREE_2 = XbrlCalculationForestFerc1(
-#    exploded_meta=TEST_EXPLODED_META,
-#    seeds=[NodeId("table_2", "calc_2")],
-# )
+    edges = [(parent, child1), (parent, child2)]
+    records = []
+    for parent, child in edges:
+        record = {"weight": 1}
+        for field in NodeId._fields:
+            record[f"{field}_parent"] = parent.__getattribute__(field)
+            record[field] = child.__getattribute__(field)
+        records.append(record)
+    dtype_child = {col: pd.StringDtype() for col in NodeId._fields}
+    dtype_parent = {f"{col}_parent": pd.StringDtype() for col in NodeId._fields}
+    dtype_weight = {"weight": pd.Int64Dtype()}
+    exploded_calcs = pd.DataFrame.from_records(records).astype(
+        dtype_child | dtype_parent | dtype_weight
+    )
+    exploded_meta = pd.DataFrame([parent, child1, child2]).astype(dtype_child)
+
+    simple_forest = XbrlCalculationForestFerc1(
+        exploded_meta=exploded_meta,
+        exploded_calcs=exploded_calcs,
+        seeds=[parent],
+        tags=tags,
+    )
+    assert len(simple_forest.annotated_forest.nodes) == 3
