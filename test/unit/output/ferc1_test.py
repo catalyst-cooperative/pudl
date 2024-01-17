@@ -20,6 +20,7 @@ Stuff to test:
 
 import logging
 
+import networkx as nx
 import pandas as pd
 
 from pudl.output.ferc1 import NodeId, XbrlCalculationForestFerc1
@@ -27,17 +28,11 @@ from pudl.output.ferc1 import NodeId, XbrlCalculationForestFerc1
 logger = logging.getLogger(__name__)
 
 
-# TODO: give this a better name once we know what behavior we're actually testing
-def test_annotated_forest():
-    tags = pd.DataFrame(
-        columns=[
-            "table_name",
-            "xbrl_factoid",
-            "utility_type",
-            "plant_status",
-            "plant_function",
-        ]
-    )
+# TODO: combine these into a class because we have a lot of similar method names
+# TODO: make graph construction easier with helper functions
+
+
+def test_annotated_forest_propagates_leafward():
     parent = NodeId(
         table_name="table_1",
         xbrl_factoid="reported_1",
@@ -71,15 +66,47 @@ def test_annotated_forest():
     dtype_child = {col: pd.StringDtype() for col in NodeId._fields}
     dtype_parent = {f"{col}_parent": pd.StringDtype() for col in NodeId._fields}
     dtype_weight = {"weight": pd.Int64Dtype()}
+
     exploded_calcs = pd.DataFrame.from_records(records).astype(
         dtype_child | dtype_parent | dtype_weight
     )
     exploded_meta = pd.DataFrame([parent, child1, child2]).astype(dtype_child)
-
+    tags = pd.DataFrame([parent]).assign(in_rate_base="yes")
     simple_forest = XbrlCalculationForestFerc1(
         exploded_meta=exploded_meta,
         exploded_calcs=exploded_calcs,
         seeds=[parent],
         tags=tags,
     )
-    assert len(simple_forest.annotated_forest.nodes) == 3
+    annotated_forest = simple_forest.annotated_forest
+    assert len(annotated_forest.nodes) == 3
+    annotated_tags = nx.get_node_attributes(annotated_forest, "tags")
+    assert annotated_tags[parent]["in_rate_base"] == "yes"
+    assert (
+        annotated_tags[parent]["in_rate_base"] == annotated_tags[child1]["in_rate_base"]
+    )
+    assert (
+        annotated_tags[parent]["in_rate_base"] == annotated_tags[child2]["in_rate_base"]
+    )
+
+
+def test_annotated_forest_propagates_rootward():
+    pass
+
+
+def test_annotated_forest_propagates_corrections():
+    pass
+
+
+def test_annotate_forest_propagates_both_dirs_with_corrections():
+    pass
+
+
+def test_annotate_forest_does_not_propagate():
+    # if a parent has two disagreeing children
+    pass
+
+
+def test_annoted_forest_does_propagate_null_and_value():
+    # if a parent has some children with one value and some with nulls
+    pass
