@@ -14,9 +14,7 @@ Form 1.
 
 In this module we infer which of the many ``plant_parts_eia`` records is most likely to
 correspond to an actually reported FERC Form 1 plant record. this is done with a
-logistic regression model. The :mod:`recordlinkage` package helps us create feature
-vectors (via :meth:`Features.make_features`) for each candidate match between FERC and
-EIA.
+logistic regression model.
 
 We train the logistic regression model using manually labeled training data that links
 together several thousand EIA and FERC plant records, and use grid search cross
@@ -47,7 +45,6 @@ from pudl.analysis.record_linkage import embed_dataframe
 from pudl.metadata.classes import DataSource, Resource
 
 logger = pudl.logging_helpers.get_logger(__name__)
-# Silence the recordlinkage logger, which is out of control
 
 
 @op
@@ -857,7 +854,7 @@ def prep_train_connections(
                 "record_id_eia": pd.NA,
             }
         )
-        .set_index(  # recordlinkage and sklearn wants MultiIndexs to do the stuff
+        .set_index(  # sklearn wants a MultiIndex to do the stuff
             [
                 "record_id_ferc1",
                 "record_id_eia",
