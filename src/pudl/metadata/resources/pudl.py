@@ -56,6 +56,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["pudl"],
     },
     "core_pudl__assn_utilities_plants": {
+        "title": "PUDL Utility-Plant Associations",
+        "description": "Associations between PUDL utility IDs and PUDL plant IDs. This table is read in from a spreadsheet stored in the PUDL repository: src/pudl/package_data/glue/pudl_id_mapping.xlsx",
         "schema": {
             "fields": ["utility_id_pudl", "plant_id_pudl"],
             "primary_key": ["utility_id_pudl", "plant_id_pudl"],
@@ -65,6 +67,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["pudl"],
     },
     "core_pudl__codes_datasources": {
+        "title": "PUDL Data Sources",
+        "description": "Static table defining codes associated with the data sources that PUDL integrates.",
         "schema": {
             "fields": [
                 "datasource",
@@ -79,6 +83,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["pudl"],
     },
     "out_ferc714__hourly_predicted_state_demand": {
+        "title": "Estimated Hourly State Electricity Demand",
+        "description": "Estimated hourly electricity demand for each state, scaled such that it matches the total electricity sales by state reported in EIA 861.",
         "schema": {
             "fields": [
                 "state_id_fips",

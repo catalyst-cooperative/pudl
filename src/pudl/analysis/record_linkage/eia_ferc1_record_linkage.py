@@ -14,9 +14,7 @@ Form 1.
 
 In this module we infer which of the many ``plant_parts_eia`` records is most likely to
 correspond to an actually reported FERC Form 1 plant record. this is done with a
-logistic regression model. The :mod:`recordlinkage` package helps us create feature
-vectors (via :meth:`Features.make_features`) for each candidate match between FERC and
-EIA.
+logistic regression model.
 
 We train the logistic regression model using manually labeled training data that links
 together several thousand EIA and FERC plant records, and use grid search cross
@@ -35,7 +33,7 @@ from typing import Literal
 
 import numpy as np
 import pandas as pd
-from dagster import AssetOut, graph_multi_asset, op
+from dagster import Out, graph_asset, op
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import precision_recall_fscore_support
 from sklearn.model_selection import GridSearchCV, train_test_split
@@ -207,8 +205,8 @@ def get_compiled_input_manager(plants_all_ferc1, fbp_ferc1, plant_parts_eia):
     return inputs
 
 
-@op
-def get_all_pairs_df(inputs):
+@op(out={"all_pairs_df": Out(), "train_pairs_df": Out()})
+def get_pairs_dfs(inputs):
     """Get a dataframe with all possible FERC to EIA record pairs.
 
     Merge the FERC and EIA records on ``block_col`` to generate possible
@@ -216,33 +214,25 @@ def get_all_pairs_df(inputs):
 
     Arguments:
         inputs: :class:`InputManager` object.
+
+    Returns:
+        A dataframe with all possible record pairs from all the input
+        data and a dataframe with all possible record pairs from the
+        training data.
     """
     ferc1_df = inputs.get_plants_ferc1().reset_index()
     eia_df = inputs.get_plant_parts_eia_true().reset_index()
     block_col = "plant_id_report_year_util_id"
-    out = ferc1_df.merge(
+    all_pairs_df = ferc1_df.merge(
         eia_df, how="inner", on=block_col, suffixes=("_ferc1", "_eia")
     ).set_index(["record_id_ferc1", "record_id_eia"])
-    return out
-
-
-@op
-def get_train_pairs_df(inputs):
-    """Get a dataframe with possible FERC to EIA record pairs from training data.
-
-    Merge the FERC and EIA records on ``block_col`` to generate possible
-    record pairs for the matching model.
-
-    Arguments:
-        inputs: :class:`InputManager` object.
-    """
-    ferc1_df = inputs.get_train_ferc1().reset_index()
-    eia_df = inputs.get_train_eia().reset_index()
+    ferc1_train_df = inputs.get_train_ferc1().reset_index()
+    eia_train_df = inputs.get_train_eia().reset_index()
     block_col = "plant_id_report_year_util_id"
-    out = ferc1_df.merge(
-        eia_df, how="inner", on=block_col, suffixes=("_ferc1", "_eia")
+    train_pairs_df = ferc1_train_df.merge(
+        eia_train_df, how="inner", on=block_col, suffixes=("_ferc1", "_eia")
     ).set_index(["record_id_ferc1", "record_id_eia"])
-    return out
+    return (all_pairs_df, train_pairs_df)
 
 
 @op
@@ -283,7 +273,13 @@ def run_matching_model(features_train, features_all, y_df):
     )
 
 
-@op
+@op(
+    out={
+        "out_pudl__yearly_assn_eia_ferc1_plant_parts": Out(
+            io_manager_key="pudl_sqlite_io_manager"
+        )
+    }
+)
 def get_match_full_records(best_match_df, inputs):
     """Join full dataframe onto matches to make usable and get stats."""
     connected_df = prettyify_best_matches(
@@ -297,13 +293,7 @@ def get_match_full_records(best_match_df, inputs):
     ).enforce_schema(connected_df)
 
 
-@graph_multi_asset(
-    outs={
-        "out_pudl__yearly_assn_eia_ferc1_plant_parts": AssetOut(
-            io_manager_key="pudl_sqlite_io_manager"
-        )
-    }
-)
+@graph_asset
 def out_pudl__yearly_assn_eia_ferc1_plant_parts(
     out_ferc1__yearly_all_plants: pd.DataFrame,
     out_ferc1__yearly_steam_plants_fuel_by_plant_sched402: pd.DataFrame,
@@ -322,8 +312,7 @@ def out_pudl__yearly_assn_eia_ferc1_plant_parts(
         out_ferc1__yearly_steam_plants_fuel_by_plant_sched402,
         out_eia__yearly_plant_parts,
     )
-    all_pairs_df = get_all_pairs_df(inputs)
-    train_pairs_df = get_train_pairs_df(inputs)
+    all_pairs_df, train_pairs_df = get_pairs_dfs(inputs)
     features_all = pair_vectorizers(all_pairs_df)
     features_train = pair_vectorizers(train_pairs_df)
     y_df = get_y_label_df(train_pairs_df, inputs)
@@ -393,7 +382,7 @@ class InputManager:
     def get_plants_ferc1(self, clobber: bool = False) -> pd.DataFrame:
         """Prepare FERC1 plants data for record linkage with EIA plant-parts.
 
-        This method grabs two tables (``plants_all_ferc1`` and ``fuel_by_plant_ferc1`` -
+        This method grabs two tables (``plants_all_ferc1`` and ``fuel_by_plant_ferc1``,
         accessed originally via :meth:`pudl.output.pudltabl.PudlTabl.plants_all_ferc1`
         and :meth:`pudl.output.pudltabl.PudlTabl.fbp_ferc1` respectively) and ensures
         that the columns the same as their EIA counterparts, because the output of this
@@ -863,7 +852,7 @@ def prep_train_connections(
                 "record_id_eia": pd.NA,
             }
         )
-        .set_index(  # recordlinkage and sklearn wants MultiIndexs to do the stuff
+        .set_index(  # sklearn wants a MultiIndex to do the stuff
             [
                 "record_id_ferc1",
                 "record_id_eia",
