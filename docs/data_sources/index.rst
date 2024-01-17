@@ -13,7 +13,6 @@ Data Sources
    epacems
    ferc1
    ferc714
-   phmsagas
 
 .. toctree::
    :caption: Work in Progress & Future Datasets

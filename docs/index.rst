@@ -24,7 +24,6 @@ pages for each source:
 * :doc:`data_sources/epacems`
 * :doc:`data_sources/ferc1`
 * :doc:`data_sources/ferc714`
-* :doc:`data_sources/phmsagas`
 
 PUDL's clean and complete versions of these data sources are stored in the
 ``pudl.sqlite`` database. Larger datasets like EPA CEMS are stored in parquet files.

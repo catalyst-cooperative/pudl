@@ -1,1 +1,1 @@
-"""Excel spreadsheet extraction maps for PHMSA gas data."""
+"""Excel spreadsheet extraction maps for EIA 860."""

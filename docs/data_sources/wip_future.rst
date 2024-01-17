@@ -80,6 +80,18 @@ FERC Form 2
 is analogous to FERC Form 1, but it pertains to gas rather than electric utilities.
 The data paint a detailed picture of the finances of natural gas utilities.
 
+.. _data-phmsa:
+
+PHMSA Natural Gas Pipelines
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The `PHMSA Natural Gas Annual Report <https://www.phmsa.dot.gov/data-and-statistics/pipeline/gas-distribution-gas-gathering-gas-transmission-hazardous-liquids>`__,
+published by the Pipeline and Hazardous Materials Safety Administration (part of the US
+Dept. of Transportation), collects data about natural gas
+gathering and transmission and distribution systems (including their age, length,
+diameter, materials, and carrying capacity). PHAMSA also has information about natural
+gas storage facilities and liquefied natural gas shipping facilities.
+
 .. _data-ces:
 
 Machine Readable Clean Energy Standards
