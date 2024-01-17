@@ -77,4 +77,4 @@ datasets:
     # also load the EIA 860 data for that year if possible
     year_quarters: ["2022q1"]
   phmsagas:
-    years: [2020, 2022]
+    years: [2022]

@@ -47,8 +47,10 @@ class Metadata:
 
     Optional file:
 
-    * page_part_map.csv tells us what page is connected to an additional partition
-      outside the partition included in the rest of the mapping files (usually year).
+    * page_part_map.csv tells us what secondary partition (e.g. "form") needs to be
+      specified to correctly identify the file housing the desired page. This is only
+      required when a file can only be uniquely located using a combination of
+      partitions (e.g. form and year).
 
     """
 

@@ -222,7 +222,6 @@ KEYWORDS: dict[str, list[str]] = {
         "mmbtu",
         "fuel cost",
         "fuel price",
-        "pipelines",
     ],
     "plants": [
         "plant",
