@@ -1,6 +1,6 @@
-=======================================================================================
+=========================================================================================
 {{ source.title }}
-=======================================================================================
+=========================================================================================
 
 .. list-table::
    :widths: auto
@@ -22,6 +22,7 @@
    * - Issues
      - `Open {{ source.title }} issues <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3A{{ source.name }}>`__
 
+{% if source_resources -%}
 PUDL Database Tables
 ^^^^^^^^^^^^^^^^^^^^
 {% block database_text %}
@@ -41,6 +42,7 @@ the names and descriptions of each of its fields.
      {% block browse_online scoped %}- https://data.catalyst.coop/pudl/{{ resource.name }}{% endblock %}
    {%- endfor %}
 
+{%- endif %}
 {% if extra_resources -%}
 
 {% block extra_table_text %}

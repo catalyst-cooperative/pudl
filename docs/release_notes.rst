@@ -42,8 +42,8 @@ Data Cleaning
 * Filled in null annual balances with fourth-quarter quarterly balances in
   :ref:`core_ferc1__yearly_balance_sheet_liabilities_sched110`. :issue:`3233` and
   :pr:`3234`.
-* Added a notebook :ref:`debug-column-mapping.ipynb` to make debugging manual column
-  maps for new datasets simpler and faster.
+* Added a notebook :mod:`devtools/debug-column-mapping.ipynb` to make debugging manual
+  column maps for new datasets simpler and faster.
 
 ---------------------------------------------------------------------------------------
 v2023.12.01
