@@ -34,6 +34,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 default_assets = (
     *load_assets_from_modules([eia_bulk_elec_assets], group_name="core_eia_bulk_elec"),
     *load_assets_from_modules([epacems_assets], group_name="core_epacems"),
+    *load_assets_from_modules([pudl.extract.eia176], group_name="raw_eia176"),
     *load_assets_from_modules([pudl.extract.eia860], group_name="raw_eia860"),
     *load_assets_from_modules([pudl.transform.eia860], group_name="_core_eia860"),
     *load_assets_from_modules([pudl.extract.eia861], group_name="raw_eia861"),
@@ -83,7 +84,10 @@ default_assets = (
         group_name="out_ferc1",
     ),
     *load_assets_from_modules(
-        [pudl.analysis.plant_parts_eia, pudl.analysis.eia_ferc1_record_linkage],
+        [
+            pudl.analysis.plant_parts_eia,
+            pudl.analysis.record_linkage.eia_ferc1_record_linkage,
+        ],
         group_name="eia_ferc1_record_linkage",
     ),
 )

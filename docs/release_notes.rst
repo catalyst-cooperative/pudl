@@ -24,12 +24,22 @@ v2024.01.XX
   protected and automatically updated. Build outputs are now written to
   ``gs://builds.catalyst.coop`` and retained for 30 days. See issues :issue:`3140,3179`
   and PRs :pr:`3195,3206,3212`
+* The :mod:`pudl.analysis.record_linkage.eia_ferc1_record_linkage` module has been
+  refactored to use PUDL record linkage infrastructure and include extra cleaning
+  steps. This resulted in around 500 or 2% of matches changing.
 
 Data Coverage
 ^^^^^^^^^^^^^
 * Updated :doc:`data_sources/epacems` to switch to pulling the quarterly updates of
   CEMS instead of the annual files. Integrates CEMS through 2023q3. See issue
   :issue:`2973` & PR :pr:`3096`.
+
+Data Cleaning
+^^^^^^^^^^^^^
+
+* Filled in null annual balances with fourth-quarter quarterly balances in
+  :ref:`core_ferc1__yearly_balance_sheet_liabilities_sched110`. :issue:`3233` and
+  :pr:`3234`.
 
 ---------------------------------------------------------------------------------------
 v2023.12.01
