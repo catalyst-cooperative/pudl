@@ -10,7 +10,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
     io_manager_key="pudl_sqlite_io_manager",
     required_resource_keys={"datastore"},
 )
-def fuel_receipts_costs_aggs_eia(context):
+def core_eia__yearly_fuel_receipts_costs_aggs(context):
     """Extract and transform EIA bulk electricity aggregates.
 
     Returns:

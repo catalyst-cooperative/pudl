@@ -49,6 +49,7 @@ from pudl.metadata.fields import (
     FIELD_METADATA_BY_RESOURCE,
 )
 from pudl.metadata.helpers import (
+    JINJA_FILTERS,
     expand_periodic_column_names,
     format_errors,
     groupby_aggregate,
@@ -157,10 +158,13 @@ def _get_jinja_environment(template_dir: DirectoryPath = None):
         path = template_dir / "templates"
     else:
         path = Path(__file__).parent.resolve() / "templates"
-    return jinja2.Environment(
+    environment = jinja2.Environment(
         loader=jinja2.FileSystemLoader(path),
         autoescape=True,
     )
+    for func_name, func in JINJA_FILTERS.items():
+        environment.filters[func_name] = func
+    return environment
 
 
 # ---- Class attribute types ---- #
@@ -517,15 +521,7 @@ class Field(PudlMeta):
 
     name: SnakeCase
     # Shadows built-in type.
-    type: Literal[  # noqa: A003
-        "string",
-        "number",
-        "integer",
-        "boolean",
-        "date",
-        "datetime",
-        "year",
-    ]
+    type: Literal["string", "number", "integer", "boolean", "date", "datetime", "year"]  # noqa: A003
     title: String | None = None
     # Alias required to avoid shadowing Python built-in format()
     format_: Literal["default"] = pydantic.Field(alias="format", default="default")
@@ -602,7 +598,7 @@ class Field(PudlMeta):
                 return "float32"
         return FIELD_DTYPES_PANDAS[self.type]
 
-    def to_sql_dtype(self) -> type:
+    def to_sql_dtype(self) -> type:  # noqa: A003
         """Return SQLAlchemy data type."""
         if self.constraints.enum and self.type == "string":
             return sa.Enum(*self.constraints.enum)
@@ -620,7 +616,9 @@ class Field(PudlMeta):
             name=self.name,
             type=self.to_pyarrow_dtype(),
             nullable=(not self.constraints.required),
-            metadata={"description": self.description},
+            metadata={
+                "description": self.description if self.description is not None else ""
+            },
         )
 
     def to_sql(  # noqa: C901
@@ -680,7 +678,7 @@ class Field(PudlMeta):
             comment=self.description,
         )
 
-    def encode(self, col: pd.Series, dtype: type | None = None) -> pd.Series:
+    def encode(self, col: pd.Series, dtype: type | None = None) -> pd.Series:  # noqa: A003
         """Recode the Field if it has an associated encoder."""
         return self.encoder.encode(col, dtype=dtype) if self.encoder else col
 
@@ -910,6 +908,10 @@ class DataSource(PudlMeta):
             return f"{min(partitions['years'])}-{max(partitions['years'])}"
         if "year_month" in partitions:
             return f"through {partitions['year_month']}"
+        if "year_quarters" in partitions:
+            return (
+                f"{min(partitions['year_quarters'])}-{max(partitions['year_quarters'])}"
+            )
         return ""
 
     def add_datastore_metadata(self) -> None:
@@ -923,7 +925,6 @@ class DataSource(PudlMeta):
             partitions["years"] = partitions["year"]
         elif "year_month" in partitions:
             partitions["year_month"] = max(partitions["year_month"])
-        self.source_file_dict["source_years"] = self.get_temporal_coverage(partitions)
         self.source_file_dict["download_size"] = dp_desc.get_download_size()
 
     def to_rst(
@@ -1311,9 +1312,10 @@ class Resource(PudlMeta):
         """Construct a PyArrow schema for the resource."""
         fields = [field.to_pyarrow() for field in self.schema.fields]
         metadata = {
-            "description": self.description,
-            "primary_key": ",".join(self.schema.primary_key),
+            "description": self.description if self.description is not None else ""
         }
+        if self.schema.primary_key is not None:
+            metadata |= {"primary_key": ",".join(self.schema.primary_key)}
         return pa.schema(fields=fields, metadata=metadata)
 
     def to_pandas_dtypes(self, **kwargs: Any) -> dict[str, str | pd.CategoricalDtype]:
@@ -1856,6 +1858,22 @@ class Package(PudlMeta):
                 )
         return metadata
 
+    def get_sorted_resources(self) -> StrictList(Resource):
+        """Get a list of sorted Resources.
+
+        Currently Resources are listed in reverse alphabetical order based
+        on their name which results in the following order to promote output
+        tables to users and push intermediate tables to the bottom of the
+        docs: output, core, intermediate.
+
+        In the future we might want to have more fine grain control over how
+        Resources are sorted.
+
+        Returns:
+            A sorted list of resources.
+        """
+        return sorted(self.resources, key=lambda r: r.name, reverse=True)
+
 
 class CodeMetadata(PudlMeta):
     """A list of Encoders for standardizing and documenting categorical codes.
@@ -1899,15 +1917,15 @@ class DatasetteMetadata(PudlMeta):
     """
 
     data_sources: list[DataSource]
-    resources: list[Resource] = Package.from_resource_ids().resources
+    resources: list[Resource] = Package.from_resource_ids().get_sorted_resources()
     xbrl_resources: dict[str, list[Resource]] = {}
     label_columns: dict[str, str] = {
-        "plants_entity_eia": "plant_name_eia",
-        "plants_ferc1": "plant_name_ferc1",
-        "plants_pudl": "plant_name_pudl",
-        "utilities_entity_eia": "utility_name_eia",
-        "utilities_ferc1": "utility_name_ferc1",
-        "utilities_pudl": "utility_name_pudl",
+        "core_eia__entity_plants": "plant_name_eia",
+        "core_pudl__assn_ferc1_pudl_plants": "plant_name_ferc1",
+        "core_pudl__entity_plants_pudl": "plant_name_pudl",
+        "core_eia__entity_utilities": "utility_name_eia",
+        "core_pudl__assn_ferc1_pudl_utilities": "utility_name_ferc1",
+        "core_pudl__entity_utilities_pudl": "utility_name_pudl",
     }
 
     @classmethod
@@ -1981,9 +1999,15 @@ class DatasetteMetadata(PudlMeta):
             xbrl_resources=xbrl_resources,
         )
 
-    def to_yaml(self) -> str:
+    def to_yaml(self, exclude_intermediate_resources: bool = False) -> None:
         """Output database, table, and column metadata to YAML file."""
         template = _get_jinja_environment().get_template("datasette-metadata.yml.jinja")
+        if exclude_intermediate_resources:
+            [
+                resource
+                for resource in self.resources
+                if not resource.name.startswith("_")
+            ]
         rendered = template.render(
             license=LICENSES["cc-by-4.0"],
             data_sources=self.data_sources,

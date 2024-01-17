@@ -1,0 +1,17 @@
+---
+changelog:
+  exclude:
+    authors:
+      - dependabot
+      - pre-commit-ci
+      - pudlbot
+    labels:
+      - conda-lock
+      - dependencies
+  categories:
+    - title: New Data
+      labels:
+        - new-data
+    - title: Other Changes
+      labels:
+        - "*"

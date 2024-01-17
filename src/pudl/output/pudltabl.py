@@ -77,9 +77,9 @@ class PudlTabl:
                 data with state-fuel averages from EIA's bulk electricity data.
             roll_fuel_cost: if True, apply a rolling average to a subset of
                 output table's columns (currently only ``fuel_cost_per_mmbtu``
-                for the ``fuel_receipts_costs_eia923`` table.)
+                for the ``core_eia923__monthly_fuel_receipts_costs`` table.)
             fill_net_gen: if True, use the net generation from the
-                generation_fuel_eia923 - which is reported at the
+                core_eia923__monthly_generation_fuel - which is reported at the
                 plant/fuel/prime mover level and  re-allocated to generators in
                 ``mcoe()``, ``capacity_factor()`` and ``heat_rate_by_unit()``.
             fill_tech_desc: If True, fill the technology_description
@@ -89,6 +89,11 @@ class PudlTabl:
             unit_ids: If True, use several heuristics to assign
                 individual generators to functional units. EXPERIMENTAL.
         """
+        logger.warning(
+            "PudlTabl is deprecated and will be removed from the pudl package "
+            "once known users have migrated to accessing the data directly from "
+            "pudl.sqlite. "
+        )
         if not isinstance(pudl_engine, sa.engine.base.Engine):
             raise TypeError(
                 "PudlTabl needs pudl_engine to be a SQLAlchemy Engine, but we "
@@ -133,110 +138,110 @@ class PudlTabl:
         # PudlTabl will generate a method to read each table from the DB with the given method name
         table_method_map_any_freq = {  # table_name: method_name
             # denorm_ferc1
-            "denorm_balance_sheet_assets_ferc1": "denorm_balance_sheet_assets_ferc1",
-            "denorm_balance_sheet_liabilities_ferc1": "denorm_balance_sheet_liabilities_ferc1",
-            "denorm_cash_flow_ferc1": "denorm_cash_flow_ferc1",
-            "denorm_depreciation_amortization_summary_ferc1": "denorm_depreciation_amortization_summary_ferc1",
-            "denorm_electric_energy_dispositions_ferc1": "denorm_electric_energy_dispositions_ferc1",
-            "denorm_electric_energy_sources_ferc1": "denorm_electric_energy_sources_ferc1",
-            "denorm_electric_operating_expenses_ferc1": "denorm_electric_operating_expenses_ferc1",
-            "denorm_electric_operating_revenues_ferc1": "denorm_electric_operating_revenues_ferc1",
-            "denorm_electric_plant_depreciation_changes_ferc1": "denorm_electric_plant_depreciation_changes_ferc1",
-            "denorm_electric_plant_depreciation_functional_ferc1": "denorm_electric_plant_depreciation_functional_ferc1",
-            "denorm_electricity_sales_by_rate_schedule_ferc1": "denorm_electricity_sales_by_rate_schedule_ferc1",
-            "denorm_income_statement_ferc1": "denorm_income_statement_ferc1",
-            "denorm_other_regulatory_liabilities_ferc1": "denorm_other_regulatory_liabilities_ferc1",
-            "denorm_retained_earnings_ferc1": "denorm_retained_earnings_ferc1",
-            "denorm_transmission_statistics_ferc1": "denorm_transmission_statistics_ferc1",
-            "denorm_utility_plant_summary_ferc1": "denorm_utility_plant_summary_ferc1",
-            "denorm_plants_utilities_ferc1": "pu_ferc1",
-            "denorm_plants_steam_ferc1": "plants_steam_ferc1",
-            "denorm_fuel_ferc1": "fuel_ferc1",
-            "denorm_fuel_by_plant_ferc1": "fbp_ferc1",
-            "denorm_plants_small_ferc1": "plants_small_ferc1",
-            "denorm_plants_hydro_ferc1": "plants_hydro_ferc1",
-            "denorm_plants_pumped_storage_ferc1": "plants_pumped_storage_ferc1",
-            "denorm_purchased_power_ferc1": "purchased_power_ferc1",
-            "denorm_plant_in_service_ferc1": "plant_in_service_ferc1",
-            "denorm_plants_all_ferc1": "plants_all_ferc1",
+            "out_ferc1__yearly_balance_sheet_assets_sched110": "denorm_balance_sheet_assets_ferc1",
+            "out_ferc1__yearly_balance_sheet_liabilities_sched110": "denorm_balance_sheet_liabilities_ferc1",
+            "out_ferc1__yearly_cash_flows_sched120": "denorm_cash_flow_ferc1",
+            "out_ferc1__yearly_depreciation_summary_sched336": "denorm_depreciation_amortization_summary_ferc1",
+            "out_ferc1__yearly_energy_dispositions_sched401": "denorm_electric_energy_dispositions_ferc1",
+            "out_ferc1__yearly_energy_sources_sched401": "denorm_electric_energy_sources_ferc1",
+            "out_ferc1__yearly_operating_expenses_sched320": "denorm_electric_operating_expenses_ferc1",
+            "out_ferc1__yearly_operating_revenues_sched300": "denorm_electric_operating_revenues_ferc1",
+            "out_ferc1__yearly_depreciation_changes_sched219": "denorm_electric_plant_depreciation_changes_ferc1",
+            "out_ferc1__yearly_depreciation_by_function_sched219": "denorm_electric_plant_depreciation_functional_ferc1",
+            "out_ferc1__yearly_sales_by_rate_schedules_sched304": "denorm_electricity_sales_by_rate_schedule_ferc1",
+            "out_ferc1__yearly_income_statements_sched114": "denorm_income_statement_ferc1",
+            "out_ferc1__yearly_other_regulatory_liabilities_sched278": "denorm_other_regulatory_liabilities_ferc1",
+            "out_ferc1__yearly_retained_earnings_sched118": "denorm_retained_earnings_ferc1",
+            "out_ferc1__yearly_transmission_lines_sched422": "denorm_transmission_statistics_ferc1",
+            "out_ferc1__yearly_utility_plant_summary_sched200": "denorm_utility_plant_summary_ferc1",
+            "_out_ferc1__yearly_plants_utilities": "pu_ferc1",
+            "_out_ferc1__yearly_steam_plants_sched402": "plants_steam_ferc1",
+            "out_ferc1__yearly_steam_plants_fuel_sched402": "fuel_ferc1",
+            "out_ferc1__yearly_steam_plants_fuel_by_plant_sched402": "fbp_ferc1",
+            "_out_ferc1__yearly_small_plants_sched410": "plants_small_ferc1",
+            "_out_ferc1__yearly_hydroelectric_plants_sched406": "plants_hydro_ferc1",
+            "_out_ferc1__yearly_pumped_storage_plants_sched408": "plants_pumped_storage_ferc1",
+            "out_ferc1__yearly_purchased_power_and_exchanges_sched326": "purchased_power_ferc1",
+            "out_ferc1__yearly_plant_in_service_sched204": "plant_in_service_ferc1",
+            "out_ferc1__yearly_all_plants": "plants_all_ferc1",
             # denorm_eia (data comes from multiple EIA forms)
-            "denorm_plants_eia": "plants_eia860",
-            "denorm_utilities_eia": "utils_eia860",
-            "denorm_boilers_eia": "boil_eia860",
-            "denorm_generators_eia": "gens_eia860",
-            "denorm_plants_utilities_eia": "pu_eia860",
+            "out_eia__yearly_plants": "plants_eia860",
+            "out_eia__yearly_utilities": "utils_eia860",
+            "out_eia__yearly_boilers": "boil_eia860",
+            "_out_eia__yearly_generators": "gens_eia860",
+            "_out_eia__plants_utilities": "pu_eia860",
             # eia860 (denormalized, data primarily from EIA-860)
-            "denorm_ownership_eia860": "own_eia860",
-            "boiler_generator_assn_eia860": "bga_eia860",
-            "denorm_emissions_control_equipment_eia860": "denorm_emissions_control_equipment_eia860",
-            "boiler_emissions_control_equipment_assn_eia860": "boiler_emissions_control_equipment_assn_eia860",
-            "emissions_control_equipment_eia860": "emissions_control_equipment_eia860",
-            "boiler_stack_flue_assn_eia860": "boiler_stack_flue_assn_eia860",
-            "boiler_cooling_assn_eia860": "boiler_cooling_assn_eia860",
+            "out_eia860__yearly_ownership": "own_eia860",
+            "core_eia860__assn_boiler_generator": "bga_eia860",
+            "out_eia860__yearly_emissions_control_equipment": "denorm_emissions_control_equipment_eia860",
+            "core_eia860__assn_yearly_boiler_emissions_control_equipment": "boiler_emissions_control_equipment_assn_eia860",
+            "core_eia860__scd_emissions_control_equipment": "emissions_control_equipment_eia860",
+            "core_eia860__assn_boiler_stack_flue": "boiler_stack_flue_assn_eia860",
+            "core_eia860__assn_boiler_cooling": "boiler_cooling_assn_eia860",
             # eia861 (clean)
-            "service_territory_eia861": "service_territory_eia861",
-            "sales_eia861": "sales_eia861",
-            "advanced_metering_infrastructure_eia861": "advanced_metering_infrastructure_eia861",
-            "demand_response_eia861": "demand_response_eia861",
-            "demand_response_water_heater_eia861": "demand_response_water_heater_eia861",
-            "demand_side_management_sales_eia861": "demand_side_management_sales_eia861",
-            "demand_side_management_ee_dr_eia861": "demand_side_management_ee_dr_eia861",
-            "demand_side_management_misc_eia861": "demand_side_management_misc_eia861",
-            "distributed_generation_tech_eia861": "distributed_generation_tech_eia861",
-            "distributed_generation_fuel_eia861": "distributed_generation_fuel_eia861",
-            "distributed_generation_misc_eia861": "distributed_generation_misc_eia861",
-            "distribution_systems_eia861": "distribution_systems_eia861",
-            "dynamic_pricing_eia861": "dynamic_pricing_eia861",
-            "energy_efficiency_eia861": "energy_efficiency_eia861",
-            "green_pricing_eia861": "green_pricing_eia861",
-            "mergers_eia861": "mergers_eia861",
-            "net_metering_customer_fuel_class_eia861": "net_metering_customer_fuel_class_eia861",
-            "net_metering_misc_eia861": "net_metering_misc_eia861",
-            "non_net_metering_customer_fuel_class_eia861": "non_net_metering_customer_fuel_class_eia861",
-            "non_net_metering_misc_eia861": "non_net_metering_misc_eia861",
-            "operational_data_revenue_eia861": "operational_data_revenue_eia861",
-            "operational_data_misc_eia861": "operational_data_misc_eia861",
-            "reliability_eia861": "reliability_eia861",
-            "utility_data_nerc_eia861": "utility_data_nerc_eia861",
-            "utility_data_rto_eia861": "utility_data_rto_eia861",
-            "utility_data_misc_eia861": "utility_data_misc_eia861",
-            "utility_assn_eia861": "utility_assn_eia861",
-            "balancing_authority_eia861": "balancing_authority_eia861",
-            "balancing_authority_assn_eia861": "balancing_authority_assn_eia861",
+            "core_eia861__yearly_service_territory": "service_territory_eia861",
+            "core_eia861__yearly_sales": "sales_eia861",
+            "core_eia861__yearly_advanced_metering_infrastructure": "advanced_metering_infrastructure_eia861",
+            "core_eia861__yearly_demand_response": "demand_response_eia861",
+            "core_eia861__yearly_demand_response_water_heater": "demand_response_water_heater_eia861",
+            "core_eia861__yearly_demand_side_management_sales": "demand_side_management_sales_eia861",
+            "core_eia861__yearly_demand_side_management_ee_dr": "demand_side_management_ee_dr_eia861",
+            "core_eia861__yearly_demand_side_management_misc": "demand_side_management_misc_eia861",
+            "core_eia861__yearly_distributed_generation_tech": "distributed_generation_tech_eia861",
+            "core_eia861__yearly_distributed_generation_fuel": "distributed_generation_fuel_eia861",
+            "core_eia861__yearly_distributed_generation_misc": "distributed_generation_misc_eia861",
+            "core_eia861__yearly_distribution_systems": "distribution_systems_eia861",
+            "core_eia861__yearly_dynamic_pricing": "dynamic_pricing_eia861",
+            "core_eia861__yearly_energy_efficiency": "energy_efficiency_eia861",
+            "core_eia861__yearly_green_pricing": "green_pricing_eia861",
+            "core_eia861__yearly_mergers": "mergers_eia861",
+            "core_eia861__yearly_net_metering_customer_fuel_class": "net_metering_customer_fuel_class_eia861",
+            "core_eia861__yearly_net_metering_misc": "net_metering_misc_eia861",
+            "core_eia861__yearly_non_net_metering_customer_fuel_class": "non_net_metering_customer_fuel_class_eia861",
+            "core_eia861__yearly_non_net_metering_misc": "non_net_metering_misc_eia861",
+            "core_eia861__yearly_operational_data_revenue": "operational_data_revenue_eia861",
+            "core_eia861__yearly_operational_data_misc": "operational_data_misc_eia861",
+            "core_eia861__yearly_reliability": "reliability_eia861",
+            "core_eia861__yearly_utility_data_nerc": "utility_data_nerc_eia861",
+            "core_eia861__yearly_utility_data_rto": "utility_data_rto_eia861",
+            "core_eia861__yearly_utility_data_misc": "utility_data_misc_eia861",
+            "core_eia861__assn_utility": "core_eia861__assn_utility",
+            "core_eia861__yearly_balancing_authority": "balancing_authority_eia861",
+            "core_eia861__assn_balancing_authority": "balancing_authority_assn_eia861",
             # eia923 (denormalized, data primarily from EIA-923)
-            "denorm_boiler_fuel_AGG_eia923": "bf_eia923",
-            "denorm_fuel_receipts_costs_AGG_eia923": "frc_eia923",
-            "denorm_generation_AGG_eia923": "gen_original_eia923",
-            "denorm_generation_fuel_combined_AGG_eia923": "gf_eia923",
+            "out_eia923__AGG_boiler_fuel": "bf_eia923",
+            "out_eia923__AGG_fuel_receipts_costs": "frc_eia923",
+            "out_eia923__AGG_generation": "gen_original_eia923",
+            "out_eia923__AGG_generation_fuel_combined": "gf_eia923",
             # ferc714
-            "respondent_id_ferc714": "respondent_id_ferc714",
-            "demand_hourly_pa_ferc714": "demand_hourly_pa_ferc714",
-            "fipsified_respondents_ferc714": "fipsified_respondents_ferc714",
-            "summarized_demand_ferc714": "summarized_demand_ferc714",
+            "core_ferc714__respondent_id": "respondent_id_ferc714",
+            "core_ferc714__hourly_demand_pa": "demand_hourly_pa_ferc714",
+            "out_ferc714__respondents_with_fips": "fipsified_respondents_ferc714",
+            "out_ferc714__summarized_demand": "summarized_demand_ferc714",
             # service territory
-            "compiled_geometry_balancing_authority_eia861": "compiled_geometry_balancing_authority_eia861",
-            "compiled_geometry_utility_eia861": "compiled_geometry_utility_eia861",
+            "out_eia861__compiled_geometry_balancing_authorities": "compiled_geometry_balancing_authority_eia861",
+            "out_eia861__compiled_geometry_utilities": "compiled_geometry_utility_eia861",
             # state demand
-            "predicted_state_hourly_demand": "predicted_state_hourly_demand",
+            "out_ferc714__hourly_predicted_state_demand": "predicted_state_hourly_demand",
             # plant parts
-            "mega_generators_eia": "gens_mega_eia",
-            "plant_parts_eia": "plant_parts_eia",
-            "out__yearly_plants_all_ferc1_plant_parts_eia": "ferc1_eia",
+            "out_eia__yearly_generators_by_ownership": "gens_mega_eia",
+            "out_eia__yearly_plant_parts": "plant_parts_eia",
+            "out_pudl__yearly_assn_eia_ferc1_plant_parts": "ferc1_eia",
         }
 
         table_method_map_any_agg = {
-            "generation_fuel_by_generator_energy_source_AGG_eia923": "gen_fuel_by_generator_energy_source_eia923",
-            "generation_fuel_by_generator_AGG_eia923": "gen_fuel_by_generator_eia923",
-            "heat_rate_by_unit_AGG": "hr_by_unit",
-            "heat_rate_by_generator_AGG": "hr_by_gen",
-            "capacity_factor_by_generator_AGG": "capacity_factor",
-            "fuel_cost_by_generator_AGG": "fuel_cost",
-            "mcoe_AGG": "mcoe",
-            "mcoe_generators_AGG": "mcoe_generators",
+            "out_eia923__AGG_generation_fuel_by_generator_energy_source": "gen_fuel_by_generator_energy_source_eia923",
+            "out_eia923__AGG_generation_fuel_by_generator": "gen_fuel_by_generator_eia923",
+            "_out_eia__AGG_heat_rate_by_unit": "hr_by_unit",
+            "_out_eia__AGG_heat_rate_by_generator": "hr_by_gen",
+            "_out_eia__AGG_capacity_factor_by_generator": "capacity_factor",
+            "_out_eia__AGG_fuel_cost_by_generator": "fuel_cost",
+            "_out_eia__AGG_derived_generator_attributes": "mcoe",
+            "out_eia__AGG_generators": "mcoe_generators",
         }
 
         table_method_map_yearly_only = {
-            "generation_fuel_by_generator_energy_source_owner_yearly_eia923": "gen_fuel_by_generator_energy_source_owner_eia923",
+            "out_eia923__yearly_generation_fuel_by_generator_energy_source_owner": "gen_fuel_by_generator_energy_source_owner_eia923",
         }
 
         for table_name, method_name in (
@@ -296,6 +301,12 @@ class PudlTabl:
                 "It is retained for backwards compatibility only."
             )
         table_name = self._agg_table_name(table_name)
+        logger.warning(
+            "PudlTabl is deprecated and will be removed from the pudl package "
+            "once known users have migrated to accessing the data directly from "
+            "pudl.sqlite. To access the data returned by this method, "
+            f"use the {table_name} table in the pudl.sqlite database."
+        )
         resource = Resource.from_id(table_name)
         return pd.concat(
             [
@@ -374,14 +385,14 @@ class PudlTabl:
         """Pull EIA 923 net generation data by generator.
 
         Net generation is reported in two seperate tables in EIA 923: in the
-        generation_eia923 and generation_fuel_eia923 tables. While the
-        generation_fuel_eia923 table is more complete (the generation_eia923
-        table includes only ~55% of the reported MWhs), the generation_eia923
+        core_eia923__monthly_generation and core_eia923__monthly_generation_fuel tables. While the
+        core_eia923__monthly_generation_fuel table is more complete (the core_eia923__monthly_generation
+        table includes only ~55% of the reported MWhs), the core_eia923__monthly_generation
         table is more granular (it is reported at the generator level).
 
-        This method either grabs the generation_eia923 table that is reported
+        This method either grabs the core_eia923__monthly_generation table that is reported
         by generator, or allocates net generation from the
-        generation_fuel_eia923 table to the generator level.
+        core_eia923__monthly_generation_fuel table to the generator level.
 
         Args:
             update: Ignored. Retained for backwards compatibility only.
@@ -395,12 +406,14 @@ class PudlTabl:
                     "Allocated net generation requires frequency of `AS` or `MS`, "
                     f"got {self.freq}"
                 )
-            table_name = self._agg_table_name("generation_fuel_by_generator_AGG_eia923")
+            table_name = self._agg_table_name(
+                "out_eia923__AGG_generation_fuel_by_generator"
+            )
             gen_df = self._get_table_from_db(table_name)
             resource = Resource.from_id(table_name)
             gen_df = gen_df.loc[:, resource.get_field_names()]
         else:
-            table_name = self._agg_table_name("denorm_generation_AGG_eia923")
+            table_name = self._agg_table_name("out_eia923__AGG_generation")
             gen_df = self._get_table_from_db(table_name)
         return gen_df
 
@@ -409,6 +422,6 @@ class PudlTabl:
     ###########################################################################
     def epacamd_eia(self: Self) -> pd.DataFrame:
         """Read the EPACAMD-EIA Crosswalk from the PUDL DB."""
-        return pd.read_sql("epacamd_eia", self.pudl_engine).pipe(
+        return pd.read_sql("core_epa__assn_eia_epacamd", self.pudl_engine).pipe(
             apply_pudl_dtypes, group="glue"
         )

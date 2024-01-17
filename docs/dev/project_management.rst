@@ -2,7 +2,7 @@
 Project Management
 ===============================================================================
 
-The people working on PUDL are distributed all over North America.  Collaboration takes
+The people working on PUDL are distributed all over North America. Collaboration takes
 place online. We make extensive use of Github's build int project management tools and
 we work in public. You can follow our progress in our
 `GitHub Projects <https://github.com/orgs/catalyst-cooperative/projects/9>`__
@@ -19,11 +19,17 @@ them easily.
 Our GitHub Workflow
 -------------------------------------------------------------------------------
 
-* We have 2 persistent branches: **main** and **dev**.
-* We create temporary feature branches off of **dev** and make pull requests to
-  **dev** throughout our 2 week long sprints.
-* At the end of each sprint, or any time a particularly significant feature has
-  been merged in and the nightly builds are passing, **dev** is merged into **main**.
+* We have 3 persistent branches: ``main`` (the default branch), ``nightly``, and
+  ``stable``.
+* We create temporary feature branches off of ``main`` and make pull requests into
+  ``main`` throughout our 2 week long sprints. All code that's merged into ``main``
+  should have passed our CI tests and been reviewed by at least one other person.
+* Every night the ``main`` branch is used to run the :ref:`nightly-data-builds`. If the
+  builds are successful, then the ``nightly`` branch is automatically updated to point
+  to the latest commit on ``main``. If the builds fail, then the ``nightly`` branch is
+  left unchanged.
+* Every time we do a versioned data release, the ``stable`` branch is updated to point
+  to the commit associated with the most recent release.
 
 -------------------------------------------------------------------------------
 Pull Requests
@@ -31,11 +37,11 @@ Pull Requests
 
 * Before making a PR, make sure the tests run and pass locally, including the
   code linters and pre-commit hooks. See :ref:`linting` for details.
-* Don't forget to merge any new commits to the **dev** branch into your feature
+* Don't forget to merge any new commits to the ``main`` branch into your feature
   branch before making a PR.
 * If for some reason the continuous integration tests fail for your PR, try and
   figure out why and fix it, or ask for help. If the tests fail, we don't want
-  to merge it into **dev**. You can see the status of the CI builds in the
+  to merge it into ``main``. You can see the status of the CI builds in the
   `GitHub Actions for the PUDL repo
   <https://github.com/catalyst-cooperative/pudl/actions>`__.
 * Please don't decrease the overall test coverage -- if you introduce new code,
@@ -55,8 +61,8 @@ Releases
   Python packages depend on. Rather, it's an end-use application that produces data
   which other applications and analyses can consume. Because of this, we no longer
   release installable packages on PyPI or ``conda-forge``.
-* Periodically, we tag a versioned release on **main** using the date, like
-  ``v2023.07.15``. This triggers a snapshot of the repository being
+* Periodically, we tag a versioned release on ``main`` using a calendar based version,
+  like ``v2023.07.15``. This triggers a snapshot of the repository being
   `archived on Zenodo <https://zenodo.org/doi/10.5281/zenodo.3404014>`__.
 * The nightly build outputs associated with any tagged release will also get archived
   `on Zenodo here <https://zenodo.org/doi/10.5281/zenodo.3653158>`__

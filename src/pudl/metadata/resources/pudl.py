@@ -5,7 +5,7 @@ Most of this is compiled from handmapping records.
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
-    "political_subdivisions": {
+    "core_pudl__codes_subdivisions": {
         "title": "Political Subdivisions",
         "description": (
             "Various static attributes associated with states, provinces, and other "
@@ -31,7 +31,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "pudl",
         "sources": ["pudl"],
     },
-    "plants_pudl": {
+    "core_pudl__entity_plants_pudl": {
         "title": "PUDL Plants",
         "description": "Home table for PUDL assigned plant IDs. These IDs are manually generated each year when new FERC and EIA reporting is integrated, and any newly identified plants are added to the list with a new ID. Each ID maps to a power plant which is reported in at least one FERC or EIA data set. This table is read in from a spreadsheet stored in the PUDL repository: src/pudl/package_data/glue/pudl_id_mapping.xlsx",
         "schema": {
@@ -43,7 +43,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "pudl",
         "sources": ["pudl"],
     },
-    "utilities_pudl": {
+    "core_pudl__entity_utilities_pudl": {
         "title": "PUDL Utilities",
         "description": "Home table for PUDL assigned utility IDs. These IDs are manually generated each year when new FERC and EIA reporting is integrated, and any newly found utilities are added to the list with a new ID. Each ID maps to a power plant owning or operating entity which is reported in at least one FERC or EIA data set. This table is read in from a spreadsheet stored in the PUDL repository: src/pudl/package_data/glue/pudl_id_mapping.xlsx",
         "schema": {
@@ -55,7 +55,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "pudl",
         "sources": ["pudl"],
     },
-    "utility_plant_assn": {
+    "core_pudl__assn_utilities_plants": {
+        "title": "PUDL Utility-Plant Associations",
+        "description": "Associations between PUDL utility IDs and PUDL plant IDs. This table is read in from a spreadsheet stored in the PUDL repository: src/pudl/package_data/glue/pudl_id_mapping.xlsx",
         "schema": {
             "fields": ["utility_id_pudl", "plant_id_pudl"],
             "primary_key": ["utility_id_pudl", "plant_id_pudl"],
@@ -64,7 +66,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "pudl",
         "sources": ["pudl"],
     },
-    "datasources": {
+    "core_pudl__codes_datasources": {
+        "title": "PUDL Data Sources",
+        "description": "Static table defining codes associated with the data sources that PUDL integrates.",
         "schema": {
             "fields": [
                 "datasource",
@@ -78,7 +82,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "pudl",
         "sources": ["pudl"],
     },
-    "predicted_state_hourly_demand": {
+    "out_ferc714__hourly_predicted_state_demand": {
+        "title": "Estimated Hourly State Electricity Demand",
+        "description": "Estimated hourly electricity demand for each state, scaled such that it matches the total electricity sales by state reported in EIA 861.",
         "schema": {
             "fields": [
                 "state_id_fips",
