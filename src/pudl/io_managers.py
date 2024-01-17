@@ -1,6 +1,5 @@
 """Dagster IO Managers."""
 import json
-import os
 import re
 from pathlib import Path
 from sqlite3 import sqlite_version
@@ -15,6 +14,7 @@ from alembic.autogenerate.api import compare_metadata
 from alembic.migration import MigrationContext
 from dagster import (
     ConfigurableIOManager,
+    EnvVar,
     InitResourceContext,
     InputContext,
     IOManager,
@@ -114,10 +114,10 @@ class PudlMixedFormatIOManager(ConfigurableIOManager):
     # and AFAIK there's no way to set default value if the env variable
     # is not set.
 
-    write_to_parquet: bool = False
+    write_to_parquet: bool = bool(EnvVar("PUDL_WRITE_TO_PARQUET").get_value(False))
     """If true, data will be written to parquet files."""
 
-    read_from_parquet: bool = False
+    read_from_parquet: bool = bool(EnvVar("PUDL_READ_FROM_PARQUET").get_value(False))
     """If true, data will be read from parquet files instead of sqlite."""
 
     def __init__(self, **kwargs):
@@ -640,17 +640,7 @@ class PudlSQLiteIOManager(SQLiteIOManager):
 @io_manager
 def pudl_sqlite_io_manager(init_context) -> IOManager:
     """Create a SQLiteManager dagster resource for the pudl database."""
-    # TODO(rousik): Ideally, we would like to be able to link fields to
-    # env variables directly in the IOManager, but it doesn't seem like
-    # it's currently easily  possible.
-
-    kwargs = {
-        "write_to_parquet": os.getenv("PUDL_WRITE_TO_PARQUET", None),
-        "read_from_parquet": os.getenv("PUDL_READ_FROM_PARQUET", None),
-    }
-    # Convert values to bool and drop Nones
-    kwargs = {k: bool(v) for k, v in kwargs.items() if v is not None}
-    return PudlMixedFormatIOManager(**kwargs)
+    return PudlMixedFormatIOManager()
 
 
 class FercSQLiteIOManager(SQLiteIOManager):

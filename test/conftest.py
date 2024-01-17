@@ -9,13 +9,14 @@ from typing import Any
 
 import pytest
 import sqlalchemy as sa
-from dagster import build_init_resource_context, materialize_to_memory
+from dagster import IOManager, build_init_resource_context, materialize_to_memory
 
 from pudl import resources
 from pudl.etl.cli import pudl_etl_job_factory
 from pudl.extract.ferc1 import raw_xbrl_metadata_json
 from pudl.ferc_to_sqlite.cli import ferc_to_sqlite_job_factory
 from pudl.io_managers import (
+    PudlMixedFormatIOManager,
     PudlSQLiteIOManager,
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
@@ -320,9 +321,13 @@ def pudl_sql_io_manager(
 
 
 @pytest.fixture(scope="session")
-def pudl_engine(pudl_sql_io_manager: PudlSQLiteIOManager) -> sa.Engine:
+def pudl_engine(pudl_sql_io_manager: IOManager) -> sa.Engine:
     """Get PUDL SQL engine from io manager."""
-    return pudl_sql_io_manager.engine
+    if isinstance(pudl_sql_io_manager, PudlSQLiteIOManager):
+        return pudl_sql_io_manager.engine
+    if isinstance(pudl_sqlite_io_manager, PudlMixedFormatIOManager):
+        return pudl_sql_io_manager._sqlite_io_manager.engine
+    raise ValueError(f"Unexpected type for the pudl io manager: {type(pudl_sql_io_manager)}")
 
 
 @pytest.fixture(scope="session", autouse=True)
