@@ -2312,12 +2312,37 @@ class XbrlCalculationForestFerc1(BaseModel):
         annotated_forest = deepcopy(self.forest)
         nx.set_node_attributes(annotated_forest, self.node_attrs)
         nx.set_edge_attributes(annotated_forest, self.edge_attrs)
+        annotated_forest = self.propagate_tags(annotated_forest)
 
         logger.info("Checking whether any pruned nodes were also tagged.")
         self.check_lost_tags(lost_nodes=self.pruned)
         logger.info("Checking whether any orphaned nodes were also tagged.")
         self.check_lost_tags(lost_nodes=self.orphans)
         self.check_conflicting_tags(annotated_forest)
+        return annotated_forest
+
+    def propagate_tags(self: Self, annotated_forest: nx.DiGraph):
+        """Propagate tags.
+
+        Propagate tags leafwards, rootward &  to the _correction nodes.
+        """
+        existing_tags = nx.get_node_attributes(annotated_forest, "tags")
+        leafward_inherited_tags = ["in_rate_base"]
+
+        for node, parent_tags in existing_tags.items():
+            descendants = nx.descendants(annotated_forest, node)
+            descendant_tags = {
+                desc: {
+                    "tags": {
+                        tag_name: parent_tags[tag_name]
+                        for tag_name in leafward_inherited_tags
+                        if tag_name in parent_tags
+                    }
+                    | existing_tags.get(desc, {})
+                }
+                for desc in descendants
+            }
+            nx.set_node_attributes(annotated_forest, descendant_tags)
         return annotated_forest
 
     def check_lost_tags(self: Self, lost_nodes: list[NodeId]) -> None:
