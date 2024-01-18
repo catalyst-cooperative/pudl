@@ -456,7 +456,7 @@ compiled_geometry_eia861_assets = [
     ass
     for entity in list(ENTITY_TYPE)
     for ass in compiled_geoms_asset_factory(
-        entity_type=entity, io_manager_key="pudl_sqlite_io_manager"
+        entity_type=entity, io_manager_key="pudl_io_manager"
     )
 ]
 

@@ -20,7 +20,7 @@ from pudl.io_managers import (
     PudlSQLiteIOManager,
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
-    pudl_sqlite_io_manager,
+    pudl_io_manager,
 )
 from pudl.metadata.classes import Package
 from pudl.output.pudltabl import PudlTabl
@@ -292,7 +292,7 @@ def pudl_sql_io_manager(
     """Grab a connection to the PUDL IO manager.
 
     If we are using the test database, we initialize the PUDL DB from scratch. If we're
-    using the live database, then we just make a conneciton to it.
+    using the live database, then we just make a connection to it.
     """
     logger.info("setting up the pudl_engine fixture")
     if not live_dbs:
@@ -317,7 +317,7 @@ def pudl_sql_io_manager(
     # All the hard work here is being done by the datapkg and
     # datapkg_to_sqlite fixtures, above.
     context = build_init_resource_context()
-    return pudl_sqlite_io_manager(context)
+    return pudl_io_manager(context)
 
 
 @pytest.fixture(scope="session")
@@ -325,7 +325,7 @@ def pudl_engine(pudl_sql_io_manager: IOManager) -> sa.Engine:
     """Get PUDL SQL engine from io manager."""
     if isinstance(pudl_sql_io_manager, PudlSQLiteIOManager):
         return pudl_sql_io_manager.engine
-    if isinstance(pudl_sqlite_io_manager, PudlMixedFormatIOManager):
+    if isinstance(pudl_sql_io_manager, PudlMixedFormatIOManager):
         return pudl_sql_io_manager._sqlite_io_manager.engine
     raise ValueError(
         f"Unexpected type for the pudl io manager: {type(pudl_sql_io_manager)}"

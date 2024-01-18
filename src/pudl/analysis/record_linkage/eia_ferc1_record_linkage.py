@@ -277,7 +277,7 @@ def run_matching_model(features_train, features_all, y_df):
 @op(
     out={
         "out_pudl__yearly_assn_eia_ferc1_plant_parts": Out(
-            io_manager_key="pudl_sqlite_io_manager"
+            io_manager_key="pudl_io_manager"
         )
     }
 )

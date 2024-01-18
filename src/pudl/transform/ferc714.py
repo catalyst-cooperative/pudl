@@ -368,7 +368,7 @@ def _standardize_offset_codes(df: pd.DataFrame, offset_fixes) -> pd.DataFrame:
     return codes
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager")
+@asset(io_manager_key="pudl_io_manager")
 def core_ferc714__respondent_id(
     raw_ferc714__respondent_id: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -396,7 +396,7 @@ def core_ferc714__respondent_id(
     return _post_process(df, table_name="core_ferc714__respondent_id")
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager")
+@asset(io_manager_key="pudl_io_manager")
 def core_ferc714__hourly_demand_pa(
     raw_ferc714__demand_hourly_pa: pd.DataFrame,
 ) -> pd.DataFrame:

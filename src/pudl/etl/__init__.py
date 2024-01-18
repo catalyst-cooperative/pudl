@@ -15,7 +15,7 @@ from pudl.io_managers import (
     epacems_io_manager,
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
-    pudl_sqlite_io_manager,
+    pudl_io_manager,
 )
 from pudl.resources import dataset_settings, datastore, ferc_to_sqlite_settings
 from pudl.settings import EtlSettings
@@ -94,7 +94,7 @@ default_assets = (
 
 default_resources = {
     "datastore": datastore,
-    "pudl_sqlite_io_manager": pudl_sqlite_io_manager,
+    "pudl_io_manager": pudl_io_manager,
     "ferc1_dbf_sqlite_io_manager": ferc1_dbf_sqlite_io_manager,
     "ferc1_xbrl_sqlite_io_manager": ferc1_xbrl_sqlite_io_manager,
     "dataset_settings": dataset_settings,

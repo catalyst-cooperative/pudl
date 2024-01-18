@@ -17,7 +17,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 @multi_asset(
     outs={
-        table_name: AssetOut(io_manager_key="pudl_sqlite_io_manager")
+        table_name: AssetOut(io_manager_key="pudl_io_manager")
         for table_name in Package.get_etl_group_tables("glue")
         #  do not load core_epa__assn_eia_epacamd glue assets bc they are stand-alone assets below.
         if "core_epa__assn_eia_epacamd" not in table_name
@@ -76,9 +76,7 @@ def raw_pudl__assn_eia_epacamd(context) -> pd.DataFrame:
     return pd.concat(year_matches, ignore_index=True)
 
 
-@asset(
-    required_resource_keys={"dataset_settings"}, io_manager_key="pudl_sqlite_io_manager"
-)
+@asset(required_resource_keys={"dataset_settings"}, io_manager_key="pudl_io_manager")
 def core_epa__assn_eia_epacamd(
     context,
     raw_pudl__assn_eia_epacamd: pd.DataFrame,
@@ -262,7 +260,7 @@ def correct_epa_eia_plant_id_mapping(df: pd.DataFrame) -> pd.DataFrame:
 ##############################
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager")
+@asset(io_manager_key="pudl_io_manager")
 def core_epa__assn_eia_epacamd_subplant_ids(
     _core_epa__assn_eia_epacamd_unique: pd.DataFrame,
     core_eia860__scd_generators: pd.DataFrame,

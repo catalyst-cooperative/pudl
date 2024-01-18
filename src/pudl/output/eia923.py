@@ -151,7 +151,7 @@ def drop_ytd_for_annual_tables(df: pd.DataFrame, freq: str) -> pd.DataFrame:
 #####################################################################################
 # Simple Denormalized Assets
 #####################################################################################
-@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def out_eia923__generation(
     core_eia923__monthly_generation: pd.DataFrame,
     _out_eia__plants_utilities: pd.DataFrame,
@@ -165,7 +165,7 @@ def out_eia923__generation(
     )
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def out_eia923__generation_fuel_combined(
     core_eia923__monthly_generation_fuel: pd.DataFrame,
     core_eia923__monthly_generation_fuel_nuclear: pd.DataFrame,
@@ -237,7 +237,7 @@ def out_eia923__generation_fuel_combined(
     return denorm_by_plant(gf, pu=_out_eia__plants_utilities)
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def out_eia923__boiler_fuel(
     core_eia923__monthly_boiler_fuel: pd.DataFrame,
     _out_eia__plants_utilities: pd.DataFrame,
@@ -260,7 +260,7 @@ def out_eia923__boiler_fuel(
 
 
 @asset(
-    io_manager_key="pudl_sqlite_io_manager",
+    io_manager_key="pudl_io_manager",
     config_schema={
         "fill": Field(
             bool,
@@ -588,6 +588,6 @@ generation_fuel_agg_eia923_assets = [
     ass
     for freq in ["AS", "MS"]
     for ass in time_aggregated_eia923_asset_factory(
-        freq=freq, io_manager_key="pudl_sqlite_io_manager"
+        freq=freq, io_manager_key="pudl_io_manager"
     )
 ]

@@ -33,7 +33,7 @@ def test_pudl_engine(
 
     if check_foreign_keys:
         # Raises ForeignKeyErrors if there are any
-        pudl_sql_io_manager.check_foreign_keys()
+        pudl_sql_io_manager._sqlite_io_manager.check_foreign_keys()
 
 
 def test_ferc1_xbrl2sqlite(ferc1_engine_xbrl: sa.Engine, ferc1_xbrl_taxonomy_metadata):

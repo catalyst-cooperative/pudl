@@ -1,5 +1,6 @@
 """Dagster IO Managers."""
 import json
+import os
 import re
 from pathlib import Path
 from sqlite3 import sqlite_version
@@ -14,7 +15,7 @@ from alembic.autogenerate.api import compare_metadata
 from alembic.migration import MigrationContext
 from dagster import (
     ConfigurableIOManager,
-    EnvVar,
+    Field,
     InitResourceContext,
     InputContext,
     IOManager,
@@ -109,15 +110,13 @@ class PudlMixedFormatIOManager(ConfigurableIOManager):
     to test the two formats for eqivalence during development.
     """
 
-    # TODO(rousik): the folowing EnvVars should really be booleans but
-    # dagster EnvVar doesn't recognize anything but str/int types here
-    # and AFAIK there's no way to set default value if the env variable
-    # is not set.
-
-    write_to_parquet: bool = bool(EnvVar("PUDL_WRITE_TO_PARQUET").get_value(False))
+    # Defaults should be provided here and should be potentially
+    # overriden by os env variables. This now resides in the
+    # @io_manager constructor of this, see "def pudl_io_manager".
+    write_to_parquet: bool
     """If true, data will be written to parquet files."""
 
-    read_from_parquet: bool = bool(EnvVar("PUDL_READ_FROM_PARQUET").get_value(False))
+    read_from_parquet: bool
     """If true, data will be read from parquet files instead of sqlite."""
 
     def __init__(self, **kwargs):
@@ -134,7 +133,7 @@ class PudlMixedFormatIOManager(ConfigurableIOManager):
 
         # TODO(rousik): Move the following diagnostics to debug level once
         # we know what is happening.
-        write_fmt = "parquet" if self.write_to_parquet else "sqlite"
+        write_fmt = "sqlite+parquet" if self.write_to_parquet else "sqlite"
         read_fmt = "parquet" if self.read_from_parquet else "sqlite"
         logger.warning(
             f"pudl_io_manager will be reading from {read_fmt}, writing to {write_fmt}."
@@ -479,10 +478,6 @@ class PudlSQLiteIOManager(SQLiteIOManager):
     using the :class:`pudl.metadata.classes.Package` class.
     """
 
-    # TODO(rousik): now that this experimentally supports also writing to parquet
-    # as an alternative storage format, we should probably rename this class
-    # to be less sqlite-centric.
-
     def __init__(
         self,
         base_dir: str,
@@ -637,10 +632,29 @@ class PudlSQLiteIOManager(SQLiteIOManager):
         return df
 
 
-@io_manager
-def pudl_sqlite_io_manager(init_context) -> IOManager:
+@io_manager(
+    config_schema={
+        "write_to_parquet": Field(
+            bool,
+            description="""If true, data will be written to parquet files,
+                in addition to the SQLite database.""",
+            default_value=bool(os.getenv("PUDL_WRITE_TO_PARQUET")),
+        ),
+        "read_from_parquet": Field(
+            bool,
+            description="""If True, the canonical source of data for reads
+                will be parquet files. Otherwise, data will be read from the
+                SQLite database.""",
+            default_value=bool(os.getenv("PUDL_READ_FROM_PARQUET")),
+        ),
+    }
+)
+def pudl_io_manager(init_context) -> IOManager:
     """Create a SQLiteManager dagster resource for the pudl database."""
-    return PudlMixedFormatIOManager()
+    return PudlMixedFormatIOManager(
+        write_to_parquet=init_context.resource_config["write_to_parquet"],
+        read_from_parquet=init_context.resource_config["read_from_parquet"],
+    )
 
 
 class FercSQLiteIOManager(SQLiteIOManager):
