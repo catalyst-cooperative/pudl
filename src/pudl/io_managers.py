@@ -14,7 +14,6 @@ import sqlalchemy as sa
 from alembic.autogenerate.api import compare_metadata
 from alembic.migration import MigrationContext
 from dagster import (
-    ConfigurableIOManager,
     Field,
     InitResourceContext,
     InputContext,
@@ -96,7 +95,7 @@ def get_table_name_from_context(context: OutputContext) -> str:
     return context.get_identifier()
 
 
-class PudlMixedFormatIOManager(ConfigurableIOManager):
+class PudlMixedFormatIOManager(IOManager):
     """Format switching IOManager that supports sqlite and parquet.
 
     We currently support both sqlite and parquet formats. This io manager
@@ -119,25 +118,32 @@ class PudlMixedFormatIOManager(ConfigurableIOManager):
     read_from_parquet: bool
     """If true, data will be read from parquet files instead of sqlite."""
 
-    def __init__(self, **kwargs):
-        """Creates new instace of the IO Manager."""
-        super().__init__(**kwargs)
-        # TODO(rousik): Init arguments are fixed but we do not expect
-        # any variability here. If we do, we should add this to the
-        # configuration.
+    def __init__(self, write_to_parquet: bool = False, read_from_parquet: bool = False):
+        """Creates new instance of mixed format pudl IO manager.
+
+        By default, data is written and read from sqlite, but experimental
+        support for writing and/or reading from parquet files can be enabled
+        by setting the corresponding flags to True.
+
+        Args:
+            write_to_parquet: if True, all data will be written to parquet
+                files in addition to sqlite.
+            read_from_parquet: if True, all data reads will be using
+                parquet files as source of truth. Otherwise, data will be
+                read from the sqlite database.
+        """
+        self.write_to_parquet = write_to_parquet
+        self.read_from_parquet = read_from_parquet
         self._sqlite_io_manager = PudlSQLiteIOManager(
             base_dir=PudlPaths().output_dir,
             db_name="pudl",
         )
         self._parquet_io_manager = PudlParquetIOManager()
-
-        # TODO(rousik): Move the following diagnostics to debug level once
-        # we know what is happening.
-        write_fmt = "sqlite+parquet" if self.write_to_parquet else "sqlite"
-        read_fmt = "parquet" if self.read_from_parquet else "sqlite"
-        logger.warning(
-            f"pudl_io_manager will be reading from {read_fmt}, writing to {write_fmt}."
-        )
+        if self.write_to_parquet or self.read_from_parquet:
+            logger.warning(
+                f"pudl_io_manager: experimental support for parquet enabled. "
+                f"(read={self.read_from_parquet}, write={self.write_to_parquet})"
+            )
 
     def handle_output(self, context: OutputContext, obj: Any) -> Any:
         """Passes the output to the appropriate IO manager instance."""
