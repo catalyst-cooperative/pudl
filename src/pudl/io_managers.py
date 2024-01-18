@@ -201,10 +201,6 @@ class SQLiteIOManager(IOManager):
 
         self.engine = self._setup_database(timeout=timeout)
 
-    def _get_table_name(self, context) -> str:
-        """Get asset name from dagster context object."""
-        return get_table_name_from_context(context)
-
     def _setup_database(self, timeout: float = 1_000.0) -> sa.Engine:
         """Create database and metadata if they don't exist.
 
@@ -345,7 +341,7 @@ class SQLiteIOManager(IOManager):
                 asset name.
             df: dataframe to write to the database.
         """
-        table_name = self._get_table_name(context)
+        table_name = get_table_name_from_context(context)
         sa_table = self._get_sqlalchemy_table(table_name)
         column_difference = set(sa_table.columns.keys()) - set(df.columns)
         if column_difference:
@@ -380,7 +376,7 @@ class SQLiteIOManager(IOManager):
             query: sql query to execute in the database.
         """
         engine = self.engine
-        table_name = self._get_table_name(context)
+        table_name = get_table_name_from_context(context)
 
         # Make sure the metadata has been created for the view
         _ = self._get_sqlalchemy_table(table_name)
@@ -422,7 +418,7 @@ class SQLiteIOManager(IOManager):
             context: dagster keyword that provides access output information like asset
                 name.
         """
-        table_name = self._get_table_name(context)
+        table_name = get_table_name_from_context(context)
         # Check if the table_name exists in the self.md object
         _ = self._get_sqlalchemy_table(table_name)
 
@@ -551,7 +547,7 @@ class PudlSQLiteIOManager(SQLiteIOManager):
             query: sql query to execute in the database.
         """
         engine = self.engine
-        table_name = self._get_table_name(context)
+        table_name = get_table_name_from_context(context)
 
         # Check if there is a Resource in self.package for table_name.
         # We don't want folks creating views without adding package metadata.
@@ -574,7 +570,7 @@ class PudlSQLiteIOManager(SQLiteIOManager):
 
     def _handle_pandas_output(self, context: OutputContext, df: pd.DataFrame):
         """Enforce PUDL DB schema and write dataframe to SQLite."""
-        table_name = self._get_table_name(context)
+        table_name = get_table_name_from_context(context)
         # If table_name doesn't show up in the self.md object, this will raise an error
         sa_table = self._get_sqlalchemy_table(table_name)
         res = self.package.get_resource(table_name)
@@ -600,7 +596,7 @@ class PudlSQLiteIOManager(SQLiteIOManager):
             context: dagster keyword that provides access output information like asset
                 name.
         """
-        table_name = self._get_table_name(context)
+        table_name = get_table_name_from_context(context)
 
         # Check if there is a Resource in self.package for table_name
         try:
@@ -771,7 +767,7 @@ class FercDBFSQLiteIOManager(FercSQLiteIOManager):
         # TODO (daz): this is hard-coded to FERC1, though this is nominally for all FERC datasets.
         ferc1_settings = context.resources.dataset_settings.ferc1
 
-        table_name = self._get_table_name(context)
+        table_name = get_table_name_from_context(context)
         # Remove preceeding asset name metadata
         table_name = table_name.replace("raw_ferc1_dbf__", "")
 
@@ -924,7 +920,7 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
         # TODO (daz): this is hard-coded to FERC1, though this is nominally for all FERC datasets.
         ferc1_settings = context.resources.dataset_settings.ferc1
 
-        table_name = self._get_table_name(context)
+        table_name = get_table_name_from_context(context)
         # Remove preceeding asset name metadata
         table_name = table_name.replace("raw_ferc1_xbrl__", "")
 
