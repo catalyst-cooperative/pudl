@@ -762,7 +762,7 @@ class Schema(PudlMeta):
                     field = info.data["fields"][names.index(name)]
                     field.constraints.required = True
                 else:
-                    missing.append(field.name)
+                    missing.append(name)
             if missing:
                 raise ValueError(f"names {missing} missing from fields")
         return pk
