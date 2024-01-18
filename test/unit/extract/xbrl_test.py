@@ -4,7 +4,7 @@ import pytest
 from dagster import ResourceDefinition, build_op_context
 
 from pudl.extract.xbrl import FercXbrlDatastore, convert_form, xbrl2sqlite_op_factory
-from pudl.ferc_to_sqlite import ferc_to_sqlite_xbrl_only
+from pudl.ferc_to_sqlite import ferc_to_sqlite
 from pudl.resources import RuntimeSettings
 from pudl.settings import (
     Ferc1DbfToSqliteSettings,
@@ -101,8 +101,16 @@ def test_xbrl2sqlite(settings, forms, mocker, tmp_path):
     mock_datastore = mocker.MagicMock()
     mocker.patch("pudl.extract.xbrl.FercXbrlDatastore", return_value=mock_datastore)
 
-    # always use tmp ath here so that we don't clobber the live DB when --live-dbs is passed
-    ferc_to_sqlite_xbrl_only.execute_in_process(
+    # Only select operations that are tagged with data_format=xbrl.
+    op_selection = [
+        op.name
+        for op in ferc_to_sqlite.node_defs
+        if op.tags.get("data_format") == "xbrl"
+    ]
+
+    # always use tmp path here so that we don't clobber the live DB when --live-dbs is passed
+    ferc_to_sqlite.execute_in_process(
+        op_selection=op_selection,
         resources={
             "ferc_to_sqlite_settings": settings,
             "datastore": ResourceDefinition.mock_resource(),
@@ -111,7 +119,7 @@ def test_xbrl2sqlite(settings, forms, mocker, tmp_path):
                 xbrl_num_workers=10,
                 clobber=True,
             ),
-        }
+        },
     )
 
     # TODO(rousik): do we need to use this, or can we simply set PUDL_OUTPUT env

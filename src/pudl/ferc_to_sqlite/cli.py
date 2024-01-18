@@ -24,40 +24,29 @@ logger = pudl.logging_helpers.get_logger(__name__)
 def ferc_to_sqlite_job_factory(
     logfile: str | None = None,
     loglevel: str = "INFO",
-    enable_xbrl: bool = True,
-    enable_dbf: bool = True,
+    dataset_only: str | None = None,
 ) -> Callable[[], JobDefinition]:
     """Factory for parameterizing a reconstructable ferc_to_sqlite job.
 
     Args:
         logfile: Path to a log file for the job's execution.
         loglevel: The log level for the job's execution.
-        enable_xbrl: if True, include XBRL data processing in the job.
-        enable_dbf: if True, include DBF data processing in the job.
 
     Returns:
         The job definition to be executed.
     """
-    if not (enable_xbrl or enable_dbf):
-        raise ValueError("either dbf or xbrl needs to be enabled")
 
     def get_ferc_to_sqlite_job():
         """Module level func for creating a job to be wrapped by reconstructable."""
-        if enable_xbrl and enable_dbf:
-            return ferc_to_sqlite.ferc_to_sqlite.to_job(
-                resource_defs=ferc_to_sqlite.default_resources_defs,
-                name="ferc_to_sqlite_job",
-            )
-        if enable_xbrl:
-            return ferc_to_sqlite.ferc_to_sqlite_xbrl_only.to_job(
-                resource_defs=ferc_to_sqlite.default_resources_defs,
-                name="ferc_to_sqlite_xbrl_only_job",
-            )
-
-        # enable_dbf has to be true
-        return ferc_to_sqlite.ferc_to_sqlite_dbf_only.to_job(
+        ferc_to_sqlite_graph = ferc_to_sqlite.ferc_to_sqlite
+        op_selection = None
+        if dataset_only is not None:
+            logger.warning(f"Running ferc_to_sqlite restricted to {dataset_only}")
+            op_selection = [dataset_only]
+        return ferc_to_sqlite_graph.to_job(
             resource_defs=ferc_to_sqlite.default_resources_defs,
-            name="ferc_to_sqlite_dbf_only_job",
+            name="ferc_to_sqlite_job",
+            op_selection=op_selection,
         )
 
     return get_ferc_to_sqlite_job
@@ -178,7 +167,11 @@ def main(
     ferc_to_sqlite_reconstructable_job = build_reconstructable_job(
         "pudl.ferc_to_sqlite.cli",
         "ferc_to_sqlite_job_factory",
-        reconstructable_kwargs={"loglevel": loglevel, "logfile": logfile},
+        reconstructable_kwargs={
+            "loglevel": loglevel,
+            "logfile": logfile,
+            "dataset_only": dataset_only,
+        },
     )
 
     run_config = {
@@ -194,7 +187,6 @@ def main(
                     "xbrl_num_workers": workers,
                     "xbrl_batch_size": batch_size,
                     "clobber": clobber,
-                    "dataset_only": dataset_only,
                 },
             },
         },

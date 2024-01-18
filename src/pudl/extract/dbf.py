@@ -479,20 +479,11 @@ class FercDbfExtractor:
                 "datastore",
                 "runtime_settings",
             },
+            tags={"dataset": cls.DATASET, "data_format": "dbf"},
         )
         def inner_method(context) -> None:
             rs: RuntimeSettings = context.resources.runtime_settings
             """Instantiates dbf extractor and runs it."""
-            if (
-                rs.dataset_only
-                and rs.dataset_only.lower() != f"{cls.DATASET.lower()}_dbf"
-            ):
-                logger.info(
-                    f"Skipping dataset {cls.DATASET} because it is not in the "
-                    f"dataset_only list."
-                )
-                return
-
             dbf_extractor = cls(
                 datastore=context.resources.datastore,
                 settings=context.resources.ferc_to_sqlite_settings,

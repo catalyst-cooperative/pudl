@@ -13,7 +13,6 @@ class RuntimeSettings(ConfigurableResource):
     clobber: bool = False
     xbrl_num_workers: None | int = None
     xbrl_batch_size: int = 50
-    dataset_only: str = ""
 
 
 @resource(config_schema=create_dagster_config(DatasetsSettings()))

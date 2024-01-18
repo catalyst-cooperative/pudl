@@ -25,20 +25,6 @@ def ferc_to_sqlite():
         xbrl2sqlite_op_factory(form)()
 
 
-@graph
-def ferc_to_sqlite_dbf_only():
-    """Clone the FERC FoxPro databases into SQLite."""
-    for extractor in ALL_DBF_EXTRACTORS:
-        extractor.get_dagster_op()()
-
-
-@graph
-def ferc_to_sqlite_xbrl_only():
-    """Clone the FERC XBRL databases into SQLite."""
-    for form in XbrlFormNumber:
-        xbrl2sqlite_op_factory(form)()
-
-
 default_resources_defs = {
     "ferc_to_sqlite_settings": ferc_to_sqlite_settings,
     "runtime_settings": RuntimeSettings(),

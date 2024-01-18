@@ -56,6 +56,7 @@ def xbrl2sqlite_op_factory(form: XbrlFormNumber) -> Callable:
             "datastore",
             "runtime_settings",
         },
+        tags={"data_format": "xbrl", "dataset": f"ferc{form.value}"},
     )
     def inner_op(context) -> None:
         output_path = PudlPaths().output_dir
@@ -69,12 +70,6 @@ def xbrl2sqlite_op_factory(form: XbrlFormNumber) -> Callable:
         if settings is None or settings.disabled:
             logger.info(
                 f"Skipping dataset ferc{form.value}_xbrl: no config or is disabled."
-            )
-            return
-
-        if rs.dataset_only and rs.dataset_only.lower() != f"ferc{form.value}_xbrl":
-            logger.info(
-                f"Skipping dataset ferc{form.value}_xbrl because of dataset_only exclusion."
             )
             return
 
