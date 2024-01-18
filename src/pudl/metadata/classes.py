@@ -950,13 +950,11 @@ class DataSource(PudlMeta):
         ]
         # If PHMSA, also include .txt files in documentation
         if self.name == "phmsagas":
-            download_paths.append(
-                [
-                    path.relative_to(data_source_dir)
-                    for path in (list((data_source_dir / self.name).glob("*.txt")))
-                    if path.is_file()
-                ]
-            )
+            download_paths += [
+                path.relative_to(data_source_dir)
+                for path in (list((data_source_dir / self.name).glob("*.txt")))
+                if path.is_file()
+            ]
         download_paths = sorted(download_paths)
         rendered = template.render(
             source=self,
