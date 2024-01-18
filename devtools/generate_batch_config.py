@@ -27,7 +27,7 @@ def _flat(ls: list[list]) -> list:
 def to_config(
     *,
     container_image: str,
-    container_env: str,
+    container_env: list[list[str]],
     container_command: str,
     container_arg: str,
 ) -> dict:
@@ -55,10 +55,10 @@ def to_config(
                     ],
                     "computeResource": {
                         "cpuMilli": 8000,
-                        "memoryMib": 32768,
-                        "bootDiskMib": 204800,
+                        "memoryMib": 32 * 1024,
+                        "bootDiskMib": 80 * 1024,
                     },
-                    "maxRunDuration": f"{60 * 60 * 8}s",
+                    "maxRunDuration": f"{60 * 60 * 12}s",
                 }
             }
         ],
