@@ -144,18 +144,18 @@ HTTPS using the following links:
   * `FERC-714 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc714_xbrl_datapackage.json>`__
   * `FERC-714 XBRL Taxonomy Metadata as JSON (2021-2022) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc714_xbrl_taxonomy_metadata.json>`__
 
-.. note::
 
-   To reduce network transfer times, we ``gzip`` the SQLite database files, which can
-   be quite large when uncompressed. To decompress them locally, at the command line
-   on Linux, MacOS, or Windows you can use the ``gunzip`` command.
+To reduce network transfer times, we compress the SQLite databases using ``gzip``. To
+decompress them locally, at the command line on Linux, MacOS, or Windows you can use the
+``gunzip`` command. (Git for Windows installs ``gzip`` / ``gunzip`` by default, and it
+can also be installed using the conda package manager).
 
-   .. code-block:: console
+.. code-block:: console
 
-      $ gunzip *.sqlite.gz
+   $ gunzip *.sqlite.gz
 
-  On Windows you can also use a 3rd party tool like
-  `7zip <https://www.7-zip.org/download.html>`__.
+If you're not familiar with using Unix command line tools in Windows you can also use a
+3rd party tool like `7zip <https://www.7-zip.org/download.html>`__.
 
 .. _access-zenodo:
 

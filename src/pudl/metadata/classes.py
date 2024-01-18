@@ -521,15 +521,7 @@ class Field(PudlMeta):
 
     name: SnakeCase
     # Shadows built-in type.
-    type: Literal[  # noqa: A003
-        "string",
-        "number",
-        "integer",
-        "boolean",
-        "date",
-        "datetime",
-        "year",
-    ]
+    type: Literal["string", "number", "integer", "boolean", "date", "datetime", "year"]  # noqa: A003
     title: String | None = None
     # Alias required to avoid shadowing Python built-in format()
     format_: Literal["default"] = pydantic.Field(alias="format", default="default")
@@ -606,7 +598,7 @@ class Field(PudlMeta):
                 return "float32"
         return FIELD_DTYPES_PANDAS[self.type]
 
-    def to_sql_dtype(self) -> type:
+    def to_sql_dtype(self) -> type:  # noqa: A003
         """Return SQLAlchemy data type."""
         if self.constraints.enum and self.type == "string":
             return sa.Enum(*self.constraints.enum)
@@ -624,7 +616,9 @@ class Field(PudlMeta):
             name=self.name,
             type=self.to_pyarrow_dtype(),
             nullable=(not self.constraints.required),
-            metadata={"description": self.description},
+            metadata={
+                "description": self.description if self.description is not None else ""
+            },
         )
 
     def to_sql(  # noqa: C901
@@ -684,7 +678,7 @@ class Field(PudlMeta):
             comment=self.description,
         )
 
-    def encode(self, col: pd.Series, dtype: type | None = None) -> pd.Series:
+    def encode(self, col: pd.Series, dtype: type | None = None) -> pd.Series:  # noqa: A003
         """Recode the Field if it has an associated encoder."""
         return self.encoder.encode(col, dtype=dtype) if self.encoder else col
 
@@ -1318,9 +1312,10 @@ class Resource(PudlMeta):
         """Construct a PyArrow schema for the resource."""
         fields = [field.to_pyarrow() for field in self.schema.fields]
         metadata = {
-            "description": self.description,
-            "primary_key": ",".join(self.schema.primary_key),
+            "description": self.description if self.description is not None else ""
         }
+        if self.schema.primary_key is not None:
+            metadata |= {"primary_key": ",".join(self.schema.primary_key)}
         return pa.schema(fields=fields, metadata=metadata)
 
     def to_pandas_dtypes(self, **kwargs: Any) -> dict[str, str | pd.CategoricalDtype]:
