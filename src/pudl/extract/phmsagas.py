@@ -28,10 +28,12 @@ class Extractor(excel.GenericExtractor):
     def process_final_page(self, df, page):
         """Drop columns that get mapped to other assets.
 
-        Older years of PHMSA data may have fewer pages and tables of data than newer
-        data. This means one page may get split into multiple tables by column. To
-        prevent each table from containing all columns from these older years, filter by
-        the list of columns specified for the page, with a warning.
+        Older years of PHMSA data have one Excel tab in the raw data, while newer data
+        has multiple tabs. To extract data into tables that follow the newer data format
+        without duplicating the older data, we need to split older pages into multiple
+        tables by column. To prevent each table from containing all columns from these
+        older years, filter by the list of columns specified for the page, with a
+        warning.
         """
         to_drop = [
             c
