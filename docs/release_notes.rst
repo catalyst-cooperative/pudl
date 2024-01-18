@@ -31,10 +31,15 @@ v2024.01.XX
 Data Coverage
 ^^^^^^^^^^^^^
 * Updated :doc:`data_sources/epacems` to switch to pulling the quarterly updates of
-  CEMS instead of the annual files. Integrates CEMS through 2023q3. See issue
+  CEMS instead of the annual files. Integrates CEMS through 2023Q3. See issue
   :issue:`2973` & PR :pr:`3096`.
 * Began integration of PHMSA gas distribution and transmission tables into PUDL,
   extracting raw data from 1990-present. See epic :issue:`2848`, and PR :pr:`3242`.
+* Updated the EIA Bulk Electricity data archive so that the available data now to runs
+  through 2023-10-01. See :pr:`3252`.  Also added this dataset to the set of data that
+  will automatically generate archives each month. See `This PUDL Archiver PR
+  <https://github.com/catalyst-cooperative/pudl-archiver/pull/257>`__ and `this Zenodo
+  archive <https://doi.org/10.5281/zenodo.10525348>`__
 
 Data Cleaning
 ^^^^^^^^^^^^^
