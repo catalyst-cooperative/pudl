@@ -12,8 +12,14 @@ For more details, see the `official PHMSA data page <{{ source.path }}>`__.
 {% endblock %}
 
 {% block downloadable_pdfs %}
-{% for filename in download_paths %}
-* :download:`{{ filename.stem.title() }} (PDF/TXT) <{{ filename }}>`
+Documentation for the gas distribution form:
+{% for filename in download_paths if ('Distribution' in filename.stem.title()) %}
+* :download:`{{ filename.stem.title()}} (PDF/TXT) <{{ filename }}>`
+{% endfor %}
+
+Documentation for the gas transmission and gathering form:
+{% for filename in download_paths if ('Transmission' in filename.stem.title()) %}
+* :download:`{{ filename.stem.title()}} (PDF/TXT) <{{ filename }}>`
 {% endfor %}
 {% endblock %}
 
