@@ -248,11 +248,13 @@ class GenericExtractor:
         return df
 
     def zipfile_resource_partitions(self, page, **partition) -> dict:
-        """Get partition used for the returning a zipfile from the datastore.
+        """Specify the partitions used for returning a zipfile from the datastore.
 
-        This method appends any page to partition mapping in
+        By default, this method appends any page to partition mapping in
         :attr:`METADATA._page_part_map`. Most datasets do not have page to part
-        maps and just return the same partition that is passed in.
+        maps and just return the same partition that is passed in. If you have
+        dataset-specific partition mappings that are needed to return a zipfile from the
+        datastore, override this method to return the desired partitions.
         """
         if not self.METADATA._page_part_map.empty:
             partition.update(self.METADATA._page_part_map.loc[page])
