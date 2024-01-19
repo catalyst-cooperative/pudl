@@ -241,7 +241,7 @@ multiline-quotes = "double"
 
 [tool.doc8]
 max-line-length = 88
-ignore-path = ["docs/ferc/form1", "docs/_build"]
+ignore-path = ["docs/ferc/form1", "docs/_build", "docs/data_sources/phmsagas"]
 
 [tool.pytest.ini_options]
 testpaths = "./"
