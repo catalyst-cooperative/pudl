@@ -125,6 +125,10 @@ class Metadata:
         """Returns list of all known pages."""
         return sorted(self._column_map.keys())
 
+    def get_form(self, page) -> str:
+        """Returns the form name for a given page."""
+        return self._page_part_map.loc[page, "form"]
+
     @staticmethod
     def _load_csv(package, filename):
         """Load metadata from a filename that is found in a package."""

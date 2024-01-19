@@ -36,7 +36,9 @@ class Extractor(excel.GenericExtractor):
         older years, filter by the list of columns specified for the page, with a
         warning.
         """
-        if int(partition["year"]) < 2010:
+        if (int(partition["year"]) < 2010) and (
+            self._metadata.get_form(page) == "gas_transmission_gathering"
+        ):
             to_drop = [
                 c
                 for c in newdata.columns
