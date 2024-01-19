@@ -8,6 +8,7 @@ want to do that programmatically, which means using some clustering / categoriza
 tools from scikit-learn
 """
 
+import mlflow
 import pandas as pd
 from dagster import graph_asset, op
 
@@ -85,7 +86,9 @@ ferc_dataframe_embedder = embed_dataframe.dataframe_embedder_factory(
 
 @op
 def plants_steam_validate_ids(
-    ferc1_steam_df: pd.DataFrame, label_df: pd.DataFrame
+    ferc_to_ferc_tracker: model_helpers.ExperimentTracker,
+    ferc1_steam_df: pd.DataFrame,
+    label_df: pd.DataFrame,
 ) -> pd.DataFrame:
     """Tests that plant_id_ferc1 times series includes one record per year.
 
@@ -113,6 +116,10 @@ def plants_steam_validate_ids(
         .reset_index()
         .query("year_dupes>1")
     )
+
+    with ferc_to_ferc_tracker.start_run():
+        mlflow.log_metric("year_duplicates", len(year_dupes))
+
     if len(year_dupes) > 0:
         for dupe in year_dupes.itertuples():
             logger.error(
@@ -155,6 +162,14 @@ def _out_ferc1__yearly_steam_plants_sched402_with_plant_ids(
     # do this for us.
     logger.info("Identifying distinct large FERC plants for ID assignment.")
 
+    experiment_tracker = model_helpers.create_experiment_tracker.configured(
+        {
+            "experiment_name": "ferc_to_ferc",
+            "log_yaml": True,
+        },
+        name="ferc_to_ferc_tracker",
+    )()
+
     input_df = merge_steam_fuel_dfs(
         core_ferc1__yearly_steam_plants_sched402,
         out_ferc1__yearly_steam_plants_fuel_by_plant_sched402,
@@ -162,4 +177,6 @@ def _out_ferc1__yearly_steam_plants_sched402_with_plant_ids(
     feature_matrix = ferc_dataframe_embedder(input_df)
     label_df = link_ids_cross_year(input_df, feature_matrix)
 
-    return plants_steam_validate_ids(core_ferc1__yearly_steam_plants_sched402, label_df)
+    return plants_steam_validate_ids(
+        experiment_tracker, core_ferc1__yearly_steam_plants_sched402, label_df
+    )
