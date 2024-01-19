@@ -4,18 +4,18 @@
 import random
 import string
 
+import mlflow
 import numpy as np
 import pandas as pd
 import pytest
-from dagster import graph
+from dagster import graph, op
 
 import pudl
 from pudl.analysis.record_linkage import model_helpers
 from pudl.analysis.record_linkage.classify_plants_ferc1 import (
     _FUEL_COLS,
-    ferc_dataframe_embedder,
+    ferc_to_ferc,
 )
-from pudl.analysis.record_linkage.link_cross_year import link_ids_cross_year
 from pudl.transform.params.ferc1 import (
     CONSTRUCTION_TYPE_CATEGORIES,
     PLANT_TYPE_CATEGORIES,
@@ -215,31 +215,52 @@ def mock_ferc1_plants_df():
     ).reset_index()
 
 
-def test_classify_plants_ferc1(mock_ferc1_plants_df):
-    """Test the FERC inter-year plant linking model."""
-
-    @graph(config=model_helpers.get_model_config("ferc_to_ferc"))
-    def _link_ids(df: pd.DataFrame):
-        feature_matrix = ferc_dataframe_embedder(df)
-        label_df = link_ids_cross_year(df, feature_matrix)
-        return label_df
-
-    mock_ferc1_plants_df["plant_id_ferc1"] = (
-        _link_ids.to_job()
-        .execute_in_process(
-            input_values={
-                "df": mock_ferc1_plants_df,
-            }
-        )
-        .output_value()["record_label"]
-    )
+@op
+def _score_model(
+    input_df: pd.DataFrame,
+    label_df: pd.DataFrame,
+    ferc_to_ferc_tracker: model_helpers.ExperimentTracker,
+) -> float:
+    input_df["plant_id_ferc1"] = label_df["record_label"]
 
     # Compute percent of records assigned correctly
     correctly_matched = (
-        mock_ferc1_plants_df.groupby("base_plant_name")["plant_id_ferc1"]
+        input_df.groupby("base_plant_name")["plant_id_ferc1"]
         .apply(lambda plant_ids: plant_ids.value_counts().iloc[0])
         .sum()
     )
-    ratio_correct = correctly_matched / len(mock_ferc1_plants_df)
+    ratio_correct = correctly_matched / len(input_df)
+    with ferc_to_ferc_tracker.start_run():
+        mlflow.log_metric("ratio_correct", ratio_correct)
+
+    return ratio_correct
+
+
+@graph
+def _ferc_to_ferc_test(input_df: pd.DataFrame):
+    experiment_tracker = model_helpers.create_experiment_tracker.configured(
+        {
+            "experiment_name": "ferc_to_ferc",
+            "log_yaml": True,
+            "run_context": "training",
+        },
+        name="ferc_to_ferc_tracker",
+    )()
+    label_df = ferc_to_ferc(input_df)
+    return _score_model(input_df, label_df, experiment_tracker)
+
+
+def test_classify_plants_ferc1(mock_ferc1_plants_df):
+    """Test the FERC inter-year plant linking model."""
+    ratio_correct = (
+        _ferc_to_ferc_test.to_job()
+        .execute_in_process(
+            input_values={
+                "input_df": mock_ferc1_plants_df,
+            },
+        )
+        .output_value()
+    )
+
     logger.info(f"Percent correctly matched: {ratio_correct:.2%}")
     assert ratio_correct > 0.85, "Percent of correctly matched FERC records below 85%."

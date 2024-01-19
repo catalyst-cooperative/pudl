@@ -13,7 +13,7 @@ from pudl.workspace.setup import PudlPaths
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-def get_model_config(model_key: str) -> dict:
+def get_model_config(experiment_name: str) -> dict:
     """Load model configuration from yaml file."""
     config_file = (
         importlib.resources.files("pudl.package_data.settings")
@@ -21,10 +21,10 @@ def get_model_config(model_key: str) -> dict:
     )
     config = yaml.safe_load(config_file.open("r"))
 
-    if not (model_config := config.get(model_key)):
-        raise RuntimeError(f"No {model_key} entry in {config_file}")
+    if not (model_config := config.get(experiment_name)):
+        raise RuntimeError(f"No {experiment_name} entry in {config_file}")
 
-    return model_config
+    return {experiment_name: model_config}
 
 
 def flatten_model_config(model_config: dict) -> dict:
@@ -50,6 +50,7 @@ class ExperimentTrackerConfig(Config):
     tracking_enabled: bool = True
     experiment_name: str
     log_yaml: bool
+    run_context: str
 
 
 class ExperimentTracker(BaseModel):
@@ -67,7 +68,8 @@ class ExperimentTracker(BaseModel):
         with mlflow.start_run(
             experiment_id=cls.get_or_create_experiment(
                 experiment_config.experiment_name
-            )
+            ),
+            tags={"run_context": experiment_config.run_context},
         ) as run:
             if experiment_config.log_yaml:
                 config = flatten_model_config(

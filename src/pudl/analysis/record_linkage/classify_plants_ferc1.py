@@ -10,7 +10,7 @@ tools from scikit-learn
 
 import mlflow
 import pandas as pd
-from dagster import graph_asset, op
+from dagster import graph, graph_asset, op
 
 import pudl
 from pudl.analysis.record_linkage import embed_dataframe, model_helpers
@@ -149,6 +149,13 @@ def merge_steam_fuel_dfs(
     ).astype({"plant_type": str, "construction_type": str})
 
 
+@graph
+def ferc_to_ferc(input_df: pd.DataFrame) -> pd.DataFrame:
+    """Graph implements core portion of the ferc-ferc plant matching model."""
+    feature_matrix = ferc_dataframe_embedder(input_df)
+    return link_ids_cross_year(input_df, feature_matrix)
+
+
 @graph_asset(config=model_helpers.get_model_config("ferc_to_ferc"))
 def _out_ferc1__yearly_steam_plants_sched402_with_plant_ids(
     core_ferc1__yearly_steam_plants_sched402: pd.DataFrame,
@@ -174,8 +181,7 @@ def _out_ferc1__yearly_steam_plants_sched402_with_plant_ids(
         core_ferc1__yearly_steam_plants_sched402,
         out_ferc1__yearly_steam_plants_fuel_by_plant_sched402,
     )
-    feature_matrix = ferc_dataframe_embedder(input_df)
-    label_df = link_ids_cross_year(input_df, feature_matrix)
+    label_df = ferc_to_ferc(input_df)
 
     return plants_steam_validate_ids(
         experiment_tracker, core_ferc1__yearly_steam_plants_sched402, label_df
