@@ -8,12 +8,12 @@ operator_name_phmsa,,,,,,,,,,,,,,,,,,,,,parta2nameofcomp,parta2nameofcomp,parta2
 commodity_group,,,,,,,,,,,,,,,,,,,,,parta5commodity,parta5commodity,parta5commodity,parta5commodity,parta5commodity,parta5commodity,parta5commodity,parta5commodity,parta5commodity,parta5commodity,parta5commodity,parta5commodity,parta5commodity
 interstate_or_intrastate ,,,,,,,,,,,,,,,,,,,,,inter_intra,inter_intra,inter_intra,inter_intra,inter_intra,inter_intra,inter_intra,inter_intra,inter_intra,inter_intra,inter_intra,inter_intra,inter_intra
 report_state,,,,,,,,,,,,,,,,,,,,,state_name,state_name,state_name,state_name,state_name,state_name,state_name,state_name,state_name,state_name,state_name,state_name,state_name
-miles_inspected_corrosion_or_metal_loss_tools,,,,,,,,,,,,,,,,,,,,,partf1a,partf1a,partf1a,partf1a,partf1a,partf1a,partf1a,partf1a,partf1a,partf1a,partf1a,partf1a,partf1a
-miles_inspected_dent_or_deformation_tools,,,,,,,,,,,,,,,,,,,,,partf1b,partf1b,partf1b,partf1b,partf1b,partf1b,partf1b,partf1b,partf1b,partf1b,partf1b,partf1b,partf1b
-miles_inspected_crack_or_long_seam_defect_detection_tools,,,,,,,,,,,,,,,,,,,,,partf1c,partf1c,partf1c,partf1c,partf1c,partf1c,partf1c,partf1c,partf1c,partf1c,partf1c,partf1c,partf1c
-miles_inspected_other_tools,,,,,,,,,,,,,,,,,,,,,partf1d,partf1d,partf1d,partf1d,partf1d,partf1d,partf1d,partf1d,partf1d,partf1d,partf1d,partf1d,partf1d
+inspected_corrosion_or_metal_loss_tools_miles,,,,,,,,,,,,,,,,,,,,,partf1a,partf1a,partf1a,partf1a,partf1a,partf1a,partf1a,partf1a,partf1a,partf1a,partf1a,partf1a,partf1a
+inspected_dent_or_deformation_tools_miles,,,,,,,,,,,,,,,,,,,,,partf1b,partf1b,partf1b,partf1b,partf1b,partf1b,partf1b,partf1b,partf1b,partf1b,partf1b,partf1b,partf1b
+inspected_crack_or_long_seam_defect_detection_tools_miles,,,,,,,,,,,,,,,,,,,,,partf1c,partf1c,partf1c,partf1c,partf1c,partf1c,partf1c,partf1c,partf1c,partf1c,partf1c,partf1c,partf1c
+inspected_other_tools_miles,,,,,,,,,,,,,,,,,,,,,partf1d,partf1d,partf1d,partf1d,partf1d,partf1d,partf1d,partf1d,partf1d,partf1d,partf1d,partf1d,partf1d
 other_tools_description,,,,,,,,,,,,,,,,,,,,,partf1doth,partf1doth,partf1doth,partf1doth,partf1doth,partf1doth,partf1doth,partf1doth,partf1doth,partf1doth,partf1doth,partf1d1,partf1d1
-miles_inspected_in_line_total,,,,,,,,,,,,,,,,,,,,,partf1e,partf1e,partf1e,partf1e,partf1e,partf1e,partf1e,partf1e,partf1e,partf1e,partf1e,partf1tot,partf1tot
+inspected_in_line_total_miles,,,,,,,,,,,,,,,,,,,,,partf1e,partf1e,partf1e,partf1e,partf1e,partf1e,partf1e,partf1e,partf1e,partf1e,partf1e,partf1tot,partf1tot
 anomalies_excavated_operator_criteria,,,,,,,,,,,,,,,,,,,,,partf2a,partf2a,partf2a,partf2a,partf2a,partf2a,partf2a,partf2a,partf2a,partf2a,partf2a,partf2a,partf2a
 anomalies_repaired_following_in_line_inspection,,,,,,,,,,,,,,,,,,,,,partf2b,partf2b,partf2b,partf2b,partf2b,partf2b,partf2b,partf2b,partf2b,partf2b,partf2b,partf2b,partf2b
 conditions_repaired_hca_segment_in_line,,,,,,,,,,,,,,,,,,,,,partf2c,partf2c,partf2c,partf2c,partf2c,partf2c,partf2c,partf2c,partf2c,partf2c,partf2c,partf2c,partf2c
@@ -24,7 +24,7 @@ conditions_repaired_other_scheduled_conditions_hca_segment_in_line,,,,,,,,,,,,,,
 conditions_repaired_192.710_segment_in_line,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf2d,partf2d
 conditions_repaired_class_3_or_4_in_line,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf2e,partf2e
 conditions_repaired_class_1_or_2_in_line,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf2f,partf2f
-miles_inspected_pressure_testing_total,,,,,,,,,,,,,,,,,,,,,partf3a,partf3a,partf3a,partf3a,partf3a,partf3a,partf3a,partf3a,partf3a,partf3a,partf3a,partf3a,partf3a
+inspected_pressure_testing_total_miles,,,,,,,,,,,,,,,,,,,,,partf3a,partf3a,partf3a,partf3a,partf3a,partf3a,partf3a,partf3a,partf3a,partf3a,partf3a,partf3a,partf3a
 pressure_test_failures_repaired_total,,,,,,,,,,,,,,,,,,,,,partf3b,partf3b,partf3b,partf3b,partf3b,partf3b,partf3b,partf3b,partf3b,partf3b,partf3b,partf3b,partf3b
 pressure_test_failures_repaired_hca_segment,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf3c,partf3c
 pressure_test_ruptures_repaired_hca_segment,,,,,,,,,,,,,,,,,,,,,partf3c,partf3c,partf3c,partf3c,partf3c,partf3c,partf3c,partf3c,partf3c,partf3c,partf3c,,
@@ -32,10 +32,10 @@ pressure_test_leaks_repaired_hca_segment,,,,,,,,,,,,,,,,,,,,,partf3d,partf3d,par
 pressure_test_failures_repaired_192.710_segment,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf3e,partf3e
 pressure_test_failures_repaired_class_3_or_4_segment,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf3f,partf3f
 pressure_test_failures_repaired_class_1_or_2_segment,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf3g,partf3g
-miles_inspected_direct_assessment_total,,,,,,,,,,,,,,,,,,,,,partf4a,partf4a,partf4a,partf4a,partf4a,partf4a,partf4a,partf4a,partf4a,partf4a,partf4a,partf4a,partf4a
-miles_inspected_ecda,,,,,,,,,,,,,,,,,,,,,partf4a1,partf4a1,partf4a1,partf4a1,partf4a1,partf4a1,partf4a1,partf4a1,partf4a1,partf4a1,partf4a1,partf4a1,partf4a1
-miles_inspected_icda,,,,,,,,,,,,,,,,,,,,,partf4a2,partf4a2,partf4a2,partf4a2,partf4a2,partf4a2,partf4a2,partf4a2,partf4a2,partf4a2,partf4a2,partf4a2,partf4a2
-miles_inspected_sccda,,,,,,,,,,,,,,,,,,,,,partf4a3,partf4a3,partf4a3,partf4a3,partf4a3,partf4a3,partf4a3,partf4a3,partf4a3,partf4a3,partf4a3,partf4a3,partf4a3
+inspected_direct_assessment_total_miles,,,,,,,,,,,,,,,,,,,,,partf4a,partf4a,partf4a,partf4a,partf4a,partf4a,partf4a,partf4a,partf4a,partf4a,partf4a,partf4a,partf4a
+inspected_ecda_miles,,,,,,,,,,,,,,,,,,,,,partf4a1,partf4a1,partf4a1,partf4a1,partf4a1,partf4a1,partf4a1,partf4a1,partf4a1,partf4a1,partf4a1,partf4a1,partf4a1
+inspected_icda_miles,,,,,,,,,,,,,,,,,,,,,partf4a2,partf4a2,partf4a2,partf4a2,partf4a2,partf4a2,partf4a2,partf4a2,partf4a2,partf4a2,partf4a2,partf4a2,partf4a2
+inspected_sccda_miles,,,,,,,,,,,,,,,,,,,,,partf4a3,partf4a3,partf4a3,partf4a3,partf4a3,partf4a3,partf4a3,partf4a3,partf4a3,partf4a3,partf4a3,partf4a3,partf4a3
 anomalies_repaired_following_direct_assessment,,,,,,,,,,,,,,,,,,,,,partf4b,partf4b,partf4b,partf4b,partf4b,partf4b,partf4b,partf4b,partf4b,partf4b,partf4b,partf4b,partf4b
 anomalies_repaired_following_ecda,,,,,,,,,,,,,,,,,,,,,partf4b1,partf4b1,partf4b1,partf4b1,partf4b1,partf4b1,partf4b1,partf4b1,partf4b1,partf4b1,partf4b1,partf4b1,partf4b1
 anomalies_repaired_following_icda,,,,,,,,,,,,,,,,,,,,,partf4b2,partf4b2,partf4b2,partf4b2,partf4b2,partf4b2,partf4b2,partf4b2,partf4b2,partf4b2,partf4b2,partf4b2,partf4b2
@@ -48,7 +48,7 @@ conditions_repaired_other_scheduled_conditions_hca_segment_direct_assessment,,,,
 conditions_repaired_192.710_segment_direct_assessment,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf4d,partf4d
 conditions_repaired_class_3_or_4_direct_assessment,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf4e,partf4e
 conditions_repaired_class_1_or_2_direct_assessment,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf4f,partf4f
-miles_inspected_guided_wave_ultrasonic_testing,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf41a,partf41a
+inspected_guided_wave_ultrasonic_testing_miles,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf41a,partf41a
 anomalies_repaired_following_guided_wave_ultrasonic_testing,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf41b_total,partf41b_total
 conditions_repaired_hca_segment_guided_wave_ultrasonic_testing,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf41c,partf41c
 conditions_repaired_immediate_repair_conditions_hca_segment_guided_wave_ultrasonic_testing,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf41c1,partf41c1
@@ -58,7 +58,7 @@ conditions_repaired_monitored_conditions_hca_segment_guided_wave_ultrasonic_test
 conditions_repaired_192.710_segment_guided_wave_ultrasonic_testing,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf41d,partf41d
 conditions_repaired_class_3_or_4_guided_wave_ultrasonic_testing,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf41e,partf41e
 conditions_repaired_class_1_or_2_guided_wave_ultrasonic_testing,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf41f,partf41f
-miles_inspected_direct_examination,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf42a,partf42a
+inspected_direct_examination_miles,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf42a,partf42a
 anomalies_repaired_following_direct_examination,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf42b_total,partf42b_total
 conditions_repaired_hca_segment_direct_examination,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf42c,partf42c
 conditions_repaired_immediate_repair_conditions_hca_segment_direct_examination,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf42c1,partf42c1
@@ -68,7 +68,7 @@ conditions_repaired_other_scheduled_conditions_hca_segment_direct_examination,,,
 conditions_repaired_192.710_segment_direct_examination,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf42d,partf42d
 conditions_repaired_class_3_or_4_direct_examination,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf42e,partf42e
 conditions_repaired_class_1_or_2_direct_examination,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf42f,partf42f
-miles_inspected_other_inspection,,,,,,,,,,,,,,,,,,,,,partf5a,partf5a,partf5a,partf5a,partf5a,partf5a,partf5a,partf5a,partf5a,partf5a,partf5a,partf5a,partf5a
+inspected_other_inspection_miles,,,,,,,,,,,,,,,,,,,,,partf5a,partf5a,partf5a,partf5a,partf5a,partf5a,partf5a,partf5a,partf5a,partf5a,partf5a,partf5a,partf5a
 other_inspection_method_description,,,,,,,,,,,,,,,,,,,,,partf5aoth,partf5aoth,partf5aoth,partf5aoth,partf5aoth,partf5aoth,partf5aoth,partf5aoth,partf5aoth,partf5aoth,partf5aoth,partf5a1,partf5a1
 anomalies_repaired_following_other_inspection,,,,,,,,,,,,,,,,,,,,,partf5b,partf5b,partf5b,partf5b,partf5b,partf5b,partf5b,partf5b,partf5b,partf5b,partf5b,partf5b,partf5b
 conditions_repaired_hca_segment_other_inspection,,,,,,,,,,,,,,,,,,,,,partf5c,partf5c,partf5c,partf5c,partf5c,partf5c,partf5c,partf5c,partf5c,partf5c,partf5c,partf5c,partf5c
@@ -79,7 +79,7 @@ conditions_repaired_other_scheduled_conditions_hca_segment_other_inspection,,,,,
 conditions_repaired_192.710_segment_other_inspection,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf5d,partf5d
 conditions_repaired_class_3_or_4_other_inspection,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf5e,partf5e
 conditions_repaired_class_1_or_2_other_inspection,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf5f,partf5f
-total_miles_inspected,,,,,,,,,,,,,,,,,,,,,partf6a,partf6a,partf6a,partf6a,partf6a,partf6a,partf6a,partf6a,partf6a,partf6a,partf6a,partf6a,partf6a
+total_inspected_miles,,,,,,,,,,,,,,,,,,,,,partf6a,partf6a,partf6a,partf6a,partf6a,partf6a,partf6a,partf6a,partf6a,partf6a,partf6a,partf6a,partf6a
 total_anomalies_repaired,,,,,,,,,,,,,,,,,,,,,partf6b,partf6b,partf6b,partf6b,partf6b,partf6b,partf6b,partf6b,partf6b,partf6b,partf6b,partf6b,partf6b
 total_conditions_repaired_hca_segment,,,,,,,,,,,,,,,,,,,,,partf6c,partf6c,partf6c,partf6c,partf6c,partf6c,partf6c,partf6c,partf6c,partf6c,partf6c,partf6c,partf6c
 total_actionable_anomalies_eliminated_by_pipe_replacement_hca_segment,,,,,,,,,,,,,,,,,,,,,partf6d,partf6d,partf6d,partf6d,partf6d,partf6d,partf6d,partf6d,partf6d,partf6d,partf6d,partf6d,partf6d
