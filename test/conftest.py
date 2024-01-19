@@ -286,8 +286,6 @@ def pudl_sql_io_manager(
     live_dbs: bool,
     pudl_datastore_config,
     dataset_settings_config,
-    check_foreign_keys: bool,
-    request,
 ) -> PudlSQLiteIOManager:
     """Grab a connection to the PUDL IO manager.
 

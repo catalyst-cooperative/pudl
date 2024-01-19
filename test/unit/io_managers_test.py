@@ -12,10 +12,14 @@ import sqlalchemy as sa
 from dagster import AssetKey, build_input_context, build_output_context
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from pudl.io_managers import (
-    FercXBRLSQLiteIOManager,
+import pudl
+from pudl.helpers import (
     ForeignKeyError,
     ForeignKeyErrors,
+)
+from pudl.io_managers import (
+    FercXBRLSQLiteIOManager,
+    PudlMixedFormatIOManager,
     PudlSQLiteIOManager,
     SQLiteIOManager,
 )
@@ -108,8 +112,7 @@ def test_foreign_key_failure(sqlite_io_manager_fixture):
     manager.handle_output(output_context, track)
 
     with pytest.raises(ForeignKeyErrors) as excinfo:
-        manager.check_foreign_keys()
-
+        pudl.helpers.check_foreign_keys(sqlite_io_manager_fixture.engine.url)
     assert excinfo.value[0] == ForeignKeyError(
         child_table="track",
         parent_table="artist",
@@ -564,3 +567,74 @@ def test_report_year_fixing_duration():
 def test_report_year_fixing_bad_values(df, match):
     with pytest.raises(ValueError, match=match):
         FercXBRLSQLiteIOManager.refine_report_year(df, xbrl_years=[2021, 2022])
+
+
+def test_mixed_format_io_manager_reads_and_write_sqlite(mocker):
+    """Tests that writes and reads are directed to sqlite io managers."""
+    sqlite_io_manager = mocker.MagicMock()
+    parquet_io_manager = mocker.MagicMock()
+    sqlite_io_manager.load_input.return_value = pd.DataFrame()
+    parquet_io_manager.load_input.return_value = pd.DataFrame()
+
+    io_manager = PudlMixedFormatIOManager(
+        write_to_parquet=False,
+        read_from_parquet=False,
+        sqlite_io_manager=sqlite_io_manager,
+        parquet_io_manager=parquet_io_manager,
+    )
+    df = pd.DataFrame({"test": [1]})
+    io_manager.handle_output(build_output_context(asset_key=AssetKey("test")), df)
+    sqlite_io_manager.handle_output.assert_called_once()
+    parquet_io_manager.handle_output.assert_not_called()
+
+    load_df = io_manager.load_input(build_input_context(asset_key=AssetKey("test")))
+    assert len(load_df) == 0
+    sqlite_io_manager.load_input.assert_called_once()
+    parquet_io_manager.load_input.assert_not_called()
+
+
+def test_mixed_format_io_manager_writes_parquet_reads_sqlite(mocker):
+    sqlite_io_manager = mocker.MagicMock()
+    parquet_io_manager = mocker.MagicMock()
+    sqlite_io_manager.load_input.return_value = pd.DataFrame()
+    parquet_io_manager.load_input.return_value = pd.DataFrame()
+
+    io_manager = PudlMixedFormatIOManager(
+        write_to_parquet=True,
+        read_from_parquet=False,
+        sqlite_io_manager=sqlite_io_manager,
+        parquet_io_manager=parquet_io_manager,
+    )
+    df = pd.DataFrame({"test": [1]})
+    io_manager.handle_output(build_output_context(asset_key=AssetKey("test")), df)
+    sqlite_io_manager.handle_output.assert_called_once()
+    parquet_io_manager.handle_output.assert_called_once()
+
+    load_df = io_manager.load_input(build_input_context(asset_key=AssetKey("test")))
+    assert len(load_df) == 0
+    sqlite_io_manager.load_input.assert_called_once()
+    parquet_io_manager.load_input.assert_not_called()
+
+
+def test_mixed_format_io_manager_writes_parquet_reads_parquet(mocker):
+    """Both reads and writes are directed to parquet, writes also are directed to sqlite."""
+    sqlite_io_manager = mocker.MagicMock()
+    parquet_io_manager = mocker.MagicMock()
+    sqlite_io_manager.load_input.return_value = pd.DataFrame()
+    parquet_io_manager.load_input.return_value = pd.DataFrame()
+
+    io_manager = PudlMixedFormatIOManager(
+        write_to_parquet=True,
+        read_from_parquet=True,
+        sqlite_io_manager=sqlite_io_manager,
+        parquet_io_manager=parquet_io_manager,
+    )
+    df = pd.DataFrame({"test": [1]})
+    io_manager.handle_output(build_output_context(asset_key=AssetKey("test")), df)
+    sqlite_io_manager.handle_output.assert_called_once()
+    parquet_io_manager.handle_output.assert_called_once()
+
+    load_df = io_manager.load_input(build_input_context(asset_key=AssetKey("test")))
+    assert len(load_df) == 0
+    sqlite_io_manager.load_input.assert_not_called()
+    parquet_io_manager.load_input.assert_called_once()

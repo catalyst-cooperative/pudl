@@ -3,11 +3,11 @@ import pathlib
 import sys
 
 import click
-from dagster import build_init_resource_context
 from dotenv import load_dotenv
 
 import pudl
-from pudl.io_managers import PudlSQLiteIOManager, pudl_io_manager
+from pudl.helpers import check_foreign_keys
+from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -49,19 +49,7 @@ def pudl_check_fks(logfile: pathlib.Path, loglevel: str):
 
     # Display logged output from the PUDL package:
     pudl.logging_helpers.configure_root_logger(logfile=logfile, loglevel=loglevel)
-
-    context = build_init_resource_context()
-    io_manager: PudlSQLiteIOManager = pudl_io_manager(context)._sqlite_io_manager
-    # TODO(rousik): This reaches into the io_manager and assumes
-    # PudlSQLiteIOManager and the corresponding foreign key
-    # functionality. It's strange to be constructing dagster
-    # resources to achieve this, but alas, that's where the logic
-    # lies.
-
-    database_path = io_manager.base_dir / f"{io_manager.db_name}.sqlite"
-    logger.info(f"Checking foreign key constraints in {database_path}")
-
-    io_manager.check_foreign_keys()
+    check_foreign_keys(pathlib.Path(PudlPaths().pudl_db))
     return 0
 
 

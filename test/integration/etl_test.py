@@ -11,14 +11,12 @@ import sqlalchemy as sa
 from dagster import build_init_resource_context
 
 import pudl
-from pudl.io_managers import PudlSQLiteIOManager
 
 logger = logging.getLogger(__name__)
 
 
 def test_pudl_engine(
     pudl_engine: sa.Engine,
-    pudl_sql_io_manager: PudlSQLiteIOManager,
     check_foreign_keys: bool,
 ):
     """Get pudl_engine and do basic inspection.
@@ -32,8 +30,7 @@ def test_pudl_engine(
     assert "core_pudl__entity_utilities_pudl" in insp.get_table_names()
 
     if check_foreign_keys:
-        # Raises ForeignKeyErrors if there are any
-        pudl_sql_io_manager._sqlite_io_manager.check_foreign_keys()
+        pudl.helpers.check_foreign_keys(pudl_engine.url)
 
 
 def test_ferc1_xbrl2sqlite(ferc1_engine_xbrl: sa.Engine, ferc1_xbrl_taxonomy_metadata):
