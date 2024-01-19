@@ -70,20 +70,7 @@ def test_no_null_cols_mcoe(pudl_out_mcoe, live_dbs, df_name):
     pv.no_null_cols(df, cols=cols, df_name=df_name)
 
 
-@pytest.mark.parametrize(
-    "df_name,thresh",
-    [
-        pytest.param(
-            "mcoe",
-            0.8,
-            marks=pytest.mark.xfail(
-                reason="The net generation allocation is now integrated into MCOE. The "
-                "allocated fuel still needs to be integrated - without it we'll have "
-                "nulls. See #2033"
-            ),
-        ),
-    ],
-)
+@pytest.mark.parametrize("df_name,thresh", [("mcoe", 0.8)])
 def test_no_null_rows_mcoe(pudl_out_mcoe, live_dbs, df_name, thresh):
     """Verify that output DataFrames have no overly NULL rows.
 
