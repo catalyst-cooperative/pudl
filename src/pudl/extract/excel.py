@@ -320,13 +320,13 @@ class GenericExtractor:
                     missing_raw_cols = set(expected_cols).difference(newdata.columns)
                     if extra_raw_cols:
                         logger.warning(
-                            f"Extra columns found in extracted table of "
-                            f"{page}/{str_part}: {extra_raw_cols}"
+                            f"{page}/{str_part}:Extra columns found in extracted table:"
+                            f"\n{extra_raw_cols}"
                         )
                     if missing_raw_cols:
                         logger.warning(
-                            "Expected columns not found in extracted table of "
-                            f"{page}/{str_part}: {missing_raw_cols}"
+                            f"{page}/{str_part}: Expected columns not found in extracted table:"
+                            f"\n{missing_raw_cols}"
                         )
             df = pd.concat(dfs, sort=True, ignore_index=True)
 
