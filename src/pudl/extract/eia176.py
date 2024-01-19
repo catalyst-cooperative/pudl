@@ -3,24 +3,40 @@
 The EIA Form 176 archive also contains CSVs for EIA Form 191 and EIA Form 757.
 """
 
-from dagster import asset
+import pandas as pd
+from dagster import AssetsDefinition, asset
 
 from pudl.extract.csv import CsvExtractor, get_table_file_map
 
 DATASET = "eia176"
 
 
-@asset(required_resource_keys={"datastore"})
-def raw_eia176__company(context):
-    """Extract raw EIA company data from CSV sheets into dataframes.
+def eia_176_asset_factory(
+    table_name: str,
+) -> AssetsDefinition:
+    """Build bulk electricity tables from raw data."""
 
-    Args:
-        context: dagster keyword that provides access to resources and config.
+    @asset(
+        name=f"raw_eia176__yearly_{table_name}", required_resource_keys={"datastore"}
+    )
+    def eia_176_table(context) -> pd.DataFrame:
+        """Extract raw EIA company data from CSV sheets into dataframes.
 
-    Returns:
-        An extracted EIA dataframe with company data.
-    """
-    zipfile = context.resources.datastore.get_zipfile_resource(DATASET)
-    table_file_map = get_table_file_map(DATASET)
-    extractor = CsvExtractor(zipfile, table_file_map)
-    extractor.extract_one("company")
+        Args:
+            context: dagster keyword that provides access to resources and config.
+
+        Returns:
+            An extracted EIA dataframe.
+        """
+        zipfile = context.resources.datastore.get_zipfile_resource(DATASET)
+        table_file_map = get_table_file_map(DATASET)
+        extractor = CsvExtractor(zipfile, table_file_map)
+        return extractor.extract_one(table_name)
+
+    return eia_176_table
+
+
+eia_176_assets = [
+    eia_176_asset_factory(table_name=table_name)
+    for table_name in ["company", "data", "other"]
+]
