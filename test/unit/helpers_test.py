@@ -518,7 +518,7 @@ def test_convert_df_to_excel_file():
     expected_df = pd.DataFrame([[1, 2], [1, 2]])
 
     out_excel_file = convert_df_to_excel_file(in_df, index=False)
-    out_df = pd.read_excel(out_excel_file, engine="calamine")
+    out_df = pd.read_excel(out_excel_file)
 
     assert_frame_equal(out_df, expected_df)
 

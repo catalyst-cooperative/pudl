@@ -90,10 +90,38 @@ class TestGenericExtractor(unittest.TestCase):
 
         FakeExtractor("/blah").extract(year=[2010, 2011])
         expected_calls = [
-            mock.call("books-2010", sheet_name=0, skiprows=0, skipfooter=0, dtype={}),
-            mock.call("books-2011", sheet_name=0, skiprows=1, skipfooter=1, dtype={}),
-            mock.call("boxes-2010", sheet_name=1, skiprows=0, skipfooter=0, dtype={}),
-            mock.call("boxes-2011", sheet_name=1, skiprows=10, skipfooter=10, dtype={}),
+            mock.call(
+                "books-2010",
+                sheet_name=0,
+                skiprows=0,
+                skipfooter=0,
+                dtype={},
+                engine="calamine",
+            ),
+            mock.call(
+                "books-2011",
+                sheet_name=0,
+                skiprows=1,
+                skipfooter=1,
+                dtype={},
+                engine="calamine",
+            ),
+            mock.call(
+                "boxes-2010",
+                sheet_name=1,
+                skiprows=0,
+                skipfooter=0,
+                dtype={},
+                engine="calamine",
+            ),
+            mock.call(
+                "boxes-2011",
+                sheet_name=1,
+                skiprows=10,
+                skipfooter=10,
+                dtype={},
+                engine="calamine",
+            ),
         ]
         mock_read_excel.assert_has_calls(expected_calls, any_order=True)
 
