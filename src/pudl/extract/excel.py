@@ -304,6 +304,7 @@ class GenericExtractor:
                     skiprows=self._metadata.get_skiprows(page, **partition),
                     skipfooter=self._metadata.get_skipfooter(page, **partition),
                     dtype=self.get_dtypes(page, **partition),
+                    engine="calamine",
                 )
 
                 newdata = pudl.helpers.simplify_columns(newdata)

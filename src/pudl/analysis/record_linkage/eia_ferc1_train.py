@@ -739,7 +739,7 @@ def validate_and_add_to_training(
         raise AssertionError("Found no override files in the add_to_training directory")
     for file in excel_files:
         logger.info(f"Processing fixes in {file}")
-        file_raw = pd.read_excel(path_to_new_training + file)
+        file_raw = pd.read_excel(path_to_new_training + file, engine="calamine")
         file_df = file_raw.pipe(
             validate_override_fixes,
             ppe,
