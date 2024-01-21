@@ -177,7 +177,8 @@ def test_generate_all_override_spreadsheets(plant_parts_eia, eia_ferc1, utils_ei
     )
     # Make sure there is something there
     mapping_spreadsheet = pd.read_excel(
-        f"{Path.cwd()}/NextEra_fix_FERC-EIA_overrides.xlsx"
+        f"{Path.cwd()}/NextEra_fix_FERC-EIA_overrides.xlsx",
+        engine="calamine",
     )
     if mapping_spreadsheet.empty:
         raise AssertionError("Mapping spreadsheet has no contents")
