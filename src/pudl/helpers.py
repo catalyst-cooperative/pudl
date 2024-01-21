@@ -1608,7 +1608,7 @@ def convert_df_to_excel_file(df: pd.DataFrame, **kwargs) -> pd.ExcelFile:
     with pd.ExcelWriter(bio, engine="xlsxwriter") as writer:
         df.to_excel(writer, **kwargs)
     bio.seek(0)
-    return pd.ExcelFile(bio)
+    return pd.ExcelFile(bio, engine="calamine")
 
 
 def get_asset_keys(
