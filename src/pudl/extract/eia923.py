@@ -75,8 +75,7 @@ class Extractor(excel.GenericExtractor):
             df = df[~df.plant_id_eia.isin([99999, 999999])]
         return df
 
-    @staticmethod
-    def process_final_page(df, page):
+    def process_final_page(self, df, page):
         """Removes reserved columns from the final dataframe."""
         to_drop = [c for c in df.columns if c[:8] == "reserved"]
         df = df.drop(columns=to_drop, errors="ignore")
