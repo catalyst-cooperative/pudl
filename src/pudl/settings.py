@@ -160,6 +160,18 @@ class EpaCemsSettings(GenericDatasetSettings):
         return year_quarters
 
 
+class PhmsaGasSettings(GenericDatasetSettings):
+    """An immutable pydantic model to validate PHMSA settings.
+
+    Args:
+        data_source: DataSource metadata object
+        years: list of zipped data start years to validate.
+    """
+
+    data_source: ClassVar[DataSource] = DataSource.from_id("phmsagas")
+    years: list[int] = data_source.working_partitions["years"]
+
+
 class Eia923Settings(GenericDatasetSettings):
     """An immutable pydantic model to validate EIA 923 settings.
 
@@ -306,6 +318,7 @@ class DatasetsSettings(FrozenBaseModel):
     ferc1: Ferc1Settings | None = None
     ferc714: Ferc714Settings | None = None
     glue: GlueSettings | None = None
+    phmsagas: PhmsaGasSettings | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -324,6 +337,7 @@ class DatasetsSettings(FrozenBaseModel):
             data["ferc1"] = Ferc1Settings()
             data["ferc714"] = Ferc714Settings()
             data["glue"] = GlueSettings()
+            data["phmsagas"] = PhmsaGasSettings()
 
         return data
 

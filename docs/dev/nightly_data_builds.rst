@@ -222,7 +222,20 @@ which behaves very much like the Unix ``cp`` command:
 
 .. code::
 
-   aws s3 cp s3://pudl.catalyst.coop/nightly/pudl.sqlite ./ --no-sign-request
+   aws s3 cp s3://pudl.catalyst.coop/nightly/pudl.sqlite.gz ./ --no-sign-request
+
+.. note::
+
+   To reduce network transfer times, we ``gzip`` the SQLite database files, which can
+   be quite large when uncompressed. To decompress them locally, at the command line
+   on Linux, MacOS, or Windows you can use the ``gunzip`` command.
+
+   .. code-block:: console
+
+      $ gunzip *.sqlite.gz
+
+  On Windows you can also use a 3rd party tool like
+  `7zip <https://www.7-zip.org/download.html>`__.
 
 If you wanted to download all of the build outputs (more than 10GB!) you could use ``cp
 --recursive`` flag on the whole directory:

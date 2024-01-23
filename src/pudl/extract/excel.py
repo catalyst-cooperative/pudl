@@ -44,6 +44,14 @@ class Metadata:
     * column_map/${page}.csv currently informs us how to translate input column
       names to standardized pudl names for given (partition, input_col_name).
       Relevant page is encoded in the filename.
+
+    Optional file:
+
+    * page_part_map.csv tells us what secondary partition (e.g. "form") needs to be
+      specified to correctly identify the file housing the desired page. This is only
+      required when a file can only be uniquely located using a combination of
+      partitions (e.g. form and year).
+
     """
 
     # TODO: we could validate whether metadata is valid for all year. We should have
@@ -63,6 +71,13 @@ class Metadata:
         self._skipfooter = self._load_csv(pkg, "skipfooter.csv")
         self._sheet_name = self._load_csv(pkg, "page_map.csv")
         self._file_name = self._load_csv(pkg, "file_map.csv")
+        # Most excel extracted datasets do not have a page to part map. If they
+        # don't, assign null.
+        try:
+            self._page_part_map = self._load_csv(pkg, "page_part_map.csv")
+        except FileNotFoundError:
+            self._page_part_map = pd.DataFrame()
+
         column_map_pkg = pkg + ".column_maps"
         self._column_map = {}
         for res_path in importlib.resources.files(column_map_pkg).iterdir():
@@ -109,6 +124,10 @@ class Metadata:
     def get_all_pages(self):
         """Returns list of all known pages."""
         return sorted(self._column_map.keys())
+
+    def get_form(self, page) -> str:
+        """Returns the form name for a given page."""
+        return self._page_part_map.loc[page, "form"]
 
     @staticmethod
     def _load_csv(package, filename):
@@ -185,7 +204,6 @@ class GenericExtractor:
     def process_raw(self, df, page, **partition):
         """Transforms raw dataframe and rename columns."""
         df = self.add_data_maturity(df, page, **partition)
-        self.cols_added.append("data_label")
         return df.rename(columns=self._metadata.get_column_map(page, **partition))
 
     def add_data_maturity(self, df: pd.DataFrame, page, **partition) -> pd.DataFrame:
@@ -224,14 +242,26 @@ class GenericExtractor:
         return df
 
     @staticmethod
-    def process_final_page(df, page):
-        """Final processing stage applied to a page DataFrame."""
-        return df
-
-    @staticmethod
     def get_dtypes(page, **partition):
         """Provide custom dtypes for given page and partition."""
         return {}
+
+    def process_final_page(self, df, page):
+        """Final processing stage applied to a page DataFrame."""
+        return df
+
+    def zipfile_resource_partitions(self, page, **partition) -> dict:
+        """Specify the partitions used for returning a zipfile from the datastore.
+
+        By default, this method appends any page to partition mapping in
+        :attr:`METADATA._page_part_map`. Most datasets do not have page to part
+        maps and just return the same partition that is passed in. If you have
+        dataset-specific partition mappings that are needed to return a zipfile from the
+        datastore, override this method to return the desired partitions.
+        """
+        if not self.METADATA._page_part_map.empty:
+            partition.update(self.METADATA._page_part_map.loc[page])
+        return partition
 
     def extract(self, **partitions):
         """Extracts dataframes.
@@ -294,13 +324,13 @@ class GenericExtractor:
                     missing_raw_cols = set(expected_cols).difference(newdata.columns)
                     if extra_raw_cols:
                         logger.warning(
-                            f"Extra columns found in extracted table of "
-                            f"{page}/{str_part}: {extra_raw_cols}"
+                            f"{page}/{str_part}:Extra columns found in extracted table:"
+                            f"\n{extra_raw_cols}"
                         )
                     if missing_raw_cols:
                         logger.warning(
-                            "Expected columns not found in extracted table of "
-                            f"{page}/{str_part}: {missing_raw_cols}"
+                            f"{page}/{str_part}: Expected columns not found in extracted table:"
+                            f"\n{missing_raw_cols}"
                         )
             df = pd.concat(dfs, sort=True, ignore_index=True)
 
@@ -311,7 +341,7 @@ class GenericExtractor:
             )
             df = pd.concat([df, pd.DataFrame(columns=missing_cols)], sort=True)
 
-            raw_dfs[page] = self.process_final_page(df, page)
+            raw_dfs[page] = self.process_final_page(df=df, page=page)
         return raw_dfs
 
     def load_excel_file(self, page, **partition):
@@ -343,7 +373,10 @@ class GenericExtractor:
                 )
                 excel_file = pd.ExcelFile(res)
             except KeyError:
-                zf = self.ds.get_zipfile_resource(self._dataset_name, **partition)
+                zf = self.ds.get_zipfile_resource(
+                    self._dataset_name,
+                    **self.zipfile_resource_partitions(page, **partition),
+                )
 
                 # If loading the excel file from the zip fails then try to open a dbf file.
                 extension = pathlib.Path(xlsx_filename).suffix.lower()
@@ -442,13 +475,12 @@ def years_from_settings_factory(name: str) -> OpDefinition:
     """Construct a Dagster op to get target years from settings in the Dagster context.
 
     Args:
-        name: Name of an Excel based dataset (e.g. "eia860"). Currently this must be
-            one of the attributes of :class:`pudl.settings.EiaSettings`
+        name: Name of an Excel based dataset (e.g. "eia860").
 
     """
 
     def years_from_settings(context) -> DynamicOutput:
-        """Produce target years for the given dataset from the EIA settings object.
+        """Produce target years for the given dataset from the dataset settings object.
 
         These will be used to kick off worker processes to extract each year of data in
         parallel.
@@ -458,8 +490,11 @@ def years_from_settings_factory(name: str) -> OpDefinition:
             extracted. See the Dagster API documentation for more details:
             https://docs.dagster.io/_apidocs/dynamic#dagster.DynamicOut
         """
-        eia_settings = context.resources.dataset_settings.eia
-        for year in getattr(eia_settings, name).years:
+        if "eia" in name:  # Account for nested settings if EIA
+            year_settings = context.resources.dataset_settings.eia
+        else:
+            year_settings = context.resources.dataset_settings
+        for year in getattr(year_settings, name).years:
             yield DynamicOutput(year, mapping_key=str(year))
 
     return op(
@@ -477,8 +512,7 @@ def raw_df_factory(
     Args:
         extractor_cls: The dataset-specific Excel extractor used to extract the data.
             Needs to correspond to the dataset identified by ``name``.
-        name: Name of an Excel based dataset (e.g. "eia860"). Currently this must be
-            one of the attributes of :class:`pudl.settings.EiaSettings`
+        name: Name of an Excel based dataset (e.g. "eia860").
     """
     # Build a Dagster op that can extract a single year of data
     year_extractor = year_extractor_factory(extractor_cls, name)
@@ -487,7 +521,7 @@ def raw_df_factory(
     years_from_settings = years_from_settings_factory(name)
 
     def raw_dfs() -> dict[str, pd.DataFrame]:
-        """Produce a dictionary of extracted EIA dataframes."""
+        """Produce a dictionary of extracted dataframes."""
         years = years_from_settings()
         # Clone dagster op for each year using DynamicOut.map()
         # See https://docs.dagster.io/_apidocs/dynamic#dagster.DynamicOut
