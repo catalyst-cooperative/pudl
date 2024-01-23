@@ -68,7 +68,6 @@ def test_self_vs_historical(pudl_out_ferc1, live_dbs):
         pudl.validate.vs_self(validate_df, **args)
 
 
-@pytest.mark.xfail(reason="Known duplicates need to be debugged.")
 def test_dupe_years_in_plant_id_ferc1(pudl_out_ferc1):
     """Test that we have no duplicate years within any plant_id_ferc1.
 
