@@ -4,6 +4,7 @@ This modules pulls data from PHMSA's published Excel spreadsheets.
 """
 
 
+import pandas as pd
 from dagster import AssetOut, Output, multi_asset
 
 import pudl.logging_helpers
@@ -25,7 +26,7 @@ class Extractor(excel.GenericExtractor):
         self.cols_added = []
         super().__init__(*args, **kwargs)
 
-    def process_final_page(self, df, page):
+    def process_renamed(self, newdata: pd.DataFrame, page: str, **partition):
         """Drop columns that get mapped to other assets.
 
         Older years of PHMSA data have one Excel tab in the raw data, while newer data
@@ -35,18 +36,23 @@ class Extractor(excel.GenericExtractor):
         older years, filter by the list of columns specified for the page, with a
         warning.
         """
-        to_drop = [
-            c
-            for c in df.columns
-            if c not in self._metadata.get_all_columns(page)
-            and c not in self.cols_added
-        ]
-        if to_drop:
-            logger.warning(
-                f"Dropping columns {to_drop} that are not mapped to this asset."
-            )
-            df = df.drop(columns=to_drop, errors="ignore")
-        return df
+        if (int(partition["year"]) < 2010) and (
+            self._metadata.get_form(page) == "gas_transmission_gathering"
+        ):
+            to_drop = [
+                c
+                for c in newdata.columns
+                if c not in self._metadata.get_all_columns(page)
+                and c not in self.cols_added
+            ]
+            str_part = str(list(partition.values())[0])
+            if to_drop:
+                logger.info(
+                    f"{page}/{str_part}: Dropping columns that are not mapped to this asset:"
+                    f"\n{to_drop}"
+                )
+                newdata = newdata.drop(columns=to_drop, errors="ignore")
+        return newdata
 
 
 # TODO (bendnorman): Add this information to the metadata
@@ -57,6 +63,12 @@ raw_table_names = (
     "raw_phmsagas__yearly_miles_of_transmission_pipe_by_nps",
     "raw_phmsagas__yearly_inspections_and_assessments",
     "raw_phmsagas__yearly_miles_of_pipe_by_class_location",
+    "raw_phmsagas__yearly_transmission_material_verification",
+    "raw_phmsagas__yearly_transmission_hca_miles_by_determination_method_and_risk_model",
+    "raw_phmsagas__yearly_gas_transmission_miles_by_pressure_test_range_and_internal_inspection",
+    "raw_phmsagas__yearly_transmission_preparer_certification",
+    "raw_phmsagas__yearly_miles_of_transmission_pipe_by_smys",
+    "raw_phmsagas__yearly_miles_of_pipe_by_decade_installed",
 )
 
 phmsagas_raw_dfs = excel.raw_df_factory(Extractor, name="phmsagas")
