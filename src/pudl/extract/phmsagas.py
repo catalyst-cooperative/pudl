@@ -68,6 +68,7 @@ raw_table_names = (
     "raw_phmsagas__yearly_transmission_preparer_certification",
     "raw_phmsagas__yearly_miles_of_transmission_pipe_by_smys",
     "raw_phmsagas__yearly_transmission_failures_leaks_repairs",
+    "raw_phmsagas__yearly_transmission_miles_by_maop",
 )
 
 phmsagas_raw_dfs = excel.raw_df_factory(Extractor, name="phmsagas")
