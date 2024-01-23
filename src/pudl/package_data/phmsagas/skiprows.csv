@@ -9,4 +9,4 @@ yearly_transmission_hca_miles_by_determination_method_and_risk_model,-1,-1,-1,-1
 yearly_gas_transmission_miles_by_pressure_test_range_and_internal_inspection,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,2,2,2,2,2,2,2,2,2,2,2
 yearly_transmission_preparer_certification,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,2,2,2,2,2
 yearly_miles_of_transmission_pipe_by_smys,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,2,2,2,2,2,2,2,2,2,2,2,2,2
-yearly_miles_of_pipe_by_decade_installed,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,2,2,2,2,2
+yearly_miles_of_pipe_by_decade_installed,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,2,2,2,2,2
