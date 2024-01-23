@@ -8,7 +8,7 @@ import warnings
 from collections.abc import Callable, Iterable
 from functools import lru_cache
 from pathlib import Path
-from typing import Annotated, Any, Literal, Self
+from typing import Annotated, Any, Literal, Self, TypeVar
 
 import jinja2
 import pandas as pd
@@ -190,13 +190,15 @@ PositiveFloat = Annotated[float, pydantic.Field(ge=0, strict=True)]
 """Positive :class:`float`."""
 
 
-def StrictList(item_type: type = Any) -> type:  # noqa: N802
-    """Non-empty :class:`list`.
+T = TypeVar("T")
+StrictList = Annotated[list[T], pydantic.Field(min_length=1)]
 
-    Allows :class:`list`, :class:`tuple`, :class:`set`, :class:`frozenset`,
-    :class:`collections.deque`, or generators and casts to a :class:`list`.
-    """
-    return Annotated[list[item_type], pydantic.Field(min_length=1)]
+
+"""Non-empty :class:`list`.
+
+Allows :class:`list`, :class:`tuple`, :class:`set`, :class:`frozenset`,
+:class:`collections.deque`, or generators and casts to a :class:`list`.
+"""
 
 
 # ---- Class attribute validators ---- #
@@ -255,14 +257,14 @@ class FieldConstraints(PudlMeta):
     minimum: StrictInt | StrictFloat | datetime.date | datetime.datetime | None = None
     maximum: StrictInt | StrictFloat | datetime.date | datetime.datetime | None = None
     pattern: re.Pattern | None = None
-    enum: StrictList(
+    enum: StrictList[
         String
         | StrictInt
         | StrictFloat
         | StrictBool
         | datetime.date
         | datetime.datetime
-    ) | None = None
+    ] | None = None
 
     _check_unique = _validator("enum", fn=_check_unique)
 
@@ -691,7 +693,7 @@ class ForeignKeyReference(PudlMeta):
     """
 
     resource: SnakeCase
-    fields: StrictList(SnakeCase)
+    fields: StrictList[SnakeCase]
 
     _check_unique = _validator("fields", fn=_check_unique)
 
@@ -702,7 +704,7 @@ class ForeignKey(PudlMeta):
     See https://specs.frictionlessdata.io/table-schema/#foreign-keys.
     """
 
-    fields: StrictList(SnakeCase)
+    fields: StrictList[SnakeCase]
     reference: ForeignKeyReference
 
     _check_unique = _validator("fields", fn=_check_unique)
@@ -732,10 +734,11 @@ class Schema(PudlMeta):
     See https://specs.frictionlessdata.io/table-schema.
     """
 
-    fields: StrictList(Field)
+    fields: StrictList[Field]
     missing_values: list[StrictStr] = [""]
-    primary_key: StrictList(SnakeCase) | None = None
+    primary_key: StrictList[SnakeCase] | None = None
     foreign_keys: list[ForeignKey] = []
+    checks: list[Callable] = []
 
     _check_unique = _validator(
         "missing_values", "primary_key", "foreign_keys", fn=_check_unique
@@ -1705,7 +1708,7 @@ class Package(PudlMeta):
     contributors: list[Contributor] = []
     sources: list[DataSource] = []
     licenses: list[License] = []
-    resources: StrictList(Resource)
+    resources: StrictList[Resource]
     profile: String = "tabular-data-package"
     model_config = ConfigDict(validate_assignment=False)
 
@@ -1864,7 +1867,7 @@ class Package(PudlMeta):
                 )
         return metadata
 
-    def get_sorted_resources(self) -> StrictList(Resource):
+    def get_sorted_resources(self) -> StrictList[Resource]:
         """Get a list of sorted Resources.
 
         Currently Resources are listed in reverse alphabetical order based
