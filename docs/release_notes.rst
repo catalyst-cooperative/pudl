@@ -260,7 +260,8 @@ Data Coverage
   The newly accessible tables include:
 
   * :ref:`core_ferc714__respondent_id` (linking FERC-714 respondents to EIA utilities)
-  * :ref:`core_ferc714__hourly_demand_pa` (hourly electricity demand by planning area)
+  * :ref:`core_ferc714__hourly_demand_by_planning_area` (hourly electricity demand by
+    planning area)
   * :ref:`out_ferc714__respondents_with_fips` (annual respondents with county FIPS IDs)
   * :ref:`out_ferc714__summarized_demand` (annual demand for FERC-714 respondents)
 
@@ -366,7 +367,7 @@ Analysis
   (:ref:`out_eia861__compiled_geometry_balancing_authorities` and
   :ref:`out_eia861__compiled_geometry_utilities`), and the estimated total hourly
   electricity demand for each US state in
-  :ref:`out_ferc714__hourly_predicted_state_demand`. See :issue:`1973`
+  :ref:`out_ferc714__hourly_estimated_state_demand`. See :issue:`1973`
   and :pr:`2550`.
 
 Deprecations

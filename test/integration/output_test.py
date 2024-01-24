@@ -190,7 +190,7 @@ def test_service_territory_outputs(pudl_engine, df_name):
 @pytest.mark.parametrize(
     "df_name",
     [
-        "out_ferc714__hourly_predicted_state_demand",
+        "out_ferc714__hourly_estimated_state_demand",
     ],
 )
 def test_state_demand_outputs(pudl_engine, df_name):

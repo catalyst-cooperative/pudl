@@ -98,7 +98,7 @@ Naming convention: ``core_{source}__{asset_type}_{asset_name}``
     typically contain measurements of processes like net generation or co2 emissions.
     Examples:
 
-    * ``core_ferc714__hourly_demand_pa``,
+    * ``core_ferc714__hourly_demand_by_planning_area``,
     * ``core_ferc1__yearly_plant_in_service``.
 
 Output layer

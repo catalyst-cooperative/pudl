@@ -3046,7 +3046,7 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
         "opex_rents": {"description": "Rent expenses for the transmission line."},
         "opex_total": {"description": "Overall expenses for the transmission line."},
     },
-    "core_ferc714__hourly_demand_pa": {
+    "core_ferc714__hourly_demand_by_planning_area": {
         "timezone": {
             "constraints": {
                 "enum": [

@@ -1271,7 +1271,11 @@ def exploded_table_asset_factory(
     }
     ins |= {table_name: AssetIn(table_name) for table_name in table_names}
 
-    @asset(name=f"exploded_{root_table}", ins=ins, io_manager_key=io_manager_key)
+    @asset(
+        name=f"_out_ferc1__exploded_{root_table.replace('_ferc1', '')}",
+        ins=ins,
+        io_manager_key=io_manager_key,
+    )
     def exploded_tables_asset(
         **kwargs: dict[str, pd.DataFrame],
     ) -> pd.DataFrame:

@@ -44,17 +44,17 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 @asset
 def _core_ferc1_xbrl__metadata_json(
-    raw_xbrl_metadata_json: dict[str, dict[str, list[dict[str, Any]]]],
+    raw_ferc1_xbrl__metadata_json: dict[str, dict[str, list[dict[str, Any]]]],
 ) -> dict[str, dict[str, list[dict[str, Any]]]]:
     """Generate cleaned json xbrl metadata.
 
     For now, this only runs :func:`add_source_tables_to_xbrl_metadata`.
     """
-    return add_source_tables_to_xbrl_metadata(raw_xbrl_metadata_json)
+    return add_source_tables_to_xbrl_metadata(raw_ferc1_xbrl__metadata_json)
 
 
 def add_source_tables_to_xbrl_metadata(
-    raw_xbrl_metadata_json: dict[str, dict[str, list[dict[str, Any]]]],
+    raw_ferc1_xbrl__metadata_json: dict[str, dict[str, list[dict[str, Any]]]],
 ) -> dict[str, dict[str, list[dict[str, Any]]]]:
     """Add a ``source_tables`` field into metadata calculation components.
 
@@ -88,9 +88,9 @@ def add_source_tables_to_xbrl_metadata(
             logger.debug(f"Found no source table for {calc_component['name']}.")
         return calc_component
 
-    tables_to_fields = extract_tables_to_fields(raw_xbrl_metadata_json)
+    tables_to_fields = extract_tables_to_fields(raw_ferc1_xbrl__metadata_json)
     # for each table loop through all of the calculations within each field
-    for table_name, table_meta in raw_xbrl_metadata_json.items():
+    for table_name, table_meta in raw_ferc1_xbrl__metadata_json.items():
         for list_of_facts in table_meta.values():
             for xbrl_fact in list_of_facts:
                 # all facts have ``calculations``, but they are empty lists when null
@@ -102,7 +102,7 @@ def add_source_tables_to_xbrl_metadata(
                         )
                     else:
                         calc_component["source_tables"] = [table_name]
-    return raw_xbrl_metadata_json
+    return raw_ferc1_xbrl__metadata_json
 
 
 ################################################################################
@@ -977,7 +977,7 @@ def _calculation_components_subtotal_calculations(
         **{dim: pd.NA for dim in dim_cols} | {"table_name": table_name}
     ).pipe(
         make_calculation_dimensions_explicit,
-        _core_ferc1__table_dimensions=table_dims,
+        table_dimensions_ferc1=table_dims,
         dimensions=dim_cols,
     )
     calc_comps_w_totals = infer_intra_factoid_totals(
@@ -1044,7 +1044,7 @@ def _add_intra_table_calculation_dimensions(
     )
     intra_table_calcs = make_calculation_dimensions_explicit(
         intra_table_calcs,
-        _core_ferc1__table_dimensions=table_dims,
+        table_dimensions_ferc1=table_dims,
         dimensions=dim_cols,
     ).pipe(
         assign_parent_dimensions,
@@ -6183,7 +6183,7 @@ def _core_ferc1_xbrl__metadata(**kwargs) -> pd.DataFrame:
         .assign(**{dim: pd.NA for dim in dimensions})
         .pipe(
             make_calculation_dimensions_explicit,
-            _core_ferc1__table_dimensions=_core_ferc1__table_dimensions,
+            table_dimensions_ferc1=_core_ferc1__table_dimensions,
             dimensions=dimensions,
         )
     )

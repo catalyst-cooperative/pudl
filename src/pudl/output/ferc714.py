@@ -609,7 +609,7 @@ def _out_ferc714__georeferenced_respondents(
 @asset(compute_kind="Python", io_manager_key="pudl_sqlite_io_manager")
 def out_ferc714__summarized_demand(
     _out_ferc714__annualized_respondents: pd.DataFrame,
-    core_ferc714__hourly_demand_pa: pd.DataFrame,
+    core_ferc714__hourly_demand_by_planning_area: pd.DataFrame,
     out_ferc714__respondents_with_fips: pd.DataFrame,
     _out_ferc714__categorized_respondents: pd.DataFrame,
     _out_ferc714__georeferenced_counties: gpd.GeoDataFrame,
@@ -628,7 +628,7 @@ def out_ferc714__summarized_demand(
     demand_annual = (
         pd.merge(
             _out_ferc714__annualized_respondents,
-            core_ferc714__hourly_demand_pa.loc[
+            core_ferc714__hourly_demand_by_planning_area.loc[
                 :, ["report_date", "respondent_id_ferc714", "demand_mwh"]
             ],
             on=["report_date", "respondent_id_ferc714"],

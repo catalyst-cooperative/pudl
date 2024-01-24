@@ -35,7 +35,7 @@ import sqlalchemy as sa
 from dagster import AssetIn, Definitions, JobDefinition, asset, define_asset_job
 
 import pudl
-from pudl.extract.ferc1 import raw_ferc1_assets, raw_xbrl_metadata_json
+from pudl.extract.ferc1 import raw_ferc1_assets, raw_ferc1_xbrl__metadata_json
 from pudl.helpers import simplify_strings
 from pudl.io_managers import ferc1_dbf_sqlite_io_manager, ferc1_xbrl_sqlite_io_manager
 from pudl.metadata.fields import apply_pudl_dtypes
@@ -313,7 +313,11 @@ def get_plants_ferc1_raw_job() -> JobDefinition:
     return Definitions(
         assets=transform_assets
         + raw_ferc1_assets
-        + [plants_ferc1_raw, raw_xbrl_metadata_json, _core_ferc1_xbrl__metadata_json],
+        + [
+            plants_ferc1_raw,
+            raw_ferc1_xbrl__metadata_json,
+            _core_ferc1_xbrl__metadata_json,
+        ],
         resources={
             "ferc1_dbf_sqlite_io_manager": ferc1_dbf_sqlite_io_manager,
             "ferc1_xbrl_sqlite_io_manager": ferc1_xbrl_sqlite_io_manager,

@@ -264,12 +264,12 @@ def load_ventyx_hourly_state_demand(path: str) -> pd.DataFrame:
     },
 )
 def load_hourly_demand_matrix_ferc714(
-    core_ferc714__hourly_demand_pa: pd.DataFrame,
+    core_ferc714__hourly_demand_by_planning_area: pd.DataFrame,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Read and format FERC 714 hourly demand into matrix form.
 
     Args:
-        core_ferc714__hourly_demand_pa: FERC 714 hourly demand time series by planning area.
+        core_ferc714__hourly_demand_by_planning_area: FERC 714 hourly demand time series by planning area.
 
     Returns:
         Hourly demand as a matrix with a `datetime` row index
@@ -280,22 +280,24 @@ def load_hourly_demand_matrix_ferc714(
         of each `respondent_id_ferc714` and reporting `year` (int).
     """
     # Convert UTC to local time (ignoring daylight savings)
-    core_ferc714__hourly_demand_pa["utc_offset"] = core_ferc714__hourly_demand_pa[
-        "timezone"
-    ].map(STANDARD_UTC_OFFSETS)
-    core_ferc714__hourly_demand_pa["datetime"] = utc_to_local(
-        core_ferc714__hourly_demand_pa["utc_datetime"],
-        core_ferc714__hourly_demand_pa["utc_offset"],
+    core_ferc714__hourly_demand_by_planning_area[
+        "utc_offset"
+    ] = core_ferc714__hourly_demand_by_planning_area["timezone"].map(
+        STANDARD_UTC_OFFSETS
+    )
+    core_ferc714__hourly_demand_by_planning_area["datetime"] = utc_to_local(
+        core_ferc714__hourly_demand_by_planning_area["utc_datetime"],
+        core_ferc714__hourly_demand_by_planning_area["utc_offset"],
     )
     # Pivot to demand matrix: timestamps x respondents
-    matrix = core_ferc714__hourly_demand_pa.pivot(
+    matrix = core_ferc714__hourly_demand_by_planning_area.pivot(
         index="datetime", columns="respondent_id_ferc714", values="demand_mwh"
     )
     # List timezone by year for each respondent
-    core_ferc714__hourly_demand_pa["year"] = core_ferc714__hourly_demand_pa[
-        "report_date"
-    ].dt.year
-    utc_offset = core_ferc714__hourly_demand_pa.groupby(
+    core_ferc714__hourly_demand_by_planning_area[
+        "year"
+    ] = core_ferc714__hourly_demand_by_planning_area["report_date"].dt.year
+    utc_offset = core_ferc714__hourly_demand_by_planning_area.groupby(
         ["respondent_id_ferc714", "year"], as_index=False
     )["utc_offset"].first()
     return matrix, utc_offset
@@ -579,7 +581,7 @@ def total_state_sales_eia861(
         ),
     },
 )
-def out_ferc714__hourly_predicted_state_demand(
+def out_ferc714__hourly_estimated_state_demand(
     context,
     _out_ferc714__hourly_imputed_demand: pd.DataFrame,
     core_censusdp1__entity_county: pd.DataFrame,

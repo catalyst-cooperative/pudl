@@ -215,14 +215,14 @@ class PudlTabl:
             "out_eia923__AGG_generation_fuel_combined": "gf_eia923",
             # ferc714
             "core_ferc714__respondent_id": "respondent_id_ferc714",
-            "core_ferc714__hourly_demand_pa": "demand_hourly_pa_ferc714",
+            "core_ferc714__hourly_demand_by_planning_area": "demand_hourly_pa_ferc714",
             "out_ferc714__respondents_with_fips": "fipsified_respondents_ferc714",
             "out_ferc714__summarized_demand": "summarized_demand_ferc714",
             # service territory
             "out_eia861__compiled_geometry_balancing_authorities": "compiled_geometry_balancing_authority_eia861",
             "out_eia861__compiled_geometry_utilities": "compiled_geometry_utility_eia861",
             # state demand
-            "out_ferc714__hourly_predicted_state_demand": "predicted_state_hourly_demand",
+            "out_ferc714__hourly_estimated_state_demand": "predicted_state_hourly_demand",
             # plant parts
             "out_eia__yearly_generators_by_ownership": "gens_mega_eia",
             "out_eia__yearly_plant_parts": "plant_parts_eia",
