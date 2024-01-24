@@ -69,6 +69,7 @@ raw_table_names = (
     "raw_phmsagas__yearly_transmission_preparer_certification",
     "raw_phmsagas__yearly_miles_of_transmission_pipe_by_smys",
     "raw_phmsagas__yearly_transmission_failures_leaks_repairs",
+    "raw_phmsagas__yearly_transmission_miles_by_maop",
     "raw_phmsagas__yearly_miles_of_pipe_by_decade_installed",
 )
 
