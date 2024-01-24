@@ -173,6 +173,7 @@ def _out_ferc1__yearly_steam_plants_sched402_with_plant_ids(
         {
             "experiment_name": "ferc_to_ferc",
             "log_yaml": True,
+            "run_context": "production",
         },
         name="ferc_to_ferc_tracker",
     )()
