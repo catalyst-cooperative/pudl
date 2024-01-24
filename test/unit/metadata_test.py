@@ -56,7 +56,6 @@ def test_field_definitions(field_name: str):
     _ = Field(name=field_name, **FIELD_METADATA[field_name])
 
 
-@pytest.mark.xfail(reason="Need to purge unused fields. See issue #3224")
 def test_defined_fields_are_used():
     """Check that all fields which are defined are actually used."""
     used_fields = set()

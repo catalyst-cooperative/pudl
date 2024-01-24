@@ -1,15 +1,15 @@
-"""Add new field definitions and remove fields not used in any table from the field metadata
+"""Add field definitions and remove unused fields
 
-Revision ID: fec6aaf7ddca
+Revision ID: cfb12ef9a0e2
 Revises: 997d2c7bc7de
-Create Date: 2024-01-24 00:55:57.400282
+Create Date: 2024-01-24 01:53:47.540209
 
 """
 import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = 'fec6aaf7ddca'
+revision = 'cfb12ef9a0e2'
 down_revision = '997d2c7bc7de'
 branch_labels = None
 depends_on = None

@@ -881,11 +881,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "different."
         ),
     },
-    "electric_plant": {
-        "type": "number",
-        "description": "Electric Plant In Service (USD).",
-        "unit": "USD",
-    },
     "emission_control_equipment_cost": {
         "type": "number",
         "description": "The total cost to install a piece of emission control equipment.",
@@ -1106,10 +1101,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Entity type of principal owner.",
     },
-    "environmental_equipment_name": {
-        "type": "string",
-        "description": "Name of environmental equipment or technology type used to control air emissions",
-    },
     "estimated_or_actual_capacity_data": {
         "type": "string",
         "description": "Whether the reported capacity data is estimated or actual.",
@@ -1140,11 +1131,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "through tolling arrangements."
         ),
         "unit": "MWh",
-    },
-    "expense": {
-        "type": "number",
-        "unit": "USD",
-        "description": "The amount of a given expense in USD.",
     },
     "expense_type": {"type": "string", "description": "The type of expense."},
     "ferc1_generator_agg_id": {
