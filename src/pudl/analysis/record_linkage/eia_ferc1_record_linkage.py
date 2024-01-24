@@ -31,6 +31,7 @@ plant-parts.
 import importlib.resources
 from typing import Literal
 
+import mlflow
 import numpy as np
 import pandas as pd
 from dagster import Out, graph_asset, op
@@ -538,7 +539,10 @@ class InputManager:
 
 
 def run_model(
-    features_train: pd.DataFrame, features_all: pd.DataFrame, y_df: pd.DataFrame
+    features_train: pd.DataFrame,
+    features_all: pd.DataFrame,
+    y_df: pd.DataFrame,
+    experiment_tracker: model_helpers.ExperimentTracker,
 ) -> pd.DataFrame:
     """Train Logistic Regression model using GridSearch cross validation.
 
@@ -584,6 +588,11 @@ def run_model(
     lrc = LogisticRegression()
     clf = GridSearchCV(estimator=lrc, param_grid=param_grid, verbose=True, n_jobs=-1)
     clf.fit(X=X_train, y=y_train)
+
+    # Log best parameters
+    with experiment_tracker.start_run():
+        mlflow.log_params(clf.best_params_)
+
     y_pred = clf.predict(X_test)
     precision, recall, f_score, _ = precision_recall_fscore_support(
         y_test, y_pred, average="binary"
@@ -596,6 +605,17 @@ def run_model(
         f"    Precision: {precision:.02}\n"
         f"    Recall:    {recall:.02}\n"
     )
+    # Log model metrics
+    with experiment_tracker.start_run():
+        mlflow.log_metrics(
+            {
+                "accuracy": accuracy,
+                "f_score": f_score,
+                "precision": precision,
+                "recall": recall,
+            }
+        )
+
     preds = clf.predict(features_all.matrix)
     probs = clf.predict_proba(features_all.matrix)
     final_df = pd.DataFrame(
