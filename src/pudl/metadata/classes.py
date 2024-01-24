@@ -8,10 +8,11 @@ import warnings
 from collections.abc import Callable, Iterable
 from functools import lru_cache
 from pathlib import Path
-from typing import Annotated, Any, Literal, Self, TypeVar
+from typing import Annotated, Any, Literal, Self, TypeVar, cast
 
 import jinja2
 import pandas as pd
+import pandera as pr
 import pyarrow as pa
 import pydantic
 import sqlalchemy as sa
@@ -738,7 +739,7 @@ class Schema(PudlMeta):
     missing_values: list[StrictStr] = [""]
     primary_key: StrictList[SnakeCase] | None = None
     foreign_keys: list[ForeignKey] = []
-    checks: list[Callable] = []
+    checks: dict[SnakeCase, Callable] = {}
 
     _check_unique = _validator(
         "missing_values", "primary_key", "foreign_keys", fn=_check_unique
@@ -780,6 +781,19 @@ class Schema(PudlMeta):
                         f"Foreign key fields {missing_field_names} not found in schema."
                     )
         return self
+
+    def to_pandera(self: Self) -> pr.DataFrameSchema:
+        """Turn PUDL Schema into Pandera schema, so dagster can understand it."""
+        return pr.DataFrameSchema(
+            {
+                field.name: pr.Column(
+                    FIELD_DTYPES_PANDAS[field.type],
+                    checks=cast(pr.Check, self.checks.get(field.name, None)),
+                )
+                for field in self.fields
+            },
+            unique=self.primary_key,
+        )
 
 
 class License(PudlMeta):

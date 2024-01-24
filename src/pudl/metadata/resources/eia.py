@@ -1,6 +1,8 @@
 """Definitions of data tables primarily coming from EIA 860/861/923."""
 from typing import Any
 
+from pandera import Check
+
 from pudl.metadata.codes import CODE_METADATA
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
@@ -8,6 +10,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "description": "A coding table describing balancing authorities in EIA-860 and EIA-923.",
         "schema": {
             "fields": ["code", "label", "description"],
+            "checks": {"description": Check.str_contains("bogus")},
             "primary_key": ["code"],
             "foreign_key_rules": {
                 "fields": [["balancing_authority_code_eia"]],
