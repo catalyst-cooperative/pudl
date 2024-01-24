@@ -3,14 +3,14 @@ ferc_to_ferc:
     ops:
       compute_distance_with_year_penalty:
         config:
-          metric: cosine
+          metric: euclidean
       cluster_records_dbscan:
         config:
-          eps: 0.01
+          eps: 0.5
           min_samples: 2
       split_clusters:
         config:
-          distance_threshold: 0.1
+          distance_threshold: 0.5
       match_orphaned_records:
         config:
-          distance_threshold: 0.1
+          distance_threshold: 0.5
