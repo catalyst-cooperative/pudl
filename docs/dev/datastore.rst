@@ -50,6 +50,7 @@ your ``$PUDL_INPUT`` directory, organized by data source, form, and DOI::
     data/ferc2/
     data/ferc60/
     data/ferc714/
+    data/phmsagas/
 
 If the download fails to complete successfully, the script can be run repeatedly until
 all the files are downloaded. It will not try and re-download data which is already
@@ -71,8 +72,8 @@ Tell PUDL about the archive
 
 Once you have used pudl-archiver to prepare a Zenodo archive as above, you
 can make the PUDL Datastore aware of it by updating the appropriate DOI in
-:class:`pudl.workspace.datastore.ZenodoFetcher`. DOIs can refer to resources from the
-`Zenodo sandbox server <https://sandbox.zenodo.org>`__ for archives that are still in
-testing or development (sandbox DOIs have a prefix of ``10.5072``), or the
+:class:`pudl.workspace.datastore.ZenodoDoiSettings`. DOIs can refer to resources from
+the `Zenodo sandbox server <https://sandbox.zenodo.org>`__ for archives that are still
+in testing or development (sandbox DOIs have a prefix of ``10.5072``), or the
 `Zenodo production server <https://zenodo.org>`__ server if the archive is ready for
 public use (production DOIs hae a prefix of ``10.5281``).
