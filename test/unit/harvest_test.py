@@ -55,6 +55,7 @@ STANDARD: dict[str, Any] = {
         ],
         "primary_key": ["i", "j"],
     },
+    "description": "letter r",
 }
 
 HARVEST: dict[str, Any] = {**STANDARD, "harvest": {"harvest": True}}
@@ -359,6 +360,7 @@ for i, d in enumerate(RESOURCES):
         {"name": name, "type": FIELD_DTYPES[name], "description": name}
         for name in d["schema"]["fields"]
     ]
+    d["description"] = "Test table."
     RESOURCES[i] = Resource(**d)
 
 EXPECTED_DFS: dict[str, pd.DataFrame] = {

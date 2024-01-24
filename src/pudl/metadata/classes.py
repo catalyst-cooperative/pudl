@@ -1014,7 +1014,7 @@ class Resource(PudlMeta):
         >>> fields = [{'name': 'x', 'type': 'year', 'description': 'X'}, {'name': 'y', 'type': 'string', 'description': 'Y'}]
         >>> fkeys = [{'fields': ['x', 'y'], 'reference': {'resource': 'b', 'fields': ['x', 'y']}}]
         >>> schema = {'fields': fields, 'primary_key': ['x'], 'foreign_keys': fkeys}
-        >>> resource = Resource(name='a', schema=schema)
+        >>> resource = Resource(name='a', schema=schema, description='A')
         >>> table = resource.to_sql()
         >>> table.columns.x
         Column('x', Integer(), ForeignKey('b.x'), CheckConstraint(...), table=<a>, primary_key=True, nullable=False, comment='X')
@@ -1033,7 +1033,8 @@ class Resource(PudlMeta):
         >>> resource = Resource(**{
         ...     'name': 'a',
         ...     'harvest': {'harvest': True},
-        ...     'schema': {'fields': fields, 'primary_key': ['id']}
+        ...     'schema': {'fields': fields, 'primary_key': ['id']},
+        ...     'description': 'A',
         ... })
         >>> dfs = {
         ...     'a': pd.DataFrame({'id': [1, 1, 2, 2], 'x': [1, 1, 2, 2]}),
@@ -1111,7 +1112,8 @@ class Resource(PudlMeta):
         >>> fields = [{'name': 'report_year', 'type': 'year', 'description': 'Report year'}]
         >>> resource = Resource(**{
         ...     'name': 'table', 'harvest': {'harvest': True},
-        ...     'schema': {'fields': fields, 'primary_key': ['report_year']}
+        ...     'schema': {'fields': fields, 'primary_key': ['report_year']},
+        ...     'description': 'Table',
         ... })
         >>> df = pd.DataFrame({'report_date': ['2000-02-02', '2000-03-03']})
         >>> resource.format_df(df)
@@ -1127,7 +1129,7 @@ class Resource(PudlMeta):
 
     name: SnakeCase
     title: String | None = None
-    description: String | None = None
+    description: String
     harvest: ResourceHarvest = ResourceHarvest()
     schema: Schema
     # Alias required to avoid shadowing Python built-in format()
@@ -1353,7 +1355,7 @@ class Resource(PudlMeta):
         Examples:
             >>> fields = [{'name': 'x_year', 'type': 'year', 'description': 'Year'}]
             >>> schema = {'fields': fields, 'primary_key': ['x_year']}
-            >>> resource = Resource(name='r', schema=schema)
+            >>> resource = Resource(name='r', schema=schema, description='R')
 
             By default, when :attr:`harvest` .`harvest=False`,
             exact matches are required.
@@ -1681,8 +1683,8 @@ class Package(PudlMeta):
         >>> fields = [{'name': 'x', 'type': 'year', 'description': 'X'}, {'name': 'y', 'type': 'string', 'description': 'Y'}]
         >>> fkey = {'fields': ['x', 'y'], 'reference': {'resource': 'b', 'fields': ['x', 'y']}}
         >>> schema = {'fields': fields, 'primary_key': ['x'], 'foreign_keys': [fkey]}
-        >>> a = Resource(name='a', schema=schema)
-        >>> b = Resource(name='b', schema=Schema(fields=fields, primary_key=['x']))
+        >>> a = Resource(name='a', schema=schema, description='A')
+        >>> b = Resource(name='b', schema=Schema(fields=fields, primary_key=['x']), description='B')
         >>> Package(name='ab', resources=[a, b])
         Traceback (most recent call last):
         ValidationError: ...
