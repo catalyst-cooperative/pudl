@@ -60,6 +60,15 @@ Data Cleaning
 * Added a notebook :mod:`devtools/debug-column-mapping.ipynb` to make debugging manual
   column maps for new datasets simpler and faster.
 
+Metadata Cleaning
+^^^^^^^^^^^^^^^^^
+
+* Made a description field mandatory for all instances of ``Field`` and ``Resource``.
+  Updated the FIELD_METADATA and RESOURCE_METADATA so that had a description.
+  :issue:`3224`, :pr:`3283`.
+* Removed fields that are not used in any tables and removed the xfail from the
+  ``test_defined_fields_are_used`` test. :issue:`3224`, :pr:`3283`.
+
 ---------------------------------------------------------------------------------------
 v2023.12.01
 ---------------------------------------------------------------------------------------
