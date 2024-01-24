@@ -62,12 +62,14 @@ raw_table_names = (
     "raw_phmsagas__yearly_miles_of_gathering_pipe_by_nps",
     "raw_phmsagas__yearly_miles_of_transmission_pipe_by_nps",
     "raw_phmsagas__yearly_inspections_and_assessments",
+    "raw_phmsagas__yearly_miles_of_pipe_by_class_location",
     "raw_phmsagas__yearly_transmission_material_verification",
     "raw_phmsagas__yearly_transmission_hca_miles_by_determination_method_and_risk_model",
     "raw_phmsagas__yearly_gas_transmission_miles_by_pressure_test_range_and_internal_inspection",
     "raw_phmsagas__yearly_transmission_preparer_certification",
     "raw_phmsagas__yearly_miles_of_transmission_pipe_by_smys",
     "raw_phmsagas__yearly_transmission_failures_leaks_repairs",
+    "raw_phmsagas__yearly_miles_of_pipe_by_decade_installed",
 )
 
 phmsagas_raw_dfs = excel.raw_df_factory(Extractor, name="phmsagas")
