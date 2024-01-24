@@ -2,6 +2,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
+import mlflow
 import numpy as np
 import pandas as pd
 import scipy
@@ -20,6 +21,7 @@ from sklearn.preprocessing import (
 )
 
 import pudl
+from pudl.analysis.record_linkage import model_helpers
 from pudl.analysis.record_linkage.name_cleaner import CompanyNameCleaner
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -73,14 +75,33 @@ class ColumnVectorizer(BaseModel):
         )
 
 
+def log_dataframe_embedder_config(
+    embedder_name: str,
+    vectorizers: dict[str, ColumnVectorizer],
+    experiment_tracker: model_helpers.ExperimentTracker,
+):
+    """Log embedder config to mlflow experiment."""
+    vectorizer_config = {
+        embedder_name: {
+            name: vectorizer.dict() for name, vectorizer in vectorizers.items()
+        }
+    }
+    with experiment_tracker.start_run():
+        mlflow.log_params(model_helpers.flatten_model_config(vectorizer_config))
+
+
 def dataframe_embedder_factory(
     name_prefix: str, vectorizers: dict[str, ColumnVectorizer]
 ):
     """Return a configured op graph to embed an input dataframe."""
 
     @op(name=f"{name_prefix}_train")
-    def train_dataframe_embedder(df: pd.DataFrame):
+    def train_dataframe_embedder(
+        df: pd.DataFrame, experiment_tracker: model_helpers.ExperimentTracker
+    ):
         """Train :class:`sklearn.compose.ColumnTransformer` on input."""
+        log_dataframe_embedder_config(name_prefix, vectorizers, experiment_tracker)
+
         column_transformer = ColumnTransformer(
             transformers=[
                 (name, column_transform.as_pipeline(), column_transform.columns)
@@ -100,9 +121,11 @@ def dataframe_embedder_factory(
         return FeatureMatrix(matrix=transformer.transform(df), index=df.index)
 
     @graph(name=f"{name_prefix}_embed_graph")
-    def embed_dataframe_graph(df: pd.DataFrame) -> FeatureMatrix:
+    def embed_dataframe_graph(
+        df: pd.DataFrame, experiment_tracker: model_helpers.ExperimentTracker
+    ) -> FeatureMatrix:
         """Train dataframe embedder and apply to input df."""
-        transformer = train_dataframe_embedder(df)
+        transformer = train_dataframe_embedder(df, experiment_tracker)
         return apply_dataframe_embedder(df, transformer)
 
     return embed_dataframe_graph

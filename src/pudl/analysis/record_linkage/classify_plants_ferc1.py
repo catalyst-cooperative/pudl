@@ -150,9 +150,11 @@ def merge_steam_fuel_dfs(
 
 
 @graph
-def ferc_to_ferc(input_df: pd.DataFrame) -> pd.DataFrame:
+def ferc_to_ferc(
+    input_df: pd.DataFrame, experiment_tracker: model_helpers.ExperimentTracker
+) -> pd.DataFrame:
     """Graph implements core portion of the ferc-ferc plant matching model."""
-    feature_matrix = ferc_dataframe_embedder(input_df)
+    feature_matrix = ferc_dataframe_embedder(input_df, experiment_tracker)
     return link_ids_cross_year(input_df, feature_matrix)
 
 
@@ -182,7 +184,7 @@ def _out_ferc1__yearly_steam_plants_sched402_with_plant_ids(
         core_ferc1__yearly_steam_plants_sched402,
         out_ferc1__yearly_steam_plants_fuel_by_plant_sched402,
     )
-    label_df = ferc_to_ferc(input_df)
+    label_df = ferc_to_ferc(input_df, experiment_tracker)
 
     return plants_steam_validate_ids(
         experiment_tracker, core_ferc1__yearly_steam_plants_sched402, label_df

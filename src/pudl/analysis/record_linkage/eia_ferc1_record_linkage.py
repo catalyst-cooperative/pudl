@@ -41,7 +41,7 @@ from sklearn.model_selection import GridSearchCV, train_test_split
 import pudl
 import pudl.helpers
 from pudl.analysis.plant_parts_eia import match_to_single_plant_part
-from pudl.analysis.record_linkage import embed_dataframe
+from pudl.analysis.record_linkage import embed_dataframe, model_helpers
 from pudl.metadata.classes import DataSource, Resource
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -307,14 +307,23 @@ def out_pudl__yearly_assn_eia_ferc1_plant_parts(
             reported aggregated to the FERC1 plant-level.
         out_eia__yearly_plant_parts: The EIA plant parts list.
     """
+    experiment_tracker = model_helpers.create_experiment_tracker.configured(
+        {
+            "experiment_name": "ferc_to_eia",
+            "log_yaml": False,
+            "run_context": "production",
+        },
+        name="ferc_to_eia_tracker",
+    )()
+
     inputs = get_compiled_input_manager(
         out_ferc1__yearly_all_plants,
         out_ferc1__yearly_steam_plants_fuel_by_plant_sched402,
         out_eia__yearly_plant_parts,
     )
     all_pairs_df, train_pairs_df = get_pairs_dfs(inputs)
-    features_all = pair_vectorizers(all_pairs_df)
-    features_train = pair_vectorizers(train_pairs_df)
+    features_all = pair_vectorizers(all_pairs_df, experiment_tracker)
+    features_train = pair_vectorizers(train_pairs_df, experiment_tracker)
     y_df = get_y_label_df(train_pairs_df, inputs)
     match_df = run_matching_model(
         features_train=features_train,

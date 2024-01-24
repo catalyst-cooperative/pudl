@@ -246,7 +246,7 @@ def _ferc_to_ferc_test(input_df: pd.DataFrame):
         },
         name="ferc_to_ferc_tracker",
     )()
-    label_df = ferc_to_ferc(input_df)
+    label_df = ferc_to_ferc(input_df, experiment_tracker)
     return _score_model(input_df, label_df, experiment_tracker)
 
 
