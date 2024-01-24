@@ -20,7 +20,7 @@ dependencies = [
     "catalystcoop.ferc-xbrl-extractor>=1.3.2,<2",
     "click>=8",
     "coloredlogs>=14.0", # Dagster requires 14.0
-    "conda-lock>=2.5.1",
+    "conda-lock>=2.5.2",
     "coverage>=7",
     "dagster>=1.6",
     "dagster-postgres>=0.22,<1", # Update when dagster-postgres graduates to 1.x
@@ -48,7 +48,6 @@ dependencies = [
     "numba>=0.58", # pandas[performance]
     "numexpr>=2.8.0", # pandas[performance]
     "numpy>=1.26,<2.0a0",
-    "openpyxl>=3.0.10", # pandas[excel]
     "packaging>=23",
     "pandas>=2.2",
     "pandera>=0.17.2",
@@ -61,10 +60,9 @@ dependencies = [
     "pytest-console-scripts>=1.4",
     "pytest-mock>=3.11",
     "pytest-xdist>=3.3",
-    "python-calamine>=0.1.7",
+    "python-calamine>=0.1.7", # pandas[excel]
     "python-dotenv>=1",
     "pytz>=2024",
-    "pyxlsb>=1.0.9", # pandas[excel]
     "pyyaml>=6",
     "readthedocs-sphinx-ext>=2",
     "regex>=2023.12.25",
@@ -83,11 +81,10 @@ dependencies = [
     "timezonefinder>=6.2",
     "universal_pathlib>=0.1.4",
     "urllib3>=1.26.18",
-    "xlrd>=2.0.1", # pandas[excel]
     "xlsxwriter>=3.1", # pandas[excel]
 ]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Environment :: Console",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
