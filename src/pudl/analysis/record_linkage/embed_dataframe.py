@@ -74,6 +74,18 @@ class ColumnVectorizer(BaseModel):
             ]
         )
 
+    def as_config_dict(self):
+        """Return config dict formatted for logging to mlflow."""
+        config = {
+            "weight": self.weight,
+            "columns": self.columns,
+        }
+        for step in self.transform_steps:
+            step_dict = step.dict()
+            config[step_dict.pop("name")] = step_dict
+
+        return config
+
 
 def log_dataframe_embedder_config(
     embedder_name: str,
@@ -83,7 +95,8 @@ def log_dataframe_embedder_config(
     """Log embedder config to mlflow experiment."""
     vectorizer_config = {
         embedder_name: {
-            name: vectorizer.dict() for name, vectorizer in vectorizers.items()
+            name: vectorizer.as_config_dict()
+            for name, vectorizer in vectorizers.items()
         }
     }
     with experiment_tracker.start_run():
