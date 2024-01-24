@@ -101,8 +101,13 @@ function copy_outputs_to_distribution_bucket() {
 }
 
 function zenodo_data_release() {
-    echo "Creating a new PUDL data release on Zenodo." && \
-    ~/pudl/devtools/zenodo/zenodo_data_release.py --publish --env "$1" --source-dir "$PUDL_OUTPUT"
+    echo "Creating a new PUDL data release on Zenodo."
+
+    if [[ "$1" == "production" ]]; then
+        ~/pudl/devtools/zenodo/zenodo_data_release.py --no-publish --env "$1" --source-dir "$PUDL_OUTPUT"
+    else
+        ~/pudl/devtools/zenodo/zenodo_data_release.py --publish --env "$1" --source-dir "$PUDL_OUTPUT"
+    fi
 }
 
 function notify_slack() {
@@ -195,7 +200,7 @@ if [[ $ETL_SUCCESS == 0 ]]; then
         # TODO: this currently just makes a sandbox release, for testing. Should be
         # switched to production and only run on push of a version tag eventually.
         # Push a data release to Zenodo for long term accessiblity
-        zenodo_data_release sandbox 2>&1 | tee -a "$LOGFILE"
+        zenodo_data_release "$ZENODO_TARGET_ENV" 2>&1 | tee -a "$LOGFILE"
         ZENODO_SUCCESS=${PIPESTATUS[0]}
     fi
 fi
