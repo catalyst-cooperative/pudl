@@ -137,7 +137,7 @@ def data_dictionary_metadata_to_rst(app):
     """Export data dictionary metadata to RST for inclusion in the documentation."""
     # Create an RST Data Dictionary for the PUDL DB:
     print("Exporting PUDL DB data dictionary metadata to RST.")
-    skip_names = ["datasets", "accumulated_depreciation_ferc1", "entity_types_eia"]
+    skip_names = ["datasets", "accumulated_depreciation_ferc1"]
     names = [name for name in RESOURCE_METADATA if name not in skip_names]
     package = Package.from_resource_ids(resource_ids=tuple(sorted(names)))
     # Sort fields within each resource by name:
@@ -149,7 +149,15 @@ def data_dictionary_metadata_to_rst(app):
 def data_sources_metadata_to_rst(app):
     """Export data source metadata to RST for inclusion in the documentation."""
     print("Exporting data source metadata to RST.")
-    included_sources = ["eia860", "eia861", "eia923", "ferc1", "ferc714", "epacems"]
+    included_sources = [
+        "eia860",
+        "eia861",
+        "eia923",
+        "ferc1",
+        "ferc714",
+        "epacems",
+        "phmsagas",
+    ]
     package = Package.from_resource_ids()
     extra_etl_groups = {"eia860": ["entity_eia"], "ferc1": ["glue"]}
     for name in included_sources:
@@ -197,6 +205,7 @@ def cleanup_rsts(app, exception):
     (DOCS_DIR / "data_sources/ferc1.rst").unlink()
     (DOCS_DIR / "data_sources/ferc714.rst").unlink()
     (DOCS_DIR / "data_sources/epacems.rst").unlink()
+    (DOCS_DIR / "data_sources/phmsagas.rst").unlink()
 
 
 def cleanup_csv_dir(app, exception):

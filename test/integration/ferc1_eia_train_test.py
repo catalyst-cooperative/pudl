@@ -159,8 +159,8 @@ def test_validate_override_fixes(
         ppe=plant_parts_eia,
         eia_ferc1=eia_ferc1,
         training_data=eia_ferc1_training_data_restricted,
-        expect_override_overrides=True,
-        allow_mismatched_utilities=True,
+        expect_override_overrides=False,
+        allow_mismatched_utilities=False,
     )
 
 

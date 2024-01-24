@@ -1,15 +1,15 @@
 """add utility name to plant parts list
 
-Revision ID: 530f31a54a24
+Revision ID: 997d2c7bc7de
 Revises: 2e5b623ab40b
-Create Date: 2024-01-01 20:31:08.389639
+Create Date: 2024-01-10 16:18:35.723544
 
 """
 import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = '530f31a54a24'
+revision = '997d2c7bc7de'
 down_revision = '2e5b623ab40b'
 branch_labels = None
 depends_on = None

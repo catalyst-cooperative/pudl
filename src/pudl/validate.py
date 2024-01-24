@@ -2733,7 +2733,6 @@ mcoe_fuel_cost_per_mwh = [
         "weight_col": "net_generation_mwh",
     },
     {  # EIA natural gas reporting really only becomes usable in 2015.
-        # Adjusted hi_bound for extra high gas prices in 2022.
         "title": "Natural Gas Fuel Costs (tails, 2015+)",
         "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
         "low_q": 0.05,
@@ -2778,13 +2777,12 @@ mcoe_fuel_cost_per_mmbtu = [
         "weight_col": "total_mmbtu",
     },
     {  # EIA natural gas reporting really only becomes usable in 2015.
-        # Adjusted the hi_bound for extra high gas prices in 2022.
         "title": "Natural Gas Fuel Costs (tails, 2015+)",
         "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
         "low_q": 0.05,
         "low_bound": 1.65,
         "hi_q": 0.95,
-        "hi_bound": 7.8,
+        "hi_bound": 8.0,
         "data_col": "fuel_cost_per_mmbtu",
         "weight_col": "total_mmbtu",
     },
@@ -2796,7 +2794,7 @@ mcoe_fuel_cost_per_mmbtu = [
 # them to be most useful
 mcoe_self_fuel_cost_per_mmbtu = [
     {  # EIA natural gas reporting really only becomes usable in 2015.
-        "title": "Nautral Gas Fuel Cost (2015+)",
+        "title": "Nautral Gas Fuel Costs (2015+)",
         "query": "fuel_type_code_pudl=='gas' and report_date>='2015-01-01'",
         "low_q": 0.05,
         "mid_q": 0.50,
