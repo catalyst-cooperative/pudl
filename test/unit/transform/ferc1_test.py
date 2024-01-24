@@ -461,13 +461,17 @@ books,big_fact,earth,12.0,44,2312,{3+4+5}
 """
         )
     ).convert_dtypes()
-    out_ksr = calculate_values_from_components(
+    actual_ksr = calculate_values_from_components(
         calculation_components=calculation_components_ksr,
         data=data_ksr,
         calc_idx=["table_name", "xbrl_factoid", "planet"],
         value_col="value",
     )[list(expected_ksr.columns)].convert_dtypes()
-    pd.testing.assert_frame_equal(expected_ksr, out_ksr)
+    idx = ["xbrl_factoid", "planet"]
+    pd.testing.assert_frame_equal(
+        actual_ksr.set_index(idx).sort_index(),
+        expected_ksr.set_index(idx).sort_index(),
+    )
 
 
 def test_apply_xbrl_calculation_fixes():
