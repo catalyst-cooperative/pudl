@@ -28,10 +28,30 @@ STANDARD: dict[str, Any] = {
     "harvest": {"harvest": False},
     "schema": {
         "fields": [
-            {"name": "i", "type": "integer", "harvest": {"aggregate": most_frequent}},
-            {"name": "j", "type": "integer", "harvest": {"aggregate": most_frequent}},
-            {"name": "x", "type": "integer", "harvest": {"aggregate": most_frequent}},
-            {"name": "y", "type": "integer", "harvest": {"aggregate": most_frequent}},
+            {
+                "name": "i",
+                "type": "integer",
+                "harvest": {"aggregate": most_frequent},
+                "description": "letter i",
+            },
+            {
+                "name": "j",
+                "type": "integer",
+                "harvest": {"aggregate": most_frequent},
+                "description": "letter j",
+            },
+            {
+                "name": "x",
+                "type": "integer",
+                "harvest": {"aggregate": most_frequent},
+                "description": "letter x",
+            },
+            {
+                "name": "y",
+                "type": "integer",
+                "harvest": {"aggregate": most_frequent},
+                "description": "letter y",
+            },
         ],
         "primary_key": ["i", "j"],
     },
@@ -336,7 +356,8 @@ RESOURCES: list[dict[str, Any]] = [
 # Build resource models
 for i, d in enumerate(RESOURCES):
     d["schema"]["fields"] = [
-        {"name": name, "type": FIELD_DTYPES[name]} for name in d["schema"]["fields"]
+        {"name": name, "type": FIELD_DTYPES[name], "description": name}
+        for name in d["schema"]["fields"]
     ]
     RESOURCES[i] = Resource(**d)
 

@@ -26,15 +26,25 @@ from pudl.metadata.classes import Package, Resource
 def test_pkg() -> Package:
     """Create a test metadata package for the io manager tests."""
     fields = [
-        {"name": "artistid", "type": "integer"},
-        {"name": "artistname", "type": "string", "constraints": {"required": True}},
+        {"name": "artistid", "type": "integer", "description": "artistid"},
+        {
+            "name": "artistname",
+            "type": "string",
+            "constraints": {"required": True},
+            "description": "artistid",
+        },
     ]
     schema = {"fields": fields, "primary_key": ["artistid"]}
     artist_resource = Resource(name="artist", schema=schema)
 
     fields = [
-        {"name": "artistid", "type": "integer"},
-        {"name": "artistname", "type": "string", "constraints": {"required": True}},
+        {"name": "artistid", "type": "integer", "description": "artistid"},
+        {
+            "name": "artistname",
+            "type": "string",
+            "constraints": {"required": True},
+            "description": "artistname",
+        },
     ]
     schema = {"fields": fields, "primary_key": ["artistid"]}
     view_resource = Resource(
@@ -42,9 +52,14 @@ def test_pkg() -> Package:
     )
 
     fields = [
-        {"name": "trackid", "type": "integer"},
-        {"name": "trackname", "type": "string", "constraints": {"required": True}},
-        {"name": "trackartist", "type": "integer"},
+        {"name": "trackid", "type": "integer", "description": "trackid"},
+        {
+            "name": "trackname",
+            "type": "string",
+            "constraints": {"required": True},
+            "description": "trackname",
+        },
+        {"name": "trackartist", "type": "integer", "description": "trackartist"},
     ]
     fkeys = [
         {
@@ -327,26 +342,32 @@ def test_ferc_xbrl_sqlite_io_manager_dedupes(mocker, tmp_path):
                             {
                                 "name": "entity_id",
                                 "type": "string",
+                                "description": "Entity ID",
                             },
                             {
                                 "name": "utility_type_axis",
                                 "type": "string",
+                                "description": "Utility type axis",
                             },
                             {
                                 "name": "filing_name",
                                 "type": "string",
+                                "description": "Filing name",
                             },
                             {
                                 "name": "publication_time",
                                 "type": "datetime",
+                                "description": "Publication time",
                             },
                             {
                                 "name": "date",
                                 "type": "date",
+                                "description": "Date",
                             },
                             {
                                 "name": "str_factoid",
                                 "type": "string",
+                                "description": "String factoid",
                             },
                         ],
                         "primary_key": [
