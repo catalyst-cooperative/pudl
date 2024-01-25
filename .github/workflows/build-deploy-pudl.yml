@@ -166,7 +166,7 @@ jobs:
         uses: slackapi/slack-github-action@v1
         with:
           channel-id: "C03FHB9N0PQ"
-          slack-message: "build-deploy-pudl status: ${{ job.status }}\n${{ env.GCS_OUTPUT_BUCKET }}/${{ env.BUILD_ID }}"
+          slack-message: "build-deploy-pudl status: ${{ (env.SKIP_BUILD == 'true') && 'skipped' || job.status }}\n${{ env.GCS_OUTPUT_BUCKET }}/${{ env.BUILD_ID }}"
         env:
           channel-id: "C03FHB9N0PQ"
           SLACK_BOT_TOKEN: ${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }}
