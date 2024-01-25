@@ -189,6 +189,31 @@ is a tree structure to being a dag. These xbrl_factoids were added in
 """
 
 
+def get_core_ferc1_asset_description(asset_name: str) -> str:
+    """Get the asset description portion of a core FERC FORM 1 asset.
+
+    This is useful when programatically constructing output assets
+    from core assets using asset factories.
+
+    Args:
+        asset_name: The name of the core asset.
+
+    Returns:
+        asset_description: The asset description portion of the asset name.
+    """
+    pattern = r"yearly_(.*?)_sched"
+    match = re.search(pattern, asset_name)
+
+    if match:
+        asset_description = match.group(1)
+    else:
+        raise ValueError(
+            f"The asset description can not be parsed from {asset_name}"
+            "because it is not a valide core FERC Form 1 asset name."
+        )
+    return asset_description
+
+
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def _out_ferc1__yearly_plants_utilities(
     core_pudl__assn_ferc1_pudl_plants: pd.DataFrame,
@@ -1154,7 +1179,7 @@ class OffByFactoid(NamedTuple):
 
 
 @asset
-def _out_ferc1__explosion_tags(_core_ferc1__table_dimensions) -> pd.DataFrame:
+def _out_ferc1__detailed_tags(_core_ferc1__table_dimensions) -> pd.DataFrame:
     """Grab the stored tables of tags and add inferred dimension."""
     rate_tags = _get_tags(
         "xbrl_factoid_rate_base_tags.csv", _core_ferc1__table_dimensions
@@ -1221,7 +1246,7 @@ def _aggregatable_dimension_tags(
 ) -> pd.DataFrame:
     # make a new lil csv w the manually compiled plant status or dimension
     # add in the rest from the table_dims
-    # merge it into _out_ferc1__explosion_tags
+    # merge it into _out_ferc1__detailed_tags
     aggregatable_col = f"aggregatable_{dimension}"
     tags_csv = (
         importlib.resources.files("pudl.package_data.ferc1")
@@ -1267,12 +1292,12 @@ def exploded_table_asset_factory(
         "_core_xbrl_ferc1__calculation_components": AssetIn(
             "_core_xbrl_ferc1__calculation_components"
         ),
-        "_out_ferc1__explosion_tags": AssetIn("_out_ferc1__explosion_tags"),
+        "_out_ferc1__detailed_tags": AssetIn("_out_ferc1__detailed_tags"),
     }
     ins |= {table_name: AssetIn(table_name) for table_name in table_names}
 
     @asset(
-        name=f"_out_ferc1__exploded_{root_table.replace('_ferc1', '')}",
+        name=f"_out_ferc1__detailed_{get_core_ferc1_asset_description(root_table)}",
         ins=ins,
         io_manager_key=io_manager_key,
     )
@@ -1283,7 +1308,7 @@ def exploded_table_asset_factory(
         _core_xbrl_ferc1__calculation_components = kwargs[
             "_core_xbrl_ferc1__calculation_components"
         ]
-        tags = kwargs["_out_ferc1__explosion_tags"]
+        tags = kwargs["_out_ferc1__detailed_tags"]
         tables_to_explode = {
             name: df
             for (name, df) in kwargs.items()
@@ -1291,7 +1316,7 @@ def exploded_table_asset_factory(
             not in [
                 "_core_ferc1_xbrl__metadata",
                 "_core_xbrl_ferc1__calculation_components",
-                "_out_ferc1__explosion_tags",
+                "_out_ferc1__detailed_tags",
                 "off_by_facts",
             ]
         }
@@ -1318,7 +1343,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
     """
     explosion_args = [
         {
-            "root_table": "income_statement_ferc1",
+            "root_table": "core_ferc1__yearly_income_statements_sched114",
             "table_names": [
                 "core_ferc1__yearly_income_statements_sched114",
                 "core_ferc1__yearly_depreciation_summary_sched336",
@@ -1340,7 +1365,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
             "off_by_facts": [],
         },
         {
-            "root_table": "balance_sheet_assets_ferc1",
+            "root_table": "core_ferc1__yearly_balance_sheet_assets_sched110",
             "table_names": [
                 "core_ferc1__yearly_balance_sheet_assets_sched110",
                 "core_ferc1__yearly_utility_plant_summary_sched200",
@@ -1399,7 +1424,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
             ],
         },
         {
-            "root_table": "balance_sheet_liabilities_ferc1",
+            "root_table": "core_ferc1__yearly_balance_sheet_liabilities_sched110",
             "table_names": [
                 "core_ferc1__yearly_balance_sheet_liabilities_sched110",
                 "core_ferc1__yearly_retained_earnings_sched118",
