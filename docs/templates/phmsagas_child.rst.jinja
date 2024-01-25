@@ -1,0 +1,59 @@
+{% extends "data_source_parent.rst.jinja" %}
+{% block background %}
+The PHMSA Natural Gas Annual Report, published by the Pipeline and Hazardous Materials
+Safety Administration (part of the US Dept. of Transportation), collects data about
+natural gas gathering and transmission and distribution systems (including their age,
+length, diameter, materials, and carrying capacity). PHMSA also has information about
+natural gas storage facilities and liquefied natural gas shipping facilities.
+
+There are six different forms used by PHMSA. To begin, PUDL will focus on integrating
+the transmission and distribution data, which is available from 1970 to the present.
+For more details, see the `official PHMSA data page <{{ source.path }}>`__.
+{% endblock %}
+
+{% block downloadable_pdfs %}
+Documentation for the gas distribution form:
+{% for filename in download_paths if ('Distribution' in filename.stem.title()) %}
+* :download:`{{ filename.stem.title()}} (PDF/TXT) <{{ filename }}>`
+{% endfor %}
+
+Documentation for the gas transmission and gathering form:
+{% for filename in download_paths if ('Transmission' in filename.stem.title()) %}
+* :download:`{{ filename.stem.title()}} (PDF/TXT) <{{ filename }}>`
+{% endfor %}
+{% endblock %}
+
+{% block accessible %}
+PHMSA data goes back to 1970 and is formatted as Microsoft Excel spreadsheets. To begin,
+PUDL will focus on integrating tables from the distribution and transmission forms, from
+1990-present. Data prior to 1989 and from other tables will be integrated as funding
+allows.
+{% endblock %}
+
+{% block fill_out_form %}
+The Code of Federal Regulations (49 CFR Parts 191, 195) requires operators of gas
+distribution, gas gathering, gas transmission, hazardous liquid, LNG, and UNGS
+to submit annual reports to PHMSA. For further details, see the PHMSA's `pipeline safety
+regulations <https://www.ecfr.gov/current/title-49/subtitle-B/chapter-I/subchapter-D>`__.
+{% endblock %}
+
+{% block original_data %}
+PHMSA typically publishes both CSV and Excel spreadsheets for each form once a year. The
+content of the spreadsheets varies from year to year as the questions in the form are
+updated, with new questions and parts of the form added over time. For some sections of
+the form, respondents must respond to each question one time per commodity and/or state
+of operation, meaning that different form sections have different primary keys. Older
+data maybe be revised after publication through the filing of a supplementary report. To
+ensure reproducible analyses, we archive `versioned snapshots of the EIA-860 data on
+Zenodo <https://doi.org/10.5281/zenodo.7683351>`__. These archives are
+periodically refreshed with new data from the `PHMSA website <{{ source.path }}>`__.
+
+To understand the details of how the form and data have evolved over time, we recommend
+reading the Form Instructions from different years, linked above.
+{% endblock %}
+
+{% block notable_irregularities %}
+At this moment, we are still in the early stages of cleaning and integrating PHMSA data
+into PUDL. This section will be updated as we learn more about the particularities of
+this dataset.
+{% endblock %}

@@ -790,7 +790,9 @@ class MakePlantParts:
                 ],
             )
             .merge(
-                utils_eia860[["utility_id_eia", "utility_id_pudl"]].drop_duplicates(),
+                utils_eia860[
+                    ["utility_id_eia", "utility_id_pudl", "utility_name_eia"]
+                ].drop_duplicates(),
                 how="left",
                 on=["utility_id_eia"],
             )

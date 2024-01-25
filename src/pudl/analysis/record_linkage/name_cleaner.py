@@ -266,4 +266,11 @@ class CompanyNameCleaner(BaseModel):
         Returns:
             df (dataframe): the clean version of the input dataframe
         """
+        if isinstance(df, pd.DataFrame) and len(df.columns) > 1:
+            clean_df = pd.DataFrame()
+            for col in df.columns:
+                clean_df = pd.concat(
+                    [clean_df, df[col].apply(self.get_clean_data)], axis=1
+                )
+            return clean_df
         return df.squeeze().apply(self.get_clean_data)

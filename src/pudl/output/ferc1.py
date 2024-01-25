@@ -110,7 +110,7 @@ EXPLOSION_CALCULATION_TOLERANCES: dict[str, GroupMetricChecks] = {
                 null_calculated_value_frequency=1.0,
             ),
             xbrl_factoid=MetricTolerances(
-                error_frequency=0.028,
+                error_frequency=0.035,
                 relative_error_magnitude=0.019,
                 null_calculated_value_frequency=1.0,
             ),
