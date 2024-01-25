@@ -2,21 +2,27 @@
 # This script runs the entire ETL and validation tests in a docker container on a Google Compute Engine instance.
 # This script won't work locally because it needs adequate GCP permissions.
 
+LOGFILE="${PUDL_OUTPUT}/${BUILD_ID}-pudl-etl.log"
+
 function send_slack_msg() {
+    echo "sending Slack message"
     curl -X POST -H "Content-type: application/json" -H "Authorization: Bearer ${SLACK_TOKEN}" https://slack.com/api/chat.postMessage --data "{\"channel\": \"C03FHB9N0PQ\", \"text\": \"$1\"}"
 }
 
 function upload_file_to_slack() {
+    echo "Uploading file to slack with comment $2"
     curl -F "file=@$1" -F "initial_comment=$2" -F channels=C03FHB9N0PQ -H "Authorization: Bearer ${SLACK_TOKEN}" https://slack.com/api/files.upload
 }
 
 function authenticate_gcp() {
     # Set the default gcloud project id so the zenodo-cache bucket
     # knows what project to bill for egress
+    echo "Authenticating to GCP"
     gcloud config set project "$GCP_BILLING_PROJECT"
 }
 
 function run_pudl_etl() {
+    echo "Running PUDL ETL"
     send_slack_msg ":large_yellow_circle: Deployment started for $BUILD_ID :floppy_disk:"
     authenticate_gcp && \
     alembic upgrade head && \
@@ -61,6 +67,7 @@ function save_outputs_to_gcs() {
 function copy_outputs_to_distribution_bucket() {
     # Only attempt to update outputs if we have a real value of BUILD_REF
     # This avoids accidentally blowing away the whole bucket if it's not set.
+    echo "Copying outputs to distribution buckets"
     if [[ -n "$BUILD_REF" ]]; then
         if [[ "$GITHUB_ACTION_TRIGGER" == "schedule" ]]; then
             # If running nightly builds, copy outputs to the "nightly" bucket path
@@ -99,7 +106,8 @@ function zenodo_data_release() {
 }
 
 function notify_slack() {
-    # Notify pudl-builds slack channel of deployment status
+    # Notify pudl-deployment slack channel of deployment status
+    echo "Notifying Slack about deployment status"
     if [[ "$1" == "success" ]]; then
         message=":large_green_circle: :sunglasses: :unicorn_face: :rainbow: The deployment succeeded!! :partygritty: :database_parrot: :blob-dance: :large_green_circle:\n\n "
     elif [[ "$1" == "failure" ]]; then
