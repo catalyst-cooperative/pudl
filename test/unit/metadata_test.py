@@ -69,7 +69,6 @@ def test_defined_fields_are_used():
         )
 
 
-@pytest.mark.xfail(reason="Incomplete descriptions. See issue #3224")
 def test_fields_have_descriptions():
     """Check that all fields have a description and report any that do not."""
     fields_without_description = []
@@ -85,7 +84,6 @@ def test_fields_have_descriptions():
         )
 
 
-@pytest.mark.xfail(reason="Incomplete descriptions. See issue #3224")
 def test_resources_have_descriptions():
     """Check that all resources have a description and report any that do not."""
     resources_without_description = []
