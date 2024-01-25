@@ -280,7 +280,7 @@ def ferc1_xbrl_taxonomy_metadata(ferc1_engine_xbrl: sa.Engine):
 
 
 @pytest.fixture(scope="session")
-def pudl_sql_io_manager(
+def pudl_mixed_format_io_manager(
     ferc1_engine_dbf: sa.Engine,  # Implicit dependency
     ferc1_engine_xbrl: sa.Engine,  # Implicit dependency
     live_dbs: bool,
@@ -288,7 +288,7 @@ def pudl_sql_io_manager(
     dataset_settings_config,
     check_foreign_keys: bool,
     request,
-) -> PudlSQLiteIOManager:
+) -> PudlMixedFormatIOManager:
     """Grab a connection to the PUDL IO manager.
 
     If we are using the test database, we initialize the PUDL DB from scratch. If we're
@@ -320,16 +320,18 @@ def pudl_sql_io_manager(
     return pudl_io_manager(context)
 
 
+@pytest.fixture
+def pudl_sql_io_manager(
+    pudl_mixed_format_io_manager: PudlMixedFormatIOManager,
+) -> PudlSQLiteIOManager:
+    """Return sqlite io manager from pudl mixed io manager."""
+    return pudl_mixed_format_io_manager._sqlite_io_manager
+
+
 @pytest.fixture(scope="session")
 def pudl_engine(pudl_sql_io_manager: IOManager) -> sa.Engine:
     """Get PUDL SQL engine from io manager."""
-    if isinstance(pudl_sql_io_manager, PudlSQLiteIOManager):
-        return pudl_sql_io_manager.engine
-    if isinstance(pudl_sql_io_manager, PudlMixedFormatIOManager):
-        return pudl_sql_io_manager._sqlite_io_manager.engine
-    raise ValueError(
-        f"Unexpected type for the pudl io manager: {type(pudl_sql_io_manager)}"
-    )
+    return pudl_sql_io_manager.engine
 
 
 @pytest.fixture(scope="session", autouse=True)
