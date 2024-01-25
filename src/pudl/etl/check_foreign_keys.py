@@ -40,7 +40,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
         resolve_path=True,
         path_type=pathlib.Path,
     ),
-    default=PudlPaths().output_dir / "pudl.sqlite",
+    default=None,
 )
 def pudl_check_fks(logfile: pathlib.Path, loglevel: str, db_path: pathlib.Path):
     """Check that foreign key constraints in the PUDL database are respected.
@@ -60,6 +60,10 @@ def pudl_check_fks(logfile: pathlib.Path, loglevel: str, db_path: pathlib.Path):
 
     # Display logged output from the PUDL package:
     pudl.logging_helpers.configure_root_logger(logfile=logfile, loglevel=loglevel)
+
+    # Using PudlPaths to get default value for CLI causes validation issues
+    if not db_path:
+        db_path = PudlPaths().output_dir / "pudl.sqlite"
 
     engine = sa.create_engine(f"sqlite:///{db_path}")
 
