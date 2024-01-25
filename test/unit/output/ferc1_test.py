@@ -314,9 +314,6 @@ class TestTagPropagation(unittest.TestCase):
         assert annotated_tags[self.grand_child11]["in_rate_base"] == "yes"
         assert annotated_tags[self.child1_correction]["in_rate_base"] == "yes"
 
-    @pytest.mark.xfail(
-        reason="we haven't implemented this behavior correctly yet", strict=True
-    )
     def test_annotated_forest_propagates_rootward_two_layers(self):
         edges = [
             (self.parent, self.child1),
@@ -341,6 +338,39 @@ class TestTagPropagation(unittest.TestCase):
         for pre_yes_node in pre_assigned_yes_nodes:
             assert annotated_tags[pre_yes_node]["in_rate_base"] == "yes"
         for post_yes_node in [self.child1, self.parent]:
+            assert annotated_tags[post_yes_node]["in_rate_base"] == "yes"
+
+    def test_annotated_forest_propagates_rootward_two_layers_plus_corrections(self):
+        edges = [
+            (self.parent, self.child1),
+            (self.parent, self.child2),
+            (self.parent, self.parent_correction),
+            (self.child1, self.grand_child11),
+            (self.child1, self.grand_child12),
+            (self.child1, self.child1_correction),
+        ]
+        pre_assigned_yes_nodes = [self.child2, self.grand_child11, self.grand_child12]
+        tags = pd.DataFrame(pre_assigned_yes_nodes).assign(
+            in_rate_base=["yes"] * len(pre_assigned_yes_nodes),
+        )
+
+        simple_forest = XbrlCalculationForestFerc1(
+            exploded_meta=self.exploded_meta,
+            exploded_calcs=self._exploded_calcs_from_edges(edges),
+            seeds=[self.parent],
+            tags=tags,
+        )
+        annotated_forest = simple_forest.annotated_forest
+        assert len(annotated_forest.nodes) == 7
+        annotated_tags = nx.get_node_attributes(annotated_forest, "tags")
+        for pre_yes_node in pre_assigned_yes_nodes:
+            assert annotated_tags[pre_yes_node]["in_rate_base"] == "yes"
+        for post_yes_node in [
+            self.child1,
+            self.parent,
+            self.child1_correction,
+            self.parent_correction,
+        ]:
             assert annotated_tags[post_yes_node]["in_rate_base"] == "yes"
 
 
