@@ -45,6 +45,7 @@ Data Coverage
   * :pr:`3267`
   * :pr:`3269`
   * :pr:`3270`
+  * :pr:`3279`
   * :pr:`3280`
 
 * Updated the EIA Bulk Electricity data archive so that the available data now to runs
