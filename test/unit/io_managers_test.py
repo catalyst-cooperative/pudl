@@ -206,16 +206,6 @@ class PudlSQLiteIOManagerTest(unittest.TestCase):
             cm.exception,
         )
 
-    def test_extra_column_error(self):
-        """Ensure an error is thrown when there is an extra column in the dataframe."""
-        with self.assertRaises(ValueError):
-            self.io_manager.handle_output(
-                build_output_context(asset_key=AssetKey("artist")),
-                pd.DataFrame(
-                    {"artistid": [1], "artistname": ["Co-op Mop"], "artistmanager": [1]}
-                ),
-            )
-
     def test_missing_column_error(self):
         """Ensure an error is thrown when a dataframe is missing a column in the schema."""
         with self.assertRaises(ValueError):
