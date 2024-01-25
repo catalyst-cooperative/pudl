@@ -2327,8 +2327,8 @@ class XbrlCalculationForestFerc1(BaseModel):
         Propagate tags leafwards, rootward &  to the _correction nodes.
         """
         existing_tags = nx.get_node_attributes(annotated_forest, "tags")
+        ## Leafwards propagation
         leafward_inherited_tags = ["in_rate_base"]
-
         for node, parent_tags in existing_tags.items():
             descendants = nx.descendants(annotated_forest, node)
             descendant_tags = {
@@ -2343,6 +2343,63 @@ class XbrlCalculationForestFerc1(BaseModel):
                 for desc in descendants
             }
             nx.set_node_attributes(annotated_forest, descendant_tags)
+
+        # Rootward propagation
+        existing_tags = nx.get_node_attributes(annotated_forest, "tags")
+        rootward_tags = {}
+        rootward_inherited_tags = ["in_rate_base"]
+        for node in existing_tags:
+            # what node is your successor node?
+            # does that sucessor node have children that all have the same tag?
+            # if so then apply that tag to the sucessor
+            # print(nx.ancestors(simple_forest.forest, node))
+
+            # we assume that no nodes have multiple parents
+            parents = list(annotated_forest.predecessors(node))
+            # if you have no parents then no need to check nothing
+            if len(parents) == 0:
+                continue
+            assert len(parents) == 1
+            parent = parents[0]
+            sibling_tags = {
+                sib_node: existing_tags.get(sib_node, {})
+                for sib_node in annotated_forest.successors(parent)
+                if not sib_node.xbrl_factoid.endswith("_correction")
+            }
+            for rootward_tag in rootward_inherited_tags:
+                sibling_tag_values = {
+                    # must return na bc we don't want to propagate unless all siblings
+                    # have same tag
+                    sibling_tag.get(rootward_tag, pd.NA)
+                    for sibling_tag in sibling_tags.values()
+                }
+                if len(sibling_tag_values) == 1:
+                    parent_tags = {
+                        parent: {
+                            "tags": {rootward_tag: sibling_tag_values.pop()}
+                            | existing_tags.get(parent, {})
+                        }
+                    }
+                rootward_tags = rootward_tags | parent_tags
+        nx.set_node_attributes(annotated_forest, rootward_tags)
+        # Correction Records
+        existing_tags = nx.get_node_attributes(annotated_forest, "tags")
+        correction_nodes = [
+            node
+            for node in annotated_forest
+            if node.xbrl_factoid.endswith("_correction")
+        ]
+        correction_tags = {}
+        for correction_node in correction_nodes:
+            # for every correction node, we assume that that nodes parent tags can apply
+            parents = list(annotated_forest.predecessors(correction_node))
+            # all correction records shoul have a parent and only one
+            assert len(parents) == 1
+            parent = parents[0]
+            correction_tags[correction_node] = {
+                "tags": existing_tags.get(parent, {})
+                | existing_tags.get(correction_node, {})
+            }
         return annotated_forest
 
     def check_lost_tags(self: Self, lost_nodes: list[NodeId]) -> None:
@@ -2867,6 +2924,34 @@ def nodes_to_df(calc_forest: nx.DiGraph, nodes: list[NodeId]) -> pd.DataFrame:
     except AttributeError:
         tags = pd.DataFrame()
     return pd.concat([index, tags], axis="columns")
+
+
+def aggregate_child_tags(
+    annotated_forest, node, tag_name: Literal["in_rate_base"]
+) -> dict:
+    """Set the tags for nodes when all of its children have same tag."""
+    tag = pd.NA
+    # i'm a leaf so i stop looking
+    if not annotated_forest.successors(node):
+        tag = annotated_forest.get(node, {}).get(tag_name, pd.NA)
+    # if i have a value you don't need to keep looking at this nodes childern
+    elif annotated_forest.get(node, {}).get(tag_name, pd.NA) != pd.NA:
+        tag = annotated_forest[node][tag_name]
+    else:
+        child_tags = {}
+        for child_node in annotated_forest.successors(node):
+            child_tags.add(aggregate_child_tags(annotated_forest, child_node, tag_name))
+        # if all the children tags are the same and non-null
+        if (len(child_tags) == 1) and {t for t in child_tags if not pd.isna(t)}:
+            new_node_tag = child_tags.pop()
+            # actually assign the tag here but don't wipe out any other tags
+            existing_tags = nx.get_node_attributes(annotated_forest, "tags")
+            node_tags = {
+                node: {"tags": {tag_name: new_node_tag} | existing_tags.get(node, {})}
+            }
+            nx.set_node_attributes(annotated_forest, node_tags)
+            tag = new_node_tag
+    return tag
 
 
 @asset
