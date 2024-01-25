@@ -9,7 +9,7 @@ from typing import Any
 
 import pytest
 import sqlalchemy as sa
-from dagster import IOManager, build_init_resource_context, materialize_to_memory
+from dagster import build_init_resource_context, materialize_to_memory
 
 from pudl import resources
 from pudl.etl.cli import pudl_etl_job_factory
@@ -17,7 +17,6 @@ from pudl.extract.ferc1 import raw_xbrl_metadata_json
 from pudl.ferc_to_sqlite.cli import ferc_to_sqlite_job_factory
 from pudl.io_managers import (
     PudlMixedFormatIOManager,
-    PudlSQLiteIOManager,
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
     pudl_io_manager,
@@ -319,18 +318,10 @@ def pudl_mixed_format_io_manager(
     return pudl_io_manager(context)
 
 
-@pytest.fixture
-def pudl_sql_io_manager(
-    pudl_mixed_format_io_manager: PudlMixedFormatIOManager,
-) -> PudlSQLiteIOManager:
-    """Return sqlite io manager from pudl mixed io manager."""
-    return pudl_mixed_format_io_manager._sqlite_io_manager
-
-
 @pytest.fixture(scope="session")
-def pudl_engine(pudl_sql_io_manager: IOManager) -> sa.Engine:
+def pudl_engine(pudl_mixed_format_io_manager: PudlMixedFormatIOManager) -> sa.Engine:
     """Get PUDL SQL engine from io manager."""
-    return pudl_sql_io_manager.engine
+    return pudl_mixed_format_io_manager._sqlite_io_manager.engine
 
 
 @pytest.fixture(scope="session", autouse=True)
