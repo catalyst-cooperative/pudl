@@ -14,9 +14,9 @@ import sqlalchemy as sa
 from dagster import AssetKey, build_input_context, build_output_context
 from sqlalchemy.exc import IntegrityError
 
+from pudl.etl.check_foreign_keys import ForeignKeyError, check_foreign_keys
 from pudl.io_managers import (
     FercXBRLSQLiteIOManager,
-    ForeignKeyError,
     PudlSQLiteIOManager,
 )
 from pudl.metadata.classes import Field, ForeignKey, Package, Resource, Schema
@@ -195,7 +195,7 @@ class PudlSQLiteIOManagerTest(unittest.TestCase):
             ),
         )
         with self.assertRaises(ForeignKeyError) as cm:
-            self.io_manager.check_foreign_keys()
+            check_foreign_keys(self.io_manager.engine)
         self.assertEqual(
             ForeignKeyError(
                 child_table="track",

@@ -99,8 +99,8 @@ def save_unmapped_ids(request) -> bool:
     return request.config.getoption("--save-unmapped-ids")
 
 
-@pytest.fixture(scope="session", name="check_foreign_keys")
-def check_foreign_keys(request) -> bool:
+@pytest.fixture
+def check_foreign_keys_flag(request) -> bool:
     """Fixture that tells whether to use existing live FERC1/PUDL DBs)."""
     return not request.config.getoption("--ignore-foreign-key-constraints")
 
@@ -286,7 +286,6 @@ def pudl_mixed_format_io_manager(
     live_dbs: bool,
     pudl_datastore_config,
     dataset_settings_config,
-    check_foreign_keys: bool,
     request,
 ) -> PudlMixedFormatIOManager:
     """Grab a connection to the PUDL IO manager.
