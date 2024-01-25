@@ -25,9 +25,8 @@ from pathlib import Path
 from subprocess import check_call, check_output
 
 import click
-import sqlalchemy as sa
 
-from pudl.metadata.classes import DatasetteMetadata
+from pudl.helpers import check_tables_have_metadata, create_datasette_metadata_yaml
 from pudl.workspace.setup import PudlPaths
 
 logging.basicConfig(format="%(asctime)s %(message)s", level=logging.INFO)
@@ -59,7 +58,7 @@ def make_dockerfile() -> str:
     return DOCKERFILE_TEMPLATE.format(datasette_secret=datasette_secret)
 
 
-def inspect_data(datasets: list[str], pudl_out: Path) -> str:
+def inspect_data(datasets: list[str], pudl_output: Path) -> str:
     """Pre-inspect databases to generate some metadata for Datasette.
 
     This is done in the image build process in datasette-publish-fly, but since
@@ -72,7 +71,7 @@ def inspect_data(datasets: list[str], pudl_out: Path) -> str:
                 "datasette",
                 "inspect",
             ]
-            + [str(pudl_out / ds) for ds in datasets]
+            + [str(pudl_output / ds) for ds in datasets]
         )
     )
 
@@ -81,77 +80,6 @@ def inspect_data(datasets: list[str], pudl_out: Path) -> str:
         new_filepath = Path("/data") / name
         inspect_output[dataset]["file"] = str(new_filepath)
     return inspect_output
-
-
-def check_tables_have_metadata(
-    metadata: DatasetteMetadata,
-    pudl_out: Path,
-    databases: list[str],
-) -> None:
-    """Check to make sure all tables in the databases have metadata.
-
-    This function fails if there are tables present in a database
-    that do not have structure metadata.
-
-    Args:
-        metadata: The structure metadata for the datasette deployment
-        pudl_out: The directory that contains the pudl outputs
-        databases: The list of databases to test.
-    """
-    resources = {}
-    resources |= metadata.xbrl_resources
-    resources["pudl"] = metadata.resources
-
-    database_table_exceptions = {"pudl": {"alembic_version"}}
-
-    tables_missing_metadata_results = {}
-
-    for database in databases:
-        database_path = pudl_out / database
-        database_name = database_path.stem
-
-        # Grab all tables in the database
-        engine = sa.create_engine(f"sqlite:///{str(database_path)}")
-        inspector = sa.inspect(engine)
-        tables_in_database = set(inspector.get_table_names())
-
-        # There are some tables that we don't expect to have metadata
-        # like alembic_version in pudl.sqlite.
-        table_exceptions = database_table_exceptions.get(database_name)
-
-        if table_exceptions:
-            tables_in_database = tables_in_database - table_exceptions
-        tables_with_metadata = {resource.name for resource in resources[database_name]}
-
-        # Find the tables that existing in the database that we don't have metadata for
-        tables_missing_metadata = tables_in_database - tables_with_metadata
-
-        tables_missing_metadata_results[database_name] = tables_missing_metadata
-
-    has_no_missing_tables_with_missing_metadata = all(
-        not bool(value) for value in tables_missing_metadata_results.values()
-    )
-
-    assert (
-        has_no_missing_tables_with_missing_metadata
-    ), f"These tables are missing datasette metadata: {tables_missing_metadata_results}"
-
-
-def metadata(
-    pudl_out: Path,
-    databases: list[str],
-) -> str:
-    """Return human-readable metadata for Datasette."""
-    metadata = DatasetteMetadata.from_data_source_ids(pudl_out)
-
-    # DBF databases do not have any metadata
-    databases_with_metadata = (
-        dataset
-        for dataset in databases
-        if dataset == "pudl.sqlite" or dataset.endswith("xbrl.sqlite")
-    )
-    check_tables_have_metadata(metadata, pudl_out, databases_with_metadata)
-    return metadata.to_yaml()
 
 
 @click.command(context_settings={"help_option_names": ["-h", "--help"]})
@@ -190,14 +118,18 @@ def deploy_datasette(deploy: str, fly_args: tuple[str]) -> int:
 
     python publish.py --fly -- --build-only
     """
-    pudl_out = PudlPaths().pudl_output
+    pudl_output = PudlPaths().pudl_output
+    metadata_yml = create_datasette_metadata_yaml()
+
     databases = (
         ["pudl.sqlite"]
-        + sorted(str(p.name) for p in pudl_out.glob("ferc*.sqlite"))
+        + sorted(str(p.name) for p in pudl_output.glob("ferc*.sqlite"))
         + ["censusdp1tract.sqlite"]
     )
-    metadata_yml = metadata(pudl_out, databases)
-
+    # Make sure we have the expected metadata for databases
+    # headed to deployment.
+    if deploy != "metadata":
+        check_tables_have_metadata(metadata_yml, databases)
     if deploy == "fly":
         logging.info("Deploying to fly.io...")
         fly_dir = Path(__file__).parent.absolute() / "fly"
@@ -206,7 +138,7 @@ def deploy_datasette(deploy: str, fly_args: tuple[str]) -> int:
         metadata_path = fly_dir / "metadata.yml"
 
         logging.info(f"Inspecting DBs for datasette: {databases}...")
-        inspect_output = inspect_data(databases, pudl_out)
+        inspect_output = inspect_data(databases, pudl_output)
         with inspect_path.open("w") as f:
             f.write(json.dumps(inspect_output))
 
@@ -221,7 +153,7 @@ def deploy_datasette(deploy: str, fly_args: tuple[str]) -> int:
         logging.info(f"Compressing {databases} and putting into docker context...")
         check_call(
             ["tar", "-a", "-czvf", fly_dir / "all_dbs.tar.zst"] + databases,  # noqa: S603
-            cwd=pudl_out,
+            cwd=pudl_output,
         )
 
         logging.info("Running fly deploy...")
@@ -233,14 +165,14 @@ def deploy_datasette(deploy: str, fly_args: tuple[str]) -> int:
 
     elif deploy == "local":
         logging.info("Running Datasette locally...")
-        metadata_path = pudl_out / "metadata.yml"
+        metadata_path = pudl_output / "metadata.yml"
         logging.info(f"Writing Datasette metadata to: {metadata_path}")
         with metadata_path.open("w") as f:
             f.write(metadata_yml)
 
         check_call(
             ["/usr/bin/env", "datasette", "serve", "-m", "metadata.yml"] + databases,  # noqa: S603
-            cwd=pudl_out,
+            cwd=pudl_output,
         )
 
     elif deploy == "metadata":
