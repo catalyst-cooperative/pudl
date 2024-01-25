@@ -11,6 +11,7 @@ data/code out into the world. By the end of this, we'd like for:
 * Our data outputs corresponding to that tag on Zenodo,
   ``pudl.catalyst.coop/stable`` buckets in GCS/AWS, and Kaggle
 * Our code corresponding to that tag on PyPI
+* The conda package to be updated with the newest code
 * Updated ``stable`` and ``vYYYY.MM.DD`` documentation on ReadTheDocs
 
 
@@ -37,12 +38,15 @@ Here's how to do it!
      changes in the release notes
    * PyPI has the most current version of our code
 
-6. Update the Kaggle dataset.
-
-7. Verify that the Zenodo draft deposition has all the expected data (raw FERC
+6. Verify that the Zenodo draft deposition has all the expected data (raw FERC
    databases, PUDL database, everything the right size).
 
-8. Update the Zenodo metadata to include the description from the release
+7. Update the Zenodo metadata to include the description from the release
    notes, and update the various links.
 
-9. Publish the Zenodo deposition! Wahoo! You're now done!
+8. Publish the Zenodo deposition! Wahoo! You're now done!
+
+9. Except... 24 hours after the PyPI version is updated, we'll get a PR from
+   the ``conda-forge`` bot updating our ``conda`` package. If the direct
+   dependencies have changed in this release, we need to update them in that
+   PR.

@@ -47,6 +47,9 @@ which one is right for you and your use case.
      - Researcher, Database User, Notebook Analyst
      - Use a stable, citable, fully processed version of the PUDL on your own computer.
        Access the SQLite DB and Parquet files directly using any toolset.
+   * - :ref:`access-raw`
+     - Researcher, Data Wrangler
+     - Access the data that feeds into PUDL, unmodified from its original source.
    * - :ref:`access-development`
      - Python Developer, Data Wrangler
      - Run the PUDL data processing pipeline on your own computer.
@@ -165,25 +168,39 @@ Stable Builds
 
 If you want a specific, immutable version of our data for any reason, you can
 find them all `here on Zenodo
-<https://zenodo.org/doi/10.5281/zenodo.3653158>`__. The documentation for the
-latest such stable build is `here
+<https://zenodo.org/doi/10.5281/zenodo.3653158>`__. Zenodo assigns long-lived
+DOIs to each archive, suitable for citation in academic journals and other
+publications. The most recent versioned PUDL data release can be found using
+this Concept DOI: https://doi.org/10.5281/zenodo.3653158
+
+The documentation for the latest such stable build is `here
 <https://catalystcoop-pudl.readthedocs.io/en/stable/>`__. You can access the
 documentation for a specific version by hovering over the version selector at
 the bottom left of the page.
-
-We use Zenodo to archive and version our raw data inputs, the fully processed
-outputs, and the PUDL software repositories. You can find all of our archives
-in `the Catalyst Cooperative Community
-<https://zenodo.org/communities/catalyst-cooperative/>`__. Zenodo assigns
-long-lived DOIs to each archive, suitable for citation in academic journals and
-other publications. The most recent versioned PUDL data release can be found
-using this Concept DOI: https://doi.org/10.5281/zenodo.3653158
 
 If you're not after a *specific* version, but rather the *latest stable
 version*, you can find them `AWS Open Data Registry
 <https://registry.opendata.aws/catalyst-cooperative-pudl/>`__, in the
 ``stable/`` namespace. You can run ``aws s3 ls --no-sign-request
 s3://pudl.catalyst.coop/stable/`` to see what's available.
+
+.. _access-raw:
+
+---------------------------------------------------------------------------------------
+Raw Data
+---------------------------------------------------------------------------------------
+
+Sometimes you want to see the raw data that is published by the government, but
+it's hard to find or difficult to download.
+
+We use Zenodo to archive and version our raw data inputs. You can find all of
+our archives in `the Catalyst Cooperative Community
+<https://zenodo.org/communities/catalyst-cooperative/>`__.
+
+These have been minimally processed - in some cases we've compressed them or
+grouped them into ZIP archives to fit the Zenodo repository requirements. In
+all cases we've added some metadata to help identify the resources you're
+looking for. But, apart from that, these datasets are unmodified.
 
 .. _access-development:
 
