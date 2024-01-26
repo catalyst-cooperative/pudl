@@ -19,7 +19,7 @@ from pudl.io_managers import (
     PudlMixedFormatIOManager,
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
-    pudl_io_manager,
+    pudl_mixed_format_io_manager,
 )
 from pudl.metadata.classes import Package
 from pudl.output.pudltabl import PudlTabl
@@ -279,7 +279,7 @@ def ferc1_xbrl_taxonomy_metadata(ferc1_engine_xbrl: sa.Engine):
 
 
 @pytest.fixture(scope="session")
-def pudl_mixed_format_io_manager(
+def pudl_io_manager(
     ferc1_engine_dbf: sa.Engine,  # Implicit dependency
     ferc1_engine_xbrl: sa.Engine,  # Implicit dependency
     live_dbs: bool,
@@ -315,11 +315,11 @@ def pudl_mixed_format_io_manager(
     # All the hard work here is being done by the datapkg and
     # datapkg_to_sqlite fixtures, above.
     context = build_init_resource_context()
-    return pudl_io_manager(context)
+    return pudl_mixed_format_io_manager(context)
 
 
 @pytest.fixture(scope="session")
-def pudl_engine(pudl_mixed_format_io_manager: PudlMixedFormatIOManager) -> sa.Engine:
+def pudl_engine(pudl_io_manager: PudlMixedFormatIOManager) -> sa.Engine:
     """Get PUDL SQL engine from io manager."""
     return pudl_mixed_format_io_manager._sqlite_io_manager.engine
 

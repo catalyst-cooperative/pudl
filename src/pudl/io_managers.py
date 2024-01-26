@@ -527,7 +527,7 @@ class PudlSQLiteIOManager(SQLiteIOManager):
         ),
     }
 )
-def pudl_io_manager(init_context) -> IOManager:
+def pudl_mixed_format_io_manager(init_context) -> IOManager:
     """Create a SQLiteManager dagster resource for the pudl database."""
     return PudlMixedFormatIOManager(
         write_to_parquet=init_context.resource_config["write_to_parquet"],
