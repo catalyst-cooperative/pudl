@@ -1541,7 +1541,7 @@ class Ferc1TableTransformParams(TableTransformParams):
     merge_xbrl_metadata: MergeXbrlMetadata = MergeXbrlMetadata()
     align_row_numbers_dbf: AlignRowNumbersDbf = AlignRowNumbersDbf()
     drop_duplicate_rows_dbf: DropDuplicateRowsDbf = DropDuplicateRowsDbf()
-    assign_quarterly_filed_data_to_annual_dbf: AssignQuarterlyDataToYearlyDbf = (
+    assign_quarterly_data_to_yearly_dbf: AssignQuarterlyDataToYearlyDbf = (
         AssignQuarterlyDataToYearlyDbf()
     )
     select_dbf_rows_by_category: SelectDbfRowsByCategory = SelectDbfRowsByCategory()
@@ -2417,7 +2417,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .pipe(self.assign_utility_id_ferc1, source_ferc1=SourceFerc1.DBF)
             .pipe(self.wide_to_tidy, source_ferc1=SourceFerc1.DBF)
             .pipe(self.drop_duplicate_rows_dbf)
-            .pipe(self.assign_quarterly_filed_data_to_annual_dbf)
+            .pipe(self.assign_quarterly_data_to_yearly_dbf)
         )
 
     @cache_df(key="xbrl")
@@ -2476,13 +2476,13 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         return df
 
     @cache_df(key="dbf")
-    def assign_quarterly_filed_data_to_annual_dbf(
+    def assign_quarterly_data_to_yearly_dbf(
         self, df, params: AssignQuarterlyDataToYearlyDbf | None = None
     ):
         """Transfer quarterly filed data to annual columns."""
         if params is None:
-            params = self.params.assign_quarterly_filed_data_to_annual_dbf
-        if params.annual_to_quarter_column_map:
+            params = self.params.assign_quarterly_data_to_yearly_dbf
+        if params.quarterly_to_yearly_column_map:
             logger.info(
                 f"{self.table_id.value}: Converting quarterly filed data to annual."
             )
