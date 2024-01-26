@@ -624,7 +624,8 @@ electric operating revenue."""
     },
     "core_eia861__yearly_reliability": {
         "description": (
-            """The system average interruption duration index (SAIDI), system average
+            """Standardized metrics of electricity system reliability and outage
+impacts. Includes the system average interruption duration index (SAIDI), system average
 interruption frequency index (SAIFI), and customer average interruption duration index
 (CAIDI) aka SAIDI/SAIFI with and without major event days and loss of service. Includes
 the standard (IEEE/other) and other relevant information."""
@@ -737,10 +738,11 @@ the standard (IEEE/other) and other relevant information."""
     },
     "core_eia861__yearly_utility_data_misc": {
         "description": (
-            """A series of booleans about utility activity includeing whether they
-have alternative fuel vehicles, whether they engage in bundeled or unbundled activities
-(i.e.: transmission and distribution or just one or the other), and whether they
-engage in retail and/or wholesale markets."""
+            """A table of boolean values indicating what kind of business activities each utility engages in
+
+This includes whether they operate alternative fuel vehicles, whether they provide
+transmission, distribution, or generation services (bundled or unbundled), and whether
+they engage in wholesale and/or retail markets."""
         ),
         "schema": {
             "fields": [
