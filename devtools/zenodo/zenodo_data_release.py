@@ -7,7 +7,7 @@ import tempfile
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import BinaryIO
+from typing import IO
 
 import click
 import fsspec
@@ -92,15 +92,13 @@ class ZenodoClient:
         Passes method, url, and **kwargs to requests.request.
         """
         base_timeout = 2
-        try_num = 1
-        while try_num < max_tries:
+        for try_num in range(1, max_tries):
             try:
                 return requests.request(method=method, url=url, **kwargs)
             except requests.RequestException as e:
                 timeout = base_timeout**try_num
                 logger.warning(f"Attempt #{try_num} Got {e}, retrying in {timeout} s")
                 time.sleep(timeout)
-            try_num += 1
 
         # don't catch errors on the last try.
         return requests.request(method=method, url=url, **kwargs)
@@ -114,7 +112,7 @@ class ZenodoClient:
             method="GET",
             url=f"{self.base_url}/deposit/depositions/{deposition_id}",
             headers=self.auth_headers,
-            timeout=10,
+            timeout=5,
         )
         logger.debug(
             f"License from JSON for {deposition_id} is "
@@ -131,7 +129,7 @@ class ZenodoClient:
             method="GET",
             url=f"{self.base_url}/records/{record_id}",
             headers=self.auth_headers,
-            timeout=10,
+            timeout=5,
         )
         return _NewRecord(**response.json())
 
@@ -145,7 +143,7 @@ class ZenodoClient:
             method="POST",
             url=f"{self.base_url}/records/{record_id}/versions",
             headers=self.auth_headers,
-            timeout=10,
+            timeout=5,
         )
         return _NewRecord(**response.json())
 
@@ -161,7 +159,7 @@ class ZenodoClient:
         data = {"metadata": metadata.model_dump()}
         logger.debug(f"Setting metadata for {deposition_id} to {data}")
         response = self.retry_request(
-            method="PUT", url=url, json=data, headers=self.auth_headers, timeout=10
+            method="PUT", url=url, json=data, headers=self.auth_headers, timeout=5
         )
         return _LegacyDeposition(**response.json())
 
@@ -174,11 +172,11 @@ class ZenodoClient:
             method="DELETE",
             url=f"{self.base_url}/deposit/depositions/{deposition_id}/files/{file_id}",
             headers=self.auth_headers,
-            timeout=10,
+            timeout=5,
         )
 
     def create_bucket_file(
-        self, bucket_url: AnyHttpUrl, file_name: str, file_content: BinaryIO
+        self, bucket_url: AnyHttpUrl, file_name: str, file_content: IO[bytes]
     ) -> requests.Response:
         """LEGACY API: Upload a file to a deposition's file bucket.
 
@@ -188,14 +186,14 @@ class ZenodoClient:
         url = f"{bucket_url}/{file_name}"
         logger.info(f"Uploading file to {url}")
 
-        # don't worry about timeout=10s - that's "time for the server to
+        # don't worry about timeout=5s - that's "time for the server to
         # connect", not "time to upload whole file."
         response = self.retry_request(
             method="PUT",
             url=url,
             headers=self.auth_headers,
             data=file_content,
-            timeout=10,
+            timeout=5,
         )
         return response
 
@@ -205,7 +203,7 @@ class ZenodoClient:
             method="POST",
             url=f"{self.base_url}/deposit/depositions/{deposition_id}/actions/publish",
             headers=self.auth_headers,
-            timeout=10,
+            timeout=5,
         )
         return _LegacyDeposition(**response.json())
 
@@ -254,10 +252,30 @@ class InitialDataset(State):
 class EmptyDraft(State):
     """We can only sync the directory once we've gotten an empty draft."""
 
+    def _open_fsspec_file(self, openable_file: fsspec.core.OpenFile) -> IO[bytes]:
+        """Open a file that may be remote.
+
+        If the fsspec file is local already, just return the output of the
+        .open() method, which returns something file-like.
+
+        Otherwise, download to a tempfile and return the tempfile, which is
+        also file-like.
+
+        This is similar to just using fsspec cache in that it avoids
+        re-downloading the source file when the upload fails, but lets us log
+        how long downloads take.
+        """
+        logger.info(f"Reading {openable_file.full_name}")
+        if "local" in openable_file.fs.protocol:
+            return openable_file.open()
+
+        tmpfile = tempfile.NamedTemporaryFile()
+        openable_file.fs.get(openable_file.path, tmpfile.name)
+        return tmpfile
+
     def sync_directory(self, source_dir: str) -> "ContentComplete":
         """Read data from source_dir and upload it."""
         logger.info(f"Syncing files from {source_dir} to draft {self.record_id}...")
-        globbed = f"{source_dir.rstrip('/*')}/*"
         bucket_url = self.zenodo_client.get_deposition(self.record_id).links.bucket
 
         # TODO: if we want to have 'resumable' archives - we would need to get
@@ -266,26 +284,22 @@ class EmptyDraft(State):
         # the files before getting to this state, so EmptyDraft would become
         # InProgressDraft.
 
-        files = fsspec.open_files(globbed, mode="rb")
-        if len(files) == 0:
-            raise ValueError(
-                f"No files found in {globbed}! Did you pass the right dirname?"
-            )
+        maybe_dir = fsspec.open_files(source_dir, mode="rb")[0]
+        if not maybe_dir.fs.isdir(maybe_dir.path):
+            raise ValueError(f"{source_dir} is not a directory!")
+
+        files = fsspec.open_files(
+            [
+                f"{maybe_dir.fs.protocol[0]}://{p}"
+                for p in maybe_dir.fs.ls(maybe_dir.path)
+            ]
+        )
         for openable_file in files:
             name = Path(openable_file.path).name
-            with openable_file.open() as of:
-                if "local" not in openable_file.fs.protocol:
-                    tmpfile = tempfile.NamedTemporaryFile()
-                    logger.info(f"Reading {of.full_name}")
-                    of.fs.get(of.path, tmpfile.name)
-                    response = self.zenodo_client.create_bucket_file(
-                        bucket_url=bucket_url, file_name=name, file_content=tmpfile
-                    )
-                    tmpfile.close()
-                else:
-                    response = self.zenodo_client.create_bucket_file(
-                        bucket_url=bucket_url, file_name=name, file_content=of
-                    )
+            with self._open_fsspec_file(openable_file) as upload_source:
+                response = self.zenodo_client.create_bucket_file(
+                    bucket_url=bucket_url, file_name=name, file_content=upload_source
+                )
             logger.info(f"Uploading to {bucket_url}/{name} got {response.text}")
 
         return ContentComplete(
