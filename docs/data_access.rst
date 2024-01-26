@@ -191,7 +191,8 @@ Raw Data
 ---------------------------------------------------------------------------------------
 
 Sometimes you want to see the raw data that is published by the government, but
-it's hard to find or difficult to download.
+it's hard to find or difficult to download, or you want to see what an older version of
+the published data looked like prior to being revised or deleted.
 
 We use Zenodo to archive and version our raw data inputs. You can find all of
 our archives in `the Catalyst Cooperative Community

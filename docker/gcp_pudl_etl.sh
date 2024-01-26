@@ -65,8 +65,8 @@ function save_outputs_to_gcs() {
 }
 
 function upload_to_dist_path() {
-    GCS_PATH="gs://pudl.catalyst.coop/$1"
-    AWS_PATH="s3://pudl.catalyst.coop/$1"
+    GCS_PATH="gs://pudl.catalyst.coop/$1/"
+    AWS_PATH="s3://pudl.catalyst.coop/$1/"
 
     # If the old outputs don't exist, these will exit with status 1, so we
     # don't && them with the rest of the commands.
@@ -77,7 +77,7 @@ function upload_to_dist_path() {
 
     echo "Copying outputs to $GCS_PATH:" && \
     gsutil -m -u "$GCP_BILLING_PROJECT" cp -r "$PUDL_OUTPUT/*" "$GCS_PATH" && \
-    echo "Copying outputs to AWS distribution bucket" && \
+    echo "Copying outputs to $AWS_PATH" && \
     aws s3 cp "$PUDL_OUTPUT/" "$AWS_PATH" --recursive
 }
 

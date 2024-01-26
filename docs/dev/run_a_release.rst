@@ -46,7 +46,9 @@ Here's how to do it!
 
 8. Publish the Zenodo deposition! Wahoo! You're now done!
 
-9. Except... 24 hours after the PyPI version is updated, we'll get a PR from
-   the ``conda-forge`` bot updating our ``conda`` package. If the direct
-   dependencies have changed in this release, we need to update them in that
-   PR.
+9. Except... within 24 hours after the PyPI version is updated, we'll get [a PR
+   in the PUDL conda-forge feedstock
+   repo](https://github.com/conda-forge/catalystcoop.pudl-feedstock/pulls) from
+   the :user:`regro-cf-autotick-bot` updating our ``conda`` packaging. If
+   PUDL's direct dependencies have changed in this release, we need to update
+   them in the conda packaging recipe in that PR.
