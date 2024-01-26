@@ -45,12 +45,11 @@ from pudl.analysis.record_linkage import embed_dataframe
 from pudl.metadata.classes import DataSource, Resource
 
 logger = pudl.logging_helpers.get_logger(__name__)
+# Silence the recordlinkage logger, which is out of control
 
-
-@op
-def get_pair_vectorizers():
-    """Get dictionary of vectorizers for each column in input dataframe."""
-    return {
+pair_vectorizers = embed_dataframe.dataframe_embedder_factory(
+    "ferc_eia_pair_vectorizers",
+    {
         "plant_name": embed_dataframe.ColumnVectorizer(
             transform_steps=[
                 embed_dataframe.NameCleaner(),
@@ -193,7 +192,8 @@ def get_pair_vectorizers():
             ],
             columns=["installation_year_ferc1", "installation_year_eia"],
         ),
-    }
+    },
+)
 
 
 @op
@@ -210,8 +210,7 @@ def get_pairs_dfs(inputs):
     """Get a dataframe with all possible FERC to EIA record pairs.
 
     Merge the FERC and EIA records on ``block_col`` to generate possible
-    record pairs for the matching model. First do this with all record
-    pairs, then with only the training data records.
+    record pairs for the matching model.
 
     Arguments:
         inputs: :class:`InputManager` object.
@@ -314,9 +313,8 @@ def out_pudl__yearly_assn_eia_ferc1_plant_parts(
         out_eia__yearly_plant_parts,
     )
     all_pairs_df, train_pairs_df = get_pairs_dfs(inputs)
-    vectorizer = get_pair_vectorizers()
-    features_all = embed_dataframe.embed_dataframe_graph(all_pairs_df, vectorizer)
-    features_train = embed_dataframe.embed_dataframe_graph(train_pairs_df, vectorizer)
+    features_all = pair_vectorizers(all_pairs_df)
+    features_train = pair_vectorizers(train_pairs_df)
     y_df = get_y_label_df(train_pairs_df, inputs)
     match_df = run_matching_model(
         features_train=features_train,
