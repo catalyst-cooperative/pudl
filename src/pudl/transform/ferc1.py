@@ -716,15 +716,15 @@ def combine_axis_columns_xbrl(
     return df
 
 
-class AssignQuarterlyFiledDataToAnnualDbf(TransformParams):
+class AssignQuarterlyDataToYearlyDbf(TransformParams):
     """Parameters for transfering quarterly reported data to annual columns."""
 
-    annual_to_quarter_column_map: dict[str, str] = {}
+    quarterly_to_yearly_column_map: dict[str, str] = {}
     quarterly_filed_years: list[int] = []
 
 
-def assign_quarterly_filed_data_to_annual_dbf(
-    df: pd.DataFrame, params: AssignQuarterlyFiledDataToAnnualDbf
+def assign_quarterly_data_to_yearly_dbf(
+    df: pd.DataFrame, params: AssignQuarterlyDataToYearlyDbf
 ) -> pd.DataFrame:
     """Transfer 4th quarter reported data to the annual columns.
 
@@ -737,17 +737,17 @@ def assign_quarterly_filed_data_to_annual_dbf(
     bad_years_mask = df.report_year.isin(params.quarterly_filed_years)
     # ensure this filling in treatment is necessary!
     if (
-        not df.loc[bad_years_mask, list(params.annual_to_quarter_column_map.keys())]
+        not df.loc[bad_years_mask, list(params.quarterly_to_yearly_column_map.values())]
         .isnull()
         .all(axis=None)
     ):
         raise AssertionError(
-            f"We expected that all balance data in years {params.quarterly_filed_years}"
-            " to be all null. Found non-null records, so the annual columns may no "
+            f"We expected that all balance data in years {params.quarterly_filed_years} "
+            "to be all null. Found non-null records, so the annual columns may no "
             "longer need to be filled in with quarterly data."
         )
-    for annual_col, qtr_col in params.annual_to_quarter_column_map.items():
-        df.loc[bad_years_mask, annual_col] = df.loc[bad_years_mask, qtr_col]
+    for quarterly_col, yearly_col in params.quarterly_to_yearly_column_map.items():
+        df.loc[bad_years_mask, yearly_col] = df.loc[bad_years_mask, quarterly_col]
     return df
 
 
@@ -1541,8 +1541,8 @@ class Ferc1TableTransformParams(TableTransformParams):
     merge_xbrl_metadata: MergeXbrlMetadata = MergeXbrlMetadata()
     align_row_numbers_dbf: AlignRowNumbersDbf = AlignRowNumbersDbf()
     drop_duplicate_rows_dbf: DropDuplicateRowsDbf = DropDuplicateRowsDbf()
-    assign_quarterly_filed_data_to_annual_dbf: AssignQuarterlyFiledDataToAnnualDbf = (
-        AssignQuarterlyFiledDataToAnnualDbf()
+    assign_quarterly_filed_data_to_annual_dbf: AssignQuarterlyDataToYearlyDbf = (
+        AssignQuarterlyDataToYearlyDbf()
     )
     select_dbf_rows_by_category: SelectDbfRowsByCategory = SelectDbfRowsByCategory()
     unstack_balances_to_report_year_instant_xbrl: UnstackBalancesToReportYearInstantXbrl = UnstackBalancesToReportYearInstantXbrl()
@@ -2477,7 +2477,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
 
     @cache_df(key="dbf")
     def assign_quarterly_filed_data_to_annual_dbf(
-        self, df, params: AssignQuarterlyFiledDataToAnnualDbf | None = None
+        self, df, params: AssignQuarterlyDataToYearlyDbf | None = None
     ):
         """Transfer quarterly filed data to annual columns."""
         if params is None:
@@ -2486,7 +2486,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             logger.info(
                 f"{self.table_id.value}: Converting quarterly filed data to annual."
             )
-            df = assign_quarterly_filed_data_to_annual_dbf(df, params=params)
+            df = assign_quarterly_data_to_yearly_dbf(df, params=params)
         return df
 
     def unstack_balances_to_report_year_instant_xbrl(

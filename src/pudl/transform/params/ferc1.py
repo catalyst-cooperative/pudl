@@ -3423,10 +3423,10 @@ TRANSFORM_PARAMS = {
             "table_name": "core_ferc1__yearly_balance_sheet_assets_sched110",
         },
         "align_row_numbers_dbf": {"dbf_table_names": ["f1_comp_balance_db"]},
-        "assign_quarterly_filed_data_to_annual_dbf": {
-            "annual_to_quarter_column_map": {
-                "starting_balance": "pri_yr_q4_bal",
-                "ending_balance": "end_qtr_bal",
+        "assign_quarterly_data_to_yearly_dbf": {
+            "quarterly_to_yearly_column_map": {
+                "pri_yr_q4_bal": "starting_balance",
+                "end_qtr_bal": "ending_balance",
             },
             "quarterly_filed_years": range(2005, 2021),
         },
@@ -3489,10 +3489,10 @@ TRANSFORM_PARAMS = {
             "table_name": "core_ferc1__yearly_balance_sheet_liabilities_sched110",
         },
         "align_row_numbers_dbf": {"dbf_table_names": ["f1_bal_sheet_cr"]},
-        "assign_quarterly_filed_data_to_annual_dbf": {
-            "annual_to_quarter_column_map": {
-                "starting_balance": "pri_yr_q4_bal",
-                "ending_balance": "end_qtr_bal",
+        "assign_quarterly_data_to_yearly_dbf": {
+            "quarterly_to_yearly_column_map": {
+                "pri_yr_q4_bal": "starting_balance",
+                "end_qtr_bal": "ending_balance",
             },
             "quarterly_filed_years": range(2005, 2021),
         },
