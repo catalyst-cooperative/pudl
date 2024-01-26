@@ -3,12 +3,14 @@
 import datetime
 import logging
 import os
-from collections.abc import Iterable
+import tempfile
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import BinaryIO
 
 import click
+import fsspec
 import requests
 from pydantic import AnyHttpUrl, BaseModel, Field
 
@@ -84,15 +86,35 @@ class ZenodoClient:
 
         logger.info(f"Using Zenodo token: {token[:4]}...{token[-4:]}")
 
+    def retry_request(self, *, method, url, max_tries=5, **kwargs):
+        """Wrap requests.request in retry logic.
+
+        Passes method, url, and **kwargs to requests.request.
+        """
+        base_timeout = 2
+        try_num = 1
+        while try_num < max_tries:
+            try:
+                return requests.request(method=method, url=url, **kwargs)
+            except requests.RequestException as e:
+                timeout = base_timeout**try_num
+                logger.warning(f"Attempt #{try_num} Got {e}, retrying in {timeout} s")
+                time.sleep(timeout)
+            try_num += 1
+
+        # don't catch errors on the last try.
+        return requests.request(method=method, url=url, **kwargs)
+
     def get_deposition(self, deposition_id: int) -> _LegacyDeposition:
         """LEGACY API: Get JSON describing a deposition.
 
         Depositions can be published *or* unpublished.
         """
-        response = requests.get(
-            f"{self.base_url}/deposit/depositions/{deposition_id}",
+        response = self.retry_request(
+            method="GET",
+            url=f"{self.base_url}/deposit/depositions/{deposition_id}",
             headers=self.auth_headers,
-            timeout=5,
+            timeout=10,
         )
         logger.debug(
             f"License from JSON for {deposition_id} is "
@@ -105,10 +127,11 @@ class ZenodoClient:
 
         All records are published records.
         """
-        response = requests.get(
-            f"{self.base_url}/records/{record_id}",
+        response = self.retry_request(
+            method="GET",
+            url=f"{self.base_url}/records/{record_id}",
             headers=self.auth_headers,
-            timeout=5,
+            timeout=10,
         )
         return _NewRecord(**response.json())
 
@@ -118,10 +141,11 @@ class ZenodoClient:
         Finds the latest record in the concept that record_id points to, and
         makes a new version unless one exists already.
         """
-        response = requests.post(
-            f"{self.base_url}/records/{record_id}/versions",
+        response = self.retry_request(
+            method="POST",
+            url=f"{self.base_url}/records/{record_id}/versions",
             headers=self.auth_headers,
-            timeout=5,
+            timeout=10,
         )
         return _NewRecord(**response.json())
 
@@ -136,7 +160,9 @@ class ZenodoClient:
         url = f"{self.base_url}/deposit/depositions/{deposition_id}"
         data = {"metadata": metadata.model_dump()}
         logger.debug(f"Setting metadata for {deposition_id} to {data}")
-        response = requests.put(url, json=data, headers=self.auth_headers, timeout=5)
+        response = self.retry_request(
+            method="PUT", url=url, json=data, headers=self.auth_headers, timeout=10
+        )
         return _LegacyDeposition(**response.json())
 
     def delete_deposition_file(self, deposition_id: int, file_id) -> requests.Response:
@@ -144,14 +170,15 @@ class ZenodoClient:
 
         Note: file_id is not always the file name.
         """
-        return requests.delete(
-            f"{self.base_url}/deposit/depositions/{deposition_id}/files/{file_id}",
+        return self.retry_request(
+            method="DELETE",
+            url=f"{self.base_url}/deposit/depositions/{deposition_id}/files/{file_id}",
             headers=self.auth_headers,
-            timeout=5,
+            timeout=10,
         )
 
     def create_bucket_file(
-        self, bucket_url: str, file_name: str, file_content: BinaryIO
+        self, bucket_url: AnyHttpUrl, file_name: str, file_content: BinaryIO
     ) -> requests.Response:
         """LEGACY API: Upload a file to a deposition's file bucket.
 
@@ -161,47 +188,26 @@ class ZenodoClient:
         url = f"{bucket_url}/{file_name}"
         logger.info(f"Uploading file to {url}")
 
-        # don't worry about timeout=5s - that's "time for the server to
+        # don't worry about timeout=10s - that's "time for the server to
         # connect", not "time to upload whole file."
-        response = requests.put(
-            url,
+        response = self.retry_request(
+            method="PUT",
+            url=url,
             headers=self.auth_headers,
             data=file_content,
-            timeout=5,
+            timeout=10,
         )
         return response
 
     def publish_deposition(self, deposition_id: int) -> _LegacyDeposition:
         """LEGACY API: publish deposition."""
-        response = requests.post(
-            f"{self.base_url}/deposit/depositions/{deposition_id}/actions/publish",
+        response = self.retry_request(
+            method="POST",
+            url=f"{self.base_url}/deposit/depositions/{deposition_id}/actions/publish",
             headers=self.auth_headers,
-            timeout=5,
+            timeout=10,
         )
         return _LegacyDeposition(**response.json())
-
-
-class SourceData:
-    """Interface for retrieving the data we actually want to store."""
-
-    def iter_files(self) -> Iterable[tuple[str, BinaryIO]]:
-        """Get the names and contents of each file in the SourceData."""
-        raise NotImplementedError
-
-
-@dataclass
-class LocalSource(SourceData):
-    """Get files from local directory."""
-
-    path: Path
-
-    def iter_files(self) -> Iterable[tuple[str, BinaryIO]]:
-        """Loop through all files in the directory."""
-        for f in sorted(self.path.iterdir()):
-            if f.is_file():
-                yield f.name, f.open("rb")
-            else:
-                continue
 
 
 @dataclass
@@ -248,9 +254,10 @@ class InitialDataset(State):
 class EmptyDraft(State):
     """We can only sync the directory once we've gotten an empty draft."""
 
-    def sync_directory(self, source_dir: SourceData) -> "ContentComplete":
+    def sync_directory(self, source_dir: str) -> "ContentComplete":
         """Read data from source_dir and upload it."""
         logger.info(f"Syncing files from {source_dir} to draft {self.record_id}...")
+        globbed = f"{source_dir.rstrip('/*')}/*"
         bucket_url = self.zenodo_client.get_deposition(self.record_id).links.bucket
 
         # TODO: if we want to have 'resumable' archives - we would need to get
@@ -259,11 +266,27 @@ class EmptyDraft(State):
         # the files before getting to this state, so EmptyDraft would become
         # InProgressDraft.
 
-        for name, blob in source_dir.iter_files():
-            response = self.zenodo_client.create_bucket_file(
-                bucket_url=bucket_url, file_name=name, file_content=blob
+        files = fsspec.open_files(globbed, mode="rb")
+        if len(files) == 0:
+            raise ValueError(
+                f"No files found in {globbed}! Did you pass the right dirname?"
             )
-            logger.info(f"Upload to {bucket_url}/{name} got {response.text}")
+        for openable_file in files:
+            name = Path(openable_file.path).name
+            with openable_file.open() as of:
+                if "local" not in openable_file.fs.protocol:
+                    tmpfile = tempfile.NamedTemporaryFile()
+                    logger.info(f"Reading {of.full_name}")
+                    of.fs.get(of.path, tmpfile.name)
+                    response = self.zenodo_client.create_bucket_file(
+                        bucket_url=bucket_url, file_name=name, file_content=tmpfile
+                    )
+                    tmpfile.close()
+                else:
+                    response = self.zenodo_client.create_bucket_file(
+                        bucket_url=bucket_url, file_name=name, file_content=of
+                    )
+            logger.info(f"Uploading to {bucket_url}/{name} got {response.text}")
 
         return ContentComplete(
             record_id=self.record_id, zenodo_client=self.zenodo_client
@@ -331,11 +354,11 @@ class CompleteDraft(State):
 )
 @click.option(
     "--source-dir",
-    type=click.Path(
-        exists=True, file_okay=False, dir_okay=True, readable=True, path_type=Path
-    ),
+    type=str,
     required=True,
-    help="Path to a directory whose contents will be uploaded to Zenodo. Subdirectories are ignored.",
+    help="Path to a directory whose contents will be uploaded to Zenodo. "
+    "Subdirectories are ignored. Can get files from GCS as well - just prefix "
+    "with gs://.",
 )
 @click.option(
     "--publish/--no-publish",
@@ -343,10 +366,8 @@ class CompleteDraft(State):
     help="Whether to publish the new record without confirmation, or leave it as a draft to be reviewed.",
     show_default=True,
 )
-def pudl_zenodo_data_release(env: str, source_dir: Path, publish: bool):
+def pudl_zenodo_data_release(env: str, source_dir: str, publish: bool):
     """Publish a new PUDL data release to Zenodo."""
-    # TODO (daz): if the source-dir is actually an S3 or GCS uri, then, well. Do that instead.
-    source_data = LocalSource(path=source_dir)
     zenodo_client = ZenodoClient(env)
     if env == SANDBOX:
         rec_id = 5563
@@ -357,7 +378,7 @@ def pudl_zenodo_data_release(env: str, source_dir: Path, publish: bool):
     completed_draft = (
         InitialDataset(zenodo_client=zenodo_client, record_id=rec_id)
         .get_empty_draft()
-        .sync_directory(source_data)
+        .sync_directory(source_dir)
         .update_metadata()
     )
 
