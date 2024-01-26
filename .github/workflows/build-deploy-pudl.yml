@@ -153,6 +153,8 @@ jobs:
             --container-env FLY_ACCESS_TOKEN=${{ secrets.FLY_ACCESS_TOKEN }} \
             --container-env PUDL_BOT_PAT=${{ secrets.PUDL_BOT_PAT }} \
             --container-env ZENODO_SANDBOX_TOKEN_PUBLISH=${{ secrets.ZENODO_SANDBOX_TOKEN_PUBLISH }} \
+            --container-env ZENODO_TARGET_ENV=${{ (startsWith(github.ref_name, 'v20') && 'production') || 'sandbox' }} \
+            --container-env ZENODO_TOKEN_UPLOAD=${{ secrets.ZENODO_TOKEN_UPLOAD }} \
             --container-env PUDL_SETTINGS_YML="/home/mambauser/pudl/src/pudl/package_data/settings/etl_full.yml" \
             --container-env PUDL_GCS_OUTPUT=${{ env.PUDL_GCS_OUTPUT }}
 
@@ -166,7 +168,7 @@ jobs:
         uses: slackapi/slack-github-action@v1
         with:
           channel-id: "C03FHB9N0PQ"
-          slack-message: "build-deploy-pudl status: ${{ job.status }}\n${{ env.GCS_OUTPUT_BUCKET }}/${{ env.BUILD_ID }}"
+          slack-message: "build-deploy-pudl status: ${{ (env.SKIP_BUILD == 'true') && 'skipped' || job.status }}\n${{ env.GCS_OUTPUT_BUCKET }}/${{ env.BUILD_ID }}"
         env:
           channel-id: "C03FHB9N0PQ"
           SLACK_BOT_TOKEN: ${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }}
