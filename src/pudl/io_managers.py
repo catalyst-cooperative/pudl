@@ -45,15 +45,16 @@ def get_table_name_from_context(context: OutputContext) -> str:
 class PudlMixedFormatIOManager(IOManager):
     """Format switching IOManager that supports sqlite and parquet.
 
-    We currently support both sqlite and parquet formats. This io manager
-    allows us to choose which formats should be used for reading and which
-    should be used for reading.
+    This IOManager allows experimental output of parquet files along
+    the standard sqlite database produced by PUDL. During this experimental
+    phase sqlite will always be output, while parquet support will be turned
+    off by default.
 
-    This should allow us to develop support for parquet format without
-    affecting the existing sqlite-based functionality.
-
-    Switching between reads from sqlite and parquet should allow us
-    to test the two formats for eqivalence during development.
+    Parquet support can be enabled either using environment variables or
+    the dagster UI (see :func:`pudl_io_manager` for more info on the enviroment
+    variables). Parquet writing and reading can both be toggled independently. If
+    parquet writing is enabled, both parquet and sqlite tables will be produced, while
+    if parquet reading is enabled, assets will only be read from the parquet files.
     """
 
     # Defaults should be provided here and should be potentially
