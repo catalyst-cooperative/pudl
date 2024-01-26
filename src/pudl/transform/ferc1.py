@@ -741,7 +741,9 @@ def assign_quarterly_filed_data_to_annual_dbf(
 
     For some reason in the dbf data for this table reported all of the
     balance data as quarterly data between specific years. We already choose
-    the end of the year in :meth:`select_annual_rows_dbf`.
+    the end of the year in :meth:`select_annual_rows_dbf`. This ensures that
+    by this point, any quarterly data remaining in the input dataframe pertains
+    to the 4th quarter.
     """
     bad_years_mask = df.report_year.isin(params.quarterly_filed_years)
     # ensure this filling in treatment is necessary!
