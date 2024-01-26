@@ -14,6 +14,7 @@ Development
   datastore
   clone_ferc1
   existing_data_updates
+  run_a_release
   pudl_id_mapping
   naming_conventions
   data_guidelines
