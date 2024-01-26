@@ -184,6 +184,8 @@ line-ending = "auto"
 
 [tool.ruff.lint]
 # Configurations that apply to the `lint` subcommand.
+preview = true # Required for NPY201
+explicit-preview-rules = true # and ONLY NPY201
 select = [
     "A", # flake8-builtins
     "B", # flake8-bugbear
@@ -240,6 +242,7 @@ ignore = [
     "RUF005", # Unpack iterables instead of concatenation
     "S101", # Use of assert
 ]
+extend-select = ["NPY201"]  # preview rule to easy migration to Numpy 2.0
 
 # Don't automatically concatenate strings -- sometimes we forget a comma!
 unfixable = ["ISC"]

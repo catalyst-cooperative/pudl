@@ -8,7 +8,7 @@ alongside the FERC and PUDL SQLite databases.
 """
 
 import os
-import subprocess  # nosec: B404
+import subprocess  # noqa: S404
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
