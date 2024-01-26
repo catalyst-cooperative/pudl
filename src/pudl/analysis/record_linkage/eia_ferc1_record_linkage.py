@@ -36,7 +36,7 @@ import pandas as pd
 from dagster import Out, graph_asset, op
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import precision_recall_fscore_support
-from sklearn.model_selection import GridSearchCV, train_test_split
+from sklearn.model_selection import GridSearchCV
 
 import pudl
 import pudl.helpers
@@ -570,16 +570,13 @@ def run_model(
             "l1_ratio": [0.1, 0.3, 0.5, 0.7, 0.9],
         },
     ]
-    X = features_train.matrix  # noqa: N806
-    X_train, X_test, y_train, y_test = train_test_split(  # noqa: N806
-        X, y_df, test_size=0.25, random_state=16
-    )
+    X_train = features_train.matrix  # noqa: N806
     lrc = LogisticRegression()
     clf = GridSearchCV(estimator=lrc, param_grid=param_grid, verbose=True, n_jobs=-1)
-    clf.fit(X=X_train, y=y_train)
-    y_pred = clf.predict(X_test)
+    clf.fit(X=X_train, y=y_df)
+    y_pred = clf.predict(X_train)
     precision, recall, f_score, _ = precision_recall_fscore_support(
-        y_test, y_pred, average="binary"
+        y_df, y_pred, average="binary"
     )
     accuracy = clf.best_score_
     logger.info(
