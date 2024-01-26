@@ -25,6 +25,7 @@ import networkx as nx
 import pandas as pd
 import pytest
 
+from pudl.helpers import dedupe_n_flatten_list_of_lists
 from pudl.output.ferc1 import NodeId, XbrlCalculationForestFerc1
 
 logger = logging.getLogger(__name__)
@@ -113,22 +114,37 @@ class TestTagPropagation(unittest.TestCase):
             dtype_child | dtype_parent | dtype_weight
         )
 
+    def build_forest_and_annotated_tags(
+        self, edges: list[tuple[NodeId, NodeId]], tags: pd.DataFrame, seeds=None
+    ):
+        """Build a forest, test forest nodes and return annotated tags.
+
+        Args:
+            edges: list of tuples
+            tags: dataframe of tags
+            seeds: list of seed nodes. Default is None and will assume seed node is
+                ``parent``.
+        """
+        if not seeds:
+            seeds = [self.parent]
+        simple_forest = XbrlCalculationForestFerc1(
+            exploded_meta=self.exploded_meta,
+            exploded_calcs=self._exploded_calcs_from_edges(edges),
+            seeds=seeds,
+            tags=tags,
+        )
+        annotated_forest = simple_forest.annotated_forest
+        # ensure no nodes got dropped
+        assert len(annotated_forest.nodes) == len(dedupe_n_flatten_list_of_lists(edges))
+        annotated_tags = nx.get_node_attributes(annotated_forest, "tags")
+        return annotated_tags
+
     def test_leafward_prop_undecided_children(self):
         edges = [(self.parent, self.child1), (self.parent, self.child2)]
         tags = pd.DataFrame([self.parent, self.child1, self.child2]).assign(
             in_rate_base=["yes", pd.NA, pd.NA]
         )
-
-        simple_forest = XbrlCalculationForestFerc1(
-            exploded_meta=self.exploded_meta,
-            exploded_calcs=self._exploded_calcs_from_edges(edges),
-            seeds=[self.parent],
-            tags=tags,
-        )
-
-        annotated_forest = simple_forest.annotated_forest
-        assert len(annotated_forest.nodes) == 3
-        annotated_tags = nx.get_node_attributes(annotated_forest, "tags")
+        annotated_tags = self.build_forest_and_annotated_tags(edges, tags)
         assert annotated_tags[self.parent]["in_rate_base"] == "yes"
         assert annotated_tags[self.child1]["in_rate_base"] == "yes"
         assert annotated_tags[self.child2]["in_rate_base"] == "yes"
@@ -139,17 +155,7 @@ class TestTagPropagation(unittest.TestCase):
         tags = pd.DataFrame([self.parent, self.child1, self.child2]).assign(
             in_rate_base=["yes", "no", pd.NA]
         )
-
-        simple_forest = XbrlCalculationForestFerc1(
-            exploded_meta=self.exploded_meta,
-            exploded_calcs=self._exploded_calcs_from_edges(edges),
-            seeds=[self.parent],
-            tags=tags,
-        )
-
-        annotated_forest = simple_forest.annotated_forest
-        assert len(annotated_forest.nodes) == 3
-        annotated_tags = nx.get_node_attributes(annotated_forest, "tags")
+        annotated_tags = self.build_forest_and_annotated_tags(edges, tags)
         assert annotated_tags[self.parent]["in_rate_base"] == "yes"
         assert annotated_tags[self.child1]["in_rate_base"] == "no"
         assert annotated_tags[self.child2]["in_rate_base"] == "yes"
@@ -161,17 +167,7 @@ class TestTagPropagation(unittest.TestCase):
             in_rate_base=["yes", "no", pd.NA],
             in_root_boose=["yus", "nu", "purtiul"],
         )
-
-        simple_forest = XbrlCalculationForestFerc1(
-            exploded_meta=self.exploded_meta,
-            exploded_calcs=self._exploded_calcs_from_edges(edges),
-            seeds=[self.parent],
-            tags=tags,
-        )
-
-        annotated_forest = simple_forest.annotated_forest
-        assert len(annotated_forest.nodes) == 3
-        annotated_tags = nx.get_node_attributes(annotated_forest, "tags")
+        annotated_tags = self.build_forest_and_annotated_tags(edges, tags)
         assert annotated_tags[self.parent]["in_rate_base"] == "yes"
         assert annotated_tags[self.child1]["in_rate_base"] == "no"
         assert annotated_tags[self.child2]["in_rate_base"] == "yes"
@@ -185,17 +181,7 @@ class TestTagPropagation(unittest.TestCase):
         tags = pd.DataFrame([self.parent, self.child1, self.child2]).assign(
             in_rate_base=[pd.NA, "no", "yes"]
         )
-
-        simple_forest = XbrlCalculationForestFerc1(
-            exploded_meta=self.exploded_meta,
-            exploded_calcs=self._exploded_calcs_from_edges(edges),
-            seeds=[self.parent],
-            tags=tags,
-        )
-
-        annotated_forest = simple_forest.annotated_forest
-        assert len(annotated_forest.nodes) == 3
-        annotated_tags = nx.get_node_attributes(annotated_forest, "tags")
+        annotated_tags = self.build_forest_and_annotated_tags(edges, tags)
         assert annotated_tags[self.parent] == {}
         assert annotated_tags[self.child1]["in_rate_base"] == "no"
         assert annotated_tags[self.child2]["in_rate_base"] == "yes"
@@ -209,33 +195,13 @@ class TestTagPropagation(unittest.TestCase):
         tags = pd.DataFrame([self.parent, self.child1, self.child2]).assign(
             in_rate_base=[pd.NA, pd.NA, pd.NA]
         )
-
-        simple_forest = XbrlCalculationForestFerc1(
-            exploded_meta=self.exploded_meta,
-            exploded_calcs=self._exploded_calcs_from_edges(edges),
-            seeds=[self.parent],
-            tags=tags,
-        )
-
-        annotated_forest = simple_forest.annotated_forest
-        assert len(annotated_forest.nodes) == 3
-        annotated_tags = nx.get_node_attributes(annotated_forest, "tags")
+        annotated_tags = self.build_forest_and_annotated_tags(edges, tags)
         assert annotated_tags[self.parent] == {}
         assert annotated_tags[self.child1] == {}
         assert annotated_tags[self.child2] == {}
 
         tags = pd.DataFrame(columns=NodeId._fields).convert_dtypes()
-
-        simple_forest = XbrlCalculationForestFerc1(
-            exploded_meta=self.exploded_meta,
-            exploded_calcs=self._exploded_calcs_from_edges(edges),
-            seeds=[self.parent],
-            tags=tags,
-        )
-
-        annotated_forest = simple_forest.annotated_forest
-        assert len(annotated_forest.nodes) == 3
-        annotated_tags = nx.get_node_attributes(annotated_forest, "tags")
+        annotated_tags = self.build_forest_and_annotated_tags(edges, tags)
         assert annotated_tags[self.parent] == {}
         assert annotated_tags[self.child1] == {}
         assert annotated_tags[self.child2] == {}
@@ -250,16 +216,7 @@ class TestTagPropagation(unittest.TestCase):
         tags = pd.DataFrame([self.grand_child11, self.grand_child12]).assign(
             in_rate_base=["yes", "yes"]
         )
-
-        simple_forest = XbrlCalculationForestFerc1(
-            exploded_meta=self.exploded_meta,
-            exploded_calcs=self._exploded_calcs_from_edges(edges),
-            seeds=[self.parent],
-            tags=tags,
-        )
-        annotated_forest = simple_forest.annotated_forest
-        assert len(annotated_forest.nodes) == 5
-        annotated_tags = nx.get_node_attributes(annotated_forest, "tags")
+        annotated_tags = self.build_forest_and_annotated_tags(edges, tags)
         # TODO: WHY THO it doesn't show up
         # assert annotated_tags[self.parent] == {}
         assert annotated_tags.get(self.parent, {}) == {}
@@ -278,16 +235,7 @@ class TestTagPropagation(unittest.TestCase):
         tags = pd.DataFrame([self.grand_child11, self.grand_child12]).assign(
             in_rate_base=["yes", "no"]
         )
-
-        simple_forest = XbrlCalculationForestFerc1(
-            exploded_meta=self.exploded_meta,
-            exploded_calcs=self._exploded_calcs_from_edges(edges),
-            seeds=[self.parent],
-            tags=tags,
-        )
-        annotated_forest = simple_forest.annotated_forest
-        assert len(annotated_forest.nodes) == 5
-        annotated_tags = nx.get_node_attributes(annotated_forest, "tags")
+        annotated_tags = self.build_forest_and_annotated_tags(edges, tags)
         assert annotated_tags.get(self.parent, {}) == {}
         assert annotated_tags.get(self.child1, {}) == {}
         assert annotated_tags.get(self.child2, {}) == {}
@@ -300,16 +248,9 @@ class TestTagPropagation(unittest.TestCase):
             (self.child1, self.child1_correction),
         ]
         tags = pd.DataFrame([self.child1]).assign(in_rate_base=["yes"])
-
-        simple_forest = XbrlCalculationForestFerc1(
-            exploded_meta=self.exploded_meta,
-            exploded_calcs=self._exploded_calcs_from_edges(edges),
-            seeds=[self.child1],
-            tags=tags,
+        annotated_tags = self.build_forest_and_annotated_tags(
+            edges, tags, seeds=[self.child1]
         )
-        annotated_forest = simple_forest.annotated_forest
-        assert len(annotated_forest.nodes) == 3
-        annotated_tags = nx.get_node_attributes(annotated_forest, "tags")
         assert annotated_tags[self.child1]["in_rate_base"] == "yes"
         assert annotated_tags[self.grand_child11]["in_rate_base"] == "yes"
         assert annotated_tags[self.child1_correction]["in_rate_base"] == "yes"
@@ -325,16 +266,7 @@ class TestTagPropagation(unittest.TestCase):
         tags = pd.DataFrame(pre_assigned_yes_nodes).assign(
             in_rate_base=["yes"] * len(pre_assigned_yes_nodes),
         )
-
-        simple_forest = XbrlCalculationForestFerc1(
-            exploded_meta=self.exploded_meta,
-            exploded_calcs=self._exploded_calcs_from_edges(edges),
-            seeds=[self.parent],
-            tags=tags,
-        )
-        annotated_forest = simple_forest.annotated_forest
-        assert len(annotated_forest.nodes) == 5
-        annotated_tags = nx.get_node_attributes(annotated_forest, "tags")
+        annotated_tags = self.build_forest_and_annotated_tags(edges, tags)
         for pre_yes_node in pre_assigned_yes_nodes:
             assert annotated_tags[pre_yes_node]["in_rate_base"] == "yes"
         for post_yes_node in [self.child1, self.parent]:
@@ -353,16 +285,7 @@ class TestTagPropagation(unittest.TestCase):
         tags = pd.DataFrame(pre_assigned_yes_nodes).assign(
             in_rate_base=["yes"] * len(pre_assigned_yes_nodes),
         )
-
-        simple_forest = XbrlCalculationForestFerc1(
-            exploded_meta=self.exploded_meta,
-            exploded_calcs=self._exploded_calcs_from_edges(edges),
-            seeds=[self.parent],
-            tags=tags,
-        )
-        annotated_forest = simple_forest.annotated_forest
-        assert len(annotated_forest.nodes) == 7
-        annotated_tags = nx.get_node_attributes(annotated_forest, "tags")
+        annotated_tags = self.build_forest_and_annotated_tags(edges, tags)
         for pre_yes_node in pre_assigned_yes_nodes:
             assert annotated_tags[pre_yes_node]["in_rate_base"] == "yes"
         for post_yes_node in [

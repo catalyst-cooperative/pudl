@@ -1195,9 +1195,6 @@ def _out_ferc1__explosion_tags(
         .reset_index()
         .drop(columns=["notes"])
     )
-    # Add the correction records to the tags...
-    corrections = make_correction_tags(tags, calculation_components_xbrl_ferc1)
-    tags = pd.concat([tags, corrections])
     return tags
 
 
@@ -1257,64 +1254,6 @@ def _aggregatable_dimension_tags(
     ).reset_index()
     tags_df[aggregatable_col] = tags_df[aggregatable_col].fillna(tags_df[dimension])
     return tags_df[tags_df[aggregatable_col] != "total"]
-
-
-def make_correction_tags(
-    tags_all: pd.DataFrame, calc_components: pd.DataFrame
-) -> pd.DataFrame:
-    """Make tags for correction records.
-
-    We need to check to see if any of the tags in each of the calculated
-    parent factoids are the same for all of their child components. So in this
-    function, we're going to merge on the tags to the children then groupby the
-    parents. For each tag, see if the childrens'tags contains only one unique value.
-    If so grab the tag to associate with the correction record of the parent. If not,
-    no tag will be associated with the record.
-    """
-    tag_idx = list(NodeId._fields)
-    calcs_w_tags = (
-        pd.merge(  # remove the correction records bc those are the ones we want to
-            calc_components[~calc_components.xbrl_factoid.str.contains("_correction")],
-            tags_all,
-            on=tag_idx,
-            how="left",
-            validate="m:1",
-        )
-    )
-    # use the same groupby to get the number of unique tags and the first one
-    # we will only use the first tag if the tags are unique
-    tag_cols = list(tags_all.drop(columns=tag_idx).columns)
-    tag_gb = calcs_w_tags.groupby([f"{c}_parent" for c in tag_idx], dropna=False)[
-        tag_cols
-    ]
-    tag_check = pd.merge(
-        tag_gb.nunique(
-            dropna=False
-        ),  # bc if null and non-null tag we want to know that
-        tag_gb.first(),
-        right_index=True,
-        left_index=True,
-        suffixes=("_n", ""),
-        validate="1:1",
-    )
-    # null out all of the tags that have non-unique tags for each parent
-    for col in tag_cols:
-        non_unique_mask = tag_check[f"{col}_n"] != 1
-        tag_check.loc[non_unique_mask, col] = pd.NA
-    # specifically for in_rate_base assign partial when it is a mix
-    tag_check.loc[tag_check["in_rate_base_n"] > 1, "in_rate_base"] = "partial"
-    # remove the fully null tags bc there's nothing new in there and
-    # drop all of the _n columns
-    tag_check = tag_check.dropna(how="all", subset=tag_cols)[tag_cols]
-    # remove the parent from the index name
-    tag_check.index.names = [
-        col.removesuffix("_parent") for col in tag_check.index.names
-    ]
-    correction_tags = tag_check.reset_index().assign(
-        xbrl_factoid=lambda x: x.xbrl_factoid + "_correction"
-    )
-    logger.info(f"Found {len(correction_tags)=}")
-    return correction_tags
 
 
 def exploded_table_asset_factory(
