@@ -737,7 +737,7 @@ class AssignQuarterlyFiledDataToAnnualDbf(TransformParams):
 def assign_quarterly_filed_data_to_annual_dbf(
     df: pd.DataFrame, params: AssignQuarterlyFiledDataToAnnualDbf
 ) -> pd.DataFrame:
-    """Transfer the quarterly reported data to the annual columns.
+    """Transfer 4th quarter reported data to the annual columns.
 
     For some reason in the dbf data for this table reported all of the
     balance data as quarterly data between specific years. We already choose
