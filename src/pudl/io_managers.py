@@ -97,13 +97,15 @@ class PudlMixedFormatIOManager(IOManager):
                 f"(read={self.read_from_parquet}, write={self.write_to_parquet})"
             )
 
-    def handle_output(self, context: OutputContext, obj: Any) -> Any:
+    def handle_output(
+        self, context: OutputContext, obj: pd.DataFrame | str
+    ) -> pd.DataFrame:
         """Passes the output to the appropriate IO manager instance."""
         self._sqlite_io_manager.handle_output(context, obj)
         if self.write_to_parquet:
             self._parquet_io_manager.handle_output(context, obj)
 
-    def load_input(self, context: InputContext) -> Any:
+    def load_input(self, context: InputContext) -> pd.DataFrame:
         """Reads input from the appropriate IO manager instance."""
         if self.read_from_parquet:
             return self._parquet_io_manager.load_input(context)
