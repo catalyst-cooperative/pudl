@@ -71,18 +71,18 @@ class ZenodoClient:
         """
         if env == SANDBOX:
             self.base_url = "https://sandbox.zenodo.org/api"
-            self.auth_headers = {
-                "Authorization": f"Bearer {os.environ['ZENODO_SANDBOX_TOKEN_PUBLISH']}"
-            }
+            token = os.environ["ZENODO_SANDBOX_TOKEN_PUBLISH"]
         elif env == PRODUCTION:
             self.base_url = "https://zenodo.org/api"
-            self.auth_headers = {
-                "Authorization": f"Bearer {os.environ['ZENODO_TOKEN_PUBLISH']}"
-            }
+            token = os.environ["ZENODO_TOKEN_UPLOAD"]
         else:
             raise ValueError(
                 f"Got unexpected {env=}, expected {SANDBOX} or {PRODUCTION}"
             )
+
+        self.auth_headers = {"Authorization": f"Bearer {token}"}
+
+        logger.info(f"Using Zenodo token: {token[:4]}...{token[-4:]}")
 
     def get_deposition(self, deposition_id: int) -> _LegacyDeposition:
         """LEGACY API: Get JSON describing a deposition.
