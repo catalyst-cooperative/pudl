@@ -22,7 +22,7 @@ import pandas as pd
 import sqlalchemy as sa
 from dagster import AssetIn, AssetsDefinition, asset
 from pandas.core.groupby import DataFrameGroupBy
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 import pudl
 from pudl.extract.ferc1 import TABLE_NAME_MAP_FERC1
@@ -713,6 +713,48 @@ def combine_axis_columns_xbrl(
             df[col]
         )
     df = df.drop(columns=params.axis_columns_to_combine)
+    return df
+
+
+class AssignQuarterlyFiledDataToAnnualDbf(TransformParams):
+    """Parameters for transfering quarterly reported data to annual columns."""
+
+    annual_cols: list[str] = []
+    quarterly_cols: list[str] = []
+    quarterly_filed_years: list[int] = []
+
+    @model_validator(mode="after")
+    def same_number_of_columns(self: Self):
+        """Ensure that the number of annual and quarterly columns are the same."""
+        if len(self.annual_cols) != len(self.quarterly_cols):
+            raise ValueError(
+                "There must be the same number of annual columns and quarterly "
+                f"columns but found: {self.annual_cols=} & {self.quarterly_cols=}"
+            )
+        return self
+
+
+def assign_quarterly_filed_data_to_annual_dbf(
+    df: pd.DataFrame, params: AssignQuarterlyFiledDataToAnnualDbf
+) -> pd.DataFrame:
+    """Transfer the quarterly reported data to the annual columns.
+
+    For some reason in the dbf data for this table reported all of the
+    balance data as quarterly data between specific years. We already choose
+    the end of the year in :meth:`select_annual_rows_dbf`.
+    """
+    bad_years_mask = df.report_year.isin(params.quarterly_filed_years)
+    # ensure this filling in treatment is necessary!
+    if not df.loc[bad_years_mask, params.annual_cols].isnull().all(axis=None):
+        raise AssertionError(
+            f"We expected that all balance data in years {params.quarterly_filed_years}"
+            " to be all null. Found non-null records, so the annual columns may no "
+            "longer need to be filled in with quarterly data."
+        )
+
+    df.loc[bad_years_mask, params.annual_cols] = df.loc[
+        bad_years_mask, params.quarterly_cols
+    ].to_numpy()
     return df
 
 
@@ -1506,6 +1548,9 @@ class Ferc1TableTransformParams(TableTransformParams):
     merge_xbrl_metadata: MergeXbrlMetadata = MergeXbrlMetadata()
     align_row_numbers_dbf: AlignRowNumbersDbf = AlignRowNumbersDbf()
     drop_duplicate_rows_dbf: DropDuplicateRowsDbf = DropDuplicateRowsDbf()
+    assign_quarterly_filed_data_to_annual_dbf: AssignQuarterlyFiledDataToAnnualDbf = (
+        AssignQuarterlyFiledDataToAnnualDbf()
+    )
     select_dbf_rows_by_category: SelectDbfRowsByCategory = SelectDbfRowsByCategory()
     unstack_balances_to_report_year_instant_xbrl: UnstackBalancesToReportYearInstantXbrl = UnstackBalancesToReportYearInstantXbrl()
     combine_axis_columns_xbrl: CombineAxisColumnsXbrl = CombineAxisColumnsXbrl()
@@ -2379,6 +2424,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .pipe(self.assign_utility_id_ferc1, source_ferc1=SourceFerc1.DBF)
             .pipe(self.wide_to_tidy, source_ferc1=SourceFerc1.DBF)
             .pipe(self.drop_duplicate_rows_dbf)
+            .pipe(self.assign_quarterly_filed_data_to_annual_dbf)
         )
 
     @cache_df(key="xbrl")
@@ -2434,6 +2480,20 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 f"{self.table_id.value}: After selection of only annual records,"
                 f" we have {len(df)/len_og:.1%} of the original table."
             )
+        return df
+
+    @cache_df(key="dbf")
+    def assign_quarterly_filed_data_to_annual_dbf(
+        self, df, params: AssignQuarterlyFiledDataToAnnualDbf | None = None
+    ):
+        """Transfer quarterly filed data to annual columns."""
+        if params is None:
+            params = self.params.assign_quarterly_filed_data_to_annual_dbf
+        if params.quarterly_cols:
+            logger.info(
+                f"{self.table_id.value}: Converting quarterly filed data to annual."
+            )
+            df = assign_quarterly_filed_data_to_annual_dbf(df, params=params)
         return df
 
     def unstack_balances_to_report_year_instant_xbrl(
@@ -4719,31 +4779,6 @@ class BalanceSheetLiabilitiesTableTransformer(Ferc1AbstractTableTransformer):
             .process_xbrl_metadata(xbrl_metadata_converted, xbrl_calculations)
             .assign(utility_type="total")
         )
-
-    def process_dbf_test(self: Self, df: pd.DataFrame):
-        """Standard dbf process plus converting quarterly data to annual.
-
-        For some reason in the dbf data for this table reported all of the
-        balance data as quarterly data between 2005 and 2020. We already choose
-        the end of the year in :meth:`select_annual_rows_dbf`.
-
-        https://github.com/catalyst-cooperative/pudl/issues/3233
-        """
-        df = super().process_dbf(df)
-        annual_cols = ["starting_balance", "ending_balance"]
-        bad_years_mask = df.report_year.between(2005, 2020)
-        # ensure this filling in treatment is necessary!
-        if not df.loc[bad_years_mask, annual_cols].isnull().all(axis=None):
-            raise AssertionError(
-                "We expected that all balance data between 2005 and 2020 are all null. "
-                "Found non-null records, so the annual columns may no longer need to "
-                "be filled in with quarterly data."
-            )
-
-        df.loc[bad_years_mask, annual_cols] = df.loc[
-            bad_years_mask, ["pri_yr_q4_bal", "end_qtr_bal"]
-        ].to_numpy()
-        return df
 
     @cache_df(key="main")
     def transform_main(self: Self, df: pd.DataFrame) -> pd.DataFrame:
