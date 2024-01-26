@@ -3424,8 +3424,10 @@ TRANSFORM_PARAMS = {
         },
         "align_row_numbers_dbf": {"dbf_table_names": ["f1_comp_balance_db"]},
         "assign_quarterly_filed_data_to_annual_dbf": {
-            "annual_cols": ["starting_balance", "ending_balance"],
-            "quarterly_cols": ["pri_yr_q4_bal", "end_qtr_bal"],
+            "annual_to_quarter_column_map": {
+                "starting_balance": "pri_yr_q4_bal",
+                "ending_balance": "end_qtr_bal",
+            },
             "quarterly_filed_years": range(2005, 2021),
         },
         "merge_xbrl_metadata": {
@@ -3488,8 +3490,10 @@ TRANSFORM_PARAMS = {
         },
         "align_row_numbers_dbf": {"dbf_table_names": ["f1_bal_sheet_cr"]},
         "assign_quarterly_filed_data_to_annual_dbf": {
-            "annual_cols": ["starting_balance", "ending_balance"],
-            "quarterly_cols": ["pri_yr_q4_bal", "end_qtr_bal"],
+            "annual_to_quarter_column_map": {
+                "starting_balance": "pri_yr_q4_bal",
+                "ending_balance": "end_qtr_bal",
+            },
             "quarterly_filed_years": range(2005, 2021),
         },
         "merge_xbrl_metadata": {

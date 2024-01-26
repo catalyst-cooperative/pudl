@@ -22,7 +22,7 @@ import pandas as pd
 import sqlalchemy as sa
 from dagster import AssetIn, AssetsDefinition, asset
 from pandas.core.groupby import DataFrameGroupBy
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, Field, field_validator
 
 import pudl
 from pudl.extract.ferc1 import TABLE_NAME_MAP_FERC1
@@ -719,19 +719,8 @@ def combine_axis_columns_xbrl(
 class AssignQuarterlyFiledDataToAnnualDbf(TransformParams):
     """Parameters for transfering quarterly reported data to annual columns."""
 
-    annual_cols: list[str] = []
-    quarterly_cols: list[str] = []
+    annual_to_quarter_column_map: dict[str, str] = {}
     quarterly_filed_years: list[int] = []
-
-    @model_validator(mode="after")
-    def same_number_of_columns(self: Self):
-        """Ensure that the number of annual and quarterly columns are the same."""
-        if len(self.annual_cols) != len(self.quarterly_cols):
-            raise ValueError(
-                "There must be the same number of annual columns and quarterly "
-                f"columns but found: {self.annual_cols=} & {self.quarterly_cols=}"
-            )
-        return self
 
 
 def assign_quarterly_filed_data_to_annual_dbf(
@@ -747,16 +736,18 @@ def assign_quarterly_filed_data_to_annual_dbf(
     """
     bad_years_mask = df.report_year.isin(params.quarterly_filed_years)
     # ensure this filling in treatment is necessary!
-    if not df.loc[bad_years_mask, params.annual_cols].isnull().all(axis=None):
+    if (
+        not df.loc[bad_years_mask, list(params.annual_to_quarter_column_map.keys())]
+        .isnull()
+        .all(axis=None)
+    ):
         raise AssertionError(
             f"We expected that all balance data in years {params.quarterly_filed_years}"
             " to be all null. Found non-null records, so the annual columns may no "
             "longer need to be filled in with quarterly data."
         )
-
-    df.loc[bad_years_mask, params.annual_cols] = df.loc[
-        bad_years_mask, params.quarterly_cols
-    ].to_numpy()
+    for annual_col, qtr_col in params.annual_to_quarter_column_map.items():
+        df.loc[bad_years_mask, annual_col] = df.loc[bad_years_mask, qtr_col]
     return df
 
 
@@ -2491,7 +2482,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         """Transfer quarterly filed data to annual columns."""
         if params is None:
             params = self.params.assign_quarterly_filed_data_to_annual_dbf
-        if params.quarterly_cols:
+        if params.annual_to_quarter_column_map:
             logger.info(
                 f"{self.table_id.value}: Converting quarterly filed data to annual."
             )
