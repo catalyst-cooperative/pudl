@@ -2,21 +2,27 @@
 # This script runs the entire ETL and validation tests in a docker container on a Google Compute Engine instance.
 # This script won't work locally because it needs adequate GCP permissions.
 
+LOGFILE="${PUDL_OUTPUT}/${BUILD_ID}-pudl-etl.log"
+
 function send_slack_msg() {
+    echo "sending Slack message"
     curl -X POST -H "Content-type: application/json" -H "Authorization: Bearer ${SLACK_TOKEN}" https://slack.com/api/chat.postMessage --data "{\"channel\": \"C03FHB9N0PQ\", \"text\": \"$1\"}"
 }
 
 function upload_file_to_slack() {
+    echo "Uploading file to slack with comment $2"
     curl -F "file=@$1" -F "initial_comment=$2" -F channels=C03FHB9N0PQ -H "Authorization: Bearer ${SLACK_TOKEN}" https://slack.com/api/files.upload
 }
 
 function authenticate_gcp() {
     # Set the default gcloud project id so the zenodo-cache bucket
     # knows what project to bill for egress
+    echo "Authenticating to GCP"
     gcloud config set project "$GCP_BILLING_PROJECT"
 }
 
 function run_pudl_etl() {
+    echo "Running PUDL ETL"
     send_slack_msg ":large_yellow_circle: Deployment started for $BUILD_ID :floppy_disk:"
     authenticate_gcp && \
     alembic upgrade head && \
@@ -58,9 +64,27 @@ function save_outputs_to_gcs() {
     rm "$PUDL_OUTPUT/success"
 }
 
+function upload_to_dist_path() {
+    GCS_PATH="gs://pudl.catalyst.coop/$1/"
+    AWS_PATH="s3://pudl.catalyst.coop/$1/"
+
+    # If the old outputs don't exist, these will exit with status 1, so we
+    # don't && them with the rest of the commands.
+    echo "Removing old outputs from $GCS_PATH."
+    gsutil -m -u "$GCP_BILLING_PROJECT" rm -r "$GCS_PATH"
+    echo "Removing old outputs from $AWS_PATH."
+    aws s3 rm "$AWS_PATH" --recursive
+
+    echo "Copying outputs to $GCS_PATH:" && \
+    gsutil -m -u "$GCP_BILLING_PROJECT" cp -r "$PUDL_OUTPUT/*" "$GCS_PATH" && \
+    echo "Copying outputs to $AWS_PATH" && \
+    aws s3 cp "$PUDL_OUTPUT/" "$AWS_PATH" --recursive
+}
+
 function copy_outputs_to_distribution_bucket() {
     # Only attempt to update outputs if we have a real value of BUILD_REF
     # This avoids accidentally blowing away the whole bucket if it's not set.
+    echo "Copying outputs to distribution buckets"
     if [[ -n "$BUILD_REF" ]]; then
         if [[ "$GITHUB_ACTION_TRIGGER" == "schedule" ]]; then
             # If running nightly builds, copy outputs to the "nightly" bucket path
@@ -69,45 +93,46 @@ function copy_outputs_to_distribution_bucket() {
             # Otherwise we want to copy them to a directory named after the tag/ref
             DIST_PATH="$BUILD_REF"
         fi
-        echo "Removing old $DIST_PATH outputs from GCS distributon bucket." && \
-        gsutil -m -u "$GCP_BILLING_PROJECT" rm -r "gs://pudl.catalyst.coop/$DIST_PATH" && \
-        echo "Copying outputs to GCS distribution bucket" && \
-        gsutil -m -u "$GCP_BILLING_PROJECT" cp -r "$PUDL_OUTPUT/*" "gs://pudl.catalyst.coop/$DIST_PATH" && \
-        echo "Removing old $DIST_PATH outputs from AWS distributon bucket." && \
-        aws s3 rm "s3://pudl.catalyst.coop/$DIST_PATH" --recursive && \
-        echo "Copying outputs to AWS distribution bucket" && \
-        aws s3 cp "$PUDL_OUTPUT/" "s3://pudl.catalyst.coop/$DIST_PATH" --recursive
+        upload_to_dist_path "$DIST_PATH"
 
         # If running a tagged release, ALSO update the stable distribution bucket path:
         if [[ "$GITHUB_ACTION_TRIGGER" == "push" && "$BUILD_REF" == v20* ]]; then
-            echo "Removing old stable outputs from GCS distributon bucket." && \
-            gsutil -m -u "$GCP_BILLING_PROJECT" rm -r "gs://pudl.catalyst.coop/stable" && \
-            echo "Copying tagged version outputs to stable GCS distribution bucket" && \
-            gsutil -m -u "$GCP_BILLING_PROJECT" cp -r "$PUDL_OUTPUT/*" "gs://pudl.catalyst.coop/stable" && \
-            echo "Removing old stable outputs from AWS S3 distributon bucket." && \
-            aws s3 rm "s3://pudl.catalyst.coop/stable" --recursive && \
-            echo "Copying tagged version outputs to stable AWS S3 distribution bucket" && \
-            aws s3 cp "$PUDL_OUTPUT/" "s3://pudl.catalyst.coop/stable" --recursive
-
+            upload_to_dist_path "stable"
         fi
     fi
 }
 
 function zenodo_data_release() {
-    echo "Creating a new PUDL data release on Zenodo." && \
-    ~/pudl/devtools/zenodo/zenodo_data_release.py --publish --env "$1" --source-dir "$PUDL_OUTPUT"
+    echo "Creating a new PUDL data release on Zenodo."
+
+    if [[ "$1" == "production" ]]; then
+        ~/pudl/devtools/zenodo/zenodo_data_release.py --no-publish --env "$1" --source-dir "$PUDL_OUTPUT"
+    else
+        ~/pudl/devtools/zenodo/zenodo_data_release.py --publish --env "$1" --source-dir "$PUDL_OUTPUT"
+    fi
 }
 
 function notify_slack() {
-    # Notify pudl-builds slack channel of deployment status
+    # Notify pudl-deployment slack channel of deployment status
+    echo "Notifying Slack about deployment status"
     if [[ "$1" == "success" ]]; then
-        message=":large_green_circle: :sunglasses: :unicorn_face: :rainbow: The deployment succeeded!! :partygritty: :database_parrot: :blob-dance: :large_green_circle:\n\n "
+        message=":large_green_circle: :sunglasses: :unicorn_face: :rainbow: The deployment succeeded!! :partygritty: :database_parrot: :blob-dance: :large_green_circle:\n\n"
     elif [[ "$1" == "failure" ]]; then
-        message=":x: Oh bummer the deployment failed :fiiiiine: :sob: :cry_spin: :x:\n\n "
+        message=":x: Oh bummer the deployment failed :fiiiiine: :sob: :cry_spin: :x:\n\n"
     else
         echo "Invalid deployment status"
         exit 1
     fi
+
+    message+="Stage status (0 means success):\n"
+    message+="ETL_SUCCESS: $ETL_SUCCESS\n"
+    message+="SAVE_OUTPUTS_SUCCESS: $SAVE_OUTPUTS_SUCCESS\n"
+    message+="UPDATE_NIGHTLY_SUCCESS: $UPDATE_NIGHTLY_SUCCESS\n"
+    message+="DATASETTE_SUCCESS: $DATASETTE_SUCCESS\n"
+    message+="CLEAN_UP_OUTPUTS_SUCCESS: $CLEAN_UP_OUTPUTS_SUCCESS\n"
+    message+="DISTRIBUTION_BUCKET_SUCCESS: $DISTRIBUTION_BUCKET_SUCCESS\n"
+    message+="ZENODO_SUCCESS: $ZENODO_SUCCESS\n\n"
+
     message+="See https://console.cloud.google.com/storage/browser/builds.catalyst.coop/$BUILD_ID for logs and outputs."
 
     send_slack_msg "$message"
@@ -187,7 +212,7 @@ if [[ $ETL_SUCCESS == 0 ]]; then
         # TODO: this currently just makes a sandbox release, for testing. Should be
         # switched to production and only run on push of a version tag eventually.
         # Push a data release to Zenodo for long term accessiblity
-        zenodo_data_release sandbox 2>&1 | tee -a "$LOGFILE"
+        zenodo_data_release "$ZENODO_TARGET_ENV" 2>&1 | tee -a "$LOGFILE"
         ZENODO_SUCCESS=${PIPESTATUS[0]}
     fi
 fi

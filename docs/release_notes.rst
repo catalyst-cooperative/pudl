@@ -44,6 +44,9 @@ Data Coverage
   * :pr:`3266`
   * :pr:`3267`
   * :pr:`3269`
+  * :pr:`3270`
+  * :pr:`3279`
+  * :pr:`3280`
 
 * Updated the EIA Bulk Electricity data archive so that the available data now to runs
   through 2023-10-01. See :pr:`3252`.  Also added this dataset to the set of data that
