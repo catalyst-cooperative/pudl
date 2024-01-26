@@ -80,6 +80,10 @@ class PudlMixedFormatIOManager(IOManager):
                 parquet files as source of truth. Otherwise, data will be
                 read from the sqlite database.
         """
+        if read_from_parquet and not write_to_parquet:
+            raise RuntimeError(
+                "read_from_parquet cannot be set when write_to_parquet is False."
+            )
         self.write_to_parquet = write_to_parquet
         self.read_from_parquet = read_from_parquet
         self._sqlite_io_manager = PudlSQLiteIOManager(
