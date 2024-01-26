@@ -47,7 +47,7 @@ class PudlMixedFormatIOManager(IOManager):
 
     We currently support both sqlite and parquet formats. This io manager
     allows us to choose which formats should be used for reading and which
-    should be used for reading.
+    should be used for writing.
 
     This should allow us to develop support for parquet format without
     affecting the existing sqlite-based functionality.
