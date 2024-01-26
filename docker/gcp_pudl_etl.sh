@@ -22,7 +22,16 @@ function authenticate_gcp() {
 }
 
 function initialize_postgres() {
-    echo "initializing postgres"
+    echo "initializing postgres."
+    # This is sort of a fiddly set of postgres admin tasks:
+    #
+    # 1. start the dagster cluster, which is set to be owned by mambauser in the Dockerfile
+    # 2. create a db within this cluster so we can do things
+    # 3. tell it to actually fail when we mess up, instead of continuing blithely
+    # 4. create a *dagster* user, whose creds correspond with those in docker/dagster.yaml
+    # 5. make a database for dagster, which is owned by the dagster user
+    #
+    # When the PG major version changes we'll have to update this from 15 to 16
     pg_ctlcluster 15 dagster start && \
     createdb -h127.0.0.1 -p5433 && \
     psql -v "ON_ERROR_STOP=1" -h127.0.0.1 -p5433 && \
@@ -55,6 +64,7 @@ function run_pudl_etl() {
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
         --etl-settings "$PUDL_SETTINGS_YML" \
         --live-dbs test/validate \
+    && pg_ctlcluster 15 dagster stop \
     && touch "$PUDL_OUTPUT/success"
 }
 
@@ -137,6 +147,7 @@ function notify_slack() {
     message+="See <https://console.cloud.google.com/storage/browser/builds.catalyst.coop/$BUILD_ID|GCS> for outputs."
 
     send_slack_msg "$message"
+    upload_file_to_slack "$LOGFILE" "pudl_etl logs for $BUILD_ID:"
 }
 
 function update_nightly_branch() {

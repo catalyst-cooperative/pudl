@@ -19,14 +19,13 @@ RUN apt-get update && \
 RUN printf '[GoogleCompute]\nservice_account = default' > /etc/boto.cfg
 
 # Add mamba user to postgres group
-RUN usermod -aG postgres $MAMBA_USER
+# hadolint ignore=DL3059
+RUN usermod -aG postgres "$MAMBA_USER"
 
-# Create new cluster for Dagster usage that's owned by $MAMBA_USER
-RUN pg_lsclusters
-RUN pg_createcluster 15 dagster -u $MAMBA_USER -- -A trust
-RUN pg_lsclusters
-RUN cat /etc/postgresql/15/dagster/postgresql.conf
-RUN cat /etc/postgresql/15/dagster/pg_hba.conf
+# Create new cluster for Dagster usage that's owned by $MAMBA_USER.
+# When the PG major version changes we'll have to update this from 15 to 16
+# hadolint ignore=DL3059
+RUN pg_createcluster 15 dagster -u "$MAMBA_USER" -- -A trust
 
 # Switch back to being non-root user and get into the home directory
 USER $MAMBA_USER
@@ -41,7 +40,6 @@ ENV CONTAINER_PUDL_WORKSPACE=${CONTAINER_HOME}/pudl_work
 ENV PUDL_INPUT=${CONTAINER_PUDL_WORKSPACE}/input
 ENV PUDL_OUTPUT=${CONTAINER_PUDL_WORKSPACE}/output
 ENV DAGSTER_HOME=${CONTAINER_PUDL_WORKSPACE}/dagster_home
-
 
 RUN mkdir -p ${PUDL_INPUT} ${PUDL_OUTPUT} ${DAGSTER_HOME} ${PUDL_REPO}
 

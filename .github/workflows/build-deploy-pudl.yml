@@ -4,8 +4,6 @@ on:
   push:
     tags:
       - "v20*"
-    branches:
-      - try-google-batch
   schedule:
     # 6am UTC daily (11pm PDT, 2am EDT)
     # But only if there are changes since the last nightly build.
@@ -147,7 +145,7 @@ jobs:
             --container-env GITHUB_ACTION_TRIGGER=${{ github.event_name }} \
             --container-env NIGHTLY_TAG=${{ env.NIGHTLY_TAG }} \
             --container-env PUDL_BOT_PAT=${{ secrets.PUDL_BOT_PAT }} \
-            --container-env PUDL_GCS_OUTPUT=${{ env.PUDL_GCS_OUTPUT }}
+            --container-env PUDL_GCS_OUTPUT=${{ env.PUDL_GCS_OUTPUT }} \
             --container-env PUDL_SETTINGS_YML="/home/mambauser/pudl/src/pudl/package_data/settings/etl_full.yml" \
             --container-env SLACK_TOKEN=${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }} \
             --container-env ZENODO_SANDBOX_TOKEN_PUBLISH=${{ secrets.ZENODO_SANDBOX_TOKEN_PUBLISH }} \
