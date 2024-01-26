@@ -1665,7 +1665,6 @@ class Exploder:
         """Construct a calculation forest based on class attributes."""
         return XbrlCalculationForestFerc1(
             exploded_calcs=self.exploded_calcs,
-            exploded_meta=self.exploded_meta,
             seeds=self.seed_nodes,
             tags=self.tags,
             group_metric_checks=self.group_metric_checks,
@@ -2023,7 +2022,6 @@ class XbrlCalculationForestFerc1(BaseModel):
 
     # Not sure if dynamically basing this on NodeId is really a good idea here.
     calc_cols: list[str] = list(NodeId._fields)
-    exploded_meta: pd.DataFrame = pd.DataFrame()
     exploded_calcs: pd.DataFrame = pd.DataFrame()
     seeds: list[NodeId] = []
     tags: pd.DataFrame = pd.DataFrame()
@@ -2180,32 +2178,9 @@ class XbrlCalculationForestFerc1(BaseModel):
             .reset_index()
             # Type conversion is necessary to get pd.NA in the index:
             .astype({col: pd.StringDtype() for col in self.calc_cols})
-            # We need a dictionary for *all* nodes, not just those with tags.
-            .merge(
-                self.exploded_meta.loc[:, self.calc_cols],
-                how="left",
-                on=self.calc_cols,
-                validate="one_to_many",
-                indicator=True,
-            )
-            # For nodes with no tags, we assign an empty dictionary:
             .assign(tags=lambda x: np.where(x["tags"].isna(), {}, x["tags"]))
         )
-        lefties = node_attrs[
-            (node_attrs._merge == "left_only")
-            & (node_attrs.table_name.isin(self.table_names))
-        ]
-        if not lefties.empty:
-            logger.warning(
-                f"Found {len(lefties)} tags that only exist in our manually compiled "
-                "tags when expected none. Ensure the compiled tags match the metadata."
-                f"Mismatched tags:\n{lefties}"
-            )
-        return (
-            node_attrs.drop(columns=["_merge"])
-            .set_index(self.calc_cols)
-            .to_dict(orient="index")
-        )
+        return node_attrs.set_index(self.calc_cols).to_dict(orient="index")
 
     @cached_property
     def edge_attrs(self: Self) -> dict[Any, Any]:
@@ -2425,7 +2400,7 @@ class XbrlCalculationForestFerc1(BaseModel):
 
         We compile a list of all the :class:`NodeId` values that should be included in
         the pruned graph, and then use that list to select a subset of the exploded
-        metadata to pass to :meth:`exploded_meta_to_digraph`, so that all of the
+        metadata to pass to :meth:`exploded_calcs_to_digraph`, so that all of the
         associated metadata is also added to the pruned graph.
         """
         return self.prune_unrooted(self.full_digraph)
@@ -2553,11 +2528,16 @@ class XbrlCalculationForestFerc1(BaseModel):
     def orphans(self: Self) -> list[NodeId]:
         """Identify all nodes that appear in metadata but not in the full digraph."""
         nodes = self.full_digraph.nodes
-        return [
-            NodeId(*n)
-            for n in self.exploded_meta.set_index(self.calc_cols).index
-            if n not in nodes
-        ]
+        orphans = []
+        for idx_cols in [self.calc_cols, self.parent_cols]:
+            orphans.extend(
+                [
+                    NodeId(*n)
+                    for n in self.exploded_calcs.set_index(idx_cols).index
+                    if n not in nodes
+                ]
+            )
+        return list(set(orphans))
 
     @cached_property
     def pruned(self: Self) -> list[NodeId]:

@@ -23,7 +23,6 @@ import unittest
 
 import networkx as nx
 import pandas as pd
-import pytest
 
 from pudl.helpers import dedupe_n_flatten_list_of_lists
 from pudl.output.ferc1 import NodeId, XbrlCalculationForestFerc1
@@ -86,17 +85,6 @@ class TestTagPropagation(unittest.TestCase):
             plant_status=pd.NA,
             plant_function=pd.NA,
         )
-        dtype_node = {col: pd.StringDtype() for col in NodeId._fields}
-        self.exploded_meta = pd.DataFrame(
-            [
-                self.parent,
-                self.child1,
-                self.child2,
-                self.grand_child11,
-                self.grand_child12,
-                self.child1_correction,
-            ]
-        ).astype(dtype_node)
 
     def _exploded_calcs_from_edges(self, edges: list[tuple[NodeId, NodeId]]):
         records = []
@@ -128,7 +116,6 @@ class TestTagPropagation(unittest.TestCase):
         if not seeds:
             seeds = [self.parent]
         simple_forest = XbrlCalculationForestFerc1(
-            exploded_meta=self.exploded_meta,
             exploded_calcs=self._exploded_calcs_from_edges(edges),
             seeds=seeds,
             tags=tags,
@@ -178,17 +165,14 @@ class TestTagPropagation(unittest.TestCase):
     def test_rootward_prop_disagreeing_children(self):
         """Parents should not pick sides between disagreeing children."""
         edges = [(self.parent, self.child1), (self.parent, self.child2)]
-        tags = pd.DataFrame([self.parent, self.child1, self.child2]).assign(
-            in_rate_base=[pd.NA, "no", "yes"]
+        tags = pd.DataFrame([self.child1, self.child2]).assign(
+            in_rate_base=["no", "yes"]
         )
         annotated_tags = self.build_forest_and_annotated_tags(edges, tags)
-        assert annotated_tags[self.parent] == {}
+        assert not annotated_tags.get(self.parent)
         assert annotated_tags[self.child1]["in_rate_base"] == "no"
         assert annotated_tags[self.child2]["in_rate_base"] == "yes"
 
-    @pytest.mark.xfail(
-        reason="we haven't implemented this behavior correctly yet", strict=True
-    )
     def test_prop_no_tags(self):
         """If no tags, don't propagate anything."""
         edges = [(self.parent, self.child1), (self.parent, self.child2)]
@@ -202,9 +186,9 @@ class TestTagPropagation(unittest.TestCase):
 
         tags = pd.DataFrame(columns=NodeId._fields).convert_dtypes()
         annotated_tags = self.build_forest_and_annotated_tags(edges, tags)
-        assert annotated_tags[self.parent] == {}
-        assert annotated_tags[self.child1] == {}
-        assert annotated_tags[self.child2] == {}
+        assert not annotated_tags.get(self.parent)
+        assert not annotated_tags.get(self.child1)
+        assert not annotated_tags.get(self.child2)
 
     def test_annotated_forest_propagates_rootward(self):
         edges = [
@@ -217,11 +201,9 @@ class TestTagPropagation(unittest.TestCase):
             in_rate_base=["yes", "yes"]
         )
         annotated_tags = self.build_forest_and_annotated_tags(edges, tags)
-        # TODO: WHY THO it doesn't show up
-        # assert annotated_tags[self.parent] == {}
-        assert annotated_tags.get(self.parent, {}) == {}
+        assert not annotated_tags.get(self.parent)
         assert annotated_tags[self.child1]["in_rate_base"] == "yes"
-        assert annotated_tags.get(self.child2, {}) == {}
+        assert not annotated_tags.get(self.child2)
         assert annotated_tags[self.grand_child11]["in_rate_base"] == "yes"
         assert annotated_tags[self.grand_child12]["in_rate_base"] == "yes"
 
@@ -236,9 +218,9 @@ class TestTagPropagation(unittest.TestCase):
             in_rate_base=["yes", "no"]
         )
         annotated_tags = self.build_forest_and_annotated_tags(edges, tags)
-        assert annotated_tags.get(self.parent, {}) == {}
-        assert annotated_tags.get(self.child1, {}) == {}
-        assert annotated_tags.get(self.child2, {}) == {}
+        assert not annotated_tags.get(self.parent)
+        assert not annotated_tags.get(self.child1)
+        assert not annotated_tags.get(self.child2)
         assert annotated_tags[self.grand_child11]["in_rate_base"] == "yes"
         assert annotated_tags[self.grand_child12]["in_rate_base"] == "no"
 
@@ -295,11 +277,3 @@ class TestTagPropagation(unittest.TestCase):
             self.parent_correction,
         ]:
             assert annotated_tags[post_yes_node]["in_rate_base"] == "yes"
-
-
-def test_annotated_forest_propagates_corrections():
-    pass
-
-
-def test_annotate_forest_propagates_both_dirs_with_corrections():
-    pass
