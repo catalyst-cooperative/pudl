@@ -1929,7 +1929,8 @@ def create_datasette_metadata_yaml() -> str:
     """Create datasette metadata yaml.
 
     Returns:
-        Datasette metadata for all PUDL resources as YAML
+        Datasette metadata for all PUDL resources and XBRL databases as
+        derived from their datapackage.json as YAML.
     """
     pudl_output = PudlPaths().pudl_output
     metadata = DatasetteMetadata.from_data_source_ids(pudl_output)
@@ -1953,13 +1954,15 @@ def check_tables_have_metadata(
     metadata_yml: str,
     databases: list[str],
 ) -> None:
-    """Check to make sure all tables in the databases have metadata.
+    """Check to make sure all tables in the databases have datasette metadata.
 
-    This function fails if there are tables present in a database
-    that do not have structure metadata.
+    This function fails if there are tables lacking Datasette metadata in one of the
+    databases we expect to have that kind of metadata. Note that we currently do
+    not have this kind of metadata for the FERC databases derived from DBF or the
+    Census DP1.
 
     Args:
-        metadata: The structure metadata for the datasette deployment as yaml
+        metadata_yml: The structure metadata for the datasette deployment as yaml
         databases: The list of databases to test.
     """
     pudl_output = PudlPaths().pudl_output
@@ -1992,7 +1995,7 @@ def check_tables_have_metadata(
 
         tables_with_metadata = set(parsed_datasette_metadata[database_name]["tables"])
 
-        # Find the tables that existing in the database that we don't have metadata for
+        # Find the tables the database that don't have metadata
         tables_missing_metadata = tables_in_database - tables_with_metadata
 
         tables_missing_metadata_results[database_name] = tables_missing_metadata

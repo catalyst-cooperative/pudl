@@ -1881,7 +1881,7 @@ class Package(PudlMeta):
         resources = self.resources
 
         def sort_resource_names(resource: Resource):
-            pattern = re.compile(r"(_out_|out_|core_)")
+            pattern = re.compile(r"^(_out_|out_|core_)")
 
             matches = pattern.findall(resource.name)
             prefix = matches[0] if matches else ""

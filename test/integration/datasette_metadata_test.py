@@ -8,7 +8,6 @@ from pudl.helpers import (
     create_datasette_metadata_yaml,
     parse_datasette_metadata_yml,
 )
-from pudl.metadata.classes import DatasetteMetadata
 from pudl.workspace.setup import PudlPaths
 
 logger = logging.getLogger(__name__)
@@ -20,15 +19,15 @@ def test_datasette_metadata_to_yml(ferc1_engine_xbrl):
     Requires the ferc1_engine_xbrl because we construct Datasette metadata from the
     datapackage.json files which annotate the XBRL derived FERC SQLite DBs.
     """
-    metadata_yml = PudlPaths().output_dir / "metadata.yml"
-    logger.info(f"Writing Datasette Metadata to {metadata_yml}")
+    metadata_yml_path = PudlPaths().output_dir / "metadata.yml"
+    logger.info(f"Writing Datasette Metadata to {metadata_yml_path}")
 
-    dm = DatasetteMetadata.from_data_source_ids(PudlPaths().output_dir)
-    with metadata_yml.open("w") as f:
-        f.write(dm.to_yaml())
+    metadata_yml = create_datasette_metadata_yaml()
+    with metadata_yml_path.open("w") as f:
+        f.write(metadata_yml)
 
     logger.info("Parsing generated metadata using datasette utils.")
-    parsed_metadata = parse_datasette_metadata_yml(metadata_yml.open())
+    parsed_metadata = parse_datasette_metadata_yml(metadata_yml_path.open())
     assert sorted(set(parsed_metadata["databases"])) == sorted(
         {
             "ferc1_dbf",
