@@ -13,7 +13,7 @@ from typing import Annotated, Any, Self
 from urllib.parse import ParseResult, urlparse
 
 import click
-import datapackage
+import frictionless
 import requests
 from google.auth.exceptions import DefaultCredentialsError
 from pydantic import HttpUrl, StringConstraints
@@ -167,8 +167,11 @@ class DatapackageDescriptor:
 
         Throws ValueError if invalid.
         """
-        dp = datapackage.Package(datapackage_json)
-        if not dp.valid:
+        # TODO (daz): when we upgrade to frictionless>=5.0, this will be:
+        # dp = frictionless.Package.validate_descriptor(datapackage_json)
+        # if not dp.valid:
+        dp = frictionless.Package(datapackage_json)
+        if not dp.metadata_validate():
             msg = f"Found {len(dp.errors)} datapackage validation errors:\n"
             for e in dp.errors:
                 msg = msg + f"  * {e}\n"
