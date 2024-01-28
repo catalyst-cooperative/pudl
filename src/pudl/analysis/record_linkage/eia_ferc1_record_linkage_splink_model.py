@@ -170,9 +170,7 @@ def get_full_records(best_match_df, inputs):
         plant_parts_eia_true=inputs.get_plant_parts_eia_true(),
         plants_ferc1=inputs.get_plants_ferc1(),
         train_df=inputs.get_train_df(),
-    ).pipe(
-        add_null_overrides
-    )  # Override specified values with NA record_id_eia
+    ).pipe(add_null_overrides)  # Override specified values with NA record_id_eia
     return connected_df
 
 
