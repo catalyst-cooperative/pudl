@@ -190,6 +190,69 @@ class NameCleaner(TransformStep):
         return FunctionTransformer(self.company_cleaner.apply_name_cleaning)
 
 
+class FuelTypeFiller(TransformStep):
+    """Fill missing fuel types from another column."""
+
+    name: str = "fuel_type_filler"
+    fuel_type_col: str = "fuel_type_code_pudl"
+    name_col: str = "plant_name"
+
+    def as_transformer(self):
+        """Return configured FuelTypeFiller"""
+        return FunctionTransformer(
+            _fill_fuel_type_from_name,
+            kw_args={"fuel_type_col": self.fuel_type_col, "name_col": self.name_col},
+        )
+
+
+def _extract_keyword_from_column(ser: pd.Series, keyword_list: list[str]) -> pd.Series:
+    """Extract keywords contained in a Pandas series with a regular expression."""
+    pattern = r"(?:^|\s+)(" + "|".join(keyword_list) + r")(?:\s+|$)"
+    return ser.str.extract(pattern, expand=False)
+
+
+def _fill_fuel_type_from_name(
+    df: pd.DataFrame, fuel_type_col: str, name_col: str
+) -> pd.DataFrame:
+    """Impute missing fuel type data from a name column.
+
+    If a missing fuel type code is contained in the plant name,
+    fill in the fuel type code PUDL for that record. E.g. "Washington Hydro"
+    """
+    if fuel_type_col not in df.columns:
+        raise AssertionError(f"{fuel_type_col} is not in dataframe columns.")
+    # TODO: dynamically get this list from core_eia__codes_energy_sources
+    fuel_type_list = [
+        "waste",
+        "coal",
+        "gas",
+        "oil",
+        "other",
+        "nuclear",
+        "solar",
+        "hydro",
+        "wind",
+    ]
+    fuel_type_map = {fuel_type: fuel_type for fuel_type in fuel_type_list}
+    fuel_type_map.update(
+        {
+            "pumped storage": "hydro",
+            "peaker": "gas",
+            "gt": "gas",
+            "peaking": "gas",
+            "river": "hydro",
+            "falls": "hydro",
+        }
+    )
+    # grab fuel type keywords that are within plant_name and fill in null FTCP
+    df[fuel_type_col] = df[fuel_type_col].fillna(
+        _extract_keyword_from_column(df[name_col], list(fuel_type_map.keys())).map(
+            fuel_type_map
+        )
+    )
+    return df[fuel_type_col]
+
+
 def _apply_string_similarity_func(df, function_key: str, col1: str, col2: str):
     function_transforms = {
         "jaro_winkler": lambda df: df.apply(
