@@ -100,6 +100,7 @@ default_assets = (
         [
             pudl.analysis.plant_parts_eia,
             pudl.analysis.record_linkage.eia_ferc1_record_linkage,
+            pudl.analysis.record_linkage.eia_ferc1_record_linkage_splink_model,
         ],
         group_name="eia_ferc1_record_linkage",
     ),
