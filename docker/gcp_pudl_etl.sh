@@ -125,10 +125,11 @@ function zenodo_data_release() {
 function notify_slack() {
     # Notify pudl-deployment slack channel of deployment status
     echo "Notifying Slack about deployment status"
+    message='# `${BUILD_ID}` status\n\n'
     if [[ "$1" == "success" ]]; then
-        message=":large_green_circle: :sunglasses: :unicorn_face: :rainbow: The deployment succeeded!! :partygritty: :database_parrot: :blob-dance: :large_green_circle:\n\n"
+        message+=":large_green_circle: :sunglasses: :unicorn_face: :rainbow: deployment succeeded!! :partygritty: :database_parrot: :blob-dance: :large_green_circle:\n\n"
     elif [[ "$1" == "failure" ]]; then
-        message=":x: Oh bummer the deployment failed :fiiiiine: :sob: :cry_spin: :x:\n\n"
+        message+=":x: Oh bummer the deployment failed :fiiiiine: :sob: :cry_spin: :x:\n\n"
     else
         echo "Invalid deployment status"
         exit 1
@@ -143,11 +144,14 @@ function notify_slack() {
     message+="DISTRIBUTION_BUCKET_SUCCESS: $DISTRIBUTION_BUCKET_SUCCESS\n"
     message+="ZENODO_SUCCESS: $ZENODO_SUCCESS\n\n"
 
-    message+="Logs on <https://console.cloud.google.com/batch/jobsDetail/regions/us-west1/jobs/run-etl-$BUILD_ID/logs?project=catalyst-cooperative-pudl|Google Batch Console>.\n\n"
-    message+="See <https://console.cloud.google.com/storage/browser/builds.catalyst.coop/$BUILD_ID|GCS> for outputs."
+    message+="*Query* logs on <https://console.cloud.google.com/batch/jobsDetail/regions/us-west1/jobs/run-etl-$BUILD_ID/logs?project=catalyst-cooperative-pudl|Google Batch Console>.\n\n"
+
+    message+="*Download* logs at <https://console.cloud.google.com/storage/browser/_details/builds.catalyst.coop/$BUILD_ID/$BUILD_ID-pudl-etl.log|gs://builds.catalyst.coop/${BUILD_ID}/${BUILD_ID}-pudl-etl.log>\n\n"
+
+    message+="Get *full outputs* at <https://console.cloud.google.com/storage/browser/builds.catalyst.coop/$BUILD_ID|gs://builds.catalyst.coop/${BUILD_ID}>."
 
     send_slack_msg "$message"
-    upload_file_to_slack "$LOGFILE" "pudl_etl logs for $BUILD_ID:"
+    upload_file_to_slack "$LOGFILE" "$BUILD_ID logs:"
 }
 
 function update_nightly_branch() {
