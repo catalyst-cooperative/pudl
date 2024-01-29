@@ -340,7 +340,7 @@ class PudlParquetIOManager(IOManager):
                 pa.Table.from_pandas(df, schema=schema, preserve_index=False)
             )
 
-    def load_input(self, context: InputContext) -> Any:
+    def load_input(self, context: InputContext) -> pd.DataFrame:
         """Loads pudl table from parquet file."""
         table_name = get_table_name_from_context(context)
         parquet_path = PudlPaths().parquet_path("pudl", table_name)
