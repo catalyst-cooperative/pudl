@@ -321,7 +321,7 @@ def pudl_io_manager(
 @pytest.fixture(scope="session")
 def pudl_engine(pudl_io_manager: PudlMixedFormatIOManager) -> sa.Engine:
     """Get PUDL SQL engine from io manager."""
-    return pudl_mixed_format_io_manager._sqlite_io_manager.engine
+    return pudl_io_manager._sqlite_io_manager.engine
 
 
 @pytest.fixture(scope="session", autouse=True)
