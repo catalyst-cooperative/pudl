@@ -388,8 +388,6 @@ class PudlSQLiteIOManager(SQLiteIOManager):
                 exception, if the database is locked by another connection.  If another
                 connection opens a transaction to modify the database, it will be locked
                 until that transaction is committed.
-            settings: controls how parquet files are used by the PUDL ETL, in particular,
-                whether they should be used for input/output of dataframes.
         """
         if package is None:
             package = Package.from_resource_ids()
