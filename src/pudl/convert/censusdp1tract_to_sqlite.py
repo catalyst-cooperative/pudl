@@ -34,7 +34,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
     },
     required_resource_keys={"datastore"},
 )
-def raw_census__demographic_profiles_dp1(context):
+def raw_censusdp1tract__all_tables(context):
     """Use GDAL's ogr2ogr utility to convert the Census DP1 GeoDB to an SQLite DB.
 
     The Census DP1 GeoDB is read from the datastore, where it is stored as a

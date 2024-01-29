@@ -215,7 +215,7 @@ class PudlTabl:
             "out_eia923__AGG_generation_fuel_combined": "gf_eia923",
             # ferc714
             "core_ferc714__respondent_id": "respondent_id_ferc714",
-            "core_ferc714__hourly_demand_by_planning_area": "demand_hourly_pa_ferc714",
+            "out_ferc714__hourly_planning_area_demand": "demand_hourly_pa_ferc714",
             "out_ferc714__respondents_with_fips": "fipsified_respondents_ferc714",
             "out_ferc714__summarized_demand": "summarized_demand_ferc714",
             # service territory

@@ -6198,7 +6198,7 @@ def _core_ferc1_xbrl__metadata(**kwargs) -> pd.DataFrame:
     },
     io_manager_key=None,  # Change to sqlite_io_manager...
 )
-def _core_xbrl_ferc1__calculation_components(**kwargs) -> pd.DataFrame:
+def _core_ferc1_xbrl__calculation_components(**kwargs) -> pd.DataFrame:
     """Create calculation-component table from table-level metadata."""
     _core_ferc1_xbrl__metadata_json = kwargs["_core_ferc1_xbrl__metadata_json"]
     _core_ferc1__table_dimensions = kwargs["_core_ferc1__table_dimensions"]
@@ -6696,18 +6696,18 @@ def infer_intra_factoid_totals(
         ]
     }
     | {
-        "_core_xbrl_ferc1__calculation_components": AssetIn(
-            "_core_xbrl_ferc1__calculation_components"
+        "_core_ferc1_xbrl__calculation_components": AssetIn(
+            "_core_ferc1_xbrl__calculation_components"
         )
     },
 )
 def _core_ferc1__calculation_metric_checks(**kwargs):
     """Check calculation metrics for all transformed tables which have reconciled calcs."""
-    calculation_components = kwargs["_core_xbrl_ferc1__calculation_components"]
+    calculation_components = kwargs["_core_ferc1_xbrl__calculation_components"]
     transformed_ferc1_dfs = {
         name: df
         for (name, df) in kwargs.items()
-        if name not in ["_core_xbrl_ferc1__calculation_components"]
+        if name not in ["_core_ferc1_xbrl__calculation_components"]
     }
     # standardize the two key columns we are going to use into generic names
     xbrl_factoid_name = table_to_xbrl_factoid_name()

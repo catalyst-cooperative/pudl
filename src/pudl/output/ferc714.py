@@ -557,7 +557,7 @@ def out_ferc714__respondents_with_fips(
 @asset(compute_kind="Python")
 def _out_ferc714__georeferenced_counties(
     out_ferc714__respondents_with_fips: pd.DataFrame,
-    core_censusdp1__entity_county: gpd.GeoDataFrame,
+    _core_censusdp1tract__entity_county: gpd.GeoDataFrame,
 ) -> gpd.GeoDataFrame:
     """Annual respondents with all associated county-level geometries.
 
@@ -568,7 +568,8 @@ def _out_ferc714__georeferenced_counties(
     of the FIPS IDs so you can also still do ID based analyses.
     """
     counties_gdf = pudl.analysis.service_territory.add_geometries(
-        out_ferc714__respondents_with_fips, census_gdf=core_censusdp1__entity_county
+        out_ferc714__respondents_with_fips,
+        census_gdf=_core_censusdp1tract__entity_county,
     ).pipe(apply_pudl_dtypes)
     return counties_gdf
 
@@ -577,7 +578,7 @@ def _out_ferc714__georeferenced_counties(
 def _out_ferc714__georeferenced_respondents(
     out_ferc714__respondents_with_fips: pd.DataFrame,
     out_ferc714__summarized_demand: pd.DataFrame,
-    core_censusdp1__entity_county: gpd.GeoDataFrame,
+    _core_censusdp1tract__entity_county: gpd.GeoDataFrame,
 ) -> gpd.GeoDataFrame:
     """Annual respondents with a single all-encompassing geometry for each year.
 
@@ -592,7 +593,7 @@ def _out_ferc714__georeferenced_respondents(
     respondents_gdf = (
         pudl.analysis.service_territory.add_geometries(
             out_ferc714__respondents_with_fips,
-            census_gdf=core_censusdp1__entity_county,
+            census_gdf=_core_censusdp1tract__entity_county,
             dissolve=True,
             dissolve_by=["report_date", "respondent_id_ferc714"],
         )
@@ -609,7 +610,7 @@ def _out_ferc714__georeferenced_respondents(
 @asset(compute_kind="Python", io_manager_key="pudl_sqlite_io_manager")
 def out_ferc714__summarized_demand(
     _out_ferc714__annualized_respondents: pd.DataFrame,
-    core_ferc714__hourly_demand_by_planning_area: pd.DataFrame,
+    out_ferc714__hourly_planning_area_demand: pd.DataFrame,
     out_ferc714__respondents_with_fips: pd.DataFrame,
     _out_ferc714__categorized_respondents: pd.DataFrame,
     _out_ferc714__georeferenced_counties: gpd.GeoDataFrame,
@@ -628,7 +629,7 @@ def out_ferc714__summarized_demand(
     demand_annual = (
         pd.merge(
             _out_ferc714__annualized_respondents,
-            core_ferc714__hourly_demand_by_planning_area.loc[
+            out_ferc714__hourly_planning_area_demand.loc[
                 :, ["report_date", "respondent_id_ferc714", "demand_mwh"]
             ],
             on=["report_date", "respondent_id_ferc714"],

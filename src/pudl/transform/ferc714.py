@@ -234,7 +234,7 @@ RENAME_COLS = {
         "respondent_id": "respondent_id_ferc714",
         "respondent_name": "respondent_name_ferc714",
     },
-    "core_ferc714__hourly_demand_by_planning_area": {
+    "out_ferc714__hourly_planning_area_demand": {
         "report_yr": "report_year",
         "plan_date": "report_date",
         "respondent_id": "respondent_id_ferc714",
@@ -397,7 +397,7 @@ def core_ferc714__respondent_id(
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager")
-def core_ferc714__hourly_demand_by_planning_area(
+def out_ferc714__hourly_planning_area_demand(
     raw_ferc714__demand_hourly_pa: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the hourly demand time series by Planning Area.
@@ -421,7 +421,7 @@ def core_ferc714__hourly_demand_by_planning_area(
     logger.info("Converting dates into pandas Datetime types.")
     df = _pre_process(
         raw_ferc714__demand_hourly_pa,
-        table_name="core_ferc714__hourly_demand_by_planning_area",
+        table_name="out_ferc714__hourly_planning_area_demand",
     )
 
     # Parse date strings
@@ -522,6 +522,6 @@ def core_ferc714__hourly_demand_by_planning_area(
     ]
     df = df.drop(columns=set(df.columns) - set(columns))
     df = _post_process(
-        df[columns], table_name="core_ferc714__hourly_demand_by_planning_area"
+        df[columns], table_name="out_ferc714__hourly_planning_area_demand"
     )
     return df

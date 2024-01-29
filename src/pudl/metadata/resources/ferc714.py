@@ -18,7 +18,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "ferc714",
         "etl_group": "ferc714",
     },
-    "core_ferc714__hourly_demand_by_planning_area": {
+    "out_ferc714__hourly_planning_area_demand": {
         "description": (
             "Hourly electricity demand by planning area. FERC Form 714, Part III, "
             "Schedule 2a."

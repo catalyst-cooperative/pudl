@@ -282,7 +282,7 @@ def out_eia923__fuel_receipts_costs(
     core_eia923__monthly_fuel_receipts_costs: pd.DataFrame,
     core_eia923__entity_coalmine: pd.DataFrame,
     _out_eia__plants_utilities: pd.DataFrame,
-    _out_eia__monthly_state_average_fuel_costs: pd.DataFrame,
+    _out_eia__monthly_state_fuel_prices: pd.DataFrame,
     core_eia__entity_plants: pd.DataFrame,
 ) -> pd.DataFrame:
     """Denormalize the :ref:`core_eia923__monthly_fuel_receipts_costs` table."""
@@ -308,7 +308,7 @@ def out_eia923__fuel_receipts_costs(
     if context.op_config["fill"]:
         logger.info("filling in fuel cost NaNs")
         frc_df = _fill_fuel_costs_by_state(
-            frc_df, fuel_costs=_out_eia__monthly_state_average_fuel_costs
+            frc_df, fuel_costs=_out_eia__monthly_state_fuel_prices
         )
     # add the flag column to note that we didn't fill in with API data
     else:

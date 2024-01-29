@@ -15,15 +15,11 @@ def census_asset_factory(layer: str) -> AssetsDefinition:
 
     @asset(
         ins={
-            "raw_census__demographic_profiles_dp1": AssetIn(
-                "raw_census__demographic_profiles_dp1"
-            )
+            "raw_censusdp1tract__all_tables": AssetIn("raw_censusdp1tract__all_tables")
         },
-        name=f"core_censusdp1__entity_{layer}",
+        name=f"_core_censusdp1tract__entity_{layer}",
     )
-    def census_layer(
-        raw_census__demographic_profiles_dp1, **kwargs
-    ) -> gpd.GeoDataFrame:
+    def census_layer(raw_censusdp1tract__all_tables, **kwargs) -> gpd.GeoDataFrame:
         """Select one layer from the Census DP1 database.
 
         Uses information within the Census DP1 database to set the coordinate reference
@@ -31,7 +27,7 @@ def census_asset_factory(layer: str) -> AssetsDefinition:
         is renamed to "geom" as that's the default withing Geopandas. No other column
         names or types are altered.
         """
-        census_conn = f"sqlite:///{raw_census__demographic_profiles_dp1}"
+        census_conn = f"sqlite:///{raw_censusdp1tract__all_tables}"
         dp1_engine = sa.create_engine(census_conn)
 
         def get_layer(layer, dp1_engine):

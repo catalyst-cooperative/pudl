@@ -1289,8 +1289,8 @@ def exploded_table_asset_factory(
     """Create an exploded table based on a set of related input tables."""
     ins: Mapping[str, AssetIn] = {
         "_core_ferc1_xbrl__metadata": AssetIn("_core_ferc1_xbrl__metadata"),
-        "_core_xbrl_ferc1__calculation_components": AssetIn(
-            "_core_xbrl_ferc1__calculation_components"
+        "_core_ferc1_xbrl__calculation_components": AssetIn(
+            "_core_ferc1_xbrl__calculation_components"
         ),
         "_out_ferc1__detailed_tags": AssetIn("_out_ferc1__detailed_tags"),
     }
@@ -1305,8 +1305,8 @@ def exploded_table_asset_factory(
         **kwargs: dict[str, pd.DataFrame],
     ) -> pd.DataFrame:
         _core_ferc1_xbrl__metadata = kwargs["_core_ferc1_xbrl__metadata"]
-        _core_xbrl_ferc1__calculation_components = kwargs[
-            "_core_xbrl_ferc1__calculation_components"
+        _core_ferc1_xbrl__calculation_components = kwargs[
+            "_core_ferc1_xbrl__calculation_components"
         ]
         tags = kwargs["_out_ferc1__detailed_tags"]
         tables_to_explode = {
@@ -1315,7 +1315,7 @@ def exploded_table_asset_factory(
             if name
             not in [
                 "_core_ferc1_xbrl__metadata",
-                "_core_xbrl_ferc1__calculation_components",
+                "_core_ferc1_xbrl__calculation_components",
                 "_out_ferc1__detailed_tags",
                 "off_by_facts",
             ]
@@ -1324,7 +1324,7 @@ def exploded_table_asset_factory(
             table_names=tables_to_explode.keys(),
             root_table=root_table,
             metadata_xbrl_ferc1=_core_ferc1_xbrl__metadata,
-            calculation_components_xbrl_ferc1=_core_xbrl_ferc1__calculation_components,
+            calculation_components_xbrl_ferc1=_core_ferc1_xbrl__calculation_components,
             seed_nodes=seed_nodes,
             tags=tags,
             group_metric_checks=group_metric_checks,
