@@ -21,9 +21,28 @@ function authenticate_gcp() {
     gcloud config set project "$GCP_BILLING_PROJECT"
 }
 
+function initialize_postgres() {
+    echo "initializing postgres."
+    # This is sort of a fiddly set of postgres admin tasks:
+    #
+    # 1. start the dagster cluster, which is set to be owned by mambauser in the Dockerfile
+    # 2. create a db within this cluster so we can do things
+    # 3. tell it to actually fail when we mess up, instead of continuing blithely
+    # 4. create a *dagster* user, whose creds correspond with those in docker/dagster.yaml
+    # 5. make a database for dagster, which is owned by the dagster user
+    #
+    # When the PG major version changes we'll have to update this from 15 to 16
+    pg_ctlcluster 15 dagster start && \
+    createdb -h127.0.0.1 -p5433 && \
+    psql -v "ON_ERROR_STOP=1" -h127.0.0.1 -p5433 && \
+    psql -c "CREATE USER dagster WITH SUPERUSER PASSWORD 'dagster_password'" -h127.0.0.1 -p5433 && \
+    psql -c "CREATE DATABASE dagster OWNER dagster" -h127.0.0.1 -p5433
+}
+
 function run_pudl_etl() {
     echo "Running PUDL ETL"
     send_slack_msg ":large_yellow_circle: Deployment started for $BUILD_ID :floppy_disk:"
+    initialize_postgres && \
     authenticate_gcp && \
     alembic upgrade head && \
     ferc_to_sqlite \
@@ -45,17 +64,8 @@ function run_pudl_etl() {
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
         --etl-settings "$PUDL_SETTINGS_YML" \
         --live-dbs test/validate \
+    && pg_ctlcluster 15 dagster stop \
     && touch "$PUDL_OUTPUT/success"
-}
-
-function shutdown_vm() {
-    upload_file_to_slack "$LOGFILE" "pudl_etl logs for $BUILD_ID:"
-    # Shut down the vm instance when the etl is done.
-    echo "Shutting down VM."
-    ACCESS_TOKEN=$(curl \
-        "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" \
-        -H "Metadata-Flavor: Google" | jq -r '.access_token')
-    curl -X POST -H "Content-Length: 0" -H "Authorization: Bearer ${ACCESS_TOKEN}" "https://compute.googleapis.com/compute/v1/projects/catalyst-cooperative-pudl/zones/$GCE_INSTANCE_ZONE/instances/$GCE_INSTANCE/stop"
 }
 
 function save_outputs_to_gcs() {
@@ -115,10 +125,11 @@ function zenodo_data_release() {
 function notify_slack() {
     # Notify pudl-deployment slack channel of deployment status
     echo "Notifying Slack about deployment status"
+    message='# `${BUILD_ID}` status\n\n'
     if [[ "$1" == "success" ]]; then
-        message=":large_green_circle: :sunglasses: :unicorn_face: :rainbow: The deployment succeeded!! :partygritty: :database_parrot: :blob-dance: :large_green_circle:\n\n"
+        message+=":large_green_circle: :sunglasses: :unicorn_face: :rainbow: deployment succeeded!! :partygritty: :database_parrot: :blob-dance: :large_green_circle:\n\n"
     elif [[ "$1" == "failure" ]]; then
-        message=":x: Oh bummer the deployment failed :fiiiiine: :sob: :cry_spin: :x:\n\n"
+        message+=":x: Oh bummer the deployment failed :fiiiiine: :sob: :cry_spin: :x:\n\n"
     else
         echo "Invalid deployment status"
         exit 1
@@ -133,9 +144,14 @@ function notify_slack() {
     message+="DISTRIBUTION_BUCKET_SUCCESS: $DISTRIBUTION_BUCKET_SUCCESS\n"
     message+="ZENODO_SUCCESS: $ZENODO_SUCCESS\n\n"
 
-    message+="See https://console.cloud.google.com/storage/browser/builds.catalyst.coop/$BUILD_ID for logs and outputs."
+    message+="*Query* logs on <https://console.cloud.google.com/batch/jobsDetail/regions/us-west1/jobs/run-etl-$BUILD_ID/logs?project=catalyst-cooperative-pudl|Google Batch Console>.\n\n"
+
+    message+="*Download* logs at <https://console.cloud.google.com/storage/browser/_details/builds.catalyst.coop/$BUILD_ID/$BUILD_ID-pudl-etl.log|gs://builds.catalyst.coop/${BUILD_ID}/${BUILD_ID}-pudl-etl.log>\n\n"
+
+    message+="Get *full outputs* at <https://console.cloud.google.com/storage/browser/builds.catalyst.coop/$BUILD_ID|gs://builds.catalyst.coop/${BUILD_ID}>."
 
     send_slack_msg "$message"
+    upload_file_to_slack "$LOGFILE" "$BUILD_ID logs:"
 }
 
 function update_nightly_branch() {
@@ -232,6 +248,5 @@ if [[ $ETL_SUCCESS == 0 && \
     notify_slack "success"
 else
     notify_slack "failure"
+    exit 1
 fi
-
-shutdown_vm
