@@ -151,8 +151,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "automated_meter_reading": {
         "type": "integer",
         "description": (
-            "Meters that collect data for billing purposes only and transmit this data "
-            "one way, usually from the customer to the distribution utility."
+            "Number of meters that collect data for billing purposes only and transmit "
+            "this data one way, usually from the customer to the distribution utility."
         ),
     },
     "avg_customers_per_month": {
@@ -302,7 +302,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "caidi_w_major_event_days_minutes": {
         "type": "number",
         "description": (
-            "Average number of minutes per interuption (SAIDI/SAIFI) including major "
+            "Average number of minutes per interruption (SAIDI/SAIFI) including major "
             "event days."
         ),
         "unit": "min",
@@ -310,7 +310,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "caidi_w_major_event_days_minus_loss_of_service_minutes": {
         "type": "number",
         "description": (
-            "Average number of minutes per interuption (SAIDI/SAIFI) including major "
+            "Average number of minutes per interruption (SAIDI/SAIFI) including major "
             "event days and excluding reliability events caused by a loss of supply."
         ),
         "unit": "min",
@@ -318,7 +318,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "caidi_wo_major_event_days_minutes": {
         "type": "number",
         "description": (
-            "Average number of minutes per interuption (SAIDI/SAIFI) excluding major "
+            "Average number of minutes per interruption (SAIDI/SAIFI) excluding major "
             "event days."
         ),
         "unit": "min",
@@ -676,7 +676,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Total cost of customer incentives in a given report year. Customer "
             "incentives are the total financial value provided to a customer for "
             "program participation, whether, for example, cash payment, or lowered "
-            "tariff rates relative to non-participants, in- kind services (e.g. "
+            "tariff rates relative to non-participants, in-kind services (e.g. "
             "design work), or other benefits directly provided to the customer for "
             "their program participation."
         ),
@@ -690,7 +690,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "efficiency programs. Customer incentives are the total financial value "
             "provided to a customer for program participation, whether, for example, "
             "cash payment, or lowered tariff rates relative to non-participants, "
-            "in- kind services (e.g. design work), or other benefits directly provided "
+            "in-kind services (e.g. design work), or other benefits directly provided "
             "to the customer for their program participation."
         ),
         "unit": "USD",
@@ -702,7 +702,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "incremental costs and all future costs. Customer incentives are the "
             "total financial value provided to a customer for program participation, "
             "whether, for example, cash payment, or lowered tariff rates relative to "
-            "non-participants, in- kind services (e.g. design work), or other benefits "
+            "non-participants, in-kind services (e.g. design work), or other benefits "
             "directly provided to the customer for their program participation."
         ),
         "unit": "USD",
@@ -760,7 +760,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "demand_annual_mwh": {
         "type": "number",
-        "description": "Annual demand in a given report year.",
+        "description": "Annual electricity demand in a given report year.",
         "unit": "MWh",
     },
     "demand_annual_per_capita_mwh": {
@@ -775,7 +775,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "demand_mwh": {
         "type": "number",
-        "description": "Demand in a given time frame.",
+        "description": "Electricity demand (energy) within a given timeframe.",
         "unit": "MWh",
     },
     "demand_density_mwh_km2": {
@@ -918,7 +918,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "energy_displaced_mwh": {
         "type": "number",
-        "description": "Amount of energy displaced from net metering.",
+        "description": "Amount of energy (MWh) fed back into the grid by net metering "
+        "customers.",
         "unit": "MWh",
     },
     "energy_disposition_type": {
@@ -1113,7 +1114,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "estimated_or_actual_tech_data": {
         "type": "string",
-        "description": "whether the reported technology data is estimated or actual.",
+        "description": "Whether the reported technology data is estimated or actual.",
         "constraints": {"enum": list(ESTIMATED_OR_ACTUAL.values())},
     },
     "exchange_energy_delivered_mwh": {
@@ -1127,7 +1128,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "exchange_energy_received_mwh": {
         "type": "number",
         "description": (
-            "The amount of exchange energy recieved. Does not include power recieved "
+            "The amount of exchange energy received. Does not include power received "
             "through tolling arrangements."
         ),
         "unit": "MWh",
@@ -1647,7 +1648,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "is_epacems_state": {
         "type": "boolean",
         "description": (
-            "xIndicates whether the associated state reports data within the EPA's "
+            "Indicates whether the associated state reports data within the EPA's "
             "Continuous Emissions Monitoring System."
         ),
     },
@@ -1655,7 +1656,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "The code of the plant's ISO or RTO. NA if not reported in that year.",
     },
-    "kwh_per_customer": {"type": "number", "description": "kwh per customer."},
+    "kwh_per_customer": {"type": "number", "description": "kWh per customer."},
     "label": {
         "type": "string",
         "description": "Longer human-readable code using snake_case",
@@ -1990,7 +1991,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": (
             "The difference between the amount of energy entering the respondent's "
-            "system (wheeled recieved) for transmission through the respondent's "
+            "system (wheeled received) for transmission through the respondent's "
             "system and the amount of energy leaving the respondent's system (wheeled "
             "delievered). Wheeled net represents the energy losses on the respondent's "
             "system associated with the wheeling of energy for other systems."
@@ -2829,7 +2830,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "revenue_per_kwh": {
         "type": "number",
         "description": (
-            "The amount of revenue per Kwh by rate schedule aquired in the given "
+            "The amount of revenue per kWh by rate schedule aquired in the given "
             "report year."
         ),
         "unit": "USD",
