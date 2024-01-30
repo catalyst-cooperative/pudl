@@ -65,7 +65,7 @@ def pudl_check_fks(logfile: pathlib.Path, loglevel: str, db_path: pathlib.Path):
     if not db_path:
         db_path = PudlPaths().output_dir / "pudl.sqlite"
 
-    check_foreign_keys(engine)
+    check_foreign_keys(sa.create_engine(f"sqlite:///{db_path}"))
     return 0
 
 

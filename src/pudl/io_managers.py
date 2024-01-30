@@ -325,7 +325,7 @@ class PudlParquetIOManager(IOManager):
         """Writes pudl dataframe to parquet file."""
         assert isinstance(df, pd.DataFrame), "Only panda dataframes are supported."
         table_name = get_table_name_from_context(context)
-        parquet_path = PudlPaths().parquet_path("pudl", table_name)
+        parquet_path = PudlPaths().parquet_path(table_name)
         parquet_path.parent.mkdir(parents=True, exist_ok=True)
         res = Resource.from_id(table_name)
 
@@ -344,7 +344,7 @@ class PudlParquetIOManager(IOManager):
     def load_input(self, context: InputContext) -> pd.DataFrame:
         """Loads pudl table from parquet file."""
         table_name = get_table_name_from_context(context)
-        parquet_path = PudlPaths().parquet_path("pudl", table_name)
+        parquet_path = PudlPaths().parquet_path(table_name)
         res = Resource.from_id(table_name)
         df = pq.read_table(source=parquet_path, schema=res.to_pyarrow()).to_pandas()
         return res.enforce_schema(df)
