@@ -108,6 +108,37 @@ def dataframe_embedder_factory(
     return embed_dataframe_graph
 
 
+def dataframe_cleaner_factory(
+    name_prefix: str, vectorizers: dict[str, ColumnVectorizer]
+):
+    """Return a configured op graph to clean an input dataframe."""
+
+    @op(name=f"{name_prefix}_train")
+    def train_dataframe_cleaner(df: pd.DataFrame):
+        """Train :class:`sklearn.compose.ColumnTransformer` on input."""
+        column_transformer = ColumnTransformer(
+            transformers=[
+                (name, column_transform.as_pipeline(), column_transform.columns)
+                for name, column_transform in vectorizers.items()
+            ],
+        )
+
+        return column_transformer.fit(df)
+
+    @op(name=f"{name_prefix}_apply")
+    def apply_dataframe_cleaner(df: pd.DataFrame, transformer: ColumnTransformer):
+        """Use :class:`sklearn.compose.ColumnTransformer` to transform input."""
+        return transformer.transform(df)
+
+    @graph(name=f"{name_prefix}_embed_graph")
+    def clean_dataframe_graph(df: pd.DataFrame) -> pd.DataFrame:
+        """Train dataframe embedder and apply to input df."""
+        transformer = train_dataframe_cleaner(df)
+        return apply_dataframe_cleaner(df, transformer)
+
+    return clean_dataframe_graph
+
+
 class TextVectorizer(TransformStep):
     """Implement TransformStep for :class:`sklearn.feature_extraction.text.TfidfVectorizer`."""
 
@@ -245,12 +276,16 @@ def _fill_fuel_type_from_name(
         }
     )
     # grab fuel type keywords that are within plant_name and fill in null FTCP
+    null_n = len(df[df[fuel_type_col].isnull()])
+    logger.info(f"NULLS BEFORE: {null_n}")
     df[fuel_type_col] = df[fuel_type_col].fillna(
         _extract_keyword_from_column(df[name_col], list(fuel_type_map.keys())).map(
             fuel_type_map
         )
     )
-    return df[fuel_type_col]
+    null_n = len(df[df[fuel_type_col].isnull()])
+    logger.info(f"NULLS AFTER: {null_n}")
+    return df[[fuel_type_col]]
 
 
 def _apply_string_similarity_func(df, function_key: str, col1: str, col2: str):

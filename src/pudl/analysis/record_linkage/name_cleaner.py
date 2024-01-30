@@ -254,7 +254,7 @@ class CompanyNameCleaner(BaseModel):
     def apply_name_cleaning(
         self,
         df: pd.DataFrame,
-    ) -> pd.Series:
+    ) -> pd.DataFrame:
         """Clean up text names in a dataframe.
 
         Arguments:
@@ -273,4 +273,4 @@ class CompanyNameCleaner(BaseModel):
                     [clean_df, df[col].apply(self.get_clean_data)], axis=1
                 )
             return clean_df
-        return df.squeeze().apply(self.get_clean_data)
+        return df.squeeze().apply(self.get_clean_data).to_frame()

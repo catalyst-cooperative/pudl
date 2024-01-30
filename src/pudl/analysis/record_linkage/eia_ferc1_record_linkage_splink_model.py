@@ -1,7 +1,8 @@
 import pandas as pd
-from dagster import graph_asset, op
+from dagster import Out, graph_asset, op
 from splink.duckdb.linker import DuckDBLinker
 
+import pudl
 from pudl.analysis.record_linkage import embed_dataframe
 from pudl.analysis.record_linkage.eia_ferc1_record_linkage import (
     add_null_overrides,
@@ -13,6 +14,9 @@ from pudl.analysis.record_linkage.eia_ferc1_splink_rule_definitions import (
     BLOCKING_RULES,
     COMPARISONS,
 )
+from pudl.analysis.record_linkage.name_cleaner import CompanyNameCleaner
+
+logger = pudl.logging_helpers.get_logger(__name__)
 
 MATCHING_COLS = [
     "plant_name",
@@ -28,41 +32,57 @@ MATCHING_COLS = [
 ID_COL = ["record_id"]
 EXTRA_COLS = ["report_year", "plant_id_pudl", "utility_id_pudl"]
 
-
-@op
-def get_cleaning_graphs():
-    cleaners = []
-    for dataset in ["eia", "ferc1"]:
-        cleaners.append(
-            embed_dataframe.dataframe_embedder_factory(
-                f"{dataset}_cleaners",
-                {
-                    "plant_name": embed_dataframe.ColumnVectorizer(
-                        transform_steps=[embed_dataframe.NameCleaner()],
-                        columns=[f"plant_name_{dataset}"],
-                    ),
-                    "utility_name": embed_dataframe.ColumnVectorizer(
-                        transform_steps=[embed_dataframe.NameCleaner()],
-                        columns=[f"utility_name{dataset}"],
-                    ),
-                    "fuel_type_code_pudl": embed_dataframe.ColumnVectorizer(
-                        transform_steps=[
-                            embed_dataframe.FuelTypeFiller(
-                                fuel_type_col="fuel_type_code_pudl",
-                                name_col=f"plant_name_{dataset}",
-                            )
-                        ],
-                        columns=["fuel_type_code_pudl", f"plant_name_{dataset}"],
-                    ),
-                },
-            )
-        )
-    return cleaners[0], cleaners[1]
+eia_cleaner = embed_dataframe.dataframe_cleaner_factory(
+    "eia_cleaners",
+    {
+        "plant_name": embed_dataframe.ColumnVectorizer(
+            transform_steps=[embed_dataframe.NameCleaner()],
+            columns=["plant_name_eia"],
+        ),
+        "utility_name": embed_dataframe.ColumnVectorizer(
+            transform_steps=[embed_dataframe.NameCleaner()],
+            columns=["utility_name_eia"],
+        ),
+        "fuel_type_code_pudl": embed_dataframe.ColumnVectorizer(
+            transform_steps=[
+                embed_dataframe.FuelTypeFiller(
+                    fuel_type_col="fuel_type_code_pudl",
+                    name_col="plant_name_eia",
+                )
+            ],
+            columns=["fuel_type_code_pudl", "plant_name_eia"],
+        ),
+    },
+)
+ferc_cleaner = embed_dataframe.dataframe_cleaner_factory(
+    "ferc1_cleaners",
+    {
+        "plant_name": embed_dataframe.ColumnVectorizer(
+            transform_steps=[embed_dataframe.NameCleaner()],
+            columns=["plant_name_ferc1"],
+        ),
+        "utility_name": embed_dataframe.ColumnVectorizer(
+            transform_steps=[embed_dataframe.NameCleaner()],
+            columns=["utility_name_ferc1"],
+        ),
+        "fuel_type_code_pudl": embed_dataframe.ColumnVectorizer(
+            transform_steps=[
+                embed_dataframe.FuelTypeFiller(
+                    fuel_type_col="fuel_type_code_pudl",
+                    name_col="plant_name_ferc1",
+                )
+            ],
+            columns=["fuel_type_code_pudl", "plant_name_ferc1"],
+        ),
+    },
+)
 
 
 @op
 def prepare_for_matching(df):
-    df = df[ID_COL + MATCHING_COLS + EXTRA_COLS]
+    cols = ID_COL + MATCHING_COLS + EXTRA_COLS
+    logger.info(f"COLS: {cols}")
+    df = df[cols]
     df["installation_year"] = pd.to_datetime(df["installation_year"], format="%Y")
     df["construction_year"] = pd.to_datetime(df["construction_year"], format="%Y")
     return df
@@ -70,7 +90,7 @@ def prepare_for_matching(df):
 
 @op
 def get_training_data_df(inputs):
-    train_df = inputs.get_train_df()
+    train_df = inputs.get_train_df().reset_index()
     train_df = train_df[["record_id_ferc1", "record_id_eia"]].rename(
         columns={"record_id_eia": "record_id_l", "record_id_ferc1": "record_id_r"}
     )
@@ -82,7 +102,7 @@ def get_training_data_df(inputs):
     return train_df
 
 
-@op
+@op(out={"eia_df": Out(), "ferc_df": Out()})
 def get_input_dfs(inputs):
     eia_df = (
         inputs.get_plant_parts_eia_true()
@@ -178,7 +198,6 @@ def out_pudl__yearly_assn_eia_ferc1_plant_parts_splink(
     eia_df, ferc_df = get_input_dfs(inputs)
     train_df = get_training_data_df(inputs)
     # apply cleaning transformations
-    eia_cleaner, ferc_cleaner = get_cleaning_graphs()
     eia_df = eia_cleaner(eia_df)
     ferc_df = ferc_cleaner(ferc_df)
     # prepare for matching with splink
