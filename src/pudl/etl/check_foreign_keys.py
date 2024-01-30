@@ -174,7 +174,7 @@ def check_foreign_keys(engine: sa.Engine):
     Raises:
         ForeignKeyErrors: if data in the database violate foreign key constraints.
     """
-    logger.info(f"Running foreign key check on {engine.name} database.")
+    logger.info(f"Running foreign key check on {engine.url} database.")
     with engine.begin() as con:
         fk_errors = pd.read_sql_query("PRAGMA foreign_key_check;", con)
 
