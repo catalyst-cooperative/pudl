@@ -68,6 +68,9 @@ databases:
         description_html: |
           <p>{{ resource.description | wordwrap(80) | indent(10) }}</p>
       {%- endif %}
+      {%- if resource.name.startswith("_") %}
+        hidden: true
+      {%- endif %}
       {%- if resource.name in label_columns %}
         label_column: {{ label_columns[resource.name] }}
       {%- endif %}

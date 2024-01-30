@@ -61,6 +61,68 @@ SOURCES: dict[str, Any] = {
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
+    "eia191": {
+        "title": "EIA Form 191 -- Monthly Underground Natural Gas Storage Report",
+        "path": "https://www.eia.gov/naturalgas/ngqs/",
+        "description": (
+            "The EIA Form 191, also known as the Monthly Underground Natural Gas "
+            "Storage Report, describes the working and base gas in reservoirs, "
+            "injections, withdrawals, and location of reservoirs by field monthly."
+        ),
+        "source_file_dict": {
+            "respondents": (
+                "All companies that operate underground natural gas storage fields in "
+                "the United States."
+            ),
+            "source_format": "JSON",
+        },
+        "field_namespace": "eia",
+        "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
+        "keywords": sorted(
+            set(
+                [
+                    "eia191",
+                    "form 191",
+                    "natural gas",
+                ]
+                + KEYWORDS["eia"]
+                + KEYWORDS["us_govt"]
+            )
+        ),
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
+    },
+    "eia757a": {
+        "title": "EIA Form 757A -- Natural Gas Processing Plant Survey",
+        "path": "https://www.eia.gov/naturalgas/ngqs/",
+        "description": (
+            "The EIA Form 757A, also known as the Natural Gas Processing Plant Survey "
+            "Schedule A provides detailed plant-level information on the capacity, "
+            "status, operations and connecting infrastructure of natural gas processing "
+            "plants. The form is completed tri-anually."
+        ),
+        "source_file_dict": {
+            "respondents": ("Natural gas processing plants."),
+            "source_format": "JSON",
+        },
+        "field_namespace": "eia",
+        "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
+        "keywords": sorted(
+            set(
+                [
+                    "eia757",
+                    "eia757a",
+                    "form 757",
+                    "form 757 schedule a",
+                    "natural gas",
+                ]
+                + KEYWORDS["eia"]
+                + KEYWORDS["us_govt"]
+            )
+        ),
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
+    },
     "eia860": {
         "title": "EIA Form 860 -- Annual Electric Generator Report",
         "path": "https://www.eia.gov/electricity/data/eia860",
@@ -299,7 +361,7 @@ SOURCES: dict[str, Any] = {
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
-    "core_epa__assn_eia_epacamd": {
+    "epacamd_eia": {
         "title": "EPA CAMD to EIA Power Sector Data Crosswalk",
         "path": "https://github.com/USEPA/camd-eia-crosswalk",
         "description": (
