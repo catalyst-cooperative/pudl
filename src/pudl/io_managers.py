@@ -50,7 +50,7 @@ class PudlMixedFormatIOManager(IOManager):
     off by default.
 
     Parquet support can be enabled either using environment variables or
-    the dagster UI (see :func:`pudl_io_manager` for more info on the enviroment
+    the dagster UI (see :func:`pudl_mixed_format_io_manager` for more info on the enviroment
     variables). Parquet writing and reading can both be toggled independently. If
     parquet writing is enabled, both parquet and sqlite tables will be produced, while
     if parquet reading is enabled, assets will only be read from the parquet files.
@@ -58,7 +58,7 @@ class PudlMixedFormatIOManager(IOManager):
 
     # Defaults should be provided here and should be potentially
     # overriden by os env variables. This now resides in the
-    # @io_manager constructor of this, see "def pudl_io_manager".
+    # @io_manager constructor of this, see pudl_mixed_format_io_manager".
     write_to_parquet: bool
     """If true, data will be written to parquet files."""
 
