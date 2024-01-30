@@ -5,10 +5,6 @@ from dagster import Definitions, graph
 
 import pudl
 from pudl.extract.ferc import ALL_DBF_EXTRACTORS
-from pudl.extract.ferc1 import Ferc1DbfExtractor
-from pudl.extract.ferc2 import Ferc2DbfExtractor
-from pudl.extract.ferc6 import Ferc6DbfExtractor
-from pudl.extract.ferc60 import Ferc60DbfExtractor
 from pudl.extract.xbrl import xbrl2sqlite_op_factory
 from pudl.resources import RuntimeSettings, datastore, ferc_to_sqlite_settings
 from pudl.settings import EtlSettings, XbrlFormNumber

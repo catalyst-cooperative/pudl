@@ -13,7 +13,7 @@ from typing import Annotated, Any, Self
 from urllib.parse import ParseResult, urlparse
 
 import click
-import datapackage
+import frictionless
 import requests
 from google.auth.exceptions import DefaultCredentialsError
 from pydantic import HttpUrl, StringConstraints
@@ -104,16 +104,18 @@ class DatapackageDescriptor:
                     f"Resource filter values should be all lowercase: {k}={v}"
                 )
         parts = res.get("parts", {})
-        # If partitions are list, match whole list if it contains desired element
-        if set(map(type, parts.values())) == {list}:
-            return all(
-                any(part.lower() == str(v).lower() for part in parts.get(k))
-                for k, v in filters.items()
-            )
-        # Otherwise return matches to int/str partitions
-        return all(
-            str(parts.get(k)).lower() == str(v).lower() for k, v in filters.items()
-        )
+        # Each selected file should match for all partitions specified.
+        matches = [self._match_from_partition(parts, k, v) for k, v in filters.items()]
+        return all(matches)
+
+    def _match_from_partition(
+        self, parts: dict[str, str], k: str, v: str | list[str, str]
+    ):
+        if isinstance(
+            parts.get(k), list
+        ):  # If partitions are list, match whole list if it contains desired element
+            return any(str(part).lower() == str(v).lower() for part in parts.get(k))
+        return str(parts.get(k)).lower() == str(v).lower()
 
     def get_resources(
         self: Self, name: str = None, **filters: Any
@@ -165,8 +167,11 @@ class DatapackageDescriptor:
 
         Throws ValueError if invalid.
         """
-        dp = datapackage.Package(datapackage_json)
-        if not dp.valid:
+        # TODO (daz): when we upgrade to frictionless>=5.0, this will be:
+        # dp = frictionless.Package.validate_descriptor(datapackage_json)
+        # if not dp.valid:
+        dp = frictionless.Package(datapackage_json)
+        if not dp.metadata_validate():
             msg = f"Found {len(dp.errors)} datapackage validation errors:\n"
             for e in dp.errors:
                 msg = msg + f"  * {e}\n"
@@ -194,7 +199,7 @@ class ZenodoDoiSettings(BaseSettings):
     ferc6: ZenodoDoi = "10.5281/zenodo.8326696"
     ferc60: ZenodoDoi = "10.5281/zenodo.8326695"
     ferc714: ZenodoDoi = "10.5281/zenodo.8326694"
-    phmsagas: ZenodoDoi = "10.5281/zenodo.8346646"
+    phmsagas: ZenodoDoi = "10.5281/zenodo.10493790"
 
     model_config = SettingsConfigDict(env_prefix="pudl_zenodo_doi_", env_file=".env")
 

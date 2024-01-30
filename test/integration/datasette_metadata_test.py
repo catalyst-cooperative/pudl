@@ -1,12 +1,13 @@
 """Test the metadata.yml file that is output generated for Datasette."""
-
-import json
 import logging
 
-import datasette.utils
-import yaml
+import sqlalchemy as sa
 
-from pudl.metadata.classes import DatasetteMetadata
+from pudl.helpers import (
+    check_tables_have_metadata,
+    create_datasette_metadata_yaml,
+    parse_datasette_metadata_yml,
+)
 from pudl.workspace.setup import PudlPaths
 
 logger = logging.getLogger(__name__)
@@ -18,27 +19,15 @@ def test_datasette_metadata_to_yml(ferc1_engine_xbrl, tmp_path):
     Requires the ferc1_engine_xbrl because we construct Datasette metadata from the
     datapackage.json files which annotate the XBRL derived FERC SQLite DBs.
     """
-    metadata_yml = tmp_path / "metadata.yml"
-    logger.info(f"Writing Datasette Metadata to {metadata_yml}")
+    metadata_yml_path = PudlPaths().output_dir / "metadata.yml"
+    logger.info(f"Writing Datasette Metadata to {metadata_yml_path}")
 
-    dm = DatasetteMetadata.from_data_source_ids(
-        output_path=PudlPaths().output_dir,
-        data_source_ids=[
-            "pudl",
-            "eia860",
-            "eia860m",
-            "eia861",
-            "eia923",
-            "ferc1",
-        ],
-        xbrl_ids=["ferc1_xbrl"],
-    )
-    with metadata_yml.open("w") as f:
-        f.write(dm.to_yaml())
+    metadata_yml = create_datasette_metadata_yaml()
+    with metadata_yml_path.open("w") as f:
+        f.write(metadata_yml)
 
     logger.info("Parsing generated metadata using datasette utils.")
-    metadata_json = json.dumps(yaml.safe_load(metadata_yml.open()))
-    parsed_metadata = datasette.utils.parse_metadata(metadata_json)
+    parsed_metadata = parse_datasette_metadata_yml(metadata_yml_path.open())
     assert sorted(set(parsed_metadata["databases"])) == sorted(
         {
             "ferc1_dbf",
@@ -67,3 +56,17 @@ def test_datasette_metadata_to_yml(ferc1_engine_xbrl, tmp_path):
     for tbl_name in parsed_metadata["databases"]["pudl"]["tables"]:
         if parsed_metadata["databases"]["pudl"]["tables"][tbl_name]["columns"] is None:
             raise AssertionError(f"pudl.{tbl_name}.columns is None")
+
+
+def test_database_metadata(
+    pudl_engine: sa.Engine,
+):
+    """Test to make sure all of the tables in the databases have metadata."""
+    pudl_output = PudlPaths().pudl_output
+    metadata_yml = create_datasette_metadata_yaml()
+    databases = (
+        ["pudl.sqlite"]
+        + sorted(str(p.name) for p in pudl_output.glob("ferc*.sqlite"))
+        + ["censusdp1tract.sqlite"]
+    )
+    check_tables_have_metadata(metadata_yml, databases)

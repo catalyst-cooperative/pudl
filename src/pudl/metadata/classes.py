@@ -948,6 +948,13 @@ class DataSource(PudlMeta):
             )
             if path.is_file()
         ]
+        # If PHMSA, also include .txt files in documentation
+        if self.name == "phmsagas":
+            download_paths += [
+                path.relative_to(data_source_dir)
+                for path in (list((data_source_dir / self.name).glob("*.txt")))
+                if path.is_file()
+            ]
         download_paths = sorted(download_paths)
         rendered = template.render(
             source=self,
@@ -1865,14 +1872,24 @@ class Package(PudlMeta):
         on their name which results in the following order to promote output
         tables to users and push intermediate tables to the bottom of the
         docs: output, core, intermediate.
-
         In the future we might want to have more fine grain control over how
         Resources are sorted.
 
         Returns:
             A sorted list of resources.
         """
-        return sorted(self.resources, key=lambda r: r.name, reverse=True)
+        resources = self.resources
+
+        def sort_resource_names(resource: Resource):
+            pattern = re.compile(r"^(_out_|out_|core_)")
+
+            matches = pattern.findall(resource.name)
+            prefix = matches[0] if matches else ""
+
+            prefix_order = {"out_": 1, "core_": 2, "_out_": 3}
+            return prefix_order.get(prefix, float("inf"))
+
+        return sorted(resources, key=sort_resource_names, reverse=False)
 
 
 class CodeMetadata(PudlMeta):
@@ -1917,7 +1934,7 @@ class DatasetteMetadata(PudlMeta):
     """
 
     data_sources: list[DataSource]
-    resources: list[Resource] = Package.from_resource_ids().get_sorted_resources()
+    resources: list[Resource] = Package.from_resource_ids()
     xbrl_resources: dict[str, list[Resource]] = {}
     label_columns: dict[str, str] = {
         "core_eia__entity_plants": "plant_name_eia",
@@ -1951,12 +1968,6 @@ class DatasetteMetadata(PudlMeta):
             "ferc60_xbrl",
             "ferc714_xbrl",
         ],
-        extra_etl_groups: list[str] = [
-            "entity_eia",
-            "glue",
-            "static_eia",
-            "static_ferc1",
-        ],
     ) -> "DatasetteMetadata":
         """Construct a dictionary of DataSources from data source names.
 
@@ -1966,19 +1977,12 @@ class DatasetteMetadata(PudlMeta):
             output_path: PUDL_OUTPUT path.
             data_source_ids: ids of data sources currently included in Datasette
             xbrl_ids: ids of data converted XBRL data to be included in Datasette
-            extra_etl_groups: ETL groups with resources that should be included
         """
         # Compile a list of DataSource objects for use in the template
         data_sources = [DataSource.from_id(ds_id) for ds_id in data_source_ids]
 
         # Instantiate all possible resources in a Package:
-        pkg = Package.from_resource_ids()
-        # Grab a list of just the resources we want to output:
-        resources = [
-            res
-            for res in pkg.resources
-            if res.etl_group in data_source_ids + extra_etl_groups
-        ]
+        resources = Package.from_resource_ids().resources
 
         # Get XBRL based resources
         xbrl_resources = {}
@@ -1999,15 +2003,10 @@ class DatasetteMetadata(PudlMeta):
             xbrl_resources=xbrl_resources,
         )
 
-    def to_yaml(self, exclude_intermediate_resources: bool = False) -> None:
+    def to_yaml(self) -> None:
         """Output database, table, and column metadata to YAML file."""
         template = _get_jinja_environment().get_template("datasette-metadata.yml.jinja")
-        if exclude_intermediate_resources:
-            [
-                resource
-                for resource in self.resources
-                if not resource.name.startswith("_")
-            ]
+
         rendered = template.render(
             license=LICENSES["cc-by-4.0"],
             data_sources=self.data_sources,

@@ -35,6 +35,7 @@ default_assets = (
     *load_assets_from_modules([eia_bulk_elec_assets], group_name="core_eia_bulk_elec"),
     *load_assets_from_modules([epacems_assets], group_name="core_epacems"),
     *load_assets_from_modules([pudl.extract.eia176], group_name="raw_eia176"),
+    *load_assets_from_modules([pudl.extract.phmsagas], group_name="raw_phmsagas"),
     *load_assets_from_modules([pudl.extract.eia860], group_name="raw_eia860"),
     *load_assets_from_modules([pudl.transform.eia860], group_name="_core_eia860"),
     *load_assets_from_modules([pudl.extract.eia861], group_name="raw_eia861"),
