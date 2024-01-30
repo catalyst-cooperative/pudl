@@ -1612,7 +1612,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MWh",
     },
-    "incremental_life_cycle_peak_reduction_mwh": {
+    "incremental_life_cycle_peak_reduction_mw": {
         "type": "number",
         "description": (
             "The estimated total changes in peak load for incremental programs and "
@@ -1621,7 +1621,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Considers the useful life of energy efficiency technology by accounting "
             "for building demolition, equipment degradation, and program attrition."
         ),
-        "unit": "MWh",
+        "unit": "MW",
     },
     "incremental_peak_reduction_mw": {
         "type": "number",
