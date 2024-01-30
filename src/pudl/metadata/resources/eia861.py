@@ -394,7 +394,7 @@ representative from EIA."""
                 "customer_other_costs_incremental_life_cycle_cost",
                 "incremental_energy_savings_mwh",
                 "incremental_life_cycle_energy_savings_mwh",
-                "incremental_life_cycle_peak_reduction_mwh",
+                "incremental_life_cycle_peak_reduction_mw",
                 "incremental_peak_reduction_mw",
                 "other_costs_incremental_cost",
                 "report_date",
