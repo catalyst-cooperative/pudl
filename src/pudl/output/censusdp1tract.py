@@ -9,6 +9,12 @@ import pudl
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
+LAYER_NAMES: dict[str, str] = {
+    "state": "states",
+    "county": "counties",
+    "tract": "tracts",
+}
+
 
 def census_asset_factory(layer: str) -> AssetsDefinition:
     """An asset factory for finished EIA tables."""
@@ -17,7 +23,7 @@ def census_asset_factory(layer: str) -> AssetsDefinition:
         ins={
             "raw_censusdp1tract__all_tables": AssetIn("raw_censusdp1tract__all_tables")
         },
-        name=f"_core_censusdp1tract__entity_{layer}",
+        name=f"_core_censusdp1tract__{LAYER_NAMES[layer]}",
     )
     def census_layer(raw_censusdp1tract__all_tables, **kwargs) -> gpd.GeoDataFrame:
         """Select one layer from the Census DP1 database.
@@ -76,6 +82,4 @@ WHERE table_name = ?
     return census_layer
 
 
-census_dp1_layers = [
-    census_asset_factory(layer) for layer in ["state", "county", "tract"]
-]
+census_dp1_layers = [census_asset_factory(layer) for layer in LAYER_NAMES]

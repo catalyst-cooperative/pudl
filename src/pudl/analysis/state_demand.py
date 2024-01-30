@@ -521,7 +521,7 @@ def county_assignments_ferc714(
 
 
 def census_counties(
-    _core_censusdp1tract__entity_county: gpd.GeoDataFrame,
+    _core_censusdp1tract__counties: gpd.GeoDataFrame,
 ) -> gpd.GeoDataFrame:
     """Load county attributes.
 
@@ -531,7 +531,7 @@ def census_counties(
     Returns:
         Dataframe with columns `county_id_fips` and `population`.
     """
-    return _core_censusdp1tract__entity_county[["geoid10", "dp0010001"]].rename(
+    return _core_censusdp1tract__counties[["geoid10", "dp0010001"]].rename(
         columns={"geoid10": "county_id_fips", "dp0010001": "population"}
     )
 
@@ -582,7 +582,7 @@ def total_state_sales_eia861(
 def out_ferc714__hourly_estimated_state_demand(
     context,
     _out_ferc714__hourly_imputed_demand: pd.DataFrame,
-    _core_censusdp1tract__entity_county: pd.DataFrame,
+    _core_censusdp1tract__counties: pd.DataFrame,
     out_ferc714__respondents_with_fips: pd.DataFrame,
     core_eia861__yearly_sales: pd.DataFrame = None,
 ) -> pd.DataFrame:
@@ -591,7 +591,7 @@ def out_ferc714__hourly_estimated_state_demand(
     Args:
         _out_ferc714__hourly_imputed_demand: Hourly demand timeseries, with columns
           `respondent_id_ferc714`, report `year`, `utc_datetime`, and `demand_mwh`.
-        _core_censusdp1tract__entity_county: The county layer of the Census DP1 shapefile.
+        _core_censusdp1tract__counties: The county layer of the Census DP1 shapefile.
         out_ferc714__respondents_with_fips: Annual respondents with the county FIPS IDs
             for their service territories.
         core_eia861__yearly_sales: EIA 861 sales data. If provided, the predicted hourly demand is
@@ -608,7 +608,7 @@ def out_ferc714__hourly_estimated_state_demand(
     count_assign_ferc714 = county_assignments_ferc714(
         out_ferc714__respondents_with_fips
     )
-    counties = census_counties(_core_censusdp1tract__entity_county)
+    counties = census_counties(_core_censusdp1tract__counties)
     total_sales_eia861 = total_state_sales_eia861(core_eia861__yearly_sales)
 
     # Pre-compute list of respondent-years with demand

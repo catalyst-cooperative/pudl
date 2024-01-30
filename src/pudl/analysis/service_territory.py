@@ -424,7 +424,7 @@ def compiled_geoms_asset_factory(
         out_eia__yearly_utilities: pd.DataFrame,
         core_eia861__yearly_service_territory: pd.DataFrame,
         core_eia861__assn_utility: pd.DataFrame,
-        _core_censusdp1tract__entity_county: pd.DataFrame,
+        _core_censusdp1tract__counties: pd.DataFrame,
     ):
         """Compile all available utility or balancing authority geometries.
 
@@ -442,7 +442,7 @@ def compiled_geoms_asset_factory(
             out_eia__yearly_utilities=out_eia__yearly_utilities,
             core_eia861__yearly_service_territory=core_eia861__yearly_service_territory,
             core_eia861__assn_utility=core_eia861__assn_utility,
-            census_counties=_core_censusdp1tract__entity_county,
+            census_counties=_core_censusdp1tract__counties,
             entity_type=entity_type,
             dissolve=dissolve,
             limit_by_state=limit_by_state,
