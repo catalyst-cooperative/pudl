@@ -18,7 +18,7 @@ dependencies:
   - anyio=4.2.0=pyhd8ed1ab_0
   - appdirs=1.4.4=pyh9f0ad1d_0
   - appnope=0.1.3=pyhd8ed1ab_0
-  - arelle-release=2.22.1=pyhd8ed1ab_0
+  - arelle-release=2.23.1=pyhd8ed1ab_0
   - argon2-cffi=23.1.0=pyhd8ed1ab_0
   - argon2-cffi-bindings=21.2.0=py311h2725bcf_4
   - arrow=1.3.0=pyhd8ed1ab_0
@@ -52,15 +52,15 @@ dependencies:
   - bleach=6.1.0=pyhd8ed1ab_0
   - blinker=1.7.0=pyhd8ed1ab_0
   - blosc=1.21.5=heccf04b_0
-  - boto3=1.34.27=pyhd8ed1ab_0
-  - botocore=1.34.27=pyhd8ed1ab_0
+  - boto3=1.34.29=pyhd8ed1ab_0
+  - botocore=1.34.29=pyhd8ed1ab_0
   - bottleneck=1.3.7=py311h4a70a88_1
   - branca=0.7.0=pyhd8ed1ab_1
   - brotli=1.1.0=h0dc2134_1
   - brotli-bin=1.1.0=h0dc2134_1
   - brotli-python=1.1.0=py311hdf8f085_1
   - bzip2=1.0.8=h10d778d_5
-  - c-ares=1.25.0=h10d778d_0
+  - c-ares=1.26.0=h10d778d_0
   - ca-certificates=2023.11.17=h8857fd0_0
   - cachecontrol=0.13.1=pyhd8ed1ab_0
   - cachecontrol-with-filecache=0.13.1=pyhd8ed1ab_0
@@ -88,7 +88,7 @@ dependencies:
   - comm=0.2.1=pyhd8ed1ab_0
   - conda-lock=2.5.2=pyhd8ed1ab_0
   - contourpy=1.2.0=py311h7bea37d_0
-  - coverage=7.4.0=py311he705e18_0
+  - coverage=7.4.1=py311he705e18_0
   - crashtest=0.4.1=pyhd8ed1ab_0
   - croniter=2.0.1=pyhd8ed1ab_0
   - cryptography=41.0.7=py311h48c7838_1
@@ -99,7 +99,7 @@ dependencies:
   - dagster-pipes=1.6.1=pyhd8ed1ab_0
   - dagster-postgres=0.22.1=pyhd8ed1ab_0
   - dagster-webserver=1.6.1=pyhd8ed1ab_0
-  - dask-core=2024.1.0=pyhd8ed1ab_0
+  - dask-core=2024.1.1=pyhd8ed1ab_0
   - dataclasses=0.8=pyhc8e2a94_3
   - datasette=0.64.6=pyhd8ed1ab_0
   - debugpy=1.8.0=py311hdf8f085_1
@@ -151,7 +151,7 @@ dependencies:
   - gitpython=3.1.41=pyhd8ed1ab_0
   - glog=0.6.0=h8ac2a54_0
   - google-api-core=2.15.0=pyhd8ed1ab_0
-  - google-auth=2.26.2=pyhca7485f_0
+  - google-auth=2.27.0=pyhca7485f_0
   - google-auth-oauthlib=1.2.0=pyhd8ed1ab_0
   - google-cloud-core=2.4.1=pyhd8ed1ab_0
   - google-cloud-sdk=461.0.0=py311h6eed73b_0
@@ -186,7 +186,7 @@ dependencies:
   - humanfriendly=10.0=pyhd8ed1ab_6
   - hupper=1.12=pyhd8ed1ab_0
   - hyperframe=6.0.1=pyhd8ed1ab_0
-  - hypothesis=6.97.0=pyha770c72_0
+  - hypothesis=6.97.1=pyha770c72_0
   - icu=73.2=hf5e326d_0
   - identify=2.5.33=pyhd8ed1ab_0
   - idna=3.6=pyhd8ed1ab_0
@@ -343,7 +343,7 @@ dependencies:
   - openpyxl=3.1.2=py311h2725bcf_1
   - openssl=3.2.0=hd75f5a5_1
   - orc=1.9.2=h9ab30d4_0
-  - overrides=7.6.0=pyhd8ed1ab_0
+  - overrides=7.7.0=pyhd8ed1ab_0
   - packaging=23.2=pyhd8ed1ab_0
   - pandas=2.1.4=py311h1eadf79_0
   - pandera-core=0.17.2=pyhd8ed1ab_1
@@ -403,7 +403,7 @@ dependencies:
   - pyproj=3.6.1=py311hb91e5a3_5
   - pyproject_hooks=1.0.0=pyhd8ed1ab_0
   - pysocks=1.7.1=pyha2e5f31_6
-  - pytest=7.4.4=pyhd8ed1ab_0
+  - pytest=8.0.0=pyhd8ed1ab_0
   - pytest-console-scripts=1.4.1=pyhd8ed1ab_0
   - pytest-cov=4.1.0=pyhd8ed1ab_0
   - pytest-mock=3.12.0=pyhd8ed1ab_0
@@ -415,7 +415,7 @@ dependencies:
   - python-fastjsonschema=2.19.1=pyhd8ed1ab_0
   - python-json-logger=2.0.7=pyhd8ed1ab_0
   - python-multipart=0.0.6=pyhd8ed1ab_0
-  - python-slugify=8.0.1=pyhd8ed1ab_2
+  - python-slugify=8.0.2=pyhd8ed1ab_0
   - python-tzdata=2023.4=pyhd8ed1ab_0
   - python_abi=3.11=4_cp311
   - pytz=2023.3.post1=pyhd8ed1ab_0
