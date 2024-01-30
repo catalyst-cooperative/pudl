@@ -916,12 +916,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Energy charges (USD).",
         "unit": "USD",
     },
-    "energy_displaced_mwh": {
-        "type": "number",
-        "description": "Amount of energy (MWh) fed back into the grid by net metering "
-        "customers.",
-        "unit": "MWh",
-    },
     "energy_disposition_type": {
         "type": "string",
         "description": "Type of energy disposition reported in the core_ferc1__yearly_energy_dispositions_sched401. Dispositions include sales to customers, re-sales of energy, energy used internally, losses, etc.",

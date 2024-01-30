@@ -467,7 +467,6 @@ are broken down by sector and technology type."""
                 "capacity_mw",
                 "customer_class",
                 "customers",
-                "energy_displaced_mwh",
                 "report_date",
                 "short_form",
                 "sold_to_utility_mwh",
