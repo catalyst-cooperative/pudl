@@ -1,5 +1,7 @@
 FROM mambaorg/micromamba:1.5.6
 
+ENV PGDATA=${CONTAINER_HOME}/pgdata
+
 USER root
 
 SHELL [ "/bin/bash", "-exo", "pipefail", "-c" ]
@@ -8,13 +10,22 @@ SHELL [ "/bin/bash", "-exo", "pipefail", "-c" ]
 # awscli requires unzip, less, groff and mandoc
 # hadolint ignore=DL3008
 RUN apt-get update && \
-    apt-get install --no-install-recommends -y git jq unzip less groff mandoc && \
+    apt-get install --no-install-recommends -y git jq unzip less groff mandoc postgresql && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 # Configure gsutil authentication
 # hadolint ignore=DL3059
 RUN printf '[GoogleCompute]\nservice_account = default' > /etc/boto.cfg
+
+# Add mamba user to postgres group
+# hadolint ignore=DL3059
+RUN usermod -aG postgres "$MAMBA_USER"
+
+# Create new cluster for Dagster usage that's owned by $MAMBA_USER.
+# When the PG major version changes we'll have to update this from 15 to 16
+# hadolint ignore=DL3059
+RUN pg_createcluster 15 dagster -u "$MAMBA_USER" -- -A trust
 
 # Switch back to being non-root user and get into the home directory
 USER $MAMBA_USER
