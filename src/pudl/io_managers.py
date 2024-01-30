@@ -3,7 +3,6 @@ import json
 import os
 import re
 from pathlib import Path
-from sqlite3 import sqlite_version
 from typing import Any
 
 import dask.dataframe as dd
@@ -22,7 +21,6 @@ from dagster import (
     UPathIOManager,
     io_manager,
 )
-from packaging import version
 from upath import UPath
 
 import pudl
@@ -31,6 +29,9 @@ from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
+# TODO(rousik): This should be part of our project dependency and
+# we guarantee modern versions so maybe we can drop this test now.
+# This version is from 2020-05-22 which is really really old.
 MINIMUM_SQLITE_VERSION = "3.32.0"
 
 
@@ -41,6 +42,135 @@ def get_table_name_from_context(context: OutputContext) -> str:
         return context.asset_key.to_python_identifier()
     return context.get_identifier()
 
+
+class SQLiteHelper:
+    """A simple helper class to interact with sqlite database.
+
+    This provides light wrapper for reading from and writing to sqlite
+    databases and for dealing with the schema.
+    """
+    def __init__(self, db_path: Path, md: sa.MetaData | None = None,
+                 reflect_metadata: bool = False,
+                 create_if_missing: bool = False,
+                 timeout: float = 1_000.0):
+        """Initializes connection to sqlite database.
+
+        Args:
+            db_path: file where the sqlite database is stored
+            md: database metadata. This could be pre-existing schema
+                that should be written into the database, or can
+                be absent.
+            reflect_metadata: if True, use reflection to infer the
+                database metadata.
+            create_if_missing: if True, new database will be created,
+                including parent paths. Otherwise, this will throw
+                an exception.
+            timeout: How many seconds the connection should wait before raising
+                an exception, if the database is locked by another connection.
+                If another connection opens a transaction to modify the database,
+                it will be locked until that transaction is committed.
+        """
+        self.engine = sa.create_engine(
+            sa.URL("sqlite", database=db_path.as_posix()),
+            connect_args={"timeout": timeout},
+        )
+        self.md = md
+        if not db_path.exists():
+            if not create_if_missing:
+                # TODO(rousik): perhaps use better exception for this.
+                raise ValueError(
+                    f"No DB found at {db_path}. Run the job that creates the "
+                    f"{self.db_name} database."
+                )
+            db_path.parent.mkdir(parents=True, exist_ok=True)
+            db_path.touch()
+            # TODO(rousik): Do we need metadata? We could easily
+            # start with empty metadata.
+            if self.md is not None:
+                self.md.create_all(self.engine)
+
+        if reflect_metadata:
+            self.md = sa.MetaData().reflect(self.engine)
+
+    def get_table_meta(self, table_name: str) -> sa.Table:
+        """Returns SQLAlchemy metadata for given table."""
+        try:
+            self.md.tables.get(table_name)
+        except ValueError:
+            raise ValueError(
+                f"{table_name} not found in database metadata. Either add table to "
+                f"the metadata or use different IO Manager."
+            )
+
+    def write_table(self, table_name: str, df: pd.DataFrame) -> None:
+        """Writes contents of a dataframe into a table.
+
+        Deletes records from the table prior to writing new data.
+        """
+        table = self.get_table_meta(table_name)
+        with self.engine.begin() as con:
+            # Remove old table records before loading to db
+            con.execute(table.delete())
+            df.to_sql(
+                table_name,
+                con,
+                if_exists="append",
+                index=False,
+                chunksize=100_000,
+                dtype={c.name: c.type for c in table.columns},
+            )
+
+    def execute_sql(self, table_name: str, sql_query: str) -> None:
+        """Runs ad-hoc sql query.
+
+        This can be used to create view. When this is executed,
+        existing view named {table_name} will be dropped.
+        """
+        # Ensure that table/view is known.
+        _ = self.get_table_meta(table_name)
+        with self.engine.begin() as con:
+            con.execute(f"DROP VIEW IF EXISTS {table_name}")
+            con.execute(sql_query)
+
+    def read_from_table(self, table_name: str) -> pd.DataFrame:
+        """Reads data from table into pandas dataframe."""
+        try:
+            _ = self.get_table_meta(table_name)
+        except ValueError:
+            # TODO(rousik): Improve this error message, perhaps retain
+            # the original one with lots of what-to-dos.
+            raise ValueError(
+                f"Table {table_name} doesn't exist in the schema."
+            )
+        with self.engine.begin() as con:
+            try:
+                # TODO(rousik): One version of the sqlite manager uses
+                # chunked read, the other one doesn't. Is either
+                # approach better or worse?
+                df = pd.concat(pd.read_sql_table(
+                    table_name, con, chunk_size=100_000
+                ))
+            except ValueError:
+                # TODO(rousik): Is this possible? Shouldn't get_table_meta()
+                # enforce that table exists at this point?
+                raise ValueError(
+                    f"{table_name} not found. Either the table was dropped "
+                    "or it doesn't exist in the pudl.metadata.resources."
+                    "Add the table to the metadata and recreate the database."
+                )
+            if df.empty:
+                raise AssertionError(
+                    f"The {table_name} table is empty. Materialize the {table_name} "
+                    "asset so it is available in the database."
+                )
+            return df
+
+    def get_metadata_diff(self) -> Any:
+        """Compares actual database schema with the one provided."""
+        return compare_metadata(
+            MigrationContext.configure(self.engine.connect()),
+            self.md,
+        )
 
 class PudlMixedFormatIOManager(IOManager):
     """Format switching IOManager that supports sqlite and parquet.
@@ -119,6 +249,8 @@ class PudlMixedFormatIOManager(IOManager):
         return self._sqlite_io_manager.load_input(context)
 
 
+# TODO(rousik): This should be renamed to GenericSQLiteIOManager
+# for better disambiguation.
 class SQLiteIOManager(IOManager):
     """IO Manager that writes and retrieves dataframes from a SQLite database."""
 
@@ -127,7 +259,6 @@ class SQLiteIOManager(IOManager):
         base_dir: str,
         db_name: str,
         md: sa.MetaData | None = None,
-        timeout: float = 1_000.0,
     ):
         """Init a SQLiteIOmanager.
 
@@ -137,80 +268,23 @@ class SQLiteIOManager(IOManager):
             db_name: the name of sqlite database.
             md: database metadata described as a SQLAlchemy MetaData object. If not
                 specified, default to metadata stored in the pudl.metadata subpackage.
-            timeout: How many seconds the connection should wait before raising
-                an exception, if the database is locked by another connection.
-                If another connection opens a transaction to modify the database,
-                it will be locked until that transaction is committed.
+
         """
-        self.base_dir = Path(base_dir)
-        self.db_name = db_name
-
-        bad_sqlite_version = version.parse(sqlite_version) < version.parse(
-            MINIMUM_SQLITE_VERSION
-        )
-        if bad_sqlite_version:
-            logger.warning(
-                f"Found SQLite {sqlite_version} which is less than "
-                f"the minimum required version {MINIMUM_SQLITE_VERSION} "
-                "As a result, data type constraint checking has been disabled."
-            )
-
-        # If no metadata is specified, create an empty sqlalchemy metadata object.
         if md is None:
+            # Use empty metadata if not specified. Perhaps this is not necessary thanks
+            # to inner method also accepting Nones.
             md = sa.MetaData()
-        self.md = md
 
-        self.engine = self._setup_database(timeout=timeout)
-
-    def _setup_database(self, timeout: float = 1_000.0) -> sa.Engine:
-        """Create database and metadata if they don't exist.
-
-        Args:
-            timeout: How many seconds the connection should wait before raising an
-                exception, if the database is locked by another connection.  If another
-                connection opens a transaction to modify the database, it will be locked
-                until that transaction is committed.
-
-        Returns:
-            engine: SQL Alchemy engine that connects to a database in the base_dir.
-        """
-        # If the sqlite directory doesn't exist, create it.
-        if not self.base_dir.exists():
-            self.base_dir.mkdir(parents=True)
-        db_path = self.base_dir / f"{self.db_name}.sqlite"
-
-        engine = sa.create_engine(
-            f"sqlite:///{db_path}", connect_args={"timeout": timeout}
+        self.sqlite_helper = SQLiteHelper(
+            db_path=Path(base_dir) / f"{db_name}.sqlite",
+            md=md,
+            create_if_missing=True,
+            reflect_metadata=True,
         )
 
-        # Create the database and schemas
-        if not db_path.exists():
-            db_path.touch()
-            self.md.create_all(engine)
-
-        return engine
-
-    def _get_sqlalchemy_table(self, table_name: str) -> sa.Table:
-        """Get SQL Alchemy Table object from metadata given a table_name.
-
-        Args:
-            table_name: The name of the table to look up.
-
-        Returns:
-            table: Corresponding SQL Alchemy Table in SQLiteIOManager metadata.
-
-        Raises:
-            ValueError: if table_name does not exist in the SQLiteIOManager metadata.
-        """
-        sa_table = self.md.tables.get(table_name, None)
-        if sa_table is None:
-            raise ValueError(
-                f"{table_name} not found in database metadata. Either add the table to "
-                "the metadata or use a different IO Manager."
-            )
-        return sa_table
-
-    def _handle_pandas_output(self, context: OutputContext, df: pd.DataFrame):
+    # TODO(bendnorman): str represents sql query. We should use
+    # dedicated type for this.
+    def handle_output(self, context: OutputContext, data: pd.DataFrame | str):
         """Write dataframe to the database.
 
         SQLite does not support concurrent writes to the database. Instead, SQLite
@@ -225,71 +299,20 @@ class SQLiteIOManager(IOManager):
             df: dataframe to write to the database.
         """
         table_name = get_table_name_from_context(context)
-        sa_table = self._get_sqlalchemy_table(table_name)
-        column_difference = set(sa_table.columns.keys()) - set(df.columns)
-        if column_difference:
-            raise ValueError(
-                f"{table_name} dataframe is missing columns: {column_difference}"
-            )
-
-        engine = self.engine
-        with engine.begin() as con:
-            # Remove old table records before loading to db
-            con.execute(sa_table.delete())
-
-        with engine.begin() as con:
-            df.to_sql(
-                table_name,
-                con,
-                if_exists="append",
-                index=False,
-                chunksize=100_000,
-                dtype={c.name: c.type for c in sa_table.columns},
-            )
-
-    # TODO (bendnorman): Create a SQLQuery type so it's clearer what this method expects
-    def _handle_str_output(self, context: OutputContext, query: str):
-        """Execute a sql query on the database.
-
-        This is used for creating output views in the database.
-
-        Args:
-            context: dagster keyword that provides access output information like asset
-                name.
-            query: sql query to execute in the database.
-        """
-        engine = self.engine
-        table_name = get_table_name_from_context(context)
-
-        # Make sure the metadata has been created for the view
-        _ = self._get_sqlalchemy_table(table_name)
-
-        with engine.begin() as con:
-            # Drop the existing view if it exists and create the new view.
-            # TODO (bendnorman): parameterize this safely.
-            con.execute(f"DROP VIEW IF EXISTS {table_name}")
-            con.execute(query)
-
-    def handle_output(self, context: OutputContext, obj: pd.DataFrame | str):
-        """Handle an op or asset output.
-
-        If the output is a dataframe, write it to the database. If it is a string
-        execute it as a SQL query.
-
-        Args:
-            context: dagster keyword that provides access output information like asset
-                name.
-            obj: a sql query or dataframe to add to the database.
-
-        Raises:
-            Exception: if an asset or op returns an unsupported datatype.
-        """
-        if isinstance(obj, pd.DataFrame):
-            self._handle_pandas_output(context, obj)
-        elif isinstance(obj, str):
-            self._handle_str_output(context, obj)
+        table = self.sqlite_helper.get_table_meta(table_name)
+        if isinstance(data, str):
+            self.sqlite_helper.execute_sql(table_name, data)
+        elif isinstance(data, pd.DataFrame):
+            missing_columns = set(table.column.keys()) - set(data.columns)
+            if missing_columns:
+                raise ValueError(
+                    f"DataFrame is missing columns when writing to table "
+                    f"{table_name}: {', '.join(missing_columns)}"
+                )
+            # TODO(rousik): Check against the schema in the metadata and enforce it
+            self.sqlite_helper.write_table(table_name, data)
         else:
-            raise Exception(
+            raise TypeError(
                 "SQLiteIOManager only supports pandas DataFrames and strings of SQL "
                 "queries."
             )
@@ -301,27 +324,9 @@ class SQLiteIOManager(IOManager):
             context: dagster keyword that provides access output information like asset
                 name.
         """
-        table_name = get_table_name_from_context(context)
-        # Check if the table_name exists in the self.md object
-        _ = self._get_sqlalchemy_table(table_name)
-
-        engine = self.engine
-
-        with engine.begin() as con:
-            try:
-                df = pd.read_sql_table(table_name, con)
-            except ValueError:
-                raise ValueError(
-                    f"{table_name} not found. Either the table was dropped "
-                    "or it doesn't exist in the pudl.metadata.resources."
-                    "Add the table to the metadata and recreate the database."
-                )
-            if df.empty:
-                raise AssertionError(
-                    f"The {table_name} table is empty. Materialize "
-                    f"the {table_name} asset so it is available in the database."
-                )
-            return df
+        return self.sqlite_helper.read_from_table(
+            get_table_name_from_context(context),
+        )
 
 
 class PudlParquetIOManager(IOManager):
@@ -356,7 +361,7 @@ class PudlParquetIOManager(IOManager):
         return res.enforce_schema(df)
 
 
-class PudlSQLiteIOManager(SQLiteIOManager):
+class PudlSQLiteIOManager(IOManager):
     """IO Manager that writes and retrieves dataframes from a SQLite database.
 
     This class extends the SQLiteIOManager class to manage database metadata and dtypes
@@ -368,7 +373,6 @@ class PudlSQLiteIOManager(SQLiteIOManager):
         base_dir: str,
         db_name: str,
         package: Package | None = None,
-        timeout: float = 1_000.0,
     ):
         """Initialize PudlSQLiteIOManager.
 
@@ -391,27 +395,25 @@ class PudlSQLiteIOManager(SQLiteIOManager):
                 the metadata for views in `self.package` should not be used to create
                 table schemas in the database because views are just stored sql statements
                 and do not require a schema.
-            timeout: How many seconds the connection should wait before raising an
-                exception, if the database is locked by another connection.  If another
-                connection opens a transaction to modify the database, it will be locked
-                until that transaction is committed.
-            settings: controls how parquet files are used by the PUDL ETL, in particular,
-                whether they should be used for input/output of dataframes.
         """
-        if package is None:
-            package = Package.from_resource_ids()
-        self.package = package
-        md = self.package.to_sql()
+        self.package = package or Package.from_resource_ids()
+        # TODO(rousik): We should accept full Path to the database file
+        # instead. That will be simpler.
         sqlite_path = Path(base_dir) / f"{db_name}.sqlite"
+
         if not sqlite_path.exists():
             raise RuntimeError(
                 f"{sqlite_path} not initialized! Run `alembic upgrade head`."
             )
 
-        super().__init__(base_dir, db_name, md, timeout)
-
-        existing_schema_context = MigrationContext.configure(self.engine.connect())
-        metadata_diff = compare_metadata(existing_schema_context, self.md)
+        md = self.package.to_sql()
+        self.sqlite_helper = SQLiteHelper(
+            db_path= sqlite_path,
+            md=md,
+            reflect_metadata=False,
+            create_if_missing=False,
+        )
+        metadata_diff = self.sqlite_helper.get_metadata_diff()
         if metadata_diff:
             logger.info(f"Metadata diff:\n\n{metadata_diff}")
             raise RuntimeError(
@@ -419,57 +421,22 @@ class PudlSQLiteIOManager(SQLiteIOManager):
                 "--autogenerate -m 'relevant message' && alembic upgrade head`."
             )
 
-    def _handle_str_output(self, context: OutputContext, query: str):
-        """Execute a sql query on the database.
-
-        This is used for creating output views in the database.
-
-        Args:
-            context: dagster keyword that provides access output information like asset
-                name.
-            query: sql query to execute in the database.
-        """
-        engine = self.engine
+    def handle_output(self, context: OutputContext, data: pd.DataFrame | str):
+        """Writes frame or sql query to a table."""
         table_name = get_table_name_from_context(context)
 
-        # Check if there is a Resource in self.package for table_name.
-        # We don't want folks creating views without adding package metadata.
-        try:
-            _ = self.package.get_resource(table_name)
-        except ValueError:
-            raise ValueError(
-                f"{table_name} does not appear in pudl.metadata.resources. "
-                "Check for typos, or add the table to the metadata and recreate the "
-                f"PUDL SQlite database. It's also possible that {table_name} is one of "
-                "the tables that does not get loaded into the PUDL SQLite DB because "
-                "it's a work in progress or is distributed in Apache Parquet format."
-            )
-
-        with engine.begin() as con:
-            # Drop the existing view if it exists and create the new view.
-            # TODO (bendnorman): parameterize this safely.
-            con.execute(f"DROP VIEW IF EXISTS {table_name}")
-            con.execute(query)
-
-    def _handle_pandas_output(self, context: OutputContext, df: pd.DataFrame):
-        """Enforce PUDL DB schema and write dataframe to SQLite."""
-        table_name = get_table_name_from_context(context)
-        # If table_name doesn't show up in the self.md object, this will raise an error
-        sa_table = self._get_sqlalchemy_table(table_name)
         res = self.package.get_resource(table_name)
-
-        df = res.enforce_schema(df)
-        with self.engine.begin() as con:
-            # Remove old table records before loading to db
-            con.execute(sa_table.delete())
-
-            df.to_sql(
+        if isinstance(data, str):
+            self.sqlite_helper.execute_sql(table_name, data)
+        elif isinstance(data, pd.DataFrame):
+            self.sqlite_helper.write_table(
                 table_name,
-                con,
-                if_exists="append",
-                index=False,
-                chunksize=100_000,
-                dtype={c.name: c.type for c in sa_table.columns},
+                res.enforce_schema(data),
+            )
+        else:
+            raise TypeError(
+                "PandasSQLiteIOManager only supports pandas DataFrames and strings of SQL "
+                "queries."
             )
 
     def load_input(self, context: InputContext) -> pd.DataFrame:
@@ -492,30 +459,9 @@ class PudlSQLiteIOManager(SQLiteIOManager):
                 "the tables that does not get loaded into the PUDL SQLite DB because "
                 "it's a work in progress or is distributed in Apache Parquet format."
             )
-
-        with self.engine.begin() as con:
-            try:
-                df = pd.concat(
-                    [
-                        res.enforce_schema(chunk_df)
-                        for chunk_df in pd.read_sql_table(
-                            table_name, con, chunksize=100_000
-                        )
-                    ]
-                )
-            except ValueError:
-                raise ValueError(
-                    f"{table_name} not found. Either the table was dropped "
-                    "or it doesn't exist in the pudl.metadata.resources."
-                    "Add the table to the metadata and recreate the database."
-                )
-            if df.empty:
-                raise AssertionError(
-                    f"The {table_name} table is empty. Materialize the {table_name} "
-                    "asset so it is available in the database."
-                )
-        return df
-
+        return res.enforce_schema(
+            self.sqlite_helper.read_from_table(table_name)
+        )
 
 @io_manager(
     config_schema={
