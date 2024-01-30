@@ -1154,10 +1154,7 @@ class OffByFactoid(NamedTuple):
 
 
 @asset
-def _out_ferc1__explosion_tags(
-    table_dimensions_ferc1: pd.DataFrame,
-    calculation_components_xbrl_ferc1: pd.DataFrame,
-) -> pd.DataFrame:
+def _out_ferc1__explosion_tags(table_dimensions_ferc1: pd.DataFrame) -> pd.DataFrame:
     """Grab the stored tables of tags and add inferred dimension."""
     rate_tags = _get_tags("xbrl_factoid_rate_base_tags.csv", table_dimensions_ferc1)
     rev_req_tags = _get_tags(
@@ -2025,7 +2022,6 @@ class XbrlCalculationForestFerc1(BaseModel):
     exploded_calcs: pd.DataFrame = pd.DataFrame()
     seeds: list[NodeId] = []
     tags: pd.DataFrame = pd.DataFrame()
-    # TODO: remove the group metric checks and see if things still build / tests still pass
     group_metric_checks: GroupMetricChecks = GroupMetricChecks()
     model_config = ConfigDict(
         arbitrary_types_allowed=True, ignored_types=(cached_property,)
