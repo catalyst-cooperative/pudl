@@ -1,6 +1,5 @@
 """Dagster IO Managers."""
 import json
-import os
 import re
 from pathlib import Path
 from sqlite3 import sqlite_version
@@ -78,7 +77,9 @@ class PudlMixedFormatIOManager(IOManager):
                 files in addition to sqlite.
             read_from_parquet: if True, all data reads will be using
                 parquet files as source of truth. Otherwise, data will be
-                read from the sqlite database.
+                read from the sqlite database. Reading from parquet provides
+                performance increases as well as better datatype handling, so
+                this option is encouraged.
         """
         if read_from_parquet and not write_to_parquet:
             raise RuntimeError(
@@ -514,14 +515,14 @@ class PudlSQLiteIOManager(SQLiteIOManager):
             bool,
             description="""If true, data will be written to parquet files,
                 in addition to the SQLite database.""",
-            default_value=bool(os.getenv("PUDL_WRITE_TO_PARQUET")),
+            default_value=True,
         ),
         "read_from_parquet": Field(
             bool,
             description="""If True, the canonical source of data for reads
                 will be parquet files. Otherwise, data will be read from the
                 SQLite database.""",
-            default_value=bool(os.getenv("PUDL_READ_FROM_PARQUET")),
+            default_value=True,
         ),
     }
 )
