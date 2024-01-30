@@ -14,7 +14,6 @@ from pudl.analysis.record_linkage.eia_ferc1_splink_rule_definitions import (
     BLOCKING_RULES,
     COMPARISONS,
 )
-from pudl.analysis.record_linkage.name_cleaner import CompanyNameCleaner
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
