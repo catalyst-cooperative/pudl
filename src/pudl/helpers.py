@@ -8,6 +8,7 @@ with cleaning and restructing dataframes.
 """
 import importlib.resources
 import itertools
+import json
 import pathlib
 import re
 import shutil
@@ -18,15 +19,19 @@ from io import BytesIO
 from typing import Any, Literal, NamedTuple
 
 import addfips
+import datasette
 import numpy as np
 import pandas as pd
 import requests
 import sqlalchemy as sa
+import yaml
 from dagster import AssetKey, AssetsDefinition, AssetSelection, SourceAsset
 from pandas._libs.missing import NAType
 
 import pudl.logging_helpers
+from pudl.metadata.classes import DatasetteMetadata
 from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
+from pudl.workspace.setup import PudlPaths
 
 sum_na = partial(pd.Series.sum, skipna=False)
 """A sum function that returns NA if the Series includes any NA values.
@@ -1918,3 +1923,87 @@ def diff_wide_tables(
     return TableDiff(
         deleted=deleted, added=added, changed=changed, old_df=old, new_df=new
     )
+
+
+def create_datasette_metadata_yaml() -> str:
+    """Create datasette metadata yaml.
+
+    Returns:
+        Datasette metadata for all PUDL resources and XBRL databases as
+        derived from their datapackage.json as YAML.
+    """
+    pudl_output = PudlPaths().pudl_output
+    metadata = DatasetteMetadata.from_data_source_ids(pudl_output)
+    return metadata.to_yaml()
+
+
+def parse_datasette_metadata_yml(metadata_yml: str) -> dict:
+    """Parse a yaml file of datasette metadata as json.
+
+    Args:
+        metadata_yml: datasette metadata as yml.
+
+    Returns:
+        Parsed datasette metadata as JSON.
+    """
+    metadata_json = json.dumps(yaml.safe_load(metadata_yml))
+    return datasette.utils.parse_metadata(metadata_json)
+
+
+def check_tables_have_metadata(
+    metadata_yml: str,
+    databases: list[str],
+) -> None:
+    """Check to make sure all tables in the databases have datasette metadata.
+
+    This function fails if there are tables lacking Datasette metadata in one of the
+    databases we expect to have that kind of metadata. Note that we currently do
+    not have this kind of metadata for the FERC databases derived from DBF or the
+    Census DP1.
+
+    Args:
+        metadata_yml: The structure metadata for the datasette deployment as yaml
+        databases: The list of databases to test.
+    """
+    pudl_output = PudlPaths().pudl_output
+    database_table_exceptions = {"pudl": {"alembic_version"}}
+
+    tables_missing_metadata_results = {}
+
+    # PUDL and XBRL databases are the only databases with metadata
+    databases_with_metadata = (
+        dataset
+        for dataset in databases
+        if dataset == "pudl.sqlite" or dataset.endswith("xbrl.sqlite")
+    )
+    parsed_datasette_metadata = parse_datasette_metadata_yml(metadata_yml)["databases"]
+    for database in databases_with_metadata:
+        database_path = pudl_output / database
+        database_name = database_path.stem
+
+        # Grab all tables in the database
+        engine = sa.create_engine(f"sqlite:///{str(database_path)}")
+        inspector = sa.inspect(engine)
+        tables_in_database = set(inspector.get_table_names())
+
+        # There are some tables that we don't expect to have metadata
+        # like alembic_version in pudl.sqlite.
+        table_exceptions = database_table_exceptions.get(database_name)
+
+        if table_exceptions:
+            tables_in_database = tables_in_database - table_exceptions
+
+        tables_with_metadata = set(parsed_datasette_metadata[database_name]["tables"])
+
+        # Find the tables the database that don't have metadata
+        tables_missing_metadata = tables_in_database - tables_with_metadata
+
+        tables_missing_metadata_results[database_name] = tables_missing_metadata
+
+    has_no_missing_tables_with_missing_metadata = all(
+        not bool(value) for value in tables_missing_metadata_results.values()
+    )
+
+    assert (
+        has_no_missing_tables_with_missing_metadata
+    ), f"These tables are missing datasette metadata: {tables_missing_metadata_results}"
