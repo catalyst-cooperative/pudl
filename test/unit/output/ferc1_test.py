@@ -133,8 +133,11 @@ class TestTagPropagation(unittest.TestCase):
         )
         annotated_tags = self.build_forest_and_annotated_tags(edges, tags)
         assert annotated_tags[self.parent]["in_rate_base"] == "yes"
-        assert annotated_tags[self.child1]["in_rate_base"] == "yes"
-        assert annotated_tags[self.child2]["in_rate_base"] == "yes"
+        for child_node in [self.child1, self.child2]:
+            assert (
+                annotated_tags[child_node]["in_rate_base"]
+                == annotated_tags[self.parent]["in_rate_base"]
+            )
 
     def test_leafward_prop_disagreeing_child(self):
         """Don't force the diagreeing child to follow the parent."""
@@ -145,7 +148,10 @@ class TestTagPropagation(unittest.TestCase):
         annotated_tags = self.build_forest_and_annotated_tags(edges, tags)
         assert annotated_tags[self.parent]["in_rate_base"] == "yes"
         assert annotated_tags[self.child1]["in_rate_base"] == "no"
-        assert annotated_tags[self.child2]["in_rate_base"] == "yes"
+        assert (
+            annotated_tags[self.child2]["in_rate_base"]
+            == annotated_tags[self.parent]["in_rate_base"]
+        )
 
     def test_leafward_prop_preserve_non_propagating_tags(self):
         """Don't force the diagreeing child to follow the parent."""
@@ -157,7 +163,10 @@ class TestTagPropagation(unittest.TestCase):
         annotated_tags = self.build_forest_and_annotated_tags(edges, tags)
         assert annotated_tags[self.parent]["in_rate_base"] == "yes"
         assert annotated_tags[self.child1]["in_rate_base"] == "no"
-        assert annotated_tags[self.child2]["in_rate_base"] == "yes"
+        assert (
+            annotated_tags[self.child2]["in_rate_base"]
+            == annotated_tags[self.parent]["in_rate_base"]
+        )
         assert annotated_tags[self.parent]["in_root_boose"] == "yus"
         assert annotated_tags[self.child1]["in_root_boose"] == "nu"
         assert annotated_tags[self.child2]["in_root_boose"] == "purtiul"
@@ -174,21 +183,34 @@ class TestTagPropagation(unittest.TestCase):
         assert annotated_tags[self.child2]["in_rate_base"] == "yes"
 
     def test_prop_no_tags(self):
-        """If no tags, don't propagate anything."""
+        """If no tags, don't propagate anything.
+
+        This also tests whether a fully null tag input behaves the same as an
+        empty df. It also checks whether we get the expected behavior when
+        the propogated tags are all null but there is another non-propagating
+        tag.
+        """
         edges = [(self.parent, self.child1), (self.parent, self.child2)]
-        tags = pd.DataFrame([self.parent, self.child1, self.child2]).assign(
-            in_rate_base=[pd.NA, pd.NA, pd.NA]
-        )
+        null_tag_edges = [self.parent, self.child1, self.child2]
+        tags = pd.DataFrame(null_tag_edges).assign(in_rate_base=[pd.NA, pd.NA, pd.NA])
         annotated_tags = self.build_forest_and_annotated_tags(edges, tags)
-        assert annotated_tags[self.parent] == {}
-        assert annotated_tags[self.child1] == {}
-        assert annotated_tags[self.child2] == {}
+        for node in null_tag_edges:
+            assert not annotated_tags.get(node)
 
         tags = pd.DataFrame(columns=NodeId._fields).convert_dtypes()
         annotated_tags = self.build_forest_and_annotated_tags(edges, tags)
-        assert not annotated_tags.get(self.parent)
-        assert not annotated_tags.get(self.child1)
-        assert not annotated_tags.get(self.child2)
+        for node in null_tag_edges:
+            assert not annotated_tags.get(node)
+
+        tags = pd.DataFrame([self.parent, self.child1, self.child2]).assign(
+            in_rate_base=[pd.NA, pd.NA, pd.NA],
+            a_non_propped_tag=["hi", "hello", "what_am_i_doing_here_even"],
+        )
+        annotated_tags = self.build_forest_and_annotated_tags(edges, tags)
+        for node in null_tag_edges:
+            assert not annotated_tags[node].get("in_rate_base")
+            # do we still have a non-null value for the non-propped tag
+            assert annotated_tags[node].get("a_non_propped_tag")
 
     def test_annotated_forest_propagates_rootward(self):
         edges = [
@@ -235,7 +257,10 @@ class TestTagPropagation(unittest.TestCase):
         )
         assert annotated_tags[self.child1]["in_rate_base"] == "yes"
         assert annotated_tags[self.grand_child11]["in_rate_base"] == "yes"
-        assert annotated_tags[self.child1_correction]["in_rate_base"] == "yes"
+        assert (
+            annotated_tags[self.child1_correction]["in_rate_base"]
+            == annotated_tags[self.child1]["in_rate_base"]
+        )
 
     def test_annotated_forest_propagates_rootward_two_layers(self):
         edges = [
