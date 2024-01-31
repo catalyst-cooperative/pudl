@@ -79,7 +79,7 @@ plant_id_eia,plant_id_epa,unit_id_pudl,emissions_unit_id_epa,generator_id,subpla
     epacamd_eia_subplant_ids_got = glue_assets.core_epa__assn_eia_epacamd_subplant_ids(
         _core_epa__assn_eia_epacamd_unique=epacamd_eia_test,
         core_eia860__scd_generators=generators_entity_eia_test,
-        emissions_unit_ids_epacems=emissions_unit_ids_epacems_test,
+        _core_epacems__emissions_unit_ids=emissions_unit_ids_epacems_test,
         core_eia860__assn_boiler_generator=boiler_generator_assn_eia860_test,
     )
 

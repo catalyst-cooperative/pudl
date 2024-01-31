@@ -85,7 +85,7 @@ raw_table_names = (
 )
 
 
-eia860_raw_dfs = excel.raw_df_factory(Extractor, name="eia860")
+raw_eia860__all_dfs = excel.raw_df_factory(Extractor, name="eia860")
 
 
 # TODO (bendnorman): Figure out type hint for context keyword and mutli_asset return
@@ -93,7 +93,7 @@ eia860_raw_dfs = excel.raw_df_factory(Extractor, name="eia860")
     outs={table_name: AssetOut() for table_name in sorted(raw_table_names)},
     required_resource_keys={"datastore", "dataset_settings"},
 )
-def extract_eia860(context, eia860_raw_dfs):
+def extract_eia860(context, raw_eia860__all_dfs):
     """Extract raw EIA data from excel sheets into dataframes.
 
     Args:
@@ -111,17 +111,18 @@ def extract_eia860(context, eia860_raw_dfs):
         eia860m_raw_dfs = pudl.extract.eia860m.Extractor(ds).extract(
             year_month=eia860m_date
         )
-        eia860_raw_dfs = pudl.extract.eia860m.append_eia860m(
-            eia860_raw_dfs=eia860_raw_dfs, eia860m_raw_dfs=eia860m_raw_dfs
+        raw_eia860__all_dfs = pudl.extract.eia860m.append_eia860m(
+            eia860_raw_dfs=raw_eia860__all_dfs, eia860m_raw_dfs=eia860m_raw_dfs
         )
 
     # create descriptive table_names
-    eia860_raw_dfs = {
-        "raw_eia860__" + table_name: df for table_name, df in eia860_raw_dfs.items()
+    raw_eia860__all_dfs = {
+        "raw_eia860__" + table_name: df
+        for table_name, df in raw_eia860__all_dfs.items()
     }
-    eia860_raw_dfs = dict(sorted(eia860_raw_dfs.items()))
+    raw_eia860__all_dfs = dict(sorted(raw_eia860__all_dfs.items()))
 
     return (
         Output(output_name=table_name, value=df)
-        for table_name, df in eia860_raw_dfs.items()
+        for table_name, df in raw_eia860__all_dfs.items()
     )

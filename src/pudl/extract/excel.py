@@ -531,4 +531,4 @@ def raw_df_factory(
         # page in the spreadsheet based dataset using DynamicOut.collect()
         return concat_pages(dfs.collect())
 
-    return graph_asset(name=f"{name}_raw_dfs")(raw_dfs)
+    return graph_asset(name=f"raw_{name}__all_dfs")(raw_dfs)
