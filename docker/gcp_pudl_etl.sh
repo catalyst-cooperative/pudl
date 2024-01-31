@@ -125,7 +125,7 @@ function zenodo_data_release() {
 function notify_slack() {
     # Notify pudl-deployment slack channel of deployment status
     echo "Notifying Slack about deployment status"
-    message='# `${BUILD_ID}` status\n\n'
+    message="# `${BUILD_ID}` status\n\n"
     if [[ "$1" == "success" ]]; then
         message+=":large_green_circle: :sunglasses: :unicorn_face: :rainbow: deployment succeeded!! :partygritty: :database_parrot: :blob-dance: :large_green_circle:\n\n"
     elif [[ "$1" == "failure" ]]; then
