@@ -64,7 +64,6 @@ function run_pudl_etl() {
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
         --etl-settings "$PUDL_SETTINGS_YML" \
         --live-dbs test/validate \
-    && pg_ctlcluster 15 dagster stop \
     && touch "$PUDL_OUTPUT/success"
 }
 
@@ -198,6 +197,9 @@ ZENODO_SUCCESS=0
 # 2>&1 redirects stderr to stdout.
 run_pudl_etl 2>&1 | tee "$LOGFILE"
 ETL_SUCCESS=${PIPESTATUS[0]}
+
+# This needs to happen regardless of the ETL outcome:
+pg_ctlcluster 15 dagster stop 2>&1 | tee "$LOGFILE"
 
 save_outputs_to_gcs 2>&1 | tee -a "$LOGFILE"
 SAVE_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
