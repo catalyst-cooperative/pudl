@@ -5,9 +5,9 @@ import sqlalchemy as sa
 
 from pudl.helpers import (
     check_tables_have_metadata,
-    create_datasette_metadata_yaml,
     parse_datasette_metadata_yml,
 )
+from pudl.metadata.classes import DatasetteMetadata
 from pudl.workspace.setup import PudlPaths
 
 logger = logging.getLogger(__name__)
@@ -19,12 +19,24 @@ def test_datasette_metadata_to_yml(ferc1_engine_xbrl, tmp_path):
     Requires the ferc1_engine_xbrl because we construct Datasette metadata from the
     datapackage.json files which annotate the XBRL derived FERC SQLite DBs.
     """
-    metadata_yml_path = PudlPaths().output_dir / "metadata.yml"
+    metadata_yml_path = tmp_path / "metadata.yml"
     logger.info(f"Writing Datasette Metadata to {metadata_yml_path}")
 
-    metadata_yml = create_datasette_metadata_yaml()
     with metadata_yml_path.open("w") as f:
-        f.write(metadata_yml)
+        # We are not using helpers.create_datasette_metadata_yaml, because
+        # we need to restrict xbrl dataset ids to just ferc1_xbrl.
+        # If --live-dbs is not true, we only feed in the ferc1 xbrl outputs
+        # and this method would fail otherwise. Even though with --live-dbs
+        # we could process all the datasets, we are opting for restricting
+        # the domain here for simplicity.
+
+        # TODO(rousik): Remove this restriction when --live-dbs is removed
+        # entirely.
+        ds_metadata = DatasetteMetadata.from_data_source_ids(
+            PudlPaths().pudl_output,
+            xbrl_ids=["ferc1_xbrl"],
+        )
+        f.write(ds_metadata.to_yaml())
 
     logger.info("Parsing generated metadata using datasette utils.")
     parsed_metadata = parse_datasette_metadata_yml(metadata_yml_path.open())
@@ -62,11 +74,19 @@ def test_database_metadata(
     pudl_engine: sa.Engine,
 ):
     """Test to make sure all of the tables in the databases have metadata."""
-    pudl_output = PudlPaths().pudl_output
-    metadata_yml = create_datasette_metadata_yaml()
+    xbrl_ids = [
+        db_file.name.replace(".sqlite", "")
+        for db_file in PudlPaths().output_dir.glob("ferc*_xbrl.sqlite")
+    ]
+    metadata_yml = DatasetteMetadata.from_data_source_ids(
+        PudlPaths().pudl_output,
+        xbrl_ids=xbrl_ids,
+    ).to_yaml()
+
+    # TODO(
     databases = (
         ["pudl.sqlite"]
-        + sorted(str(p.name) for p in pudl_output.glob("ferc*.sqlite"))
+        + sorted(str(p.name) for p in PudlPaths().pudl_output.glob("ferc*.sqlite"))
         + ["censusdp1tract.sqlite"]
     )
     check_tables_have_metadata(metadata_yml, databases)

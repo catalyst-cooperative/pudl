@@ -3,10 +3,10 @@
 Defines useful fixtures, command line args.
 """
 import logging
-import os
 from pathlib import Path
 from typing import Any
 
+import pydantic
 import pytest
 import sqlalchemy as sa
 from dagster import build_init_resource_context, graph, materialize_to_memory
@@ -330,11 +330,9 @@ def configure_paths_for_tests(tmp_path_factory, request):
     """
     # Just in case we need this later...
     pudl_tmpdir = tmp_path_factory.mktemp("pudl")
-    # Are we running in GitHub Actions?
-    gha = os.environ.get("GITHUB_ACTIONS", False)
-    # Under what circumstances do we want to use a temporary input directory?
-    # This will force a re-download of raw inputs from Zenodo or the GCS cache:
-    if request.config.getoption("--tmp-data") or ("PUDL_INPUT" not in os.environ):
+    # We only use a temporary input directory when explicitly requested.
+    # This will force a re-download of raw inputs from Zenodo or the GCS cache.
+    if request.config.getoption("--tmp-data"):
         in_tmp = pudl_tmpdir / "input"
         in_tmp.mkdir()
         PudlPaths.set_path_overrides(
@@ -342,18 +340,21 @@ def configure_paths_for_tests(tmp_path_factory, request):
         )
         logger.info(f"Using temporary PUDL_INPUT: {in_tmp}")
 
-    # Use a temporary output dir if we're on GHA and PUDL_OUTPUT is unset:
-    if (gha and "PUDL_OUTPUT" not in os.environ) or (
-        # Use a temporary output dir if we're not on GHA and we're not using live DBs.
-        # This will typically be the case when running local unit/integration tests:
-        not gha and not request.config.getoption("--live-dbs")
-    ):
+    # Temporary output path is used when not using live DBs.
+    if not request.config.getoption("--live-dbs"):
         out_tmp = pudl_tmpdir / "output"
         out_tmp.mkdir()
         PudlPaths.set_path_overrides(
             output_dir=str(Path(out_tmp).resolve()),
         )
         logger.info(f"Using temporary PUDL_OUTPUT: {out_tmp}")
+
+    try:
+        return PudlPaths()
+    except pydantic.ValidationError:
+        raise ValueError(
+            "Set PUDL_INPUT, PUDL_OUTPUT env variables, or use --tmp-path, --live-dbs flags."
+        )
 
 
 @pytest.fixture(scope="session")
