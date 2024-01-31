@@ -1407,12 +1407,7 @@ class Resource(PudlMeta):
             matches = {key: key for key in keys if key in names}
         return matches if len(matches) == len(keys) else None
 
-    def format_df(
-        self,
-        df: pd.DataFrame | None = None,
-        use_pyarrow_dtypes: bool = False,
-        **kwargs: Any,
-    ) -> pd.DataFrame:
+    def format_df(self, df: pd.DataFrame | None = None, **kwargs: Any) -> pd.DataFrame:
         """Format a dataframe according to the resources's table schema.
 
         * DataFrame columns not in the schema are dropped.
@@ -1441,32 +1436,32 @@ class Resource(PudlMeta):
         df = df.copy()
         # Rename periodic key columns (if any) to the requested period
         df = df.rename(columns=matches)
-
-        df = df.reindex(columns=dtypes.keys(), copy=False)
-        # Handle dtypes if not using pyarrow types
-        if not use_pyarrow_dtypes:
-            for field in self.schema.fields:
-                # Cast integer year fields to datetime
-                if (
-                    field.type == "year"
-                    and field.name in df
-                    and pd.api.types.is_integer_dtype(df[field.name])
-                ):
-                    df[field.name] = pd.to_datetime(df[field.name], format="%Y")
-                if isinstance(dtypes[field.name], pd.CategoricalDtype):
-                    uncategorized = [
-                        value
-                        for value in df[field.name].dropna().unique()
-                        if value not in dtypes[field.name].categories
-                    ]
-                    if uncategorized:
-                        logger.warning(
-                            f"Values in {field.name} column are not included in "
-                            "categorical values in field enum constraint "
-                            f"and will be converted to nulls ({uncategorized})."
-                        )
+        # Cast integer year fields to datetime
+        for field in self.schema.fields:
+            if (
+                field.type == "year"
+                and field.name in df
+                and pd.api.types.is_integer_dtype(df[field.name])
+            ):
+                df[field.name] = pd.to_datetime(df[field.name], format="%Y")
+            if isinstance(dtypes[field.name], pd.CategoricalDtype):
+                uncategorized = [
+                    value
+                    for value in df[field.name].dropna().unique()
+                    if value not in dtypes[field.name].categories
+                ]
+                if uncategorized:
+                    logger.warning(
+                        f"Values in {field.name} column are not included in "
+                        "categorical values in field enum constraint "
+                        f"and will be converted to nulls ({uncategorized})."
+                    )
+        df = (
+            # Reorder columns and insert missing columns
+            df.reindex(columns=dtypes.keys(), copy=False)
             # Coerce columns to correct data type
-            df = df.astype(dtypes, copy=False)
+            .astype(dtypes, copy=False)
+        )
         # Convert periodic key columns to the requested period
         for df_key, key in matches.items():
             _, period = split_period(key)
@@ -1474,9 +1469,7 @@ class Resource(PudlMeta):
                 df[key] = PERIODS[period](df[key])
         return df
 
-    def enforce_schema(
-        self, df: pd.DataFrame, use_pyarrow_dtypes: bool = False
-    ) -> pd.DataFrame:
+    def enforce_schema(self, df: pd.DataFrame) -> pd.DataFrame:
         """Drop columns not in the DB schema and enforce specified types."""
         expected_cols = pd.Index(self.get_field_names())
         missing_cols = list(expected_cols.difference(df.columns))
@@ -1486,7 +1479,7 @@ class Resource(PudlMeta):
                 f"schema: {missing_cols}"
             )
 
-        df = self.format_df(df, use_pyarrow_dtypes=use_pyarrow_dtypes)
+        df = self.format_df(df)
         pk = self.schema.primary_key
         if pk and not df[df.duplicated(subset=pk)].empty:
             raise ValueError(

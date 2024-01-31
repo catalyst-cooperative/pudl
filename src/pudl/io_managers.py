@@ -347,7 +347,7 @@ class PudlParquetIOManager(IOManager):
         parquet_path = PudlPaths().parquet_path(table_name)
         res = Resource.from_id(table_name)
         df = pq.read_table(source=parquet_path, schema=res.to_pyarrow()).to_pandas()
-        return res.enforce_schema(df, use_pyarrow_dtypes=True)
+        return res.enforce_schema(df)
 
 
 class PudlSQLiteIOManager(SQLiteIOManager):
