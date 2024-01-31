@@ -2242,8 +2242,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         ## Leafwards propagation
         annotated_forest = _propagate_tags_leafward(annotated_forest, ["in_rate_base"])
         # Rootward propagation
-        root_node = self.roots(annotated_forest)[0]
-        _ = _propagate_tag_rootward(annotated_forest, root_node, "in_rate_base")
+        annotated_forest = _propagate_tag_rootward(annotated_forest, "in_rate_base")
         # Correction Records
         annotated_forest = _propagate_tags_to_corrections(annotated_forest)
         return annotated_forest
@@ -2780,6 +2779,10 @@ def nodes_to_df(calc_forest: nx.DiGraph, nodes: list[NodeId]) -> pd.DataFrame:
 def _propagate_tags_leafward(
     annotated_forest: nx.DiGraph, leafward_inherited_tags: list[str]
 ) -> nx.DiGraph:
+    """Push a parent's tags down to its descendants.
+
+    Only push the `leafward_inherited_tags` - others will be left alone.
+    """
     existing_tags = nx.get_node_attributes(annotated_forest, "tags")
     for node, parent_tags in existing_tags.items():
         descendants = nx.descendants(annotated_forest, node)
@@ -2799,7 +2802,7 @@ def _propagate_tags_leafward(
 
 
 def _propagate_tag_rootward(
-    annotated_forest: nx.DiGraph, node, tag_name: Literal["in_rate_base"]
+    annotated_forest: nx.DiGraph, tag_name: Literal["in_rate_base"]
 ) -> str:
     """Set the tag for nodes when all of its children have same tag.
 
@@ -2808,37 +2811,35 @@ def _propagate_tag_rootward(
     """
 
     def _get_tag(annotated_forest, node, tag_name):
-        return annotated_forest.nodes.get(node, {}).get("tags", {}).get(tag_name, pd.NA)
+        return annotated_forest.nodes.get(node, {}).get("tags", {}).get(tag_name)
 
-    logger.info(f"propagaging tags leafward from {node}")
-    tag = pd.NA
-    # i'm a leaf so i stop looking or
-    # if i have a value you don't need to keep looking at this node's childern
-    if not list(annotated_forest.successors(node)) or not pd.isna(
-        _get_tag(annotated_forest, node, tag_name)
-    ):
-        tag = _get_tag(annotated_forest, node, tag_name)
-
-    else:
-        child_tags = set()
-        for child_node in annotated_forest.successors(node):
-            if not child_node.xbrl_factoid.endswith("_correction"):
-                child_tags.add(
-                    _propagate_tag_rootward(annotated_forest, child_node, tag_name)
-                )
-        # if all the children tags are the same and non-null
-        if (len(child_tags) == 1) and {t for t in child_tags if not pd.isna(t)}:
-            new_node_tag = child_tags.pop()
-            # actually assign the tag here but don't wipe out any other tags
-            existing_tags = nx.get_node_attributes(annotated_forest, "tags")
-            node_tags = {
-                node: {"tags": {tag_name: new_node_tag} | existing_tags.get(node, {})}
+    generations = list(nx.topological_generations(annotated_forest))
+    for gen in reversed(generations):
+        untagged_nodes = {
+            node_id
+            for node_id in gen
+            if _get_tag(annotated_forest, node_id, tag_name) is None
+        }
+        for parent_node in untagged_nodes:
+            child_tags = {
+                _get_tag(annotated_forest, c, tag_name)
+                for c in annotated_forest.successors(parent_node)
+                if not c.xbrl_factoid.endswith("_correction")
             }
-            nx.set_node_attributes(annotated_forest, node_tags)
-            tag = new_node_tag
-        # elif the children disagree then the node's tag shouldn't be set and
-        # the og null tag should be returned
-    return tag
+            non_null_tags = child_tags - {None}
+            # sometimes, all children can share same tag but it's null.
+            if len(child_tags) == 1 and non_null_tags:
+                # actually assign the tag here but don't wipe out any other tags
+                new_node_tag = non_null_tags.pop()
+                existing_tags = nx.get_node_attributes(annotated_forest, "tags")
+                node_tags = {
+                    parent_node: {
+                        "tags": {tag_name: new_node_tag}
+                        | existing_tags.get(parent_node, {})
+                    }
+                }
+                nx.set_node_attributes(annotated_forest, node_tags)
+    return annotated_forest
 
 
 def _propagate_tags_to_corrections(annotated_forest: nx.DiGraph) -> nx.DiGraph:
@@ -2863,7 +2864,7 @@ def _propagate_tags_to_corrections(annotated_forest: nx.DiGraph) -> nx.DiGraph:
 
 def check_tag_propagation_compared_to_compiled_tags(
     df: pd.DataFrame,
-    propogated_tag: Literal["in_rate_base"],
+    propagated_tag: Literal["in_rate_base"],
     _out_ferc1__explosion_tags: pd.DataFrame,
 ):
     """Check if tags got propagated.
@@ -2874,7 +2875,7 @@ def check_tag_propagation_compared_to_compiled_tags(
             or ``exploded_balance_sheet_liabilities_ferc1``. The
             ``exploded_income_statement_ferc1`` table does not currently have propagated
             tags.
-        propogated_tag: name of tag. Currently ``in_rate_base`` is the only propagated tag.
+        propagated_tag: name of tag. Currently ``in_rate_base`` is the only propagated tag.
         _out_ferc1__explosion_tags: mannually compiled tags. This table includes tags from
             many of the explosion tables so we will filter it before checking if the tag was
             propagated.
@@ -2892,30 +2893,30 @@ def check_tag_propagation_compared_to_compiled_tags(
     df_tags = _out_ferc1__explosion_tags.merge(
         df_filtered, on=list(df_filtered.columns), how="right"
     )
-    mannually_tagged = df_tags[df_tags[propogated_tag].notnull()].xbrl_factoid.unique()
-    detailed_tagged = df[df[f"tags_{propogated_tag}"].notnull()].xbrl_factoid.unique()
-    if len(detailed_tagged) < len(mannually_tagged):
+    manually_tagged = df_tags[df_tags[propagated_tag].notnull()].xbrl_factoid.unique()
+    detailed_tagged = df[df[f"tags_{propagated_tag}"].notnull()].xbrl_factoid.unique()
+    if len(detailed_tagged) < len(manually_tagged):
         raise AssertionError(
-            f"Found more {len(mannually_tagged)} mannually compiled tagged xbrl_factoids"
+            f"Found more {len(manually_tagged)} mannually compiled tagged xbrl_factoids"
             " than tags in propagated detailed data."
         )
-    mannually_tagged_corrections = df_tags[
-        df_tags[propogated_tag].notnull()
+    manually_tagged_corrections = df_tags[
+        df_tags[propagated_tag].notnull()
         & df_tags.xbrl_factoid.str.endswith("_correction")
     ].xbrl_factoid.unique()
     detailed_tagged_corrections = df[
-        df[f"tags_{propogated_tag}"].notnull()
+        df[f"tags_{propagated_tag}"].notnull()
         & df.xbrl_factoid.str.endswith("_correction")
     ].xbrl_factoid.unique()
-    if len(detailed_tagged_corrections) < len(mannually_tagged_corrections):
+    if len(detailed_tagged_corrections) < len(manually_tagged_corrections):
         raise AssertionError(
-            f"Found more {len(mannually_tagged)} mannually compiled tagged "
-            "xbrl_factoids than tags in propagated detailed data."
+            f"Found more {len(manually_tagged_corrections)} mannually compiled "
+            "tagged xbrl_factoids than tags in propagated detailed data."
         )
 
 
 def check_for_correction_xbrl_factoids_with_tag(
-    df: pd.DataFrame, propogated_tag: Literal["in_rate_base"]
+    df: pd.DataFrame, propagated_tag: Literal["in_rate_base"]
 ):
     """Check if any correction records have tags.
 
@@ -2925,13 +2926,13 @@ def check_for_correction_xbrl_factoids_with_tag(
             or ``exploded_balance_sheet_liabilities_ferc1``. The
             ``exploded_income_statement_ferc1`` table does not currently have propagated
             tags.
-        propogated_tag: name of tag. Currently ``in_rate_base`` is the only propagated tag.
+        propagated_tag: name of tag. Currently ``in_rate_base`` is the only propagated tag.
 
     Raises:
         AssertionError: If there are zero correction ``xbrl_factoids`` in ``df`` with tags.
     """
     detailed_tagged_corrections = df[
-        df[f"tags_{propogated_tag}"].notnull()
+        df[f"tags_{propagated_tag}"].notnull()
         & df.xbrl_factoid.str.endswith("_correction")
     ].xbrl_factoid.unique()
     if len(detailed_tagged_corrections) == 0:

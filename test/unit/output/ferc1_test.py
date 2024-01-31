@@ -1,8 +1,6 @@
 """Tests for the FERC Form 1 output functions.
 
-These need to be recreated to work with the new XbrlCalculationForest implementation.
-
-Stuff to test:
+Stuff we could test:
 - construction of basic tree from input metadata
 - do nodes not part of any calculation get orphaned?
 - do nodes not in the seeded digraph get pruned?
@@ -12,9 +10,11 @@ Stuff to test:
 - pruning of passthrough nodes & associated corrections
 - propagation of weights
 - conflicting weights
-- propagation of tags
 - conflicting tags
 - validation of calculations using only leaf-nodes to reproduce root node values
+
+Stuff we are testing:
+- propagation of tags
 
 """
 
@@ -28,10 +28,6 @@ from pudl.helpers import dedupe_n_flatten_list_of_lists
 from pudl.output.ferc1 import NodeId, XbrlCalculationForestFerc1
 
 logger = logging.getLogger(__name__)
-
-
-# TODO: combine these into a class because we have a lot of similar method names
-# TODO: make graph construction easier with helper functions
 
 
 class TestTagPropagation(unittest.TestCase):
@@ -158,7 +154,7 @@ class TestTagPropagation(unittest.TestCase):
         edges = [(self.parent, self.child1), (self.parent, self.child2)]
         tags = pd.DataFrame([self.parent, self.child1, self.child2]).assign(
             in_rate_base=["yes", "no", pd.NA],
-            in_root_boose=["yus", "nu", "purtiul"],
+            in_root_boose=["yus", "nu", pd.NA],
         )
         annotated_tags = self.build_forest_and_annotated_tags(edges, tags)
         assert annotated_tags[self.parent]["in_rate_base"] == "yes"
@@ -169,7 +165,7 @@ class TestTagPropagation(unittest.TestCase):
         )
         assert annotated_tags[self.parent]["in_root_boose"] == "yus"
         assert annotated_tags[self.child1]["in_root_boose"] == "nu"
-        assert annotated_tags[self.child2]["in_root_boose"] == "purtiul"
+        assert not annotated_tags[self.child2].get("in_root_boose")
 
     def test_rootward_prop_disagreeing_children(self):
         """Parents should not pick sides between disagreeing children."""
@@ -208,11 +204,16 @@ class TestTagPropagation(unittest.TestCase):
         )
         annotated_tags = self.build_forest_and_annotated_tags(edges, tags)
         for node in null_tag_edges:
-            assert not annotated_tags[node].get("in_rate_base")
+            assert "in_rate_base" not in annotated_tags[node]
             # do we still have a non-null value for the non-propped tag
             assert annotated_tags[node].get("a_non_propped_tag")
 
     def test_annotated_forest_propagates_rootward(self):
+        """If two grandchildren have the same tag, their parent does inhert the tag.
+
+        But, the rootward propagation only happens when all of a nodes children have
+        the same tag.
+        """
         edges = [
             (self.parent, self.child1),
             (self.parent, self.child2),
@@ -223,13 +224,14 @@ class TestTagPropagation(unittest.TestCase):
             in_rate_base=["yes", "yes"]
         )
         annotated_tags = self.build_forest_and_annotated_tags(edges, tags)
-        assert not annotated_tags.get(self.parent)
+        assert self.parent not in annotated_tags
         assert annotated_tags[self.child1]["in_rate_base"] == "yes"
-        assert not annotated_tags.get(self.child2)
+        assert self.child2 not in annotated_tags
         assert annotated_tags[self.grand_child11]["in_rate_base"] == "yes"
         assert annotated_tags[self.grand_child12]["in_rate_base"] == "yes"
 
     def test_annotated_forest_propagates_rootward_disagreeing_sibling(self):
+        """If two siblings disagree, their parent does not inherit either of their tag values."""
         edges = [
             (self.parent, self.child1),
             (self.parent, self.child2),
