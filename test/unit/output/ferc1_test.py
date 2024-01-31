@@ -154,7 +154,7 @@ class TestTagPropagation(unittest.TestCase):
         )
 
     def test_leafward_prop_preserve_non_propagating_tags(self):
-        """Don't force the diagreeing child to follow the parent."""
+        """Only propagate tags that actually get inherited - i.e., not `in_root_boose`."""
         edges = [(self.parent, self.child1), (self.parent, self.child2)]
         tags = pd.DataFrame([self.parent, self.child1, self.child2]).assign(
             in_rate_base=["yes", "no", pd.NA],
