@@ -19,6 +19,7 @@ from pathlib import Path
 logging.basicConfig()
 logger = logging.getLogger()
 
+MIB_PER_GB = 1e9 / 2**20
 
 def _flat(ls: list[list]) -> list:
     return list(itertools.chain.from_iterable(ls))
@@ -55,7 +56,7 @@ def to_config(
                     ],
                     "computeResource": {
                         "cpuMilli": 8000,
-                        "memoryMib": 60 * 1024,
+                        "memoryMib": int(63 * MIB_PER_GB),
                         "bootDiskMib": 80 * 1024,
                     },
                     "maxRunDuration": f"{60 * 60 * 12}s",
