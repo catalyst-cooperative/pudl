@@ -175,7 +175,10 @@ SOURCES: dict[str, Any] = {
         "field_namespace": "eia",
         "contributors": [],
         "working_partitions": {
-            "year_month": "2023-06",
+            "year_months": [
+                str(q).lower()
+                for q in pd.period_range(start="2015-07", end="2023-06", freq="M")
+            ],
         },
         "keywords": sorted(
             set(
