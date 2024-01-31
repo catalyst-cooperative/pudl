@@ -21,6 +21,7 @@ logger = logging.getLogger()
 
 MIB_PER_GB = 1e9 / 2**20
 
+
 def _flat(ls: list[list]) -> list:
     return list(itertools.chain.from_iterable(ls))
 
