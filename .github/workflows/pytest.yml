@@ -4,10 +4,12 @@ name: pytest
 on:
   pull_request:
     types:
-      - created
       - opened
       - synchronize
       - ready_for_review
+  merge_group:
+    types:
+      - checks_requested
 
 env:
   PUDL_OUTPUT: /home/runner/pudl-work/output/
@@ -108,7 +110,7 @@ jobs:
     runs-on:
       group: large-runner-group
       labels: ubuntu-22.04-4core
-    if: github.event.pull_request.draft == false
+    if: github.event.merge_group
     permissions:
       contents: read
       id-token: write
