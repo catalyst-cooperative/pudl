@@ -189,6 +189,31 @@ is a tree structure to being a dag. These xbrl_factoids were added in
 """
 
 
+def get_core_ferc1_asset_description(asset_name: str) -> str:
+    """Get the asset description portion of a core FERC FORM 1 asset.
+
+    This is useful when programatically constructing output assets
+    from core assets using asset factories.
+
+    Args:
+        asset_name: The name of the core asset.
+
+    Returns:
+        asset_description: The asset description portion of the asset name.
+    """
+    pattern = r"yearly_(.*?)_sched"
+    match = re.search(pattern, asset_name)
+
+    if match:
+        asset_description = match.group(1)
+    else:
+        raise ValueError(
+            f"The asset description can not be parsed from {asset_name}"
+            "because it is not a valide core FERC Form 1 asset name."
+        )
+    return asset_description
+
+
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def _out_ferc1__yearly_plants_utilities(
     core_pudl__assn_ferc1_pudl_plants: pd.DataFrame,
@@ -1154,23 +1179,25 @@ class OffByFactoid(NamedTuple):
 
 
 @asset
-def _out_ferc1__explosion_tags(table_dimensions_ferc1: pd.DataFrame) -> pd.DataFrame:
+def _out_ferc1__detailed_tags(_core_ferc1__table_dimensions) -> pd.DataFrame:
     """Grab the stored tables of tags and add inferred dimension."""
-    rate_tags = _get_tags("xbrl_factoid_rate_base_tags.csv", table_dimensions_ferc1)
+    rate_tags = _get_tags(
+        "xbrl_factoid_rate_base_tags.csv", _core_ferc1__table_dimensions
+    )
     rev_req_tags = _get_tags(
-        "xbrl_factoid_revenue_requirement_tags.csv", table_dimensions_ferc1
+        "xbrl_factoid_revenue_requirement_tags.csv", _core_ferc1__table_dimensions
     )
     rate_cats = _get_tags(
-        "xbrl_factoid_rate_base_category_tags.csv", table_dimensions_ferc1
+        "xbrl_factoid_rate_base_category_tags.csv", _core_ferc1__table_dimensions
     )
     plant_status_tags = _aggregatable_dimension_tags(
-        table_dimensions_ferc1, "plant_status"
+        _core_ferc1__table_dimensions, "plant_status"
     )
     plant_function_tags = _aggregatable_dimension_tags(
-        table_dimensions_ferc1, "plant_function"
+        _core_ferc1__table_dimensions, "plant_function"
     )
     utility_type_tags = _aggregatable_dimension_tags(
-        table_dimensions_ferc1, "utility_type"
+        _core_ferc1__table_dimensions, "utility_type"
     )
     tag_dfs = [
         rate_tags,
@@ -1195,7 +1222,9 @@ def _out_ferc1__explosion_tags(table_dimensions_ferc1: pd.DataFrame) -> pd.DataF
     return tags
 
 
-def _get_tags(file_name: str, table_dimensions_ferc1: pd.DataFrame) -> pd.DataFrame:
+def _get_tags(
+    file_name: str, _core_ferc1__table_dimensions: pd.DataFrame
+) -> pd.DataFrame:
     """Grab tags from a stored CSV file and apply :func:`make_calculation_dimensions_explicit`."""
     tags_csv = importlib.resources.files("pudl.package_data.ferc1") / file_name
     tags_df = (
@@ -1205,7 +1234,7 @@ def _get_tags(file_name: str, table_dimensions_ferc1: pd.DataFrame) -> pd.DataFr
         .astype(pd.StringDtype())
         .pipe(
             pudl.transform.ferc1.make_calculation_dimensions_explicit,
-            table_dimensions_ferc1,
+            _core_ferc1__table_dimensions,
             dimensions=["utility_type", "plant_function", "plant_status"],
         )
     )
@@ -1213,12 +1242,12 @@ def _get_tags(file_name: str, table_dimensions_ferc1: pd.DataFrame) -> pd.DataFr
 
 
 def _aggregatable_dimension_tags(
-    table_dimensions_ferc1: pd.DataFrame,
+    _core_ferc1__table_dimensions: pd.DataFrame,
     dimension: Literal["plant_status", "plant_function"],
 ) -> pd.DataFrame:
     # make a new lil csv w the manually compiled plant status or dimension
     # add in the rest from the table_dims
-    # merge it into _out_ferc1__explosion_tags
+    # merge it into _out_ferc1__detailed_tags
     aggregatable_col = f"aggregatable_{dimension}"
     tags_csv = (
         importlib.resources.files("pudl.package_data.ferc1")
@@ -1232,20 +1261,20 @@ def _aggregatable_dimension_tags(
         .astype(pd.StringDtype())
         .pipe(
             pudl.transform.ferc1.make_calculation_dimensions_explicit,
-            table_dimensions_ferc1,
+            _core_ferc1__table_dimensions,
             dimensions=dimensions,
         )
         .set_index(idx)
     )
     # don't include the corrections because we will add those in later
-    table_dimensions_ferc1 = table_dimensions_ferc1[
-        ~table_dimensions_ferc1.xbrl_factoid.str.endswith("_correction")
+    _core_ferc1__table_dimensions = _core_ferc1__table_dimensions[
+        ~_core_ferc1__table_dimensions.xbrl_factoid.str.endswith("_correction")
     ].set_index(idx)
     tags_df = pd.concat(
         [
             tags_df,
-            table_dimensions_ferc1.loc[
-                table_dimensions_ferc1.index.difference(tags_df.index)
+            _core_ferc1__table_dimensions.loc[
+                _core_ferc1__table_dimensions.index.difference(tags_df.index)
             ],
         ]
     ).reset_index()
@@ -1263,37 +1292,43 @@ def exploded_table_asset_factory(
 ) -> AssetsDefinition:
     """Create an exploded table based on a set of related input tables."""
     ins: Mapping[str, AssetIn] = {
-        "metadata_xbrl_ferc1": AssetIn("metadata_xbrl_ferc1"),
-        "calculation_components_xbrl_ferc1": AssetIn(
-            "calculation_components_xbrl_ferc1"
+        "_core_ferc1_xbrl__metadata": AssetIn("_core_ferc1_xbrl__metadata"),
+        "_core_ferc1_xbrl__calculation_components": AssetIn(
+            "_core_ferc1_xbrl__calculation_components"
         ),
-        "_out_ferc1__explosion_tags": AssetIn("_out_ferc1__explosion_tags"),
+        "_out_ferc1__detailed_tags": AssetIn("_out_ferc1__detailed_tags"),
     }
     ins |= {table_name: AssetIn(table_name) for table_name in table_names}
 
-    @asset(name=f"exploded_{root_table}", ins=ins, io_manager_key=io_manager_key)
+    @asset(
+        name=f"_out_ferc1__detailed_{get_core_ferc1_asset_description(root_table)}",
+        ins=ins,
+        io_manager_key=io_manager_key,
+    )
     def exploded_tables_asset(
         **kwargs: dict[str, pd.DataFrame],
     ) -> pd.DataFrame:
-        metadata_xbrl_ferc1 = kwargs["metadata_xbrl_ferc1"]
-        calculation_components_xbrl_ferc1 = kwargs["calculation_components_xbrl_ferc1"]
-        tags = kwargs["_out_ferc1__explosion_tags"]
+        _core_ferc1_xbrl__metadata = kwargs["_core_ferc1_xbrl__metadata"]
+        _core_ferc1_xbrl__calculation_components = kwargs[
+            "_core_ferc1_xbrl__calculation_components"
+        ]
+        tags = kwargs["_out_ferc1__detailed_tags"]
         tables_to_explode = {
             name: df
             for (name, df) in kwargs.items()
             if name
             not in [
-                "metadata_xbrl_ferc1",
-                "calculation_components_xbrl_ferc1",
-                "_out_ferc1__explosion_tags",
+                "_core_ferc1_xbrl__metadata",
+                "_core_ferc1_xbrl__calculation_components",
+                "_out_ferc1__detailed_tags",
                 "off_by_facts",
             ]
         }
         return Exploder(
             table_names=tables_to_explode.keys(),
             root_table=root_table,
-            metadata_xbrl_ferc1=metadata_xbrl_ferc1,
-            calculation_components_xbrl_ferc1=calculation_components_xbrl_ferc1,
+            metadata_xbrl_ferc1=_core_ferc1_xbrl__metadata,
+            calculation_components_xbrl_ferc1=_core_ferc1_xbrl__calculation_components,
             seed_nodes=seed_nodes,
             tags=tags,
             group_metric_checks=group_metric_checks,
@@ -1312,7 +1347,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
     """
     explosion_args = [
         {
-            "root_table": "income_statement_ferc1",
+            "root_table": "core_ferc1__yearly_income_statements_sched114",
             "table_names": [
                 "core_ferc1__yearly_income_statements_sched114",
                 "core_ferc1__yearly_depreciation_summary_sched336",
@@ -1334,7 +1369,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
             "off_by_facts": [],
         },
         {
-            "root_table": "balance_sheet_assets_ferc1",
+            "root_table": "core_ferc1__yearly_balance_sheet_assets_sched110",
             "table_names": [
                 "core_ferc1__yearly_balance_sheet_assets_sched110",
                 "core_ferc1__yearly_utility_plant_summary_sched200",
@@ -1393,7 +1428,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
             ],
         },
         {
-            "root_table": "balance_sheet_liabilities_ferc1",
+            "root_table": "core_ferc1__yearly_balance_sheet_liabilities_sched110",
             "table_names": [
                 "core_ferc1__yearly_balance_sheet_liabilities_sched110",
                 "core_ferc1__yearly_retained_earnings_sched118",
@@ -2944,10 +2979,10 @@ def check_for_correction_xbrl_factoids_with_tag(
 
 @asset
 def out_ferc1__yearly_rate_base(
-    exploded_balance_sheet_assets_ferc1: pd.DataFrame,
-    exploded_balance_sheet_liabilities_ferc1: pd.DataFrame,
+    _out_ferc1__detailed_balance_sheet_assets: pd.DataFrame,
+    _out_ferc1__detailed_balance_sheet_liabilities: pd.DataFrame,
     core_ferc1__yearly_operating_expenses_sched320: pd.DataFrame,
-    _out_ferc1__explosion_tags: pd.DataFrame,
+    _out_ferc1__detailed_tags: pd.DataFrame,
 ) -> pd.DataFrame:
     """Make a table of granular utility rate-base data.
 
@@ -2993,13 +3028,13 @@ def out_ferc1__yearly_rate_base(
     # then select only the leafy exploded records that are in rate base and concat
     in_rate_base = pd.concat(
         [
-            exploded_balance_sheet_assets_ferc1[
-                exploded_balance_sheet_assets_ferc1.tags_in_rate_base.isin(
+            _out_ferc1__detailed_balance_sheet_assets[
+                _out_ferc1__detailed_balance_sheet_assets.tags_in_rate_base.isin(
                     ["yes", "partial"]
                 )
             ],
-            exploded_balance_sheet_liabilities_ferc1[
-                exploded_balance_sheet_liabilities_ferc1.tags_in_rate_base.isin(
+            _out_ferc1__detailed_balance_sheet_liabilities[
+                _out_ferc1__detailed_balance_sheet_liabilities.tags_in_rate_base.isin(
                     ["yes", "partial"]
                 )
             ].assign(ending_balance=lambda x: -x.ending_balance),
@@ -3008,7 +3043,7 @@ def out_ferc1__yearly_rate_base(
     ).sort_values(by=["report_year", "utility_id_ferc1", "table_name"], ascending=False)
     # note: we need the `tags_in_rate_base` column for these checks
     check_tag_propagation_compared_to_compiled_tags(
-        in_rate_base, "in_rate_base", _out_ferc1__explosion_tags
+        in_rate_base, "in_rate_base", _out_ferc1__detailed_tags
     )
     check_for_correction_xbrl_factoids_with_tag(in_rate_base, "in_rate_base")
     return in_rate_base

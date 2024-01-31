@@ -23,9 +23,14 @@ import unittest
 
 import networkx as nx
 import pandas as pd
+import pytest
 
 from pudl.helpers import dedupe_n_flatten_list_of_lists
-from pudl.output.ferc1 import NodeId, XbrlCalculationForestFerc1
+from pudl.output.ferc1 import (
+    NodeId,
+    XbrlCalculationForestFerc1,
+    get_core_ferc1_asset_description,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -304,3 +309,15 @@ class TestTagPropagation(unittest.TestCase):
             self.parent_correction,
         ]:
             assert annotated_tags[post_yes_node]["in_rate_base"] == "yes"
+
+
+def test_get_core_ferc1_asset_description():
+    valid_core_ferc1_asset_name = "core_ferc1__yearly_income_statements_sched114"
+    valid_core_ferc1_asset_name_result = get_core_ferc1_asset_description(
+        valid_core_ferc1_asset_name
+    )
+    assert valid_core_ferc1_asset_name_result == "income_statements"
+
+    invalid_core_ferc1_asset_name = "core_ferc1__income_statements"
+    with pytest.raises(ValueError):
+        get_core_ferc1_asset_description(invalid_core_ferc1_asset_name)

@@ -8,7 +8,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 
 @asset(io_manager_key=None, compute_kind="Python")
-def state_average_fuel_costs_eia(
+def _out_eia__monthly_state_fuel_prices(
     core_eia__yearly_fuel_receipts_costs_aggs: pd.DataFrame,
 ) -> pd.DataFrame:
     """Get state-level average fuel costs from EIA's bulk electricity data.

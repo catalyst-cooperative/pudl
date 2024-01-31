@@ -56,7 +56,6 @@ def test_field_definitions(field_name: str):
     _ = Field(name=field_name, **FIELD_METADATA[field_name])
 
 
-@pytest.mark.xfail(reason="Need to purge unused fields. See issue #3224")
 def test_defined_fields_are_used():
     """Check that all fields which are defined are actually used."""
     used_fields = set()
@@ -67,37 +66,6 @@ def test_defined_fields_are_used():
     if len(unused_fields) > 0:
         raise AssertionError(
             f"Found {len(unused_fields)} unused fields: {unused_fields}"
-        )
-
-
-@pytest.mark.xfail(reason="Incomplete descriptions. See issue #3224")
-def test_fields_have_descriptions():
-    """Check that all fields have a description and report any that do not."""
-    fields_without_description = []
-    for field_name in FIELD_METADATA:
-        field = Field(name=field_name, **FIELD_METADATA[field_name])
-        if field.description is None:
-            fields_without_description.append(field_name)
-    fields_without_description = sorted(fields_without_description)
-    if len(fields_without_description) > 0:
-        raise AssertionError(
-            f"Found {len(fields_without_description)} fields without descriptions: "
-            f"{fields_without_description}"
-        )
-
-
-@pytest.mark.xfail(reason="Incomplete descriptions. See issue #3224")
-def test_resources_have_descriptions():
-    """Check that all resources have a description and report any that do not."""
-    resources_without_description = []
-    for resource_name, resource in PUDL_RESOURCES.items():
-        if resource.description is None:
-            resources_without_description.append(resource_name)
-    resources_without_description = sorted(resources_without_description)
-    if len(resources_without_description) > 0:
-        raise AssertionError(
-            f"Found {len(resources_without_description)} resources without descriptions: "
-            f"{resources_without_description}"
         )
 
 
