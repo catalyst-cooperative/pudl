@@ -9,6 +9,7 @@ for processing each year of EPA CEMS data and execute these ops in parallel. For
 see: https://docs.dagster.io/concepts/ops-jobs-graphs/dynamic-graphs and https://docs.dagster.io/concepts/assets/graph-backed-assets.
 """
 from collections import namedtuple
+from pathlib import Path
 
 import dask.dataframe as dd
 import pandas as pd
@@ -26,6 +27,14 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 
 YearPartitions = namedtuple("YearPartitions", ["year_quarters"])
+
+
+def _partitioned_path() -> Path:
+    partitioned_path = (
+        PudlPaths().output_dir / "parquet" / "core_epacems__hourly_emissions"
+    )
+    partitioned_path.mkdir(exist_ok=True)
+    return partitioned_path
 
 
 @op(
@@ -69,8 +78,7 @@ def process_single_year(
     epacems_settings = context.resources.dataset_settings.epacems
 
     schema = Resource.from_id("core_epacems__hourly_emissions").to_pyarrow()
-    partitioned_path = PudlPaths().output_dir / "core_epacems__hourly_emissions"
-    partitioned_path.mkdir(exist_ok=True)
+    partitioned_path = _partitioned_path()
 
     year_quarters_in_year = {
         yq
@@ -107,30 +115,36 @@ def consolidate_partitions(context, partitions: list[YearPartitions]) -> None:
         context: dagster keyword that provides access to resources and config.
         partitions: Year and state combinations in the output database.
     """
-    partitioned_path = PudlPaths().output_dir / "core_epacems__hourly_emissions"
-    monolithic_path = PudlPaths().output_dir / "core_epacems__hourly_emissions.parquet"
+    partitioned_path = _partitioned_path()
+    # Create monolithic output in base output directory and parquet directory
+    monolithic_paths = [PudlPaths().output_dir, PudlPaths().output_dir / "parquet"]
     schema = Resource.from_id("core_epacems__hourly_emissions").to_pyarrow()
 
-    with pq.ParquetWriter(
-        where=monolithic_path, schema=schema, compression="snappy", version="2.6"
-    ) as monolithic_writer:
-        for year_partition in partitions:
-            for state in EPACEMS_STATES:
-                monolithic_writer.write_table(
-                    # Concat a slice of each state's data from all quarters in a year
-                    # and write to parquet to create year-state row groups
-                    pa.concat_tables(
-                        [
-                            pq.read_table(
-                                source=partitioned_path
-                                / f"epacems-{year_quarter}.parquet",
-                                filters=[[("state", "=", state.upper())]],
-                                schema=schema,
-                            )
-                            for year_quarter in year_partition.year_quarters
-                        ]
+    for year_partition in partitions:
+        for state in EPACEMS_STATES:
+            for base_path in monolithic_paths:
+                monolithic_path = base_path / "core_epacems__hourly_emissions.parquet"
+                with pq.ParquetWriter(
+                    where=monolithic_path,
+                    schema=schema,
+                    compression="snappy",
+                    version="2.6",
+                ) as monolithic_writer:
+                    monolithic_writer.write_table(
+                        # Concat a slice of each state's data from all quarters in a year
+                        # and write to parquet to create year-state row groups
+                        pa.concat_tables(
+                            [
+                                pq.read_table(
+                                    source=partitioned_path
+                                    / f"epacems-{year_quarter}.parquet",
+                                    filters=[[("state", "=", state.upper())]],
+                                    schema=schema,
+                                )
+                                for year_quarter in year_partition.year_quarters
+                            ]
+                        )
                     )
-                )
 
 
 @graph_asset

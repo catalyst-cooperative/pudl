@@ -839,13 +839,13 @@ def ferc1_xbrl_sqlite_io_manager(init_context) -> FercXBRLSQLiteIOManager:
     )
 
 
-class PandasParquetIOManager(UPathIOManager):
+class EpaCemsIOManager(UPathIOManager):
     """An IO Manager that dumps outputs to a parquet file."""
 
     extension: str = ".parquet"
 
     def __init__(self, base_path: UPath, schema: pa.Schema) -> None:
-        """Initialize a PandasParquetIOManager."""
+        """Initialize a EpaCemsIOManager."""
         super().__init__(base_path=base_path)
         self.schema = schema
 
@@ -867,9 +867,7 @@ class PandasParquetIOManager(UPathIOManager):
 @io_manager
 def epacems_io_manager(
     init_context: InitResourceContext,
-) -> PandasParquetIOManager:
+) -> EpaCemsIOManager:
     """IO Manager that writes EPA CEMS partitions to individual parquet files."""
     schema = Resource.from_id("core_epacems__hourly_emissions").to_pyarrow()
-    return PandasParquetIOManager(
-        base_path=UPath(PudlPaths().output_dir), schema=schema
-    )
+    return EpaCemsIOManager(base_path=UPath(PudlPaths().output_dir), schema=schema)
