@@ -8,6 +8,7 @@ import pudl
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
+# TODO: make schema for table and change to sql loader
 @asset
 def core_eia860m__yearly_generators_changelog_eia860m(
     raw_eia860m__generator_proposed,
@@ -45,5 +46,12 @@ def core_eia860m__yearly_generators_changelog_eia860m(
         # drop all the non 86om cols
         .dropna(how="all", axis="columns")
     )
-    # TODO: make changelog re : operational_status_code
-    return eia860m_all
+    # TODO: decide on subset columns
+    eia860m_changelog = eia860m_all.sort_values(
+        by=["report_date"], ascending=True
+    ).drop_duplicates(
+        subset=["plant_id_eia", "generator_id", "operational_status_code"],
+        keep="first",
+    )
+    # TODO: any lil data sanity checks
+    return eia860m_changelog

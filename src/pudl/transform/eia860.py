@@ -242,7 +242,7 @@ def _core_eia860__generators(
     )
 
     # A subset of the columns have zero values, where NA is appropriate:
-    columns_to_fix = [
+    nulls_columns_to_fix = [
         "planned_generator_retirement_month",
         "planned_generator_retirement_year",
         "planned_uprate_month",
@@ -263,26 +263,7 @@ def _core_eia860__generators(
         "winter_capacity_mw",
         "summer_capacity_mw",
     ]
-
-    for column in columns_to_fix:
-        gens_df[column] = gens_df[column].replace(to_replace=[" ", 0], value=np.nan)
-
-    # A subset of the columns have "X" values, where other columns_to_fix
-    # have "N" values. Replacing these values with "N" will make for uniform
-    # values that can be converted to Boolean True and False pairs.
-    gens_df.duct_burners = gens_df.duct_burners.replace(to_replace="X", value="N")
-    gens_df.bypass_heat_recovery = gens_df.bypass_heat_recovery.replace(
-        to_replace="X", value="N"
-    )
-    gens_df.syncronized_transmission_grid = gens_df.bypass_heat_recovery.replace(
-        to_replace="X", value="N"
-    )
-
-    # A subset of the columns have "U" values, presumably for "Unknown," which
-    # must be set to None in order to convert the columns to datatype Boolean.
-
-    gens_df.multiple_fuels = gens_df.multiple_fuels.replace(to_replace="U", value=None)
-    gens_df.switch_oil_gas = gens_df.switch_oil_gas.replace(to_replace="U", value=None)
+    nulls_replace_cols = {col: {" ": np.nan, 0: np.nan} for col in nulls_columns_to_fix}
 
     boolean_columns_to_fix = [
         "duct_burners",
@@ -315,13 +296,18 @@ def _core_eia860__generators(
         "ferc_exempt_wholesale_generator",
         "ferc_qualifying_facility",
     ]
-
-    for column in boolean_columns_to_fix:
-        gens_df[column] = (
-            gens_df[column]
-            .fillna("NaN")
-            .replace(to_replace=["Y", "N", "NaN"], value=[True, False, pd.NA])
-        )
+    # Most boolean columns have either "Y" for True or "N" for False.
+    # A subset of the columns have "X" values which represents a False value.
+    # A subset of the columns have "U" values, presumably for "Unknown," which
+    # must be set to None in order to convert the columns to datatype Boolean.
+    fillna_cols = {col: pd.NA for col in boolean_columns_to_fix}
+    boolean_replace_cols = {
+        col: {"Y": True, "N": False, "X": False, "U": pd.NA}
+        for col in boolean_columns_to_fix
+    }
+    gens_df = gens_df.fillna(fillna_cols).replace(
+        to_replace=nulls_replace_cols | boolean_replace_cols
+    )
 
     gens_df = (
         gens_df.pipe(pudl.helpers.month_year_to_date)
