@@ -70,7 +70,7 @@ function run_pudl_etl() {
 function save_outputs_to_gcs() {
     echo "Copying outputs to GCP bucket $PUDL_GCS_OUTPUT" && \
     gsutil -m cp -r "$PUDL_OUTPUT" "$PUDL_GCS_OUTPUT" && \
-    rm "$PUDL_OUTPUT/success"
+    rm -f "$PUDL_OUTPUT/success"
 }
 
 function upload_to_dist_path() {
@@ -124,7 +124,7 @@ function zenodo_data_release() {
 function notify_slack() {
     # Notify pudl-deployment slack channel of deployment status
     echo "Notifying Slack about deployment status"
-    message="# `${BUILD_ID}` status\n\n"
+    message="${BUILD_ID} status\n\n"
     if [[ "$1" == "success" ]]; then
         message+=":large_green_circle: :sunglasses: :unicorn_face: :rainbow: deployment succeeded!! :partygritty: :database_parrot: :blob-dance: :large_green_circle:\n\n"
     elif [[ "$1" == "failure" ]]; then
@@ -172,8 +172,10 @@ function update_nightly_branch() {
 function clean_up_outputs_for_distribution() {
     # Compress the SQLite DBs for easier distribution
     gzip --verbose "$PUDL_OUTPUT"/*.sqlite && \
-    # Remove redundant multi-file EPA CEMS outputs prior to distribution
-    rm -rf "$PUDL_OUTPUT/core_epacems__hourly_emissions/" && \
+    # Grab the consolidated EPA CEMS outputs for distribution
+    cp "$PUDL_OUTPUT/parquet/core_epacems__hourly_emissions.parquet" "$PUDL_OUTPUT" && \
+    # Remove all other parquet output, which we are not yet distributing.
+    rm -rf "$PUDL_OUTPUT/parquet" && \
     rm -f "$PUDL_OUTPUT/metadata.yml"
 }
 
@@ -199,7 +201,7 @@ run_pudl_etl 2>&1 | tee "$LOGFILE"
 ETL_SUCCESS=${PIPESTATUS[0]}
 
 # This needs to happen regardless of the ETL outcome:
-pg_ctlcluster 15 dagster stop 2>&1 | tee "$LOGFILE"
+pg_ctlcluster 15 dagster stop 2>&1 | tee -a "$LOGFILE"
 
 save_outputs_to_gcs 2>&1 | tee -a "$LOGFILE"
 SAVE_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
