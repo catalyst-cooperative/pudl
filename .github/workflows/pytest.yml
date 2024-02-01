@@ -3,13 +3,10 @@ name: pytest
 
 on:
   pull_request:
-    types:
-      - opened
-      - synchronize
-      - ready_for_review
   merge_group:
     types:
       - checks_requested
+  workflow_dispatch:
 
 env:
   PUDL_OUTPUT: /home/runner/pudl-work/output/
@@ -110,7 +107,7 @@ jobs:
     runs-on:
       group: large-runner-group
       labels: ubuntu-22.04-4core
-    if: github.event.merge_group
+    if: github.event.merge_group || github.event.workflow_dispatch
     permissions:
       contents: read
       id-token: write
