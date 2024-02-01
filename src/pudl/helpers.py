@@ -1513,7 +1513,9 @@ def weighted_average(
         A table with ``by`` columns as the index and the weighted ``data_col``.
     """
     df["_data_times_weight"] = df[data_col] * df[weight_col]
-    df["_weight_where_notnull"] = df.loc[df[data_col].notnull(), weight_col]
+    df.loc[df[data_col].notnull(), "_weight_where_notnull"] = df.loc[
+        df[data_col].notnull(), weight_col
+    ]
     g = df.groupby(by, observed=True)
     result = g["_data_times_weight"].sum(min_count=1) / g["_weight_where_notnull"].sum(
         min_count=1
@@ -1551,10 +1553,8 @@ def sum_and_weighted_average_agg(
     """
     logger.debug(f"grouping by {by}")
     # we are keeping the index here for easy merging of the weighted cols below
-    df_out = (
-        df_in.reset_index(drop=True)
-        .groupby(by=by, as_index=True, observed=True)[sum_cols]
-        .sum(min_count=1)
+    df_out = df_in.groupby(by=by, as_index=True, observed=True)[sum_cols].sum(
+        min_count=1
     )
     for data_col, weight_col in wtavg_dict.items():
         df_out.loc[:, data_col] = weighted_average(
