@@ -264,7 +264,7 @@ def correct_epa_eia_plant_id_mapping(df: pd.DataFrame) -> pd.DataFrame:
 def core_epa__assn_eia_epacamd_subplant_ids(
     _core_epa__assn_eia_epacamd_unique: pd.DataFrame,
     core_eia860__scd_generators: pd.DataFrame,
-    emissions_unit_ids_epacems: pd.DataFrame,
+    _core_epacems__emissions_unit_ids: pd.DataFrame,
     core_eia860__assn_boiler_generator: pd.DataFrame,
 ) -> pd.DataFrame:
     """Groups units and generators into unique subplant groups.
@@ -299,7 +299,7 @@ def core_epa__assn_eia_epacamd_subplant_ids(
         augement_crosswalk_with_generators_eia860(
             _core_epa__assn_eia_epacamd_unique, core_eia860__scd_generators
         )
-        .pipe(augement_crosswalk_with_epacamd_ids, emissions_unit_ids_epacems)
+        .pipe(augement_crosswalk_with_epacamd_ids, _core_epacems__emissions_unit_ids)
         .pipe(augement_crosswalk_with_bga_eia860, core_eia860__assn_boiler_generator)
     )
     # use graph analysis to identify subplants
@@ -372,13 +372,13 @@ def augement_crosswalk_with_generators_eia860(
 
 
 def augement_crosswalk_with_epacamd_ids(
-    crosswalk_clean: pd.DataFrame, emissions_unit_ids_epacems: pd.DataFrame
+    crosswalk_clean: pd.DataFrame, _core_epacems__emissions_unit_ids: pd.DataFrame
 ) -> pd.DataFrame:
     """Merge all EPA CAMD IDs into the crosswalk."""
     return crosswalk_clean.assign(
         emissions_unit_id_epa=lambda x: x.emissions_unit_id_epa.fillna(x.generator_id)
     ).merge(
-        emissions_unit_ids_epacems[
+        _core_epacems__emissions_unit_ids[
             ["plant_id_eia", "emissions_unit_id_epa"]
         ].drop_duplicates(),
         how="outer",

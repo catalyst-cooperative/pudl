@@ -509,11 +509,11 @@ class Field(PudlMeta):
     See https://specs.frictionlessdata.io/table-schema/#field-descriptors.
 
     Examples:
-        >>> field = Field(name='x', type='string', constraints={'enum': ['x', 'y']})
+        >>> field = Field(name='x', type='string', description='X', constraints={'enum': ['x', 'y']})
         >>> field.to_pandas_dtype()
         CategoricalDtype(categories=['x', 'y'], ordered=False, categories_dtype=object)
         >>> field.to_sql()
-        Column('x', Enum('x', 'y'), CheckConstraint(...), table=None)
+        Column('x', Enum('x', 'y'), CheckConstraint(...), table=None, comment='X')
         >>> field = Field.from_id('utility_id_eia')
         >>> field.name
         'utility_id_eia'
@@ -525,7 +525,7 @@ class Field(PudlMeta):
     title: String | None = None
     # Alias required to avoid shadowing Python built-in format()
     format_: Literal["default"] = pydantic.Field(alias="format", default="default")
-    description: String | None = None
+    description: String
     unit: String | None = None
     constraints: FieldConstraints = FieldConstraints()
     harvest: FieldHarvest = FieldHarvest()
@@ -1011,15 +1011,15 @@ class Resource(PudlMeta):
     Examples:
         A simple example illustrates the conversion to SQLAlchemy objects.
 
-        >>> fields = [{'name': 'x', 'type': 'year'}, {'name': 'y', 'type': 'string'}]
+        >>> fields = [{'name': 'x', 'type': 'year', 'description': 'X'}, {'name': 'y', 'type': 'string', 'description': 'Y'}]
         >>> fkeys = [{'fields': ['x', 'y'], 'reference': {'resource': 'b', 'fields': ['x', 'y']}}]
         >>> schema = {'fields': fields, 'primary_key': ['x'], 'foreign_keys': fkeys}
-        >>> resource = Resource(name='a', schema=schema)
+        >>> resource = Resource(name='a', schema=schema, description='A')
         >>> table = resource.to_sql()
         >>> table.columns.x
-        Column('x', Integer(), ForeignKey('b.x'), CheckConstraint(...), table=<a>, primary_key=True, nullable=False)
+        Column('x', Integer(), ForeignKey('b.x'), CheckConstraint(...), table=<a>, primary_key=True, nullable=False, comment='X')
         >>> table.columns.y
-        Column('y', Text(), ForeignKey('b.y'), CheckConstraint(...), table=<a>)
+        Column('y', Text(), ForeignKey('b.y'), CheckConstraint(...), table=<a>, comment='Y')
 
         To illustrate harvesting operations,
         say we have a resource with two fields - a primary key (`id`) and a data field -
@@ -1027,13 +1027,14 @@ class Resource(PudlMeta):
 
         >>> from pudl.metadata.helpers import unique, as_dict
         >>> fields = [
-        ...     {'name': 'id', 'type': 'integer'},
-        ...     {'name': 'x', 'type': 'integer', 'harvest': {'aggregate': unique, 'tolerance': 0.25}}
+        ...     {'name': 'id', 'type': 'integer', 'description': 'ID'},
+        ...     {'name': 'x', 'type': 'integer', 'harvest': {'aggregate': unique, 'tolerance': 0.25}, 'description': 'X'}
         ... ]
         >>> resource = Resource(**{
         ...     'name': 'a',
         ...     'harvest': {'harvest': True},
-        ...     'schema': {'fields': fields, 'primary_key': ['id']}
+        ...     'schema': {'fields': fields, 'primary_key': ['id']},
+        ...     'description': 'A',
         ... })
         >>> dfs = {
         ...     'a': pd.DataFrame({'id': [1, 1, 2, 2], 'x': [1, 1, 2, 2]}),
@@ -1108,10 +1109,11 @@ class Resource(PudlMeta):
         Period harvesting requires primary key fields with a `datetime` data type,
         except for `year` fields which can be integer.
 
-        >>> fields = [{'name': 'report_year', 'type': 'year'}]
+        >>> fields = [{'name': 'report_year', 'type': 'year', 'description': 'Report year'}]
         >>> resource = Resource(**{
         ...     'name': 'table', 'harvest': {'harvest': True},
-        ...     'schema': {'fields': fields, 'primary_key': ['report_year']}
+        ...     'schema': {'fields': fields, 'primary_key': ['report_year']},
+        ...     'description': 'Table',
         ... })
         >>> df = pd.DataFrame({'report_date': ['2000-02-02', '2000-03-03']})
         >>> resource.format_df(df)
@@ -1127,7 +1129,7 @@ class Resource(PudlMeta):
 
     name: SnakeCase
     title: String | None = None
-    description: String | None = None
+    description: String
     harvest: ResourceHarvest = ResourceHarvest()
     schema: Schema
     # Alias required to avoid shadowing Python built-in format()
@@ -1351,9 +1353,9 @@ class Resource(PudlMeta):
             or `None` if not all primary key fields have a match.
 
         Examples:
-            >>> fields = [{'name': 'x_year', 'type': 'year'}]
+            >>> fields = [{'name': 'x_year', 'type': 'year', 'description': 'Year'}]
             >>> schema = {'fields': fields, 'primary_key': ['x_year']}
-            >>> resource = Resource(name='r', schema=schema)
+            >>> resource = Resource(name='r', schema=schema, description='R')
 
             By default, when :attr:`harvest` .`harvest=False`,
             exact matches are required.
@@ -1679,11 +1681,11 @@ class Package(PudlMeta):
     Examples:
         Foreign keys between resources are checked for completeness and consistency.
 
-        >>> fields = [{'name': 'x', 'type': 'year'}, {'name': 'y', 'type': 'string'}]
+        >>> fields = [{'name': 'x', 'type': 'year', 'description': 'X'}, {'name': 'y', 'type': 'string', 'description': 'Y'}]
         >>> fkey = {'fields': ['x', 'y'], 'reference': {'resource': 'b', 'fields': ['x', 'y']}}
         >>> schema = {'fields': fields, 'primary_key': ['x'], 'foreign_keys': [fkey]}
-        >>> a = Resource(name='a', schema=schema)
-        >>> b = Resource(name='b', schema=Schema(fields=fields, primary_key=['x']))
+        >>> a = Resource(name='a', schema=schema, description='A')
+        >>> b = Resource(name='b', schema=Schema(fields=fields, primary_key=['x']), description='B')
         >>> Package(name='ab', resources=[a, b])
         Traceback (most recent call last):
         ValidationError: ...

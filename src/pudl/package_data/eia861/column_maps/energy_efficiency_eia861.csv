@@ -21,11 +21,11 @@ commercial_incremental_life_cycle_energy_savings_mwh,16,16,16,16,16,16,17,16,16,
 industrial_incremental_life_cycle_energy_savings_mwh,17,17,17,17,17,17,18,17,17,17
 transportation_incremental_life_cycle_energy_savings_mwh,18,18,18,18,18,18,19,18,18,18
 total_incremental_life_cycle_energy_savings_mwh,19,19,19,19,19,19,20,19,19,19
-residential_incremental_life_cycle_peak_reduction_mwh,20,20,20,20,20,20,21,20,20,20
-commercial_incremental_life_cycle_peak_reduction_mwh,21,21,21,21,21,21,22,21,21,21
-industrial_incremental_life_cycle_peak_reduction_mwh,22,22,22,22,22,22,23,22,22,22
-transportation_incremental_life_cycle_peak_reduction_mwh,23,23,23,23,23,23,24,23,23,23
-total_incremental_life_cycle_peak_reduction_mwh,24,24,24,24,24,24,25,24,24,24
+residential_incremental_life_cycle_peak_reduction_mw,20,20,20,20,20,20,21,20,20,20
+commercial_incremental_life_cycle_peak_reduction_mw,21,21,21,21,21,21,22,21,21,21
+industrial_incremental_life_cycle_peak_reduction_mw,22,22,22,22,22,22,23,22,22,22
+transportation_incremental_life_cycle_peak_reduction_mw,23,23,23,23,23,23,24,23,23,23
+total_incremental_life_cycle_peak_reduction_mw,24,24,24,24,24,24,25,24,24,24
 residential_customer_incentives_incremental_cost,25,25,25,25,25,25,26,25,25,25
 commercial_customer_incentives_incremental_cost,26,26,26,26,26,26,27,26,26,26
 industrial_customer_incentives_incremental_cost,27,27,27,27,27,27,28,27,27,27

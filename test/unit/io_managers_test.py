@@ -29,25 +29,43 @@ from pudl.metadata.classes import Package, Resource
 def test_pkg() -> Package:
     """Create a test metadata package for the io manager tests."""
     fields = [
-        {"name": "artistid", "type": "integer"},
-        {"name": "artistname", "type": "string", "constraints": {"required": True}},
+        {"name": "artistid", "type": "integer", "description": "artistid"},
+        {
+            "name": "artistname",
+            "type": "string",
+            "constraints": {"required": True},
+            "description": "artistid",
+        },
     ]
     schema = {"fields": fields, "primary_key": ["artistid"]}
-    artist_resource = Resource(name="artist", schema=schema)
+    artist_resource = Resource(name="artist", schema=schema, description="Artist")
 
     fields = [
-        {"name": "artistid", "type": "integer"},
-        {"name": "artistname", "type": "string", "constraints": {"required": True}},
+        {"name": "artistid", "type": "integer", "description": "artistid"},
+        {
+            "name": "artistname",
+            "type": "string",
+            "constraints": {"required": True},
+            "description": "artistname",
+        },
     ]
     schema = {"fields": fields, "primary_key": ["artistid"]}
     view_resource = Resource(
-        name="artist_view", schema=schema, create_database_schema=False
+        name="artist_view",
+        schema=schema,
+        description="Artist view",
+        create_database_schema=False,
     )
 
     fields = [
-        {"name": "trackid", "type": "integer"},
-        {"name": "trackname", "type": "string", "constraints": {"required": True}},
-        {"name": "trackartist", "type": "integer"},
+        {"name": "trackid", "type": "integer", "description": "trackid"},
+        {
+            "name": "trackname",
+            "type": "string",
+            "constraints": {"required": True},
+            "description": "trackname",
+        },
+        {"name": "trackartist", "type": "integer", "description": "trackartist"},
     ]
     fkeys = [
         {
@@ -56,7 +74,7 @@ def test_pkg() -> Package:
         }
     ]
     schema = {"fields": fields, "primary_key": ["trackid"], "foreign_keys": fkeys}
-    track_resource = Resource(name="track", schema=schema)
+    track_resource = Resource(name="track", schema=schema, description="Track")
     return Package(
         name="music", resources=[track_resource, artist_resource, view_resource]
     )
@@ -357,26 +375,32 @@ def test_ferc_xbrl_sqlite_io_manager_dedupes(mocker, tmp_path):
                             {
                                 "name": "entity_id",
                                 "type": "string",
+                                "description": "Entity ID",
                             },
                             {
                                 "name": "utility_type_axis",
                                 "type": "string",
+                                "description": "Utility type axis",
                             },
                             {
                                 "name": "filing_name",
                                 "type": "string",
+                                "description": "Filing name",
                             },
                             {
                                 "name": "publication_time",
                                 "type": "datetime",
+                                "description": "Publication time",
                             },
                             {
                                 "name": "date",
                                 "type": "date",
+                                "description": "Date",
                             },
                             {
                                 "name": "str_factoid",
                                 "type": "string",
+                                "description": "String factoid",
                             },
                         ],
                         "primary_key": [

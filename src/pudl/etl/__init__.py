@@ -54,7 +54,7 @@ default_assets = (
     ),
     *load_assets_from_modules(
         [pudl.convert.censusdp1tract_to_sqlite, pudl.output.censusdp1tract],
-        group_name="core_censusdp1",
+        group_name="core_censusdp1tract",
     ),
     *load_assets_from_modules([glue_assets], group_name="core_assn"),
     *load_assets_from_modules([static_assets], group_name="core_codes"),

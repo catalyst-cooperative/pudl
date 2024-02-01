@@ -69,7 +69,7 @@ class Extractor(excel.GenericExtractor):
         }
 
 
-eia861_raw_dfs = excel.raw_df_factory(Extractor, name="eia861")
+raw_eia861__all_dfs = excel.raw_df_factory(Extractor, name="eia861")
 
 
 @multi_asset(
@@ -102,7 +102,7 @@ eia861_raw_dfs = excel.raw_df_factory(Extractor, name="eia861")
     },
     required_resource_keys={"datastore", "dataset_settings"},
 )
-def extract_eia861(context, eia861_raw_dfs):
+def extract_eia861(context, raw_eia861__all_dfs):
     """Extract raw EIA-861 data from Excel sheets into dataframes.
 
     Args:
@@ -111,13 +111,13 @@ def extract_eia861(context, eia861_raw_dfs):
     Returns:
         A tuple of extracted EIA-861 dataframes.
     """
-    eia861_raw_dfs = {
+    raw_eia861__all_dfs = {
         "raw_eia861__" + table_name.replace("_eia861", ""): df
-        for table_name, df in eia861_raw_dfs.items()
+        for table_name, df in raw_eia861__all_dfs.items()
     }
-    eia861_raw_dfs = dict(sorted(eia861_raw_dfs.items()))
+    raw_eia861__all_dfs = dict(sorted(raw_eia861__all_dfs.items()))
 
     return (
         Output(output_name=table_name, value=df)
-        for table_name, df in eia861_raw_dfs.items()
+        for table_name, df in raw_eia861__all_dfs.items()
     )

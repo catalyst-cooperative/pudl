@@ -177,7 +177,7 @@ def core_epacems__hourly_emissions(
         ),
     }
 )
-def emissions_unit_ids_epacems(
+def _core_epacems__emissions_unit_ids(
     core_epacems__hourly_emissions: dd.DataFrame,
 ) -> pd.DataFrame:
     """Make unique annual plant_id_eia and emissions_unit_id_epa.
