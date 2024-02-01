@@ -8,11 +8,16 @@ on:
       - opened
       - synchronize
       - ready_for_review
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
 
 env:
   PUDL_OUTPUT: /home/runner/pudl-work/output/
   PUDL_INPUT: /home/runner/pudl-work/input/
   DAGSTER_HOME: /home/runner/pudl-work/dagster_home/
+  ETL_CONFIG: src/pudl/package_data/settings/etl_fast.yml
+  ETL_COMMANDLINE_OPTIONS: --gcs-cache-path=gs://zenodo-cache.catalyst.coop
 
 jobs:
   ci-docs:
@@ -64,7 +69,6 @@ jobs:
     defaults:
       run:
         shell: bash -l {0}
-
     steps:
       - uses: actions/checkout@v4
         with:
@@ -105,30 +109,30 @@ jobs:
           path: coverage.xml
 
   ci-integration:
-    runs-on:
-      group: large-runner-group
-      labels: ubuntu-22.04-4core
+    needs:
+      - ci-unit
+    runs-on: ubuntu-22.04-4core
     if: github.event.pull_request.draft == false
     permissions:
       contents: read
       id-token: write
-    strategy:
-      fail-fast: false
     defaults:
       run:
         shell: bash -l {0}
-
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 2
 
-      - name: Install Conda environment using mamba
+      - name: Install conda-lock environment with micromamba
         uses: mamba-org/setup-micromamba@v1
         with:
           environment-file: environments/conda-lock.yml
           environment-name: pudl-dev
           cache-environment: true
+
+      - name: Install PUDL and its dependencies
+        run: pip install --no-deps --no-cache-dir .
 
       - name: Log environment details
         run: |
@@ -169,22 +173,41 @@ jobs:
           workload_identity_provider: "projects/345950277072/locations/global/workloadIdentityPools/gh-actions-pool/providers/gh-actions-provider"
           service_account: "tox-pytest-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
 
-      - name: Run integration tests, trying to use GCS cache if possible
+      - name: Run ferc_to_sqlite
+        env:
+          COVERAGE_FILE: .coverage.ferc_to_sqlite
         run: |
-          pip install --no-deps --editable .
-          pudl_datastore --dataset epacems --partition year_quarter=2022q1
-          make pytest-integration
-
+          coverage run --concurrency=multiprocessing \
+            src/pudl/ferc_to_sqlite/cli.py --clobber ${{ env.ETL_COMMANDLINE_OPTIONS }} ${{ env.ETL_CONFIG }}
+      - name: Run pudl_etl
+        env:
+          COVERAGE_FILE: .coverage.pudl_etl
+        run: |
+          alembic upgrade head
+          coverage run --concurrency=multiprocessing \
+            src/pudl/etl/cli.py ${{ env.ETL_COMMANDLINE_OPTIONS }} ${{ env.ETL_CONFIG }}
+      - name: Run integration tests
+        env:
+          COVERAGE_FILE: .coverage.pytest
+        run: |
+          coverage run --concurrency=multiprocessing \
+           -m pytest -n auto --live-dbs test/integration
+      - name: Checksum coverage files
+        run: ls .coverage* | xargs md5sum | sort
+      - name: Generate coverage
+        run: |
+          coverage --version
+          coverage combine
+          coverage xml
+          coverage report
       - name: Upload coverage
         uses: actions/upload-artifact@v4
         with:
           name: coverage-integration
           path: coverage.xml
 
-      - name: Log post-test Zenodo datastore contents
-        run: find ${{ env.PUDL_INPUT }}
-
   ci-coverage:
+    name: Upload coverage to CodeCov
     runs-on: ubuntu-latest
     needs:
       - ci-docs
@@ -198,37 +221,9 @@ jobs:
         with:
           path: coverage
       - name: List downloaded files
-        run: |
-          ls -R
+        run: find -type f
       - name: Upload test coverage report to CodeCov
         uses: codecov/codecov-action@v3
         with:
           directory: coverage
-
-  ci-notify:
-    runs-on: ubuntu-latest
-    if: ${{ always() }}
-    needs:
-      - ci-docs
-      - ci-unit
-      - ci-integration
-    steps:
-      - name: Inform the Codemonkeys
-        uses: 8398a7/action-slack@v3
-        continue-on-error: true
-        with:
-          status: custom
-          fields: workflow,job,commit,repo,ref,author,took
-          custom_payload: |
-            {
-              username: 'action-slack',
-              icon_emoji: ':octocat:',
-              attachments: [{
-                color: '${{ needs.ci-test.result }}' === 'success' ? 'good' : '${{ needs.ci-test.result }}' === 'failure' ? 'danger' : 'warning',
-                text: `${process.env.AS_REPO}@${process.env.AS_REF}\n ${process.env.AS_WORKFLOW} (${process.env.AS_COMMIT})\n by ${process.env.AS_AUTHOR}\n Status: ${{ needs.ci-test.result }}`,
-              }]
-            }
-        env:
-          GITHUB_TOKEN: ${{ github.token }} # required
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
-          MATRIX_CONTEXT: ${{ toJson(matrix) }} # required
+          fail_ci_if_error: true
