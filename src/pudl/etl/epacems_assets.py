@@ -115,7 +115,7 @@ def consolidate_partitions(context, partitions: list[YearPartitions]) -> None:
         context: dagster keyword that provides access to resources and config.
         partitions: Year and state combinations in the output database.
     """
-    partitioned_path = PudlPaths().output_dir / "core_epacems__hourly_emissions"
+    partitioned_path = _partitioned_path()
     monolithic_path = (
         PudlPaths().output_dir / "parquet" / "core_epacems__hourly_emissions.parquet"
     )
