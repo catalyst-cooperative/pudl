@@ -1513,9 +1513,7 @@ def weighted_average(
         A table with ``by`` columns as the index and the weighted ``data_col``.
     """
     df["_data_times_weight"] = df[data_col] * df[weight_col]
-    df.loc[df[data_col].notnull(), "_weight_where_notnull"] = df.loc[
-        df[data_col].notnull(), weight_col
-    ]
+    df["_weight_where_notnull"] = df[weight_col].where(df[data_col].notnull())
     g = df.groupby(by, observed=True)
     result = g["_data_times_weight"].sum(min_count=1) / g["_weight_where_notnull"].sum(
         min_count=1
