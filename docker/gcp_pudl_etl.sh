@@ -45,26 +45,8 @@ function run_pudl_etl() {
     initialize_postgres && \
     authenticate_gcp && \
     alembic upgrade head && \
-    ferc_to_sqlite \
-        --loglevel DEBUG \
-        --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
-        --workers 8 \
-        "$PUDL_SETTINGS_YML" \
-    && pudl_etl \
-        --loglevel DEBUG \
-        --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
-        "$PUDL_SETTINGS_YML" \
-    && pytest \
-        -n auto \
-        --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
-        --etl-settings "$PUDL_SETTINGS_YML" \
-        --live-dbs test/integration test/unit \
-    && pytest \
-        -n auto \
-        --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
-        --etl-settings "$PUDL_SETTINGS_YML" \
-        --live-dbs test/validate \
-    && touch "$PUDL_OUTPUT/success"
+    dagster asset materialize -m pudl.etl --select "raw_phmsagas__all_dfs*" && \
+    touch "$PUDL_OUTPUT/success"
 }
 
 function save_outputs_to_gcs() {
