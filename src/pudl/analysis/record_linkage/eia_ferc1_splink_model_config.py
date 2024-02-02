@@ -1,3 +1,9 @@
+"""The model parameters for the FERC1 to EIA splink record linkage model.
+
+This module enumerates the blocking rules as well as the comparison levels
+for the matching columns that are used in the FERC1 to EIA record linkage
+model.
+"""
 import splink.duckdb.comparison_level_library as cll
 import splink.duckdb.comparison_library as cl
 import splink.duckdb.comparison_template_library as ctl
@@ -64,9 +70,9 @@ net_gen_comparison = {
 
 
 def get_date_comparison(column_name):
+    """Get date comparison template for column."""
     return ctl.date_comparison(
         column_name,
-        # date_format="%Y",
         damerau_levenshtein_thresholds=[],
         datediff_thresholds=[1, 2],
         datediff_metrics=["year", "year"],

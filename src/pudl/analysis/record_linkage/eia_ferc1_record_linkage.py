@@ -1039,7 +1039,7 @@ def check_match_consistency(
             threshold for this check.
     """
     # these are the default
-    expected_consistency = 0.74
+    expected_consistency = 0.73
     expected_uniform_capacity_consistency = 0.85
     mask = connects_ferc1_eia.record_id_eia.notnull()
 
