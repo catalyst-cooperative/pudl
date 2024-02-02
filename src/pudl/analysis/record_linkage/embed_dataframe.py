@@ -99,8 +99,9 @@ def log_dataframe_embedder_config(
             for name, vectorizer in vectorizers.items()
         }
     }
-    with experiment_tracker.start_run():
-        mlflow.log_params(model_helpers.flatten_model_config(vectorizer_config))
+    experiment_tracker.execute_logging(
+        lambda: mlflow.log_params(model_helpers.flatten_model_config(vectorizer_config))
+    )
 
 
 def dataframe_embedder_factory(

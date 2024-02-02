@@ -117,8 +117,9 @@ def plants_steam_validate_ids(
         .query("year_dupes>1")
     )
 
-    with ferc_to_ferc_tracker.start_run():
-        mlflow.log_metric("year_duplicates", len(year_dupes))
+    ferc_to_ferc_tracker.execute_logging(
+        lambda: mlflow.log_metric("year_duplicates", len(year_dupes))
+    )
 
     if len(year_dupes) > 0:
         for dupe in year_dupes.itertuples():

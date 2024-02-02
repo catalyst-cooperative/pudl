@@ -1,6 +1,6 @@
 """This module provides shared tooling that can be used by all record linkage models."""
 import importlib
-from contextlib import contextmanager
+from collections.abc import Callable
 
 import mlflow
 import yaml
@@ -64,32 +64,43 @@ class ExperimentTracker(BaseModel):
         cls, experiment_config: ExperimentTrackerConfig
     ) -> "ExperimentTracker":
         """Create experiment tracker for specified experiment."""
-        mlflow.set_tracking_uri(experiment_config.tracking_uri)
-        with mlflow.start_run(
-            experiment_id=cls.get_or_create_experiment(
-                experiment_config.experiment_name
-            ),
-            tags={"run_context": experiment_config.run_context},
-        ) as run:
-            if experiment_config.log_yaml:
-                config = flatten_model_config(
-                    get_model_config(experiment_config.experiment_name)
-                )
-                mlflow.log_params(config)
+        run_id = ""
+        if experiment_config.tracking_enabled:
+            mlflow.set_tracking_uri(experiment_config.tracking_uri)
+            with mlflow.start_run(
+                experiment_id=cls.get_or_create_experiment(
+                    experiment_config.experiment_name
+                ),
+                tags={"run_context": experiment_config.run_context},
+            ) as run:
+                if experiment_config.log_yaml:
+                    config = flatten_model_config(
+                        get_model_config(experiment_config.experiment_name)
+                    )
+                    mlflow.log_params(config)
 
-            return cls(tracker_config=experiment_config, run_id=run.info.run_id)
+                run_id = run.info.run_id
 
-    @contextmanager
-    def start_run(self):
-        """Creates context manager for a run associated with a specified experiment."""
-        mlflow.set_tracking_uri(self.tracker_config.tracking_uri)
-        with mlflow.start_run(
-            run_id=self.run_id,
-            experiment_id=self.get_or_create_experiment(
-                self.tracker_config.experiment_name
-            ),
-        ) as run:
-            yield run
+        return cls(tracker_config=experiment_config, run_id=run_id)
+
+    def execute_logging(self, logging_func: Callable):
+        """Perform MLflow logging statement inside ExperimentTracker run.
+
+        Args:
+            logging_func: Callable which should perform an mlflow logging statement
+                inside context manager for run. Passing in callable allows
+                ExperimentTracker to only execute logging if tracking is enabled
+                in configuration.
+        """
+        if self.tracker_config.tracking_enabled:
+            mlflow.set_tracking_uri(self.tracker_config.tracking_uri)
+            with mlflow.start_run(
+                run_id=self.run_id,
+                experiment_id=self.get_or_create_experiment(
+                    self.tracker_config.experiment_name
+                ),
+            ):
+                logging_func()
 
     @staticmethod
     def get_or_create_experiment(experiment_name: str):

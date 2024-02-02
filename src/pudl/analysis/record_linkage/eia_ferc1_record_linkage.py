@@ -590,8 +590,7 @@ def run_model(
     clf.fit(X=X_train, y=y_train)
 
     # Log best parameters
-    with experiment_tracker.start_run():
-        mlflow.log_params(clf.best_params_)
+    experiment_tracker.execute_logging(lambda: mlflow.log_params(clf.best_params_))
 
     y_pred = clf.predict(X_test)
     precision, recall, f_score, _ = precision_recall_fscore_support(
@@ -606,8 +605,8 @@ def run_model(
         f"    Recall:    {recall:.02}\n"
     )
     # Log model metrics
-    with experiment_tracker.start_run():
-        mlflow.log_metrics(
+    experiment_tracker.execute_logging(
+        lambda: mlflow.log_metrics(
             {
                 "accuracy": accuracy,
                 "f_score": f_score,
@@ -615,6 +614,7 @@ def run_model(
                 "recall": recall,
             }
         )
+    )
 
     preds = clf.predict(features_all.matrix)
     probs = clf.predict_proba(features_all.matrix)
