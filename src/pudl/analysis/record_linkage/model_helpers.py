@@ -51,6 +51,8 @@ class ExperimentTrackerConfig(Config):
     experiment_name: str
     log_yaml: bool
     run_context: str
+    #: Location to store artifacts. Artifact storage not currently used.
+    artifact_location: str = str(PudlPaths().output_dir)
 
 
 class ExperimentTracker(BaseModel):
@@ -69,7 +71,8 @@ class ExperimentTracker(BaseModel):
             mlflow.set_tracking_uri(experiment_config.tracking_uri)
             with mlflow.start_run(
                 experiment_id=cls.get_or_create_experiment(
-                    experiment_config.experiment_name
+                    experiment_name=experiment_config.experiment_name,
+                    artifact_location=experiment_config.artifact_location,
                 ),
                 tags={"run_context": experiment_config.run_context},
             ) as run:
@@ -103,7 +106,9 @@ class ExperimentTracker(BaseModel):
                 logging_func()
 
     @staticmethod
-    def get_or_create_experiment(experiment_name: str) -> str:
+    def get_or_create_experiment(
+        experiment_name: str, artifact_location: str = ""
+    ) -> str:
         """Retrieve the ID of an existing MLflow experiment or create a new one if it doesn't exist.
 
         This function checks if an experiment with the given name exists within MLflow.
@@ -116,7 +121,9 @@ class ExperimentTracker(BaseModel):
         if experiment := mlflow.get_experiment_by_name(experiment_name):
             experiment_id = experiment.experiment_id
         else:
-            experiment_id = mlflow.create_experiment(experiment_name)
+            experiment_id = mlflow.create_experiment(
+                experiment_name, artifact_location=artifact_location
+            )
 
         return experiment_id
 

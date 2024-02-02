@@ -44,20 +44,30 @@ def test_flatten_model_config(input_dict: dict, flattened_dict: dict):
     assert model_helpers.flatten_model_config(input_dict) == flattened_dict
 
 
-@pytest.fixture
-def experiment_tracker_config(tmp_path) -> model_helpers.ExperimentTrackerConfig:
+@pytest.fixture(scope="function")
+def experiment_tracker_config(tmp_path) -> dict:
     """Return experiment tracker config with tracking uri pointing to temp dir."""
-    return model_helpers.ExperimentTrackerConfig(
-        tracking_uri=f"sqlite:///{tmp_path}/experiments.sqlite",
-        tracking_enabled=True,
-        experiment_name="test_experiment",
-        log_yaml=False,
-        run_context="testing",
-    )
+    return {
+        "tracking_uri": f"sqlite:///{tmp_path}/experiments.sqlite",
+        "log_yaml": False,
+        "run_context": "testing",
+        "artifact_location": str(tmp_path),
+    }
 
 
-def test_create_experiment_tracker(experiment_tracker_config):
+@pytest.mark.parametrize(
+    "tracking_enabled,experiment_name",
+    [(True, "test_run"), (False, "test_run_disabled")],
+)
+def test_create_experiment_tracker(
+    experiment_tracker_config: dict, tracking_enabled: bool, experiment_name: str
+):
     """Test that ExperimentTracker properly configures mlflow and executes logging statements."""
+    experiment_tracker_config = model_helpers.ExperimentTrackerConfig(
+        **experiment_tracker_config,
+        tracking_enabled=tracking_enabled,
+        experiment_name=experiment_name,
+    )
     experiment_tracker = model_helpers.create_experiment_tracker(
         experiment_tracker_config
     )
@@ -70,13 +80,16 @@ def test_create_experiment_tracker(experiment_tracker_config):
         experiment_names=[experiment_tracker_config.experiment_name],
     )
 
-    pd.testing.assert_frame_equal(
-        runs_df[["params.test_param", "metrics.test_metric", "tags.run_context"]],
-        pd.DataFrame(
-            {
-                "params.test_param": ["param_value"],
-                "metrics.test_metric": [5.0],
-                "tags.run_context": [experiment_tracker_config.run_context],
-            }
-        ),
-    )
+    if tracking_enabled:
+        pd.testing.assert_frame_equal(
+            runs_df[["params.test_param", "metrics.test_metric", "tags.run_context"]],
+            pd.DataFrame(
+                {
+                    "params.test_param": ["param_value"],
+                    "metrics.test_metric": [5.0],
+                    "tags.run_context": [experiment_tracker_config.run_context],
+                }
+            ),
+        )
+    else:
+        assert runs_df.empty
