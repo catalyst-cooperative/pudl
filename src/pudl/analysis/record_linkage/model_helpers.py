@@ -103,7 +103,7 @@ class ExperimentTracker(BaseModel):
                 logging_func()
 
     @staticmethod
-    def get_or_create_experiment(experiment_name: str):
+    def get_or_create_experiment(experiment_name: str) -> str:
         """Retrieve the ID of an existing MLflow experiment or create a new one if it doesn't exist.
 
         This function checks if an experiment with the given name exists within MLflow.
@@ -111,7 +111,7 @@ class ExperimentTracker(BaseModel):
         with the provided name and returns its ID.
 
         Returns:
-        - str: ID of the existing or newly created MLflow experiment.
+            ID of the existing or newly created MLflow experiment.
         """
         if experiment := mlflow.get_experiment_by_name(experiment_name):
             experiment_id = experiment.experiment_id
@@ -122,6 +122,6 @@ class ExperimentTracker(BaseModel):
 
 
 @op
-def create_experiment_tracker(config: ExperimentTrackerConfig):
+def create_experiment_tracker(config: ExperimentTrackerConfig) -> ExperimentTracker:
     """Use config to create an experiment tracker."""
     return ExperimentTracker.create_experiment_tracker(config)
