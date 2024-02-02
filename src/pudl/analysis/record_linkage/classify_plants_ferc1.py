@@ -12,7 +12,7 @@ import pandas as pd
 from dagster import graph_asset, op
 
 import pudl
-from pudl.analysis.record_linkage import embed_dataframe
+from pudl.analysis.record_linkage import embed_dataframe, model_helpers
 from pudl.analysis.record_linkage.link_cross_year import link_ids_cross_year
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -27,10 +27,9 @@ _FUEL_COLS = [
 ]
 
 
-@op
-def get_vectorizers():
-    """Get the dictionary of vectorizer transforms for each column."""
-    return {
+ferc_dataframe_embedder = embed_dataframe.dataframe_embedder_factory(
+    "ferc_embedder",
+    {
         "plant_name": embed_dataframe.ColumnVectorizer(
             transform_steps=[
                 embed_dataframe.NameCleaner(),
@@ -80,7 +79,8 @@ def get_vectorizers():
             ],
             columns=_FUEL_COLS,
         ),
-    }
+    },
+)
 
 
 @op
@@ -142,7 +142,7 @@ def merge_steam_fuel_dfs(
     ).astype({"plant_type": str, "construction_type": str})
 
 
-@graph_asset
+@graph_asset(config=model_helpers.get_model_config("ferc_to_ferc"))
 def _out_ferc1__yearly_steam_plants_sched402_with_plant_ids(
     core_ferc1__yearly_steam_plants_sched402: pd.DataFrame,
     out_ferc1__yearly_steam_plants_fuel_by_plant_sched402: pd.DataFrame,
@@ -159,8 +159,7 @@ def _out_ferc1__yearly_steam_plants_sched402_with_plant_ids(
         core_ferc1__yearly_steam_plants_sched402,
         out_ferc1__yearly_steam_plants_fuel_by_plant_sched402,
     )
-    vectorizers = get_vectorizers()
-    feature_matrix = embed_dataframe.embed_dataframe_graph(input_df, vectorizers)
+    feature_matrix = ferc_dataframe_embedder(input_df)
     label_df = link_ids_cross_year(input_df, feature_matrix)
 
     return plants_steam_validate_ids(core_ferc1__yearly_steam_plants_sched402, label_df)

@@ -34,7 +34,20 @@ Data Coverage
   CEMS instead of the annual files. Integrates CEMS through 2023Q3. See issue
   :issue:`2973` & PR :pr:`3096`.
 * Began integration of PHMSA gas distribution and transmission tables into PUDL,
-  extracting raw data from 1990-present. See epic :issue:`2848`, and PR :pr:`3242`.
+  extracting raw data from 1990-present. See epic :issue:`2848`, and constituent PRs:
+
+  * :pr:`2932`
+  * :pr:`3242`
+  * :pr:`3254`
+  * :pr:`3260`
+  * :pr:`3262`
+  * :pr:`3266`
+  * :pr:`3267`
+  * :pr:`3269`
+  * :pr:`3270`
+  * :pr:`3279`
+  * :pr:`3280`
+
 * Began integration of EIA 176 data into PUDL, by extracting raw data from 1997-present.
   See epic :issue:`2603`, and PRs :pr:`3227`, :pr:`3264`.
 * Updated the EIA Bulk Electricity data archive so that the available data now to runs
@@ -51,6 +64,15 @@ Data Cleaning
   :pr:`3234`.
 * Added a notebook :mod:`devtools/debug-column-mapping.ipynb` to make debugging manual
   column maps for new datasets simpler and faster.
+
+Metadata Cleaning
+^^^^^^^^^^^^^^^^^
+
+* Made a description field mandatory for all instances of ``Field`` and ``Resource``.
+  Updated the FIELD_METADATA and RESOURCE_METADATA so that had a description.
+  :issue:`3224`, :pr:`3283`.
+* Removed fields that are not used in any tables and removed the xfail from the
+  ``test_defined_fields_are_used`` test. :issue:`3224`, :pr:`3283`.
 
 ---------------------------------------------------------------------------------------
 v2023.12.01
@@ -252,7 +274,8 @@ Data Coverage
   The newly accessible tables include:
 
   * :ref:`core_ferc714__respondent_id` (linking FERC-714 respondents to EIA utilities)
-  * :ref:`core_ferc714__hourly_demand_pa` (hourly electricity demand by planning area)
+  * :ref:`out_ferc714__hourly_planning_area_demand` (hourly electricity demand by
+    planning area)
   * :ref:`out_ferc714__respondents_with_fips` (annual respondents with county FIPS IDs)
   * :ref:`out_ferc714__summarized_demand` (annual demand for FERC-714 respondents)
 
@@ -358,7 +381,7 @@ Analysis
   (:ref:`out_eia861__compiled_geometry_balancing_authorities` and
   :ref:`out_eia861__compiled_geometry_utilities`), and the estimated total hourly
   electricity demand for each US state in
-  :ref:`out_ferc714__hourly_predicted_state_demand`. See :issue:`1973`
+  :ref:`out_ferc714__hourly_estimated_state_demand`. See :issue:`1973`
   and :pr:`2550`.
 
 Deprecations

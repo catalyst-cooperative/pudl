@@ -10,10 +10,10 @@ import pytest
 from dagster import graph
 
 import pudl
-from pudl.analysis.record_linkage import embed_dataframe
+from pudl.analysis.record_linkage import model_helpers
 from pudl.analysis.record_linkage.classify_plants_ferc1 import (
     _FUEL_COLS,
-    get_vectorizers,
+    ferc_dataframe_embedder,
 )
 from pudl.analysis.record_linkage.link_cross_year import link_ids_cross_year
 from pudl.transform.params.ferc1 import (
@@ -218,9 +218,9 @@ def mock_ferc1_plants_df():
 def test_classify_plants_ferc1(mock_ferc1_plants_df):
     """Test the FERC inter-year plant linking model."""
 
-    @graph
-    def _link_ids(df: pd.DataFrame, vectorizers: dict):
-        feature_matrix = embed_dataframe.embed_dataframe_graph(df, vectorizers)
+    @graph(config=model_helpers.get_model_config("ferc_to_ferc"))
+    def _link_ids(df: pd.DataFrame):
+        feature_matrix = ferc_dataframe_embedder(df)
         label_df = link_ids_cross_year(df, feature_matrix)
         return label_df
 
@@ -229,7 +229,6 @@ def test_classify_plants_ferc1(mock_ferc1_plants_df):
         .execute_in_process(
             input_values={
                 "df": mock_ferc1_plants_df,
-                "vectorizers": get_vectorizers(),
             }
         )
         .output_value()["record_label"]
@@ -243,4 +242,4 @@ def test_classify_plants_ferc1(mock_ferc1_plants_df):
     )
     ratio_correct = correctly_matched / len(mock_ferc1_plants_df)
     logger.info(f"Percent correctly matched: {ratio_correct:.2%}")
-    assert ratio_correct > 0.80, "Percent of correctly matched FERC records below 80%."
+    assert ratio_correct > 0.82, "Percent of correctly matched FERC records below 85%."

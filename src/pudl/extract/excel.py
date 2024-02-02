@@ -125,6 +125,10 @@ class Metadata:
         """Returns list of all known pages."""
         return sorted(self._column_map.keys())
 
+    def get_form(self, page) -> str:
+        """Returns the form name for a given page."""
+        return self._page_part_map.loc[page, "form"]
+
     @staticmethod
     def _load_csv(package, filename):
         """Load metadata from a filename that is found in a package."""
@@ -200,7 +204,6 @@ class GenericExtractor:
     def process_raw(self, df, page, **partition):
         """Transforms raw dataframe and rename columns."""
         df = self.add_data_maturity(df, page, **partition)
-        self.cols_added.append("data_label")
         return df.rename(columns=self._metadata.get_column_map(page, **partition))
 
     def add_data_maturity(self, df: pd.DataFrame, page, **partition) -> pd.DataFrame:
@@ -321,13 +324,13 @@ class GenericExtractor:
                     missing_raw_cols = set(expected_cols).difference(newdata.columns)
                     if extra_raw_cols:
                         logger.warning(
-                            f"Extra columns found in extracted table of "
-                            f"{page}/{str_part}: {extra_raw_cols}"
+                            f"{page}/{str_part}:Extra columns found in extracted table:"
+                            f"\n{extra_raw_cols}"
                         )
                     if missing_raw_cols:
                         logger.warning(
-                            "Expected columns not found in extracted table of "
-                            f"{page}/{str_part}: {missing_raw_cols}"
+                            f"{page}/{str_part}: Expected columns not found in extracted table:"
+                            f"\n{missing_raw_cols}"
                         )
             df = pd.concat(dfs, sort=True, ignore_index=True)
 
@@ -528,4 +531,4 @@ def raw_df_factory(
         # page in the spreadsheet based dataset using DynamicOut.collect()
         return concat_pages(dfs.collect())
 
-    return graph_asset(name=f"{name}_raw_dfs")(raw_dfs)
+    return graph_asset(name=f"raw_{name}__all_dfs")(raw_dfs)

@@ -3,11 +3,10 @@ name: pytest
 
 on:
   pull_request:
+  merge_group:
     types:
-      - created
-      - opened
-      - synchronize
-      - ready_for_review
+      - checks_requested
+  workflow_dispatch:
 
 env:
   PUDL_OUTPUT: /home/runner/pudl-work/output/
@@ -108,7 +107,7 @@ jobs:
     runs-on:
       group: large-runner-group
       labels: ubuntu-22.04-4core
-    if: github.event.pull_request.draft == false
+    if: github.event.merge_group || github.event.workflow_dispatch
     permissions:
       contents: read
       id-token: write
@@ -149,7 +148,7 @@ jobs:
           | sed -e 's/",*$//g' | sed -e 's/^.*"//g' | sort > datastore-dois.txt
 
       - name: Restore Zenodo datastore from cache if possible
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: cache-zenodo-datastore
         with:
           path: ${{ env.PUDL_INPUT }}
