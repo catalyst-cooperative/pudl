@@ -35,7 +35,102 @@ from pudl.output.ferc1 import (
 logger = logging.getLogger(__name__)
 
 
-class TestTagPropagation(unittest.TestCase):
+class TestForestSetup(unittest.TestCase):
+    def setUp(self):
+        # this is where you add nodes you want to use
+        pass
+
+    def _exploded_calcs_from_edges(self, edges: list[tuple[NodeId, NodeId]]):
+        records = []
+        for parent, child in edges:
+            record = {"weight": 1}
+            for field in NodeId._fields:
+                record[f"{field}_parent"] = parent.__getattribute__(field)
+                record[field] = child.__getattribute__(field)
+            records.append(record)
+        dtype_parent = {f"{col}_parent": pd.StringDtype() for col in NodeId._fields}
+        dtype_child = {col: pd.StringDtype() for col in NodeId._fields}
+        dtype_weight = {"weight": pd.Int64Dtype()}
+
+        return pd.DataFrame.from_records(records).astype(
+            dtype_child | dtype_parent | dtype_weight
+        )
+
+    def build_forest(
+        self, edges: list[tuple[NodeId, NodeId]], tags: pd.DataFrame, seeds=None
+    ):
+        if not seeds:
+            seeds = [self.parent]
+        forest = XbrlCalculationForestFerc1(
+            exploded_calcs=self._exploded_calcs_from_edges(edges),
+            seeds=seeds,
+            tags=tags,
+        )
+        return forest
+
+    def build_forest_and_annotated_tags(
+        self, edges: list[tuple[NodeId, NodeId]], tags: pd.DataFrame, seeds=None
+    ):
+        """Build a forest, test forest nodes and return annotated tags.
+
+        Args:
+            edges: list of tuples
+            tags: dataframe of tags
+            seeds: list of seed nodes. Default is None and will assume seed node is
+                ``parent``.
+        """
+        simple_forest = self.build_forest(edges, tags, seeds)
+        annotated_forest = simple_forest.annotated_forest
+        # ensure no nodes got dropped
+        assert len(annotated_forest.nodes) == len(dedupe_n_flatten_list_of_lists(edges))
+        annotated_tags = nx.get_node_attributes(annotated_forest, "tags")
+        return annotated_tags
+
+
+class TestPrunnedNode(TestForestSetup):
+    def setUp(self):
+        self.root = NodeId(
+            table_name="table_1",
+            xbrl_factoid="reported_1",
+            utility_type="electric",
+            plant_status=pd.NA,
+            plant_function=pd.NA,
+        )
+        self.root_child = NodeId(
+            table_name="table_1",
+            xbrl_factoid="reported_11",
+            utility_type="electric",
+            plant_status=pd.NA,
+            plant_function=pd.NA,
+        )
+        self.root_other = NodeId(
+            table_name="table_1",
+            xbrl_factoid="reported_2",
+            utility_type="electric",
+            plant_status=pd.NA,
+            plant_function=pd.NA,
+        )
+        self.root_other_child = NodeId(
+            table_name="table_1",
+            xbrl_factoid="reported_21",
+            utility_type="electric",
+            plant_status=pd.NA,
+            plant_function=pd.NA,
+        )
+
+    def test_pruned_nodes(self):
+        edges = [(self.root, self.root_child), (self.root_other, self.root_other_child)]
+        tags = pd.DataFrame(columns=list(NodeId._fields)).convert_dtypes()
+        forest = XbrlCalculationForestFerc1(
+            exploded_calcs=self._exploded_calcs_from_edges(edges),
+            seeds=[self.root],
+            tags=tags,
+        )
+        pruned = forest.pruned
+        assert set(pruned) == {self.root_other, self.root_other_child}
+
+
+class TestTagPropagation(TestForestSetup):
     def setUp(self):
         self.parent = NodeId(
             table_name="table_1",
@@ -86,46 +181,6 @@ class TestTagPropagation(unittest.TestCase):
             plant_status=pd.NA,
             plant_function=pd.NA,
         )
-
-    def _exploded_calcs_from_edges(self, edges: list[tuple[NodeId, NodeId]]):
-        records = []
-        for parent, child in edges:
-            record = {"weight": 1}
-            for field in NodeId._fields:
-                record[f"{field}_parent"] = parent.__getattribute__(field)
-                record[field] = child.__getattribute__(field)
-            records.append(record)
-        dtype_parent = {f"{col}_parent": pd.StringDtype() for col in NodeId._fields}
-        dtype_child = {col: pd.StringDtype() for col in NodeId._fields}
-        dtype_weight = {"weight": pd.Int64Dtype()}
-
-        return pd.DataFrame.from_records(records).astype(
-            dtype_child | dtype_parent | dtype_weight
-        )
-
-    def build_forest_and_annotated_tags(
-        self, edges: list[tuple[NodeId, NodeId]], tags: pd.DataFrame, seeds=None
-    ):
-        """Build a forest, test forest nodes and return annotated tags.
-
-        Args:
-            edges: list of tuples
-            tags: dataframe of tags
-            seeds: list of seed nodes. Default is None and will assume seed node is
-                ``parent``.
-        """
-        if not seeds:
-            seeds = [self.parent]
-        simple_forest = XbrlCalculationForestFerc1(
-            exploded_calcs=self._exploded_calcs_from_edges(edges),
-            seeds=seeds,
-            tags=tags,
-        )
-        annotated_forest = simple_forest.annotated_forest
-        # ensure no nodes got dropped
-        assert len(annotated_forest.nodes) == len(dedupe_n_flatten_list_of_lists(edges))
-        annotated_tags = nx.get_node_attributes(annotated_forest, "tags")
-        return annotated_tags
 
     def test_leafward_prop_undecided_children(self):
         edges = [(self.parent, self.child1), (self.parent, self.child2)]

@@ -2524,7 +2524,11 @@ class XbrlCalculationForestFerc1(BaseModel):
 
     @cached_property
     def orphans(self: Self) -> list[NodeId]:
-        """Identify all nodes that appear in metadata but not in the full digraph."""
+        """Identify all nodes that appear in the exploded_calcs but not in the full digraph.
+
+        Because we removed the metadata and are now building the tree entirely based on
+        the exploded_calcs, this should now never produce any orphans and is a bit redundant.
+        """
         nodes = self.full_digraph.nodes
         orphans = []
         for idx_cols in [self.calc_cols, self.parent_cols]:
@@ -2532,7 +2536,7 @@ class XbrlCalculationForestFerc1(BaseModel):
                 [
                     NodeId(*n)
                     for n in self.exploded_calcs.set_index(idx_cols).index
-                    if n not in nodes
+                    if NodeId(*n) not in nodes
                 ]
             )
         return list(set(orphans))
@@ -2838,7 +2842,7 @@ def _propagate_tags_leafward(
 
 def _propagate_tag_rootward(
     annotated_forest: nx.DiGraph, tag_name: Literal["in_rate_base"]
-) -> str:
+) -> nx.DiGraph:
     """Set the tag for nodes when all of its children have same tag.
 
     This function returns the value of a tag, but also sets node attributes
