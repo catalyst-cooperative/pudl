@@ -121,13 +121,18 @@ def dataframe_cleaner_factory(
                 (name, column_transform.as_pipeline(), column_transform.columns)
                 for name, column_transform in vectorizers.items()
             ],
-        )
+        ).set_output(transform="pandas")
 
         return column_transformer.fit(df)
 
     @op(name=f"{name_prefix}_apply")
     def apply_dataframe_cleaner(df: pd.DataFrame, transformer: ColumnTransformer):
-        """Use :class:`sklearn.compose.ColumnTransformer` to transform input."""
+        """Use :class:`sklearn.compose.ColumnTransformer` to transform input.
+
+        Returns:
+            A dataframe where the columns are the transformer name and the
+            original column name separated by a double underscore (__)
+        """
         return transformer.transform(df)
 
     @graph(name=f"{name_prefix}_embed_graph")
@@ -229,7 +234,7 @@ class FuelTypeFiller(TransformStep):
     name_col: str = "plant_name"
 
     def as_transformer(self):
-        """Return configured FuelTypeFiller"""
+        """Return configured FuelTypeFiller."""
         return FunctionTransformer(
             _fill_fuel_type_from_name,
             kw_args={"fuel_type_col": self.fuel_type_col, "name_col": self.name_col},
