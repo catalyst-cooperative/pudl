@@ -227,23 +227,22 @@ def check_unique_rows(
 def weighted_quantile(data: pd.Series, weights: pd.Series, quantile: float) -> float:
     """Calculate the weighted quantile of a Series or DataFrame column.
 
-    This function allows us to take two columns from a
-    :class:`pandas.DataFrame` one of which contains an observed value (data)
-    like heat content per unit of fuel, and the other of which (weights)
-    contains a quantity like quantity of fuel delivered which should be used to
-    scale the importance of the observed value in an overall distribution, and
-    calculate the values that the scaled distribution will have at various
-    quantiles.
+    This function allows us to take two columns from a :class:`pandas.DataFrame` one of
+    which contains an observed value (data) like heat content per unit of fuel, and the
+    other of which (weights) contains a quantity like quantity of fuel delivered which
+    should be used to scale the importance of the observed value in an overall
+    distribution, and calculate the values that the scaled distribution will have at
+    various quantiles.
 
     Args:
         data: A series containing numeric data.
-        weights Weights to use in scaling the data. Must have the same length as data.
+        weights: Weights to use in scaling the data. Must have the same length as data.
         quantile: A number between 0 and 1, representing the quantile at which we want
             to find the value of the weighted data.
 
     Returns:
-        float: the value in the weighted data corresponding to the given
-        quantile. If there are no values in the data, return :mod:`numpy.na`.
+        The value in the weighted data corresponding to the given quantile. If there are
+        no values in the data, return :mod:`numpy.nan`.
     """
     if (quantile < 0) or (quantile > 1):
         raise ValueError("quantile must have a value between 0 and 1.")
