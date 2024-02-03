@@ -537,8 +537,8 @@ def harvest_entity_tables(  # noqa: C901
         total = len(col_df.drop_duplicates(subset=cols_to_consit))
         # if the total is 0, the ratio will error, so assign null values.
         if total == 0:
-            ratio = np.NaN
-            wrongos = np.NaN
+            ratio = np.nan
+            wrongos = np.nan
             logger.debug(f"       Zero records found for {col}")
         if total > 0:
             ratio = (

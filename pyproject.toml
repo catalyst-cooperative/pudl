@@ -69,7 +69,7 @@ dependencies = [
     "regex>=2023.12.25",
     "requests>=2.31",
     "responses>=0.23",
-    "ruff>=0.1",
+    "ruff>=0.2",
     "scikit-learn>=1.3",
     "scipy>=1.11",
     "Shapely>=2",
@@ -169,6 +169,19 @@ git_describe_command = [
 ]
 
 [tool.ruff]
+target-version = "py311"
+line-length = 88
+indent-width = 4
+exclude = ["migrations/versions"]
+
+[tool.ruff.format]
+# In general, use black compatible formatting.
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.ruff.lint]
 select = [
     "A", # flake8-builtins
     # "ARG", # unused arguments
@@ -215,32 +228,24 @@ ignore = [
     "S101", # Use of assert
 ]
 
-# Assume Python 3.11
-target-version = "py311"
-line-length = 88
-
 # Don't automatically concatenate strings -- sometimes we forget a comma!
 unfixable = ["ISC"]
 
-[tool.ruff.format]
-quote-style = "double"
-exclude = ["migrations/versions/*"]
-
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"] # Ignore unused imports
 "test/*" = ["D"]
 "migrations/*" = ["D", "Q"]
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 known-first-party = ["pudl"]
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 convention = "google"
 
-[tool.ruff.mccabe]
+[tool.ruff.lint.mccabe]
 max-complexity = 10
 
-[tool.ruff.flake8-quotes]
+[tool.ruff.lint.flake8-quotes]
 docstring-quotes = "double"
 inline-quotes = "double"
 multiline-quotes = "double"
