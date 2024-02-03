@@ -481,7 +481,7 @@ def groupby_apply(  # noqa: C901
                 def error(x, e):
                     return x.name, str(e)
 
-            def wrapper(x):
+            def wrapper(x, aggfunc=aggfunc, report=report):
                 try:
                     return aggfunc(x)
                 except AggregationError as e:

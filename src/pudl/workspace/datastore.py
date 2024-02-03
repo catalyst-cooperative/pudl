@@ -233,8 +233,8 @@ class ZenodoFetcher:
         """Returns DOI for given dataset."""
         try:
             doi = self.zenodo_dois.__getattribute__(dataset)
-        except AttributeError:
-            raise AttributeError(f"No Zenodo DOI found for dataset {dataset}.")
+        except AttributeError as err:
+            raise AttributeError(f"No Zenodo DOI found for dataset {dataset}.") from err
         return doi
 
     def get_known_datasets(self: Self) -> list[str]:
@@ -403,8 +403,8 @@ class Datastore:
         res = self.get_resources(dataset, **filters)
         try:
             _, content = next(res)
-        except StopIteration:
-            raise KeyError(f"No resources found for {dataset}: {filters}")
+        except StopIteration as err:
+            raise KeyError(f"No resources found for {dataset}: {filters}") from err
         try:
             next(res)
         except StopIteration:

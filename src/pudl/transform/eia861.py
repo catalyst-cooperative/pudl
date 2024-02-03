@@ -827,7 +827,7 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
         col_df = sum_total_df.loc[sum_total_df[col + "_total"].notnull()]
         if len(col_df) > 0:
             col_df = col_df.assign(
-                compare_totals=lambda x: (x[col + "_total"] == x[col + "_sum"])
+                compare_totals=lambda x, col=col: (x[col + "_total"] == x[col + "_sum"])
             )
             bad_math = (col_df["compare_totals"]).sum() / len(col_df)
             logger.debug(

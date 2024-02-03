@@ -1151,10 +1151,11 @@ def calculate_values_from_components(
             .groupby(gby_parent, as_index=False, dropna=False)[["calculated_value"]]
             .sum(min_count=1)
         )
-    except pd.errors.MergeError:  # Make debugging easier.
+    except pd.errors.MergeError as err:  # Make debugging easier.
         raise pd.errors.MergeError(
-            f"Merge failed, duplicated merge keys in left dataset: \n{calculation_components[calculation_components.duplicated(calc_idx)]}"
-        )
+            "Merge failed, duplicated merge keys in left dataset:\n"
+            f"{calculation_components[calculation_components.duplicated(calc_idx)]}"
+        ) from err
     # remove the _parent suffix so we can merge these calculated values back onto
     # the data using the original pks
     calc_df.columns = calc_df.columns.str.removesuffix("_parent")
@@ -2107,7 +2108,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         for tbl in os_tables:
             trns = FERC1_TFR_CLASSES[tbl]()
             calc_comps = calc_comps.assign(
-                xbrl_factoid=lambda x: np.where(
+                xbrl_factoid=lambda x, tbl=tbl, trns=trns: np.where(
                     x.table_name == tbl,
                     trns.rename_xbrl_factoid(x.xbrl_factoid),
                     x.xbrl_factoid,

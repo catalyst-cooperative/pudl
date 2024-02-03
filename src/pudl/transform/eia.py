@@ -88,12 +88,12 @@ def find_timezone(*, lng=None, lat=None, state=None, strict=True):
             tz = TZ_FINDER.closest_timezone_at(lng=lng, lat=lat)
     # For some reason w/ Python 3.6 we get a ValueError here, but with
     # Python 3.7 we get an OverflowError...
-    except (OverflowError, ValueError):
+    except (OverflowError, ValueError) as err:
         # If we're being strict, only use lng/lat, not state
         if strict:
             raise ValueError(
                 f"Can't find timezone for: lng={lng}, lat={lat}, state={state}"
-            )
+            ) from err
         tz = APPROXIMATE_TIMEZONES.get(state, None)
     return tz
 

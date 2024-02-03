@@ -154,7 +154,7 @@ class FercDbfArchive:
             filedata=self.get_file(fname),
         )
 
-    @lru_cache
+    @lru_cache  # noqa: B019
     def get_table_schema(self, table_name: str) -> DbfTableSchema:
         """Returns TableSchema for a given table and a given year."""
         table_columns = self.get_db_schema()[table_name]
@@ -336,7 +336,7 @@ class FercDbfReader:
         )
         return csv.DictReader(csv_path.open())
 
-    @lru_cache
+    @lru_cache  # noqa: B019
     def get_archive(self: Self, year: int, **filters) -> FercDbfArchive:
         """Returns single dbf archive matching given filters."""
         nfilters = self._normalize(filters)

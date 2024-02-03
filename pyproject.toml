@@ -211,6 +211,8 @@ select = [
     "W", # pycodestyle warnings
 ]
 ignore = [
+    "B006", # Don't use mutable data structures for argument defaults. TODO: FIX
+    "B008", # Don't perform function calls in argument defaults. TODO: FIX
     "D401", # Require imperative mood in docstrings.
     "D417",
     "E501", # Overlong lines.
