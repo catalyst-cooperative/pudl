@@ -248,7 +248,7 @@ def filled_core_eia861__assn_balancing_authority(
         is_parent = df["balancing_authority_id_eia"].eq(util["id"])
         mask |= is_parent
         # Associated utilities are reassigned to parent balancing authorities
-        if "reassign" in util and util["reassign"]:
+        if util.get("reassign"):
             # Ignore when entity is child to itself
             is_child = ~is_parent & df["utility_id_eia"].eq(util["id"])
             # Build table associating parents to children of entity
@@ -275,7 +275,7 @@ def filled_core_eia861__assn_balancing_authority(
                 )
             )
             tables.append(table)
-            if "replace" in util and util["replace"]:
+            if util.get("replace"):
                 mask |= is_child
     return (
         pd.concat([df[~mask]] + tables)

@@ -184,26 +184,35 @@ line-ending = "auto"
 [tool.ruff.lint]
 select = [
     "A", # flake8-builtins
+    # "ANN", # missing type annotations
     # "ARG", # unused arguments
     "B", # flake8-bugbear
     "C", # Limit cyclomatic complexity using mccabe
+    "C4", # flake8-comprehensions
     "D", # pydocstyle errors
+    # "DTZ", # flake8-datetimez
     "E", # pycodestyle errors
     "EXE", # executable file issues
     # "ERA", # eradicate: find commented out code
     "F", # pyflakes
+    # "FURB", # refurb
     "I", # isort
+    "ICN", # flake8 import conventions
     "ISC", # implicit string concatenation
     "N", # pep8-naming
     "NPY", # NumPy specific checks
     "PD", # pandas checks
+    # "PERF", # performance issues
     "PGH", # pygrep-hooks
     # "PL", # pylint
     # "PT", # pytest style
+    "PIE", # flake8-pie miscellaneous linting
+    # "PL", # PyLint
     "PTH", # use pathlib
     "Q", # flake8-quotes
     "RET", # check return values
     "RSE", # unnecessary parenthises on raised exceptions
+    # "RUF", # Ruff specific rules
     "S", # flake8-bandit
     "SIM", # flake8-simplify
     # "T", # print statements found
@@ -221,12 +230,12 @@ ignore = [
     "E266", # Too many leading `#` before block comment
     "PD003", # Use of isna rather than isnull
     "PD004", # Use of notna rather than notnull
-    "PD008", # Use of df.at[] rather than df.loc[]
     "PD010", # Use of df.stack()
     "PD013", # Use of df.unstack()
     "PD015", # Use of pd.merge() rather than df.merge()
     "PD901", # df as variable name
     "RET504", # Ignore unnecessary assignment before return
+    "RUF005", # Unpack iterables instead of concatenation
     "S101", # Use of assert
 ]
 

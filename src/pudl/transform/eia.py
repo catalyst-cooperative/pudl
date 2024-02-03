@@ -623,7 +623,7 @@ def harvest_entity_tables(  # noqa: C901
     required_resource_keys={"dataset_settings"},
     io_manager_key="pudl_sqlite_io_manager",
 )
-def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:  # noqa: C901
+def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:
     """Creates a set of more complete boiler generator associations.
 
     Creates a unique unit_id_pudl for each collection of boilers and generators

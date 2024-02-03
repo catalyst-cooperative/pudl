@@ -67,8 +67,8 @@ WHERE table_name = ?
                     f"Expected exactly 1 geometry description, but found {len(df)}"
                 )
 
-            geom_col = df.at[0, "geom_col"]
-            crs_auth_str = f"{df.at[0, 'auth_name']}:{df.at[0, 'auth_srid']}".lower()
+            geom_col = df.loc[0, "geom_col"]
+            crs_auth_str = f"{df.loc[0, 'auth_name']}:{df.loc[0, 'auth_srid']}".lower()
 
             gdf = gpd.read_postgis(
                 table_name, dp1_engine, geom_col=geom_col, crs=crs_auth_str

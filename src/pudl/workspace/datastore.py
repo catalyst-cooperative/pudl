@@ -39,8 +39,6 @@ ZenodoDoi = Annotated[
 class ChecksumMismatchError(ValueError):
     """Resource checksum (md5) does not match."""
 
-    pass
-
 
 class DatapackageDescriptor:
     """A simple wrapper providing access to datapackage.json contents."""
@@ -89,7 +87,7 @@ class DatapackageDescriptor:
     def validate_checksum(self, name: str, content: str) -> bool:
         """Returns True if content matches checksum for given named resource."""
         expected_checksum = self._get_resource_metadata(name)["hash"]
-        m = hashlib.md5()  # noqa: S324 MD5 is required by Zenodo
+        m = hashlib.md5()  # noqa: S324 is required by Zenodo
         m.update(content)
         if m.hexdigest() != expected_checksum:
             raise ChecksumMismatchError(
@@ -331,7 +329,6 @@ class Datastore:
                     f"Unable to obtain credentials for GCS Cache at {gcs_cache_path}. "
                     f"Falling back to Zenodo if necessary. Error was: {e}"
                 )
-                pass
 
         self._zenodo_fetcher = ZenodoFetcher(timeout=timeout)
 

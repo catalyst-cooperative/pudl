@@ -675,7 +675,7 @@ def test_convert_units(series, expected, params):
 
 def test_convert_units_round_trip():
     """Generate random unit conversions and check that we can invert them."""
-    for _ in range(0, 10):
+    for _ in range(10):
         from_unit = "".join(
             random.choice(ascii_letters)  # noqa: S311
             for _ in range(10)
@@ -701,7 +701,6 @@ def test_convert_units_round_trip():
 # @pytest.mark.parametrize("series,expected,params", [()])
 def test_rename_columns():
     """Test column rename function in isolation."""
-    ...
 
 
 def unit_corrections_are_homogeneous(corrections: list[UnitCorrections]) -> ():
@@ -754,7 +753,7 @@ def make_unit_correction_test_data(
     # categorical columns
     data_col, cat_col, categories = unit_corrections_are_homogeneous(corrections)
 
-    df = pd.DataFrame(index=range(0, nrows))
+    df = pd.DataFrame(index=range(nrows))
     df[cat_col] = rng.choice(categories, size=nrows)
     df[data_col] = np.nan
 

@@ -2060,7 +2060,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             if col_name_new.endswith(f"_{value_type}"):
                 col_name_new = re.sub(f"_{value_type}$", "", col_name_new)
 
-        if self.params.unstack_balances_to_report_year_instant_xbrl:
+        if self.params.unstack_balances_to_report_year_instant_xbrl:  # noqa: SIM102
             # TODO: do something...? add starting_balance & ending_balance suffixes?
             if self.params.merge_xbrl_metadata.on:
                 NotImplementedError(
@@ -2069,8 +2069,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     "to merge the metadata on this table that has this treatment, a "
                     "xbrl_factoid rename will be required."
                 )
-            pass
-        if self.params.convert_units:
+        if self.params.convert_units:  # noqa: SIM102
             # TODO: use from_unit -> to_unit map. but none of the $$ tables have this rn.
             if self.params.merge_xbrl_metadata.on:
                 NotImplementedError(
@@ -2079,7 +2078,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     "table that has this treatment, a xbrl_factoid rename will be "
                     "required."
                 )
-            pass
         return col_name_new
 
     def rename_xbrl_factoid(self, col: pd.Series) -> pd.Series:

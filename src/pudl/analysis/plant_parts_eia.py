@@ -1016,7 +1016,7 @@ class PlantPart:
 
         Args:
             part_ag:
-        """  # noqa: D417
+        """
         # we must first get the total capacity of the full plant
         # Note: we could simply not include the ownership_record_type == "total" records
         # We are automatically assign fraction_owned == 1 to them, but it seems
@@ -1192,7 +1192,7 @@ class AddAttribute:
                 or :py:const:`MAX_MIN_ATTRIBUTES_DICT`.
             part_name (str): the name of the part to aggregate to. Names can be
                 only those in :py:const:`PLANT_PARTS` or `plant_match_ferc1`
-        """  # noqa: D417
+        """
         assert attribute_col in CONSISTENT_ATTRIBUTE_COLS + list(
             PRIORITY_ATTRIBUTES_DICT.keys()
         ) + list(MAX_MIN_ATTRIBUTES_DICT.keys())

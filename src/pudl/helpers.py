@@ -1982,7 +1982,7 @@ def check_tables_have_metadata(
         database_name = database_path.stem
 
         # Grab all tables in the database
-        engine = sa.create_engine(f"sqlite:///{str(database_path)}")
+        engine = sa.create_engine(f"sqlite:///{database_path!s}")
         inspector = sa.inspect(engine)
         tables_in_database = set(inspector.get_table_names())
 

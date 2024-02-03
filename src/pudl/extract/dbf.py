@@ -26,8 +26,6 @@ logger = pudl.logging_helpers.get_logger(__name__)
 class DbcFileMissingError(Exception):
     """This is raised when the DBC index file is missing."""
 
-    pass
-
 
 class DbfTableSchema:
     """Simple data-wrapper for the fox-pro table schema."""
@@ -237,7 +235,7 @@ class FercFieldParser(FieldParser):
         Args:
             field: The DBF field being parsed.
             data: Binary data (bytes) read from the DBF file.
-        """  # noqa: D417
+        """
         # Strip whitespace, null characters, and zeroes
         data = data.strip().strip(b"*\x00").lstrip(b"0")
         # Replace bare periods (which are non-numeric) with zero.
@@ -590,7 +588,6 @@ class FercDbfExtractor:
 
     def postprocess(self):
         """This metod is called after all the data is loaded into sqlite."""
-        pass
 
 
 def add_key_constraints(
