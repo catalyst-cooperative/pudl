@@ -513,7 +513,7 @@ def plot_historical_territory(
     )
     fig.suptitle(f"{id_col} == {id_val}")
 
-    for year, ax in zip(years, axes.flat):
+    for year, ax in zip(years, axes.flat, strict=True):
         ax.set_title(f"{year}")
         ax.set_xticks([])
         ax.set_yticks([])

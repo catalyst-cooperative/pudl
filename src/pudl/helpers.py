@@ -797,7 +797,7 @@ def cleanstrings(
         The function returns a new DataFrame containing the cleaned strings.
     """
     out_df = df.copy()
-    for col, str_map in zip(columns, stringmaps):
+    for col, str_map in zip(columns, stringmaps, strict=True):
         out_df[col] = cleanstrings_series(
             out_df[col], str_map, unmapped=unmapped, simplify=simplify
         )

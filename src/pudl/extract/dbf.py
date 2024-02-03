@@ -109,8 +109,8 @@ class FercDbfArchive:
         path = self.root_path / filename
         try:
             return self.zipfile.open(path.as_posix())
-        except KeyError:
-            raise KeyError(f"{path} not available for {self.partition}.")
+        except KeyError as err:
+            raise KeyError(f"{path} not available for {self.partition}.") from err
 
     def get_db_schema(self) -> dict[str, list[str]]:
         """Returns dict with table names as keys, and list of column names as values."""
@@ -122,10 +122,10 @@ class FercDbfArchive:
                     ignore_missing_memofile=True,
                     filedata=self.zipfile.open(self.dbc_path.as_posix()),
                 )
-            except KeyError:
+            except KeyError as err:
                 raise DbcFileMissingError(
                     f"DBC file {self.dbc_path} for {self.partition} is missing."
-                )
+                ) from err
             table_names: dict[Any, str] = {}
             table_columns = defaultdict(list)
             for row in dbf:
@@ -166,7 +166,7 @@ class FercDbfArchive:
                 f"found in the DBC index file for {self.partition}."
             )
         schema = DbfTableSchema(table_name)
-        for long_name, dbf_col in zip(table_columns, dbf_fields):
+        for long_name, dbf_col in zip(table_columns, dbf_fields, strict=True):
             if long_name[:8] != dbf_col.name.lower()[:8]:
                 raise ValueError(
                     f"DBF field name mismatch: {dbf_col.name} != {long_name}"

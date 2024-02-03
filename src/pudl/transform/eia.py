@@ -888,7 +888,7 @@ def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:  #
         ]
 
         # Assign a unit_id to each subgraph, and extract edges into a dataframe
-        for unit_id, unit in zip(range(len(gen_units)), gen_units):
+        for unit_id, unit in zip(range(len(gen_units)), gen_units, strict=True):
             # All the boiler-generator association graphs should be bi-partite,
             # meaning generators only connect to boilers, and boilers only
             # connect to generators.

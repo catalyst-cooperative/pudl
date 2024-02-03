@@ -185,7 +185,7 @@ line-ending = "auto"
 select = [
     "A", # flake8-builtins
     # "ARG", # unused arguments
-    # "B", # flake8-bugbear
+    "B", # flake8-bugbear
     "C", # Limit cyclomatic complexity using mccabe
     "D", # pydocstyle errors
     "E", # pycodestyle errors
