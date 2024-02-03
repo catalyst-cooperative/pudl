@@ -74,7 +74,18 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia861",
     },
     "core_eia861__yearly_demand_response": {
-        "description": "The data contain energy demand response programs by state, sector, and balancing authority. We collect data for the number of customers enrolled, energy savings, potential and actual peak savings, and associated costs.",
+        "description": (
+            """Energy demand response programs by state, sector, and balancing
+authority. We collect data for the number of customers enrolled, energy savings,
+potential and actual peak savings, and associated costs.
+
+The EIA861 demand-side management (DSM) table (split into three normalized tables in
+PUDL) contain data through 2012. The form changed in 2013 and split the contents of the
+DSM table into energy efficiency and demand response tables. Though similar, the
+information collected before and after 2012 are not comprable enough to combine into a
+singular, continous table. We were discouraged from doing so after contacting a
+representative from EIA."""
+        ),
         "schema": {
             "fields": [
                 "actual_peak_demand_savings_mw",
@@ -127,7 +138,21 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia861",
     },
     "core_eia861__yearly_demand_side_management_ee_dr": {
-        "description": "The data contain energy efficiency incremental data, energy efficiency annual data, load management incremental data, load management annual data, annual costs, and the customer counts of price response and time response programs by sector.",
+        "description": (
+            """The impact of energy efficiency and load management programs on total
+energy sold (MWh) and peak demand (MW) by customer class. Includes incremental effects
+(from new programs and new participants) as well as total annual effects (all programs
+and participants in a given year) and potential effects (anticipated peak reduction for
+load management programs). Also includes the cost of DSM programs and the number of
+customers enrolled in price-responsive and time-responsive programs.
+
+The raw EIA861 demand-side management (DSM) table (split into three normalized tables in
+PUDL) contain data through 2012. The form changed in 2013 and split the contents of the
+DSM table into energy efficiency and demand response tables. Though similar, the
+information collected before and after 2012 are not comprable enough to combine into a
+singular, continous table. We were discouraged from doing so after contacting a
+representative from EIA."""
+        ),
         "schema": {
             "fields": [
                 "annual_indirect_program_cost",
@@ -161,6 +186,20 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia861",
     },
     "core_eia861__yearly_demand_side_management_misc": {
+        "description": (
+            """Miscellaneous information from the EIA861 DSM table.
+Includes boolean fields about whether the energy savings estimates/calculations were
+independently verified and whether the utility runs time and or price responsive
+programs. Also contains information on whether any of the respondent's DSM activities
+are reported under another company, and if so which one.
+
+The raw EIA861 demand-side management (DSM) table (split into three normalized tables in
+PUDL) contain data through 2012. The form changed in 2013 and split the contents of the
+DSM table into energy efficiency and demand response tables. Though similar, the
+information collected before and after 2012 are not comprable enough to combine into a
+singular, continous table. We were discouraged from doing so after contacting a
+representative from EIA."""
+        ),
         "schema": {
             "fields": [
                 "energy_savings_estimates_independently_verified",
@@ -184,6 +223,16 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia861",
     },
     "core_eia861__yearly_demand_side_management_sales": {
+        "description": (
+            """Electricity sales for resale and to ultimate customer.
+
+The raw EIA861 demand-side management (DSM) table (split into three normalized tables in
+PUDL) contain data through 2012. The form changed in 2013 and split the contents of the
+DSM table into energy efficiency and demand response tables. Though similar, the
+information collected before and after 2012 are not comprable enough to combine into a
+singular, continous table. We were discouraged from doing so after contacting a
+representative from EIA."""
+        ),
         "schema": {
             "fields": [
                 "nerc_region",
@@ -200,6 +249,15 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia861",
     },
     "core_eia861__yearly_distributed_generation_fuel": {
+        "description": (
+            """Information on the energy sources used for utility or customer-owned
+distributed generation capacity.
+
+The raw EIA861 distributed generation (DG) table (split into three normalized tables in
+PUDL) was renamed in 2016 to Non-Net Metering to prevent double counting. The data in
+the Non-Net Metering table (2016+) are split by sector, contain fuel cell information,
+and convert capacity reported in DC units to AC units."""
+        ),
         "schema": {
             "fields": [
                 "estimated_or_actual_fuel_data",
@@ -216,6 +274,18 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia861",
     },
     "core_eia861__yearly_distributed_generation_misc": {
+        # TODO: might want to rename this table to be _capacity
+        "description": (
+            """Information on the capacity of utility or customer-owned distributed
+generation. Includes the number of generators, whether the capacity is esimated or
+actual, the amount of backup capacity, and how much capacity is from generators with
+less than 1 MW of nameplate capacity.
+
+The raw EIA861 distributed generation (DG) table (split into three normalized tables in
+PUDL) was renamed in 2016 to Non-Net Metering to prevent double counting. The data in
+the Non-Net Metering table (2016+) are split by sector, contain fuel cell information,
+and convert capacity reported in DC units to AC units."""
+        ),
         "schema": {
             "fields": [
                 "backup_capacity_mw",
@@ -236,6 +306,15 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia861",
     },
     "core_eia861__yearly_distributed_generation_tech": {
+        "description": (
+            """Information on the technology used for utility or customer-owned
+distributed generation.
+
+The raw EIA861 distributed generation (DG) table (split into three normalized tables in
+PUDL) was renamed in 2016 to Non-Net Metering to prevent double counting. The data in
+the Non-Net Metering table (2016+) are split by sector, contain fuel cell information,
+and convert capacity reported in DC units to AC units."""
+        ),
         "schema": {
             "fields": [
                 "capacity_mw",
@@ -294,7 +373,18 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia861",
     },
     "core_eia861__yearly_energy_efficiency": {
-        "description": "Incremental energy savings, peak demand savings, weighted average life cycle, and associated costs for the reporting year and life cycle of energy efficiency programs.",
+        "description": (
+            """Incremental energy savings, peak demand savings, weighted average life
+cycle, and associated costs for the reporting year and life cycle of energy efficiency
+programs.
+
+The EIA861 demand-side management (DSM) table (split into three normalized tables in
+PUDL) contain data through 2012. The form changed in 2013 and split the contents of the
+DSM table into energy efficiency and demand response tables. Though similar, the
+information collected before and after 2012 are not comprable enough to combine into a
+singular, continous table. We were discouraged from doing so after contacting a
+representative from EIA."""
+        ),
         "schema": {
             "fields": [
                 "balancing_authority_code_eia",
@@ -304,7 +394,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "customer_other_costs_incremental_life_cycle_cost",
                 "incremental_energy_savings_mwh",
                 "incremental_life_cycle_energy_savings_mwh",
-                "incremental_life_cycle_peak_reduction_mwh",
+                "incremental_life_cycle_peak_reduction_mw",
                 "incremental_peak_reduction_mw",
                 "other_costs_incremental_cost",
                 "report_date",
@@ -366,13 +456,17 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia861",
     },
     "core_eia861__yearly_net_metering_customer_fuel_class": {
+        "description": (
+            """The amount of energy sold to back to the grid. From 2007 - 2009 the data
+are reported as a lump sum of total energy dispatched by sector. After 2009, the data
+are broken down by sector and technology type."""
+        ),
         "schema": {
             "fields": [
                 "balancing_authority_code_eia",
                 "capacity_mw",
                 "customer_class",
                 "customers",
-                "energy_displaced_mwh",
                 "report_date",
                 "short_form",
                 "sold_to_utility_mwh",
@@ -388,6 +482,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia861",
     },
     "core_eia861__yearly_net_metering_misc": {
+        # TODO: I feel skeptical that the pv_current_flow_type field shouldn't be linked to the other net metering table.
+        "description": "The PV current flow type for net metered capacity.",
         "schema": {
             "fields": [
                 "balancing_authority_code_eia",
@@ -403,6 +499,15 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia861",
     },
     "core_eia861__yearly_non_net_metering_customer_fuel_class": {
+        "description": (
+            """The amount of non-net metered distributed generation by sector and
+technology type.
+
+The raw EIA861 distributed generation (DG) table (split into three normalized tables in
+PUDL) was renamed in 2016 to Non-Net Metering to prevent double counting. The data in
+the Non-Net Metering table (2016+) are split by sector, contain fuel cell information,
+and convert capacity reported in DC units to AC units."""
+        ),
         "schema": {
             "fields": [
                 "balancing_authority_code_eia",
@@ -421,6 +526,16 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia861",
     },
     "core_eia861__yearly_non_net_metering_misc": {
+        "description": (
+            """Information on the capacity of utility or customer-owned distributed
+generation. Includes the number of generators, pv current flow type, backup capacity
+and utility owned capacity.
+
+The raw EIA861 distributed generation (DG) table (split into three normalized tables in
+PUDL) was renamed in 2016 to Non-Net Metering to prevent double counting. The data in
+the Non-Net Metering table (2016+) are split by sector, contain fuel cell information,
+and convert capacity reported in DC units to AC units."""
+        ),
         "schema": {
             "fields": [
                 "backup_capacity_mw",
@@ -439,6 +554,14 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia861",
     },
     "core_eia861__yearly_operational_data_misc": {
+        # TODO: misc might be a missleading name
+        "description": (
+            """The annual megawatt hours (MWH) for all a utility's sources of
+electricity and disposition of electricity listed. Sources include: net generation
+purchases from electricity suppliers, exchanges received, exchanges delivered, exchanges
+net, wheeled recieved, wheeled delivered, wheeled net, transmission by others, and
+losses."""
+        ),
         "schema": {
             "fields": [
                 "consumed_by_facility_mwh",
@@ -476,6 +599,13 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia861",
     },
     "core_eia861__yearly_operational_data_revenue": {
+        "description": (
+            """A utility's revenue by type of electric operating revenue.
+Includes electric operating revenue From sales to ultimate customers, revenue from
+unbundled (delivery) customers, revenue from sales for resale, electric credits/other
+adjustments, revenue from transmission, other electric operating revenue, and total
+electric operating revenue."""
+        ),
         "schema": {
             "fields": [
                 "nerc_region",
@@ -492,6 +622,13 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia861",
     },
     "core_eia861__yearly_reliability": {
+        "description": (
+            """Standardized metrics of electricity system reliability and outage
+impacts. Includes the system average interruption duration index (SAIDI), system average
+interruption frequency index (SAIFI), and customer average interruption duration index
+(CAIDI) aka SAIDI/SAIFI with and without major event days and loss of service. Includes
+the standard (IEEE/other) and other relevant information."""
+        ),
         "schema": {
             "fields": [
                 "caidi_w_major_event_days_minus_loss_of_service_minutes",
@@ -599,6 +736,13 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia861",
     },
     "core_eia861__yearly_utility_data_misc": {
+        "description": (
+            """A table of boolean values indicating what kind of business activities each utility engages in
+
+This includes whether they operate alternative fuel vehicles, whether they provide
+transmission, distribution, or generation services (bundled or unbundled), and whether
+they engage in wholesale and/or retail markets."""
+        ),
         "schema": {
             "fields": [
                 "alternative_fuel_vehicle_2_activity",
@@ -627,6 +771,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia861",
     },
     "core_eia861__yearly_utility_data_nerc": {
+        "description": "The NERC regions that a utiltiy operates in.",
         "schema": {
             "fields": [
                 "nerc_region",
@@ -642,6 +787,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia861",
     },
     "core_eia861__yearly_utility_data_rto": {
+        "description": "The RTOs that a utility operates in.",
         "schema": {
             "fields": [
                 "nerc_region",

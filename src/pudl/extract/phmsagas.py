@@ -74,7 +74,7 @@ raw_table_names = (
     "raw_phmsagas__yearly_transmission_gathering_pipe_miles_by_material",
 )
 
-phmsagas_raw_dfs = excel.raw_df_factory(Extractor, name="phmsagas")
+raw_phmsagas__all_dfs = excel.raw_df_factory(Extractor, name="phmsagas")
 
 
 # # TODO (bendnorman): Figure out type hint for context keyword and multi_asset return
@@ -82,7 +82,7 @@ phmsagas_raw_dfs = excel.raw_df_factory(Extractor, name="phmsagas")
     outs={table_name: AssetOut() for table_name in sorted(raw_table_names)},
     required_resource_keys={"datastore", "dataset_settings"},
 )
-def extract_phmsagas(context, phmsagas_raw_dfs):
+def extract_phmsagas(context, raw_phmsagas__all_dfs):
     """Extract raw PHMSA gas data from excel sheets into dataframes.
 
     Args:
@@ -92,12 +92,13 @@ def extract_phmsagas(context, phmsagas_raw_dfs):
         A tuple of extracted PHMSA gas dataframes.
     """
     # create descriptive table_names
-    phmsagas_raw_dfs = {
-        "raw_phmsagas__" + table_name: df for table_name, df in phmsagas_raw_dfs.items()
+    raw_phmsagas__all_dfs = {
+        "raw_phmsagas__" + table_name: df
+        for table_name, df in raw_phmsagas__all_dfs.items()
     }
-    phmsagas_raw_dfs = dict(sorted(phmsagas_raw_dfs.items()))
+    raw_phmsagas__all_dfs = dict(sorted(raw_phmsagas__all_dfs.items()))
 
     return (
         Output(output_name=table_name, value=df)
-        for table_name, df in phmsagas_raw_dfs.items()
+        for table_name, df in raw_phmsagas__all_dfs.items()
     )

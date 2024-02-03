@@ -14,7 +14,7 @@ from dagster import build_init_resource_context, graph, materialize_to_memory
 import pudl
 from pudl import resources
 from pudl.etl.cli import pudl_etl_job_factory
-from pudl.extract.ferc1 import Ferc1DbfExtractor, raw_xbrl_metadata_json
+from pudl.extract.ferc1 import Ferc1DbfExtractor, raw_ferc1_xbrl__metadata_json
 from pudl.extract.xbrl import xbrl2sqlite_op_factory
 from pudl.io_managers import (
     PudlSQLiteIOManager,
@@ -265,10 +265,10 @@ def ferc1_xbrl_sql_engine(ferc1_xbrl_extract, dataset_settings_config) -> sa.Eng
 @pytest.fixture(scope="session", name="ferc1_xbrl_taxonomy_metadata")
 def ferc1_xbrl_taxonomy_metadata(ferc1_engine_xbrl: sa.Engine):
     """Read the FERC 1 XBRL taxonomy metadata from JSON."""
-    result = materialize_to_memory([raw_xbrl_metadata_json])
+    result = materialize_to_memory([raw_ferc1_xbrl__metadata_json])
     assert result.success
 
-    return result.output_for_node("raw_xbrl_metadata_json")
+    return result.output_for_node("raw_ferc1_xbrl__metadata_json")
 
 
 @pytest.fixture(scope="session")
