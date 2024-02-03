@@ -351,9 +351,9 @@ def configure_paths_for_tests(tmp_path_factory, request):
 
     try:
         return PudlPaths()
-    except pydantic.ValidationError:
-        raise ValueError(
-            "Set PUDL_INPUT, PUDL_OUTPUT env variables, or use --tmp-path, --live-dbs flags."
+    except pydantic.ValidationError as err:
+        pytest.exit(
+            f"Set PUDL_INPUT, PUDL_OUTPUT env variables, or use --tmp-path, --live-dbs flags. Error: {err}."
         )
 
 
