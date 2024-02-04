@@ -18,7 +18,7 @@ env:
 
 jobs:
   build_and_deploy_pudl:
-    name: Build Docker image, push to Docker Hub and deploy to a GCE VM
+    name: Build Docker image, push to Docker Hub and deploy to Google Batch
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -51,6 +51,7 @@ jobs:
         run: |
           echo "NIGHTLY_TAG=nightly-$(date +%Y-%m-%d)" >> $GITHUB_ENV
           echo "BUILD_ID=$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short HEAD)-${{ github.ref_name }}" >> $GITHUB_ENV
+          echo "GOOGLE_BATCH_JOB_ID=$(echo ${{ env.BUILD_ID }} | tr '.' '-')" >> $GITHUB_ENV
 
       - name: Show freshly set envvars
         if: ${{ env.SKIP_BUILD != 'true' }}
@@ -155,7 +156,7 @@ jobs:
 
       # Start the batch job
       - name: Kick off batch job
-        run: gcloud batch jobs submit run-etl-${{ env.BUILD_ID }} --config ${{ env.BATCH_JOB_JSON }} --location us-west1
+        run: gcloud batch jobs submit run-etl-${{ env.GOOGLE_BATCH_JOB_ID }} --config ${{ env.BATCH_JOB_JSON }} --location us-west1
 
       - name: Post to a pudl-deployments channel
         id: slack
