@@ -70,6 +70,7 @@ jobs:
 
   publish-github:
     name: Release package on GitHub
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v20')
     needs:
       - publish-test-pypi
     runs-on: ubuntu-latest
@@ -94,7 +95,19 @@ jobs:
           --title 'PUDL ${{ github.ref_name }}'
           --generate-notes
           --repo '${{ github.repository }}'
-      - name: Tag the current stable commit
+
+  merge-stable:
+    name: Merge the current commit into the stable branch
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v20')
+    needs:
+      - publish-github
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PUDL repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Merge the tagged release into the stable branch
         run: |
           git config user.email "pudl@catalyst.coop"
           git config user.name "pudlbot"
