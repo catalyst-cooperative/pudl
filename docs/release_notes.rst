@@ -87,7 +87,8 @@ Record Linkage Improvements
 * The :mod:`pudl.analysis.record_linkage.eia_ferc1_record_linkage` module has been
   refactored substantially to make use of more generic PUDL record linkage
   infrastructure and include extra cleaning steps. This resulted in around 500 or 2% of
-  matches changing. XXX See :issue:`` and :pr:`3184`.
+  matches changing. See `catalyst-cooperative/ccai-entity-matching#108 <http://github.com/catalyst-cooperative/ccai-entity-matching/issues/108>`__
+  and :pr:`3184`.
 * Update the FERC Form 1 plant ID assignment (Identifying related plant records from
   different years within the FERC Form 1 data) to use the new record linkage
   infrastructure. See :pr:`3007,3137`
