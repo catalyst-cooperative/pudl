@@ -125,7 +125,6 @@ jobs:
           PUDL_GCS_OUTPUT: ${{ env.GCS_OUTPUT_BUCKET }}/${{ env.BUILD_ID }}
         run: |-
           ./devtools/generate_batch_config.py \
-            --output ${{ env.BATCH_JOB_JSON }} \
             --container-image "docker.io/catalystcoop/pudl-etl@${{ steps.docker-build.outputs.digest }}" \
             --container-command "micromamba" \
             --container-arg="run" \
