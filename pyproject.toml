@@ -28,9 +28,9 @@ dependencies = [
     "datasette>=0.64",
     "doc8>=1.1",
     "email-validator>=1.0.3", # pydantic[email]
+    "frictionless>=4.40,<5",
     "fsspec>=2023",
     "furo>=2022.4.7",
-    "frictionless>=4.4,<5",
     "gcsfs>=2023",
     "gdal>=3.8.3",
     "geopandas>=0.14",
@@ -49,6 +49,7 @@ dependencies = [
     "numexpr>=2.8.0", # pandas[performance]
     "numpy>=1.26,<2.0a0",
     "openpyxl>=3.0.10", # pandas[excel]
+    "packaging>=23",
     "pandas>=2.1,<2.2",
     "pandera>=0.17.2",
     "pre-commit>=3",
@@ -61,21 +62,26 @@ dependencies = [
     "pytest-mock>=3.11",
     "pytest-xdist>=3.3",
     "python-dotenv>=1",
+    "pytz>=2024",
     "pyxlsb>=1.0.9", # pandas[excel]
     "pyyaml>=6",
     "readthedocs-sphinx-ext>=2",
+    "regex>=2023.12.25",
+    "requests>=2.31",
     "responses>=0.23",
     "ruff>=0.1",
     "scikit-learn>=1.3",
     "scipy>=1.11",
     "Shapely>=2",
+    "sphinx>=7",
     "sphinx-autoapi>=3",
     "sphinx-issues>=1.2",
     "sphinx-reredirects>=0.1.2",
-    "sphinx>=7",
     "sphinxcontrib_bibtex>=2.6",
     "sqlalchemy>=2",
     "timezonefinder>=6.2",
+    "universal_pathlib>=0.1.4",
+    "urllib3>=1.26.18",
     "xlrd>=2.0.1", # pandas[excel]
     "xlsxwriter>=3.1", # pandas[excel]
 ]
@@ -120,11 +126,11 @@ keywords = [
 ]
 
 [project.scripts]
-metadata_to_rst = "pudl.convert.metadata_to_rst:metadata_to_rst"
 ferc_to_sqlite = "pudl.ferc_to_sqlite.cli:main"
+metadata_to_rst = "pudl.convert.metadata_to_rst:metadata_to_rst"
+pudl_check_fks = "pudl.etl.check_foreign_keys:pudl_check_fks"
 pudl_datastore = "pudl.workspace.datastore:pudl_datastore"
 pudl_etl = "pudl.etl.cli:pudl_etl"
-pudl_check_fks = "pudl.etl.check_foreign_keys:pudl_check_fks"
 pudl_service_territories = "pudl.analysis.service_territory:pudl_service_territories"
 
 [project.urls]
