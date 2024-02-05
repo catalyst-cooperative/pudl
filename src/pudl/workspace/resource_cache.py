@@ -67,22 +67,18 @@ class AbstractCache(ABC):
     @abstractmethod
     def get(self, resource: PudlResourceKey) -> bytes:
         """Retrieves content of given resource or throws KeyError."""
-        pass
 
     @abstractmethod
     def add(self, resource: PudlResourceKey, content: bytes) -> None:
         """Adds resource to the cache and sets the content."""
-        pass
 
     @abstractmethod
     def delete(self, resource: PudlResourceKey) -> None:
         """Removes the resource from cache."""
-        pass
 
     @abstractmethod
     def contains(self, resource: PudlResourceKey) -> bool:
         """Returns True if the resource is present in the cache."""
-        pass
 
 
 class LocalFileCache(AbstractCache):

@@ -191,7 +191,7 @@ def filled_core_eia861__yearly_balancing_authority(
     # Insert row for each target balancing authority-year pair
     # missing from the original table, using the reference year as a template.
     rows: list[dict[str, Any]] = []
-    for ref, fix in zip(refs, ASSOCIATIONS):
+    for ref, fix in zip(refs, ASSOCIATIONS, strict=True):
         for year in range(fix["to"][0], fix["to"][1] + 1):
             key = (fix["id"], pd.Timestamp(year, 1, 1))
             if key not in dfi.index:
@@ -227,12 +227,12 @@ def filled_core_eia861__assn_balancing_authority(
             mask = ~ref["state"].isin(fix["exclude"])
             ref = ref[mask]
         refs.append(ref)
-    # Buid table of new rows
+    # Build a table of new rows
     # Insert (or overwrite) rows for each target balancing authority-year pair,
     # using the reference year as a template.
     replaced = np.zeros(df.shape[0], dtype=bool)
     tables = []
-    for ref, fix in zip(refs, ASSOCIATIONS):
+    for ref, fix in zip(refs, ASSOCIATIONS, strict=True):
         for year in range(fix["to"][0], fix["to"][1] + 1):
             key = fix["id"], pd.Timestamp(year, 1, 1)
             mask = df["balancing_authority_id_eia"].eq(key[0]).to_numpy(bool)
@@ -248,7 +248,7 @@ def filled_core_eia861__assn_balancing_authority(
         is_parent = df["balancing_authority_id_eia"].eq(util["id"])
         mask |= is_parent
         # Associated utilities are reassigned to parent balancing authorities
-        if "reassign" in util and util["reassign"]:
+        if util.get("reassign"):
             # Ignore when entity is child to itself
             is_child = ~is_parent & df["utility_id_eia"].eq(util["id"])
             # Build table associating parents to children of entity
@@ -275,7 +275,7 @@ def filled_core_eia861__assn_balancing_authority(
                 )
             )
             tables.append(table)
-            if "replace" in util and util["replace"]:
+            if util.get("replace"):
                 mask |= is_child
     return (
         pd.concat([df[~mask]] + tables)

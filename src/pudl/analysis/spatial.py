@@ -251,7 +251,10 @@ def overlay(
     # Drop index columns and replace with default index of known name
     # NOTE: Assumes that default index name not already names of columns
     keys = [f"__id{i}__" for i in range(len(gdfs))]
-    gdfs = [df.reset_index(drop=True).rename_axis(k) for df, k in zip(gdfs, keys)]
+    gdfs = [
+        df.reset_index(drop=True).rename_axis(k)
+        for df, k in zip(gdfs, keys, strict=True)
+    ]
     overlay = None
     for i in range(len(gdfs) - 1):
         a, b = overlay if i else gdfs[i], gdfs[i + 1]

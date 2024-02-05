@@ -1700,8 +1700,8 @@ def adjust_msw_energy_source_codes(
             gens[esc_columns_to_add] = gens["unique_esc"].str.split(",", expand=True)
 
             # creating columns from this list sometimes replaces NaN values with "" or None
-            gens[esc_columns_to_add] = gens[esc_columns_to_add].replace("", np.NaN)
-            gens[esc_columns_to_add] = gens[esc_columns_to_add].fillna(value=np.NaN)
+            gens[esc_columns_to_add] = gens[esc_columns_to_add].replace("", np.nan)
+            gens[esc_columns_to_add] = gens[esc_columns_to_add].fillna(value=np.nan)
 
             # drop the intermediate column
             gens = gens.drop(columns=["unique_esc"])

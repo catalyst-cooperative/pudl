@@ -2225,7 +2225,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         weights = self.exploded_calcs["weight"].to_list()
         edge_attrs = {
             (parent, child): {"weight": weight}
-            for parent, child, weight in zip(parents, children, weights)
+            for parent, child, weight in zip(parents, children, weights, strict=True)
         }
         return edge_attrs
 
@@ -2553,7 +2553,7 @@ class XbrlCalculationForestFerc1(BaseModel):
     def _get_path_weight(self, path: list[NodeId], graph: nx.DiGraph) -> float:
         """Multiply all weights along a path together."""
         leaf_weight = 1.0
-        for parent, child in zip(path, path[1:]):
+        for parent, child in zip(path, path[1:], strict=False):
             leaf_weight *= graph.get_edge_data(parent, child)["weight"]
         return leaf_weight
 
@@ -2648,7 +2648,9 @@ class XbrlCalculationForestFerc1(BaseModel):
     def plot_graph(self: Self, graph: nx.DiGraph) -> None:
         """Visualize a CalculationForest graph."""
         colors = ["red", "yellow", "green", "blue", "orange", "cyan", "purple"]
-        color_map = dict(zip(self.table_names, colors[: len(self.table_names)]))
+        color_map = dict(
+            zip(self.table_names, colors[: len(self.table_names)], strict=True)
+        )
 
         pos = graphviz_layout(graph, prog="dot", args='-Grankdir="LR"')
         for table, color in color_map.items():
