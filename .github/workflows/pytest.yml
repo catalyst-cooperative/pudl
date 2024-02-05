@@ -203,6 +203,10 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           directory: coverage
+      - name: force failure
+        run: |
+          echo "::error auto fail, but should have failed above due to reduced integration tests."
+          exit 1
 
   ci-notify:
     runs-on: ubuntu-latest
