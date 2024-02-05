@@ -827,7 +827,7 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
         col_df = sum_total_df.loc[sum_total_df[col + "_total"].notnull()]
         if len(col_df) > 0:
             col_df = col_df.assign(
-                compare_totals=lambda x: (x[col + "_total"] == x[col + "_sum"])
+                compare_totals=lambda x, col=col: (x[col + "_total"] == x[col + "_sum"])
             )
             bad_math = (col_df["compare_totals"]).sum() / len(col_df)
             logger.debug(
@@ -899,11 +899,7 @@ def clean_nerc(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame:
     # recognized)
     nerc_df["nerc_region"] = (
         nerc_df["nerc_region"]
-        .apply(
-            lambda x: (
-                [i if i not in NERC_SPELLCHECK else NERC_SPELLCHECK[i] for i in x]
-            )
-        )
+        .apply(lambda x: ([NERC_SPELLCHECK.get(i, i) for i in x]))
         .apply(lambda x: sorted(i if i in NERC_REGIONS else "UNK" for i in x))
         .apply(lambda x: _remove_nerc_duplicates(x))
         .str.join("_")

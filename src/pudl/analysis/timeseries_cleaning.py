@@ -253,7 +253,7 @@ def insert_run_length(  # noqa: C901
     order = np.argsort(lengths)[::-1]
     values = np.asarray(values)[order]
     lengths = np.asarray(lengths)[order]
-    for value, length in zip(values, lengths):
+    for value, length in zip(values, lengths, strict=True):
         if length < 1:
             raise ValueError("Run length must be greater than zero")
         # Choose runs of adequate length
@@ -666,7 +666,7 @@ class Timeseries:
             mask[shift:][outliers[:-shift]] = True
         self.flag(mask, "GLOBAL_OUTLIER_NEIGHBOR")
 
-    @functools.lru_cache(maxsize=2)
+    @functools.lru_cache(maxsize=2)  # noqa: B019
     def rolling_median(self, window: int = 48) -> np.ndarray:
         """Rolling median of values.
 
@@ -843,7 +843,7 @@ class Timeseries:
         mask = (np.minimum(before, after) > iqr) | (np.maximum(before, after) < -iqr)
         self.flag(mask, "DOUBLE_DELTA")
 
-    @functools.lru_cache(maxsize=2)
+    @functools.lru_cache(maxsize=2)  # noqa: B019
     def relative_median_prediction(self, **kwargs: Any) -> np.ndarray:
         """Values divided by their value predicted from medians.
 
