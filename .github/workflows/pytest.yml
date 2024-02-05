@@ -101,7 +101,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-unit
-          path: coverage.xml
+          path: ./*coverage*
 
   ci-integration:
     runs-on:
@@ -198,7 +198,7 @@ jobs:
           path: coverage
       - name: List downloaded files
         run: |
-          ls -R
+          find coverage -type f
       - name: Upload test coverage report to CodeCov
         uses: codecov/codecov-action@v4
         with:
