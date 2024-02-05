@@ -87,7 +87,7 @@ class DatapackageDescriptor:
     def validate_checksum(self, name: str, content: str) -> bool:
         """Returns True if content matches checksum for given named resource."""
         expected_checksum = self._get_resource_metadata(name)["hash"]
-        m = hashlib.md5()  # noqa: S324 is required by Zenodo
+        m = hashlib.md5()  # noqa: S324 Unfortunately md5 is required by Zenodo
         m.update(content)
         if m.hexdigest() != expected_checksum:
             raise ChecksumMismatchError(
