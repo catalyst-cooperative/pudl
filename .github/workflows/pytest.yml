@@ -213,7 +213,7 @@ jobs:
             coverage>=7.4.1
       - name: Combine coverage into a single coverage.xml
         run: |
-          micromamba run -n coverage coverage combine coverage/*
+          micromamba run -n coverage coverage combine coverage/*/coverage.xml
           micromamba run -n coverage coverage xml
       - name: Check coverage
         uses: orgoro/coverage@v3.1
