@@ -249,6 +249,7 @@ unfixable = ["ISC"]
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"] # Ignore unused imports
 "test/*" = ["D"]
+"migrations/*" = ["D", "Q"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["pudl"]
