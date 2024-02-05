@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: e3ea096e7953d6a1b0ec2c05da4ed46d59bfab2938b2c3d40f5defb268022d37
-    osx-64: d3a579e8d26b44ab36da4da7b7c6afee248b5f6984b7a53129cc1cf7449edc9e
-    osx-arm64: 2062ac83203f640fc438e069316e845caece355c50db53c4d1b8198e14780bf8
+    linux-64: f7db208dffdb28ab4a3dde8c55577bf57c228fd109eef2db39a7bd0de8966180
+    osx-64: a0823daf06605133e2fa6edec1d2ec7a585328b6dada30c5913239ef40a1a052
+    osx-arm64: 99f8ea79b2859b0a235fe56c93f0a97f2c4fd93457dc69dba197ca55a4f9880e
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -8008,7 +8008,7 @@ package:
     category: main
     optional: false
   - name: hypothesis
-    version: 6.97.5
+    version: 6.97.6
     manager: conda
     platform: linux-64
     dependencies:
@@ -8019,14 +8019,14 @@ package:
       python: ">=3.8"
       setuptools: ""
       sortedcontainers: ">=2.1.0,<3.0.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.97.5-pyha770c72_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.97.6-pyha770c72_0.conda
     hash:
-      md5: b101fbb4a6c9ac5025793d5d279084c2
-      sha256: ecdcfa685c206ee6dbf31620e72b7c4f00894a1ac291fdc034d7ea59b5477c18
+      md5: 04a0877d4921dbc620c4eb1a09717330
+      sha256: e2e599bdb1e2319066232812440224434da480769c549cf8b2d4d312883f7ee4
     category: main
     optional: false
   - name: hypothesis
-    version: 6.97.5
+    version: 6.97.6
     manager: conda
     platform: osx-64
     dependencies:
@@ -8037,14 +8037,14 @@ package:
       sortedcontainers: ">=2.1.0,<3.0.0"
       backports.zoneinfo: ">=0.2.1"
       exceptiongroup: ">=1.0.0rc8"
-    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.97.5-pyha770c72_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.97.6-pyha770c72_0.conda
     hash:
-      md5: b101fbb4a6c9ac5025793d5d279084c2
-      sha256: ecdcfa685c206ee6dbf31620e72b7c4f00894a1ac291fdc034d7ea59b5477c18
+      md5: 04a0877d4921dbc620c4eb1a09717330
+      sha256: e2e599bdb1e2319066232812440224434da480769c549cf8b2d4d312883f7ee4
     category: main
     optional: false
   - name: hypothesis
-    version: 6.97.5
+    version: 6.97.6
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -8055,10 +8055,10 @@ package:
       sortedcontainers: ">=2.1.0,<3.0.0"
       backports.zoneinfo: ">=0.2.1"
       exceptiongroup: ">=1.0.0rc8"
-    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.97.5-pyha770c72_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.97.6-pyha770c72_0.conda
     hash:
-      md5: b101fbb4a6c9ac5025793d5d279084c2
-      sha256: ecdcfa685c206ee6dbf31620e72b7c4f00894a1ac291fdc034d7ea59b5477c18
+      md5: 04a0877d4921dbc620c4eb1a09717330
+      sha256: e2e599bdb1e2319066232812440224434da480769c549cf8b2d4d312883f7ee4
     category: main
     optional: false
   - name: icu
@@ -13069,7 +13069,7 @@ package:
     category: main
     optional: false
   - name: libxml2
-    version: 2.12.4
+    version: 2.12.5
     manager: conda
     platform: linux-64
     dependencies:
@@ -13078,14 +13078,14 @@ package:
       libiconv: ">=1.17,<2.0a0"
       libzlib: ">=1.2.13,<1.3.0a0"
       xz: ">=5.2.6,<6.0a0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/libxml2-2.12.4-h232c23b_1.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/libxml2-2.12.5-h232c23b_0.conda
     hash:
-      md5: 53e951fab78d7e3bab40745f7b3d1620
-      sha256: f6828b44da29bbfbf367ddbc72902e84ea5f5de933be494d6aac4a35826afed0
+      md5: c442ebfda7a475f5e78f1c8e45f1e919
+      sha256: db9bf97e9e367985204331b58a059ebd5a4e0cb9e1c8754e9ecb23046b7b7bc1
     category: main
     optional: false
   - name: libxml2
-    version: 2.12.4
+    version: 2.12.5
     manager: conda
     platform: osx-64
     dependencies:
@@ -13093,14 +13093,14 @@ package:
       libiconv: ">=1.17,<2.0a0"
       libzlib: ">=1.2.13,<1.3.0a0"
       xz: ">=5.2.6,<6.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/libxml2-2.12.4-hc0ae0f7_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/libxml2-2.12.5-hc0ae0f7_0.conda
     hash:
-      md5: 6ffac7334d3c1672845bc4b2a9e39835
-      sha256: edccf142e32ee5c6619aebf36c29acdb942bde32fc0585882f5848d86b3e5acd
+      md5: abe27e7ab68b95e8d0e41cd5018ec8ae
+      sha256: a84f355dcf9039ae54e21bf8833c16200f848fd333a5e68c143e142cc55dc07d
     category: main
     optional: false
   - name: libxml2
-    version: 2.12.4
+    version: 2.12.5
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -13108,10 +13108,10 @@ package:
       libiconv: ">=1.17,<2.0a0"
       libzlib: ">=1.2.13,<1.3.0a0"
       xz: ">=5.2.6,<6.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/libxml2-2.12.4-h0d0cfa8_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/libxml2-2.12.5-h0d0cfa8_0.conda
     hash:
-      md5: 2ce68362b6ba7e78a066abce22811df7
-      sha256: 70863a5554cbdd573cf852571a6ef015e5376f8969068725523a01dff7ff4de3
+      md5: 6aef67f18bef799926bc05948a1239e3
+      sha256: 34daea04dc08af703effe424527505789f8a50fa71b447c7cac6f0d36a02cce3
     category: main
     optional: false
   - name: libxslt
