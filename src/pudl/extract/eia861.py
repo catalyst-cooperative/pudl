@@ -30,7 +30,8 @@ class Extractor(excel.GenericExtractor):
         super().__init__(*args, **kwargs)
         warnings.warn(
             "Integration of EIA 861 into PUDL is still experimental and incomplete.\n"
-            "The data has not yet been validated, and the structure may change."
+            "The data has not yet been validated, and the structure may change.",
+            stacklevel=1,
         )
 
     def process_raw(self, df, page, **partition):
@@ -41,6 +42,7 @@ class Extractor(excel.GenericExtractor):
                 zip(
                     df.columns[list(column_map_numeric.keys())],
                     list(column_map_numeric.values()),
+                    strict=True,
                 )
             )
         )
@@ -69,7 +71,7 @@ class Extractor(excel.GenericExtractor):
         }
 
 
-eia861_raw_dfs = excel.raw_df_factory(Extractor, name="eia861")
+raw_eia861__all_dfs = excel.raw_df_factory(Extractor, name="eia861")
 
 
 @multi_asset(
@@ -102,7 +104,7 @@ eia861_raw_dfs = excel.raw_df_factory(Extractor, name="eia861")
     },
     required_resource_keys={"datastore", "dataset_settings"},
 )
-def extract_eia861(context, eia861_raw_dfs):
+def extract_eia861(context, raw_eia861__all_dfs):
     """Extract raw EIA-861 data from Excel sheets into dataframes.
 
     Args:
@@ -111,13 +113,13 @@ def extract_eia861(context, eia861_raw_dfs):
     Returns:
         A tuple of extracted EIA-861 dataframes.
     """
-    eia861_raw_dfs = {
+    raw_eia861__all_dfs = {
         "raw_eia861__" + table_name.replace("_eia861", ""): df
-        for table_name, df in eia861_raw_dfs.items()
+        for table_name, df in raw_eia861__all_dfs.items()
     }
-    eia861_raw_dfs = dict(sorted(eia861_raw_dfs.items()))
+    raw_eia861__all_dfs = dict(sorted(raw_eia861__all_dfs.items()))
 
     return (
         Output(output_name=table_name, value=df)
-        for table_name, df in eia861_raw_dfs.items()
+        for table_name, df in raw_eia861__all_dfs.items()
     )

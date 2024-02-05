@@ -43,18 +43,18 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 
 @asset
-def clean_xbrl_metadata_json(
-    raw_xbrl_metadata_json: dict[str, dict[str, list[dict[str, Any]]]],
+def _core_ferc1_xbrl__metadata_json(
+    raw_ferc1_xbrl__metadata_json: dict[str, dict[str, list[dict[str, Any]]]],
 ) -> dict[str, dict[str, list[dict[str, Any]]]]:
     """Generate cleaned json xbrl metadata.
 
     For now, this only runs :func:`add_source_tables_to_xbrl_metadata`.
     """
-    return add_source_tables_to_xbrl_metadata(raw_xbrl_metadata_json)
+    return add_source_tables_to_xbrl_metadata(raw_ferc1_xbrl__metadata_json)
 
 
 def add_source_tables_to_xbrl_metadata(
-    raw_xbrl_metadata_json: dict[str, dict[str, list[dict[str, Any]]]],
+    raw_ferc1_xbrl__metadata_json: dict[str, dict[str, list[dict[str, Any]]]],
 ) -> dict[str, dict[str, list[dict[str, Any]]]]:
     """Add a ``source_tables`` field into metadata calculation components.
 
@@ -88,9 +88,9 @@ def add_source_tables_to_xbrl_metadata(
             logger.debug(f"Found no source table for {calc_component['name']}.")
         return calc_component
 
-    tables_to_fields = extract_tables_to_fields(raw_xbrl_metadata_json)
+    tables_to_fields = extract_tables_to_fields(raw_ferc1_xbrl__metadata_json)
     # for each table loop through all of the calculations within each field
-    for table_name, table_meta in raw_xbrl_metadata_json.items():
+    for table_name, table_meta in raw_ferc1_xbrl__metadata_json.items():
         for list_of_facts in table_meta.values():
             for xbrl_fact in list_of_facts:
                 # all facts have ``calculations``, but they are empty lists when null
@@ -102,7 +102,7 @@ def add_source_tables_to_xbrl_metadata(
                         )
                     else:
                         calc_component["source_tables"] = [table_name]
-    return raw_xbrl_metadata_json
+    return raw_ferc1_xbrl__metadata_json
 
 
 ################################################################################
@@ -716,6 +716,41 @@ def combine_axis_columns_xbrl(
     return df
 
 
+class AssignQuarterlyDataToYearlyDbf(TransformParams):
+    """Parameters for transfering quarterly reported data to annual columns."""
+
+    quarterly_to_yearly_column_map: dict[str, str] = {}
+    quarterly_filed_years: list[int] = []
+
+
+def assign_quarterly_data_to_yearly_dbf(
+    df: pd.DataFrame, params: AssignQuarterlyDataToYearlyDbf
+) -> pd.DataFrame:
+    """Transfer 4th quarter reported data to the annual columns.
+
+    For some reason in the dbf data for this table reported all of the
+    balance data as quarterly data between specific years. We already choose
+    the end of the year in :meth:`select_annual_rows_dbf`. This ensures that
+    by this point, any quarterly data remaining in the input dataframe pertains
+    to the 4th quarter.
+    """
+    bad_years_mask = df.report_year.isin(params.quarterly_filed_years)
+    # ensure this filling in treatment is necessary!
+    if (
+        not df.loc[bad_years_mask, list(params.quarterly_to_yearly_column_map.values())]
+        .isnull()
+        .all(axis=None)
+    ):
+        raise AssertionError(
+            f"We expected that all balance data in years {params.quarterly_filed_years} "
+            "to be all null. Found non-null records, so the annual columns may no "
+            "longer need to be filled in with quarterly data."
+        )
+    for quarterly_col, yearly_col in params.quarterly_to_yearly_column_map.items():
+        df.loc[bad_years_mask, yearly_col] = df.loc[bad_years_mask, quarterly_col]
+    return df
+
+
 class IsCloseTolerance(TransformParams):
     """Info for testing a particular check."""
 
@@ -1116,10 +1151,11 @@ def calculate_values_from_components(
             .groupby(gby_parent, as_index=False, dropna=False)[["calculated_value"]]
             .sum(min_count=1)
         )
-    except pd.errors.MergeError:  # Make debugging easier.
+    except pd.errors.MergeError as err:  # Make debugging easier.
         raise pd.errors.MergeError(
-            f"Merge failed, duplicated merge keys in left dataset: \n{calculation_components[calculation_components.duplicated(calc_idx)]}"
-        )
+            "Merge failed, duplicated merge keys in left dataset:\n"
+            f"{calculation_components[calculation_components.duplicated(calc_idx)]}"
+        ) from err
     # remove the _parent suffix so we can merge these calculated values back onto
     # the data using the original pks
     calc_df.columns = calc_df.columns.str.removesuffix("_parent")
@@ -1506,6 +1542,9 @@ class Ferc1TableTransformParams(TableTransformParams):
     merge_xbrl_metadata: MergeXbrlMetadata = MergeXbrlMetadata()
     align_row_numbers_dbf: AlignRowNumbersDbf = AlignRowNumbersDbf()
     drop_duplicate_rows_dbf: DropDuplicateRowsDbf = DropDuplicateRowsDbf()
+    assign_quarterly_data_to_yearly_dbf: AssignQuarterlyDataToYearlyDbf = (
+        AssignQuarterlyDataToYearlyDbf()
+    )
     select_dbf_rows_by_category: SelectDbfRowsByCategory = SelectDbfRowsByCategory()
     unstack_balances_to_report_year_instant_xbrl: UnstackBalancesToReportYearInstantXbrl = UnstackBalancesToReportYearInstantXbrl()
     combine_axis_columns_xbrl: CombineAxisColumnsXbrl = CombineAxisColumnsXbrl()
@@ -2021,7 +2060,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             if col_name_new.endswith(f"_{value_type}"):
                 col_name_new = re.sub(f"_{value_type}$", "", col_name_new)
 
-        if self.params.unstack_balances_to_report_year_instant_xbrl:
+        if self.params.unstack_balances_to_report_year_instant_xbrl:  # noqa: SIM102
             # TODO: do something...? add starting_balance & ending_balance suffixes?
             if self.params.merge_xbrl_metadata.on:
                 NotImplementedError(
@@ -2030,8 +2069,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     "to merge the metadata on this table that has this treatment, a "
                     "xbrl_factoid rename will be required."
                 )
-            pass
-        if self.params.convert_units:
+        if self.params.convert_units:  # noqa: SIM102
             # TODO: use from_unit -> to_unit map. but none of the $$ tables have this rn.
             if self.params.merge_xbrl_metadata.on:
                 NotImplementedError(
@@ -2040,7 +2078,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     "table that has this treatment, a xbrl_factoid rename will be "
                     "required."
                 )
-            pass
         return col_name_new
 
     def rename_xbrl_factoid(self, col: pd.Series) -> pd.Series:
@@ -2069,7 +2106,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         for tbl in os_tables:
             trns = FERC1_TFR_CLASSES[tbl]()
             calc_comps = calc_comps.assign(
-                xbrl_factoid=lambda x: np.where(
+                xbrl_factoid=lambda x, tbl=tbl, trns=trns: np.where(
                     x.table_name == tbl,
                     trns.rename_xbrl_factoid(x.xbrl_factoid),
                     x.xbrl_factoid,
@@ -2379,6 +2416,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .pipe(self.assign_utility_id_ferc1, source_ferc1=SourceFerc1.DBF)
             .pipe(self.wide_to_tidy, source_ferc1=SourceFerc1.DBF)
             .pipe(self.drop_duplicate_rows_dbf)
+            .pipe(self.assign_quarterly_data_to_yearly_dbf)
         )
 
     @cache_df(key="xbrl")
@@ -2434,6 +2472,20 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 f"{self.table_id.value}: After selection of only annual records,"
                 f" we have {len(df)/len_og:.1%} of the original table."
             )
+        return df
+
+    @cache_df(key="dbf")
+    def assign_quarterly_data_to_yearly_dbf(
+        self, df, params: AssignQuarterlyDataToYearlyDbf | None = None
+    ):
+        """Transfer quarterly filed data to annual columns."""
+        if params is None:
+            params = self.params.assign_quarterly_data_to_yearly_dbf
+        if params.quarterly_to_yearly_column_map:
+            logger.info(
+                f"{self.table_id.value}: Converting quarterly filed data to annual."
+            )
+            df = assign_quarterly_data_to_yearly_dbf(df, params=params)
         return df
 
     def unstack_balances_to_report_year_instant_xbrl(
@@ -4720,31 +4772,6 @@ class BalanceSheetLiabilitiesTableTransformer(Ferc1AbstractTableTransformer):
             .assign(utility_type="total")
         )
 
-    def process_dbf_test(self: Self, df: pd.DataFrame):
-        """Standard dbf process plus converting quarterly data to annual.
-
-        For some reason in the dbf data for this table reported all of the
-        balance data as quarterly data between 2005 and 2020. We already choose
-        the end of the year in :meth:`select_annual_rows_dbf`.
-
-        https://github.com/catalyst-cooperative/pudl/issues/3233
-        """
-        df = super().process_dbf(df)
-        annual_cols = ["starting_balance", "ending_balance"]
-        bad_years_mask = df.report_year.between(2005, 2020)
-        # ensure this filling in treatment is necessary!
-        if not df.loc[bad_years_mask, annual_cols].isnull().all(axis=None):
-            raise AssertionError(
-                "We expected that all balance data between 2005 and 2020 are all null. "
-                "Found non-null records, so the annual columns may no longer need to "
-                "be filled in with quarterly data."
-            )
-
-        df.loc[bad_years_mask, annual_cols] = df.loc[
-            bad_years_mask, ["pri_yr_q4_bal", "end_qtr_bal"]
-        ].to_numpy()
-        return df
-
     @cache_df(key="main")
     def transform_main(self: Self, df: pd.DataFrame) -> pd.DataFrame:
         """Duplicate data that appears in multiple distinct calculations.
@@ -6011,7 +6038,7 @@ def ferc1_transform_asset_factory(
         f"raw_xbrl_duration__{tn}": AssetIn(f"raw_ferc1_xbrl__{tn}_duration")
         for tn in xbrl_tables
     }
-    ins["clean_xbrl_metadata_json"] = AssetIn("clean_xbrl_metadata_json")
+    ins["_core_ferc1_xbrl__metadata_json"] = AssetIn("_core_ferc1_xbrl__metadata_json")
 
     table_id = TableIdFerc1(table_name)
 
@@ -6023,21 +6050,21 @@ def ferc1_transform_asset_factory(
             raw_dbf: raw dbf table.
             raw_xbrl_instant: raw XBRL instant table.
             raw_xbrl_duration: raw XBRL duration table.
-            clean_xbrl_metadata_json: XBRL metadata json for all tables.
+            _core_ferc1_xbrl__metadata_json: XBRL metadata json for all tables.
 
         Returns:
             transformed FERC Form 1 table.
         """
         # TODO: split the key by __, then groupby, then concatenate
-        clean_xbrl_metadata_json = kwargs["clean_xbrl_metadata_json"]
+        _core_ferc1_xbrl__metadata_json = kwargs["_core_ferc1_xbrl__metadata_json"]
         if generic:
             transformer = tfr_class(
-                xbrl_metadata_json=clean_xbrl_metadata_json[table_name],
+                xbrl_metadata_json=_core_ferc1_xbrl__metadata_json[table_name],
                 table_id=table_id,
             )
         else:
             transformer = tfr_class(
-                xbrl_metadata_json=clean_xbrl_metadata_json[table_name]
+                xbrl_metadata_json=_core_ferc1_xbrl__metadata_json[table_name]
             )
 
         raw_dbf = pd.concat(
@@ -6116,7 +6143,7 @@ def table_to_column_to_check() -> dict[str, list[str]]:
         if table_name != "plants_steam_ferc1"
     }
 )
-def table_dimensions_ferc1(**kwargs) -> pd.DataFrame:
+def _core_ferc1__table_dimensions(**kwargs) -> pd.DataFrame:
     """Build a table of values of dimensions observed in the transformed data tables.
 
     Compile a dataframe indicating what distinct values are observed in the data for
@@ -6153,19 +6180,19 @@ def table_dimensions_ferc1(**kwargs) -> pd.DataFrame:
 
 @asset(
     ins={
-        "clean_xbrl_metadata_json": AssetIn("clean_xbrl_metadata_json"),
-        "table_dimensions_ferc1": AssetIn("table_dimensions_ferc1"),
+        "_core_ferc1_xbrl__metadata_json": AssetIn("_core_ferc1_xbrl__metadata_json"),
+        "_core_ferc1__table_dimensions": AssetIn("_core_ferc1__table_dimensions"),
     },
     io_manager_key=None,  # Change to sqlite_io_manager...
 )
-def metadata_xbrl_ferc1(**kwargs) -> pd.DataFrame:
+def _core_ferc1_xbrl__metadata(**kwargs) -> pd.DataFrame:
     """Build a table of all of the tables' XBRL metadata."""
-    clean_xbrl_metadata_json = kwargs["clean_xbrl_metadata_json"]
-    table_dimensions_ferc1 = kwargs["table_dimensions_ferc1"]
+    _core_ferc1_xbrl__metadata_json = kwargs["_core_ferc1_xbrl__metadata_json"]
+    _core_ferc1__table_dimensions = kwargs["_core_ferc1__table_dimensions"]
     tbl_metas = []
     for table_name, trans in FERC1_TFR_CLASSES.items():
         tbl_meta = (
-            trans(xbrl_metadata_json=clean_xbrl_metadata_json[table_name])
+            trans(xbrl_metadata_json=_core_ferc1_xbrl__metadata_json[table_name])
             .xbrl_metadata[
                 [
                     "xbrl_factoid",
@@ -6183,7 +6210,7 @@ def metadata_xbrl_ferc1(**kwargs) -> pd.DataFrame:
         .assign(**{dim: pd.NA for dim in dimensions})
         .pipe(
             make_calculation_dimensions_explicit,
-            table_dimensions_ferc1=table_dimensions_ferc1,
+            table_dimensions_ferc1=_core_ferc1__table_dimensions,
             dimensions=dimensions,
         )
     )
@@ -6192,22 +6219,22 @@ def metadata_xbrl_ferc1(**kwargs) -> pd.DataFrame:
 
 @asset(
     ins={
-        "clean_xbrl_metadata_json": AssetIn("clean_xbrl_metadata_json"),
-        "table_dimensions_ferc1": AssetIn("table_dimensions_ferc1"),
-        "metadata_xbrl_ferc1": AssetIn("metadata_xbrl_ferc1"),
+        "_core_ferc1_xbrl__metadata_json": AssetIn("_core_ferc1_xbrl__metadata_json"),
+        "_core_ferc1__table_dimensions": AssetIn("_core_ferc1__table_dimensions"),
+        "_core_ferc1_xbrl__metadata": AssetIn("_core_ferc1_xbrl__metadata"),
     },
     io_manager_key=None,  # Change to sqlite_io_manager...
 )
-def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
+def _core_ferc1_xbrl__calculation_components(**kwargs) -> pd.DataFrame:
     """Create calculation-component table from table-level metadata."""
-    clean_xbrl_metadata_json = kwargs["clean_xbrl_metadata_json"]
-    table_dimensions_ferc1 = kwargs["table_dimensions_ferc1"]
-    metadata_xbrl_ferc1 = kwargs["metadata_xbrl_ferc1"]
+    _core_ferc1_xbrl__metadata_json = kwargs["_core_ferc1_xbrl__metadata_json"]
+    _core_ferc1__table_dimensions = kwargs["_core_ferc1__table_dimensions"]
+    _core_ferc1_xbrl__metadata = kwargs["_core_ferc1_xbrl__metadata"]
     # compile all of the calc comp tables.
     calc_metas = []
     for table_name, transformer in FERC1_TFR_CLASSES.items():
         calc_meta = transformer(
-            xbrl_metadata_json=clean_xbrl_metadata_json[table_name]
+            xbrl_metadata_json=_core_ferc1_xbrl__metadata_json[table_name]
         ).xbrl_calculations
         calc_metas.append(calc_meta)
     # squish all of the calc comp tables then add in the implicit table dimensions
@@ -6217,18 +6244,18 @@ def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
         .astype({dim: pd.StringDtype() for dim in dimensions})
         .pipe(
             make_calculation_dimensions_explicit,
-            table_dimensions_ferc1,
+            _core_ferc1__table_dimensions,
             dimensions=dimensions,
         )
         .pipe(
             assign_parent_dimensions,
-            table_dimensions=table_dimensions_ferc1,
+            table_dimensions=_core_ferc1__table_dimensions,
             dimensions=dimensions,
         )
         .pipe(
             infer_intra_factoid_totals,
-            meta_w_dims=metadata_xbrl_ferc1,
-            table_dimensions=table_dimensions_ferc1,
+            meta_w_dims=_core_ferc1_xbrl__metadata,
+            table_dimensions=_core_ferc1__table_dimensions,
             dimensions=dimensions,
         )
     )
@@ -6265,7 +6292,7 @@ def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
         calcs=calc_components[
             calc_components.table_name.isin(FERC1_TFR_CLASSES.keys())
         ],
-        checked_table=metadata_xbrl_ferc1,
+        checked_table=_core_ferc1_xbrl__metadata,
         idx_calcs=calc_cols,
         idx_table=calc_cols,
         how="not_in",
@@ -6275,17 +6302,17 @@ def calculation_components_xbrl_ferc1(**kwargs) -> pd.DataFrame:
     if not missing_calcs.empty:
         logger.warning(
             "Calculations found in calculation components table are missing from the "
-            "metadata_xbrl_ferc1 table."
+            "_core_ferc1_xbrl__metadata table."
         )
         # which of these missing calculations actually show up in the transformed tables?
         # This handles dbf-only calculation components, whic are added to the
-        # metadata_xbrl_ferc1 table as part of each table's transformations but aren't
-        # observed (or therefore present in table_dimensions_ferc1) in the fast ETL or
+        # _core_ferc1_xbrl__metadata table as part of each table's transformations but aren't
+        # observed (or therefore present in _core_ferc1__table_dimensions) in the fast ETL or
         # in all subsets of years. We only want to flag calculation components as
         # missing when they're actually observed in the data.
         actually_missing_kids = check_calcs_vs_table(
             calcs=missing_calcs,
-            checked_table=table_dimensions_ferc1,
+            checked_table=_core_ferc1__table_dimensions,
             idx_calcs=child_cols,
             idx_table=child_cols,
             how="in",
@@ -6405,7 +6432,7 @@ def make_calculation_dimensions_explicit(
     dimensions: list[str],
     parent: bool = False,
 ) -> pd.DataFrame:
-    """Fill in null dimensions w/ the values observed in :func:`table_dimensions_ferc1`.
+    """Fill in null dimensions w/ the values observed in :func:`_core_ferc1__table_dimensions`.
 
     In the raw XBRL metadata's calculations, there is an implicit assumption that
     calculated values are aggregated within categorical columns called Axes or
@@ -6426,7 +6453,7 @@ def make_calculation_dimensions_explicit(
 
     This function uses the observed associations between ``table_name``,
     ``xbrl_factoid`` and the other dimension columns compiled by
-    :func:`table_dimensions_ferc1` to fill in missing (previously implied) dimension
+    :func:`_core_ferc1__table_dimensions` to fill in missing (previously implied) dimension
     values in the calculation components table.
 
     This is often a broadcast merge because many tables contain many values within these
@@ -6696,18 +6723,18 @@ def infer_intra_factoid_totals(
         ]
     }
     | {
-        "calculation_components_xbrl_ferc1": AssetIn(
-            "calculation_components_xbrl_ferc1"
+        "_core_ferc1_xbrl__calculation_components": AssetIn(
+            "_core_ferc1_xbrl__calculation_components"
         )
     },
 )
 def _core_ferc1__calculation_metric_checks(**kwargs):
     """Check calculation metrics for all transformed tables which have reconciled calcs."""
-    calculation_components = kwargs["calculation_components_xbrl_ferc1"]
+    calculation_components = kwargs["_core_ferc1_xbrl__calculation_components"]
     transformed_ferc1_dfs = {
         name: df
         for (name, df) in kwargs.items()
-        if name not in ["calculation_components_xbrl_ferc1"]
+        if name not in ["_core_ferc1_xbrl__calculation_components"]
     }
     # standardize the two key columns we are going to use into generic names
     xbrl_factoid_name = table_to_xbrl_factoid_name()

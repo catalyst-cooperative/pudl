@@ -13,7 +13,7 @@ from dagster import build_init_resource_context, materialize_to_memory
 
 from pudl import resources
 from pudl.etl.cli import pudl_etl_job_factory
-from pudl.extract.ferc1 import raw_xbrl_metadata_json
+from pudl.extract.ferc1 import raw_ferc1_xbrl__metadata_json
 from pudl.ferc_to_sqlite.cli import ferc_to_sqlite_job_factory
 from pudl.io_managers import (
     PudlSQLiteIOManager,
@@ -272,10 +272,10 @@ def ferc1_xbrl_sql_engine(
 @pytest.fixture(scope="session", name="ferc1_xbrl_taxonomy_metadata")
 def ferc1_xbrl_taxonomy_metadata(ferc1_engine_xbrl: sa.Engine):
     """Read the FERC 1 XBRL taxonomy metadata from JSON."""
-    result = materialize_to_memory([raw_xbrl_metadata_json])
+    result = materialize_to_memory([raw_ferc1_xbrl__metadata_json])
     assert result.success
 
-    return result.output_for_node("raw_xbrl_metadata_json")
+    return result.output_for_node("raw_ferc1_xbrl__metadata_json")
 
 
 @pytest.fixture(scope="session")
@@ -371,7 +371,7 @@ def dataset_settings_config(request, etl_settings: EtlSettings):
     return etl_settings.datasets.model_dump()
 
 
-@pytest.fixture(scope="session")  # noqa: C901
+@pytest.fixture(scope="session")
 def pudl_datastore_config(request) -> dict[str, Any]:
     """Produce a :class:pudl.workspace.datastore.Datastore."""
     gcs_cache_path = request.config.getoption("--gcs-cache-path")

@@ -13,7 +13,7 @@ from typing import Annotated, Any, Self
 from urllib.parse import ParseResult, urlparse
 
 import click
-import datapackage
+import frictionless
 import requests
 from google.auth.exceptions import DefaultCredentialsError
 from pydantic import HttpUrl, StringConstraints
@@ -38,8 +38,6 @@ ZenodoDoi = Annotated[
 
 class ChecksumMismatchError(ValueError):
     """Resource checksum (md5) does not match."""
-
-    pass
 
 
 class DatapackageDescriptor:
@@ -89,7 +87,7 @@ class DatapackageDescriptor:
     def validate_checksum(self, name: str, content: str) -> bool:
         """Returns True if content matches checksum for given named resource."""
         expected_checksum = self._get_resource_metadata(name)["hash"]
-        m = hashlib.md5()  # noqa: S324 MD5 is required by Zenodo
+        m = hashlib.md5()  # noqa: S324 Unfortunately md5 is required by Zenodo
         m.update(content)
         if m.hexdigest() != expected_checksum:
             raise ChecksumMismatchError(
@@ -167,8 +165,11 @@ class DatapackageDescriptor:
 
         Throws ValueError if invalid.
         """
-        dp = datapackage.Package(datapackage_json)
-        if not dp.valid:
+        # TODO (daz): when we upgrade to frictionless>=5.0, this will be:
+        # dp = frictionless.Package.validate_descriptor(datapackage_json)
+        # if not dp.valid:
+        dp = frictionless.Package(datapackage_json)
+        if not dp.metadata_validate():
             msg = f"Found {len(dp.errors)} datapackage validation errors:\n"
             for e in dp.errors:
                 msg = msg + f"  * {e}\n"
@@ -188,7 +189,7 @@ class ZenodoDoiSettings(BaseSettings):
     eia860m: ZenodoDoi = "10.5281/zenodo.10423813"
     eia861: ZenodoDoi = "10.5281/zenodo.10204708"
     eia923: ZenodoDoi = "10.5281/zenodo.10067550"
-    eia_bulk_elec: ZenodoDoi = "10.5281/zenodo.10525348"
+    eia_bulk_elec: ZenodoDoi = "10.5281/zenodo.10603995"
     epacamd_eia: ZenodoDoi = "10.5281/zenodo.7900974"
     epacems: ZenodoDoi = "10.5281/zenodo.10425497"
     ferc1: ZenodoDoi = "10.5281/zenodo.8326634"
@@ -230,8 +231,8 @@ class ZenodoFetcher:
         """Returns DOI for given dataset."""
         try:
             doi = self.zenodo_dois.__getattribute__(dataset)
-        except AttributeError:
-            raise AttributeError(f"No Zenodo DOI found for dataset {dataset}.")
+        except AttributeError as err:
+            raise AttributeError(f"No Zenodo DOI found for dataset {dataset}.") from err
         return doi
 
     def get_known_datasets(self: Self) -> list[str]:
@@ -328,7 +329,6 @@ class Datastore:
                     f"Unable to obtain credentials for GCS Cache at {gcs_cache_path}. "
                     f"Falling back to Zenodo if necessary. Error was: {e}"
                 )
-                pass
 
         self._zenodo_fetcher = ZenodoFetcher(timeout=timeout)
 
@@ -400,8 +400,8 @@ class Datastore:
         res = self.get_resources(dataset, **filters)
         try:
             _, content = next(res)
-        except StopIteration:
-            raise KeyError(f"No resources found for {dataset}: {filters}")
+        except StopIteration as err:
+            raise KeyError(f"No resources found for {dataset}: {filters}") from err
         try:
             next(res)
         except StopIteration:

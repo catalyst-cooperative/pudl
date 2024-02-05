@@ -509,11 +509,11 @@ class Field(PudlMeta):
     See https://specs.frictionlessdata.io/table-schema/#field-descriptors.
 
     Examples:
-        >>> field = Field(name='x', type='string', constraints={'enum': ['x', 'y']})
+        >>> field = Field(name='x', type='string', description='X', constraints={'enum': ['x', 'y']})
         >>> field.to_pandas_dtype()
         CategoricalDtype(categories=['x', 'y'], ordered=False, categories_dtype=object)
         >>> field.to_sql()
-        Column('x', Enum('x', 'y'), CheckConstraint(...), table=None)
+        Column('x', Enum('x', 'y'), CheckConstraint(...), table=None, comment='X')
         >>> field = Field.from_id('utility_id_eia')
         >>> field.name
         'utility_id_eia'
@@ -521,11 +521,11 @@ class Field(PudlMeta):
 
     name: SnakeCase
     # Shadows built-in type.
-    type: Literal["string", "number", "integer", "boolean", "date", "datetime", "year"]  # noqa: A003
+    type: Literal["string", "number", "integer", "boolean", "date", "datetime", "year"]
     title: String | None = None
     # Alias required to avoid shadowing Python built-in format()
     format_: Literal["default"] = pydantic.Field(alias="format", default="default")
-    description: String | None = None
+    description: String
     unit: String | None = None
     constraints: FieldConstraints = FieldConstraints()
     harvest: FieldHarvest = FieldHarvest()
@@ -1011,15 +1011,15 @@ class Resource(PudlMeta):
     Examples:
         A simple example illustrates the conversion to SQLAlchemy objects.
 
-        >>> fields = [{'name': 'x', 'type': 'year'}, {'name': 'y', 'type': 'string'}]
+        >>> fields = [{'name': 'x', 'type': 'year', 'description': 'X'}, {'name': 'y', 'type': 'string', 'description': 'Y'}]
         >>> fkeys = [{'fields': ['x', 'y'], 'reference': {'resource': 'b', 'fields': ['x', 'y']}}]
         >>> schema = {'fields': fields, 'primary_key': ['x'], 'foreign_keys': fkeys}
-        >>> resource = Resource(name='a', schema=schema)
+        >>> resource = Resource(name='a', schema=schema, description='A')
         >>> table = resource.to_sql()
         >>> table.columns.x
-        Column('x', Integer(), ForeignKey('b.x'), CheckConstraint(...), table=<a>, primary_key=True, nullable=False)
+        Column('x', Integer(), ForeignKey('b.x'), CheckConstraint(...), table=<a>, primary_key=True, nullable=False, comment='X')
         >>> table.columns.y
-        Column('y', Text(), ForeignKey('b.y'), CheckConstraint(...), table=<a>)
+        Column('y', Text(), ForeignKey('b.y'), CheckConstraint(...), table=<a>, comment='Y')
 
         To illustrate harvesting operations,
         say we have a resource with two fields - a primary key (`id`) and a data field -
@@ -1027,13 +1027,14 @@ class Resource(PudlMeta):
 
         >>> from pudl.metadata.helpers import unique, as_dict
         >>> fields = [
-        ...     {'name': 'id', 'type': 'integer'},
-        ...     {'name': 'x', 'type': 'integer', 'harvest': {'aggregate': unique, 'tolerance': 0.25}}
+        ...     {'name': 'id', 'type': 'integer', 'description': 'ID'},
+        ...     {'name': 'x', 'type': 'integer', 'harvest': {'aggregate': unique, 'tolerance': 0.25}, 'description': 'X'}
         ... ]
         >>> resource = Resource(**{
         ...     'name': 'a',
         ...     'harvest': {'harvest': True},
-        ...     'schema': {'fields': fields, 'primary_key': ['id']}
+        ...     'schema': {'fields': fields, 'primary_key': ['id']},
+        ...     'description': 'A',
         ... })
         >>> dfs = {
         ...     'a': pd.DataFrame({'id': [1, 1, 2, 2], 'x': [1, 1, 2, 2]}),
@@ -1108,10 +1109,11 @@ class Resource(PudlMeta):
         Period harvesting requires primary key fields with a `datetime` data type,
         except for `year` fields which can be integer.
 
-        >>> fields = [{'name': 'report_year', 'type': 'year'}]
+        >>> fields = [{'name': 'report_year', 'type': 'year', 'description': 'Report year'}]
         >>> resource = Resource(**{
         ...     'name': 'table', 'harvest': {'harvest': True},
-        ...     'schema': {'fields': fields, 'primary_key': ['report_year']}
+        ...     'schema': {'fields': fields, 'primary_key': ['report_year']},
+        ...     'description': 'Table',
         ... })
         >>> df = pd.DataFrame({'report_date': ['2000-02-02', '2000-03-03']})
         >>> resource.format_df(df)
@@ -1127,7 +1129,7 @@ class Resource(PudlMeta):
 
     name: SnakeCase
     title: String | None = None
-    description: String | None = None
+    description: String
     harvest: ResourceHarvest = ResourceHarvest()
     schema: Schema
     # Alias required to avoid shadowing Python built-in format()
@@ -1351,9 +1353,9 @@ class Resource(PudlMeta):
             or `None` if not all primary key fields have a match.
 
         Examples:
-            >>> fields = [{'name': 'x_year', 'type': 'year'}]
+            >>> fields = [{'name': 'x_year', 'type': 'year', 'description': 'Year'}]
             >>> schema = {'fields': fields, 'primary_key': ['x_year']}
-            >>> resource = Resource(name='r', schema=schema)
+            >>> resource = Resource(name='r', schema=schema, description='R')
 
             By default, when :attr:`harvest` .`harvest=False`,
             exact matches are required.
@@ -1678,11 +1680,11 @@ class Package(PudlMeta):
     Examples:
         Foreign keys between resources are checked for completeness and consistency.
 
-        >>> fields = [{'name': 'x', 'type': 'year'}, {'name': 'y', 'type': 'string'}]
+        >>> fields = [{'name': 'x', 'type': 'year', 'description': 'X'}, {'name': 'y', 'type': 'string', 'description': 'Y'}]
         >>> fkey = {'fields': ['x', 'y'], 'reference': {'resource': 'b', 'fields': ['x', 'y']}}
         >>> schema = {'fields': fields, 'primary_key': ['x'], 'foreign_keys': [fkey]}
-        >>> a = Resource(name='a', schema=schema)
-        >>> b = Resource(name='b', schema=Schema(fields=fields, primary_key=['x']))
+        >>> a = Resource(name='a', schema=schema, description='A')
+        >>> b = Resource(name='b', schema=Schema(fields=fields, primary_key=['x']), description='B')
         >>> Package(name='ab', resources=[a, b])
         Traceback (most recent call last):
         ValidationError: ...
@@ -1757,7 +1759,7 @@ class Package(PudlMeta):
 
     @classmethod
     @lru_cache
-    def from_resource_ids(  # noqa: C901
+    def from_resource_ids(
         cls,
         resource_ids: tuple[str] = tuple(sorted(RESOURCE_METADATA)),
         resolve_foreign_keys: bool = False,
@@ -1806,7 +1808,7 @@ class Package(PudlMeta):
         return cls(name="pudl", resources=resources)
 
     @staticmethod
-    def get_etl_group_tables(  # noqa: C901
+    def get_etl_group_tables(
         etl_group: str,
     ) -> tuple[str]:
         """Get a sorted tuple of table names for an etl_group.
@@ -1872,14 +1874,24 @@ class Package(PudlMeta):
         on their name which results in the following order to promote output
         tables to users and push intermediate tables to the bottom of the
         docs: output, core, intermediate.
-
         In the future we might want to have more fine grain control over how
         Resources are sorted.
 
         Returns:
             A sorted list of resources.
         """
-        return sorted(self.resources, key=lambda r: r.name, reverse=True)
+        resources = self.resources
+
+        def sort_resource_names(resource: Resource):
+            pattern = re.compile(r"^(_out_|out_|core_)")
+
+            matches = pattern.findall(resource.name)
+            prefix = matches[0] if matches else ""
+
+            prefix_order = {"out_": 1, "core_": 2, "_out_": 3}
+            return prefix_order.get(prefix, float("inf"))
+
+        return sorted(resources, key=sort_resource_names, reverse=False)
 
 
 class CodeMetadata(PudlMeta):
@@ -1924,7 +1936,7 @@ class DatasetteMetadata(PudlMeta):
     """
 
     data_sources: list[DataSource]
-    resources: list[Resource] = Package.from_resource_ids().get_sorted_resources()
+    resources: list[Resource] = Package.from_resource_ids()
     xbrl_resources: dict[str, list[Resource]] = {}
     label_columns: dict[str, str] = {
         "core_eia__entity_plants": "plant_name_eia",
@@ -1958,12 +1970,6 @@ class DatasetteMetadata(PudlMeta):
             "ferc60_xbrl",
             "ferc714_xbrl",
         ],
-        extra_etl_groups: list[str] = [
-            "entity_eia",
-            "glue",
-            "static_eia",
-            "static_ferc1",
-        ],
     ) -> "DatasetteMetadata":
         """Construct a dictionary of DataSources from data source names.
 
@@ -1973,19 +1979,12 @@ class DatasetteMetadata(PudlMeta):
             output_path: PUDL_OUTPUT path.
             data_source_ids: ids of data sources currently included in Datasette
             xbrl_ids: ids of data converted XBRL data to be included in Datasette
-            extra_etl_groups: ETL groups with resources that should be included
         """
         # Compile a list of DataSource objects for use in the template
         data_sources = [DataSource.from_id(ds_id) for ds_id in data_source_ids]
 
         # Instantiate all possible resources in a Package:
-        pkg = Package.from_resource_ids()
-        # Grab a list of just the resources we want to output:
-        resources = [
-            res
-            for res in pkg.resources
-            if res.etl_group in data_source_ids + extra_etl_groups
-        ]
+        resources = Package.from_resource_ids().resources
 
         # Get XBRL based resources
         xbrl_resources = {}
@@ -2006,15 +2005,10 @@ class DatasetteMetadata(PudlMeta):
             xbrl_resources=xbrl_resources,
         )
 
-    def to_yaml(self, exclude_intermediate_resources: bool = False) -> None:
+    def to_yaml(self) -> None:
         """Output database, table, and column metadata to YAML file."""
         template = _get_jinja_environment().get_template("datasette-metadata.yml.jinja")
-        if exclude_intermediate_resources:
-            [
-                resource
-                for resource in self.resources
-                if not resource.name.startswith("_")
-            ]
+
         rendered = template.render(
             license=LICENSES["cc-by-4.0"],
             data_sources=self.data_sources,

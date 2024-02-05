@@ -36,32 +36,64 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Indicates whether the emissions control equipment controls acid (HCl) gas.",
     },
-    "active": {
-        "type": "boolean",
-        "description": "Indicates whether or not the dataset has been pulled into PUDL by the extract transform load process.",
+    "actual_peak_demand_savings_mw": {
+        "type": "number",
+        "description": "Demand reduction actually achieved by demand response activities. Measured at the time of the company's annual system peak hour.",
+        "unit": "MW",
     },
-    "actual_peak_demand_savings_mw": {"type": "number", "unit": "MW"},
     "additions": {
         "type": "number",
         "description": "Cost of acquisition of items classified within the account.",
         "unit": "USD",
     },
-    "address_2": {"type": "string"},
+    "address_2": {"type": "string", "description": "Second line of the address."},
     "adjustments": {
         "type": "number",
         "description": "Cost of adjustments to the account.",
         "unit": "USD",
     },
-    "advanced_metering_infrastructure": {"type": "integer"},
+    "advanced_metering_infrastructure": {
+        "type": "integer",
+        "description": (
+            "Number of meters that measure and record usage data at a minimum, in "
+            "hourly intervals and provide usage data at least daily to energy "
+            "companies and may also provide data to consumers. Data are used for "
+            "billing and other purposes. Advanced meters include basic hourly interval "
+            "meters and extend to real-time meters with built-in two-way communication "
+            "capable of recording and transmitting instantaneous data."
+        ),
+    },
     "air_flow_100pct_load_cubic_feet_per_minute": {
         "type": "number",
         "unit": "cfm",
         "description": "Total air flow including excess air at 100 percent load, reported at standard temperature and pressure (i.e. 68 F and one atmosphere pressure).",
     },
-    "alternative_fuel_vehicle_2_activity": {"type": "boolean"},
-    "alternative_fuel_vehicle_activity": {"type": "boolean"},
-    "annual_indirect_program_cost": {"type": "number", "unit": "USD"},
-    "annual_total_cost": {"type": "number", "unit": "USD"},
+    "alternative_fuel_vehicle_2_activity": {
+        "type": "boolean",
+        "description": "Whether the utility plants to operate alternative-fueled vehicles this coming year.",
+    },
+    "alternative_fuel_vehicle_activity": {
+        "type": "boolean",
+        "description": "Whether the utility operates alternative-fueled vehicles during the year.",
+    },
+    "annual_indirect_program_cost": {
+        "type": "number",
+        "description": (
+            "Costs that have not been included in any program category, but could be "
+            "meaningfully identified with operating the company’s DSM programs (e.g., "
+            "Administrative, Marketing, Monitoring & Evaluation, Company-Earned "
+            "Incentives, Other)."
+        ),
+        "unit": "USD",
+    },
+    "annual_total_cost": {
+        "type": "number",
+        "description": (
+            "The sum of direct program costs, indirect program costs, and incentive "
+            "payments associated with utility demand side management programs."
+        ),
+        "unit": "USD",
+    },
     "amount": {
         "description": "Reported amount of dollars. This could be a balance or a change in value.",
         "type": "number",
@@ -112,14 +144,33 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Indicates whether the generator is associated with a combined heat and power system",
     },
-    "attention_line": {"type": "string"},
-    "automated_meter_reading": {"type": "integer"},
+    "attention_line": {
+        "type": "string",
+        "description": "Mail attention name of the operator/owner.",
+    },
+    "automated_meter_reading": {
+        "type": "integer",
+        "description": (
+            "Number of meters that collect data for billing purposes only and transmit "
+            "this data one way, usually from the customer to the distribution utility."
+        ),
+    },
     "avg_customers_per_month": {
         "type": "number",
         "description": "Average number of customers per month.",
     },
-    "avg_num_employees": {"type": "number"},
-    "backup_capacity_mw": {"type": "number", "unit": "MW"},
+    "avg_num_employees": {
+        "type": "number",
+        "description": "The average number of employees assigned to each plant.",
+    },
+    "backup_capacity_mw": {
+        "type": "number",
+        "description": (
+            "The total nameplate capacity of generators that are used only for "
+            "emergency backup service."
+        ),
+        "unit": "MW",
+    },
     "balance": {
         "type": "string",
         "description": "Indication of whether a column is a credit or debit, as reported in the XBRL taxonomy.",
@@ -217,23 +268,61 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "etc. Used to fill in missing fuel prices."
         ),
     },
-    "bundled_activity": {"type": "boolean"},
+    "bundled_activity": {
+        "type": "boolean",
+        "description": (
+            "Whether a utility engaged in combined utility services (electricity plus "
+            "other services such as gas, water, etc. in addition to electric services) "
+            "during the year."
+        ),
+    },
     "business_model": {
         "type": "string",
+        "description": "Business model.",
         "constraints": {"enum": ["retail", "energy_services"]},
     },
-    "buying_distribution_activity": {"type": "boolean"},
-    "buying_transmission_activity": {"type": "boolean"},
+    "buying_distribution_activity": {
+        "type": "boolean",
+        "description": (
+            "Whether a utility bought any distribution on other electrical systems "
+            "during the year."
+        ),
+    },
+    "buying_transmission_activity": {
+        "type": "boolean",
+        "description": (
+            "Whether a utility bought any transmission services on other electrical "
+            "systems during the year."
+        ),
+    },
     "bypass_heat_recovery": {
         "type": "boolean",
         "description": "Can this generator operate while bypassing the heat recovery steam generator?",
     },
-    "caidi_w_major_event_days_minutes": {"type": "number", "unit": "min"},
-    "caidi_w_major_event_days_minus_loss_of_service_minutes": {
+    "caidi_w_major_event_days_minutes": {
         "type": "number",
+        "description": (
+            "Average number of minutes per interruption (SAIDI/SAIFI) including major "
+            "event days."
+        ),
         "unit": "min",
     },
-    "caidi_wo_major_event_days_minutes": {"type": "number", "unit": "min"},
+    "caidi_w_major_event_days_minus_loss_of_service_minutes": {
+        "type": "number",
+        "description": (
+            "Average number of minutes per interruption (SAIDI/SAIFI) including major "
+            "event days and excluding reliability events caused by a loss of supply."
+        ),
+        "unit": "min",
+    },
+    "caidi_wo_major_event_days_minutes": {
+        "type": "number",
+        "description": (
+            "Average number of minutes per interruption (SAIDI/SAIFI) excluding major "
+            "event days."
+        ),
+        "unit": "min",
+    },
     "capacity_eoy_mw": {
         "type": "number",
         "description": "Total end of year installed (nameplate) capacity for a plant part, in megawatts.",
@@ -367,8 +456,23 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Indicates whether the generator uses carbon capture technology.",
     },
-    "chlorine_content_ppm": {"type": "number", "unit": "ppm"},
-    "circuits_with_voltage_optimization": {"type": "integer"},
+    "chlorine_content_ppm": {
+        "type": "number",
+        "description": (
+            "For coal only: the chlorine content in parts per million (ppm) to the "
+            "nearest 0.001 ppm. If lab tests of the coal do not include the chlorine "
+            "content, this field contains the amount specified in the contract with "
+            "the supplier."
+        ),
+        "unit": "ppm",
+    },
+    "circuits_with_voltage_optimization": {
+        "type": "integer",
+        "description": (
+            "Number of distribution circuits that employ voltage/VAR optimization "
+            "(VVO)."
+        ),
+    },
     "city": {
         "type": "string",
         # TODO: Disambiguate column. City means different things in different tables.
@@ -440,8 +544,19 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "Year the plant's oldest still operational unit was built.",
     },
-    "consumed_by_facility_mwh": {"type": "number", "unit": "MWh"},
-    "consumed_by_respondent_without_charge_mwh": {"type": "number", "unit": "MWh"},
+    "consumed_by_facility_mwh": {
+        "type": "number",
+        "description": "The amount of electricity used by the facility.",
+        "unit": "MWh",
+    },
+    "consumed_by_respondent_without_charge_mwh": {
+        "type": "number",
+        "description": (
+            "The amount of electricity used by the electric utility in its electric "
+            "and other departments without charge."
+        ),
+        "unit": "MWh",
+    },
     "contact_firstname": {
         "type": "string",
         "description": "First name of utility contact 1.",
@@ -472,7 +587,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Purchase type under which receipts occurred in the reporting month. C: Contract, NC: New Contract, S: Spot Purchase, T: Tolling Agreement.",
         "constraints": {"enum": ["S", "C", "NC", "T"]},
     },
-    "country": {"type": "string", "description": "Three letter country abbreviation."},
     "emission_control_id_eia": {
         "type": "string",
         "description": (
@@ -526,24 +640,89 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Full country name (e.g. United States of America).",
     },
-    "credits_or_adjustments": {"type": "number"},
-    "critical_peak_pricing": {"type": "boolean"},
-    "critical_peak_rebate": {"type": "boolean"},
+    "critical_peak_pricing": {
+        "type": "boolean",
+        "description": (
+            "Whether customers are participating in critical peak "
+            "pricing, a program in which rate and/or price structure is designed to "
+            "encourage reduced consumption during periods of high wholesale market "
+            "prices or system contingencies, by imposing a pre-specified high rate or "
+            "price for a limited number of days or hours."
+        ),
+    },
+    "critical_peak_rebate": {
+        "type": "boolean",
+        "description": (
+            "Whether customers are participating in critical peak rebates, a program "
+            "in which rate and/or price structure is designed to encourage reduced "
+            "consumption during periods of high wholesale market prices or system "
+            "contingencies, by providing a rebate to the customer on a limited number "
+            "of days and for a limited number of hours, at the request of the energy "
+            "provider."
+        ),
+    },
     "current_planned_generator_operating_date": {
         "type": "date",
         "description": "The most recently updated effective date on which the generator is scheduled to start operation",
     },
     "customer_class": {
         "type": "string",
-        "description": "High level categorization of customer type.",
+        "description": f"High level categorization of customer type: {CUSTOMER_CLASSES}.",
         "constraints": {"enum": CUSTOMER_CLASSES},
     },
-    "customer_incentives_cost": {"type": "number"},
-    "customer_incentives_incremental_cost": {"type": "number"},
-    "customer_incentives_incremental_life_cycle_cost": {"type": "number"},
-    "customer_other_costs_incremental_life_cycle_cost": {"type": "number"},
+    "customer_incentives_cost": {
+        "type": "number",
+        "description": (
+            "Total cost of customer incentives in a given report year. Customer "
+            "incentives are the total financial value provided to a customer for "
+            "program participation, whether, for example, cash payment, or lowered "
+            "tariff rates relative to non-participants, in-kind services (e.g. "
+            "design work), or other benefits directly provided to the customer for "
+            "their program participation."
+        ),
+        "unit": "USD",
+    },
+    "customer_incentives_incremental_cost": {
+        "type": "number",
+        "description": (
+            "The cost of customer incentives resulting from new participants in "
+            "existing energy efficiency programs and all participants in new energy "
+            "efficiency programs. Customer incentives are the total financial value "
+            "provided to a customer for program participation, whether, for example, "
+            "cash payment, or lowered tariff rates relative to non-participants, "
+            "in-kind services (e.g. design work), or other benefits directly provided "
+            "to the customer for their program participation."
+        ),
+        "unit": "USD",
+    },
+    "customer_incentives_incremental_life_cycle_cost": {
+        "type": "number",
+        "description": (
+            "All anticipated costs of the customer incentives including reporting year "
+            "incremental costs and all future costs. Customer incentives are the "
+            "total financial value provided to a customer for program participation, "
+            "whether, for example, cash payment, or lowered tariff rates relative to "
+            "non-participants, in-kind services (e.g. design work), or other benefits "
+            "directly provided to the customer for their program participation."
+        ),
+        "unit": "USD",
+    },
+    "customer_other_costs_incremental_life_cycle_cost": {
+        "type": "number",
+        "description": (
+            "All anticipated costs other than customer incentives. Includes reporting "
+            "year incremental costs and all future costs."
+        ),
+        "unit": "USD",
+    },
     "customers": {"description": "Number of customers.", "type": "number"},
-    "daily_digital_access_customers": {"type": "integer"},
+    "daily_digital_access_customers": {
+        "type": "integer",
+        "description": (
+            "Number of customers able to access daily energy usage through a webportal "
+            "or other electronic means."
+        ),
+    },
     "data_observed": {
         "type": "boolean",
         "description": "Is the value observed (True) or imputed (False).",
@@ -579,8 +758,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Gross megawatt-hours delivered in power exchanges and used as the basis for settlement.",
         "unit": "MWh",
     },
-    "delivery_customers": {"type": "number"},
-    "demand_annual_mwh": {"type": "number", "unit": "MWh"},
+    "demand_annual_mwh": {
+        "type": "number",
+        "description": "Annual electricity demand in a given report year.",
+        "unit": "MWh",
+    },
     "demand_annual_per_capita_mwh": {
         "type": "number",
         "description": "Per-capita annual demand, averaged using Census county-level population estimates.",
@@ -591,7 +773,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Demand charges (USD).",
         "unit": "USD",
     },
-    "demand_mwh": {"type": "number", "unit": "MWh"},
+    "demand_mwh": {
+        "type": "number",
+        "description": "Electricity demand (energy) within a given timeframe.",
+        "unit": "MWh",
+    },
     "demand_density_mwh_km2": {
         "type": "number",
         "description": "Annual demand per km2 of a given service territory.",
@@ -604,11 +790,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "removal, depreciation expenses, salvage, cost of retired plant, etc."
         ),
     },
-    "depreciation_amortization_value": {
-        "type": "number",
-        "unit": "USD",
-        "description": "Depreciation and amortization values (USD).",
-    },
     "description": {
         "type": "string",
         "description": "Long human-readable description of the meaning of a code/label.",
@@ -618,14 +799,37 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Manufactured (Designed) voltage, expressed in kilo-volts, for three-phase 60 cycle alternative current transmission lines",
         "unit": "KV",
     },
-    "direct_load_control_customers": {"type": "integer"},
+    "direct_load_control_customers": {
+        "type": "integer",
+        "description": (
+            "Number of customers with direct load control: a A demand response "
+            "activity by which the program sponsor remotely shuts down or cycles a "
+            "customer’s electrical equipment (e.g. air conditioner, water heater) on "
+            "short notice."
+        ),
+    },
     "distributed_generation": {
         "type": "boolean",
         "description": "Whether the generator is considered distributed generation",
     },
-    "distributed_generation_owned_capacity_mw": {"type": "number", "unit": "MW"},
-    "distribution_activity": {"type": "boolean"},
-    "distribution_circuits": {"type": "integer"},
+    "distributed_generation_owned_capacity_mw": {
+        "type": "number",
+        "description": (
+            "Amount of distributed generation capacity owned by the respondent."
+        ),
+        "unit": "MW",
+    },
+    "distribution_activity": {
+        "type": "boolean",
+        "description": (
+            "Whether a utility engaged in any distribution using owned/leased "
+            "electrical wires during the year."
+        ),
+    },
+    "distribution_circuits": {
+        "type": "integer",
+        "description": "Total number of distribution circuits.",
+    },
     "division_code_us_census": {
         "type": "string",
         "description": (
@@ -677,11 +881,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "different."
         ),
     },
-    "electric_plant": {
-        "type": "number",
-        "description": "Electric Plant In Service (USD).",
-        "unit": "USD",
-    },
     "emission_control_equipment_cost": {
         "type": "number",
         "description": "The total cost to install a piece of emission control equipment.",
@@ -717,33 +916,98 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Energy charges (USD).",
         "unit": "USD",
     },
-    "energy_displaced_mwh": {"type": "number", "unit": "MWh"},
     "energy_disposition_type": {
         "type": "string",
         "description": "Type of energy disposition reported in the core_ferc1__yearly_energy_dispositions_sched401. Dispositions include sales to customers, re-sales of energy, energy used internally, losses, etc.",
     },
     "energy_efficiency_annual_actual_peak_reduction_mw": {
         "type": "number",
+        "description": (
+            "The peak reduction incurred in a given reporting year by all participants "
+            "in efficiency programs."
+        ),
         "unit": "MW",
     },
-    "energy_efficiency_annual_cost": {"type": "number"},
-    "energy_efficiency_annual_effects_mwh": {"type": "number", "unit": "MWh"},
-    "energy_efficiency_annual_incentive_payment": {"type": "number"},
+    "energy_efficiency_annual_cost": {
+        "type": "number",
+        "description": (
+            "The sum of actual direct costs, incentive payments, and indirect costs "
+            "incurred in a given reporting year from energy efficiency programs."
+        ),
+        "unit": "USD",
+    },
+    "energy_efficiency_annual_effects_mwh": {
+        "type": "number",
+        "description": (
+            "The change in energy use incurred in a given reporting year by "
+            "all participants in energy efficiency programs."
+        ),
+        "unit": "MWh",
+    },
+    "energy_efficiency_annual_incentive_payment": {
+        "type": "number",
+        "description": (
+            "The cost of incentive payments incurred in a given reporting year "
+            "from energy efficiency programs. Incentives are the "
+            "total financial value provided to a customer for program participation, "
+            "whether cash payment, in-kind services (e.g. design work), or other "
+            "benefits directly provided customer for their program participation."
+        ),
+        "unit": "USD",
+    },
     "energy_efficiency_incremental_actual_peak_reduction_mw": {
         "type": "number",
+        "description": (
+            "The peak reduction incurred in a given reporting year by new "
+            "participants in existing energy efficiency programs and all participants "
+            "in new energy efficiency programs."
+        ),
         "unit": "MW",
     },
-    "energy_efficiency_incremental_effects_mwh": {"type": "number", "unit": "MWh"},
+    "energy_efficiency_incremental_effects_mwh": {
+        "type": "number",
+        "description": (
+            "The change in energy use incurred in a given reporting year by "
+            "new participants in existing energy efficiency programs and all "
+            "participants in new energy efficiency programs."
+        ),
+        "unit": "MWh",
+    },
     "energy_mwh": {
         "type": "number",
         "unit": "MWh",
         "description": "Sources and uses of energy in MWh.",
     },
-    "energy_savings_estimates_independently_verified": {"type": "boolean"},
-    "energy_savings_independently_verified": {"type": "boolean"},
-    "energy_savings_mwh": {"type": "number", "unit": "MWh"},
-    "energy_served_ami_mwh": {"type": "number", "unit": "MWh"},
-    "energy_source": {"type": "string"},
+    "energy_savings_estimates_independently_verified": {
+        "type": "boolean",
+        "description": (
+            "Whether savings estimates are based on a forecast or the report of one or "
+            "more independent evaluators."
+        ),
+    },
+    "energy_savings_independently_verified": {
+        "type": "boolean",
+        "description": (
+            "Whether reported energy savings were verified through an independent "
+            "evaluation."
+        ),
+    },
+    "energy_savings_mwh": {
+        "type": "number",
+        "description": (
+            "The energy savings incurred in a given reporting year by participation in "
+            "demand response programs."
+        ),
+        "unit": "MWh",
+    },
+    "energy_served_ami_mwh": {
+        "type": "number",
+        "description": (
+            "Amount of energy served through AMI meters. AMI meters can transmit data "
+            "in both directions, between the delivery entity and the customer."
+        ),
+        "unit": "MWh",
+    },
     "energy_source_code": {
         "type": "string",
         "description": (
@@ -832,28 +1096,36 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Entity type of principal owner.",
     },
-    "environmental_equipment_name": {
-        "type": "string",
-        "description": "Name of environmental equipment or technology type used to control air emissions",
-    },
     "estimated_or_actual_capacity_data": {
         "type": "string",
+        "description": "Whether the reported capacity data is estimated or actual.",
         "constraints": {"enum": list(ESTIMATED_OR_ACTUAL.values())},
     },
     "estimated_or_actual_fuel_data": {
         "type": "string",
+        "description": "Whether the reported fuel data is estimated or actual.",
         "constraints": {"enum": list(ESTIMATED_OR_ACTUAL.values())},
     },
     "estimated_or_actual_tech_data": {
         "type": "string",
+        "description": "Whether the reported technology data is estimated or actual.",
         "constraints": {"enum": list(ESTIMATED_OR_ACTUAL.values())},
     },
-    "exchange_energy_delivered_mwh": {"type": "number", "unit": "MWh"},
-    "exchange_energy_received_mwh": {"type": "number", "unit": "MWh"},
-    "expense": {
+    "exchange_energy_delivered_mwh": {
         "type": "number",
-        "unit": "USD",
-        "description": "The amount of a given expense in USD.",
+        "description": (
+            "The amount of exchange energy delivered. Does not include power delivered "
+            "as part of a tolling arrangement."
+        ),
+        "unit": "MWh",
+    },
+    "exchange_energy_received_mwh": {
+        "type": "number",
+        "description": (
+            "The amount of exchange energy received. Does not include power received "
+            "through tolling arrangements."
+        ),
+        "unit": "MWh",
     },
     "expense_type": {"type": "string", "description": "The type of expense."},
     "ferc1_generator_agg_id": {
@@ -864,7 +1136,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting.",
     },
-    "ferc_account_description": {"type": "string"},
+    "ferc_account_description": {
+        "type": "string",
+        "description": "Description of the FERC account.",
+    },
     "ferc_account_id": {
         "type": "string",
         "description": "Account identifier from FERC's Uniform System of Accounts for Electric Plant. Includes higher level labeled categories.",
@@ -974,7 +1249,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "fuel_class": {
         "type": "string",
-        # TODO: Needs a description / better name. EIA-861 distributed generation only.
+        "description": f"Fuel types specific to EIA 861 distributed generation table: {FUEL_CLASSES}",
+        # TODO: Needs a better name. EIA-861 distributed generation only.
         "constraints": {"enum": FUEL_CLASSES},
     },
     "fuel_consumed_for_electricity_mmbtu": {
@@ -1092,7 +1368,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Heat content of the fuel in millions of Btus per physical unit.",
         "unit": "MMBtu_per_unit",
     },
-    "fuel_pct": {"type": "number"},
+    "fuel_pct": {
+        "type": "number",
+        "description": "Percent of fuel",
+    },
     "fuel_phase": {
         "type": "string",
         "description": "Physical phase of matter of the fuel.",
@@ -1117,6 +1396,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "fuel_type": {
         "type": "string",
+        "description": "Type of fuel.",
         # TODO disambiguate column name. This should be just FERC 1 tables, as the EIA
         # fuel types are now all energy_source_code
     },
@@ -1172,11 +1452,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Reported unit of measure for fuel.",
         # Note: Different ENUM constraints are applied below on EIA vs. FERC1
     },
-    "furnished_without_charge_mwh": {"type": "number", "unit": "MWh"},
-    "future_plant": {
+    "furnished_without_charge_mwh": {
         "type": "number",
-        "description": "Electric Plant Held for Future Use (USD).",
-        "unit": "USD",
+        "description": (
+            "The amount of electricity furnished by the electric utility without "
+            "charge, such as to a municipality under a franchise agreement or for "
+            "street and highway lighting."
+        ),
+        "unit": "MWh",
     },
     "gas_fraction_cost": {
         "type": "number",
@@ -1186,7 +1469,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Natural gas heat content as a percentage of overall fuel heat content (MMBtu).",
     },
-    "generation_activity": {"type": "boolean"},
+    "generation_activity": {
+        "type": "boolean",
+        "description": "Whether a utility utilized generation from company owned plant during the year.",
+    },
     "generator_id": {
         "type": "string",
         "description": (
@@ -1198,8 +1484,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Generator ID used by the EPA.",
     },
-    "generators_num_less_1_mw": {"type": "number", "unit": "MW"},
-    "generators_number": {"type": "number"},
+    "generators_num_less_1_mw": {
+        "type": "integer",
+        "description": "Total number of generators less than 1 MW.",
+    },
+    "generators_number": {
+        "type": "integer",
+        "description": "Total number of generators",
+    },
     "generator_operating_date": {
         "type": "date",
         "description": "Date the generator began commercial operation.",
@@ -1216,7 +1508,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Category of geographic aggregation in EIA bulk electricity data.",
     },
-    "green_pricing_revenue": {"type": "number", "unit": "USD"},
+    "green_pricing_revenue": {
+        "type": "number",
+        "description": (
+            "The money derived from premium green pricing rate of the respondent's"
+            "program."
+        ),
+        "unit": "USD",
+    },
     "grid_voltage_1_kv": {
         "type": "number",
         "description": "Plant's grid voltage at point of interconnection to transmission or distibution facilities",
@@ -1257,31 +1556,77 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Fuel content per unit of electricity generated. Calculated from FERC reported fuel consumption and net generation.",
         "unit": "MMBtu_MWh",
     },
-    "highest_distribution_voltage_kv": {"type": "number", "unit": "kV"},
-    "home_area_network": {"type": "integer"},
+    "highest_distribution_voltage_kv": {
+        "type": "number",
+        "description": "The highest voltage that's part of the distribution system.",
+        "unit": "kV",
+    },
+    "home_area_network": {
+        "type": "integer",
+        "description": (
+            "Number of AMI meters with home area network (HAN) gateway enabled."
+        ),
+    },
     "hrsg": {
         "type": "boolean",
         "description": "indicates if the boiler is a heat recovery steam generator (HRSG).",
     },
-    "inactive_accounts_included": {"type": "boolean"},
+    "inactive_accounts_included": {
+        "type": "boolean",
+        "description": (
+            "Whether the respondent includes inactive accounts in its definition of "
+            "customers used to determine SAIDI and SAIFI."
+        ),
+    },
     "income_type": {
         "type": "string",
         "description": "Type of income reported in income_statement_ferc1 table.",
-    },
-    "income": {
-        "type": "number",
-        "description": "Utility income reported by income type.",
-        "unit": "USD",
     },
     "increase_in_other_regulatory_liabilities": {
         "type": "number",
         "description": "The increase during the reporting period of other regulatory liabilities.",
         "unit": "USD",
     },
-    "incremental_energy_savings_mwh": {"type": "number", "unit": "MWh"},
-    "incremental_life_cycle_energy_savings_mwh": {"type": "number", "unit": "MWh"},
-    "incremental_life_cycle_peak_reduction_mwh": {"type": "number", "unit": "MWh"},
-    "incremental_peak_reduction_mw": {"type": "number", "unit": "MW"},
+    "incremental_energy_savings_mwh": {
+        "type": "number",
+        "description": (
+            "energy savings in the given report year resulting from new participants "
+            "in existing demand response programs and all participants in new demand "
+            "response programs."
+        ),
+        "unit": "MWh",
+    },
+    "incremental_life_cycle_energy_savings_mwh": {
+        "type": "number",
+        "description": (
+            "The estimated total changes in energy use for incremental programs and "
+            "participants over the life of the programs. DSM programs have a useful "
+            "life, and the net effects of these programs will diminish over time. "
+            "Considers the useful life of energy efficiency technology by accounting "
+            "for building demolition, equipment degradation, and program attrition."
+        ),
+        "unit": "MWh",
+    },
+    "incremental_life_cycle_peak_reduction_mw": {
+        "type": "number",
+        "description": (
+            "The estimated total changes in peak load for incremental programs and "
+            "participants over the life of the programs. DSM programs have a useful "
+            "life, and the net effects of these programs will diminish over time. "
+            "Considers the useful life of energy efficiency technology by accounting "
+            "for building demolition, equipment degradation, and program attrition."
+        ),
+        "unit": "MW",
+    },
+    "incremental_peak_reduction_mw": {
+        "type": "number",
+        "description": (
+            "The peak reduction incurred in a given reporting year by new "
+            "participants in existing energy efficiency programs and all participants "
+            "in new energy efficiency programs."
+        ),
+        "unit": "MW",
+    },
     "installation_year": {
         "type": "integer",
         "description": "Year the plant's most recently built unit was installed.",
@@ -1301,15 +1646,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Continuous Emissions Monitoring System."
         ),
     },
-    "is_total": {
-        "type": "boolean",
-        "description": "Indicates whether the row is a total.",
-    },
     "iso_rto_code": {
         "type": "string",
         "description": "The code of the plant's ISO or RTO. NA if not reported in that year.",
     },
-    "kwh_per_customer": {"type": "number", "description": "kwh per customer."},
+    "kwh_per_customer": {"type": "number", "description": "kWh per customer."},
     "label": {
         "type": "string",
         "description": "Longer human-readable code using snake_case",
@@ -1317,11 +1658,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "latitude": {
         "type": "number",
         "description": "Latitude of the plant's location, in degrees.",
-    },
-    "leased_plant": {
-        "type": "number",
-        "description": "Electric Plant Leased to Others (USD).",
-        "unit": "USD",
     },
     "liability_type": {
         "type": "string",
@@ -1331,38 +1667,97 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "FERC issued operating license ID for the facility, if available. This value is extracted from the original plant name where possible.",
     },
-    "line_id": {
-        "type": "string",
-        "description": "A human readable string uniquely identifying the FERC depreciation account. Used in lieu of the actual line number, as those numbers are not guaranteed to be consistent from year to year.",
-        # TODO disambiguate column name
-    },
     "liquefied_natural_gas_storage": {
         "type": "boolean",
         "description": "Indicates if the facility have the capability to store the natural gas in the form of liquefied natural gas.",
         # TODO: Is this really boolean? Or do we have non-null strings that mean False?
     },
-    "load_management_annual_actual_peak_reduction_mw": {"type": "number", "unit": "MW"},
-    "load_management_annual_cost": {"type": "number"},
-    "load_management_annual_effects_mwh": {"type": "number", "unit": "MWh"},
-    "load_management_annual_incentive_payment": {"type": "number"},
+    "load_management_annual_actual_peak_reduction_mw": {
+        "type": "number",
+        "description": (
+            "The peak reduction incurred in a given reporting year by all participants "
+            "in load management programs."
+        ),
+        "unit": "MW",
+    },
+    "load_management_annual_cost": {
+        "type": "number",
+        "description": (
+            "The sum of actual direct costs, incentive payments, and indirect costs "
+            "incurred in a given reporting year from load management programs."
+        ),
+        "unit": "USD",
+    },
+    "load_management_annual_effects_mwh": {
+        "type": "number",
+        "description": (
+            "The change in energy use incurred in a given reporting year by "
+            "all participants in load management programs."
+        ),
+        "unit": "MWh",
+    },
+    "load_management_annual_incentive_payment": {
+        "type": "number",
+        "description": (
+            "The cost of incentive payments incurred in a given reporting year "
+            "from load management programs. Incentives are the "
+            "total financial value provided to a customer for program participation, "
+            "whether cash payment, in-kind services (e.g. design work), or other "
+            "benefits directly provided customer for their program participation."
+        ),
+        "unit": "USD",
+    },
     "load_management_annual_potential_peak_reduction_mw": {
         "type": "number",
+        "description": (
+            "The potential amount of peak reduction that could be incurred in a given "
+            "reporting year by all participants in load management programs."
+        ),
         "unit": "MW",
     },
     "load_management_incremental_actual_peak_reduction_mw": {
         "type": "number",
+        "description": (
+            "The peak reduction incurred in a given reporting year by new "
+            "participants in existing load management programs and all participants "
+            "in new load management programs."
+        ),
         "unit": "MW",
     },
-    "load_management_incremental_effects_mwh": {"type": "number", "unit": "MWh"},
+    "load_management_incremental_effects_mwh": {
+        "type": "number",
+        "description": (
+            "The change in energy use incurred in a given reporting year by "
+            "new participants in existing load management programs and all "
+            "participants in new load managment programs."
+        ),
+        "unit": "MWh",
+    },
     "load_management_incremental_potential_peak_reduction_mw": {
         "type": "number",
+        "description": (
+            "The potential amount of peak reduction that could be incurred in a given "
+            "reporting year by new participants in existing load management programs "
+            "and all participants in new load management programs."
+        ),
         "unit": "MW",
     },
     "longitude": {
         "type": "number",
         "description": "Longitude of the plant's location, in degrees.",
     },
-    "major_program_changes": {"type": "boolean"},
+    "major_program_changes": {
+        "type": "boolean",
+        "description": (
+            "Whether there have been any major changes to the respondent's demand-side "
+            "management programs (e.g., terminated programs, new information or "
+            "financing programs, or a shift to programs with dual load building "
+            "objectives and energy efficiency objectives), program tracking "
+            "procedures, or reporting methods that affect the comparison of "
+            "demand-side management data reported on this schedule to data from "
+            "previous years."
+        ),
+    },
     "match_type": {
         "type": "string",
         "description": "Indicates the source and validation of the match between EIA and FERC. Match types include matches was generated from the model, verified by the training data, overridden by the training data, etc.",
@@ -1422,10 +1817,19 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Proposed strategy to comply with the most stringent mercury regulation.",
     },
-    "merge_address": {"type": "string"},
-    "merge_city": {"type": "string"},
-    "merge_company": {"type": "string"},
-    "merge_date": {"type": "date"},
+    "merge_address": {
+        "type": "string",
+        "description": "Address of new parent company.",
+    },
+    "merge_city": {
+        "type": "string",
+        "description": "City of new parent company.",
+    },
+    "merge_company": {
+        "type": "string",
+        "description": "Name of the company merged with or acquired.",
+    },
+    "merge_date": {"type": "date", "description": "Date of merger or acquisition."},
     "merge_state": {
         "type": "string",
         "description": "Two letter US state abbreviations and three letter ISO-3166-1 country codes for international mines.",
@@ -1455,12 +1859,20 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "The minimum load at which the generator can operate at continuosuly.",
         "unit": "MW",
     },
-    "fuel_transportation_mode": {"type": "string"},
-    "moisture_content_pct": {"type": "number"},
+    "moisture_content_pct": {
+        "type": "number",
+        "description": (
+            "For coal only: the moisture content of the fuel in terms of moisture "
+            "percentage by weight. Reported to the nearest 0.01 percent."
+        ),
+    },
     "momentary_interruption_definition": {
         "type": "string",
+        "description": (
+            "How the respondent defines momentary service interruptions: less than 1 "
+            "min, equal to or less than 5 min, or some other way."
+        ),
     },
-    "month": {"type": "integer", "description": "Month of the year"},
     "multiple_fuels": {
         "type": "boolean",
         "description": "Can the generator burn multiple fuels?",
@@ -1507,6 +1919,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "nerc_regions_of_operation": {
         "type": "string",
+        "description": (
+            "All the regional entities within the North American Electric Reliability "
+            "Corporation (NERC) in which the respodent conducts operations."
+        ),
         "constraints": {"enum": NERC_REGIONS},
     },
     "net_capacity_adverse_conditions_mw": {
@@ -1555,9 +1971,31 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Did this plant have a net metering agreement in effect during the reporting year?  (Only displayed for facilities that report the sun or wind as an energy source). This field was only reported up until 2015",
         # TODO: Is this really boolean? Or do we have non-null strings that mean False?
     },
-    "net_power_exchanged_mwh": {"type": "number", "unit": "MWh"},
-    "net_wheeled_power_mwh": {"type": "number", "unit": "MWh"},
-    "new_parent": {"type": "string"},
+    "net_power_exchanged_mwh": {
+        "type": "number",
+        "description": (
+            "The net amount of energy exchanged. Net exchange is the difference "
+            "between the amount of exchange received and the amount of exchange "
+            "delivered. This entry should not include wholesale energy purchased from "
+            "or sold to regulated companies or unregulated companies for other systems."
+        ),
+        "unit": "MWh",
+    },
+    "net_wheeled_power_mwh": {
+        "type": "number",
+        "description": (
+            "The difference between the amount of energy entering the respondent's "
+            "system (wheeled received) for transmission through the respondent's "
+            "system and the amount of energy leaving the respondent's system (wheeled "
+            "delievered). Wheeled net represents the energy losses on the respondent's "
+            "system associated with the wheeling of energy for other systems."
+        ),
+        "unit": "MWh",
+    },
+    "new_parent": {
+        "type": "string",
+        "description": "Name of the new parent company post merger.",
+    },
     "new_source_review": {
         "type": "boolean",
         "description": "Indicates whether the boiler is subject to New Source Review requirements.",
@@ -1570,15 +2008,20 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "New Source Review permit number.",
     },
-    "non_amr_ami": {"type": "integer"},
+    "non_amr_ami": {
+        "type": "integer",
+        "description": (
+            "Number of non-AMR/AMI meters. Usually electromechanical or solid state "
+            "meters measuring aggregated kWh where data are manually retrieved over "
+            "monthly billing cycles for billing purposes only. Standard meters may "
+            "also include functions to measure time-of-use and/or demand with data "
+            "manually retrieved over monthly billing cycles."
+        ),
+    },
     "non_coincident_peak_demand_mw": {
         "type": "number",
         "description": "Average monthly non-coincident peak (NCP) demand (for requirements purhcases, and any transactions involving demand charges). Monthly NCP demand is the maximum metered hourly (60-minute integration) demand in a month. In megawatts.",
         "unit": "MW",
-    },
-    "notes": {
-        "type": "string",
-        "description": "Notes previously in the plant_name_ferc1 field that were extracted and associated with the right plant row.",
     },
     "not_water_limited_capacity_mw": {
         "type": "number",
@@ -1695,7 +2138,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Oil heat content as a percentage of overall fuel heat content (MMBtu).",
     },
-    "operates_generating_plant": {"type": "boolean"},
+    "operates_generating_plant": {
+        "type": "boolean",
+        "description": (
+            "Whether the respondent operated at least one generating plant during the "
+            "reporting period."
+        ),
+    },
     "operating_datetime_utc": {
         "type": "datetime",
         "description": "Date and time measurement began (UTC).",
@@ -1726,18 +2175,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "The operating status of the asset using PUDL categories.",
         "constraints": {"enum": ["operating", "retired", "proposed"]},
-    },
-    "operator_name": {
-        "type": "string",
-        "description": "The name of the EIA operator utility.",
-    },
-    "operator_state": {
-        "type": "string",
-        "description": "The state where the operator utility is located.",
-    },
-    "operator_utility_id_eia": {
-        "type": "integer",
-        "description": "The EIA utility Identification number for the operator utility.",
     },
     "opex_allowances": {"type": "number", "description": "Allowances.", "unit": "USD"},
     "opex_boiler": {
@@ -1886,7 +2323,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "date",
         "description": "The date the generator was originally scheduled to be operational",
     },
-    "other": {"type": "number"},
     "other_charges": {
         "type": "number",
         "description": "Other charges, including out-of-period adjustments (USD).",
@@ -1896,8 +2332,20 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Indicates whether the generator uses other combustion technologies",
     },
-    "other_costs": {"type": "number", "unit": "USD"},
-    "other_costs_incremental_cost": {"type": "number", "unit": "USD"},
+    "other_costs": {
+        "type": "number",
+        "description": "Additional costs.",
+        "unit": "USD",
+    },
+    "other_costs_incremental_cost": {
+        "type": "number",
+        "description": (
+            "Costs resulting from new participants in existing energy efficiency "
+            "programs and all participants in new energy efficiency programs that "
+            "aren't directly associated with customer incentives."
+        ),
+        "unit": "USD",
+    },
     "other_modifications_date": {
         "type": "date",
         "description": "Planned effective date that the generator is scheduled to enter commercial operation after any other planned modification is complete.",
@@ -1906,11 +2354,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Indicates whether there are there other modifications planned for the generator.",
     },
-    "other_total": {
-        "type": "number",
-        "description": "Total Other Production Plant (FERC Accounts 340-347).",
+    "outages_recorded_automatically": {
+        "type": "boolean",
+        "description": (
+            "Whether the information about customer outages is recorded automatically."
+        ),
     },
-    "outages_recorded_automatically": {"type": "boolean"},
     "owned_by_non_utility": {
         "type": "boolean",
         "description": "Whether any part of generator is owned by a nonutilty",
@@ -1921,7 +2370,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Three letter ISO-3166 country code.",
         "constraints": {"enum": COUNTRY_CODES_ISO3166},
     },
-    "owner_name": {"type": "string", "description": "Name of owner."},
     "owner_state": {
         "type": "string",
         "description": "Two letter ISO-3166 political subdivision code.",
@@ -1985,20 +2433,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Net peak demand for 60 minutes. Note: in some cases peak demand for other time periods may have been reported instead, if hourly peak demand was unavailable.",
         # TODO Disambiguate column names. Usually this is over 60 minutes, but in
         # other tables it's not specified.
-    },
-    "peak_demand_summer_mw": {"type": "number", "unit": "MW"},
-    "peak_demand_winter_mw": {"type": "number", "unit": "MW"},
-    "period_nox": {
-        "type": "string",
-        "description": "The time period specified by the most stringent nitrogen oxide regulation.",
-    },
-    "period_particulate": {
-        "type": "string",
-        "description": "The time period specified by the most stringent particulate matter regulation.",
-    },
-    "period_so2": {
-        "type": "string",
-        "description": "The time period specified by the most stringent sulfur dioxide regulation.",
     },
     "phone_extension": {
         "type": "string",
@@ -2135,7 +2569,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Utility plant financial status (in service, future, leased, total).",
     },
     "plant_type": {
-        "type": "string"  # if plant_type is categorized w/ categorize_strings, add enum in FIELD_METADATA_BY_RESOURCE
+        "type": "string",
+        "description": "Type of plant.",
+        # TODO: if plant_type is categorized w/ categorize_strings, add enum in FIELD_METADATA_BY_RESOURCE
     },
     "plants_reported_asset_manager": {
         "type": "boolean",
@@ -2161,13 +2597,32 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Average population per sq. km area of a service territory.",
     },
-    "potential_peak_demand_savings_mw": {"type": "number", "unit": "MW"},
+    "potential_peak_demand_savings_mw": {
+        "type": "number",
+        "description": "The total demand savings that could occur at the time of the system peak hour assuming all demand response is called.",
+        "unit": "MW",
+    },
     "previously_canceled": {
         "type": "boolean",
         "description": "Indicates whether the generator was previously reported as indefinitely postponed or canceled",
     },
-    "price_responsive_programs": {"type": "boolean"},
-    "price_responsiveness_customers": {"type": "integer"},
+    "price_responsive_programs": {
+        "type": "boolean",
+        "description": (
+            "Whether the respondent operates any incentive-based demand response "
+            "programs (e.g., market incentives, financial incentives, direct load "
+            "control, interruptible programs, demand bidding/buyback, emergency demand "
+            "response, capacity market programs, and ancillary service market "
+            "programs)."
+        ),
+    },
+    "price_responsiveness_customers": {
+        "type": "integer",
+        "description": (
+            "The number of customers participating in the respondent's incentive-based "
+            "demand response programs."
+        ),
+    },
     "primary_fuel_by_cost": {
         "type": "string",
         "description": "Primary fuel for plant as a percentage of cost.",
@@ -2183,10 +2638,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "primary_transportation_mode_code": {
         "type": "string",
         "description": "Transportation mode for the longest distance transported.",
-    },
-    "prime_mover": {
-        "type": "string",
-        "description": "Full description of the type of prime mover.",
     },
     "prime_mover_code": {
         "type": "string",
@@ -2220,7 +2671,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Number of megawatt hours purchased during the period for energy storage.",
         "unit": "MWh",
     },
-    "pv_current_flow_type": {"type": "string", "constraints": {"enum": ["AC", "DC"]}},
+    "pv_current_flow_type": {
+        "type": "string",
+        "description": "Current flow type for photovoltaics: AC or DC",
+        "constraints": {"enum": ["AC", "DC"]},
+    },
     "rate_schedule_description": {
         "type": "string",
         "description": "Free-form description of what the rate schedule name is. Not standardized. Often a sub-category of rate_schedule_type.",
@@ -2234,9 +2689,30 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Reactive Power Output (MVAr)",
         "unit": "MVAr",
     },
-    "real_time_pricing": {"type": "boolean"},
-    "rec_revenue": {"type": "number", "unit": "USD"},
-    "rec_sales_mwh": {"type": "number", "unit": "MWh"},
+    "real_time_pricing": {
+        "type": "boolean",
+        "description": (
+            "Whether the respondent has customers participating in a real time pricing "
+            "(RTP) program. RTP is a program of rate and price structure in which the "
+            "retail price for electricity typically fluctuates hourly or more often, "
+            "to reflect changes in the wholesale price of electricity on either a day- "
+            "ahead or hour-ahead basis."
+        ),
+    },
+    "rec_revenue": {
+        "type": "number",
+        "description": (
+            "Amount of revenue collected from Renewable Energy Certificates (RECs)."
+        ),
+        "unit": "USD",
+    },
+    "rec_sales_mwh": {
+        "type": "number",
+        "description": (
+            "Amount of sales collected from Renewable Energy Certificates (RECs)."
+        ),
+        "unit": "MWh",
+    },
     "received_mwh": {
         "type": "number",
         "description": "Gross megawatt-hours received in power exchanges and used as the basis for settlement.",
@@ -2248,7 +2724,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "record_id": {
         "type": "string",
-        "description": "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.",  # noqa: FS003
+        "description": "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.",
     },
     "record_id_eia": {
         "type": "string",
@@ -2256,7 +2732,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "record_id_ferc1": {
         "type": "string",
-        "description": "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.",  # noqa: FS003
+        "description": "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.",
     },
     "region_name_us_census": {
         "type": "string",
@@ -2287,7 +2763,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "Four-digit year in which the data was reported.",
     },
-    "reported_as_another_company": {"type": "string"},
+    "reported_as_another_company": {
+        "type": "string",
+        "description": (
+            "The name of the company if a respondent's demand-side management "
+            "activities are reported on Schedule 6 of another company’s form."
+        ),
+    },
     "reporting_frequency_code": {
         "type": "string",
         "description": "Code that specifies what time period data has to be reported (i.e. monthly data or annual totals) and how often the power plant reports this data to EIA. See reporting_frequencies_eia for more details.",
@@ -2309,19 +2791,44 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "respondent_type": {
         "type": "string",
+        "description": (
+            "Whether a respondent to the FERC form 714 is a utility or a balancing "
+            "authority."
+        ),
         "constraints": {"enum": ["utility", "balancing_authority"]},
     },
-    "retail_marketing_activity": {"type": "boolean"},
-    "retail_sales": {"type": "number"},
-    "retail_sales_mwh": {"type": "number", "unit": "MWh"},
+    "retail_marketing_activity": {
+        "type": "boolean",
+        "description": "Whether a utility engaged in retail power marketing during the year.",
+    },
+    "retail_sales_mwh": {
+        "type": "number",
+        "description": (
+            "MWh of sales to end-use customers in areas where the customer has been "
+            "given the legal right to select a power supplier other than the "
+            "traditional, vertically integrated electric utility."
+        ),
+        "unit": "MWh",
+    },
     "retirements": {
         "type": "number",
         "description": "Cost of disposal of items classified within the account.",
         "unit": "USD",
     },
-    "revenue": {"type": "number", "unit": "USD"},
-    "revenue_class": {"type": "string", "constraints": {"enum": REVENUE_CLASSES}},
-    "revenue_per_kwh": {"type": "number", "unit": "USD"},
+    "revenue": {"type": "number", "description": "Amount of revenue.", "unit": "USD"},
+    "revenue_class": {
+        "type": "string",
+        "description": f"Source of revenue: {REVENUE_CLASSES}",
+        "constraints": {"enum": REVENUE_CLASSES},
+    },
+    "revenue_per_kwh": {
+        "type": "number",
+        "description": (
+            "The amount of revenue per kWh by rate schedule aquired in the given "
+            "report year."
+        ),
+        "unit": "USD",
+    },
     "revenue_type": {
         "type": "string",
         "description": "Label describing types of revenues.",
@@ -2339,18 +2846,68 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "The designation used to report ths specific location of the wholesale sales transactions to FERC for the Electric Quarterly Report",
     },
-    "rtos_of_operation": {"type": "string", "constraints": {"enum": RTO_CLASSES}},
+    "rtos_of_operation": {
+        "type": "string",
+        "description": ("The ISOs/RTOs, in which the respondent conducts operations."),
+        "constraints": {"enum": RTO_CLASSES},
+    },
     "saidi_w_major_event_days_minus_loss_of_service_minutes": {
         "type": "number",
+        "description": (
+            "Cumulative duration (minutes) of interruption for the average customer "
+            "during the report year including major event days and excluding "
+            "reliability events caused by a loss of supply."
+        ),
         "unit": "min",
     },
-    "saidi_w_major_event_days_minutes": {"type": "number", "unit": "min"},
-    "saidi_wo_major_event_days_minutes": {"type": "number", "unit": "min"},
-    "saifi_w_major_event_days_customers": {"type": "number"},
-    "saifi_w_major_event_days_minus_loss_of_service_customers": {"type": "number"},
-    "saifi_wo_major_event_days_customers": {"type": "number"},
-    "sales_for_resale": {"type": "number"},
-    "sales_for_resale_mwh": {"type": "number", "unit": "MWh"},
+    "saidi_w_major_event_days_minutes": {
+        "type": "number",
+        "description": (
+            "Cumulative duration (minutes) of interruption for the average customer "
+            "during the report year including major event days."
+        ),
+        "unit": "min",
+    },
+    "saidi_wo_major_event_days_minutes": {
+        "type": "number",
+        "description": (
+            "Cumulative duration (minutes) of interruption for the average customer "
+            "during the report year excluding major event days."
+        ),
+        "unit": "min",
+    },
+    "saifi_w_major_event_days_customers": {
+        "type": "number",
+        "description": (
+            "Average number of times a customer experienced a sustained interruption "
+            "(over 5 minutes) during the report year including major event days."
+        ),
+    },
+    "saifi_w_major_event_days_minus_loss_of_service_customers": {
+        "type": "number",
+        "description": (
+            "Average number of times a customer experienced a sustained interruption "
+            "(over 5 minutes) during the report year including major event days and "
+            "excluding reliability events caused by a loss of supply."
+        ),
+    },
+    "saifi_wo_major_event_days_customers": {
+        "type": "number",
+        "description": (
+            "Average number of times a customer experienced a sustained interruption "
+            "(over 5 minutes) during the report year excluding major event days."
+        ),
+    },
+    "sales_for_resale_mwh": {
+        "type": "number",
+        "description": (
+            "The amount of electricity sold for resale purposes. This entry should "
+            "include sales for resale to power marketers (reported separately in "
+            "previous years), full and partial requirements customers, firm power "
+            "customers and nonfirm customers."
+        ),
+        "unit": "MWh",
+    },
     "sales_mwh": {
         "description": "Quantity of electricity sold in MWh.",
         "type": "number",
@@ -2361,7 +2918,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "unit": "USD",
     },
-    "sales_to_ultimate_consumers_mwh": {"type": "number", "unit": "MWh"},
+    "sales_to_ultimate_consumers_mwh": {
+        "type": "number",
+        "description": (
+            "The amount of electricity sold to customers purchasing electricity for "
+            "their own use and not for resale."
+        ),
+        "unit": "MWh",
+    },
     "scaled_demand_mwh": {
         "type": "number",
         "description": "Estimated electricity demand scaled by the total sales within a state.",
@@ -2393,9 +2957,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "service_type": {
         "type": "string",
+        "description": (
+            "The type of service the respondent provides to a given customer class."
+            "Bundled: both energy and delivery; energy: just the energy consumed; "
+            "delivery: just the billing and energy delivery services."
+        ),
         "constraints": {"enum": ["bundled", "energy", "delivery"]},
     },
-    "short_form": {"type": "boolean"},
+    "short_form": {
+        "type": "boolean",
+        "description": (
+            "Whether the reported information comes from the short form. In the case "
+            "of form EIA 861, a shorter version of the form was created in 2012 to "
+            "reduce respondent burden on smaller utilities and increase our processing "
+            "efficiency."
+        ),
+    },
     "so2_control_existing_caaa_compliance_strategy_1": {
         "type": "string",
         "description": "Existing strategies to meet the sulfur dioxide requirements of Title IV of the Clean Air Act Amendment of 1990.",
@@ -2470,7 +3047,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Identifies whether the reported value of emissions was measured, calculated, or measured and substitute.",
         "constraints": {"enum": EPACEMS_MEASUREMENT_CODES},
     },
-    "sold_to_utility_mwh": {"type": "number", "unit": "MWh"},
+    "sold_to_utility_mwh": {
+        "type": "number",
+        "description": (
+            "The amount of electric energy sold back to the utility through the net "
+            "metering application."
+        ),
+        "unit": "MWh",
+    },
     "solid_fuel_gasification": {
         "type": "boolean",
         "description": "Indicates whether the generator is part of a solid fuel gasification system",
@@ -2504,7 +3088,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "until 2013 when stack_flue_id_eia took their place."
         ),
     },
-    "standard": {"type": "string", "constraints": {"enum": RELIABILITY_STANDARDS}},
+    "standard": {
+        "type": "string",
+        "description": (
+            "Whether the respondent calculates SAIDI/SAIFI, and major event days "
+            "according to the IEEE or an Other standard."
+        ),
+        "constraints": {"enum": RELIABILITY_STANDARDS},
+        # TODO: Might want to make this column more specific to outages: ex: outage calculation standard.
+    },
     "standard_nox_rate": {
         "type": "number",
         "description": "Numeric value for the unit of measurement specified for nitrogen oxide.",
@@ -2560,10 +3152,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "pattern": r"^\d{2}$",
         },
     },
-    "status": {
-        "type": "string"
-        # TODO: Disambiguate column name.
-    },
     "steam_load_1000_lbs": {
         "type": "number",
         "description": "Total steam pressure produced by a unit during the reported hour.",
@@ -2577,8 +3165,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Indicates whether the generator uses stoker technology",
     },
-    "storage_capacity_mw": {"type": "number", "unit": "MW"},
-    "storage_customers": {"type": "integer"},
     "street_address": {
         "type": "string",
         # TODO: Disambiguate as this means different things in different tables.
@@ -2631,7 +3217,19 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "EIA estimated summer capacity (in MWh).",
         "unit": "MWh",
     },
-    "summer_peak_demand_mw": {"type": "number", "unit": "MW"},
+    "summer_peak_demand_mw": {
+        "type": "number",
+        "description": (
+            "The maximum hourly summer load (for the months of June through September) "
+            "based on net energy for the system during the reporting year. Net energy "
+            "for the system is the sum of energy an electric utility needs to satisfy "
+            "their service area and includes full and partial wholesale requirements "
+            "customers, and the losses experienced in delivery. The maximum hourly "
+            "load is determined by the interval in which the 60-minute integrated "
+            "demand is the greatest."
+        ),
+        "unit": "MW",
+    },
     "supercritical_tech": {
         "type": "boolean",
         "description": "Indicates whether the generator uses supercritical technology",
@@ -2656,7 +3254,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "FERC Rate Schedule Number or Tariff. (Note: may be incomplete if originally reported on multiple lines.)",
     },
-    "tech_class": {"type": "string", "constraints": {"enum": TECH_CLASSES}},
+    "tech_class": {
+        "type": "string",
+        "description": (
+            "Type of technology specific to EIA 861 distributed generation and net "
+            f"generation tables: {TECH_CLASSES}."
+        ),
+        "constraints": {"enum": TECH_CLASSES},
+    },
     "technology_description": {
         "type": "string",
         "description": "High level description of the technology used by the generator to produce electricity.",
@@ -2669,9 +3274,31 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "The minimum amount of time required to bring the unit to full load from shutdown.",
     },
-    "time_of_use_pricing": {"type": "boolean"},
-    "time_responsive_programs": {"type": "boolean"},
-    "time_responsiveness_customers": {"type": "integer"},
+    "time_of_use_pricing": {
+        "type": "boolean",
+        "description": (
+            "Whether the respondent has customers participating in a time-of-use "
+            "pricing programs (TOU). TOU is a program in which customers pay different "
+            "prices at different times of the day. On-peak prices are higher and "
+            "off-peak prices are lower than a “standard” rate. Price schedule is fixed "
+            "and predefined, based on season, day of week, and time of day."
+        ),
+    },
+    "time_responsive_programs": {
+        "type": "boolean",
+        "description": (
+            "Whether the respondent operates any time-based rate programs (e.g., "
+            "real-time pricing, critical peak pricing, variable peak pricing and "
+            "time-of-use rates administered through a tariff)."
+        ),
+    },
+    "time_responsiveness_customers": {
+        "type": "integer",
+        "description": (
+            "The number of cusomters participating in the respondent's time-based "
+            "rate programs."
+        ),
+    },
     "timezone": {
         "type": "string",
         "description": "IANA timezone name",
@@ -2689,14 +3316,32 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "If the generator is associated with a combined heat and power system, indicates whether the generator is part of a topping cycle or a bottoming cycle",
     },
-    "total": {
+    "total_capacity_less_1_mw": {
         "type": "number",
-        "description": "Total of Electric Plant In Service, Electric Plant Held for Future Use, and Electric Plant Leased to Others (USD).",
-        "unit": "USD",
+        "description": (
+            "The total amount of capacity from generators with less than 1 MW of "
+            "nameplate capacity."
+        ),
+        "unit": "MW",
     },
-    "total_capacity_less_1_mw": {"type": "number", "unit": "MW"},
-    "total_disposition_mwh": {"type": "number", "unit": "MWh"},
-    "total_energy_losses_mwh": {"type": "number", "unit": "MWh"},
+    "total_disposition_mwh": {
+        "type": "number",
+        "description": (
+            "Sum of all disposition of electricity listed. "
+            "Includes sales to ultimate customers, sales for resale, energy furnished "
+            "without charge, energy consumed by respondent without charge and total "
+            "energy losses."
+        ),
+        "unit": "MWh",
+    },
+    "total_energy_losses_mwh": {
+        "type": "number",
+        "description": (
+            "The total amount of electricity lost from transmission, distribution, "
+            "and/or unaccounted for. Should be expressed as a positive number."
+        ),
+        "unit": "MWh",
+    },
     "total_fuel_cost": {
         "type": "number",
         "description": "Total annual reported fuel costs for the plant part. Includes costs from all fuels.",
@@ -2709,7 +3354,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Total annual reported fuel costs for the plant part. Includes costs from all fuels.",
     },
-    "total_meters": {"type": "integer", "unit": "m"},
     "total_mmbtu": {
         "type": "number",
         "description": "Total annual heat content of fuel consumed by a plant part record in the plant parts list.",
@@ -2727,10 +3371,31 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Sum of demand, energy, and other charges (USD). For power exchanges, the settlement amount for the net receipt of energy. If more energy was delivered than received, this amount is negative.",
         "unit": "USD",
     },
-    "total_sources_mwh": {"type": "number", "unit": "MWh"},
-    "transmission": {"type": "number"},
-    "transmission_activity": {"type": "boolean"},
-    "transmission_by_other_losses_mwh": {"type": "number", "unit": "MWh"},
+    "total_sources_mwh": {
+        "type": "number",
+        "description": (
+            "Sum of all sources of electricity listed. Includes net generation, "
+            "purchases from electricity suppliers, net exchanges (received - "
+            "delivered), net wheeled (received - delivered), transmission by others, "
+            "and losses."
+        ),
+        "unit": "MWh",
+    },
+    "transmission_activity": {
+        "type": "boolean",
+        "description": (
+            "Whether a utility engaged in any transmission activities during the year."
+        ),
+    },
+    "transmission_by_other_losses_mwh": {
+        "type": "number",
+        "description": (
+            "The amount of energy losses associated with the wheeling of electricity "
+            "provided to the respondent's system by other utilities. Transmission by "
+            "others, losses should always be a negative value."
+        ),
+        "unit": "MWh",
+    },
     "transmission_distribution_owner_id": {
         "type": "integer",
         "description": "EIA-assigned code for owner of transmission/distribution system to which the plant is interconnected.",
@@ -2776,7 +3441,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Indicates whether the generator uses ultra-supercritical technology",
     },
-    "unbundled_revenues": {"type": "number", "unit": "USD"},
     "unit_id_eia": {
         "type": "string",
         "description": "EIA-assigned unit identification code.",
@@ -2805,8 +3469,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Was an uprate or derate completed on this generator during the reporting year?",
     },
-    "utc_datetime": {"type": "datetime"},
-    "utility_attn": {"type": "string"},
+    "utc_datetime": {
+        "type": "datetime",
+        "description": ("Date and time converted to Coordinated Universal Time (UTC)."),
+    },
     "utility_id_eia": {
         "type": "integer",
         "description": "The EIA Utility Identification number.",
@@ -2841,12 +3507,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Utility name, chosen arbitrarily from the several possible utility names available in the utility matching process. Included for human readability only.",
     },
-    "utility_owned_capacity_mw": {"type": "number", "unit": "MW"},
+    "utility_owned_capacity_mw": {
+        "type": "number",
+        "description": "Total non-net-metered capacity owned by the respondent.",
+        "unit": "MW",
+        # TODO: Make this column name more specific to non-net metered capacity.
+    },
     "utility_plant_asset_type": {
         "type": "string",
         "description": "Type of utility plant asset reported in the core_ferc1__yearly_utility_plant_summary_sched200 table. Assets include those leased to others, held for future use, construction work-in-progress and details of accumulated depreciation.",
     },
-    "utility_pobox": {"type": "string"},
     "utility_type": {
         "type": "string",
         "description": "Listing of utility plant types. Examples include Electric Utility, Gas Utility, and Other Utility.",
@@ -2855,9 +3525,18 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Freeform description of type of utility reported in one of the other three other utility_type sections in the core_ferc1__yearly_utility_plant_summary_sched200 table. This field is reported only in the DBF reporting years (1994-2020).",
     },
-    "variable_peak_pricing": {"type": "boolean"},
-    "virtual_capacity_mw": {"type": "number", "unit": "MW"},
-    "virtual_customers": {"type": "integer"},
+    "variable_peak_pricing": {
+        "type": "boolean",
+        "description": (
+            "Whether the respondent has customers participating in a variable peak "
+            "pricing program (VPP). VPP is a program in which a form of TOU pricing "
+            "allows customers to purchase their generation supply at prices set on a "
+            "daily basis with varying on-peak and constant off-peak rates. Under the "
+            "VPP program, the on-peak price for each weekday becomes available the "
+            "previous day (typically late afternoon) and the customer is billed for "
+            "actual consumption during the billing cycle at these prices."
+        ),
+    },
     "waste_fraction_cost": {
         "type": "number",
         "description": "Waste-heat cost as a percentage of overall fuel cost.",
@@ -2871,7 +3550,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "MMBtu_per_hour",
         "description": "Design waste-heat input rate at maximum continuous steam flow where a waste-heat boiler is a boiler that receives all or a substantial portion of its energy input from the noncumbustible exhaust gases of a separate fuel-burning process (MMBtu per hour).",
     },
-    "water_heater": {"type": "integer"},
+    "water_heater": {
+        "type": "integer",
+        "description": (
+            "The number of grid-enabled water heaters added to the respondent's "
+            "program this year - if the respondent has DSM program for grid-enabled "
+            "water heaters (as defined by DOE’s Office of Energy Efficiency and "
+            "Renewable Energy)."
+        ),
+    },
     "water_limited_capacity_mw": {
         "type": "number",
         "description": "Plant capacity in MW when limited by condenser water.",
@@ -2881,16 +3568,49 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Name of water source associated with the plant.",
     },
-    "weighted_average_life_years": {"type": "number"},
+    "weighted_average_life_years": {
+        "type": "number",
+        "description": (
+            "The weighted average life of the respondent's portfolio of energy "
+            "efficiency programs."
+        ),
+    },
     "wet_dry_bottom": {
         "type": "string",
         "unit": "MMBtu_per_hour",
         "description": "Wet or Dry Bottom where Wet Bottom is defined as slag tanks that are installed at furnace throat to contain and remove molten ash from the furnace, and Dry Bottom is defined as having no slag tanks at furnace throat area, throat area is clear, and bottom ash drops through throat to bottom ash water hoppers.",
     },
-    "wheeled_power_delivered_mwh": {"type": "number", "unit": "MWh"},
-    "wheeled_power_received_mwh": {"type": "number", "unit": "MWh"},
-    "wholesale_marketing_activity": {"type": "boolean"},
-    "wholesale_power_purchases_mwh": {"type": "number", "unit": "MWh"},
+    "wheeled_power_delivered_mwh": {
+        "type": "number",
+        "description": (
+            "The total amount of energy leaving the respondent's system that was "
+            "transmitted through the respondent's system for delivery to other "
+            "systems. If wheeling delivered is not precisely known, the value is an "
+            "estimate based on the respondent's system's known percentage of losses "
+            "for wheeling transactions."
+        ),
+        "unit": "MWh",
+    },
+    "wheeled_power_received_mwh": {
+        "type": "number",
+        "description": (
+            "The total amount of energy entering the respondent's system from other "
+            "systems for transmission through the respondent's system (wheeling) for "
+            "delivery to other systems. Does not include energy purchased or exchanged "
+            "for consumption within the respondent's system, which was wheeled to "
+            "the respondent by others."
+        ),
+        "unit": "MWh",
+    },
+    "wholesale_marketing_activity": {
+        "type": "boolean",
+        "description": "Whether a utility engages in wholesale power marketing during the year.",
+    },
+    "wholesale_power_purchases_mwh": {
+        "type": "number",
+        "description": "Purchases from electricity suppliers.",
+        "unit": "MWh",
+    },
     "winter_capacity_estimate": {
         "type": "boolean",
         "description": "Whether the winter capacity value was an estimate",
@@ -2905,7 +3625,19 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "EIA estimated winter capacity (in MWh).",
         "unit": "MWh",
     },
-    "winter_peak_demand_mw": {"type": "number", "unit": "MW"},
+    "winter_peak_demand_mw": {
+        "type": "number",
+        "description": (
+            "The maximum hourly winter load (for the months of January through March) "
+            "based on net energy for the system during the reporting year. Net energy "
+            "for the system is the sum of energy an electric utility needs to satisfy "
+            "their service area and includes full and partial wholesale requirements "
+            "customers, and the losses experienced in delivery. The maximum hourly "
+            "load is determined by the interval in which the 60-minute integrated "
+            "demand is the greatest."
+        ),
+        "unit": "MW",
+    },
     "year": {
         "type": "integer",
         "description": "Year the data was reported in, used for partitioning EPA CEMS.",
@@ -3046,7 +3778,7 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
         "opex_rents": {"description": "Rent expenses for the transmission line."},
         "opex_total": {"description": "Overall expenses for the transmission line."},
     },
-    "core_ferc714__hourly_demand_pa": {
+    "out_ferc714__hourly_planning_area_demand": {
         "timezone": {
             "constraints": {
                 "enum": [

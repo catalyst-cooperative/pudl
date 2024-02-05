@@ -3,6 +3,9 @@ name: docker-build-test
 on:
   workflow_dispatch:
   pull_request:
+  merge_group:
+    types:
+      - checks_requested
 
 jobs:
   pudl_docker_build:

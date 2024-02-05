@@ -14,10 +14,11 @@ env:
   GCE_INSTANCE: pudl-deployment-tag # This is changed to pudl-deployment-dev if running on a schedule
   GCE_INSTANCE_ZONE: ${{ secrets.GCE_INSTANCE_ZONE }}
   GCS_OUTPUT_BUCKET: gs://builds.catalyst.coop
+  BATCH_JOB_JSON: batch_job.json
 
 jobs:
   build_and_deploy_pudl:
-    name: Build Docker image, push to Docker Hub and deploy to a GCE VM
+    name: Build Docker image, push to Docker Hub and deploy to Google Batch
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -50,6 +51,7 @@ jobs:
         run: |
           echo "NIGHTLY_TAG=nightly-$(date +%Y-%m-%d)" >> $GITHUB_ENV
           echo "BUILD_ID=$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short HEAD)-${{ github.ref_name }}" >> $GITHUB_ENV
+          echo "BATCH_JOB_ID=$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
       - name: Show freshly set envvars
         if: ${{ env.SKIP_BUILD != 'true' }}
@@ -57,6 +59,7 @@ jobs:
           echo "GCE_INSTANCE: $GCE_INSTANCE"
           echo "NIGHTLY_TAG: $NIGHTLY_TAG"
           echo "BUILD_ID: $BUILD_ID"
+          echo "BATCH_JOB_ID: $BATCH_JOB_ID"
 
       - name: Tag nightly build
         if: ${{ (github.event_name == 'schedule') && (env.SKIP_BUILD != 'true') }}
@@ -115,17 +118,13 @@ jobs:
         uses: google-github-actions/setup-gcloud@v2
 
       # Deploy PUDL image to GCE
-      - name: Deploy
+      # Dagster Postgres connection configured in docker/dagster.yaml - otherwise we get a str for port num
+      - name: Make GCP Batch config file
         if: ${{ env.SKIP_BUILD != 'true' }}
         env:
-          DAGSTER_PG_PASSWORD: ${{ secrets.DAGSTER_PG_PASSWORD }}
           PUDL_GCS_OUTPUT: ${{ env.GCS_OUTPUT_BUCKET }}/${{ env.BUILD_ID }}
         run: |-
-          gcloud compute instances add-metadata "$GCE_INSTANCE" \
-            --zone "$GCE_INSTANCE_ZONE" \
-            --metadata-from-file startup-script=./docker/vm_startup_script.sh
-          gcloud compute instances update-container "$GCE_INSTANCE" \
-            --zone "$GCE_INSTANCE_ZONE" \
+          ./devtools/generate_batch_config.py \
             --container-image "docker.io/catalystcoop/pudl-etl@${{ steps.docker-build.outputs.digest }}" \
             --container-command "micromamba" \
             --container-arg="run" \
@@ -135,38 +134,36 @@ jobs:
             --container-arg='' \
             --container-arg="bash" \
             --container-arg="./docker/gcp_pudl_etl.sh" \
-            --container-env BUILD_REF=${{ github.ref_name }} \
+            --container-env AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
+            --container-env AWS_DEFAULT_REGION=${{ secrets.AWS_DEFAULT_REGION }} \
+            --container-env AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
             --container-env BUILD_ID=${{ env.BUILD_ID }} \
-            --container-env NIGHTLY_TAG=${{ env.NIGHTLY_TAG }} \
-            --container-env GITHUB_ACTION_TRIGGER=${{ github.event_name }} \
-            --container-env SLACK_TOKEN=${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }} \
+            --container-env BUILD_REF=${{ github.ref_name }} \
+            --container-env FLY_ACCESS_TOKEN=${{ secrets.FLY_ACCESS_TOKEN }} \
             --container-env GCE_INSTANCE=${{ env.GCE_INSTANCE }} \
             --container-env GCE_INSTANCE_ZONE=${{ env.GCE_INSTANCE_ZONE }} \
             --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }} \
-            --container-env AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
-            --container-env AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
-            --container-env AWS_DEFAULT_REGION=${{ secrets.AWS_DEFAULT_REGION }} \
-            --container-env DAGSTER_PG_USERNAME="postgres" \
-            --container-env DAGSTER_PG_PASSWORD="$DAGSTER_PG_PASSWORD" \
-            --container-env DAGSTER_PG_HOST="104.154.182.24" \
-            --container-env DAGSTER_PG_DB="dagster-storage" \
-            --container-env FLY_ACCESS_TOKEN=${{ secrets.FLY_ACCESS_TOKEN }} \
+            --container-env GITHUB_ACTION_TRIGGER=${{ github.event_name }} \
+            --container-env NIGHTLY_TAG=${{ env.NIGHTLY_TAG }} \
             --container-env PUDL_BOT_PAT=${{ secrets.PUDL_BOT_PAT }} \
-            --container-env ZENODO_SANDBOX_TOKEN_PUBLISH=${{ secrets.ZENODO_SANDBOX_TOKEN_PUBLISH }} \
+            --container-env PUDL_GCS_OUTPUT=${{ env.PUDL_GCS_OUTPUT }} \
             --container-env PUDL_SETTINGS_YML="/home/mambauser/pudl/src/pudl/package_data/settings/etl_full.yml" \
-            --container-env PUDL_GCS_OUTPUT=${{ env.PUDL_GCS_OUTPUT }}
+            --container-env SLACK_TOKEN=${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }} \
+            --container-env ZENODO_SANDBOX_TOKEN_PUBLISH=${{ secrets.ZENODO_SANDBOX_TOKEN_PUBLISH }} \
+            --container-env ZENODO_TARGET_ENV=${{ (startsWith(github.ref_name, 'v20') && 'production') || 'sandbox' }} \
+            --container-env ZENODO_TOKEN_UPLOAD=${{ secrets.ZENODO_TOKEN_UPLOAD }} \
+            --output ${{ env.BATCH_JOB_JSON }}
 
-      # Start the VM
-      - name: Start the deploy-pudl-vm
-        if: ${{ env.SKIP_BUILD != 'true' }}
-        run: gcloud compute instances start "$GCE_INSTANCE" --zone="$GCE_INSTANCE_ZONE"
+      # Start the batch job
+      - name: Kick off batch job
+        run: gcloud batch jobs submit run-etl-${{ env.BATCH_JOB_ID }} --config ${{ env.BATCH_JOB_JSON }} --location us-west1
 
       - name: Post to a pudl-deployments channel
         id: slack
         uses: slackapi/slack-github-action@v1
         with:
           channel-id: "C03FHB9N0PQ"
-          slack-message: "build-deploy-pudl status: ${{ job.status }}\n${{ env.GCS_OUTPUT_BUCKET }}/${{ env.BUILD_ID }}"
+          slack-message: "`${{ env.BUILD_ID }}` build-deploy-pudl status: ${{ (env.SKIP_BUILD == 'true') && 'skipped' || job.status }}\n${{ env.GCS_OUTPUT_BUCKET }}/${{ env.BUILD_ID }}"
         env:
           channel-id: "C03FHB9N0PQ"
           SLACK_BOT_TOKEN: ${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }}

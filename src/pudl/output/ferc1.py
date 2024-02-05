@@ -189,6 +189,31 @@ is a tree structure to being a dag. These xbrl_factoids were added in
 """
 
 
+def get_core_ferc1_asset_description(asset_name: str) -> str:
+    """Get the asset description portion of a core FERC FORM 1 asset.
+
+    This is useful when programatically constructing output assets
+    from core assets using asset factories.
+
+    Args:
+        asset_name: The name of the core asset.
+
+    Returns:
+        asset_description: The asset description portion of the asset name.
+    """
+    pattern = r"yearly_(.*?)_sched"
+    match = re.search(pattern, asset_name)
+
+    if match:
+        asset_description = match.group(1)
+    else:
+        raise ValueError(
+            f"The asset description can not be parsed from {asset_name}"
+            "because it is not a valide core FERC Form 1 asset name."
+        )
+    return asset_description
+
+
 @asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
 def _out_ferc1__yearly_plants_utilities(
     core_pudl__assn_ferc1_pudl_plants: pd.DataFrame,
@@ -1154,23 +1179,25 @@ class OffByFactoid(NamedTuple):
 
 
 @asset
-def _out_ferc1__explosion_tags(table_dimensions_ferc1) -> pd.DataFrame:
+def _out_ferc1__detailed_tags(_core_ferc1__table_dimensions) -> pd.DataFrame:
     """Grab the stored tables of tags and add inferred dimension."""
-    rate_tags = _get_tags("xbrl_factoid_rate_base_tags.csv", table_dimensions_ferc1)
+    rate_tags = _get_tags(
+        "xbrl_factoid_rate_base_tags.csv", _core_ferc1__table_dimensions
+    )
     rev_req_tags = _get_tags(
-        "xbrl_factoid_revenue_requirement_tags.csv", table_dimensions_ferc1
+        "xbrl_factoid_revenue_requirement_tags.csv", _core_ferc1__table_dimensions
     )
     rate_cats = _get_tags(
-        "xbrl_factoid_rate_base_category_tags.csv", table_dimensions_ferc1
+        "xbrl_factoid_rate_base_category_tags.csv", _core_ferc1__table_dimensions
     )
     plant_status_tags = _aggregatable_dimension_tags(
-        table_dimensions_ferc1, "plant_status"
+        _core_ferc1__table_dimensions, "plant_status"
     )
     plant_function_tags = _aggregatable_dimension_tags(
-        table_dimensions_ferc1, "plant_function"
+        _core_ferc1__table_dimensions, "plant_function"
     )
     utility_type_tags = _aggregatable_dimension_tags(
-        table_dimensions_ferc1, "utility_type"
+        _core_ferc1__table_dimensions, "utility_type"
     )
     tag_dfs = [
         rate_tags,
@@ -1180,9 +1207,10 @@ def _out_ferc1__explosion_tags(table_dimensions_ferc1) -> pd.DataFrame:
         plant_function_tags,
         utility_type_tags,
     ]
-    tags_all = (
+    tag_idx = list(NodeId._fields)
+    tags = (
         pd.concat(
-            [df.set_index(list(NodeId._fields)) for df in tag_dfs],
+            [df.set_index(tag_idx) for df in tag_dfs],
             join="outer",
             verify_integrity=True,
             ignore_index=False,
@@ -1191,10 +1219,12 @@ def _out_ferc1__explosion_tags(table_dimensions_ferc1) -> pd.DataFrame:
         .reset_index()
         .drop(columns=["notes"])
     )
-    return tags_all
+    return tags
 
 
-def _get_tags(file_name: str, table_dimensions_ferc1: pd.DataFrame) -> pd.DataFrame:
+def _get_tags(
+    file_name: str, _core_ferc1__table_dimensions: pd.DataFrame
+) -> pd.DataFrame:
     """Grab tags from a stored CSV file and apply :func:`make_calculation_dimensions_explicit`."""
     tags_csv = importlib.resources.files("pudl.package_data.ferc1") / file_name
     tags_df = (
@@ -1204,7 +1234,7 @@ def _get_tags(file_name: str, table_dimensions_ferc1: pd.DataFrame) -> pd.DataFr
         .astype(pd.StringDtype())
         .pipe(
             pudl.transform.ferc1.make_calculation_dimensions_explicit,
-            table_dimensions_ferc1,
+            _core_ferc1__table_dimensions,
             dimensions=["utility_type", "plant_function", "plant_status"],
         )
     )
@@ -1212,12 +1242,12 @@ def _get_tags(file_name: str, table_dimensions_ferc1: pd.DataFrame) -> pd.DataFr
 
 
 def _aggregatable_dimension_tags(
-    table_dimensions_ferc1: pd.DataFrame,
+    _core_ferc1__table_dimensions: pd.DataFrame,
     dimension: Literal["plant_status", "plant_function"],
 ) -> pd.DataFrame:
     # make a new lil csv w the manually compiled plant status or dimension
     # add in the rest from the table_dims
-    # merge it into _out_ferc1__explosion_tags
+    # merge it into _out_ferc1__detailed_tags
     aggregatable_col = f"aggregatable_{dimension}"
     tags_csv = (
         importlib.resources.files("pudl.package_data.ferc1")
@@ -1231,17 +1261,20 @@ def _aggregatable_dimension_tags(
         .astype(pd.StringDtype())
         .pipe(
             pudl.transform.ferc1.make_calculation_dimensions_explicit,
-            table_dimensions_ferc1,
+            _core_ferc1__table_dimensions,
             dimensions=dimensions,
         )
         .set_index(idx)
     )
-    table_dimensions_ferc1 = table_dimensions_ferc1.set_index(idx)
+    # don't include the corrections because we will add those in later
+    _core_ferc1__table_dimensions = _core_ferc1__table_dimensions[
+        ~_core_ferc1__table_dimensions.xbrl_factoid.str.endswith("_correction")
+    ].set_index(idx)
     tags_df = pd.concat(
         [
             tags_df,
-            table_dimensions_ferc1.loc[
-                table_dimensions_ferc1.index.difference(tags_df.index)
+            _core_ferc1__table_dimensions.loc[
+                _core_ferc1__table_dimensions.index.difference(tags_df.index)
             ],
         ]
     ).reset_index()
@@ -1259,37 +1292,43 @@ def exploded_table_asset_factory(
 ) -> AssetsDefinition:
     """Create an exploded table based on a set of related input tables."""
     ins: Mapping[str, AssetIn] = {
-        "metadata_xbrl_ferc1": AssetIn("metadata_xbrl_ferc1"),
-        "calculation_components_xbrl_ferc1": AssetIn(
-            "calculation_components_xbrl_ferc1"
+        "_core_ferc1_xbrl__metadata": AssetIn("_core_ferc1_xbrl__metadata"),
+        "_core_ferc1_xbrl__calculation_components": AssetIn(
+            "_core_ferc1_xbrl__calculation_components"
         ),
-        "_out_ferc1__explosion_tags": AssetIn("_out_ferc1__explosion_tags"),
+        "_out_ferc1__detailed_tags": AssetIn("_out_ferc1__detailed_tags"),
     }
     ins |= {table_name: AssetIn(table_name) for table_name in table_names}
 
-    @asset(name=f"exploded_{root_table}", ins=ins, io_manager_key=io_manager_key)
+    @asset(
+        name=f"_out_ferc1__detailed_{get_core_ferc1_asset_description(root_table)}",
+        ins=ins,
+        io_manager_key=io_manager_key,
+    )
     def exploded_tables_asset(
         **kwargs: dict[str, pd.DataFrame],
     ) -> pd.DataFrame:
-        metadata_xbrl_ferc1 = kwargs["metadata_xbrl_ferc1"]
-        calculation_components_xbrl_ferc1 = kwargs["calculation_components_xbrl_ferc1"]
-        tags = kwargs["_out_ferc1__explosion_tags"]
+        _core_ferc1_xbrl__metadata = kwargs["_core_ferc1_xbrl__metadata"]
+        _core_ferc1_xbrl__calculation_components = kwargs[
+            "_core_ferc1_xbrl__calculation_components"
+        ]
+        tags = kwargs["_out_ferc1__detailed_tags"]
         tables_to_explode = {
             name: df
             for (name, df) in kwargs.items()
             if name
             not in [
-                "metadata_xbrl_ferc1",
-                "calculation_components_xbrl_ferc1",
-                "_out_ferc1__explosion_tags",
+                "_core_ferc1_xbrl__metadata",
+                "_core_ferc1_xbrl__calculation_components",
+                "_out_ferc1__detailed_tags",
                 "off_by_facts",
             ]
         }
         return Exploder(
             table_names=tables_to_explode.keys(),
             root_table=root_table,
-            metadata_xbrl_ferc1=metadata_xbrl_ferc1,
-            calculation_components_xbrl_ferc1=calculation_components_xbrl_ferc1,
+            metadata_xbrl_ferc1=_core_ferc1_xbrl__metadata,
+            calculation_components_xbrl_ferc1=_core_ferc1_xbrl__calculation_components,
             seed_nodes=seed_nodes,
             tags=tags,
             group_metric_checks=group_metric_checks,
@@ -1308,7 +1347,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
     """
     explosion_args = [
         {
-            "root_table": "income_statement_ferc1",
+            "root_table": "core_ferc1__yearly_income_statements_sched114",
             "table_names": [
                 "core_ferc1__yearly_income_statements_sched114",
                 "core_ferc1__yearly_depreciation_summary_sched336",
@@ -1330,7 +1369,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
             "off_by_facts": [],
         },
         {
-            "root_table": "balance_sheet_assets_ferc1",
+            "root_table": "core_ferc1__yearly_balance_sheet_assets_sched110",
             "table_names": [
                 "core_ferc1__yearly_balance_sheet_assets_sched110",
                 "core_ferc1__yearly_utility_plant_summary_sched200",
@@ -1389,7 +1428,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
             ],
         },
         {
-            "root_table": "balance_sheet_liabilities_ferc1",
+            "root_table": "core_ferc1__yearly_balance_sheet_liabilities_sched110",
             "table_names": [
                 "core_ferc1__yearly_balance_sheet_liabilities_sched110",
                 "core_ferc1__yearly_retained_earnings_sched118",
@@ -1658,7 +1697,6 @@ class Exploder:
         """Construct a calculation forest based on class attributes."""
         return XbrlCalculationForestFerc1(
             exploded_calcs=self.exploded_calcs,
-            exploded_meta=self.exploded_meta,
             seeds=self.seed_nodes,
             tags=self.tags,
             group_metric_checks=self.group_metric_checks,
@@ -2016,7 +2054,6 @@ class XbrlCalculationForestFerc1(BaseModel):
 
     # Not sure if dynamically basing this on NodeId is really a good idea here.
     calc_cols: list[str] = list(NodeId._fields)
-    exploded_meta: pd.DataFrame = pd.DataFrame()
     exploded_calcs: pd.DataFrame = pd.DataFrame()
     seeds: list[NodeId] = []
     tags: pd.DataFrame = pd.DataFrame()
@@ -2135,14 +2172,13 @@ class XbrlCalculationForestFerc1(BaseModel):
         Then we compile a dictionary of node attributes, based on the individual
         calculation components in the exploded calcs dataframe.
         """
-        source_nodes = list(
-            exploded_calcs.loc[:, self.parent_cols]
-            .rename(columns=lambda x: x.removesuffix("_parent"))
-            .itertuples(name="NodeId", index=False)
-        )
-        target_nodes = list(
-            exploded_calcs.loc[:, self.calc_cols].itertuples(name="NodeId", index=False)
-        )
+        source_nodes = [
+            NodeId(*x)
+            for x in exploded_calcs.set_index(self.parent_cols).index.to_list()
+        ]
+        target_nodes = [
+            NodeId(*x) for x in exploded_calcs.set_index(self.calc_cols).index.to_list()
+        ]
         edgelist = pd.DataFrame({"source": source_nodes, "target": target_nodes})
         forest = nx.from_pandas_edgelist(edgelist, create_using=nx.DiGraph)
         return forest
@@ -2156,7 +2192,10 @@ class XbrlCalculationForestFerc1(BaseModel):
         # Reshape the tags to turn them into a dictionary of values per-node. This
         # will make it easier to add arbitrary sets of tags later on.
         tags_dict = (
-            self.tags.convert_dtypes().set_index(self.calc_cols).to_dict(orient="index")
+            self.tags.convert_dtypes()
+            .set_index(self.calc_cols)
+            .dropna(how="all")
+            .to_dict(orient="index")
         )
         # Drop None tags created by combining multiple tagging CSVs
         clean_tags_dict = {
@@ -2173,32 +2212,9 @@ class XbrlCalculationForestFerc1(BaseModel):
             .reset_index()
             # Type conversion is necessary to get pd.NA in the index:
             .astype({col: pd.StringDtype() for col in self.calc_cols})
-            # We need a dictionary for *all* nodes, not just those with tags.
-            .merge(
-                self.exploded_meta.loc[:, self.calc_cols],
-                how="left",
-                on=self.calc_cols,
-                validate="one_to_many",
-                indicator=True,
-            )
-            # For nodes with no tags, we assign an empty dictionary:
             .assign(tags=lambda x: np.where(x["tags"].isna(), {}, x["tags"]))
         )
-        lefties = node_attrs[
-            (node_attrs._merge == "left_only")
-            & (node_attrs.table_name.isin(self.table_names))
-        ]
-        if not lefties.empty:
-            logger.warning(
-                f"Found {len(lefties)} tags that only exist in our manually compiled "
-                "tags when expected none. Ensure the compiled tags match the metadata."
-                f"Mismatched tags:\n{lefties}"
-            )
-        return (
-            node_attrs.drop(columns=["_merge"])
-            .set_index(self.calc_cols)
-            .to_dict(orient="index")
-        )
+        return node_attrs.set_index(self.calc_cols).to_dict(orient="index")
 
     @cached_property
     def edge_attrs(self: Self) -> dict[Any, Any]:
@@ -2217,7 +2233,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         weights = self.exploded_calcs["weight"].to_list()
         edge_attrs = {
             (parent, child): {"weight": weight}
-            for parent, child, weight in zip(parents, children, weights)
+            for parent, child, weight in zip(parents, children, weights, strict=True)
         }
         return edge_attrs
 
@@ -2244,12 +2260,26 @@ class XbrlCalculationForestFerc1(BaseModel):
         annotated_forest = deepcopy(self.forest)
         nx.set_node_attributes(annotated_forest, self.node_attrs)
         nx.set_edge_attributes(annotated_forest, self.edge_attrs)
+        annotated_forest = self.propagate_node_attributes(annotated_forest)
 
         logger.info("Checking whether any pruned nodes were also tagged.")
         self.check_lost_tags(lost_nodes=self.pruned)
         logger.info("Checking whether any orphaned nodes were also tagged.")
         self.check_lost_tags(lost_nodes=self.orphans)
         self.check_conflicting_tags(annotated_forest)
+        return annotated_forest
+
+    def propagate_node_attributes(self: Self, annotated_forest: nx.DiGraph):
+        """Propagate tags.
+
+        Propagate tags leafwards, rootward &  to the _correction nodes.
+        """
+        ## Leafwards propagation
+        annotated_forest = _propagate_tags_leafward(annotated_forest, ["in_rate_base"])
+        # Rootward propagation
+        annotated_forest = _propagate_tag_rootward(annotated_forest, "in_rate_base")
+        # Correction Records
+        annotated_forest = _propagate_tags_to_corrections(annotated_forest)
         return annotated_forest
 
     def check_lost_tags(self: Self, lost_nodes: list[NodeId]) -> None:
@@ -2368,7 +2398,7 @@ class XbrlCalculationForestFerc1(BaseModel):
 
         We compile a list of all the :class:`NodeId` values that should be included in
         the pruned graph, and then use that list to select a subset of the exploded
-        metadata to pass to :meth:`exploded_meta_to_digraph`, so that all of the
+        metadata to pass to :meth:`exploded_calcs_to_digraph`, so that all of the
         associated metadata is also added to the pruned graph.
         """
         return self.prune_unrooted(self.full_digraph)
@@ -2494,13 +2524,22 @@ class XbrlCalculationForestFerc1(BaseModel):
 
     @cached_property
     def orphans(self: Self) -> list[NodeId]:
-        """Identify all nodes that appear in metadata but not in the full digraph."""
+        """Identify all nodes that appear in the exploded_calcs but not in the full digraph.
+
+        Because we removed the metadata and are now building the tree entirely based on
+        the exploded_calcs, this should now never produce any orphans and is a bit redundant.
+        """
         nodes = self.full_digraph.nodes
-        return [
-            NodeId(*n)
-            for n in self.exploded_meta.set_index(self.calc_cols).index
-            if n not in nodes
-        ]
+        orphans = []
+        for idx_cols in [self.calc_cols, self.parent_cols]:
+            orphans.extend(
+                [
+                    NodeId(*n)
+                    for n in self.exploded_calcs.set_index(idx_cols).index
+                    if NodeId(*n) not in nodes
+                ]
+            )
+        return list(set(orphans))
 
     @cached_property
     def pruned(self: Self) -> list[NodeId]:
@@ -2522,7 +2561,7 @@ class XbrlCalculationForestFerc1(BaseModel):
     def _get_path_weight(self, path: list[NodeId], graph: nx.DiGraph) -> float:
         """Multiply all weights along a path together."""
         leaf_weight = 1.0
-        for parent, child in zip(path, path[1:]):
+        for parent, child in zip(path, path[1:], strict=False):
             leaf_weight *= graph.get_edge_data(parent, child)["weight"]
         return leaf_weight
 
@@ -2617,7 +2656,9 @@ class XbrlCalculationForestFerc1(BaseModel):
     def plot_graph(self: Self, graph: nx.DiGraph) -> None:
         """Visualize a CalculationForest graph."""
         colors = ["red", "yellow", "green", "blue", "orange", "cyan", "purple"]
-        color_map = dict(zip(self.table_names, colors[: len(self.table_names)]))
+        color_map = dict(
+            zip(self.table_names, colors[: len(self.table_names)], strict=True)
+        )
 
         pos = graphviz_layout(graph, prog="dot", args='-Grankdir="LR"')
         for table, color in color_map.items():
@@ -2774,3 +2815,241 @@ def nodes_to_df(calc_forest: nx.DiGraph, nodes: list[NodeId]) -> pd.DataFrame:
     except AttributeError:
         tags = pd.DataFrame()
     return pd.concat([index, tags], axis="columns")
+
+
+def _propagate_tags_leafward(
+    annotated_forest: nx.DiGraph, leafward_inherited_tags: list[str]
+) -> nx.DiGraph:
+    """Push a parent's tags down to its descendants.
+
+    Only push the `leafward_inherited_tags` - others will be left alone.
+    """
+    existing_tags = nx.get_node_attributes(annotated_forest, "tags")
+    for node, parent_tags in existing_tags.items():
+        descendants = nx.descendants(annotated_forest, node)
+        descendant_tags = {
+            desc: {
+                "tags": {
+                    tag_name: parent_tags[tag_name]
+                    for tag_name in leafward_inherited_tags
+                    if tag_name in parent_tags
+                }
+                | existing_tags.get(desc, {})
+            }
+            for desc in descendants
+        }
+        nx.set_node_attributes(annotated_forest, descendant_tags)
+    return annotated_forest
+
+
+def _propagate_tag_rootward(
+    annotated_forest: nx.DiGraph, tag_name: Literal["in_rate_base"]
+) -> nx.DiGraph:
+    """Set the tag for nodes when all of its children have same tag.
+
+    This function returns the value of a tag, but also sets node attributes
+    down the tree when all children of a node share the same tag.
+    """
+
+    def _get_tag(annotated_forest, node, tag_name):
+        return annotated_forest.nodes.get(node, {}).get("tags", {}).get(tag_name)
+
+    generations = list(nx.topological_generations(annotated_forest))
+    for gen in reversed(generations):
+        untagged_nodes = {
+            node_id
+            for node_id in gen
+            if _get_tag(annotated_forest, node_id, tag_name) is None
+        }
+        for parent_node in untagged_nodes:
+            child_tags = {
+                _get_tag(annotated_forest, c, tag_name)
+                for c in annotated_forest.successors(parent_node)
+                if not c.xbrl_factoid.endswith("_correction")
+            }
+            non_null_tags = child_tags - {None}
+            # sometimes, all children can share same tag but it's null.
+            if len(child_tags) == 1 and non_null_tags:
+                # actually assign the tag here but don't wipe out any other tags
+                new_node_tag = non_null_tags.pop()
+                existing_tags = nx.get_node_attributes(annotated_forest, "tags")
+                node_tags = {
+                    parent_node: {
+                        "tags": {tag_name: new_node_tag}
+                        | existing_tags.get(parent_node, {})
+                    }
+                }
+                nx.set_node_attributes(annotated_forest, node_tags)
+    return annotated_forest
+
+
+def _propagate_tags_to_corrections(annotated_forest: nx.DiGraph) -> nx.DiGraph:
+    existing_tags = nx.get_node_attributes(annotated_forest, "tags")
+    correction_nodes = [
+        node for node in annotated_forest if node.xbrl_factoid.endswith("_correction")
+    ]
+    correction_tags = {}
+    for correction_node in correction_nodes:
+        # for every correction node, we assume that that nodes parent tags can apply
+        parents = list(annotated_forest.predecessors(correction_node))
+        # all correction records shoul have a parent and only one
+        assert len(parents) == 1
+        parent = parents[0]
+        correction_tags[correction_node] = {
+            "tags": existing_tags.get(parent, {})
+            | existing_tags.get(correction_node, {})
+        }
+    nx.set_node_attributes(annotated_forest, correction_tags)
+    return annotated_forest
+
+
+def check_tag_propagation_compared_to_compiled_tags(
+    df: pd.DataFrame,
+    propagated_tag: Literal["in_rate_base"],
+    _out_ferc1__explosion_tags: pd.DataFrame,
+):
+    """Check if tags got propagated.
+
+    Args:
+        df: table to check. This should be either the
+            :func:`out_ferc1__yearly_rate_base`, ``exploded_balance_sheet_assets_ferc1``
+            or ``exploded_balance_sheet_liabilities_ferc1``. The
+            ``exploded_income_statement_ferc1`` table does not currently have propagated
+            tags.
+        propagated_tag: name of tag. Currently ``in_rate_base`` is the only propagated tag.
+        _out_ferc1__explosion_tags: mannually compiled tags. This table includes tags from
+            many of the explosion tables so we will filter it before checking if the tag was
+            propagated.
+
+    Raises:
+        AssertionError: If there are more mannually compiled tags for the ``xbrl_factoids``
+            in ``df`` than found in ``_out_ferc1__explosion_tags``.
+        AssertionError: If there are more mannually compiled tags for the correction
+            ``xbrl_factoids`` in ``df`` than found in ``_out_ferc1__explosion_tags``.
+    """
+    # the tag df has all tags - not just those in a specific explosion
+    # so we need to drop
+    node_idx = list(NodeId._fields)
+    df_filtered = df.filter(node_idx).drop_duplicates()
+    df_tags = _out_ferc1__explosion_tags.merge(
+        df_filtered, on=list(df_filtered.columns), how="right"
+    )
+    manually_tagged = df_tags[df_tags[propagated_tag].notnull()].xbrl_factoid.unique()
+    detailed_tagged = df[df[f"tags_{propagated_tag}"].notnull()].xbrl_factoid.unique()
+    if len(detailed_tagged) < len(manually_tagged):
+        raise AssertionError(
+            f"Found more {len(manually_tagged)} mannually compiled tagged xbrl_factoids"
+            " than tags in propagated detailed data."
+        )
+    manually_tagged_corrections = df_tags[
+        df_tags[propagated_tag].notnull()
+        & df_tags.xbrl_factoid.str.endswith("_correction")
+    ].xbrl_factoid.unique()
+    detailed_tagged_corrections = df[
+        df[f"tags_{propagated_tag}"].notnull()
+        & df.xbrl_factoid.str.endswith("_correction")
+    ].xbrl_factoid.unique()
+    if len(detailed_tagged_corrections) < len(manually_tagged_corrections):
+        raise AssertionError(
+            f"Found more {len(manually_tagged_corrections)} mannually compiled "
+            "tagged xbrl_factoids than tags in propagated detailed data."
+        )
+
+
+def check_for_correction_xbrl_factoids_with_tag(
+    df: pd.DataFrame, propagated_tag: Literal["in_rate_base"]
+):
+    """Check if any correction records have tags.
+
+    Args:
+        df: table to check. This should be either the
+            :func:`out_ferc1__yearly_rate_base`, ``exploded_balance_sheet_assets_ferc1``
+            or ``exploded_balance_sheet_liabilities_ferc1``. The
+            ``exploded_income_statement_ferc1`` table does not currently have propagated
+            tags.
+        propagated_tag: name of tag. Currently ``in_rate_base`` is the only propagated tag.
+
+    Raises:
+        AssertionError: If there are zero correction ``xbrl_factoids`` in ``df`` with tags.
+    """
+    detailed_tagged_corrections = df[
+        df[f"tags_{propagated_tag}"].notnull()
+        & df.xbrl_factoid.str.endswith("_correction")
+    ].xbrl_factoid.unique()
+    if len(detailed_tagged_corrections) == 0:
+        raise AssertionError(
+            "We expect there to be more than zero correction recrods with tags, but "
+            f"found {len(detailed_tagged_corrections)}."
+        )
+
+
+@asset
+def out_ferc1__yearly_rate_base(
+    _out_ferc1__detailed_balance_sheet_assets: pd.DataFrame,
+    _out_ferc1__detailed_balance_sheet_liabilities: pd.DataFrame,
+    core_ferc1__yearly_operating_expenses_sched320: pd.DataFrame,
+    _out_ferc1__detailed_tags: pd.DataFrame,
+) -> pd.DataFrame:
+    """Make a table of granular utility rate-base data.
+
+    This table contains granular data consisting of what utilities can
+    include in their rate bases. This information comes from two core
+    inputs: ``exploded_balance_sheet_assets_ferc1`` and
+    ``exploded_balance_sheet_liabilities_ferc1``. These tables include granular
+    data from the nested calculations that are build into the accounting tables.
+    See :class:`Exploder` for more details.
+
+    This rate base table also contains one specific addition from
+    :ref:`core_ferc1__yearly_operating_expenses_sched320`. In standard ratemaking
+    processes, utilities are enabled to include working capital - sometimes referred
+    to as cash on hand or cash reverves. A standard ratemaking process is to consider
+    the available rate-baseable working capital to be one eigth of the average
+    operations and maintenance expense. This function grabs that expense and
+    concatenates it with the rest of the assets and liabilities from the granular
+    exploded data.
+
+    """
+    # get the factoid name to grab the right part of the table
+    xbrl_factoid_name = pudl.transform.ferc1.FERC1_TFR_CLASSES[
+        "core_ferc1__yearly_operating_expenses_sched320"
+    ]().params.xbrl_factoid_name
+    # First grab the working capital out of the operating expense table.
+    # then prep it for concating. Calculate working capital & add tags
+    cash_working_capital = (
+        core_ferc1__yearly_operating_expenses_sched320[
+            core_ferc1__yearly_operating_expenses_sched320[xbrl_factoid_name]
+            == "operations_and_maintenance_expenses_electric"
+        ]
+        .assign(
+            dollar_value=lambda x: x.dollar_value.divide(8),
+            xbrl_factoid="cash_working_capital",  # newly definied (do we need to add it anywhere?)
+            tags_rate_base_category="net_working_capital",
+            tags_aggregatable_utility_type="electric",
+            table_name="core_ferc1__yearly_operating_expenses_sched320",
+        )
+        .drop(columns=[xbrl_factoid_name])
+        # the assets/liabilites both use ending_balance for its main $$ column
+        .rename(columns={"dollar_value": "ending_balance"})
+    )
+    # then select only the leafy exploded records that are in rate base and concat
+    in_rate_base = pd.concat(
+        [
+            _out_ferc1__detailed_balance_sheet_assets[
+                _out_ferc1__detailed_balance_sheet_assets.tags_in_rate_base.isin(
+                    ["yes", "partial"]
+                )
+            ],
+            _out_ferc1__detailed_balance_sheet_liabilities[
+                _out_ferc1__detailed_balance_sheet_liabilities.tags_in_rate_base.isin(
+                    ["yes", "partial"]
+                )
+            ].assign(ending_balance=lambda x: -x.ending_balance),
+            cash_working_capital,
+        ]
+    ).sort_values(by=["report_year", "utility_id_ferc1", "table_name"], ascending=False)
+    # note: we need the `tags_in_rate_base` column for these checks
+    check_tag_propagation_compared_to_compiled_tags(
+        in_rate_base, "in_rate_base", _out_ferc1__detailed_tags
+    )
+    check_for_correction_xbrl_factoids_with_tag(in_rate_base, "in_rate_base")
+    return in_rate_base

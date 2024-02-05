@@ -112,7 +112,7 @@ def convert_to_utc(df: pd.DataFrame, plant_utc_offset: pd.DataFrame) -> pd.DataF
         missing_plants = df.loc[df["utc_offset"].isna(), "plant_id_eia"].unique()
         raise ValueError(
             f"utc_offset should never be missing for CEMS plants, but was "
-            f"missing for these: {str(list(missing_plants))}"
+            f"missing for these: {list(missing_plants)!s}"
         )
     # Add the offset from UTC. CEMS data don't have DST, so the offset is always the
     # same for a given plant. The result is a timezone naive datetime column that
