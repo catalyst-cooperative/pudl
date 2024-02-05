@@ -27,6 +27,11 @@ jobs:
         with:
           fetch-depth: 2
 
+      - name: force failure
+        run: |
+          echo "::error auto fail for test"
+          exit 1
+
       - name: Install conda-lock environment with micromamba
         uses: mamba-org/setup-micromamba@v1
         with:
