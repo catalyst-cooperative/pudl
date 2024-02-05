@@ -213,13 +213,12 @@ class Eia860Settings(GenericDatasetSettings):
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia860")
     eia860m_data_source: ClassVar[DataSource] = DataSource.from_id("eia860m")
+    years: list[int] = data_source.working_partitions["years"]
     eia860m_year_months: list[str] = eia860m_data_source.working_partitions[
         "year_months"
     ]
-    eia860m_date: ClassVar[str] = max(eia860m_year_months)
-
-    years: list[int] = data_source.working_partitions["years"]
-    eia860m: bool = True
+    eia860m: bool = bool(eia860m_year_months)
+    eia860m_date: ClassVar[str] = max(eia860m_year_months) if eia860m else None
 
     @field_validator("eia860m")
     @classmethod
