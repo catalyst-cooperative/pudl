@@ -361,12 +361,12 @@ class SQLiteIOManager(IOManager):
         with engine.begin() as con:
             try:
                 df = pd.read_sql_table(table_name, con)
-            except ValueError:
+            except ValueError as err:
                 raise ValueError(
                     f"{table_name} not found. Either the table was dropped "
                     "or it doesn't exist in the pudl.metadata.resources."
                     "Add the table to the metadata and recreate the database."
-                )
+                ) from err
             if df.empty:
                 raise AssertionError(
                     f"The {table_name} table is empty. Materialize "
@@ -453,14 +453,14 @@ class PudlSQLiteIOManager(SQLiteIOManager):
         # We don't want folks creating views without adding package metadata.
         try:
             _ = self.package.get_resource(table_name)
-        except ValueError:
+        except ValueError as err:
             raise ValueError(
                 f"{table_name} does not appear in pudl.metadata.resources. "
                 "Check for typos, or add the table to the metadata and recreate the "
                 f"PUDL SQlite database. It's also possible that {table_name} is one of "
                 "the tables that does not get loaded into the PUDL SQLite DB because "
                 "it's a work in progress or is distributed in Apache Parquet format."
-            )
+            ) from err
 
         with engine.begin() as con:
             # Drop the existing view if it exists and create the new view.
@@ -502,14 +502,14 @@ class PudlSQLiteIOManager(SQLiteIOManager):
         # Check if there is a Resource in self.package for table_name
         try:
             res = self.package.get_resource(table_name)
-        except ValueError:
+        except ValueError as err:
             raise ValueError(
                 f"{table_name} does not appear in pudl.metadata.resources. "
                 "Check for typos, or add the table to the metadata and recreate the "
                 f"PUDL SQlite database. It's also possible that {table_name} is one of "
                 "the tables that does not get loaded into the PUDL SQLite DB because "
                 "it's a work in progress or is distributed in Apache Parquet format."
-            )
+            ) from err
 
         with self.engine.begin() as con:
             try:
@@ -521,12 +521,12 @@ class PudlSQLiteIOManager(SQLiteIOManager):
                         )
                     ]
                 )
-            except ValueError:
+            except ValueError as err:
                 raise ValueError(
                     f"{table_name} not found. Either the table was dropped "
                     "or it doesn't exist in the pudl.metadata.resources."
                     "Add the table to the metadata and recreate the database."
-                )
+                ) from err
             if df.empty:
                 raise AssertionError(
                     f"The {table_name} table is empty. Materialize the {table_name} "

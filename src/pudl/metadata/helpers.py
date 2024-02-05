@@ -289,8 +289,6 @@ or raise a :class:`AggregationError` if the input does not meet requirements.
 class AggregationError(ValueError):
     """Error raised by aggregation functions."""
 
-    pass
-
 
 def most_frequent(x: pd.Series) -> Any:
     """Return most frequent value (or error if none exists)."""
@@ -344,7 +342,7 @@ def as_dict(x: pd.Series) -> dict[Any, list]:
     return result
 
 
-def try_aggfunc(  # noqa: C901
+def try_aggfunc(
     func: Callable,
     raised: bool = True,
     error: str | Callable = None,
@@ -386,16 +384,16 @@ def try_aggfunc(  # noqa: C901
     wrapped = func
     if raised and error is not None:
 
-        def wrapped(x):  # noqa: F811
+        def wrapped(x):
             try:
                 return func(x)
             except AggregationError as e:
-                e.args = (error.format(x=x, e=e),)  # noqa: FS002
+                e.args = (error.format(x=x, e=e),)
                 raise e
 
     elif not raised and error is None:
 
-        def wrapped(x):  # noqa: F811
+        def wrapped(x):
             try:
                 return func(x)
             except AggregationError as e:
@@ -403,7 +401,7 @@ def try_aggfunc(  # noqa: C901
 
     elif not raised and error is not None:
 
-        def wrapped(x):  # noqa: F811
+        def wrapped(x):
             try:
                 return func(x)
             except AggregationError as e:
@@ -416,7 +414,7 @@ def try_aggfunc(  # noqa: C901
 # ---- Aggregation: Table ---- #
 
 
-def groupby_apply(  # noqa: C901
+def groupby_apply(
     df: pd.DataFrame,
     by: Iterable,
     aggfuncs: dict[Any, Callable],
@@ -481,7 +479,7 @@ def groupby_apply(  # noqa: C901
                 def error(x, e):
                     return x.name, str(e)
 
-            def wrapper(x):
+            def wrapper(x, aggfunc=aggfunc, report=report):
                 try:
                     return aggfunc(x)
                 except AggregationError as e:
@@ -502,7 +500,7 @@ def groupby_apply(  # noqa: C901
     return pd.DataFrame(series), reports
 
 
-def groupby_aggregate(  # noqa: C901
+def groupby_aggregate(
     df: pd.DataFrame,
     by: Iterable,
     aggfuncs: dict[Any, Callable],

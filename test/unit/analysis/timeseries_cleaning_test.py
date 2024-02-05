@@ -37,7 +37,9 @@ def simulate_series(
     return np.column_stack(
         [
             offset + np.roll(amplitude * np.sin(t), shift)
-            for amplitude, offset, shift in zip(amplitudes, offsets, shifts)
+            for amplitude, offset, shift in zip(
+                amplitudes, offsets, shifts, strict=True
+            )
         ]
     )
 

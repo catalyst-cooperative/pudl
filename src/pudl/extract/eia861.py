@@ -30,7 +30,8 @@ class Extractor(excel.GenericExtractor):
         super().__init__(*args, **kwargs)
         warnings.warn(
             "Integration of EIA 861 into PUDL is still experimental and incomplete.\n"
-            "The data has not yet been validated, and the structure may change."
+            "The data has not yet been validated, and the structure may change.",
+            stacklevel=1,
         )
 
     def process_raw(self, df, page, **partition):
@@ -41,6 +42,7 @@ class Extractor(excel.GenericExtractor):
                 zip(
                     df.columns[list(column_map_numeric.keys())],
                     list(column_map_numeric.values()),
+                    strict=True,
                 )
             )
         )

@@ -26,8 +26,6 @@ logger = pudl.logging_helpers.get_logger(__name__)
 class DbcFileMissingError(Exception):
     """This is raised when the DBC index file is missing."""
 
-    pass
-
 
 class DbfTableSchema:
     """Simple data-wrapper for the fox-pro table schema."""
@@ -109,8 +107,8 @@ class FercDbfArchive:
         path = self.root_path / filename
         try:
             return self.zipfile.open(path.as_posix())
-        except KeyError:
-            raise KeyError(f"{path} not available for {self.partition}.")
+        except KeyError as err:
+            raise KeyError(f"{path} not available for {self.partition}.") from err
 
     def get_db_schema(self) -> dict[str, list[str]]:
         """Returns dict with table names as keys, and list of column names as values."""
@@ -122,10 +120,10 @@ class FercDbfArchive:
                     ignore_missing_memofile=True,
                     filedata=self.zipfile.open(self.dbc_path.as_posix()),
                 )
-            except KeyError:
+            except KeyError as err:
                 raise DbcFileMissingError(
                     f"DBC file {self.dbc_path} for {self.partition} is missing."
-                )
+                ) from err
             table_names: dict[Any, str] = {}
             table_columns = defaultdict(list)
             for row in dbf:
@@ -154,7 +152,7 @@ class FercDbfArchive:
             filedata=self.get_file(fname),
         )
 
-    @lru_cache
+    @lru_cache  # noqa: B019
     def get_table_schema(self, table_name: str) -> DbfTableSchema:
         """Returns TableSchema for a given table and a given year."""
         table_columns = self.get_db_schema()[table_name]
@@ -166,7 +164,7 @@ class FercDbfArchive:
                 f"found in the DBC index file for {self.partition}."
             )
         schema = DbfTableSchema(table_name)
-        for long_name, dbf_col in zip(table_columns, dbf_fields):
+        for long_name, dbf_col in zip(table_columns, dbf_fields, strict=True):
             if long_name[:8] != dbf_col.name.lower()[:8]:
                 raise ValueError(
                     f"DBF field name mismatch: {dbf_col.name} != {long_name}"
@@ -237,7 +235,7 @@ class FercFieldParser(FieldParser):
         Args:
             field: The DBF field being parsed.
             data: Binary data (bytes) read from the DBF file.
-        """  # noqa: D417
+        """
         # Strip whitespace, null characters, and zeroes
         data = data.strip().strip(b"*\x00").lstrip(b"0")
         # Replace bare periods (which are non-numeric) with zero.
@@ -336,7 +334,7 @@ class FercDbfReader:
         )
         return csv.DictReader(csv_path.open())
 
-    @lru_cache
+    @lru_cache  # noqa: B019
     def get_archive(self: Self, year: int, **filters) -> FercDbfArchive:
         """Returns single dbf archive matching given filters."""
         nfilters = self._normalize(filters)
@@ -590,7 +588,6 @@ class FercDbfExtractor:
 
     def postprocess(self):
         """This metod is called after all the data is loaded into sqlite."""
-        pass
 
 
 def add_key_constraints(

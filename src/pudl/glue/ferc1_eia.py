@@ -662,6 +662,7 @@ def glue(ferc1=False, eia=False):
             core_pudl__assn_ferc1_pudl_utilities,
         ],
         ["plants_eia", "plants_ferc1", "utilities_eia", "utilities_ferc1"],
+        strict=True,
     ):
         if df[pd.isnull(df).any(axis="columns")].shape[0] > 1:
             logger.warning(
