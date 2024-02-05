@@ -620,25 +620,21 @@ def expand_timeseries(
             }
         )
     elif fill_through_freq == "month":
-        end_dates.loc[:, date_col] = pd.to_datetime(
-            {
-                "year": end_dates[date_col].dt.year,
-                "month": end_dates[date_col].dt.month + 1,
-                "day": 1,
-            }
-        )
-    elif fill_through_freq == "day":
+        end_dates.loc[:, date_col] = end_dates[
+            date_col
+        ] + pd.tseries.offsets.DateOffset(months=1)
         end_dates.loc[:, date_col] = pd.to_datetime(
             {
                 "year": end_dates[date_col].dt.year,
                 "month": end_dates[date_col].dt.month,
-                "day": end_dates[date_col].dt.day + 1,
+                "day": 1,
             }
         )
-    else:
-        raise ValueError(
-            f"{fill_through_freq} is not a valid frequency to fill through."
-        )
+    elif fill_through_freq == "day":
+        end_dates.loc[:, date_col] = end_dates[
+            date_col
+        ] + pd.tseries.offsets.DateOffset(days=1)
+
     end_dates["drop_row"] = True
     df = (
         pd.concat([df, end_dates.reset_index()])
