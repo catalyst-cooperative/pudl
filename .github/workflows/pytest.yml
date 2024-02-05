@@ -14,47 +14,47 @@ env:
   DAGSTER_HOME: /home/runner/pudl-work/dagster_home/
 
 jobs:
-  # ci-docs:
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     fail-fast: false
-  #   defaults:
-  #     run:
-  #       shell: bash -l {0}
+  ci-docs:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    defaults:
+      run:
+        shell: bash -l {0}
 
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #       with:
-  #         fetch-depth: 2
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
-  #     - name: Install conda-lock environment with micromamba
-  #       uses: mamba-org/setup-micromamba@v1
-  #       with:
-  #         environment-file: environments/conda-lock.yml
-  #         environment-name: pudl-dev
-  #         cache-environment: true
+      - name: Install conda-lock environment with micromamba
+        uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-file: environments/conda-lock.yml
+          environment-name: pudl-dev
+          cache-environment: true
 
-  #     - name: Log environment details
-  #       run: |
-  #         conda info
-  #         conda list
-  #         conda config --show-sources
-  #         conda config --show
-  #         printenv | sort
+      - name: Log environment details
+        run: |
+          conda info
+          conda list
+          conda config --show-sources
+          conda config --show
+          printenv | sort
 
-  #     - name: Make input, output and dagster dirs
-  #       run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
+      - name: Make input, output and dagster dirs
+        run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
 
-  #     - name: Lint and build PUDL documentation with Sphinx
-  #       run: |
-  #         pip install --no-deps --editable .
-  #         make docs-build
+      - name: Lint and build PUDL documentation with Sphinx
+        run: |
+          pip install --no-deps --editable .
+          make docs-build
 
-  #     - name: Upload docs coverage artifact
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: coverage-docs
-  #         path: coverage.xml
+      - name: Upload docs coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-docs
+          path: coverage.xml
 
   ci-unit:
     runs-on: ubuntu-latest
@@ -186,7 +186,7 @@ jobs:
   ci-coverage:
     runs-on: ubuntu-latest
     needs:
-      # - ci-docs
+      - ci-docs
       - ci-unit
     # - ci-integration
     steps:
@@ -211,7 +211,7 @@ jobs:
           create-args: >-
             python=3.11
             coverage>=7.4.1
-      - name: Combine coverage into a single coverage.xml
+      - name: Combine all coverage data into a single coverage.xml
         run: |
           micromamba run -n coverage coverage combine coverage/*/.coverage
           micromamba run -n coverage coverage xml
@@ -220,14 +220,14 @@ jobs:
         with:
           coverageFile: coverage.xml
           token: ${{ secrets.GITHUB_TOKEN }}
-          # Set impossibly high to test failure in merge queue
+          # Set impossibly high to test failure condition in merge queue
           thresholdAll: 1.0
 
   ci-notify:
     runs-on: ubuntu-latest
     if: ${{ always() }}
     needs:
-      # - ci-docs
+      - ci-docs
       - ci-unit
     # - ci-integration
     steps:
