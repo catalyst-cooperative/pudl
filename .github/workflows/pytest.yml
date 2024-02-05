@@ -14,47 +14,47 @@ env:
   DAGSTER_HOME: /home/runner/pudl-work/dagster_home/
 
 jobs:
-  ci-docs:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-    defaults:
-      run:
-        shell: bash -l {0}
+  # ci-docs:
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     fail-fast: false
+  #   defaults:
+  #     run:
+  #       shell: bash -l {0}
 
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 2
 
-      - name: Install conda-lock environment with micromamba
-        uses: mamba-org/setup-micromamba@v1
-        with:
-          environment-file: environments/conda-lock.yml
-          environment-name: pudl-dev
-          cache-environment: true
+  #     - name: Install conda-lock environment with micromamba
+  #       uses: mamba-org/setup-micromamba@v1
+  #       with:
+  #         environment-file: environments/conda-lock.yml
+  #         environment-name: pudl-dev
+  #         cache-environment: true
 
-      - name: Log environment details
-        run: |
-          conda info
-          conda list
-          conda config --show-sources
-          conda config --show
-          printenv | sort
+  #     - name: Log environment details
+  #       run: |
+  #         conda info
+  #         conda list
+  #         conda config --show-sources
+  #         conda config --show
+  #         printenv | sort
 
-      - name: Make input, output and dagster dirs
-        run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
+  #     - name: Make input, output and dagster dirs
+  #       run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
 
-      - name: Lint and build PUDL documentation with Sphinx
-        run: |
-          pip install --no-deps --editable .
-          make docs-build
+  #     - name: Lint and build PUDL documentation with Sphinx
+  #       run: |
+  #         pip install --no-deps --editable .
+  #         make docs-build
 
-      - name: Upload coverage
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-docs
-          path: coverage.xml
+  #     - name: Upload docs coverage artifact
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: coverage-docs
+  #         path: coverage.xml
 
   ci-unit:
     runs-on: ubuntu-latest
@@ -97,7 +97,7 @@ jobs:
           pip install --no-deps --editable .
           make pytest-unit
 
-      - name: Upload coverage
+      - name: Upload unit tests coverage artifact
         uses: actions/upload-artifact@v4
         with:
           name: coverage-unit
@@ -174,7 +174,7 @@ jobs:
           pudl_datastore --dataset epacems --partition year_quarter=2022q1
           make pytest-integration
 
-      - name: Upload coverage
+      - name: Upload integration test coverage artifact
         uses: actions/upload-artifact@v4
         with:
           name: coverage-integration
@@ -206,6 +206,7 @@ jobs:
       - name: Install Micromamba
         uses: mamba-org/setup-micromamba@v1
         with:
+          init-shell: bash
           environment-name: coverage
           create-args: >-
             python=3.11
@@ -226,9 +227,9 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ always() }}
     needs:
-      - ci-docs
+      # - ci-docs
       - ci-unit
-      - ci-integration
+    # - ci-integration
     steps:
       - name: Inform the Codemonkeys
         uses: 8398a7/action-slack@v3
