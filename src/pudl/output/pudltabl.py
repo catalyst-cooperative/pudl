@@ -244,7 +244,7 @@ class PudlTabl:
             "out_eia923__yearly_generation_fuel_by_generator_energy_source_owner": "gen_fuel_by_generator_energy_source_owner_eia923",
         }
 
-        for table_name, method_name in (
+        for _table_name, method_name in (
             table_method_map_any_freq
             | table_method_map_any_agg
             | table_method_map_yearly_only

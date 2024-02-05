@@ -793,7 +793,7 @@ def cleanstrings(
         The function returns a new DataFrame containing the cleaned strings.
     """
     out_df = df.copy()
-    for col, str_map in zip(columns, stringmaps):
+    for col, str_map in zip(columns, stringmaps, strict=True):
         out_df[col] = cleanstrings_series(
             out_df[col], str_map, unmapped=unmapped, simplify=simplify
         )
@@ -1978,7 +1978,7 @@ def check_tables_have_metadata(
         database_name = database_path.stem
 
         # Grab all tables in the database
-        engine = sa.create_engine(f"sqlite:///{str(database_path)}")
+        engine = sa.create_engine(f"sqlite:///{database_path!s}")
         inspector = sa.inspect(engine)
         tables_in_database = set(inspector.get_table_names())
 

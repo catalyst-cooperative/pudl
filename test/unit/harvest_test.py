@@ -17,7 +17,7 @@ def _assert_frame_equal(a: pd.DataFrame, b: pd.DataFrame, **kwargs: Any) -> None
         pd.testing.assert_frame_equal(a, b, **kwargs)
     except AssertionError as error:
         msg = "\n\n".join(["Dataframes are not equal.", str(error), str(a), str(b)])
-        raise AssertionError(msg)
+        raise AssertionError(msg) from error
 
 
 # ---- Unit tests ---- #

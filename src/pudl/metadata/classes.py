@@ -521,7 +521,7 @@ class Field(PudlMeta):
 
     name: SnakeCase
     # Shadows built-in type.
-    type: Literal["string", "number", "integer", "boolean", "date", "datetime", "year"]  # noqa: A003
+    type: Literal["string", "number", "integer", "boolean", "date", "datetime", "year"]
     title: String | None = None
     # Alias required to avoid shadowing Python built-in format()
     format_: Literal["default"] = pydantic.Field(alias="format", default="default")
@@ -1759,7 +1759,7 @@ class Package(PudlMeta):
 
     @classmethod
     @lru_cache
-    def from_resource_ids(  # noqa: C901
+    def from_resource_ids(
         cls,
         resource_ids: tuple[str] = tuple(sorted(RESOURCE_METADATA)),
         resolve_foreign_keys: bool = False,
@@ -1808,7 +1808,7 @@ class Package(PudlMeta):
         return cls(name="pudl", resources=resources)
 
     @staticmethod
-    def get_etl_group_tables(  # noqa: C901
+    def get_etl_group_tables(
         etl_group: str,
     ) -> tuple[str]:
         """Get a sorted tuple of table names for an etl_group.

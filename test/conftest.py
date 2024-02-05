@@ -371,7 +371,7 @@ def dataset_settings_config(request, etl_settings: EtlSettings):
     return etl_settings.datasets.model_dump()
 
 
-@pytest.fixture(scope="session")  # noqa: C901
+@pytest.fixture(scope="session")
 def pudl_datastore_config(request) -> dict[str, Any]:
     """Produce a :class:pudl.workspace.datastore.Datastore."""
     gcs_cache_path = request.config.getoption("--gcs-cache-path")

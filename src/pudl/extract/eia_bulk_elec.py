@@ -62,7 +62,7 @@ def _filter_and_read_to_dataframe(raw_zipfile: Path) -> pd.DataFrame:
 def _parse_data_column(elec_df: pd.DataFrame) -> pd.DataFrame:
     out = []
     for idx in elec_df.index:
-        data_df = pd.DataFrame(elec_df.at[idx, "data"], columns=["date", "value"])
+        data_df = pd.DataFrame(elec_df.loc[idx, "data"], columns=["date", "value"])
         # three possible date formats, only annual/quarterly handled by pd.to_datetime() automatically
         #   annual data as "YYYY" eg "2020"
         #   quarterly data as "YYYYQQ" eg "2020Q2"
@@ -87,7 +87,7 @@ def _parse_data_column(elec_df: pd.DataFrame) -> pd.DataFrame:
                 data_df.loc[:, "date"] = pd.to_datetime(
                     data_df.loc[:, "date"], errors="raise"
                 )
-        data_df["series_id"] = elec_df.at[idx, "series_id"]
+        data_df["series_id"] = elec_df.loc[idx, "series_id"]
         out.append(data_df)
     out = pd.concat(out, ignore_index=True, axis=0)
     out = out.convert_dtypes()
