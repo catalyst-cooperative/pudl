@@ -188,7 +188,7 @@ jobs:
     needs:
       - ci-docs
       - ci-unit
-      - ci-integration
+    # - ci-integration
     steps:
       - uses: actions/checkout@v4
       - name: Download coverage
@@ -203,6 +203,17 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           directory: coverage
+      - name: Combine coverage into a single coverage.xml
+        run: |
+          coverage combine coverage/*
+          coverage xml
+      - name: Check coverage
+        uses: orgoro/coverage@v3.1
+        with:
+          coverageFile: coverage.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # Set impossibly high to test failure in merge queue
+          thresholdAll: 1.0
 
   ci-notify:
     runs-on: ubuntu-latest
