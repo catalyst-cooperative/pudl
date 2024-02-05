@@ -8,8 +8,7 @@ import pudl
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-# TODO: make schema for table and change to sql loader
-@asset
+@asset(io_manager_key="pudl_sqlite_io_manager")
 def core_eia860m__yearly_generators_changelog_eia860m(
     raw_eia860m__generator_proposed,
     raw_eia860m__generator_existing,
