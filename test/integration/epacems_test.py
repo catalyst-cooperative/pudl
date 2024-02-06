@@ -31,7 +31,7 @@ def epacems_parquet_path(pudl_engine: sa.Engine) -> Path:
     context = build_init_resource_context()
     return (
         epacems_io_manager(context)._base_path
-        / "parquet/core_epacems__hourly_emissions.parquet"
+        / "core_epacems__hourly_emissions.parquet"
     )
 
 
