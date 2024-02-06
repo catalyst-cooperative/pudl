@@ -85,7 +85,7 @@ def append_eia860m(eia860_raw_dfs, eia860m_raw_dfs):
     # page names in 860m and 860 are the same.
     for page in pages_eia860m:
         eia860_raw_dfs[page] = pd.concat(
-            [eia860_raw_dfs[page], eia860m_raw_dfs[page]],
+            [eia860_raw_dfs[page], eia860m_raw_dfs[page].drop(columns=["report_date"])],
             ignore_index=True,
             sort=True,
         )
@@ -96,13 +96,13 @@ def append_eia860m(eia860_raw_dfs, eia860m_raw_dfs):
     required_resource_keys={"datastore", "dataset_settings"},
 )
 def raw_eia860m__all_dfs(context):
-    """Hi."""
+    """Extract raw EIAm data from excel sheets into dict of dataframes."""
     eia_settings = context.resources.dataset_settings.eia
     ds = context.resources.datastore
 
     eia860m_extractor = Extractor(ds=ds)
     raw_eia860m__all_dfs = eia860m_extractor.extract(
-        year_month=eia_settings.eia860.eia860m_year_months
+        year_month=eia_settings.eia860m.year_months
     )
     return raw_eia860m__all_dfs
 

@@ -9,7 +9,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 
 @asset(io_manager_key="pudl_sqlite_io_manager")
-def core_eia860m__yearly_generators_changelog_eia860m(
+def core_eia860m__monthly_generators_changelog(
     raw_eia860m__generator_proposed,
     raw_eia860m__generator_existing,
     raw_eia860m__generator_retired,
@@ -18,7 +18,7 @@ def core_eia860m__yearly_generators_changelog_eia860m(
 
     The monthly reported EIA80m tables includes existing, proposed and retired
     generators. This table combines all monthly reported data and preserves the first
-    reported record when a generator's was reported with a new operational status.
+    reported record when any new information about the generator was reported.
     """
     # compile all of the columns so these 860m bbs have everything for the transform
     eia860_columns = pudl.helpers.dedupe_n_flatten_list_of_lists(

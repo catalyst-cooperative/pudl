@@ -234,37 +234,32 @@ def _core_eia860__generators(
     # operational_status). We could do this by fillna w/ the retirement_date, but
     # this way seems more straightforward.
     gr_df["operational_status_code"] = gr_df["operational_status_code"].fillna("RE")
-
-    gens_df = (
-        pd.concat([ge_df, gp_df, gr_df, g_df], sort=True)
-        .dropna(subset=["generator_id", "plant_id_eia"])
-        .pipe(pudl.helpers.fix_eia_na)
-    )
-
+    # Prep dicts for column based pd.replace:
     # A subset of the columns have zero values, where NA is appropriate:
-    nulls_columns_to_fix = [
-        "planned_generator_retirement_month",
-        "planned_generator_retirement_year",
-        "planned_uprate_month",
-        "planned_uprate_year",
-        "other_modifications_month",
-        "other_modifications_year",
-        "planned_derate_month",
-        "planned_derate_year",
-        "planned_repower_month",
-        "planned_repower_year",
-        "planned_net_summer_capacity_derate_mw",
-        "planned_net_summer_capacity_uprate_mw",
-        "planned_net_winter_capacity_derate_mw",
-        "planned_net_winter_capacity_uprate_mw",
-        "planned_new_capacity_mw",
-        "nameplate_power_factor",
-        "minimum_load_mw",
-        "winter_capacity_mw",
-        "summer_capacity_mw",
-    ]
-    nulls_replace_cols = {col: {" ": np.nan, 0: np.nan} for col in nulls_columns_to_fix}
-
+    nulls_replace_cols = {
+        col: {" ": np.nan, 0: np.nan}
+        for col in [
+            "planned_generator_retirement_month",
+            "planned_generator_retirement_year",
+            "planned_uprate_month",
+            "planned_uprate_year",
+            "other_modifications_month",
+            "other_modifications_year",
+            "planned_derate_month",
+            "planned_derate_year",
+            "planned_repower_month",
+            "planned_repower_year",
+            "planned_net_summer_capacity_derate_mw",
+            "planned_net_summer_capacity_uprate_mw",
+            "planned_net_winter_capacity_derate_mw",
+            "planned_net_winter_capacity_uprate_mw",
+            "planned_new_capacity_mw",
+            "nameplate_power_factor",
+            "minimum_load_mw",
+            "winter_capacity_mw",
+            "summer_capacity_mw",
+        ]
+    }
     boolean_columns_to_fix = [
         "duct_burners",
         "multiple_fuels",
@@ -305,23 +300,23 @@ def _core_eia860__generators(
         col: {"Y": True, "N": False, "X": False, "U": pd.NA}
         for col in boolean_columns_to_fix
     }
-    gens_df = gens_df.fillna(fillna_cols).replace(
-        to_replace=nulls_replace_cols | boolean_replace_cols
-    )
-
     gens_df = (
-        gens_df.pipe(pudl.helpers.month_year_to_date)
+        pd.concat([ge_df, gp_df, gr_df, g_df], sort=True)
+        .dropna(subset=["generator_id", "plant_id_eia"])
+        .pipe(pudl.helpers.fix_eia_na)
+        .fillna(fillna_cols)
+        .replace(to_replace=nulls_replace_cols | boolean_replace_cols)
+        .pipe(pudl.helpers.month_year_to_date)
         .pipe(
             pudl.helpers.simplify_strings,
             columns=["rto_iso_lmp_node_id", "rto_iso_location_wholesale_reporting_id"],
         )
         .pipe(pudl.helpers.convert_to_date)
-    )
-
-    gens_df = (
-        pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("core_eia860__scd_generators")
-        .encode(gens_df)
+        .pipe(
+            pudl.metadata.classes.Package.from_resource_ids()
+            .get_resource("core_eia860__scd_generators")
+            .encode
+        )
     )
 
     gens_df["fuel_type_code_pudl"] = gens_df.energy_source_code_1.str.upper().map(

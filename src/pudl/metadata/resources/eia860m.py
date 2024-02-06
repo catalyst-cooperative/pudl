@@ -2,7 +2,7 @@
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
-    "core_eia861__monthly_generators_changelog": {
+    "core_eia860m__monthly_generators_changelog": {
         "description": (
             "This table is a changelog of the monthly reported EIA-860m data. EIA-860m "
             "includes generator tables with the most up-to-date catalogue of EIA "
