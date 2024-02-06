@@ -111,6 +111,7 @@ New Data Coverage
   will automatically generate archives each month. See `This PUDL Archiver PR
   <https://github.com/catalyst-cooperative/pudl-archiver/pull/257>`__ and `this Zenodo
   archive <https://doi.org/10.5281/zenodo.10525348>`__
+* Add EIA860M data through December 2023 :issue:`3313`, :pr:`3367`.
 
 Data Cleaning
 ^^^^^^^^^^^^^
