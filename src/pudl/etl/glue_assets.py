@@ -275,7 +275,7 @@ def core_epa__assn_eia_epacamd_subplant_ids(
 
     This function consists of three primary parts:
 
-    #.  Augement the EPA CAMD:EIA crosswalk with all IDs from EIA and EPA CAMD. Fill in
+    #.  Augment the EPA CAMD:EIA crosswalk with all IDs from EIA and EPA CAMD. Fill in
         key IDs when possible. Because the published crosswalk was only meant to map
         CAMD units to EIA generators, it is missing a large number of subplant_ids for
         generators that do not report to CEMS. Before applying this function to the
@@ -296,11 +296,11 @@ def core_epa__assn_eia_epacamd_subplant_ids(
     # functioning (#2535) but when it is, ensure that it gets plugged into the dag
     # BEFORE this step so the subplant IDs can benefit from the more fleshed out units
     epacamd_eia_complete = (
-        augement_crosswalk_with_generators_eia860(
+        augment_crosswalk_with_generators_eia860(
             _core_epa__assn_eia_epacamd_unique, core_eia860__scd_generators
         )
-        .pipe(augement_crosswalk_with_epacamd_ids, _core_epacems__emissions_unit_ids)
-        .pipe(augement_crosswalk_with_bga_eia860, core_eia860__assn_boiler_generator)
+        .pipe(augment_crosswalk_with_epacamd_ids, _core_epacems__emissions_unit_ids)
+        .pipe(augment_crosswalk_with_bga_eia860, core_eia860__assn_boiler_generator)
     )
     # use graph analysis to identify subplants
     subplant_ids = make_subplant_ids(epacamd_eia_complete).pipe(
@@ -350,7 +350,7 @@ def core_epa__assn_eia_epacamd_subplant_ids(
     return subplant_ids_updated
 
 
-def augement_crosswalk_with_generators_eia860(
+def augment_crosswalk_with_generators_eia860(
     crosswalk_clean: pd.DataFrame, core_eia860__scd_generators: pd.DataFrame
 ) -> pd.DataFrame:
     """Merge any plants that are missing from the EPA crosswalk but appear in EIA-860.
@@ -371,7 +371,7 @@ def augement_crosswalk_with_generators_eia860(
     return crosswalk_clean
 
 
-def augement_crosswalk_with_epacamd_ids(
+def augment_crosswalk_with_epacamd_ids(
     crosswalk_clean: pd.DataFrame, _core_epacems__emissions_unit_ids: pd.DataFrame
 ) -> pd.DataFrame:
     """Merge all EPA CAMD IDs into the crosswalk."""
@@ -387,7 +387,7 @@ def augement_crosswalk_with_epacamd_ids(
     )
 
 
-def augement_crosswalk_with_bga_eia860(
+def augment_crosswalk_with_bga_eia860(
     crosswalk_clean: pd.DataFrame, core_eia860__assn_boiler_generator: pd.DataFrame
 ) -> pd.DataFrame:
     """Merge all EIA Unit IDs into the crosswalk."""
