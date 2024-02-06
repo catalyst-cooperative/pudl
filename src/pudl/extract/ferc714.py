@@ -10,47 +10,47 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 FERC714_FILES: OrderedDict[str, dict[str, str]] = OrderedDict(
     {
-        "id_certification": {
+        "yearly_id_certification": {
             "name": "Part 1 Schedule 1 - Identification Certification.csv",
             "encoding": "iso-8859-1",
         },
-        "gen_plants_ba": {
+        "yearly_balancing_authority_plants": {
             "name": "Part 2 Schedule 1 - Balancing Authority Generating Plants.csv",
             "encoding": "iso-8859-1",
         },
-        "demand_monthly_ba": {
+        "monthly_balancing_authority_demand": {
             "name": "Part 2 Schedule 2 - Balancing Authority Monthly Demand.csv",
             "encoding": "utf-8",
         },
-        "net_energy_load_ba": {
+        "yearly_balancing_authority_net_energy_load": {
             "name": "Part 2 Schedule 3 - Balancing Authority Net Energy for Load.csv",
             "encoding": "utf-8",
         },
-        "adjacency_ba": {
+        "yearly_balancing_authority_adjacency": {
             "name": "Part 2 Schedule 4 - Adjacent Balancing Authorities.csv",
             "encoding": "iso-8859-1",
         },
-        "interchange_ba": {
+        "yearly_balancing_authority_interchange": {
             "name": "Part 2 Schedule 5 - Balancing Authority Interchange.csv",
             "encoding": "iso-8859-1",
         },
-        "lambda_hourly_ba": {
+        "hourly_balancing_authority_lambda": {
             "name": "Part 2 Schedule 6 - Balancing Authority Hourly System Lambda.csv",
             "encoding": "utf-8",
         },
-        "lambda_description": {
+        "yearly_lambda_description": {
             "name": "Part 2 Schedule 6 - System Lambda Description.csv",
             "encoding": "iso-8859-1",
         },
-        "description_pa": {
+        "yearly_planning_area_description": {
             "name": "Part 3 Schedule 1 - Planning Area Description.csv",
             "encoding": "iso-8859-1",
         },
-        "demand_forecast_pa": {
+        "yearly_planning_area_forecast_demand": {
             "name": "Part 3 Schedule 2 - Planning Area Forecast Demand.csv",
             "encoding": "utf-8",
         },
-        "demand_hourly_pa": {
+        "hourly_planning_area_demand": {
             "name": "Part 3 Schedule 2 - Planning Area Hourly Demand.csv",
             "encoding": "utf-8",
         },

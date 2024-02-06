@@ -68,8 +68,10 @@ class GenericDatasetSettings(FrozenBaseModel):
         for name, working_partitions in self.data_source.working_partitions.items():
             try:
                 partition = getattr(self, name)
-            except KeyError:
-                raise ValueError(f"{self.__name__} is missing required '{name}' field.")
+            except KeyError as err:
+                raise ValueError(
+                    f"{self.__name__} is missing required '{name}' field."
+                ) from err
 
             # Partition should never be None -- should get a default value set in
             # the child classes based on the working partitions.

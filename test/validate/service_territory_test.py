@@ -52,7 +52,7 @@ def test_minmax_rows(
     "df_name,expected_rows",
     [("demand_hourly_pa_ferc714", 15_608_154)],
 )
-def test_minmax_rows_and_year_in_demand_hourly_pa_ferc714(
+def test_minmax_rows_and_year_in_ferc714_hourly_planning_area_demand(
     pudl_out_orig: "pudl.output.pudltabl.PudlTabl",
     live_dbs: bool,
     expected_rows: int,
@@ -66,21 +66,16 @@ def test_minmax_rows_and_year_in_demand_hourly_pa_ferc714(
     """
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
-    demand_hourly_pa_ferc714 = pudl_out_orig.__getattribute__(df_name)()
-    _ = demand_hourly_pa_ferc714.pipe(
+    hpad_ferc714 = pudl_out_orig.__getattribute__(df_name)()
+    _ = hpad_ferc714.pipe(
         pv.check_min_rows, expected_rows=expected_rows, margin=0.0, df_name=df_name
     ).pipe(pv.check_max_rows, expected_rows=expected_rows, margin=0.0, df_name=df_name)
 
     logger.info("Checking the consistency of the year in the multiple date columns.")
-    mismatched_report_years = demand_hourly_pa_ferc714[
-        (
-            demand_hourly_pa_ferc714.utc_datetime.dt.year
-            != demand_hourly_pa_ferc714.report_date.dt.year
-        )
+    mismatched_report_years = hpad_ferc714[
+        (hpad_ferc714.utc_datetime.dt.year != hpad_ferc714.report_date.dt.year)
     ]
-    if (
-        off_ratio := len(mismatched_report_years) / len(demand_hourly_pa_ferc714)
-    ) > 0.001:
+    if (off_ratio := len(mismatched_report_years) / len(hpad_ferc714)) > 0.001:
         raise AssertionError(
             f"Found more ({off_ratio:.2%}) than expected (>.1%) FERC714 records"
             " where the report year from the utc_datetime differs from the "

@@ -521,7 +521,7 @@ class Field(PudlMeta):
 
     name: SnakeCase
     # Shadows built-in type.
-    type: Literal["string", "number", "integer", "boolean", "date", "datetime", "year"]  # noqa: A003
+    type: Literal["string", "number", "integer", "boolean", "date", "datetime", "year"]
     title: String | None = None
     # Alias required to avoid shadowing Python built-in format()
     format_: Literal["default"] = pydantic.Field(alias="format", default="default")
@@ -616,9 +616,7 @@ class Field(PudlMeta):
             name=self.name,
             type=self.to_pyarrow_dtype(),
             nullable=(not self.constraints.required),
-            metadata={
-                "description": self.description if self.description is not None else ""
-            },
+            metadata={"description": self.description},
         )
 
     def to_sql(  # noqa: C901
@@ -762,7 +760,7 @@ class Schema(PudlMeta):
                     field = info.data["fields"][names.index(name)]
                     field.constraints.required = True
                 else:
-                    missing.append(field.name)
+                    missing.append(name)
             if missing:
                 raise ValueError(f"names {missing} missing from fields")
         return pk
@@ -1320,9 +1318,7 @@ class Resource(PudlMeta):
     def to_pyarrow(self) -> pa.Schema:
         """Construct a PyArrow schema for the resource."""
         fields = [field.to_pyarrow() for field in self.schema.fields]
-        metadata = {
-            "description": self.description if self.description is not None else ""
-        }
+        metadata = {"description": self.description}
         if self.schema.primary_key is not None:
             metadata |= {"primary_key": ",".join(self.schema.primary_key)}
         return pa.schema(fields=fields, metadata=metadata)
@@ -1480,6 +1476,7 @@ class Resource(PudlMeta):
                 f"{self.name}: Missing columns found when enforcing table "
                 f"schema: {missing_cols}"
             )
+
         df = self.format_df(df)
         pk = self.schema.primary_key
         if pk and not df[df.duplicated(subset=pk)].empty:
@@ -1759,7 +1756,7 @@ class Package(PudlMeta):
 
     @classmethod
     @lru_cache
-    def from_resource_ids(  # noqa: C901
+    def from_resource_ids(
         cls,
         resource_ids: tuple[str] = tuple(sorted(RESOURCE_METADATA)),
         resolve_foreign_keys: bool = False,
@@ -1808,7 +1805,7 @@ class Package(PudlMeta):
         return cls(name="pudl", resources=resources)
 
     @staticmethod
-    def get_etl_group_tables(  # noqa: C901
+    def get_etl_group_tables(
         etl_group: str,
     ) -> tuple[str]:
         """Get a sorted tuple of table names for an etl_group.

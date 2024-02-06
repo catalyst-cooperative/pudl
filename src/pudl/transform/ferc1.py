@@ -1151,10 +1151,11 @@ def calculate_values_from_components(
             .groupby(gby_parent, as_index=False, dropna=False)[["calculated_value"]]
             .sum(min_count=1)
         )
-    except pd.errors.MergeError:  # Make debugging easier.
+    except pd.errors.MergeError as err:  # Make debugging easier.
         raise pd.errors.MergeError(
-            f"Merge failed, duplicated merge keys in left dataset: \n{calculation_components[calculation_components.duplicated(calc_idx)]}"
-        )
+            "Merge failed, duplicated merge keys in left dataset:\n"
+            f"{calculation_components[calculation_components.duplicated(calc_idx)]}"
+        ) from err
     # remove the _parent suffix so we can merge these calculated values back onto
     # the data using the original pks
     calc_df.columns = calc_df.columns.str.removesuffix("_parent")
@@ -2059,7 +2060,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             if col_name_new.endswith(f"_{value_type}"):
                 col_name_new = re.sub(f"_{value_type}$", "", col_name_new)
 
-        if self.params.unstack_balances_to_report_year_instant_xbrl:
+        if self.params.unstack_balances_to_report_year_instant_xbrl:  # noqa: SIM102
             # TODO: do something...? add starting_balance & ending_balance suffixes?
             if self.params.merge_xbrl_metadata.on:
                 NotImplementedError(
@@ -2068,8 +2069,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     "to merge the metadata on this table that has this treatment, a "
                     "xbrl_factoid rename will be required."
                 )
-            pass
-        if self.params.convert_units:
+        if self.params.convert_units:  # noqa: SIM102
             # TODO: use from_unit -> to_unit map. but none of the $$ tables have this rn.
             if self.params.merge_xbrl_metadata.on:
                 NotImplementedError(
@@ -2078,7 +2078,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     "table that has this treatment, a xbrl_factoid rename will be "
                     "required."
                 )
-            pass
         return col_name_new
 
     def rename_xbrl_factoid(self, col: pd.Series) -> pd.Series:
@@ -2107,7 +2106,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         for tbl in os_tables:
             trns = FERC1_TFR_CLASSES[tbl]()
             calc_comps = calc_comps.assign(
-                xbrl_factoid=lambda x: np.where(
+                xbrl_factoid=lambda x, tbl=tbl, trns=trns: np.where(
                     x.table_name == tbl,
                     trns.rename_xbrl_factoid(x.xbrl_factoid),
                     x.xbrl_factoid,
@@ -6004,7 +6003,7 @@ FERC1_TFR_CLASSES: Mapping[str, type[Ferc1AbstractTableTransformer]] = {
 def ferc1_transform_asset_factory(
     table_name: str,
     tfr_class: Ferc1AbstractTableTransformer,
-    io_manager_key: str = "pudl_sqlite_io_manager",
+    io_manager_key: str = "pudl_io_manager",
     convert_dtypes: bool = True,
     generic: bool = False,
 ) -> AssetsDefinition:

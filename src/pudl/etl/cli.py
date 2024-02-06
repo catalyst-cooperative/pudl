@@ -88,6 +88,7 @@ def pudl_etl_job_factory(
 @click.option(
     "--gcs-cache-path",
     type=str,
+    default="",
     help=(
         "Load cached inputs from Google Cloud Storage if possible. This is usually "
         "much faster and more reliable than downloading from Zenodo directly. The "
@@ -128,7 +129,7 @@ def pudl_etl(
 
     dataset_settings_config = etl_settings.datasets.model_dump()
     process_epacems = True
-    if etl_settings.datasets.epacems is None:
+    if etl_settings.datasets.epacems is None or etl_settings.datasets.epacems.disabled:
         process_epacems = False
         # Dagster config expects values for the epacems settings even though
         # the CEMS assets will not be executed. Fill in the config dictionary

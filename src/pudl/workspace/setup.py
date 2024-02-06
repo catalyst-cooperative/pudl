@@ -66,6 +66,12 @@ class PudlPaths(BaseSettings):
         # sqlite://{credentials}/{db_path}
         return f"sqlite:///{self.sqlite_db_path(name)}"
 
+    def parquet_path(self, table_name: str | None = None) -> Path:
+        """Return path to parquet file for given database and table."""
+        if table_name is None:
+            return self.output_dir / "parquet"
+        return self.output_dir / "parquet" / f"{table_name}.parquet"
+
     def sqlite_db_path(self, name: str) -> Path:
         """Return path to locally stored SQLite DB file."""
         return self.output_dir / f"{name}.sqlite"
