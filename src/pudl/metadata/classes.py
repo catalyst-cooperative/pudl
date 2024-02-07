@@ -616,9 +616,7 @@ class Field(PudlMeta):
             name=self.name,
             type=self.to_pyarrow_dtype(),
             nullable=(not self.constraints.required),
-            metadata={
-                "description": self.description if self.description is not None else ""
-            },
+            metadata={"description": self.description},
         )
 
     def to_sql(  # noqa: C901
@@ -762,7 +760,7 @@ class Schema(PudlMeta):
                     field = info.data["fields"][names.index(name)]
                     field.constraints.required = True
                 else:
-                    missing.append(field.name)
+                    missing.append(name)
             if missing:
                 raise ValueError(f"names {missing} missing from fields")
         return pk
@@ -1320,9 +1318,7 @@ class Resource(PudlMeta):
     def to_pyarrow(self) -> pa.Schema:
         """Construct a PyArrow schema for the resource."""
         fields = [field.to_pyarrow() for field in self.schema.fields]
-        metadata = {
-            "description": self.description if self.description is not None else ""
-        }
+        metadata = {"description": self.description}
         if self.schema.primary_key is not None:
             metadata |= {"primary_key": ",".join(self.schema.primary_key)}
         return pa.schema(fields=fields, metadata=metadata)
@@ -1480,6 +1476,7 @@ class Resource(PudlMeta):
                 f"{self.name}: Missing columns found when enforcing table "
                 f"schema: {missing_cols}"
             )
+
         df = self.format_df(df)
         pk = self.schema.primary_key
         if pk and not df[df.duplicated(subset=pk)].empty:

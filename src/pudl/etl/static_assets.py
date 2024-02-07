@@ -40,7 +40,7 @@ def _read_static_encoding_tables(
 
 @multi_asset(
     outs={
-        table_name: AssetOut(io_manager_key="pudl_sqlite_io_manager")
+        table_name: AssetOut(io_manager_key="pudl_io_manager")
         for table_name in Package.get_etl_group_tables("static_pudl")
     },
     required_resource_keys={"dataset_settings", "datastore"},
@@ -62,7 +62,7 @@ def static_pudl_tables(context):
 
 @multi_asset(
     outs={
-        table_name: AssetOut(io_manager_key="pudl_sqlite_io_manager")
+        table_name: AssetOut(io_manager_key="pudl_io_manager")
         for table_name in Package.get_etl_group_tables("static_eia")
     },
 )
@@ -76,7 +76,7 @@ def static_eia_tables():
 
 @multi_asset(
     outs={
-        table_name: AssetOut(io_manager_key="pudl_sqlite_io_manager")
+        table_name: AssetOut(io_manager_key="pudl_io_manager")
         for table_name in Package.get_etl_group_tables("static_ferc1")
     },
 )

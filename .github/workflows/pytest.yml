@@ -200,7 +200,7 @@ jobs:
         run: |
           ls -R
       - name: Upload test coverage report to CodeCov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           directory: coverage
 
