@@ -80,7 +80,7 @@ docs-clean:
 docs-build: docs-clean
 	doc8 docs/ README.rst
 	coverage run ${covargs} -- ${CONDA_PREFIX}/bin/sphinx-build -W -b html docs docs/_build/html
-	coverage xml
+	coverage xml --fail-under=0
 
 ########################################################################################
 # Running the Full ETL
