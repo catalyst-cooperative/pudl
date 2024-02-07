@@ -520,7 +520,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "fields": [["plant_id_eia", "generator_id"]],
                 # exclude core_epa__assn_eia_epacamd_subplant_ids bc there are generator ids in this
                 # glue table that come only from epacamd
-                "exclude": ["core_epa__assn_eia_epacamd_subplant_ids"],
+                # also exclude the 860 changelog table bc that table doesn't get harvested
+                # and therefor there are a few straggler generators that don't end up in this table
+                "exclude": [
+                    "core_epa__assn_eia_epacamd_subplant_ids",
+                    "core_eia860m__monthly_generators_changelog",
+                ],
             },
         },
         "sources": ["eia860", "eia923"],
@@ -573,9 +578,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 # violations.
                 # See: https://github.com/catalyst-cooperative/pudl/issues/1196
                 # Exclude the core_epa__assn_eia_epacamd_subplant_ids table
+                # also exclude the 860 changelog table bc that table doesn't get harvested
+                # and therefor there are a few straggler generators that don't end up in this table
                 "exclude": [
                     "core_pudl__assn_eia_pudl_plants",
                     "core_epa__assn_eia_epacamd_subplant_ids",
+                    "core_eia860m__monthly_generators_changelog",
                 ],
             },
         },
@@ -672,6 +680,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     # not yet harvesting owner_utility_id_eia from core_eia860__scd_ownership.
                     # See https://github.com/catalyst-cooperative/pudl/issues/1393
                     "out_eia923__yearly_generation_fuel_by_generator_energy_source_owner",
+                    # also exclude the 860 changelog table bc that table doesn't get harvested
+                    # and therefor there are a few straggler generators that don't end up in this table
+                    "core_eia860m__monthly_generators_changelog",
                 ],
             },
         },

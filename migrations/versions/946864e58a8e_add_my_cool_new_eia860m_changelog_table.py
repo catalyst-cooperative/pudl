@@ -1,8 +1,8 @@
 """Add my cool new eia860m changelog table
 
-Revision ID: 4c9b128b6bc1
+Revision ID: 946864e58a8e
 Revises: c716ec617469
-Create Date: 2024-02-06 09:26:00.321859
+Create Date: 2024-02-07 11:30:12.005173
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '4c9b128b6bc1'
+revision = '946864e58a8e'
 down_revision = 'c716ec617469'
 branch_labels = None
 depends_on = None
@@ -52,9 +52,7 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['data_maturity'], ['core_pudl__codes_data_maturities.code'], name=op.f('fk_core_eia860m__monthly_generators_changelog_data_maturity_core_pudl__codes_data_maturities')),
     sa.ForeignKeyConstraint(['energy_source_code_1'], ['core_eia__codes_energy_sources.code'], name=op.f('fk_core_eia860m__monthly_generators_changelog_energy_source_code_1_core_eia__codes_energy_sources')),
     sa.ForeignKeyConstraint(['operational_status_code'], ['core_eia__codes_operational_status.code'], name=op.f('fk_core_eia860m__monthly_generators_changelog_operational_status_code_core_eia__codes_operational_status')),
-    sa.ForeignKeyConstraint(['plant_id_eia', 'generator_id', 'report_date'], ['core_eia860__scd_generators.plant_id_eia', 'core_eia860__scd_generators.generator_id', 'core_eia860__scd_generators.report_date'], name=op.f('fk_core_eia860m__monthly_generators_changelog_plant_id_eia_core_eia860__scd_generators')),
     sa.ForeignKeyConstraint(['prime_mover_code'], ['core_eia__codes_prime_movers.code'], name=op.f('fk_core_eia860m__monthly_generators_changelog_prime_mover_code_core_eia__codes_prime_movers')),
-    sa.ForeignKeyConstraint(['utility_id_eia', 'report_date'], ['core_eia860__scd_utilities.utility_id_eia', 'core_eia860__scd_utilities.report_date'], name=op.f('fk_core_eia860m__monthly_generators_changelog_utility_id_eia_core_eia860__scd_utilities')),
     sa.PrimaryKeyConstraint('plant_id_eia', 'generator_id', 'report_date', name=op.f('pk_core_eia860m__monthly_generators_changelog'))
     )
     # ### end Alembic commands ###
