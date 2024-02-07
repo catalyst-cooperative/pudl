@@ -8,7 +8,7 @@ import pudl
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager")
+@asset(io_manager_key="pudl_io_manager")
 def core_eia860m__monthly_generators_changelog(
     raw_eia860m__generator_proposed,
     raw_eia860m__generator_existing,
