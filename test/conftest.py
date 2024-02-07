@@ -209,7 +209,7 @@ def ferc1_dbf_extract(
                     "datastore": {
                         "config": pudl_datastore_config,
                     },
-                    "runtime_settings": {"config": {}},
+                    "runtime_settings": {"config": {"xbrl_num_workers": 2}},
                 },
             },
         )
@@ -238,7 +238,7 @@ def ferc1_xbrl_extract(
                     "datastore": {
                         "config": pudl_datastore_config,
                     },
-                    "runtime_settings": {"config": {}},
+                    "runtime_settings": {"config": {"xbrl_num_workers": 2}},
                 },
             }
         )

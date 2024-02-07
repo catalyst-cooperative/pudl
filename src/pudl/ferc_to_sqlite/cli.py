@@ -85,7 +85,7 @@ def ferc_to_sqlite_job_factory(
     "-w",
     "--workers",
     type=int,
-    default=2,
+    default=0,
     help=(
         "Number of worker processes to use when parsing XBRL filings. "
         "Defaults to using the number of CPUs."
