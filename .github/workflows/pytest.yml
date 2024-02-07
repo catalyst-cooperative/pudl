@@ -216,6 +216,8 @@ jobs:
           micromamba run -n coverage coverage combine coverage/*/.coverage
           micromamba run -n coverage coverage xml
           micromamba run -n coverage coverage report --fail-under=100
+      - name: Fail on purpose if we get here for some reason.
+        run: exit 1
 
   ci-notify:
     runs-on: ubuntu-latest
