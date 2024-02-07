@@ -7,7 +7,7 @@ from dagster import AssetsDefinition, asset
 def sql_asset_factory(
     name: str,
     deps: set[str] = {},
-    io_manager_key: str = "pudl_sqlite_io_manager",
+    io_manager_key: str = "pudl_io_manager",
     compute_kind: str = "SQL",
 ) -> AssetsDefinition:
     """Factory for creating assets that run SQL statements."""

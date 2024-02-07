@@ -316,7 +316,7 @@ allocate_gen_fuel_assets = [
     for freq in ["AS", "MS"]
     for allocated_net_gen_asset in allocate_gen_fuel_asset_factory(
         freq=freq,
-        io_manager_key="pudl_sqlite_io_manager",
+        io_manager_key="pudl_io_manager",
     )
 ]
 

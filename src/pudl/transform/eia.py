@@ -621,7 +621,7 @@ def harvest_entity_tables(  # noqa: C901
         ),
     },
     required_resource_keys={"dataset_settings"},
-    io_manager_key="pudl_sqlite_io_manager",
+    io_manager_key="pudl_io_manager",
 )
 def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:
     """Creates a set of more complete boiler generator associations.
@@ -1209,7 +1209,7 @@ def harvested_entity_asset_factory(
 
 
 harvested_entities = [
-    harvested_entity_asset_factory(entity, io_manager_key="pudl_sqlite_io_manager")
+    harvested_entity_asset_factory(entity, io_manager_key="pudl_io_manager")
     for entity in EiaEntity
 ]
 
@@ -1244,7 +1244,7 @@ def finished_eia_asset_factory(
 
 finished_eia_assets = [
     finished_eia_asset_factory(
-        table_name, _core_table_name, io_manager_key="pudl_sqlite_io_manager"
+        table_name, _core_table_name, io_manager_key="pudl_io_manager"
     )
     for table_name, _core_table_name in {
         "core_eia923__monthly_boiler_fuel": "_core_eia923__boiler_fuel",
