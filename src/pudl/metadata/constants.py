@@ -21,7 +21,7 @@ FIELD_DTYPES_PANDAS: dict[str, str] = {
 FIELD_DTYPES_PYARROW: dict[str, pa.lib.DataType] = {
     "boolean": pa.bool_(),
     "date": pa.date32(),
-    "datetime": pa.timestamp("ms", tz="UTC"),
+    "datetime": pa.timestamp("ms"),
     "integer": pa.int32(),
     "number": pa.float32(),
     "string": pa.string(),

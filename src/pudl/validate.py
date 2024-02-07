@@ -617,7 +617,7 @@ def plot_vs_bounds(df, validation_cases):
             vs_bounds(df, **args)
         except ValueError as e:
             logger.error(str(e))
-            warnings.warn("ERROR: Validation Failed")
+            warnings.warn("ERROR: Validation Failed", stacklevel=1)
 
         bounds_histogram(df, **args)
 
@@ -629,7 +629,7 @@ def plot_vs_self(df, validation_cases):
             vs_self(df, **args)
         except ValueError as e:
             logger.error(str(e))
-            warnings.warn("ERROR: Validation Failed")
+            warnings.warn("ERROR: Validation Failed", stacklevel=1)
 
         historical_histogram(df, test_df=None, **args)
 
@@ -641,7 +641,7 @@ def plot_vs_agg(orig_df, agg_df, validation_cases):
             vs_historical(orig_df, agg_df, **args)
         except ValueError as e:
             logger.error(str(e))
-            warnings.warn("ERROR: Validation Failed")
+            warnings.warn("ERROR: Validation Failed", stacklevel=1)
 
         historical_histogram(orig_df, agg_df, **args)
 

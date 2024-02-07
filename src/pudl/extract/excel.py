@@ -92,19 +92,19 @@ class Metadata:
 
     def get_sheet_name(self, page, **partition):
         """Return name of Excel sheet containing data for given partition and page."""
-        return self._sheet_name.at[page, str(self._get_partition_key(partition))]
+        return self._sheet_name.loc[page, str(self._get_partition_key(partition))]
 
     def get_skiprows(self, page, **partition):
         """Return number of header rows to skip when loading a partition and page."""
-        return self._skiprows.at[page, str(self._get_partition_key(partition))]
+        return self._skiprows.loc[page, str(self._get_partition_key(partition))]
 
     def get_skipfooter(self, page, **partition):
         """Return number of footer rows to skip when loading a partition and page."""
-        return self._skipfooter.at[page, str(self._get_partition_key(partition))]
+        return self._skipfooter.loc[page, str(self._get_partition_key(partition))]
 
     def get_file_name(self, page, **partition):
         """Returns file name of given partition and page."""
-        return self._file_name.at[page, str(self._get_partition_key(partition))]
+        return self._file_name.loc[page, str(self._get_partition_key(partition))]
 
     def get_column_map(self, page, **partition):
         """Return dictionary for renaming columns in a given partition and page."""

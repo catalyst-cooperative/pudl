@@ -266,7 +266,7 @@ def match_orphaned_records(
 
     # Assign new labels to all points
     new_labels = classifier.fit_predict(average_dist_matrix)
-    for inds, label in zip(cluster_groups, new_labels):
+    for inds, label in zip(cluster_groups, new_labels, strict=True):
         id_year_df.loc[inds, "record_label"] = label
 
     logger.info(

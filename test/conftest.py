@@ -16,10 +16,10 @@ from pudl.etl.cli import pudl_etl_job_factory
 from pudl.extract.ferc1 import raw_ferc1_xbrl__metadata_json
 from pudl.ferc_to_sqlite.cli import ferc_to_sqlite_job_factory
 from pudl.io_managers import (
-    PudlSQLiteIOManager,
+    PudlMixedFormatIOManager,
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
-    pudl_sqlite_io_manager,
+    pudl_mixed_format_io_manager,
 )
 from pudl.metadata.classes import Package
 from pudl.output.pudltabl import PudlTabl
@@ -98,8 +98,8 @@ def save_unmapped_ids(request) -> bool:
     return request.config.getoption("--save-unmapped-ids")
 
 
-@pytest.fixture(scope="session", name="check_foreign_keys")
-def check_foreign_keys(request) -> bool:
+@pytest.fixture
+def check_foreign_keys_flag(request) -> bool:
     """Fixture that tells whether to use existing live FERC1/PUDL DBs)."""
     return not request.config.getoption("--ignore-foreign-key-constraints")
 
@@ -279,19 +279,18 @@ def ferc1_xbrl_taxonomy_metadata(ferc1_engine_xbrl: sa.Engine):
 
 
 @pytest.fixture(scope="session")
-def pudl_sql_io_manager(
+def pudl_io_manager(
     ferc1_engine_dbf: sa.Engine,  # Implicit dependency
     ferc1_engine_xbrl: sa.Engine,  # Implicit dependency
     live_dbs: bool,
     pudl_datastore_config,
     dataset_settings_config,
-    check_foreign_keys: bool,
     request,
-) -> PudlSQLiteIOManager:
+) -> PudlMixedFormatIOManager:
     """Grab a connection to the PUDL IO manager.
 
     If we are using the test database, we initialize the PUDL DB from scratch. If we're
-    using the live database, then we just make a conneciton to it.
+    using the live database, then we just make a connection to it.
     """
     logger.info("setting up the pudl_engine fixture")
     if not live_dbs:
@@ -316,13 +315,13 @@ def pudl_sql_io_manager(
     # All the hard work here is being done by the datapkg and
     # datapkg_to_sqlite fixtures, above.
     context = build_init_resource_context()
-    return pudl_sqlite_io_manager(context)
+    return pudl_mixed_format_io_manager(context)
 
 
 @pytest.fixture(scope="session")
-def pudl_engine(pudl_sql_io_manager: PudlSQLiteIOManager) -> sa.Engine:
+def pudl_engine(pudl_io_manager: PudlMixedFormatIOManager) -> sa.Engine:
     """Get PUDL SQL engine from io manager."""
-    return pudl_sql_io_manager.engine
+    return pudl_io_manager._sqlite_io_manager.engine
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -371,7 +370,7 @@ def dataset_settings_config(request, etl_settings: EtlSettings):
     return etl_settings.datasets.model_dump()
 
 
-@pytest.fixture(scope="session")  # noqa: C901
+@pytest.fixture(scope="session")
 def pudl_datastore_config(request) -> dict[str, Any]:
     """Produce a :class:pudl.workspace.datastore.Datastore."""
     gcs_cache_path = request.config.getoption("--gcs-cache-path")
