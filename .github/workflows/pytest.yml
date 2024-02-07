@@ -211,17 +211,11 @@ jobs:
           create-args: >-
             python=3.11
             coverage>=7.4.1
-      - name: Combine all coverage data into a single coverage.xml
+      - name: Combine coverage data and check that we have required coverage
         run: |
           micromamba run -n coverage coverage combine coverage/*/.coverage
           micromamba run -n coverage coverage xml
-      - name: Check coverage
-        uses: orgoro/coverage@v3.1
-        with:
-          coverageFile: coverage.xml
-          token: ${{ secrets.GITHUB_TOKEN }}
-          # Set impossibly high to test failure condition in merge queue
-          thresholdAll: 1.0
+          micromamba run -n coverage coverage report --fail-under=100
 
   ci-notify:
     runs-on: ubuntu-latest
