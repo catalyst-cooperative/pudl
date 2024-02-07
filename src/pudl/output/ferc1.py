@@ -214,7 +214,7 @@ def get_core_ferc1_asset_description(asset_name: str) -> str:
     return asset_description
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def _out_ferc1__yearly_plants_utilities(
     core_pudl__assn_ferc1_pudl_plants: pd.DataFrame,
     core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
@@ -227,24 +227,23 @@ def _out_ferc1__yearly_plants_utilities(
     )
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def _out_ferc1__yearly_steam_plants_sched402(
     _out_ferc1__yearly_plants_utilities: pd.DataFrame,
     _out_ferc1__yearly_steam_plants_sched402_with_plant_ids: pd.DataFrame,
 ) -> pd.DataFrame:
     """Select and joins some useful fields from the FERC Form 1 steam table.
 
-    Select the FERC Form 1 steam plant table entries, add in the reporting
-    utility's name, and the PUDL ID for the plant and utility for readability
-    and integration with other tables that have PUDL IDs.
-    Also calculates ``capacity_factor`` (based on ``net_generation_mwh`` &
-    ``capacity_mw``)
+    Select the FERC Form 1 steam plant table entries, add in the reporting utility's
+    name, and the PUDL ID for the plant and utility for readability and integration with
+    other tables that have PUDL IDs.  Also calculates ``capacity_factor`` (based on
+    ``net_generation_mwh`` & ``capacity_mw``)
 
     Args:
-        _out_ferc1__yearly_plants_utilities: Denormalized dataframe of FERC Form 1 plants and
-            utilities data.
-        _out_ferc1__yearly_steam_plants_sched402_with_plant_ids: The FERC Form 1 steam table
-            with imputed plant IDs to group plants across report years.
+        _out_ferc1__yearly_plants_utilities: Denormalized dataframe of FERC Form 1
+            plants and utilities data.
+        _out_ferc1__yearly_steam_plants_sched402_with_plant_ids: The FERC Form 1 steam
+            table with imputed plant IDs to group plants across report years.
 
     Returns:
         A DataFrame containing useful fields from the FERC Form 1 steam table.
@@ -283,7 +282,7 @@ def _out_ferc1__yearly_steam_plants_sched402(
     return steam_df
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def _out_ferc1__yearly_small_plants_sched410(
     core_ferc1__yearly_small_plants_sched410: pd.DataFrame,
     _out_ferc1__yearly_plants_utilities: pd.DataFrame,
@@ -320,7 +319,7 @@ def _out_ferc1__yearly_small_plants_sched410(
     return plants_small_df
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def _out_ferc1__yearly_hydroelectric_plants_sched406(
     core_ferc1__yearly_hydroelectric_plants_sched406: pd.DataFrame,
     _out_ferc1__yearly_plants_utilities: pd.DataFrame,
@@ -351,7 +350,7 @@ def _out_ferc1__yearly_hydroelectric_plants_sched406(
     return plants_hydro_df
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def _out_ferc1__yearly_pumped_storage_plants_sched408(
     core_ferc1__yearly_pumped_storage_plants_sched408: pd.DataFrame,
     _out_ferc1__yearly_plants_utilities: pd.DataFrame,
@@ -382,7 +381,7 @@ def _out_ferc1__yearly_pumped_storage_plants_sched408(
     return pumped_storage_df
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def out_ferc1__yearly_steam_plants_fuel_sched402(
     core_ferc1__yearly_steam_plants_fuel_sched402: pd.DataFrame,
     _out_ferc1__yearly_plants_utilities: pd.DataFrame,
@@ -395,14 +394,6 @@ def out_ferc1__yearly_steam_plants_fuel_sched402(
 
     * ``fuel_consumed_mmbtu`` (total fuel heat content consumed)
     * ``fuel_consumed_total_cost`` (total cost of that fuel)
-
-    Args:
-        pudl_engine (sqlalchemy.engine.Engine): Engine for connecting to the
-            PUDL database.
-
-    Returns:
-        A DataFrame containing useful FERC Form 1 fuel
-        information.
     """
     fuel_df = (
         core_ferc1__yearly_steam_plants_fuel_sched402.assign(
@@ -430,7 +421,7 @@ def out_ferc1__yearly_steam_plants_fuel_sched402(
     return fuel_df
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def out_ferc1__yearly_purchased_power_and_exchanges_sched326(
     core_ferc1__yearly_purchased_power_and_exchanges_sched326: pd.DataFrame,
     core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
@@ -454,7 +445,7 @@ def out_ferc1__yearly_purchased_power_and_exchanges_sched326(
     return purchased_power_df
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def out_ferc1__yearly_plant_in_service_sched204(
     core_ferc1__yearly_plant_in_service_sched204: pd.DataFrame,
     core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
@@ -475,7 +466,7 @@ def out_ferc1__yearly_plant_in_service_sched204(
     return pis_df
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def out_ferc1__yearly_balance_sheet_assets_sched110(
     core_ferc1__yearly_balance_sheet_assets_sched110: pd.DataFrame,
     core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
@@ -499,7 +490,7 @@ def out_ferc1__yearly_balance_sheet_assets_sched110(
     return out_ferc1__yearly_balance_sheet_assets_sched110
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def out_ferc1__yearly_balance_sheet_liabilities_sched110(
     core_ferc1__yearly_balance_sheet_liabilities_sched110: pd.DataFrame,
     core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
@@ -523,7 +514,7 @@ def out_ferc1__yearly_balance_sheet_liabilities_sched110(
     return out_ferc1__yearly_balance_sheet_liabilities_sched110
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def out_ferc1__yearly_cash_flows_sched120(
     core_ferc1__yearly_cash_flows_sched120: pd.DataFrame,
     core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
@@ -547,7 +538,7 @@ def out_ferc1__yearly_cash_flows_sched120(
     return out_ferc1__yearly_cash_flows_sched120
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def out_ferc1__yearly_depreciation_summary_sched336(
     core_ferc1__yearly_depreciation_summary_sched336: pd.DataFrame,
     core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
@@ -572,7 +563,7 @@ def out_ferc1__yearly_depreciation_summary_sched336(
     return out_ferc1__yearly_depreciation_summary_sched336
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def out_ferc1__yearly_energy_dispositions_sched401(
     core_ferc1__yearly_energy_dispositions_sched401: pd.DataFrame,
     core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
@@ -596,7 +587,7 @@ def out_ferc1__yearly_energy_dispositions_sched401(
     return out_ferc1__yearly_energy_dispositions_sched401
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def out_ferc1__yearly_energy_sources_sched401(
     core_ferc1__yearly_energy_sources_sched401: pd.DataFrame,
     core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
@@ -620,7 +611,7 @@ def out_ferc1__yearly_energy_sources_sched401(
     return out_ferc1__yearly_energy_sources_sched401
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def out_ferc1__yearly_operating_expenses_sched320(
     core_ferc1__yearly_operating_expenses_sched320: pd.DataFrame,
     core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
@@ -644,7 +635,7 @@ def out_ferc1__yearly_operating_expenses_sched320(
     return out_ferc1__yearly_operating_expenses_sched320
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def out_ferc1__yearly_operating_revenues_sched300(
     core_ferc1__yearly_operating_revenues_sched300: pd.DataFrame,
     core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
@@ -668,7 +659,7 @@ def out_ferc1__yearly_operating_revenues_sched300(
     return out_ferc1__yearly_operating_revenues_sched300
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def out_ferc1__yearly_depreciation_changes_sched219(
     core_ferc1__yearly_depreciation_changes_sched219: pd.DataFrame,
     core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
@@ -694,7 +685,7 @@ def out_ferc1__yearly_depreciation_changes_sched219(
     return out_ferc1__yearly_depreciation_changes_sched219
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def out_ferc1__yearly_depreciation_by_function_sched219(
     core_ferc1__yearly_depreciation_by_function_sched219: pd.DataFrame,
     core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
@@ -720,7 +711,7 @@ def out_ferc1__yearly_depreciation_by_function_sched219(
     return out_ferc1__yearly_depreciation_by_function_sched219
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def out_ferc1__yearly_sales_by_rate_schedules_sched304(
     core_ferc1__yearly_sales_by_rate_schedules_sched304: pd.DataFrame,
     core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
@@ -743,7 +734,7 @@ def out_ferc1__yearly_sales_by_rate_schedules_sched304(
     return out_ferc1__yearly_sales_by_rate_schedules_sched304
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def out_ferc1__yearly_income_statements_sched114(
     core_ferc1__yearly_income_statements_sched114: pd.DataFrame,
     core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
@@ -768,7 +759,7 @@ def out_ferc1__yearly_income_statements_sched114(
     return out_ferc1__yearly_income_statements_sched114
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def out_ferc1__yearly_other_regulatory_liabilities_sched278(
     core_ferc1__yearly_other_regulatory_liabilities_sched278: pd.DataFrame,
     core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
@@ -790,7 +781,7 @@ def out_ferc1__yearly_other_regulatory_liabilities_sched278(
     return out_ferc1__yearly_other_regulatory_liabilities_sched278
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def out_ferc1__yearly_retained_earnings_sched118(
     core_ferc1__yearly_retained_earnings_sched118: pd.DataFrame,
     core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
@@ -814,7 +805,7 @@ def out_ferc1__yearly_retained_earnings_sched118(
     return out_ferc1__yearly_retained_earnings_sched118
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def out_ferc1__yearly_transmission_lines_sched422(
     core_ferc1__yearly_transmission_lines_sched422: pd.DataFrame,
     core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
@@ -836,7 +827,7 @@ def out_ferc1__yearly_transmission_lines_sched422(
     return out_ferc1__yearly_transmission_lines_sched422
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def out_ferc1__yearly_utility_plant_summary_sched200(
     core_ferc1__yearly_utility_plant_summary_sched200: pd.DataFrame,
     core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
@@ -861,7 +852,7 @@ def out_ferc1__yearly_utility_plant_summary_sched200(
     return out_ferc1__yearly_utility_plant_summary_sched200
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def out_ferc1__yearly_all_plants(
     _out_ferc1__yearly_steam_plants_sched402: pd.DataFrame,
     core_ferc1__yearly_small_plants_sched410: pd.DataFrame,
@@ -912,7 +903,7 @@ def out_ferc1__yearly_all_plants(
 
 
 @asset(
-    io_manager_key="pudl_sqlite_io_manager",
+    io_manager_key="pudl_io_manager",
     config_schema={
         "thresh": Field(
             float,
@@ -942,7 +933,8 @@ def out_ferc1__yearly_steam_plants_fuel_by_plant_sched402(
     Args:
         context: Dagster context object
         core_ferc1__yearly_steam_plants_fuel_sched402: Normalized FERC fuel table.
-        _out_ferc1__yearly_plants_utilities: Denormalized table of FERC1 plant & utility IDs.
+        _out_ferc1__yearly_plants_utilities: Denormalized table of FERC1 plant & utility
+            IDs.
 
     Returns:
         A DataFrame with fuel use summarized by plant.

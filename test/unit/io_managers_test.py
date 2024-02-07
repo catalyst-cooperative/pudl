@@ -12,10 +12,13 @@ import sqlalchemy as sa
 from dagster import AssetKey, build_input_context, build_output_context
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from pudl.io_managers import (
-    FercXBRLSQLiteIOManager,
+from pudl.etl.check_foreign_keys import (
     ForeignKeyError,
     ForeignKeyErrors,
+    check_foreign_keys,
+)
+from pudl.io_managers import (
+    FercXBRLSQLiteIOManager,
     PudlSQLiteIOManager,
     SQLiteIOManager,
 )
@@ -126,7 +129,7 @@ def test_foreign_key_failure(sqlite_io_manager_fixture):
     manager.handle_output(output_context, track)
 
     with pytest.raises(ForeignKeyErrors) as excinfo:
-        manager.check_foreign_keys()
+        check_foreign_keys(manager.engine)
 
     assert excinfo.value[0] == ForeignKeyError(
         child_table="track",
@@ -293,6 +296,33 @@ def test_error_when_handling_view_without_metadata(fake_pudl_sqlite_io_manager_f
     output_context = build_output_context(asset_key=AssetKey(asset_key))
     with pytest.raises(ValueError):
         fake_pudl_sqlite_io_manager_fixture.handle_output(output_context, sql_stmt)
+
+
+def test_empty_read_fails(fake_pudl_sqlite_io_manager_fixture):
+    """Reading empty table fails."""
+    with pytest.raises(AssertionError):
+        context = build_input_context(asset_key=AssetKey("artist"))
+        fake_pudl_sqlite_io_manager_fixture.load_input(context)
+
+
+def test_replace_on_insert(fake_pudl_sqlite_io_manager_fixture):
+    """Tests that two runs of the same asset overwrite existing contents."""
+    artist_df = pd.DataFrame({"artistid": [1], "artistname": ["Co-op Mop"]})
+    output_context = build_output_context(asset_key=AssetKey("artist"))
+    input_context = build_input_context(asset_key=AssetKey("artist"))
+
+    # Write then read.
+    fake_pudl_sqlite_io_manager_fixture.handle_output(output_context, artist_df)
+    read_df = fake_pudl_sqlite_io_manager_fixture.load_input(input_context)
+    pd.testing.assert_frame_equal(artist_df, read_df, check_dtype=False)
+    # check_dtype=False, because int64 != Int64. /o\
+
+    # Rerunning the asset overrwrites contents, leaves only
+    # one artist in the database.
+    new_artist_df = pd.DataFrame({"artistid": [2], "artistname": ["Cxtxlyst"]})
+    fake_pudl_sqlite_io_manager_fixture.handle_output(output_context, new_artist_df)
+    read_df = fake_pudl_sqlite_io_manager_fixture.load_input(input_context)
+    pd.testing.assert_frame_equal(new_artist_df, read_df, check_dtype=False)
 
 
 @pytest.mark.skip(reason="SQLAlchemy is not finding the view. Debug or remove.")

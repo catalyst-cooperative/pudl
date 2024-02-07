@@ -172,8 +172,10 @@ function update_nightly_branch() {
 function clean_up_outputs_for_distribution() {
     # Compress the SQLite DBs for easier distribution
     gzip --verbose "$PUDL_OUTPUT"/*.sqlite && \
-    # Remove redundant multi-file EPA CEMS outputs prior to distribution
-    rm -rf "$PUDL_OUTPUT/core_epacems__hourly_emissions/" && \
+    # Grab the consolidated EPA CEMS outputs for distribution
+    cp "$PUDL_OUTPUT/parquet/core_epacems__hourly_emissions.parquet" "$PUDL_OUTPUT" && \
+    # Remove all other parquet output, which we are not yet distributing.
+    rm -rf "$PUDL_OUTPUT/parquet" && \
     rm -f "$PUDL_OUTPUT/metadata.yml"
 }
 

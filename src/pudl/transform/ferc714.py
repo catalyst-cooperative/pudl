@@ -368,7 +368,7 @@ def _standardize_offset_codes(df: pd.DataFrame, offset_fixes) -> pd.DataFrame:
     return codes
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager")
+@asset(io_manager_key="pudl_io_manager")
 def core_ferc714__respondent_id(
     raw_ferc714__respondent_id: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -396,9 +396,9 @@ def core_ferc714__respondent_id(
     return _post_process(df, table_name="core_ferc714__respondent_id")
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager")
+@asset(io_manager_key="pudl_io_manager")
 def out_ferc714__hourly_planning_area_demand(
-    raw_ferc714__demand_hourly_pa: pd.DataFrame,
+    raw_ferc714__hourly_planning_area_demand: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the hourly demand time series by Planning Area.
 
@@ -412,15 +412,15 @@ def out_ferc714__hourly_planning_area_demand(
     - Flip negative signs for reported demand.
 
     Args:
-        raw_ferc714__demand_hourly_pa: Raw table containing hourly demand time series by
-            Planning Area.
+        raw_ferc714__hourly_planning_area_demand: Raw table containing hourly demand
+            time series by Planning Area.
 
     Returns:
         Clean(er) version of the hourly demand time series by Planning Area.
     """
     logger.info("Converting dates into pandas Datetime types.")
     df = _pre_process(
-        raw_ferc714__demand_hourly_pa,
+        raw_ferc714__hourly_planning_area_demand,
         table_name="out_ferc714__hourly_planning_area_demand",
     )
 
