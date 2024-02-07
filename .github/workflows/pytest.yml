@@ -107,7 +107,7 @@ jobs:
     runs-on:
       group: large-runner-group
       labels: ubuntu-22.04-4core
-    if: github.event_name == "merge_group" || github.event_name == "workflow_dispatch"
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'merge_queue'))
     permissions:
       contents: read
       id-token: write
