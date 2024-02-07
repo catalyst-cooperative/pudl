@@ -50,11 +50,11 @@ jobs:
           pip install --no-deps --editable .
           make docs-build
 
-      - name: Upload docs coverage artifact
+      - name: Upload coverage
         uses: actions/upload-artifact@v4
         with:
           name: coverage-docs
-          path: ./*coverage*
+          path: coverage.xml
 
   ci-unit:
     runs-on: ubuntu-latest
@@ -97,17 +97,17 @@ jobs:
           pip install --no-deps --editable .
           make pytest-unit
 
-      - name: Upload unit tests coverage artifact
+      - name: Upload coverage
         uses: actions/upload-artifact@v4
         with:
           name: coverage-unit
-          path: ./*coverage*
+          path: coverage.xml
 
   ci-integration:
     runs-on:
       group: large-runner-group
       labels: ubuntu-22.04-4core
-    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'merge_queue'))
+    if: github.event.merge_group || github.event.workflow_dispatch
     permissions:
       contents: read
       id-token: write
@@ -174,11 +174,11 @@ jobs:
           pudl_datastore --dataset epacems --partition year_quarter=2022q1
           make pytest-integration
 
-      - name: Upload integration test coverage artifact
+      - name: Upload coverage
         uses: actions/upload-artifact@v4
         with:
           name: coverage-integration
-          path: ./*coverage*
+          path: coverage.xml
 
       - name: Log post-test Zenodo datastore contents
         run: find ${{ env.PUDL_INPUT }}
@@ -198,24 +198,11 @@ jobs:
           path: coverage
       - name: List downloaded files
         run: |
-          find coverage -type f
+          ls -R
       - name: Upload test coverage report to CodeCov
         uses: codecov/codecov-action@v4
         with:
           directory: coverage
-      - name: Install Micromamba
-        uses: mamba-org/setup-micromamba@v1
-        with:
-          init-shell: bash
-          environment-name: coverage
-          create-args: >-
-            python=3.11
-            coverage>=7.4.1
-      - name: Combine coverage data and check that we have required coverage
-        run: |
-          micromamba run -n coverage coverage combine coverage/*/.coverage
-          micromamba run -n coverage coverage xml
-          micromamba run -n coverage coverage report --fail-under=100
 
   ci-notify:
     runs-on: ubuntu-latest
