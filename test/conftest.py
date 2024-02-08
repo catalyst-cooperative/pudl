@@ -321,11 +321,18 @@ def pudl_engine(pudl_io_manager: PudlMixedFormatIOManager) -> sa.Engine:
 def configure_paths_for_tests(tmp_path_factory, request):
     """Configures PudlPaths for tests.
 
-    Typically PUDL_INPUT and PUDL_OUTPUT will be read from the environment.
-    If we are running in GitHub Actions and they are NOT set, we'll use temp dirs.
-    If we are NOT running in GitHub Actions (e.g. we're running locally) then we always
-    want to use a temporary output directory, so we don't overwrite a user's existing
-    databases.
+    Default behavior:
+
+    PUDL_INPUT is read from the environment.
+    PUDL_OUTPUT is set to a tmp path, to avoid clobbering existing databases.
+
+    Set ``--tmp-data`` to force PUDL_INPUT to a temporary directory, causing
+    re-downloads of all raw inputs.
+
+    Set ``--live-dbs`` to force PUDL_OUTPUT to *NOT* be a temporary directory
+    and instead inherit from environment.
+
+    ``--live--dbs`` flag is ignored in unit tests, see pudl/test/unit/conftest.py.
     """
     # Just in case we need this later...
     pudl_tmpdir = tmp_path_factory.mktemp("pudl")

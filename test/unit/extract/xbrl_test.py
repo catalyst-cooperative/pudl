@@ -1,6 +1,5 @@
 """Tests for xbrl extraction module."""
 
-import os
 
 import pytest
 from dagster import ResourceDefinition, build_op_context
@@ -110,8 +109,6 @@ def test_xbrl2sqlite(settings, forms, mocker, tmp_path):
         if op.tags.get("data_format") == "xbrl"
     ]
 
-    # always use tmp path here so that we don't clobber the live DB when --live-dbs is passed
-    mocker.patch.dict(os.environ, {"PUDL_OUTPUT": tmp_path})
     ferc_to_sqlite.execute_in_process(
         op_selection=op_selection,
         resources={
@@ -140,9 +137,6 @@ def test_xbrl2sqlite(settings, forms, mocker, tmp_path):
 
 
 def test_xbrl2sqlite_db_exists_no_clobber(mocker, tmp_path):
-    # always use tmp path here so that we don't clobber the live DB when --live-dbs is passed
-    mocker.patch.dict(os.environ, {"PUDL_OUTPUT": tmp_path})
-
     convert_form_mock = mocker.MagicMock()
     mocker.patch("pudl.extract.xbrl.convert_form", new=convert_form_mock)
 
@@ -174,9 +168,6 @@ def test_xbrl2sqlite_db_exists_no_clobber(mocker, tmp_path):
 
 
 def test_xbrl2sqlite_db_exists_yes_clobber(mocker, tmp_path):
-    # always use tmp path here so that we don't clobber the live DB when --live-dbs is passed
-    mocker.patch.dict(os.environ, {"PUDL_OUTPUT": tmp_path})
-
     convert_form_mock = mocker.MagicMock()
     mocker.patch("pudl.extract.xbrl.convert_form", new=convert_form_mock)
 
