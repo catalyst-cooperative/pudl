@@ -524,7 +524,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 # and therefor there are a few straggler generators that don't end up in this table
                 "exclude": [
                     "core_epa__assn_eia_epacamd_subplant_ids",
-                    "core_eia860m__monthly_generators_changelog",
+                    "core_eia860m__changelog_generators",
                 ],
             },
         },
@@ -583,7 +583,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "exclude": [
                     "core_pudl__assn_eia_pudl_plants",
                     "core_epa__assn_eia_epacamd_subplant_ids",
-                    "core_eia860m__monthly_generators_changelog",
+                    "core_eia860m__changelog_generators",
                 ],
             },
         },
@@ -682,7 +682,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "out_eia923__yearly_generation_fuel_by_generator_energy_source_owner",
                     # also exclude the 860 changelog table bc that table doesn't get harvested
                     # and therefor there are a few straggler generators that don't end up in this table
-                    "core_eia860m__monthly_generators_changelog",
+                    "core_eia860m__changelog_generators",
                 ],
             },
         },

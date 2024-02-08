@@ -207,7 +207,7 @@ class Eia860Settings(GenericDatasetSettings):
     Args:
         data_source: DataSource metadata object
         years: list of years to validate.
-        eia860m: whether of not to incorporate an EIA-860m month.
+        eia860m: whether or not to incorporate an EIA-860m month.
         eia860m_year_month ClassVar[str]: The 860m year-month to incorporate.
     """
 
@@ -246,13 +246,10 @@ class Eia860Settings(GenericDatasetSettings):
 
 
 class Eia860mSettings(GenericDatasetSettings):
-    """An immutable pydantic model to validate EIA 860 settings.
-
-    This model also check 860m settings.
+    """An immutable pydantic model to validate EIA 860m settings.
 
     Args:
         data_source: DataSource metadata object
-        years: list of years to validate.
         year_months ClassVar[str]: The 860m year to date.
     """
 

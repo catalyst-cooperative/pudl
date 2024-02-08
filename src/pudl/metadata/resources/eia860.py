@@ -240,7 +240,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "_out_eia__monthly_heat_rate_by_generator",
                     "_out_eia__monthly_derived_generator_attributes",
                     "out_eia__monthly_generators",
-                    "core_eia860m__monthly_generators_changelog",
+                    "core_eia860m__changelog_generators",
                 ],
             },
         },
@@ -392,7 +392,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "_out_eia__monthly_capacity_factor_by_generator",
                     "_out_eia__monthly_derived_generator_attributes",
                     "out_eia__monthly_generators",
-                    "core_eia860m__monthly_generators_changelog",
+                    "core_eia860m__changelog_generators",
                 ],
             },
         },
@@ -463,7 +463,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "_out_eia__monthly_fuel_cost_by_generator",
                     "out_eia923__monthly_generation_fuel_by_generator_energy_source",
                     "out_eia923__monthly_generation_fuel_by_generator",
-                    "core_eia860m__monthly_generators_changelog",
+                    "core_eia860m__changelog_generators",
                     # Utility IDs in this table are owners, not operators, and we are
                     # not yet harvesting owner_utility_id_eia from core_eia860__scd_ownership.
                     # See https://github.com/catalyst-cooperative/pudl/issues/1393

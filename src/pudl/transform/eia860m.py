@@ -9,7 +9,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 
 @asset(io_manager_key="pudl_io_manager")
-def core_eia860m__monthly_generators_changelog(
+def core_eia860m__changelog_generators(
     raw_eia860m__generator_proposed,
     raw_eia860m__generator_existing,
     raw_eia860m__generator_retired,
@@ -19,6 +19,17 @@ def core_eia860m__monthly_generators_changelog(
     The monthly reported EIA80m tables includes existing, proposed and retired
     generators. This table combines all monthly reported data and preserves the first
     reported record when any new information about the generator was reported.
+
+    We are not putting this table through PUDL's standard normalization process for EIA
+    tables (see :func:pudl.transform.eia.harvest_entity_tables). EIA-860m includes
+    provisional data reported monthly so it changes frequently compared to the more
+    stable annually reported EIA data. If we fed all of the EIA-860m data into the
+    harvesting process, we would get failures because the records from EIA-80m are too
+    inconsistent for our thresholds for harvesting canonical values for entities. A
+    ramification of this table not being harvested is that if there are any entities
+    (generators, plants, utilities) that were only ever reported in an older 860m file,
+    there will be no record of it in the PUDL entity or scd tables. Therefor, this
+    asset cannot have foreign key relationships with the rest of the core EIA tables.
     """
     # compile all of the columns so these 860m bbs have everything for the transform
     eia860_columns = pudl.helpers.dedupe_n_flatten_list_of_lists(
@@ -39,9 +50,15 @@ def core_eia860m__monthly_generators_changelog(
             raw_eia860__generator_retired=raw_eia860m__generator_retired.assign(
                 operational_status_code=pd.NA
             ),
-            raw_eia860__generator=pd.DataFrame(columns=list(eia860_columns)),
+            # pass an empty genertor df here. 860 old years had one big gens tab
+            # but 860m doesn't. we do this just to enable us to run the 860 transform
+            # function. We add all of the columns to it so we don't have any errors
+            # from missing columns
+            raw_eia860__generator=pd.DataFrame(
+                columns=list(eia860_columns)
+            ).convert_dtypes(),
         )
-        # drop all the non 86om cols
+        # drop all the non 860m cols
         .dropna(how="all", axis="columns")
     )
     # there is one plant/gen that has duplicate values
