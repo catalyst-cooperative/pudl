@@ -27,8 +27,28 @@ def get_model_config(experiment_name: str) -> dict:
     return {experiment_name: model_config}
 
 
-def flatten_model_config(model_config: dict) -> dict:
-    """Take nested dictionary defining model config and flatten for logging purposes."""
+def _flatten_model_config(model_config: dict) -> dict:
+    """Take nested dictionary defining model config and flatten for logging purposes.
+
+    This is essentially a translation layer between Dagster configuration and mlflow,
+    which does not support displaying nested parameters in the UI.
+
+    Examples:
+        >>> _flatten_model_config(
+        ...     {
+        ...         'ferc_to_ferc': {
+        ...             'link_ids_cross_year': {
+        ...                 'compute_distance_matrix': {
+        ...                     'distance_threshold': .5,
+        ...                      'metric': 'euclidean',
+        ...                 },
+        ...                 'match_orphaned_records': {'distance_threshold': 0.5},
+        ...             }
+        ...         }
+        ...     }
+        ... )
+        {'ferc_to_ferc.link_ids_cross_year.compute_distance_matrix.distance_threshold': 0.5, 'ferc_to_ferc.link_ids_cross_year.compute_distance_matrix.metric': 'euclidean', 'ferc_to_ferc.link_ids_cross_year.match_orphaned_records.distance_threshold': 0.5}
+    """
 
     def _flatten_level(config_level: dict, param_name: str):
         flattened_dict = {}
@@ -56,7 +76,23 @@ class ExperimentTrackerConfig(Config):
 
 
 class ExperimentTracker(BaseModel):
-    """Class to manage tracking a single model."""
+    """Class to manage tracking a machine learning model using MLflow.
+
+    The following command will launch the mlflow UI to view model results:
+    `mlflow ui --backend-store-uri {tracking_uri}`. From here, you can compare metrics
+    from multiple runs, and track performance.
+
+    This class is designed to be created using the `op` :func:`create_experiment_tracker`.
+    This allows the `ExperimentTracker` to be passed around within a Dagster `graph`,
+    and be used for mlflow logging in any of the `op`s that make up the `graph`. This
+    is useful because Dagster executes `op`s in separate processes, while mlflow does
+    not maintain state between processes. This design also allows configuration of
+    the ExperimentTracker to be set from the Dagster UI.
+
+    Currently, we are only doing experiment tracking in a local context, but if we were
+    to setup a tracking server, we could point the `tracking_uri` at this remote server
+    without having to modify the models.
+    """
 
     tracker_config: ExperimentTrackerConfig
     run_id: str
@@ -69,6 +105,7 @@ class ExperimentTracker(BaseModel):
         run_id = ""
         if experiment_config.tracking_enabled:
             mlflow.set_tracking_uri(experiment_config.tracking_uri)
+            # Create new run under specified experiment
             with mlflow.start_run(
                 experiment_id=cls.get_or_create_experiment(
                     experiment_name=experiment_config.experiment_name,
@@ -76,12 +113,14 @@ class ExperimentTracker(BaseModel):
                 ),
                 tags={"run_context": experiment_config.run_context},
             ) as run:
+                # Log model configuration from yaml file if enabled
                 if experiment_config.log_yaml:
-                    config = flatten_model_config(
+                    config = _flatten_model_config(
                         get_model_config(experiment_config.experiment_name)
                     )
                     mlflow.log_params(config)
 
+                # Get run_id from new run so it can be restarted in other processes
                 run_id = run.info.run_id
 
         return cls(tracker_config=experiment_config, run_id=run_id)
@@ -97,6 +136,7 @@ class ExperimentTracker(BaseModel):
         """
         if self.tracker_config.tracking_enabled:
             mlflow.set_tracking_uri(self.tracker_config.tracking_uri)
+            # Calling `start_run` with `run_id` will tell mlflow to start the run again
             with mlflow.start_run(
                 run_id=self.run_id,
                 experiment_id=self.get_or_create_experiment(

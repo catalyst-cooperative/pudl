@@ -41,7 +41,7 @@ def test_flatten_model_config(input_dict: dict, flattened_dict: dict):
     Should take nested dict and return dict with only one level and nested keys
     seperated by periods.
     """
-    assert ml_tools.flatten_model_config(input_dict) == flattened_dict
+    assert ml_tools._flatten_model_config(input_dict) == flattened_dict
 
 
 @pytest.fixture(scope="function")
