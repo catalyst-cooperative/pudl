@@ -5,20 +5,23 @@ import importlib.resources
 import warnings
 import zipfile
 from collections import defaultdict
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from functools import lru_cache
 from pathlib import Path
 from typing import IO, Any, Protocol, Self
 
 import pandas as pd
 import sqlalchemy as sa
+from dagster import op
 from dbfread import DBF, FieldParser
 
 import pudl
 import pudl.logging_helpers
 from pudl.metadata.classes import DataSource
+from pudl.resources import RuntimeSettings
 from pudl.settings import FercToSqliteSettings, GenericDatasetSettings
 from pudl.workspace.datastore import Datastore
+from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -462,6 +465,32 @@ class FercDbfExtractor:
         """Returns the connection string for the sqlite database."""
         db_path = str(Path(self.output_path) / self.DATABASE_NAME)
         return f"sqlite:///{db_path}"
+
+    @classmethod
+    def get_dagster_op(cls) -> Callable:
+        """Returns dagstger op that runs this extractor."""
+
+        @op(
+            name=f"{cls.DATASET}_dbf",
+            required_resource_keys={
+                "ferc_to_sqlite_settings",
+                "datastore",
+                "runtime_settings",
+            },
+            tags={"dataset": cls.DATASET, "data_format": "dbf"},
+        )
+        def inner_method(context) -> None:
+            rs: RuntimeSettings = context.resources.runtime_settings
+            """Instantiates dbf extractor and runs it."""
+            dbf_extractor = cls(
+                datastore=context.resources.datastore,
+                settings=context.resources.ferc_to_sqlite_settings,
+                clobber=rs.clobber,
+                output_path=PudlPaths().output_dir,
+            )
+            dbf_extractor.execute()
+
+        return inner_method
 
     def execute(self):
         """Runs the extraction of the data from dbf to sqlite."""
