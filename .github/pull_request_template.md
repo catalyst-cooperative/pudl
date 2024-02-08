@@ -17,8 +17,7 @@ How did you make sure this worked? How can a reviewer verify this?
 
 ```[tasklist]
 # To-do list
-- [ ] Ensure docs build, unit & integration tests, and test coverage pass locally with
-      `make pytest-coverage` (otherwise the merge queue may reject your PR)
+- [ ] Ensure docs build, unit & integration tests, and test coverage pass locally with `make pytest-coverage` (otherwise the merge queue may reject your PR)
 - [ ] For significant ETL changes, ensure the full ETL runs locally
 - [ ] For major data coverage & analysis changes, [run data validation tests](https://catalystcoop-pudl.readthedocs.io/en/latest/dev/testing.html#data-validation)
 - [ ] If updating analyses or data processing functions: make sure to update or write data validation tests
