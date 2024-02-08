@@ -1,7 +1,7 @@
 """Tests for metadata not covered elsewhere."""
 import pytest
 
-from pudl.metadata.classes import DataSource, Field, Package
+from pudl.metadata.classes import DataSource, Field, Package, PudlResourceDescriptor
 from pudl.metadata.fields import FIELD_METADATA
 from pudl.metadata.helpers import format_errors
 from pudl.metadata.resources import RESOURCE_METADATA
@@ -88,3 +88,12 @@ def test_get_sorted_resources() -> None:
     assert last_resource_name.startswith(
         "_out"
     ), f"{last_resource_name} is the last resource. Expected a resource with the prefix '_out'"
+
+
+def test_resource_descriptors_valid():
+    # just make sure these validate properly
+    descriptors = {
+        name: PudlResourceDescriptor.model_validate(desc)
+        for name, desc in RESOURCE_METADATA.items()
+    }
+    assert len(descriptors) > 0

@@ -1018,6 +1018,68 @@ class ResourceHarvest(PudlMeta):
     """Fraction of invalid fields above which result is considerd invalid."""
 
 
+class PudlResourceDescriptor(PudlMeta):
+    """The form we expect the RESOURCE_METADATA elements to take.
+
+    This differs from ``Resource`` and ``Schema``, etc., in that we represent
+    many complex types (``Field``, ``DataSource``, etc.) with string IDs that
+    we then turn into instances of those types with lookups. We also use
+    ``foreign_key_rules`` to generate the actual ``foreign_key`` relationships
+    that are represented in ``Schema``s.
+
+    This is all very useful in that we can describe the resources more concisely!
+
+    TODO: In the future, we could convert from a `PudlResourceDescriptor` to
+    various standard formats, such as a Frictionless resource or a Pandera
+    schema. This would require some of the logic currently in `Resource` to
+    move into this class.
+    """
+
+    class PudlSchemaDescriptor(PudlMeta):
+        """Container to hold the schema shape."""
+
+        class PudlForeignKeyRules(PudlMeta):
+            """Container to describe what foreign key rules look like."""
+
+            field_id_lists: list[list[str]] = pydantic.Field(alias="fields", default=[])
+            exclude_ids: list[str] = pydantic.Field(alias="exclude", default=[])
+
+        field_ids: list[str] = pydantic.Field(alias="fields", default=[])
+        primary_key_ids: list[str] = pydantic.Field(alias="primary_key", default=[])
+        checks: list[Callable] = []
+        foreign_key_rules: PudlForeignKeyRules = PudlForeignKeyRules()
+
+    class PudlCodeMetadata(PudlMeta):
+        """Describes a bunch of codes."""
+
+        class CodeDataframe(pr.DataFrameModel):
+            """The DF we use to represent code/label/description associations."""
+
+            # TODO (daz): each of these | Nones are one-offs. Fix the frickin
+            # data instead.
+            code: pr.typing.Series[Any]
+            label: pr.typing.Series[str] | None
+            description: pr.typing.Series[str]
+            operational_status: pr.typing.Series[str] | None
+
+        df: pr.typing.DataFrame[CodeDataframe] = pd.DataFrame(
+            {"code": [], "label": [], "description": []}
+        )
+        code_fixes: dict = {}
+        ignored_codes: list = []
+
+    # TODO (daz): with a name like "title" you might imagine all resources
+    # would have one...
+    title: str | None = None
+    description: str
+    schema_: PudlSchemaDescriptor = pydantic.Field(alias="schema")
+    encoder: PudlCodeMetadata = PudlCodeMetadata()
+    source_ids: list[str] = pydantic.Field(alias="sources")
+    etl_group_id: str = pydantic.Field(alias="etl_group")
+    field_namespace_id: str = pydantic.Field(alias="field_namespace")
+    create_database_schema: bool = True
+
+
 class Resource(PudlMeta):
     """Tabular data resource (`package.resources[...]`).
 
