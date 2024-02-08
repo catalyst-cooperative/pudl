@@ -1,4 +1,5 @@
 """Tools for embedding a DataFrame to create feature matrix for models."""
+
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
@@ -243,8 +244,8 @@ class FuelTypeFiller(TransformStep):
 
 def _extract_keyword_from_column(ser: pd.Series, keyword_list: list[str]) -> pd.Series:
     """Extract keywords contained in a Pandas series with a regular expression."""
-    pattern = r"(?:^|\s+)(" + "|".join(keyword_list) + r")(?:\s+|$)"
-    return ser.str.extract(pattern, expand=False)
+    pattern = r"(?:^|\s+|\W)(" + "|".join(keyword_list) + r")"
+    return ser.str.lower().str.extract(pattern, expand=False)
 
 
 def _fill_fuel_type_from_name(
@@ -258,12 +259,12 @@ def _fill_fuel_type_from_name(
     if fuel_type_col not in df.columns:
         raise AssertionError(f"{fuel_type_col} is not in dataframe columns.")
     # TODO: dynamically get this list from core_eia__codes_energy_sources
+    # and remove other from the list
     fuel_type_list = [
         "waste",
         "coal",
         "gas",
         "oil",
-        "other",
         "nuclear",
         "solar",
         "hydro",
@@ -278,18 +279,19 @@ def _fill_fuel_type_from_name(
             "peaking": "gas",
             "river": "hydro",
             "falls": "hydro",
+            "hydroelectric": "hydro",
         }
     )
     # grab fuel type keywords that are within plant_name and fill in null FTCP
     null_n = len(df[df[fuel_type_col].isnull()])
-    logger.info(f"NULLS BEFORE: {null_n}")
+    logger.info(f"Nulls before filling fuel type from name: {null_n}")
     df[fuel_type_col] = df[fuel_type_col].fillna(
         _extract_keyword_from_column(df[name_col], list(fuel_type_map.keys())).map(
             fuel_type_map
         )
     )
     null_n = len(df[df[fuel_type_col].isnull()])
-    logger.info(f"NULLS AFTER: {null_n}")
+    logger.info(f"Nulls after filling fuel type from name: {null_n}")
     return df[[fuel_type_col]]
 
 
