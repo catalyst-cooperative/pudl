@@ -13,7 +13,8 @@ import pandas as pd
 from dagster import graph, graph_asset, op
 
 import pudl
-from pudl.analysis.record_linkage import embed_dataframe, model_helpers
+from pudl.analysis import ml_tools
+from pudl.analysis.record_linkage import embed_dataframe
 from pudl.analysis.record_linkage.link_cross_year import link_ids_cross_year
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -86,7 +87,7 @@ ferc_dataframe_embedder = embed_dataframe.dataframe_embedder_factory(
 
 @op
 def plants_steam_validate_ids(
-    ferc_to_ferc_tracker: model_helpers.ExperimentTracker,
+    ferc_to_ferc_tracker: ml_tools.ExperimentTracker,
     ferc1_steam_df: pd.DataFrame,
     label_df: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -152,14 +153,14 @@ def merge_steam_fuel_dfs(
 
 @graph
 def ferc_to_ferc(
-    input_df: pd.DataFrame, experiment_tracker: model_helpers.ExperimentTracker
+    input_df: pd.DataFrame, experiment_tracker: ml_tools.ExperimentTracker
 ) -> pd.DataFrame:
     """Graph implements core portion of the ferc-ferc plant matching model."""
     feature_matrix = ferc_dataframe_embedder(input_df, experiment_tracker)
     return link_ids_cross_year(input_df, feature_matrix)
 
 
-@graph_asset(config=model_helpers.get_model_config("ferc_to_ferc"))
+@graph_asset(config=ml_tools.get_model_config("ferc_to_ferc"))
 def _out_ferc1__yearly_steam_plants_sched402_with_plant_ids(
     core_ferc1__yearly_steam_plants_sched402: pd.DataFrame,
     out_ferc1__yearly_steam_plants_fuel_by_plant_sched402: pd.DataFrame,
@@ -172,7 +173,7 @@ def _out_ferc1__yearly_steam_plants_sched402_with_plant_ids(
     # do this for us.
     logger.info("Identifying distinct large FERC plants for ID assignment.")
 
-    experiment_tracker = model_helpers.create_experiment_tracker.configured(
+    experiment_tracker = ml_tools.create_experiment_tracker.configured(
         {
             "experiment_name": "ferc_to_ferc",
             "log_yaml": True,

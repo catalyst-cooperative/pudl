@@ -41,8 +41,9 @@ from sklearn.model_selection import GridSearchCV, train_test_split
 
 import pudl
 import pudl.helpers
+from pudl.analysis import ml_tools
 from pudl.analysis.plant_parts_eia import match_to_single_plant_part
-from pudl.analysis.record_linkage import embed_dataframe, model_helpers
+from pudl.analysis.record_linkage import embed_dataframe
 from pudl.metadata.classes import DataSource, Resource
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -308,7 +309,7 @@ def out_pudl__yearly_assn_eia_ferc1_plant_parts(
             reported aggregated to the FERC1 plant-level.
         out_eia__yearly_plant_parts: The EIA plant parts list.
     """
-    experiment_tracker = model_helpers.create_experiment_tracker.configured(
+    experiment_tracker = ml_tools.create_experiment_tracker.configured(
         {
             "experiment_name": "ferc_to_eia",
             "log_yaml": False,
@@ -542,7 +543,7 @@ def run_model(
     features_train: pd.DataFrame,
     features_all: pd.DataFrame,
     y_df: pd.DataFrame,
-    experiment_tracker: model_helpers.ExperimentTracker,
+    experiment_tracker: ml_tools.ExperimentTracker,
 ) -> pd.DataFrame:
     """Train Logistic Regression model using GridSearch cross validation.
 
