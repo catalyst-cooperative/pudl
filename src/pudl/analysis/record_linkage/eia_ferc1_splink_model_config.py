@@ -4,6 +4,7 @@ This module enumerates the blocking rules as well as the comparison levels
 for the matching columns that are used in the FERC1 to EIA record linkage
 model.
 """
+
 import splink.duckdb.comparison_level_library as cll
 import splink.duckdb.comparison_library as cl
 import splink.duckdb.comparison_template_library as ctl
@@ -44,7 +45,10 @@ capacity_comparison = {
     "output_column_name": "capacity_mw",
     "comparison_levels": [
         cll.null_level("capacity_mw"),
-        cll.percentage_difference_level("capacity_mw", 0.0 + 1e-4),
+        cll.percentage_difference_level(
+            "capacity_mw",
+            0.0 + 1e-4,
+        ),
         cll.percentage_difference_level("capacity_mw", 0.05),
         cll.percentage_difference_level("capacity_mw", 0.1),
         cll.percentage_difference_level("capacity_mw", 0.2),

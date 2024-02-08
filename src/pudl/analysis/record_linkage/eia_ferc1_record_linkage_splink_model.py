@@ -27,12 +27,13 @@ assigned associations (see :func:`overwrite_bad_predictions`). The final match r
 are the connections we keep as the matches between FERC1 plant records and EIA
 plant-parts.
 """
+
 import pandas as pd
 from dagster import Out, graph_asset, op
 from splink.duckdb.linker import DuckDBLinker
 
 import pudl
-from pudl.analysis.record_linkage import embed_dataframe
+from pudl.analysis.record_linkage import embed_dataframe, name_cleaner
 from pudl.analysis.record_linkage.eia_ferc1_record_linkage import (
     add_null_overrides,
     get_compiled_input_manager,
@@ -43,6 +44,7 @@ from pudl.analysis.record_linkage.eia_ferc1_splink_model_config import (
     BLOCKING_RULES,
     COMPARISONS,
 )
+from pudl.metadata.classes import Resource
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -60,11 +62,30 @@ MATCHING_COLS = [
 ID_COL = ["record_id"]
 EXTRA_COLS = ["report_year", "plant_id_pudl", "utility_id_pudl"]
 
-col_cleaner_ferc = embed_dataframe.dataframe_cleaner_factory(
-    "col_cleaner_ferc",
+plant_name_cleaner = name_cleaner.CompanyNameCleaner(
+    cleaning_rules_list=[
+        "replace_amperstand_between_space_by_AND",
+        "replace_hyphen_between_spaces_by_single_space",
+        "replace_underscore_by_space",
+        "replace_underscore_between_spaces_by_single_space",
+        "remove_text_puctuation_except_dot",
+        "remove_math_symbols",
+        "add_space_before_opening_parentheses",
+        "add_space_after_closing_parentheses",
+        "remove_parentheses",
+        "remove_brackets",
+        "remove_curly_brackets",
+        "enforce_single_space_between_words",
+    ]
+)
+
+col_cleaner = embed_dataframe.dataframe_cleaner_factory(
+    "col_cleaner",
     {
         "plant_name": embed_dataframe.ColumnVectorizer(
-            transform_steps=[embed_dataframe.NameCleaner()],
+            transform_steps=[
+                embed_dataframe.NameCleaner(company_cleaner=plant_name_cleaner)
+            ],
             columns=["plant_name"],
         ),
         "utility_name": embed_dataframe.ColumnVectorizer(
@@ -83,19 +104,38 @@ col_cleaner_ferc = embed_dataframe.dataframe_cleaner_factory(
     },
 )
 
-col_cleaner_eia = embed_dataframe.dataframe_cleaner_factory(
-    "col_cleaner_eia",
-    {
-        "plant_name": embed_dataframe.ColumnVectorizer(
-            transform_steps=[embed_dataframe.NameCleaner()],
-            columns=["plant_name"],
-        ),
-        "utility_name": embed_dataframe.ColumnVectorizer(
-            transform_steps=[embed_dataframe.NameCleaner()],
-            columns=["utility_name"],
-        ),
-    },
-)
+
+# the correct EIA record is predicted for a FERC record
+def get_true_pos(pred_df, train_df):
+    return train_df.merge(
+        pred_df, how="left", on=["record_id_ferc1", "record_id_eia"], indicator=True
+    )._merge.value_counts()["both"]
+
+
+# an incorrect EIA record is predicted for a FERC record
+def get_false_pos(pred_df, train_df):
+    shared_preds = train_df.merge(
+        pred_df, how="inner", on="record_id_ferc1", suffixes=("_true", "_pred")
+    )
+    return len(
+        shared_preds[shared_preds.record_id_eia_true != shared_preds.record_id_eia_pred]
+    )
+
+
+# FERC record is in training data but no prediction made
+def get_false_neg(pred_df, train_df):
+    return train_df.merge(
+        pred_df, how="left", on=["record_id_ferc1"], indicator=True
+    )._merge.value_counts()["left_only"]
+
+
+def get_duplicated_eia_plant_part_matches(pred_df):
+    return len(
+        pred_df[
+            (pred_df.record_id_eia.notnull())
+            & (pred_df.record_id_eia.duplicated(keep="first"))
+        ]
+    )
 
 
 @op(out={"eia_df": Out(), "ferc_df": Out()})
@@ -149,10 +189,17 @@ def get_training_data_df(inputs):
     )
     train_df.loc[:, "source_dataset_r"] = "ferc_df"
     train_df.loc[:, "source_dataset_l"] = "eia_df"
-    train_df.loc[
-        :, "clerical_match_score"
-    ] = 1  # this column shows that all these labels are positive labels
+    train_df.loc[:, "clerical_match_score"] = (
+        1  # this column shows that all these labels are positive labels
+    )
     return train_df
+
+
+@op
+def get_cleaned_inputs(ferc_df, eia_df):
+    transformed_ferc_df = col_cleaner(ferc_df)
+    transformed_eia_df = col_cleaner(eia_df)
+    return transformed_ferc_df, transformed_eia_df
 
 
 @op
@@ -183,7 +230,7 @@ def get_model_predictions(eia_df, ferc_df, train_df):
 
 
 @op
-def get_best_matches_with_training_data_overwrites(preds_df, inputs):
+def get_best_matches_with_training_data_overwrites(preds_df, inputs, train_df):
     """Get the best EIA match for each FERC record."""
     preds_df = (
         preds_df.rename(
@@ -193,11 +240,31 @@ def get_best_matches_with_training_data_overwrites(preds_df, inputs):
         .groupby("record_id_ferc1")
         .first()
     )
+    true_pos = get_true_pos(preds_df, train_df)
+    false_pos = get_false_pos(preds_df, train_df)
+    false_neg = get_false_neg(preds_df, train_df)
+    logger.info(
+        "Metrics before overwrites:\n"
+        f"   True positives:  {true_pos}\n"
+        f"   False positives: {false_pos}\n"
+        f"   False negatives: {false_neg}\n"
+        f"   Precision:       {true_pos/(true_pos + false_pos):.03}\n"
+        f"   Recall:          {true_pos/(true_pos + false_neg):.03}\n"
+        "Precision = of the training data FERC records that the model predicted a match for, this percentage was correct.\n"
+        "Recall = of all of the training data FERC records, the model predicted a match for this percentage."
+    )
+
     preds_df = overwrite_bad_predictions(preds_df, inputs.get_train_df())
     return preds_df
 
 
-@op
+@op(
+    out={
+        "out_pudl__yearly_assn_eia_ferc1_plant_parts_splink": Out(
+            # io_manager_key="pudl_io_manager"
+        )
+    }
+)
 def get_full_records(best_match_df, inputs):
     """Join full dataframe onto matches to make usable and get stats."""
     connected_df = prettyify_best_matches(
@@ -205,8 +272,12 @@ def get_full_records(best_match_df, inputs):
         plant_parts_eia_true=inputs.get_plant_parts_eia_true(),
         plants_ferc1=inputs.get_plants_ferc1(),
         train_df=inputs.get_train_df(),
-    ).pipe(add_null_overrides)  # Override specified values with NA record_id_eia
-    return connected_df
+    ).pipe(
+        add_null_overrides
+    )  # Override specified values with NA record_id_eia
+    return Resource.from_id(
+        "out_pudl__yearly_assn_eia_ferc1_plant_parts"
+    ).enforce_schema(connected_df)
 
 
 @graph_asset
@@ -231,15 +302,15 @@ def out_pudl__yearly_assn_eia_ferc1_plant_parts_splink(
     eia_df, ferc_df = get_input_dfs(inputs)
     train_df = get_training_data_df(inputs)
     # apply cleaning transformations to some columns
-    transformed_eia_df = col_cleaner_eia(eia_df)
-    transformed_ferc_df = col_cleaner_ferc(ferc_df)
+    transformed_eia_df = col_cleaner(eia_df)
+    transformed_ferc_df = col_cleaner(ferc_df)
     # prepare for matching with splink
     ferc_df = prepare_for_matching(ferc_df, transformed_ferc_df)
     eia_df = prepare_for_matching(eia_df, transformed_eia_df)
     # train model and predict matches
     preds_df = get_model_predictions(eia_df=eia_df, ferc_df=ferc_df, train_df=train_df)
     best_match_df = get_best_matches_with_training_data_overwrites(
-        preds_df=preds_df, inputs=inputs
+        preds_df=preds_df, inputs=inputs, train_df=train_df
     )
     ferc1_eia_connected_df = get_full_records(best_match_df, inputs)
 
