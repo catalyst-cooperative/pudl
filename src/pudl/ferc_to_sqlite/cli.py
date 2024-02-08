@@ -24,40 +24,29 @@ logger = pudl.logging_helpers.get_logger(__name__)
 def ferc_to_sqlite_job_factory(
     logfile: str | None = None,
     loglevel: str = "INFO",
-    enable_xbrl: bool = True,
-    enable_dbf: bool = True,
+    dataset_only: str | None = None,
 ) -> Callable[[], JobDefinition]:
     """Factory for parameterizing a reconstructable ferc_to_sqlite job.
 
     Args:
         logfile: Path to a log file for the job's execution.
         loglevel: The log level for the job's execution.
-        enable_xbrl: if True, include XBRL data processing in the job.
-        enable_dbf: if True, include DBF data processing in the job.
 
     Returns:
         The job definition to be executed.
     """
-    if not (enable_xbrl or enable_dbf):
-        raise ValueError("either dbf or xbrl needs to be enabled")
 
     def get_ferc_to_sqlite_job():
         """Module level func for creating a job to be wrapped by reconstructable."""
-        if enable_xbrl and enable_dbf:
-            return ferc_to_sqlite.ferc_to_sqlite.to_job(
-                resource_defs=ferc_to_sqlite.default_resources_defs,
-                name="ferc_to_sqlite_job",
-            )
-        if enable_xbrl:
-            return ferc_to_sqlite.ferc_to_sqlite_xbrl_only.to_job(
-                resource_defs=ferc_to_sqlite.default_resources_defs,
-                name="ferc_to_sqlite_xbrl_only_job",
-            )
-
-        # enable_dbf has to be true
-        return ferc_to_sqlite.ferc_to_sqlite_dbf_only.to_job(
+        ferc_to_sqlite_graph = ferc_to_sqlite.ferc_to_sqlite
+        op_selection = None
+        if dataset_only is not None:
+            logger.warning(f"Running ferc_to_sqlite restricted to {dataset_only}")
+            op_selection = [dataset_only]
+        return ferc_to_sqlite_graph.to_job(
             resource_defs=ferc_to_sqlite.default_resources_defs,
-            name="ferc_to_sqlite_dbf_only_job",
+            name="ferc_to_sqlite_job",
+            op_selection=op_selection,
         )
 
     return get_ferc_to_sqlite_job
@@ -96,7 +85,7 @@ def ferc_to_sqlite_job_factory(
     "-w",
     "--workers",
     type=int,
-    default=0,
+    default=None,
     help=(
         "Number of worker processes to use when parsing XBRL filings. "
         "Defaults to using the number of CPUs."
@@ -115,6 +104,7 @@ def ferc_to_sqlite_job_factory(
 @click.option(
     "--gcs-cache-path",
     type=str,
+    default="",
     help=(
         "Load cached inputs from Google Cloud Storage if possible. This is usually "
         "much faster and more reliable than downloading from Zenodo directly. The "
@@ -140,15 +130,28 @@ def ferc_to_sqlite_job_factory(
     ),
     default="INFO",
 )
+@click.option(
+    "--dataset-only",
+    type=str,
+    help=(
+        "If specified, restricts processing to only a given dataset. This is"
+        "expected to be in the form of ferc1_dbf, ferc1_xbrl. "
+        "This is intended for ci-integration purposes where we fan-out the "
+        "execution into several parallel small jobs that should finish faster. "
+        "Other operations are still going to be invoked, but they will terminate "
+        "early if this setting is in use."
+    ),
+)
 def main(
     etl_settings_yml: pathlib.Path,
     batch_size: int,
-    workers: int,
+    workers: int | None,
     dagster_workers: int,
     clobber: bool,
     gcs_cache_path: str,
     logfile: pathlib.Path,
     loglevel: str,
+    dataset_only: str,
 ):
     """Use Dagster to convert FERC data fom DBF and XBRL to SQLite databases.
 
@@ -165,8 +168,13 @@ def main(
     ferc_to_sqlite_reconstructable_job = build_reconstructable_job(
         "pudl.ferc_to_sqlite.cli",
         "ferc_to_sqlite_job_factory",
-        reconstructable_kwargs={"loglevel": loglevel, "logfile": logfile},
+        reconstructable_kwargs={
+            "loglevel": loglevel,
+            "logfile": logfile,
+            "dataset_only": dataset_only,
+        },
     )
+
     run_config = {
         "resources": {
             "ferc_to_sqlite_settings": {
@@ -175,17 +183,12 @@ def main(
             "datastore": {
                 "config": {"gcs_cache_path": gcs_cache_path},
             },
-        },
-        "ops": {
-            "xbrl2sqlite": {
+            "runtime_settings": {
                 "config": {
-                    "workers": workers,
-                    "batch_size": batch_size,
+                    "xbrl_num_workers": workers,
+                    "xbrl_batch_size": batch_size,
                     "clobber": clobber,
                 },
-            },
-            "dbf2sqlite": {
-                "config": {"clobber": clobber},
             },
         },
     }

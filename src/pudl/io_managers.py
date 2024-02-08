@@ -3,14 +3,17 @@ import json
 import re
 from pathlib import Path
 from sqlite3 import sqlite_version
+from typing import Any
 
 import dask.dataframe as dd
 import pandas as pd
 import pyarrow as pa
+import pyarrow.parquet as pq
 import sqlalchemy as sa
 from alembic.autogenerate.api import compare_metadata
 from alembic.migration import MigrationContext
 from dagster import (
+    Field,
     InitResourceContext,
     InputContext,
     IOManager,
@@ -19,7 +22,6 @@ from dagster import (
     io_manager,
 )
 from packaging import version
-from sqlalchemy.exc import SQLAlchemyError
 from upath import UPath
 
 import pudl
@@ -31,56 +33,84 @@ logger = pudl.logging_helpers.get_logger(__name__)
 MINIMUM_SQLITE_VERSION = "3.32.0"
 
 
-class ForeignKeyError(SQLAlchemyError):
-    """Raised when data in a database violates a foreign key constraint."""
+def get_table_name_from_context(context: OutputContext) -> str:
+    """Retrieves the table name from the context object."""
+    # TODO(rousik): Figure out which kind of identifier is used when.
+    if context.has_asset_key:
+        return context.asset_key.to_python_identifier()
+    return context.get_identifier()
 
-    def __init__(
-        self, child_table: str, parent_table: str, foreign_key: str, rowids: list[int]
-    ):
-        """Initialize a new ForeignKeyError object."""
-        self.child_table = child_table
-        self.parent_table = parent_table
-        self.foreign_key = foreign_key
-        self.rowids = rowids
 
-    def __str__(self):
-        """Create string representation of ForeignKeyError object."""
-        return (
-            f"Foreign key error for table: {self.child_table} -- {self.parent_table} "
-            f"{self.foreign_key} -- on rows {self.rowids}\n"
-        )
+class PudlMixedFormatIOManager(IOManager):
+    """Format switching IOManager that supports sqlite and parquet.
 
-    def __eq__(self, other):
-        """Compare a ForeignKeyError with another object."""
-        if isinstance(other, ForeignKeyError):
-            return (
-                (self.child_table == other.child_table)
-                and (self.parent_table == other.parent_table)
-                and (self.foreign_key == other.foreign_key)
-                and (self.rowids == other.rowids)
+    This IOManager allows experimental output of parquet files along
+    the standard sqlite database produced by PUDL. During this experimental
+    phase sqlite will always be output, while parquet support will be turned
+    off by default.
+
+    Parquet support can be enabled either using environment variables or
+    the dagster UI (see :func:`pudl_mixed_format_io_manager` for more info on the enviroment
+    variables). Parquet writing and reading can both be toggled independently. If
+    parquet writing is enabled, both parquet and sqlite tables will be produced, while
+    if parquet reading is enabled, assets will only be read from the parquet files.
+    """
+
+    # Defaults should be provided here and should be potentially
+    # overriden by os env variables. This now resides in the
+    # @io_manager constructor of this, see pudl_mixed_format_io_manager".
+    write_to_parquet: bool
+    """If true, data will be written to parquet files."""
+
+    read_from_parquet: bool
+    """If true, data will be read from parquet files instead of sqlite."""
+
+    def __init__(self, write_to_parquet: bool = False, read_from_parquet: bool = False):
+        """Creates new instance of mixed format pudl IO manager.
+
+        By default, data is written and read from sqlite, but experimental
+        support for writing and/or reading from parquet files can be enabled
+        by setting the corresponding flags to True.
+
+        Args:
+            write_to_parquet: if True, all data will be written to parquet
+                files in addition to sqlite.
+            read_from_parquet: if True, all data reads will be using
+                parquet files as source of truth. Otherwise, data will be
+                read from the sqlite database. Reading from parquet provides
+                performance increases as well as better datatype handling, so
+                this option is encouraged.
+        """
+        if read_from_parquet and not write_to_parquet:
+            raise RuntimeError(
+                "read_from_parquet cannot be set when write_to_parquet is False."
             )
-        return False
+        self.write_to_parquet = write_to_parquet
+        self.read_from_parquet = read_from_parquet
+        self._sqlite_io_manager = PudlSQLiteIOManager(
+            base_dir=PudlPaths().output_dir,
+            db_name="pudl",
+        )
+        self._parquet_io_manager = PudlParquetIOManager()
+        if self.write_to_parquet or self.read_from_parquet:
+            logger.warning(
+                f"pudl_io_manager: experimental support for parquet enabled. "
+                f"(read={self.read_from_parquet}, write={self.write_to_parquet})"
+            )
 
+    def handle_output(
+        self, context: OutputContext, obj: pd.DataFrame | str
+    ) -> pd.DataFrame:
+        """Passes the output to the appropriate IO manager instance."""
+        self._sqlite_io_manager.handle_output(context, obj)
+        if self.write_to_parquet:
+            self._parquet_io_manager.handle_output(context, obj)
 
-class ForeignKeyErrors(SQLAlchemyError):  # noqa: N818
-    """Raised when data in a database violate multiple foreign key constraints."""
-
-    def __init__(self, fk_errors: list[ForeignKeyError]):
-        """Initialize a new ForeignKeyErrors object."""
-        self.fk_errors = fk_errors
-
-    def __str__(self):
-        """Create string representation of ForeignKeyErrors object."""
-        fk_errors = [str(x) for x in self.fk_errors]
-        return "\n".join(fk_errors)
-
-    def __iter__(self):
-        """Iterate over the fk errors."""
-        return self.fk_errors
-
-    def __getitem__(self, idx):
-        """Index the fk errors."""
-        return self.fk_errors[idx]
+    def load_input(self, context: InputContext) -> pd.DataFrame:
+        """Reads input from the appropriate IO manager instance."""
+        if self.read_from_parquet:
+            return self._parquet_io_manager.load_input(context)
+        return self._sqlite_io_manager.load_input(context)
 
 
 class SQLiteIOManager(IOManager):
@@ -125,14 +155,6 @@ class SQLiteIOManager(IOManager):
         self.md = md
 
         self.engine = self._setup_database(timeout=timeout)
-
-    def _get_table_name(self, context) -> str:
-        """Get asset name from dagster context object."""
-        if context.has_asset_key:
-            table_name = context.asset_key.to_python_identifier()
-        else:
-            table_name = context.get_identifier()
-        return table_name
 
     def _setup_database(self, timeout: float = 1_000.0) -> sa.Engine:
         """Create database and metadata if they don't exist.
@@ -182,84 +204,6 @@ class SQLiteIOManager(IOManager):
             )
         return sa_table
 
-    def _get_fk_list(self, table: str) -> pd.DataFrame:
-        """Retrieve a dataframe of foreign keys for a table.
-
-        Description from the SQLite Docs: 'This pragma returns one row for each foreign
-        key constraint created by a REFERENCES clause in the CREATE TABLE statement of
-        table "table-name".'
-
-        The PRAGMA returns one row for each field in a foreign key constraint. This
-        method collapses foreign keys with multiple fields into one record for
-        readability.
-        """
-        with self.engine.begin() as con:
-            table_fks = pd.read_sql_query(f"PRAGMA foreign_key_list({table});", con)
-
-        # Foreign keys with multiple fields are reported in separate records.
-        # Combine the multiple fields into one string for readability.
-        # Drop duplicates so we have one FK for each table and foreign key id
-        table_fks["fk"] = table_fks.groupby("table")["to"].transform(
-            lambda field: "(" + ", ".join(field) + ")"
-        )
-        table_fks = table_fks[["id", "table", "fk"]].drop_duplicates()
-
-        # Rename the fields so we can easily merge with the foreign key errors.
-        table_fks = table_fks.rename(columns={"id": "fkid", "table": "parent"})
-        table_fks["table"] = table
-        return table_fks
-
-    def check_foreign_keys(self) -> None:
-        """Check foreign key relationships in the database.
-
-        The order assets are loaded into the database will not satisfy foreign key
-        constraints so we can't enable foreign key constraints. However, we can
-        check for foreign key failures once all of the data has been loaded into
-        the database using the `foreign_key_check` and `foreign_key_list` PRAGMAs.
-
-        You can learn more about the PRAGMAs in the `SQLite docs
-        <https://www.sqlite.org/pragma.html#pragma_foreign_key_check>`__.
-
-        Raises:
-            ForeignKeyErrors: if data in the database violate foreign key constraints.
-        """
-        logger.info(f"Running foreign key check on {self.db_name} database.")
-        with self.engine.begin() as con:
-            fk_errors = pd.read_sql_query("PRAGMA foreign_key_check;", con)
-
-        if not fk_errors.empty:
-            # Merge in the actual FK descriptions
-            tables_with_fk_errors = fk_errors.table.unique().tolist()
-            table_foreign_keys = pd.concat(
-                [self._get_fk_list(table) for table in tables_with_fk_errors]
-            )
-
-            fk_errors_with_keys = fk_errors.merge(
-                table_foreign_keys,
-                how="left",
-                on=["parent", "fkid", "table"],
-                validate="m:1",
-            )
-
-            errors = []
-            # For each foreign key error, raise a ForeignKeyError
-            for (
-                table_name,
-                parent_name,
-                parent_fk,
-            ), parent_fk_df in fk_errors_with_keys.groupby(["table", "parent", "fk"]):
-                errors.append(
-                    ForeignKeyError(
-                        child_table=table_name,
-                        parent_table=parent_name,
-                        foreign_key=parent_fk,
-                        rowids=parent_fk_df["rowid"].values,
-                    )
-                )
-            raise ForeignKeyErrors(errors)
-
-        logger.info("Success! No foreign key constraint errors found.")
-
     def _handle_pandas_output(self, context: OutputContext, df: pd.DataFrame):
         """Write dataframe to the database.
 
@@ -274,9 +218,8 @@ class SQLiteIOManager(IOManager):
                 asset name.
             df: dataframe to write to the database.
         """
-        table_name = self._get_table_name(context)
+        table_name = get_table_name_from_context(context)
         sa_table = self._get_sqlalchemy_table(table_name)
-
         column_difference = set(sa_table.columns.keys()) - set(df.columns)
         if column_difference:
             raise ValueError(
@@ -310,7 +253,7 @@ class SQLiteIOManager(IOManager):
             query: sql query to execute in the database.
         """
         engine = self.engine
-        table_name = self._get_table_name(context)
+        table_name = get_table_name_from_context(context)
 
         # Make sure the metadata has been created for the view
         _ = self._get_sqlalchemy_table(table_name)
@@ -352,7 +295,7 @@ class SQLiteIOManager(IOManager):
             context: dagster keyword that provides access output information like asset
                 name.
         """
-        table_name = self._get_table_name(context)
+        table_name = get_table_name_from_context(context)
         # Check if the table_name exists in the self.md object
         _ = self._get_sqlalchemy_table(table_name)
 
@@ -373,6 +316,38 @@ class SQLiteIOManager(IOManager):
                     f"the {table_name} asset so it is available in the database."
                 )
             return df
+
+
+class PudlParquetIOManager(IOManager):
+    """IOManager that writes pudl tables to pyarrow parquet files."""
+
+    def handle_output(self, context: OutputContext, df: Any) -> None:
+        """Writes pudl dataframe to parquet file."""
+        assert isinstance(df, pd.DataFrame), "Only panda dataframes are supported."
+        table_name = get_table_name_from_context(context)
+        parquet_path = PudlPaths().parquet_path(table_name)
+        parquet_path.parent.mkdir(parents=True, exist_ok=True)
+        res = Resource.from_id(table_name)
+
+        df = res.enforce_schema(df)
+        schema = res.to_pyarrow()
+        with pq.ParquetWriter(
+            where=parquet_path,
+            schema=schema,
+            compression="snappy",
+            version="2.6",
+        ) as writer:
+            writer.write_table(
+                pa.Table.from_pandas(df, schema=schema, preserve_index=False)
+            )
+
+    def load_input(self, context: InputContext) -> pd.DataFrame:
+        """Loads pudl table from parquet file."""
+        table_name = get_table_name_from_context(context)
+        parquet_path = PudlPaths().parquet_path(table_name)
+        res = Resource.from_id(table_name)
+        df = pq.read_table(source=parquet_path, schema=res.to_pyarrow()).to_pandas()
+        return res.enforce_schema(df)
 
 
 class PudlSQLiteIOManager(SQLiteIOManager):
@@ -447,7 +422,7 @@ class PudlSQLiteIOManager(SQLiteIOManager):
             query: sql query to execute in the database.
         """
         engine = self.engine
-        table_name = self._get_table_name(context)
+        table_name = get_table_name_from_context(context)
 
         # Check if there is a Resource in self.package for table_name.
         # We don't want folks creating views without adding package metadata.
@@ -470,13 +445,12 @@ class PudlSQLiteIOManager(SQLiteIOManager):
 
     def _handle_pandas_output(self, context: OutputContext, df: pd.DataFrame):
         """Enforce PUDL DB schema and write dataframe to SQLite."""
-        table_name = self._get_table_name(context)
+        table_name = get_table_name_from_context(context)
         # If table_name doesn't show up in the self.md object, this will raise an error
         sa_table = self._get_sqlalchemy_table(table_name)
         res = self.package.get_resource(table_name)
 
         df = res.enforce_schema(df)
-
         with self.engine.begin() as con:
             # Remove old table records before loading to db
             con.execute(sa_table.delete())
@@ -497,7 +471,7 @@ class PudlSQLiteIOManager(SQLiteIOManager):
             context: dagster keyword that provides access output information like asset
                 name.
         """
-        table_name = self._get_table_name(context)
+        table_name = get_table_name_from_context(context)
 
         # Check if there is a Resource in self.package for table_name
         try:
@@ -535,10 +509,29 @@ class PudlSQLiteIOManager(SQLiteIOManager):
         return df
 
 
-@io_manager
-def pudl_sqlite_io_manager(init_context) -> PudlSQLiteIOManager:
+@io_manager(
+    config_schema={
+        "write_to_parquet": Field(
+            bool,
+            description="""If true, data will be written to parquet files,
+                in addition to the SQLite database.""",
+            default_value=True,
+        ),
+        "read_from_parquet": Field(
+            bool,
+            description="""If True, the canonical source of data for reads
+                will be parquet files. Otherwise, data will be read from the
+                SQLite database.""",
+            default_value=True,
+        ),
+    }
+)
+def pudl_mixed_format_io_manager(init_context) -> IOManager:
     """Create a SQLiteManager dagster resource for the pudl database."""
-    return PudlSQLiteIOManager(base_dir=PudlPaths().output_dir, db_name="pudl")
+    return PudlMixedFormatIOManager(
+        write_to_parquet=init_context.resource_config["write_to_parquet"],
+        read_from_parquet=init_context.resource_config["read_from_parquet"],
+    )
 
 
 class FercSQLiteIOManager(SQLiteIOManager):
@@ -570,6 +563,10 @@ class FercSQLiteIOManager(SQLiteIOManager):
                 connection opens a transaction to modify the database, it will be locked
                 until that transaction is committed.
         """
+        # TODO(rousik): Note that this is a bit of a partially implemented IO manager that
+        # is not actually used for writing anything. Given that this is derived from base
+        # SqliteIOManager, we do not support handling of parquet formats. This is probably
+        # okay for now.
         super().__init__(base_dir, db_name, md, timeout)
 
     def _setup_database(self, timeout: float = 1_000.0) -> sa.Engine:
@@ -645,7 +642,7 @@ class FercDBFSQLiteIOManager(FercSQLiteIOManager):
         # TODO (daz): this is hard-coded to FERC1, though this is nominally for all FERC datasets.
         ferc1_settings = context.resources.dataset_settings.ferc1
 
-        table_name = self._get_table_name(context)
+        table_name = get_table_name_from_context(context)
         # Remove preceeding asset name metadata
         table_name = table_name.replace("raw_ferc1_dbf__", "")
 
@@ -798,7 +795,7 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
         # TODO (daz): this is hard-coded to FERC1, though this is nominally for all FERC datasets.
         ferc1_settings = context.resources.dataset_settings.ferc1
 
-        table_name = self._get_table_name(context)
+        table_name = get_table_name_from_context(context)
         # Remove preceeding asset name metadata
         table_name = table_name.replace("raw_ferc1_xbrl__", "")
 
@@ -842,13 +839,13 @@ def ferc1_xbrl_sqlite_io_manager(init_context) -> FercXBRLSQLiteIOManager:
     )
 
 
-class PandasParquetIOManager(UPathIOManager):
+class EpaCemsIOManager(UPathIOManager):
     """An IO Manager that dumps outputs to a parquet file."""
 
     extension: str = ".parquet"
 
     def __init__(self, base_path: UPath, schema: pa.Schema) -> None:
-        """Initialize a PandasParquetIOManager."""
+        """Initialize a EpaCemsIOManager."""
         super().__init__(base_path=base_path)
         self.schema = schema
 
@@ -870,9 +867,7 @@ class PandasParquetIOManager(UPathIOManager):
 @io_manager
 def epacems_io_manager(
     init_context: InitResourceContext,
-) -> PandasParquetIOManager:
+) -> EpaCemsIOManager:
     """IO Manager that writes EPA CEMS partitions to individual parquet files."""
     schema = Resource.from_id("core_epacems__hourly_emissions").to_pyarrow()
-    return PandasParquetIOManager(
-        base_path=UPath(PudlPaths().output_dir), schema=schema
-    )
+    return EpaCemsIOManager(base_path=UPath(PudlPaths().parquet_path()), schema=schema)
