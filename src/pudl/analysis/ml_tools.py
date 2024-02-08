@@ -95,7 +95,10 @@ class ExperimentTracker(BaseModel):
 
     Currently, we are only doing experiment tracking in a local context, but if we were
     to setup a tracking server, we could point the `tracking_uri` at this remote server
-    without having to modify the models.
+    without having to modify the models. Experiment tracking can also be done outside
+    of the PUDL context. If doing exploratory work in a notebook, you can use mlflow
+    directly in a notebook with the same experiment name used here, and mlflow will
+    seamlessly integrate the results with those from PUDL runs.
     """
 
     tracker_config: ExperimentTrackerConfig
