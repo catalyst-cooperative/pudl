@@ -10,28 +10,31 @@ labels:
 assignees: ""
 ---
 
-Full documentation of process [here](https://catalystcoop-pudl.readthedocs.io/en/latest/dev/run_a_release.html).
+[Additional release process documentation](https://catalystcoop-pudl.readthedocs.io/en/latest/dev/run_a_release.html).
 
 ```[tasklist]
 ## Release Checklist
-- [ ] set a release date & notify team
+- [ ] Set a release date & notify team
+- [ ] Close out the [PUDL Release Notes](https://catalystcoop-pudl.readthedocs.io/en/latest/release_notes.html) with an overview of the changes in this release
 - [ ] Push vYYYY.MM.DD tag
-- [ ] Verify that the GitHub (software) release has been published
+- [ ] Verify that the new [GitHub (software) release](https://github.com/catalyst-cooperative/pudl/releases) has been published
 - [ ] Verify RTD build for new version is up to date (activate new version first in [RTD admin panel](https://readthedocs.org/projects/catalystcoop-pudl/versions/))
 - [ ] Verify [`catalystcoop.pudl` PyPI (software) release](https://pypi.org/project/catalystcoop.pudl/)
 - [ ] Verify that [PUDL repo archive on Zenodo](https://zenodo.org/doi/10.5281/zenodo.3404014) has been updated w/ new version
 - [ ] Wait 6-10 hours for a successful build to complete
-- [ ] Verify `stable` and version tag point at same git ref
-- [ ] Verify that RTD docs build for `stable` branch gets updated
-- [ ] Verify `gs://pudl.catalyst.coop/vYYYY.MM.DD` has the right data.
-- [ ] Verify `gs://pudl.catalyst.coop/stable` has the right data.
-- [ ] Verify `s3://pudl.catalyst.coop/vYYYY.MM.DD` has the right data.
-- [ ] Verify `s3://pudl.catalyst.coop/stable` has the right data.
-- [ ] Verify Zenodo draft deposition has expected data
-- [ ] Update Zenodo description and other metadata based on release notes / details
-- [ ] Manually publish the new Zenodo deposition
-- [ ] Create a GitHub Discussions Announcement (should automate with `gh release create` command, eventually)
-- [ ] Update [release documentation](https://catalystcoop-pudl.readthedocs.io/en/latest/dev/run_a_release.html) to better reflect the actual process
+- [ ] Verify that `stable` and the version tag point at same git ref
+- [ ] Verify that [`stable` docs on RTD](https://catalystcoop-pudl.readthedocs.io/en/stable/) have been updated
+- [ ] Verify `gs://pudl.catalyst.coop/vYYYY.MM.DD` has the new expected data.
+- [ ] Verify `gs://pudl.catalyst.coop/stable` has the new expected data.
+- [ ] Verify `s3://pudl.catalyst.coop/vYYYY.MM.DD` has the new expected data.
+- [ ] Verify `s3://pudl.catalyst.coop/stable` has the new expected data.
+- [ ] Verify that draft deposition for [this Zenodo archive](https://doi.org/10.5281/zenodo.3653158) has the new expected data
+- [ ] Update Zenodo description and other metadata based on release notes (see task list below)
+- [ ] Manually publish the new Zenodo deposition with the updated metadata
+- [ ] Create an Announcement for the release in [our GitHub Discussions](https://github.com/orgs/catalyst-cooperative/discussions)
+- [ ] Update the [release documentation](https://catalystcoop-pudl.readthedocs.io/en/latest/dev/run_a_release.html) to better reflect the actual process for next time
+- [ ] Wait 2-12 hours for a bot to create a PR in the [PUDL conda-forge feedstock](https://github.com/conda-forge/catalystcoop.pudl-feedstock/pulls), and then review and merge it.
+- [ ] Review the `conda-forge` PR, updating dependencies and CLI entrypoints if necessary. Our direct dependencies (from `pyproject.toml`) should be pinned to the actual version appearing in `environments/conda-linux-64.lock.yml`
 ```
 
 ```[tasklist]
@@ -48,5 +51,5 @@ Full documentation of process [here](https://catalystcoop-pudl.readthedocs.io/en
 
 ```[tasklist]
 ### Issues that we ran into
-- [ ] take notes here during the release if stuff happens.
+- [ ] Take notes here during the release if stuff happens.
 ```
