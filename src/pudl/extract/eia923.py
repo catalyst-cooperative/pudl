@@ -103,6 +103,7 @@ eia_raw_table_names = (
     "raw_eia923__emissions_control",
     "raw_eia923__byproduct_disposition",
     "raw_eia923__financial_information",
+    "raw_eia923__fgd_operation_maintenance",
 )
 
 
