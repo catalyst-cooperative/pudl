@@ -175,7 +175,7 @@ class EpaCemsDatastore:
         """Constructs dataframe from a zipfile for a given (year_quarter) partition."""
         with self.datastore.get_zipfile_resource(
             "epacems", **partition.get_filters()
-        ).open(str(partition.get_quarterly_file()), "r") as csv_file:
+        ) as zf, zf.open(str(partition.get_quarterly_file()), "r") as csv_file:
             df = self._csv_to_dataframe(
                 csv_file,
                 ignore_cols=API_IGNORE_COLS,
