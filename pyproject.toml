@@ -301,11 +301,7 @@ filterwarnings = [
 ]
 
 markers = ["slow: marks tests as slow (deselect with '-m \"not slow\"')"]
-# Oddly, despite the use of --cov-config=pyproject.toml here, pytest does not seem to
-# pick up the source directories specified in the [tool.coverage.run] section below.
-# (though it *does* pick up the omit parameters!). This means we need to specify the
-# source directories we want to collect coverage twice, and keep the two in sync.
-addopts = "--verbose --pdbcls=IPython.terminal.debugger:TerminalPdb --cov-append --cov-config=pyproject.toml --cov-report=xml --cov=src/pudl --cov=test/integration --cov=test/unit"
+addopts = "--verbose --pdbcls=IPython.terminal.debugger:TerminalPdb --cov-append --cov-config=pyproject.toml --cov-report=xml --cov -n auto"
 log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
 log_date_format = "%Y-%m-%d %H:%M:%S"
 log_cli = "true"
@@ -335,7 +331,6 @@ sqlite = ">=3.43"
 curl = ">=8.4.0"
 
 [tool.coverage.run]
-# See note above on need to specify separate sources for pytest-coverage and coverage.
 source = ["src/pudl/", "test/integration/", "test/unit/"]
 omit = [
     # Never hit by integration tests:
