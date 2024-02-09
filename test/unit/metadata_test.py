@@ -1,8 +1,16 @@
 """Tests for metadata not covered elsewhere."""
+import pandas as pd
+import pandera as pr
 import pytest
 
-from pudl.metadata.classes import DataSource, Field, Package, PudlResourceDescriptor
-from pudl.metadata.fields import FIELD_METADATA
+from pudl.metadata.classes import (
+    DataSource,
+    Field,
+    Package,
+    PudlResourceDescriptor,
+    Resource,
+)
+from pudl.metadata.fields import FIELD_METADATA, apply_pudl_dtypes
 from pudl.metadata.helpers import format_errors
 from pudl.metadata.resources import RESOURCE_METADATA
 from pudl.metadata.sources import SOURCES
@@ -97,3 +105,58 @@ def test_resource_descriptors_valid():
         for name, desc in RESOURCE_METADATA.items()
     }
     assert len(descriptors) > 0
+
+
+def test_resource_descriptors_can_encode_schemas():
+    resource_descriptor = PudlResourceDescriptor.model_validate(
+        {
+            "description": "test resource based on core_eia__entity_plants",
+            "schema": {
+                "fields": ["plant_id_eia", "city", "state"],
+                "primary_key": ["plant_id_eia"],
+                "df_checks": [pr.Check(lambda df: df.city < df.state)],
+                "field_checks": {"plant_id_eia": pr.Check.gt(10000)},
+            },
+            "sources": ["eia860", "eia923"],
+            "etl_group": "entity_eia",
+            "field_namespace": "eia",
+        }
+    )
+    resource = Resource.model_validate(
+        Resource.dict_from_resource_descriptor(
+            "test_eia__entity_plants", resource_descriptor
+        )
+    )
+    schema = resource.schema.to_pandera()
+
+    empty_dataframe = pd.DataFrame([])
+    with pytest.raises(
+        pr.errors.SchemaError, match="column 'plant_id_eia' not in dataframe"
+    ):
+        schema.validate(empty_dataframe)
+
+    bad_dtypes_dataframe = pd.DataFrame(
+        {"plant_id_eia": ["non_number"], "city": ["Bloomington"], "state": ["IL"]}
+    ).astype(str)
+    with pytest.raises(
+        pr.errors.SchemaError, match="expected series 'plant_id_eia' to have type Int64"
+    ):
+        schema.validate(bad_dtypes_dataframe)
+
+    # city must be alphabetically before state
+    bad_city_state_names = pd.DataFrame(
+        {"plant_id_eia": [12345], "city": ["Bloomington"], "state": ["AK"]}
+    ).pipe(apply_pudl_dtypes)
+    with pytest.raises(pr.errors.SchemaError, match="failed element-wise validator"):
+        schema.validate(bad_city_state_names)
+
+    bad_id_number = pd.DataFrame(
+        {"plant_id_eia": [0], "city": ["Bloomington"], "state": ["IL"]}
+    ).pipe(apply_pudl_dtypes)
+    with pytest.raises(pr.errors.SchemaError, match="failed element-wise validator"):
+        schema.validate(bad_id_number)
+
+    good_dataframe = pd.DataFrame(
+        {"plant_id_eia": [12345], "city": ["Bloomington"], "state": ["IL"]}
+    ).pipe(apply_pudl_dtypes)
+    assert not schema.validate(good_dataframe).empty

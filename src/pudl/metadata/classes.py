@@ -737,9 +737,10 @@ class Schema(PudlMeta):
 
     fields: StrictList[Field]
     missing_values: list[StrictStr] = [""]
-    primary_key: StrictList[SnakeCase] | None = None
+    primary_key: list[SnakeCase] = []
     foreign_keys: list[ForeignKey] = []
-    checks: dict[SnakeCase, Callable] = {}
+    df_checks: list[Callable] = []
+    field_checks: dict[SnakeCase, Callable] = {}
 
     _check_unique = _validator(
         "missing_values", "primary_key", "foreign_keys", fn=_check_unique
@@ -784,15 +785,18 @@ class Schema(PudlMeta):
 
     def to_pandera(self: Self) -> pr.DataFrameSchema:
         """Turn PUDL Schema into Pandera schema, so dagster can understand it."""
+        # 2024-02-09: pr.Check doesn't have interop with Pydantic type system
+        # yet, so we encode as Callable, then cast.
         return pr.DataFrameSchema(
             {
                 field.name: pr.Column(
                     FIELD_DTYPES_PANDAS[field.type],
-                    checks=cast(pr.Check, self.checks.get(field.name, None)),
+                    checks=cast(pr.Check, self.field_checks.get(field.name, None)),
                 )
                 for field in self.fields
             },
             unique=self.primary_key,
+            checks=cast(list[pr.Check], self.df_checks),
         )
 
 
@@ -1046,7 +1050,8 @@ class PudlResourceDescriptor(PudlMeta):
 
         field_ids: list[str] = pydantic.Field(alias="fields", default=[])
         primary_key_ids: list[str] = pydantic.Field(alias="primary_key", default=[])
-        checks: list[Callable] = []
+        df_checks: list[Callable] = []
+        field_checks: dict[str, Callable] = {}
         foreign_key_rules: PudlForeignKeyRules = PudlForeignKeyRules()
 
     class PudlCodeMetadata(PudlMeta):
@@ -1055,8 +1060,8 @@ class PudlResourceDescriptor(PudlMeta):
         class CodeDataframe(pr.DataFrameModel):
             """The DF we use to represent code/label/description associations."""
 
-            # TODO (daz): each of these | Nones are one-offs. Fix the frickin
-            # data instead.
+            # TODO (daz) 2024-02-09: each of these | Nones are one-offs. Fix
+            # the frickin data instead.
             code: pr.typing.Series[Any]
             label: pr.typing.Series[str] | None
             description: pr.typing.Series[str]
@@ -1068,12 +1073,12 @@ class PudlResourceDescriptor(PudlMeta):
         code_fixes: dict = {}
         ignored_codes: list = []
 
-    # TODO (daz): with a name like "title" you might imagine all resources
-    # would have one...
+    # TODO (daz) 2024-02-09: with a name like "title" you might imagine all
+    # resources would have one...
     title: str | None = None
     description: str
     schema_: PudlSchemaDescriptor = pydantic.Field(alias="schema")
-    encoder: PudlCodeMetadata = PudlCodeMetadata()
+    encoder: PudlCodeMetadata | None = None
     source_ids: list[str] = pydantic.Field(alias="sources")
     etl_group_id: str = pydantic.Field(alias="etl_group")
     field_namespace_id: str = pydantic.Field(alias="field_namespace")
@@ -1264,8 +1269,18 @@ class Resource(PudlMeta):
         return value
 
     @staticmethod
-    def dict_from_id(x: str) -> dict:  # noqa: C901
-        """Construct dictionary from PUDL identifier (`resource.name`).
+    def dict_from_id(resource_id: str) -> dict:
+        """Construct dictionary from PUDL identifier (`resource.name`)."""
+        descriptor = PudlResourceDescriptor.model_validate(
+            RESOURCE_METADATA[resource_id]
+        )
+        return Resource.dict_from_resource_descriptor(resource_id, descriptor)
+
+    @staticmethod
+    def dict_from_resource_descriptor(  # noqa: C901
+        resource_id: str, descriptor: PudlResourceDescriptor
+    ) -> dict:
+        """Get a Resource-shaped dict from a PudlResourceDescriptor.
 
         * `schema.fields`
 
@@ -1280,8 +1295,8 @@ class Resource(PudlMeta):
         * `keywords`: Keywords are fetched by source ids.
         * `schema.foreign_keys`: Foreign keys are fetched by resource name.
         """
-        obj = copy.deepcopy(RESOURCE_METADATA[x])
-        obj["name"] = x
+        obj = descriptor.model_dump(by_alias=True)
+        obj["name"] = resource_id
         schema = obj["schema"]
         # Expand fields
         if "fields" in schema:
@@ -1294,8 +1309,8 @@ class Resource(PudlMeta):
                 if name in FIELD_METADATA_BY_GROUP.get(namespace, {}):
                     value = {**value, **FIELD_METADATA_BY_GROUP[namespace][name]}
                 # Update with any custom resource-level metadata
-                if name in FIELD_METADATA_BY_RESOURCE.get(x, {}):
-                    value = {**value, **FIELD_METADATA_BY_RESOURCE[x][name]}
+                if name in FIELD_METADATA_BY_RESOURCE.get(resource_id, {}):
+                    value = {**value, **FIELD_METADATA_BY_RESOURCE[resource_id][name]}
                 fields.append(value)
             schema["fields"] = fields
         # Expand sources
@@ -1327,7 +1342,7 @@ class Resource(PudlMeta):
         # Insert foreign keys
         if "foreign_keys" in schema:
             raise ValueError("Resource metadata contains explicit foreign keys")
-        schema["foreign_keys"] = FOREIGN_KEYS.get(x, [])
+        schema["foreign_keys"] = FOREIGN_KEYS.get(resource_id, [])
         # Delete foreign key rules
         if "foreign_key_rules" in schema:
             del schema["foreign_key_rules"]
