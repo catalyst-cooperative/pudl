@@ -173,10 +173,9 @@ class EpaCemsDatastore:
 
     def get_data_frame(self, partition: EpaCemsPartition) -> pd.DataFrame:
         """Constructs dataframe from a zipfile for a given (year_quarter) partition."""
-        archive = self.datastore.get_zipfile_resource(
+        with self.datastore.get_zipfile_resource(
             "epacems", **partition.get_filters()
-        )
-        with archive.open(str(partition.get_quarterly_file()), "r") as csv_file:
+        ).open(str(partition.get_quarterly_file()), "r") as csv_file:
             df = self._csv_to_dataframe(
                 csv_file,
                 ignore_cols=API_IGNORE_COLS,
