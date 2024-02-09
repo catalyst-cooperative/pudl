@@ -20,7 +20,7 @@ def raw_eia176__company(context):
     Returns:
         An extracted EIA dataframe with company data.
     """
-    zipfile = context.resources.datastore.get_zipfile_resource(DATASET)
     table_file_map = get_table_file_map(DATASET)
-    extractor = CsvExtractor(zipfile, table_file_map)
-    extractor.extract_one("company")
+    with context.resources.datastore.get_zipfile_resource(DATASET) as zf:
+        extractor = CsvExtractor(zf, table_file_map)
+        return extractor.extract_one("company")
