@@ -101,6 +101,7 @@ eia_raw_table_names = (
     "raw_eia923__generator",
     "raw_eia923__stocks",
     "raw_eia923__emissions_control",
+    "raw_eia923__financial_information",
 )
 
 
