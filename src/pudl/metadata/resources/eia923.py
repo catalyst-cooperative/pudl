@@ -1,6 +1,10 @@
 """Definitions of data tables primarily coming from EIA-923."""
 from typing import Any
 
+import pandera as pr
+
+from pudl import validate as pv
+
 TABLE_DESCRIPTIONS: dict[str, str] = {
     "core_eia923__monthly_boiler_fuel": (
         """EIA-923 Monthly Boiler Fuel Consumption and Emissions, from EIA-923 Schedule 3.
@@ -159,6 +163,38 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "energy_source_code",
                 "prime_mover_code",
                 "report_date",
+            ],
+            "df_checks": [
+                pr.Check(
+                    name="coal_heat_content",
+                    check_fn=lambda df: pv.vs_bounds(
+                        df, *pv.bf_eia923_coal_heat_content
+                    ),
+                ),
+                pr.Check(
+                    name="coal_ash_content",
+                    check_fn=lambda df: pv.vs_bounds(
+                        df, *pv.bf_eia923_coal_ash_content
+                    ),
+                ),
+                pr.Check(
+                    name="coal_sulfur_content",
+                    check_fn=lambda df: pv.vs_bounds(
+                        df, *pv.bf_eia923_coal_sulfur_content
+                    ),
+                ),
+                pr.Check(
+                    name="oil_heat_content",
+                    check_fn=lambda df: pv.vs_bounds(
+                        df, *pv.bf_eia923_oil_heat_content
+                    ),
+                ),
+                pr.Check(
+                    name="gas_heat_content",
+                    check_fn=lambda df: pv.vs_bounds(
+                        df, *pv.bf_eia923_gas_heat_content
+                    ),
+                ),
             ],
         },
         "field_namespace": "eia",
