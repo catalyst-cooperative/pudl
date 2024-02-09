@@ -641,5 +641,22 @@ SOURCES: dict[str, Any] = {
         "license_pudl": LICENSES["cc-by-4.0"],
         "email": "pudl@catalyst.coop",
     },
+    "sec10k": {
+        "title": "Securities and Exchange Commission form 10-K",
+        "path": "https://www.sec.gov/files/form10-k.pdf",
+        "description": (
+            "10-K offers a detailed picture of a company’s business, the risks it"
+            "faces, and the operating and financial results for the fiscal year."
+        ),
+        "field_namespace": "sec",
+        "working_partitions": {
+            "years": sorted(set(range(1994, 2023))),
+        },
+        "keywords": sorted(
+            set(KEYWORDS["sec"] + KEYWORDS["us_govt"] + KEYWORDS["finance"])
+        ),
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
+    },
 }
 """Data source attributes by PUDL identifier."""
