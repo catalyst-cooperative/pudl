@@ -367,7 +367,7 @@ PPE_COLS = [
 
 
 @asset(
-    io_manager_key="pudl_sqlite_io_manager",
+    io_manager_key="pudl_io_manager",
     compute_kind="Python",
 )
 def out_eia__yearly_generators_by_ownership(
@@ -381,7 +381,7 @@ def out_eia__yearly_generators_by_ownership(
 
 
 @asset(
-    io_manager_key="pudl_sqlite_io_manager",
+    io_manager_key="pudl_io_manager",
     compute_kind="Python",
 )
 def out_eia__yearly_plant_parts(
