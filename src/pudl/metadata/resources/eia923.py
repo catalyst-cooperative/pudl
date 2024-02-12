@@ -710,6 +710,40 @@ is for those supplies."""
         "sources": ["eia923"],
         "etl_group": "eia923",
     },
+    # "core_eia923__yearly_fgd_operation_maintenance": {
+    #     "description": "ADD DESCRIPTION!",
+    #     "schema": {
+    #         "fields": [
+    #             "plant_id_eia",
+    #             "report_year",
+    #             "so2_control_id_eia",
+    #             "fgd_feed_materials_chemical_costs_dollars",
+    #             "fgd_labor_supervision_costs_dollars",
+    #             "fgd_land_acquisition_costs_dollars",
+    #             "fgd_waste_disposal_costs_dollars",
+    #             "fgd_maintenance_costs_dollars",
+    #             "fgd_maintenance_material_other_costs_dollars",
+    #             "total_dollars",
+    #             "fgd_control_flag",
+    #             "fgd_operational_status",
+    #             "fgd_hours_in_service",
+    #             "fgd_sorbent_consumption_1000_tons",
+    #             "fgd_electricity_consumption_mwh",
+    #             "so2_removal_efficiency_annual",
+    #             "so2_removal_efficiency_100pct_load",
+    #             "so2_test_date",
+    #             "data_maturity",
+    #         ],
+    #         "primary_key": [
+    #             "plant_id_eia",
+    #             "report_year",
+    #             "so2_control_id_eia",
+    #         ],
+    #     },
+    #     "field_namespace": "eia",
+    #     "sources": ["eia923"],
+    #     "etl_group": "eia923",
+    # },
 }
 """EIA-923 resource attributes organized by PUDL identifier (``resource.name``).
 

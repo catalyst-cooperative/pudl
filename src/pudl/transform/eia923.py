@@ -1390,3 +1390,42 @@ def cooling_system_information_continuity(csi):
         groupby_col="report_date",
         n_outliers_allowed=1,
     )
+
+
+@asset
+def _core_eia923__yearly_fgd_operation_maintenance(
+    raw_eia923__fgd_operation_maintenance: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transforms the _core_eia923__yearly_fgd_operation_maintenance table.
+
+    Transformations include:
+
+    * Drop values with plant and boiler id values of NA.
+    * Replace . values with NA.
+    * Create a fuel_type_code_pudl field that organizes fuel types into clean,
+      distinguishable categories.
+    * Convert dollars to thousands of dollars.
+
+    Args:
+        raw_eia923__fgd_operation_maintenance: The raw ``raw_eia923__fgd_operation_maintenance`` dataframe.
+
+    Returns:
+        Cleaned ``_core_eia923__yearly_fgd_operation_maintenance`` dataframe ready for harvesting.
+    """
+    fgd_df = raw_eia923__fgd_operation_maintenance
+
+    fgd_df = fgd_df.dropna(subset=["plant_id_eia", "so2_control_id_eia"])
+
+    # Replace the EIA923 NA value ('.') with a real NA value.
+    fgd_df = pudl.helpers.fix_eia_na(fgd_df)
+
+    # To do - convert 1000s of dollars to dollars
+    fgd_df = fgd_df
+
+    fgd_df = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("_core_eia923__yearly_fgd_operation_maintenance")
+        .encode(fgd_df)
+    )
+
+    return fgd_df
