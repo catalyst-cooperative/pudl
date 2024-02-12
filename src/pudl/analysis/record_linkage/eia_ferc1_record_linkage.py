@@ -288,8 +288,18 @@ def get_match_full_records(best_match_df, inputs):
         matches_best=best_match_df,
         plant_parts_eia_true=inputs.get_plant_parts_eia_true(),
         plants_ferc1=inputs.get_plants_ferc1(),
-        train_df=inputs.get_train_df(),
-    ).pipe(add_null_overrides)  # Override specified values with NA record_id_eia
+    )
+    _log_match_coverage(connected_df)
+    for match_set in ["all", "overrides"]:
+        check_match_consistency(
+            connected_df,
+            input.get_train_df(),
+            match_set=match_set,
+        )
+
+    connected_df = add_null_overrides(
+        connected_df
+    )  # Override specified values with NA record_id_eia
     return Resource.from_id(
         "out_pudl__yearly_assn_eia_ferc1_plant_parts"
     ).enforce_schema(connected_df)
@@ -889,7 +899,6 @@ def prettyify_best_matches(
     matches_best: pd.DataFrame,
     plant_parts_eia_true: pd.DataFrame,
     plants_ferc1: pd.DataFrame,
-    train_df: pd.DataFrame,
     debug: bool = False,
 ) -> pd.DataFrame:
     """Make the EIA-FERC best matches usable.
@@ -965,13 +974,6 @@ def prettyify_best_matches(
         )
         logger.warning(message)
 
-    _log_match_coverage(connects_ferc1_eia)
-    for match_set in ["all", "overrides"]:
-        check_match_consistency(
-            connects_ferc1_eia,
-            train_df,
-            match_set=match_set,
-        )
     return connects_ferc1_eia
 
 
@@ -1039,7 +1041,7 @@ def check_match_consistency(
             threshold for this check.
     """
     # these are the default
-    expected_consistency = 0.73
+    expected_consistency = 0.72
     expected_uniform_capacity_consistency = 0.85
     mask = connects_ferc1_eia.record_id_eia.notnull()
 

@@ -230,7 +230,7 @@ def get_model_predictions(eia_df, ferc_df, train_df):
 
 
 @op
-def get_best_matches_with_training_data_overwrites(preds_df, inputs, train_df):
+def get_best_matches_with_training_data_overwrites(preds_df, inputs):
     """Get the best EIA match for each FERC record."""
     preds_df = (
         preds_df.rename(
@@ -240,6 +240,7 @@ def get_best_matches_with_training_data_overwrites(preds_df, inputs, train_df):
         .groupby("record_id_ferc1")
         .first()
     )
+    train_df = inputs.get_train_df().reset_index()
     true_pos = get_true_pos(preds_df, train_df)
     false_pos = get_false_pos(preds_df, train_df)
     false_neg = get_false_neg(preds_df, train_df)
@@ -310,7 +311,7 @@ def out_pudl__yearly_assn_eia_ferc1_plant_parts_splink(
     # train model and predict matches
     preds_df = get_model_predictions(eia_df=eia_df, ferc_df=ferc_df, train_df=train_df)
     best_match_df = get_best_matches_with_training_data_overwrites(
-        preds_df=preds_df, inputs=inputs, train_df=train_df
+        preds_df=preds_df, inputs=inputs
     )
     ferc1_eia_connected_df = get_full_records(best_match_df, inputs)
 
