@@ -363,6 +363,13 @@ def vs_bounds(
             )
 
 
+def vs_bounds_group(df: pd.DataFrame, group: list[dict]) -> bool:
+    """Use as Pandera check function."""
+    for case in group:
+        vs_bounds(df, **case)
+    return True
+
+
 def vs_self(
     df, data_col, weight_col, query="", title="", low_q=0.05, mid_q=0.5, hi_q=0.95
 ):

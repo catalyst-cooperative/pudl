@@ -291,6 +291,24 @@ class FieldConstraints(PudlMeta):
                 raise ValueError("must be greater or equal to minimum")
         return value
 
+    def to_pandera_checks(self) -> list[pr.Check]:
+        """Convert these constraints to pandera Column checks."""
+        checks = []
+        if self.min_length is not None:
+            checks.append(pr.Check.str_length(min_value=self.min_length))
+        if self.max_length is not None:
+            checks.append(pr.Check.str_length(max_value=self.max_length))
+        if self.minimum is not None:
+            checks.append(pr.Check.ge(self.minimum))
+        if self.maximum is not None:
+            checks.append(pr.Check.le(self.maximum))
+        if self.pattern is not None:
+            checks.append(pr.Check.str_matches(self.pattern))
+        if self.enum:
+            checks.append(pr.Check.isin(self.enum))
+
+        return checks
+
 
 class FieldHarvest(PudlMeta):
     """Field harvest parameters (`resource.schema.fields[...].harvest`)."""
@@ -683,6 +701,22 @@ class Field(PudlMeta):
         """Recode the Field if it has an associated encoder."""
         return self.encoder.encode(col, dtype=dtype) if self.encoder else col
 
+    def to_pandera_column(
+        self, additional_checks: Iterable[pr.Check] = ()
+    ) -> pr.Column:
+        """Encode this field def as a Pandera column."""
+        constraints = self.constraints
+
+        checks = list(additional_checks) + self.constraints.to_pandera_checks()
+        column_type = "category" if constraints.enum else FIELD_DTYPES_PANDAS[self.type]
+
+        return pr.Column(
+            column_type,
+            checks=checks,
+            nullable=not constraints.required,
+            unique=constraints.unique,
+        )
+
 
 # ---- Classes: Resource ---- #
 
@@ -740,7 +774,7 @@ class Schema(PudlMeta):
     primary_key: list[SnakeCase] = []
     foreign_keys: list[ForeignKey] = []
     df_checks: list[Callable] = []
-    field_checks: dict[SnakeCase, Callable] = {}
+    field_checks: dict[SnakeCase, list[Callable]] = {}
 
     _check_unique = _validator(
         "missing_values", "primary_key", "foreign_keys", fn=_check_unique
@@ -787,11 +821,13 @@ class Schema(PudlMeta):
         """Turn PUDL Schema into Pandera schema, so dagster can understand it."""
         # 2024-02-09: pr.Check doesn't have interop with Pydantic type system
         # yet, so we encode as Callable, then cast.
+
         return pr.DataFrameSchema(
             {
-                field.name: pr.Column(
-                    FIELD_DTYPES_PANDAS[field.type],
-                    checks=cast(pr.Check, self.field_checks.get(field.name, None)),
+                field.name: field.to_pandera_column(
+                    additional_checks=cast(
+                        list[pr.Check], self.field_checks.get(field.name, [])
+                    )
                 )
                 for field in self.fields
             },
@@ -1051,7 +1087,7 @@ class PudlResourceDescriptor(PudlMeta):
         field_ids: list[str] = pydantic.Field(alias="fields", default=[])
         primary_key_ids: list[str] = pydantic.Field(alias="primary_key", default=[])
         df_checks: list[Callable] = []
-        field_checks: dict[str, Callable] = {}
+        field_checks: dict[str, list[Callable]] = {}
         foreign_key_rules: PudlForeignKeyRules = PudlForeignKeyRules()
 
     class PudlCodeMetadata(PudlMeta):

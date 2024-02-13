@@ -167,32 +167,38 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "df_checks": [
                 pr.Check(
                     name="coal_heat_content",
-                    check_fn=lambda df: pv.vs_bounds(
-                        df, *pv.bf_eia923_coal_heat_content
+                    check_fn=lambda df: pv.vs_bounds_group(
+                        df, pv.bf_eia923_coal_heat_content
                     ),
                 ),
                 pr.Check(
                     name="coal_ash_content",
-                    check_fn=lambda df: pv.vs_bounds(
-                        df, *pv.bf_eia923_coal_ash_content
+                    check_fn=lambda df: pv.vs_bounds_group(
+                        df, pv.bf_eia923_coal_ash_content
                     ),
                 ),
                 pr.Check(
                     name="coal_sulfur_content",
-                    check_fn=lambda df: pv.vs_bounds(
-                        df, *pv.bf_eia923_coal_sulfur_content
+                    check_fn=lambda df: pv.vs_bounds_group(
+                        df, pv.bf_eia923_coal_sulfur_content
                     ),
                 ),
                 pr.Check(
                     name="oil_heat_content",
-                    check_fn=lambda df: pv.vs_bounds(
-                        df, *pv.bf_eia923_oil_heat_content
+                    check_fn=lambda df: pv.vs_bounds_group(
+                        df, pv.bf_eia923_oil_heat_content
                     ),
                 ),
                 pr.Check(
                     name="gas_heat_content",
-                    check_fn=lambda df: pv.vs_bounds(
-                        df, *pv.bf_eia923_gas_heat_content
+                    check_fn=lambda df: pv.vs_bounds_group(
+                        df, pv.bf_eia923_gas_heat_content
+                    ),
+                ),
+                pr.Check(
+                    name="coal_heat_content",
+                    check_fn=lambda df: pv.vs_bounds_group(
+                        df, pv.bf_eia923_coal_heat_content
                     ),
                 ),
             ],

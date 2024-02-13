@@ -115,7 +115,7 @@ def test_resource_descriptors_can_encode_schemas():
                 "fields": ["plant_id_eia", "city", "state"],
                 "primary_key": ["plant_id_eia"],
                 "df_checks": [pr.Check(lambda df: df.city < df.state)],
-                "field_checks": {"plant_id_eia": pr.Check.gt(10000)},
+                "field_checks": {"plant_id_eia": [pr.Check.gt(10000)]},
             },
             "sources": ["eia860", "eia923"],
             "etl_group": "entity_eia",

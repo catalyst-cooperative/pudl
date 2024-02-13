@@ -7,6 +7,7 @@ from dagster import (
     AssetSelection,
     Definitions,
     define_asset_job,
+    load_asset_checks_from_modules,
     load_assets_from_modules,
 )
 
@@ -95,6 +96,14 @@ default_assets = (
     ),
 )
 
+default_asset_checks = (
+    *load_asset_checks_from_modules(
+        [
+            pudl.output.eia923,
+        ],
+    ),
+)
+
 default_resources = {
     "datastore": datastore,
     "pudl_io_manager": pudl_mixed_format_io_manager,
@@ -153,6 +162,7 @@ def load_dataset_settings_from_file(setting_filename: str) -> dict:
 
 defs: Definitions = Definitions(
     assets=default_assets,
+    asset_checks=default_asset_checks,
     resources=default_resources,
     jobs=[
         define_asset_job(

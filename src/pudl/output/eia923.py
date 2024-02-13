@@ -264,7 +264,7 @@ def out_eia923__boiler_fuel_check(out_eia923__boiler_fuel: pd.DataFrame):
     """Check to see if the asset did, indeed, pass its checks."""
     schema = (
         pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("core_eia923__entity_coalmine")
+        .get_resource("out_eia923__boiler_fuel")
         .schema.to_pandera()
     )
     schema.validate(out_eia923__boiler_fuel)
