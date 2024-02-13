@@ -7,6 +7,7 @@ they share nearly identical file formatting.
 """
 import pandas as pd
 from dagster import AssetOut, Output, multi_asset
+from dagster._utils.forked_pdb import ForkedPdb
 
 import pudl.logging_helpers
 from pudl.extract import excel
@@ -71,6 +72,8 @@ class Extractor(excel.GenericExtractor):
         # Add leading zeros to county FIPS in fuel_receipts_costs
         else:
             if page == "fuel_receipts_costs":
+                if partition == {"year": 2022}:
+                    ForkedPdb().set_trace()
                 df.county_id_fips = df.county_id_fips.str.rjust(3, "0")
             df = df[~df.plant_id_eia.isin([99999, 999999])]
         return df
