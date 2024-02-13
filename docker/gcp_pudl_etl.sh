@@ -126,7 +126,7 @@ function distribute_parquet() {
 function copy_outputs_to_distribution_bucket() {
     # Only attempt to update outputs if we have a real value of BUILD_REF
     # This avoids accidentally blowing away the whole bucket if it's not set.
-    echo "Copying Parquet output to private distribution bucket"
+    echo "Copying outputs to distribution buckets"
     if [[ -n "$BUILD_REF" ]]; then
         if [[ "$GITHUB_ACTION_TRIGGER" == "schedule" ]]; then
             # If running nightly builds, copy outputs to the "nightly" bucket path
