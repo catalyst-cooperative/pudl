@@ -315,6 +315,10 @@ KEYWORDS: dict[str, list[str]] = {
         "department of transportation",
         "us dot",
     ],
+    "sec": [
+        "sec",
+        "securities and exchange commission",
+    ],
     "eia_water": [
         "eia thermoelectric cooling water",
         "eia waterthermoelectric",

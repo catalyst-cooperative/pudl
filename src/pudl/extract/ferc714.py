@@ -84,12 +84,13 @@ def generate_raw_ferc714_asset(table_name: str) -> AssetsDefinition:
         logger.info(
             f"Extracting {table_name} from CSV into pandas DataFrame (years: {years})."
         )
-        df = pd.read_csv(
-            ds.get_zipfile_resource("ferc714", name="ferc714.zip").open(
-                FERC714_FILES[table_name]["name"]
-            ),
-            encoding=FERC714_FILES[table_name]["encoding"],
-        )
+        with ds.get_zipfile_resource("ferc714", name="ferc714.zip") as zf, zf.open(
+            FERC714_FILES[table_name]["name"]
+        ) as csv_file:
+            df = pd.read_csv(
+                csv_file,
+                encoding=FERC714_FILES[table_name]["encoding"],
+            )
         if table_name != "respondent_id":
             df = df.query("report_yr in @ferc714_settings.years")
         return df

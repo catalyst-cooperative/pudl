@@ -1,5 +1,6 @@
 """Tests for xbrl extraction module."""
 
+
 import pytest
 from dagster import ResourceDefinition, build_op_context
 
@@ -108,7 +109,6 @@ def test_xbrl2sqlite(settings, forms, mocker, tmp_path):
         if op.tags.get("data_format") == "xbrl"
     ]
 
-    # always use tmp path here so that we don't clobber the live DB when --live-dbs is passed
     ferc_to_sqlite.execute_in_process(
         op_selection=op_selection,
         resources={
@@ -121,9 +121,6 @@ def test_xbrl2sqlite(settings, forms, mocker, tmp_path):
             ),
         },
     )
-
-    # TODO(rousik): do we need to use this, or can we simply set PUDL_OUTPUT env
-    # variable to some random path?
 
     assert convert_form_mock.call_count == len(forms)
 
@@ -139,10 +136,7 @@ def test_xbrl2sqlite(settings, forms, mocker, tmp_path):
         )
 
 
-def test_xbrl2sqlite_db_exists_no_clobber(mocker, live_dbs):
-    if live_dbs:
-        return
-
+def test_xbrl2sqlite_db_exists_no_clobber(mocker, tmp_path):
     convert_form_mock = mocker.MagicMock()
     mocker.patch("pudl.extract.xbrl.convert_form", new=convert_form_mock)
 
@@ -173,10 +167,7 @@ def test_xbrl2sqlite_db_exists_no_clobber(mocker, live_dbs):
     assert ferc1_sqlite_path.exists()
 
 
-def test_xbrl2sqlite_db_exists_yes_clobber(mocker, live_dbs):
-    if live_dbs:
-        return
-
+def test_xbrl2sqlite_db_exists_yes_clobber(mocker, tmp_path):
     convert_form_mock = mocker.MagicMock()
     mocker.patch("pudl.extract.xbrl.convert_form", new=convert_form_mock)
 
@@ -184,7 +175,6 @@ def test_xbrl2sqlite_db_exists_yes_clobber(mocker, live_dbs):
     mock_datastore = mocker.MagicMock()
     mocker.patch("pudl.extract.xbrl.FercXbrlDatastore", return_value=mock_datastore)
 
-    # always use tmp path here so that we don't clobber the live DB when --live-dbs is passed
     ferc1_sqlite_path = PudlPaths().output_dir / "ferc1_xbrl.sqlite"
     ferc1_sqlite_path.touch()
     settings = FercToSqliteSettings(
