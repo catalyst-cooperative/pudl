@@ -220,7 +220,7 @@ ETL_SUCCESS=0
 SAVE_OUTPUTS_SUCCESS=0
 UPDATE_NIGHTLY_SUCCESS=0
 DATASETTE_SUCCESS=0
-DISTRIBUTE_PARQUET=0
+DISTRIBUTE_PARQUET_SUCCESS=0
 CLEAN_UP_OUTPUTS_SUCCESS=0
 DISTRIBUTION_BUCKET_SUCCESS=0
 ZENODO_SUCCESS=0
@@ -259,7 +259,7 @@ if [[ $ETL_SUCCESS == 0 ]]; then
     if [[ "$GITHUB_ACTION_TRIGGER" == "push" || "$BUILD_REF" == "main" ]]; then
         # Distribute Parquet outputs to a private bucket
         distribute_parquet 2>&1 | tee -a "$LOGFILE"
-        DISTRIBUTE_PARQUET=${PIPESTATUS[0]}
+        DISTRIBUTE_PARQUET_SUCCESS=${PIPESTATUS[0]}
         # Remove some cruft from the builds that we don't want to distribute
         clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
         CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
@@ -282,7 +282,7 @@ if [[ $ETL_SUCCESS == 0 && \
       $SAVE_OUTPUTS_SUCCESS == 0 && \
       $UPDATE_NIGHTLY_SUCCESS == 0 && \
       $DATASETTE_SUCCESS == 0 && \
-      $DISTRIBUTE_PARQUET == 0 && \
+      $DISTRIBUTE_PARQUET_SUCCESS == 0 && \
       $CLEAN_UP_OUTPUTS_SUCCESS == 0 && \
       $DISTRIBUTION_BUCKET_SUCCESS == 0 && \
       $ZENODO_SUCCESS == 0
