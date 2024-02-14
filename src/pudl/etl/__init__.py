@@ -110,8 +110,6 @@ def asset_check_from_schema(
 ) -> AssetChecksDefinition | None:
     """Create a dagster asset check based on the resource schema, if defined."""
     resource_id = asset_key.to_user_string()
-    if resource_id != "out_eia923__boiler_fuel":
-        return None
     try:
         resource = package.get_resource(resource_id)
     except ValueError:
