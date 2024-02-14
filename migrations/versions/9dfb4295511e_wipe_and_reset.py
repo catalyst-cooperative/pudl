@@ -1,7 +1,7 @@
 """wipe and reset
 
 Revision ID: 9dfb4295511e
-Revises: 
+Revises:
 Create Date: 2024-02-14 14:31:28.957138
 
 """
