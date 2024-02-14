@@ -3,7 +3,7 @@ from typing import Literal
 
 import numpy as np
 import pandas as pd
-from dagster import AssetCheckResult, AssetsDefinition, Field, asset, asset_check
+from dagster import AssetsDefinition, Field, asset
 
 import pudl
 from pudl.metadata.fields import apply_pudl_dtypes
@@ -257,18 +257,6 @@ def out_eia923__boiler_fuel(
         pu=_out_eia__plants_utilities,
         bga=core_eia860__assn_boiler_generator,
     )
-
-
-@asset_check(asset=out_eia923__boiler_fuel)
-def out_eia923__boiler_fuel_check(out_eia923__boiler_fuel: pd.DataFrame):
-    """Check to see if the asset did, indeed, pass its checks."""
-    schema = (
-        pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("out_eia923__boiler_fuel")
-        .schema.to_pandera()
-    )
-    schema.validate(out_eia923__boiler_fuel)
-    return AssetCheckResult(passed=True)
 
 
 @asset(

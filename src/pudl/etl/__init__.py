@@ -1,13 +1,19 @@
 """Dagster definitions for the PUDL ETL and Output tables."""
 import importlib.resources
+import itertools
+import warnings
 
+import pandera as pr
 from dagster import (
+    AssetCheckResult,
+    AssetChecksDefinition,
     AssetKey,
     AssetsDefinition,
     AssetSelection,
     Definitions,
+    ExperimentalWarning,
+    asset_check,
     define_asset_job,
-    load_asset_checks_from_modules,
     load_assets_from_modules,
 )
 
@@ -31,6 +37,7 @@ from . import (
 )
 
 logger = pudl.logging_helpers.get_logger(__name__)
+
 
 default_assets = (
     *load_assets_from_modules([eia_bulk_elec_assets], group_name="core_eia_bulk_elec"),
@@ -96,13 +103,54 @@ default_assets = (
     ),
 )
 
-default_asset_checks = (
-    *load_asset_checks_from_modules(
-        [
-            pudl.output.eia923,
-        ],
-    ),
+
+def asset_check_from_schema(
+    asset_key: AssetKey,
+    package: pudl.metadata.classes.Package,
+) -> AssetChecksDefinition | None:
+    """Create a dagster asset check based on the resource schema, if defined."""
+    resource_id = asset_key.to_user_string()
+    if resource_id != "out_eia923__boiler_fuel":
+        return None
+    try:
+        resource = package.get_resource(resource_id)
+    except ValueError:
+        return None
+    pandera_schema = resource.schema.to_pandera()
+
+    @asset_check(asset=asset_key)
+    def pandera_schema_check(asset_value) -> AssetCheckResult:
+        try:
+            pandera_schema.validate(asset_value, lazy=True)
+        except pr.errors.SchemaErrors as e:
+            return AssetCheckResult(
+                passed=False,
+                metadata={"schema_errors": [str(err) for err in e.schema_errors]},
+            )
+        return AssetCheckResult(passed=True)
+
+    return pandera_schema_check
+
+
+def _get_keys_from_assets(asset_def):
+    try:
+        return asset_def.keys
+    except AttributeError:
+        return [asset_def.key]
+
+
+warnings.filterwarnings("ignore", category=ExperimentalWarning)
+_package = pudl.metadata.classes.Package.from_resource_ids()
+_asset_keys = itertools.chain.from_iterable(
+    _get_keys_from_assets(asset_def) for asset_def in default_assets
 )
+default_asset_checks = [
+    check
+    for check in (
+        asset_check_from_schema(asset_key, _package) for asset_key in _asset_keys
+    )
+    if check is not None
+]
 
 default_resources = {
     "datastore": datastore,
@@ -203,4 +251,7 @@ defs: Definitions = Definitions(
         ),
     ],
 )
+
+warnings.resetwarnings()
+
 """A collection of dagster assets, resources, IO managers, and jobs for the PUDL ETL."""
