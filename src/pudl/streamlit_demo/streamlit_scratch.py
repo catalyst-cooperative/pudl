@@ -12,9 +12,6 @@ st.title("FERC1 - EIA Record Linkage")
 # sorted_preds_df = duckdb.sql("FROM out_pudl__yearly_assn_eia_ferc1").df()
 
 
-st.write("Manually Assigned PUDL IDs (for validation):")
-st.write(comp_df.loc[["plant_id_pudl", "utility_id_pudl"]])
-
 # read in parquet, for now?
 incorrect_matches = pd.read_parquet("incorrect_matches.parquet")
 sorted_preds_df = pd.read_parquet("sorted_preds_df.parquet")
