@@ -288,9 +288,9 @@ def test_partitions_with_json_normalize(pudl_etl_settings):
         )
 
     cems_parts = json_normalize(datasets["epacems"].partitions)
-    if list(cems_parts.columns) != ["year_quarters"]:
+    if list(cems_parts.columns) != ["year_quarter"]:
         raise AssertionError(
-            "CEMS paritions should have year_quarters columns only, found:"
+            "CEMS paritions should have year_quarter columns only, found:"
             f"{cems_parts}"
         )
 

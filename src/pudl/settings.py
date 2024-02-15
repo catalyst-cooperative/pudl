@@ -97,12 +97,9 @@ class GenericDatasetSettings(FrozenBaseModel):
         ``pd.json_normalize``.
         """
         partitions = []
-        if hasattr(cls, "year_quarters"):
-            partitions = [{"year_quarters": part} for part in cls.year_quarters]
-        elif hasattr(cls, "years"):
-            partitions = [{"year": part} for part in cls.years]
-        elif hasattr(cls, "year_months"):
-            partitions = [{"year_months": part} for part in cls.year_months]
+        for part_name in ["year_quarters", "years", "year_months"]:
+            if hasattr(cls, part_name):
+                partitions = [{part_name.removesuffix("s"): part} for part in getattr(cls, part_name)]
         return partitions
 
 

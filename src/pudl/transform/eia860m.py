@@ -59,7 +59,16 @@ def core_eia860m__changelog_generators(
             ).convert_dtypes(),
         )
         # drop all the non 860m cols
-        .dropna(how="all", axis="columns")
+        [
+            [
+                field.name for field
+                in pudl.metadata.classes.Resource.from_id(
+                    "core_eia860m__changelog_generators"
+                ).schema.fields
+                if field.name != "valid_till_date"
+            ]
+        ]
+
     )
     # there is one plant/gen that has duplicate values
     gens_idx = ["plant_id_eia", "generator_id", "report_date"]
