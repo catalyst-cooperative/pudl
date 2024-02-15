@@ -43,33 +43,29 @@ def core_eia860m__changelog_generators(
             ]
         ]
     )
-    eia860m_all = (
-        pudl.transform.eia860._core_eia860__generators(
-            raw_eia860__generator_proposed=raw_eia860m__generator_proposed,
-            raw_eia860__generator_existing=raw_eia860m__generator_existing,
-            raw_eia860__generator_retired=raw_eia860m__generator_retired.assign(
-                operational_status_code=pd.NA
-            ),
-            # pass an empty genertor df here. 860 old years had one big gens tab
-            # but 860m doesn't. we do this just to enable us to run the 860 transform
-            # function. We add all of the columns to it so we don't have any errors
-            # from missing columns
-            raw_eia860__generator=pd.DataFrame(
-                columns=list(eia860_columns)
-            ).convert_dtypes(),
-        )
+    eia860m_all = pudl.transform.eia860._core_eia860__generators(
+        raw_eia860__generator_proposed=raw_eia860m__generator_proposed,
+        raw_eia860__generator_existing=raw_eia860m__generator_existing,
+        raw_eia860__generator_retired=raw_eia860m__generator_retired.assign(
+            operational_status_code=pd.NA
+        ),
+        # pass an empty genertor df here. 860 old years had one big gens tab
+        # but 860m doesn't. we do this just to enable us to run the 860 transform
+        # function. We add all of the columns to it so we don't have any errors
+        # from missing columns
+        raw_eia860__generator=pd.DataFrame(
+            columns=list(eia860_columns)
+        ).convert_dtypes(),
+    )[
         # drop all the non 860m cols
         [
-            [
-                field.name for field
-                in pudl.metadata.classes.Resource.from_id(
-                    "core_eia860m__changelog_generators"
-                ).schema.fields
-                if field.name != "valid_till_date"
-            ]
+            field.name
+            for field in pudl.metadata.classes.Resource.from_id(
+                "core_eia860m__changelog_generators"
+            ).schema.fields
+            if field.name != "valid_till_date"
         ]
-
-    )
+    ]
     # there is one plant/gen that has duplicate values
     gens_idx = ["plant_id_eia", "generator_id", "report_date"]
     dupe_mask = (eia860m_all.plant_id_eia == 56032) & (eia860m_all.generator_id == "1")

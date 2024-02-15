@@ -99,7 +99,10 @@ class GenericDatasetSettings(FrozenBaseModel):
         partitions = []
         for part_name in ["year_quarters", "years", "year_months"]:
             if hasattr(cls, part_name):
-                partitions = [{part_name.removesuffix("s"): part} for part in getattr(cls, part_name)]
+                partitions = [
+                    {part_name.removesuffix("s"): part}
+                    for part in getattr(cls, part_name)
+                ]
         return partitions
 
 
