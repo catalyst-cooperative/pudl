@@ -1,8 +1,6 @@
 """Definitions of data tables primarily coming from EIA-923."""
 from typing import Any
 
-import pandera as pr
-
 from pudl import validate as pv
 
 TABLE_DESCRIPTIONS: dict[str, str] = {
@@ -164,38 +162,15 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "prime_mover_code",
                 "report_date",
             ],
-            "df_checks": [
-                pr.Check(
-                    name="coal_heat_content",
-                    check_fn=lambda df: pv.vs_bounds_group(
-                        df, pv.bf_eia923_coal_heat_content
-                    ),
-                ),
-                pr.Check(
-                    name="coal_ash_content",
-                    check_fn=lambda df: pv.vs_bounds_group(
-                        df, pv.bf_eia923_coal_ash_content
-                    ),
-                ),
-                pr.Check(
-                    name="coal_sulfur_content",
-                    check_fn=lambda df: pv.vs_bounds_group(
-                        df, pv.bf_eia923_coal_sulfur_content
-                    ),
-                ),
-                pr.Check(
-                    name="oil_heat_content",
-                    check_fn=lambda df: pv.vs_bounds_group(
-                        df, pv.bf_eia923_oil_heat_content
-                    ),
-                ),
-                pr.Check(
-                    name="coal_heat_content",
-                    check_fn=lambda df: pv.vs_bounds_group(
-                        df, pv.bf_eia923_coal_heat_content
-                    ),
-                ),
-            ],
+            "df_checks": pv.vs_bounds_checks(
+                {
+                    "coal_heat_content": pv.bf_eia923_coal_heat_content,
+                    "coal_ash_content": pv.bf_eia923_coal_ash_content,
+                    "coal_sulfur_content": pv.bf_eia923_coal_sulfur_content,
+                    "gas_heat_content": pv.bf_eia923_gas_heat_content,
+                    "oil_heat_content": pv.bf_eia923_oil_heat_content,
+                }
+            ),
         },
         "field_namespace": "eia",
         "sources": ["eia923"],

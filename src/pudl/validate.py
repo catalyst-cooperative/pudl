@@ -13,6 +13,7 @@ import warnings
 
 import numpy as np
 import pandas as pd
+import pandera as pr
 from matplotlib import pyplot as plt
 
 import pudl.logging_helpers
@@ -363,11 +364,24 @@ def vs_bounds(
             )
 
 
-def vs_bounds_group(df: pd.DataFrame, group: list[dict]) -> bool:
-    """Use as Pandera check function."""
-    for case in group:
+def vs_bounds_checks(groups: dict[str, list[dict]]) -> list[pr.Check]:
+    """Turn case specs into Pandera checks."""
+    checks = []
+
+    def a_check(df, case):
         vs_bounds(df, **case)
-    return True
+        return True
+
+    checks = [
+        pr.Check(
+            name=f"{group_name}_{case['title']}",
+            check_fn=lambda df: a_check(df, case),  # noqa: B023
+            raise_warning=not case.get("xfail"),
+        )
+        for group_name, cases in groups.items()
+        for case in cases
+    ]
+    return checks
 
 
 def vs_self(
@@ -1540,6 +1554,7 @@ bf_eia923_gas_heat_content = [
         "low_bound": 0.95,
         "data_col": "fuel_mmbtu_per_unit",
         "weight_col": "fuel_consumed_units",
+        "xfail": True,
     },
 ]
 """Valid natural gas heat content values.

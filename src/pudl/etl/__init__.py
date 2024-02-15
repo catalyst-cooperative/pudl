@@ -120,10 +120,18 @@ def asset_check_from_schema(
     def pandera_schema_check(asset_value) -> AssetCheckResult:
         try:
             pandera_schema.validate(asset_value, lazy=True)
-        except pr.errors.SchemaErrors as e:
+        except pr.errors.SchemaErrors as schema_errors:
             return AssetCheckResult(
                 passed=False,
-                metadata={"schema_errors": [str(err) for err in e.schema_errors]},
+                metadata={
+                    "errors": [
+                        {
+                            "failure_cases": str(err.failure_cases),
+                            "data": str(err.data),
+                        }
+                        for err in schema_errors.schema_errors
+                    ],
+                },
             )
         return AssetCheckResult(passed=True)
 
