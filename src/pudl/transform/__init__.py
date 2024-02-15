@@ -63,6 +63,7 @@ from . import (
     classes,
     eia,
     eia860,
+    eia860m,
     eia861,
     eia923,
     eia_bulk_elec,
