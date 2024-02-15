@@ -1404,9 +1404,9 @@ def get_working_dates_by_datasource(datasource: str) -> pd.DatetimeIndex:
             dates = dates.append(
                 pd.to_datetime(working_partitions["years"], format="%Y")
             )
-        if "year_month" in working_partitions:
+        if "year_months" in working_partitions:
             dates = dates.append(
-                pd.DatetimeIndex([pd.to_datetime(working_partitions["year_month"])])
+                pd.DatetimeIndex(pd.to_datetime(working_partitions["year_months"]))
             )
     return dates
 

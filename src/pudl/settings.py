@@ -101,6 +101,8 @@ class GenericDatasetSettings(FrozenBaseModel):
             partitions = [{"year_quarters": part} for part in cls.year_quarters]
         elif hasattr(cls, "years"):
             partitions = [{"year": part} for part in cls.years]
+        elif hasattr(cls, "year_months"):
+            partitions = [{"year_months": part} for part in cls.year_months]
         return partitions
 
 
