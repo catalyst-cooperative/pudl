@@ -12,7 +12,6 @@ import pudl.logging_helpers
 from pudl.extract import excel
 from pudl.extract.extractor import raw_df_factory
 from pudl.helpers import remove_leading_zeros_from_numeric_strings
-from pudl.metadata.classes import DataSource
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -107,10 +106,8 @@ def extract_eia860(context, raw_eia860__all_dfs):
     ds = context.resources.datastore
 
     if eia_settings.eia860.eia860m:
-        eia860m_data_source = DataSource.from_id("eia860m")
-        eia860m_date = eia860m_data_source.working_partitions["year_month"]
         eia860m_raw_dfs = pudl.extract.eia860m.Extractor(ds).extract(
-            year_month=eia860m_date
+            year_month=[eia_settings.eia860.eia860m_year_month]
         )
         raw_eia860__all_dfs = pudl.extract.eia860m.append_eia860m(
             eia860_raw_dfs=raw_eia860__all_dfs, eia860m_raw_dfs=eia860m_raw_dfs
