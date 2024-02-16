@@ -1223,3 +1223,46 @@ def _core_eia923__fuel_receipts_costs(
     frc_df = frc_df.dropna(subset=["energy_source_code"])
 
     return frc_df
+
+
+@asset
+def _core_eia923__cooling_system_information(
+    raw_eia923__cooling_system_information: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transforms the eia923__cooling_system_information dataframe."""
+    csi_df = raw_eia923__cooling_system_information
+    # Generic cleaning
+    csi_df = csi_df.pipe(pudl.helpers.fix_eia_na).pipe(pudl.helpers.convert_to_date)
+
+    # Convert cooling_status from code to description
+    csi_df["cooling_status"] = csi_df.cooling_status.str.upper().map(
+        pudl.helpers.label_map(
+            CODE_METADATA["core_eia__codes_operational_status"]["df"],
+            from_col="code",
+            to_col="description",
+            null_value=pd.NA,
+        )
+    )
+
+    # Combine the annual rates with the monthly rates
+    cols = {
+        "withdrawal_rate_gallons_per_minute": "annual_withdrawal_rate_tenth_cubic_feet_per_second",
+        "discharge_rate_gallons_per_minute": "annual_discharge_rate_tenth_cubic_feet_per_second",
+        "consumption_rate_gallons_per_minute": "annual_consumption_rate_tenth_cubic_feet_per_second",
+    }
+    for new_col, old_col in cols.items():
+        csi_df.loc[csi_df["report_date"].dt.year.isin([2008, 2009]), new_col] = csi_df[
+            old_col
+        ]
+
+    # In 2008 and 2009 the rate columns are clearly labeled as 0.1 cubic feet / second
+    # but that rate persists until 2013 when they change it to gallons/min.
+    # Convert tenth cubic feet/second columns to gallons/minute.
+    conversion = 10 / 60 * 7.48052
+
+    for new_col in cols:
+        csi_df.loc[csi_df["report_date"].dt.year.isin(range(2008, 2013)), new_col] = (
+            csi_df[new_col] * conversion
+        )
+
+    return csi_df

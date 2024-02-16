@@ -980,7 +980,8 @@ def convert_to_date(
         year_col: the name of the year column in the original table.
         month_col: the name of the month column in the original table.
         day_col: the name of the day column in the original table.
-        month_value: generated month if no month exists.
+        month_value: generated month if no month exists or if the month
+            value is NA.
         day_value: generated day if no day exists.
 
     Returns:
@@ -993,7 +994,11 @@ def convert_to_date(
 
     year = df[year_col]
 
-    month = month_value if month_col not in df.columns else df[month_col]
+    month = (
+        month_value
+        if month_col not in df.columns
+        else df[month_col].fillna(month_value)
+    )
 
     day = day_value if day_col not in df.columns else df[day_col]
 
