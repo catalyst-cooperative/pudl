@@ -184,7 +184,9 @@ class ZenodoDoiSettings(BaseSettings):
     """Digital Object Identifiers pointing to currently used Zenodo archives."""
 
     censusdp1tract: ZenodoDoi = "10.5281/zenodo.4127049"
-    eia176: ZenodoDoi = "10.5281/zenodo.7682358"
+    eia176: ZenodoDoi = "10.5281/zenodo.10607843"
+    eia191: ZenodoDoi = "10.5281/zenodo.10607837"
+    eia757a: ZenodoDoi = "10.5281/zenodo.10607839"
     eia860: ZenodoDoi = "10.5281/zenodo.10067566"
     eia860m: ZenodoDoi = "10.5281/zenodo.10603998"
     eia861: ZenodoDoi = "10.5281/zenodo.10204708"

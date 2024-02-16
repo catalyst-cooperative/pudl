@@ -9,11 +9,12 @@ from dagster import AssetOut, Output, multi_asset
 
 import pudl.logging_helpers
 from pudl.extract import excel
+from pudl.extract.extractor import raw_df_factory
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-class Extractor(excel.GenericExtractor):
+class Extractor(excel.ExcelExtractor):
     """Extractor for the excel dataset PHMSA."""
 
     def __init__(self, *args, **kwargs):
@@ -74,7 +75,7 @@ raw_table_names = (
     "raw_phmsagas__yearly_transmission_gathering_pipe_miles_by_material",
 )
 
-raw_phmsagas__all_dfs = excel.raw_df_factory(Extractor, name="phmsagas")
+raw_phmsagas__all_dfs = raw_df_factory(Extractor, name="phmsagas")
 
 
 # # TODO (bendnorman): Figure out type hint for context keyword and multi_asset return

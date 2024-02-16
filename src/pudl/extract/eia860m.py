@@ -23,7 +23,7 @@ from pudl.helpers import remove_leading_zeros_from_numeric_strings
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-class Extractor(excel.GenericExtractor):
+class Extractor(excel.ExcelExtractor):
     """Extractor for the excel dataset EIA860M."""
 
     def __init__(self, *args, **kwargs):
