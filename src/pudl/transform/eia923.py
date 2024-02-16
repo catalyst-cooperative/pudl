@@ -1393,7 +1393,7 @@ def cooling_system_information_continuity(csi):
 
 
 @asset
-def _core_eia923__yearly_fgd_operation_maintenance(
+def _core_eia923__fgd_operation_maintenance(
     raw_eia923__fgd_operation_maintenance: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transforms the _core_eia923__yearly_fgd_operation_maintenance table.
@@ -1419,13 +1419,53 @@ def _core_eia923__yearly_fgd_operation_maintenance(
     # Replace the EIA923 NA value ('.') with a real NA value.
     fgd_df = pudl.helpers.fix_eia_na(fgd_df)
 
-    # To do - convert 1000s of dollars to dollars
-    fgd_df = fgd_df
-
-    fgd_df = (
-        pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("_core_eia923__yearly_fgd_operation_maintenance")
-        .encode(fgd_df)
+    # Convert thousands of dollars to dollars
+    fgd_df.loc[:, fgd_df.columns.str.endswith("_1000_dollars")] = (
+        fgd_df.loc[:, fgd_df.columns.str.endswith("_1000_dollars")] * 1000
     )
+    fgd_df.columns = fgd_df.columns.str.replace("_1000_dollars", "")  # Rename columns
+
+    # Convert SO2 test date column to datetime
+    # First, rescue a few troublesome datetimes that look like 3/08 or 01/08
+    troublesome_dates = fgd_df.so2_test_date.str.contains(
+        r"^[0-9]{1,2}\/[0-9]{1,2}$", regex=True, na=False
+    )
+    logger.info(
+        f"Rescuing troublesome dates: {fgd_df[troublesome_dates].so2_test_date.unique()}"
+    )
+    fgd_df.loc[troublesome_dates, "so2_test_date"] = fgd_df[
+        troublesome_dates
+    ].so2_test_date.str.pad(5, fillchar="0")
+    fgd_df.loc[troublesome_dates, "so2_test_date"] = pd.to_datetime(
+        fgd_df.loc[troublesome_dates, "so2_test_date"], format="%m/%y"
+    )
+
+    test_datetime = pd.to_datetime(
+        fgd_df.so2_test_date, format="mixed", errors="coerce", dayfirst=False
+    )
+    logger.info(
+        f"Dropping SO2 test dates that were not parseable: {fgd_df[(test_datetime.isnull())&(fgd_df.so2_test_date.notnull())].so2_test_date.unique()}"
+    )
+    fgd_df.loc[:, "so2_test_date"] = test_datetime
+
+    # Drop duplicate and empty rows to ensure the primary key is unique.
+    fgd_df = fgd_df.dropna(subset=["plant_id_eia", "so2_control_id_eia"], how="any")
+    fgd_df = fgd_df.drop_duplicates()  # First completely identical rows
+    # There are two remaining duplicates from plant_id_eia 6016, one row with cost data
+    # and one without. Keep the row with data.
+    dup_filt = (
+        (fgd_df.plant_id_eia == 6016)
+        & (fgd_df.so2_control_id_eia == 1)
+        & (fgd_df.report_year.isin([2018, 2019]))
+    )
+    fgd_df.loc[dup_filt] = fgd_df.loc[dup_filt].dropna(
+        subset="fgd_feed_materials_chemical_costs"
+    )
+
+    # fgd_df = (
+    #     pudl.metadata.classes.Package.from_resource_ids()
+    #     .get_resource("_core_eia923__yearly_fgd_operation_maintenance")
+    #     .encode(fgd_df)
+    # )
 
     return fgd_df

@@ -1109,6 +1109,40 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia860", "eia923"],
         "etl_group": "static_eia",
     },
+    # "core_eia__yearly_so2_control_equipment": {
+    #     "description": "Annual attributes of all SO2 control equipment, compiled from EIA 860 and 923 forms.",
+    #     "schema": {
+    #         "fields": [
+    #             "report_year",
+    #             "plant_id_eia",
+    #             "so2_control_id_eia",
+    #             "fgd_feed_materials_chemical_costs",
+    #             "fgd_labor_supervision_costs",
+    #             "fgd_land_acquisition_costs",
+    #             "fgd_waste_disposal_costs",
+    #             "fgd_maintenance_costs",
+    #             "fgd_maintenance_material_other_costs",
+    #             "fgd_opex_total_cost",
+    #             "fgd_control_flag",
+    #             "fgd_operational_status",
+    #             "fgd_hours_in_service",
+    #             "fgd_sorbent_consumption_1000_tons",
+    #             "fgd_electricity_consumption_mwh",
+    #             "so2_removal_efficiency_annual",
+    #             "so2_removal_efficiency_100pct_load",
+    #             "so2_test_date",
+    #             "data_maturity",
+    #         ],
+    #         "primary_key": [
+    #             "plant_id_eia",
+    #             "so2_control_id_eia",
+    #             "report_year"
+    #         ],
+    #     },
+    #     "field_namespace": "eia",
+    #     "sources": ["eia860","eia923"],
+    #     "etl_group": "eia",
+    # },
 }
 """Generic EIA resource attributes organized by PUDL identifier (``resource.name``).
 
