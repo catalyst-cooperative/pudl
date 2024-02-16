@@ -12,10 +12,12 @@ from dagster import (
     AssetSelection,
     Definitions,
     ExperimentalWarning,
+    SourceAsset,
     asset_check,
     define_asset_job,
     load_assets_from_modules,
 )
+from dagster._core.definitions.cacheable_assets import CacheableAssetsDefinition
 
 import pudl
 from pudl.io_managers import (
@@ -138,13 +140,31 @@ def asset_check_from_schema(
     return pandera_schema_check
 
 
-def _get_keys_from_assets(asset_def):
-    try:
-        return asset_def.keys
-    except AttributeError:
+def _get_keys_from_assets(
+    asset_def: AssetsDefinition | SourceAsset | CacheableAssetsDefinition,
+) -> list[AssetKey]:
+    """Get a list of asset keys.
+
+    Most assets have one key, which can be retrieved as a list from
+    ``asset.keys``.
+
+    Multi-assets have multiple keys, which can also be retrieved as a list from
+    ``asset.keys``.
+
+    SourceAssets always only have one key, and don't have ``asset.keys``. So we
+    look for ``asset.key`` and wrap it in a list.
+
+    We don't handle CacheableAssetsDefinitions yet.
+    """
+    if isinstance(asset_def, AssetsDefinition):
+        return list(asset_def.keys)
+    if isinstance(asset_def, SourceAsset):
         return [asset_def.key]
+    return []
 
 
+# Asset Checks are still Experimental, silence the warning since we use them
+# everywhere.
 warnings.filterwarnings("ignore", category=ExperimentalWarning)
 _package = pudl.metadata.classes.Package.from_resource_ids()
 _asset_keys = itertools.chain.from_iterable(
