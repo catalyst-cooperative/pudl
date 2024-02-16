@@ -8,11 +8,13 @@ import pytest
 import pudl.logging_helpers
 from pudl.settings import Ferc1Settings
 from pudl.transform.ferc1 import (
+    AddColumsWithUniformValue,
     DropDuplicateRowsDbf,
     Ferc1AbstractTableTransformer,
     TableIdFerc1,
     UnstackBalancesToReportYearInstantXbrl,
     WideToTidy,
+    add_columns_with_uniform_value,
     assign_parent_dimensions,
     calculate_values_from_components,
     drop_duplicate_rows_dbf,
@@ -413,6 +415,22 @@ entity_id,report_year,sched_table_name,idx_ending_balance,idx_starting_balance,t
         unstack_balances_to_report_year_instant_xbrl(
             df_non_unique_years, params=params, primary_key_cols=pk_cols
         )
+
+
+def test_add_columns_with_uniform_value():
+    """Test :func:`add_columns_with_uniform_value`."""
+    df = pd.DataFrame(index=[0, 1, 2])
+    params = AddColumsWithUniformValue(
+        columns_to_add={
+            "utility_type": {"column_value": "electric"},
+            "plant_status": {"column_value": "in_service"},
+        }
+    )
+    df_expected = pd.DataFrame(
+        {"utility_type": ["electric"] * 3, "plant_status": ["in_service"] * 3}
+    )
+    df_out = add_columns_with_uniform_value(df, params)
+    pd.testing.assert_frame_equal(df_expected, df_out)
 
 
 def test_calculate_values_from_components():

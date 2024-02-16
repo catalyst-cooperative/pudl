@@ -2692,6 +2692,12 @@ TRANSFORM_PARAMS = {
                 "stacked_column_name": "xbrl_factoid",
             }
         },
+        "add_columns_with_uniform_value": {
+            "columns_to_add": {
+                "utility_type": {"column_value": "electric", "is_dimension": True},
+                "plant_status": {"column_value": "in_service", "is_dimension": True},
+            }
+        },
         "merge_xbrl_metadata": {
             "rename_columns": {"xbrl_factoid": "ferc_account_label"},
             "on": "ferc_account_label",
@@ -3387,6 +3393,11 @@ TRANSFORM_PARAMS = {
             },
             "quarterly_filed_years": range(2005, 2021),
         },
+        "add_columns_with_uniform_value": {
+            "columns_to_add": {
+                "utility_type": {"column_value": "total", "is_dimension": True}
+            }
+        },
         "merge_xbrl_metadata": {
             "rename_columns": {"xbrl_factoid": "asset_type"},
             "on": "asset_type",
@@ -3452,6 +3463,11 @@ TRANSFORM_PARAMS = {
                 "end_qtr_bal": "ending_balance",
             },
             "quarterly_filed_years": range(2005, 2021),
+        },
+        "add_columns_with_uniform_value": {
+            "columns_to_add": {
+                "utility_type": {"column_value": "total", "is_dimension": True}
+            }
         },
         "merge_xbrl_metadata": {
             "rename_columns": {"xbrl_factoid": "liability_type"},
@@ -3524,6 +3540,11 @@ TRANSFORM_PARAMS = {
         },
         "categorize_strings": {"plant_function": PLANT_FUNCTION_CATEGORIES},
         "align_row_numbers_dbf": {"dbf_table_names": ["f1_dacs_epda"]},
+        "add_columns_with_uniform_value": {
+            "columns_to_add": {
+                "utility_type": {"column_value": "electric", "is_dimension": True}
+            }
+        },
         "merge_xbrl_metadata": {
             "rename_columns": {"xbrl_factoid": "ferc_account_label"},
             "on": "ferc_account_label",
@@ -3654,6 +3675,11 @@ TRANSFORM_PARAMS = {
             "select_by_xbrl_categories": True,
             "len_expected_categories_to_drop": 4,
         },
+        "add_columns_with_uniform_value": {
+            "columns_to_add": {
+                "utility_type": {"column_value": "electric", "is_dimension": True}
+            }
+        },
         "merge_xbrl_metadata": {
             "rename_columns": {"xbrl_factoid": "revenue_type"},
             "on": "revenue_type",
@@ -3754,6 +3780,11 @@ TRANSFORM_PARAMS = {
         },
         "unstack_balances_to_report_year_instant_xbrl": {
             "unstack_balances_to_report_year": True
+        },
+        "add_columns_with_uniform_value": {
+            "columns_to_add": {
+                "utility_type": {"column_value": "total", "is_dimension": True}
+            }
         },
         "merge_xbrl_metadata": {
             "rename_columns": {"xbrl_factoid": "earnings_type"},
@@ -4504,6 +4535,11 @@ TRANSFORM_PARAMS = {
         "drop_duplicate_rows_dbf": {
             "data_columns": ["dollar_value"],
             "table_name": "core_ferc1__yearly_operating_expenses_sched320",
+        },
+        "add_columns_with_uniform_value": {
+            "columns_to_add": {
+                "utility_type": {"column_value": "electric", "is_dimension": True}
+            }
         },
         "merge_xbrl_metadata": {
             "rename_columns": {"xbrl_factoid": "expense_type"},

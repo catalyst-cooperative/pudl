@@ -751,6 +751,35 @@ def assign_quarterly_data_to_yearly_dbf(
     return df
 
 
+class AddColumnWithUniformValue(TransformParams):
+    """Parameters for adding a column to a table with a signle value."""
+
+    column_value: Any = None
+    is_dimension: bool = False
+
+
+class AddColumsWithUniformValue(TransformParams):
+    """Parameters for adding columns to a table with a signle value."""
+
+    columns_to_add: dict[str, AddColumnWithUniformValue] = {}
+    "Dictionary of column names (keys) with :class:`AddColumnWithUniformValue` (values)"
+
+    @property
+    def assign_cols(self) -> dict[str, str]:
+        """Dictionary of column_name (key) to uniform value (value) to use with pd.assign."""
+        return {
+            col: col_info.column_value
+            for (col, col_info) in self.columns_to_add.items()
+        }
+
+
+def add_columns_with_uniform_value(
+    df: pd.DataFrame, params: AddColumsWithUniformValue
+) -> pd.DataFrame:
+    """Add a column to a table with a single value."""
+    return df.assign(**params.assign_cols)
+
+
 class IsCloseTolerance(TransformParams):
     """Info for testing a particular check."""
 
@@ -1520,7 +1549,9 @@ def add_corrections(
         f"{num_records} original records."
     )
 
-    return pd.concat([calculated_df, corrections], axis="index")
+    return pd.concat(
+        [calculated_df.convert_dtypes(), corrections.convert_dtypes()], axis="index"
+    )
 
 
 class Ferc1TableTransformParams(TableTransformParams):
@@ -1550,6 +1581,9 @@ class Ferc1TableTransformParams(TableTransformParams):
     combine_axis_columns_xbrl: CombineAxisColumnsXbrl = CombineAxisColumnsXbrl()
     reconcile_table_calculations: ReconcileTableCalculations = (
         ReconcileTableCalculations()
+    )
+    add_columns_with_uniform_value: AddColumsWithUniformValue = (
+        AddColumsWithUniformValue()
     )
 
     @property
@@ -1880,6 +1914,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 .encode
             )
             .pipe(self.merge_xbrl_metadata)
+            .pipe(self.add_columns_with_uniform_value)
         )
         return df
 
@@ -2011,6 +2046,10 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .all()
             .astype(pd.BooleanDtype())
         )
+        if self.params.add_columns_with_uniform_value.columns_to_add:
+            tbl_meta = tbl_meta.assign(
+                **self.params.add_columns_with_uniform_value.assign_cols
+            )
         tbl_meta = tbl_meta.reset_index().pipe(self.add_metadata_corrections)
         return tbl_meta
 
@@ -2153,6 +2192,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         # split the calcs from non-calcs/make corrections/append
         calcs = calc_components[calc_components.xbrl_factoid.notnull()]
         correction_components = (
+            # TODO: This is where we are dropping the other dims!!!
+            # figure out how to know which additional dim cols are here
+            # either the subtotal_column from other_dimensions and/or parameterize the adding of dimensions!
             calcs[["table_name_parent", "xbrl_factoid_parent"]]
             .drop_duplicates()
             .assign(
@@ -2161,11 +2203,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 weight=1,
             )
         )
-        # for every calc component, also make the parent-only version
-        correction_components.assign(
-            table_name_parent=lambda t: t.table_name,
-            xbrl_factoid_parent=lambda x: x.xbrl_factoid,
-        ).drop(columns=["table_name", "xbrl_factoid"])
         return pd.concat([calc_components, correction_components])
 
     def get_xbrl_calculation_fixes(self: Self) -> pd.DataFrame:
@@ -2345,6 +2382,19 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     f"expected {dupes}"
                 )
         return calc_comps.convert_dtypes()
+
+    def add_columns_with_uniform_value(
+        self, df: pd.DataFrame, params: AddColumsWithUniformValue | None = None
+    ) -> pd.DataFrame:
+        """Add a column with a uniform value."""
+        if not params:
+            params = self.params.add_columns_with_uniform_value
+        if params.columns_to_add:
+            logger.info(
+                f"{self.table_id.value}: Adding uniform value columns. {params.assign_cols}"
+            )
+            df = add_columns_with_uniform_value(df, params)
+        return df
 
     @cache_df(key="merge_xbrl_metadata")
     def merge_xbrl_metadata(
@@ -3348,10 +3398,8 @@ class PlantInServiceTableTransformer(Ferc1AbstractTableTransformer):
         naming conventions...). We use the same rename dictionary, but as an argument to
         :meth:`pd.Series.replace` instead of :meth:`pd.DataFrame.rename`.
         """
-        tbl_meta = (
-            super()
-            .process_xbrl_metadata(xbrl_metadata_converted, xbrl_calculations)
-            .assign(utility_type="electric", plant_status="in_service")
+        tbl_meta = super().process_xbrl_metadata(
+            xbrl_metadata_converted, xbrl_calculations
         )
 
         # Set pseudo-account numbers for rows that split or combine FERC accounts, but
@@ -3507,13 +3555,12 @@ class PlantInServiceTableTransformer(Ferc1AbstractTableTransformer):
         logger.info(
             f"{self.table_id.value}: Converted {len(df[neg_values])} negative values to positive."
         )
-        # Assign plant status and utility type
-        df = df.assign(utility_type="electric", plant_status="in_service")
+        # Add two exceptions for plant status
         df.loc[
             df.ferc_account_label.isin(
                 ["electric_plant_sold", "electric_plant_purchased"]
             )
-        ].plant_status = pd.NA  # With two exceptions
+        ].plant_status = pd.NA
         return df
 
 
@@ -4755,23 +4802,6 @@ class BalanceSheetLiabilitiesTableTransformer(Ferc1AbstractTableTransformer):
     table_id: TableIdFerc1 = TableIdFerc1.BALANCE_SHEET_LIABILITIES
     has_unique_record_ids: bool = False
 
-    @cache_df("process_xbrl_metadata")
-    def process_xbrl_metadata(
-        self: Self,
-        xbrl_metadata_converted: pd.DataFrame,
-        xbrl_calculations: pd.DataFrame,
-    ) -> pd.DataFrame:
-        """Transform the metadata to reflect the transformed data.
-
-        Beyond the standard :meth:`Ferc1AbstractTableTransformer.process_xbrl_metadata`
-        processing, assign utility type.
-        """
-        return (
-            super()
-            .process_xbrl_metadata(xbrl_metadata_converted, xbrl_calculations)
-            .assign(utility_type="total")
-        )
-
     @cache_df(key="main")
     def transform_main(self: Self, df: pd.DataFrame) -> pd.DataFrame:
         """Duplicate data that appears in multiple distinct calculations.
@@ -4795,7 +4825,7 @@ class BalanceSheetLiabilitiesTableTransformer(Ferc1AbstractTableTransformer):
             .assign(liability_type=lambda x: "less_" + x.liability_type)
         )
 
-        return pd.concat([df, new_data]).assign(utility_type="total")
+        return pd.concat([df, new_data])
 
     def convert_xbrl_metadata_json_to_df(
         self: Self,
@@ -4849,23 +4879,6 @@ class BalanceSheetAssetsTableTransformer(Ferc1AbstractTableTransformer):
     table_id: TableIdFerc1 = TableIdFerc1.BALANCE_SHEET_ASSETS
     has_unique_record_ids: bool = False
 
-    @cache_df("process_xbrl_metadata")
-    def process_xbrl_metadata(
-        self: Self,
-        xbrl_metadata_converted: pd.DataFrame,
-        xbrl_calculations: pd.DataFrame,
-    ) -> pd.DataFrame:
-        """Transform the metadata to reflect the transformed data.
-
-        Beyond the standard :meth:`Ferc1AbstractTableTransformer.process_xbrl_metadata`
-        processing, assign utility type.
-        """
-        return (
-            super()
-            .process_xbrl_metadata(xbrl_metadata_converted, xbrl_calculations)
-            .assign(utility_type="total")
-        )
-
     @cache_df(key="main")
     def transform_main(self: Self, df: pd.DataFrame) -> pd.DataFrame:
         """Duplicate data that appears in multiple distinct calculations.
@@ -4878,7 +4891,7 @@ class BalanceSheetAssetsTableTransformer(Ferc1AbstractTableTransformer):
         data and associated it with newly defined facts, which we will also add to
         the metadata and calculations.
         """
-        df = super().transform_main(df).assign(utility_type="total")
+        df = super().transform_main(df)
         facts_to_duplicate = [
             "noncurrent_portion_of_allowances",
             "derivative_instrument_assets_long_term",
@@ -4889,7 +4902,6 @@ class BalanceSheetAssetsTableTransformer(Ferc1AbstractTableTransformer):
             .copy()
             .assign(asset_type=lambda x: "less_" + x.asset_type)
         )
-
         return pd.concat([df, new_data])
 
     def convert_xbrl_metadata_json_to_df(
@@ -4938,9 +4950,7 @@ class BalanceSheetAssetsTableTransformer(Ferc1AbstractTableTransformer):
             ]
         ]
         new_facts = pd.DataFrame(facts_to_add).convert_dtypes()
-        return pd.concat([tbl_meta, new_facts, duplicated_facts]).assign(
-            utility_type="total"
-        )
+        return pd.concat([tbl_meta, new_facts, duplicated_facts])
 
 
 class IncomeStatementsTableTransformer(Ferc1AbstractTableTransformer):
@@ -5107,23 +5117,6 @@ class RetainedEarningsTableTransformer(Ferc1AbstractTableTransformer):
         )
         return processed_dbf
 
-    @cache_df("process_xbrl_metadata")
-    def process_xbrl_metadata(
-        self: Self,
-        xbrl_metadata_converted: pd.DataFrame,
-        xbrl_calculations: pd.DataFrame,
-    ) -> pd.DataFrame:
-        """Transform the metadata to reflect the transformed data.
-
-        Beyond the standard :meth:`Ferc1AbstractTableTransformer.process_xbrl_metadata`
-        processing, assign utility type.
-        """
-        return (
-            super()
-            .process_xbrl_metadata(xbrl_metadata_converted, xbrl_calculations)
-            .assign(utility_type="total")
-        )
-
     @cache_df("main")
     def transform_main(self, df):
         """Add `_previous_year` factoids after standard transform_main.
@@ -5134,7 +5127,7 @@ class RetainedEarningsTableTransformer(Ferc1AbstractTableTransformer):
         enable access to DBF data to fill this in as well.
         """
         df = super().transform_main(df).pipe(self.add_previous_year_factoid)
-        return df.assign(utility_type="total")
+        return df
 
     def transform_end(self, df: pd.DataFrame) -> pd.DataFrame:
         """Check ``_previous_year`` factoids for consistency after the transformation is done."""
@@ -5435,11 +5428,7 @@ class DepreciationSummaryTableTransformer(Ferc1AbstractTableTransformer):
         Beyond the standard :meth:`Ferc1AbstractTableTransformer.process_xbrl_metadata`
         processing, add FERC account values for a few known values.
         """
-        meta = (
-            super()
-            .process_xbrl_metadata(xbrl_metadata_converted, xbrl_calculations)
-            .assign(utility_type="electric")
-        )
+        meta = super().process_xbrl_metadata(xbrl_metadata_converted, xbrl_calculations)
         # logger.info(meta)
         meta.loc[
             meta.xbrl_factoid == "depreciation_expense",
@@ -5458,12 +5447,6 @@ class DepreciationSummaryTableTransformer(Ferc1AbstractTableTransformer):
             "ferc_account",
         ] = "405"
         return meta
-
-    @cache_df("main")
-    def transform_main(self, df):
-        """After standard transform_main, assign utility type as electric."""
-        df = super().transform_main(df).assign(utility_type="electric")
-        return df
 
 
 class DepreciationChangesTableTransformer(Ferc1AbstractTableTransformer):
@@ -5683,32 +5666,10 @@ class OperatingExpensesTableTransformer(Ferc1AbstractTableTransformer):
         dbf_only_facts = pd.DataFrame(dbf_only_facts).convert_dtypes()
         return pd.concat([tbl_meta, dbf_only_facts]).assign(utility_type="electric")
 
-    @cache_df("process_xbrl_metadata")
-    def process_xbrl_metadata(
-        self: Self,
-        xbrl_metadata_converted: pd.DataFrame,
-        xbrl_calculations: pd.DataFrame,
-    ) -> pd.DataFrame:
-        """Transform the metadata to reflect the transformed data.
-
-        Beyond the standard :meth:`Ferc1AbstractTableTransformer.process_xbrl_metadata`
-        processing, add utility type.
-        """
-        return (
-            super()
-            .process_xbrl_metadata(xbrl_metadata_converted, xbrl_calculations)
-            .assign(utility_type="electric")
-        )
-
     @cache_df(key="dbf")
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
         """Process DBF but drop a bad row that is flagged by drop_duplicates."""
         return super().process_dbf(self.targeted_drop_duplicates_dbf(raw_dbf))
-
-    @cache_df("main")
-    def transform_main(self, df):
-        """After standard transform_main, assign utility type as electric."""
-        return super().transform_main(df).assign(utility_type="electric")
 
 
 class OperatingRevenuesTableTransformer(Ferc1AbstractTableTransformer):
@@ -5765,32 +5726,10 @@ class OperatingRevenuesTableTransformer(Ferc1AbstractTableTransformer):
             )
         return tbl_meta_cleaned
 
-    @cache_df("process_xbrl_metadata")
-    def process_xbrl_metadata(
-        self: Self,
-        xbrl_metadata_converted: pd.DataFrame,
-        xbrl_calculations: pd.DataFrame,
-    ) -> pd.DataFrame:
-        """Transform the metadata to reflect the transformed data.
-
-        Beyond the standard :meth:`Ferc1AbstractTableTransformer.process_xbrl_metadata`
-        processing, add utility type.
-        """
-        return (
-            super()
-            .process_xbrl_metadata(xbrl_metadata_converted, xbrl_calculations)
-            .assign(utility_type="electric")
-        )
-
     @cache_df("main")
     def transform_main(self, df):
         """Add duplicate removal after standard transform_main & assign utility type."""
-        return (
-            super()
-            .transform_main(df)
-            .pipe(self.targeted_drop_duplicates)
-            .assign(utility_type="electric")
-        )
+        return super().transform_main(df).pipe(self.targeted_drop_duplicates)
 
     @cache_df("main")
     def targeted_drop_duplicates(self, df):
