@@ -1396,21 +1396,21 @@ def cooling_system_information_continuity(csi):
 def _core_eia923__fgd_operation_maintenance(
     raw_eia923__fgd_operation_maintenance: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Transforms the _core_eia923__yearly_fgd_operation_maintenance table.
+    """Transforms the _core_eia923__fgd_operation_maintenance table.
 
     Transformations include:
 
     * Drop values with plant and boiler id values of NA.
     * Replace . values with NA.
-    * Create a fuel_type_code_pudl field that organizes fuel types into clean,
-      distinguishable categories.
     * Convert dollars to thousands of dollars.
+    * Fix datetimes for SO2 test dates.
+    * Ensure a unique primary key and drop some duplicated rows.
 
     Args:
         raw_eia923__fgd_operation_maintenance: The raw ``raw_eia923__fgd_operation_maintenance`` dataframe.
 
     Returns:
-        Cleaned ``_core_eia923__yearly_fgd_operation_maintenance`` dataframe ready for harvesting.
+        Cleaned ``_core_eia923__fgd_operation_maintenance`` dataframe ready for harvesting.
     """
     fgd_df = raw_eia923__fgd_operation_maintenance
 
