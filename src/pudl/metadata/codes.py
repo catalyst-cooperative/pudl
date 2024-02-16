@@ -2318,6 +2318,133 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {},
         "ignored_codes": [],
     },
+    "core_eia__codes_cooling_tower_types": {
+        "df": pd.DataFrame(
+            columns=["code", "label", "description"],
+            data=[
+                (
+                    "MD",
+                    "mechanical_dry",
+                    "Mechanical draft, dry process",
+                ),
+                (
+                    "MW",
+                    "mechanical_wet",
+                    "Mechanical draft, wet process",
+                ),
+                (
+                    "ND",
+                    "natural_dry",
+                    "Natural draft, wet process",
+                ),
+                (
+                    "WD",
+                    "combo_wet_dry",
+                    "Combination wet and dry process",
+                ),
+                (
+                    "OT",
+                    "other",
+                    "Other",
+                ),
+            ],
+        )
+    },
+    "core_eia__codes_cooling_water_types": {
+        "df": pd.DataFrame(
+            columns=["code", "label", "description"],
+            data=[
+                (
+                    "BR",
+                    "brackish_water",
+                    "Brackish water",
+                ),
+                (
+                    "FR",
+                    "fresh_water",
+                    "Fresh water",
+                ),
+                (
+                    "BE",
+                    "reclaimed_water",
+                    "Reclaimed water (ex: treated wastewater effluent)",
+                ),
+                (
+                    "SA",
+                    "saline_water",
+                    "Saline Water",
+                ),
+                ("OT", "other", "Other"),
+            ],
+        )
+    },
+    "core_eia__codes_cooling_system_types": {
+        "df": pd.DataFrame(
+            columns=["code", "label", "description"],
+            data=[
+                (
+                    "DC",
+                    "dry_cooling",
+                    "Dry (air) cooling system",
+                ),
+                (
+                    "HRC",
+                    "hybrid_wet_dry",
+                    "Hyrid: cooling pond(s) or canal(s) with dry cooling",
+                ),
+                (
+                    "HRF",
+                    "hybrid_forced_draft_dry",
+                    "Hybrid: forced draft cooling tower(s) with dry cooling",
+                ),
+                (
+                    "HRI",
+                    "hybrid_induced_draft_dry",
+                    "Hybrid: induced draft cooling tower(s) with dry cooling",
+                ),
+                (
+                    "OC",
+                    "once_with_pond",
+                    "Once through with cooling pond(s)",
+                ),
+                (
+                    "ON",
+                    "once_without_pond",
+                    "Once through without cooling pond(s)",
+                ),
+                (
+                    "RC",
+                    "recirculating_pond",
+                    "Recirculating with cooling pond(s) or canal(s)",
+                ),
+                (
+                    "RF",
+                    "recirculating_forced_draft",
+                    "Recirculating with cooling pond(s) or canal(s)",
+                ),
+                (
+                    "RI",
+                    "recirculating_induced_draft",
+                    "Recirculating with induced draft cooling tower(s)",
+                ),
+                (
+                    "RN",
+                    "recirculating_natural_draft",
+                    "Recirculating with natural draft cooling tower(s)",
+                ),
+                (
+                    "HT",
+                    "helper_tower",
+                    "Helper tower",
+                ),
+                (
+                    "OT",
+                    "other",
+                    "Other",
+                ),
+            ],
+        )
+    },
 }
 
 # The entity type codes were never fully reconciled. Preserving this work for reference.
