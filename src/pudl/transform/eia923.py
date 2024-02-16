@@ -1449,8 +1449,10 @@ def _core_eia923__fgd_operation_maintenance(
     fgd_df.loc[:, "so2_test_date"] = test_datetime
 
     # Drop duplicate and empty rows to ensure the primary key is unique.
-    fgd_df = fgd_df.dropna(subset=["plant_id_eia", "so2_control_id_eia"], how="any")
-    fgd_df = fgd_df.drop_duplicates()  # First completely identical rows
+    fgd_df = fgd_df.dropna(
+        subset=["plant_id_eia", "so2_control_id_eia"]
+    ).drop_duplicates()
+
     # There are two remaining duplicates from plant_id_eia 6016, one row with cost data
     # and one without. Keep the row with data.
     dup_filt = (
