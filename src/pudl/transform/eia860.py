@@ -1021,3 +1021,43 @@ def _core_eia860__boiler_stack_flue(
     )
 
     return bsf_assn
+
+
+@asset
+def _core_eia860__cooling_equipment(
+    raw_eia860__cooling_equipment: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the EIA 860 cooling equipment table."""
+    ce_df = raw_eia860__cooling_equipment
+
+    # Generic cleaning
+    ce_df = ce_df.pipe(pudl.helpers.fix_eia_na).pipe(pudl.helpers.add_fips_ids)
+
+    # Spot cleaning and date conversion
+    ce_df.loc[
+        ce_df["chlorine_equipment_operating_year"] == 971,
+        "chlorine_equipment_operating_year",
+    ] = 1971
+    ce_df.loc[ce_df["pond_operating_year"] == 0, "pond_operating_year"] = np.nan
+    ce_df.loc[ce_df["tower_operating_year"] == 974, "tower_operating_year"] = 1974
+    ce_df = ce_df.pipe(pudl.helpers.month_year_to_date).pipe(
+        pudl.helpers.convert_to_date
+    )
+    # Convert cubic feet/second to gallons/minute
+    conversion = 7.48052 / 60
+    conversion_cols = {
+        "tower_water_rate_100pct_cubic_feet_per_second": "intake_rate_100pct_gallons_per_minute",
+        "intake_rate_100pct_cubic_feet_per_second": "tower_water_rate_100pct_gallons_per_minute",
+    }
+    for col_seconds, col_minutes in conversion_cols.items():
+        ce_df.loc[ce_df["report_date"].dt.year.isin(range(2009, 2013)), col_minutes] = (
+            ce_df[col_seconds] * conversion
+        )
+
+    # Convert thousands of dollars to dollars and remove suffix from column name
+    for col in ce_df:
+        if "thousand_dollars" in col:
+            ce_df.loc[:, col] = ce_df[col] * 1000
+    ce_df.columns = [col.replace("_thousand_dollars", "") for col in ce_df.columns]
+
+    return ce_df
