@@ -1747,6 +1747,18 @@ class Exploder:
         """Primary key columns for calculations in this explosion."""
         return [col for col in list(NodeId._fields) if col in self.exploded_pks]
 
+    def prep_table_to_explode(
+        self: Self, table_name: str, table_df: pd.DataFrame
+    ) -> pd.DataFrame:
+        """Prep an core input table for explosion."""
+        xbrl_factoid_name = pudl.transform.ferc1.FERC1_TFR_CLASSES[
+            table_name
+        ]().params.xbrl_factoid_name
+        table_df = table_df.assign(table_name=table_name).rename(
+            columns={xbrl_factoid_name: "xbrl_factoid"}
+        )
+        return table_df
+
     def boom(self: Self, tables_to_explode: dict[str, pd.DataFrame]) -> pd.DataFrame:
         """Explode a set of nested tables.
 
@@ -1800,14 +1812,8 @@ class Exploder:
         explosion_tables = []
         # GRAB/PREP EACH TABLE
         for table_name, table_df in tables_to_explode.items():
-            xbrl_factoid_name = pudl.transform.ferc1.FERC1_TFR_CLASSES[
-                table_name
-            ]().params.xbrl_factoid_name
-            tbl = table_df.assign(table_name=table_name).rename(
-                columns={xbrl_factoid_name: "xbrl_factoid"}
-            )
+            tbl = self.prep_table_to_explode(table_name, table_df)
             explosion_tables.append(tbl)
-
         exploded = pd.concat(explosion_tables)
 
         # Identify which dimensions apply to the curent explosion -- not all collections
@@ -2724,11 +2730,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         # Convert them into the first layer of the dataframe:
         layer0_df = pd.DataFrame(layer0_nodes).rename(columns=lambda x: x + "_layer0")
 
-        return (
-            self._add_layers_to_forest_as_table(df=layer0_df)
-            .dropna(axis="columns", how="all")
-            .convert_dtypes()
-        )
+        return self._add_layers_to_forest_as_table(df=layer0_df).convert_dtypes()
 
     def _add_layers_to_forest_as_table(self: Self, df: pd.DataFrame) -> pd.DataFrame:
         """Recursively add additional layers of nodes from the forest to the table.
@@ -2753,7 +2755,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         parent_nodes = list(
             df[parent_cols]
             .drop_duplicates()
-            .dropna(how="all")
+            .dropna(how="all", axis="rows")
             .rename(columns=lambda x: x.removesuffix(suffix))
             .itertuples(name="NodeId", index=False)
         )
