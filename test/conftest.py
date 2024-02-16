@@ -3,18 +3,19 @@
 Defines useful fixtures, command line args.
 """
 import logging
-import os
 from pathlib import Path
 from typing import Any
 
+import pydantic
 import pytest
 import sqlalchemy as sa
-from dagster import build_init_resource_context, materialize_to_memory
+from dagster import build_init_resource_context, graph, materialize_to_memory
 
+import pudl
 from pudl import resources
 from pudl.etl.cli import pudl_etl_job_factory
-from pudl.extract.ferc1 import raw_ferc1_xbrl__metadata_json
-from pudl.ferc_to_sqlite.cli import ferc_to_sqlite_job_factory
+from pudl.extract.ferc1 import Ferc1DbfExtractor, raw_ferc1_xbrl__metadata_json
+from pudl.extract.xbrl import xbrl2sqlite_op_factory
 from pudl.io_managers import (
     PudlMixedFormatIOManager,
     ferc1_dbf_sqlite_io_manager,
@@ -23,7 +24,12 @@ from pudl.io_managers import (
 )
 from pudl.metadata.classes import Package
 from pudl.output.pudltabl import PudlTabl
-from pudl.settings import DatasetsSettings, EtlSettings, FercToSqliteSettings
+from pudl.settings import (
+    DatasetsSettings,
+    EtlSettings,
+    FercToSqliteSettings,
+    XbrlFormNumber,
+)
 from pudl.workspace.datastore import Datastore
 from pudl.workspace.setup import PudlPaths
 
@@ -179,14 +185,22 @@ def pudl_out_orig(live_dbs: bool, pudl_engine: sa.Engine) -> PudlTabl:
 
 
 @pytest.fixture(scope="session")
-def ferc_to_sqlite_dbf_only(
-    live_dbs: bool, pudl_datastore_config, etl_settings: EtlSettings
+def ferc1_dbf_extract(
+    live_dbs: bool,
+    pudl_datastore_config,
+    etl_settings: EtlSettings,
 ):
-    """Create raw FERC 1 SQLite DBs, but only based on DBF sources."""
+    """Creates raw FERC 1 SQlite DBs, based only on DBF sources."""
+
+    @graph
+    def local_dbf_ferc1_graph():
+        Ferc1DbfExtractor.get_dagster_op()()
+
     if not live_dbs:
-        ferc_to_sqlite_job_factory(
-            enable_xbrl=False,
-        )().execute_in_process(
+        local_dbf_ferc1_graph.to_job(
+            name="ferc_to_sqlite_dbf_ferc1",
+            resource_defs=pudl.ferc_to_sqlite.default_resources_defs,
+        ).execute_in_process(
             run_config={
                 "resources": {
                     "ferc_to_sqlite_settings": {
@@ -195,62 +209,43 @@ def ferc_to_sqlite_dbf_only(
                     "datastore": {
                         "config": pudl_datastore_config,
                     },
+                    "runtime_settings": {"config": {"xbrl_num_workers": 2}},
                 },
             },
         )
 
 
 @pytest.fixture(scope="session")
-def ferc_to_sqlite_xbrl_only(
+def ferc1_xbrl_extract(
     live_dbs: bool, pudl_datastore_config, etl_settings: EtlSettings
 ):
-    """Create raw FERC 1 SQLite DBs, but only based on XBRL sources."""
+    """Runs ferc_to_sqlite dagster job for FERC Form 1 XBRL data."""
+
+    @graph
+    def local_xbrl_ferc1_graph():
+        xbrl2sqlite_op_factory(XbrlFormNumber.FORM1)()
+
     if not live_dbs:
-        ferc_to_sqlite_job_factory(
-            enable_dbf=False,
-        )().execute_in_process(
+        local_xbrl_ferc1_graph.to_job(
+            name="ferc_to_sqlite_xbrl_ferc1",
+            resource_defs=pudl.ferc_to_sqlite.default_resources_defs,
+        ).execute_in_process(
             run_config={
                 "resources": {
                     "ferc_to_sqlite_settings": {
-                        "config": etl_settings.ferc_to_sqlite_settings.model_dump()
+                        "config": etl_settings.ferc_to_sqlite_settings.model_dump(),
                     },
                     "datastore": {
                         "config": pudl_datastore_config,
                     },
+                    "runtime_settings": {"config": {"xbrl_num_workers": 2}},
                 },
-            },
-        )
-
-
-@pytest.fixture(scope="session")
-def ferc_to_sqlite(live_dbs, pudl_datastore_config, etl_settings: EtlSettings):
-    """Create raw FERC 1 SQLite DBs.
-
-    If we are using the test database, we initialize it from scratch first. If we're
-    using the live database, then the sql engine fixtures will return connections to the
-    existing databases
-    """
-    if not live_dbs:
-        logger.info(
-            f"ferc_to_sqlite_settings: {etl_settings.ferc_to_sqlite_settings.model_dump()}"
-        )
-        logger.info(f"ferc_to_sqlite PUDL_OUTPUT: {os.getenv('PUDL_OUTPUT')}")
-        ferc_to_sqlite_job_factory()().execute_in_process(
-            run_config={
-                "resources": {
-                    "ferc_to_sqlite_settings": {
-                        "config": etl_settings.ferc_to_sqlite_settings.model_dump()
-                    },
-                    "datastore": {
-                        "config": pudl_datastore_config,
-                    },
-                },
-            },
+            }
         )
 
 
 @pytest.fixture(scope="session", name="ferc1_engine_dbf")
-def ferc1_dbf_sql_engine(ferc_to_sqlite_dbf_only: FercToSqliteSettings) -> sa.Engine:
+def ferc1_dbf_sql_engine(ferc1_dbf_extract, dataset_settings_config) -> sa.Engine:
     """Grab a connection to the FERC Form 1 DB clone."""
     context = build_init_resource_context(
         resources={"dataset_settings": dataset_settings_config}
@@ -259,9 +254,7 @@ def ferc1_dbf_sql_engine(ferc_to_sqlite_dbf_only: FercToSqliteSettings) -> sa.En
 
 
 @pytest.fixture(scope="session", name="ferc1_engine_xbrl")
-def ferc1_xbrl_sql_engine(
-    ferc_to_sqlite_xbrl_only: FercToSqliteSettings, dataset_settings_config
-) -> sa.Engine:
+def ferc1_xbrl_sql_engine(ferc1_xbrl_extract, dataset_settings_config) -> sa.Engine:
     """Grab a connection to the FERC Form 1 DB clone."""
     context = build_init_resource_context(
         resources={"dataset_settings": dataset_settings_config}
@@ -328,21 +321,24 @@ def pudl_engine(pudl_io_manager: PudlMixedFormatIOManager) -> sa.Engine:
 def configure_paths_for_tests(tmp_path_factory, request):
     """Configures PudlPaths for tests.
 
-    Typically PUDL_INPUT and PUDL_OUTPUT will be read from the environment.
-    If we are running in GitHub Actions and they are NOT set, we'll use temp dirs.
-    If we are NOT running in GitHub Actions (e.g. we're running locally) then we always
-    want to use a temporary output directory, so we don't overwrite a user's existing
-    databases.
+    Default behavior:
+
+    PUDL_INPUT is read from the environment.
+    PUDL_OUTPUT is set to a tmp path, to avoid clobbering existing databases.
+
+    Set ``--tmp-data`` to force PUDL_INPUT to a temporary directory, causing
+    re-downloads of all raw inputs.
+
+    Set ``--live-dbs`` to force PUDL_OUTPUT to *NOT* be a temporary directory
+    and instead inherit from environment.
+
+    ``--live--dbs`` flag is ignored in unit tests, see pudl/test/unit/conftest.py.
     """
     # Just in case we need this later...
     pudl_tmpdir = tmp_path_factory.mktemp("pudl")
-    # Are we running in GitHub Actions?
-    gha = os.environ.get("GITHUB_ACTIONS", False)
-    # Under what circumstances do we want to use a temporary input directory?
-    # This will force a re-download of raw inputs from Zenodo or the GCS cache:
-    if (gha and "PUDL_INPUT" not in os.environ) or (
-        request.config.getoption("--tmp-data")
-    ):
+    # We only use a temporary input directory when explicitly requested.
+    # This will force a re-download of raw inputs from Zenodo or the GCS cache.
+    if request.config.getoption("--tmp-data"):
         in_tmp = pudl_tmpdir / "input"
         in_tmp.mkdir()
         PudlPaths.set_path_overrides(
@@ -350,18 +346,21 @@ def configure_paths_for_tests(tmp_path_factory, request):
         )
         logger.info(f"Using temporary PUDL_INPUT: {in_tmp}")
 
-    # Use a temporary output dir if we're on GHA and PUDL_OUTPUT is unset:
-    if (gha and "PUDL_OUTPUT" not in os.environ) or (
-        # Use a temporary output dir if we're not on GHA and we're not using live DBs.
-        # This will typically be the case when running local unit/integration tests:
-        not gha and not request.config.getoption("--live-dbs")
-    ):
+    # Temporary output path is used when not using live DBs.
+    if not request.config.getoption("--live-dbs"):
         out_tmp = pudl_tmpdir / "output"
         out_tmp.mkdir()
         PudlPaths.set_path_overrides(
             output_dir=str(Path(out_tmp).resolve()),
         )
         logger.info(f"Using temporary PUDL_OUTPUT: {out_tmp}")
+
+    try:
+        return PudlPaths()
+    except pydantic.ValidationError as err:
+        pytest.exit(
+            f"Set PUDL_INPUT, PUDL_OUTPUT env variables, or use --tmp-path, --live-dbs flags. Error: {err}."
+        )
 
 
 @pytest.fixture(scope="session")

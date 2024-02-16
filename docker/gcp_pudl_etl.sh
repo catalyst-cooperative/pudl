@@ -59,11 +59,13 @@ function run_pudl_etl() {
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
         --etl-settings "$PUDL_SETTINGS_YML" \
         --live-dbs test/integration test/unit \
+        --no-cov \
     && pytest \
         -n auto \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
         --etl-settings "$PUDL_SETTINGS_YML" \
         --live-dbs test/validate \
+        --no-cov \
     && touch "$PUDL_OUTPUT/success"
 }
 
@@ -77,17 +79,48 @@ function upload_to_dist_path() {
     GCS_PATH="gs://pudl.catalyst.coop/$1/"
     AWS_PATH="s3://pudl.catalyst.coop/$1/"
 
-    # If the old outputs don't exist, these will exit with status 1, so we
-    # don't && them with the rest of the commands.
-    echo "Removing old outputs from $GCS_PATH."
-    gsutil -m -u "$GCP_BILLING_PROJECT" rm -r "$GCS_PATH"
-    echo "Removing old outputs from $AWS_PATH."
-    aws s3 rm "$AWS_PATH" --recursive
+    # Only attempt to update outputs if we have an argument
+    # This avoids accidentally blowing away the whole bucket if it's not set.
+    if [[ -n "$1" ]]; then
+        # If the old outputs don't exist, these will exit with status 1, so we
+        # don't && them with the rest of the commands.
+        echo "Removing old outputs from $GCS_PATH."
+        gsutil -m -u "$GCP_BILLING_PROJECT" rm -r "$GCS_PATH"
+        echo "Removing old outputs from $AWS_PATH."
+        aws s3 rm --recursive "$AWS_PATH"
 
-    echo "Copying outputs to $GCS_PATH:" && \
-    gsutil -m -u "$GCP_BILLING_PROJECT" cp -r "$PUDL_OUTPUT/*" "$GCS_PATH" && \
-    echo "Copying outputs to $AWS_PATH" && \
-    aws s3 cp "$PUDL_OUTPUT/" "$AWS_PATH" --recursive
+        echo "Copying outputs to $GCS_PATH:" && \
+        gsutil -m -u "$GCP_BILLING_PROJECT" cp -r "$PUDL_OUTPUT/*" "$GCS_PATH" && \
+        echo "Copying outputs to $AWS_PATH" && \
+        aws s3 cp --recursive "$PUDL_OUTPUT/" "$AWS_PATH"
+    else
+        echo "No distribution path provided. Not updating outputs."
+        exit 1
+    fi
+}
+
+function distribute_parquet() {
+    PARQUET_BUCKET="gs://parquet.catalyst.coop"
+    # Only attempt to update outputs if we have a real value of BUILD_REF
+    # This avoids accidentally blowing away the whole bucket if it's not set.
+    echo "Copying outputs to parquet distribution bucket"
+    if [[ -n "$BUILD_REF" ]]; then
+        if [[ "$GITHUB_ACTION_TRIGGER" == "schedule" ]]; then
+            # If running nightly builds, copy outputs to the "nightly" bucket path
+            DIST_PATH="nightly"
+        else
+            # Otherwise we want to copy them to a directory named after the tag/ref
+            DIST_PATH="$BUILD_REF"
+        fi
+        echo "Copying outputs to $PARQUET_BUCKET/$DIST_PATH" && \
+        gsutil -m -u "$GCP_BILLING_PROJECT" cp -r "$PUDL_OUTPUT/parquet/*" "$PARQUET_BUCKET/$DIST_PATH"
+
+        # If running a tagged release, ALSO update the stable distribution bucket path:
+        if [[ "$GITHUB_ACTION_TRIGGER" == "push" && "$BUILD_REF" == v20* ]]; then
+            echo "Copying outputs to $PARQUET_BUCKET/stable" && \
+            gsutil -m -u "$GCP_BILLING_PROJECT" cp -r "$PUDL_OUTPUT/parquet/*" "$PARQUET_BUCKET/stable"
+        fi
+    fi
 }
 
 function copy_outputs_to_distribution_bucket() {
@@ -187,6 +220,7 @@ ETL_SUCCESS=0
 SAVE_OUTPUTS_SUCCESS=0
 UPDATE_NIGHTLY_SUCCESS=0
 DATASETTE_SUCCESS=0
+DISTRIBUTE_PARQUET_SUCCESS=0
 CLEAN_UP_OUTPUTS_SUCCESS=0
 DISTRIBUTION_BUCKET_SUCCESS=0
 ZENODO_SUCCESS=0
@@ -223,6 +257,9 @@ if [[ $ETL_SUCCESS == 0 ]]; then
     # should be moved to the triggering github action. Having it here feels fragmented.
     # Distribute outputs if branch is main or the build was triggered by tag push
     if [[ "$GITHUB_ACTION_TRIGGER" == "push" || "$BUILD_REF" == "main" ]]; then
+        # Distribute Parquet outputs to a private bucket
+        distribute_parquet 2>&1 | tee -a "$LOGFILE"
+        DISTRIBUTE_PARQUET_SUCCESS=${PIPESTATUS[0]}
         # Remove some cruft from the builds that we don't want to distribute
         clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
         CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
@@ -245,6 +282,7 @@ if [[ $ETL_SUCCESS == 0 && \
       $SAVE_OUTPUTS_SUCCESS == 0 && \
       $UPDATE_NIGHTLY_SUCCESS == 0 && \
       $DATASETTE_SUCCESS == 0 && \
+      $DISTRIBUTE_PARQUET_SUCCESS == 0 && \
       $CLEAN_UP_OUTPUTS_SUCCESS == 0 && \
       $DISTRIBUTION_BUCKET_SUCCESS == 0 && \
       $ZENODO_SUCCESS == 0

@@ -5,20 +5,23 @@ import importlib.resources
 import warnings
 import zipfile
 from collections import defaultdict
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from functools import lru_cache
 from pathlib import Path
 from typing import IO, Any, Protocol, Self
 
 import pandas as pd
 import sqlalchemy as sa
+from dagster import op
 from dbfread import DBF, FieldParser
 
 import pudl
 import pudl.logging_helpers
 from pudl.metadata.classes import DataSource
+from pudl.resources import RuntimeSettings
 from pudl.settings import FercToSqliteSettings, GenericDatasetSettings
 from pudl.workspace.datastore import Datastore
+from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -338,6 +341,8 @@ class FercDbfReader:
     def get_archive(self: Self, year: int, **filters) -> FercDbfArchive:
         """Returns single dbf archive matching given filters."""
         nfilters = self._normalize(filters)
+        # Not using a context manager for the zipfile here because it would
+        # close the file after this method returns the FercDbfArchive instance.
         return FercDbfArchive(
             self.datastore.get_zipfile_resource(self.dataset, year=year, **nfilters),
             dbc_path=self._dbc_path[year],
@@ -462,6 +467,32 @@ class FercDbfExtractor:
         """Returns the connection string for the sqlite database."""
         db_path = str(Path(self.output_path) / self.DATABASE_NAME)
         return f"sqlite:///{db_path}"
+
+    @classmethod
+    def get_dagster_op(cls) -> Callable:
+        """Returns dagstger op that runs this extractor."""
+
+        @op(
+            name=f"{cls.DATASET}_dbf",
+            required_resource_keys={
+                "ferc_to_sqlite_settings",
+                "datastore",
+                "runtime_settings",
+            },
+            tags={"dataset": cls.DATASET, "data_format": "dbf"},
+        )
+        def inner_method(context) -> None:
+            rs: RuntimeSettings = context.resources.runtime_settings
+            """Instantiates dbf extractor and runs it."""
+            dbf_extractor = cls(
+                datastore=context.resources.datastore,
+                settings=context.resources.ferc_to_sqlite_settings,
+                clobber=rs.clobber,
+                output_path=PudlPaths().output_dir,
+            )
+            dbf_extractor.execute()
+
+        return inner_method
 
     def execute(self):
         """Runs the extraction of the data from dbf to sqlite."""
