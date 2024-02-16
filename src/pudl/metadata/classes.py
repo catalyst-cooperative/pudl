@@ -1061,18 +1061,18 @@ class ResourceHarvest(PudlMeta):
 class PudlResourceDescriptor(PudlMeta):
     """The form we expect the RESOURCE_METADATA elements to take.
 
-    This differs from ``Resource`` and ``Schema``, etc., in that we represent
-    many complex types (``Field``, ``DataSource``, etc.) with string IDs that
+    This differs from :class:`Resource` and :class:`Schema`, etc., in that we represent
+    many complex types (:class:`Field`, :class:`DataSource`, etc.) with string IDs that
     we then turn into instances of those types with lookups. We also use
-    ``foreign_key_rules`` to generate the actual ``foreign_key`` relationships
-    that are represented in ``Schema``s.
+    ``foreign_key_rules`` to generate the actual ``foreign_key`` relationships that are
+    represented in a :class:`Schema`.
 
     This is all very useful in that we can describe the resources more concisely!
 
-    TODO: In the future, we could convert from a `PudlResourceDescriptor` to
-    various standard formats, such as a Frictionless resource or a Pandera
-    schema. This would require some of the logic currently in `Resource` to
-    move into this class.
+    TODO: In the future, we could convert from a :class:`PudlResourceDescriptor` to
+    various standard formats, such as a Frictionless resource or a :mod:`pandera`
+    schema. This would require some of the logic currently in :class:`Resource` to move
+    into this class.
     """
 
     class PudlSchemaDescriptor(PudlMeta):
