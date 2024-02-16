@@ -1,4 +1,5 @@
 """Tools for embedding a DataFrame to create feature matrix for models."""
+
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
@@ -100,7 +101,7 @@ def log_dataframe_embedder_config(
         }
     }
     experiment_tracker.execute_logging(
-        lambda: mlflow.log_params(ml_tools.flatten_model_config(vectorizer_config))
+        lambda: mlflow.log_params(ml_tools._flatten_model_config(vectorizer_config))
     )
 
 
