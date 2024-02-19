@@ -8,9 +8,12 @@ import pytest
 import pudl.logging_helpers
 from pudl.settings import Ferc1Settings
 from pudl.transform.ferc1 import (
+    AddColumnWithUniformValue,
     AddColumsWithUniformValue,
     DropDuplicateRowsDbf,
     Ferc1AbstractTableTransformer,
+    Ferc1TableTransformParams,
+    ReconcileTableCalculations,
     TableIdFerc1,
     UnstackBalancesToReportYearInstantXbrl,
     WideToTidy,
@@ -431,6 +434,50 @@ def test_add_columns_with_uniform_value():
     )
     df_out = add_columns_with_uniform_value(df, params)
     pd.testing.assert_frame_equal(df_expected, df_out)
+
+
+def test_dimension_columns():
+    """Test the :meth:`Ferc1TableTransformParams.dimension_columns`.
+
+    Can ``dimension_columns`` grab a column from :class:`AddColumsWithUniformValue` and ignore
+    a column labled as ``is_dimension=False``?
+
+    Can ``dimension_columns`` also grab a different ``subtotal_column``
+    from :class:`ReconcileTableCalculations`?
+
+    Will ``dimension_columns`` return only one column if the dimension column from
+    :class:`AddColumsWithUniformValue` and :class:`ReconcileTableCalculations` are the same?
+    """
+    add_columns_with_uniform_value = AddColumsWithUniformValue(
+        columns_to_add={
+            "added_dim": AddColumnWithUniformValue(
+                column_value="i'm dim", is_dimension=True
+            ),
+            "not_a_dim": AddColumnWithUniformValue(
+                column_value="nope", is_dimension=False
+            ),
+        }
+    )
+    params1 = Ferc1TableTransformParams(
+        add_columns_with_uniform_value=add_columns_with_uniform_value,
+    )
+    assert params1.dimension_columns == ["added_dim"]
+
+    reconcile_table_calculations = ReconcileTableCalculations(subtotal_column="sub_dim")
+    params2 = Ferc1TableTransformParams(
+        add_columns_with_uniform_value=add_columns_with_uniform_value,
+        reconcile_table_calculations=reconcile_table_calculations,
+    )
+    assert params2.dimension_columns == ["sub_dim", "added_dim"]
+
+    reconcile_table_calculations = ReconcileTableCalculations(
+        subtotal_column="added_dim"
+    )
+    params3 = Ferc1TableTransformParams(
+        add_columns_with_uniform_value=add_columns_with_uniform_value,
+        reconcile_table_calculations=reconcile_table_calculations,
+    )
+    assert params3.dimension_columns == ["added_dim"]
 
 
 def test_calculate_values_from_components():

@@ -1611,10 +1611,14 @@ class Ferc1TableTransformParams(TableTransformParams):
         """List of column names of dimensions."""
         dims = {
             dim
-            for dim in list(self.add_columns_with_uniform_value.assign_cols.keys())
-            + [self.reconcile_table_calculations.subtotal_column]
-            if dim
+            for (
+                dim,
+                col_info,
+            ) in self.add_columns_with_uniform_value.columns_to_add.items()
+            if col_info.is_dimension
         }
+        if self.reconcile_table_calculations.subtotal_column:
+            dims.update({self.reconcile_table_calculations.subtotal_column})
         return list(dims)
 
 
