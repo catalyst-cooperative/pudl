@@ -17,7 +17,7 @@ record_id_eia,record_id_ferc1,signature_1,signature_2,notes
 124_2018_plant_owned_24211,f1_steam_2018_12_176_1_1,,,
 126_gt_2018_plant_prime_mover_owned_24211,f1_steam_2018_12_176_0_5,,,
 126_1967_2018_plant_operating_year_owned_24211,f1_steam_2018_12_176_0_1,,,
-1353_1_2018_plant_unit_owned_22053,f1_steam_2018_12_81_0_1,,,
+1353_2018_plant_owned_22053,f1_steam_2018_12_81_0_1,,,
 1725_2018_plant_owned_5109,f1_steam_2018_12_44_4_2,,,
 1728_2018_plant_owned_5109,f1_steam_2018_12_44_3_4,,,
 1729_gt_2018_plant_prime_mover_owned_5109,f1_steam_2018_12_44_3_5,,,
@@ -145,7 +145,7 @@ record_id_eia,record_id_ferc1,signature_1,signature_2,notes
 55856_2018_plant_total_40211,f1_gnrt_plant_2018_12_294_0_1,,,
 56031_2018_plant_owned_20860,f1_steam_2018_12_195_4_1,,,
 56456_2018_plant_owned_5860,f1_steam_2018_12_51_1_4,,,
-57703_1_2018_plant_unit_owned_19545,f1_steam_2018_12_12_1_1,,,
+57703_2018_plant_owned_19545,f1_steam_2018_12_12_1_1,,,
 6000_2018_plant_owned_9324,f1_steam_2018_12_73_0_5,,,
 6008_1_2018_plant_gen_owned_803,f1_steam_2018_12_7_5_5,,,
 6008_2_2018_plant_gen_owned_803,f1_steam_2018_12_7_6_1,,,
@@ -754,9 +754,9 @@ record_id_eia,record_id_ferc1,signature_1,signature_2,notes
 2840_1973_2008_plant_operating_year_owned_4062,f1_steam_2008_12_27_2_3,AS,CG,
 2840_1973_2009_plant_operating_year_owned_4062,f1_steam_2009_12_27_1_2,AS,CG,
 2840_1973_2010_plant_operating_year_owned_4062,f1_steam_2010_12_27_1_2,AS,CG,
-2840_2_2011_plant_unit_owned_4062,f1_steam_2011_12_27_1_2,AS,CG,
-2840_2_2012_plant_unit_owned_4062,f1_steam_2012_12_27_1_2,AS,CG,
-2840_2_2013_plant_unit_owned_4062,f1_steam_2013_12_27_1_2,AS,CG,
+2840_2011_plant_owned_4062,f1_steam_2011_12_27_1_2,AS,CG,
+2840_2012_plant_owned_4062,f1_steam_2012_12_27_1_2,AS,CG,
+2840_2013_plant_owned_4062,f1_steam_2013_12_27_1_2,AS,CG,
 2840_1973_2014_plant_operating_year_owned_58620,f1_steam_2014_12_27_1_2,AS,CG,Unit changed ownership
 2840_1973_2015_plant_operating_year_owned_58620,f1_steam_2015_12_27_1_2,AS,CG,
 1002_2005_plant_total_15470,f1_steam_2005_12_144_2_3,RF,CG,
@@ -4463,7 +4463,7 @@ record_id_eia,record_id_ferc1,signature_1,signature_2,notes
 620_st_2008_plant_prime_mover_total_6452,f1_steam_2008_12_56_0_5,EB,SW,
 620_ng_2008_plant_prime_fuel_owned_6452,f1_steam_2008_12_56_4_2,EB,SW,Steve changed from “620_2008_plant_total_6452”. Capacity is off but this better fits prior / following years.
 6257_2008_plant_owned_7801,f1_steam_2008_12_62_0_5,EB,SW,
-6257_4_2008_plant_unit_owned_6452,f1_steam_2008_12_56_1_5,,SW,
+6257_2008_plant_owned_6452,f1_steam_2008_12_56_1_5,,SW,
 642_2008_plant_total_7801,f1_steam_2008_12_62_0_3,EB,SW,
 643_gt_2008_plant_prime_mover_total_7801,f1_steam_2008_12_62_1_2,EB,SW,
 643_st_2008_plant_prime_mover_total_7801,f1_steam_2008_12_62_0_2,EB,SW,
@@ -4498,7 +4498,7 @@ record_id_eia,record_id_ferc1,signature_1,signature_2,notes
 620_st_2009_plant_prime_mover_total_6452,f1_steam_2009_12_56_0_5,EB,SW,
 620_ng_2009_plant_prime_fuel_owned_6452,f1_steam_2009_12_56_4_2,EB,SW,Steve changed from “620_2009_plant_total_6452”
 6257_2009_plant_owned_7801,f1_steam_2009_12_62_0_5,EB,SW,
-6257_4_2009_plant_unit_owned_6452,f1_steam_2009_12_56_1_5,,SW,
+6257_2009_plant_owned_6452,f1_steam_2009_12_56_1_5,,SW,
 642_2009_plant_total_7801,f1_steam_2009_12_62_0_3,EB,SW,
 643_gt_2009_plant_prime_mover_total_7801,f1_steam_2009_12_62_1_2,EB,SW,
 643_st_2009_plant_prime_mover_total_7801,f1_steam_2009_12_62_0_2,EB,SW,
@@ -4535,7 +4535,7 @@ record_id_eia,record_id_ferc1,signature_1,signature_2,notes
 620_st_2010_plant_prime_mover_total_6452,f1_steam_2010_12_56_0_5,EB,SW,
 620_2010_plant_total_6452,f1_steam_2010_12_56_4_1,,SW,NG matches capacity more closely.
 6257_2010_plant_owned_7801,f1_steam_2010_12_62_0_5,EB,SW,
-6257_4_2010_plant_unit_owned_6452,f1_steam_2010_12_56_1_4,,SW,
+6257_2010_plant_owned_6452,f1_steam_2010_12_56_1_4,,SW,
 642_2010_plant_total_7801,f1_steam_2010_12_62_0_3,EB,SW,
 56930_2010_plant_total_6452,f1_steam_2010_12_56_5_3,EB,SW,
 643_gt_2010_plant_prime_mover_total_7801,f1_steam_2010_12_62_1_2,EB,SW,
@@ -4565,7 +4565,7 @@ record_id_eia,record_id_ferc1,signature_1,signature_2,notes
 620_st_2011_plant_prime_mover_total_6452,f1_steam_2011_12_56_0_5,EB,SW,
 620_2011_plant_total_6452,f1_steam_2011_12_56_4_1,,SW,NG matches capacity more closely.
 6257_2011_plant_owned_7801,f1_steam_2011_12_62_0_5,EB,SW,
-6257_4_2011_plant_unit_owned_6452,f1_steam_2011_12_56_1_4,,SW,
+6257_2011_plant_owned_6452,f1_steam_2011_12_56_1_4,,SW,
 642_2011_plant_total_7801,f1_steam_2011_12_62_0_3,EB,SW,
 56930_2011_plant_total_6452,f1_steam_2011_12_56_5_3,EB,SW,
 643_gt_2011_plant_prime_mover_total_7801,f1_steam_2011_12_62_1_2,EB,SW,
@@ -4596,7 +4596,7 @@ record_id_eia,record_id_ferc1,signature_1,signature_2,notes
 617_gt_2012_plant_prime_mover_total_6452,f1_steam_2012_12_56_2_5,EB,SW,
 617_st_2012_plant_prime_mover_total_6452,f1_steam_2012_12_56_0_3,,SW,"Alternately: 617_3_2012_plant_unit_total_6452 and 617_4_2012_plant_unit_total_6452? This would be a better cap match, though the record SW chose returns to being a cap match in 2013."
 620_2012_plant_total_6452,f1_steam_2012_12_56_4_1,,SW,NG matches capacity more closely.
-6257_4_2012_plant_unit_owned_6452,f1_steam_2012_12_56_1_4,,SW,
+6257_2012_plant_owned_6452,f1_steam_2012_12_56_1_4,,SW,
 642_2012_plant_total_7801,f1_steam_2012_12_62_0_3,EB,SW,
 56930_2012_plant_total_6452,f1_steam_2012_12_56_5_3,EB,SW,
 643_gt_2012_plant_prime_mover_total_7801,f1_steam_2012_12_62_1_2,EB,SW,
@@ -4628,7 +4628,7 @@ record_id_eia,record_id_ferc1,signature_1,signature_2,notes
 617_st_2013_plant_prime_mover_owned_6452,f1_steam_2013_12_56_0_3,EB,SW,
 620_2013_plant_total_6452,f1_steam_2013_12_56_4_1,EB,SW,
 6257_2013_plant_owned_7801,f1_steam_2013_12_62_0_5,EB,SW,
-6257_4_2013_plant_unit_owned_6452,f1_steam_2013_12_56_1_4,,SW,
+6257_2013_plant_owned_6452,f1_steam_2013_12_56_1_4,,SW,
 642_2013_plant_total_7801,f1_steam_2013_12_62_0_3,EB,SW,
 56930_2013_plant_total_6452,f1_steam_2013_12_56_5_3,EB,SW,
 643_gt_2013_plant_prime_mover_total_7801,f1_steam_2013_12_62_1_2,EB,SW,
@@ -4663,7 +4663,7 @@ record_id_eia,record_id_ferc1,signature_1,signature_2,notes
 619_2014_plant_total_6452,f1_steam_2014_12_56_0_4,EB,SW,
 620_2014_plant_total_6452,f1_steam_2014_12_56_0_5,EB,SW,
 6257_2014_plant_owned_7801,f1_steam_2014_12_62_0_5,EB,SW,
-6257_4_2014_plant_unit_owned_6452,f1_steam_2014_12_56_1_4,,SW,
+6257_2014_plant_owned_6452,f1_steam_2014_12_56_1_4,,SW,
 642_2014_plant_total_7801,f1_steam_2014_12_62_0_3,EB,SW,
 56930_2014_plant_total_6452,f1_steam_2014_12_56_4_5,EB,SW,
 207_2014_plant_owned_6452,f1_steam_2014_12_56_1_5,SW,,ownership fraction of .35 vs .2 in later years makes FERC reported cap and gen lower than EIA
@@ -4696,7 +4696,7 @@ record_id_eia,record_id_ferc1,signature_1,signature_2,notes
 619_2015_plant_total_6452,f1_steam_2015_12_56_0_4,EB,SW,
 620_2015_plant_total_6452,f1_steam_2015_12_56_0_5,EB,SW,
 6257_2015_plant_owned_7801,f1_steam_2015_12_62_0_5,EB,SW,
-6257_4_2015_plant_unit_owned_6452,f1_steam_2015_12_56_1_4,,SW,
+6257_2015_plant_owned_6452,f1_steam_2015_12_56_1_4,,SW,
 642_2015_plant_total_7801,f1_steam_2015_12_62_0_3,EB,SW,
 56930_2015_plant_total_6452,f1_steam_2015_12_56_4_5,EB,SW,
 207_2015_plant_owned_6452,f1_steam_2015_12_56_1_5,SW,SW,
@@ -4728,7 +4728,7 @@ EB picks: 617_2016_plant_total_6452 (capacity matches that of 2017, more consist
 619_2016_plant_total_6452,f1_steam_2016_12_56_0_4,EB,SW,
 620_2016_plant_total_6452,f1_steam_2016_12_56_0_5,EB,SW,
 6257_2016_plant_owned_7801,f1_steam_2016_12_62_0_4,EB,SW,
-6257_4_2016_plant_unit_owned_6452,f1_steam_2016_12_56_1_4,,SW,
+6257_2016_plant_owned_6452,f1_steam_2016_12_56_1_4,,SW,
 642_2016_plant_total_7801_retired,f1_steam_2016_12_62_0_2,EB,SW,Steve changed from “6257_4_2016_plant_gen_owned_6452”
 56930_2016_plant_total_6452,f1_steam_2016_12_56_4_5,EB,SW,
 643_gt_2016_plant_prime_mover_total_7801,f1_steam_2016_12_62_1_1,EB,SW,
@@ -4763,7 +4763,7 @@ EB: other ones match year, e.g. 23 and 24?"
 619_2017_plant_total_6452,f1_steam_2017_12_56_0_4,EB,SW,
 620_2017_plant_total_6452,f1_steam_2017_12_56_0_5,EB,SW,
 6257_2017_plant_owned_7801,f1_steam_2017_12_62_0_4,EB,SW,
-6257_4_2017_plant_unit_owned_6452,f1_steam_2017_12_56_1_4,,SW,
+6257_2017_plant_owned_6452,f1_steam_2017_12_56_1_4,,SW,
 56930_2017_plant_total_6452,f1_steam_2017_12_56_4_5,EB,SW,
 207_2017_plant_owned_6452,f1_steam_2017_12_56_1_5,SW,SW,
 643_gt_2017_plant_prime_mover_total_7801,f1_steam_2017_12_62_1_1,EB,SW,
@@ -4856,7 +4856,7 @@ EB: other ones match year, e.g. 23 and 24?"
 61763_2019_plant_owned_6452,f1_steam_2019_12_56_7_1,EB,SW,
 6257_2019_plant_owned_7801,f1_steam_2019_12_62_1_2,EB,SW,seems like 2018
 643_natural_gas_fired_combined_cycle_2019_plant_technology_total_7801,f1_steam_2019_12_62_0_3,EB,SW,
-6257_4_2019_plant_unit_owned_6452,f1_steam_2019_12_56_0_3,,SW,
+6257_2019_plant_owned_6452,f1_steam_2019_12_56_0_3,,SW,
 6043_1994_2019_plant_operating_year_total_6452,f1_steam_2019_12_56_5_1,SW,AS,"net gen close, cap and year good"
 6042_natural_gas_fired_combined_cycle_2019_plant_technology_total_6452,f1_steam_2019_12_56_4_5,EB,SW,
 6043_3_2019_plant_unit_total_6452,f1_steam_2019_12_56_5_4,SW,AS,net gen and cap off but consistent with other years
@@ -4877,7 +4877,7 @@ EB: other ones match year, e.g. 23 and 24?"
 619_2020_plant_total_6452,f1_steam_2020_12_56_6_3,SW,EB,"EB changed from plant_owned to plant_total, same data, cap and net gen and inst year match."
 620_2020_plant_total_6452,f1_steam_2020_12_56_6_4,SW,EB,
 6257_2020_plant_owned_7801,f1_steam_2020_12_62_1_1,SW,EB,
-6257_4_2020_plant_unit_owned_6452,f1_steam_2020_12_56_0_3,SW,,
+6257_2020_plant_owned_6452,f1_steam_2020_12_56_0_3,SW,,
 56930_2020_plant_total_6452,f1_steam_2020_12_56_6_5,SW,EB,
 6045_2020_plant_owned_6452,f1_steam_2020_12_56_0_1,SW,,"capacity matches total, the generation is closer to owned"
 643_gt_2020_plant_prime_mover_total_7801,f1_steam_2020_12_62_0_2,SW,EB,
@@ -8343,7 +8343,7 @@ Azalea is a subsidiary of Dominion: https://www.sec.gov/Archives/edgar/data/1036
 6065_2009_plant_owned_761,f1_steam_2009_12_182_1_5,AS,,"wrong utility, right plant part"
 6065_2009_plant_owned_10000,f1_steam_2009_12_79_1_2,AS,SW,Steve changed from 6065_2009_plant_owned_10000_proposed
 6065_2009_plant_total_10000,f1_steam_2009_12_79_1_1,AS,SW,
-6065_1_2010_plant_unit_owned_56211,f1_steam_2010_12_182_1_5,AS,SW,two true gran = true
+6065_2010_plant_owned_56211,f1_steam_2010_12_182_1_5,AS,SW,two true gran = true
 56351_2010_plant_total_10000,f1_gnrt_plant_2010_12_79_0_1,AS,SW,
 56351_2011_plant_total_10000,f1_gnrt_plant_2011_12_79_0_1,AS,SW,FERC net gen off by 1000
 56351_2012_plant_total_10000,f1_gnrt_plant_2012_12_79_0_1,AS,SW,
