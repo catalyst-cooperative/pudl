@@ -468,7 +468,11 @@ def test_dimension_columns():
         add_columns_with_uniform_value=add_columns_with_uniform_value,
         reconcile_table_calculations=reconcile_table_calculations,
     )
-    assert params2.dimension_columns == ["sub_dim", "added_dim"]
+    found_dims = params2.dimension_columns
+    found_dims.sort()
+    expected_dims = ["sub_dim", "added_dim"]
+    expected_dims.sort()
+    assert found_dims == expected_dims
 
     reconcile_table_calculations = ReconcileTableCalculations(
         subtotal_column="added_dim"

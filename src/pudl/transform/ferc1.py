@@ -6122,20 +6122,6 @@ def _core_ferc1__table_dimensions(**kwargs) -> pd.DataFrame:
         .drop_duplicates()
         .reset_index(drop=True)
     )
-    # even though we don't actually get correction records for all of the
-    # factiods, we are still going to force them to exist here so all of the
-    # downstream processes have them all.
-    non_correction_mask = ~dimensions.xbrl_factoid.str.endswith("_correction")
-    dimensions = pd.concat(
-        [
-            dimensions[non_correction_mask],
-            (
-                dimensions[non_correction_mask].assign(
-                    xbrl_factoid=lambda x: x.xbrl_factoid + "_correction"
-                )
-            ),
-        ]
-    )
     return dimensions
 
 
@@ -6436,6 +6422,22 @@ def make_calculation_dimensions_explicit(
             the parental dimensions or the child dimensions.
     """
     logger.info(f"Adding {dimensions=} into calculation component table.")
+    # even though we don't actually get correction records for all of the
+    # factiods, we are still going to force them to exist here so all of the
+    # downstream processes have them all.
+    non_correction_mask = ~table_dimensions_ferc1.xbrl_factoid.str.endswith(
+        "_correction"
+    )
+    table_dimensions_ferc1 = pd.concat(
+        [
+            table_dimensions_ferc1[non_correction_mask],
+            (
+                table_dimensions_ferc1[non_correction_mask].assign(
+                    xbrl_factoid=lambda x: x.xbrl_factoid + "_correction"
+                )
+            ),
+        ]
+    )
     calc_comps_w_dims = calculation_components.copy()
     on_cols = ["table_name", "xbrl_factoid"]
     if parent:
