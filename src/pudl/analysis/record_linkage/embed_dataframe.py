@@ -22,7 +22,7 @@ from sklearn.preprocessing import (
 )
 
 import pudl
-from pudl.analysis import ml_tools
+from pudl.analysis.ml_tools import experiment_tracking
 from pudl.analysis.record_linkage.name_cleaner import CompanyNameCleaner
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -91,7 +91,7 @@ class ColumnVectorizer(BaseModel):
 def log_dataframe_embedder_config(
     embedder_name: str,
     vectorizers: dict[str, ColumnVectorizer],
-    experiment_tracker: ml_tools.ExperimentTracker,
+    experiment_tracker: experiment_tracking.ExperimentTracker,
 ):
     """Log embedder config to mlflow experiment."""
     vectorizer_config = {
@@ -101,7 +101,9 @@ def log_dataframe_embedder_config(
         }
     }
     experiment_tracker.execute_logging(
-        lambda: mlflow.log_params(ml_tools._flatten_model_config(vectorizer_config))
+        lambda: mlflow.log_params(
+            experiment_tracking._flatten_model_config(vectorizer_config)
+        )
     )
 
 
@@ -112,7 +114,7 @@ def dataframe_embedder_factory(
 
     @op(name=f"{name_prefix}_train")
     def train_dataframe_embedder(
-        df: pd.DataFrame, experiment_tracker: ml_tools.ExperimentTracker
+        df: pd.DataFrame, experiment_tracker: experiment_tracking.ExperimentTracker
     ):
         """Train :class:`sklearn.compose.ColumnTransformer` on input."""
         log_dataframe_embedder_config(name_prefix, vectorizers, experiment_tracker)
@@ -137,7 +139,7 @@ def dataframe_embedder_factory(
 
     @graph(name=f"{name_prefix}_embed_graph")
     def embed_dataframe_graph(
-        df: pd.DataFrame, experiment_tracker: ml_tools.ExperimentTracker
+        df: pd.DataFrame, experiment_tracker: experiment_tracking.ExperimentTracker
     ) -> FeatureMatrix:
         """Train dataframe embedder and apply to input df."""
         transformer = train_dataframe_embedder(df, experiment_tracker)

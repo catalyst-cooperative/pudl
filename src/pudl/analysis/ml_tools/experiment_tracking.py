@@ -111,6 +111,11 @@ class ExperimentTracker(BaseModel):
         """Create experiment tracker for specified experiment."""
         run_id = ""
         if experiment_config.tracking_enabled:
+            logger.info(
+                f"Experiment tracker is enabled for {experiment_config.experiment_name}"
+                "To view results in the mlflow ui, execute the command:"
+                f"` mlflow ui --backend-store-uri {experiment_config.tracking_uri}`"
+            )
             mlflow.set_tracking_uri(experiment_config.tracking_uri)
             # Create new run under specified experiment
             with mlflow.start_run(

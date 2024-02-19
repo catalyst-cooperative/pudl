@@ -3,7 +3,7 @@ import mlflow
 import pandas as pd
 import pytest
 
-from pudl.analysis import ml_tools
+from pudl.analysis.ml_tools import experiment_tracking
 
 
 @pytest.mark.parametrize(
@@ -41,7 +41,7 @@ def test_flatten_model_config(input_dict: dict, flattened_dict: dict):
     Should take nested dict and return dict with only one level and nested keys
     seperated by periods.
     """
-    assert ml_tools._flatten_model_config(input_dict) == flattened_dict
+    assert experiment_tracking._flatten_model_config(input_dict) == flattened_dict
 
 
 @pytest.fixture(scope="function")
@@ -63,12 +63,14 @@ def test_create_experiment_tracker(
     experiment_tracker_config: dict, tracking_enabled: bool, experiment_name: str
 ):
     """Test that ExperimentTracker properly configures mlflow and executes logging statements."""
-    experiment_tracker_config = ml_tools.ExperimentTrackerConfig(
+    experiment_tracker_config = experiment_tracking.ExperimentTrackerConfig(
         **experiment_tracker_config,
         tracking_enabled=tracking_enabled,
         experiment_name=experiment_name,
     )
-    experiment_tracker = ml_tools.create_experiment_tracker(experiment_tracker_config)
+    experiment_tracker = experiment_tracking.create_experiment_tracker(
+        experiment_tracker_config
+    )
     experiment_tracker.execute_logging(
         lambda: mlflow.log_param("test_param", "param_value")
     )
