@@ -119,6 +119,7 @@ def compute_distance_with_year_penalty(
     original_df: pd.DataFrame,
 ) -> DistanceMatrix:
     """Compute a distance matrix and penalize records from the same year."""
+    logger.info(f"Dist metric: {config.metric}")
     return DistanceMatrix(feature_matrix.matrix, original_df, config)
 
 
@@ -144,12 +145,17 @@ def cluster_records_dbscan(
     classifier = DBSCAN(metric="precomputed", eps=config.eps, min_samples=2)
 
     # Create dataframe containing only report year and label columns
-    return pd.DataFrame(
+    id_year_df = pd.DataFrame(
         {
             "report_year": original_df.loc[:, "report_year"],
             "record_label": classifier.fit_predict(neighbor_graph),
         }
     )
+
+    logger.info(
+        f"{id_year_df.record_label.nunique()} unique record IDs found after DBSCAN step."
+    )
+    return id_year_df
 
 
 class SplitClustersConfig(Config):
@@ -211,10 +217,13 @@ def split_clusters(
             df_inds = cluster_inds[new_labels == new_label]
             id_year_df.loc[df_inds, "record_label"] = next(cluster_id_generator)
 
+    logger.info(
+        f"{id_year_df.record_label.nunique()} unique record IDs found after split clusters step."
+    )
     return id_year_df
 
 
-class MatchOrpahnedRecordsConfig(Config):
+class MatchOrphanedRecordsConfig(Config):
     """Configuration for :func:`match_orphaned_records` op."""
 
     #: See :class:`sklearn.cluster.AgglomerativeClustering` for details.
@@ -223,7 +232,7 @@ class MatchOrpahnedRecordsConfig(Config):
 
 @op
 def match_orphaned_records(
-    config: MatchOrpahnedRecordsConfig,
+    config: MatchOrphanedRecordsConfig,
     distance_matrix: DistanceMatrix,
     id_year_df: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -257,9 +266,12 @@ def match_orphaned_records(
 
     # Assign new labels to all points
     new_labels = classifier.fit_predict(average_dist_matrix)
-    for inds, label in zip(cluster_groups, new_labels):
+    for inds, label in zip(cluster_groups, new_labels, strict=True):
         id_year_df.loc[inds, "record_label"] = label
 
+    logger.info(
+        f"{id_year_df.record_label.nunique()} unique record IDs found after match orphaned records step."
+    )
     return id_year_df
 
 

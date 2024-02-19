@@ -11,15 +11,14 @@ import sqlalchemy as sa
 from dagster import build_init_resource_context
 
 import pudl
-from pudl.io_managers import PudlSQLiteIOManager
+from pudl.etl.check_foreign_keys import check_foreign_keys
 
 logger = logging.getLogger(__name__)
 
 
 def test_pudl_engine(
     pudl_engine: sa.Engine,
-    pudl_sql_io_manager: PudlSQLiteIOManager,
-    check_foreign_keys: bool,
+    check_foreign_keys_flag: bool,
 ):
     """Get pudl_engine and do basic inspection.
 
@@ -31,9 +30,9 @@ def test_pudl_engine(
     assert "core_pudl__entity_plants_pudl" in insp.get_table_names()
     assert "core_pudl__entity_utilities_pudl" in insp.get_table_names()
 
-    if check_foreign_keys:
+    if check_foreign_keys_flag:
         # Raises ForeignKeyErrors if there are any
-        pudl_sql_io_manager.check_foreign_keys()
+        check_foreign_keys(pudl_engine)
 
 
 def test_ferc1_xbrl2sqlite(ferc1_engine_xbrl: sa.Engine, ferc1_xbrl_taxonomy_metadata):
@@ -81,12 +80,12 @@ class TestCsvExtractor:
     def test_extract_eia176(self, pudl_datastore_fixture):
         """Spot check extraction of eia176 csv files."""
         dataset = "eia176"
-        zipfile = pudl_datastore_fixture.get_zipfile_resource(dataset)
         table_file_map = pudl.extract.csv.get_table_file_map(dataset)
-        extractor = pudl.extract.csv.CsvExtractor(zipfile, table_file_map)
-        table = "company"
-        if table not in extractor.extract_all():
-            raise AssertionError(f"table {table} not found in datastore")
+        with pudl_datastore_fixture.get_zipfile_resource(dataset) as zf:
+            extractor = pudl.extract.csv.CsvExtractor(zf, table_file_map)
+            table = "company"
+            if table not in extractor.extract_all():
+                raise AssertionError(f"table {table} not found in datastore")
 
 
 class TestExcelExtractor:

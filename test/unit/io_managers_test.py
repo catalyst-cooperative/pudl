@@ -12,10 +12,13 @@ import sqlalchemy as sa
 from dagster import AssetKey, build_input_context, build_output_context
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from pudl.io_managers import (
-    FercXBRLSQLiteIOManager,
+from pudl.etl.check_foreign_keys import (
     ForeignKeyError,
     ForeignKeyErrors,
+    check_foreign_keys,
+)
+from pudl.io_managers import (
+    FercXBRLSQLiteIOManager,
     PudlSQLiteIOManager,
     SQLiteIOManager,
 )
@@ -26,25 +29,43 @@ from pudl.metadata.classes import Package, Resource
 def test_pkg() -> Package:
     """Create a test metadata package for the io manager tests."""
     fields = [
-        {"name": "artistid", "type": "integer"},
-        {"name": "artistname", "type": "string", "constraints": {"required": True}},
+        {"name": "artistid", "type": "integer", "description": "artistid"},
+        {
+            "name": "artistname",
+            "type": "string",
+            "constraints": {"required": True},
+            "description": "artistid",
+        },
     ]
     schema = {"fields": fields, "primary_key": ["artistid"]}
-    artist_resource = Resource(name="artist", schema=schema)
+    artist_resource = Resource(name="artist", schema=schema, description="Artist")
 
     fields = [
-        {"name": "artistid", "type": "integer"},
-        {"name": "artistname", "type": "string", "constraints": {"required": True}},
+        {"name": "artistid", "type": "integer", "description": "artistid"},
+        {
+            "name": "artistname",
+            "type": "string",
+            "constraints": {"required": True},
+            "description": "artistname",
+        },
     ]
     schema = {"fields": fields, "primary_key": ["artistid"]}
     view_resource = Resource(
-        name="artist_view", schema=schema, create_database_schema=False
+        name="artist_view",
+        schema=schema,
+        description="Artist view",
+        create_database_schema=False,
     )
 
     fields = [
-        {"name": "trackid", "type": "integer"},
-        {"name": "trackname", "type": "string", "constraints": {"required": True}},
-        {"name": "trackartist", "type": "integer"},
+        {"name": "trackid", "type": "integer", "description": "trackid"},
+        {
+            "name": "trackname",
+            "type": "string",
+            "constraints": {"required": True},
+            "description": "trackname",
+        },
+        {"name": "trackartist", "type": "integer", "description": "trackartist"},
     ]
     fkeys = [
         {
@@ -53,7 +74,7 @@ def test_pkg() -> Package:
         }
     ]
     schema = {"fields": fields, "primary_key": ["trackid"], "foreign_keys": fkeys}
-    track_resource = Resource(name="track", schema=schema)
+    track_resource = Resource(name="track", schema=schema, description="Track")
     return Package(
         name="music", resources=[track_resource, artist_resource, view_resource]
     )
@@ -108,7 +129,7 @@ def test_foreign_key_failure(sqlite_io_manager_fixture):
     manager.handle_output(output_context, track)
 
     with pytest.raises(ForeignKeyErrors) as excinfo:
-        manager.check_foreign_keys()
+        check_foreign_keys(manager.engine)
 
     assert excinfo.value[0] == ForeignKeyError(
         child_table="track",
@@ -277,6 +298,33 @@ def test_error_when_handling_view_without_metadata(fake_pudl_sqlite_io_manager_f
         fake_pudl_sqlite_io_manager_fixture.handle_output(output_context, sql_stmt)
 
 
+def test_empty_read_fails(fake_pudl_sqlite_io_manager_fixture):
+    """Reading empty table fails."""
+    with pytest.raises(AssertionError):
+        context = build_input_context(asset_key=AssetKey("artist"))
+        fake_pudl_sqlite_io_manager_fixture.load_input(context)
+
+
+def test_replace_on_insert(fake_pudl_sqlite_io_manager_fixture):
+    """Tests that two runs of the same asset overwrite existing contents."""
+    artist_df = pd.DataFrame({"artistid": [1], "artistname": ["Co-op Mop"]})
+    output_context = build_output_context(asset_key=AssetKey("artist"))
+    input_context = build_input_context(asset_key=AssetKey("artist"))
+
+    # Write then read.
+    fake_pudl_sqlite_io_manager_fixture.handle_output(output_context, artist_df)
+    read_df = fake_pudl_sqlite_io_manager_fixture.load_input(input_context)
+    pd.testing.assert_frame_equal(artist_df, read_df, check_dtype=False)
+    # check_dtype=False, because int64 != Int64. /o\
+
+    # Rerunning the asset overrwrites contents, leaves only
+    # one artist in the database.
+    new_artist_df = pd.DataFrame({"artistid": [2], "artistname": ["Cxtxlyst"]})
+    fake_pudl_sqlite_io_manager_fixture.handle_output(output_context, new_artist_df)
+    read_df = fake_pudl_sqlite_io_manager_fixture.load_input(input_context)
+    pd.testing.assert_frame_equal(new_artist_df, read_df, check_dtype=False)
+
+
 @pytest.mark.skip(reason="SQLAlchemy is not finding the view. Debug or remove.")
 def test_handling_view_with_metadata(fake_pudl_sqlite_io_manager_fixture):
     """Make sure an users can create and load views when it has metadata."""
@@ -327,26 +375,32 @@ def test_ferc_xbrl_sqlite_io_manager_dedupes(mocker, tmp_path):
                             {
                                 "name": "entity_id",
                                 "type": "string",
+                                "description": "Entity ID",
                             },
                             {
                                 "name": "utility_type_axis",
                                 "type": "string",
+                                "description": "Utility type axis",
                             },
                             {
                                 "name": "filing_name",
                                 "type": "string",
+                                "description": "Filing name",
                             },
                             {
                                 "name": "publication_time",
                                 "type": "datetime",
+                                "description": "Publication time",
                             },
                             {
                                 "name": "date",
                                 "type": "date",
+                                "description": "Date",
                             },
                             {
                                 "name": "str_factoid",
                                 "type": "string",
+                                "description": "String factoid",
                             },
                         ],
                         "primary_key": [

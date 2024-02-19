@@ -9,15 +9,23 @@ import pudl
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
+LAYER_NAMES: dict[str, str] = {
+    "state": "states",
+    "county": "counties",
+    "tract": "tracts",
+}
+
 
 def census_asset_factory(layer: str) -> AssetsDefinition:
     """An asset factory for finished EIA tables."""
 
     @asset(
-        ins={"censusdp1tract_to_sqlite": AssetIn("censusdp1tract_to_sqlite")},
-        name=f"core_censusdp1__entity_{layer}",
+        ins={
+            "raw_censusdp1tract__all_tables": AssetIn("raw_censusdp1tract__all_tables")
+        },
+        name=f"_core_censusdp1tract__{LAYER_NAMES[layer]}",
     )
-    def census_layer(censusdp1tract_to_sqlite, **kwargs) -> gpd.GeoDataFrame:
+    def census_layer(raw_censusdp1tract__all_tables, **kwargs) -> gpd.GeoDataFrame:
         """Select one layer from the Census DP1 database.
 
         Uses information within the Census DP1 database to set the coordinate reference
@@ -25,7 +33,7 @@ def census_asset_factory(layer: str) -> AssetsDefinition:
         is renamed to "geom" as that's the default withing Geopandas. No other column
         names or types are altered.
         """
-        census_conn = f"sqlite:///{censusdp1tract_to_sqlite}"
+        census_conn = f"sqlite:///{raw_censusdp1tract__all_tables}"
         dp1_engine = sa.create_engine(census_conn)
 
         def get_layer(layer, dp1_engine):
@@ -59,8 +67,8 @@ WHERE table_name = ?
                     f"Expected exactly 1 geometry description, but found {len(df)}"
                 )
 
-            geom_col = df.at[0, "geom_col"]
-            crs_auth_str = f"{df.at[0, 'auth_name']}:{df.at[0, 'auth_srid']}".lower()
+            geom_col = df.loc[0, "geom_col"]
+            crs_auth_str = f"{df.loc[0, 'auth_name']}:{df.loc[0, 'auth_srid']}".lower()
 
             gdf = gpd.read_postgis(
                 table_name, dp1_engine, geom_col=geom_col, crs=crs_auth_str
@@ -74,6 +82,4 @@ WHERE table_name = ?
     return census_layer
 
 
-census_dp1_layers = [
-    census_asset_factory(layer) for layer in ["state", "county", "tract"]
-]
+census_dp1_layers = [census_asset_factory(layer) for layer in LAYER_NAMES]

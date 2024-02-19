@@ -15,7 +15,7 @@ from pudl.io_managers import (
     epacems_io_manager,
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
-    pudl_sqlite_io_manager,
+    pudl_mixed_format_io_manager,
 )
 from pudl.resources import dataset_settings, datastore, ferc_to_sqlite_settings
 from pudl.settings import EtlSettings
@@ -36,8 +36,10 @@ default_assets = (
     *load_assets_from_modules([epacems_assets], group_name="core_epacems"),
     *load_assets_from_modules([pudl.extract.eia176], group_name="raw_eia176"),
     *load_assets_from_modules([pudl.extract.phmsagas], group_name="raw_phmsagas"),
+    *load_assets_from_modules([pudl.extract.eia860m], group_name="raw_eia860m"),
     *load_assets_from_modules([pudl.extract.eia860], group_name="raw_eia860"),
     *load_assets_from_modules([pudl.transform.eia860], group_name="_core_eia860"),
+    *load_assets_from_modules([pudl.transform.eia860m], group_name="core_eia860m"),
     *load_assets_from_modules([pudl.extract.eia861], group_name="raw_eia861"),
     *load_assets_from_modules(
         [pudl.transform.eia861], group_name="core_eia861"
@@ -54,7 +56,7 @@ default_assets = (
     ),
     *load_assets_from_modules(
         [pudl.convert.censusdp1tract_to_sqlite, pudl.output.censusdp1tract],
-        group_name="core_censusdp1",
+        group_name="core_censusdp1tract",
     ),
     *load_assets_from_modules([glue_assets], group_name="core_assn"),
     *load_assets_from_modules([static_assets], group_name="core_codes"),
@@ -95,7 +97,7 @@ default_assets = (
 
 default_resources = {
     "datastore": datastore,
-    "pudl_sqlite_io_manager": pudl_sqlite_io_manager,
+    "pudl_io_manager": pudl_mixed_format_io_manager,
     "ferc1_dbf_sqlite_io_manager": ferc1_dbf_sqlite_io_manager,
     "ferc1_xbrl_sqlite_io_manager": ferc1_xbrl_sqlite_io_manager,
     "dataset_settings": dataset_settings,

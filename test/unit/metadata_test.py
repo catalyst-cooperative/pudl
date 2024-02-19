@@ -56,7 +56,6 @@ def test_field_definitions(field_name: str):
     _ = Field(name=field_name, **FIELD_METADATA[field_name])
 
 
-@pytest.mark.xfail(reason="Need to purge unused fields. See issue #3224")
 def test_defined_fields_are_used():
     """Check that all fields which are defined are actually used."""
     used_fields = set()
@@ -70,32 +69,22 @@ def test_defined_fields_are_used():
         )
 
 
-@pytest.mark.xfail(reason="Incomplete descriptions. See issue #3224")
-def test_fields_have_descriptions():
-    """Check that all fields have a description and report any that do not."""
-    fields_without_description = []
-    for field_name in FIELD_METADATA:
-        field = Field(name=field_name, **FIELD_METADATA[field_name])
-        if field.description is None:
-            fields_without_description.append(field_name)
-    fields_without_description = sorted(fields_without_description)
-    if len(fields_without_description) > 0:
-        raise AssertionError(
-            f"Found {len(fields_without_description)} fields without descriptions: "
-            f"{fields_without_description}"
-        )
+def test_get_sorted_resources() -> None:
+    """Test that resources are returned in this order (out, core, _out)."""
+    resource_ids = (
+        "_out_eia__plants_utilities",
+        "core_eia__entity_boilers",
+        "out_eia__yearly_boilers",
+    )
+    resources = Package.from_resource_ids(
+        resource_ids=resource_ids, resolve_foreign_keys=True
+    ).get_sorted_resources()
 
-
-@pytest.mark.xfail(reason="Incomplete descriptions. See issue #3224")
-def test_resources_have_descriptions():
-    """Check that all resources have a description and report any that do not."""
-    resources_without_description = []
-    for resource_name, resource in PUDL_RESOURCES.items():
-        if resource.description is None:
-            resources_without_description.append(resource_name)
-    resources_without_description = sorted(resources_without_description)
-    if len(resources_without_description) > 0:
-        raise AssertionError(
-            f"Found {len(resources_without_description)} resources without descriptions: "
-            f"{resources_without_description}"
-        )
+    first_resource_name = resources[0].name
+    last_resource_name = resources[-1].name
+    assert first_resource_name.startswith(
+        "out"
+    ), f"{first_resource_name} is the first resource. Expected a resource with the prefix 'out'"
+    assert last_resource_name.startswith(
+        "_out"
+    ), f"{last_resource_name} is the last resource. Expected a resource with the prefix '_out'"

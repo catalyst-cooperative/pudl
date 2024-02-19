@@ -107,7 +107,7 @@ PUDL currently integrates data from:
 * **EIA Form 923**: 2001-2023
   - `Source Docs <https://www.eia.gov/electricity/data/eia923/>`__
   - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/eia923.html>`__
-* **EPA Continuous Emissions Monitoring System (CEMS)**: 1995Q1-2023Q3
+* **EPA Continuous Emissions Monitoring System (CEMS)**: 1995Q1-2023Q4
   - `Source Docs <https://campd.epa.gov/>`__
   - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/epacems.html>`__
 * **FERC Form 1**: 1994-2022

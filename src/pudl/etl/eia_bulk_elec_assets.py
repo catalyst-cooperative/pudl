@@ -7,7 +7,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 
 @asset(
-    io_manager_key="pudl_sqlite_io_manager",
+    io_manager_key="pudl_io_manager",
     required_resource_keys={"datastore"},
 )
 def core_eia__yearly_fuel_receipts_costs_aggs(context):

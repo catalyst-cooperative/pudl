@@ -34,7 +34,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
     },
     required_resource_keys={"datastore"},
 )
-def censusdp1tract_to_sqlite(context):
+def raw_censusdp1tract__all_tables(context):
     """Use GDAL's ogr2ogr utility to convert the Census DP1 GeoDB to an SQLite DB.
 
     The Census DP1 GeoDB is read from the datastore, where it is stored as a
@@ -66,31 +66,31 @@ def censusdp1tract_to_sqlite(context):
         # Use datastore to grab the Census DP1 zipfile
         tmpdir_path = Path(tmpdir)
         assert tmpdir_path.is_dir()
-        zip_ref = ds.get_zipfile_resource(
+        with ds.get_zipfile_resource(
             "censusdp1tract", year=context.op_config["year"]
-        )
-        extract_root = tmpdir_path / Path(zip_ref.filelist[0].filename)
-        out_dir = PudlPaths().output_dir
-        assert out_dir.is_dir()
-        out_path = PudlPaths().output_dir / "censusdp1tract.sqlite"
+        ) as zip_ref:
+            extract_root = tmpdir_path / Path(zip_ref.filelist[0].filename)
+            out_dir = PudlPaths().output_dir
+            assert out_dir.is_dir()
+            out_path = PudlPaths().output_dir / "censusdp1tract.sqlite"
 
-        if out_path.exists():
-            if context.op_config["clobber"]:
-                out_path.unlink()
-            else:
-                raise SystemExit(
-                    "The Census DB already exists, and we don't want to clobber it.\n"
-                    f"Move {out_path} aside or set clobber=True and try again."
-                )
+            if out_path.exists():
+                if context.op_config["clobber"]:
+                    out_path.unlink()
+                else:
+                    raise SystemExit(
+                        "The Census DB already exists, and we don't want to clobber it.\n"
+                        f"Move {out_path} aside or set clobber=True and try again."
+                    )
 
-        logger.info(f"Extracting the Census DP1 GeoDB to {out_path}")
-        zip_ref.extractall(tmpdir_path)
-        logger.info(f"extract_root = {extract_root}")
-        assert extract_root.is_dir()
-        logger.info(f"out_path = {out_path}")
-        subprocess.run(
-            [ogr2ogr, str(out_path), str(extract_root)],  # noqa: S603
-            check=True,
-            capture_output=True,
-        )
+            logger.info(f"Extracting the Census DP1 GeoDB to {out_path}")
+            zip_ref.extractall(tmpdir_path)
+            logger.info(f"extract_root = {extract_root}")
+            assert extract_root.is_dir()
+            logger.info(f"out_path = {out_path}")
+            subprocess.run(
+                [ogr2ogr, str(out_path), str(extract_root)],  # noqa: S603
+                check=True,
+                capture_output=True,
+            )
     return out_path

@@ -101,10 +101,16 @@ eia_raw_table_names = (
     "raw_eia923__generator",
     "raw_eia923__stocks",
     "raw_eia923__emissions_control",
+    "raw_eia923__byproduct_disposition",
+    "raw_eia923__byproduct_expenses_and_revenues",
+    "raw_eia923__fgd_operation_maintenance",
+    "raw_eia923__cooling_system_information",
+    "raw_eia923__boiler_nox_operation",
+    "raw_eia923__fgp_operation",
 )
 
 
-eia923_raw_dfs = excel.raw_df_factory(Extractor, name="eia923")
+raw_eia923__all_dfs = excel.raw_df_factory(Extractor, name="eia923")
 
 
 # TODO (bendnorman): Figure out type hint for context keyword and mutli_asset return
@@ -112,7 +118,7 @@ eia923_raw_dfs = excel.raw_df_factory(Extractor, name="eia923")
     outs={table_name: AssetOut() for table_name in sorted(eia_raw_table_names)},
     required_resource_keys={"datastore", "dataset_settings"},
 )
-def extract_eia923(context, eia923_raw_dfs):
+def extract_eia923(context, raw_eia923__all_dfs):
     """Extract raw EIA-923 data from excel sheets into dataframes.
 
     Args:
@@ -122,13 +128,14 @@ def extract_eia923(context, eia923_raw_dfs):
         A tuple of extracted EIA dataframes.
     """
     # create descriptive table_names
-    eia923_raw_dfs = {
-        "raw_eia923__" + table_name: df for table_name, df in eia923_raw_dfs.items()
+    raw_eia923__all_dfs = {
+        "raw_eia923__" + table_name: df
+        for table_name, df in raw_eia923__all_dfs.items()
     }
 
-    eia923_raw_dfs = dict(sorted(eia923_raw_dfs.items()))
+    raw_eia923__all_dfs = dict(sorted(raw_eia923__all_dfs.items()))
 
     return (
         Output(output_name=table_name, value=df)
-        for table_name, df in eia923_raw_dfs.items()
+        for table_name, df in raw_eia923__all_dfs.items()
     )

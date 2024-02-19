@@ -29,7 +29,7 @@ repos:
   # Formatters: hooks that re-write Python & documentation files
   ####################################################################################
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.13
+    rev: v0.2.1
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
@@ -80,7 +80,7 @@ repos:
         verbose: false
         pass_filenames: false
         always_run: true
-        entry: pytest --doctest-modules src/pudl test/unit -m "not slow"
+        entry: pytest --cov-fail-under=0 --doctest-modules src/pudl test/unit -m "not slow"
 
       - id: conda-lock
         name: conda-lock

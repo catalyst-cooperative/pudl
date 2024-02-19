@@ -61,6 +61,68 @@ SOURCES: dict[str, Any] = {
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
+    "eia191": {
+        "title": "EIA Form 191 -- Monthly Underground Natural Gas Storage Report",
+        "path": "https://www.eia.gov/naturalgas/ngqs/",
+        "description": (
+            "The EIA Form 191, also known as the Monthly Underground Natural Gas "
+            "Storage Report, describes the working and base gas in reservoirs, "
+            "injections, withdrawals, and location of reservoirs by field monthly."
+        ),
+        "source_file_dict": {
+            "respondents": (
+                "All companies that operate underground natural gas storage fields in "
+                "the United States."
+            ),
+            "source_format": "JSON",
+        },
+        "field_namespace": "eia",
+        "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
+        "keywords": sorted(
+            set(
+                [
+                    "eia191",
+                    "form 191",
+                    "natural gas",
+                ]
+                + KEYWORDS["eia"]
+                + KEYWORDS["us_govt"]
+            )
+        ),
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
+    },
+    "eia757a": {
+        "title": "EIA Form 757A -- Natural Gas Processing Plant Survey",
+        "path": "https://www.eia.gov/naturalgas/ngqs/",
+        "description": (
+            "The EIA Form 757A, also known as the Natural Gas Processing Plant Survey "
+            "Schedule A provides detailed plant-level information on the capacity, "
+            "status, operations and connecting infrastructure of natural gas processing "
+            "plants. The form is completed tri-anually."
+        ),
+        "source_file_dict": {
+            "respondents": ("Natural gas processing plants."),
+            "source_format": "JSON",
+        },
+        "field_namespace": "eia",
+        "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
+        "keywords": sorted(
+            set(
+                [
+                    "eia757",
+                    "eia757a",
+                    "form 757",
+                    "form 757 schedule a",
+                    "natural gas",
+                ]
+                + KEYWORDS["eia"]
+                + KEYWORDS["us_govt"]
+            )
+        ),
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
+    },
     "eia860": {
         "title": "EIA Form 860 -- Annual Electric Generator Report",
         "path": "https://www.eia.gov/electricity/data/eia860",
@@ -113,7 +175,10 @@ SOURCES: dict[str, Any] = {
         "field_namespace": "eia",
         "contributors": [],
         "working_partitions": {
-            "year_month": "2023-06",
+            "year_months": [
+                str(q).lower()
+                for q in pd.period_range(start="2015-07", end="2023-12", freq="M")
+            ],
         },
         "keywords": sorted(
             set(
@@ -275,7 +340,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "year_quarters": [
                 str(q).lower()
-                for q in pd.period_range(start="1995q1", end="2023q3", freq="Q")
+                for q in pd.period_range(start="1995q1", end="2023q4", freq="Q")
             ]
         },
         "contributors": [
@@ -299,7 +364,7 @@ SOURCES: dict[str, Any] = {
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
-    "core_epa__assn_eia_epacamd": {
+    "epacamd_eia": {
         "title": "EPA CAMD to EIA Power Sector Data Crosswalk",
         "path": "https://github.com/USEPA/camd-eia-crosswalk",
         "description": (
@@ -578,6 +643,23 @@ SOURCES: dict[str, Any] = {
         "license_raw": LICENSES["cc-by-4.0"],
         "license_pudl": LICENSES["cc-by-4.0"],
         "email": "pudl@catalyst.coop",
+    },
+    "sec10k": {
+        "title": "Securities and Exchange Commission form 10-K",
+        "path": "https://www.sec.gov/files/form10-k.pdf",
+        "description": (
+            "10-K offers a detailed picture of a company’s business, the risks it"
+            "faces, and the operating and financial results for the fiscal year."
+        ),
+        "field_namespace": "sec",
+        "working_partitions": {
+            "years": sorted(set(range(1994, 2023))),
+        },
+        "keywords": sorted(
+            set(KEYWORDS["sec"] + KEYWORDS["us_govt"] + KEYWORDS["finance"])
+        ),
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
     },
 }
 """Data source attributes by PUDL identifier."""

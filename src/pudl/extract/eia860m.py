@@ -15,6 +15,7 @@ eia860_raw_dfs = pudl.extract.eia860m.append_eia860m(
 from datetime import datetime
 
 import pandas as pd
+from dagster import AssetOut, Output, asset, multi_asset
 
 import pudl.logging_helpers
 from pudl.extract import excel
@@ -43,8 +44,12 @@ class Extractor(excel.GenericExtractor):
             df["report_year"] = datetime.strptime(
                 list(partition.values())[0], "%Y-%m"
             ).year
+            df["report_date"] = pd.to_datetime(
+                list(partition.values())[0], format="%Y-%m", exact=False
+            )
         df = self.add_data_maturity(df, page, **partition)
         self.cols_added.append("report_year")
+        self.cols_added.append("report_date")
         # Eventually we should probably make this a transform
         for col in ["generator_id", "boiler_id"]:
             if col in df.columns:
@@ -80,8 +85,56 @@ def append_eia860m(eia860_raw_dfs, eia860m_raw_dfs):
     # page names in 860m and 860 are the same.
     for page in pages_eia860m:
         eia860_raw_dfs[page] = pd.concat(
-            [eia860_raw_dfs[page], eia860m_raw_dfs[page]],
+            [eia860_raw_dfs[page], eia860m_raw_dfs[page].drop(columns=["report_date"])],
             ignore_index=True,
             sort=True,
         )
     return eia860_raw_dfs
+
+
+@asset(
+    required_resource_keys={"datastore", "dataset_settings"},
+)
+def raw_eia860m__all_dfs(context):
+    """Extract raw EIAm data from excel sheets into dict of dataframes."""
+    eia_settings = context.resources.dataset_settings.eia
+    ds = context.resources.datastore
+
+    eia860m_extractor = Extractor(ds=ds)
+    raw_eia860m__all_dfs = eia860m_extractor.extract(
+        year_month=eia_settings.eia860m.year_months
+    )
+    return raw_eia860m__all_dfs
+
+
+raw_table_names = (
+    "raw_eia860m__generator_existing",
+    "raw_eia860m__generator_proposed",
+    "raw_eia860m__generator_retired",
+)
+
+
+@multi_asset(
+    outs={table_name: AssetOut() for table_name in sorted(raw_table_names)},
+    required_resource_keys={"datastore", "dataset_settings"},
+)
+def extract_eia860m(raw_eia860m__all_dfs):
+    """Extract raw EIA data from excel sheets into dataframes.
+
+    Args:
+        context: dagster keyword that provides access to resources and config.
+
+    Returns:
+        A tuple of extracted EIA dataframes.
+    """
+    # create descriptive table_names
+    raw_eia860m__all_dfs = {
+        "raw_eia860m__" + table_name: df
+        for table_name, df in raw_eia860m__all_dfs.items()
+    }
+    raw_eia860m__all_dfs = dict(sorted(raw_eia860m__all_dfs.items()))
+
+    return (
+        Output(output_name=table_name, value=df)
+        for table_name, df in raw_eia860m__all_dfs.items()
+    )

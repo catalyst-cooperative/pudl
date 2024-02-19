@@ -3,11 +3,10 @@ name: pytest
 
 on:
   pull_request:
+  merge_group:
     types:
-      - created
-      - opened
-      - synchronize
-      - ready_for_review
+      - checks_requested
+  workflow_dispatch:
 
 env:
   PUDL_OUTPUT: /home/runner/pudl-work/output/
@@ -51,11 +50,11 @@ jobs:
           pip install --no-deps --editable .
           make docs-build
 
-      - name: Upload coverage
+      - name: Upload docs coverage artifact
         uses: actions/upload-artifact@v4
         with:
           name: coverage-docs
-          path: coverage.xml
+          path: ./*coverage*
 
   ci-unit:
     runs-on: ubuntu-latest
@@ -98,17 +97,17 @@ jobs:
           pip install --no-deps --editable .
           make pytest-unit
 
-      - name: Upload coverage
+      - name: Upload unit tests coverage artifact
         uses: actions/upload-artifact@v4
         with:
           name: coverage-unit
-          path: coverage.xml
+          path: ./*coverage*
 
   ci-integration:
     runs-on:
       group: large-runner-group
       labels: ubuntu-22.04-4core
-    if: github.event.pull_request.draft == false
+    if: github.event_name == 'workflow_dispatch' || github.event.merge_group
     permissions:
       contents: read
       id-token: write
@@ -175,11 +174,11 @@ jobs:
           pudl_datastore --dataset epacems --partition year_quarter=2022q1
           make pytest-integration
 
-      - name: Upload coverage
+      - name: Upload integration test coverage artifact
         uses: actions/upload-artifact@v4
         with:
           name: coverage-integration
-          path: coverage.xml
+          path: ./*coverage*
 
       - name: Log post-test Zenodo datastore contents
         run: find ${{ env.PUDL_INPUT }}
@@ -199,36 +198,23 @@ jobs:
           path: coverage
       - name: List downloaded files
         run: |
-          ls -R
+          find coverage -type f
       - name: Upload test coverage report to CodeCov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           directory: coverage
-
-  ci-notify:
-    runs-on: ubuntu-latest
-    if: ${{ always() }}
-    needs:
-      - ci-docs
-      - ci-unit
-      - ci-integration
-    steps:
-      - name: Inform the Codemonkeys
-        uses: 8398a7/action-slack@v3
-        continue-on-error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+      - name: Install Micromamba
+        uses: mamba-org/setup-micromamba@v1
         with:
-          status: custom
-          fields: workflow,job,commit,repo,ref,author,took
-          custom_payload: |
-            {
-              username: 'action-slack',
-              icon_emoji: ':octocat:',
-              attachments: [{
-                color: '${{ needs.ci-test.result }}' === 'success' ? 'good' : '${{ needs.ci-test.result }}' === 'failure' ? 'danger' : 'warning',
-                text: `${process.env.AS_REPO}@${process.env.AS_REF}\n ${process.env.AS_WORKFLOW} (${process.env.AS_COMMIT})\n by ${process.env.AS_AUTHOR}\n Status: ${{ needs.ci-test.result }}`,
-              }]
-            }
-        env:
-          GITHUB_TOKEN: ${{ github.token }} # required
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
-          MATRIX_CONTEXT: ${{ toJson(matrix) }} # required
+          init-shell: bash
+          environment-name: coverage
+          create-args: >-
+            python=3.11
+            coverage>=7.4.1
+      - name: Combine coverage data and check that we have required coverage
+        # Required coverage is set in pyproject.toml section [tool.coverage.report]
+        run: |
+          micromamba run -n coverage coverage combine coverage/*/.coverage
+          micromamba run -n coverage coverage xml --fail-under=0
+          micromamba run -n coverage coverage report

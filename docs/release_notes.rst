@@ -3,8 +3,65 @@ PUDL Release Notes
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-v2024.01.XX
+v2024.XX.XX
 ---------------------------------------------------------------------------------------
+
+New Data Coverage
+^^^^^^^^^^^^^^^^^
+* Add EIA860M data through December 2023 :issue:`3313`, :pr:`3367`.
+* Add 2023 Q4 of CEMS data. See :issue:`3315`, :pr:`3379`.
+
+
+.. _release-v2024.02.05:
+
+---------------------------------------------------------------------------------------
+v2024.02.05
+---------------------------------------------------------------------------------------
+
+This release contains only minor data updates compared to what we put out in December,
+however the database naming conventions and release process has changed pretty
+dramatically. We are confident these changes will make the data we publish more
+accessible, and allow us to push out updates much more frequently going forward.
+
+We also finally merged in improvements and generalizations to our record linkage
+processes, which were generously supported by a `CCAI Innovation Grant
+<https://www.climatechange.ai/calls/innovation_grants>`__. Connecting disparate public
+datasets that describe the same physical infrastructure and corporate entities is one
+of the most valuable improvements we make to the data, and we are excited to be able to
+be able to do it in a more general, reproducible way so we can easily apply it to other
+datasets. We've already started work on a Mozilla Foundation grant to link SEC data to
+the FERC and EIA data we already have, allowing us to track ownership relationships
+between utility holding companies and their many subsidiaries. We expect the same kind
+of process will be useful for linking the PHMSA gas pipeline data to natural gas
+utilities that report to EIA and FERC.
+
+Database Naming Conventions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Our main focus with this release was to overhaul the naming system for our nearly 200
+database tables. This will hopefully make it easier to find what you're looking for,
+especially if you are a new PUDL user. We think it will also make it easier for us to
+keep the database organized as we continue to expand its scope.  For an explanation of
+the new naming conventions, see :doc:`dev/naming_conventions`, and to see the full list
+of all available tables, see the :doc:`data_dictionaries/pudl_db`.
+
+This is a major breaking change for anybody is accessing the database directly. Stick
+with the :ref:`release-v2023.12.01` release until you're ready to update your references
+to the old database table names. For the time being we have patched the old
+:class:`pudl.output.pudltabl.PudlTabl` class so that it behaves as similarly as possible
+to before. However, we plan to remove this output class in the near future, and no new
+database tables will be made accessible through it. Going forward we expect users to use
+the database directly, freeing them from the need to install all of the software and
+dependencies which we use to produce it, hopefully improving the data's technical
+accessibility and platform independence.
+
+For more development details see :issue:`2765` which was the main epic tracking this
+process (with many sub-issues: :issue:`2777,2788,2812,2868,2992,3030,3173,3174,3223`)
+and PR :pr:`2818`.
+
+Changes to CLI Tools
+^^^^^^^^^^^^^^^^^^^^
+
 * The ``epacems_to_parquet`` and ``state_demand`` scripts have been retired in favor of
   using the Dagster UI. See :issue:`3107` and :pr:`3086`. Visualizations of hourly
   state-level electricity demand have been moved into our example notebooks which can
@@ -17,25 +74,48 @@ v2024.01.XX
   fixed, and can be used to generate `GeoParquet <https://geoparquet.org/>`__
   outputs describing historical utility and balancing authority service territories. See
   :issue:`1174` and :pr:`3086`.
+
+Development Infrastructure
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Automate the process of doing software and data releases when a new version tag is
+  pushed to facilitate continuous deployment. See :pr:`3127,3158`
+* To make development more convenient given our long-running integration tests, the PUDL
+  repository now uses a `merge queue <https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-a-merge-queue>`__.
+* Switch to using Google Batch for our data builds. See :pr:`3211`.
 * Deprecated the ``dev`` branch and updated our nightly builds and GitHub workflow to
   use three persistent branches: ``main`` for bleeding edge changes, ``nightly`` for the
   most recent commit to have a successful nightly build output, and ``stable`` for the
   most recently released version of PUDL. The ``nightly`` and ``stable`` branches are
   protected and automatically updated. Build outputs are now written to
   ``gs://builds.catalyst.coop`` and retained for 30 days. See issues :issue:`3140,3179`
-  and PRs :pr:`3195,3206,3212`
-* The :mod:`pudl.analysis.record_linkage.eia_ferc1_record_linkage` module has been
-  refactored to use PUDL record linkage infrastructure and include extra cleaning
-  steps. This resulted in around 500 or 2% of matches changing.
+  and PRs :pr:`3195,3206,3212,3188,3164`
 
-Data Coverage
-^^^^^^^^^^^^^
+Record Linkage Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* The :mod:`pudl.analysis.record_linkage.eia_ferc1_record_linkage` module has been
+  refactored substantially to make use of more generic PUDL record linkage
+  infrastructure and include extra cleaning steps. This resulted in around 500 or 2% of
+  matches changing. See `catalyst-cooperative/ccai-entity-matching#108 <http://github.com/catalyst-cooperative/ccai-entity-matching/issues/108>`__
+  and :pr:`3184`.
+* Update the FERC Form 1 plant ID assignment (Identifying related plant records from
+  different years within the FERC Form 1 data) to use the new record linkage
+  infrastructure. See :pr:`3007,3137`
+
+New Data Coverage
+^^^^^^^^^^^^^^^^^
+
 * Updated :doc:`data_sources/epacems` to switch to pulling the quarterly updates of
   CEMS instead of the annual files. Integrates CEMS through 2023Q3. See issue
-  :issue:`2973` & PR :pr:`3096`.
+  :issue:`2973` & PR :pr:`3096,3139`.
 * Began integration of PHMSA gas distribution and transmission tables into PUDL,
-  extracting raw data from 1990-present. See epic :issue:`2848`, and PRs :pr:`2932`,
-  :pr:`3242`.
+  extracting raw data from 1990-present. Note that these tables are not yet being
+  written to the database as they are still raw. See epic :issue:`2848`, and constituent
+  PRs: :pr:`2932,3242,3254,3260,3262, 3266,3267,3269,3270,3279,3280`.
+* We began integration of data from EIA Forms 176, 191, and 757, describing natural gas
+  sources, storage, transporation, and disposition. Note this data is still in its raw
+  extracted form and is not yet being written to the PUDL DB. See :pr:`3304,3227`
 * Updated the EIA Bulk Electricity data archive so that the available data now to runs
   through 2023-10-01. See :pr:`3252`.  Also added this dataset to the set of data that
   will automatically generate archives each month. See `This PUDL Archiver PR
@@ -50,6 +130,21 @@ Data Cleaning
   :pr:`3234`.
 * Added a notebook :mod:`devtools/debug-column-mapping.ipynb` to make debugging manual
   column maps for new datasets simpler and faster.
+
+Metadata Cleaning
+^^^^^^^^^^^^^^^^^
+
+* Fix metadata structures and pyarrow schema generation process so that all tables can
+  now be output as Parquet files. See issue :issue:`3102` and PR :pr:`3222`.
+* Made a description field mandatory for all instances of ``Field`` and ``Resource``.
+  Updated the :py:const:`pudl.metadata.fields.FIELD_METADATA`` and
+  :py:const:`pudl.metadata.resources.RESOURCE_METADATA`` so that all of them have a
+  description. This primarily affected :doc:`data_sources/eia861` tables. See
+  :issue:`3224`, :pr:`3283`.
+* Removed fields that are not used in any tables and removed the xfail from the
+  ``test_defined_fields_are_used`` test. :issue:`3224`, :pr:`3283`.
+
+.. _release-v2023.12.01:
 
 ---------------------------------------------------------------------------------------
 v2023.12.01
@@ -251,7 +346,8 @@ Data Coverage
   The newly accessible tables include:
 
   * :ref:`core_ferc714__respondent_id` (linking FERC-714 respondents to EIA utilities)
-  * :ref:`core_ferc714__hourly_demand_pa` (hourly electricity demand by planning area)
+  * :ref:`out_ferc714__hourly_planning_area_demand` (hourly electricity demand by
+    planning area)
   * :ref:`out_ferc714__respondents_with_fips` (annual respondents with county FIPS IDs)
   * :ref:`out_ferc714__summarized_demand` (annual demand for FERC-714 respondents)
 
@@ -357,7 +453,7 @@ Analysis
   (:ref:`out_eia861__compiled_geometry_balancing_authorities` and
   :ref:`out_eia861__compiled_geometry_utilities`), and the estimated total hourly
   electricity demand for each US state in
-  :ref:`out_ferc714__hourly_predicted_state_demand`. See :issue:`1973`
+  :ref:`out_ferc714__hourly_estimated_state_demand`. See :issue:`1973`
   and :pr:`2550`.
 
 Deprecations

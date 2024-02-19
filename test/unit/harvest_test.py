@@ -17,7 +17,7 @@ def _assert_frame_equal(a: pd.DataFrame, b: pd.DataFrame, **kwargs: Any) -> None
         pd.testing.assert_frame_equal(a, b, **kwargs)
     except AssertionError as error:
         msg = "\n\n".join(["Dataframes are not equal.", str(error), str(a), str(b)])
-        raise AssertionError(msg)
+        raise AssertionError(msg) from error
 
 
 # ---- Unit tests ---- #
@@ -28,13 +28,34 @@ STANDARD: dict[str, Any] = {
     "harvest": {"harvest": False},
     "schema": {
         "fields": [
-            {"name": "i", "type": "integer", "harvest": {"aggregate": most_frequent}},
-            {"name": "j", "type": "integer", "harvest": {"aggregate": most_frequent}},
-            {"name": "x", "type": "integer", "harvest": {"aggregate": most_frequent}},
-            {"name": "y", "type": "integer", "harvest": {"aggregate": most_frequent}},
+            {
+                "name": "i",
+                "type": "integer",
+                "harvest": {"aggregate": most_frequent},
+                "description": "letter i",
+            },
+            {
+                "name": "j",
+                "type": "integer",
+                "harvest": {"aggregate": most_frequent},
+                "description": "letter j",
+            },
+            {
+                "name": "x",
+                "type": "integer",
+                "harvest": {"aggregate": most_frequent},
+                "description": "letter x",
+            },
+            {
+                "name": "y",
+                "type": "integer",
+                "harvest": {"aggregate": most_frequent},
+                "description": "letter y",
+            },
         ],
         "primary_key": ["i", "j"],
     },
+    "description": "letter r",
 }
 
 HARVEST: dict[str, Any] = {**STANDARD, "harvest": {"harvest": True}}
@@ -336,8 +357,10 @@ RESOURCES: list[dict[str, Any]] = [
 # Build resource models
 for i, d in enumerate(RESOURCES):
     d["schema"]["fields"] = [
-        {"name": name, "type": FIELD_DTYPES[name]} for name in d["schema"]["fields"]
+        {"name": name, "type": FIELD_DTYPES[name], "description": name}
+        for name in d["schema"]["fields"]
     ]
+    d["description"] = "Test table."
     RESOURCES[i] = Resource(**d)
 
 EXPECTED_DFS: dict[str, pd.DataFrame] = {

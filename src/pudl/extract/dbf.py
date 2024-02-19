@@ -5,28 +5,29 @@ import importlib.resources
 import warnings
 import zipfile
 from collections import defaultdict
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from functools import lru_cache
 from pathlib import Path
 from typing import IO, Any, Protocol, Self
 
 import pandas as pd
 import sqlalchemy as sa
+from dagster import op
 from dbfread import DBF, FieldParser
 
 import pudl
 import pudl.logging_helpers
 from pudl.metadata.classes import DataSource
+from pudl.resources import RuntimeSettings
 from pudl.settings import FercToSqliteSettings, GenericDatasetSettings
 from pudl.workspace.datastore import Datastore
+from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
 class DbcFileMissingError(Exception):
     """This is raised when the DBC index file is missing."""
-
-    pass
 
 
 class DbfTableSchema:
@@ -109,8 +110,8 @@ class FercDbfArchive:
         path = self.root_path / filename
         try:
             return self.zipfile.open(path.as_posix())
-        except KeyError:
-            raise KeyError(f"{path} not available for {self.partition}.")
+        except KeyError as err:
+            raise KeyError(f"{path} not available for {self.partition}.") from err
 
     def get_db_schema(self) -> dict[str, list[str]]:
         """Returns dict with table names as keys, and list of column names as values."""
@@ -122,10 +123,10 @@ class FercDbfArchive:
                     ignore_missing_memofile=True,
                     filedata=self.zipfile.open(self.dbc_path.as_posix()),
                 )
-            except KeyError:
+            except KeyError as err:
                 raise DbcFileMissingError(
                     f"DBC file {self.dbc_path} for {self.partition} is missing."
-                )
+                ) from err
             table_names: dict[Any, str] = {}
             table_columns = defaultdict(list)
             for row in dbf:
@@ -154,7 +155,7 @@ class FercDbfArchive:
             filedata=self.get_file(fname),
         )
 
-    @lru_cache
+    @lru_cache  # noqa: B019
     def get_table_schema(self, table_name: str) -> DbfTableSchema:
         """Returns TableSchema for a given table and a given year."""
         table_columns = self.get_db_schema()[table_name]
@@ -166,7 +167,7 @@ class FercDbfArchive:
                 f"found in the DBC index file for {self.partition}."
             )
         schema = DbfTableSchema(table_name)
-        for long_name, dbf_col in zip(table_columns, dbf_fields):
+        for long_name, dbf_col in zip(table_columns, dbf_fields, strict=True):
             if long_name[:8] != dbf_col.name.lower()[:8]:
                 raise ValueError(
                     f"DBF field name mismatch: {dbf_col.name} != {long_name}"
@@ -237,7 +238,7 @@ class FercFieldParser(FieldParser):
         Args:
             field: The DBF field being parsed.
             data: Binary data (bytes) read from the DBF file.
-        """  # noqa: D417
+        """
         # Strip whitespace, null characters, and zeroes
         data = data.strip().strip(b"*\x00").lstrip(b"0")
         # Replace bare periods (which are non-numeric) with zero.
@@ -336,10 +337,12 @@ class FercDbfReader:
         )
         return csv.DictReader(csv_path.open())
 
-    @lru_cache
+    @lru_cache  # noqa: B019
     def get_archive(self: Self, year: int, **filters) -> FercDbfArchive:
         """Returns single dbf archive matching given filters."""
         nfilters = self._normalize(filters)
+        # Not using a context manager for the zipfile here because it would
+        # close the file after this method returns the FercDbfArchive instance.
         return FercDbfArchive(
             self.datastore.get_zipfile_resource(self.dataset, year=year, **nfilters),
             dbc_path=self._dbc_path[year],
@@ -464,6 +467,32 @@ class FercDbfExtractor:
         """Returns the connection string for the sqlite database."""
         db_path = str(Path(self.output_path) / self.DATABASE_NAME)
         return f"sqlite:///{db_path}"
+
+    @classmethod
+    def get_dagster_op(cls) -> Callable:
+        """Returns dagstger op that runs this extractor."""
+
+        @op(
+            name=f"{cls.DATASET}_dbf",
+            required_resource_keys={
+                "ferc_to_sqlite_settings",
+                "datastore",
+                "runtime_settings",
+            },
+            tags={"dataset": cls.DATASET, "data_format": "dbf"},
+        )
+        def inner_method(context) -> None:
+            rs: RuntimeSettings = context.resources.runtime_settings
+            """Instantiates dbf extractor and runs it."""
+            dbf_extractor = cls(
+                datastore=context.resources.datastore,
+                settings=context.resources.ferc_to_sqlite_settings,
+                clobber=rs.clobber,
+                output_path=PudlPaths().output_dir,
+            )
+            dbf_extractor.execute()
+
+        return inner_method
 
     def execute(self):
         """Runs the extraction of the data from dbf to sqlite."""
@@ -590,7 +619,6 @@ class FercDbfExtractor:
 
     def postprocess(self):
         """This metod is called after all the data is loaded into sqlite."""
-        pass
 
 
 def add_key_constraints(

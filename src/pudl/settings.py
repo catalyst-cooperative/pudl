@@ -68,8 +68,10 @@ class GenericDatasetSettings(FrozenBaseModel):
         for name, working_partitions in self.data_source.working_partitions.items():
             try:
                 partition = getattr(self, name)
-            except KeyError:
-                raise ValueError(f"{self.__name__} is missing required '{name}' field.")
+            except KeyError as err:
+                raise ValueError(
+                    f"{self.__name__} is missing required '{name}' field."
+                ) from err
 
             # Partition should never be None -- should get a default value set in
             # the child classes based on the working partitions.
@@ -95,10 +97,12 @@ class GenericDatasetSettings(FrozenBaseModel):
         ``pd.json_normalize``.
         """
         partitions = []
-        if hasattr(cls, "year_quarters"):
-            partitions = [{"year_quarters": part} for part in cls.year_quarters]
-        elif hasattr(cls, "years"):
-            partitions = [{"year": part} for part in cls.years]
+        for part_name in ["year_quarters", "years", "year_months"]:
+            if hasattr(cls, part_name):
+                partitions = [
+                    {part_name.removesuffix("s"): part}
+                    for part in getattr(cls, part_name)
+                ]
         return partitions
 
 
@@ -205,20 +209,21 @@ class Eia860Settings(GenericDatasetSettings):
     Args:
         data_source: DataSource metadata object
         years: list of years to validate.
-
-        eia860m_date ClassVar[str]: The 860m year to date.
+        eia860m: whether or not to incorporate an EIA-860m month.
+        eia860m_year_month ClassVar[str]: The 860m year-month to incorporate.
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia860")
-    eia860m_data_source: ClassVar[DataSource] = DataSource.from_id("eia860m")
-    eia860m_date: ClassVar[str] = eia860m_data_source.working_partitions["year_month"]
-
     years: list[int] = data_source.working_partitions["years"]
+
     eia860m: bool = True
+    eia860m_year_month: ClassVar[str] = max(
+        DataSource.from_id("eia860m").working_partitions["year_months"]
+    )
 
     @field_validator("eia860m")
     @classmethod
-    def check_eia860m_date(cls, eia860m: bool) -> bool:
+    def check_eia860m_year_month(cls, eia860m: bool) -> bool:
         """Check 860m date-year is exactly one year after most recent working 860 year.
 
         Args:
@@ -230,16 +235,36 @@ class Eia860Settings(GenericDatasetSettings):
         Raises:
             ValueError: the 860m date is within 860 working years.
         """
-        eia860m_year = pd.to_datetime(cls.eia860m_date).year
+        eia860m_year = pd.to_datetime(cls.eia860m_year_month).year
         expected_year = max(cls.data_source.working_partitions["years"]) + 1
         if eia860m and (eia860m_year != expected_year):
             raise AssertionError(
                 f"Attempting to integrate an eia860m year "
-                f"({eia860m_year}) from {cls.eia860m_date} not immediately following"
+                f"({eia860m_year}) from {cls.eia860m_year_month} not immediately following"
                 f"the eia860 years: {cls.data_source.working_partitions['years']}. "
                 f"Consider switching eia860m parameter to False."
             )
         return eia860m
+
+
+class Eia860mSettings(GenericDatasetSettings):
+    """An immutable pydantic model to validate EIA 860m settings.
+
+    Args:
+        data_source: DataSource metadata object
+        year_months ClassVar[str]: The 860m year to date.
+    """
+
+    data_source: ClassVar[DataSource] = DataSource.from_id("eia860m")
+    year_months: list[str] = data_source.working_partitions["year_months"]
+
+    @field_validator("year_months")
+    @classmethod
+    def allow_all_keyword_year_months(cls, year_months):
+        """Allow users to specify ['all'] to get all quarters."""
+        if year_months == ["all"]:
+            year_months = cls.data_source.working_partitions["year_months"]
+        return year_months
 
 
 class GlueSettings(FrozenBaseModel):
@@ -264,6 +289,7 @@ class EiaSettings(FrozenBaseModel):
     """
 
     eia860: Eia860Settings | None = None
+    eia860m: Eia860mSettings | None = None
     eia861: Eia861Settings | None = None
     eia923: Eia923Settings | None = None
 
@@ -273,6 +299,7 @@ class EiaSettings(FrozenBaseModel):
         """If no datasets are specified default to all."""
         if not any(data.values()):
             data["eia860"] = Eia860Settings()
+            data["eia860m"] = Eia860mSettings()
             data["eia861"] = Eia861Settings()
             data["eia923"] = Eia923Settings()
 
@@ -395,6 +422,7 @@ class DatasetsSettings(FrozenBaseModel):
             datasets_in_datastore_format.update(
                 {
                     "eia860": datasets_settings["eia"].eia860,
+                    "eia860m": datasets_settings["eia"].eia860m,
                     "eia861": datasets_settings["eia"].eia861,
                     "eia923": datasets_settings["eia"].eia923,
                 }
@@ -414,32 +442,6 @@ class DatasetsSettings(FrozenBaseModel):
                 ],
             }
         )
-        # add in EIA860m if eia in general is in the settings and the 860m bool is True
-        special_nested_datasets = pd.DataFrame()
-        if (
-            datasets_settings.get("eia", False)
-            and datasets_settings["eia"].eia860.eia860m
-        ):
-            special_nested_datasets = pd.DataFrame(
-                data={
-                    "datasource": ["eia860m"],
-                    "partitions": [
-                        json.dumps(
-                            datasets_in_datastore_format[
-                                "eia860"
-                            ].eia860m_data_source.working_partitions
-                        )
-                    ],
-                    "doi": [
-                        str(
-                            _zenodo_doi_to_url(
-                                ds.get_datapackage_descriptor("eia860m").doi
-                            )
-                        )
-                    ],
-                }
-            )
-        df = pd.concat([df, special_nested_datasets]).reset_index(drop=True)
         df["pudl_version"] = pudl.__version__
         return df
 

@@ -73,36 +73,39 @@ class ColumnVectorizer(BaseModel):
         )
 
 
-@op
-def train_dataframe_embedder(
-    df: pd.DataFrame, vectorizers: dict[str, ColumnVectorizer]
+def dataframe_embedder_factory(
+    name_prefix: str, vectorizers: dict[str, ColumnVectorizer]
 ):
-    """Train :class:`sklearn.compose.ColumnTransformer` on input."""
-    column_transformer = ColumnTransformer(
-        transformers=[
-            (name, column_transform.as_pipeline(), column_transform.columns)
-            for name, column_transform in vectorizers.items()
-        ],
-        transformer_weights={
-            name: column_transform.weight
-            for name, column_transform in vectorizers.items()
-        },
-    )
+    """Return a configured op graph to embed an input dataframe."""
 
-    return column_transformer.fit(df)
+    @op(name=f"{name_prefix}_train")
+    def train_dataframe_embedder(df: pd.DataFrame):
+        """Train :class:`sklearn.compose.ColumnTransformer` on input."""
+        column_transformer = ColumnTransformer(
+            transformers=[
+                (name, column_transform.as_pipeline(), column_transform.columns)
+                for name, column_transform in vectorizers.items()
+            ],
+            transformer_weights={
+                name: column_transform.weight
+                for name, column_transform in vectorizers.items()
+            },
+        )
 
+        return column_transformer.fit(df)
 
-@op
-def apply_dataframe_embedder(df: pd.DataFrame, transformer: ColumnTransformer):
-    """Use :class:`sklearn.compose.ColumnTransformer` to transform input."""
-    return FeatureMatrix(matrix=transformer.transform(df), index=df.index)
+    @op(name=f"{name_prefix}_apply")
+    def apply_dataframe_embedder(df: pd.DataFrame, transformer: ColumnTransformer):
+        """Use :class:`sklearn.compose.ColumnTransformer` to transform input."""
+        return FeatureMatrix(matrix=transformer.transform(df), index=df.index)
 
+    @graph(name=f"{name_prefix}_embed_graph")
+    def embed_dataframe_graph(df: pd.DataFrame) -> FeatureMatrix:
+        """Train dataframe embedder and apply to input df."""
+        transformer = train_dataframe_embedder(df)
+        return apply_dataframe_embedder(df, transformer)
 
-@graph
-def embed_dataframe_graph(df: pd.DataFrame, vectorizers) -> FeatureMatrix:
-    """Train dataframe embedder and apply to input df."""
-    transformer = train_dataframe_embedder(df, vectorizers)
-    return apply_dataframe_embedder(df, transformer)
+    return embed_dataframe_graph
 
 
 class TextVectorizer(TransformStep):

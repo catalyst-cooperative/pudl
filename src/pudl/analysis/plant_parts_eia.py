@@ -367,6 +367,7 @@ PPE_COLS = [
 
 
 @asset(
+    io_manager_key="pudl_io_manager",
     compute_kind="Python",
 )
 def out_eia__yearly_generators_by_ownership(
@@ -380,7 +381,7 @@ def out_eia__yearly_generators_by_ownership(
 
 
 @asset(
-    io_manager_key="pudl_sqlite_io_manager",
+    io_manager_key="pudl_io_manager",
     compute_kind="Python",
 )
 def out_eia__yearly_plant_parts(
@@ -1015,7 +1016,7 @@ class PlantPart:
 
         Args:
             part_ag:
-        """  # noqa: D417
+        """
         # we must first get the total capacity of the full plant
         # Note: we could simply not include the ownership_record_type == "total" records
         # We are automatically assign fraction_owned == 1 to them, but it seems
@@ -1191,7 +1192,7 @@ class AddAttribute:
                 or :py:const:`MAX_MIN_ATTRIBUTES_DICT`.
             part_name (str): the name of the part to aggregate to. Names can be
                 only those in :py:const:`PLANT_PARTS` or `plant_match_ferc1`
-        """  # noqa: D417
+        """
         assert attribute_col in CONSISTENT_ATTRIBUTE_COLS + list(
             PRIORITY_ATTRIBUTES_DICT.keys()
         ) + list(MAX_MIN_ATTRIBUTES_DICT.keys())
@@ -1435,7 +1436,9 @@ def add_record_id(part_df, id_cols, plant_part_col="plant_part", year=True):
     ids.remove("plant_id_eia")
     for col in ids:
         part_df = part_df.assign(
-            record_id_eia_temp=lambda x: x.record_id_eia_temp + "_" + x[col].astype(str)
+            record_id_eia_temp=lambda x, col=col: x.record_id_eia_temp
+            + "_"
+            + x[col].astype(str)
         )
     if year:
         part_df = part_df.assign(
@@ -1479,47 +1482,45 @@ def match_to_single_plant_part(
 ) -> pd.DataFrame:
     """Match data with a variety of granularities to a single plant-part.
 
-    This method merges an input dataframe (``multi_gran_df``) containing
-    data that has a heterogeneous set of plant-part granularities with a
-    subset of the EIA plant-part list that has a single granularity.
-    Currently this is only tested where the single granularity is generators.
-    In general this will be a one-to-many merge in which values from single
-    records in the input data end up associated with several records from
-    the plant part list.
-    First, we select a subset of the full EIA plant-part list corresponding
-    to the plant part specified by the ``part_name`` argument. In theory
-    this could be the plant, generator, fuel type, etc. Currently only
-    generators are supported. Then, we iterate over all the possible plant
-    parts, selecting the subset of records in ``multi_gran_df`` that have
-    that granularity, and merge the homogeneous subset of the plant part list
-    that we selected above onto that subset of the input data. Each iteration
-    uses a different set of columns to merge on -- the columns which define the
-    primary key for the plant part being merged. Each iteration creates a
-    separate dataframe, corresponding to a particular plant part, and at
-    the end they are all concatenated together and returned.
+    This method merges an input dataframe (``multi_gran_df``) containing data that has a
+    heterogeneous set of plant-part granularities with a subset of the EIA plant-part
+    list that has a single granularity.  Currently this is only tested where the single
+    granularity is generators.  In general this will be a one-to-many merge in which
+    values from single records in the input data end up associated with several records
+    from the plant part list.
+
+    First, we select a subset of the full EIA plant-part list corresponding to the plant
+    part specified by the ``part_name`` argument. In theory this could be the plant,
+    generator, fuel type, etc. Currently only generators are supported. Then, we iterate
+    over all the possible plant parts, selecting the subset of records in
+    ``multi_gran_df`` that have that granularity, and merge the homogeneous subset of
+    the plant part list that we selected above onto that subset of the input data. Each
+    iteration uses a different set of columns to merge on -- the columns which define
+    the primary key for the plant part being merged. Each iteration creates a separate
+    dataframe, corresponding to a particular plant part, and at the end they are all
+    concatenated together and returned.
 
     Args:
-        multi_gran_df: a data table where all records have been linked to
-            EIA plant-part list but they may be heterogeneous in its
-            plant-part granularities (i.e. some records could be of 'plant'
-            plant-part type while others are 'plant_gen' or
-            'plant_prime_mover').  All of the plant-part list columns need
-            to be present in this table.
+        multi_gran_df: a data table where all records have been linked to EIA plant-part
+            list but they may be heterogeneous in its plant-part granularities (i.e.
+            some records could be of ``plant`` plant-part type while others are
+            ``plant_gen`` or ``plant_prime_mover``).  All of the plant-part list columns
+            need to be present in this table.
         ppl: the EIA plant-part list.
-        part_name: name of the single plant part to match to. Must be a key
-            in PLANT_PARTS dictionary.
-        cols_to_keep: columns from the original data ``multi_gran_df`` that
-            you want to show up in the output. These should not be columns
-            that show up in the ``ppl``.
-        one_to_many: boolean (False by default). If True, add `plant_match_ferc1` into plant
-            parts list.
+        part_name: name of the single plant part to match to. Must be a key in
+            PLANT_PARTS dictionary.
+        cols_to_keep: columns from the original data ``multi_gran_df`` that you want to
+            show up in the output. These should not be columns that show up in the
+            ``ppl``.
+        one_to_many: boolean (False by default). If True, add `plant_match_ferc1` into
+            plant parts list.
 
     Returns:
-        A dataframe in which records correspond to :attr:`part_name` (in
-        the current implementation: the records all correspond to EIA
-        generators!). This is an intermediate table that cannot be used
-        directly for analysis because the data columns from the original
-        dataset are duplicated and still need to be scaled up/down.
+        A dataframe in which records correspond to :attr:`part_name` (in the current
+        implementation: the records all correspond to EIA generators!). This is an
+        intermediate table that cannot be used directly for analysis because the data
+        columns from the original dataset are duplicated and still need to be scaled
+        up/down.
     """
     # select only the plant-part records that we are trying to scale to
     ppl_part_df = ppl[ppl.plant_part == part_name]

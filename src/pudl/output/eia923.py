@@ -151,7 +151,7 @@ def drop_ytd_for_annual_tables(df: pd.DataFrame, freq: str) -> pd.DataFrame:
 #####################################################################################
 # Simple Denormalized Assets
 #####################################################################################
-@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def out_eia923__generation(
     core_eia923__monthly_generation: pd.DataFrame,
     _out_eia__plants_utilities: pd.DataFrame,
@@ -165,7 +165,7 @@ def out_eia923__generation(
     )
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def out_eia923__generation_fuel_combined(
     core_eia923__monthly_generation_fuel: pd.DataFrame,
     core_eia923__monthly_generation_fuel_nuclear: pd.DataFrame,
@@ -237,7 +237,7 @@ def out_eia923__generation_fuel_combined(
     return denorm_by_plant(gf, pu=_out_eia__plants_utilities)
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager", compute_kind="Python")
+@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def out_eia923__boiler_fuel(
     core_eia923__monthly_boiler_fuel: pd.DataFrame,
     _out_eia__plants_utilities: pd.DataFrame,
@@ -260,7 +260,7 @@ def out_eia923__boiler_fuel(
 
 
 @asset(
-    io_manager_key="pudl_sqlite_io_manager",
+    io_manager_key="pudl_io_manager",
     config_schema={
         "fill": Field(
             bool,
@@ -282,7 +282,7 @@ def out_eia923__fuel_receipts_costs(
     core_eia923__monthly_fuel_receipts_costs: pd.DataFrame,
     core_eia923__entity_coalmine: pd.DataFrame,
     _out_eia__plants_utilities: pd.DataFrame,
-    state_average_fuel_costs_eia: pd.DataFrame,
+    _out_eia__monthly_state_fuel_prices: pd.DataFrame,
     core_eia__entity_plants: pd.DataFrame,
 ) -> pd.DataFrame:
     """Denormalize the :ref:`core_eia923__monthly_fuel_receipts_costs` table."""
@@ -308,7 +308,7 @@ def out_eia923__fuel_receipts_costs(
     if context.op_config["fill"]:
         logger.info("filling in fuel cost NaNs")
         frc_df = _fill_fuel_costs_by_state(
-            frc_df, fuel_costs=state_average_fuel_costs_eia
+            frc_df, fuel_costs=_out_eia__monthly_state_fuel_prices
         )
     # add the flag column to note that we didn't fill in with API data
     else:
@@ -588,6 +588,6 @@ generation_fuel_agg_eia923_assets = [
     ass
     for freq in ["AS", "MS"]
     for ass in time_aggregated_eia923_asset_factory(
-        freq=freq, io_manager_key="pudl_sqlite_io_manager"
+        freq=freq, io_manager_key="pudl_io_manager"
     )
 ]

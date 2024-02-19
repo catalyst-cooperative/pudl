@@ -88,12 +88,12 @@ def find_timezone(*, lng=None, lat=None, state=None, strict=True):
             tz = TZ_FINDER.closest_timezone_at(lng=lng, lat=lat)
     # For some reason w/ Python 3.6 we get a ValueError here, but with
     # Python 3.7 we get an OverflowError...
-    except (OverflowError, ValueError):
+    except (OverflowError, ValueError) as err:
         # If we're being strict, only use lng/lat, not state
         if strict:
             raise ValueError(
                 f"Can't find timezone for: lng={lng}, lat={lat}, state={state}"
-            )
+            ) from err
         tz = APPROXIMATE_TIMEZONES.get(state, None)
     return tz
 
@@ -537,8 +537,8 @@ def harvest_entity_tables(  # noqa: C901
         total = len(col_df.drop_duplicates(subset=cols_to_consit))
         # if the total is 0, the ratio will error, so assign null values.
         if total == 0:
-            ratio = np.NaN
-            wrongos = np.NaN
+            ratio = np.nan
+            wrongos = np.nan
             logger.debug(f"       Zero records found for {col}")
         if total > 0:
             ratio = (
@@ -621,9 +621,9 @@ def harvest_entity_tables(  # noqa: C901
         ),
     },
     required_resource_keys={"dataset_settings"},
-    io_manager_key="pudl_sqlite_io_manager",
+    io_manager_key="pudl_io_manager",
 )
-def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:  # noqa: C901
+def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:
     """Creates a set of more complete boiler generator associations.
 
     Creates a unique unit_id_pudl for each collection of boilers and generators
@@ -888,7 +888,7 @@ def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:  #
         ]
 
         # Assign a unit_id to each subgraph, and extract edges into a dataframe
-        for unit_id, unit in zip(range(len(gen_units)), gen_units):
+        for unit_id, unit in zip(range(len(gen_units)), gen_units, strict=True):
             # All the boiler-generator association graphs should be bi-partite,
             # meaning generators only connect to boilers, and boilers only
             # connect to generators.
@@ -1209,7 +1209,7 @@ def harvested_entity_asset_factory(
 
 
 harvested_entities = [
-    harvested_entity_asset_factory(entity, io_manager_key="pudl_sqlite_io_manager")
+    harvested_entity_asset_factory(entity, io_manager_key="pudl_io_manager")
     for entity in EiaEntity
 ]
 
@@ -1244,7 +1244,7 @@ def finished_eia_asset_factory(
 
 finished_eia_assets = [
     finished_eia_asset_factory(
-        table_name, _core_table_name, io_manager_key="pudl_sqlite_io_manager"
+        table_name, _core_table_name, io_manager_key="pudl_io_manager"
     )
     for table_name, _core_table_name in {
         "core_eia923__monthly_boiler_fuel": "_core_eia923__boiler_fuel",

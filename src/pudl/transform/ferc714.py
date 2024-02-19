@@ -234,7 +234,7 @@ RENAME_COLS = {
         "respondent_id": "respondent_id_ferc714",
         "respondent_name": "respondent_name_ferc714",
     },
-    "core_ferc714__hourly_demand_pa": {
+    "out_ferc714__hourly_planning_area_demand": {
         "report_yr": "report_year",
         "plan_date": "report_date",
         "respondent_id": "respondent_id_ferc714",
@@ -368,7 +368,7 @@ def _standardize_offset_codes(df: pd.DataFrame, offset_fixes) -> pd.DataFrame:
     return codes
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager")
+@asset(io_manager_key="pudl_io_manager")
 def core_ferc714__respondent_id(
     raw_ferc714__respondent_id: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -396,9 +396,9 @@ def core_ferc714__respondent_id(
     return _post_process(df, table_name="core_ferc714__respondent_id")
 
 
-@asset(io_manager_key="pudl_sqlite_io_manager")
-def core_ferc714__hourly_demand_pa(
-    raw_ferc714__demand_hourly_pa: pd.DataFrame,
+@asset(io_manager_key="pudl_io_manager")
+def out_ferc714__hourly_planning_area_demand(
+    raw_ferc714__hourly_planning_area_demand: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the hourly demand time series by Planning Area.
 
@@ -412,15 +412,16 @@ def core_ferc714__hourly_demand_pa(
     - Flip negative signs for reported demand.
 
     Args:
-        raw_ferc714__demand_hourly_pa: Raw table containing hourly demand time series by
-            Planning Area.
+        raw_ferc714__hourly_planning_area_demand: Raw table containing hourly demand
+            time series by Planning Area.
 
     Returns:
         Clean(er) version of the hourly demand time series by Planning Area.
     """
     logger.info("Converting dates into pandas Datetime types.")
     df = _pre_process(
-        raw_ferc714__demand_hourly_pa, table_name="core_ferc714__hourly_demand_pa"
+        raw_ferc714__hourly_planning_area_demand,
+        table_name="out_ferc714__hourly_planning_area_demand",
     )
 
     # Parse date strings
@@ -520,5 +521,7 @@ def core_ferc714__hourly_demand_pa(
         "demand_mwh",
     ]
     df = df.drop(columns=set(df.columns) - set(columns))
-    df = _post_process(df[columns], table_name="core_ferc714__hourly_demand_pa")
+    df = _post_process(
+        df[columns], table_name="out_ferc714__hourly_planning_area_demand"
+    )
     return df

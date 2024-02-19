@@ -1,10 +1,18 @@
 """Collection of Dagster resources for PUDL."""
 
-from dagster import Field, resource
+from dagster import ConfigurableResource, Field, resource
 
 from pudl.settings import DatasetsSettings, FercToSqliteSettings, create_dagster_config
 from pudl.workspace.datastore import Datastore
 from pudl.workspace.setup import PudlPaths
+
+
+class RuntimeSettings(ConfigurableResource):
+    """Encodes runtime settings for the ferc_to_sqlite graphs."""
+
+    clobber: bool = False
+    xbrl_num_workers: None | int = None
+    xbrl_batch_size: int = 50
 
 
 @resource(config_schema=create_dagster_config(DatasetsSettings()))
