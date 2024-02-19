@@ -622,7 +622,9 @@ def find_best_matches(match_df):
     return best_match_df
 
 
-def overwrite_bad_predictions(match_df, train_df):
+def overwrite_bad_predictions(
+    match_df: pd.DataFrame, train_df: pd.DataFrame
+) -> pd.DataFrame:
     """Overwrite incorrect predictions with the correct match from training data.
 
     Args:

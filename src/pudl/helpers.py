@@ -1520,30 +1520,30 @@ def weighted_average(
 
 def sum_and_weighted_average_agg(
     df_in: pd.DataFrame,
-    by: list,
-    sum_cols: list,
+    by: list[str],
+    sum_cols: list[str],
     wtavg_dict: dict[str, str],
 ) -> pd.DataFrame:
     """Aggregate dataframe by summing and using weighted averages.
 
-    Many times we want to aggreate a data table using the same groupby columns
-    but with different aggregation methods. This function combines two of our
-    most common aggregation methods (summing and applying a weighted average)
-    into one function. Because pandas does not have a built-in weighted average
-    method for groupby we use :func:``weighted_average``.
+    Many times we want to aggreate a data table using the same groupby columns but with
+    different aggregation methods. This function combines two of our most common
+    aggregation methods (summing and applying a weighted average) into one function.
+    Because pandas does not have a built-in weighted average method for groupby we use
+    :func:``weighted_average``.
 
     Args:
-        df_in (pandas.DataFrame): input table to aggregate. Must have columns
-            in ``id_cols``, ``sum_cols`` and keys from ``wtavg_dict``.
-        by (list): columns to group/aggregate based on. These columns
-            will be passed as an argument into grouby as ``by`` arg.
-        sum_cols (list): columns to sum.
-        wtavg_dict (dictionary): dictionary of columns to average (keys) and
-            columns to weight by (values).
+        df_in: input table to aggregate. Must have columns in ``id_cols``, ``sum_cols``
+            and keys from ``wtavg_dict``.
+        by: columns to group/aggregate based on. These columns will be passed as an
+            argument into grouby as ``by`` arg.
+        sum_cols: columns to sum.
+        wtavg_dict: dictionary of columns to average (keys) and columns to weight by
+           (values).
 
     Returns:
-        table with join of columns from ``by``, ``sum_cols`` and keys of
-        ``wtavg_dict``. Primary key of table will be ``by``.
+        table with join of columns from ``by``, ``sum_cols`` and keys of ``wtavg_dict``.
+        Primary key of table will be ``by``.
     """
     logger.debug(f"grouping by {by}")
     # we are keeping the index here for easy merging of the weighted cols below
@@ -1608,7 +1608,7 @@ def convert_df_to_excel_file(df: pd.DataFrame, **kwargs) -> pd.ExcelFile:
     with pd.ExcelWriter(bio, engine="xlsxwriter") as writer:
         df.to_excel(writer, **kwargs)
     bio.seek(0)
-    return pd.ExcelFile(bio)
+    return pd.ExcelFile(bio, engine="calamine")
 
 
 def get_asset_keys(

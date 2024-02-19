@@ -1196,7 +1196,7 @@ def harvested_entity_asset_factory(
         eia_settings = context.resources.dataset_settings.eia
         debug = context.op_config["debug"]
 
-        entity_df, annual_df, col_dfs = harvest_entity_tables(
+        entity_df, annual_df, _col_dfs = harvest_entity_tables(
             entity, clean_dfs, debug=debug, eia_settings=eia_settings
         )
 

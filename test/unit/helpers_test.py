@@ -1,4 +1,5 @@
 """Unit tests for the :mod:`pudl.helpers` module."""
+from io import StringIO
 
 import numpy as np
 import pandas as pd
@@ -176,42 +177,20 @@ def test_annual_attribute_merge():
 
     assert_frame_equal(out_inner, out_expected_inner)
 
-    out_expected_outer = pd.DataFrame(
-        {
-            "report_date": [
-                "2019-12-01",
-                "2020-10-01",
-                "2019-01-01",
-                "2019-06-01",
-                "2018-07-01",
-                "2020-01-01",
-                "2018-01-01",
-                "2020-01-01",
-            ],
-            "plant_id_eia": [2, 2, 3, 3, 3, 1, 2, 3],
-            "prime_mover_code": ["HY", "ST", "HY", "CT", "HY", None, None, None],
-            "fuel_consumed_units": [
-                0.0,
-                98085.0,
-                0.0,
-                4800000.0,
-                0.0,
-                None,
-                None,
-                None,
-            ],
-            "plant_name_eia": [
-                "Bankhead Dam",
-                "Bankhead",
-                "Barry",
-                "Barry",
-                "Barry",
-                "Sand Point",
-                "Bankhead Dam",
-                "Barry",
-            ],
-            "utility_id_eia": [195, 195, 16, 16, 16, 63560, 195, 16],
-        }
+    out_expected_outer = pd.read_csv(
+        StringIO(
+            """
+report_date,plant_id_eia,prime_mover_code,fuel_consumed_units,plant_name_eia,utility_id_eia
+2018-01-01,2,,,Bankhead Dam,195
+2018-07-01,3,HY,0.0,Barry,16
+2019-12-01,2,HY,0.0,Bankhead Dam,195
+2019-01-01,3,HY,0.0,Barry,16
+2019-06-01,3,CT,4800000.0,Barry,16
+2020-01-01,1,,,Sand Point,63560
+2020-10-01,2,ST,98085.0,Bankhead,195
+2020-01-01,3,,,Barry,16
+"""
+        )
     ).astype({"report_date": "datetime64[ns]"})
 
     out_outer = date_merge(

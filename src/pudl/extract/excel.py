@@ -304,6 +304,7 @@ class GenericExtractor:
                     skiprows=self._metadata.get_skiprows(page, **partition),
                     skipfooter=self._metadata.get_skipfooter(page, **partition),
                     dtype=self.get_dtypes(page, **partition),
+                    engine="calamine",
                 )
 
                 newdata = pudl.helpers.simplify_columns(newdata)
@@ -344,17 +345,17 @@ class GenericExtractor:
             raw_dfs[page] = self.process_final_page(df=df, page=page)
         return raw_dfs
 
-    def load_excel_file(self, page, **partition):
+    def load_excel_file(self, page: str, **partition) -> pd.ExcelFile:
         """Produce the ExcelFile object for the given (partition, page).
 
         Args:
-            page (str): pudl name for the dataset contents, eg
-                  "boiler_generator_assn" or "coal_stocks"
-            partition: partition to load. (ex: 2009 for year partition or
-                "2020-08" for year_month partition)
+            page: pudl name for the dataset contents, eg "boiler_generator_assn" or
+                "coal_stocks".
+            partition: partition to load. (ex: 2009 for year partition or "2020-08" for
+                year_month partition)
 
         Returns:
-            pd.ExcelFile instance with the parsed excel spreadsheet frame
+            Parsed Excel spreadsheet page.
         """
         xlsx_filename = self.excel_filename(page, **partition)
 
@@ -371,7 +372,7 @@ class GenericExtractor:
                 res = self.ds.get_unique_resource(
                     self._dataset_name, name=xlsx_filename
                 )
-                excel_file = pd.ExcelFile(res)
+                excel_file = pd.ExcelFile(res, engine="calamine")
             except KeyError:
                 with self.ds.get_zipfile_resource(
                     self._dataset_name,
@@ -388,7 +389,9 @@ class GenericExtractor:
                                 df, index=False
                             )
                     else:
-                        excel_file = pd.ExcelFile(BytesIO(zf.read(xlsx_filename)))
+                        excel_file = pd.ExcelFile(
+                            BytesIO(zf.read(xlsx_filename)), engine="calamine"
+                        )
             finally:
                 self._file_cache[xlsx_filename] = excel_file
         # TODO(rousik): this _file_cache could be replaced with @cache or @memoize annotations
