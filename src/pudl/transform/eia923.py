@@ -1414,7 +1414,9 @@ def _core_eia923__fgd_operation_maintenance(
     """
     fgd_df = raw_eia923__fgd_operation_maintenance
 
+    # Drop duplicate and empty rows to ensure the primary key is unique.
     fgd_df = fgd_df.dropna(subset=["plant_id_eia", "so2_control_id_eia"])
+    fgd_df = fgd_df.drop_duplicates()
 
     # Replace the EIA923 NA value ('.') with a real NA value.
     fgd_df = pudl.helpers.fix_eia_na(fgd_df)
@@ -1448,10 +1450,8 @@ def _core_eia923__fgd_operation_maintenance(
     )
     fgd_df.loc[:, "so2_test_date"] = test_datetime
 
-    # Drop duplicate and empty rows to ensure the primary key is unique.
-    fgd_df = fgd_df.dropna(
-        subset=["plant_id_eia", "so2_control_id_eia"]
-    ).drop_duplicates()
+    # Handle mixed boolean types in control flag column
+    fgd_df["fgd_control_flag"] = fgd_df["fgd_control_flag"].replace({"Y": 1, "N": 0})
 
     # There are two remaining duplicates from plant_id_eia 6016, one row with cost data
     # and one without. Keep the row with data.
@@ -1464,10 +1464,10 @@ def _core_eia923__fgd_operation_maintenance(
         subset="fgd_feed_materials_chemical_costs"
     )
 
-    # fgd_df = (
-    #     pudl.metadata.classes.Package.from_resource_ids()
-    #     .get_resource("_core_eia923__yearly_fgd_operation_maintenance")
-    #     .encode(fgd_df)
-    # )
+    fgd_df = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("core_eia__yearly_so2_control_equipment")
+        .encode(fgd_df)
+    )
 
     return fgd_df

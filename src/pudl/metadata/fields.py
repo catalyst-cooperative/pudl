@@ -1302,7 +1302,60 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "ferc_qualifying_facility": {
         "type": "boolean",
-        "description": "Indicatates whether or not a generator is a qualifying FERC cogeneation facility.",
+        "description": "Indicatates whether or not a generator is a qualifying FERC cogeneration facility.",
+    },
+    "fgd_control_flag": {
+        "type": "boolean",
+        "description": "Indicatates whether or not a plant has a FGD control unit.",
+    },
+    "fgd_electricity_consumption_mwh": {
+        "type": "number",
+        "unit": "MWh",
+        "description": "Electric power consumed by the FGD unit (in MWh).",
+    },
+    "fgd_feed_materials_chemical_costs": {
+        "type": "integer",
+        "unit": "dollars",
+        "description": "Annual operation and maintenance expenditures for feed materials and chemicals for FGD equipment, excluding electricity.",
+    },
+    "fgd_hours_in_service": {
+        "type": "integer",
+        "unit": "hours",
+        "description": "Number of hours the FGD equipment was in operation during the year.",
+    },
+    "fgd_labor_supervision_costs": {
+        "type": "integer",
+        "unit": "dollars",
+        "description": "Annual operation and maintenance expenditures for labor and supervision of FGD equipment, excluding electricity.",
+    },
+    "fgd_land_acquisition_costs": {
+        "type": "integer",
+        "unit": "dollars",
+        "description": "Annual operation and maintenance expenditures for land acquisition for FGD equipment, excluding electricity.",
+    },
+    "fgd_maintenance_material_other_costs": {
+        "type": "integer",
+        "unit": "dollars",
+        "description": "Annual operation and maintenance expenditures for maintenance, materials and all other costs of FGD equipment, excluding electricity",
+    },
+    "fgd_operational_status": {
+        "type": "string",
+        "description": "Operating status code for FGD equipment.",
+    },
+    "fgd_opex_total_cost": {
+        "type": "integer",
+        "unit": "dollars",
+        "description": "Annual total cost of operation and maintenance expenditures on FGD equipment, excluding electricity",
+    },
+    "fgd_sorbent_consumption_1000_tons": {
+        "type": "number",
+        "unit": "1000_tons",
+        "description": "Quantity of FGD sorbent used, to the nearest 0.1 thousand tons.",
+    },
+    "fgd_waste_disposal_costs": {
+        "type": "integer",
+        "unit": "dollars",
+        "description": "Annual operation and maintenance expenditures for waste disposal, excluding electricity.",
     },
     "firing_rate_using_coal_tons_per_hour": {
         "type": "number",
@@ -3303,6 +3356,18 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Identifies whether the reported value of emissions was measured, calculated, or measured and substitute.",
         "constraints": {"enum": EPACEMS_MEASUREMENT_CODES},
+    },
+    "so2_removal_efficiency_100pct_load": {
+        "type": "number",
+        "description": "Removal efficiency for sulfur dioxide (to the nearest 0.1 percent by weight) at tested rate.",
+    },
+    "so2_removal_efficiency_annual": {
+        "type": "number",
+        "description": "Removal efficiency for sulfur dioxide (to the nearest 0.1 percent by weight) at annual operating factor.",
+    },
+    "so2_test_date": {
+        "type": "date",
+        "description": "Date of most recent test for sulfur dioxide removal efficiency.",
     },
     "sold_to_utility_mwh": {
         "type": "number",
