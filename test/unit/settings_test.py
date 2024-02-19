@@ -11,6 +11,7 @@ from pudl.metadata.classes import DataSource
 from pudl.resources import dataset_settings
 from pudl.settings import (
     DatasetsSettings,
+    Eia860mSettings,
     Eia860Settings,
     Eia923Settings,
     EiaSettings,
@@ -133,12 +134,22 @@ class TestEIA860Settings:
     def test_860m(self: Self):
         """Test validation error is raised when eia860m date is within 860 years."""
         settings_cls = Eia860Settings
-        original_eia80m_date = settings_cls.eia860m_date
-        settings_cls.eia860m_date = "2019-11"
+        original_eia80m_year_month = settings_cls.eia860m_year_month
+        settings_cls.eia860m_year_month = "2019-11"
 
         with pytest.raises(ValidationError):
             settings_cls(eia860m=True)
-        settings_cls.eia860m_date = original_eia80m_date
+        settings_cls.eia860m_year_month = original_eia80m_year_month
+
+
+class TestEia860mSettings:
+    """Test EIA860m settings."""
+
+    def test_all_year_quarters(self: Self):
+        """Test the `all` option for the eia860m settings."""
+        settings_all = Eia860mSettings(year_months=["all"]).year_months
+        partitions_all = DataSource.from_id("eia860m").working_partitions["year_months"]
+        assert settings_all == partitions_all
 
 
 class TestEiaSettings:
@@ -277,9 +288,9 @@ def test_partitions_with_json_normalize(pudl_etl_settings):
         )
 
     cems_parts = json_normalize(datasets["epacems"].partitions)
-    if list(cems_parts.columns) != ["year_quarters"]:
+    if list(cems_parts.columns) != ["year_quarter"]:
         raise AssertionError(
-            "CEMS paritions should have year_quarters columns only, found:"
+            "CEMS paritions should have year_quarter columns only, found:"
             f"{cems_parts}"
         )
 
