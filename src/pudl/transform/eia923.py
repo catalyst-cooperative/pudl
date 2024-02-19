@@ -1451,7 +1451,18 @@ def _core_eia923__fgd_operation_maintenance(
     fgd_df.loc[:, "so2_test_date"] = test_datetime
 
     # Handle mixed boolean types in control flag column
-    fgd_df["fgd_control_flag"] = fgd_df["fgd_control_flag"].replace({"Y": 1, "N": 0})
+    fgd_df["fgd_control_flag"] = fgd_df["fgd_control_flag"].replace(
+        ["Y", "N", 1.0, 0.0], [True, False, True, False]
+    )
+
+    fgd_df["fgd_operational_status"] = fgd_df.fgd_operational_status.map(
+        pudl.helpers.label_map(
+            CODE_METADATA["core_eia__codes_operational_status"]["df"],
+            from_col="code",
+            to_col="label",  # OR operational_status? To discuss!
+            null_value=pd.NA,
+        )
+    )
 
     # There are two remaining duplicates from plant_id_eia 6016, one row with cost data
     # and one without. Keep the row with data.
@@ -1460,9 +1471,10 @@ def _core_eia923__fgd_operation_maintenance(
         & (fgd_df.so2_control_id_eia == 1)
         & (fgd_df.report_year.isin([2018, 2019]))
     )
-    fgd_df.loc[dup_filt] = fgd_df.loc[dup_filt].dropna(
-        subset="fgd_feed_materials_chemical_costs"
-    )
+    # Drop the rows where every value other than the IDs and data maturity are null
+    fgd_df = fgd_df.loc[
+        ~((dup_filt) & (fgd_df.isna().sum(axis=1) >= len(fgd_df.columns) - 4))
+    ]
 
     fgd_df = (
         pudl.metadata.classes.Package.from_resource_ids()
