@@ -1606,6 +1606,17 @@ class Ferc1TableTransformParams(TableTransformParams):
         """The list of DBF tables aligned by row number in this transform."""
         return self.align_row_numbers_dbf.dbf_table_names
 
+    @property
+    def dimension_columns(self) -> list[str]:
+        """List of column names of dimensions."""
+        dims = {
+            dim
+            for dim in list(self.add_columns_with_uniform_value.assign_cols.keys())
+            + [self.reconcile_table_calculations.subtotal_column]
+            if dim
+        }
+        return list(dims)
+
 
 ################################################################################
 # FERC 1 transform helper functions. Probably to be integrated into a class
@@ -2192,9 +2203,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         # split the calcs from non-calcs/make corrections/append
         calcs = calc_components[calc_components.xbrl_factoid.notnull()]
         correction_components = (
-            # TODO: This is where we are dropping the other dims!!!
-            # figure out how to know which additional dim cols are here
-            # either the subtotal_column from other_dimensions and/or parameterize the adding of dimensions!
             calcs[["table_name_parent", "xbrl_factoid_parent"]]
             .drop_duplicates()
             .assign(
@@ -6046,16 +6054,12 @@ def other_dimensions(table_names: list[str]) -> list[str]:
     """Get a list of the other dimension columns across all of the transformers."""
     # grab all of the dimensions columns that we are currently verifying as a part of
     # reconcile_table_calculations
-    other_dimensions = [
-        FERC1_TFR_CLASSES[
-            table_name
-        ]().params.reconcile_table_calculations.subtotal_column
-        for table_name in table_names
-    ]
-    # remove nulls and dedupe
-    other_dimensions = [sub for sub in other_dimensions if sub]
-    other_dimensions = list(set(other_dimensions))
-    return other_dimensions
+    return pudl.helpers.dedupe_n_flatten_list_of_lists(
+        [
+            FERC1_TFR_CLASSES[table_name]().params.dimension_columns
+            for table_name in table_names
+        ]
+    )
 
 
 def table_to_xbrl_factoid_name() -> dict[str, str]:
@@ -6113,6 +6117,20 @@ def _core_ferc1__table_dimensions(**kwargs) -> pd.DataFrame:
         ]
         .drop_duplicates()
         .reset_index(drop=True)
+    )
+    # even though we don't actually get correction records for all of the
+    # factiods, we are still going to force them to exist here so all of the
+    # downstream processes have them all.
+    non_correction_mask = ~dimensions.xbrl_factoid.str.endswith("_correction")
+    dimensions = pd.concat(
+        [
+            dimensions[non_correction_mask],
+            (
+                dimensions[non_correction_mask].assign(
+                    xbrl_factoid=lambda x: x.xbrl_factoid + "_correction"
+                )
+            ),
+        ]
     )
     return dimensions
 
@@ -6566,8 +6584,10 @@ def infer_intra_factoid_totals(
         (``utility_type``, ``plant_status``, ``plant_function``). The parent columns
         have a ``_parent`` suffix.
     """
+    # grab all of the non-total and non-correction records
     child_candidates = table_dimensions[
         ~(table_dimensions[dimensions] == "total").any(axis="columns")
+        & ~(table_dimensions.xbrl_factoid.str.endswith("_correction"))
     ]
 
     total_comps = []
