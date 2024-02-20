@@ -620,25 +620,21 @@ def expand_timeseries(
             }
         )
     elif fill_through_freq == "month":
-        end_dates.loc[:, date_col] = pd.to_datetime(
-            {
-                "year": end_dates[date_col].dt.year,
-                "month": end_dates[date_col].dt.month + 1,
-                "day": 1,
-            }
-        )
-    elif fill_through_freq == "day":
+        end_dates.loc[:, date_col] = end_dates[
+            date_col
+        ] + pd.tseries.offsets.DateOffset(months=1)
         end_dates.loc[:, date_col] = pd.to_datetime(
             {
                 "year": end_dates[date_col].dt.year,
                 "month": end_dates[date_col].dt.month,
-                "day": end_dates[date_col].dt.day + 1,
+                "day": 1,
             }
         )
-    else:
-        raise ValueError(
-            f"{fill_through_freq} is not a valid frequency to fill through."
-        )
+    elif fill_through_freq == "day":
+        end_dates.loc[:, date_col] = end_dates[
+            date_col
+        ] + pd.tseries.offsets.DateOffset(days=1)
+
     end_dates["drop_row"] = True
     df = (
         pd.concat([df, end_dates.reset_index()])
@@ -1413,9 +1409,9 @@ def get_working_dates_by_datasource(datasource: str) -> pd.DatetimeIndex:
             dates = dates.append(
                 pd.to_datetime(working_partitions["years"], format="%Y")
             )
-        if "year_month" in working_partitions:
+        if "year_months" in working_partitions:
             dates = dates.append(
-                pd.DatetimeIndex([pd.to_datetime(working_partitions["year_month"])])
+                pd.DatetimeIndex(pd.to_datetime(working_partitions["year_months"]))
             )
     return dates
 

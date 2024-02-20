@@ -240,6 +240,8 @@ datasets:
           2022,
         ]
       eia860m: true
+    eia860m:
+      year_months: ["all"]
     eia861:
       years:
         [
