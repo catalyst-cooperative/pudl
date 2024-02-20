@@ -81,7 +81,6 @@ def pudl_model(asset_name: str, config_from_yaml: bool = False) -> AssetsDefinit
             experiment_tracker = experiment_tracking.experiment_tracker_factory(
                 experiment_name=model_graph.name,
                 model_config=model_config,
-                run_context="production",
             )()
             return model_graph(experiment_tracker, **kwargs)
 

@@ -4,14 +4,12 @@
 import random
 import string
 
-import mlflow
 import numpy as np
 import pandas as pd
 import pytest
-from dagster import graph, op
 
 import pudl
-from pudl.analysis.record_linkage import model_helpers
+from pudl.analysis.ml_tools import get_ml_models_config
 from pudl.analysis.record_linkage.classify_plants_ferc1 import (
     _FUEL_COLS,
     ferc_to_ferc,
@@ -215,13 +213,11 @@ def mock_ferc1_plants_df():
     ).reset_index()
 
 
-@op
 def _score_model(
     input_df: pd.DataFrame,
     label_df: pd.DataFrame,
-    ferc_to_ferc_tracker: model_helpers.ExperimentTracker,
 ) -> float:
-    input_df["plant_id_ferc1"] = label_df["record_label"]
+    input_df["plant_id_ferc1"] = label_df["plant_id_ferc1"]
 
     # Compute percent of records assigned correctly
     correctly_matched = (
@@ -230,37 +226,42 @@ def _score_model(
         .sum()
     )
     ratio_correct = correctly_matched / len(input_df)
-    with ferc_to_ferc_tracker.start_run():
-        mlflow.log_metric("ratio_correct", ratio_correct)
-
     return ratio_correct
-
-
-@graph
-def _ferc_to_ferc_test(input_df: pd.DataFrame):
-    experiment_tracker = model_helpers.create_experiment_tracker.configured(
-        {
-            "experiment_name": "ferc_to_ferc",
-            "log_yaml": True,
-            "run_context": "training",
-        },
-        name="ferc_to_ferc_tracker",
-    )()
-    label_df = ferc_to_ferc(input_df, experiment_tracker)
-    return _score_model(input_df, label_df, experiment_tracker)
 
 
 def test_classify_plants_ferc1(mock_ferc1_plants_df):
     """Test the FERC inter-year plant linking model."""
-    ratio_correct = (
-        _ferc_to_ferc_test.to_job()
+    steam_plants = mock_ferc1_plants_df[
+        [
+            "plant_name_ferc1",
+            "utility_id_ferc1",
+            "report_year",
+            "capacity_mw",
+            "construction_year",
+            "construction_type",
+            "plant_type",
+        ]
+    ]
+    plant_parts = mock_ferc1_plants_df[
+        ["plant_name_ferc1", "utility_id_ferc1", "report_year"] + _FUEL_COLS
+    ]
+
+    config = get_ml_models_config()["ops"][
+        "_out_ferc1__yearly_steam_plants_sched402_with_plant_ids"
+    ]
+    config["ops"]["ferc_to_ferc_tracker"]["config"]["run_context"] = "testing"
+    label_df = (
+        ferc_to_ferc.node_def.to_job()
         .execute_in_process(
+            run_config=config,
             input_values={
-                "input_df": mock_ferc1_plants_df,
+                "core_ferc1__yearly_steam_plants_sched402": steam_plants,
+                "out_ferc1__yearly_steam_plants_fuel_by_plant_sched402": plant_parts,
             },
         )
         .output_value()
     )
+    ratio_correct = _score_model(mock_ferc1_plants_df, label_df)
 
     logger.info(f"Percent correctly matched: {ratio_correct:.2%}")
     assert ratio_correct > 0.82, "Percent of correctly matched FERC records below 85%."

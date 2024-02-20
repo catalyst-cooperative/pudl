@@ -70,7 +70,6 @@ def test_create_experiment_tracker(
     experiment_tracker = experiment_tracking.experiment_tracker_factory(
         experiment_name,
         {},
-        run_context="testing",
     )(experiment_tracker_config)
     experiment_tracker.execute_logging(
         lambda: mlflow.log_param("test_param", "param_value")

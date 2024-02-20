@@ -56,6 +56,7 @@ class ExperimentTrackerConfig(Config):
 
     tracking_uri: str = f"sqlite:///{PudlPaths().output_dir}/experiments.sqlite"
     tracking_enabled: bool = True
+    run_context: str = "production"
     #: Location to store artifacts. Artifact storage not currently used.
     artifact_location: str = str(PudlPaths().output_dir)
 
@@ -92,7 +93,6 @@ class ExperimentTracker(BaseModel):
         experiment_config: ExperimentTrackerConfig,
         experiment_name: str,
         model_config: dict,
-        run_context: str,
     ) -> "ExperimentTracker":
         """Create experiment tracker for specified experiment."""
         run_id = ""
@@ -109,7 +109,7 @@ class ExperimentTracker(BaseModel):
                     experiment_name=experiment_name,
                     artifact_location=experiment_config.artifact_location,
                 ),
-                tags={"run_context": run_context},
+                tags={"run_context": experiment_config.run_context},
             ) as run:
                 # Log model configuration
                 mlflow.log_params(model_config)
@@ -167,7 +167,6 @@ class ExperimentTracker(BaseModel):
 def experiment_tracker_factory(
     experiment_name: str,
     model_config: dict,
-    run_context: str,
 ) -> ExperimentTracker:
     """Use config to create an experiment tracker."""
 
@@ -177,7 +176,6 @@ def experiment_tracker_factory(
             config,
             experiment_name,
             model_config,
-            run_context,
         )
 
     return create_experiment_tracker
