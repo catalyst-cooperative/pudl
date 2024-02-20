@@ -94,7 +94,7 @@ class TestExcelExtractor:
     @staticmethod
     def expected_file_name(extractor, page, year, expected_name):
         """Check if extractor can access files with expected file names."""
-        if extractor.excel_filename(page, year=year) != expected_name:
+        if extractor.source_filename(page, year=year) != expected_name:
             raise AssertionError(
                 f"file name for {page} in {year} doesn't match datastore."
             )
@@ -153,7 +153,7 @@ class TestExcelExtractor:
         year = 2018
         if (
             "Ownership"
-            not in extractor.load_excel_file(page="ownership", year=2018).sheet_names
+            not in extractor.load_source(page="ownership", year=2018).sheet_names
         ):
             raise AssertionError(f"page {page} not found in datastore for {year}")
 
@@ -164,7 +164,7 @@ class TestExcelExtractor:
         year = 2018
         if (
             "Page 3 Boiler Fuel Data"
-            not in extractor.load_excel_file(page=page, year=year).sheet_names
+            not in extractor.load_source(page=page, year=year).sheet_names
         ):
             raise AssertionError(f"page {page} not found in datastore for {year}")
 

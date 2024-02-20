@@ -25,7 +25,7 @@ class Extractor(excel.ExcelExtractor):
         Args:
             ds (:class:datastore.Datastore): Initialized datastore.
         """
-        self.METADATA = excel.Metadata("eia923")
+        self.METADATA = excel.ExcelMetadata("eia923")
         self.BLACKLISTED_PAGES = ["plant_frame"]
         self.cols_added = []
         super().__init__(*args, **kwargs)

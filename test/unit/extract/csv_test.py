@@ -2,30 +2,50 @@
 from unittest.mock import MagicMock, patch
 
 import pandas as pd
+from pytest import raises
 
 from pudl.extract.csv import CsvExtractor
+from pudl.extract.extractor import GenericMetadata
 
 DATASET = "eia176"
-PARTITION = 2023
-CSV_FILENAME = f"{DATASET}-{PARTITION}.csv"
 PAGE = "data"
+PARTITION_SELECTION = 2023
+PARTITION = {"year": PARTITION_SELECTION}
+CSV_FILENAME = f"{DATASET}-{PARTITION_SELECTION}.csv"
 
 
-def get_csv_extractor():
-    mock_ds = MagicMock()
-    return CsvExtractor(mock_ds, DATASET)
+class FakeExtractor(CsvExtractor):
+    def __init__(self):
+        # TODO: Make these tests independent of the eia176 implementation
+        self.METADATA = GenericMetadata("eia176")
+        super().__init__(ds=MagicMock())
 
 
-def test_csv_filename():
-    extractor = get_csv_extractor()
-    assert extractor.csv_filename(PARTITION) == CSV_FILENAME
+def test_source_filename_valid_partition():
+    extractor = FakeExtractor()
+    assert extractor.source_filename(PAGE, **PARTITION) == CSV_FILENAME
+
+
+def test_source_filename_multipart_partition():
+    extractor = FakeExtractor()
+    multipart_partition = PARTITION.copy()
+    multipart_partition["month"] = 12
+    with raises(AssertionError):
+        extractor.source_filename(PAGE, **multipart_partition)
+
+
+def test_source_filename_multiple_selections():
+    extractor = FakeExtractor()
+    multiple_selections = {"year": [PARTITION_SELECTION, 2024]}
+    with raises(AssertionError):
+        extractor.source_filename(PAGE, **multiple_selections)
 
 
 @patch("pudl.extract.csv.pd")
-def test_load_csv_file(mock_pd):
-    extractor = get_csv_extractor()
+def test_load_source(mock_pd):
+    extractor = FakeExtractor()
 
-    assert mock_pd.read_csv.return_value == extractor.load_csv_file(year=PARTITION)
+    assert mock_pd.read_csv.return_value == extractor.load_source(PAGE, **PARTITION)
     extractor.ds.get_zipfile_resource.assert_called_once_with(DATASET)
     zipfile = extractor.ds.get_zipfile_resource.return_value.__enter__.return_value
     zipfile.open.assert_called_once_with(CSV_FILENAME)
@@ -34,13 +54,20 @@ def test_load_csv_file(mock_pd):
 
 
 def test_extract():
-    extractor = get_csv_extractor()
-    dummy_field = "company"
-    dummy_value = "Total of All Companies"
-    df = pd.DataFrame([dummy_value])
-    df.columns = [dummy_field]
-    with patch.object(CsvExtractor, "load_csv_file", return_value=df):
-        res = extractor.extract(year=PARTITION)
+    extractor = FakeExtractor()
+    # Create a sample of data we could expect from an EIA CSV
+    company_field = "company"
+    company_data = "Total of All Companies"
+    df = pd.DataFrame([company_data])
+    df.columns = [company_field]
+    # TODO: Once FakeExtractor is independent of eia176, mock out populating _column_map for PARTITION_SELECTION;
+    #  Also include negative tests, i.e., for partition selections no tin the _column_map
+    with patch.object(CsvExtractor, "load_source", return_value=df), patch.object(
+        # Transposing the df here to get the orientation we expect get_page_cols to return
+        CsvExtractor,
+        "get_page_cols",
+        return_value=df.T.index,
+    ):
+        res = extractor.extract(**PARTITION)
     assert len(res) == 1
-    print(res)
-    assert dummy_value == res[PAGE][dummy_field][0]
+    assert company_data == res[PAGE][company_field][0]

@@ -1376,7 +1376,12 @@ def zero_pad_numeric_string(col: pd.Series, n_digits: int) -> pd.Series:
 
 
 def iterate_multivalue_dict(**kwargs):
-    """Make dicts from dict with main dict key and one value of main dict."""
+    """Make dicts from dict with main dict key and one value of main dict.
+
+    If kwargs is {'form;: 'gas_distribution', 'years': [2019, 2020]}, it will yield these results:
+        {'form': 'gas_distribution', 'years': 2019}
+        {'form': 'gas_distribution', 'years': 2020}
+    """
     single_valued = {
         k: v for k, v in kwargs.items() if not (isinstance(v, list | tuple))
     }

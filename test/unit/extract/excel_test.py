@@ -1,7 +1,6 @@
 """Unit tests for pudl.extract.excel module."""
 import unittest
 from unittest import mock as mock
-from unittest.mock import patch
 
 import pandas as pd
 
@@ -13,7 +12,7 @@ class TestMetadata(unittest.TestCase):
 
     def setUp(self):
         """Cosntructs test metadata instance for testing."""
-        self._metadata = excel.Metadata("test")
+        self._metadata = excel.ExcelMetadata("test")
 
     def test_basics(self):
         """Test that basic API method return expected results."""
@@ -40,13 +39,14 @@ class FakeExtractor(excel.ExcelExtractor):
 
         Good thing flake demanded this.
         """
-        self.METADATA = excel.Metadata("test")
+        self.METADATA = excel.ExcelMetadata("test")
         self.BLACKLISTED_PAGES = ["shoes"]
         super().__init__(ds=None)
 
-    def load_excel_file(self, page, **partition):
+    def load_source(self, page, **partition):
         """Returns fake file contents for given page and partition."""
-        return f'{page}-{partition["year"]}'
+        page_name = f'{page}-{partition["year"]}'
+        return _fake_data_frames(page_name)
 
 
 def _fake_data_frames(page_name, **kwargs):
@@ -80,19 +80,23 @@ class TestExtractor(unittest.TestCase):
     """Test operation of the excel.Extractor class."""
 
     @staticmethod
-    @patch("pudl.extract.excel.pd.read_excel")
-    def test_read_excel_calls(mock_read_excel):
-        """Verifies that read_excel method is called with expected arguments."""
-        mock_read_excel.return_value = pd.DataFrame()
+    def test_extract():
+        extractor = FakeExtractor()
+        res = extractor.extract(year=[2010, 2011])
+        expected_books = {
+            "author": {0: "Laozi", 1: "Benjamin Hoff"},
+            "data_maturity": {0: "final", 1: "final"},
+            "pages": {0: 0, 1: 158},
+            "title": {0: "Tao Te Ching", 1: "The Tao of Pooh"},
+        }
+        assert expected_books == res["books"].to_dict()
 
-        FakeExtractor("/blah").extract(year=[2010, 2011])
-        expected_calls = [
-            mock.call("books-2010", sheet_name=0, skiprows=0, skipfooter=0, dtype={}),
-            mock.call("books-2011", sheet_name=0, skiprows=1, skipfooter=1, dtype={}),
-            mock.call("boxes-2010", sheet_name=1, skiprows=0, skipfooter=0, dtype={}),
-            mock.call("boxes-2011", sheet_name=1, skiprows=10, skipfooter=10, dtype={}),
-        ]
-        mock_read_excel.assert_has_calls(expected_calls, any_order=True)
+        expected_boxes = {
+            "data_maturity": {0: "final", 1: "final"},
+            "material": {0: "cardboard", 1: "metal"},
+            "size": {0: 10, 1: 99},
+        }
+        assert expected_boxes == res["boxes"].to_dict()
 
     # @patch('pudl.extract.excel.pd.read_excel', _fake_data_frames)
     # def test_resulting_dataframes(self):

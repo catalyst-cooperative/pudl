@@ -1,5 +1,4 @@
 """Load excel metadata CSV files form a python data package."""
-import importlib.resources
 import pathlib
 from io import BytesIO
 
@@ -8,12 +7,12 @@ import pandas as pd
 import regex as re
 
 import pudl
-from pudl.extract.extractor import GenericExtractor
+from pudl.extract.extractor import GenericExtractor, GenericMetadata, PartitionSelection
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-class Metadata:
+class ExcelMetadata(GenericMetadata):
     """Load Excel metadata from Python package data.
 
     Excel sheet files may contain many different tables. When we load those
@@ -57,85 +56,48 @@ class Metadata:
             dataset_name: Name of the package/dataset to load the metadata from.
             Files will be loaded from pudl.package_data.${dataset_name}
         """
-        pkg = f"pudl.package_data.{dataset_name}"
-        self._dataset_name = dataset_name
-        self._skiprows = self._load_csv(pkg, "skiprows.csv")
-        self._skipfooter = self._load_csv(pkg, "skipfooter.csv")
-        self._sheet_name = self._load_csv(pkg, "page_map.csv")
-        self._file_name = self._load_csv(pkg, "file_map.csv")
+        super().__init__(dataset_name)
+        self._skiprows = self._load_csv(self._pkg, "skiprows.csv")
+        self._skipfooter = self._load_csv(self._pkg, "skipfooter.csv")
+        self._sheet_name = self._load_csv(self._pkg, "page_map.csv")
+        self._file_name = self._load_csv(self._pkg, "file_map.csv")
         # Most excel extracted datasets do not have a page to part map. If they
         # don't, assign null.
         try:
-            self._page_part_map = self._load_csv(pkg, "page_part_map.csv")
+            self._page_part_map = self._load_csv(self._pkg, "page_part_map.csv")
         except FileNotFoundError:
             self._page_part_map = pd.DataFrame()
 
-        column_map_pkg = pkg + ".column_maps"
-        self._column_map = {}
-        for res_path in importlib.resources.files(column_map_pkg).iterdir():
-            # res_path is expected to end with ${page}.csv
-            if res_path.suffix == ".csv":
-                column_map = self._load_csv(column_map_pkg, res_path.name)
-                self._column_map[res_path.stem] = column_map
-
-    def get_dataset_name(self):
-        """Returns the name of the dataset described by this metadata."""
-        return self._dataset_name
-
     def get_sheet_name(self, page, **partition):
         """Return name of Excel sheet containing data for given partition and page."""
-        return self._sheet_name.loc[page, str(self._get_partition_key(partition))]
+        return self._sheet_name.loc[page, str(self._get_partition_selection(partition))]
 
     def get_skiprows(self, page, **partition):
         """Return number of header rows to skip when loading a partition and page."""
-        return self._skiprows.loc[page, str(self._get_partition_key(partition))]
+        return self._skiprows.loc[page, str(self._get_partition_selection(partition))]
 
     def get_skipfooter(self, page, **partition):
         """Return number of footer rows to skip when loading a partition and page."""
-        return self._skipfooter.loc[page, str(self._get_partition_key(partition))]
+        return self._skipfooter.loc[page, str(self._get_partition_selection(partition))]
 
     def get_file_name(self, page, **partition):
         """Returns file name of given partition and page."""
-        return self._file_name.loc[page, str(self._get_partition_key(partition))]
+        return self._file_name.loc[page, str(self._get_partition_selection(partition))]
 
     def get_column_map(self, page, **partition):
         """Return dictionary for renaming columns in a given partition and page."""
         return {
             v: k
             for k, v in self._column_map[page]
-            .T.loc[str(self._get_partition_key(partition))]
+            .T.loc[str(self._get_partition_selection(partition))]
             .to_dict()
             .items()
             if v != -1
         }
 
-    def get_all_columns(self, page):
-        """Returns list of all pudl columns for a given page across all partitions."""
-        return sorted(self._column_map[page].T.columns)
-
-    def get_all_pages(self):
-        """Returns list of all known pages."""
-        return sorted(self._column_map.keys())
-
     def get_form(self, page) -> str:
         """Returns the form name for a given page."""
         return self._page_part_map.loc[page, "form"]
-
-    @staticmethod
-    def _load_csv(package, filename):
-        """Load metadata from a filename that is found in a package."""
-        return pd.read_csv(
-            importlib.resources.files(package) / filename, index_col=0, comment="#"
-        )
-
-    @staticmethod
-    def _get_partition_key(partition):
-        """Grab the partition key."""
-        if len(partition) != 1:
-            raise AssertionError(
-                f"Expecting exactly one partition attribute (found: {partition})"
-            )
-        return list(partition.values())[0]
 
 
 class ExcelExtractor(GenericExtractor):
@@ -173,11 +135,7 @@ class ExcelExtractor(GenericExtractor):
     this method should be overwritten in the dataset-specific extractor.
     """
 
-    METADATA: Metadata = None
-    """Instance of metadata object to use with this extractor."""
-
-    BLACKLISTED_PAGES = []
-    """List of supported pages that should not be extracted."""
+    METADATA: ExcelMetadata = None
 
     def __init__(self, ds):
         """Create new extractor object and load metadata.
@@ -185,20 +143,20 @@ class ExcelExtractor(GenericExtractor):
         Args:
             ds (datastore.Datastore): An initialized datastore, or subclass
         """
-        if not self.METADATA:
-            raise NotImplementedError("self.METADATA must be set.")
+        super().__init__(ds)
         self._metadata = self.METADATA
-        self._dataset_name = self._metadata.get_dataset_name()
         self._file_cache = {}
-        self.ds = ds
-        self.cols_added: list[str] = []
 
-    def process_raw(self, df, page, **partition):
+    def process_raw(
+        self, df: pd.DataFrame, page: str, **partition: PartitionSelection
+    ) -> pd.DataFrame:
         """Transforms raw dataframe and rename columns."""
         df = self.add_data_maturity(df, page, **partition)
         return df.rename(columns=self._metadata.get_column_map(page, **partition))
 
-    def add_data_maturity(self, df: pd.DataFrame, page, **partition) -> pd.DataFrame:
+    def add_data_maturity(
+        self, df: pd.DataFrame, page: str, **partition: PartitionSelection
+    ) -> pd.DataFrame:
         """Add data_maturity column to indicate the maturity of partition data.
 
         The three options enumerated here are ``final``, ``provisional`` or
@@ -212,7 +170,7 @@ class ExcelExtractor(GenericExtractor):
         ``self.cols_added``.
         """
         maturity = "final"
-        file_name = self.excel_filename(page, **partition)
+        file_name = self.source_filename(page, **partition)
         if "early_release" in file_name.lower():
             maturity = "provisional"
         elif self._dataset_name == "eia860m":
@@ -229,20 +187,13 @@ class ExcelExtractor(GenericExtractor):
         return df
 
     @staticmethod
-    def process_renamed(df, page, **partition):
-        """Transforms dataframe after columns are renamed."""
-        return df
-
-    @staticmethod
-    def get_dtypes(page, **partition):
+    def get_dtypes(page: str, **partition: PartitionSelection) -> dict:
         """Provide custom dtypes for given page and partition."""
         return {}
 
-    def process_final_page(self, df, page):
-        """Final processing stage applied to a page DataFrame."""
-        return df
-
-    def zipfile_resource_partitions(self, page, **partition) -> dict:
+    def zipfile_resource_partitions(
+        self, page: str, **partition: PartitionSelection
+    ) -> dict:
         """Specify the partitions used for returning a zipfile from the datastore.
 
         By default, this method appends any page to partition mapping in
@@ -251,104 +202,24 @@ class ExcelExtractor(GenericExtractor):
         dataset-specific partition mappings that are needed to return a zipfile from the
         datastore, override this method to return the desired partitions.
         """
-        if not self.METADATA._page_part_map.empty:
-            partition.update(self.METADATA._page_part_map.loc[page])
+        if not self._metadata._page_part_map.empty:
+            partition.update(self._metadata._page_part_map.loc[page])
         return partition
 
-    def extract(self, **partitions):
-        """Extracts dataframes.
-
-        Returns dict where keys are page names and values are
-        DataFrames containing data across given years.
-
-        Args:
-            partitions (list, tuple or string): list of partitions to
-                extract. (Ex: [2009, 2010] if dataset is partitioned by years
-                or '2020-08' if dataset is partitioned by year_month)
-        """
-        raw_dfs = {}
-        if not partitions:
-            logger.warning(
-                f"No partitions were given. Not extracting {self._dataset_name} "
-                "spreadsheet data."
-            )
-            return raw_dfs
-        logger.info(f"Extracting {self._dataset_name} spreadsheet data.")
-
-        for page in self._metadata.get_all_pages():
-            if page in self.BLACKLISTED_PAGES:
-                logger.debug(f"Skipping blacklisted page {page}.")
-                continue
-            dfs = [
-                pd.DataFrame(),
-            ]
-            for partition in pudl.helpers.iterate_multivalue_dict(**partitions):
-                # we are going to skip
-                if self.excel_filename(page, **partition) == "-1":
-                    logger.debug(f"No page for {self._dataset_name} {page} {partition}")
-                    continue
-                logger.debug(
-                    f"Loading dataframe for {self._dataset_name} {page} {partition}"
-                )
-                newdata = pd.read_excel(
-                    self.load_excel_file(page, **partition),
-                    sheet_name=self._metadata.get_sheet_name(page, **partition),
-                    skiprows=self._metadata.get_skiprows(page, **partition),
-                    skipfooter=self._metadata.get_skipfooter(page, **partition),
-                    dtype=self.get_dtypes(page, **partition),
-                )
-
-                newdata = pudl.helpers.simplify_columns(newdata)
-                newdata = self.process_raw(newdata, page, **partition)
-                newdata = self.process_renamed(newdata, page, **partition)
-                dfs.append(newdata)
-                # check if there are any missing or extra columns
-                str_part = str(list(partition.values())[0])
-                col_map = self.METADATA._column_map[page]
-                page_cols = col_map.loc[
-                    (col_map[str_part].notnull()) & (col_map[str_part] != -1),
-                    [str_part],
-                ].index
-                expected_cols = page_cols.union(self.cols_added)
-                if set(newdata.columns) != set(expected_cols):
-                    # TODO (bendnorman): Enforce canonical fields for all raw fields?
-                    extra_raw_cols = set(newdata.columns).difference(expected_cols)
-                    missing_raw_cols = set(expected_cols).difference(newdata.columns)
-                    if extra_raw_cols:
-                        logger.warning(
-                            f"{page}/{str_part}:Extra columns found in extracted table:"
-                            f"\n{extra_raw_cols}"
-                        )
-                    if missing_raw_cols:
-                        logger.warning(
-                            f"{page}/{str_part}: Expected columns not found in extracted table:"
-                            f"\n{missing_raw_cols}"
-                        )
-            df = pd.concat(dfs, sort=True, ignore_index=True)
-
-            # After all years are loaded, add empty columns that could appear
-            # in other years so that df matches the database schema
-            missing_cols = list(
-                set(self._metadata.get_all_columns(page)).difference(df.columns)
-            )
-            df = pd.concat([df, pd.DataFrame(columns=missing_cols)], sort=True)
-
-            raw_dfs[page] = self.process_final_page(df=df, page=page)
-        return raw_dfs
-
-    def load_excel_file(self, page, **partition):
+    def load_source(self, page: str, **partition: PartitionSelection) -> pd.DataFrame:
         """Produce the ExcelFile object for the given (partition, page).
 
         Args:
-            page (str): pudl name for the dataset contents, eg
+            page: pudl name for the dataset contents, eg
                   "boiler_generator_assn" or "coal_stocks"
-            partition: partition to load. (ex: 2009 for year partition or
-                "2020-08" for year_month partition)
+            partition: partition to load. Examples:
+                {'year': 2009}
+                {'year_month': '2020-08'}
 
         Returns:
-            pd.ExcelFile instance with the parsed excel spreadsheet frame
+            pd.DataFrame instance with the parsed Excel spreadsheet frame
         """
-        xlsx_filename = self.excel_filename(page, **partition)
+        xlsx_filename = self.source_filename(page, **partition)
 
         if xlsx_filename not in self._file_cache:
             excel_file = None
@@ -384,18 +255,27 @@ class ExcelExtractor(GenericExtractor):
             finally:
                 self._file_cache[xlsx_filename] = excel_file
         # TODO(rousik): this _file_cache could be replaced with @cache or @memoize annotations
-        return self._file_cache[xlsx_filename]
+        excel_file = self._file_cache[xlsx_filename]
 
-    def excel_filename(self, page, **partition):
+        return pd.read_excel(
+            excel_file,
+            sheet_name=self._metadata.get_sheet_name(page, **partition),
+            skiprows=self._metadata.get_skiprows(page, **partition),
+            skipfooter=self._metadata.get_skipfooter(page, **partition),
+            dtype=self.get_dtypes(page, **partition),
+        )
+
+    def source_filename(self, page: str, **partition: PartitionSelection) -> str:
         """Produce the xlsx document file name as it will appear in the archive.
 
         Args:
             page: pudl name for the dataset contents, eg "boiler_generator_assn" or
                 "coal_stocks"
-            partition: partition to load. (ex: 2009 for year partition or "2020-08" for
-                year_month partition)
+            partition: partition to load. Examples:
+                {'year': 2009}
+                {'year_month': '2020-08'}
 
         Returns:
             string name of the xlsx file
         """
-        return self.METADATA.get_file_name(page, **partition)
+        return self._metadata.get_file_name(page, **partition)

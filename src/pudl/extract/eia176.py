@@ -3,12 +3,30 @@
 from dagster import AssetOut, Output, multi_asset
 
 from pudl.extract.csv import CsvExtractor
-from pudl.extract.extractor import raw_df_factory
+from pudl.extract.extractor import GenericMetadata, raw_df_factory
 
 raw_table_names = "raw_eia176__data"
 
 
-raw_eia176__all_dfs = raw_df_factory(CsvExtractor, name="eia176")
+class Extractor(CsvExtractor):
+    """Extractor for the CSV dataset EIA176."""
+
+    def __init__(self, *args, **kwargs):
+        """Initialize the module.
+
+        Args:
+            ds (:class:datastore.Datastore): Initialized datastore.
+        """
+        self.METADATA = GenericMetadata("eia176")
+        super().__init__(*args, **kwargs)
+
+    def get_page_cols(self, page: str, partition_key: str) -> list[str]:
+        """Get the columns for a particular page and partition key."""
+        # The page columns for EIA176 do not vary by year
+        return super().get_page_cols(page, "any_year")
+
+
+raw_eia176__all_dfs = raw_df_factory(Extractor, name="eia176")
 
 
 @multi_asset(

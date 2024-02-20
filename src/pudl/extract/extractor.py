@@ -1,4 +1,6 @@
 """Generic functionality for extractors."""
+import importlib.resources
+from abc import abstractmethod
 from collections import defaultdict
 
 import pandas as pd
@@ -11,18 +13,239 @@ from dagster import (
     op,
 )
 
+import pudl
 
-# TODO: Consider abstract class
+StrInt = str | int
+PartitionSelection = list[StrInt] | tuple[StrInt] | StrInt
+
+logger = pudl.logging_helpers.get_logger(__name__)
+
+
+class GenericMetadata:
+    """Load generic metadata from Python package data.
+
+    When metadata object is instantiated, it is given ${dataset} name and it
+    will attempt to load csv files from pudl.package_data.${dataset} package.
+
+    It expects the following kinds of files:
+    * column_map/${page}.csv currently informs us how to translate input column
+      names to standardized pudl names for given (partition, input_col_name).
+      Relevant page is encoded in the filename.
+    """
+
+    def __init__(self, dataset_name: str):
+        """Create Metadata object and load metadata from python package.
+
+        Args:
+            dataset_name: Name of the package/dataset to load the metadata from.
+            Files will be loaded from pudl.package_data.${dataset_name}
+        """
+        self._dataset_name = dataset_name
+        self._pkg = f"pudl.package_data.{dataset_name}"
+        column_map_pkg = self._pkg + ".column_maps"
+        self._column_map = {}
+        for res_path in importlib.resources.files(column_map_pkg).iterdir():
+            # res_path is expected to end with ${page}.csv
+            if res_path.suffix == ".csv":
+                column_map = self._load_csv(column_map_pkg, res_path.name)
+                self._column_map[res_path.stem] = column_map
+
+    def get_dataset_name(self) -> str:
+        """Returns the name of the dataset described by this metadata."""
+        return self._dataset_name
+
+    @staticmethod
+    def _load_csv(package: str, filename: str) -> pd.DataFrame:
+        """Load metadata from a filename that is found in a package."""
+        return pd.read_csv(
+            importlib.resources.files(package) / filename, index_col=0, comment="#"
+        )
+
+    @staticmethod
+    def _get_partition_selection(partition: dict[str, PartitionSelection]) -> str:
+        """Grab the partition key."""
+        partition_names = list(partition.keys())
+        if len(partition_names) != 1:
+            raise AssertionError(
+                f"Expecting exactly one attribute to define this partition (found: {partition})"
+            )
+
+        partition_name = partition_names[0]
+        partition_selection = partition[partition_name]
+        if isinstance(partition_selection, list | tuple):
+            raise AssertionError(
+                f"Expecting exactly one non-container value for this partition attribute (found: {partition})"
+            )
+        return str(partition_selection)
+
+    def get_all_pages(self) -> list[str]:
+        """Returns list of all known pages."""
+        return sorted(self._column_map.keys())
+
+    def get_all_columns(self, page) -> list[str]:
+        """Returns list of all pudl columns for a given page across all partitions."""
+        return sorted(self._column_map[page].T.columns)
+
+
 class GenericExtractor:
     """Generic extractor base class."""
 
+    METADATA: GenericMetadata = None
+    """Instance of metadata object to use with this extractor."""
+
+    BLACKLISTED_PAGES = []
+    """List of supported pages that should not be extracted."""
+
     def __init__(self, ds):
-        """Create an instance of GenericExtractor.
+        """Create new extractor object and load metadata.
 
         Args:
             ds (datastore.Datastore): An initialized datastore, or subclass
         """
+        if not self.METADATA:
+            raise NotImplementedError("self.METADATA must be set.")
+        self._metadata = self.METADATA
+        self._dataset_name = self._metadata.get_dataset_name()
         self.ds = ds
+        self.cols_added: list[str] = []
+
+    @abstractmethod
+    def source_filename(self, page: str, **partition: PartitionSelection) -> str:
+        """Produce the source file name as it will appear in the archive.
+
+        Args:
+            page: pudl name for the dataset contents, eg "boiler_generator_assn" or
+                "coal_stocks"
+            partition: partition to load. Examples:
+                {'year': 2009}
+                {'year_month': '2020-08'}
+
+        Returns:
+            string name of the source file
+        """
+        ...
+
+    @abstractmethod
+    def load_source(self, page: str, **partition: PartitionSelection) -> pd.DataFrame:
+        """Produce the source data for the given page and partition(s).
+
+        Args:
+            page: pudl name for the dataset contents, eg
+                  "boiler_generator_assn" or "coal_stocks"
+            partition: partition to load. Examples:
+                {'year': 2009}
+                {'year_month': '2020-08'}
+
+        Returns:
+            pd.DataFrame instance with the source data
+        """
+        ...
+
+    def process_raw(
+        self, df: pd.DataFrame, page: str, **partition: PartitionSelection
+    ) -> pd.DataFrame:
+        """Takes any special steps for processing raw data and renaming columns."""
+        return df
+
+    @staticmethod
+    def process_renamed(
+        df: pd.DataFrame, page: str, **partition: PartitionSelection
+    ) -> pd.DataFrame:
+        """Takes any special steps for processing data after columns are renamed."""
+        return df
+
+    def get_page_cols(self, page: str, partition_selection: str) -> pd.RangeIndex:
+        """Get the columns for a particular page and partition key."""
+        col_map = self._metadata._column_map[page]
+        return col_map.loc[
+            (col_map[partition_selection].notnull())
+            & (col_map[partition_selection] != -1),
+            [partition_selection],
+        ].index
+
+    def validate(self, df: pd.DataFrame, page: str, **partition: PartitionSelection):
+        """Check if there are any missing or extra columns."""
+        partition_selection = self._metadata._get_partition_selection(partition)
+        page_cols = self.get_page_cols(page, partition_selection)
+        expected_cols = page_cols.union(self.cols_added)
+        if set(df.columns) != set(expected_cols):
+            # TODO (bendnorman): Enforce canonical fields for all raw fields?
+            extra_raw_cols = set(df.columns).difference(expected_cols)
+            missing_raw_cols = set(expected_cols).difference(df.columns)
+            if extra_raw_cols:
+                logger.warning(
+                    f"{page}/{partition_selection}: Extra columns found in extracted table:"
+                    f"\n{extra_raw_cols}"
+                )
+            if missing_raw_cols:
+                logger.warning(
+                    f"{page}/{partition_selection}: Expected columns not found in extracted table:"
+                    f"\n{missing_raw_cols}"
+                )
+
+    def process_final_page(self, df: pd.DataFrame, page: str) -> pd.DataFrame:
+        """Final processing stage applied to a page DataFrame."""
+        return df
+
+    def combine(self, dfs: list[pd.DataFrame], page: str) -> pd.DataFrame:
+        """Concatenate dataframes into one, take any special steps for processing final page."""
+        df = pd.concat(dfs, sort=True, ignore_index=True)
+
+        # After all years are loaded, add empty columns that could appear
+        # in other years so that df matches the database schema
+        missing_cols = list(
+            set(self._metadata.get_all_columns(page)).difference(df.columns)
+        )
+        df = pd.concat([df, pd.DataFrame(columns=missing_cols)], sort=True)
+
+        return self.process_final_page(df, page)
+
+    def extract(self, **partitions: PartitionSelection) -> dict[str, pd.DataFrame]:
+        """Extracts dataframes.
+
+        Returns dict where keys are page names and values are
+        DataFrames containing data across given years.
+
+        Args:
+            partitions: keyword argument dictionary specifying how the source is partitioned and which
+                particular partitions to extract. Examples:
+                {'years': [2009, 2010]}
+                {'year_month': '2020-08'}
+                {'form': 'gas_distribution', 'year'='2020'}
+        """
+        all_page_dfs = {}
+        if not partitions:
+            logger.warning(
+                f"No partitions were given. Not extracting {self._dataset_name} "
+                "spreadsheet data."
+            )
+            return all_page_dfs
+        logger.info(f"Extracting {self._dataset_name} spreadsheet data.")
+
+        for page in self._metadata.get_all_pages():
+            if page in self.BLACKLISTED_PAGES:
+                logger.debug(f"Skipping blacklisted page {page}.")
+                continue
+            current_page_dfs = [
+                pd.DataFrame(),
+            ]
+            for partition in pudl.helpers.iterate_multivalue_dict(**partitions):
+                # we are going to skip
+                if self.source_filename(page, **partition) == "-1":
+                    logger.debug(f"No page for {self._dataset_name} {page} {partition}")
+                    continue
+                logger.debug(
+                    f"Loading dataframe for {self._dataset_name} {page} {partition}"
+                )
+                df = self.load_source(page, **partition)
+                df = pudl.helpers.simplify_columns(df)
+                df = self.process_raw(df, page, **partition)
+                df = self.process_renamed(df, page, **partition)
+                self.validate(df, page, **partition)
+                current_page_dfs.append(df)
+
+            all_page_dfs[page] = self.combine(current_page_dfs, page)
+        return all_page_dfs
 
 
 @op

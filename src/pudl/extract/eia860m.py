@@ -32,7 +32,7 @@ class Extractor(excel.ExcelExtractor):
         Args:
             ds (:class:datastore.Datastore): Initialized datastore.
         """
-        self.METADATA = excel.Metadata("eia860m")
+        self.METADATA = excel.ExcelMetadata("eia860m")
         self.cols_added = []
         super().__init__(*args, **kwargs)
 
@@ -75,7 +75,7 @@ def append_eia860m(eia860_raw_dfs, eia860m_raw_dfs):
         Each raw page stored in eia860m_raw_dfs appened to its eia860_raw_dfs
         counterpart.
     """
-    meta_eia860m = excel.Metadata("eia860m")
+    meta_eia860m = excel.ExcelMetadata("eia860m")
     pages_eia860m = meta_eia860m.get_all_pages()
     # page names in 860m and 860 are the same.
     for page in pages_eia860m:

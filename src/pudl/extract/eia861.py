@@ -26,7 +26,7 @@ class Extractor(excel.ExcelExtractor):
         Args:
             ds (:class:datastore.Datastore): Initialized datastore.
         """
-        self.METADATA = excel.Metadata("eia861")
+        self.METADATA = excel.ExcelMetadata("eia861")
         self.cols_added = []
         super().__init__(*args, **kwargs)
         warnings.warn(
