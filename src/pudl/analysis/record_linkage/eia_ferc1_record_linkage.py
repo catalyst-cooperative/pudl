@@ -45,10 +45,9 @@ from pudl.analysis.record_linkage import embed_dataframe
 from pudl.metadata.classes import DataSource, Resource
 
 logger = pudl.logging_helpers.get_logger(__name__)
-# Silence the recordlinkage logger, which is out of control
 
 pair_vectorizers = embed_dataframe.dataframe_embedder_factory(
-    "ferc_eia_pair_vectorizers",
+    "ferc1_eia_pair_vectorizers",
     {
         "plant_name": embed_dataframe.ColumnVectorizer(
             transform_steps=[
