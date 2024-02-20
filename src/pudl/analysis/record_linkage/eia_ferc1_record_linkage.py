@@ -978,6 +978,8 @@ def _log_match_coverage(connects_ferc1_eia):
     def _get_match_pct(df):
         return len(df[df["record_id_eia"].notna()]) / len(df)
 
+    # TODO: experiment tracking
+    # TODO: anything from RMI notebook to add?
     logger.info(
         "Coverage for matches during EIA working years:\n"
         f"    Fuel type: {fuel_type_coverage:.01%}\n"
@@ -1020,6 +1022,9 @@ def check_match_consistency(
     expected_uniform_capacity_consistency = 0.85
     mask = connects_ferc1_eia.record_id_eia.notnull()
 
+    # TODO: do we still want consistency with overwrites?
+    # TODO: are those FERC ID's still missing?
+    # TODO: change "overrides" to "overwrites" for consistency
     if match_set == "overrides":
         expected_consistency = 0.39
         expected_uniform_capacity_consistency = 0.75
@@ -1056,10 +1061,12 @@ def check_match_consistency(
         .nunique()
     )
     actual_consistency = len(count[count.plant_part_id_eia == 1]) / len(count)
+    # TODO: experiment tracking
     logger.info(
         f"Matches with consistency across years of {match_set} matches is "
         f"{actual_consistency:.1%}"
     )
+    # TODO: take out assertion and just log a message
     if actual_consistency < expected_consistency:
         raise AssertionError(
             "Inter-year consistency between plant_id_ferc1 and plant_part_id_eia of "
@@ -1070,11 +1077,13 @@ def check_match_consistency(
         len(count)
         - len(count[(count.plant_part_id_eia > 1) & (count.capacity_mw_ferc1 == 1)])
     ) / len(count)
+    # TODO: experiment tracking
     logger.info(
         "Matches with a uniform FERC 1 capacity have an inter-year consistency between "
         "plant_id_ferc1 and plant_part_id_eia of "
         f"{actual_uniform_capacity_consistency:.1%}"
     )
+    # TODO: take out assertion
     if actual_uniform_capacity_consistency < expected_uniform_capacity_consistency:
         raise AssertionError(
             "Inter-year consistency between plant_id_ferc1 and plant_part_id_eia of "
