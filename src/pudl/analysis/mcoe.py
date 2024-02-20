@@ -40,10 +40,10 @@ the final table.
 
 
 def mcoe_asset_factory(
-    freq: Literal["AS", "MS"],
+    freq: Literal["YS", "MS"],
 ) -> list[AssetsDefinition]:
     """Build MCOE related assets at yearly and monthly frequencies."""
-    agg_freqs = {"AS": "yearly", "MS": "monthly"}
+    agg_freqs = {"YS": "yearly", "MS": "monthly"}
     if freq not in agg_freqs:
         raise ValueError(f"freq must be one of {agg_freqs.keys()}, got: {freq}.")
 
@@ -225,7 +225,7 @@ def mcoe_asset_factory(
 
 mcoe_assets = [
     mcoe_asset
-    for freq in ["AS", "MS"]
+    for freq in ["YS", "MS"]
     for mcoe_asset in mcoe_asset_factory(
         freq=freq,
     )
@@ -532,7 +532,7 @@ def fuel_cost(
 def capacity_factor(
     gens: pd.DataFrame,
     gen: pd.DataFrame,
-    freq: Literal["AS", "MS"],
+    freq: Literal["YS", "MS"],
     min_cap_fact: float | None = None,
     max_cap_fact: float | None = None,
 ) -> pd.DataFrame:
@@ -659,7 +659,7 @@ def mcoe(
 def mcoe_generators(
     mcoe: pd.DataFrame,
     gens: pd.DataFrame,
-    freq: Literal["AS", "MS"],
+    freq: Literal["YS", "MS"],
     all_gens: bool = True,
     timeseries_fillin: bool = False,
 ) -> pd.DataFrame:

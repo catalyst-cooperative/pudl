@@ -105,7 +105,7 @@ def test_distribute_annually_reported_data_to_months_if_annual():
 class PudlTablMock:
     """Mock ``pudl_out`` object."""
 
-    freq: Literal["AS", "MS"]
+    freq: Literal["YS", "MS"]
 
     def __init__(
         self,
@@ -116,7 +116,7 @@ class PudlTablMock:
         plants_eia860=None,
         boiler_fuel_eia923=None,
         boiler_generator_assn_eia860=None,
-        freq: Literal["AS"] = "AS",
+        freq: Literal["YS"] = "YS",
     ):
         self._gens_eia860 = gens_eia860
         self._gen_eia923 = gen_eia923
@@ -215,7 +215,7 @@ def base_case():
         generation_fuel_eia923=generation_fuel_eia923,
         boiler_fuel_eia923=boiler_fuel_eia923,
         boiler_generator_assn_eia860=boiler_generator_assn_eia860,
-        freq="AS",
+        freq="YS",
     )
 
 

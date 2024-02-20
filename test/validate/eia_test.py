@@ -75,18 +75,18 @@ def test_minmax_rows(
 
     Args:
         pudl_out_eia: A PudlTabl output object.
-        live_dbs (bool): Whether we're using a live or testing DB.
+        live_dbs: Whether we're using a live or testing DB.
         raw_rows: The expected original number of rows, without aggregation.
         annual_rows: The expected number of rows when using annual aggregation.
         monthly_rows: The expected number of rows when using monthly aggregation.
-        df_name (str): Shorthand name identifying the dataframe, corresponding
+        df_name: Shorthand name identifying the dataframe, corresponding
             to the name of the function used to pull it from the PudlTabl
             output object.
     """
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
     skip_table_if_null_freq_table(table_name=df_name, freq=pudl_out_eia.freq)
-    if pudl_out_eia.freq == "AS":
+    if pudl_out_eia.freq == "YS":
         expected_rows = annual_rows
     elif pudl_out_eia.freq == "MS":
         expected_rows = monthly_rows
