@@ -705,7 +705,7 @@ def restrict_train_connections_on_date_range(
     date_range_years_str = "|".join(
         [
             f"{year}"
-            for year in pd.date_range(start=start_date, end=end_date, freq="AS").year
+            for year in pd.date_range(start=start_date, end=end_date, freq="YS").year
         ]
     )
     logger.info(f"Restricting training data on years: {date_range_years_str}")

@@ -1437,7 +1437,7 @@ def dedupe_on_category(
 
 def calc_capacity_factor(
     df: pd.DataFrame,
-    freq: Literal["AS", "MS"],
+    freq: Literal["YS", "MS"],
     min_cap_fact: float | None = None,
     max_cap_fact: float | None = None,
 ) -> pd.DataFrame:
@@ -1454,7 +1454,7 @@ def calc_capacity_factor(
         df: table with required inputs for capacity factor (``report_date``,
             ``net_generation_mwh`` and ``capacity_mw``).
         freq: String describing time frequency at which to aggregate the reported data,
-            such as ``MS`` (month start) or ``AS`` (annual start).
+            such as ``MS`` (month start) or ``YS`` (annual start).
         min_cap_fact: Lower bound, below which values are set to NaN. If None, don't use
             a lower bound. Default is None.
         max_cap_fact: Upper bound, below which values are set to NaN.  If None, don't

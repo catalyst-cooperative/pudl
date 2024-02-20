@@ -677,7 +677,7 @@ def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:
     gen_eia923 = clean_dfs["_core_eia923__generation"]
     gen_eia923 = (
         gen_eia923.set_index(pd.DatetimeIndex(gen_eia923.report_date))
-        .groupby([pd.Grouper(freq="AS"), "plant_id_eia", "generator_id"])
+        .groupby([pd.Grouper(freq="YS"), "plant_id_eia", "generator_id"])
         .net_generation_mwh.sum()
         .reset_index()
         .assign(missing_from_923=False)
@@ -728,7 +728,7 @@ def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:
     )
     bf_eia923 = (
         bf_eia923.set_index(pd.DatetimeIndex(bf_eia923.report_date))
-        .groupby([pd.Grouper(freq="AS"), "plant_id_eia", "boiler_id"])
+        .groupby([pd.Grouper(freq="YS"), "plant_id_eia", "boiler_id"])
         .agg({"total_heat_content_mmbtu": pudl.helpers.sum_na})
         .reset_index()
         .drop_duplicates(subset=["plant_id_eia", "report_date", "boiler_id"])

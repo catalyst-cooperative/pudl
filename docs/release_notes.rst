@@ -26,6 +26,30 @@ Schema Changes
   :ref:`out_ferc1__yearly_pumped_storage_plants_sched408`
   See issue :issue:`3416` & PR :pr:`3417`
 
+Pandas 2.2
+^^^^^^^^^^
+We've updated to Pandas 2.2, which has a number of changes and deprecations.  See PRs
+:pr:`3272,3410`.
+
+* Changes in
+  `how merge results are sorted
+  <https://pandas.pydata.org/pandas-docs/stable/whatsnew/v2.2.0.html#merge-and-dataframe-join-now-consistently-follow-documented-sort-behavior>`__
+  impacted the assignment of ``unit_id_pudl`` values, so any hard-coded values that
+  dependent on the previous assignments will likely be incorrect now. We had to update a
+  number of tests and FERC1-EIA record linkage training data to account for this change.
+* Pandas is also deprecating the use of the ``AS`` frequency alias, in favor of ``YS``,
+  so many references to the old alias have been updated.
+* We've switched to using the ``calamine`` engine for reading Excel files, which is
+  much faster than the old ``openpyxl`` library.
+
+Parquet Output
+^^^^^^^^^^^^^^
+The ETL now outputs PyArrow Parquet files for all tables that are written to the PUDL
+DB. The Parquet outputs are used as the interim storage for the ETL, rather than reading
+all tables out of the SQLite DB. We aren't publicly distributing the Parquet outputs
+yet, but are giving them a test run with some existing users. See :issue:`3102`
+:pr:`3296,3399`.
+
 .. _release-v2024.02.05:
 
 ---------------------------------------------------------------------------------------
