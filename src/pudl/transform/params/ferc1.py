@@ -2692,7 +2692,7 @@ TRANSFORM_PARAMS = {
                 "stacked_column_name": "xbrl_factoid",
             }
         },
-        "add_columns_with_uniform_value": {
+        "add_columns_with_uniform_values": {
             "columns_to_add": {
                 "utility_type": {"column_value": "electric", "is_dimension": True},
                 "plant_status": {"column_value": "in_service", "is_dimension": True},
@@ -3393,7 +3393,7 @@ TRANSFORM_PARAMS = {
             },
             "quarterly_filed_years": range(2005, 2021),
         },
-        "add_columns_with_uniform_value": {
+        "add_columns_with_uniform_values": {
             "columns_to_add": {
                 "utility_type": {"column_value": "total", "is_dimension": True}
             }
@@ -3464,7 +3464,7 @@ TRANSFORM_PARAMS = {
             },
             "quarterly_filed_years": range(2005, 2021),
         },
-        "add_columns_with_uniform_value": {
+        "add_columns_with_uniform_values": {
             "columns_to_add": {
                 "utility_type": {"column_value": "total", "is_dimension": True}
             }
@@ -3540,7 +3540,7 @@ TRANSFORM_PARAMS = {
         },
         "categorize_strings": {"plant_function": PLANT_FUNCTION_CATEGORIES},
         "align_row_numbers_dbf": {"dbf_table_names": ["f1_dacs_epda"]},
-        "add_columns_with_uniform_value": {
+        "add_columns_with_uniform_values": {
             "columns_to_add": {
                 "utility_type": {"column_value": "electric", "is_dimension": True}
             }
@@ -3675,7 +3675,7 @@ TRANSFORM_PARAMS = {
             "select_by_xbrl_categories": True,
             "len_expected_categories_to_drop": 4,
         },
-        "add_columns_with_uniform_value": {
+        "add_columns_with_uniform_values": {
             "columns_to_add": {
                 "utility_type": {"column_value": "electric", "is_dimension": True}
             }
@@ -3781,7 +3781,7 @@ TRANSFORM_PARAMS = {
         "unstack_balances_to_report_year_instant_xbrl": {
             "unstack_balances_to_report_year": True
         },
-        "add_columns_with_uniform_value": {
+        "add_columns_with_uniform_values": {
             "columns_to_add": {
                 "utility_type": {"column_value": "total", "is_dimension": True}
             }
@@ -4536,7 +4536,7 @@ TRANSFORM_PARAMS = {
             "data_columns": ["dollar_value"],
             "table_name": "core_ferc1__yearly_operating_expenses_sched320",
         },
-        "add_columns_with_uniform_value": {
+        "add_columns_with_uniform_values": {
             "columns_to_add": {
                 "utility_type": {"column_value": "electric", "is_dimension": True}
             }

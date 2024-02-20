@@ -1217,7 +1217,7 @@ def _out_ferc1__detailed_tags(_core_ferc1__table_dimensions) -> pd.DataFrame:
 def _get_tags(
     file_name: str, _core_ferc1__table_dimensions: pd.DataFrame
 ) -> pd.DataFrame:
-    """Grab tags from a stored CSV file and apply :func:`make_calculation_dimensions_explicit`."""
+    """Grab tags from a stored CSV file and apply :func:`make_xbrl_factoid_dimensions_explicit`."""
     tags_csv = importlib.resources.files("pudl.package_data.ferc1") / file_name
     tags_df = (
         pd.read_csv(tags_csv)
@@ -1225,7 +1225,7 @@ def _get_tags(
         .dropna(subset=["table_name", "xbrl_factoid"], how="any")
         .astype(pd.StringDtype())
         .pipe(
-            pudl.transform.ferc1.make_calculation_dimensions_explicit,
+            pudl.transform.ferc1.make_xbrl_factoid_dimensions_explicit,
             _core_ferc1__table_dimensions,
             dimensions=["utility_type", "plant_function", "plant_status"],
         )
@@ -1252,7 +1252,7 @@ def _aggregatable_dimension_tags(
         .assign(**{dim: pd.NA for dim in dimensions})
         .astype(pd.StringDtype())
         .pipe(
-            pudl.transform.ferc1.make_calculation_dimensions_explicit,
+            pudl.transform.ferc1.make_xbrl_factoid_dimensions_explicit,
             _core_ferc1__table_dimensions,
             dimensions=dimensions,
         )
@@ -1752,7 +1752,7 @@ class Exploder:
     def prep_table_to_explode(
         self: Self, table_name: str, table_df: pd.DataFrame
     ) -> pd.DataFrame:
-        """Prep an core input table for explosion."""
+        """Assign table name and rename factoid column in preparation for explosion."""
         xbrl_factoid_name = pudl.transform.ferc1.FERC1_TFR_CLASSES[
             table_name
         ]().params.xbrl_factoid_name

@@ -752,14 +752,14 @@ def assign_quarterly_data_to_yearly_dbf(
 
 
 class AddColumnWithUniformValue(TransformParams):
-    """Parameters for adding a column to a table with a signle value."""
+    """Parameters for adding a column to a table with a single value."""
 
     column_value: Any = None
     is_dimension: bool = False
 
 
-class AddColumsWithUniformValue(TransformParams):
-    """Parameters for adding columns to a table with a signle value."""
+class AddColumnsWithUniformValues(TransformParams):
+    """Parameters for adding columns to a table with a single value."""
 
     columns_to_add: dict[str, AddColumnWithUniformValue] = {}
     "Dictionary of column names (keys) with :class:`AddColumnWithUniformValue` (values)"
@@ -773,8 +773,8 @@ class AddColumsWithUniformValue(TransformParams):
         }
 
 
-def add_columns_with_uniform_value(
-    df: pd.DataFrame, params: AddColumsWithUniformValue
+def add_columns_with_uniform_values(
+    df: pd.DataFrame, params: AddColumnsWithUniformValues
 ) -> pd.DataFrame:
     """Add a column to a table with a single value."""
     return df.assign(**params.assign_cols)
@@ -1040,7 +1040,7 @@ def _calculation_components_subtotal_calculations(
     meta_w_dims = xbrl_metadata.assign(
         **{dim: pd.NA for dim in dim_cols} | {"table_name": table_name}
     ).pipe(
-        make_calculation_dimensions_explicit,
+        make_xbrl_factoid_dimensions_explicit,
         table_dimensions_ferc1=table_dims,
         dimensions=dim_cols,
     )
@@ -1106,7 +1106,7 @@ def _add_intra_table_calculation_dimensions(
             ),
         ]
     )
-    intra_table_calcs = make_calculation_dimensions_explicit(
+    intra_table_calcs = make_xbrl_factoid_dimensions_explicit(
         intra_table_calcs,
         table_dimensions_ferc1=table_dims,
         dimensions=dim_cols,
@@ -1550,7 +1550,8 @@ def add_corrections(
     )
 
     return pd.concat(
-        [calculated_df.convert_dtypes(), corrections.convert_dtypes()], axis="index"
+        [calculated_df, corrections.astype(calculated_df.dtypes, errors="ignore")],
+        axis="index",
     )
 
 
@@ -1582,8 +1583,8 @@ class Ferc1TableTransformParams(TableTransformParams):
     reconcile_table_calculations: ReconcileTableCalculations = (
         ReconcileTableCalculations()
     )
-    add_columns_with_uniform_value: AddColumsWithUniformValue = (
-        AddColumsWithUniformValue()
+    add_columns_with_uniform_values: AddColumnsWithUniformValues = (
+        AddColumnsWithUniformValues()
     )
 
     @property
@@ -1614,7 +1615,7 @@ class Ferc1TableTransformParams(TableTransformParams):
             for (
                 dim,
                 col_info,
-            ) in self.add_columns_with_uniform_value.columns_to_add.items()
+            ) in self.add_columns_with_uniform_values.columns_to_add.items()
             if col_info.is_dimension
         }
         if self.reconcile_table_calculations.subtotal_column:
@@ -1929,7 +1930,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 .encode
             )
             .pipe(self.merge_xbrl_metadata)
-            .pipe(self.add_columns_with_uniform_value)
+            .pipe(self.add_columns_with_uniform_values)
         )
         return df
 
@@ -2061,9 +2062,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .all()
             .astype(pd.BooleanDtype())
         )
-        if self.params.add_columns_with_uniform_value.columns_to_add:
+        if self.params.add_columns_with_uniform_values.columns_to_add:
             tbl_meta = tbl_meta.assign(
-                **self.params.add_columns_with_uniform_value.assign_cols
+                **self.params.add_columns_with_uniform_values.assign_cols
             )
         tbl_meta = tbl_meta.reset_index().pipe(self.add_metadata_corrections)
         return tbl_meta
@@ -2181,7 +2182,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             xbrl_factoid=lambda x: x.xbrl_factoid + "_correction",
         )
         tbl_meta = (
-            pd.concat([tbl_meta, correction_meta])
+            pd.concat(
+                [tbl_meta, correction_meta.astype(tbl_meta.dtypes, errors="ignore")]
+            )
             .reset_index(drop=True)
             .convert_dtypes()
         )
@@ -2395,17 +2398,17 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 )
         return calc_comps.convert_dtypes()
 
-    def add_columns_with_uniform_value(
-        self, df: pd.DataFrame, params: AddColumsWithUniformValue | None = None
+    def add_columns_with_uniform_values(
+        self, df: pd.DataFrame, params: AddColumnsWithUniformValues | None = None
     ) -> pd.DataFrame:
         """Add a column with a uniform value."""
         if not params:
-            params = self.params.add_columns_with_uniform_value
+            params = self.params.add_columns_with_uniform_values
         if params.columns_to_add:
             logger.info(
                 f"{self.table_id.value}: Adding uniform value columns. {params.assign_cols}"
             )
-            df = add_columns_with_uniform_value(df, params)
+            df = add_columns_with_uniform_values(df, params)
         return df
 
     @cache_df(key="merge_xbrl_metadata")
@@ -4605,7 +4608,9 @@ class UtilityPlantSummaryTableTransformer(Ferc1AbstractTableTransformer):
             }
         ).convert_dtypes()
 
-        tbl_meta = pd.concat([tbl_meta, new_fact]).reset_index(drop=True)
+        tbl_meta = pd.concat(
+            [tbl_meta, new_fact.astype(tbl_meta.dtypes, errors="ignore")]
+        ).reset_index(drop=True)
         return tbl_meta
 
     def transform_main(self: Self, df: pd.DataFrame) -> pd.DataFrame:
@@ -6156,7 +6161,7 @@ def _core_ferc1_xbrl__metadata(**kwargs) -> pd.DataFrame:
         .reset_index(drop=True)
         .assign(**{dim: pd.NA for dim in dimensions})
         .pipe(
-            make_calculation_dimensions_explicit,
+            make_xbrl_factoid_dimensions_explicit,
             table_dimensions_ferc1=_core_ferc1__table_dimensions,
             dimensions=dimensions,
         )
@@ -6182,7 +6187,7 @@ def _core_ferc1_xbrl__calculation_components(**kwargs) -> pd.DataFrame:
     for table_name, transformer in FERC1_TFR_CLASSES.items():
         calc_meta = transformer(
             xbrl_metadata_json=_core_ferc1_xbrl__metadata_json[table_name]
-        ).xbrl_calculations
+        ).xbrl_calculations.convert_dtypes()
         calc_metas.append(calc_meta)
     # squish all of the calc comp tables then add in the implicit table dimensions
     dimensions = other_dimensions(table_names=list(FERC1_TFR_CLASSES))
@@ -6190,7 +6195,7 @@ def _core_ferc1_xbrl__calculation_components(**kwargs) -> pd.DataFrame:
         pd.concat(calc_metas)
         .astype({dim: pd.StringDtype() for dim in dimensions})
         .pipe(
-            make_calculation_dimensions_explicit,
+            make_xbrl_factoid_dimensions_explicit,
             _core_ferc1__table_dimensions,
             dimensions=dimensions,
         )
@@ -6373,8 +6378,8 @@ def check_for_calc_components_duplicates(
         )
 
 
-def make_calculation_dimensions_explicit(
-    calculation_components: pd.DataFrame,
+def make_xbrl_factoid_dimensions_explicit(
+    df_w_xbrl_factoid: pd.DataFrame,
     table_dimensions_ferc1: pd.DataFrame,
     dimensions: list[str],
     parent: bool = False,
@@ -6424,7 +6429,10 @@ def make_calculation_dimensions_explicit(
     logger.info(f"Adding {dimensions=} into calculation component table.")
     # even though we don't actually get correction records for all of the
     # factiods, we are still going to force them to exist here so all of the
-    # downstream processes have them all.
+    # downstream processes have them all. All table dim facts get correction
+    # records regardless of whether they are calculated values.
+    # The non-calcualted _correction records will be dropped in the left
+    # merge below while assigning df_w_implied_dims
     non_correction_mask = ~table_dimensions_ferc1.xbrl_factoid.str.endswith(
         "_correction"
     )
@@ -6438,7 +6446,7 @@ def make_calculation_dimensions_explicit(
             ),
         ]
     )
-    calc_comps_w_dims = calculation_components.copy()
+    df_w_dims = df_w_xbrl_factoid.copy()
     on_cols = ["table_name", "xbrl_factoid"]
     if parent:
         table_dimensions_ferc1 = table_dimensions_ferc1.rename(
@@ -6458,23 +6466,23 @@ def make_calculation_dimensions_explicit(
             .dropna(subset=dim_col)
         )  # bc there are dupes after we removed the other dim cols
 
-        null_dim_mask = calc_comps_w_dims[dim_col].isnull()
-        null_dim = calc_comps_w_dims[null_dim_mask].drop(columns=[dim_col])
-        calc_comps_w_implied_dims = pd.merge(
+        null_dim_mask = df_w_dims[dim_col].isnull()
+        null_dim = df_w_dims[null_dim_mask].drop(columns=[dim_col])
+        df_w_implied_dims = pd.merge(
             null_dim,
             observed_dim,
             on=on_cols,
             how="left",
         )
-        calc_comps_w_explicit_dims = calc_comps_w_dims[~null_dim_mask]
-        # astypes dealing w/ future warning regarding empty or all null dfs
-        calc_comps_w_dims = pd.concat(
+        df_w_explicit_dims = df_w_dims[~null_dim_mask]
+        # astypes dealing w/ future warning regarding all null columns
+        df_w_dims = pd.concat(
             [
-                calc_comps_w_implied_dims.convert_dtypes(),
-                calc_comps_w_explicit_dims.convert_dtypes(),
+                df_w_implied_dims,
+                df_w_explicit_dims.astype(df_w_implied_dims.dtypes, errors="ignore"),
             ]
         )
-    return calc_comps_w_dims
+    return df_w_dims
 
 
 def assign_parent_dimensions(
@@ -6497,13 +6505,13 @@ def assign_parent_dimensions(
     # desired: add parental dimension columns
     for dim in dimensions:
         # split the nulls and non-nulls. If the child dim is null, then we can run the
-        # parent factoid through make_calculation_dimensions_explicit to get it's dims.
+        # parent factoid through make_xbrl_factoid_dimensions_explicit to get it's dims.
         # if a child fact has dims, we need to merge the dimensions using the dim of the
         # child and the dim of the parent bc we don't want to broadcast merge all parent
         # dims to all child dims. We are assuming here that if a child is has a dim
         null_dim_mask = calc_components[dim].isnull()
-        calc_components_null = make_calculation_dimensions_explicit(
-            calculation_components=calc_components[null_dim_mask].assign(
+        calc_components_null = make_xbrl_factoid_dimensions_explicit(
+            df_w_xbrl_factoid=calc_components[null_dim_mask].assign(
                 **{f"{dim}_parent": pd.NA}
             ),
             table_dimensions_ferc1=table_dimensions,
