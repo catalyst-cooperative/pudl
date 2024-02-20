@@ -66,18 +66,19 @@ def test_create_experiment_tracker(
     experiment_tracker_config = experiment_tracking.ExperimentTrackerConfig(
         **experiment_tracker_config,
         tracking_enabled=tracking_enabled,
-        experiment_name=experiment_name,
     )
-    experiment_tracker = experiment_tracking.create_experiment_tracker(
-        experiment_tracker_config
-    )
+    experiment_tracker = experiment_tracking.experiment_tracker_factory(
+        experiment_name,
+        {},
+        run_context="testing",
+    )(experiment_tracker_config)
     experiment_tracker.execute_logging(
         lambda: mlflow.log_param("test_param", "param_value")
     )
     experiment_tracker.execute_logging(lambda: mlflow.log_metric("test_metric", 5.0))
     runs_df = mlflow.search_runs(
         output_format="pandas",
-        experiment_names=[experiment_tracker_config.experiment_name],
+        experiment_names=[experiment_name],
     )
 
     if tracking_enabled:
@@ -87,7 +88,7 @@ def test_create_experiment_tracker(
                 {
                     "params.test_param": ["param_value"],
                     "metrics.test_metric": [5.0],
-                    "tags.run_context": [experiment_tracker_config.run_context],
+                    "tags.run_context": ["testing"],
                 }
             ),
         )

@@ -34,14 +34,14 @@ from typing import Literal
 import mlflow
 import numpy as np
 import pandas as pd
-from dagster import Out, graph_asset, op
+from dagster import Out, graph, op
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import precision_recall_fscore_support
 from sklearn.model_selection import GridSearchCV, train_test_split
 
 import pudl
 import pudl.helpers
-from pudl.analysis.ml_tools import experiment_tracking
+from pudl.analysis.ml_tools import experiment_tracking, models
 from pudl.analysis.plant_parts_eia import match_to_single_plant_part
 from pudl.analysis.record_linkage import embed_dataframe
 from pudl.metadata.classes import DataSource, Resource
@@ -295,8 +295,13 @@ def get_match_full_records(best_match_df, inputs):
     ).enforce_schema(connected_df)
 
 
-@graph_asset
-def out_pudl__yearly_assn_eia_ferc1_plant_parts(
+@models.pudl_model(
+    "out_pudl__yearly_assn_eia_ferc1_plant_parts",
+    config_from_yaml=False,
+)
+@graph
+def ferc_to_eia(
+    experiment_tracker: experiment_tracking.ExperimentTracker,
     out_ferc1__yearly_all_plants: pd.DataFrame,
     out_ferc1__yearly_steam_plants_fuel_by_plant_sched402: pd.DataFrame,
     out_eia__yearly_plant_parts: pd.DataFrame,
@@ -309,15 +314,6 @@ def out_pudl__yearly_assn_eia_ferc1_plant_parts(
             reported aggregated to the FERC1 plant-level.
         out_eia__yearly_plant_parts: The EIA plant parts list.
     """
-    experiment_tracker = experiment_tracking.create_experiment_tracker.configured(
-        {
-            "experiment_name": "ferc_to_eia",
-            "log_yaml": False,
-            "run_context": "production",
-        },
-        name="ferc_to_eia_tracker",
-    )()
-
     inputs = get_compiled_input_manager(
         out_ferc1__yearly_all_plants,
         out_ferc1__yearly_steam_plants_fuel_by_plant_sched402,

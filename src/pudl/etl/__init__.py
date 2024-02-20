@@ -116,6 +116,7 @@ default_tag_concurrency_limits = [
 default_config = pudl.helpers.get_dagster_execution_config(
     tag_concurrency_limits=default_tag_concurrency_limits
 )
+default_config |= pudl.analysis.ml_tools.get_ml_models_config()
 
 
 def create_non_cems_selection(all_assets: list[AssetsDefinition]) -> AssetSelection:

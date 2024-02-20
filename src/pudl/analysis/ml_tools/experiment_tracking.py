@@ -1,9 +1,7 @@
 """This module provides shared tooling that can be used by all record linkage models."""
-import importlib
 from collections.abc import Callable
 
 import mlflow
-import yaml
 from dagster import Config, op
 from pydantic import BaseModel
 
@@ -11,20 +9,6 @@ import pudl
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
-
-
-def get_model_config(experiment_name: str) -> dict:
-    """Load model configuration from yaml file."""
-    config_file = (
-        importlib.resources.files("pudl.package_data.settings")
-        / "record_linkage_model_config.yml"
-    )
-    config = yaml.safe_load(config_file.open("r"))
-
-    if not (model_config := config.get(experiment_name)):
-        raise RuntimeError(f"No {experiment_name} entry in {config_file}")
-
-    return {experiment_name: model_config}
 
 
 def _flatten_model_config(model_config: dict) -> dict:
@@ -72,9 +56,6 @@ class ExperimentTrackerConfig(Config):
 
     tracking_uri: str = f"sqlite:///{PudlPaths().output_dir}/experiments.sqlite"
     tracking_enabled: bool = True
-    experiment_name: str
-    log_yaml: bool
-    run_context: str
     #: Location to store artifacts. Artifact storage not currently used.
     artifact_location: str = str(PudlPaths().output_dir)
 
@@ -103,39 +84,44 @@ class ExperimentTracker(BaseModel):
 
     tracker_config: ExperimentTrackerConfig
     run_id: str
+    experiment_name: str
 
     @classmethod
     def create_experiment_tracker(
-        cls, experiment_config: ExperimentTrackerConfig
+        cls,
+        experiment_config: ExperimentTrackerConfig,
+        experiment_name: str,
+        model_config: dict,
+        run_context: str,
     ) -> "ExperimentTracker":
         """Create experiment tracker for specified experiment."""
         run_id = ""
         if experiment_config.tracking_enabled:
             logger.info(
-                f"Experiment tracker is enabled for {experiment_config.experiment_name}"
-                "To view results in the mlflow ui, execute the command:"
-                f"` mlflow ui --backend-store-uri {experiment_config.tracking_uri}`"
+                f"Experiment tracker is enabled for {experiment_name}. "
+                "To view results in the mlflow ui, execute the command: "
+                f"`mlflow ui --backend-store-uri {experiment_config.tracking_uri}`"
             )
             mlflow.set_tracking_uri(experiment_config.tracking_uri)
             # Create new run under specified experiment
             with mlflow.start_run(
                 experiment_id=cls.get_or_create_experiment(
-                    experiment_name=experiment_config.experiment_name,
+                    experiment_name=experiment_name,
                     artifact_location=experiment_config.artifact_location,
                 ),
-                tags={"run_context": experiment_config.run_context},
+                tags={"run_context": run_context},
             ) as run:
-                # Log model configuration from yaml file if enabled
-                if experiment_config.log_yaml:
-                    config = _flatten_model_config(
-                        get_model_config(experiment_config.experiment_name)
-                    )
-                    mlflow.log_params(config)
+                # Log model configuration
+                mlflow.log_params(model_config)
 
                 # Get run_id from new run so it can be restarted in other processes
                 run_id = run.info.run_id
 
-        return cls(tracker_config=experiment_config, run_id=run_id)
+        return cls(
+            tracker_config=experiment_config,
+            run_id=run_id,
+            experiment_name=experiment_name,
+        )
 
     def execute_logging(self, logging_func: Callable):
         """Perform MLflow logging statement inside ExperimentTracker run.
@@ -151,9 +137,7 @@ class ExperimentTracker(BaseModel):
             # Calling `start_run` with `run_id` will tell mlflow to start the run again
             with mlflow.start_run(
                 run_id=self.run_id,
-                experiment_id=self.get_or_create_experiment(
-                    self.tracker_config.experiment_name
-                ),
+                experiment_id=self.get_or_create_experiment(self.experiment_name),
             ):
                 logging_func()
 
@@ -180,7 +164,20 @@ class ExperimentTracker(BaseModel):
         return experiment_id
 
 
-@op
-def create_experiment_tracker(config: ExperimentTrackerConfig) -> ExperimentTracker:
+def experiment_tracker_factory(
+    experiment_name: str,
+    model_config: dict,
+    run_context: str,
+) -> ExperimentTracker:
     """Use config to create an experiment tracker."""
-    return ExperimentTracker.create_experiment_tracker(config)
+
+    @op(name=f"{experiment_name}_tracker")
+    def create_experiment_tracker(config: ExperimentTrackerConfig):
+        return ExperimentTracker.create_experiment_tracker(
+            config,
+            experiment_name,
+            model_config,
+            run_context,
+        )
+
+    return create_experiment_tracker
