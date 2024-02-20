@@ -174,7 +174,7 @@ def ferc_to_ferc(
         out_ferc1__yearly_steam_plants_fuel_by_plant_sched402,
     )
     feature_matrix = ferc_dataframe_embedder(input_df, experiment_tracker)
-    label_df = link_ids_cross_year(input_df, feature_matrix)
+    label_df = link_ids_cross_year(input_df, feature_matrix, experiment_tracker)
 
     return plants_steam_validate_ids(
         experiment_tracker, core_ferc1__yearly_steam_plants_sched402, label_df
