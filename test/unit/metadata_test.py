@@ -107,15 +107,14 @@ def test_resource_descriptors_valid():
     assert len(descriptors) > 0
 
 
-def test_resource_descriptors_can_encode_schemas():
+@pytest.fixture()
+def dummy_pandera_schema():
     resource_descriptor = PudlResourceDescriptor.model_validate(
         {
             "description": "test resource based on core_eia__entity_plants",
             "schema": {
                 "fields": ["plant_id_eia", "city", "state"],
                 "primary_key": ["plant_id_eia"],
-                "df_checks": [pr.Check(lambda df: df.city < df.state)],
-                "field_checks": {"plant_id_eia": [pr.Check.gt(10000)]},
             },
             "sources": ["eia860", "eia923"],
             "etl_group": "entity_eia",
@@ -127,36 +126,52 @@ def test_resource_descriptors_can_encode_schemas():
             "test_eia__entity_plants", resource_descriptor
         )
     )
-    schema = resource.schema.to_pandera()
+    return resource.schema.to_pandera()
 
-    empty_dataframe = pd.DataFrame([])
-    with pytest.raises(
-        pr.errors.SchemaError, match="column 'plant_id_eia' not in dataframe"
-    ):
-        schema.validate(empty_dataframe)
 
-    bad_dtypes_dataframe = pd.DataFrame(
-        {"plant_id_eia": ["non_number"], "city": ["Bloomington"], "state": ["IL"]}
-    ).astype(str)
-    with pytest.raises(
-        pr.errors.SchemaError, match="expected series 'plant_id_eia' to have type Int64"
-    ):
-        schema.validate(bad_dtypes_dataframe)
-
-    # city must be alphabetically before state
-    bad_city_state_names = pd.DataFrame(
-        {"plant_id_eia": [12345], "city": ["Bloomington"], "state": ["AK"]}
-    ).pipe(apply_pudl_dtypes)
-    with pytest.raises(pr.errors.SchemaError, match="failed element-wise validator"):
-        schema.validate(bad_city_state_names)
-
-    bad_id_number = pd.DataFrame(
-        {"plant_id_eia": [0], "city": ["Bloomington"], "state": ["IL"]}
-    ).pipe(apply_pudl_dtypes)
-    with pytest.raises(pr.errors.SchemaError, match="failed element-wise validator"):
-        schema.validate(bad_id_number)
-
+def test_resource_descriptors_can_encode_schemas(dummy_pandera_schema):
     good_dataframe = pd.DataFrame(
-        {"plant_id_eia": [12345], "city": ["Bloomington"], "state": ["IL"]}
+        {
+            "plant_id_eia": [12345, 12346],
+            "city": ["Bloomington", "Springfield"],
+            "state": ["IL", "IL"],
+        }
     ).pipe(apply_pudl_dtypes)
-    assert not schema.validate(good_dataframe).empty
+    assert not dummy_pandera_schema.validate(good_dataframe).empty
+
+
+@pytest.mark.parametrize(
+    "error_msg,data",
+    [
+        pytest.param(
+            "column 'plant_id_eia' not in dataframe",
+            pd.DataFrame([]),
+            id="empty dataframe",
+        ),
+        pytest.param(
+            "expected series 'plant_id_eia' to have type Int64",
+            pd.DataFrame(
+                {
+                    "plant_id_eia": ["non_number"],
+                    "city": ["Bloomington"],
+                    "state": ["IL"],
+                }
+            ).astype(str),
+            id="bad dtype",
+        ),
+        pytest.param(
+            "columns .* not unique",
+            pd.DataFrame(
+                {
+                    "plant_id_eia": [12345, 12345],
+                    "city": ["Bloomington", "Springfield"],
+                    "state": ["IL", "IL"],
+                }
+            ).pipe(apply_pudl_dtypes),
+            id="duplicate PK",
+        ),
+    ],
+)
+def test_resource_descriptor_schema_failures(error_msg, data, dummy_pandera_schema):
+    with pytest.raises(pr.errors.SchemaError, match=error_msg):
+        dummy_pandera_schema.validate(data)

@@ -8,7 +8,7 @@ import warnings
 from collections.abc import Callable, Iterable
 from functools import lru_cache
 from pathlib import Path
-from typing import Annotated, Any, Literal, Self, TypeVar, cast
+from typing import Annotated, Any, Literal, Self, TypeVar
 
 import jinja2
 import pandas as pd
@@ -701,13 +701,10 @@ class Field(PudlMeta):
         """Recode the Field if it has an associated encoder."""
         return self.encoder.encode(col, dtype=dtype) if self.encoder else col
 
-    def to_pandera_column(
-        self, additional_checks: Iterable[pr.Check] = ()
-    ) -> pr.Column:
+    def to_pandera_column(self) -> pr.Column:
         """Encode this field def as a Pandera column."""
         constraints = self.constraints
-
-        checks = list(additional_checks) + self.constraints.to_pandera_checks()
+        checks = constraints.to_pandera_checks()
         column_type = "category" if constraints.enum else FIELD_DTYPES_PANDAS[self.type]
 
         return pr.Column(
@@ -773,8 +770,6 @@ class Schema(PudlMeta):
     missing_values: list[StrictStr] = [""]
     primary_key: list[SnakeCase] = []
     foreign_keys: list[ForeignKey] = []
-    df_checks: list[Callable] = []
-    field_checks: dict[SnakeCase, list[Callable]] = {}
 
     _check_unique = _validator(
         "missing_values", "primary_key", "foreign_keys", fn=_check_unique
@@ -823,16 +818,8 @@ class Schema(PudlMeta):
         # yet, so we encode as Callable, then cast.
 
         return pr.DataFrameSchema(
-            {
-                field.name: field.to_pandera_column(
-                    additional_checks=cast(
-                        list[pr.Check], self.field_checks.get(field.name, [])
-                    )
-                )
-                for field in self.fields
-            },
+            {field.name: field.to_pandera_column() for field in self.fields},
             unique=self.primary_key,
-            checks=cast(list[pr.Check], self.df_checks),
         )
 
 
@@ -1086,14 +1073,12 @@ class PudlResourceDescriptor(PudlMeta):
 
         field_ids: list[str] = pydantic.Field(alias="fields", default=[])
         primary_key_ids: list[str] = pydantic.Field(alias="primary_key", default=[])
-        df_checks: list[Callable] = []
-        field_checks: dict[str, list[Callable]] = {}
         foreign_key_rules: PudlForeignKeyRules = PudlForeignKeyRules()
 
     class PudlCodeMetadata(PudlMeta):
         """Describes a bunch of codes."""
 
-        class CodeDataframe(pr.DataFrameModel):
+        class CodeDataFrame(pr.DataFrameModel):
             """The DF we use to represent code/label/description associations."""
 
             # TODO (daz) 2024-02-09: each of these | Nones are one-offs. Fix
@@ -1103,7 +1088,7 @@ class PudlResourceDescriptor(PudlMeta):
             description: pr.typing.Series[str]
             operational_status: pr.typing.Series[str] | None
 
-        df: pr.typing.DataFrame[CodeDataframe] = pd.DataFrame(
+        df: pr.typing.DataFrame[CodeDataFrame] = pd.DataFrame(
             {"code": [], "label": [], "description": []}
         )
         code_fixes: dict = {}
