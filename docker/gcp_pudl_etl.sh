@@ -254,7 +254,6 @@ if [[ $ETL_SUCCESS == 0 ]]; then
     if [[ "$GITHUB_ACTION_TRIGGER" == "push" && "$BUILD_REF" == v20* ]]; then
         merge_tag_into_branch "$BUILD_REF" stable 2>&1 | tee -a "$LOGFILE"
         UPDATE_STABLE_SUCCESS=${PIPESTATUS[0]}
-
     fi
 
     # Deploy the updated data to datasette if we're on main
