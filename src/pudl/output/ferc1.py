@@ -1,4 +1,5 @@
 """A collection of denormalized FERC assets and helper functions."""
+
 import importlib
 import re
 from copy import deepcopy
@@ -855,7 +856,7 @@ def out_ferc1__yearly_utility_plant_summary_sched200(
 @asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def out_ferc1__yearly_all_plants(
     _out_ferc1__yearly_steam_plants_sched402: pd.DataFrame,
-    core_ferc1__yearly_small_plants_sched410: pd.DataFrame,
+    _out_ferc1__yearly_small_plants_sched410: pd.DataFrame,
     _out_ferc1__yearly_hydroelectric_plants_sched406: pd.DataFrame,
     _out_ferc1__yearly_pumped_storage_plants_sched408: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -886,7 +887,7 @@ def out_ferc1__yearly_all_plants(
     logger.debug("combining all tables")
     all_df = (
         pd.concat(
-            [steam_df, core_ferc1__yearly_small_plants_sched410, hydro_df, pump_df]
+            [steam_df, _out_ferc1__yearly_small_plants_sched410, hydro_df, pump_df]
         )
         .rename(
             columns={
