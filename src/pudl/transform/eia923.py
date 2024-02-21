@@ -1234,16 +1234,6 @@ def _core_eia923__cooling_system_information(
     # Generic cleaning
     csi_df = csi_df.pipe(pudl.helpers.fix_eia_na).pipe(pudl.helpers.convert_to_date)
 
-    # Convert cooling_status from code to description
-    csi_df["cooling_status"] = csi_df.cooling_status.str.upper().map(
-        pudl.helpers.label_map(
-            CODE_METADATA["core_eia__codes_operational_status"]["df"],
-            from_col="code",
-            to_col="description",
-            null_value=pd.NA,
-        )
-    )
-
     # Combine the annual rates with the monthly rates
     cols = {
         "withdrawal_rate_gallons_per_minute": "annual_withdrawal_rate_tenth_cubic_feet_per_second",
