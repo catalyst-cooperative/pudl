@@ -11,7 +11,7 @@ DATASET = "eia176"
 PAGE = "data"
 PARTITION_SELECTION = 2023
 PARTITION = {"year": PARTITION_SELECTION}
-CSV_FILENAME = f"{DATASET}-{PARTITION_SELECTION}.csv"
+CSV_FILENAME = f"{DATASET}_{PARTITION_SELECTION}.csv"
 
 
 class FakeExtractor(CsvExtractor):
@@ -46,7 +46,7 @@ def test_load_source(mock_pd):
     extractor = FakeExtractor()
 
     assert mock_pd.read_csv.return_value == extractor.load_source(PAGE, **PARTITION)
-    extractor.ds.get_zipfile_resource.assert_called_once_with(DATASET)
+    extractor.ds.get_zipfile_resource.assert_called_once_with(DATASET, **PARTITION)
     zipfile = extractor.ds.get_zipfile_resource.return_value.__enter__.return_value
     zipfile.open.assert_called_once_with(CSV_FILENAME)
     file = zipfile.open.return_value.__enter__.return_value

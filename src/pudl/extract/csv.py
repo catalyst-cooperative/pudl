@@ -27,7 +27,7 @@ class CsvExtractor(GenericExtractor):
             string name of the CSV file
         """
         partition_selection = self._metadata._get_partition_selection(partition)
-        return f"{self._dataset_name}-{partition_selection}.csv"
+        return f"{self._dataset_name}_{partition_selection}.csv"
 
     def load_source(self, page: str, **partition: PartitionSelection) -> pd.DataFrame:
         """Produce the dataframe object for the given partition.
@@ -44,9 +44,9 @@ class CsvExtractor(GenericExtractor):
         """
         filename = self.source_filename(page, **partition)
 
-        with self.ds.get_zipfile_resource(self._dataset_name) as zf, zf.open(
-            filename
-        ) as f:
+        with self.ds.get_zipfile_resource(
+            self._dataset_name, **partition
+        ) as zf, zf.open(filename) as f:
             df = pd.read_csv(f)
 
         return df
