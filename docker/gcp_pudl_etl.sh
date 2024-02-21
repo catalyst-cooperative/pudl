@@ -171,6 +171,7 @@ function notify_slack() {
     message+="ETL_SUCCESS: $ETL_SUCCESS\n"
     message+="SAVE_OUTPUTS_SUCCESS: $SAVE_OUTPUTS_SUCCESS\n"
     message+="UPDATE_NIGHTLY_SUCCESS: $UPDATE_NIGHTLY_SUCCESS\n"
+    message+="UPDATE_STABLE_SUCCESS: $UPDATE_STABLE_SUCCESS\n"
     message+="DATASETTE_SUCCESS: $DATASETTE_SUCCESS\n"
     message+="CLEAN_UP_OUTPUTS_SUCCESS: $CLEAN_UP_OUTPUTS_SUCCESS\n"
     message+="DISTRIBUTION_BUCKET_SUCCESS: $DISTRIBUTION_BUCKET_SUCCESS\n"
@@ -221,6 +222,7 @@ function clean_up_outputs_for_distribution() {
 ETL_SUCCESS=0
 SAVE_OUTPUTS_SUCCESS=0
 UPDATE_NIGHTLY_SUCCESS=0
+UPDATE_STABLE_SUCCESS=0
 DATASETTE_SUCCESS=0
 DISTRIBUTE_PARQUET_SUCCESS=0
 CLEAN_UP_OUTPUTS_SUCCESS=0
@@ -251,6 +253,8 @@ if [[ $ETL_SUCCESS == 0 ]]; then
     # If running a tagged release, merge the tag into the stable branch
     if [[ "$GITHUB_ACTION_TRIGGER" == "push" && "$BUILD_REF" == v20* ]]; then
         merge_tag_into_branch "$BUILD_REF" stable 2>&1 | tee -a "$LOGFILE"
+        UPDATE_STABLE_SUCCESS=${PIPESTATUS[0]}
+
     fi
 
     # Deploy the updated data to datasette if we're on main
@@ -287,6 +291,7 @@ gsutil cp "$LOGFILE" "$PUDL_GCS_OUTPUT"
 if [[ $ETL_SUCCESS == 0 && \
       $SAVE_OUTPUTS_SUCCESS == 0 && \
       $UPDATE_NIGHTLY_SUCCESS == 0 && \
+      $UPDATE_STABLE_SUCCESS == 0 && \
       $DATASETTE_SUCCESS == 0 && \
       $DISTRIBUTE_PARQUET_SUCCESS == 0 && \
       $CLEAN_UP_OUTPUTS_SUCCESS == 0 && \
