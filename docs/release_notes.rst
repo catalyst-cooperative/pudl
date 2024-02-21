@@ -11,6 +11,10 @@ New Data Coverage
 * Add EIA860M data through December 2023 :issue:`3313`, :pr:`3367`.
 * Add 2023 Q4 of CEMS data. See :issue:`3315`, :pr:`3379`.
 
+Release Infrastructure
+^^^^^^^^^^^^^^^^^^^^^^
+* Use the same logic to merge version tags into the ``stable`` branch as we are using
+  to merge the nightly build tags into the ``nightly`` branch. See PR :pr:`3347`
 
 .. _release-v2024.02.05:
 
