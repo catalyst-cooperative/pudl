@@ -31,6 +31,7 @@ environments/user-environment.yml
 commit.txt
 devtools/profiles/
 mlruns/
+experiments.sqlite
 notebooks/*.pkl.gz
 notebooks/*.tgz
 **/.~lock*#

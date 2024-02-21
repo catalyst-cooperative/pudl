@@ -4,18 +4,18 @@
 and can be passed around to op's which make up a PUDL model. This class will maintain
 state between ops, ensuring that all parameters and metrics are logged to the appropriate
 mlflow run. The following command will launch the mlflow UI to view model results:
-`mlflow ui --backend-store-uri {tracking_uri}`. `tracking_uri` by default will be
-`{pudl_workspace}/output/experiments.sqlite`, but this is a configurable value,
-which can be found in the dagster UI.
+`mlflow ui --backend-store-uri {tracking_uri}`. `tracking_uri` by default will point
+to a file named 'experiments.sqlite' in the base directory of your PUDL repo, but
+this is a configurable value, which can be found in the dagster UI.
 """
 from collections.abc import Callable
+from pathlib import Path
 
 import mlflow
 from dagster import Config, op
 from pydantic import BaseModel
 
 import pudl
-from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -63,11 +63,11 @@ def _flatten_model_config(model_config: dict) -> dict:
 class ExperimentTrackerConfig(Config):
     """Dagster config to setup experiment tracking with mlflow."""
 
-    tracking_uri: str = f"sqlite:///{PudlPaths().output_dir}/experiments.sqlite"
+    tracking_uri: str = f"sqlite:///{Path('./').absolute()}/experiments.sqlite"
     tracking_enabled: bool = True
     run_context: str = "production"
     #: Location to store artifacts. Artifact storage not currently used.
-    artifact_location: str = str(PudlPaths().output_dir)
+    artifact_location: str = str(Path("./").absolute())
 
 
 class ExperimentTracker(BaseModel):
