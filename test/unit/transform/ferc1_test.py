@@ -8,17 +8,22 @@ import pytest
 import pudl.logging_helpers
 from pudl.settings import Ferc1Settings
 from pudl.transform.ferc1 import (
+    AddColumnsWithUniformValues,
+    AddColumnWithUniformValue,
     DropDuplicateRowsDbf,
     Ferc1AbstractTableTransformer,
+    Ferc1TableTransformParams,
+    ReconcileTableCalculations,
     TableIdFerc1,
     UnstackBalancesToReportYearInstantXbrl,
     WideToTidy,
+    add_columns_with_uniform_values,
     assign_parent_dimensions,
     calculate_values_from_components,
     drop_duplicate_rows_dbf,
     fill_dbf_to_xbrl_map,
     infer_intra_factoid_totals,
-    make_calculation_dimensions_explicit,
+    make_xbrl_factoid_dimensions_explicit,
     read_dbf_to_xbrl_map,
     unexpected_total_components,
     unstack_balances_to_report_year_instant_xbrl,
@@ -415,6 +420,75 @@ entity_id,report_year,sched_table_name,idx_ending_balance,idx_starting_balance,t
         )
 
 
+def test_add_columns_with_uniform_values():
+    """Test :func:`add_columns_with_uniform_values`."""
+    df = pd.DataFrame(index=[0, 1, 2])
+    params = AddColumnsWithUniformValues(
+        columns_to_add={
+            "utility_type": {"column_value": "electric"},
+            "plant_status": {"column_value": "in_service"},
+        }
+    )
+    df_expected = pd.DataFrame(
+        {"utility_type": ["electric"] * 3, "plant_status": ["in_service"] * 3}
+    )
+    df_out = add_columns_with_uniform_values(df, params)
+    pd.testing.assert_frame_equal(df_expected, df_out)
+
+    # test with a mixed is_dimension flag
+    params2 = AddColumnsWithUniformValues(
+        columns_to_add={
+            "utility_type": {"column_value": "electric", "is_dimension": True},
+            "plant_status": {"column_value": "in_service", "is_dimension": False},
+        }
+    )
+    df_out2 = add_columns_with_uniform_values(df, params2)
+    pd.testing.assert_frame_equal(df_expected, df_out2)
+
+
+def test_dimension_columns():
+    """Test the :meth:`Ferc1TableTransformParams.dimension_columns`.
+
+    Can ``dimension_columns`` grab a column from :class:`AddColumnsWithUniformValues` and ignore
+    a column labled as ``is_dimension=False``?
+
+    Can ``dimension_columns`` also grab a different ``subtotal_column``
+    from :class:`ReconcileTableCalculations`?
+
+    Will ``dimension_columns`` return only one column if the dimension column from
+    :class:`AddColumnsWithUniformValues` and :class:`ReconcileTableCalculations` are the same?
+    """
+    add_columns_with_uniform_values = AddColumnsWithUniformValues(
+        columns_to_add={
+            "added_dim": AddColumnWithUniformValue(
+                column_value="i'm dim", is_dimension=True
+            ),
+            "not_a_dim": AddColumnWithUniformValue(
+                column_value="nope", is_dimension=False
+            ),
+        }
+    )
+    params1 = Ferc1TableTransformParams(
+        add_columns_with_uniform_values=add_columns_with_uniform_values,
+    )
+    assert params1.dimension_columns == ["added_dim"]
+
+    reconcile_table_calculations = ReconcileTableCalculations(subtotal_column="sub_dim")
+    params2 = Ferc1TableTransformParams(
+        add_columns_with_uniform_values=add_columns_with_uniform_values,
+        reconcile_table_calculations=reconcile_table_calculations,
+    )
+    assert sorted(params2.dimension_columns) == sorted(["sub_dim", "added_dim"])
+    reconcile_table_calculations = ReconcileTableCalculations(
+        subtotal_column="added_dim"
+    )
+    params3 = Ferc1TableTransformParams(
+        add_columns_with_uniform_values=add_columns_with_uniform_values,
+        reconcile_table_calculations=reconcile_table_calculations,
+    )
+    assert params3.dimension_columns == ["added_dim"]
+
+
 def test_calculate_values_from_components():
     """Test :func:`calculate_values_from_components`."""
     # drawing inspo from kim stanley robinson books
@@ -513,8 +587,8 @@ table_a,fact_1,table_a,replace_me,1.0
     pd.testing.assert_frame_equal(calc_comps_fixed_expected, calc_comps_fixed_out)
 
 
-def test_make_calculation_dimensions_explicit():
-    """Test :func:`make_calculation_dimensions_explicit`"""
+def test_make_xbrl_factoid_dimensions_explicit():
+    """Test :func:`make_xbrl_factoid_dimensions_explicit`"""
     calc_comp_idx = [
         "table_name_parent",
         "xbrl_factoid_parent",
@@ -562,8 +636,8 @@ table_b,fact_8,next_gen,futile
         )
     )
     out_trek = (
-        make_calculation_dimensions_explicit(
-            calculation_components=calc_comps_trek,
+        make_xbrl_factoid_dimensions_explicit(
+            df_w_xbrl_factoid=calc_comps_trek,
             table_dimensions_ferc1=table_dimensions_trek,
             dimensions=["dim_x", "dim_y"],
         )
@@ -597,13 +671,14 @@ table_a,fact_2,table_b,fact_8,next_gen,futile
     pd.testing.assert_frame_equal(out_trek, expected_trek)
     # swap the order of the dims to test whether the input order effects the result
     out_reordered = (
-        make_calculation_dimensions_explicit(
-            calculation_components=calc_comps_trek,
+        make_xbrl_factoid_dimensions_explicit(
+            df_w_xbrl_factoid=calc_comps_trek,
             table_dimensions_ferc1=table_dimensions_trek,
             dimensions=["dim_y", "dim_x"],
         )
         .sort_values(calc_comp_idx)
         .reset_index(drop=True)
+        .convert_dtypes()
     )
     pd.testing.assert_frame_equal(out_trek, out_reordered, check_like=True)
 
@@ -776,7 +851,7 @@ electric_plant_depreciation_change_ferc1,accumulated_depreciation,electric,NA,NA
     calc_comps = (
         calcs.astype({dim: pd.StringDtype() for dim in dimensions})
         .pipe(
-            make_calculation_dimensions_explicit,
+            make_xbrl_factoid_dimensions_explicit,
             table_dims,
             dimensions=dimensions,
         )

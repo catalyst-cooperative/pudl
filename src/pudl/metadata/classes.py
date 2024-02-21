@@ -8,10 +8,11 @@ import warnings
 from collections.abc import Callable, Iterable
 from functools import lru_cache
 from pathlib import Path
-from typing import Annotated, Any, Literal, Self
+from typing import Annotated, Any, Literal, Self, TypeVar
 
 import jinja2
 import pandas as pd
+import pandera as pr
 import pyarrow as pa
 import pydantic
 import sqlalchemy as sa
@@ -190,13 +191,15 @@ PositiveFloat = Annotated[float, pydantic.Field(ge=0, strict=True)]
 """Positive :class:`float`."""
 
 
-def StrictList(item_type: type = Any) -> type:  # noqa: N802
-    """Non-empty :class:`list`.
+T = TypeVar("T")
+StrictList = Annotated[list[T], pydantic.Field(min_length=1)]
 
-    Allows :class:`list`, :class:`tuple`, :class:`set`, :class:`frozenset`,
-    :class:`collections.deque`, or generators and casts to a :class:`list`.
-    """
-    return Annotated[list[item_type], pydantic.Field(min_length=1)]
+
+"""Non-empty :class:`list`.
+
+Allows :class:`list`, :class:`tuple`, :class:`set`, :class:`frozenset`,
+:class:`collections.deque`, or generators and casts to a :class:`list`.
+"""
 
 
 # ---- Class attribute validators ---- #
@@ -255,14 +258,14 @@ class FieldConstraints(PudlMeta):
     minimum: StrictInt | StrictFloat | datetime.date | datetime.datetime | None = None
     maximum: StrictInt | StrictFloat | datetime.date | datetime.datetime | None = None
     pattern: re.Pattern | None = None
-    enum: StrictList(
+    enum: StrictList[
         String
         | StrictInt
         | StrictFloat
         | StrictBool
         | datetime.date
         | datetime.datetime
-    ) | None = None
+    ] | None = None
 
     _check_unique = _validator("enum", fn=_check_unique)
 
@@ -287,6 +290,24 @@ class FieldConstraints(PudlMeta):
             if maximum < minimum:
                 raise ValueError("must be greater or equal to minimum")
         return value
+
+    def to_pandera_checks(self) -> list[pr.Check]:
+        """Convert these constraints to pandera Column checks."""
+        checks = []
+        if self.min_length is not None:
+            checks.append(pr.Check.str_length(min_value=self.min_length))
+        if self.max_length is not None:
+            checks.append(pr.Check.str_length(max_value=self.max_length))
+        if self.minimum is not None:
+            checks.append(pr.Check.ge(self.minimum))
+        if self.maximum is not None:
+            checks.append(pr.Check.le(self.maximum))
+        if self.pattern is not None:
+            checks.append(pr.Check.str_matches(self.pattern))
+        if self.enum:
+            checks.append(pr.Check.isin(self.enum))
+
+        return checks
 
 
 class FieldHarvest(PudlMeta):
@@ -680,6 +701,19 @@ class Field(PudlMeta):
         """Recode the Field if it has an associated encoder."""
         return self.encoder.encode(col, dtype=dtype) if self.encoder else col
 
+    def to_pandera_column(self) -> pr.Column:
+        """Encode this field def as a Pandera column."""
+        constraints = self.constraints
+        checks = constraints.to_pandera_checks()
+        column_type = "category" if constraints.enum else FIELD_DTYPES_PANDAS[self.type]
+
+        return pr.Column(
+            column_type,
+            checks=checks,
+            nullable=not constraints.required,
+            unique=constraints.unique,
+        )
+
 
 # ---- Classes: Resource ---- #
 
@@ -691,7 +725,7 @@ class ForeignKeyReference(PudlMeta):
     """
 
     resource: SnakeCase
-    fields: StrictList(SnakeCase)
+    fields: StrictList[SnakeCase]
 
     _check_unique = _validator("fields", fn=_check_unique)
 
@@ -702,7 +736,7 @@ class ForeignKey(PudlMeta):
     See https://specs.frictionlessdata.io/table-schema/#foreign-keys.
     """
 
-    fields: StrictList(SnakeCase)
+    fields: StrictList[SnakeCase]
     reference: ForeignKeyReference
 
     _check_unique = _validator("fields", fn=_check_unique)
@@ -732,9 +766,9 @@ class Schema(PudlMeta):
     See https://specs.frictionlessdata.io/table-schema.
     """
 
-    fields: StrictList(Field)
+    fields: StrictList[Field]
     missing_values: list[StrictStr] = [""]
-    primary_key: StrictList(SnakeCase) | None = None
+    primary_key: list[SnakeCase] = []
     foreign_keys: list[ForeignKey] = []
 
     _check_unique = _validator(
@@ -777,6 +811,16 @@ class Schema(PudlMeta):
                         f"Foreign key fields {missing_field_names} not found in schema."
                     )
         return self
+
+    def to_pandera(self: Self) -> pr.DataFrameSchema:
+        """Turn PUDL Schema into Pandera schema, so dagster can understand it."""
+        # 2024-02-09: pr.Check doesn't have interop with Pydantic type system
+        # yet, so we encode as Callable, then cast.
+
+        return pr.DataFrameSchema(
+            {field.name: field.to_pandera_column() for field in self.fields},
+            unique=self.primary_key,
+        )
 
 
 class License(PudlMeta):
@@ -1001,6 +1045,67 @@ class ResourceHarvest(PudlMeta):
     """Fraction of invalid fields above which result is considerd invalid."""
 
 
+class PudlResourceDescriptor(PudlMeta):
+    """The form we expect the RESOURCE_METADATA elements to take.
+
+    This differs from :class:`Resource` and :class:`Schema`, etc., in that we represent
+    many complex types (:class:`Field`, :class:`DataSource`, etc.) with string IDs that
+    we then turn into instances of those types with lookups. We also use
+    ``foreign_key_rules`` to generate the actual ``foreign_key`` relationships that are
+    represented in a :class:`Schema`.
+
+    This is all very useful in that we can describe the resources more concisely!
+
+    TODO: In the future, we could convert from a :class:`PudlResourceDescriptor` to
+    various standard formats, such as a Frictionless resource or a :mod:`pandera`
+    schema. This would require some of the logic currently in :class:`Resource` to move
+    into this class.
+    """
+
+    class PudlSchemaDescriptor(PudlMeta):
+        """Container to hold the schema shape."""
+
+        class PudlForeignKeyRules(PudlMeta):
+            """Container to describe what foreign key rules look like."""
+
+            field_id_lists: list[list[str]] = pydantic.Field(alias="fields", default=[])
+            exclude_ids: list[str] = pydantic.Field(alias="exclude", default=[])
+
+        field_ids: list[str] = pydantic.Field(alias="fields", default=[])
+        primary_key_ids: list[str] = pydantic.Field(alias="primary_key", default=[])
+        foreign_key_rules: PudlForeignKeyRules = PudlForeignKeyRules()
+
+    class PudlCodeMetadata(PudlMeta):
+        """Describes a bunch of codes."""
+
+        class CodeDataFrame(pr.DataFrameModel):
+            """The DF we use to represent code/label/description associations."""
+
+            # TODO (daz) 2024-02-09: each of these | Nones are one-offs. Fix
+            # the frickin data instead.
+            code: pr.typing.Series[Any]
+            label: pr.typing.Series[str] | None
+            description: pr.typing.Series[str]
+            operational_status: pr.typing.Series[str] | None
+
+        df: pr.typing.DataFrame[CodeDataFrame] = pd.DataFrame(
+            {"code": [], "label": [], "description": []}
+        )
+        code_fixes: dict = {}
+        ignored_codes: list = []
+
+    # TODO (daz) 2024-02-09: with a name like "title" you might imagine all
+    # resources would have one...
+    title: str | None = None
+    description: str
+    schema_: PudlSchemaDescriptor = pydantic.Field(alias="schema")
+    encoder: PudlCodeMetadata | None = None
+    source_ids: list[str] = pydantic.Field(alias="sources")
+    etl_group_id: str = pydantic.Field(alias="etl_group")
+    field_namespace_id: str = pydantic.Field(alias="field_namespace")
+    create_database_schema: bool = True
+
+
 class Resource(PudlMeta):
     """Tabular data resource (`package.resources[...]`).
 
@@ -1185,8 +1290,18 @@ class Resource(PudlMeta):
         return value
 
     @staticmethod
-    def dict_from_id(x: str) -> dict:  # noqa: C901
-        """Construct dictionary from PUDL identifier (`resource.name`).
+    def dict_from_id(resource_id: str) -> dict:
+        """Construct dictionary from PUDL identifier (`resource.name`)."""
+        descriptor = PudlResourceDescriptor.model_validate(
+            RESOURCE_METADATA[resource_id]
+        )
+        return Resource.dict_from_resource_descriptor(resource_id, descriptor)
+
+    @staticmethod
+    def dict_from_resource_descriptor(  # noqa: C901
+        resource_id: str, descriptor: PudlResourceDescriptor
+    ) -> dict:
+        """Get a Resource-shaped dict from a PudlResourceDescriptor.
 
         * `schema.fields`
 
@@ -1201,8 +1316,8 @@ class Resource(PudlMeta):
         * `keywords`: Keywords are fetched by source ids.
         * `schema.foreign_keys`: Foreign keys are fetched by resource name.
         """
-        obj = copy.deepcopy(RESOURCE_METADATA[x])
-        obj["name"] = x
+        obj = descriptor.model_dump(by_alias=True)
+        obj["name"] = resource_id
         schema = obj["schema"]
         # Expand fields
         if "fields" in schema:
@@ -1215,8 +1330,8 @@ class Resource(PudlMeta):
                 if name in FIELD_METADATA_BY_GROUP.get(namespace, {}):
                     value = {**value, **FIELD_METADATA_BY_GROUP[namespace][name]}
                 # Update with any custom resource-level metadata
-                if name in FIELD_METADATA_BY_RESOURCE.get(x, {}):
-                    value = {**value, **FIELD_METADATA_BY_RESOURCE[x][name]}
+                if name in FIELD_METADATA_BY_RESOURCE.get(resource_id, {}):
+                    value = {**value, **FIELD_METADATA_BY_RESOURCE[resource_id][name]}
                 fields.append(value)
             schema["fields"] = fields
         # Expand sources
@@ -1248,7 +1363,7 @@ class Resource(PudlMeta):
         # Insert foreign keys
         if "foreign_keys" in schema:
             raise ValueError("Resource metadata contains explicit foreign keys")
-        schema["foreign_keys"] = FOREIGN_KEYS.get(x, [])
+        schema["foreign_keys"] = FOREIGN_KEYS.get(resource_id, [])
         # Delete foreign key rules
         if "foreign_key_rules" in schema:
             del schema["foreign_key_rules"]
@@ -1705,7 +1820,7 @@ class Package(PudlMeta):
     contributors: list[Contributor] = []
     sources: list[DataSource] = []
     licenses: list[License] = []
-    resources: StrictList(Resource)
+    resources: StrictList[Resource]
     profile: String = "tabular-data-package"
     model_config = ConfigDict(validate_assignment=False)
 
@@ -1864,7 +1979,7 @@ class Package(PudlMeta):
                 )
         return metadata
 
-    def get_sorted_resources(self) -> StrictList(Resource):
+    def get_sorted_resources(self) -> StrictList[Resource]:
         """Get a list of sorted Resources.
 
         Currently Resources are listed in reverse alphabetical order based
