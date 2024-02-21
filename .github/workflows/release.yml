@@ -70,6 +70,7 @@ jobs:
 
   publish-github:
     name: Release package on GitHub
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v20')
     needs:
       - publish-test-pypi
     runs-on: ubuntu-latest
@@ -94,13 +95,6 @@ jobs:
           --title 'PUDL ${{ github.ref_name }}'
           --generate-notes
           --repo '${{ github.repository }}'
-      - name: Tag the current stable commit
-        run: |
-          git config user.email "pudl@catalyst.coop"
-          git config user.name "pudlbot"
-          git checkout stable
-          git merge --ff-only ${{ github.ref_name }}
-          git push
 
   notify-slack:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v20')
