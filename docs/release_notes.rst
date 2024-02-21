@@ -135,6 +135,10 @@ all tables out of the SQLite DB. We aren't publicly distributing the Parquet out
 yet, but are giving them a test run with some existing users. See :issue:`3102`
 :pr:`3296,3399`.
 
+Dependencies
+^^^^^^^^^^^^
+* Update PUDL to use Python 3.12. See issue :issue:`3327` and PR :pr:`3413`.
+
 .. _release-v2024.02.05:
 
 ---------------------------------------------------------------------------------------
