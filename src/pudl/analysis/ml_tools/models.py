@@ -7,7 +7,7 @@ configuration for a model/passing configuration to dagster, creating an
 from the model.
 
 There are a few different ways to provide configuration for a PUDL model. First, configuration will come from default values for any dagster `Config`'s which are associated
-with `op`s which make up the model `graph`. For more info on dagster configuration,
+with `op`'s which make up the model `graph`. For more info on dagster configuration,
 see https://docs.dagster.io/concepts/configuration/config-schema. The next way to
 provide configuration is through the yaml file: `pudl.package_data.settings.pudl_models.yml`.
 Any configuration in this file should be follow dagster's config-schema formatting,

@@ -79,8 +79,8 @@ class ExperimentTracker(BaseModel):
 
     This class is designed to be created using the `op` :func:`create_experiment_tracker`.
     This allows the `ExperimentTracker` to be passed around within a Dagster `graph`,
-    and be used for mlflow logging in any of the `op`s that make up the `graph`. This
-    is useful because Dagster executes `op`s in separate processes, while mlflow does
+    and be used for mlflow logging in any of the `op`'s that make up the `graph`. This
+    is useful because Dagster executes `op`'s in separate processes, while mlflow does
     not maintain state between processes. This design also allows configuration of
     the ExperimentTracker to be set from the Dagster UI.
 
