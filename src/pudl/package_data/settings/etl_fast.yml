@@ -38,6 +38,8 @@ datasets:
   ferc714:
     years: [2019, 2020]
   eia:
+    eia176:
+      years: [2020, 2022]
     eia923:
       years: [2020, 2023]
     eia860:

@@ -131,7 +131,7 @@ class GenericExtractor:
 
         Args:
             page: pudl name for the dataset contents, eg
-                  "boiler_generator_assn" or "coal_stocks"
+                "boiler_generator_assn" or "coal_stocks"
             partition: partition to load. Examples:
                 {'year': 2009}
                 {'year_month': '2020-08'}
