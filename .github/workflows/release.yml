@@ -96,25 +96,6 @@ jobs:
           --generate-notes
           --repo '${{ github.repository }}'
 
-  merge-stable:
-    name: Merge the current commit into the stable branch
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v20')
-    needs:
-      - publish-github
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout PUDL repo
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-      - name: Merge the tagged release into the stable branch
-        run: |
-          git config user.email "pudl@catalyst.coop"
-          git config user.name "pudlbot"
-          git checkout stable
-          git merge --ff-only ${{ github.ref_name }}
-          git push
-
   notify-slack:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v20')
     runs-on: ubuntu-latest
