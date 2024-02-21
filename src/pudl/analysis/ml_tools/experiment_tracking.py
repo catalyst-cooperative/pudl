@@ -1,4 +1,13 @@
-"""This module provides shared tooling that can be used by all record linkage models."""
+"""This module implements experiment tracking tooling using mlflow as a backend.
+
+:class:`ExperimentTracker`'s are created using an op factory :func:`experiment_tracker_factory`
+and can be passed around to op's which make up a PUDL model. This class will maintain
+state between ops, ensuring that all parameters and metrics are logged to the appropriate
+mlflow run. The following command will launch the mlflow UI to view model results:
+`mlflow ui --backend-store-uri {tracking_uri}`. `tracking_uri` by default will be
+`{pudl_workspace}/output/experiments.sqlite`, but this is a configurable value,
+which can be found in the dagster UI.
+"""
 from collections.abc import Callable
 
 import mlflow

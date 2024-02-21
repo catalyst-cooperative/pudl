@@ -1,4 +1,22 @@
-"""Provides tooling for developing/tracking ml models within PUDL."""
+"""Provides tooling for developing/tracking ml models within PUDL.
+
+The main interface from this module is the :func:`pudl_model` decorator, which
+is meant to be applied to a dagster `graph`. This decorator will handle finding all
+configuration for a model/passing configuration to dagster, creating an
+:class:`ExperimentTracker` for the model, and ultimately will return a `graph_asset`
+from the model.
+
+There are a few different ways to provide configuration for a PUDL model. First, configuration will come from default values for any dagster `Config`'s which are associated
+with `op`s which make up the model `graph`. For more info on dagster configuration,
+see https://docs.dagster.io/concepts/configuration/config-schema. The next way to
+provide configuration is through the yaml file: `pudl.package_data.settings.pudl_models.yml`.
+Any configuration in this file should be follow dagster's config-schema formatting,
+see the `ferc_to_ferc` entry as an example. Configuration provided this way will
+override any default values. The final way to provide configuration is through the
+dagster UI. To provide configuration this way, click `Open Launchpad` in the UI, and
+values can be edited here. This configuration will override both default values and
+yaml configuration, but will only be used for a single run.
+"""
 import importlib
 
 import yaml
@@ -21,8 +39,7 @@ MODEL_CONFIGURATION = {}
 def get_yml_config(experiment_name: str) -> dict:
     """Load model configuration from yaml file."""
     config_file = (
-        importlib.resources.files("pudl.package_data.settings")
-        / "record_linkage_model_config.yml"
+        importlib.resources.files("pudl.package_data.settings") / "pudl_models.yml"
     )
     config = yaml.safe_load(config_file.open("r"))
 
