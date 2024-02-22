@@ -11,13 +11,13 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "nothing changes month-to-month. This table is a changelog of that monthly "
             "reported generator data. There is a record cooresponding to the first instance "
             "of a generator and associated characteristics with a report_date column and a "
-            "valid_till_date column. Whenever any of the reported EIA-860m data was changed "
+            "valid_until_date column. Whenever any of the reported EIA-860m data was changed "
             "for a record, there will be a new changelog record with a new report_date."
         ),
         "schema": {
             "fields": [
                 "report_date",
-                "valid_till_date",
+                "valid_until_date",
                 "plant_id_eia",
                 "plant_name_eia",
                 "utility_id_eia",
