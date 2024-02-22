@@ -11,6 +11,21 @@ New Data Coverage
 * Add EIA860M data through December 2023 :issue:`3313`, :pr:`3367`.
 * Add 2023 Q4 of CEMS data. See :issue:`3315`, :pr:`3379`.
 
+Release Infrastructure
+^^^^^^^^^^^^^^^^^^^^^^
+* Use the same logic to merge version tags into the ``stable`` branch as we are using
+  to merge the nightly build tags into the ``nightly`` branch. See PR :pr:`3347`
+
+Schema Changes
+^^^^^^^^^^^^^^
+* Restored the individual FERC Form 1 plant output tables, providing direct access to
+  denormalized versions of the specific plant types via:
+  :ref:`out_ferc1__yearly_steam_plants_sched402`
+  :ref:`out_ferc1__yearly_small_plants_sched410`
+  :ref:`out_ferc1__yearly_hydroelectric_plants_sched406`
+  :ref:`out_ferc1__yearly_pumped_storage_plants_sched408`
+  See issue :issue:`3416` & PR :pr:`3417`
+
 Pandas 2.2
 ^^^^^^^^^^
 We've updated to Pandas 2.2, which has a number of changes and deprecations.  See PRs

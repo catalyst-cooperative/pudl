@@ -1,12 +1,12 @@
 """Load excel metadata CSV files form a python data package."""
 import importlib.resources
 import pathlib
+import re
 from collections import defaultdict
 from io import BytesIO
 
 import dbfread
 import pandas as pd
-import regex as re
 from dagster import (
     AssetsDefinition,
     DynamicOut,

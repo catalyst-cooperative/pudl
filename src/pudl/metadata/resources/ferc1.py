@@ -1260,7 +1260,7 @@ columns.""",
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "_out_ferc1__yearly_steam_plants_sched402": {
+    "out_ferc1__yearly_steam_plants_sched402": {
         "description": "Denormalized table that contains steam plant information from FERC Form 1.",
         "schema": {
             "fields": [
@@ -1328,7 +1328,7 @@ columns.""",
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "_out_ferc1__yearly_small_plants_sched410": {
+    "out_ferc1__yearly_small_plants_sched410": {
         "description": "Denormalized table that contains small plant information from FERC Form 1.",
         "schema": {
             "fields": [
@@ -1363,7 +1363,7 @@ columns.""",
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "_out_ferc1__yearly_hydroelectric_plants_sched406": {
+    "out_ferc1__yearly_hydroelectric_plants_sched406": {
         "description": "Denormalized table that contains small plant information from FERC Form 1.",
         "schema": {
             "fields": [
@@ -1418,7 +1418,7 @@ columns.""",
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "_out_ferc1__yearly_pumped_storage_plants_sched408": {
+    "out_ferc1__yearly_pumped_storage_plants_sched408": {
         "description": "Denormalized table that contains pumped storage plant information from FERC Form 1.",
         "schema": {
             "fields": [
