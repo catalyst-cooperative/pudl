@@ -341,6 +341,8 @@ class FercDbfReader:
     def get_archive(self: Self, year: int, **filters) -> FercDbfArchive:
         """Returns single dbf archive matching given filters."""
         nfilters = self._normalize(filters)
+        # Not using a context manager for the zipfile here because it would
+        # close the file after this method returns the FercDbfArchive instance.
         return FercDbfArchive(
             self.datastore.get_zipfile_resource(self.dataset, year=year, **nfilters),
             dbc_path=self._dbc_path[year],

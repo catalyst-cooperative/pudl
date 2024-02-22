@@ -1236,7 +1236,7 @@ class AbstractTableTransformer(ABC):
             logger.warning(
                 f"{self.table_id.value}: Attempting to rename columns which are not "
                 "present in the dataframe.\n"
-                f"Missing columns: {missing_cols}"
+                f"Missing columns: {missing_cols}\nExisting Columns: {df.columns}"
             )
         return df.rename(columns=params.columns)
 

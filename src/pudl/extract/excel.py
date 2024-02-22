@@ -1,12 +1,12 @@
 """Load excel metadata CSV files form a python data package."""
 import importlib.resources
 import pathlib
+import re
 from collections import defaultdict
 from io import BytesIO
 
 import dbfread
 import pandas as pd
-import regex as re
 from dagster import (
     AssetsDefinition,
     DynamicOut,
@@ -373,21 +373,22 @@ class GenericExtractor:
                 )
                 excel_file = pd.ExcelFile(res)
             except KeyError:
-                zf = self.ds.get_zipfile_resource(
+                with self.ds.get_zipfile_resource(
                     self._dataset_name,
                     **self.zipfile_resource_partitions(page, **partition),
-                )
-
-                # If loading the excel file from the zip fails then try to open a dbf file.
-                extension = pathlib.Path(xlsx_filename).suffix.lower()
-                if extension == ".dbf":
-                    dbf_filepath = zf.open(xlsx_filename)
-                    df = pd.DataFrame(
-                        iter(dbfread.DBF(xlsx_filename, filedata=dbf_filepath))
-                    )
-                    excel_file = pudl.helpers.convert_df_to_excel_file(df, index=False)
-                else:
-                    excel_file = pd.ExcelFile(BytesIO(zf.read(xlsx_filename)))
+                ) as zf:
+                    # If loading the excel file from the zip fails then try to open a dbf file.
+                    extension = pathlib.Path(xlsx_filename).suffix.lower()
+                    if extension == ".dbf":
+                        with zf.open(xlsx_filename) as dbf_filepath:
+                            df = pd.DataFrame(
+                                iter(dbfread.DBF(xlsx_filename, filedata=dbf_filepath))
+                            )
+                            excel_file = pudl.helpers.convert_df_to_excel_file(
+                                df, index=False
+                            )
+                    else:
+                        excel_file = pd.ExcelFile(BytesIO(zf.read(xlsx_filename)))
             finally:
                 self._file_cache[xlsx_filename] = excel_file
         # TODO(rousik): this _file_cache could be replaced with @cache or @memoize annotations
