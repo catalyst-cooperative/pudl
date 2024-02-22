@@ -28,6 +28,11 @@ class GenericMetadata:
     will attempt to load csv files from pudl.package_data.${dataset} package.
 
     It expects the following kinds of files:
+
+    * column_map/${page}.csv currently informs us how to translate input column
+      names to standardized pudl names for given (partition, input_col_name). Relevant
+      page is encoded in the filename.
+      
     * column_map/${page}.csv currently informs us how to translate input column
       names to standardized pudl names for given (partition, input_col_name).
       Relevant page is encoded in the filename.
