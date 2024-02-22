@@ -266,12 +266,13 @@ def get_best_matches_with_overwrites(match_df, inputs):
 
 
 @op
-def run_matching_model(features_train, features_all, y_df):
+def run_matching_model(features_train, features_all, y_df, experiment_tracker):
     """Run model to match EIA to FERC records."""
     return run_model(
         features_train=features_train,
         features_all=features_all,
         y_df=y_df,
+        experiment_tracker=experiment_tracker,
     )
 
 
@@ -327,6 +328,7 @@ def ferc_to_eia(
         features_train=features_train,
         features_all=features_all,
         y_df=y_df,
+        experiment_tracker=experiment_tracker,
     )
     # choose one EIA match for each FERC record
     best_match_df = get_best_matches_with_overwrites(match_df, inputs)
