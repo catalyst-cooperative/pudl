@@ -1,10 +1,10 @@
 """Load excel metadata CSV files form a python data package."""
 import pathlib
+import re
 from io import BytesIO
 
 import dbfread
 import pandas as pd
-import regex as re
 
 import pudl
 from pudl.extract.extractor import GenericExtractor, GenericMetadata, PartitionSelection

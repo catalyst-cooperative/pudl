@@ -171,6 +171,7 @@ function notify_slack() {
     message+="ETL_SUCCESS: $ETL_SUCCESS\n"
     message+="SAVE_OUTPUTS_SUCCESS: $SAVE_OUTPUTS_SUCCESS\n"
     message+="UPDATE_NIGHTLY_SUCCESS: $UPDATE_NIGHTLY_SUCCESS\n"
+    message+="UPDATE_STABLE_SUCCESS: $UPDATE_STABLE_SUCCESS\n"
     message+="DATASETTE_SUCCESS: $DATASETTE_SUCCESS\n"
     message+="CLEAN_UP_OUTPUTS_SUCCESS: $CLEAN_UP_OUTPUTS_SUCCESS\n"
     message+="DISTRIBUTION_BUCKET_SUCCESS: $DISTRIBUTION_BUCKET_SUCCESS\n"
@@ -186,20 +187,22 @@ function notify_slack() {
     upload_file_to_slack "$LOGFILE" "$BUILD_ID logs:"
 }
 
-function update_nightly_branch() {
+function merge_tag_into_branch() {
+    TAG=$1
+    BRANCH=$2
     # When building the image, GHA adds an HTTP basic auth header in git
     # config, which overrides the auth we set below. So we unset it.
     git config --unset http.https://github.com/.extraheader && \
     git config user.email "pudl@catalyst.coop" && \
     git config user.name "pudlbot" && \
     git remote set-url origin "https://pudlbot:$PUDL_BOT_PAT@github.com/catalyst-cooperative/pudl.git" && \
-    echo "Updating nightly branch to point at $NIGHTLY_TAG." && \
-    git fetch --force --tags origin "$NIGHTLY_TAG" && \
-    git fetch origin nightly:nightly && \
-    git checkout nightly && \
-    git show-ref -d nightly "$NIGHTLY_TAG" && \
-    git merge --ff-only "$NIGHTLY_TAG" && \
-    git push -u origin nightly
+    echo "Updating $BRANCH branch to point at $TAG." && \
+    git fetch --force --tags origin "$TAG" && \
+    git fetch origin "$BRANCH":"$BRANCH" && \
+    git checkout "$BRANCH" && \
+    git show-ref -d "$BRANCH" "$TAG" && \
+    git merge --ff-only "$TAG" && \
+    git push -u origin "$BRANCH"
 }
 
 function clean_up_outputs_for_distribution() {
@@ -219,6 +222,7 @@ function clean_up_outputs_for_distribution() {
 ETL_SUCCESS=0
 SAVE_OUTPUTS_SUCCESS=0
 UPDATE_NIGHTLY_SUCCESS=0
+UPDATE_STABLE_SUCCESS=0
 DATASETTE_SUCCESS=0
 DISTRIBUTE_PARQUET_SUCCESS=0
 CLEAN_UP_OUTPUTS_SUCCESS=0
@@ -243,8 +247,13 @@ SAVE_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
 # if pipeline is successful, distribute + publish datasette
 if [[ $ETL_SUCCESS == 0 ]]; then
     if [[ "$GITHUB_ACTION_TRIGGER" == "schedule" ]]; then
-        update_nightly_branch 2>&1 | tee -a "$LOGFILE"
+        merge_tag_into_branch "$NIGHTLY_TAG" nightly 2>&1 | tee -a "$LOGFILE"
         UPDATE_NIGHTLY_SUCCESS=${PIPESTATUS[0]}
+    fi
+    # If running a tagged release, merge the tag into the stable branch
+    if [[ "$GITHUB_ACTION_TRIGGER" == "push" && "$BUILD_REF" == v20* ]]; then
+        merge_tag_into_branch "$BUILD_REF" stable 2>&1 | tee -a "$LOGFILE"
+        UPDATE_STABLE_SUCCESS=${PIPESTATUS[0]}
     fi
 
     # Deploy the updated data to datasette if we're on main
@@ -281,6 +290,7 @@ gsutil cp "$LOGFILE" "$PUDL_GCS_OUTPUT"
 if [[ $ETL_SUCCESS == 0 && \
       $SAVE_OUTPUTS_SUCCESS == 0 && \
       $UPDATE_NIGHTLY_SUCCESS == 0 && \
+      $UPDATE_STABLE_SUCCESS == 0 && \
       $DATASETTE_SUCCESS == 0 && \
       $DISTRIBUTE_PARQUET_SUCCESS == 0 && \
       $CLEAN_UP_OUTPUTS_SUCCESS == 0 && \
