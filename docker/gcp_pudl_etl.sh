@@ -71,7 +71,7 @@ function run_pudl_etl() {
 
 function save_outputs_to_gcs() {
     echo "Copying outputs to GCP bucket $PUDL_GCS_OUTPUT" && \
-    gsutil -m cp -r "$PUDL_OUTPUT" "$PUDL_GCS_OUTPUT" && \
+    gsutil -q -m cp -r "$PUDL_OUTPUT" "$PUDL_GCS_OUTPUT" && \
     rm -f "$PUDL_OUTPUT/success"
 }
 
@@ -85,14 +85,14 @@ function upload_to_dist_path() {
         # If the old outputs don't exist, these will exit with status 1, so we
         # don't && them with the rest of the commands.
         echo "Removing old outputs from $GCS_PATH."
-        gsutil -m -u "$GCP_BILLING_PROJECT" rm -r "$GCS_PATH"
+        gsutil -q -m -u "$GCP_BILLING_PROJECT" rm -r "$GCS_PATH"
         echo "Removing old outputs from $AWS_PATH."
-        aws s3 rm --recursive "$AWS_PATH"
+        aws s3 rm --quiet --recursive "$AWS_PATH"
 
         echo "Copying outputs to $GCS_PATH:" && \
-        gsutil -m -u "$GCP_BILLING_PROJECT" cp -r "$PUDL_OUTPUT/*" "$GCS_PATH" && \
+        gsutil -q -m -u "$GCP_BILLING_PROJECT" cp -r "$PUDL_OUTPUT/*" "$GCS_PATH" && \
         echo "Copying outputs to $AWS_PATH" && \
-        aws s3 cp --recursive "$PUDL_OUTPUT/" "$AWS_PATH"
+        aws s3 cp --quiet --recursive "$PUDL_OUTPUT/" "$AWS_PATH"
     else
         echo "No distribution path provided. Not updating outputs."
         exit 1
@@ -113,12 +113,12 @@ function distribute_parquet() {
             DIST_PATH="$BUILD_REF"
         fi
         echo "Copying outputs to $PARQUET_BUCKET/$DIST_PATH" && \
-        gsutil -m -u "$GCP_BILLING_PROJECT" cp -r "$PUDL_OUTPUT/parquet/*" "$PARQUET_BUCKET/$DIST_PATH"
+        gsutil -q -m -u "$GCP_BILLING_PROJECT" cp -r "$PUDL_OUTPUT/parquet/*" "$PARQUET_BUCKET/$DIST_PATH"
 
         # If running a tagged release, ALSO update the stable distribution bucket path:
         if [[ "$GITHUB_ACTION_TRIGGER" == "push" && "$BUILD_REF" == v20* ]]; then
             echo "Copying outputs to $PARQUET_BUCKET/stable" && \
-            gsutil -m -u "$GCP_BILLING_PROJECT" cp -r "$PUDL_OUTPUT/parquet/*" "$PARQUET_BUCKET/stable"
+            gsutil -q -m -u "$GCP_BILLING_PROJECT" cp -r "$PUDL_OUTPUT/parquet/*" "$PARQUET_BUCKET/stable"
         fi
     fi
 }
@@ -284,7 +284,7 @@ if [[ $ETL_SUCCESS == 0 ]]; then
 fi
 
 # This way we also save the logs from latter steps in the script
-gsutil cp "$LOGFILE" "$PUDL_GCS_OUTPUT"
+gsutil -q cp "$LOGFILE" "$PUDL_GCS_OUTPUT"
 
 # Notify slack about entire pipeline's success or failure;
 if [[ $ETL_SUCCESS == 0 && \
