@@ -1575,7 +1575,7 @@ def plant_parts_eia_distinct(plant_parts_eia: pd.DataFrame) -> pd.DataFrame:
     plant_parts_eia = plant_parts_eia.assign(
         plant_id_report_year_util_id=lambda x: x.plant_id_report_year
         + "_"
-        + x.utility_id_pudl.map(str)
+        + x.utility_id_pudl.astype(str)
     ).astype({"installation_year": "float"})
     distinct_ppe = plant_parts_eia[
         (plant_parts_eia["true_gran"]) & (~plant_parts_eia["ownership_dupe"])
