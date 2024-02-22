@@ -42,6 +42,7 @@ dependencies = [
     "jinja2>=3.1",
     "jupyter",
     "matplotlib>=3.8",
+    "mlflow>=2.10",
     "nbconvert>=7",
     "nbformat>=5.9",
     "networkx>=3.2",
@@ -62,7 +63,7 @@ dependencies = [
     "pytest-xdist>=3.3",
     "python-calamine>=0.1.7", # pandas[excel]
     "python-dotenv>=1",
-    "pytz>=2024",
+    "pytz<2024", # Upgrade when mlflow supports 2024
     "pyyaml>=6",
     "readthedocs-sphinx-ext>=2",
     "requests>=2.31",
