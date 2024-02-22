@@ -269,9 +269,10 @@ def core_epa__assn_eia_epacamd_subplant_ids(
 ) -> pd.DataFrame:
     """Groups units and generators into unique subplant groups.
 
-    This takes :func:`_core_epa__assn_eia_epacamd_unique` as an input because this asset so it doesn't
-    have to deal with duplicate matches that may be present in the :func:`core_epa__assn_eia_epacamd`
-    asset due to its use of multiple years of raw crosswalk outputs.
+    This takes :func:`_core_epa__assn_eia_epacamd_unique` as an input so this asset
+    doesn't have to deal with duplicate matches that may be present in the
+    :func:`core_epa__assn_eia_epacamd` asset due to its use of multiple years of raw
+    crosswalk outputs.
 
     This function consists of three primary parts:
 
@@ -410,10 +411,10 @@ def _prep_for_networkx(crosswalk: pd.DataFrame) -> pd.DataFrame:
     """Make surrogate keys for combustors and generators.
 
     Args:
-        crosswalk (pd.DataFrame): core_epa__assn_eia_epacamd crosswalk
+        crosswalk: The ``core_epa__assn_eia_epacamd`` crosswalk
 
     Returns:
-        pd.DataFrame: copy of core_epa__assn_eia_epacamd crosswalk with new surrogate ID columns
+        A copy of ``core_epa__assn_eia_epacamd`` crosswalk with new surrogate ID columns
             'combustor_id' and 'generator_id'
     """
     prepped = crosswalk.copy()
@@ -434,11 +435,12 @@ def _subplant_ids_from_prepped_crosswalk(prepped: pd.DataFrame) -> pd.DataFrame:
     """Use networkx graph analysis to create subplant IDs from crosswalk edge list.
 
     Args:
-        prepped (pd.DataFrame): core_epa__assn_eia_epacamd crosswalked passed through
-            _prep_for_networkx()
+        prepped: ``core_epa__assn_eia_epacamd`` crosswalk passed through
+            :func:`_prep_for_networkx`
 
     Returns:
-        pd.DataFrame: copy of core_epa__assn_eia_epacamd crosswalk plus new column 'global_subplant_id'
+        A copy of ``core_epa__assn_eia_epacamd`` crosswalk plus new column
+        ``global_subplant_id``
     """
     graph = nx.from_pandas_edgelist(
         prepped,
@@ -468,14 +470,14 @@ def _convert_global_id_to_composite_id(
     stable. A compound key should discourage that behavior.
 
     Args:
-        crosswalk_with_ids (pd.DataFrame): crosswalk with global_subplant_id, as from
-            _subplant_ids_from_prepped_crosswalk()
+        crosswalk_with_ids: crosswalk with ``global_subplant_id``, as from
+            :func:`_subplant_ids_from_prepped_crosswalk`
 
     Raises:
         ValueError: if crosswalk_with_ids has a MultiIndex
 
     Returns:
-        pd.DataFrame: copy of crosswalk_with_ids with an added column: 'subplant_id'
+        A copy of crosswalk_with_ids with an added column: ``subplant_id``
     """
     if isinstance(crosswalk_with_ids.index, pd.MultiIndex):
         raise ValueError(

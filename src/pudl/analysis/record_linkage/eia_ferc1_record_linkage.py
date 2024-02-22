@@ -47,10 +47,9 @@ from pudl.analysis.record_linkage import embed_dataframe
 from pudl.metadata.classes import DataSource, Resource
 
 logger = pudl.logging_helpers.get_logger(__name__)
-# Silence the recordlinkage logger, which is out of control
 
 pair_vectorizers = embed_dataframe.dataframe_embedder_factory(
-    "ferc_eia_pair_vectorizers",
+    "ferc1_eia_pair_vectorizers",
     {
         "plant_name": embed_dataframe.ColumnVectorizer(
             transform_steps=[
@@ -429,10 +428,10 @@ class InputManager:
                         x.installation_year.astype("float")
                     ),  # need for comparison vectors
                     plant_id_report_year=lambda x: (
-                        x.plant_id_pudl.map(str) + "_" + x.report_year.map(str)
+                        x.plant_id_pudl.astype(str) + "_" + x.report_year.astype(str)
                     ),
                     plant_id_report_year_util_id=lambda x: (
-                        x.plant_id_report_year + "_" + x.utility_id_pudl.map(str)
+                        x.plant_id_report_year + "_" + x.utility_id_pudl.astype(str)
                     ),
                     fuel_cost_per_mmbtu=lambda x: (x.fuel_cost / x.fuel_mmbtu),
                     unit_heat_rate_mmbtu_per_mwh=lambda x: (
@@ -650,7 +649,9 @@ def find_best_matches(match_df):
     return best_match_df
 
 
-def overwrite_bad_predictions(match_df, train_df):
+def overwrite_bad_predictions(
+    match_df: pd.DataFrame, train_df: pd.DataFrame
+) -> pd.DataFrame:
     """Overwrite incorrect predictions with the correct match from training data.
 
     Args:
@@ -732,7 +733,7 @@ def restrict_train_connections_on_date_range(
     date_range_years_str = "|".join(
         [
             f"{year}"
-            for year in pd.date_range(start=start_date, end=end_date, freq="AS").year
+            for year in pd.date_range(start=start_date, end=end_date, freq="YS").year
         ]
     )
     logger.info(f"Restricting training data on years: {date_range_years_str}")
