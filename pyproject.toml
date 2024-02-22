@@ -67,7 +67,6 @@ dependencies = [
     "pyxlsb>=1.0.9", # pandas[excel]
     "pyyaml>=6",
     "readthedocs-sphinx-ext>=2",
-    "regex>=2023.12.25",
     "requests>=2.31",
     "responses>=0.23",
     "ruff>=0.2",
