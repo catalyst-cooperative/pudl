@@ -241,7 +241,7 @@ ignore = [
     "RUF005", # Unpack iterables instead of concatenation
     "S101", # Use of assert
 ]
-extend-select = ["NPY201"]  # preview rule to easy migration to Numpy 2.0
+extend-select = ["NPY201"] # preview rule to easy migration to Numpy 2.0
 
 # Don't automatically concatenate strings -- sometimes we forget a comma!
 unfixable = ["ISC"]
