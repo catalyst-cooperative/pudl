@@ -1430,7 +1430,7 @@ def add_record_id(part_df, id_cols, plant_part_col="plant_part", year=True):
     """
     ids = deepcopy(id_cols)
     # we want the plant id first... mostly just bc it'll be easier to read
-    part_df = part_df.assign(record_id_eia_temp=lambda x: x.plant_id_eia.map(str))
+    part_df = part_df.assign(record_id_eia_temp=lambda x: x.plant_id_eia.astype(str))
     ids.remove("plant_id_eia")
     for col in ids:
         part_df = part_df.assign(
