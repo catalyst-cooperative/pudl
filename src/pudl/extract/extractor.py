@@ -32,10 +32,6 @@ class GenericMetadata:
     * column_map/${page}.csv currently informs us how to translate input column
       names to standardized pudl names for given (partition, input_col_name). Relevant
       page is encoded in the filename.
-      
-    * column_map/${page}.csv currently informs us how to translate input column
-      names to standardized pudl names for given (partition, input_col_name).
-      Relevant page is encoded in the filename.
     """
 
     def __init__(self, dataset_name: str):

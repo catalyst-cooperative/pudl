@@ -1,9 +1,9 @@
 """Extract EIA Form 176 data from CSVs."""
-
+import pandas as pd
 from dagster import Output, asset
 
 from pudl.extract.csv import CsvExtractor
-from pudl.extract.extractor import GenericMetadata, raw_df_factory
+from pudl.extract.extractor import GenericMetadata, PartitionSelection, raw_df_factory
 
 
 class Extractor(CsvExtractor):
@@ -22,6 +22,14 @@ class Extractor(CsvExtractor):
         """Get the columns for a particular page and partition key."""
         # The page columns for EIA176 do not vary by year
         return super().get_page_cols(page, "any_year")
+
+    def process_raw(
+        self, df: pd.DataFrame, page: str, **partition: PartitionSelection
+    ) -> pd.DataFrame:
+        """Append report year to df to distinguish data from other years."""
+        self.cols_added.append("report_year")
+        selection = self._metadata._get_partition_selection(partition)
+        return df.assign(report_year=selection)
 
 
 raw_eia176__all_dfs = raw_df_factory(Extractor, name="eia176")
