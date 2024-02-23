@@ -10,7 +10,7 @@ New Data Coverage
 ^^^^^^^^^^^^^^^^^
 * Add EIA860M data through December 2023 :issue:`3313`, :pr:`3367`.
 * Add 2023 Q4 of CEMS data. See :issue:`3315`, :pr:`3379`.
-* Add EIA923 monthly data through November 2023 :issue:`3314`, :pr:`3398`.
+* Add EIA923 monthly data through November 2023 :issue:`3314`, :pr:`3398,3422`.
 
 Release Infrastructure
 ^^^^^^^^^^^^^^^^^^^^^^
