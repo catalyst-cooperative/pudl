@@ -75,16 +75,22 @@ plant_id_eia,plant_id_epa,unit_id_pudl,emissions_unit_id_epa,generator_id,subpla
 """
         )
     )
-
-    epacamd_eia_subplant_ids_got = glue_assets.core_epa__assn_eia_epacamd_subplant_ids(
+    expected = epacamd_eia_subplant_ids_expected.convert_dtypes()
+    actual = glue_assets.core_epa__assn_eia_epacamd_subplant_ids(
         _core_epa__assn_eia_epacamd_unique=epacamd_eia_test,
         core_eia860__scd_generators=generators_entity_eia_test,
         _core_epacems__emissions_unit_ids=emissions_unit_ids_epacems_test,
         core_eia860__assn_boiler_generator=boiler_generator_assn_eia860_test,
-    )
-
+    )[expected.columns].convert_dtypes()
+    crosswalk_index = [
+        "plant_id_eia",
+        "plant_id_epa",
+        "unit_id_pudl",
+        "emissions_unit_id_epa",
+        "generator_id",
+    ]
     pd.testing.assert_frame_equal(
-        epacamd_eia_subplant_ids_expected,
-        epacamd_eia_subplant_ids_got[epacamd_eia_subplant_ids_expected.columns],
-        check_dtype=False,
+        expected.set_index(crosswalk_index),
+        actual.set_index(crosswalk_index),
+        check_like=True,
     )

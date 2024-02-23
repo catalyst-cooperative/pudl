@@ -1,4 +1,5 @@
 """A collection of denormalized FERC assets and helper functions."""
+
 import importlib
 import re
 from copy import deepcopy
@@ -228,7 +229,7 @@ def _out_ferc1__yearly_plants_utilities(
 
 
 @asset(io_manager_key="pudl_io_manager", compute_kind="Python")
-def _out_ferc1__yearly_steam_plants_sched402(
+def out_ferc1__yearly_steam_plants_sched402(
     _out_ferc1__yearly_plants_utilities: pd.DataFrame,
     _out_ferc1__yearly_steam_plants_sched402_with_plant_ids: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -283,7 +284,7 @@ def _out_ferc1__yearly_steam_plants_sched402(
 
 
 @asset(io_manager_key="pudl_io_manager", compute_kind="Python")
-def _out_ferc1__yearly_small_plants_sched410(
+def out_ferc1__yearly_small_plants_sched410(
     core_ferc1__yearly_small_plants_sched410: pd.DataFrame,
     _out_ferc1__yearly_plants_utilities: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -320,7 +321,7 @@ def _out_ferc1__yearly_small_plants_sched410(
 
 
 @asset(io_manager_key="pudl_io_manager", compute_kind="Python")
-def _out_ferc1__yearly_hydroelectric_plants_sched406(
+def out_ferc1__yearly_hydroelectric_plants_sched406(
     core_ferc1__yearly_hydroelectric_plants_sched406: pd.DataFrame,
     _out_ferc1__yearly_plants_utilities: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -351,7 +352,7 @@ def _out_ferc1__yearly_hydroelectric_plants_sched406(
 
 
 @asset(io_manager_key="pudl_io_manager", compute_kind="Python")
-def _out_ferc1__yearly_pumped_storage_plants_sched408(
+def out_ferc1__yearly_pumped_storage_plants_sched408(
     core_ferc1__yearly_pumped_storage_plants_sched408: pd.DataFrame,
     _out_ferc1__yearly_plants_utilities: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -854,10 +855,10 @@ def out_ferc1__yearly_utility_plant_summary_sched200(
 
 @asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def out_ferc1__yearly_all_plants(
-    _out_ferc1__yearly_steam_plants_sched402: pd.DataFrame,
-    core_ferc1__yearly_small_plants_sched410: pd.DataFrame,
-    _out_ferc1__yearly_hydroelectric_plants_sched406: pd.DataFrame,
-    _out_ferc1__yearly_pumped_storage_plants_sched408: pd.DataFrame,
+    out_ferc1__yearly_steam_plants_sched402: pd.DataFrame,
+    out_ferc1__yearly_small_plants_sched410: pd.DataFrame,
+    out_ferc1__yearly_hydroelectric_plants_sched406: pd.DataFrame,
+    out_ferc1__yearly_pumped_storage_plants_sched408: pd.DataFrame,
 ) -> pd.DataFrame:
     """Combine the steam, small generators, hydro, and pumped storage tables.
 
@@ -869,16 +870,16 @@ def out_ferc1__yearly_all_plants(
     """
     # Prep steam table
     logger.debug("prepping steam table")
-    steam_df = _out_ferc1__yearly_steam_plants_sched402.rename(
+    steam_df = out_ferc1__yearly_steam_plants_sched402.rename(
         columns={"opex_plants": "opex_plant"}
     )
 
     # Prep hydro tables (Add this to the meta data later)
     logger.debug("prepping hydro tables")
-    hydro_df = _out_ferc1__yearly_hydroelectric_plants_sched406.rename(
+    hydro_df = out_ferc1__yearly_hydroelectric_plants_sched406.rename(
         columns={"project_num": "ferc_license_id"}
     )
-    pump_df = _out_ferc1__yearly_pumped_storage_plants_sched408.rename(
+    pump_df = out_ferc1__yearly_pumped_storage_plants_sched408.rename(
         columns={"project_num": "ferc_license_id"}
     )
 
@@ -886,7 +887,7 @@ def out_ferc1__yearly_all_plants(
     logger.debug("combining all tables")
     all_df = (
         pd.concat(
-            [steam_df, core_ferc1__yearly_small_plants_sched410, hydro_df, pump_df]
+            [steam_df, out_ferc1__yearly_small_plants_sched410, hydro_df, pump_df]
         )
         .rename(
             columns={

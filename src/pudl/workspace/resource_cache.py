@@ -94,8 +94,9 @@ class LocalFileCache(AbstractCache):
 
     def get(self, resource: PudlResourceKey) -> bytes:
         """Retrieves value associated with a given resource."""
-        logger.debug(f"Getting {resource} from local file cache.")
-        return self._resource_path(resource).open("rb").read()
+        with self._resource_path(resource).open("rb") as res:
+            logger.debug(f"Getting {resource} from local file cache.")
+            return res.read()
 
     def add(self, resource: PudlResourceKey, content: bytes):
         """Adds (or updates) resource to the cache with given value."""

@@ -1,0 +1,17 @@
+ferc_to_ferc:
+  ops:
+    link_ids_cross_year:
+      ops:
+        compute_distance_with_year_penalty:
+          config:
+            metric: euclidean
+        cluster_records_dbscan:
+          config:
+            eps: 0.5
+            min_samples: 2
+        split_clusters:
+          config:
+            distance_threshold: 0.5
+        match_orphaned_records:
+          config:
+            distance_threshold: 0.5

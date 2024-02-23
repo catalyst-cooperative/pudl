@@ -2,6 +2,7 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+import mlflow
 import numpy as np
 import pandas as pd
 from dagster import Config, graph, op
@@ -12,6 +13,7 @@ from sklearn.metrics import pairwise_distances_chunked
 from sklearn.neighbors import NearestNeighbors
 
 import pudl
+from pudl.analysis.ml_tools import experiment_tracking
 from pudl.analysis.record_linkage.embed_dataframe import FeatureMatrix
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -133,7 +135,10 @@ class DBSCANConfig(Config):
 
 @op
 def cluster_records_dbscan(
-    config: DBSCANConfig, distance_matrix: DistanceMatrix, original_df: pd.DataFrame
+    config: DBSCANConfig,
+    distance_matrix: DistanceMatrix,
+    original_df: pd.DataFrame,
+    experiment_tracker: experiment_tracking.ExperimentTracker,
 ) -> pd.DataFrame:
     """Generate initial IDs using DBSCAN algorithm."""
     # DBSCAN is very efficient when passed a sparse radius neighbor graph
@@ -155,6 +160,9 @@ def cluster_records_dbscan(
     logger.info(
         f"{id_year_df.record_label.nunique()} unique record IDs found after DBSCAN step."
     )
+    experiment_tracker.execute_logging(
+        lambda: mlflow.log_metric("dbscan_unique", id_year_df.record_label.nunique())
+    )
     return id_year_df
 
 
@@ -170,6 +178,7 @@ def split_clusters(
     config: SplitClustersConfig,
     distance_matrix: DistanceMatrix,
     id_year_df: pd.DataFrame,
+    experiment_tracker: experiment_tracking.ExperimentTracker,
 ) -> pd.DataFrame:
     """Split clusters with multiple records from same report_year.
 
@@ -220,6 +229,11 @@ def split_clusters(
     logger.info(
         f"{id_year_df.record_label.nunique()} unique record IDs found after split clusters step."
     )
+    experiment_tracker.execute_logging(
+        lambda: mlflow.log_metric(
+            "split_clusters_unique", id_year_df.record_label.nunique()
+        )
+    )
     return id_year_df
 
 
@@ -235,6 +249,7 @@ def match_orphaned_records(
     config: MatchOrphanedRecordsConfig,
     distance_matrix: DistanceMatrix,
     id_year_df: pd.DataFrame,
+    experiment_tracker: experiment_tracking.ExperimentTracker,
 ) -> pd.DataFrame:
     """DBSCAN assigns 'noisy' records a label of '-1', which will be labeled by this step.
 
@@ -272,18 +287,27 @@ def match_orphaned_records(
     logger.info(
         f"{id_year_df.record_label.nunique()} unique record IDs found after match orphaned records step."
     )
+    experiment_tracker.execute_logging(
+        lambda: mlflow.log_metric(
+            "match_orphaned_unique", id_year_df.record_label.nunique()
+        )
+    )
     return id_year_df
 
 
 @graph
-def link_ids_cross_year(df: pd.DataFrame, feature_matrix: FeatureMatrix):
+def link_ids_cross_year(
+    df: pd.DataFrame,
+    feature_matrix: FeatureMatrix,
+    experiment_tracker: experiment_tracking.ExperimentTracker,
+):
     """Apply model and return column of estimated record labels."""
     # Compute distances and apply penalty for records from same year
     distance_matrix = compute_distance_with_year_penalty(feature_matrix, df)
 
     # Label records
-    id_year_df = cluster_records_dbscan(distance_matrix, df)
-    id_year_df = split_clusters(distance_matrix, id_year_df)
-    id_year_df = match_orphaned_records(distance_matrix, id_year_df)
+    id_year_df = cluster_records_dbscan(distance_matrix, df, experiment_tracker)
+    id_year_df = split_clusters(distance_matrix, id_year_df, experiment_tracker)
+    id_year_df = match_orphaned_records(distance_matrix, id_year_df, experiment_tracker)
 
     return id_year_df

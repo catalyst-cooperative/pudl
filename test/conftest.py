@@ -135,7 +135,7 @@ def pudl_etl_parameters(etl_settings: EtlSettings) -> DatasetsSettings:
     return etl_settings.datasets
 
 
-@pytest.fixture(scope="session", params=["AS"], ids=["ferc1_annual"])
+@pytest.fixture(scope="session", params=["YS"], ids=["ferc1_annual"])
 def pudl_out_ferc1(live_dbs: bool, pudl_engine: sa.Engine, request) -> PudlTabl:
     """Define parameterized PudlTabl output object fixture for FERC 1 tests."""
     if not live_dbs:
@@ -145,7 +145,7 @@ def pudl_out_ferc1(live_dbs: bool, pudl_engine: sa.Engine, request) -> PudlTabl:
 
 @pytest.fixture(
     scope="session",
-    params=[None, "AS", "MS"],
+    params=[None, "YS", "MS"],
     ids=["eia_raw", "eia_annual", "eia_monthly"],
 )
 def pudl_out_eia(live_dbs: bool, pudl_engine: sa.Engine, request) -> PudlTabl:
@@ -169,7 +169,7 @@ def fast_out_annual(
     """A PUDL output object for use in CI."""
     return PudlTabl(
         pudl_engine,
-        freq="AS",
+        freq="YS",
         fill_fuel_cost=True,
         roll_fuel_cost=True,
         fill_net_gen=True,
