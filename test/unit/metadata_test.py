@@ -1,8 +1,16 @@
 """Tests for metadata not covered elsewhere."""
+import pandas as pd
+import pandera as pr
 import pytest
 
-from pudl.metadata.classes import DataSource, Field, Package
-from pudl.metadata.fields import FIELD_METADATA
+from pudl.metadata.classes import (
+    DataSource,
+    Field,
+    Package,
+    PudlResourceDescriptor,
+    Resource,
+)
+from pudl.metadata.fields import FIELD_METADATA, apply_pudl_dtypes
 from pudl.metadata.helpers import format_errors
 from pudl.metadata.resources import RESOURCE_METADATA
 from pudl.metadata.sources import SOURCES
@@ -88,3 +96,82 @@ def test_get_sorted_resources() -> None:
     assert last_resource_name.startswith(
         "_out"
     ), f"{last_resource_name} is the last resource. Expected a resource with the prefix '_out'"
+
+
+def test_resource_descriptors_valid():
+    # just make sure these validate properly
+    descriptors = {
+        name: PudlResourceDescriptor.model_validate(desc)
+        for name, desc in RESOURCE_METADATA.items()
+    }
+    assert len(descriptors) > 0
+
+
+@pytest.fixture()
+def dummy_pandera_schema():
+    resource_descriptor = PudlResourceDescriptor.model_validate(
+        {
+            "description": "test resource based on core_eia__entity_plants",
+            "schema": {
+                "fields": ["plant_id_eia", "city", "state"],
+                "primary_key": ["plant_id_eia"],
+            },
+            "sources": ["eia860", "eia923"],
+            "etl_group": "entity_eia",
+            "field_namespace": "eia",
+        }
+    )
+    resource = Resource.model_validate(
+        Resource.dict_from_resource_descriptor(
+            "test_eia__entity_plants", resource_descriptor
+        )
+    )
+    return resource.schema.to_pandera()
+
+
+def test_resource_descriptors_can_encode_schemas(dummy_pandera_schema):
+    good_dataframe = pd.DataFrame(
+        {
+            "plant_id_eia": [12345, 12346],
+            "city": ["Bloomington", "Springfield"],
+            "state": ["IL", "IL"],
+        }
+    ).pipe(apply_pudl_dtypes)
+    assert not dummy_pandera_schema.validate(good_dataframe).empty
+
+
+@pytest.mark.parametrize(
+    "error_msg,data",
+    [
+        pytest.param(
+            "column 'plant_id_eia' not in dataframe",
+            pd.DataFrame([]),
+            id="empty dataframe",
+        ),
+        pytest.param(
+            "expected series 'plant_id_eia' to have type Int64",
+            pd.DataFrame(
+                {
+                    "plant_id_eia": ["non_number"],
+                    "city": ["Bloomington"],
+                    "state": ["IL"],
+                }
+            ).astype(str),
+            id="bad dtype",
+        ),
+        pytest.param(
+            "columns .* not unique",
+            pd.DataFrame(
+                {
+                    "plant_id_eia": [12345, 12345],
+                    "city": ["Bloomington", "Springfield"],
+                    "state": ["IL", "IL"],
+                }
+            ).pipe(apply_pudl_dtypes),
+            id="duplicate PK",
+        ),
+    ],
+)
+def test_resource_descriptor_schema_failures(error_msg, data, dummy_pandera_schema):
+    with pytest.raises(pr.errors.SchemaError, match=error_msg):
+        dummy_pandera_schema.validate(data)

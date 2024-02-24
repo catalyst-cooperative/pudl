@@ -31,24 +31,25 @@ plant-parts.
 import importlib.resources
 from typing import Literal
 
+import mlflow
 import numpy as np
 import pandas as pd
-from dagster import Out, graph_asset, op
+from dagster import Out, graph, op
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import precision_recall_fscore_support
 from sklearn.model_selection import GridSearchCV
 
 import pudl
 import pudl.helpers
+from pudl.analysis.ml_tools import experiment_tracking, models
 from pudl.analysis.plant_parts_eia import match_to_single_plant_part
 from pudl.analysis.record_linkage import embed_dataframe
 from pudl.metadata.classes import DataSource, Resource
 
 logger = pudl.logging_helpers.get_logger(__name__)
-# Silence the recordlinkage logger, which is out of control
 
 pair_vectorizers = embed_dataframe.dataframe_embedder_factory(
-    "ferc_eia_pair_vectorizers",
+    "ferc1_eia_pair_vectorizers",
     {
         "plant_name": embed_dataframe.ColumnVectorizer(
             transform_steps=[
@@ -264,12 +265,13 @@ def get_best_matches_with_overwrites(match_df, inputs):
 
 
 @op
-def run_matching_model(features_train, features_all, y_df):
+def run_matching_model(features_train, features_all, y_df, experiment_tracker):
     """Run model to match EIA to FERC records."""
     return run_model(
         features_train=features_train,
         features_all=features_all,
         y_df=y_df,
+        experiment_tracker=experiment_tracker,
     )
 
 
@@ -293,8 +295,13 @@ def get_match_full_records(best_match_df, inputs):
     ).enforce_schema(connected_df)
 
 
-@graph_asset
-def out_pudl__yearly_assn_eia_ferc1_plant_parts(
+@models.pudl_model(
+    "out_pudl__yearly_assn_eia_ferc1_plant_parts",
+    config_from_yaml=False,
+)
+@graph
+def ferc_to_eia(
+    experiment_tracker: experiment_tracking.ExperimentTracker,
     out_ferc1__yearly_all_plants: pd.DataFrame,
     out_ferc1__yearly_steam_plants_fuel_by_plant_sched402: pd.DataFrame,
     out_eia__yearly_plant_parts: pd.DataFrame,
@@ -313,13 +320,14 @@ def out_pudl__yearly_assn_eia_ferc1_plant_parts(
         out_eia__yearly_plant_parts,
     )
     all_pairs_df, train_pairs_df = get_pairs_dfs(inputs)
-    features_all = pair_vectorizers(all_pairs_df)
-    features_train = pair_vectorizers(train_pairs_df)
+    features_all = pair_vectorizers(all_pairs_df, experiment_tracker)
+    features_train = pair_vectorizers(train_pairs_df, experiment_tracker)
     y_df = get_y_label_df(train_pairs_df, inputs)
     match_df = run_matching_model(
         features_train=features_train,
         features_all=features_all,
         y_df=y_df,
+        experiment_tracker=experiment_tracker,
     )
     # choose one EIA match for each FERC record
     best_match_df = get_best_matches_with_overwrites(match_df, inputs)
@@ -420,10 +428,10 @@ class InputManager:
                         x.installation_year.astype("float")
                     ),  # need for comparison vectors
                     plant_id_report_year=lambda x: (
-                        x.plant_id_pudl.map(str) + "_" + x.report_year.map(str)
+                        x.plant_id_pudl.astype(str) + "_" + x.report_year.astype(str)
                     ),
                     plant_id_report_year_util_id=lambda x: (
-                        x.plant_id_report_year + "_" + x.utility_id_pudl.map(str)
+                        x.plant_id_report_year + "_" + x.utility_id_pudl.astype(str)
                     ),
                     fuel_cost_per_mmbtu=lambda x: (x.fuel_cost / x.fuel_mmbtu),
                     unit_heat_rate_mmbtu_per_mwh=lambda x: (
@@ -529,7 +537,10 @@ class InputManager:
 
 
 def run_model(
-    features_train: pd.DataFrame, features_all: pd.DataFrame, y_df: pd.DataFrame
+    features_train: pd.DataFrame,
+    features_all: pd.DataFrame,
+    y_df: pd.DataFrame,
+    experiment_tracker: experiment_tracking.ExperimentTracker,
 ) -> pd.DataFrame:
     """Train Logistic Regression model using GridSearch cross validation.
 
@@ -572,6 +583,10 @@ def run_model(
     lrc = LogisticRegression()
     clf = GridSearchCV(estimator=lrc, param_grid=param_grid, verbose=True, n_jobs=-1)
     clf.fit(X=X_train, y=y_df)
+
+    # Log best parameters
+    experiment_tracker.execute_logging(lambda: mlflow.log_params(clf.best_params_))
+
     y_pred = clf.predict(X_train)
     precision, recall, f_score, _ = precision_recall_fscore_support(
         y_df, y_pred, average="binary"
@@ -584,6 +599,18 @@ def run_model(
         f"    Precision: {precision:.02}\n"
         f"    Recall:    {recall:.02}\n"
     )
+    # Log model metrics
+    experiment_tracker.execute_logging(
+        lambda: mlflow.log_metrics(
+            {
+                "accuracy": accuracy,
+                "f_score": f_score,
+                "precision": precision,
+                "recall": recall,
+            }
+        )
+    )
+
     preds = clf.predict(features_all.matrix)
     probs = clf.predict_proba(features_all.matrix)
     final_df = pd.DataFrame(
@@ -619,7 +646,9 @@ def find_best_matches(match_df):
     return best_match_df
 
 
-def overwrite_bad_predictions(match_df, train_df):
+def overwrite_bad_predictions(
+    match_df: pd.DataFrame, train_df: pd.DataFrame
+) -> pd.DataFrame:
     """Overwrite incorrect predictions with the correct match from training data.
 
     Args:
@@ -701,7 +730,7 @@ def restrict_train_connections_on_date_range(
     date_range_years_str = "|".join(
         [
             f"{year}"
-            for year in pd.date_range(start=start_date, end=end_date, freq="AS").year
+            for year in pd.date_range(start=start_date, end=end_date, freq="YS").year
         ]
     )
     logger.info(f"Restricting training data on years: {date_range_years_str}")
@@ -1014,7 +1043,7 @@ def check_match_consistency(
             threshold for this check.
     """
     # these are the default
-    expected_consistency = 0.73
+    expected_consistency = 0.72
     expected_uniform_capacity_consistency = 0.85
     mask = connects_ferc1_eia.record_id_eia.notnull()
 

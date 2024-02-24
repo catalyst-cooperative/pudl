@@ -17,7 +17,7 @@ def get_csv_extractor():
 
 def test_open_csv_resource():
     csv_resource = open_csv_resource(DATASET, BASE_FILENAME)
-    assert ["table", "filename"] == csv_resource.fieldnames
+    assert csv_resource.fieldnames == ["table", "filename"]
 
 
 def test_get_table_file_map():
@@ -28,7 +28,7 @@ def test_get_table_file_map():
 def test_get_table_names():
     extractor = get_csv_extractor()
     table_names = extractor.get_table_names()
-    assert [TABLE_NAME] == table_names
+    assert table_names == [TABLE_NAME]
 
 
 @patch("pudl.extract.csv.pd")
@@ -49,4 +49,4 @@ def test_csv_extractor_extract():
     with patch.object(CsvExtractor, "extract_one", return_value=df) as mock_read_source:
         raw_dfs = extractor.extract_all()
     mock_read_source.assert_called_once_with(TABLE_NAME)
-    assert {TABLE_NAME: df} == raw_dfs
+    assert raw_dfs == {TABLE_NAME: df}
