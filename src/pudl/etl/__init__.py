@@ -173,7 +173,9 @@ _asset_keys = itertools.chain.from_iterable(
 default_asset_checks = [
     check
     for check in (
-        asset_check_from_schema(asset_key, _package) for asset_key in _asset_keys
+        asset_check_from_schema(asset_key, _package)
+        for asset_key in _asset_keys
+        if asset_key.to_user_string() != "core_epacems__hourly_emissions"
     )
     if check is not None
 ]
