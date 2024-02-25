@@ -2,31 +2,33 @@
 
 The algorithm we're using assumes the following about the reported data:
 
-* The :ref:`core_eia923__monthly_generation_fuel` table is the authoritative source of information
-  about how much generation and fuel consumption is attributable to an entire
-  plant. This table has the most complete data coverage, but it is not the most granular
-  data reported. It's primary keys are :py:const:`IDX_PM_ESC`.
-* The :ref:`core_eia923__monthly_generation` table contains the most granular net generation data. It
-  is reported at the generator level with primary keys :py:const:`IDX_GENS`. This table
-  includes only ~39% of the total MWhs reported in the :ref:`core_eia923__monthly_generation_fuel`
-  table.
-* The :ref:`core_eia923__monthly_boiler_fuel` table contains the most granular fuel consumption data.
-  It is reported at the boiler/prime mover/energy source level with primary keys
-  :py:const:`IDX_B_PM_ESC`. This table includes only ~38% of the total MMBTUs reported
-  in the :ref:`core_eia923__monthly_generation_fuel` table.
-* The :ref:`core_eia860__scd_generators` table provides an exhaustive list of all generators
-  whose generation is being reported in the :ref:`core_eia923__monthly_generation_fuel` table - with
-  primary keys :py:const:`IDX_GENS`.
+* The :ref:`core_eia923__monthly_generation_fuel` table is the authoritative source of
+  information about how much generation and fuel consumption is attributable to an
+  entire plant. This table has the most complete data coverage, but it is not the most
+  granular data reported. It's primary keys are :py:const:`IDX_PM_ESC`.
+* The :ref:`core_eia923__monthly_generation` table contains the most granular net
+  generation data. It is reported at the generator level with primary keys
+  :py:const:`IDX_GENS`. This table includes only ~39% of the total MWhs reported in the
+  :ref:`core_eia923__monthly_generation_fuel` table.
+* The :ref:`core_eia923__monthly_boiler_fuel` table contains the most granular fuel
+  consumption data.  It is reported at the boiler/prime mover/energy source level with
+  primary keys :py:const:`IDX_B_PM_ESC`. This table includes only ~38% of the total
+  MMBTUs reported in the :ref:`core_eia923__monthly_generation_fuel` table.
+* The :ref:`core_eia860__scd_generators` table provides an exhaustive list of all
+  generators whose generation is being reported in the
+  :ref:`core_eia923__monthly_generation_fuel` table - with primary keys
+  :py:const:`IDX_GENS`.
 
-This module allocates the total net electricity generation and fuel consumption
-reported in the :ref:`core_eia923__monthly_generation_fuel` table to individual generators, based
+This module allocates the total net electricity generation and fuel consumption reported
+in the :ref:`core_eia923__monthly_generation_fuel` table to individual generators, based
 on more granular data reported in the :ref:`core_eia923__monthly_generation` and
 :ref:`core_eia923__monthly_boiler_fuel` tables, as well as capacity (MW) found in the
 :ref:`core_eia860__scd_generators` table. It uses other generator attributes from the
 :ref:`core_eia860__scd_generators` table to associate the data found in the
-:ref:`core_eia923__monthly_generation_fuel` with generators. It also uses as the associations between
-boilers and generators found in the :ref:`core_eia860__assn_boiler_generator` table to
-aggregate data :ref:`core_eia923__monthly_boiler_fuel` tables. The main coordinating functions hereare
+:ref:`core_eia923__monthly_generation_fuel` with generators. It also uses as the
+associations between boilers and generators found in the
+:ref:`core_eia860__assn_boiler_generator` table to aggregate data
+:ref:`core_eia923__monthly_boiler_fuel` tables. The main coordinating functions hereare
 :func:`allocate_gen_fuel_by_generator_energy_source` and
 :func:`aggregate_gen_fuel_by_generator`.
 
@@ -35,8 +37,8 @@ Some definitions:
 * **Data columns** refers to the net generation and fuel consumption - the specific
   columns are defined in :py:const:`DATA_COLUMNS`.
 * **Granular tables** refers to :ref:`core_eia923__monthly_generation` and
-  :ref:`core_eia923__monthly_boiler_fuel`, which report granular data but do not have complete
-  coverage.
+  :ref:`core_eia923__monthly_boiler_fuel`, which report granular data but do not have
+  complete coverage.
 
 There are six main stages of the allocation process in this module:
 
@@ -52,11 +54,12 @@ There are six main stages of the allocation process in this module:
    record are directly reported in the granular tables. This lets us choose an
    appropriate data allocation method based on how complete the granular data coverage
    is for a given value of :py:const:`IDX_PM_ESC`, which is the original primary key of
-   the :ref:`core_eia923__monthly_generation_fuel` table. (See :func:`prep_allocation_fraction`).
+   the :ref:`core_eia923__monthly_generation_fuel` table. (See
+   :func:`prep_allocation_fraction`).
 #. **Allocate**: Allocate the net generation and fuel consumption reported in the less
-   granular :ref:`core_eia923__monthly_generation_fuel` table to the :py:const:`IDX_GENS_PM_ESC`
-   level. More details on the allocation process are below (see
-   :func:`allocate_gen_fuel_by_gen_esc` and :func:`allocate_fuel_by_gen_esc`).
+   granular :ref:`core_eia923__monthly_generation_fuel` table to the
+   :py:const:`IDX_GENS_PM_ESC` level. More details on the allocation process are below
+   (see :func:`allocate_gen_fuel_by_gen_esc` and :func:`allocate_fuel_by_gen_esc`).
 #. **Sanity check allocation**: Verify that the total allocated net generation and fuel
    consumption within each plant is equal to the total of the originally reported values
    within some tolerance (see :func:`test_original_gf_vs_the_allocated_by_gens_gf`).
@@ -69,9 +72,9 @@ There are six main stages of the allocation process in this module:
 
 **High-level description about the allocaiton step**:
 
-We allocate the data columns reported in the :ref:`core_eia923__monthly_generation_fuel` table on the
-basis of plant, prime mover, and energy source among the generators in each plant that
-have matching energy sources.
+We allocate the data columns reported in the :ref:`core_eia923__monthly_generation_fuel`
+table on the basis of plant, prime mover, and energy source among the generators in each
+plant that have matching energy sources.
 
 We group the associated data columns by :py:const:`IDX_PM_ESC` and categorize
 each resulting group of generators based on whether  **ALL**, **SOME**, or **NONE** of
@@ -85,29 +88,30 @@ In more detail, within each reporting period, we split the plants into three gro
 * The **ALL** Coverage Records: where ALL generators report in the granular tables.
 * The **NONE** Coverage Records: where NONE of the generators report in the granular
   tables.
-* The **SOME** Coverage Records: where only SOME of the generators report in the granular
-  tables.
+* The **SOME** Coverage Records: where only SOME of the generators report in the
+  granular tables.
 
 In the **ALL** generators case, the data columns reported in the
-:ref:`core_eia923__monthly_generation_fuel` table are allocated in proportion to data reported in the
-granular data tables. We do this instead of directly using the data columns from the
-granular tables because there are discrepancies between the core_eia923__monthly_generation_fuel table
-and the granular tables and we are assuming the totals reported in the
-core_eia923__monthly_generation_fuel table are authoritative.
+:ref:`core_eia923__monthly_generation_fuel` table are allocated in proportion to data
+reported in the granular data tables. We do this instead of directly using the data
+columns from the granular tables because there are discrepancies between the
+core_eia923__monthly_generation_fuel table and the granular tables and we are assuming
+the totals reported in the core_eia923__monthly_generation_fuel table are authoritative.
 
 In the **NONE** generators case, the data columns reported in the
-:ref:`core_eia923__monthly_generation_fuel` table are allocated in proportion to the each generator's
-capacity.
+:ref:`core_eia923__monthly_generation_fuel` table are allocated in proportion to the
+each generator's capacity.
 
 In the **SOME** generators case, we use a combination of the two allocation methods
-described above. First, the data columns reported in the :ref:`core_eia923__monthly_generation_fuel`
-table are allocated between the two categories of generators: those that report granular
-data, and those that don't. The fraction allocated to each of those categories is based
-on how much of the total is reported in the granular tables. If T is the total reported,
-and X is the quantity reported in the granular tables, then the allocation is X/T to the
-generators reporting granular data, and (T-X)/T to the generators not reporting granular
-data. Within each of those categories the allocation then follows the ALL or NONE
-allocation methods described above.
+described above. First, the data columns reported in the
+:ref:`core_eia923__monthly_generation_fuel` table are allocated between the two
+categories of generators: those that report granular data, and those that don't. The
+fraction allocated to each of those categories is based on how much of the total is
+reported in the granular tables. If T is the total reported, and X is the quantity
+reported in the granular tables, then the allocation is X/T to the generators reporting
+granular data, and (T-X)/T to the generators not reporting granular data. Within each of
+those categories the allocation then follows the ALL or NONE allocation methods
+described above.
 
 **Known Drawbacks of this methodology**:
 
@@ -123,10 +127,10 @@ indicator of what portion of the energy_source_codes, we associate the net gener
 equally among them. In effect, if a plant had multiple generators with the same
 prime_mover_code but opposite primary and secondary fuels (eg. gen 1 has a primary fuel
 of 'NG' and secondary fuel of 'DFO', while gen 2 has a primary fuel of 'DFO' and a
-secondary fuel of 'NG'), the methodology associates the core_eia923__monthly_generation_fuel records
-similarly across these two generators. However, the allocated net generation will still
-be porporational to each generator's net generation (if it's reported) or capacity (if
-generation is not reported).
+secondary fuel of 'NG'), the methodology associates the
+core_eia923__monthly_generation_fuel records similarly across these two generators.
+However, the allocated net generation will still be porporational to each generator's
+net generation (if it's reported) or capacity (if generation is not reported).
 """
 
 import os
@@ -199,11 +203,11 @@ MISSING_SENTINEL = 0.00001
 
 
 def allocate_gen_fuel_asset_factory(
-    freq: Literal["AS", "MS"],
+    freq: Literal["YS", "MS"],
     io_manager_key: str | None = None,
 ) -> list[AssetsDefinition]:
     """Build yearly and monthly net generation & fuel consumption allocation assets."""
-    agg_freqs = {"AS": "yearly", "MS": "monthly"}
+    agg_freqs = {"YS": "yearly", "MS": "monthly"}
     if freq not in agg_freqs:
         raise ValueError(f"freq must be one of {agg_freqs.keys()}, got: {freq}.")
 
@@ -304,7 +308,7 @@ def allocate_gen_fuel_asset_factory(
         )
 
     assets = [gen_fuel_by_gen_esc, gen_fuel_by_gen]
-    if freq == "AS":
+    if freq == "YS":
         # The monthly version is yuuuuge and we only use the annual data for now.
         assets += [gen_fuel_by_gen_esc_owner]
 
@@ -313,7 +317,7 @@ def allocate_gen_fuel_asset_factory(
 
 allocate_gen_fuel_assets = [
     allocated_net_gen_asset
-    for freq in ["AS", "MS"]
+    for freq in ["YS", "MS"]
     for allocated_net_gen_asset in allocate_gen_fuel_asset_factory(
         freq=freq,
         io_manager_key="pudl_io_manager",
@@ -327,7 +331,7 @@ def allocate_gen_fuel_by_generator_energy_source(
     gen: pd.DataFrame,
     bga: pd.DataFrame,
     gens: pd.DataFrame,
-    freq: Literal["AS", "MS"],
+    freq: Literal["YS", "MS"],
     debug: bool = False,
 ) -> pd.DataFrame:
     """Allocate net gen from gen_fuel table to the generator/energy_source_code level.
@@ -1476,7 +1480,7 @@ def distribute_annually_reported_data_to_months_if_annual(
     df: pd.DataFrame,
     key_columns: list[str],
     data_column_name: str,
-    freq: Literal["AS", "MS"],
+    freq: Literal["YS", "MS"],
 ) -> pd.DataFrame:
     """Allocates annually-reported data from the gen or bf table to each month.
 
@@ -1508,7 +1512,7 @@ def distribute_annually_reported_data_to_months_if_annual(
             ``["plant_id_eia","generator_id"]``
         data_column_name: the name of the data column to allocate, either
             "net_generation_mwh" or "fuel_consumed_mmbtu" depending on the df specified
-        freq: frequency of input df. Must be either ``AS`` or ``MS``.
+        freq: frequency of input df. Must be either ``YS`` or ``MS``.
 
     Returns:
         df with the annually reported values allocated to each month
@@ -1602,10 +1606,10 @@ def distribute_annually_reported_data_to_months_if_annual(
             .reset_index(drop=True)
             .drop(columns=["missing_data"])
         )
-    elif freq == "AS":
+    elif freq == "YS":
         df_out = df
     else:
-        raise AssertionError(f"Frequency must be either `AS` or `MS`. Got {freq}")
+        raise AssertionError(f"Frequency must be either `YS` or `MS`. Got {freq}")
     return df_out
 
 

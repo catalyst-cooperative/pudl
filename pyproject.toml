@@ -17,13 +17,13 @@ dependencies = [
     "bottleneck>=1.3.4", # pandas[performance]
     "build>=1.0",
     "catalystcoop.dbfread>=3.0,<3.1",
-    "catalystcoop.ferc-xbrl-extractor>=1.2.0,<2",
+    "catalystcoop.ferc-xbrl-extractor>=1.3.2,<2",
     "click>=8",
     "coloredlogs>=14.0", # Dagster requires 14.0
-    "conda-lock>=2.5.1",
+    "conda-lock>=2.5.2",
     "coverage>=7",
-    "dagster>=1.6",
-    "dagster-postgres>=0.22,<1", # Update when dagster-postgres graduates to 1.x
+    "dagster>=1.6.5",
+    "dagster-postgres>=0.22.5,<1", # Update when dagster-postgres graduates to 1.x
     "dask>=2023",
     "datasette>=0.64",
     "doc8>=1.1",
@@ -34,23 +34,23 @@ dependencies = [
     "gcsfs>=2023",
     "gdal>=3.8.3",
     "geopandas>=0.14",
-    "grpcio==1.60.0", # Required by dagster, binary dependencies are flaky
-    "grpcio-health-checking==1.60.0", # Required by dagster, binary dependencies are flaky
-    "grpcio-status==1.60.0", # Required by dagster, binary dependencies are flaky
+    "grpcio==1.60.1", # Required by dagster, binary dependencies are flaky
+    "grpcio-health-checking==1.60.1", # Required by dagster, binary dependencies are flaky
+    "grpcio-status==1.60.1", # Required by dagster, binary dependencies are flaky
     "hypothesis>=6.87",
     "jellyfish>=1",
     "jinja2>=3.1",
     "jupyter",
     "matplotlib>=3.8",
+    "mlflow>=2.10",
     "nbconvert>=7",
     "nbformat>=5.9",
     "networkx>=3.2",
     "numba>=0.58", # pandas[performance]
     "numexpr>=2.8.0", # pandas[performance]
     "numpy>=1.26,<2.0a0",
-    "openpyxl>=3.0.10", # pandas[excel]
     "packaging>=23",
-    "pandas>=2.1,<2.2",
+    "pandas>=2.2",
     "pandera>=0.17.2",
     "pre-commit>=3",
     "pyarrow>=15", # pandas[parquet]
@@ -61,17 +61,16 @@ dependencies = [
     "pytest-console-scripts>=1.4",
     "pytest-mock>=3.11",
     "pytest-xdist>=3.3",
+    "python-calamine>=0.1.7", # pandas[excel]
     "python-dotenv>=1",
-    "pytz>=2024",
-    "pyxlsb>=1.0.9", # pandas[excel]
+    "pytz<2024", # Upgrade when mlflow supports 2024
     "pyyaml>=6",
     "readthedocs-sphinx-ext>=2",
-    "regex>=2023.12.25",
     "requests>=2.31",
     "responses>=0.23",
     "ruff>=0.2",
     "scikit-learn>=1.3",
-    "scipy>=1.11",
+    "scipy>=1.12",
     "Shapely>=2",
     "splink>=3.9.12",
     "sphinx>=7",
@@ -83,11 +82,10 @@ dependencies = [
     "timezonefinder>=6.2",
     "universal_pathlib>=0.1.4",
     "urllib3>=1.26.18",
-    "xlrd>=2.0.1", # pandas[excel]
     "xlsxwriter>=3.1", # pandas[excel]
 ]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Environment :: Console",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
@@ -145,7 +143,7 @@ pudl_service_territories = "pudl.analysis.service_territory:pudl_service_territo
 
 [project.optional-dependencies]
 dev = [
-    "dagster-webserver>=1.6",
+    "dagster-webserver>=1.6.5",
     "jupyterlab>3.2",
     "jupyter-resource-usage",
     "pygraphviz",
@@ -187,6 +185,8 @@ line-ending = "auto"
 
 [tool.ruff.lint]
 # Configurations that apply to the `lint` subcommand.
+preview = true # Required for NPY201
+explicit-preview-rules = true # and ONLY NPY201
 select = [
     "A", # flake8-builtins
     "B", # flake8-bugbear
@@ -243,6 +243,7 @@ ignore = [
     "RUF005", # Unpack iterables instead of concatenation
     "S101", # Use of assert
 ]
+extend-select = ["NPY201"] # preview rule to easy migration to Numpy 2.0
 
 # Don't automatically concatenate strings -- sometimes we forget a comma!
 unfixable = ["ISC"]
@@ -302,11 +303,13 @@ filterwarnings = [
 ]
 
 markers = ["slow: marks tests as slow (deselect with '-m \"not slow\"')"]
-# Oddly, despite the use of --cov-config=pyproject.toml here, pytest does not seem to
-# pick up the source directories specified in the [tool.coverage.run] section below.
-# (though it *does* pick up the omit parameters!). This means we need to specify the
-# source directories we want to collect coverage twice, and keep the two in sync.
-addopts = "--verbose --pdbcls=IPython.terminal.debugger:TerminalPdb --cov-append --cov-config=pyproject.toml --cov-report=xml --cov=src/pudl --cov=test/integration --cov=test/unit"
+addopts = """\
+    --verbose \
+    --pdbcls=IPython.terminal.debugger:TerminalPdb \
+    --cov-append \
+    --cov-config=pyproject.toml \
+    --cov-report=xml \
+    --cov"""
 log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
 log_date_format = "%Y-%m-%d %H:%M:%S"
 log_cli = "true"
@@ -326,17 +329,16 @@ channel-priority = "strict"
 name = "pudl-dev"
 
 [tool.conda-lock.dependencies]
-google-cloud-sdk = ">=452"
+google-cloud-sdk = ">=464"
 nodejs = ">=20"
 pandoc = ">=2"
-pip = ">=23"
+pip = ">=24"
 prettier = ">=3.0"
 python = ">=3.11,<3.12"
 sqlite = ">=3.43"
 curl = ">=8.4.0"
 
 [tool.coverage.run]
-# See note above on need to specify separate sources for pytest-coverage and coverage.
 source = ["src/pudl/", "test/integration/", "test/unit/"]
 omit = [
     # Never hit by integration tests:
@@ -344,9 +346,10 @@ omit = [
 ]
 
 [tool.coverage.report]
-precision = 1
+precision = 2
 sort = "miss"
 skip_empty = true
+fail_under = 92.70
 exclude_lines = [
     # Have to re-enable the standard pragma
     "pragma: no cover",

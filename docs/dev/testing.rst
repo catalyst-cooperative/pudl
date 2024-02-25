@@ -8,12 +8,12 @@ and to coordinate data validation tests.  There are several ``pytest`` commands 
 as targets in the PUDL ``Makefile`` for convenience and to ensure that we're all running
 the tests in similar ways by default.
 
-To run the software unit and integration tests that will be run in our automated CI on
-GitHub, you can use the following command:
+To run the checks that will be required for a PR to be merged into the ``main`` branch
+on GitHub, you can use the following command:
 
 .. code-block:: console
 
-    $ make pytest-unit pytest-integration
+    $ make pytest-coverage
 
 .. note::
 
@@ -68,6 +68,8 @@ above there are also:
   records in them, and report back the actual number of records found. Requires an
   existing PUDL DB.
 * ``pytest-coverage``: Run all the software tests and generate a test coverage report.
+  This will fail if test coverage has fallen below the threshold defined in
+  ``pyproject.toml``.
 * ``pytest-ci``: Run the unit and integration tests (those tests that get run in CI).
 
 Running Other Commands with Make

@@ -39,7 +39,7 @@ def test_vs_bounds(pudl_out_ferc1, live_dbs, cases):
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
     validate_df = pd.read_sql(
-        "_out_ferc1__yearly_steam_plants_sched402", pudl_out_ferc1.pudl_engine
+        "out_ferc1__yearly_steam_plants_sched402", pudl_out_ferc1.pudl_engine
     ).assign(
         water_limited_ratio=lambda x: x.water_limited_capacity_mw / x.capacity_mw,
         not_water_limited_ratio=lambda x: x.not_water_limited_capacity_mw
@@ -56,7 +56,7 @@ def test_self_vs_historical(pudl_out_ferc1, live_dbs):
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
     validate_df = pd.read_sql(
-        "_out_ferc1__yearly_steam_plants_sched402", pudl_out_ferc1.pudl_engine
+        "out_ferc1__yearly_steam_plants_sched402", pudl_out_ferc1.pudl_engine
     ).assign(
         water_limited_ratio=lambda x: x.water_limited_capacity_mw / x.capacity_mw,
         not_water_limited_ratio=lambda x: x.not_water_limited_capacity_mw
@@ -76,7 +76,7 @@ def test_dupe_years_in_plant_id_ferc1(pudl_out_ferc1):
     (which... we do, as of writing).
     """
     steam_df = pd.read_sql(
-        "_out_ferc1__yearly_steam_plants_sched402", pudl_out_ferc1.pudl_engine
+        "out_ferc1__yearly_steam_plants_sched402", pudl_out_ferc1.pudl_engine
     )
     year_dupes = (
         steam_df.groupby(["plant_id_ferc1", "report_year"])["utility_id_ferc1"]
@@ -106,7 +106,7 @@ def test_plant_id_clash(pudl_out_ferc1):
     is untrue (as... we know it is right now).
     """
     steam_df = pd.read_sql(
-        "_out_ferc1__yearly_steam_plants_sched402", pudl_out_ferc1.pudl_engine
+        "out_ferc1__yearly_steam_plants_sched402", pudl_out_ferc1.pudl_engine
     )
     bad_plant_ids_ferc1 = (
         steam_df[["plant_id_pudl", "plant_id_ferc1"]]

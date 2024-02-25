@@ -28,11 +28,13 @@ are the connections we keep as the matches between FERC1 plant records and EIA
 plant-parts.
 """
 
+import mlflow
 import pandas as pd
-from dagster import Out, graph_asset, op
+from dagster import Out, graph, op
 from splink.duckdb.linker import DuckDBLinker
 
 import pudl
+from pudl.analysis.ml_tools import experiment_tracking, models
 from pudl.analysis.record_linkage import embed_dataframe, name_cleaner
 from pudl.analysis.record_linkage.eia_ferc1_record_linkage import (
     _log_match_coverage,
@@ -109,6 +111,7 @@ col_cleaner = embed_dataframe.dataframe_cleaner_factory(
 
 # the correct EIA record is predicted for a FERC record
 def get_true_pos(pred_df, train_df):
+    """Get the number of correctly predicted matches."""
     return train_df.merge(
         pred_df, how="left", on=["record_id_ferc1", "record_id_eia"], indicator=True
     )._merge.value_counts()["both"]
@@ -116,6 +119,7 @@ def get_true_pos(pred_df, train_df):
 
 # an incorrect EIA record is predicted for a FERC record
 def get_false_pos(pred_df, train_df):
+    """Get the number of incorrectly predicted matches."""
     shared_preds = train_df.merge(
         pred_df, how="inner", on="record_id_ferc1", suffixes=("_true", "_pred")
     )
@@ -126,12 +130,14 @@ def get_false_pos(pred_df, train_df):
 
 # FERC record is in training data but no prediction made
 def get_false_neg(pred_df, train_df):
+    """Get the number of matches from the training data where no prediction is made."""
     return train_df.merge(
         pred_df, how="left", on=["record_id_ferc1"], indicator=True
     )._merge.value_counts()["left_only"]
 
 
 def get_duplicated_eia_plant_part_matches(pred_df):
+    """Get the number of EIA plant part records that are matched to different FERC records."""
     return len(
         pred_df[
             (pred_df.record_id_eia.notnull())
@@ -191,17 +197,10 @@ def get_training_data_df(inputs):
     )
     train_df.loc[:, "source_dataset_r"] = "ferc_df"
     train_df.loc[:, "source_dataset_l"] = "eia_df"
-    train_df.loc[:, "clerical_match_score"] = (
-        1  # this column shows that all these labels are positive labels
-    )
+    train_df.loc[
+        :, "clerical_match_score"
+    ] = 1  # this column shows that all these labels are positive labels
     return train_df
-
-
-@op
-def get_cleaned_inputs(ferc_df, eia_df):
-    transformed_ferc_df = col_cleaner(ferc_df)
-    transformed_eia_df = col_cleaner(eia_df)
-    return transformed_ferc_df, transformed_eia_df
 
 
 @op
@@ -231,8 +230,12 @@ def get_model_predictions(eia_df, ferc_df, train_df):
     return preds_df.as_pandas_dataframe()
 
 
-@op(out={"_out_pudl__yearly_assn_eia_ferc1_model_output": Out()})
-def get_best_matches(preds_df, inputs):
+@op()
+def get_best_matches(
+    preds_df,
+    inputs,
+    experiment_tracker: experiment_tracking.ExperimentTracker,
+):
     """Get the best EIA match for each FERC record and log performance metrics."""
     preds_df = (
         preds_df.rename(
@@ -242,6 +245,7 @@ def get_best_matches(preds_df, inputs):
         .groupby("record_id_ferc1")
         .first()
     )
+    preds_df = preds_df.reset_index()
     train_df = inputs.get_train_df().reset_index()
     true_pos = get_true_pos(preds_df, train_df)
     false_pos = get_false_pos(preds_df, train_df)
@@ -259,6 +263,14 @@ def get_best_matches(preds_df, inputs):
         "Recall = of all of the training data FERC records, the model predicted a match for this percentage.\n"
         "A measure of coverage of FERC records."
     )
+    experiment_tracker.execute_logging(
+        lambda: mlflow.log_metrics(
+            {
+                "precision": round(true_pos / (true_pos + false_pos), 3),
+                "recall": round(true_pos / (true_pos + false_neg), 3),
+            }
+        )
+    )
     return preds_df
 
 
@@ -269,7 +281,7 @@ def get_best_matches(preds_df, inputs):
         )
     }
 )
-def get_full_records_with_overwrites(best_match_df, inputs):
+def get_full_records_with_overwrites(best_match_df, inputs, experiment_tracker):
     """Join full dataframe onto matches to make usable and get stats.
 
     Overwrite the predictions dataframe with the training data, so that all
@@ -284,12 +296,13 @@ def get_full_records_with_overwrites(best_match_df, inputs):
         plant_parts_eia_true=inputs.get_plant_parts_eia_true(),
         plants_ferc1=inputs.get_plants_ferc1(),
     )
-    _log_match_coverage(connected_df)
+    _log_match_coverage(connected_df, experiment_tracker=experiment_tracker)
     for match_set in ["all", "overrides"]:
         check_match_consistency(
             connected_df,
             input.get_train_df(),
             match_set=match_set,
+            experiment_tracker=experiment_tracker,
         )
     connected_df = add_null_overrides(
         connected_df
@@ -299,8 +312,13 @@ def get_full_records_with_overwrites(best_match_df, inputs):
     ).enforce_schema(connected_df)
 
 
-@graph_asset
-def out_pudl__yearly_assn_eia_ferc1_plant_parts_splink(
+@models.pudl_model(
+    "out_pudl__yearly_assn_eia_ferc1_plant_parts_splink",
+    config_from_yaml=False,
+)
+@graph
+def ferc_to_eia_splink(
+    experiment_tracker: experiment_tracking.ExperimentTracker,
     out_ferc1__yearly_all_plants: pd.DataFrame,
     out_ferc1__yearly_steam_plants_fuel_by_plant_sched402: pd.DataFrame,
     out_eia__yearly_plant_parts: pd.DataFrame,
@@ -321,14 +339,26 @@ def out_pudl__yearly_assn_eia_ferc1_plant_parts_splink(
     eia_df, ferc_df = get_input_dfs(inputs)
     train_df = get_training_data_df(inputs)
     # apply cleaning transformations to some columns
-    transformed_eia_df = col_cleaner(eia_df)
-    transformed_ferc_df = col_cleaner(ferc_df)
+    transformed_eia_df = col_cleaner(eia_df, experiment_tracker)
+    transformed_ferc_df = col_cleaner(ferc_df, experiment_tracker)
     # prepare for matching with splink
     ferc_df = prepare_for_matching(ferc_df, transformed_ferc_df)
     eia_df = prepare_for_matching(eia_df, transformed_eia_df)
     # train model and predict matches
-    preds_df = get_model_predictions(eia_df=eia_df, ferc_df=ferc_df, train_df=train_df)
-    best_match_df = get_best_matches(preds_df=preds_df, inputs=inputs)
-    ferc1_eia_connected_df = get_full_records_with_overwrites(best_match_df, inputs)
+    preds_df = get_model_predictions(
+        eia_df=eia_df,
+        ferc_df=ferc_df,
+        train_df=train_df,
+    )
+    best_match_df = get_best_matches(
+        preds_df=preds_df,
+        inputs=inputs,
+        experiment_tracker=experiment_tracker,
+    )
+    ferc1_eia_connected_df = get_full_records_with_overwrites(
+        best_match_df,
+        inputs,
+        experiment_tracker=experiment_tracker,
+    )
 
     return ferc1_eia_connected_df

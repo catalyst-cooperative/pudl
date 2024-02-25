@@ -46,7 +46,7 @@ class PudlTabl:
     def __init__(
         self: Self,
         pudl_engine: sa.Engine,
-        freq: Literal["AS", "MS", None] = None,
+        freq: Literal["YS", "MS", None] = None,
         start_date: str | date | datetime | pd.Timestamp = None,
         end_date: str | date | datetime | pd.Timestamp = None,
         fill_fuel_cost: bool = False,
@@ -67,7 +67,7 @@ class PudlTabl:
         Args:
             pudl_engine: A connection engine for the PUDL DB.
             freq: A string indicating the time frequency at which to aggregate
-                reported data. ``MS`` is monththly and ``AS`` is annually. If
+                reported data. ``MS`` is monthly and ``YS`` is yearly. If
                 None, the data will not be aggregated.
             start_date: Beginning date for data to pull from the PUDL DB. If
                 a string, it should use the ISO 8601 ``YYYY-MM-DD`` format.
@@ -101,11 +101,11 @@ class PudlTabl:
             )
         self.pudl_engine: sa.Engine = pudl_engine
 
-        if freq not in (None, "AS", "MS"):
+        if freq not in (None, "YS", "MS"):
             raise ValueError(
-                f"freq must be one of None, 'MS', or 'AS', but we got {freq}."
+                f"freq must be one of None, 'MS', or 'YS', but we got {freq}."
             )
-        self.freq: Literal["AS", "MS", None] = freq
+        self.freq: Literal["YS", "MS", None] = freq
 
         # grab all working eia dates to use to set start and end dates if they
         # are not set
@@ -155,12 +155,12 @@ class PudlTabl:
             "out_ferc1__yearly_transmission_lines_sched422": "denorm_transmission_statistics_ferc1",
             "out_ferc1__yearly_utility_plant_summary_sched200": "denorm_utility_plant_summary_ferc1",
             "_out_ferc1__yearly_plants_utilities": "pu_ferc1",
-            "_out_ferc1__yearly_steam_plants_sched402": "plants_steam_ferc1",
+            "out_ferc1__yearly_steam_plants_sched402": "plants_steam_ferc1",
             "out_ferc1__yearly_steam_plants_fuel_sched402": "fuel_ferc1",
             "out_ferc1__yearly_steam_plants_fuel_by_plant_sched402": "fbp_ferc1",
-            "_out_ferc1__yearly_small_plants_sched410": "plants_small_ferc1",
-            "_out_ferc1__yearly_hydroelectric_plants_sched406": "plants_hydro_ferc1",
-            "_out_ferc1__yearly_pumped_storage_plants_sched408": "plants_pumped_storage_ferc1",
+            "out_ferc1__yearly_small_plants_sched410": "plants_small_ferc1",
+            "out_ferc1__yearly_hydroelectric_plants_sched406": "plants_hydro_ferc1",
+            "out_ferc1__yearly_pumped_storage_plants_sched408": "plants_pumped_storage_ferc1",
             "out_ferc1__yearly_purchased_power_and_exchanges_sched326": "purchased_power_ferc1",
             "out_ferc1__yearly_plant_in_service_sched204": "plant_in_service_ferc1",
             "out_ferc1__yearly_all_plants": "plants_all_ferc1",
@@ -260,27 +260,27 @@ class PudlTabl:
             self.__dict__[method_name] = partial(
                 self._get_table_from_db,
                 table_name=table_name,
-                allowed_freqs=[None, "AS", "MS"],
+                allowed_freqs=[None, "YS", "MS"],
             )
 
         for table_name, method_name in table_method_map_any_agg.items():
             self.__dict__[method_name] = partial(
                 self._get_table_from_db,
                 table_name=table_name,
-                allowed_freqs=["AS", "MS"],
+                allowed_freqs=["YS", "MS"],
             )
 
         for table_name, method_name in table_method_map_yearly_only.items():
             self.__dict__[method_name] = partial(
                 self._get_table_from_db,
                 table_name=table_name,
-                allowed_freqs=["AS"],
+                allowed_freqs=["YS"],
             )
 
     def _get_table_from_db(
         self: Self,
         table_name: str,
-        allowed_freqs: list[str | None] = [None, "AS", "MS"],
+        allowed_freqs: list[str | None] = [None, "YS", "MS"],
         update: bool = False,
     ) -> pd.DataFrame:
         """Grab output table from PUDL DB.
@@ -325,7 +325,7 @@ class PudlTabl:
         If the table isn't aggregated, return the original name.
         """
         agg_freqs = {
-            "AS": "yearly",
+            "YS": "yearly",
             "MS": "monthly",
         }
         if "_AGG" in table_name:
@@ -401,9 +401,9 @@ class PudlTabl:
             A denormalized generation table for interactive use.
         """
         if self.fill_net_gen:
-            if self.freq not in ["AS", "MS"]:
+            if self.freq not in ["YS", "MS"]:
                 raise ValueError(
-                    "Allocated net generation requires frequency of `AS` or `MS`, "
+                    "Allocated net generation requires frequency of `YS` or `MS`, "
                     f"got {self.freq}"
                 )
             table_name = self._agg_table_name(
