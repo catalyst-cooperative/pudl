@@ -28,11 +28,13 @@ are the connections we keep as the matches between FERC1 plant records and EIA
 plant-parts.
 """
 
+import mlflow
 import pandas as pd
-from dagster import Out, graph_asset, op
+from dagster import Out, graph, op
 from splink.duckdb.linker import DuckDBLinker
 
 import pudl
+from pudl.analysis.ml_tools import experiment_tracking, models
 from pudl.analysis.record_linkage import embed_dataframe, name_cleaner
 from pudl.analysis.record_linkage.eia_ferc1_record_linkage import (
     _log_match_coverage,
@@ -231,9 +233,13 @@ def get_model_predictions(eia_df, ferc_df, train_df):
     return preds_df.as_pandas_dataframe()
 
 
-@op(out={"_out_pudl__yearly_assn_eia_ferc1_model_output": Out()})
-def get_best_matches(preds_df, inputs):
-    """Get the best EIA match for each FERC record and log performance metrics."""
+@op
+def get_best_matches_with_training_data_overwrites(
+    preds_df: pd.DataFrame,
+    inputs,
+    experiment_tracker: experiment_tracking.ExperimentTracker,
+):
+    """Get the best EIA match for each FERC record."""
     preds_df = (
         preds_df.rename(
             columns={"record_id_l": "record_id_eia", "record_id_r": "record_id_ferc1"}
@@ -259,6 +265,17 @@ def get_best_matches(preds_df, inputs):
         "Recall = of all of the training data FERC records, the model predicted a match for this percentage.\n"
         "A measure of coverage of FERC records."
     )
+    experiment_tracker.execute_logging(
+        lambda: mlflow.log_metrics(
+            {
+                "precision before overwrites": round(
+                    true_pos / (true_pos + false_pos), 3
+                ),
+                "recall before overwrites": round(true_pos / (true_pos + false_neg), 3),
+            }
+        )
+    )
+    preds_df = overwrite_bad_predictions(preds_df, inputs.get_train_df())
     return preds_df
 
 
@@ -299,8 +316,13 @@ def get_full_records_with_overwrites(best_match_df, inputs):
     ).enforce_schema(connected_df)
 
 
-@graph_asset
-def out_pudl__yearly_assn_eia_ferc1_plant_parts_splink(
+@models.pudl_model(
+    "out_pudl__yearly_assn_eia_ferc1_plant_parts_splink",
+    config_from_yaml=False,
+)
+@graph
+def ferc_to_eia_splink(
+    experiment_tracker: experiment_tracking.ExperimentTracker,
     out_ferc1__yearly_all_plants: pd.DataFrame,
     out_ferc1__yearly_steam_plants_fuel_by_plant_sched402: pd.DataFrame,
     out_eia__yearly_plant_parts: pd.DataFrame,
@@ -321,14 +343,16 @@ def out_pudl__yearly_assn_eia_ferc1_plant_parts_splink(
     eia_df, ferc_df = get_input_dfs(inputs)
     train_df = get_training_data_df(inputs)
     # apply cleaning transformations to some columns
-    transformed_eia_df = col_cleaner(eia_df)
-    transformed_ferc_df = col_cleaner(ferc_df)
+    transformed_eia_df = col_cleaner(eia_df, experiment_tracker)
+    transformed_ferc_df = col_cleaner(ferc_df, experiment_tracker)
     # prepare for matching with splink
     ferc_df = prepare_for_matching(ferc_df, transformed_ferc_df)
     eia_df = prepare_for_matching(eia_df, transformed_eia_df)
     # train model and predict matches
     preds_df = get_model_predictions(eia_df=eia_df, ferc_df=ferc_df, train_df=train_df)
-    best_match_df = get_best_matches(preds_df=preds_df, inputs=inputs)
+    best_match_df = get_best_matches_with_training_data_overwrites(
+        preds_df=preds_df, inputs=inputs, experiment_tracker=experiment_tracker
+    )
     ferc1_eia_connected_df = get_full_records_with_overwrites(best_match_df, inputs)
 
     return ferc1_eia_connected_df
