@@ -894,6 +894,7 @@ def prettyify_best_matches(
     plant_parts_eia_true: pd.DataFrame,
     plants_ferc1: pd.DataFrame,
     train_df: pd.DataFrame,
+    experiment_tracker: experiment_tracking.ExperimentTracker,
     debug: bool = False,
 ) -> pd.DataFrame:
     """Make the EIA-FERC best matches usable.

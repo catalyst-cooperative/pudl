@@ -154,7 +154,10 @@ def dataframe_cleaner_factory(
     """Return a configured op graph to clean an input dataframe."""
 
     @op(name=f"{name_prefix}_train")
-    def train_dataframe_cleaner(df: pd.DataFrame):
+    def train_dataframe_cleaner(
+        df: pd.DataFrame, experiment_tracker: experiment_tracking.ExperimentTracker
+    ):
+        log_dataframe_embedder_config(name_prefix, vectorizers, experiment_tracker)
         """Train :class:`sklearn.compose.ColumnTransformer` on input."""
         column_transformer = ColumnTransformer(
             transformers=[
@@ -175,10 +178,12 @@ def dataframe_cleaner_factory(
         """
         return transformer.transform(df)
 
-    @graph(name=f"{name_prefix}_embed_graph")
-    def clean_dataframe_graph(df: pd.DataFrame) -> pd.DataFrame:
+    @graph(name=f"{name_prefix}_cleaner_graph")
+    def clean_dataframe_graph(
+        df: pd.DataFrame, experiment_tracker: experiment_tracking.ExperimentTracker
+    ) -> pd.DataFrame:
         """Train dataframe embedder and apply to input df."""
-        transformer = train_dataframe_cleaner(df)
+        transformer = train_dataframe_cleaner(df, experiment_tracker)
         return apply_dataframe_cleaner(df, transformer)
 
     return clean_dataframe_graph
