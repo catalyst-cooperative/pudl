@@ -3,8 +3,29 @@ PUDL Release Notes
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-v2024.XX.XX
+v2024.X.X (2024-XX-XX)
 ---------------------------------------------------------------------------------------
+
+.. _release-v2024.2.6:
+
+---------------------------------------------------------------------------------------
+v2024.2.6 (2024-02-25)
+---------------------------------------------------------------------------------------
+The main impetus behind this release is the quarterly update of some of ourcore datasets
+with preliminary data for 2023Q4. The :doc:`data_sources/eia860`,
+:doc:`data_sources/epacems`, and bulk EIA API data are all up to date through the end of
+2023, while the :doc:`data_sources/eia923` lags a month behind and is currently only
+available through November, 2023. We also addressed several issues we found in our
+initial release automation process that will make it easier for us to do more frequent
+releases, like this one!
+
+We're also for the first time publishing the full historical time series of of generator
+data available in the EIA860M, rather than just using the most recent release to update
+the EIA860 outputs. This enables tracking of how planned fossil plant retirement dates
+have evolved over time.
+
+There are also updates to our data validation system, a new version of Pandas, and
+experimental Parquet outputs. See below for the details.
 
 New Data Coverage
 ^^^^^^^^^^^^^^^^^
@@ -28,10 +49,12 @@ Schema Changes
 ^^^^^^^^^^^^^^
 * Restored the individual FERC Form 1 plant output tables, providing direct access to
   denormalized versions of the specific plant types via:
-  :ref:`out_ferc1__yearly_steam_plants_sched402`
-  :ref:`out_ferc1__yearly_small_plants_sched410`
-  :ref:`out_ferc1__yearly_hydroelectric_plants_sched406`
-  :ref:`out_ferc1__yearly_pumped_storage_plants_sched408`
+
+  * :ref:`out_ferc1__yearly_steam_plants_sched402`
+  * :ref:`out_ferc1__yearly_small_plants_sched410`
+  * :ref:`out_ferc1__yearly_hydroelectric_plants_sched406`
+  * :ref:`out_ferc1__yearly_pumped_storage_plants_sched408`
+
   See issue :issue:`3416` & PR :pr:`3417`
 
 Data Validation with Pandera
