@@ -49,10 +49,12 @@ Schema Changes
 ^^^^^^^^^^^^^^
 * Restored the individual FERC Form 1 plant output tables, providing direct access to
   denormalized versions of the specific plant types via:
-  :ref:`out_ferc1__yearly_steam_plants_sched402`
-  :ref:`out_ferc1__yearly_small_plants_sched410`
-  :ref:`out_ferc1__yearly_hydroelectric_plants_sched406`
-  :ref:`out_ferc1__yearly_pumped_storage_plants_sched408`
+
+  * :ref:`out_ferc1__yearly_steam_plants_sched402`
+  * :ref:`out_ferc1__yearly_small_plants_sched410`
+  * :ref:`out_ferc1__yearly_hydroelectric_plants_sched406`
+  * :ref:`out_ferc1__yearly_pumped_storage_plants_sched408`
+
   See issue :issue:`3416` & PR :pr:`3417`
 
 Data Validation with Pandera
