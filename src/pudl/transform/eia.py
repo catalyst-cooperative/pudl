@@ -288,7 +288,8 @@ def _gen_operating_date(
     )
     logger.debug(f"Clean {col} records: {len(gen_op_df)}")
     logger.debug(
-        f"Rescued rounded {col} for the following units: {sorted(gen_op_df['plant_id_eia'].astype('str')+'_'+gen_op_df['generator_id'].astype('str'))}"
+        f"Rescued rounded {col} for the following units: "
+        f"{sorted(gen_op_df['plant_id_eia'].astype('str')+'_'+gen_op_df['generator_id'].astype('str'))}"
     )
     # add the newly cleaned records
     gen_op_clean_df = pd.concat([gen_op_clean_df, gen_op_df])
@@ -462,7 +463,7 @@ def harvest_entity_tables(  # noqa: C901
 ) -> tuple:
     """Compile consistent records for various entities.
 
-    For each entity(plants, generators, boilers, utilties), this function
+    For each entity (plants, generators, boilers, utilties), this function
     finds all the harvestable columns from any table that they show up
     in. It then determines how consistent the records are and keeps the values
     that are mostly consistent. It compiles those consistent records into
