@@ -178,37 +178,38 @@ def occurrence_consistency(
 
 
 def _lat_long(
-    dirty_df, clean_df, entity_id_df, entity_idx, col, cols_to_consit, round_to=2
-):
+    dirty_df: pd.DataFrame,
+    clean_df: pd.DataFrame,
+    entity_id_df: pd.DataFrame,
+    entity_idx: list[str],
+    col: str,
+    cols_to_consit: list[str],
+    round_to: int = 2,
+) -> pd.DataFrame:
     """Harvests more complete lat/long in special cases.
 
-    For all of the entities were there is not a consistent enough reported
-    record for latitude and longitude, this function reduces the precision of
-    the reported lat/long by rounding down the reported records in order to get
-    more complete set of consistent records.
+    For all of the entities were there is not a consistent enough reported record for
+    latitude and longitude, this function reduces the precision of the reported lat/long
+    by rounding down the reported records in order to get more complete set of
+    consistent records.
 
     Args:
-        dirty_df (pandas.DataFrame): a dataframe with entity records that have
-            inconsistently reported lat/long.
-        clean_df (pandas.DataFrame): a dataframe with entity records that have
-            consistently reported lat/long.
-        entity_id_df (pandas.DataFrame): a dataframe with a complete set of
-            possible entity ids
-        entity_idx (list): a list of the id(s) for the entity. Ex: for a plant
-            entity, the entity_idx is ['plant_id_eia']. For a generator entity,
-            the entity_idx is ['plant_id_eia', 'generator_id'].
-        col (string): the column name of the column we are trying to harvest.
-        cols_to_consit (list): a list of the columns to determine consistency.
-            This either the [entity_id] or the [entity_id, 'report_date'],
-            depending on whether the entity is static or annual.
-        round_to (integer): This is the number of decimals places we want to
-            preserve while rounding down.
+        dirty_df: dataframe with entity records having inconsistently reported lat/long.
+        clean_df: dataframe with entity records having consistently reported lat/long.
+        entity_id_df: a dataframe with a complete set of possible entity ids.
+        entity_idx: a list of the id(s) for the entity. Ex: for a plant entity, the
+            entity_idx is ['plant_id_eia']. For a generator entity, the entity_idx is
+            ['plant_id_eia', 'generator_id'].
+        col: the column name of the column we are trying to harvest.
+        cols_to_consit: a list of the columns to determine consistency. This either the
+            [entity_id] or the [entity_id, 'report_date'], depending on whether the
+            entity is static or annual.
+        round_to: The number of decimal places we want to preserve while rounding down.
 
     Returns:
-        pandas.DataFrame: a dataframe with all of the entity ids. some will
-        have harvested records from the clean_df. some will have harvested
-        records that were found after rounding. some will have NaNs if no
-        consistently reported records were found.
+        DataFrame with all of the entity ids. Some will have harvested records from the
+        clean_df. some will have harvested records that were found after rounding. Some
+        will have NaNs if no consistently reported records were found.
     """
     # grab the dirty plant records, round and get a new consistency
     ll_df = dirty_df.round(decimals={col: round_to})
@@ -695,22 +696,22 @@ def harvest_entity_tables(  # noqa: C901
 def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:
     """Creates a set of more complete boiler generator associations.
 
-    Creates a unique unit_id_pudl for each collection of boilers and generators
-    within a plant that have ever been associated with each other, based on
-    the boiler generator associations reported in EIA860. Unfortunately, this
-    information is not complete for years before 2014, as the gas turbine
-    portion of combined cycle power plants in those earlier years were not
-    reporting their fuel consumption, or existence as part of the plants.
+    Creates a unique ``unit_id_pudl`` for each collection of boilers and generators
+    within a plant that have ever been associated with each other, based on the boiler
+    generator associations reported in EIA860. Unfortunately, this information is not
+    complete for years before 2014, as the gas turbine portion of combined cycle power
+    plants in those earlier years were not reporting their fuel consumption, or
+    existence as part of the plants.
 
-    For years 2014 and on, EIA860 contains a unit_id_eia value, allowing the
-    combined cycle plant compoents to be associated with each other. For many
-    plants not listed in the reported boiler generator associations, it is
-    nonetheless possible to associate boilers and generators on a one-to-one
-    basis, as they use identical strings to describe the units.
+    For years 2014 and on, EIA860 contains a ``unit_id_eia`` value, allowing the
+    combined cycle plant compoents to be associated with each other. For many plants not
+    listed in the reported boiler generator associations, it is nonetheless possible to
+    associate boilers and generators on a one-to-one basis, as they use identical
+    strings to describe the units.
 
     In the end, between the reported BGA table, the string matching, and the
-    unit_id_eia values, it's possible to create a nearly complete mapping of
-    the generation units, at least for 2014 and later.
+    ``unit_id_eia`` values, it's possible to create a nearly complete mapping of the
+    generation units, at least for 2014 and later.
 
     Args:
         clean_dfs: a dictionary of clean EIA dataframes that have passed through the
@@ -723,10 +724,8 @@ def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:
         AssertionError: If the boiler - generator association graphs are not bi-partite,
             meaning generators only connect to boilers, and boilers only connect to
             generators.
-        AssertionError: If all the boilers do not end up with the same unit_id each
-            year.
-        AssertionError: If all the generators do not end up with the same unit_id each
-            year.
+        AssertionError: If all boilers do not end up with the same unit_id each year.
+        AssertionError: If all generators do not end up with the same unit_id each year.
     """
     debug = context.op_config["debug"]
     eia_settings = context.resources.dataset_settings.eia
@@ -747,7 +746,7 @@ def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:
     gen_eia923 = clean_dfs["_core_eia923__generation"]
     gen_eia923 = (
         gen_eia923.set_index(pd.DatetimeIndex(gen_eia923.report_date))
-        .groupby([pd.Grouper(freq="AS"), "plant_id_eia", "generator_id"])
+        .groupby([pd.Grouper(freq="YS"), "plant_id_eia", "generator_id"])
         .net_generation_mwh.sum()
         .reset_index()
         .assign(missing_from_923=False)
@@ -798,7 +797,7 @@ def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:
     )
     bf_eia923 = (
         bf_eia923.set_index(pd.DatetimeIndex(bf_eia923.report_date))
-        .groupby([pd.Grouper(freq="AS"), "plant_id_eia", "boiler_id"])
+        .groupby([pd.Grouper(freq="YS"), "plant_id_eia", "boiler_id"])
         .agg({"total_heat_content_mmbtu": pudl.helpers.sum_na})
         .reset_index()
         .drop_duplicates(subset=["plant_id_eia", "report_date", "boiler_id"])
@@ -937,7 +936,9 @@ def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:
     bga_w_units = pd.DataFrame()
     # We want to start our unit_id counter anew for each plant:
     for pid in bga_for_nx.plant_id_eia.unique():
-        bga_byplant = bga_for_nx[bga_for_nx.plant_id_eia == pid].copy()
+        bga_byplant = bga_for_nx[bga_for_nx.plant_id_eia == pid].sort_values(
+            ["generators", "boilers"]
+        )
 
         # Create a graph from the dataframe of boilers and generators. It's a
         # multi-graph, meaning the same nodes can be connected by more than one
@@ -1265,7 +1266,7 @@ def harvested_entity_asset_factory(
         eia_settings = context.resources.dataset_settings.eia
         debug = context.op_config["debug"]
 
-        entity_df, annual_df, col_dfs = harvest_entity_tables(
+        entity_df, annual_df, _col_dfs = harvest_entity_tables(
             entity, clean_dfs, debug=debug, eia_settings=eia_settings
         )
 

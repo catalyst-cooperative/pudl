@@ -63,7 +63,7 @@ def core_eia860m__changelog_generators(
             for field in pudl.metadata.classes.Resource.from_id(
                 "core_eia860m__changelog_generators"
             ).schema.fields
-            if field.name != "valid_till_date"
+            if field.name != "valid_until_date"
         ]
     ]
     # there is one plant/gen that has duplicate values
@@ -91,7 +91,7 @@ def core_eia860m__changelog_generators(
         fill_through_freq="month",
     )
 
-    # assign a max report_date column for use in the valid_till_date column
+    # assign a max report_date column for use in the valid_until_date column
     eia860m_all["report_date_max"] = eia860m_all.groupby(gen_idx_no_date)[
         "report_date"
     ].transform("max")
@@ -103,7 +103,7 @@ def core_eia860m__changelog_generators(
         keep="first",
     )
 
-    eia860m_changelog["valid_till_date"] = (
+    eia860m_changelog["valid_until_date"] = (
         eia860m_changelog.sort_values(gens_idx, ascending=False)
         .groupby(gen_idx_no_date)["report_date"]
         .transform("shift")

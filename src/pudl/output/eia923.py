@@ -133,13 +133,13 @@ def drop_ytd_for_annual_tables(df: pd.DataFrame, freq: str) -> pd.DataFrame:
     Args:
         df: A pd.DataFrame that contains a data_maturity column and for
             which you want to drop values where data_maturity = incremental_ytd.
-        freq: either MS or AS to indicate the level of aggretation for a specific table.
+        freq: either MS or YS to indicate the level of aggretation for a specific table.
 
     Returns:
         pd.DataFrame: The same input pd.DataFrames but without any rows where
             data_maturity = incremental_ytd.
     """
-    if freq == "AS":
+    if freq == "YS":
         logger.info(
             "Removing rows where data_maturity is incremental_ytd to avoid "
             "aggregation errors."
@@ -340,11 +340,11 @@ def out_eia923__fuel_receipts_costs(
 # Time Aggregated Assets
 #####################################################################################
 def time_aggregated_eia923_asset_factory(
-    freq: Literal["AS", "MS"],
+    freq: Literal["YS", "MS"],
     io_manager_key: str | None = None,
 ) -> list[AssetsDefinition]:
     """Build EIA-923 asset definitions, aggregated by year or month."""
-    agg_freqs = {"AS": "yearly", "MS": "monthly"}
+    agg_freqs = {"YS": "yearly", "MS": "monthly"}
 
     @asset(
         name=f"out_eia923__{agg_freqs[freq]}_generation",
@@ -586,7 +586,7 @@ def time_aggregated_eia923_asset_factory(
 
 generation_fuel_agg_eia923_assets = [
     ass
-    for freq in ["AS", "MS"]
+    for freq in ["YS", "MS"]
     for ass in time_aggregated_eia923_asset_factory(
         freq=freq, io_manager_key="pudl_io_manager"
     )
