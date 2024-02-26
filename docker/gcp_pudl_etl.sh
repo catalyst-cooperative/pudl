@@ -175,7 +175,7 @@ function notify_slack() {
     message+="DATASETTE_SUCCESS: $DATASETTE_SUCCESS\n"
     message+="CLEAN_UP_OUTPUTS_SUCCESS: $CLEAN_UP_OUTPUTS_SUCCESS\n"
     message+="DISTRIBUTION_BUCKET_SUCCESS: $DISTRIBUTION_BUCKET_SUCCESS\n"
-    message+="GCLOUD_TEMPORARY_HOLD_SUCCESS: $GCLOUD_TEMPORARY_HOLD_SUCCESS \n"
+    message+="GCS_TEMPORARY_HOLD_SUCCESS: $GCS_TEMPORARY_HOLD_SUCCESS \n"
     message+="ZENODO_SUCCESS: $ZENODO_SUCCESS\n\n"
 
     message+="*Query* logs on <https://console.cloud.google.com/batch/jobsDetail/regions/us-west1/jobs/run-etl-$BUILD_ID/logs?project=catalyst-cooperative-pudl|Google Batch Console>.\n\n"
@@ -229,7 +229,7 @@ DISTRIBUTE_PARQUET_SUCCESS=0
 CLEAN_UP_OUTPUTS_SUCCESS=0
 DISTRIBUTION_BUCKET_SUCCESS=0
 ZENODO_SUCCESS=0
-GCLOUD_TEMPORARY_HOLD_SUCCESS=0
+GCS_TEMPORARY_HOLD_SUCCESS=0
 
 # Set these variables *only* if they are not already set by the container or workflow:
 : "${PUDL_GCS_OUTPUT:=gs://builds.catalyst.coop/$BUILD_ID}"
@@ -286,8 +286,8 @@ if [[ $ETL_SUCCESS == 0 ]]; then
     # If running a tagged release, ensure that outputs can't be accidentally deleted
     # It's not clear that an object lock can be applied in S3 with the AWS CLI
     if [[ "$GITHUB_ACTION_TRIGGER" == "push" && "$BUILD_REF" == v20* ]]; then
-        gcloud storage objects update "gs://pudl.catalyst.coop/$BUILD_REF/*" --temporary-hold 2>&1 | tee -a "$LOGFILE"
-        GCLOUD_TEMPORARY_HOLD_SUCCESS=${PIPESTATUS[0]}
+        gsutil -m -u catalyst-cooperative-pudl retention temp set "gs://pudl.catalyst.coop/$BUILD_REF/*" 2>&1 | tee -a "$LOGFILE"
+        GCS_TEMPORARY_HOLD_SUCCESS=${PIPESTATUS[0]}
     fi
 fi
 
@@ -303,7 +303,7 @@ if [[ $ETL_SUCCESS == 0 && \
       $DISTRIBUTE_PARQUET_SUCCESS == 0 && \
       $CLEAN_UP_OUTPUTS_SUCCESS == 0 && \
       $DISTRIBUTION_BUCKET_SUCCESS == 0 && \
-      $GCLOUD_TEMPORARY_HOLD_SUCCESS == 0 && \
+      $GCS_TEMPORARY_HOLD_SUCCESS == 0 && \
       $ZENODO_SUCCESS == 0
 ]]; then
     notify_slack "success"

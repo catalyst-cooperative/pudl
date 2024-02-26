@@ -6,6 +6,13 @@ PUDL Release Notes
 v2024.X.X (2024-XX-XX)
 ---------------------------------------------------------------------------------------
 
+Data Cleaning
+^^^^^^^^^^^^^
+
+* When ``generator_operating_date`` values are too inconsistent to be harvested
+  successfully, we now take the max date within a year and attempt to harvest again, to
+  rescue records lost because of inconsistent month reporting in EIA 860 and 860M.
+
 .. _release-v2024.2.6:
 
 ---------------------------------------------------------------------------------------

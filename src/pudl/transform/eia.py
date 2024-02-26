@@ -271,7 +271,7 @@ def _gen_operating_date(
             group_by_freq
         ).dt.to_timestamp()
     )
-    logger.warning(f"Dirty {col} records: {len(gen_op_df)}")
+    logger.debug(f"Dirty {col} records: {len(gen_op_df)}")
     # Group all records within the same rounded time period and assign them the max
     # value within that time period.
     gen_op_df[col] = gen_op_df.groupby(entity_idx + ["operating_rounded"])[
@@ -286,23 +286,14 @@ def _gen_operating_date(
     gen_op_df = gen_op_df[gen_op_df[f"{col}_is_consistent"]].drop_duplicates(
         subset=entity_idx
     )
-    logger.warning(f"Clean {col} records: {len(gen_op_df)}")
+    logger.debug(f"Clean {col} records: {len(gen_op_df)}")
+    logger.debug(
+        f"Rescued rounded {col} for the following units: {sorted(gen_op_df['plant_id_eia'].astype('str')+'_'+gen_op_df['generator_id'].astype('str'))}"
+    )
     # add the newly cleaned records
     gen_op_clean_df = pd.concat([gen_op_clean_df, gen_op_df])
-    logger.info(
-        gen_op_clean_df[
-            (gen_op_clean_df.plant_id_eia == 2115)
-            & (gen_op_clean_df.generator_id == "NG2")
-        ]
-    )
     # merge onto the plants df w/ all plant ids
     gen_op_clean_df = entity_id_df.merge(gen_op_clean_df, how="outer")
-    logger.info(
-        gen_op_clean_df[
-            (gen_op_clean_df.plant_id_eia == 2115)
-            & (gen_op_clean_df.generator_id == "NG2")
-        ]
-    )
     return gen_op_clean_df
 
 
@@ -616,8 +607,6 @@ def harvest_entity_tables(  # noqa: C901
             # Right now all harvest fixes are for static columns,
             # so this assumption works.
             clean_df = clean_df[id_cols + [col]]
-            logger.info(clean_df[clean_df.plant_id_eia == 2115])
-            logger.info(entity_df[entity_df.plant_id_eia == 2115])
             entity_df = entity_df.drop(columns=[col]).merge(clean_df, on=id_cols)
 
         if debug:
