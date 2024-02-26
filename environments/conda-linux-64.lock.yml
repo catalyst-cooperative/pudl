@@ -90,7 +90,7 @@ dependencies:
   - comm=0.2.1=pyhd8ed1ab_0
   - conda-lock=2.5.5=pyhd8ed1ab_0
   - contourpy=1.2.0=py311h9547e67_0
-  - coverage=7.4.3=py311h459d7ec_0
+  - coverage=7.4.3=py311h459d7ec_1
   - crashtest=0.4.1=pyhd8ed1ab_0
   - croniter=2.0.1=pyhd8ed1ab_0
   - cryptography=41.0.7=py311hcb13ee4_1
@@ -192,7 +192,7 @@ dependencies:
   - humanfriendly=10.0=pyhd8ed1ab_6
   - hupper=1.12.1=pyhd8ed1ab_0
   - hyperframe=6.0.1=pyhd8ed1ab_0
-  - hypothesis=6.98.10=pyha770c72_0
+  - hypothesis=6.98.12=pyha770c72_0
   - icu=73.2=h59595ed_0
   - identify=2.5.35=pyhd8ed1ab_0
   - idna=3.6=pyhd8ed1ab_0
@@ -290,7 +290,7 @@ dependencies:
   - libnuma=2.0.16=h0b41bf4_1
   - libopenblas=0.3.26=pthreads_h413a1c8_0
   - libparquet=15.0.0=h352af49_6_cpu
-  - libpng=1.6.42=h2797004_0
+  - libpng=1.6.43=h2797004_0
   - libpq=16.2=h33b98f1_0
   - libprotobuf=4.25.1=hf27288f_2
   - libre2-11=2023.06.02=h7a70373_0
@@ -425,7 +425,7 @@ dependencies:
   - pyproj=3.6.1=py311hca0b8b9_5
   - pyproject_hooks=1.0.0=pyhd8ed1ab_0
   - pysocks=1.7.1=pyha2e5f31_6
-  - pytest=8.0.1=pyhd8ed1ab_1
+  - pytest=8.0.2=pyhd8ed1ab_0
   - pytest-console-scripts=1.4.1=pyhd8ed1ab_0
   - pytest-cov=4.1.0=pyhd8ed1ab_0
   - pytest-mock=3.12.0=pyhd8ed1ab_0
@@ -505,7 +505,7 @@ dependencies:
   - sqlparse=0.4.4=pyhd8ed1ab_0
   - stack_data=0.6.2=pyhd8ed1ab_0
   - starlette=0.37.1=pyhd8ed1ab_0
-  - stevedore=5.1.0=pyhd8ed1ab_0
+  - stevedore=5.2.0=pyhd8ed1ab_0
   - stringcase=1.2.0=py_0
   - structlog=24.1.0=pyhd8ed1ab_0
   - tabulate=0.9.0=pyhd8ed1ab_1
@@ -528,8 +528,8 @@ dependencies:
   - typer=0.9.0=pyhd8ed1ab_0
   - types-python-dateutil=2.8.19.20240106=pyhd8ed1ab_0
   - types-pyyaml=6.0.12.12=pyhd8ed1ab_0
-  - typing-extensions=4.9.0=hd8ed1ab_0
-  - typing_extensions=4.9.0=pyha770c72_0
+  - typing-extensions=4.10.0=hd8ed1ab_0
+  - typing_extensions=4.10.0=pyha770c72_0
   - typing_inspect=0.9.0=pyhd8ed1ab_0
   - typing_utils=0.1.0=pyhd8ed1ab_0
   - tzcode=2024a=h3f72095_0
