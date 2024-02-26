@@ -18,6 +18,7 @@ found in :func:`pudl.transform.eia._boiler_generator_assn`.
 import importlib.resources
 from collections import namedtuple
 from enum import StrEnum, auto
+from typing import Literal
 
 import networkx as nx
 import numpy as np
@@ -235,7 +236,7 @@ def _gen_operating_date(
     entity_idx: list[str],
     col: str,
     cols_to_consit: list[str],
-    group_by_freq: int,
+    group_by_freq: Literal["M", "Y"],
 ):
     """Harvests generator operating dates, assigning each date to max within a year.
 
@@ -258,7 +259,7 @@ def _gen_operating_date(
         cols_to_consit (list): a list of the columns to determine consistency.
             This either the [entity_id] or the [entity_id, 'report_date'],
             depending on whether the entity is static or annual.
-        group_by_freq: frequency to combine dates by (in days)
+        group_by_freq: Frequency to combine by ("M" for month, or "Y" for year)
 
     Returns:
         pandas.DataFrame: a dataframe with all of the entity ids. some will
@@ -268,14 +269,16 @@ def _gen_operating_date(
     """
     # grab the dirty plant records, round and get a new consistency
     gen_op_df = dirty_df.assign(
-        operating_rounded=dirty_df.generator_operating_date.dt.round(
-            freq=f"{str(group_by_freq)}D"
-        )
+        operating_rounded=dirty_df.generator_operating_date.dt.to_period(
+            group_by_freq
+        ).dt.to_timestamp()
     )
-    logger.warn(f"Dirty {col} records: {len(gen_op_df)}")
-    gen_op_df["generator_operating_date"] = gen_op_df.groupby(
-        ["plant_id_eia", "generator_id", "operating_rounded"]
-    )["generator_operating_date"].transform("max")
+    logger.warning(f"Dirty {col} records: {len(gen_op_df)}")
+    # Group all records within the same rounded time period and assign them the max
+    # value within that time period.
+    gen_op_df[col] = gen_op_df.groupby(entity_idx + ["operating_rounded"])[
+        col
+    ].transform("max")
     gen_op_df["table"] = "special_case"
     gen_op_df = gen_op_df.drop("operating_rounded", axis=1)
     gen_op_df = occurrence_consistency(entity_idx, gen_op_df, col, cols_to_consit)
@@ -285,11 +288,23 @@ def _gen_operating_date(
     gen_op_df = gen_op_df[gen_op_df[f"{col}_is_consistent"]].drop_duplicates(
         subset=entity_idx
     )
-    logger.warn(f"Clean {col} records: {len(gen_op_df)}")
+    logger.warning(f"Clean {col} records: {len(gen_op_df)}")
     # add the newly cleaned records
     gen_op_clean_df = pd.concat([gen_op_clean_df, gen_op_df])
+    logger.info(
+        gen_op_clean_df[
+            (gen_op_clean_df.plant_id_eia == 2115)
+            & (gen_op_clean_df.generator_id == "NG2")
+        ]
+    )
     # merge onto the plants df w/ all plant ids
     gen_op_clean_df = entity_id_df.merge(gen_op_clean_df, how="outer")
+    logger.info(
+        gen_op_clean_df[
+            (gen_op_clean_df.plant_id_eia == 2115)
+            & (gen_op_clean_df.generator_id == "NG2")
+        ]
+    )
     return gen_op_clean_df
 
 
@@ -545,7 +560,7 @@ def harvest_entity_tables(  # noqa: C901
     special_case_cols = {
         "latitude": [_lat_long, 1],
         "longitude": [_lat_long, 1],
-        "generator_operating_date": [_gen_operating_date, 365],
+        "generator_operating_date": [_gen_operating_date, "Y"],
     }
     consistency = pd.DataFrame(
         columns=["column", "consistent_ratio", "wrongos", "total"]
@@ -599,6 +614,13 @@ def harvest_entity_tables(  # noqa: C901
                 cols_to_consit,
                 special_case_cols[col][1],
             )
+            # Apply the column fix to the entity_df column.
+            # Right now all harvest fixes are for static columns,
+            # so this assumption works.
+            clean_df = clean_df[id_cols + [col]]
+            logger.info(clean_df[clean_df.plant_id_eia == 2115])
+            logger.info(entity_df[entity_df.plant_id_eia == 2115])
+            entity_df = entity_df.drop(columns=[col]).merge(clean_df, on=id_cols)
 
         if debug:
             col_dfs[col] = col_df
