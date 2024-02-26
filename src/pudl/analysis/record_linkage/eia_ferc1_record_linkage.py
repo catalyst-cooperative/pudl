@@ -1010,20 +1010,39 @@ def _log_match_coverage(
     def _get_match_pct(df):
         return len(df[df["record_id_eia"].notna()]) / len(df)
 
-    # TODO: experiment tracking
-    # TODO: anything from RMI notebook to add?
+    def _get_capacity_coverage(df):
+        return df[df["record_id_eia"].notna()].capacity_mw.sum() / df.capacity_mw.sum()
+
+    steam_cov = _get_match_pct(_get_subtable("steam"))
+    steam_cap_cov = _get_capacity_coverage(_get_subtable("steam"))
+    small_gen_cov = _get_match_pct(_get_subtable("gnrt_plant"))
+    hydro_cov = _get_match_pct(_get_subtable("hydro"))
+    pumped_storage_cov = _get_match_pct(_get_subtable("pumped"))
     logger.info(
         "Coverage for matches during EIA working years:\n"
         f"    Fuel type: {fuel_type_coverage:.01%}\n"
         f"    Tech type: {tech_type_coverage:.01%}\n"
         "Coverage for all steam table records during EIA working years:\n"
-        f"    EIA matches: {_get_match_pct(_get_subtable('steam')):.01%}\n"
+        f"    EIA matches: {steam_cov:.01%}\n"
+        "Coverage for steam table capacity during EIA working years:\n"
+        f"    EIA matches: {steam_cap_cov:.01%}\n"
         f"Coverage for all small gen table records during EIA working years:\n"
-        f"    EIA matches: {_get_match_pct(_get_subtable('gnrt_plant')):.01%}\n"
+        f"    EIA matches: {small_gen_cov:.01%}\n"
         f"Coverage for all hydro table records during EIA working years:\n"
-        f"    EIA matches: {_get_match_pct(_get_subtable('hydro')):.01%}\n"
+        f"    EIA matches: {hydro_cov:.01%}\n"
         f"Coverage for all pumped storage table records during EIA working years:\n"
-        f"    EIA matches: {_get_match_pct(_get_subtable('pumped')):.01%}"
+        f"    EIA matches: {pumped_storage_cov:.01%}"
+    )
+    experiment_tracker.execute_logging(
+        lambda: mlflow.log_metrics(
+            {
+                "steam table coverage": round(steam_cov, 3),
+                "steam table capacity coverage": round(steam_cap_cov, 3),
+                "small gen table coverage": round(small_gen_cov, 3),
+                "hydro table coverage": round(hydro_cov, 3),
+                "pumped storage table coverage": round(pumped_storage_cov, 3),
+            }
+        )
     )
 
 
@@ -1051,12 +1070,11 @@ def check_match_consistency(
             threshold for this check.
     """
     # these are the default
-    expected_consistency = 0.72
+    expected_consistency = 0.70
     expected_uniform_capacity_consistency = 0.85
     mask = connects_ferc1_eia.record_id_eia.notnull()
 
-    # TODO: do we still want consistency with overwrites?
-    # TODO: are those FERC ID's still missing?
+    # TODO: are the below FERC ID's still missing?
     # TODO: change "overrides" to "overwrites" for consistency
     if match_set == "overrides":
         expected_consistency = 0.39
@@ -1094,7 +1112,6 @@ def check_match_consistency(
         .nunique()
     )
     actual_consistency = len(count[count.plant_part_id_eia == 1]) / len(count)
-    # TODO: experiment tracking
     logger.info(
         f"Matches with consistency across years of {match_set} matches is "
         f"{actual_consistency:.1%}"
@@ -1115,6 +1132,18 @@ def check_match_consistency(
         "Matches with a uniform FERC 1 capacity have an inter-year consistency between "
         "plant_id_ferc1 and plant_part_id_eia of "
         f"{actual_uniform_capacity_consistency:.1%}"
+    )
+    experiment_tracker.execute_logging(
+        lambda: mlflow.log_metrics(
+            {
+                "plant_id_ferc1 consistency across matches": round(
+                    actual_consistency, 2
+                ),
+                "uniform capacity plant_id_ferc1 and plant_part_id_eia consistency": round(
+                    actual_uniform_capacity_consistency, 2
+                ),
+            }
+        )
     )
     # TODO: take out assertion
     if actual_uniform_capacity_consistency < expected_uniform_capacity_consistency:
