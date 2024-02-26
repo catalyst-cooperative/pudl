@@ -28,6 +28,7 @@ are the connections we keep as the matches between FERC1 plant records and EIA
 plant-parts.
 """
 
+import jellyfish
 import mlflow
 import pandas as pd
 from dagster import Out, graph, op
@@ -64,15 +65,25 @@ MATCHING_COLS = [
 # retain these columns either for blocking or validation
 # not going to match with these
 ID_COL = ["record_id"]
-EXTRA_COLS = ["report_year", "plant_id_pudl", "utility_id_pudl"]
+EXTRA_COLS = [
+    "report_year",
+    "plant_id_pudl",
+    "utility_id_pudl",
+    "plant_name_mphone",
+    "utility_name_mphone",
+]
 
 plant_name_cleaner = name_cleaner.CompanyNameCleaner(
     cleaning_rules_list=[
+        "remove_word_the_from_the_end",
+        "remove_word_the_from_the_beginning",
         "replace_amperstand_between_space_by_AND",
+        "replace_hyphen_by_space",
         "replace_hyphen_between_spaces_by_single_space",
         "replace_underscore_by_space",
         "replace_underscore_between_spaces_by_single_space",
-        "remove_text_puctuation_except_dot",
+        "remove_all_punctuation",
+        "remove_numbers",
         "remove_math_symbols",
         "add_space_before_opening_parentheses",
         "add_space_after_closing_parentheses",
@@ -173,14 +184,22 @@ def get_input_dfs(inputs):
 @op
 def prepare_for_matching(df, transformed_df):
     """Prepare the input dataframes for matching with splink."""
+
+    def _get_metaphone(row, col_name):
+        if pd.isnull(row[col_name]):
+            return None
+        return jellyfish.metaphone(row[col_name])
+
     # replace old cols with transformed cols
     for col in transformed_df.columns:
         orig_col_name = col.split("__")[1]
         df[orig_col_name] = transformed_df[col]
-    cols = ID_COL + MATCHING_COLS + EXTRA_COLS
-    df = df.loc[:, cols]
     df["installation_year"] = pd.to_datetime(df["installation_year"], format="%Y")
     df["construction_year"] = pd.to_datetime(df["construction_year"], format="%Y")
+    df["plant_name_mphone"] = df.apply(_get_metaphone, axis=1, args=("plant_name",))
+    df["utility_name_mphone"] = df.apply(_get_metaphone, axis=1, args=("utility_name",))
+    cols = ID_COL + MATCHING_COLS + EXTRA_COLS
+    df = df.loc[:, cols]
     return df
 
 
@@ -200,15 +219,9 @@ def get_training_data_df(inputs):
 
 
 @op
-def get_cleaned_inputs(ferc_df, eia_df):
-    transformed_ferc_df = col_cleaner(ferc_df)
-    transformed_eia_df = col_cleaner(eia_df)
-    return transformed_ferc_df, transformed_eia_df
-
-
-@op
-def get_model_predictions(eia_df, ferc_df, train_df):
+def get_model_predictions(eia_df, ferc_df, train_df, experiment_tracker):
     """Train splink model and output predicted matches."""
+    # TODO: could log this settings dictionary with expanded comparisons and blocking rules
     settings_dict = {
         "link_type": "link_only",
         "unique_id_column_name": "record_id",
@@ -227,9 +240,11 @@ def get_model_predictions(eia_df, ferc_df, train_df):
     linker.register_table(train_df, "training_labels", overwrite=True)
     linker.estimate_u_using_random_sampling(max_pairs=1e7)
     linker.estimate_m_from_pairwise_labels("training_labels")
-    # set a match probability threshold?
-    # do this at a bunch of different thresholds and print out stats
-    preds_df = linker.predict(threshold_match_probability=0.9)
+    threshold_prob = 0.9
+    experiment_tracker.execute_logging(
+        lambda: mlflow.log_params({"threshold match probability": threshold_prob})
+    )
+    preds_df = linker.predict(threshold_match_probability=threshold_prob)
     return preds_df.as_pandas_dataframe()
 
 
@@ -305,7 +320,7 @@ def get_full_records_with_overwrites(best_match_df, inputs):
     for match_set in ["all", "overrides"]:
         check_match_consistency(
             connected_df,
-            input.get_train_df(),
+            inputs.get_train_df(),
             match_set=match_set,
         )
     connected_df = add_null_overrides(
@@ -349,10 +364,18 @@ def ferc_to_eia_splink(
     ferc_df = prepare_for_matching(ferc_df, transformed_ferc_df)
     eia_df = prepare_for_matching(eia_df, transformed_eia_df)
     # train model and predict matches
-    preds_df = get_model_predictions(eia_df=eia_df, ferc_df=ferc_df, train_df=train_df)
-    best_match_df = get_best_matches_with_training_data_overwrites(
-        preds_df=preds_df, inputs=inputs, experiment_tracker=experiment_tracker
+    preds_df = get_model_predictions(
+        eia_df=eia_df,
+        ferc_df=ferc_df,
+        train_df=train_df,
+        experiment_tracker=experiment_tracker,
     )
+    best_match_df = get_best_matches_with_training_data_overwrites(
+        preds_df=preds_df,
+        inputs=inputs,
+        experiment_tracker=experiment_tracker,
+    )
+
     ferc1_eia_connected_df = get_full_records_with_overwrites(best_match_df, inputs)
 
     return ferc1_eia_connected_df

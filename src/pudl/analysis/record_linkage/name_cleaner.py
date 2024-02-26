@@ -4,7 +4,7 @@ import enum
 import json
 import logging
 import re
-from importlib.resources import as_file, files
+from importlib.resources import files
 from typing import Literal
 
 import pandas as pd
@@ -16,6 +16,7 @@ CLEANING_RULES_DICT = {
     "remove_email": [" ", r"\S*@\S*\s?"],
     "remove_url": [" ", r"https*\S+"],
     "remove_word_the_from_the_end": [" ", r"the$"],
+    "remove_word_the_from_the_beginning": [" ", r"^the"],
     "place_word_the_at_the_beginning": [" ", r"the$"],
     "remove_www_address": [" ", r"https?://[.\w]{3,}|www.[.\w]{3,}"],
     "enforce_single_space_between_words": [" ", r"\s+"],
@@ -65,11 +66,15 @@ class CompanyNameCleaner(BaseModel):
     #: A flag to indicate if the cleaning process must normalize
     #: text's legal terms. e.g. LTD => LIMITED.
     cleaning_rules_list: list[str] = [
+        "remove_word_the_from_the_end",
+        "remove_word_the_from_the_beginning",
         "replace_amperstand_between_space_by_AND",
+        "replace_hyphen_by_space",
         "replace_hyphen_between_spaces_by_single_space",
         "replace_underscore_by_space",
         "replace_underscore_between_spaces_by_single_space",
-        "remove_text_puctuation_except_dot",
+        "remove_all_punctuation",
+        "remove_numbers",
         "remove_math_symbols",
         "remove_words_in_parentheses",
         "remove_parentheses",
@@ -175,8 +180,8 @@ class CompanyNameCleaner(BaseModel):
         json_source = files("pudl.package_data.settings").joinpath(
             self.__NAME_LEGAL_TERMS_DICT_FILE
         )
-        with as_file(json_source) as json_file_path:
-            _dict_legal_terms = json.load(json_file_path.open())[
+        with json_source.open() as json_file:
+            _dict_legal_terms = json.load(json_file)[
                 self.__NAME_JSON_ENTRY_LEGAL_TERMS
             ]["en"]
 

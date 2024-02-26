@@ -15,16 +15,17 @@ blocking_rule_1 = "l.report_year = r.report_year and substr(l.plant_name_mphone,
 # blocking_rule_2 = "l.report_year = r.report_year and jaro_winkler_similarity(l.plant_name, r.plant_name) >= .5 and l.utility_name = r.utility_name"
 blocking_rule_2 = "l.report_year = r.report_year and substr(l.utility_name_mphone,1,2) = substr(r.utility_name_mphone,1,2) and substr(l.plant_name_mphone,1,2) = substr(r.plant_name_mphone,1,2)"
 # blocking_rule_3 = "l.report_year = r.report_year and jaro_winkler_similarity(l.utility_name, r.utility_name) >= .7 and l.installation_year = r.installation_year"
-blocking_rule_3 = "l.report_year = r.report_year and l.installation_year = r.installation_year and substr(l.utility_name_mphone,1,3) = substr(r.utility_name_mphone,1,3)"
-blocking_rule_4 = block_on(["report_year", "fuel_type_code_pudl", "utility_name"])
+blocking_rule_3 = "l.report_year = r.report_year and l.installation_year = r.installation_year and substr(l.utility_name_mphone,1,2) = substr(r.utility_name_mphone,1,2)"
+blocking_rule_4 = "l.report_year = r.report_year and l.fuel_type_code_pudl = r.fuel_type_code_pudl and substr(l.plant_name_mphone,1,2) = substr(r.plant_name_mphone,1,2)"
 # blocking_rule_5 = "l.report_year = r.report_year and jaro_winkler_similarity(l.plant_name, r.plant_name) >= .5 and l.net_generation_mwh = r.net_generation_mwh"
-blocking_rule_5 = (
-    "l.report_year = r.report_year and l.net_generation_mwh = r.net_generation_mwh"
-)
+blocking_rule_5 = "l.report_year = r.report_year and l.fuel_type_code_pudl = r.fuel_type_code_pudl and substr(l.utility_name_mphone,1,3) = substr(r.utility_name_mphone,1,3)"
 # blocking_rule_6 = "l.report_year = r.report_year and jaro_winkler_similarity(l.utility_name, r.utility_name) >= .7 and l.construction_year = r.construction_year"
 blocking_rule_6 = "l.report_year = r.report_year and l.construction_year = r.construction_year and substr(l.utility_name_mphone,1,2) = substr(r.utility_name_mphone,1,2)"
 # blocking_rule_7 = "l.report_year = r.report_year and jaro_winkler_similarity(l.plant_name, r.plant_name) >= .5 and l.capacity_mw = r.capacity_mw"
 blocking_rule_7 = "l.report_year = r.report_year and l.capacity_mw = r.capacity_mw and substr(l.plant_name_mphone,1,2) = substr(r.plant_name_mphone,1,2)"
+blocking_rule_8 = "l.report_year = r.report_year and l.installation_year = r.installation_year and substr(l.plant_name_mphone,1,2) = substr(r.plant_name_mphone,1,2)"
+blocking_rule_9 = "l.report_year = r.report_year and l.construction_year = r.construction_year and substr(l.plant_name_mphone,1,2) = substr(r.plant_name_mphone,1,2)"
+blocking_rule_10 = block_on(["report_year", "net_generation_mwh"])
 BLOCKING_RULES = [
     blocking_rule_1,
     blocking_rule_2,
@@ -33,6 +34,9 @@ BLOCKING_RULES = [
     blocking_rule_5,
     blocking_rule_6,
     blocking_rule_7,
+    blocking_rule_8,
+    blocking_rule_9,
+    blocking_rule_10,
 ]
 
 plant_name_comparison = ctl.name_comparison(

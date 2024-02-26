@@ -264,7 +264,7 @@ class NameCleaner(TransformStep):
     """Implement ColumnTransformation for CompanyNameCleaner."""
 
     name: str = "name_cleaner"
-    company_cleaner: CompanyNameCleaner = CompanyNameCleaner()
+    company_cleaner: CompanyNameCleaner = CompanyNameCleaner(legal_term_location=2)
 
     def as_transformer(self):
         """Return configured CompanyNameCleaner."""

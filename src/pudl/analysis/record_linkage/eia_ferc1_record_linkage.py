@@ -1006,7 +1006,10 @@ def _log_match_coverage(connects_ferc1_eia):
         return len(df[df["record_id_eia"].notna()]) / len(df)
 
     def _get_capacity_coverage(df):
-        return df[df["record_id_eia"].notna()].capacity_mw.sum() / df.capacity_mw.sum()
+        return (
+            df[df["record_id_eia"].notna()].capacity_mw_ferc1.sum()
+            / df.capacity_mw_ferc1.sum()
+        )
 
     steam_cov = _get_match_pct(_get_subtable("steam"))
     steam_cap_cov = _get_capacity_coverage(_get_subtable("steam"))
@@ -1100,6 +1103,7 @@ def check_match_consistency(
         )
 
         mask = mask & connects_ferc1_eia.plant_id_ferc1.isin(over_ferc1_ids)
+
     count = (
         connects_ferc1_eia[mask]
         .groupby(["plant_id_ferc1"])[["plant_part_id_eia", "capacity_mw_ferc1"]]
@@ -1127,18 +1131,19 @@ def check_match_consistency(
         "plant_id_ferc1 and plant_part_id_eia of "
         f"{actual_uniform_capacity_consistency:.1%}"
     )
-    experiment_tracker.execute_logging(
-        lambda: mlflow.log_metrics(
-            {
-                "plant_id_ferc1 consistency across matches": round(
-                    actual_consistency, 2
-                ),
-                "uniform capacity plant_id_ferc1 and plant_part_id_eia consistency": round(
-                    actual_uniform_capacity_consistency, 2
-                ),
-            }
+    if match_set == "all":
+        experiment_tracker.execute_logging(
+            lambda: mlflow.log_metrics(
+                {
+                    "plant_id_ferc1 consistency across matches": round(
+                        actual_consistency, 2
+                    ),
+                    "uniform capacity plant_id_ferc1 and plant_part_id_eia consistency": round(
+                        actual_uniform_capacity_consistency, 2
+                    ),
+                }
+            )
         )
-    )
     # TODO: take out assertion
     if actual_uniform_capacity_consistency < expected_uniform_capacity_consistency:
         raise AssertionError(
