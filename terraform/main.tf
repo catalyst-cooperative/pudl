@@ -68,3 +68,16 @@ module "gh_oidc" {
     }
   }
 }
+
+resource "google_service_account" "service_account" {
+  account_id   = "rmi-beta-access"
+  display_name = "RMI Beta Access"
+}
+
+resource "google_storage_bucket_iam_binding" "binding" {
+  bucket = "builds.catalyst.coop"
+  role   = "roles/storage.objectViewer"
+  members = [
+    "serviceAccount:rmi-beta-access@catalyst-cooperative-pudl.iam.gserviceaccount.com",
+  ]
+}
