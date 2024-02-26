@@ -209,7 +209,7 @@ def _lat_long(
 
     Returns:
         DataFrame with all of the entity ids. Some will have harvested records from the
-        clean_df. some will have harvested records that were found after rounding. Some
+        clean_df. Some will have harvested records that were found after rounding. Some
         will have NaNs if no consistently reported records were found.
     """
     # grab the dirty plant records, round and get a new consistency
@@ -237,35 +237,33 @@ def _gen_operating_date(
     col: str,
     cols_to_consit: list[str],
     group_by_freq: Literal["M", "Y"],
-):
+) -> pd.DataFrame:
     """Harvests generator operating dates, assigning each date to max within a year.
 
-    For all of the entities were there is not a consistent enough reported
-    generator operating date, this function reduces the precision of
-    the reported generator operating date by only keeping the last record when records
-    are within the time bandwidth (default of one year) of one another.
+    For all of the entities were there is not a consistent enough reported generator
+    operating date, this function reduces the precision of the reported generator
+    operating date by only keeping the last record when records are within the time
+    bandwidth (default of one year) of one another.
 
     Args:
-        dirty_df (pandas.DataFrame): a dataframe with entity records that have
-            inconsistently reported lat/long.
-        clean_df (pandas.DataFrame): a dataframe with entity records that have
-            consistently reported lat/long.
-        entity_id_df (pandas.DataFrame): a dataframe with a complete set of
-            possible entity ids
-        entity_idx (list): a list of the id(s) for the entity. Ex: for a plant
-            entity, the entity_idx is ['plant_id_eia']. For a generator entity,
-            the entity_idx is ['plant_id_eia', 'generator_id'].
-        col (string): the column name of the column we are trying to harvest.
-        cols_to_consit (list): a list of the columns to determine consistency.
-            This either the [entity_id] or the [entity_id, 'report_date'],
-            depending on whether the entity is static or annual.
+        dirty_df: a dataframe with entity records that may have inconsist generator
+            operating dates.
+        clean_df: a dataframe with entity records that have consistently reported
+            generator operating dates.
+        entity_id_df: a dataframe with a complete set of possible entity ids
+        entity_idx: a list of the id(s) for the entity. Eg: for a plant entity, the
+            entity_idx is ['plant_id_eia']. For a generator entity, the entity_idx is
+            ['plant_id_eia', 'generator_id'].
+        col: the column name of the column we are trying to harvest.
+        cols_to_consit: a list of the columns to determine consistency. This is either
+            [entity_id] or [entity_id, 'report_date'], depending on whether the entity
+            is static or annual.
         group_by_freq: Frequency to combine by ("M" for month, or "Y" for year)
 
     Returns:
-        pandas.DataFrame: a dataframe with all of the entity ids. some will
-        have harvested records from the clean_df. some will have harvested
-        records that were found after rounding. some will have NaNs if no
-        consistently reported records were found.
+        A dataframe with all of the entity ids. Some will have harvested records from
+        the clean_df. Some will have NA values if no consistently reported records were
+        found.
     """
     # grab the dirty plant records, round and get a new consistency
     gen_op_df = dirty_df.assign(
