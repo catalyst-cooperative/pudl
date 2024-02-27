@@ -243,6 +243,7 @@ def _apply_cleaning_func(df, function_key: str = None):
         "null_to_zero": lambda df: df.fillna(value=0.0),
         "null_to_empty_str": lambda df: df.fillna(value=""),
         "fix_int_na": lambda df: pudl.helpers.fix_int_na(df, columns=list(df.columns)),
+        "zero_to_null": lambda df: df.replace({0.0: pd.NA}),
     }
     return function_transforms[function_key](df)
 

@@ -116,6 +116,12 @@ col_cleaner = embed_dataframe.dataframe_cleaner_factory(
             ],
             columns=["fuel_type_code_pudl", "plant_name"],
         ),
+        "net_generation_mwh": embed_dataframe.ColumnVectorizer(
+            transform_steps=[
+                embed_dataframe.ColumnCleaner(cleaning_function="zero_to_null")
+            ],
+            columns=["net_generation_mwh"],
+        ),
     },
 )
 
@@ -142,15 +148,6 @@ def get_false_neg(pred_df, train_df):
     return train_df.merge(
         pred_df, how="left", on=["record_id_ferc1"], indicator=True
     )._merge.value_counts()["left_only"]
-
-
-def get_duplicated_eia_plant_part_matches(pred_df):
-    return len(
-        pred_df[
-            (pred_df.record_id_eia.notnull())
-            & (pred_df.record_id_eia.duplicated(keep="first"))
-        ]
-    )
 
 
 @op(out={"eia_df": Out(), "ferc_df": Out()})
@@ -267,7 +264,6 @@ def get_best_matches_with_training_data_overwrites(
     true_pos = get_true_pos(preds_df, train_df)
     false_pos = get_false_pos(preds_df, train_df)
     false_neg = get_false_neg(preds_df, train_df)
-    # TODO: experiment tracking
     logger.info(
         "Metrics before overwrites:\n"
         f"   True positives:  {true_pos}\n"
