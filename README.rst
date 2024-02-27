@@ -99,7 +99,7 @@ PUDL currently integrates data from:
 * **EIA Form 860**: 2001-2022
   - `Source Docs <https://www.eia.gov/electricity/data/eia860/>`__
   - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/eia860.html>`__
-* **EIA Form 860m**: 2023-06
+* **EIA Form 860m**: 2023-12
   - `Source Docs <https://www.eia.gov/electricity/data/eia860m/>`__
 * **EIA Form 861**: 2001-2022
   - `Source Docs <https://www.eia.gov/electricity/data/eia861/>`__

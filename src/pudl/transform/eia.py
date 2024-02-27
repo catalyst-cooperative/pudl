@@ -209,7 +209,7 @@ def _lat_long(
 
     Returns:
         DataFrame with all of the entity ids. Some will have harvested records from the
-        clean_df. some will have harvested records that were found after rounding. Some
+        clean_df. Some will have harvested records that were found after rounding. Some
         will have NaNs if no consistently reported records were found.
     """
     # grab the dirty plant records, round and get a new consistency
@@ -237,7 +237,7 @@ def _round_operating_date(
     col: str,
     cols_to_consit: list[str],
     group_by_freq: Literal["M", "Y"],
-):
+) -> pd.DataFrame:
     """Harvests operating dates by combining dates within the selected group_by_freq.
 
     For all of the entities where there is not a consistent enough reported
@@ -262,10 +262,9 @@ def _round_operating_date(
         group_by_freq: Frequency to combine by ("M" for month, or "Y" for year)
 
     Returns:
-        pandas.DataFrame: a dataframe with all of the entity ids. some will
-        have harvested records from the clean_df. some will have harvested
-        records that were found after rounding. some will have NaNs if no
-        consistently reported records were found.
+        A dataframe with all of the entity ids. Some will have harvested records from
+        the clean_df. Some will have NA values if no consistently reported records were
+        found.
     """
     # grab the dirty plant records, round and get a new consistency
     op_df = dirty_df.assign(
@@ -286,7 +285,8 @@ def _round_operating_date(
     op_df = op_df[op_df[f"{col}_is_consistent"]].drop_duplicates(subset=entity_idx)
     logger.info(f"Clean {col} records: {len(op_df)}")
     logger.info(
-        f"Rescued rounded {col} for the following units ({entity_idx}): {sorted(op_df[entity_idx].apply(lambda row: '_'.join(row.to_numpy().astype(str)), axis=1))}"
+        f"Rescued rounded {col} for the following units ({entity_idx}): "
+        f"{sorted(op_df[entity_idx].apply(lambda row: '_'.join(row.to_numpy().astype(str)), axis=1))}"
     )
     # add the newly cleaned records
     op_clean_df = pd.concat([op_clean_df, op_df])
@@ -460,7 +460,7 @@ def harvest_entity_tables(  # noqa: C901
 ) -> tuple:
     """Compile consistent records for various entities.
 
-    For each entity(plants, generators, boilers, utilties), this function
+    For each entity (plants, generators, boilers, utilties), this function
     finds all the harvestable columns from any table that they show up
     in. It then determines how consistent the records are and keeps the values
     that are mostly consistent. It compiles those consistent records into
