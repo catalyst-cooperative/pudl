@@ -75,7 +75,7 @@ resource "google_service_account" "service_account" {
 }
 
 resource "google_storage_bucket_iam_binding" "binding" {
-  bucket = "builds.catalyst.coop"
+  bucket = "parquet.catalyst.coop"
   role   = "roles/storage.objectViewer"
   members = [
     "serviceAccount:rmi-beta-access@catalyst-cooperative-pudl.iam.gserviceaccount.com",
