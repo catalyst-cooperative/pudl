@@ -3525,9 +3525,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Freeform description of type of utility reported in one of the other three other utility_type sections in the core_ferc1__yearly_utility_plant_summary_sched200 table. This field is reported only in the DBF reporting years (1994-2020).",
     },
-    "valid_till_date": {
+    "valid_until_date": {
         "type": "date",
-        "description": "The record in the changelog is valid until this date. The record is valid from the report_date up until but not including the valid_till_date.",
+        "description": "The record in the changelog is valid until this date. The record is valid from the report_date up until but not including the valid_until_date.",
     },
     "variable_peak_pricing": {
         "type": "boolean",
