@@ -1058,7 +1058,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia860", "eia923"],
         "etl_group": "outputs",
     },
-<<<<<<< HEAD
     "core_eia__codes_cooling_tower_types": {
         "description": "A coding table for cooling tower types.",
         "schema": {
@@ -1110,8 +1109,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia860", "eia923"],
         "etl_group": "static_eia",
     },
-    "core_eia__yearly_so2_control_equipment": {
-        "description": "Annual attributes of all SO2 control equipment, compiled from EIA 860 and 923 forms.",
+    "core_eia923__yearly_fgd_operation_maintenance": {
+        "description": "Annual attributes of all SO2 control equipment, compiled from EIA 923 forms.",
         "schema": {
             "fields": [
                 "report_year",

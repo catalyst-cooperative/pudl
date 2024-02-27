@@ -15,6 +15,7 @@ from dagster import (
 )
 
 import pudl
+from pudl.helpers import convert_col_to_bool
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.transform.classes import InvalidRows, drop_invalid_rows
@@ -1393,16 +1394,16 @@ def cooling_system_information_continuity(csi):
 
 
 @asset
-def _core_eia923__fgd_operation_maintenance(
+def core_eia923__yearly_fgd_operation_maintenance(
     raw_eia923__fgd_operation_maintenance: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Transforms the _core_eia923__fgd_operation_maintenance table.
+    """Transforms the core_eia923__fgd_operation_maintenance table.
 
     Transformations include:
 
     * Drop values with plant and boiler id values of NA.
     * Replace . values with NA.
-    * Convert dollars to thousands of dollars.
+    * Convert thousands of dollars to dollars.
     * Fix datetimes for SO2 test dates.
     * Ensure a unique primary key and drop some duplicated rows.
 
@@ -1410,7 +1411,7 @@ def _core_eia923__fgd_operation_maintenance(
         raw_eia923__fgd_operation_maintenance: The raw ``raw_eia923__fgd_operation_maintenance`` dataframe.
 
     Returns:
-        Cleaned ``_core_eia923__fgd_operation_maintenance`` dataframe ready for harvesting.
+        Cleaned ``core_eia923__fgd_operation_maintenance`` dataframe ready for harvesting.
     """
     fgd_df = raw_eia923__fgd_operation_maintenance
 
@@ -1428,7 +1429,7 @@ def _core_eia923__fgd_operation_maintenance(
     fgd_df.columns = fgd_df.columns.str.replace("_1000_dollars", "")  # Rename columns
 
     # Convert SO2 test date column to datetime
-    # First, rescue a few troublesome datetimes that look like 3/08 or 01/08
+    # First, convert a few troublesome datetimes that look like 3/08 or 01/08
     troublesome_dates = fgd_df.so2_test_date.str.contains(
         r"^[0-9]{1,2}\/[0-9]{1,2}$", regex=True, na=False
     )
@@ -1451,17 +1452,11 @@ def _core_eia923__fgd_operation_maintenance(
     fgd_df.loc[:, "so2_test_date"] = test_datetime
 
     # Handle mixed boolean types in control flag column
-    fgd_df["fgd_control_flag"] = fgd_df["fgd_control_flag"].replace(
-        ["Y", "N", 1.0, 0.0], [True, False, True, False]
-    )
-
-    fgd_df["fgd_operational_status"] = fgd_df.fgd_operational_status.map(
-        pudl.helpers.label_map(
-            CODE_METADATA["core_eia__codes_operational_status"]["df"],
-            from_col="code",
-            to_col="label",  # OR operational_status? To discuss!
-            null_value=pd.NA,
-        )
+    fgd_df = convert_col_to_bool(
+        df=fgd_df,
+        col_name="fgd_control_flag",
+        true_values=["Y", 1.0],
+        false_values=["N", 0.0],
     )
 
     # There are two remaining duplicates from plant_id_eia 6016, one row with cost data
@@ -1478,7 +1473,7 @@ def _core_eia923__fgd_operation_maintenance(
 
     fgd_df = (
         pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("core_eia__yearly_so2_control_equipment")
+        .get_resource("core_eia923__yearly_fgd_operation_maintenance")
         .encode(fgd_df)
     )
 
