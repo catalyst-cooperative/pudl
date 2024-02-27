@@ -18,6 +18,7 @@ found in :func:`pudl.transform.eia._boiler_generator_assn`.
 import importlib.resources
 from collections import namedtuple
 from enum import StrEnum, auto
+from typing import Literal
 
 import networkx as nx
 import numpy as np
@@ -208,7 +209,7 @@ def _lat_long(
 
     Returns:
         DataFrame with all of the entity ids. Some will have harvested records from the
-        clean_df. some will have harvested records that were found after rounding. Some
+        clean_df. Some will have harvested records that were found after rounding. Some
         will have NaNs if no consistently reported records were found.
     """
     # grab the dirty plant records, round and get a new consistency
@@ -226,6 +227,72 @@ def _lat_long(
     # merge onto the plants df w/ all plant ids
     ll_clean_df = entity_id_df.merge(ll_clean_df, how="outer")
     return ll_clean_df
+
+
+def _round_operating_date(
+    dirty_df: pd.DataFrame,
+    clean_df: pd.DataFrame,
+    entity_id_df: pd.DataFrame,
+    entity_idx: list[str],
+    col: str,
+    cols_to_consit: list[str],
+    group_by_freq: Literal["M", "Y"],
+) -> pd.DataFrame:
+    """Harvests operating dates by combining dates within the selected group_by_freq.
+
+    For all of the entities where there is not a consistent enough reported
+    operating date, this function reduces the precision of the reported operating date
+    by only keeping the last record when records are within the time bandwidth
+    (default of one year) of one another.
+
+    Args:
+        dirty_df (pandas.DataFrame): a dataframe with entity records that have
+            inconsistently reported operating dates.
+        clean_df (pandas.DataFrame): a dataframe with entity records that have
+            consistently reported operating dates.
+        entity_id_df (pandas.DataFrame): a dataframe with a complete set of
+            possible entity ids
+        entity_idx (list): a list of the id(s) for the entity. Ex: for a plant
+            entity, the entity_idx is ['plant_id_eia']. For a generator entity,
+            the entity_idx is ['plant_id_eia', 'generator_id'].
+        col (string): the column name of the column we are trying to harvest.
+        cols_to_consit (list): a list of the columns to determine consistency.
+            This either the [entity_id] or the [entity_id, 'report_date'],
+            depending on whether the entity is static or annual.
+        group_by_freq: Frequency to combine by ("M" for month, or "Y" for year)
+
+    Returns:
+        A dataframe with all of the entity ids. Some will have harvested records from
+        the clean_df. Some will have NA values if no consistently reported records were
+        found.
+    """
+    # grab the dirty plant records, round and get a new consistency
+    op_df = dirty_df.assign(
+        operating_rounded=dirty_df[col].dt.to_period(group_by_freq).dt.to_timestamp()
+    )
+    logger.debug(f"Dirty {col} records: {len(op_df)}")
+    # Group all records within the same rounded time period and assign them the max
+    # value within that time period.
+    op_df[col] = op_df.groupby(cols_to_consit + ["operating_rounded"])[col].transform(
+        "max"
+    )
+    op_df["table"] = "special_case"
+    op_df = op_df.drop("operating_rounded", axis=1)
+    op_df = occurrence_consistency(entity_idx, op_df, col, cols_to_consit)
+    # grab the clean plants
+    op_clean_df = clean_df.dropna()
+    # find the new clean plant records by selecting the True consistent records
+    op_df = op_df[op_df[f"{col}_is_consistent"]].drop_duplicates(subset=entity_idx)
+    logger.info(f"Clean {col} records: {len(op_df)}")
+    logger.info(
+        f"Rescued rounded {col} for the following units ({entity_idx}): "
+        f"{sorted(op_df[entity_idx].apply(lambda row: '_'.join(row.to_numpy().astype(str)), axis=1))}"
+    )
+    # add the newly cleaned records
+    op_clean_df = pd.concat([op_clean_df, op_df])
+    # merge onto the plants df w/ all plant ids
+    op_clean_df = entity_id_df.merge(op_clean_df, how="outer")
+    return op_clean_df
 
 
 def _add_timezone(plants_entity: pd.DataFrame) -> pd.DataFrame:
@@ -393,7 +460,7 @@ def harvest_entity_tables(  # noqa: C901
 ) -> tuple:
     """Compile consistent records for various entities.
 
-    For each entity(plants, generators, boilers, utilties), this function
+    For each entity (plants, generators, boilers, utilties), this function
     finds all the harvestable columns from any table that they show up
     in. It then determines how consistent the records are and keeps the values
     that are mostly consistent. It compiles those consistent records into
@@ -477,7 +544,11 @@ def harvest_entity_tables(  # noqa: C901
 
     entity_df = entity_id_df.copy()
     annual_df = annual_id_df.copy()
-    special_case_cols = {"latitude": [_lat_long, 1], "longitude": [_lat_long, 1]}
+    special_case_cols = {
+        "latitude": [_lat_long, 1],
+        "longitude": [_lat_long, 1],
+        "generator_operating_date": [_round_operating_date, "Y"],
+    }
     consistency = pd.DataFrame(
         columns=["column", "consistent_ratio", "wrongos", "total"]
     )
@@ -530,6 +601,13 @@ def harvest_entity_tables(  # noqa: C901
                 cols_to_consit,
                 special_case_cols[col][1],
             )
+            if col in static_cols:
+                clean_df = clean_df[id_cols + [col]]
+                entity_df = entity_df.drop(columns=[col]).merge(clean_df, on=id_cols)
+            elif col in annual_cols:
+                raise AssertionError(
+                    "Method currenty not configured to work with annual values."
+                )
 
         if debug:
             col_dfs[col] = col_df
