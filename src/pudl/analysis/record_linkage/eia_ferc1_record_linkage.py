@@ -295,7 +295,7 @@ def get_match_full_records(best_match_df, inputs, experiment_tracker):
     for match_set in ["all", "overrides"]:
         check_match_consistency(
             connected_df,
-            input.get_train_df(),
+            inputs.get_train_df(),
             match_set=match_set,
             experiment_tracker=experiment_tracker,
         )
@@ -1127,7 +1127,7 @@ def check_match_consistency(
             threshold for this check.
     """
     # these are the default
-    expected_consistency = 0.70
+    expected_consistency = 0.73
     expected_uniform_capacity_consistency = 0.85
     mask = connects_ferc1_eia.record_id_eia.notnull()
 

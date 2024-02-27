@@ -122,6 +122,12 @@ col_cleaner = embed_dataframe.dataframe_cleaner_factory(
             ],
             columns=["net_generation_mwh"],
         ),
+        "capacity_mw": embed_dataframe.ColumnVectorizer(
+            transform_steps=[
+                embed_dataframe.ColumnCleaner(cleaning_function="zero_to_null")
+            ],
+            columns=["capacity_mw"],
+        ),
     },
 )
 
