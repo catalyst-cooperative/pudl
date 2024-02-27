@@ -111,31 +111,10 @@ def asset_check_from_schema(
     package: pudl.metadata.classes.Package,
 ) -> AssetChecksDefinition | None:
     """Create a dagster asset check based on the resource schema, if defined."""
-    resource_id = asset_key.to_user_string()
-    try:
-        resource = package.get_resource(resource_id)
-    except ValueError:
-        return None
-    pandera_schema = resource.schema.to_pandera()
 
     @asset_check(asset=asset_key)
-    def pandera_schema_check(asset_value) -> AssetCheckResult:
-        try:
-            pandera_schema.validate(asset_value, lazy=True)
-        except pr.errors.SchemaErrors as schema_errors:
-            return AssetCheckResult(
-                passed=False,
-                metadata={
-                    "errors": [
-                        {
-                            "failure_cases": str(err.failure_cases),
-                            "data": str(err.data),
-                        }
-                        for err in schema_errors.schema_errors
-                    ],
-                },
-            )
-        return AssetCheckResult(passed=True)
+    def pandera_schema_check(_asset_value) -> AssetCheckResult:
+        return AssetCheckResult(passed=False)
 
     return pandera_schema_check
 
