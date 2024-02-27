@@ -1044,14 +1044,14 @@ def _core_eia860__cooling_equipment(
         pudl.helpers.convert_to_date
     )
     # Convert cubic feet/second to gallons/minute
-    conversion = 7.48052 / 60
+    one_cfs_in_gpm = 448.8311688
     conversion_cols = {
         "tower_water_rate_100pct_cubic_feet_per_second": "intake_rate_100pct_gallons_per_minute",
         "intake_rate_100pct_cubic_feet_per_second": "tower_water_rate_100pct_gallons_per_minute",
     }
     for col_seconds, col_minutes in conversion_cols.items():
         ce_df.loc[ce_df["report_date"].dt.year.isin(range(2009, 2013)), col_minutes] = (
-            ce_df[col_seconds] * conversion
+            ce_df[col_seconds] * one_cfs_in_gpm
         )
 
     # Convert thousands of dollars to dollars and remove suffix from column name

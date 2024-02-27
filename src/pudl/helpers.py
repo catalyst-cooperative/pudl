@@ -964,8 +964,8 @@ def convert_to_date(
     year_col: str = "report_year",
     month_col: str = "report_month",
     day_col: str = "report_day",
-    month_value: int = 1,
-    day_value: int = 1,
+    month_na_value: int = 1,
+    day_na_value: int = 1,
 ) -> pd.DataFrame:
     """Convert specified year, month or day columns into a datetime object.
 
@@ -980,9 +980,9 @@ def convert_to_date(
         year_col: the name of the year column in the original table.
         month_col: the name of the month column in the original table.
         day_col: the name of the day column in the original table.
-        month_value: generated month if no month exists or if the month
+        month_na_value: generated month if no month exists or if the month
             value is NA.
-        day_value: generated day if no day exists.
+        day_na_value: generated day if no day exists.
 
     Returns:
         A DataFrame in which the year, month, day columns values have been converted
@@ -995,12 +995,12 @@ def convert_to_date(
     year = df[year_col]
 
     month = (
-        month_value
+        month_na_value
         if month_col not in df.columns
-        else df[month_col].fillna(month_value)
+        else df[month_col].fillna(month_na_value)
     )
 
-    day = day_value if day_col not in df.columns else df[day_col]
+    day = day_na_value if day_col not in df.columns else df[day_col]
 
     df[date_col] = pd.to_datetime({"year": year, "month": month, "day": day})
     cols_to_drop = [x for x in [day_col, year_col, month_col] if x in df.columns]

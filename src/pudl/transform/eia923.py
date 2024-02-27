@@ -6,6 +6,7 @@ from dagster import AssetOut, Output, asset, multi_asset
 
 import pudl
 from pudl.metadata.codes import CODE_METADATA
+from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.transform.classes import InvalidRows, drop_invalid_rows
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -1248,11 +1249,10 @@ def _core_eia923__cooling_system_information(
     # In 2008 and 2009 the rate columns are clearly labeled as 0.1 cubic feet / second
     # but that rate persists until 2013 when they change it to gallons/min.
     # Convert tenth cubic feet/second columns to gallons/minute.
-    conversion = 10 / 60 * 7.48052
-
+    tenth_cfs_in_gpm = 44.88311688
     for new_col in cols:
         csi_df.loc[csi_df["report_date"].dt.year.isin(range(2008, 2013)), new_col] = (
-            csi_df[new_col] * conversion
+            csi_df[new_col] * tenth_cfs_in_gpm
         )
 
-    return csi_df
+    return csi_df.pipe(apply_pudl_dtypes, group="eia923")
