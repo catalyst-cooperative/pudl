@@ -259,9 +259,11 @@ def get_y_label_df(train_pairs_df, inputs):
 
 
 @op
-def get_best_matches_with_overwrites(match_df, inputs):
+def get_best_matches_with_overwrites(match_df, inputs, experiment_tracker):
     """Get dataframe with the best EIA match for each FERC record."""
-    return find_best_matches(match_df).pipe(overwrite_bad_predictions, inputs.train_df)
+    return find_best_matches(
+        match_df, inputs=inputs, experiment_tracker=experiment_tracker
+    ).pipe(overwrite_bad_predictions, inputs.train_df)
 
 
 @op
@@ -282,19 +284,20 @@ def run_matching_model(features_train, features_all, y_df, experiment_tracker):
         )
     }
 )
-def get_match_full_records(best_match_df, inputs):
+def get_match_full_records(best_match_df, inputs, experiment_tracker):
     """Join full dataframe onto matches to make usable and get stats."""
     connected_df = prettyify_best_matches(
         matches_best=best_match_df,
         plant_parts_eia_true=inputs.get_plant_parts_eia_true(),
         plants_ferc1=inputs.get_plants_ferc1(),
     )
-    _log_match_coverage(connected_df)
+    _log_match_coverage(connected_df, experiment_tracker=experiment_tracker)
     for match_set in ["all", "overrides"]:
         check_match_consistency(
             connected_df,
             input.get_train_df(),
             match_set=match_set,
+            experiment_tracker=experiment_tracker,
         )
 
     connected_df = add_null_overrides(
@@ -340,9 +343,13 @@ def ferc_to_eia(
         experiment_tracker=experiment_tracker,
     )
     # choose one EIA match for each FERC record
-    best_match_df = get_best_matches_with_overwrites(match_df, inputs)
+    best_match_df = get_best_matches_with_overwrites(
+        match_df, inputs, experiment_tracker
+    )
     # join EIA and FERC columns back on
-    ferc1_eia_connected_df = get_match_full_records(best_match_df, inputs)
+    ferc1_eia_connected_df = get_match_full_records(
+        best_match_df, inputs, experiment_tracker
+    )
     return ferc1_eia_connected_df
 
 
@@ -632,7 +639,33 @@ def run_model(
     return match_df
 
 
-def find_best_matches(match_df):
+def get_true_pos(pred_df, train_df):
+    """Get the number of correctly predicted matches."""
+    return train_df.merge(
+        pred_df, how="left", on=["record_id_ferc1", "record_id_eia"], indicator=True
+    )._merge.value_counts()["both"]
+
+
+# an incorrect EIA record is predicted for a FERC record
+def get_false_pos(pred_df, train_df):
+    """Get the number of incorrectly predicted matches."""
+    shared_preds = train_df.merge(
+        pred_df, how="inner", on="record_id_ferc1", suffixes=("_true", "_pred")
+    )
+    return len(
+        shared_preds[shared_preds.record_id_eia_true != shared_preds.record_id_eia_pred]
+    )
+
+
+# FERC record is in training data but no prediction made
+def get_false_neg(pred_df, train_df):
+    """Get the number of matches from the training data where no prediction is made."""
+    return train_df.merge(
+        pred_df, how="left", on=["record_id_ferc1"], indicator=True
+    )._merge.value_counts()["left_only"]
+
+
+def find_best_matches(match_df, inputs, experiment_tracker):
     """Only keep the best EIA match for each FERC record.
 
     We only want one EIA match for each FERC1 plant record. If there are multiple
@@ -652,6 +685,33 @@ def find_best_matches(match_df):
     )
 
     best_match_df = match_df.groupby("record_id_ferc1").tail(1)
+
+    preds_df = best_match_df.reset_index()
+    train_df = inputs.get_train_df().reset_index()
+    true_pos = get_true_pos(preds_df, train_df)
+    false_pos = get_false_pos(preds_df, train_df)
+    false_neg = get_false_neg(preds_df, train_df)
+    # TODO: experiment tracking
+    logger.info(
+        "Metrics before overwrites:\n"
+        f"   True positives:  {true_pos}\n"
+        f"   False positives: {false_pos}\n"
+        f"   False negatives: {false_neg}\n"
+        f"   Precision:       {true_pos/(true_pos + false_pos):.03}\n"
+        f"   Recall:          {true_pos/(true_pos + false_neg):.03}\n"
+        "Precision = of the training data FERC records that the model predicted a match for, this percentage was correct.\n"
+        "A measure of accuracy when the model makes a prediction.\n"
+        "Recall = of all of the training data FERC records, the model predicted a match for this percentage.\n"
+        "A measure of coverage of FERC records."
+    )
+    experiment_tracker.execute_logging(
+        lambda: mlflow.log_metrics(
+            {
+                "precision": round(true_pos / (true_pos + false_pos), 3),
+                "recall": round(true_pos / (true_pos + false_neg), 3),
+            }
+        )
+    )
 
     return best_match_df
 
