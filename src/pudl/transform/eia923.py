@@ -1232,27 +1232,27 @@ def _core_eia923__cooling_system_information(
 ) -> pd.DataFrame:
     """Transforms the eia923__cooling_system_information dataframe."""
     csi_df = raw_eia923__cooling_system_information
-    # Generic cleaning
     csi_df = csi_df.pipe(pudl.helpers.fix_eia_na).pipe(pudl.helpers.convert_to_date)
 
-    # Combine the annual rates with the monthly rates
-    cols = {
-        "withdrawal_rate_gallons_per_minute": "annual_withdrawal_rate_tenth_cubic_feet_per_second",
-        "discharge_rate_gallons_per_minute": "annual_discharge_rate_tenth_cubic_feet_per_second",
-        "consumption_rate_gallons_per_minute": "annual_consumption_rate_tenth_cubic_feet_per_second",
-    }
-    for new_col, old_col in cols.items():
-        csi_df.loc[csi_df["report_date"].dt.year.isin([2008, 2009]), new_col] = csi_df[
-            old_col
-        ]
+    # 2024-02-28: 2008 and 2009 only have annual rates, but the
+    # "*_rate_gallons_per_minute" values are otherwise monthly; leave
+    # them NA for 2008-2009.
 
-    # In 2008 and 2009 the rate columns are clearly labeled as 0.1 cubic feet / second
-    # but that rate persists until 2013 when they change it to gallons/min.
-    # Convert tenth cubic feet/second columns to gallons/minute.
-    tenth_cfs_in_gpm = 44.88311688
-    for new_col in cols:
-        csi_df.loc[csi_df["report_date"].dt.year.isin(range(2008, 2013)), new_col] = (
-            csi_df[new_col] * tenth_cfs_in_gpm
-        )
+    # 2024-02-28: In 2008 and 2009 the rate columns are labeled as "0.1 cubic
+    # feet per second"; In 2013 they change it to gallons/min.
+    #
+    # If taken to mean that the earlier unit is literally deci-cubic-feet per
+    # second, we find that all these rates jump 10x when we hit the 2013 data;
+    # so we interpret "0.1 cubic feet per second" to mean "cubic feet per
+    # second, with precision of 0.1 cfs."
+
+    cfs_in_gpm = 448.8311688
+    cooling_water_rate_cols = (
+        "consumption_rate_gallons_per_minute",
+        "discharge_rate_gallons_per_minute",
+        "withdrawal_rate_gallons_per_minute",
+    )
+    cfs_years_mask = csi_df["report_date"].dt.year.isin(range(2008, 2013))
+    csi_df.loc[cfs_years_mask, cooling_water_rate_cols] *= cfs_in_gpm
 
     return csi_df.pipe(apply_pudl_dtypes, group="eia923")
