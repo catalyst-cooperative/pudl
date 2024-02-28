@@ -2,7 +2,7 @@
 
 import numpy as np
 import pandas as pd
-from dagster import asset
+from dagster import AssetCheckResult, asset, asset_check
 
 import pudl
 from pudl.metadata.classes import DataSource
@@ -1027,7 +1027,13 @@ def _core_eia860__boiler_stack_flue(
 def _core_eia860__cooling_equipment(
     raw_eia860__cooling_equipment: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Transform the EIA 860 cooling equipment table."""
+    """Transform the EIA 860 cooling equipment table.
+
+    - spot clean year values before converting to dates
+    - standardize water rate units to gallons per minute (2009-2013 used cubic
+      feet per second)
+    - convert kilodollars to normal dollars
+    """
     ce_df = raw_eia860__cooling_equipment
 
     # Generic cleaning
@@ -1055,9 +1061,48 @@ def _core_eia860__cooling_equipment(
         )
 
     # Convert thousands of dollars to dollars and remove suffix from column name
-    for col in ce_df:
-        if "thousand_dollars" in col:
-            ce_df.loc[:, col] = ce_df[col] * 1000
-    ce_df.columns = [col.replace("_thousand_dollars", "") for col in ce_df.columns]
+    ce_df.loc[:, ce_df.columns.str.endswith("_thousand_dollars")] *= 1000
+    ce_df.columns = ce_df.columns.str.replace("_thousand_dollars", "")
 
-    return ce_df
+    return ce_df.pipe(apply_pudl_dtypes, group="eia860")
+
+
+@asset_check(asset=_core_eia860__cooling_equipment, blocking=True)
+def cooling_equipment_check(cooling_equipment):
+    """Check data quality.
+
+    - only completely null cols are tower type 3 and 4
+    - no measurement cols move by 80% or more over the course of one report period.
+    """
+    expected_null_cols = {"tower_type_3", "tower_type_4"}
+    pudl.validate.no_null_cols(
+        cooling_equipment,
+        cols=set(cooling_equipment.columns) - expected_null_cols,
+    )
+    smoothly_varying_cols = [
+        "intake_distance_shore_feet",
+        "intake_distance_surface_feet",
+        "intake_rate_100pct_gallons_per_minute",
+        "outlet_distance_shore_feet",
+        "outlet_distance_surface_feet",
+        "pond_cost",
+        "pond_surface_area_acres",
+        "pond_volume_acre_feet",
+        "power_requirement_kwh",
+        "power_requirement_mw",
+        "summer_capacity_mw",
+        "tower_cost",
+        "tower_water_rate_100pct_gallons_per_minute",
+    ]
+    annual_pct_change = (
+        cooling_equipment.loc[:, ["report_date"] + smoothly_varying_cols]
+        .groupby("report_date")
+        .mean()
+        .pct_change()
+        .abs()
+        .dropna()
+    )
+
+    assert (annual_pct_change < 0.8).all().all()
+
+    return AssetCheckResult(passed=True)

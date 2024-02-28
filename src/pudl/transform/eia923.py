@@ -2,7 +2,7 @@
 
 import numpy as np
 import pandas as pd
-from dagster import AssetOut, Output, asset, multi_asset
+from dagster import AssetCheckResult, AssetOut, Output, asset, asset_check, multi_asset
 
 import pudl
 from pudl.metadata.codes import CODE_METADATA
@@ -1230,22 +1230,26 @@ def _core_eia923__fuel_receipts_costs(
 def _core_eia923__cooling_system_information(
     raw_eia923__cooling_system_information: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Transforms the eia923__cooling_system_information dataframe."""
+    """Transforms the eia923__cooling_system_information dataframe.
+
+    Applies typical NA conversion and date conversion.
+
+    As of 2024-02-28: 2008 and 2009 only have annual rates, but the
+    "_rate_gallons_per_minute" values are otherwise monthly; we leave them NA
+    for 2008-2009 to avoid confusion.
+
+    As of 2024-02-28: In 2008 and 2009 the rate columns are labeled as "0.1
+    cubic feet per second"; In 2013 they change it to gallons/min.
+
+    If taken to mean that the earlier unit is literally deci-cubic-feet per
+    second, we find that all these rates jump 10x when we hit the 2013 data;
+    so we interpret "0.1 cubic feet per second" to mean "cubic feet per
+    second, with precision of 0.1 cfs."
+    """
     csi_df = raw_eia923__cooling_system_information
     csi_df = csi_df.pipe(pudl.helpers.fix_eia_na).pipe(pudl.helpers.convert_to_date)
 
-    # 2024-02-28: 2008 and 2009 only have annual rates, but the
-    # "*_rate_gallons_per_minute" values are otherwise monthly; leave
-    # them NA for 2008-2009.
-
-    # 2024-02-28: In 2008 and 2009 the rate columns are labeled as "0.1 cubic
-    # feet per second"; In 2013 they change it to gallons/min.
-    #
-    # If taken to mean that the earlier unit is literally deci-cubic-feet per
-    # second, we find that all these rates jump 10x when we hit the 2013 data;
-    # so we interpret "0.1 cubic feet per second" to mean "cubic feet per
-    # second, with precision of 0.1 cfs."
-
+    # convert cfs to gpm
     cfs_in_gpm = 448.8311688
     cooling_water_rate_cols = (
         "consumption_rate_gallons_per_minute",
@@ -1255,4 +1259,36 @@ def _core_eia923__cooling_system_information(
     cfs_years_mask = csi_df["report_date"].dt.year.isin(range(2008, 2013))
     csi_df.loc[cfs_years_mask, cooling_water_rate_cols] *= cfs_in_gpm
 
+    # convert 1000 lbs to lbs
+    csi_df.loc[:, csi_df.columns.str.endswith("_1000_lbs")] *= 1000
+    csi_df.columns = csi_df.columns.str.replace("_1000_lbs", "_lbs")
+
     return csi_df.pipe(apply_pudl_dtypes, group="eia923")
+
+
+@asset_check(asset=_core_eia923__cooling_system_information, blocking=True)
+def cooling_system_information_check(csi):
+    """Check data quality.
+
+    - no completely null columns
+    - withdrawal ~= discharge + consumption at least 90% of the time (with a 1%
+      acceptable discrepancy)
+    """
+    pudl.validate.no_null_cols(csi)
+
+    non_withdrawal_usage = csi.loc[
+        :,
+        [
+            "consumption_rate_gallons_per_minute",
+            "discharge_rate_gallons_per_minute",
+            "diversion_rate_gallons_per_minute",
+        ],
+    ].sum(axis="columns")
+    withdrawal_discrepancy = (
+        non_withdrawal_usage - csi.withdrawal_rate_gallons_per_minute
+    ).dropna() / csi.withdrawal_rate_gallons_per_minute
+    assert (withdrawal_discrepancy.abs() > 0.01).sum() / len(
+        withdrawal_discrepancy
+    ) < 0.1
+
+    return AssetCheckResult(passed=True)

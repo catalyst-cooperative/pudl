@@ -16,6 +16,7 @@ from dagster import (
     SourceAsset,
     asset_check,
     define_asset_job,
+    load_asset_checks_from_modules,
     load_assets_from_modules,
 )
 from dagster._core.definitions.cacheable_assets import CacheableAssetsDefinition
@@ -41,6 +42,9 @@ from . import (
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
+# Asset Checks are still Experimental, silence the warning since we use them
+# everywhere.
+warnings.filterwarnings("ignore", category=ExperimentalWarning)
 
 default_assets = (
     *load_assets_from_modules([eia_bulk_elec_assets], group_name="core_eia_bulk_elec"),
@@ -108,6 +112,9 @@ default_assets = (
     ),
 )
 
+asset_check_modules = [pudl.transform.eia860, pudl.transform.eia923]
+default_asset_checks = list(load_asset_checks_from_modules(asset_check_modules))
+
 
 def asset_check_from_schema(
     asset_key: AssetKey,
@@ -166,14 +173,11 @@ def _get_keys_from_assets(
     return []
 
 
-# Asset Checks are still Experimental, silence the warning since we use them
-# everywhere.
-warnings.filterwarnings("ignore", category=ExperimentalWarning)
 _package = pudl.metadata.classes.Package.from_resource_ids()
 _asset_keys = itertools.chain.from_iterable(
     _get_keys_from_assets(asset_def) for asset_def in default_assets
 )
-default_asset_checks = [
+default_asset_checks += [
     check
     for check in (
         asset_check_from_schema(asset_key, _package)

@@ -3841,6 +3841,7 @@ def apply_pudl_dtypes(
     group: str | None = None,
     field_meta: dict[str, Any] | None = FIELD_METADATA,
     field_meta_by_group: dict[str, Any] | None = FIELD_METADATA_BY_GROUP,
+    strict: bool = False,
 ) -> pd.DataFrame:
     """Apply dtypes to those columns in a dataframe that have PUDL types defined.
 
@@ -3850,7 +3851,7 @@ def apply_pudl_dtypes(
 
     Args:
         df: The dataframe to apply types to. Not all columns need to have types
-            defined in the PUDL metadata.
+            defined in the PUDL metadata unless you pass ``strict=True``.
         group: The data group to use for overrides, if any. E.g. "eia", "ferc1".
         field_meta: A dictionary of field metadata, where each key is a field name
             and the values are dictionaries which must have a "type" element. By
@@ -3858,10 +3859,21 @@ def apply_pudl_dtypes(
         field_meta_by_group: A dictionary of field metadata to use as overrides,
             based on the value of `group`, if any. By default it uses the overrides
             defined in pudl.metadata.fields.FIELD_METADATA_BY_GROUP.
+        strict: whether or not all columns need a corresponding field.
 
     Returns:
         The input dataframe, but with standard PUDL types applied.
     """
+    if strict:
+        unspecified_fields = sorted(
+            (
+                set(df.columns)
+                - set(field_meta.keys())
+                - set(field_meta_by_group[group].keys())
+            )
+        )
+        if len(unspecified_fields) > 0:
+            raise ValueError(f"Found unspecified fields: {unspecified_fields}")
     dtypes = get_pudl_dtypes(
         group=group,
         field_meta=field_meta,
