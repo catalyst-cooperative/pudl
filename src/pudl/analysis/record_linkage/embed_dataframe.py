@@ -303,18 +303,13 @@ def _fill_fuel_type_from_name(
     """
     if fuel_type_col not in df.columns:
         raise AssertionError(f"{fuel_type_col} is not in dataframe columns.")
-    # TODO: dynamically get this list from core_eia__codes_energy_sources
-    # and remove other from the list
-    fuel_type_list = [
-        "waste",
-        "coal",
-        "gas",
-        "oil",
-        "nuclear",
-        "solar",
-        "hydro",
-        "wind",
-    ]
+    fuel_type_list = (
+        pudl.metadata.codes.CODE_METADATA["core_eia__codes_energy_sources"]["df"]
+        .loc[:, "fuel_type_code_pudl"]
+        .unique()
+        .tolist()
+    )
+    fuel_type_list = [fuel_type for fuel_type in fuel_type_list if fuel_type != "other"]
     fuel_type_map = {fuel_type: fuel_type for fuel_type in fuel_type_list}
     fuel_type_map.update(
         {
