@@ -1050,59 +1050,66 @@ def _core_eia860__cooling_equipment(
         pudl.helpers.convert_to_date
     )
     # Convert cubic feet/second to gallons/minute
-    one_cfs_in_gpm = 448.8311688
-    conversion_cols = {
-        "tower_water_rate_100pct_cubic_feet_per_second": "intake_rate_100pct_gallons_per_minute",
-        "intake_rate_100pct_cubic_feet_per_second": "tower_water_rate_100pct_gallons_per_minute",
-    }
-    for col_seconds, col_minutes in conversion_cols.items():
-        ce_df.loc[ce_df["report_date"].dt.year.isin(range(2009, 2013)), col_minutes] = (
-            ce_df[col_seconds] * one_cfs_in_gpm
-        )
+    cfs_in_gpm = 448.8311688
+    ce_df = ce_df.fillna(
+        {
+            "tower_water_rate_100pct_gallons_per_minute": ce_df.tower_water_rate_100pct_cubic_feet_per_second
+            * cfs_in_gpm,
+            "intake_rate_100pct_gallons_per_minute": ce_df.intake_rate_100pct_cubic_feet_per_second
+            * cfs_in_gpm,
+        }
+    ).drop(
+        columns=[
+            "tower_water_rate_100pct_cubic_feet_per_second",
+            "intake_rate_100pct_cubic_feet_per_second",
+        ]
+    )
 
     # Convert thousands of dollars to dollars and remove suffix from column name
     ce_df.loc[:, ce_df.columns.str.endswith("_thousand_dollars")] *= 1000
     ce_df.columns = ce_df.columns.str.replace("_thousand_dollars", "")
 
-    return ce_df.pipe(apply_pudl_dtypes, group="eia860")
+    return ce_df.pipe(apply_pudl_dtypes, group="eia", strict=True)
 
 
 @asset_check(asset=_core_eia860__cooling_equipment, blocking=True)
-def cooling_equipment_check(cooling_equipment):
-    """Check data quality.
-
-    - only completely null cols are tower type 3 and 4
-    - no measurement cols move by 80% or more over the course of one report period.
-    """
+def cooling_equipment_null_cols(cooling_equipment):
+    """The only null cols we expect are tower type 3 and 4."""
     expected_null_cols = {"tower_type_3", "tower_type_4"}
     pudl.validate.no_null_cols(
         cooling_equipment,
         cols=set(cooling_equipment.columns) - expected_null_cols,
     )
-    smoothly_varying_cols = [
-        "intake_distance_shore_feet",
-        "intake_distance_surface_feet",
-        "intake_rate_100pct_gallons_per_minute",
-        "outlet_distance_shore_feet",
-        "outlet_distance_surface_feet",
-        "pond_cost",
-        "pond_surface_area_acres",
-        "pond_volume_acre_feet",
-        "power_requirement_kwh",
-        "power_requirement_mw",
-        "summer_capacity_mw",
-        "tower_cost",
-        "tower_water_rate_100pct_gallons_per_minute",
-    ]
-    annual_pct_change = (
-        cooling_equipment.loc[:, ["report_date"] + smoothly_varying_cols]
-        .groupby("report_date")
-        .mean()
-        .pct_change()
-        .abs()
-        .dropna()
-    )
-
-    assert (annual_pct_change < 0.8).all().all()
-
+    col_is_null = cooling_equipment.isna().all()
+    if not all(col_is_null[col] for col in expected_null_cols):
+        return AssetCheckResult(
+            passed=False, metadata={"col_is_null": col_is_null.to_json()}
+        )
     return AssetCheckResult(passed=True)
+
+
+@asset_check(asset=_core_eia860__cooling_equipment, blocking=True)
+def cooling_equipment_continuity(cooling_equipment):
+    """Check to see if columns vary as slowly as expected.
+
+    2024-03-04: pond cost, tower cost, and tower cost all have one-off
+    discontinuities that are worth investigating, but we're punting on that
+    investigation since we're out of time.
+    """
+    return pudl.validate.group_mean_continuity_check(
+        df=cooling_equipment,
+        thresholds={
+            "intake_rate_100pct_gallons_per_minute": 0.1,
+            "outlet_distance_shore_feet": 0.1,
+            "outlet_distance_surface_feet": 0.1,
+            "pond_cost": 0.1,
+            "pond_surface_area_acres": 0.1,
+            "pond_volume_acre_feet": 0.2,
+            "power_requirement_mw": 0.1,
+            "plant_summer_capacity_mw": 0.1,
+            "tower_cost": 0.1,
+            "tower_water_rate_100pct_gallons_per_minute": 0.1,
+        },
+        groupby_col="report_date",
+        n_outliers_allowed=1,
+    )

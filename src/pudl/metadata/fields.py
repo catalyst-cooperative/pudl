@@ -520,10 +520,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Average monthly coincident peak (CP) demand (for requirements purchases, and any transactions involving demand charges). Monthly CP demand is the metered demand during the hour (60-minute integration) in which the supplier's system reaches its monthly peak. In megawatts.",
         "unit": "MW",
     },
-    "cooling_id_eia": {
-        "type": "string",
-        "description": ("The cooling system identification number reported to EIA."),
-    },
     "conductor_size_and_material": {
         "type": "string",
         "description": "Size of transmission conductor and material of the transmission line.",
@@ -619,6 +615,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "compliance_year_so2": {
         "type": "integer",
         "description": "Year boiler was or is expected to be in compliance with federal, state and/or local regulations for sulfur dioxide emissions.",
+    },
+    "cooling_id_eia": {
+        "description": (
+            "Identification Code for Cooling System (if multiple cooling "
+            "systems are not distinguished by separate IDs, the word "
+            "'PLANT' is listed to encompass the cooling system for the "
+            "entire plant)"
+        ),
+        "type": "string",
     },
     "county": {"type": "string", "description": "County name."},
     "county_id_fips": {
@@ -3681,7 +3686,418 @@ FIELD_METADATA_BY_GROUP: dict[str, dict[str, Any]] = {
             }
         },
     },
-    "eia": {"fuel_units": {"constraints": {"enum": sorted(FUEL_UNITS_EIA.keys())}}},
+    "eia": {
+        "fuel_units": {"constraints": {"enum": sorted(FUEL_UNITS_EIA.keys())}},
+        "annual_average_consumption_rate_gallons_per_minute": {
+            "description": "Annual average consumption rate of cooling water",
+            "type": "number",
+            "unit": "gpm",
+        },
+        "annual_average_discharge_rate_gallons_per_minute": {
+            "description": "Annual average discharge rate of cooling water",
+            "type": "number",
+            "unit": "gpm",
+        },
+        "annual_average_withdrawal_rate_gallons_per_minute": {
+            "description": "Annual average withdrawal rate of cooling water",
+            "type": "number",
+            "unit": "gpm",
+        },
+        "annual_maximum_intake_summer_temperature_fahrenheit": {
+            "description": "Maximum cooling water temperature at intake during the summer",
+            "type": "integer",
+            "unit": "F",
+        },
+        "annual_maximum_intake_winter_temperature_fahrenheit": {
+            "description": "Maximum cooling water temperature at intake in winter",
+            "type": "integer",
+            "unit": "F",
+        },
+        "annual_maximum_outlet_summer_temperature_fahrenheit": {
+            "description": "Maximum cooling water temperature at outlet in summer",
+            "type": "integer",
+            "unit": "F",
+        },
+        "annual_maximum_outlet_winter_temperature_fahrenheit": {
+            "description": "Maximum cooling water temperature at outlet in winter",
+            "type": "integer",
+            "unit": "F",
+        },
+        "annual_total_chlorine_lbs": {
+            "description": (
+                "Amount of elemental chlorine added to cooling water annually. "
+                "May be just the amount of chlorine-containing compound if "
+                "schedule 9 is filled out."
+            ),
+            "type": "number",
+            "unit": "lb",
+        },
+        "chlorine_equipment_cost": {
+            "description": (
+                "Actual installed cost for the existing chlorine discharge "
+                "control system or the anticipated cost to bring the chlorine "
+                "discharge control system into commercial operation"
+            ),
+            "type": "number",
+            "unit": "USD",
+        },
+        "chlorine_equipment_operating_date": {
+            "description": (
+                "Actual or projected in-service date for chlorine discharge "
+                "control structures and equipment"
+            ),
+            "type": "date",
+        },
+        "cooling_equipment_total_cost": {
+            "description": (
+                "Actual installed cost for the existing system or the "
+                "anticipated cost to bring the total system into commercial "
+                "operation"
+            ),
+            "type": "number",
+            "unit": "USD",
+        },
+        # 2024-03-01: the cooling operating status codes are a strict subset of
+        # all EIA op codes... will that always be the case?
+        "cooling_status": {
+            "description": "Operating status of cooling system",
+            "type": "string",
+            "enum": sorted(
+                set(CODE_METADATA["core_eia__codes_operational_status"]["df"]["code"])
+            ),
+        },
+        "cooling_type": {
+            "description": "Type of cooling system",
+            "type": "string",
+            "constraints": {
+                "enum": sorted(
+                    set(
+                        CODE_METADATA["core_eia__codes_cooling_system_types"]["df"][
+                            "code"
+                        ]
+                    )
+                )
+            },
+        },
+        "cooling_type_1": {
+            "description": "Type of cooling system",
+            "type": "string",
+            "constraints": {
+                "enum": sorted(
+                    set(
+                        CODE_METADATA["core_eia__codes_cooling_system_types"]["df"][
+                            "code"
+                        ]
+                    )
+                )
+            },
+        },
+        "cooling_type_2": {
+            "description": "Type of cooling system",
+            "type": "string",
+            "constraints": {
+                "enum": sorted(
+                    set(
+                        CODE_METADATA["core_eia__codes_cooling_system_types"]["df"][
+                            "code"
+                        ]
+                    )
+                )
+            },
+        },
+        "cooling_type_3": {
+            "description": "Type of cooling system",
+            "type": "string",
+            "constraints": {
+                "enum": sorted(
+                    set(
+                        CODE_METADATA["core_eia__codes_cooling_system_types"]["df"][
+                            "code"
+                        ]
+                    )
+                )
+            },
+        },
+        "cooling_type_4": {
+            "description": "Type of cooling system",
+            "type": "string",
+            "constraints": {
+                "enum": sorted(
+                    set(
+                        CODE_METADATA["core_eia__codes_cooling_system_types"]["df"][
+                            "code"
+                        ]
+                    )
+                )
+            },
+        },
+        "flow_rate_method": {
+            "description": (
+                "Calculation method for flow rates (actual or method of estimation)"
+            ),
+            "type": "string",
+        },
+        "monthly_average_consumption_rate_gallons_per_minute": {
+            "description": "Monthly average consumption rate of cooling water",
+            "type": "number",
+            "unit": "gpm",
+        },
+        "monthly_average_discharge_rate_gallons_per_minute": {
+            "description": "Monthly average discharge rate of cooling water - available 2010+",
+            "type": "number",
+            "unit": "gpm",
+        },
+        "monthly_average_discharge_temperature_fahrenheit": {
+            "description": "Average cooling water temperature at discharge point",
+            "type": "integer",
+            "unit": "F",
+        },
+        "monthly_average_diversion_rate_gallons_per_minute": {
+            "description": "Monthly average diversion rate of cooling water",
+            "type": "number",
+            "unit": "gpm",
+        },
+        "monthly_average_intake_temperature_fahrenheit": {
+            "description": "Average cooling water temperature at intake point",
+            "type": "integer",
+            "unit": "F",
+        },
+        "monthly_average_withdrawal_rate_gallons_per_minute": {
+            "description": "Monthly average withdrawal rate of cooling water",
+            "type": "number",
+            "unit": "gpm",
+        },
+        "monthly_maximum_discharge_temperature_fahrenheit": {
+            "description": "Maximum cooling water temperature at discharge",
+            "type": "integer",
+            "unit": "F",
+        },
+        "monthly_maximum_intake_temperature_fahrenheit": {
+            "description": "Maximum cooling water temperature at intake",
+            "type": "integer",
+            "unit": "F",
+        },
+        "monthly_total_chlorine_lbs": {
+            "description": (
+                "Amount of elemental chlorine added to cooling water monthly. "
+                "May be just the amount of chlorine-containing compound if "
+                "schedule 9 is filled out."
+            ),
+            "type": "number",
+            "unit": "lb",
+        },
+        "monthly_total_consumption_volume_gallons": {
+            "description": "Monthly volume of water consumed at consumption point (accurate to 0.1 million gal)",
+            "type": "number",
+            "unit": "gal",
+        },
+        "monthly_total_cooling_hours_in_service": {
+            "description": "Total hours the system operated during the month",
+            "type": "integer",
+            "unit": "h",
+        },
+        "monthly_total_discharge_volume_gallons": {
+            "description": "Monthly volume of water discharged at discharge point (accurate to 0.1 million gal)",
+            "type": "number",
+            "unit": "gal",
+        },
+        "monthly_total_diversion_volume_gallons": {
+            "description": "Monthly volume of water diverted at diversion point (accurate to 0.1 million gal)",
+            "type": "number",
+            "unit": "gal",
+        },
+        "monthly_total_withdrawal_volume_gallons": {
+            "description": "Monthly volume of water withdrawn at withdrawal point (accurate to 0.1 million gal)",
+            "type": "number",
+            "unit": "gal",
+        },
+        "temperature_method": {
+            "description": "Method for measurement of temperatures",
+            "type": "string",
+        },
+        "cooling_water_discharge": {
+            "description": (
+                "Name of river, lake, or water source that cooling water is discharged into"
+            ),
+            "type": "string",
+        },
+        "cooling_water_source": {
+            "description": "Name of river, lake, or water source that provides cooling water",
+            "type": "string",
+        },
+        "intake_distance_shore_feet": {
+            "description": "Maximum distance from shore to intake",
+            "type": "number",
+            "unit": "ft",
+        },
+        "intake_distance_surface_feet": {
+            "description": "Average distance below water surface to intake",
+            "type": "number",
+            "unit": "ft",
+        },
+        "intake_rate_100pct_gallons_per_minute": {
+            "description": (
+                "Design cooling water flow rate at 100 percent load at in-take"
+            ),
+            "type": "number",
+            "unit": "gpm",
+        },
+        "operating_date": {
+            "description": "The actual or projected in-service datetime of this cooling system",
+            "type": "date",
+        },
+        "outlet_distance_shore_feet": {
+            "description": "Maximum distance from shore to outlet",
+            "type": "number",
+            "unit": "ft",
+        },
+        "outlet_distance_surface_feet": {
+            "description": "Average distance below water surface to outlet",
+            "type": "number",
+            "unit": "ft",
+        },
+        "percent_dry_cooling": {
+            "description": "Percent of cooling load served by dry cooling components",
+            "type": "number",
+        },
+        "pond_cost": {
+            "description": (
+                "Actual installed cost for the existing cooling ponds or the "
+                "anticipated cost to bring the cooling ponds into commercial "
+                "operation"
+            ),
+            "type": "number",
+            "unit": "USD",
+        },
+        "pond_operating_date": {
+            "description": "Cooling ponds actual or projected in-service date",
+            "type": "date",
+        },
+        "pond_surface_area_acres": {
+            "description": "Total surface area of cooling pond",
+            "type": "number",
+            "unit": "acre",
+        },
+        "pond_volume_acre_feet": {
+            "description": "Total volume of water in cooling pond",
+            "type": "number",
+            "unit": "acre-feet",
+        },
+        "power_requirement_mw": {
+            "description": "Maximum power requirement for cooling towers at 100 percent load",
+            "type": "number",
+            "unit": "MW",
+        },
+        "plant_summer_capacity_mw": {
+            "description": "The plant summer capacity associated with the operating generators at the plant",
+            "type": "number",
+            "unit": "MW",
+        },
+        "tower_cost": {
+            "description": (
+                "Actual installed cost for the existing cooling towers or the "
+                "anticipated cost to bring the cooling towers into commercial "
+                "operation"
+            ),
+            "type": "number",
+            "unit": "USD",
+        },
+        "tower_operating_date": {
+            "description": "Cooling towers actual or projected in-service date",
+            "type": "date",
+        },
+        "tower_type_1": {
+            "description": "Types of cooling towers at this plant",
+            "type": "string",
+            "constraints": {
+                "enum": sorted(
+                    set(
+                        CODE_METADATA["core_eia__codes_cooling_tower_types"]["df"][
+                            "code"
+                        ]
+                    )
+                )
+            },
+        },
+        "tower_type_2": {
+            "description": "Types of cooling towers at this plant",
+            "type": "string",
+            "constraints": {
+                "enum": sorted(
+                    set(
+                        CODE_METADATA["core_eia__codes_cooling_tower_types"]["df"][
+                            "code"
+                        ]
+                    )
+                )
+            },
+        },
+        "tower_type_3": {
+            "description": "Types of cooling towers at this plant",
+            "type": "string",
+            "constraints": {
+                "enum": sorted(
+                    set(
+                        CODE_METADATA["core_eia__codes_cooling_tower_types"]["df"][
+                            "code"
+                        ]
+                    )
+                )
+            },
+        },
+        "tower_type_4": {
+            "description": "Types of cooling towers at this plant",
+            "type": "string",
+            "constraints": {
+                "enum": sorted(
+                    set(
+                        CODE_METADATA["core_eia__codes_cooling_tower_types"]["df"][
+                            "code"
+                        ]
+                    )
+                )
+            },
+        },
+        "tower_water_rate_100pct_gallons_per_minute": {
+            "description": "Maximum design rate of water flow at 100 percent load for the cooling towers",
+            "type": "number",
+            "unit": "gpm",
+        },
+        "water_source_name": {
+            "description": (
+                "Name of the principal source from which cooling water for "
+                "thermal-electric plants and water for generating power for "
+                "hydroelectric plants is directly obtained"
+            ),
+            "type": "string",
+        },
+        "water_source_code": {
+            "description": "Type of cooling water source",
+            "type": "string",
+            "constraints": {
+                "enum": sorted(
+                    set(
+                        CODE_METADATA["core_eia__codes_cooling_water_sources"]["df"][
+                            "code"
+                        ]
+                    )
+                )
+            },
+        },
+        "water_type_code": {
+            "description": "Type of cooling water",
+            "type": "string",
+            "constraints": {
+                "enum": sorted(
+                    set(
+                        CODE_METADATA["core_eia__codes_cooling_water_types"]["df"][
+                            "code"
+                        ]
+                    )
+                )
+            },
+        },
+    },
     "ferc1": {
         "fuel_units": {
             "constraints": {
@@ -3864,16 +4280,13 @@ def apply_pudl_dtypes(
     Returns:
         The input dataframe, but with standard PUDL types applied.
     """
-    if strict:
-        unspecified_fields = sorted(
-            (
-                set(df.columns)
-                - set(field_meta.keys())
-                - set(field_meta_by_group[group].keys())
-            )
-        )
-        if len(unspecified_fields) > 0:
-            raise ValueError(f"Found unspecified fields: {unspecified_fields}")
+    unspecified_fields = sorted(
+        set(df.columns)
+        - set(field_meta.keys())
+        - set(field_meta_by_group.get(group, {}).keys())
+    )
+    if strict and len(unspecified_fields) > 0:
+        raise ValueError(f"Found unspecified fields: {unspecified_fields}")
     dtypes = get_pudl_dtypes(
         group=group,
         field_meta=field_meta,

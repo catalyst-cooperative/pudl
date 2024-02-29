@@ -1251,44 +1251,99 @@ def _core_eia923__cooling_system_information(
 
     # convert cfs to gpm
     cfs_in_gpm = 448.8311688
-    cooling_water_rate_cols = (
-        "consumption_rate_gallons_per_minute",
-        "discharge_rate_gallons_per_minute",
-        "withdrawal_rate_gallons_per_minute",
-    )
+    # *ALL* flows between 2008 and 2013 are actually CFS, not GPM.
+    cooling_water_rate_cols = [
+        "monthly_average_consumption_rate_gallons_per_minute",
+        "monthly_average_discharge_rate_gallons_per_minute",
+        "monthly_average_diversion_rate_gallons_per_minute",
+        "monthly_average_withdrawal_rate_gallons_per_minute",
+        "annual_average_consumption_rate_cubic_feet_per_second",
+        "annual_average_discharge_rate_cubic_feet_per_second",
+        "annual_average_withdrawal_rate_cubic_feet_per_second",
+    ]
     cfs_years_mask = csi_df["report_date"].dt.year.isin(range(2008, 2013))
     csi_df.loc[cfs_years_mask, cooling_water_rate_cols] *= cfs_in_gpm
+    csi_df.loc[
+        cfs_years_mask, csi_df.columns.str.endswith("_cubic_feet_per_second")
+    ] *= cfs_in_gpm
+    csi_df.columns = csi_df.columns.str.replace(
+        "_cubic_feet_per_second", "_gallons_per_minute"
+    )
 
     # convert 1000 lbs to lbs
     csi_df.loc[:, csi_df.columns.str.endswith("_1000_lbs")] *= 1000
     csi_df.columns = csi_df.columns.str.replace("_1000_lbs", "_lbs")
 
-    return csi_df.pipe(apply_pudl_dtypes, group="eia923")
+    # convert million gals to gals
+    csi_df.loc[:, csi_df.columns.str.endswith("_million_gallons")] *= 1_000_000
+    csi_df.columns = csi_df.columns.str.replace("_million_gallons", "_gallons")
+
+    return csi_df.pipe(apply_pudl_dtypes, group="eia", strict=False)
 
 
 @asset_check(asset=_core_eia923__cooling_system_information, blocking=True)
-def cooling_system_information_check(csi):
-    """Check data quality.
-
-    - no completely null columns
-    - withdrawal ~= discharge + consumption at least 90% of the time (with a 1%
-      acceptable discrepancy)
-    """
+def cooling_system_information_null_check(csi):
+    """We do not expect any columns to be completely null."""
     pudl.validate.no_null_cols(csi)
+    return AssetCheckResult(passed=True)
 
-    non_withdrawal_usage = csi.loc[
-        :,
-        [
-            "consumption_rate_gallons_per_minute",
-            "discharge_rate_gallons_per_minute",
-            "diversion_rate_gallons_per_minute",
+
+@asset_check(asset=_core_eia923__cooling_system_information, blocking=True)
+def cooling_system_information_withdrawal_discrepancy_check(csi):
+    """Withdrawal should be equal to discharge + consumption.
+
+    To allow for *some* data quality errors we assert that withdrawal ~=
+    discharge + consumption at least 90% of the time (with a 1% acceptable
+    discrepancy).
+    """
+
+    def sum_to_target_rate(sum_cols, target, threshold):
+        discrepancies = (
+            csi.loc[:, sum_cols].sum(axis="columns") - csi.loc[:, target]
+        ).dropna() / csi.loc[:, target]
+        return (discrepancies > threshold).sum() / len(discrepancies)
+
+    monthly_withdrawal_discrepancy_rate = sum_to_target_rate(
+        sum_cols=[
+            "monthly_average_consumption_rate_gallons_per_minute",
+            "monthly_average_discharge_rate_gallons_per_minute",
         ],
-    ].sum(axis="columns")
-    withdrawal_discrepancy = (
-        non_withdrawal_usage - csi.withdrawal_rate_gallons_per_minute
-    ).dropna() / csi.withdrawal_rate_gallons_per_minute
-    assert (withdrawal_discrepancy.abs() > 0.01).sum() / len(
-        withdrawal_discrepancy
-    ) < 0.1
+        target="monthly_average_withdrawal_rate_gallons_per_minute",
+        threshold=0.01,
+    )
+    assert monthly_withdrawal_discrepancy_rate < 0.1
+
+    annual_withdrawal_discrepancy_rate = sum_to_target_rate(
+        sum_cols=[
+            "annual_average_consumption_rate_gallons_per_minute",
+            "annual_average_discharge_rate_gallons_per_minute",
+        ],
+        target="annual_average_withdrawal_rate_gallons_per_minute",
+        threshold=0.01,
+    )
+    assert annual_withdrawal_discrepancy_rate < 0.1
 
     return AssetCheckResult(passed=True)
+
+
+@asset_check(asset=_core_eia923__cooling_system_information, blocking=True)
+def cooling_system_information_continuity(csi):
+    """Check to see if columns vary as slowly as expected."""
+    return pudl.validate.group_mean_continuity_check(
+        df=csi,
+        thresholds={
+            "annual_average_consumption_rate_gallons_per_minute": 0.1,
+            "annual_average_discharge_rate_gallons_per_minute": 0.1,
+            "annual_average_withdrawal_rate_gallons_per_minute": 0.1,
+            "monthly_average_consumption_rate_gallons_per_minute": 0.5,
+            "monthly_average_discharge_rate_gallons_per_minute": 0.2,
+            "monthly_average_diversion_rate_gallons_per_minute": 1.3,
+            "monthly_average_withdrawal_rate_gallons_per_minute": 0.2,
+            "monthly_total_consumption_volume_gallons": 0.4,
+            "monthly_total_discharge_volume_gallons": 0.3,
+            "monthly_total_diversion_volume_gallons": 1.3,
+            "monthly_total_withdrawal_volume_gallons": 0.3,
+        },
+        groupby_col="report_date",
+        n_outliers_allowed=1,
+    )

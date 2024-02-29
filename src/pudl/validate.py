@@ -14,6 +14,7 @@ import warnings
 
 import numpy as np
 import pandas as pd
+from dagster import AssetCheckResult
 from matplotlib import pyplot as plt
 
 import pudl.logging_helpers
@@ -155,6 +156,51 @@ def no_null_cols(
         raise ValueError(f"Null columns found in {df_name}: {null_cols}")
 
     return df
+
+
+def group_mean_continuity_check(
+    df: pd.DataFrame,
+    thresholds: dict[str, float],
+    groupby_col: str,
+    n_outliers_allowed: int = 0,
+):
+    """Check that certain variables don't vary by too much.
+
+    Groups and sorts the data by ``groupby_col``, then takes the mean across
+    each group. Useful for saying something like "the average water usage of
+    cooling systems didn't jump by 10x from 2012-2013."
+
+
+    Args:
+        df: the df with the actual data
+        thresholds: a mapping from column names to the ratio by which those
+            columns are allowed to fluctuate from one group to the next.
+        groupby_col: the column by which we will group the data.
+        n_outliers_allowed: how many data points are allowed to be above the
+        threshold.
+    """
+    pct_change = (
+        df.loc[:, [groupby_col] + list(thresholds.keys())]
+        .groupby(groupby_col, sort=True)
+        .mean()
+        .pct_change()
+        .abs()
+        .dropna()
+    )
+    discontinuity = pct_change >= thresholds
+    metadata = {
+        col: {
+            "top5": list(pct_change[col][discontinuity[col]].nlargest(n=5)),
+            # "numOverThreshold": discontinuity[col].sum(),
+            "threshold": thresholds[col],
+        }
+        for col in thresholds
+        if discontinuity[col].sum() > 0
+    }
+    if (discontinuity.sum() > n_outliers_allowed).any():
+        return AssetCheckResult(passed=False, metadata=metadata)
+
+    return AssetCheckResult(passed=True, metadata=metadata)
 
 
 def check_max_rows(

@@ -2350,6 +2350,33 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
             ],
         )
     },
+    "core_eia__codes_cooling_water_sources": {
+        "df": pd.DataFrame(
+            columns=["code", "label", "description"],
+            data=[
+                (
+                    "SW",
+                    "surface_water",
+                    "Surface Water (ex: river, canal, bay)",
+                ),
+                (
+                    "GW",
+                    "ground_water",
+                    "Ground Water (ex: aquifer, well)",
+                ),
+                (
+                    "PD",
+                    "plant_discharge",
+                    "Plant Discharge Water (ex: wastewater treatment plant discharge)",
+                ),
+                (
+                    "OT",
+                    "other",
+                    "Other (specify in SCHEDULE 7)",
+                ),
+            ],
+        )
+    },
     "core_eia__codes_cooling_water_types": {
         "df": pd.DataFrame(
             columns=["code", "label", "description"],
