@@ -1423,15 +1423,13 @@ def core_eia923__yearly_fgd_operation_maintenance(
     fgd_df = pudl.helpers.fix_eia_na(fgd_df)
 
     # Convert thousands of dollars to dollars
-    fgd_df.loc[:, fgd_df.columns.str.endswith("_1000_dollars")] = (
-        fgd_df.loc[:, fgd_df.columns.str.endswith("_1000_dollars")] * 1000
-    )
+    fgd_df.loc[:, fgd_df.columns.str.endswith("_1000_dollars")] *= 1000
     fgd_df.columns = fgd_df.columns.str.replace("_1000_dollars", "")  # Rename columns
 
     # Convert SO2 test date column to datetime
-    # First, convert a few troublesome datetimes that look like 3/08 or 01/08
+    # First, convert a few troublesome datetimes that look like m/yy or mm/yy
     troublesome_dates = fgd_df.so2_test_date.str.contains(
-        r"^[0-9]{1,2}\/[0-9]{1,2}$", regex=True, na=False
+        r"^[0-9]{1,2}\/[0-9]{2}$", regex=True, na=False
     )
     logger.info(
         f"Rescuing troublesome dates: {fgd_df[troublesome_dates].so2_test_date.unique()}"
@@ -1446,9 +1444,10 @@ def core_eia923__yearly_fgd_operation_maintenance(
     test_datetime = pd.to_datetime(
         fgd_df.so2_test_date, format="mixed", errors="coerce", dayfirst=False
     )
-    logger.info(
-        f"Dropping SO2 test dates that were not parseable: {fgd_df[(test_datetime.isnull())&(fgd_df.so2_test_date.notnull())].so2_test_date.unique()}"
-    )
+    dropped_dates = fgd_df[
+        (test_datetime.isnull()) & (fgd_df.so2_test_date.notnull())
+    ].so2_test_date.unique()
+    logger.info(f"Dropping SO2 test dates that were not parseable: {dropped_dates}")
     fgd_df.loc[:, "so2_test_date"] = test_datetime
 
     # Handle mixed boolean types in control flag column
@@ -1471,10 +1470,8 @@ def core_eia923__yearly_fgd_operation_maintenance(
         ~((dup_filt) & (fgd_df.isna().sum(axis=1) >= len(fgd_df.columns) - 4))
     ]
 
-    fgd_df = (
+    return (
         pudl.metadata.classes.Package.from_resource_ids()
         .get_resource("core_eia923__yearly_fgd_operation_maintenance")
         .encode(fgd_df)
     )
-
-    return fgd_df
