@@ -129,12 +129,12 @@ pytest-coverage: coverage-erase docs-build pytest-ci
 
 .PHONY: pytest-integration-full
 pytest-integration-full:
-	pytest ${pytest_args} -n auto --live-dbs --etl-settings ${etl_full_yml} test/integration
+	pytest ${pytest_args} -n 4 --no-cov --live-dbs --etl-settings ${etl_full_yml} test/integration
 
 .PHONY: pytest-validate
 pytest-validate:
 	pudl_check_fks
-	pytest ${pytest_args} -n auto --live-dbs test/validate
+	pytest ${pytest_args} -n 4 --no-cov --live-dbs test/validate
 
 # Run the full ETL, generating new FERC & PUDL SQLite DBs and EPA CEMS Parquet files.
 # Then run the full integration tests and data validations on all years of data.
@@ -144,8 +144,8 @@ pytest-validate:
 .PHONY: nuke
 nuke: coverage-erase docs-build pytest-unit ferc pudl
 	pudl_check_fks
-	pytest ${pytest_args} -n auto --live-dbs --etl-settings ${etl_full_yml} test/integration
-	pytest ${pytest_args} -n auto --live-dbs test/validate
+	pytest ${pytest_args} -n 4 --live-dbs --etl-settings ${etl_full_yml} test/integration
+	pytest ${pytest_args} -n 4 --live-dbs test/validate
 	coverage report
 
 # Check that designated Jupyter notebooks can be run against the current DB

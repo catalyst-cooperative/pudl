@@ -210,8 +210,8 @@ class ExcelExtractor(GenericExtractor):
         """Produce the ExcelFile object for the given (partition, page).
 
         Args:
-            page: pudl name for the dataset contents, eg
-                  "boiler_generator_assn" or "coal_stocks"
+            page: pudl name for the dataset contents, eg "boiler_generator_assn" or
+                "coal_stocks",
             partition: partition to load. Examples:
                 {'year': 2009}
                 {'year_month': '2020-08'}
@@ -234,7 +234,7 @@ class ExcelExtractor(GenericExtractor):
                 res = self.ds.get_unique_resource(
                     self._dataset_name, name=xlsx_filename
                 )
-                excel_file = pd.ExcelFile(res)
+                excel_file = pd.ExcelFile(res, engine="calamine")
             except KeyError:
                 with self.ds.get_zipfile_resource(
                     self._dataset_name,
@@ -251,7 +251,9 @@ class ExcelExtractor(GenericExtractor):
                                 df, index=False
                             )
                     else:
-                        excel_file = pd.ExcelFile(BytesIO(zf.read(xlsx_filename)))
+                        excel_file = pd.ExcelFile(
+                            BytesIO(zf.read(xlsx_filename)), engine="calamine"
+                        )
             finally:
                 self._file_cache[xlsx_filename] = excel_file
         # TODO(rousik): this _file_cache could be replaced with @cache or @memoize annotations

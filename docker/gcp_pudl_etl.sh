@@ -71,7 +71,7 @@ function run_pudl_etl() {
 
 function save_outputs_to_gcs() {
     echo "Copying outputs to GCP bucket $PUDL_GCS_OUTPUT" && \
-    gsutil -m cp -r "$PUDL_OUTPUT" "$PUDL_GCS_OUTPUT" && \
+    gsutil -q -m cp -r "$PUDL_OUTPUT" "$PUDL_GCS_OUTPUT" && \
     rm -f "$PUDL_OUTPUT/success"
 }
 
@@ -85,14 +85,14 @@ function upload_to_dist_path() {
         # If the old outputs don't exist, these will exit with status 1, so we
         # don't && them with the rest of the commands.
         echo "Removing old outputs from $GCS_PATH."
-        gsutil -m -u "$GCP_BILLING_PROJECT" rm -r "$GCS_PATH"
+        gsutil -q -m -u "$GCP_BILLING_PROJECT" rm -r "$GCS_PATH"
         echo "Removing old outputs from $AWS_PATH."
-        aws s3 rm --recursive "$AWS_PATH"
+        aws s3 rm --quiet --recursive "$AWS_PATH"
 
         echo "Copying outputs to $GCS_PATH:" && \
-        gsutil -m -u "$GCP_BILLING_PROJECT" cp -r "$PUDL_OUTPUT/*" "$GCS_PATH" && \
+        gsutil -q -m -u "$GCP_BILLING_PROJECT" cp -r "$PUDL_OUTPUT/*" "$GCS_PATH" && \
         echo "Copying outputs to $AWS_PATH" && \
-        aws s3 cp --recursive "$PUDL_OUTPUT/" "$AWS_PATH"
+        aws s3 cp --quiet --recursive "$PUDL_OUTPUT/" "$AWS_PATH"
     else
         echo "No distribution path provided. Not updating outputs."
         exit 1
@@ -113,12 +113,12 @@ function distribute_parquet() {
             DIST_PATH="$BUILD_REF"
         fi
         echo "Copying outputs to $PARQUET_BUCKET/$DIST_PATH" && \
-        gsutil -m -u "$GCP_BILLING_PROJECT" cp -r "$PUDL_OUTPUT/parquet/*" "$PARQUET_BUCKET/$DIST_PATH"
+        gsutil -q -m -u "$GCP_BILLING_PROJECT" cp -r "$PUDL_OUTPUT/parquet/*" "$PARQUET_BUCKET/$DIST_PATH"
 
         # If running a tagged release, ALSO update the stable distribution bucket path:
         if [[ "$GITHUB_ACTION_TRIGGER" == "push" && "$BUILD_REF" == v20* ]]; then
             echo "Copying outputs to $PARQUET_BUCKET/stable" && \
-            gsutil -m -u "$GCP_BILLING_PROJECT" cp -r "$PUDL_OUTPUT/parquet/*" "$PARQUET_BUCKET/stable"
+            gsutil -q -m -u "$GCP_BILLING_PROJECT" cp -r "$PUDL_OUTPUT/parquet/*" "$PARQUET_BUCKET/stable"
         fi
     fi
 }
@@ -175,6 +175,7 @@ function notify_slack() {
     message+="DATASETTE_SUCCESS: $DATASETTE_SUCCESS\n"
     message+="CLEAN_UP_OUTPUTS_SUCCESS: $CLEAN_UP_OUTPUTS_SUCCESS\n"
     message+="DISTRIBUTION_BUCKET_SUCCESS: $DISTRIBUTION_BUCKET_SUCCESS\n"
+    message+="GCS_TEMPORARY_HOLD_SUCCESS: $GCS_TEMPORARY_HOLD_SUCCESS \n"
     message+="ZENODO_SUCCESS: $ZENODO_SUCCESS\n\n"
 
     message+="*Query* logs on <https://console.cloud.google.com/batch/jobsDetail/regions/us-west1/jobs/run-etl-$BUILD_ID/logs?project=catalyst-cooperative-pudl|Google Batch Console>.\n\n"
@@ -228,6 +229,7 @@ DISTRIBUTE_PARQUET_SUCCESS=0
 CLEAN_UP_OUTPUTS_SUCCESS=0
 DISTRIBUTION_BUCKET_SUCCESS=0
 ZENODO_SUCCESS=0
+GCS_TEMPORARY_HOLD_SUCCESS=0
 
 # Set these variables *only* if they are not already set by the container or workflow:
 : "${PUDL_GCS_OUTPUT:=gs://builds.catalyst.coop/$BUILD_ID}"
@@ -281,10 +283,16 @@ if [[ $ETL_SUCCESS == 0 ]]; then
         zenodo_data_release "$ZENODO_TARGET_ENV" 2>&1 | tee -a "$LOGFILE"
         ZENODO_SUCCESS=${PIPESTATUS[0]}
     fi
+    # If running a tagged release, ensure that outputs can't be accidentally deleted
+    # It's not clear that an object lock can be applied in S3 with the AWS CLI
+    if [[ "$GITHUB_ACTION_TRIGGER" == "push" && "$BUILD_REF" == v20* ]]; then
+        gsutil -m -u catalyst-cooperative-pudl retention temp set "gs://pudl.catalyst.coop/$BUILD_REF/*" 2>&1 | tee -a "$LOGFILE"
+        GCS_TEMPORARY_HOLD_SUCCESS=${PIPESTATUS[0]}
+    fi
 fi
 
 # This way we also save the logs from latter steps in the script
-gsutil cp "$LOGFILE" "$PUDL_GCS_OUTPUT"
+gsutil -q cp "$LOGFILE" "$PUDL_GCS_OUTPUT"
 
 # Notify slack about entire pipeline's success or failure;
 if [[ $ETL_SUCCESS == 0 && \
@@ -295,6 +303,7 @@ if [[ $ETL_SUCCESS == 0 && \
       $DISTRIBUTE_PARQUET_SUCCESS == 0 && \
       $CLEAN_UP_OUTPUTS_SUCCESS == 0 && \
       $DISTRIBUTION_BUCKET_SUCCESS == 0 && \
+      $GCS_TEMPORARY_HOLD_SUCCESS == 0 && \
       $ZENODO_SUCCESS == 0
 ]]; then
     notify_slack "success"

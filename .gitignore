@@ -30,6 +30,8 @@ environments/user-environment.yml
 .vscode/*
 commit.txt
 devtools/profiles/
+mlruns/
+experiments.sqlite
 notebooks/*.pkl.gz
 notebooks/*.tgz
 **/.~lock*#

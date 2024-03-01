@@ -8,11 +8,13 @@ want to do that programmatically, which means using some clustering / categoriza
 tools from scikit-learn
 """
 
+import mlflow
 import pandas as pd
-from dagster import graph_asset, op
+from dagster import graph, op
 
 import pudl
-from pudl.analysis.record_linkage import embed_dataframe, model_helpers
+from pudl.analysis.ml_tools import experiment_tracking, models
+from pudl.analysis.record_linkage import embed_dataframe
 from pudl.analysis.record_linkage.link_cross_year import link_ids_cross_year
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -85,7 +87,9 @@ ferc_dataframe_embedder = embed_dataframe.dataframe_embedder_factory(
 
 @op
 def plants_steam_validate_ids(
-    ferc1_steam_df: pd.DataFrame, label_df: pd.DataFrame
+    ferc_to_ferc_tracker: experiment_tracking.ExperimentTracker,
+    ferc1_steam_df: pd.DataFrame,
+    label_df: pd.DataFrame,
 ) -> pd.DataFrame:
     """Tests that plant_id_ferc1 times series includes one record per year.
 
@@ -113,6 +117,11 @@ def plants_steam_validate_ids(
         .reset_index()
         .query("year_dupes>1")
     )
+
+    ferc_to_ferc_tracker.execute_logging(
+        lambda: mlflow.log_metric("year_duplicates", len(year_dupes))
+    )
+
     if len(year_dupes) > 0:
         for dupe in year_dupes.itertuples():
             logger.error(
@@ -142,8 +151,13 @@ def merge_steam_fuel_dfs(
     ).astype({"plant_type": str, "construction_type": str})
 
 
-@graph_asset(config=model_helpers.get_model_config("ferc_to_ferc"))
-def _out_ferc1__yearly_steam_plants_sched402_with_plant_ids(
+@models.pudl_model(
+    "_out_ferc1__yearly_steam_plants_sched402_with_plant_ids",
+    config_from_yaml=True,
+)
+@graph
+def ferc_to_ferc(
+    experiment_tracker: experiment_tracking.ExperimentTracker,
     core_ferc1__yearly_steam_plants_sched402: pd.DataFrame,
     out_ferc1__yearly_steam_plants_fuel_by_plant_sched402: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -159,7 +173,9 @@ def _out_ferc1__yearly_steam_plants_sched402_with_plant_ids(
         core_ferc1__yearly_steam_plants_sched402,
         out_ferc1__yearly_steam_plants_fuel_by_plant_sched402,
     )
-    feature_matrix = ferc_dataframe_embedder(input_df)
-    label_df = link_ids_cross_year(input_df, feature_matrix)
+    feature_matrix = ferc_dataframe_embedder(input_df, experiment_tracker)
+    label_df = link_ids_cross_year(input_df, feature_matrix, experiment_tracker)
 
-    return plants_steam_validate_ids(core_ferc1__yearly_steam_plants_sched402, label_df)
+    return plants_steam_validate_ids(
+        experiment_tracker, core_ferc1__yearly_steam_plants_sched402, label_df
+    )

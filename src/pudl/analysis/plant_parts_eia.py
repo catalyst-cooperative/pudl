@@ -1,51 +1,49 @@
 """Aggregate plant parts to make an EIA master plant-part table.
 
-Practically speaking, a plant is a collection of generator(s). There are many
-attributes of generators (i.e. prime mover, primary fuel source, technology
-type). We can use these generator attributes to group generator records into
-larger aggregate records which we call "plant-parts". A plant part is a record
-which corresponds to a particular collection of generators that all share an
-identical attribute. E.g. all of the generators with unit_id=2, or all of the
-generators with coal as their primary fuel source.
+Practically speaking, a plant is a collection of generator(s). There are many attributes
+of generators (i.e. prime mover, primary fuel source, technology type). We can use these
+generator attributes to group generator records into larger aggregate records which we
+call "plant-parts". A plant part is a record which corresponds to a particular
+collection of generators that all share an identical attribute. E.g. all of the
+generators with unit_id=2, or all of the generators with coal as their primary fuel
+source.
 
-The EIA data about power plants (from EIA 923 and 860) is reported in tables
-with records that correspond to mostly generators and plants. Other datasets
-(cough cough FERC1) are less well organized and include plants, generators and
-other plant-parts all in the same table without any clear labels. The master
-plant-part table is an attempt to create records corresponding to many
-different plant-parts in order to connect specific slices of EIA plants to
-other datasets.
+The EIA data about power plants (from EIA 923 and 860) is reported in tables with
+records that correspond to mostly generators and plants. Other datasets (cough cough
+FERC1) are less well organized and include plants, generators and other plant-parts all
+in the same table without any clear labels. The master plant-part table is an attempt to
+create records corresponding to many different plant-parts in order to connect specific
+slices of EIA plants to other datasets.
 
-Because generators are often owned by multiple utilities, another dimension of
-the plant-part table involves generating two records for each owner: one for the
-portion of the plant part they own and one for the plant part as a whole. The
-portion records are labeled in the ``ownership_record_type`` column as "owned"
-and the total records are labeled as "total".
+Because generators are often owned by multiple utilities, another dimension of the
+plant-part table involves generating two records for each owner: one for the portion of
+the plant part they own and one for the plant part as a whole. The portion records are
+labeled in the ``ownership_record_type`` column as "owned" and the total records are
+labeled as "total".
 
-This module refers to "true granularies". Many plant parts we cobble together
-here in the master plant-part list refer to the same collection of
-infrastructure as other plant-part list records. For example, if we have a
-"plant_prime_mover" plant part record and a "plant_unit" plant part record
-which were both cobbled together from the same two generators. We want to be
-able to reduce the plant-part list to only unique collections of generators,
-so we label the first unique granularity as a true granularity and label the
-subsequent records as false granularities with the ``true_gran`` column. In
-order to choose which plant-part to keep in these instances, we assigned a
-hierarchy of plant parts, the order of the keys in :py:const:`PLANT_PARTS`
-and label whichever plant-part comes first as the unique granularity.
+This module refers to "true granularies". Many plant parts we cobble together here in
+the master plant-part list refer to the same collection of infrastructure as other
+plant-part list records. For example, if we have a "plant_prime_mover" plant part record
+and a "plant_unit" plant part record which were both cobbled together from the same two
+generators. We want to be able to reduce the plant-part list to only unique collections
+of generators, so we label the first unique granularity as a true granularity and label
+the subsequent records as false granularities with the ``true_gran`` column. In order to
+choose which plant-part to keep in these instances, we assigned a hierarchy of plant
+parts, the order of the keys in :py:const:`PLANT_PARTS` and label whichever plant-part
+comes first as the unique granularity.
 
 **Recipe Book for the plant-part list**
 
-:py:const:`PLANT_PARTS` is the main recipe book for how each of the plant-parts
-need to be compiled. These plant-parts represent ways to group generators based
-on widely reported values in EIA. All of these are logical ways to group
-collections of generators - in most cases - but some groupings of generators
-are more prevelant or relevant than others for certain types of plants.
+:py:const:`PLANT_PARTS` is the main recipe book for how each of the plant-parts need to
+be compiled. These plant-parts represent ways to group generators based on widely
+reported values in EIA. All of these are logical ways to group collections of generators
+- in most cases - but some groupings of generators are more prevelant or relevant than
+others for certain types of plants.
 
-The canonical example here is the ``plant_unit``. A unit is a collection of
-generators that operate together - most notably the combined-cycle natural gas
-plants. Combined-cycle units generally consist of a number of gas turbines
-which feed excess steam to a number of steam turbines.
+The canonical example here is the ``plant_unit``. A unit is a collection of generators
+that operate together - most notably the combined-cycle natural gas plants.
+Combined-cycle units generally consist of a number of gas turbines which feed excess
+steam to a number of steam turbines.
 
 >>> df_gens = pd.DataFrame({
 ...     'plant_id_eia': [1, 1, 1],
@@ -161,7 +159,7 @@ Create the :class:`pudl.output.pudltabl.PudlTabl` object:
     import pudl
     from pudl.workspace.setup import PudlPaths
     pudl_engine = sa.create_engine(PudlPaths().pudl_db)
-    pudl_out = pudl.output.pudltabl.PudlTabl(pudl_engine,freq='AS')
+    pudl_out = pudl.output.pudltabl.PudlTabl(pudl_engine,freq='YS')
 
 Then make the table via pudl_out:
 
@@ -781,7 +779,7 @@ class MakePlantParts:
         """
         plant_parts_eia = (
             pudl.helpers.calc_capacity_factor(
-                df=plant_parts_eia, min_cap_fact=-0.5, max_cap_fact=1.5, freq="AS"
+                df=plant_parts_eia, min_cap_fact=-0.5, max_cap_fact=1.5, freq="YS"
             )
             .merge(
                 plants_eia860[["plant_id_eia", "plant_id_pudl"]].drop_duplicates(),
@@ -1432,7 +1430,7 @@ def add_record_id(part_df, id_cols, plant_part_col="plant_part", year=True):
     """
     ids = deepcopy(id_cols)
     # we want the plant id first... mostly just bc it'll be easier to read
-    part_df = part_df.assign(record_id_eia_temp=lambda x: x.plant_id_eia.map(str))
+    part_df = part_df.assign(record_id_eia_temp=lambda x: x.plant_id_eia.astype(str))
     ids.remove("plant_id_eia")
     for col in ids:
         part_df = part_df.assign(
@@ -1577,7 +1575,7 @@ def plant_parts_eia_distinct(plant_parts_eia: pd.DataFrame) -> pd.DataFrame:
     plant_parts_eia = plant_parts_eia.assign(
         plant_id_report_year_util_id=lambda x: x.plant_id_report_year
         + "_"
-        + x.utility_id_pudl.map(str)
+        + x.utility_id_pudl.astype(str)
     ).astype({"installation_year": "float"})
     distinct_ppe = plant_parts_eia[
         (plant_parts_eia["true_gran"]) & (~plant_parts_eia["ownership_dupe"])

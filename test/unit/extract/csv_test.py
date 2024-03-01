@@ -45,7 +45,7 @@ def test_source_filename_multiple_selections():
 def test_load_source(mock_pd):
     extractor = FakeExtractor()
 
-    assert mock_pd.read_csv.return_value == extractor.load_source(PAGE, **PARTITION)
+    assert extractor.load_source(PAGE, **PARTITION) == mock_pd.read_csv.return_value
     extractor.ds.get_zipfile_resource.assert_called_once_with(DATASET, **PARTITION)
     zipfile = extractor.ds.get_zipfile_resource.return_value.__enter__.return_value
     zipfile.open.assert_called_once_with(CSV_FILENAME)
@@ -70,4 +70,4 @@ def test_extract():
     ):
         res = extractor.extract(**PARTITION)
     assert len(res) == 1
-    assert company_data == res[PAGE][company_field][0]
+    assert res[PAGE][company_field][0] == company_data
