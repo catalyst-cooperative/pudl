@@ -29,8 +29,9 @@ ferc_to_sqlite_settings:
 name: pudl-fast
 title: PUDL Fast ETL
 description: >
-  FERC 1 data from 2020 and 2021, EIA 860/923 from 2020 and 2022 (output to SQLite) plus
-  EPA CEMS hourly emissions data from 2020 and 2022 (output to Parquet).
+  An execution of PUDL pipelines that should execute fast.
+  For this we typically process only a couple years per dataset,
+  except where the dataset already executes fast and/or is necessary in all cases.
 version: 0.1.0
 datasets:
   ferc1:
@@ -40,6 +41,10 @@ datasets:
   eia:
     eia176:
       years: [2020, 2022]
+    eia191:
+      years: [2020, 2023]
+    eia757a:
+      years: [2014, 2017]
     eia923:
       years: [2020, 2023]
     eia860:

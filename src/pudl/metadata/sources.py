@@ -78,6 +78,7 @@ SOURCES: dict[str, Any] = {
             "source_format": "JSON",
         },
         "field_namespace": "eia",
+        "working_partitions": {"years": sorted(set(range(2014, 2024)))},
         "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
         "keywords": sorted(
             set(
@@ -107,6 +108,7 @@ SOURCES: dict[str, Any] = {
             "source_format": "JSON",
         },
         "field_namespace": "eia",
+        "working_partitions": {"years": sorted({2012, 2014, 2017})},
         "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
         "keywords": sorted(
             set(

@@ -267,6 +267,30 @@ class Eia860mSettings(GenericDatasetSettings):
         return year_months
 
 
+class Eia757aSettings(GenericDatasetSettings):
+    """An immutable pydantic model to validate EIA 757a settings.
+
+    Args:
+        data_source: DataSource metadata object
+        years: list of years to validate.
+    """
+
+    data_source: ClassVar[DataSource] = DataSource.from_id("eia757a")
+    years: list[int] = data_source.working_partitions["years"]
+
+
+class Eia191Settings(GenericDatasetSettings):
+    """An immutable pydantic model to validate EIA 191 settings.
+
+    Args:
+        data_source: DataSource metadata object
+        years: list of years to validate.
+    """
+
+    data_source: ClassVar[DataSource] = DataSource.from_id("eia191")
+    years: list[int] = data_source.working_partitions["years"]
+
+
 class Eia176Settings(GenericDatasetSettings):
     """An immutable pydantic model to validate EIA 176 settings.
 
@@ -301,6 +325,8 @@ class EiaSettings(FrozenBaseModel):
     """
 
     eia176: Eia176Settings | None = None
+    eia191: Eia191Settings | None = None
+    eia757a: Eia757aSettings | None = None
     eia860: Eia860Settings | None = None
     eia860m: Eia860mSettings | None = None
     eia861: Eia861Settings | None = None
@@ -312,6 +338,8 @@ class EiaSettings(FrozenBaseModel):
         """If no datasets are specified default to all."""
         if not any(data.values()):
             data["eia176"] = Eia176Settings()
+            data["eia191"] = Eia191Settings()
+            data["eia757a"] = Eia757aSettings()
             data["eia860"] = Eia860Settings()
             data["eia860m"] = Eia860mSettings()
             data["eia861"] = Eia861Settings()

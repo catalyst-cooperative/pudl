@@ -1,4 +1,4 @@
-"""Extract EIA Form 176 data from CSVs."""
+"""Extract EIA Form 191 data from CSVs."""
 import pandas as pd
 from dagster import Output, asset
 
@@ -7,7 +7,7 @@ from pudl.extract.extractor import GenericMetadata, PartitionSelection, raw_df_f
 
 
 class Extractor(CsvExtractor):
-    """Extractor for EIA form 176."""
+    """Extractor for EIA form 191."""
 
     def __init__(self, *args, **kwargs):
         """Initialize the module.
@@ -15,13 +15,13 @@ class Extractor(CsvExtractor):
         Args:
             ds (:class:datastore.Datastore): Initialized datastore.
         """
-        self.METADATA = GenericMetadata("eia176")
+        self.METADATA = GenericMetadata("eia191")
         super().__init__(*args, **kwargs)
 
     def get_page_cols(self, page: str, partition_key: str) -> list[str]:
         """Get the columns for a particular page and partition key.
 
-        EIA 176 data has the same set of columns for all years,
+        EIA 191 data has the same set of columns for all years,
         so regardless of the partition key provided we select the same columns here.
         """
         return super().get_page_cols(page, "any_year")
@@ -35,16 +35,16 @@ class Extractor(CsvExtractor):
         return df.assign(report_year=selection)
 
 
-raw_eia176__all_dfs = raw_df_factory(Extractor, name="eia176")
+raw_eia191__all_dfs = raw_df_factory(Extractor, name="eia191")
 
 
 @asset(
     required_resource_keys={"datastore", "dataset_settings"},
 )
-def raw_eia176__data(raw_eia176__all_dfs):
+def raw_eia191__data(raw_eia191__all_dfs):
     """Extract raw EIA company data from CSV sheets into dataframes.
 
     Returns:
-        An extracted EIA 176 dataframe.
+        An extracted EIA 191 dataframe.
     """
-    return Output(value=raw_eia176__all_dfs["data"])
+    return Output(value=raw_eia191__all_dfs["data"])

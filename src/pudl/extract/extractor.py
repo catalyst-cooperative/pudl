@@ -1,6 +1,6 @@
 """Generic functionality for extractors."""
 import importlib.resources
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from collections import defaultdict
 
 import pandas as pd
@@ -55,15 +55,13 @@ class GenericMetadata:
         """Returns the name of the dataset described by this metadata."""
         return self._dataset_name
 
-    @staticmethod
-    def _load_csv(package: str, filename: str) -> pd.DataFrame:
+    def _load_csv(self, package: str, filename: str) -> pd.DataFrame:
         """Load metadata from a filename that is found in a package."""
         return pd.read_csv(
             importlib.resources.files(package) / filename, index_col=0, comment="#"
         )
 
-    @staticmethod
-    def _get_partition_selection(partition: dict[str, PartitionSelection]) -> str:
+    def _get_partition_selection(self, partition: dict[str, PartitionSelection]) -> str:
         """Grab the partition key."""
         partition_names = list(partition.keys())
         if len(partition_names) != 1:
@@ -88,7 +86,7 @@ class GenericMetadata:
         return sorted(self._column_map[page].T.columns)
 
 
-class GenericExtractor:
+class GenericExtractor(ABC):
     """Generic extractor base class."""
 
     METADATA: GenericMetadata = None
@@ -148,9 +146,8 @@ class GenericExtractor:
         """Takes any special steps for processing raw data and renaming columns."""
         return df
 
-    @staticmethod
     def process_renamed(
-        df: pd.DataFrame, page: str, **partition: PartitionSelection
+        self, df: pd.DataFrame, page: str, **partition: PartitionSelection
     ) -> pd.DataFrame:
         """Takes any special steps for processing data after columns are renamed."""
         return df
@@ -291,6 +288,10 @@ def year_extractor_factory(
         name: Name of an Excel based dataset (e.g. "eia860").
     """
 
+    @op(
+        required_resource_keys={"datastore", "dataset_settings"},
+        name=f"extract_single_{name}_year",
+    )
     def extract_single_year(context, year: int) -> dict[str, pd.DataFrame]:
         """A function that extracts a year of spreadsheet data from an Excel file.
 
@@ -306,10 +307,7 @@ def year_extractor_factory(
         ds = context.resources.datastore
         return extractor_cls(ds).extract(year=[year])
 
-    return op(
-        required_resource_keys={"datastore", "dataset_settings"},
-        name=f"extract_single_{name}_year",
-    )(extract_single_year)
+    return extract_single_year
 
 
 def years_from_settings_factory(name: str) -> OpDefinition:
@@ -320,6 +318,11 @@ def years_from_settings_factory(name: str) -> OpDefinition:
 
     """
 
+    @op(
+        out=DynamicOut(),
+        required_resource_keys={"dataset_settings"},
+        name=f"{name}_years_from_settings",
+    )
     def years_from_settings(context) -> DynamicOutput:
         """Produce target years for the given dataset from the dataset settings object.
 
@@ -338,11 +341,7 @@ def years_from_settings_factory(name: str) -> OpDefinition:
         for year in getattr(year_settings, name).years:
             yield DynamicOutput(year, mapping_key=str(year))
 
-    return op(
-        out=DynamicOut(),
-        required_resource_keys={"dataset_settings"},
-        name=f"{name}_years_from_settings",
-    )(years_from_settings)
+    return years_from_settings
 
 
 def raw_df_factory(
