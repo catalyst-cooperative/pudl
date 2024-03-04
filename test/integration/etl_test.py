@@ -75,17 +75,37 @@ def test_ferc1_xbrl2sqlite(ferc1_engine_xbrl: sa.Engine, ferc1_xbrl_taxonomy_met
 
 
 class TestCsvExtractor:
-    """Verify that we can lead CSV files as provided via the datastore."""
+    """Verify that we can load CSV files as provided via the datastore."""
 
     def test_extract_eia176(self, pudl_datastore_fixture):
         """Spot check extraction of eia176 csv files."""
-        dataset = "eia176"
-        table_file_map = pudl.extract.csv.get_table_file_map(dataset)
-        with pudl_datastore_fixture.get_zipfile_resource(dataset) as zf:
-            extractor = pudl.extract.csv.CsvExtractor(zf, table_file_map)
-            table = "company"
-            if table not in extractor.extract_all():
-                raise AssertionError(f"table {table} not found in datastore")
+        extractor = pudl.extract.eia176.Extractor(pudl_datastore_fixture)
+        page = "data"
+        year = 2018
+        if "company" not in extractor.load_source(page=page, year=year).columns:
+            raise AssertionError(f"page {page} not found in datastore for {year}")
+
+    def test_extract_eia191(self, pudl_datastore_fixture):
+        """Spot check extraction of eia191 csv files."""
+        extractor = pudl.extract.eia191.Extractor(pudl_datastore_fixture)
+        page = "data"
+        year = 2018
+        if (
+            "working_gas_capacity_(mcf)"
+            not in extractor.load_source(page=page, year=year).columns
+        ):
+            raise AssertionError(f"page {page} not found in datastore for {year}")
+
+    def test_extract_eia757a(self, pudl_datastore_fixture):
+        """Spot check extraction of eia757a csv files."""
+        extractor = pudl.extract.eia757a.Extractor(pudl_datastore_fixture)
+        page = "data"
+        year = 2017
+        if (
+            "ng_liquid_storage_capacity"
+            not in extractor.load_source(page=page, year=year).columns
+        ):
+            raise AssertionError(f"page {page} not found in datastore for {year}")
 
 
 class TestExcelExtractor:
@@ -151,10 +171,7 @@ class TestExcelExtractor:
         extractor = pudl.extract.eia860.Extractor(pudl_datastore_fixture)
         page = "ownership"
         year = 2018
-        if (
-            "Ownership"
-            not in extractor.load_source(page="ownership", year=2018).sheet_names
-        ):
+        if "Ownership ID" not in extractor.load_source(page=page, year=year).columns:
             raise AssertionError(f"page {page} not found in datastore for {year}")
 
     def test_extract_eia923(self, pudl_datastore_fixture):
@@ -162,10 +179,7 @@ class TestExcelExtractor:
         extractor = pudl.extract.eia923.Extractor(pudl_datastore_fixture)
         page = "stocks"
         year = 2018
-        if (
-            "Page 3 Boiler Fuel Data"
-            not in extractor.load_source(page=page, year=year).sheet_names
-        ):
+        if "Oil\r\nJune" not in extractor.load_source(page=page, year=year).columns:
             raise AssertionError(f"page {page} not found in datastore for {year}")
 
 

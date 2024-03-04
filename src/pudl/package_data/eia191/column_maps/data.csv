@@ -15,6 +15,4 @@ base_gas,base_gas
 working_gas_capacity_mcf,working_gas_capacity_mcf
 total_field_capacity_mcf,total_field_capacity_mcf
 maximum_daily_delivery_mcf,maximum_daily_delivery_mcf
-total_field_capacity_(mcf),total_field_capacity_
-maximum_daily_delivery_(mcf),maximum_daily_delivery_
 region,region
