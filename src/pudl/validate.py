@@ -163,13 +163,12 @@ def group_mean_continuity_check(
     thresholds: dict[str, float],
     groupby_col: str,
     n_outliers_allowed: int = 0,
-):
+) -> AssetCheckResult:
     """Check that certain variables don't vary by too much.
 
     Groups and sorts the data by ``groupby_col``, then takes the mean across
     each group. Useful for saying something like "the average water usage of
     cooling systems didn't jump by 10x from 2012-2013."
-
 
     Args:
         df: the df with the actual data
@@ -191,7 +190,6 @@ def group_mean_continuity_check(
     metadata = {
         col: {
             "top5": list(pct_change[col][discontinuity[col]].nlargest(n=5)),
-            # "numOverThreshold": discontinuity[col].sum(),
             "threshold": thresholds[col],
         }
         for col in thresholds

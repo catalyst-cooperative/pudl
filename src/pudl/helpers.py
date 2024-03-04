@@ -982,7 +982,7 @@ def convert_to_date(
         day_col: the name of the day column in the original table.
         month_na_value: generated month if no month exists or if the month
             value is NA.
-        day_na_value: generated day if no day exists.
+        day_na_value: generated day if no day exists or if the day value is NA.
 
     Returns:
         A DataFrame in which the year, month, day columns values have been converted

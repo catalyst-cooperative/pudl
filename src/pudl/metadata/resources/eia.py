@@ -36,6 +36,18 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
+    "core_eia__codes_cooling_water_sources": {
+        "description": "A coding table describing different types of cooling water sources in EIA-860.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {"fields": [["boiler_type"]]},
+        },
+        "encoder": CODE_METADATA["core_eia__codes_cooling_water_sources"],
+        "sources": ["eia860"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
     "core_eia__entity_boilers": {
         "description": "Static boiler attributes compiled from the EIA-860 and EIA-923 data.",
         "schema": {
