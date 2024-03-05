@@ -265,16 +265,20 @@ def get_best_matches(
         f"   False negatives: {false_neg}\n"
         f"   Precision:       {true_pos/(true_pos + false_pos):.03}\n"
         f"   Recall:          {true_pos/(true_pos + false_neg):.03}\n"
+        f"   Accuracy:        {true_pos/len(train_df):.03}\n"
         "Precision = of the training data FERC records that the model predicted a match for, this percentage was correct.\n"
         "A measure of accuracy when the model makes a prediction.\n"
         "Recall = of all of the training data FERC records, the model predicted a match for this percentage.\n"
-        "A measure of coverage of FERC records."
+        "A measure of the coverage of FERC records in the predictions.\n"
+        "Accuracy = what percentage of the training data did the model correctly predict.\n"
+        "A measure of overall correctness."
     )
     experiment_tracker.execute_logging(
         lambda: mlflow.log_metrics(
             {
                 "precision": round(true_pos / (true_pos + false_pos), 3),
                 "recall": round(true_pos / (true_pos + false_neg), 3),
+                "accuracy": round(true_pos / len(train_df), 3),
             }
         )
     )
