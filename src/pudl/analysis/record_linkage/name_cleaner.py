@@ -257,16 +257,16 @@ class CompanyNameCleaner(BaseModel):
         return clean_company_name
 
     def apply_name_cleaning(
-        self,
-        df: pd.DataFrame,
+        self, df: pd.DataFrame, return_as_dframe: bool = False
     ) -> pd.DataFrame:
         """Clean up text names in a dataframe.
 
         Arguments:
             df (dataframe): the input dataframe that contains the text's name to be cleaned
-            in_company_name_attribute (str): the attribute in the dataframe that contains the names
-            out_company_name_attribute (str): the attribute to be created for the clean version of
-                the text's name
+            return_as_dframe (bool): whether to return the cleaned data as a dataframe or series.
+                Useful to return as a dataframe if used in a cleaning pipeline with no
+                vectorization step after name cleaning. If multiple columns are passed in for
+                cleaning then output will be a dataframe regardless of this parameter.
 
         Returns:
             df (dataframe): the clean version of the input dataframe
@@ -278,4 +278,7 @@ class CompanyNameCleaner(BaseModel):
                     [clean_df, df[col].apply(self.get_clean_data)], axis=1
                 )
             return clean_df
-        return df.squeeze().apply(self.get_clean_data).to_frame()
+        out = df.squeeze().apply(self.get_clean_data)
+        if return_as_dframe:
+            return out.to_frame()
+        return out
