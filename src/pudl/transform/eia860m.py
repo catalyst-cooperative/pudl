@@ -14,22 +14,24 @@ def core_eia860m__changelog_generators(
     raw_eia860m__generator_existing,
     raw_eia860m__generator_retired,
 ):
-    """Changelog of EIA860m Generators based on operating status.
+    """Changelog of EIA-860M Generators based on operating status.
 
-    The monthly reported EIA80m tables includes existing, proposed and retired
+    The monthly reported EIA-860M tables includes existing, proposed and retired
     generators. This table combines all monthly reported data and preserves the first
     reported record when any new information about the generator was reported.
 
     We are not putting this table through PUDL's standard normalization process for EIA
-    tables (see :func:pudl.transform.eia.harvest_entity_tables). EIA-860m includes
+    tables (see :func:`pudl.transform.eia.harvest_entity_tables`). EIA-860M includes
     provisional data reported monthly so it changes frequently compared to the more
-    stable annually reported EIA data. If we fed all of the EIA-860m data into the
+    stable annually reported EIA data. If we fed all of the EIA-860M data into the
     harvesting process, we would get failures because the records from EIA-80m are too
     inconsistent for our thresholds for harvesting canonical values for entities. A
     ramification of this table not being harvested is that if there are any entities
-    (generators, plants, utilities) that were only ever reported in an older 860m file,
-    there will be no record of it in the PUDL entity or scd tables. Therefor, this
-    asset cannot have foreign key relationships with the rest of the core EIA tables.
+    (generators, plants, utilities) that were only ever reported in an older EIA-860M
+    file, there will be no record of it in the PUDL entity or SCD tables. Therefore,
+    this asset cannot have foreign key relationships with the rest of the core EIA
+    tables.
+
     """
     # compile all of the columns so these 860m bbs have everything for the transform
     eia860_columns = pudl.helpers.dedupe_n_flatten_list_of_lists(
@@ -56,8 +58,27 @@ def core_eia860m__changelog_generators(
         raw_eia860__generator=pd.DataFrame(
             columns=list(eia860_columns)
         ).convert_dtypes(),
-    )[
-        # drop all the non 860m cols
+    ).assign(
+        # In order to be able to compare the values in this table to those reported
+        # elsewhere, we need to translate these categories to the associated codes, as
+        # the strings associated with the codes vary from table to table. See the
+        # core_eia__codes_sector_consolidated table for the canonical definition of the
+        # codes.
+        sector_id_eia=lambda df: df["sector_name_eia"].map(
+            {
+                "Electric Utility": 1,
+                "IPP Non-CHP": 2,
+                "IPP CHP": 3,
+                "Commercial Non-CHP": 4,
+                "Commercial CHP": 5,
+                "Industrial Non-CHP": 6,
+                "Industrial CHP": 7,
+            }
+        )
+    )
+
+    # Drop all columns that aren't part of EIA-860M prior to deduplication.
+    eia860m_all = eia860m_all[
         [
             field.name
             for field in pudl.metadata.classes.Resource.from_id(
@@ -69,8 +90,10 @@ def core_eia860m__changelog_generators(
     # there is one plant/gen that has duplicate values
     gens_idx = ["plant_id_eia", "generator_id", "report_date"]
     dupe_mask = (eia860m_all.plant_id_eia == 56032) & (eia860m_all.generator_id == "1")
-    deduped = eia860m_all[dupe_mask].drop_duplicates(subset=gens_idx, keep="first")
-    without_known_dupes = eia860m_all[~dupe_mask]
+    deduped: pd.DataFrame = eia860m_all[dupe_mask].drop_duplicates(
+        subset=gens_idx, keep="first"
+    )
+    without_known_dupes: pd.DataFrame = eia860m_all[~dupe_mask]
     eia860m_deduped = pd.concat([without_known_dupes, deduped])
 
     # Check whether we have truly deduplicated the dataframe.

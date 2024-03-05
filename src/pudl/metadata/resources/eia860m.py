@@ -1,4 +1,5 @@
 """Definitions of data tables primarily coming from EIA-860m."""
+
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
@@ -23,6 +24,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "utility_id_eia",
                 "utility_name_eia",
                 "generator_id",
+                "balancing_authority_code_eia",
                 "capacity_mw",
                 "county",
                 "current_planned_generator_operating_date",
@@ -42,6 +44,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "planned_net_summer_capacity_uprate_mw",
                 "planned_uprate_date",
                 "prime_mover_code",
+                "sector_id_eia",
                 "state",
                 "summer_capacity_mw",
                 "technology_description",
