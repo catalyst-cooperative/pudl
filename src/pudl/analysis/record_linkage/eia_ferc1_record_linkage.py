@@ -265,7 +265,7 @@ def get_best_matches(
         f"   False negatives: {false_neg}\n"
         f"   Precision:       {true_pos/(true_pos + false_pos):.03}\n"
         f"   Recall:          {true_pos/(true_pos + false_neg):.03}\n"
-        f"   Accuracy:        {true_pos/len(train_df)}\n"
+        f"   Accuracy:        {true_pos/len(train_df):.03}\n"
         "Precision = of the training data FERC records that the model predicted a match for, this percentage was correct.\n"
         "A measure of accuracy when the model makes a prediction.\n"
         "Recall = of all of the training data FERC records, the model predicted a match for this percentage.\n"
