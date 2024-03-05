@@ -2147,7 +2147,7 @@ package:
     category: main
     optional: false
   - name: botocore
-    version: 1.34.55
+    version: 1.34.56
     manager: conda
     platform: linux-64
     dependencies:
@@ -2155,14 +2155,14 @@ package:
       python: ">=3.10"
       python-dateutil: ">=2.1,<3.0.0"
       urllib3: ">=1.25.4,<2.1"
-    url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.34.55-pyge310_1234567_1.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.34.56-pyge310_1234567_0.conda
     hash:
-      md5: ab2360d90fad772c09a2b94a2d1a52a9
-      sha256: 0e477b997925854674500f69b09d6da88e6e2791b7bcf773a0e46d671a7085a1
+      md5: ba89266bc25774ca247ba55e83c9a308
+      sha256: e2f905cc4e68edf1b1e711bc24ccc71e4a430bbce36d48a4044fef7714f5287a
     category: main
     optional: false
   - name: botocore
-    version: 1.34.55
+    version: 1.34.56
     manager: conda
     platform: osx-64
     dependencies:
@@ -2170,14 +2170,14 @@ package:
       jmespath: ">=0.7.1,<2.0.0"
       python: ">=3.10"
       urllib3: ">=1.25.4,<2.1"
-    url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.34.55-pyge310_1234567_1.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.34.56-pyge310_1234567_0.conda
     hash:
-      md5: ab2360d90fad772c09a2b94a2d1a52a9
-      sha256: 0e477b997925854674500f69b09d6da88e6e2791b7bcf773a0e46d671a7085a1
+      md5: ba89266bc25774ca247ba55e83c9a308
+      sha256: e2f905cc4e68edf1b1e711bc24ccc71e4a430bbce36d48a4044fef7714f5287a
     category: main
     optional: false
   - name: botocore
-    version: 1.34.55
+    version: 1.34.56
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -2185,10 +2185,10 @@ package:
       jmespath: ">=0.7.1,<2.0.0"
       python: ">=3.10"
       urllib3: ">=1.25.4,<2.1"
-    url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.34.55-pyge310_1234567_1.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.34.56-pyge310_1234567_0.conda
     hash:
-      md5: ab2360d90fad772c09a2b94a2d1a52a9
-      sha256: 0e477b997925854674500f69b09d6da88e6e2791b7bcf773a0e46d671a7085a1
+      md5: ba89266bc25774ca247ba55e83c9a308
+      sha256: e2f905cc4e68edf1b1e711bc24ccc71e4a430bbce36d48a4044fef7714f5287a
     category: main
     optional: false
   - name: bottleneck
@@ -6774,29 +6774,29 @@ package:
     category: main
     optional: false
   - name: google-cloud-sdk
-    version: 466.0.0
+    version: 467.0.0
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/google-cloud-sdk-466.0.0-py311h6eed73b_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/google-cloud-sdk-467.0.0-py311h6eed73b_0.conda
     hash:
-      md5: 18678b6a74cd5e693e8343cb38939de0
-      sha256: c8bc0ddd9406f1b5ad64ecf75c22e66311237e595f75c4454962771f30c57f7c
+      md5: a8815e150ec1b49ae017bf907074e094
+      sha256: 07f671f433e955de79e1662783ae3a0350357cbf3314fbd0cf95748415c1924e
     category: main
     optional: false
   - name: google-cloud-sdk
-    version: 466.0.0
+    version: 467.0.0
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.11,<3.12.0a0"
       python_abi: 3.11.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/google-cloud-sdk-466.0.0-py311h267d04e_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/google-cloud-sdk-467.0.0-py311h267d04e_0.conda
     hash:
-      md5: 744f372f3c12b9ac0bde94161524bdee
-      sha256: 91676d6e6ebd8bcebbd1ee128c90af9a3b0969e416cd027bf7b237a20b889000
+      md5: 5ca00c47c89e651f6bff427876db1b6c
+      sha256: 267a7367784e500b09792fc8ecb04b148d67a503d824b10afa3b6498049886fb
     category: main
     optional: false
   - name: google-cloud-storage
@@ -9513,45 +9513,45 @@ package:
     category: main
     optional: false
   - name: jupyter-lsp
-    version: 2.2.3
+    version: 2.2.4
     manager: conda
     platform: linux-64
     dependencies:
       importlib-metadata: ">=4.8.3"
       jupyter_server: ">=1.1.2"
       python: ">=3.8"
-    url: https://conda.anaconda.org/conda-forge/noarch/jupyter-lsp-2.2.3-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/jupyter-lsp-2.2.4-pyhd8ed1ab_0.conda
     hash:
-      md5: 109a271f538a41ff46e9033fdd71c335
-      sha256: addac479dff3431131e1f4be352779bd4a6802b6f01f762db3dd276af02e3d7b
+      md5: 91f93e1ebf6535be518715432d89fd92
+      sha256: 8000b1904a2a10cf039b46305781128e1a93da4c2fd857445b4924ecf3535bdb
     category: main
     optional: false
   - name: jupyter-lsp
-    version: 2.2.3
+    version: 2.2.4
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.8"
       importlib-metadata: ">=4.8.3"
       jupyter_server: ">=1.1.2"
-    url: https://conda.anaconda.org/conda-forge/noarch/jupyter-lsp-2.2.3-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/jupyter-lsp-2.2.4-pyhd8ed1ab_0.conda
     hash:
-      md5: 109a271f538a41ff46e9033fdd71c335
-      sha256: addac479dff3431131e1f4be352779bd4a6802b6f01f762db3dd276af02e3d7b
+      md5: 91f93e1ebf6535be518715432d89fd92
+      sha256: 8000b1904a2a10cf039b46305781128e1a93da4c2fd857445b4924ecf3535bdb
     category: main
     optional: false
   - name: jupyter-lsp
-    version: 2.2.3
+    version: 2.2.4
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.8"
       importlib-metadata: ">=4.8.3"
       jupyter_server: ">=1.1.2"
-    url: https://conda.anaconda.org/conda-forge/noarch/jupyter-lsp-2.2.3-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/jupyter-lsp-2.2.4-pyhd8ed1ab_0.conda
     hash:
-      md5: 109a271f538a41ff46e9033fdd71c335
-      sha256: addac479dff3431131e1f4be352779bd4a6802b6f01f762db3dd276af02e3d7b
+      md5: 91f93e1ebf6535be518715432d89fd92
+      sha256: 8000b1904a2a10cf039b46305781128e1a93da4c2fd857445b4924ecf3535bdb
     category: main
     optional: false
   - name: jupyter-resource-usage
