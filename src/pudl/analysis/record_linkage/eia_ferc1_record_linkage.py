@@ -202,9 +202,9 @@ def get_training_data_df(inputs):
     )
     train_df.loc[:, "source_dataset_r"] = "ferc_df"
     train_df.loc[:, "source_dataset_l"] = "eia_df"
-    train_df.loc[:, "clerical_match_score"] = (
-        1  # this column shows that all these labels are positive labels
-    )
+    train_df.loc[
+        :, "clerical_match_score"
+    ] = 1  # this column shows that all these labels are positive labels
     return train_df
 
 
@@ -265,20 +265,16 @@ def get_best_matches(
         f"   False negatives: {false_neg}\n"
         f"   Precision:       {true_pos/(true_pos + false_pos):.03}\n"
         f"   Recall:          {true_pos/(true_pos + false_neg):.03}\n"
-        f"   Accuracy:        {true_pos/len(train_df):.03}\n"
         "Precision = of the training data FERC records that the model predicted a match for, this percentage was correct.\n"
         "A measure of accuracy when the model makes a prediction.\n"
         "Recall = of all of the training data FERC records, the model predicted a match for this percentage.\n"
-        "A measure of the coverage of FERC records in the predictions.\n"
-        "Accuracy = what percentage of the training data did the model correctly predict.\n"
-        "A measure of overall correctness."
+        "A measure of coverage of FERC records."
     )
     experiment_tracker.execute_logging(
         lambda: mlflow.log_metrics(
             {
                 "precision": round(true_pos / (true_pos + false_pos), 3),
                 "recall": round(true_pos / (true_pos + false_neg), 3),
-                "accuracy": round(true_pos / len(train_df)),
             }
         )
     )
@@ -407,8 +403,6 @@ def prettyify_best_matches(
     matches_best: pd.DataFrame,
     plant_parts_eia_true: pd.DataFrame,
     plants_ferc1: pd.DataFrame,
-    train_df: pd.DataFrame,
-    experiment_tracker: experiment_tracking.ExperimentTracker,
     debug: bool = False,
 ) -> pd.DataFrame:
     """Make the EIA-FERC best matches usable.
@@ -636,9 +630,9 @@ def override_bad_predictions(
     override_df.loc[:, "match_type"] = "prediction; not in training data"
     override_df.loc[override_rows, "match_type"] = "incorrect prediction; overwritten"
     override_df.loc[correct_rows, "match_type"] = "correct match"
-    override_df.loc[incorrect_rows, "match_type"] = (
-        "incorrect prediction; no predicted match"
-    )
+    override_df.loc[
+        incorrect_rows, "match_type"
+    ] = "incorrect prediction; no predicted match"
     # print out stats
     percent_correct = len(override_df[override_df.match_type == "correct match"]) / len(
         train_df
