@@ -14,6 +14,7 @@ The table-specific dictionaries contain the following keys:
 * 'ignored_codes': A list of non-standard codes which appear in the data, and will
   be set to NA.
 """
+
 from typing import Any
 
 import numpy as np
@@ -2038,12 +2039,34 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
             ],
         ).convert_dtypes(),
         "code_fixes": {
-            "NVE": "NEVP",
+            "CA": "CISO",
+            "CI": "CISO",
+            # "CP" is associated with plants identified as CPLE elsewhere / later.
+            # with the exception of plant 61527 which is later correctly identified as
+            # DUK.
+            "CP": "CPLE",
+            "DU": "DUK",
+            "EP": "EPE",  # El Paso Electric
+            "ER": "ERCO",  # ERCOT, Texas
+            "IP": "IPCO",  # Idaho Power Company
             "IS": "ISNE",
+            "MI": "MISO",
+            "NE": "NEVP",
+            "NVE": "NEVP",
+            "NY": "NYIS",
+            # "PA" is manually remapped such that in OR -> PACW and UT -> PACE
+            "PJ": "PJM",
             "PS": "PSCO",
+            # The plants with BA code SE are all later and elsewhere associated with the
+            # Seminole Electric Co-op, SEC
+            "SE": "SEC",
+            "SR": "SRP",  # Salt River Project
+            # All plants associated with SW are later and elsewhere associated with
+            # SWPP, Southwest Power Pool. Some transition to ERCO (ERCOT) in later years
+            # but they are correctly labeled in those years.
+            "SW": "SWPP",
             "TIC": "TIDC",
             "TID": "TIDC",
-            "CA": "CISO",
         },
         "ignored_codes": [
             "GRID",  # 2022 860m code for plant ID 55328 (code: CSTO for previous years)
