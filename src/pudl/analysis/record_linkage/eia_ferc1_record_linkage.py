@@ -393,7 +393,6 @@ def get_false_pos(pred_df, train_df):
         shared_preds[shared_preds.record_id_eia_true != shared_preds.record_id_eia_pred]
     )
 
-
 # FERC record is in training data but no prediction made
 def get_false_neg(pred_df, train_df):
     """Get the number of matches from the training data where no prediction is made."""

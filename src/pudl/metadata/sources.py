@@ -1,4 +1,5 @@
 """Metadata and operational constants."""
+
 from typing import Any
 
 import pandas as pd

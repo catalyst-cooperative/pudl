@@ -10,6 +10,7 @@ This subpackage compiles a bunch of outputs we found we were commonly generating
 that they can be done automatically and uniformly. They are encapsulated within the
 :class:`pudl.output.pudltabl.PudlTabl` class.
 """
+
 from . import (
     censusdp1tract,
     eia,

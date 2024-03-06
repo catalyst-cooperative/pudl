@@ -116,9 +116,9 @@ def _pct_diff(df, col) -> pd.DataFrame:
     # Fed in the _pct_diff column so make sure it is neutral for this analysis
     col = col.replace("_pct_diff", "")
     # Fill in the _pct_diff column with the actual percent difference value
-    df.loc[
-        (df[f"{col}_eia"] > 0) & (df[f"{col}_ferc1"] > 0), f"{col}_pct_diff"
-    ] = round(((df[f"{col}_ferc1"] - df[f"{col}_eia"]) / df[f"{col}_ferc1"] * 100), 2)
+    df.loc[(df[f"{col}_eia"] > 0) & (df[f"{col}_ferc1"] > 0), f"{col}_pct_diff"] = (
+        round(((df[f"{col}_ferc1"] - df[f"{col}_eia"]) / df[f"{col}_ferc1"] * 100), 2)
+    )
 
     return df
 

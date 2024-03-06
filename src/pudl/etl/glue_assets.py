@@ -1,4 +1,5 @@
 """FERC and EIA and EPA CAMD glue assets."""
+
 import networkx as nx
 import pandas as pd
 from dagster import AssetOut, Output, asset, multi_asset

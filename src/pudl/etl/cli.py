@@ -1,4 +1,5 @@
 """A command line interface (CLI) to the main PUDL ETL functionality."""
+
 import pathlib
 import sys
 from collections.abc import Callable

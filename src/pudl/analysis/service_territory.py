@@ -5,6 +5,7 @@ within the EIA 861, in conjunction with the US Census geometries for counties, t
 the historical spatial extent of utility and balancing area territories. Output the
 resulting geometries for use in other applications.
 """
+
 import math
 import pathlib
 import sys

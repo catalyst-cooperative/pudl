@@ -11,6 +11,7 @@ of timestamp/value pairs. This structure leads to a natural normalization into t
 tables: one of metadata and one of timeseries. That is the format delivered by this
 module.
 """
+
 import warnings
 from io import BytesIO
 from pathlib import Path

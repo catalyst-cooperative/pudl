@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 """A naive script for converting SQLite to DuckDB."""
+
 import logging
 from pathlib import Path
 

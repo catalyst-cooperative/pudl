@@ -1,4 +1,5 @@
 """Generalized DBF extractor for FERC data."""
+
 import contextlib
 import csv
 import importlib.resources

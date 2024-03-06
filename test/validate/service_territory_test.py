@@ -1,4 +1,5 @@
 """Validate post-ETL FERC 714 outputs and associated service territory analyses."""
+
 import logging
 
 import pytest

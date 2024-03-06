@@ -1,4 +1,5 @@
 """Static database tables."""
+
 from io import StringIO
 
 import pandas as pd

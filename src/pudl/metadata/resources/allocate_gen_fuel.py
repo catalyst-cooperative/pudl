@@ -1,4 +1,5 @@
 """Resource metadata for the allocate_gen_fuel tables."""
+
 from typing import Any
 
 AGG_FREQS = ["yearly", "monthly"]

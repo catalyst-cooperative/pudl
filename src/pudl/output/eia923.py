@@ -1,4 +1,5 @@
 """Denormalized, aggregated, and filled versions of the basic EIA-923 tables."""
+
 from typing import Literal
 
 import numpy as np

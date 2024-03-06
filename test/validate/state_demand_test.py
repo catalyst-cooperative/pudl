@@ -1,4 +1,5 @@
 """Validate post-ETL state demand analysis output."""
+
 import logging
 
 import pytest
