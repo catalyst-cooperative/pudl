@@ -29,6 +29,13 @@ recall - a measure of coverage of FERC records model predicted a match for, and
 accuracy - a measure of overall correctness of the predictions. Model performance
 improved and now has a precision of .94, recall of .9, and overall accuracy of .85.
 
+Schema Changes
+^^^^^^^^^^^^^^
+* Added ``balancing_authority_code_eia`` and ``sector_id_eia`` into the
+  :ref:`core_eia860m__changelog_generators` table. The BA codes reported in the raw data
+  contained a lot of non-standard values, which have now been standardized. See issue
+  :issue:`3437` and PR :pr:`3442`.
+
 .. _release-v2024.2.6:
 
 ---------------------------------------------------------------------------------------
