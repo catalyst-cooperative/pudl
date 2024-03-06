@@ -1,4 +1,4 @@
-"""Connect FERC1 plant tables to EIA's plant-parts via record linkage.
+"""Connect FERC1 plant tables to EIA's plant-parts with record linkage.
 
 FERC plant records are reported very non-uniformly. In the same table there are records
 that are reported as whole plants, individual generators, and collections of prime
@@ -6,192 +6,129 @@ movers. This means portions of EIA plants that correspond to a plant record in F
 Form 1 are heterogeneous, which complicates using the two data sets together.
 
 The EIA plant data is much cleaner and more uniformly structured. The are generators
-with ids and plants with ids reported in *seperate* tables. Several generator IDs are
+with ids and plants with ids reported in *separate* tables. Several generator IDs are
 typically grouped under a single plant ID. In :mod:`pudl.analysis.plant_parts_eia`,
 we create a large number of synthetic aggregated records representing many possible
 slices of a power plant which could in theory be what is actually reported in the FERC
 Form 1.
 
 In this module we infer which of the many ``plant_parts_eia`` records is most likely to
-correspond to an actually reported FERC Form 1 plant record. this is done with a
-logistic regression model.
+correspond to an actually reported FERC Form 1 plant record. This is done with
+``splink``, a Python package that implements Fellegi-Sunter's model of record linkage.
 
-We train the logistic regression model using manually labeled training data that links
-together several thousand EIA and FERC plant records, and use grid search cross
-validation to select a best set of hyperparameters. This trained model is used to
-predict matches on the full dataset (see :func:`run_model`). The model can return
-multiple EIA match options for each FERC1 record, so we rank the matches and choose the
-one with the highest score (see :func:`find_best_matches`). Any matches identified by
-the model which are in conflict with our training data are overwritten with the manually
-assigned associations (see :func:`overwrite_bad_predictions`). The final match results
+We train the parameters of the ``splink`` model using manually labeled training data
+that links together several thousand EIA and FERC plant records. This trained model is
+used to predict matches on the full dataset (see :func:`get_model_predictions`) using a
+threshold match probability to predict if records are a match or not.
+The model can return multiple EIA match options for each FERC1 record, so we rank the
+matches and choose the one with the highest score. Any matches identified by the model
+which are in conflict with our training data are overwritten with the manually
+assigned associations (see :func:`override_bad_predictions`). The final match results
 are the connections we keep as the matches between FERC1 plant records and EIA
 plant-parts.
 """
 
-import importlib.resources
+import importlib
 from typing import Literal
 
+import jellyfish
 import mlflow
 import numpy as np
 import pandas as pd
 from dagster import Out, graph, op
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import precision_recall_fscore_support
-from sklearn.model_selection import GridSearchCV, train_test_split
+from splink.duckdb.linker import DuckDBLinker
 
 import pudl
-import pudl.helpers
 from pudl.analysis.ml_tools import experiment_tracking, models
-from pudl.analysis.plant_parts_eia import match_to_single_plant_part
-from pudl.analysis.record_linkage import embed_dataframe
+from pudl.analysis.record_linkage import embed_dataframe, name_cleaner
+from pudl.analysis.record_linkage.eia_ferc1_inputs import (
+    InputManager,
+    restrict_train_connections_on_date_range,
+)
+from pudl.analysis.record_linkage.eia_ferc1_model_config import (
+    BLOCKING_RULES,
+    COMPARISONS,
+)
 from pudl.metadata.classes import DataSource, Resource
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
-pair_vectorizers = embed_dataframe.dataframe_embedder_factory(
-    "ferc1_eia_pair_vectorizers",
+MATCHING_COLS = [
+    "plant_name",
+    "utility_name",
+    "fuel_type_code_pudl",
+    "installation_year",
+    "construction_year",
+    "capacity_mw",
+    "net_generation_mwh",
+]
+# retain these columns either for blocking or validation
+# not going to match with these
+ID_COL = ["record_id"]
+EXTRA_COLS = [
+    "report_year",
+    "plant_id_pudl",
+    "utility_id_pudl",
+    "plant_name_mphone",
+    "utility_name_mphone",
+]
+
+plant_name_cleaner = name_cleaner.CompanyNameCleaner(
+    cleaning_rules_list=[
+        "remove_word_the_from_the_end",
+        "remove_word_the_from_the_beginning",
+        "replace_amperstand_between_space_by_AND",
+        "replace_hyphen_by_space",
+        "replace_hyphen_between_spaces_by_single_space",
+        "replace_underscore_by_space",
+        "replace_underscore_between_spaces_by_single_space",
+        "remove_all_punctuation",
+        "remove_numbers",
+        "remove_math_symbols",
+        "add_space_before_opening_parentheses",
+        "add_space_after_closing_parentheses",
+        "remove_parentheses",
+        "remove_brackets",
+        "remove_curly_brackets",
+        "enforce_single_space_between_words",
+    ]
+)
+
+col_cleaner = embed_dataframe.dataframe_cleaner_factory(
+    "col_cleaner",
     {
         "plant_name": embed_dataframe.ColumnVectorizer(
             transform_steps=[
-                embed_dataframe.NameCleaner(),
-                embed_dataframe.StringSimilarityScorer(
-                    metric="jaro_winkler",
-                    col1="plant_name_ferc1",
-                    col2="plant_name_eia",
-                    output_name="plant_name",
-                ),
+                embed_dataframe.NameCleaner(
+                    company_cleaner=plant_name_cleaner, return_as_dframe=True
+                )
             ],
-            columns=["plant_name_ferc1", "plant_name_eia"],
+            columns=["plant_name"],
         ),
         "utility_name": embed_dataframe.ColumnVectorizer(
-            transform_steps=[
-                embed_dataframe.NameCleaner(),
-                embed_dataframe.StringSimilarityScorer(
-                    metric="jaro_winkler",
-                    col1="utility_name_ferc1",
-                    col2="utility_name_eia",
-                    output_name="utility_name",
-                ),
-            ],
-            columns=["utility_name_ferc1", "utility_name_eia"],
-        ),
-        "net_generation_mwh": embed_dataframe.ColumnVectorizer(
-            transform_steps=[
-                embed_dataframe.ColumnCleaner(cleaning_function="null_to_zero"),
-                embed_dataframe.NumericSimilarityScorer(
-                    method="exponential",
-                    col1="net_generation_mwh_ferc1",
-                    col2="net_generation_mwh_eia",
-                    output_name="net_generation_mwh",
-                    scale=1000,
-                ),
-            ],
-            columns=["net_generation_mwh_ferc1", "net_generation_mwh_eia"],
-        ),
-        "capacity_mw": embed_dataframe.ColumnVectorizer(
-            transform_steps=[
-                embed_dataframe.ColumnCleaner(cleaning_function="null_to_zero"),
-                embed_dataframe.NumericSimilarityScorer(
-                    method="exponential",
-                    col1="capacity_mw_ferc1",
-                    col2="capacity_mw_eia",
-                    output_name="capacity_mw",
-                    scale=10,
-                ),
-            ],
-            columns=["capacity_mw_ferc1", "capacity_mw_eia"],
-        ),
-        "total_fuel_cost": embed_dataframe.ColumnVectorizer(
-            transform_steps=[
-                embed_dataframe.ColumnCleaner(cleaning_function="null_to_zero"),
-                embed_dataframe.NumericSimilarityScorer(
-                    method="exponential",
-                    col1="total_fuel_cost_ferc1",
-                    col2="total_fuel_cost_eia",
-                    output_name="total_fuel_cost",
-                    scale=10000,
-                    offset=2500,
-                    missing_value=0.5,
-                ),
-            ],
-            columns=["total_fuel_cost_ferc1", "total_fuel_cost_eia"],
-        ),
-        "total_mmbtu": embed_dataframe.ColumnVectorizer(
-            transform_steps=[
-                embed_dataframe.ColumnCleaner(cleaning_function="null_to_zero"),
-                embed_dataframe.NumericSimilarityScorer(
-                    method="exponential",
-                    col1="total_mmbtu_ferc1",
-                    col2="total_mmbtu_eia",
-                    output_name="total_mmbtu",
-                    scale=100,
-                    offset=1,
-                    missing_value=0.5,
-                ),
-            ],
-            columns=["total_mmbtu_ferc1", "total_mmbtu_eia"],
-        ),
-        "capacity_factor": embed_dataframe.ColumnVectorizer(
-            transform_steps=[
-                embed_dataframe.ColumnCleaner(cleaning_function="null_to_zero"),
-                embed_dataframe.NumericSimilarityScorer(
-                    method="linear",
-                    col1="capacity_factor_ferc1",
-                    col2="capacity_factor_eia",
-                    output_name="capacity_factor",
-                ),
-            ],
-            columns=["capacity_factor_ferc1", "capacity_factor_eia"],
-        ),
-        "fuel_cost_per_mmbtu": embed_dataframe.ColumnVectorizer(
-            transform_steps=[
-                embed_dataframe.ColumnCleaner(cleaning_function="null_to_zero"),
-                embed_dataframe.NumericSimilarityScorer(
-                    method="linear",
-                    col1="fuel_cost_per_mmbtu_ferc1",
-                    col2="fuel_cost_per_mmbtu_eia",
-                    output_name="fuel_cost_per_mmbtu",
-                ),
-            ],
-            columns=["fuel_cost_per_mmbtu_ferc1", "fuel_cost_per_mmbtu_eia"],
-        ),
-        "heat_rate_mmbtu_mwh": embed_dataframe.ColumnVectorizer(
-            transform_steps=[
-                embed_dataframe.ColumnCleaner(cleaning_function="null_to_zero"),
-                embed_dataframe.NumericSimilarityScorer(
-                    method="linear",
-                    col1="unit_heat_rate_mmbtu_per_mwh_ferc1",
-                    col2="unit_heat_rate_mmbtu_per_mwh_eia",
-                    output_name="heat_rate_mmbtu_mwh",
-                ),
-            ],
-            columns=[
-                "unit_heat_rate_mmbtu_per_mwh_ferc1",
-                "unit_heat_rate_mmbtu_per_mwh_eia",
-            ],
+            transform_steps=[embed_dataframe.NameCleaner(return_as_dframe=True)],
+            columns=["utility_name"],
         ),
         "fuel_type_code_pudl": embed_dataframe.ColumnVectorizer(
             transform_steps=[
-                embed_dataframe.ColumnCleaner(cleaning_function="null_to_empty_str"),
-                embed_dataframe.NumericSimilarityScorer(
-                    method="exact",
-                    col1="fuel_type_code_pudl_ferc1",
-                    col2="fuel_type_code_pudl_eia",
-                    output_name="fuel_type_code_pudl",
-                ),
-            ],
-            columns=["fuel_type_code_pudl_ferc1", "fuel_type_code_pudl_eia"],
-        ),
-        "installation_year": embed_dataframe.ColumnVectorizer(
-            transform_steps=[
-                embed_dataframe.NumericSimilarityScorer(
-                    method="linear",
-                    col1="installation_year_ferc1",
-                    col2="installation_year_eia",
-                    output_name="installation_year",
+                embed_dataframe.FuelTypeFiller(
+                    fuel_type_col="fuel_type_code_pudl",
+                    name_col="plant_name",
                 )
             ],
-            columns=["installation_year_ferc1", "installation_year_eia"],
+            columns=["fuel_type_code_pudl", "plant_name"],
+        ),
+        "net_generation_mwh": embed_dataframe.ColumnVectorizer(
+            transform_steps=[
+                embed_dataframe.ColumnCleaner(cleaning_function="zero_to_null")
+            ],
+            columns=["net_generation_mwh"],
+        ),
+        "capacity_mw": embed_dataframe.ColumnVectorizer(
+            transform_steps=[
+                embed_dataframe.ColumnCleaner(cleaning_function="zero_to_null")
+            ],
+            columns=["capacity_mw"],
         ),
     },
 )
@@ -206,73 +143,145 @@ def get_compiled_input_manager(plants_all_ferc1, fbp_ferc1, plant_parts_eia):
     return inputs
 
 
-@op(out={"all_pairs_df": Out(), "train_pairs_df": Out()})
-def get_pairs_dfs(inputs):
-    """Get a dataframe with all possible FERC to EIA record pairs.
-
-    Merge the FERC and EIA records on ``block_col`` to generate possible
-    record pairs for the matching model.
-
-    Arguments:
-        inputs: :class:`InputManager` object.
-
-    Returns:
-        A dataframe with all possible record pairs from all the input
-        data and a dataframe with all possible record pairs from the
-        training data.
-    """
-    ferc1_df = inputs.get_plants_ferc1().reset_index()
-    eia_df = inputs.get_plant_parts_eia_true().reset_index()
-    block_col = "plant_id_report_year_util_id"
-    all_pairs_df = ferc1_df.merge(
-        eia_df, how="inner", on=block_col, suffixes=("_ferc1", "_eia")
-    ).set_index(["record_id_ferc1", "record_id_eia"])
-    ferc1_train_df = inputs.get_train_ferc1().reset_index()
-    eia_train_df = inputs.get_train_eia().reset_index()
-    block_col = "plant_id_report_year_util_id"
-    train_pairs_df = ferc1_train_df.merge(
-        eia_train_df, how="inner", on=block_col, suffixes=("_ferc1", "_eia")
-    ).set_index(["record_id_ferc1", "record_id_eia"])
-    return (all_pairs_df, train_pairs_df)
-
-
-@op
-def get_y_label_df(train_pairs_df, inputs):
-    """Get the dataframe of y labels.
-
-    For each record pair in ``train_pairs_df``, a 0 if the pair is not
-    a match and a 1 if the pair is a match.
-    """
-    label_df = np.where(
-        train_pairs_df.merge(
-            inputs.get_train_df(),
-            how="left",
-            left_index=True,
-            right_index=True,
-            indicator=True,
-        )["_merge"]
-        == "both",
-        1,
-        0,
+@op(out={"eia_df": Out(), "ferc_df": Out()})
+def get_input_dfs(inputs):
+    """Get EIA and FERC inputs for the model."""
+    eia_df = (
+        inputs.get_plant_parts_eia_true()
+        .reset_index()
+        .rename(
+            columns={
+                "record_id_eia": "record_id",
+                "plant_name_eia": "plant_name",
+                "utility_name_eia": "utility_name",
+            }
+        )
     )
-    return label_df
-
-
-@op
-def get_best_matches_with_overwrites(match_df, inputs):
-    """Get dataframe with the best EIA match for each FERC record."""
-    return find_best_matches(match_df).pipe(overwrite_bad_predictions, inputs.train_df)
-
-
-@op
-def run_matching_model(features_train, features_all, y_df, experiment_tracker):
-    """Run model to match EIA to FERC records."""
-    return run_model(
-        features_train=features_train,
-        features_all=features_all,
-        y_df=y_df,
-        experiment_tracker=experiment_tracker,
+    ferc_df = (
+        inputs.get_plants_ferc1()
+        .reset_index()
+        .rename(
+            columns={
+                "record_id_ferc1": "record_id",
+                "plant_name_ferc1": "plant_name",
+                "utility_name_ferc1": "utility_name",
+            }
+        )
     )
+    return eia_df, ferc_df
+
+
+@op
+def prepare_for_matching(df, transformed_df):
+    """Prepare the input dataframes for matching with splink."""
+
+    def _get_metaphone(row, col_name):
+        if pd.isnull(row[col_name]):
+            return None
+        return jellyfish.metaphone(row[col_name])
+
+    # replace old cols with transformed cols
+    for col in transformed_df.columns:
+        orig_col_name = col.split("__")[1]
+        df[orig_col_name] = transformed_df[col]
+    df["installation_year"] = pd.to_datetime(df["installation_year"], format="%Y")
+    df["construction_year"] = pd.to_datetime(df["construction_year"], format="%Y")
+    df["plant_name_mphone"] = df.apply(_get_metaphone, axis=1, args=("plant_name",))
+    df["utility_name_mphone"] = df.apply(_get_metaphone, axis=1, args=("utility_name",))
+    cols = ID_COL + MATCHING_COLS + EXTRA_COLS
+    df = df.loc[:, cols]
+    return df
+
+
+@op
+def get_training_data_df(inputs):
+    """Get the manually created training data."""
+    train_df = inputs.get_train_df().reset_index()
+    train_df = train_df[["record_id_ferc1", "record_id_eia"]].rename(
+        columns={"record_id_eia": "record_id_l", "record_id_ferc1": "record_id_r"}
+    )
+    train_df.loc[:, "source_dataset_r"] = "ferc_df"
+    train_df.loc[:, "source_dataset_l"] = "eia_df"
+    train_df.loc[
+        :, "clerical_match_score"
+    ] = 1  # this column shows that all these labels are positive labels
+    return train_df
+
+
+@op
+def get_model_predictions(eia_df, ferc_df, train_df, experiment_tracker):
+    """Train splink model and output predicted matches."""
+    settings_dict = {
+        "link_type": "link_only",
+        "unique_id_column_name": "record_id",
+        "additional_columns_to_retain": ["plant_id_pudl", "utility_id_pudl"],
+        "comparisons": COMPARISONS,
+        "blocking_rules_to_generate_predictions": BLOCKING_RULES,
+        "retain_matching_columns": True,
+        "retain_intermediate_calculation_columns": True,
+        "probability_two_random_records_match": 1 / len(eia_df),
+    }
+    linker = DuckDBLinker(
+        [eia_df, ferc_df],
+        input_table_aliases=["eia_df", "ferc_df"],
+        settings_dict=settings_dict,
+    )
+    linker.register_table(train_df, "training_labels", overwrite=True)
+    linker.estimate_u_using_random_sampling(max_pairs=1e7)
+    linker.estimate_m_from_pairwise_labels("training_labels")
+    threshold_prob = 0.9
+    experiment_tracker.execute_logging(
+        lambda: mlflow.log_params({"threshold match probability": threshold_prob})
+    )
+    preds_df = linker.predict(threshold_match_probability=threshold_prob)
+    return preds_df.as_pandas_dataframe()
+
+
+@op()
+def get_best_matches(
+    preds_df,
+    inputs,
+    experiment_tracker: experiment_tracking.ExperimentTracker,
+):
+    """Get the best EIA match for each FERC record and log performance metrics."""
+    preds_df = (
+        preds_df.rename(
+            columns={"record_id_l": "record_id_eia", "record_id_r": "record_id_ferc1"}
+        )
+        .sort_values(by="match_probability", ascending=False)
+        .groupby("record_id_ferc1")
+        .first()
+    )
+    preds_df = preds_df.reset_index()
+    train_df = inputs.get_train_df().reset_index()
+    true_pos = get_true_pos(preds_df, train_df)
+    false_pos = get_false_pos(preds_df, train_df)
+    false_neg = get_false_neg(preds_df, train_df)
+    logger.info(
+        "Metrics before overrides:\n"
+        f"   True positives:  {true_pos}\n"
+        f"   False positives: {false_pos}\n"
+        f"   False negatives: {false_neg}\n"
+        f"   Precision:       {true_pos/(true_pos + false_pos):.03}\n"
+        f"   Recall:          {true_pos/(true_pos + false_neg):.03}\n"
+        f"   Accuracy:        {true_pos/len(train_df):.03}\n"
+        "Precision = of the training data FERC records that the model predicted a match for, this percentage was correct.\n"
+        "A measure of accuracy when the model makes a prediction.\n"
+        "Recall = of all of the training data FERC records, the model predicted a match for this percentage.\n"
+        "A measure of the coverage of FERC records in the predictions.\n"
+        "Accuracy = what percentage of the training data did the model correctly predict.\n"
+        "A measure of overall correctness."
+    )
+    experiment_tracker.execute_logging(
+        lambda: mlflow.log_metrics(
+            {
+                "precision": round(true_pos / (true_pos + false_pos), 3),
+                "recall": round(true_pos / (true_pos + false_neg), 3),
+                "accuracy": round(true_pos / len(train_df), 3),
+            }
+        )
+    )
+    return preds_df
 
 
 @op(
@@ -282,14 +291,32 @@ def run_matching_model(features_train, features_all, y_df, experiment_tracker):
         )
     }
 )
-def get_match_full_records(best_match_df, inputs):
-    """Join full dataframe onto matches to make usable and get stats."""
+def get_full_records_with_overrides(best_match_df, inputs, experiment_tracker):
+    """Join full dataframe onto matches to make usable and get stats.
+
+    Override the predictions dataframe with the training data, so that all
+    known bad predictions are corrected. Then join the EIA and FERC data on
+    so that the matches are usable. Drop model parameter and match probability
+    columns generated by splink. Log the coverge of the matches on the
+    FERC input data.
+    """
+    best_match_df = override_bad_predictions(best_match_df, inputs.get_train_df())
     connected_df = prettyify_best_matches(
         matches_best=best_match_df,
         plant_parts_eia_true=inputs.get_plant_parts_eia_true(),
         plants_ferc1=inputs.get_plants_ferc1(),
-        train_df=inputs.get_train_df(),
-    ).pipe(add_null_overrides)  # Override specified values with NA record_id_eia
+    )
+    _log_match_coverage(connected_df, experiment_tracker=experiment_tracker)
+    for match_set in ["all", "overrides"]:
+        check_match_consistency(
+            connected_df,
+            inputs.get_train_df(),
+            match_set=match_set,
+            experiment_tracker=experiment_tracker,
+        )
+    connected_df = add_null_overrides(
+        connected_df
+    )  # Override specified values with NA record_id_eia
     return Resource.from_id(
         "out_pudl__yearly_assn_eia_ferc1_plant_parts"
     ).enforce_schema(connected_df)
@@ -306,7 +333,7 @@ def ferc_to_eia(
     out_ferc1__yearly_steam_plants_fuel_by_plant_sched402: pd.DataFrame,
     out_eia__yearly_plant_parts: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Coordinate the connection between FERC1 plants and EIA plant-parts.
+    """Using splink model the connection between FERC1 plants and EIA plant-parts.
 
     Args:
         out_ferc1__yearly_all_plants: Table of all of the FERC1-reporting plants.
@@ -319,584 +346,66 @@ def ferc_to_eia(
         out_ferc1__yearly_steam_plants_fuel_by_plant_sched402,
         out_eia__yearly_plant_parts,
     )
-    all_pairs_df, train_pairs_df = get_pairs_dfs(inputs)
-    features_all = pair_vectorizers(all_pairs_df, experiment_tracker)
-    features_train = pair_vectorizers(train_pairs_df, experiment_tracker)
-    y_df = get_y_label_df(train_pairs_df, inputs)
-    match_df = run_matching_model(
-        features_train=features_train,
-        features_all=features_all,
-        y_df=y_df,
+    eia_df, ferc_df = get_input_dfs(inputs)
+    train_df = get_training_data_df(inputs)
+    # apply cleaning transformations to some columns
+    transformed_eia_df = col_cleaner(eia_df, experiment_tracker)
+    transformed_ferc_df = col_cleaner(ferc_df, experiment_tracker)
+    # prepare for matching with splink
+    ferc_df = prepare_for_matching(ferc_df, transformed_ferc_df)
+    eia_df = prepare_for_matching(eia_df, transformed_eia_df)
+    # train model and predict matches
+    preds_df = get_model_predictions(
+        eia_df=eia_df,
+        ferc_df=ferc_df,
+        train_df=train_df,
         experiment_tracker=experiment_tracker,
     )
-    # choose one EIA match for each FERC record
-    best_match_df = get_best_matches_with_overwrites(match_df, inputs)
-    # join EIA and FERC columns back on
-    ferc1_eia_connected_df = get_match_full_records(best_match_df, inputs)
+    best_match_df = get_best_matches(
+        preds_df=preds_df,
+        inputs=inputs,
+        experiment_tracker=experiment_tracker,
+    )
+    ferc1_eia_connected_df = get_full_records_with_overrides(
+        best_match_df,
+        inputs,
+        experiment_tracker=experiment_tracker,
+    )
+
     return ferc1_eia_connected_df
 
 
-class InputManager:
-    """Class prepare inputs for linking FERC1 and EIA."""
-
-    def __init__(
-        self,
-        plants_all_ferc1: pd.DataFrame,
-        fbp_ferc1: pd.DataFrame,
-        plant_parts_eia: pd.DataFrame,
-    ):
-        """Initialize inputs manager that gets inputs for linking FERC and EIA.
-
-        Args:
-            plants_all_ferc1: Table of all of the FERC1-reporting plants.
-            fbp_ferc1: Table of the fuel reported aggregated to the FERC1 plant-level.
-            plant_parts_eia: The EIA plant parts list.
-            start_date: Start date that cooresponds to the tables passed in.
-            end_date: End date that cooresponds to the tables passed in.
-        """
-        self.plant_parts_eia = plant_parts_eia.set_index("record_id_eia")
-        self.plants_all_ferc1 = plants_all_ferc1
-        self.fbp_ferc1 = fbp_ferc1
-
-        self.start_date = min(plant_parts_eia.report_date)
-        self.end_date = max(plant_parts_eia.report_date)
-        if (
-            yrs_len := len(yrs_range := range(self.start_date.year, self.end_date.year))
-        ) < 3:
-            logger.warning(
-                f"Your attempting to fit a model with only {yrs_len} years "
-                f"({yrs_range}). This will probably result in overfitting. In order to"
-                " best judge the results, use more years of data."
-            )
-
-        # generate empty versions of the inputs.. this let's this class check
-        # whether or not the compiled inputs exist before compilnig
-        self.plant_parts_eia_true = None
-        self.plants_ferc1 = None
-        self.train_df = None
-        self.train_ferc1 = None
-        self.train_eia = None
-
-    def get_plant_parts_eia_true(self, clobber: bool = False) -> pd.DataFrame:
-        """Get the EIA plant-parts with only the unique granularities."""
-        if self.plant_parts_eia_true is None or clobber:
-            self.plant_parts_eia_true = (
-                pudl.analysis.plant_parts_eia.plant_parts_eia_distinct(
-                    self.plant_parts_eia
-                )
-            )
-        return self.plant_parts_eia_true
-
-    def get_plants_ferc1(self, clobber: bool = False) -> pd.DataFrame:
-        """Prepare FERC1 plants data for record linkage with EIA plant-parts.
-
-        This method grabs two tables (``plants_all_ferc1`` and ``fuel_by_plant_ferc1``,
-        accessed originally via :meth:`pudl.output.pudltabl.PudlTabl.plants_all_ferc1`
-        and :meth:`pudl.output.pudltabl.PudlTabl.fbp_ferc1` respectively) and ensures
-        that the columns the same as their EIA counterparts, because the output of this
-        method will be used to link FERC and EIA.
-
-        Returns:
-            A cleaned table of FERC1 plants plant records with fuel cost data.
-        """
-        if clobber or self.plants_ferc1 is None:
-            fbp_cols_to_use = [
-                "report_year",
-                "utility_id_ferc1",
-                "plant_name_ferc1",
-                "utility_id_pudl",
-                "fuel_cost",
-                "fuel_mmbtu",
-                "primary_fuel_by_mmbtu",
-            ]
-
-            logger.info("Preparing the FERC1 tables.")
-            self.plants_ferc1 = (
-                self.plants_all_ferc1.merge(
-                    self.fbp_ferc1[fbp_cols_to_use],
-                    on=[
-                        "report_year",
-                        "utility_id_ferc1",
-                        "utility_id_pudl",
-                        "plant_name_ferc1",
-                    ],
-                    how="left",
-                )
-                .pipe(pudl.helpers.convert_cols_dtypes, "ferc1")
-                .assign(
-                    installation_year=lambda x: (
-                        x.installation_year.astype("float")
-                    ),  # need for comparison vectors
-                    plant_id_report_year=lambda x: (
-                        x.plant_id_pudl.astype(str) + "_" + x.report_year.astype(str)
-                    ),
-                    plant_id_report_year_util_id=lambda x: (
-                        x.plant_id_report_year + "_" + x.utility_id_pudl.astype(str)
-                    ),
-                    fuel_cost_per_mmbtu=lambda x: (x.fuel_cost / x.fuel_mmbtu),
-                    unit_heat_rate_mmbtu_per_mwh=lambda x: (
-                        x.fuel_mmbtu / x.net_generation_mwh
-                    ),
-                )
-                .rename(
-                    columns={
-                        "record_id": "record_id_ferc1",
-                        "opex_plants": "opex_plant",
-                        "fuel_cost": "total_fuel_cost",
-                        "fuel_mmbtu": "total_mmbtu",
-                        "opex_fuel_per_mwh": "fuel_cost_per_mwh",
-                        "primary_fuel_by_mmbtu": "fuel_type_code_pudl",
-                    }
-                )
-                .set_index("record_id_ferc1")
-            )
-        return self.plants_ferc1
-
-    def get_train_df(self) -> pd.DataFrame:
-        """Get the training connections.
-
-        Prepare them if the training data hasn't been connected to FERC data yet.
-        """
-        if self.train_df is None:
-            self.train_df = prep_train_connections(
-                ppe=self.plant_parts_eia,
-                start_date=self.start_date,
-                end_date=self.end_date,
-            )
-        return self.train_df
-
-    def get_train_records(
-        self,
-        dataset_df: pd.DataFrame,
-        dataset_id_col: Literal["record_id_eia", "record_id_ferc1"],
-    ) -> pd.DataFrame:
-        """Generate a set of known connections from a dataset using training data.
-
-        This method grabs only the records from the the datasets (EIA or FERC)
-        that we have in our training data.
-
-        Args:
-            dataset_df: either FERC1 plants table (result of :meth:`get_plants_ferc1`) or
-                EIA plant-parts (result of :meth:`get_plant_parts_eia_true`).
-            dataset_id_col: Identifying column name. Either ``record_id_eia`` for
-                ``plant_parts_eia_true`` or ``record_id_ferc1`` for ``plants_ferc1``.
-        """
-        known_df = (
-            pd.merge(
-                dataset_df,
-                self.get_train_df().reset_index()[[dataset_id_col]],
-                left_index=True,
-                right_on=[dataset_id_col],
-            )
-            .drop_duplicates(subset=[dataset_id_col])
-            .set_index(dataset_id_col)
-            .astype({"total_fuel_cost": float, "total_mmbtu": float})
-        )
-        return known_df
-
-    # Note: Is there a way to avoid these little shell methods? I need a
-    # standard way to access
-    def get_train_eia(self, clobber: bool = False) -> pd.DataFrame:
-        """Get the known training data from EIA."""
-        if clobber or self.train_eia is None:
-            self.train_eia = self.get_train_records(
-                self.get_plant_parts_eia_true(), dataset_id_col="record_id_eia"
-            )
-        return self.train_eia
-
-    def get_train_ferc1(self, clobber: bool = False) -> pd.DataFrame:
-        """Get the known training data from FERC1."""
-        if clobber or self.train_ferc1 is None:
-            self.train_ferc1 = self.get_train_records(
-                self.get_plants_ferc1(), dataset_id_col="record_id_ferc1"
-            )
-        return self.train_ferc1
-
-    def execute(self, clobber: bool = False):
-        """Compile all the inputs.
-
-        This method is only run if/when you want to ensure all of the inputs are
-        generated all at once. While using :class:`InputManager`, it is preferred to
-        access each input dataframe or index via their ``get_`` method instead of
-        accessing the attribute.
-        """
-        # grab the FERC table we are trying
-        # to connect to self.plant_parts_eia_true
-        self.plants_ferc1 = self.get_plants_ferc1(clobber=clobber)
-        self.plant_parts_eia_true = self.get_plant_parts_eia_true(clobber=clobber)
-
-        # we want both the df version and just the index; skl uses just the
-        # index and we use the df in merges and such
-        self.train_df = self.get_train_df()
-
-        # generate the list of the records in the EIA and FERC records that
-        # exist in the training data
-        self.train_eia = self.get_train_eia(clobber=clobber)
-        self.train_ferc1 = self.get_train_ferc1(clobber=clobber)
-        return
+# the correct EIA record is predicted for a FERC record
+def get_true_pos(pred_df, train_df):
+    """Get the number of correctly predicted matches."""
+    return train_df.merge(
+        pred_df, how="left", on=["record_id_ferc1", "record_id_eia"], indicator=True
+    )._merge.value_counts()["both"]
 
 
-def run_model(
-    features_train: pd.DataFrame,
-    features_all: pd.DataFrame,
-    y_df: pd.DataFrame,
-    experiment_tracker: experiment_tracking.ExperimentTracker,
-) -> pd.DataFrame:
-    """Train Logistic Regression model using GridSearch cross validation.
-
-    Search over the parameter grid for the best fit parameters for the
-    Logistic Regression estimator on the training data. Predict matches
-    on all the input features.
-
-    Args:
-        features_train: Dataframe of the feature vectors for the training data.
-        features_all: Dataframe of the feature vectors for all the input data.
-        y_df: Dataframe with 1 if a pair in ``features_train`` is a match and 0
-            if a pair is not a match.
-
-    Returns:
-        A dataframe of matches with record_id_ferc1 and record_id_eia as the
-        index and a column for the probability of a match.
-    """
-    param_grid = [
-        {
-            "solver": ["newton-cg", "lbfgs", "sag"],
-            "C": [1000, 1, 10, 100],
-            "class_weight": [None, "balanced"],
-            "penalty": ["l2"],
-        },
-        {
-            "solver": ["liblinear", "saga"],
-            "C": [1000, 1, 10, 100],
-            "class_weight": [None, "balanced"],
-            "penalty": ["l1", "l2"],
-        },
-        {
-            "solver": ["saga"],
-            "C": [1000, 1, 10, 100],
-            "class_weight": [None, "balanced"],
-            "penalty": ["elasticnet"],
-            "l1_ratio": [0.1, 0.3, 0.5, 0.7, 0.9],
-        },
-    ]
-    X = features_train.matrix  # noqa: N806
-    X_train, X_test, y_train, y_test = train_test_split(  # noqa: N806
-        X, y_df, test_size=0.25, random_state=16
+# an incorrect EIA record is predicted for a FERC record
+def get_false_pos(pred_df, train_df):
+    """Get the number of incorrectly predicted matches."""
+    shared_preds = train_df.merge(
+        pred_df, how="inner", on="record_id_ferc1", suffixes=("_true", "_pred")
     )
-    lrc = LogisticRegression()
-    clf = GridSearchCV(estimator=lrc, param_grid=param_grid, verbose=True, n_jobs=-1)
-    clf.fit(X=X_train, y=y_train)
-
-    # Log best parameters
-    experiment_tracker.execute_logging(lambda: mlflow.log_params(clf.best_params_))
-
-    y_pred = clf.predict(X_test)
-    precision, recall, f_score, _ = precision_recall_fscore_support(
-        y_test, y_pred, average="binary"
-    )
-    accuracy = clf.best_score_
-    logger.info(
-        "Scores from the best model:\n"
-        f"    Accuracy:  {accuracy:.02}\n"
-        f"    F-Score:   {f_score:.02}\n"
-        f"    Precision: {precision:.02}\n"
-        f"    Recall:    {recall:.02}\n"
-    )
-    # Log model metrics
-    experiment_tracker.execute_logging(
-        lambda: mlflow.log_metrics(
-            {
-                "accuracy": accuracy,
-                "f_score": f_score,
-                "precision": precision,
-                "recall": recall,
-            }
-        )
-    )
-
-    preds = clf.predict(features_all.matrix)
-    probs = clf.predict_proba(features_all.matrix)
-    final_df = pd.DataFrame(
-        index=features_all.index, data={"match": preds, "prob_of_match": probs[:, 1]}
-    )
-    match_df = final_df[final_df.match == 1].sort_values(
-        by="prob_of_match", ascending=False
-    )
-    return match_df
-
-
-def find_best_matches(match_df):
-    """Only keep the best EIA match for each FERC record.
-
-    We only want one EIA match for each FERC1 plant record. If there are multiple
-    predicted matches for a FERC1 record, the match with the highest
-    probability found by the model is chosen.
-
-    Args:
-        match_df: A dataframe of matches with record_id_eia and record_id_ferc1
-            as the index and a column for the probability of the match.
-
-    Returns:
-        Dataframe of matches with one EIA record for each FERC1 record.
-    """
-    # sort from lowest to highest probability of match
-    match_df = match_df.reset_index().sort_values(
-        by=["record_id_ferc1", "prob_of_match"]
-    )
-
-    best_match_df = match_df.groupby("record_id_ferc1").tail(1)
-
-    return best_match_df
-
-
-def overwrite_bad_predictions(
-    match_df: pd.DataFrame, train_df: pd.DataFrame
-) -> pd.DataFrame:
-    """Overwrite incorrect predictions with the correct match from training data.
-
-    Args:
-        match_df: A dataframe of the best matches with only one match for each
-            FERC1 record.
-        train_df: A dataframe of the training data.
-    """
-    train_df = train_df.reset_index()
-    overwrite_df = pd.merge(
-        match_df,
-        train_df[["record_id_eia", "record_id_ferc1"]],
-        on="record_id_ferc1",
-        how="outer",
-        suffixes=("_pred", "_train"),
-        indicator=True,
-        validate="1:1",
-    )
-    # construct new record_id_eia column with incorrect preds overwritten
-    overwrite_df["record_id_eia"] = np.where(
-        overwrite_df["_merge"] == "left_only",
-        overwrite_df["record_id_eia_pred"],
-        overwrite_df["record_id_eia_train"],
-    )
-    # create a the column match_type which indicates whether the match is good
-    # based on the training data
-    overwrite_rows = (overwrite_df._merge == "both") & (
-        overwrite_df.record_id_eia_train != overwrite_df.record_id_eia_pred
-    )
-    correct_rows = (overwrite_df._merge == "both") & (
-        overwrite_df.record_id_eia_train == overwrite_df.record_id_eia_pred
-    )
-    incorrect_rows = overwrite_df._merge == "right_only"
-
-    overwrite_df.loc[:, "match_type"] = "prediction; not in training data"
-    overwrite_df.loc[overwrite_rows, "match_type"] = "incorrect prediction; overwritten"
-    overwrite_df.loc[correct_rows, "match_type"] = "correct match"
-    overwrite_df.loc[
-        incorrect_rows, "match_type"
-    ] = "incorrect prediction; no predicted match"
-    # print out stats
-    percent_correct = len(
-        overwrite_df[overwrite_df.match_type == "correct match"]
-    ) / len(train_df)
-    percent_overwritten = len(
-        overwrite_df[overwrite_df.match_type == "incorrect prediction; overwritten"]
-    ) / len(train_df)
-    logger.info(
-        "Matches stats:\n"
-        f"Percent of training data matches correctly predicted: {percent_correct:.02}\n"
-        f"Percent of training data overwritten in matches: {percent_overwritten:.02}\n"
-    )
-    overwrite_df = overwrite_df.drop(
-        columns=["_merge", "record_id_eia_train", "record_id_eia_pred"]
-    )
-    return overwrite_df
-
-
-def restrict_train_connections_on_date_range(
-    train_df: pd.DataFrame,
-    id_col: Literal["record_id_eia", "record_id_ferc1"],
-    start_date: pd.Timestamp,
-    end_date: pd.Timestamp,
-) -> pd.DataFrame:
-    """Restrict the training data based on the date ranges of the input tables.
-
-    The training data for this model spans the full PUDL date range. We don't want to
-    add training data from dates that are outside of the range of the FERC and EIA data
-    we are attempting to match. So this function restricts the training data based on
-    start and end dates.
-
-    The training data is only the record IDs, which contain the report year inside them.
-    This function compiles a regex using the date range to grab only training records
-    which contain the years in the date range followed by and preceeded by ``_`` - in
-    the format of ``record_id_eia``and ``record_id_ferc1``. We use that extracted year
-    to determine
-    """
-    # filter training data by year range
-    # first get list of all years to grab from training data
-    date_range_years_str = "|".join(
-        [
-            f"{year}"
-            for year in pd.date_range(start=start_date, end=end_date, freq="YS").year
-        ]
-    )
-    logger.info(f"Restricting training data on years: {date_range_years_str}")
-    train_df = train_df.assign(
-        year_in_date_range=lambda x: x[id_col].str.extract(
-            r"_{1}" + f"({date_range_years_str})" + "_{1}"
-        )
-    )
-    # pd.drop returns a copy, so no need to copy this portion of train_df
-    return train_df.loc[train_df.year_in_date_range.notnull()].drop(
-        columns=["year_in_date_range"]
+    return len(
+        shared_preds[shared_preds.record_id_eia_true != shared_preds.record_id_eia_pred]
     )
 
 
-def prep_train_connections(
-    ppe: pd.DataFrame, start_date: pd.Timestamp, end_date: pd.Timestamp
-) -> pd.DataFrame:
-    """Get and prepare the training connections for the model.
-
-    We have stored training data, which consists of records with ids
-    columns for both FERC and EIA. Those id columns serve as a connection
-    between ferc1 plants and the EIA plant-parts. These connections
-    indicate that a ferc1 plant records is reported at the same granularity
-    as the connected EIA plant-parts record.
-
-    Arguments:
-        ppe: The EIA plant parts. Records from this dataframe will be connected to the
-            training data records. This needs to be the full EIA plant parts, not just
-            the distinct/true granularities because the training data could contain
-            non-distinct records and this function reassigns those to their distinct
-            counterparts.
-        start_date: Beginning date for records from the training data. Should match the
-            start date of ``ppe``. Default is None and all the training data will be used.
-        end_date: Ending date for records from the training data. Should match the end
-            date of ``ppe``. Default is None and all the training data will be used.
-
-    Returns:
-        A dataframe of training connections which has a MultiIndex of ``record_id_eia``
-        and ``record_id_ferc1``.
-    """
-    ppe_cols = [
-        "true_gran",
-        "appro_part_label",
-        "appro_record_id_eia",
-        "plant_part",
-        "ownership_dupe",
-    ]
-    # Read in one_to_many csv and join corresponding plant_match_ferc1 parts to FERC IDs
-    one_to_many = (
-        pd.read_csv(
-            importlib.resources.files("pudl.package_data.glue")
-            / "eia_ferc1_one_to_many.csv"
-        )
-        .pipe(pudl.helpers.cleanstrings_snake, ["record_id_eia"])
-        .drop_duplicates(subset=["record_id_ferc1", "record_id_eia"])
-    )
-
-    # Get the 'm' generator IDs 1:m
-    one_to_many_single = match_to_single_plant_part(
-        multi_gran_df=ppe.loc[ppe.index.isin(one_to_many.record_id_eia)].reset_index(),
-        ppl=ppe.reset_index(),
-        part_name="plant_gen",
-        cols_to_keep=["plant_part"],
-    )[["record_id_eia_og", "record_id_eia"]].rename(
-        columns={"record_id_eia": "gen_id", "record_id_eia_og": "record_id_eia"}
-    )
-    one_to_many = (
-        one_to_many.merge(
-            one_to_many_single,  # Match plant parts to generators
-            on="record_id_eia",
-            how="left",
-            validate="1:m",
-        )
-        .drop_duplicates("gen_id")
-        .merge(  # Match generators to ferc1_generator_agg_id
-            ppe["ferc1_generator_agg_id"].reset_index(),
-            left_on="gen_id",
-            right_on="record_id_eia",
-            how="left",
-            validate="1:1",
-        )
-        .dropna(subset=["ferc1_generator_agg_id"])
-        .drop(["record_id_eia_x", "record_id_eia_y"], axis=1)
-        .merge(  # Match ferc1_generator_agg_id to new faked plant part record_id_eia
-            ppe.loc[
-                ppe.plant_part == "plant_match_ferc1",
-                ["ferc1_generator_agg_id"],
-            ].reset_index(),
-            on="ferc1_generator_agg_id",
-            how="left",
-            validate="m:1",
-        )
-        .drop(["ferc1_generator_agg_id", "gen_id"], axis=1)
-        .drop_duplicates(subset=["record_id_ferc1", "record_id_eia"])
-        .set_index("record_id_ferc1")
-    )
-
-    train_df = (
-        pd.read_csv(
-            importlib.resources.files("pudl.package_data.glue") / "eia_ferc1_train.csv"
-        )
-        .pipe(pudl.helpers.cleanstrings_snake, ["record_id_eia"])
-        .drop_duplicates(subset=["record_id_ferc1", "record_id_eia"])
-        .set_index("record_id_ferc1")
-    )
-    logger.info(f"Updating {len(one_to_many)} training records with 1:m plant parts.")
-    train_df.update(one_to_many)  # Overwrite FERC records with faked 1:m parts.
-    train_df = (
-        # we want to ensure that the records are associated with a
-        # "true granularity" - which is a way we filter out whether or
-        # not each record in the EIA plant-parts is actually a
-        # new/unique collection of plant parts
-        # once the true_gran is dealt with, we also need to convert the
-        # records which are ownership dupes to reflect their "total"
-        # ownership counterparts
-        train_df.reset_index()
-        .pipe(
-            restrict_train_connections_on_date_range,
-            id_col="record_id_eia",
-            start_date=start_date,
-            end_date=end_date,
-        )
-        .merge(
-            ppe[ppe_cols].reset_index(),
-            how="left",
-            on=["record_id_eia"],
-            indicator=True,
-        )
-    )
-    not_in_ppe = train_df[train_df._merge == "left_only"]
-    if not not_in_ppe.empty:
-        raise AssertionError(
-            "Not all training data is associated with EIA records.\n"
-            "record_id_ferc1's of bad training data records are: "
-            f"{list(not_in_ppe.reset_index().record_id_ferc1)}"
-        )
-    train_df = (
-        train_df.assign(
-            plant_part=lambda x: x["appro_part_label"],
-            record_id_eia=lambda x: x["appro_record_id_eia"],
-        )
-        .pipe(pudl.analysis.plant_parts_eia.reassign_id_ownership_dupes)
-        .fillna(
-            value={
-                "record_id_eia": pd.NA,
-            }
-        )
-        .set_index(  # sklearn wants a MultiIndex to do the stuff
-            [
-                "record_id_ferc1",
-                "record_id_eia",
-            ]
-        )
-    )
-    train_df = train_df.drop(columns=ppe_cols + ["_merge"])
-    return train_df
+# FERC record is in training data but no prediction made
+def get_false_neg(pred_df, train_df):
+    """Get the number of matches from the training data where no prediction is made."""
+    return train_df.merge(
+        pred_df, how="left", on=["record_id_ferc1"], indicator=True
+    )._merge.value_counts()["left_only"]
 
 
 def prettyify_best_matches(
     matches_best: pd.DataFrame,
     plant_parts_eia_true: pd.DataFrame,
     plants_ferc1: pd.DataFrame,
-    train_df: pd.DataFrame,
     debug: bool = False,
 ) -> pd.DataFrame:
     """Make the EIA-FERC best matches usable.
@@ -972,17 +481,166 @@ def prettyify_best_matches(
         )
         logger.warning(message)
 
-    _log_match_coverage(connects_ferc1_eia)
-    for match_set in ["all", "overrides"]:
-        check_match_consistency(
-            connects_ferc1_eia,
-            train_df,
-            match_set=match_set,
-        )
     return connects_ferc1_eia
 
 
-def _log_match_coverage(connects_ferc1_eia):
+def check_match_consistency(
+    connects_ferc1_eia: pd.DataFrame,
+    train_df: pd.DataFrame,
+    experiment_tracker: experiment_tracking.ExperimentTracker,
+    match_set: Literal["all", "overrides"] = "all",
+) -> pd.DataFrame:
+    """Check how consistent FERC-EIA matches are with FERC-FERC matches.
+
+    We have two record linkage processes: one that links FERC plant records across time,
+    and another that links FERC plant records to EIA plant-parts. This function checks
+    that the two processes are as consistent with each other as we expect.  Here
+    "consistent" means that each FERC plant ID is associated with a single EIA plant
+    parts ID across time. The reverse is not necessarily required -- a single EIA plant
+    part ID may be associated with various FERC plant IDs across time.
+
+    Args:
+        connects_ferc1_eia: Matches of FERC1 to EIA.
+        train_df: training data.
+        match_set: either ``all`` - to check all of the matches - or ``overrides`` - to
+            check just the overrides. Default is ``all``. The overrides are less
+            consistent than all of the data, so this argument changes the consistency
+            threshold for this check.
+    """
+    # these are the default
+    expected_consistency = 0.73
+    expected_uniform_capacity_consistency = 0.85
+    mask = connects_ferc1_eia.record_id_eia.notnull()
+
+    if match_set == "overrides":
+        expected_consistency = 0.39
+        expected_uniform_capacity_consistency = 0.75
+        train_ferc1 = train_df.reset_index()
+        over_f1 = (
+            train_ferc1[train_ferc1.record_id_ferc1.str.contains("_steam_")]
+            .set_index("record_id_ferc1")
+            .index
+        )
+        over_ferc1_ids = (
+            connects_ferc1_eia.set_index("record_id_ferc1")
+            .loc[over_f1]
+            .plant_id_ferc1.unique()
+        )
+
+        mask = mask & connects_ferc1_eia.plant_id_ferc1.isin(over_ferc1_ids)
+
+    count = (
+        connects_ferc1_eia[mask]
+        .groupby(["plant_id_ferc1"])[["plant_part_id_eia", "capacity_mw_ferc1"]]
+        .nunique()
+    )
+    actual_consistency = len(count[count.plant_part_id_eia == 1]) / len(count)
+    logger.info(
+        f"Matches with consistency across years of {match_set} matches is "
+        f"{actual_consistency:.1%}"
+    )
+    if actual_consistency < expected_consistency:
+        logger.warning(
+            "Inter-year consistency between plant_id_ferc1 and plant_part_id_eia of "
+            f"{match_set} matches {actual_consistency:.1%} is less than the expected "
+            f"value of {expected_consistency:.1%}."
+        )
+    actual_uniform_capacity_consistency = (
+        len(count)
+        - len(count[(count.plant_part_id_eia > 1) & (count.capacity_mw_ferc1 == 1)])
+    ) / len(count)
+    logger.info(
+        "Matches with a uniform FERC 1 capacity have an inter-year consistency between "
+        "plant_id_ferc1 and plant_part_id_eia of "
+        f"{actual_uniform_capacity_consistency:.1%}"
+    )
+    if match_set == "all":
+        experiment_tracker.execute_logging(
+            lambda: mlflow.log_metrics(
+                {
+                    "plant_id_ferc1 consistency across matches": round(
+                        actual_consistency, 2
+                    ),
+                    "uniform capacity plant_id_ferc1 and plant_part_id_eia consistency": round(
+                        actual_uniform_capacity_consistency, 2
+                    ),
+                }
+            )
+        )
+    if actual_uniform_capacity_consistency < expected_uniform_capacity_consistency:
+        logger.warning(
+            "Inter-year consistency between plant_id_ferc1 and plant_part_id_eia of "
+            "matches with uniform FERC 1 capacity "
+            f"{actual_uniform_capacity_consistency:.1%} is less than the expected "
+            f"value of {expected_uniform_capacity_consistency:.1%}."
+        )
+    return count
+
+
+def override_bad_predictions(
+    match_df: pd.DataFrame, train_df: pd.DataFrame
+) -> pd.DataFrame:
+    """Override incorrect predictions with the correct match from training data.
+
+    Args:
+        match_df: A dataframe of the best matches with only one match for each
+            FERC1 record.
+        train_df: A dataframe of the training data.
+    """
+    train_df = train_df.reset_index()
+    override_df = pd.merge(
+        match_df,
+        train_df[["record_id_eia", "record_id_ferc1"]],
+        on="record_id_ferc1",
+        how="outer",
+        suffixes=("_pred", "_train"),
+        indicator=True,
+        validate="1:1",
+    )
+    # construct new record_id_eia column with incorrect preds overwritten
+    override_df["record_id_eia"] = np.where(
+        override_df["_merge"] == "left_only",
+        override_df["record_id_eia_pred"],
+        override_df["record_id_eia_train"],
+    )
+    # create a the column match_type which indicates whether the match is good
+    # based on the training data
+    override_rows = (override_df._merge == "both") & (
+        override_df.record_id_eia_train != override_df.record_id_eia_pred
+    )
+    correct_rows = (override_df._merge == "both") & (
+        override_df.record_id_eia_train == override_df.record_id_eia_pred
+    )
+    incorrect_rows = override_df._merge == "right_only"
+
+    override_df.loc[:, "match_type"] = "prediction; not in training data"
+    override_df.loc[override_rows, "match_type"] = "incorrect prediction; overwritten"
+    override_df.loc[correct_rows, "match_type"] = "correct match"
+    override_df.loc[
+        incorrect_rows, "match_type"
+    ] = "incorrect prediction; no predicted match"
+    # print out stats
+    percent_correct = len(override_df[override_df.match_type == "correct match"]) / len(
+        train_df
+    )
+    percent_overwritten = len(
+        override_df[override_df.match_type == "incorrect prediction; overriden"]
+    ) / len(train_df)
+    logger.info(
+        "Matches stats:\n"
+        f"Percent of training data matches correctly predicted: {percent_correct:.02}\n"
+        f"Percent of training data overwritten in matches: {percent_overwritten:.02}\n"
+    )
+    override_df = override_df.drop(
+        columns=["_merge", "record_id_eia_train", "record_id_eia_pred"]
+    )
+    return override_df
+
+
+def _log_match_coverage(
+    connects_ferc1_eia,
+    experiment_tracker: experiment_tracking.ExperimentTracker,
+):
     eia_years = DataSource.from_id("eia860").working_partitions["years"]
     # get the matches from just the EIA working years
     matches = connects_ferc1_eia[
@@ -1008,111 +666,43 @@ def _log_match_coverage(connects_ferc1_eia):
     def _get_match_pct(df):
         return len(df[df["record_id_eia"].notna()]) / len(df)
 
+    def _get_capacity_coverage(df):
+        return (
+            df[df["record_id_eia"].notna()].capacity_mw_ferc1.sum()
+            / df.capacity_mw_ferc1.sum()
+        )
+
+    steam_cov = _get_match_pct(_get_subtable("steam"))
+    steam_cap_cov = _get_capacity_coverage(_get_subtable("steam"))
+    small_gen_cov = _get_match_pct(_get_subtable("gnrt_plant"))
+    hydro_cov = _get_match_pct(_get_subtable("hydro"))
+    pumped_storage_cov = _get_match_pct(_get_subtable("pumped"))
     logger.info(
         "Coverage for matches during EIA working years:\n"
         f"    Fuel type: {fuel_type_coverage:.01%}\n"
         f"    Tech type: {tech_type_coverage:.01%}\n"
         "Coverage for all steam table records during EIA working years:\n"
-        f"    EIA matches: {_get_match_pct(_get_subtable('steam')):.01%}\n"
+        f"    EIA matches: {steam_cov:.01%}\n"
+        "Coverage for steam table capacity during EIA working years:\n"
+        f"    EIA matches: {steam_cap_cov:.01%}\n"
         f"Coverage for all small gen table records during EIA working years:\n"
-        f"    EIA matches: {_get_match_pct(_get_subtable('gnrt_plant')):.01%}\n"
+        f"    EIA matches: {small_gen_cov:.01%}\n"
         f"Coverage for all hydro table records during EIA working years:\n"
-        f"    EIA matches: {_get_match_pct(_get_subtable('hydro')):.01%}\n"
+        f"    EIA matches: {hydro_cov:.01%}\n"
         f"Coverage for all pumped storage table records during EIA working years:\n"
-        f"    EIA matches: {_get_match_pct(_get_subtable('pumped')):.01%}"
+        f"    EIA matches: {pumped_storage_cov:.01%}"
     )
-
-
-def check_match_consistency(
-    connects_ferc1_eia: pd.DataFrame,
-    train_df: pd.DataFrame,
-    match_set: Literal["all", "overrides"] = "all",
-) -> pd.DataFrame:
-    """Check how consistent FERC-EIA matches are with FERC-FERC matches.
-
-    We have two record linkage processes: one that links FERC plant records across time,
-    and another that links FERC plant records to EIA plant-parts. This function checks
-    that the two processes are as consistent with each other as we expect.  Here
-    "consistent" means that each FERC plant ID is associated with a single EIA plant
-    parts ID across time. The reverse is not necessarily required -- a single EIA plant
-    part ID may be associated with various FERC plant IDs across time.
-
-    Args:
-        connects_ferc1_eia: Matches of FERC1 to EIA.
-        train_df: training data.
-        match_set: either ``all`` - to check all of the matches - or ``overrides`` - to
-            check just the overrides. Default is ``all``. The overrides are less
-            consistent than all of the data, so this argument changes the consistency
-            threshold for this check.
-    """
-    # these are the default
-    expected_consistency = 0.74
-    expected_uniform_capacity_consistency = 0.85
-    mask = connects_ferc1_eia.record_id_eia.notnull()
-
-    if match_set == "overrides":
-        expected_consistency = 0.39
-        expected_uniform_capacity_consistency = 0.75
-        train_ferc1 = train_df.reset_index()
-        # these bbs were missing from connects_ferc1_eia. not totally sure why
-        missing = [
-            "f1_steam_2018_12_51_0_1",
-            "f1_steam_2018_12_45_2_2",
-            "f1_steam_2018_12_45_2_1",
-            "f1_steam_2018_12_45_1_2",
-            "f1_steam_2018_12_45_1_1",
-            "f1_steam_2018_12_45_1_5",
-            "f1_steam_2018_12_45_1_4",
-            "f1_steam_2018_12_56_2_3",
-        ]
-        over_f1 = (
-            train_ferc1[
-                train_ferc1.record_id_ferc1.str.contains("_steam_")
-                & ~train_ferc1.record_id_ferc1.isin(missing)
-            ]
-            .set_index("record_id_ferc1")
-            .index
+    experiment_tracker.execute_logging(
+        lambda: mlflow.log_metrics(
+            {
+                "steam table coverage": round(steam_cov, 3),
+                "steam table capacity coverage": round(steam_cap_cov, 3),
+                "small gen table coverage": round(small_gen_cov, 3),
+                "hydro table coverage": round(hydro_cov, 3),
+                "pumped storage table coverage": round(pumped_storage_cov, 3),
+            }
         )
-        over_ferc1_ids = (
-            connects_ferc1_eia.set_index("record_id_ferc1")
-            .loc[over_f1]
-            .plant_id_ferc1.unique()
-        )
-
-        mask = mask & connects_ferc1_eia.plant_id_ferc1.isin(over_ferc1_ids)
-    count = (
-        connects_ferc1_eia[mask]
-        .groupby(["plant_id_ferc1"])[["plant_part_id_eia", "capacity_mw_ferc1"]]
-        .nunique()
     )
-    actual_consistency = len(count[count.plant_part_id_eia == 1]) / len(count)
-    logger.info(
-        f"Matches with consistency across years of {match_set} matches is "
-        f"{actual_consistency:.1%}"
-    )
-    if actual_consistency < expected_consistency:
-        raise AssertionError(
-            "Inter-year consistency between plant_id_ferc1 and plant_part_id_eia of "
-            f"{match_set} matches {actual_consistency:.1%} is less than the expected "
-            f"value of {expected_consistency:.1%}."
-        )
-    actual_uniform_capacity_consistency = (
-        len(count)
-        - len(count[(count.plant_part_id_eia > 1) & (count.capacity_mw_ferc1 == 1)])
-    ) / len(count)
-    logger.info(
-        "Matches with a uniform FERC 1 capacity have an inter-year consistency between "
-        "plant_id_ferc1 and plant_part_id_eia of "
-        f"{actual_uniform_capacity_consistency:.1%}"
-    )
-    if actual_uniform_capacity_consistency < expected_uniform_capacity_consistency:
-        raise AssertionError(
-            "Inter-year consistency between plant_id_ferc1 and plant_part_id_eia of "
-            "matches with uniform FERC 1 capacity "
-            f"{actual_uniform_capacity_consistency:.1%} is less than the expected "
-            f"value of {expected_uniform_capacity_consistency:.1%}."
-        )
-    return count
 
 
 def add_null_overrides(connects_ferc1_eia):

@@ -148,6 +148,47 @@ def dataframe_embedder_factory(
     return embed_dataframe_graph
 
 
+def dataframe_cleaner_factory(
+    name_prefix: str, vectorizers: dict[str, ColumnVectorizer]
+):
+    """Return a configured op graph to clean an input dataframe."""
+
+    @op(name=f"{name_prefix}_train")
+    def train_dataframe_cleaner(
+        df: pd.DataFrame, experiment_tracker: experiment_tracking.ExperimentTracker
+    ):
+        log_dataframe_embedder_config(name_prefix, vectorizers, experiment_tracker)
+        """Train :class:`sklearn.compose.ColumnTransformer` on input."""
+        column_transformer = ColumnTransformer(
+            transformers=[
+                (name, column_transform.as_pipeline(), column_transform.columns)
+                for name, column_transform in vectorizers.items()
+            ],
+        ).set_output(transform="pandas")
+
+        return column_transformer.fit(df)
+
+    @op(name=f"{name_prefix}_apply")
+    def apply_dataframe_cleaner(df: pd.DataFrame, transformer: ColumnTransformer):
+        """Use :class:`sklearn.compose.ColumnTransformer` to transform input.
+
+        Returns:
+            A dataframe where the columns are the transformer name and the
+            original column name separated by a double underscore (__)
+        """
+        return transformer.transform(df)
+
+    @graph(name=f"{name_prefix}_cleaner_graph")
+    def clean_dataframe_graph(
+        df: pd.DataFrame, experiment_tracker: experiment_tracking.ExperimentTracker
+    ) -> pd.DataFrame:
+        """Train dataframe embedder and apply to input df."""
+        transformer = train_dataframe_cleaner(df, experiment_tracker)
+        return apply_dataframe_cleaner(df, transformer)
+
+    return clean_dataframe_graph
+
+
 class TextVectorizer(TransformStep):
     """Implement TransformStep for :class:`sklearn.feature_extraction.text.TfidfVectorizer`."""
 
@@ -202,6 +243,7 @@ def _apply_cleaning_func(df, function_key: str = None):
         "null_to_zero": lambda df: df.fillna(value=0.0),
         "null_to_empty_str": lambda df: df.fillna(value=""),
         "fix_int_na": lambda df: pudl.helpers.fix_int_na(df, columns=list(df.columns)),
+        "zero_to_null": lambda df: df.replace({0.0: pd.NA}),
     }
     return function_transforms[function_key](df)
 
@@ -223,11 +265,78 @@ class NameCleaner(TransformStep):
     """Implement ColumnTransformation for CompanyNameCleaner."""
 
     name: str = "name_cleaner"
-    company_cleaner: CompanyNameCleaner = CompanyNameCleaner()
+    company_cleaner: CompanyNameCleaner = CompanyNameCleaner(legal_term_location=2)
+    return_as_dframe: bool = False
 
     def as_transformer(self):
         """Return configured CompanyNameCleaner."""
-        return FunctionTransformer(self.company_cleaner.apply_name_cleaning)
+        return FunctionTransformer(
+            self.company_cleaner.apply_name_cleaning,
+            kw_args={"return_as_dframe": self.return_as_dframe},
+        )
+
+
+class FuelTypeFiller(TransformStep):
+    """Fill missing fuel types from another column."""
+
+    name: str = "fuel_type_filler"
+    fuel_type_col: str = "fuel_type_code_pudl"
+    name_col: str = "plant_name"
+
+    def as_transformer(self):
+        """Return configured FuelTypeFiller."""
+        return FunctionTransformer(
+            _fill_fuel_type_from_name,
+            kw_args={"fuel_type_col": self.fuel_type_col, "name_col": self.name_col},
+        )
+
+
+def _extract_keyword_from_column(ser: pd.Series, keyword_list: list[str]) -> pd.Series:
+    """Extract keywords contained in a Pandas series with a regular expression."""
+    pattern = r"(?:^|\s+|\W)(" + "|".join(keyword_list) + r")"
+    return ser.str.lower().str.extract(pattern, expand=False)
+
+
+def _fill_fuel_type_from_name(
+    df: pd.DataFrame, fuel_type_col: str, name_col: str
+) -> pd.DataFrame:
+    """Impute missing fuel type data from a name column.
+
+    If a missing fuel type code is contained in the plant name,
+    fill in the fuel type code PUDL for that record. E.g. "Washington Hydro"
+    """
+    if fuel_type_col not in df.columns:
+        raise AssertionError(f"{fuel_type_col} is not in dataframe columns.")
+    fuel_type_list = (
+        pudl.metadata.codes.CODE_METADATA["core_eia__codes_energy_sources"]["df"]
+        .loc[:, "fuel_type_code_pudl"]
+        .unique()
+        .tolist()
+    )
+    fuel_type_list = [fuel_type for fuel_type in fuel_type_list if fuel_type != "other"]
+    fuel_type_map = {fuel_type: fuel_type for fuel_type in fuel_type_list}
+    fuel_type_map.update(
+        {
+            "pumped storage": "hydro",
+            "peaker": "gas",
+            "gt": "gas",
+            "peaking": "gas",
+            "river": "hydro",
+            "falls": "hydro",
+            "hydroelectric": "hydro",
+        }
+    )
+    # grab fuel type keywords that are within plant_name and fill in null FTCP
+    null_n = len(df[df[fuel_type_col].isnull()])
+    logger.info(f"Nulls before filling fuel type from name: {null_n}")
+    df[fuel_type_col] = df[fuel_type_col].fillna(
+        _extract_keyword_from_column(df[name_col], list(fuel_type_map.keys())).map(
+            fuel_type_map
+        )
+    )
+    null_n = len(df[df[fuel_type_col].isnull()])
+    logger.info(f"Nulls after filling fuel type from name: {null_n}")
+    return df[[fuel_type_col]]
 
 
 def _apply_string_similarity_func(df, function_key: str, col1: str, col2: str):
