@@ -1,4 +1,5 @@
 """Unit tests for pudl.extract.csv module."""
+
 from unittest.mock import MagicMock, patch
 
 from pudl.extract.csv import CsvExtractor, get_table_file_map, open_csv_resource

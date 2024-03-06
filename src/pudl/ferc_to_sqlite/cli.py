@@ -1,4 +1,5 @@
 """A script using Dagster to convert FERC data fom DBF and XBRL to SQLite databases."""
+
 import pathlib
 import sys
 import time

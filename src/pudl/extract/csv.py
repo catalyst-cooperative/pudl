@@ -1,4 +1,5 @@
 """Extractor for CSV data."""
+
 from csv import DictReader
 from importlib import resources
 from zipfile import ZipFile

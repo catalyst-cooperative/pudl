@@ -202,9 +202,9 @@ def get_training_data_df(inputs):
     )
     train_df.loc[:, "source_dataset_r"] = "ferc_df"
     train_df.loc[:, "source_dataset_l"] = "eia_df"
-    train_df.loc[
-        :, "clerical_match_score"
-    ] = 1  # this column shows that all these labels are positive labels
+    train_df.loc[:, "clerical_match_score"] = (
+        1  # this column shows that all these labels are positive labels
+    )
     return train_df
 
 
@@ -616,9 +616,9 @@ def override_bad_predictions(
     override_df.loc[:, "match_type"] = "prediction; not in training data"
     override_df.loc[override_rows, "match_type"] = "incorrect prediction; overwritten"
     override_df.loc[correct_rows, "match_type"] = "correct match"
-    override_df.loc[
-        incorrect_rows, "match_type"
-    ] = "incorrect prediction; no predicted match"
+    override_df.loc[incorrect_rows, "match_type"] = (
+        "incorrect prediction; no predicted match"
+    )
     # print out stats
     percent_correct = len(override_df[override_df.match_type == "correct match"]) / len(
         train_df

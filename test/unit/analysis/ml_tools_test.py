@@ -1,4 +1,5 @@
 """Test record linkage models and utilities."""
+
 import mlflow
 import pandas as pd
 import pytest

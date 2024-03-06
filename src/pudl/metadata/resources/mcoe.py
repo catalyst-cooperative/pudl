@@ -1,4 +1,5 @@
 """Resource metadata for the generator table with derived attributes."""
+
 from typing import Any
 
 AGG_FREQS = ["yearly", "monthly"]

@@ -1050,18 +1050,18 @@ def assign_cc_unit_ids(gens_df: pd.DataFrame) -> pd.DataFrame:
     assert (tmp_df.loc[tmp_df.bga_source == "orphan_ca", "CA"] > 0).all()  # nosec: B101
 
     # Assign flags for various arrangements of CA and CT generators
-    tmp_df.loc[
-        ((tmp_df.CT == 1) & (tmp_df.CA == 1)), "bga_source"
-    ] = "one_ct_one_ca_inferred"
-    tmp_df.loc[
-        ((tmp_df.CT == 1) & (tmp_df.CA > 1)), "bga_source"
-    ] = "one_ct_many_ca_inferred"
-    tmp_df.loc[
-        ((tmp_df.CT > 1) & (tmp_df.CA == 1)), "bga_source"
-    ] = "many_ct_one_ca_inferred"
-    tmp_df.loc[
-        ((tmp_df.CT > 1) & (tmp_df.CA > 1)), "bga_source"
-    ] = "many_ct_many_ca_inferred"
+    tmp_df.loc[((tmp_df.CT == 1) & (tmp_df.CA == 1)), "bga_source"] = (
+        "one_ct_one_ca_inferred"
+    )
+    tmp_df.loc[((tmp_df.CT == 1) & (tmp_df.CA > 1)), "bga_source"] = (
+        "one_ct_many_ca_inferred"
+    )
+    tmp_df.loc[((tmp_df.CT > 1) & (tmp_df.CA == 1)), "bga_source"] = (
+        "many_ct_one_ca_inferred"
+    )
+    tmp_df.loc[((tmp_df.CT > 1) & (tmp_df.CA > 1)), "bga_source"] = (
+        "many_ct_many_ca_inferred"
+    )
 
     # Align the indices of the two dataframes so we can assign directly
     tmp_df = tmp_df.set_index(["plant_id_eia", "generator_id", "report_date"])

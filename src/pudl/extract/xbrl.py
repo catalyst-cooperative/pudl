@@ -1,4 +1,5 @@
 """Generic extractor for all FERC XBRL data."""
+
 import io
 from collections.abc import Callable
 from datetime import date

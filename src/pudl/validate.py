@@ -9,6 +9,7 @@ What defines a data validation?
     * A processed version of itself (aggregation or derived values)
     * A hard-coded external standard (e.g. heat rates, fuel heat content)
 """
+
 import warnings
 
 import numpy as np

@@ -1,4 +1,5 @@
 """Table definitions for the FERC Form 1 data group."""
+
 from typing import Any
 
 from pudl.metadata.codes import CODE_METADATA
