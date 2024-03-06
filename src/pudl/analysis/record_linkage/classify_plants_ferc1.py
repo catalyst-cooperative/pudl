@@ -28,7 +28,6 @@ _FUEL_COLS = [
     "waste_fraction_mmbtu",
 ]
 
-
 ferc_dataframe_embedder = embed_dataframe.dataframe_embedder_factory(
     "ferc_embedder",
     {

@@ -4,7 +4,7 @@ import enum
 import json
 import logging
 import re
-from importlib.resources import as_file, files
+from importlib.resources import files
 from typing import Literal
 
 import pandas as pd
@@ -16,6 +16,7 @@ CLEANING_RULES_DICT = {
     "remove_email": [" ", r"\S*@\S*\s?"],
     "remove_url": [" ", r"https*\S+"],
     "remove_word_the_from_the_end": [" ", r"the$"],
+    "remove_word_the_from_the_beginning": [" ", r"^the"],
     "place_word_the_at_the_beginning": [" ", r"the$"],
     "remove_www_address": [" ", r"https?://[.\w]{3,}|www.[.\w]{3,}"],
     "enforce_single_space_between_words": [" ", r"\s+"],
@@ -65,11 +66,15 @@ class CompanyNameCleaner(BaseModel):
     #: A flag to indicate if the cleaning process must normalize
     #: text's legal terms. e.g. LTD => LIMITED.
     cleaning_rules_list: list[str] = [
+        "remove_word_the_from_the_end",
+        "remove_word_the_from_the_beginning",
         "replace_amperstand_between_space_by_AND",
+        "replace_hyphen_by_space",
         "replace_hyphen_between_spaces_by_single_space",
         "replace_underscore_by_space",
         "replace_underscore_between_spaces_by_single_space",
-        "remove_text_puctuation_except_dot",
+        "remove_all_punctuation",
+        "remove_numbers",
         "remove_math_symbols",
         "remove_words_in_parentheses",
         "remove_parentheses",
@@ -175,8 +180,8 @@ class CompanyNameCleaner(BaseModel):
         json_source = files("pudl.package_data.settings").joinpath(
             self.__NAME_LEGAL_TERMS_DICT_FILE
         )
-        with as_file(json_source) as json_file_path:
-            _dict_legal_terms = json.load(json_file_path.open())[
+        with json_source.open() as json_file:
+            _dict_legal_terms = json.load(json_file)[
                 self.__NAME_JSON_ENTRY_LEGAL_TERMS
             ]["en"]
 
@@ -252,16 +257,16 @@ class CompanyNameCleaner(BaseModel):
         return clean_company_name
 
     def apply_name_cleaning(
-        self,
-        df: pd.DataFrame,
-    ) -> pd.Series:
+        self, df: pd.DataFrame, return_as_dframe: bool = False
+    ) -> pd.DataFrame:
         """Clean up text names in a dataframe.
 
         Arguments:
             df (dataframe): the input dataframe that contains the text's name to be cleaned
-            in_company_name_attribute (str): the attribute in the dataframe that contains the names
-            out_company_name_attribute (str): the attribute to be created for the clean version of
-                the text's name
+            return_as_dframe (bool): whether to return the cleaned data as a dataframe or series.
+                Useful to return as a dataframe if used in a cleaning pipeline with no
+                vectorization step after name cleaning. If multiple columns are passed in for
+                cleaning then output will be a dataframe regardless of this parameter.
 
         Returns:
             df (dataframe): the clean version of the input dataframe
@@ -273,4 +278,7 @@ class CompanyNameCleaner(BaseModel):
                     [clean_df, df[col].apply(self.get_clean_data)], axis=1
                 )
             return clean_df
-        return df.squeeze().apply(self.get_clean_data)
+        out = df.squeeze().apply(self.get_clean_data)
+        if return_as_dframe:
+            return out.to_frame()
+        return out

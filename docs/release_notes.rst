@@ -15,6 +15,20 @@ Data Cleaning
   :issue:`3340` and PR :pr:`3419`. This change also fixed a bug that was preventing
   other columns harvested with a special process from being saved.
 
+EIA - FERC1 Record Linkage Model Update
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+We merged in a refactor of the EIA plant parts to FERC1 plants record linkage
+model, which was generously supported by a `CCAI Innovation Grant
+<https://www.climatechange.ai/calls/innovation_grants>`__. This replaced the linear
+regression model with a model built with the Python package `Splink
+<https://moj-analytical-services.github.io/splink/index.html>`__. Splink provides helpful
+visualizations to understand model performance and parameter tuning, which can be
+generated with :mod:`devtools/splink-ferc1-eia-match.ipynb`. We measured model
+performance with precision - a measure of accuracy when the model makes a prediction,
+recall - a measure of coverage of FERC records model predicted a match for, and
+accuracy - a measure of overall correctness of the predictions. Model performance
+improved and now has a precision of .94, recall of .9, and overall accuracy of .85.
+
 Schema Changes
 ^^^^^^^^^^^^^^
 * Added ``balancing_authority_code_eia`` and ``sector_id_eia`` into the
