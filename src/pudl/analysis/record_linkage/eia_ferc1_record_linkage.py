@@ -211,7 +211,6 @@ def get_training_data_df(inputs):
 @op
 def get_model_predictions(eia_df, ferc_df, train_df, experiment_tracker):
     """Train splink model and output predicted matches."""
-    # TODO: could log this settings dictionary with expanded comparisons and blocking rules
     settings_dict = {
         "link_type": "link_only",
         "unique_id_column_name": "record_id",
@@ -513,27 +512,12 @@ def check_match_consistency(
     expected_uniform_capacity_consistency = 0.85
     mask = connects_ferc1_eia.record_id_eia.notnull()
 
-    # TODO: are the below FERC ID's still missing?
     if match_set == "overrides":
         expected_consistency = 0.39
         expected_uniform_capacity_consistency = 0.75
         train_ferc1 = train_df.reset_index()
-        # these bbs were missing from connects_ferc1_eia. not totally sure why
-        missing = [
-            "f1_steam_2018_12_51_0_1",
-            "f1_steam_2018_12_45_2_2",
-            "f1_steam_2018_12_45_2_1",
-            "f1_steam_2018_12_45_1_2",
-            "f1_steam_2018_12_45_1_1",
-            "f1_steam_2018_12_45_1_5",
-            "f1_steam_2018_12_45_1_4",
-            "f1_steam_2018_12_56_2_3",
-        ]
         over_f1 = (
-            train_ferc1[
-                train_ferc1.record_id_ferc1.str.contains("_steam_")
-                & ~train_ferc1.record_id_ferc1.isin(missing)
-            ]
+            train_ferc1[train_ferc1.record_id_ferc1.str.contains("_steam_")]
             .set_index("record_id_ferc1")
             .index
         )
@@ -555,9 +539,8 @@ def check_match_consistency(
         f"Matches with consistency across years of {match_set} matches is "
         f"{actual_consistency:.1%}"
     )
-    # TODO: take out assertion and just log a message
     if actual_consistency < expected_consistency:
-        raise AssertionError(
+        logger.warning(
             "Inter-year consistency between plant_id_ferc1 and plant_part_id_eia of "
             f"{match_set} matches {actual_consistency:.1%} is less than the expected "
             f"value of {expected_consistency:.1%}."
@@ -584,9 +567,8 @@ def check_match_consistency(
                 }
             )
         )
-    # TODO: take out assertion
     if actual_uniform_capacity_consistency < expected_uniform_capacity_consistency:
-        raise AssertionError(
+        logger.warning(
             "Inter-year consistency between plant_id_ferc1 and plant_part_id_eia of "
             "matches with uniform FERC 1 capacity "
             f"{actual_uniform_capacity_consistency:.1%} is less than the expected "

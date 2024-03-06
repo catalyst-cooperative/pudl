@@ -27,7 +27,7 @@ generated with :mod:`devtools/splink-ferc1-eia-match.ipynb`. We measured model
 performance with precision - a measure of accuracy when the model makes a prediction,
 recall - a measure of coverage of FERC records model predicted a match for, and
 accuracy - a measure of overall correctness of the predictions. Model performance
-improved and now has a precision of .94 and recall of .9.
+improved and now has a precision of .94, recall of .9, and overall accuracy of .85.
 
 .. _release-v2024.2.6:
 
