@@ -1,4 +1,5 @@
 """Functions & classes for compiling derived aspects of the FERC Form 714 data."""
+
 from typing import Any
 
 import geopandas as gpd

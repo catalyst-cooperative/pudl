@@ -1,4 +1,5 @@
 """Unit tests for pudl.extract.csv module."""
+
 from unittest.mock import MagicMock, patch
 
 import pandas as pd

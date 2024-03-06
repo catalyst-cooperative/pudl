@@ -1,4 +1,5 @@
 """Validate post-ETL EPACAMD-EIA Crosswalk data."""
+
 import logging
 
 import pytest

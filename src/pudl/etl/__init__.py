@@ -1,4 +1,5 @@
 """Dagster definitions for the PUDL ETL and Output tables."""
+
 import importlib.resources
 import itertools
 import warnings

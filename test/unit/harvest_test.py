@@ -1,4 +1,5 @@
 """Tests for Resource harvesting methods."""
+
 from typing import Any
 
 import numpy as np

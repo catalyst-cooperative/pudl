@@ -1,4 +1,5 @@
 """Datastore manages file retrieval for PUDL datasets."""
+
 import hashlib
 import io
 import json

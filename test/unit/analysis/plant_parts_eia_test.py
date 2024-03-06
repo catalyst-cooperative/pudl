@@ -1,4 +1,5 @@
 """Tests for timeseries anomalies detection and imputation."""
+
 from importlib import resources
 
 import pandas as pd

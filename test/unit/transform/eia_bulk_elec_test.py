@@ -1,4 +1,5 @@
 """Tests for pudl.transform.eia_bulk_elec functions."""
+
 from io import BytesIO
 
 import pandas as pd

@@ -1,4 +1,5 @@
 """Functions for manipulating metadata constants."""
+
 import re
 from collections import defaultdict
 from collections.abc import Callable, Iterable

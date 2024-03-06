@@ -66,6 +66,7 @@ database online at:
 
 https://data.catalyst.coop/ferc1
 """
+
 import json
 from itertools import chain
 from pathlib import Path

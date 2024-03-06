@@ -1,4 +1,5 @@
 """Module for validating pudl etl settings."""
+
 import json
 from enum import Enum, unique
 from typing import Any, ClassVar, Self

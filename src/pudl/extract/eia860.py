@@ -4,6 +4,7 @@ This modules pulls data from EIA's published Excel spreadsheets.
 
 This code is for use analyzing EIA Form 860 data.
 """
+
 import pandas as pd
 from dagster import AssetOut, Output, multi_asset
 

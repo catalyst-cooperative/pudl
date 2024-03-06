@@ -1,4 +1,5 @@
 """Helper functions for creating output assets."""
+
 import importlib.resources
 
 from dagster import AssetsDefinition, asset

@@ -1,4 +1,5 @@
 """Test the PUDL console scripts from within PyTest."""
+
 from pathlib import Path
 
 import geopandas as gpd

@@ -1,4 +1,5 @@
 """Unit tests for pudl.extract.excel module."""
+
 import unittest
 from unittest import mock as mock
 

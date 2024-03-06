@@ -1,4 +1,5 @@
 """Extractor for CSV data."""
+
 import pandas as pd
 
 import pudl.logging_helpers

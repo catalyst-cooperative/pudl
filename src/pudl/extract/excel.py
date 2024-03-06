@@ -1,4 +1,5 @@
 """Load excel metadata CSV files form a python data package."""
+
 import pathlib
 import re
 from io import BytesIO

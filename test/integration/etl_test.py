@@ -4,6 +4,7 @@ This module also contains fixtures for returning connections to the databases. T
 connections can be either to the live databases for post-ETL testing or to new temporary
 databases, which are created from scratch and dropped after the tests have completed.
 """
+
 import logging
 
 import pandas as pd

@@ -176,6 +176,7 @@ OR make the table via objects in this module:
     parts_compiler = MakePlantParts(pudl_out)
     plant_parts_eia = parts_compiler.execute(gens_mega=gens_mega)
 """
+
 from collections import OrderedDict
 from copy import deepcopy
 from importlib import resources

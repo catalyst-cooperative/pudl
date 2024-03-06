@@ -3,6 +3,7 @@
 These tests depend on a FERC Form 1 specific PudlTabl output object, which is a
 parameterized fixture that has session scope.
 """
+
 import logging
 
 import pandas as pd

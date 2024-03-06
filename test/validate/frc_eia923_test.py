@@ -1,4 +1,5 @@
 """Validate post-ETL Fuel Receipts and Costs data from EIA 923."""
+
 import logging
 
 import pytest
