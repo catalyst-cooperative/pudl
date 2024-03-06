@@ -63,11 +63,14 @@ def test_extract():
     df.columns = [company_field]
     # TODO: Once FakeExtractor is independent of eia176, mock out populating _column_map for PARTITION_SELECTION;
     #  Also include negative tests, i.e., for partition selections not in the _column_map
-    with patch.object(CsvExtractor, "load_source", return_value=df), patch.object(
-        # Transposing the df here to get the orientation we expect get_page_cols to return
-        CsvExtractor,
-        "get_page_cols",
-        return_value=df.T.index,
+    with (
+        patch.object(CsvExtractor, "load_source", return_value=df),
+        patch.object(
+            # Transposing the df here to get the orientation we expect get_page_cols to return
+            CsvExtractor,
+            "get_page_cols",
+            return_value=df.T.index,
+        ),
     ):
         res = extractor.extract(**PARTITION)
     assert len(res) == 1

@@ -1,4 +1,5 @@
 """Generic functionality for extractors."""
+
 import importlib.resources
 from abc import ABC, abstractmethod
 from collections import defaultdict

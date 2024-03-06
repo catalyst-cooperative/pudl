@@ -1,4 +1,5 @@
 """Extract EIA Form 757a data from CSVs."""
+
 import pandas as pd
 from dagster import Output, asset
 

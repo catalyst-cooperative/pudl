@@ -45,9 +45,10 @@ class CsvExtractor(GenericExtractor):
         """
         filename = self.source_filename(page, **partition)
 
-        with self.ds.get_zipfile_resource(
-            self._dataset_name, **partition
-        ) as zf, zf.open(filename) as f:
+        with (
+            self.ds.get_zipfile_resource(self._dataset_name, **partition) as zf,
+            zf.open(filename) as f,
+        ):
             df = pd.read_csv(f)
 
         return df
