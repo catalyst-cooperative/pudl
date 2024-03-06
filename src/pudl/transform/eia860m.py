@@ -110,10 +110,8 @@ def core_eia860m__changelog_generators(
     # there is one plant/gen that has duplicate values
     gens_idx = ["plant_id_eia", "generator_id", "report_date"]
     dupe_mask = (eia860m_all.plant_id_eia == 56032) & (eia860m_all.generator_id == "1")
-    deduped: pd.DataFrame = eia860m_all[dupe_mask].drop_duplicates(
-        subset=gens_idx, keep="first"
-    )
-    without_known_dupes: pd.DataFrame = eia860m_all[~dupe_mask]
+    deduped = eia860m_all[dupe_mask].drop_duplicates(subset=gens_idx, keep="first")
+    without_known_dupes = eia860m_all[~dupe_mask]
     eia860m_deduped = pd.concat([without_known_dupes, deduped])
 
     # Check whether we have truly deduplicated the dataframe.

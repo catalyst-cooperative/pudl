@@ -18,8 +18,9 @@ Data Cleaning
 Schema Changes
 ^^^^^^^^^^^^^^
 * Added ``balancing_authority_code_eia`` and ``sector_id_eia`` into the
-  :ref:`core_eia860m__changelog_generators` table. This required some cleanup of the BA
-  codes, which were not standardized. See issue :issue:`3437` and PR :pr:`3442`.
+  :ref:`core_eia860m__changelog_generators` table. The BA codes reported in the raw data
+  contained a lot of non-standard values, which have now been standardized. See issue
+  :issue:`3437` and PR :pr:`3442`.
 
 .. _release-v2024.2.6:
 
