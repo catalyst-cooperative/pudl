@@ -1,4 +1,5 @@
 """Check that foreign key constraints in the PUDL database are respected."""
+
 import pathlib
 import sys
 

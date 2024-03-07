@@ -9,6 +9,7 @@ generators.
 For now, these calculations are only using the EIA fuel cost data. FERC Form 1 non-fuel
 production costs have yet to be integrated.
 """
+
 import logging
 
 import pytest
@@ -109,7 +110,7 @@ def test_minmax_rows_mcoe(pudl_out_mcoe, live_dbs, monthly_rows, annual_rows, df
     if pudl_out_mcoe.freq == "MS":
         expected_rows = monthly_rows
     else:
-        assert pudl_out_mcoe.freq == "AS"
+        assert pudl_out_mcoe.freq == "YS"
         expected_rows = annual_rows
     _ = (
         pudl_out_mcoe.__getattribute__(df_name)()

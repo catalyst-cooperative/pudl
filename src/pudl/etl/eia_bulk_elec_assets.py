@@ -1,4 +1,5 @@
 """EIA Bulk Electricty Aggregate assets."""
+
 from dagster import asset
 
 import pudl

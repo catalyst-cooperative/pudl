@@ -1,4 +1,5 @@
 """Test Dagster IO Managers."""
+
 import datetime
 import json
 from pathlib import Path

@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 """Print out install requirements from setup.py for use with pip install."""
+
 import distutils.core
 
 setup = distutils.core.run_setup("setup.py")

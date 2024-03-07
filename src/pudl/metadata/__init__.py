@@ -1,4 +1,5 @@
 """Metadata constants and methods."""
+
 from . import (
     classes,
     codes,

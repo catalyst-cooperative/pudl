@@ -1,4 +1,5 @@
 """Validate post-ETL Generation Fuel data from EIA 923."""
+
 import logging
 
 import pytest

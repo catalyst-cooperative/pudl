@@ -4,18 +4,20 @@ This modules pulls data from EIA's published Excel spreadsheets.
 
 This code is for use analyzing EIA Form 860 data.
 """
+
 import pandas as pd
 from dagster import AssetOut, Output, multi_asset
 
 import pudl
 import pudl.logging_helpers
 from pudl.extract import excel
+from pudl.extract.extractor import raw_df_factory
 from pudl.helpers import remove_leading_zeros_from_numeric_strings
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-class Extractor(excel.GenericExtractor):
+class Extractor(excel.ExcelExtractor):
     """Extractor for the excel dataset EIA860."""
 
     def __init__(self, *args, **kwargs):
@@ -24,7 +26,7 @@ class Extractor(excel.GenericExtractor):
         Args:
             ds (:class:datastore.Datastore): Initialized datastore.
         """
-        self.METADATA = excel.Metadata("eia860")
+        self.METADATA = excel.ExcelMetadata("eia860")
         self.cols_added = []
         super().__init__(*args, **kwargs)
 
@@ -84,7 +86,7 @@ raw_table_names = (
 )
 
 
-raw_eia860__all_dfs = excel.raw_df_factory(Extractor, name="eia860")
+raw_eia860__all_dfs = raw_df_factory(Extractor, name="eia860")
 
 
 # TODO (bendnorman): Figure out type hint for context keyword and mutli_asset return

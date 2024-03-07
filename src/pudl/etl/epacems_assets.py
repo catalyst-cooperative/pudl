@@ -8,6 +8,7 @@ from a graph of ops. The dynamic graph will allow dagster to dynamically generat
 for processing each year of EPA CEMS data and execute these ops in parallel. For more information
 see: https://docs.dagster.io/concepts/ops-jobs-graphs/dynamic-graphs and https://docs.dagster.io/concepts/assets/graph-backed-assets.
 """
+
 from collections import namedtuple
 from pathlib import Path
 

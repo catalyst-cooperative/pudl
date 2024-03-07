@@ -1,4 +1,5 @@
 """Interim and output tables derived from the EIA Bulk Electricity data."""
+
 import pandas as pd
 from dagster import asset
 

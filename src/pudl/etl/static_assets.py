@@ -1,4 +1,5 @@
 """Dagster assets of static data tables."""
+
 from typing import Literal
 
 import pandas as pd
@@ -51,9 +52,9 @@ def static_pudl_tables(context):
     dataset_settings = context.resources.dataset_settings
 
     static_pudl_tables_dict = {"core_pudl__codes_subdivisions": POLITICAL_SUBDIVISIONS}
-    static_pudl_tables_dict[
-        "core_pudl__codes_datasources"
-    ] = dataset_settings.make_datasources_table(ds)
+    static_pudl_tables_dict["core_pudl__codes_datasources"] = (
+        dataset_settings.make_datasources_table(ds)
+    )
     return (
         Output(output_name=table_name, value=df)
         for table_name, df in static_pudl_tables_dict.items()

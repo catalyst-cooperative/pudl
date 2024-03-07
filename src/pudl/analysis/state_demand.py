@@ -16,6 +16,7 @@ manual and could certainly be improved, but overall the results seem reasonable.
 Additional predictive spatial variables will be required to obtain more granular
 electricity demand estimates (e.g. at the county level).
 """
+
 import datetime
 from collections.abc import Iterable
 from typing import Any
@@ -280,9 +281,9 @@ def load_hourly_demand_matrix_ferc714(
         of each `respondent_id_ferc714` and reporting `year` (int).
     """
     # Convert UTC to local time (ignoring daylight savings)
-    out_ferc714__hourly_planning_area_demand[
-        "utc_offset"
-    ] = out_ferc714__hourly_planning_area_demand["timezone"].map(STANDARD_UTC_OFFSETS)
+    out_ferc714__hourly_planning_area_demand["utc_offset"] = (
+        out_ferc714__hourly_planning_area_demand["timezone"].map(STANDARD_UTC_OFFSETS)
+    )
     out_ferc714__hourly_planning_area_demand["datetime"] = utc_to_local(
         out_ferc714__hourly_planning_area_demand["utc_datetime"],
         out_ferc714__hourly_planning_area_demand["utc_offset"],
@@ -292,9 +293,9 @@ def load_hourly_demand_matrix_ferc714(
         index="datetime", columns="respondent_id_ferc714", values="demand_mwh"
     )
     # List timezone by year for each respondent
-    out_ferc714__hourly_planning_area_demand[
-        "year"
-    ] = out_ferc714__hourly_planning_area_demand["report_date"].dt.year
+    out_ferc714__hourly_planning_area_demand["year"] = (
+        out_ferc714__hourly_planning_area_demand["report_date"].dt.year
+    )
     utc_offset = out_ferc714__hourly_planning_area_demand.groupby(
         ["respondent_id_ferc714", "year"], as_index=False
     )["utc_offset"].first()

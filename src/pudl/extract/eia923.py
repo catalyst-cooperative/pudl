@@ -5,17 +5,19 @@ This modules pulls data from EIA's published Excel spreadsheets.
 This code is for use analyzing EIA Form 923 data. Currenly only years 2009-2016 work, as
 they share nearly identical file formatting.
 """
+
 import pandas as pd
 from dagster import AssetOut, Output, multi_asset
 
 import pudl.logging_helpers
 from pudl.extract import excel
+from pudl.extract.extractor import raw_df_factory
 from pudl.helpers import remove_leading_zeros_from_numeric_strings
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-class Extractor(excel.GenericExtractor):
+class Extractor(excel.ExcelExtractor):
     """Extractor for EIA form 923."""
 
     def __init__(self, *args, **kwargs):
@@ -24,7 +26,7 @@ class Extractor(excel.GenericExtractor):
         Args:
             ds (:class:datastore.Datastore): Initialized datastore.
         """
-        self.METADATA = excel.Metadata("eia923")
+        self.METADATA = excel.ExcelMetadata("eia923")
         self.BLACKLISTED_PAGES = ["plant_frame"]
         self.cols_added = []
         super().__init__(*args, **kwargs)
@@ -110,7 +112,7 @@ eia_raw_table_names = (
 )
 
 
-raw_eia923__all_dfs = excel.raw_df_factory(Extractor, name="eia923")
+raw_eia923__all_dfs = raw_df_factory(Extractor, name="eia923")
 
 
 # TODO (bendnorman): Figure out type hint for context keyword and mutli_asset return

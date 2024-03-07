@@ -1,4 +1,5 @@
 """PyTest cases related to the integration between FERC1 & EIA 860/923."""
+
 import logging
 from pathlib import Path
 

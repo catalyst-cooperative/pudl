@@ -1,4 +1,5 @@
 """Transformation of the FERC Form 714 data."""
+
 import re
 
 import numpy as np

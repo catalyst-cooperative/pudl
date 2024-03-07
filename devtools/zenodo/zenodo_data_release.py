@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 """Script to sync a directory up to Zenodo."""
+
 import datetime
 import logging
 import os

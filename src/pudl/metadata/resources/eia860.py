@@ -1,4 +1,5 @@
 """Definitions of data tables primarily coming from EIA-860."""
+
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
