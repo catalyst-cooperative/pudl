@@ -1,4 +1,5 @@
 """Definitions of data tables primarily coming from EIA-923."""
+
 from typing import Any
 
 TABLE_DESCRIPTIONS: dict[str, str] = {

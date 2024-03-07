@@ -1,4 +1,5 @@
 """Table definitions for the EPA CEMS data group."""
+
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {

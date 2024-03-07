@@ -1,4 +1,5 @@
 """Define a record linkage model interface and implement common functionality."""
+
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -61,9 +62,9 @@ class DistanceMatrix:
         year_inds = original_df.groupby("report_year").indices
         for inds in year_inds.values():
             matching_year_inds = np.array(np.meshgrid(inds, inds)).T.reshape(-1, 2)
-            self.distance_matrix[
-                matching_year_inds[:, 0], matching_year_inds[:, 1]
-            ] = config.distance_penalty
+            self.distance_matrix[matching_year_inds[:, 0], matching_year_inds[:, 1]] = (
+                config.distance_penalty
+            )
 
         np.fill_diagonal(self.distance_matrix, 0)
         self.distance_matrix.flush()

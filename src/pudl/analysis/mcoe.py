@@ -1,4 +1,5 @@
 """A module with functions to aid generating MCOE."""
+
 from typing import Literal
 
 import pandas as pd

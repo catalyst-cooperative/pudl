@@ -1,6 +1,5 @@
 """Tests for xbrl extraction module."""
 
-
 import pytest
 from dagster import ResourceDefinition, build_op_context
 

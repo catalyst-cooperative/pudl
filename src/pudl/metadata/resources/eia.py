@@ -1,4 +1,5 @@
 """Definitions of data tables primarily coming from EIA 860/861/923."""
+
 from typing import Any
 
 from pudl.metadata.codes import CODE_METADATA

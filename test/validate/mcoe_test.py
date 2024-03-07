@@ -9,6 +9,7 @@ generators.
 For now, these calculations are only using the EIA fuel cost data. FERC Form 1 non-fuel
 production costs have yet to be integrated.
 """
+
 import logging
 
 import pytest

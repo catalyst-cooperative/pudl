@@ -36,7 +36,7 @@ def core_eia860m__changelog_generators(
     # compile all of the columns so these 860m bbs have everything for the transform
     eia860_columns = pudl.helpers.dedupe_n_flatten_list_of_lists(
         [
-            pudl.extract.excel.Metadata("eia860").get_all_columns(gen_table)
+            pudl.extract.excel.ExcelMetadata("eia860").get_all_columns(gen_table)
             for gen_table in [
                 "generator_proposed",
                 "generator_existing",

@@ -1,0 +1,13 @@
+year_index,any_year
+year,year
+report_state,report_state
+plant_name,plant_name
+owner_company,owner_company
+operator_company,operator_company
+county_name,county_name
+zipcode,zipcode
+plant_capacity,plant_capacity
+plant_flow,plant_flow
+btu_content,btu_content
+ng_liquid_storage_capacity,ng_liquid_storage_capacity
+dry_gas_storage_capacity,dry_gas_storage_capacity

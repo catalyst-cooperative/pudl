@@ -1,6 +1,5 @@
 """Hooks to integrate ferc to sqlite functionality into dagster graph."""
 
-
 import pudl
 from pudl.extract.ferc1 import Ferc1DbfExtractor
 from pudl.extract.ferc2 import Ferc2DbfExtractor

@@ -1,4 +1,5 @@
 """Definitions for the connection between FERC1 and EIA."""
+
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {

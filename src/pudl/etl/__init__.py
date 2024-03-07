@@ -1,4 +1,5 @@
 """Dagster definitions for the PUDL ETL and Output tables."""
+
 import importlib.resources
 import itertools
 import warnings
@@ -45,6 +46,8 @@ default_assets = (
     *load_assets_from_modules([eia_bulk_elec_assets], group_name="core_eia_bulk_elec"),
     *load_assets_from_modules([epacems_assets], group_name="core_epacems"),
     *load_assets_from_modules([pudl.extract.eia176], group_name="raw_eia176"),
+    *load_assets_from_modules([pudl.extract.eia191], group_name="raw_eia191"),
+    *load_assets_from_modules([pudl.extract.eia757a], group_name="raw_eia757a"),
     *load_assets_from_modules([pudl.extract.phmsagas], group_name="raw_phmsagas"),
     *load_assets_from_modules([pudl.extract.eia860m], group_name="raw_eia860m"),
     *load_assets_from_modules([pudl.extract.eia860], group_name="raw_eia860"),

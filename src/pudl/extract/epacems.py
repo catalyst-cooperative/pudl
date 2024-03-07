@@ -19,6 +19,7 @@ entirely accurate. The core_epa__assn_eia_epacamd crosswalk will show that the m
 Hence, we've called it `plant_id_epa` until it gets transformed into `plant_id_eia`
 during the transform process with help from the crosswalk.
 """
+
 from pathlib import Path
 from typing import Annotated
 
@@ -173,9 +174,12 @@ class EpaCemsDatastore:
 
     def get_data_frame(self, partition: EpaCemsPartition) -> pd.DataFrame:
         """Constructs dataframe from a zipfile for a given (year_quarter) partition."""
-        with self.datastore.get_zipfile_resource(
-            "epacems", **partition.get_filters()
-        ) as zf, zf.open(str(partition.get_quarterly_file()), "r") as csv_file:
+        with (
+            self.datastore.get_zipfile_resource(
+                "epacems", **partition.get_filters()
+            ) as zf,
+            zf.open(str(partition.get_quarterly_file()), "r") as csv_file,
+        ):
             df = self._csv_to_dataframe(
                 csv_file,
                 ignore_cols=API_IGNORE_COLS,

@@ -1,4 +1,5 @@
 """Validate post-ETL EIA 860 data and the associated derived outputs."""
+
 import logging
 from test.conftest import skip_table_if_null_freq_table
 

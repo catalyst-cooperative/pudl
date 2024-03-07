@@ -6,6 +6,7 @@ designed to be used as a general purpose tool, applicable in multiple scenarios,
 should probably live here. There are lost of transform type functions in here that help
 with cleaning and restructing dataframes.
 """
+
 import importlib.resources
 import itertools
 import json
@@ -265,9 +266,9 @@ def clean_eia_counties(
     df = df.explode(county_col)
     df[county_col] = df[county_col].str.strip()
     # Yellowstone county is in MT, not WY
-    df.loc[
-        (df[state_col] == "WY") & (df[county_col] == "Yellowstone"), state_col
-    ] = "MT"
+    df.loc[(df[state_col] == "WY") & (df[county_col] == "Yellowstone"), state_col] = (
+        "MT"
+    )
     # Replace individual bad county names with identified correct names in fixes:
     for fix in fixes.itertuples():
         state_mask = df[state_col] == fix.state
@@ -1372,7 +1373,12 @@ def zero_pad_numeric_string(col: pd.Series, n_digits: int) -> pd.Series:
 
 
 def iterate_multivalue_dict(**kwargs):
-    """Make dicts from dict with main dict key and one value of main dict."""
+    """Make dicts from dict with main dict key and one value of main dict.
+
+    If kwargs is {'form;: 'gas_distribution', 'years': [2019, 2020]}, it will yield these results:
+        {'form': 'gas_distribution', 'years': 2019}
+        {'form': 'gas_distribution', 'years': 2020}
+    """
     single_valued = {
         k: v for k, v in kwargs.items() if not (isinstance(v, list | tuple))
     }

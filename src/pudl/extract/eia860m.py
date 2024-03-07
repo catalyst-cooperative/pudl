@@ -25,7 +25,7 @@ from pudl.helpers import remove_leading_zeros_from_numeric_strings
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-class Extractor(excel.GenericExtractor):
+class Extractor(excel.ExcelExtractor):
     """Extractor for the excel dataset EIA860M."""
 
     def __init__(self, *args, **kwargs):
@@ -34,7 +34,7 @@ class Extractor(excel.GenericExtractor):
         Args:
             ds (:class:datastore.Datastore): Initialized datastore.
         """
-        self.METADATA = excel.Metadata("eia860m")
+        self.METADATA = excel.ExcelMetadata("eia860m")
         self.cols_added = []
         super().__init__(*args, **kwargs)
 
@@ -80,7 +80,7 @@ def append_eia860m(
         appended to its eia860_raw_dfs counterpart.
 
     """
-    meta_eia860m = excel.Metadata("eia860m")
+    meta_eia860m = excel.ExcelMetadata("eia860m")
     pages_eia860m = meta_eia860m.get_all_pages()
     # page names in 860m and 860 are the same.
     for page in pages_eia860m:

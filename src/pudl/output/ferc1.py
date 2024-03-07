@@ -953,9 +953,9 @@ def out_ferc1__yearly_steam_plants_fuel_by_plant_sched402(
     # The existing function expects `fuel_type_code_pudl` to be an object, rather than
     # a category. This is a legacy of pre-dagster code, and we convert here to prevent
     # further retooling in the code-base.
-    core_ferc1__yearly_steam_plants_fuel_sched402[
-        "fuel_type_code_pudl"
-    ] = core_ferc1__yearly_steam_plants_fuel_sched402["fuel_type_code_pudl"].astype(str)
+    core_ferc1__yearly_steam_plants_fuel_sched402["fuel_type_code_pudl"] = (
+        core_ferc1__yearly_steam_plants_fuel_sched402["fuel_type_code_pudl"].astype(str)
+    )
 
     fuel_categories = list(
         pudl.transform.ferc1.SteamPlantsFuelTableTransformer()
