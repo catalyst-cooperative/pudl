@@ -1,4 +1,5 @@
 """Validate post-ETL EIA 860 data and the associated derived outputs."""
+
 import logging
 
 import pandas as pd

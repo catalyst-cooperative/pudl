@@ -28,6 +28,7 @@ And described at:
 * https://arxiv.org/abs/2008.03194
 * https://github.com/xinychen/tensor-learning
 """
+
 import functools
 import warnings
 from collections.abc import Iterable, Sequence

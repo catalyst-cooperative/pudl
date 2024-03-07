@@ -1,4 +1,5 @@
 """Dagster definitions for the FERC to SQLite process."""
+
 import importlib.resources
 
 from dagster import Definitions, graph

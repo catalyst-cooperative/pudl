@@ -7,6 +7,7 @@ documented in that module.
 See :mod:`pudl.transform.params.ferc1` for the values that parameterize many of these
 transformations.
 """
+
 import enum
 import importlib.resources
 import itertools
@@ -4317,12 +4318,12 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
         )
 
         # Fill NA and "other" fields
-        df.loc[
-            df["plant_type"].isin([pd.NA, "other"]), "plant_type"
-        ] = df.plant_type_from_header
-        df.loc[
-            df["fuel_type"].isin([pd.NA, "other"]), "fuel_type"
-        ] = df.fuel_type_from_header
+        df.loc[df["plant_type"].isin([pd.NA, "other"]), "plant_type"] = (
+            df.plant_type_from_header
+        )
+        df.loc[df["fuel_type"].isin([pd.NA, "other"]), "fuel_type"] = (
+            df.fuel_type_from_header
+        )
 
         # Remove _from_header fields
         df = df.drop(columns=["plant_type_from_header", "fuel_type_from_header"])

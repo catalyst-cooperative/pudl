@@ -1,4 +1,5 @@
 """Validate post-ETL Generators data from EIA 860."""
+
 import logging
 
 import numpy as np
@@ -27,7 +28,7 @@ def test_ownership_for_owned_records(pudl_out_eia, live_dbs):
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
 
-    if pudl_out_eia.freq == "AS":  # Annual only.
+    if pudl_out_eia.freq == "YS":  # Annual only.
         logger.info("Testing ownership fractions for owned records.")
 
         plant_parts_eia = pudl_out_eia.plant_parts_eia()
@@ -90,7 +91,7 @@ def test_run_aggregations(pudl_out_eia, live_dbs):
     """
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
-    if pudl_out_eia.freq == "AS":  # Annual only.
+    if pudl_out_eia.freq == "YS":  # Annual only.
         logger.info("Testing ownership fractions for owned records.")
 
         mcoe = pudl_out_eia.mcoe_generators()

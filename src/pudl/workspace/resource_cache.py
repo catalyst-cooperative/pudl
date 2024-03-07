@@ -106,7 +106,8 @@ class LocalFileCache(AbstractCache):
             return
         path = self._resource_path(resource)
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.open("wb").write(content)
+        with path.open("wb") as file:
+            file.write(content)
 
     def delete(self, resource: PudlResourceKey):
         """Deletes resource from the cache."""

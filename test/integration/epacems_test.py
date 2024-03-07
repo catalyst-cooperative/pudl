@@ -1,4 +1,5 @@
 """Tests for pudl/output/epacems.py loading functions."""
+
 from pathlib import Path
 
 import dask.dataframe as dd

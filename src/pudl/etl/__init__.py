@@ -1,4 +1,5 @@
 """Dagster definitions for the PUDL ETL and Output tables."""
+
 import importlib.resources
 import itertools
 import warnings
@@ -45,6 +46,8 @@ default_assets = (
     *load_assets_from_modules([eia_bulk_elec_assets], group_name="core_eia_bulk_elec"),
     *load_assets_from_modules([epacems_assets], group_name="core_epacems"),
     *load_assets_from_modules([pudl.extract.eia176], group_name="raw_eia176"),
+    *load_assets_from_modules([pudl.extract.eia191], group_name="raw_eia191"),
+    *load_assets_from_modules([pudl.extract.eia757a], group_name="raw_eia757a"),
     *load_assets_from_modules([pudl.extract.phmsagas], group_name="raw_phmsagas"),
     *load_assets_from_modules([pudl.extract.eia860m], group_name="raw_eia860m"),
     *load_assets_from_modules([pudl.extract.eia860], group_name="raw_eia860"),
@@ -173,7 +176,9 @@ _asset_keys = itertools.chain.from_iterable(
 default_asset_checks = [
     check
     for check in (
-        asset_check_from_schema(asset_key, _package) for asset_key in _asset_keys
+        asset_check_from_schema(asset_key, _package)
+        for asset_key in _asset_keys
+        if asset_key.to_user_string() != "core_epacems__hourly_emissions"
     )
     if check is not None
 ]
@@ -199,6 +204,7 @@ default_tag_concurrency_limits = [
 default_config = pudl.helpers.get_dagster_execution_config(
     tag_concurrency_limits=default_tag_concurrency_limits
 )
+default_config |= pudl.analysis.ml_tools.get_ml_models_config()
 
 
 def create_non_cems_selection(all_assets: list[AssetsDefinition]) -> AssetSelection:

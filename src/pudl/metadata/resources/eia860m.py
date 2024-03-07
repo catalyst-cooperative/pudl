@@ -1,28 +1,30 @@
 """Definitions of data tables primarily coming from EIA-860m."""
+
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia860m__changelog_generators": {
         "description": (
-            "This table is a changelog of the monthly reported EIA-860m data. EIA-860m "
-            "includes generator tables with the most up-to-date catalogue of EIA "
-            "generators and their operational status and other generator characteristics. "
-            "EIA-860m is reported monthly, although for the vast majority of the generators "
-            "nothing changes month-to-month. This table is a changelog of that monthly "
-            "reported generator data. There is a record cooresponding to the first instance "
-            "of a generator and associated characteristics with a report_date column and a "
-            "valid_till_date column. Whenever any of the reported EIA-860m data was changed "
-            "for a record, there will be a new changelog record with a new report_date."
+            """This table is a changelog of the monthly reported EIA-860M data. EIA-860M includes
+generator tables with the most up-to-date catalog of EIA generators and their
+operational status and other generator characteristics.  EIA-860M is reported monthly,
+although for the vast majority of the generators nothing changes month-to-month. This
+table is a changelog of that monthly reported generator data. There is a record
+corresponding to the first instance of a generator and associated characteristics with a
+report_date column and a valid_until_date column. Whenever any of the reported EIA-860M
+data was changed for a record, there will be a new changelog record with a new
+report_date."""
         ),
         "schema": {
             "fields": [
                 "report_date",
-                "valid_till_date",
+                "valid_until_date",
                 "plant_id_eia",
                 "plant_name_eia",
                 "utility_id_eia",
                 "utility_name_eia",
                 "generator_id",
+                "balancing_authority_code_eia",
                 "capacity_mw",
                 "county",
                 "current_planned_generator_operating_date",
@@ -42,6 +44,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "planned_net_summer_capacity_uprate_mw",
                 "planned_uprate_date",
                 "prime_mover_code",
+                "sector_id_eia",
                 "state",
                 "summer_capacity_mw",
                 "technology_description",

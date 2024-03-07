@@ -1,52 +1,77 @@
 """Unit tests for pudl.extract.csv module."""
+
 from unittest.mock import MagicMock, patch
 
-from pudl.extract.csv import CsvExtractor, get_table_file_map, open_csv_resource
+import pandas as pd
+from pytest import raises
+
+from pudl.extract.csv import CsvExtractor
+from pudl.extract.extractor import GenericMetadata
 
 DATASET = "eia176"
-BASE_FILENAME = "table_file_map.csv"
-TABLE_NAME = "company"
-FILENAME = "all_company_176.csv"
-TABLE_FILE_MAP = {TABLE_NAME: FILENAME}
+PAGE = "data"
+PARTITION_SELECTION = 2023
+PARTITION = {"year": PARTITION_SELECTION}
+CSV_FILENAME = f"{DATASET}_{PARTITION_SELECTION}.csv"
 
 
-def get_csv_extractor():
-    zipfile = MagicMock()
-    return CsvExtractor(zipfile, TABLE_FILE_MAP)
+class FakeExtractor(CsvExtractor):
+    def __init__(self):
+        # TODO: Make these tests independent of the eia176 implementation
+        self.METADATA = GenericMetadata("eia176")
+        super().__init__(ds=MagicMock())
 
 
-def test_open_csv_resource():
-    csv_resource = open_csv_resource(DATASET, BASE_FILENAME)
-    assert ["table", "filename"] == csv_resource.fieldnames
+def test_source_filename_valid_partition():
+    extractor = FakeExtractor()
+    assert extractor.source_filename(PAGE, **PARTITION) == CSV_FILENAME
 
 
-def test_get_table_file_map():
-    table_file_map = get_table_file_map(DATASET)
-    assert table_file_map == TABLE_FILE_MAP
+def test_source_filename_multipart_partition():
+    extractor = FakeExtractor()
+    multipart_partition = PARTITION.copy()
+    multipart_partition["month"] = 12
+    with raises(AssertionError):
+        extractor.source_filename(PAGE, **multipart_partition)
 
 
-def test_get_table_names():
-    extractor = get_csv_extractor()
-    table_names = extractor.get_table_names()
-    assert [TABLE_NAME] == table_names
+def test_source_filename_multiple_selections():
+    extractor = FakeExtractor()
+    multiple_selections = {"year": [PARTITION_SELECTION, 2024]}
+    with raises(AssertionError):
+        extractor.source_filename(PAGE, **multiple_selections)
 
 
 @patch("pudl.extract.csv.pd")
-def test_csv_extractor_read_source(mock_pd):
-    extractor = get_csv_extractor()
-    res = extractor.extract_one(TABLE_NAME)
-    mock_zipfile = extractor._zipfile
-    mock_zipfile.open.assert_called_once_with(FILENAME)
-    f = mock_zipfile.open.return_value.__enter__.return_value
-    mock_pd.read_csv.assert_called_once_with(f)
-    df = mock_pd.read_csv()
-    assert df == res
+def test_load_source(mock_pd):
+    extractor = FakeExtractor()
+
+    assert extractor.load_source(PAGE, **PARTITION) == mock_pd.read_csv.return_value
+    extractor.ds.get_zipfile_resource.assert_called_once_with(DATASET, **PARTITION)
+    zipfile = extractor.ds.get_zipfile_resource.return_value.__enter__.return_value
+    zipfile.open.assert_called_once_with(CSV_FILENAME)
+    file = zipfile.open.return_value.__enter__.return_value
+    mock_pd.read_csv.assert_called_once_with(file)
 
 
-def test_csv_extractor_extract():
-    extractor = get_csv_extractor()
-    df = MagicMock()
-    with patch.object(CsvExtractor, "extract_one", return_value=df) as mock_read_source:
-        raw_dfs = extractor.extract_all()
-    mock_read_source.assert_called_once_with(TABLE_NAME)
-    assert {TABLE_NAME: df} == raw_dfs
+def test_extract():
+    extractor = FakeExtractor()
+    # Create a sample of data we could expect from an EIA CSV
+    company_field = "company"
+    company_data = "Total of All Companies"
+    df = pd.DataFrame([company_data])
+    df.columns = [company_field]
+    # TODO: Once FakeExtractor is independent of eia176, mock out populating _column_map for PARTITION_SELECTION;
+    #  Also include negative tests, i.e., for partition selections not in the _column_map
+    with (
+        patch.object(CsvExtractor, "load_source", return_value=df),
+        patch.object(
+            # Transposing the df here to get the orientation we expect get_page_cols to return
+            CsvExtractor,
+            "get_page_cols",
+            return_value=df.T.index,
+        ),
+    ):
+        res = extractor.extract(**PARTITION)
+    assert len(res) == 1
+    assert res[PAGE][company_field][0] == company_data

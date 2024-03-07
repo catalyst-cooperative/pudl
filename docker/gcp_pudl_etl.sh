@@ -71,7 +71,7 @@ function run_pudl_etl() {
 
 function save_outputs_to_gcs() {
     echo "Copying outputs to GCP bucket $PUDL_GCS_OUTPUT" && \
-    gsutil -m cp -r "$PUDL_OUTPUT" "$PUDL_GCS_OUTPUT" && \
+    gsutil -q -m cp -r "$PUDL_OUTPUT" "$PUDL_GCS_OUTPUT" && \
     rm -f "$PUDL_OUTPUT/success"
 }
 
@@ -85,14 +85,14 @@ function upload_to_dist_path() {
         # If the old outputs don't exist, these will exit with status 1, so we
         # don't && them with the rest of the commands.
         echo "Removing old outputs from $GCS_PATH."
-        gsutil -m -u "$GCP_BILLING_PROJECT" rm -r "$GCS_PATH"
+        gsutil -q -m -u "$GCP_BILLING_PROJECT" rm -r "$GCS_PATH"
         echo "Removing old outputs from $AWS_PATH."
-        aws s3 rm --recursive "$AWS_PATH"
+        aws s3 rm --quiet --recursive "$AWS_PATH"
 
         echo "Copying outputs to $GCS_PATH:" && \
-        gsutil -m -u "$GCP_BILLING_PROJECT" cp -r "$PUDL_OUTPUT/*" "$GCS_PATH" && \
+        gsutil -q -m -u "$GCP_BILLING_PROJECT" cp -r "$PUDL_OUTPUT/*" "$GCS_PATH" && \
         echo "Copying outputs to $AWS_PATH" && \
-        aws s3 cp --recursive "$PUDL_OUTPUT/" "$AWS_PATH"
+        aws s3 cp --quiet --recursive "$PUDL_OUTPUT/" "$AWS_PATH"
     else
         echo "No distribution path provided. Not updating outputs."
         exit 1
@@ -113,12 +113,12 @@ function distribute_parquet() {
             DIST_PATH="$BUILD_REF"
         fi
         echo "Copying outputs to $PARQUET_BUCKET/$DIST_PATH" && \
-        gsutil -m -u "$GCP_BILLING_PROJECT" cp -r "$PUDL_OUTPUT/parquet/*" "$PARQUET_BUCKET/$DIST_PATH"
+        gsutil -q -m -u "$GCP_BILLING_PROJECT" cp -r "$PUDL_OUTPUT/parquet/*" "$PARQUET_BUCKET/$DIST_PATH"
 
         # If running a tagged release, ALSO update the stable distribution bucket path:
         if [[ "$GITHUB_ACTION_TRIGGER" == "push" && "$BUILD_REF" == v20* ]]; then
             echo "Copying outputs to $PARQUET_BUCKET/stable" && \
-            gsutil -m -u "$GCP_BILLING_PROJECT" cp -r "$PUDL_OUTPUT/parquet/*" "$PARQUET_BUCKET/stable"
+            gsutil -q -m -u "$GCP_BILLING_PROJECT" cp -r "$PUDL_OUTPUT/parquet/*" "$PARQUET_BUCKET/stable"
         fi
     fi
 }
@@ -171,9 +171,11 @@ function notify_slack() {
     message+="ETL_SUCCESS: $ETL_SUCCESS\n"
     message+="SAVE_OUTPUTS_SUCCESS: $SAVE_OUTPUTS_SUCCESS\n"
     message+="UPDATE_NIGHTLY_SUCCESS: $UPDATE_NIGHTLY_SUCCESS\n"
+    message+="UPDATE_STABLE_SUCCESS: $UPDATE_STABLE_SUCCESS\n"
     message+="DATASETTE_SUCCESS: $DATASETTE_SUCCESS\n"
     message+="CLEAN_UP_OUTPUTS_SUCCESS: $CLEAN_UP_OUTPUTS_SUCCESS\n"
     message+="DISTRIBUTION_BUCKET_SUCCESS: $DISTRIBUTION_BUCKET_SUCCESS\n"
+    message+="GCS_TEMPORARY_HOLD_SUCCESS: $GCS_TEMPORARY_HOLD_SUCCESS \n"
     message+="ZENODO_SUCCESS: $ZENODO_SUCCESS\n\n"
 
     message+="*Query* logs on <https://console.cloud.google.com/batch/jobsDetail/regions/us-west1/jobs/run-etl-$BUILD_ID/logs?project=catalyst-cooperative-pudl|Google Batch Console>.\n\n"
@@ -186,20 +188,22 @@ function notify_slack() {
     upload_file_to_slack "$LOGFILE" "$BUILD_ID logs:"
 }
 
-function update_nightly_branch() {
+function merge_tag_into_branch() {
+    TAG=$1
+    BRANCH=$2
     # When building the image, GHA adds an HTTP basic auth header in git
     # config, which overrides the auth we set below. So we unset it.
     git config --unset http.https://github.com/.extraheader && \
     git config user.email "pudl@catalyst.coop" && \
     git config user.name "pudlbot" && \
     git remote set-url origin "https://pudlbot:$PUDL_BOT_PAT@github.com/catalyst-cooperative/pudl.git" && \
-    echo "Updating nightly branch to point at $NIGHTLY_TAG." && \
-    git fetch --force --tags origin "$NIGHTLY_TAG" && \
-    git fetch origin nightly:nightly && \
-    git checkout nightly && \
-    git show-ref -d nightly "$NIGHTLY_TAG" && \
-    git merge --ff-only "$NIGHTLY_TAG" && \
-    git push -u origin nightly
+    echo "Updating $BRANCH branch to point at $TAG." && \
+    git fetch --force --tags origin "$TAG" && \
+    git fetch origin "$BRANCH":"$BRANCH" && \
+    git checkout "$BRANCH" && \
+    git show-ref -d "$BRANCH" "$TAG" && \
+    git merge --ff-only "$TAG" && \
+    git push -u origin "$BRANCH"
 }
 
 function clean_up_outputs_for_distribution() {
@@ -219,11 +223,13 @@ function clean_up_outputs_for_distribution() {
 ETL_SUCCESS=0
 SAVE_OUTPUTS_SUCCESS=0
 UPDATE_NIGHTLY_SUCCESS=0
+UPDATE_STABLE_SUCCESS=0
 DATASETTE_SUCCESS=0
 DISTRIBUTE_PARQUET_SUCCESS=0
 CLEAN_UP_OUTPUTS_SUCCESS=0
 DISTRIBUTION_BUCKET_SUCCESS=0
 ZENODO_SUCCESS=0
+GCS_TEMPORARY_HOLD_SUCCESS=0
 
 # Set these variables *only* if they are not already set by the container or workflow:
 : "${PUDL_GCS_OUTPUT:=gs://builds.catalyst.coop/$BUILD_ID}"
@@ -243,8 +249,13 @@ SAVE_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
 # if pipeline is successful, distribute + publish datasette
 if [[ $ETL_SUCCESS == 0 ]]; then
     if [[ "$GITHUB_ACTION_TRIGGER" == "schedule" ]]; then
-        update_nightly_branch 2>&1 | tee -a "$LOGFILE"
+        merge_tag_into_branch "$NIGHTLY_TAG" nightly 2>&1 | tee -a "$LOGFILE"
         UPDATE_NIGHTLY_SUCCESS=${PIPESTATUS[0]}
+    fi
+    # If running a tagged release, merge the tag into the stable branch
+    if [[ "$GITHUB_ACTION_TRIGGER" == "push" && "$BUILD_REF" == v20* ]]; then
+        merge_tag_into_branch "$BUILD_REF" stable 2>&1 | tee -a "$LOGFILE"
+        UPDATE_STABLE_SUCCESS=${PIPESTATUS[0]}
     fi
 
     # Deploy the updated data to datasette if we're on main
@@ -272,19 +283,27 @@ if [[ $ETL_SUCCESS == 0 ]]; then
         zenodo_data_release "$ZENODO_TARGET_ENV" 2>&1 | tee -a "$LOGFILE"
         ZENODO_SUCCESS=${PIPESTATUS[0]}
     fi
+    # If running a tagged release, ensure that outputs can't be accidentally deleted
+    # It's not clear that an object lock can be applied in S3 with the AWS CLI
+    if [[ "$GITHUB_ACTION_TRIGGER" == "push" && "$BUILD_REF" == v20* ]]; then
+        gsutil -m -u catalyst-cooperative-pudl retention temp set "gs://pudl.catalyst.coop/$BUILD_REF/*" 2>&1 | tee -a "$LOGFILE"
+        GCS_TEMPORARY_HOLD_SUCCESS=${PIPESTATUS[0]}
+    fi
 fi
 
 # This way we also save the logs from latter steps in the script
-gsutil cp "$LOGFILE" "$PUDL_GCS_OUTPUT"
+gsutil -q cp "$LOGFILE" "$PUDL_GCS_OUTPUT"
 
 # Notify slack about entire pipeline's success or failure;
 if [[ $ETL_SUCCESS == 0 && \
       $SAVE_OUTPUTS_SUCCESS == 0 && \
       $UPDATE_NIGHTLY_SUCCESS == 0 && \
+      $UPDATE_STABLE_SUCCESS == 0 && \
       $DATASETTE_SUCCESS == 0 && \
       $DISTRIBUTE_PARQUET_SUCCESS == 0 && \
       $CLEAN_UP_OUTPUTS_SUCCESS == 0 && \
       $DISTRIBUTION_BUCKET_SUCCESS == 0 && \
+      $GCS_TEMPORARY_HOLD_SUCCESS == 0 && \
       $ZENODO_SUCCESS == 0
 ]]; then
     notify_slack "success"

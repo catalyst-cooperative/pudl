@@ -1,4 +1,5 @@
 """Configure logging for the PUDL package."""
+
 import logging
 
 import coloredlogs

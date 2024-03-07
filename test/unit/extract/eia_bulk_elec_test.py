@@ -1,4 +1,5 @@
 """Tests for eia_bulk_data module."""
+
 from io import BytesIO
 from zipfile import ZipFile
 

@@ -1,4 +1,5 @@
 """Metadata data classes."""
+
 import copy
 import datetime
 import json
@@ -258,14 +259,17 @@ class FieldConstraints(PudlMeta):
     minimum: StrictInt | StrictFloat | datetime.date | datetime.datetime | None = None
     maximum: StrictInt | StrictFloat | datetime.date | datetime.datetime | None = None
     pattern: re.Pattern | None = None
-    enum: StrictList[
-        String
-        | StrictInt
-        | StrictFloat
-        | StrictBool
-        | datetime.date
-        | datetime.datetime
-    ] | None = None
+    enum: (
+        StrictList[
+            String
+            | StrictInt
+            | StrictFloat
+            | StrictBool
+            | datetime.date
+            | datetime.datetime
+        ]
+        | None
+    ) = None
 
     _check_unique = _validator("enum", fn=_check_unique)
 
@@ -853,9 +857,9 @@ class Contributor(PudlMeta):
     title: String
     path: AnyHttpUrl | None = None
     email: EmailStr | None = None
-    role: Literal[
-        "author", "contributor", "maintainer", "publisher", "wrangler"
-    ] = "contributor"
+    role: Literal["author", "contributor", "maintainer", "publisher", "wrangler"] = (
+        "contributor"
+    )
     zenodo_role: Literal[
         "contact person",
         "data collector",
@@ -1246,36 +1250,42 @@ class Resource(PudlMeta):
     sources: list[DataSource] = []
     keywords: list[String] = []
     encoder: Encoder | None = None
-    field_namespace: Literal[
-        "eia",
-        "epacems",
-        "ferc1",
-        "ferc714",
-        "glue",
-        "pudl",
-        "ppe",
-        "eia_bulk_elec",
-    ] | None = None
-    etl_group: Literal[
-        "eia860",
-        "eia861",
-        "eia861_disabled",
-        "eia923",
-        "entity_eia",
-        "epacems",
-        "ferc1",
-        "ferc1_disabled",
-        "ferc714",
-        "glue",
-        "outputs",
-        "static_ferc1",
-        "static_eia",
-        "static_eia_disabled",
-        "eia_bulk_elec",
-        "state_demand",
-        "static_pudl",
-        "service_territories",
-    ] | None = None
+    field_namespace: (
+        Literal[
+            "eia",
+            "epacems",
+            "ferc1",
+            "ferc714",
+            "glue",
+            "pudl",
+            "ppe",
+            "eia_bulk_elec",
+        ]
+        | None
+    ) = None
+    etl_group: (
+        Literal[
+            "eia860",
+            "eia861",
+            "eia861_disabled",
+            "eia923",
+            "entity_eia",
+            "epacems",
+            "ferc1",
+            "ferc1_disabled",
+            "ferc714",
+            "glue",
+            "outputs",
+            "static_ferc1",
+            "static_eia",
+            "static_eia_disabled",
+            "eia_bulk_elec",
+            "state_demand",
+            "static_pudl",
+            "service_territories",
+        ]
+        | None
+    ) = None
     create_database_schema: bool = True
 
     _check_unique = _validator(

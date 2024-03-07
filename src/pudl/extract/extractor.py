@@ -1,0 +1,375 @@
+"""Generic functionality for extractors."""
+
+import importlib.resources
+from abc import ABC, abstractmethod
+from collections import defaultdict
+
+import pandas as pd
+from dagster import (
+    AssetsDefinition,
+    DynamicOut,
+    DynamicOutput,
+    OpDefinition,
+    graph_asset,
+    op,
+)
+
+import pudl
+
+StrInt = str | int
+PartitionSelection = list[StrInt] | tuple[StrInt] | StrInt
+
+logger = pudl.logging_helpers.get_logger(__name__)
+
+
+class GenericMetadata:
+    """Load generic metadata from Python package data.
+
+    When metadata object is instantiated, it is given ${dataset} name and it
+    will attempt to load csv files from pudl.package_data.${dataset} package.
+
+    It expects the following kinds of files:
+
+    * column_map/${page}.csv currently informs us how to translate input column
+      names to standardized pudl names for given (partition, input_col_name). Relevant
+      page is encoded in the filename.
+    """
+
+    def __init__(self, dataset_name: str):
+        """Create Metadata object and load metadata from python package.
+
+        Args:
+            dataset_name: Name of the package/dataset to load the metadata from.
+            Files will be loaded from pudl.package_data.${dataset_name}
+        """
+        self._dataset_name = dataset_name
+        self._pkg = f"pudl.package_data.{dataset_name}"
+        column_map_pkg = self._pkg + ".column_maps"
+        self._column_map = {}
+        for res_path in importlib.resources.files(column_map_pkg).iterdir():
+            # res_path is expected to end with ${page}.csv
+            if res_path.suffix == ".csv":
+                column_map = self._load_csv(column_map_pkg, res_path.name)
+                self._column_map[res_path.stem] = column_map
+
+    def get_dataset_name(self) -> str:
+        """Returns the name of the dataset described by this metadata."""
+        return self._dataset_name
+
+    def _load_csv(self, package: str, filename: str) -> pd.DataFrame:
+        """Load metadata from a filename that is found in a package."""
+        return pd.read_csv(
+            importlib.resources.files(package) / filename, index_col=0, comment="#"
+        )
+
+    def _get_partition_selection(self, partition: dict[str, PartitionSelection]) -> str:
+        """Grab the partition key."""
+        partition_names = list(partition.keys())
+        if len(partition_names) != 1:
+            raise AssertionError(
+                f"Expecting exactly one attribute to define this partition (found: {partition})"
+            )
+
+        partition_name = partition_names[0]
+        partition_selection = partition[partition_name]
+        if isinstance(partition_selection, list | tuple):
+            raise AssertionError(
+                f"Expecting exactly one non-container value for this partition attribute (found: {partition})"
+            )
+        return str(partition_selection)
+
+    def get_all_pages(self) -> list[str]:
+        """Returns list of all known pages."""
+        return sorted(self._column_map.keys())
+
+    def get_all_columns(self, page) -> list[str]:
+        """Returns list of all pudl columns for a given page across all partitions."""
+        return sorted(self._column_map[page].T.columns)
+
+
+class GenericExtractor(ABC):
+    """Generic extractor base class."""
+
+    METADATA: GenericMetadata = None
+    """Instance of metadata object to use with this extractor."""
+
+    BLACKLISTED_PAGES = []
+    """List of supported pages that should not be extracted."""
+
+    def __init__(self, ds):
+        """Create new extractor object and load metadata.
+
+        Args:
+            ds (datastore.Datastore): An initialized datastore, or subclass
+        """
+        if not self.METADATA:
+            raise NotImplementedError("self.METADATA must be set.")
+        self._metadata = self.METADATA
+        self._dataset_name = self._metadata.get_dataset_name()
+        self.ds = ds
+        self.cols_added: list[str] = []
+
+    @abstractmethod
+    def source_filename(self, page: str, **partition: PartitionSelection) -> str:
+        """Produce the source file name as it will appear in the archive.
+
+        Args:
+            page: pudl name for the dataset contents, eg "boiler_generator_assn" or
+                "coal_stocks"
+            partition: partition to load. Examples:
+                {'year': 2009}
+                {'year_month': '2020-08'}
+
+        Returns:
+            string name of the source file
+        """
+        ...
+
+    @abstractmethod
+    def load_source(self, page: str, **partition: PartitionSelection) -> pd.DataFrame:
+        """Produce the source data for the given page and partition(s).
+
+        Args:
+            page: pudl name for the dataset contents, eg
+                "boiler_generator_assn" or "coal_stocks"
+            partition: partition to load. Examples:
+                {'year': 2009}
+                {'year_month': '2020-08'}
+
+        Returns:
+            pd.DataFrame instance with the source data
+        """
+        ...
+
+    def process_raw(
+        self, df: pd.DataFrame, page: str, **partition: PartitionSelection
+    ) -> pd.DataFrame:
+        """Takes any special steps for processing raw data and renaming columns."""
+        return df
+
+    def process_renamed(
+        self, df: pd.DataFrame, page: str, **partition: PartitionSelection
+    ) -> pd.DataFrame:
+        """Takes any special steps for processing data after columns are renamed."""
+        return df
+
+    def get_page_cols(self, page: str, partition_selection: str) -> pd.RangeIndex:
+        """Get the columns for a particular page and partition key."""
+        col_map = self._metadata._column_map[page]
+        return col_map.loc[
+            (col_map[partition_selection].notnull())
+            & (col_map[partition_selection] != -1),
+            [partition_selection],
+        ].index
+
+    def validate(self, df: pd.DataFrame, page: str, **partition: PartitionSelection):
+        """Check if there are any missing or extra columns."""
+        partition_selection = self._metadata._get_partition_selection(partition)
+        page_cols = self.get_page_cols(page, partition_selection)
+        expected_cols = page_cols.union(self.cols_added)
+        if set(df.columns) != set(expected_cols):
+            # TODO (bendnorman): Enforce canonical fields for all raw fields?
+            extra_raw_cols = set(df.columns).difference(expected_cols)
+            missing_raw_cols = set(expected_cols).difference(df.columns)
+            if extra_raw_cols:
+                logger.warning(
+                    f"{page}/{partition_selection}: Extra columns found in extracted table:"
+                    f"\n{extra_raw_cols}"
+                )
+            if missing_raw_cols:
+                logger.warning(
+                    f"{page}/{partition_selection}: Expected columns not found in extracted table:"
+                    f"\n{missing_raw_cols}"
+                )
+
+    def process_final_page(self, df: pd.DataFrame, page: str) -> pd.DataFrame:
+        """Final processing stage applied to a page DataFrame."""
+        return df
+
+    def combine(self, dfs: list[pd.DataFrame], page: str) -> pd.DataFrame:
+        """Concatenate dataframes into one, take any special steps for processing final page."""
+        df = pd.concat(dfs, sort=True, ignore_index=True)
+
+        # After all years are loaded, add empty columns that could appear
+        # in other years so that df matches the database schema
+        missing_cols = list(
+            set(self._metadata.get_all_columns(page)).difference(df.columns)
+        )
+        df = pd.concat([df, pd.DataFrame(columns=missing_cols)], sort=True)
+
+        return self.process_final_page(df, page)
+
+    def extract(self, **partitions: PartitionSelection) -> dict[str, pd.DataFrame]:
+        """Extracts dataframes.
+
+        Returns dict where keys are page names and values are
+        DataFrames containing data across given years.
+
+        Args:
+            partitions: keyword argument dictionary specifying how the source is partitioned and which
+                particular partitions to extract. Examples:
+                {'years': [2009, 2010]}
+                {'year_month': '2020-08'}
+                {'form': 'gas_distribution', 'year'='2020'}
+        """
+        all_page_dfs = {}
+        if not partitions:
+            logger.warning(
+                f"No partitions were given. Not extracting {self._dataset_name} "
+                "spreadsheet data."
+            )
+            return all_page_dfs
+        logger.info(f"Extracting {self._dataset_name} spreadsheet data.")
+
+        for page in self._metadata.get_all_pages():
+            if page in self.BLACKLISTED_PAGES:
+                logger.debug(f"Skipping blacklisted page {page}.")
+                continue
+            current_page_dfs = [
+                pd.DataFrame(),
+            ]
+            for partition in pudl.helpers.iterate_multivalue_dict(**partitions):
+                # we are going to skip
+                if self.source_filename(page, **partition) == "-1":
+                    logger.debug(f"No page for {self._dataset_name} {page} {partition}")
+                    continue
+                logger.debug(
+                    f"Loading dataframe for {self._dataset_name} {page} {partition}"
+                )
+                df = self.load_source(page, **partition)
+                df = pudl.helpers.simplify_columns(df)
+                df = self.process_raw(df, page, **partition)
+                df = self.process_renamed(df, page, **partition)
+                self.validate(df, page, **partition)
+                current_page_dfs.append(df)
+
+            all_page_dfs[page] = self.combine(current_page_dfs, page)
+        return all_page_dfs
+
+
+@op
+def concat_pages(paged_dfs: list[dict[str, pd.DataFrame]]) -> dict[str, pd.DataFrame]:
+    """Concatenate similar pages of data from different years into single dataframes.
+
+    Transform a list of dictionaries of dataframes into a single dictionary of
+    dataframes, where each dataframe is the concatenation of dataframes with identical
+    keys from the input list.
+
+    Args:
+        paged_dfs: A list of dictionaries whose keys are page names, and values are
+            extracted DataFrames. Each element of the list corresponds to a single
+            year of the dataset being extracted.
+
+    Returns:
+        A dictionary of DataFrames keyed by page name, where the DataFrame contains that
+        page's data from all extracted years concatenated together.
+    """
+    # Transform the list of dictionaries of dataframes into a dictionary of lists of
+    # dataframes, in which all dataframes in each list represent different instances of
+    # the same page of data from different years
+    all_data = defaultdict(list)
+    for dfs in paged_dfs:
+        for page in dfs:
+            all_data[page].append(dfs[page])
+
+    # concatenate the dataframes in each list in the dictionary into a single dataframe
+    for page in all_data:
+        all_data[page] = pd.concat(all_data[page]).reset_index(drop=True)
+
+    return all_data
+
+
+def year_extractor_factory(
+    extractor_cls: type[GenericExtractor], name: str
+) -> OpDefinition:
+    """Construct a Dagster op that extracts one year of data, given an extractor class.
+
+    Args:
+        extractor_cls: Class of type :class:`Extractor` used to extract the data.
+        name: Name of an Excel based dataset (e.g. "eia860").
+    """
+
+    @op(
+        required_resource_keys={"datastore", "dataset_settings"},
+        name=f"extract_single_{name}_year",
+    )
+    def extract_single_year(context, year: int) -> dict[str, pd.DataFrame]:
+        """A function that extracts a year of spreadsheet data from an Excel file.
+
+        This function will be decorated with a Dagster op and returned.
+
+        Args:
+            context: Dagster keyword that provides access to resources and config.
+            year: Year of data to extract.
+
+        Returns:
+            A dictionary of DataFrames extracted from Excel, keyed by page name.
+        """
+        ds = context.resources.datastore
+        return extractor_cls(ds).extract(year=[year])
+
+    return extract_single_year
+
+
+def years_from_settings_factory(name: str) -> OpDefinition:
+    """Construct a Dagster op to get target years from settings in the Dagster context.
+
+    Args:
+        name: Name of an Excel based dataset (e.g. "eia860").
+
+    """
+
+    @op(
+        out=DynamicOut(),
+        required_resource_keys={"dataset_settings"},
+        name=f"{name}_years_from_settings",
+    )
+    def years_from_settings(context) -> DynamicOutput:
+        """Produce target years for the given dataset from the dataset settings object.
+
+        These will be used to kick off worker processes to extract each year of data in
+        parallel.
+
+        Yields:
+            A Dagster :class:`DynamicOutput` object representing the year to be
+            extracted. See the Dagster API documentation for more details:
+            https://docs.dagster.io/_apidocs/dynamic#dagster.DynamicOut
+        """
+        if "eia" in name:  # Account for nested settings if EIA
+            year_settings = context.resources.dataset_settings.eia
+        else:
+            year_settings = context.resources.dataset_settings
+        for year in getattr(year_settings, name).years:
+            yield DynamicOutput(year, mapping_key=str(year))
+
+    return years_from_settings
+
+
+def raw_df_factory(
+    extractor_cls: type[GenericExtractor], name: str
+) -> AssetsDefinition:
+    """Return a dagster graph asset to extract a set of raw DataFrames from Excel files.
+
+    Args:
+        extractor_cls: The dataset-specific Excel extractor used to extract the data.
+            Needs to correspond to the dataset identified by ``name``.
+        name: Name of an Excel based dataset (e.g. "eia860").
+    """
+    # Build a Dagster op that can extract a single year of data
+    year_extractor = year_extractor_factory(extractor_cls, name)
+    # Get the list of target years to extract from the PUDL ETL settings object which is
+    # stored in the Dagster context that is available to all ops.
+    years_from_settings = years_from_settings_factory(name)
+
+    def raw_dfs() -> dict[str, pd.DataFrame]:
+        """Produce a dictionary of extracted dataframes."""
+        years = years_from_settings()
+        # Clone dagster op for each year using DynamicOut.map()
+        # See https://docs.dagster.io/_apidocs/dynamic#dagster.DynamicOut
+        dfs = years.map(lambda year: year_extractor(year))
+        # Collect the results from all of those cloned ops and concatenate the
+        # individual years of data into a single multi-year dataframe for each different
+        # page in the spreadsheet based dataset using DynamicOut.collect()
+        return concat_pages(dfs.collect())
+
+    return graph_asset(name=f"raw_{name}__all_dfs")(raw_dfs)

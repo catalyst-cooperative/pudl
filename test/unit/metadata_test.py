@@ -1,4 +1,5 @@
 """Tests for metadata not covered elsewhere."""
+
 import pandas as pd
 import pandera as pr
 import pytest

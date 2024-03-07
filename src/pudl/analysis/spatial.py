@@ -1,4 +1,5 @@
 """Spatial operations for demand allocation."""
+
 import itertools
 import warnings
 from collections.abc import Callable, Iterable

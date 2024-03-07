@@ -1,4 +1,5 @@
 """Test helper functions associated with the EPA CEMS outputs."""
+
 import logging
 
 import pytest

@@ -1,4 +1,5 @@
 """Denormalized versions of the EIA 860 tables."""
+
 import pandas as pd
 from dagster import asset
 

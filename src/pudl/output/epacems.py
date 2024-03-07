@@ -1,4 +1,5 @@
 """Routines that provide user-friendly access to the partitioned EPA CEMS dataset."""
+
 from collections.abc import Iterable, Sequence
 from itertools import product
 from pathlib import Path

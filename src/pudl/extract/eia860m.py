@@ -12,6 +12,7 @@ eia860m_raw_dfs = pudl.extract.eia860m.Extractor(ds).extract(
 eia860_raw_dfs = pudl.extract.eia860m.append_eia860m(
     eia860_raw_dfs=eia860_raw_dfs, eia860m_raw_dfs=eia860m_raw_dfs)
 """
+
 from datetime import datetime
 
 import pandas as pd
@@ -24,7 +25,7 @@ from pudl.helpers import remove_leading_zeros_from_numeric_strings
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-class Extractor(excel.GenericExtractor):
+class Extractor(excel.ExcelExtractor):
     """Extractor for the excel dataset EIA860M."""
 
     def __init__(self, *args, **kwargs):
@@ -33,7 +34,7 @@ class Extractor(excel.GenericExtractor):
         Args:
             ds (:class:datastore.Datastore): Initialized datastore.
         """
-        self.METADATA = excel.Metadata("eia860m")
+        self.METADATA = excel.ExcelMetadata("eia860m")
         self.cols_added = []
         super().__init__(*args, **kwargs)
 
@@ -64,23 +65,22 @@ class Extractor(excel.GenericExtractor):
         }
 
 
-def append_eia860m(eia860_raw_dfs, eia860m_raw_dfs):
+def append_eia860m(
+    eia860_raw_dfs: dict[str, pd.DataFrame], eia860m_raw_dfs: dict[str, pd.DataFrame]
+) -> dict[str, pd.DataFrame]:
     """Append EIA 860M to the pages to.
 
     Args:
-        eia860_raw_dfs (dictionary): dictionary of pandas.Dataframe's from EIA
-            860 raw tables. Restult of
-            pudl.extract.eia860.Extractor().extract()
-        eia860m_raw_dfs (dictionary): dictionary of pandas.Dataframe's from EIA
-            860M raw tables. Restult of
-            pudl.extract.eia860m.Extractor().extract()
+        eia860_raw_dfs: EIA 860 raw tables. Result of
+            :meth:`pudl.extract.eia860.Extractor.extract`
+        eia860m_raw_dfs: EIA 860M raw tables. Restult of :meth:`Extractor.extract`
 
     Return:
-        dictionary: augumented eia860_raw_dfs dictionary of pandas.DataFrame's.
-        Each raw page stored in eia860m_raw_dfs appened to its eia860_raw_dfs
-        counterpart.
+        Augmented version of eia860_raw_dfs. Each raw page stored in eia860m_raw_dfs
+        appended to its eia860_raw_dfs counterpart.
+
     """
-    meta_eia860m = excel.Metadata("eia860m")
+    meta_eia860m = excel.ExcelMetadata("eia860m")
     pages_eia860m = meta_eia860m.get_all_pages()
     # page names in 860m and 860 are the same.
     for page in pages_eia860m:
@@ -96,7 +96,7 @@ def append_eia860m(eia860_raw_dfs, eia860m_raw_dfs):
     required_resource_keys={"datastore", "dataset_settings"},
 )
 def raw_eia860m__all_dfs(context):
-    """Extract raw EIAm data from excel sheets into dict of dataframes."""
+    """Extract raw EIA 860M data from excel sheets into dict of dataframes."""
     eia_settings = context.resources.dataset_settings.eia
     ds = context.resources.datastore
 
@@ -118,7 +118,7 @@ raw_table_names = (
     outs={table_name: AssetOut() for table_name in sorted(raw_table_names)},
     required_resource_keys={"datastore", "dataset_settings"},
 )
-def extract_eia860m(raw_eia860m__all_dfs):
+def extract_eia860m(raw_eia860m__all_dfs: dict[str, pd.DataFrame]):
     """Extract raw EIA data from excel sheets into dataframes.
 
     Args:

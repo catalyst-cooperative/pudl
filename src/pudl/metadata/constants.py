@@ -1,4 +1,5 @@
 """Metadata and operational constants."""
+
 import datetime
 from collections.abc import Callable
 

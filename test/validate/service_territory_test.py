@@ -1,4 +1,5 @@
 """Validate post-ETL FERC 714 outputs and associated service territory analyses."""
+
 import logging
 
 import pytest
@@ -13,7 +14,7 @@ logger = logging.getLogger(__name__)
     "df_name,expected_rows",
     [
         ("summarized_demand_ferc714", 3_195),
-        ("fipsified_respondents_ferc714", 135_537),
+        ("fipsified_respondents_ferc714", 135_627),
         ("compiled_geometry_balancing_authority_eia861", 112_853),
         ("compiled_geometry_utility_eia861", 248_987),
     ],
