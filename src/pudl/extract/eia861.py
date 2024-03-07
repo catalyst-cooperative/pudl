@@ -12,12 +12,13 @@ from dagster import AssetOut, Output, multi_asset
 
 import pudl.logging_helpers
 from pudl.extract import excel
+from pudl.extract.extractor import raw_df_factory
 from pudl.helpers import remove_leading_zeros_from_numeric_strings
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-class Extractor(excel.GenericExtractor):
+class Extractor(excel.ExcelExtractor):
     """Extractor for the excel dataset EIA861."""
 
     def __init__(self, *args, **kwargs):
@@ -26,7 +27,7 @@ class Extractor(excel.GenericExtractor):
         Args:
             ds (:class:datastore.Datastore): Initialized datastore.
         """
-        self.METADATA = excel.Metadata("eia861")
+        self.METADATA = excel.ExcelMetadata("eia861")
         self.cols_added = []
         super().__init__(*args, **kwargs)
         warnings.warn(
@@ -72,7 +73,7 @@ class Extractor(excel.GenericExtractor):
         }
 
 
-raw_eia861__all_dfs = excel.raw_df_factory(Extractor, name="eia861")
+raw_eia861__all_dfs = raw_df_factory(Extractor, name="eia861")
 
 
 @multi_asset(
