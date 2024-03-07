@@ -1994,6 +1994,7 @@ class Exploder:
             value_col=self.value_col,
             is_close_tolerance=pudl.transform.ferc1.IsCloseTolerance(),
             table_name=self.root_table,
+            is_subtotal=False,
         )
         logger.info("Checking sub-total calcs.")
         subtotal_calcs = pudl.transform.ferc1.calculate_values_from_components(
