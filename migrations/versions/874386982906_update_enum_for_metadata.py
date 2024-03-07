@@ -1,8 +1,8 @@
-"""add type into enum for row_type_xbrl for subtotal_corrections
+"""update enum for metadata
 
-Revision ID: b2646bf18128
-Revises: 9dfb4295511e
-Create Date: 2024-02-21 10:51:20.864176
+Revision ID: 874386982906
+Revises: 7a83fc268224
+Create Date: 2024-03-07 13:11:49.210888
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'b2646bf18128'
-down_revision = '9dfb4295511e'
+revision = '874386982906'
+down_revision = '7a83fc268224'
 branch_labels = None
 depends_on = None
 
