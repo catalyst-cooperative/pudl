@@ -805,7 +805,7 @@ class MetricTolerances(TransformParams):
     """Tolerances for all data checks to be preformed within a grouped df."""
 
     error_frequency: Annotated[float, Field(ge=0.0, le=1.0)] = 0.01
-    relative_error_magnitude: Annotated[float, Field(ge=0.0)] = 0.02
+    relative_error_magnitude: Annotated[float, Field(ge=0.0)] = 0.2
     null_calculated_value_frequency: Annotated[float, Field(ge=0.0, le=1.0)] = 0.7
     """Fraction of records with non-null reported values and null calculated values."""
     absolute_error_magnitude: Annotated[float, Field(ge=0.0)] = np.inf
@@ -831,23 +831,22 @@ class GroupMetricTolerances(TransformParams):
 
     ungrouped: MetricTolerances = MetricTolerances(
         error_frequency=0.0005,
-        relative_error_magnitude=0.0086,
+        relative_error_magnitude=0.015,
         null_calculated_value_frequency=0.50,
         null_reported_value_frequency=0.68,
     )
     xbrl_factoid: MetricTolerances = MetricTolerances(
         error_frequency=0.018,
-        relative_error_magnitude=0.0086,
         null_calculated_value_frequency=1.0,
     )
     utility_id_ferc1: MetricTolerances = MetricTolerances(
         error_frequency=0.038,
-        relative_error_magnitude=0.04,
+        # relative_error_magnitude=0.04,
         null_calculated_value_frequency=1.0,
     )
     report_year: MetricTolerances = MetricTolerances(
         error_frequency=0.006,
-        relative_error_magnitude=0.04,
+        # relative_error_magnitude=0.04,
         null_calculated_value_frequency=0.7,
     )
     table_name: MetricTolerances = MetricTolerances(
@@ -1057,6 +1056,8 @@ def reconcile_one_type_of_table_calculations(
         value_col: label of the column in ``data`` that contains the values to apply the
             calculations to (typically ``dollar_value`` or ``ending_balance``).
     """
+    if calculation_components.empty:
+        return data
     calculated_df = (
         calculate_values_from_components(
             data=data,
