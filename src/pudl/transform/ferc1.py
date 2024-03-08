@@ -920,6 +920,10 @@ class ReconcileTableCalculations(TransformParams):
     subtotal_calculation_tolerance: float = 0.05
     """Fraction of calculated sub-totals allowed not to match reported values."""
 
+    subtotal_merge_validation: Literal["one_to_many", "many_to_many"] = "one_to_many"
+    """For the subtotal calculations, how to merge valiate when merging the data (left)
+    onto the calculation components (right)."""
+
 
 def reconcile_table_calculations(
     df: pd.DataFrame,
@@ -963,7 +967,7 @@ def reconcile_table_calculations(
         and ``rel_diff``.
     """
     # If we don't have this value, we aren't doing any calculation checking:
-    if params.column_to_check is None or calculation_components.empty:
+    if params.column_to_check is None:
         return df
 
     # Use the calculation components which reference ONLY values within the table
@@ -1011,6 +1015,7 @@ def reconcile_table_calculations(
                 group_metric_checks=params.group_metric_checks,
                 table_name=table_name,
                 is_subtotal=True,
+                calc_to_data_merge_validation=params.subtotal_merge_validation,
             )[df.columns]
     calculated_df = reconcile_one_type_of_table_calculations(
         data=df,
@@ -1033,6 +1038,9 @@ def reconcile_one_type_of_table_calculations(
     group_metric_checks: GroupMetricChecks,
     table_name: str,
     is_subtotal: bool,
+    calc_to_data_merge_validation: Literal[
+        "one_to_many", "many_to_many"
+    ] = "one_to_many",
 ) -> pd.DataFrame:
     """Calculate vales, run metric checks and add corrections.
 
@@ -1055,6 +1063,7 @@ def reconcile_one_type_of_table_calculations(
             calculation_components=calculation_components,
             calc_idx=calc_idx,
             value_col=value_col,
+            calc_to_data_merge_validation=calc_to_data_merge_validation,
         )
         .pipe(
             check_calculation_metrics,
@@ -1150,6 +1159,9 @@ def calculate_values_from_components(
     data: pd.DataFrame,
     calc_idx: list[str],
     value_col: str,
+    calc_to_data_merge_validation: Literal[
+        "one_to_many", "many_to_many"
+    ] = "one_to_many",
 ) -> pd.DataFrame:
     """Apply calculations derived from XBRL metadata to reported XBRL data.
 
@@ -1188,13 +1200,14 @@ def calculate_values_from_components(
             pd.merge(
                 calculation_components,
                 data,
-                validate="one_to_many",
+                validate=calc_to_data_merge_validation,
                 on=calc_idx,
             )
             # apply the weight from the calc to convey the sign before summing.
             .assign(calculated_value=lambda x: x[value_col] * x.weight)
             .groupby(gby_parent, as_index=False, dropna=False)[["calculated_value"]]
             .sum(min_count=1)
+            .assign(is_calc=True)
         )
     except pd.errors.MergeError as err:  # Make debugging easier.
         raise pd.errors.MergeError(
@@ -1225,11 +1238,19 @@ def calculate_values_from_components(
     calculated_df = calculated_df.convert_dtypes(convert_floating=False).astype(
         {value_col: "float64", "calculated_value": "float64"}
     )
+    # For all of these below, only assign values when the record is a calculated record
+    # Also, make sure we are filling nulls so we capture the differences when there are
+    # null values in the calculated or reported values.
     calculated_df = calculated_df.assign(
-        diff=lambda x: x[value_col] - x.calculated_value,
-        abs_diff=lambda x: abs(x["diff"]),
+        is_calc=lambda x: x.is_calc.fillna(False),
+        diff=lambda x: np.where(
+            x.is_calc, x[value_col].fillna(0) - x.calculated_value.fillna(0), np.nan
+        ),
+        abs_diff=lambda x: np.where(
+            x.is_calc & (x["diff"] != 0.0), abs(x["diff"]), np.nan
+        ),
         rel_diff=lambda x: np.where(
-            (x[value_col] != 0.0),
+            x.is_calc & (x[value_col] != 0.0),
             abs(x.abs_diff / x[value_col]),
             np.nan,
         ),
@@ -1409,7 +1430,9 @@ class ErrorMetric(BaseModel):
         """
         # return a df instead of a series
         df["is_not_close"] = self.is_not_close(df)
-        return df.groupby(by=self.groupby_cols()).apply(self.metric)
+        return df.groupby(by=self.groupby_cols()).apply(
+            self.metric, include_groups=False
+        )
 
     def _snake_case_metric_name(self: Self) -> str:
         """Convert the TitleCase class name to a snake_case string."""
@@ -1490,7 +1513,7 @@ class NullCalculatedValueFrequency(ErrorMetric):
         return (
             df[df.row_type_xbrl == "calculated_value"]
             .groupby(self.groupby_cols())
-            .apply(self.metric)
+            .apply(self.metric, include_groups=False)
         )
 
     def metric(self: Self, gb: DataFrameGroupBy) -> pd.Series:
@@ -1542,7 +1565,8 @@ def add_corrections(
             rtol=is_close_tolerance.isclose_rtol,
             atol=is_close_tolerance.isclose_atol,
         )
-        & (calculated_df["abs_diff"].notnull())
+        & calculated_df["abs_diff"].notnull()
+        & ~calculated_df.row_type_xbrl.str.endswith("_correction")
     ].copy()
 
     corrections[value_col] = (

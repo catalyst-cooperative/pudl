@@ -4193,7 +4193,13 @@ TRANSFORM_PARAMS = {
         },
         "reconcile_table_calculations": {
             "column_to_check": "ending_balance",
-            "subtotal_column": "plant_status",
+            "subtotal_column": "plant_function",
+            "subtotal_merge_validation": "many_to_many",
+            "group_metric_checks": {
+                "group_metric_tolerances": {
+                    "ungrouped": {"null_reported_value_frequency": 0.76},
+                }
+            },
         },
     },
     "core_ferc1__yearly_cash_flows_sched120": {
