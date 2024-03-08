@@ -618,7 +618,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "cooling_id_eia": {
         "description": (
-            "Identification Code for Cooling System (if multiple cooling "
+            "EIA Identification code for cooling system (if multiple cooling "
             "systems are not distinguished by separate IDs, the word "
             "'PLANT' is listed to encompass the cooling system for the "
             "entire plant)"
@@ -3757,9 +3757,7 @@ FIELD_METADATA_BY_GROUP: dict[str, dict[str, Any]] = {
             "type": "number",
             "unit": "USD",
         },
-        # 2024-03-01: the cooling operating status codes are a strict subset of
-        # all EIA op codes... will that always be the case?
-        "cooling_status": {
+        "cooling_status_code": {
             "description": "Operating status of cooling system",
             "type": "string",
             "enum": sorted(
@@ -3942,7 +3940,7 @@ FIELD_METADATA_BY_GROUP: dict[str, dict[str, Any]] = {
             "type": "number",
             "unit": "gpm",
         },
-        "operating_date": {
+        "cooling_system_operating_date": {
             "description": "The actual or projected in-service datetime of this cooling system",
             "type": "date",
         },

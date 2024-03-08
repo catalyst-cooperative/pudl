@@ -2399,7 +2399,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                 (
                     "SA",
                     "saline_water",
-                    "Saline Water",
+                    "Saline water",
                 ),
                 ("OT", "other", "Other"),
             ],

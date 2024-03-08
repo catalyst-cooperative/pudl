@@ -1,8 +1,10 @@
 """Module to perform data cleaning functions on EIA860 data tables."""
 
+import warnings
+
 import numpy as np
 import pandas as pd
-from dagster import AssetCheckResult, asset, asset_check
+from dagster import AssetCheckResult, ExperimentalWarning, asset, asset_check
 
 import pudl
 from pudl.metadata.classes import DataSource
@@ -12,6 +14,10 @@ from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.transform.eia861 import clean_nerc
 
 logger = pudl.logging_helpers.get_logger(__name__)
+
+# Asset Checks are still Experimental, silence the warning since we use them
+# everywhere.
+warnings.filterwarnings("ignore", category=ExperimentalWarning)
 
 
 @asset
@@ -1033,6 +1039,13 @@ def _core_eia860__cooling_equipment(
     - standardize water rate units to gallons per minute (2009-2013 used cubic
       feet per second)
     - convert kilodollars to normal dollars
+
+    Note that the "power_requirement_mw" field is erroneously reported as
+    "_kwh" in the raw data for 2009, 2010, and 2011, even though the values are
+    in MW. This is corroborated by the values for these plants matching up with
+    the stated MW values in later years. Additionally, the PDF form for those
+    years indicates that the value should be in MW, and KWh isn't even a power
+    measurement.
     """
     ce_df = raw_eia860__cooling_equipment
 
@@ -1049,6 +1062,7 @@ def _core_eia860__cooling_equipment(
     ce_df = ce_df.pipe(pudl.helpers.month_year_to_date).pipe(
         pudl.helpers.convert_to_date
     )
+    ce_df.rename(columns={"operating_date": "cooling_system_operating_date"})
     # Convert cubic feet/second to gallons/minute
     cfs_in_gpm = 448.8311688
     ce_df = ce_df.fillna(
@@ -1074,7 +1088,7 @@ def _core_eia860__cooling_equipment(
 
 @asset_check(asset=_core_eia860__cooling_equipment, blocking=True)
 def cooling_equipment_null_cols(cooling_equipment):
-    """The only null cols we expect are tower type 3 and 4."""
+    """The only completely null cols we expect are tower type 3 and 4."""
     expected_null_cols = {"tower_type_3", "tower_type_4"}
     pudl.validate.no_null_cols(
         cooling_equipment,
