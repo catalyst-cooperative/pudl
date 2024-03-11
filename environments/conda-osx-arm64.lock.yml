@@ -19,7 +19,7 @@ dependencies:
   - anyio=4.3.0=pyhd8ed1ab_0
   - appdirs=1.4.4=pyh9f0ad1d_0
   - appnope=0.1.4=pyhd8ed1ab_0
-  - arelle-release=2.23.13=pyhd8ed1ab_0
+  - arelle-release=2.23.14=pyhd8ed1ab_0
   - argon2-cffi=23.1.0=pyhd8ed1ab_0
   - argon2-cffi-bindings=21.2.0=py311heffc1b2_4
   - arrow=1.3.0=pyhd8ed1ab_0
@@ -174,12 +174,12 @@ dependencies:
   - grpcio=1.60.1=py311hf5d242d_0
   - grpcio-health-checking=1.60.1=pyhd8ed1ab_0
   - grpcio-status=1.60.1=pyhd8ed1ab_0
-  - gtk2=2.24.33=h7895bb2_3
+  - gtk2=2.24.33=h7895bb2_4
   - gts=0.7.6=he42f4ea_4
   - gunicorn=21.2.0=py311h267d04e_1
   - h11=0.14.0=pyhd8ed1ab_0
   - h2=4.1.0=pyhd8ed1ab_0
-  - h3-py=3.7.6=py311ha891d26_1
+  - h3-py=3.7.7=py311h92babd0_0
   - harfbuzz=8.3.0=h8f0ba13_0
   - hdf4=4.2.15=h2ee6834_7
   - hdf5=1.14.3=nompi_h5bb55e9_100
@@ -191,7 +191,7 @@ dependencies:
   - humanfriendly=10.0=pyhd8ed1ab_6
   - hupper=1.12.1=pyhd8ed1ab_0
   - hyperframe=6.0.1=pyhd8ed1ab_0
-  - hypothesis=6.98.18=pyha770c72_0
+  - hypothesis=6.99.2=pyha770c72_0
   - icu=73.2=hc8870d7_0
   - identify=2.5.35=pyhd8ed1ab_0
   - idna=3.6=pyhd8ed1ab_0
@@ -356,7 +356,7 @@ dependencies:
   - overrides=7.7.0=pyhd8ed1ab_0
   - packaging=23.2=pyhd8ed1ab_0
   - pandas=2.2.1=py311hfbe21a1_0
-  - pandera-core=0.17.2=pyhd8ed1ab_1
+  - pandera-core=0.18.0=pyhd8ed1ab_0
   - pandoc=3.1.12.2=hce30654_0
   - pandocfilters=1.5.0=pyhd8ed1ab_0
   - pango=1.52.1=hb067d4f_0
@@ -490,7 +490,7 @@ dependencies:
   - sphinxcontrib-serializinghtml=1.1.10=pyhd8ed1ab_0
   - splink=3.9.13=pyhd8ed1ab_0
   - sqlalchemy=2.0.28=py311h05b510d_0
-  - sqlglot=22.3.1=pyhd8ed1ab_0
+  - sqlglot=22.3.1=pyhd8ed1ab_2
   - sqlite=3.45.1=hf2abe2d_0
   - sqlparse=0.4.4=pyhd8ed1ab_0
   - stack_data=0.6.2=pyhd8ed1ab_0
@@ -517,8 +517,8 @@ dependencies:
   - traitlets=5.14.1=pyhd8ed1ab_0
   - typeguard=4.1.5=pyhd8ed1ab_1
   - typer=0.9.0=pyhd8ed1ab_0
-  - types-python-dateutil=2.8.19.20240106=pyhd8ed1ab_0
-  - types-pyyaml=6.0.12.12=pyhd8ed1ab_0
+  - types-python-dateutil=2.8.19.20240311=pyhd8ed1ab_0
+  - types-pyyaml=6.0.12.20240311=pyhd8ed1ab_0
   - typing-extensions=4.10.0=hd8ed1ab_0
   - typing_extensions=4.10.0=pyha770c72_0
   - typing_inspect=0.9.0=pyhd8ed1ab_0
