@@ -6,6 +6,7 @@ designed to be used as a general purpose tool, applicable in multiple scenarios,
 should probably live here. There are lost of transform type functions in here that help
 with cleaning and restructing dataframes.
 """
+
 import importlib.resources
 import itertools
 import json
@@ -265,9 +266,9 @@ def clean_eia_counties(
     df = df.explode(county_col)
     df[county_col] = df[county_col].str.strip()
     # Yellowstone county is in MT, not WY
-    df.loc[
-        (df[state_col] == "WY") & (df[county_col] == "Yellowstone"), state_col
-    ] = "MT"
+    df.loc[(df[state_col] == "WY") & (df[county_col] == "Yellowstone"), state_col] = (
+        "MT"
+    )
     # Replace individual bad county names with identified correct names in fixes:
     for fix in fixes.itertuples():
         state_mask = df[state_col] == fix.state
@@ -1372,7 +1373,12 @@ def zero_pad_numeric_string(col: pd.Series, n_digits: int) -> pd.Series:
 
 
 def iterate_multivalue_dict(**kwargs):
-    """Make dicts from dict with main dict key and one value of main dict."""
+    """Make dicts from dict with main dict key and one value of main dict.
+
+    If kwargs is {'form;: 'gas_distribution', 'years': [2019, 2020]}, it will yield these results:
+        {'form': 'gas_distribution', 'years': 2019}
+        {'form': 'gas_distribution', 'years': 2020}
+    """
     single_valued = {
         k: v for k, v in kwargs.items() if not (isinstance(v, list | tuple))
     }
@@ -1437,7 +1443,7 @@ def dedupe_on_category(
 
 def calc_capacity_factor(
     df: pd.DataFrame,
-    freq: Literal["AS", "MS"],
+    freq: Literal["YS", "MS"],
     min_cap_fact: float | None = None,
     max_cap_fact: float | None = None,
 ) -> pd.DataFrame:
@@ -1454,7 +1460,7 @@ def calc_capacity_factor(
         df: table with required inputs for capacity factor (``report_date``,
             ``net_generation_mwh`` and ``capacity_mw``).
         freq: String describing time frequency at which to aggregate the reported data,
-            such as ``MS`` (month start) or ``AS`` (annual start).
+            such as ``MS`` (month start) or ``YS`` (annual start).
         min_cap_fact: Lower bound, below which values are set to NaN. If None, don't use
             a lower bound. Default is None.
         max_cap_fact: Upper bound, below which values are set to NaN.  If None, don't
@@ -1520,30 +1526,30 @@ def weighted_average(
 
 def sum_and_weighted_average_agg(
     df_in: pd.DataFrame,
-    by: list,
-    sum_cols: list,
+    by: list[str],
+    sum_cols: list[str],
     wtavg_dict: dict[str, str],
 ) -> pd.DataFrame:
     """Aggregate dataframe by summing and using weighted averages.
 
-    Many times we want to aggreate a data table using the same groupby columns
-    but with different aggregation methods. This function combines two of our
-    most common aggregation methods (summing and applying a weighted average)
-    into one function. Because pandas does not have a built-in weighted average
-    method for groupby we use :func:``weighted_average``.
+    Many times we want to aggreate a data table using the same groupby columns but with
+    different aggregation methods. This function combines two of our most common
+    aggregation methods (summing and applying a weighted average) into one function.
+    Because pandas does not have a built-in weighted average method for groupby we use
+    :func:``weighted_average``.
 
     Args:
-        df_in (pandas.DataFrame): input table to aggregate. Must have columns
-            in ``id_cols``, ``sum_cols`` and keys from ``wtavg_dict``.
-        by (list): columns to group/aggregate based on. These columns
-            will be passed as an argument into grouby as ``by`` arg.
-        sum_cols (list): columns to sum.
-        wtavg_dict (dictionary): dictionary of columns to average (keys) and
-            columns to weight by (values).
+        df_in: input table to aggregate. Must have columns in ``id_cols``, ``sum_cols``
+            and keys from ``wtavg_dict``.
+        by: columns to group/aggregate based on. These columns will be passed as an
+            argument into grouby as ``by`` arg.
+        sum_cols: columns to sum.
+        wtavg_dict: dictionary of columns to average (keys) and columns to weight by
+           (values).
 
     Returns:
-        table with join of columns from ``by``, ``sum_cols`` and keys of
-        ``wtavg_dict``. Primary key of table will be ``by``.
+        table with join of columns from ``by``, ``sum_cols`` and keys of ``wtavg_dict``.
+        Primary key of table will be ``by``.
     """
     logger.debug(f"grouping by {by}")
     # we are keeping the index here for easy merging of the weighted cols below
@@ -1608,7 +1614,7 @@ def convert_df_to_excel_file(df: pd.DataFrame, **kwargs) -> pd.ExcelFile:
     with pd.ExcelWriter(bio, engine="xlsxwriter") as writer:
         df.to_excel(writer, **kwargs)
     bio.seek(0)
-    return pd.ExcelFile(bio)
+    return pd.ExcelFile(bio, engine="calamine")
 
 
 def get_asset_keys(

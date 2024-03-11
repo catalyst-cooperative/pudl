@@ -1,4 +1,5 @@
 """Test the metadata.yml file that is output generated for Datasette."""
+
 import logging
 
 import sqlalchemy as sa

@@ -92,6 +92,7 @@ def get_plant_map() -> pd.DataFrame:
             "utility_name_eia": str,
             "utility_id_eia": int,
         },
+        engine="calamine",
     ).pipe(
         simplify_strings,
         [

@@ -1,4 +1,5 @@
 """Validate post-ETL EIA 860 data and the associated derived outputs."""
+
 import logging
 from test.conftest import skip_table_if_null_freq_table
 
@@ -45,13 +46,13 @@ def test_no_null_cols_eia(pudl_out_eia, live_dbs, cols, df_name):
 @pytest.mark.parametrize(
     "df_name,raw_rows,monthly_rows,annual_rows",
     [
-        ("bf_eia923", 1_607_752, 1_607_752, 128_252),
+        ("bf_eia923", 1_607_692, 1_607_692, 128_252),
         ("bga_eia860", 142_391, 142_391, 142_391),
-        ("boil_eia860", 83_416, 83_416, 83_416),
-        ("frc_eia923", 650_671, 265_784, 25_443),
+        ("boil_eia860", 83_418, 83_418, 83_418),
+        ("frc_eia923", 656_388, 268_352, 25_443),
         ("gen_eia923", None, 5_179_478, 433_336),
-        ("gens_eia860", 557_368, 557_368, 557_368),
-        ("gf_eia923", 2_918_170, 2_918_170, 246_324),
+        ("gens_eia860", 557_369, 557_369, 557_369),
+        ("gf_eia923", 2_933_836, 2_933_836, 246_324),
         ("own_eia860", 89_741, 89_741, 89_741),
         ("plants_eia860", 200_851, 200_851, 200_851),
         ("pu_eia860", 199_975, 199_975, 199_975),
@@ -75,18 +76,18 @@ def test_minmax_rows(
 
     Args:
         pudl_out_eia: A PudlTabl output object.
-        live_dbs (bool): Whether we're using a live or testing DB.
+        live_dbs: Whether we're using a live or testing DB.
         raw_rows: The expected original number of rows, without aggregation.
         annual_rows: The expected number of rows when using annual aggregation.
         monthly_rows: The expected number of rows when using monthly aggregation.
-        df_name (str): Shorthand name identifying the dataframe, corresponding
+        df_name: Shorthand name identifying the dataframe, corresponding
             to the name of the function used to pull it from the PudlTabl
             output object.
     """
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
     skip_table_if_null_freq_table(table_name=df_name, freq=pudl_out_eia.freq)
-    if pudl_out_eia.freq == "AS":
+    if pudl_out_eia.freq == "YS":
         expected_rows = annual_rows
     elif pudl_out_eia.freq == "MS":
         expected_rows = monthly_rows

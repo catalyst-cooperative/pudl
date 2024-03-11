@@ -1,4 +1,5 @@
 """PyTest cases related to generating dervied outputs."""
+
 import logging
 
 import pandas as pd

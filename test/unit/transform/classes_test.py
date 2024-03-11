@@ -791,7 +791,7 @@ def scramble_units(
     """
     # Verify that all unit corrections are referring to the same
     # data column and categorical columns
-    data_col, cat_col, categories = unit_corrections_are_homogeneous(corrections)
+    data_col, _cat_col, _categories = unit_corrections_are_homogeneous(corrections)
     df = df.copy()
 
     for corr in corrections:

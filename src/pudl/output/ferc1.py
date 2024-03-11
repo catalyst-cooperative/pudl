@@ -1,4 +1,5 @@
 """A collection of denormalized FERC assets and helper functions."""
+
 import importlib
 import re
 from copy import deepcopy
@@ -228,7 +229,7 @@ def _out_ferc1__yearly_plants_utilities(
 
 
 @asset(io_manager_key="pudl_io_manager", compute_kind="Python")
-def _out_ferc1__yearly_steam_plants_sched402(
+def out_ferc1__yearly_steam_plants_sched402(
     _out_ferc1__yearly_plants_utilities: pd.DataFrame,
     _out_ferc1__yearly_steam_plants_sched402_with_plant_ids: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -283,7 +284,7 @@ def _out_ferc1__yearly_steam_plants_sched402(
 
 
 @asset(io_manager_key="pudl_io_manager", compute_kind="Python")
-def _out_ferc1__yearly_small_plants_sched410(
+def out_ferc1__yearly_small_plants_sched410(
     core_ferc1__yearly_small_plants_sched410: pd.DataFrame,
     _out_ferc1__yearly_plants_utilities: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -320,7 +321,7 @@ def _out_ferc1__yearly_small_plants_sched410(
 
 
 @asset(io_manager_key="pudl_io_manager", compute_kind="Python")
-def _out_ferc1__yearly_hydroelectric_plants_sched406(
+def out_ferc1__yearly_hydroelectric_plants_sched406(
     core_ferc1__yearly_hydroelectric_plants_sched406: pd.DataFrame,
     _out_ferc1__yearly_plants_utilities: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -351,7 +352,7 @@ def _out_ferc1__yearly_hydroelectric_plants_sched406(
 
 
 @asset(io_manager_key="pudl_io_manager", compute_kind="Python")
-def _out_ferc1__yearly_pumped_storage_plants_sched408(
+def out_ferc1__yearly_pumped_storage_plants_sched408(
     core_ferc1__yearly_pumped_storage_plants_sched408: pd.DataFrame,
     _out_ferc1__yearly_plants_utilities: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -854,10 +855,10 @@ def out_ferc1__yearly_utility_plant_summary_sched200(
 
 @asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def out_ferc1__yearly_all_plants(
-    _out_ferc1__yearly_steam_plants_sched402: pd.DataFrame,
-    core_ferc1__yearly_small_plants_sched410: pd.DataFrame,
-    _out_ferc1__yearly_hydroelectric_plants_sched406: pd.DataFrame,
-    _out_ferc1__yearly_pumped_storage_plants_sched408: pd.DataFrame,
+    out_ferc1__yearly_steam_plants_sched402: pd.DataFrame,
+    out_ferc1__yearly_small_plants_sched410: pd.DataFrame,
+    out_ferc1__yearly_hydroelectric_plants_sched406: pd.DataFrame,
+    out_ferc1__yearly_pumped_storage_plants_sched408: pd.DataFrame,
 ) -> pd.DataFrame:
     """Combine the steam, small generators, hydro, and pumped storage tables.
 
@@ -869,16 +870,16 @@ def out_ferc1__yearly_all_plants(
     """
     # Prep steam table
     logger.debug("prepping steam table")
-    steam_df = _out_ferc1__yearly_steam_plants_sched402.rename(
+    steam_df = out_ferc1__yearly_steam_plants_sched402.rename(
         columns={"opex_plants": "opex_plant"}
     )
 
     # Prep hydro tables (Add this to the meta data later)
     logger.debug("prepping hydro tables")
-    hydro_df = _out_ferc1__yearly_hydroelectric_plants_sched406.rename(
+    hydro_df = out_ferc1__yearly_hydroelectric_plants_sched406.rename(
         columns={"project_num": "ferc_license_id"}
     )
-    pump_df = _out_ferc1__yearly_pumped_storage_plants_sched408.rename(
+    pump_df = out_ferc1__yearly_pumped_storage_plants_sched408.rename(
         columns={"project_num": "ferc_license_id"}
     )
 
@@ -886,7 +887,7 @@ def out_ferc1__yearly_all_plants(
     logger.debug("combining all tables")
     all_df = (
         pd.concat(
-            [steam_df, core_ferc1__yearly_small_plants_sched410, hydro_df, pump_df]
+            [steam_df, out_ferc1__yearly_small_plants_sched410, hydro_df, pump_df]
         )
         .rename(
             columns={
@@ -952,9 +953,9 @@ def out_ferc1__yearly_steam_plants_fuel_by_plant_sched402(
     # The existing function expects `fuel_type_code_pudl` to be an object, rather than
     # a category. This is a legacy of pre-dagster code, and we convert here to prevent
     # further retooling in the code-base.
-    core_ferc1__yearly_steam_plants_fuel_sched402[
-        "fuel_type_code_pudl"
-    ] = core_ferc1__yearly_steam_plants_fuel_sched402["fuel_type_code_pudl"].astype(str)
+    core_ferc1__yearly_steam_plants_fuel_sched402["fuel_type_code_pudl"] = (
+        core_ferc1__yearly_steam_plants_fuel_sched402["fuel_type_code_pudl"].astype(str)
+    )
 
     fuel_categories = list(
         pudl.transform.ferc1.SteamPlantsFuelTableTransformer()
@@ -1217,7 +1218,7 @@ def _out_ferc1__detailed_tags(_core_ferc1__table_dimensions) -> pd.DataFrame:
 def _get_tags(
     file_name: str, _core_ferc1__table_dimensions: pd.DataFrame
 ) -> pd.DataFrame:
-    """Grab tags from a stored CSV file and apply :func:`make_calculation_dimensions_explicit`."""
+    """Grab tags from a stored CSV file and apply :func:`make_xbrl_factoid_dimensions_explicit`."""
     tags_csv = importlib.resources.files("pudl.package_data.ferc1") / file_name
     tags_df = (
         pd.read_csv(tags_csv)
@@ -1225,7 +1226,7 @@ def _get_tags(
         .dropna(subset=["table_name", "xbrl_factoid"], how="any")
         .astype(pd.StringDtype())
         .pipe(
-            pudl.transform.ferc1.make_calculation_dimensions_explicit,
+            pudl.transform.ferc1.make_xbrl_factoid_dimensions_explicit,
             _core_ferc1__table_dimensions,
             dimensions=["utility_type", "plant_function", "plant_status"],
         )
@@ -1252,7 +1253,7 @@ def _aggregatable_dimension_tags(
         .assign(**{dim: pd.NA for dim in dimensions})
         .astype(pd.StringDtype())
         .pipe(
-            pudl.transform.ferc1.make_calculation_dimensions_explicit,
+            pudl.transform.ferc1.make_xbrl_factoid_dimensions_explicit,
             _core_ferc1__table_dimensions,
             dimensions=dimensions,
         )
@@ -1330,6 +1331,111 @@ def exploded_table_asset_factory(
     return exploded_tables_asset
 
 
+EXPLOSION_ARGS = [
+    {
+        "root_table": "core_ferc1__yearly_income_statements_sched114",
+        "table_names": [
+            "core_ferc1__yearly_income_statements_sched114",
+            "core_ferc1__yearly_depreciation_summary_sched336",
+            "core_ferc1__yearly_operating_expenses_sched320",
+            "core_ferc1__yearly_operating_revenues_sched300",
+        ],
+        "group_metric_checks": EXPLOSION_CALCULATION_TOLERANCES[
+            "core_ferc1__yearly_income_statements_sched114"
+        ],
+        "seed_nodes": [
+            NodeId(
+                table_name="core_ferc1__yearly_income_statements_sched114",
+                xbrl_factoid="net_income_loss",
+                utility_type="total",
+                plant_status=pd.NA,
+                plant_function=pd.NA,
+            ),
+        ],
+        "off_by_facts": [],
+    },
+    {
+        "root_table": "core_ferc1__yearly_balance_sheet_assets_sched110",
+        "table_names": [
+            "core_ferc1__yearly_balance_sheet_assets_sched110",
+            "core_ferc1__yearly_utility_plant_summary_sched200",
+            "core_ferc1__yearly_plant_in_service_sched204",
+            "core_ferc1__yearly_depreciation_by_function_sched219",
+        ],
+        "group_metric_checks": EXPLOSION_CALCULATION_TOLERANCES[
+            "core_ferc1__yearly_balance_sheet_assets_sched110"
+        ],
+        "seed_nodes": [
+            NodeId(
+                table_name="core_ferc1__yearly_balance_sheet_assets_sched110",
+                xbrl_factoid="assets_and_other_debits",
+                utility_type="total",
+                plant_status=pd.NA,
+                plant_function=pd.NA,
+            )
+        ],
+        "off_by_facts": [
+            OffByFactoid(
+                "core_ferc1__yearly_utility_plant_summary_sched200",
+                "utility_plant_in_service_classified_and_property_under_capital_leases",
+                "electric",
+                pd.NA,
+                pd.NA,
+                "core_ferc1__yearly_utility_plant_summary_sched200",
+                "utility_plant_in_service_completed_construction_not_classified",
+                "electric",
+                pd.NA,
+                pd.NA,
+            ),
+            OffByFactoid(
+                "core_ferc1__yearly_utility_plant_summary_sched200",
+                "utility_plant_in_service_classified_and_property_under_capital_leases",
+                "electric",
+                pd.NA,
+                pd.NA,
+                "core_ferc1__yearly_utility_plant_summary_sched200",
+                "utility_plant_in_service_property_under_capital_leases",
+                "electric",
+                pd.NA,
+                pd.NA,
+            ),
+            OffByFactoid(
+                "core_ferc1__yearly_utility_plant_summary_sched200",
+                "depreciation_utility_plant_in_service",
+                "electric",
+                pd.NA,
+                pd.NA,
+                "core_ferc1__yearly_utility_plant_summary_sched200",
+                "amortization_of_other_utility_plant_utility_plant_in_service",
+                "electric",
+                pd.NA,
+                pd.NA,
+            ),
+        ],
+    },
+    {
+        "root_table": "core_ferc1__yearly_balance_sheet_liabilities_sched110",
+        "table_names": [
+            "core_ferc1__yearly_balance_sheet_liabilities_sched110",
+            "core_ferc1__yearly_retained_earnings_sched118",
+        ],
+        "group_metric_checks": EXPLOSION_CALCULATION_TOLERANCES[
+            "core_ferc1__yearly_balance_sheet_liabilities_sched110"
+        ],
+        "seed_nodes": [
+            NodeId(
+                table_name="core_ferc1__yearly_balance_sheet_liabilities_sched110",
+                xbrl_factoid="liabilities_and_other_credits",
+                utility_type="total",
+                plant_status=pd.NA,
+                plant_function=pd.NA,
+            )
+        ],
+        "off_by_facts": [],
+    },
+]
+
+
 def create_exploded_table_assets() -> list[AssetsDefinition]:
     """Create a list of exploded FERC Form 1 assets.
 
@@ -1337,110 +1443,7 @@ def create_exploded_table_assets() -> list[AssetsDefinition]:
         A list of :class:`AssetsDefinitions` where each asset is an exploded FERC Form 1
         table.
     """
-    explosion_args = [
-        {
-            "root_table": "core_ferc1__yearly_income_statements_sched114",
-            "table_names": [
-                "core_ferc1__yearly_income_statements_sched114",
-                "core_ferc1__yearly_depreciation_summary_sched336",
-                "core_ferc1__yearly_operating_expenses_sched320",
-                "core_ferc1__yearly_operating_revenues_sched300",
-            ],
-            "group_metric_checks": EXPLOSION_CALCULATION_TOLERANCES[
-                "core_ferc1__yearly_income_statements_sched114"
-            ],
-            "seed_nodes": [
-                NodeId(
-                    table_name="core_ferc1__yearly_income_statements_sched114",
-                    xbrl_factoid="net_income_loss",
-                    utility_type="total",
-                    plant_status=pd.NA,
-                    plant_function=pd.NA,
-                ),
-            ],
-            "off_by_facts": [],
-        },
-        {
-            "root_table": "core_ferc1__yearly_balance_sheet_assets_sched110",
-            "table_names": [
-                "core_ferc1__yearly_balance_sheet_assets_sched110",
-                "core_ferc1__yearly_utility_plant_summary_sched200",
-                "core_ferc1__yearly_plant_in_service_sched204",
-                "core_ferc1__yearly_depreciation_by_function_sched219",
-            ],
-            "group_metric_checks": EXPLOSION_CALCULATION_TOLERANCES[
-                "core_ferc1__yearly_balance_sheet_assets_sched110"
-            ],
-            "seed_nodes": [
-                NodeId(
-                    table_name="core_ferc1__yearly_balance_sheet_assets_sched110",
-                    xbrl_factoid="assets_and_other_debits",
-                    utility_type="total",
-                    plant_status=pd.NA,
-                    plant_function=pd.NA,
-                )
-            ],
-            "off_by_facts": [
-                OffByFactoid(
-                    "core_ferc1__yearly_utility_plant_summary_sched200",
-                    "utility_plant_in_service_classified_and_property_under_capital_leases",
-                    "electric",
-                    pd.NA,
-                    pd.NA,
-                    "core_ferc1__yearly_utility_plant_summary_sched200",
-                    "utility_plant_in_service_completed_construction_not_classified",
-                    "electric",
-                    pd.NA,
-                    pd.NA,
-                ),
-                OffByFactoid(
-                    "core_ferc1__yearly_utility_plant_summary_sched200",
-                    "utility_plant_in_service_classified_and_property_under_capital_leases",
-                    "electric",
-                    pd.NA,
-                    pd.NA,
-                    "core_ferc1__yearly_utility_plant_summary_sched200",
-                    "utility_plant_in_service_property_under_capital_leases",
-                    "electric",
-                    pd.NA,
-                    pd.NA,
-                ),
-                OffByFactoid(
-                    "core_ferc1__yearly_utility_plant_summary_sched200",
-                    "depreciation_utility_plant_in_service",
-                    "electric",
-                    pd.NA,
-                    pd.NA,
-                    "core_ferc1__yearly_utility_plant_summary_sched200",
-                    "amortization_of_other_utility_plant_utility_plant_in_service",
-                    "electric",
-                    pd.NA,
-                    pd.NA,
-                ),
-            ],
-        },
-        {
-            "root_table": "core_ferc1__yearly_balance_sheet_liabilities_sched110",
-            "table_names": [
-                "core_ferc1__yearly_balance_sheet_liabilities_sched110",
-                "core_ferc1__yearly_retained_earnings_sched118",
-            ],
-            "group_metric_checks": EXPLOSION_CALCULATION_TOLERANCES[
-                "core_ferc1__yearly_balance_sheet_liabilities_sched110"
-            ],
-            "seed_nodes": [
-                NodeId(
-                    table_name="core_ferc1__yearly_balance_sheet_liabilities_sched110",
-                    xbrl_factoid="liabilities_and_other_credits",
-                    utility_type="total",
-                    plant_status=pd.NA,
-                    plant_function=pd.NA,
-                )
-            ],
-            "off_by_facts": [],
-        },
-    ]
-    return [exploded_table_asset_factory(**kwargs) for kwargs in explosion_args]
+    return [exploded_table_asset_factory(**kwargs) for kwargs in EXPLOSION_ARGS]
 
 
 exploded_ferc1_assets = create_exploded_table_assets()
@@ -1747,6 +1750,18 @@ class Exploder:
         """Primary key columns for calculations in this explosion."""
         return [col for col in list(NodeId._fields) if col in self.exploded_pks]
 
+    def prep_table_to_explode(
+        self: Self, table_name: str, table_df: pd.DataFrame
+    ) -> pd.DataFrame:
+        """Assign table name and rename factoid column in preparation for explosion."""
+        xbrl_factoid_name = pudl.transform.ferc1.FERC1_TFR_CLASSES[
+            table_name
+        ]().params.xbrl_factoid_name
+        table_df = table_df.assign(table_name=table_name).rename(
+            columns={xbrl_factoid_name: "xbrl_factoid"}
+        )
+        return table_df
+
     def boom(self: Self, tables_to_explode: dict[str, pd.DataFrame]) -> pd.DataFrame:
         """Explode a set of nested tables.
 
@@ -1800,14 +1815,8 @@ class Exploder:
         explosion_tables = []
         # GRAB/PREP EACH TABLE
         for table_name, table_df in tables_to_explode.items():
-            xbrl_factoid_name = pudl.transform.ferc1.FERC1_TFR_CLASSES[
-                table_name
-            ]().params.xbrl_factoid_name
-            tbl = table_df.assign(table_name=table_name).rename(
-                columns={xbrl_factoid_name: "xbrl_factoid"}
-            )
+            tbl = self.prep_table_to_explode(table_name, table_df)
             explosion_tables.append(tbl)
-
         exploded = pd.concat(explosion_tables)
 
         # Identify which dimensions apply to the curent explosion -- not all collections
@@ -2724,11 +2733,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         # Convert them into the first layer of the dataframe:
         layer0_df = pd.DataFrame(layer0_nodes).rename(columns=lambda x: x + "_layer0")
 
-        return (
-            self._add_layers_to_forest_as_table(df=layer0_df)
-            .dropna(axis="columns", how="all")
-            .convert_dtypes()
-        )
+        return self._add_layers_to_forest_as_table(df=layer0_df).convert_dtypes()
 
     def _add_layers_to_forest_as_table(self: Self, df: pd.DataFrame) -> pd.DataFrame:
         """Recursively add additional layers of nodes from the forest to the table.
@@ -2753,7 +2758,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         parent_nodes = list(
             df[parent_cols]
             .drop_duplicates()
-            .dropna(how="all")
+            .dropna(how="all", axis="rows")
             .rename(columns=lambda x: x.removesuffix(suffix))
             .itertuples(name="NodeId", index=False)
         )
@@ -2885,7 +2890,10 @@ def _propagate_tags_to_corrections(annotated_forest: nx.DiGraph) -> nx.DiGraph:
         # for every correction node, we assume that that nodes parent tags can apply
         parents = list(annotated_forest.predecessors(correction_node))
         # all correction records shoul have a parent and only one
-        assert len(parents) == 1
+        if len(parents) != 1:
+            raise AssertionError(
+                f"Found more than one parent node for {correction_node=}\n{parents=}"
+            )
         parent = parents[0]
         correction_tags[correction_node] = {
             "tags": existing_tags.get(parent, {})

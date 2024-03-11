@@ -2,6 +2,7 @@
 
 Most of this is compiled from handmapping records.
 """
+
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {

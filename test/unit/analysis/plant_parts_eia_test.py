@@ -1,4 +1,5 @@
 """Tests for timeseries anomalies detection and imputation."""
+
 from importlib import resources
 
 import pandas as pd
@@ -545,6 +546,7 @@ def test_one_to_many():
             "report_date": "datetime64[s]",
             "generator_retirement_date": "datetime64[s]",
             "planned_generator_retirement_date": "datetime64[s]",
+            "generator_id": "string",
         }
     )
 
@@ -659,6 +661,7 @@ def test_one_to_many():
                 "report_date": "datetime64[s]",
                 "generator_retirement_date": "datetime64[s]",
                 "planned_generator_retirement_date": "datetime64[s]",
+                "generator_id": "string",
             }
         )
         .convert_dtypes()

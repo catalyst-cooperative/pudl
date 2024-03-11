@@ -63,6 +63,7 @@ Specific :class:`TransformParams` classes are instantiated using dictionaries of
 defined in the per-dataset modules under :mod:`pudl.transform.params` e.g.
 :mod:`pudl.transform.params.ferc1`.
 """
+
 import enum
 import re
 from abc import ABC, abstractmethod
@@ -1236,7 +1237,7 @@ class AbstractTableTransformer(ABC):
             logger.warning(
                 f"{self.table_id.value}: Attempting to rename columns which are not "
                 "present in the dataframe.\n"
-                f"Missing columns: {missing_cols}"
+                f"Missing columns: {missing_cols}\nExisting Columns: {df.columns}"
             )
         return df.rename(columns=params.columns)
 

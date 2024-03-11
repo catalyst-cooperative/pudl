@@ -3,6 +3,7 @@
 All transformations include:
 - Replace . values with NA.
 """
+
 import pandas as pd
 from dagster import AssetIn, AssetOut, Output, asset, multi_asset
 
@@ -1670,7 +1671,7 @@ def core_distributed_generation_eia861(
     # Tidy Data
     ###########################################################################
     logger.info("Tidying Distributed Generation Tech Table")
-    tidy_dg_tech, tech_idx_cols = _tidy_class_dfs(
+    tidy_dg_tech, _tech_idx_cols = _tidy_class_dfs(
         df=dg_tech,
         df_name="Distributed Generation Tech Component Capacity",
         idx_cols=idx_cols,
@@ -1679,7 +1680,7 @@ def core_distributed_generation_eia861(
     )
 
     logger.info("Tidying Distributed Generation Fuel Table")
-    tidy_dg_fuel, fuel_idx_cols = _tidy_class_dfs(
+    tidy_dg_fuel, _fuel_idx_cols = _tidy_class_dfs(
         df=raw_dg_fuel,
         df_name="Distributed Generation Fuel Percent",
         idx_cols=idx_cols,

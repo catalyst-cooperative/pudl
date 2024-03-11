@@ -1,4 +1,5 @@
 """Tests for timeseries anomalies detection and imputation."""
+
 import numpy as np
 import pandas as pd
 import pytest

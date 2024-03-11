@@ -1,26 +1,51 @@
-"""Extract EIA Form 176 data from CSVs.
+"""Extract EIA Form 176 data from CSVs."""
 
-The EIA Form 176 archive also contains CSVs for EIA Form 191 and EIA Form 757.
-"""
+import pandas as pd
+from dagster import Output, asset
 
-from dagster import asset
-
-from pudl.extract.csv import CsvExtractor, get_table_file_map
-
-DATASET = "eia176"
+from pudl.extract.csv import CsvExtractor
+from pudl.extract.extractor import GenericMetadata, PartitionSelection, raw_df_factory
 
 
-@asset(required_resource_keys={"datastore"})
-def raw_eia176__company(context):
+class Extractor(CsvExtractor):
+    """Extractor for EIA form 176."""
+
+    def __init__(self, *args, **kwargs):
+        """Initialize the module.
+
+        Args:
+            ds (:class:datastore.Datastore): Initialized datastore.
+        """
+        self.METADATA = GenericMetadata("eia176")
+        super().__init__(*args, **kwargs)
+
+    def get_page_cols(self, page: str, partition_key: str) -> list[str]:
+        """Get the columns for a particular page and partition key.
+
+        EIA 176 data has the same set of columns for all years,
+        so regardless of the partition key provided we select the same columns here.
+        """
+        return super().get_page_cols(page, "any_year")
+
+    def process_raw(
+        self, df: pd.DataFrame, page: str, **partition: PartitionSelection
+    ) -> pd.DataFrame:
+        """Append report year to df to distinguish data from other years."""
+        self.cols_added.append("report_year")
+        selection = self._metadata._get_partition_selection(partition)
+        return df.assign(report_year=selection)
+
+
+raw_eia176__all_dfs = raw_df_factory(Extractor, name="eia176")
+
+
+@asset(
+    required_resource_keys={"datastore", "dataset_settings"},
+)
+def raw_eia176__data(raw_eia176__all_dfs):
     """Extract raw EIA company data from CSV sheets into dataframes.
 
-    Args:
-        context: dagster keyword that provides access to resources and config.
-
     Returns:
-        An extracted EIA dataframe with company data.
+        An extracted EIA 176 dataframe.
     """
-    table_file_map = get_table_file_map(DATASET)
-    with context.resources.datastore.get_zipfile_resource(DATASET) as zf:
-        extractor = CsvExtractor(zf, table_file_map)
-        return extractor.extract_one("company")
+    return Output(value=raw_eia176__all_dfs["data"])

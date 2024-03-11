@@ -1,4 +1,5 @@
 """Functions & classes for compiling derived aspects of the FERC Form 714 data."""
+
 from typing import Any
 
 import geopandas as gpd
@@ -458,7 +459,12 @@ def _out_ferc714__categorized_respondents(
         left_on="eia_code",
         right_on="utility_id_eia",
     )
-    logger.info("Concatenating categorized FERC-714 respondents.")
+    logger.info(
+        "Concatenating categorized FERC-714 respondents:"
+        f"{len(ba_respondents)} BA records, "
+        f"{len(util_respondents)} utility records, "
+        f"{sum(categorized.respondent_type.isnull())} uncategorized records."
+    )
     categorized = pd.concat(
         [
             ba_respondents,
@@ -495,18 +501,18 @@ def out_ferc714__respondents_with_fips(
 ) -> pd.DataFrame:
     """Annual respondents with the county FIPS IDs for their service territories.
 
-    Given the ``respondent_type`` associated with each respondent (either
-    ``utility`` or ``balancing_authority``) compile a list of counties that are part
-    of their service territory on an annual basis, and merge those into the
-    annualized respondent table. This results in a very long dataframe, since there
-    are thousands of counties and many of them are served by more than one entity.
+    Given the ``respondent_type`` associated with each respondent (either ``utility`` or
+    ``balancing_authority``) compile a list of counties that are part of their service
+    territory on an annual basis, and merge those into the annualized respondent table.
+    This results in a very long dataframe, since there are thousands of counties and
+    many of them are served by more than one entity.
 
     Currently respondents categorized as ``utility`` will include any county that
-    appears in the ``core_eia861__yearly_service_territory`` table in association with that
-    utility ID in each year, while for ``balancing_authority`` respondents, some
+    appears in the ``core_eia861__yearly_service_territory`` table in association with
+    that utility ID in each year, while for ``balancing_authority`` respondents, some
     counties can be excluded based on state (if ``limit_by_state==True``).
+
     """
-    #
     assn = filled_core_eia861__assn_balancing_authority(
         core_eia861__assn_balancing_authority
     )
@@ -541,6 +547,12 @@ def out_ferc714__respondents_with_fips(
         ),
         on=["report_date", "utility_id_eia"],
         how="left",
+    )
+    logger.info(
+        "Concatenating georeferenced FERC-714 respondents:"
+        f"{len(ba_counties)} BA records, "
+        f"{len(util_counties)} utility records, "
+        f"{sum(_out_ferc714__categorized_respondents.respondent_type.isnull())} uncategorized records."
     )
     fipsified = pd.concat(
         [
