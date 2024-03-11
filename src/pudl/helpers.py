@@ -1446,6 +1446,34 @@ def dedupe_on_category(
     return dedup_df.drop_duplicates(subset=base_cols, keep="first")
 
 
+def dedupe_and_drop_nas(
+    dedup_df: pd.DataFrame,
+    primary_key_cols: list[str],
+) -> pd.DataFrame:
+    """Deduplicate a df by comparing primary key columns and dropping null rows.
+
+    When a primary key appears twice in a dataframe, and one record is all null other
+    than the primary keys, drop the null row.
+
+    Args:
+        dedup_df: the dataframe with the records to deduplicate.
+        primary_key_cols: list of columns which must not be duplicated.
+
+    Returns:
+        The deduplicated dataframe.
+    """
+    dupes = dedup_df.loc[dedup_df.duplicated(subset=primary_key_cols, keep=False)]
+    dupe_groups = dupes.groupby(primary_key_cols)
+    if (dupe_groups.nunique() > 1).any().any():  # noqa: PD101
+        raise AssertionError(f"Duplicate records with disagreeing data: {dupe_groups}")
+    deduped = dupe_groups.first().reset_index()
+    # replace the duplicated rows with the deduped versions
+    return pd.concat(
+        [dedup_df.drop_duplicates(subset=primary_key_cols, keep=False), deduped],
+        ignore_index=True,
+    )
+
+
 def calc_capacity_factor(
     df: pd.DataFrame,
     freq: Literal["YS", "MS"],

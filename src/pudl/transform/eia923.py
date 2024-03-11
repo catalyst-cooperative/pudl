@@ -1394,10 +1394,10 @@ def cooling_system_information_continuity(csi):
 
 
 @asset
-def core_eia923__yearly_fgd_operation_maintenance(
+def _core_eia923__fgd_operation_maintenance(
     raw_eia923__fgd_operation_maintenance: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Transforms the core_eia923__fgd_operation_maintenance table.
+    """Transforms the _core_eia923__fgd_operation_maintenance table.
 
     Transformations include:
 
@@ -1411,7 +1411,7 @@ def core_eia923__yearly_fgd_operation_maintenance(
         raw_eia923__fgd_operation_maintenance: The raw ``raw_eia923__fgd_operation_maintenance`` dataframe.
 
     Returns:
-        Cleaned ``core_eia923__fgd_operation_maintenance`` dataframe ready for harvesting.
+        Cleaned ``_core_eia923__fgd_operation_maintenance`` dataframe ready for harvesting.
     """
     fgd_df = raw_eia923__fgd_operation_maintenance
 
@@ -1420,26 +1420,28 @@ def core_eia923__yearly_fgd_operation_maintenance(
     fgd_df = fgd_df.drop_duplicates()
 
     # Replace the EIA923 NA value ('.') with a real NA value.
-    fgd_df = pudl.helpers.fix_eia_na(fgd_df)
+    fgd_df = pudl.helpers.fix_eia_na(fgd_df).pipe(pudl.helpers.convert_to_date)
 
     # Convert thousands of dollars to dollars
     fgd_df.loc[:, fgd_df.columns.str.endswith("_1000_dollars")] *= 1000
     fgd_df.columns = fgd_df.columns.str.replace("_1000_dollars", "")  # Rename columns
 
     # Convert SO2 test date column to datetime
+    # This column only exists for 2008-2011
     # First, convert a few troublesome datetimes that look like m/yy or mm/yy
-    troublesome_dates = fgd_df.so2_test_date.str.contains(
-        r"^[0-9]{1,2}\/[0-9]{2}$", regex=True, na=False
-    )
-    logger.info(
-        f"Rescuing troublesome dates: {fgd_df[troublesome_dates].so2_test_date.unique()}"
-    )
-    fgd_df.loc[troublesome_dates, "so2_test_date"] = fgd_df[
-        troublesome_dates
-    ].so2_test_date.str.pad(5, fillchar="0")
-    fgd_df.loc[troublesome_dates, "so2_test_date"] = pd.to_datetime(
-        fgd_df.loc[troublesome_dates, "so2_test_date"], format="%m/%y"
-    )
+    if not fgd_df.so2_test_date.isnull().all():  # If column not empty
+        troublesome_dates = fgd_df.so2_test_date.str.contains(
+            r"^[0-9]{1,2}\/[0-9]{2}$", regex=True, na=False
+        )
+        logger.info(
+            f"Rescuing troublesome dates: {fgd_df[troublesome_dates].so2_test_date.unique()}"
+        )
+        fgd_df.loc[troublesome_dates, "so2_test_date"] = fgd_df[
+            troublesome_dates
+        ].so2_test_date.str.pad(5, fillchar="0")
+        fgd_df.loc[troublesome_dates, "so2_test_date"] = pd.to_datetime(
+            fgd_df.loc[troublesome_dates, "so2_test_date"], format="%m/%y"
+        )
 
     test_datetime = pd.to_datetime(
         fgd_df.so2_test_date, format="mixed", errors="coerce", dayfirst=False
@@ -1458,20 +1460,77 @@ def core_eia923__yearly_fgd_operation_maintenance(
         false_values=["N", 0.0],
     )
 
-    # There are two remaining duplicates from plant_id_eia 6016, one row with cost data
-    # and one without. Keep the row with data.
-    dup_filt = (
-        (fgd_df.plant_id_eia == 6016)
-        & (fgd_df.so2_control_id_eia == 1)
-        & (fgd_df.report_year.isin([2018, 2019]))
-    )
-    # Drop the rows where every value other than the IDs and data maturity are null
-    fgd_df = fgd_df.loc[
-        ~((dup_filt) & (fgd_df.isna().sum(axis=1) >= len(fgd_df.columns) - 4))
-    ]
+    # Take the non-NA values from each column for duplicate rows
+    pkey = ["plant_id_eia", "so2_control_id_eia", "report_date"]
+    fgd_df = pudl.helpers.dedupe_and_drop_nas(fgd_df, primary_key_cols=pkey)
 
-    return (
-        pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("core_eia923__yearly_fgd_operation_maintenance")
-        .encode(fgd_df)
+    return fgd_df.pipe(apply_pudl_dtypes, strict=False)
+
+
+@asset_check(asset=_core_eia923__fgd_operation_maintenance, blocking=True)
+def fgd_operation_maintenance_null_check(fgd):
+    """Check that columns other than expected columns aren't null."""
+    fast_run_null_cols = {
+        "fgd_control_flag",
+        "fgd_electricity_consumption_mwh",
+        "fgd_hours_in_service",
+        "fgd_operational_status",
+        "fgd_sorbent_consumption_1000_tons",
+        "opex_fgd_land_acquisition",
+        "so2_removal_efficiency_100pct_load",
+        "so2_removal_efficiency_annual",
+        "so2_test_date",
+    }
+    pudl.validate.no_null_cols(
+        fgd,
+        cols=set(fgd.columns) - fast_run_null_cols,
+    )
+    col_is_null = fgd.isna().all()
+    if not all(col_is_null[col] for col in fast_run_null_cols):
+        return AssetCheckResult(
+            passed=False, metadata={"col_is_null": col_is_null.to_json()}
+        )
+    return AssetCheckResult(passed=True)
+
+
+@asset_check(asset=_core_eia923__fgd_operation_maintenance, blocking=True)
+def cost_discrepancy_check(fgd):
+    """Opex costs should sum to opex_fgd_total_cost.
+
+    To allow for *some* data quality errors we assert that costs ~=
+    total cost at least 99% of the time (with a 1% acceptable
+    discrepancy).
+    """
+
+    def sum_to_target_rate(sum_cols, target, threshold):
+        discrepancies = (
+            fgd.loc[:, sum_cols].sum(axis="columns") - fgd.loc[:, target]
+        ).dropna() / fgd.loc[:, target]
+        return (discrepancies > threshold).sum() / len(discrepancies)
+
+    opex_cost_discrepancy_rate = sum_to_target_rate(
+        sum_cols=[col for col in fgd if "opex_fgd" in col and "total_cost" not in col],
+        target="opex_fgd_total_cost",
+        threshold=0.01,
+    )
+    logger.info(f"Observed opex cost discrepancy: {opex_cost_discrepancy_rate}")
+    assert opex_cost_discrepancy_rate < 0.01
+
+    return AssetCheckResult(passed=True)
+
+
+@asset_check(asset=_core_eia923__fgd_operation_maintenance, blocking=True)
+def fgd_continuity(fgd):
+    """Check to see if columns vary as slowly as expected."""
+    return pudl.validate.group_mean_continuity_check(
+        df=fgd,
+        thresholds={
+            "fgd_electricity_consumption_mwh": 0.3,
+            "fgd_hours_in_service": 0.1,
+            "fgd_sorbent_consumption_1000_tons": 0.2,
+            "so2_removal_efficiency_100pct_load": 0.1,
+            "so2_removal_efficiency_annual": 0.1,
+        },
+        groupby_col="report_date",
+        n_outliers_allowed=1,
     )
