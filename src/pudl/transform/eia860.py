@@ -1059,10 +1059,11 @@ def _core_eia860__cooling_equipment(
     ] = 1971
     ce_df.loc[ce_df["pond_operating_year"] == 0, "pond_operating_year"] = np.nan
     ce_df.loc[ce_df["tower_operating_year"] == 974, "tower_operating_year"] = 1974
-    ce_df = ce_df.pipe(pudl.helpers.month_year_to_date).pipe(
-        pudl.helpers.convert_to_date
+    ce_df = (
+        ce_df.pipe(pudl.helpers.month_year_to_date)
+        .pipe(pudl.helpers.convert_to_date)
+        .rename(columns={"operating_date": "cooling_system_operating_date"})
     )
-    ce_df.rename(columns={"operating_date": "cooling_system_operating_date"})
     # Convert cubic feet/second to gallons/minute
     cfs_in_gpm = 448.8311688
     ce_df = ce_df.fillna(

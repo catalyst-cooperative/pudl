@@ -1065,7 +1065,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "primary_key": ["code"],
             "foreign_key_rules": {
                 "fields": [
-                    ["tower_type_1", "tower_type_2", "tower_type_3", "tower_type_4"]
+                    ["tower_type_1"],
+                    ["tower_type_2"],
+                    ["tower_type_3"],
+                    ["tower_type_4"],
                 ]
             },
         },
