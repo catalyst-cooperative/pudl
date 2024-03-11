@@ -1297,8 +1297,16 @@ def _core_eia923__cooling_system_information(
 
 @asset_check(asset=_core_eia923__cooling_system_information, blocking=True)
 def cooling_system_information_null_check(csi):
-    """We do not expect any columns to be completely null."""
-    pudl.validate.no_null_cols(csi)
+    """We do not expect any columns to be completely null.
+
+    In fast-ETL context (only recent years), the annual columns may also be
+    completely null.
+    """
+    if csi.report_date.min() >= pd.Timestamp("2010-01-01T00:00:00"):
+        expected_cols = {col for col in csi.columns if not col.startswith("annual_")}
+    else:
+        expected_cols = set(csi.columns)
+    pudl.validate.no_null_cols(csi, cols=expected_cols)
     return AssetCheckResult(passed=True)
 
 
