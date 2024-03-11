@@ -51,7 +51,7 @@ dependencies = [
     "numpy>=1.26,<2.0a0",
     "packaging>=23",
     "pandas>=2.2",
-    "pandera>=0.17.2",
+    "pandera>=0.18",
     "pre-commit>=3",
     "pyarrow>=15", # pandas[parquet]
     "pydantic>=2.6",
@@ -80,7 +80,7 @@ dependencies = [
     "sphinxcontrib_bibtex>=2.6",
     "sqlalchemy>=2",
     "timezonefinder>=6.2",
-    "universal_pathlib>=0.1.4",
+    "universal_pathlib>=0.2",
     "urllib3>=1.26.18",
     "xlsxwriter>=3.1", # pandas[excel]
 ]
