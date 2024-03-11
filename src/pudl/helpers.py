@@ -1465,13 +1465,46 @@ def dedupe_and_drop_nas(
     dupes = dedup_df.loc[dedup_df.duplicated(subset=primary_key_cols, keep=False)]
     dupe_groups = dupes.groupby(primary_key_cols)
     if (dupe_groups.nunique() > 1).any().any():  # noqa: PD101
-        raise AssertionError(f"Duplicate records with disagreeing data: {dupe_groups}")
+        raise AssertionError(
+            f"Duplicate records with disagreeing data: {dupes[dupes.set_index(primary_key_cols).index.duplicated(keep=False)]}"
+        )
     deduped = dupe_groups.first().reset_index()
     # replace the duplicated rows with the deduped versions
     return pd.concat(
         [dedup_df.drop_duplicates(subset=primary_key_cols, keep=False), deduped],
         ignore_index=True,
     )
+
+
+def standardize_percentages_ratio(
+    frac_df: pd.DataFrame,
+    mixed_cols: list[str],
+) -> pd.DataFrame:
+    """Standardize mixed 0-1 and 0-100 percentage/ratio reporting in a column.
+
+    When a column uses both 0-1 and 0-100 scales to describe percentages, standardize
+    and convert to 0-1 ratios/fractions.
+
+    Args:
+        frac_df: the dataframe with the columns to standardize.
+        mixed_cols: list of columns which should get standardized to the 0-1 scale.
+
+    Returns:
+        The standardized dataframe.
+    """
+    logger.info(f"Standardizing ratios and percentages for {mixed_cols}")
+    for col in mixed_cols:
+        if not pd.api.types.is_numeric_dtype(frac_df[col]):
+            raise AssertionError(
+                f"{col}: Standardization method requires numeric dtype."
+            )
+        frac_df.loc[(frac_df[col] > 1) & (frac_df[col] <= 100), col] /= 100
+        if frac_df[col].max() > 1:
+            logger.warn(
+                f"{col}: Values >100pct observed: {frac_df.loc[frac_df[col]>1][col].unique()}"
+            )
+
+    return frac_df
 
 
 def calc_capacity_factor(

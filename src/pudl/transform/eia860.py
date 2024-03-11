@@ -1157,3 +1157,101 @@ def cooling_equipment_continuity(cooling_equipment):
         groupby_col="report_date",
         n_outliers_allowed=1,
     )
+
+
+@asset
+def _core_eia860__fgd_equipment(
+    raw_eia860__fgd_equipment: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the EIA 860 FGD equipment table.
+
+    - spot clean year values before converting to dates
+    - convert kilodollars to normal dollars
+
+    """
+    fgd_df = raw_eia860__fgd_equipment
+
+    # Generic cleaning
+    fgd_df = fgd_df.pipe(pudl.helpers.fix_eia_na).pipe(pudl.helpers.add_fips_ids)
+
+    # Spot cleaning and date conversion
+    fgd_df = fgd_df.pipe(pudl.helpers.month_year_to_date).pipe(
+        pudl.helpers.convert_to_date
+    )
+    fgd_df = fgd_df.rename(columns={"operating_date": "fgd_operating_date"})
+
+    # Handle mixed boolean types in control flag column
+    for col in [
+        "byproduct_recovery",
+        "flue_gas_bypass_fgd",
+        "sludge_pond",
+        "sludge_pond_lined",
+    ]:
+        fgd_df = pudl.helpers.convert_col_to_bool(
+            df=fgd_df,
+            col_name=col,
+            true_values=["Y", "y"],
+            false_values=["N", "n"],
+        )
+
+    # Convert thousands of dollars to dollars and remove suffix from column name
+    fgd_df.loc[:, fgd_df.columns.str.endswith("_thousand_dollars")] *= 1000
+    fgd_df.columns = fgd_df.columns.str.replace("_thousand_dollars", "")
+
+    # Deal with mixed 0-1 and 0-100 percentage reporting
+    pct_cols = [
+        "fgd_trains_100pct",
+        "fgd_trains_total",
+        "flue_gas_entering_fgd_pct_of_total",
+        "removal_efficiency_of_sulfur",
+        "specifications_of_coal_ash",
+        "specifications_of_coal_sulfur",
+    ]
+    fgd_df = pudl.helpers.standardize_percentages_ratio(
+        frac_df=fgd_df, mixed_cols=pct_cols
+    )
+
+    # Fix duplicated SO2 control ID for plant 6016 in 2011
+    # Every other year 2009-2012 "01" refers to 2009 operating FGD equipment, and "1"
+    # refers to the 1976 operating FGD equipment. In 2011 the plant reports two "1"
+    # plants, so we change the SO2 control ID to "01" for the 2009 unit to preserve
+    # uniqueness.
+    fgd_df.loc[
+        (fgd_df.plant_id_eia == 6016)
+        & (fgd_df.report_date == "2011-01-01")
+        & (fgd_df.fgd_operating_date == "2009-03-01"),
+        "so2_control_id_eia",
+    ] = "01"
+
+    # Check for uniqueness of index and handle special case duplicates.
+    pkey = ["plant_id_eia", "so2_control_id_eia", "report_date"]
+    fgd_df = pudl.helpers.dedupe_and_drop_nas(fgd_df, primary_key_cols=pkey)
+
+    return fgd_df
+    # return fgd_df.pipe(apply_pudl_dtypes, strict=True)
+
+
+@asset_check(asset=_core_eia860__fgd_equipment, blocking=True)
+def cost_discrepancy_check(fgd):
+    """Costs should sum to cost_total.
+
+    To allow for *some* data quality errors we assert that costs ~=
+    total cost at least 99% of the time (with a 1% acceptable
+    discrepancy).
+    """
+
+    def sum_to_target_rate(sum_cols, target, threshold):
+        discrepancies = (
+            fgd.loc[:, sum_cols].sum(axis="columns") - fgd.loc[:, target]
+        ).dropna() / fgd.loc[:, target]
+        return (discrepancies > threshold).sum() / len(discrepancies)
+
+    opex_cost_discrepancy_rate = sum_to_target_rate(
+        sum_cols=[col for col in fgd if "cost_" in col and "total" not in col],
+        target="cost_total",
+        threshold=0.01,
+    )
+    logger.info(f"Observed FGD cost discrepancy: {opex_cost_discrepancy_rate}")
+    assert opex_cost_discrepancy_rate < 0.01
+
+    return AssetCheckResult(passed=True)
