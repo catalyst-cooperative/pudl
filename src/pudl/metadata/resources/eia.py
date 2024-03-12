@@ -48,6 +48,25 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
+    "core_eia__codes_sorbent_types": {
+        "description": "A coding table describing different FGD sorbent types used in EIA-860.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {
+                "fields": [
+                    ["sorbent_type_1"],
+                    ["sorbent_type_2"],
+                    ["sorbent_type_3"],
+                    ["sorbent_type_4"],
+                ]
+            },
+        },
+        "encoder": CODE_METADATA["core_eia__codes_sorbent_types"],
+        "sources": ["eia860"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
     "core_eia__entity_boilers": {
         "description": "Static boiler attributes compiled from the EIA-860 and EIA-923 data.",
         "schema": {
