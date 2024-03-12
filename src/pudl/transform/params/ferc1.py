@@ -4246,7 +4246,7 @@ TRANSFORM_PARAMS = {
         },
         "reconcile_table_calculations": {
             "column_to_check": "ending_balance",
-            "subtotal_column": "plant_function",
+            "subtotal_column": "plant_status",
             "subtotal_merge_validation": "many_to_many",
             "group_metric_checks": {
                 "group_metric_tolerances": {

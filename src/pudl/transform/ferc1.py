@@ -841,12 +841,10 @@ class GroupMetricTolerances(TransformParams):
     )
     utility_id_ferc1: MetricTolerances = MetricTolerances(
         error_frequency=0.038,
-        # relative_error_magnitude=0.04,
         null_calculated_value_frequency=1.0,
     )
     report_year: MetricTolerances = MetricTolerances(
         error_frequency=0.006,
-        # relative_error_magnitude=0.04,
         null_calculated_value_frequency=0.7,
     )
     table_name: MetricTolerances = MetricTolerances(
@@ -1242,10 +1240,10 @@ def calculate_values_from_components(
     # For all of these below, only assign values when the record is a calculated record
     # Also, make sure we are filling nulls so we capture the differences when there are
     # null values in the calculated or reported values.
-    calculated_df = calculated_df.assign(
+    calculated_df = calculated_df.astype({"is_calc": pd.BooleanDtype()}).assign(
         is_calc=lambda x: x.is_calc.fillna(False),
         diff=lambda x: np.where(
-            x.is_calc, x[value_col].fillna(0) - x.calculated_value.fillna(0), np.nan
+            x.is_calc, x[value_col] - x.calculated_value.fillna(0), np.nan
         ),
         abs_diff=lambda x: np.where(
             x.is_calc & (x["diff"] != 0.0), abs(x["diff"]), np.nan
@@ -1488,10 +1486,11 @@ class RelativeErrorMagnitude(ErrorMetric):
 
     def metric(self: Self, gb: DataFrameGroupBy) -> pd.Series:
         """Calculate the mangnitude of the errors relative to total reported value."""
-        try:
-            return gb.abs_diff.abs().sum() / gb["reported_value"].abs().sum()
-        except ZeroDivisionError:
-            return np.nan
+        gb_value = np.nan
+        denom = gb["reported_value"].abs().sum(min_count=1)
+        if np.isclose(denom, 0) | np.isnan(denom):
+            gb_value = gb.abs_diff.abs().sum(min_count=1) / denom
+        return gb_value
 
 
 class AbsoluteErrorMagnitude(ErrorMetric):
@@ -1567,7 +1566,7 @@ def add_corrections(
             atol=is_close_tolerance.isclose_atol,
         )
         & calculated_df["abs_diff"].notnull()
-        & ~calculated_df.row_type_xbrl.str.endswith("_correction")
+        # & ~calculated_df.row_type_xbrl.str.endswith("_correction")
     ].copy()
 
     corrections[value_col] = (
@@ -2241,7 +2240,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 [
                     tbl_meta,
                     correction_meta.astype(tbl_meta.dtypes, errors="ignore"),
-                    subtotal_correction_meta,
+                    subtotal_correction_meta.astype(tbl_meta.dtypes, errors="ignore"),
                 ]
             )
             .reset_index(drop=True)
@@ -2291,9 +2290,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 )
             )
         else:
-            subtotal_correction_components = pd.DataFrame(
-                columns=calc_components.columns
-            )
+            subtotal_correction_components = pd.DataFrame()
         return pd.concat(
             [calc_components, correction_components, subtotal_correction_components]
         )
@@ -4622,7 +4619,7 @@ class EnergySourcesTableTransformer(Ferc1AbstractTableTransformer):
             }
             for new_fact in ["megawatt_hours_purchased", "purchased_mwh"]
         ]
-        new_facts = pd.DataFrame(facts_to_add).convert_dtypes()
+        new_facts = pd.DataFrame(facts_to_add).astype(tbl_meta.dtypes, errors="ignore")
         return pd.concat([tbl_meta, new_facts])
 
 
@@ -5072,7 +5069,7 @@ class IncomeStatementsTableTransformer(Ferc1AbstractTableTransformer):
             "is_within_table_calc": [True],
             "row_type_xbrl": ["reported_value"],
         }
-        new_facts = pd.DataFrame(facts_to_add).convert_dtypes()
+        new_facts = pd.DataFrame(facts_to_add).astype(tbl_meta.dtypes, errors="ignore")
         return pd.concat([tbl_meta, new_facts])
 
     def process_dbf(self: Self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
@@ -5627,17 +5624,20 @@ class DepreciationByFunctionTableTransformer(Ferc1AbstractTableTransformer):
         with one singular ``xbrl_factoid``. We assign that factoid to the table in
         :meth:`transform_main`.
         """
+        fact = "accumulated_depreciation"
+        calculation = [
+            {"name": fact, "weight": 1.0, "source_tables": [self.table_id.value]}
+        ]
         single_table_fact = [
             {
                 "xbrl_factoid": fact,
-                "calculations": "[]",
+                "calculations": json.dumps(calculation),
                 "balance": "credit",
                 "ferc_account": pd.NA,
                 "xbrl_factoid_original": fact,
                 "is_within_table_calc": True,
-                "row_type_xbrl": "reported_value",
+                "row_type_xbrl": "calculated_value",
             }
-            for fact in ["accumulated_depreciation"]
         ]
         tbl_meta = pd.DataFrame(single_table_fact).convert_dtypes()
         return tbl_meta
@@ -5757,7 +5757,9 @@ class OperatingExpensesTableTransformer(Ferc1AbstractTableTransformer):
             }
             for dbf_only_fact in ["load_dispatching_transmission_expense"]
         ]
-        dbf_only_facts = pd.DataFrame(dbf_only_facts).convert_dtypes()
+        dbf_only_facts = pd.DataFrame(dbf_only_facts).astype(
+            tbl_meta.dtypes, errors="ignore"
+        )
         return pd.concat([tbl_meta, dbf_only_facts]).assign(utility_type="electric")
 
     @cache_df(key="dbf")
@@ -6529,6 +6531,7 @@ def make_xbrl_factoid_dimensions_explicit(
         ]
     )
     df_w_dims = df_w_xbrl_factoid.copy()
+
     on_cols = ["table_name", "xbrl_factoid"]
     if parent:
         table_dimensions_ferc1 = table_dimensions_ferc1.rename(

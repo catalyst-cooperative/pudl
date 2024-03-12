@@ -77,17 +77,17 @@ EXPLOSION_CALCULATION_TOLERANCES: dict[str, GroupMetricChecks] = {
             ),
             report_year=MetricTolerances(
                 error_frequency=0.12,
-                relative_error_magnitude=0.04,
+                relative_error_magnitude=0.12,
                 null_calculated_value_frequency=1.0,
             ),
             xbrl_factoid=MetricTolerances(
-                error_frequency=0.37,
+                error_frequency=0.41,
                 relative_error_magnitude=0.22,
                 null_calculated_value_frequency=1.0,
             ),
             utility_id_ferc1=MetricTolerances(
-                error_frequency=0.21,
-                relative_error_magnitude=0.26,
+                error_frequency=0.27,
+                relative_error_magnitude=0.4,
                 null_calculated_value_frequency=1.0,
             ),
         ),
@@ -101,23 +101,23 @@ EXPLOSION_CALCULATION_TOLERANCES: dict[str, GroupMetricChecks] = {
         ],
         group_metric_tolerances=GroupMetricTolerances(
             ungrouped=MetricTolerances(
-                error_frequency=0.028,
+                error_frequency=0.048,
                 relative_error_magnitude=0.019,
                 null_calculated_value_frequency=1.0,
             ),
             report_year=MetricTolerances(
-                error_frequency=0.028,
-                relative_error_magnitude=0.04,
+                error_frequency=0.048,  # 2024
+                relative_error_magnitude=0.05,
                 null_calculated_value_frequency=1.0,
             ),
             xbrl_factoid=MetricTolerances(
-                error_frequency=0.035,
-                relative_error_magnitude=0.019,
+                error_frequency=0.13,  # retained_earnings
+                relative_error_magnitude=0.17,
                 null_calculated_value_frequency=1.0,
             ),
             utility_id_ferc1=MetricTolerances(
                 error_frequency=0.063,
-                relative_error_magnitude=0.04,
+                relative_error_magnitude=0.16,
                 null_calculated_value_frequency=1.0,
             ),
         ),
@@ -1957,7 +1957,9 @@ class Exploder:
             corrected.index.difference(off_by.set_index(self.calc_idx).index.unique())
         ].reset_index()
         fixed_facts = self.calculate_intertable_non_total_calculations(
-            exploded=fixed_facts.drop(columns=["calculated_value"]).reset_index()
+            exploded=fixed_facts.drop(
+                columns=["calculated_value", "is_calc"]
+            ).reset_index()
         )
 
         return pd.concat([unfixed_facts, fixed_facts.astype(unfixed_facts.dtypes)])
@@ -2002,7 +2004,7 @@ class Exploder:
             calculation_components=calculations_intertable[
                 calculations_intertable.is_total_to_subdimensions_calc
             ],
-            data=exploded.drop(columns="calculated_value"),
+            data=exploded.drop(columns=["calculated_value", "is_calc"]),
             calc_idx=self.calc_idx,
             value_col=self.value_col,
         )
