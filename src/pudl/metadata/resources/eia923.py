@@ -7,8 +7,10 @@ TABLE_DESCRIPTIONS: dict[str, str] = {
         """EIA-923 Cooling System Information, from EIA-923 Schedule 8D.
 
 Reports monthly information about cooling systems at generation facilities,
-mainly water volumes and temperatures.. In 2008 and 2009, EIA only reports
-annual averages, but in later years all data is monthly."""
+mainly water volumes and temperatures. In 2008 and 2009, EIA only reports
+annual averages, but in later years all data is monthly.
+
+Currently in an intermediate state, use at your own risk."""
     ),
     "core_eia923__monthly_boiler_fuel": (
         """EIA-923 Monthly Boiler Fuel Consumption and Emissions, from EIA-923 Schedule 3.

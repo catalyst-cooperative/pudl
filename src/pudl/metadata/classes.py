@@ -51,7 +51,6 @@ from pudl.metadata.fields import (
     FIELD_METADATA_BY_RESOURCE,
 )
 from pudl.metadata.helpers import (
-    JINJA_FILTERS,
     expand_periodic_column_names,
     format_errors,
     groupby_aggregate,
@@ -164,8 +163,6 @@ def _get_jinja_environment(template_dir: DirectoryPath = None):
         loader=jinja2.FileSystemLoader(path),
         autoescape=True,
     )
-    for func_name, func in JINJA_FILTERS.items():
-        environment.filters[func_name] = func
     return environment
 
 
@@ -1291,6 +1288,22 @@ class Resource(PudlMeta):
     _check_unique = _validator(
         "contributors", "keywords", "licenses", "sources", fn=_check_unique
     )
+
+    @property
+    def sphinx_ref_name(self):
+        """Get legal Sphinx ref name.
+
+        Sphinx throws an error when creating a cross ref target for
+        a resource that has a preceding underscore. It is
+        also possible for resources to have identical names
+        when the preceeding underscore is removed. This function
+        adds a preceeding 'i' to cross ref targets for resources
+        with preceeding underscores. The 'i' will not be rendered
+        in the docs, only in the .rst files the hyperlinks.
+        """
+        if self.name.startswith("_"):
+            return f"i{self.name}"
+        return self.name
 
     @field_validator("schema")
     @classmethod

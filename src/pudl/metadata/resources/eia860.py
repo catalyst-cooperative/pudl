@@ -645,7 +645,8 @@ system IDs."""
     "_core_eia860__cooling_equipment": {
         "description": (
             "Information about cooling equipment at generation facilities, "
-            "from EIA-860 Schedule 6D."
+            "from EIA-860 Schedule 6D. Currently in an intermediate state, "
+            "use at your own risk."
         ),
         "schema": {
             "fields": [

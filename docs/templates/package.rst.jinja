@@ -5,7 +5,7 @@ PUDL Data Dictionary
 The following data tables have been cleaned and transformed by our ETL process.
 
 {% for resource in package.get_sorted_resources() %}
-.. _{{ resource.name|format_resource_name_cross_ref }}:
+.. _{{ resource.sphinx_ref_name }}:
 
 {% include 'resource.rst.jinja' %}
 {% endfor %}
