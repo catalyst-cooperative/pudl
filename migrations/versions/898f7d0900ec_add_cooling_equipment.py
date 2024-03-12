@@ -1,8 +1,8 @@
-"""Add cooling equipment tables
+"""add cooling equipment
 
-Revision ID: 1b15c94b15fb
+Revision ID: 898f7d0900ec
 Revises: 172d3ee0d2f2
-Create Date: 2024-03-12 10:46:01.105304
+Create Date: 2024-03-12 12:13:32.448237
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '1b15c94b15fb'
+revision = '898f7d0900ec'
 down_revision = '172d3ee0d2f2'
 branch_labels = None
 depends_on = None
@@ -22,15 +22,16 @@ def upgrade() -> None:
     sa.Column('plant_id_eia', sa.Integer(), nullable=False, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
     sa.Column('cooling_id_eia', sa.Text(), nullable=False, comment="EIA Identification code for cooling system (if multiple cooling systems are not distinguished by separate IDs, the word 'PLANT' is listed to encompass the cooling system for the entire plant)"),
     sa.Column('utility_id_eia', sa.Integer(), nullable=False, comment='The EIA Utility Identification number.'),
+    sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
     sa.Column('chlorine_equipment_cost', sa.Float(), nullable=True, comment='Actual installed cost for the existing chlorine discharge control system or the anticipated cost to bring the chlorine discharge control system into commercial operation'),
     sa.Column('chlorine_equipment_operating_date', sa.Date(), nullable=True, comment='Actual or projected in-service date for chlorine discharge control structures and equipment'),
     sa.Column('cooling_equipment_total_cost', sa.Float(), nullable=True, comment='Actual installed cost for the existing system or the anticipated cost to bring the total system into commercial operation'),
-    sa.Column('cooling_status_code', sa.Enum('CN', 'CO', 'IP', 'L', 'OA', 'OP', 'OS', 'OT', 'OZ', 'P', 'PL', 'RE', 'SB', 'SC', 'T', 'TS', 'U', 'V'), nullable=True, comment='Operating status of cooling system'),
+    sa.Column('cooling_status_code', sa.Text(), nullable=True, comment='Operating status of cooling system'),
     sa.Column('cooling_system_operating_date', sa.Date(), nullable=True, comment='The actual or projected in-service datetime of this cooling system'),
-    sa.Column('cooling_type_1', sa.Enum('DC', 'HRC', 'HRF', 'HRI', 'HT', 'OC', 'ON', 'OT', 'RC', 'RF', 'RI', 'RN'), nullable=True, comment='Type of cooling system'),
-    sa.Column('cooling_type_2', sa.Enum('DC', 'HRC', 'HRF', 'HRI', 'HT', 'OC', 'ON', 'OT', 'RC', 'RF', 'RI', 'RN'), nullable=True, comment='Type of cooling system'),
-    sa.Column('cooling_type_3', sa.Enum('DC', 'HRC', 'HRF', 'HRI', 'HT', 'OC', 'ON', 'OT', 'RC', 'RF', 'RI', 'RN'), nullable=True, comment='Type of cooling system'),
-    sa.Column('cooling_type_4', sa.Enum('DC', 'HRC', 'HRF', 'HRI', 'HT', 'OC', 'ON', 'OT', 'RC', 'RF', 'RI', 'RN'), nullable=True, comment='Type of cooling system'),
+    sa.Column('cooling_type_1', sa.Text(), nullable=True, comment='Type of cooling system'),
+    sa.Column('cooling_type_2', sa.Text(), nullable=True, comment='Type of cooling system'),
+    sa.Column('cooling_type_3', sa.Text(), nullable=True, comment='Type of cooling system'),
+    sa.Column('cooling_type_4', sa.Text(), nullable=True, comment='Type of cooling system'),
     sa.Column('cooling_water_discharge', sa.Text(), nullable=True, comment='Name of river, lake, or water source that cooling water is discharged into'),
     sa.Column('cooling_water_source', sa.Text(), nullable=True, comment='Name of river, lake, or water source that provides cooling water'),
     sa.Column('county', sa.Text(), nullable=True, comment='County name.'),
@@ -51,24 +52,24 @@ def upgrade() -> None:
     sa.Column('steam_plant_type_code', sa.Integer(), nullable=True, comment='Code that describes types of steam plants from EIA 860. See steam_plant_types_eia table for more details.'),
     sa.Column('tower_cost', sa.Float(), nullable=True, comment='Actual installed cost for the existing cooling towers or the anticipated cost to bring the cooling towers into commercial operation'),
     sa.Column('tower_operating_date', sa.Date(), nullable=True, comment='Cooling towers actual or projected in-service date'),
-    sa.Column('tower_type_1', sa.Enum('MD', 'MW', 'ND', 'OT', 'WD'), nullable=True, comment='Types of cooling towers at this plant'),
-    sa.Column('tower_type_2', sa.Enum('MD', 'MW', 'ND', 'OT', 'WD'), nullable=True, comment='Types of cooling towers at this plant'),
-    sa.Column('tower_type_3', sa.Enum('MD', 'MW', 'ND', 'OT', 'WD'), nullable=True, comment='Types of cooling towers at this plant'),
-    sa.Column('tower_type_4', sa.Enum('MD', 'MW', 'ND', 'OT', 'WD'), nullable=True, comment='Types of cooling towers at this plant'),
+    sa.Column('tower_type_1', sa.Text(), nullable=True, comment='Types of cooling towers at this plant'),
+    sa.Column('tower_type_2', sa.Text(), nullable=True, comment='Types of cooling towers at this plant'),
+    sa.Column('tower_type_3', sa.Text(), nullable=True, comment='Types of cooling towers at this plant'),
+    sa.Column('tower_type_4', sa.Text(), nullable=True, comment='Types of cooling towers at this plant'),
     sa.Column('tower_water_rate_100pct_gallons_per_minute', sa.Float(), nullable=True, comment='Maximum design rate of water flow at 100 percent load for the cooling towers'),
     sa.Column('utility_name_eia', sa.Text(), nullable=True, comment='The name of the utility.'),
-    sa.Column('water_source_code', sa.Enum('GW', 'OT', 'PD', 'SW'), nullable=True, comment='Type of cooling water source'),
+    sa.Column('water_source_code', sa.Text(), nullable=True, comment='Type of cooling water source'),
     sa.Column('water_source', sa.Text(), nullable=True, comment='Name of water source associated with the plant.'),
-    sa.Column('water_type_code', sa.Enum('BE', 'BR', 'FR', 'OT', 'SA'), nullable=True, comment='Type of cooling water'),
-    sa.ForeignKeyConstraint(['plant_id_eia'], ['core_eia__entity_plants.plant_id_eia'], name=op.f('fk__core_eia860__cooling_equipment_plant_id_eia_core_eia__entity_plants')),
+    sa.Column('water_type_code', sa.Text(), nullable=True, comment='Type of cooling water'),
+    sa.ForeignKeyConstraint(['plant_id_eia', 'report_date'], ['core_eia860__scd_plants.plant_id_eia', 'core_eia860__scd_plants.report_date'], name=op.f('fk__core_eia860__cooling_equipment_plant_id_eia_core_eia860__scd_plants')),
     sa.ForeignKeyConstraint(['steam_plant_type_code'], ['core_eia__codes_steam_plant_types.code'], name=op.f('fk__core_eia860__cooling_equipment_steam_plant_type_code_core_eia__codes_steam_plant_types')),
     sa.ForeignKeyConstraint(['tower_type_1'], ['core_eia__codes_cooling_tower_types.code'], name=op.f('fk__core_eia860__cooling_equipment_tower_type_1_core_eia__codes_cooling_tower_types')),
     sa.ForeignKeyConstraint(['tower_type_2'], ['core_eia__codes_cooling_tower_types.code'], name=op.f('fk__core_eia860__cooling_equipment_tower_type_2_core_eia__codes_cooling_tower_types')),
     sa.ForeignKeyConstraint(['tower_type_3'], ['core_eia__codes_cooling_tower_types.code'], name=op.f('fk__core_eia860__cooling_equipment_tower_type_3_core_eia__codes_cooling_tower_types')),
     sa.ForeignKeyConstraint(['tower_type_4'], ['core_eia__codes_cooling_tower_types.code'], name=op.f('fk__core_eia860__cooling_equipment_tower_type_4_core_eia__codes_cooling_tower_types')),
-    sa.ForeignKeyConstraint(['utility_id_eia'], ['core_eia__entity_utilities.utility_id_eia'], name=op.f('fk__core_eia860__cooling_equipment_utility_id_eia_core_eia__entity_utilities')),
+    sa.ForeignKeyConstraint(['utility_id_eia', 'report_date'], ['core_eia860__scd_utilities.utility_id_eia', 'core_eia860__scd_utilities.report_date'], name=op.f('fk__core_eia860__cooling_equipment_utility_id_eia_core_eia860__scd_utilities')),
     sa.ForeignKeyConstraint(['water_type_code'], ['core_eia__codes_cooling_water_types.code'], name=op.f('fk__core_eia860__cooling_equipment_water_type_code_core_eia__codes_cooling_water_types')),
-    sa.PrimaryKeyConstraint('plant_id_eia', 'utility_id_eia', 'cooling_id_eia', name=op.f('pk__core_eia860__cooling_equipment'))
+    sa.PrimaryKeyConstraint('plant_id_eia', 'utility_id_eia', 'cooling_id_eia', 'report_date', name=op.f('pk__core_eia860__cooling_equipment'))
     )
     op.create_table('_core_eia923__cooling_system_information',
     sa.Column('plant_id_eia', sa.Integer(), nullable=False, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
@@ -83,8 +84,8 @@ def upgrade() -> None:
     sa.Column('annual_maximum_outlet_winter_temperature_fahrenheit', sa.Float(), nullable=True, comment='Maximum cooling water temperature at outlet in winter'),
     sa.Column('annual_total_chlorine_lbs', sa.Float(), nullable=True, comment='Amount of elemental chlorine added to cooling water annually. May be just the amount of chlorine-containing compound if schedule 9 is filled out.'),
     sa.Column('monthly_total_cooling_hours_in_service', sa.Integer(), nullable=True, comment='Total hours the system operated during the month'),
-    sa.Column('cooling_status_code', sa.Enum('CN', 'CO', 'IP', 'L', 'OA', 'OP', 'OS', 'OT', 'OZ', 'P', 'PL', 'RE', 'SB', 'SC', 'T', 'TS', 'U', 'V'), nullable=True, comment='Operating status of cooling system'),
-    sa.Column('cooling_type', sa.Enum('DC', 'HRC', 'HRF', 'HRI', 'HT', 'OC', 'ON', 'OT', 'RC', 'RF', 'RI', 'RN'), nullable=True, comment='Type of cooling system'),
+    sa.Column('cooling_status_code', sa.Text(), nullable=True, comment='Operating status of cooling system'),
+    sa.Column('cooling_type', sa.Text(), nullable=True, comment='Type of cooling system'),
     sa.Column('flow_rate_method', sa.Text(), nullable=True, comment='Calculation method for flow rates (actual or method of estimation)'),
     sa.Column('monthly_average_consumption_rate_gallons_per_minute', sa.Float(), nullable=True, comment='Monthly average consumption rate of cooling water'),
     sa.Column('monthly_average_discharge_rate_gallons_per_minute', sa.Float(), nullable=True, comment='Monthly average discharge rate of cooling water - available 2010+'),

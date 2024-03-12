@@ -1029,7 +1029,7 @@ def _core_eia860__boiler_stack_flue(
     return bsf_assn
 
 
-@asset
+@asset(io_manager_key="pudl_io_manager")
 def _core_eia860__cooling_equipment(
     raw_eia860__cooling_equipment: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -1064,6 +1064,16 @@ def _core_eia860__cooling_equipment(
         .pipe(pudl.helpers.convert_to_date)
         .rename(columns={"operating_date": "cooling_system_operating_date"})
     )
+
+    # There's one row which has an NA cooling_id_eia, which we make "NA" to
+    # allow it to be in a DB primary key.
+    ce_df.loc[
+        (ce_df["plant_id_eia"] == 6285)
+        & (ce_df["utility_id_eia"] == 7353)
+        & (ce_df["report_date"] == "2016-01-01"),
+        "cooling_id_eia",
+    ] = "NA"
+
     # Convert cubic feet/second to gallons/minute
     cfs_in_gpm = 448.8311688
     ce_df = ce_df.fillna(

@@ -1240,7 +1240,7 @@ def _core_eia923__fuel_receipts_costs(
     return frc_df
 
 
-@asset
+@asset(io_manager_key="pudl_io_manager")
 def _core_eia923__cooling_system_information(
     raw_eia923__cooling_system_information: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -1262,6 +1262,11 @@ def _core_eia923__cooling_system_information(
     """
     csi_df = raw_eia923__cooling_system_information
     csi_df = csi_df.pipe(pudl.helpers.fix_eia_na).pipe(pudl.helpers.convert_to_date)
+
+    # cooling_id_eia is sometimes NA, but we also want to use it as a primary
+    # key. fortunately it's a string so we can just convert all NA values to
+    # "NA"
+    csi_df.cooling_id_eia = csi_df.cooling_id_eia.fillna("NA")
 
     # convert cfs to gpm
     cfs_in_gpm = 448.8311688
@@ -1292,7 +1297,13 @@ def _core_eia923__cooling_system_information(
     csi_df.loc[:, csi_df.columns.str.endswith("_million_gallons")] *= 1_000_000
     csi_df.columns = csi_df.columns.str.replace("_million_gallons", "_gallons")
 
-    return csi_df.pipe(apply_pudl_dtypes, group="eia", strict=False)
+    primary_key = ["plant_id_eia", "report_date", "cooling_id_eia"]
+    dupe_mask = csi_df.duplicated(subset=primary_key, keep=False)
+    deduplicated = csi_df[dupe_mask].groupby(primary_key).first().reset_index()
+    unduplicated = csi_df.loc[~dupe_mask]
+    return pd.concat([unduplicated, deduplicated], ignore_index=True).pipe(
+        apply_pudl_dtypes, group="eia", strict=False
+    )
 
 
 @asset_check(asset=_core_eia923__cooling_system_information, blocking=True)

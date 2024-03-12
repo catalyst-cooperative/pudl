@@ -681,11 +681,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "cooling_status_code": {
         "description": "Operating status of cooling system",
         "type": "string",
-        "constraints": {
-            "enum": sorted(
-                set(CODE_METADATA["core_eia__codes_operational_status"]["df"]["code"])
-            ),
-        },
     },
     "cooling_system_operating_date": {
         "description": "The actual or projected in-service datetime of this cooling system",
@@ -694,47 +689,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "cooling_type": {
         "description": "Type of cooling system",
         "type": "string",
-        "constraints": {
-            "enum": sorted(
-                set(CODE_METADATA["core_eia__codes_cooling_system_types"]["df"]["code"])
-            )
-        },
     },
     "cooling_type_1": {
         "description": "Type of cooling system",
         "type": "string",
-        "constraints": {
-            "enum": sorted(
-                set(CODE_METADATA["core_eia__codes_cooling_system_types"]["df"]["code"])
-            )
-        },
     },
     "cooling_type_2": {
         "description": "Type of cooling system",
         "type": "string",
-        "constraints": {
-            "enum": sorted(
-                set(CODE_METADATA["core_eia__codes_cooling_system_types"]["df"]["code"])
-            )
-        },
     },
     "cooling_type_3": {
         "description": "Type of cooling system",
         "type": "string",
-        "constraints": {
-            "enum": sorted(
-                set(CODE_METADATA["core_eia__codes_cooling_system_types"]["df"]["code"])
-            )
-        },
     },
     "cooling_type_4": {
         "description": "Type of cooling system",
         "type": "string",
-        "constraints": {
-            "enum": sorted(
-                set(CODE_METADATA["core_eia__codes_cooling_system_types"]["df"]["code"])
-            )
-        },
     },
     "cooling_water_discharge": {
         "description": (
@@ -3688,38 +3658,18 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "tower_type_1": {
         "description": "Types of cooling towers at this plant",
         "type": "string",
-        "constraints": {
-            "enum": sorted(
-                set(CODE_METADATA["core_eia__codes_cooling_tower_types"]["df"]["code"])
-            )
-        },
     },
     "tower_type_2": {
         "description": "Types of cooling towers at this plant",
         "type": "string",
-        "constraints": {
-            "enum": sorted(
-                set(CODE_METADATA["core_eia__codes_cooling_tower_types"]["df"]["code"])
-            )
-        },
     },
     "tower_type_3": {
         "description": "Types of cooling towers at this plant",
         "type": "string",
-        "constraints": {
-            "enum": sorted(
-                set(CODE_METADATA["core_eia__codes_cooling_tower_types"]["df"]["code"])
-            )
-        },
     },
     "tower_type_4": {
         "description": "Types of cooling towers at this plant",
         "type": "string",
-        "constraints": {
-            "enum": sorted(
-                set(CODE_METADATA["core_eia__codes_cooling_tower_types"]["df"]["code"])
-            )
-        },
     },
     "tower_water_rate_100pct_gallons_per_minute": {
         "description": "Maximum design rate of water flow at 100 percent load for the cooling towers",
@@ -3920,22 +3870,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "water_source_code": {
         "description": "Type of cooling water source",
         "type": "string",
-        "constraints": {
-            "enum": sorted(
-                set(
-                    CODE_METADATA["core_eia__codes_cooling_water_sources"]["df"]["code"]
-                )
-            )
-        },
     },
     "water_type_code": {
         "description": "Type of cooling water",
         "type": "string",
-        "constraints": {
-            "enum": sorted(
-                set(CODE_METADATA["core_eia__codes_cooling_water_types"]["df"]["code"])
-            )
-        },
     },
     "weighted_average_life_years": {
         "type": "number",
