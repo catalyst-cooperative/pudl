@@ -708,6 +708,70 @@ system IDs."""
         "sources": ["eia860"],
         "etl_group": "eia860",
     },
+    "_core_eia860__fgd_equipment": {
+        "description": (
+            "Information about FGD equipment at generation facilities, "
+            "from EIA-860 Schedule 6F. Note: This table has been cleaned, but not "
+            "harvested with other EIA 923 or 860 data. The same variables present in "
+            "this table may show up in other _core tables in other years. Once this "
+            "table has been harvested, it will be removed from the PUDL database."
+        ),
+        "schema": {
+            "fields": [
+                "report_date",
+                "plant_id_eia",
+                "so2_control_id_eia",
+                "utility_id_eia",
+                "utility_name_eia",
+                "state",
+                "state_id_fips",
+                "county",
+                "county_id_fips",
+                "fgd_operating_date",
+                "fgd_operational_status_code",
+                "flue_gas_bypass_fgd",
+                "byproduct_recovery",
+                "sludge_pond",
+                "sludge_pond_lined",
+                "pond_landfill_requirements_acre_foot_per_year",
+                "fgd_structure_cost",
+                "fgd_other_cost",
+                "sludge_disposal_cost",
+                "total_fgd_equipment_cost",
+                "fgd_trains_100pct",
+                "fgd_trains_total",
+                "flue_gas_entering_fgd_pct_of_total",
+                "flue_gas_exit_rate_cubic_feet_per_minute",
+                "flue_gas_exit_temperature_fahrenheit",
+                "so2_emission_rate_lbs_per_hour",
+                "so2_equipment_type_1",
+                "so2_equipment_type_2",
+                "so2_equipment_type_3",
+                "so2_equipment_type_4",
+                "so2_removal_efficiency_design",
+                "specifications_of_coal_ash",
+                "specifications_of_coal_sulfur",
+                "sorbent_type_1",
+                "sorbent_type_2",
+                "sorbent_type_3",
+                "sorbent_type_4",
+                "fgd_manufacturer",
+                "fgd_manufacturer_code",
+                "steam_plant_type_code",
+                "plant_summer_capacity_mw",
+                "water_source",
+                "data_maturity",
+            ],
+            "primary_key": [
+                "plant_id_eia",
+                "so2_control_id_eia",
+                "report_date",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia860"],
+        "etl_group": "eia860",
+    },
 }
 """EIA-860 resource attributes organized by PUDL identifier (``resource.name``).
 

@@ -1393,7 +1393,7 @@ def cooling_system_information_continuity(csi):
     )
 
 
-@asset
+@asset(io_manager_key="pudl_io_manager")
 def _core_eia923__fgd_operation_maintenance(
     raw_eia923__fgd_operation_maintenance: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -1477,7 +1477,7 @@ def fgd_operation_maintenance_null_check(fgd):
         "fgd_operational_status_code",
         "fgd_sorbent_consumption_1000_tons",
         "opex_fgd_land_acquisition",
-        "so2_removal_efficiency_100pct_load",
+        "so2_removal_efficiency_tested",
         "so2_removal_efficiency_annual",
         "so2_test_date",
     }
@@ -1490,7 +1490,7 @@ def fgd_operation_maintenance_null_check(fgd):
 
 
 @asset_check(asset=_core_eia923__fgd_operation_maintenance, blocking=True)
-def cost_discrepancy_check(fgd):
+def fgd_cost_discrepancy_check(fgd):
     """Opex costs should sum to opex_fgd_total_cost.
 
     To allow for *some* data quality errors we assert that costs ~=
@@ -1516,7 +1516,7 @@ def cost_discrepancy_check(fgd):
 
 
 @asset_check(asset=_core_eia923__fgd_operation_maintenance, blocking=True)
-def fgd_continuity(fgd):
+def fgd_continuity_check(fgd):
     """Check to see if columns vary as slowly as expected."""
     return pudl.validate.group_mean_continuity_check(
         df=fgd,
@@ -1524,7 +1524,7 @@ def fgd_continuity(fgd):
             "fgd_electricity_consumption_mwh": 0.3,
             "fgd_hours_in_service": 0.1,
             "fgd_sorbent_consumption_1000_tons": 0.2,
-            "so2_removal_efficiency_100pct_load": 0.1,
+            "so2_removal_efficiency_tested": 0.1,
             "so2_removal_efficiency_annual": 0.1,
         },
         groupby_col="report_date",

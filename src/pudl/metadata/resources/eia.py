@@ -126,7 +126,13 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
             "foreign_key_rules": {
-                "fields": [["emission_control_equipment_type_code"]],
+                "fields": [
+                    ["emission_control_equipment_type_code"],
+                    ["so2_equipment_type_1"],
+                    ["so2_equipment_type_2"],
+                    ["so2_equipment_type_3"],
+                    ["so2_equipment_type_4"],
+                ],
             },
         },
         "encoder": CODE_METADATA["core_eia__codes_emission_control_equipment_types"],

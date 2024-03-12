@@ -1322,6 +1322,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "hours",
         "description": "Number of hours the FGD equipment was in operation during the year.",
     },
+    "fgd_other_cost": {
+        "description": (
+            "Other actual installed costs for installation of a flue gas "
+            "desulfurization unit or the anticipated other costs pertaining to the "
+            "installation of a flue gas desulfurization unit."
+        ),
+        "type": "number",
+        "unit": "USD",
+    },
     "fgd_operating_date": {
         "description": "The actual or projected in-service datetime of this FGD system",
         "type": "date",
@@ -1345,7 +1354,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "fgd_structure_cost": {
         "type": "number",
-        "unit": "dollars",
+        "unit": "USD",
         "description": "Actual installed costs for the existing systems or the anticipated costs of structures and equipment to bring a planned FGD system into commercial operation.",
     },
     "fgd_trains_100pct": {
@@ -2484,32 +2493,32 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "opex_fgd_feed_materials_chemical": {
         "type": "integer",
-        "unit": "dollars",
+        "unit": "USD",
         "description": "Annual operation and maintenance expenditures for feed materials and chemicals for FGD equipment, excluding electricity.",
     },
     "opex_fgd_labor_supervision": {
         "type": "integer",
-        "unit": "dollars",
+        "unit": "USD",
         "description": "Annual operation and maintenance expenditures for labor and supervision of FGD equipment, excluding electricity.",
     },
     "opex_fgd_land_acquisition": {
         "type": "integer",
-        "unit": "dollars",
+        "unit": "USD",
         "description": "Annual operation and maintenance expenditures for land acquisition for FGD equipment, excluding electricity.",
     },
     "opex_fgd_maintenance_material_other": {
         "type": "integer",
-        "unit": "dollars",
+        "unit": "USD",
         "description": "Annual operation and maintenance expenditures for maintenance, materials and all other costs of FGD equipment, excluding electricity",
     },
     "opex_fgd_total_cost": {
         "type": "integer",
-        "unit": "dollars",
+        "unit": "USD",
         "description": "Annual total cost of operation and maintenance expenditures on FGD equipment, excluding electricity",
     },
     "opex_fgd_waste_disposal": {
         "type": "integer",
-        "unit": "dollars",
+        "unit": "USD",
         "description": "Annual operation and maintenance expenditures for waste disposal, excluding electricity.",
     },
     "opex_fuel": {
@@ -3337,7 +3346,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "sludge_disposal_cost": {
         "type": "number",
-        "unit": "dollars",
+        "unit": "USD",
         "description": (
             "Actual installed costs for the existing sludge transport and disposal "
             "systems or the anticipated costs of sludge transport and disposal systems "
@@ -3416,10 +3425,26 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Proposed strategy to comply with the most stringent sulfur dioxide regulation.",
     },
-    "so2_emissions_rate_lbs_per_hour": {
+    "so2_emission_rate_lbs_per_hour": {
         "type": "number",
         "unit": "lbs_per_hour",
         "description": "Sulfur dioxide emission rate when operating at 100 percent load (pounds per hour).",
+    },
+    "so2_equipment_type_1": {
+        "type": "string",
+        "description": "Type of sulfur dioxide control equipment.",
+    },
+    "so2_equipment_type_2": {
+        "type": "string",
+        "description": "Type of sulfur dioxide control equipment.",
+    },
+    "so2_equipment_type_3": {
+        "type": "string",
+        "description": "Type of sulfur dioxide control equipment.",
+    },
+    "so2_equipment_type_4": {
+        "type": "string",
+        "description": "Type of sulfur dioxide control equipment.",
     },
     "so2_mass_lbs": {
         "type": "number",
@@ -3454,6 +3479,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "metering application."
         ),
         "unit": "MWh",
+    },
+    "sorbent_type_1": {
+        "type": "string",
+        "description": "Type of sorbent used by this sulfur dioxide control equipment.",
+    },
+    "sorbent_type_2": {
+        "type": "string",
+        "description": "Type of sorbent used by this sulfur dioxide control equipment.",
+    },
+    "sorbent_type_3": {
+        "type": "string",
+        "description": "Type of sorbent used by this sulfur dioxide control equipment.",
+    },
+    "sorbent_type_4": {
+        "type": "string",
+        "description": "Type of sorbent used by this sulfur dioxide control equipment.",
     },
     "solid_fuel_gasification": {
         "type": "boolean",

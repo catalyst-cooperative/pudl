@@ -3,6 +3,17 @@
 from typing import Any
 
 TABLE_DESCRIPTIONS: dict[str, str] = {
+    "_core_eia923__fgd_operation_maintenance": (
+        """EIA-923 FGD Operation & Maintenance, from EIA-923 Schedule 8C.
+
+Reports annual information about FGD systems at generation facilities,
+mainly operational expenses. From 2008-2011 this table also reported operational
+characteristics that are now reported in 923 Air Emissions Control Info.
+
+Note: This table has been cleaned, but not harvested with other EIA 923 or 860 data.
+The same variables present in this table may show up in other _core tables in other
+years. Once this table has been harvested, it will be removed from the PUDL database."""
+    ),
     "_core_eia923__cooling_system_information": (
         """EIA-923 Cooling System Information, from EIA-923 Schedule 8D.
 
@@ -710,40 +721,39 @@ is for those supplies."""
         "sources": ["eia923"],
         "etl_group": "eia923",
     },
-    # "core_eia923__yearly_fgd_operation_maintenance": {
-    #     "description": "ADD DESCRIPTION!",
-    #     "schema": {
-    #         "fields": [
-    #             "plant_id_eia",
-    #             "report_year",
-    #             "so2_control_id_eia",
-    #             "fgd_feed_materials_chemical_costs_dollars",
-    #             "fgd_labor_supervision_costs_dollars",
-    #             "fgd_land_acquisition_costs_dollars",
-    #             "fgd_waste_disposal_costs_dollars",
-    #             "fgd_maintenance_costs_dollars",
-    #             "fgd_maintenance_material_other_costs_dollars",
-    #             "total_dollars",
-    #             "fgd_control_flag",
-    #             "fgd_operational_status",
-    #             "fgd_hours_in_service",
-    #             "fgd_sorbent_consumption_1000_tons",
-    #             "fgd_electricity_consumption_mwh",
-    #             "so2_removal_efficiency_annual",
-    #             "so2_removal_efficiency_100pct_load",
-    #             "so2_test_date",
-    #             "data_maturity",
-    #         ],
-    #         "primary_key": [
-    #             "plant_id_eia",
-    #             "report_year",
-    #             "so2_control_id_eia",
-    #         ],
-    #     },
-    #     "field_namespace": "eia",
-    #     "sources": ["eia923"],
-    #     "etl_group": "eia923",
-    # },
+    "_core_eia923__fgd_operation_maintenance": {
+        "description": TABLE_DESCRIPTIONS["_core_eia923__fgd_operation_maintenance"],
+        "schema": {
+            "fields": [
+                "report_date",
+                "plant_id_eia",
+                "so2_control_id_eia",
+                "opex_fgd_feed_materials_chemical",
+                "opex_fgd_labor_supervision",
+                "opex_fgd_land_acquisition",
+                "opex_fgd_maintenance_material_other",
+                "opex_fgd_waste_disposal",
+                "opex_fgd_total_cost",
+                "fgd_control_flag",
+                "fgd_operational_status_code",
+                "fgd_hours_in_service",
+                "fgd_electricity_consumption_mwh",
+                "fgd_sorbent_consumption_1000_tons",
+                "so2_removal_efficiency_tested",
+                "so2_removal_efficiency_annual",
+                "so2_test_date",
+                "data_maturity",
+            ],
+            "primary_key": [
+                "plant_id_eia",
+                "report_date",
+                "so2_control_id_eia",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia923"],
+        "etl_group": "eia923",
+    },
 }
 """EIA-923 resource attributes organized by PUDL identifier (``resource.name``).
 

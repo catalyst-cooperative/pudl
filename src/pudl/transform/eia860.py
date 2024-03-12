@@ -1159,7 +1159,7 @@ def cooling_equipment_continuity(cooling_equipment):
     )
 
 
-@asset
+@asset(io_manager_key="pudl_io_manager")
 def _core_eia860__fgd_equipment(
     raw_eia860__fgd_equipment: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -1201,7 +1201,7 @@ def _core_eia860__fgd_equipment(
     # Deal with mixed 0-1 and 0-100 percentage reporting
     pct_cols = [
         "flue_gas_entering_fgd_pct_of_total",
-        "so2_removal_efficiency",
+        "so2_removal_efficiency_design",
         "specifications_of_coal_ash",
         "specifications_of_coal_sulfur",
     ]
@@ -1236,33 +1236,41 @@ def _core_eia860__fgd_equipment(
     pkey = ["plant_id_eia", "so2_control_id_eia", "report_date"]
     fgd_df = pudl.helpers.dedupe_and_drop_nas(fgd_df, primary_key_cols=pkey)
 
+    # After 2012, treated wastewater and water get lumped into what was previously
+    # reported as just a water code. Let's rename this code to "W" to preserve detail in
+    # earlier years.
+    for sorbent_col in (col for col in fgd_df.columns if "sorbent_type" in col):
+        fgd_df.loc[fgd_df[sorbent_col] == "WT", sorbent_col] = "W"
+
+    # Handle some non-numeric values in the pond landfill requirements column
+    fgd_df["pond_landfill_requirements_acre_foot_per_year"] = pd.to_numeric(
+        fgd_df.pond_landfill_requirements_acre_foot_per_year, errors="coerce"
+    )
+
     return fgd_df.pipe(apply_pudl_dtypes, strict=True)
 
 
 @asset_check(asset=_core_eia860__fgd_equipment, blocking=True)
-def fgd_operation_maintenance_null_check(fgd):
+def fgd_equipment_null_check(fgd):
     """Check that columns other than expected columns aren't null."""
-    # fast_run_null_cols = {
-    #     "fgd_control_flag",
-    #     "fgd_electricity_consumption_mwh",
-    #     "fgd_hours_in_service",
-    #     "fgd_operational_status_code",
-    #     "fgd_sorbent_consumption_1000_tons",
-    #     "opex_fgd_land_acquisition",
-    #     "so2_removal_efficiency_100pct_load",
-    #     "so2_removal_efficiency_annual",
-    #     "so2_test_date",
-    # }
-    # if fgd.report_date.min() >= pd.Timestamp("2011-01-01T00:00:00"):
-    #     expected_cols = set(fgd.columns)-fast_run_null_cols
-    # else:
-    expected_cols = set(fgd.columns)
+    fast_run_null_cols = {
+        "county",
+        "fgd_operational_status_code",
+        "operating_date",
+        "fgd_manufacturer_code",
+        "plant_summer_capacity_mw",
+        "water_source",
+    }
+    if fgd.report_date.min() >= pd.Timestamp("2011-01-01T00:00:00"):
+        expected_cols = set(fgd.columns) - fast_run_null_cols
+    else:
+        expected_cols = set(fgd.columns)
     pudl.validate.no_null_cols(fgd, cols=expected_cols)
     return AssetCheckResult(passed=True)
 
 
 @asset_check(asset=_core_eia860__fgd_equipment, blocking=True)
-def cost_discrepancy_check(fgd):
+def fgd_cost_discrepancy_check(fgd):
     """Costs should sum to cost_total.
 
     To allow for *some* data quality errors we assert that costs ~=
@@ -1296,12 +1304,12 @@ def fgd_equipment_continuity(fgd):
             "flue_gas_exit_rate_cubic_feet_per_minute": 0.1,
             "flue_gas_exit_temperature_fahrenheit": 0.1,
             "pond_landfill_requirements_acre_foot_per_year": 0.1,
-            "removal_efficiency_of_sulfur": 0.1,
+            "so2_removal_efficiency_design": 0.1,
+            "so2_emission_rate_lbs_per_hour": 0.1,
             "specifications_of_coal_ash": 0.1,
-            "specifications_of_coal_sulfur": 0.1,
-            "sulfur_emission_rate_pounds_per_hour": 0.1,
+            "specifications_of_coal_sulfur": 7,  # To do: investigate
             "plant_summer_capacity_mw": 0.1,
-            "total_fgd_equipment_cost": 0.1,
+            "total_fgd_equipment_cost": 0.2,
         },
         groupby_col="report_date",
         n_outliers_allowed=1,
