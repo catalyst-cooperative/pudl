@@ -1349,8 +1349,6 @@ class Resource(PudlMeta):
         obj["sources"] = [
             DataSource.from_id(value) for value in sources if value in SOURCES
         ]
-        encoder = obj.get("encoder", None)
-        obj["encoder"] = encoder
         # Expand licenses (assign CC-BY-4.0 by default)
         licenses = obj.get("licenses", ["cc-by-4.0"])
         obj["licenses"] = [License.dict_from_id(value) for value in licenses]
@@ -1371,8 +1369,6 @@ class Resource(PudlMeta):
                 keywords.extend(DataSource.from_id(source).keywords)
         obj["keywords"] = sorted(set(keywords))
         # Insert foreign keys
-        if "foreign_keys" in schema:
-            raise ValueError("Resource metadata contains explicit foreign keys")
         schema["foreign_keys"] = FOREIGN_KEYS.get(resource_id, [])
         # Delete foreign key rules
         if "foreign_key_rules" in schema:
