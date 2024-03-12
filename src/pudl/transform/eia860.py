@@ -1166,8 +1166,7 @@ def _core_eia860__fgd_equipment(
     """Transform the EIA 860 FGD equipment table.
 
     Transformations include:
-    - convert string booleans to boolean dtypes, and mixed strings and numbers to
-      numbers
+    - convert string booleans to boolean dtypes, and mixed strings/numbers to numbers
     - convert kilodollars to normal dollars
     - handle mixed reporting of percentages
     - spot fix a duplicated SO2 control ID
