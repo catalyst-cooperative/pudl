@@ -108,6 +108,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "foreign_key_rules": {
                 "fields": [
                     ["boiler_manufacturer_code"],
+                    ["fgd_manufacturer_code"],
                     ["nox_control_manufacturer_code"],
                 ]
             },

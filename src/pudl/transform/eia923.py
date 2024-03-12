@@ -1474,22 +1474,18 @@ def fgd_operation_maintenance_null_check(fgd):
         "fgd_control_flag",
         "fgd_electricity_consumption_mwh",
         "fgd_hours_in_service",
-        "fgd_operational_status",
+        "fgd_operational_status_code",
         "fgd_sorbent_consumption_1000_tons",
         "opex_fgd_land_acquisition",
         "so2_removal_efficiency_100pct_load",
         "so2_removal_efficiency_annual",
         "so2_test_date",
     }
-    pudl.validate.no_null_cols(
-        fgd,
-        cols=set(fgd.columns) - fast_run_null_cols,
-    )
-    col_is_null = fgd.isna().all()
-    if not all(col_is_null[col] for col in fast_run_null_cols):
-        return AssetCheckResult(
-            passed=False, metadata={"col_is_null": col_is_null.to_json()}
-        )
+    if fgd.report_date.min() >= pd.Timestamp("2011-01-01T00:00:00"):
+        expected_cols = set(fgd.columns) - fast_run_null_cols
+    else:
+        expected_cols = set(fgd.columns)
+    pudl.validate.no_null_cols(fgd, cols=expected_cols)
     return AssetCheckResult(passed=True)
 
 

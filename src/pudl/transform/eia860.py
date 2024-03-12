@@ -1200,8 +1200,6 @@ def _core_eia860__fgd_equipment(
 
     # Deal with mixed 0-1 and 0-100 percentage reporting
     pct_cols = [
-        "fgd_trains_100pct",
-        "fgd_trains_total",
         "flue_gas_entering_fgd_pct_of_total",
         "removal_efficiency_of_sulfur",
         "specifications_of_coal_ash",
@@ -1223,12 +1221,44 @@ def _core_eia860__fgd_equipment(
         "so2_control_id_eia",
     ] = "01"
 
+    fgd_df["nox_control_manufacturer"] = fgd_df.nox_control_manufacturer_code.map(
+        pudl.helpers.label_map(
+            CODE_METADATA["core_eia__codes_environmental_equipment_manufacturers"][
+                "df"
+            ],
+            from_col="code",
+            to_col="description",
+            null_value=pd.NA,
+        )
+    )
+
     # Check for uniqueness of index and handle special case duplicates.
     pkey = ["plant_id_eia", "so2_control_id_eia", "report_date"]
     fgd_df = pudl.helpers.dedupe_and_drop_nas(fgd_df, primary_key_cols=pkey)
 
-    return fgd_df
-    # return fgd_df.pipe(apply_pudl_dtypes, strict=True)
+    return fgd_df.pipe(apply_pudl_dtypes, strict=True)
+
+
+@asset_check(asset=_core_eia860__fgd_equipment, blocking=True)
+def fgd_operation_maintenance_null_check(fgd):
+    """Check that columns other than expected columns aren't null."""
+    # fast_run_null_cols = {
+    #     "fgd_control_flag",
+    #     "fgd_electricity_consumption_mwh",
+    #     "fgd_hours_in_service",
+    #     "fgd_operational_status_code",
+    #     "fgd_sorbent_consumption_1000_tons",
+    #     "opex_fgd_land_acquisition",
+    #     "so2_removal_efficiency_100pct_load",
+    #     "so2_removal_efficiency_annual",
+    #     "so2_test_date",
+    # }
+    # if fgd.report_date.min() >= pd.Timestamp("2011-01-01T00:00:00"):
+    #     expected_cols = set(fgd.columns)-fast_run_null_cols
+    # else:
+    expected_cols = set(fgd.columns)
+    pudl.validate.no_null_cols(fgd, cols=expected_cols)
+    return AssetCheckResult(passed=True)
 
 
 @asset_check(asset=_core_eia860__fgd_equipment, blocking=True)
@@ -1248,10 +1278,31 @@ def cost_discrepancy_check(fgd):
 
     opex_cost_discrepancy_rate = sum_to_target_rate(
         sum_cols=[col for col in fgd if "cost_" in col and "total" not in col],
-        target="cost_total",
+        target="total_fgd_equipment_cost",
         threshold=0.01,
     )
     logger.info(f"Observed FGD cost discrepancy: {opex_cost_discrepancy_rate}")
     assert opex_cost_discrepancy_rate < 0.01
 
     return AssetCheckResult(passed=True)
+
+
+@asset_check(asset=_core_eia860__fgd_equipment, blocking=True)
+def fgd_equipment_continuity(fgd):
+    """Check to see if columns vary as slowly as expected."""
+    return pudl.validate.group_mean_continuity_check(
+        df=fgd,
+        thresholds={
+            "flue_gas_exit_rate_cubic_feet_per_minute": 0.1,
+            "flue_gas_exit_temperature_fahrenheit": 0.1,
+            "pond_landfill_requirements_acre_foot_per_year": 0.1,
+            "removal_efficiency_of_sulfur": 0.1,
+            "specifications_of_coal_ash": 0.1,
+            "specifications_of_coal_sulfur": 0.1,
+            "sulfur_emission_rate_pounds_per_hour": 0.1,
+            "plant_summer_capacity_mw": 0.1,
+            "total_fgd_equipment_cost": 0.1,
+        },
+        groupby_col="report_date",
+        n_outliers_allowed=1,
+    )

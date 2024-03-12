@@ -344,6 +344,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Can this generator operate while bypassing the heat recovery steam generator?",
     },
+    "byproduct_recovery": {
+        "type": "boolean",
+        "description": "Is salable byproduct is recovered by the unit?",
+    },
     "caidi_w_major_event_days_minutes": {
         "type": "number",
         "description": (
@@ -1318,14 +1322,39 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "hours",
         "description": "Number of hours the FGD equipment was in operation during the year.",
     },
-    "fgd_operational_status": {
+    "fgd_operating_date": {
+        "description": "The actual or projected in-service datetime of this FGD system",
+        "type": "date",
+    },
+    "fgd_operational_status_code": {
         "type": "string",
         "description": "Operating status code for FGD equipment.",
+    },
+    "fgd_manufacturer": {
+        "type": "string",
+        "description": "Nname of FGD equipment manufacturer.",
+    },
+    "fgd_manufacturer_code": {
+        "type": "string",
+        "description": "Code corresponding to name of FGD equipment manufacturer.",
     },
     "fgd_sorbent_consumption_1000_tons": {
         "type": "number",
         "unit": "1000_tons",
         "description": "Quantity of FGD sorbent used, to the nearest 0.1 thousand tons.",
+    },
+    "fgd_structure_cost": {
+        "type": "number",
+        "unit": "dollars",
+        "description": "Actual installed costs for the existing systems or the anticipated costs of structures and equipment to bring a planned FGD system into commercial operation.",
+    },
+    "fgd_trains_100pct": {
+        "type": "number",
+        "description": "Total number of flue gas desulfurization unit scrubber trains operated at 100 percent load.",
+    },
+    "fgd_trains_total": {
+        "type": "number",
+        "description": "Total number of flue gas desulfurization unit scrubber trains.",
     },
     "firing_rate_using_coal_tons_per_hour": {
         "type": "number",
