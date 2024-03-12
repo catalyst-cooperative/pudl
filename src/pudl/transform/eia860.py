@@ -1165,8 +1165,14 @@ def _core_eia860__fgd_equipment(
 ) -> pd.DataFrame:
     """Transform the EIA 860 FGD equipment table.
 
-    - spot clean year values before converting to dates
+    Transformations include:
+    - convert string booleans to boolean dtypes, and mixed strings and numbers to
+      numbers
     - convert kilodollars to normal dollars
+    - handle mixed reporting of percentages
+    - spot fix a duplicated SO2 control ID
+    - change an old water code to preserve detail of reporting over time
+    - add manufacturer name based on the code reported
 
     """
     fgd_df = raw_eia860__fgd_equipment
@@ -1221,6 +1227,7 @@ def _core_eia860__fgd_equipment(
         "so2_control_id_eia",
     ] = "01"
 
+    # Add a manufacturer name from the code.
     fgd_df["fgd_manufacturer"] = fgd_df.fgd_manufacturer_code.map(
         pudl.helpers.label_map(
             CODE_METADATA["core_eia__codes_environmental_equipment_manufacturers"][
