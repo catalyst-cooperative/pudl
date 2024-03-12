@@ -1096,13 +1096,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "primary_key": ["code"],
             "foreign_key_rules": {
                 "fields": [
-                    [
-                        "cooling_type",
-                        "cooling_type_1",
-                        "cooling_type_2",
-                        "cooling_type_3",
-                        "cooling_type_4",
-                    ]
+                    ["cooling_type"],
+                    ["cooling_type_1"],
+                    ["cooling_type_2"],
+                    ["cooling_type_3"],
+                    ["cooling_type_4"],
                 ]
             },
         },
