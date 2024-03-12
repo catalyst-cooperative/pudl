@@ -14,5 +14,5 @@ fgd_hours_in_service,fgd_hours_in_service,fgd_hours_in_service,fgd_hours_in_serv
 fgd_sorbent_consumption_1000_tons,quantity_of_sorbent,quantity_of_sorbent,quantity_of_sorbent,quantity_of_sorbent,,,,,,,,,,,
 fgd_electricity_consumption_mwh,electric_energy_consumption,electric_energy_consumption,electric_energy_consumption,electric_energy_consumption,,,,,,,,,,,
 so2_removal_efficiency_annual,efficiency_at_annual_operating_factor,efficiency_at_annual_operating_factor,efficiency_at_annual_operating_factor,efficiency_at_annual_operating_factor,,,,,,,,,,,
-so2_removal_efficiency_100pct_load,tested_efficiency_at_100_load,tested_efficiency_at_100_load,tested_efficiency_at_100_load,tested_efficiency_at_100_load,,,,,,,,,,,
+so2_removal_efficiency_tested,tested_efficiency_at_100_load,tested_efficiency_at_100_load,tested_efficiency_at_100_load,tested_efficiency_at_100_load,,,,,,,,,,,
 so2_test_date,date_of_latest_efficiency_test,date_of_latest_efficiency_test,date_of_latest_efficiency_test,date_of_latest_efficiency_test,,,,,,,,,,,

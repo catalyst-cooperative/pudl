@@ -1201,7 +1201,7 @@ def _core_eia860__fgd_equipment(
     # Deal with mixed 0-1 and 0-100 percentage reporting
     pct_cols = [
         "flue_gas_entering_fgd_pct_of_total",
-        "removal_efficiency_of_sulfur",
+        "so2_removal_efficiency",
         "specifications_of_coal_ash",
         "specifications_of_coal_sulfur",
     ]
@@ -1221,7 +1221,7 @@ def _core_eia860__fgd_equipment(
         "so2_control_id_eia",
     ] = "01"
 
-    fgd_df["nox_control_manufacturer"] = fgd_df.nox_control_manufacturer_code.map(
+    fgd_df["fgd_manufacturer"] = fgd_df.fgd_manufacturer_code.map(
         pudl.helpers.label_map(
             CODE_METADATA["core_eia__codes_environmental_equipment_manufacturers"][
                 "df"

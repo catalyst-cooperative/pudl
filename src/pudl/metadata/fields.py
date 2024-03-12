@@ -1393,6 +1393,24 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "type": "string",
     },
+    "flue_gas_bypass_fgd": {
+        "type": "boolean",
+        "description": "Indicates whether flue gas can bypass the flue gas desulfurization unit.",
+    },
+    "flue_gas_entering_fgd_pct_of_total": {
+        "type": "number",
+        "description": "Ratio of all flue gas that is entering the flue gas desulfurization unit.",
+    },
+    "flue_gas_exit_rate_cubic_feet_per_minute": {
+        "type": "number",
+        "unit": "cfm",
+        "description": "Actual flue gas exit rate, in cubic feet per minute.",
+    },
+    "flue_gas_exit_temperature_fahrenheit": {
+        "type": "number",
+        "unit": "F",
+        "description": "Flue gas exit temperature, in degrees Fahrenheit.",
+    },
     "flue_id_eia": {
         "type": "string",
         "description": (
@@ -2909,6 +2927,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "unit": "USD",
     },
+    "pond_landfill_requirements_acre_foot_per_year": {
+        "type": "number",
+        "unit": "acre_foot_per_year",
+        "description": "Annual pond and land fill requirements for FGD equipment.",
+    },
     "pond_operating_date": {
         "description": "Cooling ponds actual or projected in-service date",
         "type": "date",
@@ -3312,6 +3335,23 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "efficiency."
         ),
     },
+    "sludge_disposal_cost": {
+        "type": "number",
+        "unit": "dollars",
+        "description": (
+            "Actual installed costs for the existing sludge transport and disposal "
+            "systems or the anticipated costs of sludge transport and disposal systems "
+            "to bring a planned system into commercial operation."
+        ),
+    },
+    "sludge_pond": {
+        "type": "boolean",
+        "description": "Indicates if there is a sludge pond associated with this unit.",
+    },
+    "sludge_pond_lined": {
+        "type": "boolean",
+        "description": "Indicates whether the sludge pond is lined.",
+    },
     "so2_control_existing_caaa_compliance_strategy_1": {
         "type": "string",
         "description": "Existing strategies to meet the sulfur dioxide requirements of Title IV of the Clean Air Act Amendment of 1990.",
@@ -3376,6 +3416,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Proposed strategy to comply with the most stringent sulfur dioxide regulation.",
     },
+    "so2_emissions_rate_lbs_per_hour": {
+        "type": "number",
+        "unit": "lbs_per_hour",
+        "description": "Sulfur dioxide emission rate when operating at 100 percent load (pounds per hour).",
+    },
     "so2_mass_lbs": {
         "type": "number",
         "description": "Sulfur dioxide emissions in pounds.",
@@ -3386,13 +3431,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Identifies whether the reported value of emissions was measured, calculated, or measured and substitute.",
         "constraints": {"enum": EPACEMS_MEASUREMENT_CODES},
     },
-    "so2_removal_efficiency_100pct_load": {
+    "so2_removal_efficiency_design": {
         "type": "number",
-        "description": "Removal efficiency for sulfur dioxide (to the nearest 0.1 percent by weight) at tested rate.",
+        "description": "Designed removal efficiency for sulfur dioxide when operating at 100 percent load. Reported at the nearest 0.1 percent by weight of gases removed from the flue gas.",
+    },
+    "so2_removal_efficiency_tested": {
+        "type": "number",
+        "description": "Removal efficiency for sulfur dioxide (to the nearest 0.1 percent by weight) at tested rate at 100 percent load.",
     },
     "so2_removal_efficiency_annual": {
         "type": "number",
-        "description": "Removal efficiency for sulfur dioxide (to the nearest 0.1 percent by weight) at annual operating factor.",
+        "description": "Removal efficiency for sulfur dioxide (to the nearest 0.1 percent by weight) based on designed firing rate and hours in operation (listed as a percentage).",
     },
     "so2_test_date": {
         "type": "date",
@@ -3409,6 +3458,20 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "solid_fuel_gasification": {
         "type": "boolean",
         "description": "Indicates whether the generator is part of a solid fuel gasification system",
+    },
+    "specifications_of_coal_ash": {
+        "type": "number",
+        "description": (
+            "Design fuel specifications for ash when burning coal or petroleum coke "
+            "(nearest 0.1 percent by weight)."
+        ),
+    },
+    "specifications_of_coal_sulfur": {
+        "type": "number",
+        "description": (
+            "Design fuel specifications for sulfur when burning coal or petroleum coke "
+            "(nearest 0.1 percent by weight)."
+        ),
     },
     "stack_flue_id_eia": {
         "type": "string",
@@ -3696,6 +3759,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "and/or unaccounted for. Should be expressed as a positive number."
         ),
         "unit": "MWh",
+    },
+    "total_fgd_equipment_cost": {
+        "type": "number",
+        "description": (
+            "Total actual installed costs for the existing flue gas desulfurization "
+            "unit or the anticipated costs to bring a planned flue gas desulfurization "
+            "unit into commercial operation."
+        ),
     },
     "total_fuel_cost": {
         "type": "number",
