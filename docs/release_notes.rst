@@ -6,6 +6,14 @@ PUDL Release Notes
 v2024.X.X (2024-XX-XX)
 ---------------------------------------------------------------------------------------
 
+New Data Coverage
+^^^^^^^^^^^^^^^^^
+* Added cleaned EIA860 Schedule 8E FGD Equipment and EIA923 Schedule 8C FGD Operation
+  and Maintenance data to the PUDL database as :ref:`_core_eia923_fgd_equipment` and
+  :ref:`_core_eia923_fgd_operation_maintenance`. Once harvested, these tables will
+  eventually be removed from the database, but they are being published until then. See
+  :issue:`3394` and :issue:`3392`, and :pr:`3403`.
+
 Data Cleaning
 ^^^^^^^^^^^^^
 
