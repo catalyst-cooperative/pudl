@@ -1,9 +1,6 @@
 """The Public Utility Data Liberation (PUDL) Project."""
 
 import importlib.metadata
-import warnings
-
-from dagster import ExperimentalWarning
 
 from . import (
     analysis,
@@ -23,7 +20,6 @@ from . import (
 )
 
 logging_helpers.configure_root_logger()
-
 
 __author__ = "Catalyst Cooperative"
 __contact__ = "pudl@catalyst.coop"
