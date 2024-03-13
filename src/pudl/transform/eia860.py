@@ -1052,7 +1052,7 @@ def _core_eia860__cooling_equipment(
     corresponds to the Colusa and Gateway generating stations run by PG&E. In
     all later years, these cooling facilities are marked as ``DC``, or "dry
     cooling"; however, ``HR`` follows the coding pattern for hybrid systems. As
-    such we drop the ``HR`` code completely in pudl.metadata.codes.
+    such we drop the ``HR`` code completely in ``pudl.metadata.codes``.
     """
     ce_df = raw_eia860__cooling_equipment
 

@@ -393,7 +393,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ],
             "primary_key": ["code"],
             "foreign_key_rules": {
-                "fields": [["operational_status_code", "cooling_status"]],
+                "fields": [["operational_status_code"], ["cooling_status_code"]],
             },
         },
         "encoder": CODE_METADATA["core_eia__codes_operational_status"],
