@@ -1297,12 +1297,22 @@ def _core_eia923__cooling_system_information(
     csi_df.loc[:, csi_df.columns.str.endswith("_million_gallons")] *= 1_000_000
     csi_df.columns = csi_df.columns.str.replace("_million_gallons", "_gallons")
 
+    # The cooling types are human readable strings which we need to re-code;
+    # we need to sanitize them somewhat
+    csi_df.cooling_type = csi_df.cooling_type.str.strip().str.upper()
+
     primary_key = ["plant_id_eia", "report_date", "cooling_id_eia"]
     dupe_mask = csi_df.duplicated(subset=primary_key, keep=False)
     deduplicated = csi_df[dupe_mask].groupby(primary_key).first().reset_index()
     unduplicated = csi_df.loc[~dupe_mask]
-    return pd.concat([unduplicated, deduplicated], ignore_index=True).pipe(
-        apply_pudl_dtypes, group="eia", strict=False
+
+    resource = pudl.metadata.classes.Package.from_resource_ids().get_resource(
+        "_core_eia923__cooling_system_information"
+    )
+    return (
+        pd.concat([unduplicated, deduplicated], ignore_index=True)
+        .pipe(apply_pudl_dtypes, group="eia", strict=False)
+        .pipe(resource.encode)
     )
 
 

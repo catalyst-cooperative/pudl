@@ -1046,6 +1046,13 @@ def _core_eia860__cooling_equipment(
     the stated MW values in later years. Additionally, the PDF form for those
     years indicates that the value should be in MW, and KWh isn't even a power
     measurement.
+
+    In 2009, we have two incorrectly entered ``cooling_type`` values of ``HR``,
+    for utility ID 14328, plant IDs 56532/56476, and cooling ID ACC1. This
+    corresponds to the Colusa and Gateway generating stations run by PG&E. In
+    all later years, these cooling facilities are marked as ``DC``, or "dry
+    cooling"; however, ``HR`` follows the coding pattern for hybrid systems. As
+    such we drop the ``HR`` code completely in pudl.metadata.codes.
     """
     ce_df = raw_eia860__cooling_equipment
 
@@ -1094,7 +1101,10 @@ def _core_eia860__cooling_equipment(
     ce_df.loc[:, ce_df.columns.str.endswith("_thousand_dollars")] *= 1000
     ce_df.columns = ce_df.columns.str.replace("_thousand_dollars", "")
 
-    return ce_df.pipe(apply_pudl_dtypes, group="eia", strict=True)
+    resource = pudl.metadata.classes.Package.from_resource_ids().get_resource(
+        "_core_eia860__cooling_equipment"
+    )
+    return ce_df.pipe(apply_pudl_dtypes, group="eia", strict=True).pipe(resource.encode)
 
 
 @asset_check(asset=_core_eia860__cooling_equipment, blocking=True)

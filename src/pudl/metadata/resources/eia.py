@@ -1104,7 +1104,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 ]
             },
         },
-        "encoder": CODE_METADATA["core_eia__codes_cooling_water_types"],
+        "encoder": CODE_METADATA["core_eia__codes_cooling_system_types"],
         "field_namespace": "eia",
         "sources": ["eia860", "eia923"],
         "etl_group": "static_eia",

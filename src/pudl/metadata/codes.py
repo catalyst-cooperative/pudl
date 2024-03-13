@@ -2335,6 +2335,11 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                 (
                     "ND",
                     "natural_dry",
+                    "Natural draft, dry process",
+                ),
+                (
+                    "NW",
+                    "natural_wet",
                     "Natural draft, wet process",
                 ),
                 (
@@ -2450,9 +2455,19 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                     "Once through with cooling pond(s)",
                 ),
                 (
+                    "OF",
+                    "once_fresh",
+                    "Once through, fresh water",
+                ),
+                (
                     "ON",
                     "once_without_pond",
                     "Once through without cooling pond(s)",
+                ),
+                (
+                    "OS",
+                    "once_saline",
+                    "Once through, saline water",
                 ),
                 (
                     "R",
@@ -2492,21 +2507,22 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
             ],
         ),
         "code_fixes": {
-            "Recirculating with Induced Draft Cooling Tower": "RI",
-            "Dry (air) cooling System": "DC",
-            "Once through without cooling pond(s) or canal(s)": "ON",
-            "Recirculating with Cooling Ponds": "RC",
-            "Recirculating": "R",
-            "Recirculating with Natural Draft Cooling Tower": "RN",
-            "Once Through": "O",
-            "Once through with Cooling Ponds": "OC",
-            "Hybrid: recirculating with induced draft cooling tower(s) with dry cooling": "HRI",
-            "Once Through and Recirculating": "O + R",
-            "Recirculating with Forced Draft Cooling Tower": "RF",
-            "Hybrid (Dry and Wet Cooling)": "H",
-            "Other - Specify in Footnote": "OT",
-            "Hybrid: recirculating with forced draft cooling tower(s) with dry cooling": "HRF",
+            "RECIRCULATING WITH INDUCED DRAFT COOLING TOWER": "RI",
+            "DRY (AIR) COOLING SYSTEM": "DC",
+            "ONCE THROUGH WITHOUT COOLING POND(S) OR CANAL(S)": "ON",
+            "RECIRCULATING WITH COOLING PONDS": "RC",
+            "RECIRCULATING": "R",
+            "RECIRCULATING WITH NATURAL DRAFT COOLING TOWER": "RN",
+            "ONCE THROUGH": "O",
+            "ONCE THROUGH WITH COOLING PONDS": "OC",
+            "HYBRID: RECIRCULATING WITH INDUCED DRAFT COOLING TOWER(S) WITH DRY COOLING": "HRI",
+            "ONCE THROUGH AND RECIRCULATING": "O + R",
+            "RECIRCULATING WITH FORCED DRAFT COOLING TOWER": "RF",
+            "HYBRID (DRY AND WET COOLING)": "H",
+            "OTHER - SPECIFY IN FOOTNOTE": "OT",
+            "HYBRID: RECIRCULATING WITH FORCED DRAFT COOLING TOWER(S) WITH DRY COOLING": "HRF",
         },
+        "ignored_codes": ["HR"],
     },
 }
 
