@@ -2482,7 +2482,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                 (
                     "RF",
                     "recirculating_forced_draft",
-                    "Recirculating with cooling pond(s) or canal(s)",
+                    "Recirculating with forced draft cooling tower(s)",
                 ),
                 (
                     "RI",

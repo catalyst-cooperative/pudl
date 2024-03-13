@@ -1265,8 +1265,8 @@ def _core_eia923__cooling_system_information(
 
     # cooling_id_eia is sometimes NA, but we also want to use it as a primary
     # key. fortunately it's a string so we can just convert all NA values to
-    # "NA"
-    csi_df.cooling_id_eia = csi_df.cooling_id_eia.fillna("NA")
+    # "PLANT"
+    csi_df.cooling_id_eia = csi_df.cooling_id_eia.fillna("PLANT")
 
     # convert cfs to gpm
     cfs_in_gpm = 448.8311688

@@ -1051,8 +1051,9 @@ def _core_eia860__cooling_equipment(
     for utility ID 14328, plant IDs 56532/56476, and cooling ID ACC1. This
     corresponds to the Colusa and Gateway generating stations run by PG&E. In
     all later years, these cooling facilities are marked as ``DC``, or "dry
-    cooling"; however, ``HR`` follows the coding pattern for hybrid systems. As
-    such we drop the ``HR`` code completely in ``pudl.metadata.codes``.
+    cooling"; however, ``HR`` looks like the codes for hybrid systems (the
+    others are ``HRC``, ``HRF``, ``HRI``). As such we drop the ``HR`` code
+    completely in ``pudl.metadata.codes``.
     """
     ce_df = raw_eia860__cooling_equipment
 
@@ -1072,14 +1073,14 @@ def _core_eia860__cooling_equipment(
         .rename(columns={"operating_date": "cooling_system_operating_date"})
     )
 
-    # There's one row which has an NA cooling_id_eia, which we make "NA" to
-    # allow it to be in a DB primary key.
+    # There's one row which has an NA cooling_id_eia, which we mark as "PLANT"
+    # to allow it to be in a DB primary key.
     ce_df.loc[
         (ce_df["plant_id_eia"] == 6285)
         & (ce_df["utility_id_eia"] == 7353)
         & (ce_df["report_date"] == "2016-01-01"),
         "cooling_id_eia",
-    ] = "NA"
+    ] = "PLANT"
 
     # Convert cubic feet/second to gallons/minute
     cfs_in_gpm = 448.8311688

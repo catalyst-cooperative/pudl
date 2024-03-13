@@ -981,7 +981,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "emission_control_id_eia": {
         "type": "string",
         "description": (
-            "The emission control ID used to collect so2, nox, particulate, "
+            "The emission control ID used to collect SO2, NOx, particulate, "
             "and mercury emissions data. This column should be used in conjunction "
             "with emissions_control_type as it's not guaranteed to be unique."
         ),
@@ -992,7 +992,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "emission_control_id_type": {
         "type": "string",
-        "description": "The type of emissions control id: so2, nox, particulate, or mercury.",
+        "description": "The type of emissions control id: SO2, NOx, particulate, or mercury.",
     },
     "emission_control_equipment_cost": {
         "type": "number",
@@ -2015,7 +2015,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "gpm",
     },
     "monthly_average_discharge_rate_gallons_per_minute": {
-        "description": "Monthly average discharge rate of cooling water - available 2010+",
+        "description": "Monthly average discharge rate of cooling water",
         "type": "number",
         "unit": "gpm",
     },
@@ -2066,7 +2066,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "monthly_total_cooling_hours_in_service": {
         "description": "Total hours the system operated during the month",
         "type": "integer",
-        "unit": "h",
+        "unit": "hr",
     },
     "monthly_total_discharge_volume_gallons": {
         "description": "Monthly volume of water discharged at discharge point (accurate to 0.1 million gal)",
