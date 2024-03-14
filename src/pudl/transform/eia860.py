@@ -1110,8 +1110,16 @@ def _core_eia860__cooling_equipment(
 
 @asset_check(asset=_core_eia860__cooling_equipment, blocking=True)
 def cooling_equipment_null_cols(cooling_equipment):
-    """The only completely null cols we expect are tower type 3 and 4."""
+    """The only completely null cols we expect are tower type 3 and 4.
+
+    In fast-ETL, i.e. recent years, we also expect a few other columns to be
+    null since they only show up in older data.
+    """
     expected_null_cols = {"tower_type_3", "tower_type_4"}
+    if cooling_equipment.report_date.min() > pd.Timestamp("2010-01-01T00:00:00"):
+        expected_null_cols.add(
+            {"plant_summer_capacity_mw", "water_source", "county", "cooling_type_4"}
+        )
     pudl.validate.no_null_cols(
         cooling_equipment,
         cols=set(cooling_equipment.columns) - expected_null_cols,
