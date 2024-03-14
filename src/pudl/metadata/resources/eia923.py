@@ -6,7 +6,7 @@ TABLE_DESCRIPTIONS: dict[str, str] = {
     "_core_eia923__fgd_operation_maintenance": (
         """EIA-923 FGD Operation & Maintenance, from EIA-923 Schedule 8C.
 
-Reports annual information about FGD systems at generation facilities,
+Reports annual information about flue gas desulfurization systems at generation facilities,
 mainly operational expenses. From 2008-2011 this table also reported operational
 characteristics that are now reported in 923 Air Emissions Control Info.
 

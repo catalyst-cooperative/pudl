@@ -1464,6 +1464,12 @@ def _core_eia923__fgd_operation_maintenance(
     pkey = ["plant_id_eia", "so2_control_id_eia", "report_date"]
     fgd_df = pudl.helpers.dedupe_and_drop_nas(fgd_df, primary_key_cols=pkey)
 
+    fgd_df = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("_core_eia923__fgd_operation_maintenance")
+        .encode(fgd_df)
+    )
+
     return fgd_df.pipe(apply_pudl_dtypes, strict=False)
 
 

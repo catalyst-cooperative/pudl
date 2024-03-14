@@ -352,7 +352,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
             ],
         ).convert_dtypes(),
         "code_fixes": {},
-        "ignored_codes": ["NA", "IN"],
+        "ignored_codes": ["NA", "IN", "WA"],
     },
     "core_eia__codes_emission_control_equipment_types": {
         "df": pd.DataFrame(
@@ -2608,6 +2608,11 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                     "SC",
                     "sodium_carbonate",
                     "Sodium carbonate",
+                ),
+                (
+                    "SF",
+                    "sodium_formate",
+                    "Sodium formate",
                 ),
                 (
                     "SL",

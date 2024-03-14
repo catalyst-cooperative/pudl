@@ -1253,6 +1253,12 @@ def _core_eia860__fgd_equipment(
         fgd_df.pond_landfill_requirements_acre_foot_per_year, errors="coerce"
     )
 
+    fgd_df = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("_core_eia860__fgd_equipment")
+        .encode(fgd_df)
+    )
+
     return fgd_df.pipe(apply_pudl_dtypes, strict=True)
 
 

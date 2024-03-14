@@ -1306,21 +1306,21 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "ferc_qualifying_facility": {
         "type": "boolean",
-        "description": "Indicatates whether or not a generator is a qualifying FERC cogeneration facility.",
+        "description": "Indicates whether or not a generator is a qualifying FERC cogeneration facility.",
     },
     "fgd_control_flag": {
         "type": "boolean",
-        "description": "Indicatates whether or not a plant has a FGD control unit.",
+        "description": "Indicates whether or not a plant has a flue gas desulfurization control unit.",
     },
     "fgd_electricity_consumption_mwh": {
         "type": "number",
         "unit": "MWh",
-        "description": "Electric power consumed by the FGD unit (in MWh).",
+        "description": "Electric power consumed by the flue gas desulfurization unit (in MWh).",
     },
     "fgd_hours_in_service": {
         "type": "integer",
         "unit": "hours",
-        "description": "Number of hours the FGD equipment was in operation during the year.",
+        "description": "Number of hours the flue gas desulfurization equipment was in operation during the year.",
     },
     "fgd_other_cost": {
         "description": (
@@ -1332,30 +1332,30 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "USD",
     },
     "fgd_operating_date": {
-        "description": "The actual or projected in-service datetime of this FGD system",
+        "description": "The actual or projected in-service datetime of this flue gas desulfurization system",
         "type": "date",
     },
     "fgd_operational_status_code": {
         "type": "string",
-        "description": "Operating status code for FGD equipment.",
+        "description": "Operating status code for flue gas desulfurization equipment.",
     },
     "fgd_manufacturer": {
         "type": "string",
-        "description": "Nname of FGD equipment manufacturer.",
+        "description": "Nname of flue gas desulfurization equipment manufacturer.",
     },
     "fgd_manufacturer_code": {
         "type": "string",
-        "description": "Code corresponding to name of FGD equipment manufacturer.",
+        "description": "Code corresponding to name of flue gas desulfurization equipment manufacturer.",
     },
     "fgd_sorbent_consumption_1000_tons": {
         "type": "number",
         "unit": "1000_tons",
-        "description": "Quantity of FGD sorbent used, to the nearest 0.1 thousand tons.",
+        "description": "Quantity of flue gas desulfurization sorbent used, to the nearest 0.1 thousand tons.",
     },
     "fgd_structure_cost": {
         "type": "number",
         "unit": "USD",
-        "description": "Actual installed costs for the existing systems or the anticipated costs of structures and equipment to bring a planned FGD system into commercial operation.",
+        "description": "Actual installed costs for the existing systems or the anticipated costs of structures and equipment to bring a planned flue gas desulfurization system into commercial operation.",
     },
     "fgd_trains_100pct": {
         "type": "number",
@@ -2494,27 +2494,27 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "opex_fgd_feed_materials_chemical": {
         "type": "integer",
         "unit": "USD",
-        "description": "Annual operation and maintenance expenditures for feed materials and chemicals for FGD equipment, excluding electricity.",
+        "description": "Annual operation and maintenance expenditures for feed materials and chemicals for flue gas desulfurization equipment, excluding electricity.",
     },
     "opex_fgd_labor_supervision": {
         "type": "integer",
         "unit": "USD",
-        "description": "Annual operation and maintenance expenditures for labor and supervision of FGD equipment, excluding electricity.",
+        "description": "Annual operation and maintenance expenditures for labor and supervision of flue gas desulfurization equipment, excluding electricity.",
     },
     "opex_fgd_land_acquisition": {
         "type": "integer",
         "unit": "USD",
-        "description": "Annual operation and maintenance expenditures for land acquisition for FGD equipment, excluding electricity.",
+        "description": "Annual operation and maintenance expenditures for land acquisition for flue gas desulfurization equipment, excluding electricity.",
     },
     "opex_fgd_maintenance_material_other": {
         "type": "integer",
         "unit": "USD",
-        "description": "Annual operation and maintenance expenditures for maintenance, materials and all other costs of FGD equipment, excluding electricity",
+        "description": "Annual operation and maintenance expenditures for maintenance, materials and all other costs of flue gas desulfurization equipment, excluding electricity",
     },
     "opex_fgd_total_cost": {
         "type": "integer",
         "unit": "USD",
-        "description": "Annual total cost of operation and maintenance expenditures on FGD equipment, excluding electricity",
+        "description": "Annual total cost of operation and maintenance expenditures on flue gas desulfurization equipment, excluding electricity",
     },
     "opex_fgd_waste_disposal": {
         "type": "integer",
@@ -2939,7 +2939,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "pond_landfill_requirements_acre_foot_per_year": {
         "type": "number",
         "unit": "acre_foot_per_year",
-        "description": "Annual pond and land fill requirements for FGD equipment.",
+        "description": "Annual pond and land fill requirements for flue gas desulfurization equipment.",
     },
     "pond_operating_date": {
         "description": "Cooling ponds actual or projected in-service date",

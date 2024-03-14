@@ -1,8 +1,8 @@
 """Add 923 and 860 FGD tables
 
-Revision ID: 1f9d628363e6
+Revision ID: b8ae440a2d32
 Revises: 5eb340696bf0
-Create Date: 2024-03-14 11:29:08.942669
+Create Date: 2024-03-14 11:51:29.710624
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '1f9d628363e6'
+revision = 'b8ae440a2d32'
 down_revision = '5eb340696bf0'
 branch_labels = None
 depends_on = None
@@ -34,14 +34,14 @@ def upgrade() -> None:
     sa.Column('state_id_fips', sa.Text(), nullable=True, comment='Two digit state FIPS code.'),
     sa.Column('county', sa.Text(), nullable=True, comment='County name.'),
     sa.Column('county_id_fips', sa.Text(), nullable=True, comment='County ID from the Federal Information Processing Standard Publication 6-4.'),
-    sa.Column('fgd_operating_date', sa.Date(), nullable=True, comment='The actual or projected in-service datetime of this FGD system'),
-    sa.Column('fgd_operational_status_code', sa.Text(), nullable=True, comment='Operating status code for FGD equipment.'),
+    sa.Column('fgd_operating_date', sa.Date(), nullable=True, comment='The actual or projected in-service datetime of this flue gas desulfurization system'),
+    sa.Column('fgd_operational_status_code', sa.Text(), nullable=True, comment='Operating status code for flue gas desulfurization equipment.'),
     sa.Column('flue_gas_bypass_fgd', sa.Boolean(), nullable=True, comment='Indicates whether flue gas can bypass the flue gas desulfurization unit.'),
     sa.Column('byproduct_recovery', sa.Boolean(), nullable=True, comment='Is salable byproduct is recovered by the unit?'),
     sa.Column('sludge_pond', sa.Boolean(), nullable=True, comment='Indicates if there is a sludge pond associated with this unit.'),
     sa.Column('sludge_pond_lined', sa.Boolean(), nullable=True, comment='Indicates whether the sludge pond is lined.'),
-    sa.Column('pond_landfill_requirements_acre_foot_per_year', sa.Float(), nullable=True, comment='Annual pond and land fill requirements for FGD equipment.'),
-    sa.Column('fgd_structure_cost', sa.Float(), nullable=True, comment='Actual installed costs for the existing systems or the anticipated costs of structures and equipment to bring a planned FGD system into commercial operation.'),
+    sa.Column('pond_landfill_requirements_acre_foot_per_year', sa.Float(), nullable=True, comment='Annual pond and land fill requirements for flue gas desulfurization equipment.'),
+    sa.Column('fgd_structure_cost', sa.Float(), nullable=True, comment='Actual installed costs for the existing systems or the anticipated costs of structures and equipment to bring a planned flue gas desulfurization system into commercial operation.'),
     sa.Column('fgd_other_cost', sa.Float(), nullable=True, comment='Other actual installed costs for installation of a flue gas desulfurization unit or the anticipated other costs pertaining to the installation of a flue gas desulfurization unit.'),
     sa.Column('sludge_disposal_cost', sa.Float(), nullable=True, comment='Actual installed costs for the existing sludge transport and disposal systems or the anticipated costs of sludge transport and disposal systems to bring a planned system into commercial operation.'),
     sa.Column('total_fgd_equipment_cost', sa.Float(), nullable=True, comment='Total actual installed costs for the existing flue gas desulfurization unit or the anticipated costs to bring a planned flue gas desulfurization unit into commercial operation.'),
@@ -62,8 +62,8 @@ def upgrade() -> None:
     sa.Column('sorbent_type_2', sa.Text(), nullable=True, comment='Type of sorbent used by this sulfur dioxide control equipment.'),
     sa.Column('sorbent_type_3', sa.Text(), nullable=True, comment='Type of sorbent used by this sulfur dioxide control equipment.'),
     sa.Column('sorbent_type_4', sa.Text(), nullable=True, comment='Type of sorbent used by this sulfur dioxide control equipment.'),
-    sa.Column('fgd_manufacturer', sa.Text(), nullable=True, comment='Nname of FGD equipment manufacturer.'),
-    sa.Column('fgd_manufacturer_code', sa.Text(), nullable=True, comment='Code corresponding to name of FGD equipment manufacturer.'),
+    sa.Column('fgd_manufacturer', sa.Text(), nullable=True, comment='Nname of flue gas desulfurization equipment manufacturer.'),
+    sa.Column('fgd_manufacturer_code', sa.Text(), nullable=True, comment='Code corresponding to name of flue gas desulfurization equipment manufacturer.'),
     sa.Column('steam_plant_type_code', sa.Integer(), nullable=True, comment='Code that describes types of steam plants from EIA 860. See steam_plant_types_eia table for more details.'),
     sa.Column('plant_summer_capacity_mw', sa.Float(), nullable=True, comment='The plant summer capacity associated with the operating generators at the plant'),
     sa.Column('water_source', sa.Text(), nullable=True, comment='Name of water source associated with the plant.'),
@@ -88,17 +88,17 @@ def upgrade() -> None:
     sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
     sa.Column('plant_id_eia', sa.Integer(), nullable=False, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
     sa.Column('so2_control_id_eia', sa.Text(), nullable=False, comment='Sulfur dioxide control identification number. This ID is not a unique identifier.'),
-    sa.Column('opex_fgd_feed_materials_chemical', sa.Integer(), nullable=True, comment='Annual operation and maintenance expenditures for feed materials and chemicals for FGD equipment, excluding electricity.'),
-    sa.Column('opex_fgd_labor_supervision', sa.Integer(), nullable=True, comment='Annual operation and maintenance expenditures for labor and supervision of FGD equipment, excluding electricity.'),
-    sa.Column('opex_fgd_land_acquisition', sa.Integer(), nullable=True, comment='Annual operation and maintenance expenditures for land acquisition for FGD equipment, excluding electricity.'),
-    sa.Column('opex_fgd_maintenance_material_other', sa.Integer(), nullable=True, comment='Annual operation and maintenance expenditures for maintenance, materials and all other costs of FGD equipment, excluding electricity'),
+    sa.Column('opex_fgd_feed_materials_chemical', sa.Integer(), nullable=True, comment='Annual operation and maintenance expenditures for feed materials and chemicals for flue gas desulfurization equipment, excluding electricity.'),
+    sa.Column('opex_fgd_labor_supervision', sa.Integer(), nullable=True, comment='Annual operation and maintenance expenditures for labor and supervision of flue gas desulfurization equipment, excluding electricity.'),
+    sa.Column('opex_fgd_land_acquisition', sa.Integer(), nullable=True, comment='Annual operation and maintenance expenditures for land acquisition for flue gas desulfurization equipment, excluding electricity.'),
+    sa.Column('opex_fgd_maintenance_material_other', sa.Integer(), nullable=True, comment='Annual operation and maintenance expenditures for maintenance, materials and all other costs of flue gas desulfurization equipment, excluding electricity'),
     sa.Column('opex_fgd_waste_disposal', sa.Integer(), nullable=True, comment='Annual operation and maintenance expenditures for waste disposal, excluding electricity.'),
-    sa.Column('opex_fgd_total_cost', sa.Integer(), nullable=True, comment='Annual total cost of operation and maintenance expenditures on FGD equipment, excluding electricity'),
-    sa.Column('fgd_control_flag', sa.Boolean(), nullable=True, comment='Indicatates whether or not a plant has a FGD control unit.'),
-    sa.Column('fgd_operational_status_code', sa.Text(), nullable=True, comment='Operating status code for FGD equipment.'),
-    sa.Column('fgd_hours_in_service', sa.Integer(), nullable=True, comment='Number of hours the FGD equipment was in operation during the year.'),
-    sa.Column('fgd_electricity_consumption_mwh', sa.Float(), nullable=True, comment='Electric power consumed by the FGD unit (in MWh).'),
-    sa.Column('fgd_sorbent_consumption_1000_tons', sa.Float(), nullable=True, comment='Quantity of FGD sorbent used, to the nearest 0.1 thousand tons.'),
+    sa.Column('opex_fgd_total_cost', sa.Integer(), nullable=True, comment='Annual total cost of operation and maintenance expenditures on flue gas desulfurization equipment, excluding electricity'),
+    sa.Column('fgd_control_flag', sa.Boolean(), nullable=True, comment='Indicates whether or not a plant has a flue gas desulfurization control unit.'),
+    sa.Column('fgd_operational_status_code', sa.Text(), nullable=True, comment='Operating status code for flue gas desulfurization equipment.'),
+    sa.Column('fgd_hours_in_service', sa.Integer(), nullable=True, comment='Number of hours the flue gas desulfurization equipment was in operation during the year.'),
+    sa.Column('fgd_electricity_consumption_mwh', sa.Float(), nullable=True, comment='Electric power consumed by the flue gas desulfurization unit (in MWh).'),
+    sa.Column('fgd_sorbent_consumption_1000_tons', sa.Float(), nullable=True, comment='Quantity of flue gas desulfurization sorbent used, to the nearest 0.1 thousand tons.'),
     sa.Column('so2_removal_efficiency_tested', sa.Float(), nullable=True, comment='Removal efficiency for sulfur dioxide (to the nearest 0.1 percent by weight) at tested rate at 100 percent load.'),
     sa.Column('so2_removal_efficiency_annual', sa.Float(), nullable=True, comment='Removal efficiency for sulfur dioxide (to the nearest 0.1 percent by weight) based on designed firing rate and hours in operation (listed as a percentage).'),
     sa.Column('so2_test_date', sa.Date(), nullable=True, comment='Date of most recent test for sulfur dioxide removal efficiency.'),
