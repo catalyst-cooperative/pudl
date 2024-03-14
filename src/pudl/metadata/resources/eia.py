@@ -419,7 +419,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ],
             "primary_key": ["code"],
             "foreign_key_rules": {
-                "fields": [["operational_status_code", "fgd_operational_status_code"], ["cooling_status_code"]],
+                "fields": [
+                    ["operational_status_code"],
+                    ["fgd_operational_status_code"],
+                    ["cooling_status_code"],
+                ],
             },
         },
         "encoder": CODE_METADATA["core_eia__codes_operational_status"],
@@ -1134,35 +1138,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eia",
         "sources": ["eia860", "eia923"],
         "etl_group": "static_eia",
-    },
-    "core_eia923__yearly_fgd_operation_maintenance": {
-        "description": "Annual attributes of all SO2 control equipment, compiled from EIA 923 forms.",
-        "schema": {
-            "fields": [
-                "report_year",
-                "plant_id_eia",
-                "so2_control_id_eia",
-                "opex_fgd_feed_materials_chemical",
-                "opex_fgd_labor_supervision",
-                "opex_fgd_land_acquisition",
-                "opex_fgd_waste_disposal",
-                "opex_fgd_maintenance_material_other",
-                "opex_fgd_total_cost",
-                "fgd_control_flag",
-                "fgd_operational_status",
-                "fgd_hours_in_service",
-                "fgd_sorbent_consumption_1000_tons",
-                "fgd_electricity_consumption_mwh",
-                "so2_removal_efficiency_annual",
-                "so2_removal_efficiency_100pct_load",
-                "so2_test_date",
-                "data_maturity",
-            ],
-            "primary_key": ["plant_id_eia", "so2_control_id_eia", "report_year"],
-        },
-        "field_namespace": "eia",
-        "sources": ["eia860", "eia923"],
-        "etl_group": "entity_eia",
     },
 }
 """Generic EIA resource attributes organized by PUDL identifier (``resource.name``).
