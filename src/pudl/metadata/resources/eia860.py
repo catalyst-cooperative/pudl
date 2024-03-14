@@ -372,6 +372,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 # non-january records fail.
                 # See: https://github.com/catalyst-cooperative/pudl/issues/1196
                 "exclude": [
+                    "_core_eia923__cooling_system_information",
                     "core_eia923__monthly_boiler_fuel",
                     "out_eia923__boiler_fuel",
                     "out_eia923__monthly_boiler_fuel",
@@ -636,6 +637,71 @@ system IDs."""
                 "plant_id_eia",
                 "boiler_id",
                 "stack_flue_id_pudl",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia860"],
+        "etl_group": "eia860",
+    },
+    "_core_eia860__cooling_equipment": {
+        "description": (
+            "Information about cooling equipment at generation facilities, "
+            "from EIA-860 Schedule 6D.\n\n"
+            "Note: This table has been cleaned, but not harvested with other "
+            "EIA 923 or 860 data. The same variables present in this table "
+            "may show up in other _core tables in other years. Once this table "
+            "has been harvested, it will be removed from the PUDL database."
+        ),
+        "schema": {
+            "fields": [
+                "report_date",
+                "plant_id_eia",
+                "plant_name_eia",
+                "cooling_id_eia",
+                "utility_id_eia",
+                "utility_name_eia",
+                "county",
+                "state",
+                "chlorine_equipment_cost",
+                "chlorine_equipment_operating_date",
+                "cooling_equipment_total_cost",
+                "cooling_status_code",
+                "cooling_system_operating_date",
+                "cooling_type_1",
+                "cooling_type_2",
+                "cooling_type_3",
+                "cooling_type_4",
+                "cooling_water_discharge",
+                "cooling_water_source",
+                "intake_distance_shore_feet",
+                "intake_distance_surface_feet",
+                "intake_rate_100pct_gallons_per_minute",
+                "outlet_distance_shore_feet",
+                "outlet_distance_surface_feet",
+                "percent_dry_cooling",
+                "plant_summer_capacity_mw",
+                "pond_cost",
+                "pond_operating_date",
+                "pond_surface_area_acres",
+                "pond_volume_acre_feet",
+                "power_requirement_mw",
+                "steam_plant_type_code",
+                "tower_cost",
+                "tower_operating_date",
+                "tower_type_1",
+                "tower_type_2",
+                "tower_type_3",
+                "tower_type_4",
+                "tower_water_rate_100pct_gallons_per_minute",
+                "water_source_code",
+                "water_source",
+                "water_type_code",
+            ],
+            "primary_key": [
+                "plant_id_eia",
+                "utility_id_eia",
+                "cooling_id_eia",
+                "report_date",
             ],
         },
         "field_namespace": "eia",

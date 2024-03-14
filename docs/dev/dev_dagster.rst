@@ -43,6 +43,16 @@ If you need to find the PUDL logs for a previous run, you can seach for the
 run ID in the CLI where you launched the dagster UI. The `Dagster docs <https://docs.dagster.io/concepts/logging/python-logging>`__
 have more information on how dagster handles logs from Python's logging module.
 
+Keeping local Dagster instance up-to-date
+-----------------------------------------
+
+You may find that your local Dagster instance doesn't seem to be picking up new
+Dagster features properly.
+
+This is likely because a recent Dagster upgrade changed the Dagster internal DB
+schema, and you need to run ``dagster instance migrate`` to bring that up to
+speed before the new features will work.
+
 Assets getting out of sync
 --------------------------
 
