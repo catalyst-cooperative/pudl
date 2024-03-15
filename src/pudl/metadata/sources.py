@@ -281,6 +281,90 @@ SOURCES: dict[str, Any] = {
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
+    "eia930": {
+        "title": "EIA Form 930 -- Hourly and Daily Balancing Authority Operations Report",
+        "path": "https://www.eia.gov/electricity/gridmonitor/",
+        "description": (
+            "The EIA Form 930 provides hourly demand and generation statistics by "
+            "balancing area (or sub-balancing area in the case of some larger areas). "
+            "These statistics include a breakdown by energy source (coal, gas, hydro, "
+            "wind, solar, etc.) as well as interchange between the balancing areas, "
+            "including international exchanges with Canada and Mexico."
+        ),
+        "source_file_dict": {
+            "respondents": (
+                "All entities in the contiguous United States that are listed in the "
+                "North American Electric Reliability Corporation’s (NERC) Compliance "
+                "Registry as a balancing authority."
+            ),
+            "source_format": "Comma separated values (CSV)",
+        },
+        "field_namespace": "eia",
+        "working_partitions": {
+            "half_year": [
+                f"{str(q).lower()}h{half}"
+                for q in pd.period_range(start="2015", end="2023", freq="Y")
+                for half in [1, 2]
+            ][1:-1]  # Begins in H2 of 2015 and currently ends in H1 of 2024
+        },
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+        ],
+        "keywords": sorted(
+            set(
+                [
+                    "eia930",
+                    "form 930",
+                    "hourly",
+                    "interchange",
+                    "grid operations",
+                    "balancing authorities",
+                    "net generation",
+                ]
+                + KEYWORDS["eia"]
+                + KEYWORDS["us_govt"]
+                + KEYWORDS["electricity"]
+            )
+        ),
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
+    },
+    "eia_aeo": {
+        "title": "EIA Annual Energy Outlook (AEO)",
+        "path": "https://www.eia.gov/outlooks/aeo/",
+        "description": (
+            "The EIA Annual Energy Outlook provides projections of future fuel prices, "
+            "energy supply and consumption, and carbon dioxide emissions by sector and "
+            "region."
+        ),
+        "source_file_dict": {
+            "source_format": "JSON",
+        },
+        "field_namespace": "eia",
+        "working_partitions": {
+            "years": sorted(set(range(2014, 2024))),
+        },
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+        ],
+        "keywords": sorted(
+            set(
+                [
+                    "eia aeo",
+                    "annual energy outlook",
+                    "nems",
+                    "fuel projections",
+                    "energy supply",
+                    "energy consumption",
+                ]
+                + KEYWORDS["eia"]
+                + KEYWORDS["us_govt"]
+                + KEYWORDS["electricity"]
+            )
+        ),
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
+    },
     "eia_bulk_elec": {
         "title": "EIA Bulk Electricity API Data",
         "path": "https://www.eia.gov/opendata/bulkfiles.php",
@@ -605,6 +689,41 @@ SOURCES: dict[str, Any] = {
         ),
         "keywords": sorted(set(KEYWORDS["msha"] + KEYWORDS["us_govt"])),
         "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
+    },
+    "nrel_atb": {
+        "title": "NREL Annual Technology Baseline (ATB)",
+        "path": "https://atb.nrel.gov/",
+        "description": (
+            "The NREL Annual Technology Baseline (ATB) publishes annual projections of "
+            "operational and capital expenditures (by technology and vintage), as well "
+            "as operating characteristics (by technology)."
+        ),
+        "source_file_dict": {
+            "source_format": "Parquet",
+        },
+        "field_namespace": "nrel_atb",
+        "working_partitions": {
+            "years": sorted(set(range(2015, 2024))),
+        },
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+        ],
+        "keywords": sorted(
+            set(
+                [
+                    "nrel atb",
+                    "annual technology baseline",
+                    "opex",
+                    "capex",
+                    "technology",
+                ]
+                + KEYWORDS["eia"]
+                + KEYWORDS["us_govt"]
+                + KEYWORDS["electricity"]
+            )
+        ),
+        "license_raw": LICENSES["cc-by-4.0"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
     "phmsagas": {
