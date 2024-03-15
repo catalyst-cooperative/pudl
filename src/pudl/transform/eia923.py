@@ -1302,16 +1302,13 @@ def _core_eia923__cooling_system_information(
     # we need to sanitize them somewhat
     csi_df.cooling_type = csi_df.cooling_type.str.strip().str.upper()
 
-    primary_key = ["plant_id_eia", "report_date", "cooling_id_eia"]
-    dupe_mask = csi_df.duplicated(subset=primary_key, keep=False)
-    deduplicated = csi_df[dupe_mask].groupby(primary_key).first().reset_index()
-    unduplicated = csi_df.loc[~dupe_mask]
-
     resource = pudl.metadata.classes.Package.from_resource_ids().get_resource(
         "_core_eia923__cooling_system_information"
     )
+
+    primary_key = ["plant_id_eia", "report_date", "cooling_id_eia"]
     return (
-        pd.concat([unduplicated, deduplicated], ignore_index=True)
+        pudl.helpers.dedupe_and_drop_nas(csi_df, primary_key_cols=primary_key)
         .pipe(apply_pudl_dtypes, group="eia", strict=False)
         .pipe(resource.encode)
     )
@@ -1462,15 +1459,16 @@ def _core_eia923__fgd_operation_maintenance(
 
     # Take the non-NA values from each column for duplicate rows
     pkey = ["plant_id_eia", "so2_control_id_eia", "report_date"]
-    fgd_df = pudl.helpers.dedupe_and_drop_nas(fgd_df, primary_key_cols=pkey)
 
-    fgd_df = (
-        pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("_core_eia923__fgd_operation_maintenance")
-        .encode(fgd_df)
+    resource = pudl.metadata.classes.Package.from_resource_ids().get_resource(
+        "_core_eia923__fgd_operation_maintenance"
     )
 
-    return fgd_df.pipe(apply_pudl_dtypes, strict=False)
+    return (
+        pudl.helpers.dedupe_and_drop_nas(fgd_df, primary_key_cols=pkey)
+        .pipe(apply_pudl_dtypes, strict=False)
+        .pipe(resource.encode)
+    )
 
 
 @asset_check(asset=_core_eia923__fgd_operation_maintenance, blocking=True)

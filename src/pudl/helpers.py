@@ -1479,15 +1479,17 @@ def dedupe_and_drop_nas(
 def standardize_percentages_ratio(
     frac_df: pd.DataFrame,
     mixed_cols: list[str],
+    years_to_standardize: list[int],
 ) -> pd.DataFrame:
-    """Standardize mixed 0-1 and 0-100 percentage/ratio reporting in a column.
+    """Standardize year-to-year changes in mixed percentage/ratio reporting in a column.
 
     When a column uses both 0-1 and 0-100 scales to describe percentages, standardize
-    and convert to 0-1 ratios/fractions.
+    the years using 0-100 scales to 0-1 ratios/fractions.
 
     Args:
         frac_df: the dataframe with the columns to standardize.
         mixed_cols: list of columns which should get standardized to the 0-1 scale.
+        years_to_standardize: range of dates over which the standardization should occur.
 
     Returns:
         The standardized dataframe.
@@ -1498,12 +1500,19 @@ def standardize_percentages_ratio(
             raise AssertionError(
                 f"{col}: Standardization method requires numeric dtype."
             )
-        frac_df.loc[(frac_df[col] > 1) & (frac_df[col] <= 100), col] /= 100
+        if "report_year" in frac_df:
+            dates = (frac_df.report_year >= min(years_to_standardize)) & (
+                frac_df.report_year <= max(years_to_standardize)
+            )
+        elif "report_date" in frac_df:
+            dates = (frac_df.report_date.dt.year >= min(years_to_standardize)) & (
+                frac_df.report_date.dt.year <= max(years_to_standardize)
+            )
+        frac_df.loc[dates, col] /= 100
         if frac_df[col].max() > 1:
-            logger.warn(
+            raise AssertionError(
                 f"{col}: Values >100pct observed: {frac_df.loc[frac_df[col]>1][col].unique()}"
             )
-
     return frac_df
 
 

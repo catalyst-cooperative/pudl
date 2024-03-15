@@ -1341,7 +1341,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "fgd_manufacturer": {
         "type": "string",
-        "description": "Nname of flue gas desulfurization equipment manufacturer.",
+        "description": "Name of flue gas desulfurization equipment manufacturer.",
     },
     "fgd_manufacturer_code": {
         "type": "string",

@@ -1211,7 +1211,7 @@ def _core_eia860__fgd_equipment(
         "specifications_of_coal_sulfur",
     ]
     fgd_df = pudl.helpers.standardize_percentages_ratio(
-        frac_df=fgd_df, mixed_cols=pct_cols
+        frac_df=fgd_df, mixed_cols=pct_cols, years_to_standardize=[2009, 2010, 2011]
     )
 
     # Fix duplicated SO2 control ID for plant 6016 in 2011
@@ -1253,13 +1253,12 @@ def _core_eia860__fgd_equipment(
         fgd_df.pond_landfill_requirements_acre_foot_per_year, errors="coerce"
     )
 
-    fgd_df = (
+    return (
         pudl.metadata.classes.Package.from_resource_ids()
         .get_resource("_core_eia860__fgd_equipment")
         .encode(fgd_df)
+        .pipe(apply_pudl_dtypes, strict=False)
     )
-
-    return fgd_df.pipe(apply_pudl_dtypes, strict=True)
 
 
 @asset_check(asset=_core_eia860__fgd_equipment, blocking=True)
@@ -1319,7 +1318,7 @@ def fgd_equipment_continuity(fgd):
             "so2_removal_efficiency_design": 0.1,
             "so2_emission_rate_lbs_per_hour": 0.1,
             "specifications_of_coal_ash": 0.1,
-            "specifications_of_coal_sulfur": 7,  # To do: investigate
+            "specifications_of_coal_sulfur": 7,  # TODO (2024-03-14): Investigate
             "plant_summer_capacity_mw": 0.1,
             "total_fgd_equipment_cost": 0.2,
         },
