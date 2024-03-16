@@ -593,7 +593,7 @@ package:
     category: main
     optional: false
   - name: arelle-release
-    version: 2.23.15
+    version: 2.24.1
     manager: conda
     platform: linux-64
     dependencies:
@@ -606,14 +606,14 @@ package:
       python: ">=3.8"
       python-dateutil: 2.*
       regex: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.23.15-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.24.1-pyhd8ed1ab_0.conda
     hash:
-      md5: f3286a6e113fbdc215539c3c84eb1fcf
-      sha256: fdb99d78c664b927f520de098272477fe230e430b54bb620e5d1ac9cb78ea13b
+      md5: cdae27d1f8e8c055efa9e570ab2dc574
+      sha256: ab595b9fb5a2723c48877615a770002266d2f1acaa337f9827ae8efa215e1028
     category: main
     optional: false
   - name: arelle-release
-    version: 2.23.15
+    version: 2.24.1
     manager: conda
     platform: osx-64
     dependencies:
@@ -626,14 +626,14 @@ package:
       lxml: 4.*
       openpyxl: 3.*
       pyparsing: 3.*
-    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.23.15-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.24.1-pyhd8ed1ab_0.conda
     hash:
-      md5: f3286a6e113fbdc215539c3c84eb1fcf
-      sha256: fdb99d78c664b927f520de098272477fe230e430b54bb620e5d1ac9cb78ea13b
+      md5: cdae27d1f8e8c055efa9e570ab2dc574
+      sha256: ab595b9fb5a2723c48877615a770002266d2f1acaa337f9827ae8efa215e1028
     category: main
     optional: false
   - name: arelle-release
-    version: 2.23.15
+    version: 2.24.1
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -646,10 +646,10 @@ package:
       lxml: 4.*
       openpyxl: 3.*
       pyparsing: 3.*
-    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.23.15-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.24.1-pyhd8ed1ab_0.conda
     hash:
-      md5: f3286a6e113fbdc215539c3c84eb1fcf
-      sha256: fdb99d78c664b927f520de098272477fe230e430b54bb620e5d1ac9cb78ea13b
+      md5: cdae27d1f8e8c055efa9e570ab2dc574
+      sha256: ab595b9fb5a2723c48877615a770002266d2f1acaa337f9827ae8efa215e1028
     category: main
     optional: false
   - name: argon2-cffi
