@@ -329,7 +329,7 @@ SOURCES: dict[str, Any] = {
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
-    "eia_aeo": {
+    "eiaaeo": {
         "title": "EIA Annual Energy Outlook (AEO)",
         "path": "https://www.eia.gov/outlooks/aeo/",
         "description": (
@@ -342,7 +342,7 @@ SOURCES: dict[str, Any] = {
         },
         "field_namespace": "eia",
         "working_partitions": {
-            "years": sorted(set(range(2014, 2024))),
+            "years": [2023],
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -691,20 +691,19 @@ SOURCES: dict[str, Any] = {
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
-    "nrel_atb": {
-        "title": "NREL Annual Technology Baseline (ATB)",
+    "nrelatb": {
+        "title": "NREL Annual Technology Baseline (ATB) for Electricity",
         "path": "https://atb.nrel.gov/",
         "description": (
-            "The NREL Annual Technology Baseline (ATB) publishes annual projections of "
-            "operational and capital expenditures (by technology and vintage), as well "
-            "as operating characteristics (by technology)."
+            "The NREL Annual Technology Baseline (ATB) for Electricity publishes "
+            "annual projections of operational and capital expenditures (by technology "
+            "and vintage), as well as operating characteristics (by technology)."
         ),
         "source_file_dict": {
             "source_format": "Parquet",
         },
-        "field_namespace": "nrel_atb",
         "working_partitions": {
-            "years": sorted(set(range(2015, 2024))),
+            "years": [2023],
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
