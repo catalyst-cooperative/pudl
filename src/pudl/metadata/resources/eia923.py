@@ -3,6 +3,18 @@
 from typing import Any
 
 TABLE_DESCRIPTIONS: dict[str, str] = {
+    "_core_eia923__cooling_system_information": (
+        """EIA-923 Cooling System Information, from EIA-923 Schedule 8D.
+
+Reports monthly information about cooling systems at generation facilities,
+mainly water volumes and temperatures. In 2008 and 2009, EIA only reports
+annual averages, but in later years all data is monthly.
+
+Note: This table has been cleaned, but not harvested with other EIA 923 or 860
+data. The same variables present in this table may show up in other _core
+tables in other years. Once this table has been harvested, it will be removed
+from the PUDL database."""
+    ),
     "core_eia923__monthly_boiler_fuel": (
         """EIA-923 Monthly Boiler Fuel Consumption and Emissions, from EIA-923 Schedule 3.
 
@@ -648,6 +660,50 @@ is for those supplies."""
                 "nuclear_unit_id",
                 "energy_source_code",
                 "prime_mover_code",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia923"],
+        "etl_group": "eia923",
+    },
+    "_core_eia923__cooling_system_information": {
+        "description": TABLE_DESCRIPTIONS["_core_eia923__cooling_system_information"],
+        "schema": {
+            "fields": [
+                "report_date",
+                "plant_id_eia",
+                "cooling_id_eia",
+                "cooling_status_code",
+                "cooling_type",
+                "monthly_total_cooling_hours_in_service",
+                "flow_rate_method",
+                "temperature_method",
+                "annual_maximum_intake_summer_temperature_fahrenheit",
+                "annual_maximum_intake_winter_temperature_fahrenheit",
+                "monthly_average_intake_temperature_fahrenheit",
+                "monthly_maximum_intake_temperature_fahrenheit",
+                "annual_maximum_outlet_summer_temperature_fahrenheit",
+                "annual_maximum_outlet_winter_temperature_fahrenheit",
+                "monthly_average_discharge_temperature_fahrenheit",
+                "monthly_maximum_discharge_temperature_fahrenheit",
+                "annual_average_consumption_rate_gallons_per_minute",
+                "monthly_average_consumption_rate_gallons_per_minute",
+                "monthly_total_consumption_volume_gallons",
+                "annual_average_discharge_rate_gallons_per_minute",
+                "monthly_average_discharge_rate_gallons_per_minute",
+                "monthly_total_discharge_volume_gallons",
+                "monthly_average_diversion_rate_gallons_per_minute",
+                "monthly_total_diversion_volume_gallons",
+                "annual_average_withdrawal_rate_gallons_per_minute",
+                "monthly_average_withdrawal_rate_gallons_per_minute",
+                "monthly_total_withdrawal_volume_gallons",
+                "annual_total_chlorine_lbs",
+                "monthly_total_chlorine_lbs",
+            ],
+            "primary_key": [
+                "plant_id_eia",
+                "report_date",
+                "cooling_id_eia",
             ],
         },
         "field_namespace": "eia",

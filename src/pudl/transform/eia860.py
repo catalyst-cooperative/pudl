@@ -1,8 +1,10 @@
 """Module to perform data cleaning functions on EIA860 data tables."""
 
+import warnings
+
 import numpy as np
 import pandas as pd
-from dagster import asset
+from dagster import AssetCheckResult, ExperimentalWarning, asset, asset_check
 
 import pudl
 from pudl.metadata.classes import DataSource
@@ -12,6 +14,10 @@ from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.transform.eia861 import clean_nerc
 
 logger = pudl.logging_helpers.get_logger(__name__)
+
+# Asset Checks are still Experimental, silence the warning since we use them
+# everywhere.
+warnings.filterwarnings("ignore", category=ExperimentalWarning)
 
 
 @asset
@@ -1021,3 +1027,133 @@ def _core_eia860__boiler_stack_flue(
     )
 
     return bsf_assn
+
+
+@asset(io_manager_key="pudl_io_manager")
+def _core_eia860__cooling_equipment(
+    raw_eia860__cooling_equipment: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the EIA 860 cooling equipment table.
+
+    - spot clean year values before converting to dates
+    - standardize water rate units to gallons per minute (2009-2013 used cubic
+      feet per second)
+    - convert kilodollars to normal dollars
+
+    Note that the "power_requirement_mw" field is erroneously reported as
+    "_kwh" in the raw data for 2009, 2010, and 2011, even though the values are
+    in MW. This is corroborated by the values for these plants matching up with
+    the stated MW values in later years. Additionally, the PDF form for those
+    years indicates that the value should be in MW, and KWh isn't even a power
+    measurement.
+
+    In 2009, we have two incorrectly entered ``cooling_type`` values of ``HR``,
+    for utility ID 14328, plant IDs 56532/56476, and cooling ID ACC1. This
+    corresponds to the Colusa and Gateway generating stations run by PG&E. In
+    all later years, these cooling facilities are marked as ``DC``, or "dry
+    cooling"; however, ``HR`` looks like the codes for hybrid systems (the
+    others are ``HRC``, ``HRF``, ``HRI``). As such we drop the ``HR`` code
+    completely in ``pudl.metadata.codes``.
+    """
+    ce_df = raw_eia860__cooling_equipment
+
+    # Generic cleaning
+    ce_df = ce_df.pipe(pudl.helpers.fix_eia_na).pipe(pudl.helpers.add_fips_ids)
+
+    # Spot cleaning and date conversion
+    ce_df.loc[
+        ce_df["chlorine_equipment_operating_year"] == 971,
+        "chlorine_equipment_operating_year",
+    ] = 1971
+    ce_df.loc[ce_df["pond_operating_year"] == 0, "pond_operating_year"] = np.nan
+    ce_df.loc[ce_df["tower_operating_year"] == 974, "tower_operating_year"] = 1974
+    ce_df = (
+        ce_df.pipe(pudl.helpers.month_year_to_date)
+        .pipe(pudl.helpers.convert_to_date)
+        .rename(columns={"operating_date": "cooling_system_operating_date"})
+    )
+
+    # There's one row which has an NA cooling_id_eia, which we mark as "PLANT"
+    # to allow it to be in a DB primary key.
+    ce_df.loc[
+        (ce_df["plant_id_eia"] == 6285)
+        & (ce_df["utility_id_eia"] == 7353)
+        & (ce_df["report_date"] == "2016-01-01"),
+        "cooling_id_eia",
+    ] = "PLANT"
+
+    # Convert cubic feet/second to gallons/minute
+    cfs_in_gpm = 448.8311688
+    ce_df = ce_df.fillna(
+        {
+            "tower_water_rate_100pct_gallons_per_minute": ce_df.tower_water_rate_100pct_cubic_feet_per_second
+            * cfs_in_gpm,
+            "intake_rate_100pct_gallons_per_minute": ce_df.intake_rate_100pct_cubic_feet_per_second
+            * cfs_in_gpm,
+        }
+    ).drop(
+        columns=[
+            "tower_water_rate_100pct_cubic_feet_per_second",
+            "intake_rate_100pct_cubic_feet_per_second",
+        ]
+    )
+
+    # Convert thousands of dollars to dollars and remove suffix from column name
+    ce_df.loc[:, ce_df.columns.str.endswith("_thousand_dollars")] *= 1000
+    ce_df.columns = ce_df.columns.str.replace("_thousand_dollars", "")
+
+    resource = pudl.metadata.classes.Package.from_resource_ids().get_resource(
+        "_core_eia860__cooling_equipment"
+    )
+    return ce_df.pipe(apply_pudl_dtypes, group="eia", strict=True).pipe(resource.encode)
+
+
+@asset_check(asset=_core_eia860__cooling_equipment, blocking=True)
+def cooling_equipment_null_cols(cooling_equipment):
+    """The only completely null cols we expect are tower type 3 and 4.
+
+    In fast-ETL, i.e. recent years, we also expect a few other columns to be
+    null since they only show up in older data.
+    """
+    expected_null_cols = {"tower_type_3", "tower_type_4"}
+    if cooling_equipment.report_date.min() > pd.Timestamp("2010-01-01T00:00:00"):
+        expected_null_cols.add(
+            {"plant_summer_capacity_mw", "water_source", "county", "cooling_type_4"}
+        )
+    pudl.validate.no_null_cols(
+        cooling_equipment,
+        cols=set(cooling_equipment.columns) - expected_null_cols,
+    )
+    col_is_null = cooling_equipment.isna().all()
+    if not all(col_is_null[col] for col in expected_null_cols):
+        return AssetCheckResult(
+            passed=False, metadata={"col_is_null": col_is_null.to_json()}
+        )
+    return AssetCheckResult(passed=True)
+
+
+@asset_check(asset=_core_eia860__cooling_equipment, blocking=True)
+def cooling_equipment_continuity(cooling_equipment):
+    """Check to see if columns vary as slowly as expected.
+
+    2024-03-04: pond cost, tower cost, and tower cost all have one-off
+    discontinuities that are worth investigating, but we're punting on that
+    investigation since we're out of time.
+    """
+    return pudl.validate.group_mean_continuity_check(
+        df=cooling_equipment,
+        thresholds={
+            "intake_rate_100pct_gallons_per_minute": 0.1,
+            "outlet_distance_shore_feet": 0.1,
+            "outlet_distance_surface_feet": 0.1,
+            "pond_cost": 0.1,
+            "pond_surface_area_acres": 0.1,
+            "pond_volume_acre_feet": 0.2,
+            "power_requirement_mw": 0.1,
+            "plant_summer_capacity_mw": 0.1,
+            "tower_cost": 0.1,
+            "tower_water_rate_100pct_gallons_per_minute": 0.1,
+        },
+        groupby_col="report_date",
+        n_outliers_allowed=1,
+    )

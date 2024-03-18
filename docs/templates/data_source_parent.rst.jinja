@@ -38,7 +38,7 @@ the names and descriptions of each of its fields.
    * - Data Dictionary
      - Browse Online
    {%- for resource in source_resources %}
-   * - :ref:`{{ resource.name }}`
+   * - :ref:`{{ resource.sphinx_ref_name }}`
      {% block browse_online scoped %}- https://data.catalyst.coop/pudl/{{ resource.name }}{% endblock %}
    {%- endfor %}
 
@@ -57,7 +57,7 @@ existing tables.
    * - Data Dictionary
      - Browse Online
    {%- for resource in extra_resources %}
-   * - :ref:`{{ resource.name }}`
+   * - :ref:`{{ resource.sphinx_ref_name }}`
    {% block browse_extra_online scoped %}
      - https://data.catalyst.coop/pudl/{{ resource.name }}
    {% endblock %}

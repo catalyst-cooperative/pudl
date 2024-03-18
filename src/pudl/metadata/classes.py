@@ -51,7 +51,6 @@ from pudl.metadata.fields import (
     FIELD_METADATA_BY_RESOURCE,
 )
 from pudl.metadata.helpers import (
-    JINJA_FILTERS,
     expand_periodic_column_names,
     format_errors,
     groupby_aggregate,
@@ -164,8 +163,6 @@ def _get_jinja_environment(template_dir: DirectoryPath = None):
         loader=jinja2.FileSystemLoader(path),
         autoescape=True,
     )
-    for func_name, func in JINJA_FILTERS.items():
-        environment.filters[func_name] = func
     return environment
 
 
@@ -486,7 +483,9 @@ class Encoder(PudlMeta):
         logger.info(f"Encoding {col.name}")
         unknown_codes = set(col.dropna()).difference(self.code_map)
         if unknown_codes:
-            raise ValueError(f"Found unknown codes while encoding: {unknown_codes=}")
+            raise ValueError(
+                f"Found unknown codes while encoding {self.name}: {unknown_codes=}"
+            )
         col = col.map(self.code_map)
         if dtype:
             col = col.astype(dtype)
@@ -1292,6 +1291,22 @@ class Resource(PudlMeta):
         "contributors", "keywords", "licenses", "sources", fn=_check_unique
     )
 
+    @property
+    def sphinx_ref_name(self):
+        """Get legal Sphinx ref name.
+
+        Sphinx throws an error when creating a cross ref target for
+        a resource that has a preceding underscore. It is
+        also possible for resources to have identical names
+        when the preceeding underscore is removed. This function
+        adds a preceeding 'i' to cross ref targets for resources
+        with preceeding underscores. The 'i' will not be rendered
+        in the docs, only in the .rst files the hyperlinks.
+        """
+        if self.name.startswith("_"):
+            return f"i{self.name}"
+        return self.name
+
     @field_validator("schema")
     @classmethod
     def _check_harvest_primary_key(cls, value, info: ValidationInfo):
@@ -1349,8 +1364,6 @@ class Resource(PudlMeta):
         obj["sources"] = [
             DataSource.from_id(value) for value in sources if value in SOURCES
         ]
-        encoder = obj.get("encoder", None)
-        obj["encoder"] = encoder
         # Expand licenses (assign CC-BY-4.0 by default)
         licenses = obj.get("licenses", ["cc-by-4.0"])
         obj["licenses"] = [License.dict_from_id(value) for value in licenses]
@@ -1371,8 +1384,6 @@ class Resource(PudlMeta):
                 keywords.extend(DataSource.from_id(source).keywords)
         obj["keywords"] = sorted(set(keywords))
         # Insert foreign keys
-        if "foreign_keys" in schema:
-            raise ValueError("Resource metadata contains explicit foreign keys")
         schema["foreign_keys"] = FOREIGN_KEYS.get(resource_id, [])
         # Delete foreign key rules
         if "foreign_key_rules" in schema:

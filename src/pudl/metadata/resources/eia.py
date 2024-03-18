@@ -36,6 +36,18 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
+    "core_eia__codes_cooling_water_sources": {
+        "description": "A coding table describing different types of cooling water sources in EIA-860.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {"fields": [["boiler_type"]]},
+        },
+        "encoder": CODE_METADATA["core_eia__codes_cooling_water_sources"],
+        "sources": ["eia860"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
     "core_eia__entity_boilers": {
         "description": "Static boiler attributes compiled from the EIA-860 and EIA-923 data.",
         "schema": {
@@ -381,7 +393,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ],
             "primary_key": ["code"],
             "foreign_key_rules": {
-                "fields": [["operational_status_code"]],
+                "fields": [["operational_status_code"], ["cooling_status_code"]],
             },
         },
         "encoder": CODE_METADATA["core_eia__codes_operational_status"],
@@ -1045,6 +1057,57 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eia",
         "sources": ["eia860", "eia923"],
         "etl_group": "outputs",
+    },
+    "core_eia__codes_cooling_tower_types": {
+        "description": "A coding table for cooling tower types.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {
+                "fields": [
+                    ["tower_type_1"],
+                    ["tower_type_2"],
+                    ["tower_type_3"],
+                    ["tower_type_4"],
+                ]
+            },
+        },
+        "encoder": CODE_METADATA["core_eia__codes_cooling_tower_types"],
+        "field_namespace": "eia",
+        "sources": ["eia860"],
+        "etl_group": "static_eia",
+    },
+    "core_eia__codes_cooling_water_types": {
+        "description": "A coding table for cooling water types.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {"fields": [["water_type_code"]]},
+        },
+        "encoder": CODE_METADATA["core_eia__codes_cooling_water_types"],
+        "field_namespace": "eia",
+        "sources": ["eia860"],
+        "etl_group": "static_eia",
+    },
+    "core_eia__codes_cooling_system_types": {
+        "description": "A coding table for cooling system types.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {
+                "fields": [
+                    ["cooling_type"],
+                    ["cooling_type_1"],
+                    ["cooling_type_2"],
+                    ["cooling_type_3"],
+                    ["cooling_type_4"],
+                ]
+            },
+        },
+        "encoder": CODE_METADATA["core_eia__codes_cooling_system_types"],
+        "field_namespace": "eia",
+        "sources": ["eia860", "eia923"],
+        "etl_group": "static_eia",
     },
 }
 """Generic EIA resource attributes organized by PUDL identifier (``resource.name``).

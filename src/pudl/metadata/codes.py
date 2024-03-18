@@ -2318,6 +2318,212 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {},
         "ignored_codes": [],
     },
+    "core_eia__codes_cooling_tower_types": {
+        "df": pd.DataFrame(
+            columns=["code", "label", "description"],
+            data=[
+                (
+                    "MD",
+                    "mechanical_dry",
+                    "Mechanical draft, dry process",
+                ),
+                (
+                    "MW",
+                    "mechanical_wet",
+                    "Mechanical draft, wet process",
+                ),
+                (
+                    "ND",
+                    "natural_dry",
+                    "Natural draft, dry process",
+                ),
+                (
+                    "NW",
+                    "natural_wet",
+                    "Natural draft, wet process",
+                ),
+                (
+                    "WD",
+                    "combo_wet_dry",
+                    "Combination wet and dry process",
+                ),
+                (
+                    "OT",
+                    "other",
+                    "Other",
+                ),
+            ],
+        )
+    },
+    "core_eia__codes_cooling_water_sources": {
+        "df": pd.DataFrame(
+            columns=["code", "label", "description"],
+            data=[
+                (
+                    "SW",
+                    "surface_water",
+                    "Surface Water (ex: river, canal, bay)",
+                ),
+                (
+                    "GW",
+                    "ground_water",
+                    "Ground Water (ex: aquifer, well)",
+                ),
+                (
+                    "PD",
+                    "plant_discharge",
+                    "Plant Discharge Water (ex: wastewater treatment plant discharge)",
+                ),
+                (
+                    "OT",
+                    "other",
+                    "Other (specify in SCHEDULE 7)",
+                ),
+            ],
+        )
+    },
+    "core_eia__codes_cooling_water_types": {
+        "df": pd.DataFrame(
+            columns=["code", "label", "description"],
+            data=[
+                (
+                    "BR",
+                    "brackish_water",
+                    "Brackish water",
+                ),
+                (
+                    "FR",
+                    "fresh_water",
+                    "Fresh water",
+                ),
+                (
+                    "BE",
+                    "reclaimed_water",
+                    "Reclaimed water (ex: treated wastewater effluent)",
+                ),
+                (
+                    "SA",
+                    "saline_water",
+                    "Saline water",
+                ),
+                ("OT", "other", "Other"),
+            ],
+        )
+    },
+    "core_eia__codes_cooling_system_types": {
+        "df": pd.DataFrame(
+            columns=["code", "label", "description"],
+            data=[
+                (
+                    "DC",
+                    "dry_cooling",
+                    "Dry (air) cooling system",
+                ),
+                (
+                    "H",
+                    "hybrid_non_specified",
+                    "Hybrid (non-specified)",
+                ),
+                (
+                    "HRC",
+                    "hybrid_wet_dry",
+                    "Hybrid: cooling pond(s) or canal(s) with dry cooling",
+                ),
+                (
+                    "HRF",
+                    "hybrid_forced_draft_dry",
+                    "Hybrid: forced draft cooling tower(s) with dry cooling",
+                ),
+                (
+                    "HRI",
+                    "hybrid_induced_draft_dry",
+                    "Hybrid: induced draft cooling tower(s) with dry cooling",
+                ),
+                (
+                    "O",
+                    "once_through_non_specified",
+                    "Once through (non-specified)",
+                ),
+                (
+                    "O + R",
+                    "once_through_non_specified_and_recirculating_non_specified",
+                    "Once through (non-specified) and Recirculating (non-specified)",
+                ),
+                (
+                    "OC",
+                    "once_with_pond",
+                    "Once through with cooling pond(s)",
+                ),
+                (
+                    "OF",
+                    "once_fresh",
+                    "Once through, fresh water",
+                ),
+                (
+                    "ON",
+                    "once_without_pond",
+                    "Once through without cooling pond(s)",
+                ),
+                (
+                    "OS",
+                    "once_saline",
+                    "Once through, saline water",
+                ),
+                (
+                    "R",
+                    "recirculating_non_specified",
+                    "Recirculating (non-specified)",
+                ),
+                (
+                    "RC",
+                    "recirculating_pond",
+                    "Recirculating with cooling pond(s) or canal(s)",
+                ),
+                (
+                    "RF",
+                    "recirculating_forced_draft",
+                    "Recirculating with forced draft cooling tower(s)",
+                ),
+                (
+                    "RI",
+                    "recirculating_induced_draft",
+                    "Recirculating with induced draft cooling tower(s)",
+                ),
+                (
+                    "RN",
+                    "recirculating_natural_draft",
+                    "Recirculating with natural draft cooling tower(s)",
+                ),
+                (
+                    "HT",
+                    "helper_tower",
+                    "Helper tower",
+                ),
+                (
+                    "OT",
+                    "other",
+                    "Other",
+                ),
+            ],
+        ),
+        "code_fixes": {
+            "RECIRCULATING WITH INDUCED DRAFT COOLING TOWER": "RI",
+            "DRY (AIR) COOLING SYSTEM": "DC",
+            "ONCE THROUGH WITHOUT COOLING POND(S) OR CANAL(S)": "ON",
+            "RECIRCULATING WITH COOLING PONDS": "RC",
+            "RECIRCULATING": "R",
+            "RECIRCULATING WITH NATURAL DRAFT COOLING TOWER": "RN",
+            "ONCE THROUGH": "O",
+            "ONCE THROUGH WITH COOLING PONDS": "OC",
+            "HYBRID: RECIRCULATING WITH INDUCED DRAFT COOLING TOWER(S) WITH DRY COOLING": "HRI",
+            "ONCE THROUGH AND RECIRCULATING": "O + R",
+            "RECIRCULATING WITH FORCED DRAFT COOLING TOWER": "RF",
+            "HYBRID (DRY AND WET COOLING)": "H",
+            "OTHER - SPECIFY IN FOOTNOTE": "OT",
+            "HYBRID: RECIRCULATING WITH FORCED DRAFT COOLING TOWER(S) WITH DRY COOLING": "HRF",
+        },
+        "ignored_codes": ["HR"],
+    },
 }
 
 # The entity type codes were never fully reconciled. Preserving this work for reference.

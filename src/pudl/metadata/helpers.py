@@ -1,6 +1,5 @@
 """Functions for manipulating metadata constants."""
 
-import re
 from collections import defaultdict
 from collections.abc import Callable, Iterable
 from typing import Any
@@ -590,29 +589,3 @@ def groupby_aggregate(
     # Enforce original data types, which nulls and errors may have changed
     result = result.astype(dtypes, copy=False)
     return result, reports
-
-
-# --- Jinja Filters --- #
-
-
-def _format_resource_name_cross_ref(resource_name: str) -> str:
-    """Format resource name as a cross_ref for sphinx docs.
-
-    Sphinx throws an error when creating a cross ref target for
-    a resource that has a preceeding underscore. It is
-    also possible for resources to have identical names
-    when the preceeding underscore is removed. This function
-    adds a preceeding 'i' to cross ref targets for resources
-    with preceeding underscores. The 'i' will not be rendered
-    in the docs, only in the .rst files the hyperlinks.
-
-    Args:
-        resource_name: the name of the resource.
-
-    Returns:
-        The name of the resource formatted for a sphinx cross ref.
-    """
-    return re.sub(r"^_.*", lambda x: "i" + x.group(0), resource_name)
-
-
-JINJA_FILTERS = {"format_resource_name_cross_ref": _format_resource_name_cross_ref}
