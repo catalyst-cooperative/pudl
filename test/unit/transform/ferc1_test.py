@@ -1,7 +1,9 @@
 """Unit tests specific to the FERC Form 1 table transformations."""
 
+import itertools
 from io import StringIO
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -13,6 +15,9 @@ from pudl.transform.ferc1 import (
     DropDuplicateRowsDbf,
     Ferc1AbstractTableTransformer,
     Ferc1TableTransformParams,
+    GroupMetricChecks,
+    GroupMetricTolerances,
+    MetricTolerances,
     ReconcileTableCalculations,
     TableIdFerc1,
     UnstackBalancesToReportYearInstantXbrl,
@@ -25,6 +30,7 @@ from pudl.transform.ferc1 import (
     infer_intra_factoid_totals,
     make_xbrl_factoid_dimensions_explicit,
     read_dbf_to_xbrl_map,
+    reconcile_one_type_of_table_calculations,
     unexpected_total_components,
     unstack_balances_to_report_year_instant_xbrl,
     wide_to_tidy,
@@ -452,7 +458,7 @@ def test_dimension_columns():
     Can ``dimension_columns`` grab a column from :class:`AddColumnsWithUniformValues` and ignore
     a column labled as ``is_dimension=False``?
 
-    Can ``dimension_columns`` also grab a different ``subtotal_column``
+    Can ``dimension_columns`` also grab a different ``subdimension_column``
     from :class:`ReconcileTableCalculations`?
 
     Will ``dimension_columns`` return only one column if the dimension column from
@@ -473,14 +479,16 @@ def test_dimension_columns():
     )
     assert params1.dimension_columns == ["added_dim"]
 
-    reconcile_table_calculations = ReconcileTableCalculations(subtotal_column="sub_dim")
+    reconcile_table_calculations = ReconcileTableCalculations(
+        subdimension_column="sub_dim"
+    )
     params2 = Ferc1TableTransformParams(
         add_columns_with_uniform_values=add_columns_with_uniform_values,
         reconcile_table_calculations=reconcile_table_calculations,
     )
     assert sorted(params2.dimension_columns) == sorted(["sub_dim", "added_dim"])
     reconcile_table_calculations = ReconcileTableCalculations(
-        subtotal_column="added_dim"
+        subdimension_column="added_dim"
     )
     params3 = Ferc1TableTransformParams(
         add_columns_with_uniform_values=add_columns_with_uniform_values,
@@ -546,6 +554,207 @@ books,big_fact,earth,12.0,44,2312,{3+4+5}
         actual_ksr.set_index(idx).sort_index(),
         expected_ksr.set_index(idx).sort_index(),
     )
+
+
+def test_many_to_many_subdimensions_calculate_values_from_components():
+    """Test several iterations of reconciling calculations with two dimensions with subtotals.
+
+    The total to subdimension calculcations are constructed in
+    :`infer_intra_factoid_totals` never includes any "total" dimension in
+    the child calculcation component.
+
+    This is reasonable because that means there is never any double counting
+    of the elements of a total (i.e. the calculation for a big total of a calc w/ two
+    dimension cols never has both the total and the subdimensions of that total).
+    It makes thinking about the total to subdimension calculations challenging in some
+    ways (it feels intuative to be able to calculate a parent w/ a total & total dimensions
+    from the total & subdims *as well as* the sumdims & total). But that would be duplicative
+    and that's not how `infer_intra_factoid_totals` works. We calculate a parent total & total
+    calculation from the subdims & subdims. Fully skipping over the intermideary mixed total/subdim
+    calculations.
+
+    """
+
+    def get_reconcilded_data(data):
+        table_name = "table_a"
+        fact_name = "my_cool_fact"
+        value_col = "value"
+        dimension_values = {
+            "utility_type": ["electric", "gas", "total"],
+            "plant_status": ["future", "in_service", "total"],
+        }
+        dimension_pairs = list(itertools.product(*dimension_values.values()))
+        dimension_cols = list(dimension_values.keys())
+        calc_idx = ["table_name", "xbrl_factoid"] + dimension_cols
+        meta_w_dims = pd.DataFrame(columns=dimension_cols, data=dimension_pairs).assign(
+            xbrl_factoid=fact_name, table_name=table_name
+        )
+        calc_comps = infer_intra_factoid_totals(
+            calc_components=pd.DataFrame(),
+            meta_w_dims=meta_w_dims,
+            # we can use the meta w/ dims bc its the same strucutre
+            # the assumes that every combo of these dims exist in the table
+            table_dimensions=meta_w_dims,
+            dimensions=dimension_cols,
+        )
+        # just one check w/ a 100% error rate so we never trip the checks
+        group_metric_checks = GroupMetricChecks(
+            groups_to_check=["ungrouped"],
+            metrics_to_check=["error_frequency"],
+            group_metric_tolerances=GroupMetricTolerances(
+                ungrouped=MetricTolerances(error_frequency=1)
+            ),
+        )
+        data = data.assign(
+            table_name=table_name,
+            xbrl_factoid=fact_name,
+            utility_id_ferc1=144,
+            report_year=2021,
+            row_type_xbrl=lambda x: np.where(
+                (x[dimension_cols] == "total").any(axis="columns"),
+                "calculated_value",
+                pd.NA,
+            ),
+        )
+
+        return reconcile_one_type_of_table_calculations(
+            data=data,
+            calculation_components=calc_comps,
+            calc_idx=calc_idx,
+            value_col=value_col,
+            group_metric_checks=group_metric_checks,
+            table_name=table_name,
+            is_subdimension=True,
+            calc_to_data_merge_validation="many_to_many",
+        )
+
+    # Test if a big total/total calculation w/ null children gets a correction
+    total_total_value = 100
+    data1 = pd.read_csv(
+        StringIO(
+            f"""
+utility_type,plant_status,value
+electric,future,
+electric,in_service,
+electric,total,
+gas,future,
+gas,in_service,
+gas,total,
+total,future,
+total,in_service,
+total,total,{total_total_value}
+    """
+        )
+    )
+    out1 = get_reconcilded_data(data1)
+    assert (
+        out1.loc[out1.row_type_xbrl == "subdimension_correction", "value"].to_numpy()[0]
+        == total_total_value
+    )
+
+    # test the big total/total with non-null but off leaves get a correction
+    data2 = pd.read_csv(
+        StringIO(
+            f"""
+utility_type,plant_status,value
+electric,future,5
+electric,in_service,70
+gas,future,5
+gas,in_service,5
+total,total,{total_total_value}
+    """
+        )
+    )
+    out2 = get_reconcilded_data(data2)
+    assert (
+        out2.loc[out2.row_type_xbrl == "subdimension_correction", "value"].to_numpy()[0]
+        == total_total_value - 70 - 5 - 5 - 5
+    )
+
+    # demonstrate that a big total/total records does not get calculated by the total/subdim records
+    data3 = pd.read_csv(
+        StringIO(
+            f"""
+utility_type,plant_status,value
+electric,future,
+electric,in_service,
+electric,total,
+gas,future,
+gas,in_service,
+gas,total,
+total,future,5
+total,in_service,70
+total,total,{total_total_value}
+    """
+        )
+    )
+    out3 = get_reconcilded_data(data3)
+    out3_sub = out3.loc[
+        out3.row_type_xbrl == "subdimension_correction",
+        ["xbrl_factoid", "utility_type", "plant_status", "value"],
+    ].reset_index(drop=True)
+    expected3 = (
+        pd.read_csv(
+            StringIO(
+                f"""
+xbrl_factoid,utility_type,plant_status,value
+my_cool_fact_subdimension_correction,total,future,5
+my_cool_fact_subdimension_correction,total,in_service,70
+my_cool_fact_subdimension_correction,total,total,{total_total_value}
+    """
+            )
+        )
+        .convert_dtypes()
+        .astype({"value": float})
+    )
+    pd.testing.assert_frame_equal(out3_sub, expected3)
+
+    eis = 70
+    ef = 5
+    et = 85
+    gf = 4
+    gis = 5
+    gt = 10
+    tf = 10
+    tis = 70
+    data4 = pd.read_csv(
+        StringIO(
+            f"""
+utility_type,plant_status,value
+electric,future,{ef}
+electric,in_service,{eis}
+electric,total,{et}
+gas,future,{gf}
+gas,in_service,{gis}
+gas,total,{gt}
+total,future,{tf}
+total,in_service,{tis}
+total,total,{total_total_value}
+    """
+        )
+    )
+    expected4 = (
+        pd.read_csv(
+            StringIO(
+                f"""
+xbrl_factoid,utility_type,plant_status,value
+my_cool_fact_subdimension_correction,electric,total,{et-eis-ef}
+my_cool_fact_subdimension_correction,gas,total,{gt-gis-gf}
+my_cool_fact_subdimension_correction,total,future,{tf-ef-gf}
+my_cool_fact_subdimension_correction,total,in_service,{tis-eis-gis}
+my_cool_fact_subdimension_correction,total,total,{total_total_value-eis-ef-gis-gf}
+    """
+            )
+        )
+        .convert_dtypes()
+        .astype({"value": float})
+    )
+    out4 = get_reconcilded_data(data4)
+    out4_sub = out4.loc[
+        out4.row_type_xbrl == "subdimension_correction",
+        ["xbrl_factoid", "utility_type", "plant_status", "value"],
+    ].reset_index(drop=True)
+    pd.testing.assert_frame_equal(expected4, out4_sub)
 
 
 def test_apply_xbrl_calculation_fixes():

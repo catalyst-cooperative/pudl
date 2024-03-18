@@ -1972,7 +1972,7 @@ def upgrade() -> None:
     sa.Column('utility_id_pudl', sa.Integer(), nullable=True, comment='A manually assigned PUDL utility ID. May not be stable over time.'),
     sa.Column('utility_name_ferc1', sa.Text(), nullable=True, comment='Name of the responding utility, as it is reported in FERC Form 1. For human readability only.'),
     sa.Column('report_year', sa.Integer(), nullable=False, comment='Four-digit year in which the data was reported.'),
-    sa.Column('depreciation_type', sa.Text(), nullable=True, comment='Type of depreciation provision within FERC Account 108, including cost ofremoval, depreciation expenses, salvage, cost of retired plant, etc.'),
+    sa.Column('depreciation_type', sa.Text(), nullable=False, comment='Type of depreciation provision within FERC Account 108, including cost ofremoval, depreciation expenses, salvage, cost of retired plant, etc.'),
     sa.Column('plant_function', sa.Text(), nullable=False, comment='Functional role played by utility plant (steam production, nuclear production, distribution, transmission, etc.).'),
     sa.Column('plant_status', sa.Text(), nullable=False, comment='Utility plant financial status (in service, future, leased, total).'),
     sa.Column('utility_type', sa.Text(), nullable=False, comment='Listing of utility plant types. Examples include Electric Utility, Gas Utility, and Other Utility.'),
@@ -1982,7 +1982,7 @@ def upgrade() -> None:
     sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subtotal_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
     sa.ForeignKeyConstraint(['utility_id_ferc1'], ['core_pudl__assn_ferc1_pudl_utilities.utility_id_ferc1'], name=op.f('fk_out_ferc1__yearly_depreciation_by_function_sched219_utility_id_ferc1_core_pudl__assn_ferc1_pudl_utilities')),
     sa.ForeignKeyConstraint(['utility_id_pudl'], ['core_pudl__entity_utilities_pudl.utility_id_pudl'], name=op.f('fk_out_ferc1__yearly_depreciation_by_function_sched219_utility_id_pudl_core_pudl__entity_utilities_pudl')),
-    sa.PrimaryKeyConstraint('utility_id_ferc1', 'report_year', 'plant_function', 'plant_status', 'utility_type', name=op.f('pk_out_ferc1__yearly_depreciation_by_function_sched219'))
+    sa.PrimaryKeyConstraint('utility_id_ferc1', 'report_year', 'depreciation_type', 'plant_function', 'plant_status', 'utility_type', name=op.f('pk_out_ferc1__yearly_depreciation_by_function_sched219'))
     )
     op.create_table('out_ferc1__yearly_depreciation_changes_sched219',
     sa.Column('utility_id_ferc1', sa.Integer(), nullable=False, comment='PUDL-assigned utility ID, identifying a FERC1 utility. This is an auto-incremented ID and is not expected to be stable from year to year.'),

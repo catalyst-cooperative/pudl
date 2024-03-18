@@ -1859,6 +1859,7 @@ class Exploder:
             data=exploded,
             calc_idx=self.calc_idx,
             value_col=self.value_col,
+            calc_to_data_merge_validation="many_to_many",
         )
         return calculated_df
 
@@ -1987,7 +1988,7 @@ class Exploder:
             f"{self.root_table}: Reconcile inter-table calculations: "
             f"{list(calculations_intertable.xbrl_factoid.unique())}."
         )
-        logger.info("Checking inter-table, non-total to subtotal calcs.")
+        logger.info("Checking inter-table, non-total to subdimension calcs.")
         # we've added calculated fields via calculate_intertable_non_total_calculations
         calculated_df = pudl.transform.ferc1.check_calculation_metrics(
             calculated_df=exploded, group_metric_checks=self.group_metric_checks
@@ -1997,10 +1998,10 @@ class Exploder:
             value_col=self.value_col,
             is_close_tolerance=pudl.transform.ferc1.IsCloseTolerance(),
             table_name=self.root_table,
-            is_subtotal=False,
+            is_subdimension=False,
         )
         logger.info("Checking sub-total calcs.")
-        subtotal_calcs = pudl.transform.ferc1.calculate_values_from_components(
+        subdimension_calcs = pudl.transform.ferc1.calculate_values_from_components(
             calculation_components=calculations_intertable[
                 calculations_intertable.is_total_to_subdimensions_calc
             ],
@@ -2008,8 +2009,8 @@ class Exploder:
             calc_idx=self.calc_idx,
             value_col=self.value_col,
         )
-        subtotal_calcs = pudl.transform.ferc1.check_calculation_metrics(
-            calculated_df=subtotal_calcs,
+        subdimension_calcs = pudl.transform.ferc1.check_calculation_metrics(
+            calculated_df=subdimension_calcs,
             group_metric_checks=self.group_metric_checks,
         )
         return calculated_df

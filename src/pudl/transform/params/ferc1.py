@@ -3313,7 +3313,7 @@ TRANSFORM_PARAMS = {
         },
         "reconcile_table_calculations": {
             "column_to_check": "ending_balance",
-            "subtotal_column": "utility_type",
+            "subdimension_column": "utility_type",
             "group_metric_checks": {
                 "group_metric_tolerances": {
                     "ungrouped": {
@@ -3573,7 +3573,7 @@ TRANSFORM_PARAMS = {
         },
         "reconcile_table_calculations": {
             "column_to_check": "dollar_value",
-            "subtotal_column": "plant_function",
+            "subdimension_column": "plant_function",
             "group_metric_checks": {
                 "group_metric_tolerances": {
                     "ungrouped": {"null_calculated_value_frequency": 0.84},
@@ -4002,7 +4002,7 @@ TRANSFORM_PARAMS = {
         ],
         "reconcile_table_calculations": {
             "column_to_check": "dollar_value",
-            "subtotal_column": "utility_type",
+            "subdimension_column": "utility_type",
             "group_metric_checks": {
                 "group_metric_tolerances": {
                     "ungrouped": {
@@ -4246,8 +4246,8 @@ TRANSFORM_PARAMS = {
         },
         "reconcile_table_calculations": {
             "column_to_check": "ending_balance",
-            "subtotal_column": "plant_status",
-            "subtotal_merge_validation": "many_to_many",
+            "subdimension_column": "plant_status",
+            "subdimension_merge_validation": "many_to_many",
             "group_metric_checks": {
                 "group_metric_tolerances": {
                     "ungrouped": {"null_reported_value_frequency": 0.76},

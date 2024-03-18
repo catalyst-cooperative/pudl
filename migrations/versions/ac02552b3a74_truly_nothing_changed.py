@@ -1,8 +1,8 @@
-"""add pk for depreciation output table
+"""truly nothing changed
 
-Revision ID: e4d863fc6566
+Revision ID: ac02552b3a74
 Revises: 9e6bafc2ad6d
-Create Date: 2024-03-11 12:08:56.012254
+Create Date: 2024-03-15 09:24:19.914296
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'e4d863fc6566'
+revision = 'ac02552b3a74'
 down_revision = '9e6bafc2ad6d'
 branch_labels = None
 depends_on = None
