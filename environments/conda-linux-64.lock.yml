@@ -102,8 +102,8 @@ dependencies:
   - dagster-pipes=1.6.10=pyhd8ed1ab_0
   - dagster-postgres=0.22.10=pyhd8ed1ab_0
   - dagster-webserver=1.6.10=pyhd8ed1ab_0
-  - dask-core=2024.3.0=pyhd8ed1ab_0
-  - dask-expr=1.0.2=pyhd8ed1ab_0
+  - dask-core=2024.3.1=pyhd8ed1ab_0
+  - dask-expr=1.0.4=pyhd8ed1ab_0
   - dataclasses=0.8=pyhc8e2a94_3
   - datasette=0.64.6=pyhd8ed1ab_0
   - dbus=1.13.6=h5008d03_3
@@ -370,7 +370,7 @@ dependencies:
   - packaging=23.2=pyhd8ed1ab_0
   - pandas=2.2.1=py311h320fe9a_0
   - pandera-core=0.18.3=pyhd8ed1ab_0
-  - pandoc=3.1.12.2=ha770c72_0
+  - pandoc=3.1.12.3=ha770c72_0
   - pandocfilters=1.5.0=pyhd8ed1ab_0
   - pango=1.52.1=ha41ecd1_0
   - paramiko=3.4.0=pyhd8ed1ab_0
@@ -456,7 +456,7 @@ dependencies:
   - re2=2023.09.01=h7f4b329_2
   - readline=8.2=h8228510_1
   - readthedocs-sphinx-ext=2.2.5=pyhd8ed1ab_0
-  - referencing=0.33.0=pyhd8ed1ab_0
+  - referencing=0.34.0=pyhd8ed1ab_0
   - regex=2023.12.25=py311h459d7ec_0
   - requests=2.31.0=pyhd8ed1ab_0
   - requests-oauthlib=1.4.0=pyhd8ed1ab_0
