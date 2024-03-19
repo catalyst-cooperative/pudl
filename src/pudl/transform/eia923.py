@@ -15,6 +15,7 @@ from dagster import (
 )
 
 import pudl
+from pudl.helpers import convert_col_to_bool
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.transform.classes import InvalidRows, drop_invalid_rows
@@ -1301,23 +1302,20 @@ def _core_eia923__cooling_system_information(
     # we need to sanitize them somewhat
     csi_df.cooling_type = csi_df.cooling_type.str.strip().str.upper()
 
-    primary_key = ["plant_id_eia", "report_date", "cooling_id_eia"]
-    dupe_mask = csi_df.duplicated(subset=primary_key, keep=False)
-    deduplicated = csi_df[dupe_mask].groupby(primary_key).first().reset_index()
-    unduplicated = csi_df.loc[~dupe_mask]
-
     resource = pudl.metadata.classes.Package.from_resource_ids().get_resource(
         "_core_eia923__cooling_system_information"
     )
+
+    primary_key = ["plant_id_eia", "report_date", "cooling_id_eia"]
     return (
-        pd.concat([unduplicated, deduplicated], ignore_index=True)
+        pudl.helpers.dedupe_and_drop_nas(csi_df, primary_key_cols=primary_key)
         .pipe(apply_pudl_dtypes, group="eia", strict=False)
         .pipe(resource.encode)
     )
 
 
 @asset_check(asset=_core_eia923__cooling_system_information, blocking=True)
-def cooling_system_information_null_check(csi):
+def cooling_system_information_null_check(csi):  # pragma: no cover
     """We do not expect any columns to be completely null.
 
     In fast-ETL context (only recent years), the annual columns may also be
@@ -1332,7 +1330,7 @@ def cooling_system_information_null_check(csi):
 
 
 @asset_check(asset=_core_eia923__cooling_system_information, blocking=True)
-def cooling_system_information_withdrawal_discrepancy_check(csi):
+def cooling_system_information_withdrawal_discrepancy_check(csi):  # pragma: no cover
     """Withdrawal should be equal to discharge + consumption.
 
     To allow for *some* data quality errors we assert that withdrawal ~=
@@ -1370,7 +1368,7 @@ def cooling_system_information_withdrawal_discrepancy_check(csi):
 
 
 @asset_check(asset=_core_eia923__cooling_system_information, blocking=True)
-def cooling_system_information_continuity(csi):
+def cooling_system_information_continuity(csi):  # pragma: no cover
     """Check to see if columns vary as slowly as expected."""
     return pudl.validate.group_mean_continuity_check(
         df=csi,
@@ -1386,6 +1384,152 @@ def cooling_system_information_continuity(csi):
             "monthly_total_discharge_volume_gallons": 0.3,
             "monthly_total_diversion_volume_gallons": 1.3,
             "monthly_total_withdrawal_volume_gallons": 0.3,
+        },
+        groupby_col="report_date",
+        n_outliers_allowed=1,
+    )
+
+
+@asset(io_manager_key="pudl_io_manager")
+def _core_eia923__fgd_operation_maintenance(
+    raw_eia923__fgd_operation_maintenance: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transforms the _core_eia923__fgd_operation_maintenance table.
+
+    Transformations include:
+
+    * Drop values with plant and boiler id values of NA.
+    * Replace . values with NA.
+    * Convert thousands of dollars to dollars.
+    * Fix datetimes for SO2 test dates.
+    * Ensure a unique primary key and drop some duplicated rows.
+
+    Args:
+        raw_eia923__fgd_operation_maintenance: The raw ``raw_eia923__fgd_operation_maintenance`` dataframe.
+
+    Returns:
+        Cleaned ``_core_eia923__fgd_operation_maintenance`` dataframe ready for harvesting.
+    """
+    fgd_df = raw_eia923__fgd_operation_maintenance
+
+    # Drop duplicate and empty rows to ensure the primary key is unique.
+    fgd_df = fgd_df.dropna(subset=["plant_id_eia", "so2_control_id_eia"])
+    fgd_df = fgd_df.drop_duplicates()
+
+    # Replace the EIA923 NA value ('.') with a real NA value.
+    fgd_df = pudl.helpers.fix_eia_na(fgd_df).pipe(pudl.helpers.convert_to_date)
+
+    # Convert thousands of dollars to dollars
+    fgd_df.loc[:, fgd_df.columns.str.endswith("_1000_dollars")] *= 1000
+    fgd_df.columns = fgd_df.columns.str.replace("_1000_dollars", "")  # Rename columns
+
+    # Convert SO2 test date column to datetime
+    # This column only exists for 2008-2011
+    # First, convert a few troublesome datetimes that look like m/yy or mm/yy
+    if not fgd_df.so2_test_date.isnull().all():  # If column not empty
+        troublesome_dates = fgd_df.so2_test_date.str.contains(
+            r"^[0-9]{1,2}\/[0-9]{2}$", regex=True, na=False
+        )
+        logger.info(
+            f"Rescuing troublesome dates: {fgd_df[troublesome_dates].so2_test_date.unique()}"
+        )
+        fgd_df.loc[troublesome_dates, "so2_test_date"] = fgd_df[
+            troublesome_dates
+        ].so2_test_date.str.pad(5, fillchar="0")
+        fgd_df.loc[troublesome_dates, "so2_test_date"] = pd.to_datetime(
+            fgd_df.loc[troublesome_dates, "so2_test_date"], format="%m/%y"
+        )
+
+    test_datetime = pd.to_datetime(
+        fgd_df.so2_test_date, format="mixed", errors="coerce", dayfirst=False
+    )
+    dropped_dates = fgd_df[
+        (test_datetime.isnull()) & (fgd_df.so2_test_date.notnull())
+    ].so2_test_date.unique()
+    logger.info(f"Dropping SO2 test dates that were not parseable: {dropped_dates}")
+    fgd_df.loc[:, "so2_test_date"] = test_datetime
+
+    # Handle mixed boolean types in control flag column
+    fgd_df = convert_col_to_bool(
+        df=fgd_df,
+        col_name="fgd_control_flag",
+        true_values=["Y", 1.0],
+        false_values=["N", 0.0],
+    )
+
+    # Take the non-NA values from each column for duplicate rows
+    pkey = ["plant_id_eia", "so2_control_id_eia", "report_date"]
+
+    resource = pudl.metadata.classes.Package.from_resource_ids().get_resource(
+        "_core_eia923__fgd_operation_maintenance"
+    )
+
+    return (
+        pudl.helpers.dedupe_and_drop_nas(fgd_df, primary_key_cols=pkey)
+        .pipe(apply_pudl_dtypes, strict=False)
+        .pipe(resource.encode)
+    )
+
+
+@asset_check(asset=_core_eia923__fgd_operation_maintenance, blocking=True)
+def fgd_operation_maintenance_null_check(fgd):  # pragma: no cover
+    """Check that columns other than expected columns aren't null."""
+    fast_run_null_cols = {
+        "fgd_control_flag",
+        "fgd_electricity_consumption_mwh",
+        "fgd_hours_in_service",
+        "fgd_operational_status_code",
+        "fgd_sorbent_consumption_1000_tons",
+        "opex_fgd_land_acquisition",
+        "so2_removal_efficiency_tested",
+        "so2_removal_efficiency_annual",
+        "so2_test_date",
+    }
+    if fgd.report_date.min() >= pd.Timestamp("2011-01-01T00:00:00"):
+        expected_cols = set(fgd.columns) - fast_run_null_cols
+    else:
+        expected_cols = set(fgd.columns)
+    pudl.validate.no_null_cols(fgd, cols=expected_cols)
+    return AssetCheckResult(passed=True)
+
+
+@asset_check(asset=_core_eia923__fgd_operation_maintenance, blocking=True)
+def fgd_cost_discrepancy_check(fgd):  # pragma: no cover
+    """Opex costs should sum to opex_fgd_total_cost.
+
+    To allow for *some* data quality errors we assert that costs ~=
+    total cost at least 99% of the time (with a 1% acceptable
+    discrepancy).
+    """
+
+    def sum_to_target_rate(sum_cols, target, threshold):
+        discrepancies = (
+            fgd.loc[:, sum_cols].sum(axis="columns") - fgd.loc[:, target]
+        ).dropna() / fgd.loc[:, target]
+        return (discrepancies > threshold).sum() / len(discrepancies)
+
+    opex_cost_discrepancy_rate = sum_to_target_rate(
+        sum_cols=[col for col in fgd if "opex_fgd" in col and "total_cost" not in col],
+        target="opex_fgd_total_cost",
+        threshold=0.01,
+    )
+    logger.info(f"Observed opex cost discrepancy: {opex_cost_discrepancy_rate}")
+    assert opex_cost_discrepancy_rate < 0.01
+
+    return AssetCheckResult(passed=True)
+
+
+@asset_check(asset=_core_eia923__fgd_operation_maintenance, blocking=True)
+def fgd_continuity_check(fgd):  # pragma: no cover
+    """Check to see if columns vary as slowly as expected."""
+    return pudl.validate.group_mean_continuity_check(
+        df=fgd,
+        thresholds={
+            "fgd_electricity_consumption_mwh": 0.3,
+            "fgd_hours_in_service": 0.1,
+            "fgd_sorbent_consumption_1000_tons": 0.2,
+            "so2_removal_efficiency_tested": 0.1,
+            "so2_removal_efficiency_annual": 0.1,
         },
         groupby_col="report_date",
         n_outliers_allowed=1,
