@@ -10,6 +10,7 @@ from dagster import (
     DynamicOut,
     DynamicOutput,
     OpDefinition,
+    PythonObjectDagsterType,
     graph_asset,
     op,
 )
@@ -279,10 +280,10 @@ def concat_pages(paged_dfs: list[dict[str, pd.DataFrame]]) -> dict[str, pd.DataF
     return all_data
 
 
-def year_extractor_factory(
+def partition_extractor_factory(
     extractor_cls: type[GenericExtractor], name: str
 ) -> OpDefinition:
-    """Construct a Dagster op that extracts one year of data, given an extractor class.
+    """Construct a Dagster op that extracts one partition of data, given an extractor.
 
     Args:
         extractor_cls: Class of type :class:`Extractor` used to extract the data.
@@ -291,9 +292,11 @@ def year_extractor_factory(
 
     @op(
         required_resource_keys={"datastore", "dataset_settings"},
-        name=f"extract_single_{name}_year",
+        name=f"extract_single_{name}_partition",
     )
-    def extract_single_year(context, year: int) -> dict[str, pd.DataFrame]:
+    def extract_single_partition(
+        context, partition: PythonObjectDagsterType(python_type=(int, str))
+    ) -> dict[str, pd.DataFrame]:
         """A function that extracts a year of spreadsheet data from an Excel file.
 
         This function will be decorated with a Dagster op and returned.
@@ -306,13 +309,13 @@ def year_extractor_factory(
             A dictionary of DataFrames extracted from Excel, keyed by page name.
         """
         ds = context.resources.datastore
-        return extractor_cls(ds).extract(year=[year])
+        return extractor_cls(ds).extract(partition=[partition])
 
-    return extract_single_year
+    return extract_single_partition
 
 
-def years_from_settings_factory(name: str) -> OpDefinition:
-    """Construct a Dagster op to get target years from settings in the Dagster context.
+def partitions_from_settings_factory(name: str) -> OpDefinition:
+    """Construct a Dagster op to get target partitions from settings in Dagster context.
 
     Args:
         name: Name of an Excel based dataset (e.g. "eia860").
@@ -322,27 +325,31 @@ def years_from_settings_factory(name: str) -> OpDefinition:
     @op(
         out=DynamicOut(),
         required_resource_keys={"dataset_settings"},
-        name=f"{name}_years_from_settings",
+        name=f"{name}_partitions_from_settings",
     )
-    def years_from_settings(context) -> DynamicOutput:
-        """Produce target years for the given dataset from the dataset settings object.
+    def partitions_from_settings(context) -> DynamicOutput:
+        """Produce target partitions for the given dataset from the dataset settings.
 
         These will be used to kick off worker processes to extract each year of data in
         parallel.
 
         Yields:
-            A Dagster :class:`DynamicOutput` object representing the year to be
+            A Dagster :class:`DynamicOutput` object representing the partition to be
             extracted. See the Dagster API documentation for more details:
             https://docs.dagster.io/_apidocs/dynamic#dagster.DynamicOut
         """
         if "eia" in name:  # Account for nested settings if EIA
-            year_settings = context.resources.dataset_settings.eia
+            partition_settings = context.resources.dataset_settings.eia
         else:
-            year_settings = context.resources.dataset_settings
-        for year in getattr(year_settings, name).years:
-            yield DynamicOutput(year, mapping_key=str(year))
+            partition_settings = context.resources.dataset_settings
+        if "years" in getattr(partition_settings, name):
+            partition = "years"
+        elif "half_year" in getattr(partition_settings, name):
+            partition = "half_year"
+        for part in getattr(partition_settings, name)[partition]:
+            yield DynamicOutput(part, mapping_key=str(part))
 
-    return years_from_settings
+    return partitions_from_settings
 
 
 def raw_df_factory(
@@ -355,18 +362,18 @@ def raw_df_factory(
             Needs to correspond to the dataset identified by ``name``.
         name: Name of an Excel based dataset (e.g. "eia860").
     """
-    # Build a Dagster op that can extract a single year of data
-    year_extractor = year_extractor_factory(extractor_cls, name)
-    # Get the list of target years to extract from the PUDL ETL settings object which is
-    # stored in the Dagster context that is available to all ops.
-    years_from_settings = years_from_settings_factory(name)
+    # Build a Dagster op that can extract a single year/half-year of data
+    partition_extractor = partition_extractor_factory(extractor_cls, name)
+    # Get the list of target partitions to extract from the PUDL ETL settings object
+    # which is stored in the Dagster context that is available to all ops.
+    partitions_from_settings = partitions_from_settings_factory(name)
 
     def raw_dfs() -> dict[str, pd.DataFrame]:
         """Produce a dictionary of extracted dataframes."""
-        years = years_from_settings()
+        partitions = partitions_from_settings()
         # Clone dagster op for each year using DynamicOut.map()
         # See https://docs.dagster.io/_apidocs/dynamic#dagster.DynamicOut
-        dfs = years.map(lambda year: year_extractor(year))
+        dfs = partitions.map(lambda partition: partition_extractor(partition))
         # Collect the results from all of those cloned ops and concatenate the
         # individual years of data into a single multi-year dataframe for each different
         # page in the spreadsheet based dataset using DynamicOut.collect()
