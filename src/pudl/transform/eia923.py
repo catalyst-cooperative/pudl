@@ -1315,7 +1315,7 @@ def _core_eia923__cooling_system_information(
 
 
 @asset_check(asset=_core_eia923__cooling_system_information, blocking=True)
-def cooling_system_information_null_check(csi):
+def cooling_system_information_null_check(csi):  # pragma: no cover
     """We do not expect any columns to be completely null.
 
     In fast-ETL context (only recent years), the annual columns may also be
@@ -1330,7 +1330,7 @@ def cooling_system_information_null_check(csi):
 
 
 @asset_check(asset=_core_eia923__cooling_system_information, blocking=True)
-def cooling_system_information_withdrawal_discrepancy_check(csi):
+def cooling_system_information_withdrawal_discrepancy_check(csi):  # pragma: no cover
     """Withdrawal should be equal to discharge + consumption.
 
     To allow for *some* data quality errors we assert that withdrawal ~=
@@ -1368,7 +1368,7 @@ def cooling_system_information_withdrawal_discrepancy_check(csi):
 
 
 @asset_check(asset=_core_eia923__cooling_system_information, blocking=True)
-def cooling_system_information_continuity(csi):
+def cooling_system_information_continuity(csi):  # pragma: no cover
     """Check to see if columns vary as slowly as expected."""
     return pudl.validate.group_mean_continuity_check(
         df=csi,
@@ -1472,7 +1472,7 @@ def _core_eia923__fgd_operation_maintenance(
 
 
 @asset_check(asset=_core_eia923__fgd_operation_maintenance, blocking=True)
-def fgd_operation_maintenance_null_check(fgd):
+def fgd_operation_maintenance_null_check(fgd):  # pragma: no cover
     """Check that columns other than expected columns aren't null."""
     fast_run_null_cols = {
         "fgd_control_flag",
@@ -1494,7 +1494,7 @@ def fgd_operation_maintenance_null_check(fgd):
 
 
 @asset_check(asset=_core_eia923__fgd_operation_maintenance, blocking=True)
-def fgd_cost_discrepancy_check(fgd):
+def fgd_cost_discrepancy_check(fgd):  # pragma: no cover
     """Opex costs should sum to opex_fgd_total_cost.
 
     To allow for *some* data quality errors we assert that costs ~=
@@ -1520,7 +1520,7 @@ def fgd_cost_discrepancy_check(fgd):
 
 
 @asset_check(asset=_core_eia923__fgd_operation_maintenance, blocking=True)
-def fgd_continuity_check(fgd):
+def fgd_continuity_check(fgd):  # pragma: no cover
     """Check to see if columns vary as slowly as expected."""
     return pudl.validate.group_mean_continuity_check(
         df=fgd,
