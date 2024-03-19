@@ -94,15 +94,15 @@ dependencies:
   - crashtest=0.4.1=pyhd8ed1ab_0
   - croniter=2.0.2=pyhd8ed1ab_0
   - cryptography=42.0.5=py311h71175c2_0
-  - curl=8.5.0=h2d989ff_0
+  - curl=8.6.0=h2d989ff_0
   - cycler=0.12.1=pyhd8ed1ab_0
   - dagster=1.6.10=pyhd8ed1ab_11
   - dagster-graphql=1.6.10=pyhd8ed1ab_0
   - dagster-pipes=1.6.10=pyhd8ed1ab_0
   - dagster-postgres=0.22.10=pyhd8ed1ab_0
   - dagster-webserver=1.6.10=pyhd8ed1ab_0
-  - dask-core=2024.3.0=pyhd8ed1ab_0
-  - dask-expr=1.0.2=pyhd8ed1ab_0
+  - dask-core=2024.3.1=pyhd8ed1ab_0
+  - dask-expr=1.0.4=pyhd8ed1ab_0
   - dataclasses=0.8=pyhc8e2a94_3
   - datasette=0.64.6=pyhd8ed1ab_0
   - debugpy=1.8.1=py311h92babd0_0
@@ -193,7 +193,7 @@ dependencies:
   - humanfriendly=10.0=pyhd8ed1ab_6
   - hupper=1.12.1=pyhd8ed1ab_0
   - hyperframe=6.0.1=pyhd8ed1ab_0
-  - hypothesis=6.99.6=pyha770c72_0
+  - hypothesis=6.99.8=pyha770c72_0
   - icu=73.2=hc8870d7_0
   - identify=2.5.35=pyhd8ed1ab_0
   - idna=3.6=pyhd8ed1ab_0
@@ -216,7 +216,7 @@ dependencies:
   - jmespath=1.0.1=pyhd8ed1ab_0
   - joblib=1.3.2=pyhd8ed1ab_0
   - json-c=0.17=h40ed0f5_0
-  - json5=0.9.22=pyhd8ed1ab_0
+  - json5=0.9.24=pyhd8ed1ab_0
   - jsonpointer=2.4=py311h267d04e_3
   - jsonschema=4.21.1=pyhd8ed1ab_0
   - jsonschema-specifications=2023.12.1=pyhd8ed1ab_0
@@ -258,7 +258,7 @@ dependencies:
   - libbrotlienc=1.1.0=hb547adb_1
   - libcblas=3.9.0=21_osxarm64_openblas
   - libcrc32c=1.1.2=hbdafb3b_0
-  - libcurl=8.5.0=h2d989ff_0
+  - libcurl=8.6.0=h2d989ff_0
   - libcxx=16.0.6=h4653b0c_0
   - libdeflate=1.19=hb547adb_0
   - libedit=3.1.20191231=hc8eb9b7_2
@@ -302,7 +302,7 @@ dependencies:
   - libwebp=1.3.2=hf30222e_1
   - libwebp-base=1.3.2=hb547adb_0
   - libxcb=1.15=hf346824_0
-  - libxml2=2.12.5=h0d0cfa8_0
+  - libxml2=2.12.6=h0d0cfa8_0
   - libxslt=1.1.39=h223e5b9_0
   - libzip=1.10.1=ha0bc3c6_3
   - libzlib=1.2.13=h53f4e23_5
@@ -359,7 +359,7 @@ dependencies:
   - packaging=23.2=pyhd8ed1ab_0
   - pandas=2.2.1=py311hfbe21a1_0
   - pandera-core=0.18.3=pyhd8ed1ab_0
-  - pandoc=3.1.12.2=hce30654_0
+  - pandoc=3.1.12.3=hce30654_0
   - pandocfilters=1.5.0=pyhd8ed1ab_0
   - pango=1.52.1=hb067d4f_0
   - paramiko=3.4.0=pyhd8ed1ab_0
@@ -403,7 +403,7 @@ dependencies:
   - pybtex=0.24.0=pyhd8ed1ab_2
   - pybtex-docutils=1.0.3=py311h267d04e_1
   - pycparser=2.21=pyhd8ed1ab_0
-  - pydantic=2.6.3=pyhd8ed1ab_0
+  - pydantic=2.6.4=pyhd8ed1ab_0
   - pydantic-core=2.16.3=py311h94f323b_0
   - pydantic-settings=2.2.1=pyhd8ed1ab_0
   - pygments=2.17.2=pyhd8ed1ab_0
@@ -411,8 +411,8 @@ dependencies:
   - pyjwt=2.8.0=pyhd8ed1ab_1
   - pylev=1.4.0=pyhd8ed1ab_0
   - pynacl=1.5.0=py311heffc1b2_3
-  - pyobjc-core=10.1=py311h665608e_0
-  - pyobjc-framework-cocoa=10.1=py311h665608e_0
+  - pyobjc-core=10.2=py311h665608e_0
+  - pyobjc-framework-cocoa=10.2=py311h665608e_0
   - pyopenssl=24.0.0=pyhd8ed1ab_0
   - pyparsing=3.1.2=pyhd8ed1ab_0
   - pyproj=3.6.1=py311h9a031f7_5
@@ -446,7 +446,7 @@ dependencies:
   - re2=2023.09.01=h4cba328_2
   - readline=8.2=h92ec313_1
   - readthedocs-sphinx-ext=2.2.5=pyhd8ed1ab_0
-  - referencing=0.33.0=pyhd8ed1ab_0
+  - referencing=0.34.0=pyhd8ed1ab_0
   - regex=2023.12.25=py311h05b510d_0
   - requests=2.31.0=pyhd8ed1ab_0
   - requests-oauthlib=1.4.0=pyhd8ed1ab_0
@@ -462,7 +462,7 @@ dependencies:
   - rtree=1.2.0=py311hd698ff7_0
   - ruamel.yaml=0.18.6=py311h05b510d_0
   - ruamel.yaml.clib=0.2.8=py311h05b510d_0
-  - ruff=0.3.2=py311h8c97afb_0
+  - ruff=0.3.3=py311h8c97afb_0
   - s3transfer=0.10.1=pyhd8ed1ab_0
   - scikit-learn=1.4.1.post1=py311h696fe38_0
   - scipy=1.12.0=py311h4f9446f_2
@@ -520,7 +520,7 @@ dependencies:
   - traitlets=5.14.2=pyhd8ed1ab_0
   - typeguard=4.1.5=pyhd8ed1ab_1
   - typer=0.9.0=pyhd8ed1ab_0
-  - types-python-dateutil=2.9.0.20240315=pyhd8ed1ab_0
+  - types-python-dateutil=2.9.0.20240316=pyhd8ed1ab_0
   - types-pyyaml=6.0.12.20240311=pyhd8ed1ab_0
   - typing-extensions=4.10.0=hd8ed1ab_0
   - typing_extensions=4.10.0=pyha770c72_0
