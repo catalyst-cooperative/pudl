@@ -1446,6 +1446,76 @@ def dedupe_on_category(
     return dedup_df.drop_duplicates(subset=base_cols, keep="first")
 
 
+def dedupe_and_drop_nas(
+    dedup_df: pd.DataFrame,
+    primary_key_cols: list[str],
+) -> pd.DataFrame:
+    """Deduplicate a df by comparing primary key columns and dropping null rows.
+
+    When a primary key appears twice in a dataframe, and one record is all null other
+    than the primary keys, drop the null row.
+
+    Args:
+        dedup_df: the dataframe with the records to deduplicate.
+        primary_key_cols: list of columns which must not be duplicated.
+
+    Returns:
+        The deduplicated dataframe.
+    """
+    dupes = dedup_df.loc[dedup_df.duplicated(subset=primary_key_cols, keep=False)]
+    dupe_groups = dupes.groupby(primary_key_cols)
+    if (dupe_groups.nunique() > 1).any().any():  # noqa: PD101
+        raise AssertionError(
+            f"Duplicate records with disagreeing data: {dupes[dupes.set_index(primary_key_cols).index.duplicated(keep=False)]}"
+        )
+    deduped = dupe_groups.first().reset_index()
+    # replace the duplicated rows with the deduped versions
+    return pd.concat(
+        [dedup_df.drop_duplicates(subset=primary_key_cols, keep=False), deduped],
+        ignore_index=True,
+    )
+
+
+def standardize_percentages_ratio(
+    frac_df: pd.DataFrame,
+    mixed_cols: list[str],
+    years_to_standardize: list[int],
+) -> pd.DataFrame:
+    """Standardize year-to-year changes in mixed percentage/ratio reporting in a column.
+
+    When a column uses both 0-1 and 0-100 scales to describe percentages, standardize
+    the years using 0-100 scales to 0-1 ratios/fractions.
+
+    Args:
+        frac_df: the dataframe with the columns to standardize.
+        mixed_cols: list of columns which should get standardized to the 0-1 scale.
+        years_to_standardize: range of dates over which the standardization should occur.
+
+    Returns:
+        The standardized dataframe.
+    """
+    logger.info(f"Standardizing ratios and percentages for {mixed_cols}")
+    for col in mixed_cols:
+        if not pd.api.types.is_numeric_dtype(frac_df[col]):
+            raise AssertionError(
+                f"{col}: Standardization method requires numeric dtype."
+            )
+        if "report_year" in frac_df:
+            dates = (frac_df.report_year >= min(years_to_standardize)) & (
+                frac_df.report_year <= max(years_to_standardize)
+            )
+        elif "report_date" in frac_df:
+            dates = (frac_df.report_date.dt.year >= min(years_to_standardize)) & (
+                frac_df.report_date.dt.year <= max(years_to_standardize)
+            )
+        frac_df.loc[dates, col] /= 100
+        if frac_df[col].max() > 1:
+            raise AssertionError(
+                f"{col}: Values >100pct observed: {frac_df.loc[frac_df[col]>1][col].unique()}"
+            )
+    return frac_df
+
+
 def calc_capacity_factor(
     df: pd.DataFrame,
     freq: Literal["YS", "MS"],
