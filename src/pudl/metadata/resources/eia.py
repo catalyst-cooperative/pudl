@@ -48,6 +48,25 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
+    "core_eia__codes_sorbent_types": {
+        "description": "A coding table describing different flue gas desulfurization sorbent types used in EIA-860.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {
+                "fields": [
+                    ["sorbent_type_1"],
+                    ["sorbent_type_2"],
+                    ["sorbent_type_3"],
+                    ["sorbent_type_4"],
+                ]
+            },
+        },
+        "encoder": CODE_METADATA["core_eia__codes_sorbent_types"],
+        "sources": ["eia860"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
     "core_eia__entity_boilers": {
         "description": "Static boiler attributes compiled from the EIA-860 and EIA-923 data.",
         "schema": {
@@ -108,6 +127,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "foreign_key_rules": {
                 "fields": [
                     ["boiler_manufacturer_code"],
+                    ["fgd_manufacturer_code"],
                     ["nox_control_manufacturer_code"],
                 ]
             },
@@ -125,7 +145,13 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
             "foreign_key_rules": {
-                "fields": [["emission_control_equipment_type_code"]],
+                "fields": [
+                    ["emission_control_equipment_type_code"],
+                    ["so2_equipment_type_1"],
+                    ["so2_equipment_type_2"],
+                    ["so2_equipment_type_3"],
+                    ["so2_equipment_type_4"],
+                ],
             },
         },
         "encoder": CODE_METADATA["core_eia__codes_emission_control_equipment_types"],
@@ -393,7 +419,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ],
             "primary_key": ["code"],
             "foreign_key_rules": {
-                "fields": [["operational_status_code"], ["cooling_status_code"]],
+                "fields": [
+                    ["operational_status_code"],
+                    ["fgd_operational_status_code"],
+                    ["cooling_status_code"],
+                ],
             },
         },
         "encoder": CODE_METADATA["core_eia__codes_operational_status"],
