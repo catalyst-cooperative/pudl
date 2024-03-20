@@ -60,8 +60,12 @@ class DatapackageDescriptor:
     def get_resource_path(self, name: str) -> str:
         """Returns zenodo url that holds contents of given named resource."""
         res = self._get_resource_metadata(name)
-        # remote_url is sometimes set on the local cached version of datapackage.json
-        # so we should be using that if it exists.
+        # In older cached archives, "remote_url" was used to refer to the original path
+        # to the file, while the canonical "path" field was updated by the datastore
+        # to refer to the local path to the associated file relative to the location of
+        # datapackage.json. This behavior is deprecated and no longer used, but we need
+        # to retain this logic to support older cached archives, e.g. censusdp1tract
+        # which hasn't changed since 2020.
         resource_path = res.get("remote_url") or res.get("path")
         parsed_path = urlparse(resource_path)
         if parsed_path.path.startswith("/api/files"):
@@ -122,10 +126,10 @@ class DatapackageDescriptor:
         """Returns series of PudlResourceKey identifiers for matching resources.
 
         Args:
-          name: if specified, find resource(s) with this name.
-          filters (dict): if specified, find resoure(s) matching these key=value constraints.
-            The constraints are matched against the 'parts' field of the resource
-            entry in the datapackage.json.
+            name: if specified, find resource(s) with this name.
+            filters (dict): if specified, find resource(s) matching these key=value
+                constraints. The constraints are matched against the 'parts' field of
+                the resource entry in the datapackage.json.
         """
         for res in self.datapackage_json["resources"]:
             if name and res["name"] != name:
@@ -201,7 +205,7 @@ class ZenodoDoiSettings(BaseSettings):
     ferc6: ZenodoDoi = "10.5281/zenodo.8326696"
     ferc60: ZenodoDoi = "10.5281/zenodo.8326695"
     ferc714: ZenodoDoi = "10.5281/zenodo.8326694"
-    gridpathratk: ZenodoDoi = "10.5072/zenodo.38597"
+    gridpathratk: ZenodoDoi = "10.5281/zenodo.10844662"
     phmsagas: ZenodoDoi = "10.5281/zenodo.10493790"
 
     model_config = SettingsConfigDict(env_prefix="pudl_zenodo_doi_", env_file=".env")
