@@ -708,6 +708,8 @@ SOURCES: dict[str, Any] = {
                 "hourly",
                 "united states",
                 "usa",
+                "resource adequacy",
+                "gridpath",
             }
         ),
         "license_raw": LICENSES["cc-by-4.0"],
