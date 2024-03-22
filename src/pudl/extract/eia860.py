@@ -72,7 +72,7 @@ raw_table_names = (
     "raw_eia860__emission_control_strategies",
     "raw_eia860__emissions_control_equipment",
     "raw_eia860__energy_storage_existing",
-    "raw_eia860__energy_storage_retired_canceled",
+    "raw_eia860__energy_storage_retired",
     "raw_eia860__fgd_equipment",
     "raw_eia860__fgp_equipment",
     "raw_eia860__generator",
