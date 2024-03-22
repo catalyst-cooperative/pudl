@@ -10,7 +10,6 @@ from dagster import (
     DynamicOut,
     DynamicOutput,
     OpDefinition,
-    PythonObjectDagsterType,
     graph_asset,
     op,
 )
@@ -294,9 +293,7 @@ def partition_extractor_factory(
         required_resource_keys={"datastore", "dataset_settings"},
         name=f"extract_single_{name}_partition",
     )
-    def extract_single_partition(
-        context, partition: PythonObjectDagsterType(python_type=(int, str))
-    ) -> dict[str, pd.DataFrame]:
+    def extract_single_partition(context, part: str) -> dict[str, pd.DataFrame]:
         """A function that extracts a year of spreadsheet data from an Excel file.
 
         This function will be decorated with a Dagster op and returned.
@@ -309,7 +306,9 @@ def partition_extractor_factory(
             A dictionary of DataFrames extracted from Excel, keyed by page name.
         """
         ds = context.resources.datastore
-        return extractor_cls(ds).extract(partition=[partition])
+        return extractor_cls(ds).extract(
+            part=[part]
+        )  # FIX TO ACCOUNT FOR YEAR VS HALF-YEAR
 
     return extract_single_partition
 
@@ -342,11 +341,12 @@ def partitions_from_settings_factory(name: str) -> OpDefinition:
             partition_settings = context.resources.dataset_settings.eia
         else:
             partition_settings = context.resources.dataset_settings
-        if "years" in getattr(partition_settings, name):
-            partition = "years"
-        elif "half_year" in getattr(partition_settings, name):
-            partition = "half_year"
-        for part in getattr(partition_settings, name)[partition]:
+        print(partition_settings)
+        if "years" in dir(getattr(partition_settings, name)):
+            parts = getattr(partition_settings, name).year
+        elif "half_year" in dir(getattr(partition_settings, name)):
+            parts = getattr(partition_settings, name).half_year
+        for part in parts:
             yield DynamicOutput(part, mapping_key=str(part))
 
     return partitions_from_settings
