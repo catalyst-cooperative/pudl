@@ -5713,6 +5713,63 @@ class DepreciationByFunctionTableTransformer(Ferc1AbstractTableTransformer):
         )
         return df
 
+    def transform_end(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Run standard :meth:`Ferc1AbstractTableTransformer.transform_end` plus a data validation step.
+
+        In :func:`infer_intra_factoid_totals`, we restrict the child calculation components to
+        only those without "total" in any of the dimension columns. Because of this, when there
+        are more than one dimension with totals a table (like this one!), the records with two
+        totals get linked to children with zero totals. This is fine and good because it avoids
+        possible double counting of mixed total and sub-dimension calculations. But this means
+        the double-total calculation is not linked to any of the mixed-total calculations, which
+        is fine but we want to make sure that there aren't many instances of data where most or
+        all of the data is reported in these mixed-total records. This is mostly so we don't
+        loose these mixed-total records in :class:`pudl.output.ferc1.Exploder`.
+        """
+        df = super().transform_end(df)
+        dimension_cols = ["plant_function", "plant_status"]
+        correction_mask = df.depreciation_type.str.endswith("_correction")
+        double_total_mask = (df[dimension_cols] == "total").all(axis="columns")
+        single_total_mask = (df[dimension_cols] == "total").any(
+            axis="columns"
+        ) & ~double_total_mask
+
+        gb_idx = ["utility_id_ferc1", "report_year"]
+        value_col = "ending_balance"
+        single_total_sum = (
+            df[single_total_mask & ~correction_mask]
+            .groupby(gb_idx, as_index=False)[[value_col]]
+            .sum(min_count=1)
+            .rename(columns={value_col: f"{value_col}_single_total"})
+        )
+        children_sum = (
+            df[~single_total_mask & ~double_total_mask]
+            .groupby(gb_idx, as_index=False)[[value_col]]
+            .sum(min_count=1)
+            .rename(columns={value_col: f"{value_col}_children"})
+        )
+        double_totals = df.loc[
+            double_total_mask & ~correction_mask, gb_idx + [value_col]
+        ].rename(columns={value_col: f"{value_col}_double_total"})
+        total_test = double_totals.merge(
+            single_total_sum, on=gb_idx, validate="one_to_one", how="outer"
+        ).merge(children_sum, on=gb_idx, validate="one_to_one", how="outer")
+        total_test = total_test[
+            total_test.ending_balance_double_total.isnull()
+            & total_test.ending_balance_single_total.notnull()
+        ]
+        description_of_these_records = "with nulls in the total/total record but non-null data in the total/sub-dimension records."
+        if len(total_test) > 7:
+            raise AssertionError(
+                f"Found more records ({len(total_test)}) than expected (7) {description_of_these_records}"
+            )
+        if not total_test[total_test.ending_balance_children.isnull()].empty:
+            raise AssertionError(
+                f"We expected that all of the records {description_of_these_records} "
+                "to have non-null data in the pure sub-dimension records, but some records were found."
+            )
+        return df
+
 
 class OperatingExpensesTableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`core_ferc1__yearly_operating_expenses_sched320` table."""

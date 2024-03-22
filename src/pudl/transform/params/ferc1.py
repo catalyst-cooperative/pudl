@@ -2711,7 +2711,7 @@ TRANSFORM_PARAMS = {
                     "ungrouped": {"error_frequency": 0.08},
                     "utility_id_ferc1": {
                         "error_frequency": 0.038,
-                        "relative_error_magnitude": 0.51,  # 444
+                        "relative_error_magnitude": 0.51,  # worst utility: 444
                     },
                 },
             },
@@ -3321,17 +3321,17 @@ TRANSFORM_PARAMS = {
                         "relative_error_magnitude": 0.039,
                     },
                     "report_year": {
-                        "error_frequency": 0.28,  # 2021 is bad :-/
+                        "error_frequency": 0.28,  # worst year: 2021
                         "null_calculated_value_frequency": 1.0,
-                        "relative_error_magnitude": 0.47,  # 2021 is bad :-/
+                        "relative_error_magnitude": 0.47,  # worst year: 2021
                     },
                     "xbrl_factoid": {
                         "error_frequency": 0.16,
                         "relative_error_magnitude": 0.2,
                         "null_calculated_value_frequency": 1.0,
-                    },  # utility_plant_and_construction_work_in_progress bad
+                    },  # worst xbrl_factoid: utility_plant_and_construction_work_in_progress
                     "utility_id_ferc1": {
-                        "error_frequency": 0.28,  # 444 is bad
+                        "error_frequency": 0.28,  # worst utility: 444
                         "relative_error_magnitude": 0.21,
                         "null_calculated_value_frequency": 1.0,
                     },
@@ -3582,7 +3582,7 @@ TRANSFORM_PARAMS = {
                         "error_frequency": 0.23,
                         "relative_error_magnitude": 1.0,
                         "null_calculated_value_frequency": 1.0,
-                    },  # 331
+                    },  # worst utility: 331
                 },
             },
         },
@@ -3730,7 +3730,7 @@ TRANSFORM_PARAMS = {
                         "error_frequency": 0.04,
                         "null_calculated_value_frequency": 1.0,
                         "relative_error_magnitude": 0.03,
-                    },  # other_operating_revenues bad
+                    },  # worst xbrl_factoid: other_operating_revenues
                     "utility_id_ferc1": {
                         "error_frequency": 0.29,
                         "relative_error_magnitude": 0.51,
@@ -4013,7 +4013,7 @@ TRANSFORM_PARAMS = {
                         "error_frequency": 0.51,
                         "relative_error_magnitude": 0.82,
                         "null_calculated_value_frequency": 1.0,
-                    },  # net_utility_operating_income
+                    },  # worst xbrl_factoid: net_utility_operating_income
                     "report_year": {
                         "error_frequency": 0.026,
                         "null_calculated_value_frequency": 1.0,
@@ -4133,7 +4133,7 @@ TRANSFORM_PARAMS = {
                         "relative_error_magnitude": 0.045,
                     },
                     "report_year": {
-                        "error_frequency": 0.079,  # 2021
+                        "error_frequency": 0.079,  # worst year: 2021
                         "relative_error_magnitude": 0.073,
                     },
                     "utility_id_ferc1": {
@@ -4143,7 +4143,7 @@ TRANSFORM_PARAMS = {
                     "xbrl_factoid": {
                         "error_frequency": 0.58,
                         "relative_error_magnitude": 0.1,
-                    },  # ending_balance is bad
+                    },  # worst xbrl_factoid: ending_balance
                 },
             },
         },
@@ -4254,11 +4254,11 @@ TRANSFORM_PARAMS = {
                     "report_year": {
                         "error_frequency": 0.1,
                         "relative_error_magnitude": 0.92,
-                    },  # 2021
+                    },  # worst year: 2021
                     "utility_id_ferc1": {
                         "error_frequency": 0.51,
                         "relative_error_magnitude": 1.0,
-                    },  # 331
+                    },  # worst utility: 331
                 }
             },
         },
