@@ -86,6 +86,17 @@ class GenericMetadata:
         """Returns list of all pudl columns for a given page across all partitions."""
         return sorted(self._column_map[page].T.columns)
 
+    def get_column_map(self, page, **partition):
+        """Return dictionary for renaming columns in a given partition and page."""
+        return {
+            v: k
+            for k, v in self._column_map[page]
+            .T.loc[str(self._get_partition_selection(partition))]
+            .to_dict()
+            .items()
+            if v != -1
+        }
+
 
 class GenericExtractor(ABC):
     """Generic extractor base class."""
@@ -293,21 +304,23 @@ def partition_extractor_factory(
         required_resource_keys={"datastore", "dataset_settings"},
         name=f"extract_single_{name}_partition",
     )
-    def extract_single_partition(context, part: str) -> dict[str, pd.DataFrame]:
+    def extract_single_partition(
+        context, part_dict: dict[str, str]
+    ) -> dict[str, pd.DataFrame]:
         """A function that extracts a year of spreadsheet data from an Excel file.
 
         This function will be decorated with a Dagster op and returned.
 
         Args:
             context: Dagster keyword that provides access to resources and config.
-            year: Year of data to extract.
+            part_dict: Dictionary of partition name and partition to extractren.
 
         Returns:
-            A dictionary of DataFrames extracted from Excel, keyed by page name.
+            A dictionary of DataFrames extracted from Excel/CSV, keyed by page name.
         """
         ds = context.resources.datastore
         return extractor_cls(ds).extract(
-            part=[part]
+            **part_dict
         )  # FIX TO ACCOUNT FOR YEAR VS HALF-YEAR
 
     return extract_single_partition
@@ -341,13 +354,21 @@ def partitions_from_settings_factory(name: str) -> OpDefinition:
             partition_settings = context.resources.dataset_settings.eia
         else:
             partition_settings = context.resources.dataset_settings
-        print(partition_settings)
-        if "years" in dir(getattr(partition_settings, name)):
-            parts = getattr(partition_settings, name).year
-        elif "half_year" in dir(getattr(partition_settings, name)):
-            parts = getattr(partition_settings, name).half_year
+
+        # Get year/year_quarter/half_year partition
+        data_settings = getattr(partition_settings, name)  # Get dataset settings
+
+        partition = [
+            var
+            for var in vars(data_settings)
+            if not any(skip in var for skip in ["disabled", "data_source"])
+        ]
+        assert len(partition) == 1, "Only one working partition is supported."
+        partition = partition[0]
+        parts = getattr(data_settings, partition)
+        logger.info(parts)
         for part in parts:
-            yield DynamicOutput(part, mapping_key=str(part))
+            yield DynamicOutput({partition: part}, mapping_key=str(part))
 
     return partitions_from_settings
 
@@ -371,6 +392,7 @@ def raw_df_factory(
     def raw_dfs() -> dict[str, pd.DataFrame]:
         """Produce a dictionary of extracted dataframes."""
         partitions = partitions_from_settings()
+        logger.info(partitions)
         # Clone dagster op for each year using DynamicOut.map()
         # See https://docs.dagster.io/_apidocs/dynamic#dagster.DynamicOut
         dfs = partitions.map(lambda partition: partition_extractor(partition))

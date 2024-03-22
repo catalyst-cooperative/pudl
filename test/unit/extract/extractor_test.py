@@ -2,7 +2,7 @@ import pandas as pd
 import pytest
 from dagster import build_op_context
 
-from pudl.extract.extractor import concat_pages, years_from_settings_factory
+from pudl.extract.extractor import concat_pages, partitions_from_settings_factory
 from pudl.settings import DatasetsSettings
 
 
@@ -15,7 +15,7 @@ from pudl.settings import DatasetsSettings
     ),
 )
 def test_years_from_settings(dataset, expected_years):
-    years_from_settings = years_from_settings_factory(dataset)
+    partitions_from_settings = partitions_from_settings_factory(dataset)
 
     with build_op_context(
         resources={"dataset_settings": DatasetsSettings()}
@@ -24,7 +24,7 @@ def test_years_from_settings(dataset, expected_years):
         # an equality check, this avoids having to update expected years
         # every time a new year is added to the datasets
         assert {
-            output.value for output in years_from_settings(context)
+            output.value for output in partitions_from_settings(context)
         } >= expected_years
 
 

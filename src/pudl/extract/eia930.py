@@ -1,5 +1,6 @@
 """Extract EIA Form 930 data from CSVs."""
 
+import pandas as pd
 from dagster import Output, asset
 
 from pudl.extract.csv import CsvExtractor
@@ -34,6 +35,12 @@ class Extractor(CsvExtractor):
         partition_selection = self._metadata._get_partition_selection(partition)
         return f"{self._dataset_name}-{partition_selection}-{page}.csv"
 
+    def process_raw(
+        self, df: pd.DataFrame, page: str, **partition: PartitionSelection
+    ) -> pd.DataFrame:
+        """Transforms raw dataframe and rename columns."""
+        return df.rename(columns=self.METADATA.get_column_map(page, **partition))
+
 
 raw_eia930__all_dfs = raw_df_factory(Extractor, name="eia930")
 
@@ -50,24 +57,25 @@ def raw_eia930__balance(raw_eia930__all_dfs):
     return Output(value=raw_eia930__all_dfs["balance"])
 
 
-# @asset(
-#     required_resource_keys={"datastore", "dataset_settings"},
-# )
-# def raw_eia930__interchange(raw_eia930__all_dfs):
-#     """Extract raw EIA 930 interchange data from CSV sheets into dataframes.
+@asset(
+    required_resource_keys={"datastore", "dataset_settings"},
+)
+def raw_eia930__interchange(raw_eia930__all_dfs):
+    """Extract raw EIA 930 interchange data from CSV sheets into dataframes.
 
-#     Returns:
-#         An extracted EIA 930 interchange dataframe.
-#     """
-#     return Output(value=raw_eia930__all_dfs["interchange"])
+    Returns:
+        An extracted EIA 930 interchange dataframe.
+    """
+    return Output(value=raw_eia930__all_dfs["interchange"])
 
-# @asset(
-#     required_resource_keys={"datastore", "dataset_settings"},
-# )
-# def raw_eia930__subregion(raw_eia930__all_dfs):
-#     """Extract raw EIA 930 subregion data from CSV sheets into dataframes.
 
-#     Returns:
-#         An extracted EIA 930 subregion dataframe.
-#     """
-#     return Output(value=raw_eia930__all_dfs["subregion"])
+@asset(
+    required_resource_keys={"datastore", "dataset_settings"},
+)
+def raw_eia930__subregion(raw_eia930__all_dfs):
+    """Extract raw EIA 930 subregion data from CSV sheets into dataframes.
+
+    Returns:
+        An extracted EIA 930 subregion dataframe.
+    """
+    return Output(value=raw_eia930__all_dfs["subregion"])
