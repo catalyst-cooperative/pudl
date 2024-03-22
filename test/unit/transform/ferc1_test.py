@@ -674,11 +674,11 @@ total,total,{total_total_value}
         )
     )
     out1 = _sample_mutli_subdimension_reconciled_data(data1)
-    corrections = out1.loc[
+    corrections1 = out1.loc[
         out1.row_type_xbrl == "subdimension_correction", "value"
     ].to_numpy()
-    assert len(corrections) == 1
-    assert corrections[0] == total_total_value
+    assert len(corrections1) == 1
+    assert corrections1[0] == total_total_value
 
 
 def test_multi_subdimension_corrections_when_double_total_and_subdimension_has_data():
@@ -697,10 +697,11 @@ total,total,{total_total_value}
         )
     )
     out2 = _sample_mutli_subdimension_reconciled_data(data2)
-    assert (
-        out2.loc[out2.row_type_xbrl == "subdimension_correction", "value"].to_numpy()[0]
-        == total_total_value - 70 - 5 - 5 - 5
-    )
+    corrections2 = out2.loc[
+        out2.row_type_xbrl == "subdimension_correction", "value"
+    ].to_numpy()
+    assert len(corrections2) == 1
+    assert corrections2[0] == total_total_value - 70 - 5 - 5 - 5
 
 
 def test_multi_subdimension_corrections_when_only_double_and_mixed_has_data():
@@ -816,21 +817,17 @@ def test_pruned_mixed_totals():
     dims = ["utility_type", "plant_status"]
     pruned = pd.DataFrame(forest.pruned)[dims].sort_values(dims).reset_index(drop=True)
     # we expect all of the mixed-total records to be pruned
-    pruned_expected = (
-        pd.read_csv(
-            StringIO(
-                """
+    pruned_expected = pd.read_csv(
+        StringIO(
+            """
 utility_type,plant_status
 electric,total
 gas,total
 total,future
 total,in_service
     """
-            )
         )
-        # .sort_values(dims)
-        .reset_index(drop=True)
-    )
+    ).reset_index(drop=True)
     pd.testing.assert_frame_equal(pruned, pruned_expected)
 
 
