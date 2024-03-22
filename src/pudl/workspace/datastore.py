@@ -419,7 +419,14 @@ class Datastore:
 
     def get_zipfile_resource(self, dataset: str, **filters: Any) -> zipfile.ZipFile:
         """Retrieves unique resource and opens it as a ZipFile."""
-        return zipfile.ZipFile(io.BytesIO(self.get_unique_resource(dataset, **filters)))
+        resource_bytes = self.get_unique_resource(dataset, **filters)
+        resource = io.BytesIO(resource_bytes)
+        md5sum = hashlib.file_digest(resource, "md5").hexdigest()
+        logger.info(
+            f"Got resource {dataset=}, {filters=}, {md5sum=}, "
+            f"{len(resource_bytes)} bytes; turning into ZipFile"
+        )
+        return zipfile.ZipFile(resource)
 
     def get_zipfile_resources(
         self, dataset: str, **filters: Any
