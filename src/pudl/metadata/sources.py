@@ -676,6 +676,45 @@ SOURCES: dict[str, Any] = {
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
+    "gridpathratk": {
+        "title": "PUDL Raw GridPath Resource Adequacy Toolkit Renewable Generation Profiles",
+        "path": "https://gridlab.org/gridpathratoolkit/",
+        "description": (
+            "Hourly renewable generation profiles compiled for the Western United "
+            "States as part of the GridPath Resource Adequacy Toolkit. Profiles are "
+            "stated as a capacity factor (a fraction of nameplate capacity). There are "
+            "3 different levels of processing or aggregation provided, all at hourly "
+            "resolution: Individual plant (wind) or generator (solar) output, "
+            "capacity-weighted averages of wind and solar output aggregated to the "
+            "level of balancing authority territories (or transmission zones for "
+            "larger balancing authorities), and that same aggregated output but with "
+            "some problematic individual generator profiles modified such that they "
+            "match the overall production curve of the balancing authority they are "
+            "within. This data also contains some daily weather data from several "
+            "sites across the western US and tables describing the way in which "
+            "individual wind and solar projects were aggregated up to the level of "
+            "balancing authority or transmission zone."
+        ),
+        "keywords": sorted(
+            {
+                "solar",
+                "wind",
+                "time series",
+                "energy",
+                "electricity",
+                "generation",
+                "weather",
+                "capacity factor",
+                "hourly",
+                "united states",
+                "usa",
+                "resource adequacy",
+                "gridpath",
+            }
+        ),
+        "license_raw": LICENSES["cc-by-4.0"],
+        "license_pudl": LICENSES["cc-by-4.0"],
+    },
     "mshamines": {
         "title": "Mine Safety and Health Administration (MSHA) Mines",
         "path": "https://arlweb.msha.gov/OpenGovernmentData/OGIMSHA.asp",
