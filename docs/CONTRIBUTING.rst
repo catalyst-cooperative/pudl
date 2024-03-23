@@ -4,7 +4,7 @@ Contributing to PUDL
 
 
 Welcome! We're excited that you're interested in contributing to the Public Utility
-Data Liberation effort!
+Data Liberation's effort!.
 
 We need lots of help with :ref:`user-feedback`, we welcome :ref:`code-contribs`, and
 it would be great to :ref:`connect-orgs` that we can work with.
