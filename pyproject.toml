@@ -80,6 +80,7 @@ dependencies = [
     "sphinx-reredirects>=0.1.2",
     "sphinxcontrib_bibtex>=2.6",
     "sqlalchemy>=2",
+    "sqlglot<23", # Newer versions not yet compatible w/ Splink
     "timezonefinder>=6.2",
     "universal_pathlib>=0.2",
     "urllib3>=1.26.18",
