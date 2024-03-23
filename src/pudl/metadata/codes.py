@@ -352,7 +352,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
             ],
         ).convert_dtypes(),
         "code_fixes": {},
-        "ignored_codes": ["NA", "IN"],
+        "ignored_codes": ["NA", "IN", "WA"],
     },
     "core_eia__codes_emission_control_equipment_types": {
         "df": pd.DataFrame(
@@ -440,6 +440,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
             "SR-2": "SR",
             "sn": "SN",
             "LN": "LNB",
+            "DP": "DSI",
         },
         "ignored_codes": ["HRSG1", "HRSG2", "FGD", "OV"],
     },
@@ -2523,6 +2524,132 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
             "HYBRID: RECIRCULATING WITH FORCED DRAFT COOLING TOWER(S) WITH DRY COOLING": "HRF",
         },
         "ignored_codes": ["HR"],
+    },
+    "core_eia__codes_sorbent_types": {
+        "df": pd.DataFrame(
+            columns=["code", "label", "description"],
+            data=[
+                (
+                    "AF",
+                    "alkaline_fly_ash",
+                    "Alkaline fly ash",
+                ),
+                (
+                    "AM",
+                    "ammonia",
+                    "Ammonia",
+                ),
+                (
+                    "CC",
+                    "calcium_carbide",
+                    "Calcium carbide slurry",
+                ),
+                (
+                    "CEF",
+                    "ce_filtrate",
+                    "CE filtrate",
+                ),
+                (
+                    "CSH",
+                    "caustic_sodium_hydroxide",
+                    "Caustic sodium hydroxide",
+                ),
+                (
+                    "DB",
+                    "dibasic_acid_assisted",
+                    "Dibasic acid assisted",
+                ),
+                (
+                    "DL",
+                    "dolomitic_limestone",
+                    "Dolomitic limestone",
+                ),
+                (
+                    "LA",
+                    "lime_alkaline_fly_ash",
+                    "Lime and alkaline fly ash",
+                ),
+                (
+                    "LF",
+                    "limestone_alkaline_fly_ash",
+                    "Limestone and alkaline fly ash",
+                ),
+                (
+                    "LI",
+                    "lime_slacked_hydrated",
+                    "Lime, slacked lime or hydrated lime",
+                ),
+                (
+                    "LS",
+                    "limestone",
+                    "Limestone, dolomitic limestone or calcium carbonate",
+                ),
+                (
+                    "MO",
+                    "magnesium_oxide",
+                    "Magnesium oxide",
+                ),
+                (
+                    "OT",
+                    "other",
+                    "Other (specify in Schedule 7)",
+                ),
+                (
+                    "SA",
+                    "sodium_salt",
+                    "Soda ash, sodium bicarbonate, sodium carbonate, sodium formate, or soda liquid",
+                ),
+                (
+                    "SB",
+                    "sodium_bicarbonate",
+                    "Sodium bicarbonate",
+                ),
+                (
+                    "SC",
+                    "sodium_carbonate",
+                    "Sodium carbonate",
+                ),
+                (
+                    "SF",
+                    "sodium_formate",
+                    "Sodium formate",
+                ),
+                (
+                    "SL",
+                    "soda_liquid",
+                    "Soda liquid",
+                ),
+                (
+                    "SS",
+                    "sodium_sulfite",
+                    "Sodium sulfite",
+                ),
+                (
+                    "TR",
+                    "trona",
+                    "Trona",
+                ),
+                (
+                    "TW",
+                    "treated_wastewater",
+                    "Treated wastewater",
+                ),
+                (
+                    "W",
+                    "water",
+                    "Water",
+                ),
+                (
+                    "WT",
+                    "water_or_treated_wastewater",
+                    "Water or treated wastewater. Selected only if no other sorbent is used.",
+                ),
+            ],
+        ),
+        "code_fixes": {
+            "CS": "CSH",
+            "CE": "CEF",
+        },
     },
 }
 
