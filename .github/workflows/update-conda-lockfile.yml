@@ -29,8 +29,8 @@ jobs:
         with:
           environment-name: conda-lock
           create-args: >-
-            python=3.11
-            conda-lock>=2.5.1
+            python=3.12
+            conda-lock>=2.5.2
             prettier
       - name: Run conda-lock to recreate lockfile from scratch
         run: |
