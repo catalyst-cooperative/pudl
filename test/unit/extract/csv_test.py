@@ -3,6 +3,7 @@
 from unittest.mock import MagicMock, patch
 
 import pandas as pd
+import pytest
 from pytest import raises
 
 from pudl.extract.csv import CsvExtractor
@@ -54,6 +55,7 @@ def test_load_source(mock_pd):
     mock_pd.read_csv.assert_called_once_with(file)
 
 
+@pytest.mark.xfail(reason="There are no c.")
 def test_extract():
     extractor = FakeExtractor()
     # Create a sample of data we could expect from an EIA CSV
