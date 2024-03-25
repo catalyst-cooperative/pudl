@@ -3,7 +3,6 @@
 from unittest.mock import MagicMock, patch
 
 import pandas as pd
-import pytest
 from pytest import raises
 
 from pudl.extract.csv import CsvExtractor
@@ -55,14 +54,18 @@ def test_load_source(mock_pd):
     mock_pd.read_csv.assert_called_once_with(file)
 
 
-@pytest.mark.xfail(reason="There are no c.")
 def test_extract():
-    extractor = FakeExtractor()
+    class SuperFakeExtractor(FakeExtractor):
+        def process_raw(self, df, page, **partition):
+            return df
+
+    extractor = SuperFakeExtractor()
     # Create a sample of data we could expect from an EIA CSV
     company_field = "company"
     company_data = "Total of All Companies"
     df = pd.DataFrame([company_data])
     df.columns = [company_field]
+
     # TODO: Once FakeExtractor is independent of eia176, mock out populating _column_map for PARTITION_SELECTION;
     #  Also include negative tests, i.e., for partition selections not in the _column_map
     with (

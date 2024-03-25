@@ -756,8 +756,6 @@ def _convert_settings_to_dagster_config(settings_dict: dict[str, Any]) -> None:
         if isinstance(value, dict):
             _convert_settings_to_dagster_config(value)
         else:
-            if key == "nrelatb":
-                print(value)
             settings_dict[key] = DagsterField(type(value), default_value=value)
 
 
