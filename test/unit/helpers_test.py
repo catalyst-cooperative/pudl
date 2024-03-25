@@ -16,11 +16,13 @@ from pudl.helpers import (
     convert_df_to_excel_file,
     convert_to_date,
     date_merge,
+    dedupe_and_drop_nas,
     diff_wide_tables,
     expand_timeseries,
     fix_eia_na,
     flatten_list,
     remove_leading_zeros_from_numeric_strings,
+    standardize_percentages_ratio,
     zero_pad_numeric_string,
 )
 from pudl.output.sql.helpers import sql_asset_factory
@@ -712,3 +714,76 @@ def test_diff_wide_tables():
         ]
     )
     assert_diff_equal(diff_output.changed, expected_changed)
+
+
+def test_dedupe_drop_na():
+    df = pd.DataFrame(
+        {
+            "pk_1": [1, 2, 3, 3],
+            "pk_2": ["a", "b", "c", "c"],
+            "val_1": [11, 12, 13, pd.NA],
+            "val_2": [21, 22, pd.NA, 23],
+        }
+    )
+    deduped = dedupe_and_drop_nas(df, ["pk_1", "pk_2"])
+    assert deduped.iloc[2]["val_1"] == 13
+    assert deduped.iloc[2]["val_2"] == 23
+    assert len(deduped.index) == 3
+
+
+def test_standardize_percentages_ratio():
+    date_df = pd.DataFrame(
+        {
+            "id": [1, 2, 3, 4],
+            "report_date": pd.to_datetime(
+                ["1995", "1997-01-01", "1997-03-01", "1998"], format="mixed"
+            ),
+            "mixed_col": [10, 10, 20, 0.1],
+        }
+    )
+    standardized = standardize_percentages_ratio(
+        date_df, mixed_cols=["mixed_col"], years_to_standardize=[1995, 1996, 1997]
+    )
+    standardized_expected = date_df
+    standardized_expected["mixed_col"] = [0.1, 0.1, 0.2, 0.1]
+    assert_frame_equal(standardized, standardized_expected)
+
+    year_df = pd.DataFrame(
+        {
+            "id": [1, 2, 3, 4],
+            "report_year": [1995, 1996, 1997, 1998],
+            "mixed_col": [10, 15, 1.0, 0.1],
+        }
+    )
+    standardized = standardize_percentages_ratio(
+        year_df, mixed_cols=["mixed_col"], years_to_standardize=[1995, 1996]
+    )
+    standardized_expected = year_df
+    standardized_expected["mixed_col"] = [0.1, 0.15, 1.0, 0.1]
+    assert_frame_equal(standardized, standardized_expected)
+
+    junk_df = pd.DataFrame(
+        {
+            "id": [1, 2, 3, 4],
+            "report_date": [1995, 1996, 1997, 1998],
+            "mixed_col": ["hello", "data", "junk", "nope"],
+        }
+    )
+    with pytest.raises(AssertionError):
+        standardized = standardize_percentages_ratio(
+            junk_df, mixed_cols=["mixed_col"], years_to_standardize=[1995, 1996]
+        )
+
+    over_100_df = pd.DataFrame(
+        {
+            "id": [1, 2, 3, 4],
+            "report_date": pd.to_datetime(
+                ["1995", "1996-01-01", "1997-03-01", "1998"], format="mixed"
+            ),
+            "mixed_col": [101, 102, 20, 0.1],
+        }
+    )
+    with pytest.raises(AssertionError):
+        standardized = standardize_percentages_ratio(
+            over_100_df, mixed_cols=["mixed_col"], years_to_standardize=[1995, 1996]
+        )
