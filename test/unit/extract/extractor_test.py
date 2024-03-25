@@ -23,9 +23,8 @@ def test_years_from_settings(dataset, expected_years):
         # Assert actual years are a superset of expected. Instead of doing
         # an equality check, this avoids having to update expected years
         # every time a new year is added to the datasets
-        assert {
-            output.value for output in partitions_from_settings(context)
-        } >= expected_years
+        settings_dates = [output.value for output in partitions_from_settings(context)]
+        assert {record["year"] for record in settings_dates} >= expected_years
 
 
 def test_concat_pages():

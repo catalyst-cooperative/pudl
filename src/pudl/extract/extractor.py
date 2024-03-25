@@ -305,7 +305,8 @@ def partition_extractor_factory(
         name=f"extract_single_{name}_partition",
     )
     def extract_single_partition(
-        context, part_dict: dict[str, str]
+        context,
+        part_dict: dict,  # TODO: Handle str|int type errors
     ) -> dict[str, pd.DataFrame]:
         """A function that extracts a year of spreadsheet data from an Excel file.
 
@@ -319,9 +320,7 @@ def partition_extractor_factory(
             A dictionary of DataFrames extracted from Excel/CSV, keyed by page name.
         """
         ds = context.resources.datastore
-        return extractor_cls(ds).extract(
-            **part_dict
-        )  # FIX TO ACCOUNT FOR YEAR VS HALF-YEAR
+        return extractor_cls(ds).extract(**part_dict)
 
     return extract_single_partition
 
@@ -354,19 +353,25 @@ def partitions_from_settings_factory(name: str) -> OpDefinition:
             partition_settings = context.resources.dataset_settings.eia
         else:
             partition_settings = context.resources.dataset_settings
-
         # Get year/year_quarter/half_year partition
         data_settings = getattr(partition_settings, name)  # Get dataset settings
 
         partition = [
             var
             for var in vars(data_settings)
-            if not any(skip in var for skip in ["disabled", "data_source"])
+            if any(
+                date_partition in var
+                for date_partition in ["years", "half_years", "year_quarters"]
+            )
         ]
-        assert len(partition) == 1, "Only one working partition is supported."
+        assert (
+            len(partition) == 1
+        ), f"Only one working partition is supported: {partition}."
         partition = partition[0]
-        parts = getattr(data_settings, partition)
-        logger.info(parts)
+        parts = getattr(data_settings, partition)  # Get the actual values
+        # In Zenodo we use "year", "half_year" as the partition, but in our settings
+        # we use the plural "years". Drop the "s" at the end if present.
+        partition = partition.removesuffix("s")
         for part in parts:
             yield DynamicOutput({partition: part}, mapping_key=str(part))
 

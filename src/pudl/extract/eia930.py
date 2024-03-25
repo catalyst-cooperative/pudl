@@ -33,6 +33,11 @@ class Extractor(CsvExtractor):
             string name of the CSV file
         """
         partition_selection = self._metadata._get_partition_selection(partition)
+        # Subregion doesn't exist prior to 2018 half 2
+        if page == "subregion" and (
+            int(partition_selection[0:3]) < 2019 or partition_selection == "2018half1"
+        ):
+            return "-1"
         return f"{self._dataset_name}-{partition_selection}-{page}.csv"
 
     def process_raw(

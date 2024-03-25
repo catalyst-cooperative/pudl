@@ -194,19 +194,19 @@ class Eia930Settings(GenericDatasetSettings):
 
     Args:
         data_source: DataSource metadata object
-        years: list of years to validate.
+        half_years: list of years to validate.
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia930")
-    half_year: list[str] = data_source.working_partitions["half_year"]
+    half_years: list[str] = data_source.working_partitions["half_years"]
 
-    @field_validator("half_year")
+    @field_validator("half_years")
     @classmethod
-    def allow_all_keyword_half_year(cls, half_year):
+    def allow_all_keyword_half_years(cls, half_years):
         """Allow users to specify ['all'] to get all half-years."""
-        if half_year == ["all"]:
-            half_year = cls.data_source.working_partitions["half_year"]
-        return half_year
+        if half_years == ["all"]:
+            half_years = cls.data_source.working_partitions["half_years"]
+        return half_years
 
 
 class Eia861Settings(GenericDatasetSettings):
