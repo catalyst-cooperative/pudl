@@ -5717,14 +5717,16 @@ class DepreciationByFunctionTableTransformer(Ferc1AbstractTableTransformer):
         """Run standard :meth:`Ferc1AbstractTableTransformer.transform_end` plus a data validation step.
 
         In :func:`infer_intra_factoid_totals`, we restrict the child calculation components to
-        only those without "total" in any of the dimension columns. Because of this, when there
-        are more than one dimension with totals a table (like this one!), the records with two
-        totals get linked to children with zero totals. This is fine and good because it avoids
-        possible double counting of mixed total and sub-dimension calculations. But this means
-        the double-total calculation is not linked to any of the mixed-total calculations, which
-        is fine but we want to make sure that there aren't many instances of data where most or
-        all of the data is reported in these mixed-total records. This is mostly so we don't
-        loose these mixed-total records in :class:`pudl.output.ferc1.Exploder`.
+        only those without "total" in any of the dimension columns (e.g. `plant_status == "total"`).
+        Because of this, when there is more than one dimension with totals in a table, as in this table,
+        records with two totals (e.g. `plant_status == "total"` and `plant_function == "total"`) only get
+        linked to children with no "totals" in any of their subdimensions. This is fine and good because
+        it avoids possible double counting of mixed total and sub-dimension calculations. But it means
+        that records with totals in one sub-dimension (e.g. `plant_status == "in_service"` and
+        `plant_function == "total"`) aren't linked to double-total parent factoids. To ensure that there
+        aren't many instances of data where most or all of the data is reported in these mixed-total
+        records, we add a validation step to ward against large-scale data loss in
+        :class:`pudl.output.ferc1.Exploder`.
         """
         df = super().transform_end(df)
         dimension_cols = ["plant_function", "plant_status"]

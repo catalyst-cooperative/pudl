@@ -1358,7 +1358,7 @@ def upgrade() -> None:
     sa.Column('starting_balance', sa.Float(), nullable=True, comment='Account balance at beginning of year.'),
     sa.Column('ferc_account', sa.Text(), nullable=True, comment="Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting."),
     sa.Column('balance', sa.Text(), nullable=True, comment='Indication of whether a column is a credit or debit, as reported in the XBRL taxonomy.'),
-    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subtotal_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
+    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subdimension_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
     sa.ForeignKeyConstraint(['utility_id_ferc1'], ['core_pudl__assn_ferc1_pudl_utilities.utility_id_ferc1'], name=op.f('fk_core_ferc1__yearly_balance_sheet_assets_sched110_utility_id_ferc1_core_pudl__assn_ferc1_pudl_utilities')),
     sa.PrimaryKeyConstraint('utility_id_ferc1', 'report_year', 'asset_type', name=op.f('pk_core_ferc1__yearly_balance_sheet_assets_sched110'))
     )
@@ -1371,7 +1371,7 @@ def upgrade() -> None:
     sa.Column('liability_type', sa.Text(), nullable=False, comment='Type of liability being reported to the core_ferc1__yearly_balance_sheet_liabilities_sched110 table.'),
     sa.Column('balance', sa.Text(), nullable=True, comment='Indication of whether a column is a credit or debit, as reported in the XBRL taxonomy.'),
     sa.Column('ferc_account', sa.Text(), nullable=True, comment="Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting."),
-    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subtotal_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
+    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subdimension_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
     sa.Column('utility_type', sa.Text(), nullable=True, comment='Listing of utility plant types. Examples include Electric Utility, Gas Utility, and Other Utility.'),
     sa.ForeignKeyConstraint(['utility_id_ferc1'], ['core_pudl__assn_ferc1_pudl_utilities.utility_id_ferc1'], name=op.f('fk_core_ferc1__yearly_balance_sheet_liabilities_sched110_utility_id_ferc1_core_pudl__assn_ferc1_pudl_utilities')),
     sa.PrimaryKeyConstraint('utility_id_ferc1', 'report_year', 'liability_type', name=op.f('pk_core_ferc1__yearly_balance_sheet_liabilities_sched110'))
@@ -1383,7 +1383,7 @@ def upgrade() -> None:
     sa.Column('amount_type', sa.Text(), nullable=False, comment='Label describing the type of amount being reported. This could be a balance or a change in value.'),
     sa.Column('amount', sa.Float(), nullable=True, comment='Reported amount of dollars. This could be a balance or a change in value.'),
     sa.Column('balance', sa.Text(), nullable=True, comment='Indication of whether a column is a credit or debit, as reported in the XBRL taxonomy.'),
-    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subtotal_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
+    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subdimension_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
     sa.ForeignKeyConstraint(['utility_id_ferc1'], ['core_pudl__assn_ferc1_pudl_utilities.utility_id_ferc1'], name=op.f('fk_core_ferc1__yearly_cash_flows_sched120_utility_id_ferc1_core_pudl__assn_ferc1_pudl_utilities')),
     sa.PrimaryKeyConstraint('utility_id_ferc1', 'report_year', 'amount_type', name=op.f('pk_core_ferc1__yearly_cash_flows_sched120'))
     )
@@ -1397,7 +1397,7 @@ def upgrade() -> None:
     sa.Column('ending_balance', sa.Float(), nullable=True, comment='Account balance at end of year.'),
     sa.Column('record_id', sa.Text(), nullable=True, comment='Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.'),
     sa.Column('balance', sa.Text(), nullable=True, comment='Indication of whether a column is a credit or debit, as reported in the XBRL taxonomy.'),
-    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subtotal_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
+    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subdimension_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
     sa.ForeignKeyConstraint(['utility_id_ferc1'], ['core_pudl__assn_ferc1_pudl_utilities.utility_id_ferc1'], name=op.f('fk_core_ferc1__yearly_depreciation_by_function_sched219_utility_id_ferc1_core_pudl__assn_ferc1_pudl_utilities')),
     sa.PrimaryKeyConstraint('utility_id_ferc1', 'report_year', 'depreciation_type', 'plant_function', 'plant_status', 'utility_type', name=op.f('pk_core_ferc1__yearly_depreciation_by_function_sched219'))
     )
@@ -1411,7 +1411,7 @@ def upgrade() -> None:
     sa.Column('record_id', sa.Text(), nullable=True, comment='Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.'),
     sa.Column('balance', sa.Text(), nullable=True, comment='Indication of whether a column is a credit or debit, as reported in the XBRL taxonomy.'),
     sa.Column('ferc_account', sa.Text(), nullable=True, comment="Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting."),
-    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subtotal_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
+    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subdimension_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
     sa.ForeignKeyConstraint(['utility_id_ferc1'], ['core_pudl__assn_ferc1_pudl_utilities.utility_id_ferc1'], name=op.f('fk_core_ferc1__yearly_depreciation_changes_sched219_utility_id_ferc1_core_pudl__assn_ferc1_pudl_utilities')),
     sa.PrimaryKeyConstraint('utility_id_ferc1', 'report_year', 'depreciation_type', 'plant_status', 'utility_type', name=op.f('pk_core_ferc1__yearly_depreciation_changes_sched219'))
     )
@@ -1424,7 +1424,7 @@ def upgrade() -> None:
     sa.Column('ferc_account', sa.Text(), nullable=True, comment="Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting."),
     sa.Column('dollar_value', sa.Float(), nullable=True, comment='Dollar value of reported income, expense, asset, or liability.'),
     sa.Column('utility_type', sa.Text(), nullable=True, comment='Listing of utility plant types. Examples include Electric Utility, Gas Utility, and Other Utility.'),
-    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subtotal_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
+    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subdimension_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
     sa.ForeignKeyConstraint(['utility_id_ferc1'], ['core_pudl__assn_ferc1_pudl_utilities.utility_id_ferc1'], name=op.f('fk_core_ferc1__yearly_depreciation_summary_sched336_utility_id_ferc1_core_pudl__assn_ferc1_pudl_utilities')),
     sa.PrimaryKeyConstraint('utility_id_ferc1', 'report_year', 'plant_function', 'ferc_account_label', name=op.f('pk_core_ferc1__yearly_depreciation_summary_sched336'))
     )
@@ -1432,7 +1432,7 @@ def upgrade() -> None:
     sa.Column('utility_id_ferc1', sa.Integer(), nullable=False, comment='PUDL-assigned utility ID, identifying a FERC1 utility. This is an auto-incremented ID and is not expected to be stable from year to year.'),
     sa.Column('report_year', sa.Integer(), nullable=False, comment='Four-digit year in which the data was reported.'),
     sa.Column('energy_disposition_type', sa.Text(), nullable=False, comment='Type of energy disposition reported in the core_ferc1__yearly_energy_dispositions_sched401. Dispositions include sales to customers, re-sales of energy, energy used internally, losses, etc.'),
-    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subtotal_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
+    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subdimension_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
     sa.Column('energy_mwh', sa.Float(), nullable=True, comment='Sources and uses of energy in MWh.'),
     sa.Column('record_id', sa.Text(), nullable=True, comment='Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.'),
     sa.ForeignKeyConstraint(['utility_id_ferc1'], ['core_pudl__assn_ferc1_pudl_utilities.utility_id_ferc1'], name=op.f('fk_core_ferc1__yearly_energy_dispositions_sched401_utility_id_ferc1_core_pudl__assn_ferc1_pudl_utilities')),
@@ -1442,7 +1442,7 @@ def upgrade() -> None:
     sa.Column('utility_id_ferc1', sa.Integer(), nullable=False, comment='PUDL-assigned utility ID, identifying a FERC1 utility. This is an auto-incremented ID and is not expected to be stable from year to year.'),
     sa.Column('report_year', sa.Integer(), nullable=False, comment='Four-digit year in which the data was reported.'),
     sa.Column('energy_source_type', sa.Text(), nullable=False, comment='Type of energy source reported in the core_ferc1__yearly_energy_sources_sched401 table. There are three groups of energy sources: generation, power exchanges and transmission.'),
-    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subtotal_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
+    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subdimension_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
     sa.Column('energy_mwh', sa.Float(), nullable=True, comment='Sources and uses of energy in MWh.'),
     sa.Column('record_id', sa.Text(), nullable=True, comment='Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.'),
     sa.ForeignKeyConstraint(['utility_id_ferc1'], ['core_pudl__assn_ferc1_pudl_utilities.utility_id_ferc1'], name=op.f('fk_core_ferc1__yearly_energy_sources_sched401_utility_id_ferc1_core_pudl__assn_ferc1_pudl_utilities')),
@@ -1457,7 +1457,7 @@ def upgrade() -> None:
     sa.Column('dollar_value', sa.Float(), nullable=True, comment='Dollar value of reported income, expense, asset, or liability.'),
     sa.Column('balance', sa.Text(), nullable=True, comment='Indication of whether a column is a credit or debit, as reported in the XBRL taxonomy.'),
     sa.Column('ferc_account', sa.Text(), nullable=True, comment="Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting."),
-    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subtotal_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
+    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subdimension_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
     sa.ForeignKeyConstraint(['utility_id_ferc1'], ['core_pudl__assn_ferc1_pudl_utilities.utility_id_ferc1'], name=op.f('fk_core_ferc1__yearly_income_statements_sched114_utility_id_ferc1_core_pudl__assn_ferc1_pudl_utilities')),
     sa.PrimaryKeyConstraint('utility_id_ferc1', 'report_year', 'utility_type', 'income_type', name=op.f('pk_core_ferc1__yearly_income_statements_sched114'))
     )
@@ -1469,7 +1469,7 @@ def upgrade() -> None:
     sa.Column('record_id', sa.Text(), nullable=True, comment='Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.'),
     sa.Column('utility_type', sa.Text(), nullable=True, comment='Listing of utility plant types. Examples include Electric Utility, Gas Utility, and Other Utility.'),
     sa.Column('ferc_account', sa.Text(), nullable=True, comment="Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting."),
-    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subtotal_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
+    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subdimension_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
     sa.ForeignKeyConstraint(['utility_id_ferc1'], ['core_pudl__assn_ferc1_pudl_utilities.utility_id_ferc1'], name=op.f('fk_core_ferc1__yearly_operating_expenses_sched320_utility_id_ferc1_core_pudl__assn_ferc1_pudl_utilities')),
     sa.PrimaryKeyConstraint('utility_id_ferc1', 'report_year', 'expense_type', name=op.f('pk_core_ferc1__yearly_operating_expenses_sched320'))
     )
@@ -1483,7 +1483,7 @@ def upgrade() -> None:
     sa.Column('avg_customers_per_month', sa.Float(), nullable=True, comment='Average number of customers per month.'),
     sa.Column('ferc_account', sa.Text(), nullable=True, comment="Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting."),
     sa.Column('utility_type', sa.Text(), nullable=True, comment='Listing of utility plant types. Examples include Electric Utility, Gas Utility, and Other Utility.'),
-    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subtotal_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
+    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subdimension_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
     sa.ForeignKeyConstraint(['utility_id_ferc1'], ['core_pudl__assn_ferc1_pudl_utilities.utility_id_ferc1'], name=op.f('fk_core_ferc1__yearly_operating_revenues_sched300_utility_id_ferc1_core_pudl__assn_ferc1_pudl_utilities')),
     sa.PrimaryKeyConstraint('utility_id_ferc1', 'report_year', 'revenue_type', name=op.f('pk_core_ferc1__yearly_operating_revenues_sched300'))
     )
@@ -1503,7 +1503,7 @@ def upgrade() -> None:
     sa.Column('report_year', sa.Integer(), nullable=False, comment='Four-digit year in which the data was reported.'),
     sa.Column('ferc_account_label', sa.Text(), nullable=False, comment='Long FERC account identifier derived from values reported in the XBRL taxonomies. May also refer to aggregations of individual FERC accounts.'),
     sa.Column('ferc_account', sa.Text(), nullable=True, comment="Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting."),
-    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subtotal_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
+    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subdimension_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
     sa.Column('starting_balance', sa.Float(), nullable=True, comment='Account balance at beginning of year.'),
     sa.Column('additions', sa.Float(), nullable=True, comment='Cost of acquisition of items classified within the account.'),
     sa.Column('retirements', sa.Float(), nullable=True, comment='Cost of disposal of items classified within the account.'),
@@ -1547,7 +1547,7 @@ def upgrade() -> None:
     sa.Column('ending_balance', sa.Float(), nullable=True, comment='Account balance at end of year.'),
     sa.Column('balance', sa.Text(), nullable=True, comment='Indication of whether a column is a credit or debit, as reported in the XBRL taxonomy.'),
     sa.Column('ferc_account', sa.Text(), nullable=True, comment="Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting."),
-    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subtotal_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
+    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subdimension_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
     sa.Column('utility_type', sa.Text(), nullable=True, comment='Listing of utility plant types. Examples include Electric Utility, Gas Utility, and Other Utility.'),
     sa.ForeignKeyConstraint(['utility_id_ferc1'], ['core_pudl__assn_ferc1_pudl_utilities.utility_id_ferc1'], name=op.f('fk_core_ferc1__yearly_retained_earnings_sched118_utility_id_ferc1_core_pudl__assn_ferc1_pudl_utilities')),
     sa.PrimaryKeyConstraint('utility_id_ferc1', 'report_year', 'earnings_type', name=op.f('pk_core_ferc1__yearly_retained_earnings_sched118'))
@@ -1594,7 +1594,7 @@ def upgrade() -> None:
     sa.Column('utility_type', sa.Text(), nullable=False, comment='Listing of utility plant types. Examples include Electric Utility, Gas Utility, and Other Utility.'),
     sa.Column('utility_type_other', sa.Text(), nullable=True, comment='Freeform description of type of utility reported in one of the other three other utility_type sections in the core_ferc1__yearly_utility_plant_summary_sched200 table. This field is reported only in the DBF reporting years (1994-2020).'),
     sa.Column('utility_plant_asset_type', sa.Text(), nullable=False, comment='Type of utility plant asset reported in the core_ferc1__yearly_utility_plant_summary_sched200 table. Assets include those leased to others, held for future use, construction work-in-progress and details of accumulated depreciation.'),
-    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subtotal_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
+    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subdimension_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
     sa.Column('ending_balance', sa.Float(), nullable=True, comment='Account balance at end of year.'),
     sa.Column('record_id', sa.Text(), nullable=True, comment='Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.'),
     sa.ForeignKeyConstraint(['utility_id_ferc1'], ['core_pudl__assn_ferc1_pudl_utilities.utility_id_ferc1'], name=op.f('fk_core_ferc1__yearly_utility_plant_summary_sched200_utility_id_ferc1_core_pudl__assn_ferc1_pudl_utilities')),
@@ -1929,7 +1929,7 @@ def upgrade() -> None:
     sa.Column('balance', sa.Text(), nullable=True, comment='Indication of whether a column is a credit or debit, as reported in the XBRL taxonomy.'),
     sa.Column('ending_balance', sa.Float(), nullable=True, comment='Account balance at end of year.'),
     sa.Column('ferc_account', sa.Text(), nullable=True, comment="Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting."),
-    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subtotal_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
+    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subdimension_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
     sa.Column('starting_balance', sa.Float(), nullable=True, comment='Account balance at beginning of year.'),
     sa.Column('utility_type', sa.Text(), nullable=True, comment='Listing of utility plant types. Examples include Electric Utility, Gas Utility, and Other Utility.'),
     sa.ForeignKeyConstraint(['utility_id_ferc1'], ['core_pudl__assn_ferc1_pudl_utilities.utility_id_ferc1'], name=op.f('fk_out_ferc1__yearly_balance_sheet_assets_sched110_utility_id_ferc1_core_pudl__assn_ferc1_pudl_utilities')),
@@ -1947,7 +1947,7 @@ def upgrade() -> None:
     sa.Column('liability_type', sa.Text(), nullable=False, comment='Type of liability being reported to the core_ferc1__yearly_balance_sheet_liabilities_sched110 table.'),
     sa.Column('balance', sa.Text(), nullable=True, comment='Indication of whether a column is a credit or debit, as reported in the XBRL taxonomy.'),
     sa.Column('ferc_account', sa.Text(), nullable=True, comment="Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting."),
-    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subtotal_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
+    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subdimension_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
     sa.Column('utility_type', sa.Text(), nullable=True, comment='Listing of utility plant types. Examples include Electric Utility, Gas Utility, and Other Utility.'),
     sa.ForeignKeyConstraint(['utility_id_ferc1'], ['core_pudl__assn_ferc1_pudl_utilities.utility_id_ferc1'], name=op.f('fk_out_ferc1__yearly_balance_sheet_liabilities_sched110_utility_id_ferc1_core_pudl__assn_ferc1_pudl_utilities')),
     sa.ForeignKeyConstraint(['utility_id_pudl'], ['core_pudl__entity_utilities_pudl.utility_id_pudl'], name=op.f('fk_out_ferc1__yearly_balance_sheet_liabilities_sched110_utility_id_pudl_core_pudl__entity_utilities_pudl')),
@@ -1962,7 +1962,7 @@ def upgrade() -> None:
     sa.Column('amount_type', sa.Text(), nullable=False, comment='Label describing the type of amount being reported. This could be a balance or a change in value.'),
     sa.Column('amount', sa.Float(), nullable=True, comment='Reported amount of dollars. This could be a balance or a change in value.'),
     sa.Column('balance', sa.Text(), nullable=True, comment='Indication of whether a column is a credit or debit, as reported in the XBRL taxonomy.'),
-    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subtotal_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
+    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subdimension_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
     sa.ForeignKeyConstraint(['utility_id_ferc1'], ['core_pudl__assn_ferc1_pudl_utilities.utility_id_ferc1'], name=op.f('fk_out_ferc1__yearly_cash_flows_sched120_utility_id_ferc1_core_pudl__assn_ferc1_pudl_utilities')),
     sa.ForeignKeyConstraint(['utility_id_pudl'], ['core_pudl__entity_utilities_pudl.utility_id_pudl'], name=op.f('fk_out_ferc1__yearly_cash_flows_sched120_utility_id_pudl_core_pudl__entity_utilities_pudl')),
     sa.PrimaryKeyConstraint('utility_id_ferc1', 'report_year', 'amount_type', name=op.f('pk_out_ferc1__yearly_cash_flows_sched120'))
@@ -1979,7 +1979,7 @@ def upgrade() -> None:
     sa.Column('ending_balance', sa.Float(), nullable=True, comment='Account balance at end of year.'),
     sa.Column('record_id', sa.Text(), nullable=True, comment='Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.'),
     sa.Column('balance', sa.Text(), nullable=True, comment='Indication of whether a column is a credit or debit, as reported in the XBRL taxonomy.'),
-    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subtotal_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
+    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subdimension_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
     sa.ForeignKeyConstraint(['utility_id_ferc1'], ['core_pudl__assn_ferc1_pudl_utilities.utility_id_ferc1'], name=op.f('fk_out_ferc1__yearly_depreciation_by_function_sched219_utility_id_ferc1_core_pudl__assn_ferc1_pudl_utilities')),
     sa.ForeignKeyConstraint(['utility_id_pudl'], ['core_pudl__entity_utilities_pudl.utility_id_pudl'], name=op.f('fk_out_ferc1__yearly_depreciation_by_function_sched219_utility_id_pudl_core_pudl__entity_utilities_pudl')),
     sa.PrimaryKeyConstraint('utility_id_ferc1', 'report_year', 'depreciation_type', 'plant_function', 'plant_status', 'utility_type', name=op.f('pk_out_ferc1__yearly_depreciation_by_function_sched219'))
@@ -1996,7 +1996,7 @@ def upgrade() -> None:
     sa.Column('record_id', sa.Text(), nullable=True, comment='Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.'),
     sa.Column('balance', sa.Text(), nullable=True, comment='Indication of whether a column is a credit or debit, as reported in the XBRL taxonomy.'),
     sa.Column('ferc_account', sa.Text(), nullable=True, comment="Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting."),
-    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subtotal_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
+    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subdimension_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
     sa.ForeignKeyConstraint(['utility_id_ferc1'], ['core_pudl__assn_ferc1_pudl_utilities.utility_id_ferc1'], name=op.f('fk_out_ferc1__yearly_depreciation_changes_sched219_utility_id_ferc1_core_pudl__assn_ferc1_pudl_utilities')),
     sa.ForeignKeyConstraint(['utility_id_pudl'], ['core_pudl__entity_utilities_pudl.utility_id_pudl'], name=op.f('fk_out_ferc1__yearly_depreciation_changes_sched219_utility_id_pudl_core_pudl__entity_utilities_pudl')),
     sa.PrimaryKeyConstraint('utility_id_ferc1', 'report_year', 'depreciation_type', 'plant_status', 'utility_type', name=op.f('pk_out_ferc1__yearly_depreciation_changes_sched219'))
@@ -2022,7 +2022,7 @@ def upgrade() -> None:
     sa.Column('utility_name_ferc1', sa.Text(), nullable=True, comment='Name of the responding utility, as it is reported in FERC Form 1. For human readability only.'),
     sa.Column('report_year', sa.Integer(), nullable=False, comment='Four-digit year in which the data was reported.'),
     sa.Column('energy_disposition_type', sa.Text(), nullable=False, comment='Type of energy disposition reported in the core_ferc1__yearly_energy_dispositions_sched401. Dispositions include sales to customers, re-sales of energy, energy used internally, losses, etc.'),
-    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subtotal_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
+    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subdimension_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
     sa.Column('energy_mwh', sa.Float(), nullable=True, comment='Sources and uses of energy in MWh.'),
     sa.Column('record_id', sa.Text(), nullable=True, comment='Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.'),
     sa.ForeignKeyConstraint(['utility_id_ferc1'], ['core_pudl__assn_ferc1_pudl_utilities.utility_id_ferc1'], name=op.f('fk_out_ferc1__yearly_energy_dispositions_sched401_utility_id_ferc1_core_pudl__assn_ferc1_pudl_utilities')),
@@ -2035,7 +2035,7 @@ def upgrade() -> None:
     sa.Column('utility_name_ferc1', sa.Text(), nullable=True, comment='Name of the responding utility, as it is reported in FERC Form 1. For human readability only.'),
     sa.Column('report_year', sa.Integer(), nullable=False, comment='Four-digit year in which the data was reported.'),
     sa.Column('energy_source_type', sa.Text(), nullable=False, comment='Type of energy source reported in the core_ferc1__yearly_energy_sources_sched401 table. There are three groups of energy sources: generation, power exchanges and transmission.'),
-    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subtotal_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
+    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subdimension_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
     sa.Column('energy_mwh', sa.Float(), nullable=True, comment='Sources and uses of energy in MWh.'),
     sa.Column('record_id', sa.Text(), nullable=True, comment='Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.'),
     sa.ForeignKeyConstraint(['utility_id_ferc1'], ['core_pudl__assn_ferc1_pudl_utilities.utility_id_ferc1'], name=op.f('fk_out_ferc1__yearly_energy_sources_sched401_utility_id_ferc1_core_pudl__assn_ferc1_pudl_utilities')),
@@ -2053,7 +2053,7 @@ def upgrade() -> None:
     sa.Column('dollar_value', sa.Float(), nullable=True, comment='Dollar value of reported income, expense, asset, or liability.'),
     sa.Column('balance', sa.Text(), nullable=True, comment='Indication of whether a column is a credit or debit, as reported in the XBRL taxonomy.'),
     sa.Column('ferc_account', sa.Text(), nullable=True, comment="Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting."),
-    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subtotal_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
+    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subdimension_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
     sa.ForeignKeyConstraint(['utility_id_ferc1'], ['core_pudl__assn_ferc1_pudl_utilities.utility_id_ferc1'], name=op.f('fk_out_ferc1__yearly_income_statements_sched114_utility_id_ferc1_core_pudl__assn_ferc1_pudl_utilities')),
     sa.ForeignKeyConstraint(['utility_id_pudl'], ['core_pudl__entity_utilities_pudl.utility_id_pudl'], name=op.f('fk_out_ferc1__yearly_income_statements_sched114_utility_id_pudl_core_pudl__entity_utilities_pudl')),
     sa.PrimaryKeyConstraint('utility_id_ferc1', 'report_year', 'utility_type', 'income_type', name=op.f('pk_out_ferc1__yearly_income_statements_sched114'))
@@ -2068,7 +2068,7 @@ def upgrade() -> None:
     sa.Column('utility_type', sa.Text(), nullable=True, comment='Listing of utility plant types. Examples include Electric Utility, Gas Utility, and Other Utility.'),
     sa.Column('record_id', sa.Text(), nullable=True, comment='Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.'),
     sa.Column('ferc_account', sa.Text(), nullable=True, comment="Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting."),
-    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subtotal_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
+    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subdimension_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
     sa.ForeignKeyConstraint(['utility_id_ferc1'], ['core_pudl__assn_ferc1_pudl_utilities.utility_id_ferc1'], name=op.f('fk_out_ferc1__yearly_operating_expenses_sched320_utility_id_ferc1_core_pudl__assn_ferc1_pudl_utilities')),
     sa.ForeignKeyConstraint(['utility_id_pudl'], ['core_pudl__entity_utilities_pudl.utility_id_pudl'], name=op.f('fk_out_ferc1__yearly_operating_expenses_sched320_utility_id_pudl_core_pudl__entity_utilities_pudl')),
     sa.PrimaryKeyConstraint('utility_id_ferc1', 'report_year', 'expense_type', name=op.f('pk_out_ferc1__yearly_operating_expenses_sched320'))
@@ -2085,7 +2085,7 @@ def upgrade() -> None:
     sa.Column('avg_customers_per_month', sa.Float(), nullable=True, comment='Average number of customers per month.'),
     sa.Column('ferc_account', sa.Text(), nullable=True, comment="Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting."),
     sa.Column('utility_type', sa.Text(), nullable=True, comment='Listing of utility plant types. Examples include Electric Utility, Gas Utility, and Other Utility.'),
-    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subtotal_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
+    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subdimension_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
     sa.ForeignKeyConstraint(['utility_id_ferc1'], ['core_pudl__assn_ferc1_pudl_utilities.utility_id_ferc1'], name=op.f('fk_out_ferc1__yearly_operating_revenues_sched300_utility_id_ferc1_core_pudl__assn_ferc1_pudl_utilities')),
     sa.ForeignKeyConstraint(['utility_id_pudl'], ['core_pudl__entity_utilities_pudl.utility_id_pudl'], name=op.f('fk_out_ferc1__yearly_operating_revenues_sched300_utility_id_pudl_core_pudl__entity_utilities_pudl')),
     sa.PrimaryKeyConstraint('utility_id_ferc1', 'report_year', 'revenue_type', name=op.f('pk_out_ferc1__yearly_operating_revenues_sched300'))
@@ -2118,7 +2118,7 @@ def upgrade() -> None:
     sa.Column('ferc_account', sa.Text(), nullable=True, comment="Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting."),
     sa.Column('ferc_account_label', sa.Text(), nullable=False, comment='Long FERC account identifier derived from values reported in the XBRL taxonomies. May also refer to aggregations of individual FERC accounts.'),
     sa.Column('retirements', sa.Float(), nullable=True, comment='Cost of disposal of items classified within the account.'),
-    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subtotal_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
+    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subdimension_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
     sa.Column('starting_balance', sa.Float(), nullable=True, comment='Account balance at beginning of year.'),
     sa.Column('transfers', sa.Float(), nullable=True, comment='Cost of transfers into (out of) the account.'),
     sa.ForeignKeyConstraint(['utility_id_ferc1'], ['core_pudl__assn_ferc1_pudl_utilities.utility_id_ferc1'], name=op.f('fk_out_ferc1__yearly_plant_in_service_sched204_utility_id_ferc1_core_pudl__assn_ferc1_pudl_utilities')),
@@ -2161,7 +2161,7 @@ def upgrade() -> None:
     sa.Column('ending_balance', sa.Float(), nullable=True, comment='Account balance at end of year.'),
     sa.Column('balance', sa.Text(), nullable=True, comment='Indication of whether a column is a credit or debit, as reported in the XBRL taxonomy.'),
     sa.Column('ferc_account', sa.Text(), nullable=True, comment="Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting."),
-    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subtotal_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
+    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subdimension_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
     sa.Column('utility_type', sa.Text(), nullable=True, comment='Listing of utility plant types. Examples include Electric Utility, Gas Utility, and Other Utility.'),
     sa.ForeignKeyConstraint(['utility_id_ferc1'], ['core_pudl__assn_ferc1_pudl_utilities.utility_id_ferc1'], name=op.f('fk_out_ferc1__yearly_retained_earnings_sched118_utility_id_ferc1_core_pudl__assn_ferc1_pudl_utilities')),
     sa.ForeignKeyConstraint(['utility_id_pudl'], ['core_pudl__entity_utilities_pudl.utility_id_pudl'], name=op.f('fk_out_ferc1__yearly_retained_earnings_sched118_utility_id_pudl_core_pudl__entity_utilities_pudl')),
@@ -2217,7 +2217,7 @@ def upgrade() -> None:
     sa.Column('utility_type', sa.Text(), nullable=False, comment='Listing of utility plant types. Examples include Electric Utility, Gas Utility, and Other Utility.'),
     sa.Column('utility_type_other', sa.Text(), nullable=True, comment='Freeform description of type of utility reported in one of the other three other utility_type sections in the core_ferc1__yearly_utility_plant_summary_sched200 table. This field is reported only in the DBF reporting years (1994-2020).'),
     sa.Column('utility_plant_asset_type', sa.Text(), nullable=False, comment='Type of utility plant asset reported in the core_ferc1__yearly_utility_plant_summary_sched200 table. Assets include those leased to others, held for future use, construction work-in-progress and details of accumulated depreciation.'),
-    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subtotal_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
+    sa.Column('row_type_xbrl', sa.Enum('calculated_value', 'reported_value', 'correction', 'subdimension_correction'), nullable=True, comment='Indicates whether the value reported in the row is calculated, or uniquely reported within the table.'),
     sa.Column('ending_balance', sa.Float(), nullable=True, comment='Account balance at end of year.'),
     sa.Column('record_id', sa.Text(), nullable=True, comment='Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.'),
     sa.ForeignKeyConstraint(['utility_id_ferc1'], ['core_pudl__assn_ferc1_pudl_utilities.utility_id_ferc1'], name=op.f('fk_out_ferc1__yearly_utility_plant_summary_sched200_utility_id_ferc1_core_pudl__assn_ferc1_pudl_utilities')),

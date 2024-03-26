@@ -3212,7 +3212,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
                 "calculated_value",
                 "reported_value",
                 "correction",
-                "subtotal_correction",
+                "subdimension_correction",
             ]
         },
     },
