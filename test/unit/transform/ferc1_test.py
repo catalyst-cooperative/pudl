@@ -567,8 +567,19 @@ DIMENSION_VALUES = {
 
 
 def _sample_multi_subdimension_calculation_componets(
-    dimension_values=DIMENSION_VALUES, fact_name=FACT_NAME, table_name=TABLE_NAME
-):
+    dimension_values: dict[str, list[str]] = DIMENSION_VALUES,
+    fact_name: str = FACT_NAME,
+    table_name: str = TABLE_NAME,
+) -> pd.DataFrame:
+    """Build a sample calculation componet table with :func:`infer_intra_factoid_totals`.
+    This will build a calculation component table with one fact's total to sub-total
+    dimension calculations with the given ``dimension_values``.
+
+    Args:
+        dimension_values: dictionary of dimension column names (keys) to dimension values.
+        fact_name: name of ``xbrl_factoid``.
+        table_name: name of table.
+    """
     dimension_pairs = list(itertools.product(*dimension_values.values()))
     dimension_cols = list(dimension_values.keys())
 
@@ -580,7 +591,6 @@ def _sample_multi_subdimension_calculation_componets(
         meta_w_dims=meta_w_dims,
         # we can use the meta w/ dims bc its the same structure
         # and assumes that every combo of these dims exist in the table
-        # the assumes that every combo of these dims exist in the table
         table_dimensions=meta_w_dims,
         dimensions=dimension_cols,
     )
