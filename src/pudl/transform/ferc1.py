@@ -5766,7 +5766,7 @@ class DepreciationByFunctionTableTransformer(Ferc1AbstractTableTransformer):
         if not total_test[total_test.ending_balance_children.isnull()].empty:
             raise AssertionError(
                 f"We expected that all of the records {description_of_these_records} "
-                "to have non-null data in the pure sub-dimension records, but some records were found."
+                "to have non-null data in the pure sub-dimension records, but some records that don't meet this condition were found."
             )
         return df
 
