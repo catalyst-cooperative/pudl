@@ -55,11 +55,7 @@ def test_load_source(mock_pd):
 
 
 def test_extract():
-    class SuperFakeExtractor(FakeExtractor):
-        def process_raw(self, df, page, **partition):
-            return df
-
-    extractor = SuperFakeExtractor()
+    extractor = FakeExtractor()
     # Create a sample of data we could expect from an EIA CSV
     company_field = "company"
     company_data = "Total of All Companies"
@@ -71,6 +67,12 @@ def test_extract():
     with (
         patch.object(CsvExtractor, "load_source", return_value=df),
         patch.object(
+            # Testing the rename
+            GenericMetadata,
+            "get_column_map",
+            return_value={company_field: "company_rename"},
+        ),
+        patch.object(
             # Transposing the df here to get the orientation we expect get_page_cols to return
             CsvExtractor,
             "get_page_cols",
@@ -78,5 +80,8 @@ def test_extract():
         ),
     ):
         res = extractor.extract(**PARTITION)
-    assert len(res) == 1
-    assert res[PAGE][company_field][0] == company_data
+    assert len(res) == 1  # Assert only one page extracted
+    assert list(res.keys()) == [PAGE]  # Assert it is named correctly
+    assert (
+        res[PAGE]["company_rename"][0] == company_data
+    )  # Assert that column correctly renamed and data is there.
