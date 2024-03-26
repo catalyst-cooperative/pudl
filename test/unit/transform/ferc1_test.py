@@ -578,7 +578,8 @@ def _sample_multi_subdimension_calculation_componets(
     calc_comps = infer_intra_factoid_totals(
         calc_components=pd.DataFrame(),
         meta_w_dims=meta_w_dims,
-        # we can use the meta w/ dims bc its the same strucutre
+        # we can use the meta w/ dims bc its the same structure
+        # and assumes that every combo of these dims exist in the table
         # the assumes that every combo of these dims exist in the table
         table_dimensions=meta_w_dims,
         dimensions=dimension_cols,
