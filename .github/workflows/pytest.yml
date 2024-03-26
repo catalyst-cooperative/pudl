@@ -210,7 +210,7 @@ jobs:
           init-shell: bash
           environment-name: coverage
           create-args: >-
-            python=3.11
+            python=3.12
             coverage>=7.4.1
       - name: Combine coverage data and check that we have required coverage
         # Required coverage is set in pyproject.toml section [tool.coverage.report]
