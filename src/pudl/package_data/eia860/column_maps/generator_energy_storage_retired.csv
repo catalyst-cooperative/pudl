@@ -7,7 +7,7 @@ state,state,state,state,state,state,state,state
 county,county,county,county,county,county,county,county
 generator_id,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id
 operational_status_code,status,status,status,status,status,status,status
-storage_technology_type,technology,technology,technology,technology,technology,technology,technology
+technology_description,technology,technology,technology,technology,technology,technology,technology
 prime_mover_code,prime_mover,prime_mover,prime_mover,prime_mover,prime_mover,prime_mover,prime_mover
 sector_name_eia,sector_name,sector_name,sector_name,sector_name,sector_name,sector_name,sector_name
 sector_id_eia,sector,sector,sector,sector,sector,sector,sector
