@@ -8,8 +8,8 @@ technology_description,technology,technology,technology,technology,technology
 technology_alias,,,technology_alias,technology_alias,technology_alias
 display_name,,,display_name,display_name,display_name
 is_default,,,default,default,default
-technology_description_detail1,techdetail,techdetail,techdetail,techdetail,techdetail
-technology_description_detail2,,,,,techdetail2
+technology_description_detail_1,techdetail,techdetail,techdetail,techdetail,techdetail
+technology_description_detail_2,,,,,techdetail2
 resource_description,,,,,resourcedetail
 is_technology_mature,,,,,maturity
 technology_scale,,,,,scale
