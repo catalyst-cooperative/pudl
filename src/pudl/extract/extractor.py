@@ -86,6 +86,17 @@ class GenericMetadata:
         """Returns list of all pudl columns for a given page across all partitions."""
         return sorted(self._column_map[page].T.columns)
 
+    def get_column_map(self, page, **partition):
+        """Return dictionary for renaming columns in a given partition and page."""
+        return {
+            v: k
+            for k, v in self._column_map[page]
+            .T.loc[str(self._get_partition_selection(partition))]
+            .to_dict()
+            .items()
+            if v != -1
+        }
+
 
 class GenericExtractor(ABC):
     """Generic extractor base class."""
@@ -145,7 +156,7 @@ class GenericExtractor(ABC):
         self, df: pd.DataFrame, page: str, **partition: PartitionSelection
     ) -> pd.DataFrame:
         """Takes any special steps for processing raw data and renaming columns."""
-        return df
+        return df.rename(columns=self._metadata.get_column_map(page, **partition))
 
     def process_renamed(
         self, df: pd.DataFrame, page: str, **partition: PartitionSelection

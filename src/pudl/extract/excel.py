@@ -85,17 +85,6 @@ class ExcelMetadata(GenericMetadata):
         """Returns file name of given partition and page."""
         return self._file_name.loc[page, str(self._get_partition_selection(partition))]
 
-    def get_column_map(self, page, **partition):
-        """Return dictionary for renaming columns in a given partition and page."""
-        return {
-            v: k
-            for k, v in self._column_map[page]
-            .T.loc[str(self._get_partition_selection(partition))]
-            .to_dict()
-            .items()
-            if v != -1
-        }
-
     def get_form(self, page) -> str:
         """Returns the form name for a given page."""
         return self._page_part_map.loc[page, "form"]
