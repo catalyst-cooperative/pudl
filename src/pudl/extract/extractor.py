@@ -3,13 +3,17 @@
 import importlib.resources
 from abc import ABC, abstractmethod
 from collections import defaultdict
+from typing import Any
 
 import pandas as pd
 from dagster import (
     AssetsDefinition,
+    DagsterType,
     DynamicOut,
     DynamicOutput,
+    In,
     OpDefinition,
+    TypeCheckContext,
     graph_asset,
     op,
 )
@@ -290,6 +294,22 @@ def concat_pages(paged_dfs: list[dict[str, pd.DataFrame]]) -> dict[str, pd.DataF
     return all_data
 
 
+def _is_dict_str_strint(_context: TypeCheckContext, x: Any) -> bool:
+    if not isinstance(x, dict):
+        return False
+    for key, value in x.items():
+        if not isinstance(key, str):
+            return False
+        if not isinstance(value, str | int):
+            return False
+    return True
+
+
+dagster_dict_str_strint = DagsterType(
+    name="dict[str, str | int]", type_check_fn=_is_dict_str_strint
+)
+
+
 def partition_extractor_factory(
     extractor_cls: type[GenericExtractor], name: str
 ) -> OpDefinition:
@@ -303,10 +323,10 @@ def partition_extractor_factory(
     @op(
         required_resource_keys={"datastore", "dataset_settings"},
         name=f"extract_single_{name}_partition",
+        ins={"part_dict": In(dagster_type=dagster_dict_str_strint)},
     )
     def extract_single_partition(
-        context,
-        part_dict: dict,  # TODO: Handle str|int type errors
+        context, part_dict: dict[str, str | int]
     ) -> dict[str, pd.DataFrame]:
         """A function that extracts a year of spreadsheet data from an Excel file.
 
@@ -314,7 +334,7 @@ def partition_extractor_factory(
 
         Args:
             context: Dagster keyword that provides access to resources and config.
-            part_dict: Dictionary of partition name and partition to extractren.
+            part_dict: Dictionary of partition name and partition to extract.
 
         Returns:
             A dictionary of DataFrames extracted from Excel/CSV, keyed by page name.

@@ -22,12 +22,14 @@ class Extractor(CsvExtractor):
     def source_filename(self, page: str, **partition: PartitionSelection) -> str:
         """Produce the source file name as it will appear in the archive.
 
+        Expects a string for page, and additionally a keyword argument dictionary
+        specifying which particular partition to extract. Examples:
+                {'year': 2009}
+                {'year_month': '2020-08'}
+
         Args:
             page: pudl name for the dataset contents, eg "boiler_generator_assn" or
                 "data"
-            partition: partition to load. Examples:
-                {'year': 2009}
-                {'year_month': '2020-08'}
 
         Returns:
             string name of the CSV file
