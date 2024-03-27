@@ -305,6 +305,8 @@ def _is_dict_str_strint(_context: TypeCheckContext, x: Any) -> bool:
     return True
 
 
+# 2024-03-27: Dagster can't automatically convert union types within
+# parametrized types; we have to write our own custom DagsterType for now.
 dagster_dict_str_strint = DagsterType(
     name="dict[str, str | int]", type_check_fn=_is_dict_str_strint
 )
