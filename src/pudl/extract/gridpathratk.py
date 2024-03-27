@@ -53,7 +53,7 @@ def raw_gridpathratk_profile_asset_factory(part: str) -> AssetsDefinition:
     """
 
     @asset(
-        name=f"raw_gridpathratk__{GRIDPATHRATK_PARTS[part]["table_name"]}",
+        name="raw_gridpathratk__" + GRIDPATHRATK_PARTS[part]["table_name"],
         required_resource_keys={"datastore", "dataset_settings"},
     )
     def _extract_raw_gridpathratk(context):
