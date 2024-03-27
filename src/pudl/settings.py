@@ -201,6 +201,26 @@ class Eia923Settings(GenericDatasetSettings):
     years: list[int] = data_source.working_partitions["years"]
 
 
+class Eia930Settings(GenericDatasetSettings):
+    """An immutable pydantic model to validate EIA 930 settings.
+
+    Args:
+        data_source: DataSource metadata object
+        half_years: list of years to validate.
+    """
+
+    data_source: ClassVar[DataSource] = DataSource.from_id("eia930")
+    half_years: list[str] = data_source.working_partitions["half_years"]
+
+    @field_validator("half_years")
+    @classmethod
+    def allow_all_keyword_half_years(cls, half_years):
+        """Allow users to specify ['all'] to get all half-years."""
+        if half_years == ["all"]:
+            half_years = cls.data_source.working_partitions["half_years"]
+        return half_years
+
+
 class Eia861Settings(GenericDatasetSettings):
     """An immutable pydantic model to validate EIA 861 settings.
 
@@ -344,6 +364,7 @@ class EiaSettings(FrozenBaseModel):
     eia860m: Eia860mSettings | None = None
     eia861: Eia861Settings | None = None
     eia923: Eia923Settings | None = None
+    eia930: Eia930Settings | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -357,6 +378,7 @@ class EiaSettings(FrozenBaseModel):
             data["eia860m"] = Eia860mSettings()
             data["eia861"] = Eia861Settings()
             data["eia923"] = Eia923Settings()
+            data["eia930"] = Eia930Settings()
 
         return data
 
