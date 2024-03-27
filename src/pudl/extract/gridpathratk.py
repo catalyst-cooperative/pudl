@@ -41,6 +41,15 @@ GRIDPATHRATK_PARTS = {
     "hourly-wind-zonal-capacity-synth": {
         "table_name": "aggregated_extended_wind",
     },
+    "wind-plant-aggregations": {
+        "table_name": "wind_plant_aggregations",
+    },
+    "solar-generator-aggregations": {
+        "table_name": "solar_generator_aggregations",
+    },
+    "daily-weather": {
+        "table_name": "daily_weather",
+    },
 }
 
 
@@ -80,6 +89,43 @@ def raw_gridpathratk_profile_asset_factory(part: str) -> AssetsDefinition:
     return _extract_raw_gridpathratk
 
 
-raw_gridpathratk_assets = [
-    raw_gridpathratk_profile_asset_factory(part) for part in GRIDPATHRATK_PARTS
+def raw_gridpathratk__csv_asset_factory(part: str) -> AssetsDefinition:
+    """An asset factory for extracting GridPath RA Toolkit wind and solar aggregations.
+
+    These are simple CSVs which indicate how to combine individual wind plants or solar
+    generators into larger blocks of capacity.
+    """
+
+    @asset(
+        name="raw_gridpathratk__" + GRIDPATHRATK_PARTS[part]["table_name"],
+        required_resource_keys={"datastore", "dataset_settings"},
+    )
+    def _extract_raw_gridpathratk(context):
+        """Extract raw GridPath RA Toolkit CSV files.
+
+        Args:
+            context: dagster keyword that provides access to resources and config.
+        """
+        ds = context.resources.datastore
+        df = pd.read_csv(BytesIO(ds.get_unique_resource("gridpathratk", part=part)))
+
+        return Output(value=df)
+
+    return _extract_raw_gridpathratk
+
+
+raw_gridpathratk_profiles = [
+    raw_gridpathratk_profile_asset_factory(part)
+    for part in [
+        "hourly-solar-zonal-capacity-synth",
+        "hourly-wind-zonal-capacity-synth",
+    ]
+]
+raw_gridpathratk_csvs = [
+    raw_gridpathratk__csv_asset_factory(part)
+    for part in [
+        "wind-plant-aggregations",
+        "solar-generator-aggregations",
+        "daily-weather",
+    ]
 ]
