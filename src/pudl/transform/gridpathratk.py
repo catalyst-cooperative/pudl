@@ -11,9 +11,7 @@ def _transform_profiles(
 
     - Construct a datetime column and adjust it to be in UTC.
     - Reshape the table from wide to tidy format.
-    - Rename columns.
-    - Use categorical strings to represent the aggregation keys.
-
+    - Name columns appropriately.
     """
     # Convert timestamp to UTC before stacking!
     # TODO: Ensure that we're using the same hour starting vs. ending convention
@@ -39,7 +37,11 @@ def core_gridpathratk__aggregated_extended_profiles(
     raw_gridpathratk__aggregated_extended_solar: pd.DataFrame,
     raw_gridpathratk__aggregated_extended_wind: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Transform raw GridPath RA Toolkit renewable generation profiles."""
+    """Transform raw GridPath RA Toolkit renewable generation profiles.
+
+    Concatenates the solar and wind profiles into a single table and turns the
+    aggregation key into a categorical column to save space.
+    """
     pacific_standard_time = pd.Timedelta("-8h")
     return pd.concat(
         [
