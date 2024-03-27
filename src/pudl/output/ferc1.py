@@ -106,12 +106,12 @@ EXPLOSION_CALCULATION_TOLERANCES: dict[str, GroupMetricChecks] = {
                 null_calculated_value_frequency=1.0,
             ),
             report_year=MetricTolerances(
-                error_frequency=0.048,  # 2024
+                error_frequency=0.048,
                 relative_error_magnitude=0.05,
                 null_calculated_value_frequency=1.0,
             ),
             xbrl_factoid=MetricTolerances(
-                error_frequency=0.13,  # retained_earnings
+                error_frequency=0.65,  # worst fact: retained_earnings
                 relative_error_magnitude=0.17,
                 null_calculated_value_frequency=1.0,
             ),

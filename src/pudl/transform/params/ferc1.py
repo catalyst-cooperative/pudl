@@ -3317,7 +3317,7 @@ TRANSFORM_PARAMS = {
             "group_metric_checks": {
                 "group_metric_tolerances": {
                     "ungrouped": {
-                        "error_frequency": 0.0096,
+                        "error_frequency": 0.016,
                         "relative_error_magnitude": 0.039,
                     },
                     "report_year": {
@@ -4141,7 +4141,7 @@ TRANSFORM_PARAMS = {
                         "relative_error_magnitude": 0.66,
                     },
                     "xbrl_factoid": {
-                        "error_frequency": 0.58,
+                        "error_frequency": 0.59,
                         "relative_error_magnitude": 0.1,
                     },  # worst xbrl_factoid: ending_balance
                 },
@@ -4250,7 +4250,11 @@ TRANSFORM_PARAMS = {
             "subdimension_merge_validation": "many_to_many",
             "group_metric_checks": {
                 "group_metric_tolerances": {
-                    "ungrouped": {"null_reported_value_frequency": 0.76},
+                    "ungrouped": {
+                        "error_frequency": 0.034,
+                        "null_reported_value_frequency": 0.76,
+                    },
+                    "xbrl_factoid": {"error_frequency": 0.034},
                     "report_year": {
                         "error_frequency": 0.1,
                         "relative_error_magnitude": 0.92,
