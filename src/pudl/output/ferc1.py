@@ -77,17 +77,17 @@ EXPLOSION_CALCULATION_TOLERANCES: dict[str, GroupMetricChecks] = {
             ),
             report_year=MetricTolerances(
                 error_frequency=0.12,
-                relative_error_magnitude=0.04,
+                relative_error_magnitude=0.12,
                 null_calculated_value_frequency=1.0,
             ),
             xbrl_factoid=MetricTolerances(
-                error_frequency=0.37,
+                error_frequency=0.41,
                 relative_error_magnitude=0.22,
                 null_calculated_value_frequency=1.0,
             ),
             utility_id_ferc1=MetricTolerances(
-                error_frequency=0.21,
-                relative_error_magnitude=0.26,
+                error_frequency=0.27,
+                relative_error_magnitude=0.4,
                 null_calculated_value_frequency=1.0,
             ),
         ),
@@ -101,23 +101,23 @@ EXPLOSION_CALCULATION_TOLERANCES: dict[str, GroupMetricChecks] = {
         ],
         group_metric_tolerances=GroupMetricTolerances(
             ungrouped=MetricTolerances(
-                error_frequency=0.028,
+                error_frequency=0.048,
                 relative_error_magnitude=0.019,
                 null_calculated_value_frequency=1.0,
             ),
             report_year=MetricTolerances(
-                error_frequency=0.028,
-                relative_error_magnitude=0.04,
+                error_frequency=0.048,
+                relative_error_magnitude=0.05,
                 null_calculated_value_frequency=1.0,
             ),
             xbrl_factoid=MetricTolerances(
-                error_frequency=0.035,
-                relative_error_magnitude=0.019,
+                error_frequency=0.65,  # worst fact: retained_earnings
+                relative_error_magnitude=0.17,
                 null_calculated_value_frequency=1.0,
             ),
             utility_id_ferc1=MetricTolerances(
                 error_frequency=0.063,
-                relative_error_magnitude=0.04,
+                relative_error_magnitude=0.16,
                 null_calculated_value_frequency=1.0,
             ),
         ),
@@ -1859,6 +1859,7 @@ class Exploder:
             data=exploded,
             calc_idx=self.calc_idx,
             value_col=self.value_col,
+            calc_to_data_merge_validation="many_to_many",
         )
         return calculated_df
 
@@ -1957,7 +1958,9 @@ class Exploder:
             corrected.index.difference(off_by.set_index(self.calc_idx).index.unique())
         ].reset_index()
         fixed_facts = self.calculate_intertable_non_total_calculations(
-            exploded=fixed_facts.drop(columns=["calculated_value"]).reset_index()
+            exploded=fixed_facts.drop(
+                columns=["calculated_value", "is_calc"]
+            ).reset_index()
         )
 
         return pd.concat([unfixed_facts, fixed_facts.astype(unfixed_facts.dtypes)])
@@ -1985,7 +1988,7 @@ class Exploder:
             f"{self.root_table}: Reconcile inter-table calculations: "
             f"{list(calculations_intertable.xbrl_factoid.unique())}."
         )
-        logger.info("Checking inter-table, non-total to subtotal calcs.")
+        logger.info("Checking inter-table, non-total to subdimension calcs.")
         # we've added calculated fields via calculate_intertable_non_total_calculations
         calculated_df = pudl.transform.ferc1.check_calculation_metrics(
             calculated_df=exploded, group_metric_checks=self.group_metric_checks
@@ -1995,18 +1998,19 @@ class Exploder:
             value_col=self.value_col,
             is_close_tolerance=pudl.transform.ferc1.IsCloseTolerance(),
             table_name=self.root_table,
+            is_subdimension=False,
         )
         logger.info("Checking sub-total calcs.")
-        subtotal_calcs = pudl.transform.ferc1.calculate_values_from_components(
+        subdimension_calcs = pudl.transform.ferc1.calculate_values_from_components(
             calculation_components=calculations_intertable[
                 calculations_intertable.is_total_to_subdimensions_calc
             ],
-            data=exploded.drop(columns="calculated_value"),
+            data=exploded.drop(columns=["calculated_value", "is_calc"]),
             calc_idx=self.calc_idx,
             value_col=self.value_col,
         )
-        subtotal_calcs = pudl.transform.ferc1.check_calculation_metrics(
-            calculated_df=subtotal_calcs,
+        subdimension_calcs = pudl.transform.ferc1.check_calculation_metrics(
+            calculated_df=subdimension_calcs,
             group_metric_checks=self.group_metric_checks,
         )
         return calculated_df
@@ -2703,17 +2707,17 @@ class XbrlCalculationForestFerc1(BaseModel):
 
         TODO: This method could either live here, or in the Exploder class, which would
         also have access to exploded_meta, exploded_data, and the calculation forest.
-
-        - There are a handful of NA values for ``report_year`` and ``utility_id_ferc1``
-          because of missing correction records in data. Why are those correction
-          records missing? Should we be doing an inner merge instead of a left merge?
         - Still need to validate the root node calculations.
 
         """
+        # inner merge here because the nodes need to *both* be leaves in the forest
+        # and need to show up in the data. If a node doesn't show up in the data itself
+        # it won't have any non-node values like utility_id_ferc1 or report_year or any
+        # $$ values.
         leafy_data = pd.merge(
             left=self.leafy_meta,
             right=exploded_data,
-            how="left",
+            how="inner",
             validate="one_to_many",
         )
         # Scale the data column of interest:

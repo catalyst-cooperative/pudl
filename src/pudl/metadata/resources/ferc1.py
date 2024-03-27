@@ -227,6 +227,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "primary_key": [
                 "utility_id_ferc1",
                 "report_year",
+                "depreciation_type",
                 "plant_function",
                 "plant_status",
                 "utility_type",
@@ -1098,6 +1099,7 @@ columns.""",
             "primary_key": [
                 "utility_id_ferc1",
                 "report_year",
+                "depreciation_type",
                 "plant_function",
                 "plant_status",
                 "utility_type",
