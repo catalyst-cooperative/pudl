@@ -2707,17 +2707,17 @@ class XbrlCalculationForestFerc1(BaseModel):
 
         TODO: This method could either live here, or in the Exploder class, which would
         also have access to exploded_meta, exploded_data, and the calculation forest.
-
-        - There are a handful of NA values for ``report_year`` and ``utility_id_ferc1``
-          because of missing correction records in data. Why are those correction
-          records missing? Should we be doing an inner merge instead of a left merge?
         - Still need to validate the root node calculations.
 
         """
+        # inner merge here because the nodes need to *both* be leaves in the forest
+        # and need to show up in the data. If a node doesn't show up in the data itself
+        # it won't have any non-node values like utility_id_ferc1 or report_year or any
+        # $$ values.
         leafy_data = pd.merge(
             left=self.leafy_meta,
             right=exploded_data,
-            how="left",
+            how="inner",
             validate="one_to_many",
         )
         # Scale the data column of interest:
