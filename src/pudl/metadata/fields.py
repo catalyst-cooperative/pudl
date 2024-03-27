@@ -3207,7 +3207,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "row_type_xbrl": {
         "type": "string",
         "description": "Indicates whether the value reported in the row is calculated, or uniquely reported within the table.",
-        "constraints": {"enum": ["calculated_value", "reported_value", "correction"]},
+        "constraints": {
+            "enum": [
+                "calculated_value",
+                "reported_value",
+                "correction",
+                "subdimension_correction",
+            ]
+        },
     },
     "rto_iso_lmp_node_id": {
         "type": "string",

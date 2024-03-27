@@ -805,7 +805,7 @@ class MetricTolerances(TransformParams):
     """Tolerances for all data checks to be preformed within a grouped df."""
 
     error_frequency: Annotated[float, Field(ge=0.0, le=1.0)] = 0.01
-    relative_error_magnitude: Annotated[float, Field(ge=0.0)] = 0.02
+    relative_error_magnitude: Annotated[float, Field(ge=0.0)] = 0.2
     null_calculated_value_frequency: Annotated[float, Field(ge=0.0, le=1.0)] = 0.7
     """Fraction of records with non-null reported values and null calculated values."""
     absolute_error_magnitude: Annotated[float, Field(ge=0.0)] = np.inf
@@ -831,23 +831,20 @@ class GroupMetricTolerances(TransformParams):
 
     ungrouped: MetricTolerances = MetricTolerances(
         error_frequency=0.0005,
-        relative_error_magnitude=0.0086,
+        relative_error_magnitude=0.015,
         null_calculated_value_frequency=0.50,
         null_reported_value_frequency=0.68,
     )
     xbrl_factoid: MetricTolerances = MetricTolerances(
         error_frequency=0.018,
-        relative_error_magnitude=0.0086,
         null_calculated_value_frequency=1.0,
     )
     utility_id_ferc1: MetricTolerances = MetricTolerances(
         error_frequency=0.038,
-        relative_error_magnitude=0.04,
         null_calculated_value_frequency=1.0,
     )
     report_year: MetricTolerances = MetricTolerances(
         error_frequency=0.006,
-        relative_error_magnitude=0.04,
         null_calculated_value_frequency=0.7,
     )
     table_name: MetricTolerances = MetricTolerances(
@@ -913,12 +910,18 @@ class ReconcileTableCalculations(TransformParams):
     group_metric_checks: GroupMetricChecks = GroupMetricChecks()
     """Fraction of calculated values which we allow not to match reported values."""
 
-    subtotal_column: str | None = None
-    """Sub-total column name (e.g. utility type) to compare calculations against in
+    subdimension_column: str | None = None
+    """Sub-dimension column name (e.g. utility type) to compare calculations against in
     :func:`reconcile_table_calculations`."""
 
-    subtotal_calculation_tolerance: float = 0.05
-    """Fraction of calculated sub-totals allowed not to match reported values."""
+    subdimension_calculation_tolerance: float = 0.05
+    """Fraction of calculated subdimensions allowed not to match reported values."""
+
+    subdimension_merge_validation: Literal["one_to_many", "many_to_many"] = (
+        "one_to_many"
+    )
+    """For the subdimension calculations, how to merge valiate when merging the data (left)
+    onto the calculation components (right)."""
 
 
 def reconcile_table_calculations(
@@ -963,7 +966,7 @@ def reconcile_table_calculations(
         and ``rel_diff``.
     """
     # If we don't have this value, we aren't doing any calculation checking:
-    if params.column_to_check is None or calculation_components.empty:
+    if params.column_to_check is None:
         return df
 
     # Use the calculation components which reference ONLY values within the table
@@ -989,55 +992,103 @@ def reconcile_table_calculations(
             table_dims=table_dims,
             dim_cols=dim_cols,
         )
-        # Check the subdimension totals, but don't add correction records for these
-        # intra-fact calculations:
-        if params.subtotal_column:
-            calc_comps_w_totals = _calculation_components_subtotal_calculations(
+        # Check the subdimension totals. add subdimension_corrections!
+        if params.subdimension_column:
+            logger.info(
+                f"Checking total-to-subdimension calculations in {params.subdimension_column}"
+            )
+            calc_comps_w_totals = _calculation_components_subdimension_calculations(
                 intra_table_calcs=intra_table_calcs,
                 table_dims=table_dims,
                 xbrl_metadata=xbrl_metadata,
                 dim_cols=dim_cols,
                 table_name=table_name,
             )
-            _check_subtotal_calculations(
-                df=df,
-                params=params,
-                calc_comps_w_totals=calc_comps_w_totals,
+            df = reconcile_one_type_of_table_calculations(
+                data=df,
+                calculation_components=calc_comps_w_totals[
+                    calc_comps_w_totals.is_total_to_subdimensions_calc
+                ],
                 calc_idx=calc_idx,
-            )
+                value_col=params.column_to_check,
+                group_metric_checks=params.group_metric_checks,
+                table_name=table_name,
+                is_subdimension=True,
+                calc_to_data_merge_validation=params.subdimension_merge_validation,
+            )[df.columns]
+    calculated_df = reconcile_one_type_of_table_calculations(
+        data=df,
+        calculation_components=intra_table_calcs,
+        calc_idx=calc_idx,
+        value_col=params.column_to_check,
+        group_metric_checks=params.group_metric_checks,
+        table_name=table_name,
+        is_subdimension=False,
+    )
+    # Rename back to the original xbrl_factoid column name before returning:
+    return calculated_df.rename(columns={"xbrl_factoid": xbrl_factoid_name})
 
+
+def reconcile_one_type_of_table_calculations(
+    data: pd.DataFrame,
+    calculation_components: pd.DataFrame,
+    calc_idx: list[str],
+    value_col: str,
+    group_metric_checks: GroupMetricChecks,
+    table_name: str,
+    is_subdimension: bool,
+    calc_to_data_merge_validation: Literal[
+        "one_to_many", "many_to_many"
+    ] = "one_to_many",
+) -> pd.DataFrame:
+    """Calculate vales, run metric checks and add corrections.
+
+    Args:
+        data: exploded FERC data to apply the calculations to. Primary key should be
+            ``report_year``, ``utility_id_ferc1``, ``table_name``, ``xbrl_factoid``, and
+            whatever additional dimensions are relevant to the data.
+        calculation_components: Table defining the calculations, with each row defining
+            a single component, including its weight. Groups of rows identified by
+            ``table_name_parent`` and ``xbrl_factoid_parent`` indicate the values being
+            calculated.
+        calc_idx: primary key columns that uniquely identify a calculation component
+            (not including the ``_parent`` columns).
+        value_col: label of the column in ``data`` that contains the values to apply the
+            calculations to (typically ``dollar_value`` or ``ending_balance``).
+    """
+    if calculation_components.empty:
+        return data
     calculated_df = (
         calculate_values_from_components(
-            data=df,
-            calculation_components=intra_table_calcs,
+            data=data,
+            calculation_components=calculation_components,
             calc_idx=calc_idx,
-            value_col=params.column_to_check,
+            value_col=value_col,
+            calc_to_data_merge_validation=calc_to_data_merge_validation,
         )
         .pipe(
             check_calculation_metrics,
-            group_metric_checks=params.group_metric_checks,
+            group_metric_checks=group_metric_checks,
         )
         .pipe(
             add_corrections,
-            value_col=params.column_to_check,
+            value_col=value_col,
             is_close_tolerance=IsCloseTolerance(),
             table_name=table_name,
+            is_subdimension=is_subdimension,
         )
-        # Rename back to the original xbrl_factoid column name before returning:
-        .rename(columns={"xbrl_factoid": xbrl_factoid_name})
     )
-
     return calculated_df
 
 
-def _calculation_components_subtotal_calculations(
+def _calculation_components_subdimension_calculations(
     intra_table_calcs: pd.DataFrame,
     table_dims: pd.DataFrame,
     xbrl_metadata: pd.DataFrame,
     dim_cols: list[str],
     table_name: str,
 ) -> pd.DataFrame:
-    """Add total to subtotal calculations into calculation components."""
+    """Add total to subdimension calculations into calculation components."""
     meta_w_dims = xbrl_metadata.assign(
         **{dim: pd.NA for dim in dim_cols} | {"table_name": table_name}
     ).pipe(
@@ -1054,32 +1105,6 @@ def _calculation_components_subtotal_calculations(
     return calc_comps_w_totals
 
 
-def _check_subtotal_calculations(
-    df: pd.DataFrame,
-    params: "Ferc1TableTransformParams",
-    calc_comps_w_totals: pd.DataFrame,
-    calc_idx: list[str],
-) -> None:
-    """Check that sub-dimension calculations sum to the reported totals.
-
-    No correction records are added to the sub-dimensions calculations. This is only an
-    error check, and returns nothing.
-    """
-    logger.info(f"Checking total-to-subtotal calculations in {params.subtotal_column}")
-    subtotal_calcs = calculate_values_from_components(
-        data=df,
-        calculation_components=calc_comps_w_totals[
-            calc_comps_w_totals.is_total_to_subdimensions_calc
-        ],
-        calc_idx=calc_idx,
-        value_col=params.column_to_check,
-    )
-    subtotal_calcs = check_calculation_metrics(
-        calculated_df=subtotal_calcs,
-        group_metric_checks=params.group_metric_checks,
-    )
-
-
 def _add_intra_table_calculation_dimensions(
     intra_table_calcs: pd.DataFrame,
     table_dims: pd.DataFrame,
@@ -1088,7 +1113,7 @@ def _add_intra_table_calculation_dimensions(
     """Add all observed subdimensions into the calculation components."""
     ######## Add all observed subdimensions into the calculation components!!!
     # First determine what dimensions matter in this table:
-    # - usually params.subtotal_column has THE ONE dimension in the table...
+    # - usually params.subdimension_column has THE ONE dimension in the table...
     # - BUT some tables have more than one dimension so we grab from all of the
     #   the dims in the transformers.
 
@@ -1135,6 +1160,9 @@ def calculate_values_from_components(
     data: pd.DataFrame,
     calc_idx: list[str],
     value_col: str,
+    calc_to_data_merge_validation: Literal[
+        "one_to_many", "many_to_many"
+    ] = "one_to_many",
 ) -> pd.DataFrame:
     """Apply calculations derived from XBRL metadata to reported XBRL data.
 
@@ -1173,18 +1201,19 @@ def calculate_values_from_components(
             pd.merge(
                 calculation_components,
                 data,
-                validate="one_to_many",
+                validate=calc_to_data_merge_validation,
                 on=calc_idx,
             )
             # apply the weight from the calc to convey the sign before summing.
             .assign(calculated_value=lambda x: x[value_col] * x.weight)
             .groupby(gby_parent, as_index=False, dropna=False)[["calculated_value"]]
             .sum(min_count=1)
+            .assign(is_calc=True)
         )
     except pd.errors.MergeError as err:  # Make debugging easier.
         raise pd.errors.MergeError(
             "Merge failed, duplicated merge keys in left dataset:\n"
-            f"{calculation_components[calculation_components.duplicated(calc_idx)]}"
+            f"{calculation_components[calculation_components.duplicated(calc_idx, keep=False)]}"
         ) from err
     # remove the _parent suffix so we can merge these calculated values back onto
     # the data using the original pks
@@ -1210,11 +1239,19 @@ def calculate_values_from_components(
     calculated_df = calculated_df.convert_dtypes(convert_floating=False).astype(
         {value_col: "float64", "calculated_value": "float64"}
     )
-    calculated_df = calculated_df.assign(
-        diff=lambda x: x[value_col] - x.calculated_value,
-        abs_diff=lambda x: abs(x["diff"]),
+    # For all of these below, only assign values when the record is a calculated record
+    # Also, make sure we are filling nulls so we capture the differences when there are
+    # null values in the calculated or reported values.
+    calculated_df = calculated_df.astype({"is_calc": pd.BooleanDtype()}).assign(
+        is_calc=lambda x: x.is_calc.fillna(False),
+        diff=lambda x: np.where(
+            x.is_calc, x[value_col] - x.calculated_value.fillna(0), np.nan
+        ),
+        abs_diff=lambda x: np.where(
+            x.is_calc & (x["diff"] != 0.0), abs(x["diff"]), np.nan
+        ),
         rel_diff=lambda x: np.where(
-            (x[value_col] != 0.0),
+            x.is_calc & (x[value_col] != 0.0),
             abs(x.abs_diff / x[value_col]),
             np.nan,
         ),
@@ -1394,7 +1431,9 @@ class ErrorMetric(BaseModel):
         """
         # return a df instead of a series
         df["is_not_close"] = self.is_not_close(df)
-        return df.groupby(by=self.groupby_cols()).apply(self.metric)
+        return df.groupby(by=self.groupby_cols()).apply(
+            self.metric, include_groups=False
+        )
 
     def _snake_case_metric_name(self: Self) -> str:
         """Convert the TitleCase class name to a snake_case string."""
@@ -1449,10 +1488,11 @@ class RelativeErrorMagnitude(ErrorMetric):
 
     def metric(self: Self, gb: DataFrameGroupBy) -> pd.Series:
         """Calculate the mangnitude of the errors relative to total reported value."""
-        try:
-            return gb.abs_diff.abs().sum() / gb["reported_value"].abs().sum()
-        except ZeroDivisionError:
-            return np.nan
+        gb_value = np.nan
+        denom = gb["reported_value"].abs().sum(min_count=1)
+        if np.isclose(denom, 0) | np.isnan(denom):
+            gb_value = gb.abs_diff.abs().sum(min_count=1) / denom
+        return gb_value
 
 
 class AbsoluteErrorMagnitude(ErrorMetric):
@@ -1475,7 +1515,7 @@ class NullCalculatedValueFrequency(ErrorMetric):
         return (
             df[df.row_type_xbrl == "calculated_value"]
             .groupby(self.groupby_cols())
-            .apply(self.metric)
+            .apply(self.metric, include_groups=False)
         )
 
     def metric(self: Self, gb: DataFrameGroupBy) -> pd.Series:
@@ -1501,6 +1541,7 @@ def add_corrections(
     value_col: str,
     is_close_tolerance: IsCloseTolerance,
     table_name: str,
+    is_subdimension: bool,
 ) -> pd.DataFrame:
     """Add corrections to discrepancies between reported & calculated values.
 
@@ -1516,6 +1557,8 @@ def add_corrections(
         value_col: Label of the column whose values are being calculated.
         calculation_tolerance: Data structure containing various calculation tolerances.
         table_name: Name of the table whose data we are working with. For logging.
+        is_subdimension: Indicator of whether or not the correction to add is a total to
+            subdimension calculated value.
     """
     corrections = calculated_df[
         ~np.isclose(
@@ -1524,16 +1567,17 @@ def add_corrections(
             rtol=is_close_tolerance.isclose_rtol,
             atol=is_close_tolerance.isclose_atol,
         )
-        & (calculated_df["abs_diff"].notnull())
+        & calculated_df["abs_diff"].notnull()
     ].copy()
-
-    corrections[value_col] = (
-        corrections[value_col].fillna(0.0) - corrections["calculated_value"]
-    )
+    # fill in the nulls with zeros so we get a correction for records
+    corrections[value_col] = corrections[value_col].fillna(0.0) - corrections[
+        "calculated_value"
+    ].fillna(0.0)
+    correction_label = "subdimension_correction" if is_subdimension else "correction"
     corrections = corrections.assign(
         xbrl_factoid_corrected=lambda x: x["xbrl_factoid"],
-        xbrl_factoid=lambda x: x["xbrl_factoid"] + "_correction",
-        row_type_xbrl="correction",
+        xbrl_factoid=lambda x: x["xbrl_factoid"] + "_" + correction_label,
+        row_type_xbrl=correction_label,
         is_within_table_calc=False,
         record_id=pd.NA,
     )
@@ -1619,8 +1663,8 @@ class Ferc1TableTransformParams(TableTransformParams):
             ) in self.add_columns_with_uniform_values.columns_to_add.items()
             if col_info.is_dimension
         }
-        if self.reconcile_table_calculations.subtotal_column:
-            dims.update({self.reconcile_table_calculations.subtotal_column})
+        if self.reconcile_table_calculations.subdimension_column:
+            dims.update({self.reconcile_table_calculations.subdimension_column})
         return list(dims)
 
 
@@ -2170,8 +2214,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             )
         return calc_comps
 
-    @staticmethod
-    def add_metadata_corrections(tbl_meta: pd.DataFrame) -> pd.DataFrame:
+    def add_metadata_corrections(self, tbl_meta: pd.DataFrame) -> pd.DataFrame:
         """Create metadata records for the calculation correction factoids.
 
         Args:
@@ -2182,9 +2225,27 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             row_type_xbrl="correction",
             xbrl_factoid=lambda x: x.xbrl_factoid + "_correction",
         )
+        if self.params.reconcile_table_calculations.subdimension_column:
+            # add the _subdimension_correction records as well.
+            # how to determine whether a
+            subdimension_correction_meta = tbl_meta[
+                (tbl_meta.row_type_xbrl == "calculated_value")
+                & tbl_meta.is_within_table_calc
+            ].assign(
+                row_type_xbrl="correction",
+                xbrl_factoid=lambda x: x.xbrl_factoid + "_subdimension_correction",
+            )
+        else:
+            subdimension_correction_meta = pd.DataFrame(columns=tbl_meta.columns)
         tbl_meta = (
             pd.concat(
-                [tbl_meta, correction_meta.astype(tbl_meta.dtypes, errors="ignore")]
+                [
+                    tbl_meta,
+                    correction_meta.astype(tbl_meta.dtypes, errors="ignore"),
+                    subdimension_correction_meta.astype(
+                        tbl_meta.dtypes, errors="ignore"
+                    ),
+                ]
             )
             .reset_index(drop=True)
             .convert_dtypes()
@@ -2211,7 +2272,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         # split the calcs from non-calcs/make corrections/append
         calcs = calc_components[calc_components.xbrl_factoid.notnull()]
         correction_components = (
-            calcs[["table_name_parent", "xbrl_factoid_parent"]]
+            calcs[["table_name_parent", "xbrl_factoid_parent", "is_within_table_calc"]]
             .drop_duplicates()
             .assign(
                 table_name=lambda t: t.table_name_parent,
@@ -2219,7 +2280,24 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 weight=1,
             )
         )
-        return pd.concat([calc_components, correction_components])
+        if self.params.reconcile_table_calculations.subdimension_column:
+            subdimension_correction_components = (
+                calcs[calcs.is_within_table_calc][
+                    ["table_name_parent", "xbrl_factoid_parent", "is_within_table_calc"]
+                ]
+                .drop_duplicates()
+                .assign(
+                    table_name=lambda t: t.table_name_parent,
+                    xbrl_factoid=lambda x: x.xbrl_factoid_parent
+                    + "_subdimension_correction",
+                    weight=1,
+                )
+            )
+        else:
+            subdimension_correction_components = pd.DataFrame()
+        return pd.concat(
+            [calc_components, correction_components, subdimension_correction_components]
+        )
 
     def get_xbrl_calculation_fixes(self: Self) -> pd.DataFrame:
         """Grab the XBRL calculation file."""
@@ -2362,7 +2440,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 calc_fixes=self.get_xbrl_calculation_fixes(),
             )
             .drop_duplicates(keep="first")
-            .pipe(self.add_calculation_corrections)
         )
 
         # this is really a xbrl_factoid-level flag, but we need it while using this
@@ -2397,7 +2474,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                     "Duplicates found in the calculation components where none were ."
                     f"expected {dupes}"
                 )
-        return calc_comps.convert_dtypes()
+        return calc_comps.pipe(self.add_calculation_corrections).convert_dtypes()
 
     def add_columns_with_uniform_values(
         self, df: pd.DataFrame, params: AddColumnsWithUniformValues | None = None
@@ -4546,7 +4623,7 @@ class EnergySourcesTableTransformer(Ferc1AbstractTableTransformer):
             }
             for new_fact in ["megawatt_hours_purchased", "purchased_mwh"]
         ]
-        new_facts = pd.DataFrame(facts_to_add).convert_dtypes()
+        new_facts = pd.DataFrame(facts_to_add).astype(tbl_meta.dtypes, errors="ignore")
         return pd.concat([tbl_meta, new_facts])
 
 
@@ -4593,7 +4670,7 @@ class UtilityPlantSummaryTableTransformer(Ferc1AbstractTableTransformer):
             {
                 "name": "electric_plant_in_service_and_completed_construction_not_classified_electric",
                 "weight": 1.0,
-                "source_tables": ["plant_in_service_ferc1"],
+                "source_tables": ["core_ferc1__yearly_plant_in_service_sched204"],
                 "utility_type": "electric",
             }
         ]
@@ -4887,7 +4964,7 @@ class BalanceSheetLiabilitiesTableTransformer(Ferc1AbstractTableTransformer):
             ]
         ]
 
-        new_facts = pd.DataFrame(facts_to_add).convert_dtypes()
+        new_facts = pd.DataFrame(facts_to_add).astype(tbl_meta.dtypes, errors="ignore")
         return pd.concat([tbl_meta, new_facts, duplicated_facts]).reset_index(drop=True)
 
 
@@ -4967,7 +5044,7 @@ class BalanceSheetAssetsTableTransformer(Ferc1AbstractTableTransformer):
                 "preliminary_natural_gas_and_other_survey_and_investigation_charges",
             ]
         ]
-        new_facts = pd.DataFrame(facts_to_add).convert_dtypes()
+        new_facts = pd.DataFrame(facts_to_add).astype(tbl_meta.dtypes, errors="ignore")
         return pd.concat([tbl_meta, new_facts, duplicated_facts])
 
 
@@ -4996,7 +5073,7 @@ class IncomeStatementsTableTransformer(Ferc1AbstractTableTransformer):
             "is_within_table_calc": [True],
             "row_type_xbrl": ["reported_value"],
         }
-        new_facts = pd.DataFrame(facts_to_add).convert_dtypes()
+        new_facts = pd.DataFrame(facts_to_add).astype(tbl_meta.dtypes, errors="ignore")
         return pd.concat([tbl_meta, new_facts])
 
     def process_dbf(self: Self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
@@ -5116,7 +5193,7 @@ class RetainedEarningsTableTransformer(Ferc1AbstractTableTransformer):
             ]
         ]
 
-        new_facts = pd.DataFrame(facts_to_add).convert_dtypes()
+        new_facts = pd.DataFrame(facts_to_add).astype(meta.dtypes, errors="ignore")
         return pd.concat([meta, new_facts])
 
     def process_dbf(self, raw_dbf: pd.DataFrame) -> pd.DataFrame:
@@ -5551,6 +5628,7 @@ class DepreciationByFunctionTableTransformer(Ferc1AbstractTableTransformer):
         with one singular ``xbrl_factoid``. We assign that factoid to the table in
         :meth:`transform_main`.
         """
+        fact = "accumulated_depreciation"
         single_table_fact = [
             {
                 "xbrl_factoid": fact,
@@ -5559,9 +5637,8 @@ class DepreciationByFunctionTableTransformer(Ferc1AbstractTableTransformer):
                 "ferc_account": pd.NA,
                 "xbrl_factoid_original": fact,
                 "is_within_table_calc": True,
-                "row_type_xbrl": "reported_value",
+                "row_type_xbrl": "calculated_value",
             }
-            for fact in ["accumulated_depreciation"]
         ]
         tbl_meta = pd.DataFrame(single_table_fact).convert_dtypes()
         return tbl_meta
@@ -5636,6 +5713,65 @@ class DepreciationByFunctionTableTransformer(Ferc1AbstractTableTransformer):
         )
         return df
 
+    def transform_end(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Run standard :meth:`Ferc1AbstractTableTransformer.transform_end` plus a data validation step.
+
+        In :func:`infer_intra_factoid_totals`, we restrict the child calculation components to
+        only those without "total" in any of the dimension columns (e.g. `plant_status == "total"`).
+        Because of this, when there is more than one dimension with totals in a table, as in this table,
+        records with two totals (e.g. `plant_status == "total"` and `plant_function == "total"`) only get
+        linked to children with no "totals" in any of their subdimensions. This is fine and good because
+        it avoids possible double counting of mixed total and sub-dimension calculations. But it means
+        that records with totals in one sub-dimension (e.g. `plant_status == "in_service"` and
+        `plant_function == "total"`) aren't linked to double-total parent factoids. To ensure that there
+        aren't many instances of data where most or all of the data is reported in these mixed-total
+        records, we add a validation step to ward against large-scale data loss in
+        :class:`pudl.output.ferc1.Exploder`.
+        """
+        df = super().transform_end(df)
+        dimension_cols = ["plant_function", "plant_status"]
+        correction_mask = df.depreciation_type.str.endswith("_correction")
+        double_total_mask = (df[dimension_cols] == "total").all(axis="columns")
+        single_total_mask = (df[dimension_cols] == "total").any(
+            axis="columns"
+        ) & ~double_total_mask
+
+        gb_idx = ["utility_id_ferc1", "report_year"]
+        value_col = "ending_balance"
+        single_total_sum = (
+            df[single_total_mask & ~correction_mask]
+            .groupby(gb_idx, as_index=False)[[value_col]]
+            .sum(min_count=1)
+            .rename(columns={value_col: f"{value_col}_single_total"})
+        )
+        children_sum = (
+            df[~single_total_mask & ~double_total_mask]
+            .groupby(gb_idx, as_index=False)[[value_col]]
+            .sum(min_count=1)
+            .rename(columns={value_col: f"{value_col}_children"})
+        )
+        double_totals = df.loc[
+            double_total_mask & ~correction_mask, gb_idx + [value_col]
+        ].rename(columns={value_col: f"{value_col}_double_total"})
+        total_test = double_totals.merge(
+            single_total_sum, on=gb_idx, validate="one_to_one", how="outer"
+        ).merge(children_sum, on=gb_idx, validate="one_to_one", how="outer")
+        total_test = total_test[
+            total_test.ending_balance_double_total.isnull()
+            & total_test.ending_balance_single_total.notnull()
+        ]
+        description_of_these_records = "with nulls in the total/total record but non-null data in the total/sub-dimension records."
+        if len(total_test) > 7:
+            raise AssertionError(
+                f"Found more records ({len(total_test)}) than expected (7) {description_of_these_records}"
+            )
+        if not total_test[total_test.ending_balance_children.isnull()].empty:
+            raise AssertionError(
+                f"We expected that all of the records {description_of_these_records} "
+                "to have non-null data in the pure sub-dimension records, but some records that don't meet this condition were found."
+            )
+        return df
+
 
 class OperatingExpensesTableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`core_ferc1__yearly_operating_expenses_sched320` table."""
@@ -5681,7 +5817,9 @@ class OperatingExpensesTableTransformer(Ferc1AbstractTableTransformer):
             }
             for dbf_only_fact in ["load_dispatching_transmission_expense"]
         ]
-        dbf_only_facts = pd.DataFrame(dbf_only_facts).convert_dtypes()
+        dbf_only_facts = pd.DataFrame(dbf_only_facts).astype(
+            tbl_meta.dtypes, errors="ignore"
+        )
         return pd.concat([tbl_meta, dbf_only_facts]).assign(utility_type="electric")
 
     @cache_df(key="dbf")
@@ -6211,6 +6349,7 @@ def _core_ferc1_xbrl__calculation_components(**kwargs) -> pd.DataFrame:
             table_dimensions=_core_ferc1__table_dimensions,
             dimensions=dimensions,
         )
+        .pipe(add_calculation_component_corrections)
     )
 
     child_cols = ["table_name", "xbrl_factoid"]
@@ -6241,9 +6380,11 @@ def _core_ferc1_xbrl__calculation_components(**kwargs) -> pd.DataFrame:
         return calcs_vs_table.reset_index()
 
     # which calculations are missing from the metadata table?
+    # ignore the corrections bc they are weird
     missing_calcs = check_calcs_vs_table(
         calcs=calc_components[
             calc_components.table_name.isin(FERC1_TFR_CLASSES.keys())
+            & ~calc_components.xbrl_factoid.str.endswith("_correction")
         ],
         checked_table=_core_ferc1_xbrl__metadata,
         idx_calcs=calc_cols,
@@ -6428,26 +6569,8 @@ def make_xbrl_factoid_dimensions_explicit(
             the parental dimensions or the child dimensions.
     """
     logger.info(f"Adding {dimensions=} into calculation component table.")
-    # even though we don't actually get correction records for all of the
-    # factiods, we are still going to force them to exist here so all of the
-    # downstream processes have them all. All table dim facts get correction
-    # records regardless of whether they are calculated values.
-    # The non-calcualted _correction records will be dropped in the left
-    # merge below while assigning df_w_implied_dims
-    non_correction_mask = ~table_dimensions_ferc1.xbrl_factoid.str.endswith(
-        "_correction"
-    )
-    table_dimensions_ferc1 = pd.concat(
-        [
-            table_dimensions_ferc1[non_correction_mask],
-            (
-                table_dimensions_ferc1[non_correction_mask].assign(
-                    xbrl_factoid=lambda x: x.xbrl_factoid + "_correction"
-                )
-            ),
-        ]
-    )
     df_w_dims = df_w_xbrl_factoid.copy()
+
     on_cols = ["table_name", "xbrl_factoid"]
     if parent:
         table_dimensions_ferc1 = table_dimensions_ferc1.rename(
@@ -6660,7 +6783,6 @@ def infer_intra_factoid_totals(
     )
 
     # verification + deduping below.
-
     check_for_calc_components_duplicates(
         calcs_with_totals,
         table_names_known_dupes=[
@@ -6668,13 +6790,61 @@ def infer_intra_factoid_totals(
         ],
         idx=parent_node_pk + child_node_pk,
     )
-
     # only drop duplicates if the table_name is in known dupes list.
     calcs_with_totals = calcs_with_totals.drop_duplicates(
         parent_node_pk + child_node_pk, keep="first"
     )
     assert calcs_with_totals[calcs_with_totals.duplicated()].empty
     return calcs_with_totals
+
+
+def add_calculation_component_corrections(
+    calc_components: pd.DataFrame,
+) -> pd.DataFrame:
+    """Add records into the calculation components table.
+
+    All calculated records should have correction records. All total-to-subdimension
+    calculations should also have correction records. For the core (non-subdimension)
+    calculations, all calculation parents require a record with a correction child.
+    For the total-to-subdimension calculations, we are assuming we can identify those
+    calculations with the `is_total_to_subdimensions_calc` boolean column. All
+    total-to-subdimension
+
+    All calculaitons will get a correction record in the calculation components table
+    wether or not there is ever a correction record in the data.
+    """
+
+    def assign_child_cols(df, is_subdimension_correction):
+        return df.assign(
+            table_name=lambda x: x.table_name_parent,
+            xbrl_factoid=lambda x: x.xbrl_factoid_parent
+            + (
+                "_subdimension_correction"
+                if is_subdimension_correction
+                else "_correction"
+            ),
+            plant_function=lambda x: x.plant_function_parent,
+            utility_type=lambda x: x.utility_type_parent,
+            plant_status=lambda x: x.plant_status_parent,
+            is_total_to_subdimensions_calc=is_subdimension_correction,
+            weight=1,
+        )
+
+    dimensions = other_dimensions(table_names=list(FERC1_TFR_CLASSES))
+    parent_idx = [f"{c}_parent" for c in ["table_name", "xbrl_factoid"] + dimensions]
+
+    non_corrections = calc_components[
+        ~calc_components.xbrl_factoid.str.endswith("_correction")
+    ]
+    corrections = calc_components.drop_duplicates(subset=parent_idx).pipe(
+        assign_child_cols, is_subdimension_correction=False
+    )
+    subdimension_corrections = (
+        calc_components[calc_components.is_total_to_subdimensions_calc]
+        .drop_duplicates(subset=parent_idx)
+        .pipe(assign_child_cols, is_subdimension_correction=True)
+    )
+    return pd.concat([non_corrections, corrections, subdimension_corrections])
 
 
 @asset(

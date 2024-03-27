@@ -53,6 +53,7 @@ default_assets = (
     *load_assets_from_modules([pudl.extract.eia191], group_name="raw_eia191"),
     *load_assets_from_modules([pudl.extract.eia757a], group_name="raw_eia757a"),
     *load_assets_from_modules([pudl.extract.phmsagas], group_name="raw_phmsagas"),
+    *load_assets_from_modules([pudl.extract.nrelatb], group_name="raw_nrelatb"),
     *load_assets_from_modules([pudl.extract.eia860m], group_name="raw_eia860m"),
     *load_assets_from_modules([pudl.extract.eia860], group_name="raw_eia860"),
     *load_assets_from_modules([pudl.transform.eia860], group_name="_core_eia860"),
@@ -63,6 +64,7 @@ default_assets = (
     ),  # TODO: move one _core asset to separate module?
     *load_assets_from_modules([pudl.extract.eia923], group_name="raw_eia923"),
     *load_assets_from_modules([pudl.transform.eia923], group_name="_core_eia923"),
+    *load_assets_from_modules([pudl.extract.eia930], group_name="raw_eia930"),
     *load_assets_from_modules([pudl.transform.eia], group_name="core_eia"),
     *load_assets_from_modules([pudl.extract.ferc1], group_name="raw_ferc1"),
     *load_assets_from_modules([pudl.transform.ferc1], group_name="core_ferc1"),
