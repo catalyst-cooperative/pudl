@@ -208,6 +208,7 @@ class ZenodoDoiSettings(BaseSettings):
     ferc714: ZenodoDoi = "10.5281/zenodo.8326694"
     gridpathratk: ZenodoDoi = "10.5281/zenodo.10844662"
     phmsagas: ZenodoDoi = "10.5281/zenodo.10493790"
+    nrelatb: ZenodoDoi = "10.5281/zenodo.10839268"
 
     model_config = SettingsConfigDict(env_prefix="pudl_zenodo_doi_", env_file=".env")
 

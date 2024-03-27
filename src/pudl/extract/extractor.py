@@ -160,7 +160,7 @@ class GenericExtractor(ABC):
         self, df: pd.DataFrame, page: str, **partition: PartitionSelection
     ) -> pd.DataFrame:
         """Takes any special steps for processing raw data and renaming columns."""
-        return df
+        return df.rename(columns=self._metadata.get_column_map(page, **partition))
 
     def process_renamed(
         self, df: pd.DataFrame, page: str, **partition: PartitionSelection

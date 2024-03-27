@@ -177,6 +177,18 @@ class PhmsaGasSettings(GenericDatasetSettings):
     years: list[int] = data_source.working_partitions["years"]
 
 
+class NrelAtbSettings(GenericDatasetSettings):
+    """An immutable pydantic model to validate NREL ATB settings.
+
+    Args:
+        data_source: DataSource metadata object
+        years: list of years to validate.
+    """
+
+    data_source: ClassVar[DataSource] = DataSource.from_id("nrelatb")
+    years: list[int] = data_source.working_partitions["years"]
+
+
 class Eia923Settings(GenericDatasetSettings):
     """An immutable pydantic model to validate EIA 923 settings.
 
@@ -411,6 +423,7 @@ class DatasetsSettings(FrozenBaseModel):
     ferc714: Ferc714Settings | None = None
     glue: GlueSettings | None = None
     phmsagas: PhmsaGasSettings | None = None
+    nrelatb: NrelAtbSettings | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -430,6 +443,7 @@ class DatasetsSettings(FrozenBaseModel):
             data["ferc714"] = Ferc714Settings()
             data["glue"] = GlueSettings()
             data["phmsagas"] = PhmsaGasSettings()
+            data["nrelatb"] = NrelAtbSettings()
 
         return data
 

@@ -53,6 +53,7 @@ default_assets = (
     *load_assets_from_modules([pudl.extract.eia191], group_name="raw_eia191"),
     *load_assets_from_modules([pudl.extract.eia757a], group_name="raw_eia757a"),
     *load_assets_from_modules([pudl.extract.phmsagas], group_name="raw_phmsagas"),
+    *load_assets_from_modules([pudl.extract.nrelatb], group_name="raw_nrelatb"),
     *load_assets_from_modules([pudl.extract.eia860m], group_name="raw_eia860m"),
     *load_assets_from_modules([pudl.extract.eia860], group_name="raw_eia860"),
     *load_assets_from_modules([pudl.transform.eia860], group_name="_core_eia860"),

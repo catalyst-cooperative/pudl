@@ -740,7 +740,7 @@ SOURCES: dict[str, Any] = {
             "source_format": "Parquet",
         },
         "working_partitions": {
-            "years": [2023],
+            "years": sorted(set(range(2019, 2024))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
