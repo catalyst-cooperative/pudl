@@ -20,10 +20,33 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "aggregation_key",
                 "capacity_factor",
             ],
+            # TODO: add a FK relationship between this table and the profile aggregations
             "primary_key": ["utc_datetime", "aggregation_key"],
         },
         "sources": ["gridpathratoolkit"],
         "field_namespace": "gridpathratoolkit",
         "etl_group": "gridpathratoolkit",
-    }
+    },
+    "core_gridpathratoolkit__capacity_factor_aggregations": {
+        "description": (
+            "A description of which individual generator profiles should be aggregated "
+            "to create the aggregated profiles in the "
+            "core_gridpathratoolkit__aggregated_extended_profiles table. Generator "
+            "capacity is used to weight the contribution of individual generators in "
+            "the resulting aggregated profiles."
+        ),
+        "schema": {
+            "fields": [
+                "plant_id_eia",
+                "generator_id",
+                "aggregation_key",
+                "capacity_mw",
+                "include_generator",
+            ],
+            "primary_key": ["plant_id_eia", "generator_id"],
+        },
+        "sources": ["gridpathratoolkit"],
+        "field_namespace": "gridpathratoolkit",
+        "etl_group": "gridpathratoolkit",
+    },
 }

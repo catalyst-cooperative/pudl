@@ -3,6 +3,8 @@
 import pandas as pd
 from dagster import asset
 
+import pudl
+
 
 def _transform(
     capacity_factors: pd.DataFrame, utc_offset: pd.Timedelta
@@ -56,3 +58,55 @@ def core_gridpathratoolkit__hourly_aggregated_extended_capacity_factors(
             ),
         ]
     ).astype({"aggregation_key": pd.CategoricalDtype()})
+
+
+def _transform_aggs(raw_agg: pd.DataFrame) -> pd.DataFrame:
+    """Transform raw GridPath RA Toolkit generator aggregations.
+
+    - split EIA_UniqueID into plant + generator IDs
+    - rename columns to use PUDL conventions
+    - verify that split-out plant IDs always match reported plant IDs
+    - Set column dtypes
+    """
+    # Get rid of non-alphanumeric characters, and convert to lowercase
+    agg = pudl.helpers.simplify_columns(raw_agg)
+    # Split the eia_uniqueid into plant and generator IDs
+    # Should always be an integer (plant id) followed by an underscore, with anything
+    # after the underscore being the generator ID (a string).
+    separate_ids = agg["eia_uniqueid"].str.split("_", n=1, expand=True)
+    separate_ids.columns = ["plant_id_eia", "generator_id"]
+    separate_ids = separate_ids.astype({"plant_id_eia": int, "generator_id": "string"})
+    agg = pd.concat([agg, separate_ids], axis="columns")
+    # Ensure no mismatch between EIA plant IDs. Only applies to wind data.
+    if "eia_plantcode" in agg.columns:
+        assert agg.loc[agg.eia_plantcode != agg.plant_id_eia].empty
+    agg = (
+        agg.drop(
+            columns=[
+                col for col in ["eia_plantcode", "eia_uniqueid"] if col in agg.columns
+            ]
+        )
+        .rename(
+            columns={
+                "gp_aggregation": "aggregation_key",
+                "eia_nameplatecap": "capacity_mw",
+                "include": "include_generator",
+            }
+        )
+        .astype({"include_generator": "boolean", "aggregation_key": "string"})
+    )
+    return agg
+
+
+@asset(io_manager_key="pudl_io_manager")
+def core_gridpathratoolkit__capacity_factor_aggregations(
+    raw_gridpathratoolkit__wind_capacity_aggregations: pd.DataFrame,
+    raw_gridpathratoolkit__solar_capacity_aggregations: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform and combine raw GridPath RA Toolkit generator aggregations."""
+    return pd.concat(
+        [
+            _transform_aggs(raw_gridpathratoolkit__wind_capacity_aggregations),
+            _transform_aggs(raw_gridpathratoolkit__solar_capacity_aggregations),
+        ]
+    )
