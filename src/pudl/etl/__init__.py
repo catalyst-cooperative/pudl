@@ -64,6 +64,7 @@ default_assets = (
     ),  # TODO: move one _core asset to separate module?
     *load_assets_from_modules([pudl.extract.eia923], group_name="raw_eia923"),
     *load_assets_from_modules([pudl.transform.eia923], group_name="_core_eia923"),
+    *load_assets_from_modules([pudl.extract.eia930], group_name="raw_eia930"),
     *load_assets_from_modules([pudl.transform.eia], group_name="core_eia"),
     *load_assets_from_modules([pudl.extract.ferc1], group_name="raw_ferc1"),
     *load_assets_from_modules([pudl.transform.ferc1], group_name="core_ferc1"),
