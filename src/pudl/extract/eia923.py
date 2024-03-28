@@ -98,6 +98,7 @@ class Extractor(excel.ExcelExtractor):
 # TODO (bendnorman): Add this information to the metadata
 eia_raw_table_names = (
     "raw_eia923__boiler_fuel",
+    "raw_eia923__energy_storage",
     "raw_eia923__fuel_receipts_costs",
     "raw_eia923__generation_fuel",
     "raw_eia923__generator",
