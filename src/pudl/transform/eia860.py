@@ -366,11 +366,13 @@ def _core_eia860__generators_wind(
     Many of the same transforms to the core generators table are applied here.
 
     Some notes for possible cleaning later:
+
     * technology_description: this field didn't exist in 2013. We could try to backfill.
       this is an annual scd so it'll get slurpped up there and backfilling does happen
       in the output layer via :func:`pudl.output.eia.fill_generator_technology_description`
     * turbines_num: this field doesn't show up in this table for 2013 and 2014, but it does
       exist in the 2001-2012 generators tab. This is an annual generator scd.
+
     """
     wind_ex = raw_eia860__generator_wind_existing
     wind_re = raw_eia860__generator_wind_retired
