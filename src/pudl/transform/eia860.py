@@ -372,11 +372,17 @@ def _core_eia860__generators_wind(
     * turbines_num: this field doesn't show up in this table for 2013 and 2014, but it does
       exist in the 2001-2012 generators tab. This is an annual generator scd.
     """
-    wind_df = (
-        pd.concat(
-            [raw_eia860__generator_wind_existing, raw_eia860__generator_wind_retired],
-            sort=True,
+    wind_ex = raw_eia860__generator_wind_existing
+    wind_re = raw_eia860__generator_wind_retired
+    # there is one record that has a null gen id. ensure there isn't more before dropping
+    if len(null_gens := wind_re[wind_re.generator_id.isnull()]) > 1:
+        raise AssertionError(
+            f"Expected one or zero records with a null generator_id but found {null_gens}"
         )
+    wind_re = wind_re.dropna(subset=["generator_id"])
+
+    wind_df = (
+        pd.concat([wind_ex, wind_re], sort=True)
         .pipe(pudl.helpers.fix_eia_na)
         .pipe(pudl.helpers.month_year_to_date)
         .pipe(pudl.helpers.convert_to_date)
@@ -384,16 +390,17 @@ def _core_eia860__generators_wind(
             pudl.helpers.simplify_strings,
             columns=["predominant_turbine_manufacturer"],
         )
+        .convert_dtypes()
         .pipe(
             pudl.metadata.classes.Package.from_resource_ids()
             .get_resource("core_eia860__scd_generators")
             .encode
         )
-        # .pipe(
-        #     pudl.metadata.classes.Package.from_resource_ids()
-        #     .get_resource("core_eia860__generators_wind")
-        #     .encode
-        # ) # add enum for wind_quality_class 1-4
+        .pipe(
+            pudl.metadata.classes.Package.from_resource_ids()
+            .get_resource("core_eia860__yearly_generators_wind")
+            .encode
+        )
     )
 
     wind_df["operational_status"] = wind_df.operational_status_code.str.upper().map(
