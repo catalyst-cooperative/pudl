@@ -676,7 +676,7 @@ SOURCES: dict[str, Any] = {
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
-    "gridpathratk": {
+    "gridpathratoolkit": {
         "title": "PUDL Raw GridPath Resource Adequacy Toolkit Renewable Generation Profiles",
         "path": "https://gridlab.org/gridpathratoolkit/",
         "description": (

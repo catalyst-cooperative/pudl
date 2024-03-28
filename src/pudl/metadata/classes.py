@@ -1257,7 +1257,7 @@ class Resource(PudlMeta):
             "ferc1",
             "ferc714",
             "glue",
-            "gridpathratk",
+            "gridpathratoolkit",
             "ppe",
             "pudl",
         ]
@@ -1275,7 +1275,7 @@ class Resource(PudlMeta):
             "ferc1_disabled",
             "ferc714",
             "glue",
-            "gridpathratk",
+            "gridpathratoolkit",
             "outputs",
             "static_ferc1",
             "static_eia",

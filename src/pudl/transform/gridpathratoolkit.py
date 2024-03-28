@@ -4,8 +4,8 @@ import pandas as pd
 from dagster import asset
 
 
-def _transform_profiles(
-    profiles: pd.DataFrame, utc_offset: pd.Timedelta
+def _transform(
+    capacity_factors: pd.DataFrame, utc_offset: pd.Timedelta
 ) -> pd.DataFrame:
     """Basic transformations that can be applied to many profiles.
 
@@ -18,39 +18,40 @@ def _transform_profiles(
     # here as we use in the FERC-714 and EPA CEMS data. Should this be reflected in
     # the column names here and elsewhere, whatever the convention is?
     datetime_cols = ["year", "month", "day", "hour"]
-    profiles["utc_datetime"] = (
-        pd.DatetimeIndex(pd.to_datetime(profiles.loc[:, datetime_cols])) - utc_offset
+    capacity_factors["utc_datetime"] = (
+        pd.DatetimeIndex(pd.to_datetime(capacity_factors.loc[:, datetime_cols]))
+        - utc_offset
     )
-    profiles = (
-        profiles.drop(columns=datetime_cols)
+    capacity_factors = (
+        capacity_factors.drop(columns=datetime_cols)
         .set_index("utc_datetime")
         .stack()
         .reset_index()
     )
-    profiles.columns = ["utc_datetime", "aggregation_key", "capacity_factor"]
-    profiles = profiles.astype({"aggregation_key": "string"})
-    return profiles
+    capacity_factors.columns = ["utc_datetime", "aggregation_key", "capacity_factor"]
+    capacity_factors = capacity_factors.astype({"aggregation_key": "string"})
+    return capacity_factors
 
 
 @asset(io_manager_key="pudl_io_manager")
-def core_gridpathratk__aggregated_extended_profiles(
-    raw_gridpathratk__aggregated_extended_solar: pd.DataFrame,
-    raw_gridpathratk__aggregated_extended_wind: pd.DataFrame,
+def core_gridpathratoolkit__hourly_aggregated_extended_capacity_factors(
+    raw_gridpathratoolkit__aggregated_extended_solar_capacity: pd.DataFrame,
+    raw_gridpathratoolkit__aggregated_extended_wind_capacity: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform raw GridPath RA Toolkit renewable generation profiles.
 
-    Concatenates the solar and wind profiles into a single table and turns the
+    Concatenates the solar and wind capacity factors into a single table and turns the
     aggregation key into a categorical column to save space.
     """
     pacific_standard_time = pd.Timedelta("-8h")
     return pd.concat(
         [
-            _transform_profiles(
-                profiles=raw_gridpathratk__aggregated_extended_solar,
+            _transform(
+                capacity_factors=raw_gridpathratoolkit__aggregated_extended_solar_capacity,
                 utc_offset=pacific_standard_time,
             ),
-            _transform_profiles(
-                profiles=raw_gridpathratk__aggregated_extended_wind,
+            _transform(
+                capacity_factors=raw_gridpathratoolkit__aggregated_extended_wind_capacity,
                 utc_offset=pacific_standard_time,
             ),
         ]

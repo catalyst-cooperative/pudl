@@ -33,38 +33,29 @@ from pathlib import Path
 import pandas as pd
 from dagster import AssetsDefinition, Output, asset
 
-# TODO: Reorganize the archive to use asset names for partitions directly
-GRIDPATHRATK_PARTS = {
-    "hourly-solar-zonal-capacity-synth": {
-        "table_name": "aggregated_extended_solar",
-    },
-    "hourly-wind-zonal-capacity-synth": {
-        "table_name": "aggregated_extended_wind",
-    },
-}
 
-
-def raw_gridpathratk_profile_asset_factory(part: str) -> AssetsDefinition:
+def raw_gridpathratoolkit_capacity_factor_asset_factory(part: str) -> AssetsDefinition:
     """An asset factory for GridPath RA Toolkit hourly generation profiles.
 
     This factory works on the processed hourly profiles that store one capacity factor
-    time series per file with a the time index stored in a separate timestamps.csv. The
-    stems of the filenames are used to identify the timeseries for later processing.
+    time series per file with the time index stored in a separate file named
+    timestamps.csv. The stems of the filenames are used to identify the timeseries for
+    later processing.
     """
 
     @asset(
-        name="raw_gridpathratk__" + GRIDPATHRATK_PARTS[part]["table_name"],
+        name=f"raw_gridpathratoolkit__{part}",
         required_resource_keys={"datastore", "dataset_settings"},
     )
-    def _extract_raw_gridpathratk(context):
+    def _extract(context):
         """Extract raw GridPath RA Toolkit renewable energy generation profiles.
 
         Args:
             context: dagster keyword that provides access to resources and config.
         """
         ds = context.resources.datastore
-        zf = ds.get_zipfile_resource("gridpathratk", part=part)
-        profiles = pd.read_csv(BytesIO(zf.read(f"{part}/timestamps.csv"))).rename(
+        zf = ds.get_zipfile_resource("gridpathratoolkit", part=part)
+        profiles = pd.read_csv(BytesIO(zf.read("timestamps.csv"))).rename(
             columns={"HE": "hour"}
         )
 
@@ -77,9 +68,13 @@ def raw_gridpathratk_profile_asset_factory(part: str) -> AssetsDefinition:
             profiles = pd.concat([profiles, new_profile], axis="columns")
         return Output(value=profiles)
 
-    return _extract_raw_gridpathratk
+    return _extract
 
 
-raw_gridpathratk_assets = [
-    raw_gridpathratk_profile_asset_factory(part) for part in GRIDPATHRATK_PARTS
+raw_gridpathratoolkit_capacity_factor_assets = [
+    raw_gridpathratoolkit_capacity_factor_asset_factory(part)
+    for part in [
+        "aggregated_extended_solar_capacity",
+        "aggregated_extended_wind_capacity",
+    ]
 ]
