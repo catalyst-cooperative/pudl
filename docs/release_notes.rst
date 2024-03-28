@@ -14,8 +14,8 @@ New Data Coverage
   :ref:`i_core_eia860__fgd_equipment`. Once harvested, these tables will eventually be
   removed from the database, but they are being published until then. See :issue:`3394`
   and :issue:`3392`, and :pr:`3403`.
-* Added a new ``gridpathratk`` data source containing hourly wind and solar generation
-  profiles from the `GridPath Resoure Adequacy Toolkit
+* Added a new ``gridpathratoolkit`` data source containing hourly wind and solar
+  generation profiles from the `GridPath Resoure Adequacy Toolkit
   <https://gridlab.org/gridpathratoolkit>`__. See the `new Zenodo archive
   <https://zenodo.org/records/10844662>`__, PR :pr:`3489` and `this PUDL archiver issue
   <https://github.com/catalyst-cooperative/pudl-archiver/issues/296>`__.
