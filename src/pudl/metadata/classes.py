@@ -484,7 +484,7 @@ class Encoder(PudlMeta):
         unknown_codes = set(col.dropna()).difference(self.code_map)
         if unknown_codes:
             raise ValueError(
-                f"Found unknown codes while encoding {col.name}: {unknown_codes=}\n{self.code_map.keys()}"
+                f"Found unknown codes while encoding {col.name}: {unknown_codes=}"
             )
         col = col.map(self.code_map)
         if dtype:

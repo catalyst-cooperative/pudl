@@ -392,7 +392,7 @@ def _core_eia860__generators_wind(
             pudl.helpers.simplify_strings,
             columns=["predominant_turbine_manufacturer"],
         )
-        .convert_dtypes()
+        .convert_dtypes()  # converting here before the wind encoding bc int's are codes
         .pipe(
             pudl.metadata.classes.Package.from_resource_ids()
             .get_resource("core_eia860__scd_generators")
