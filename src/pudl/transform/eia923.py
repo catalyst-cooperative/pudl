@@ -654,7 +654,7 @@ def _core_eia_923__generation_fuel_eia923(raw_eia923__generation_fuel: pd.DataFr
         "electric_fuel_consumption_quantity",
         "total_fuel_consumption_mmbtu",
         "elec_fuel_consumption_mmbtu",
-        "net_generation_mwh_total",
+        "total_net_generation_mwh",
         "early_release",
     ]
     gen_fuel = gen_fuel.drop(cols_to_drop, axis=1)

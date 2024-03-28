@@ -1,8 +1,8 @@
-"""change 923 column name combined_heat_power to associated_combined_heat_power to match 860
+"""change 923 column name combined_heat_power to associated_combined_heat_power to match 860. Also move total_ to the front of the column from net_generation_mwh_total in the generation_fuel table.
 
-Revision ID: 855f2d3746a9
+Revision ID: 5d043449e9e1
 Revises: 41120381bfda
-Create Date: 2024-03-28 14:13:14.880435
+Create Date: 2024-03-28 14:45:39.801728
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '855f2d3746a9'
+revision = '5d043449e9e1'
 down_revision = '41120381bfda'
 branch_labels = None
 depends_on = None
