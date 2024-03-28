@@ -6,7 +6,7 @@ from dagster import asset
 import pudl
 
 
-def _transform(
+def _transform_capacity_factors(
     capacity_factors: pd.DataFrame, utc_offset: pd.Timedelta
 ) -> pd.DataFrame:
     """Basic transformations that can be applied to many profiles.
@@ -48,11 +48,11 @@ def core_gridpathratoolkit__hourly_aggregated_extended_capacity_factors(
     pacific_standard_time = pd.Timedelta("-8h")
     return pd.concat(
         [
-            _transform(
+            _transform_capacity_factors(
                 capacity_factors=raw_gridpathratoolkit__aggregated_extended_solar_capacity,
                 utc_offset=pacific_standard_time,
             ),
-            _transform(
+            _transform_capacity_factors(
                 capacity_factors=raw_gridpathratoolkit__aggregated_extended_wind_capacity,
                 utc_offset=pacific_standard_time,
             ),
