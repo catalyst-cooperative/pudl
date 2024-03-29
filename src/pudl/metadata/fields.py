@@ -1780,6 +1780,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "customers used to determine SAIDI and SAIFI."
         ),
     },
+    "include_generator": {
+        "type": "boolean",
+        "description": "Indicates whether ad generator is included in the generation profile aggregation.",
+    },
     "income_type": {
         "type": "string",
         "description": "Type of income reported in income_statement_ferc1 table.",

@@ -71,10 +71,45 @@ def raw_gridpathratoolkit_capacity_factor_asset_factory(part: str) -> AssetsDefi
     return _extract
 
 
+def raw_gridpathratoolkit__csv_asset_factory(part: str) -> AssetsDefinition:
+    """An asset factory for extracting standalone CSVs from the GridPath RA Toolkit.
+
+    These are simple CSVs which indicate how to combine individual wind plants or solar
+    generators into larger blocks of capacity, as well as some weather data.
+    """
+
+    @asset(
+        name=f"raw_gridpathratoolkit__{part}",
+        required_resource_keys={"datastore", "dataset_settings"},
+    )
+    def _extract(context):
+        """Extract raw GridPath RA Toolkit CSV files.
+
+        Args:
+            context: dagster keyword that provides access to resources and config.
+        """
+        ds = context.resources.datastore
+        df = pd.read_csv(
+            BytesIO(ds.get_unique_resource("gridpathratoolkit", part=part))
+        )
+        return Output(value=df)
+
+    return _extract
+
+
 raw_gridpathratoolkit_capacity_factor_assets = [
     raw_gridpathratoolkit_capacity_factor_asset_factory(part)
     for part in [
         "aggregated_extended_solar_capacity",
         "aggregated_extended_wind_capacity",
+    ]
+]
+
+raw_gridpathratoolkit_csvs = [
+    raw_gridpathratoolkit__csv_asset_factory(part)
+    for part in [
+        "wind_capacity_aggregations",
+        "solar_capacity_aggregations",
+        "daily_weather",
     ]
 ]
