@@ -23,6 +23,12 @@ New Data Coverage
   which contains wind generator attributes. See :pr:`3522` and :pr:`3494`
 * Added new :ref:`core_eia860__scd_generators_solar` table from EIA860 Schedule 3.3
   which contains solar generator attributes. See :pr:`3524` and :pr:`3482`
+* Integrated the most processed version of the GridPath RA Toolkit wind and solar
+  generation profiles, as well as the tables describing how individual generators were
+  aggregated together to create the profiles. See issues :issue:`3509,3510,3511,3515`
+  and PR :pr:`3514`. The new tables include:
+  :ref:`core_gridpathratoolkit__hourly_aggregated_extended_capacity_factors` and
+  :ref:`core_gridpathratoolkit__capacity_factor_aggregations`.
 
 Data Cleaning
 ^^^^^^^^^^^^^
@@ -52,6 +58,10 @@ Schema Changes
   :ref:`core_eia860m__changelog_generators` table. The BA codes reported in the raw data
   contained a lot of non-standard values, which have now been standardized. See issue
   :issue:`3437` and PR :pr:`3442`.
+* Renamed the ``utc_datetime`` column found in the FERC-714 tables to ``datetime_utc``
+  in order to be consistent with ``operating_datetime_utc`` in the EPA CEMS data, and
+  the new hourly renewable generation profiles in the GridPath RA Toolkit. See PR
+  :pr:`3514`.
 
 .. _release-v2024.2.6:
 

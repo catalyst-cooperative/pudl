@@ -20,7 +20,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "aggregation_key",
                 "capacity_factor",
             ],
-            # TODO: add a FK relationship between this table and the profile aggregations
             "primary_key": ["datetime_utc", "aggregation_key"],
         },
         "sources": ["gridpathratoolkit"],
