@@ -4202,15 +4202,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "The wind quality class for turbines at this generator. See table core_eia__codes_wind_quality_class for specifications about each class.",
         "constraints": {"enum": [1, 2, 3, 4]},
     },
-    "wind_speed_avg_mps": {
+    "wind_speed_avg_ms": {
         "type": "number",
-        "description": "Average wind speed in miles per second.",
-        "unit": "mps",
+        "description": "Average wind speed in meters per second.",
+        "unit": "ms",
     },
-    "extreme_fifty_year_gust_mps": {
+    "extreme_fifty_year_gust_ms": {
         "type": "number",
-        "description": "The extreme 50-year wind gusts at this generator in miles per hour.",
-        "unit": "mps",
+        "description": "The extreme 50-year wind gusts at this generator in meters per hour.",
+        "unit": "ms",
     },
     "turbulence_intensity_a": {
         "type": "number",
