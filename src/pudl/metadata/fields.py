@@ -841,6 +841,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Code identifying a dataset available within PUDL.",
         "constraints": {"enum": list(SOURCES)},
     },
+    "datetime_utc": {
+        "type": "datetime",
+        "description": "Date and time converted to Coordinated Universal Time (UTC).",
+    },
     "datum": {
         "type": "string",
         "description": "Geodetic coordinate system identifier (e.g. NAD27, NAD83, or WGS84).",
@@ -1782,7 +1786,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "include_generator": {
         "type": "boolean",
-        "description": "Indicates whether ad generator is included in the generation profile aggregation.",
+        "description": "Indicates whether a generator is included in the generation profile aggregation.",
     },
     "income_type": {
         "type": "string",
@@ -3984,10 +3988,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "uprate_derate_during_year": {
         "type": "boolean",
         "description": "Was an uprate or derate completed on this generator during the reporting year?",
-    },
-    "utc_datetime": {
-        "type": "datetime",
-        "description": ("Date and time converted to Coordinated Universal Time (UTC)."),
     },
     "utility_id_eia": {
         "type": "integer",

@@ -20,17 +20,17 @@ def _transform_capacity_factors(
     # here as we use in the FERC-714 and EPA CEMS data. Should this be reflected in
     # the column names here and elsewhere, whatever the convention is?
     datetime_cols = ["year", "month", "day", "hour"]
-    capacity_factors["utc_datetime"] = (
+    capacity_factors["datetime_utc"] = (
         pd.DatetimeIndex(pd.to_datetime(capacity_factors.loc[:, datetime_cols]))
         - utc_offset
     )
     capacity_factors = (
         capacity_factors.drop(columns=datetime_cols)
-        .set_index("utc_datetime")
+        .set_index("datetime_utc")
         .stack()
         .reset_index()
     )
-    capacity_factors.columns = ["utc_datetime", "aggregation_key", "capacity_factor"]
+    capacity_factors.columns = ["datetime_utc", "aggregation_key", "capacity_factor"]
     capacity_factors = capacity_factors.astype({"aggregation_key": "string"})
     return capacity_factors
 

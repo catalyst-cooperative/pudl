@@ -39,8 +39,13 @@ def raw_gridpathratoolkit_capacity_factor_asset_factory(part: str) -> AssetsDefi
 
     This factory works on the processed hourly profiles that store one capacity factor
     time series per file with the time index stored in a separate file named
-    timestamps.csv. The stems of the filenames are used to identify the timeseries for
-    later processing.
+    timestamps.csv. We extract the timestamps first and use them as the index of the
+    dataframe, concatenating the capacity factor time series as separate columns in a
+    (temporarily) wide-format dataframe.
+
+    The stems of the filenames are used as column labels, which are later transformed
+    into the ``aggregation_key`` field, indicating which generators were aggregated to
+    produce the time series based on the wind and solar capacity aggregation tables.
     """
 
     @asset(
