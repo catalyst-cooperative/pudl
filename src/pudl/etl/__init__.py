@@ -120,7 +120,11 @@ default_assets = (
     ),
 )
 
-asset_check_modules = [pudl.transform.eia860, pudl.transform.eia923]
+asset_check_modules = [
+    pudl.transform.eia860,
+    pudl.transform.eia923,
+    pudl.transform.gridpathratoolkit,
+]
 default_asset_checks = list(load_asset_checks_from_modules(asset_check_modules))
 
 

@@ -1,7 +1,7 @@
 """Transformations of the GridPath RA Toolkit renewable generation profiles."""
 
 import pandas as pd
-from dagster import asset
+from dagster import AssetIn, asset, asset_check
 
 import pudl
 
@@ -94,7 +94,18 @@ def _transform_aggs(raw_agg: pd.DataFrame) -> pd.DataFrame:
             }
         )
         .astype({"include_generator": "boolean", "aggregation_key": "string"})
+        .pipe(
+            pudl.helpers.remove_leading_zeros_from_numeric_strings,
+            col_name="generator_id",
+        )
     )
+    # Plant 64272 does not exist in the PUDL data. However, plant 64481 is the only
+    # plant that has a generator_id of "AEC1", and its solar, and has the same capacity
+    # as the GridPath RA Toolkit expects for plant 64272, and also has generator AEC2
+    # which shows up in the GridPath RA Toolkit data in association with plant 64481.
+    agg.loc[
+        (agg.plant_id_eia == 64272) & (agg.generator_id == "AEC1"), "plant_id_eia"
+    ] = 64481
     return agg
 
 
@@ -109,4 +120,30 @@ def core_gridpathratoolkit__capacity_factor_aggregations(
             _transform_aggs(raw_gridpathratoolkit__wind_capacity_aggregations),
             _transform_aggs(raw_gridpathratoolkit__solar_capacity_aggregations),
         ]
+    )
+
+
+@asset_check(
+    asset="core_gridpathratoolkit__hourly_aggregated_extended_capacity_factors",
+    additional_ins={
+        "aggs": AssetIn("core_gridpathratoolkit__capacity_factor_aggregations")
+    },
+    blocking=True,
+)
+def check_valid_aggregation_keys(
+    core_gridpathratoolkit__hourly_aggregated_extended_capacity_factors,
+    aggs: pd.DataFrame,
+) -> None:
+    """Check that every capacity factor aggregation key appears in the aggregations.
+
+    This isn't a normal foreign-key relationship, since the aggregation key isn't the
+    primary key in the aggregation tables, and is not unique in either of these tables,
+    but if an aggregation key appears in the capacity factor time series and never
+    appears in the aggregation table, then something is wrong.
+    """
+    assert (
+        set(
+            core_gridpathratoolkit__hourly_aggregated_extended_capacity_factors.aggregation_key.unique()
+        ).difference(set(aggs.aggregation_key.unique()))
+        == set()
     )
