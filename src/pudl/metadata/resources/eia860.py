@@ -775,7 +775,7 @@ system IDs."""
     },
     "core_eia860__yearly_generators_wind": {
         "description": (
-            "Annually reported information about wind generators from EIA-860 Schedule 3."
+            "Annually reported information about wind generators from EIA-860 Schedule 3.2."
             " This table includes only those values that are unique to wind generators. "
             "The rest of the columns that are reported in the EIA-860 Wind tabs are "
             "included in core_eia860__scd_generators and core_eia__entity_generators."
@@ -791,6 +791,52 @@ system IDs."""
                 "predominant_turbine_model",
                 "turbine_hub_height_feet",
                 "wind_quality_class",
+            ],
+            "primary_key": [
+                "plant_id_eia",
+                "generator_id",
+                "report_date",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia860"],
+        "etl_group": "eia860",
+    },
+    "core_eia860__yearly_generators_solar": {
+        "description": (
+            "Annually reported information about solar generators from EIA-860 Schedule 3.3."
+            " This table includes only those values that are unique to solar generators. "
+            "The rest of the columns that are reported in the EIA-860 Solar tabs are "
+            "included in core_eia860__scd_generators and core_eia__entity_generators."
+        ),
+        "schema": {
+            "fields": [
+                "plant_id_eia",
+                "generator_id",
+                "report_date",
+                "azimuth_angle",
+                "capacity_standard_testing_conditions_mwdc",
+                "net_metering_capacity_mwdc",
+                "tilt_angle",
+                "uses_crystalline_silicon",
+                "uses_dish_engine",
+                "uses_dual_axis_tracking",
+                "uses_east_west_fixed_tilt",
+                "uses_fixed_tilt",
+                "uses_lenses_mirrors",
+                "uses_linear_fresnel",
+                "uses_net_metering_agreement",
+                "uses_other_materials",
+                "uses_other_solar_technology",
+                "uses_parabolic_trough",
+                "uses_power_tower",
+                "uses_single_axis_tracking",
+                "uses_thin_film_a_si",
+                "uses_thin_film_cdte",
+                "uses_thin_film_cigs",
+                "uses_thin_film_other",
+                "uses_virtual_net_metering_agreement",
+                "virtual_net_metering_capacity_mwdc",
             ],
             "primary_key": [
                 "plant_id_eia",

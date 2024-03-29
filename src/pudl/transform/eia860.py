@@ -357,6 +357,53 @@ def _core_eia860__generators(
 
 
 @asset
+def _core_eia860__generators_solar(
+    raw_eia860__generator_solar_existing: pd.DataFrame,
+    raw_eia860__generator_solar_retired: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the solar-specific generators table.
+
+    Many of the same transforms to the core generators table are applied here.
+    Most of the unique solar columns are booleans.
+
+    Notes for possible future cleaning:
+
+    * Both the ``tilt_angle`` and ``azimuth_angle`` columns have a small number of
+      negative values (both under 40 records). This seems off, but not impossible?
+    * A lot of the boolean columns in this table are mostly null. It is probably
+      that a lot of the nulls should coorespond to False's, but there is no sure way
+      to know, so nulls seem more appropriate.
+
+    """
+    solar_existing = raw_eia860__generator_solar_existing
+    solar_retired = raw_eia860__generator_solar_retired
+    # every boolean column in the raw solar tables has a uses prefix
+    boolean_columns_to_fix = list(solar_existing.filter(like="uses_"))
+    solar_df = (
+        pd.concat([solar_existing, solar_retired], sort=True)
+        .pipe(pudl.helpers.fix_eia_na)
+        .pipe(fix_boolean_columns, boolean_columns_to_fix)
+        .pipe(pudl.helpers.month_year_to_date)
+        .pipe(pudl.helpers.convert_to_date)
+        .pipe(
+            pudl.metadata.classes.Package.from_resource_ids()
+            .get_resource("core_eia860__scd_generators")
+            .encode
+        )
+    )
+
+    solar_df["operational_status"] = solar_df.operational_status_code.str.upper().map(
+        pudl.helpers.label_map(
+            CODE_METADATA["core_eia__codes_operational_status"]["df"],
+            from_col="code",
+            to_col="operational_status",
+            null_value=pd.NA,
+        )
+    )
+    return solar_df
+
+
+@asset
 def _core_eia860__generators_wind(
     raw_eia860__generator_wind_existing: pd.DataFrame,
     raw_eia860__generator_wind_retired: pd.DataFrame,
