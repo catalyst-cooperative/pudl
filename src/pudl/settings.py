@@ -1,7 +1,7 @@
 """Module for validating pudl etl settings."""
 
 import json
-from enum import Enum, unique
+from enum import Enum, StrEnum, auto, unique
 from typing import Any, ClassVar, Self
 
 import fsspec
@@ -347,14 +347,40 @@ class GlueSettings(FrozenBaseModel):
     ferc1: bool = True
 
 
+@unique
+class GPRATKTechType(StrEnum):
+    """Enum to constrain GridPath RA Toolkit technology types."""
+
+    WIND = auto()
+    SOLAR = auto()
+    # Not yet implemented
+    # THERMAL = auto()
+
+
+@unique
+class GPRATKProcLevel(StrEnum):
+    """Enum to constraint GridPath RA Toolkit processing levels."""
+
+    EXTENDED = auto()
+    # Not yet implemented
+    # AGGREGATED = auto()
+    # ORIGINAL = auto()
+
+
 class GridPathRAToolkitSettings(GenericDatasetSettings):
     """An immutable pydantic model to validate GridPath RA Toolkit settings."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("gridpathratoolkit")
-    technology_types: list[str] = ["wind", "solar"]
-    processing_levels: list[str] = ["extended"]
-    daily_weather: bool = False
+    technology_types: list[GPRATKTechType] = ["wind", "solar"]
+    processing_levels: list[GPRATKProcLevel] = ["extended"]
+    daily_weather: bool = True
     parts: list[str] = data_source.working_partitions["parts"]
+
+    @field_validator("technology_types", "processing_levels")
+    @classmethod
+    def deduplicate_list(cls, v):
+        """Deduplicate technology type and processing level values."""
+        return list(set(v))
 
 
 class EiaSettings(FrozenBaseModel):
