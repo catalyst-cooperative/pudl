@@ -773,6 +773,35 @@ system IDs."""
         "sources": ["eia860"],
         "etl_group": "eia860",
     },
+    "core_eia860__yearly_generators_wind": {
+        "description": (
+            "Annually reported information about wind generators from EIA-860 Schedule 3."
+            " This table includes only those values that are unique to wind generators. "
+            "The rest of the columns that are reported in the EIA-860 Wind tabs are "
+            "included in core_eia860__scd_generators and core_eia__entity_generators."
+        ),
+        "schema": {
+            "fields": [
+                "plant_id_eia",
+                "generator_id",
+                "report_date",
+                "design_wind_speed_mph",
+                "obstacle_num_faa",
+                "predominant_turbine_manufacturer",
+                "predominant_turbine_model",
+                "turbine_hub_height_feet",
+                "wind_quality_class",
+            ],
+            "primary_key": [
+                "plant_id_eia",
+                "generator_id",
+                "report_date",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia860"],
+        "etl_group": "eia860",
+    },
 }
 """EIA-860 resource attributes organized by PUDL identifier (``resource.name``).
 

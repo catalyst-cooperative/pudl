@@ -4176,6 +4176,50 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "pattern": r"^\d{4}$",
         },
     },
+    "design_wind_speed_mph": {
+        "type": "number",
+        "description": "Average annual wind speed that turbines at this wind site were designed for.",
+    },
+    "obstacle_num_faa": {
+        "type": "string",
+        "description": "The Federal Aviation Administration (FAA) obstacle number assigned to this generator. If more than one obstacle number exists, the one that best represents the turbines. This field was only reported from 2013 through 2015.",
+    },
+    "predominant_turbine_manufacturer": {
+        "type": "string",
+        "description": "Name of predominant manufacturer of turbines at this generator.",
+    },
+    "predominant_turbine_model": {
+        "type": "string",
+        "description": "Predominant model number of turbines at this generator.",
+    },
+    "turbine_hub_height_feet": {
+        "type": "number",
+        "description": "The hub height of turbines at this generator. If more than one value exists, the one that best represents the turbines.",
+        "unit": "ft",
+    },
+    "wind_quality_class": {
+        "type": "integer",
+        "description": "The wind quality class for turbines at this generator. See table core_eia__codes_wind_quality_class for specifications about each class.",
+        "constraints": {"enum": [1, 2, 3, 4]},
+    },
+    "wind_speed_avg_ms": {
+        "type": "number",
+        "description": "Average wind speed in meters per second.",
+        "unit": "ms",
+    },
+    "extreme_fifty_year_gust_ms": {
+        "type": "number",
+        "description": "The extreme 50-year wind gusts at this generator in meters per hour.",
+        "unit": "ms",
+    },
+    "turbulence_intensity_a": {
+        "type": "number",
+        "description": "The upper bounds of the turbulence intensity at the wind site (ratio of standard deviation of fluctuating wind velocity to the mean wind speed).",
+    },
+    "turbulence_intensity_b": {
+        "type": "number",
+        "description": "The lower bounds of the turbulence intensity at the wind site (ratio of standard deviation of fluctuating wind velocity to the mean wind speed).",
+    },
 }
 """Field attributes by PUDL identifier (`field.name`).
 
