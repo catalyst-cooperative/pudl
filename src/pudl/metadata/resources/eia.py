@@ -1139,6 +1139,26 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia860", "eia923"],
         "etl_group": "static_eia",
     },
+    "core_eia__codes_wind_quality_class": {
+        "description": "A coding table for wind quality classes.",
+        "schema": {
+            "fields": [
+                "code",
+                "label",
+                "description",
+                "wind_speed_avg_ms",
+                "extreme_fifty_year_gust_ms",
+                "turbulence_intensity_a",
+                "turbulence_intensity_b",
+            ],
+            "primary_key": ["code"],
+            "foreign_key_rules": {"fields": [["wind_quality_class"]]},
+        },
+        "encoder": CODE_METADATA["core_eia__codes_wind_quality_class"],
+        "field_namespace": "eia",
+        "sources": ["eia860"],
+        "etl_group": "static_eia",
+    },
 }
 """Generic EIA resource attributes organized by PUDL identifier (``resource.name``).
 

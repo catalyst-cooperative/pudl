@@ -186,6 +186,25 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
     return own_df
 
 
+def fix_boolean_columns(
+    df: pd.DataFrame,
+    boolean_columns_to_fix: list[str],
+) -> pd.DataFrame:
+    """Fix standard issues with EIA boolean columns.
+
+    Most boolean columns have either "Y" for True or "N" for False. A subset of the
+    columns have "X" values which represents a False value. A subset of the columns
+    have "U" values, presumably for "Unknown," which must be set to null in order to
+    convert the columns to datatype Boolean.
+    """
+    fillna_cols = {col: pd.NA for col in boolean_columns_to_fix}
+    boolean_replace_cols = {
+        col: {"Y": True, "N": False, "X": False, "U": pd.NA}
+        for col in boolean_columns_to_fix
+    }
+    return df.fillna(fillna_cols).replace(to_replace=boolean_replace_cols)
+
+
 @asset
 def _core_eia860__generators(
     raw_eia860__generator_proposed: pd.DataFrame,
@@ -297,21 +316,12 @@ def _core_eia860__generators(
         "ferc_exempt_wholesale_generator",
         "ferc_qualifying_facility",
     ]
-    # Most boolean columns have either "Y" for True or "N" for False.
-    # A subset of the columns have "X" values which represents a False value.
-    # A subset of the columns have "U" values, presumably for "Unknown," which
-    # must be set to None in order to convert the columns to datatype Boolean.
-    fillna_cols = {col: pd.NA for col in boolean_columns_to_fix}
-    boolean_replace_cols = {
-        col: {"Y": True, "N": False, "X": False, "U": pd.NA}
-        for col in boolean_columns_to_fix
-    }
     gens_df = (
         pd.concat([ge_df, gp_df, gr_df, g_df], sort=True)
         .dropna(subset=["generator_id", "plant_id_eia"])
         .pipe(pudl.helpers.fix_eia_na)
-        .fillna(fillna_cols)
-        .replace(to_replace=nulls_replace_cols | boolean_replace_cols)
+        .pipe(fix_boolean_columns, boolean_columns_to_fix=boolean_columns_to_fix)
+        .replace(to_replace=nulls_replace_cols)
         .pipe(pudl.helpers.month_year_to_date)
         .pipe(
             pudl.helpers.simplify_strings,
@@ -344,6 +354,66 @@ def _core_eia860__generators(
     )
 
     return gens_df
+
+
+@asset
+def _core_eia860__generators_wind(
+    raw_eia860__generator_wind_existing: pd.DataFrame,
+    raw_eia860__generator_wind_retired: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the wind-specific generators table.
+
+    Many of the same transforms to the core generators table are applied here.
+
+    Some notes for possible cleaning later:
+
+    * technology_description: this field didn't exist in 2013. We could try to backfill.
+      this is an annual scd so it'll get slurpped up there and backfilling does happen
+      in the output layer via :func:`pudl.output.eia.fill_generator_technology_description`
+    * turbines_num: this field doesn't show up in this table for 2013 and 2014, but it does
+      exist in the 2001-2012 generators tab. This is an annual generator scd.
+
+    """
+    wind_ex = raw_eia860__generator_wind_existing
+    wind_re = raw_eia860__generator_wind_retired
+    # there is one record that has a null gen id. ensure there isn't more before dropping
+    if len(null_gens := wind_re[wind_re.generator_id.isnull()]) > 1:
+        raise AssertionError(
+            f"Expected one or zero records with a null generator_id but found {null_gens}"
+        )
+    wind_re = wind_re.dropna(subset=["generator_id"])
+
+    wind_df = (
+        pd.concat([wind_ex, wind_re], sort=True)
+        .pipe(pudl.helpers.fix_eia_na)
+        .pipe(pudl.helpers.month_year_to_date)
+        .pipe(pudl.helpers.convert_to_date)
+        .pipe(
+            pudl.helpers.simplify_strings,
+            columns=["predominant_turbine_manufacturer"],
+        )
+        .convert_dtypes()  # converting here before the wind encoding bc int's are codes
+        .pipe(
+            pudl.metadata.classes.Package.from_resource_ids()
+            .get_resource("core_eia860__scd_generators")
+            .encode
+        )
+        .pipe(
+            pudl.metadata.classes.Package.from_resource_ids()
+            .get_resource("core_eia860__yearly_generators_wind")
+            .encode
+        )
+    )
+
+    wind_df["operational_status"] = wind_df.operational_status_code.str.upper().map(
+        pudl.helpers.label_map(
+            CODE_METADATA["core_eia__codes_operational_status"]["df"],
+            from_col="code",
+            to_col="operational_status",
+            null_value=pd.NA,
+        )
+    )
+    return wind_df
 
 
 @asset

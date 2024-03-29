@@ -19,6 +19,8 @@ New Data Coverage
   <https://gridlab.org/gridpathratoolkit>`__. See the `new Zenodo archive
   <https://zenodo.org/records/10844662>`__, PR :pr:`3489` and `this PUDL archiver issue
   <https://github.com/catalyst-cooperative/pudl-archiver/issues/296>`__.
+* Added new :ref:`core_eia860__yearly_generators_wind` table from EIA860 Schedule 3.2
+  which contains wind generator attributes. See :pr:`3522` and :pr:`3494`
 
 Data Cleaning
 ^^^^^^^^^^^^^
