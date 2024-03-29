@@ -11,8 +11,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "plus electricity storage facilities. For the hybrid facilities the "
             "capacity factor represents the available output of only the renewable "
             "generators. Estimates of the generation profiles have been extended "
-            "across a longer range of dates than the original data. See the Appendix "
-            "of the GridPath Resource Adequacy Toolkit report for more details."
+            "across a longer range of dates than the original data. For wind, the "
+            "years 2015-2020 are synthesized data and for solar 2020 is synthesized. "
+            "See the Appendix of the GridPath Resource Adequacy Toolkit report for "
+            "details."
         ),
         "schema": {
             "fields": [
