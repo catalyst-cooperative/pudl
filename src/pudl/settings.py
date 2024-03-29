@@ -95,7 +95,7 @@ class GenericDatasetSettings(FrozenBaseModel):
 
         Convert a list of partitions into a list of dictionaries of partitions. This is
         intended to be used to store partitions in a format that is easy to use with
-        ``pd.json_normalize``.
+        :meth:`pandas.json_normalize`.
         """
         partitions = []
         for part_name in ["year_quarters", "years", "year_months"]:
@@ -116,7 +116,6 @@ class Ferc1Settings(GenericDatasetSettings):
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc1")
-
     years: list[int] = data_source.working_partitions["years"]
 
     @property
@@ -348,6 +347,16 @@ class GlueSettings(FrozenBaseModel):
     ferc1: bool = True
 
 
+class GridPathRAToolkitSettings(GenericDatasetSettings):
+    """An immutable pydantic model to validate GridPath RA Toolkit settings."""
+
+    data_source: ClassVar[DataSource] = DataSource.from_id("gridpathratoolkit")
+    technology_types: list[str] = ["wind", "solar"]
+    processing_levels: list[str] = ["extended"]
+    daily_weather: bool = False
+    parts: list[str] = data_source.working_partitions["parts"]
+
+
 class EiaSettings(FrozenBaseModel):
     """An immutable pydantic model to validate EIA datasets settings.
 
@@ -408,14 +417,7 @@ class EiaSettings(FrozenBaseModel):
 
 
 class DatasetsSettings(FrozenBaseModel):
-    """An immutable pydantic model to validate PUDL Dataset settings.
-
-    Args:
-        ferc1: Immutable pydantic model to validate ferc1 settings.
-        eia: Immutable pydantic model to validate eia(860, 923) settings.
-        glue: Immutable pydantic model to validate glue settings.
-        epacems: Immutable pydantic model to validate epacems settings.
-    """
+    """An immutable pydantic model to validate PUDL Dataset settings."""
 
     eia: EiaSettings | None = None
     epacems: EpaCemsSettings | None = None
@@ -424,6 +426,7 @@ class DatasetsSettings(FrozenBaseModel):
     glue: GlueSettings | None = None
     phmsagas: PhmsaGasSettings | None = None
     nrelatb: NrelAtbSettings | None = None
+    gridpathratoolkit: GridPathRAToolkitSettings | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -444,6 +447,7 @@ class DatasetsSettings(FrozenBaseModel):
             data["glue"] = GlueSettings()
             data["phmsagas"] = PhmsaGasSettings()
             data["nrelatb"] = NrelAtbSettings()
+            data["gridpathratoolkit"] = GridPathRAToolkitSettings()
 
         return data
 

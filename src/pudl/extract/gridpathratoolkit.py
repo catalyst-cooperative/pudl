@@ -33,8 +33,14 @@ from pathlib import Path
 import pandas as pd
 from dagster import AssetsDefinition, Output, asset
 
+import pudl
+from pudl.settings import DataSource
+from pudl.workspace.datastore import Datastore
 
-def raw_gridpathratoolkit_capacity_factor_asset_factory(part: str) -> AssetsDefinition:
+logger = pudl.logging_helpers.get_logger(__name__)
+
+
+def raw_gridpathratoolkit_asset_factory(part: str) -> AssetsDefinition:
     """An asset factory for GridPath RA Toolkit hourly generation profiles.
 
     This factory works on the processed hourly profiles that store one capacity factor
@@ -48,17 +54,12 @@ def raw_gridpathratoolkit_capacity_factor_asset_factory(part: str) -> AssetsDefi
     produce the time series based on the wind and solar capacity aggregation tables.
     """
 
-    @asset(
-        name=f"raw_gridpathratoolkit__{part}",
-        required_resource_keys={"datastore", "dataset_settings"},
-    )
-    def _extract(context):
-        """Extract raw GridPath RA Toolkit renewable energy generation profiles.
+    def _extract_csv(part: str, ds: Datastore) -> pd.DataFrame:
+        return pd.read_csv(
+            BytesIO(ds.get_unique_resource("gridpathratoolkit", part=part))
+        )
 
-        Args:
-            context: dagster keyword that provides access to resources and config.
-        """
-        ds = context.resources.datastore
+    def _extract_capacity_factor(part: str, ds: Datastore) -> pd.DataFrame:
         zf = ds.get_zipfile_resource("gridpathratoolkit", part=part)
         profiles = pd.read_csv(BytesIO(zf.read("timestamps.csv"))).rename(
             columns={"HE": "hour"}
@@ -71,50 +72,66 @@ def raw_gridpathratoolkit_capacity_factor_asset_factory(part: str) -> AssetsDefi
                 BytesIO(zf.read(fn)), header=None, names=[aggregation_key]
             )
             profiles = pd.concat([profiles, new_profile], axis="columns")
-        return Output(value=profiles)
-
-    return _extract
-
-
-def raw_gridpathratoolkit__csv_asset_factory(part: str) -> AssetsDefinition:
-    """An asset factory for extracting standalone CSVs from the GridPath RA Toolkit.
-
-    These are simple CSVs which indicate how to combine individual wind plants or solar
-    generators into larger blocks of capacity, as well as some weather data.
-    """
+        return profiles
 
     @asset(
         name=f"raw_gridpathratoolkit__{part}",
         required_resource_keys={"datastore", "dataset_settings"},
     )
     def _extract(context):
-        """Extract raw GridPath RA Toolkit CSV files.
+        """Extract raw GridPath RA Toolkit renewable energy generation profiles.
 
         Args:
             context: dagster keyword that provides access to resources and config.
         """
+        gpratk_settings = context.resources.dataset_settings.gridpathratoolkit
         ds = context.resources.datastore
-        df = pd.read_csv(
-            BytesIO(ds.get_unique_resource("gridpathratoolkit", part=part))
-        )
-        return Output(value=df)
+
+        parts = {
+            "daily_weather": (_extract_csv, gpratk_settings.daily_weather),
+            "aggregated_extended_solar_capacity": (
+                _extract_capacity_factor,
+                "solar" in gpratk_settings.technology_types
+                and "extended" in gpratk_settings.processing_levels,
+            ),
+            "aggregated_extended_wind_capacity": (
+                _extract_capacity_factor,
+                "wind" in gpratk_settings.technology_types
+                and "extended" in gpratk_settings.processing_levels,
+            ),
+            "solar_capacity_aggregations": (
+                _extract_csv,
+                "solar" in gpratk_settings.technology_types
+                and (
+                    "extended" in gpratk_settings.processing_levels
+                    or "aggregated" in gpratk_settings.processing_levels
+                ),
+            ),
+            "wind_capacity_aggregations": (
+                _extract_csv,
+                "wind" in gpratk_settings.technology_types
+                and (
+                    "extended" in gpratk_settings.processing_levels
+                    or "aggregated" in gpratk_settings.processing_levels
+                ),
+            ),
+        }
+
+        if part not in parts:
+            raise ValueError(f"Unable to process {part}!")
+
+        func, condition = parts[part]
+        if condition:
+            logger.info(f"Extracting {part} from GridPath RA Toolkit Data")
+            return Output(value=func(part, ds))
+
+        # If the settings say we don't process a table, return an empty dataframe
+        return Output(value=pd.DataFrame())
 
     return _extract
 
 
 raw_gridpathratoolkit_capacity_factor_assets = [
-    raw_gridpathratoolkit_capacity_factor_asset_factory(part)
-    for part in [
-        "aggregated_extended_solar_capacity",
-        "aggregated_extended_wind_capacity",
-    ]
-]
-
-raw_gridpathratoolkit_csvs = [
-    raw_gridpathratoolkit__csv_asset_factory(part)
-    for part in [
-        "wind_capacity_aggregations",
-        "solar_capacity_aggregations",
-        "daily_weather",
-    ]
+    raw_gridpathratoolkit_asset_factory(part)
+    for part in DataSource.from_id("gridpathratoolkit").working_partitions["parts"]
 ]

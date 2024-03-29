@@ -1,7 +1,7 @@
 """Transformations of the GridPath RA Toolkit renewable generation profiles."""
 
 import pandas as pd
-from dagster import AssetIn, asset, asset_check
+from dagster import AssetCheckResult, AssetIn, asset, asset_check
 
 import pudl
 
@@ -49,13 +49,13 @@ def core_gridpathratoolkit__hourly_aggregated_extended_capacity_factors(
     return pd.concat(
         [
             _transform_capacity_factors(
-                capacity_factors=raw_gridpathratoolkit__aggregated_extended_solar_capacity,
-                utc_offset=pacific_standard_time,
-            ),
-            _transform_capacity_factors(
-                capacity_factors=raw_gridpathratoolkit__aggregated_extended_wind_capacity,
-                utc_offset=pacific_standard_time,
-            ),
+                capacity_factors=raw_df, utc_offset=pacific_standard_time
+            )
+            for raw_df in [
+                raw_gridpathratoolkit__aggregated_extended_solar_capacity,
+                raw_gridpathratoolkit__aggregated_extended_wind_capacity,
+            ]
+            if not raw_df.empty
         ]
     ).astype({"aggregation_key": pd.CategoricalDtype()})
 
@@ -117,8 +117,12 @@ def core_gridpathratoolkit__capacity_factor_aggregations(
     """Transform and combine raw GridPath RA Toolkit generator aggregations."""
     return pd.concat(
         [
-            _transform_aggs(raw_gridpathratoolkit__wind_capacity_aggregations),
-            _transform_aggs(raw_gridpathratoolkit__solar_capacity_aggregations),
+            _transform_aggs(agg_df)
+            for agg_df in [
+                raw_gridpathratoolkit__wind_capacity_aggregations,
+                raw_gridpathratoolkit__solar_capacity_aggregations,
+            ]
+            if not agg_df.empty
         ]
     )
 
@@ -133,7 +137,7 @@ def core_gridpathratoolkit__capacity_factor_aggregations(
 def check_valid_aggregation_keys(
     core_gridpathratoolkit__hourly_aggregated_extended_capacity_factors,
     aggs: pd.DataFrame,
-) -> None:
+) -> AssetCheckResult:
     """Check that every capacity factor aggregation key appears in the aggregations.
 
     This isn't a normal foreign-key relationship, since the aggregation key isn't the
@@ -141,9 +145,7 @@ def check_valid_aggregation_keys(
     but if an aggregation key appears in the capacity factor time series and never
     appears in the aggregation table, then something is wrong.
     """
-    assert (
-        set(
-            core_gridpathratoolkit__hourly_aggregated_extended_capacity_factors.aggregation_key.unique()
-        ).difference(set(aggs.aggregation_key.unique()))
-        == set()
-    )
+    missing_aggregation_keys = set(
+        core_gridpathratoolkit__hourly_aggregated_extended_capacity_factors.aggregation_key.unique()
+    ).difference(set(aggs.aggregation_key.unique()))
+    return AssetCheckResult(passed=missing_aggregation_keys == set())

@@ -714,6 +714,19 @@ SOURCES: dict[str, Any] = {
         ),
         "license_raw": LICENSES["cc-by-4.0"],
         "license_pudl": LICENSES["cc-by-4.0"],
+        "working_partitions": {
+            "parts": [
+                "aggregated_extended_solar_capacity",
+                "aggregated_extended_wind_capacity",
+                # "aggregated_solar_capacity",
+                # "aggregated_wind_capacity",
+                "daily_weather",
+                # "original_solar_capacity",
+                # "original_wind_capacity",
+                "solar_capacity_aggregations",
+                "wind_capacity_aggregations",
+            ]
+        },
     },
     "mshamines": {
         "title": "Mine Safety and Health Administration (MSHA) Mines",
