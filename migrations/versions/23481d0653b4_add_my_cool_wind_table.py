@@ -1,7 +1,7 @@
 """Add my cool wind table
 
 Revision ID: 23481d0653b4
-Revises: 41120381bfda
+Revises: 5d043449e9e1
 Create Date: 2024-03-28 15:51:41.122831
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '23481d0653b4'
-down_revision = '41120381bfda'
+down_revision = '5d043449e9e1'
 branch_labels = None
 depends_on = None
 
