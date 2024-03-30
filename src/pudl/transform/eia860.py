@@ -357,6 +357,70 @@ def _core_eia860__generators(
 
 
 @asset
+def _core_eia860__generators_energy_storage(
+    raw_eia860__generator_energy_storage_existing: pd.DataFrame,
+    raw_eia860__generator_energy_storage_retired: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the energy storage specific generators table.
+
+    Notes for possible future cleaning:
+    * A lot of the values that are repeated in the generators table are dropped post
+    harvesting. It would be nice to compare the values before dropping them to make sure
+    these specific generator tables don't contain information that the big generator
+    tables does not.
+    """
+    storage_ex = raw_eia860__generator_energy_storage_existing
+    storage_re = raw_eia860__generator_energy_storage_retired
+
+    boolean_columns_to_fix = [
+        "served_arbitrage_applications",
+        "served_backup_power_applications",
+        "served_co_located_renewable_firming",
+        "served_frequency_regulation_applications",
+        "served_load_following_applications",
+        "served_load_management_applications",
+        "served_ramping_spinning_reserve_applications",
+        "served_system_peak_shaving_applications",
+        "served_transmission_and_distribution_deferral_applications",
+        "served_voltage_or_reactive_power_support_applications",
+        "stored_excess_wind_and_solar_generation",
+    ]
+
+    storage_df = (
+        (
+            pd.concat([storage_ex, storage_re], sort=True)
+            .pipe(pudl.helpers.fix_eia_na)
+            .pipe(pudl.helpers.month_year_to_date)
+        )
+        .pipe(pudl.helpers.convert_to_date)
+        .pipe(fix_boolean_columns, boolean_columns_to_fix=boolean_columns_to_fix)
+        .pipe(
+            pudl.metadata.classes.Package.from_resource_ids()
+            .get_resource("core_eia860__scd_generators")
+            .encode
+        )
+        .pipe(
+            pudl.metadata.classes.Package.from_resource_ids()
+            .get_resource("core_eia860__yearly_generators_energy_storage")
+            .encode
+        )
+    )
+
+    storage_df["operational_status"] = (
+        storage_df.operational_status_code.str.upper().map(
+            pudl.helpers.label_map(
+                CODE_METADATA["core_eia__codes_operational_status"]["df"],
+                from_col="code",
+                to_col="operational_status",
+                null_value=pd.NA,
+            )
+        )
+    )
+
+    return storage_df
+
+
+@asset
 def _core_eia860__generators_wind(
     raw_eia860__generator_wind_existing: pd.DataFrame,
     raw_eia860__generator_wind_retired: pd.DataFrame,
