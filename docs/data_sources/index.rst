@@ -14,6 +14,7 @@ Data Sources
    ferc1
    ferc714
    phmsagas
+   gridpathratoolkit
 
 .. toctree::
    :caption: Work in Progress & Future Datasets
