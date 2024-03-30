@@ -371,8 +371,8 @@ class GridPathRAToolkitSettings(GenericDatasetSettings):
     """An immutable pydantic model to validate GridPath RA Toolkit settings."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("gridpathratoolkit")
-    technology_types: list[GPRATKTechType] = ["wind", "solar"]
-    processing_levels: list[GPRATKProcLevel] = ["extended"]
+    technology_types: list[str] = ["wind", "solar"]
+    processing_levels: list[str] = ["extended"]
     daily_weather: bool = True
     parts: list[str] = data_source.working_partitions["parts"]
 
@@ -381,6 +381,24 @@ class GridPathRAToolkitSettings(GenericDatasetSettings):
     def deduplicate_list(cls, v):
         """Deduplicate technology type and processing level values."""
         return list(set(v))
+
+    @field_validator("technology_types")
+    @classmethod
+    def allowed_technology_types(cls, v: list[str]) -> list[str]:
+        """Ensure that technology types are valid."""
+        for tech_type in v:
+            if tech_type not in GPRATKTechType:
+                raise ValueError(f"{tech_type} is not a valid technology type.")
+        return v
+
+    @field_validator("processing_levels")
+    @classmethod
+    def allowed_processing_levels(cls, v: list[str]) -> list[str]:
+        """Ensure that processing levels are valid."""
+        for proc_level in v:
+            if proc_level not in GPRATKProcLevel:
+                raise ValueError(f"{proc_level} is not a valid processing level.")
+        return v
 
 
 class EiaSettings(FrozenBaseModel):
