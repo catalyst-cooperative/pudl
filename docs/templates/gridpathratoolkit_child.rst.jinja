@@ -4,11 +4,11 @@ The `GridPath RA Toolkit <{{ source.path }}>`__ was created through a collaborat
 between `GridLab <https://gridlab.org>`__,
 `Moment Energy Insights <https://www.momentenergyinsights.com/>`__
 and `Blue Marble Analytics <https://www.bluemarble.run/>`__.
-It supports advanced resource adequacy analysis for the Western United States, advancing
-the characterization of three phenomena that will be increasingly important for
-understanding RA in future power systems: weather-driven relationships between load and
-resource availability; capabilities and constraints of energy limited resources; and
-transmission flows and regional coordination.
+It supports resource adequacy analysis for the Western United States, improving the the
+characterization of three phenomena that will be increasingly important for
+understanding resource adequacy in future power systems: weather-driven relationships
+between load and resource availability; capabilities and constraints of energy limited
+resources; and transmission flows and regional coordination.
 
 The Toolkit leverages publicly available data and the
 `GridPath <https://www.gridpath.io/>`__ open-source power system modeling platform
@@ -18,9 +18,9 @@ and the algorithms that were developed to support the 2026 Western US case study
 the support of GridLab, Catalyst has integrated datasets focusing on the hourly
 availability of wind and solar resources into PUDL under a
 `CC-BY-4.0 <https://creativecommons.org/licenses/by/4.0/>`__ license.
+{% endblock %}
 
-Additional Background:
-
+{% block downloadable_pdfs %}
 * `Full GridPath RA Toolkit Report (PDF) <https://gridlab.org/wp-content/uploads/2022/10/GridLab_RA-Toolkit-Report-10-12-22.pdf>`__
 * `Recorded presentation from ESIG (YouTube) <https://www.youtube.com/watch?v=CSd3faV-71o>`__
 * `Slide deck from that presentation (PDF) <https://gridlab.org/wp-content/uploads/2022/10/GridLab_RA-Toolkit_Presentation.pdf>`__
@@ -28,11 +28,6 @@ Additional Background:
 * `GridPath model GitHub repository <https://github.com/blue-marble/gridpath>`__
 * `GridPath documentation <https://gridpath.readthedocs.io/en/latest/>`__
 * `Weather Data for Power System Planning <https://www.esig.energy/weather-data-for-power-system-planning/>`__
-{% endblock %}
-
-{% block downloadable_pdfs %}
-We have not independently archived any documents associated with the GridPath RA
-Toolkit.
 {% endblock %}
 
 {% block accessible %}
