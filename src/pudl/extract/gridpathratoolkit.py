@@ -1,30 +1,17 @@
-"""Extract GridPath RA Toolkit renewable energy generation profiles from CSVs.
+"""Extract GridPath RA Toolkit renewable energy generation profiles from zipped CSVs.
 
-There are several time series available from the GridPath Resource Adequacy Toolkit.
+These hourly time are organized by technology type: Wind and Solar; and level of
+processing: original, aggregated, and extended. This module currently only extracts the
+data which is both aggregated and extended, since it is the closest to being analysis
+ready. In the future we may extract the other versions, or re-implement the entire
+aggregation and extension process within PUDL, so the outputs are being derived from the
+more granular original data, and so a variety of different aggregations can be provided.
 
-Solar:
+Alongside the Wind + Solar time series, there are also aggregation tables that describe
+which of the original plants & generators were combined to make the aggregated datasets.
+These are stored as single CSVs.
 
-* Hourly Solar by Generator
-* Hourly Solar by Zone
-* Hourly Solar by Zone (Extended)
-* Solar Aggregations
-
-Wind:
-
-* Hourly Wind by Plant
-* Hourly Wind by Zone
-* Hourly Wind by Zone (Extended)
-* Wind Aggregations
-
-Thermal Derates:
-
-* Hourly Thermal Derates by Generator
-* Hourly Thermal Derates by Generator (Extended)
-
-Misc:
-
-* Daily Weather Data
-
+In addition there's a table of daily weather data, which is also stored as a single CSV.
 """
 
 from io import BytesIO
@@ -88,39 +75,43 @@ def raw_gridpathratoolkit_asset_factory(part: str) -> AssetsDefinition:
         ds = context.resources.datastore
 
         parts = {
-            "daily_weather": (_extract_csv, gpratk_settings.daily_weather),
-            "aggregated_extended_solar_capacity": (
-                _extract_capacity_factor,
-                "solar" in gpratk_settings.technology_types
+            "daily_weather": {
+                "func": _extract_csv,
+                "condition": gpratk_settings.daily_weather,
+            },
+            "aggregated_extended_solar_capacity": {
+                "func": _extract_capacity_factor,
+                "condition": "solar" in gpratk_settings.technology_types
                 and "extended" in gpratk_settings.processing_levels,
-            ),
-            "aggregated_extended_wind_capacity": (
-                _extract_capacity_factor,
-                "wind" in gpratk_settings.technology_types
+            },
+            "aggregated_extended_wind_capacity": {
+                "func": _extract_capacity_factor,
+                "condition": "wind" in gpratk_settings.technology_types
                 and "extended" in gpratk_settings.processing_levels,
-            ),
-            "solar_capacity_aggregations": (
-                _extract_csv,
-                "solar" in gpratk_settings.technology_types
+            },
+            "solar_capacity_aggregations": {
+                "func": _extract_csv,
+                "condition": "solar" in gpratk_settings.technology_types
                 and (
                     "extended" in gpratk_settings.processing_levels
                     or "aggregated" in gpratk_settings.processing_levels
                 ),
-            ),
-            "wind_capacity_aggregations": (
-                _extract_csv,
-                "wind" in gpratk_settings.technology_types
+            },
+            "wind_capacity_aggregations": {
+                "func": _extract_csv,
+                "condition": "wind" in gpratk_settings.technology_types
                 and (
                     "extended" in gpratk_settings.processing_levels
                     or "aggregated" in gpratk_settings.processing_levels
                 ),
-            ),
+            },
         }
 
         if part not in parts:
             raise ValueError(f"Unable to process {part}!")
 
-        func, condition = parts[part]
+        func = parts[part]["func"]
+        condition = parts[part]["condition"]
         if condition:
             logger.info(f"Extracting {part} from GridPath RA Toolkit Data")
             return Output(value=func(part, ds))
