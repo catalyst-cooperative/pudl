@@ -122,7 +122,7 @@ def raw_gridpathratoolkit_asset_factory(part: str) -> AssetsDefinition:
     return _extract
 
 
-raw_gridpathratoolkit_capacity_factor_assets = [
+raw_gridpathratoolkit_assets = [
     raw_gridpathratoolkit_asset_factory(part)
     for part in DataSource.from_id("gridpathratoolkit").working_partitions["parts"]
 ]
