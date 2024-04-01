@@ -3012,15 +3012,46 @@ def out_ferc1__yearly_rate_base(
     data from the nested calculations that are build into the accounting tables.
     See :class:`Exploder` for more details.
 
-    This rate base table also contains one specific addition from
-    :ref:`core_ferc1__yearly_operating_expenses_sched320`. In standard ratemaking
-    processes, utilities are enabled to include working capital - sometimes referred
-    to as cash on hand or cash reverves. A standard ratemaking process is to consider
-    the available rate-baseable working capital to be one eigth of the average
-    operations and maintenance expense. This function grabs that expense and
-    concatenates it with the rest of the assets and liabilities from the granular
-    exploded data.
+    This rate base table also contains one new "cash_working_capital" xbrl_factoid
+    from :ref:`core_ferc1__yearly_operating_expenses_sched320` via
+    :func:`prep_cash_working_capital`.
+    """
+    assets = _out_ferc1__detailed_balance_sheet_assets
+    liabilities = _out_ferc1__detailed_balance_sheet_liabilities.assign(
+        ending_balance=lambda x: -x.ending_balance
+    )
+    cash_working_capital = prep_cash_working_capital(
+        core_ferc1__yearly_operating_expenses_sched320
+    )
 
+    # concat then select only the leafy exploded records that are in rate base
+    in_rate_base = pd.concat(
+        [
+            assets,
+            liabilities,
+            cash_working_capital,
+        ]
+    )
+    in_rate_base = in_rate_base[in_rate_base.tags_in_rate_base.isin(["yes", "partial"])]
+    # note: we need the `tags_in_rate_base` column for these checks
+    check_tag_propagation_compared_to_compiled_tags(
+        in_rate_base, "in_rate_base", _out_ferc1__detailed_tags
+    )
+    check_for_correction_xbrl_factoids_with_tag(in_rate_base, "in_rate_base")
+    return in_rate_base
+
+
+def prep_cash_working_capital(
+    core_ferc1__yearly_operating_expenses_sched320,
+) -> pd.DataFrame:
+    """Extract a new ``cash_working_capital`` xbrl_factoid for the rate base table.
+
+    In standard ratemaking processes, utilities are enabled to include working
+    capital - sometimes referred to as cash on hand or cash reverves. A standard
+    ratemaking process is to consider the available rate-baseable working capital to
+    be one eigth of the average operations and maintenance expense. This function
+    grabs that expense and in preparation to concatenate it with the rest of the
+    assets and liabilities from the granular exploded data.
     """
     # get the factoid name to grab the right part of the table
     xbrl_factoid_name = pudl.transform.ferc1.FERC1_TFR_CLASSES[
@@ -3044,25 +3075,4 @@ def out_ferc1__yearly_rate_base(
         # the assets/liabilites both use ending_balance for its main $$ column
         .rename(columns={"dollar_value": "ending_balance"})
     )
-    # then select only the leafy exploded records that are in rate base and concat
-    in_rate_base = pd.concat(
-        [
-            _out_ferc1__detailed_balance_sheet_assets[
-                _out_ferc1__detailed_balance_sheet_assets.tags_in_rate_base.isin(
-                    ["yes", "partial"]
-                )
-            ],
-            _out_ferc1__detailed_balance_sheet_liabilities[
-                _out_ferc1__detailed_balance_sheet_liabilities.tags_in_rate_base.isin(
-                    ["yes", "partial"]
-                )
-            ].assign(ending_balance=lambda x: -x.ending_balance),
-            cash_working_capital,
-        ]
-    ).sort_values(by=["report_year", "utility_id_ferc1", "table_name"], ascending=False)
-    # note: we need the `tags_in_rate_base` column for these checks
-    check_tag_propagation_compared_to_compiled_tags(
-        in_rate_base, "in_rate_base", _out_ferc1__detailed_tags
-    )
-    check_for_correction_xbrl_factoids_with_tag(in_rate_base, "in_rate_base")
-    return in_rate_base
+    return cash_working_capital
