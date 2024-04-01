@@ -4292,15 +4292,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "uses_thin_film_a_si": {
         "type": "boolean",
-        "description": "Indicates whether any solar photovoltaic panels at this generator are made of thin-film A-Si.",
+        "description": "Indicates whether any solar photovoltaic panels at this generator are made of thin-film amorphous silicon (A-Si).",
     },
     "uses_thin_film_cdte": {
         "type": "boolean",
-        "description": "Indicates whether any solar photovoltaic panels at this generator are made of thin-film CdTe.",
+        "description": "Indicates whether any solar photovoltaic panels at this generator are made of thin-film cadmium telluride (CdTe).",
     },
     "uses_thin_film_cigs": {
         "type": "boolean",
-        "description": "Indicates whether any solar photovoltaic panels at this generator are made of thin-film CIGS.",
+        "description": "Indicates whether any solar photovoltaic panels at this generator are made of thin-film copper indium gallium diselenide (CIGS).",
     },
     "uses_thin_film_other": {
         "type": "boolean",
