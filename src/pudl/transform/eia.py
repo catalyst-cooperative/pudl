@@ -247,19 +247,18 @@ def _round_operating_date(
     (default of one year) of one another.
 
     Args:
-        dirty_df (pandas.DataFrame): a dataframe with entity records that have
-            inconsistently reported operating dates.
-        clean_df (pandas.DataFrame): a dataframe with entity records that have
-            consistently reported operating dates.
-        entity_id_df (pandas.DataFrame): a dataframe with a complete set of
-            possible entity ids
-        entity_idx (list): a list of the id(s) for the entity. Ex: for a plant
-            entity, the entity_idx is ['plant_id_eia']. For a generator entity,
-            the entity_idx is ['plant_id_eia', 'generator_id'].
-        col (string): the column name of the column we are trying to harvest.
-        cols_to_consit (list): a list of the columns to determine consistency.
-            This either the [entity_id] or the [entity_id, 'report_date'],
-            depending on whether the entity is static or annual.
+        dirty_df: a dataframe with entity records that have inconsistently reported
+            operating dates.
+        clean_df: a dataframe with entity records that have consistently reported
+            operating dates.
+        entity_id_df: a dataframe with a complete set of possible entity ids
+        entity_idx: a list of the id(s) for the entity. Ex: for a plant entity, the
+            entity_idx is ['plant_id_eia']. For a generator entity, the entity_idx is
+            ['plant_id_eia', 'generator_id'].
+        col: the column name of the column we are trying to harvest.
+        cols_to_consit: a list of the columns to determine consistency.  This either the
+            [entity_id] or the [entity_id, 'report_date'], depending on whether the
+            entity is static or annual.
         group_by_freq: Frequency to combine by ("M" for month, or "Y" for year)
 
     Returns:
