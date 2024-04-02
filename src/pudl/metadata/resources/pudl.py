@@ -89,11 +89,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "state_id_fips",
-                "utc_datetime",
+                "datetime_utc",
                 "demand_mwh",
                 "scaled_demand_mwh",
             ],
-            "primary_key": ["state_id_fips", "utc_datetime"],
+            "primary_key": ["state_id_fips", "datetime_utc"],
         },
         "etl_group": "state_demand",
         "field_namespace": "pudl",

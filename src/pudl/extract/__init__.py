@@ -22,6 +22,7 @@ from . import (
     excel,
     ferc1,
     ferc714,
+    gridpathratoolkit,
     nrelatb,
     phmsagas,
     xbrl,
