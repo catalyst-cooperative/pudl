@@ -19,12 +19,13 @@ New Data Coverage
   <https://gridlab.org/gridpathratoolkit>`__. See the `new Zenodo archive
   <https://zenodo.org/records/10844662>`__, PR :pr:`3489` and `this PUDL archiver issue
   <https://github.com/catalyst-cooperative/pudl-archiver/issues/296>`__.
-* Added new :ref:`core_eia860__yearly_generators_wind` table from EIA860 Schedule 3.2
+* Added new :ref:`core_eia860__scd_generators_wind` table from EIA860 Schedule 3.2
   which contains wind generator attributes. See :pr:`3522` and :pr:`3494`
+* Added new :ref:`core_eia860__scd_generators_solar` table from EIA860 Schedule 3.3
+  which contains solar generator attributes. See :pr:`3524` and :pr:`3482`
 
 Data Cleaning
 ^^^^^^^^^^^^^
-
 * When ``generator_operating_date`` values are too inconsistent to be harvested
   successfully, we now take the max date within a year and attempt to harvest again, to
   rescue records lost because of inconsistent month reporting in EIA 860 and 860M. See

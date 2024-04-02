@@ -34,8 +34,8 @@ sludge_disposal_cost_thousand_dollars,cost_disposal,cost_disposal,cost_disposal,
 fgd_other_cost_thousand_dollars,cost_other,cost_other,cost_other,cost_other_thousand_dollars,cost_other_thousand_dollars,cost_other_thousand_dollars,cost_other_thousand_dollars,cost_other_thousand_dollars,cost_other_thousand_dollars,cost_other_thousand_dollars,cost_other_thousand_dollars,cost_other_thousand_dollars,cost_other_thousand_dollars,cost_other_thousand_dollars
 total_fgd_equipment_cost_thousand_dollars,cost_total,cost_total,cost_total,cost_total_thousand_dollars,cost_total_thousand_dollars,cost_total_thousand_dollars,cost_total_thousand_dollars,cost_total_thousand_dollars,cost_total_thousand_dollars,cost_total_thousand_dollars,cost_total_thousand_dollars,cost_total_thousand_dollars,cost_total_thousand_dollars,cost_total_thousand_dollars
 steam_plant_type_code,,,,,,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type
-operating_month,inservice_mm,inservice_mm,inservice_mm,inservice_month,,,,,,,,,,
-operating_year,inservice_yr,inservice_yr,inservice_yr,inservice_year,,,,,,,,,,
+fgd_operating_month,inservice_mm,inservice_mm,inservice_mm,inservice_month,,,,,,,,,,
+fgd_operating_year,inservice_yr,inservice_yr,inservice_yr,inservice_year,,,,,,,,,,
 fgd_manufacturer_code,fgd_manufacturer,fgd_manufacturer,fgd_manufacturer,fgd_manufacturer,,,,,,,,,,
 plant_summer_capacity_mw,plant_sum_cap,plant_sum_cap,,,,,,,,,,,,
 water_source,name_of_water_source,name_of_water_source,,,,,,,,,,,,
