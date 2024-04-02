@@ -372,26 +372,13 @@ def _core_eia860__generators_energy_storage(
     storage_ex = raw_eia860__generator_energy_storage_existing
     storage_re = raw_eia860__generator_energy_storage_retired
 
-    boolean_columns_to_fix = [
-        "served_arbitrage_applications",
-        "served_backup_power_applications",
-        "served_co_located_renewable_firming",
-        "served_frequency_regulation_applications",
-        "served_load_following_applications",
-        "served_load_management_applications",
-        "served_ramping_spinning_reserve_applications",
-        "served_system_peak_shaving_applications",
-        "served_transmission_and_distribution_deferral_applications",
-        "served_voltage_or_reactive_power_support_applications",
-        "stored_excess_wind_and_solar_generation",
-    ]
+    # every boolean column in the raw storage tables has a served_ or stored_ prefix
+    boolean_columns_to_fix = list(storage_ex.filter(regex="served_|stored_"))
 
     storage_df = (
-        (
-            pd.concat([storage_ex, storage_re], sort=True)
-            .pipe(pudl.helpers.fix_eia_na)
-            .pipe(pudl.helpers.month_year_to_date)
-        )
+        pd.concat([storage_ex, storage_re], sort=True)
+        .pipe(pudl.helpers.fix_eia_na)
+        .pipe(pudl.helpers.month_year_to_date)
         .pipe(pudl.helpers.convert_to_date)
         .pipe(fix_boolean_columns, boolean_columns_to_fix=boolean_columns_to_fix)
         .pipe(
