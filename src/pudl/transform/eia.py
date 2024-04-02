@@ -1338,6 +1338,6 @@ finished_eia_assets = [
         "core_eia860__assn_yearly_boiler_emissions_control_equipment": "_core_eia860__boiler_emissions_control_equipment_assn",
         "core_eia860__assn_boiler_cooling": "_core_eia860__boiler_cooling",
         "core_eia860__assn_boiler_stack_flue": "_core_eia860__boiler_stack_flue",
-        "core_eia860__yearly_generators_wind": "_core_eia860__generators_wind",
+        "core_eia860__scd_generators_wind": "_core_eia860__generators_wind",
     }.items()
 ]
