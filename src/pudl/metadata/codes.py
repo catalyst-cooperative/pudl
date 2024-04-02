@@ -2672,6 +2672,36 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         "code_fixes": {},
         "ignored_codes": [],
     },
+    "core_eia__codes_storage_technology_types": {
+        "df": pd.DataFrame(
+            columns=["code", "label", "description"],
+            data=[
+                ("ECC", "electro_chemical_capacitor", "Electro-chemical Capacitor"),
+                ("FLB", "flow_battery", "Flow Battery"),
+                ("LIB", "lithium_ion_battery", "Lithium-ion Battery"),
+                ("MAB", "metal_air_battery", "Metal Air Battery"),
+                ("NAB", "sodium_based_battery", "Sodium Based Battery"),
+                ("NIB", "nickel_based_battery", "Nickel Based Battery"),
+                ("OTH", "other", "Other"),
+                ("PBB", "lead_acid_battery", "Lead-acid Battery"),
+            ],
+        ).convert_dtypes(),
+        "code_fixes": {},
+        "ignored_codes": [],
+    },
+    "core_eia__codes_storage_enclosure_types": {
+        "df": pd.DataFrame(
+            columns=["code", "label", "description"],
+            data=[
+                ("BL", "building", "Building"),
+                ("CS", "containerized_stationary", "Containerized Stationary"),
+                ("CT", "containerized_transportable", "Containerized Transportable"),
+                ("OT", "other", "Other"),
+            ],
+        ).convert_dtypes(),
+        "code_fixes": {},
+        "ignored_codes": [],
+    },
 }
 
 # The entity type codes were never fully reconciled. Preserving this work for reference.

@@ -1995,6 +1995,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Indicates the source and validation of the match between EIA and FERC. Match types include matches was generated from the model, verified by the training data, overridden by the training data, etc.",
     },
+    "max_charge_rate_mw": {
+        "type": "number",
+        "description": "Maximum charge rate in MW.",
+        "unit": "MW",
+    },
+    "max_discharge_rate_mw": {
+        "type": "number",
+        "description": "Maximum discharge rate in MW.",
+        "unit": "MW",
+    },
     "max_fuel_mmbtu_per_unit": {
         "type": "number",
         "description": "Maximum heat content per physical unit of fuel in MMBtu.",
@@ -3347,6 +3357,46 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Name of the seller, or the other party in an exchange transaction.",
     },
+    "served_arbitrage": {
+        "type": "boolean",
+        "description": "Whether the energy storage device served arbitrage applications during the reporting year",
+    },
+    "served_backup_power": {
+        "type": "boolean",
+        "description": "Whether the energy storage device served backup power applications during the reporting year.",
+    },
+    "served_co_located_renewable_firming": {
+        "type": "boolean",
+        "description": "Whether the energy storage device served renewable firming applications during the reporting year.",
+    },
+    "served_frequency_regulation": {
+        "type": "boolean",
+        "description": "Whether the energy storage device served frequency regulation applications during the reporting year.",
+    },
+    "served_load_following": {
+        "type": "boolean",
+        "description": "Whether the energy storage device served load following applications during the reporting year.",
+    },
+    "served_load_management": {
+        "type": "boolean",
+        "description": "Whether the energy storage device served load management applications during the reporting year.",
+    },
+    "served_ramping_spinning_reserve": {
+        "type": "boolean",
+        "description": "Whether the this energy storage device served ramping / spinning reserve applications during the reporting year.",
+    },
+    "served_system_peak_shaving": {
+        "type": "boolean",
+        "description": "Whether the energy storage device served system peak shaving applications during the reporting year.",
+    },
+    "served_transmission_and_distribution_deferral": {
+        "type": "boolean",
+        "description": "Whether the energy storage device served renewable firming applications during the reporting year.",
+    },
+    "served_voltage_or_reactive_power_support": {
+        "type": "boolean",
+        "description": "Whether the energy storage device served voltage or reactive power support applications during the reporting year.",
+    },
     "service_area": {
         "type": "string",
         "description": "Service area in which plant is located; for unregulated companies, it's the electric utility with which plant is interconnected",
@@ -3644,6 +3694,55 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "stoker_tech": {
         "type": "boolean",
         "description": "Indicates whether the generator uses stoker technology",
+    },
+    "storage_enclosure_code": {
+        "type": "string",
+        "description": "A code representing the enclosure type that best describes where the generator is located.",
+        "constraints": {
+            "enum": set(
+                CODE_METADATA["core_eia__codes_storage_enclosure_types"]["df"].code
+            )
+        },
+    },
+    "storage_technology_code_1": {
+        "type": "string",
+        "description": "The electro-chemical storage technology used for this battery applications.",
+        "constraints": {
+            "enum": set(
+                CODE_METADATA["core_eia__codes_storage_technology_types"]["df"].code
+            )
+        },
+    },
+    "storage_technology_code_2": {
+        "type": "string",
+        "description": "The electro-chemical storage technology used for this battery applications.",
+        "constraints": {
+            "enum": set(
+                CODE_METADATA["core_eia__codes_storage_technology_types"]["df"].code
+            )
+        },
+    },
+    "storage_technology_code_3": {
+        "type": "string",
+        "description": "The electro-chemical storage technology used for this battery applications.",
+        "constraints": {
+            "enum": set(
+                CODE_METADATA["core_eia__codes_storage_technology_types"]["df"].code
+            )
+        },
+    },
+    "storage_technology_code_4": {
+        "type": "string",
+        "description": "The electro-chemical storage technology used for this battery applications.",
+        "constraints": {
+            "enum": set(
+                CODE_METADATA["core_eia__codes_storage_technology_types"]["df"].code
+            )
+        },
+    },
+    "stored_excess_wind_and_solar_generation": {
+        "type": "boolean",
+        "description": "Whether the energy storage device was used to store excess wind/solar generation during the reporting year.",
     },
     "street_address": {
         "type": "string",

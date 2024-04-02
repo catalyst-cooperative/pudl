@@ -411,6 +411,45 @@ def _core_eia860__generators_solar(
 
 
 @asset
+def _core_eia860__generators_energy_storage(
+    raw_eia860__generator_energy_storage_existing: pd.DataFrame,
+    raw_eia860__generator_energy_storage_retired: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the energy storage specific generators table."""
+    storage_ex = raw_eia860__generator_energy_storage_existing
+    storage_re = raw_eia860__generator_energy_storage_retired
+
+    # every boolean column in the raw storage tables has a served_ or stored_ prefix
+    boolean_columns_to_fix = list(storage_ex.filter(regex=r"^served_|^stored_"))
+
+    storage_df = (
+        pd.concat([storage_ex, storage_re], sort=True)
+        .pipe(pudl.helpers.fix_eia_na)
+        .pipe(pudl.helpers.month_year_to_date)
+        .pipe(pudl.helpers.convert_to_date)
+        .pipe(fix_boolean_columns, boolean_columns_to_fix=boolean_columns_to_fix)
+        .pipe(
+            pudl.metadata.classes.Package.from_resource_ids()
+            .get_resource("core_eia860__scd_generators_energy_storage")
+            .encode
+        )
+    )
+
+    storage_df["operational_status"] = (
+        storage_df.operational_status_code.str.upper().map(
+            pudl.helpers.label_map(
+                CODE_METADATA["core_eia__codes_operational_status"]["df"],
+                from_col="code",
+                to_col="operational_status",
+                null_value=pd.NA,
+            )
+        )
+    )
+
+    return storage_df
+
+
+@asset
 def _core_eia860__generators_wind(
     raw_eia860__generator_wind_existing: pd.DataFrame,
     raw_eia860__generator_wind_retired: pd.DataFrame,
