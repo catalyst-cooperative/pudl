@@ -20,9 +20,11 @@ New Data Coverage
   <https://zenodo.org/records/10844662>`__, PR :pr:`3489` and `this PUDL archiver issue
   <https://github.com/catalyst-cooperative/pudl-archiver/issues/296>`__.
 * Added new :ref:`core_eia860__scd_generators_wind` table from EIA860 Schedule 3.2
-  which contains wind generator attributes. See :pr:`3522` and :pr:`3494`
+  which contains wind generator attributes. See :pr:`3522` and :pr:`3494`.
 * Added new :ref:`core_eia860__scd_generators_solar` table from EIA860 Schedule 3.3
-  which contains solar generator attributes. See :pr:`3524` and :pr:`3482`
+  which contains solar generator attributes. See :pr:`3524` and :pr:`3482`.
+* Added new :ref:`core_eia860__scd_generators_energy_storage` table from EIA860 Schedule
+  3.4 which contains energy storage generator attributes. See :pr:`3488` and :pr:`3526`.
 
 Data Cleaning
 ^^^^^^^^^^^^^
