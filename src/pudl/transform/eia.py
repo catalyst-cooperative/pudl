@@ -1242,6 +1242,7 @@ def harvested_entity_asset_factory(
         "_core_eia923__generation_fuel",
         "_core_eia923__generation_fuel_nuclear",
         "_core_eia860__generators",
+        "_core_eia860__generators_energy_storage",
         "_core_eia860__generators_wind",
         "_core_eia860__ownership",
         "_core_eia860__plants",

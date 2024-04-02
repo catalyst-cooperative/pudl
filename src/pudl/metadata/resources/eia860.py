@@ -816,7 +816,6 @@ system IDs."""
                 "report_date",
                 "max_charge_rate_mw",
                 "max_discharge_rate_mw",
-                "reactive_power_rating",
                 "storage_enclosure_code",
                 "storage_technology_code_1",
                 "storage_technology_code_2",

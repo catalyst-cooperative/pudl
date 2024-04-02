@@ -2700,7 +2700,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
             ],
         ).convert_dtypes(),
         "code_fixes": {},
-        "ignore_codes": [],
+        "ignored_codes": [],
     },
 }
 

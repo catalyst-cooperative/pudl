@@ -3070,11 +3070,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Reactive Power Output (MVAr)",
         "unit": "MVAr",
     },
-    "reactive_power_rating": {
-        "type": "number",
-        "description": "The nameplate reactive power rating for the energy storage device.",
-        "unit": "MVAr",
-    },
     "real_time_pricing": {
         "type": "boolean",
         "description": (

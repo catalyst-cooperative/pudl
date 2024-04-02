@@ -1159,6 +1159,17 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia860"],
         "etl_group": "static_eia",
     },
+    "core_eia__codes_storage_enclosure_types": {
+        "description": "A coding table for energy storage enclosure types.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+        },
+        "encoder": CODE_METADATA["core_eia__codes_storage_enclosure_types"],
+        "field_namespace": "eia",
+        "sources": ["eia860"],
+        "etl_group": "static_eia",
+    },
 }
 """Generic EIA resource attributes organized by PUDL identifier (``resource.name``).
 
