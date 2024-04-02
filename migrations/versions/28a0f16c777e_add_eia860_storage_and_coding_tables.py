@@ -1,8 +1,8 @@
-"""Add EIA860 storage table and coding tables
+"""Add EIA860 storage and coding tables
 
-Revision ID: 8e4f5cd1a459
+Revision ID: 28a0f16c777e
 Revises: d3fc58bfbaac
-Create Date: 2024-04-02 13:10:27.949676
+Create Date: 2024-04-02 13:26:46.375662
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '8e4f5cd1a459'
+revision = '28a0f16c777e'
 down_revision = 'd3fc58bfbaac'
 branch_labels = None
 depends_on = None
@@ -30,11 +30,11 @@ def upgrade() -> None:
     sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
     sa.Column('max_charge_rate_mw', sa.Float(), nullable=True, comment='Maximum charge rate in MW.'),
     sa.Column('max_discharge_rate_mw', sa.Float(), nullable=True, comment='Maximum discharge rate in MW.'),
-    sa.Column('storage_enclosure_code', sa.Enum('CT', 'CS', 'OT', 'BL'), nullable=True, comment='A code representing the enclosure type that best describes where the generator is located.'),
-    sa.Column('storage_technology_code_1', sa.Enum('NAB', 'ECC', 'OTH', 'NIB', 'LIB', 'FLB', 'MAB', 'PBB'), nullable=True, comment='The electro-chemical storage technology used for this battery applications.'),
-    sa.Column('storage_technology_code_2', sa.Enum('NAB', 'ECC', 'OTH', 'NIB', 'LIB', 'FLB', 'MAB', 'PBB'), nullable=True, comment='The electro-chemical storage technology used for this battery applications.'),
-    sa.Column('storage_technology_code_3', sa.Enum('NAB', 'ECC', 'OTH', 'NIB', 'LIB', 'FLB', 'MAB', 'PBB'), nullable=True, comment='The electro-chemical storage technology used for this battery applications.'),
-    sa.Column('storage_technology_code_4', sa.Enum('NAB', 'ECC', 'OTH', 'NIB', 'LIB', 'FLB', 'MAB', 'PBB'), nullable=True, comment='The electro-chemical storage technology used for this battery applications.'),
+    sa.Column('storage_enclosure_code', sa.Enum('BL', 'CT', 'CS', 'OT'), nullable=True, comment='A code representing the enclosure type that best describes where the generator is located.'),
+    sa.Column('storage_technology_code_1', sa.Enum('NAB', 'MAB', 'FLB', 'ECC', 'OTH', 'LIB', 'NIB', 'PBB'), nullable=True, comment='The electro-chemical storage technology used for this battery applications.'),
+    sa.Column('storage_technology_code_2', sa.Enum('NAB', 'MAB', 'FLB', 'ECC', 'OTH', 'LIB', 'NIB', 'PBB'), nullable=True, comment='The electro-chemical storage technology used for this battery applications.'),
+    sa.Column('storage_technology_code_3', sa.Enum('NAB', 'MAB', 'FLB', 'ECC', 'OTH', 'LIB', 'NIB', 'PBB'), nullable=True, comment='The electro-chemical storage technology used for this battery applications.'),
+    sa.Column('storage_technology_code_4', sa.Enum('NAB', 'MAB', 'FLB', 'ECC', 'OTH', 'LIB', 'NIB', 'PBB'), nullable=True, comment='The electro-chemical storage technology used for this battery applications.'),
     sa.Column('served_arbitrage_applications', sa.Boolean(), nullable=True, comment='Whether the energy storage device served arbitrage applications during the reporting year'),
     sa.Column('served_backup_power_applications', sa.Boolean(), nullable=True, comment='Whether the energy storage device served backup power applications during the reporting year.'),
     sa.Column('served_co_located_renewable_firming_applications', sa.Boolean(), nullable=True, comment='Whether the energy storage device served renewable firming applications during the reporting year.'),

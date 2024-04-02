@@ -437,7 +437,7 @@ def _core_eia860__generators_energy_storage(
         .pipe(fix_boolean_columns, boolean_columns_to_fix=boolean_columns_to_fix)
         .pipe(
             pudl.metadata.classes.Package.from_resource_ids()
-            .get_resource("core_eia860__yearly_generators_energy_storage")
+            .get_resource("core_eia860__scd_generators_energy_storage")
             .encode
         )
     )
