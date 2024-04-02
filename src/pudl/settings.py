@@ -375,7 +375,7 @@ class GridPathRAToolkitSettings(GenericDatasetSettings):
     technology_types: list[str] = ["wind", "solar"]
     processing_levels: list[str] = ["extended"]
     daily_weather: bool = True
-    parts: list[str] = []
+    parts: list[str] = data_source.working_partitions["parts"]
 
     @field_validator("technology_types", "processing_levels")
     @classmethod

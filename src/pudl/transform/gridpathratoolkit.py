@@ -3,11 +3,6 @@
 Wind and solar profiles are extracted separately, but concatenated into a single table
 in this module, as they have exactly the same structure. The generator aggregation group
 association tables for various technology types are also concatenated together.
-
-Note that this transform is a bit unusual, in that it is producing a highly processed
-output table. That's because we're working backwards from an archived finished product
-to be able to provide a minimum viable product. If it goes well we will integrate or
-reimplement the steps leading up to this output table later.
 """
 
 import pandas as pd
@@ -54,6 +49,12 @@ def out_gridpathratoolkit__hourly_available_capacity_factor(
 
     Concatenates the solar and wind capacity factors into a single table and turns the
     aggregation key into a categorical column to save space.
+
+    Note that this transform is a bit unusual, in that it is producing a highly
+    processed output table. That's because we're working backwards from an archived
+    finished product to be able to provide a minimum viable product. If it goes well we
+    will integrate or reimplement the steps required to produce this output table from
+    less processed original inputs later.
     """
     pacific_standard_time = pd.Timedelta("-8h")
     return pd.concat(

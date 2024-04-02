@@ -1786,7 +1786,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "include_generator": {
         "type": "boolean",
-        "description": "Indicates whether a generator is included in the generation profile aggregation.",
+        "description": (
+            "Every row in the aggregation table describes a single generator. Groups "
+            "of rows with the same aggregation are combined using a capacity weighted "
+            "average to produce an aggregate generation profile. A few generators "
+            "are not included in that aggregation process. This column determines "
+            "whether a generator is included."
+        ),
     },
     "income_type": {
         "type": "string",
