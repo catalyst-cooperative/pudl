@@ -19,8 +19,8 @@ gas_exit_rate_cubic_feet_per_minute,gas_exit_rate,gas_exit_rate,gas_exit_rate,ga
 gas_exit_temperature_fahrenheit,gas_exit_temp,gas_exit_temp,gas_exit_temp,gas_exit_temperature_fahrenheit,gas_exit_temperature_fahrenheit,gas_exit_temperature_fahrenheit,gas_exit_temperature_fahrenheit,gas_exit_temperature_fahrenheit,gas_exit_temperature_fahrenheit,gas_exit_temperature_fahrenheit,gas_exit_temperature_fahrenheit,gas_exit_temperature_fahrenheit,gas_exit_temperature_fahrenheit,gas_exit_temperature_fahrenheit
 steam_plant_type_code,,,,,,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type,steam_plant_type
 fgp_id_eia,fgp_id,fgp_id,fgp_id,fgp_id,,,,,,,,,,
-operating_month,inservice_mm,inservice_mm,inservice_mm,inservice_month,,,,,,,,,,
-operating_year,inservice_yr,inservice_yr,inservice_yr,inservice_year,,,,,,,,,,
+fgp_operating_month,inservice_mm,inservice_mm,inservice_mm,inservice_month,,,,,,,,,,
+fgp_operating_year,inservice_yr,inservice_yr,inservice_yr,inservice_year,,,,,,,,,,
 fgp_status,fgp_status,fgp_status,fgp_status,fgp_status,,,,,,,,,,
 installed_cost_thousand_dollars,installed_cost,installed_cost,installed_cost,installed_cost_thousand_dollars,,,,,,,,,,
 fuel_specification_ash_coal_low,fuel_spec_ash_coal,fuel_spec_ash_coal,fuel_spec_ash_coal,fuel_specification_ash_coal_low,,,,,,,,,,

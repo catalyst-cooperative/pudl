@@ -4180,9 +4180,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Average annual wind speed that turbines at this wind site were designed for.",
     },
-    "obstacle_num_faa": {
+    "obstacle_id_faa": {
         "type": "string",
-        "description": "The Federal Aviation Administration (FAA) obstacle number assigned to this generator. If more than one obstacle number exists, the one that best represents the turbines. This field was only reported from 2013 through 2015.",
+        "description": (
+            "The Federal Aviation Administration (FAA) obstacle number assigned to this "
+            "generator. If more than one obstacle number exists, the one that best "
+            "represents the turbines. References the obstacle numbers reported in the "
+            "FAA's Digital Obstacle File: "
+            "https://www.faa.gov/air_traffic/flight_info/aeronav/digital_products/dof/ "
+            "This field was only reported from 2013 through 2015."
+        ),
     },
     "predominant_turbine_manufacturer": {
         "type": "string",

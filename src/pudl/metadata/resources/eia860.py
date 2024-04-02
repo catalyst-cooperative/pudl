@@ -773,7 +773,7 @@ system IDs."""
         "sources": ["eia860"],
         "etl_group": "eia860",
     },
-    "core_eia860__yearly_generators_wind": {
+    "core_eia860__scd_generators_wind": {
         "description": (
             "Annually reported information about wind generators from EIA-860 Schedule 3.2."
             " This table includes only those values that are unique to wind generators. "
@@ -786,7 +786,7 @@ system IDs."""
                 "generator_id",
                 "report_date",
                 "design_wind_speed_mph",
-                "obstacle_num_faa",
+                "obstacle_id_faa",
                 "predominant_turbine_manufacturer",
                 "predominant_turbine_model",
                 "turbine_hub_height_feet",
