@@ -27,8 +27,8 @@ New Data Coverage
   generation profiles, as well as the tables describing how individual generators were
   aggregated together to create the profiles. See issues :issue:`3509,3510,3511,3515`
   and PR :pr:`3514`. The new tables include:
-  :ref:`core_gridpathratoolkit__hourly_aggregated_extended_capacity_factors` and
-  :ref:`core_gridpathratoolkit__capacity_factor_aggregations`.
+  :ref:`out_gridpathratoolkit__hourly_available_capacity_factor` and
+  :ref:`core_gridpathratoolkit__assn_generator_aggregation_group`.
 
 Data Cleaning
 ^^^^^^^^^^^^^
