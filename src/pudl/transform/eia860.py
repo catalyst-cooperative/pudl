@@ -378,7 +378,14 @@ def _core_eia860__generators_solar(
     solar_existing = raw_eia860__generator_solar_existing
     solar_retired = raw_eia860__generator_solar_retired
     # every boolean column in the raw solar tables has a uses prefix
-    boolean_columns_to_fix = list(solar_existing.filter(like="uses_"))
+    boolean_columns_to_fix = list(solar_existing.filter(regex=r"^uses_"))
+    if mismatched_bool_cols := set(boolean_columns_to_fix).difference(
+        set(solar_retired.filter(regex=r"^uses_"))
+    ):
+        raise AssertionError(
+            "We expect that the raw existing and retired assets to have the exact same "
+            f"boolean columns with prefix of uses_ but we found {mismatched_bool_cols=}"
+        )
     solar_df = (
         pd.concat([solar_existing, solar_retired], sort=True)
         .pipe(pudl.helpers.fix_eia_na)

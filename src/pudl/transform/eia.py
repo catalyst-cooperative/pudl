@@ -1341,6 +1341,6 @@ finished_eia_assets = [
         "core_eia860__assn_boiler_cooling": "_core_eia860__boiler_cooling",
         "core_eia860__assn_boiler_stack_flue": "_core_eia860__boiler_stack_flue",
         "core_eia860__yearly_generators_wind": "_core_eia860__generators_wind",
-        "core_eia860__yearly_generators_solar": "_core_eia860__generators_solar",
+        "core_eia860__scd_generators_solar": "_core_eia860__generators_solar",
     }.items()
 ]
