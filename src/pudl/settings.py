@@ -369,13 +369,17 @@ class GPRATKProcLevel(StrEnum):
 
 
 class GridPathRAToolkitSettings(GenericDatasetSettings):
-    """An immutable pydantic model to validate GridPath RA Toolkit settings."""
+    """An immutable pydantic model to validate GridPath RA Toolkit settings.
+
+    Note that the default values for technology_types, processing_levels, and
+    daily_weather are such that by default, all working partitions will be included.
+    """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("gridpathratoolkit")
     technology_types: list[str] = ["wind", "solar"]
     processing_levels: list[str] = ["extended"]
     daily_weather: bool = True
-    parts: list[str] = data_source.working_partitions["parts"]
+    parts: list[str] = []
 
     @field_validator("technology_types", "processing_levels")
     @classmethod
