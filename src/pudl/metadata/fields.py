@@ -3347,7 +3347,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Whether the energy storage device served backup power applications during the reporting year.",
     },
-    "served_co_located_renewable_firming": {
+    "served_co_located_renewable_firming_applications": {
         "type": "boolean",
         "description": "Whether the energy storage device served renewable firming applications during the reporting year.",
     },

@@ -848,7 +848,7 @@ system IDs."""
         "sources": ["eia860"],
         "etl_group": "eia860",
     },
-    "core_eia860__yearly_generators_energy_storage": {
+    "core_eia860__scd_generators_energy_storage": {
         "description": (
             "Annually reported information about energy storage from EIA-860 Schedule 3."
             " This table includes only those values that are unique to energy storage. "
@@ -869,7 +869,7 @@ system IDs."""
                 "storage_technology_code_4",
                 "served_arbitrage_applications",
                 "served_backup_power_applications",
-                "served_co_located_renewable_firming",
+                "served_co_located_renewable_firming_applications",
                 "served_frequency_regulation_applications",
                 "served_load_following_applications",
                 "served_load_management_applications",
