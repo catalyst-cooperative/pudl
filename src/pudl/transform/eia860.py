@@ -373,7 +373,7 @@ def _core_eia860__generators_energy_storage(
     storage_re = raw_eia860__generator_energy_storage_retired
 
     # every boolean column in the raw storage tables has a served_ or stored_ prefix
-    boolean_columns_to_fix = list(storage_ex.filter(regex="served_|stored_"))
+    boolean_columns_to_fix = list(storage_ex.filter(regex=r"^served_|^stored_"))
 
     storage_df = (
         pd.concat([storage_ex, storage_re], sort=True)
