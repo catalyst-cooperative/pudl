@@ -17,6 +17,7 @@ from . import (
     eia861,
     eia923,
     eia930,
+    eia_aeo,
     eia_bulk_elec,
     epacems,
     excel,
