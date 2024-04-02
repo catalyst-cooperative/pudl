@@ -415,14 +415,7 @@ def _core_eia860__generators_energy_storage(
     raw_eia860__generator_energy_storage_existing: pd.DataFrame,
     raw_eia860__generator_energy_storage_retired: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Transform the energy storage specific generators table.
-
-    Notes for possible future cleaning:
-    * A lot of the values that are repeated in the generators table are dropped post
-    harvesting. It would be nice to compare the values before dropping them to make sure
-    these specific generator tables don't contain information that the big generator
-    tables does not.
-    """
+    """Transform the energy storage specific generators table."""
     storage_ex = raw_eia860__generator_energy_storage_existing
     storage_re = raw_eia860__generator_energy_storage_retired
 

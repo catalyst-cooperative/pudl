@@ -3339,43 +3339,43 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Name of the seller, or the other party in an exchange transaction.",
     },
-    "served_arbitrage_applications": {
+    "served_arbitrage": {
         "type": "boolean",
         "description": "Whether the energy storage device served arbitrage applications during the reporting year",
     },
-    "served_backup_power_applications": {
+    "served_backup_power": {
         "type": "boolean",
         "description": "Whether the energy storage device served backup power applications during the reporting year.",
     },
-    "served_co_located_renewable_firming_applications": {
+    "served_co_located_renewable_firming": {
         "type": "boolean",
         "description": "Whether the energy storage device served renewable firming applications during the reporting year.",
     },
-    "served_frequency_regulation_applications": {
+    "served_frequency_regulation": {
         "type": "boolean",
         "description": "Whether the energy storage device served frequency regulation applications during the reporting year.",
     },
-    "served_load_following_applications": {
+    "served_load_following": {
         "type": "boolean",
         "description": "Whether the energy storage device served load following applications during the reporting year.",
     },
-    "served_load_management_applications": {
+    "served_load_management": {
         "type": "boolean",
         "description": "Whether the energy storage device served load management applications during the reporting year.",
     },
-    "served_ramping_spinning_reserve_applications": {
+    "served_ramping_spinning_reserve": {
         "type": "boolean",
         "description": "Whether the this energy storage device served ramping / spinning reserve applications during the reporting year.",
     },
-    "served_system_peak_shaving_applications": {
+    "served_system_peak_shaving": {
         "type": "boolean",
         "description": "Whether the energy storage device served system peak shaving applications during the reporting year.",
     },
-    "served_transmission_and_distribution_deferral_applications": {
+    "served_transmission_and_distribution_deferral": {
         "type": "boolean",
         "description": "Whether the energy storage device served renewable firming applications during the reporting year.",
     },
-    "served_voltage_or_reactive_power_support_applications": {
+    "served_voltage_or_reactive_power_support": {
         "type": "boolean",
         "description": "Whether the energy storage device served voltage or reactive power support applications during the reporting year.",
     },
