@@ -12,6 +12,7 @@ from pydantic import (
     AnyHttpUrl,
     BaseModel,
     ConfigDict,
+    ValidationInfo,
     field_validator,
     model_validator,
 )
@@ -374,7 +375,7 @@ class GridPathRAToolkitSettings(GenericDatasetSettings):
     technology_types: list[str] = ["wind", "solar"]
     processing_levels: list[str] = ["extended"]
     daily_weather: bool = True
-    parts: list[str] = data_source.working_partitions["parts"]
+    parts: list[str] = []
 
     @field_validator("technology_types", "processing_levels")
     @classmethod
@@ -399,6 +400,34 @@ class GridPathRAToolkitSettings(GenericDatasetSettings):
             if proc_level not in GPRATKProcLevel:
                 raise ValueError(f"{proc_level} is not a valid processing level.")
         return v
+
+    @field_validator("parts")
+    @classmethod
+    def compile_parts(cls, parts: list[str], info: ValidationInfo) -> list[str]:
+        """Based on technology types and processing levels, compile a list of parts."""
+        if info.data["daily_weather"]:
+            parts.append("daily_weather")
+        if (
+            "solar" in info.data["technology_types"]
+            and "extended" in info.data["processing_levels"]
+        ):
+            parts.append("aggregated_extended_solar_capacity")
+        if (
+            "wind" in info.data["technology_types"]
+            and "extended" in info.data["processing_levels"]
+        ):
+            parts.append("aggregated_extended_wind_capacity")
+        if "solar" in info.data["technology_types"] and (
+            "extended" in info.data["processing_levels"]
+            or "aggregated" in info.data["processing_levels"]
+        ):
+            parts.append("solar_capacity_aggregations")
+        if "wind" in info.data["technology_types"] and (
+            "extended" in info.data["processing_levels"]
+            or "aggregated" in info.data["processing_levels"]
+        ):
+            parts.append("wind_capacity_aggregations")
+        return parts
 
 
 class EiaSettings(FrozenBaseModel):

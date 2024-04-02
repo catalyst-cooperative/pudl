@@ -3,10 +3,12 @@
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
-    "core_gridpathratoolkit__hourly_aggregated_extended_capacity_factors": {
+    "out_gridpathratoolkit__hourly_available_capacity_factor": {
         "description": (
-            "Hourly capacity factors defining the generation profiles for solar and "
-            "wind. Contains a mix of profiles representing whole regions and "
+            "Hourly capacity factors defining the capacity available from an "
+            "aggregated group of generators, stated as a fraction of the aggregate "
+            "nameplate capacity of the group. "
+            "This table contains a mix of profiles representing whole regions and "
             "individual plants, where the individual plants are hybrid wind or solar "
             "plus electricity storage facilities. For the hybrid facilities the "
             "capacity factor represents the available output of only the renewable "
@@ -19,27 +21,29 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "datetime_utc",
-                "aggregation_key",
+                "aggregation_group",
                 "capacity_factor",
             ],
-            "primary_key": ["datetime_utc", "aggregation_key"],
+            "primary_key": ["datetime_utc", "aggregation_group"],
         },
         "sources": ["gridpathratoolkit"],
         "field_namespace": "gridpathratoolkit",
         "etl_group": "gridpathratoolkit",
     },
-    "core_gridpathratoolkit__capacity_factor_aggregations": {
+    "core_gridpathratoolkit__assn_generator_aggregation_group": {
         "description": (
             "This table defines which individual generator profiles are combined when "
             "creating aggregated capacity factors / generation profiles. Generator "
             "capacity is used to weight the contribution of each generator in the "
-            "resulting aggregated profiles."
+            "resulting aggregated profiles, and is made available in this table for "
+            "convenience and legibility. The resulting aggregated profiles are stored "
+            "in :ref:`out_gridpathratoolkit__hourly_available_capacity_factor`."
         ),
         "schema": {
             "fields": [
                 "plant_id_eia",
                 "generator_id",
-                "aggregation_key",
+                "aggregation_group",
                 "capacity_mw",
                 "include_generator",
             ],

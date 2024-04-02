@@ -27,6 +27,26 @@ from pudl.workspace.datastore import Datastore
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
+def _extract_csv(part: str, ds: Datastore) -> pd.DataFrame:
+    return pd.read_csv(BytesIO(ds.get_unique_resource("gridpathratoolkit", part=part)))
+
+
+def _extract_capacity_factor(part: str, ds: Datastore) -> pd.DataFrame:
+    zf = ds.get_zipfile_resource("gridpathratoolkit", part=part)
+    profiles = pd.read_csv(BytesIO(zf.read("timestamps.csv"))).rename(
+        columns={"HE": "hour"}
+    )
+
+    files = [fn for fn in zf.namelist() if "timestamps" not in fn]
+    for fn in files:
+        aggregation_group = Path(fn).stem
+        new_profile = pd.read_csv(
+            BytesIO(zf.read(fn)), header=None, names=[aggregation_group]
+        )
+        profiles = pd.concat([profiles, new_profile], axis="columns")
+    return profiles
+
+
 def raw_gridpathratoolkit_asset_factory(part: str) -> AssetsDefinition:
     """An asset factory for GridPath RA Toolkit hourly generation profiles.
 
@@ -37,29 +57,9 @@ def raw_gridpathratoolkit_asset_factory(part: str) -> AssetsDefinition:
     (temporarily) wide-format dataframe.
 
     The stems of the filenames are used as column labels, which are later transformed
-    into the ``aggregation_key`` field, indicating which generators were aggregated to
+    into the ``aggregation_group`` field, indicating which generators were aggregated to
     produce the time series based on the wind and solar capacity aggregation tables.
     """
-
-    def _extract_csv(part: str, ds: Datastore) -> pd.DataFrame:
-        return pd.read_csv(
-            BytesIO(ds.get_unique_resource("gridpathratoolkit", part=part))
-        )
-
-    def _extract_capacity_factor(part: str, ds: Datastore) -> pd.DataFrame:
-        zf = ds.get_zipfile_resource("gridpathratoolkit", part=part)
-        profiles = pd.read_csv(BytesIO(zf.read("timestamps.csv"))).rename(
-            columns={"HE": "hour"}
-        )
-
-        files = [fn for fn in zf.namelist() if "timestamps" not in fn]
-        for fn in files:
-            aggregation_key = Path(fn).stem
-            new_profile = pd.read_csv(
-                BytesIO(zf.read(fn)), header=None, names=[aggregation_key]
-            )
-            profiles = pd.concat([profiles, new_profile], axis="columns")
-        return profiles
 
     @asset(
         name=f"raw_gridpathratoolkit__{part}",
@@ -73,51 +73,28 @@ def raw_gridpathratoolkit_asset_factory(part: str) -> AssetsDefinition:
         """
         gpratk_settings = context.resources.dataset_settings.gridpathratoolkit
         ds = context.resources.datastore
+        csv_parts = [
+            "daily_weather",
+            "solar_capacity_aggregations",
+            "wind_capacity_aggregations",
+        ]
+        capacity_factor_parts = [
+            "aggregated_extended_solar_capacity",
+            "aggregated_extended_wind_capacity",
+        ]
 
-        parts = {
-            "daily_weather": {
-                "func": _extract_csv,
-                "condition": gpratk_settings.daily_weather,
-            },
-            "aggregated_extended_solar_capacity": {
-                "func": _extract_capacity_factor,
-                "condition": "solar" in gpratk_settings.technology_types
-                and "extended" in gpratk_settings.processing_levels,
-            },
-            "aggregated_extended_wind_capacity": {
-                "func": _extract_capacity_factor,
-                "condition": "wind" in gpratk_settings.technology_types
-                and "extended" in gpratk_settings.processing_levels,
-            },
-            "solar_capacity_aggregations": {
-                "func": _extract_csv,
-                "condition": "solar" in gpratk_settings.technology_types
-                and (
-                    "extended" in gpratk_settings.processing_levels
-                    or "aggregated" in gpratk_settings.processing_levels
-                ),
-            },
-            "wind_capacity_aggregations": {
-                "func": _extract_csv,
-                "condition": "wind" in gpratk_settings.technology_types
-                and (
-                    "extended" in gpratk_settings.processing_levels
-                    or "aggregated" in gpratk_settings.processing_levels
-                ),
-            },
-        }
-
-        if part not in parts:
-            raise ValueError(f"Unable to process {part}!")
-
-        func = parts[part]["func"]
-        condition = parts[part]["condition"]
-        if condition:
+        if part in gpratk_settings.parts:
             logger.info(f"Extracting {part} from GridPath RA Toolkit Data")
-            return Output(value=func(part, ds))
-
-        # If the settings say we don't process a table, return an empty dataframe
-        return Output(value=pd.DataFrame())
+            if part in csv_parts:
+                extracted_df = _extract_csv(part, ds)
+            elif part in capacity_factor_parts:
+                extracted_df = _extract_capacity_factor(part, ds)
+            else:
+                raise ValueError(f"Unrecognized part: {part}")  # pragma: no cover
+        else:
+            # If the settings say we don't process a table, return an empty dataframe
+            extracted_df = pd.DataFrame()
+        return Output(value=extracted_df)
 
     return _extract
 

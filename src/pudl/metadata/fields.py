@@ -64,9 +64,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "capable of recording and transmitting instantaneous data."
         ),
     },
-    "aggregation_key": {
+    "aggregation_group": {
         "type": "string",
-        "description": "A key that indicates on what basis the associated data was aggregated.",
+        "description": "A label identifying a group of aggregated generator capacity factors.",
     },
     "air_flow_100pct_load_cubic_feet_per_minute": {
         "type": "number",

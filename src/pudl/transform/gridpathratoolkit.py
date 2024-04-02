@@ -1,8 +1,13 @@
 """Transformations of the GridPath RA Toolkit renewable generation profiles.
 
 Wind and solar profiles are extracted separately, but concatenated into a single table
-in this module, as they have exactly the same structure. The aggregation tables are also
-concatenated together.
+in this module, as they have exactly the same structure. The generator aggregation group
+association tables for various technology types are also concatenated together.
+
+Note that this transform is a bit unusual, in that it is producing a highly processed
+output table. That's because we're working backwards from an archived finished product
+to be able to provide a minimum viable product. If it goes well we will integrate or
+reimplement the steps leading up to this output table later.
 """
 
 import pandas as pd
@@ -35,13 +40,13 @@ def _transform_capacity_factors(
         .stack()
         .reset_index()
     )
-    capacity_factors.columns = ["datetime_utc", "aggregation_key", "capacity_factor"]
-    capacity_factors = capacity_factors.astype({"aggregation_key": "string"})
+    capacity_factors.columns = ["datetime_utc", "aggregation_group", "capacity_factor"]
+    capacity_factors = capacity_factors.astype({"aggregation_group": "string"})
     return capacity_factors
 
 
 @asset(io_manager_key="pudl_io_manager")
-def core_gridpathratoolkit__hourly_aggregated_extended_capacity_factors(
+def out_gridpathratoolkit__hourly_available_capacity_factor(
     raw_gridpathratoolkit__aggregated_extended_solar_capacity: pd.DataFrame,
     raw_gridpathratoolkit__aggregated_extended_wind_capacity: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -62,7 +67,7 @@ def core_gridpathratoolkit__hourly_aggregated_extended_capacity_factors(
             ]
             if not raw_df.empty
         ]
-    ).astype({"aggregation_key": pd.CategoricalDtype()})
+    ).astype({"aggregation_group": pd.CategoricalDtype()})
 
 
 def _transform_aggs(raw_agg: pd.DataFrame) -> pd.DataFrame:
@@ -93,12 +98,12 @@ def _transform_aggs(raw_agg: pd.DataFrame) -> pd.DataFrame:
         )
         .rename(
             columns={
-                "gp_aggregation": "aggregation_key",
+                "gp_aggregation": "aggregation_group",
                 "eia_nameplatecap": "capacity_mw",
                 "include": "include_generator",
             }
         )
-        .astype({"include_generator": "boolean", "aggregation_key": "string"})
+        .astype({"include_generator": "boolean", "aggregation_group": "string"})
         .pipe(
             pudl.helpers.remove_leading_zeros_from_numeric_strings,
             col_name="generator_id",
@@ -115,7 +120,7 @@ def _transform_aggs(raw_agg: pd.DataFrame) -> pd.DataFrame:
 
 
 @asset(io_manager_key="pudl_io_manager")
-def core_gridpathratoolkit__capacity_factor_aggregations(
+def core_gridpathratoolkit__assn_generator_aggregation_group(
     raw_gridpathratoolkit__wind_capacity_aggregations: pd.DataFrame,
     raw_gridpathratoolkit__solar_capacity_aggregations: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -133,24 +138,24 @@ def core_gridpathratoolkit__capacity_factor_aggregations(
 
 
 @asset_check(
-    asset="core_gridpathratoolkit__hourly_aggregated_extended_capacity_factors",
+    asset="out_gridpathratoolkit__hourly_available_capacity_factor",
     additional_ins={
-        "aggs": AssetIn("core_gridpathratoolkit__capacity_factor_aggregations")
+        "aggs": AssetIn("core_gridpathratoolkit__assn_generator_aggregation_group")
     },
     blocking=True,
 )
-def check_valid_aggregation_keys(
-    core_gridpathratoolkit__hourly_aggregated_extended_capacity_factors,
+def check_valid_aggregation_groups(
+    out_gridpathratoolkit__hourly_available_capacity_factor,
     aggs: pd.DataFrame,
 ) -> AssetCheckResult:
     """Check that every capacity factor aggregation key appears in the aggregations.
 
-    This isn't a normal foreign-key relationship, since the aggregation key isn't the
+    This isn't a normal foreign-key relationship, since the aggregation group isn't the
     primary key in the aggregation tables, and is not unique in either of these tables,
-    but if an aggregation key appears in the capacity factor time series and never
+    but if an aggregation group appears in the capacity factor time series and never
     appears in the aggregation table, then something is wrong.
     """
-    missing_aggregation_keys = set(
-        core_gridpathratoolkit__hourly_aggregated_extended_capacity_factors.aggregation_key.unique()
-    ).difference(set(aggs.aggregation_key.unique()))
-    return AssetCheckResult(passed=missing_aggregation_keys == set())
+    missing_agg_groups = set(
+        out_gridpathratoolkit__hourly_available_capacity_factor.aggregation_group.unique()
+    ).difference(set(aggs.aggregation_group.unique()))
+    return AssetCheckResult(passed=missing_agg_groups == set())
