@@ -52,9 +52,9 @@ def out_gridpathratoolkit__hourly_available_capacity_factor(
 
     Note that this transform is a bit unusual, in that it is producing a highly
     processed output table. That's because we're working backwards from an archived
-    finished product to be able to provide a minimum viable product. If it goes well we
-    will integrate or reimplement the steps required to produce this output table from
-    less processed original inputs later.
+    finished product to be able to provide a minimum viable product. Our intent is to
+    integrate or reimplement the steps required to produce this output table from
+    less processed original inputs in the future.
     """
     pacific_standard_time = pd.Timedelta("-8h")
     return pd.concat(
