@@ -14,8 +14,8 @@ New Data Coverage
   :ref:`i_core_eia860__fgd_equipment`. Once harvested, these tables will eventually be
   removed from the database, but they are being published until then. See :issue:`3394`
   and :issue:`3392`, and :pr:`3403`.
-* Added a new ``gridpathratk`` data source containing hourly wind and solar generation
-  profiles from the `GridPath Resoure Adequacy Toolkit
+* Added a new ``gridpathratoolkit`` data source containing hourly wind and solar
+  generation profiles from the `GridPath Resoure Adequacy Toolkit
   <https://gridlab.org/gridpathratoolkit>`__. See the `new Zenodo archive
   <https://zenodo.org/records/10844662>`__, PR :pr:`3489` and `this PUDL archiver issue
   <https://github.com/catalyst-cooperative/pudl-archiver/issues/296>`__.
@@ -23,6 +23,12 @@ New Data Coverage
   which contains wind generator attributes. See :pr:`3522` and :pr:`3494`
 * Added new :ref:`core_eia860__scd_generators_solar` table from EIA860 Schedule 3.3
   which contains solar generator attributes. See :pr:`3524` and :pr:`3482`
+* Integrated the most processed version of the GridPath RA Toolkit wind and solar
+  generation profiles, as well as the tables describing how individual generators were
+  aggregated together to create the profiles. See issues :issue:`3509,3510,3511,3515`
+  and PR :pr:`3514`. The new tables include:
+  :ref:`out_gridpathratoolkit__hourly_available_capacity_factor` and
+  :ref:`core_gridpathratoolkit__assn_generator_aggregation_group`.
 
 Data Cleaning
 ^^^^^^^^^^^^^
@@ -52,6 +58,10 @@ Schema Changes
   :ref:`core_eia860m__changelog_generators` table. The BA codes reported in the raw data
   contained a lot of non-standard values, which have now been standardized. See issue
   :issue:`3437` and PR :pr:`3442`.
+* Renamed the ``utc_datetime`` column found in the FERC-714 tables to ``datetime_utc``
+  in order to be consistent with ``operating_datetime_utc`` in the EPA CEMS data, and
+  the new hourly renewable generation profiles in the GridPath RA Toolkit. See PR
+  :pr:`3514`.
 
 .. _release-v2024.2.6:
 

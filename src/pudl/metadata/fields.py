@@ -64,6 +64,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "capable of recording and transmitting instantaneous data."
         ),
     },
+    "aggregation_group": {
+        "type": "string",
+        "description": "A label identifying a group of aggregated generator capacity factors.",
+    },
     "air_flow_100pct_load_cubic_feet_per_minute": {
         "type": "number",
         "unit": "cfm",
@@ -836,6 +840,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Code identifying a dataset available within PUDL.",
         "constraints": {"enum": list(SOURCES)},
+    },
+    "datetime_utc": {
+        "type": "datetime",
+        "description": "Date and time converted to Coordinated Universal Time (UTC).",
     },
     "datum": {
         "type": "string",
@@ -1774,6 +1782,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Whether the respondent includes inactive accounts in its definition of "
             "customers used to determine SAIDI and SAIFI."
+        ),
+    },
+    "include_generator": {
+        "type": "boolean",
+        "description": (
+            "Every row in the aggregation table describes a single generator. Groups "
+            "of rows with the same aggregation are combined using a capacity weighted "
+            "average to produce an aggregate generation profile. A few generators "
+            "are not included in that aggregation process. This column determines "
+            "whether a generator is included."
         ),
     },
     "income_type": {
@@ -3976,10 +3994,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "uprate_derate_during_year": {
         "type": "boolean",
         "description": "Was an uprate or derate completed on this generator during the reporting year?",
-    },
-    "utc_datetime": {
-        "type": "datetime",
-        "description": ("Date and time converted to Coordinated Universal Time (UTC)."),
     },
     "utility_id_eia": {
         "type": "integer",

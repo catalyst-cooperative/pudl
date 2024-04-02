@@ -52,6 +52,12 @@ default_assets = (
     *load_assets_from_modules([pudl.extract.eia176], group_name="raw_eia176"),
     *load_assets_from_modules([pudl.extract.eia191], group_name="raw_eia191"),
     *load_assets_from_modules([pudl.extract.eia757a], group_name="raw_eia757a"),
+    *load_assets_from_modules(
+        [pudl.extract.gridpathratoolkit], group_name="raw_gridpathratoolkit"
+    ),
+    *load_assets_from_modules(
+        [pudl.transform.gridpathratoolkit], group_name="core_gridpathratoolkit"
+    ),
     *load_assets_from_modules([pudl.extract.phmsagas], group_name="raw_phmsagas"),
     *load_assets_from_modules([pudl.extract.nrelatb], group_name="raw_nrelatb"),
     *load_assets_from_modules([pudl.extract.eia860m], group_name="raw_eia860m"),
@@ -114,7 +120,11 @@ default_assets = (
     ),
 )
 
-asset_check_modules = [pudl.transform.eia860, pudl.transform.eia923]
+asset_check_modules = [
+    pudl.transform.eia860,
+    pudl.transform.eia923,
+    pudl.transform.gridpathratoolkit,
+]
 default_asset_checks = list(load_asset_checks_from_modules(asset_check_modules))
 
 

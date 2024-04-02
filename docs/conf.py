@@ -157,6 +157,7 @@ def data_sources_metadata_to_rst(app):
         "ferc714",
         "epacems",
         "phmsagas",
+        "gridpathratoolkit",
     ]
     package = Package.from_resource_ids()
     extra_etl_groups = {"eia860": ["entity_eia"], "ferc1": ["glue"]}
@@ -206,6 +207,7 @@ def cleanup_rsts(app, exception):
     (DOCS_DIR / "data_sources/ferc714.rst").unlink()
     (DOCS_DIR / "data_sources/epacems.rst").unlink()
     (DOCS_DIR / "data_sources/phmsagas.rst").unlink()
+    (DOCS_DIR / "data_sources/gridpathratoolkit.rst").unlink()
 
 
 def cleanup_csv_dir(app, exception):

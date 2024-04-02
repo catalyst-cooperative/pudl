@@ -91,3 +91,7 @@ datasets:
     years: [2022]
   nrelatb:
     years: [2023]
+  gridpathratoolkit:
+    technology_types: ["wind"]
+    processing_levels: ["extended"]
+    daily_weather: true
