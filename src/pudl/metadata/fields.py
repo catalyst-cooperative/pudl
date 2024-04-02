@@ -4227,6 +4227,103 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "The lower bounds of the turbulence intensity at the wind site (ratio of standard deviation of fluctuating wind velocity to the mean wind speed).",
     },
+    "azimuth_angle_deg": {
+        "type": "number",
+        "description": "Indicates the azimuth angle of the unit for fixed tilt or single-axis technologies.",
+        "unit": "deg",
+    },
+    "standard_testing_conditions_capacity_mwdc": {
+        "type": "number",
+        "description": "The net capacity of this photovoltaic generator in direct current under standard test conditions (STC) of 1000 W/m^2 solar irradiance and 25 degrees Celsius PV module temperature. This was only reported in 2013 and 2014.",
+        "unit": "MW",
+    },
+    "net_metering_capacity_mwdc": {
+        "type": "number",
+        "description": "The DC megawatt capacity that is part of a net metering agreement.",
+        "unit": "MW",
+    },
+    "tilt_angle_deg": {
+        "type": "number",
+        "description": "Indicates the tilt angle of the unit for fixed tilt or single-axis technologies.",
+        "unit": "deg",
+    },
+    "uses_material_crystalline_silicon": {
+        "type": "boolean",
+        "description": "Indicates whether any solar photovoltaic panels at this generator are made of crystalline silicon.",
+    },
+    "uses_technology_dish_engine": {
+        "type": "boolean",
+        "description": "Indicates whether dish engines are used at this solar generating unit.",
+    },
+    "uses_technology_dual_axis_tracking": {
+        "type": "boolean",
+        "description": "Indicates whether dual-axis tracking technologies are used at this solar generating unit.",
+    },
+    "uses_technology_east_west_fixed_tilt": {
+        "type": "boolean",
+        "description": "Indicates whether east west fixed tilt technologies are used at this solar generating unit.",
+    },
+    "uses_technology_fixed_tilt": {
+        "type": "boolean",
+        "description": "Indicates whether fixed tilt technologies are used at this solar generating unit.",
+    },
+    "uses_technology_lenses_mirrors": {
+        "type": "boolean",
+        "description": "Indicates whether lenses or mirrors are used at this solar generating unit.",
+    },
+    "uses_technology_linear_fresnel": {
+        "type": "boolean",
+        "description": "Indicates whether linear fresnel technologies are used at this solar generating unit.",
+    },
+    "uses_net_metering_agreement": {
+        "type": "boolean",
+        "description": "Indicates if the output from this generator is part of a net metering agreement.",
+    },
+    "uses_material_other": {
+        "type": "boolean",
+        "description": "Indicates whether any solar photovoltaic panels at this generator are made of other materials.",
+    },
+    "uses_technology_other": {
+        "type": "boolean",
+        "description": "Indicates whether other solar technologies are used at this solar generating unit.",
+    },
+    "uses_technology_parabolic_trough": {
+        "type": "boolean",
+        "description": "Indicates whether parabolic trough technologies s are used at this solar generating unit.",
+    },
+    "uses_technology_power_tower": {
+        "type": "boolean",
+        "description": "Indicates whether power towers are used at this solar generating unit.",
+    },
+    "uses_technology_single_axis_tracking": {
+        "type": "boolean",
+        "description": "Indicates whether single-axis tracking technologies are used at this solar generating unit.",
+    },
+    "uses_material_thin_film_a_si": {
+        "type": "boolean",
+        "description": "Indicates whether any solar photovoltaic panels at this generator are made of thin-film amorphous silicon (A-Si).",
+    },
+    "uses_material_thin_film_cdte": {
+        "type": "boolean",
+        "description": "Indicates whether any solar photovoltaic panels at this generator are made of thin-film cadmium telluride (CdTe).",
+    },
+    "uses_material_thin_film_cigs": {
+        "type": "boolean",
+        "description": "Indicates whether any solar photovoltaic panels at this generator are made of thin-film copper indium gallium diselenide (CIGS).",
+    },
+    "uses_material_thin_film_other": {
+        "type": "boolean",
+        "description": "Indicates whether any solar photovoltaic panels at this generator are made of other thin-film material.",
+    },
+    "uses_virtual_net_metering_agreement": {
+        "type": "boolean",
+        "description": "Indicates if the output from this generator is part of a virtual net metering agreement.",
+    },
+    "virtual_net_metering_capacity_mwdc": {
+        "type": "number",
+        "description": "The DC capacity in MW that is part of a virtual net metering agreement.",
+        "unit": "MW",
+    },
 }
 """Field attributes by PUDL identifier (`field.name`).
 

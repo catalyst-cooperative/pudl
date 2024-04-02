@@ -775,7 +775,7 @@ system IDs."""
     },
     "core_eia860__scd_generators_wind": {
         "description": (
-            "Annually reported information about wind generators from EIA-860 Schedule 3."
+            "Annually reported information about wind generators from EIA-860 Schedule 3.2."
             " This table includes only those values that are unique to wind generators. "
             "The rest of the columns that are reported in the EIA-860 Wind tabs are "
             "included in core_eia860__scd_generators and core_eia__entity_generators."
@@ -791,6 +791,52 @@ system IDs."""
                 "predominant_turbine_model",
                 "turbine_hub_height_feet",
                 "wind_quality_class",
+            ],
+            "primary_key": [
+                "plant_id_eia",
+                "generator_id",
+                "report_date",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia860"],
+        "etl_group": "eia860",
+    },
+    "core_eia860__scd_generators_solar": {
+        "description": (
+            "Annually reported information about solar generators from EIA-860 Schedule 3.3."
+            " This table includes only those values that are unique to solar generators. "
+            "The rest of the columns that are reported in the EIA-860 Solar tabs are "
+            "included in core_eia860__scd_generators and core_eia__entity_generators."
+        ),
+        "schema": {
+            "fields": [
+                "plant_id_eia",
+                "generator_id",
+                "report_date",
+                "standard_testing_conditions_capacity_mwdc",
+                "net_metering_capacity_mwdc",
+                "uses_net_metering_agreement",
+                "uses_virtual_net_metering_agreement",
+                "virtual_net_metering_capacity_mwdc",
+                "azimuth_angle_deg",
+                "tilt_angle_deg",
+                "uses_technology_lenses_mirrors",
+                "uses_technology_single_axis_tracking",
+                "uses_technology_dual_axis_tracking",
+                "uses_technology_fixed_tilt",
+                "uses_technology_east_west_fixed_tilt",
+                "uses_technology_parabolic_trough",
+                "uses_technology_linear_fresnel",
+                "uses_technology_power_tower",
+                "uses_technology_dish_engine",
+                "uses_technology_other",
+                "uses_material_crystalline_silicon",
+                "uses_material_thin_film_a_si",
+                "uses_material_thin_film_cdte",
+                "uses_material_thin_film_cigs",
+                "uses_material_thin_film_other",
+                "uses_material_other",
             ],
             "primary_key": [
                 "plant_id_eia",
