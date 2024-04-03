@@ -302,6 +302,8 @@ datasets:
           2021,
           2022,
         ]
+    eia930:
+      half_years: ["all"]
   epacems:
     # Note that the CEMS data relies on EIA 860 data for plant locations,
     # so if you're loading CEMS data for a particular year, you should
@@ -344,3 +346,9 @@ datasets:
         2021,
         2022,
       ]
+  nrelatb:
+    years: [2019, 2020, 2021, 2022, 2023]
+  gridpathratoolkit:
+    technology_types: ["wind", "solar"]
+    processing_levels: ["extended"]
+    daily_weather: true

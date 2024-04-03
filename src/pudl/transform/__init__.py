@@ -71,5 +71,6 @@ from . import (
     epacems,
     ferc1,
     ferc714,
+    gridpathratoolkit,
     params,
 )

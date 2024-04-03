@@ -301,8 +301,8 @@ SOURCES: dict[str, Any] = {
         },
         "field_namespace": "eia",
         "working_partitions": {
-            "half_year": [
-                f"{year}h{half}" for year in range(2015, 2025) for half in [1, 2]
+            "half_years": [
+                f"{year}half{half}" for year in range(2015, 2025) for half in [1, 2]
             ][1:-1]  # Begins in H2 of 2015 and currently ends in H1 of 2024
         },
         "contributors": [
@@ -676,8 +676,8 @@ SOURCES: dict[str, Any] = {
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
-    "gridpathratk": {
-        "title": "PUDL Raw GridPath Resource Adequacy Toolkit Renewable Generation Profiles",
+    "gridpathratoolkit": {
+        "title": "GridPath Resource Adequacy Toolkit Data",
         "path": "https://gridlab.org/gridpathratoolkit/",
         "description": (
             "Hourly renewable generation profiles compiled for the Western United "
@@ -714,6 +714,19 @@ SOURCES: dict[str, Any] = {
         ),
         "license_raw": LICENSES["cc-by-4.0"],
         "license_pudl": LICENSES["cc-by-4.0"],
+        "working_partitions": {
+            "parts": [
+                "aggregated_extended_solar_capacity",
+                "aggregated_extended_wind_capacity",
+                # "aggregated_solar_capacity",
+                # "aggregated_wind_capacity",
+                "daily_weather",
+                # "original_solar_capacity",
+                # "original_wind_capacity",
+                "solar_capacity_aggregations",
+                "wind_capacity_aggregations",
+            ]
+        },
     },
     "mshamines": {
         "title": "Mine Safety and Health Administration (MSHA) Mines",
@@ -740,7 +753,7 @@ SOURCES: dict[str, Any] = {
             "source_format": "Parquet",
         },
         "working_partitions": {
-            "years": [2023],
+            "years": sorted(set(range(2019, 2024))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],

@@ -247,19 +247,18 @@ def _round_operating_date(
     (default of one year) of one another.
 
     Args:
-        dirty_df (pandas.DataFrame): a dataframe with entity records that have
-            inconsistently reported operating dates.
-        clean_df (pandas.DataFrame): a dataframe with entity records that have
-            consistently reported operating dates.
-        entity_id_df (pandas.DataFrame): a dataframe with a complete set of
-            possible entity ids
-        entity_idx (list): a list of the id(s) for the entity. Ex: for a plant
-            entity, the entity_idx is ['plant_id_eia']. For a generator entity,
-            the entity_idx is ['plant_id_eia', 'generator_id'].
-        col (string): the column name of the column we are trying to harvest.
-        cols_to_consit (list): a list of the columns to determine consistency.
-            This either the [entity_id] or the [entity_id, 'report_date'],
-            depending on whether the entity is static or annual.
+        dirty_df: a dataframe with entity records that have inconsistently reported
+            operating dates.
+        clean_df: a dataframe with entity records that have consistently reported
+            operating dates.
+        entity_id_df: a dataframe with a complete set of possible entity ids
+        entity_idx: a list of the id(s) for the entity. Ex: for a plant entity, the
+            entity_idx is ['plant_id_eia']. For a generator entity, the entity_idx is
+            ['plant_id_eia', 'generator_id'].
+        col: the column name of the column we are trying to harvest.
+        cols_to_consit: a list of the columns to determine consistency.  This either the
+            [entity_id] or the [entity_id, 'report_date'], depending on whether the
+            entity is static or annual.
         group_by_freq: Frequency to combine by ("M" for month, or "Y" for year)
 
     Returns:
@@ -1242,6 +1241,9 @@ def harvested_entity_asset_factory(
         "_core_eia923__generation_fuel",
         "_core_eia923__generation_fuel_nuclear",
         "_core_eia860__generators",
+        "_core_eia860__generators_energy_storage",
+        "_core_eia860__generators_wind",
+        "_core_eia860__generators_solar",
         "_core_eia860__ownership",
         "_core_eia860__plants",
         "_core_eia860__utilities",
@@ -1338,5 +1340,8 @@ finished_eia_assets = [
         "core_eia860__assn_yearly_boiler_emissions_control_equipment": "_core_eia860__boiler_emissions_control_equipment_assn",
         "core_eia860__assn_boiler_cooling": "_core_eia860__boiler_cooling",
         "core_eia860__assn_boiler_stack_flue": "_core_eia860__boiler_stack_flue",
+        "core_eia860__scd_generators_wind": "_core_eia860__generators_wind",
+        "core_eia860__scd_generators_solar": "_core_eia860__generators_solar",
+        "core_eia860__scd_generators_energy_storage": "_core_eia860__generators_energy_storage",
     }.items()
 ]

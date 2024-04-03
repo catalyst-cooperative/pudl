@@ -74,11 +74,11 @@ def test_minmax_rows_and_year_in_ferc714_hourly_planning_area_demand(
 
     logger.info("Checking the consistency of the year in the multiple date columns.")
     mismatched_report_years = hpad_ferc714[
-        (hpad_ferc714.utc_datetime.dt.year != hpad_ferc714.report_date.dt.year)
+        (hpad_ferc714.datetime_utc.dt.year != hpad_ferc714.report_date.dt.year)
     ]
     if (off_ratio := len(mismatched_report_years) / len(hpad_ferc714)) > 0.001:
         raise AssertionError(
-            f"Found more ({off_ratio:.2%}) than expected (>.1%) FERC714 records"
-            " where the report year from the utc_datetime differs from the "
+            f"Found more ({off_ratio:.2%}) than expected (>.1%) FERC714 records "
+            "where the report year from the datetime_utc differs from the "
             "report_date column."
         )

@@ -490,13 +490,13 @@ def out_ferc714__hourly_planning_area_demand(
     logger.info("Converting local time + offset code to UTC + timezone.")
     hour_timedeltas = {i: pd.to_timedelta(i, unit="h") for i in range(24)}
     df["report_date"] += df["hour"].map(hour_timedeltas)
-    df["utc_datetime"] = df["report_date"] - df["utc_offset"]
+    df["datetime_utc"] = df["report_date"] - df["utc_offset"]
     df = df.drop(columns=["hour", "utc_offset"])
 
     # Report and drop duplicated UTC datetimes
     # There should be less than 10 of these,
     # resulting from changes to a planning area's reporting timezone.
-    duplicated = df.duplicated(["respondent_id_ferc714", "utc_datetime"])
+    duplicated = df.duplicated(["respondent_id_ferc714", "datetime_utc"])
     logger.info(f"Found {np.count_nonzero(duplicated)} duplicate UTC datetimes.")
     df = df.query("~@duplicated")
 
@@ -517,7 +517,7 @@ def out_ferc714__hourly_planning_area_demand(
     columns = [
         "respondent_id_ferc714",
         "report_date",
-        "utc_datetime",
+        "datetime_utc",
         "timezone",
         "demand_mwh",
     ]

@@ -922,42 +922,6 @@ def month_year_to_date(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def remove_leading_zeros_from_numeric_strings(
-    df: pd.DataFrame, col_name: str
-) -> pd.DataFrame:
-    """Remove leading zeros frame column values that are numeric strings.
-
-    Sometimes an ID column (like generator_id or unit_id) will be reported with leading
-    zeros and sometimes it won't. For example, in the Excel spreadsheets published by
-    EIA, the same generator may show up with the ID "0001" and "1" in different years
-    This function strips the leading zeros from those numeric strings so the data can
-    be mapped accross years and datasets more reliably.
-
-    Alphanumeric generator IDs with leadings zeroes are not affected, as we
-    found no instances in which an alphanumeric ID appeared both with
-    and without leading zeroes. The ID "0A1" will stay "0A1".
-
-    Args:
-        df: A DataFrame containing the column you'd like to remove numeric leading zeros
-            from.
-        col_name: The name of the column you'd like to remove numeric leading zeros
-            from.
-
-    Returns:
-        A DataFrame without leading zeros for numeric string values in the desired
-        column.
-    """
-    leading_zeros = df[col_name].str.contains(r"^0+\d+$").fillna(False)
-    if leading_zeros.any():
-        logger.debug(f"Fixing leading zeros in {col_name} column")
-        df.loc[leading_zeros, col_name] = df[col_name].str.replace(
-            r"^0+", "", regex=True
-        )
-    else:
-        logger.debug(f"Found no numeric leading zeros in {col_name}")
-    return df
-
-
 def convert_to_date(
     df: pd.DataFrame,
     date_col: str = "report_date",
@@ -1006,6 +970,42 @@ def convert_to_date(
     cols_to_drop = [x for x in [day_col, year_col, month_col] if x in df.columns]
     df = df.drop(cols_to_drop, axis="columns")
 
+    return df
+
+
+def remove_leading_zeros_from_numeric_strings(
+    df: pd.DataFrame, col_name: str
+) -> pd.DataFrame:
+    """Remove leading zeros frame column values that are numeric strings.
+
+    Sometimes an ID column (like generator_id or unit_id) will be reported with leading
+    zeros and sometimes it won't. For example, in the Excel spreadsheets published by
+    EIA, the same generator may show up with the ID "0001" and "1" in different years
+    This function strips the leading zeros from those numeric strings so the data can
+    be mapped accross years and datasets more reliably.
+
+    Alphanumeric generator IDs with leadings zeroes are not affected, as we found no
+    instances in which an alphanumeric ID appeared both with and without leading zeroes.
+    The ID "0A1" will stay "0A1".
+
+    Args:
+        df: A DataFrame containing the column you'd like to remove numeric leading zeros
+            from.
+        col_name: The name of the column you'd like to remove numeric leading zeros
+            from.
+
+    Returns:
+        A DataFrame without leading zeros for numeric string values in the desired
+        column.
+    """
+    leading_zeros = df[col_name].str.contains(r"^0+\d+$").fillna(False)
+    if leading_zeros.any():
+        logger.debug(f"Fixing leading zeros in {col_name} column")
+        df.loc[leading_zeros, col_name] = df[col_name].str.replace(
+            r"^0+", "", regex=True
+        )
+    else:
+        logger.debug(f"Found no numeric leading zeros in {col_name}")
     return df
 
 

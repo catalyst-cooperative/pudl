@@ -1252,13 +1252,14 @@ class Resource(PudlMeta):
     field_namespace: (
         Literal[
             "eia",
+            "eia_bulk_elec",
             "epacems",
             "ferc1",
             "ferc714",
             "glue",
-            "pudl",
+            "gridpathratoolkit",
             "ppe",
-            "eia_bulk_elec",
+            "pudl",
         ]
         | None
     ) = None
@@ -1274,6 +1275,7 @@ class Resource(PudlMeta):
             "ferc1_disabled",
             "ferc714",
             "glue",
+            "gridpathratoolkit",
             "outputs",
             "static_ferc1",
             "static_eia",

@@ -27,11 +27,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "respondent_id_ferc714",
                 "report_date",
-                "utc_datetime",
+                "datetime_utc",
                 "timezone",
                 "demand_mwh",
             ],
-            "primary_key": ["respondent_id_ferc714", "utc_datetime"],
+            "primary_key": ["respondent_id_ferc714", "datetime_utc"],
         },
         "sources": ["ferc714"],
         "field_namespace": "ferc714",

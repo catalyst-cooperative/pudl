@@ -1,7 +1,7 @@
 """Module for validating pudl etl settings."""
 
 import json
-from enum import Enum, unique
+from enum import Enum, StrEnum, auto, unique
 from typing import Any, ClassVar, Self
 
 import fsspec
@@ -12,6 +12,7 @@ from pydantic import (
     AnyHttpUrl,
     BaseModel,
     ConfigDict,
+    ValidationInfo,
     field_validator,
     model_validator,
 )
@@ -95,7 +96,7 @@ class GenericDatasetSettings(FrozenBaseModel):
 
         Convert a list of partitions into a list of dictionaries of partitions. This is
         intended to be used to store partitions in a format that is easy to use with
-        ``pd.json_normalize``.
+        :meth:`pandas.json_normalize`.
         """
         partitions = []
         for part_name in ["year_quarters", "years", "year_months"]:
@@ -116,7 +117,6 @@ class Ferc1Settings(GenericDatasetSettings):
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc1")
-
     years: list[int] = data_source.working_partitions["years"]
 
     @property
@@ -177,6 +177,18 @@ class PhmsaGasSettings(GenericDatasetSettings):
     years: list[int] = data_source.working_partitions["years"]
 
 
+class NrelAtbSettings(GenericDatasetSettings):
+    """An immutable pydantic model to validate NREL ATB settings.
+
+    Args:
+        data_source: DataSource metadata object
+        years: list of years to validate.
+    """
+
+    data_source: ClassVar[DataSource] = DataSource.from_id("nrelatb")
+    years: list[int] = data_source.working_partitions["years"]
+
+
 class Eia923Settings(GenericDatasetSettings):
     """An immutable pydantic model to validate EIA 923 settings.
 
@@ -187,6 +199,26 @@ class Eia923Settings(GenericDatasetSettings):
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia923")
     years: list[int] = data_source.working_partitions["years"]
+
+
+class Eia930Settings(GenericDatasetSettings):
+    """An immutable pydantic model to validate EIA 930 settings.
+
+    Args:
+        data_source: DataSource metadata object
+        half_years: list of years to validate.
+    """
+
+    data_source: ClassVar[DataSource] = DataSource.from_id("eia930")
+    half_years: list[str] = data_source.working_partitions["half_years"]
+
+    @field_validator("half_years")
+    @classmethod
+    def allow_all_keyword_half_years(cls, half_years):
+        """Allow users to specify ['all'] to get all half-years."""
+        if half_years == ["all"]:
+            half_years = cls.data_source.working_partitions["half_years"]
+        return half_years
 
 
 class Eia861Settings(GenericDatasetSettings):
@@ -316,6 +348,92 @@ class GlueSettings(FrozenBaseModel):
     ferc1: bool = True
 
 
+@unique
+class GPRATKTechType(StrEnum):
+    """Enum to constrain GridPath RA Toolkit technology types."""
+
+    WIND = auto()
+    SOLAR = auto()
+    # Not yet implemented
+    # THERMAL = auto()
+
+
+@unique
+class GPRATKProcLevel(StrEnum):
+    """Enum to constraint GridPath RA Toolkit processing levels."""
+
+    EXTENDED = auto()
+    # Not yet implemented
+    # AGGREGATED = auto()
+    # ORIGINAL = auto()
+
+
+class GridPathRAToolkitSettings(GenericDatasetSettings):
+    """An immutable pydantic model to validate GridPath RA Toolkit settings.
+
+    Note that the default values for technology_types, processing_levels, and
+    daily_weather are such that by default, all working partitions will be included.
+    """
+
+    data_source: ClassVar[DataSource] = DataSource.from_id("gridpathratoolkit")
+    technology_types: list[str] = ["wind", "solar"]
+    processing_levels: list[str] = ["extended"]
+    daily_weather: bool = True
+    parts: list[str] = []
+
+    @field_validator("technology_types", "processing_levels")
+    @classmethod
+    def deduplicate_list(cls, v):
+        """Deduplicate technology type and processing level values."""
+        return list(set(v))
+
+    @field_validator("technology_types")
+    @classmethod
+    def allowed_technology_types(cls, v: list[str]) -> list[str]:
+        """Ensure that technology types are valid."""
+        for tech_type in v:
+            if tech_type not in GPRATKTechType:
+                raise ValueError(f"{tech_type} is not a valid technology type.")
+        return v
+
+    @field_validator("processing_levels")
+    @classmethod
+    def allowed_processing_levels(cls, v: list[str]) -> list[str]:
+        """Ensure that processing levels are valid."""
+        for proc_level in v:
+            if proc_level not in GPRATKProcLevel:
+                raise ValueError(f"{proc_level} is not a valid processing level.")
+        return v
+
+    @field_validator("parts")
+    @classmethod
+    def compile_parts(cls, parts: list[str], info: ValidationInfo) -> list[str]:
+        """Based on technology types and processing levels, compile a list of parts."""
+        if info.data["daily_weather"]:
+            parts.append("daily_weather")
+        if (
+            "solar" in info.data["technology_types"]
+            and "extended" in info.data["processing_levels"]
+        ):
+            parts.append("aggregated_extended_solar_capacity")
+        if (
+            "wind" in info.data["technology_types"]
+            and "extended" in info.data["processing_levels"]
+        ):
+            parts.append("aggregated_extended_wind_capacity")
+        if "solar" in info.data["technology_types"] and (
+            "extended" in info.data["processing_levels"]
+            or "aggregated" in info.data["processing_levels"]
+        ):
+            parts.append("solar_capacity_aggregations")
+        if "wind" in info.data["technology_types"] and (
+            "extended" in info.data["processing_levels"]
+            or "aggregated" in info.data["processing_levels"]
+        ):
+            parts.append("wind_capacity_aggregations")
+        return parts
+
+
 class EiaSettings(FrozenBaseModel):
     """An immutable pydantic model to validate EIA datasets settings.
 
@@ -332,6 +450,7 @@ class EiaSettings(FrozenBaseModel):
     eia860m: Eia860mSettings | None = None
     eia861: Eia861Settings | None = None
     eia923: Eia923Settings | None = None
+    eia930: Eia930Settings | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -345,6 +464,7 @@ class EiaSettings(FrozenBaseModel):
             data["eia860m"] = Eia860mSettings()
             data["eia861"] = Eia861Settings()
             data["eia923"] = Eia923Settings()
+            data["eia930"] = Eia930Settings()
 
         return data
 
@@ -374,14 +494,7 @@ class EiaSettings(FrozenBaseModel):
 
 
 class DatasetsSettings(FrozenBaseModel):
-    """An immutable pydantic model to validate PUDL Dataset settings.
-
-    Args:
-        ferc1: Immutable pydantic model to validate ferc1 settings.
-        eia: Immutable pydantic model to validate eia(860, 923) settings.
-        glue: Immutable pydantic model to validate glue settings.
-        epacems: Immutable pydantic model to validate epacems settings.
-    """
+    """An immutable pydantic model to validate PUDL Dataset settings."""
 
     eia: EiaSettings | None = None
     epacems: EpaCemsSettings | None = None
@@ -389,6 +502,8 @@ class DatasetsSettings(FrozenBaseModel):
     ferc714: Ferc714Settings | None = None
     glue: GlueSettings | None = None
     phmsagas: PhmsaGasSettings | None = None
+    nrelatb: NrelAtbSettings | None = None
+    gridpathratoolkit: GridPathRAToolkitSettings | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -408,6 +523,8 @@ class DatasetsSettings(FrozenBaseModel):
             data["ferc714"] = Ferc714Settings()
             data["glue"] = GlueSettings()
             data["phmsagas"] = PhmsaGasSettings()
+            data["nrelatb"] = NrelAtbSettings()
+            data["gridpathratoolkit"] = GridPathRAToolkitSettings()
 
         return data
 

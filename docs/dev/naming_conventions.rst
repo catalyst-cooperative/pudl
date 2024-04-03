@@ -222,6 +222,7 @@ Abbreviation            Definition
 ``capex``               capital expense
 ``corr``                correlation
 ``db``                  database
+``deg``                 degree
 ``df`` & ``dfs``        dataframe & dataframes
 ``dir``                 directory
 ``epxns``               expenses

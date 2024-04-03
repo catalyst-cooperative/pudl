@@ -209,9 +209,9 @@ def load_ventyx_hourly_state_demand(path: str) -> pd.DataFrame:
 
     Returns:
         Dataframe with hourly state-level demand.
-        * `state_id_fips`: FIPS code of US state.
-        * `utc_datetime`: UTC time of the start of each hour.
-        * `demand_mwh`: Hourly demand in MWh.
+        * ``state_id_fips``: FIPS code of US state.
+        * ``datetime_utc``: UTC time of the start of each hour.
+        * ``demand_mwh``: Hourly demand in MWh.
     """
     df = pd.read_csv(
         path,
@@ -244,13 +244,13 @@ def load_ventyx_hourly_state_demand(path: str) -> pd.DataFrame:
         "demand_mwh"
     ].sum()
     # Convert local times to UTC
-    df["utc_datetime"] = local_to_utc(df["datetime"], df["tz"].map(UTC_OFFSETS))
+    df["datetime_utc"] = local_to_utc(df["datetime"], df["tz"].map(UTC_OFFSETS))
     # Sum by UTC time
-    df = df.groupby(["state_id_fips", "utc_datetime"], as_index=False)[
+    df = df.groupby(["state_id_fips", "datetime_utc"], as_index=False)[
         "demand_mwh"
     ].sum()
     # Roll back one hour to convert hour-ending to hour-starting
-    df["utc_datetime"] -= pd.Timedelta(hours=1)
+    df["datetime_utc"] -= pd.Timedelta(hours=1)
     return df
 
 
@@ -285,7 +285,7 @@ def load_hourly_demand_matrix_ferc714(
         out_ferc714__hourly_planning_area_demand["timezone"].map(STANDARD_UTC_OFFSETS)
     )
     out_ferc714__hourly_planning_area_demand["datetime"] = utc_to_local(
-        out_ferc714__hourly_planning_area_demand["utc_datetime"],
+        out_ferc714__hourly_planning_area_demand["datetime_utc"],
         out_ferc714__hourly_planning_area_demand["utc_offset"],
     )
     # Pivot to demand matrix: timestamps x respondents
@@ -410,13 +410,13 @@ def melt_ferc714_hourly_demand_matrix(
 
     Args:
         df: FERC 714 hourly demand matrix,
-          as described in :func:`load_ferc714_hourly_demand_matrix`.
+            as described in :func:`load_ferc714_hourly_demand_matrix`.
         tz: FERC 714 respondent time zones,
-          as described in :func:`load_ferc714_hourly_demand_matrix`.
+            as described in :func:`load_ferc714_hourly_demand_matrix`.
 
     Returns:
-        Long-format hourly demand with columns
-        `respondent_id_ferc714`, report `year` (int), `utc_datetime`, and `demand_mwh`.
+        Long-format hourly demand with columns ``respondent_id_ferc714``, report
+        ``year`` (int), ``datetime_utc``, and ``demand_mwh``.
     """
     # Melt demand matrix to long format
     df = df.melt(value_name="demand_mwh", ignore_index=False)
@@ -424,7 +424,7 @@ def melt_ferc714_hourly_demand_matrix(
     # Convert local times to UTC
     df["year"] = df["datetime"].dt.year
     df = df.merge(tz, on=["respondent_id_ferc714", "year"])
-    df["utc_datetime"] = local_to_utc(df["datetime"], df["utc_offset"])
+    df["datetime_utc"] = local_to_utc(df["datetime"], df["utc_offset"])
     df = df.drop(columns=["utc_offset", "datetime"])
     return df
 
@@ -456,11 +456,12 @@ def _out_ferc714__hourly_demand_matrix(
     """Cleaned and nulled FERC 714 hourly demand matrix.
 
     Args:
-        _out_ferc714__hourly_pivoted_demand_matrix: FERC 714 hourly demand data in a matrix form.
+        _out_ferc714__hourly_pivoted_demand_matrix: FERC 714 hourly demand data in a
+            matrix form.
 
     Returns:
-        df: Matrix with nulled anomalous values, where respondent-years with too few responses
-        are nulled and respondents with no data across all years are dropped.
+        Matrix with nulled anomalous values, where respondent-years with too few
+        responses are nulled and respondents with no data across all years are dropped.
     """
     min_data = context.op_config["min_data"]
     min_data_fraction = context.op_config["min_data_fraction"]
@@ -587,19 +588,20 @@ def out_ferc714__hourly_estimated_state_demand(
     out_ferc714__respondents_with_fips: pd.DataFrame,
     core_eia861__yearly_sales: pd.DataFrame = None,
 ) -> pd.DataFrame:
-    """Predict state hourly demand.
+    """Estimate hourly electricity demand by state.
 
     Args:
         _out_ferc714__hourly_imputed_demand: Hourly demand timeseries, with columns
-          `respondent_id_ferc714`, report `year`, `utc_datetime`, and `demand_mwh`.
+            ``respondent_id_ferc714``, report ``year``, ``datetime_utc``, and
+            ``demand_mwh``.
         _core_censusdp1tract__counties: The county layer of the Census DP1 shapefile.
         out_ferc714__respondents_with_fips: Annual respondents with the county FIPS IDs
             for their service territories.
-        core_eia861__yearly_sales: EIA 861 sales data. If provided, the predicted hourly demand is
-            scaled to match these totals.
+        core_eia861__yearly_sales: EIA 861 sales data. If provided, the predicted hourly
+            demand is scaled to match these totals.
 
     Returns:
-        Dataframe with columns ``state_id_fips``, ``utc_datetime``, ``demand_mwh``, and
+        Dataframe with columns ``state_id_fips``, ``datetime_utc``, ``demand_mwh``, and
         (if ``state_totals`` was provided) ``scaled_demand_mwh``.
     """
     # Get config
@@ -664,4 +666,4 @@ def out_ferc714__hourly_estimated_state_demand(
         df["scaled_demand_mwh"] = df["demand_mwh"] * df["scale"]
     # Sum demand by state by matching UTC time
     fields = [x for x in ["demand_mwh", "scaled_demand_mwh"] if x in df]
-    return df.groupby(["state_id_fips", "utc_datetime"], as_index=False)[fields].sum()
+    return df.groupby(["state_id_fips", "datetime_utc"], as_index=False)[fields].sum()

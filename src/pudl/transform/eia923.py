@@ -548,7 +548,7 @@ def plants_eia923(eia923_dfs, eia923_transformed_dfs):
     plant_info_df = plant_info_df[
         [
             "plant_id_eia",
-            "combined_heat_power",
+            "associated_combined_heat_power",
             "plant_state",
             "sector_id_eia",
             "naics_code",
@@ -560,8 +560,8 @@ def plants_eia923(eia923_dfs, eia923_transformed_dfs):
         ]
     ]
     # Since this is a plain Yes/No variable -- just make it a real sa.Boolean.
-    plant_info_df.combined_heat_power = plant_info_df.combined_heat_power.replace(
-        {"N": False, "Y": True}
+    plant_info_df.associated_combined_heat_power = (
+        plant_info_df.associated_combined_heat_power.replace({"N": False, "Y": True})
     )
 
     # Get rid of excessive whitespace introduced to break long lines (ugh)
@@ -641,7 +641,7 @@ def _core_eia_923__generation_fuel_eia923(raw_eia923__generation_fuel: pd.DataFr
 
     # Drop fields we're not inserting into the _core_eia923__generation_fuel table.
     cols_to_drop = [
-        "combined_heat_power",
+        "associated_combined_heat_power",
         "plant_name_eia",
         "operator_name",
         "operator_id",
@@ -654,7 +654,7 @@ def _core_eia_923__generation_fuel_eia923(raw_eia923__generation_fuel: pd.DataFr
         "electric_fuel_consumption_quantity",
         "total_fuel_consumption_mmbtu",
         "elec_fuel_consumption_mmbtu",
-        "net_generation_megawatthours",
+        "total_net_generation_mwh",
         "early_release",
     ]
     gen_fuel = gen_fuel.drop(cols_to_drop, axis=1)
@@ -855,7 +855,7 @@ def _core_eia923__boiler_fuel(raw_eia923__boiler_fuel: pd.DataFrame) -> pd.DataF
     # Need to stop dropping fields that contain harvestable entity attributes.
     # See https://github.com/catalyst-cooperative/pudl/issues/509
     cols_to_drop = [
-        "combined_heat_power",
+        "associated_combined_heat_power",
         "plant_name_eia",
         "operator_name",
         "operator_id",
@@ -974,7 +974,7 @@ def _core_eia923__generation(raw_eia923__generator: pd.DataFrame) -> pd.DataFram
         raw_eia923__generator.dropna(subset=["generator_id"])
         .drop(
             [
-                "combined_heat_power",
+                "associated_combined_heat_power",
                 "plant_name_eia",
                 "operator_name",
                 "operator_id",

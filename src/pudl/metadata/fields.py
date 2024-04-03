@@ -64,6 +64,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "capable of recording and transmitting instantaneous data."
         ),
     },
+    "aggregation_group": {
+        "type": "string",
+        "description": "A label identifying a group of aggregated generator capacity factors.",
+    },
     "air_flow_100pct_load_cubic_feet_per_minute": {
         "type": "number",
         "unit": "cfm",
@@ -836,6 +840,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Code identifying a dataset available within PUDL.",
         "constraints": {"enum": list(SOURCES)},
+    },
+    "datetime_utc": {
+        "type": "datetime",
+        "description": "Date and time converted to Coordinated Universal Time (UTC).",
     },
     "datum": {
         "type": "string",
@@ -1776,6 +1784,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "customers used to determine SAIDI and SAIFI."
         ),
     },
+    "include_generator": {
+        "type": "boolean",
+        "description": (
+            "Every row in the aggregation table describes a single generator. Groups "
+            "of rows with the same aggregation are combined using a capacity weighted "
+            "average to produce an aggregate generation profile. A few generators "
+            "are not included in that aggregation process. This column determines "
+            "whether a generator is included."
+        ),
+    },
     "income_type": {
         "type": "string",
         "description": "Type of income reported in income_statement_ferc1 table.",
@@ -1976,6 +1994,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "match_type": {
         "type": "string",
         "description": "Indicates the source and validation of the match between EIA and FERC. Match types include matches was generated from the model, verified by the training data, overridden by the training data, etc.",
+    },
+    "max_charge_rate_mw": {
+        "type": "number",
+        "description": "Maximum charge rate in MW.",
+        "unit": "MW",
+    },
+    "max_discharge_rate_mw": {
+        "type": "number",
+        "description": "Maximum discharge rate in MW.",
+        "unit": "MW",
     },
     "max_fuel_mmbtu_per_unit": {
         "type": "number",
@@ -3207,7 +3235,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "row_type_xbrl": {
         "type": "string",
         "description": "Indicates whether the value reported in the row is calculated, or uniquely reported within the table.",
-        "constraints": {"enum": ["calculated_value", "reported_value", "correction"]},
+        "constraints": {
+            "enum": [
+                "calculated_value",
+                "reported_value",
+                "correction",
+                "subdimension_correction",
+            ]
+        },
     },
     "rto_iso_lmp_node_id": {
         "type": "string",
@@ -3321,6 +3356,46 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "seller_name": {
         "type": "string",
         "description": "Name of the seller, or the other party in an exchange transaction.",
+    },
+    "served_arbitrage": {
+        "type": "boolean",
+        "description": "Whether the energy storage device served arbitrage applications during the reporting year",
+    },
+    "served_backup_power": {
+        "type": "boolean",
+        "description": "Whether the energy storage device served backup power applications during the reporting year.",
+    },
+    "served_co_located_renewable_firming": {
+        "type": "boolean",
+        "description": "Whether the energy storage device served renewable firming applications during the reporting year.",
+    },
+    "served_frequency_regulation": {
+        "type": "boolean",
+        "description": "Whether the energy storage device served frequency regulation applications during the reporting year.",
+    },
+    "served_load_following": {
+        "type": "boolean",
+        "description": "Whether the energy storage device served load following applications during the reporting year.",
+    },
+    "served_load_management": {
+        "type": "boolean",
+        "description": "Whether the energy storage device served load management applications during the reporting year.",
+    },
+    "served_ramping_spinning_reserve": {
+        "type": "boolean",
+        "description": "Whether the this energy storage device served ramping / spinning reserve applications during the reporting year.",
+    },
+    "served_system_peak_shaving": {
+        "type": "boolean",
+        "description": "Whether the energy storage device served system peak shaving applications during the reporting year.",
+    },
+    "served_transmission_and_distribution_deferral": {
+        "type": "boolean",
+        "description": "Whether the energy storage device served renewable firming applications during the reporting year.",
+    },
+    "served_voltage_or_reactive_power_support": {
+        "type": "boolean",
+        "description": "Whether the energy storage device served voltage or reactive power support applications during the reporting year.",
     },
     "service_area": {
         "type": "string",
@@ -3619,6 +3694,55 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "stoker_tech": {
         "type": "boolean",
         "description": "Indicates whether the generator uses stoker technology",
+    },
+    "storage_enclosure_code": {
+        "type": "string",
+        "description": "A code representing the enclosure type that best describes where the generator is located.",
+        "constraints": {
+            "enum": set(
+                CODE_METADATA["core_eia__codes_storage_enclosure_types"]["df"].code
+            )
+        },
+    },
+    "storage_technology_code_1": {
+        "type": "string",
+        "description": "The electro-chemical storage technology used for this battery applications.",
+        "constraints": {
+            "enum": set(
+                CODE_METADATA["core_eia__codes_storage_technology_types"]["df"].code
+            )
+        },
+    },
+    "storage_technology_code_2": {
+        "type": "string",
+        "description": "The electro-chemical storage technology used for this battery applications.",
+        "constraints": {
+            "enum": set(
+                CODE_METADATA["core_eia__codes_storage_technology_types"]["df"].code
+            )
+        },
+    },
+    "storage_technology_code_3": {
+        "type": "string",
+        "description": "The electro-chemical storage technology used for this battery applications.",
+        "constraints": {
+            "enum": set(
+                CODE_METADATA["core_eia__codes_storage_technology_types"]["df"].code
+            )
+        },
+    },
+    "storage_technology_code_4": {
+        "type": "string",
+        "description": "The electro-chemical storage technology used for this battery applications.",
+        "constraints": {
+            "enum": set(
+                CODE_METADATA["core_eia__codes_storage_technology_types"]["df"].code
+            )
+        },
+    },
+    "stored_excess_wind_and_solar_generation": {
+        "type": "boolean",
+        "description": "Whether the energy storage device was used to store excess wind/solar generation during the reporting year.",
     },
     "street_address": {
         "type": "string",
@@ -3970,10 +4094,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Was an uprate or derate completed on this generator during the reporting year?",
     },
-    "utc_datetime": {
-        "type": "datetime",
-        "description": ("Date and time converted to Coordinated Universal Time (UTC)."),
-    },
     "utility_id_eia": {
         "type": "integer",
         "description": "The EIA Utility Identification number.",
@@ -4168,6 +4288,154 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "constraints": {
             "pattern": r"^\d{4}$",
         },
+    },
+    "design_wind_speed_mph": {
+        "type": "number",
+        "description": "Average annual wind speed that turbines at this wind site were designed for.",
+    },
+    "obstacle_id_faa": {
+        "type": "string",
+        "description": (
+            "The Federal Aviation Administration (FAA) obstacle number assigned to this "
+            "generator. If more than one obstacle number exists, the one that best "
+            "represents the turbines. References the obstacle numbers reported in the "
+            "FAA's Digital Obstacle File: "
+            "https://www.faa.gov/air_traffic/flight_info/aeronav/digital_products/dof/ "
+            "This field was only reported from 2013 through 2015."
+        ),
+    },
+    "predominant_turbine_manufacturer": {
+        "type": "string",
+        "description": "Name of predominant manufacturer of turbines at this generator.",
+    },
+    "predominant_turbine_model": {
+        "type": "string",
+        "description": "Predominant model number of turbines at this generator.",
+    },
+    "turbine_hub_height_feet": {
+        "type": "number",
+        "description": "The hub height of turbines at this generator. If more than one value exists, the one that best represents the turbines.",
+        "unit": "ft",
+    },
+    "wind_quality_class": {
+        "type": "integer",
+        "description": "The wind quality class for turbines at this generator. See table core_eia__codes_wind_quality_class for specifications about each class.",
+        "constraints": {"enum": [1, 2, 3, 4]},
+    },
+    "wind_speed_avg_ms": {
+        "type": "number",
+        "description": "Average wind speed in meters per second.",
+        "unit": "ms",
+    },
+    "extreme_fifty_year_gust_ms": {
+        "type": "number",
+        "description": "The extreme 50-year wind gusts at this generator in meters per hour.",
+        "unit": "ms",
+    },
+    "turbulence_intensity_a": {
+        "type": "number",
+        "description": "The upper bounds of the turbulence intensity at the wind site (ratio of standard deviation of fluctuating wind velocity to the mean wind speed).",
+    },
+    "turbulence_intensity_b": {
+        "type": "number",
+        "description": "The lower bounds of the turbulence intensity at the wind site (ratio of standard deviation of fluctuating wind velocity to the mean wind speed).",
+    },
+    "azimuth_angle_deg": {
+        "type": "number",
+        "description": "Indicates the azimuth angle of the unit for fixed tilt or single-axis technologies.",
+        "unit": "deg",
+    },
+    "standard_testing_conditions_capacity_mwdc": {
+        "type": "number",
+        "description": "The net capacity of this photovoltaic generator in direct current under standard test conditions (STC) of 1000 W/m^2 solar irradiance and 25 degrees Celsius PV module temperature. This was only reported in 2013 and 2014.",
+        "unit": "MW",
+    },
+    "net_metering_capacity_mwdc": {
+        "type": "number",
+        "description": "The DC megawatt capacity that is part of a net metering agreement.",
+        "unit": "MW",
+    },
+    "tilt_angle_deg": {
+        "type": "number",
+        "description": "Indicates the tilt angle of the unit for fixed tilt or single-axis technologies.",
+        "unit": "deg",
+    },
+    "uses_material_crystalline_silicon": {
+        "type": "boolean",
+        "description": "Indicates whether any solar photovoltaic panels at this generator are made of crystalline silicon.",
+    },
+    "uses_technology_dish_engine": {
+        "type": "boolean",
+        "description": "Indicates whether dish engines are used at this solar generating unit.",
+    },
+    "uses_technology_dual_axis_tracking": {
+        "type": "boolean",
+        "description": "Indicates whether dual-axis tracking technologies are used at this solar generating unit.",
+    },
+    "uses_technology_east_west_fixed_tilt": {
+        "type": "boolean",
+        "description": "Indicates whether east west fixed tilt technologies are used at this solar generating unit.",
+    },
+    "uses_technology_fixed_tilt": {
+        "type": "boolean",
+        "description": "Indicates whether fixed tilt technologies are used at this solar generating unit.",
+    },
+    "uses_technology_lenses_mirrors": {
+        "type": "boolean",
+        "description": "Indicates whether lenses or mirrors are used at this solar generating unit.",
+    },
+    "uses_technology_linear_fresnel": {
+        "type": "boolean",
+        "description": "Indicates whether linear fresnel technologies are used at this solar generating unit.",
+    },
+    "uses_net_metering_agreement": {
+        "type": "boolean",
+        "description": "Indicates if the output from this generator is part of a net metering agreement.",
+    },
+    "uses_material_other": {
+        "type": "boolean",
+        "description": "Indicates whether any solar photovoltaic panels at this generator are made of other materials.",
+    },
+    "uses_technology_other": {
+        "type": "boolean",
+        "description": "Indicates whether other solar technologies are used at this solar generating unit.",
+    },
+    "uses_technology_parabolic_trough": {
+        "type": "boolean",
+        "description": "Indicates whether parabolic trough technologies s are used at this solar generating unit.",
+    },
+    "uses_technology_power_tower": {
+        "type": "boolean",
+        "description": "Indicates whether power towers are used at this solar generating unit.",
+    },
+    "uses_technology_single_axis_tracking": {
+        "type": "boolean",
+        "description": "Indicates whether single-axis tracking technologies are used at this solar generating unit.",
+    },
+    "uses_material_thin_film_a_si": {
+        "type": "boolean",
+        "description": "Indicates whether any solar photovoltaic panels at this generator are made of thin-film amorphous silicon (A-Si).",
+    },
+    "uses_material_thin_film_cdte": {
+        "type": "boolean",
+        "description": "Indicates whether any solar photovoltaic panels at this generator are made of thin-film cadmium telluride (CdTe).",
+    },
+    "uses_material_thin_film_cigs": {
+        "type": "boolean",
+        "description": "Indicates whether any solar photovoltaic panels at this generator are made of thin-film copper indium gallium diselenide (CIGS).",
+    },
+    "uses_material_thin_film_other": {
+        "type": "boolean",
+        "description": "Indicates whether any solar photovoltaic panels at this generator are made of other thin-film material.",
+    },
+    "uses_virtual_net_metering_agreement": {
+        "type": "boolean",
+        "description": "Indicates if the output from this generator is part of a virtual net metering agreement.",
+    },
+    "virtual_net_metering_capacity_mwdc": {
+        "type": "number",
+        "description": "The DC capacity in MW that is part of a virtual net metering agreement.",
+        "unit": "MW",
     },
 }
 """Field attributes by PUDL identifier (`field.name`).

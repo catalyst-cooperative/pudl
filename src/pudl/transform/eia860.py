@@ -186,6 +186,25 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
     return own_df
 
 
+def fix_boolean_columns(
+    df: pd.DataFrame,
+    boolean_columns_to_fix: list[str],
+) -> pd.DataFrame:
+    """Fix standard issues with EIA boolean columns.
+
+    Most boolean columns have either "Y" for True or "N" for False. A subset of the
+    columns have "X" values which represents a False value. A subset of the columns
+    have "U" values, presumably for "Unknown," which must be set to null in order to
+    convert the columns to datatype Boolean.
+    """
+    fillna_cols = {col: pd.NA for col in boolean_columns_to_fix}
+    boolean_replace_cols = {
+        col: {"Y": True, "N": False, "X": False, "U": pd.NA}
+        for col in boolean_columns_to_fix
+    }
+    return df.fillna(fillna_cols).replace(to_replace=boolean_replace_cols)
+
+
 @asset
 def _core_eia860__generators(
     raw_eia860__generator_proposed: pd.DataFrame,
@@ -297,21 +316,12 @@ def _core_eia860__generators(
         "ferc_exempt_wholesale_generator",
         "ferc_qualifying_facility",
     ]
-    # Most boolean columns have either "Y" for True or "N" for False.
-    # A subset of the columns have "X" values which represents a False value.
-    # A subset of the columns have "U" values, presumably for "Unknown," which
-    # must be set to None in order to convert the columns to datatype Boolean.
-    fillna_cols = {col: pd.NA for col in boolean_columns_to_fix}
-    boolean_replace_cols = {
-        col: {"Y": True, "N": False, "X": False, "U": pd.NA}
-        for col in boolean_columns_to_fix
-    }
     gens_df = (
         pd.concat([ge_df, gp_df, gr_df, g_df], sort=True)
         .dropna(subset=["generator_id", "plant_id_eia"])
         .pipe(pudl.helpers.fix_eia_na)
-        .fillna(fillna_cols)
-        .replace(to_replace=nulls_replace_cols | boolean_replace_cols)
+        .pipe(fix_boolean_columns, boolean_columns_to_fix=boolean_columns_to_fix)
+        .replace(to_replace=nulls_replace_cols)
         .pipe(pudl.helpers.month_year_to_date)
         .pipe(
             pudl.helpers.simplify_strings,
@@ -344,6 +354,159 @@ def _core_eia860__generators(
     )
 
     return gens_df
+
+
+@asset
+def _core_eia860__generators_solar(
+    raw_eia860__generator_solar_existing: pd.DataFrame,
+    raw_eia860__generator_solar_retired: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the solar-specific generators table.
+
+    Many of the same transforms to the core generators table are applied here.
+    Most of the unique solar columns are booleans.
+
+    Notes for possible future cleaning:
+
+    * Both the ``tilt_angle`` and ``azimuth_angle`` columns have a small number of
+      negative values (both under 40 records). This seems off, but not impossible?
+    * A lot of the boolean columns in this table are mostly null. It is probably
+      that a lot of the nulls should coorespond to False's, but there is no sure way
+      to know, so nulls seem more appropriate.
+
+    """
+    solar_existing = raw_eia860__generator_solar_existing
+    solar_retired = raw_eia860__generator_solar_retired
+    # every boolean column in the raw solar tables has a uses prefix
+    boolean_columns_to_fix = list(solar_existing.filter(regex=r"^uses_"))
+    if mismatched_bool_cols := set(boolean_columns_to_fix).difference(
+        set(solar_retired.filter(regex=r"^uses_"))
+    ):
+        raise AssertionError(
+            "We expect that the raw existing and retired assets to have the exact same "
+            f"boolean columns with prefix of uses_ but we found {mismatched_bool_cols=}"
+        )
+    solar_df = (
+        pd.concat([solar_existing, solar_retired], sort=True)
+        .pipe(pudl.helpers.fix_eia_na)
+        .pipe(fix_boolean_columns, boolean_columns_to_fix)
+        .pipe(pudl.helpers.month_year_to_date)
+        .pipe(pudl.helpers.convert_to_date)
+        .pipe(
+            pudl.metadata.classes.Package.from_resource_ids()
+            .get_resource("core_eia860__scd_generators")
+            .encode
+        )
+    )
+
+    solar_df["operational_status"] = solar_df.operational_status_code.str.upper().map(
+        pudl.helpers.label_map(
+            CODE_METADATA["core_eia__codes_operational_status"]["df"],
+            from_col="code",
+            to_col="operational_status",
+            null_value=pd.NA,
+        )
+    )
+    return solar_df
+
+
+@asset
+def _core_eia860__generators_energy_storage(
+    raw_eia860__generator_energy_storage_existing: pd.DataFrame,
+    raw_eia860__generator_energy_storage_retired: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the energy storage specific generators table."""
+    storage_ex = raw_eia860__generator_energy_storage_existing
+    storage_re = raw_eia860__generator_energy_storage_retired
+
+    # every boolean column in the raw storage tables has a served_ or stored_ prefix
+    boolean_columns_to_fix = list(storage_ex.filter(regex=r"^served_|^stored_"))
+
+    storage_df = (
+        pd.concat([storage_ex, storage_re], sort=True)
+        .pipe(pudl.helpers.fix_eia_na)
+        .pipe(pudl.helpers.month_year_to_date)
+        .pipe(pudl.helpers.convert_to_date)
+        .pipe(fix_boolean_columns, boolean_columns_to_fix=boolean_columns_to_fix)
+        .pipe(
+            pudl.metadata.classes.Package.from_resource_ids()
+            .get_resource("core_eia860__scd_generators_energy_storage")
+            .encode
+        )
+    )
+
+    storage_df["operational_status"] = (
+        storage_df.operational_status_code.str.upper().map(
+            pudl.helpers.label_map(
+                CODE_METADATA["core_eia__codes_operational_status"]["df"],
+                from_col="code",
+                to_col="operational_status",
+                null_value=pd.NA,
+            )
+        )
+    )
+
+    return storage_df
+
+
+@asset
+def _core_eia860__generators_wind(
+    raw_eia860__generator_wind_existing: pd.DataFrame,
+    raw_eia860__generator_wind_retired: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the wind-specific generators table.
+
+    Many of the same transforms to the core generators table are applied here.
+
+    Some notes for possible cleaning later:
+
+    * technology_description: this field didn't exist in 2013. We could try to backfill.
+      this is an annual scd so it'll get slurpped up there and backfilling does happen
+      in the output layer via :func:`pudl.output.eia.fill_generator_technology_description`
+    * turbines_num: this field doesn't show up in this table for 2013 and 2014, but it does
+      exist in the 2001-2012 generators tab. This is an annual generator scd.
+
+    """
+    wind_ex = raw_eia860__generator_wind_existing
+    wind_re = raw_eia860__generator_wind_retired
+    # there is one record that has a null gen id. ensure there isn't more before dropping
+    if len(null_gens := wind_re[wind_re.generator_id.isnull()]) > 1:
+        raise AssertionError(
+            f"Expected one or zero records with a null generator_id but found {null_gens}"
+        )
+    wind_re = wind_re.dropna(subset=["generator_id"])
+
+    wind_df = (
+        pd.concat([wind_ex, wind_re], sort=True)
+        .pipe(pudl.helpers.fix_eia_na)
+        .pipe(pudl.helpers.month_year_to_date)
+        .pipe(pudl.helpers.convert_to_date)
+        .pipe(
+            pudl.helpers.simplify_strings,
+            columns=["predominant_turbine_manufacturer"],
+        )
+        .convert_dtypes()  # converting here before the wind encoding bc int's are codes
+        .pipe(
+            pudl.metadata.classes.Package.from_resource_ids()
+            .get_resource("core_eia860__scd_generators")
+            .encode
+        )
+        .pipe(
+            pudl.metadata.classes.Package.from_resource_ids()
+            .get_resource("core_eia860__scd_generators_wind")
+            .encode
+        )
+    )
+
+    wind_df["operational_status"] = wind_df.operational_status_code.str.upper().map(
+        pudl.helpers.label_map(
+            CODE_METADATA["core_eia__codes_operational_status"]["df"],
+            from_col="code",
+            to_col="operational_status",
+            null_value=pd.NA,
+        )
+    )
+    return wind_df
 
 
 @asset
@@ -552,8 +715,9 @@ def _core_eia860__utilities(raw_eia860__utility: pd.DataFrame) -> pd.DataFrame:
 
 @asset
 def _core_eia860__boilers(
-    raw_eia860__emission_control_strategies, raw_eia860__boiler_info
-):
+    raw_eia860__emission_control_strategies: pd.DataFrame,
+    raw_eia860__boiler_info: pd.DataFrame,
+) -> pd.DataFrame:
     """Pull and transform the boilers table.
 
     Transformations include:
@@ -566,13 +730,13 @@ def _core_eia860__boilers(
       reporting.
 
     Args:
-        raw_eia860__emission_control_strategies (pandas.DataFrame):
-            DataFrame extracted from EIA forms earlier in the ETL process.
-        raw_eia860__boiler_info (pandas.DataFrame):
-            DataFrame extracted from EIA forms earlier in the ETL process.
+        raw_eia860__emission_control_strategies: DataFrame extracted from EIA forms
+            earlier in the ETL process.
+        raw_eia860__boiler_info: DataFrame extracted from EIA forms earlier in the ETL
+            process.
 
     Returns:
-        pandas.DataFrame: the transformed boilers table
+        The transformed boilers table.
     """
     # Populating the 'core_eia860__scd_boilers' table
     b_df = raw_eia860__boiler_info
@@ -764,7 +928,9 @@ def _core_eia860__emissions_control_equipment(
     emce_df = pudl.helpers.fix_eia_na(raw_eia860__emissions_control_equipment)
 
     # Spot fix bad months
-    emce_df["operating_month"] = emce_df["operating_month"].replace({"88": "8"})
+    emce_df["emission_control_operating_month"] = emce_df[
+        "emission_control_operating_month"
+    ].replace({"88": "8"})
     # Fill in values with a year not a month based on later years that do have a month
     # I thought about doing some sort of backfill here, but decided not to because
     # emission_control_id_pudl is not guaranteed to be consistent over time
@@ -781,7 +947,7 @@ def _core_eia860__emissions_control_equipment(
     bad_month_3 = (
         (emce_df["report_year"] == 2013)
         & (emce_df["plant_id_eia"] == 3131)
-        & (emce_df["operating_year"] == "2005")
+        & (emce_df["emission_control_operating_year"] == "2005")
     )
     bad_month_4 = (emce_df["report_year"] == 2013) & (emce_df["plant_id_eia"] == 10405)
     bad_month_5 = (
@@ -792,12 +958,12 @@ def _core_eia860__emissions_control_equipment(
     bad_month_6 = (
         (emce_df["report_year"] == 2013)
         & (emce_df["plant_id_eia"] == 4054)
-        & (emce_df["operating_year"] == "2011")
+        & (emce_df["emission_control_operating_year"] == "2011")
     )
     bad_month_7 = (
         (emce_df["report_year"] == 2013)
         & (emce_df["plant_id_eia"] == 50544)
-        & (emce_df["operating_year"] == "1990")
+        & (emce_df["emission_control_operating_year"] == "1990")
     )
     bad_month_8 = (
         (emce_df["report_year"] == 2013)
@@ -809,33 +975,33 @@ def _core_eia860__emissions_control_equipment(
     # (in which case the assertions will fail)
     if 2013 in emce_df.report_year.unique():
         assert len(emce_df[bad_month_1]) == 1
-        emce_df.loc[bad_month_1, "operating_month"] = 6
+        emce_df.loc[bad_month_1, "emission_control_operating_month"] = 6
         assert len(emce_df[bad_month_2]) == 4
-        emce_df.loc[bad_month_2, "operating_month"] = 6
+        emce_df.loc[bad_month_2, "emission_control_operating_month"] = 6
         assert len(emce_df[bad_month_3]) == 4
-        emce_df.loc[bad_month_3, "operating_month"] = 1
+        emce_df.loc[bad_month_3, "emission_control_operating_month"] = 1
         assert len(emce_df[bad_month_4]) == 1
-        emce_df.loc[bad_month_4, "operating_month"] = 12
+        emce_df.loc[bad_month_4, "emission_control_operating_month"] = 12
         assert len(emce_df[bad_month_5]) == 2
-        emce_df.loc[bad_month_5, "operating_month"] = 6
+        emce_df.loc[bad_month_5, "emission_control_operating_month"] = 6
         assert len(emce_df[bad_month_6]) == 2
-        emce_df.loc[bad_month_6, "operating_month"] = 10
+        emce_df.loc[bad_month_6, "emission_control_operating_month"] = 10
         assert len(emce_df[bad_month_7]) == 1
-        emce_df.loc[bad_month_7, "operating_month"] = 6
+        emce_df.loc[bad_month_7, "emission_control_operating_month"] = 6
         assert len(emce_df[bad_month_8]) == 9
-        emce_df.loc[bad_month_8, "operating_month"] = 12
+        emce_df.loc[bad_month_8, "emission_control_operating_month"] = 12
 
     # Convert month-year columns to a single date column
     emce_df = pudl.helpers.convert_to_date(
         df=emce_df,
         date_col="emission_control_operating_date",
-        year_col="operating_year",
-        month_col="operating_month",
+        year_col="emission_control_operating_year",
+        month_col="emission_control_operating_month",
     ).pipe(
         pudl.helpers.convert_to_date,
         date_col="emission_control_retirement_date",
-        year_col="retirement_year",
-        month_col="retirement_month",
+        year_col="emission_control_retirement_year",
+        month_col="emission_control_retirement_month",
     )
 
     # Convert acid gas control column to boolean
@@ -903,8 +1069,7 @@ def _core_eia860__boiler_emissions_control_equipment_assn(
             association table.
 
     Returns:
-        pd.DataFrame: A combination of all the emission control equipment association
-            tables.
+        A combination of all the emission control equipment association tables.
     """
     raw_tables = [
         raw_eia860__boiler_so2,
@@ -969,8 +1134,7 @@ def _core_eia860__boiler_cooling(
         raw_eia860__boiler_cooling: Raw EIA 860 boiler to cooler ID association table.
 
     Returns:
-        pd.DataFrame: A cleaned and normalized version of the EIA boiler to cooler ID
-            table.
+        A cleaned and normalized version of the EIA boiler to cooler ID table.
     """
     # Replace empty strings, whitespace, and '.' fields with real NA values
     bc_assn = pudl.helpers.fix_eia_na(raw_eia860__boiler_cooling)
@@ -995,8 +1159,7 @@ def _core_eia860__boiler_stack_flue(
             table.
 
     Returns:
-        pd.DataFrame: A cleaned and normalized version of the EIA boiler to stack flue
-            ID table.
+        A cleaned and normalized version of the EIA boiler to stack flue ID table.
     """
     # Replace empty strings, whitespace, and '.' fields with real NA values
     bsf_assn = pudl.helpers.fix_eia_na(raw_eia860__boiler_stack_flue)
@@ -1067,10 +1230,8 @@ def _core_eia860__cooling_equipment(
     ] = 1971
     ce_df.loc[ce_df["pond_operating_year"] == 0, "pond_operating_year"] = np.nan
     ce_df.loc[ce_df["tower_operating_year"] == 974, "tower_operating_year"] = 1974
-    ce_df = (
-        ce_df.pipe(pudl.helpers.month_year_to_date)
-        .pipe(pudl.helpers.convert_to_date)
-        .rename(columns={"operating_date": "cooling_system_operating_date"})
+    ce_df = ce_df.pipe(pudl.helpers.month_year_to_date).pipe(
+        pudl.helpers.convert_to_date
     )
 
     # There's one row which has an NA cooling_id_eia, which we mark as "PLANT"
@@ -1183,7 +1344,6 @@ def _core_eia860__fgd_equipment(
     fgd_df = fgd_df.pipe(pudl.helpers.month_year_to_date).pipe(
         pudl.helpers.convert_to_date
     )
-    fgd_df = fgd_df.rename(columns={"operating_date": "fgd_operating_date"})
 
     # Handle mixed boolean types in control flag column
     for col in [
@@ -1267,7 +1427,7 @@ def fgd_equipment_null_check(fgd):  # pragma: no cover
     fast_run_null_cols = {
         "county",
         "fgd_operational_status_code",
-        "operating_date",
+        "fgd_operating_date",
         "fgd_manufacturer_code",
         "plant_summer_capacity_mw",
         "water_source",
