@@ -186,25 +186,6 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
     return own_df
 
 
-def fix_boolean_columns(
-    df: pd.DataFrame,
-    boolean_columns_to_fix: list[str],
-) -> pd.DataFrame:
-    """Fix standard issues with EIA boolean columns.
-
-    Most boolean columns have either "Y" for True or "N" for False. A subset of the
-    columns have "X" values which represents a False value. A subset of the columns
-    have "U" values, presumably for "Unknown," which must be set to null in order to
-    convert the columns to datatype Boolean.
-    """
-    fillna_cols = {col: pd.NA for col in boolean_columns_to_fix}
-    boolean_replace_cols = {
-        col: {"Y": True, "N": False, "X": False, "U": pd.NA}
-        for col in boolean_columns_to_fix
-    }
-    return df.fillna(fillna_cols).replace(to_replace=boolean_replace_cols)
-
-
 @asset
 def _core_eia860__generators(
     raw_eia860__generator_proposed: pd.DataFrame,
@@ -320,7 +301,10 @@ def _core_eia860__generators(
         pd.concat([ge_df, gp_df, gr_df, g_df], sort=True)
         .dropna(subset=["generator_id", "plant_id_eia"])
         .pipe(pudl.helpers.fix_eia_na)
-        .pipe(fix_boolean_columns, boolean_columns_to_fix=boolean_columns_to_fix)
+        .pipe(
+            pudl.helpers.fix_boolean_columns,
+            boolean_columns_to_fix=boolean_columns_to_fix,
+        )
         .replace(to_replace=nulls_replace_cols)
         .pipe(pudl.helpers.month_year_to_date)
         .pipe(
@@ -389,7 +373,7 @@ def _core_eia860__generators_solar(
     solar_df = (
         pd.concat([solar_existing, solar_retired], sort=True)
         .pipe(pudl.helpers.fix_eia_na)
-        .pipe(fix_boolean_columns, boolean_columns_to_fix)
+        .pipe(pudl.helpers.fix_boolean_columns, boolean_columns_to_fix)
         .pipe(pudl.helpers.month_year_to_date)
         .pipe(pudl.helpers.convert_to_date)
         .pipe(
@@ -427,7 +411,10 @@ def _core_eia860__generators_energy_storage(
         .pipe(pudl.helpers.fix_eia_na)
         .pipe(pudl.helpers.month_year_to_date)
         .pipe(pudl.helpers.convert_to_date)
-        .pipe(fix_boolean_columns, boolean_columns_to_fix=boolean_columns_to_fix)
+        .pipe(
+            pudl.helpers.fix_boolean_columns,
+            boolean_columns_to_fix=boolean_columns_to_fix,
+        )
         .pipe(
             pudl.metadata.classes.Package.from_resource_ids()
             .get_resource("core_eia860__scd_generators_energy_storage")
