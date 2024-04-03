@@ -3032,20 +3032,19 @@ def out_ferc1__yearly_rate_base(
             cash_working_capital,
         ]
     )
-    rate_base_broken_down_utils = breakdown_unlabeled(
+    rate_base_broken_down = breakdown_unlabeled(
         rate_base=rate_base,
         unlabeled_mask=rate_base.utility_type == "total",
         split_col="utility_type",
     )
-    logger.info(
-        "Breaking down total utility types resulted in "
-        f"{len(rate_base_broken_down_utils)/len(rate_base):.1%} of records."
-    )
-    rate_base_broken_down = breakdown_unlabeled(
-        rate_base=rate_base_broken_down_utils,
-        unlabeled_mask=rate_base_broken_down_utils.tags_in_rate_base.isnull(),
-        split_col="tags_in_rate_base",
-    )
+    # TODO: rn breaking down the null rate base tags results in a weird spike in 2021
+    # ending_balance. i suspect its from the 2021 subtotal correction tags.
+    # this needs to be fixed
+    # rate_base_broken_down = breakdown_unlabeled(
+    #     rate_base=rate_base_broken_down,
+    #     unlabeled_mask=rate_base_broken_down.tags_in_rate_base.isnull(),
+    #     split_col="tags_in_rate_base",
+    # )
     logger.info(
         "Breaking down total utility types and null in_rate_base tags resulted in "
         f"{len(rate_base_broken_down)/len(rate_base):.1%} of records."
@@ -3144,8 +3143,11 @@ def apply_ratio_to_breakdown_unlabeled(
         )
         .assign(**{f"is_breakdown_{split_col}": True})
         .drop(columns=[f"ratio_{split_col}", f"{split_col}_unlabeled"])
+        # this automatially gets converted to a pandas Float64 which
+        # results in nulls from any sum.
+        .astype({"ending_balance": float})
     )
-    return pd.concat(
+    rate_base_broken_down = pd.concat(
         [
             rate_base_df[~unlabeled_mask].assign(
                 **{f"is_breakdown_{split_col}": False}
@@ -3153,6 +3155,14 @@ def apply_ratio_to_breakdown_unlabeled(
             unlabeled_breakdown,
         ]
     )
+    if (new_balance := rate_base_broken_down.ending_balance.sum()) != (
+        old_balance := rate_base_df.ending_balance.sum()
+    ):
+        logger.warning(
+            "New ending balance is not the same as the old ending balance: "
+            f"{new_balance=}, {old_balance=}"
+        )
+    return rate_base_broken_down
 
 
 def breakdown_unlabeled(
@@ -3181,4 +3191,4 @@ def breakdown_unlabeled(
         unlabeled_mask=unlabeled_mask,
         split_col=split_col,
     )
-    return rate_base_broken_down
+    return rate_base_broken_down.convert_dtypes()
