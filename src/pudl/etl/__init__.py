@@ -206,13 +206,18 @@ default_resources = {
     "epacems_io_manager": epacems_io_manager,
 }
 
-# By default, limit CEMS year processing concurrency to prevent memory overload.
+# By default, limit CEMS and FERC 714 processing concurrency to prevent memory overload.
 default_tag_concurrency_limits = [
     {
         "key": "datasource",
         "value": "epacems",
         "limit": 2,
-    }
+    },
+    {
+        "key": "datasource",
+        "value": "ferc714",
+        "limit": 1,
+    },
 ]
 default_config = pudl.helpers.get_dagster_execution_config(
     tag_concurrency_limits=default_tag_concurrency_limits

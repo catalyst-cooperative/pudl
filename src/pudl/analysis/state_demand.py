@@ -449,6 +449,7 @@ def melt_ferc714_hourly_demand_matrix(
             ),
         ),
     },
+    op_tags={"datasource": "ferc714"},
 )
 def _out_ferc714__hourly_demand_matrix(
     context, _out_ferc714__hourly_pivoted_demand_matrix: pd.DataFrame
