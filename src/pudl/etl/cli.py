@@ -148,17 +148,12 @@ def pudl_etl(
         },
     }
 
-    # By default, limit CEMS and FERC 714 processing concurrency to prevent memory overload.
+    # Limit the number of concurrent workers when launch assets that use a lot of memory.
     tag_concurrency_limits = [
         {
-            "key": "datasource",
-            "value": "epacems",
+            "key": "memory-use",
+            "value": "high",
             "limit": 2,
-        },
-        {
-            "key": "datasource",
-            "value": "ferc714",
-            "limit": 1,
         },
     ]
 

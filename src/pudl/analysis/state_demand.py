@@ -449,7 +449,7 @@ def melt_ferc714_hourly_demand_matrix(
             ),
         ),
     },
-    op_tags={"datasource": "ferc714"},
+    op_tags={"memory-use": "high"},
 )
 def _out_ferc714__hourly_demand_matrix(
     context, _out_ferc714__hourly_pivoted_demand_matrix: pd.DataFrame
@@ -473,7 +473,10 @@ def _out_ferc714__hourly_demand_matrix(
     return df
 
 
-@asset(compute_kind="Python")
+@asset(
+    compute_kind="Python",
+    op_tags={"memory-use": "high"},
+)
 def _out_ferc714__hourly_imputed_demand(
     _out_ferc714__hourly_demand_matrix: pd.DataFrame,
     _out_ferc714__utc_offset: pd.DataFrame,
