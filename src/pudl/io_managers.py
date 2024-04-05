@@ -696,37 +696,23 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
         Each row in our SQLite database includes all the facts for one context/filing
         pair.
 
-        If one context is represented in multiple filings, we take the facts from the
-        most recently-published filing.
+        If one context is represented in multiple filings, we take the most
+        recently-reported non-null value.
 
-        This means that if a recently-published filing does not include a value for a
-        fact that was previously reported, then that value will remain null. We do not
-        forward-fill facts on a fact-by-fact basis.
+        This means that if a utility reports a non-null value, then later
+        either reports a null value for it or simply omits it from the report,
+        we keep the old non-null value, which may be erroneous. This appears to
+        be fairly rare.
         """
         filing_metadata_cols = {"publication_time", "filing_name"}
         xbrl_context_cols = [c for c in primary_key if c not in filing_metadata_cols]
-        # we do this in multiple stages so we can log the drop-off at each stage.
-        stages = [
-            {
-                "message": "completely duplicated rows",
-                "subset": table.columns,
-            },
-            {
-                "message": "rows that are exactly the same in multiple filings",
-                "subset": [c for c in table.columns if c not in filing_metadata_cols],
-            },
-            {
-                "message": "rows that were updated by later filings",
-                "subset": xbrl_context_cols,
-            },
-        ]
         original = table.sort_values("publication_time")
-        for stage in stages:
-            deduped = original.drop_duplicates(subset=stage["subset"], keep="last")
-            logger.debug(f"Dropped {len(original) - len(deduped)} {stage['message']}")
-            original = deduped
-
-        return deduped
+        dupe_mask = original.duplicated(subset=xbrl_context_cols, keep=False)
+        duped_groups = original.loc[dupe_mask].groupby(
+            xbrl_context_cols, as_index=False
+        )
+        never_duped = original.loc[~dupe_mask]
+        return pd.concat([never_duped, duped_groups.last()], ignore_index=True)
 
     @staticmethod
     def refine_report_year(df: pd.DataFrame, xbrl_years: list[int]) -> pd.DataFrame:
