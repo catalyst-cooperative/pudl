@@ -473,10 +473,7 @@ def _out_ferc714__hourly_demand_matrix(
     return df
 
 
-@asset(
-    compute_kind="Python",
-    op_tags={"memory-use": "high"},
-)
+@asset(compute_kind="Python")
 def _out_ferc714__hourly_imputed_demand(
     _out_ferc714__hourly_demand_matrix: pd.DataFrame,
     _out_ferc714__utc_offset: pd.DataFrame,
