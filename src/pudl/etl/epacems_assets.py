@@ -58,7 +58,7 @@ def get_years_from_settings(context):
 
 @op(
     required_resource_keys={"datastore", "dataset_settings"},
-    tags={"datasource": "epacems"},
+    tags={"memory-use": "high"},
 )
 def process_single_year(
     context,

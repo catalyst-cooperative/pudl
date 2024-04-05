@@ -449,6 +449,7 @@ def melt_ferc714_hourly_demand_matrix(
             ),
         ),
     },
+    op_tags={"memory-use": "high"},
 )
 def _out_ferc714__hourly_demand_matrix(
     context, _out_ferc714__hourly_pivoted_demand_matrix: pd.DataFrame

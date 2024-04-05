@@ -60,11 +60,15 @@ def raw_gridpathratoolkit_asset_factory(part: str) -> AssetsDefinition:
     into the ``aggregation_group`` field, indicating which generators were aggregated to
     produce the time series based on the wind and solar capacity aggregation tables.
     """
+    asset_kwargs = {
+        "name": f"raw_gridpathratoolkit__{part}",
+        "required_resource_keys": {"datastore", "dataset_settings"},
+        "compute_kind": "Python",
+    }
+    if part == "aggregated_extended_solar_capacity":
+        asset_kwargs["op_tags"] = {"memory-use": "high"}
 
-    @asset(
-        name=f"raw_gridpathratoolkit__{part}",
-        required_resource_keys={"datastore", "dataset_settings"},
-    )
+    @asset(**asset_kwargs)
     def _extract(context):
         """Extract raw GridPath RA Toolkit renewable energy generation profiles.
 

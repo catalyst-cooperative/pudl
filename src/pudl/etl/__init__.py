@@ -206,13 +206,13 @@ default_resources = {
     "epacems_io_manager": epacems_io_manager,
 }
 
-# By default, limit CEMS year processing concurrency to prevent memory overload.
+# Limit the number of concurrent workers when launch assets that use a lot of memory.
 default_tag_concurrency_limits = [
     {
-        "key": "datasource",
-        "value": "epacems",
+        "key": "memory-use",
+        "value": "high",
         "limit": 2,
-    }
+    },
 ]
 default_config = pudl.helpers.get_dagster_execution_config(
     tag_concurrency_limits=default_tag_concurrency_limits
