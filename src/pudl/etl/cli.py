@@ -153,7 +153,7 @@ def pudl_etl(
         {
             "key": "memory-use",
             "value": "high",
-            "limit": 2,
+            "limit": 4,
         },
     ]
 

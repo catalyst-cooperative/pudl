@@ -581,6 +581,7 @@ def total_state_sales_eia861(
             ),
         ),
     },
+    op_tags={"memory-use": "high"},
 )
 def out_ferc714__hourly_estimated_state_demand(
     context,
