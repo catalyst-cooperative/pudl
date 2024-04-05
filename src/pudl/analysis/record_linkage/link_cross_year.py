@@ -115,7 +115,7 @@ def get_average_distance_matrix(
     return average_dist_matrix
 
 
-@op
+@op(tags={"memory-use": "high"})
 def compute_distance_with_year_penalty(
     config: PenalizeReportYearDistanceConfig,
     feature_matrix: FeatureMatrix,
@@ -245,7 +245,7 @@ class MatchOrphanedRecordsConfig(Config):
     distance_threshold: float = 0.5
 
 
-@op
+@op(tags={"memory-use": "high"})
 def match_orphaned_records(
     config: MatchOrphanedRecordsConfig,
     distance_matrix: DistanceMatrix,
