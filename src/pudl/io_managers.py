@@ -702,7 +702,7 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
         This means that if a utility reports a non-null value, then later
         either reports a null value for it or simply omits it from the report,
         we keep the old non-null value, which may be erroneous. This appears to
-        be fairly rare.
+        be fairly rare, affecting < 0.005% of reported values.
         """
         filing_metadata_cols = {"publication_time", "filing_name"}
         xbrl_context_cols = [c for c in primary_key if c not in filing_metadata_cols]
