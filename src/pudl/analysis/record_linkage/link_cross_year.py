@@ -6,7 +6,7 @@ from tempfile import TemporaryDirectory
 import mlflow
 import numpy as np
 import pandas as pd
-from dagster import Backoff, Config, Jitter, RetryPolicy, graph, op
+from dagster import Config, graph, op
 from numba import njit
 from numba.typed import List
 from sklearn.cluster import DBSCAN, AgglomerativeClustering
@@ -115,15 +115,7 @@ def get_average_distance_matrix(
     return average_dist_matrix
 
 
-@op(
-    tags={"memory-use": "high"},
-    retry_policy=RetryPolicy(
-        max_retries=3,
-        delay=60,  # 1 minute
-        backoff=Backoff.EXPONENTIAL,
-        jitter=Jitter.PLUS_MINUS,
-    ),
-)
+@op(tags={"memory-use": "high"})
 def compute_distance_with_year_penalty(
     config: PenalizeReportYearDistanceConfig,
     feature_matrix: FeatureMatrix,

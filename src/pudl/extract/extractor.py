@@ -8,14 +8,11 @@ from typing import Any
 import pandas as pd
 from dagster import (
     AssetsDefinition,
-    Backoff,
     DagsterType,
     DynamicOut,
     DynamicOutput,
     In,
-    Jitter,
     OpDefinition,
-    RetryPolicy,
     TypeCheckContext,
     graph_asset,
     op,
@@ -265,15 +262,7 @@ class GenericExtractor(ABC):
         return all_page_dfs
 
 
-@op(
-    tags={"memory-use": "high"},
-    retry_policy=RetryPolicy(
-        max_retries=3,
-        delay=60,  # 1 minute
-        backoff=Backoff.EXPONENTIAL,
-        jitter=Jitter.PLUS_MINUS,
-    ),
-)
+@op(tags={"memory-use": "high"})
 def concat_pages(paged_dfs: list[dict[str, pd.DataFrame]]) -> dict[str, pd.DataFrame]:
     """Concatenate similar pages of data from different years into single dataframes.
 

@@ -1,7 +1,7 @@
 """Extract EIA Form 930 data from CSVs."""
 
 import pandas as pd
-from dagster import Backoff, Jitter, RetryPolicy, asset
+from dagster import asset
 
 from pudl.extract.csv import CsvExtractor
 from pudl.extract.extractor import GenericMetadata, PartitionSelection, raw_df_factory
@@ -53,12 +53,6 @@ def raw_eia930_asset_factory(page: str):
     @asset(
         name=f"raw_eia930__{page}",
         op_tags={"memory-use": "high"},
-        retry_policy=RetryPolicy(
-            max_retries=3,
-            delay=60,  # 1 minute
-            backoff=Backoff.EXPONENTIAL,
-            jitter=Jitter.PLUS_MINUS,
-        ),
         compute_kind="pandas",
     )
     def _extract_raw_eia930(

@@ -24,7 +24,7 @@ from typing import Any
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-from dagster import AssetOut, Backoff, Field, Jitter, RetryPolicy, asset, multi_asset
+from dagster import AssetOut, Field, asset, multi_asset
 
 import pudl.analysis.timeseries_cleaning
 import pudl.logging_helpers
@@ -434,7 +434,7 @@ def melt_ferc714_hourly_demand_matrix(
 
 
 @asset(
-    compute_kind="Python",
+    compute_kind="pandas",
     config_schema={
         "min_data": Field(
             int,
@@ -450,12 +450,6 @@ def melt_ferc714_hourly_demand_matrix(
             ),
         ),
     },
-    retry_policy=RetryPolicy(
-        max_retries=3,
-        delay=60,  # 1 minute
-        backoff=Backoff.EXPONENTIAL,
-        jitter=Jitter.PLUS_MINUS,
-    ),
     op_tags={"memory-use": "high"},
 )
 def _out_ferc714__hourly_demand_matrix(
@@ -480,7 +474,7 @@ def _out_ferc714__hourly_demand_matrix(
     return df
 
 
-@asset(compute_kind="Python")
+@asset(compute_kind="NumPy")
 def _out_ferc714__hourly_imputed_demand(
     _out_ferc714__hourly_demand_matrix: pd.DataFrame,
     _out_ferc714__utc_offset: pd.DataFrame,
