@@ -188,7 +188,8 @@ def core_epacems__hourly_emissions(
         "core_epacems__hourly_emissions": AssetIn(
             input_manager_key="epacems_io_manager"
         ),
-    }
+    },
+    compute_kind="Dask",
 )
 def _core_epacems__emissions_unit_ids(
     core_epacems__hourly_emissions: dd.DataFrame,
