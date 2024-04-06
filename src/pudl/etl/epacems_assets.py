@@ -16,7 +16,17 @@ import dask.dataframe as dd
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
-from dagster import AssetIn, DynamicOut, DynamicOutput, asset, graph_asset, op
+from dagster import (
+    AssetIn,
+    Backoff,
+    DynamicOut,
+    DynamicOutput,
+    Jitter,
+    RetryPolicy,
+    asset,
+    graph_asset,
+    op,
+)
 
 import pudl
 from pudl.extract.epacems import EpaCemsPartition
@@ -59,6 +69,12 @@ def get_years_from_settings(context):
 @op(
     required_resource_keys={"datastore", "dataset_settings"},
     tags={"memory-use": "high"},
+    retry_policy=RetryPolicy(
+        max_retries=3,
+        delay=60,  # 1 minute
+        backoff=Backoff.EXPONENTIAL,
+        jitter=Jitter.PLUS_MINUS,
+    ),
 )
 def process_single_year(
     context,

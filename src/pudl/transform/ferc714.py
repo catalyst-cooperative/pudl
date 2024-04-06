@@ -4,7 +4,7 @@ import re
 
 import numpy as np
 import pandas as pd
-from dagster import asset
+from dagster import Backoff, Jitter, RetryPolicy, asset
 
 import pudl.logging_helpers
 from pudl.metadata.classes import Package
@@ -397,7 +397,16 @@ def core_ferc714__respondent_id(
     return _post_process(df, table_name="core_ferc714__respondent_id")
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(
+    io_manager_key="pudl_io_manager",
+    op_tags={"memory-use": "high"},
+    retry_policy=RetryPolicy(
+        max_retries=3,
+        delay=60,  # 1 minute
+        backoff=Backoff.EXPONENTIAL,
+        jitter=Jitter.PLUS_MINUS,
+    ),
+)
 def out_ferc714__hourly_planning_area_demand(
     raw_ferc714__hourly_planning_area_demand: pd.DataFrame,
 ) -> pd.DataFrame:

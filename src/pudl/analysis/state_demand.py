@@ -24,7 +24,7 @@ from typing import Any
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-from dagster import AssetOut, Field, asset, multi_asset
+from dagster import AssetOut, Backoff, Field, Jitter, RetryPolicy, asset, multi_asset
 
 import pudl.analysis.timeseries_cleaning
 import pudl.logging_helpers
@@ -270,7 +270,8 @@ def load_hourly_demand_matrix_ferc714(
     """Read and format FERC 714 hourly demand into matrix form.
 
     Args:
-        out_ferc714__hourly_planning_area_demand: FERC 714 hourly demand time series by planning area.
+        out_ferc714__hourly_planning_area_demand: FERC 714 hourly demand time series by
+            planning area.
 
     Returns:
         Hourly demand as a matrix with a `datetime` row index
@@ -449,6 +450,12 @@ def melt_ferc714_hourly_demand_matrix(
             ),
         ),
     },
+    retry_policy=RetryPolicy(
+        max_retries=3,
+        delay=60,  # 1 minute
+        backoff=Backoff.EXPONENTIAL,
+        jitter=Jitter.PLUS_MINUS,
+    ),
     op_tags={"memory-use": "high"},
 )
 def _out_ferc714__hourly_demand_matrix(

@@ -5,7 +5,7 @@ from typing import Any
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-from dagster import Field, asset
+from dagster import Backoff, Field, Jitter, RetryPolicy, asset
 
 import pudl
 from pudl.analysis.service_territory import utility_ids_all_eia
@@ -569,6 +569,12 @@ def out_ferc714__respondents_with_fips(
 @asset(
     compute_kind="Python",
     op_tags={"memory-use": "high"},
+    retry_policy=RetryPolicy(
+        max_retries=3,
+        delay=60,  # 1 minute
+        backoff=Backoff.EXPONENTIAL,
+        jitter=Jitter.PLUS_MINUS,
+    ),
 )
 def _out_ferc714__georeferenced_counties(
     out_ferc714__respondents_with_fips: pd.DataFrame,
@@ -626,6 +632,12 @@ def _out_ferc714__georeferenced_respondents(
     compute_kind="Python",
     io_manager_key="pudl_io_manager",
     op_tags={"memory-use": "high"},
+    retry_policy=RetryPolicy(
+        max_retries=3,
+        delay=60,  # 1 minute
+        backoff=Backoff.EXPONENTIAL,
+        jitter=Jitter.PLUS_MINUS,
+    ),
 )
 def out_ferc714__summarized_demand(
     _out_ferc714__annualized_respondents: pd.DataFrame,

@@ -1,7 +1,7 @@
 """Module to perform data cleaning functions on EIA860m data tables."""
 
 import pandas as pd
-from dagster import asset
+from dagster import Backoff, Jitter, RetryPolicy, asset
 
 import pudl
 
@@ -12,6 +12,12 @@ logger = pudl.logging_helpers.get_logger(__name__)
     io_manager_key="pudl_io_manager",
     compute_kind="Python",
     op_tags={"memory-use": "high"},
+    retry_policy=RetryPolicy(
+        max_retries=3,
+        delay=60,  # 1 minute
+        backoff=Backoff.EXPONENTIAL,
+        jitter=Jitter.PLUS_MINUS,
+    ),
 )
 def core_eia860m__changelog_generators(
     raw_eia860m__generator_proposed,
