@@ -369,7 +369,10 @@ def _standardize_offset_codes(df: pd.DataFrame, offset_fixes) -> pd.DataFrame:
     return codes
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(
+    io_manager_key="pudl_io_manager",
+    compute_kind="pandas",
+)
 def core_ferc714__respondent_id(
     raw_ferc714__respondent_id: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -397,7 +400,11 @@ def core_ferc714__respondent_id(
     return _post_process(df, table_name="core_ferc714__respondent_id")
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(
+    io_manager_key="pudl_io_manager",
+    op_tags={"memory-use": "high"},
+    compute_kind="pandas",
+)
 def out_ferc714__hourly_planning_area_demand(
     raw_ferc714__hourly_planning_area_demand: pd.DataFrame,
 ) -> pd.DataFrame:
