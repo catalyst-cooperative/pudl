@@ -176,8 +176,8 @@ def test_ferc714_outputs(pudl_engine, df_name):
 @pytest.mark.parametrize(
     "df_name",
     [
-        "out_eia861__compiled_geometry_balancing_authorities",
-        "out_eia861__compiled_geometry_utilities",
+        "out_eia861__yearly_balancing_authority_service_territory",
+        "out_eia861__yearly_utility_service_territory",
     ],
 )
 def test_service_territory_outputs(pudl_engine, df_name):
