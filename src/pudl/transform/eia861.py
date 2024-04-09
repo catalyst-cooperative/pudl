@@ -1219,7 +1219,9 @@ def core_eia861__yearly_sales(raw_eia861__sales: pd.DataFrame) -> pd.DataFrame:
 
 
 @asset(io_manager_key="pudl_io_manager")
-def core_eia861__yearly_short_form(raw_eia861__short_form: pd.DataFrame) -> pd.DataFrame:
+def core_eia861__yearly_short_form(
+    raw_eia861__short_form: pd.DataFrame,
+) -> pd.DataFrame:
     """Transform the EIA 861 Short Form table.
 
     Transformations include:
@@ -1232,7 +1234,7 @@ def core_eia861__yearly_short_form(raw_eia861__short_form: pd.DataFrame) -> pd.D
         "utility_id_eia",
         "state",
         "report_date",
-        "balancing_authority_code_eia"
+        "balancing_authority_code_eia",
     ]
 
     bool_cols = [
@@ -1240,7 +1242,7 @@ def core_eia861__yearly_short_form(raw_eia861__short_form: pd.DataFrame) -> pd.D
         "net_metering",
         "demand_side_management",
         "time_responsive_programs",
-        "green_pricing"
+        "green_pricing",
     ]
 
     raw_sf = _pre_process(raw_eia861__short_form)
@@ -1251,7 +1253,7 @@ def core_eia861__yearly_short_form(raw_eia861__short_form: pd.DataFrame) -> pd.D
 
     # * Drop Duplicates based on primary keys
     deduped_sf = _drop_dupes(df=raw_sf, df_name="Short Form", subset=idx_cols)
-    
+
     # * Make Y/N's into booleans
     logger.info("Performing value transformations on EIA 861 Short Form table.")
     for col in bool_cols:
