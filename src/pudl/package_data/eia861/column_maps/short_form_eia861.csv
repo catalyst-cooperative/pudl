@@ -12,5 +12,5 @@ water_heater,-1,8,8,9,9,9,9,-1,9,9,9
 net_metering,8,9,9,10,10,10,10,-1,10,10,10
 demand_side_management,9,10,10,11,11,11,11,-1,11,11,11
 time_responsive_programs,10,11,11,12,12,12,12,-1,12,12,12
-green_pricing_revenue,7,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
+green_pricing,7,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
 early_release,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
