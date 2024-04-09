@@ -1,8 +1,8 @@
-"""Add EIA923 storage table
+"""Add EIA923 Energy Storage monthly table
 
-Revision ID: 67376cfec26a
-Revises: c0841f4c5e4f
-Create Date: 2024-04-09 10:58:41.091368
+Revision ID: 4e14f531f5d6
+Revises: 00e4382815d9
+Create Date: 2024-04-09 11:57:50.890543
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '67376cfec26a'
-down_revision = 'c0841f4c5e4f'
+revision = '4e14f531f5d6'
+down_revision = '00e4382815d9'
 branch_labels = None
 depends_on = None
 
