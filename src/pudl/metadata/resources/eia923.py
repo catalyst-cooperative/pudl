@@ -123,6 +123,9 @@ Denormalized, combined data from the ``core_eia923__monthly_generation_fuel`` an
 generation unit level up to the plant prime mover level, so as to be compatible with
 fossil fuel generation data."""
     ),
+    "core_eia923__monthly_energy_storage": (
+        """EIA-923 Monthly generation and fuel consumption for energy storage power plants. From EIA-923 Schedule 3."""
+    ),
 }
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
@@ -748,6 +751,32 @@ is for those supplies."""
                 "plant_id_eia",
                 "report_date",
                 "so2_control_id_eia",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia923"],
+        "etl_group": "eia923",
+    },
+    "core_eia923__monthly_energy_storage": {
+        "description": TABLE_DESCRIPTIONS["core_eia923__monthly_energy_storage"],
+        "schema": {
+            "fields": [
+                "plant_id_eia",
+                "report_date",
+                "prime_mover_code",
+                "energy_source_code",
+                "data_maturity",
+                "fuel_units",
+                "fuel_consumed_for_electricity_units",
+                "fuel_consumed_units",
+                "gross_generation_mwh",
+                "net_generation_mwh",
+            ],
+            "primary_key": [
+                "plant_id_eia",
+                "report_date",
+                "prime_mover_code",
+                "energy_source_code",
             ],
         },
         "field_namespace": "eia",

@@ -1232,10 +1232,15 @@ def harvested_entity_asset_factory(
 ) -> AssetsDefinition:
     """Create an asset definition for the harvested entity tables."""
     harvestable_assets = (
+        "_core_eia860__boiler_cooling",
+        "_core_eia860__boiler_emissions_control_equipment_assn",
         "_core_eia923__boiler_fuel",
         "_core_eia860__boiler_generator_assn",
+        "_core_eia860__boiler_stack_flue",
         "_core_eia860__boilers",
         "_core_eia923__coalmine",
+        "_core_eia860__emissions_control_equipment",
+        "_core_eia923__energy_storage",
         "_core_eia923__fuel_receipts_costs",
         "_core_eia923__generation",
         "_core_eia923__generation_fuel",
@@ -1247,10 +1252,6 @@ def harvested_entity_asset_factory(
         "_core_eia860__ownership",
         "_core_eia860__plants",
         "_core_eia860__utilities",
-        "_core_eia860__emissions_control_equipment",
-        "_core_eia860__boiler_emissions_control_equipment_assn",
-        "_core_eia860__boiler_cooling",
-        "_core_eia860__boiler_stack_flue",
     )
 
     @multi_asset(
@@ -1331,6 +1332,7 @@ finished_eia_assets = [
     for table_name, _core_table_name in {
         "core_eia923__monthly_boiler_fuel": "_core_eia923__boiler_fuel",
         "core_eia923__entity_coalmine": "_core_eia923__coalmine",
+        "core_eia923__monthly_energy_storage": "_core_eia923__energy_storage",
         "core_eia923__monthly_fuel_receipts_costs": "_core_eia923__fuel_receipts_costs",
         "core_eia923__monthly_generation": "_core_eia923__generation",
         "core_eia923__monthly_generation_fuel": "_core_eia923__generation_fuel",

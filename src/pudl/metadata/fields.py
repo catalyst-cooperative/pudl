@@ -1139,6 +1139,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "A 2-3 letter code indicating the energy source (e.g. fuel type) "
             "associated with the record."
         ),
+        # Should this have an enum reference to the core_eia__codes_energy_sources table??
     },
     "energy_source_code_num": {
         "type": "string",
@@ -1736,6 +1737,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Plant's grid voltage at point of interconnection to transmission or distibution facilities",
         "unit": "kV",
+    },
+    "gross_generation_mwh": {
+        "type": "number",
+        "description": "Gross electricity generation for the specified period in megawatt-hours (MWh).",
+        "unit": "MWH",
     },
     "gross_load_mw": {
         "type": "number",
