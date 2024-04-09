@@ -1542,9 +1542,19 @@ def _core_eia923__energy_storage(
 ) -> pd.DataFrame:
     """Transforms the eia923_energy_storage table.
 
+    Transformations include:
+
+    * Replace . values with NA.
+    * Clean up ``fuel_unit`` strings.
+    * Make wide monthly columns into tall monthly columns.
+    * Convert date to month.
+    * Encode relevant columns.
+
+
     Other cleaning that could be done:
-    - Come up with an encoder for fuel_unit (tricky because different between FERC)
-      and EIA.
+
+    * Come up with an encoder for ``fuel_unit`` (tricky because different between FERC
+      and EIA).
 
     """
     es_df = raw_eia923__energy_storage
