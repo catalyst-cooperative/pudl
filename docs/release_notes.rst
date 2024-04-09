@@ -65,6 +65,11 @@ Schema Changes
   in order to be consistent with ``operating_datetime_utc`` in the EPA CEMS data, and
   the new hourly renewable generation profiles in the GridPath RA Toolkit. See PR
   :pr:`3514`.
+* Renamed the utility and balancing authority service territory tables to better conform
+  to our naming conventions: ``out_eia861__compiled_geometry_utilities`` is now
+  :ref:`out_eia861__yearly_utility_service_territory` and
+  ``out_eia861__compiled_geometry_balancing_authorities`` is now
+  :ref:`out_eia861__yearly_balancing_authority_service_territory`. See PR :pr:`3552`.
 
 .. _release-v2024.2.6:
 
@@ -593,8 +598,8 @@ Analysis
 * Added outputs from :mod:`pudl.analysis.service_territory` and
   :mod:`pudl.analysis.state_demand` into PUDL. These outputs include the US Census
   geometries associated with balancing authority and utility data from EIA 861
-  (:ref:`out_eia861__compiled_geometry_balancing_authorities` and
-  :ref:`out_eia861__compiled_geometry_utilities`), and the estimated total hourly
+  (:ref:`out_eia861__yearly_balancing_authority_service_territory` and
+  :ref:`out_eia861__yearly_utility_service_territory`), and the estimated total hourly
   electricity demand for each US state in
   :ref:`out_ferc714__hourly_estimated_state_demand`. See :issue:`1973`
   and :pr:`2550`.
