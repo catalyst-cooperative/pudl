@@ -40,7 +40,11 @@ def _transform_capacity_factors(
     return capacity_factors
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(
+    io_manager_key="pudl_io_manager",
+    compute_kind="Python",
+    op_tags={"memory-use": "high"},
+)
 def out_gridpathratoolkit__hourly_available_capacity_factor(
     raw_gridpathratoolkit__aggregated_extended_solar_capacity: pd.DataFrame,
     raw_gridpathratoolkit__aggregated_extended_wind_capacity: pd.DataFrame,
@@ -120,7 +124,10 @@ def _transform_aggs(raw_agg: pd.DataFrame) -> pd.DataFrame:
     return agg
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(
+    io_manager_key="pudl_io_manager",
+    compute_kind="Python",
+)
 def core_gridpathratoolkit__assn_generator_aggregation_group(
     raw_gridpathratoolkit__wind_capacity_aggregations: pd.DataFrame,
     raw_gridpathratoolkit__solar_capacity_aggregations: pd.DataFrame,

@@ -368,6 +368,7 @@ PPE_COLS = [
 @asset(
     io_manager_key="pudl_io_manager",
     compute_kind="Python",
+    op_tags={"memory-use": "high"},
 )
 def out_eia__yearly_generators_by_ownership(
     out_eia__yearly_generators: pd.DataFrame, out_eia860__yearly_ownership: pd.DataFrame
@@ -382,6 +383,7 @@ def out_eia__yearly_generators_by_ownership(
 @asset(
     io_manager_key="pudl_io_manager",
     compute_kind="Python",
+    op_tags={"memory-use": "high"},
 )
 def out_eia__yearly_plant_parts(
     out_eia__yearly_generators_by_ownership: pd.DataFrame,

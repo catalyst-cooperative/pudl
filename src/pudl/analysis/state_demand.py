@@ -270,7 +270,8 @@ def load_hourly_demand_matrix_ferc714(
     """Read and format FERC 714 hourly demand into matrix form.
 
     Args:
-        out_ferc714__hourly_planning_area_demand: FERC 714 hourly demand time series by planning area.
+        out_ferc714__hourly_planning_area_demand: FERC 714 hourly demand time series by
+            planning area.
 
     Returns:
         Hourly demand as a matrix with a `datetime` row index
@@ -433,7 +434,7 @@ def melt_ferc714_hourly_demand_matrix(
 
 
 @asset(
-    compute_kind="Python",
+    compute_kind="pandas",
     config_schema={
         "min_data": Field(
             int,
@@ -449,6 +450,7 @@ def melt_ferc714_hourly_demand_matrix(
             ),
         ),
     },
+    op_tags={"memory-use": "high"},
 )
 def _out_ferc714__hourly_demand_matrix(
     context, _out_ferc714__hourly_pivoted_demand_matrix: pd.DataFrame
@@ -472,7 +474,7 @@ def _out_ferc714__hourly_demand_matrix(
     return df
 
 
-@asset(compute_kind="Python")
+@asset(compute_kind="NumPy")
 def _out_ferc714__hourly_imputed_demand(
     _out_ferc714__hourly_demand_matrix: pd.DataFrame,
     _out_ferc714__utc_offset: pd.DataFrame,
@@ -580,6 +582,7 @@ def total_state_sales_eia861(
             ),
         ),
     },
+    op_tags={"memory-use": "high"},
 )
 def out_ferc714__hourly_estimated_state_demand(
     context,

@@ -1,7 +1,7 @@
 """Extract EIA Form 930 data from CSVs."""
 
 import pandas as pd
-from dagster import Output, asset
+from dagster import asset
 
 from pudl.extract.csv import CsvExtractor
 from pudl.extract.extractor import GenericMetadata, PartitionSelection, raw_df_factory
@@ -47,40 +47,28 @@ class Extractor(CsvExtractor):
         return df.rename(columns=self.METADATA.get_column_map(page, **partition))
 
 
+def raw_eia930_asset_factory(page: str):
+    """Asset factory for individual raw EIA 930 dataframes."""
+
+    @asset(
+        name=f"raw_eia930__{page}",
+        op_tags={"memory-use": "high"},
+        compute_kind="pandas",
+    )
+    def _extract_raw_eia930(
+        raw_eia930__all_dfs: dict[str, pd.DataFrame],
+    ) -> pd.DataFrame:
+        """Select a specific EIA 930 dataframe from the extracted raw dataframes.
+
+        Returns:
+            An extracted EIA 930 dataframe.
+        """
+        return raw_eia930__all_dfs[page]
+
+    return _extract_raw_eia930
+
+
 raw_eia930__all_dfs = raw_df_factory(Extractor, name="eia930")
-
-
-@asset(
-    required_resource_keys={"datastore", "dataset_settings"},
-)
-def raw_eia930__balance(raw_eia930__all_dfs):
-    """Extract raw EIA 930 balance data from CSV sheets into dataframes.
-
-    Returns:
-        An extracted EIA 930 balance dataframe.
-    """
-    return Output(value=raw_eia930__all_dfs["balance"])
-
-
-@asset(
-    required_resource_keys={"datastore", "dataset_settings"},
-)
-def raw_eia930__interchange(raw_eia930__all_dfs):
-    """Extract raw EIA 930 interchange data from CSV sheets into dataframes.
-
-    Returns:
-        An extracted EIA 930 interchange dataframe.
-    """
-    return Output(value=raw_eia930__all_dfs["interchange"])
-
-
-@asset(
-    required_resource_keys={"datastore", "dataset_settings"},
-)
-def raw_eia930__subregion(raw_eia930__all_dfs):
-    """Extract raw EIA 930 subregion data from CSV sheets into dataframes.
-
-    Returns:
-        An extracted EIA 930 subregion dataframe.
-    """
-    return Output(value=raw_eia930__all_dfs["subregion"])
+raw_eia930_assets = [
+    raw_eia930_asset_factory(page) for page in ["balance", "interchange", "subregion"]
+]
