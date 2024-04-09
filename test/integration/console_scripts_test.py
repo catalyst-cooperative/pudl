@@ -32,7 +32,7 @@ def test_pudl_datastore(script_runner, command: str):
     "command,filename,expected_cols",
     [
         (
-            "pudl_service_territories --entity-type ba -y 2022 --limit-by-state --no-dissolve -o ",
+            "pudl_service_territories --entity-type balancing_authority -y 2022 --limit-by-state --no-dissolve -o ",
             "balancing_authority_geometry_limited.parquet",
             {
                 "area_km2",
@@ -48,7 +48,7 @@ def test_pudl_datastore(script_runner, command: str):
             },
         ),
         (
-            "pudl_service_territories --entity-type ba -y 2021 -y 2022 --no-dissolve -o ",
+            "pudl_service_territories --entity-type balancing_authority -y 2021 -y 2022 --no-dissolve -o ",
             "balancing_authority_geometry.parquet",
             {
                 "area_km2",
@@ -64,7 +64,7 @@ def test_pudl_datastore(script_runner, command: str):
             },
         ),
         (
-            "pudl_service_territories --entity-type util -y 2022 --dissolve -o ",
+            "pudl_service_territories --entity-type utility -y 2022 --dissolve -o ",
             "utility_geometry_dissolved.parquet",
             {
                 "area_km2",
