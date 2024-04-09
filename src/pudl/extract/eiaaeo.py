@@ -162,13 +162,13 @@ class AEOTaxonomy:
 
 @multi_asset(
     outs={
-        "raw_eia_aeo__electric_power_projections_regional": AssetOut(is_required=False),
-        "raw_eia_aeo__renewable_energy_regional": AssetOut(is_required=False),
+        "raw_eiaaeo__electric_power_projections_regional": AssetOut(is_required=False),
+        "raw_eiaaeo__renewable_energy_regional": AssetOut(is_required=False),
     },
     can_subset=True,
     required_resource_keys={"datastore"},
 )
-def raw_eia_aeo(context: AssetExecutionContext):
+def raw_eiaaeo(context: AssetExecutionContext):
     """Extract tables from EIA's Annual Energy Outlook.
 
     We first extract a taxonomy from the AEO JSON blob, which connects
@@ -189,14 +189,14 @@ def raw_eia_aeo(context: AssetExecutionContext):
     try to infer those here and leave that to the transformation step.
     """
     name_to_number = {
-        "raw_eia_aeo__electric_power_projections_regional": 54,
-        "raw_eia_aeo__renewable_energy_regional": 56,
+        "raw_eiaaeo__electric_power_projections_regional": 54,
+        "raw_eiaaeo__renewable_energy_regional": 56,
     }
     ds = context.resources.datastore
     year = 2023
     filename = f"AEO{year}.txt"
 
-    with ds.get_zipfile_resource("eia_aeo", year=year).open(
+    with ds.get_zipfile_resource("eiaaeo", year=year).open(
         filename, mode="r"
     ) as aeo_raw:
         taxonomy = AEOTaxonomy(io.TextIOWrapper(aeo_raw))
@@ -208,7 +208,7 @@ def raw_eia_aeo(context: AssetExecutionContext):
         )
 
 
-@asset_check(asset="raw_eia_aeo__electric_power_projections_regional")
+@asset_check(asset="raw_eiaaeo__electric_power_projections_regional")
 def raw_table_54_invariants(df: pd.DataFrame) -> AssetCheckResult:
     """Check that the AEO Table 54 raw data conforms to *some* assumptions.
 
@@ -216,6 +216,7 @@ def raw_table_54_invariants(df: pd.DataFrame) -> AssetCheckResult:
     name, case, and unit
     * we have values from every electricity market module region
     * covers 20 cases and 26 electricity market module regions (25 regions + 1 national)
+
     """
     assert not df.empty
     assert df.notna().all().all()

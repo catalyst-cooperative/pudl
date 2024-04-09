@@ -56,7 +56,7 @@ raw_module_groups = {
     "raw_eia861": [pudl.extract.eia861],
     "raw_eia923": [pudl.extract.eia923],
     "raw_eia930": [pudl.extract.eia930],
-    "raw_eia_aeo": [pudl.extract.eia_aeo],
+    "raw_eiaaeo": [pudl.extract.eiaaeo],
     "raw_ferc1": [pudl.extract.ferc1],
     "raw_ferc714": [pudl.extract.ferc714],
     "raw_gridpathratoolkit": [pudl.extract.gridpathratoolkit],
