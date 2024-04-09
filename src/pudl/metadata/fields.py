@@ -1741,7 +1741,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "gross_generation_mwh": {
         "type": "number",
         "description": "Gross electricity generation for the specified period in megawatt-hours (MWh).",
-        "unit": "MWH",
+        "unit": "MWh",
     },
     "gross_load_mw": {
         "type": "number",
