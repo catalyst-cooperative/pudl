@@ -1219,6 +1219,48 @@ def core_eia861__yearly_sales(raw_eia861__sales: pd.DataFrame) -> pd.DataFrame:
 
 
 @asset(io_manager_key="pudl_io_manager")
+def core_eia861__yearly_short_form(raw_eia861__short_form: pd.DataFrame) -> pd.DataFrame:
+    """Transform the EIA 861 Short Form table.
+
+    Transformations include:
+
+    * Drop primary key duplicates.
+    * Convert N/Y values to boolean
+    * Change NA BA codes to 'UNK'
+    """
+    idx_cols = [
+        "utility_id_eia",
+        "state",
+        "report_date",
+        "balancing_authority_code_eia"
+    ]
+
+    bool_cols = [
+        "water_heater",
+        "net_metering",
+        "demand_side_management",
+        "time_responsive_programs",
+        "green_pricing"
+    ]
+
+    raw_sf = _pre_process(raw_eia861__short_form)
+    # * fill NA BA values with 'UNK'
+    raw_sf["balancing_authority_code_eia"] = raw_sf[
+        "balancing_authority_code_eia"
+    ].fillna("UNK")
+
+    # * Drop Duplicates based on primary keys
+    deduped_sf = _drop_dupes(df=raw_sf, df_name="Short Form", subset=idx_cols)
+    
+    # * Make Y/N's into booleans
+    logger.info("Performing value transformations on EIA 861 Short Form table.")
+    for col in bool_cols:
+        deduped_sf[col] = _make_yn_bool(deduped_sf[col])
+
+    return _post_process(deduped_sf)
+
+
+@asset(io_manager_key="pudl_io_manager")
 def core_eia861__yearly_advanced_metering_infrastructure(
     raw_eia861__advanced_metering_infrastructure: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -2447,6 +2489,7 @@ def core_utility_data_eia861(raw_eia861__utility_data: pd.DataFrame):
         "core_eia861__yearly_operational_data_revenue": AssetIn(),
         "core_eia861__yearly_reliability": AssetIn(),
         "core_eia861__yearly_sales": AssetIn(),
+        "core_eia861__yearly_short_form": AssetIn(),
         "core_eia861__yearly_utility_data_misc": AssetIn(),
         "core_eia861__yearly_utility_data_nerc": AssetIn(),
         "core_eia861__yearly_utility_data_rto": AssetIn(),
@@ -2487,6 +2530,7 @@ def core_eia861__assn_utility(**data_dfs: dict[str, pd.DataFrame]) -> pd.DataFra
         "core_eia861__yearly_operational_data_revenue": AssetIn(),
         "core_eia861__yearly_reliability": AssetIn(),
         "core_eia861__yearly_sales": AssetIn(),
+        "core_eia861__yearly_short_form": AssetIn(),
         "core_eia861__yearly_utility_data_misc": AssetIn(),
         "core_eia861__yearly_utility_data_nerc": AssetIn(),
         "core_eia861__yearly_utility_data_rto": AssetIn(),
