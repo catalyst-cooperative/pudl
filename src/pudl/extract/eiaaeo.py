@@ -114,14 +114,20 @@ class AEOTaxonomy:
         series = self.graph.nodes[series_id]
         ancestors = [self.graph.nodes[a] for a in nx.ancestors(self.graph, series_id)]
         cases = [a for a in ancestors if a.get("parent_category_id") == root]
-        assert len(cases) == 1
+        if len(cases) != 1:
+            raise ValueError(
+                f"Found multiple AEO cases for series {series_id}: {cases}"
+            )
         case = cases[0]["name"]
         parent_names = {
             self.graph.nodes[p]["name"]
             for p in self.graph.predecessors(series_id)
             if p in potential_parents
         }
-        assert len(parent_names) == 1
+        if len(parent_names) != 1:
+            raise ValueError(
+                f"Found multiple parents for series {series_id}: {parent_names}"
+            )
         parent_name = parent_names.pop()
 
         records = (
@@ -220,7 +226,6 @@ def raw_table_54_invariants(df: pd.DataFrame) -> AssetCheckResult:
     """
     assert not df.empty
     assert df.notna().all().all()
-    logger.info(df.columns)
     assert len(df.case.value_counts()) == 20
     assert len(df.category_name.value_counts()) == 26
     return AssetCheckResult(passed=True)
