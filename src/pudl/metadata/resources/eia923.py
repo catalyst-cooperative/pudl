@@ -718,6 +718,7 @@ is for those supplies."""
                 "monthly_total_withdrawal_volume_gallons",
                 "annual_total_chlorine_lbs",
                 "monthly_total_chlorine_lbs",
+                "data_maturity",
             ],
             "primary_key": [
                 "plant_id_eia",
