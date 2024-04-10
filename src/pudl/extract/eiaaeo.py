@@ -122,17 +122,23 @@ class AEOTaxonomy:
     ) -> pd.DataFrame:
         # Use the graph info to figure out what case + category name this
         # series belongs to
-        cases = [
-            self.graph.nodes[a_id]
+
+        # note that case-names is a list, because we would be surprised if
+        # there were multiple case nodes with the same name reported in
+        # nx.ancestors
+        case_names = [
+            self.graph.nodes[a_id]["name"]
             for a_id in nx.ancestors(self.graph, series_id)
             if a_id in self.__cases
         ]
-        if len(cases) != 1:
+        if len(case_names) != 1:
             raise ValueError(
-                f"Found multiple AEO cases for series {series_id}: {cases}"
+                f"Found multiple AEO cases for series {series_id}: {case_names}"
             )
-        case = cases[0]["name"]
+        case_name = case_names[0]
 
+        # whereas parent_names is a set, because we expect many of the
+        # predecessors to share a name
         parent_names = {
             self.graph.nodes[p_id]["name"]
             for p_id in self.graph.predecessors(series_id)
@@ -144,6 +150,8 @@ class AEOTaxonomy:
             )
         parent_name = parent_names.pop()
 
+        # in addition to case_name and parent_name, we get some information
+        # from the actual series itself.
         series = self.graph.nodes[series_id]
         records = (
             {
@@ -152,7 +160,7 @@ class AEOTaxonomy:
                 "units": series["units"],
                 "series_name": series["name"],
                 "category_name": parent_name,
-                "case": case,
+                "case": case_name,
             }
             for d in series["data"]
         )
@@ -167,6 +175,8 @@ class AEOTaxonomy:
                 f"table_{table_number}_"
             )
         }
+
+        # many series belong to more than one category, hence turning this into a set
         matching_series = set(
             itertools.chain.from_iterable(
                 self.graph.nodes[n_id].get("childseries", [])
