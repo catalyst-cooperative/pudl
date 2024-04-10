@@ -124,7 +124,12 @@ generation unit level up to the plant prime mover level, so as to be compatible 
 fossil fuel generation data."""
     ),
     "core_eia923__monthly_energy_storage": (
-        """EIA-923 Monthly generation and fuel consumption for energy storage power plants. From EIA-923 Schedule 3."""
+        """EIA-923 Monthly Generation and Fuel Consumption Time Series. From EIA-923 Schedule 3.
+
+Monthly quantities of energy consumed and discharged ("generated") by energy storage
+units. The total MWh discharged from the energy storage unit during the
+reporting period is the gross generation and the difference between gross generation
+and consumption is the net generation."""
     ),
 }
 
