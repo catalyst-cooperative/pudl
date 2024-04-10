@@ -220,8 +220,8 @@ class PudlTabl:
             "out_ferc714__respondents_with_fips": "fipsified_respondents_ferc714",
             "out_ferc714__summarized_demand": "summarized_demand_ferc714",
             # service territory
-            "out_eia861__compiled_geometry_balancing_authorities": "compiled_geometry_balancing_authority_eia861",
-            "out_eia861__compiled_geometry_utilities": "compiled_geometry_utility_eia861",
+            "out_eia861__yearly_balancing_authority_service_territory": "compiled_geometry_balancing_authority_eia861",
+            "out_eia861__yearly_utility_service_territory": "compiled_geometry_utility_eia861",
             # state demand
             "out_ferc714__hourly_estimated_state_demand": "predicted_state_hourly_demand",
             # plant parts

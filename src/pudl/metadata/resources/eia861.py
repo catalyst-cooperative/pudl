@@ -834,8 +834,8 @@ they engage in wholesale and/or retail markets."""
         "sources": ["eia861"],
         "etl_group": "eia861",
     },
-    "out_eia861__compiled_geometry_utilities": {
-        "description": "County-level spatial data for EIA861 utilities.",
+    "out_eia861__yearly_utility_service_territory": {
+        "description": "County-level data about EIA-861 utility service territories.",
         "schema": {
             "fields": [
                 "county_id_fips",
@@ -854,8 +854,8 @@ they engage in wholesale and/or retail markets."""
         "field_namespace": "eia",
         "etl_group": "service_territories",
     },
-    "out_eia861__compiled_geometry_balancing_authorities": {
-        "description": "County-level spatial data for EIA861 balancing authorities.",
+    "out_eia861__yearly_balancing_authority_service_territory": {
+        "description": "County-level data about EIA-861 balancing authority service territories.",
         "schema": {
             "fields": [
                 "county_id_fips",

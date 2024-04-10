@@ -449,7 +449,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "exclude": [
                     "core_eia861__yearly_advanced_metering_infrastructure",
                     "core_eia861__assn_balancing_authority",
-                    "out_eia861__compiled_geometry_utilities",
+                    "out_eia861__yearly_utility_service_territory",
                     "core_eia861__yearly_demand_response",
                     "core_eia861__yearly_demand_response_water_heater",
                     "core_eia861__yearly_demand_side_management_ee_dr",
