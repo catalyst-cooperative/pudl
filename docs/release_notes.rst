@@ -26,6 +26,8 @@ New Data Coverage
 * Added new :ref:`core_eia860__scd_generators_energy_storage` table from EIA860 Schedule
   3.4 which contains energy storage generator attributes. See :pr:`3488` and :pr:`3526`.
   which contains solar generator attributes. See :pr:`3524` and :pr:`3482`
+* Added new :ref:`core_eia923__monthly_energy_storage` table from EIA923 which contains
+  monthly energy and fuel consumption metrics. See :pr:`3516` and :pr:`3546`.
 * Integrated the most processed version of the GridPath RA Toolkit wind and solar
   generation profiles, as well as the tables describing how individual generators were
   aggregated together to create the profiles. See issues :issue:`3509,3510,3511,3515`

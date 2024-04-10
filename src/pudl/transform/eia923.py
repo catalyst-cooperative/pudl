@@ -1534,3 +1534,80 @@ def fgd_continuity_check(fgd):  # pragma: no cover
         groupby_col="report_date",
         n_outliers_allowed=1,
     )
+
+
+@asset
+def _core_eia923__energy_storage(
+    raw_eia923__energy_storage: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transforms the eia923_energy_storage table.
+
+    Transformations include:
+
+    * Replace . values with NA.
+    * Clean up ``fuel_unit`` strings.
+    * Make wide monthly columns into tall monthly columns.
+    * Convert date to month.
+    * Encode relevant columns.
+
+
+    Other cleaning that could be done:
+
+    * Come up with an encoder for ``fuel_unit`` (tricky because different between FERC
+      and EIA).
+
+    """
+    es_df = raw_eia923__energy_storage
+    es_df = (
+        es_df.pipe(pudl.helpers.fix_eia_na)
+        .pipe(pudl.helpers.fix_boolean_columns, ["associated_combined_heat_power"])
+        .pipe(pudl.helpers.simplify_strings, ["fuel_unit"])
+        .assign(
+            fuel_units=lambda x: x.fuel_units.map(
+                {
+                    "megawatthours": "mwh",
+                    "barrels": "barrels",
+                    "mcf": "mcf",
+                    "short tons": "short_tons",
+                }
+            )
+        )
+        .pipe(_yearly_to_monthly_records)
+        .pipe(pudl.helpers.convert_to_date)
+    )
+
+    # Encode the balancing_authority_code_eia field
+    es_df = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("core_eia860__scd_plants")
+        .encode(es_df)
+    )
+    # Encode the prime_mover_code can't use to encode energy_source_code because this
+    # table only has energy_source_code_1 etc. column names.
+    es_df = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("core_eia860__scd_generators")
+        .encode(es_df)
+    )
+    # To encode the fuel_type_code_aer values
+    es_df = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("core_eia923__monthly_generation_fuel")
+        .encode(es_df)
+    )
+    # To encode the energy_source_code missed above
+    es_df = (
+        pudl.metadata.classes.Package.from_resource_ids()
+        .get_resource("core_eia923__monthly_energy_storage")
+        .encode(es_df)
+    )
+    # Spot fix for a single plant burning "other biomass gas" and reporting the amount
+    # of fuel consumed, but not the units.
+    es_df.loc[
+        (es_df.plant_id_eia == 60249)
+        & (es_df.energy_source_code == "OBG")
+        & (es_df.fuel_units.isnull()),
+        "fuel_units",
+    ] = "mcf"
+
+    return es_df
