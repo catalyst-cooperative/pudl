@@ -67,6 +67,8 @@ class AEOTaxonomy:
         """
         categories, series = self.__load_records(records)
         self.graph = self.__generate_graph(categories, series)
+        root = 4949903
+        self.__cases = set(self.graph.successors(root))
         self.__sanitize_re = re.compile(r"\W+")
 
     def __load_records(
@@ -118,19 +120,23 @@ class AEOTaxonomy:
     def __series_to_records(
         self, series_id: str, potential_parents: set[int]
     ) -> pd.DataFrame:
-        root = 4949903
-        series = self.graph.nodes[series_id]
-        ancestors = [self.graph.nodes[a] for a in nx.ancestors(self.graph, series_id)]
-        cases = [a for a in ancestors if a.get("parent_category_id") == root]
+        # Use the graph info to figure out what case + category name this
+        # series belongs to
+        cases = [
+            self.graph.nodes[a_id]
+            for a_id in nx.ancestors(self.graph, series_id)
+            if a_id in self.__cases
+        ]
         if len(cases) != 1:
             raise ValueError(
                 f"Found multiple AEO cases for series {series_id}: {cases}"
             )
         case = cases[0]["name"]
+
         parent_names = {
-            self.graph.nodes[p]["name"]
-            for p in self.graph.predecessors(series_id)
-            if p in potential_parents
+            self.graph.nodes[p_id]["name"]
+            for p_id in self.graph.predecessors(series_id)
+            if p_id in potential_parents
         }
         if len(parent_names) != 1:
             raise ValueError(
@@ -138,6 +144,7 @@ class AEOTaxonomy:
             )
         parent_name = parent_names.pop()
 
+        series = self.graph.nodes[series_id]
         records = (
             {
                 "date": d[0],
