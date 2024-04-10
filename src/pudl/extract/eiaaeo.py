@@ -41,14 +41,12 @@ class Series(BaseModel):
     name: str
     last_updated: str
     units: str | None = None
-    # f: Literal["A"]  - this is just "frequency: annual" afaict
     data: list[tuple[str, str | float]]  # time, value
 
 
 class AEOTable(DataFrameModel):
     """Data schema for a raw AEO table."""
 
-    # TODO 2024-04-10: actually put some constraints here
     date: Timestamp = Field(coerce=True)
     value: str = Field(coerce=True)
     units: str = Field(coerce=True)
@@ -111,10 +109,6 @@ class AEOTaxonomy:
         )
         graph = nx.DiGraph(incoming_graph_data=edges)
 
-        # TODO (2024-04-03): by setting node attributes like this, we lose the
-        # nice type information we got from the parsing. We can work around
-        # this by assigning {node_id: {"self": Category | Series}} instead of
-        # {node_id: Category | Series}
         nx.set_node_attributes(graph, categories | series)
         return graph
 
@@ -230,16 +224,12 @@ def raw_eiaaeo(context: AssetExecutionContext):
 
 @asset_check(asset="raw_eiaaeo__electric_power_projections_regional")
 def raw_table_54_invariants(df: pd.DataFrame) -> AssetCheckResult:
-    """Check that the AEO Table 54 raw data conforms to *some* assumptions.
-
-    * all values are non-null - i.e. every fact has date, fact name, category
-    name, case, and unit
-    * we have values from every electricity market module region
-    * covers 20 cases and 26 electricity market module regions (25 regions + 1 national)
-
-    """
+    """Check that the AEO Table 54 raw data conforms to *some* assumptions."""
+    # all values are non-null - i.e. every fact has date, fact name, category
+    # name, case, and unit
     assert not df.empty
     assert df.notna().all().all()
+    # covers 20 cases and 26 electricity market module regions (25 regions + 1 national)
     assert len(df.case.value_counts()) == 20
     assert len(df.category_name.value_counts()) == 26
     return AssetCheckResult(passed=True)

@@ -34,6 +34,10 @@ New Data Coverage
   and PR :pr:`3514`. The new tables include:
   :ref:`out_gridpathratoolkit__hourly_available_capacity_factor` and
   :ref:`core_gridpathratoolkit__assn_generator_aggregation_group`.
+* Extracted tables 54 and 56 from the `EIA Annual Energy Outlook 2023
+  <https://www.eia.gov/outlooks/aeo/tables_ref.php>`__, which include future
+  projections related to electric power and renewable energy through the year
+  2050, across a variety of scenarios. See :issue:`3368` and :pr:`3538`.
 
 Data Cleaning
 ^^^^^^^^^^^^^
