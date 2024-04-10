@@ -15,6 +15,8 @@ from dagster import (
     asset_check,
     multi_asset,
 )
+from pandera import DataFrameModel, Field
+from pandera.dtypes import Timestamp
 from pydantic import BaseModel
 
 import pudl.logging_helpers
@@ -41,6 +43,18 @@ class Series(BaseModel):
     units: str | None = None
     # f: Literal["A"]  - this is just "frequency: annual" afaict
     data: list[tuple[str, str | float]]  # time, value
+
+
+class AEOTable(DataFrameModel):
+    """Data schema for a raw AEO table."""
+
+    # TODO 2024-04-10: actually put some constraints here
+    date: Timestamp = Field(coerce=True)
+    value: str = Field(coerce=True)
+    units: str = Field(coerce=True)
+    series_name: str = Field(coerce=True)
+    category_name: str = Field(coerce=True)
+    case: str = Field(coerce=True)
 
 
 class AEOTaxonomy:
@@ -163,7 +177,7 @@ class AEOTaxonomy:
             self.__series_to_records(series_id, potential_parents=matching_category_ids)
             for series_id in matching_series
         )
-        return pd.DataFrame.from_records(series_records)
+        return AEOTable(pd.DataFrame.from_records(series_records))
 
 
 @multi_asset(
