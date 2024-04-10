@@ -1562,6 +1562,16 @@ def _core_eia923__energy_storage(
         es_df.pipe(pudl.helpers.fix_eia_na)
         .pipe(pudl.helpers.fix_boolean_columns, ["associated_combined_heat_power"])
         .pipe(pudl.helpers.simplify_strings, ["fuel_unit"])
+        .assign(
+            fuel_units=lambda x: x.fuel_units.map(
+                {
+                    "megawatthours": "mwh",
+                    "barrels": "barrels",
+                    "mcf": "mcf",
+                    "short tons": "short_tons",
+                }
+            )
+        )
         .pipe(_yearly_to_monthly_records)
         .pipe(pudl.helpers.convert_to_date)
     )
@@ -1591,5 +1601,13 @@ def _core_eia923__energy_storage(
         .get_resource("core_eia923__monthly_energy_storage")
         .encode(es_df)
     )
+    # Spot fix for a single plant burning "other biomass gas" and reporting the amount
+    # of fuel consumed, but not the units.
+    es_df.loc[
+        (es_df.plant_id_eia == 60249)
+        & (es_df.energy_source_code == "OBG")
+        & (es_df.fuel_units.isnull()),
+        "fuel_units",
+    ] = "mcf"
 
     return es_df
