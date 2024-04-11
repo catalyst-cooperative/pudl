@@ -19,7 +19,7 @@ of tables, read through :ref:`PUDL's naming conventions <asset-naming>`.
 How Should You Access PUDL Data?
 ---------------------------------------------------------------------------------------
 
-We provide four primary ways of interacting with PUDL data. Here's how to find out
+We provide six primary ways of interacting with PUDL data. Here's how to find out
 which one is right for you and your use case.
 
 .. list-table::

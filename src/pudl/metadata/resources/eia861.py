@@ -718,6 +718,37 @@ the standard (IEEE/other) and other relevant information."""
         "sources": ["eia861"],
         "etl_group": "eia861",
     },
+    "core_eia861__yearly_short_form": {
+        "description": "Abbreviated version of the EIA-861 data.",
+        "schema": {
+            "fields": [
+                "report_date",
+                "utility_id_eia",
+                "utility_name_eia",
+                "entity_type",
+                "state",
+                "balancing_authority_code_eia",
+                "sales_revenue",
+                "sales_mwh",
+                "customers",
+                "water_heater",
+                "net_metering",
+                "demand_side_management",
+                "time_responsive_programs",
+                "green_pricing",
+                "data_maturity",
+            ],
+            "primary_key": [
+                "utility_id_eia",
+                "state",
+                "report_date",
+                "balancing_authority_code_eia",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia861"],
+        "etl_group": "eia861",
+    },
     "core_eia861__assn_utility": {
         "description": "Association table indicating which states each utility reported data for by year.",
         "schema": {
