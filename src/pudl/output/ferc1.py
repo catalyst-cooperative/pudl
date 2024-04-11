@@ -227,6 +227,47 @@ def _out_ferc1__yearly_plants_utilities(
         on="utility_id_ferc1",
     )
 
+## example/draft factory pattern
+specs = [
+    {'name': 'out_ferc1__yearly_purchased_power_and_exchanges_sched326',
+     'df1': 'core_ferc1__yearly_purchased_power_and_exchanges_sched326', 
+     'df2': 'core_pudl__assn_ferc1_pudl_utilities', 
+     'mg': 'utility_id_ferc1'},
+    {'name': 'out_ferc1__yearly_plant_in_service_sched204',
+     'df1': 'core_ferc1__yearly_plant_in_service_sched204', 
+     'df2': 'core_pudl__assn_ferc1_pudl_utilities', 
+     'mg': 'utility_id_ferc1'},
+    {'name': 'out_ferc1__yearly_balance_sheet_assets_sched110',
+     'df1': 'core_ferc1__yearly_balance_sheet_assets_sched110', 
+     'df2': 'core_pudl__assn_ferc1_pudl_utilities', 
+     'mg': 'utility_id_ferc1'},
+]
+
+#draft asset_factory
+def generate_asset_factory(spec):
+    @asset(io_manager_key="pudl_io_manager", compute_kind="Python")
+    def _asset() -> pd.DataFrame:
+        """Pull a useful dataframe of FERC Form 1 Purchased Power data."""
+        return_df = (
+            spec['df1'].merge(
+                spec['df2'], on=spec['mg']
+            )#.pipe(
+            #     pudl.helpers.organize_cols,
+            #     [
+            #         "report_year",
+            #         "utility_id_ferc1",
+            #         "utility_id_pudl",
+            #         "utility_name_ferc1",
+            #         "seller_name",
+            #         "record_id",
+            #     ],
+            # )
+        )
+        return return_df
+
+    return _asset
+
+defs = AssetsDefinition(assets=[generate_asset_factory(spec) for spec in specs])
 
 @asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def out_ferc1__yearly_steam_plants_sched402(
@@ -318,7 +359,7 @@ def out_ferc1__yearly_small_plants_sched410(
     )
 
     return plants_small_df
-
+    
 
 @asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def out_ferc1__yearly_hydroelectric_plants_sched406(
