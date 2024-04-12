@@ -425,9 +425,7 @@ def _compile_all_entity_records(
     # most columns become objects (ack!), so assign types
     compiled_df = apply_pudl_dtypes(compiled_df, group="eia")
     # encode the compiled options!
-    compiled_df = PUDL_PKG.get_resource(f"core_eia860__scd_{entity.value}").encode(
-        compiled_df
-    )
+    compiled_df = PUDL_PKG.encode(compiled_df)
     return compiled_df
 
 
@@ -660,10 +658,8 @@ def harvest_entity_tables(  # noqa: C901
     logger.info(f"Average consistency of static {entity.value} values is {mcs:.2%}")
 
     # Apply standard PUDL data types to the new entity tables:
-    entity_res = PUDL_PKG.get_resource(f"core_eia__entity_{entity.value}")
-    entity_df = apply_pudl_dtypes(entity_df, group="eia").pipe(entity_res.encode)
-    annual_res = PUDL_PKG.get_resource(f"core_eia860__scd_{entity.value}")
-    annual_df = apply_pudl_dtypes(annual_df, group="eia").pipe(annual_res.encode)
+    entity_df = PUDL_PKG.encode(apply_pudl_dtypes(entity_df, group="eia"))
+    annual_df = PUDL_PKG.encode(apply_pudl_dtypes(annual_df, group="eia"))
 
     if entity == EiaEntity.PLANTS:
         # Post-processing specific to the plants entity tables
@@ -672,7 +668,9 @@ def harvest_entity_tables(  # noqa: C901
             fix_balancing_authority_codes_with_state, plants_entity=entity_df
         )
 
+    entity_res = PUDL_PKG.get_resource(f"core_eia__entity_{entity.value}")
     entity_df = entity_res.enforce_schema(entity_df)
+    annual_res = PUDL_PKG.get_resource(f"core_eia860__scd_{entity.value}")
     annual_df = annual_res.enforce_schema(annual_df)
 
     return entity_df, annual_df, col_dfs
