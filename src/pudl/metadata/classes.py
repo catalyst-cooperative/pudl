@@ -7,11 +7,12 @@ import re
 import sys
 import warnings
 from collections.abc import Callable, Iterable
-from functools import lru_cache
+from functools import cached_property, lru_cache
 from pathlib import Path
 from typing import Annotated, Any, Literal, Self, TypeVar
 
 import jinja2
+import numpy as np
 import pandas as pd
 import pandera as pr
 import pyarrow as pa
@@ -525,6 +526,22 @@ class Encoder(PudlMeta):
             is_header=is_header,
         )
         return rendered
+
+    def generate_encodable_data(self: Self, size: int = 10) -> pd.Series:
+        """Produce a series of data which can be encoded by this encoder.
+
+        Selects values randomly from valid, ignored, and fixable codes.
+        """
+        rng = np.random.default_rng()
+
+        return pd.Series(
+            rng.choice(
+                list(self.df["code"])
+                + list(self.ignored_codes)
+                + list(self.code_fixes),
+                size=size,
+            )
+        )
 
 
 class Field(PudlMeta):
@@ -2026,6 +2043,41 @@ class Package(PudlMeta):
             return prefix_order.get(prefix, float("inf"))
 
         return sorted(resources, key=sort_resource_names, reverse=False)
+
+    @cached_property
+    def encoders(self) -> dict[SnakeCase, Encoder]:
+        """Compile a mapping of field names to their encoders, if they exist.
+
+        This dictionary will be used many times, so it makes sense to build it once
+        when the Package is instantiated so it can be reused.
+        """
+        encoded_fields = [
+            field
+            for res in self.resources
+            for field in res.schema.fields
+            if field.encoder
+        ]
+        encoders: dict[SnakeCase, Encoder] = {}
+        for field in encoded_fields:
+            if field.name not in encoders:
+                encoders[field.name] = field.encoder
+            else:
+                pd.testing.assert_frame_equal(encoders[field.name].df, field.encoder.df)
+                assert encoders[field.name].code_fixes == field.encoder.code_fixes
+                assert encoders[field.name].ignored_codes == field.encoder.ignored_codes
+        return encoders
+
+    def encode(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Clean up all coded columns in a dataframe based on PUDL coding tables.
+
+        Returns:
+            A modified copy of the input dataframe.
+        """
+        encoded_df = df.copy()
+        for col in df.columns:
+            if col in self.encoders:
+                encoded_df[col] = self.encoders[col].encode(df[col])
+        return encoded_df
 
 
 class CodeMetadata(PudlMeta):
