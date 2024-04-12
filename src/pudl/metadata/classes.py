@@ -2062,6 +2062,8 @@ class Package(PudlMeta):
             if field.name not in encoders:
                 encoders[field.name] = field.encoder
             else:
+                # We have a field which shows up in multiple tables, and we want to
+                # verify that the encoders are the same across all of them.
                 pd.testing.assert_frame_equal(encoders[field.name].df, field.encoder.df)
                 assert encoders[field.name].code_fixes == field.encoder.code_fixes
                 assert encoders[field.name].ignored_codes == field.encoder.ignored_codes
@@ -2074,10 +2076,15 @@ class Package(PudlMeta):
             A modified copy of the input dataframe.
         """
         encoded_df = df.copy()
-        for col in df.columns:
+        for col in encoded_df.columns:
             if col in self.encoders:
-                encoded_df[col] = self.encoders[col].encode(df[col])
+                encoded_df[col] = self.encoders[col].encode(
+                    encoded_df[col], dtype=Field.from_id(col).to_pandas_dtype()
+                )
         return encoded_df
+
+
+PUDL_PACKAGE = Package.from_resource_ids()
 
 
 class CodeMetadata(PudlMeta):
@@ -2122,7 +2129,7 @@ class DatasetteMetadata(PudlMeta):
     """
 
     data_sources: list[DataSource]
-    resources: list[Resource] = Package.from_resource_ids()
+    resources: list[Resource] = PUDL_PACKAGE.resources
     xbrl_resources: dict[str, list[Resource]] = {}
     label_columns: dict[str, str] = {
         "core_eia__entity_plants": "plant_name_eia",
@@ -2170,7 +2177,7 @@ class DatasetteMetadata(PudlMeta):
         data_sources = [DataSource.from_id(ds_id) for ds_id in data_source_ids]
 
         # Instantiate all possible resources in a Package:
-        resources = Package.from_resource_ids().resources
+        resources = PUDL_PACKAGE.resources
 
         # Get XBRL based resources
         xbrl_resources = {}

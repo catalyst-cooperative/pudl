@@ -14,6 +14,7 @@ import os
 import shutil
 from pathlib import Path
 
+from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.classes import CodeMetadata, DataSource, Package
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.resources import RESOURCE_METADATA
@@ -159,7 +160,7 @@ def data_sources_metadata_to_rst(app):
         "phmsagas",
         "gridpathratoolkit",
     ]
-    package = Package.from_resource_ids()
+    package = PUDL_PACKAGE
     extra_etl_groups = {"eia860": ["entity_eia"], "ferc1": ["glue"]}
     for name in included_sources:
         source = DataSource.from_id(name)

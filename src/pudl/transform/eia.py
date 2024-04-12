@@ -37,6 +37,7 @@ from dagster import (
 
 import pudl
 from pudl.helpers import convert_cols_dtypes
+from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.enums import APPROXIMATE_TIMEZONES
 from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
 from pudl.metadata.resources import ENTITIES
@@ -44,7 +45,6 @@ from pudl.settings import EiaSettings
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
-PUDL_PKG = pudl.metadata.classes.Package.from_resource_ids()
 
 TZ_FINDER = timezonefinder.TimezoneFinder()
 """A global TimezoneFinder to cache geographies in memory for faster access."""
@@ -424,8 +424,6 @@ def _compile_all_entity_records(
     logger.debug("    Casting harvested IDs to correct data types")
     # most columns become objects (ack!), so assign types
     compiled_df = apply_pudl_dtypes(compiled_df, group="eia")
-    # encode the compiled options!
-    compiled_df = PUDL_PKG.encode(compiled_df)
     return compiled_df
 
 
@@ -657,10 +655,6 @@ def harvest_entity_tables(  # noqa: C901
     mcs = consistency["consistent_ratio"].mean()
     logger.info(f"Average consistency of static {entity.value} values is {mcs:.2%}")
 
-    # Apply standard PUDL data types to the new entity tables:
-    entity_df = PUDL_PKG.encode(apply_pudl_dtypes(entity_df, group="eia"))
-    annual_df = PUDL_PKG.encode(apply_pudl_dtypes(annual_df, group="eia"))
-
     if entity == EiaEntity.PLANTS:
         # Post-processing specific to the plants entity tables
         entity_df = _add_additional_epacems_plants(entity_df).pipe(_add_timezone)
@@ -668,9 +662,9 @@ def harvest_entity_tables(  # noqa: C901
             fix_balancing_authority_codes_with_state, plants_entity=entity_df
         )
 
-    entity_res = PUDL_PKG.get_resource(f"core_eia__entity_{entity.value}")
+    entity_res = PUDL_PACKAGE.get_resource(f"core_eia__entity_{entity.value}")
     entity_df = entity_res.enforce_schema(entity_df)
-    annual_res = PUDL_PKG.get_resource(f"core_eia860__scd_{entity.value}")
+    annual_res = PUDL_PACKAGE.get_resource(f"core_eia860__scd_{entity.value}")
     annual_df = annual_res.enforce_schema(annual_df)
 
     return entity_df, annual_df, col_dfs
@@ -1275,7 +1269,7 @@ def harvested_entity_asset_factory(
         eia_settings = context.resources.dataset_settings.eia
         debug = context.op_config["debug"]
         clean_dfs = {
-            df_name: PUDL_PKG.encode(clean_dfs[df_name]) for df_name in clean_dfs
+            df_name: PUDL_PACKAGE.encode(clean_dfs[df_name]) for df_name in clean_dfs
         }
 
         entity_df, annual_df, _col_dfs = harvest_entity_tables(
@@ -1317,9 +1311,9 @@ def finished_eia_asset_factory(
     )
     def finished_eia_asset(**kwargs) -> pd.DataFrame:
         """Enforce PUDL DB schema on a cleaned EIA dataframe."""
-        res = PUDL_PKG.get_resource(table_name)
+        res = PUDL_PACKAGE.get_resource(table_name)
         return (
-            PUDL_PKG.encode(kwargs[_core_table_name])
+            PUDL_PACKAGE.encode(kwargs[_core_table_name])
             .pipe(convert_cols_dtypes, data_source="eia")
             .pipe(res.enforce_schema)
         )

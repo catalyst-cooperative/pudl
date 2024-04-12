@@ -15,7 +15,7 @@ from pudl.helpers import (
     convert_to_date,
     fix_eia_na,
 )
-from pudl.metadata.classes import Package
+from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.enums import (
     CUSTOMER_CLASSES,
     FUEL_CLASSES,
@@ -1062,11 +1062,9 @@ def core_eia861__yearly_service_territory(
     df.loc[st_thomas, "county_id_fips"] = "78030"
     df.loc[df.state == "GU", "county_id_fips"] = "66010"
 
-    pk = (
-        Package.from_resource_ids()
-        .get_resource("core_eia861__yearly_service_territory")
-        .schema.primary_key
-    )
+    pk = PUDL_PACKAGE.get_resource(
+        "core_eia861__yearly_service_territory"
+    ).schema.primary_key
     # We've fixed all we can fix! ~99.84% FIPS coverage.
     df = (
         df.dropna(subset=["county_id_fips"])
@@ -2261,12 +2259,7 @@ def core_eia861__yearly_reliability(
         # Drop duplicate entries for utilities 13027, 3408 and 9697
         .pipe(_drop_dupes, df_name="Reliability", subset=idx_cols)
         .pipe(_post_process)
-    )
-
-    transformed_r = (
-        pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("core_eia861__yearly_reliability")
-        .encode(transformed_r)
+        .pipe(PUDL_PACKAGE.encode)
     )
 
     return transformed_r

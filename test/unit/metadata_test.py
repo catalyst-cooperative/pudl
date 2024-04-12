@@ -4,6 +4,7 @@ import pandas as pd
 import pandera as pr
 import pytest
 
+from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.classes import (
     DataSource,
     Field,
@@ -16,12 +17,12 @@ from pudl.metadata.helpers import format_errors
 from pudl.metadata.resources import RESOURCE_METADATA
 from pudl.metadata.sources import SOURCES
 
-PUDL_RESOURCES = {r.name: r for r in Package.from_resource_ids().resources}
+PUDL_RESOURCES = {r.name: r for r in PUDL_PACKAGE.resources}
 
 
 def test_all_resources_valid() -> None:
     """All resources in metadata pass validation tests."""
-    _ = Package.from_resource_ids()
+    _ = PUDL_PACKAGE
 
 
 @pytest.mark.parametrize("src", list(SOURCES))

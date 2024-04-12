@@ -23,6 +23,7 @@ from pudl.io_managers import (
     PudlSQLiteIOManager,
     SQLiteIOManager,
 )
+from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.classes import Package, Resource
 
 
@@ -283,8 +284,7 @@ def test_migrations_match_metadata(tmp_path, monkeypatch):
     # run all the migrations on a fresh DB at tmp_path/pudl.sqlite
     alembic.config.main(["upgrade", "head"])
 
-    pkg = Package.from_resource_ids()
-    PudlSQLiteIOManager(base_dir=tmp_path, db_name="pudl", package=pkg)
+    PudlSQLiteIOManager(base_dir=tmp_path, db_name="pudl", package=PUDL_PACKAGE)
 
     # all we care about is that it didn't raise an error
     assert True
