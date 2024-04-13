@@ -73,6 +73,15 @@ Schema Changes
   ``out_eia861__compiled_geometry_balancing_authorities`` is now
   :ref:`out_eia861__yearly_balancing_authority_service_territory`. See PR :pr:`3552`.
 
+Bug Fixes
+^^^^^^^^^
+* Ensure that all columns fed into the harvesting / reconciliation process are encoded
+  before harvesting takes place, improving the consistency of harvested fields. See
+  issue :issue:`3542` and PR :pr:`3558`. This change also simplifies the encoding
+  process in the vast majority of cases, since the same global set of encoders can be
+  used on any dataframe, with every column encoded based on the field definitions and
+  FK constraints associated with the column name.
+
 .. _release-v2024.2.6:
 
 ---------------------------------------------------------------------------------------

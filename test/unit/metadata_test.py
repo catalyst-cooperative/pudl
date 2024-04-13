@@ -11,6 +11,7 @@ from pudl.metadata.classes import (
     Package,
     PudlResourceDescriptor,
     Resource,
+    SnakeCase,
 )
 from pudl.metadata.fields import FIELD_METADATA, apply_pudl_dtypes
 from pudl.metadata.helpers import format_errors
@@ -18,6 +19,7 @@ from pudl.metadata.resources import RESOURCE_METADATA
 from pudl.metadata.sources import SOURCES
 
 PUDL_RESOURCES = {r.name: r for r in PUDL_PACKAGE.resources}
+PUDL_ENCODERS = PUDL_PACKAGE.encoders
 
 
 def test_all_resources_valid() -> None:
@@ -58,6 +60,14 @@ def test_get_etl_group_tables() -> None:
 def test_pyarrow_schemas(resource_name: str):
     """Verify that we can produce pyarrow schemas for all defined Resources."""
     _ = PUDL_RESOURCES[resource_name].to_pyarrow()
+
+
+@pytest.mark.parametrize("encoder_name", sorted(PUDL_ENCODERS.keys()))
+def test_encoders(encoder_name: SnakeCase):
+    """Verify that Encoders work on the kinds of values they're supposed to."""
+    encoder = PUDL_ENCODERS[encoder_name]
+    test_data = encoder.generate_encodable_data(size=100)
+    _ = encoder.encode(test_data)
 
 
 @pytest.mark.parametrize("field_name", sorted(FIELD_METADATA.keys()))
