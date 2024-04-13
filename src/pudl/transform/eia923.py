@@ -1273,8 +1273,10 @@ def _core_eia923__cooling_system_information(
     csi_df.cooling_type = csi_df.cooling_type.str.strip().str.upper()
 
     primary_key = ["plant_id_eia", "report_date", "cooling_id_eia"]
-    return pudl.helpers.dedupe_and_drop_nas(csi_df, primary_key_cols=primary_key).pipe(
-        apply_pudl_dtypes, group="eia", strict=False
+    return (
+        pudl.helpers.dedupe_and_drop_nas(csi_df, primary_key_cols=primary_key)
+        .pipe(apply_pudl_dtypes, group="eia", strict=False)
+        .pipe(PUDL_PACKAGE.encode)
     )
 
 

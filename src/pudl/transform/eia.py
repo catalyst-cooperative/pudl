@@ -1019,12 +1019,17 @@ def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:
         .drop_duplicates()
     )
 
-    bga_out = pd.merge(
-        left=bga_out,
-        right=bga_w_units,
-        how="left",
-        on=["plant_id_eia", "generator_id", "boiler_id"],
-    ).astype({"unit_id_pudl": pd.Int64Dtype()})
+    bga_out = (
+        pd.merge(
+            left=bga_out,
+            right=bga_w_units,
+            how="left",
+            on=["plant_id_eia", "generator_id", "boiler_id"],
+        )
+        .astype({"unit_id_pudl": pd.Int64Dtype()})
+        .pipe(apply_pudl_dtypes, group="eia")
+        .pipe(PUDL_PACKAGE.encode)
+    )
 
     # If we're NOT debugging, drop additional forensic information and bad BGAs
     if not debug:
@@ -1049,7 +1054,6 @@ def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:
             )
         )
 
-    bga_out = apply_pudl_dtypes(bga_out, group="eia")
     return bga_out
 
 
