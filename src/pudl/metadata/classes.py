@@ -68,7 +68,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 # to define an inconvenient alias for it.
 warnings.filterwarnings(
     action="ignore",
-    message='Field name "schema" shadows an attribute in parent "PudlMeta"',
+    message='Field name "schema" in "Resource" shadows an attribute in parent "PudlMeta"',
     category=UserWarning,
     module="pydantic._internal._fields",
 )
@@ -610,8 +610,7 @@ class Field(PudlMeta):
         """Return Pandas data type.
 
         Args:
-            compact: Whether to return a low-memory data type
-                (32-bit integer or float).
+            compact: Whether to return a low-memory data type (32-bit integer or float).
         """
         if self.constraints.enum:
             return pd.CategoricalDtype(self.constraints.enum)
