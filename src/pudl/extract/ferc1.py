@@ -13,9 +13,8 @@ clean up a small subset of them.
 
 The conversion from both DBF and XBRL to SQLite is coordinated by the
 :mod:`pudl.convert.ferc_to_sqlite` script. The code for the XBRL to SQLite conversion
-is used across all the modern FERC forms, and is contained in a standalone package:
-
-https://github.com/catalyst-cooperative/ferc-xbrl-extractor
+is used across all the modern FERC forms, and is contained in a standalone 
+`ferc-xbrl-extractor package<https://github.com/catalyst-cooperative/ferc-xbrl-extractor>`__.
 
 The code for converting the older FERC 1 DBF files into an SQLite DB is contained in
 this module.
@@ -62,9 +61,8 @@ with those respondent IDs.
 This SQLite compilation of the original FERC Form 1 databases accommodates all
 116 tables from all the published years of DBF data (1994-2020) and takes up about 1GB
 of space on disk. You can interact with the most recent development version of this
-database online at:
+database online `here<https://data.catalyst.coop/ferc1_dbf/>`__.
 
-https://data.catalyst.coop/ferc1
 """
 
 import json
