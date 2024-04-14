@@ -28,7 +28,7 @@ experience and diverse personal backgrounds.
 User feedback
 -------------
 
-PUDL's goal is to help people use data to make change in the US energy landscape.
+PUDL's goal is to help people use data to make changes in the US energy landscape.
 As such, it's critical that we understand our users' needs! `GitHub Discussions
 <https://github.com/orgs/catalyst-cooperative/discussions>`__ is our main forum
 for all this. Since it's publicly readable, any conversation here can
