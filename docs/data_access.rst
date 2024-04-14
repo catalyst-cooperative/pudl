@@ -3,9 +3,9 @@ Data Access
 =======================================================================================
 
 We publish the PUDL pipeline outputs in several ways to serve
-different users and use cases. We're always trying to increase accessibility of the
-PUDL data, so if you have a suggestion please `open a GitHub issue
-<https://github.com/catalyst-cooperative/pudl/issues>`__. If you have a question you
+different users and use cases. We're always trying to increase the accessibility of the
+PUDL data, so if you have a suggestion, please `open a GitHub issue
+<https://github.com/catalyst-cooperative/pudl/issues>`__. If you have a question, you
 can `create a GitHub discussion <https://github.com/orgs/catalyst-cooperative/discussions/new?category=help-me>`__.
 
 PUDL's primary data output is the ``pudl.sqlite`` database. We recommend working with
@@ -54,7 +54,7 @@ which one is right for you and your use case.
      - Python Developer, Data Wrangler
      - Run the PUDL data processing pipeline on your own computer.
        Edit the PUDL source code and run the software tests and data validations.
-       Integrate a new data source or newly released data from one of existing sources.
+       Integrate a new data source or newly released data from one of the existing sources.
 
 .. _access-datasette:
 
@@ -78,7 +78,7 @@ data you've selected.
    <https://data.catalyst.coop/pudl>`__. There are also several FERC SQLite databases
    derived from their old Visual FoxPro and new XBRL data formats, which we publish as
    SQLite to improve accessibility of the raw inputs, but they should generally not be
-   used directly if the data you need has integrated into the PUDL database.
+   used directly if the data you need has been integrated into the PUDL database.
 
 .. _access-kaggle:
 
@@ -179,7 +179,7 @@ documentation for a specific version by hovering over the version selector at
 the bottom left of the page.
 
 If you're not after a *specific* version, but rather the *latest stable
-version*, you can find them `AWS Open Data Registry
+version*, you can find it in the `AWS Open Data Registry
 <https://registry.opendata.aws/catalyst-cooperative-pudl/>`__, in the
 ``stable/`` namespace. You can run ``aws s3 ls --no-sign-request
 s3://pudl.catalyst.coop/stable/`` to see what's available.
@@ -198,7 +198,7 @@ We use Zenodo to archive and version our raw data inputs. You can find all of
 our archives in `the Catalyst Cooperative Community
 <https://zenodo.org/communities/catalyst-cooperative/>`__.
 
-These have been minimally processed - in some cases we've compressed them or
+These have been minimally processed - in some cases, we've compressed them or
 grouped them into ZIP archives to fit the Zenodo repository requirements. In
 all cases we've added some metadata to help identify the resources you're
 looking for. But, apart from that, these datasets are unmodified.
@@ -216,4 +216,4 @@ development environment. This is a bit involved, so it has its
 
 Most users shouldn't need to do this, and will probably find working with the
 pre-processed data via one of the other access modes easier. But if you want to
-:doc:`contribute to the project <CONTRIBUTING>` please give it a shot!
+:doc:`contribute to the project <CONTRIBUTING>`, please give it a shot!

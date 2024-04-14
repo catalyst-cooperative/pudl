@@ -15,7 +15,7 @@ Available Data
 
 We focus primarily on poorly curated data published by the US government in
 semi-structured but machine readable formats. For details on exactly what data is
-available from these data sources and what state it is in, see the the individual
+available from these data sources and what state it is in, see the individual
 pages for each source:
 
 * :doc:`data_sources/eia860`
@@ -27,7 +27,7 @@ pages for each source:
 * :doc:`data_sources/phmsagas`
 
 PUDL's clean and complete versions of these data sources are stored in the
-``pudl.sqlite`` database. Larger datasets like EPA CEMS are stored in parquet files.
+``pudl.sqlite`` database. Larger datasets, like EPA CEMS, are stored in parquet files.
 To get started using PUDL data, visit our :doc:`data_access` page, or continue reading
 to learn more about the PUDL data processing pipeline.
 
@@ -58,15 +58,14 @@ processing, we periodically create archives of `the raw inputs on Zenodo
 <https://zenodo.org/communities/catalyst-cooperative>`__. Each of the data inputs may
 have several different versions archived, and all are assigned a unique DOI and made
 available through the REST API.  Each release of the PUDL Python package is embedded
-with a set of of DOIs to indicate which version of the raw inputs it is meant to
+with a set of DOIs to indicate which version of the raw inputs it is meant to
 process. This process helps ensure that our outputs are replicable.
 
 To enable programmatic access to individual partitions of the data (by year, state,
 etc.), we archive the raw inputs as `Frictionless Data Packages
 <https://specs.frictionlessdata.io/data-package/>`__. The data packages contain both the
 raw data in their originally published format (CSVs, Excel spreadsheets, and Visual
-FoxPro database (DBF) files) and metadata that describes how each the
-dataset is partitioned.
+FoxPro database (DBF) files) and metadata that describes how each dataset is partitioned.
 
 The PUDL software will download a copy of the appropriate raw inputs automatically as
 needed and organize them in a local :doc:`datastore <dev/datastore>`.
@@ -109,7 +108,7 @@ Core Layer
 The Core layer contains well-modeled assets that serve as building blocks for
 downstream wide tables and analyses. Well-modeled means tables in the database
 have logical primary keys, foreign keys, datatypes and generally follow
-:ref:`Tidy Data standards <tidy-data>`. The assets are loaded to a SQLite
+:ref:`Tidy Data standards <tidy-data>`. The assets are loaded into a SQLite
 database or Parquet file.
 
 These outputs can be accessed via Python, R, and many other tools. See the
@@ -117,19 +116,19 @@ These outputs can be accessed via Python, R, and many other tools. See the
 their contents.
 
 Data processing in the Core layer is generally broken down into two phases. Phase one
-focuses on cleaning and organizing data within individual tables while phase two focuses
+focuses on cleaning and organizing data within individual tables, while phase two focuses
 on the integration and deduplication of data between tables. These tasks can be tedious
 `data wrangling toil <https://sre.google/sre-book/eliminating-toil/>`__ that impose a
 huge amount of overhead on anyone trying to do analysis based on the publicly
 available data. PUDL implements common data cleaning operations in the hopes that we
 can all work on more interesting problems most of the time. These operations include:
 
-* Standardization of units (e.g. dollars not thousands of dollars)
+* Standardization of units (e.g. dollars, not thousands of dollars)
 * Standardization of N/A values
 * Standardization of freeform names and IDs
 * Use of controlled vocabularies for categorical values like fuel type
 * Use of more readable codes and column names
-* Imposition of well defined, rich data types for each column
+* Imposition of well-defined, rich data types for each column
 * Converting local timestamps to UTC
 * Reshaping of data into well normalized tables which minimize data duplication
 * Inferring Plant IDs which link records across many years of FERC Form 1 data
@@ -144,8 +143,8 @@ can all work on more interesting problems most of the time. These operations inc
 
 Many of the original datasets contain large amounts of duplicated data. For instance,
 the EIA reports the name of each power plant in every table that refers to otherwise
-unique plant-related data. Similarly, many attributes like plant latitude and
-longitude are reported separately every year. Often, these reported values are not
+unique plant-related data. Similarly, many attributes, like plant latitude and
+longitude, are reported separately every year. Often, these reported values are not
 self-consistent. There may be several different spellings of a plant's name, or an
 incorrectly reported latitude in one year.
 
@@ -198,8 +197,8 @@ publishing a data release to try and avoid publishing data with known issues. Mo
 these validations are described in the :mod:`pudl.validate` module. They check things
 like:
 
-* The heat content of various fuel types are within expected bounds.
-* Coal ash, moisture, mercury, sulfur etc. content are within expected bounds
+* The heat content of various fuel types is within expected bounds.
+* Coal ash, moisture, mercury, sulfur, etc. content are within expected bounds
 * Generator heat rates and capacity factors are realistic for the type of prime mover
   being reported.
 
