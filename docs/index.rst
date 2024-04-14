@@ -65,7 +65,7 @@ To enable programmatic access to individual partitions of the data (by year, sta
 etc.), we archive the raw inputs as `Frictionless Data Packages
 <https://specs.frictionlessdata.io/data-package/>`__. The data packages contain both the
 raw data in their originally published format (CSVs, Excel spreadsheets, and Visual
-FoxPro database (DBF) files) and metadata that describes how each 
+FoxPro database (DBF) files) and metadata that describes how each
 dataset is partitioned.
 
 The PUDL software will download a copy of the appropriate raw inputs automatically as
