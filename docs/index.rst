@@ -65,7 +65,8 @@ To enable programmatic access to individual partitions of the data (by year, sta
 etc.), we archive the raw inputs as `Frictionless Data Packages
 <https://specs.frictionlessdata.io/data-package/>`__. The data packages contain both the
 raw data in their originally published format (CSVs, Excel spreadsheets, and Visual
-FoxPro database (DBF) files) and metadata that describes how each dataset is partitioned.
+FoxPro database (DBF) files) and metadata that describes how each 
+dataset is partitioned.
 
 The PUDL software will download a copy of the appropriate raw inputs automatically as
 needed and organize them in a local :doc:`datastore <dev/datastore>`.
@@ -116,7 +117,7 @@ These outputs can be accessed via Python, R, and many other tools. See the
 their contents.
 
 Data processing in the Core layer is generally broken down into two phases. Phase one
-focuses on cleaning and organizing data within individual tables, while phase two focuses
+focuses on cleaning and organizing data within individual tables while phase two focuses
 on the integration and deduplication of data between tables. These tasks can be tedious
 `data wrangling toil <https://sre.google/sre-book/eliminating-toil/>`__ that impose a
 huge amount of overhead on anyone trying to do analysis based on the publicly
