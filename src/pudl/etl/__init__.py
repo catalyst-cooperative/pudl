@@ -28,6 +28,7 @@ from pudl.io_managers import (
     ferc1_xbrl_sqlite_io_manager,
     pudl_mixed_format_io_manager,
 )
+from pudl.metadata import PUDL_PACKAGE
 from pudl.resources import dataset_settings, datastore, ferc_to_sqlite_settings
 from pudl.settings import EtlSettings
 
@@ -182,7 +183,7 @@ def _get_keys_from_assets(
     return []
 
 
-_package = pudl.metadata.classes.Package.from_resource_ids()
+_package = PUDL_PACKAGE
 _asset_keys = itertools.chain.from_iterable(
     _get_keys_from_assets(asset_def) for asset_def in default_assets
 )

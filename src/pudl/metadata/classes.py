@@ -7,11 +7,12 @@ import re
 import sys
 import warnings
 from collections.abc import Callable, Iterable
-from functools import lru_cache
+from functools import cached_property, lru_cache
 from pathlib import Path
 from typing import Annotated, Any, Literal, Self, TypeVar
 
 import jinja2
+import numpy as np
 import pandas as pd
 import pandera as pr
 import pyarrow as pa
@@ -68,7 +69,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 # to define an inconvenient alias for it.
 warnings.filterwarnings(
     action="ignore",
-    message='Field name "schema" shadows an attribute in parent "PudlMeta"',
+    message='Field name "schema" in "Resource" shadows an attribute in parent "PudlMeta"',
     category=UserWarning,
     module="pydantic._internal._fields",
 )
@@ -526,6 +527,22 @@ class Encoder(PudlMeta):
         )
         return rendered
 
+    def generate_encodable_data(self: Self, size: int = 10) -> pd.Series:
+        """Produce a series of data which can be encoded by this encoder.
+
+        Selects values randomly from valid, ignored, and fixable codes.
+        """
+        rng = np.random.default_rng()
+
+        return pd.Series(
+            rng.choice(
+                list(self.df["code"])
+                + list(self.ignored_codes)
+                + list(self.code_fixes),
+                size=size,
+            )
+        )
+
 
 class Field(PudlMeta):
     """Field (`resource.schema.fields[...]`).
@@ -610,8 +627,7 @@ class Field(PudlMeta):
         """Return Pandas data type.
 
         Args:
-            compact: Whether to return a low-memory data type
-                (32-bit integer or float).
+            compact: Whether to return a low-memory data type (32-bit integer or float).
         """
         if self.constraints.enum:
             return pd.CategoricalDtype(self.constraints.enum)
@@ -2028,6 +2044,55 @@ class Package(PudlMeta):
 
         return sorted(resources, key=sort_resource_names, reverse=False)
 
+    @cached_property
+    def encoders(self) -> dict[SnakeCase, Encoder]:
+        """Compile a mapping of field names to their encoders, if they exist.
+
+        This dictionary will be used many times, so it makes sense to build it once
+        when the Package is instantiated so it can be reused.
+        """
+        encoded_fields = [
+            field
+            for res in self.resources
+            for field in res.schema.fields
+            if field.encoder
+        ]
+        encoders: dict[SnakeCase, Encoder] = {}
+        for field in encoded_fields:
+            if field.name not in encoders:
+                encoders[field.name] = field.encoder
+            else:
+                # We have a field which shows up in multiple tables, and we want to
+                # verify that the encoders are the same across all of them.
+                pd.testing.assert_frame_equal(encoders[field.name].df, field.encoder.df)
+                assert encoders[field.name].code_fixes == field.encoder.code_fixes
+                assert encoders[field.name].ignored_codes == field.encoder.ignored_codes
+        return encoders
+
+    def encode(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Clean up all coded columns in a dataframe based on PUDL coding tables.
+
+        Returns:
+            A modified copy of the input dataframe.
+        """
+        encoded_df = df.copy()
+        for col in encoded_df.columns:
+            if col in self.encoders:
+                encoded_df[col] = self.encoders[col].encode(
+                    encoded_df[col], dtype=Field.from_id(col).to_pandas_dtype()
+                )
+        return encoded_df
+
+
+PUDL_PACKAGE = Package.from_resource_ids()
+"""Define a gobal PUDL package object for use across the entire codebase.
+
+This needs to happen after the definition of the Package class above, and it is used in
+some of the class definitions below, but having it defined in the middle of this module
+is kind of obscure, so it is imported in the __init__.py for this subpackage and then
+imported in other modules from that more prominent location.
+"""
+
 
 class CodeMetadata(PudlMeta):
     """A list of Encoders for standardizing and documenting categorical codes.
@@ -2071,7 +2136,7 @@ class DatasetteMetadata(PudlMeta):
     """
 
     data_sources: list[DataSource]
-    resources: list[Resource] = Package.from_resource_ids()
+    resources: list[Resource] = PUDL_PACKAGE.resources
     xbrl_resources: dict[str, list[Resource]] = {}
     label_columns: dict[str, str] = {
         "core_eia__entity_plants": "plant_name_eia",
@@ -2119,7 +2184,7 @@ class DatasetteMetadata(PudlMeta):
         data_sources = [DataSource.from_id(ds_id) for ds_id in data_source_ids]
 
         # Instantiate all possible resources in a Package:
-        resources = Package.from_resource_ids().resources
+        resources = PUDL_PACKAGE.resources
 
         # Get XBRL based resources
         xbrl_resources = {}
