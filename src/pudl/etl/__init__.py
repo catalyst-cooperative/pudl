@@ -43,10 +43,6 @@ from . import (
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
-# Asset Checks are still Experimental, silence the warning since we use them
-# everywhere.
-warnings.filterwarnings("ignore", category=ExperimentalWarning)
-
 raw_module_groups = {
     "raw_eia176": [pudl.extract.eia176],
     "raw_eia191": [pudl.extract.eia191],
