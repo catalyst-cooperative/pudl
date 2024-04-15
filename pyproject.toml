@@ -322,12 +322,12 @@ log_cli_level = "DEBUG"
 doctest_optionflags = ["NORMALIZE_WHITESPACE", "IGNORE_EXCEPTION_DETAIL", "ELLIPSIS"]
 
 [tool.conda-lock]
-channels = ["conda-forge", "defaults"]
+channels = ["conda-forge"]
 platforms = [
-    # "linux-aarch64",
     "linux-64",
     "osx-64",
     "osx-arm64",
+    # The google-cloud-sdk conda package doesn't support Windows
     # "win-64",
 ]
 channel-priority = "strict"
