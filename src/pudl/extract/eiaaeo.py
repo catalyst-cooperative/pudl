@@ -107,7 +107,7 @@ class AEOTaxonomy:
     structure, each leaf category is repeated once for each subject, leading to
     multiple *duplicated* leaf categories pointing at the same data series.
     * some data series are relevant to multiple different tables - so multiple
-    *different* leaf categories point at the same data series. In this case we
+    different leaf categories point at the same data series. In this case we
     would expect the names of the leaf category to reflect their different
     identities.
 
