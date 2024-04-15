@@ -170,7 +170,6 @@ class DatapackageDescriptor:
 
         Throws ValueError if invalid.
         """
-        # TODO (daz): when we upgrade to frictionless>=5.0, this will be:
         report = frictionless.Package.validate_descriptor(datapackage_json)
         if not report.valid:
             msg = f"Found {len(report.errors)} datapackage validation errors:\n"
