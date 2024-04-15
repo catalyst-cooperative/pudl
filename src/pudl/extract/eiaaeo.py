@@ -3,7 +3,9 @@
 import io
 import itertools
 import re
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
+from dataclasses import dataclass
+from enum import Enum
 
 import networkx as nx
 import pandas as pd
@@ -24,8 +26,12 @@ import pudl.logging_helpers
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-class Category(BaseModel):
-    """Describe the structure of how series are related."""
+class AEOCategory(BaseModel):
+    """Describe how the AEO data is categorized.
+
+    Categories are the basic way in which metadata that is shared across
+    multiple data series is represented.
+    """
 
     category_id: int
     parent_category_id: int
@@ -34,8 +40,12 @@ class Category(BaseModel):
     childseries: list[str]
 
 
-class Series(BaseModel):
-    """Contain the actual data, and each timeseries' metadata."""
+class AEOSeries(BaseModel):
+    """Describe actual AEO timeseries data.
+
+    This includes the data itself as well as some timeseries-specific metadata
+    that may not be shared across multiple timeseries.
+    """
 
     series_id: str
     name: str
@@ -56,7 +66,71 @@ class AEOTable(DataFrameModel):
 
 
 class AEOTaxonomy:
-    """Container for *all* the information in one AEO report."""
+    """Container for *all* the information in one AEO report.
+
+    AEO reports are composed of *categories*, which are metadata about multiple
+    data series, and *series*, which are the actual data + metadata associated
+    with one specific time series.
+
+    The categories and series form a DAG structure with 5 generations: root,
+    case, subject, leaf category, and data series.
+
+    The first generation is the root - there is one root node which is nameless
+    and which all other nodes descend from.
+
+    The second generation is the "cases." Cases are different scenarios within
+    the AEO. These have names like "Reference case," "High Economic Growth",
+    "Low Oil and Gas Supply." All direct children of the root node are cases.
+
+    The third generation is the "subjects." These are high-level tags, with
+    names like "Energy Prices", "Energy Consumption", etc. These are largely
+    used for filtering in the AEO data UI, so we ignore these.
+
+    The fourth generation is the "leaf categories." These are named things like
+    "Table 54.  Electric Power Projections by Electricity Market Module Region,
+    United States" and have a long list of "child series" which actually
+    contain the data. In other words, these leaf categories map the notion of
+    an AEO "table" to the actual data.
+
+    The fifth generation is the "data series." These actually contain the data
+    points, and have no children. They have names like "Electricity : Electric
+    Power Sector : Cumulative Planned Additions : Coal" and "Coal Supply :
+    Delivered Prices : Electric Power." As you can see the names imply a bunch
+    of different dimensions, which we don't try to make sense of in the extract
+    step.
+
+    In the first four generations we see a strictly branching tree, but many
+    leaf categories can point at the same data series so the whole taxonomy is
+    a DAG. This is because of two reasons:
+
+    * the subject tag doesn't affect data values, but because of the tree
+    structure, each leaf category is repeated once for each subject, leading to
+    multiple *duplicated* leaf categories pointing at the same data series.
+    * some data series are relevant to multiple different tables - so multiple
+    *different* leaf categories point at the same data series. In this case we
+    would expect the names of the leaf category to reflect their different
+    identities.
+
+    Note, also, that there is no structural notion of a "Table" in the AEO
+    data. That information is carried purely by the names of the leaf
+    categories.
+    """
+
+    class EntityType(Enum):
+        """These are the three types of entities in AEO."""
+
+        ROOT = 1001
+        CATEGORY = 1002
+        SERIES = 1003
+
+    @dataclass
+    class CheckSpec:
+        """Encapsulate shared checks for the taxonomy structure."""
+
+        generation: str
+        typecheck: Callable[[int | str], bool]
+        in_degree: Callable[[int], bool]
+        out_degree: Callable[[int], bool]
 
     def __init__(self, records: Iterable[str]):
         """Load AEO JSON records into a graph datastructure.
@@ -67,33 +141,37 @@ class AEOTaxonomy:
         """
         categories, series = self.__load_records(records)
         self.graph = self.__generate_graph(categories, series)
-        root = 4949903
-        self.__cases = set(self.graph.successors(root))
+        generations = self.__generation_invariants()
+        self.__cases = generations[1]
         self.__sanitize_re = re.compile(r"\W+")
 
     def __load_records(
         self, records: Iterable[str]
-    ) -> tuple[dict[int, Category], dict[str, Series]]:
-        # A record can be either a category or a series, so we parse those into
-        # two separate mappings.
+    ) -> tuple[dict[int, AEOCategory], dict[str, AEOSeries]]:
+        """Read AEO JSON blob into memory.
 
-        all_categories: dict[int, Category] = {}
-        all_series: dict[str, Series] = {}
+        A record can be either a category or a series, so we parse those into
+        two separate mappings.
+        """
+        all_categories: dict[int, AEOCategory] = {}
+        all_series: dict[str, AEOSeries] = {}
         for record in records:
             if "category_id" in record:
-                category = Category.model_validate_json(record)
+                category = AEOCategory.model_validate_json(record)
                 all_categories[category.category_id] = category
             elif "series_id" in record:
-                series = Series.model_validate_json(record)
+                series = AEOSeries.model_validate_json(record)
                 all_series[series.series_id] = series
             else:
                 raise ValueError(f"Line had neither series nor category ID: {record}")
         return all_categories, all_series
 
     def __generate_graph(
-        self, categories: dict[int, Category], series: dict[str, Series]
+        self, categories: dict[int, AEOCategory], series: dict[str, AEOSeries]
     ) -> nx.DiGraph:
-        def get_all_edges(category: Category) -> Iterable[tuple[int, str | int]]:
+        """Stitch categories and series together into a DAG."""
+
+        def get_all_edges(category: AEOCategory) -> Iterable[tuple[int, str | int]]:
             # A category can have incoming edges from its parents or outgoing
             # edges to its child series.
             edges: list[tuple[int, str | int]] = [
@@ -114,18 +192,132 @@ class AEOTaxonomy:
         nx.set_node_attributes(graph, categories | series)
         return graph
 
+    def __generation_invariants(self) -> list:  # noqa: C901
+        """Check that the graph behaves the way we expect.
+
+        We have a few generic checks for *all* generations - node type,
+        in-degree, and out-degree.
+
+        We also have bespoke checks for individual generations as needed.
+
+        Returns the list of generations for further manipulation.
+        """
+
+        def _typecheck(node_id: int | str) -> AEOTaxonomy.EntityType:
+            category_id = self.graph.nodes[node_id].get("category_id")
+            series_id = self.graph.nodes[node_id].get("series_id")
+            if category_id is None and series_id is None:
+                return AEOTaxonomy.EntityType.ROOT
+            if series_id is None and category_id is not None:
+                return AEOTaxonomy.EntityType.CATEGORY
+            if category_id is None and series_id is not None:
+                return AEOTaxonomy.EntityType.SERIES
+            raise ValueError(
+                f"Found record with both category and series ID: {node_id}"
+            )
+
+        def is_root(c):
+            return _typecheck(c) == AEOTaxonomy.EntityType.ROOT
+
+        def is_category(c):
+            return _typecheck(c) == AEOTaxonomy.EntityType.CATEGORY
+
+        def is_series(c):
+            return _typecheck(c) == AEOTaxonomy.EntityType.SERIES
+
+        generations = list(nx.topological_generations(self.graph))
+
+        specs: list[AEOTaxonomy.CheckSpec] = [
+            AEOTaxonomy.CheckSpec(
+                generation="root",
+                typecheck=is_root,
+                in_degree=lambda n: n == 0,
+                out_degree=lambda n: n >= 1,
+            ),
+            AEOTaxonomy.CheckSpec(
+                generation="case",
+                typecheck=is_category,
+                in_degree=lambda n: n == 1,
+                out_degree=lambda n: n >= 1,
+            ),
+            AEOTaxonomy.CheckSpec(
+                generation="subject",
+                typecheck=is_category,
+                in_degree=lambda n: n == 1,
+                out_degree=lambda n: n >= 1,
+            ),
+            AEOTaxonomy.CheckSpec(
+                generation="leaf_category",
+                typecheck=is_category,
+                in_degree=lambda n: n == 1,
+                out_degree=lambda n: n >= 1,
+            ),
+            AEOTaxonomy.CheckSpec(
+                generation="data_series",
+                typecheck=is_series,
+                in_degree=lambda n: n >= 1,
+                out_degree=lambda n: n == 0,
+            ),
+        ]
+
+        type_errors = [
+            ("wrong_type", spec.generation, node_id)
+            for spec, generation in zip(specs, generations, strict=True)
+            for node_id in generation
+            if not spec.typecheck(node_id)
+        ]
+
+        in_degree_errors = [
+            ("wrong_in_degree", spec.generation, node_id)
+            for spec, generation in zip(specs, generations, strict=True)
+            for node_id in generation
+            if not spec.in_degree(self.graph.in_degree(node_id))
+        ]
+
+        out_degree_errors = [
+            ("wrong_out_degree", spec.generation, node_id)
+            for spec, generation in zip(specs, generations, strict=True)
+            for node_id in generation
+            if not spec.out_degree(self.graph.out_degree(node_id))
+        ]
+
+        errors = type_errors + in_degree_errors + out_degree_errors
+
+        if len(generations[0]) != 1:
+            errors.append(("wrong_length", "root", generations[0]))
+
+        # all leaf categories should be associated with a table
+        leaf_cats_no_table_name = [
+            c
+            for c in generations[3]
+            if not self.graph.nodes[c].get("name", "").lower().startswith("table")
+        ]
+        if len(leaf_cats_no_table_name) != 0:
+            errors.append(("no_table_name", "leaf_category", leaf_cats_no_table_name))
+
+        if len(errors) > 0:
+            raise RuntimeError(f"Taxonomy graph invariants violated: {errors}")
+
+        return generations
+
     def __sanitize(self, s: str) -> str:
         return re.sub(self.__sanitize_re, "_", s.lower().strip().replace(" : ", "__"))
 
     def __series_to_records(
         self, series_id: str, potential_parents: set[int]
     ) -> pd.DataFrame:
-        # Use the graph info to figure out what case + category name this
-        # series belongs to
+        """Turn a data series into records we can feed into a DataFrame.
 
-        # note that case-names is a list, because we would be surprised if
-        # there were multiple case nodes with the same name reported in
-        # nx.ancestors
+        This uses graph ancestor data to figure out what case this series
+        belongs to.
+
+        This series may be associated with multiple different tables in the
+        graph. In that case, we'll need to filter down only to the leaf
+        categories that are relevant to the table we're creating a DataFrame
+        for. We do that by passing in ``potential_parents`` as a parameter.
+        """
+        # we don't expect multiple case nodes to overlap in name. If we make
+        # this a list, then we will raise an error if we do see the wrong size.
         case_names = [
             self.graph.nodes[a_id]["name"]
             for a_id in nx.ancestors(self.graph, series_id)
@@ -137,8 +329,8 @@ class AEOTaxonomy:
             )
         case_name = case_names[0]
 
-        # whereas parent_names is a set, because we expect many of the
-        # predecessors to share a name
+        # We do expect the many leaf categories to share a name, so we use a
+        # set to automatically deduplicate.
         parent_names = {
             self.graph.nodes[p_id]["name"]
             for p_id in self.graph.predecessors(series_id)
