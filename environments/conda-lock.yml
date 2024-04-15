@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: 09c78383a83af1c2bf06013b06ef870afea96baa86bd8d9373ec0d5215804c8d
-    osx-64: 7e63fa499a48eca9f5a939548fc6b8f2b84d82642073a139604fe68ef780e1a2
-    osx-arm64: c694e1530235797a6bda755e6e04d7577cca6ca86ca8e51f52e72f6c85b73f8a
+    linux-64: 04c0d82dc5dbc09e18b44755245452c855f3d962f8d31e04bb43143011a8c1c0
+    osx-64: be792de78317213fcadc09ba23819627a0ccf8dd99d518d67bf84525a43a23a0
+    osx-arm64: 0181c6a407be0d89d7e63980c75ef811911eb815222202e697b682249aa55a1b
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -21233,39 +21233,39 @@ package:
     category: main
     optional: false
   - name: setuptools
-    version: 69.2.0
+    version: 69.5.1
     manager: conda
     platform: linux-64
     dependencies:
       python: ">=3.8"
-    url: https://conda.anaconda.org/conda-forge/noarch/setuptools-69.2.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/setuptools-69.5.1-pyhd8ed1ab_0.conda
     hash:
-      md5: da214ecd521a720a9d521c68047682dc
-      sha256: 78a75c75a5dacda6de5f4056c9c990141bdaf4f64245673a590594d00bc63713
+      md5: 7462280d81f639363e6e63c81276bd9e
+      sha256: 72d143408507043628b32bed089730b6d5f5445eccc44b59911ec9f262e365e7
     category: main
     optional: false
   - name: setuptools
-    version: 69.2.0
+    version: 69.5.1
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.8"
-    url: https://conda.anaconda.org/conda-forge/noarch/setuptools-69.2.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/setuptools-69.5.1-pyhd8ed1ab_0.conda
     hash:
-      md5: da214ecd521a720a9d521c68047682dc
-      sha256: 78a75c75a5dacda6de5f4056c9c990141bdaf4f64245673a590594d00bc63713
+      md5: 7462280d81f639363e6e63c81276bd9e
+      sha256: 72d143408507043628b32bed089730b6d5f5445eccc44b59911ec9f262e365e7
     category: main
     optional: false
   - name: setuptools
-    version: 69.2.0
+    version: 69.5.1
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.8"
-    url: https://conda.anaconda.org/conda-forge/noarch/setuptools-69.2.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/setuptools-69.5.1-pyhd8ed1ab_0.conda
     hash:
-      md5: da214ecd521a720a9d521c68047682dc
-      sha256: 78a75c75a5dacda6de5f4056c9c990141bdaf4f64245673a590594d00bc63713
+      md5: 7462280d81f639363e6e63c81276bd9e
+      sha256: 72d143408507043628b32bed089730b6d5f5445eccc44b59911ec9f262e365e7
     category: main
     optional: false
   - name: shapely
