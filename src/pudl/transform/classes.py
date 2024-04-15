@@ -85,7 +85,7 @@ from pydantic import (
 
 import pudl.logging_helpers
 import pudl.transform.params.ferc1
-from pudl.metadata.classes import Package
+from pudl.metadata import PUDL_PACKAGE
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -1359,6 +1359,6 @@ class AbstractTableTransformer(ABC):
     def enforce_schema(self, df: pd.DataFrame) -> pd.DataFrame:
         """Drop columns not in the DB schema and enforce specified types."""
         logger.info(f"{self.table_id.value}: Enforcing database schema on dataframe.")
-        resource = Package.from_resource_ids().get_resource(self.table_id.value)
+        resource = PUDL_PACKAGE.get_resource(self.table_id.value)
         df = resource.enforce_schema(df)
         return df

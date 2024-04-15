@@ -26,6 +26,7 @@ from packaging import version
 from upath import UPath
 
 import pudl
+from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.classes import Package, Resource
 from pudl.workspace.setup import PudlPaths
 
@@ -392,7 +393,7 @@ class PudlSQLiteIOManager(SQLiteIOManager):
                 until that transaction is committed.
         """
         if package is None:
-            package = Package.from_resource_ids()
+            package = PUDL_PACKAGE
         self.package = package
         md = self.package.to_sql()
         sqlite_path = Path(base_dir) / f"{db_name}.sqlite"
