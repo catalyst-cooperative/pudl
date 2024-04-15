@@ -715,11 +715,13 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
             duped_groups: pd.core.groupby.DataFrameGroupBy,
         ) -> pd.DataFrame:
             """Take the row that has most non-null values out of each group."""
+            # Ignore errors when dropping the "count" column since empty
+            # groupby won't have this column.
             return duped_groups.apply(
                 lambda df: df.assign(count=df.count(axis="columns"))
                 .sort_values(by="count", ascending=True)
                 .tail(1)
-            ).drop(columns="count")
+            ).drop(columns="count", errors="ignore")
 
         def __compare_dedupe_methodologies(
             apply_diffs: pd.DataFrame, best_snapshot: pd.DataFrame
