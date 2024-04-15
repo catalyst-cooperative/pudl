@@ -104,12 +104,12 @@ class AEOTaxonomy:
     a DAG. This is because of two reasons:
 
     * the subject tag doesn't affect data values, but because of the tree
-    structure, each leaf category is repeated once for each subject, leading to
-    multiple *duplicated* leaf categories pointing at the same data series.
+      structure, each leaf category is repeated once for each subject, leading to
+      multiple *duplicated* leaf categories pointing at the same data series.
     * some data series are relevant to multiple different tables - so multiple
-    different leaf categories point at the same data series. In this case we
-    would expect the names of the leaf category to reflect their different
-    identities.
+      different leaf categories point at the same data series. In this case we
+      would expect the names of the leaf category to reflect their different
+      identities.
 
     Note, also, that there is no structural notion of a "Table" in the AEO
     data. That information is carried purely by the names of the leaf
