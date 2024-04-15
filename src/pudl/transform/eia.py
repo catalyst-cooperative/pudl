@@ -662,11 +662,6 @@ def harvest_entity_tables(  # noqa: C901
             fix_balancing_authority_codes_with_state, plants_entity=entity_df
         )
 
-    entity_res = PUDL_PACKAGE.get_resource(f"core_eia__entity_{entity.value}")
-    entity_df = entity_res.enforce_schema(entity_df)
-    annual_res = PUDL_PACKAGE.get_resource(f"core_eia860__scd_{entity.value}")
-    annual_df = annual_res.enforce_schema(annual_df)
-
     return entity_df, annual_df, col_dfs
 
 
@@ -731,8 +726,10 @@ def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:
 
     # Do some final data formatting and assign appropriate types:
     clean_dfs = {
-        table_name: convert_cols_dtypes(df, data_source="eia").pipe(
-            _restrict_years, eia_settings
+        table_name: (
+            convert_cols_dtypes(df, data_source="eia")
+            .pipe(_restrict_years, eia_settings)
+            .pipe(PUDL_PACKAGE.encode)
         )
         for table_name, df in clean_dfs.items()
     }
@@ -1028,7 +1025,6 @@ def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:
         )
         .astype({"unit_id_pudl": pd.Int64Dtype()})
         .pipe(apply_pudl_dtypes, group="eia")
-        .pipe(PUDL_PACKAGE.encode)
     )
 
     # If we're NOT debugging, drop additional forensic information and bad BGAs

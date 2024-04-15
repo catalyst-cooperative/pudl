@@ -2085,6 +2085,13 @@ class Package(PudlMeta):
 
 
 PUDL_PACKAGE = Package.from_resource_ids()
+"""Define a gobal PUDL package object for use across the entire codebase.
+
+This needs to happen after the definition of the Package class above, and it is used in
+some of the class definitions below, but having it defined in the middle of this module
+is kind of obscure, so it is imported in the __init__.py for this subpackage and then
+imported in other modules from that more prominent location.
+"""
 
 
 class CodeMetadata(PudlMeta):

@@ -310,7 +310,6 @@ def _core_eia860__generators(
         )
         .pipe(pudl.helpers.convert_to_date)
     )
-    # Clean up a handful of non-standard BA codes prior to deduplication.
     # This manual fix is required before encoding because there's not a unique mapping
     # PA -> PACW in Oregon
     gens_df.loc[
