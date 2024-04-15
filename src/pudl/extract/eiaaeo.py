@@ -150,8 +150,8 @@ class AEOTaxonomy:
     ) -> tuple[dict[int, AEOCategory], dict[str, AEOSeries]]:
         """Read AEO JSON blob into memory.
 
-        A record can be either a category or a series, so we parse those into
-        two separate mappings.
+        A single JSON object can represent either a category or a series, so we
+        parse those into two separate mappings.
         """
         all_categories: dict[int, AEOCategory] = {}
         all_series: dict[str, AEOSeries] = {}
