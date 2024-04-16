@@ -566,7 +566,7 @@ class Ferc1XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     years: list[int] = [
         year for year in data_source.working_partitions["years"] if year >= 2021
     ]
-    taxonomy: str = "https://eCollection.ferc.gov/taxonomy/form1/2022-01-01/form/form1/form-1_2022-01-01.xsd"
+    taxonomy: str = "https://ecollection.ferc.gov/taxonomy/form1/2023-11-01/form/form1/form-1_2023-11-01.xsd"
 
 
 class Ferc2XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
