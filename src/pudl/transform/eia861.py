@@ -1218,9 +1218,10 @@ def core_eia861__yearly_sales(raw_eia861__sales: pd.DataFrame) -> pd.DataFrame:
     return _post_process(transformed_sales)
 
 
-
 @asset(io_manager_key="pudl_io_manager")
-def core_eia861__yearly_short_form(raw_eia861__short_form: pd.DataFrame) -> pd.DataFrame:
+def core_eia861__yearly_short_form(
+    raw_eia861__short_form: pd.DataFrame,
+) -> pd.DataFrame:
     """Transform the EIA 861 Short Form table.
     Transformations include:
     * Drop primary key duplicates.
