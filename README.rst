@@ -44,7 +44,7 @@ pipeline that makes US energy data easier to access and use programmatically.
 
 Hundreds of gigabytes of valuable data are published by US government agencies, but it's
 often difficult to work with. PUDL takes the original spreadsheets, CSV files, and
-databases and turns them into an unified resource. This allows users to spend more time
+databases and turns them into a unified resource. This allows users to spend more time
 on novel analysis and less time on data preparation.
 
 The project is focused on serving researchers, activists, journalists, policy makers,
