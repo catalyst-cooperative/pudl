@@ -892,6 +892,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Annual demand per km2 of a given service territory.",
         "unit": "MWh/km2",
     },
+    "demand_side_management": {
+        "type": "boolean",
+        "description": "Were there strategies or measures used to control electricity demand by customers?",
+    },
     "depreciation_type": {
         "type": "string",
         "description": (
@@ -1714,6 +1718,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "geo_agg": {
         "type": "string",
         "description": "Category of geographic aggregation in EIA bulk electricity data.",
+    },
+    "green_pricing": {
+        "type": "boolean",
+        "description": "Was there green pricing program associated with this utility during the reporting year?",
     },
     "green_pricing_revenue": {
         "type": "number",
