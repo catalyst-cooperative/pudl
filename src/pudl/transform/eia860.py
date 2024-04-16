@@ -7,6 +7,7 @@ import pandas as pd
 from dagster import AssetCheckResult, ExperimentalWarning, asset, asset_check
 
 import pudl
+from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.classes import DataSource
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
@@ -156,11 +157,7 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
         own_df.operator_utility_id_eia == own_df.owner_utility_id_eia
     ) & (own_df.fraction_owned == 1.0)
     own_df.loc[single_owner_operator, "operator_utility_id_eia"] = pd.NA
-    own_df = (
-        pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("core_eia860__scd_ownership")
-        .encode(own_df)
-    )
+    own_df = PUDL_PACKAGE.encode(own_df)
     # CN is an invalid political subdivision code used by a few respondents to indicate
     # that the owner is in Canada. At least we can recover the country:
     state_to_country = {
@@ -312,12 +309,19 @@ def _core_eia860__generators(
             columns=["rto_iso_lmp_node_id", "rto_iso_location_wholesale_reporting_id"],
         )
         .pipe(pudl.helpers.convert_to_date)
-        .pipe(
-            pudl.metadata.classes.Package.from_resource_ids()
-            .get_resource("core_eia860__scd_generators")
-            .encode
-        )
     )
+    # This manual fix is required before encoding because there's not a unique mapping
+    # PA -> PACW in Oregon
+    gens_df.loc[
+        (gens_df.state == "OR") & (gens_df.balancing_authority_code_eia == "PA"),
+        "balancing_authority_code_eia",
+    ] = "PACW"
+    # PA -> PACE in Utah
+    gens_df.loc[
+        (gens_df.state == "UT") & (gens_df.balancing_authority_code_eia == "PA"),
+        "balancing_authority_code_eia",
+    ] = "PACE"
+    gens_df = PUDL_PACKAGE.encode(gens_df)
 
     gens_df["fuel_type_code_pudl"] = gens_df.energy_source_code_1.str.upper().map(
         pudl.helpers.label_map(
@@ -376,11 +380,7 @@ def _core_eia860__generators_solar(
         .pipe(pudl.helpers.fix_boolean_columns, boolean_columns_to_fix)
         .pipe(pudl.helpers.month_year_to_date)
         .pipe(pudl.helpers.convert_to_date)
-        .pipe(
-            pudl.metadata.classes.Package.from_resource_ids()
-            .get_resource("core_eia860__scd_generators")
-            .encode
-        )
+        .pipe(PUDL_PACKAGE.encode)
     )
 
     solar_df["operational_status"] = solar_df.operational_status_code.str.upper().map(
@@ -415,11 +415,7 @@ def _core_eia860__generators_energy_storage(
             pudl.helpers.fix_boolean_columns,
             boolean_columns_to_fix=boolean_columns_to_fix,
         )
-        .pipe(
-            pudl.metadata.classes.Package.from_resource_ids()
-            .get_resource("core_eia860__scd_generators_energy_storage")
-            .encode
-        )
+        .pipe(PUDL_PACKAGE.encode)
     )
 
     storage_df["operational_status"] = (
@@ -473,16 +469,7 @@ def _core_eia860__generators_wind(
             columns=["predominant_turbine_manufacturer"],
         )
         .convert_dtypes()  # converting here before the wind encoding bc int's are codes
-        .pipe(
-            pudl.metadata.classes.Package.from_resource_ids()
-            .get_resource("core_eia860__scd_generators")
-            .encode
-        )
-        .pipe(
-            pudl.metadata.classes.Package.from_resource_ids()
-            .get_resource("core_eia860__scd_generators_wind")
-            .encode
-        )
+        .pipe(PUDL_PACKAGE.encode)
     )
 
     wind_df["operational_status"] = wind_df.operational_status_code.str.upper().map(
@@ -568,14 +555,8 @@ def _core_eia860__plants(raw_eia860__plant: pd.DataFrame) -> pd.DataFrame:
             .replace(to_replace=["Y", "N", "NaN"], value=[True, False, pd.NA])
         )
 
-    p_df = pudl.helpers.convert_to_date(p_df)
-
-    p_df = clean_nerc(p_df, idx_cols=["plant_id_eia", "report_date", "nerc_region"])
-
-    p_df = (
-        pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("core_eia860__scd_plants")
-        .encode(p_df)
+    p_df = pudl.helpers.convert_to_date(p_df).pipe(
+        clean_nerc, idx_cols=["plant_id_eia", "report_date", "nerc_region"]
     )
 
     return p_df
@@ -593,24 +574,18 @@ def _core_eia860__boiler_generator_assn(
     * Drop duplicate rows.
 
     Args:
-        raw_eia860__boiler_generator_assn (df): Each entry in this dictionary of DataFrame objects
-            corresponds to a page from the EIA860 form, as reported in the Excel
+        raw_eia860__boiler_generator_assn: Each entry in this dictionary of DataFrame
+            objects corresponds to a page from the EIA860 form, as reported in the Excel
             spreadsheets they distribute.
 
     Returns:
         Cleaned ``_core_eia860__boiler_generator_assn`` dataframe ready for harvesting.
     """
     # Populating the 'core_eia860__scd_generators' table
-    b_g_df = raw_eia860__boiler_generator_assn
-
-    b_g_df = pudl.helpers.convert_to_date(b_g_df)
-    b_g_df = pudl.helpers.convert_cols_dtypes(df=b_g_df, data_source="eia")
-    b_g_df = b_g_df.drop_duplicates()
-
     b_g_df = (
-        pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("core_eia860__assn_boiler_generator")
-        .encode(b_g_df)
+        pudl.helpers.convert_to_date(raw_eia860__boiler_generator_assn)
+        .pipe(pudl.helpers.convert_cols_dtypes, data_source="eia")
+        .drop_duplicates()
     )
 
     return b_g_df
@@ -897,12 +872,6 @@ def _core_eia860__boilers(
         b_df.loc[b_df.report_date.dt.year < 2012, "efficiency_50pct_load"] / 100
     )
 
-    b_df = (
-        pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("core_eia860__scd_boilers")
-        .encode(b_df)
-    )
-
     return b_df
 
 
@@ -1021,12 +990,6 @@ def _core_eia860__emissions_control_equipment(
     # Convert thousands of dollars to dollars:
     emce_df.loc[:, "emission_control_equipment_cost"] = (
         1000.0 * emce_df["emission_control_equipment_cost"]
-    )
-
-    emce_df = (
-        pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("core_eia860__scd_emissions_control_equipment")
-        .encode(emce_df)
     )
 
     return emce_df
@@ -1250,10 +1213,8 @@ def _core_eia860__cooling_equipment(
     ce_df.loc[:, ce_df.columns.str.endswith("_thousand_dollars")] *= 1000
     ce_df.columns = ce_df.columns.str.replace("_thousand_dollars", "")
 
-    resource = pudl.metadata.classes.Package.from_resource_ids().get_resource(
-        "_core_eia860__cooling_equipment"
-    )
-    return ce_df.pipe(apply_pudl_dtypes, group="eia", strict=True).pipe(resource.encode)
+    # Encoding is required here because this table is not yet getting harvested.
+    return apply_pudl_dtypes(ce_df, group="eia", strict=True).pipe(PUDL_PACKAGE.encode)
 
 
 @asset_check(asset=_core_eia860__cooling_equipment, blocking=True)
@@ -1400,12 +1361,8 @@ def _core_eia860__fgd_equipment(
         fgd_df.pond_landfill_requirements_acre_foot_per_year, errors="coerce"
     )
 
-    return (
-        pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("_core_eia860__fgd_equipment")
-        .encode(fgd_df)
-        .pipe(apply_pudl_dtypes, strict=False)
-    )
+    # Encoding required because this isn't fed into harvesting yet.
+    return PUDL_PACKAGE.encode(fgd_df).pipe(apply_pudl_dtypes, strict=False)
 
 
 @asset_check(asset=_core_eia860__fgd_equipment, blocking=True)

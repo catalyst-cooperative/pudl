@@ -28,6 +28,7 @@ from pydantic import BaseModel, Field, field_validator
 import pudl
 from pudl.extract.ferc1 import TABLE_NAME_MAP_FERC1
 from pudl.helpers import assert_cols_areclose, convert_cols_dtypes
+from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.settings import Ferc1Settings
 from pudl.transform.classes import (
@@ -1969,11 +1970,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             .pipe(self.nullify_outliers)
             .pipe(self.replace_with_na)
             .pipe(self.drop_invalid_rows)
-            .pipe(
-                pudl.metadata.classes.Package.from_resource_ids()
-                .get_resource(self.table_id.value)
-                .encode
-            )
+            .pipe(PUDL_PACKAGE.encode)
             .pipe(self.merge_xbrl_metadata)
             .pipe(self.add_columns_with_uniform_values)
         )
@@ -5309,11 +5306,7 @@ class RetainedEarningsTableTransformer(Ferc1AbstractTableTransformer):
         dropping the rest. There very well could be a better strategey here, but there
         are only 25 records that have this problem, so we've going with this.
         """
-        pks = (
-            pudl.metadata.classes.Package.from_resource_ids()
-            .get_resource(self.table_id.value)
-            .schema.primary_key
-        )
+        pks = PUDL_PACKAGE.get_resource(self.table_id.value).schema.primary_key
         # we are not going to check all of the unstructed earnings types for dupes bc
         # we will drop these later
         dupe_mask = ~df.earnings_type.str.endswith("_unstructured") & df.duplicated(

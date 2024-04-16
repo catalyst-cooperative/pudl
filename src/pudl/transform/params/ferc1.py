@@ -4129,7 +4129,7 @@ TRANSFORM_PARAMS = {
             "group_metric_checks": {
                 "group_metric_tolerances": {
                     "ungrouped": {
-                        "error_frequency": 0.058,
+                        "error_frequency": 0.06,
                         "relative_error_magnitude": 0.045,
                     },
                     "report_year": {

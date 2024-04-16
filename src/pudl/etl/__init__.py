@@ -28,6 +28,7 @@ from pudl.io_managers import (
     ferc1_xbrl_sqlite_io_manager,
     pudl_mixed_format_io_manager,
 )
+from pudl.metadata import PUDL_PACKAGE
 from pudl.resources import dataset_settings, datastore, ferc_to_sqlite_settings
 from pudl.settings import EtlSettings
 
@@ -55,6 +56,7 @@ raw_module_groups = {
     "raw_eia861": [pudl.extract.eia861],
     "raw_eia923": [pudl.extract.eia923],
     "raw_eia930": [pudl.extract.eia930],
+    "raw_eiaaeo": [pudl.extract.eiaaeo],
     "raw_ferc1": [pudl.extract.ferc1],
     "raw_ferc714": [pudl.extract.ferc714],
     "raw_gridpathratoolkit": [pudl.extract.gridpathratoolkit],
@@ -182,7 +184,7 @@ def _get_keys_from_assets(
     return []
 
 
-_package = pudl.metadata.classes.Package.from_resource_ids()
+_package = PUDL_PACKAGE
 _asset_keys = itertools.chain.from_iterable(
     _get_keys_from_assets(asset_def) for asset_def in default_assets
 )

@@ -81,26 +81,6 @@ def core_eia860m__changelog_generators(
         )
     )
 
-    # Clean up non-standard BA codes prior to deduplication.
-    # This manual fix is required before recoding because there's not a unique mapping
-    # PA -> PACW in Oregon
-    eia860m_all.loc[
-        (eia860m_all.state == "OR")
-        & (eia860m_all.balancing_authority_code_eia == "PA"),
-        "balancing_authority_code_eia",
-    ] = "PACW"
-    # PA -> PACE in Utah
-    eia860m_all.loc[
-        (eia860m_all.state == "UT")
-        & (eia860m_all.balancing_authority_code_eia == "PA"),
-        "balancing_authority_code_eia",
-    ] = "PACE"
-
-    # Standard encoding of categorical columns.
-    eia860m_all = pudl.metadata.classes.Resource.from_id(
-        "core_eia860m__changelog_generators"
-    ).encode(eia860m_all)
-
     # Drop all columns that aren't part of EIA-860M prior to deduplication.
     eia860m_all = eia860m_all[
         [
