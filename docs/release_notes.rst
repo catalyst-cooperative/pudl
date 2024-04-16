@@ -47,6 +47,11 @@ Data Cleaning
   :issue:`3340` and PR :pr:`3419`. This change also fixed a bug that was preventing
   other columns harvested with a special process from being saved.
 
+* When ingesting FERC 1 XBRL filings, we now take the most recent non-null
+  value instead of the value from the latest filing that applies for a specific
+  row. This means that we no longer lose data if a utility posts a FERC filing
+  with only a small number of updated values.
+
 EIA - FERC1 Record Linkage Model Update
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 We merged in a refactor of the EIA plant parts to FERC1 plants record linkage
