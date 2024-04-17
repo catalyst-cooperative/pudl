@@ -1792,7 +1792,7 @@ def fix_boolean_columns(
     """
     fillna_cols = {col: pd.NA for col in boolean_columns_to_fix}
     boolean_replace_cols = {
-        col: {"Y": True, "N": False, "X": False, "U": pd.NA}
+        col: {"Y": True, "N": False, "X": False, "U": pd.NA, 1: True, 0: False}
         for col in boolean_columns_to_fix
     }
     return df.fillna(fillna_cols).replace(to_replace=boolean_replace_cols)

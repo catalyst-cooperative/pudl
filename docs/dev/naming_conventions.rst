@@ -242,6 +242,7 @@ Abbreviation            Definition
 ``util`` & ``utils``    utility & utilities
 ``us``                  United States
 ``usd``                 US Dollars
+``wacc``                Weighted average cost of capital
 ======================= ======================================================
 
 Data Source Specific Abbreviations
