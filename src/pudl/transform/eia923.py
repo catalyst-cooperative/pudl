@@ -16,6 +16,7 @@ from dagster import (
 
 import pudl
 from pudl.helpers import convert_col_to_bool
+from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.transform.classes import InvalidRows, drop_invalid_rows
@@ -497,11 +498,7 @@ def _coalmine_cleanup(cmi_df: pd.DataFrame) -> pd.DataFrame:
     )
     # join state and partial county FIPS into five digit county FIPS
     cmi_df["county_id_fips"] = cmi_df["state_id_fips"] + cmi_df["county_id_fips"]
-    cmi_df = (
-        pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("core_eia923__entity_coalmine")
-        .encode(cmi_df)
-    )
+    cmi_df = PUDL_PACKAGE.encode(cmi_df)
     return cmi_df
 
 
@@ -512,7 +509,9 @@ def _coalmine_cleanup(cmi_df: pd.DataFrame) -> pd.DataFrame:
 ###############################################################################
 
 
-def plants_eia923(eia923_dfs, eia923_transformed_dfs):
+def plants_eia923(
+    eia923_dfs: dict[str, pd.DataFrame], eia923_transformed_dfs: dict[str, pd.DataFrame]
+) -> dict[str, pd.DataFrame]:
     """Transforms the plants_eia923 table.
 
     Much of the static plant information is reported repeatedly, and scattered across
@@ -528,17 +527,16 @@ def plants_eia923(eia923_dfs, eia923_transformed_dfs):
     * Drop duplicate rows.
 
     Args:
-        eia923_dfs (dictionary of pandas.DataFrame): Each entry in this dictionary of
-            DataFrame objects corresponds to a page from the EIA 923 form, as reported
-            in the Excel spreadsheets they distribute.
-        eia923_transformed_dfs (dict): A dictionary of DataFrame objects in which pages
-            from EIA923 form (keys) correspond to normalized DataFrames of values from
-            that page (values).
+        eia923_dfs: Each entry in this dictionary of DataFrame objects corresponds to a
+            page from the EIA 923 form, as reported in the Excel spreadsheets they
+            distribute.
+        eia923_transformed_dfs: A dictionary of DataFrame objects in which pages from
+            EIA923 form (keys) correspond to normalized DataFrames of values from that
+            page (values).
 
     Returns:
-        dict: eia923_transformed_dfs, a dictionary of DataFrame objects in which pages
-        from EIA923 form (keys) correspond to normalized DataFrames of values from that
-        page (values).
+        A dictionary of DataFrame objects in which pages from EIA923 form (keys)
+        correspond to normalized DataFrames of values from that page (values).
     """
     plant_info_df = eia923_dfs["plant_frame"].copy()
 
@@ -613,7 +611,7 @@ def gen_fuel_nuclear(gen_fuel_nuke: pd.DataFrame) -> pd.DataFrame:
         "_core_eia923__generation_fuel_nuclear": AssetOut(),
     },
 )
-def _core_eia_923__generation_fuel_eia923(raw_eia923__generation_fuel: pd.DataFrame):
+def _core_eia923__pre_generation_fuel(raw_eia923__generation_fuel: pd.DataFrame):
     """Transforms the raw_eia923__generation_fuel table.
 
     Transformations include:
@@ -678,13 +676,7 @@ def _core_eia_923__generation_fuel_eia923(raw_eia923__generation_fuel: pd.DataFr
     )
 
     gen_fuel = _clean_gen_fuel_energy_sources(gen_fuel)
-
-    gen_fuel = (
-        pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("core_eia923__monthly_generation_fuel")
-        .encode(gen_fuel)
-    )
-
+    gen_fuel = PUDL_PACKAGE.encode(gen_fuel)
     gen_fuel["fuel_type_code_pudl"] = gen_fuel.energy_source_code.map(
         pudl.helpers.label_map(
             CODE_METADATA["core_eia__codes_energy_sources"]["df"],
@@ -882,11 +874,7 @@ def _core_eia923__boiler_fuel(raw_eia923__boiler_fuel: pd.DataFrame) -> pd.DataF
 
     bf_df = remove_duplicate_pks_boiler_fuel_eia923(bf_df)
 
-    bf_df = (
-        pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("core_eia923__monthly_boiler_fuel")
-        .encode(bf_df)
-    )
+    bf_df = PUDL_PACKAGE.encode(bf_df)
 
     # Add a simplified PUDL fuel type
     bf_df["fuel_type_code_pudl"] = bf_df.energy_source_code.map(
@@ -918,11 +906,9 @@ def remove_duplicate_pks_boiler_fuel_eia923(bf: pd.DataFrame) -> pd.DataFrame:
     See `comment <https://github.com/catalyst-cooperative/pudl/pull/2362#issuecomment-1470012538>`_
     for more details.
     """
-    pk = (
-        pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("core_eia923__monthly_boiler_fuel")
-        .schema.primary_key
-    )
+    pk = PUDL_PACKAGE.get_resource(
+        "core_eia923__monthly_boiler_fuel"
+    ).schema.primary_key
 
     # Drop nulls
     required_valid_cols = [
@@ -1010,12 +996,6 @@ def _core_eia923__generation(raw_eia923__generator: pd.DataFrame) -> pd.DataFram
     dupes = gen_df[gen_df.duplicated(subset=unique_subset, keep=False)]
     gen_df = gen_df.drop(dupes.net_generation_mwh.isna().index)
 
-    gen_df = (
-        pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("core_eia923__monthly_generation")
-        .encode(gen_df)
-    )
-
     return gen_df
 
 
@@ -1090,12 +1070,6 @@ def _core_eia923__coalmine(
     cmi_df.index.name = "mine_id_pudl"
     # then make the id index a column for simpler transferability
     cmi_df = cmi_df.reset_index()
-
-    cmi_df = (
-        pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("core_eia923__entity_coalmine")
-        .encode(cmi_df)
-    )
 
     return cmi_df
 
@@ -1217,11 +1191,7 @@ def _core_eia923__fuel_receipts_costs(
             unmapped=pd.NA,
         )
     )
-    frc_df = (
-        pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("core_eia923__monthly_fuel_receipts_costs")
-        .encode(frc_df)
-    )
+    frc_df = PUDL_PACKAGE.encode(frc_df)
     frc_df["fuel_type_code_pudl"] = frc_df.energy_source_code.map(
         pudl.helpers.label_map(
             CODE_METADATA["core_eia__codes_energy_sources"]["df"],
@@ -1302,15 +1272,11 @@ def _core_eia923__cooling_system_information(
     # we need to sanitize them somewhat
     csi_df.cooling_type = csi_df.cooling_type.str.strip().str.upper()
 
-    resource = pudl.metadata.classes.Package.from_resource_ids().get_resource(
-        "_core_eia923__cooling_system_information"
-    )
-
     primary_key = ["plant_id_eia", "report_date", "cooling_id_eia"]
     return (
         pudl.helpers.dedupe_and_drop_nas(csi_df, primary_key_cols=primary_key)
         .pipe(apply_pudl_dtypes, group="eia", strict=False)
-        .pipe(resource.encode)
+        .pipe(PUDL_PACKAGE.encode)
     )
 
 
@@ -1460,14 +1426,8 @@ def _core_eia923__fgd_operation_maintenance(
     # Take the non-NA values from each column for duplicate rows
     pkey = ["plant_id_eia", "so2_control_id_eia", "report_date"]
 
-    resource = pudl.metadata.classes.Package.from_resource_ids().get_resource(
-        "_core_eia923__fgd_operation_maintenance"
-    )
-
-    return (
-        pudl.helpers.dedupe_and_drop_nas(fgd_df, primary_key_cols=pkey)
-        .pipe(apply_pudl_dtypes, strict=False)
-        .pipe(resource.encode)
+    return pudl.helpers.dedupe_and_drop_nas(fgd_df, primary_key_cols=pkey).pipe(
+        apply_pudl_dtypes, strict=False
     )
 
 
@@ -1550,16 +1510,14 @@ def _core_eia923__energy_storage(
     * Convert date to month.
     * Encode relevant columns.
 
-
     Other cleaning that could be done:
 
     * Come up with an encoder for ``fuel_unit`` (tricky because different between FERC
       and EIA).
 
     """
-    es_df = raw_eia923__energy_storage
     es_df = (
-        es_df.pipe(pudl.helpers.fix_eia_na)
+        pudl.helpers.fix_eia_na(raw_eia923__energy_storage)
         .pipe(pudl.helpers.fix_boolean_columns, ["associated_combined_heat_power"])
         .pipe(pudl.helpers.simplify_strings, ["fuel_unit"])
         .assign(
@@ -1574,33 +1532,10 @@ def _core_eia923__energy_storage(
         )
         .pipe(_yearly_to_monthly_records)
         .pipe(pudl.helpers.convert_to_date)
+        # Do encoding here because subsequent steps require good energy_source_code
+        .pipe(PUDL_PACKAGE.encode)
     )
 
-    # Encode the balancing_authority_code_eia field
-    es_df = (
-        pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("core_eia860__scd_plants")
-        .encode(es_df)
-    )
-    # Encode the prime_mover_code can't use to encode energy_source_code because this
-    # table only has energy_source_code_1 etc. column names.
-    es_df = (
-        pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("core_eia860__scd_generators")
-        .encode(es_df)
-    )
-    # To encode the fuel_type_code_aer values
-    es_df = (
-        pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("core_eia923__monthly_generation_fuel")
-        .encode(es_df)
-    )
-    # To encode the energy_source_code missed above
-    es_df = (
-        pudl.metadata.classes.Package.from_resource_ids()
-        .get_resource("core_eia923__monthly_energy_storage")
-        .encode(es_df)
-    )
     # Spot fix for a single plant burning "other biomass gas" and reporting the amount
     # of fuel consumed, but not the units.
     es_df.loc[

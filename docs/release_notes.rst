@@ -34,6 +34,10 @@ New Data Coverage
   and PR :pr:`3514`. The new tables include:
   :ref:`out_gridpathratoolkit__hourly_available_capacity_factor` and
   :ref:`core_gridpathratoolkit__assn_generator_aggregation_group`.
+* Extracted tables 54 and 56 from the `EIA Annual Energy Outlook 2023
+  <https://www.eia.gov/outlooks/aeo/tables_ref.php>`__, which include future
+  projections related to electric power and renewable energy through the year
+  2050, across a variety of scenarios. See :issue:`3368` and :pr:`3538`.
 
 Data Cleaning
 ^^^^^^^^^^^^^
@@ -42,6 +46,11 @@ Data Cleaning
   rescue records lost because of inconsistent month reporting in EIA 860 and 860M. See
   :issue:`3340` and PR :pr:`3419`. This change also fixed a bug that was preventing
   other columns harvested with a special process from being saved.
+
+* When ingesting FERC 1 XBRL filings, we now take the most recent non-null
+  value instead of the value from the latest filing that applies for a specific
+  row. This means that we no longer lose data if a utility posts a FERC filing
+  with only a small number of updated values.
 
 EIA - FERC1 Record Linkage Model Update
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -72,6 +81,15 @@ Schema Changes
   :ref:`out_eia861__yearly_utility_service_territory` and
   ``out_eia861__compiled_geometry_balancing_authorities`` is now
   :ref:`out_eia861__yearly_balancing_authority_service_territory`. See PR :pr:`3552`.
+
+Bug Fixes
+^^^^^^^^^
+* Ensure that all columns fed into the harvesting / reconciliation process are encoded
+  before harvesting takes place, improving the consistency of harvested fields. See
+  issue :issue:`3542` and PR :pr:`3558`. This change also simplifies the encoding
+  process in the vast majority of cases, since the same global set of encoders can be
+  used on any dataframe, with every column encoded based on the field definitions and
+  FK constraints associated with the column name.
 
 .. _release-v2024.2.6:
 
