@@ -67,6 +67,7 @@ from . import (
     eia860m,
     eia861,
     eia923,
+    eia930,
     eia_bulk_elec,
     epacems,
     ferc1,
