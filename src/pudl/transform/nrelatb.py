@@ -49,7 +49,7 @@ class Normalizer(BaseModel):
         columns=["revision_num", "update_date"],
     )
     units: TableNormalizer = TableNormalizer(
-        idx=["report_year", "technology_description", "core_metric_parameter"],
+        idx=["core_metric_parameter"],
         columns=["units"],
     )
     technology_status: TableNormalizer = TableNormalizer(
@@ -273,7 +273,7 @@ def _core_nrelatb__transform_start(raw_nrelatb__data):
         "heat_rate_penalty": "heat_rate_penalty",
     }
     nrelatb = (
-        raw_nrelatb__data.replace("*", pd.NA)
+        raw_nrelatb__data.replace(["*", ""], pd.NA)
         .pipe(
             helpers.fix_boolean_columns,
             boolean_columns_to_fix=list(raw_nrelatb__data.filter(regex=r"^is_")),
@@ -352,7 +352,11 @@ def _core_nrelatb__yearly_revisions(
 def _core_nrelatb__yearly_units(
     _core_nrelatb__transform_start: pd.DataFrame,
 ) -> pd.DataFrame:
-    return transform_normlize(_core_nrelatb__transform_start, Normalizer().units)
+    # clean up the units column so we can verify the units are consistent across the params
+    units = _core_nrelatb__transform_start.assign(
+        units=lambda x: x.units.str.lower()
+    ).pipe(transform_normlize, Normalizer().units)
+    return units
 
 
 @asset
