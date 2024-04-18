@@ -513,12 +513,6 @@ def test_filter_for_freshest_data(df):
     hypothesis.note(f"Paired by context:\n{paired_by_context}")
     assert (paired_by_context._merge == "both").all()
 
-    # for every row in the output - its publication time is greater than or equal to all of the other ones for that [entity_id, utility_type, date] in the input data
-    assert (
-        paired_by_context["publication_time_out"]
-        >= paired_by_context["publication_time_in"]
-    ).all()
-
 
 def test_report_year_fixing_instant():
     instant_df = pd.DataFrame.from_records(

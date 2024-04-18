@@ -34,6 +34,10 @@ New Data Coverage
   and PR :pr:`3514`. The new tables include:
   :ref:`out_gridpathratoolkit__hourly_available_capacity_factor` and
   :ref:`core_gridpathratoolkit__assn_generator_aggregation_group`.
+* Extracted tables 54 and 56 from the `EIA Annual Energy Outlook 2023
+  <https://www.eia.gov/outlooks/aeo/tables_ref.php>`__, which include future
+  projections related to electric power and renewable energy through the year
+  2050, across a variety of scenarios. See :issue:`3368` and :pr:`3538`.
 
 Data Cleaning
 ^^^^^^^^^^^^^
@@ -42,6 +46,11 @@ Data Cleaning
   rescue records lost because of inconsistent month reporting in EIA 860 and 860M. See
   :issue:`3340` and PR :pr:`3419`. This change also fixed a bug that was preventing
   other columns harvested with a special process from being saved.
+
+* When ingesting FERC 1 XBRL filings, we now take the most recent non-null
+  value instead of the value from the latest filing that applies for a specific
+  row. This means that we no longer lose data if a utility posts a FERC filing
+  with only a small number of updated values.
 
 EIA - FERC1 Record Linkage Model Update
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
