@@ -64,6 +64,7 @@ raw_module_groups = {
 core_module_groups = {
     "_core_eia860": [pudl.transform.eia860],
     "_core_eia923": [pudl.transform.eia923],
+    "_core_eia930": [pudl.transform.eia930],
     "core_censusdp1tract": [
         pudl.convert.censusdp1tract_to_sqlite,
         pudl.output.censusdp1tract,
