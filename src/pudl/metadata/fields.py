@@ -892,7 +892,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Annual demand per km2 of a given service territory.",
         "unit": "MWh/km2",
     },
-    "demand_side_management": {
+    "has_demand_side_management": {
         "type": "boolean",
         "description": "Were there strategies or measures used to control electricity demand by customers?",
     },
