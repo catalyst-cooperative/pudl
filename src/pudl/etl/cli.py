@@ -78,15 +78,6 @@ def pudl_etl_job_factory(
     help="Max number of processes Dagster can launch. Defaults to the number of CPUs.",
 )
 @click.option(
-    "--epacems-workers",
-    default=2,
-    type=int,
-    help=(
-        "Max number of processes Dagster can launch for EPA CEMS assets. Defaults "
-        "to max number of processes our typical local machines can handle."
-    ),
-)
-@click.option(
     "--gcs-cache-path",
     type=str,
     default="",
@@ -118,7 +109,6 @@ def pudl_etl_job_factory(
 def pudl_etl(
     etl_settings_yml: pathlib.Path,
     dagster_workers: int,
-    epacems_workers: int,
     gcs_cache_path: str,
     logfile: pathlib.Path,
     loglevel: str,
@@ -158,12 +148,13 @@ def pudl_etl(
         },
     }
 
+    # Limit the number of concurrent workers when launch assets that use a lot of memory.
     tag_concurrency_limits = [
         {
-            "key": "datasource",
-            "value": "epacems",
-            "limit": epacems_workers,
-        }
+            "key": "memory-use",
+            "value": "high",
+            "limit": 4,
+        },
     ]
 
     run_config.update(

@@ -4,7 +4,7 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
-from pudl.metadata.classes import Package
+from pudl.metadata import PUDL_PACKAGE
 from pudl.workspace.setup import PudlPaths
 
 # this is the Alembic Config object, which provides
@@ -21,7 +21,7 @@ logger = logging.getLogger("root")
 # add your model's MetaData object here
 # for 'autogenerate' support
 # from myapp import mymodel
-target_metadata = Package.from_resource_ids().to_sql()
+target_metadata = PUDL_PACKAGE.to_sql()
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

@@ -262,13 +262,18 @@ class GenericExtractor(ABC):
         return all_page_dfs
 
 
-@op
+@op(tags={"memory-use": "high"})
 def concat_pages(paged_dfs: list[dict[str, pd.DataFrame]]) -> dict[str, pd.DataFrame]:
     """Concatenate similar pages of data from different years into single dataframes.
 
     Transform a list of dictionaries of dataframes into a single dictionary of
     dataframes, where each dataframe is the concatenation of dataframes with identical
     keys from the input list.
+
+    For the relatively large EIA930 dataset this is a very memory-intensive operation,
+    so the op is tagged with a high memory-use tag. For all the other datasets which use
+    this op, the time spent concatenating pages is very brief, so this tag should not
+    impact the overall concurrency of the DAG much.
 
     Args:
         paged_dfs: A list of dictionaries whose keys are page names, and values are
@@ -403,12 +408,12 @@ def partitions_from_settings_factory(name: str) -> OpDefinition:
 def raw_df_factory(
     extractor_cls: type[GenericExtractor], name: str
 ) -> AssetsDefinition:
-    """Return a dagster graph asset to extract a set of raw DataFrames from Excel files.
+    """Return a dagster graph asset to extract raw DataFrames from CSV or Excel files.
 
     Args:
-        extractor_cls: The dataset-specific Excel extractor used to extract the data.
-            Needs to correspond to the dataset identified by ``name``.
-        name: Name of an Excel based dataset (e.g. "eia860").
+        extractor_cls: The dataset-specific CSV or Excel extractor used to extract the
+            data. Must correspond to the dataset identified by ``name``.
+        name: Name of a CSV or Excel based dataset (e.g. "eia860" or "eia930").
     """
     # Build a Dagster op that can extract a single year/half-year of data
     partition_extractor = partition_extractor_factory(extractor_cls, name)
