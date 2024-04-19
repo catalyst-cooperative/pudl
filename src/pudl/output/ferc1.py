@@ -3034,17 +3034,18 @@ def out_ferc1__yearly_rate_base(
     )
     rate_base_broken_down = breakdown_unlabeled(
         rate_base=rate_base,
-        unlabeled_mask=rate_base.utility_type == "total",
-        split_col="utility_type",
+        unlabeled_mask=(rate_base.tags_aggregatable_utility_type == "total")
+        | rate_base.tags_aggregatable_utility_type.isnull(),
+        split_col="tags_aggregatable_utility_type",
     )
     # TODO: rn breaking down the null rate base tags results in a weird spike in 2021
     # ending_balance. i suspect its from the 2021 subtotal correction tags.
     # this needs to be fixed
-    # rate_base_broken_down = breakdown_unlabeled(
-    #     rate_base=rate_base_broken_down,
-    #     unlabeled_mask=rate_base_broken_down.tags_in_rate_base.isnull(),
-    #     split_col="tags_in_rate_base",
-    # )
+    rate_base_broken_down = breakdown_unlabeled(
+        rate_base=rate_base_broken_down,
+        unlabeled_mask=rate_base_broken_down.tags_in_rate_base.isnull(),
+        split_col="tags_in_rate_base",
+    )
     logger.info(
         "Breaking down total utility types and null in_rate_base tags resulted in "
         f"{len(rate_base_broken_down)/len(rate_base):.1%} of records."
@@ -3097,11 +3098,10 @@ def prep_cash_working_capital(
     return cash_working_capital
 
 
-def get_split_col_ratio(rate_base, gby_core, split_col):
+def get_split_col_ratio(rate_base_unlabeled, gby_core, split_col) -> pd.DataFrame:
     """Make ratio column with a 0-1 value."""
-    # get the sum of the balance in each of the rate base categories
-    # explicitly drop the null values here! bc we want the ratio of the labeled records only
-    rate_base_grouped = rate_base.groupby(gby_core + [split_col], dropna=True)[
+    # get the sum of the balance in each of the values in split_col
+    rate_base_grouped = rate_base_unlabeled.groupby(gby_core + [split_col])[
         ["ending_balance"]
     ].sum(min_count=1)
     df = rate_base_grouped.reset_index(level=[split_col]).pivot(columns=[split_col])
@@ -3159,8 +3159,8 @@ def apply_ratio_to_breakdown_unlabeled(
         old_balance := rate_base_df.ending_balance.sum()
     ):
         logger.warning(
-            "New ending balance is not the same as the old ending balance: "
-            f"{new_balance=}, {old_balance=}"
+            f"{split_col}: New ending balance is not the same as the old ending balance: "
+            f"{old_balance=}, {new_balance=}"
         )
     return rate_base_broken_down
 
