@@ -3,8 +3,11 @@
 import pandas as pd
 from dagster import asset
 
+import pudl.logging_helpers
 from pudl.extract.csv import CsvExtractor
 from pudl.extract.extractor import GenericMetadata, PartitionSelection, raw_df_factory
+
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 class Extractor(CsvExtractor):
@@ -60,6 +63,7 @@ class Extractor(CsvExtractor):
             DataFrame containing the CSV data
         """
         filename = self.source_filename(page, **partition)
+        logger.info(f"Loading {filename} from {self._dataset_name}.")
 
         with (
             self.ds.get_zipfile_resource(self._dataset_name, **partition) as zf,
