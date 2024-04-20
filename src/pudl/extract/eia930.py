@@ -34,6 +34,7 @@ class Extractor(CsvExtractor):
                 "Directly Interconnected Balancing Authority": "string",
                 "Sub-Region": "string",
             },
+            "cache_dates": True,
         }
         super().__init__(*args, **kwargs)
 

@@ -62,19 +62,18 @@ raw_module_groups = {
 
 
 core_module_groups = {
-    "_core_eia860": [pudl.transform.eia860],
-    "_core_eia923": [pudl.transform.eia923],
-    "_core_eia930": [pudl.transform.eia930],
+    "core_assn": [glue_assets],
     "core_censusdp1tract": [
         pudl.convert.censusdp1tract_to_sqlite,
         pudl.output.censusdp1tract,
     ],
-    "core_assn": [glue_assets],
     "core_codes": [static_assets],
     "core_eia": [pudl.transform.eia],
     "core_eia_bulk_elec": [eia_bulk_elec_assets],
-    "core_eia860m": [pudl.transform.eia860m],
+    "core_eia860": [pudl.transform.eia860, pudl.transform.eia860m],
     "core_eia861": [pudl.transform.eia861],
+    "core_eia923": [pudl.transform.eia923],
+    "core_eia930": [pudl.transform.eia930],
     "core_epacems": [epacems_assets],
     "core_ferc1": [pudl.transform.ferc1],
     "core_ferc714": [pudl.transform.ferc714],

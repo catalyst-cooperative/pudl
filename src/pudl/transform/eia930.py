@@ -1,9 +1,7 @@
 """Module to perform data cleaning functions on EIA930 data tables."""
 
 import pandas as pd
-from dagster import (
-    asset,
-)
+from dagster import asset
 
 import pudl
 
@@ -11,7 +9,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 
 @asset
-def _core_eia930__hourly_balancing_authority_net_generation(
+def core_eia930__hourly_balancing_authority_net_generation(
     raw_eia930__balance: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transforms raw_eia923__balance dataframe.
@@ -19,7 +17,6 @@ def _core_eia930__hourly_balancing_authority_net_generation(
     Extract the net generation information from the balance table and extract fuel type
     from the net generation columns.
     """
-    ng_df = raw_eia930__balance
     qual_cols = [
         "report_datetime_local",
         "report_datetime_utc",
@@ -28,39 +25,72 @@ def _core_eia930__hourly_balancing_authority_net_generation(
         # eia_region_code,
         # report_hour_local
     ]
-    total_ng_cols = [
+    # We don't want to retain totals, which are redundant
+    total_netgen_cols = [
         "net_generation_imputed_mw",
         "net_generation_adjusted_mw",
         "net_generation_mw",
     ]
-    ng_cols = list(ng_df.filter(like="net_generation"))
-    # Remove total net gen values from the list of NG cols
-    ng_cols = [x for x in ng_cols if x not in total_ng_cols]
-    ng_df = ng_df[qual_cols + ng_cols]
-    ng_df = ng_df.melt(id_vars=qual_cols, value_vars=ng_cols)
-    # Add "raw" to melted columns that aren't adjusted or imputed
-    not_imputed_or_adjusted = ~ng_df["variable"].str.endswith(("adjusted", "imputed"))
-    ng_df.loc[not_imputed_or_adjusted, "variable"] = ng_df.variable.str.replace(
-        "_mw", "_raw_mw"
-    )
-    # Extract fuel and calculation type from the original column names
-    capture_pattern = r"net_generation_(.*)_(adjusted|imputed|raw)"
-    ng_df[["fuel_source", "calc_type"]] = ng_df.variable.str.extract(capture_pattern)
-    ng_df = (
-        ng_df.reset_index()
-    )  # This step is necessary to create unique index values on which to pivot
-    # Turn calc_types into columns
-    ng_df = (
-        ng_df.pivot(
-            columns="calc_type",
-            values="value",
-            index=qual_cols + ["fuel_source", "index"],
+    netgen_cols = list(raw_eia930__balance.filter(like="net_generation"))
+    # Remove total net gen values from the list of net gen cols
+    netgen_cols = [x for x in netgen_cols if x not in total_netgen_cols]
+    netgen = raw_eia930__balance[qual_cols + netgen_cols]
+
+    def _simplify_columns(col: str) -> str:
+        return (
+            col.removeprefix("net_generation_")
+            .removesuffix("_mw")
+            .replace("all_petroleum_products", "oil")
+            .replace("hydropower_and_pumped_storage", "hydro")
+            .replace("natural_gas", "gas")
+            .replace("other_fuel_sources", "other")
         )
-        .reset_index()
-        .drop(columns="index")
+
+    # Rename columns so that they contain only the energy source and the level of
+    # processing, so it's easy to construct a multi-index to unstack below
+    # Doing these manipulations while the values are in the column names rather than
+    # after they've been turned into a categorical column with millions of entries
+    # is much faster.
+    netgen_renamed = (
+        netgen.rename(_simplify_columns, axis="columns")
+        .rename(
+            columns={
+                "coal": "coal_raw",
+                "gas": "gas_raw",
+                "hydro": "hydro_raw",
+                "oil": "oil_raw",
+                "other": "other_raw",
+                "nuclear": "nuclear_raw",
+                "solar": "solar_raw",
+                "unknown_fuel_sources": "unknown_raw",
+                "wind": "wind_raw",
+            },
+        )
+        .set_index(
+            [
+                "report_datetime_local",
+                "report_datetime_utc",
+                "balancing_authority_code_eia",
+            ]
+        )
     )
 
-    return ng_df
+    # Prepare a multi-index for the columns so that we can stack cleanly
+    netgen_renamed.columns = pd.MultiIndex.from_tuples(
+        [x.split("_") for x in netgen_renamed.columns], names=["energy_source", None]
+    )
+    return (
+        netgen_renamed.stack(level=0, future_stack=True)
+        .rename(columns=lambda x: x + "_net_generation_mw")
+        .reset_index()
+        .astype({"energy_source": "string"})
+        .astype(
+            {
+                "balancing_authority_code_eia": pd.CategoricalDtype(),
+                "energy_source": pd.CategoricalDtype(),
+            }
+        )
+    )
 
 
 # core_eia930__hourly_subregion_demand
