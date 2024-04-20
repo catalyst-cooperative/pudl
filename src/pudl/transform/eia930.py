@@ -1,17 +1,23 @@
 """Module to perform data cleaning functions on EIA930 data tables."""
 
 import pandas as pd
-from dagster import asset
+from dagster import AssetOut, Output, multi_asset
 
 import pudl
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-@asset
-def core_eia930__hourly_balancing_authority_net_generation(
+@multi_asset(
+    outs={
+        "core_eia930__hourly_balancing_authority_net_generation": AssetOut(),
+        "core_eia930__hourly_balancing_authority_demand": AssetOut(),
+    },
+    compute_kind="pandas",
+)
+def core_eia930__hourly_balancing_authority_assets(
     raw_eia930__balance: pd.DataFrame,
-) -> pd.DataFrame:
+):
     """Transforms raw_eia923__balance dataframe.
 
     Extract the net generation information from the balance table and extract fuel type
@@ -59,15 +65,142 @@ def core_eia930__hourly_balancing_authority_net_generation(
         )
     )
     # TODO[zaneselvans] 2024-04-20: Verify that sum of net generation from all fuels
-    # adds up to the total And then drop the total rows. Note that currently there are
-    # some big differences between the calculated total and the reported total.
+    # adds up to the total And then drop the total rows.
+    # NOTE: currently there are some BIG differences between the calculated total and
+    # the reported total.
 
-    # return netgen_stacked[netgen_stacked["energy_source"] != "total"
+    # netgen_stacked = netgen_stacked[netgen_stacked["energy_source"] != "total"
 
-    return netgen_stacked
+    demand = raw_eia930__balance[
+        qual_cols + list(raw_eia930__balance.filter(like="demand"))
+    ].astype({"balancing_authority_code_eia": pd.CategoricalDtype()})
+
+    return (
+        Output(
+            value=netgen_stacked,
+            output_name="core_eia930__hourly_balancing_authority_net_generation",
+        ),
+        Output(
+            value=demand,
+            output_name="core_eia930__hourly_balancing_authority_demand",
+        ),
+    )
 
 
-# core_eia930__hourly_subregion_demand
-# core_eia930__hourly_balancing_authority_demand
-# core_eia930__hourly_balancing_authority_interchange
-# core_eia930__assn_balancing_authority_subregion
+@multi_asset(
+    outs={
+        "core_eia930__hourly_subregion_demand": AssetOut(),
+        "core_eia930__assn_balancing_authority_subregion": AssetOut(),
+    },
+    compute_kind="pandas",
+)
+def core_eia930__hourly_subregion_assets(raw_eia930__subregion: pd.DataFrame):
+    """Produce a normalized table of hourly demand by subregion."""
+    demand = (
+        raw_eia930__subregion.assign(
+            subregion_code_eia=lambda df: df["subregion_code_eia"].str.upper()
+        )
+        .astype(
+            {
+                "balancing_authority_code_eia": pd.CategoricalDtype(),
+                "subregion_code_eia": pd.CategoricalDtype(),
+            }
+        )
+        .loc[
+            :,
+            [
+                "report_datetime_local",
+                "report_datetime_utc",
+                "balancing_authority_code_eia",
+                "subregion_code_eia",
+                "demand_mw",
+            ],
+        ]
+    )
+    assn = (
+        demand.groupby("balancing_authority_code_eia")["subregion_code_eia"]
+        .unique()
+        .explode()
+        .to_frame()
+        .reset_index()
+        .astype(
+            {
+                "balancing_authority_code_eia": pd.CategoricalDtype(),
+                "subregion_code_eia": pd.CategoricalDtype(),
+            }
+        )
+    )
+    return (
+        Output(value=demand, output_name="core_eia930__hourly_subregion_demand"),
+        Output(
+            value=assn, output_name="core_eia930__assn_balancing_authority_subregion"
+        ),
+    )
+
+
+@multi_asset(
+    outs={
+        "core_eia930__hourly_balancing_authority_interchange": AssetOut(),
+        "core_eia930__assn_diba_region_diba_code": AssetOut(),
+    },
+    compute_kind="pandas",
+)
+def core_eia930__hourly_balancing_authority_interchange(
+    raw_eia930__interchange: pd.DataFrame,
+):
+    """Produce a normalized table of hourly interchange by balancing authority.
+
+    * diba_region and eia_region_code are from the same set of values, but diba_region
+      also includes "CAN" and "MEX" because foreign countries can be adjacent, but are
+      not reporting directly.
+    * similarly diba_code_eia and ba_code_eia come from the same pool of values, but
+      the diba_code_eia includes some codes from Canada and Mexico.
+    * There's an implied set of associations between the regions and the codes, which
+      should be built out of all mentioned codes in both sets of columns.
+    * Need to check for consistency with BA codes mentioned here and elsewhere in
+      PUDL (plants table, EIA861 BA table).
+    * Need to clean up the column maps to give consistent names to related columns.
+
+    """
+    interchange = raw_eia930__interchange.astype(
+        {
+            "balancing_authority_code_eia": pd.CategoricalDtype(),
+            "diba_region": pd.CategoricalDtype(),
+            "directly_interconnected_balancing_authority_code_eia": pd.CategoricalDtype(),
+            "eia_region_code": pd.CategoricalDtype(),
+        }
+    ).loc[
+        :,
+        [
+            "report_datetime_local",
+            "report_datetime_utc",
+            "balancing_authority_code_eia",
+            "diba_region",
+            "directly_interconnected_balancing_authority_code_eia",
+            "eia_region_code",
+            "interchange_mw",
+        ],
+    ]
+    assn = (
+        interchange.groupby("diba_region")
+        .directly_interconnected_balancing_authority_code_eia.unique()
+        .explode()
+        .to_frame()
+        .reset_index()
+        .astype(
+            {
+                "diba_region": pd.CategoricalDtype(),
+                "directly_interconnected_balancing_authority_code_eia": pd.CategoricalDtype(),
+            }
+        )
+    )
+    return (
+        Output(
+            value=interchange,
+            output_name="core_eia930__hourly_balancing_authority_interchange",
+        ),
+        Output(
+            value=assn,
+            output_name="core_eia930__assn_diba_region_diba_code",
+        ),
+    )
