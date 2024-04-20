@@ -49,6 +49,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "USD",
     },
     "address_2": {"type": "string", "description": "Second line of the address."},
+    "adjacent_balancing_authority_code_eia": {
+        "type": "string",
+        "description": "EIA code for the other adjacent balancing authority, with which interchange is occuring.",
+    },
+    "adjacent_region_code_eia": {
+        "type": "string",
+        "description": "EIA code for the other adjacent region, with which interchange is occuring.",
+    },
     "adjustments": {
         "type": "number",
         "description": "Cost of adjustments to the account.",
@@ -895,6 +903,30 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Gross megawatt-hours delivered in power exchanges and used as the basis for settlement.",
         "unit": "MWh",
     },
+    # TODO[zaneselvans] 2024-04-20: Flesh out description
+    "demand_adjusted_mw": {
+        "type": "number",
+        "description": "Adjusted demand.",
+        "unit": "MW",
+    },
+    # TODO[zaneselvans] 2024-04-20: Flesh out description
+    "demand_forecast_mw": {
+        "type": "number",
+        "description": "Forecast demand.",
+        "unit": "MW",
+    },
+    # TODO[zaneselvans] 2024-04-20: Flesh out description
+    "demand_imputed_mw": {
+        "type": "number",
+        "description": "Imputed demand.",
+        "unit": "MW",
+    },
+    # TODO[zaneselvans] 2024-04-20: Flesh out description
+    "demand_reported_mw": {
+        "type": "number",
+        "description": "Reported demand.",
+        "unit": "MW",
+    },
     "demand_annual_mwh": {
         "type": "number",
         "description": "Annual electricity demand in a given report year.",
@@ -1160,6 +1192,26 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "in both directions, between the delivery entity and the customer."
         ),
         "unit": "MWh",
+    },
+    # TODO[zaneselvans] 2024-04-20: Flesh out description
+    "energy_source": {
+        "type": "string",
+        "description": "Energy source responsible for the generation.",
+        "constraints": {
+            "enum": [
+                "coal",
+                "gas",
+                "hydro",
+                "interchange",
+                "nuclear",
+                "oil",
+                "other",
+                "solar",
+                "total",
+                "unknown",
+                "wind",
+            ]
+        },
     },
     "energy_source_code": {
         "type": "string",
@@ -1916,6 +1968,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "unit": "gpm",
     },
+    # TODO[zaneselvans]: 2024-04-20 Research real definition of this column.
+    "interchange_mw": {
+        "type": "number",
+        "description": "Interchange in MW.",
+        "unit": "MW",
+    },
     "is_epacems_state": {
         "type": "boolean",
         "description": (
@@ -2307,6 +2365,24 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Generation capacity in megawatts of direct current that is subject to a "
             "net metering agreement. Typically used for behind-the-meter solar PV."
         ),
+        "unit": "MW",
+    },
+    # TODO[zaneselvans] 2024-04-20 Flesh out the description of this column.
+    "net_generation_adjusted_mw": {
+        "type": "number",
+        "description": "Adjusted net electricity generation for the specified period in megawatts (MW).",
+        "unit": "MW",
+    },
+    # TODO[zaneselvans] 2024-04-20 Flesh out the description of this column.
+    "net_generation_imputed_mw": {
+        "type": "number",
+        "description": "Imputed net electricity generation for the specified period in megawatts (MW).",
+        "unit": "MW",
+    },
+    # TODO[zaneselvans] 2024-04-20 Flesh out the description of this column.
+    "net_generation_reported_mw": {
+        "type": "number",
+        "description": "Reported net electricity generation for the specified period in megawatts (MW).",
         "unit": "MW",
     },
     "net_generation_mwh": {
@@ -3196,6 +3272,29 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.",
     },
+    # TODO[zaneselvans]: 2024-04-20 research the real definition of this column and
+    # create a coding table that explains it.
+    "region_code_eia": {
+        "type": "string",
+        "description": "EIA region code.",
+        "constraints": {
+            "enum": [
+                "CAL",
+                "CAR",
+                "CENT",
+                "FLA",
+                "MIDA",
+                "MIDW",
+                "NE",
+                "NW",
+                "NY",
+                "SE",
+                "SW",
+                "TEN",
+                "TEX",
+            ]
+        },
+    },
     "region_name_us_census": {
         "type": "string",
         "description": "Human-readable name of a US Census region.",
@@ -3221,6 +3320,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Indicates whether the plant is regulated or non-regulated.",
     },
     "report_date": {"type": "date", "description": "Date reported."},
+    "report_datetime_local": {
+        "type": "datetime",
+        "description": "Local date and time of the report.",
+    },
+    "report_datetime_utc": {
+        "type": "datetime",
+        "description": "UTC date and time of the report.",
+    },
     "report_year": {
         "type": "integer",
         "description": "Four-digit year in which the data was reported.",
@@ -3840,6 +3947,100 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "subplant_id": {
         "type": "integer",
         "description": "Sub-plant ID links EPA CEMS emissions units to EIA units.",
+    },
+    # TODO[zaneselvans] 2024-04-20 research the real definition of this column and
+    # create a coding table that explains it.
+    "subregion_code_eia": {
+        "type": "string",
+        "description": "EIA subregion code.",
+        "constraints": {
+            "enum": [
+                "0001",
+                "0004",
+                "0006",
+                "0027",
+                "0035",
+                "4001",
+                "4002",
+                "4003",
+                "4004",
+                "4005",
+                "4006",
+                "4007",
+                "4008",
+                "8910",
+                "ACMA",
+                "AE",
+                "AEP",
+                "AP",
+                "ATSI",
+                "BC",
+                "CE",
+                "COAS",
+                "CSWS",
+                "CYGA",
+                "DAY",
+                "DEOK",
+                "DOM",
+                "DPL",
+                "DUQ",
+                "EAST",
+                "EDE",
+                "EKPC",
+                "FREP",
+                "FWES",
+                "GRDA",
+                "INDN",
+                "JC",
+                "JICA",
+                "KACY",
+                "KAFB",
+                "KCEC",
+                "KCPL",
+                "LAC",
+                "LES",
+                "ME",
+                "MPS",
+                "NCEN",
+                "NPPD",
+                "NRTH",
+                "NTUA",
+                "OKGE",
+                "OPPD",
+                "PE",
+                "PEP",
+                "PGAE",
+                "PL",
+                "PN",
+                "PNM",
+                "PS",
+                "RECO",
+                "SCE",
+                "SCEN",
+                "SDGE",
+                "SECI",
+                "SOUT",
+                "SPRM",
+                "SPS",
+                "TSGT",
+                "VEA",
+                "WAUE",
+                "WEST",
+                "WFEC",
+                "WR",
+                "ZONA",
+                "ZONB",
+                "ZONC",
+                "ZOND",
+                "ZONE",
+                "ZONF",
+                "ZONG",
+                "ZONH",
+                "ZONI",
+                "ZONJ",
+                "ZONK",
+            ]
+        },
     },
     "sulfur_content_pct": {
         "type": "number",

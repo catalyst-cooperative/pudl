@@ -113,7 +113,7 @@ def core_eia930__hourly_subregion_assets(raw_eia930__subregion: pd.DataFrame):
                 "report_datetime_utc",
                 "balancing_authority_code_eia",
                 "subregion_code_eia",
-                "demand_mw",
+                "demand_reported_mw",
             ],
         ]
     )

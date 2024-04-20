@@ -1287,6 +1287,7 @@ class Resource(PudlMeta):
             "eia861",
             "eia861_disabled",
             "eia923",
+            "eia930",
             "eiaaeo",
             "entity_eia",
             "epacems",
