@@ -18,7 +18,6 @@ from dagster import (
     multi_asset,
 )
 from pandera import DataFrameModel, Field
-from pandera.dtypes import Timestamp
 from pydantic import BaseModel
 
 import pudl.logging_helpers
@@ -57,12 +56,12 @@ class AEOSeries(BaseModel):
 class AEOTable(DataFrameModel):
     """Data schema for a raw AEO table."""
 
-    date: Timestamp = Field(coerce=True)
+    projection_year: int = Field(coerce=True)
     value: str = Field(coerce=True)
     units: str = Field(coerce=True)
     series_name: str = Field(coerce=True)
     category_name: str = Field(coerce=True)
-    case: str = Field(coerce=True)
+    modeling_case_aeo: str = Field(coerce=True)
 
 
 class AEOTaxonomy:
@@ -345,14 +344,18 @@ class AEOTaxonomy:
         # in addition to case_name and parent_name, we get some information
         # from the actual series itself.
         series = self.graph.nodes[series_id]
+
+        # 2024-04-20: we don't sanitize the series/category names here because
+        # we want to preserve all sorts of weird information for the
+        # transformation step.
         records = (
             {
-                "date": d[0],
+                "projection_year": d[0],
                 "value": d[1],
                 "units": series["units"],
                 "series_name": series["name"],
                 "category_name": parent_name,
-                "case": case_name,
+                "modeling_case_aeo": case_name,
             }
             for d in series["data"]
         )
