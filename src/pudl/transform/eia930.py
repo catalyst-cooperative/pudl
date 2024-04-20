@@ -141,11 +141,11 @@ def core_eia930__hourly_subregion_assets(raw_eia930__subregion: pd.DataFrame):
 @multi_asset(
     outs={
         "core_eia930__hourly_balancing_authority_interchange": AssetOut(),
-        "core_eia930__assn_diba_region_diba_code": AssetOut(),
+        "core_eia930__assn_balancing_authority_region": AssetOut(),
     },
     compute_kind="pandas",
 )
-def core_eia930__hourly_balancing_authority_interchange(
+def core_eia930__hourly_balancing_authority_interchange_assets(
     raw_eia930__interchange: pd.DataFrame,
 ):
     """Produce a normalized table of hourly interchange by balancing authority.
@@ -165,9 +165,9 @@ def core_eia930__hourly_balancing_authority_interchange(
     interchange = raw_eia930__interchange.astype(
         {
             "balancing_authority_code_eia": pd.CategoricalDtype(),
-            "diba_region": pd.CategoricalDtype(),
-            "directly_interconnected_balancing_authority_code_eia": pd.CategoricalDtype(),
-            "eia_region_code": pd.CategoricalDtype(),
+            "adjacent_balancing_authority_code_eia": pd.CategoricalDtype(),
+            "region_code_eia": pd.CategoricalDtype(),
+            "adjacent_region_code_eia": pd.CategoricalDtype(),
         }
     ).loc[
         :,
@@ -175,22 +175,28 @@ def core_eia930__hourly_balancing_authority_interchange(
             "report_datetime_local",
             "report_datetime_utc",
             "balancing_authority_code_eia",
-            "diba_region",
-            "directly_interconnected_balancing_authority_code_eia",
-            "eia_region_code",
+            "adjacent_balancing_authority_code_eia",
+            "region_code_eia",
+            "adjacent_region_code_eia",
             "interchange_mw",
         ],
     ]
     assn = (
-        interchange.groupby("diba_region")
-        .directly_interconnected_balancing_authority_code_eia.unique()
+        interchange.groupby("adjacent_region_code_eia")
+        .adjacent_balancing_authority_code_eia.unique()
         .explode()
         .to_frame()
         .reset_index()
         .astype(
             {
-                "diba_region": pd.CategoricalDtype(),
-                "directly_interconnected_balancing_authority_code_eia": pd.CategoricalDtype(),
+                "adjacent_region_code_eia": pd.CategoricalDtype(),
+                "adjacent_balancing_authority_code_eia": pd.CategoricalDtype(),
+            }
+        )
+        .rename(
+            columns={
+                "adjacent_region_code_eia": "region_code_eia",
+                "adjacent_balancing_authority_code_eia": "balancing_authority_code_eia",
             }
         )
     )
@@ -201,6 +207,6 @@ def core_eia930__hourly_balancing_authority_interchange(
         ),
         Output(
             value=assn,
-            output_name="core_eia930__assn_diba_region_diba_code",
+            output_name="core_eia930__assn_balancing_authority_region",
         ),
     )
