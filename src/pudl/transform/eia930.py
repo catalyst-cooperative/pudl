@@ -26,9 +26,11 @@ def core_eia930__hourly_balancing_authority_net_generation(
         # report_hour_local
     ]
     # Select only the columns relevant to the BA net generation table
-    netgen_cols = list(raw_eia930__balance.filter(like="net_generation"))
-    interchange_cols = list(raw_eia930__balance.filter(like="interchange"))
-    netgen = raw_eia930__balance[qual_cols + netgen_cols + interchange_cols]
+    netgen = raw_eia930__balance[
+        qual_cols
+        + list(raw_eia930__balance.filter(like="net_generation"))
+        + list(raw_eia930__balance.filter(like="interchange"))
+    ]
 
     # Rename columns so that they contain only the energy source and the level of
     # processing, so it's easy to construct a multi-index to unstack below
