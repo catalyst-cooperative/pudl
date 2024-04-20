@@ -1,5 +1,7 @@
 """Extractor for CSV data."""
 
+from typing import Any
+
 import pandas as pd
 
 import pudl.logging_helpers
@@ -12,6 +14,18 @@ class CsvExtractor(GenericExtractor):
     """Class for extracting dataframes from CSV files.
 
     The extraction logic is invoked by calling extract() method of this class.
+    """
+
+    # TODO[zaneselvans] 2024-04-19: it would be useful to also be able to specify
+    # different CSV reading options for different pages within the same dataset. But
+    # that's not strictly necessary yet.
+    READ_CSV_KWARGS: dict[str, Any] = {}
+    """Keyword arguments that are passed to :meth:`pandas.read_csv`.
+
+    These allow customization of the CSV parsing process. For example, you can specify
+    the column delimeter, data types, date parsing, etc. This can greatly reduce peak
+    memory usage and speed up the extraction process. Unfortunately you must refer to
+    the column headers using their original names as they appear in the CSV.
     """
 
     def source_filename(self, page: str, **partition: PartitionSelection) -> str:
@@ -49,6 +63,6 @@ class CsvExtractor(GenericExtractor):
             self.ds.get_zipfile_resource(self._dataset_name, **partition) as zf,
             zf.open(filename) as f,
         ):
-            df = pd.read_csv(f)
+            df = pd.read_csv(f, **self.READ_CSV_KWARGS)
 
         return df

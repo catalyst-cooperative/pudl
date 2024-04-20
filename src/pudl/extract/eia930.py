@@ -20,6 +20,21 @@ class Extractor(CsvExtractor):
             ds (:class:datastore.Datastore): Initialized datastore.
         """
         self.METADATA = GenericMetadata("eia930")
+        self.READ_CSV_KWARGS = {
+            "thousands": ",",
+            "parse_dates": [
+                "Data Date",
+                "Local Time at End of Hour",
+                "UTC Time at End of Hour",
+            ],
+            "dtype": {
+                "Balancing Authority": "string",
+                "Region": "string",
+                "DIBA_Region": "string",
+                "Directly Interconnected Balancing Authority": "string",
+                "Sub-Region": "string",
+            },
+        }
         super().__init__(*args, **kwargs)
 
     def source_filename(self, page: str, **partition: PartitionSelection) -> str:
@@ -48,42 +63,6 @@ class Extractor(CsvExtractor):
     ) -> pd.DataFrame:
         """Transforms raw dataframe and rename columns."""
         return df.rename(columns=self.METADATA.get_column_map(page, **partition))
-
-    def load_source(self, page: str, **partition: PartitionSelection) -> pd.DataFrame:
-        """Produce the dataframe object for the given partition.
-
-        Args:
-            page: pudl name for the dataset contents, eg "boiler_generator_assn" or
-                "data"
-            partition: partition to load. Examples:
-                {'year': 2009}
-                {'year_month': '2020-08'}
-
-        Returns:
-            DataFrame containing the CSV data
-        """
-        filename = self.source_filename(page, **partition)
-        logger.info(f"Loading {filename} from {self._dataset_name}.")
-
-        with (
-            self.ds.get_zipfile_resource(self._dataset_name, **partition) as zf,
-            zf.open(filename) as f,
-        ):
-            df = pd.read_csv(
-                f,
-                thousands=",",
-                parse_dates=[
-                    "Data Date",
-                    "Local Time at End of Hour",
-                    "UTC Time at End of Hour",
-                ],
-                dtype={
-                    "Balancing Authority": "string",
-                    "Region": "string",
-                },
-            )
-
-        return df
 
 
 def raw_eia930_asset_factory(page: str):
