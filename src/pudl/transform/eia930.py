@@ -150,16 +150,16 @@ def core_eia930__hourly_balancing_authority_interchange_assets(
 ):
     """Produce a normalized table of hourly interchange by balancing authority.
 
-    * diba_region and eia_region_code are from the same set of values, but diba_region
-      also includes "CAN" and "MEX" because foreign countries can be adjacent, but are
-      not reporting directly.
-    * similarly diba_code_eia and ba_code_eia come from the same pool of values, but
-      the diba_code_eia includes some codes from Canada and Mexico.
-    * There's an implied set of associations between the regions and the codes, which
-      should be built out of all mentioned codes in both sets of columns.
+    * region_code_eia and adjacent_region_code_eia are from the same set of values, but
+      adjacent_region_code_eia also includes "CAN" and "MEX" because foreign countries
+      can be adjacent, but are not reporting directly.
+    * similarly adjacent_balancing_authority_and balancing_authority_code come from the
+      same pool of values, but the adjancent_balancing_authority_code_eia includes some
+      codes that hail from Canada and Mexico.
+    * There's an implied set of associations between the regions and the balancing
+      authorities.
     * Need to check for consistency with BA codes mentioned here and elsewhere in
       PUDL (plants table, EIA861 BA table).
-    * Need to clean up the column maps to give consistent names to related columns.
 
     """
     interchange = raw_eia930__interchange.astype(
