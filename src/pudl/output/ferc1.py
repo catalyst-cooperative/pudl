@@ -453,29 +453,31 @@ specs = [
 ]
 
 
-#draft asset_factory
+# draft asset_factory
 def generate_asset_factory(spec) -> AssetsDefinition:
     var_name = "core_" + spec["name"]
     core_ = globals()[var_name]
+
     @asset(
-            name=f"_out_{get_core_ferc1_asset_description(spec["name"])}",
-            io_manager_key="pudl_io_manager", 
-            compute_kind="Python")
+        name=f"_out_{get_core_ferc1_asset_description(spec["name"])}",
+        io_manager_key="pudl_io_manager",
+        compute_kind="Python",
+    )
     def _asset(
         core_: pd.DataFrame,
         core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
     ) -> pd.DataFrame:
         """Generate a dataframe for {} asset specification.""".format(spec["name"])
-        return_df = (
-            core_.merge(
-                core_pudl__assn_ferc1_pudl_utilities, on="utility_id_ferc1"
-            )
+        return_df = core_.merge(
+            core_pudl__assn_ferc1_pudl_utilities, on="utility_id_ferc1"
         )
         return return_df
 
     return _asset
 
-#defs = Definition(assets=[generate_asset_factory(spec) for spec in specs])
+
+# defs = Definition(assets=[generate_asset_factory(spec) for spec in specs])
+
 
 def create_generated_assets() -> list[AssetsDefinition]:
     """Create a list of generated FERC Form 1 assets.
