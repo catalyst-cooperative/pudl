@@ -40,6 +40,9 @@ New Data Coverage
   2050, across a variety of scenarios. See :issue:`3368` and :pr:`3538`.
 * Added new NREL ATB tables with annual technology cost and performance projections. See
   :issue:`3465` and :pr:`3498` and :pr:`3570`
+* Added hourly generation, demand, and interchange tables from the EIA-930. See issues
+  :issue:`3486,3505` PR :pr:`3584` and `this issue in the PUDL archiver repo
+  <https://github.com/catalyst-cooperative/pudl-archiver/issues/295>`__
 
 Data Cleaning
 ^^^^^^^^^^^^^
