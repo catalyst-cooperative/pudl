@@ -61,12 +61,6 @@ def core_eia930__hourly_balancing_authority_assets(
         .rename(columns=lambda x: f"net_generation_{x}_mw")
         .reset_index()
         .astype({"energy_source": "string"})
-        .astype(
-            {
-                "balancing_authority_code_eia": pd.CategoricalDtype(),
-                "energy_source": pd.CategoricalDtype(),
-            }
-        )
     )
     # TODO[zaneselvans] 2024-04-20: Verify that sum of net generation from all fuels
     # adds up to the total And then drop the total rows.
@@ -77,7 +71,7 @@ def core_eia930__hourly_balancing_authority_assets(
 
     demand = raw_eia930__balance[
         qual_cols + list(raw_eia930__balance.filter(like="demand"))
-    ].astype({"balancing_authority_code_eia": pd.CategoricalDtype()})
+    ]
 
     return (
         Output(
@@ -104,39 +98,24 @@ def core_eia930__hourly_balancing_authority_assets(
 )
 def core_eia930__hourly_subregion_assets(raw_eia930__subregion: pd.DataFrame):
     """Produce a normalized table of hourly demand by subregion."""
-    demand = (
-        raw_eia930__subregion.assign(
-            subregion_code_eia=lambda df: df["subregion_code_eia"].str.upper()
-        )
-        .astype(
-            {
-                "balancing_authority_code_eia": pd.CategoricalDtype(),
-                "subregion_code_eia": pd.CategoricalDtype(),
-            }
-        )
-        .loc[
-            :,
-            [
-                "report_datetime_local",
-                "report_datetime_utc",
-                "balancing_authority_code_eia",
-                "subregion_code_eia",
-                "demand_reported_mw",
-            ],
-        ]
-    )
+    demand = raw_eia930__subregion.assign(
+        subregion_code_eia=lambda df: df["subregion_code_eia"].str.upper()
+    ).loc[
+        :,
+        [
+            "report_datetime_local",
+            "report_datetime_utc",
+            "balancing_authority_code_eia",
+            "subregion_code_eia",
+            "demand_reported_mw",
+        ],
+    ]
     assn = (
         demand.groupby("balancing_authority_code_eia")["subregion_code_eia"]
         .unique()
         .explode()
         .to_frame()
         .reset_index()
-        .astype(
-            {
-                "balancing_authority_code_eia": pd.CategoricalDtype(),
-                "subregion_code_eia": pd.CategoricalDtype(),
-            }
-        )
     )
     return (
         Output(value=demand, output_name="core_eia930__hourly_subregion_demand"),
@@ -160,28 +139,8 @@ def core_eia930__hourly_subregion_assets(raw_eia930__subregion: pd.DataFrame):
 def core_eia930__hourly_balancing_authority_interchange_assets(
     raw_eia930__interchange: pd.DataFrame,
 ):
-    """Produce a normalized table of hourly interchange by balancing authority.
-
-    * region_code_eia and adjacent_region_code_eia are from the same set of values, but
-      adjacent_region_code_eia also includes "CAN" and "MEX" because foreign countries
-      can be adjacent, but are not reporting directly.
-    * similarly adjacent_balancing_authority_and balancing_authority_code come from the
-      same pool of values, but the adjancent_balancing_authority_code_eia includes some
-      codes that hail from Canada and Mexico.
-    * There's an implied set of associations between the regions and the balancing
-      authorities.
-    * Need to check for consistency with BA codes mentioned here and elsewhere in
-      PUDL (plants table, EIA861 BA table).
-
-    """
-    interchange = raw_eia930__interchange.astype(
-        {
-            "balancing_authority_code_eia": pd.CategoricalDtype(),
-            "adjacent_balancing_authority_code_eia": pd.CategoricalDtype(),
-            "region_code_eia": pd.CategoricalDtype(),
-            "adjacent_region_code_eia": pd.CategoricalDtype(),
-        }
-    ).loc[
+    """Produce a normalized table of hourly interchange by balancing authority."""
+    interchange = raw_eia930__interchange.loc[
         :,
         [
             "report_datetime_local",
@@ -194,17 +153,13 @@ def core_eia930__hourly_balancing_authority_interchange_assets(
         ],
     ]
     assn = (
-        interchange.groupby("adjacent_region_code_eia")
-        .adjacent_balancing_authority_code_eia.unique()
+        interchange.groupby("adjacent_region_code_eia")[
+            "adjacent_balancing_authority_code_eia"
+        ]
+        .unique()
         .explode()
         .to_frame()
         .reset_index()
-        .astype(
-            {
-                "adjacent_region_code_eia": pd.CategoricalDtype(),
-                "adjacent_balancing_authority_code_eia": pd.CategoricalDtype(),
-            }
-        )
         .rename(
             columns={
                 "adjacent_region_code_eia": "region_code_eia",

@@ -12,6 +12,8 @@ from pudl.metadata.enums import (
     COUNTRY_CODES_ISO3166,
     CUSTOMER_CLASSES,
     DIVISION_CODES_US_CENSUS,
+    EIA_REGIONS,
+    EIA_SUBREGIONS,
     EPACEMS_MEASUREMENT_CODES,
     EPACEMS_STATES,
     FUEL_CLASSES,
@@ -56,6 +58,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "adjacent_region_code_eia": {
         "type": "string",
         "description": "EIA code for the other adjacent region, with which interchange is occuring.",
+        "constraints": {"enum": EIA_REGIONS},
     },
     "adjustments": {
         "type": "number",
@@ -3277,25 +3280,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "region_code_eia": {
         "type": "string",
         "description": "EIA region code.",
-        "constraints": {
-            "enum": [
-                "CAL",
-                "CAN",
-                "CAR",
-                "CENT",
-                "FLA",
-                "MEX",
-                "MIDA",
-                "MIDW",
-                "NE",
-                "NW",
-                "NY",
-                "SE",
-                "SW",
-                "TEN",
-                "TEX",
-            ]
-        },
+        "constraints": {"enum": EIA_REGIONS},
     },
     "region_name_us_census": {
         "type": "string",
@@ -3870,47 +3855,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "storage_enclosure_code": {
         "type": "string",
         "description": "A code representing the enclosure type that best describes where the generator is located.",
-        "constraints": {
-            "enum": set(
-                CODE_METADATA["core_eia__codes_storage_enclosure_types"]["df"].code
-            )
-        },
     },
     "storage_technology_code_1": {
         "type": "string",
         "description": "The electro-chemical storage technology used for this battery applications.",
-        "constraints": {
-            "enum": set(
-                CODE_METADATA["core_eia__codes_storage_technology_types"]["df"].code
-            )
-        },
     },
     "storage_technology_code_2": {
         "type": "string",
         "description": "The electro-chemical storage technology used for this battery applications.",
-        "constraints": {
-            "enum": set(
-                CODE_METADATA["core_eia__codes_storage_technology_types"]["df"].code
-            )
-        },
     },
     "storage_technology_code_3": {
         "type": "string",
         "description": "The electro-chemical storage technology used for this battery applications.",
-        "constraints": {
-            "enum": set(
-                CODE_METADATA["core_eia__codes_storage_technology_types"]["df"].code
-            )
-        },
     },
     "storage_technology_code_4": {
         "type": "string",
         "description": "The electro-chemical storage technology used for this battery applications.",
-        "constraints": {
-            "enum": set(
-                CODE_METADATA["core_eia__codes_storage_technology_types"]["df"].code
-            )
-        },
     },
     "stored_excess_wind_and_solar_generation": {
         "type": "boolean",
@@ -3955,94 +3915,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "subregion_code_eia": {
         "type": "string",
         "description": "EIA subregion code.",
-        "constraints": {
-            "enum": [
-                "0001",
-                "0004",
-                "0006",
-                "0027",
-                "0035",
-                "4001",
-                "4002",
-                "4003",
-                "4004",
-                "4005",
-                "4006",
-                "4007",
-                "4008",
-                "8910",
-                "ACMA",
-                "AE",
-                "AEP",
-                "AP",
-                "ATSI",
-                "BC",
-                "CE",
-                "COAS",
-                "CSWS",
-                "CYGA",
-                "DAY",
-                "DEOK",
-                "DOM",
-                "DPL",
-                "DUQ",
-                "EAST",
-                "EDE",
-                "EKPC",
-                "FREP",
-                "FWES",
-                "GRDA",
-                "INDN",
-                "JC",
-                "JICA",
-                "KACY",
-                "KAFB",
-                "KCEC",
-                "KCPL",
-                "LAC",
-                "LES",
-                "ME",
-                "MPS",
-                "NCEN",
-                "NPPD",
-                "NRTH",
-                "NTUA",
-                "OKGE",
-                "OPPD",
-                "PE",
-                "PEP",
-                "PGAE",
-                "PL",
-                "PN",
-                "PNM",
-                "PS",
-                "RECO",
-                "SCE",
-                "SCEN",
-                "SDGE",
-                "SECI",
-                "SOUT",
-                "SPRM",
-                "SPS",
-                "TSGT",
-                "VEA",
-                "WAUE",
-                "WEST",
-                "WFEC",
-                "WR",
-                "ZONA",
-                "ZONB",
-                "ZONC",
-                "ZOND",
-                "ZONE",
-                "ZONF",
-                "ZONG",
-                "ZONH",
-                "ZONI",
-                "ZONJ",
-                "ZONK",
-            ]
-        },
+        "constraints": {"enum": EIA_SUBREGIONS},
     },
     "sulfur_content_pct": {
         "type": "number",
@@ -4911,12 +4784,14 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     "plant_parts_eia": {
         "energy_source_code_1": {
             "constraints": {
-                "enum": set(CODE_METADATA["core_eia__codes_energy_sources"]["df"].code)
+                "enum": set(
+                    CODE_METADATA["core_eia__codes_energy_sources"]["df"]["code"]
+                )
             }
         },
         "prime_movers_eia": {
             "constraints": {
-                "enum": set(CODE_METADATA["core_eia__codes_prime_movers"]["df"].code)
+                "enum": set(CODE_METADATA["core_eia__codes_prime_movers"]["df"]["code"])
             }
         },
         "technology_description": {"constraints": {"enum": set(TECH_DESCRIPTIONS)}},
