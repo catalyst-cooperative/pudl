@@ -10,8 +10,12 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 @multi_asset(
     outs={
-        "core_eia930__hourly_balancing_authority_net_generation": AssetOut(),
-        "core_eia930__hourly_balancing_authority_demand": AssetOut(),
+        "core_eia930__hourly_balancing_authority_net_generation": AssetOut(
+            io_manager_key="parquet_io_manager"
+        ),
+        "core_eia930__hourly_balancing_authority_demand": AssetOut(
+            io_manager_key="parquet_io_manager"
+        ),
     },
     compute_kind="pandas",
 )
@@ -89,8 +93,12 @@ def core_eia930__hourly_balancing_authority_assets(
 
 @multi_asset(
     outs={
-        "core_eia930__hourly_subregion_demand": AssetOut(),
-        "core_eia930__assn_balancing_authority_subregion": AssetOut(),
+        "core_eia930__hourly_subregion_demand": AssetOut(
+            io_manager_key="parquet_io_manager"
+        ),
+        "core_eia930__assn_balancing_authority_subregion": AssetOut(
+            io_manager_key="pudl_io_manager"
+        ),
     },
     compute_kind="pandas",
 )
@@ -140,8 +148,12 @@ def core_eia930__hourly_subregion_assets(raw_eia930__subregion: pd.DataFrame):
 
 @multi_asset(
     outs={
-        "core_eia930__hourly_balancing_authority_interchange": AssetOut(),
-        "core_eia930__assn_balancing_authority_region": AssetOut(),
+        "core_eia930__hourly_balancing_authority_interchange": AssetOut(
+            io_manager_key="parquet_io_manager"
+        ),
+        "core_eia930__assn_balancing_authority_region": AssetOut(
+            io_manager_key="pudl_io_manager"
+        ),
     },
     compute_kind="pandas",
 )
