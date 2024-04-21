@@ -1807,6 +1807,11 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
             data=[
                 ("AEC", "power_south_coop", "PowerSouth Energy Cooperative"),
                 (
+                    "AESO",
+                    "alberta_electric_system_operator",
+                    "Alberta Electric System Operator",
+                ),
+                (
                     "AECI",
                     "associated_electric_coop",
                     "Associated Electric Cooperative, Inc.",
@@ -1819,6 +1824,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                     "northern_california",
                     "Balancing Authority of Northern California",
                 ),
+                ("BCHA", "bc_hydro", "British Columbia Hydro and Power Authority"),
                 ("BPAT", "bonneville_power", "Bonneville Power Administration"),
                 (
                     "CHPD",
@@ -1829,6 +1835,16 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                     "CISO",
                     "california_iso",
                     "California Independent System Operator",
+                ),
+                (
+                    "CEN",
+                    "centro_nacional_de_control_de_energia",
+                    "Centro Nacional de Control de Energia",
+                ),
+                (
+                    "CFE",
+                    "comision_federal_de_electricidad",
+                    "Comisión Federal de Electricidad",
                 ),
                 ("CPLE", "duke_energy_progress_east", "Duke Energy Progress East"),
                 ("CPLW", "duke_energy_progress_west", "Duke Energy Progress West"),
@@ -1871,6 +1887,11 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                 ),
                 ("GLHB", "gridliance", "GridLiance (GLHB)"),
                 ("GRDA", "grand_river_dam", "Grand River Dam Authority"),
+                (
+                    "GRID",
+                    "gridforce_energy_management",
+                    "Gridforce Energy Management, LLC",
+                ),
                 ("GRIF", "griffith_energy", "Griffith Energy, LLC"),
                 ("GRIS", "gridforce_south", "Gridforce South"),
                 ("GRMA", "gila_river_power", "Gila River Power, LLC"),
@@ -1882,7 +1903,13 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                     "new_harquahala",
                     "New Harquahala Generating Company, LLC - HGBA",
                 ),
+                ("HQT", "hydro_quebec", "Hydro-Québec TransEnergie"),
                 ("HST", "city_of_homestead", "City of Homestead"),
+                (
+                    "IESO",
+                    "ontario_ieso",
+                    "Ontario Independent Electric System Operator",
+                ),
                 ("IID", "imperial_irrigation", "Imperial Irrigation District"),
                 (
                     "INDN",
@@ -1913,6 +1940,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                     "louisville_gas_and_electric_and_kentucky",
                     "LG&E and KU Services Company as agent for Louisville Gas and Electric Company and Kentucky Utilities",
                 ),
+                ("MHEB", "manitoba_hydro", "Manitoba Hydro"),
                 (
                     "MISO",
                     "midcontinent_iso",
@@ -1983,6 +2011,11 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                     "Southern Company Services, Inc. - Trans",
                 ),
                 ("SPA", "southwestern_power", "Southwestern Power Administration"),
+                (
+                    "SPC",
+                    "saskatchewan_power_corporation",
+                    "Saskatchewan Power Corporation",
+                ),
                 (
                     "SPRM",
                     "city_utilities_of_springfield",
@@ -2069,9 +2102,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
             "TIC": "TIDC",
             "TID": "TIDC",
         },
-        "ignored_codes": [
-            "GRID",  # 2022 860m code for plant ID 55328 (code: CSTO for previous years)
-        ],
+        "ignored_codes": [],
     },
     "core_eia__codes_regulations": {
         "df": pd.DataFrame(

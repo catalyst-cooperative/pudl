@@ -51,7 +51,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "address_2": {"type": "string", "description": "Second line of the address."},
     "adjacent_balancing_authority_code_eia": {
         "type": "string",
-        "description": "EIA code for the other adjacent balancing authority, with which interchange is occuring.",
+        "description": "EIA short code for the other adjacent balancing authority, with which interchange is occuring. Includes Canadian and Mexican BAs.",
     },
     "adjacent_region_code_eia": {
         "type": "string",
@@ -235,7 +235,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "balancing_authority_code_eia": {
         "type": "string",
-        "description": "EIA short code identifying a balancing authority.",
+        "description": "EIA short code identifying a balancing authority. May include Canadian and Mexican BAs.",
     },
     "balancing_authority_code_eia_consistent_rate": {
         "type": "number",
@@ -3280,9 +3280,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "constraints": {
             "enum": [
                 "CAL",
+                "CAN",
                 "CAR",
                 "CENT",
                 "FLA",
+                "MEX",
                 "MIDA",
                 "MIDW",
                 "NE",
