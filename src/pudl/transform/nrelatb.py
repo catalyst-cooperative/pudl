@@ -26,7 +26,7 @@ The normalized core tables we are trying to build will result in a subset of the
 
 
 class TableNormalizer(BaseModel):
-    """Info needed to convert a selection of a the raw NREL table into a normalized table."""
+    """Info needed to convert a selection of the raw NREL table into a normalized table."""
 
     idx: list[str]
     """Primary key columns of normalized subset table."""
@@ -34,15 +34,35 @@ class TableNormalizer(BaseModel):
     """Columns reported in raw NREL table that are unique to the :attr:`idx`."""
 
 
-def transform_normlize(nrelatb: pd.DataFrame, normalizer: TableNormalizer):
-    """Normalize a subset of the NREL ATB data into a small tables."""
+def transform_normalize(nrelatb: pd.DataFrame, normalizer: TableNormalizer):
+    """Normalize a subset of the NREL ATB data into a small table.
+
+    Given a :class:`TableNormalizer` with a set of primary keys (``idx``) and a
+    list of columns (``columns``), build a table with just those primary key and
+    data columns from the larger ATB semi-processed table (output of
+    :func:`_core_nrelatb__transform_start`). Ensure that the output table is
+    unquie absed on the primary keys.
+    """
     smol_table = nrelatb[normalizer.idx + normalizer.columns].drop_duplicates()
-    assert smol_table[smol_table.duplicated(normalizer.idx, keep=False)].empty
+    if not (
+        idx_dupes := smol_table[smol_table.duplicated(normalizer.idx, keep=False)]
+    ).empty:
+        raise AssertionError(
+            f"Found duplicate records on expected primary keys ({normalizer.idx}) and"
+            f"expected none. Duplicates:\n{idx_dupes}"
+        )
+    # drop the fully null columns bc some years there are no values in these
+    # columns and there is no use keeping these fully null records
     return smol_table.dropna(how="all", subset=normalizer.columns)
 
 
 class Normalizer(BaseModel):
-    """Class that defines how to normalize all of the NREL tables that get the :func:`transform_normlize` treatment."""
+    """Class that defines how to normalize all of the NREL tables that get the :func:`transform_normalize` treatment.
+
+    There are several columns in the raw ATB data that are not a part of the primary keys
+    for the tables that get the :func:`transform_unstack` treatment. This class helps us
+    build these smaller tables which have a smaller subset of primary key columns.
+    """
 
     revisions: TableNormalizer = TableNormalizer(
         idx=["report_year"],
@@ -67,7 +87,7 @@ class TableUnstacker(BaseModel):
     """Info needed to unstack a portion of the NREL ATB table."""
 
     idx: list[str]
-    params: list[str]
+    core_metric_parameters: list[str]
     """Values from the ``core_metric_parameter`` column to be included in this unstack."""
 
     @field_validator("idx")
@@ -89,24 +109,33 @@ class TableUnstacker(BaseModel):
 def transform_unstack(
     nrelatb: pd.DataFrame, table_unstacker: TableUnstacker
 ) -> pd.DataFrame:
-    """Generic unstacking function to convert ATB data from skinny to wider."""
-    param_mask = nrelatb.core_metric_parameter.isin(table_unstacker.params)
-    # assert not nrelatb[param_mask].duplicated(subset=table_unstacker.idx).any()
+    """Generic unstacking function to convert ATB data from skinny to wider.
 
+    The ATB data is reported in a very skinny format. There is one ``value``
+    column and those values are labeled with the ``core_metric_parameter`` column
+    which indicates what type of ``value`` is being reported. We want the info in
+    ``core_metric_parameter`` to end up as columns in the tables - so there will
+    be one column containing values from the ``value`` column each unique
+    ``core_metric_parameter``.
+
+    A quirk with ATB is that different ``core_metric_parameter`` have different
+    set of primary keys. This function applies :func:`pd.unstack` to a subset of values
+    for ``core_metric_parameter`` (via :attr:`TableUnstacker.core_metric_parameters`)
+    with differnt primary keys (via :attr:`TableUnstacker.idx`). If the set of given
+    ``core_metric_parameters`` are result in non-unique values for the primary keys,
+    :func:`pd.unstack` wil raise an error.
+
+    """
     nrelatb_unstacked = (
-        nrelatb[param_mask]
+        nrelatb[
+            nrelatb.core_metric_parameter.isin(table_unstacker.core_metric_parameters)
+        ]
         .set_index(table_unstacker.idx)
         .sort_index()[["value"]]
         .drop_duplicates()
         .unstack(level="core_metric_parameter")
     )
     nrelatb_unstacked.columns = nrelatb_unstacked.columns.droplevel()
-    # this next step regarding the fcr param is only applicable to
-    # the table w/ the fcr param:
-    if "fcr" in nrelatb_unstacked:
-        nrelatb_unstacked = broadcast_fcr_param_across_tech_detail(
-            nrelatb_unstacked, table_unstacker.idx_unstacked
-        )
     return nrelatb_unstacked
 
 
@@ -122,7 +151,7 @@ class Unstacker(BaseModel):
             "technology_description",
             "core_metric_parameter",
         ],
-        params=[
+        core_metric_parameters=[
             "inflation_rate",
             "interest_during_construction_nominal",
             "tax_rate_federal_and_state",
@@ -134,7 +163,7 @@ class Unstacker(BaseModel):
     )
     scenario_table: TableUnstacker = TableUnstacker(
         idx=rate_table.idx + ["scenario_atb"],
-        params=[
+        core_metric_parameters=[
             "debt_fraction",
             "wacc_real",
             "wacc_nominal",
@@ -149,13 +178,13 @@ class Unstacker(BaseModel):
             "technology_description_detail_1",
             "technology_description_detail_2",
         ],
-        params=[
+        core_metric_parameters=[
             "capex",
             "capacity_factor",
             "opex_fixed",
             "levelized_cost_of_energy",
             "opex_variable",
-            # 2023 only params
+            # 2023 only core_metric_parameters
             "capex_overnight_additional",
             "construction_finance_factor",
             "grid_connection_cost",
@@ -167,56 +196,50 @@ class Unstacker(BaseModel):
     )
 
     @property
-    def params_all(self: Self) -> list[str]:
+    def core_metric_parameters_all(self: Self) -> list[str]:
         """Compilation of all of the parameter values from each of the tables.
 
-        Also check if there are no duplicate params. We expect all of the parameters
+        Also check if there are no duplicate core_metric_parameters. We expect all of the parameters
         across the :class:`TableUnstacker` to be unique.
         """
-        params_all = (
-            self.rate_table.params
-            + self.scenario_table.params
-            + self.tech_detail_table.params
+        core_metric_parameters_all = (
+            self.rate_table.core_metric_parameters
+            + self.scenario_table.core_metric_parameters
+            + self.tech_detail_table.core_metric_parameters
         )
-        assert not {x for x in params_all if params_all.count(x) > 1}
-        return params_all
+        assert not {
+            x
+            for x in core_metric_parameters_all
+            if core_metric_parameters_all.count(x) > 1
+        }
+        return core_metric_parameters_all
 
 
-def broadcast_fcr_param_across_tech_detail(
+def broadcast_fixed_charge_rate_across_tech_detail(
     nrelatb_unstacked: pd.DataFrame, idx_unstacked: list[str]
 ) -> pd.DataFrame:
-    """For older years, broadcast the FCR parameter across the technical detail columns.
+    """For older years, broadcast the ``fixed_charge_rate`` parameter across the technical detail columns.
 
     We want to table schema to be consistent for all years of ATB data. Mostly the parameters
-    have the same primary keys across all of the years. But the ``fcr`` parameter is the
+    have the same primary keys across all of the years. But the ``fixed_charge_rate`` parameter is the
     only exception. For the older years (pre-2023), the FCR parameter is not variable
-    based on tech detail so we are going to broadcast the pre-2023 fcr values acorss the
+    based on tech detail so we are going to broadcast the pre-2023 ``fixed_charge_rate`` values across the
     tech details that exist in the data.
     """
     nrelatb_unstacked_fcr = nrelatb_unstacked.reset_index()
     mask_fcr = (
-        nrelatb_unstacked_fcr.fcr.notnull()
+        nrelatb_unstacked_fcr.fixed_charge_rate.notnull()
         & (nrelatb_unstacked_fcr.report_year < 2023)
-        # there are weirdly some fcr nuclear records that have a bunch of data
-        # bc these records are not sparse, we do not want to broadcast these records
-        # we use the columns of nrelatb_unstacked bc those of the params names
-        & (
-            nrelatb_unstacked_fcr[[c for c in nrelatb_unstacked if c != "fcr"]]
-            .isna()
-            .all(axis=1)
-        )
+        # There are weirdly some fcr nuclear records that have a bunch of data in the
+        # other core param columns.
+        # Bc these records are not sparse, we do not want to broadcast these records.
+        # We use the columns of nrelatb_unstacked bc those are the core_metric_parameters names.
+        & nrelatb_unstacked_fcr[
+            [c for c in nrelatb_unstacked if c != "fixed_charge_rate"]
+        ]
+        .isna()
+        .all(axis=1)
     )
-    # there are a small number of records that have "Nuclear" tech detail col
-    # we are going to drop this detail bc it is always the same as the tech description
-    assert nrelatb_unstacked_fcr.loc[
-        mask_fcr
-        & nrelatb_unstacked_fcr.technology_description_detail_1.notnull()
-        & (
-            nrelatb_unstacked_fcr.technology_description
-            != nrelatb_unstacked_fcr.technology_description_detail_1
-        )
-    ].empty
-
     idx_fcr = [
         c
         for c in idx_unstacked
@@ -226,14 +249,18 @@ def broadcast_fcr_param_across_tech_detail(
     nrelatb_unstacked_fcr_broadcast = (
         pd.merge(
             nrelatb_unstacked_fcr[~mask_fcr],
-            nrelatb_unstacked_fcr.loc[mask_fcr, idx_fcr + ["fcr"]],
+            nrelatb_unstacked_fcr.loc[mask_fcr, idx_fcr + ["fixed_charge_rate"]],
             on=idx_fcr,
             how="outer",
             validate="m:1",
             suffixes=("", "_broadcast"),
         )
-        .assign(fcr=lambda x: x.fcr.fillna(x.fcr_broadcast))
-        .drop(columns=["fcr_broadcast"])
+        .assign(
+            fixed_charge_rate=lambda x: x.fixed_charge_rate.fillna(
+                x.fixed_charge_rate_broadcast
+            )
+        )
+        .drop(columns=["fixed_charge_rate_broadcast"])
     )
     return nrelatb_unstacked_fcr_broadcast.set_index(idx_unstacked)
 
@@ -243,7 +270,7 @@ def _core_nrelatb__transform_start(raw_nrelatb__data):
     """Transform raw NREL ATB data into semi-clean but still very skinny table."""
     ## EARLY CLEANING/DEDUPING
     # rename dict f semi-cleaned param name -> desired pudl name
-    # all the params are here even if we aren't renaming mostly
+    # all the core_metric_parameters are here even if we aren't renaming mostly
     # to make sure we've got em all.
     core_metric_parameters_rename = {
         "gcc": "grid_connection_cost",
@@ -274,16 +301,11 @@ def _core_nrelatb__transform_start(raw_nrelatb__data):
     }
     nrelatb = (
         raw_nrelatb__data.replace(["*", ""], pd.NA)
-        .pipe(
-            helpers.fix_boolean_columns,
-            boolean_columns_to_fix=list(raw_nrelatb__data.filter(regex=r"^is_")),
-        )
         ## clean & rename values in core_metric_parameters
         .pipe(helpers.simplify_strings, ["core_metric_parameter"])
         .pipe(helpers.cleanstrings_snake, cols=["core_metric_parameter"])
         .replace({"core_metric_parameter": core_metric_parameters_rename})
-        # we are droping dropping records that are completely dupes - not just
-        # dupes based on IDX_ALL
+        # we are dropping records that are completely dupes - not just dupes based on IDX_ALL
         .drop_duplicates(keep="first")
     )
     assert not any(nrelatb.duplicated(IDX_ALL))
@@ -291,7 +313,7 @@ def _core_nrelatb__transform_start(raw_nrelatb__data):
     # ensure that we have the same set of parameters in the unstackers and in the rename
     params_found = set(nrelatb.core_metric_parameter.unique())
     params_rename = set(core_metric_parameters_rename.values())
-    params_unstacker = set(Unstacker().params_all)
+    params_unstacker = set(Unstacker().core_metric_parameters_all)
     for params in [params_rename, params_unstacker]:
         if param_differences := params_found.symmetric_difference(params):
             raise AssertionError(
@@ -318,11 +340,14 @@ def _core_nrelatb__yearly_projections_rates(
 def _core_nrelatb__yearly_projections_by_scenario(
     _core_nrelatb__transform_start,
 ) -> pd.DataFrame:
-    """Transform the yearly NREL ATB scenario table.
+    """Transform the yearly NREL ATB projections by scenario table.
 
-    Right now, this just unstacks the table.
+    Right now, this unstacks the table and applies :func:`broadcast_fixed_charge_rate_across_tech_detail`.
     """
-    df = transform_unstack(_core_nrelatb__transform_start, Unstacker().scenario_table)
+    unstack_scenario = Unstacker().scenario_table
+    df = transform_unstack(_core_nrelatb__transform_start, unstack_scenario).pipe(
+        broadcast_fixed_charge_rate_across_tech_detail, unstack_scenario.idx_unstacked
+    )
     return df
 
 
@@ -330,7 +355,7 @@ def _core_nrelatb__yearly_projections_by_scenario(
 def _core_nrelatb__yearly_projections_by_technology_detail(
     _core_nrelatb__transform_start,
 ) -> pd.DataFrame:
-    """Transform the yearly technology detail table.
+    """Transform the yearly NREL ATB projections by technology detail.
 
     Right now, this just unstacks the table.
     """
@@ -344,18 +369,19 @@ def _core_nrelatb__yearly_projections_by_technology_detail(
 def _core_nrelatb__yearly_revisions(
     _core_nrelatb__transform_start: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Transform small table with the r."""
-    return transform_normlize(_core_nrelatb__transform_start, Normalizer().revisions)
+    """Transform small table including which revision the data pertains to and when it was updated."""
+    return transform_normalize(_core_nrelatb__transform_start, Normalizer().revisions)
 
 
 @asset
 def _core_nrelatb__yearly_units(
     _core_nrelatb__transform_start: pd.DataFrame,
 ) -> pd.DataFrame:
+    """Transform a table of units by ``core_metric_parameter``."""
     # clean up the units column so we can verify the units are consistent across the params
     units = _core_nrelatb__transform_start.assign(
         units=lambda x: x.units.str.lower()
-    ).pipe(transform_normlize, Normalizer().units)
+    ).pipe(transform_normalize, Normalizer().units)
     return units
 
 
@@ -363,6 +389,7 @@ def _core_nrelatb__yearly_units(
 def _core_nrelatb__yearly_technology_status(
     _core_nrelatb__transform_start: pd.DataFrame,
 ) -> pd.DataFrame:
-    return transform_normlize(
+    """Transform a small table of statuses of different technology types."""
+    return transform_normalize(
         _core_nrelatb__transform_start, Normalizer().technology_status
     )
