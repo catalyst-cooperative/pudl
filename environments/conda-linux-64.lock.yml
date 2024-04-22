@@ -93,7 +93,7 @@ dependencies:
   - contourpy=1.2.1=py312h8572e83_0
   - coverage=7.4.4=py312h98912ed_0
   - crashtest=0.4.1=pyhd8ed1ab_0
-  - croniter=2.0.3=pyhd8ed1ab_0
+  - croniter=2.0.5=pyhd8ed1ab_0
   - cryptography=42.0.5=py312h241aef2_0
   - curl=8.7.1=hca28451_0
   - cycler=0.12.1=pyhd8ed1ab_0
@@ -197,7 +197,7 @@ dependencies:
   - hyperframe=6.0.1=pyhd8ed1ab_0
   - hypothesis=6.100.1=pyha770c72_0
   - icu=73.2=h59595ed_0
-  - identify=2.5.35=pyhd8ed1ab_0
+  - identify=2.5.36=pyhd8ed1ab_0
   - idna=3.7=pyhd8ed1ab_0
   - imagesize=1.4.1=pyhd8ed1ab_0
   - importlib-metadata=7.1.0=pyha770c72_0
@@ -246,7 +246,7 @@ dependencies:
   - krb5=1.21.2=h659d440_0
   - latexcodec=2.0.1=pyh9f0ad1d_0
   - lcms2=2.16=hb7c19ff_0
-  - ld_impl_linux-64=2.40=h41732ed_0
+  - ld_impl_linux-64=2.40=h55db66e_0
   - lerc=4.0.0=h27087fc_0
   - libabseil=20240116.1=cxx17_h59595ed_2
   - libaec=1.1.3=h59595ed_0
@@ -272,13 +272,13 @@ dependencies:
   - libevent=2.1.12=hf998b51_1
   - libexpat=2.6.2=h59595ed_0
   - libffi=3.4.2=h7f98852_5
-  - libgcc-ng=13.2.0=h807b86a_5
+  - libgcc-ng=13.2.0=hc881cc4_6
   - libgd=2.3.3=h119a65a_9
   - libgdal=3.8.4=h7c88fdf_5
-  - libgfortran-ng=13.2.0=h69a702a_5
-  - libgfortran5=13.2.0=ha4646dd_5
-  - libglib=2.80.0=hf2295e7_5
-  - libgomp=13.2.0=h807b86a_5
+  - libgfortran-ng=13.2.0=h69a702a_6
+  - libgfortran5=13.2.0=h43f5ff8_6
+  - libglib=2.80.0=hf2295e7_6
+  - libgomp=13.2.0=hc881cc4_6
   - libgoogle-cloud=2.22.0=h9be4e54_1
   - libgoogle-cloud-storage=2.22.0=hc7a4891_1
   - libgrpc=1.62.2=h15f2491_0
@@ -305,7 +305,7 @@ dependencies:
   - libspatialite=5.1.0=h7bd4643_4
   - libsqlite=3.45.3=h2797004_0
   - libssh2=1.11.0=h0841786_0
-  - libstdcxx-ng=13.2.0=h7e041cc_5
+  - libstdcxx-ng=13.2.0=h95c4c6d_6
   - libthrift=0.19.0=hb90f79a_1
   - libtiff=4.6.0=h1dd3fc0_3
   - libutf8proc=2.8.0=h166bdaf_0
@@ -393,7 +393,7 @@ dependencies:
   - pkginfo=1.10.0=pyhd8ed1ab_0
   - pkgutil-resolve-name=1.3.10=pyhd8ed1ab_1
   - platformdirs=4.2.0=pyhd8ed1ab_0
-  - pluggy=1.4.0=pyhd8ed1ab_0
+  - pluggy=1.5.0=pyhd8ed1ab_0
   - poppler=24.03.0=h590f24d_0
   - poppler-data=0.4.12=hd8ed1ab_0
   - postgresql=16.2=h82ecc9d_1
