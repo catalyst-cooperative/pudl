@@ -92,7 +92,7 @@ dependencies:
   - contourpy=1.2.1=py312h0fef576_0
   - coverage=7.4.4=py312he37b823_0
   - crashtest=0.4.1=pyhd8ed1ab_0
-  - croniter=2.0.3=pyhd8ed1ab_0
+  - croniter=2.0.5=pyhd8ed1ab_0
   - cryptography=42.0.5=py312h99f8e83_0
   - curl=8.7.1=h2d989ff_0
   - cycler=0.12.1=pyhd8ed1ab_0
@@ -197,7 +197,7 @@ dependencies:
   - hyperframe=6.0.1=pyhd8ed1ab_0
   - hypothesis=6.100.1=pyha770c72_0
   - icu=73.2=hc8870d7_0
-  - identify=2.5.35=pyhd8ed1ab_0
+  - identify=2.5.36=pyhd8ed1ab_0
   - idna=3.7=pyhd8ed1ab_0
   - imagesize=1.4.1=pyhd8ed1ab_0
   - importlib-metadata=7.1.0=pyha770c72_0
@@ -278,7 +278,7 @@ dependencies:
   - libgettextpo-devel=0.22.5=h8fbad5d_2
   - libgfortran=5.0.0=13_2_0_hd922786_3
   - libgfortran5=13.2.0=hf226fd6_3
-  - libglib=2.80.0=hfc324ee_5
+  - libglib=2.80.0=hfc324ee_6
   - libgoogle-cloud=2.22.0=hbebe991_1
   - libgoogle-cloud-storage=2.22.0=h8a76758_1
   - libgrpc=1.62.2=h9c18a4f_0
@@ -390,7 +390,7 @@ dependencies:
   - pkginfo=1.10.0=pyhd8ed1ab_0
   - pkgutil-resolve-name=1.3.10=pyhd8ed1ab_1
   - platformdirs=4.2.0=pyhd8ed1ab_0
-  - pluggy=1.4.0=pyhd8ed1ab_0
+  - pluggy=1.5.0=pyhd8ed1ab_0
   - poppler=24.03.0=h896e6cb_0
   - poppler-data=0.4.12=hd8ed1ab_0
   - postgresql=16.2=hf829917_1
@@ -453,7 +453,7 @@ dependencies:
   - pyu2f=0.1.5=pyhd8ed1ab_0
   - pywin32-on-windows=0.1.0=pyh1179c8e_3
   - pyyaml=6.0.1=py312h02f2b3b_1
-  - pyzmq=26.0.0=py312h2105c20_0
+  - pyzmq=26.0.2=py312h99b2490_0
   - qtconsole-base=5.5.1=pyha770c72_0
   - qtpy=2.4.1=pyhd8ed1ab_0
   - querystring_parser=1.2.4=py_0
