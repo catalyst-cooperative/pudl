@@ -64,10 +64,11 @@ class Normalizer(BaseModel):
     build these smaller tables which have a smaller subset of primary key columns.
     """
 
-    revisions: TableNormalizer = TableNormalizer(
-        idx=["report_year"],
-        columns=["revision_num", "update_date"],
-    )
+    # There is info about revisions in the old data, but not in the 2021 -> current data
+    # revisions: TableNormalizer = TableNormalizer(
+    #     idx=["report_year"],
+    #     columns=["revision_num", "update_date"],
+    # )
     units: TableNormalizer = TableNormalizer(
         idx=["core_metric_parameter"],
         columns=["units"],
@@ -314,6 +315,10 @@ def _core_nrelatb__transform_start(raw_nrelatb__data):
     }
     nrelatb = (
         raw_nrelatb__data.replace(["*", ""], pd.NA)
+        .pipe(
+            helpers.fix_boolean_columns,
+            boolean_columns_to_fix=list(raw_nrelatb__data.filter(regex=r"^is_")),
+        )
         ## clean & rename values in core_metric_parameters
         .pipe(helpers.simplify_strings, ["core_metric_parameter"])
         .pipe(helpers.cleanstrings_snake, cols=["core_metric_parameter"])
@@ -383,27 +388,25 @@ def core_nrelatb__yearly_projections_by_technology_detail(
 
 
 @asset
-def _core_nrelatb__yearly_revisions(
-    _core_nrelatb__transform_start: pd.DataFrame,
-) -> pd.DataFrame:
-    """Transform small table including which revision the data pertains to and when it was updated."""
-    return transform_normalize(_core_nrelatb__transform_start, Normalizer().revisions)
-
-
-@asset
 def _core_nrelatb__yearly_units(
     _core_nrelatb__transform_start: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Transform a table of units by ``core_metric_parameter``."""
+    """Transform a table of units by ``core_metric_parameter``.
+
+    This asset is created mostly to ensure that the input units do not
+    vary within one ``core_metric_parameter``. If they do vary, we will
+    need to standardize the units of that parameter.
+    """
     # clean up the units column so we can verify the units are consistent across the params
     units = _core_nrelatb__transform_start.assign(
         units=lambda x: x.units.str.lower()
     ).pipe(transform_normalize, Normalizer().units)
+    assert not units.duplicated().any()
     return units
 
 
-@asset
-def _core_nrelatb__yearly_technology_status(
+@asset(io_manager_key="pudl_io_manager")
+def core_nrelatb__yearly_technology_status(
     _core_nrelatb__transform_start: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform a small table of statuses of different technology types."""

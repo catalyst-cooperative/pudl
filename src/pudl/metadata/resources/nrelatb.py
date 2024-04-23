@@ -85,4 +85,20 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {  # }
         "etl_group": "nrelatb",
         "field_namespace": "nrelatb",
     },
+    "core_nrelatb__yearly_technology_status": {
+        "description": "Annual table indicating whether technologies in the ATB scenarios are mature or default.",
+        "schema": {
+            "fields": [
+                "report_year",
+                "technology_description",
+                "technology_description_detail_1",
+                "technology_description_detail_2",
+                "is_technology_mature",
+                "is_default",
+            ],
+        },
+        "sources": ["nrelatb"],
+        "etl_group": "nrelatb",
+        "field_namespace": "nrelatb",
+    },
 }

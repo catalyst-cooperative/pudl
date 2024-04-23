@@ -38,6 +38,8 @@ New Data Coverage
   <https://www.eia.gov/outlooks/aeo/tables_ref.php>`__, which include future
   projections related to electric power and renewable energy through the year
   2050, across a variety of scenarios. See :issue:`3368` and :pr:`3538`.
+* Added new NREL ATB tables with annual technology cost and performance projections. See
+  :issue:`3465` and :pr:`3498` and :pr:`3570`
 
 Data Cleaning
 ^^^^^^^^^^^^^

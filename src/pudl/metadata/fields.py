@@ -4531,6 +4531,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Technology innovation scenarios. https://atb.nrel.gov/electricity/2023/definitions#scenarios",
         "constraints": {"enum": ["Advanced", "Moderate", "Conservative"]},
     },
+    "is_default": {
+        "type": "boolean",
+        "description": "Indicator of whether the technology is default.",
+    },
+    "is_technology_mature": {
+        "type": "boolean",
+        "description": "Indicator of whether the technology is mature.",
+    },
     "inflation_rate": {
         "type": "number",
         "description": (
