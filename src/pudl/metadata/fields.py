@@ -23,6 +23,7 @@ from pudl.metadata.enums import (
     SUBDIVISION_CODES_ISO3166,
     TECH_CLASSES,
     TECH_DESCRIPTIONS,
+    TECH_DESCRIPTIONS_NRELATB,
 )
 from pudl.metadata.labels import ESTIMATED_OR_ACTUAL, FUEL_UNITS_EIA
 from pudl.metadata.sources import SOURCES
@@ -504,6 +505,33 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Total cost of plant (USD) without retirements.",
         "unit": "USD",
+    },
+    "capex_per_kw": {
+        "type": "number",
+        "description": "Capital cost (USD). Expenditures required to achieve commercial operation of the generation plant.",
+        "unit": "USD",
+    },
+    "capex_grid_connection_per_kw": {
+        "type": "number",
+        "description": "Overnight capital cost includes a nominal-distance spur line (<1 mi) for all technologies, and for offshore wind, it includes export cable and construction period transit costs for a 30-km distance from shore. Project-specific costs lines that are based on distance to existing transmission are not included.",
+    },
+    "capex_overnight_per_kw": {
+        "type": "number",
+        "description": "capex if plant could be constructed overnight (i.e., excludes construction period financing); includes on-site electrical equipment (e.g., switchyard), a nominal-distance spur line (<1 mi), and necessary upgrades at a transmission substation.",
+        "unit": "USD",
+    },
+    "capex_overnight_additional_per_kw": {
+        "type": "number",
+        "description": "capex for retrofits if plant could be constructed overnight (i.e., excludes construction period financing); includes on-site electrical equipment (e.g., switchyard), a nominal-distance spur line (<1 mi), and necessary upgrades at a transmission substation.",
+        "unit": "USD",
+    },
+    "capex_construction_finance_factor": {
+        "type": "number",
+        "description": (
+            "Portion of all-in capital cost associated with construction period "
+            "financing. This factor is applied to an overnight capital cost to represent "
+            "the financing costs incurred during the construction period."
+        ),
     },
     "carbon_capture": {
         "type": "boolean",
@@ -1768,6 +1796,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Fuel content per unit of electricity generated. Calculated from FERC reported fuel consumption and net generation.",
         "unit": "MMBtu_MWh",
     },
+    "heat_rate_mmbtu_per_mwh": {
+        "type": "number",
+        "description": "Fuel content per unit of electricity generated.",
+        "unit": "MMBtu_MWh",
+    },
+    "heat_rate_penalty": {
+        "type": "number",
+        "description": "Heat rate penalty for retrofitting. This column only has contents to retrofit technologies. It seems to be a rate between 0.35 and 0.09",
+        "unit": "MMBtu_MWh",
+    },
     "highest_distribution_voltage_kv": {
         "type": "number",
         "description": "The highest voltage that's part of the distribution system.",
@@ -1897,6 +1935,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "latitude": {
         "type": "number",
         "description": "Latitude of the plant's location, in degrees.",
+    },
+    "levelized_cost_of_energy_per_mwh": {
+        "type": "number",
+        "description": "Levelized cost of energy (LCOE) is a summary metric that combines the primary technology cost and performance parameters: capital expenditures, operations expenditures, and capacity factor.",
+        "unit": "USD_per_Mwh",
     },
     "liability_type": {
         "type": "string",
@@ -2294,6 +2337,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Did this plant have a net metering agreement in effect during the reporting year?  (Only displayed for facilities that report the sun or wind as an energy source). This field was only reported up until 2015",
         # TODO: Is this really boolean? Or do we have non-null strings that mean False?
     },
+    "net_output_penalty": {
+        "type": "number",
+        "description": "Penalty for retrofitting for net output.  This column only has contents to retrofit technologies. It seems to be a rate between -0.25 and -0.08",
+    },
     "net_power_exchanged_mwh": {
         "type": "number",
         "description": (
@@ -2554,6 +2601,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "unit": "USD",
         "description": "Annual operation and maintenance expenditures for waste disposal, excluding electricity.",
+    },
+    "opex_fixed_per_kw": {
+        "type": "number",
+        "description": "Fixed operation and maintenance expenses. Annual expenditures to operate and maintain equipment that are not incurred on a per-unit-energy basis.",
+        "unit": "USD_per_kw",
+    },
+    "opex_variable_per_mwh": {
+        "type": "number",
+        "description": "Operation and maintenance costs incurred on a per-unit-energy basis.",
+        "unit": "USD_per_MWh",
     },
     "opex_fuel": {
         "type": "number",
@@ -3851,6 +3908,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "High level description of the technology used by the generator to produce electricity.",
     },
+    "technology_description_detail_1": {
+        "type": "string",
+        "description": "Technology details indicate resource levels and specific technology subcategories.",
+    },
+    "technology_description_detail_2": {
+        "type": "string",
+        "description": "Technology details indicate resource levels and specific technology subcategories.",
+    },
     "temperature_method": {
         "description": "Method for measurement of temperatures",
         "type": "string",
@@ -4443,6 +4508,98 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "The DC capacity in MW that is part of a virtual net metering agreement.",
         "unit": "MW",
     },
+    "core_metric_case": {
+        "type": "string",
+        "description": (
+            "NREL's financial assumption cases. There are two cases which effect project finanical "
+            "assumptions: R&D Only Case and Market + Policies Case. R&D Only includes only projected "
+            "R&D improvements while Market + Policy case includes policy and tax incentives. "
+            "https://atb.nrel.gov/electricity/2023/financial_cases_&_methods"
+        ),
+        "constraints": {"enum": ["Market", "R&D"]},
+    },
+    "core_metric_variable_year": {
+        "type": "integer",
+        "description": "The year of the projected value.",
+    },
+    "cost_recovery_period_years": {
+        "type": "integer",
+        "description": "The period over which the initial capital investment to build a plant is recovered.",
+    },
+    "scenario_atb": {
+        "type": "string",
+        "description": "Technology innovation scenarios. https://atb.nrel.gov/electricity/2023/definitions#scenarios",
+        "constraints": {"enum": ["Advanced", "Moderate", "Conservative"]},
+    },
+    "inflation_rate": {
+        "type": "number",
+        "description": (
+            "Rate of inflation. All dollar values are given in 2021 USD, using the Consumer Price "
+            "Index for All Urban Consumers for dollar year conversions where the source "
+            "year dollars do not match 2021."
+        ),
+    },
+    "interest_rate_during_construction_nominal": {
+        "type": "number",
+        "description": (
+            "Also referred to as construction finance cost. Portion of all-in capital cost "
+            "associated with construction period financing. It is a function of construction "
+            "duration, capital fraction during construction, and interest during construction."
+        ),
+    },
+    "interest_rate_calculated_real": {
+        "type": "number",
+        "description": "Calculated real interest rate.",
+    },
+    "interest_rate_nominal": {
+        "type": "number",
+        "description": "Nominal interest rate.",
+    },
+    "rate_of_return_on_equity_calculated_real": {
+        "type": "number",
+        "description": "Calculated real rate of return on equity.",
+    },
+    "rate_of_return_on_equity_nominal": {
+        "type": "number",
+        "description": "Nomial rate of return on equity.",
+    },
+    "tax_rate_federal_state": {
+        "type": "number",
+        "description": (
+            "Combined federal and state tax rate. The R&D core_metric_case holds tax and "
+            "inflation rates constant at assumed long-term values: 21 percent federal tax rate, "
+            "6 percent state tax rate (though actual state tax rates vary), and 2.5 "
+            "percent inflation rate Excludes effects of tax credits. The Market + Policy "
+            "core_metric_case applies federal tax credits and expires them as consistent with "
+            "existing law and guidelines."
+        ),
+    },
+    "capital_recovery_factor": {
+        "type": "number",
+        "description": "Ratio of a constant annuity to the present value of receiving that annuity for a given length of time.",
+    },
+    "debt_fraction": {
+        "type": "number",
+        "description": (
+            "Fraction of capital financed with debt; Debt fraction is assumed financed with equity; "
+            "also referred to as the leverage ratio."
+        ),
+    },
+    "fixed_charge_rate": {
+        "type": "number",
+        "description": (
+            "Amount of revenue per dollar of investment required that must be collected annually "
+            "from customers to pay the carrying charges on that investment."
+        ),
+    },
+    "wacc_nominal": {
+        "type": "number",
+        "description": "Nominal weighted average cost of capital - average expected rate that is paid to finance assets.",
+    },
+    "wacc_real": {
+        "type": "number",
+        "description": "Real weighted average cost of capital - average expected rate that is paid to finance assets.",
+    },
 }
 """Field attributes by PUDL identifier (`field.name`).
 
@@ -4485,6 +4642,9 @@ FIELD_METADATA_BY_GROUP: dict[str, dict[str, Any]] = {
                 ]
             }
         }
+    },
+    "nrelatb": {
+        "technology_description": {"constraints": {"enum": TECH_DESCRIPTIONS_NRELATB}}
     },
 }
 """Field attributes by resource group (`resource.group`) and PUDL identifier.

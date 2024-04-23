@@ -1276,6 +1276,7 @@ class Resource(PudlMeta):
             "gridpathratoolkit",
             "ppe",
             "pudl",
+            "nrelatb",
         ]
         | None
     ) = None
@@ -1300,6 +1301,7 @@ class Resource(PudlMeta):
             "state_demand",
             "static_pudl",
             "service_territories",
+            "nrelatb",
         ]
         | None
     ) = None

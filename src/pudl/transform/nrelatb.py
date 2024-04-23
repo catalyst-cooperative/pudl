@@ -132,7 +132,7 @@ def transform_unstack(
         .unstack(level="core_metric_parameter")
     )
     nrelatb_unstacked.columns = nrelatb_unstacked.columns.droplevel()
-    return nrelatb_unstacked
+    return nrelatb_unstacked.reset_index()
 
 
 class Unstacker(BaseModel):
@@ -159,14 +159,13 @@ class Unstacker(BaseModel):
             "report_year",
             "core_metric_case",
             "core_metric_variable_year",
-            "cost_recovery_period_years",
             "technology_description",
             "core_metric_parameter",
         ],
         core_metric_parameters=[
             "inflation_rate",
-            "interest_during_construction_nominal",
-            "tax_rate_federal_and_state",
+            "interest_rate_during_construction_nominal",
+            "tax_rate_federal_state",
             "interest_rate_calculated_real",
             "interest_rate_nominal",
             "rate_of_return_on_equity_nominal",
@@ -174,7 +173,11 @@ class Unstacker(BaseModel):
         ],
     )
     scenario_table: TableUnstacker = TableUnstacker(
-        idx=rate_table.idx + ["scenario_atb"],
+        idx=rate_table.idx
+        + [
+            "scenario_atb",
+            "cost_recovery_period_years",
+        ],
         core_metric_parameters=[
             "debt_fraction",
             "wacc_real",
@@ -191,19 +194,19 @@ class Unstacker(BaseModel):
             "technology_description_detail_2",
         ],
         core_metric_parameters=[
-            "capex",
+            "capex_per_kw",
             "capacity_factor",
-            "opex_fixed",
-            "levelized_cost_of_energy",
-            "opex_variable",
+            "opex_fixed_per_kw",
+            "levelized_cost_of_energy_per_mwh",
+            "opex_variable_per_mwh",
             # 2023 only core_metric_parameters
-            "capex_overnight_additional",
-            "construction_finance_factor",
-            "grid_connection_cost",
-            "heat_rate",
+            "heat_rate_mmbtu_per_mwh",
+            "capex_construction_finance_factor",
+            "capex_grid_connection_per_kw",
+            "capex_overnight_per_kw",
+            "capex_overnight_additional_per_kw",
             "heat_rate_penalty",
             "net_output_penalty",
-            "capex_overnight",
         ],
     )
 
@@ -238,17 +241,14 @@ def broadcast_fixed_charge_rate_across_tech_detail(
     based on tech detail so we are going to broadcast the pre-2023 ``fixed_charge_rate`` values across the
     tech details that exist in the data.
     """
-    nrelatb_unstacked_fcr = nrelatb_unstacked.reset_index()
     mask_fcr = (
-        nrelatb_unstacked_fcr.fixed_charge_rate.notnull()
-        & (nrelatb_unstacked_fcr.report_year < 2023)
+        nrelatb_unstacked.fixed_charge_rate.notnull()
+        & (nrelatb_unstacked.report_year < 2023)
         # There are weirdly some fcr nuclear records that have a bunch of data in the
         # other core param columns.
         # Bc these records are not sparse, we do not want to broadcast these records.
         # We use the columns of nrelatb_unstacked bc those are the core_metric_parameters names.
-        & nrelatb_unstacked_fcr[
-            [c for c in nrelatb_unstacked if c != "fixed_charge_rate"]
-        ]
+        & nrelatb_unstacked[[c for c in nrelatb_unstacked if c != "fixed_charge_rate"]]
         .isna()
         .all(axis=1)
     )
@@ -260,8 +260,8 @@ def broadcast_fixed_charge_rate_across_tech_detail(
     ]
     nrelatb_unstacked_fcr_broadcast = (
         pd.merge(
-            nrelatb_unstacked_fcr[~mask_fcr],
-            nrelatb_unstacked_fcr.loc[mask_fcr, idx_fcr + ["fixed_charge_rate"]],
+            nrelatb_unstacked[~mask_fcr],
+            nrelatb_unstacked.loc[mask_fcr, idx_fcr + ["fixed_charge_rate"]],
             on=idx_fcr,
             how="outer",
             validate="m:1",
@@ -274,7 +274,7 @@ def broadcast_fixed_charge_rate_across_tech_detail(
         )
         .drop(columns=["fixed_charge_rate_broadcast"])
     )
-    return nrelatb_unstacked_fcr_broadcast.set_index(idx_unstacked)
+    return nrelatb_unstacked_fcr_broadcast
 
 
 @asset
@@ -285,30 +285,31 @@ def _core_nrelatb__transform_start(raw_nrelatb__data):
     # all the core_metric_parameters are here even if we aren't renaming mostly
     # to make sure we've got em all.
     core_metric_parameters_rename = {
-        "gcc": "grid_connection_cost",
+        "gcc": "capex_grid_connection_per_kw",
         "interest_rate_nominal": "interest_rate_nominal",
         "debt_fraction": "debt_fraction",
         "inflation_rate": "inflation_rate",
         "calculated_interest_rate_real": "interest_rate_calculated_real",
-        "fixed_o&m": "opex_fixed",
+        "fixed_o&m": "opex_fixed_per_kw",
         "fcr": "fixed_charge_rate",
         "crf": "capital_recovery_factor",
-        "tax_rate_(federal_and_state)": "tax_rate_federal_and_state",
+        "tax_rate_(federal_and_state)": "tax_rate_federal_state",
         "calculated_rate_of_return_on_equity_real": "rate_of_return_on_equity_calculated_real",
-        "occ": "capex_overnight",
-        "heat_rate": "heat_rate",  # This does not have a unit, but we are going to extract units
+        "heat_rate": "heat_rate_mmbtu_per_mwh",
         "net_output_penalty": "net_output_penalty",
-        "variable_o&m": "opex_variable",
-        "interest_during_construction_-_nominal": "interest_during_construction_nominal",
+        "variable_o&m": "opex_variable_per_mwh",
+        "interest_during_construction_-_nominal": "interest_rate_during_construction_nominal",
         "cf": "capacity_factor",
-        "capex": "capex",
-        "fuel": "fuel_cost",  # This does not have a unit, but we are going to extract units
+        "capex": "capex_per_kw",
+        "fuel": "fuel_cost",
         "rate_of_return_on_equity_nominal": "rate_of_return_on_equity_nominal",
-        "additional_occ": "capex_overnight_additional",
+        "occ": "capex_overnight_per_kw",
+        # this only applies to technology_description's Coal_Retrofits & NaturalGas_Retrofits (maybe we should combine)
+        "additional_occ": "capex_overnight_additional_per_kw",
         "wacc_nominal": "wacc_nominal",
         "wacc_real": "wacc_real",
-        "cfc": "construction_finance_factor",
-        "lcoe": "levelized_cost_of_energy",
+        "cfc": "capex_construction_finance_factor",
+        "lcoe": "levelized_cost_of_energy_per_mwh",
         "heat_rate_penalty": "heat_rate_penalty",
     }
     nrelatb = (
@@ -333,11 +334,15 @@ def _core_nrelatb__transform_start(raw_nrelatb__data):
                 "compared to the params in the TableUnstackers or core_metric_parameters_rename:\n"
                 f"{param_differences=}"
             )
-    return nrelatb.convert_dtypes()
+    return (
+        nrelatb.convert_dtypes()
+        .astype({"core_metric_variable_year": float})
+        .astype({"core_metric_variable_year": pd.Int64Dtype()})
+    )
 
 
-@asset
-def _core_nrelatb__yearly_projections_rates(
+@asset(io_manager_key="pudl_io_manager")
+def core_nrelatb__yearly_financial_cases(
     _core_nrelatb__transform_start,
 ) -> pd.DataFrame:
     """Transform the yearly rates table.
@@ -348,8 +353,8 @@ def _core_nrelatb__yearly_projections_rates(
     return df
 
 
-@asset
-def _core_nrelatb__yearly_projections_by_scenario(
+@asset(io_manager_key="pudl_io_manager")
+def core_nrelatb__yearly_financial_cases_by_scenario(
     _core_nrelatb__transform_start,
 ) -> pd.DataFrame:
     """Transform the yearly NREL ATB projections by scenario table.
@@ -363,8 +368,8 @@ def _core_nrelatb__yearly_projections_by_scenario(
     return df
 
 
-@asset
-def _core_nrelatb__yearly_projections_by_technology_detail(
+@asset(io_manager_key="pudl_io_manager")
+def core_nrelatb__yearly_projections_by_technology_detail(
     _core_nrelatb__transform_start,
 ) -> pd.DataFrame:
     """Transform the yearly NREL ATB projections by technology detail.
