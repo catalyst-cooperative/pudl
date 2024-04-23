@@ -69,9 +69,22 @@ module "gh_oidc" {
   }
 }
 
+# 2024-04-18: separate from the others because this was the first one - if we
+# combined the two, this would delete and recreate the service account
 resource "google_service_account" "service_account" {
   account_id   = "rmi-beta-access"
-  display_name = "RMI Beta Access"
+  display_name = "rmi_beta_access"
+}
+
+# 2024-04-18: after creating a new SA you will have to also create a keypair
+# for the user.
+resource "google_service_account" "beta_access_service_accounts" {
+  for_each = tomap({
+    zerolab_beta_access  = "zerolab-beta-access"
+    gridpath_beta_access = "gridpath-beta-access"
+  })
+  account_id   = each.value
+  display_name = each.key
 }
 
 resource "google_storage_bucket_iam_binding" "binding" {
@@ -79,5 +92,7 @@ resource "google_storage_bucket_iam_binding" "binding" {
   role   = "roles/storage.objectViewer"
   members = [
     "serviceAccount:rmi-beta-access@catalyst-cooperative-pudl.iam.gserviceaccount.com",
+    "serviceAccount:dgm-github-action@dbcp-dev-350818.iam.gserviceaccount.com",
+    "user:aengel@rmi.org",
   ]
 }
