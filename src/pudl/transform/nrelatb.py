@@ -84,7 +84,11 @@ class Normalizer(BaseModel):
 
 
 class TableUnstacker(BaseModel):
-    """Info needed to unstack a portion of the NREL ATB table."""
+    """Info needed to unstack a portion of the NREL ATB table.
+
+    This class defines a portion of the raw ATB table to get the :func:`transform_unstack`
+    treatment. The set of tables which get this treatment are defined in :class:`Unstacker`.
+    """
 
     idx: list[str]
     core_metric_parameters: list[str]
@@ -111,19 +115,11 @@ def transform_unstack(
 ) -> pd.DataFrame:
     """Generic unstacking function to convert ATB data from skinny to wider.
 
-    The ATB data is reported in a very skinny format. There is one ``value``
-    column and those values are labeled with the ``core_metric_parameter`` column
-    which indicates what type of ``value`` is being reported. We want the info in
-    ``core_metric_parameter`` to end up as columns in the tables - so there will
-    be one column containing values from the ``value`` column each unique
-    ``core_metric_parameter``.
-
-    A quirk with ATB is that different ``core_metric_parameter`` have different
-    set of primary keys. This function applies :func:`pd.unstack` to a subset of values
+    This function applies :func:`pd.unstack` to a subset of values
     for ``core_metric_parameter`` (via :attr:`TableUnstacker.core_metric_parameters`)
     with differnt primary keys (via :attr:`TableUnstacker.idx`). If the set of given
     ``core_metric_parameters`` are result in non-unique values for the primary keys,
-    :func:`pd.unstack` wil raise an error.
+    :func:`pd.unstack` will raise an error.
 
     """
     nrelatb_unstacked = (
@@ -140,7 +136,23 @@ def transform_unstack(
 
 
 class Unstacker(BaseModel):
-    """Class that defines how to unstack the :func:`transform_start` table into all of the tidy NREL tables."""
+    """Class that defines how to unstack the raw ATB table into all of the tidy NREL tables.
+
+    The ATB data is reported in a very skinny format that enables the raw data to have the
+    same schema over time. The ``core_metric_parameter`` column contains a string which
+    includes what type of data is being reported in the ``value`` column.
+
+    We want the strings in ``core_metric_parameter`` to end up as column names in the
+    tables - so there will be one column containing values from the ``value`` column each
+    unique ``core_metric_parameter``. A quirk with ATB is that different
+    ``core_metric_parameter`` have different set of primary keys. Subsets of the
+    ``core_metric_parameter`` have unqiue values across the data given specific
+    primary keys. It seems like the convention for ATB data is to add an asterisk
+    into the primary key column as a wildcard.
+
+    This class defines all of the tables in the ATB data that get the
+    :func:`transform_unstack` treatment.
+    """
 
     rate_table: TableUnstacker = TableUnstacker(
         idx=[
