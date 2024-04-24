@@ -143,7 +143,7 @@ class Unstacker(BaseModel):
     tables, so that each column represents a unique type of data. In the end, there will
     be one column containing values from the ``value`` column for each unique
     ``core_metric_parameter``. A quirk with ATB is that different ``core_metric_parameter``
-    have different set of primary keys. Subsets of the ``core_metric_parameter``s have
+    have different set of primary keys. Subsets of the ``core_metric_parameter`` have
     unqiue values across the data given specific primary keys.
 
     The convention for ATB data is to use an asterisk in the key columns as a wildcard.
