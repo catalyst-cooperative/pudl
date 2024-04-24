@@ -112,6 +112,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "core_eia923__monthly_boiler_fuel",
                     "out_eia923__boiler_fuel",
                     "out_eia923__monthly_boiler_fuel",
+                    "core_eia923__monthly_energy_storage",
                 ],
             },
         },
@@ -242,6 +243,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "_out_eia__monthly_derived_generator_attributes",
                     "out_eia__monthly_generators",
                     "core_eia860m__changelog_generators",
+                    "core_eia923__monthly_energy_storage",
                 ],
             },
         },
@@ -396,6 +398,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "_out_eia__monthly_derived_generator_attributes",
                     "out_eia__monthly_generators",
                     "core_eia860m__changelog_generators",
+                    "core_eia923__monthly_energy_storage",
                 ],
             },
         },
@@ -449,7 +452,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "exclude": [
                     "core_eia861__yearly_advanced_metering_infrastructure",
                     "core_eia861__assn_balancing_authority",
-                    "out_eia861__compiled_geometry_utilities",
+                    "out_eia861__yearly_utility_service_territory",
                     "core_eia861__yearly_demand_response",
                     "core_eia861__yearly_demand_response_water_heater",
                     "core_eia861__yearly_demand_side_management_ee_dr",
@@ -837,6 +840,47 @@ system IDs."""
                 "uses_material_thin_film_cigs",
                 "uses_material_thin_film_other",
                 "uses_material_other",
+            ],
+            "primary_key": [
+                "plant_id_eia",
+                "generator_id",
+                "report_date",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia860"],
+        "etl_group": "eia860",
+    },
+    "core_eia860__scd_generators_energy_storage": {
+        "description": (
+            "Annually reported information about energy storage from EIA-860 Schedule 3."
+            " This table includes only those values that are unique to energy storage. "
+            "The rest of the columns that are reported in the EIA-860 Energy Storage tabs are "
+            "included in core_eia860__scd_generators and core_eia__entity_generators."
+        ),
+        "schema": {
+            "fields": [
+                "plant_id_eia",
+                "generator_id",
+                "report_date",
+                "max_charge_rate_mw",
+                "max_discharge_rate_mw",
+                "storage_enclosure_code",
+                "storage_technology_code_1",
+                "storage_technology_code_2",
+                "storage_technology_code_3",
+                "storage_technology_code_4",
+                "served_arbitrage",
+                "served_backup_power",
+                "served_co_located_renewable_firming",
+                "served_frequency_regulation",
+                "served_load_following",
+                "served_load_management",
+                "served_ramping_spinning_reserve",
+                "served_system_peak_shaving",
+                "served_transmission_and_distribution_deferral",
+                "served_voltage_or_reactive_power_support",
+                "stored_excess_wind_and_solar_generation",
             ],
             "primary_key": [
                 "plant_id_eia",

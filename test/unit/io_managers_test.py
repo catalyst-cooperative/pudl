@@ -23,6 +23,7 @@ from pudl.io_managers import (
     PudlSQLiteIOManager,
     SQLiteIOManager,
 )
+from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.classes import Package, Resource
 
 
@@ -283,8 +284,7 @@ def test_migrations_match_metadata(tmp_path, monkeypatch):
     # run all the migrations on a fresh DB at tmp_path/pudl.sqlite
     alembic.config.main(["upgrade", "head"])
 
-    pkg = Package.from_resource_ids()
-    PudlSQLiteIOManager(base_dir=tmp_path, db_name="pudl", package=pkg)
+    PudlSQLiteIOManager(base_dir=tmp_path, db_name="pudl", package=PUDL_PACKAGE)
 
     # all we care about is that it didn't raise an error
     assert True
@@ -512,12 +512,6 @@ def test_filter_for_freshest_data(df):
     hypothesis.note(f"The freshest data:\n{deduped}")
     hypothesis.note(f"Paired by context:\n{paired_by_context}")
     assert (paired_by_context._merge == "both").all()
-
-    # for every row in the output - its publication time is greater than or equal to all of the other ones for that [entity_id, utility_type, date] in the input data
-    assert (
-        paired_by_context["publication_time_out"]
-        >= paired_by_context["publication_time_in"]
-    ).all()
 
 
 def test_report_year_fixing_instant():

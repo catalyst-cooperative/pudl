@@ -30,8 +30,6 @@ logger = pudl.logging_helpers.get_logger(__name__)
 MAP_CRS = "EPSG:3857"  # For mapping w/ OSM baselayer tiles
 CALC_CRS = "ESRI:102003"  # For accurate area calculations
 
-ENTITY_TYPE = {"ba": "balancing_authorities", "util": "utilities"}
-
 
 def utility_ids_all_eia(
     out_eia__yearly_utilities: pd.DataFrame,
@@ -262,7 +260,7 @@ def get_territory_geometries(
 
 def _save_geoparquet(
     gdf: gpd.GeoDataFrame,
-    entity_type: Literal["util", "ba"],
+    entity_type: Literal["utility", "balancing_authority"],
     dissolve: bool,
     limit_by_state: bool,
     output_dir: pathlib.Path | None = None,
@@ -276,8 +274,8 @@ def _save_geoparquet(
 
     Args:
         gdf: GeoDataframe containing utility or balancing authority geometries.
-        entity_type: short string indicating whether we're outputting utility or
-            balancing authority geometries.
+        entity_type: string indicating whether we're outputting utility or balancing
+            authority geometries.
         dissolve: Wether the individual county geometries making up the service
             territories have been merged together. Used to construct filename.
         limit_by_state: Whether service territories have been limited to include only
@@ -286,13 +284,12 @@ def _save_geoparquet(
         output_dir: Path to the directory where the GeoParquet file will be written.
 
     """
-    entity_name = "balancing_authority" if entity_type == "ba" else "utility"
     dissolved = "_dissolved" if dissolve else ""
     limited = "_limited" if limit_by_state else ""
     if output_dir is None:
         output_dir = pathlib.Path.cwd()
-    file_path = output_dir / f"{entity_name}_geometry{limited}{dissolved}.parquet"
-    gdf.sort_values(["report_date", f"{entity_name}_id_eia"]).to_parquet(
+    file_path = output_dir / f"{entity_type}_geometry{limited}{dissolved}.parquet"
+    gdf.sort_values(["report_date", f"{entity_type}_id_eia"]).to_parquet(
         file_path, row_group_size=512, compression="snappy", index=False
     )
 
@@ -304,13 +301,13 @@ def compile_geoms(
     core_eia861__yearly_service_territory: pd.DataFrame,
     core_eia861__assn_utility: pd.DataFrame,
     census_counties: pd.DataFrame,
-    entity_type: Literal["ba", "util"],
+    entity_type: Literal["balancing_authority", "utility"],
     save_format: Literal["geoparquet", "geodataframe", "dataframe"],
     output_dir: pathlib.Path | None = None,
     dissolve: bool = False,
     limit_by_state: bool = True,
     years: list[int] = [],
-):
+) -> pd.DataFrame:
     """Compile all available utility or balancing authority geometries.
 
     Returns a geoparquet file, geopandas GeoDataFrame or a pandas DataFrame with the
@@ -346,18 +343,20 @@ def compile_geoms(
         out_eia__yearly_utilities, core_eia861__yearly_service_territory
     )
 
-    if entity_type == "ba":
+    if entity_type == "balancing_authority":
         ids = (
             core_eia861__yearly_balancing_authority.balancing_authority_id_eia.unique()
         )
         assn = core_eia861__assn_balancing_authority
         assn_col = "balancing_authority_id_eia"
-    elif entity_type == "util":
+    elif entity_type == "utility":
         ids = utilids_all_eia.utility_id_eia.unique()
         assn = core_eia861__assn_utility
         assn_col = "utility_id_eia"
     else:
-        raise ValueError(f"Got {entity_type=}, but need either 'ba' or 'util'")
+        raise ValueError(
+            f"Got {entity_type=}, but need either 'balancing_authority' or 'utility'"
+        )
 
     # Identify all Utility IDs with service territory information
     geom = get_territory_geometries(
@@ -384,14 +383,14 @@ def compile_geoms(
     return geom
 
 
-def compiled_geoms_asset_factory(
-    entity_type: Literal["ba", "util"],
+def service_territory_asset_factory(
+    entity_type: Literal["balancing_authority", "utility"],
     io_manager_key: str | None = None,
 ) -> list[AssetsDefinition]:
-    """Build asset definitions for balancing authority and utility geometries."""
+    """Build asset definitions for balancing authority and utility territories."""
 
     @asset(
-        name=f"out_eia861__compiled_geometry_{ENTITY_TYPE[entity_type]}",
+        name=f"out_eia861__yearly_{entity_type}_service_territory",
         io_manager_key=io_manager_key,
         config_schema={
             "dissolve": Field(
@@ -418,7 +417,7 @@ def compiled_geoms_asset_factory(
         },
         compute_kind="Python",
     )
-    def dagster_compile_geoms(
+    def _service_territory(
         context,
         core_eia861__yearly_balancing_authority: pd.DataFrame,
         core_eia861__assn_balancing_authority: pd.DataFrame,
@@ -426,7 +425,7 @@ def compiled_geoms_asset_factory(
         core_eia861__yearly_service_territory: pd.DataFrame,
         core_eia861__assn_utility: pd.DataFrame,
         _core_censusdp1tract__counties: pd.DataFrame,
-    ):
+    ) -> pd.DataFrame:
         """Compile all available utility or balancing authority geometries.
 
         Returns:
@@ -450,15 +449,14 @@ def compiled_geoms_asset_factory(
             save_format=save_format,
         )
 
-    return [dagster_compile_geoms]
+    return _service_territory
 
 
-compiled_geometry_eia861_assets = [
-    ass
-    for entity in list(ENTITY_TYPE)
-    for ass in compiled_geoms_asset_factory(
+service_territory_eia861_assets = [
+    service_territory_asset_factory(
         entity_type=entity, io_manager_key="pudl_io_manager"
     )
+    for entity in ["balancing_authority", "utility"]
 ]
 
 
@@ -583,13 +581,10 @@ def plot_all_territories(
 )
 @click.option(
     "--entity-type",
-    type=click.Choice(["util", "ba"]),
+    type=click.Choice(["utility", "balancing_authority"]),
     default="util",
     show_default=True,
-    help=(
-        "What type of entity's service territories should be generated: Utility "
-        "(util) or Balancing Authority (ba)?"
-    ),
+    help="What kind of entity's service territories should be generated?",
 )
 @click.option(
     "--limit-by-state/--no-limit-by-state",
@@ -667,7 +662,7 @@ def plot_all_territories(
     show_default=True,
 )
 def pudl_service_territories(
-    entity_type: Literal["util", "ba"],
+    entity_type: Literal["utility", "balancing_authority"],
     dissolve: bool,
     output_dir: pathlib.Path,
     limit_by_state: bool,
@@ -685,8 +680,8 @@ def pudl_service_territories(
 
     Usage examples:
 
-    pudl_service_territories --entity-type ba --dissolve --limit-by-state
-    pudl_service_territories --entity-type util
+    pudl_service_territories --entity-type balancing_authority --dissolve --limit-by-state
+    pudl_service_territories --entity-type utility
     """
     # Display logged output from the PUDL package:
     pudl.logging_helpers.configure_root_logger(logfile=logfile, loglevel=loglevel)

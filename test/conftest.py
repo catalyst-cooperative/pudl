@@ -23,7 +23,7 @@ from pudl.io_managers import (
     ferc1_xbrl_sqlite_io_manager,
     pudl_mixed_format_io_manager,
 )
-from pudl.metadata.classes import Package
+from pudl.metadata import PUDL_PACKAGE
 from pudl.output.pudltabl import PudlTabl
 from pudl.settings import (
     DatasetsSettings,
@@ -290,7 +290,7 @@ def pudl_io_manager(
     if not live_dbs:
         # Create the database and schemas
         engine = sa.create_engine(PudlPaths().pudl_db)
-        md = Package.from_resource_ids().to_sql()
+        md = PUDL_PACKAGE.to_sql()
         md.create_all(engine)
         # Run the ETL and generate a new PUDL SQLite DB for testing:
         pudl_etl_job_factory()().execute_in_process(
