@@ -228,29 +228,6 @@ def _out_ferc1__yearly_plants_utilities(
     )
 
 
-## example/draft factory pattern
-specs = [
-    {
-        "name": "out_ferc1__yearly_purchased_power_and_exchanges_sched326",
-        "df1": "core_ferc1__yearly_purchased_power_and_exchanges_sched326",
-        "df2": "core_pudl__assn_ferc1_pudl_utilities",
-        "mg": "utility_id_ferc1",
-    },
-    {
-        "name": "out_ferc1__yearly_plant_in_service_sched204",
-        "df1": "core_ferc1__yearly_plant_in_service_sched204",
-        "df2": "core_pudl__assn_ferc1_pudl_utilities",
-        "mg": "utility_id_ferc1",
-    },
-    {
-        "name": "out_ferc1__yearly_balance_sheet_assets_sched110",
-        "df1": "core_ferc1__yearly_balance_sheet_assets_sched110",
-        "df2": "core_pudl__assn_ferc1_pudl_utilities",
-        "mg": "utility_id_ferc1",
-    },
-]
-
-
 @asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def out_ferc1__yearly_steam_plants_sched402(
     _out_ferc1__yearly_plants_utilities: pd.DataFrame,
@@ -453,29 +430,33 @@ specs = [
 ]
 
 
-#draft asset_factory
+# draft asset_factory
 def generate_asset_factory(spec) -> AssetsDefinition:
-    var_name = "core_" + spec["name"]
-    core_ = globals()[var_name]
+    """Create ferc1 assets."""
+    ins: Mapping[str, AssetIn] = {
+        f"core_{spec['name']}": AssetIn(f"core_{spec['name']}"),
+        "core_pudl__assn_ferc1_pudl_utilities": AssetIn(
+            "core_pudl__assn_ferc1_pudl_utilities"
+        ),
+    }
+
     @asset(
-            name=f"_out_{get_core_ferc1_asset_description(spec["name"])}",
-            io_manager_key="pudl_io_manager", 
-            compute_kind="Python")
+        name=f"out_{spec['name']}",
+        io_manager_key="pudl_io_manager",
+        compute_kind="Python",
+        ins=ins,
+    )
     def _asset(
-        core_: pd.DataFrame,
-        core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
+        **kwargs: dict[str, pd.DataFrame],
     ) -> pd.DataFrame:
         """Generate a dataframe for {} asset specification.""".format(spec["name"])
-        return_df = (
-            core_.merge(
-                core_pudl__assn_ferc1_pudl_utilities, on="utility_id_ferc1"
-            )
+        return_df = kwargs[f"core_{spec['name']}"].merge(
+            kwargs["core_pudl__assn_ferc1_pudl_utilities"], on="utility_id_ferc1"
         )
         return return_df
 
     return _asset
 
-#defs = Definition(assets=[generate_asset_factory(spec) for spec in specs])
 
 def create_generated_assets() -> list[AssetsDefinition]:
     """Create a list of generated FERC Form 1 assets.
@@ -484,79 +465,10 @@ def create_generated_assets() -> list[AssetsDefinition]:
         A list of :class:`AssetsDefinitions` where each asset is an generated FERC Form 1
         table.
     """
-    return [generate_asset_factory(**kwargs) for kwargs in specs]
+    return [generate_asset_factory(spec) for spec in specs]
 
 
-exploded_ferc1_assets = create_generated_assets()
-
-
-@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
-def out_ferc1__yearly_purchased_power_and_exchanges_sched326(
-    core_ferc1__yearly_purchased_power_and_exchanges_sched326: pd.DataFrame,
-    core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
-) -> pd.DataFrame:
-    """Pull a useful dataframe of FERC Form 1 Purchased Power data."""
-    purchased_power_df = (
-        core_ferc1__yearly_purchased_power_and_exchanges_sched326.merge(
-            core_pudl__assn_ferc1_pudl_utilities, on="utility_id_ferc1"
-        ).pipe(
-            pudl.helpers.organize_cols,
-            [
-                "report_year",
-                "utility_id_ferc1",
-                "utility_id_pudl",
-                "utility_name_ferc1",
-                "seller_name",
-                "record_id",
-            ],
-        )
-    )
-    return purchased_power_df
-
-
-@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
-def out_ferc1__yearly_plant_in_service_sched204(
-    core_ferc1__yearly_plant_in_service_sched204: pd.DataFrame,
-    core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
-) -> pd.DataFrame:
-    """Pull a dataframe of FERC Form 1 Electric Plant in Service data."""
-    pis_df = core_ferc1__yearly_plant_in_service_sched204.merge(
-        core_pudl__assn_ferc1_pudl_utilities, on="utility_id_ferc1"
-    ).pipe(
-        pudl.helpers.organize_cols,
-        [
-            "report_year",
-            "utility_id_ferc1",
-            "utility_id_pudl",
-            "utility_name_ferc1",
-            "record_id",
-        ],
-    )
-    return pis_df
-
-
-@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
-def out_ferc1__yearly_balance_sheet_assets_sched110(
-    core_ferc1__yearly_balance_sheet_assets_sched110: pd.DataFrame,
-    core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
-) -> pd.DataFrame:
-    """Pull a useful dataframe of FERC Form 1 balance sheet assets data."""
-    out_ferc1__yearly_balance_sheet_assets_sched110 = (
-        core_ferc1__yearly_balance_sheet_assets_sched110.merge(
-            core_pudl__assn_ferc1_pudl_utilities, on="utility_id_ferc1"
-        ).pipe(
-            pudl.helpers.organize_cols,
-            [
-                "report_year",
-                "utility_id_ferc1",
-                "utility_id_pudl",
-                "utility_name_ferc1",
-                "record_id",
-                "asset_type",
-            ],
-        )
-    )
-    return out_ferc1__yearly_balance_sheet_assets_sched110
+generated_ferc1_assets = create_generated_assets()
 
 
 @asset(io_manager_key="pudl_io_manager", compute_kind="Python")
