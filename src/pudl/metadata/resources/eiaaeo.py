@@ -5,42 +5,40 @@ from typing import Any
 # 2024-04-24: workaround so we can *define* a bunch of schemas without
 # documenting them or expecting assets to exist
 _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
-    "core_eiaaeo__generation_electric_sector": {
+    "core_eiaaeo__electric_sector_generation_by_technology": {
         "description": (
             "Projected generation capacity & total generation in the electric "
-            "sector."
+            "sector, broken out by technology."
         ),
         "schema": {
             "fields": [
                 "report_year",
-                "electricity_market_module_region",
-                "aeo_case",
-                "projection_date",
-                "aeo_electricity_sector_fuel_type",
-                "net_summer_capacity_mw",  # should this be capacity_mw_eia?
-                # should we include "first modeled year" as a field, to help interpret all the cumulative fields?
-                "net_summer_capacity_cumulative_planned_additions_mw",
-                "net_summer_capacity_cumulative_unplanned_additions_mw",
-                "net_summer_capacity_cumulative_total_additions_mw",  # this is just planned + unplanned - do we even care about publishing this?
-                "net_summer_capacity_cumulative_retirements_mw",
-                "gross_generation_mwh",  # chose gross bc the numbers add up to "total generation" which then equals "sales to customers + generation for own use" - but... is that right?
+                "electricity_market_module_region_aeo",
+                "modeling_case_aeo",
+                "projection_year",
+                "technology_description_aeo",
+                "summer_capacity_mw",
+                "summer_capacity_planned_additions_mw",
+                "summer_capacity_unplanned_additions_mw",
+                "summer_capacity_retirements_mw",
+                "gross_generation_mwh",
             ],
             "primary_key": [
                 "report_year",
-                "electricity_market_module_region",
-                "aeo_case",
-                "projection_date",
-                "aeo_electricity_sector_fuel_type",
+                "electricity_market_module_region_aeo",
+                "modeling_case_aeo",
+                "projection_year",
+                "technology_description_aeo",
             ],
         },
         "sources": ["eiaaeo"],
         "field_namespace": "eiaaeo",
         "etl_group": "eiaaeo",
     },
-    "core_eiaaeo__generation_end_use_sector": {
+    "core_eiaaeo__end_use_sectors_generation_by_fuel_type": {
         "description": (
             "Projected generation capacity & total generation in the end-use "
-            "sector.\n"
+            "sector, broken out by fuel type.\n"
             "Includes combined-heat-and-power plants and electricity-only "
             "plants in the commercial and industrial sectors; and small on-site "
             "generating systems in the residential, commercial, and industrial "
@@ -52,19 +50,78 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "report_year",
-                "electricity_market_module_region",
-                "aeo_case",
-                "projection_date",
-                "aeo_end_use_sector_fuel_type",
-                "net_summer_capacity_mw",  # should this be capacity_mw_eia?
+                "electricity_market_module_region_aeo",
+                "modeling_case_aeo",
+                "projection_year",
+                "fuel_type_aeo",
+                "summer_capacity_mw",  # should this be capacity_mw_eia?
                 "gross_generation_mwh",
             ],
             "primary_key": [
                 "report_year",
-                "electricity_market_module_region",
-                "aeo_case",
-                "projection_date",
-                "aeo_end_use_sector_fuel_type",
+                "electricity_market_module_region_aeo",
+                "modeling_case_aeo",
+                "projection_year",
+                "fuel_type_aeo",
+            ],
+        },
+        "sources": ["eiaaeo"],
+        "field_namespace": "eiaaeo",
+        "etl_group": "eiaaeo",
+    },
+    "core_eiaaeo__electric_sector_generation": {
+        "description": (
+            "Projected total generation in the electric sector, across all "
+            "technologies."
+        ),
+        "schema": {
+            "fields": [
+                "report_year",
+                "electricity_market_module_region_aeo",
+                "modeling_case_aeo",
+                "projection_year",
+                "gross_generation_mwh",
+                "sales_mwh",
+                "generation_for_own_use_mwh",
+            ],
+            "primary_key": [
+                "report_year",
+                "electricity_market_module_region_aeo",
+                "modeling_case_aeo",
+                "projection_year",
+            ],
+        },
+        "sources": ["eiaaeo"],
+        "field_namespace": "eiaaeo",
+        "etl_group": "eiaaeo",
+    },
+    "core_eiaaeo__end_use_sectors_generation": {
+        "description": (
+            "Projected total generation in the end-use sector, across all "
+            "fuel types.\n"
+            "Includes combined-heat-and-power plants and electricity-only "
+            "plants in the commercial and industrial sectors; and small on-site "
+            "generating systems in the residential, commercial, and industrial "
+            "sectors used primarily for own-use generation, but which may also "
+            "sell some power to the grid. Solar photovoltaic capacity portion of "
+            "Renewable Sources in gigawatts direct current; other technologies "
+            "in gigawatts alternating current."
+        ),
+        "schema": {
+            "fields": [
+                "report_year",
+                "electricity_market_module_region_aeo",
+                "modeling_case_aeo",
+                "projection_year",
+                "gross_generation_mwh",
+                "sales_mwh",
+                "generation_for_own_use_mwh",
+            ],
+            "primary_key": [
+                "report_year",
+                "electricity_market_module_region_aeo",
+                "modeling_case_aeo",
+                "projection_year",
             ],
         },
         "sources": ["eiaaeo"],
@@ -76,18 +133,18 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "report_year",
-                "electricity_market_module_region",
-                "aeo_case",
-                "projection_date",
-                "aeo_sales_sector",
+                "electricity_market_module_region_aeo",
+                "modeling_case_aeo",
+                "projection_year",
+                "customer_class",
                 "sales_mwh",
             ],
             "primary_key": [
                 "report_year",
-                "electricity_market_module_region",
-                "aeo_case",
-                "projection_date",
-                "aeo_sales_sector",
+                "electricity_market_module_region_aeo",
+                "modeling_case_aeo",
+                "projection_year",
+                "customer_class",
             ],
         },
         "sources": ["eiaaeo"],
@@ -99,18 +156,18 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "report_year",
-                "electricity_market_module_region",
-                "aeo_case",
-                "projection_date",
-                "aeo_net_energy_for_load_sector",
+                "electricity_market_module_region_aeo",
+                "modeling_case_aeo",
+                "projection_year",
+                "generation_source_or_sink_type_aeo",
                 "net_energy_for_load_mwh",
             ],
             "primary_key": [
                 "report_year",
-                "electricity_market_module_region",
-                "aeo_case",
-                "projection_date",
-                "aeo_net_energy_for_load_sector",
+                "electricity_market_module_region_aeo",
+                "modeling_case_aeo",
+                "projection_year",
+                "generation_source_or_sink_type_aeo",
             ],
         },
         "sources": ["eiaaeo"],
@@ -122,20 +179,18 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "report_year",
-                "electricity_market_module_region",
-                "aeo_case",
-                "projection_date",
-                "aeo_sales_sector",
-                "real_value_base_year",
-                "end_use_price_per_mwh",
+                "electricity_market_module_region_aeo",
+                "modeling_case_aeo",
+                "projection_year",
+                "customer_class",
+                "nominal_price_per_mwh",
             ],
             "primary_key": [
                 "report_year",
-                "electricity_market_module_region",
-                "aeo_case",
-                "projection_date",
-                "aeo_sales_sector",
-                "real_value_base_year",
+                "electricity_market_module_region_aeo",
+                "modeling_case_aeo",
+                "projection_year",
+                "customer_class",
             ],
         },
         "sources": ["eiaaeo"],
@@ -149,20 +204,18 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "report_year",
-                "electricity_market_module_region",
-                "aeo_case",
-                "projection_date",
-                "aeo_service_category",
-                "real_value_base_year",
-                "end_use_price_per_mwh",
+                "electricity_market_module_region_aeo",
+                "modeling_case_aeo",
+                "projection_year",
+                "service_category_aeo",
+                "nominal_price_per_mwh",
             ],
             "primary_key": [
                 "report_year",
-                "electricity_market_module_region",
-                "aeo_case",
-                "projection_date",
-                "aeo_service_category",
-                "real_value_base_year",
+                "electricity_market_module_region_aeo",
+                "modeling_case_aeo",
+                "projection_year",
+                "service_category_aeo",
             ],
         },
         "sources": ["eiaaeo"],
@@ -178,18 +231,18 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "report_year",
-                "electricity_market_module_region",
-                "aeo_case",
-                "projection_date",
-                "aeo_fuel_consumption_type",
+                "electricity_market_module_region_aeo",
+                "modeling_case_aeo",
+                "projection_year",
+                "fuel_type_aeo",
                 "fuel_consumed_mmbtu",
             ],
             "primary_key": [
                 "report_year",
-                "electricity_market_module_region",
-                "aeo_case",
-                "projection_date",
-                "aeo_fuel_consumption_type",
+                "electricity_market_module_region_aeo",
+                "modeling_case_aeo",
+                "projection_year",
+                "fuel_type_aeo",
             ],
         },
         "sources": ["eiaaeo"],
@@ -205,20 +258,18 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "report_year",
-                "electricity_market_module_region",
-                "aeo_case",
-                "projection_date",
-                "aeo_fuel_cost_type",
-                "real_value_base_year",
+                "electricity_market_module_region_aeo",
+                "modeling_case_aeo",
+                "projection_year",
+                "fuel_type_aeo",
                 "fuel_cost_mmbtu",  # this is *nominal* dollars, but we probably want to standardize to some sort of constant-dollar value?
             ],
             "primary_key": [
                 "report_year",
-                "electricity_market_module_region",
-                "aeo_case",
-                "projection_date",
-                "aeo_fuel_cost_type",
-                "real_value_base_year",
+                "electricity_market_module_region_aeo",
+                "modeling_case_aeo",
+                "projection_year",
+                "fuel_type_aeo",
             ],
         },
         "sources": ["eiaaeo"],
@@ -234,9 +285,9 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "report_year",
-                "electricity_market_module_region",
-                "aeo_case",
-                "projection_date",
+                "electricity_market_module_region_aeo",
+                "modeling_case_aeo",
+                "projection_year",
                 "carbon_mass_tons",
                 "co2_mass_tons",
                 "hg_mass_lb",
@@ -245,9 +296,9 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ],
             "primary_key": [
                 "report_year",
-                "electricity_market_module_region",
-                "aeo_case",
-                "projection_date",
+                "electricity_market_module_region_aeo",
+                "modeling_case_aeo",
+                "projection_year",
             ],
         },
         "sources": ["eiaaeo"],
@@ -260,21 +311,37 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
 # Once we "promote" schemas we need to move the fields to the real
 # pudl.metadata.fields.FIELD_METADATA dictionary. What a frickin pain.
 _STAGING_FIELD_METADATA: dict[str, dict[str, Any]] = {
-    "report_year": {
-        "type": "integer",
-        "description": "ALREADY EXISTS, HERE FOR CONVENIENCE!",
-    },
-    "projection_date": {
-        "type": "date",
-        "description": "Date at which this data is projected to be true.",
-    },
-    "real_value_base_year": {
-        "type": "integer",
-        "description": "Nominal monetary values are converted to values from this year.",
-    },
-    "electricity_market_module_region": {
+    "aeo_fuel_consumption_type": {  # TODO: turn this into a resource-specific enum for fuel_type_aeo when promoting.
         "type": "string",
-        "description": "AEO projection region. Maybe the same as NERC region?",
+        "description": ("Fuel type reported for AEO fuel consumption data."),
+        "constraints": {
+            "enum": [
+                "coal",
+                "natural_gas",
+                "oil",
+            ]
+        },
+    },
+    "aeo_fuel_cost_type": {  # TODO: turn this into a resource-specific enum for fuel_type_aeo when promoting.
+        "type": "string",
+        "description": ("Fuel type reported for AEO fuel consumption data."),
+        "constraints": {
+            "enum": [
+                "coal",
+                "natural_gas",
+                "distillate_fuel_oil",
+                "residual_fuel_oil",
+            ]
+        },
+    },
+    "carbon_mass_tons": {
+        "type": "number",
+        "description": "Total carbon emissions in short tons.",
+        "unit": "short_tons",
+    },
+    "electricity_market_module_region_aeo": {
+        "type": "string",
+        "description": "AEO projection region.",
         "constraints": {
             "enum": [
                 "florida_reliability_coordinating_council",
@@ -306,9 +373,47 @@ _STAGING_FIELD_METADATA: dict[str, dict[str, Any]] = {
             ]
         },
     },
-    "aeo_case": {
+    "fuel_type_aeo": {
         "type": "string",
-        "description": "AEO modelling case.",
+        "description": ("Fuel type reported for AEO end-use sector generation data."),
+        "constraints": {
+            "enum": [
+                "coal",
+                "petroleum",
+                "natural_gas",
+                "other_gaseous_fuels",
+                "renewable_sources",
+                "other",
+            ]
+        },
+    },
+    "generation_for_own_use_mwh": {
+        "type": "number",
+        "description": "Amount of generation that is used for generation instead of sold.",
+        "unit": "MWh",
+    },
+    "generation_source_or_sink_type_aeo": {
+        "type": "string",
+        "description": ("Sector reported for net energy for load."),
+        "constraints": {
+            "enum": [
+                "gross_international_imports",
+                "gross_international_exports",
+                "gross_interregional_electricity_imports",
+                "gross_interregional_electricty_exports",
+                "purchases_from_combined_heat_and_power",
+                "electric_power_sector_generation_for_customer",
+            ]
+        },
+    },
+    "hg_mass_lbs": {
+        "type": "number",
+        "description": "Total mercury emissions in pounds.",
+        "unit": "lb",
+    },
+    "modeling_case_aeo": {
+        "type": "string",
+        "description": "AEO modeling case.",
         "constraints": {
             "enum": [
                 "aeo2022",
@@ -331,7 +436,56 @@ _STAGING_FIELD_METADATA: dict[str, dict[str, Any]] = {
             ]
         },
     },
-    "aeo_electricity_sector_fuel_type": {
+    "nominal_price_per_mwh": {
+        "type": "number",
+        "description": ("Nominal electricity price per MWh."),
+        "unit": "USD/MWh",
+    },
+    "projection_year": {
+        "type": "date",
+        "description": "Date at which this data is projected to be true.",
+    },
+    "real_price_per_mwh": {
+        "type": "number",
+        "description": (
+            "Real electricity price per MWh, standardized to "
+            "the year before the ``report_year``."
+        ),
+        "unit": "USD/MWh",
+    },
+    "service_category_aeo": {
+        "type": "string",
+        "description": ("Service category reported for electricity end-use prices."),
+        "constraints": {
+            "enum": [
+                "generation",
+                "transmission",
+                "distribution",
+            ]
+        },
+    },
+    "summer_capacity_planned_additions_mw": {
+        "type": "number",
+        "description": (
+            "The total planned additions to net summer generating capacity."
+        ),
+        "unit": "mw",
+    },
+    "summer_capacity_retirements_mw": {
+        "type": "number",
+        "description": (
+            "The total retirements from to net summer generating capacity."
+        ),
+        "unit": "mw",
+    },
+    "summer_capacity_unplanned_additions_mw": {
+        "type": "number",
+        "description": (
+            "The total unplanned additions to net summer generating capacity."
+        ),
+        "unit": "mw",
+    },
+    "technology_description_aeo": {
         "type": "string",
         "description": "Fuel type reported for AEO electricity sector generation data.",
         "constraints": {
@@ -346,164 +500,8 @@ _STAGING_FIELD_METADATA: dict[str, dict[str, Any]] = {
                 "oil_and_natural_gas_steam",
                 "pumped_storage",
                 "renewable_sources",
-                "total",  # this one isn't *really* a fuel type - should we even keep it around?
-                "sales_to_customers",  # this is only used for *total* generation, not *capacity*. And also isn't *really* a fuel type...
-                "generation_for_own_use",  # this is only used for *total* generation, not *capacity*. And also isn't *really* a fuel type...
             ]
         },
-    },
-    "aeo_end_use_sector_fuel_type": {
-        "type": "string",
-        "description": ("Fuel type reported for AEO end-use sector generation data."),
-        "constraints": {
-            "enum": [
-                "coal",
-                "petroleum",
-                "natural_gas",
-                "other_gaseous_fuels",
-                "renewable_sources",
-                "other",
-                "total",  # this one isn't *really* a fuel type - should we even keep it around?
-                "sales_to_the_grid",  # this is only used for *total* generation, not *capacity*. And also isn't *really* a fuel type...
-                "generation_for_own_use",  # this is only used for *total* generation, not *capacity*. And also isn't *really* a fuel type...
-            ]
-        },
-    },
-    "aeo_fuel_consumption_type": {
-        "type": "string",
-        "description": ("Fuel type reported for AEO fuel consumption data."),
-        "constraints": {
-            "enum": [
-                "coal",
-                "natural_gas",
-                "oil",
-                "total",  # this one isn't *really* a fuel type - should we even keep it around?
-            ]
-        },
-    },
-    "aeo_fuel_cost_type": {
-        "type": "string",
-        "description": ("Fuel type reported for AEO fuel consumption data."),
-        "constraints": {
-            "enum": [
-                "coal",
-                "natural_gas",
-                "distillate_fuel_oil",
-                "residual_fuel_oil",
-            ]
-        },
-    },
-    "aeo_net_energy_for_load_sector": {
-        "type": "string",
-        "description": ("Sector reported for net energy for load."),
-        "constraints": {
-            "enum": [
-                "gross_international_imports",
-                "gross_international_exports",
-                "gross_interregional_electricity_imports",
-                "gross_interregional_electricty_exports",
-                "purchases_from_combined_heat_and_power",
-                "electric_power_sector_generation_for_customer",
-                "total",  # not a real sector / calculatable from everything else, should we keep this?
-            ]
-        },
-    },
-    "aeo_sales_sector": {
-        "type": "string",
-        "description": ("Sector reported for electricity sales & end-use prices."),
-        "constraints": {
-            "enum": [
-                "residential",
-                "commercial",
-                "industrial",
-                "transportation",
-                "average",  # not a real sector, and only present for prices
-                "total",  # not a real sector, only present for sales
-            ]
-        },
-    },
-    "aeo_service_category": {
-        "type": "string",
-        "description": ("Service category reported for electricity end-use prices."),
-        "constraints": {
-            "enum": [
-                "generation",
-                "transmission",
-                "distribution",
-            ]
-        },
-    },
-    "carbon_mass_tons": {
-        "type": "number",
-        "description": "Total carbon emissions in short tons.",
-        "unit": "short_tons",
-    },
-    "co2_mass_tons": {
-        "type": "number",
-        "description": "ALREADY EXISTS, HERE FOR CONVENIENCE!",
-    },
-    "hg_mass_lbs": {
-        "type": "number",
-        "description": "Total mercury emissions in pounds.",
-        "unit": "lb",
-    },
-    "nox_mass_lbs": {
-        "type": "number",
-        "description": "ALREADY EXISTS, HERE FOR CONVENIENCE!",
-    },
-    "so2_mass_lbs": {
-        "type": "number",
-        "description": "ALREADY EXISTS, HERE FOR CONVENIENCE!",
-    },
-    "end_use_price_per_mwh": {
-        "type": "number",
-        "description": (
-            "End-use sector electricity prices (standardized to the year "
-            "``real_value_base_year``)."
-        ),
-        "unit": "USD/MWh",
-    },
-    "sales_mwh": {
-        "type": "number",
-        "description": "ALREADY EXISTS, JUST HERE FOR CONVENIENCE",
-        "unit": "MWh",
-    },
-    "net_summer_capacity_mw": {
-        "type": "number",
-        "description": "The steady hourly output that generating equipment is expected to apply to system load.",
-        "unit": "mw",
-    },  # should this be capacity_mw_eia?
-    "net_summer_capacity_cumulative_planned_additions_mw": {
-        "type": "number",
-        "description": (
-            "The total planned additions to generating capacity since the "
-            "beginning of the AEO period."
-        ),
-        "unit": "mw",
-    },
-    "net_summer_capacity_cumulative_unplanned_additions_mw": {
-        "type": "number",
-        "description": (
-            "The total unplanned additions to generating capacity since the "
-            "beginning of the AEO period."
-        ),
-        "unit": "mw",
-    },
-    "net_summer_capacity_cumulative_total_additions_mw": {  # this is just planned + unplanned - do we even care about publishing this?
-        "type": "number",
-        "description": (
-            "The total additions to generating capacity since the beginning "
-            "of the AEO period."
-        ),
-        "unit": "mw",
-    },
-    "net_summer_capacity_cumulative_retirements_mw": {
-        "type": "number",
-        "description": (
-            "The total retirements from generating capacity since the beginning "
-            "of the AEO period."
-        ),
-        "unit": "mw",
     },
 }  # noqa:W0612
 
