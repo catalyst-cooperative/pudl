@@ -85,7 +85,7 @@ commercial_price_responsiveness_customers,-1,-1,-1,-1,-1,-1,-1,59,59,59,93,93,87
 industrial_price_responsiveness_customers,-1,-1,-1,-1,-1,-1,-1,60,60,60,94,94,88
 transportation_price_responsiveness_customers,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,95,95,89
 other_price_responsiveness_customers,-1,-1,-1,-1,-1,-1,-1,61,61,61,-1,-1,-1
-time_responsive_programs,-1,-1,-1,-1,-1,-1,-1,62,62,62,96,96,-1
+has_time_responsive_programs,-1,-1,-1,-1,-1,-1,-1,62,62,62,96,96,-1
 residential_time_responsiveness_customers,-1,-1,-1,-1,-1,-1,-1,63,63,63,97,97,90
 commercial_time_responsiveness_customers,-1,-1,-1,-1,-1,-1,-1,64,64,64,98,98,91
 industrial_time_responsiveness_customers,-1,-1,-1,-1,-1,-1,-1,65,65,65,99,99,92

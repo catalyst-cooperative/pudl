@@ -894,7 +894,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "has_demand_side_management": {
         "type": "boolean",
-        "description": "Were there strategies or measures used to control electricity demand by customers?",
+        "description": "Whether there were strategies or measures used to control electricity demand by customers",
     },
     "depreciation_type": {
         "type": "string",
@@ -1719,9 +1719,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Category of geographic aggregation in EIA bulk electricity data.",
     },
-    "green_pricing": {
+    "has_green_pricing": {
         "type": "boolean",
-        "description": "Was there green pricing program associated with this utility during the reporting year?",
+        "description": "Whether a green pricing program was associated with this utility during the reporting year.",
     },
     "green_pricing_revenue": {
         "type": "number",
@@ -2297,9 +2297,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Net output for load (net generation - energy used for pumping) in megawatt-hours.",
         "unit": "MWh",
     },
-    "net_metering": {
+    "has_net_metering": {
         "type": "boolean",
-        "description": "Did this plant have a net metering agreement in effect during the reporting year?  (Only displayed for facilities that report the sun or wind as an energy source). This field was only reported up until 2015",
+        "description": "Whether the plant has a net metering agreement in effect during the reporting year.  (Only displayed for facilities that report the sun or wind as an energy source). This field was only reported up until 2015",
         # TODO: Is this really boolean? Or do we have non-null strings that mean False?
     },
     "net_power_exchanged_mwh": {
@@ -3881,7 +3881,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "and predefined, based on season, day of week, and time of day."
         ),
     },
-    "time_responsive_programs": {
+    "has_time_responsive_programs": {
         "type": "boolean",
         "description": (
             "Whether the respondent operates any time-based rate programs (e.g., "
@@ -4189,7 +4189,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "MMBtu_per_hour",
         "description": "Design waste-heat input rate at maximum continuous steam flow where a waste-heat boiler is a boiler that receives all or a substantial portion of its energy input from the noncumbustible exhaust gases of a separate fuel-burning process (MMBtu per hour).",
     },
-    "water_heater": {
+    "num_water_heaters": {
         "type": "integer",
         "description": (
             "The number of grid-enabled water heaters added to the respondent's "

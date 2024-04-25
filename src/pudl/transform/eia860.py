@@ -545,7 +545,7 @@ def _core_eia860__plants(raw_eia860__plant: pd.DataFrame) -> pd.DataFrame:
         "energy_storage",
         "natural_gas_storage",
         "liquefied_natural_gas_storage",
-        "net_metering",
+        "has_net_metering",
     ]
 
     for column in boolean_columns_to_fix:

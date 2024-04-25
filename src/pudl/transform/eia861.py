@@ -1234,10 +1234,9 @@ def core_eia861__yearly_short_form(
     ]
 
     bool_cols = [
-        "water_heater",
-        "net_metering",
+        "has_net_metering",
         "demand_side_management",
-        "time_responsive_programs",
+        "has_time_responsive_programs",
         "green_pricing",
     ]
 
@@ -1338,11 +1337,11 @@ def core_eia861__yearly_demand_response(raw_eia861__demand_response: pd.DataFram
     raw_dr["short_form"] = _make_yn_bool(raw_dr.short_form)
 
     # Split data into tidy-able and not
-    raw_dr_water_heater = raw_dr[idx_cols + ["water_heater", "data_maturity"]].copy()
+    raw_dr_water_heater = raw_dr[idx_cols + ["num_water_heaters", "data_maturity"]].copy()
     dr_water = _drop_dupes(
         df=raw_dr_water_heater, df_name="Demand Response Water Heater", subset=idx_cols
     )
-    raw_dr = raw_dr.drop(columns=["water_heater"])
+    raw_dr = raw_dr.drop(columns=["num_water_heaters"])
 
     ###########################################################################
     # Tidy Data:
@@ -1444,7 +1443,7 @@ def core_demand_side_management_eia861(
         "major_program_changes",
         "price_responsive_programs",
         "short_form",
-        "time_responsive_programs",
+        "has_time_responsive_programs",
     ]
 
     cost_cols = [
