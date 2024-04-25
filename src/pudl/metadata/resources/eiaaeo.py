@@ -5,7 +5,7 @@ from typing import Any
 # 2024-04-24: workaround so we can *define* a bunch of schemas without
 # documenting them or expecting assets to exist
 _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
-    "core_eiaaeo__electric_sector_generation_by_technology": {
+    "core_eiaaeo__yearly_projection_electric_sector_generation_by_technology": {
         "description": (
             "Projected generation capacity & total generation in the electric "
             "sector, broken out by technology."
@@ -35,7 +35,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eiaaeo",
         "etl_group": "eiaaeo",
     },
-    "core_eiaaeo__end_use_sectors_generation_by_fuel_type": {
+    "core_eiaaeo__yearly_projection_end_use_sectors_generation_by_fuel_type": {
         "description": (
             "Projected generation capacity & total generation in the end-use "
             "sector, broken out by fuel type.\n"
@@ -69,7 +69,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eiaaeo",
         "etl_group": "eiaaeo",
     },
-    "core_eiaaeo__electric_sector_generation": {
+    "core_eiaaeo__yearly_projection_electric_sector_generation": {
         "description": (
             "Projected total generation in the electric sector, across all "
             "technologies."
@@ -95,7 +95,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eiaaeo",
         "etl_group": "eiaaeo",
     },
-    "core_eiaaeo__end_use_sectors_generation": {
+    "core_eiaaeo__yearly_projection_end_use_sectors_generation": {
         "description": (
             "Projected total generation in the end-use sector, across all "
             "fuel types.\n"
@@ -128,7 +128,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eiaaeo",
         "etl_group": "eiaaeo",
     },
-    "core_eiaaeo__electricity_sales": {
+    "core_eiaaeo__yearly_projection_electricity_sales": {
         "description": "Projected electricity sales.",
         "schema": {
             "fields": [
@@ -151,7 +151,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eiaaeo",
         "etl_group": "eiaaeo",
     },
-    "core_eiaaeo__net_energy_for_load": {
+    "core_eiaaeo__yearly_projection_net_energy_for_load": {
         "description": "Projected net energy for load.",
         "schema": {
             "fields": [
@@ -174,7 +174,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eiaaeo",
         "etl_group": "eiaaeo",
     },
-    "core_eiaaeo__end_use_prices_by_sector": {
+    "core_eiaaeo__yearly_projection_end_use_prices_by_sector": {
         "description": "Projected electricity cost to the end user by sector.",
         "schema": {
             "fields": [
@@ -184,6 +184,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "projection_year",
                 "customer_class",
                 "nominal_price_per_mwh",
+                "real_price_per_mwh",
             ],
             "primary_key": [
                 "report_year",
@@ -197,7 +198,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eiaaeo",
         "etl_group": "eiaaeo",
     },
-    "core_eiaaeo__end_use_prices_by_service_category": {
+    "core_eiaaeo__yearly_projection_end_use_prices_by_service_category": {
         "description": (
             "Projected electricity cost to the end user by service category."
         ),
@@ -209,6 +210,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "projection_year",
                 "service_category_aeo",
                 "nominal_price_per_mwh",
+                "real_price_per_mwh",
             ],
             "primary_key": [
                 "report_year",
@@ -222,7 +224,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eiaaeo",
         "etl_group": "eiaaeo",
     },
-    "core_eiaaeo__fuel_consumption_by_type": {
+    "core_eiaaeo__yearly_projection_fuel_consumption_by_type": {
         "description": (
             "Projected fuel consumption by the electric power sector, "
             "including electricity-only and combined-heat-and-power plants "
@@ -249,7 +251,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eiaaeo",
         "etl_group": "eiaaeo",
     },
-    "core_eiaaeo__electric_sector_fuel_cost_by_type": {
+    "core_eiaaeo__yearly_projection_electric_sector_fuel_cost_by_type": {
         "description": (
             "Projected fuel prices to the electric power sector, including "
             "electricity-only and combined-heat-and-power plants that have a "
@@ -262,7 +264,8 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "modeling_case_aeo",
                 "projection_year",
                 "fuel_type_aeo",
-                "fuel_cost_mmbtu",  # this is *nominal* dollars, but we probably want to standardize to some sort of constant-dollar value?
+                "fuel_cost_per_mmbtu",
+                "fuel_cost_real_per_mmbtu_aeo",
             ],
             "primary_key": [
                 "report_year",
@@ -276,7 +279,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eiaaeo",
         "etl_group": "eiaaeo",
     },
-    "core_eiaaeo__electric_power_sector_emissions": {
+    "core_eiaaeo__yearly_projection_electric_power_sector_emissions": {
         "description": (
             "Projected emissions from the electric power sector, including "
             "electricity-only and combined-heat-and-power plants that have a "
@@ -386,6 +389,15 @@ _STAGING_FIELD_METADATA: dict[str, dict[str, Any]] = {
                 "other",
             ]
         },
+    },
+    "fuel_cost_real_per_mmbtu_aeo": {
+        "type": "number",
+        "description": (
+            "Average fuel cost per mmBTU of heat content in real USD, "
+            "standardized to the value of a USD in the year before the report "
+            "year."
+        ),
+        "unit": "USD_per_MMBtu",
     },
     "generation_for_own_use_mwh": {
         "type": "number",
