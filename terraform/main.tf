@@ -92,6 +92,8 @@ resource "google_storage_bucket_iam_binding" "binding" {
   role   = "roles/storage.objectViewer"
   members = [
     "serviceAccount:rmi-beta-access@catalyst-cooperative-pudl.iam.gserviceaccount.com",
+    "serviceAccount:zerolab-beta-access@catalyst-cooperative-pudl.iam.gserviceaccount.com",
+    "serviceAccount:gridpath-beta-access@catalyst-cooperative-pudl.iam.gserviceaccount.com",
     "serviceAccount:dgm-github-action@dbcp-dev-350818.iam.gserviceaccount.com",
     "user:aengel@rmi.org",
   ]
