@@ -7,7 +7,7 @@ import pandas as pd
 from dagster import asset
 
 import pudl.logging_helpers
-from pudl.metadata.classes import Package
+from pudl.metadata import PUDL_PACKAGE
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -321,7 +321,7 @@ def _post_process(df: pd.DataFrame, table_name: str) -> pd.DataFrame:
     Returns:
         The post-processed dataframe.
     """
-    return Package.from_resource_ids().get_resource(table_name).enforce_schema(df)
+    return PUDL_PACKAGE.get_resource(table_name).enforce_schema(df)
 
 
 def _standardize_offset_codes(df: pd.DataFrame, offset_fixes) -> pd.DataFrame:

@@ -470,6 +470,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     ["energy_source_code_4"],
                     ["energy_source_code_5"],
                     ["energy_source_code_6"],
+                    ["energy_source_code_7"],
+                    ["energy_source_code_8"],
+                    ["energy_source_code_9"],
                     ["startup_source_code_1"],
                     ["startup_source_code_2"],
                     ["startup_source_code_3"],
@@ -1164,6 +1167,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
+            "foreign_key_rules": {"fields": [["storage_enclosure_code"]]},
         },
         "encoder": CODE_METADATA["core_eia__codes_storage_enclosure_types"],
         "field_namespace": "eia",
@@ -1175,6 +1179,14 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
+            "foreign_key_rules": {
+                "fields": [
+                    ["storage_technology_code_1"],
+                    ["storage_technology_code_2"],
+                    ["storage_technology_code_3"],
+                    ["storage_technology_code_4"],
+                ]
+            },
         },
         "encoder": CODE_METADATA["core_eia__codes_storage_technology_types"],
         "field_namespace": "eia",
