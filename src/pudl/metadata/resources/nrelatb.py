@@ -3,13 +3,13 @@
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {  # }
-    "core_nrelatb__yearly_financial_cases": {
-        "description": "Finanial assumptions for each core_metric_case and technology_description.",
+    "core_nrelatb__yearly_projected_financial_cases": {
+        "description": "Financial assumptions for each model_case_nrelatb and technology_description.",
         "schema": {
             "fields": [
                 "report_year",
-                "core_metric_case",
-                "core_metric_variable_year",
+                "model_case_nrelatb",
+                "projection_year",
                 "technology_description",
                 "inflation_rate",
                 "interest_rate_during_construction_nominal",
@@ -21,8 +21,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {  # }
             ],
             "primary_key": [
                 "report_year",
-                "core_metric_case",
-                "core_metric_variable_year",
+                "model_case_nrelatb",
+                "projection_year",
                 "technology_description",
             ],
         },
@@ -30,16 +30,23 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {  # }
         "etl_group": "nrelatb",
         "field_namespace": "nrelatb",
     },
-    "core_nrelatb__yearly_financial_cases_by_scenario": {
-        "description": "Additional financial assumptions for NREL ATB projections",
+    "core_nrelatb__yearly_projected_financial_cases_by_scenario": {
+        "description": (
+            "Additional financial assumptions for NREL ATB projections that also vary by scenario_atb "
+            "and cost_recovery_period_years. \nThere are a small number of records which have nulls in"
+            "the cost_recovery_period_years column. Based on NREL's documentation, this seems to indicate "
+            "that those records apply to any relevant cost_recovery_period_years. If those records were "
+            "non-null, the primary keys of this table would be: "
+            "['report_year', 'model_case_nrelatb', 'projection_year', 'technology_description', 'scenario_atb', 'cost_recovery_period_years']"
+        ),
         "schema": {
             "fields": [
                 "report_year",
-                "core_metric_case",
-                "core_metric_variable_year",
+                "model_case_nrelatb",
+                "projection_year",
                 "technology_description",
                 "scenario_atb",
-                # there are nulls in ~%15 of the records in the field
+                # there are nulls in ~%5 of the records in the field
                 # it would be a part of a composite primary_key, but nulls.
                 "cost_recovery_period_years",
                 "capital_recovery_factor",
@@ -54,13 +61,13 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {  # }
         "etl_group": "nrelatb",
         "field_namespace": "nrelatb",
     },
-    "core_nrelatb__yearly_projections_by_technology_detail": {
+    "core_nrelatb__yearly_projected_cost_performance": {
         "description": "Projections of costs and performance for various technologies.",
         "schema": {
             "fields": [
                 "report_year",
-                "core_metric_case",
-                "core_metric_variable_year",
+                "model_case_nrelatb",
+                "projection_year",
                 "technology_description",
                 "cost_recovery_period_years",
                 "scenario_atb",

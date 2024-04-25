@@ -4508,7 +4508,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "The DC capacity in MW that is part of a virtual net metering agreement.",
         "unit": "MW",
     },
-    "core_metric_case": {
+    "model_case_nrelatb": {
         "type": "string",
         "description": (
             "NREL's financial assumption cases. There are two cases which effect project finanical "
@@ -4518,7 +4518,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "constraints": {"enum": ["Market", "R&D"]},
     },
-    "core_metric_variable_year": {
+    "projection_year": {
         "type": "integer",
         "description": "The year of the projected value.",
     },
@@ -4574,11 +4574,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "tax_rate_federal_state": {
         "type": "number",
         "description": (
-            "Combined federal and state tax rate. The R&D core_metric_case holds tax and "
+            "Combined federal and state tax rate. The R&D model_case_nrelatb holds tax and "
             "inflation rates constant at assumed long-term values: 21 percent federal tax rate, "
             "6 percent state tax rate (though actual state tax rates vary), and 2.5 "
             "percent inflation rate Excludes effects of tax credits. The Market + Policy "
-            "core_metric_case applies federal tax credits and expires them as consistent with "
+            "model_case_nrelatb applies federal tax credits and expires them as consistent with "
             "existing law and guidelines."
         ),
     },
