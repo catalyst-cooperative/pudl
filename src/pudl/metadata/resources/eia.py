@@ -15,7 +15,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "exclude": [
                     "core_eia861__yearly_advanced_metering_infrastructure",
                     "core_eia861__yearly_balancing_authority",
-                    "out_eia861__compiled_geometry_balancing_authorities",
+                    "out_eia861__yearly_balancing_authority_service_territory",
                     "core_eia861__yearly_demand_response",
                     "core_eia861__yearly_demand_response_water_heater",
                     "core_eia861__yearly_dynamic_pricing",
@@ -470,6 +470,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     ["energy_source_code_4"],
                     ["energy_source_code_5"],
                     ["energy_source_code_6"],
+                    ["energy_source_code_7"],
+                    ["energy_source_code_8"],
+                    ["energy_source_code_9"],
                     ["startup_source_code_1"],
                     ["startup_source_code_2"],
                     ["startup_source_code_3"],
@@ -690,7 +693,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "core_pudl__assn_eia_pudl_utilities",
                     "core_eia861__yearly_advanced_metering_infrastructure",
                     "core_eia861__assn_balancing_authority",
-                    "out_eia861__compiled_geometry_utilities",
+                    "out_eia861__yearly_utility_service_territory",
                     "core_eia861__yearly_demand_response",
                     "core_eia861__yearly_demand_response_water_heater",
                     "core_eia861__yearly_demand_side_management_ee_dr",
@@ -1159,7 +1162,39 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia860"],
         "etl_group": "static_eia",
     },
+    "core_eia__codes_storage_enclosure_types": {
+        "description": "A coding table for energy storage enclosure types.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {"fields": [["storage_enclosure_code"]]},
+        },
+        "encoder": CODE_METADATA["core_eia__codes_storage_enclosure_types"],
+        "field_namespace": "eia",
+        "sources": ["eia860"],
+        "etl_group": "static_eia",
+    },
+    "core_eia__codes_storage_technology_types": {
+        "description": "A coding table for energy storage technology types.",
+        "schema": {
+            "fields": ["code", "label", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {
+                "fields": [
+                    ["storage_technology_code_1"],
+                    ["storage_technology_code_2"],
+                    ["storage_technology_code_3"],
+                    ["storage_technology_code_4"],
+                ]
+            },
+        },
+        "encoder": CODE_METADATA["core_eia__codes_storage_technology_types"],
+        "field_namespace": "eia",
+        "sources": ["eia860"],
+        "etl_group": "static_eia",
+    },
 }
+
 """Generic EIA resource attributes organized by PUDL identifier (``resource.name``).
 
 Keys are in alphabetical order.

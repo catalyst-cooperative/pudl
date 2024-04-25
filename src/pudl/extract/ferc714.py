@@ -64,13 +64,14 @@ FERC714_FILES: OrderedDict[str, dict[str, str]] = OrderedDict(
 """Dictionary mapping PUDL tables to FERC-714 filenames and character encodings."""
 
 
-def generate_raw_ferc714_asset(table_name: str) -> AssetsDefinition:
+def raw_ferc714_asset_factory(table_name: str) -> AssetsDefinition:
     """Generates an asset for building the raw FERC 714 dataframe."""
     assert table_name in FERC714_FILES
 
     @asset(
         name=f"raw_ferc714__{table_name}",
         required_resource_keys={"datastore", "dataset_settings"},
+        compute_kind="pandas",
     )
     def _extract_raw_ferc714(context):
         """Extract the raw FERC Form 714 dataframes from their original CSV files.
@@ -101,5 +102,5 @@ def generate_raw_ferc714_asset(table_name: str) -> AssetsDefinition:
 
 
 raw_ferc714_assets = [
-    generate_raw_ferc714_asset(table_name) for table_name in FERC714_FILES
+    raw_ferc714_asset_factory(table_name) for table_name in FERC714_FILES
 ]

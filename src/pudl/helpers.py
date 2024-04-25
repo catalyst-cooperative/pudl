@@ -1779,6 +1779,25 @@ def convert_col_to_bool(
     return df
 
 
+def fix_boolean_columns(
+    df: pd.DataFrame,
+    boolean_columns_to_fix: list[str],
+) -> pd.DataFrame:
+    """Fix standard issues with EIA boolean columns.
+
+    Most boolean columns have either "Y" for True or "N" for False. A subset of the
+    columns have "X" values which represents a False value. A subset of the columns
+    have "U" values, presumably for "Unknown," which must be set to null in order to
+    convert the columns to datatype Boolean.
+    """
+    fillna_cols = {col: pd.NA for col in boolean_columns_to_fix}
+    boolean_replace_cols = {
+        col: {"Y": True, "N": False, "X": False, "U": pd.NA}
+        for col in boolean_columns_to_fix
+    }
+    return df.fillna(fillna_cols).replace(to_replace=boolean_replace_cols)
+
+
 def scale_by_ownership(
     gens: pd.DataFrame,
     own_eia860: pd.DataFrame,

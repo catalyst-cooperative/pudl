@@ -90,7 +90,7 @@ def plants_steam_validate_ids(
     ferc1_steam_df: pd.DataFrame,
     label_df: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Tests that plant_id_ferc1 times series includes one record per year.
+    """Tests that plant_id_ferc1 timeseries includes one record per year.
 
     Args:
         ferc1_steam_df: A DataFrame of the data from the FERC 1 Steam table.

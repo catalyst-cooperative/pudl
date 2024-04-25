@@ -20,15 +20,24 @@ New Data Coverage
   <https://zenodo.org/records/10844662>`__, PR :pr:`3489` and `this PUDL archiver issue
   <https://github.com/catalyst-cooperative/pudl-archiver/issues/296>`__.
 * Added new :ref:`core_eia860__scd_generators_wind` table from EIA860 Schedule 3.2
-  which contains wind generator attributes. See :pr:`3522` and :pr:`3494`
+  which contains wind generator attributes. See :pr:`3522` and :pr:`3494`.
 * Added new :ref:`core_eia860__scd_generators_solar` table from EIA860 Schedule 3.3
+  which contains solar generator attributes. See :pr:`3524` and :pr:`3482`.
+* Added new :ref:`core_eia860__scd_generators_energy_storage` table from EIA860 Schedule
+  3.4 which contains energy storage generator attributes. See :pr:`3488` and :pr:`3526`.
   which contains solar generator attributes. See :pr:`3524` and :pr:`3482`
+* Added new :ref:`core_eia923__monthly_energy_storage` table from EIA923 which contains
+  monthly energy and fuel consumption metrics. See :pr:`3516` and :pr:`3546`.
 * Integrated the most processed version of the GridPath RA Toolkit wind and solar
   generation profiles, as well as the tables describing how individual generators were
   aggregated together to create the profiles. See issues :issue:`3509,3510,3511,3515`
   and PR :pr:`3514`. The new tables include:
   :ref:`out_gridpathratoolkit__hourly_available_capacity_factor` and
   :ref:`core_gridpathratoolkit__assn_generator_aggregation_group`.
+* Extracted tables 54 and 56 from the `EIA Annual Energy Outlook 2023
+  <https://www.eia.gov/outlooks/aeo/tables_ref.php>`__, which include future
+  projections related to electric power and renewable energy through the year
+  2050, across a variety of scenarios. See :issue:`3368` and :pr:`3538`.
 
 Data Cleaning
 ^^^^^^^^^^^^^
@@ -37,6 +46,11 @@ Data Cleaning
   rescue records lost because of inconsistent month reporting in EIA 860 and 860M. See
   :issue:`3340` and PR :pr:`3419`. This change also fixed a bug that was preventing
   other columns harvested with a special process from being saved.
+
+* When ingesting FERC 1 XBRL filings, we now take the most recent non-null
+  value instead of the value from the latest filing that applies for a specific
+  row. This means that we no longer lose data if a utility posts a FERC filing
+  with only a small number of updated values.
 
 EIA - FERC1 Record Linkage Model Update
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -62,6 +76,20 @@ Schema Changes
   in order to be consistent with ``operating_datetime_utc`` in the EPA CEMS data, and
   the new hourly renewable generation profiles in the GridPath RA Toolkit. See PR
   :pr:`3514`.
+* Renamed the utility and balancing authority service territory tables to better conform
+  to our naming conventions: ``out_eia861__compiled_geometry_utilities`` is now
+  :ref:`out_eia861__yearly_utility_service_territory` and
+  ``out_eia861__compiled_geometry_balancing_authorities`` is now
+  :ref:`out_eia861__yearly_balancing_authority_service_territory`. See PR :pr:`3552`.
+
+Bug Fixes
+^^^^^^^^^
+* Ensure that all columns fed into the harvesting / reconciliation process are encoded
+  before harvesting takes place, improving the consistency of harvested fields. See
+  issue :issue:`3542` and PR :pr:`3558`. This change also simplifies the encoding
+  process in the vast majority of cases, since the same global set of encoders can be
+  used on any dataframe, with every column encoded based on the field definitions and
+  FK constraints associated with the column name.
 
 .. _release-v2024.2.6:
 
@@ -590,8 +618,8 @@ Analysis
 * Added outputs from :mod:`pudl.analysis.service_territory` and
   :mod:`pudl.analysis.state_demand` into PUDL. These outputs include the US Census
   geometries associated with balancing authority and utility data from EIA 861
-  (:ref:`out_eia861__compiled_geometry_balancing_authorities` and
-  :ref:`out_eia861__compiled_geometry_utilities`), and the estimated total hourly
+  (:ref:`out_eia861__yearly_balancing_authority_service_territory` and
+  :ref:`out_eia861__yearly_utility_service_territory`), and the estimated total hourly
   electricity demand for each US state in
   :ref:`out_ferc714__hourly_estimated_state_demand`. See :issue:`1973`
   and :pr:`2550`.

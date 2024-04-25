@@ -12,3 +12,4 @@ from . import (
     resources,
     sources,
 )
+from .classes import PUDL_PACKAGE

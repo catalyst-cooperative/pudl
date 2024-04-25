@@ -8,12 +8,16 @@ import pudl
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(
+    io_manager_key="pudl_io_manager",
+    compute_kind="pandas",
+    op_tags={"memory-use": "high"},
+)
 def core_eia860m__changelog_generators(
     raw_eia860m__generator_proposed,
     raw_eia860m__generator_existing,
     raw_eia860m__generator_retired,
-):
+) -> pd.DataFrame:
     """Changelog of EIA-860M Generators based on operating status.
 
     The monthly reported EIA-860M tables includes existing, proposed and retired
@@ -76,26 +80,6 @@ def core_eia860m__changelog_generators(
             }
         )
     )
-
-    # Clean up non-standard BA codes prior to deduplication.
-    # This manual fix is required before recoding because there's not a unique mapping
-    # PA -> PACW in Oregon
-    eia860m_all.loc[
-        (eia860m_all.state == "OR")
-        & (eia860m_all.balancing_authority_code_eia == "PA"),
-        "balancing_authority_code_eia",
-    ] = "PACW"
-    # PA -> PACE in Utah
-    eia860m_all.loc[
-        (eia860m_all.state == "UT")
-        & (eia860m_all.balancing_authority_code_eia == "PA"),
-        "balancing_authority_code_eia",
-    ] = "PACE"
-
-    # Standard encoding of categorical columns.
-    eia860m_all = pudl.metadata.classes.Resource.from_id(
-        "core_eia860m__changelog_generators"
-    ).encode(eia860m_all)
 
     # Drop all columns that aren't part of EIA-860M prior to deduplication.
     eia860m_all = eia860m_all[

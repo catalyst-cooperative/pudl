@@ -289,7 +289,8 @@ def get_best_matches(
         "out_pudl__yearly_assn_eia_ferc1_plant_parts": Out(
             io_manager_key="pudl_io_manager"
         )
-    }
+    },
+    tags={"memory-use": "high"},
 )
 def get_full_records_with_overrides(best_match_df, inputs, experiment_tracker):
     """Join full dataframe onto matches to make usable and get stats.
