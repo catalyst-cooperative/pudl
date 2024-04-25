@@ -1337,7 +1337,9 @@ def core_eia861__yearly_demand_response(raw_eia861__demand_response: pd.DataFram
     raw_dr["short_form"] = _make_yn_bool(raw_dr.short_form)
 
     # Split data into tidy-able and not
-    raw_dr_water_heater = raw_dr[idx_cols + ["num_water_heaters", "data_maturity"]].copy()
+    raw_dr_water_heater = raw_dr[
+        idx_cols + ["num_water_heaters", "data_maturity"]
+    ].copy()
     dr_water = _drop_dupes(
         df=raw_dr_water_heater, df_name="Demand Response Water Heater", subset=idx_cols
     )
