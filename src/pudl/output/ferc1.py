@@ -3038,9 +3038,6 @@ def out_ferc1__yearly_rate_base(
         | rate_base.tags_aggregatable_utility_type.isnull(),
         split_col="tags_aggregatable_utility_type",
     )
-    # TODO: rn breaking down the null rate base tags results in a weird spike in 2021
-    # ending_balance. i suspect its from the 2021 subtotal correction tags.
-    # this needs to be fixed
     rate_base_broken_down = breakdown_unlabeled(
         rate_base=rate_base_broken_down,
         unlabeled_mask=rate_base_broken_down.tags_in_rate_base.isnull(),
@@ -3139,7 +3136,8 @@ def apply_ratio_to_breakdown_unlabeled(
             suffixes=("_unlabeled", ""),
         )
         .assign(
-            ending_balance=lambda x: x[f"ratio_{split_col}"] * x.ending_balance,
+            ending_balance=lambda x: x[f"ratio_{split_col}"].fillna(1)
+            * x.ending_balance,
         )
         .assign(**{f"is_breakdown_{split_col}": True})
         .drop(columns=[f"ratio_{split_col}", f"{split_col}_unlabeled"])
