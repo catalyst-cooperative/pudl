@@ -1250,9 +1250,11 @@ def core_eia861__yearly_short_form(
     deduped_sf = _drop_dupes(df=raw_sf, df_name="Short Form", subset=idx_cols)
 
     # * Make Y/N's into booleans
+    deduped_sf = pudl.helpers.fix_boolean_columns(deduped_sf, boolean_columns_to_fix=bool_cols)
+    
     logger.info("Performing value transformations on EIA 861 Short Form table.")
-    for col in bool_cols:
-        deduped_sf[col] = _make_yn_bool(deduped_sf[col])
+    # Transform revenue 1000s into dollars
+    deduped_sf['sales_revenue'] = _thousand_to_one(deduped_sf['sales_revenue'])
 
     return _post_process(deduped_sf)
 
