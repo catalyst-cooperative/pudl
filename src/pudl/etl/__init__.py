@@ -82,6 +82,7 @@ core_module_groups = {
     "core_ferc1": [pudl.transform.ferc1],
     "core_ferc714": [pudl.transform.ferc714],
     "core_gridpathratoolkit": [pudl.transform.gridpathratoolkit],
+    "core_nrelatb": [pudl.transform.nrelatb],
 }
 
 out_module_groups = {
