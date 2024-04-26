@@ -3015,6 +3015,10 @@ def out_ferc1__yearly_rate_base(
     This rate base table also contains one new "cash_working_capital" xbrl_factoid
     from :ref:`core_ferc1__yearly_operating_expenses_sched320` via
     :func:`prep_cash_working_capital`.
+
+    We also break down records that have nulls or totals in two of the key tag
+    columns: ``tags_aggregatable_utility_type`` and ``tags_in_rate_base`` via
+    :func:`breakdown_unlabeled`.
     """
     assets = _out_ferc1__detailed_balance_sheet_assets
     liabilities = _out_ferc1__detailed_balance_sheet_liabilities.assign(
@@ -3025,31 +3029,19 @@ def out_ferc1__yearly_rate_base(
     )
 
     # concat then select only the leafy exploded records that are in rate base
-    rate_base = pd.concat(
-        [
-            assets,
-            liabilities,
-            cash_working_capital,
-        ]
+    rate_base = (
+        pd.concat(
+            [
+                assets,
+                liabilities,
+                cash_working_capital,
+            ]
+        )
+        .pipe(breakdown_unlabeled, split_col="tags_aggregatable_utility_type")
+        .pipe(breakdown_unlabeled, split_col="tags_in_rate_base")
     )
-    rate_base_broken_down = breakdown_unlabeled(
-        rate_base=rate_base,
-        unlabeled_mask=(rate_base.tags_aggregatable_utility_type == "total")
-        | rate_base.tags_aggregatable_utility_type.isnull(),
-        split_col="tags_aggregatable_utility_type",
-    )
-    rate_base_broken_down = breakdown_unlabeled(
-        rate_base=rate_base_broken_down,
-        unlabeled_mask=rate_base_broken_down.tags_in_rate_base.isnull(),
-        split_col="tags_in_rate_base",
-    )
-    logger.info(
-        "Breaking down total utility types and null in_rate_base tags resulted in "
-        f"{len(rate_base_broken_down)/len(rate_base):.1%} of records."
-    )
-    in_rate_base = rate_base_broken_down[
-        rate_base_broken_down.tags_in_rate_base == "yes"
-    ]
+
+    in_rate_base = rate_base[rate_base.tags_in_rate_base == "yes"]
     # note: we need the `tags_in_rate_base` column for these checks
     check_tag_propagation_compared_to_compiled_tags(
         in_rate_base, "in_rate_base", _out_ferc1__detailed_tags
@@ -3095,10 +3087,43 @@ def prep_cash_working_capital(
     return cash_working_capital
 
 
-def get_split_col_ratio(rate_base_unlabeled, gby_core, split_col) -> pd.DataFrame:
-    """Make ratio column with a 0-1 value."""
+def breakdown_unlabeled(
+    rate_base: pd.DataFrame,
+    split_col: str,
+) -> pd.DataFrame:
+    """Breakdown rate base records with an unlabeled split_col.
+
+    Args:
+        rate_base: full table of rate base data.
+        split_col: column with the label that contains unlabeled values
+            (ex: null or total).
+    """
+    # the works for both the util type and the in rate base tags because
+    # for both tags: unlabeled is represented as a null and but just util type:
+    # unlabeled is also represented as "total"
+    unlabeled_mask = (rate_base[split_col] == "total") | rate_base[split_col].isnull()
+    ratio_idx = ["report_year", "utility_id_ferc1"]
+    ratio_df = get_split_col_ratio(
+        # remove the unlabeled records because total is the value
+        # we want to breakdown so we can't have it in the columns to sum up
+        rate_base[~unlabeled_mask],
+        ratio_idx=ratio_idx,
+        split_col=split_col,
+    )
+    rate_base_broken_down = apply_ratio_to_breakdown_unlabeled(
+        rate_base=rate_base,
+        ratio_df=ratio_df,
+        ratio_idx=ratio_idx,
+        unlabeled_mask=unlabeled_mask,
+        split_col=split_col,
+    )
+    return rate_base_broken_down.convert_dtypes()
+
+
+def get_split_col_ratio(rate_base_unlabeled, ratio_idx, split_col) -> pd.DataFrame:
+    """Make ratio column with a 0-1 value for each."""
     # get the sum of the balance in each of the values in split_col
-    rate_base_grouped = rate_base_unlabeled.groupby(gby_core + [split_col])[
+    rate_base_grouped = rate_base_unlabeled.groupby(ratio_idx + [split_col])[
         ["ending_balance"]
     ].sum(min_count=1)
     df = rate_base_grouped.reset_index(level=[split_col]).pivot(columns=[split_col])
@@ -3123,14 +3148,18 @@ def apply_ratio_to_breakdown_unlabeled(
     rate_base: pd.DataFrame,
     ratio_df: pd.DataFrame,
     unlabeled_mask: pd.Series,
+    ratio_idx: list[str],
     split_col: str,
 ):
-    """Apply ratios from :func:`get_split_col_ratio` to ``ending_balance``."""
+    """For the unlabeled tag records, broadcast labeled tags and allocate the ``ending_balance``.
+
+    Apply ratios from :func:`get_split_col_ratio` to ``ending_balance``.
+    """
     unlabeled_breakdown = (
         pd.merge(
             rate_base[unlabeled_mask],
             ratio_df,
-            on=["report_year", "utility_id_ferc1"],
+            on=ratio_idx,
             how="left",
             validate="m:m",
             suffixes=("_unlabeled", ""),
@@ -3160,32 +3189,3 @@ def apply_ratio_to_breakdown_unlabeled(
             f"{old_balance=}, {new_balance=}"
         )
     return rate_base_broken_down
-
-
-def breakdown_unlabeled(
-    rate_base: pd.DataFrame,
-    unlabeled_mask: pd.Series,
-    split_col: str,
-) -> pd.DataFrame:
-    """Breakdown rate base records with an unlabeled split_col.
-
-    Args:
-        rate_base: full table of rate base data.
-        unlabeled_mask: boolean mask of the unlabled records in rate_base.
-        split_col: column with the label that contains unlabeled values
-            (ex: null or total).
-    """
-    ratio_df = get_split_col_ratio(
-        # remove the unlabeled records because total is the value
-        # we want to breakdown so we can't have it in the columns to sum up
-        rate_base[~unlabeled_mask],
-        gby_core=["report_year", "utility_id_ferc1"],
-        split_col=split_col,
-    )
-    rate_base_broken_down = apply_ratio_to_breakdown_unlabeled(
-        rate_base=rate_base,
-        ratio_df=ratio_df,
-        unlabeled_mask=unlabeled_mask,
-        split_col=split_col,
-    )
-    return rate_base_broken_down.convert_dtypes()
