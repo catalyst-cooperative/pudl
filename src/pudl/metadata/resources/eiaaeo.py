@@ -13,7 +13,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "report_year",
-                "emm_region_eiaaeo",
+                "electricity_market_module_region_eiaaeo",
                 "model_case_eiaaeo",
                 "projection_year",
                 "technology_description_eiaaeo",
@@ -25,7 +25,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ],
             "primary_key": [
                 "report_year",
-                "emm_region_eiaaeo",
+                "electricity_market_module_region_eiaaeo",
                 "model_case_eiaaeo",
                 "projection_year",
                 "technology_description_eiaaeo",
@@ -50,7 +50,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "report_year",
-                "emm_region_eiaaeo",
+                "electricity_market_module_region_eiaaeo",
                 "model_case_eiaaeo",
                 "projection_year",
                 "fuel_type_eiaaeo",
@@ -59,7 +59,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ],
             "primary_key": [
                 "report_year",
-                "emm_region_eiaaeo",
+                "electricity_market_module_region_eiaaeo",
                 "model_case_eiaaeo",
                 "projection_year",
                 "fuel_type_eiaaeo",
@@ -77,7 +77,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "report_year",
-                "emm_region_eiaaeo",
+                "electricity_market_module_region_eiaaeo",
                 "model_case_eiaaeo",
                 "projection_year",
                 "gross_generation_mwh",
@@ -86,7 +86,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ],
             "primary_key": [
                 "report_year",
-                "emm_region_eiaaeo",
+                "electricity_market_module_region_eiaaeo",
                 "model_case_eiaaeo",
                 "projection_year",
             ],
@@ -110,7 +110,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "report_year",
-                "emm_region_eiaaeo",
+                "electricity_market_module_region_eiaaeo",
                 "model_case_eiaaeo",
                 "projection_year",
                 "gross_generation_mwh",
@@ -119,7 +119,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ],
             "primary_key": [
                 "report_year",
-                "emm_region_eiaaeo",
+                "electricity_market_module_region_eiaaeo",
                 "model_case_eiaaeo",
                 "projection_year",
             ],
@@ -133,7 +133,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "report_year",
-                "emm_region_eiaaeo",
+                "electricity_market_module_region_eiaaeo",
                 "model_case_eiaaeo",
                 "projection_year",
                 "customer_class",
@@ -141,7 +141,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ],
             "primary_key": [
                 "report_year",
-                "emm_region_eiaaeo",
+                "electricity_market_module_region_eiaaeo",
                 "model_case_eiaaeo",
                 "projection_year",
                 "customer_class",
@@ -156,15 +156,15 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "report_year",
-                "emm_region_eiaaeo",
+                "electricity_market_module_region_eiaaeo",
                 "model_case_eiaaeo",
                 "projection_year",
                 "generation_source_or_sink_type_eiaaeo",
-                "net_energy_for_load_mwh",
+                "net_load_mwh",
             ],
             "primary_key": [
                 "report_year",
-                "emm_region_eiaaeo",
+                "electricity_market_module_region_eiaaeo",
                 "model_case_eiaaeo",
                 "projection_year",
                 "generation_source_or_sink_type_eiaaeo",
@@ -179,7 +179,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "report_year",
-                "emm_region_eiaaeo",
+                "electricity_market_module_region_eiaaeo",
                 "model_case_eiaaeo",
                 "projection_year",
                 "customer_class",
@@ -188,7 +188,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ],
             "primary_key": [
                 "report_year",
-                "emm_region_eiaaeo",
+                "electricity_market_module_region_eiaaeo",
                 "model_case_eiaaeo",
                 "projection_year",
                 "customer_class",
@@ -205,7 +205,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "report_year",
-                "emm_region_eiaaeo",
+                "electricity_market_module_region_eiaaeo",
                 "model_case_eiaaeo",
                 "projection_year",
                 "service_category_eiaaeo",
@@ -214,7 +214,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ],
             "primary_key": [
                 "report_year",
-                "emm_region_eiaaeo",
+                "electricity_market_module_region_eiaaeo",
                 "model_case_eiaaeo",
                 "projection_year",
                 "service_category_eiaaeo",
@@ -233,7 +233,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "report_year",
-                "emm_region_eiaaeo",
+                "electricity_market_module_region_eiaaeo",
                 "model_case_eiaaeo",
                 "projection_year",
                 "fuel_type_eiaaeo",
@@ -241,7 +241,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ],
             "primary_key": [
                 "report_year",
-                "emm_region_eiaaeo",
+                "electricity_market_module_region_eiaaeo",
                 "model_case_eiaaeo",
                 "projection_year",
                 "fuel_type_eiaaeo",
@@ -260,7 +260,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "report_year",
-                "emm_region_eiaaeo",
+                "electricity_market_module_region_eiaaeo",
                 "model_case_eiaaeo",
                 "projection_year",
                 "fuel_type_eiaaeo",
@@ -269,7 +269,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ],
             "primary_key": [
                 "report_year",
-                "emm_region_eiaaeo",
+                "electricity_market_module_region_eiaaeo",
                 "model_case_eiaaeo",
                 "projection_year",
                 "fuel_type_eiaaeo",
@@ -288,7 +288,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "report_year",
-                "emm_region_eiaaeo",
+                "electricity_market_module_region_eiaaeo",
                 "model_case_eiaaeo",
                 "projection_year",
                 "carbon_mass_tons",
@@ -299,7 +299,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ],
             "primary_key": [
                 "report_year",
-                "emm_region_eiaaeo",
+                "electricity_market_module_region_eiaaeo",
                 "model_case_eiaaeo",
                 "projection_year",
             ],
@@ -342,7 +342,7 @@ _STAGING_FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Total carbon emissions in short tons.",
         "unit": "short_tons",
     },
-    "emm_region_eiaaeo": {
+    "electricity_market_module_region_eiaaeo": {
         "type": "string",
         "description": "AEO projection region.",
         "constraints": {
