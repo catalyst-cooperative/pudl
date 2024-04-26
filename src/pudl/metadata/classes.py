@@ -1268,6 +1268,7 @@ class Resource(PudlMeta):
     field_namespace: (
         Literal[
             "eia",
+            "eiaaeo",
             "eia_bulk_elec",
             "epacems",
             "ferc1",
@@ -1286,6 +1287,7 @@ class Resource(PudlMeta):
             "eia861",
             "eia861_disabled",
             "eia923",
+            "eiaaeo",
             "entity_eia",
             "epacems",
             "ferc1",
