@@ -1237,7 +1237,7 @@ def core_eia861__yearly_short_form(
         "has_net_metering",
         "has_demand_side_management",
         "has_time_responsive_programs",
-        "green_pricing",
+        "has_green_pricing",
     ]
 
     raw_sf = _pre_process(raw_eia861__short_form)

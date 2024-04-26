@@ -721,7 +721,7 @@ Utilities report on Form EIA-861S if they:
                 "has_net_metering",
                 "has_demand_side_management",
                 "has_time_responsive_programs",
-                "green_pricing",
+                "has_green_pricing",
                 "data_maturity",
             ],
             "primary_key": [
