@@ -3120,10 +3120,14 @@ def breakdown_unlabeled(
     return rate_base_broken_down.convert_dtypes()
 
 
-def get_split_col_ratio(rate_base_unlabeled, ratio_idx, split_col) -> pd.DataFrame:
-    """Make ratio column with a 0-1 value for each."""
+def get_split_col_ratio(rate_base_labeled, ratio_idx, split_col) -> pd.DataFrame:
+    """Calculate the percentage of the total labeled ``ending_balance`` within each tag group.
+
+    Make ratio column with a 0-1 value of the sum of ``ending_balance`` in each labled
+    ``split_col`` within ``ratio_idx``.
+    """
     # get the sum of the balance in each of the values in split_col
-    rate_base_grouped = rate_base_unlabeled.groupby(ratio_idx + [split_col])[
+    rate_base_grouped = rate_base_labeled.groupby(ratio_idx + [split_col])[
         ["ending_balance"]
     ].sum(min_count=1)
     df = rate_base_grouped.reset_index(level=[split_col]).pivot(columns=[split_col])
