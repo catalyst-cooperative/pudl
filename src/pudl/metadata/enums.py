@@ -73,22 +73,26 @@ NERC_REGIONS: list[str] = [
 See https://www.eia.gov/electricity/data/eia411/#tabs_NERC-3.
 """
 
-EIA_REGIONS: list[str] = [
-    "CAL",
-    "CAN",
-    "CAR",
-    "CENT",
-    "FLA",
-    "MEX",
-    "MIDA",
-    "MIDW",
-    "NE",
-    "NW",
-    "NY",
-    "SE",
-    "SW",
-    "TEN",
-    "TEX",
+US_TIMEZONES: list[str] = [
+    "America/Anchorage",
+    "America/Chicago",
+    "America/Denver",
+    "America/Los_Angeles",
+    "America/New_York",
+    "America/Phoenix",
+    "Pacific/Honolulu",
+]
+
+EIA930_GENERATION_ENERGY_SOURCES = [
+    "coal",
+    "gas",
+    "hydro",
+    "nuclear",
+    "oil",
+    "other",
+    "solar",
+    "unknown",
+    "wind",
 ]
 
 EIA_SUBREGIONS: list[str] = [

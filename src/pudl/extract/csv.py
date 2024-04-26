@@ -16,9 +16,6 @@ class CsvExtractor(GenericExtractor):
     The extraction logic is invoked by calling extract() method of this class.
     """
 
-    # TODO[zaneselvans] 2024-04-19: it would be useful to also be able to specify
-    # different CSV reading options for different pages within the same dataset. But
-    # that's not strictly necessary yet.
     READ_CSV_KWARGS: dict[str, Any] = {}
     """Keyword arguments that are passed to :meth:`pandas.read_csv`.
 
@@ -26,6 +23,12 @@ class CsvExtractor(GenericExtractor):
     the column delimeter, data types, date parsing, etc. This can greatly reduce peak
     memory usage and speed up the extraction process. Unfortunately you must refer to
     the column headers using their original names as they appear in the CSV.
+
+    TODO[zaneselvans] 2024-04-19: it would be useful to be able to specify different CSV
+    reading options for different pages within the same dataset. At the moment the same
+    arguments will be applied to all pages. This still allows some flexibility because
+    some :meth:`pandas.read_csv` arguments like ``dtype`` don't raise errors if the
+    columns they apply to aren't present.
     """
 
     def source_filename(self, page: str, **partition: PartitionSelection) -> str:

@@ -12,7 +12,7 @@ from pudl.metadata.enums import (
     COUNTRY_CODES_ISO3166,
     CUSTOMER_CLASSES,
     DIVISION_CODES_US_CENSUS,
-    EIA_REGIONS,
+    EIA930_GENERATION_ENERGY_SOURCES,
     EIA_SUBREGIONS,
     EPACEMS_MEASUREMENT_CODES,
     EPACEMS_STATES,
@@ -26,6 +26,7 @@ from pudl.metadata.enums import (
     TECH_CLASSES,
     TECH_DESCRIPTIONS,
     TECH_DESCRIPTIONS_NRELATB,
+    US_TIMEZONES,
 )
 from pudl.metadata.labels import ESTIMATED_OR_ACTUAL, FUEL_UNITS_EIA
 from pudl.metadata.sources import SOURCES
@@ -51,15 +52,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "USD",
     },
     "address_2": {"type": "string", "description": "Second line of the address."},
-    "adjacent_balancing_authority_code_eia": {
-        "type": "string",
-        "description": "EIA short code for the other adjacent balancing authority, with which interchange is occuring. Includes Canadian and Mexican BAs.",
-    },
-    "adjacent_region_code_eia": {
-        "type": "string",
-        "description": "EIA code for the other adjacent region, with which interchange is occuring.",
-        "constraints": {"enum": EIA_REGIONS},
-    },
     "adjustments": {
         "type": "number",
         "description": "Cost of adjustments to the account.",
@@ -236,6 +228,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Indication of whether a column is a credit or debit, as reported in the XBRL taxonomy.",
     },
+    "balancing_authority_code_adjacent_eia": {
+        "type": "string",
+        "description": "EIA short code for the other adjacent balancing authority, with which interchange is occuring. Includes Canadian and Mexican BAs.",
+    },
     "balancing_authority_code_eia": {
         "type": "string",
         "description": "EIA short code identifying a balancing authority. May include Canadian and Mexican BAs.",
@@ -251,6 +247,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "balancing_authority_name_eia": {
         "type": "string",
         "description": "Name of the balancing authority.",
+    },
+    "balancing_authority_retirement_date": {
+        "type": "date",
+        "description": "Date on which the balancing authority ceased independent operation.",
     },
     "bga_source": {
         "type": "string",
@@ -906,29 +906,27 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Gross megawatt-hours delivered in power exchanges and used as the basis for settlement.",
         "unit": "MWh",
     },
-    # TODO[zaneselvans] 2024-04-20: Flesh out description
-    "demand_adjusted_mw": {
+    "demand_adjusted_mwh": {
         "type": "number",
-        "description": "Adjusted demand.",
-        "unit": "MW",
+        "description": "Electricity demand adjusted by EIA to reflect non-physical commercial transfers through pseudo-ties and dynamic scheduling.",
+        "unit": "MWh",
     },
-    # TODO[zaneselvans] 2024-04-20: Flesh out description
-    "demand_forecast_mw": {
+    # TODO[zaneselvans] 2024-04-20: Is the timestamp when the forecast was made? Or the
+    # time at which the forecast is trying to predict demand?
+    "demand_forecast_mwh": {
         "type": "number",
-        "description": "Forecast demand.",
-        "unit": "MW",
+        "description": "Day ahead demand forecast.",
+        "unit": "MWh",
     },
-    # TODO[zaneselvans] 2024-04-20: Flesh out description
-    "demand_imputed_mw": {
+    "demand_imputed_mwh": {
         "type": "number",
-        "description": "Imputed demand.",
-        "unit": "MW",
+        "description": "Electricity demand calculated by subtracting BA interchange from net generation, with outliers and missing values imputed by EIA.",
+        "unit": "MWh",
     },
-    # TODO[zaneselvans] 2024-04-20: Flesh out description
-    "demand_reported_mw": {
+    "demand_reported_mwh": {
         "type": "number",
-        "description": "Reported demand.",
-        "unit": "MW",
+        "description": "Originally reported electricity demand, calculated by taking the net generation within the BA and subtracting the interchange with adjacent BAs.",
+        "unit": "MWh",
     },
     "demand_annual_mwh": {
         "type": "number",
@@ -1196,25 +1194,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MWh",
     },
-    # TODO[zaneselvans] 2024-04-20: Flesh out description
-    "energy_source": {
+    "generation_energy_source": {
         "type": "string",
-        "description": "Energy source responsible for the generation.",
-        "constraints": {
-            "enum": [
-                "coal",
-                "gas",
-                "hydro",
-                "interchange",
-                "nuclear",
-                "oil",
-                "other",
-                "solar",
-                "total",
-                "unknown",
-                "wind",
-            ]
-        },
+        "description": "High level energy source used to produce electricity.",
+        "constraints": {"enum": EIA930_GENERATION_ENERGY_SOURCES},
     },
     "energy_source_code": {
         "type": "string",
@@ -1971,11 +1954,20 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "unit": "gpm",
     },
-    # TODO[zaneselvans]: 2024-04-20 Research real definition of this column.
-    "interchange_mw": {
+    "interchange_adjusted_mwh": {
         "type": "number",
-        "description": "Interchange in MW.",
-        "unit": "MW",
+        "description": "Energy interchange between adjacent balancing authorities, adjusted by EIA to reflect non-physical commercial transfers through pseudo-ties and dynamic scheduling.",
+        "unit": "MWh",
+    },
+    "interchange_imputed_mwh": {
+        "type": "number",
+        "description": "Energy interchange between adjacent balancing authorities, with outliers and missing values imputed by EIA.",
+        "unit": "MWh",
+    },
+    "interchange_reported_mwh": {
+        "type": "number",
+        "description": "Original reported energy interchange between adjacent balancing authorities.",
+        "unit": "MWh",
     },
     "is_epacems_state": {
         "type": "boolean",
@@ -1983,6 +1975,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Indicates whether the associated state reports data within the EPA's "
             "Continuous Emissions Monitoring System."
         ),
+    },
+    "is_generation_only": {
+        "type": "boolean",
+        "description": "Indicates whether the balancing authority is generation-only, meaning it does not serve retail customers and thus reports only net generation and interchange, but not demand.",
     },
     "iso_rto_code": {
         "type": "string",
@@ -2370,23 +2366,20 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
-    # TODO[zaneselvans] 2024-04-20 Flesh out the description of this column.
-    "net_generation_adjusted_mw": {
+    "net_generation_adjusted_mwh": {
         "type": "number",
-        "description": "Adjusted net electricity generation for the specified period in megawatts (MW).",
-        "unit": "MW",
+        "description": "Reported net generation adjusted by EIA to reflect non-physical commercial transfers through pseudo-ties and dynamic scheduling.",
+        "unit": "MWh",
     },
-    # TODO[zaneselvans] 2024-04-20 Flesh out the description of this column.
-    "net_generation_imputed_mw": {
+    "net_generation_imputed_mwh": {
         "type": "number",
-        "description": "Imputed net electricity generation for the specified period in megawatts (MW).",
-        "unit": "MW",
+        "description": "Reported net generation with outlying values removed and missing values imputed by EIA.",
+        "unit": "MWh",
     },
-    # TODO[zaneselvans] 2024-04-20 Flesh out the description of this column.
-    "net_generation_reported_mw": {
+    "net_generation_reported_mwh": {
         "type": "number",
-        "description": "Reported net electricity generation for the specified period in megawatts (MW).",
-        "unit": "MW",
+        "description": "Unaltered originally reported net generation for the specified period.",
+        "unit": "MWh",
     },
     "net_generation_mwh": {
         "type": "number",
@@ -3275,12 +3268,20 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.",
     },
-    # TODO[zaneselvans]: 2024-04-20 research the real definition of this column and
-    # create a coding table that explains it.
     "region_code_eia": {
         "type": "string",
         "description": "EIA region code.",
-        "constraints": {"enum": EIA_REGIONS},
+        "constraints": {
+            "enum": set(
+                CODE_METADATA["core_eia__codes_balancing_authorities"]["df"][
+                    "region_code_eia"
+                ].dropna()
+            )
+        },
+    },
+    "region_eia": {
+        "type": "string",
+        "description": "Human-readable name of the EIA balancing region.",
     },
     "region_name_us_census": {
         "type": "string",
@@ -3307,13 +3308,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Indicates whether the plant is regulated or non-regulated.",
     },
     "report_date": {"type": "date", "description": "Date reported."},
-    "report_datetime_local": {
-        "type": "datetime",
-        "description": "Local date and time of the report.",
-    },
-    "report_datetime_utc": {
-        "type": "datetime",
-        "description": "UTC date and time of the report.",
+    "report_timezone": {
+        "type": "string",
+        "description": "Timezone used by the reporting entity. For use in localizing UTC times.",
+        "constraints": {"enum": US_TIMEZONES},
     },
     "report_year": {
         "type": "integer",
@@ -4814,22 +4812,34 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
         "opex_total": {"description": "Overall expenses for the transmission line."},
     },
     "out_ferc714__hourly_planning_area_demand": {
-        "timezone": {
-            "constraints": {
-                "enum": [
-                    "America/New_York",
-                    "America/Chicago",
-                    "America/Denver",
-                    "America/Los_Angeles",
-                    "America/Anchorage",
-                    "Pacific/Honolulu",
-                ]
-            }
-        },
+        "timezone": {"constraints": {"enum": US_TIMEZONES}},
         "report_date": {
             "constraints": {
                 "required": True,
             }
+        },
+    },
+    "core_eia930__hourly_balancing_authority_net_generation": {
+        "datetime_utc": {
+            "description": "Timestamp at the end of the hour for which the data is reported."
+        },
+    },
+    "core_eia930__hourly_balancing_authority_demand": {
+        "datetime_utc": {
+            "description": "Timestamp at the end of the hour for which the data is reported."
+        },
+    },
+    "core_eia930__hourly_balancing_authority_subregion_demand": {
+        "datetime_utc": {
+            "description": "Timestamp at the end of the hour for which the data is reported."
+        },
+        "demand_reported_mwh": {
+            "description": "Originally reported electricity demand for the balancing area subregion. Method of calculation may vary by BA.",
+        },
+    },
+    "core_eia930__hourly_balancing_authority_interchange": {
+        "datetime_utc": {
+            "description": "Timestamp at the end of the hour for which the data is reported."
         },
     },
 }

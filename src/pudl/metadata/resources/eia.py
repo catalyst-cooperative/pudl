@@ -8,12 +8,21 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia__codes_balancing_authorities": {
         "description": "A coding table describing balancing authorities in EIA-860, EIA-923, and EIA-930",
         "schema": {
-            "fields": ["code", "label", "description"],
+            "fields": [
+                "code",
+                "label",
+                "description",
+                "region_code_eia",
+                "region_eia",
+                "report_timezone",
+                "balancing_authority_retirement_date",
+                "is_generation_only",
+            ],
             "primary_key": ["code"],
             "foreign_key_rules": {
                 "fields": [
                     ["balancing_authority_code_eia"],
-                    ["adjacent_balancing_authority_code_eia"],
+                    ["balancing_authority_code_adjacent_eia"],
                 ],
                 "exclude": [
                     "core_eia861__yearly_advanced_metering_infrastructure",

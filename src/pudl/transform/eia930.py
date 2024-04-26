@@ -1,19 +1,20 @@
 """Module to perform data cleaning functions on EIA930 data tables."""
 
 import pandas as pd
-from dagster import AssetOut, Output, multi_asset
+from dagster import AssetOut, Output, asset, multi_asset
 
 import pudl
+from pudl.metadata.enums import EIA930_GENERATION_ENERGY_SOURCES
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
 @multi_asset(
     outs={
-        "core_eia930__hourly_balancing_authority_net_generation": AssetOut(
+        "core_eia930__hourly_balancing_authority_net_generation_by_energy_source": AssetOut(
             io_manager_key="parquet_io_manager"
         ),
-        "core_eia930__hourly_balancing_authority_demand": AssetOut(
+        "core_eia930__hourly_balancing_authority_operations": AssetOut(
             io_manager_key="parquet_io_manager"
         ),
     },
@@ -22,72 +23,78 @@ logger = pudl.logging_helpers.get_logger(__name__)
 def core_eia930__hourly_balancing_authority_assets(
     raw_eia930__balance: pd.DataFrame,
 ):
-    """Transforms raw_eia923__balance dataframe.
+    """Separate raw_eia930__balance into net generation and demand tables.
 
-    Extract the net generation information from the balance table and extract fuel type
-    from the net generation columns.
+    Energy source starts out in the column names, but is stacked into a categorical
+    column. For structural purposes "interchange" is also treated as an "energy source"
+    and stacked into the same column. For the moment "total" (sum of all energy sources)
+    is also included, because the reported and calculated totals acrss all energy
+    sources have significant differences which should be further explored.
     """
-    qual_cols = [
-        "report_datetime_local",
-        "report_datetime_utc",
+    nondata_cols = [
+        "datetime_utc",
         "balancing_authority_code_eia",
-        # report_date
-        # eia_region_code,
-        # report_hour_local
     ]
-    # Select only the columns relevant to the BA net generation table
-    netgen = raw_eia930__balance[
-        qual_cols
-        + list(raw_eia930__balance.filter(like="net_generation"))
-        + list(raw_eia930__balance.filter(like="interchange"))
-    ]
-
-    # Rename columns so that they contain only the energy source and the level of
-    # processing, so it's easy to construct a multi-index to unstack below
-    # Doing these manipulations while the values are in the column names rather than
-    # after they've been turned into a categorical column with millions of entries
-    # is much faster.
-    netgen_renamed = netgen.rename(
-        lambda col: col.removeprefix("net_generation_").removesuffix("_mw"),
-        axis="columns",
-    ).set_index(qual_cols)
-
-    # Prepare a multi-index for the columns so that we can stack cleanly
-    netgen_renamed.columns = pd.MultiIndex.from_tuples(
-        [x.split("_") for x in netgen_renamed.columns], names=["energy_source", None]
+    # Select all columns that aren't energy source specific
+    operations = raw_eia930__balance[
+        nondata_cols
+        + list(
+            raw_eia930__balance.filter(
+                regex=r"(demand|interchange|net_generation_total)"
+            )
+        )
+    ].rename(columns=lambda x: x.replace("net_generation_total_", "net_generation_"))
+    # Select only the columns that pertain to individual energy sources. Note that for
+    # the "unknown" energy source there are only "reported" values.
+    netgen_by_source = (
+        raw_eia930__balance[
+            nondata_cols
+            + [
+                f"net_generation_{fuel}_{status}_mwh"
+                for fuel in EIA930_GENERATION_ENERGY_SOURCES
+                for status in ["reported", "adjusted", "imputed"]
+                if fuel != "unknown"
+            ]
+            + ["net_generation_unknown_reported_mwh"]
+        ]
+        .rename(
+            # Rename columns so that they contain only the energy source and the level
+            # of processing with the pattern: energysource_levelofprocessing so the
+            # column name can be split on "_" to build a MultiIndex before stacking.
+            lambda col: col.removeprefix("net_generation_").removesuffix("_mwh"),
+            axis="columns",
+        )
+        .set_index(nondata_cols)
     )
-    netgen_stacked = (
-        netgen_renamed.stack(level=0, future_stack=True)
-        .rename(columns=lambda x: f"net_generation_{x}_mw")
+    netgen_by_source.columns = pd.MultiIndex.from_tuples(
+        [x.split("_") for x in netgen_by_source.columns],
+        names=["generation_energy_source", None],
+    )
+    netgen_by_source = (
+        netgen_by_source.stack(level="generation_energy_source", future_stack=True)
+        .rename(columns=lambda x: f"net_generation_{x}_mwh")
         .reset_index()
-        .astype({"energy_source": "string"})
     )
+
     # TODO[zaneselvans] 2024-04-20: Verify that sum of net generation from all fuels
-    # adds up to the total And then drop the total rows.
+    # adds up to the reported total
     # NOTE: currently there are some BIG differences between the calculated total and
     # the reported total.
-
-    # netgen_stacked = netgen_stacked[netgen_stacked["energy_source"] != "total"
-
-    demand = raw_eia930__balance[
-        qual_cols + list(raw_eia930__balance.filter(like="demand"))
-    ]
-
     return (
         Output(
-            value=netgen_stacked,
-            output_name="core_eia930__hourly_balancing_authority_net_generation",
+            value=netgen_by_source,
+            output_name="core_eia930__hourly_balancing_authority_net_generation_by_energy_source",
         ),
         Output(
-            value=demand,
-            output_name="core_eia930__hourly_balancing_authority_demand",
+            value=operations,
+            output_name="core_eia930__hourly_balancing_authority_operations",
         ),
     )
 
 
 @multi_asset(
     outs={
-        "core_eia930__hourly_subregion_demand": AssetOut(
+        "core_eia930__hourly_balancing_authority_subregion_demand": AssetOut(
             io_manager_key="parquet_io_manager"
         ),
         "core_eia930__assn_balancing_authority_subregion": AssetOut(
@@ -103,11 +110,10 @@ def core_eia930__hourly_subregion_assets(raw_eia930__subregion: pd.DataFrame):
     ).loc[
         :,
         [
-            "report_datetime_local",
-            "report_datetime_utc",
+            "datetime_utc",
             "balancing_authority_code_eia",
             "subregion_code_eia",
-            "demand_reported_mw",
+            "demand_reported_mwh",
         ],
     ]
     assn = (
@@ -118,62 +124,30 @@ def core_eia930__hourly_subregion_assets(raw_eia930__subregion: pd.DataFrame):
         .reset_index()
     )
     return (
-        Output(value=demand, output_name="core_eia930__hourly_subregion_demand"),
+        Output(
+            value=demand,
+            output_name="core_eia930__hourly_balancing_authority_subregion_demand",
+        ),
         Output(
             value=assn, output_name="core_eia930__assn_balancing_authority_subregion"
         ),
     )
 
 
-@multi_asset(
-    outs={
-        "core_eia930__hourly_balancing_authority_interchange": AssetOut(
-            io_manager_key="parquet_io_manager"
-        ),
-        "core_eia930__assn_balancing_authority_region": AssetOut(
-            io_manager_key="pudl_io_manager"
-        ),
-    },
+@asset(
+    io_manager_key="parquet_io_manager",
     compute_kind="pandas",
 )
-def core_eia930__hourly_balancing_authority_interchange_assets(
+def core_eia930__hourly_balancing_authority_interchange(
     raw_eia930__interchange: pd.DataFrame,
 ):
     """Produce a normalized table of hourly interchange by balancing authority."""
-    interchange = raw_eia930__interchange.loc[
+    return raw_eia930__interchange.loc[
         :,
         [
-            "report_datetime_local",
-            "report_datetime_utc",
+            "datetime_utc",
             "balancing_authority_code_eia",
-            "adjacent_balancing_authority_code_eia",
-            "region_code_eia",
-            "adjacent_region_code_eia",
-            "interchange_mw",
+            "balancing_authority_code_adjacent_eia",
+            "interchange_reported_mwh",
         ],
     ]
-    assn = (
-        interchange.groupby("adjacent_region_code_eia")[
-            "adjacent_balancing_authority_code_eia"
-        ]
-        .unique()
-        .explode()
-        .to_frame()
-        .reset_index()
-        .rename(
-            columns={
-                "adjacent_region_code_eia": "region_code_eia",
-                "adjacent_balancing_authority_code_eia": "balancing_authority_code_eia",
-            }
-        )
-    )
-    return (
-        Output(
-            value=interchange,
-            output_name="core_eia930__hourly_balancing_authority_interchange",
-        ),
-        Output(
-            value=assn,
-            output_name="core_eia930__assn_balancing_authority_region",
-        ),
-    )

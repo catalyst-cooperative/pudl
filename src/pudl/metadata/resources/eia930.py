@@ -3,42 +3,76 @@
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
-    "core_eia930__hourly_balancing_authority_net_generation": {
-        "description": ("""EIA-930 hourly balancing authority net generation."""),
+    "core_eia930__hourly_balancing_authority_net_generation_by_energy_source": {
+        "description": (
+            """EIA-930 hourly balancing authority net generation by energy source.
+
+Net generation represents the metered output of electric generating units in a BA's
+electric system. This generation only includes generating units that are managed by a BA
+or whose operations are visible to a BA.
+
+Generators on the distribution system—both large-scale resources and small-scale
+distributed resources, such as rooftop solar photovoltaic (PV) systems—are typically not
+included.
+
+BAs report generation from dual-fuel (switching from one fuel to another) and
+multiple-fuel (using multiple fuels simultaneously) generators under the actual energy
+source used, if known, and under the generator's primary energy source, if not known.
+
+To maintain generator confidentiality, generation may sometimes be reported in the Other
+category if too few generators are reported for a particular energy source category.
+
+In some electricity publications, EIA reports generation from all utility-scale
+generating units in the United States. BAs only meter generating units that are from a
+subset of all utility-scale generating units. As a result, when hourly generation from
+the Hourly Electric Grid Monitor is aggregated to monthly or annual levels, the results
+will be lower than monthly and annual aggregations in other electricity publications.
+
+In theory the sum of net generation across all energy sources should equal the total
+net generation reported in the balancing authority operations table. In practice, there
+are many cases in which these values diverge significantly, which require further
+investigation."""
+        ),
         "schema": {
             "fields": [
-                "report_datetime_local",
-                "report_datetime_utc",
+                "datetime_utc",
                 "balancing_authority_code_eia",
-                "energy_source",
-                "net_generation_reported_mw",
-                "net_generation_adjusted_mw",
-                "net_generation_imputed_mw",
+                "generation_energy_source",
+                "net_generation_reported_mwh",
+                "net_generation_adjusted_mwh",
+                "net_generation_imputed_mwh",
             ],
             "primary_key": [
-                "report_datetime_utc",
+                "datetime_utc",
                 "balancing_authority_code_eia",
-                "energy_source",
+                "generation_energy_source",
             ],
         },
         "field_namespace": "eia",
         "sources": ["eia930"],
         "etl_group": "eia930",
     },
-    "core_eia930__hourly_balancing_authority_demand": {
-        "description": ("""EIA-930 hourly balancing authority demand."""),
+    "core_eia930__hourly_balancing_authority_operations": {
+        "description": (
+            """Hourly balancing authority net generation, interchange, and demand."""
+        ),
         "schema": {
             "fields": [
-                "report_datetime_local",
-                "report_datetime_utc",
+                "datetime_utc",
                 "balancing_authority_code_eia",
-                "demand_forecast_mw",
-                "demand_reported_mw",
-                "demand_adjusted_mw",
-                "demand_imputed_mw",
+                "net_generation_reported_mwh",
+                "net_generation_adjusted_mwh",
+                "net_generation_imputed_mwh",
+                "interchange_reported_mwh",
+                "interchange_adjusted_mwh",
+                "interchange_imputed_mwh",
+                "demand_reported_mwh",
+                "demand_adjusted_mwh",
+                "demand_imputed_mwh",
+                "demand_forecast_mwh",
             ],
             "primary_key": [
-                "report_datetime_utc",
+                "datetime_utc",
                 "balancing_authority_code_eia",
             ],
         },
@@ -46,18 +80,24 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia930"],
         "etl_group": "eia930",
     },
-    "core_eia930__hourly_subregion_demand": {
-        "description": ("""EIA-930 hourly subregion demand."""),
+    "core_eia930__hourly_balancing_authority_subregion_demand": {
+        "description": (
+            """EIA-930 hourly balancing authority subregion demand.
+
+For select BAs, demand by subregion data provide demand at a further level of geographic
+disaggregation (for example, load zones, weather zones, operating company areas, local
+BAs, etc.) within a BA's electric system. A BA's reporting demand by subregion section
+below provides more information on subregions."""
+        ),
         "schema": {
             "fields": [
-                "report_datetime_local",
-                "report_datetime_utc",
+                "datetime_utc",
                 "balancing_authority_code_eia",
                 "subregion_code_eia",
-                "demand_reported_mw",
+                "demand_reported_mwh",
             ],
             "primary_key": [
-                "report_datetime_utc",
+                "datetime_utc",
                 "balancing_authority_code_eia",
                 "subregion_code_eia",
             ],
@@ -70,32 +110,16 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "description": ("""EIA-930 hourly balancing authority interchange."""),
         "schema": {
             "fields": [
-                "report_datetime_local",
-                "report_datetime_utc",
+                "datetime_utc",
                 "balancing_authority_code_eia",
-                "adjacent_balancing_authority_code_eia",
-                "region_code_eia",
-                "adjacent_region_code_eia",
-                "interchange_mw",
+                "balancing_authority_code_adjacent_eia",
+                "interchange_reported_mwh",
             ],
             "primary_key": [
-                "report_datetime_utc",
+                "datetime_utc",
                 "balancing_authority_code_eia",
-                "adjacent_balancing_authority_code_eia",
+                "balancing_authority_code_adjacent_eia",
             ],
-        },
-        "field_namespace": "eia",
-        "sources": ["eia930"],
-        "etl_group": "eia930",
-    },
-    "core_eia930__assn_balancing_authority_region": {
-        "description": """EIA-930 balancing authority to region association.""",
-        "schema": {
-            "fields": [
-                "balancing_authority_code_eia",
-                "region_code_eia",
-            ],
-            "primary_key": ["balancing_authority_code_eia"],
         },
         "field_namespace": "eia",
         "sources": ["eia930"],

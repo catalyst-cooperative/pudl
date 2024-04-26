@@ -22,6 +22,10 @@ class Extractor(CsvExtractor):
         self.METADATA = GenericMetadata("eia930")
         self.READ_CSV_KWARGS = {
             "thousands": ",",
+            # Note that all of these date columns happen to be present in all of the
+            # pages within the EIA-930 dataset, so we can specify them without needing
+            # to specify separate arguments for each page (which isn't currently
+            # implemented)
             "parse_dates": [
                 "Data Date",
                 "Local Time at End of Hour",
