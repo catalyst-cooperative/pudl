@@ -695,7 +695,17 @@ the standard (IEEE/other) and other relevant information."""
         "etl_group": "eia861",
     },
     "core_eia861__yearly_short_form": {
-        "description": "Abbreviated version of the EIA-861 data.",
+        "description": (
+            """This is data extracted from Form EIA-861S, a shorter version of Form EIA-861. 
+Form EIA-861S is available for certain utilities in seven out of every eight years. 
+They are expected to submit the completed Form EIA-861S to EIA by April 30th, following the end of the prior calendar year. 
+Utilities report on Form EIA-861S if they: 
+- Report less than 200,000 megawatthours on the last previous Form EIA-861.
+- Provide only bundled service (generation and distribution).
+- Are not needed to ensure acceptable quality of statistical estimates.
+- Are not part of the aggregate TVA or WPPI.
+- Do not report on Form EIA-861M."""
+        ),
         "schema": {
             "fields": [
                 "report_date",
