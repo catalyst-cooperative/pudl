@@ -1,8 +1,8 @@
 """Add my cool NREL ATB tables
 
-Revision ID: 19d011b277a8
+Revision ID: e0d3904b97f4
 Revises: 172898b30824
-Create Date: 2024-04-25 18:11:51.870350
+Create Date: 2024-04-26 09:59:29.741088
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '19d011b277a8'
+revision = 'e0d3904b97f4'
 down_revision = '172898b30824'
 branch_labels = None
 depends_on = None
@@ -22,7 +22,7 @@ def upgrade() -> None:
     sa.Column('report_year', sa.Integer(), nullable=True, comment='Four-digit year in which the data was reported.'),
     sa.Column('model_case_nrelatb', sa.Enum('Market', 'R&D'), nullable=True, comment="NREL's financial assumption cases. There are two cases which effect project finanical assumptions: R&D Only Case and Market + Policies Case. R&D Only includes only projected R&D improvements while Market + Policy case includes policy and tax incentives. https://atb.nrel.gov/electricity/2023/financial_cases_&_methods"),
     sa.Column('projection_year', sa.Integer(), nullable=True, comment='The year of the projected value.'),
-    sa.Column('technology_description', sa.Enum('Nuclear', 'UtilityPV', 'ResPV', 'CSP', 'Coal_FE', 'NaturalGas_Retrofits', 'DistributedWind', 'AEO', 'LandbasedWind', 'Pumped Storage Hydropower', 'Biopower', 'Geothermal', 'Residential Battery Storage', 'NaturalGas_FE', 'Utility-Scale PV-Plus-Battery', 'Commercial Battery Storage', 'Coal_Retrofits', 'Hydropower', 'OffShoreWind', 'Utility-Scale Battery Storage', 'CommPV'), nullable=True, comment='High level description of the technology used by the generator to produce electricity.'),
+    sa.Column('technology_description', sa.Enum('CSP', 'Biopower', 'OffShoreWind', 'Pumped Storage Hydropower', 'Nuclear', 'Commercial Battery Storage', 'Coal_FE', 'ResPV', 'Coal_Retrofits', 'UtilityPV', 'Utility-Scale Battery Storage', 'NaturalGas_FE', 'NaturalGas_Retrofits', 'CommPV', 'Residential Battery Storage', 'DistributedWind', 'LandbasedWind', 'Utility-Scale PV-Plus-Battery', 'Geothermal', 'Hydropower', 'AEO'), nullable=True, comment='High level description of the technology used by the generator to produce electricity.'),
     sa.Column('cost_recovery_period_years', sa.Integer(), nullable=True, comment='The period over which the initial capital investment to build a plant is recovered.'),
     sa.Column('scenario_atb', sa.Enum('Advanced', 'Moderate', 'Conservative'), nullable=True, comment='Technology innovation scenarios. https://atb.nrel.gov/electricity/2023/definitions#scenarios'),
     sa.Column('technology_description_detail_1', sa.Text(), nullable=True, comment='Technology details indicate resource levels and specific technology subcategories.'),
@@ -44,21 +44,21 @@ def upgrade() -> None:
     sa.Column('report_year', sa.Integer(), nullable=False, comment='Four-digit year in which the data was reported.'),
     sa.Column('model_case_nrelatb', sa.Enum('Market', 'R&D'), nullable=False, comment="NREL's financial assumption cases. There are two cases which effect project finanical assumptions: R&D Only Case and Market + Policies Case. R&D Only includes only projected R&D improvements while Market + Policy case includes policy and tax incentives. https://atb.nrel.gov/electricity/2023/financial_cases_&_methods"),
     sa.Column('projection_year', sa.Integer(), nullable=False, comment='The year of the projected value.'),
-    sa.Column('technology_description', sa.Enum('Nuclear', 'UtilityPV', 'ResPV', 'CSP', 'Coal_FE', 'NaturalGas_Retrofits', 'DistributedWind', 'AEO', 'LandbasedWind', 'Pumped Storage Hydropower', 'Biopower', 'Geothermal', 'Residential Battery Storage', 'NaturalGas_FE', 'Utility-Scale PV-Plus-Battery', 'Commercial Battery Storage', 'Coal_Retrofits', 'Hydropower', 'OffShoreWind', 'Utility-Scale Battery Storage', 'CommPV'), nullable=False, comment='High level description of the technology used by the generator to produce electricity.'),
+    sa.Column('technology_description', sa.Enum('CSP', 'Biopower', 'OffShoreWind', 'Pumped Storage Hydropower', 'Nuclear', 'Commercial Battery Storage', 'Coal_FE', 'ResPV', 'Coal_Retrofits', 'UtilityPV', 'Utility-Scale Battery Storage', 'NaturalGas_FE', 'NaturalGas_Retrofits', 'CommPV', 'Residential Battery Storage', 'DistributedWind', 'LandbasedWind', 'Utility-Scale PV-Plus-Battery', 'Geothermal', 'Hydropower', 'AEO'), nullable=False, comment='High level description of the technology used by the generator to produce electricity.'),
     sa.Column('inflation_rate', sa.Float(), nullable=True, comment='Rate of inflation. All dollar values are given in 2021 USD, using the Consumer Price Index for All Urban Consumers for dollar year conversions where the source year dollars do not match 2021.'),
     sa.Column('interest_rate_during_construction_nominal', sa.Float(), nullable=True, comment='Also referred to as construction finance cost. Portion of all-in capital cost associated with construction period financing. It is a function of construction duration, capital fraction during construction, and interest during construction.'),
     sa.Column('interest_rate_calculated_real', sa.Float(), nullable=True, comment='Calculated real interest rate.'),
     sa.Column('interest_rate_nominal', sa.Float(), nullable=True, comment='Nominal interest rate.'),
     sa.Column('rate_of_return_on_equity_calculated_real', sa.Float(), nullable=True, comment='Calculated real rate of return on equity.'),
     sa.Column('rate_of_return_on_equity_nominal', sa.Float(), nullable=True, comment='Nomial rate of return on equity.'),
-    sa.Column('tax_rate_federal_state', sa.Float(), nullable=True, comment='Combined federal and state tax rate. The R&D model_case_nrelatb holds tax and inflation rates constant at assumed long-term values: 21 percent federal tax rate, 6 percent state tax rate (though actual state tax rates vary), and 2.5 percent inflation rate Excludes effects of tax credits. The Market + Policy model_case_nrelatb applies federal tax credits and expires them as consistent with existing law and guidelines.'),
+    sa.Column('tax_rate_federal_state', sa.Float(), nullable=True, comment='Combined federal and state tax rate. The R&D model_case_nrelatb holds tax and inflation rates constant at assumed long-term values: 21 percent federal tax rate, 6 percent state tax rate (though actual state tax rates vary), and 2.5 percent inflation rate excludes effects of tax credits. The Market + Policy model_case_nrelatb applies federal tax credits and expires them as consistent with existing law and guidelines.'),
     sa.PrimaryKeyConstraint('report_year', 'model_case_nrelatb', 'projection_year', 'technology_description', name=op.f('pk_core_nrelatb__yearly_projected_financial_cases'))
     )
     op.create_table('core_nrelatb__yearly_projected_financial_cases_by_scenario',
     sa.Column('report_year', sa.Integer(), nullable=True, comment='Four-digit year in which the data was reported.'),
     sa.Column('model_case_nrelatb', sa.Enum('Market', 'R&D'), nullable=True, comment="NREL's financial assumption cases. There are two cases which effect project finanical assumptions: R&D Only Case and Market + Policies Case. R&D Only includes only projected R&D improvements while Market + Policy case includes policy and tax incentives. https://atb.nrel.gov/electricity/2023/financial_cases_&_methods"),
     sa.Column('projection_year', sa.Integer(), nullable=True, comment='The year of the projected value.'),
-    sa.Column('technology_description', sa.Enum('Nuclear', 'UtilityPV', 'ResPV', 'CSP', 'Coal_FE', 'NaturalGas_Retrofits', 'DistributedWind', 'AEO', 'LandbasedWind', 'Pumped Storage Hydropower', 'Biopower', 'Geothermal', 'Residential Battery Storage', 'NaturalGas_FE', 'Utility-Scale PV-Plus-Battery', 'Commercial Battery Storage', 'Coal_Retrofits', 'Hydropower', 'OffShoreWind', 'Utility-Scale Battery Storage', 'CommPV'), nullable=True, comment='High level description of the technology used by the generator to produce electricity.'),
+    sa.Column('technology_description', sa.Enum('CSP', 'Biopower', 'OffShoreWind', 'Pumped Storage Hydropower', 'Nuclear', 'Commercial Battery Storage', 'Coal_FE', 'ResPV', 'Coal_Retrofits', 'UtilityPV', 'Utility-Scale Battery Storage', 'NaturalGas_FE', 'NaturalGas_Retrofits', 'CommPV', 'Residential Battery Storage', 'DistributedWind', 'LandbasedWind', 'Utility-Scale PV-Plus-Battery', 'Geothermal', 'Hydropower', 'AEO'), nullable=True, comment='High level description of the technology used by the generator to produce electricity.'),
     sa.Column('scenario_atb', sa.Enum('Advanced', 'Moderate', 'Conservative'), nullable=True, comment='Technology innovation scenarios. https://atb.nrel.gov/electricity/2023/definitions#scenarios'),
     sa.Column('cost_recovery_period_years', sa.Integer(), nullable=True, comment='The period over which the initial capital investment to build a plant is recovered.'),
     sa.Column('capital_recovery_factor', sa.Float(), nullable=True, comment='Ratio of a constant annuity to the present value of receiving that annuity for a given length of time.'),
@@ -70,7 +70,7 @@ def upgrade() -> None:
     )
     op.create_table('core_nrelatb__yearly_technology_status',
     sa.Column('report_year', sa.Integer(), nullable=True, comment='Four-digit year in which the data was reported.'),
-    sa.Column('technology_description', sa.Enum('Nuclear', 'UtilityPV', 'ResPV', 'CSP', 'Coal_FE', 'NaturalGas_Retrofits', 'DistributedWind', 'AEO', 'LandbasedWind', 'Pumped Storage Hydropower', 'Biopower', 'Geothermal', 'Residential Battery Storage', 'NaturalGas_FE', 'Utility-Scale PV-Plus-Battery', 'Commercial Battery Storage', 'Coal_Retrofits', 'Hydropower', 'OffShoreWind', 'Utility-Scale Battery Storage', 'CommPV'), nullable=True, comment='High level description of the technology used by the generator to produce electricity.'),
+    sa.Column('technology_description', sa.Enum('CSP', 'Biopower', 'OffShoreWind', 'Pumped Storage Hydropower', 'Nuclear', 'Commercial Battery Storage', 'Coal_FE', 'ResPV', 'Coal_Retrofits', 'UtilityPV', 'Utility-Scale Battery Storage', 'NaturalGas_FE', 'NaturalGas_Retrofits', 'CommPV', 'Residential Battery Storage', 'DistributedWind', 'LandbasedWind', 'Utility-Scale PV-Plus-Battery', 'Geothermal', 'Hydropower', 'AEO'), nullable=True, comment='High level description of the technology used by the generator to produce electricity.'),
     sa.Column('technology_description_detail_1', sa.Text(), nullable=True, comment='Technology details indicate resource levels and specific technology subcategories.'),
     sa.Column('technology_description_detail_2', sa.Text(), nullable=True, comment='Technology details indicate resource levels and specific technology subcategories.'),
     sa.Column('is_technology_mature', sa.Boolean(), nullable=True, comment='Indicator of whether the technology is mature.'),

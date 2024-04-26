@@ -4577,7 +4577,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Combined federal and state tax rate. The R&D model_case_nrelatb holds tax and "
             "inflation rates constant at assumed long-term values: 21 percent federal tax rate, "
             "6 percent state tax rate (though actual state tax rates vary), and 2.5 "
-            "percent inflation rate Excludes effects of tax credits. The Market + Policy "
+            "percent inflation rate excludes effects of tax credits. The Market + Policy "
             "model_case_nrelatb applies federal tax credits and expires them as consistent with "
             "existing law and guidelines."
         ),
