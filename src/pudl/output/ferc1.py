@@ -3120,7 +3120,7 @@ def get_split_col_ratio(rate_base_unlabeled, gby_core, split_col) -> pd.DataFram
 
 
 def apply_ratio_to_breakdown_unlabeled(
-    rate_base_df: pd.DataFrame,
+    rate_base: pd.DataFrame,
     ratio_df: pd.DataFrame,
     unlabeled_mask: pd.Series,
     split_col: str,
@@ -3128,7 +3128,7 @@ def apply_ratio_to_breakdown_unlabeled(
     """Apply ratios from :func:`get_split_col_ratio` to ``ending_balance``."""
     unlabeled_breakdown = (
         pd.merge(
-            rate_base_df[unlabeled_mask],
+            rate_base[unlabeled_mask],
             ratio_df,
             on=["report_year", "utility_id_ferc1"],
             how="left",
@@ -3147,14 +3147,13 @@ def apply_ratio_to_breakdown_unlabeled(
     )
     rate_base_broken_down = pd.concat(
         [
-            rate_base_df[~unlabeled_mask].assign(
-                **{f"is_breakdown_{split_col}": False}
-            ),
+            rate_base[~unlabeled_mask].assign(**{f"is_breakdown_{split_col}": False}),
             unlabeled_breakdown,
         ]
     )
-    if (new_balance := rate_base_broken_down.ending_balance.sum()) != (
-        old_balance := rate_base_df.ending_balance.sum()
+    if not np.isclose(
+        new_balance := rate_base_broken_down.ending_balance.sum(),
+        old_balance := rate_base.ending_balance.sum(),
     ):
         logger.warning(
             f"{split_col}: New ending balance is not the same as the old ending balance: "
@@ -3171,8 +3170,8 @@ def breakdown_unlabeled(
     """Breakdown rate base records with an unlabeled split_col.
 
     Args:
-        rate_base_df: full table of rate base data.
-        unlabeled_mask: boolean mask of the unlabled records in rate_base_df.
+        rate_base: full table of rate base data.
+        unlabeled_mask: boolean mask of the unlabled records in rate_base.
         split_col: column with the label that contains unlabeled values
             (ex: null or total).
     """
@@ -3184,7 +3183,7 @@ def breakdown_unlabeled(
         split_col=split_col,
     )
     rate_base_broken_down = apply_ratio_to_breakdown_unlabeled(
-        rate_base_df=rate_base,
+        rate_base=rate_base,
         ratio_df=ratio_df,
         unlabeled_mask=unlabeled_mask,
         split_col=split_col,
