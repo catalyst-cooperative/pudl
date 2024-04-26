@@ -493,6 +493,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "core_eia861__yearly_operational_data_revenue",
                     "core_eia861__yearly_reliability",
                     "core_eia861__yearly_sales",
+                    "core_eia861__yearly_short_form",
                     "core_eia861__yearly_service_territory",
                     "out_ferc714__summarized_demand",
                     "core_eia861__assn_utility",
