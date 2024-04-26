@@ -1235,7 +1235,7 @@ def core_eia861__yearly_short_form(
 
     bool_cols = [
         "has_net_metering",
-        "demand_side_management",
+        "has_demand_side_management",
         "has_time_responsive_programs",
         "green_pricing",
     ]
@@ -1425,7 +1425,7 @@ def core_demand_side_management_eia861(
     Transformations include:
 
     * Clean up NERC codes and ensure one per row.
-    * Remove demand_side_management and data_observed columns (they are all the same).
+    * Remove has_demand_side_management and data_observed columns (they are all the same).
     * Tidy subset of the data by customer class.
     * Convert Y/N columns to booleans.
     * Convert 1000s of dollars into dollars.
@@ -1465,11 +1465,11 @@ def core_demand_side_management_eia861(
     # Transform Data Round 1 (must be done to avoid issues with nerc_region col in
     # _tidy_class_dfs())
     # * Clean NERC region col
-    # * Drop data_status and demand_side_management cols (they don't contain anything)
+    # * Drop data_status and has_demand_side_management cols (they don't contain anything)
     ###########################################################################
     transformed_dsm1 = (
         clean_nerc(_pre_process(raw_eia861__demand_side_management), idx_cols)
-        .drop(columns=["demand_side_management", "data_status"])
+        .drop(columns=["has_demand_side_management", "data_status"])
         .query("utility_id_eia not in [88888]")
     )
 
