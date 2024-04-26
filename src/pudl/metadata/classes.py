@@ -1268,6 +1268,7 @@ class Resource(PudlMeta):
     field_namespace: (
         Literal[
             "eia",
+            "eiaaeo",
             "eia_bulk_elec",
             "epacems",
             "ferc1",
@@ -1276,6 +1277,7 @@ class Resource(PudlMeta):
             "gridpathratoolkit",
             "ppe",
             "pudl",
+            "nrelatb",
         ]
         | None
     ) = None
@@ -1285,6 +1287,7 @@ class Resource(PudlMeta):
             "eia861",
             "eia861_disabled",
             "eia923",
+            "eiaaeo",
             "entity_eia",
             "epacems",
             "ferc1",
@@ -1300,6 +1303,7 @@ class Resource(PudlMeta):
             "state_demand",
             "static_pudl",
             "service_territories",
+            "nrelatb",
         ]
         | None
     ) = None

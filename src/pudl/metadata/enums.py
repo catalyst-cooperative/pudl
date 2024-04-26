@@ -190,3 +190,28 @@ PLANT_PARTS: set[str] = {
     "plant_match_ferc1",
 }
 """The plant parts in the EIA plant parts list."""
+
+TECH_DESCRIPTIONS_NRELATB: set[str] = {
+    "AEO",
+    "Biopower",
+    "CSP",
+    "Coal_FE",
+    "Coal_Retrofits",
+    "CommPV",
+    "Commercial Battery Storage",
+    "DistributedWind",
+    "Geothermal",
+    "Hydropower",
+    "LandbasedWind",
+    "NaturalGas_FE",
+    "NaturalGas_Retrofits",
+    "Nuclear",
+    "OffShoreWind",
+    "Pumped Storage Hydropower",
+    "ResPV",
+    "Residential Battery Storage",
+    "Utility-Scale Battery Storage",
+    "Utility-Scale PV-Plus-Battery",
+    "UtilityPV",
+}
+"""NREL ATB technology descriptions."""
