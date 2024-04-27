@@ -61,7 +61,7 @@ class AEOTable(DataFrameModel):
     units: str = Field(coerce=True)
     series_name: str = Field(coerce=True)
     category_name: str = Field(coerce=True)
-    modeling_case_aeo: str = Field(coerce=True)
+    model_case_eiaaeo: str = Field(coerce=True)
 
 
 class AEOTaxonomy:
@@ -355,7 +355,7 @@ class AEOTaxonomy:
                 "units": series["units"],
                 "series_name": series["name"],
                 "category_name": parent_name,
-                "modeling_case_aeo": case_name,
+                "model_case_eiaaeo": case_name,
             }
             for d in series["data"]
         )

@@ -342,40 +342,6 @@ _STAGING_FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Total carbon emissions in short tons.",
         "unit": "short_tons",
     },
-    "electricity_market_module_region_eiaaeo": {
-        "type": "string",
-        "description": "AEO projection region.",
-        "constraints": {
-            "enum": [
-                "florida_reliability_coordinating_council",
-                "midcontinent_central",
-                "midcontinent_east",
-                "midcontinent_south",
-                "midcontinent_west",
-                "northeast_power_coordinating_council_new_england",
-                "northeast_power_coordinating_council_new_york_city_and_long_island",
-                "northeast_power_coordinating_council_upstate_new_york",
-                "pjm_commonwealth_edison",
-                "pjm_dominion",
-                "pjm_east",
-                "pjm_west",
-                "serc_reliability_corporation_central",
-                "serc_reliability_corporation_east",
-                "serc_reliability_corporation_southeastern",
-                "southwest_power_pool_central",
-                "southwest_power_pool_north",
-                "southwest_power_pool_south",
-                "texas_reliability_entity",
-                "united_states",
-                "western_electricity_coordinating_council_basin",
-                "western_electricity_coordinating_council_california_north",
-                "western_electricity_coordinating_council_california_south",
-                "western_electricity_coordinating_council_northwest_power_pool_area",
-                "western_electricity_coordinating_council_rockies",
-                "western_electricity_coordinating_council_southwest",
-            ]
-        },
-    },
     "fuel_type_eiaaeo": {
         "type": "string",
         "description": ("Fuel type reported for AEO end-use sector generation data."),
@@ -423,39 +389,10 @@ _STAGING_FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Total mercury emissions in pounds.",
         "unit": "lb",
     },
-    "model_case_eiaaeo": {
-        "type": "string",
-        "description": "AEO modeling case.",
-        "constraints": {
-            "enum": [
-                "aeo2022",
-                "high_economic_growth",
-                "high_macro_and_high_zero_carbon_technology_cost",
-                "high_macro_and_low_zero_carbon_technology_cost",
-                "high_oil_and_gas_supply",
-                "high_oil_price",
-                "high_uptake_of_inflation_reduction_act",
-                "high_zero_carbon_technology_cost",
-                "low_economic_growth",
-                "low_macro_and_high_zero_carbon_technology_cost",
-                "low_macro_and_low_zero_carbon_technology_cost",
-                "low_oil_and_gas_supply",
-                "low_oil_price",
-                "low_uptake_of_inflation_reduction_act",
-                "low_zero_carbon_technology_cost",
-                "no_inflation_reduction_act",
-                "reference",
-            ]
-        },
-    },
     "price_per_mwh": {
         "type": "number",
         "description": ("Nominal electricity price per MWh."),
         "unit": "USD/MWh",
-    },
-    "projection_year": {
-        "type": "date",
-        "description": "Date at which this data is projected to be true.",
     },
     "price_real_per_mwh": {
         "type": "number",
@@ -476,49 +413,15 @@ _STAGING_FIELD_METADATA: dict[str, dict[str, Any]] = {
             ]
         },
     },
-    "summer_capacity_planned_additions_mw": {
-        "type": "number",
-        "description": (
-            "The total planned additions to net summer generating capacity."
-        ),
-        "unit": "mw",
-    },
-    "summer_capacity_retirements_mw": {
-        "type": "number",
-        "description": (
-            "The total retirements from to net summer generating capacity."
-        ),
-        "unit": "mw",
-    },
-    "summer_capacity_unplanned_additions_mw": {
-        "type": "number",
-        "description": (
-            "The total unplanned additions to net summer generating capacity."
-        ),
-        "unit": "mw",
-    },
-    "technology_description_eiaaeo": {
-        "type": "string",
-        "description": "Fuel type reported for AEO electricity sector generation data.",
-        "constraints": {
-            "enum": [
-                "coal",
-                "combined_cycle",
-                "combustion_turbine_diesel",
-                "distributed_generation",
-                "diurnal_storage",
-                "fuel_cells",
-                "nuclear",
-                "oil_and_natural_gas_steam",
-                "pumped_storage",
-                "renewable_sources",
-            ]
-        },
-    },
 }  # noqa:W0612
 
 # 2024-04-24: to "promote" the schemas, we can add them to this set and move
 # the field definitions
 RESOURCE_METADATA = {
-    key: value for key, value in _STAGING_RESOURCE_METADATA.items() if key in {}
+    key: value
+    for key, value in _STAGING_RESOURCE_METADATA.items()
+    if key
+    in {
+        "core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology",
+    }
 }
