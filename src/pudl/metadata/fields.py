@@ -17,6 +17,7 @@ from pudl.metadata.enums import (
     EPACEMS_MEASUREMENT_CODES,
     EPACEMS_STATES,
     FUEL_CLASSES,
+    FUEL_TYPES_EIAAEO,
     GENERATION_ENERGY_SOURCES_EIA930,
     MODEL_CASES_EIAAEO,
     NERC_REGIONS,
@@ -1712,6 +1713,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Type of fuel.",
         # TODO disambiguate column name. This should be just FERC 1 tables, as the EIA
         # fuel types are now all energy_source_code
+    },
+    "fuel_type_eiaaeo": {
+        "type": "string",
+        "description": ("Fuel type reported for AEO end-use sector generation data."),
+        "constraints": {"enum": FUEL_TYPES_EIAAEO},
     },
     "fuel_type_code_aer": {
         "type": "string",

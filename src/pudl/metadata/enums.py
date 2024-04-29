@@ -313,6 +313,16 @@ TECH_DESCRIPTIONS_EIAAEO: list[str] = [
 ]
 """Types of generation technology reported in EIA AEO."""
 
+FUEL_TYPES_EIAAEO: list[str] = [
+    "coal",
+    "petroleum",
+    "natural_gas",
+    "other_gaseous_fuels",
+    "renewable_sources",
+    "other",
+]
+"""Type of fuel used for generation reported in EIA AEO."""
+
 MODEL_CASES_EIAAEO: list[str] = [
     "aeo2022",
     "high_economic_growth",
