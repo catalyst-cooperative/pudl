@@ -88,7 +88,7 @@ docs-clean:
 .PHONY: docs-build
 docs-build: docs-clean
 	doc8 docs/ README.rst
-	coverage run ${covargs} -- ${CONDA_PREFIX}/bin/sphinx-build -v -W -b html docs docs/_build/html
+	coverage run ${covargs} -- ${CONDA_PREFIX}/bin/sphinx-build --jobs auto -v -W -b html docs docs/_build/html
 	coverage xml --fail-under=0
 
 ########################################################################################
