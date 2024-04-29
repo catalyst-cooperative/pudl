@@ -401,7 +401,7 @@ def core_ferc714__respondent_id(
 
 
 @asset(
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     op_tags={"memory-use": "high"},
     compute_kind="pandas",
 )

@@ -48,6 +48,31 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
+    "core_eia__codes_balancing_authority_subregions": {
+        "description": "Details about the balancing authority subregions in EIA-930.",
+        "schema": {
+            "fields": [
+                "balancing_authority_code_eia",
+                "balancing_authority_subregion_code_eia",
+                "balancing_authority_subregion_name_eia",
+            ],
+            "primary_key": [
+                "balancing_authority_code_eia",
+                "balancing_authority_subregion_code_eia",
+            ],
+            "foreign_key_rules": {
+                "fields": [
+                    [
+                        "balancing_authority_code_eia",
+                        "balancing_authority_subregion_code_eia",
+                    ],
+                ]
+            },
+        },
+        "sources": ["eia930"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
     "core_eia__codes_cooling_water_sources": {
         "description": "A coding table describing different types of cooling water sources in EIA-860.",
         "schema": {

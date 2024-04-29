@@ -7,7 +7,7 @@ from dagster import AssetOut, Output, multi_asset
 
 import pudl
 from pudl.metadata.classes import Package
-from pudl.metadata.dfs import FERC_ACCOUNTS, POLITICAL_SUBDIVISIONS
+from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -69,9 +69,15 @@ def static_pudl_tables(context):
 )
 def static_eia_tables():
     """Create static EIA tables."""
+    static_tables = _read_static_encoding_tables("static_eia")
+    static_tables.update(
+        {
+            "core_eia__codes_balancing_authority_subregions": pudl.metadata.dfs.BALANCING_AUTHORITY_SUBREGIONS_EIA
+        }
+    )
     return (
         Output(output_name=table_name, value=df)
-        for table_name, df in _read_static_encoding_tables("static_eia").items()
+        for table_name, df in static_tables.items()
     )
 
 
@@ -88,13 +94,6 @@ def static_ferc1_tables():
     as well as two static tables that are non-encoded tables (``ferc_accounts``).
     """
     static_table_dict = _read_static_encoding_tables("static_ferc1")
-    static_table_dict.update(
-        {
-            "core_ferc__codes_accounts": FERC_ACCOUNTS[
-                ["ferc_account_id", "ferc_account_description"]
-            ],
-        }
-    )
     return (
         Output(output_name=table_name, value=df)
         for table_name, df in static_table_dict.items()

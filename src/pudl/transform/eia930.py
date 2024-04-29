@@ -92,46 +92,27 @@ def core_eia930__hourly_balancing_authority_assets(
     )
 
 
-@multi_asset(
-    outs={
-        "core_eia930__hourly_balancing_authority_subregion_demand": AssetOut(
-            io_manager_key="parquet_io_manager"
-        ),
-        "core_eia930__assn_balancing_authority_subregion": AssetOut(
-            io_manager_key="pudl_io_manager"
-        ),
-    },
+@asset(
+    io_manager_key="parquet_io_manager",
     compute_kind="pandas",
 )
-def core_eia930__hourly_subregion_assets(raw_eia930__subregion: pd.DataFrame):
-    """Produce a normalized table of hourly demand by subregion."""
-    demand = raw_eia930__subregion.assign(
-        subregion_code_eia=lambda df: df["subregion_code_eia"].str.upper()
+def core_eia930__hourly_balancing_authority_subregion_demand(
+    raw_eia930__subregion: pd.DataFrame,
+):
+    """Produce a normalized table of hourly electricity demand by BA subregion."""
+    return raw_eia930__subregion.assign(
+        balancing_authority_subregion_code_eia=lambda df: df[
+            "balancing_authority_subregion_code_eia"
+        ].str.upper()
     ).loc[
         :,
         [
             "datetime_utc",
             "balancing_authority_code_eia",
-            "subregion_code_eia",
+            "balancing_authority_subregion_code_eia",
             "demand_reported_mwh",
         ],
     ]
-    assn = (
-        demand.groupby("balancing_authority_code_eia")["subregion_code_eia"]
-        .unique()
-        .explode()
-        .to_frame()
-        .reset_index()
-    )
-    return (
-        Output(
-            value=demand,
-            output_name="core_eia930__hourly_balancing_authority_subregion_demand",
-        ),
-        Output(
-            value=assn, output_name="core_eia930__assn_balancing_authority_subregion"
-        ),
-    )
 
 
 @asset(

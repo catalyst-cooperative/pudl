@@ -21,15 +21,13 @@ As of 2023, the EIA-860 Form is organized into the following schedules:
 (Schedule 5 contained generator construction cost information)
 {% endblock %}
 
-{% block downloadable_pdfs %}
-
-{% for filename in download_paths %}
-* :download:`{{ filename.stem.replace("_", " ").title() }} (PDF) <{{ filename }}>`
-
+{% block download_docs %}
+{% for filename in download_paths -%}
+* :download:`{{ filename.stem.replace("_", " ").title() }} ({{ filename.suffix.replace('.', '').upper() }}) <{{ filename }}>`
 {% endfor %}
 {% endblock %}
 
-{% block accessible %}
+{% block availability %}
 EIA-860 data goes back to 2001, and PUDL incorporates most of the data from all those
 years. From 2001-2003 the data was distributed as VisualFoxPro DBF files. Starting in
 2004 the data is distributed as Microsoft Excel spreadsheets.
@@ -43,10 +41,9 @@ PUDL does not yet include the EIA-860 data reporting:
 * Energy storage (Schedule 3.4)
 * Multi-fuel generators (Schedule 3.5)
 * Environmental Control Equipment (Schedule 6) has been partially incorporated.
-
 {% endblock %}
 
-{% block fill_out_form %}
+{% block respondents %}
 Respondents include all existing and proposed plants that have a total generator
 nameplate capacity (sum for generators at a single site) of 1 Megawatt (MW) or greater
 and are connected to the local or regional electric power grid. Annual responses are due

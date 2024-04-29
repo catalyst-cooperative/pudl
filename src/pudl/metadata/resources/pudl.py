@@ -98,6 +98,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "state_demand",
         "field_namespace": "pudl",
         "sources": ["ferc714", "eia861", "censusdp1"],
+        "create_database_schema": False,
     },
 }
 """PUDL-specifiic resource attributes by PUDL identifier (``resource.name``).

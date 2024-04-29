@@ -11,16 +11,16 @@ There are more than 20 different spreadsheets included in the annual zipfiles. F
 details, see the `official EIA-861 page <{{ source.path }}>`__
 {% endblock %}
 
-{% block downloadable_pdfs %}
+{% block download_docs %}
 {% for filename in download_paths %}
-* :download:`{{ filename.stem.replace("_", " ").title() }} (PDF) <{{ filename }}>`
+* :download:`{{ filename.stem.replace("_", " ").title() }} ({{ filename.suffix.replace('.', '').upper() }}) <{{ filename }}>`
 {% endfor %}
 {% endblock %}
 
-{% block accessible %}
+{% block availability %}
 {% endblock %}
 
-{% block fill_out_form %}
+{% block respondents %}
 {% endblock %}
 
 {% block original_data %}

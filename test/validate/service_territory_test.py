@@ -2,10 +2,12 @@
 
 import logging
 
+import pandas as pd
+import pyarrow.parquet as pq
 import pytest
 
 import pudl
-from pudl import validate as pv
+from pudl.workspace.setup import PudlPaths
 
 logger = logging.getLogger(__name__)
 
@@ -30,34 +32,25 @@ def test_minmax_rows(
     Args:
         pudl_out_orig: A PudlTabl output object.
         live_dbs: Whether we're using a live or testing DB.
-        expected_rows: Expected number of rows that the dataframe should
-            contain when all data is loaded and is output without aggregation.
-        df_name: Shorthand name identifying the dataframe, corresponding
-            to the name of the function used to pull it from the PudlTabl
-            output object.
+        expected_rows: Expected number of rows that the dataframe should contain when
+            all data is loaded and is output without aggregation.
+
+        df_name: Shorthand name identifying the dataframe, corresponding to the name of
+            the function used to pull it from the PudlTabl output object.
     """
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
-    _ = (
-        pudl_out_orig.__getattribute__(df_name)()
-        .pipe(
-            pv.check_min_rows, expected_rows=expected_rows, margin=0.0, df_name=df_name
-        )
-        .pipe(
-            pv.check_max_rows, expected_rows=expected_rows, margin=0.0, df_name=df_name
-        )
-    )
+    assert pudl_out_orig.__getattribute__(df_name)().shape[0] == expected_rows
 
 
 @pytest.mark.parametrize(
-    "df_name,expected_rows",
-    [("demand_hourly_pa_ferc714", 15_608_154)],
+    "resource_id,expected_rows",
+    [("out_ferc714__hourly_planning_area_demand", 15_608_154)],
 )
 def test_minmax_rows_and_year_in_ferc714_hourly_planning_area_demand(
-    pudl_out_orig: "pudl.output.pudltabl.PudlTabl",
     live_dbs: bool,
+    resource_id: str,
     expected_rows: int,
-    df_name: str,
 ):
     """Test if the majority of the years in the two date columns line up & min/max rows.
 
@@ -67,10 +60,10 @@ def test_minmax_rows_and_year_in_ferc714_hourly_planning_area_demand(
     """
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
-    hpad_ferc714 = pudl_out_orig.__getattribute__(df_name)()
-    _ = hpad_ferc714.pipe(
-        pv.check_min_rows, expected_rows=expected_rows, margin=0.0, df_name=df_name
-    ).pipe(pv.check_max_rows, expected_rows=expected_rows, margin=0.0, df_name=df_name)
+    parquet_path = PudlPaths().parquet_path(resource_id)
+    meta = pq.read_metadata(parquet_path)
+    assert meta.num_rows == expected_rows
+    hpad_ferc714 = pd.read_parquet(parquet_path, dtype_backend="pyarrow")
 
     logger.info("Checking the consistency of the year in the multiple date columns.")
     mismatched_report_years = hpad_ferc714[
@@ -78,7 +71,7 @@ def test_minmax_rows_and_year_in_ferc714_hourly_planning_area_demand(
     ]
     if (off_ratio := len(mismatched_report_years) / len(hpad_ferc714)) > 0.001:
         raise AssertionError(
-            f"Found more ({off_ratio:.2%}) than expected (>.1%) FERC714 records "
+            f"Found more ({off_ratio:.2%}) than expected (>.1%) FERC-714 records "
             "where the report year from the datetime_utc differs from the "
             "report_date column."
         )

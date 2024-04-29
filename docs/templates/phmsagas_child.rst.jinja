@@ -11,7 +11,7 @@ the transmission and distribution data, which is available from 1970 to the pres
 For more details, see the `official PHMSA data page <{{ source.path }}>`__.
 {% endblock %}
 
-{% block downloadable_pdfs %}
+{% block download_docs %}
 Documentation for the gas distribution form:
 {% for filename in download_paths if ('Distribution' in filename.stem.title()) %}
 * :download:`{{ filename.stem.title()}} (PDF/TXT) <{{ filename }}>`
@@ -23,14 +23,14 @@ Documentation for the gas transmission and gathering form:
 {% endfor %}
 {% endblock %}
 
-{% block accessible %}
+{% block availability %}
 PHMSA data goes back to 1970 and is formatted as Microsoft Excel spreadsheets. To begin,
 PUDL will focus on integrating tables from the distribution and transmission forms, from
 1990-present. Data prior to 1989 and from other tables will be integrated as funding
 allows.
 {% endblock %}
 
-{% block fill_out_form %}
+{% block respondents %}
 The Code of Federal Regulations (49 CFR Parts 191, 195) requires operators of gas
 distribution, gas gathering, gas transmission, hazardous liquid, LNG, and UNGS
 to submit annual reports to PHMSA. For further details, see the PHMSA's `pipeline safety

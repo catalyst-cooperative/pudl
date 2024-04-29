@@ -8,12 +8,12 @@ from pytz import all_timezones
 
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.constants import FIELD_DTYPES_PANDAS
+from pudl.metadata.dfs import BALANCING_AUTHORITY_SUBREGIONS_EIA
 from pudl.metadata.enums import (
     COUNTRY_CODES_ISO3166,
     CUSTOMER_CLASSES,
     DIVISION_CODES_US_CENSUS,
     EIA930_GENERATION_ENERGY_SOURCES,
-    EIA_SUBREGIONS,
     EPACEMS_MEASUREMENT_CODES,
     EPACEMS_STATES,
     FUEL_CLASSES,
@@ -251,6 +251,23 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "balancing_authority_retirement_date": {
         "type": "date",
         "description": "Date on which the balancing authority ceased independent operation.",
+    },
+    "balancing_authority_subregion_code_eia": {
+        "type": "string",
+        "description": "Code identifying subregions of larger balancing authorities.",
+        "constraints": {
+            "enum": sorted(
+                set(
+                    BALANCING_AUTHORITY_SUBREGIONS_EIA[
+                        "balancing_authority_subregion_code_eia"
+                    ]
+                )
+            )
+        },
+    },
+    "balancing_authority_subregion_name_eia": {
+        "type": "string",
+        "description": "Name of the balancing authority subregion.",
     },
     "bga_source": {
         "type": "string",
@@ -1327,14 +1344,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "ferc_account": {
         "type": "string",
         "description": "Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting.",
-    },
-    "ferc_account_description": {
-        "type": "string",
-        "description": "Description of the FERC account.",
-    },
-    "ferc_account_id": {
-        "type": "string",
-        "description": "Account identifier from FERC's Uniform System of Accounts for Electric Plant. Includes higher level labeled categories.",
     },
     "ferc_account_label": {
         "type": "string",
@@ -3907,13 +3916,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "subplant_id": {
         "type": "integer",
         "description": "Sub-plant ID links EPA CEMS emissions units to EIA units.",
-    },
-    # TODO[zaneselvans] 2024-04-20 research the real definition of this column and
-    # create a coding table that explains it.
-    "subregion_code_eia": {
-        "type": "string",
-        "description": "EIA subregion code.",
-        "constraints": {"enum": EIA_SUBREGIONS},
     },
     "sulfur_content_pct": {
         "type": "number",

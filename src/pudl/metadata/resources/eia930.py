@@ -61,6 +61,7 @@ electric system."""
         "field_namespace": "eia",
         "sources": ["eia930"],
         "etl_group": "eia930",
+        "create_database_schema": False,
     },
     "core_eia930__hourly_balancing_authority_net_generation_by_energy_source": {
         "description": (
@@ -96,6 +97,7 @@ investigation."""
         "field_namespace": "eia",
         "sources": ["eia930"],
         "etl_group": "eia930",
+        "create_database_schema": False,
     },
     "core_eia930__hourly_balancing_authority_interchange": {
         "description": """Hourly balancing authority interchange.
@@ -122,6 +124,7 @@ indicate net outflows.""",
         "field_namespace": "eia",
         "sources": ["eia930"],
         "etl_group": "eia930",
+        "create_database_schema": False,
     },
     "core_eia930__hourly_balancing_authority_subregion_demand": {
         "description": (
@@ -136,27 +139,18 @@ below provides more information on subregions."""
             "fields": [
                 "datetime_utc",
                 "balancing_authority_code_eia",
-                "subregion_code_eia",
+                "balancing_authority_subregion_code_eia",
                 "demand_reported_mwh",
             ],
             "primary_key": [
                 "datetime_utc",
                 "balancing_authority_code_eia",
-                "subregion_code_eia",
+                "balancing_authority_subregion_code_eia",
             ],
         },
         "field_namespace": "eia",
         "sources": ["eia930"],
         "etl_group": "eia930",
-    },
-    "core_eia930__assn_balancing_authority_subregion": {
-        "description": """EIA-930 balancing authority to subregion association.""",
-        "schema": {
-            "fields": ["subregion_code_eia", "balancing_authority_code_eia"],
-            "primary_key": ["subregion_code_eia"],
-        },
-        "field_namespace": "eia",
-        "sources": ["eia930"],
-        "etl_group": "eia930",
+        "create_database_schema": False,
     },
 }
