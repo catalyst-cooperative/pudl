@@ -1,8 +1,8 @@
 """Add eia930 parquet only hourly output
 
-Revision ID: 82aed639c36a
+Revision ID: 5526d1964274
 Revises: e0d3904b97f4
-Create Date: 2024-04-28 23:34:23.832466
+Create Date: 2024-04-29 22:19:45.656541
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '82aed639c36a'
+revision = '5526d1964274'
 down_revision = 'e0d3904b97f4'
 branch_labels = None
 depends_on = None
@@ -25,10 +25,9 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['balancing_authority_code_eia'], ['core_eia__codes_balancing_authorities.code'], name=op.f('fk_core_eia__codes_balancing_authority_subregions_balancing_authority_code_eia_core_eia__codes_balancing_authorities')),
     sa.PrimaryKeyConstraint('balancing_authority_code_eia', 'balancing_authority_subregion_code_eia', name=op.f('pk_core_eia__codes_balancing_authority_subregions'))
     )
-    op.drop_table('out_gridpathratoolkit__hourly_available_capacity_factor')
-    op.drop_table('core_ferc__codes_accounts')
     op.drop_table('out_ferc714__hourly_estimated_state_demand')
     op.drop_table('out_ferc714__hourly_planning_area_demand')
+    op.drop_table('out_gridpathratoolkit__hourly_available_capacity_factor')
     with op.batch_alter_table('core_eia860__scd_generators_energy_storage', schema=None) as batch_op:
         batch_op.alter_column('storage_enclosure_code',
                existing_type=sa.VARCHAR(length=2),
@@ -52,8 +51,8 @@ def upgrade() -> None:
                existing_nullable=True)
 
     with op.batch_alter_table('core_eia__codes_balancing_authorities', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('region_code_eia', sa.Enum('CENT', 'NE', 'MIDA', 'SE', 'CAN', 'NW', 'MIDW', 'CAL', 'MEX', 'FLA', 'CAR', 'SW', 'TEX', 'NY'), nullable=True, comment='EIA region code.'))
-        batch_op.add_column(sa.Column('region_eia', sa.Text(), nullable=True, comment='Human-readable name of the EIA balancing region.'))
+        batch_op.add_column(sa.Column('balancing_authority_region_code_eia', sa.Enum('NY', 'CENT', 'FLA', 'CAN', 'CAL', 'TEX', 'SW', 'MIDA', 'SE', 'NW', 'CAR', 'MEX', 'NE', 'MIDW'), nullable=True, comment='EIA balancing authority region code.'))
+        batch_op.add_column(sa.Column('balancing_authority_region_name_eia', sa.Text(), nullable=True, comment='Human-readable name of the EIA balancing region.'))
         batch_op.add_column(sa.Column('report_timezone', sa.Enum('America/Anchorage', 'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'America/New_York', 'America/Phoenix', 'Pacific/Honolulu'), nullable=True, comment='Timezone used by the reporting entity. For use in localizing UTC times.'))
         batch_op.add_column(sa.Column('balancing_authority_retirement_date', sa.Date(), nullable=True, comment='Date on which the balancing authority ceased independent operation.'))
         batch_op.add_column(sa.Column('is_generation_only', sa.Boolean(), nullable=True, comment='Indicates whether the balancing authority is generation-only, meaning it does not serve retail customers and thus reports only net generation and interchange, but not demand.'))
@@ -67,8 +66,8 @@ def downgrade() -> None:
         batch_op.drop_column('is_generation_only')
         batch_op.drop_column('balancing_authority_retirement_date')
         batch_op.drop_column('report_timezone')
-        batch_op.drop_column('region_eia')
-        batch_op.drop_column('region_code_eia')
+        batch_op.drop_column('balancing_authority_region_name_eia')
+        batch_op.drop_column('balancing_authority_region_code_eia')
 
     with op.batch_alter_table('core_eia860__scd_generators_energy_storage', schema=None) as batch_op:
         batch_op.alter_column('storage_technology_code_4',
@@ -92,6 +91,12 @@ def downgrade() -> None:
                type_=sa.VARCHAR(length=2),
                existing_nullable=True)
 
+    op.create_table('out_gridpathratoolkit__hourly_available_capacity_factor',
+    sa.Column('datetime_utc', sa.DATETIME(), nullable=False),
+    sa.Column('aggregation_group', sa.TEXT(), nullable=False),
+    sa.Column('capacity_factor', sa.FLOAT(), nullable=True),
+    sa.PrimaryKeyConstraint('datetime_utc', 'aggregation_group', name='pk_out_gridpathratoolkit__hourly_available_capacity_factor')
+    )
     op.create_table('out_ferc714__hourly_planning_area_demand',
     sa.Column('respondent_id_ferc714', sa.INTEGER(), nullable=False),
     sa.Column('report_date', sa.DATE(), nullable=False),
@@ -107,17 +112,6 @@ def downgrade() -> None:
     sa.Column('demand_mwh', sa.FLOAT(), nullable=True),
     sa.Column('scaled_demand_mwh', sa.FLOAT(), nullable=True),
     sa.PrimaryKeyConstraint('state_id_fips', 'datetime_utc', name='pk_out_ferc714__hourly_estimated_state_demand')
-    )
-    op.create_table('core_ferc__codes_accounts',
-    sa.Column('ferc_account_id', sa.TEXT(), nullable=False),
-    sa.Column('ferc_account_description', sa.TEXT(), nullable=True),
-    sa.PrimaryKeyConstraint('ferc_account_id', name='pk_core_ferc__codes_accounts')
-    )
-    op.create_table('out_gridpathratoolkit__hourly_available_capacity_factor',
-    sa.Column('datetime_utc', sa.DATETIME(), nullable=False),
-    sa.Column('aggregation_group', sa.TEXT(), nullable=False),
-    sa.Column('capacity_factor', sa.FLOAT(), nullable=True),
-    sa.PrimaryKeyConstraint('datetime_utc', 'aggregation_group', name='pk_out_gridpathratoolkit__hourly_available_capacity_factor')
     )
     op.drop_table('core_eia__codes_balancing_authority_subregions')
     # ### end Alembic commands ###

@@ -1805,7 +1805,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia__codes_balancing_authorities": {
         "df": pd.read_csv(
             StringIO(
-                """code,label,description,report_timezone,region_eia,balancing_authority_retirement_date,region_code_eia,is_generation_only
+                """code,label,description,report_timezone,balancing_authority_region_name_eia,balancing_authority_retirement_date,balancing_authority_region_code_eia,is_generation_only
 AEC,power_south_coop,PowerSouth Energy Cooperative,America/Chicago,Southeast,2021-09-01,SE,False
 AESO,alberta_electric_system_operator,Alberta Electric System Operator,,Canada,,CAN,False
 AECI,associated_electric_coop,"Associated Electric Cooperative, Inc.",America/Chicago,Midwest,,MIDW,False

@@ -4,7 +4,7 @@ import pandas as pd
 from dagster import AssetOut, Output, asset, multi_asset
 
 import pudl
-from pudl.metadata.enums import EIA930_GENERATION_ENERGY_SOURCES
+from pudl.metadata.enums import GENERATION_ENERGY_SOURCES_EIA930
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -51,7 +51,7 @@ def core_eia930__hourly_balancing_authority_assets(
             nondata_cols
             + [
                 f"net_generation_{fuel}_{status}_mwh"
-                for fuel in EIA930_GENERATION_ENERGY_SOURCES
+                for fuel in GENERATION_ENERGY_SOURCES_EIA930
                 for status in ["reported", "adjusted", "imputed"]
                 if fuel != "unknown"
             ]
@@ -76,10 +76,8 @@ def core_eia930__hourly_balancing_authority_assets(
         .reset_index()
     )
 
-    # TODO[zaneselvans] 2024-04-20: Verify that sum of net generation from all fuels
-    # adds up to the reported total
-    # NOTE: currently there are some BIG differences between the calculated total and
-    # the reported total.
+    # NOTE: currently there are some BIG differences between the calculated totals and
+    # the reported for net generation.
     return (
         Output(
             value=netgen_by_source,

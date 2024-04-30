@@ -112,18 +112,6 @@ HTTPS using the following links:
 Fully Processed SQLite Databases
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-To reduce network transfer times, we compress the SQLite databases using ``gzip``. To
-decompress them locally, at the command line on Linux, MacOS, or Windows you can use the
-``gunzip`` command. (Git for Windows installs ``gzip`` / ``gunzip`` by default, and it
-can also be installed using the conda package manager).
-
-.. code-block:: console
-
-   $ gunzip *.sqlite.gz
-
-If you're not familiar with using Unix command line tools in Windows you can also use a
-3rd party tool like `7zip <https://www.7-zip.org/download.html>`__.
-
 * `Main PUDL Database <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/pudl.sqlite.gz>`__
 * `US Census DP1 Database (2010) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/censusdp1tract.sqlite.gz>`__
 
@@ -180,6 +168,16 @@ Raw FERC DBF & XBRL data converted to SQLite
   * `FERC-714 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc714_xbrl_datapackage.json>`__
   * `FERC-714 XBRL Taxonomy Metadata as JSON (2021-2022) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc714_xbrl_taxonomy_metadata.json>`__
 
+.. note::
+
+  To reduce network transfer times, we compress the SQLite databases using ``gzip``. To
+  decompress them locally, at the command line on Linux, MacOS, or Windows you can use
+  the ``gunzip`` command. (Git for Windows installs ``gzip`` / ``gunzip`` by default,
+  and it can also be installed using the conda package manager).
+
+  If you're not familiar with using Unix command line tools in Windows you can also use
+  a 3rd party tool like `7zip <https://www.7-zip.org/download.html>`__.
+
 .. _access-stable:
 
 ---------------------------------------------------------------------------------------
@@ -199,10 +197,13 @@ documentation for a specific version by hovering over the version selector at
 the bottom left of the page.
 
 If you're not after a *specific* version, but rather the *latest stable
-version*, you can find them `AWS Open Data Registry
+version*, you can find them on the `AWS Open Data Registry
 <https://registry.opendata.aws/catalyst-cooperative-pudl/>`__, in the
-``stable/`` namespace. You can run ``aws s3 ls --no-sign-request
-s3://pudl.catalyst.coop/stable/`` to see what's available.
+``stable/`` namespace:
+
+.. code-block:: bash
+
+   aws s3 ls --no-sign-request s3://pudl.catalyst.coop/stable/
 
 .. _access-raw:
 

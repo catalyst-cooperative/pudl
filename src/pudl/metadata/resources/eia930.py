@@ -18,13 +18,14 @@ included.
 In some electricity publications, EIA reports generation from all utility-scale
 generating units in the United States. BAs only meter generating units that are from a
 subset of all utility-scale generating units. As a result, when hourly generation from
-the Hourly Electric Grid Monitor is aggregated to monthly or annual levels, the results
-will be lower than monthly and annual aggregations in other EIA electricity
-publications.
+the EIA-930 is aggregated to monthly or annual levels, the results will be lower than
+monthly and annual aggregations in other EIA electricity publications.
 
 Interchange is the net metered tie line flow from one BA to another directly
-interconnected BA. Total net interchange is the net sum of all interchange occurring
-between a BA and its directly interconnected neighboring BAs.
+interconnected BA. This table includes the net sum of all interchange occurring between
+a BA all of its directly interconnected neighboring BAs. For a detailed breakdown of
+interchange between each pair of adjacent BAs see
+:ref:`core_eia930__hourly_balancing_authority_interchange`.
 
 Negative interchange values indicate net inflows, and positive interchange values
 indicate net outflows.

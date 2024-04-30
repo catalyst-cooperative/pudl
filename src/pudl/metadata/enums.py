@@ -83,7 +83,7 @@ US_TIMEZONES: list[str] = [
     "Pacific/Honolulu",
 ]
 
-EIA930_GENERATION_ENERGY_SOURCES = [
+GENERATION_ENERGY_SOURCES_EIA930 = [
     "coal",
     "gas",
     "hydro",
@@ -94,6 +94,14 @@ EIA930_GENERATION_ENERGY_SOURCES = [
     "unknown",
     "wind",
 ]
+"""Energy sources used to categorize generation in the EIA 930 data.
+
+These strings are used to construct a multi-index for stacking the net generation data
+and must not contain underscores, as that character is used to split the longer column
+names into different parts.
+"""
+for energy_source in GENERATION_ENERGY_SOURCES_EIA930:
+    assert "_" not in energy_source
 
 CUSTOMER_CLASSES: list[str] = [
     "commercial",

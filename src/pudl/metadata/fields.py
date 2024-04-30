@@ -13,10 +13,10 @@ from pudl.metadata.enums import (
     COUNTRY_CODES_ISO3166,
     CUSTOMER_CLASSES,
     DIVISION_CODES_US_CENSUS,
-    EIA930_GENERATION_ENERGY_SOURCES,
     EPACEMS_MEASUREMENT_CODES,
     EPACEMS_STATES,
     FUEL_CLASSES,
+    GENERATION_ENERGY_SOURCES_EIA930,
     NERC_REGIONS,
     PLANT_PARTS,
     RELIABILITY_STANDARDS,
@@ -251,6 +251,21 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "balancing_authority_retirement_date": {
         "type": "date",
         "description": "Date on which the balancing authority ceased independent operation.",
+    },
+    "balancing_authority_region_code_eia": {
+        "type": "string",
+        "description": "EIA balancing authority region code.",
+        "constraints": {
+            "enum": set(
+                CODE_METADATA["core_eia__codes_balancing_authorities"]["df"][
+                    "balancing_authority_region_code_eia"
+                ].dropna()
+            )
+        },
+    },
+    "balancing_authority_region_name_eia": {
+        "type": "string",
+        "description": "Human-readable name of the EIA balancing region.",
     },
     "balancing_authority_subregion_code_eia": {
         "type": "string",
@@ -1214,7 +1229,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "generation_energy_source": {
         "type": "string",
         "description": "High level energy source used to produce electricity.",
-        "constraints": {"enum": EIA930_GENERATION_ENERGY_SOURCES},
+        "constraints": {"enum": GENERATION_ENERGY_SOURCES_EIA930},
     },
     "energy_source_code": {
         "type": "string",
@@ -1344,6 +1359,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "ferc_account": {
         "type": "string",
         "description": "Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting.",
+    },
+    "ferc_account_description": {
+        "type": "string",
+        "description": "Description of the FERC account.",
+    },
+    "ferc_account_id": {
+        "type": "string",
+        "description": "Account identifier from FERC's Uniform System of Accounts for Electric Plant. Includes higher level labeled categories.",
     },
     "ferc_account_label": {
         "type": "string",
@@ -3276,21 +3299,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "record_id_ferc1": {
         "type": "string",
         "description": "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.",
-    },
-    "region_code_eia": {
-        "type": "string",
-        "description": "EIA region code.",
-        "constraints": {
-            "enum": set(
-                CODE_METADATA["core_eia__codes_balancing_authorities"]["df"][
-                    "region_code_eia"
-                ].dropna()
-            )
-        },
-    },
-    "region_eia": {
-        "type": "string",
-        "description": "Human-readable name of the EIA balancing region.",
     },
     "region_name_us_census": {
         "type": "string",

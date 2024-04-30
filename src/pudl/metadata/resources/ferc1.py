@@ -311,6 +311,16 @@ any cleaning mechanisms in place to account for this."""
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
+    "core_ferc__codes_accounts": {
+        "description": "Account numbers from the FERC Uniform System of Accounts for Electric Plant, which is defined in Code of Federal Regulations (CFR) Title 18, Chapter I, Subchapter C, Part 101. (See e.g. https://www.law.cornell.edu/cfr/text/18/part-101).",
+        "schema": {
+            "fields": ["ferc_account_id", "ferc_account_description"],
+            "primary_key": ["ferc_account_id"],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "static_ferc1",
+        "field_namespace": "ferc1",
+    },
     "core_ferc1__yearly_steam_plants_fuel_sched402": {
         "description": "Annual fuel cost and quantity for steam plants with a capacity of 25+ MW, internal combustion and gas-turbine plants of 10+ MW, and all nuclear plants. As reported on page 402 of FERC Form 1 and extracted from the f1_fuel table in FERC's FoxPro Database.",
         "schema": {

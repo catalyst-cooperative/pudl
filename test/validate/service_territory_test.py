@@ -6,7 +6,7 @@ import pandas as pd
 import pyarrow.parquet as pq
 import pytest
 
-import pudl
+from pudl.output.pudltabl import PudlTabl
 from pudl.workspace.setup import PudlPaths
 
 logger = logging.getLogger(__name__)
@@ -22,21 +22,20 @@ logger = logging.getLogger(__name__)
     ],
 )
 def test_minmax_rows(
-    pudl_out_orig: "pudl.output.pudltabl.PudlTabl",
+    pudl_out_orig: PudlTabl,
     live_dbs: bool,
-    expected_rows: int,
     df_name: str,
+    expected_rows: int,
 ):
     """Verify that output DataFrames don't have too many or too few rows.
 
     Args:
         pudl_out_orig: A PudlTabl output object.
         live_dbs: Whether we're using a live or testing DB.
-        expected_rows: Expected number of rows that the dataframe should contain when
-            all data is loaded and is output without aggregation.
-
         df_name: Shorthand name identifying the dataframe, corresponding to the name of
             the function used to pull it from the PudlTabl output object.
+        expected_rows: Expected number of rows that the dataframe should contain when
+            all data is loaded and is output without aggregation.
     """
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
