@@ -73,6 +73,36 @@ NERC_REGIONS: list[str] = [
 See https://www.eia.gov/electricity/data/eia411/#tabs_NERC-3.
 """
 
+US_TIMEZONES: list[str] = [
+    "America/Anchorage",
+    "America/Chicago",
+    "America/Denver",
+    "America/Los_Angeles",
+    "America/New_York",
+    "America/Phoenix",
+    "Pacific/Honolulu",
+]
+
+GENERATION_ENERGY_SOURCES_EIA930 = [
+    "coal",
+    "gas",
+    "hydro",
+    "nuclear",
+    "oil",
+    "other",
+    "solar",
+    "unknown",
+    "wind",
+]
+"""Energy sources used to categorize generation in the EIA 930 data.
+
+These strings are used to construct a multi-index for stacking the net generation data
+and must not contain underscores, as that character is used to split the longer column
+names into different parts.
+"""
+for energy_source in GENERATION_ENERGY_SOURCES_EIA930:
+    assert "_" not in energy_source
+
 CUSTOMER_CLASSES: list[str] = [
     "commercial",
     "industrial",

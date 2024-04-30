@@ -8,6 +8,7 @@ from pytz import all_timezones
 
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.constants import FIELD_DTYPES_PANDAS
+from pudl.metadata.dfs import BALANCING_AUTHORITY_SUBREGIONS_EIA
 from pudl.metadata.enums import (
     COUNTRY_CODES_ISO3166,
     CUSTOMER_CLASSES,
@@ -15,6 +16,7 @@ from pudl.metadata.enums import (
     EPACEMS_MEASUREMENT_CODES,
     EPACEMS_STATES,
     FUEL_CLASSES,
+    GENERATION_ENERGY_SOURCES_EIA930,
     NERC_REGIONS,
     PLANT_PARTS,
     RELIABILITY_STANDARDS,
@@ -24,6 +26,7 @@ from pudl.metadata.enums import (
     TECH_CLASSES,
     TECH_DESCRIPTIONS,
     TECH_DESCRIPTIONS_NRELATB,
+    US_TIMEZONES,
 )
 from pudl.metadata.labels import ESTIMATED_OR_ACTUAL, FUEL_UNITS_EIA
 from pudl.metadata.sources import SOURCES
@@ -225,9 +228,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Indication of whether a column is a credit or debit, as reported in the XBRL taxonomy.",
     },
+    "balancing_authority_code_adjacent_eia": {
+        "type": "string",
+        "description": "EIA short code for the other adjacent balancing authority, with which interchange is occuring. Includes Canadian and Mexican BAs.",
+    },
     "balancing_authority_code_eia": {
         "type": "string",
-        "description": "EIA short code identifying a balancing authority.",
+        "description": "EIA short code identifying a balancing authority. May include Canadian and Mexican BAs.",
     },
     "balancing_authority_code_eia_consistent_rate": {
         "type": "number",
@@ -240,6 +247,42 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "balancing_authority_name_eia": {
         "type": "string",
         "description": "Name of the balancing authority.",
+    },
+    "balancing_authority_retirement_date": {
+        "type": "date",
+        "description": "Date on which the balancing authority ceased independent operation.",
+    },
+    "balancing_authority_region_code_eia": {
+        "type": "string",
+        "description": "EIA balancing authority region code.",
+        "constraints": {
+            "enum": set(
+                CODE_METADATA["core_eia__codes_balancing_authorities"]["df"][
+                    "balancing_authority_region_code_eia"
+                ].dropna()
+            )
+        },
+    },
+    "balancing_authority_region_name_eia": {
+        "type": "string",
+        "description": "Human-readable name of the EIA balancing region.",
+    },
+    "balancing_authority_subregion_code_eia": {
+        "type": "string",
+        "description": "Code identifying subregions of larger balancing authorities.",
+        "constraints": {
+            "enum": sorted(
+                set(
+                    BALANCING_AUTHORITY_SUBREGIONS_EIA[
+                        "balancing_authority_subregion_code_eia"
+                    ]
+                )
+            )
+        },
+    },
+    "balancing_authority_subregion_name_eia": {
+        "type": "string",
+        "description": "Name of the balancing authority subregion.",
     },
     "bga_source": {
         "type": "string",
@@ -895,6 +938,28 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Gross megawatt-hours delivered in power exchanges and used as the basis for settlement.",
         "unit": "MWh",
     },
+    "demand_adjusted_mwh": {
+        "type": "number",
+        "description": "Electricity demand adjusted by EIA to reflect non-physical commercial transfers through pseudo-ties and dynamic scheduling.",
+        "unit": "MWh",
+    },
+    # TODO[zaneselvans] 2024-04-20: Is the timestamp when the forecast was made? Or the
+    # time at which the forecast is trying to predict demand?
+    "demand_forecast_mwh": {
+        "type": "number",
+        "description": "Day ahead demand forecast.",
+        "unit": "MWh",
+    },
+    "demand_imputed_mwh": {
+        "type": "number",
+        "description": "Electricity demand calculated by subtracting BA interchange from net generation, with outliers and missing values imputed by EIA.",
+        "unit": "MWh",
+    },
+    "demand_reported_mwh": {
+        "type": "number",
+        "description": "Originally reported electricity demand, calculated by taking the net generation within the BA and subtracting the interchange with adjacent BAs.",
+        "unit": "MWh",
+    },
     "demand_annual_mwh": {
         "type": "number",
         "description": "Annual electricity demand in a given report year.",
@@ -1160,6 +1225,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "in both directions, between the delivery entity and the customer."
         ),
         "unit": "MWh",
+    },
+    "generation_energy_source": {
+        "type": "string",
+        "description": "High level energy source used to produce electricity.",
+        "constraints": {"enum": GENERATION_ENERGY_SOURCES_EIA930},
     },
     "energy_source_code": {
         "type": "string",
@@ -1916,12 +1986,31 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "unit": "gpm",
     },
+    "interchange_adjusted_mwh": {
+        "type": "number",
+        "description": "Energy interchange between adjacent balancing authorities, adjusted by EIA to reflect non-physical commercial transfers through pseudo-ties and dynamic scheduling.",
+        "unit": "MWh",
+    },
+    "interchange_imputed_mwh": {
+        "type": "number",
+        "description": "Energy interchange between adjacent balancing authorities, with outliers and missing values imputed by EIA.",
+        "unit": "MWh",
+    },
+    "interchange_reported_mwh": {
+        "type": "number",
+        "description": "Original reported energy interchange between adjacent balancing authorities.",
+        "unit": "MWh",
+    },
     "is_epacems_state": {
         "type": "boolean",
         "description": (
             "Indicates whether the associated state reports data within the EPA's "
             "Continuous Emissions Monitoring System."
         ),
+    },
+    "is_generation_only": {
+        "type": "boolean",
+        "description": "Indicates whether the balancing authority is generation-only, meaning it does not serve retail customers and thus reports only net generation and interchange, but not demand.",
     },
     "iso_rto_code": {
         "type": "string",
@@ -2308,6 +2397,21 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "net metering agreement. Typically used for behind-the-meter solar PV."
         ),
         "unit": "MW",
+    },
+    "net_generation_adjusted_mwh": {
+        "type": "number",
+        "description": "Reported net generation adjusted by EIA to reflect non-physical commercial transfers through pseudo-ties and dynamic scheduling.",
+        "unit": "MWh",
+    },
+    "net_generation_imputed_mwh": {
+        "type": "number",
+        "description": "Reported net generation with outlying values removed and missing values imputed by EIA.",
+        "unit": "MWh",
+    },
+    "net_generation_reported_mwh": {
+        "type": "number",
+        "description": "Unaltered originally reported net generation for the specified period.",
+        "unit": "MWh",
     },
     "net_generation_mwh": {
         "type": "number",
@@ -3221,6 +3325,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Indicates whether the plant is regulated or non-regulated.",
     },
     "report_date": {"type": "date", "description": "Date reported."},
+    "report_timezone": {
+        "type": "string",
+        "description": "Timezone used by the reporting entity. For use in localizing UTC times.",
+        "constraints": {"enum": US_TIMEZONES},
+    },
     "report_year": {
         "type": "integer",
         "description": "Four-digit year in which the data was reported.",
@@ -3761,47 +3870,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "storage_enclosure_code": {
         "type": "string",
         "description": "A code representing the enclosure type that best describes where the generator is located.",
-        "constraints": {
-            "enum": set(
-                CODE_METADATA["core_eia__codes_storage_enclosure_types"]["df"].code
-            )
-        },
     },
     "storage_technology_code_1": {
         "type": "string",
         "description": "The electro-chemical storage technology used for this battery applications.",
-        "constraints": {
-            "enum": set(
-                CODE_METADATA["core_eia__codes_storage_technology_types"]["df"].code
-            )
-        },
     },
     "storage_technology_code_2": {
         "type": "string",
         "description": "The electro-chemical storage technology used for this battery applications.",
-        "constraints": {
-            "enum": set(
-                CODE_METADATA["core_eia__codes_storage_technology_types"]["df"].code
-            )
-        },
     },
     "storage_technology_code_3": {
         "type": "string",
         "description": "The electro-chemical storage technology used for this battery applications.",
-        "constraints": {
-            "enum": set(
-                CODE_METADATA["core_eia__codes_storage_technology_types"]["df"].code
-            )
-        },
     },
     "storage_technology_code_4": {
         "type": "string",
         "description": "The electro-chemical storage technology used for this battery applications.",
-        "constraints": {
-            "enum": set(
-                CODE_METADATA["core_eia__codes_storage_technology_types"]["df"].code
-            )
-        },
     },
     "stored_excess_wind_and_solar_generation": {
         "type": "boolean",
@@ -4708,12 +4792,14 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     "plant_parts_eia": {
         "energy_source_code_1": {
             "constraints": {
-                "enum": set(CODE_METADATA["core_eia__codes_energy_sources"]["df"].code)
+                "enum": set(
+                    CODE_METADATA["core_eia__codes_energy_sources"]["df"]["code"]
+                )
             }
         },
         "prime_movers_eia": {
             "constraints": {
-                "enum": set(CODE_METADATA["core_eia__codes_prime_movers"]["df"].code)
+                "enum": set(CODE_METADATA["core_eia__codes_prime_movers"]["df"]["code"])
             }
         },
         "technology_description": {"constraints": {"enum": set(TECH_DESCRIPTIONS)}},
@@ -4736,22 +4822,34 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
         "opex_total": {"description": "Overall expenses for the transmission line."},
     },
     "out_ferc714__hourly_planning_area_demand": {
-        "timezone": {
-            "constraints": {
-                "enum": [
-                    "America/New_York",
-                    "America/Chicago",
-                    "America/Denver",
-                    "America/Los_Angeles",
-                    "America/Anchorage",
-                    "Pacific/Honolulu",
-                ]
-            }
-        },
+        "timezone": {"constraints": {"enum": US_TIMEZONES}},
         "report_date": {
             "constraints": {
                 "required": True,
             }
+        },
+    },
+    "core_eia930__hourly_net_generation_by_energy_source": {
+        "datetime_utc": {
+            "description": "Timestamp at the end of the hour for which the data is reported."
+        },
+    },
+    "core_eia930__hourly_operations": {
+        "datetime_utc": {
+            "description": "Timestamp at the end of the hour for which the data is reported."
+        },
+    },
+    "core_eia930__hourly_subregion_demand": {
+        "datetime_utc": {
+            "description": "Timestamp at the end of the hour for which the data is reported."
+        },
+        "demand_reported_mwh": {
+            "description": "Originally reported electricity demand for the balancing area subregion. Note that different BAs have different methods of calculating and allocating subregion demand.",
+        },
+    },
+    "core_eia930__hourly_interchange": {
+        "datetime_utc": {
+            "description": "Timestamp at the end of the hour for which the data is reported."
         },
     },
 }

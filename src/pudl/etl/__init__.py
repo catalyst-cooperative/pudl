@@ -26,6 +26,7 @@ from pudl.io_managers import (
     epacems_io_manager,
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
+    parquet_io_manager,
     pudl_mixed_format_io_manager,
 )
 from pudl.metadata import PUDL_PACKAGE
@@ -42,10 +43,6 @@ from . import (
 )
 
 logger = pudl.logging_helpers.get_logger(__name__)
-
-# Asset Checks are still Experimental, silence the warning since we use them
-# everywhere.
-warnings.filterwarnings("ignore", category=ExperimentalWarning)
 
 raw_module_groups = {
     "raw_eia176": [pudl.extract.eia176],
@@ -66,18 +63,18 @@ raw_module_groups = {
 
 
 core_module_groups = {
-    "_core_eia860": [pudl.transform.eia860],
-    "_core_eia923": [pudl.transform.eia923],
+    "core_assn": [glue_assets],
     "core_censusdp1tract": [
         pudl.convert.censusdp1tract_to_sqlite,
         pudl.output.censusdp1tract,
     ],
-    "core_assn": [glue_assets],
     "core_codes": [static_assets],
     "core_eia": [pudl.transform.eia],
     "core_eia_bulk_elec": [eia_bulk_elec_assets],
-    "core_eia860m": [pudl.transform.eia860m],
+    "core_eia860": [pudl.transform.eia860, pudl.transform.eia860m],
     "core_eia861": [pudl.transform.eia861],
+    "core_eia923": [pudl.transform.eia923],
+    "core_eia930": [pudl.transform.eia930],
     "core_epacems": [epacems_assets],
     "core_ferc1": [pudl.transform.ferc1],
     "core_ferc714": [pudl.transform.ferc714],
@@ -207,6 +204,7 @@ default_resources = {
     "dataset_settings": dataset_settings,
     "ferc_to_sqlite_settings": ferc_to_sqlite_settings,
     "epacems_io_manager": epacems_io_manager,
+    "parquet_io_manager": parquet_io_manager,
 }
 
 # Limit the number of concurrent workers when launch assets that use a lot of memory.

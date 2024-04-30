@@ -966,14 +966,20 @@ class DataSource(PudlMeta):
         if partitions is None:
             partitions = self.working_partitions
         if "years" in partitions:
-            return f"{min(partitions['years'])}-{max(partitions['years'])}"
-        if "year_month" in partitions:
-            return f"through {partitions['year_month']}"
-        if "year_quarters" in partitions:
-            return (
+            temporal_coverage = f"{min(partitions['years'])}-{max(partitions['years'])}"
+        elif "half_years" in partitions:
+            temporal_coverage = (
+                f"{min(partitions['half_years'])}-{max(partitions['half_years'])}"
+            )
+        elif "year_quarters" in partitions:
+            temporal_coverage = (
                 f"{min(partitions['year_quarters'])}-{max(partitions['year_quarters'])}"
             )
-        return ""
+        elif "year_month" in partitions:
+            temporal_coverage = f"through {partitions['year_month']}"
+        else:
+            temporal_coverage = ""
+        return temporal_coverage
 
     def add_datastore_metadata(self) -> None:
         """Get source file metadata from the datastore."""
@@ -1287,6 +1293,7 @@ class Resource(PudlMeta):
             "eia861",
             "eia861_disabled",
             "eia923",
+            "eia930",
             "eiaaeo",
             "entity_eia",
             "epacems",

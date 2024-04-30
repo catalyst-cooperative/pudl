@@ -36,6 +36,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["ferc714"],
         "field_namespace": "ferc714",
         "etl_group": "ferc714",
+        "create_database_schema": False,
     },
     "out_ferc714__respondents_with_fips": {
         "description": (

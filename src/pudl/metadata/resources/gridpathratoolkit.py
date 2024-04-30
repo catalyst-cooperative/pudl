@@ -29,6 +29,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["gridpathratoolkit"],
         "field_namespace": "gridpathratoolkit",
         "etl_group": "gridpathratoolkit",
+        "create_database_schema": False,
     },
     "core_gridpathratoolkit__assn_generator_aggregation_group": {
         "description": (
