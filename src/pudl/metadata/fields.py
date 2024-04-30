@@ -4829,25 +4829,25 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
             }
         },
     },
-    "core_eia930__hourly_balancing_authority_net_generation": {
+    "core_eia930__hourly_net_generation_by_energy_source": {
         "datetime_utc": {
             "description": "Timestamp at the end of the hour for which the data is reported."
         },
     },
-    "core_eia930__hourly_balancing_authority_demand": {
+    "core_eia930__hourly_operations": {
         "datetime_utc": {
             "description": "Timestamp at the end of the hour for which the data is reported."
         },
     },
-    "core_eia930__hourly_balancing_authority_subregion_demand": {
+    "core_eia930__hourly_subregion_demand": {
         "datetime_utc": {
             "description": "Timestamp at the end of the hour for which the data is reported."
         },
         "demand_reported_mwh": {
-            "description": "Originally reported electricity demand for the balancing area subregion. Method of calculation may vary by BA.",
+            "description": "Originally reported electricity demand for the balancing area subregion. Note that different BAs have different methods of calculating and allocating subregion demand.",
         },
     },
-    "core_eia930__hourly_balancing_authority_interchange": {
+    "core_eia930__hourly_interchange": {
         "datetime_utc": {
             "description": "Timestamp at the end of the hour for which the data is reported."
         },

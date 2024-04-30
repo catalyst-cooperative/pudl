@@ -90,10 +90,10 @@ Schema Changes
   also makes accessing these large table much faster both during data processing and for
   end users. See PR :pr:`3584`.  Affected tables include:
 
-  * :ref:`core_eia930__hourly_balancing_authority_interchange`
-  * :ref:`core_eia930__hourly_balancing_authority_net_generation_by_energy_source`
-  * :ref:`core_eia930__hourly_balancing_authority_operations`
-  * :ref:`core_eia930__hourly_balancing_authority_subregion_demand`
+  * :ref:`core_eia930__hourly_interchange`
+  * :ref:`core_eia930__hourly_net_generation_by_energy_source`
+  * :ref:`core_eia930__hourly_operations`
+  * :ref:`core_eia930__hourly_subregion_demand`
   * :ref:`core_epacems__hourly_emissions`
   * :ref:`out_ferc714__hourly_estimated_state_demand`
   * :ref:`out_ferc714__hourly_planning_area_demand`

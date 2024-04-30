@@ -3,7 +3,7 @@
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
-    "core_eia930__hourly_balancing_authority_operations": {
+    "core_eia930__hourly_operations": {
         "description": (
             """Hourly balancing authority net generation, interchange, and demand.
 
@@ -25,7 +25,7 @@ Interchange is the net metered tie line flow from one BA to another directly
 interconnected BA. This table includes the net sum of all interchange occurring between
 a BA all of its directly interconnected neighboring BAs. For a detailed breakdown of
 interchange between each pair of adjacent BAs see
-:ref:`core_eia930__hourly_balancing_authority_interchange`.
+:ref:`core_eia930__hourly_interchange`.
 
 Negative interchange values indicate net inflows, and positive interchange values
 indicate net outflows.
@@ -64,7 +64,7 @@ electric system."""
         "etl_group": "eia930",
         "create_database_schema": False,
     },
-    "core_eia930__hourly_balancing_authority_net_generation_by_energy_source": {
+    "core_eia930__hourly_net_generation_by_energy_source": {
         "description": (
             """EIA-930 hourly balancing authority net generation by energy source.
 
@@ -100,7 +100,7 @@ investigation."""
         "etl_group": "eia930",
         "create_database_schema": False,
     },
-    "core_eia930__hourly_balancing_authority_interchange": {
+    "core_eia930__hourly_interchange": {
         "description": """Hourly balancing authority interchange.
 
 Interchange is the net metered tie line flow from one BA to another directly
@@ -127,7 +127,7 @@ indicate net outflows.""",
         "etl_group": "eia930",
         "create_database_schema": False,
     },
-    "core_eia930__hourly_balancing_authority_subregion_demand": {
+    "core_eia930__hourly_subregion_demand": {
         "description": (
             """EIA-930 hourly balancing authority subregion demand.
 

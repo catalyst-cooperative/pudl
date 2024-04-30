@@ -122,10 +122,10 @@ Hourly time series take up a lot of space in SQLite and can be slow to query in 
 so we have moved to publishing all our hourly tables using the compressed, columnar
 `Apache Parquet <https://parquet.apache.org/docs/>`__ file format.
 
-* `EIA-930 BA Hourly Interchange <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_eia930__hourly_balancing_authority_interchange.parquet>`__
-* `EIA-930 BA Hourly Net Generation by Energy Source <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_eia930__hourly_balancing_authority_net_generation_by_energy_source.parquet>`__
-* `EIA-930 BA Hourly Operations <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_eia930__hourly_balancing_authority_operations.parquet>`__
-* `EIA-930 BA Hourly Subregion Demand <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_eia930__hourly_balancing_authority_subregion_demand.parquet>`__
+* `EIA-930 BA Hourly Interchange <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_eia930__hourly_interchange.parquet>`__
+* `EIA-930 BA Hourly Net Generation by Energy Source <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_eia930__hourly_net_generation_by_energy_source.parquet>`__
+* `EIA-930 BA Hourly Operations <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_eia930__hourly_operations.parquet>`__
+* `EIA-930 BA Hourly Subregion Demand <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_eia930__hourly_subregion_demand.parquet>`__
 * `EPA CEMS Hourly Emissions <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_epacems__hourly_emissions.parquet>`__
 * `FERC-714 Hourly Estimated State Demand <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/out_ferc714__hourly_estimated_state_demand.parquet>`__
 * `FERC-714 Hourly Planning Area Demand <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/out_ferc714__hourly_planning_area_demand.parquet>`__

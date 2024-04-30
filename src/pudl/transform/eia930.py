@@ -11,16 +11,14 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 @multi_asset(
     outs={
-        "core_eia930__hourly_balancing_authority_net_generation_by_energy_source": AssetOut(
+        "core_eia930__hourly_net_generation_by_energy_source": AssetOut(
             io_manager_key="parquet_io_manager"
         ),
-        "core_eia930__hourly_balancing_authority_operations": AssetOut(
-            io_manager_key="parquet_io_manager"
-        ),
+        "core_eia930__hourly_operations": AssetOut(io_manager_key="parquet_io_manager"),
     },
     compute_kind="pandas",
 )
-def core_eia930__hourly_balancing_authority_assets(
+def core_eia930__hourly_operations_assets(
     raw_eia930__balance: pd.DataFrame,
 ):
     """Separate raw_eia930__balance into net generation and demand tables.
@@ -28,7 +26,7 @@ def core_eia930__hourly_balancing_authority_assets(
     Energy source starts out in the column names, but is stacked into a categorical
     column. For structural purposes "interchange" is also treated as an "energy source"
     and stacked into the same column. For the moment "total" (sum of all energy sources)
-    is also included, because the reported and calculated totals acrss all energy
+    is also included, because the reported and calculated totals across all energy
     sources have significant differences which should be further explored.
     """
     nondata_cols = [
@@ -61,6 +59,7 @@ def core_eia930__hourly_balancing_authority_assets(
             # Rename columns so that they contain only the energy source and the level
             # of processing with the pattern: energysource_levelofprocessing so the
             # column name can be split on "_" to build a MultiIndex before stacking.
+            # Note that this means energy_source CAN'T have an underscore in it.
             lambda col: col.removeprefix("net_generation_").removesuffix("_mwh"),
             axis="columns",
         )
@@ -81,11 +80,11 @@ def core_eia930__hourly_balancing_authority_assets(
     return (
         Output(
             value=netgen_by_source,
-            output_name="core_eia930__hourly_balancing_authority_net_generation_by_energy_source",
+            output_name="core_eia930__hourly_net_generation_by_energy_source",
         ),
         Output(
             value=operations,
-            output_name="core_eia930__hourly_balancing_authority_operations",
+            output_name="core_eia930__hourly_operations",
         ),
     )
 
@@ -94,7 +93,7 @@ def core_eia930__hourly_balancing_authority_assets(
     io_manager_key="parquet_io_manager",
     compute_kind="pandas",
 )
-def core_eia930__hourly_balancing_authority_subregion_demand(
+def core_eia930__hourly_subregion_demand(
     raw_eia930__subregion: pd.DataFrame,
 ):
     """Produce a normalized table of hourly electricity demand by BA subregion."""
@@ -117,7 +116,7 @@ def core_eia930__hourly_balancing_authority_subregion_demand(
     io_manager_key="parquet_io_manager",
     compute_kind="pandas",
 )
-def core_eia930__hourly_balancing_authority_interchange(
+def core_eia930__hourly_interchange(
     raw_eia930__interchange: pd.DataFrame,
 ):
     """Produce a normalized table of hourly interchange by balancing authority."""

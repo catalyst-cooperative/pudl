@@ -1,8 +1,8 @@
 """Add eia930 parquet only hourly output
 
-Revision ID: 5526d1964274
+Revision ID: 110e61b9108d
 Revises: e0d3904b97f4
-Create Date: 2024-04-29 22:19:45.656541
+Create Date: 2024-04-30 10:51:43.013264
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '5526d1964274'
+revision = '110e61b9108d'
 down_revision = 'e0d3904b97f4'
 branch_labels = None
 depends_on = None
@@ -51,7 +51,7 @@ def upgrade() -> None:
                existing_nullable=True)
 
     with op.batch_alter_table('core_eia__codes_balancing_authorities', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('balancing_authority_region_code_eia', sa.Enum('NY', 'CENT', 'FLA', 'CAN', 'CAL', 'TEX', 'SW', 'MIDA', 'SE', 'NW', 'CAR', 'MEX', 'NE', 'MIDW'), nullable=True, comment='EIA balancing authority region code.'))
+        batch_op.add_column(sa.Column('balancing_authority_region_code_eia', sa.Enum('NE', 'CAL', 'MEX', 'TEX', 'FLA', 'CAR', 'MIDA', 'SW', 'MIDW', 'CENT', 'NW', 'CAN', 'NY', 'SE'), nullable=True, comment='EIA balancing authority region code.'))
         batch_op.add_column(sa.Column('balancing_authority_region_name_eia', sa.Text(), nullable=True, comment='Human-readable name of the EIA balancing region.'))
         batch_op.add_column(sa.Column('report_timezone', sa.Enum('America/Anchorage', 'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'America/New_York', 'America/Phoenix', 'Pacific/Honolulu'), nullable=True, comment='Timezone used by the reporting entity. For use in localizing UTC times.'))
         batch_op.add_column(sa.Column('balancing_authority_retirement_date', sa.Date(), nullable=True, comment='Date on which the balancing authority ceased independent operation.'))
