@@ -3968,9 +3968,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "summer_capacity_retirements_mw": {
         "type": "number",
-        "description": (
-            "The total retirements from to net summer generating capacity."
-        ),
+        "description": ("The total retirements from net summer generating capacity."),
         "unit": "mw",
     },
     "summer_capacity_unplanned_additions_mw": {

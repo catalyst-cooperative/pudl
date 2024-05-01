@@ -59,8 +59,16 @@ class AEOTable(DataFrameModel):
     projection_year: int = Field(coerce=True)
     value: str = Field(coerce=True)
     units: str = Field(coerce=True)
-    series_name: str = Field(coerce=True)
-    category_name: str = Field(coerce=True)
+    series_name: str = Field(
+        coerce=True,
+        description="A human-readable name for the series that this value came "
+        "from. Usually contains many fields separated by `` : ``.",
+    )
+    category_name: str = Field(
+        coerce=True,
+        description="A human-readable name for the category that the above "
+        "series belongs to. Usually contains comma-separated fields.",
+    )
     model_case_eiaaeo: str = Field(coerce=True)
 
 

@@ -14,8 +14,6 @@ import numpy as np
 import pandas as pd
 from dagster import asset
 
-from pudl.helpers import apply_pudl_dtypes
-
 
 def __sanitize_string(series: pd.Series) -> pd.Series:
     return series.str.lower().str.strip().str.replace(r"\W+", "_", regex=True)
@@ -42,7 +40,7 @@ def get_series_info(series_name: pd.Series) -> pd.DataFrame:
     variable_fields = fields.variable_fields.str.split(" : ", expand=True).rename(
         columns={0: "topic", 1: "subtopic", 2: "variable_name", 3: "dimension"}
     )
-    return fields.join(variable_fields)
+    return fields.merge(variable_fields, left_index=True, right_index=True, how="inner")
 
 
 def get_category_info(category_name: pd.Series) -> pd.Series:
@@ -112,15 +110,7 @@ def filter_enrich_sanitize(
 
 
 def unstack(df: pd.DataFrame, eventual_pk: list[str]):
-    """Unstack the values by the various variable names provided.
-
-    2024-04-27: NB it's important that `projection_year` is the last level of
-    index, so that when we sort and diff() we are actually subtracting year
-    over year.
-    """
-    assert (
-        eventual_pk[-1] == "projection_year"
-    ), "Projection year must be last level of index!"
+    """Unstack the values by the various variable names provided."""
     unstacked = (
         df.set_index(eventual_pk + ["variable_name"])
         .unstack(level="variable_name")
@@ -153,7 +143,10 @@ def core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology(
         return df.loc[~(generation_mask & is_aggregated_mask)]
 
     def _collect_totals(df: pd.DataFrame) -> pd.DataFrame:
-        """Various total columns are named differently - they don't have to be."""
+        """Various columns have different names for their "total" fact.
+
+        We should combine them into one "total" dimension.
+        """
         return df.assign(
             dimension=df.dimension.str.replace(r"^total.*$", "total", regex=True)
         )
@@ -163,7 +156,17 @@ def core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology(
 
         Cumulative values are less useful because they require the user to know
         what year the accumulation starts.
+
+
+        Raises:
+        AssertionError: It's important that ``projection_year`` is the last
+            level of index, so that when we diff() we are actually subtracting
+            year over year. The index is set when passing ``eventual_pk`` to
+            ``unstack()``.
         """
+        assert (
+            df.index.names[-1] == "projection_year"
+        ), "Projection year must be last level of index!"
         new_columns = {}
         for decumulate_column in decumulate_columns:
             cumulative_colname = f"cumulative_{decumulate_column}"
@@ -258,7 +261,6 @@ def core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology(
                 "dimension": "technology_description_eiaaeo",
             }
         )
-        .pipe(apply_pudl_dtypes, group="eiaaeo")
     )
 
     return renamed_for_pudl
