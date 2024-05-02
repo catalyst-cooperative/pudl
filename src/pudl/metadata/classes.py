@@ -1644,9 +1644,9 @@ class Resource(PudlMeta):
 
         df = self.format_df(df)
         pk = self.schema.primary_key
-        if pk and not df[df.duplicated(subset=pk)].empty:
+        if pk and not (dupes := df[df.duplicated(subset=pk)]).empty:
             raise ValueError(
-                f"{self.name} Duplicate primary keys when enforcing schema."
+                f"{self.name} {len(dupes)}/{len(df)} duplicate primary keys ({pk=}) when enforcing schema."
             )
         if pk and df.loc[:, pk].isna().any(axis=None):
             raise ValueError(f"{self.name} Null values found in primary key columns.")

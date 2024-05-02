@@ -70,6 +70,7 @@ core_module_groups = {
     ],
     "core_codes": [static_assets],
     "core_eia": [pudl.transform.eia],
+    "core_eiaaeo": [pudl.transform.eiaaeo],
     "core_eia_bulk_elec": [eia_bulk_elec_assets],
     "core_eia860": [pudl.transform.eia860, pudl.transform.eia860m],
     "core_eia861": [pudl.transform.eia861],

@@ -13,10 +13,12 @@ from pudl.metadata.enums import (
     COUNTRY_CODES_ISO3166,
     CUSTOMER_CLASSES,
     DIVISION_CODES_US_CENSUS,
+    ELECTRICITY_MARKET_MODULE_REGIONS,
     EPACEMS_MEASUREMENT_CODES,
     EPACEMS_STATES,
     FUEL_CLASSES,
     GENERATION_ENERGY_SOURCES_EIA930,
+    MODEL_CASES_EIAAEO,
     NERC_REGIONS,
     PLANT_PARTS,
     RELIABILITY_STANDARDS,
@@ -25,6 +27,7 @@ from pudl.metadata.enums import (
     SUBDIVISION_CODES_ISO3166,
     TECH_CLASSES,
     TECH_DESCRIPTIONS,
+    TECH_DESCRIPTIONS_EIAAEO,
     TECH_DESCRIPTIONS_NRELATB,
     US_TIMEZONES,
 )
@@ -1082,6 +1085,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "requirement that these IDs be the same, and in a number of cases they are "
             "different."
         ),
+    },
+    "electricity_market_module_region_eiaaeo": {
+        "type": "string",
+        "description": "AEO projection region.",
+        "constraints": {"enum": ELECTRICITY_MARKET_MODULE_REGIONS},
     },
     "emission_control_id_eia": {
         "type": "string",
@@ -2239,6 +2247,19 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "The minimum load at which the generator can operate at continuosuly.",
         "unit": "MW",
+    },
+    "model_case_eiaaeo": {
+        "type": "string",
+        "description": (
+            "Factors such as economic growth, future oil prices, the ultimate "
+            "size of domestic energy resources, and technological change are "
+            "often uncertain. To illustrate some of these uncertainties, EIA "
+            "runs side cases to show how the model responds to changes in key "
+            "input variables compared with the Reference case. See "
+            "https://www.eia.gov/outlooks/aeo/assumptions/case_descriptions.php "
+            "for more details."
+        ),
+        "constraints": {"enum": MODEL_CASES_EIAAEO},
     },
     "moisture_content_pct": {
         "type": "number",
@@ -3938,6 +3959,25 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "The net summer capacity.",
         "unit": "MW",
     },
+    "summer_capacity_planned_additions_mw": {
+        "type": "number",
+        "description": (
+            "The total planned additions to net summer generating capacity."
+        ),
+        "unit": "mw",
+    },
+    "summer_capacity_retirements_mw": {
+        "type": "number",
+        "description": ("The total retirements from net summer generating capacity."),
+        "unit": "mw",
+    },
+    "summer_capacity_unplanned_additions_mw": {
+        "type": "number",
+        "description": (
+            "The total unplanned additions to net summer generating capacity."
+        ),
+        "unit": "mw",
+    },
     "summer_estimated_capability_mw": {
         "type": "number",
         "description": "EIA estimated summer capacity (in MWh).",
@@ -3999,6 +4039,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "technology_description_detail_2": {
         "type": "string",
         "description": "Technology details indicate resource levels and specific technology subcategories.",
+    },
+    "technology_description_eiaaeo": {
+        "type": "string",
+        "description": "Generation technology reported for AEO.",
+        "constraints": {
+            "enum": TECH_DESCRIPTIONS_EIAAEO,
+        },
     },
     "temperature_method": {
         "description": "Method for measurement of temperatures",
