@@ -104,7 +104,6 @@ raw_eia861__all_dfs = raw_df_factory(Extractor, name="eia861")
             )
         )
     },
-    required_resource_keys={"datastore", "dataset_settings"},
 )
 def extract_eia861(context, raw_eia861__all_dfs):
     """Extract raw EIA-861 data from Excel sheets into dataframes.

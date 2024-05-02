@@ -80,7 +80,6 @@ raw_phmsagas__all_dfs = raw_df_factory(Extractor, name="phmsagas")
 # # TODO (bendnorman): Figure out type hint for context keyword and multi_asset return
 @multi_asset(
     outs={table_name: AssetOut() for table_name in sorted(raw_table_names)},
-    required_resource_keys={"datastore", "dataset_settings"},
 )
 def extract_phmsagas(context, raw_phmsagas__all_dfs):
     """Extract raw PHMSA gas data from excel sheets into dataframes.

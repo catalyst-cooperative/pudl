@@ -92,9 +92,7 @@ def append_eia860m(
     return eia860_raw_dfs
 
 
-@asset(
-    required_resource_keys={"datastore", "dataset_settings"},
-)
+@asset(required_resource_keys={"datastore", "dataset_settings"})
 def raw_eia860m__all_dfs(context):
     """Extract raw EIA 860M data from excel sheets into dict of dataframes."""
     eia_settings = context.resources.dataset_settings.eia
@@ -116,7 +114,6 @@ raw_table_names = (
 
 @multi_asset(
     outs={table_name: AssetOut() for table_name in sorted(raw_table_names)},
-    required_resource_keys={"datastore", "dataset_settings"},
 )
 def extract_eia860m(raw_eia860m__all_dfs: dict[str, pd.DataFrame]):
     """Extract raw EIA data from excel sheets into dataframes.

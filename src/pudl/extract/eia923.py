@@ -119,7 +119,6 @@ raw_eia923__all_dfs = raw_df_factory(Extractor, name="eia923")
 # TODO (bendnorman): Figure out type hint for context keyword and mutli_asset return
 @multi_asset(
     outs={table_name: AssetOut() for table_name in sorted(eia_raw_table_names)},
-    required_resource_keys={"datastore", "dataset_settings"},
 )
 def extract_eia923(context, raw_eia923__all_dfs):
     """Extract raw EIA-923 data from excel sheets into dataframes.
