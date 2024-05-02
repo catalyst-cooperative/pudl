@@ -95,40 +95,33 @@ class Extractor(excel.ExcelExtractor):
         }
 
 
-# TODO (bendnorman): Add this information to the metadata
-eia_raw_table_names = (
-    "raw_eia923__boiler_fuel",
-    "raw_eia923__energy_storage",
-    "raw_eia923__fuel_receipts_costs",
-    "raw_eia923__generation_fuel",
-    "raw_eia923__generator",
-    "raw_eia923__stocks",
-    "raw_eia923__emissions_control",
-    "raw_eia923__byproduct_disposition",
-    "raw_eia923__byproduct_expenses_and_revenues",
-    "raw_eia923__fgd_operation_maintenance",
-    "raw_eia923__cooling_system_information",
-    "raw_eia923__boiler_nox_operation",
-    "raw_eia923__fgp_operation",
-)
-
-
 raw_eia923__all_dfs = raw_df_factory(Extractor, name="eia923")
 
 
-# TODO (bendnorman): Figure out type hint for context keyword and mutli_asset return
 @multi_asset(
-    outs={table_name: AssetOut() for table_name in sorted(eia_raw_table_names)},
+    outs={
+        table_name: AssetOut()
+        for table_name in sorted(
+            (
+                "raw_eia923__boiler_fuel",
+                "raw_eia923__energy_storage",
+                "raw_eia923__fuel_receipts_costs",
+                "raw_eia923__generation_fuel",
+                "raw_eia923__generator",
+                "raw_eia923__stocks",
+                "raw_eia923__emissions_control",
+                "raw_eia923__byproduct_disposition",
+                "raw_eia923__byproduct_expenses_and_revenues",
+                "raw_eia923__fgd_operation_maintenance",
+                "raw_eia923__cooling_system_information",
+                "raw_eia923__boiler_nox_operation",
+                "raw_eia923__fgp_operation",
+            )
+        )
+    },
 )
-def extract_eia923(context, raw_eia923__all_dfs):
-    """Extract raw EIA-923 data from excel sheets into dataframes.
-
-    Args:
-        context: dagster keyword that provides access to resources and config.
-
-    Returns:
-        A tuple of extracted EIA dataframes.
-    """
+def extract_eia923(raw_eia923__all_dfs):
+    """Extract raw EIA-923 data from excel sheets into dataframes."""
     # create descriptive table_names
     raw_eia923__all_dfs = {
         "raw_eia923__" + table_name: df
