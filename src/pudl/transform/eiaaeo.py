@@ -10,9 +10,11 @@ subsets, and then transforming some human-readable string fields into useful
 metadata fields.
 """
 
+from dataclasses import dataclass
+
 import numpy as np
 import pandas as pd
-from dagster import asset
+from dagster import AssetCheckResult, AssetChecksDefinition, asset, asset_check
 
 
 def __sanitize_string(series: pd.Series) -> pd.Series:
@@ -324,3 +326,50 @@ def check_totals_add_up(capacity) -> tuple[float, float]:
     )
 
     return ratio_close_additions_to_total, ratio_close_reported_calculated
+
+
+@dataclass
+class AeoCheckSpec:
+    """Define some simple checks that can run on any AEO asset."""
+
+    name: str
+    asset: str
+    num_rows_by_report_year: dict[str, int]
+    num_in_categories: dict[str, int]
+
+
+check_specs = [
+    AeoCheckSpec(
+        name="gen_in_electric_sector_by_tech",
+        asset="core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology",
+        num_rows_by_report_year={2023: 166972},
+        num_in_categories={"model_case_eiaaeo": 17, "projection_year": 30},
+    )
+]
+
+
+def make_check(spec: AeoCheckSpec) -> AssetChecksDefinition:
+    """Turn the AeoCheckSpec into an actual Dagster asset check."""
+
+    @asset_check(asset=spec.asset)
+    def _check(df):
+        errors = []
+        for year, expected_rows in spec.num_rows_by_report_year.items():
+            if (num_rows := len(df.loc[df.report_year == year])) != expected_rows:
+                errors.append(
+                    f"Expected {expected_rows} for report year {year}, found {num_rows}"
+                )
+        for category, expected_num in spec.num_in_categories.items():
+            if (num_values := len(df[category].value_counts())) != expected_num:
+                errors.append(
+                    f"Expected {expected_num} values for {category}, found {num_values}"
+                )
+        if errors:
+            return AssetCheckResult(passed=False, metadata={"errors": errors})
+
+        return AssetCheckResult(passed=True)
+
+    return _check
+
+
+_checks = [make_check(spec) for spec in check_specs]
