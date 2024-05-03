@@ -451,7 +451,10 @@ def raw_eiaaeo(context: AssetExecutionContext):
         )
 
 
-@asset_check(asset="raw_eiaaeo__electric_power_projections_regional")
+@asset_check(
+    asset="raw_eiaaeo__electric_power_projections_regional",
+    blocking=True,
+)
 def raw_table_54_invariants(df: pd.DataFrame) -> AssetCheckResult:
     """Check that the AEO Table 54 raw data conforms to *some* assumptions."""
     # all values are non-null - i.e. every fact has date, fact name, category
