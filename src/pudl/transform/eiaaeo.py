@@ -55,6 +55,67 @@ def get_category_info(category_name: pd.Series) -> pd.Series:
     return fields
 
 
+def subtotals_match_reported_totals_ratio(
+    df: pd.DataFrame, pk: list[str], fact_columns: list[str], dimension_column: str
+) -> float:
+    """When subtotals and totals are reported in the same column, check their sums.
+
+    Group by some key, then check that within each group the non-``"total"``
+    values sum up to the corresponding ``"total"`` value.
+
+    Args:
+        df: the dataframe to investigate
+        pk: the key to group facts by
+        fact_columns: the columns containing facts you'd like to sum
+        dimension_column: the column which tells you if a fact is a sub-total
+            or a total.
+
+    Returns:
+        The ratio of reported totals that are np.isclose() to the sum of their
+        component parts.
+    """
+    reported_totals = (
+        (
+            df.loc[df[dimension_column] == "total"]
+            .set_index(pk)
+            .drop(columns=dimension_column)
+        )
+        .loc[:, fact_columns]
+        .fillna(0)
+    )
+    calculated_totals = (
+        df.loc[df[dimension_column] != "total", pk + fact_columns].groupby(pk).sum()
+    )
+    joined = calculated_totals.join(
+        reported_totals, lsuffix="_calc", rsuffix="_reported", how="inner"
+    )
+    close = np.isclose(
+        joined.loc[:, [f"{c}_calc" for c in fact_columns]],
+        joined.loc[:, [f"{c}_reported" for c in fact_columns]],
+    )
+    return close.sum() / reported_totals.size
+
+
+def series_sum_ratio(summands: pd.DataFrame, total: pd.Series) -> float:
+    """Find how well multiple columns sum to another column.
+
+    Args:
+        summands: the columns that should sum to total
+        total: the target total column
+
+    Returns:
+        the ratio of values in ``total`` that are np.isclose() to the sum of
+        ``summands``.
+    """
+    return (
+        np.isclose(
+            summands.fillna(0).sum(axis="columns"),
+            total.fillna(0),
+        ).sum()
+        / total.size
+    )
+
+
 def filter_enrich_sanitize(
     raw_df: pd.DataFrame, relevant_series_names: tuple[str]
 ) -> pd.DataFrame:
@@ -150,7 +211,9 @@ def core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology(
         We should combine them into one "total" dimension.
         """
         return df.assign(
-            dimension=df.dimension.str.replace(r"^total.*$", "total", regex=True)
+            dimension=df.dimension.str.replace(
+                r"^total.*$", "total", regex=True
+            ).fillna("total")
         )
 
     def _decumulate(df: pd.DataFrame, decumulate_columns: list[str]) -> pd.DataFrame:
@@ -178,6 +241,41 @@ def core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology(
             columns=[f"cumulative_{c}" for c in decumulate_columns]
         )
 
+    def _check_totals_add_up(unstacked) -> None:
+        """Check that reported totals match with calculated totals.
+
+        We want to check that:
+
+        * the "total" value is equal to the sum of the non-total values for
+          "cumulative planned/unplanned additions/retirements."
+        * cumulative planned + unplanned additions == cumulative total additions
+        """
+        ratio_close_reported_calculated = subtotals_match_reported_totals_ratio(
+            unstacked.reset_index(),
+            pk=["report_year", "model_case_eiaaeo", "region", "projection_year"],
+            fact_columns=[
+                "cumulative_planned_additions",
+                "cumulative_unplanned_additions",
+                "cumulative_retirements",
+            ],
+            dimension_column="dimension",
+        )
+        assert (
+            0.999 < ratio_close_reported_calculated <= 1.0
+        ), f"reported vs. calculated totals: {ratio_close_reported_calculated}"
+
+        totals = unstacked.xs("total", level="dimension")
+        ratio_close_additions_to_total = series_sum_ratio(
+            summands=totals.loc[
+                :, ["cumulative_planned_additions", "cumulative_unplanned_additions"]
+            ],
+            total=totals.cumulative_total_additions,
+        )
+        assert (
+            0.999 < ratio_close_additions_to_total <= 1.0
+        ), f"planned + unplanned vs. total: {ratio_close_additions_to_total}"
+        return
+
     sanitized = (
         filter_enrich_sanitize(
             raw_df=raw_eiaaeo__electric_power_projections_regional,
@@ -193,9 +291,14 @@ def core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology(
         .pipe(_drop_aggregated_generation_data)
         .pipe(_collect_totals)
     )
+    # 1 BKWh = 1e12 Wh = 1e6 MWh
+    sanitized.loc[sanitized.units == "bkwh", "value"] *= 1e6
+    # 1 GW = 1e9 W = 1e3 MW
+    sanitized.loc[sanitized.units == "gw", "value"] *= 1e3
 
     assert set(sanitized.topic.unique()) == {"electricity"}
     assert set(sanitized.subtopic.unique()) == {"electric_power_sector"}
+    assert set(sanitized.units.unique()) == {"bkwh", "gw"}
 
     trimmed = sanitized.drop(
         columns=[
@@ -218,15 +321,7 @@ def core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology(
 
     # check that the totals all add up *before* decumulating, because
     # decumulating introduces some small amount more floating point error.
-    ratio_close_additions_to_total, ratio_close_reported_calculated = (
-        check_totals_add_up(unstacked)
-    )
-    assert (
-        0.999 < ratio_close_additions_to_total <= 1.0
-    ), f"planned + unplanned vs. total: {ratio_close_additions_to_total}"
-    assert (
-        0.999 < ratio_close_reported_calculated <= 1.0
-    ), f"reported vs. calculated totals: {ratio_close_reported_calculated}"
+    _check_totals_add_up(unstacked)
     # Now that the totals add up, we can drop the total_additions col
     unstacked = unstacked.drop(columns="cumulative_total_additions")
 
@@ -236,17 +331,6 @@ def core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology(
         "retirements",
     ]
     decumulated = _decumulate(unstacked, decumulate_columns=decumulate_columns)
-
-    # convert units: GW -> MW
-    for gw_col in [
-        "capacity",
-        "planned_additions",
-        "unplanned_additions",
-        "retirements",
-    ]:
-        decumulated[gw_col] *= 1000
-    # from billion KWh (1e12 Wh) to MWh (1e6 Wh)
-    decumulated.generation *= 1_000_000
 
     renamed_for_pudl = (
         decumulated.dropna(how="all")
@@ -266,66 +350,6 @@ def core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology(
     )
 
     return renamed_for_pudl
-
-
-def check_totals_add_up(capacity) -> tuple[float, float]:
-    """Check that reported totals match with calculated totals.
-
-    We want to check that:
-
-    * the "total" value is equal to the sum of the non-total values for
-      "cumulative planned/unplanned additions/retirements."
-    * cumulative planned + unplanned additions == cumulative total additions
-    """
-    additions_retirements = [
-        "cumulative_planned_additions",
-        "cumulative_unplanned_additions",
-        "cumulative_retirements",
-    ]
-
-    pk = [
-        "report_year",
-        "model_case_eiaaeo",
-        "region",
-        "projection_year",
-    ]
-    addition_retirement_calculated_totals = (
-        capacity.reset_index()
-        .pipe(
-            lambda df: df.loc[
-                df.dimension.notna() & (df.dimension != "total"),
-                pk + additions_retirements,
-            ]
-        )
-        .groupby(pk)
-        .sum()
-    )
-
-    addition_retirement_reported_totals = (
-        capacity.xs("total", level="dimension").loc[:, additions_retirements].fillna(0)
-    )
-
-    total_additions_reported = (
-        capacity.xs(pd.NA, level="dimension").fillna(0).cumulative_total_additions
-    )
-
-    ratio_close_reported_calculated = (
-        np.isclose(
-            addition_retirement_reported_totals, addition_retirement_calculated_totals
-        ).sum()
-        / addition_retirement_calculated_totals.size
-    )
-
-    ratio_close_additions_to_total = (
-        np.isclose(
-            addition_retirement_reported_totals.cumulative_planned_additions
-            + addition_retirement_reported_totals.cumulative_unplanned_additions,
-            total_additions_reported,
-        ).sum()
-        / total_additions_reported.size
-    )
-
-    return ratio_close_additions_to_total, ratio_close_reported_calculated
 
 
 @dataclass
