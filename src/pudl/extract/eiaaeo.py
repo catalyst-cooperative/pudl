@@ -459,6 +459,6 @@ def raw_table_54_invariants(df: pd.DataFrame) -> AssetCheckResult:
     assert not df.empty
     assert df.notna().all().all()
     # covers 20 cases and 26 electricity market module regions (25 regions + 1 national)
-    assert len(df.case.value_counts()) == 20
+    assert len(df.model_case_eiaaeo.value_counts()) == 20
     assert len(df.category_name.value_counts()) == 26
     return AssetCheckResult(passed=True)
