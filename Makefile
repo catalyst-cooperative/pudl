@@ -70,6 +70,15 @@ install-pudl: pudl-dev
 .PHONY: docs-clean
 docs-clean:
 	rm -rf docs/_build
+	rm -rf docs/autoapi
+	rm -f docs/data_dictionaries/pudl_db.rst
+	rm -f docs/data_dictionaries/codes_and_labels.rst
+	rm -rf docs/data_dictionaries/code_csvs
+	rm -f docs/data_sources/eia*.rst
+	rm -f docs/data_sources/epacems*.rst
+	rm -f docs/data_sources/ferc*.rst
+	rm -f docs/data_sources/gridpathratoolkit*.rst
+	rm -f docs/data_sources/phmsagas*.rst
 	rm -f coverage.xml
 
 # Note that there's some PUDL code which only gets run when we generate the docs, so
@@ -79,7 +88,7 @@ docs-clean:
 .PHONY: docs-build
 docs-build: docs-clean
 	doc8 docs/ README.rst
-	coverage run ${covargs} -- ${CONDA_PREFIX}/bin/sphinx-build -v -W -b html docs docs/_build/html
+	coverage run ${covargs} -- ${CONDA_PREFIX}/bin/sphinx-build --jobs auto -v -W -b html docs docs/_build/html
 	coverage xml --fail-under=0
 
 ########################################################################################

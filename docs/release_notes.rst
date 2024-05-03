@@ -34,10 +34,20 @@ New Data Coverage
   and PR :pr:`3514`. The new tables include:
   :ref:`out_gridpathratoolkit__hourly_available_capacity_factor` and
   :ref:`core_gridpathratoolkit__assn_generator_aggregation_group`.
-* Extracted tables 54 and 56 from the `EIA Annual Energy Outlook 2023
+* Extracted tables 13, 15, 20, and 54 from the `EIA Annual Energy Outlook 2023
   <https://www.eia.gov/outlooks/aeo/tables_ref.php>`__, which include future
   projections related to electric power and renewable energy through the year
   2050, across a variety of scenarios. See :issue:`3368` and :pr:`3538`.
+* Added new
+  :ref:`core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology`
+  table from EIA AEO table 54 which contains generation capacity & generation
+  projections for the electric sector, broken out by technology type. See
+  :issue:`3581` and :pr:`3582`.
+* Added new NREL ATB tables with annual technology cost and performance projections. See
+  :issue:`3465` and :pr:`3498` and :pr:`3570`
+* Added hourly generation, demand, and interchange tables from the EIA-930. See issues
+  :issue:`3486,3505` PR :pr:`3584` and `this issue in the PUDL archiver repo
+  <https://github.com/catalyst-cooperative/pudl-archiver/issues/295>`__
 
 Data Cleaning
 ^^^^^^^^^^^^^
@@ -46,7 +56,6 @@ Data Cleaning
   rescue records lost because of inconsistent month reporting in EIA 860 and 860M. See
   :issue:`3340` and PR :pr:`3419`. This change also fixed a bug that was preventing
   other columns harvested with a special process from being saved.
-
 * When ingesting FERC 1 XBRL filings, we now take the most recent non-null
   value instead of the value from the latest filing that applies for a specific
   row. This means that we no longer lose data if a utility posts a FERC filing
@@ -81,6 +90,32 @@ Schema Changes
   :ref:`out_eia861__yearly_utility_service_territory` and
   ``out_eia861__compiled_geometry_balancing_authorities`` is now
   :ref:`out_eia861__yearly_balancing_authority_service_territory`. See PR :pr:`3552`.
+* All hourly tables are now published only as Apache Parquet files, rather than being
+  written to the main PUDL SQLite database. This reduces the size of the PUDL DB, and
+  also makes accessing these large table much faster both during data processing and for
+  end users. See PR :pr:`3584`.  Affected tables include:
+
+  * :ref:`core_eia930__hourly_interchange`
+  * :ref:`core_eia930__hourly_net_generation_by_energy_source`
+  * :ref:`core_eia930__hourly_operations`
+  * :ref:`core_eia930__hourly_subregion_demand`
+  * :ref:`core_epacems__hourly_emissions`
+  * :ref:`out_ferc714__hourly_estimated_state_demand`
+  * :ref:`out_ferc714__hourly_planning_area_demand`
+  * :ref:`out_gridpathratoolkit__hourly_available_capacity_factor`
+
+  The FERC-714 hourly demand tables have been removed from the
+  :class:`pudl.output.pudltabl.PudlTabl` class, which has been deprecated.
+* The long derelict ``core_ferc__codes_accounts`` table has been removed from the PUDL
+  database. This table contained descriptions of the FERC accounts that were found in
+  the Electric Plant in Service table, but only pertained to a single year, and was not
+  being referenced or maintained elsewhere. See PR :pr:`3584`.
+* Additional columns were added to the :ref:`core_eia__codes_balancing_authorities`
+  table, indicating the timezone associated with each BA's reporting, whether it is a
+  generation only BA, and its date of retirement, and what region it is part of. See PR
+  :pr:`3584`.
+* A new :ref:`core_eia__codes_balancing_authority_subregions` table was added to
+  describe the relationships between BAs and their subregions. See PR :pr:`3584`.
 
 Bug Fixes
 ^^^^^^^^^

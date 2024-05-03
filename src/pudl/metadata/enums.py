@@ -73,6 +73,85 @@ NERC_REGIONS: list[str] = [
 See https://www.eia.gov/electricity/data/eia411/#tabs_NERC-3.
 """
 
+US_TIMEZONES: list[str] = [
+    "America/Anchorage",
+    "America/Chicago",
+    "America/Denver",
+    "America/Los_Angeles",
+    "America/New_York",
+    "America/Phoenix",
+    "Pacific/Honolulu",
+]
+
+GENERATION_ENERGY_SOURCES_EIA930 = [
+    "coal",
+    "gas",
+    "hydro",
+    "nuclear",
+    "oil",
+    "other",
+    "solar",
+    "unknown",
+    "wind",
+]
+"""Energy sources used to categorize generation in the EIA 930 data.
+
+These strings are used to construct a multi-index for stacking the net generation data
+and must not contain underscores, as that character is used to split the longer column
+names into different parts.
+"""
+for energy_source in GENERATION_ENERGY_SOURCES_EIA930:
+    assert "_" not in energy_source
+
+ELECTRICITY_MARKET_MODULE_REGIONS: list[str] = [
+    "florida_reliability_coordinating_council",
+    "midcontinent_central",
+    "midcontinent_east",
+    "midcontinent_south",
+    "midcontinent_west",
+    "northeast_power_coordinating_council_new_england",
+    "northeast_power_coordinating_council_new_york_city_and_long_island",
+    "northeast_power_coordinating_council_upstate_new_york",
+    "pjm_commonwealth_edison",
+    "pjm_dominion",
+    "pjm_east",
+    "pjm_west",
+    "serc_reliability_corporation_central",
+    "serc_reliability_corporation_east",
+    "serc_reliability_corporation_southeastern",
+    "southwest_power_pool_central",
+    "southwest_power_pool_north",
+    "southwest_power_pool_south",
+    "texas_reliability_entity",
+    "united_states",
+    "western_electricity_coordinating_council_basin",
+    "western_electricity_coordinating_council_california_north",
+    "western_electricity_coordinating_council_california_south",
+    "western_electricity_coordinating_council_northwest_power_pool_area",
+    "western_electricity_coordinating_council_rockies",
+    "western_electricity_coordinating_council_southwest",
+]
+"""Regions that the EIA uses in their Electricity Market Module analysis.
+
+According to EIA:
+
+The Electricity Market Module (EMM) in the National Energy Modeling System
+(NEMS) is made up of four primary submodules: electricity load and demand,
+electricity capacity planning, electricity fuel dispatching, and electricity
+finance and pricing, as well as the ReStore submodule which interfaces with
+both the renewable and electricity modules The EMM also includes nonutility
+capacity and generation as well as electricity transmission and trade.
+
+We use 25 electricity supply regions to represent U.S. power markets. The
+regions follow North American Electric Reliability Corporation (NERC)
+assessment region boundaries and independent system operator (ISO) and regional
+transmission organization (RTO) region boundaries (as of early 2019).
+Subregions are based on regional pricing zones.
+
+https://www.eia.gov/outlooks/aeo/assumptions/pdf/EMM_Assumptions.pdf
+"""
+
+
 CUSTOMER_CLASSES: list[str] = [
     "commercial",
     "industrial",
@@ -190,3 +269,70 @@ PLANT_PARTS: set[str] = {
     "plant_match_ferc1",
 }
 """The plant parts in the EIA plant parts list."""
+
+TECH_DESCRIPTIONS_NRELATB: set[str] = {
+    "AEO",
+    "Biopower",
+    "CSP",
+    "Coal_FE",
+    "Coal_Retrofits",
+    "CommPV",
+    "Commercial Battery Storage",
+    "DistributedWind",
+    "Geothermal",
+    "Hydropower",
+    "LandbasedWind",
+    "NaturalGas_FE",
+    "NaturalGas_Retrofits",
+    "Nuclear",
+    "OffShoreWind",
+    "Pumped Storage Hydropower",
+    "ResPV",
+    "Residential Battery Storage",
+    "Utility-Scale Battery Storage",
+    "Utility-Scale PV-Plus-Battery",
+    "UtilityPV",
+}
+"""NREL ATB technology descriptions."""
+
+
+TECH_DESCRIPTIONS_EIAAEO: list[str] = [
+    "coal",
+    "combined_cycle",
+    "combustion_turbine_diesel",
+    "distributed_generation",
+    "diurnal_storage",
+    "fuel_cells",
+    "natural_gas",
+    "nuclear",
+    "oil_and_natural_gas_steam",
+    "petroleum",
+    "pumped_storage",
+    "pumped_storage_other",
+    "renewable_sources",
+]
+"""Types of generation technology reported in EIA AEO."""
+
+MODEL_CASES_EIAAEO: list[str] = [
+    "aeo2022",
+    "high_economic_growth",
+    "high_macro_and_high_zero_carbon_technology_cost",
+    "high_macro_and_low_zero_carbon_technology_cost",
+    "high_oil_and_gas_supply",
+    "high_oil_price",
+    "high_uptake_of_inflation_reduction_act",
+    "high_zero_carbon_technology_cost",
+    "low_economic_growth",
+    "low_macro_and_high_zero_carbon_technology_cost",
+    "low_macro_and_low_zero_carbon_technology_cost",
+    "low_oil_and_gas_supply",
+    "low_oil_price",
+    "low_uptake_of_inflation_reduction_act",
+    "low_zero_carbon_technology_cost",
+    "no_inflation_reduction_act",
+    "reference",
+]
+"""Modeling cases for EIA AEO.
+
+See https://eia.gov/outlooks/aeo/assumptions/case_descriptions.php .
+"""

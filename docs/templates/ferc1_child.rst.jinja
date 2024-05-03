@@ -10,13 +10,13 @@ respondent IDs, enabling a connection between the FERC and EIA data sets.
     publicly available anywhere else.
 {% endblock %}
 
-{% block downloadable_pdfs %}
+{% block download_docs %}
 {% for filename in download_paths %}
     * :download:`{{ filename.stem.replace("_", " ").title() }} <{{ filename }}>`
 {% endfor %}
 {% endblock %}
 
-{% block accessible %}
+{% block availability %}
 With the new XBRL format we are in the process of integrating the data into
 the full PUDL ETL pipeline. Previously, with the Visual FoxPro filings we had
 integrated 7 tables into the pipeline. We focused on the tables pertaining to
@@ -24,7 +24,7 @@ power plants, their capital & operating expenses, and fuel consumption. We hope
 to soon be able to pull just about any other table.
 {% endblock %}
 
-{% block fill_out_form %}
+{% block respondents %}
 As outlined in the Commission's Uniform System of Accounts Prescribed for Public
 Utilities and Licensees Subject To the Provisions of The Federal Power Act (18 C.F.R.
 Part 101), to qualify as a respondent, entities must exceed at least one of the

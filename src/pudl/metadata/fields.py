@@ -8,13 +8,17 @@ from pytz import all_timezones
 
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.constants import FIELD_DTYPES_PANDAS
+from pudl.metadata.dfs import BALANCING_AUTHORITY_SUBREGIONS_EIA
 from pudl.metadata.enums import (
     COUNTRY_CODES_ISO3166,
     CUSTOMER_CLASSES,
     DIVISION_CODES_US_CENSUS,
+    ELECTRICITY_MARKET_MODULE_REGIONS,
     EPACEMS_MEASUREMENT_CODES,
     EPACEMS_STATES,
     FUEL_CLASSES,
+    GENERATION_ENERGY_SOURCES_EIA930,
+    MODEL_CASES_EIAAEO,
     NERC_REGIONS,
     PLANT_PARTS,
     RELIABILITY_STANDARDS,
@@ -23,6 +27,9 @@ from pudl.metadata.enums import (
     SUBDIVISION_CODES_ISO3166,
     TECH_CLASSES,
     TECH_DESCRIPTIONS,
+    TECH_DESCRIPTIONS_EIAAEO,
+    TECH_DESCRIPTIONS_NRELATB,
+    US_TIMEZONES,
 )
 from pudl.metadata.labels import ESTIMATED_OR_ACTUAL, FUEL_UNITS_EIA
 from pudl.metadata.sources import SOURCES
@@ -224,9 +231,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Indication of whether a column is a credit or debit, as reported in the XBRL taxonomy.",
     },
+    "balancing_authority_code_adjacent_eia": {
+        "type": "string",
+        "description": "EIA short code for the other adjacent balancing authority, with which interchange is occuring. Includes Canadian and Mexican BAs.",
+    },
     "balancing_authority_code_eia": {
         "type": "string",
-        "description": "EIA short code identifying a balancing authority.",
+        "description": "EIA short code identifying a balancing authority. May include Canadian and Mexican BAs.",
     },
     "balancing_authority_code_eia_consistent_rate": {
         "type": "number",
@@ -239,6 +250,42 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "balancing_authority_name_eia": {
         "type": "string",
         "description": "Name of the balancing authority.",
+    },
+    "balancing_authority_retirement_date": {
+        "type": "date",
+        "description": "Date on which the balancing authority ceased independent operation.",
+    },
+    "balancing_authority_region_code_eia": {
+        "type": "string",
+        "description": "EIA balancing authority region code.",
+        "constraints": {
+            "enum": set(
+                CODE_METADATA["core_eia__codes_balancing_authorities"]["df"][
+                    "balancing_authority_region_code_eia"
+                ].dropna()
+            )
+        },
+    },
+    "balancing_authority_region_name_eia": {
+        "type": "string",
+        "description": "Human-readable name of the EIA balancing region.",
+    },
+    "balancing_authority_subregion_code_eia": {
+        "type": "string",
+        "description": "Code identifying subregions of larger balancing authorities.",
+        "constraints": {
+            "enum": sorted(
+                set(
+                    BALANCING_AUTHORITY_SUBREGIONS_EIA[
+                        "balancing_authority_subregion_code_eia"
+                    ]
+                )
+            )
+        },
+    },
+    "balancing_authority_subregion_name_eia": {
+        "type": "string",
+        "description": "Name of the balancing authority subregion.",
     },
     "bga_source": {
         "type": "string",
@@ -504,6 +551,33 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Total cost of plant (USD) without retirements.",
         "unit": "USD",
+    },
+    "capex_per_kw": {
+        "type": "number",
+        "description": "Capital cost (USD). Expenditures required to achieve commercial operation of the generation plant.",
+        "unit": "USD",
+    },
+    "capex_grid_connection_per_kw": {
+        "type": "number",
+        "description": "Overnight capital cost includes a nominal-distance spur line (<1 mi) for all technologies, and for offshore wind, it includes export cable and construction period transit costs for a 30-km distance from shore. Project-specific costs lines that are based on distance to existing transmission are not included.",
+    },
+    "capex_overnight_per_kw": {
+        "type": "number",
+        "description": "capex if plant could be constructed overnight (i.e., excludes construction period financing); includes on-site electrical equipment (e.g., switchyard), a nominal-distance spur line (<1 mi), and necessary upgrades at a transmission substation.",
+        "unit": "USD",
+    },
+    "capex_overnight_additional_per_kw": {
+        "type": "number",
+        "description": "capex for retrofits if plant could be constructed overnight (i.e., excludes construction period financing); includes on-site electrical equipment (e.g., switchyard), a nominal-distance spur line (<1 mi), and necessary upgrades at a transmission substation.",
+        "unit": "USD",
+    },
+    "capex_construction_finance_factor": {
+        "type": "number",
+        "description": (
+            "Portion of all-in capital cost associated with construction period "
+            "financing. This factor is applied to an overnight capital cost to represent "
+            "the financing costs incurred during the construction period."
+        ),
     },
     "carbon_capture": {
         "type": "boolean",
@@ -867,6 +941,28 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Gross megawatt-hours delivered in power exchanges and used as the basis for settlement.",
         "unit": "MWh",
     },
+    "demand_adjusted_mwh": {
+        "type": "number",
+        "description": "Electricity demand adjusted by EIA to reflect non-physical commercial transfers through pseudo-ties and dynamic scheduling.",
+        "unit": "MWh",
+    },
+    # TODO[zaneselvans] 2024-04-20: Is the timestamp when the forecast was made? Or the
+    # time at which the forecast is trying to predict demand?
+    "demand_forecast_mwh": {
+        "type": "number",
+        "description": "Day ahead demand forecast.",
+        "unit": "MWh",
+    },
+    "demand_imputed_mwh": {
+        "type": "number",
+        "description": "Electricity demand calculated by subtracting BA interchange from net generation, with outliers and missing values imputed by EIA.",
+        "unit": "MWh",
+    },
+    "demand_reported_mwh": {
+        "type": "number",
+        "description": "Originally reported electricity demand, calculated by taking the net generation within the BA and subtracting the interchange with adjacent BAs.",
+        "unit": "MWh",
+    },
     "demand_annual_mwh": {
         "type": "number",
         "description": "Annual electricity demand in a given report year.",
@@ -989,6 +1085,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "requirement that these IDs be the same, and in a number of cases they are "
             "different."
         ),
+    },
+    "electricity_market_module_region_eiaaeo": {
+        "type": "string",
+        "description": "AEO projection region.",
+        "constraints": {"enum": ELECTRICITY_MARKET_MODULE_REGIONS},
     },
     "emission_control_id_eia": {
         "type": "string",
@@ -1132,6 +1233,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "in both directions, between the delivery entity and the customer."
         ),
         "unit": "MWh",
+    },
+    "generation_energy_source": {
+        "type": "string",
+        "description": "High level energy source used to produce electricity.",
+        "constraints": {"enum": GENERATION_ENERGY_SOURCES_EIA930},
     },
     "energy_source_code": {
         "type": "string",
@@ -1768,6 +1874,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Fuel content per unit of electricity generated. Calculated from FERC reported fuel consumption and net generation.",
         "unit": "MMBtu_MWh",
     },
+    "heat_rate_mmbtu_per_mwh": {
+        "type": "number",
+        "description": "Fuel content per unit of electricity generated.",
+        "unit": "MMBtu_MWh",
+    },
+    "heat_rate_penalty": {
+        "type": "number",
+        "description": "Heat rate penalty for retrofitting. This column only has contents to retrofit technologies. It seems to be a rate between 0.35 and 0.09",
+        "unit": "MMBtu_MWh",
+    },
     "highest_distribution_voltage_kv": {
         "type": "number",
         "description": "The highest voltage that's part of the distribution system.",
@@ -1878,12 +1994,31 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "unit": "gpm",
     },
+    "interchange_adjusted_mwh": {
+        "type": "number",
+        "description": "Energy interchange between adjacent balancing authorities, adjusted by EIA to reflect non-physical commercial transfers through pseudo-ties and dynamic scheduling.",
+        "unit": "MWh",
+    },
+    "interchange_imputed_mwh": {
+        "type": "number",
+        "description": "Energy interchange between adjacent balancing authorities, with outliers and missing values imputed by EIA.",
+        "unit": "MWh",
+    },
+    "interchange_reported_mwh": {
+        "type": "number",
+        "description": "Original reported energy interchange between adjacent balancing authorities.",
+        "unit": "MWh",
+    },
     "is_epacems_state": {
         "type": "boolean",
         "description": (
             "Indicates whether the associated state reports data within the EPA's "
             "Continuous Emissions Monitoring System."
         ),
+    },
+    "is_generation_only": {
+        "type": "boolean",
+        "description": "Indicates whether the balancing authority is generation-only, meaning it does not serve retail customers and thus reports only net generation and interchange, but not demand.",
     },
     "iso_rto_code": {
         "type": "string",
@@ -1897,6 +2032,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "latitude": {
         "type": "number",
         "description": "Latitude of the plant's location, in degrees.",
+    },
+    "levelized_cost_of_energy_per_mwh": {
+        "type": "number",
+        "description": "Levelized cost of energy (LCOE) is a summary metric that combines the primary technology cost and performance parameters: capital expenditures, operations expenditures, and capacity factor.",
+        "unit": "USD_per_Mwh",
     },
     "liability_type": {
         "type": "string",
@@ -2108,6 +2248,19 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "The minimum load at which the generator can operate at continuosuly.",
         "unit": "MW",
     },
+    "model_case_eiaaeo": {
+        "type": "string",
+        "description": (
+            "Factors such as economic growth, future oil prices, the ultimate "
+            "size of domestic energy resources, and technological change are "
+            "often uncertain. To illustrate some of these uncertainties, EIA "
+            "runs side cases to show how the model responds to changes in key "
+            "input variables compared with the Reference case. See "
+            "https://www.eia.gov/outlooks/aeo/assumptions/case_descriptions.php "
+            "for more details."
+        ),
+        "constraints": {"enum": MODEL_CASES_EIAAEO},
+    },
     "moisture_content_pct": {
         "type": "number",
         "description": (
@@ -2266,6 +2419,21 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
+    "net_generation_adjusted_mwh": {
+        "type": "number",
+        "description": "Reported net generation adjusted by EIA to reflect non-physical commercial transfers through pseudo-ties and dynamic scheduling.",
+        "unit": "MWh",
+    },
+    "net_generation_imputed_mwh": {
+        "type": "number",
+        "description": "Reported net generation with outlying values removed and missing values imputed by EIA.",
+        "unit": "MWh",
+    },
+    "net_generation_reported_mwh": {
+        "type": "number",
+        "description": "Unaltered originally reported net generation for the specified period.",
+        "unit": "MWh",
+    },
     "net_generation_mwh": {
         "type": "number",
         "description": "Net electricity generation for the specified period in megawatt-hours (MWh).",
@@ -2293,6 +2461,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Did this plant have a net metering agreement in effect during the reporting year?  (Only displayed for facilities that report the sun or wind as an energy source). This field was only reported up until 2015",
         # TODO: Is this really boolean? Or do we have non-null strings that mean False?
+    },
+    "net_output_penalty": {
+        "type": "number",
+        "description": "Penalty for retrofitting for net output.  This column only has contents to retrofit technologies. It seems to be a rate between -0.25 and -0.08",
     },
     "net_power_exchanged_mwh": {
         "type": "number",
@@ -2554,6 +2726,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "unit": "USD",
         "description": "Annual operation and maintenance expenditures for waste disposal, excluding electricity.",
+    },
+    "opex_fixed_per_kw": {
+        "type": "number",
+        "description": "Fixed operation and maintenance expenses. Annual expenditures to operate and maintain equipment that are not incurred on a per-unit-energy basis.",
+        "unit": "USD_per_kw",
+    },
+    "opex_variable_per_mwh": {
+        "type": "number",
+        "description": "Operation and maintenance costs incurred on a per-unit-energy basis.",
+        "unit": "USD_per_MWh",
     },
     "opex_fuel": {
         "type": "number",
@@ -3164,6 +3346,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Indicates whether the plant is regulated or non-regulated.",
     },
     "report_date": {"type": "date", "description": "Date reported."},
+    "report_timezone": {
+        "type": "string",
+        "description": "Timezone used by the reporting entity. For use in localizing UTC times.",
+        "constraints": {"enum": US_TIMEZONES},
+    },
     "report_year": {
         "type": "integer",
         "description": "Four-digit year in which the data was reported.",
@@ -3704,47 +3891,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "storage_enclosure_code": {
         "type": "string",
         "description": "A code representing the enclosure type that best describes where the generator is located.",
-        "constraints": {
-            "enum": set(
-                CODE_METADATA["core_eia__codes_storage_enclosure_types"]["df"].code
-            )
-        },
     },
     "storage_technology_code_1": {
         "type": "string",
         "description": "The electro-chemical storage technology used for this battery applications.",
-        "constraints": {
-            "enum": set(
-                CODE_METADATA["core_eia__codes_storage_technology_types"]["df"].code
-            )
-        },
     },
     "storage_technology_code_2": {
         "type": "string",
         "description": "The electro-chemical storage technology used for this battery applications.",
-        "constraints": {
-            "enum": set(
-                CODE_METADATA["core_eia__codes_storage_technology_types"]["df"].code
-            )
-        },
     },
     "storage_technology_code_3": {
         "type": "string",
         "description": "The electro-chemical storage technology used for this battery applications.",
-        "constraints": {
-            "enum": set(
-                CODE_METADATA["core_eia__codes_storage_technology_types"]["df"].code
-            )
-        },
     },
     "storage_technology_code_4": {
         "type": "string",
         "description": "The electro-chemical storage technology used for this battery applications.",
-        "constraints": {
-            "enum": set(
-                CODE_METADATA["core_eia__codes_storage_technology_types"]["df"].code
-            )
-        },
     },
     "stored_excess_wind_and_solar_generation": {
         "type": "boolean",
@@ -3796,6 +3958,25 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "The net summer capacity.",
         "unit": "MW",
+    },
+    "summer_capacity_planned_additions_mw": {
+        "type": "number",
+        "description": (
+            "The total planned additions to net summer generating capacity."
+        ),
+        "unit": "mw",
+    },
+    "summer_capacity_retirements_mw": {
+        "type": "number",
+        "description": ("The total retirements from net summer generating capacity."),
+        "unit": "mw",
+    },
+    "summer_capacity_unplanned_additions_mw": {
+        "type": "number",
+        "description": (
+            "The total unplanned additions to net summer generating capacity."
+        ),
+        "unit": "mw",
     },
     "summer_estimated_capability_mw": {
         "type": "number",
@@ -3850,6 +4031,21 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "technology_description": {
         "type": "string",
         "description": "High level description of the technology used by the generator to produce electricity.",
+    },
+    "technology_description_detail_1": {
+        "type": "string",
+        "description": "Technology details indicate resource levels and specific technology subcategories.",
+    },
+    "technology_description_detail_2": {
+        "type": "string",
+        "description": "Technology details indicate resource levels and specific technology subcategories.",
+    },
+    "technology_description_eiaaeo": {
+        "type": "string",
+        "description": "Generation technology reported for AEO.",
+        "constraints": {
+            "enum": TECH_DESCRIPTIONS_EIAAEO,
+        },
     },
     "temperature_method": {
         "description": "Method for measurement of temperatures",
@@ -4443,6 +4639,106 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "The DC capacity in MW that is part of a virtual net metering agreement.",
         "unit": "MW",
     },
+    "model_case_nrelatb": {
+        "type": "string",
+        "description": (
+            "NREL's financial assumption cases. There are two cases which effect project finanical "
+            "assumptions: R&D Only Case and Market + Policies Case. R&D Only includes only projected "
+            "R&D improvements while Market + Policy case includes policy and tax incentives. "
+            "https://atb.nrel.gov/electricity/2023/financial_cases_&_methods"
+        ),
+        "constraints": {"enum": ["Market", "R&D"]},
+    },
+    "projection_year": {
+        "type": "integer",
+        "description": "The year of the projected value.",
+    },
+    "cost_recovery_period_years": {
+        "type": "integer",
+        "description": "The period over which the initial capital investment to build a plant is recovered.",
+    },
+    "scenario_atb": {
+        "type": "string",
+        "description": "Technology innovation scenarios. https://atb.nrel.gov/electricity/2023/definitions#scenarios",
+        "constraints": {"enum": ["Advanced", "Moderate", "Conservative"]},
+    },
+    "is_default": {
+        "type": "boolean",
+        "description": "Indicator of whether the technology is default.",
+    },
+    "is_technology_mature": {
+        "type": "boolean",
+        "description": "Indicator of whether the technology is mature.",
+    },
+    "inflation_rate": {
+        "type": "number",
+        "description": (
+            "Rate of inflation. All dollar values are given in 2021 USD, using the Consumer Price "
+            "Index for All Urban Consumers for dollar year conversions where the source "
+            "year dollars do not match 2021."
+        ),
+    },
+    "interest_rate_during_construction_nominal": {
+        "type": "number",
+        "description": (
+            "Also referred to as construction finance cost. Portion of all-in capital cost "
+            "associated with construction period financing. It is a function of construction "
+            "duration, capital fraction during construction, and interest during construction."
+        ),
+    },
+    "interest_rate_calculated_real": {
+        "type": "number",
+        "description": "Calculated real interest rate.",
+    },
+    "interest_rate_nominal": {
+        "type": "number",
+        "description": "Nominal interest rate.",
+    },
+    "rate_of_return_on_equity_calculated_real": {
+        "type": "number",
+        "description": "Calculated real rate of return on equity.",
+    },
+    "rate_of_return_on_equity_nominal": {
+        "type": "number",
+        "description": "Nomial rate of return on equity.",
+    },
+    "tax_rate_federal_state": {
+        "type": "number",
+        "description": (
+            "Combined federal and state tax rate. The R&D model_case_nrelatb holds tax and "
+            "inflation rates constant at assumed long-term values: 21 percent federal tax rate, "
+            "6 percent state tax rate (though actual state tax rates vary), and 2.5 "
+            "percent inflation rate excludes effects of tax credits. The Market + Policy "
+            "model_case_nrelatb applies federal tax credits and expires them as consistent with "
+            "existing law and guidelines."
+        ),
+    },
+    "capital_recovery_factor": {
+        "type": "number",
+        "description": "Ratio of a constant annuity to the present value of receiving that annuity for a given length of time.",
+    },
+    "debt_fraction": {
+        "type": "number",
+        "description": (
+            "Fraction of capital financed with debt; Debt fraction is assumed financed with equity; "
+            "also referred to as the leverage ratio."
+        ),
+    },
+    "fixed_charge_rate": {
+        "type": "number",
+        "description": (
+            "Amount of revenue per dollar of investment required that must be collected annually "
+            "from customers to pay the carrying charges on that investment."
+        ),
+    },
+    "wacc_nominal": {
+        "type": "number",
+        "description": "Nominal weighted average cost of capital - average expected rate that is paid to finance assets.",
+    },
+    "wacc_real": {
+        "type": "number",
+        "description": "Real weighted average cost of capital - average expected rate that is paid to finance assets.",
+    },
 }
 """Field attributes by PUDL identifier (`field.name`).
 
@@ -4485,6 +4781,9 @@ FIELD_METADATA_BY_GROUP: dict[str, dict[str, Any]] = {
                 ]
             }
         }
+    },
+    "nrelatb": {
+        "technology_description": {"constraints": {"enum": TECH_DESCRIPTIONS_NRELATB}}
     },
 }
 """Field attributes by resource group (`resource.group`) and PUDL identifier.
@@ -4540,12 +4839,14 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     "plant_parts_eia": {
         "energy_source_code_1": {
             "constraints": {
-                "enum": set(CODE_METADATA["core_eia__codes_energy_sources"]["df"].code)
+                "enum": set(
+                    CODE_METADATA["core_eia__codes_energy_sources"]["df"]["code"]
+                )
             }
         },
         "prime_movers_eia": {
             "constraints": {
-                "enum": set(CODE_METADATA["core_eia__codes_prime_movers"]["df"].code)
+                "enum": set(CODE_METADATA["core_eia__codes_prime_movers"]["df"]["code"])
             }
         },
         "technology_description": {"constraints": {"enum": set(TECH_DESCRIPTIONS)}},
@@ -4568,22 +4869,34 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
         "opex_total": {"description": "Overall expenses for the transmission line."},
     },
     "out_ferc714__hourly_planning_area_demand": {
-        "timezone": {
-            "constraints": {
-                "enum": [
-                    "America/New_York",
-                    "America/Chicago",
-                    "America/Denver",
-                    "America/Los_Angeles",
-                    "America/Anchorage",
-                    "Pacific/Honolulu",
-                ]
-            }
-        },
+        "timezone": {"constraints": {"enum": US_TIMEZONES}},
         "report_date": {
             "constraints": {
                 "required": True,
             }
+        },
+    },
+    "core_eia930__hourly_net_generation_by_energy_source": {
+        "datetime_utc": {
+            "description": "Timestamp at the end of the hour for which the data is reported."
+        },
+    },
+    "core_eia930__hourly_operations": {
+        "datetime_utc": {
+            "description": "Timestamp at the end of the hour for which the data is reported."
+        },
+    },
+    "core_eia930__hourly_subregion_demand": {
+        "datetime_utc": {
+            "description": "Timestamp at the end of the hour for which the data is reported."
+        },
+        "demand_reported_mwh": {
+            "description": "Originally reported electricity demand for the balancing area subregion. Note that different BAs have different methods of calculating and allocating subregion demand.",
+        },
+    },
+    "core_eia930__hourly_interchange": {
+        "datetime_utc": {
+            "description": "Timestamp at the end of the hour for which the data is reported."
         },
     },
 }
