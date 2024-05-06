@@ -63,6 +63,13 @@ def subtotals_match_reported_totals_ratio(
     Group by some key, then check that within each group the non-``"total"``
     values sum up to the corresponding ``"total"`` value.
 
+    Checks the list of fact columns to in aggregate, but if you want to check
+    that *each* column sums up correctly, individually, you can call this
+    function once per column.
+
+    TODO 2024-05-06: it may make sense to pass the threshold into this
+    function, which would clean up the call sites.
+
     Args:
         df: the dataframe to investigate
         pk: the key to group facts by
@@ -358,7 +365,7 @@ class AeoCheckSpec:
 
     name: str
     asset: str
-    num_rows_by_report_year: dict[str, int]
+    num_rows_by_report_year: dict[int, int]
     num_in_categories: dict[str, int]
 
 
