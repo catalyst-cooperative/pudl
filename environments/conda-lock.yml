@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: d5ff851f13eb362fc959634e68b86120a07a38f9d411cba144920b424a17eb6b
-    osx-64: 3e6ba59eaf15558ebc6dde483384d2554fa940b89715dd3f451625cc02c91eed
-    osx-arm64: 0a6eede4161b36e448bd950a0868b0578f9d254e859e097750a9e26842e33453
+    linux-64: 7b7e717300e4f3d4676e3f3c27ea794a73885e63754d9fcb785925a86338a550
+    osx-64: 41cd5753bd2b608bb6c501fb05e255d4a2b8c819fa64bcf88ce5a310dde3427a
+    osx-arm64: 624323a2f442af4256d0afb8fe6d3213ad7ce533272ac64b2888b367d2d4f21c
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -5449,8 +5449,8 @@ package:
     platform: osx-64
     dependencies:
       python: ">=3.8"
-      click: ">=8.1.3"
       jinja2: ">=3.1.2"
+      click: ">=8.1.3"
       importlib-metadata: ">=3.6.0"
       itsdangerous: ">=2.1.2"
       blinker: ">=1.6.2"
@@ -5467,8 +5467,8 @@ package:
     platform: osx-arm64
     dependencies:
       python: ">=3.8"
-      click: ">=8.1.3"
       jinja2: ">=3.1.2"
+      click: ">=8.1.3"
       importlib-metadata: ">=3.6.0"
       itsdangerous: ">=2.1.2"
       blinker: ">=1.6.2"
@@ -14111,27 +14111,27 @@ package:
     category: main
     optional: false
   - name: llvm-openmp
-    version: 18.1.4
+    version: 18.1.5
     manager: conda
     platform: osx-64
     dependencies:
       __osx: ">=10.9"
-    url: https://conda.anaconda.org/conda-forge/osx-64/llvm-openmp-18.1.4-h2c61cee_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/llvm-openmp-18.1.5-h39e0ece_0.conda
     hash:
-      md5: 0619a2dda8b7e25b78abc0b3d872744f
-      sha256: 3b5952236c415a374f561ea1208a12fd0258069b813101d84cbc65e6bdaee146
+      md5: ee12a644568269838b91f901b2537425
+      sha256: 9efba1424726d83271727c494138ad1d519d5fed301f1ee5825019eae56f5570
     category: main
     optional: false
   - name: llvm-openmp
-    version: 18.1.4
+    version: 18.1.5
     manager: conda
     platform: osx-arm64
     dependencies:
       __osx: ">=11.0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/llvm-openmp-18.1.4-hbf6887a_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/llvm-openmp-18.1.5-hde57baf_0.conda
     hash:
-      md5: c5dbf4be297aa3c447d2f259040a6ce9
-      sha256: 77c7cdebe513de20ed83e6570070b05b6e8135b4a0e7ab5b907fdc07df301cb9
+      md5: 5b0ef7f8e9f413cbfd53573da96cae1b
+      sha256: c9ecaaa3d83215753a54f66038480582eff632196ed0df7763ca320154d00526
     category: main
     optional: false
   - name: llvmlite
@@ -19399,7 +19399,6 @@ package:
       tk: ">=8.6.13,<8.7.0a0"
       tzdata: ""
       xz: ">=5.2.6,<6.0a0"
-      pip: ""
     url: https://conda.anaconda.org/conda-forge/linux-64/python-3.12.3-hab00c5b_0_cpython.conda
     hash:
       md5: 2540b74d304f71d3e89c81209db4db84
@@ -19423,7 +19422,6 @@ package:
       tk: ">=8.6.13,<8.7.0a0"
       tzdata: ""
       xz: ">=5.2.6,<6.0a0"
-      pip: ""
     url: https://conda.anaconda.org/conda-forge/osx-64/python-3.12.3-h1411813_0_cpython.conda
     hash:
       md5: df1448ec6cbf8eceb03d29003cf72ae6
@@ -19447,7 +19445,6 @@ package:
       tk: ">=8.6.13,<8.7.0a0"
       tzdata: ""
       xz: ">=5.2.6,<6.0a0"
-      pip: ""
     url: https://conda.anaconda.org/conda-forge/osx-arm64/python-3.12.3-h4a7b5fc_0_cpython.conda
     hash:
       md5: 8643ab37bece6ae8f112464068d9df9c
@@ -24552,42 +24549,42 @@ package:
     category: dev
     optional: true
   - name: werkzeug
-    version: 3.0.2
+    version: 3.0.3
     manager: conda
     platform: linux-64
     dependencies:
       markupsafe: ">=2.1.1"
       python: ">=3.8"
-    url: https://conda.anaconda.org/conda-forge/noarch/werkzeug-3.0.2-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/werkzeug-3.0.3-pyhd8ed1ab_0.conda
     hash:
-      md5: 96b2d2e2550ccba0f4008b4d0b4199dd
-      sha256: ae5744d6e3826d71826ca939436437016d14f38e3535517e160f74d392788d5d
+      md5: 2e60f5f388845027ee87fca6bee4ac23
+      sha256: a77d0c67096999c35854e0480e3b978ef72ee008e295e92b0dc67116b2398661
     category: main
     optional: false
   - name: werkzeug
-    version: 3.0.2
+    version: 3.0.3
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.8"
       markupsafe: ">=2.1.1"
-    url: https://conda.anaconda.org/conda-forge/noarch/werkzeug-3.0.2-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/werkzeug-3.0.3-pyhd8ed1ab_0.conda
     hash:
-      md5: 96b2d2e2550ccba0f4008b4d0b4199dd
-      sha256: ae5744d6e3826d71826ca939436437016d14f38e3535517e160f74d392788d5d
+      md5: 2e60f5f388845027ee87fca6bee4ac23
+      sha256: a77d0c67096999c35854e0480e3b978ef72ee008e295e92b0dc67116b2398661
     category: main
     optional: false
   - name: werkzeug
-    version: 3.0.2
+    version: 3.0.3
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.8"
       markupsafe: ">=2.1.1"
-    url: https://conda.anaconda.org/conda-forge/noarch/werkzeug-3.0.2-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/werkzeug-3.0.3-pyhd8ed1ab_0.conda
     hash:
-      md5: 96b2d2e2550ccba0f4008b4d0b4199dd
-      sha256: ae5744d6e3826d71826ca939436437016d14f38e3535517e160f74d392788d5d
+      md5: 2e60f5f388845027ee87fca6bee4ac23
+      sha256: a77d0c67096999c35854e0480e3b978ef72ee008e295e92b0dc67116b2398661
     category: main
     optional: false
   - name: wheel
