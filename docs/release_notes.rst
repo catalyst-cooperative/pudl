@@ -46,6 +46,9 @@ New Data Coverage
   * :ref:`core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type`
     contains generation capacity & generation projections for the electric
     sector, broken out by technology type. See :issue:`3581` and :pr:`3598`.
+  * :ref:`core_eiaaeo__yearly_projected_electric_sales` contains electric sales
+    projections until 2050, broken out by customer type. See :issue:`3581` and
+    :pr:`3617`.
 
 * Added new NREL ATB tables with annual technology cost and performance projections. See
   :issue:`3465` and :pr:`3498` and :pr:`3570`
