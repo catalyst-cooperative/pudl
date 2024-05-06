@@ -404,7 +404,8 @@ def core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type(
 
     This includes data that's reported by fuel type and ignores data that's
     only reported at the system-wide level, such as total generation, sales to
-    grid, and generation for own use.
+    grid, and generation for own use. Those three facts are reported in
+    core_eiaaeo__yearly_projected_generation_in_end_use_sectors instead.
     """
     sanitized = filter_enrich_sanitize(
         raw_df=raw_eiaaeo__electric_power_projections_regional,
@@ -422,6 +423,8 @@ def core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type(
     assert set(sanitized.topic.unique()) == {"electricity"}
     assert set(sanitized.subtopic.unique()) == {"end_use_sectors"}
     assert set(sanitized.units.unique()) == {"bkwh", "gw"}
+    assert sanitized.loc[sanitized.units == "gw"].variable_name == "capacity"
+    assert sanitized.loc[sanitized.units == "bkwh"].variable_name == "generation"
 
     trimmed = sanitized.drop(
         columns=[
