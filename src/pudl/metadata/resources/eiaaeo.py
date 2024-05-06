@@ -410,5 +410,6 @@ RESOURCE_METADATA = {
     in {
         "core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology",
         "core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type",
+        "core_eiaaeo__yearly_projected_electric_sales",
     }
 }

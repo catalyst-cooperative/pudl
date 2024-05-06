@@ -179,6 +179,18 @@ def filter_enrich_sanitize(
     )
 
 
+def _collect_totals(df: pd.DataFrame, total_colname="dimension") -> pd.DataFrame:
+    """Various columns have different names for their "total" fact.
+
+    This combines them into one "total" dimension.
+    """
+    return df.assign(
+        dimension=df.dimension.str.replace(r"^total.*$", "total", regex=True).fillna(
+            "total"
+        )
+    )
+
+
 def unstack(df: pd.DataFrame, eventual_pk: list[str]):
     """Unstack the values by the various variable names provided."""
     unstacked = (
@@ -211,17 +223,6 @@ def core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology(
             }
         )
         return df.loc[~(generation_mask & is_aggregated_mask)]
-
-    def _collect_totals(df: pd.DataFrame) -> pd.DataFrame:
-        """Various columns have different names for their "total" fact.
-
-        We should combine them into one "total" dimension.
-        """
-        return df.assign(
-            dimension=df.dimension.str.replace(
-                r"^total.*$", "total", regex=True
-            ).fillna("total")
-        )
 
     def _decumulate(df: pd.DataFrame, decumulate_columns: list[str]) -> pd.DataFrame:
         """De-accumulate the cumulative columns so we get yearly values.
@@ -359,6 +360,78 @@ def core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology(
     return renamed_for_pudl
 
 
+@asset(io_manager_key="pudl_io_manager")
+def core_eiaaeo__yearly_projected_electric_sales(
+    raw_eiaaeo__electric_power_projections_regional,
+):
+    """Projected electricity sales by customer class."""
+    # Our series names here only have 3 fields:
+    # 1. "Electricity": broad topic
+    # 2. "Electricity Demand": the variable name
+    # 3. "Commercial", "Industrial": etc. the actual dimension
+    # So we rename some of the extracted columns.
+    #
+    # TODO 2024-05-06 (daz): consider parametrizing the field assignments -
+    # though for tables which have a mix of 3/4 field series, we will always
+    # have to do some munging at the end.
+    sanitized = (
+        filter_enrich_sanitize(
+            raw_df=raw_eiaaeo__electric_power_projections_regional,
+            relevant_series_names=("Electricity : Electricity Demand",),
+        )
+        .rename(columns={"variable_name": "dimension", "subtopic": "variable_name"})
+        .pipe(_collect_totals)
+    )
+    # 1 BKWh = 1e12 Wh = 1e6 MWh
+    sanitized.loc[sanitized.units == "bkwh", "value"] *= 1e6
+
+    assert set(sanitized.topic.unique()) == {"electricity"}
+    assert set(sanitized.variable_name.unique()) == {"electricity_demand"}
+    assert set(sanitized.units.unique()) == {"bkwh"}
+
+    trimmed = sanitized.drop(
+        columns=[
+            "topic",
+            "subtopic",
+            "units",
+        ]
+    )
+
+    subtotals_totals_match_ratio = subtotals_match_reported_totals_ratio(
+        trimmed,
+        pk=["report_year", "model_case_eiaaeo", "region", "projection_year"],
+        fact_columns=["value"],
+        dimension_column="dimension",
+    )
+    assert subtotals_totals_match_ratio == 1.0
+
+    unstacked = unstack(
+        df=trimmed,
+        eventual_pk=[
+            "report_year",
+            "model_case_eiaaeo",
+            "region",
+            "dimension",
+            "projection_year",
+        ],
+    )
+
+    renamed_for_pudl = (
+        unstacked.dropna(how="all")
+        .reset_index()
+        .pipe(lambda df: df.loc[(df.dimension != "total")])
+        .rename(
+            columns={
+                "region": "electricity_market_module_region_eiaaeo",
+                "dimension": "customer_class",
+                "electricity_demand": "sales_mwh",
+            }
+        )
+    )
+
+    return renamed_for_pudl
+
+
 @dataclass
 class AeoCheckSpec:
     """Define some simple checks that can run on any AEO asset."""
@@ -391,6 +464,15 @@ check_specs = [
         category_counts=BASE_AEO_CATEGORIES
         | {
             "fuel_type_eiaaeo": 6,
+        },
+    ),
+    AeoCheckSpec(
+        name="electricity_sales",
+        asset="core_eiaaeo__yearly_projected_electric_sales",
+        num_rows_by_report_year={2023: 51376},
+        category_counts=BASE_AEO_CATEGORIES
+        | {
+            "customer_class": 4,
         },
     ),
 ]
@@ -491,9 +573,12 @@ def make_check(spec: AeoCheckSpec) -> AssetChecksDefinition:
                     f"Expected {expected_rows} for report year {year}, found {num_rows}"
                 )
         for category, expected_num in spec.category_counts.items():
-            if (num_values := len(df[category].value_counts())) != expected_num:
+            value_counts = df[category].value_counts()
+            non_zero_values = value_counts.loc[value_counts > 0]
+            if len(non_zero_values) != expected_num:
                 errors.append(
-                    f"Expected {expected_num} values for {category}, found {num_values}"
+                    f"Expected {expected_num} values for {category}, "
+                    f"found {len(non_zero_values)}: {non_zero_values}"
                 )
         if errors:
             return AssetCheckResult(passed=False, metadata={"errors": errors})
