@@ -208,7 +208,9 @@ class ZenodoDoiSettings(BaseSettings):
     phmsagas: ZenodoDoi = "10.5281/zenodo.10493790"
     nrelatb: ZenodoDoi = "10.5281/zenodo.10839268"
 
-    model_config = SettingsConfigDict(env_prefix="pudl_zenodo_doi_", env_file=".env")
+    model_config = SettingsConfigDict(
+        env_prefix="pudl_zenodo_doi_", env_file=".env", extra="ignore"
+    )
 
 
 class ZenodoFetcher:
