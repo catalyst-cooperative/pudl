@@ -55,6 +55,7 @@ New Data Coverage
 * Added hourly generation, demand, and interchange tables from the EIA-930. See issues
   :issue:`3486,3505` PR :pr:`3584` and `this issue in the PUDL archiver repo
   <https://github.com/catalyst-cooperative/pudl-archiver/issues/295>`__
+* Add 2024 Q1 of CEMS data. See :issue:`3620` and :pr:`3624`
 * Updated the EIA Bulk Electricity data archive to include data that was available as of
   2024-05-01, which covers up through 2024-02-01 (3 months more than the previously
   used archive). See PR :pr:`3615`.
