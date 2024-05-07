@@ -392,7 +392,6 @@ def core_eiaaeo__yearly_projected_electric_sales(
     trimmed = sanitized.drop(
         columns=[
             "topic",
-            "subtopic",
             "units",
         ]
     )
