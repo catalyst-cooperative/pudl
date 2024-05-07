@@ -3039,7 +3039,10 @@ def out_ferc1__yearly_rate_base(
                 cash_working_capital,
             ]
         )
-        .pipe(disaggregate_unlabeled_or_total_tag, tag_col="tags_aggregatable_utility_type")
+        .pipe(
+            disaggregate_unlabeled_or_total_tag,
+            tag_col="tags_aggregatable_utility_type",
+        )
         .pipe(disaggregate_unlabeled_or_total_tag, tag_col="tags_in_rate_base")
     )
 
@@ -3102,7 +3105,7 @@ def disaggregate_unlabeled_or_total_tag(
     We have records in the rate base table with totals and/or nulls for key tag
     columns which we want to separate into component parts. This is done in two
     steps:
-    
+
     * :func:`get_tag_col_ratio` : for each ``report_year`` and ``utility_id_ferc1``,
       get a ratio of all of the ``ending_balance`` for all of the non-null and
       non-total tags.
@@ -3135,8 +3138,7 @@ def disaggregate_unlabeled_or_total_tag(
             suffixes=("_unlabeled", ""),
         )
         .assign(
-            ending_balance=lambda x: x[f"ratio_{tag_col}"].fillna(1)
-            * x.ending_balance,
+            ending_balance=lambda x: x[f"ratio_{tag_col}"].fillna(1) * x.ending_balance,
         )
         .assign(**{f"is_break_down_{tag_col}": True})
         .drop(columns=[f"ratio_{tag_col}", f"{tag_col}_unlabeled"])
@@ -3162,9 +3164,7 @@ def disaggregate_unlabeled_or_total_tag(
 
 
 def get_tag_col_ratio(
-    rate_base_labeled_df: pd.DataFrame,
-    ratio_idx: list[str],
-    tag_col: str
+    rate_base_labeled_df: pd.DataFrame, ratio_idx: list[str], tag_col: str
 ) -> pd.DataFrame:
     """Calculate the percentage of the total labeled ``ending_balance`` within each tag group.
 
@@ -3173,8 +3173,7 @@ def get_tag_col_ratio(
     """
     # get the sum of the balance in each of the values in tag_col
     grouped_df = (
-        rate_base_labeled_df.groupby(ratio_idx + [tag_col])
-        [["ending_balance"]]
+        rate_base_labeled_df.groupby(ratio_idx + [tag_col])[["ending_balance"]]
         .sum(min_count=1)
         .reset_index(level=[tag_col])
         .pivot(columns=[tag_col])
@@ -3184,7 +3183,9 @@ def get_tag_col_ratio(
 
     grouped_df["abs_summed"] = abs(grouped_df).sum(axis=1)
     for tag_value in tag_values:
-        grouped_df[f"ratio_{tag_value}"] = abs(grouped_df[tag_value]) / abs(grouped_df.abs_summed)
+        grouped_df[f"ratio_{tag_value}"] = abs(grouped_df[tag_value]) / abs(
+            grouped_df.abs_summed
+        )
     ratio = (
         pd.DataFrame(
             grouped_df.filter(regex="^ratio_").stack(future_stack=False),
@@ -3198,5 +3199,3 @@ def get_tag_col_ratio(
         | ratio[f"ratio_{tag_col}"].notnull()
     )
     return ratio
-
-
