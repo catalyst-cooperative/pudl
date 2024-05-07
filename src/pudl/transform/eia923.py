@@ -1,13 +1,10 @@
 """Module to perform data cleaning functions on EIA923 data tables."""
 
-import warnings
-
 import numpy as np
 import pandas as pd
 from dagster import (
     AssetCheckResult,
     AssetOut,
-    ExperimentalWarning,
     Output,
     asset,
     asset_check,
@@ -22,10 +19,6 @@ from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.transform.classes import InvalidRows, drop_invalid_rows
 
 logger = pudl.logging_helpers.get_logger(__name__)
-
-# Asset Checks are still Experimental, silence the warning since we use them
-# everywhere.
-warnings.filterwarnings("ignore", category=ExperimentalWarning)
 
 COALMINE_COUNTRY_CODES: dict[str, str] = {
     "AU": "AUS",  # Australia

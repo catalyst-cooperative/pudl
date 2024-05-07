@@ -154,6 +154,7 @@ def data_sources_metadata_to_rst(app):
         "eia860",
         "eia861",
         "eia923",
+        "eia930",
         "ferc1",
         "ferc714",
         "epacems",
@@ -204,6 +205,7 @@ def cleanup_rsts(app, exception):
     (DOCS_DIR / "data_sources/eia860.rst").unlink()
     (DOCS_DIR / "data_sources/eia861.rst").unlink()
     (DOCS_DIR / "data_sources/eia923.rst").unlink()
+    (DOCS_DIR / "data_sources/eia930.rst").unlink()
     (DOCS_DIR / "data_sources/ferc1.rst").unlink()
     (DOCS_DIR / "data_sources/ferc714.rst").unlink()
     (DOCS_DIR / "data_sources/epacems.rst").unlink()

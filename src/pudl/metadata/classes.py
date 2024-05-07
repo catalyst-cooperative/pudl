@@ -966,14 +966,20 @@ class DataSource(PudlMeta):
         if partitions is None:
             partitions = self.working_partitions
         if "years" in partitions:
-            return f"{min(partitions['years'])}-{max(partitions['years'])}"
-        if "year_month" in partitions:
-            return f"through {partitions['year_month']}"
-        if "year_quarters" in partitions:
-            return (
+            temporal_coverage = f"{min(partitions['years'])}-{max(partitions['years'])}"
+        elif "half_years" in partitions:
+            temporal_coverage = (
+                f"{min(partitions['half_years'])}-{max(partitions['half_years'])}"
+            )
+        elif "year_quarters" in partitions:
+            temporal_coverage = (
                 f"{min(partitions['year_quarters'])}-{max(partitions['year_quarters'])}"
             )
-        return ""
+        elif "year_month" in partitions:
+            temporal_coverage = f"through {partitions['year_month']}"
+        else:
+            temporal_coverage = ""
+        return temporal_coverage
 
     def add_datastore_metadata(self) -> None:
         """Get source file metadata from the datastore."""
@@ -1287,6 +1293,7 @@ class Resource(PudlMeta):
             "eia861",
             "eia861_disabled",
             "eia923",
+            "eia930",
             "eiaaeo",
             "entity_eia",
             "epacems",
@@ -1637,9 +1644,9 @@ class Resource(PudlMeta):
 
         df = self.format_df(df)
         pk = self.schema.primary_key
-        if pk and not df[df.duplicated(subset=pk)].empty:
+        if pk and not (dupes := df[df.duplicated(subset=pk)]).empty:
             raise ValueError(
-                f"{self.name} Duplicate primary keys when enforcing schema."
+                f"{self.name} {len(dupes)}/{len(df)} duplicate primary keys ({pk=}) when enforcing schema."
             )
         if pk and df.loc[:, pk].isna().any(axis=None):
             raise ValueError(f"{self.name} Null values found in primary key columns.")
@@ -1859,7 +1866,7 @@ class Package(PudlMeta):
     description: String | None = None
     keywords: list[String] = []
     homepage: AnyHttpUrl = AnyHttpUrl("https://catalyst.coop/pudl")
-    created: datetime.datetime = datetime.datetime.utcnow()
+    created: datetime.datetime = datetime.datetime.now(datetime.UTC)
     contributors: list[Contributor] = []
     sources: list[DataSource] = []
     licenses: list[License] = []

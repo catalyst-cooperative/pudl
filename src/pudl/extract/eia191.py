@@ -39,9 +39,7 @@ class Extractor(CsvExtractor):
 raw_eia191__all_dfs = raw_df_factory(Extractor, name="eia191")
 
 
-@asset(
-    required_resource_keys={"datastore", "dataset_settings"},
-)
+@asset
 def raw_eia191__data(raw_eia191__all_dfs):
     """Extract raw EIA company data from CSV sheets into dataframes.
 

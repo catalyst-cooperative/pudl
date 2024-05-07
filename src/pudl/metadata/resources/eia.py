@@ -6,12 +6,24 @@ from pudl.metadata.codes import CODE_METADATA
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia__codes_balancing_authorities": {
-        "description": "A coding table describing balancing authorities in EIA-860 and EIA-923.",
+        "description": "A coding table describing balancing authorities in EIA-860, EIA-923, and EIA-930",
         "schema": {
-            "fields": ["code", "label", "description"],
+            "fields": [
+                "code",
+                "label",
+                "description",
+                "balancing_authority_region_code_eia",
+                "balancing_authority_region_name_eia",
+                "report_timezone",
+                "balancing_authority_retirement_date",
+                "is_generation_only",
+            ],
             "primary_key": ["code"],
             "foreign_key_rules": {
-                "fields": [["balancing_authority_code_eia"]],
+                "fields": [
+                    ["balancing_authority_code_eia"],
+                    ["balancing_authority_code_adjacent_eia"],
+                ],
                 "exclude": [
                     "core_eia861__yearly_advanced_metering_infrastructure",
                     "core_eia861__yearly_balancing_authority",
@@ -33,6 +45,31 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "encoder": CODE_METADATA["core_eia__codes_balancing_authorities"],
         "sources": ["eia860"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
+    "core_eia__codes_balancing_authority_subregions": {
+        "description": "Details about the balancing authority subregions in EIA-930.",
+        "schema": {
+            "fields": [
+                "balancing_authority_code_eia",
+                "balancing_authority_subregion_code_eia",
+                "balancing_authority_subregion_name_eia",
+            ],
+            "primary_key": [
+                "balancing_authority_code_eia",
+                "balancing_authority_subregion_code_eia",
+            ],
+            "foreign_key_rules": {
+                "fields": [
+                    [
+                        "balancing_authority_code_eia",
+                        "balancing_authority_subregion_code_eia",
+                    ],
+                ]
+            },
+        },
+        "sources": ["eia930"],
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },

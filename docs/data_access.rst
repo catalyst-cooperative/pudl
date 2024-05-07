@@ -109,56 +109,74 @@ version of Datasette (see above). These nightly build outputs can be accessed us
 AWS CLI, or programmatically via the S3 API. They can also be downloaded directly over
 HTTPS using the following links:
 
-* `PUDL SQLite DB <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/pudl.sqlite.gz>`__
-* `EPA CEMS Hourly Emissions Parquet (1995Q1-2023Q4) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_epacems__hourly_emissions.parquet>`__
-* `Census DP1 SQLite DB (2010) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/censusdp1tract.sqlite.gz>`__
+Fully Processed SQLite Databases
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* Raw FERC Form 1:
+* `Main PUDL Database <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/pudl.sqlite.gz>`__
+* `US Census DP1 Database (2010) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/censusdp1tract.sqlite.gz>`__
+
+Hourly Tables as Parquet
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Hourly time series take up a lot of space in SQLite and can be slow to query in bulk,
+so we have moved to publishing all our hourly tables using the compressed, columnar
+`Apache Parquet <https://parquet.apache.org/docs/>`__ file format.
+
+* `EIA-930 BA Hourly Interchange <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_eia930__hourly_interchange.parquet>`__
+* `EIA-930 BA Hourly Net Generation by Energy Source <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_eia930__hourly_net_generation_by_energy_source.parquet>`__
+* `EIA-930 BA Hourly Operations <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_eia930__hourly_operations.parquet>`__
+* `EIA-930 BA Hourly Subregion Demand <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_eia930__hourly_subregion_demand.parquet>`__
+* `EPA CEMS Hourly Emissions <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_epacems__hourly_emissions.parquet>`__
+* `FERC-714 Hourly Estimated State Demand <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/out_ferc714__hourly_estimated_state_demand.parquet>`__
+* `FERC-714 Hourly Planning Area Demand <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/out_ferc714__hourly_planning_area_demand.parquet>`__
+* `GridPath RA Toolkit Hourly Available Capacity Factors <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/out_gridpathratoolkit__hourly_available_capacity_factor.parquet>`__
+
+Raw FERC DBF & XBRL data converted to SQLite
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* FERC Form 1:
 
   * `FERC-1 SQLite derived from DBF (1994-2020) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc1_dbf.sqlite.gz>`__
   * `FERC-1 SQLite derived from XBRL (2021-2022) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc1_xbrl.sqlite.gz>`__
   * `FERC-1 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc1_xbrl_datapackage.json>`__
   * `FERC-1 XBRL Taxonomy Metadata as JSON (2021-2022) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc1_xbrl_taxonomy_metadata.json>`__
 
-* Raw FERC Form 2:
+* FERC Form 2:
 
   * `FERC-2 SQLite derived from DBF (1996-2020) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc2_dbf.sqlite.gz>`__
   * `FERC-2 SQLite derived from XBRL (2021-2022) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc2_xbrl.sqlite.gz>`__
   * `FERC-2 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc2_xbrl_datapackage.json>`__
   * `FERC-2 XBRL Taxonomy Metadata as JSON (2021-2022) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc2_xbrl_taxonomy_metadata.json>`__
 
-* Raw FERC Form 6:
+* FERC Form 6:
 
   * `FERC-6 SQLite derived from DBF (2000-2020) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc6_dbf.sqlite.gz>`__
   * `FERC-6 SQLite derived from XBRL (2021-2022) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc6_xbrl.sqlite.gz>`__
   * `FERC-6 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc6_xbrl_datapackage.json>`__
   * `FERC-6 XBRL Taxonomy Metadata as JSON (2021-2022) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc6_xbrl_taxonomy_metadata.json>`__
 
-* Raw FERC Form 60:
+* FERC Form 60:
 
   * `FERC-60 SQLite derived from DBF (2006-2020) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc60_dbf.sqlite.gz>`__
   * `FERC-60 SQLite derived from XBRL (2021-2022) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc60_xbrl.sqlite.gz>`__
   * `FERC-60 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc60_xbrl_datapackage.json>`__
   * `FERC-60 XBRL Taxonomy Metadata as JSON (2021) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc60_xbrl_taxonomy_metadata.json>`__
 
-* Raw FERC Form 714:
+* FERC Form 714:
 
   * `FERC-714 SQLite derived from XBRL (2021-2022) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc714_xbrl.sqlite.gz>`__
   * `FERC-714 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc714_xbrl_datapackage.json>`__
   * `FERC-714 XBRL Taxonomy Metadata as JSON (2021-2022) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc714_xbrl_taxonomy_metadata.json>`__
 
+.. note::
 
-To reduce network transfer times, we compress the SQLite databases using ``gzip``. To
-decompress them locally, at the command line on Linux, MacOS, or Windows you can use the
-``gunzip`` command. (Git for Windows installs ``gzip`` / ``gunzip`` by default, and it
-can also be installed using the conda package manager).
+  To reduce network transfer times, we compress the SQLite databases using ``gzip``. To
+  decompress them locally, at the command line on Linux, MacOS, or Windows you can use
+  the ``gunzip`` command. (Git for Windows installs ``gzip`` / ``gunzip`` by default,
+  and it can also be installed using the conda package manager).
 
-.. code-block:: console
-
-   $ gunzip *.sqlite.gz
-
-If you're not familiar with using Unix command line tools in Windows you can also use a
-3rd party tool like `7zip <https://www.7-zip.org/download.html>`__.
+  If you're not familiar with using Unix command line tools in Windows you can also use
+  a 3rd party tool like `7zip <https://www.7-zip.org/download.html>`__.
 
 .. _access-stable:
 
@@ -179,10 +197,13 @@ documentation for a specific version by hovering over the version selector at
 the bottom left of the page.
 
 If you're not after a *specific* version, but rather the *latest stable
-version*, you can find them `AWS Open Data Registry
+version*, you can find them on the `AWS Open Data Registry
 <https://registry.opendata.aws/catalyst-cooperative-pudl/>`__, in the
-``stable/`` namespace. You can run ``aws s3 ls --no-sign-request
-s3://pudl.catalyst.coop/stable/`` to see what's available.
+``stable/`` namespace:
+
+.. code-block:: bash
+
+   aws s3 ls --no-sign-request s3://pudl.catalyst.coop/stable/
 
 .. _access-raw:
 
