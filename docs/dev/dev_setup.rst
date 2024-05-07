@@ -44,6 +44,13 @@ with the following commands:
     $ mamba update mamba
     $ conda config --set channel_priority strict
 
+.. note::
+
+   Make sure that after you've installed ``conda`` or ``mamba`` that you can activate
+   and deactivate the ``base`` environment (which is created by default). Try creating
+   a simple new environment and activating it to make sure everything is working and
+   your shell has been correctly configured to use the new package manager.
+
 ------------------------------------------------------------------------------
 Fork and Clone the PUDL Repository
 ------------------------------------------------------------------------------
@@ -97,11 +104,12 @@ Makefiles work, check out `this excellent Makefile tutorial
 <https://makefiletutorial.com/>`__
 
 To create the ``pudl-dev`` environment and install the local PUDL package using
-``make``, run:
+``make``, and then activate the newly created environment run:
 
 .. code-block:: console
 
     $ make install-pudl
+    $ mamba activate pudl-dev
 
 If you want to see all the bundled commands we've defined, open up the ``Makefile``.
 There's also some additional information in the :doc:`testing` documentation.
@@ -245,7 +253,10 @@ stuff should go. We call this a "PUDL workspace".
 
 First, create a directory to store local caches of raw PUDL data. You can put this
 anywhere, but we put this in ``~/pudl_input`` in the documentation.  Then create an
-environment variable called ``PUDL_INPUT`` to store the path to this new directory:
+environment variable called ``PUDL_INPUT`` to store the path to this new directory and
+make sure that it is set whenever you start up a new shell. These shorthand commands
+will append a line to the end of your shell initialization file. If you need to change
+it later you'll want to edit those files directly:
 
 .. code-block:: console
 
