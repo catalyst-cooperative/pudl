@@ -2288,10 +2288,12 @@ class XbrlCalculationForestFerc1(BaseModel):
 
         Propagate tags leafwards, rootward &  to the _correction nodes.
         """
+        tags_to_propagate = ["in_rate_base", "rate_base_category"]
         ## Leafwards propagation
-        annotated_forest = _propagate_tags_leafward(annotated_forest, ["in_rate_base"])
+        annotated_forest = _propagate_tags_leafward(annotated_forest, tags_to_propagate)
         # Rootward propagation
-        annotated_forest = _propagate_tag_rootward(annotated_forest, "in_rate_base")
+        for tag in tags_to_propagate:
+            annotated_forest = _propagate_tag_rootward(annotated_forest, tag)
         # Correction Records
         annotated_forest = _propagate_tags_to_corrections(annotated_forest)
         return annotated_forest
@@ -3018,7 +3020,7 @@ def out_ferc1__yearly_rate_base(
 
     We also break down records that have nulls or totals in two of the key tag
     columns: ``tags_aggregatable_utility_type`` and ``tags_in_rate_base`` via
-    :func:`breakdown_unlabeled`.
+    :func:`break_down_unlabeled`.
     """
     assets = _out_ferc1__detailed_balance_sheet_assets
     liabilities = _out_ferc1__detailed_balance_sheet_liabilities.assign(
@@ -3037,8 +3039,8 @@ def out_ferc1__yearly_rate_base(
                 cash_working_capital,
             ]
         )
-        .pipe(breakdown_unlabeled, split_col="tags_aggregatable_utility_type")
-        .pipe(breakdown_unlabeled, split_col="tags_in_rate_base")
+        .pipe(break_down_unlabeled, split_col="tags_aggregatable_utility_type")
+        .pipe(break_down_unlabeled, split_col="tags_in_rate_base")
     )
 
     in_rate_base = rate_base[rate_base.tags_in_rate_base == "yes"]
@@ -3047,7 +3049,7 @@ def out_ferc1__yearly_rate_base(
         in_rate_base, "in_rate_base", _out_ferc1__detailed_tags
     )
     check_for_correction_xbrl_factoids_with_tag(in_rate_base, "in_rate_base")
-    return in_rate_base
+    return in_rate_base.dropna(subset=["ending_balance"])
 
 
 def prep_cash_working_capital(
@@ -3076,6 +3078,7 @@ def prep_cash_working_capital(
         .assign(
             dollar_value=lambda x: x.dollar_value.divide(8),
             xbrl_factoid="cash_working_capital",  # newly definied (do we need to add it anywhere?)
+            tags_in_rate_base="yes",
             tags_rate_base_category="net_working_capital",
             tags_aggregatable_utility_type="electric",
             table_name="core_ferc1__yearly_operating_expenses_sched320",
@@ -3087,7 +3090,7 @@ def prep_cash_working_capital(
     return cash_working_capital
 
 
-def breakdown_unlabeled(
+def break_down_unlabeled(
     rate_base: pd.DataFrame,
     split_col: str,
 ) -> pd.DataFrame:
@@ -3105,12 +3108,12 @@ def breakdown_unlabeled(
     ratio_idx = ["report_year", "utility_id_ferc1"]
     ratio_df = get_split_col_ratio(
         # remove the unlabeled records because total is the value
-        # we want to breakdown so we can't have it in the columns to sum up
+        # we want to break_down so we can't have it in the columns to sum up
         rate_base[~unlabeled_mask],
         ratio_idx=ratio_idx,
         split_col=split_col,
     )
-    rate_base_broken_down = apply_ratio_to_breakdown_unlabeled(
+    rate_base_broken_down = apply_ratio_to_break_down_unlabeled(
         rate_base=rate_base,
         ratio_df=ratio_df,
         ratio_idx=ratio_idx,
@@ -3148,7 +3151,7 @@ def get_split_col_ratio(rate_base_labeled, ratio_idx, split_col) -> pd.DataFrame
     return ratio
 
 
-def apply_ratio_to_breakdown_unlabeled(
+def apply_ratio_to_break_down_unlabeled(
     rate_base: pd.DataFrame,
     ratio_df: pd.DataFrame,
     unlabeled_mask: pd.Series,
@@ -3159,7 +3162,7 @@ def apply_ratio_to_breakdown_unlabeled(
 
     Apply ratios from :func:`get_split_col_ratio` to ``ending_balance``.
     """
-    unlabeled_breakdown = (
+    unlabeled_break_down = (
         pd.merge(
             rate_base[unlabeled_mask],
             ratio_df,
@@ -3172,7 +3175,7 @@ def apply_ratio_to_breakdown_unlabeled(
             ending_balance=lambda x: x[f"ratio_{split_col}"].fillna(1)
             * x.ending_balance,
         )
-        .assign(**{f"is_breakdown_{split_col}": True})
+        .assign(**{f"is_break_down_{split_col}": True})
         .drop(columns=[f"ratio_{split_col}", f"{split_col}_unlabeled"])
         # this automatially gets converted to a pandas Float64 which
         # results in nulls from any sum.
@@ -3180,8 +3183,8 @@ def apply_ratio_to_breakdown_unlabeled(
     )
     rate_base_broken_down = pd.concat(
         [
-            rate_base[~unlabeled_mask].assign(**{f"is_breakdown_{split_col}": False}),
-            unlabeled_breakdown,
+            rate_base[~unlabeled_mask].assign(**{f"is_break_down_{split_col}": False}),
+            unlabeled_break_down,
         ]
     )
     if not np.isclose(
