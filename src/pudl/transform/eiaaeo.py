@@ -423,8 +423,10 @@ def core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type(
     assert set(sanitized.topic.unique()) == {"electricity"}
     assert set(sanitized.subtopic.unique()) == {"end_use_sectors"}
     assert set(sanitized.units.unique()) == {"bkwh", "gw"}
-    assert sanitized.loc[sanitized.units == "gw"].variable_name == "capacity"
-    assert sanitized.loc[sanitized.units == "bkwh"].variable_name == "generation"
+    assert (sanitized.loc[sanitized.units == "gw"].variable_name == "capacity").all()
+    assert (
+        sanitized.loc[sanitized.units == "bkwh"].variable_name == "generation"
+    ).all()
 
     trimmed = sanitized.drop(
         columns=[
