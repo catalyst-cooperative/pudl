@@ -129,7 +129,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eiaaeo",
     },
     "core_eiaaeo__yearly_projected_electric_sales": {
-        "description": "Projected electricity sales.",
+        "description": "Projected electricity sales by region and customer class.",
         "schema": {
             "fields": [
                 "report_year",
@@ -410,5 +410,6 @@ RESOURCE_METADATA = {
     in {
         "core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology",
         "core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type",
+        "core_eiaaeo__yearly_projected_electric_sales",
     }
 }

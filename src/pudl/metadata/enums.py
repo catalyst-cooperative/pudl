@@ -160,6 +160,7 @@ CUSTOMER_CLASSES: list[str] = [
     "residential",
     "total",
     "transportation",
+    "commercial_other",  # commercial *OR* other - used in EIA AEO only.
 ]
 
 TECH_CLASSES: list[str] = [
