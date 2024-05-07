@@ -3020,7 +3020,7 @@ def out_ferc1__yearly_rate_base(
 
     We also disaggregate records that have nulls or totals in two of the key tag
     columns: ``tags_aggregatable_utility_type`` and ``tags_in_rate_base`` via
-    :func:`disaggregate_unlabeled_tag`.
+    :func:`disaggregate_unlabeled_or_total_tag`.
     """
     assets = _out_ferc1__detailed_balance_sheet_assets
     liabilities = _out_ferc1__detailed_balance_sheet_liabilities.assign(
@@ -3043,7 +3043,10 @@ def out_ferc1__yearly_rate_base(
             disaggregate_unlabeled_or_total_tag,
             tag_col="tags_aggregatable_utility_type",
         )
-        .pipe(disaggregate_unlabeled_or_total_tag, tag_col="tags_in_rate_base")
+        .pipe(
+            disaggregate_unlabeled_or_total_tag,
+            tag_col="tags_in_rate_base",
+        )
     )
 
     in_rate_base = rate_base[rate_base.tags_in_rate_base == "yes"]
