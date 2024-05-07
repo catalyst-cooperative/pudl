@@ -130,6 +130,14 @@ Bug Fixes
   used on any dataframe, with every column encoded based on the field definitions and
   FK constraints associated with the column name.
 
+CLI Changes
+^^^^^^^^^^^
+* Removed the ``--clobber`` option from the ``ferc_to_sqlite`` command and associated
+  assets. We rebuild these databases infrequently, and needing to either edit the
+  runtime parameters in Dagster's Launchpad or remove the existing databases from the
+  filesystem manually are brittle. Partly in response to issue :issue:`3612`; see PR
+  :pr:`3622`.
+
 .. _release-v2024.2.6:
 
 ---------------------------------------------------------------------------------------

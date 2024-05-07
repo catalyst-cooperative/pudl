@@ -76,12 +76,7 @@ def xbrl2sqlite_op_factory(form: XbrlFormNumber) -> Callable:
 
         sql_path = PudlPaths().sqlite_db_path(f"ferc{form.value}_xbrl")
         if sql_path.exists():
-            if rs.clobber:
-                sql_path.unlink()
-            else:
-                raise RuntimeError(
-                    f"Found existing DB at {sql_path} and clobber was set to False. Aborting."
-                )
+            sql_path.unlink()
 
         convert_form(
             settings,
