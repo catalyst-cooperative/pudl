@@ -3005,7 +3005,7 @@ def out_ferc1__yearly_rate_base(
     core_ferc1__yearly_operating_expenses_sched320: pd.DataFrame,
     _out_ferc1__detailed_tags: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Make a table of granular utility rate-base data.
+    """Make a table of granular utility rate base data.
 
     This table contains granular data consisting of what utilities can
     include in their rate bases. This information comes from two core
@@ -3018,9 +3018,9 @@ def out_ferc1__yearly_rate_base(
     from :ref:`core_ferc1__yearly_operating_expenses_sched320` via
     :func:`prep_cash_working_capital`.
 
-    We also break down records that have nulls or totals in two of the key tag
+    We also disaggregate records that have nulls or totals in two of the key tag
     columns: ``tags_aggregatable_utility_type`` and ``tags_in_rate_base`` via
-    :func:`break_down_unlabeled`.
+    :func:`disaggregate_unlabeled_tag`.
     """
     assets = _out_ferc1__detailed_balance_sheet_assets
     liabilities = _out_ferc1__detailed_balance_sheet_liabilities.assign(
@@ -3039,8 +3039,8 @@ def out_ferc1__yearly_rate_base(
                 cash_working_capital,
             ]
         )
-        .pipe(break_down_unlabeled, split_col="tags_aggregatable_utility_type")
-        .pipe(break_down_unlabeled, split_col="tags_in_rate_base")
+        .pipe(disaggregate_unlabeled_or_total_tag, tag_col="tags_aggregatable_utility_type")
+        .pipe(disaggregate_unlabeled_or_total_tag, tag_col="tags_in_rate_base")
     )
 
     in_rate_base = rate_base[rate_base.tags_in_rate_base == "yes"]
@@ -3055,14 +3055,17 @@ def out_ferc1__yearly_rate_base(
 def prep_cash_working_capital(
     core_ferc1__yearly_operating_expenses_sched320,
 ) -> pd.DataFrame:
-    """Extract a new ``cash_working_capital`` xbrl_factoid for the rate base table.
+    """Extract a new ``cash_working_capital`` ``xbrl_factoid`` for the rate base table.
 
-    In standard ratemaking processes, utilities are enabled to include working
-    capital - sometimes referred to as cash on hand or cash reverves. A standard
-    ratemaking process is to consider the available rate-baseable working capital to
-    be one eigth of the average operations and maintenance expense. This function
-    grabs that expense and in preparation to concatenate it with the rest of the
-    assets and liabilities from the granular exploded data.
+    In standard ratemaking processes, utilities are allowed to include working
+    capital - sometimes referred to as cash on hand or cash reverves - in their rate
+    base. A standard ratemaking process considers the available rate-baseable working
+    capital to be one eigth of the average operations and maintenance expense. This
+    function grabs that expense and prepares to concatenate it with the rest of the
+    assets and liabilities from the detailed rate base data.
+
+    ``cash_working_capital`` is a new ``xbrl_factiod`` because it is not reported
+    in the FERC1 data, but it is included in rate base so we had to calcluate it.
     """
     # get the factoid name to grab the right part of the table
     xbrl_factoid_name = pudl.transform.ferc1.FERC1_TFR_CLASSES[
@@ -3090,81 +3093,41 @@ def prep_cash_working_capital(
     return cash_working_capital
 
 
-def break_down_unlabeled(
-    rate_base: pd.DataFrame,
-    split_col: str,
+def disaggregate_unlabeled_or_total_tag(
+    rate_base_df: pd.DataFrame,
+    tag_col: str,
 ) -> pd.DataFrame:
-    """Breakdown rate base records with an unlabeled split_col.
+    """Disaggregate records with an null or total in the ``tag_col``.
+
+    We have records in the rate base table with totals and/or nulls for key tag
+    columns which we want to separate into component parts. This is done in two
+    steps:
+    
+    * :func:`get_tag_col_ratio` : for each ``report_year`` and ``utility_id_ferc1``,
+      get a ratio of all of the ``ending_balance`` for all of the non-null and
+      non-total tags.
+    * use this ratio to disaggregate the ``ending_balance`` from records with total
+      and null tags across the component tags.
 
     Args:
-        rate_base: full table of rate base data.
-        split_col: column with the label that contains unlabeled values
+        rate_base_df: full table of rate base data.
+        tag_col: column with the tags that contains unlabeled values
             (ex: null or total).
     """
-    # the works for both the util type and the in rate base tags because
-    # for both tags: unlabeled is represented as a null and but just util type:
-    # unlabeled is also represented as "total"
-    unlabeled_mask = (rate_base[split_col] == "total") | rate_base[split_col].isnull()
+    # this works for both the utility_type and in_rate_base tags because
+    # for both tags unlabeled is represented as a null and/or a "total"
+    unlabeled_mask = (rate_base_df[tag_col] == "total") | rate_base_df[tag_col].isnull()
     ratio_idx = ["report_year", "utility_id_ferc1"]
-    ratio_df = get_split_col_ratio(
+    ratio_df = get_tag_col_ratio(
         # remove the unlabeled records because total is the value
         # we want to break_down so we can't have it in the columns to sum up
-        rate_base[~unlabeled_mask],
+        rate_base_labeled_df=rate_base_df[~unlabeled_mask],
         ratio_idx=ratio_idx,
-        split_col=split_col,
+        tag_col=tag_col,
     )
-    rate_base_broken_down = apply_ratio_to_break_down_unlabeled(
-        rate_base=rate_base,
-        ratio_df=ratio_df,
-        ratio_idx=ratio_idx,
-        unlabeled_mask=unlabeled_mask,
-        split_col=split_col,
-    )
-    return rate_base_broken_down.convert_dtypes()
-
-
-def get_split_col_ratio(rate_base_labeled, ratio_idx, split_col) -> pd.DataFrame:
-    """Calculate the percentage of the total labeled ``ending_balance`` within each tag group.
-
-    Make ratio column with a 0-1 value of the sum of ``ending_balance`` in each labled
-    ``split_col`` within ``ratio_idx``.
-    """
-    # get the sum of the balance in each of the values in split_col
-    rate_base_grouped = rate_base_labeled.groupby(ratio_idx + [split_col])[
-        ["ending_balance"]
-    ].sum(min_count=1)
-    df = rate_base_grouped.reset_index(level=[split_col]).pivot(columns=[split_col])
-    split_values = df.columns.get_level_values(1)
-    df.columns = split_values
-    df["abs_summed"] = abs(df).sum(axis=1)
-    for split_value in split_values:
-        df[f"ratio_{split_value}"] = abs(df[split_value]) / abs(df.abs_summed)
-    ratio = pd.DataFrame(
-        df.filter(regex="^ratio_").stack(future_stack=False),
-        columns=[f"ratio_{split_col}"],
-    ).reset_index()
-    ratio[split_col] = ratio[split_col].str.removeprefix("ratio_")
-    assert all(
-        ~ratio[f"ratio_{split_col}"].between(0, 1, inclusive="both")
-        | ratio[f"ratio_{split_col}"].notnull()
-    )
-    return ratio
-
-
-def apply_ratio_to_break_down_unlabeled(
-    rate_base: pd.DataFrame,
-    ratio_df: pd.DataFrame,
-    unlabeled_mask: pd.Series,
-    ratio_idx: list[str],
-    split_col: str,
-):
-    """For the unlabeled tag records, broadcast labeled tags and allocate the ``ending_balance``.
-
-    Apply ratios from :func:`get_split_col_ratio` to ``ending_balance``.
-    """
-    unlabeled_break_down = (
+    unlabeled_break_down_df = (
         pd.merge(
-            rate_base[unlabeled_mask],
+            rate_base_df[unlabeled_mask],
             ratio_df,
             on=ratio_idx,
             how="left",
@@ -3172,27 +3135,68 @@ def apply_ratio_to_break_down_unlabeled(
             suffixes=("_unlabeled", ""),
         )
         .assign(
-            ending_balance=lambda x: x[f"ratio_{split_col}"].fillna(1)
+            ending_balance=lambda x: x[f"ratio_{tag_col}"].fillna(1)
             * x.ending_balance,
         )
-        .assign(**{f"is_break_down_{split_col}": True})
-        .drop(columns=[f"ratio_{split_col}", f"{split_col}_unlabeled"])
+        .assign(**{f"is_break_down_{tag_col}": True})
+        .drop(columns=[f"ratio_{tag_col}", f"{tag_col}_unlabeled"])
         # this automatially gets converted to a pandas Float64 which
         # results in nulls from any sum.
         .astype({"ending_balance": float})
     )
-    rate_base_broken_down = pd.concat(
+    rate_base_broken_down_df = pd.concat(
         [
-            rate_base[~unlabeled_mask].assign(**{f"is_break_down_{split_col}": False}),
-            unlabeled_break_down,
+            rate_base_df[~unlabeled_mask].assign(**{f"is_break_down_{tag_col}": False}),
+            unlabeled_break_down_df,
         ]
     )
     if not np.isclose(
-        new_balance := rate_base_broken_down.ending_balance.sum(),
-        old_balance := rate_base.ending_balance.sum(),
+        new_balance := rate_base_broken_down_df.ending_balance.sum(),
+        old_balance := rate_base_df.ending_balance.sum(),
     ):
         logger.warning(
-            f"{split_col}: New ending balance is not the same as the old ending balance: "
+            f"{tag_col}: New ending balance is not the same as the old ending balance: "
             f"{old_balance=}, {new_balance=}"
         )
-    return rate_base_broken_down
+    return rate_base_broken_down_df.convert_dtypes()
+
+
+def get_tag_col_ratio(
+    rate_base_labeled_df: pd.DataFrame,
+    ratio_idx: list[str],
+    tag_col: str
+) -> pd.DataFrame:
+    """Calculate the percentage of the total labeled ``ending_balance`` within each tag group.
+
+    Make ratio column with a 0-1 value of the sum of ``ending_balance`` in each labled
+    ``tag_col`` within ``ratio_idx``.
+    """
+    # get the sum of the balance in each of the values in tag_col
+    grouped_df = (
+        rate_base_labeled_df.groupby(ratio_idx + [tag_col])
+        [["ending_balance"]]
+        .sum(min_count=1)
+        .reset_index(level=[tag_col])
+        .pivot(columns=[tag_col])
+    )
+    tag_values = grouped_df.columns.get_level_values(1)
+    grouped_df.columns = tag_values
+
+    grouped_df["abs_summed"] = abs(grouped_df).sum(axis=1)
+    for tag_value in tag_values:
+        grouped_df[f"ratio_{tag_value}"] = abs(grouped_df[tag_value]) / abs(grouped_df.abs_summed)
+    ratio = (
+        pd.DataFrame(
+            grouped_df.filter(regex="^ratio_").stack(future_stack=False),
+            columns=[f"ratio_{tag_col}"],
+        )
+        .reset_index()
+        .assign(**{tag_col: lambda x: x[tag_col].str.removeprefix("ratio_")})
+    )
+    assert all(
+        ~ratio[f"ratio_{tag_col}"].between(0, 1, inclusive="both")
+        | ratio[f"ratio_{tag_col}"].notnull()
+    )
+    return ratio
+
+
