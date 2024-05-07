@@ -274,7 +274,7 @@ datasets:
           2021,
           2022,
         ]
-      eia860m: false #true
+      eia860m: true
     eia860m:
       year_months: ["all"]
     eia861:

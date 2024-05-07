@@ -248,36 +248,24 @@ class Eia860Settings(GenericDatasetSettings):
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia860")
     years: list[int] = data_source.working_partitions["years"]
-
     eia860m: bool = True
-    eia860m_year_month: ClassVar[str] = max(
-        DataSource.from_id("eia860m").working_partitions["year_months"]
-    )
 
-    @field_validator("eia860m")
-    @classmethod
-    def check_eia860m_year_month(cls, eia860m: bool) -> bool:
-        """Check 860m date-year is exactly one year after most recent working 860 year.
+    @property
+    def eia860m_year_month(self) -> list[str]:
+        """The latest EIA860m year_month string from each year not in EIA860."""
+        eia860_year_months = DataSource.from_id("eia860m").working_partitions[
+            "year_months"
+        ]
+        years_eia860m = {date.split("-")[0] for date in eia860_year_months}
+        extra_eia860m_years = [
+            year for year in years_eia860m if int(year) not in self.years
+        ]
+        extra_eia860m_year_months = [
+            max(date for date in eia860_year_months if date.startswith(year))
+            for year in extra_eia860m_years
+        ]
 
-        Args:
-            eia860m: True if 860m is requested.
-
-        Returns:
-            eia860m: True if 860m is requested.
-
-        Raises:
-            ValueError: the 860m date is within 860 working years.
-        """
-        eia860m_year = pd.to_datetime(cls.eia860m_year_month).year
-        expected_year = max(cls.data_source.working_partitions["years"]) + 1
-        if eia860m and (eia860m_year != expected_year):
-            raise AssertionError(
-                f"Attempting to integrate an eia860m year "
-                f"({eia860m_year}) from {cls.eia860m_year_month} not immediately following"
-                f"the eia860 years: {cls.data_source.working_partitions['years']}. "
-                f"Consider switching eia860m parameter to False."
-            )
-        return eia860m
+        return extra_eia860m_year_months
 
 
 class Eia860mSettings(GenericDatasetSettings):
