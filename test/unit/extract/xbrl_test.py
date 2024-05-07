@@ -1,9 +1,9 @@
 """Tests for xbrl extraction module."""
 
 import pytest
-from dagster import ResourceDefinition, build_op_context
+from dagster import ResourceDefinition
 
-from pudl.extract.xbrl import FercXbrlDatastore, convert_form, xbrl2sqlite_op_factory
+from pudl.extract.xbrl import FercXbrlDatastore, convert_form
 from pudl.ferc_to_sqlite import ferc_to_sqlite
 from pudl.resources import RuntimeSettings
 from pudl.settings import (
@@ -116,7 +116,6 @@ def test_xbrl2sqlite(settings, forms, mocker, tmp_path):
             "runtime_settings": RuntimeSettings(
                 xbrl_batch_size=20,
                 xbrl_num_workers=10,
-                clobber=True,
             ),
         },
     )
@@ -133,68 +132,6 @@ def test_xbrl2sqlite(settings, forms, mocker, tmp_path):
             batch_size=20,
             workers=10,
         )
-
-
-def test_xbrl2sqlite_db_exists_no_clobber(mocker, tmp_path):
-    convert_form_mock = mocker.MagicMock()
-    mocker.patch("pudl.extract.xbrl.convert_form", new=convert_form_mock)
-
-    # Mock datastore object to allow comparison
-    mock_datastore = mocker.MagicMock()
-    mocker.patch("pudl.extract.xbrl.FercXbrlDatastore", return_value=mock_datastore)
-
-    ferc1_sqlite_path = PudlPaths().output_dir / "ferc1_xbrl.sqlite"
-    ferc1_sqlite_path.touch()
-    settings = FercToSqliteSettings(
-        ferc1_xbrl_to_sqlite_settings=Ferc1XbrlToSqliteSettings(),
-    )
-    context = build_op_context(
-        resources={
-            "ferc_to_sqlite_settings": settings,
-            "datastore": "datastore",
-            "runtime_settings": RuntimeSettings(
-                clobber=False,
-                xbrl_batch_size=20,
-                xbrl_num_workers=10,
-            ),
-        },
-    )
-
-    assert ferc1_sqlite_path.exists()
-    with pytest.raises(RuntimeError, match="Found existing DB"):
-        xbrl2sqlite_op_factory(XbrlFormNumber.FORM1)(context)
-    assert ferc1_sqlite_path.exists()
-
-
-def test_xbrl2sqlite_db_exists_yes_clobber(mocker, tmp_path):
-    convert_form_mock = mocker.MagicMock()
-    mocker.patch("pudl.extract.xbrl.convert_form", new=convert_form_mock)
-
-    # Mock datastore object to allow comparison
-    mock_datastore = mocker.MagicMock()
-    mocker.patch("pudl.extract.xbrl.FercXbrlDatastore", return_value=mock_datastore)
-
-    ferc1_sqlite_path = PudlPaths().output_dir / "ferc1_xbrl.sqlite"
-    ferc1_sqlite_path.touch()
-    settings = FercToSqliteSettings(
-        ferc1_xbrl_to_sqlite_settings=Ferc1XbrlToSqliteSettings(),
-    )
-
-    context = build_op_context(
-        resources={
-            "ferc_to_sqlite_settings": settings,
-            "datastore": "datastore",
-            "runtime_settings": RuntimeSettings(
-                clobber=True,
-                xbrl_batch_size=20,
-                xbrl_num_workers=10,
-            ),
-        },
-    )
-
-    assert ferc1_sqlite_path.exists()
-    xbrl2sqlite_op_factory(XbrlFormNumber.FORM1)(context)
-    assert not ferc1_sqlite_path.exists()
 
 
 def test_convert_form(mocker):

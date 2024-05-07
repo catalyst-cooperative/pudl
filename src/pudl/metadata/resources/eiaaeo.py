@@ -128,7 +128,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eiaaeo",
         "etl_group": "eiaaeo",
     },
-    "core_eiaaeo__yearly_projected_generation_electric_sales": {
+    "core_eiaaeo__yearly_projected_electric_sales": {
         "description": "Projected electricity sales.",
         "schema": {
             "fields": [
@@ -342,20 +342,6 @@ _STAGING_FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Total carbon emissions in short tons.",
         "unit": "short_tons",
     },
-    "fuel_type_eiaaeo": {
-        "type": "string",
-        "description": ("Fuel type reported for AEO end-use sector generation data."),
-        "constraints": {
-            "enum": [
-                "coal",
-                "petroleum",
-                "natural_gas",
-                "other_gaseous_fuels",
-                "renewable_sources",
-                "other",
-            ]
-        },
-    },
     "fuel_cost_real_per_mmbtu_eiaaeo": {
         "type": "number",
         "description": (
@@ -423,5 +409,6 @@ RESOURCE_METADATA = {
     if key
     in {
         "core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology",
+        "core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type",
     }
 }

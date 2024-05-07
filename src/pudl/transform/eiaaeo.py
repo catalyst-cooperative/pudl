@@ -366,17 +366,117 @@ class AeoCheckSpec:
     name: str
     asset: str
     num_rows_by_report_year: dict[int, int]
-    num_in_categories: dict[str, int]
+    category_counts: dict[str, int]
 
 
+BASE_AEO_CATEGORIES = {
+    "model_case_eiaaeo": 17,
+    "projection_year": 30,
+    "electricity_market_module_region_eiaaeo": 26,
+}
 check_specs = [
     AeoCheckSpec(
         name="gen_in_electric_sector_by_tech",
         asset="core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology",
         num_rows_by_report_year={2023: 166972},
-        num_in_categories={"model_case_eiaaeo": 17, "projection_year": 30},
-    )
+        category_counts=BASE_AEO_CATEGORIES
+        | {
+            "technology_description_eiaaeo": 13,
+        },
+    ),
+    AeoCheckSpec(
+        name="gen_in_electric_sector_by_tech",
+        asset="core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type",
+        num_rows_by_report_year={2023: 77064},
+        category_counts=BASE_AEO_CATEGORIES
+        | {
+            "fuel_type_eiaaeo": 6,
+        },
+    ),
 ]
+
+
+@asset(io_manager_key="pudl_io_manager")
+def core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type(
+    raw_eiaaeo__electric_power_projections_regional,
+):
+    """Projected generation capacity + gross generation in end-use sectors.
+
+    This includes data that's reported by fuel type and ignores data that's
+    only reported at the system-wide level, such as total generation, sales to
+    grid, and generation for own use. Those three facts are reported in
+    core_eiaaeo__yearly_projected_generation_in_end_use_sectors instead.
+    """
+    sanitized = filter_enrich_sanitize(
+        raw_df=raw_eiaaeo__electric_power_projections_regional,
+        relevant_series_names=(
+            "Electricity : End-Use Sectors : Capacity",
+            "Electricity : End-Use Sectors : Generation",
+        ),
+    )
+
+    # 1 BKWh = 1e12 Wh = 1e6 MWh
+    sanitized.loc[sanitized.units == "bkwh", "value"] *= 1e6
+    # 1 GW = 1e9 W = 1e3 MW
+    sanitized.loc[sanitized.units == "gw", "value"] *= 1e3
+
+    assert set(sanitized.topic.unique()) == {"electricity"}
+    assert set(sanitized.subtopic.unique()) == {"end_use_sectors"}
+    assert set(sanitized.units.unique()) == {"bkwh", "gw"}
+    assert (sanitized.loc[sanitized.units == "gw"].variable_name == "capacity").all()
+    assert (
+        sanitized.loc[sanitized.units == "bkwh"].variable_name == "generation"
+    ).all()
+
+    trimmed = sanitized.drop(
+        columns=[
+            "topic",
+            "subtopic",
+            "units",
+        ]
+    )
+
+    # check that totals add up
+    ratio_totals_add_up = subtotals_match_reported_totals_ratio(
+        trimmed,
+        pk=[
+            "report_year",
+            "model_case_eiaaeo",
+            "region",
+            "variable_name",
+            "projection_year",
+        ],
+        fact_columns=["value"],
+        dimension_column="dimension",
+    )
+    assert ratio_totals_add_up == 1.0
+
+    trimmed = trimmed.loc[
+        ~trimmed.dimension.isin(
+            {"total", "sales_to_the_grid", "generation_for_own_use"}
+        )
+    ]
+
+    unstacked = unstack(
+        df=trimmed,
+        eventual_pk=[
+            "report_year",
+            "model_case_eiaaeo",
+            "region",
+            "dimension",
+            "projection_year",
+        ],
+    )
+
+    renamed_for_pudl = unstacked.reset_index().rename(
+        columns={
+            "capacity": "summer_capacity_mw",
+            "generation": "gross_generation_mwh",
+            "region": "electricity_market_module_region_eiaaeo",
+            "dimension": "fuel_type_eiaaeo",
+        }
+    )
+    return renamed_for_pudl
 
 
 def make_check(spec: AeoCheckSpec) -> AssetChecksDefinition:
@@ -390,7 +490,7 @@ def make_check(spec: AeoCheckSpec) -> AssetChecksDefinition:
                 errors.append(
                     f"Expected {expected_rows} for report year {year}, found {num_rows}"
                 )
-        for category, expected_num in spec.num_in_categories.items():
+        for category, expected_num in spec.category_counts.items():
             if (num_values := len(df[category].value_counts())) != expected_num:
                 errors.append(
                     f"Expected {expected_num} values for {category}, found {num_values}"
