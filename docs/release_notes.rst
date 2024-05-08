@@ -46,12 +46,19 @@ New Data Coverage
   * :ref:`core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type`
     contains generation capacity & generation projections for the electric
     sector, broken out by technology type. See :issue:`3581` and :pr:`3598`.
+  * :ref:`core_eiaaeo__yearly_projected_electric_sales` contains electric sales
+    projections until 2050, broken out by customer type. See :issue:`3581` and
+    :pr:`3617`.
 
 * Added new NREL ATB tables with annual technology cost and performance projections. See
   :issue:`3465` and :pr:`3498` and :pr:`3570`
 * Added hourly generation, demand, and interchange tables from the EIA-930. See issues
   :issue:`3486,3505` PR :pr:`3584` and `this issue in the PUDL archiver repo
   <https://github.com/catalyst-cooperative/pudl-archiver/issues/295>`__
+* Add 2024 Q1 of CEMS data. See :issue:`3620` and :pr:`3624`
+* Updated the EIA Bulk Electricity data archive to include data that was available as of
+  2024-05-01, which covers up through 2024-02-01 (3 months more than the previously
+  used archive). See PR :pr:`3615`.
 
 Data Cleaning
 ^^^^^^^^^^^^^
