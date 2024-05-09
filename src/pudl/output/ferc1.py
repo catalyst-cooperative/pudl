@@ -2260,7 +2260,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         some error checking to try and ensure that the weights and tags that are being
         associated with the forest are internally self-consistent.
 
-        We check whether there are multiple different weights assocated with the same
+        We check whether there are multiple different weights associated with the same
         node in the calculation components. There are a few instances where this is
         expected, but if there a lot of conflicting weights something is probably wrong.
 
@@ -2274,38 +2274,45 @@ class XbrlCalculationForestFerc1(BaseModel):
         annotated_forest = deepcopy(self.forest)
         nx.set_node_attributes(annotated_forest, self.node_attrs)
         nx.set_edge_attributes(annotated_forest, self.edge_attrs)
-        annotated_forest = self.propagate_node_attributes(annotated_forest)
 
         logger.info("Checking whether any pruned nodes were also tagged.")
         self.check_lost_tags(lost_nodes=self.pruned)
         logger.info("Checking whether any orphaned nodes were also tagged.")
         self.check_lost_tags(lost_nodes=self.orphans)
-        self.check_conflicting_tags(annotated_forest)
+
+        annotated_forest = self.propagate_node_attributes(annotated_forest)
         return annotated_forest
 
     def propagate_node_attributes(self: Self, annotated_forest: nx.DiGraph):
         """Propagate tags.
 
-        Propagate tags leafwards, rootward &  to the _correction nodes.
+        Propagate tags root-ward, leaf-wards &  to the _correction nodes. We
+        propagate the tags root-ward first because we primarily manually
+        compiled tags for the leaf nodes, so we want to send those leafy tags
+        root-ward first before trying to send tags back up the graph.
         """
         tags_to_propagate = ["in_rate_base", "rate_base_category"]
-        ## Leafwards propagation
-        annotated_forest = _propagate_tags_leafward(annotated_forest, tags_to_propagate)
-        # Rootward propagation
+        # Root-ward propagation
         for tag in tags_to_propagate:
             annotated_forest = _propagate_tag_rootward(annotated_forest, tag)
+        ## Leaf-wards propagation
+        annotated_forest = _propagate_tags_leafward(annotated_forest, tags_to_propagate)
         # Correction Records
         annotated_forest = _propagate_tags_to_corrections(annotated_forest)
         return annotated_forest
 
     def check_lost_tags(self: Self, lost_nodes: list[NodeId]) -> None:
-        """Check whether any of the input lost nodes were also tagged nodes."""
+        """Check whether any of the input lost nodes were also tagged nodes.
+
+        It is not necessarily a problem if there are "lost" tags. This is mostly
+        here as a debugging tool.
+        """
         if lost_nodes:
             lost = pd.DataFrame(lost_nodes).set_index(self.calc_cols)
             tagged = self.tags.set_index(self.calc_cols)
             lost_tagged = tagged.index.intersection(lost.index)
             if not lost_tagged.empty:
-                logger.warning(
+                logger.debug(
                     "The following tagged nodes were lost in building the forest:\n"
                     f"{tagged.loc[lost_tagged].sort_index()}"
                 )
@@ -2314,15 +2321,10 @@ class XbrlCalculationForestFerc1(BaseModel):
     def check_conflicting_tags(annotated_forest: nx.DiGraph) -> None:
         """Check for conflicts between ancestor and descendant tags.
 
-        At this point, we have just applied the manually compiled tags to the nodes in
-        the forest, and haven't yet propagated them down to the leaves. It's possible
-        that ancestor nodes (closer to the roots) might have tags associated with them
-        that are in conflict with descendant nodes (closer to the leaves). If that's
-        the case then when we propagate the tags to the leaves, whichever tag is
-        propagated last will end up taking precedence.
-
-        These kinds of conflicts are probably due to errors in the tagging metadata, and
-        should be investigated.
+        This check should be applied before we have propagated tags via
+        :meth:`propagate_node_attributes` so we can check conflicts within the tags
+        that we've manually compiled.These kinds of conflicts are probably due to
+        errors in the tagging metadata, and should be investigated.
         """
         nodes = annotated_forest.nodes
         for ancestor in nodes:
