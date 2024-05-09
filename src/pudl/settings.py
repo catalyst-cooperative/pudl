@@ -244,7 +244,7 @@ class Eia860Settings(GenericDatasetSettings):
         data_source: DataSource metadata object
         years: list of years to validate.
         eia860m: whether or not to incorporate an EIA-860m month.
-        eia860m_year_months ClassVar[str]: The 860m year-month to incorporate.
+        eia860m_year_months ClassVar[str]: The 860m year-months to incorporate.
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia860")
