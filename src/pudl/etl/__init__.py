@@ -12,7 +12,6 @@ from dagster import (
     AssetsDefinition,
     AssetSelection,
     Definitions,
-    ExperimentalWarning,
     SourceAsset,
     asset_check,
     define_asset_job,
@@ -232,9 +231,9 @@ def create_non_cems_selection(all_assets: list[AssetsDefinition]) -> AssetSelect
         An asset selection with all_assets assets excluding CEMS assets.
     """
     all_asset_keys = pudl.helpers.get_asset_keys(all_assets)
-    all_selection = AssetSelection.keys(*all_asset_keys)
+    all_selection = AssetSelection.assets(*all_asset_keys)
 
-    cems_selection = AssetSelection.keys(AssetKey("core_epacems__hourly_emissions"))
+    cems_selection = AssetSelection.assets(AssetKey("core_epacems__hourly_emissions"))
     return all_selection - cems_selection.downstream()
 
 

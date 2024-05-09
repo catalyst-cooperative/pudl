@@ -38,16 +38,27 @@ New Data Coverage
   <https://www.eia.gov/outlooks/aeo/tables_ref.php>`__, which include future
   projections related to electric power and renewable energy through the year
   2050, across a variety of scenarios. See :issue:`3368` and :pr:`3538`.
-* Added new
-  :ref:`core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology`
-  table from EIA AEO table 54 which contains generation capacity & generation
-  projections for the electric sector, broken out by technology type. See
-  :issue:`3581` and :pr:`3582`.
+* Added new tables from EIA AEO table 54:
+
+  * :ref:`core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology`
+    contains generation capacity & generation projections for the electric
+    sector, broken out by technology type. See :issue:`3581` and :pr:`3582`.
+  * :ref:`core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type`
+    contains generation capacity & generation projections for the electric
+    sector, broken out by technology type. See :issue:`3581` and :pr:`3598`.
+  * :ref:`core_eiaaeo__yearly_projected_electric_sales` contains electric sales
+    projections until 2050, broken out by customer type. See :issue:`3581` and
+    :pr:`3617`.
+
 * Added new NREL ATB tables with annual technology cost and performance projections. See
   :issue:`3465` and :pr:`3498` and :pr:`3570`
 * Added hourly generation, demand, and interchange tables from the EIA-930. See issues
   :issue:`3486,3505` PR :pr:`3584` and `this issue in the PUDL archiver repo
   <https://github.com/catalyst-cooperative/pudl-archiver/issues/295>`__
+* Add 2024 Q1 of CEMS data. See :issue:`3620` and :pr:`3624`
+* Updated the EIA Bulk Electricity data archive to include data that was available as of
+  2024-05-01, which covers up through 2024-02-01 (3 months more than the previously
+  used archive). See PR :pr:`3615`.
 
 Data Cleaning
 ^^^^^^^^^^^^^
@@ -125,6 +136,14 @@ Bug Fixes
   process in the vast majority of cases, since the same global set of encoders can be
   used on any dataframe, with every column encoded based on the field definitions and
   FK constraints associated with the column name.
+
+CLI Changes
+^^^^^^^^^^^
+* Removed the ``--clobber`` option from the ``ferc_to_sqlite`` command and associated
+  assets. We rebuild these databases infrequently, and needing to either edit the
+  runtime parameters in Dagster's Launchpad or remove the existing databases from the
+  filesystem manually are brittle. Partly in response to issue :issue:`3612`; see PR
+  :pr:`3622`.
 
 .. _release-v2024.2.6:
 

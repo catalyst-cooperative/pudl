@@ -37,15 +37,15 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
     "core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type": {
         "description": (
-            "Projected generation capacity & total generation in the end-use "
+            "Projected generation capacity and total generation in the end-use "
             "sector, broken out by fuel type.\n"
             "Includes combined-heat-and-power plants and electricity-only "
             "plants in the commercial and industrial sectors; and small on-site "
             "generating systems in the residential, commercial, and industrial "
             "sectors used primarily for own-use generation, but which may also "
             "sell some power to the grid. Solar photovoltaic capacity portion of "
-            "Renewable Sources in gigawatts direct current; other technologies "
-            "in gigawatts alternating current."
+            "Renewable Sources in megawatts direct current; other technologies "
+            "in megawatts alternating current."
         ),
         "schema": {
             "fields": [
@@ -104,8 +104,8 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "generating systems in the residential, commercial, and industrial "
             "sectors used primarily for own-use generation, but which may also "
             "sell some power to the grid. Solar photovoltaic capacity portion of "
-            "Renewable Sources in gigawatts direct current; other technologies "
-            "in gigawatts alternating current."
+            "Renewable Sources in megawatts direct current; other technologies "
+            "in megawatts alternating current."
         ),
         "schema": {
             "fields": [
@@ -128,8 +128,8 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eiaaeo",
         "etl_group": "eiaaeo",
     },
-    "core_eiaaeo__yearly_projected_generation_electric_sales": {
-        "description": "Projected electricity sales.",
+    "core_eiaaeo__yearly_projected_electric_sales": {
+        "description": "Projected electricity sales by region and customer class.",
         "schema": {
             "fields": [
                 "report_year",
@@ -342,20 +342,6 @@ _STAGING_FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Total carbon emissions in short tons.",
         "unit": "short_tons",
     },
-    "fuel_type_eiaaeo": {
-        "type": "string",
-        "description": ("Fuel type reported for AEO end-use sector generation data."),
-        "constraints": {
-            "enum": [
-                "coal",
-                "petroleum",
-                "natural_gas",
-                "other_gaseous_fuels",
-                "renewable_sources",
-                "other",
-            ]
-        },
-    },
     "fuel_cost_real_per_mmbtu_eiaaeo": {
         "type": "number",
         "description": (
@@ -423,5 +409,7 @@ RESOURCE_METADATA = {
     if key
     in {
         "core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology",
+        "core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type",
+        "core_eiaaeo__yearly_projected_electric_sales",
     }
 }

@@ -160,6 +160,7 @@ CUSTOMER_CLASSES: list[str] = [
     "residential",
     "total",
     "transportation",
+    "commercial_other",  # commercial *OR* other - used in EIA AEO only.
 ]
 
 TECH_CLASSES: list[str] = [
@@ -312,6 +313,16 @@ TECH_DESCRIPTIONS_EIAAEO: list[str] = [
     "renewable_sources",
 ]
 """Types of generation technology reported in EIA AEO."""
+
+FUEL_TYPES_EIAAEO: list[str] = [
+    "coal",
+    "petroleum",
+    "natural_gas",
+    "other_gaseous_fuels",
+    "renewable_sources",
+    "other",
+]
+"""Type of fuel used for generation reported in EIA AEO."""
 
 MODEL_CASES_EIAAEO: list[str] = [
     "aeo2022",

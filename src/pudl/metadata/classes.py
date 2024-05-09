@@ -1866,7 +1866,7 @@ class Package(PudlMeta):
     description: String | None = None
     keywords: list[String] = []
     homepage: AnyHttpUrl = AnyHttpUrl("https://catalyst.coop/pudl")
-    created: datetime.datetime = datetime.datetime.utcnow()
+    created: datetime.datetime = datetime.datetime.now(datetime.UTC)
     contributors: list[Contributor] = []
     sources: list[DataSource] = []
     licenses: list[License] = []
