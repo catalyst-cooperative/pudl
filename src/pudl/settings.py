@@ -258,7 +258,14 @@ class Eia860Settings(GenericDatasetSettings):
     @field_validator("eia860m_year_months")
     @classmethod
     def add_other_860m_years(cls, v, info: FieldValidationInfo) -> list[str]:
-        """Find extra years from EIA860m if applicable."""
+        """Find extra years from EIA860m if applicable.
+
+        There's a gap in reporting (after the new year but before the EIA 860 early
+        release data in June) when we rely on two years worth of EIA860m data instead
+        of just one. This function adds the last available month_year values for each
+        year of 860m data that is not yet available in 860.
+
+        """
         if info.data["eia860m"]:
             all_eia860m_years = {
                 date.split("-")[0] for date in info.data["all_eia860m_year_months"]
