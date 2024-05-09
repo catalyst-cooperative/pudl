@@ -250,25 +250,57 @@ class Eia860Settings(GenericDatasetSettings):
     data_source: ClassVar[DataSource] = DataSource.from_id("eia860")
     years: list[int] = data_source.working_partitions["years"]
     eia860m: bool = True
-    eia860m_year_months: list[str] = []
+    all_eia860m_year_months: list[str] = DataSource.from_id(
+        "eia860m"
+    ).working_partitions["year_months"]
+    eia860m_year_months: list[str] = [max(all_eia860m_year_months)]
 
     @field_validator("eia860m_year_months")
     @classmethod
     def add_other_860m_years(cls, v, info: FieldValidationInfo) -> list[str]:
-        """Find and assign years from EIA860m if applicable."""
+        """Find extra years from EIA860m if applicable."""
         if info.data["eia860m"]:
-            all_eia860m_dates = DataSource.from_id("eia860m").working_partitions[
-                "year_months"
+            all_eia860m_years = {
+                date.split("-")[0] for date in info.data["all_eia860m_year_months"]
+            }
+            # The years in 860m that are not in 860
+            extra_eia860m_years = {
+                year
+                for year in all_eia860m_years
+                if int(year) not in info.data["years"]
+            }
+            # The years already listed as variables in eia860m_year_months
+            years_in_v = {date.split("-")[0] for date in v}
+            # The max year_month values available in 860m for each year not
+            # covered by EIA860 (and not already listed in the eia860m_year_months
+            # variable)
+            extra_eia860m_year_months = [
+                max(
+                    date
+                    for date in info.data["all_eia860m_year_months"]
+                    if date.startswith(year)
+                )
+                for year in (extra_eia860m_years - years_in_v)
             ]
-            years_eia860m = {date.split("-")[0] for date in all_eia860m_dates}
-            extra_years_eia860m = [
-                year for year in years_eia860m if int(year) not in info.data["years"]
-            ]
-            eia860m_year_months = [
-                max(date for date in all_eia860m_dates if date.startswith(year))
-                for year in extra_years_eia860m
-            ]
-            return eia860m_year_months
+            return v + extra_eia860m_year_months
+        return v
+
+    @field_validator("eia860m_year_months")
+    @classmethod
+    def no_repeat_years(cls, v, info: FieldValidationInfo) -> list[str]:
+        """Make sure there are no duplicate 860m year values."""
+        years_in_v = [date.split("-")[0] for date in v]
+        if len(years_in_v) != len(set(years_in_v)):
+            raise ValueError(f"{v} contains duplicate year values.")
+        return v
+
+    @field_validator("eia860m_year_months")
+    @classmethod
+    def eia860_variable_values_exist(cls, v, info: FieldValidationInfo) -> list[str]:
+        """Check that the year_month values for eia860m_year_months exist."""
+        for year_month in v:
+            if year_month not in info.data["all_eia860m_year_months"]:
+                raise ValueError(f"{year_month} not available in 860m")
         return v
 
 
