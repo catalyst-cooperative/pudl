@@ -126,20 +126,17 @@ class TestEpaCemsSettings:
 
 
 class TestEIA860Settings:
-    """Test EIA860 setting validation.
+    """Test EIA860 setting validation."""
 
-    Most of the validation is covered in TestFerc1Settings.
-    """
+    def test_860m(self: Self):
+        """Test validation error is raised when eia860m date is within 860 years."""
+        settings_cls = Eia860Settings()
+        original_eia80m_year_month = settings_cls.eia860m_year_months
+        settings_cls.eia860m_year_months = ["2019-11"]
 
-    # def test_860m(self: Self):
-    #     """Test validation error is raised when eia860m date is within 860 years."""
-    #     settings_cls = Eia860Settings
-    #     original_eia80m_year_month = settings_cls.eia860m_year_month
-    #     settings_cls.eia860m_year_month = ["2019-11"]
-
-    #     with pytest.raises(ValidationError):
-    #         settings_cls(eia860m=True)
-    #     settings_cls.eia860m_year_month = original_eia80m_year_month
+        with pytest.raises(ValueError):
+            settings_cls(eia860m=True)
+        settings_cls.eia860m_year_months = original_eia80m_year_month
 
 
 class TestEia860mSettings:

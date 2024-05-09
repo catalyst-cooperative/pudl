@@ -296,19 +296,30 @@ class Eia860Settings(GenericDatasetSettings):
     @classmethod
     def no_repeat_years(cls, v, info: FieldValidationInfo) -> list[str]:
         """Make sure there are no duplicate 860m year values."""
-        years_in_v = [date.split("-")[0] for date in v]
-        if len(years_in_v) != len(set(years_in_v)):
-            raise ValueError(f"{v} contains duplicate year values.")
+        if info.data["eia860m"]:
+            years_in_v = [date.split("-")[0] for date in v]
+            if len(years_in_v) != len(set(years_in_v)):
+                raise ValueError(f"{v} contains duplicate year values.")
         return v
 
     @field_validator("eia860m_year_months")
     @classmethod
     def eia860_variable_values_exist(cls, v, info: FieldValidationInfo) -> list[str]:
         """Check that the year_month values for eia860m_year_months exist."""
-        for year_month in v:
-            if year_month not in info.data["all_eia860m_year_months"]:
-                raise ValueError(f"{year_month} not available in 860m")
+        if info.data["eia860m"]:
+            for year_month in v:
+                if year_month not in info.data["all_eia860m_year_months"]:
+                    raise ValueError(f"{year_month} not available in 860m")
         return v
+
+    @field_validator("eia860m_year_months")
+    @classmethod
+    def only_years_not_in_eia860(cls, v, info: FieldValidationInfo) -> list[str]:
+        """Ensure no EIA860m values are from years already in EIA860."""
+        if info.data["eia860m"]:
+            for year in {date.split("-")[0] for date in v}:
+                if year in info.data["years"]:
+                    raise ValueError(f"EIA860m year {year} available in EIA860")
 
 
 class Eia860mSettings(GenericDatasetSettings):
