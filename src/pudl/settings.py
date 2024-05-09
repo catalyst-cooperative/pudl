@@ -16,6 +16,7 @@ from pydantic import (
     field_validator,
     model_validator,
 )
+from pydantic_core.core_schema import FieldValidationInfo
 from pydantic_settings import BaseSettings
 
 import pudl
@@ -243,29 +244,32 @@ class Eia860Settings(GenericDatasetSettings):
         data_source: DataSource metadata object
         years: list of years to validate.
         eia860m: whether or not to incorporate an EIA-860m month.
-        eia860m_year_month ClassVar[str]: The 860m year-month to incorporate.
+        eia860m_year_months ClassVar[str]: The 860m year-month to incorporate.
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia860")
     years: list[int] = data_source.working_partitions["years"]
     eia860m: bool = True
+    eia860m_year_months: list[str] = []
 
-    @property
-    def eia860m_year_month(self) -> list[str]:
-        """The latest EIA860m year_month string from each year not in EIA860."""
-        eia860_year_months = DataSource.from_id("eia860m").working_partitions[
-            "year_months"
-        ]
-        years_eia860m = {date.split("-")[0] for date in eia860_year_months}
-        extra_eia860m_years = [
-            year for year in years_eia860m if int(year) not in self.years
-        ]
-        extra_eia860m_year_months = [
-            max(date for date in eia860_year_months if date.startswith(year))
-            for year in extra_eia860m_years
-        ]
-
-        return extra_eia860m_year_months
+    @field_validator("eia860m_year_months")
+    @classmethod
+    def add_other_860m_years(cls, v, info: FieldValidationInfo) -> list[str]:
+        """Find and assign years from EIA860m if applicable."""
+        if info.data["eia860m"]:
+            all_eia860m_dates = DataSource.from_id("eia860m").working_partitions[
+                "year_months"
+            ]
+            years_eia860m = {date.split("-")[0] for date in all_eia860m_dates}
+            extra_years_eia860m = [
+                year for year in years_eia860m if int(year) not in info.data["years"]
+            ]
+            eia860m_year_months = [
+                max(date for date in all_eia860m_dates if date.startswith(year))
+                for year in extra_years_eia860m
+            ]
+            return eia860m_year_months
+        return v
 
 
 class Eia860mSettings(GenericDatasetSettings):
