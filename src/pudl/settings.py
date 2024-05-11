@@ -268,14 +268,14 @@ class Eia860Settings(GenericDatasetSettings):
         extra_eia860m_year_months = []
         if info.data["eia860m"]:
             all_eia860m_years = set(
-                pd.to_datetime(info.data["all_eia860m_year_months"]).year.unique()
+                pd.to_datetime(info.data["all_eia860m_year_months"]).year
             )
             # The years in 860m that are not in 860
             extra_eia860m_years = {
                 year for year in all_eia860m_years if year not in info.data["years"]
             }
             # The years already listed as variables in eia860m_year_months
-            years_in_v = set(pd.to_datetime(v).year.unique())
+            years_in_v = set(pd.to_datetime(v).year)
             # The max year_month values available in 860m for each year not
             # covered by EIA860 (and not already listed in the eia860m_year_months
             # variable)
