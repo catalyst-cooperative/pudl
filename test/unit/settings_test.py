@@ -38,8 +38,9 @@ class TestGenericDatasetSettings:
             working_tables = ["table"]
 
             class Test(GenericDatasetSettings):
-                data_source: DataSource(
-                    working_partitions=working_partitions, working_tables=working_tables
+                data_source: DataSource = DataSource(
+                    working_partitions=working_partitions,
+                    working_tables=working_tables,
                 )
 
             Test()
@@ -125,18 +126,24 @@ class TestEpaCemsSettings:
             _ = EpaCemsSettings(quarters=None)
 
 
-class TestEIA860Settings:
+class TestEia860Settings:
     """Test EIA860 setting validation."""
 
-    def test_860m(self: Self):
-        """Test validation error is raised when eia860m date is within 860 years."""
-        settings_cls = Eia860Settings()
-        original_eia80m_year_month = settings_cls.eia860m_year_months
-        settings_cls.eia860m_year_months = ["2019-11"]
+    def test_eia860_years_overlap_eia860m_years(self: Self):
+        """Test validation error is raised when eia860m date is within eia860 years."""
+        # Identify the last valid EIA-860 year:
+        max_eia860_year = max(Eia860Settings().years)
+        # Use that year to construct an EIA-860M year that overlaps the EIA-860 years:
+        bad_eia860m_year_month = f"{max_eia860_year}-01"
 
-        with pytest.raises(ValueError):
-            settings_cls(eia860m=True)
-        settings_cls.eia860m_year_months = original_eia80m_year_month
+        # Attempt to construct an EIA-860 settings object with an EIA-860M year that
+        # overlaps the EIA-860 years, which should result in a ValidationError:
+        with pytest.raises(ValidationError):
+            _ = Eia860Settings(
+                eia860m=True,
+                years=[max_eia860_year],
+                eia860m_year_months=[bad_eia860m_year_month],
+            )
 
 
 class TestEia860mSettings:

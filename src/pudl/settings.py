@@ -16,7 +16,6 @@ from pydantic import (
     field_validator,
     model_validator,
 )
-from pydantic_core.core_schema import FieldValidationInfo
 from pydantic_settings import BaseSettings
 
 import pudl
@@ -257,7 +256,7 @@ class Eia860Settings(GenericDatasetSettings):
 
     @field_validator("eia860m_year_months")
     @classmethod
-    def add_other_860m_years(cls, v, info: FieldValidationInfo) -> list[str]:
+    def add_other_860m_years(cls, v, info: ValidationInfo) -> list[str]:
         """Find extra years from EIA860m if applicable.
 
         There's a gap in reporting (after the new year but before the EIA 860 early
@@ -266,45 +265,44 @@ class Eia860Settings(GenericDatasetSettings):
         year of 860m data that is not yet available in 860.
 
         """
+        extra_eia860m_year_months = []
         if info.data["eia860m"]:
-            all_eia860m_years = {
-                date.split("-")[0] for date in info.data["all_eia860m_year_months"]
-            }
+            all_eia860m_years = set(
+                pd.to_datetime(info.data["all_eia860m_year_months"]).year.unique()
+            )
             # The years in 860m that are not in 860
             extra_eia860m_years = {
-                year
-                for year in all_eia860m_years
-                if int(year) not in info.data["years"]
+                year for year in all_eia860m_years if year not in info.data["years"]
             }
             # The years already listed as variables in eia860m_year_months
-            years_in_v = {date.split("-")[0] for date in v}
+            years_in_v = set(pd.to_datetime(v).year.unique())
             # The max year_month values available in 860m for each year not
             # covered by EIA860 (and not already listed in the eia860m_year_months
             # variable)
             extra_eia860m_year_months = [
                 max(
                     date
-                    for date in info.data["all_eia860m_year_months"]
-                    if date.startswith(year)
+                    for date in pd.to_datetime(info.data["all_eia860m_year_months"])
+                    if date.year == year
                 )
                 for year in (extra_eia860m_years - years_in_v)
+                if year > max(info.data["years"])
             ]
-            return v + extra_eia860m_year_months
-        return v
+        return v + list(pd.Series(extra_eia860m_year_months).dt.strftime("%Y-%m"))
 
     @field_validator("eia860m_year_months")
     @classmethod
-    def no_repeat_years(cls, v, info: FieldValidationInfo) -> list[str]:
+    def no_repeat_years(cls, v, info: ValidationInfo) -> list[str]:
         """Make sure there are no duplicate 860m year values."""
         if info.data["eia860m"]:
-            years_in_v = [date.split("-")[0] for date in v]
+            years_in_v = pd.to_datetime(v).year
             if len(years_in_v) != len(set(years_in_v)):
                 raise ValueError(f"{v} contains duplicate year values.")
         return v
 
     @field_validator("eia860m_year_months")
     @classmethod
-    def eia860_variable_values_exist(cls, v, info: FieldValidationInfo) -> list[str]:
+    def eia860_variable_values_exist(cls, v, info: ValidationInfo) -> list[str]:
         """Check that the year_month values for eia860m_year_months exist."""
         if info.data["eia860m"]:
             for year_month in v:
@@ -314,12 +312,13 @@ class Eia860Settings(GenericDatasetSettings):
 
     @field_validator("eia860m_year_months")
     @classmethod
-    def only_years_not_in_eia860(cls, v, info: FieldValidationInfo) -> list[str]:
+    def only_years_not_in_eia860(cls, v, info: ValidationInfo) -> list[str]:
         """Ensure no EIA860m values are from years already in EIA860."""
         if info.data["eia860m"]:
-            for year in {date.split("-")[0] for date in v}:
+            for year in pd.to_datetime(v).year.unique():
                 if year in info.data["years"]:
                     raise ValueError(f"EIA860m year {year} available in EIA860")
+        return v
 
 
 class Eia860mSettings(GenericDatasetSettings):
