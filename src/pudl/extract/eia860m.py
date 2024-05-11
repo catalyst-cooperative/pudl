@@ -100,7 +100,7 @@ def raw_eia860m__all_dfs(context):
 
     eia860m_extractor = Extractor(ds=ds)
     raw_eia860m__all_dfs = eia860m_extractor.extract(
-        year_month=eia_settings.eia860m.year_month
+        year_month=eia_settings.eia860m.year_months
     )
     return raw_eia860m__all_dfs
 
