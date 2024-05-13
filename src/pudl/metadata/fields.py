@@ -560,7 +560,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "capex_grid_connection_per_kw": {
         "type": "number",
-        "description": "Overnight capital cost includes a nominal-distance spur line (<1 mi) for all technologies, and for offshore wind, it includes export cable and construction period transit costs for a 30-km distance from shore. Project-specific costs lines that are based on distance to existing transmission are not included.",
+        "description": "Overnight capital cost includes a nominal-distance spur line (<1 mi) for all technologies, and for offshore wind, it includes export cable and construction period transit costs for a 30-km distance from shore. Project-specific costs lines that are based on distance to existing transmission are not included. This only applies to offshore wind.",
     },
     "capex_overnight_per_kw": {
         "type": "number",
@@ -4904,6 +4904,13 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
         "datetime_utc": {
             "description": "Timestamp at the end of the hour for which the data is reported."
         },
+    },
+    "core_nrelatb__yearly_projected_cost_performance": {
+        "fuel_cost_per_mwh": {
+            "type": "number",
+            "description": "Fuel costs in USD$/MWh. NREL-derived values using heat rates.",
+            "unit": "USD_per_MWh",
+        }
     },
 }
 
