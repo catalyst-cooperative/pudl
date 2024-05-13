@@ -11,8 +11,6 @@ on:
 
 env:
   GCP_BILLING_PROJECT: ${{ secrets.GCP_BILLING_PROJECT }}
-  GCE_INSTANCE: pudl-deployment-tag # This is changed to pudl-deployment-dev if running on a schedule
-  GCE_INSTANCE_ZONE: ${{ secrets.GCE_INSTANCE_ZONE }}
   GCS_OUTPUT_BUCKET: gs://builds.catalyst.coop
   BATCH_JOB_JSON: batch_job.json
 
@@ -24,12 +22,6 @@ jobs:
       contents: write
       id-token: write
     steps:
-      - name: Use pudl-deployment-dev vm if running on a schedule
-        if: ${{ (github.event_name == 'schedule') }}
-        run: |
-          echo "This action was triggered by a schedule."
-          echo "GCE_INSTANCE=pudl-deployment-dev" >> $GITHUB_ENV
-
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
@@ -56,7 +48,6 @@ jobs:
       - name: Show freshly set envvars
         if: ${{ env.SKIP_BUILD != 'true' }}
         run: |
-          echo "GCE_INSTANCE: $GCE_INSTANCE"
           echo "NIGHTLY_TAG: $NIGHTLY_TAG"
           echo "BUILD_ID: $BUILD_ID"
           echo "BATCH_JOB_ID: $BATCH_JOB_ID"
@@ -117,7 +108,7 @@ jobs:
         if: ${{ env.SKIP_BUILD != 'true' }}
         uses: google-github-actions/setup-gcloud@v2
 
-      # Deploy PUDL image to GCE
+      # Deploy PUDL image to GCP Batch
       # Dagster Postgres connection configured in docker/dagster.yaml - otherwise we get a str for port num
       - name: Make GCP Batch config file
         if: ${{ env.SKIP_BUILD != 'true' }}
@@ -140,8 +131,6 @@ jobs:
             --container-env BUILD_ID=${{ env.BUILD_ID }} \
             --container-env BUILD_REF=${{ github.ref_name }} \
             --container-env FLY_ACCESS_TOKEN=${{ secrets.FLY_ACCESS_TOKEN }} \
-            --container-env GCE_INSTANCE=${{ env.GCE_INSTANCE }} \
-            --container-env GCE_INSTANCE_ZONE=${{ env.GCE_INSTANCE_ZONE }} \
             --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }} \
             --container-env GITHUB_ACTION_TRIGGER=${{ github.event_name }} \
             --container-env NIGHTLY_TAG=${{ env.NIGHTLY_TAG }} \
