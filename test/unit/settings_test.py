@@ -145,6 +145,21 @@ class TestEia860Settings:
                 eia860m_year_months=[bad_eia860m_year_month],
             )
 
+    def test_eia860m_years_overlap_eia860m_years(self: Self):
+        """Test validation error is raised when eia860m years overlap."""
+        max_eia860_year = max(Eia860Settings().years)
+        acceptable_eia860m_year = max_eia860_year + 1
+        bad_eia860m_year_months = [
+            f"{acceptable_eia860m_year}-01",
+            f"{acceptable_eia860m_year}-05",
+        ]
+        with pytest.raises(ValidationError):
+            _ = Eia860Settings(
+                eia860m=True,
+                years=[max_eia860_year],
+                eia860m_year_months=bad_eia860m_year_months,
+            )
+
 
 class TestEia860mSettings:
     """Test EIA860m settings."""
