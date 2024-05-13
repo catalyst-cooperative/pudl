@@ -492,6 +492,8 @@ def null_cols_cost_performance(df):
         / len(df),
         columns=["null_count"],
     )
+    # TODO 2024-05-13: this check could remove the know to be super
+    # full of null parameters in check_technology_specific_parameters
     if not np.mean(nulls) < 0.64:
         raise AssertionError(
             "We expect the table to have an average of ~63% nulls, "
@@ -515,6 +517,17 @@ def check_technology_specific_parameters(df):
         {
             "technology_descriptions": {"OffShoreWind"},
             "params": ["capex_grid_connection_per_kw"],
+        },
+        {
+            "technology_descriptions": {
+                "Biopower",
+                "Coal_FE",
+                "Coal_Retrofits",
+                "NaturalGas_FE",
+                "NaturalGas_Retrofits",
+                "Nuclear",
+            },
+            "params": ["heat_rate_mmbtu_per_mwh"],
         },
     ]
     for tech_specific_param in tech_specific_params:
