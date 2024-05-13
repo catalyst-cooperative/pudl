@@ -12,6 +12,7 @@ from pydantic import (
     AnyHttpUrl,
     BaseModel,
     ConfigDict,
+    Field,
     ValidationInfo,
     field_validator,
     model_validator,
@@ -252,7 +253,9 @@ class Eia860Settings(GenericDatasetSettings):
     all_eia860m_year_months: list[str] = DataSource.from_id(
         "eia860m"
     ).working_partitions["year_months"]
-    eia860m_year_months: list[str] = [max(all_eia860m_year_months)]
+    eia860m_year_months: list[str] = Field(
+        validate_default=True, default=[max(all_eia860m_year_months)]
+    )
 
     @field_validator("eia860m_year_months")
     @classmethod
@@ -302,13 +305,10 @@ class Eia860Settings(GenericDatasetSettings):
 
     @field_validator("eia860m_year_months")
     @classmethod
-    def eia860_variable_values_exist(cls, v, info: ValidationInfo) -> list[str]:
-        """Check that the year_month values for eia860m_year_months exist."""
-        if info.data["eia860m"]:
-            for year_month in v:
-                if year_month not in info.data["all_eia860m_year_months"]:
-                    raise ValueError(f"{year_month} not available in 860m")
-        return v
+    def validate_eia860m_params(cls, v, info: ValidationInfo) -> list[str]:
+        """Check that the year_month values for eia860m_year_months are valid."""
+        eia860m_settings = Eia860mSettings(year_months=v)
+        return eia860m_settings.year_months
 
     @field_validator("eia860m_year_months")
     @classmethod
