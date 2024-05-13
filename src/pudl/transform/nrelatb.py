@@ -492,14 +492,12 @@ def null_cols_cost_performance(df):
         / len(df),
         columns=["null_count"],
     )
-    passed = np.mean(nulls) < 0.64
-    if not passed:
+    if not np.mean(nulls) < 0.64:
         raise AssertionError(
             "We expect the table to have an average of ~63% nulls, "
             f"but we found {np.mean(nulls):.1%}"
         )
-
-    return AssetCheckResult(passed=bool(passed))
+    return AssetCheckResult(passed=True)
 
 
 @asset_check(asset=core_nrelatb__yearly_projected_cost_performance, blocking=True)
