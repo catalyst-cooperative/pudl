@@ -121,12 +121,13 @@ def transform_unstack(
 
     """
     nrelatb_unstacked = (
-        nrelatb[
-            nrelatb.core_metric_parameter.isin(table_unstacker.core_metric_parameters)
+        nrelatb.loc[
+            nrelatb.core_metric_parameter.isin(table_unstacker.core_metric_parameters),
+            table_unstacker.idx + ["value"],
         ]
-        .set_index(table_unstacker.idx)
-        .sort_index()[["value"]]
         .drop_duplicates()
+        .set_index(table_unstacker.idx)
+        .sort_index()
         .unstack(level="core_metric_parameter")
     )
     nrelatb_unstacked.columns = nrelatb_unstacked.columns.droplevel()
