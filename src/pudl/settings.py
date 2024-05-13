@@ -249,13 +249,11 @@ class Eia860Settings(GenericDatasetSettings):
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia860")
     years: list[int] = data_source.working_partitions["years"]
-    eia860m: bool = True
+    eia860m: bool = Field(validate_default=True, default=True)
     all_eia860m_year_months: list[str] = DataSource.from_id(
         "eia860m"
     ).working_partitions["year_months"]
-    eia860m_year_months: list[str] = Field(
-        validate_default=True, default=[max(all_eia860m_year_months)]
-    )
+    eia860m_year_months: list[str] = Field(validate_default=True, default=[])
 
     @field_validator("eia860m_year_months")
     @classmethod
@@ -275,7 +273,9 @@ class Eia860Settings(GenericDatasetSettings):
             )
             # The years in 860m that are not in 860
             extra_eia860m_years = {
-                year for year in all_eia860m_years if year not in info.data["years"]
+                year
+                for year in all_eia860m_years
+                if year not in DataSource.from_id("eia860").working_partitions["years"]
             }
             # The years already listed as variables in eia860m_year_months
             years_in_v = set(pd.to_datetime(v).year)
@@ -289,7 +289,6 @@ class Eia860Settings(GenericDatasetSettings):
                     if date.year == year
                 )
                 for year in (extra_eia860m_years - years_in_v)
-                if year > max(info.data["years"])
             ]
             if extra_eia860m_year_months:
                 extra_eia860m_year_months_string = list(
