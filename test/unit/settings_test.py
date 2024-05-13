@@ -2,6 +2,7 @@
 
 from typing import Self
 
+import pandas as pd
 import pytest
 from dagster import DagsterInvalidConfigError, Field, build_init_resource_context
 from pandas import json_normalize
@@ -159,6 +160,22 @@ class TestEia860Settings:
                 years=[max_eia860_year],
                 eia860m_year_months=bad_eia860m_year_months,
             )
+
+    def test_eia860m_after_eia860(self: Self):
+        """Test the creation of eia860m_year_months values."""
+        settings_eia860 = Eia860Settings()
+        max_eia860 = max(DataSource.from_id("eia860").working_partitions["years"])
+        max_eia860m = pd.to_datetime(
+            max(DataSource.from_id("eia860m").working_partitions["year_months"])
+        ).year
+        settings_eia860m_years = [
+            pd.to_datetime(date).year for date in settings_eia860.eia860m_year_months
+        ]
+        # Assert that the default eia860m settings years are a complete range between the
+        # year after the last available eia860 year and the latest available eia860m year
+        assert sorted(settings_eia860m_years) == list(
+            range(max_eia860 + 1, max_eia860m + 1)
+        )
 
     def test_eia860m(self: Self):
         """Test creation of eia860m_year_month values when eia860m is True."""
