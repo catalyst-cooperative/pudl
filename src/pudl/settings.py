@@ -268,7 +268,7 @@ class Eia860Settings(GenericDatasetSettings):
         year of 860m data that is not yet available in 860.
 
         """
-        extra_eia860m_year_months = []
+        extra_eia860m_year_months_string = []
         if info.data["eia860m"]:
             all_eia860m_years = set(
                 pd.to_datetime(info.data["all_eia860m_year_months"]).year
@@ -291,7 +291,11 @@ class Eia860Settings(GenericDatasetSettings):
                 for year in (extra_eia860m_years - years_in_v)
                 if year > max(info.data["years"])
             ]
-        return v + list(pd.Series(extra_eia860m_year_months).dt.strftime("%Y-%m"))
+            if extra_eia860m_year_months:
+                extra_eia860m_year_months_string = list(
+                    pd.Series(extra_eia860m_year_months).dt.strftime("%Y-%m")
+                )
+        return v + extra_eia860m_year_months_string
 
     @field_validator("eia860m_year_months")
     @classmethod
