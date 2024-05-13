@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: 7b7e717300e4f3d4676e3f3c27ea794a73885e63754d9fcb785925a86338a550
-    osx-64: 41cd5753bd2b608bb6c501fb05e255d4a2b8c819fa64bcf88ce5a310dde3427a
-    osx-arm64: 624323a2f442af4256d0afb8fe6d3213ad7ce533272ac64b2888b367d2d4f21c
+    linux-64: 8d292c9c93ddae395b1ae529e64be84cec59b2a533c0449863687f7553d3bbd0
+    osx-64: 5b0e962bcfca8aaaeb8e5234adb7dd8a2ed7b2b0513c13b0b319b35d6c6f7127
+    osx-arm64: 2af4c4639737ad699f7c4ff09130289000d19c9c4eb1241c2d3cbc40fb086368
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -19577,7 +19577,6 @@ package:
       tk: ">=8.6.13,<8.7.0a0"
       tzdata: ""
       xz: ">=5.2.6,<6.0a0"
-      pip: ""
     url: https://conda.anaconda.org/conda-forge/linux-64/python-3.12.3-hab00c5b_0_cpython.conda
     hash:
       md5: 2540b74d304f71d3e89c81209db4db84
@@ -19601,7 +19600,6 @@ package:
       tk: ">=8.6.13,<8.7.0a0"
       tzdata: ""
       xz: ">=5.2.6,<6.0a0"
-      pip: ""
     url: https://conda.anaconda.org/conda-forge/osx-64/python-3.12.3-h1411813_0_cpython.conda
     hash:
       md5: df1448ec6cbf8eceb03d29003cf72ae6
@@ -19625,7 +19623,6 @@ package:
       tk: ">=8.6.13,<8.7.0a0"
       tzdata: ""
       xz: ">=5.2.6,<6.0a0"
-      pip: ""
     url: https://conda.anaconda.org/conda-forge/osx-arm64/python-3.12.3-h4a7b5fc_0_cpython.conda
     hash:
       md5: 8643ab37bece6ae8f112464068d9df9c
