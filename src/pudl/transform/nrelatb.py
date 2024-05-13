@@ -2,8 +2,9 @@
 
 from typing import Self
 
+import numpy as np
 import pandas as pd
-from dagster import asset
+from dagster import AssetCheckResult, asset, asset_check
 from pydantic import BaseModel, field_validator
 
 import pudl.helpers as helpers
@@ -188,7 +189,7 @@ class Unstacker(BaseModel):
             "wacc_real",
             "wacc_nominal",
             "capital_recovery_factor",
-            "fuel_cost",
+            "fuel_cost_per_mwh",
             "fixed_charge_rate",
         ],
     )
@@ -259,7 +260,7 @@ def _core_nrelatb__transform_start(raw_nrelatb__data):
         "interest_during_construction_-_nominal": "interest_rate_during_construction_nominal",
         "cf": "capacity_factor",
         "capex": "capex_per_kw",
-        "fuel": "fuel_cost",
+        "fuel": "fuel_cost_per_mwh",
         "rate_of_return_on_equity_nominal": "rate_of_return_on_equity_nominal",
         "occ": "capex_overnight_per_kw",
         # this only applies to technology_description's Coal_Retrofits & NaturalGas_Retrofits (maybe we should combine)
@@ -481,3 +482,47 @@ def core_nrelatb__yearly_technology_status(
     return transform_normalize(
         _core_nrelatb__transform_start, Normalizer().technology_status
     )
+
+
+@asset_check(asset=core_nrelatb__yearly_projected_cost_performance, blocking=True)
+def null_cols_cost_performance(df):
+    """Check for the prevalence of nulls in the core_nrelatb__yearly_projected_cost_performance."""
+    nulls = pd.DataFrame(
+        df.set_index(Unstacker().tech_detail_table.idx_unstacked).isnull().sum(axis=0)
+        / len(df),
+        columns=["null_count"],
+    )
+    passed = np.mean(nulls) < 0.64
+    if not passed:
+        raise AssertionError(
+            "We expect the table to have an average of ~63% nulls, "
+            f"but we found {np.mean(nulls):.1%}"
+        )
+
+    return AssetCheckResult(passed=bool(passed))
+
+
+@asset_check(asset=core_nrelatb__yearly_projected_cost_performance, blocking=True)
+def check_technology_specific_parameters(df):
+    """Some parameters in the cost performance table only pertain to some technologies."""
+    tech_specific_params = [
+        {
+            "technology_descriptions": {"Coal_Retrofits", "NaturalGas_Retrofits"},
+            "params": [
+                "capex_overnight_additional_per_kw",
+                "net_output_penalty",
+                "heat_rate_penalty",
+            ],
+        },
+        {
+            "technology_descriptions": {"OffShoreWind"},
+            "params": ["capex_grid_connection_per_kw"],
+        },
+    ]
+    for tech_specific_param in tech_specific_params:
+        assert tech_specific_param["technology_descriptions"] == set(
+            df[
+                df[tech_specific_param["params"]].notnull().all(axis=1)
+            ].technology_description.unique()
+        )
+    return AssetCheckResult(passed=True)
