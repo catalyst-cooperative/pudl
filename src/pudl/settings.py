@@ -249,7 +249,7 @@ class Eia860Settings(GenericDatasetSettings):
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia860")
     years: list[int] = data_source.working_partitions["years"]
-    eia860m: bool = Field(validate_default=True, default=True)
+    eia860m: bool = True
     all_eia860m_year_months: list[str] = DataSource.from_id(
         "eia860m"
     ).working_partitions["year_months"]
