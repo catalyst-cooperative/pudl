@@ -9,7 +9,15 @@ from typing import Any, Literal, NamedTuple, Self
 import networkx as nx
 import numpy as np
 import pandas as pd
-from dagster import AssetIn, AssetsDefinition, Field, Mapping, asset
+from dagster import (
+    AssetCheckResult,
+    AssetIn,
+    AssetsDefinition,
+    Field,
+    Mapping,
+    asset,
+    asset_check,
+)
 from matplotlib import pyplot as plt
 from networkx.drawing.nx_agraph import graphviz_layout
 from pandas._libs.missing import NAType as pandas_NAType
@@ -2289,7 +2297,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         Propagate tags root-ward, leaf-wards &  to the _correction nodes. We
         propagate the tags root-ward first because we primarily manually
         compiled tags for the leaf nodes, so we want to send those leafy tags
-        root-ward first before trying to send tags back up the graph.
+        root-ward first before trying to send tags leaf-ward.
         """
         tags_to_propagate = ["in_rate_base", "rate_base_category"]
         # Root-ward propagation
@@ -3022,7 +3030,7 @@ def out_ferc1__yearly_rate_base(
 
     We also disaggregate records that have nulls or totals in two of the key tag
     columns: ``tags_aggregatable_utility_type`` and ``tags_in_rate_base`` via
-    :func:`disaggregate_unlabeled_or_total_tag`.
+    :func:`disaggregate_null_or_total_tag`.
     """
     assets = _out_ferc1__detailed_balance_sheet_assets
     liabilities = _out_ferc1__detailed_balance_sheet_liabilities.assign(
@@ -3033,7 +3041,7 @@ def out_ferc1__yearly_rate_base(
     )
 
     # concat then select only the leafy exploded records that are in rate base
-    rate_base = (
+    rate_base_df = (
         pd.concat(
             [
                 assets,
@@ -3042,22 +3050,40 @@ def out_ferc1__yearly_rate_base(
             ]
         )
         .pipe(
-            disaggregate_unlabeled_or_total_tag,
+            disaggregate_null_or_total_tag,
             tag_col="tags_aggregatable_utility_type",
         )
         .pipe(
-            disaggregate_unlabeled_or_total_tag,
+            disaggregate_null_or_total_tag,
             tag_col="tags_in_rate_base",
         )
     )
 
-    in_rate_base = rate_base[rate_base.tags_in_rate_base == "yes"]
-    # note: we need the `tags_in_rate_base` column for these checks
-    check_tag_propagation_compared_to_compiled_tags(
-        in_rate_base, "in_rate_base", _out_ferc1__detailed_tags
-    )
-    check_for_correction_xbrl_factoids_with_tag(in_rate_base, "in_rate_base")
-    return in_rate_base.dropna(subset=["ending_balance"])
+    in_rate_base_df = rate_base_df[rate_base_df.tags_in_rate_base == "yes"]
+    return in_rate_base_df.dropna(subset=["ending_balance"])
+
+
+@asset_check(
+    asset="out_ferc1__yearly_rate_base",
+    additional_ins={"tags_df": AssetIn("_out_ferc1__detailed_tags")},
+    blocking=True,
+)
+def check_tag_propagation(out_ferc1__yearly_rate_base, tags_df: pd.DataFrame):
+    """Check propagated tags compared to manually compiled tags."""
+    for tag in ["in_rate_base", "aggregatable_utility_type"]:
+        # note: we need the `tags_in_rate_base` column for these checks
+        check_tag_propagation_compared_to_compiled_tags(
+            out_ferc1__yearly_rate_base, tag, tags_df
+        )
+    return AssetCheckResult(passed=True)
+
+
+@asset_check(asset="out_ferc1__yearly_rate_base", blocking=True)
+def check_for_correction_tags(out_ferc1__yearly_rate_base):
+    """Check if any correction records have key tags."""
+    for tag in ["in_rate_base", "aggregatable_utility_type"]:
+        check_for_correction_xbrl_factoids_with_tag(out_ferc1__yearly_rate_base, tag)
+    return AssetCheckResult(passed=True)
 
 
 def prep_cash_working_capital(
@@ -3069,8 +3095,9 @@ def prep_cash_working_capital(
     capital - sometimes referred to as cash on hand or cash reverves - in their rate
     base. A standard ratemaking process considers the available rate-baseable working
     capital to be one eigth of the average operations and maintenance expense. This
-    function grabs that expense and prepares to concatenate it with the rest of the
-    assets and liabilities from the detailed rate base data.
+    function grabs that expense and calculated this new ``xbrl_factoid`` in preparation
+    to concatenate it with the rest of the assets and liabilities from the detailed rate
+    base data.
 
     ``cash_working_capital`` is a new ``xbrl_factiod`` because it is not reported
     in the FERC1 data, but it is included in rate base so we had to calcluate it.
@@ -3081,14 +3108,14 @@ def prep_cash_working_capital(
     ]().params.xbrl_factoid_name
     # First grab the working capital out of the operating expense table.
     # then prep it for concating. Calculate working capital & add tags
-    cash_working_capital = (
+    cash_working_capital_df = (
         core_ferc1__yearly_operating_expenses_sched320[
             core_ferc1__yearly_operating_expenses_sched320[xbrl_factoid_name]
             == "operations_and_maintenance_expenses_electric"
         ]
         .assign(
             dollar_value=lambda x: x.dollar_value.divide(8),
-            xbrl_factoid="cash_working_capital",  # newly definied (do we need to add it anywhere?)
+            xbrl_factoid="cash_working_capital",  # newly definied xbrl_factoid
             tags_in_rate_base="yes",
             tags_rate_base_category="net_working_capital",
             tags_aggregatable_utility_type="electric",
@@ -3098,10 +3125,10 @@ def prep_cash_working_capital(
         # the assets/liabilites both use ending_balance for its main $$ column
         .rename(columns={"dollar_value": "ending_balance"})
     )
-    return cash_working_capital
+    return cash_working_capital_df
 
 
-def disaggregate_unlabeled_or_total_tag(
+def disaggregate_null_or_total_tag(
     rate_base_df: pd.DataFrame,
     tag_col: str,
 ) -> pd.DataFrame:
@@ -3119,11 +3146,12 @@ def disaggregate_unlabeled_or_total_tag(
 
     Args:
         rate_base_df: full table of rate base data.
-        tag_col: column with the tags that contains unlabeled values
-            (ex: null or total).
+        tag_col: column with the tags that contains null or total values to be
+            disaggregated.
+
     """
     # this works for both the utility_type and in_rate_base tags because
-    # for both tags unlabeled is represented as a null and/or a "total"
+    # for both tags the values that we want to disagregate are null and/or a "total"
     unlabeled_mask = (rate_base_df[tag_col] == "total") | rate_base_df[tag_col].isnull()
     ratio_idx = ["report_year", "utility_id_ferc1"]
     ratio_df = get_tag_col_ratio(
@@ -3133,7 +3161,7 @@ def disaggregate_unlabeled_or_total_tag(
         ratio_idx=ratio_idx,
         tag_col=tag_col,
     )
-    unlabeled_break_down_df = (
+    unlabeled_disaggregated_df = (
         pd.merge(
             rate_base_df[unlabeled_mask],
             ratio_df,
@@ -3142,30 +3170,37 @@ def disaggregate_unlabeled_or_total_tag(
             validate="m:m",
             suffixes=("_unlabeled", ""),
         )
+        # na values from this ratio_{tag_col} should be treated like a 100%.
+        # because the ratio is of the non-total or non-null tags. But occasionally there
+        # are no non-null or non-null tags. Which results in nulls in these ratio columns
+        # during the left merge above. We want to preserve the ending balance's for these
+        # records even if there is no way to disaggregate them.
         .assign(
             ending_balance=lambda x: x[f"ratio_{tag_col}"].fillna(1) * x.ending_balance,
         )
-        .assign(**{f"is_break_down_{tag_col}": True})
+        .assign(**{f"is_disaggregated_{tag_col}": True})
         .drop(columns=[f"ratio_{tag_col}", f"{tag_col}_unlabeled"])
         # this automatially gets converted to a pandas Float64 which
         # results in nulls from any sum.
         .astype({"ending_balance": float})
     )
-    rate_base_broken_down_df = pd.concat(
+    rate_base_disaggregated_df = pd.concat(
         [
-            rate_base_df[~unlabeled_mask].assign(**{f"is_break_down_{tag_col}": False}),
-            unlabeled_break_down_df,
+            rate_base_df[~unlabeled_mask].assign(
+                **{f"is_disaggregated_{tag_col}": False}
+            ),
+            unlabeled_disaggregated_df,
         ]
     )
     if not np.isclose(
-        new_balance := rate_base_broken_down_df.ending_balance.sum(),
+        new_balance := rate_base_disaggregated_df.ending_balance.sum(),
         old_balance := rate_base_df.ending_balance.sum(),
     ):
-        logger.warning(
+        logger.error(
             f"{tag_col}: New ending balance is not the same as the old ending balance: "
             f"{old_balance=}, {new_balance=}"
         )
-    return rate_base_broken_down_df.convert_dtypes()
+    return rate_base_disaggregated_df.convert_dtypes().reset_index(drop=True)
 
 
 def get_tag_col_ratio(
@@ -3191,7 +3226,7 @@ def get_tag_col_ratio(
         grouped_df[f"ratio_{tag_value}"] = abs(grouped_df[tag_value]) / abs(
             grouped_df.abs_summed
         )
-    ratio = (
+    ratio_df = (
         pd.DataFrame(
             grouped_df.filter(regex="^ratio_").stack(future_stack=False),
             columns=[f"ratio_{tag_col}"],
@@ -3200,7 +3235,7 @@ def get_tag_col_ratio(
         .assign(**{tag_col: lambda x: x[tag_col].str.removeprefix("ratio_")})
     )
     assert all(
-        ~ratio[f"ratio_{tag_col}"].between(0, 1, inclusive="both")
-        | ratio[f"ratio_{tag_col}"].notnull()
+        ~ratio_df[f"ratio_{tag_col}"].between(0, 1, inclusive="both")
+        | ratio_df[f"ratio_{tag_col}"].notnull()
     )
-    return ratio
+    return ratio_df
