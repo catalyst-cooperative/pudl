@@ -179,7 +179,7 @@ class TestEia860Settings:
 
     def test_eia860m(self: Self):
         """Test creation of eia860m_year_month values when eia860m is True."""
-        eia860_settings = Eia860Settings()
+        eia860_settings = Eia860Settings(eia860m=True)
         assert eia860_settings.eia860m_year_months
 
 
