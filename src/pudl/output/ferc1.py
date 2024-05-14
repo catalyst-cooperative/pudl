@@ -2058,17 +2058,17 @@ class XbrlCalculationForestFerc1(BaseModel):
     calculations encoded in the XBRL Metadata, and that these relationships should have
     a hierarchical tree structure. Several individual values from the less granular
     tables will appear as root nodes at the top of each hierarchy, and the leaves in
-    the underlying tree structure are the individually reported non-calculated values
-    that make them up (i.e. the most granular values). Because the less granular tables
-    have several distinct values in them, composed of disjunct sets of reported values,
-    we have a forest (a group of several trees) rather than a single tree.
+    the tree structure are the individually reported non-calculated values that make
+    them up (i.e. the most granular values). Because the less granular tables have
+    several distinct values in them, composed of disjunct sets of reported values, we
+    have a forest (a group of several trees) rather than a single tree.
 
     The information required to build a calculation forest is most readily found in the
-    :meth:`Exploder.exploded_calcs`  A list of seed nodes can also be supplied,
-    indicating which nodes the should be the root(s) of the tree(s) we want to built.
-    This can be used to prune irrelevant portions of the overall forest out of the
-    exploded metadata. If no seeds are provided, then all of the nodes referenced in
-    the exploded_calcs input dataframe will be used as seeds.
+    :meth:`Exploder.exploded_calcs`. Seed nodes can be used to indicate which nodes
+    should be the root(s) of the tree(s) we want to built.This can be used to prune
+    irrelevant portions of the overall forest out of the exploded metadata. If no seeds
+    are provided, then all of the nodes referenced in the exploded_calcs input dataframe
+    will be used as seeds.
 
     This class makes heavy use of :mod:`networkx` to manage the graph that we build
     from calculation relationships and relies heavily on :mod:`networkx` terminology.
@@ -2294,9 +2294,9 @@ class XbrlCalculationForestFerc1(BaseModel):
     def propagate_node_attributes(self: Self, annotated_forest: nx.DiGraph):
         """Propagate tags.
 
-        Propagate tags root-ward, leaf-wards &  to the _correction nodes. We
-        propagate the tags root-ward first because we primarily manually
-        compiled tags for the leaf nodes, so we want to send those leafy tags
+        Propagate tag values root-ward, leaf-wards &  to the _correction nodes. We
+        propagate the tags root-ward first because we primarily manually compiled
+        tags for the leaf nodes, so we want to send the values for the leafy tags
         root-ward first before trying to send tags leaf-ward.
         """
         tags_to_propagate = ["in_rate_base", "rate_base_category"]
