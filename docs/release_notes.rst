@@ -59,6 +59,7 @@ New Data Coverage
 * Updated the EIA Bulk Electricity data archive to include data that was available as of
   2024-05-01, which covers up through 2024-02-01 (3 months more than the previously
   used archive). See PR :pr:`3615`.
+* Add 2024 Q1 EIA923 and EIA860m data. See :issue:`3617`, :issue:`3618`, and :pr:`3625`.
 
 Data Cleaning
 ^^^^^^^^^^^^^

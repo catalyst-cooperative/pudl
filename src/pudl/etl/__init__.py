@@ -12,7 +12,6 @@ from dagster import (
     AssetsDefinition,
     AssetSelection,
     Definitions,
-    ExperimentalWarning,
     SourceAsset,
     asset_check,
     define_asset_job,

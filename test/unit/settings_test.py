@@ -2,6 +2,7 @@
 
 from typing import Self
 
+import pandas as pd
 import pytest
 from dagster import DagsterInvalidConfigError, Field, build_init_resource_context
 from pandas import json_normalize
@@ -38,8 +39,9 @@ class TestGenericDatasetSettings:
             working_tables = ["table"]
 
             class Test(GenericDatasetSettings):
-                data_source: DataSource(
-                    working_partitions=working_partitions, working_tables=working_tables
+                data_source: DataSource = DataSource(
+                    working_partitions=working_partitions,
+                    working_tables=working_tables,
                 )
 
             Test()
@@ -125,21 +127,60 @@ class TestEpaCemsSettings:
             _ = EpaCemsSettings(quarters=None)
 
 
-class TestEIA860Settings:
-    """Test EIA860 setting validation.
+class TestEia860Settings:
+    """Test EIA860 setting validation."""
 
-    Most of the validation is covered in TestFerc1Settings.
-    """
+    def test_eia860_years_overlap_eia860m_years(self: Self):
+        """Test validation error is raised when eia860m date is within eia860 years."""
+        # Identify the last valid EIA-860 year:
+        max_eia860_year = max(Eia860Settings().years)
+        # Use that year to construct an EIA-860M year that overlaps the EIA-860 years:
+        bad_eia860m_year_month = f"{max_eia860_year}-01"
 
-    def test_860m(self: Self):
-        """Test validation error is raised when eia860m date is within 860 years."""
-        settings_cls = Eia860Settings
-        original_eia80m_year_month = settings_cls.eia860m_year_month
-        settings_cls.eia860m_year_month = "2019-11"
-
+        # Attempt to construct an EIA-860 settings object with an EIA-860M year that
+        # overlaps the EIA-860 years, which should result in a ValidationError:
         with pytest.raises(ValidationError):
-            settings_cls(eia860m=True)
-        settings_cls.eia860m_year_month = original_eia80m_year_month
+            _ = Eia860Settings(
+                eia860m=True,
+                years=[max_eia860_year],
+                eia860m_year_months=[bad_eia860m_year_month],
+            )
+
+    def test_eia860m_years_overlap_eia860m_years(self: Self):
+        """Test validation error is raised when eia860m years overlap."""
+        max_eia860_year = max(Eia860Settings().years)
+        acceptable_eia860m_year = max_eia860_year + 1
+        bad_eia860m_year_months = [
+            f"{acceptable_eia860m_year}-01",
+            f"{acceptable_eia860m_year}-02",
+        ]
+        with pytest.raises(ValidationError):
+            _ = Eia860Settings(
+                eia860m=True,
+                years=[max_eia860_year],
+                eia860m_year_months=bad_eia860m_year_months,
+            )
+
+    def test_eia860m_after_eia860(self: Self):
+        """Test the creation of eia860m_year_months values."""
+        settings_eia860 = Eia860Settings()
+        max_eia860 = max(DataSource.from_id("eia860").working_partitions["years"])
+        max_eia860m = pd.to_datetime(
+            max(DataSource.from_id("eia860m").working_partitions["year_months"])
+        ).year
+        settings_eia860m_years = [
+            pd.to_datetime(date).year for date in settings_eia860.eia860m_year_months
+        ]
+        # Assert that the default eia860m settings years are a complete range between the
+        # year after the last available eia860 year and the latest available eia860m year
+        assert sorted(settings_eia860m_years) == list(
+            range(max_eia860 + 1, max_eia860m + 1)
+        )
+
+    def test_eia860m(self: Self):
+        """Test creation of eia860m_year_month values when eia860m is True."""
+        eia860_settings = Eia860Settings(eia860m=True)
+        assert eia860_settings.eia860m_year_months
 
 
 class TestEia860mSettings:

@@ -52,7 +52,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {  # }
                 "capital_recovery_factor",
                 "debt_fraction",
                 "fixed_charge_rate",
-                "fuel_cost",
+                "fuel_cost_per_mwh",
                 "wacc_nominal",
                 "wacc_real",
             ],
