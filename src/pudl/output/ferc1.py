@@ -2051,27 +2051,27 @@ def in_explosion_tables(table_name: str, in_explosion_table_names: list[str]) ->
 class XbrlCalculationForestFerc1(BaseModel):
     """A class for manipulating groups of hierarchically nested XBRL calculations.
 
-    We expect that the facts reported in high-level FERC tables like
+    We expect that the facts reported in less granular FERC tables like
     :ref:`core_ferc1__yearly_income_statements_sched114` and
     :ref:`core_ferc1__yearly_balance_sheet_assets_sched110` should be
     calculable from many individually reported granular values, based on the
     calculations encoded in the XBRL Metadata, and that these relationships should have
-    a hierarchical tree structure. Several individual values from the higher level
+    a hierarchical tree structure. Several individual values from the less granular
     tables will appear as root nodes at the top of each hierarchy, and the leaves in
     the underlying tree structure are the individually reported non-calculated values
-    that make them up. Because the top-level tables have several distinct values in
-    them, composed of disjunct sets of reported values, we have a forest (a group of
-    several trees) rather than a single tree.
+    that make them up (i.e. the most granular values). Because the less granular tables
+    have several distinct values in them, composed of disjunct sets of reported values,
+    we have a forest (a group of several trees) rather than a single tree.
 
     The information required to build a calculation forest is most readily found in the
     :meth:`Exploder.exploded_calcs`  A list of seed nodes can also be supplied,
-    indicating which nodes must be present in the resulting forest. This can be used to
-    prune irrelevant portions of the overall forest out of the exploded metadata. If no
-    seeds are provided, then all of the nodes referenced in the exploded_calcs input
-    dataframe will be used as seeds.
+    indicating which nodes the should be the root(s) of the tree(s) we want to built.
+    This can be used to prune irrelevant portions of the overall forest out of the
+    exploded metadata. If no seeds are provided, then all of the nodes referenced in
+    the exploded_calcs input dataframe will be used as seeds.
 
     This class makes heavy use of :mod:`networkx` to manage the graph that we build
-    from calculation relationships.
+    from calculation relationships and relies heavily on :mod:`networkx` terminology.
     """
 
     # Not sure if dynamically basing this on NodeId is really a good idea here.
@@ -3132,11 +3132,12 @@ def disaggregate_null_or_total_tag(
     rate_base_df: pd.DataFrame,
     tag_col: str,
 ) -> pd.DataFrame:
-    """Disaggregate records with an null or total in the ``tag_col``.
+    """Disaggregate records with an null or total value in the ``tag_col``.
 
-    We have records in the rate base table with totals and/or nulls for key tag
-    columns which we want to separate into component parts. This is done in two
-    steps:
+    We have records in the rate base table with total and/or null values for
+    key tag columns which we want to separate into component parts because the
+    null or total values does not convery a level of detail we want for the
+    rate base table. This is done in two steps:
 
     * :func:`get_tag_col_ratio` : for each ``report_year`` and ``utility_id_ferc1``,
       get a ratio of all of the ``ending_balance`` for all of the non-null and
@@ -3150,25 +3151,27 @@ def disaggregate_null_or_total_tag(
             disaggregated.
 
     """
-    # this works for both the utility_type and in_rate_base tags because
-    # for both tags the values that we want to disagregate are null and/or a "total"
-    unlabeled_mask = (rate_base_df[tag_col] == "total") | rate_base_df[tag_col].isnull()
+    # this works for both the utility_type and in_rate_base tags columns because
+    # for both tag columns the values that we want to disagregate are null and/or a "total"
+    total_null_mask = (rate_base_df[tag_col] == "total") | rate_base_df[
+        tag_col
+    ].isnull()
     ratio_idx = ["report_year", "utility_id_ferc1"]
     ratio_df = get_tag_col_ratio(
-        # remove the unlabeled records because total is the value
-        # we want to break_down so we can't have it in the columns to sum up
-        rate_base_labeled_df=rate_base_df[~unlabeled_mask],
+        # remove the total and/or null records because those are the values
+        # we want to disaggreate so we can't have it in the columns to sum up
+        rate_base_df=rate_base_df[~total_null_mask],
         ratio_idx=ratio_idx,
         tag_col=tag_col,
     )
-    unlabeled_disaggregated_df = (
+    disaggregated_df = (
         pd.merge(
-            rate_base_df[unlabeled_mask],
+            rate_base_df[total_null_mask],
             ratio_df,
             on=ratio_idx,
             how="left",
             validate="m:m",
-            suffixes=("_unlabeled", ""),
+            suffixes=("_total_or_null", ""),
         )
         # na values from this ratio_{tag_col} should be treated like a 100%.
         # because the ratio is of the non-total or non-null tags. But occasionally there
@@ -3179,17 +3182,17 @@ def disaggregate_null_or_total_tag(
             ending_balance=lambda x: x[f"ratio_{tag_col}"].fillna(1) * x.ending_balance,
         )
         .assign(**{f"is_disaggregated_{tag_col}": True})
-        .drop(columns=[f"ratio_{tag_col}", f"{tag_col}_unlabeled"])
+        .drop(columns=[f"ratio_{tag_col}", f"{tag_col}_total_or_null"])
         # this automatially gets converted to a pandas Float64 which
         # results in nulls from any sum.
         .astype({"ending_balance": float})
     )
     rate_base_disaggregated_df = pd.concat(
         [
-            rate_base_df[~unlabeled_mask].assign(
+            rate_base_df[~total_null_mask].assign(
                 **{f"is_disaggregated_{tag_col}": False}
             ),
-            unlabeled_disaggregated_df,
+            disaggregated_df,
         ]
     )
     if not np.isclose(
@@ -3204,16 +3207,23 @@ def disaggregate_null_or_total_tag(
 
 
 def get_tag_col_ratio(
-    rate_base_labeled_df: pd.DataFrame, ratio_idx: list[str], tag_col: str
+    rate_base_df: pd.DataFrame, ratio_idx: list[str], tag_col: str
 ) -> pd.DataFrame:
-    """Calculate the percentage of the total labeled ``ending_balance`` within each tag group.
+    """Calculate the percentage of the ``ending_balance`` within each tag group.
 
-    Make ratio column with a 0-1 value of the sum of ``ending_balance`` in each labled
-    ``tag_col`` within ``ratio_idx``.
+    Make ratio column with a 0-1 value of the sum of ``ending_balance`` in each
+    of the values in ``tag_col`` within each ``ratio_idx``.
+
+    In practice, this was built to be used within :func:`disaggregate_null_or_total_tag`.
+    For each ``report_year``, ``utility_id_ferc1`` and value within the ``tag_col`` this
+    function will calculate the ratio of ``ending_balance``. For example, if the tag
+    column is ``tags_aggregatable_utility_type`` and utility X has values of electric and
+    gas, this function will calculate what ratio of that utility's annual
+    ``ending_balance`` is electric and gas.
     """
     # get the sum of the balance in each of the values in tag_col
     grouped_df = (
-        rate_base_labeled_df.groupby(ratio_idx + [tag_col])[["ending_balance"]]
+        rate_base_df.groupby(ratio_idx + [tag_col])[["ending_balance"]]
         .sum(min_count=1)
         .reset_index(level=[tag_col])
         .pivot(columns=[tag_col])
