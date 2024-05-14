@@ -9,7 +9,15 @@ from typing import Any, Literal, NamedTuple, Self
 import networkx as nx
 import numpy as np
 import pandas as pd
-from dagster import AssetIn, AssetsDefinition, Field, Mapping, asset
+from dagster import (
+    AssetCheckResult,
+    AssetIn,
+    AssetsDefinition,
+    Field,
+    Mapping,
+    asset,
+    asset_check,
+)
 from matplotlib import pyplot as plt
 from networkx.drawing.nx_agraph import graphviz_layout
 from pandas._libs.missing import NAType as pandas_NAType
@@ -2043,27 +2051,27 @@ def in_explosion_tables(table_name: str, in_explosion_table_names: list[str]) ->
 class XbrlCalculationForestFerc1(BaseModel):
     """A class for manipulating groups of hierarchically nested XBRL calculations.
 
-    We expect that the facts reported in high-level FERC tables like
+    We expect that the facts reported in less granular FERC tables like
     :ref:`core_ferc1__yearly_income_statements_sched114` and
     :ref:`core_ferc1__yearly_balance_sheet_assets_sched110` should be
     calculable from many individually reported granular values, based on the
     calculations encoded in the XBRL Metadata, and that these relationships should have
-    a hierarchical tree structure. Several individual values from the higher level
-    tables will appear as root nodes at the top of each hierarchy, and the leaves in
-    the underlying tree structure are the individually reported non-calculated values
-    that make them up. Because the top-level tables have several distinct values in
+    a hierarchical tree structure. Several individual values from the less granular
+    tables will appear as root nodes, and the leaves in the tree structure are the
+    individually reported non-calculated values that make them up (i.e. the most
+    granular values). Because the less granular tables have several distinct values in
     them, composed of disjunct sets of reported values, we have a forest (a group of
     several trees) rather than a single tree.
 
     The information required to build a calculation forest is most readily found in the
-    :meth:`Exploder.exploded_calcs`  A list of seed nodes can also be supplied,
-    indicating which nodes must be present in the resulting forest. This can be used to
-    prune irrelevant portions of the overall forest out of the exploded metadata. If no
-    seeds are provided, then all of the nodes referenced in the exploded_calcs input
-    dataframe will be used as seeds.
+    :meth:`Exploder.exploded_calcs`. Seed nodes can be used to indicate which nodes
+    should be the root(s) of the tree(s) we want to built.This can be used to prune
+    irrelevant portions of the overall forest out of the exploded metadata. If no seeds
+    are provided, then all of the nodes referenced in the exploded_calcs input dataframe
+    will be used as seeds.
 
     This class makes heavy use of :mod:`networkx` to manage the graph that we build
-    from calculation relationships.
+    from calculation relationships and relies heavily on :mod:`networkx` terminology.
     """
 
     # Not sure if dynamically basing this on NodeId is really a good idea here.
@@ -2260,7 +2268,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         some error checking to try and ensure that the weights and tags that are being
         associated with the forest are internally self-consistent.
 
-        We check whether there are multiple different weights assocated with the same
+        We check whether there are multiple different weights associated with the same
         node in the calculation components. There are a few instances where this is
         expected, but if there a lot of conflicting weights something is probably wrong.
 
@@ -2274,36 +2282,45 @@ class XbrlCalculationForestFerc1(BaseModel):
         annotated_forest = deepcopy(self.forest)
         nx.set_node_attributes(annotated_forest, self.node_attrs)
         nx.set_edge_attributes(annotated_forest, self.edge_attrs)
-        annotated_forest = self.propagate_node_attributes(annotated_forest)
 
         logger.info("Checking whether any pruned nodes were also tagged.")
         self.check_lost_tags(lost_nodes=self.pruned)
         logger.info("Checking whether any orphaned nodes were also tagged.")
         self.check_lost_tags(lost_nodes=self.orphans)
-        self.check_conflicting_tags(annotated_forest)
+
+        annotated_forest = self.propagate_node_attributes(annotated_forest)
         return annotated_forest
 
     def propagate_node_attributes(self: Self, annotated_forest: nx.DiGraph):
         """Propagate tags.
 
-        Propagate tags leafwards, rootward &  to the _correction nodes.
+        Propagate tag values root-ward, leaf-wards &  to the _correction nodes. We
+        propagate the tags root-ward first because we primarily manually compiled
+        tags for the leaf nodes, so we want to send the values for the leafy tags
+        root-ward first before trying to send tags leaf-ward.
         """
-        ## Leafwards propagation
-        annotated_forest = _propagate_tags_leafward(annotated_forest, ["in_rate_base"])
-        # Rootward propagation
-        annotated_forest = _propagate_tag_rootward(annotated_forest, "in_rate_base")
+        tags_to_propagate = ["in_rate_base", "rate_base_category"]
+        # Root-ward propagation
+        for tag in tags_to_propagate:
+            annotated_forest = _propagate_tag_rootward(annotated_forest, tag)
+        ## Leaf-wards propagation
+        annotated_forest = _propagate_tags_leafward(annotated_forest, tags_to_propagate)
         # Correction Records
         annotated_forest = _propagate_tags_to_corrections(annotated_forest)
         return annotated_forest
 
     def check_lost_tags(self: Self, lost_nodes: list[NodeId]) -> None:
-        """Check whether any of the input lost nodes were also tagged nodes."""
+        """Check whether any of the input lost nodes were also tagged nodes.
+
+        It is not necessarily a problem if there are "lost" tags. This is mostly
+        here as a debugging tool.
+        """
         if lost_nodes:
             lost = pd.DataFrame(lost_nodes).set_index(self.calc_cols)
             tagged = self.tags.set_index(self.calc_cols)
             lost_tagged = tagged.index.intersection(lost.index)
             if not lost_tagged.empty:
-                logger.warning(
+                logger.debug(
                     "The following tagged nodes were lost in building the forest:\n"
                     f"{tagged.loc[lost_tagged].sort_index()}"
                 )
@@ -2312,15 +2329,10 @@ class XbrlCalculationForestFerc1(BaseModel):
     def check_conflicting_tags(annotated_forest: nx.DiGraph) -> None:
         """Check for conflicts between ancestor and descendant tags.
 
-        At this point, we have just applied the manually compiled tags to the nodes in
-        the forest, and haven't yet propagated them down to the leaves. It's possible
-        that ancestor nodes (closer to the roots) might have tags associated with them
-        that are in conflict with descendant nodes (closer to the leaves). If that's
-        the case then when we propagate the tags to the leaves, whichever tag is
-        propagated last will end up taking precedence.
-
-        These kinds of conflicts are probably due to errors in the tagging metadata, and
-        should be investigated.
+        This check should be applied before we have propagated tags via
+        :meth:`propagate_node_attributes` so we can check conflicts within the tags
+        that we've manually compiled.These kinds of conflicts are probably due to
+        errors in the tagging metadata, and should be investigated.
         """
         nodes = annotated_forest.nodes
         for ancestor in nodes:
@@ -3003,7 +3015,7 @@ def out_ferc1__yearly_rate_base(
     core_ferc1__yearly_operating_expenses_sched320: pd.DataFrame,
     _out_ferc1__detailed_tags: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Make a table of granular utility rate-base data.
+    """Make a table of granular utility rate base data.
 
     This table contains granular data consisting of what utilities can
     include in their rate bases. This information comes from two core
@@ -3012,15 +3024,83 @@ def out_ferc1__yearly_rate_base(
     data from the nested calculations that are build into the accounting tables.
     See :class:`Exploder` for more details.
 
-    This rate base table also contains one specific addition from
-    :ref:`core_ferc1__yearly_operating_expenses_sched320`. In standard ratemaking
-    processes, utilities are enabled to include working capital - sometimes referred
-    to as cash on hand or cash reverves. A standard ratemaking process is to consider
-    the available rate-baseable working capital to be one eigth of the average
-    operations and maintenance expense. This function grabs that expense and
-    concatenates it with the rest of the assets and liabilities from the granular
-    exploded data.
+    This rate base table also contains one new "cash_working_capital" xbrl_factoid
+    from :ref:`core_ferc1__yearly_operating_expenses_sched320` via
+    :func:`prep_cash_working_capital`.
 
+    We also disaggregate records that have nulls or totals in two of the key tag
+    columns: ``tags_aggregatable_utility_type`` and ``tags_in_rate_base`` via
+    :func:`disaggregate_null_or_total_tag`.
+    """
+    assets = _out_ferc1__detailed_balance_sheet_assets
+    liabilities = _out_ferc1__detailed_balance_sheet_liabilities.assign(
+        ending_balance=lambda x: -x.ending_balance
+    )
+    cash_working_capital = prep_cash_working_capital(
+        core_ferc1__yearly_operating_expenses_sched320
+    )
+
+    # concat then select only the leafy exploded records that are in rate base
+    rate_base_df = (
+        pd.concat(
+            [
+                assets,
+                liabilities,
+                cash_working_capital,
+            ]
+        )
+        .pipe(
+            disaggregate_null_or_total_tag,
+            tag_col="tags_aggregatable_utility_type",
+        )
+        .pipe(
+            disaggregate_null_or_total_tag,
+            tag_col="tags_in_rate_base",
+        )
+    )
+
+    in_rate_base_df = rate_base_df[rate_base_df.tags_in_rate_base == "yes"]
+    return in_rate_base_df.dropna(subset=["ending_balance"])
+
+
+@asset_check(
+    asset="out_ferc1__yearly_rate_base",
+    additional_ins={"tags_df": AssetIn("_out_ferc1__detailed_tags")},
+    blocking=True,
+)
+def check_tag_propagation(out_ferc1__yearly_rate_base, tags_df: pd.DataFrame):
+    """Check propagated tags compared to manually compiled tags."""
+    for tag in ["in_rate_base", "aggregatable_utility_type"]:
+        # note: we need the `tags_in_rate_base` column for these checks
+        check_tag_propagation_compared_to_compiled_tags(
+            out_ferc1__yearly_rate_base, tag, tags_df
+        )
+    return AssetCheckResult(passed=True)
+
+
+@asset_check(asset="out_ferc1__yearly_rate_base", blocking=True)
+def check_for_correction_tags(out_ferc1__yearly_rate_base):
+    """Check if any correction records have key tags."""
+    for tag in ["in_rate_base", "aggregatable_utility_type"]:
+        check_for_correction_xbrl_factoids_with_tag(out_ferc1__yearly_rate_base, tag)
+    return AssetCheckResult(passed=True)
+
+
+def prep_cash_working_capital(
+    core_ferc1__yearly_operating_expenses_sched320,
+) -> pd.DataFrame:
+    """Extract a new ``cash_working_capital`` ``xbrl_factoid`` for the rate base table.
+
+    In standard ratemaking processes, utilities are allowed to include working
+    capital - sometimes referred to as cash on hand or cash reverves - in their rate
+    base. A standard ratemaking process considers the available rate-baseable working
+    capital to be one eigth of the average operations and maintenance expense. This
+    function grabs that expense and calculated this new ``xbrl_factoid`` in preparation
+    to concatenate it with the rest of the assets and liabilities from the detailed rate
+    base data.
+
+    ``cash_working_capital`` is a new ``xbrl_factiod`` because it is not reported
+    in the FERC1 data, but it is included in rate base so we had to calcluate it.
     """
     # get the factoid name to grab the right part of the table
     xbrl_factoid_name = pudl.transform.ferc1.FERC1_TFR_CLASSES[
@@ -3028,14 +3108,15 @@ def out_ferc1__yearly_rate_base(
     ]().params.xbrl_factoid_name
     # First grab the working capital out of the operating expense table.
     # then prep it for concating. Calculate working capital & add tags
-    cash_working_capital = (
+    cash_working_capital_df = (
         core_ferc1__yearly_operating_expenses_sched320[
             core_ferc1__yearly_operating_expenses_sched320[xbrl_factoid_name]
             == "operations_and_maintenance_expenses_electric"
         ]
         .assign(
             dollar_value=lambda x: x.dollar_value.divide(8),
-            xbrl_factoid="cash_working_capital",  # newly definied (do we need to add it anywhere?)
+            xbrl_factoid="cash_working_capital",  # newly definied xbrl_factoid
+            tags_in_rate_base="yes",
             tags_rate_base_category="net_working_capital",
             tags_aggregatable_utility_type="electric",
             table_name="core_ferc1__yearly_operating_expenses_sched320",
@@ -3044,25 +3125,127 @@ def out_ferc1__yearly_rate_base(
         # the assets/liabilites both use ending_balance for its main $$ column
         .rename(columns={"dollar_value": "ending_balance"})
     )
-    # then select only the leafy exploded records that are in rate base and concat
-    in_rate_base = pd.concat(
-        [
-            _out_ferc1__detailed_balance_sheet_assets[
-                _out_ferc1__detailed_balance_sheet_assets.tags_in_rate_base.isin(
-                    ["yes", "partial"]
-                )
-            ],
-            _out_ferc1__detailed_balance_sheet_liabilities[
-                _out_ferc1__detailed_balance_sheet_liabilities.tags_in_rate_base.isin(
-                    ["yes", "partial"]
-                )
-            ].assign(ending_balance=lambda x: -x.ending_balance),
-            cash_working_capital,
-        ]
-    ).sort_values(by=["report_year", "utility_id_ferc1", "table_name"], ascending=False)
-    # note: we need the `tags_in_rate_base` column for these checks
-    check_tag_propagation_compared_to_compiled_tags(
-        in_rate_base, "in_rate_base", _out_ferc1__detailed_tags
+    return cash_working_capital_df
+
+
+def disaggregate_null_or_total_tag(
+    rate_base_df: pd.DataFrame,
+    tag_col: str,
+) -> pd.DataFrame:
+    """Disaggregate records with an null or total value in the ``tag_col``.
+
+    We have records in the rate base table with total and/or null values for
+    key tag columns which we want to separate into component parts because the
+    null or total values does not convery a level of detail we want for the
+    rate base table. This is done in two steps:
+
+    * :func:`get_tag_col_ratio` : for each ``report_year`` and ``utility_id_ferc1``,
+      get a ratio of all of the ``ending_balance`` for all of the non-null and
+      non-total tags.
+    * use this ratio to disaggregate the ``ending_balance`` from records with total
+      and null tag values across the other tag values.
+
+    Args:
+        rate_base_df: full table of rate base data.
+        tag_col: column with the tags that contains null or total values to be
+            disaggregated.
+
+    """
+    # this works for both the utility_type and in_rate_base tags columns because
+    # for both tag columns the values that we want to disagregate are null and/or a "total"
+    total_null_mask = (rate_base_df[tag_col] == "total") | rate_base_df[
+        tag_col
+    ].isnull()
+    ratio_idx = ["report_year", "utility_id_ferc1"]
+    ratio_df = get_tag_col_ratio(
+        # remove the total and/or null records because those are the values
+        # we want to disaggreate so we can't have it in the columns to sum up
+        rate_base_df=rate_base_df[~total_null_mask],
+        ratio_idx=ratio_idx,
+        tag_col=tag_col,
     )
-    check_for_correction_xbrl_factoids_with_tag(in_rate_base, "in_rate_base")
-    return in_rate_base
+    disaggregated_df = (
+        pd.merge(
+            rate_base_df[total_null_mask],
+            ratio_df,
+            on=ratio_idx,
+            how="left",
+            validate="m:m",
+            suffixes=("_total_or_null", ""),
+        )
+        # na values from this ratio_{tag_col} should be treated like a 100%.
+        # because the ratio is of the non-total or non-null tags. But occasionally there
+        # are no non-null or non-null tags. Which results in nulls in these ratio columns
+        # during the left merge above. We want to preserve the ending balance's for these
+        # records even if there is no way to disaggregate them.
+        .assign(
+            ending_balance=lambda x: x[f"ratio_{tag_col}"].fillna(1) * x.ending_balance,
+        )
+        .assign(**{f"is_disaggregated_{tag_col}": True})
+        .drop(columns=[f"ratio_{tag_col}", f"{tag_col}_total_or_null"])
+        # this automatially gets converted to a pandas Float64 which
+        # results in nulls from any sum.
+        .astype({"ending_balance": float})
+    )
+    rate_base_disaggregated_df = pd.concat(
+        [
+            rate_base_df[~total_null_mask].assign(
+                **{f"is_disaggregated_{tag_col}": False}
+            ),
+            disaggregated_df,
+        ]
+    )
+    if not np.isclose(
+        new_balance := rate_base_disaggregated_df.ending_balance.sum(),
+        old_balance := rate_base_df.ending_balance.sum(),
+    ):
+        logger.error(
+            f"{tag_col}: New ending balance is not the same as the old ending balance: "
+            f"{old_balance=}, {new_balance=}"
+        )
+    return rate_base_disaggregated_df.convert_dtypes().reset_index(drop=True)
+
+
+def get_tag_col_ratio(
+    rate_base_df: pd.DataFrame, ratio_idx: list[str], tag_col: str
+) -> pd.DataFrame:
+    """Calculate the percentage of the ``ending_balance`` within each tag group.
+
+    Make ratio column with a 0-1 value of the sum of ``ending_balance`` in each
+    of the values in ``tag_col`` within each ``ratio_idx``.
+
+    In practice, this was built to be used within :func:`disaggregate_null_or_total_tag`.
+    For each ``report_year``, ``utility_id_ferc1`` and value within the ``tag_col`` this
+    function will calculate the ratio of ``ending_balance``. For example, if the tag
+    column is ``tags_aggregatable_utility_type`` and utility X has values of electric and
+    gas, this function will calculate what ratio of that utility's annual
+    ``ending_balance`` is electric and gas.
+    """
+    # get the sum of the balance in each of the values in tag_col
+    grouped_df = (
+        rate_base_df.groupby(ratio_idx + [tag_col])[["ending_balance"]]
+        .sum(min_count=1)
+        .reset_index(level=[tag_col])
+        .pivot(columns=[tag_col])
+    )
+    tag_values = grouped_df.columns.get_level_values(1)
+    grouped_df.columns = tag_values
+
+    grouped_df["abs_summed"] = abs(grouped_df).sum(axis=1)
+    for tag_value in tag_values:
+        grouped_df[f"ratio_{tag_value}"] = abs(grouped_df[tag_value]) / abs(
+            grouped_df.abs_summed
+        )
+    ratio_df = (
+        pd.DataFrame(
+            grouped_df.filter(regex="^ratio_").stack(future_stack=False),
+            columns=[f"ratio_{tag_col}"],
+        )
+        .reset_index()
+        .assign(**{tag_col: lambda x: x[tag_col].str.removeprefix("ratio_")})
+    )
+    assert all(
+        ~ratio_df[f"ratio_{tag_col}"].between(0, 1, inclusive="both")
+        | ratio_df[f"ratio_{tag_col}"].notnull()
+    )
+    return ratio_df
