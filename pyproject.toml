@@ -33,7 +33,7 @@ dependencies = [
     "fsspec>=2024",
     "furo>=2024",
     "gcsfs>=2024",
-    "gdal>=3.8.5",
+    "gdal==3.8.5",  # 2024-05-13 Pinned to avoid 3.9.0 breaking pudl-archiver
     "geopandas>=0.14",
     "grpcio==1.62.2", # Required by dagster, binary dependencies are flaky
     "grpcio-health-checking==1.62.2", # Required by dagster, binary dependencies are flaky
