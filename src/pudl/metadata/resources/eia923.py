@@ -123,6 +123,14 @@ Denormalized, combined data from the ``core_eia923__monthly_generation_fuel`` an
 generation unit level up to the plant prime mover level, so as to be compatible with
 fossil fuel generation data."""
     ),
+    "core_eia923__monthly_energy_storage": (
+        """EIA-923 Monthly Generation and Fuel Consumption Time Series. From EIA-923 Schedule 3.
+
+Monthly quantities of energy consumed and discharged ("generated") by energy storage
+units. The total MWh discharged from the energy storage unit during the
+reporting period is the gross generation and the difference between gross generation
+and consumption is the net generation."""
+    ),
 }
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
@@ -710,6 +718,7 @@ is for those supplies."""
                 "monthly_total_withdrawal_volume_gallons",
                 "annual_total_chlorine_lbs",
                 "monthly_total_chlorine_lbs",
+                "data_maturity",
             ],
             "primary_key": [
                 "plant_id_eia",
@@ -748,6 +757,32 @@ is for those supplies."""
                 "plant_id_eia",
                 "report_date",
                 "so2_control_id_eia",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia923"],
+        "etl_group": "eia923",
+    },
+    "core_eia923__monthly_energy_storage": {
+        "description": TABLE_DESCRIPTIONS["core_eia923__monthly_energy_storage"],
+        "schema": {
+            "fields": [
+                "plant_id_eia",
+                "report_date",
+                "prime_mover_code",
+                "energy_source_code",
+                "data_maturity",
+                "fuel_units",
+                "fuel_consumed_for_electricity_units",
+                "fuel_consumed_units",
+                "gross_generation_mwh",
+                "net_generation_mwh",
+            ],
+            "primary_key": [
+                "plant_id_eia",
+                "report_date",
+                "prime_mover_code",
+                "energy_source_code",
             ],
         },
         "field_namespace": "eia",

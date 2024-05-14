@@ -336,6 +336,18 @@ class Eia176Settings(GenericDatasetSettings):
     years: list[int] = data_source.working_partitions["years"]
 
 
+class EiaAeoSettings(GenericDatasetSettings):
+    """An immutable pydantic model to validate EIA 176 settings.
+
+    Args:
+        data_source: DataSource metadata object
+        years: AEO report years to use.
+    """
+
+    data_source: ClassVar[DataSource] = DataSource.from_id("eiaaeo")
+    years: list[int] = data_source.working_partitions["years"]
+
+
 class GlueSettings(FrozenBaseModel):
     """An immutable pydantic model to validate Glue settings.
 
@@ -451,6 +463,7 @@ class EiaSettings(FrozenBaseModel):
     eia861: Eia861Settings | None = None
     eia923: Eia923Settings | None = None
     eia930: Eia930Settings | None = None
+    eiaaeo: EiaAeoSettings | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -465,6 +478,7 @@ class EiaSettings(FrozenBaseModel):
             data["eia861"] = Eia861Settings()
             data["eia923"] = Eia923Settings()
             data["eia930"] = Eia930Settings()
+            data["eiaaeo"] = EiaAeoSettings()
 
         return data
 
