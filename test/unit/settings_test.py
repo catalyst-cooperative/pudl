@@ -152,7 +152,7 @@ class TestEia860Settings:
         acceptable_eia860m_year = max_eia860_year + 1
         bad_eia860m_year_months = [
             f"{acceptable_eia860m_year}-01",
-            f"{acceptable_eia860m_year}-05",
+            f"{acceptable_eia860m_year}-02",
         ]
         with pytest.raises(ValidationError):
             _ = Eia860Settings(
