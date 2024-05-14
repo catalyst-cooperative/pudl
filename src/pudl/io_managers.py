@@ -528,12 +528,18 @@ class PudlSQLiteIOManager(SQLiteIOManager):
         ),
     }
 )
-def pudl_mixed_format_io_manager(init_context) -> IOManager:
+def pudl_mixed_format_io_manager(init_context: InitResourceContext) -> IOManager:
     """Create a SQLiteManager dagster resource for the pudl database."""
     return PudlMixedFormatIOManager(
         write_to_parquet=init_context.resource_config["write_to_parquet"],
         read_from_parquet=init_context.resource_config["read_from_parquet"],
     )
+
+
+@io_manager
+def parquet_io_manager(init_context: InitResourceContext) -> IOManager:
+    """Create a Parquet only IO manager."""
+    return PudlParquetIOManager()
 
 
 class FercSQLiteIOManager(SQLiteIOManager):

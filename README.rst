@@ -4,37 +4,35 @@ The Public Utility Data Liberation Project (PUDL)
 
 .. readme-intro
 
-.. image:: https://www.repostatus.org/badges/latest/active.svg
+.. |repo-status| image:: https://www.repostatus.org/badges/latest/active.svg
    :target: https://www.repostatus.org/#active
    :alt: Project Status: Active
-
-.. image:: https://github.com/catalyst-cooperative/pudl/workflows/pytest/badge.svg
+.. |pytest| image:: https://github.com/catalyst-cooperative/pudl/workflows/pytest/badge.svg
    :target: https://github.com/catalyst-cooperative/pudl/actions?query=workflow%3Apytest
    :alt: PyTest Status
-
-.. image:: https://img.shields.io/codecov/c/github/catalyst-cooperative/pudl?style=flat&logo=codecov
+.. |codecov| image:: https://img.shields.io/codecov/c/github/catalyst-cooperative/pudl?style=flat&logo=codecov
    :target: https://codecov.io/gh/catalyst-cooperative/pudl
    :alt: Codecov Test Coverage
-
-.. image:: https://img.shields.io/readthedocs/catalystcoop-pudl?style=flat&logo=readthedocs
+.. |rtd| image:: https://img.shields.io/readthedocs/catalystcoop-pudl?style=flat&logo=readthedocs
    :target: https://catalystcoop-pudl.readthedocs.io/en/latest/
    :alt: Read the Docs Build Status
-
-.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
-   :target: https://github.com/psf/black
-   :alt: Any color you want, so long as it's black.
-
-.. image:: https://results.pre-commit.ci/badge/github/catalyst-cooperative/pudl/main.svg
+.. |ruff| image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json
+   :target: https://github.com/astral-sh/ruff
+.. |pre-commit-ci| image:: https://results.pre-commit.ci/badge/github/catalyst-cooperative/pudl/main.svg
    :target: https://results.pre-commit.ci/latest/github/catalyst-cooperative/pudl/main
    :alt: pre-commit CI
-
-.. image:: https://zenodo.org/badge/80646423.svg
+.. |zenodo-doi| image:: https://zenodo.org/badge/80646423.svg
    :target: https://zenodo.org/badge/latestdoi/80646423
    :alt: Zenodo DOI
-
-.. image:: https://img.shields.io/badge/calend.ly-officehours-darkgreen
+.. |office-hours| image:: https://img.shields.io/badge/calend.ly-officehours-darkgreen
    :target: https://calend.ly/catalyst-cooperative/pudl-office-hours
    :alt: Schedule a 1-on-1 chat with us about PUDL.
+.. |mastodon| image:: https://img.shields.io/mastodon/follow/110855618428885893?domain=https%3A%2F%2Fmastodon.energy&style=social&color=%23000000&link=https%3A%2F%2Fmastodon.energy%2F%40catalystcoop
+   :target: https://mastodon.energy/@catalystcoop
+   :alt: Follow CatalystCoop on Mastodon
+
+|repo-status| |pytest| |codecov| |rtd| |ruff| |pre-commit-ci| |zenodo-doi|
+|office-hours| |mastodon|
 
 What is PUDL?
 -------------

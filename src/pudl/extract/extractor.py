@@ -328,7 +328,7 @@ def partition_extractor_factory(
     """
 
     @op(
-        required_resource_keys={"datastore", "dataset_settings"},
+        required_resource_keys={"datastore"},
         name=f"extract_single_{name}_partition",
         ins={"part_dict": In(dagster_type=dagster_dict_str_strint)},
     )

@@ -92,9 +92,7 @@ def append_eia860m(
     return eia860_raw_dfs
 
 
-@asset(
-    required_resource_keys={"datastore", "dataset_settings"},
-)
+@asset(required_resource_keys={"datastore", "dataset_settings"})
 def raw_eia860m__all_dfs(context):
     """Extract raw EIA 860M data from excel sheets into dict of dataframes."""
     eia_settings = context.resources.dataset_settings.eia
@@ -107,26 +105,20 @@ def raw_eia860m__all_dfs(context):
     return raw_eia860m__all_dfs
 
 
-raw_table_names = (
-    "raw_eia860m__generator_existing",
-    "raw_eia860m__generator_proposed",
-    "raw_eia860m__generator_retired",
-)
-
-
 @multi_asset(
-    outs={table_name: AssetOut() for table_name in sorted(raw_table_names)},
-    required_resource_keys={"datastore", "dataset_settings"},
+    outs={
+        table_name: AssetOut()
+        for table_name in sorted(
+            (
+                "raw_eia860m__generator_existing",
+                "raw_eia860m__generator_proposed",
+                "raw_eia860m__generator_retired",
+            )
+        )
+    },
 )
 def extract_eia860m(raw_eia860m__all_dfs: dict[str, pd.DataFrame]):
-    """Extract raw EIA data from excel sheets into dataframes.
-
-    Args:
-        context: dagster keyword that provides access to resources and config.
-
-    Returns:
-        A tuple of extracted EIA dataframes.
-    """
+    """Extract raw EIA data from excel sheets into dataframes."""
     # create descriptive table_names
     raw_eia860m__all_dfs = {
         "raw_eia860m__" + table_name: df

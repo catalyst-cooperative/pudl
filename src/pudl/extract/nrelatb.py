@@ -22,9 +22,7 @@ class Extractor(ParquetExtractor):
 raw_nrelatb__all_dfs = raw_df_factory(Extractor, name="nrelatb")
 
 
-@asset(
-    required_resource_keys={"datastore", "dataset_settings"},
-)
+@asset
 def raw_nrelatb__data(raw_nrelatb__all_dfs):
     """Extract raw NREL ATB data from annual parquet files to one dataframe.
 

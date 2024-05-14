@@ -209,8 +209,8 @@ function merge_tag_into_branch() {
 function clean_up_outputs_for_distribution() {
     # Compress the SQLite DBs for easier distribution
     gzip --verbose "$PUDL_OUTPUT"/*.sqlite && \
-    # Grab the consolidated EPA CEMS outputs for distribution
-    cp "$PUDL_OUTPUT/parquet/core_epacems__hourly_emissions.parquet" "$PUDL_OUTPUT" && \
+    # Grab hourly tables which are only written to Parquet for distribution
+    cp "$PUDL_OUTPUT"/parquet/*__hourly_*.parquet "$PUDL_OUTPUT" && \
     # Remove all other parquet output, which we are not yet distributing.
     rm -rf "$PUDL_OUTPUT/parquet" && \
     rm -f "$PUDL_OUTPUT/metadata.yml"

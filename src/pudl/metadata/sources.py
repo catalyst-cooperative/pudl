@@ -426,7 +426,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "year_quarters": [
                 str(q).lower()
-                for q in pd.period_range(start="1995q1", end="2023q4", freq="Q")
+                for q in pd.period_range(start="1995q1", end="2024q1", freq="Q")
             ]
         },
         "contributors": [
@@ -753,7 +753,9 @@ SOURCES: dict[str, Any] = {
             "source_format": "Parquet",
         },
         "working_partitions": {
-            "years": sorted(set(range(2019, 2024))),
+            "years": list(
+                range(2021, 2024)
+            ),  # see issue #3576 for why 2019 and 2020 are not working
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],

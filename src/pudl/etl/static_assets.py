@@ -69,9 +69,15 @@ def static_pudl_tables(context):
 )
 def static_eia_tables():
     """Create static EIA tables."""
+    static_tables = _read_static_encoding_tables("static_eia")
+    static_tables.update(
+        {
+            "core_eia__codes_balancing_authority_subregions": pudl.metadata.dfs.BALANCING_AUTHORITY_SUBREGIONS_EIA
+        }
+    )
     return (
         Output(output_name=table_name, value=df)
-        for table_name, df in _read_static_encoding_tables("static_eia").items()
+        for table_name, df in static_tables.items()
     )
 
 
