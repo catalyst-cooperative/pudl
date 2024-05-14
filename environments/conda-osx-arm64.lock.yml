@@ -198,7 +198,7 @@ dependencies:
   - humanize=4.9.0=pyhd8ed1ab_0
   - hupper=1.12.1=pyhd8ed1ab_0
   - hyperframe=6.0.1=pyhd8ed1ab_0
-  - hypothesis=6.101.0=pyha770c72_0
+  - hypothesis=6.102.1=pyha770c72_0
   - icu=73.2=hc8870d7_0
   - identify=2.5.36=pyhd8ed1ab_0
   - idna=3.7=pyhd8ed1ab_0
@@ -208,8 +208,7 @@ dependencies:
   - importlib_resources=6.4.0=pyhd8ed1ab_0
   - iniconfig=2.0.0=pyhd8ed1ab_0
   - ipykernel=6.29.3=pyh3cd1d5f_0
-  - ipython=8.21.0=pyh707e725_0
-  - ipython_genutils=0.2.0=py_1
+  - ipython=8.24.0=pyh707e725_0
   - ipywidgets=8.1.2=pyhd8ed1ab_1
   - isodate=0.6.1=pyhd8ed1ab_0
   - isoduration=20.11.0=pyhd8ed1ab_0
@@ -237,7 +236,7 @@ dependencies:
   - jupyter_events=0.6.3=pyhd8ed1ab_1
   - jupyter_server=2.10.0=pyhd8ed1ab_0
   - jupyter_server_terminals=0.5.3=pyhd8ed1ab_0
-  - jupyterlab=4.2.0=pyhd8ed1ab_0
+  - jupyterlab=4.1.6=pyhd8ed1ab_0
   - jupyterlab-lsp=5.1.0=pyhd8ed1ab_2
   - jupyterlab_pygments=0.3.0=pyhd8ed1ab_1
   - jupyterlab_server=2.24.0=pyhd8ed1ab_0
@@ -262,7 +261,7 @@ dependencies:
   - libasprintf=0.22.5=h8fbad5d_2
   - libasprintf-devel=0.22.5=h8fbad5d_2
   - libblas=3.9.0=22_osxarm64_openblas
-  - libboost-headers=1.84.0=hce30654_2
+  - libboost-headers=1.85.0=hce30654_0
   - libbrotlicommon=1.1.0=hb547adb_1
   - libbrotlidec=1.1.0=hb547adb_1
   - libbrotlienc=1.1.0=hb547adb_1
@@ -316,7 +315,7 @@ dependencies:
   - libwebp=1.4.0=h54798ee_0
   - libwebp-base=1.4.0=h93a5062_0
   - libxcb=1.15=hf346824_0
-  - libxml2=2.12.6=h0d0cfa8_2
+  - libxml2=2.12.7=ha661575_0
   - libxslt=1.1.39=h223e5b9_0
   - libzip=1.10.1=ha0bc3c6_3
   - libzlib=1.2.13=h53f4e23_5
@@ -348,7 +347,6 @@ dependencies:
   - multimethod=1.9.1=pyhd8ed1ab_0
   - munkres=1.1.4=pyh9f0ad1d_0
   - mypy_extensions=1.0.0=pyha770c72_0
-  - nbclassic=1.0.0=pyhb4ecaf3_1
   - nbclient=0.10.0=pyhd8ed1ab_0
   - nbconvert=7.16.4=hd8ed1ab_0
   - nbconvert-core=7.16.4=pyhd8ed1ab_0
@@ -359,7 +357,7 @@ dependencies:
   - networkx=3.3=pyhd8ed1ab_1
   - nodeenv=1.8.0=pyhd8ed1ab_0
   - nodejs=20.12.2=h3b52c9b_0
-  - notebook=6.5.4=pyha770c72_0
+  - notebook=7.1.3=pyhd8ed1ab_0
   - notebook-shim=0.2.4=pyhd8ed1ab_0
   - nspr=4.35=hb7217d7_0
   - nss=3.100=hc6e9f88_0
@@ -511,7 +509,7 @@ dependencies:
   - sphinxcontrib-serializinghtml=1.1.10=pyhd8ed1ab_0
   - splink=3.9.14=pyhd8ed1ab_0
   - sqlalchemy=2.0.30=py312h7e5086c_0
-  - sqlglot=23.15.1=pyhd8ed1ab_0
+  - sqlglot=23.15.8=pyhd8ed1ab_0
   - sqlite=3.45.3=hf2abe2d_0
   - sqlparse=0.5.0=pyhd8ed1ab_0
   - stack_data=0.6.2=pyhd8ed1ab_0
@@ -535,7 +533,7 @@ dependencies:
   - toposort=1.10=pyhd8ed1ab_0
   - tornado=6.4=py312he37b823_0
   - tqdm=4.66.4=pyhd8ed1ab_0
-  - traitlets=5.9.0=pyhd8ed1ab_0
+  - traitlets=5.14.3=pyhd8ed1ab_0
   - typeguard=4.2.1=pyhd8ed1ab_0
   - typer=0.12.3=pyhd8ed1ab_0
   - typer-slim=0.12.3=pyhd8ed1ab_0
@@ -577,7 +575,7 @@ dependencies:
   - xz=5.2.6=h57fd34a_0
   - yaml=0.2.5=h3422bc3_2
   - yarl=1.9.4=py312he37b823_0
-  - zeromq=4.3.5=h5119023_3
+  - zeromq=4.3.5=hcc0f68c_4
   - zipp=3.17.0=pyhd8ed1ab_0
   - zlib=1.2.13=h53f4e23_5
   - zstd=1.5.6=hb46c0d2_0
