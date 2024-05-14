@@ -2057,11 +2057,11 @@ class XbrlCalculationForestFerc1(BaseModel):
     calculable from many individually reported granular values, based on the
     calculations encoded in the XBRL Metadata, and that these relationships should have
     a hierarchical tree structure. Several individual values from the less granular
-    tables will appear as root nodes at the top of each hierarchy, and the leaves in
-    the tree structure are the individually reported non-calculated values that make
-    them up (i.e. the most granular values). Because the less granular tables have
-    several distinct values in them, composed of disjunct sets of reported values, we
-    have a forest (a group of several trees) rather than a single tree.
+    tables will appear as root nodes, and the leaves in the tree structure are the
+    individually reported non-calculated values that make them up (i.e. the most
+    granular values). Because the less granular tables have several distinct values in
+    them, composed of disjunct sets of reported values, we have a forest (a group of
+    several trees) rather than a single tree.
 
     The information required to build a calculation forest is most readily found in the
     :meth:`Exploder.exploded_calcs`. Seed nodes can be used to indicate which nodes
@@ -3143,7 +3143,7 @@ def disaggregate_null_or_total_tag(
       get a ratio of all of the ``ending_balance`` for all of the non-null and
       non-total tags.
     * use this ratio to disaggregate the ``ending_balance`` from records with total
-      and null tags across the component tags.
+      and null tag values across the other tag values.
 
     Args:
         rate_base_df: full table of rate base data.
