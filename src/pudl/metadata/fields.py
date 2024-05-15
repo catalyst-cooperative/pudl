@@ -3122,6 +3122,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "plant_status": {
         "type": "string",
         "description": "Utility plant financial status (in service, future, leased, total).",
+        # TODO 2024-05-01: add enum constraint
     },
     "plant_summer_capacity_mw": {
         "description": "The plant summer capacity associated with the operating generators at the plant",

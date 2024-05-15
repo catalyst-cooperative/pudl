@@ -1467,7 +1467,11 @@ exploded_ferc1_assets = create_exploded_table_assets()
 
 
 class Exploder:
-    """Get unique, granular datapoints from a set of related, nested FERC1 tables."""
+    """Get unique, granular datapoints from a set of related, nested FERC1 tables.
+
+    The controlling method of this class which executes its primary function is
+    :meth:`boom`.
+    """
 
     def __init__(
         self: Self,
@@ -1782,13 +1786,17 @@ class Exploder:
     def boom(self: Self, tables_to_explode: dict[str, pd.DataFrame]) -> pd.DataFrame:
         """Explode a set of nested tables.
 
-        There are five main stages of this process:
+        There are seven main stages of this process:
 
-        #. Prep all of the individual tables for explosion.
-        #. Concatenate all of the tabels together.
-        #. Remove duplication in the concatenated exploded table.
-        #. Annotate the fine-grained data with additional metadata.
-        #. Validate that calculated top-level values are correct. (not implemented)
+        #. Prep all of the individual tables for explosion (via :meth:`prep_table_to_explode`).
+        #. Concatenate all of the tabels together (via :meth:`initial_explosion_concatenation`).
+        #. Add special case calculation corrections when ``xbrl_factoid`` are off by one other
+           ``xbrl_factoid`` (via :meth:`add_sizable_minority_corrections`).
+        #. Reconcile the inter-table calculations (via :meth:`reconcile_intertable_calculations`)
+        #. Annotate the data with additional metadata (via:meth:`XbrlCalculationForestFerc1.annotated_forest`).
+        #. Identify the most fine-grained ``xbrl_factoids`` (via
+           :meth:`XbrlCalculationForestFerc1.leafy_meta`).
+        #. Validate that calculated top-level values are correct (not implemented).
 
         Args:
             tables_to_explode: dictionary of table name (key) to transfomed table (value).
@@ -2031,18 +2039,6 @@ class Exploder:
             group_metric_checks=self.group_metric_checks,
         )
         return calculated_df
-
-
-def in_explosion_tables(table_name: str, in_explosion_table_names: list[str]) -> bool:
-    """Determine if any of a list of table_names in the list of thre explosion tables.
-
-    Args:
-        table_name: tables name. Typically from the ``source_tables`` element from an
-            xbrl calculation component
-        in_explosion_table_names: list of tables involved in a particular set of
-            exploded tables.
-    """
-    return table_name in in_explosion_table_names
 
 
 ################################################################################
@@ -3019,8 +3015,8 @@ def out_ferc1__yearly_rate_base(
 
     This table contains granular data consisting of what utilities can
     include in their rate bases. This information comes from two core
-    inputs: ``exploded_balance_sheet_assets_ferc1`` and
-    ``exploded_balance_sheet_liabilities_ferc1``. These tables include granular
+    inputs: ``_out_ferc1__detailed_balance_sheet_assets`` and
+    ``_out_ferc1__detailed_balance_sheet_liabilities``. These tables include granular
     data from the nested calculations that are build into the accounting tables.
     See :class:`Exploder` for more details.
 
@@ -3053,6 +3049,17 @@ def out_ferc1__yearly_rate_base(
             disaggregate_null_or_total_tag,
             tag_col="tags_aggregatable_utility_type",
         )
+        # bc we just disaggreated the utility type tag, there are some
+        # totals in the utilty_type column. even though these two columns
+        # do not need to stay consistent, it feels cleaner to keep
+        # these consistent for these dissagregated records
+        .assign(
+            utility_type=lambda x: np.where(
+                x.is_disaggregated_tags_aggregatable_utility_type,
+                x.tags_aggregatable_utility_type,
+                x.utility_type,
+            )
+        )
         .pipe(
             disaggregate_null_or_total_tag,
             tag_col="tags_in_rate_base",
@@ -3084,6 +3091,44 @@ def check_for_correction_tags(out_ferc1__yearly_rate_base):
     for tag in ["in_rate_base", "aggregatable_utility_type"]:
         check_for_correction_xbrl_factoids_with_tag(out_ferc1__yearly_rate_base, tag)
     return AssetCheckResult(passed=True)
+
+
+@asset_check(asset="out_ferc1__yearly_rate_base", blocking=True)
+def check_pks(df):
+    """Check the primary keys of this table.
+
+    We do this as an asset check instead of actually setting the them as primary keys
+    because there are many expected nulls in these columns.
+    """
+    idx = [
+        "report_year",
+        "utility_id_ferc1",
+        "xbrl_factoid",
+        "table_name",
+        "utility_type",
+        "plant_function",
+        "plant_status",
+        # this needs to be in here bc xbrl_factoid==utility_plant_net_correction
+        # had correcitons w/ total and sub-dim utility types
+        # and then we dissagregated the total tags_aggregatable_utility_type into the sub-dims
+        "is_disaggregated_tags_aggregatable_utility_type",
+    ]
+    if not (dupes := df[df.duplicated(idx, keep=False)]).empty:
+        raise AssertionError(
+            "Found duplicate records given expected primary keys of the table:\n"
+            f"{dupes.set_index(idx).sort_index()}"
+        )
+
+    idx_min = [i for i in idx if i != "is_disaggregated_tags_aggregatable_utility_type"]
+    dupes_min = df[
+        df.duplicated(idx_min, keep=False)
+        & (df.xbrl_factoid != "utility_plant_net_correction")
+    ]
+    if not dupes_min.empty:
+        raise AssertionError(
+            "Found duplicate records given expected primary keys of the table:\n"
+            f"{dupes.set_index(idx).sort_index()}"
+        )
 
 
 def prep_cash_working_capital(
