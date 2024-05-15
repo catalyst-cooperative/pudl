@@ -1700,10 +1700,12 @@ STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "out_ferc1__yearly_rate_base": {
         "description": (
             "This table contains granular data consisting of what utilities can typically "
-            "include in their rate bases. This information comes from two core inputs: "
-            "``_out_ferc1__detailed_balance_sheet_assets`` and "
-            "``_out_ferc1__detailed_balance_sheet_liabilities``. These tables include granular data from "
-            "the nested calculations that are built into the accounting tables in FERC Form 1. "
+            "include in their rate bases. This table is derived from seven FERC Form 1"
+            " accounting tables. These core accounting tables include nested calculations. "
+            "We have reconciled these nested calculations and then identified the most "
+            "granular data across the tables. We've also added additional tags to identify "
+            "which records are included in rate base and to enable aggregations of related "
+            "values (see tags_ columns).\n"
             "See ``pudl.output.ferc1.Exploder`` for more details. This table was made entirely from "
             "support and direction of RMI."
         ),
@@ -1729,8 +1731,10 @@ STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "is_disaggregated_tags_aggregatable_utility_type",
                 "is_disaggregated_tags_in_rate_base",
             ],
-            "primary_key": [],
         },
+        "sources": ["ferc1"],
+        "etl_group": "outputs",
+        "field_namespace": "ferc1",
     }
 }
 
