@@ -3067,30 +3067,13 @@ def out_ferc1__yearly_rate_base(
     )
 
     in_rate_base_df = rate_base_df[rate_base_df.tags_in_rate_base == "yes"]
-    return in_rate_base_df.dropna(subset=["ending_balance"])
-
-
-@asset_check(
-    asset="out_ferc1__yearly_rate_base",
-    additional_ins={"tags_df": AssetIn("_out_ferc1__detailed_tags")},
-    blocking=True,
-)
-def check_tag_propagation(out_ferc1__yearly_rate_base, tags_df: pd.DataFrame):
-    """Check propagated tags compared to manually compiled tags."""
     for tag in ["in_rate_base", "aggregatable_utility_type"]:
         # note: we need the `tags_in_rate_base` column for these checks
         check_tag_propagation_compared_to_compiled_tags(
-            out_ferc1__yearly_rate_base, tag, tags_df
+            in_rate_base_df, tag, _out_ferc1__detailed_tags
         )
-    return AssetCheckResult(passed=True)
-
-
-@asset_check(asset="out_ferc1__yearly_rate_base", blocking=True)
-def check_for_correction_tags(out_ferc1__yearly_rate_base):
-    """Check if any correction records have key tags."""
-    for tag in ["in_rate_base", "aggregatable_utility_type"]:
-        check_for_correction_xbrl_factoids_with_tag(out_ferc1__yearly_rate_base, tag)
-    return AssetCheckResult(passed=True)
+        check_for_correction_xbrl_factoids_with_tag(in_rate_base_df, tag)
+    return in_rate_base_df.dropna(subset=["ending_balance"])
 
 
 @asset_check(asset="out_ferc1__yearly_rate_base", blocking=True)
@@ -3129,6 +3112,7 @@ def check_pks(df):
             "Found duplicate records given expected primary keys of the table:\n"
             f"{dupes.set_index(idx).sort_index()}"
         )
+    return AssetCheckResult(passed=True)
 
 
 def prep_cash_working_capital(
