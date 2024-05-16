@@ -1703,9 +1703,13 @@ STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "include in their rate bases. This table is derived from seven FERC Form 1"
             " accounting tables with nested calculations. "
             "We reconciled these nested calculations and then identified the most "
-            "granular data across the tables. We also added additional tags to identify "
-            "which records are included in rate base and to enable aggregations of related "
-            "values (see tags_ columns).\n"
+            "granular data across the tables.\n"
+            "We applied slight modifications to three columns (utility_type, plant_function & "
+            "plant_status) as compared to the originally reported values in our core tables. "
+            "The modifications were applied to either provide more specificity (i.e. we converted"
+            "some `total` utility_type's into `electric`) or to condense similar categories "
+            "for easier analysis (i.e. creating a `hydraulic_production` plant_function by "
+            "combining `hydraulic_production_conventional` and `hydraulic_production_pumped_storage`\n"
             "See ``pudl.output.ferc1.Exploder`` for more details. This table was made entirely from "
             "support and direction of RMI."
         ),
@@ -1714,9 +1718,9 @@ STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_year",
                 "utility_id_ferc1",
                 "table_name",
-                "plant_status",
                 "utility_type",
                 "plant_function",
+                "plant_status",
                 "xbrl_factoid",
                 "ending_balance",
                 "utility_type_other",
@@ -1724,8 +1728,8 @@ STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "ferc_account",
                 "row_type_xbrl",
                 "record_id",
-                "is_disaggregated_tags_aggregatable_utility_type",
-                "is_disaggregated_tags_in_rate_base",
+                "is_disaggregated_utility_type",
+                "is_disaggregated_in_rate_base",
             ],
         },
         "sources": ["ferc1"],
@@ -1735,13 +1739,32 @@ STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
 }
 
 UTILITY_TYPES_FERC1 = ["electric", "gas", "common", "other", "other3", "other2"]
-
+PLANT_FUNCTION_RATE_BASE_FERC1 = [
+    [
+        "distribution",
+        "experimental",
+        "general",
+        "hydraulic_production",
+        "intangible",
+        "nuclear_production",
+        "other_production",
+        "purchased_sold",
+        "regional_transmission_and_market_operation",
+        "steam_production",
+        "transmission",
+        "unclassified",
+    ]
+]
 STAGING_FIELD_METADATA: dict[str, dict[str, Any]] = {
     "table_name": {
         "type": "string",
         "description": "The name of the PUDL database table where a given record originated from.",
     },
-    "tags_rate_base_category": {
+    "xbrl_factoid": {
+        "type": "string",  # TODO: this is bad rn... make better
+        "description": "The name of type of value which is originally reported in the FERC1 data.",
+    },
+    "rate_base_category": {
         "type": "string",
         "description": "A category of asset or liability that RMI compiled to use "
         "as a shorthand for various types of utility assets. "
@@ -1769,70 +1792,18 @@ STAGING_FIELD_METADATA: dict[str, dict[str, Any]] = {
             ]
         },
     },
-    "tags_aggregatable_utility_type": {
-        "type": "string",
-        "description": (
-            "Utility type used for aggregation of the rate base table. Almost all of the values "
-            "in this column are the same as the utility_type column, but there are a few xbrl_factoid's "
-            "that are reported as utility_type total that are only applicable to a more specific utility "
-            "type."
-            # We could have chosen to update the utility_type in the transformed tables, but that would
-            # have potentially mucked up the calculations. adding this extra layer left safer and simpler
-        ),
-        "constraints": {"enum": UTILITY_TYPES_FERC1},
-    },
-    "tags_aggregatable_plant_status": {
-        "type": "string",
-        "description": (
-            "Utility plant financial status (in service, future, leased, total) used for aggregation in "
-            "the detailed and rate base tables. This column is almost always the same as the plant_status "
-            "but there are a few xbrl_factoid's that had a more general or null plant_status that we "
-            "wanted to make more specific."
-        ),
-        "constraints": {
-            "enum": ["in_service"]
-        },  # TODO 2024-05-15:  smol enum is for the rate base table only. make this a table specific enum
-    },
-    "tags_aggregatable_plant_function": {
-        "type": "string",
-        "description": (
-            "Functional role played by utility plant (steam production, nuclear production, distribution, "
-            "transmission, etc.) used for aggregation in the detailed and rate base tables. This column is "
-            "almost always the same as the plant_function but there are a few xbrl_factoid's that had a "
-            "more general or null plant_function that we made more specific using this column."
-            " There were also a few specific hydro plant_function's we wanted to condensed "
-            "into one category."
-        ),
-        "constraints": {
-            "enum": [
-                "distribution",
-                "experimental",
-                "general",
-                "hydraulic_production",
-                "intangible",
-                "nuclear_production",
-                "other_production",
-                "purchased_sold",
-                "regional_transmission_and_market_operation",
-                "steam_production",
-                "transmission",
-                "unclassified",
-            ]
-        },
-    },
-    "is_disaggregated_tags_aggregatable_utility_type": {
+    "is_disaggregated_utility_type": {
         "type": "boolean",
         "description": (
             "Indicates whether or not records with null or total values in the "
-            "tags_aggregatable_utility_type column were disaggregated. See documentation for process: "
+            "utility_type column were disaggregated. See documentation for process: "
             "pudl.output.ferc1.disaggregate_null_or_total_tag"
         ),
-        # TODO 2024-05-15: Add this link in an un-ugly way: https://catalystcoop-pudl.readthedocs.io/en/latest/autoapi/pudl/output/ferc1/index.html#pudl.output.ferc1.disaggregate_null_or_total_tag
     },
-    "is_disaggregated_tags_in_rate_base": {
+    "is_disaggregated_in_rate_base": {
         "type": "boolean",
         "description": (
-            "Indicates whether or not records with null values in the tags_in_rate_base column were "
+            "Indicates whether or not records with null values in the in_rate_base column were "
             "disaggregated. See documentation for process: pudl.output.ferc1.disaggregate_null_or_total_tag"
         ),
     },
