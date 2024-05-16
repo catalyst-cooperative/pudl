@@ -1821,10 +1821,10 @@ class Exploder:
             "ferc_account",
             "row_type_xbrl",
         ]
-        # exploded = exploded[cols_to_keep]
+        exploded = exploded[cols_to_keep]
         # remove the tag_ prefix. the tag verbage is helpful in the context
         # of the forest construction but after that its distracting
-        # exploded.columns = exploded.columns.str.removeprefix("tags_")
+        exploded.columns = exploded.columns.str.removeprefix("tags_")
 
         # TODO: Validate the root node calculations.
         # Verify that we get the same values for the root nodes using only the input
@@ -3014,7 +3014,7 @@ check_specs_detailed_tables_tags = [
     },
     {
         "asset": "_out_ferc1__detailed_balance_sheet_liabilities",
-        "tag_columns": ["in_rate_base", "aggregatable_utility_type"],
+        "tag_columns": ["in_rate_base"],
     },
 ]
 
@@ -3050,10 +3050,9 @@ def make_check_correction_tags(spec) -> AssetChecksDefinition:
     return _check
 
 
-# _checks = [make_check_tag_propagation(spec) for spec in check_specs_detailed_tables_tags]
 _checks = [
-    make_check_correction_tags(spec) for spec in check_specs_detailed_tables_tags
-]
+    make_check_tag_propagation(spec) for spec in check_specs_detailed_tables_tags
+] + [make_check_correction_tags(spec) for spec in check_specs_detailed_tables_tags]
 
 
 @asset
@@ -3118,9 +3117,10 @@ def out_ferc1__yearly_rate_base(
 def replace_dimension_columns_with_aggregatable(df: pd.DataFrame) -> pd.DataFrame:
     """Replace the dimenion columns with their aggregatable counterparts."""
     dimensions = [f for f in NodeId._fields if f not in ["table_name", "xbrl_factoid"]]
-    tag_dimensions = [f"aggregatable_{d}" for d in dimensions]
-    df.loc[:, dimensions] = df.loc[:, tag_dimensions]
-    return df.drop(columns=tag_dimensions)
+    dimensions_tags = [f"aggregatable_{d}" for d in dimensions]
+    for dim in dimensions:
+        df = df.assign(**{dim: lambda x: x[f"aggregatable_{dim}"]})  # noqa: B023
+    return df.drop(columns=dimensions_tags)
 
 
 @asset_check(asset="out_ferc1__yearly_rate_base", blocking=True)
@@ -3138,24 +3138,20 @@ def check_pks(df):
         "utility_type",
         "plant_function",
         "plant_status",
+    ]
+    dupes = df[
+        df.duplicated(idx, keep=False)
         # this needs to be in here bc xbrl_factoid==utility_plant_net_correction
         # had correcitons w/ total and sub-dimensions utility types
         # and then we dissagregated the total utility_type into the
         # sub-dimensions
-        "is_disaggregated_utility_type",
-    ]
-    if not (dupes := df[df.duplicated(idx, keep=False)]).empty:
-        raise AssertionError(
-            "Found duplicate records given expected primary keys of the table:\n"
-            f"{dupes.set_index(idx).sort_index()}"
-        )
-
-    idx_min = [i for i in idx if i != "is_disaggregated_utility_type"]
-    dupes_min = df[
-        df.duplicated(idx_min, keep=False)
         & (df.xbrl_factoid != "utility_plant_net_correction")
+        # this needs to be here bc we condensed two kinds of hydro
+        # plant functions (conventional & pumped storage) into one
+        # categeory for easier id-ing of all the hydro assets/liabiltiies
+        & (df.plant_function != "hydraulic_production")
     ]
-    if not dupes_min.empty:
+    if not dupes.empty:
         raise AssertionError(
             "Found duplicate records given expected primary keys of the table:\n"
             f"{dupes.set_index(idx).sort_index()}"
