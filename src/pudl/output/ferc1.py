@@ -3056,7 +3056,7 @@ _checks = [
 ] + [make_check_correction_tags(spec) for spec in check_specs_detailed_tables_tags]
 
 
-@asset
+@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def out_ferc1__yearly_rate_base(
     _out_ferc1__detailed_balance_sheet_assets: pd.DataFrame,
     _out_ferc1__detailed_balance_sheet_liabilities: pd.DataFrame,
