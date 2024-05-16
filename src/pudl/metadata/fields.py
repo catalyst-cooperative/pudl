@@ -4746,6 +4746,59 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Real weighted average cost of capital - average expected rate that is paid to finance assets.",
     },
+    "table_name": {
+        "type": "string",
+        "description": "The name of the PUDL database table where a given record originated from.",
+    },
+    "xbrl_factoid": {
+        "type": "string",  # TODO: this is bad rn... make better
+        "description": "The name of type of value which is a derivative of the XBRL fact name.",
+    },
+    "rate_base_category": {
+        "type": "string",
+        "description": (
+            "A category of asset or liability that RMI compiled to use "
+            "as a shorthand for various types of utility assets. "
+            "These tags were compiled manually based on the xbrl_factoid and sometimes varies "
+            "based on the utility_type, plant_function or plant_status as well."
+        ),
+        "constraints": {
+            "enum": [
+                "other_plant",
+                "nuclear",
+                "transmission",
+                "net_nuclear_fuel",
+                "distribution",
+                "steam",
+                "experimental_plant",
+                "net_working_capital",
+                "general_plant",
+                "regional_transmission_and_market_operation",
+                "other_production",
+                "hydro",
+                "net_utility_plant",
+                "intangible_plant",
+                "other_deferred_debits_and_credits",
+                "net_regulatory_assets",
+                "net_ADIT",
+            ]
+        },
+    },
+    "is_disaggregated_utility_type": {
+        "type": "boolean",
+        "description": (
+            "Indicates whether or not records with null or total values in the "
+            "utility_type column were disaggregated. See documentation for process: "
+            "pudl.output.ferc1.disaggregate_null_or_total_tag"
+        ),
+    },
+    "is_disaggregated_in_rate_base": {
+        "type": "boolean",
+        "description": (
+            "Indicates whether or not records with null values in the in_rate_base column were "
+            "disaggregated. See documentation for process: pudl.output.ferc1.disaggregate_null_or_total_tag"
+        ),
+    },
 }
 """Field attributes by PUDL identifier (`field.name`).
 
@@ -4912,6 +4965,35 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
             "description": "Fuel costs in USD$/MWh. NREL-derived values using heat rates.",
             "unit": "USD_per_MWh",
         }
+    },
+    "out_ferc1__yearly_rate_base": {
+        "plant_function": {
+            "type": "string",
+            "description": "Functional role played by utility plant (steam production, nuclear production, distribution, transmission, etc.).",
+            "constraints": {
+                "enum": [
+                    "distribution",
+                    "experimental",
+                    "general",
+                    "hydraulic_production",
+                    "intangible",
+                    "nuclear_production",
+                    "other_production",
+                    "purchased_sold",
+                    "regional_transmission_and_market_operation",
+                    "steam_production",
+                    "transmission",
+                    "unclassified",
+                ]
+            },
+        },
+        "utility_type": {
+            "type": "string",
+            "description": "Listing of utility plant types.",
+            "constraints": {
+                "enum": ["electric", "gas", "common", "other", "other3", "other2"]
+            },
+        },
     },
 }
 

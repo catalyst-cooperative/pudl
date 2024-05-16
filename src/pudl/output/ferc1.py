@@ -1790,8 +1790,8 @@ class Exploder:
         There are seven main stages of this process:
 
         #. Prep all of the individual tables for explosion (via :meth:`prep_table_to_explode`).
-        #. Concatenate all of the tabels together (via :meth:`initial_explosion_concatenation`).
-        #. Mange specific calculated values when a sizable minority of utilities report in a
+        #. Concatenate all of the tables together (via :meth:`initial_explosion_concatenation`).
+        #. Manage specific calculated values when a sizable minority of utilities report in a
            non-standard way (via :meth:`add_sizable_minority_corrections`).
         #. Reconcile the inter-table calculations (via :meth:`reconcile_intertable_calculations`)
         #. Annotate the data with additional metadata (via:meth:`XbrlCalculationForestFerc1.annotated_forest`).
