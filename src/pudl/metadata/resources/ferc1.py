@@ -1762,7 +1762,7 @@ STAGING_FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "xbrl_factoid": {
         "type": "string",  # TODO: this is bad rn... make better
-        "description": "The name of type of value which is originally reported in the FERC1 data.",
+        "description": "The name of type of value which is a derivative of the XBRL fact name.",
     },
     "rate_base_category": {
         "type": "string",

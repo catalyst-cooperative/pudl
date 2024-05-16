@@ -1791,13 +1791,14 @@ class Exploder:
 
         #. Prep all of the individual tables for explosion (via :meth:`prep_table_to_explode`).
         #. Concatenate all of the tabels together (via :meth:`initial_explosion_concatenation`).
-        #. Add special case calculation corrections when ``xbrl_factoid`` are off by one other
-           ``xbrl_factoid`` (via :meth:`add_sizable_minority_corrections`).
+        #. Mange specific calculated values when a sizable minority of utilities report in a
+           non-standard way (via :meth:`add_sizable_minority_corrections`).
         #. Reconcile the inter-table calculations (via :meth:`reconcile_intertable_calculations`)
         #. Annotate the data with additional metadata (via:meth:`XbrlCalculationForestFerc1.annotated_forest`).
-        #. Identify the most fine-grained ``xbrl_factoids`` (via
+        #. Identify the most granular ``xbrl_factoids`` (via
            :meth:`XbrlCalculationForestFerc1.leafy_meta`).
-        #. Validate that calculated top-level values are correct (not implemented).
+        #. Reconcile a calculation of least granular records using the most granular
+           records (i.e. the seed to leaves calculation) (not yet implemented).
 
         Args:
             tables_to_explode: dictionary of table name (key) to transfomed table (value).
