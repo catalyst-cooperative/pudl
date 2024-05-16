@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 from dagster import (
     AssetCheckResult,
+    AssetChecksDefinition,
     AssetIn,
     AssetsDefinition,
     Field,
@@ -1820,12 +1821,16 @@ class Exploder:
             "ferc_account",
             "row_type_xbrl",
         ]
+        # exploded = exploded[cols_to_keep]
+        # remove the tag_ prefix. the tag verbage is helpful in the context
+        # of the forest construction but after that its distracting
+        # exploded.columns = exploded.columns.str.removeprefix("tags_")
 
         # TODO: Validate the root node calculations.
         # Verify that we get the same values for the root nodes using only the input
         # data from the leaf nodes:
         # root_calcs = self.calculation_forest.root_calculations
-        return exploded[cols_to_keep].convert_dtypes()
+        return exploded.convert_dtypes()
 
     def initial_explosion_concatenation(
         self, tables_to_explode: dict[str, pd.DataFrame]
@@ -2956,7 +2961,7 @@ def check_tag_propagation_compared_to_compiled_tags(
         df_filtered, on=list(df_filtered.columns), how="right"
     )
     manually_tagged = df_tags[df_tags[propagated_tag].notnull()].xbrl_factoid.unique()
-    detailed_tagged = df[df[f"tags_{propagated_tag}"].notnull()].xbrl_factoid.unique()
+    detailed_tagged = df[df[propagated_tag].notnull()].xbrl_factoid.unique()
     if len(detailed_tagged) < len(manually_tagged):
         raise AssertionError(
             f"Found more {len(manually_tagged)} mannually compiled tagged xbrl_factoids"
@@ -2967,8 +2972,7 @@ def check_tag_propagation_compared_to_compiled_tags(
         & df_tags.xbrl_factoid.str.endswith("_correction")
     ].xbrl_factoid.unique()
     detailed_tagged_corrections = df[
-        df[f"tags_{propagated_tag}"].notnull()
-        & df.xbrl_factoid.str.endswith("_correction")
+        df[propagated_tag].notnull() & df.xbrl_factoid.str.endswith("_correction")
     ].xbrl_factoid.unique()
     if len(detailed_tagged_corrections) < len(manually_tagged_corrections):
         raise AssertionError(
@@ -2994,8 +2998,7 @@ def check_for_correction_xbrl_factoids_with_tag(
         AssertionError: If there are zero correction ``xbrl_factoids`` in ``df`` with tags.
     """
     detailed_tagged_corrections = df[
-        df[f"tags_{propagated_tag}"].notnull()
-        & df.xbrl_factoid.str.endswith("_correction")
+        df[propagated_tag].notnull() & df.xbrl_factoid.str.endswith("_correction")
     ].xbrl_factoid.unique()
     if len(detailed_tagged_corrections) == 0:
         raise AssertionError(
@@ -3004,28 +3007,77 @@ def check_for_correction_xbrl_factoids_with_tag(
         )
 
 
+check_specs_detailed_tables_tags = [
+    {
+        "asset": "_out_ferc1__detailed_balance_sheet_assets",
+        "tag_columns": ["in_rate_base", "aggregatable_utility_type"],
+    },
+    {
+        "asset": "_out_ferc1__detailed_balance_sheet_liabilities",
+        "tag_columns": ["in_rate_base", "aggregatable_utility_type"],
+    },
+]
+
+
+def make_check_tag_propagation(spec) -> AssetChecksDefinition:
+    """Check the propagation of tags."""
+
+    @asset_check(
+        name="check_tag_propagation",
+        asset=spec["asset"],
+        additional_ins={"tags_df": AssetIn("_out_ferc1__detailed_tags")},
+    )
+    def _check(df: pd.DataFrame, tags_df: pd.DataFrame):
+        for tag in spec["tag_columns"]:
+            check_tag_propagation_compared_to_compiled_tags(df, tag, tags_df)
+        return AssetCheckResult(passed=True)
+
+    return _check
+
+
+def make_check_correction_tags(spec) -> AssetChecksDefinition:
+    """Check the propagation of tags."""
+
+    @asset_check(
+        name="check_correction_tags",
+        asset=spec["asset"],
+    )
+    def _check(df):
+        for tag in spec["tag_columns"]:
+            check_for_correction_xbrl_factoids_with_tag(df, tag)
+        return AssetCheckResult(passed=True)
+
+    return _check
+
+
+# _checks = [make_check_tag_propagation(spec) for spec in check_specs_detailed_tables_tags]
+_checks = [
+    make_check_correction_tags(spec) for spec in check_specs_detailed_tables_tags
+]
+
+
 @asset
 def out_ferc1__yearly_rate_base(
     _out_ferc1__detailed_balance_sheet_assets: pd.DataFrame,
     _out_ferc1__detailed_balance_sheet_liabilities: pd.DataFrame,
     core_ferc1__yearly_operating_expenses_sched320: pd.DataFrame,
-    _out_ferc1__detailed_tags: pd.DataFrame,
 ) -> pd.DataFrame:
     """Make a table of granular utility rate base data.
 
     This table contains granular data consisting of what utilities can
     include in their rate bases. This information comes from two core
     inputs: ``_out_ferc1__detailed_balance_sheet_assets`` and
-    ``_out_ferc1__detailed_balance_sheet_liabilities``. These tables include granular
-    data from the nested calculations that are build into the accounting tables.
+    ``_out_ferc1__detailed_balance_sheet_liabilities``. These two detailed tables
+    are generated from seven different core_ferc1_* accounting tables with
+    nested calculations. We chose only the most granular data from these tables.
     See :class:`Exploder` for more details.
 
     This rate base table also contains one new "cash_working_capital" xbrl_factoid
     from :ref:`core_ferc1__yearly_operating_expenses_sched320` via
     :func:`prep_cash_working_capital`.
 
-    We also disaggregate records that have nulls or totals in two of the key tag
-    columns: ``tags_aggregatable_utility_type`` and ``tags_in_rate_base`` via
+    We also disaggregate records that have nulls or totals in two of the key
+    columns: ``utility_type`` and ``in_rate_base`` via
     :func:`disaggregate_null_or_total_tag`.
     """
     assets = _out_ferc1__detailed_balance_sheet_assets
@@ -3045,43 +3097,38 @@ def out_ferc1__yearly_rate_base(
                 cash_working_capital,
             ]
         )
+        # Note: This step could happen at the end of the Explode.boom process.
+        # we're doing it here for now to preserve the augmented versions of
+        # the dimensions for a little longer in the process.
+        .pipe(replace_dimension_columns_with_aggregatable)
         .pipe(
             disaggregate_null_or_total_tag,
-            tag_col="tags_aggregatable_utility_type",
-        )
-        # bc we just disaggreated the utility type tag, there are some
-        # totals in the utilty_type column. even though these two columns
-        # do not need to stay consistent, it feels cleaner to keep
-        # these consistent for these dissagregated records
-        .assign(
-            utility_type=lambda x: np.where(
-                x.is_disaggregated_tags_aggregatable_utility_type,
-                x.tags_aggregatable_utility_type,
-                x.utility_type,
-            )
+            tag_col="utility_type",
         )
         .pipe(
             disaggregate_null_or_total_tag,
-            tag_col="tags_in_rate_base",
+            tag_col="in_rate_base",
         )
     )
 
-    in_rate_base_df = rate_base_df[rate_base_df.tags_in_rate_base == "yes"]
-    for tag in ["in_rate_base", "aggregatable_utility_type"]:
-        # note: we need the `tags_in_rate_base` column for these checks
-        check_tag_propagation_compared_to_compiled_tags(
-            in_rate_base_df, tag, _out_ferc1__detailed_tags
-        )
-        check_for_correction_xbrl_factoids_with_tag(in_rate_base_df, tag)
+    in_rate_base_df = rate_base_df[rate_base_df.in_rate_base == "yes"]
     return in_rate_base_df.dropna(subset=["ending_balance"])
+
+
+def replace_dimension_columns_with_aggregatable(df: pd.DataFrame) -> pd.DataFrame:
+    """Replace the dimenion columns with their aggregatable counterparts."""
+    dimensions = [f for f in NodeId._fields if f not in ["table_name", "xbrl_factoid"]]
+    tag_dimensions = [f"aggregatable_{d}" for d in dimensions]
+    df.loc[:, dimensions] = df.loc[:, tag_dimensions]
+    return df.drop(columns=tag_dimensions)
 
 
 @asset_check(asset="out_ferc1__yearly_rate_base", blocking=True)
 def check_pks(df):
     """Check the primary keys of this table.
 
-    We do this as an asset check instead of actually setting the them as primary keys
-    because there are many expected nulls in these columns.
+    We do this as an asset check instead of actually setting them as primary keys
+    in the db schema because there are many expected nulls in these columns.
     """
     idx = [
         "report_year",
@@ -3092,9 +3139,10 @@ def check_pks(df):
         "plant_function",
         "plant_status",
         # this needs to be in here bc xbrl_factoid==utility_plant_net_correction
-        # had correcitons w/ total and sub-dim utility types
-        # and then we dissagregated the total tags_aggregatable_utility_type into the sub-dims
-        "is_disaggregated_tags_aggregatable_utility_type",
+        # had correcitons w/ total and sub-dimensions utility types
+        # and then we dissagregated the total utility_type into the
+        # sub-dimensions
+        "is_disaggregated_utility_type",
     ]
     if not (dupes := df[df.duplicated(idx, keep=False)]).empty:
         raise AssertionError(
@@ -3102,7 +3150,7 @@ def check_pks(df):
             f"{dupes.set_index(idx).sort_index()}"
         )
 
-    idx_min = [i for i in idx if i != "is_disaggregated_tags_aggregatable_utility_type"]
+    idx_min = [i for i in idx if i != "is_disaggregated_utility_type"]
     dupes_min = df[
         df.duplicated(idx_min, keep=False)
         & (df.xbrl_factoid != "utility_plant_net_correction")
@@ -3145,9 +3193,9 @@ def prep_cash_working_capital(
         .assign(
             dollar_value=lambda x: x.dollar_value.divide(8),
             xbrl_factoid="cash_working_capital",  # newly definied xbrl_factoid
-            tags_in_rate_base="yes",
-            tags_rate_base_category="net_working_capital",
-            tags_aggregatable_utility_type="electric",
+            in_rate_base="yes",
+            rate_base_category="net_working_capital",
+            aggregatable_utility_type="electric",
             table_name="core_ferc1__yearly_operating_expenses_sched320",
         )
         .drop(columns=[xbrl_factoid_name])
@@ -3186,12 +3234,12 @@ def disaggregate_null_or_total_tag(
         tag_col
     ].isnull()
     ratio_idx = ["report_year", "utility_id_ferc1"]
-    ratio_df = get_tag_col_ratio(
+    ratio_df = get_column_value_ratio(
         # remove the total and/or null records because those are the values
         # we want to disaggreate so we can't have it in the columns to sum up
         rate_base_df=rate_base_df[~total_null_mask],
         ratio_idx=ratio_idx,
-        tag_col=tag_col,
+        column=tag_col,
     )
     disaggregated_df = (
         pd.merge(
@@ -3235,27 +3283,26 @@ def disaggregate_null_or_total_tag(
     return rate_base_disaggregated_df.convert_dtypes().reset_index(drop=True)
 
 
-def get_tag_col_ratio(
-    rate_base_df: pd.DataFrame, ratio_idx: list[str], tag_col: str
+def get_column_value_ratio(
+    rate_base_df: pd.DataFrame, ratio_idx: list[str], column: str
 ) -> pd.DataFrame:
-    """Calculate the percentage of the ``ending_balance`` within each tag group.
+    """Calculate the percentage of the ``ending_balance`` within each value in the column.
 
     Make ratio column with a 0-1 value of the sum of ``ending_balance`` in each
-    of the values in ``tag_col`` within each ``ratio_idx``.
+    of the values in ``column`` within each ``ratio_idx``.
 
     In practice, this was built to be used within :func:`disaggregate_null_or_total_tag`.
     For each ``report_year``, ``utility_id_ferc1`` and value within the ``tag_col`` this
     function will calculate the ratio of ``ending_balance``. For example, if the tag
-    column is ``tags_aggregatable_utility_type`` and utility X has values of electric and
-    gas, this function will calculate what ratio of that utility's annual
+    column is ``utility_type`` and utility X has values of electric and gas, this function will calculate what ratio of that utility's annual
     ``ending_balance`` is electric and gas.
     """
     # get the sum of the balance in each of the values in tag_col
     grouped_df = (
-        rate_base_df.groupby(ratio_idx + [tag_col])[["ending_balance"]]
+        rate_base_df.groupby(ratio_idx + [column])[["ending_balance"]]
         .sum(min_count=1)
-        .reset_index(level=[tag_col])
-        .pivot(columns=[tag_col])
+        .reset_index(level=[column])
+        .pivot(columns=[column])
     )
     tag_values = grouped_df.columns.get_level_values(1)
     grouped_df.columns = tag_values
@@ -3268,13 +3315,13 @@ def get_tag_col_ratio(
     ratio_df = (
         pd.DataFrame(
             grouped_df.filter(regex="^ratio_").stack(future_stack=False),
-            columns=[f"ratio_{tag_col}"],
+            columns=[f"ratio_{column}"],
         )
         .reset_index()
-        .assign(**{tag_col: lambda x: x[tag_col].str.removeprefix("ratio_")})
+        .assign(**{column: lambda x: x[column].str.removeprefix("ratio_")})
     )
     assert all(
-        ~ratio_df[f"ratio_{tag_col}"].between(0, 1, inclusive="both")
-        | ratio_df[f"ratio_{tag_col}"].notnull()
+        ~ratio_df[f"ratio_{column}"].between(0, 1, inclusive="both")
+        | ratio_df[f"ratio_{column}"].notnull()
     )
     return ratio_df

@@ -1699,11 +1699,11 @@ See :func:`pudl.metadata.helpers.build_foreign_keys` for the expected format of
 STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "out_ferc1__yearly_rate_base": {
         "description": (
-            "This table contains granular data consisting of what utilities can typically "
+            "This table contains granular data accounting consisting of what utilities can typically "
             "include in their rate bases. This table is derived from seven FERC Form 1"
-            " accounting tables. These core accounting tables include nested calculations. "
-            "We have reconciled these nested calculations and then identified the most "
-            "granular data across the tables. We've also added additional tags to identify "
+            " accounting tables with nested calculations. "
+            "We reconciled these nested calculations and then identified the most "
+            "granular data across the tables. We also added additional tags to identify "
             "which records are included in rate base and to enable aggregations of related "
             "values (see tags_ columns).\n"
             "See ``pudl.output.ferc1.Exploder`` for more details. This table was made entirely from "
@@ -1720,10 +1720,7 @@ STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "xbrl_factoid",
                 "ending_balance",
                 "utility_type_other",
-                "tags_rate_base_category",
-                "tags_aggregatable_utility_type",
-                "tags_aggregatable_plant_status",
-                "tags_aggregatable_plant_function",
+                "rate_base_category",
                 "ferc_account",
                 "row_type_xbrl",
                 "record_id",
@@ -1746,7 +1743,10 @@ STAGING_FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "tags_rate_base_category": {
         "type": "string",
-        "description": "A category of asset or liability that RMI compiled based on  the xbrl_factoid and sometimes varies based on the .",
+        "description": "A category of asset or liability that RMI compiled to use "
+        "as a shorthand for various types of utility assets. "
+        "These tags were compiled manually based on the xbrl_factoid and sometimes varies "
+        "based on the utility_type, plant_function or plant_status as well.",
         "constraints": {
             "enum": [  # TODO 2024-05-15: need to add a null? Try w/o and see.
                 "other_plant",
@@ -1773,7 +1773,7 @@ STAGING_FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": (
             "Utility type used for aggregation of the rate base table. Almost all of the values "
-            "in this column are the same as the utility_type column, but there were a few xbrl_factoid's "
+            "in this column are the same as the utility_type column, but there are a few xbrl_factoid's "
             "that are reported as utility_type total that are only applicable to a more specific utility "
             "type."
             # We could have chosen to update the utility_type in the transformed tables, but that would
@@ -1786,7 +1786,7 @@ STAGING_FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Utility plant financial status (in service, future, leased, total) used for aggregation in "
             "the detailed and rate base tables. This column is almost always the same as the plant_status "
-            "but there were a few xbrl_factoid's that had a more general or null plant_status that we "
+            "but there are a few xbrl_factoid's that had a more general or null plant_status that we "
             "wanted to make more specific."
         ),
         "constraints": {
@@ -1798,9 +1798,10 @@ STAGING_FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Functional role played by utility plant (steam production, nuclear production, distribution, "
             "transmission, etc.) used for aggregation in the detailed and rate base tables. This column is "
-            "almost always the same as the plant_function but there were a few xbrl_factoid's that had a "
-            "more general or null plant_function that we wanted to make more specific. There were also "
-            "a few specific hydro plant_function's we wanted to condense into one category."
+            "almost always the same as the plant_function but there are a few xbrl_factoid's that had a "
+            "more general or null plant_function that we made more specific using this column."
+            " There were also a few specific hydro plant_function's we wanted to condensed "
+            "into one category."
         ),
         "constraints": {
             "enum": [
@@ -1822,8 +1823,8 @@ STAGING_FIELD_METADATA: dict[str, dict[str, Any]] = {
     "is_disaggregated_tags_aggregatable_utility_type": {
         "type": "boolean",
         "description": (
-            "Indicates whether or not records with a null or total values in the "
-            "tags_aggregatable_utility_type column was disaggregated. See documentation for process: "
+            "Indicates whether or not records with null or total values in the "
+            "tags_aggregatable_utility_type column were disaggregated. See documentation for process: "
             "pudl.output.ferc1.disaggregate_null_or_total_tag"
         ),
         # TODO 2024-05-15: Add this link in an un-ugly way: https://catalystcoop-pudl.readthedocs.io/en/latest/autoapi/pudl/output/ferc1/index.html#pudl.output.ferc1.disaggregate_null_or_total_tag
@@ -1831,7 +1832,7 @@ STAGING_FIELD_METADATA: dict[str, dict[str, Any]] = {
     "is_disaggregated_tags_in_rate_base": {
         "type": "boolean",
         "description": (
-            "Indicates whether or not records with a null values in the tags_in_rate_base column was "
+            "Indicates whether or not records with null values in the tags_in_rate_base column were "
             "disaggregated. See documentation for process: pudl.output.ferc1.disaggregate_null_or_total_tag"
         ),
     },
