@@ -700,10 +700,15 @@ the standard (IEEE/other) and other relevant information."""
 The data started being reported in 2012. However, the 2019 data is not available.
 They are expected to submit the completed Form EIA-861S to EIA by April 30th, following the end of the prior calendar year.
 Utilities report on Form EIA-861S if they:
+
 - Report less than 200,000 megawatthours on the last previous Form EIA-861.
+
 - Provide only bundled service (generation and distribution).
+
 - Are not needed to ensure acceptable quality of statistical estimates.
+
 - Are not part of the aggregate TVA or WPPI.
+
 - Do not report on Form EIA-861M."""
         ),
         "schema": {

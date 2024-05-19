@@ -2528,6 +2528,7 @@ def core_eia861__assn_utility(**data_dfs: dict[str, pd.DataFrame]) -> pd.DataFra
         "core_eia861__yearly_operational_data_revenue": AssetIn(),
         "core_eia861__yearly_reliability": AssetIn(),
         "core_eia861__yearly_sales": AssetIn(),
+        "core_eia861__yearly_short_form": AssetIn(),
         "core_eia861__yearly_utility_data_misc": AssetIn(),
         "core_eia861__yearly_utility_data_nerc": AssetIn(),
         "core_eia861__yearly_utility_data_rto": AssetIn(),
