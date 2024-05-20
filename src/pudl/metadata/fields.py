@@ -4781,6 +4781,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
                 "other_deferred_debits_and_credits",
                 "net_regulatory_assets",
                 "net_ADIT",
+                "asset_retirement_costs",
+                "utility_plant",
+                "AROs",
+                "correction",
             ]
         },
     },
