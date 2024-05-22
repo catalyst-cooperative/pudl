@@ -3,8 +3,11 @@
 import pandas as pd
 from dagster import asset
 
+import pudl.logging_helpers
 from pudl.extract.csv import CsvExtractor
 from pudl.extract.extractor import GenericMetadata, PartitionSelection, raw_df_factory
+
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 class Extractor(CsvExtractor):
@@ -17,6 +20,26 @@ class Extractor(CsvExtractor):
             ds (:class:datastore.Datastore): Initialized datastore.
         """
         self.METADATA = GenericMetadata("eia930")
+        self.READ_CSV_KWARGS = {
+            "thousands": ",",
+            # Note that all of these date columns happen to be present in all of the
+            # pages within the EIA-930 dataset, so we can specify them without needing
+            # to specify separate arguments for each page (which isn't currently
+            # implemented)
+            "parse_dates": [
+                "Data Date",
+                "Local Time at End of Hour",
+                "UTC Time at End of Hour",
+            ],
+            "dtype": {
+                "Balancing Authority": "string",
+                "Region": "string",
+                "DIBA_Region": "string",
+                "Directly Interconnected Balancing Authority": "string",
+                "Sub-Region": "string",
+            },
+            "cache_dates": True,
+        }
         super().__init__(*args, **kwargs)
 
     def source_filename(self, page: str, **partition: PartitionSelection) -> str:
@@ -35,7 +58,7 @@ class Extractor(CsvExtractor):
         partition_selection = self._metadata._get_partition_selection(partition)
         # Subregion doesn't exist prior to 2018 half 2
         if page == "subregion" and (
-            int(partition_selection[0:3]) < 2019 or partition_selection == "2018half1"
+            int(partition_selection[0:4]) < 2019 or partition_selection == "2018half1"
         ):
             return "-1"
         return f"{self._dataset_name}-{partition_selection}-{page}.csv"

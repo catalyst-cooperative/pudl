@@ -19,19 +19,17 @@ As of 2019, the EIA-923 Form is organized into the following schedules:
 
 {% endblock %}
 
-{% block downloadable_pdfs %}
+{% block download_docs %}
 {% for filename in download_paths %}
-* :download:`{{ filename.stem.replace("_", " ").title() }} (PDF) <{{ filename }}>`
-
+* :download:`{{ filename.stem.replace("_", " ").title() }} ({{ filename.suffix.replace('.', '').upper() }}) <{{ filename }}>`
 {% endfor %}
 {% endblock %}
 
-{% block accessible %}
+{% block availability %}
 Some form of EIA-923 data stretches all the way back to 1970. PUDL coverage starts in
 2001. Before 2001, the data like that contained in the EIA-923 was collected via
 EIA-867, EIA-906, and EIA-920. Prior to 2008 fuel receipts and costs data were reported
-in `EIA Form 423
-<https: //www.eia.gov/electricity/data/eia423 />`__ (which in turn
+in `EIA Form 423 <https://www.eia.gov/electricity/data/eia423>`__ (which in turn
 replaced the earlier FERC Form 423). If you're interested in this earlier data, get in
 touch with us!
 
@@ -41,7 +39,7 @@ have not yet integrated tables reporting fuel stocks, data from Puerto Rico, or 
 schedules 6, 7, and 8.
 {% endblock %}
 
-{% block fill_out_form %}
+{% block respondents %}
 Respondents include all all electric and CHP plants, and in some cases fuel transfer
 terminals, that have a total generator nameplate capacity (sum for generators at a
 single site) of 1 Megawatt (MW) or greater and are connected to the local or regional
@@ -66,26 +64,30 @@ both the Form and the Form Instructions files.
 
 {% block notable_irregularities %}
 
-**File Naming Conventions**
+File Naming Conventions
+-----------------------
 The naming conventions for the raw files are confusing and difficult to trace year to
 year. Subtle and not so subtle changes to the form and published spreadsheets make
 aggregating pre-2009 data difficult from a programmatic standpoint.
 
-**Protected Data**
+Protected Data
+--------------
 In accordance with the Freedom of Information Act and the Trade Secrets Act, certain
 information reported to EIA-923 may remain undisclosed to the public until three months
 after its collection date. The fields subject to this legislation include: total
 delivered cost of coal, natural gas, and petroleum received at non-utility power plants
 and the commodity cost information for all plants (Schedule 2).
 
-**Net generation & fuel consumed reported in two separate tables**
+Net generation & fuel consumed reported in two separate tables
+--------------------------------------------------------------
 Net generation and fuel consumption are reported in two separate tables in EIA-923: in
 the :ref:`core_eia923__monthly_generation` and :ref:`core_eia923__monthly_generation_fuel` tables. The
 :ref:`core_eia923__monthly_generation_fuel` table is more complete (the
 :ref:`core_eia923__monthly_generation` table includes only ~55% of the reported MWh), but the
 :ref:`core_eia923__monthly_generation` table is more granular (it is reported at the generator level).
 
-**Data Estimates**
+Data Estimates
+--------------
 Plants that did not respond or reported unverified data were recorded as estimates
 rolled in with the state/fuel aggregates values reported under the plant id 99999.
 

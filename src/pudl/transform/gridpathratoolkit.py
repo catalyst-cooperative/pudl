@@ -41,7 +41,7 @@ def _transform_capacity_factors(
 
 
 @asset(
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     compute_kind="Python",
     op_tags={"memory-use": "high"},
 )

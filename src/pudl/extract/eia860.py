@@ -114,7 +114,7 @@ def extract_eia860(context, raw_eia860__all_dfs):
 
     if eia_settings.eia860.eia860m:
         eia860m_raw_dfs = pudl.extract.eia860m.Extractor(ds).extract(
-            year_month=[eia_settings.eia860.eia860m_year_month]
+            year_month=eia_settings.eia860.eia860m_year_months
         )
         raw_eia860__all_dfs = pudl.extract.eia860m.append_eia860m(
             eia860_raw_dfs=raw_eia860__all_dfs, eia860m_raw_dfs=eia860m_raw_dfs

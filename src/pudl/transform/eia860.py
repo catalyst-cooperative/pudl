@@ -1,10 +1,8 @@
 """Module to perform data cleaning functions on EIA860 data tables."""
 
-import warnings
-
 import numpy as np
 import pandas as pd
-from dagster import AssetCheckResult, ExperimentalWarning, asset, asset_check
+from dagster import AssetCheckResult, asset, asset_check
 
 import pudl
 from pudl.metadata import PUDL_PACKAGE
@@ -15,10 +13,6 @@ from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.transform.eia861 import clean_nerc
 
 logger = pudl.logging_helpers.get_logger(__name__)
-
-# Asset Checks are still Experimental, silence the warning since we use them
-# everywhere.
-warnings.filterwarnings("ignore", category=ExperimentalWarning)
 
 
 @asset

@@ -190,15 +190,15 @@ class ZenodoDoiSettings(BaseSettings):
     eia191: ZenodoDoi = "10.5281/zenodo.10607837"
     eia757a: ZenodoDoi = "10.5281/zenodo.10607839"
     eia860: ZenodoDoi = "10.5281/zenodo.10067566"
-    eia860m: ZenodoDoi = "10.5281/zenodo.10603998"
+    eia860m: ZenodoDoi = "10.5281/zenodo.11110602"
     eia861: ZenodoDoi = "10.5281/zenodo.10204708"
-    eia923: ZenodoDoi = "10.5281/zenodo.10603997"
+    eia923: ZenodoDoi = "10.5281/zenodo.11111206"
     eia930: ZenodoDoi = "10.5281/zenodo.10840078"
     eiawater: ZenodoDoi = "10.5281/zenodo.10806016"
     eiaaeo: ZenodoDoi = "10.5281/zenodo.10838488"
-    eia_bulk_elec: ZenodoDoi = "10.5281/zenodo.10603995"
+    eia_bulk_elec: ZenodoDoi = "10.5281/zenodo.11111208"
     epacamd_eia: ZenodoDoi = "10.5281/zenodo.7900974"
-    epacems: ZenodoDoi = "10.5281/zenodo.10603994"
+    epacems: ZenodoDoi = "10.5281/zenodo.11111203"
     ferc1: ZenodoDoi = "10.5281/zenodo.8326634"
     ferc2: ZenodoDoi = "10.5281/zenodo.8326697"
     ferc6: ZenodoDoi = "10.5281/zenodo.8326696"
@@ -208,7 +208,9 @@ class ZenodoDoiSettings(BaseSettings):
     phmsagas: ZenodoDoi = "10.5281/zenodo.10493790"
     nrelatb: ZenodoDoi = "10.5281/zenodo.10839268"
 
-    model_config = SettingsConfigDict(env_prefix="pudl_zenodo_doi_", env_file=".env")
+    model_config = SettingsConfigDict(
+        env_prefix="pudl_zenodo_doi_", env_file=".env", extra="ignore"
+    )
 
 
 class ZenodoFetcher:
