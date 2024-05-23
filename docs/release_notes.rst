@@ -18,17 +18,16 @@ modelers (with support from GridLab). Details below.
 
 New Data Coverage
 ^^^^^^^^^^^^^^^^^
+
+EIA-860 & EIA-923
+~~~~~~~~~~~~~~~~~
+
 * Added cleaned EIA860 Schedule 8E FGD Equipment and EIA923 Schedule 8C FGD Operation
   and Maintenance data to the PUDL database as
   :ref:`i_core_eia923__fgd_operation_maintenance` and
   :ref:`i_core_eia860__fgd_equipment`. Once harvested, these tables will eventually be
   removed from the database, but they are being published until then. See :issue:`3394`
   and :issue:`3392`, and :pr:`3403`.
-* Added a new ``gridpathratoolkit`` data source containing hourly wind and solar
-  generation profiles from the `GridPath Resoure Adequacy Toolkit
-  <https://gridlab.org/gridpathratoolkit>`__. See the `new Zenodo archive
-  <https://zenodo.org/records/10844662>`__, PR :pr:`3489` and `this PUDL archiver issue
-  <https://github.com/catalyst-cooperative/pudl-archiver/issues/296>`__.
 * Added new :ref:`core_eia860__scd_generators_wind` table from EIA860 Schedule 3.2
   which contains wind generator attributes. See :pr:`3522` and :pr:`3494`.
 * Added new :ref:`core_eia860__scd_generators_solar` table from EIA860 Schedule 3.3
@@ -38,12 +37,28 @@ New Data Coverage
   which contains solar generator attributes. See :pr:`3524` and :pr:`3482`
 * Added new :ref:`core_eia923__monthly_energy_storage` table from EIA923 which contains
   monthly energy and fuel consumption metrics. See :pr:`3516` and :pr:`3546`.
+* Added 2024 Q1 EIA923 and EIA860m data. See issues :issue:`3617,3618`, and PR
+  :pr:`3625`.
+
+GridPath RA Toolkit
+~~~~~~~~~~~~~~~~~~~
+
+* Added a new ``gridpathratoolkit`` data source containing hourly wind and solar
+  generation profiles from the `GridPath Resoure Adequacy Toolkit
+  <https://gridlab.org/gridpathratoolkit>`__. See :doc:`data_sources/gridpathratoolkit`
+  and the `new Zenodo archive <https://zenodo.org/records/10844662>`__, PR :pr:`3489`
+  and `this PUDL archiver issue
+  <https://github.com/catalyst-cooperative/pudl-archiver/issues/296>`__.
 * Integrated the most processed version of the GridPath RA Toolkit wind and solar
   generation profiles, as well as the tables describing how individual generators were
   aggregated together to create the profiles. See issues :issue:`3509,3510,3511,3515`
   and PR :pr:`3514`. The new tables include:
   :ref:`out_gridpathratoolkit__hourly_available_capacity_factor` and
   :ref:`core_gridpathratoolkit__assn_generator_aggregation_group`.
+
+EIA AEO
+~~~~~~~
+
 * Extracted tables 13, 15, 20, and 54 from the `EIA Annual Energy Outlook 2023
   <https://www.eia.gov/outlooks/aeo/tables_ref.php>`__, which include future
   projections related to electric power and renewable energy through the year
@@ -60,17 +75,34 @@ New Data Coverage
     projections until 2050, broken out by customer type. See :issue:`3581` and
     :pr:`3617`.
 
+NREL ATB
+~~~~~~~~
+
 * Added new NREL ATB tables with annual technology cost and performance projections. See
-  :issue:`3465` and :pr:`3498` and :pr:`3570`
+  issue :issue:`3465` and PRs :pr:`3498,3570`.
+
+EIA-930
+~~~~~~~
+
 * Added hourly generation, demand, and interchange tables from the EIA-930. See issues
   :issue:`3486,3505` PR :pr:`3584` and `this issue in the PUDL archiver repo
-  <https://github.com/catalyst-cooperative/pudl-archiver/issues/295>`__
+  <https://github.com/catalyst-cooperative/pudl-archiver/issues/295>`__. See the
+  data source documentation :doc:`data_sources/eia930` for more information.
+
+EPA CEMS
+~~~~~~~~
+
 * Added 2024 Q1 of CEMS data. See :issue:`3620` and :pr:`3624`
+
+EIA Bulk Electricity Data
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
 * Updated the EIA Bulk Electricity data archive to include data that was available as of
   2024-05-01, which covers up through 2024-02-01 (3 months more than the previously
   used archive). See PR :pr:`3615`.
-* Added 2024 Q1 EIA923 and EIA860m data. See :issue:`3617`, :issue:`3618`, and
-  :pr:`3625`.
+
+FERC Form 1
+~~~~~~~~~~~
 * Added new :ref:`out_ferc1__yearly_rate_base` table which includes granular financial
   data regarding what utilities include in their rate bases. See epic :issue:`2016`.
 
