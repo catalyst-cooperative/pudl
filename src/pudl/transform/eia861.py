@@ -1221,7 +1221,9 @@ def core_eia861__yearly_short_form(
     raw_eia861__short_form: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the EIA 861 Short Form table.
+
     Transformations include:
+
     * Drop primary key duplicates.
     * Convert N/Y values to boolean
     * Change NA BA codes to 'UNK'
