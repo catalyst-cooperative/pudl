@@ -6,6 +6,16 @@ PUDL Release Notes
 v2024.X.X (2024-XX-XX)
 ---------------------------------------------------------------------------------------
 
+---------------------------------------------------------------------------------------
+v2024.5.1 (2024-05-24)
+---------------------------------------------------------------------------------------
+
+We've just completed our quarterly integration of EIA data sources for 2024Q2
+(in support of RMI's Utility Transition Hub) and have also added a bunch of new
+tables over the last few months in an effort to better support energy system
+modelers (with support from GridLab). Details below.
+
+
 New Data Coverage
 ^^^^^^^^^^^^^^^^^
 * Added cleaned EIA860 Schedule 8E FGD Equipment and EIA923 Schedule 8C FGD Operation
@@ -154,8 +164,8 @@ CLI Changes
 ---------------------------------------------------------------------------------------
 v2024.2.6 (2024-02-25)
 ---------------------------------------------------------------------------------------
-The main impetus behind this release is the quarterly update of some of ourcore datasets
-with preliminary data for 2023Q4. The :doc:`data_sources/eia860`,
+The main impetus behind this release is the quarterly update of some of our
+core datasets with preliminary data for 2023Q4. The :doc:`data_sources/eia860`,
 :doc:`data_sources/epacems`, and bulk EIA API data are all up to date through the end of
 2023, while the :doc:`data_sources/eia923` lags a month behind and is currently only
 available through November, 2023. We also addressed several issues we found in our
