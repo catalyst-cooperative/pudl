@@ -16134,50 +16134,52 @@ package:
     category: main
     optional: false
   - name: numexpr
-    version: 2.9.0
+    version: 2.10.0
     manager: conda
     platform: linux-64
     dependencies:
       libgcc-ng: ">=12"
       libstdcxx-ng: ">=12"
       nomkl: ""
-      numpy: ">=1.26.3,<2.0a0"
+      numpy: ">=1.19,<3"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/numexpr-2.9.0-py312hed3a10b_100.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/numexpr-2.10.0-py312hf412c99_100.conda
     hash:
-      md5: 9a850261bca7299bf84b03a87ccfea67
-      sha256: 583617a1671426a2d729086c136ecdb9ce8f31a139d22e92f243a51dc7a64cb0
+      md5: 302f3d106749fc6e101a189fbdadd2d5
+      sha256: a138e5e0fc63cd557d3d0f0a8cdcc2d065878f28c49d09fddfcabdef4395cc31
     category: main
     optional: false
   - name: numexpr
-    version: 2.9.0
+    version: 2.10.0
     manager: conda
     platform: osx-64
     dependencies:
+      __osx: ">=10.13"
       libcxx: ">=16"
-      numpy: ">=1.26.3,<2.0a0"
+      numpy: ">=1.19,<3"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/numexpr-2.9.0-py312h83c8a23_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/numexpr-2.10.0-py312h1171441_0.conda
     hash:
-      md5: effadd994d444598cde25075fb7f96b3
-      sha256: cf58dfaf7c1a136a06478942744ecfeddbedcc67e15a59b973f81664b62ed434
+      md5: ee46d8648076ecb1c9b9d758b6981231
+      sha256: 3f054c7f9d19e335aad29e434b7c5dca1ff4fdcbcb3238887bda2789c1b484f2
     category: main
     optional: false
   - name: numexpr
-    version: 2.9.0
+    version: 2.10.0
     manager: conda
     platform: osx-arm64
     dependencies:
+      __osx: ">=11.0"
       libcxx: ">=16"
-      numpy: ">=1.26.3,<2.0a0"
+      numpy: ">=1.19,<3"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/numexpr-2.9.0-py312h88edd18_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/numexpr-2.10.0-py312h8ae5369_0.conda
     hash:
-      md5: 4b09b7aad8bd75c35b5bf2328ad7816b
-      sha256: 338d477d185220d397d9ec6f20948be2bd911f5ef458d0683fdac3145831be47
+      md5: 52a038a2c531adb72b8b3056952b5d87
+      sha256: 61901b678d7142bfe5ef66beca70312a1e8e743b7323177e73e41040f4e53eea
     category: main
     optional: false
   - name: numpy
@@ -19631,7 +19633,6 @@ package:
       tk: ">=8.6.13,<8.7.0a0"
       tzdata: ""
       xz: ">=5.2.6,<6.0a0"
-      pip: ""
     url: https://conda.anaconda.org/conda-forge/linux-64/python-3.12.3-hab00c5b_0_cpython.conda
     hash:
       md5: 2540b74d304f71d3e89c81209db4db84
@@ -19655,7 +19656,6 @@ package:
       tk: ">=8.6.13,<8.7.0a0"
       tzdata: ""
       xz: ">=5.2.6,<6.0a0"
-      pip: ""
     url: https://conda.anaconda.org/conda-forge/osx-64/python-3.12.3-h1411813_0_cpython.conda
     hash:
       md5: df1448ec6cbf8eceb03d29003cf72ae6
@@ -19679,7 +19679,6 @@ package:
       tk: ">=8.6.13,<8.7.0a0"
       tzdata: ""
       xz: ">=5.2.6,<6.0a0"
-      pip: ""
     url: https://conda.anaconda.org/conda-forge/osx-arm64/python-3.12.3-h4a7b5fc_0_cpython.conda
     hash:
       md5: 8643ab37bece6ae8f112464068d9df9c

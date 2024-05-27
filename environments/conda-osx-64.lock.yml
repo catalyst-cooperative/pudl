@@ -363,7 +363,7 @@ dependencies:
   - nspr=4.35=hea0b92c_0
   - nss=3.100=h6606ded_0
   - numba=0.59.1=py312h04e34b5_0
-  - numexpr=2.9.0=py312h83c8a23_0
+  - numexpr=2.10.0=py312h1171441_0
   - numpy=1.26.4=py312he3a82b2_0
   - oauthlib=3.2.2=pyhd8ed1ab_0
   - openjpeg=2.5.2=h7310d3a_0

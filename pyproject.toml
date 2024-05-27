@@ -203,7 +203,6 @@ select = [
     "F", # pyflakes
     "I", # isort
     "ICN", # flake8 import conventions
-    "ISC", # implicit string concatenation
     "N", # pep8-naming
     "NPY", # NumPy specific checks
     "PD", # pandas checks
@@ -249,9 +248,6 @@ ignore = [
     "S101", # Use of assert
 ]
 extend-select = ["NPY201"] # preview rule to easy migration to Numpy 2.0
-
-# Don't automatically concatenate strings -- sometimes we forget a comma!
-unfixable = ["ISC"]
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"] # Ignore unused imports
