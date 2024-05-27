@@ -431,52 +431,6 @@ def core_eiaaeo__yearly_projected_electric_sales(
     return renamed_for_pudl
 
 
-@dataclass
-class AeoCheckSpec:
-    """Define some simple checks that can run on any AEO asset."""
-
-    name: str
-    asset: str
-    num_rows_by_report_year: dict[int, int]
-    category_counts: dict[str, int]
-
-
-BASE_AEO_CATEGORIES = {
-    "model_case_eiaaeo": 17,
-    "projection_year": 30,
-    "electricity_market_module_region_eiaaeo": 26,
-}
-check_specs = [
-    AeoCheckSpec(
-        name="gen_in_electric_sector_by_tech",
-        asset="core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology",
-        num_rows_by_report_year={2023: 166972},
-        category_counts=BASE_AEO_CATEGORIES
-        | {
-            "technology_description_eiaaeo": 13,
-        },
-    ),
-    AeoCheckSpec(
-        name="gen_in_electric_sector_by_tech",
-        asset="core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type",
-        num_rows_by_report_year={2023: 77064},
-        category_counts=BASE_AEO_CATEGORIES
-        | {
-            "fuel_type_eiaaeo": 6,
-        },
-    ),
-    AeoCheckSpec(
-        name="electricity_sales",
-        asset="core_eiaaeo__yearly_projected_electric_sales",
-        num_rows_by_report_year={2023: 51376},
-        category_counts=BASE_AEO_CATEGORIES
-        | {
-            "customer_class": 4,
-        },
-    ),
-]
-
-
 @asset(io_manager_key="pudl_io_manager")
 def core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type(
     raw_eiaaeo__electric_power_projections_regional,
@@ -558,6 +512,114 @@ def core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type(
         }
     )
     return renamed_for_pudl
+
+
+@asset(io_manager_key="pudl_io_manager")
+def core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type(
+    raw_eiaaeo__electric_power_projections_regional,
+):
+    """Projected generation capacity + gross generation in end-use sectors.
+
+    This includes data that's reported by fuel type and ignores data that's
+    only reported at the system-wide level, such as total generation, sales to
+    grid, and generation for own use. Those three facts are reported in
+    core_eiaaeo__yearly_projected_generation_in_end_use_sectors instead.
+    """
+    sanitized = filter_enrich_sanitize(
+        raw_df=raw_eiaaeo__electric_power_projections_regional,
+        relevant_series_names=("Electricity : Fuel Prices",),
+    ).rename(columns={"subtopic": "variable_name", "variable_name": "dimension"})
+
+    assert set(sanitized.topic.unique()) == {"electricity"}
+    assert set(sanitized.variable_name.unique()) == {"fuel_prices"}
+    assert set(sanitized.units.unique()) == {"2022_mmbtu", "nom_mmbtu"}
+    # turn variable_name into `nominal_fuel_prices` and `real_fuel_prices` based on unit
+    sanitized.variable_name = sanitized.units + "_" + sanitized.variable_name
+
+    trimmed = sanitized.drop(
+        columns=[
+            "topic",
+            "units",
+        ]
+    )
+
+    unstacked = unstack(
+        df=trimmed,
+        eventual_pk=[
+            "report_year",
+            "model_case_eiaaeo",
+            "region",
+            "dimension",
+            "projection_year",
+        ],
+    ).assign(real_cost_basis_year=2022)
+
+    renamed_for_pudl = unstacked.reset_index().rename(
+        columns={
+            "capacity": "summer_capacity_mw",
+            "generation": "gross_generation_mwh",
+            "region": "electricity_market_module_region_eiaaeo",
+            "dimension": "fuel_type_eiaaeo",
+            "2022_mmbtu_fuel_prices": "fuel_cost_real_per_mmbtu_eiaaeo",
+            "nom_mmbtu_fuel_prices": "fuel_cost_per_mmbtu",
+        }
+    )
+    return renamed_for_pudl
+
+
+@dataclass
+class AeoCheckSpec:
+    """Define some simple checks that can run on any AEO asset."""
+
+    name: str
+    asset: str
+    num_rows_by_report_year: dict[int, int]
+    category_counts: dict[str, int]
+
+
+BASE_AEO_CATEGORIES = {
+    "model_case_eiaaeo": 17,
+    "projection_year": 30,
+    "electricity_market_module_region_eiaaeo": 26,
+}
+check_specs = [
+    AeoCheckSpec(
+        name="gen_in_electric_sector_by_tech",
+        asset="core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology",
+        num_rows_by_report_year={2023: 166972},
+        category_counts=BASE_AEO_CATEGORIES
+        | {
+            "technology_description_eiaaeo": 13,
+        },
+    ),
+    AeoCheckSpec(
+        name="gen_in_electric_sector_by_tech",
+        asset="core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type",
+        num_rows_by_report_year={2023: 77064},
+        category_counts=BASE_AEO_CATEGORIES
+        | {
+            "fuel_type_eiaaeo": 6,
+        },
+    ),
+    AeoCheckSpec(
+        name="electricity_sales",
+        asset="core_eiaaeo__yearly_projected_electric_sales",
+        num_rows_by_report_year={2023: 51376},
+        category_counts=BASE_AEO_CATEGORIES
+        | {
+            "customer_class": 4,
+        },
+    ),
+    AeoCheckSpec(
+        name="electricity_sales",
+        asset="core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type",
+        num_rows_by_report_year={2023: 50882},
+        category_counts=BASE_AEO_CATEGORIES
+        | {
+            "fuel_type_eiaaeo": 4,
+        },
+    ),
+]
 
 
 def make_check(spec: AeoCheckSpec) -> AssetChecksDefinition:

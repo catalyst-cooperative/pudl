@@ -316,6 +316,8 @@ TECH_DESCRIPTIONS_EIAAEO: list[str] = [
 
 FUEL_TYPES_EIAAEO: list[str] = [
     "coal",
+    "distillate_fuel_oil",
+    "residual_fuel_oil",
     "petroleum",
     "natural_gas",
     "other_gaseous_fuels",
