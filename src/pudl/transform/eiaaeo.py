@@ -518,12 +518,13 @@ def core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type(
 def core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type(
     raw_eiaaeo__electric_power_projections_regional,
 ):
-    """Projected generation capacity + gross generation in end-use sectors.
+    """Projected fuel cost to the electric power sector.
 
-    This includes data that's reported by fuel type and ignores data that's
-    only reported at the system-wide level, such as total generation, sales to
-    grid, and generation for own use. Those three facts are reported in
-    core_eiaaeo__yearly_projected_generation_in_end_use_sectors instead.
+    Includes 2022 US dollars per million BTU and nominal US dollars per million
+    BTU.
+
+    In future report years, the base year for the real cost will change, so we
+    store that base year as well.
     """
     sanitized = filter_enrich_sanitize(
         raw_df=raw_eiaaeo__electric_power_projections_regional,
