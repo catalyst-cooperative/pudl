@@ -5,8 +5,8 @@ import io
 import json
 import pathlib
 import re
-import time
 import sys
+import time
 import zipfile
 from collections import defaultdict
 from collections.abc import Iterator
