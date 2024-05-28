@@ -5,6 +5,7 @@ import io
 import json
 import pathlib
 import re
+import time
 import sys
 import zipfile
 from collections import defaultdict
@@ -428,6 +429,21 @@ class Datastore:
             f"Got resource {dataset=}, {filters=}, {md5sum=}, "
             f"{len(resource_bytes)} bytes; turning into ZipFile"
         )
+        try_count = 0
+        max_tries = 5
+        base_delay = 0.5
+        # there is one final try outside of this while loop, hence max_tries-1
+        while try_count < max_tries - 1:
+            try_count += 1
+            delay = 2**try_count * base_delay
+            try:
+                return zipfile.ZipFile(resource)
+            except zipfile.BadZipFile:
+                logger.info(
+                    f"Try {try_count}/{max_tries}: got BadZipFile error. "
+                    f"Retry in {delay}s."
+                )
+                time.sleep(delay)
         return zipfile.ZipFile(resource)
 
     def get_zipfile_resources(
