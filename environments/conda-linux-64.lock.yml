@@ -397,7 +397,7 @@ dependencies:
   - pint=0.23=pyhd8ed1ab_1
   - pip=24.0=pyhd8ed1ab_0
   - pixman=0.43.2=h59595ed_0
-  - pkginfo=1.10.0=pyhd8ed1ab_0
+  - pkginfo=1.11.0=pyhd8ed1ab_0
   - pkgutil-resolve-name=1.3.10=pyhd8ed1ab_1
   - platformdirs=4.2.2=pyhd8ed1ab_0
   - pluggy=1.5.0=pyhd8ed1ab_0
@@ -560,8 +560,8 @@ dependencies:
   - uri-template=1.3.0=pyhd8ed1ab_0
   - uriparser=0.9.8=hac33072_0
   - urllib3=1.26.18=pyhd8ed1ab_0
-  - uvicorn=0.30.0=py312h7900ff3_0
-  - uvicorn-standard=0.30.0=h7900ff3_0
+  - uvicorn=0.30.1=py312h7900ff3_0
+  - uvicorn-standard=0.30.1=h7900ff3_0
   - uvloop=0.19.0=py312had328d0_0
   - validators=0.28.3=pyhd8ed1ab_0
   - virtualenv=20.26.2=pyhd8ed1ab_0
