@@ -253,7 +253,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
     "core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type": {
         "description": (
-            "Projected fuel prices to the electric power sector, including "
+            "Projected fuel prices for the electric power sector, including "
             "electricity-only and combined-heat-and-power plants that have a "
             "regulatory status."
         ),

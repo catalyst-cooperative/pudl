@@ -15,9 +15,9 @@ EIA AEO
 * Added new tables from EIA AEO table 54:
 
   * :ref:`core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type`
-    contains generation capacity & generation projections for the electric
-    sector, broken out by technology type. See issue :issue:`3649` and PR
-    :pr:`3656`.
+    contains fuel costs for the electric power sector. These are broken out by
+    fuel type, and include both nominal USD per MMBtu as well as real 2022 USD
+    per MMBtu. See issue :issue:`3649` and PR :pr:`3656`.
 
 .. _release-v2024.5.0:
 

@@ -518,7 +518,7 @@ def core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type(
 def core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type(
     raw_eiaaeo__electric_power_projections_regional,
 ):
-    """Projected fuel cost to the electric power sector.
+    """Projected fuel cost for the electric power sector.
 
     Includes 2022 US dollars per million BTU and nominal US dollars per million
     BTU.
