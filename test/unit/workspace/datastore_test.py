@@ -1,10 +1,13 @@
 """Unit tests for Datastore module."""
 
+import io
 import json
 import re
 import unittest
+import zipfile
 from typing import Any
 
+import pytest
 import responses
 
 from pudl.workspace import datastore
@@ -333,6 +336,101 @@ class TestZenodoFetcher(unittest.TestCase):
         """If resource does not exist, get_resource() throws KeyError."""
         res = PudlResourceKey("epacems", self.PROD_EPACEMS_DOI, "nonexistent")
         self.assertRaises(KeyError, self.fetcher.get_resource, res)
+
+
+def test_get_zipfile_resource_retry(mocker):
+    ds = datastore.Datastore()
+    not_a_zipfile = b"aaa"
+    ds.get_unique_resource = mocker.MagicMock(return_value=not_a_zipfile)
+    sleep_mock = mocker.MagicMock()
+    with mocker.patch("time.sleep", sleep_mock), pytest.raises(zipfile.BadZipFile):
+        ds.get_zipfile_resource("test_dataset")
+
+    sleep_mock.assert_has_calls([mocker.call(2**x) for x in range(5)])
+    assert sleep_mock.call_count == 5
+
+
+def test_get_zipfile_resource(mocker):
+    file_contents = "aaa"
+    zipfile_bytes = io.BytesIO()
+    with zipfile.ZipFile(zipfile_bytes, "w") as a_zipfile:
+        a_zipfile.writestr("file_name", file_contents)
+    zipfile_bytes.seek(0)
+    zipfile_bytestring = zipfile_bytes.read()
+
+    ds = datastore.Datastore()
+    ds.get_unique_resource = mocker.MagicMock(return_value=zipfile_bytestring)
+    with (
+        ds.get_zipfile_resource("test_dataset") as observed_zipfile,
+        observed_zipfile.open("file_name") as test_file,
+    ):
+        assert test_file.read().decode(encoding="utf-8") == file_contents
+
+
+def test_get_zipfile_resources(mocker):
+    file_contents = "aaa"
+    zipfile_bytes = io.BytesIO()
+    with zipfile.ZipFile(zipfile_bytes, "w") as a_zipfile:
+        a_zipfile.writestr("file_name", file_contents)
+
+    ds = datastore.Datastore()
+    ds.get_resources = mocker.MagicMock(
+        return_value=iter(
+            [
+                (
+                    PudlResourceKey("test_dataset", "test_doi", "test_name_0"),
+                    zipfile_bytes,
+                ),
+                (
+                    PudlResourceKey("test_dataset", "test_doi", "test_name_1"),
+                    zipfile_bytes,
+                ),
+            ]
+        )
+    )
+
+    observed_zipfiles = ds.get_zipfile_resources("test_dataset")
+    for _key, observed_zipfile in observed_zipfiles:
+        with observed_zipfile.open("file_name") as test_file:
+            assert test_file.read().decode(encoding="utf-8") == file_contents
+
+
+def test_get_zipfile_resources_retry(mocker):
+    not_a_zipfile = io.BytesIO(b"aaa")
+    file_contents = "aaa"
+
+    zipfile_bytes = io.BytesIO()
+    with zipfile.ZipFile(zipfile_bytes, "w") as a_zipfile:
+        a_zipfile.writestr("file_name", file_contents)
+
+    ds = datastore.Datastore()
+    ds.get_resources = mocker.MagicMock(
+        return_value=iter(
+            [
+                (
+                    PudlResourceKey("test_dataset_0", "test_doi", "test_name_0"),
+                    zipfile_bytes,
+                ),
+                (
+                    PudlResourceKey("test_dataset_1", "test_doi", "test_name_1"),
+                    not_a_zipfile,
+                ),
+            ]
+        )
+    )
+
+    sleep_mock = mocker.MagicMock()
+    with (
+        mocker.patch("time.sleep", sleep_mock),
+    ):
+        observed_zipfiles = ds.get_zipfile_resources("test_dataset")
+        _key, test_file = next(observed_zipfiles)
+        assert test_file.read("file_name").decode(encoding="utf-8") == file_contents
+        with pytest.raises(zipfile.BadZipFile):
+            next(observed_zipfiles)
+
+    sleep_mock.assert_has_calls([mocker.call(2**x) for x in range(5)])
+    assert sleep_mock.call_count == 5
 
 
 # TODO(rousik): add unit tests for Datasource class as well

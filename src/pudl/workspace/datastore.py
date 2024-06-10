@@ -6,7 +6,6 @@ import json
 import pathlib
 import re
 import sys
-import time
 import zipfile
 from collections import defaultdict
 from collections.abc import Iterator
@@ -24,6 +23,7 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 import pudl
+from pudl.utils import retry
 from pudl.workspace import resource_cache
 from pudl.workspace.resource_cache import PudlResourceKey
 from pudl.workspace.setup import PudlPaths
@@ -429,29 +429,17 @@ class Datastore:
             f"Got resource {dataset=}, {filters=}, {md5sum=}, "
             f"{len(resource_bytes)} bytes; turning into ZipFile"
         )
-        try_count = 0
-        max_tries = 5
-        base_delay = 0.5
-        # there is one final try outside of this while loop, hence max_tries-1
-        while try_count < max_tries - 1:
-            try_count += 1
-            delay = 2**try_count * base_delay
-            try:
-                return zipfile.ZipFile(resource)
-            except zipfile.BadZipFile:
-                logger.info(
-                    f"Try {try_count}/{max_tries}: got BadZipFile error. "
-                    f"Retry in {delay}s."
-                )
-                time.sleep(delay)
-        return zipfile.ZipFile(resource)
+        return retry(zipfile.ZipFile, retry_on=(zipfile.BadZipFile), file=resource)
 
     def get_zipfile_resources(
         self, dataset: str, **filters: Any
     ) -> Iterator[tuple[PudlResourceKey, zipfile.ZipFile]]:
         """Iterates over resources that match filters and opens each as ZipFile."""
         for resource_key, content in self.get_resources(dataset, **filters):
-            yield resource_key, zipfile.ZipFile(io.BytesIO(content))
+            yield (
+                resource_key,
+                retry(zipfile.ZipFile, retry_on=(zipfile.BadZipFile), file=content),
+            )
 
     def get_zipfile_file_names(self, zip_file: zipfile.ZipFile):
         """Given a zipfile, return a list of the file names in it."""
