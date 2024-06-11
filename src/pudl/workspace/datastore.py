@@ -23,7 +23,7 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 import pudl
-from pudl.utils import retry
+from pudl.helpers import retry
 from pudl.workspace import resource_cache
 from pudl.workspace.resource_cache import PudlResourceKey
 from pudl.workspace.setup import PudlPaths
