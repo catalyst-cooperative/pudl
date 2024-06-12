@@ -44,9 +44,11 @@ RUN apt-get update
 RUN apt-get install -y zstd nginx
 RUN pip install -U datasette datasette-cluster-map datasette-vega datasette-block-robots
 
+# set up nginx + enable real IP module
 COPY nginx.conf /usr/share/nginx/nginx.conf
 COPY 50-mod-http-realip.conf /etc/nginx/modules-enabled/
 
+# the two symlinks allow nginx logs to get written out to stdout/stderr
 RUN mkdir /data \
     && ln -sf /dev/stdout /var/log/nginx/access.log \
     && ln -sf /dev/stderr /var/log/nginx/error.log
@@ -115,7 +117,8 @@ def inspect_data(datasets: list[str], pudl_output: Path) -> str:
     "-l",
     "deploy",
     flag_value="local",
-    help="Deploy Datasette locally for testing or debugging purposes.",
+    help="Deploy Datasette locally for testing or debugging purposes. Note that"
+    "you have to stop the docker instance manually to terminate this server.",
 )
 @click.option(
     "--metadata",
@@ -150,9 +153,6 @@ def deploy_datasette(
     logging.info(f"Deploying to {deploy.upper()}...")
     pudl_output = PudlPaths().pudl_output
 
-    pudl_output = PudlPaths().pudl_output
-    metadata_yml = DatasetteMetadata.from_data_source_ids(pudl_output).to_yaml()
-
     all_databases = (
         ["pudl.sqlite"]
         + sorted(str(p.name) for p in pudl_output.glob("ferc*.sqlite"))
@@ -164,20 +164,20 @@ def deploy_datasette(
     docker_path = fly_dir / "Dockerfile"
     inspect_path = fly_dir / "inspect-data.json"
     metadata_path = fly_dir / "metadata.yml"
+    metadata_yml = DatasetteMetadata.from_data_source_ids(pudl_output).to_yaml()
+
+    logging.info(f"Writing Datasette metadata to: {metadata_path}")
+    with metadata_path.open("w") as f:
+        f.write(metadata_yml)
+    check_tables_have_metadata(metadata_yml, databases)
+
+    if deploy == "metadata":
+        logging.info("Only writing metadata. Aborting now.")
 
     logging.info(f"Inspecting DBs for datasette: {databases}...")
     inspect_output = inspect_data(databases, pudl_output)
     with inspect_path.open("w") as f:
         f.write(json.dumps(inspect_output))
-
-    logging.info(f"Writing Datasette metadata to: {metadata_path}")
-    with metadata_path.open("w") as f:
-        f.write(metadata_yml)
-
-    if deploy == "metadata":
-        logging.info("Only writing metadata. Aborting now.")
-
-    check_tables_have_metadata(metadata_yml, databases)
 
     logging.info("Writing Dockerfile...")
     with docker_path.open("w") as f:
@@ -189,6 +189,8 @@ def deploy_datasette(
         cwd=pudl_output,
     )
 
+    # OK, now we have a Dockerfile + the right context. Time to run the dang
+    # container somehwere.
     if deploy in {"production", "staging"}:
         fly_dir = Path(__file__).parent.absolute() / "fly"
         logging.info(f"Deploying {deploy} to fly.io...")
