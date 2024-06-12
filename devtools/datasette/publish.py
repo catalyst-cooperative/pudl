@@ -94,14 +94,12 @@ def inspect_data(datasets: list[str], pudl_output: Path) -> str:
     "deploy",
     flag_value="production",
     help="Deploy Datasette to fly.io PRODUCTION environment",
-    default=True,
 )
 @click.option(
     "--staging",
     "deploy",
     flag_value="staging",
     help="Deploy Datasette to fly.io STAGING environment",
-    default=True,
 )
 @click.option(
     "--local",
