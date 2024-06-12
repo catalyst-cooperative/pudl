@@ -30,7 +30,6 @@ from dagster import AssetKey, AssetsDefinition, AssetSelection, SourceAsset
 from pandas._libs.missing import NAType
 
 import pudl.logging_helpers
-from pudl.metadata.classes import DatasetteMetadata
 from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
 from pudl.workspace.setup import PudlPaths
 
@@ -2019,18 +2018,6 @@ def diff_wide_tables(
     return TableDiff(
         deleted=deleted, added=added, changed=changed, old_df=old, new_df=new
     )
-
-
-def create_datasette_metadata_yaml() -> str:
-    """Create datasette metadata yaml.
-
-    Returns:
-        Datasette metadata for all PUDL resources and XBRL databases as
-        derived from their datapackage.json as YAML.
-    """
-    pudl_output = PudlPaths().pudl_output
-    metadata = DatasetteMetadata.from_data_source_ids(pudl_output)
-    return metadata.to_yaml()
 
 
 def parse_datasette_metadata_yml(metadata_yml: str) -> dict:
