@@ -35,18 +35,22 @@ logging.basicConfig(format="%(asctime)s %(message)s", level=logging.INFO)
 
 DOCKERFILE_TEMPLATE = """
 FROM python:3.11.0-slim-bullseye
-COPY . /app
-WORKDIR /app
+
+ENV DATABASES '{databases}'
+ENV DATASETTE_PORT 8081
+ENV NGINX_PORT 8080
 
 RUN apt-get update
-RUN apt-get install -y zstd
-
-ENV DATASETTE_SECRET '{datasette_secret}'
-ENV DATABASES '{databases}'
+RUN apt-get install -y zstd nginx
 RUN pip install -U datasette datasette-cluster-map datasette-vega datasette-block-robots
-ENV PORT 8080
-EXPOSE 8080
 
+
+COPY . /app
+WORKDIR /app
+RUN mkdir /data
+
+EXPOSE ${{NGINX_PORT}}
+ENV DATASETTE_SECRET '{datasette_secret}'
 CMD ["./run.sh"]
 """
 
@@ -138,6 +142,7 @@ def deploy_datasette(
 
     python publish.py --fly -- --build-only
     """
+    logging.info(f"Deploying to {deploy.upper()}...")
     pudl_output = PudlPaths().pudl_output
 
     pudl_output = PudlPaths().pudl_output
@@ -150,10 +155,35 @@ def deploy_datasette(
     )
     databases = list(only_databases if only_databases else all_databases)
 
-    # Make sure we have the expected metadata for databases
-    # headed to deployment.
-    if deploy != "metadata":
-        check_tables_have_metadata(metadata_yml, databases)
+    fly_dir = Path(__file__).parent.absolute() / "fly"
+    docker_path = fly_dir / "Dockerfile"
+    inspect_path = fly_dir / "inspect-data.json"
+    metadata_path = fly_dir / "metadata.yml"
+
+    logging.info(f"Inspecting DBs for datasette: {databases}...")
+    inspect_output = inspect_data(databases, pudl_output)
+    with inspect_path.open("w") as f:
+        f.write(json.dumps(inspect_output))
+
+    logging.info(f"Writing Datasette metadata to: {metadata_path}")
+    with metadata_path.open("w") as f:
+        f.write(metadata_yml)
+
+    if deploy == "metadata":
+        logging.info("Only writing metadata. Aborting now.")
+
+    check_tables_have_metadata(metadata_yml, databases)
+
+    logging.info("Writing Dockerfile...")
+    with docker_path.open("w") as f:
+        f.write(make_dockerfile(databases))
+
+    logging.info(f"Compressing {databases} and putting into docker context...")
+    check_call(
+        ["tar", "-a", "-czvf", fly_dir / "all_dbs.tar.zst"] + databases,  # noqa: S603
+        cwd=pudl_output,
+    )
+
     if deploy in {"production", "staging"}:
         fly_dir = Path(__file__).parent.absolute() / "fly"
         logging.info(f"Deploying {deploy} to fly.io...")
@@ -189,21 +219,13 @@ def deploy_datasette(
 
     elif deploy == "local":
         logging.info("Running Datasette locally...")
-        metadata_path = pudl_output / "metadata.yml"
-        logging.info(f"Writing Datasette metadata to: {metadata_path}")
-        with metadata_path.open("w") as f:
-            f.write(metadata_yml)
-
-        check_call(  # noqa: S603
-            ["/usr/bin/env", "datasette", "serve", "-m", "metadata.yml"] + databases,
-            cwd=pudl_output,
+        check_call(
+            ["/usr/bin/env", "docker", "build", "-t", "pudl_datasette:local", "."],  # noqa: S603
+            cwd=fly_dir,
         )
-
-    elif deploy == "metadata":
-        metadata_path = Path.cwd() / "metadata.yml"
-        logging.info(f"Writing Datasette metadata to: {metadata_path}")
-        with metadata_path.open("w") as f:
-            f.write(metadata_yml)
+        check_call(
+            ["/usr/bin/env", "docker", "run", "-p", "8080:8080", "pudl_datasette:local"]  # noqa: S603
+        )
 
     else:
         logging.error(f"Unrecognized deployment destination: {deploy=}")
