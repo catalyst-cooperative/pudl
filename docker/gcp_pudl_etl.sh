@@ -260,7 +260,7 @@ if [[ $ETL_SUCCESS == 0 ]]; then
 
     # Deploy the updated data to datasette if we're on main
     if [[ "$BUILD_REF" == "main" ]]; then
-        python ~/pudl/devtools/datasette/publish.py 2>&1 | tee -a "$LOGFILE"
+        python ~/pudl/devtools/datasette/publish.py --production 2>&1 | tee -a "$LOGFILE"
         DATASETTE_SUCCESS=${PIPESTATUS[0]}
     fi
 
