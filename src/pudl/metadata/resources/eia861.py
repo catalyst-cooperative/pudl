@@ -722,7 +722,6 @@ Utilities report on Form EIA-861S if they:
                 "sales_revenue",
                 "sales_mwh",
                 "customers",
-                "num_water_heaters",
                 "has_net_metering",
                 "has_demand_side_management",
                 "has_time_responsive_programs",

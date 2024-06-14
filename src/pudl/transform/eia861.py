@@ -1260,6 +1260,13 @@ def core_eia861__yearly_short_form(
     # Transform revenue 1000s into dollars
     deduped_sf["sales_revenue"] = _thousand_to_one(deduped_sf["sales_revenue"])
 
+    # Ensure there is no data in num_water_heaters bc we drop it during enforce_schema
+    if not deduped_sf[deduped_sf.num_water_heaters.notnull()].empty:
+        raise AssertionError(
+            "We expect this column to have only null data. We do not keep this column "
+            "in the database. If non-null values are found, consider adding this column "
+            "into the database table and removing this assertion."
+        )
     return _post_process(deduped_sf)
 
 

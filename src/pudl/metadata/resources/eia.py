@@ -40,6 +40,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "core_eia861__yearly_reliability",
                     "core_eia861__yearly_sales",
                     "out_ferc714__summarized_demand",
+                    "core_eia861__yearly_short_form",
                 ],
             },
         },
