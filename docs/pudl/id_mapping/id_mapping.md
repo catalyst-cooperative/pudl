@@ -65,8 +65,7 @@ possibilities:
 
 ## Zero Utilities Match
 - It could be that FERC utility doesn't have any plants, doesn't generate
-  any electricity, and so isn't reporting to EIA. This is the most
-  FERC plants. OKAY.
+  any electricity, and so isn't reporting to EIA. This is most FERC plants. OKAY.
 - It could be that this utility *had* plants, but they're all dead now. OKAY
 - It could be that the utility reports to FERC and EIA using very different
   names. NOT OKAY
@@ -92,16 +91,16 @@ possibilities:
         - If a given plant name exists with different associated
           utilities in FERC & EIA data, ask the internet whether those
           two utilities are actually the same company.
-        - If it is the same (e.g. subsidiary/holding company) then
+        - If it is obviously the same (e.g. subsidiary/holding company) then
           map the utilities to each other. We could get this mapping
           "wrong" because utility relationships are complicated.
-        - If not (e.g. they're in different states) then note
+        - If it is obviously not (e.g. they're in different states) then note
           no EIA operator for the `f1_respondent` you're trying to map.
 
 ## Exactly One Utility Matches
 - Again, check the list of plants associated with your `f1_respondent` and
   the candidate EIA operator that matches.  Are they the same?
-  - The FERC & EIA plant lists are the same! Amazing!
+  - The FERC & EIA plant lists are exactly the same! Amazing!
     - Map the utilities to each other.
     - Map the plants (see below)
   - The EIA plant list is a superset of the FERC plant list.
@@ -157,7 +156,7 @@ actually mapping them.
   - If there is no match, note “No EIA ID”
   - If there *is* a match, then map the plants to each other and note that
     that the `f1_respondent` and `eia_operator` differ.
-- If there are more than one EIA plant the IDs associated with a single FERC plant
+- If there is more than one EIA plant, the IDs associated with a single FERC plant
   name (this happens sometimes when EIA reports individual units as "plants"):
   - Duplicate the FERC plant entry, and associate both (or all) of the EIA
     plant information with each instance of the FERC plant.
@@ -190,7 +189,7 @@ actually mapping them.
     less than some small distances from each other (e.g. 1 mile) check to see
     if they are associated with each other in the database.
   - All of the above processes started from FERC respondents and went to EIA
-    operators because there were many fewer FERC respondents and plants.
+    operators, because there were many fewer FERC respondents and plants.
     However, there are cases in which there may be EIA operators and plants that
     ought to be associated with FERC respondents and plants, which may not have
     been found because some kinds of utilities don't report to
