@@ -37,7 +37,7 @@ conda-clean:
 
 # Regenerate the conda lockfile and render platform specific conda environments.
 conda-lock.yml: pyproject.toml
-	${mamba} run --name base ${mamba} install --quiet --yes "conda-lock>=2.5.2" prettier
+	${mamba} run --name base ${mamba} install --quiet --yes "conda-lock>=2.5.7" prettier
 	${mamba} run --name base conda-lock \
 		--${mamba} \
 		--file=pyproject.toml \
@@ -51,8 +51,8 @@ conda-lock.yml: pyproject.toml
 # Create the pudl-dev conda environment based on the universal lockfile
 .PHONY: pudl-dev
 pudl-dev:
-	${mamba} run --name base ${mamba} install --quiet --yes "conda-lock>=2.5.2"
-	${mamba} run --name base ${mamba} env remove --name pudl-dev
+	${mamba} run --name base ${mamba} install --quiet --yes "conda-lock>=2.5.7"
+	${mamba} run --name base ${mamba} env remove --yes --name pudl-dev
 	${mamba} run --name base conda-lock install \
 		--name pudl-dev \
 		--${mamba} \
@@ -70,6 +70,15 @@ install-pudl: pudl-dev
 .PHONY: docs-clean
 docs-clean:
 	rm -rf docs/_build
+	rm -rf docs/autoapi
+	rm -f docs/data_dictionaries/pudl_db.rst
+	rm -f docs/data_dictionaries/codes_and_labels.rst
+	rm -rf docs/data_dictionaries/code_csvs
+	rm -f docs/data_sources/eia*.rst
+	rm -f docs/data_sources/epacems*.rst
+	rm -f docs/data_sources/ferc*.rst
+	rm -f docs/data_sources/gridpathratoolkit*.rst
+	rm -f docs/data_sources/phmsagas*.rst
 	rm -f coverage.xml
 
 # Note that there's some PUDL code which only gets run when we generate the docs, so
@@ -79,7 +88,7 @@ docs-clean:
 .PHONY: docs-build
 docs-build: docs-clean
 	doc8 docs/ README.rst
-	coverage run ${covargs} -- ${CONDA_PREFIX}/bin/sphinx-build -v -W -b html docs docs/_build/html
+	coverage run ${covargs} -- ${CONDA_PREFIX}/bin/sphinx-build --jobs auto -v -W -b html docs docs/_build/html
 	coverage xml --fail-under=0
 
 ########################################################################################
@@ -157,7 +166,7 @@ pytest-jupyter:
 # whose name contains "minmax_rows" so it's important to follow that naming convention.
 .PHONY: pytest-minmax-rows
 pytest-minmax-rows:
-	pytest --live-dbs test/validate -k minmax_rows
+	pytest -n 8 --no-cov --live-dbs test/validate -k minmax_rows
 
 # Build the FERC 1 and PUDL DBs, ignoring foreign key constraints.
 # Identify any plant or utility IDs in the DBs that haven't yet been mapped

@@ -39,7 +39,12 @@ the names and descriptions of each of its fields.
      - Browse Online
    {%- for resource in source_resources %}
    * - :ref:`{{ resource.sphinx_ref_name }}`
-     {% block browse_online scoped %}- https://data.catalyst.coop/pudl/{{ resource.name }}{% endblock %}
+   {%- block browse_online scoped %}
+   {%- if resource.create_database_schema %}
+     - https://data.catalyst.coop/pudl/{{ resource.name }}
+   {%- else %}
+     - Table not published to Datasette.
+   {%- endif %}{% endblock %}
    {%- endfor %}
 
 {%- endif %}
@@ -58,9 +63,13 @@ existing tables.
      - Browse Online
    {%- for resource in extra_resources %}
    * - :ref:`{{ resource.sphinx_ref_name }}`
-   {% block browse_extra_online scoped %}
+   {%- block browse_extra_online scoped -%}
+   {%- if resource.create_database_schema %}
      - https://data.catalyst.coop/pudl/{{ resource.name }}
-   {% endblock %}
+   {%- else %}
+     - Table not published to Datasette.
+   {%- endif %}
+   {%- endblock %}
    {%- endfor -%}
 {%- endif %}
 
@@ -68,20 +77,21 @@ Background
 ^^^^^^^^^^
 {% block background %}{% endblock %}
 
-Download the following files for further context:
-{% block downloadable_pdfs %}{% endblock %}
+Download additional documentation
+---------------------------------
+{% block download_docs %}{% endblock %}
 
-{% block accessible_title %}
-How much of the data is accessible through PUDL?
-------------------------------------------------
+{% block availability_title %}
+Data available through PUDL
+---------------------------
 {% endblock %}
-{% block accessible %}{% endblock %}
+{% block availability %}{% endblock %}
 
-{% block fill_out_form_title %}
-Who is required to fill out the form?
--------------------------------------
+{% block respondents_title %}
+Who submits this data?
+----------------------
 {% endblock %}
-{% block fill_out_form %}{% endblock %}
+{% block respondents %}{% endblock %}
 
 {% block original_data_title %}
 What does the original data look like?
@@ -96,9 +106,6 @@ Notable Irregularities
 PUDL Data Transformations
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The PUDL transformation process cleans the input data so that it is adjusted for
-uniformity, corrected for errors, and ready for bulk programmatic use.
-
 To see the transformations applied to the data in each table, you can read the
-doc-strings for :mod:`pudl.transform.{{ source.name }}` created for each tables' respective
-transform function.
+docstrings for :mod:`pudl.transform.{{ source.name }}` created for each table's
+respective transform function.

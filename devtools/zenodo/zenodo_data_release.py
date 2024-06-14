@@ -87,7 +87,7 @@ class ZenodoClient:
 
         logger.info(f"Using Zenodo token: {token[:4]}...{token[-4:]}")
 
-    def retry_request(self, *, method, url, max_tries=5, **kwargs):
+    def retry_request(self, *, method, url, max_tries=5, timeout=5, **kwargs):
         """Wrap requests.request in retry logic.
 
         Passes method, url, and **kwargs to requests.request.
@@ -95,14 +95,16 @@ class ZenodoClient:
         base_timeout = 2
         for try_num in range(1, max_tries):
             try:
-                return requests.request(method=method, url=url, **kwargs)
+                return requests.request(
+                    method=method, url=url, timeout=timeout, **kwargs
+                )
             except requests.RequestException as e:
                 timeout = base_timeout**try_num
                 logger.warning(f"Attempt #{try_num} Got {e}, retrying in {timeout} s")
                 time.sleep(timeout)
 
         # don't catch errors on the last try.
-        return requests.request(method=method, url=url, **kwargs)
+        return requests.request(method=method, url=url, timeout=timeout, **kwargs)
 
     def get_deposition(self, deposition_id: int) -> _LegacyDeposition:
         """LEGACY API: Get JSON describing a deposition.

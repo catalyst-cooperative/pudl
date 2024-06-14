@@ -104,17 +104,9 @@ raw_eia861__all_dfs = raw_df_factory(Extractor, name="eia861")
             )
         )
     },
-    required_resource_keys={"datastore", "dataset_settings"},
 )
-def extract_eia861(context, raw_eia861__all_dfs):
-    """Extract raw EIA-861 data from Excel sheets into dataframes.
-
-    Args:
-        context: dagster keyword that provides access to resources and config.
-
-    Returns:
-        A tuple of extracted EIA-861 dataframes.
-    """
+def extract_eia861(raw_eia861__all_dfs):
+    """Extract raw EIA-861 data from Excel sheets into dataframes."""
     raw_eia861__all_dfs = {
         "raw_eia861__" + table_name.replace("_eia861", ""): df
         for table_name, df in raw_eia861__all_dfs.items()

@@ -20,6 +20,7 @@ Stuff we are testing:
 
 import logging
 import unittest
+from io import StringIO
 
 import networkx as nx
 import pandas as pd
@@ -29,6 +30,7 @@ from pudl.helpers import dedupe_n_flatten_list_of_lists
 from pudl.output.ferc1 import (
     NodeId,
     XbrlCalculationForestFerc1,
+    disaggregate_null_or_total_tag,
     get_core_ferc1_asset_description,
 )
 
@@ -376,3 +378,63 @@ def test_get_core_ferc1_asset_description():
     invalid_core_ferc1_asset_name = "core_ferc1__income_statements"
     with pytest.raises(ValueError):
         get_core_ferc1_asset_description(invalid_core_ferc1_asset_name)
+
+
+def test_disaggregate_null_or_total_tag_standard():
+    """Test basic functionality of :func:`disaggregate_null_or_total_tag`."""
+    coolest = 10
+    cooler = 25
+    total = 70
+    df = pd.read_csv(
+        StringIO(
+            f"""
+report_year,utility_id_ferc1,xbrl_factoid,cool_tag_col,ending_balance
+2010,13,cool_factor,coolest,{coolest}
+2010,13,cool_factor,cooler,{cooler}
+2010,13,pal_scale,total,{total}
+"""
+        ),
+    )
+    out = disaggregate_null_or_total_tag(df, "cool_tag_col")
+
+    cool_factor_total = coolest + cooler
+    df_expected = pd.read_csv(
+        StringIO(
+            f"""
+report_year,utility_id_ferc1,xbrl_factoid,cool_tag_col,ending_balance,is_disaggregated_cool_tag_col
+2010,13,cool_factor,coolest,{coolest},False
+2010,13,cool_factor,cooler,{cooler},False
+2010,13,pal_scale,cooler,{total*(cooler/cool_factor_total)},True
+2010,13,pal_scale,coolest,{total*(coolest/cool_factor_total)},True
+"""
+        ),
+    ).convert_dtypes()
+    pd.testing.assert_frame_equal(df_expected, out, check_like=True)
+
+
+def test_disaggregate_null_or_total_tag_with_no_non_null_tags():
+    """What happens when there are no non-null or non-total tag values?
+
+    The output should have the same ``ending_balance`` value but the
+    value for the tag column will be null.
+    """
+    total = 1000
+    only_total = pd.read_csv(
+        StringIO(
+            f"""
+report_year,utility_id_ferc1,xbrl_factoid,cool_tag_col,ending_balance
+2010,13,pal_scale,total,{total}
+"""
+        ),
+    )
+    out_only_total = disaggregate_null_or_total_tag(only_total, "cool_tag_col")
+
+    expected_only_total = pd.read_csv(
+        StringIO(
+            f"""
+report_year,utility_id_ferc1,xbrl_factoid,cool_tag_col,ending_balance,is_disaggregated_cool_tag_col
+2010,13,pal_scale,,{total},True
+"""
+        ),
+    ).convert_dtypes()
+    pd.testing.assert_frame_equal(expected_only_total, out_only_total, check_like=True)

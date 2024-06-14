@@ -10,7 +10,6 @@ from pudl.workspace.setup import PudlPaths
 class RuntimeSettings(ConfigurableResource):
     """Encodes runtime settings for the ferc_to_sqlite graphs."""
 
-    clobber: bool = False
     xbrl_num_workers: None | int = None
     xbrl_batch_size: int = 50
 
