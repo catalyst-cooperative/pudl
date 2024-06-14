@@ -284,6 +284,10 @@ RENAME_COLS = {
         "report_yr": "report_year",
         "respondent_id": "respondent_id_ferc714",
     },
+    "out_ferc714__yearly_planning_area_forecast_demand": {
+        "report_yr": "report_year",
+        "respondent_id": "respondent_id_ferc714",
+    },
 }
 
 
