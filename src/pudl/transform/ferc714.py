@@ -534,12 +534,13 @@ def out_ferc714__hourly_planning_area_demand(
     )
     return df
 
+
 @asset(
     io_manager_key="parquet_io_manager",
-    op_tags={"memory-use": "high"}, # Should this be high?
+    op_tags={"memory-use": "high"},  # Should this be high?
     compute_kind="pandas",
 )
-def out_ferc714__yearly_planning_area_forecast_demand( # What is a planning area?
+def out_ferc714__yearly_planning_area_forecast_demand(  # What is a planning area?
     raw_ferc714__yearly_planning_area_forecast_demand: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the yearly planning area forecast data per Planning Area.
