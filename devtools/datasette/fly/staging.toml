@@ -1,0 +1,27 @@
+# fly.toml app configuration file generated for catalyst-coop-pudl-staging on 2024-06-12T10:41:45-04:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = "catalyst-coop-pudl-staging"
+primary_region = "bos"
+
+[[mounts]]
+  destination = "/data"
+  source = "datasette"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+[[vm]]
+  memory = "1gb"
+  cpu_kind = "shared"
+  cpus = 1
+
+[deploy]
+wait_timeout = "15m"
