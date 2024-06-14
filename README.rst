@@ -159,6 +159,15 @@ summary:
 * `The PUDL Development Environment <https://catalystcoop-pudl.readthedocs.io/en/nightly/dev/dev_setup.html>`__
   lets you run the PUDL data processing pipeline locally.
 
+Organizations using PUDL
+------------------------
+
+This is an imcomplete list of organizations that have used PUDL in their work.
+If your organization uses PUDL and you'd like to be listed here please open a
+pull request!
+
+...
+
 Contributing to PUDL
 --------------------
 
