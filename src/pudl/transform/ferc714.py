@@ -533,3 +533,36 @@ def out_ferc714__hourly_planning_area_demand(
         df[columns], table_name="out_ferc714__hourly_planning_area_demand"
     )
     return df
+
+@asset(
+    io_manager_key="parquet_io_manager",
+    op_tags={"memory-use": "high"}, # Should this be high?
+    compute_kind="pandas",
+)
+def out_ferc714__yearly_planning_area_forecast_demand( # What is a planning area?
+    raw_ferc714__yearly_planning_area_forecast_demand: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the yearly planning area forecast data per Planning Area.
+
+    Transformations include:
+
+    - Drop unnecessary columns.
+    - TBD
+
+    Args:
+        raw_ferc714__yearly_planning_area_forecast_demand: Raw table containing,
+            for each year and each entity, the forecasted summer and winter peak demand,
+            in megawatts, and annual net energy for load, in megawatthours, for the next
+            ten years.
+
+    Returns:
+        Clean(er) version of the yearly forecasted demand by Planning Area.
+    """
+    df = _pre_process(
+        raw_ferc714__yearly_planning_area_forecast_demand,
+        table_name="out_ferc714__yearly_planning_area_forecast_demand",
+    )
+
+    # TBD
+
+    return df
