@@ -760,6 +760,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "core_eia861__yearly_utility_data_misc",
                     "core_eia861__yearly_utility_data_nerc",
                     "core_eia861__yearly_utility_data_rto",
+                    "core_eia861__yearly_short_form",
                     # Utility IDs in this table are owners, not operators, and we are
                     # not yet harvesting owner_utility_id_eia from core_eia860__scd_ownership.
                     # See https://github.com/catalyst-cooperative/pudl/issues/1393
