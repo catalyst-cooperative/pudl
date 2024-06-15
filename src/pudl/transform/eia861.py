@@ -1217,6 +1217,60 @@ def core_eia861__yearly_sales(raw_eia861__sales: pd.DataFrame) -> pd.DataFrame:
 
 
 @asset(io_manager_key="pudl_io_manager")
+def core_eia861__yearly_short_form(
+    raw_eia861__short_form: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the EIA 861 Short Form table.
+
+    Transformations include:
+
+    * Drop primary key duplicates.
+    * Convert N/Y values to boolean
+    * Change NA BA codes to 'UNK'
+    """
+    idx_cols = [
+        "utility_id_eia",
+        "state",
+        "report_date",
+        "balancing_authority_code_eia",
+    ]
+
+    bool_cols = [
+        "has_net_metering",
+        "has_demand_side_management",
+        "has_time_responsive_programs",
+        "has_green_pricing",
+    ]
+
+    raw_sf = _pre_process(raw_eia861__short_form)
+    # * fill NA BA values with 'UNK'
+    raw_sf["balancing_authority_code_eia"] = raw_sf[
+        "balancing_authority_code_eia"
+    ].fillna("UNK")
+
+    # * Drop Duplicates based on primary keys
+    deduped_sf = _drop_dupes(df=raw_sf, df_name="Short Form", subset=idx_cols)
+
+    # * Make Y/N's into booleans
+    deduped_sf = pudl.helpers.fix_boolean_columns(
+        deduped_sf, boolean_columns_to_fix=bool_cols
+    )
+
+    logger.info("Performing value transformations on EIA 861 Short Form table.")
+    # Transform revenue 1000s into dollars
+    deduped_sf["sales_revenue"] = _thousand_to_one(deduped_sf["sales_revenue"])
+
+    # Ensure there is no data in num_water_heaters bc we drop it during enforce_schema
+    if not deduped_sf[deduped_sf.num_water_heaters.notnull()].empty:
+        raise AssertionError(
+            "We expect this column to have only null data. We do not keep this column "
+            "in the database. If non-null values are found, consider adding this column "
+            "into the database table and removing this assertion."
+        )
+    return _post_process(deduped_sf)
+
+
+@asset(io_manager_key="pudl_io_manager")
 def core_eia861__yearly_advanced_metering_infrastructure(
     raw_eia861__advanced_metering_infrastructure: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -1296,11 +1350,13 @@ def core_eia861__yearly_demand_response(raw_eia861__demand_response: pd.DataFram
     raw_dr["short_form"] = _make_yn_bool(raw_dr.short_form)
 
     # Split data into tidy-able and not
-    raw_dr_water_heater = raw_dr[idx_cols + ["water_heater", "data_maturity"]].copy()
+    raw_dr_water_heater = raw_dr[
+        idx_cols + ["num_water_heaters", "data_maturity"]
+    ].copy()
     dr_water = _drop_dupes(
         df=raw_dr_water_heater, df_name="Demand Response Water Heater", subset=idx_cols
     )
-    raw_dr = raw_dr.drop(columns=["water_heater"])
+    raw_dr = raw_dr.drop(columns=["num_water_heaters"])
 
     ###########################################################################
     # Tidy Data:
@@ -1378,7 +1434,7 @@ def core_demand_side_management_eia861(
     Transformations include:
 
     * Clean up NERC codes and ensure one per row.
-    * Remove demand_side_management and data_observed columns (they are all the same).
+    * Remove has_demand_side_management and data_observed columns (they are all the same).
     * Tidy subset of the data by customer class.
     * Convert Y/N columns to booleans.
     * Convert 1000s of dollars into dollars.
@@ -1402,7 +1458,7 @@ def core_demand_side_management_eia861(
         "major_program_changes",
         "price_responsive_programs",
         "short_form",
-        "time_responsive_programs",
+        "has_time_responsive_programs",
     ]
 
     cost_cols = [
@@ -1418,11 +1474,11 @@ def core_demand_side_management_eia861(
     # Transform Data Round 1 (must be done to avoid issues with nerc_region col in
     # _tidy_class_dfs())
     # * Clean NERC region col
-    # * Drop data_status and demand_side_management cols (they don't contain anything)
+    # * Drop data_status and has_demand_side_management cols (they don't contain anything)
     ###########################################################################
     transformed_dsm1 = (
         clean_nerc(_pre_process(raw_eia861__demand_side_management), idx_cols)
-        .drop(columns=["demand_side_management", "data_status"])
+        .drop(columns=["has_demand_side_management", "data_status"])
         .query("utility_id_eia not in [88888]")
     )
 
@@ -2440,6 +2496,7 @@ def core_utility_data_eia861(raw_eia861__utility_data: pd.DataFrame):
         "core_eia861__yearly_operational_data_revenue": AssetIn(),
         "core_eia861__yearly_reliability": AssetIn(),
         "core_eia861__yearly_sales": AssetIn(),
+        "core_eia861__yearly_short_form": AssetIn(),
         "core_eia861__yearly_utility_data_misc": AssetIn(),
         "core_eia861__yearly_utility_data_nerc": AssetIn(),
         "core_eia861__yearly_utility_data_rto": AssetIn(),
@@ -2480,6 +2537,7 @@ def core_eia861__assn_utility(**data_dfs: dict[str, pd.DataFrame]) -> pd.DataFra
         "core_eia861__yearly_operational_data_revenue": AssetIn(),
         "core_eia861__yearly_reliability": AssetIn(),
         "core_eia861__yearly_sales": AssetIn(),
+        "core_eia861__yearly_short_form": AssetIn(),
         "core_eia861__yearly_utility_data_misc": AssetIn(),
         "core_eia861__yearly_utility_data_nerc": AssetIn(),
         "core_eia861__yearly_utility_data_rto": AssetIn(),

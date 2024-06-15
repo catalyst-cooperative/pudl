@@ -65,6 +65,8 @@ EIA AEO
   <https://www.eia.gov/outlooks/aeo/tables_ref.php>`__, which include future
   projections related to electric power and renewable energy through the year
   2050, across a variety of scenarios. See :issue:`3368` and :pr:`3538`.
+* Added new :ref:`core_eia861__yearly_short_form` table from EIA861 which contains
+  the shorter version of EIA861. See issues :issue:`3540` and PR :pr:`3565`.
 * Added new tables from EIA AEO table 54:
 
   * :ref:`core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology`
