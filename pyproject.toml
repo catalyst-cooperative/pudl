@@ -24,7 +24,7 @@ dependencies = [
     "coverage>=7",
     "dagster>=1.7",
     "dagster-postgres>=0.23,<1", # Update when dagster-postgres graduates to 1.x
-    "dask>=2024",
+    "dask>=2024.5.1",
     "dask-expr", # Required for dask[dataframe]
     "datasette>=0.64",
     "doc8>=1.1",
@@ -33,12 +33,12 @@ dependencies = [
     "fsspec>=2024",
     "furo>=2024",
     "gcsfs>=2024",
-    "gdal>=3.9.0",  # 2024-05-13 Pinned to avoid 3.9.0 breaking pudl-archiver
-    "geopandas>=0.14",
+    "gdal>=3.9.0",
+    "geopandas>=0.14.4",
     "grpcio==1.62.2", # Required by dagster, binary dependencies are flaky
     "grpcio-health-checking==1.62.2", # Required by dagster, binary dependencies are flaky
     "grpcio-status==1.62.2", # Required by dagster, binary dependencies are flaky
-    "hypothesis>=6.100",
+    "hypothesis>=6.100.2",
     "jellyfish>=1",
     "jinja2>=3.1",
     "jupyter",
@@ -47,14 +47,14 @@ dependencies = [
     "nbconvert>=7",
     "nbformat>=5.9",
     "networkx>=3.3",
-    "numba>=0.59", # pandas[performance]; 0.59 required for Python 3.12
-    "numexpr>=2.8.0", # pandas[performance]
-    "numpy>=1.26",
+    "numba>=0.60", # pandas[performance]; 0.59 required for Python 3.12
+    "numexpr>=2.10", # pandas[performance]
+    "numpy>=2",
     "packaging>=23",
-    "pandas>=2.2",
+    "pandas>=2.2.2",
     "pandera>=0.18",
     "pre-commit>=3",
-    "pyarrow>=15", # pandas[parquet]
+    "pyarrow>=16", # pandas[parquet]
     "pydantic>=2.7",
     "pydantic-settings>=2",
     "pytest>=8",
@@ -70,9 +70,9 @@ dependencies = [
     "requests>=2.31",
     "responses>=0.23",
     "ruff>=0.4",
-    "scikit-learn>=1.4",
+    "scikit-learn>=1.4.2",
     "scipy>=1.13",
-    "Shapely>=2",
+    "Shapely>=2.0.4",
     "splink>=3.9.14",
     "sphinx>=7",
     "sphinx-autoapi>=3",
