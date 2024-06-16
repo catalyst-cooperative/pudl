@@ -209,8 +209,8 @@ function merge_tag_into_branch() {
 function clean_up_outputs_for_distribution() {
     # Compress the SQLite DBs for easier distribution
     gzip --verbose "$PUDL_OUTPUT"/*.sqlite && \
-    # Grab the consolidated EPA CEMS outputs for distribution
-    cp "$PUDL_OUTPUT/parquet/core_epacems__hourly_emissions.parquet" "$PUDL_OUTPUT" && \
+    # Grab hourly tables which are only written to Parquet for distribution
+    cp "$PUDL_OUTPUT"/parquet/*__hourly_*.parquet "$PUDL_OUTPUT" && \
     # Remove all other parquet output, which we are not yet distributing.
     rm -rf "$PUDL_OUTPUT/parquet" && \
     rm -f "$PUDL_OUTPUT/metadata.yml"
@@ -260,7 +260,7 @@ if [[ $ETL_SUCCESS == 0 ]]; then
 
     # Deploy the updated data to datasette if we're on main
     if [[ "$BUILD_REF" == "main" ]]; then
-        python ~/pudl/devtools/datasette/publish.py 2>&1 | tee -a "$LOGFILE"
+        python ~/pudl/devtools/datasette/publish.py --production 2>&1 | tee -a "$LOGFILE"
         DATASETTE_SUCCESS=${PIPESTATUS[0]}
     fi
 

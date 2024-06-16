@@ -4,13 +4,13 @@
 
 {% endblock %}
 
-{% block downloadable_pdfs %}
+{% block download_docs %}
 {% for filename in download_paths %}
-* :download:`{{ filename.stem.replace("_", " ").title() }} (PDF) <{{ filename }}>`
+* :download:`{{ filename.stem.replace("_", " ").title() }} ({{ filename.suffix.replace('.', '').upper() }}) <{{ filename }}>`
 {% endfor %}
 {% endblock %}
 
-{% block accessible %}
+{% block availability %}
 The data we've integrated from FERC Form 714 includes:
 
 * hourly electricity demand by utility or balancing authority from 2006-2020
@@ -18,23 +18,27 @@ The data we've integrated from FERC Form 714 includes:
   authority ID, which allows us to link the FERC-714 data to other information
   reported in :doc:`eia860` and :doc:`eia861`.
 
+We have not yet had the opportunity to work with the most recent FERC-714 data (2021 and
+later), which is now being published using the new XBRL format.
+
 The hourly demand data for 2006-2020 is about 15 million records. There are about 200
 respondents that show up in the respondents table.
 
 WIth the EIA IDs, we link the hourly electricity demand to a particular georgraphic
 region at the county level, because utilities and balancing authorities report their
-service territories in :ref:`core_eia861__yearly_service_territory`, and from that information we
-can estimate historical hourly electricity demand by state.
+service territories in :ref:`core_eia861__yearly_service_territory`, and from that
+information we can estimate historical hourly electricity demand by state.
 
-Plant operators reported in :ref:`core_eia860__scd_plants` and generator ownership information
-reported in :ref:`core_eia860__scd_ownership` are linked to :ref:`core_eia860__scd_utilities` and
-:ref:`core_eia861__yearly_balancing_authority` and so can also be linked to the
-:ref:`core_ferc714__respondent_id` table, as well as the :ref:`core_epacems__hourly_emissions`
-unit-level emissions and generation data reported in :doc:`epacems`.
+Plant operators reported in :ref:`core_eia860__scd_plants` and generator ownership
+information reported in :ref:`core_eia860__scd_ownership` are linked to
+:ref:`core_eia860__scd_utilities` and :ref:`core_eia861__yearly_balancing_authority` and
+so can also be linked to the :ref:`core_ferc714__respondent_id` table, as well as the
+:ref:`core_epacems__hourly_emissions` unit-level emissions and generation data reported
+in :doc:`epacems`.
 
 {% endblock %}
 
-{% block fill_out_form %}
+{% block respondents %}
 Electric utilities operating balancing authority areas and planning areas with annual
 peak demand over 200MW are required to file FERC Form 714.
 {% endblock %}

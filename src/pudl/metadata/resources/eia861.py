@@ -124,7 +124,7 @@ representative from EIA."""
                 "report_date",
                 "state",
                 "utility_id_eia",
-                "water_heater",
+                "num_water_heaters",
                 "data_maturity",
             ],
             "primary_key": [
@@ -213,7 +213,7 @@ representative from EIA."""
                 "reported_as_another_company",
                 "short_form",
                 "state",
-                "time_responsive_programs",
+                "has_time_responsive_programs",
                 "utility_id_eia",
                 "utility_name_eia",
                 "data_maturity",
@@ -688,6 +688,51 @@ the standard (IEEE/other) and other relevant information."""
                 "customer_class",
                 "business_model",
                 "service_type",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia861"],
+        "etl_group": "eia861",
+    },
+    "core_eia861__yearly_short_form": {
+        "description": (
+            """This is data extracted from Form EIA-861S, a shorter version of Form EIA-861.
+The data started being reported in 2012. However, the 2019 data is not available.
+They are expected to submit the completed Form EIA-861S to EIA by April 30th, following the end of the prior calendar year.
+Utilities report on Form EIA-861S if they:
+
+- Report less than 200,000 megawatthours on the last previous Form EIA-861.
+
+- Provide only bundled service (generation and distribution).
+
+- Are not needed to ensure acceptable quality of statistical estimates.
+
+- Are not part of the aggregate TVA or WPPI.
+
+- Do not report on Form EIA-861M."""
+        ),
+        "schema": {
+            "fields": [
+                "report_date",
+                "utility_id_eia",
+                "utility_name_eia",
+                "entity_type",
+                "state",
+                "balancing_authority_code_eia",
+                "sales_revenue",
+                "sales_mwh",
+                "customers",
+                "has_net_metering",
+                "has_demand_side_management",
+                "has_time_responsive_programs",
+                "has_green_pricing",
+                "data_maturity",
+            ],
+            "primary_key": [
+                "utility_id_eia",
+                "state",
+                "report_date",
+                "balancing_authority_code_eia",
             ],
         },
         "field_namespace": "eia",

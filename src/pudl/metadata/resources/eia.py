@@ -6,12 +6,24 @@ from pudl.metadata.codes import CODE_METADATA
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia__codes_balancing_authorities": {
-        "description": "A coding table describing balancing authorities in EIA-860 and EIA-923.",
+        "description": "A coding table describing balancing authorities in EIA-860, EIA-923, and EIA-930",
         "schema": {
-            "fields": ["code", "label", "description"],
+            "fields": [
+                "code",
+                "label",
+                "description",
+                "balancing_authority_region_code_eia",
+                "balancing_authority_region_name_eia",
+                "report_timezone",
+                "balancing_authority_retirement_date",
+                "is_generation_only",
+            ],
             "primary_key": ["code"],
             "foreign_key_rules": {
-                "fields": [["balancing_authority_code_eia"]],
+                "fields": [
+                    ["balancing_authority_code_eia"],
+                    ["balancing_authority_code_adjacent_eia"],
+                ],
                 "exclude": [
                     "core_eia861__yearly_advanced_metering_infrastructure",
                     "core_eia861__yearly_balancing_authority",
@@ -28,11 +40,37 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "core_eia861__yearly_reliability",
                     "core_eia861__yearly_sales",
                     "out_ferc714__summarized_demand",
+                    "core_eia861__yearly_short_form",
                 ],
             },
         },
         "encoder": CODE_METADATA["core_eia__codes_balancing_authorities"],
         "sources": ["eia860"],
+        "etl_group": "static_eia",
+        "field_namespace": "eia",
+    },
+    "core_eia__codes_balancing_authority_subregions": {
+        "description": "Details about the balancing authority subregions in EIA-930.",
+        "schema": {
+            "fields": [
+                "balancing_authority_code_eia",
+                "balancing_authority_subregion_code_eia",
+                "balancing_authority_subregion_name_eia",
+            ],
+            "primary_key": [
+                "balancing_authority_code_eia",
+                "balancing_authority_subregion_code_eia",
+            ],
+            "foreign_key_rules": {
+                "fields": [
+                    [
+                        "balancing_authority_code_eia",
+                        "balancing_authority_subregion_code_eia",
+                    ],
+                ]
+            },
+        },
+        "sources": ["eia930"],
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
@@ -722,6 +760,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "core_eia861__yearly_utility_data_misc",
                     "core_eia861__yearly_utility_data_nerc",
                     "core_eia861__yearly_utility_data_rto",
+                    "core_eia861__yearly_short_form",
                     # Utility IDs in this table are owners, not operators, and we are
                     # not yet harvesting owner_utility_id_eia from core_eia860__scd_ownership.
                     # See https://github.com/catalyst-cooperative/pudl/issues/1393
@@ -814,7 +853,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "natural_gas_pipeline_name_2",
                 "natural_gas_pipeline_name_3",
                 "nerc_region",
-                "net_metering",
+                "has_net_metering",
                 "pipeline_notes",
                 "primary_purpose_id_naics",
                 "regulatory_status_code",

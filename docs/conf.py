@@ -14,6 +14,7 @@ import os
 import shutil
 from pathlib import Path
 
+from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.classes import CodeMetadata, DataSource, Package
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.resources import RESOURCE_METADATA
@@ -153,13 +154,14 @@ def data_sources_metadata_to_rst(app):
         "eia860",
         "eia861",
         "eia923",
+        "eia930",
         "ferc1",
         "ferc714",
         "epacems",
         "phmsagas",
         "gridpathratoolkit",
     ]
-    package = Package.from_resource_ids()
+    package = PUDL_PACKAGE
     extra_etl_groups = {"eia860": ["entity_eia"], "ferc1": ["glue"]}
     for name in included_sources:
         source = DataSource.from_id(name)
@@ -203,6 +205,7 @@ def cleanup_rsts(app, exception):
     (DOCS_DIR / "data_sources/eia860.rst").unlink()
     (DOCS_DIR / "data_sources/eia861.rst").unlink()
     (DOCS_DIR / "data_sources/eia923.rst").unlink()
+    (DOCS_DIR / "data_sources/eia930.rst").unlink()
     (DOCS_DIR / "data_sources/ferc1.rst").unlink()
     (DOCS_DIR / "data_sources/ferc714.rst").unlink()
     (DOCS_DIR / "data_sources/epacems.rst").unlink()

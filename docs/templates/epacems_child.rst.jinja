@@ -1,10 +1,10 @@
 {% extends "data_source_parent.rst.jinja" %}
 {% block database_text %}
-Clicking on the links will show you a description of the table as well as
-the names and descriptions of each of its fields.
+Clicking on the links will show you a description of the table as well as the names and
+descriptions of each of its fields. Due to the size of the CEMS data we only publish
+it as Parquet files, which are not browseable online. See :ref:`access-kaggle` and
+:ref:`access-nightly-builds` for information on how to access these outputs.
 {% endblock %}
-
-{% block browse_online %}- Not browsable due to file size.{% endblock %}
 
 {% block background %}
 `Continuous Emissions Monitoring Systems
@@ -13,27 +13,29 @@ to determine the rate of gas or particulate matter exiting a point source of emi
 The EPA `Clean Air Markets Division (CAMD) <https://www.epa.gov/airmarkets>`__
 has collected data on power plant emissions from CEMS units stretching back to 1995. The
 CEMS dataset includes hourly gross load, SO2, CO2, and NOx emissions associated with
-a given point source, usually a boiler. Read more about this in "Notable
-Irregularities"; it gets complicated.
+a given point source, usually a boiler. However the connection between EPA emissions
+units and EIA boilers isn't perfect. See "Notable Irregularities" below.
 {% endblock %}
 
-{% block downloadable_pdfs %}
-{% for filename in download_paths %}
-    * :download:`{{ filename.stem.replace("_", " ").title() }} (PDF) <{{ filename }}>`
-{% endfor %}
+{% block download_docs %}
+{% for filename in download_paths -%}
+* :download:`{{ filename.stem.replace("_", " ").title() }} (PDF) <{{ filename }}>`
+{%- endfor %}
 {% endblock %}
 
-{% block accessible %}
-All of it! We typically update the EPA CEMS dataset quarterly, as new data releases are
-made.
+{% block availability %}
+We integrate all years of EPA CEMS hourly data, including all reporting states.
 
+EPA releases the hourly CEMS data on a quarterly basis, with a lag of 2-3 months. We
+update the CEMS data within PUDL on a quarterly schedule, in support of `RMI's Utility
+Transition Hub <https://utilitytransitionhub.rmi.org/>`__.
 {% endblock %}
 
-{% block fill_out_form_title %}
+{% block respondents_title %}
 Who is required to install CEMS and report to EPA?
 --------------------------------------------------
 {% endblock %}
-{% block fill_out_form %}
+{% block respondents %}
 `Part 75 <https://www.ecfr.gov/cgi-bin/retrieveECFR?gp=&SID=d20546b42dd4ea978d0de7eabe15cbf4&mc=true&n=pt40.18.75&r=PART&ty=HTML#se40.18.75_12>`__
 of the Code of Federal Regulations (CFR), the backbone of the Clean Air Act's Acid Rain
 Program, requires fossil-combustion units to install and use CEMS. The qualifications
@@ -62,11 +64,11 @@ we use to produce archives of the data).
 
 {% block notable_irregularities %}
 
-CEMS is enormous
-----------------
-CEMS is the largest dataset in PUDL, with hourly records for thousands of
-plants spanning decades. To make this large table more usable, we distribute the CEMS
-data using the `Apache Parquet <https://parquet.apache.org/>`__ file format rather than
+CEMS is BIG
+-----------
+CEMS is the largest dataset in PUDL, with hourly records for thousands of plants
+spanning decades. To make this large table more usable, we distribute the CEMS data
+using the `Apache Parquet <https://parquet.apache.org/>`__ file format rather than
 SQLite.
 
 Check out the `PUDL data access example notebook on Kaggle

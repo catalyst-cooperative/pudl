@@ -74,7 +74,7 @@ total_load_management_annual_cost,45,49,49,49,49,49,49,49,49,49,65,65,70
 total_load_management_annual_incentive_payment,-1,50,50,50,50,50,50,50,50,50,75,75,75
 total_annual_indirect_program_cost,46,51,51,51,51,51,51,51,51,51,80,80,80
 total_annual_total_cost,47,52,52,52,52,52,52,52,52,52,85,85,85
-demand_side_management,-1,-1,-1,-1,-1,-1,-1,53,53,53,86,86,-1
+has_demand_side_management,-1,-1,-1,-1,-1,-1,-1,53,53,53,86,86,-1
 reported_as_another_company,-1,-1,-1,-1,-1,-1,-1,54,54,54,87,87,-1
 energy_savings_independently_verified,-1,-1,-1,-1,-1,-1,-1,55,55,55,88,88,-1
 energy_savings_estimates_independently_verified,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,89,89,-1
@@ -85,7 +85,7 @@ commercial_price_responsiveness_customers,-1,-1,-1,-1,-1,-1,-1,59,59,59,93,93,87
 industrial_price_responsiveness_customers,-1,-1,-1,-1,-1,-1,-1,60,60,60,94,94,88
 transportation_price_responsiveness_customers,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,95,95,89
 other_price_responsiveness_customers,-1,-1,-1,-1,-1,-1,-1,61,61,61,-1,-1,-1
-time_responsive_programs,-1,-1,-1,-1,-1,-1,-1,62,62,62,96,96,-1
+has_time_responsive_programs,-1,-1,-1,-1,-1,-1,-1,62,62,62,96,96,-1
 residential_time_responsiveness_customers,-1,-1,-1,-1,-1,-1,-1,63,63,63,97,97,90
 commercial_time_responsiveness_customers,-1,-1,-1,-1,-1,-1,-1,64,64,64,98,98,91
 industrial_time_responsiveness_customers,-1,-1,-1,-1,-1,-1,-1,65,65,65,99,99,92

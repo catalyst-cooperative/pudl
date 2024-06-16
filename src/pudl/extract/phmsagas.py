@@ -55,42 +55,35 @@ class Extractor(excel.ExcelExtractor):
         return newdata
 
 
-# TODO (bendnorman): Add this information to the metadata
-raw_table_names = (
-    "raw_phmsagas__yearly_distribution",
-    "raw_phmsagas__yearly_transmission_gathering_summary_by_commodity",
-    "raw_phmsagas__yearly_gathering_pipe_miles_by_nps",
-    "raw_phmsagas__yearly_transmission_pipe_miles_by_nps",
-    "raw_phmsagas__yearly_transmission_gathering_inspections_assessments",
-    "raw_phmsagas__yearly_transmission_gathering_pipe_miles_by_class_location",
-    "raw_phmsagas__yearly_transmission_material_verification",
-    "raw_phmsagas__yearly_transmission_hca_miles_by_determination_method_and_risk_model",
-    "raw_phmsagas__yearly_transmission_miles_by_pressure_test_range_and_internal_inspection",
-    "raw_phmsagas__yearly_transmission_gathering_preparer_certification",
-    "raw_phmsagas__yearly_transmission_pipe_miles_by_smys",
-    "raw_phmsagas__yearly_transmission_gathering_failures_leaks_repairs",
-    "raw_phmsagas__yearly_transmission_miles_by_maop",
-    "raw_phmsagas__yearly_transmission_gathering_pipe_miles_by_decade_installed",
-    "raw_phmsagas__yearly_transmission_gathering_pipe_miles_by_material",
-)
-
 raw_phmsagas__all_dfs = raw_df_factory(Extractor, name="phmsagas")
 
 
-# # TODO (bendnorman): Figure out type hint for context keyword and multi_asset return
 @multi_asset(
-    outs={table_name: AssetOut() for table_name in sorted(raw_table_names)},
-    required_resource_keys={"datastore", "dataset_settings"},
+    outs={
+        table_name: AssetOut()
+        for table_name in sorted(
+            (
+                "raw_phmsagas__yearly_distribution",
+                "raw_phmsagas__yearly_gathering_pipe_miles_by_nps",
+                "raw_phmsagas__yearly_transmission_gathering_summary_by_commodity",
+                "raw_phmsagas__yearly_transmission_pipe_miles_by_nps",
+                "raw_phmsagas__yearly_transmission_gathering_inspections_assessments",
+                "raw_phmsagas__yearly_transmission_gathering_pipe_miles_by_class_location",
+                "raw_phmsagas__yearly_transmission_material_verification",
+                "raw_phmsagas__yearly_transmission_hca_miles_by_determination_method_and_risk_model",
+                "raw_phmsagas__yearly_transmission_miles_by_pressure_test_range_and_internal_inspection",
+                "raw_phmsagas__yearly_transmission_gathering_preparer_certification",
+                "raw_phmsagas__yearly_transmission_pipe_miles_by_smys",
+                "raw_phmsagas__yearly_transmission_gathering_failures_leaks_repairs",
+                "raw_phmsagas__yearly_transmission_miles_by_maop",
+                "raw_phmsagas__yearly_transmission_gathering_pipe_miles_by_decade_installed",
+                "raw_phmsagas__yearly_transmission_gathering_pipe_miles_by_material",
+            )
+        )
+    }
 )
-def extract_phmsagas(context, raw_phmsagas__all_dfs):
-    """Extract raw PHMSA gas data from excel sheets into dataframes.
-
-    Args:
-        context: dagster keyword that provides access to resources and config.
-
-    Returns:
-        A tuple of extracted PHMSA gas dataframes.
-    """
+def extract_phmsagas(raw_phmsagas__all_dfs):
+    """Extract raw PHMSA gas data from excel sheets into dataframes."""
     # create descriptive table_names
     raw_phmsagas__all_dfs = {
         "raw_phmsagas__" + table_name: df

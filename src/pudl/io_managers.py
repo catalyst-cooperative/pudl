@@ -26,6 +26,7 @@ from packaging import version
 from upath import UPath
 
 import pudl
+from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.classes import Package, Resource
 from pudl.workspace.setup import PudlPaths
 
@@ -392,7 +393,7 @@ class PudlSQLiteIOManager(SQLiteIOManager):
                 until that transaction is committed.
         """
         if package is None:
-            package = Package.from_resource_ids()
+            package = PUDL_PACKAGE
         self.package = package
         md = self.package.to_sql()
         sqlite_path = Path(base_dir) / f"{db_name}.sqlite"
@@ -527,12 +528,18 @@ class PudlSQLiteIOManager(SQLiteIOManager):
         ),
     }
 )
-def pudl_mixed_format_io_manager(init_context) -> IOManager:
+def pudl_mixed_format_io_manager(init_context: InitResourceContext) -> IOManager:
     """Create a SQLiteManager dagster resource for the pudl database."""
     return PudlMixedFormatIOManager(
         write_to_parquet=init_context.resource_config["write_to_parquet"],
         read_from_parquet=init_context.resource_config["read_from_parquet"],
     )
+
+
+@io_manager
+def parquet_io_manager(init_context: InitResourceContext) -> IOManager:
+    """Create a Parquet only IO manager."""
+    return PudlParquetIOManager()
 
 
 class FercSQLiteIOManager(SQLiteIOManager):
@@ -695,36 +702,87 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
         Each row in our SQLite database includes all the facts for one context/filing
         pair.
 
-        If one context is represented in multiple filings, we take the facts from the
-        most recently-published filing.
+        If one context is represented in multiple filings, we take the most
+        recently-reported non-null value.
 
-        This means that if a recently-published filing does not include a value for a
-        fact that was previously reported, then that value will remain null. We do not
-        forward-fill facts on a fact-by-fact basis.
+        This means that if a utility reports a non-null value, then later
+        either reports a null value for it or simply omits it from the report,
+        we keep the old non-null value, which may be erroneous. This appears to
+        be fairly rare, affecting < 0.005% of reported values.
         """
+
+        def __apply_diffs(
+            duped_groups: pd.core.groupby.DataFrameGroupBy,
+        ) -> pd.DataFrame:
+            """Take the latest reported non-null value for each group."""
+            return duped_groups.last()
+
+        def __best_snapshot(
+            duped_groups: pd.core.groupby.DataFrameGroupBy,
+        ) -> pd.DataFrame:
+            """Take the row that has most non-null values out of each group."""
+            # Ignore errors when dropping the "count" column since empty
+            # groupby won't have this column.
+            return duped_groups.apply(
+                lambda df: df.assign(count=df.count(axis="columns"))
+                .sort_values(by="count", ascending=True)
+                .tail(1)
+            ).drop(columns="count", errors="ignore")
+
+        def __compare_dedupe_methodologies(
+            apply_diffs: pd.DataFrame, best_snapshot: pd.DataFrame
+        ):
+            """Compare deduplication methodologies.
+
+            By cross-referencing these we can make sure that the apply-diff
+            methodology isn't doing something unexpected.
+
+            The main thing we want to keep tabs on is apply-diff adding new
+            non-null values compared to best-snapshot, because some of those
+            are instances of a value correctly being reported as `null`.
+
+            Instead of stacking the two datasets, merging by context, and then
+            looking for left_only or right_only values, we just count non-null
+            values. This is because we would want to use the report_year as a
+            merge key, but that isn't available until after we pipe the
+            dataframe through `refine_report_year`.
+            """
+            n_diffs = apply_diffs.count().sum()
+            n_best = best_snapshot.count().sum()
+
+            if n_diffs < n_best:
+                raise ValueError(
+                    f"Found {n_diffs} non-null values with apply-diffs"
+                    f"methodology, and {n_best} with best-snapshot. "
+                    "apply-diffs should be >= best-snapshot."
+                )
+
+            # 2024-04-10: this threshold set by looking at existing values for FERC
+            # <=2022.
+            threshold_pct = 0.3
+            if n_diffs / n_best > (1 + threshold_pct / 100):
+                raise ValueError(
+                    f"Found {n_diffs} non-null values with apply-diffs"
+                    f"methodology, and {n_best} with best-snapshot. "
+                    f"apply-diffs shouldn't be more than {threshold_pct}% "
+                    "greater than best-snapshot."
+                )
+
         filing_metadata_cols = {"publication_time", "filing_name"}
         xbrl_context_cols = [c for c in primary_key if c not in filing_metadata_cols]
-        # we do this in multiple stages so we can log the drop-off at each stage.
-        stages = [
-            {
-                "message": "completely duplicated rows",
-                "subset": table.columns,
-            },
-            {
-                "message": "rows that are exactly the same in multiple filings",
-                "subset": [c for c in table.columns if c not in filing_metadata_cols],
-            },
-            {
-                "message": "rows that were updated by later filings",
-                "subset": xbrl_context_cols,
-            },
-        ]
         original = table.sort_values("publication_time")
-        for stage in stages:
-            deduped = original.drop_duplicates(subset=stage["subset"], keep="last")
-            logger.debug(f"Dropped {len(original) - len(deduped)} {stage['message']}")
-            original = deduped
+        dupe_mask = original.duplicated(subset=xbrl_context_cols, keep=False)
+        duped_groups = original.loc[dupe_mask].groupby(
+            xbrl_context_cols, as_index=False, dropna=True
+        )
+        never_duped = original.loc[~dupe_mask]
+        apply_diffs = __apply_diffs(duped_groups)
+        best_snapshot = __best_snapshot(duped_groups)
+        __compare_dedupe_methodologies(
+            apply_diffs=apply_diffs, best_snapshot=best_snapshot
+        )
 
+        deduped = pd.concat([never_duped, apply_diffs], ignore_index=True)
         return deduped
 
     @staticmethod

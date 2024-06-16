@@ -74,15 +74,6 @@ def ferc_to_sqlite_job_factory(
     help="Number of XBRL instances to be processed at a time.",
 )
 @click.option(
-    "--clobber/--no-clobber",
-    type=bool,
-    default=False,
-    help=(
-        "Clobber existing FERC SQLite databases if they exist. If clobber is not "
-        "specified but the SQLite database already exists the run will fail."
-    ),
-)
-@click.option(
     "-w",
     "--workers",
     type=int,
@@ -148,7 +139,6 @@ def main(
     batch_size: int,
     workers: int | None,
     dagster_workers: int,
-    clobber: bool,
     gcs_cache_path: str,
     logfile: pathlib.Path,
     loglevel: str,
@@ -188,7 +178,6 @@ def main(
                 "config": {
                     "xbrl_num_workers": workers,
                     "xbrl_batch_size": batch_size,
-                    "clobber": clobber,
                 },
             },
         },
