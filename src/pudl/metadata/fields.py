@@ -1648,6 +1648,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Average cost of fuel delivered in the report year per reported fuel unit (USD).",
         "unit": "USD",
     },
+    "fuel_cost_real_per_mmbtu_eiaaeo": {
+        "type": "number",
+        "description": (
+            "Average fuel cost per mmBTU of heat content in real USD, "
+            "standardized to the value of a USD in the year defined by "
+            "``real_cost_basis_year``."
+        ),
+        "unit": "USD_per_MMBtu",
+    },
     "fuel_derived_from": {
         "type": "string",
         "description": "Original fuel from which this refined fuel was derived.",
@@ -3290,6 +3299,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Reactive Power Output (MVAr)",
         "unit": "MVAr",
+    },
+    "real_cost_basis_year": {
+        "type": "integer",
+        "description": "Four-digit year which is the basis for any 'real cost' "
+        "monetary values (as opposed to nominal values).",
     },
     "real_time_pricing": {
         "type": "boolean",
