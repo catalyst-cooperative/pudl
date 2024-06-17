@@ -118,7 +118,7 @@ dependencies:
   - docker-py=7.1.0=pyhd8ed1ab_0
   - docstring_parser=0.16=pyhd8ed1ab_0
   - docutils=0.20.1=py312hb401068_3
-  - email-validator=2.1.1=pyhd8ed1ab_0
+  - email-validator=2.1.2=pyhd8ed1ab_0
   - ensureconda=1.4.4=pyhd8ed1ab_0
   - entrypoints=0.4=pyhd8ed1ab_0
   - et_xmlfile=1.1.0=pyhd8ed1ab_0
@@ -132,7 +132,7 @@ dependencies:
   - flexcache=0.3=pyhd8ed1ab_0
   - flexparser=0.3.1=pyhd8ed1ab_0
   - fmt=10.2.1=h7728843_0
-  - folium=0.16.0=pyhd8ed1ab_0
+  - folium=0.17.0=pyhd8ed1ab_0
   - font-ttf-dejavu-sans-mono=2.37=hab24e00_0
   - font-ttf-inconsolata=3.000=h77eed37_0
   - font-ttf-source-code-pro=2.038=h77eed37_0
@@ -178,7 +178,7 @@ dependencies:
   - graphite2=1.3.13=h73e2aa4_1003
   - graphql-core=3.2.3=pyhd8ed1ab_0
   - graphql-relay=3.2.0=pyhd8ed1ab_0
-  - graphviz=9.0.0=hee74176_1
+  - graphviz=11.0.0=hc9017ca_0
   - greenlet=3.0.3=py312hede676d_0
   - grpcio=1.62.2=py312hbbbd34f_0
   - grpcio-health-checking=1.62.2=pyhd8ed1ab_0
@@ -340,7 +340,7 @@ dependencies:
   - matplotlib-inline=0.1.7=pyhd8ed1ab_0
   - mdurl=0.1.2=pyhd8ed1ab_0
   - mergedeep=1.3.4=pyhd8ed1ab_0
-  - minizip=4.0.6=ha2864c9_0
+  - minizip=4.0.7=h62b0c8d_0
   - mistune=3.0.2=pyhd8ed1ab_0
   - mlflow=2.13.2=hb401068_1
   - mlflow-skinny=2.13.2=py312hb401068_1
@@ -364,7 +364,7 @@ dependencies:
   - notebook=7.2.1=pyhd8ed1ab_0
   - notebook-shim=0.2.4=pyhd8ed1ab_0
   - nspr=4.35=hea0b92c_0
-  - nss=3.100=h6606ded_0
+  - nss=3.101=he7eb89d_0
   - numba=0.59.1=py312h04e34b5_0
   - numexpr=2.10.0=py312h1171441_0
   - numpy=1.26.4=py312he3a82b2_0
@@ -430,7 +430,7 @@ dependencies:
   - pydantic-settings=2.3.3=pyhd8ed1ab_0
   - pygls=1.3.1=pyhd8ed1ab_0
   - pygments=2.18.0=pyhd8ed1ab_0
-  - pygraphviz=1.13=py312h4fd4f6b_0
+  - pygraphviz=1.13=py312h6908add_1
   - pyjwt=2.8.0=pyhd8ed1ab_1
   - pylev=1.4.0=pyhd8ed1ab_0
   - pynacl=1.5.0=py312h104f124_3
@@ -446,13 +446,13 @@ dependencies:
   - pytest-cov=5.0.0=pyhd8ed1ab_0
   - pytest-mock=3.14.0=pyhd8ed1ab_0
   - pytest-xdist=3.6.1=pyhd8ed1ab_0
-  - python=3.12.3=h1411813_0_cpython
+  - python=3.12.4=h37a9e06_0_cpython
   - python-build=1.2.1=pyhd8ed1ab_0
   - python-calamine=0.2.0=py312h1b0e595_0
   - python-dateutil=2.9.0=pyhd8ed1ab_0
   - python-dotenv=1.0.1=pyhd8ed1ab_0
   - python-duckdb=1.0.0=py312h28f332c_0
-  - python-fastjsonschema=2.19.1=pyhd8ed1ab_0
+  - python-fastjsonschema=2.20.0=pyhd8ed1ab_0
   - python-json-logger=2.0.7=pyhd8ed1ab_0
   - python-multipart=0.0.9=pyhd8ed1ab_0
   - python-slugify=8.0.4=pyhd8ed1ab_0
@@ -531,7 +531,7 @@ dependencies:
   - threadpoolctl=3.5.0=pyhc1e730c_0
   - tiledb=2.24.0=h125224d_3
   - time-machine=2.14.1=py312h41838bb_0
-  - timezonefinder=6.4.1=py312h41838bb_0
+  - timezonefinder=6.5.1=py312hbd25219_0
   - tinycss2=1.3.0=pyhd8ed1ab_0
   - tk=8.6.13=h1abcd95_1
   - toml=0.10.2=pyhd8ed1ab_0
