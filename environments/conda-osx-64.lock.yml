@@ -446,7 +446,7 @@ dependencies:
   - pytest-cov=5.0.0=pyhd8ed1ab_0
   - pytest-mock=3.14.0=pyhd8ed1ab_0
   - pytest-xdist=3.6.1=pyhd8ed1ab_0
-  - python=3.12.3=h1411813_0_cpython
+  - python=3.12.4=h37a9e06_0_cpython
   - python-build=1.2.1=pyhd8ed1ab_0
   - python-calamine=0.2.0=py312h1b0e595_0
   - python-dateutil=2.9.0=pyhd8ed1ab_0
