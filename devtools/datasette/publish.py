@@ -173,6 +173,7 @@ def deploy_datasette(
 
     if deploy == "metadata":
         logging.info("Only writing metadata. Aborting now.")
+        return 0
 
     logging.info(f"Inspecting DBs for datasette: {databases}...")
     inspect_output = inspect_data(databases, pudl_output)
