@@ -288,8 +288,9 @@ if [[ $ETL_SUCCESS == 0 ]]; then
         # Copy cleaned up outputs to the S3 and GCS distribution buckets
         copy_outputs_to_distribution_bucket | tee -a "$LOGFILE"
         DISTRIBUTION_BUCKET_SUCCESS=${PIPESTATUS[0]}
-        # TODO: this currently just makes a sandbox release, for testing. Should be
-        # switched to production and only run on push of a version tag eventually.
+        # Remove individual parquet outputs and distribute just the zipped parquet
+        # archives on Zenodo, due to their number of files limit
+        rm -f "$PUDL_OUTPUT"/*.parquet && \
         # Push a data release to Zenodo for long term accessiblity
         zenodo_data_release "$ZENODO_TARGET_ENV" 2>&1 | tee -a "$LOGFILE"
         ZENODO_SUCCESS=${PIPESTATUS[0]}
