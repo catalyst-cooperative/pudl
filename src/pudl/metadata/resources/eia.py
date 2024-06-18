@@ -40,6 +40,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "core_eia861__yearly_reliability",
                     "core_eia861__yearly_sales",
                     "out_ferc714__summarized_demand",
+                    "core_eia861__yearly_short_form",
                 ],
             },
         },
@@ -759,6 +760,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "core_eia861__yearly_utility_data_misc",
                     "core_eia861__yearly_utility_data_nerc",
                     "core_eia861__yearly_utility_data_rto",
+                    "core_eia861__yearly_short_form",
                     # Utility IDs in this table are owners, not operators, and we are
                     # not yet harvesting owner_utility_id_eia from core_eia860__scd_ownership.
                     # See https://github.com/catalyst-cooperative/pudl/issues/1393
@@ -851,7 +853,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "natural_gas_pipeline_name_2",
                 "natural_gas_pipeline_name_3",
                 "nerc_region",
-                "net_metering",
+                "has_net_metering",
                 "pipeline_notes",
                 "primary_purpose_id_naics",
                 "regulatory_status_code",

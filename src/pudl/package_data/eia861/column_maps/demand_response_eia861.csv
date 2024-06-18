@@ -35,5 +35,5 @@ commercial_other_costs,30,30,30,30,31,31,32,31,31,31
 industrial_other_costs,31,31,31,31,32,32,33,32,32,32
 transportation_other_costs,32,32,32,32,33,33,34,33,33,33
 total_other_costs,33,33,33,33,34,34,35,34,34,34
-water_heater,34,34,34,34,35,35,36,35,35,35
+num_water_heaters,34,34,34,34,35,35,36,35,35,35
 early_release,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
