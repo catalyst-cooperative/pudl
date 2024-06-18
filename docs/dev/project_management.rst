@@ -3,9 +3,10 @@ Project Management
 ===============================================================================
 
 The people working on PUDL are distributed all over North America. Collaboration takes
-place online. We make extensive use of Github's build-in project management tools and
-we work in public. You can follow our progress in our
-`GitHub Projects <https://github.com/orgs/catalyst-cooperative/projects/9>`__
+place online. We track our work in a public
+`GitHub Project <https://github.com/orgs/catalyst-cooperative/projects/9>`__ so you can
+follow our progress.
+
 
 -------------------------------------------------------------------------------
 Issues and Project Tracking
