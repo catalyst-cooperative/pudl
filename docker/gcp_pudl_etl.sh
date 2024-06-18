@@ -220,7 +220,7 @@ function clean_up_outputs_for_distribution() {
     # Create a zip file of all the parquet outputs for distribution on Kaggle
     # Don't try to compress the already compressed Parquet files with Zip.
     cd "$PUDL_OUTPUT" && \
-    zip -0 "$PUDL_OUTPUT/pudl_parquet.zip" ./*.parquet && \
+    zip -0 pudl_parquet.zip ./*.parquet && \
     cd "$HOME" && \
     # Remove all other parquet output, which we are not yet distributing.
     rm -rf "$PUDL_OUTPUT/parquet" && \
