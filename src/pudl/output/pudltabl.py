@@ -181,6 +181,7 @@ class PudlTabl:
             # eia861 (clean)
             "core_eia861__yearly_service_territory": "service_territory_eia861",
             "core_eia861__yearly_sales": "sales_eia861",
+            "core_eia861__yearly_short_form": "short_form_eia861",
             "core_eia861__yearly_advanced_metering_infrastructure": "advanced_metering_infrastructure_eia861",
             "core_eia861__yearly_demand_response": "demand_response_eia861",
             "core_eia861__yearly_demand_response_water_heater": "demand_response_water_heater_eia861",

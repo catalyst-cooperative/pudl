@@ -13,7 +13,7 @@ distribution_systems,8,9,9,9,10,10,10
 dynamic_pricing,9,10,10,10,11,11,11
 energy_efficiency,10,11,11,11,12,12,12
 mergers,11,12,12,12,13,13,13
-net_metering,12,13,13,13,14,14,14
+has_net_metering,12,13,13,13,14,14,14
 non_net_metering_distributed,13,14,14,14,15,15,15
 operational_data,14,15,15,15,16,16,16
 reliability,15,16,16,16,17,17,17

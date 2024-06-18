@@ -253,7 +253,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
     "core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type": {
         "description": (
-            "Projected fuel prices to the electric power sector, including "
+            "Projected fuel prices for the electric power sector, including "
             "electricity-only and combined-heat-and-power plants that have a "
             "regulatory status."
         ),
@@ -266,6 +266,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "fuel_type_eiaaeo",
                 "fuel_cost_per_mmbtu",
                 "fuel_cost_real_per_mmbtu_eiaaeo",
+                "real_cost_basis_year",
             ],
             "primary_key": [
                 "report_year",
@@ -342,15 +343,6 @@ _STAGING_FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Total carbon emissions in short tons.",
         "unit": "short_tons",
     },
-    "fuel_cost_real_per_mmbtu_eiaaeo": {
-        "type": "number",
-        "description": (
-            "Average fuel cost per mmBTU of heat content in real USD, "
-            "standardized to the value of a USD in the year before the report "
-            "year."
-        ),
-        "unit": "USD_per_MMBtu",
-    },
     "generation_for_own_use_mwh": {
         "type": "number",
         "description": "Amount of generation that is used for generation instead of sold.",
@@ -408,8 +400,9 @@ RESOURCE_METADATA = {
     for key, value in _STAGING_RESOURCE_METADATA.items()
     if key
     in {
+        "core_eiaaeo__yearly_projected_electric_sales",
+        "core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type",
         "core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology",
         "core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type",
-        "core_eiaaeo__yearly_projected_electric_sales",
     }
 }
