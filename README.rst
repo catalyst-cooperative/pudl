@@ -62,8 +62,8 @@ Raw Data Archives
 PUDL `archives <https://github.com/catalyst-cooperative/pudl-archiver>`__ all our raw
 inputs on `Zenodo
 <https://zenodo.org/communities/catalyst-cooperative/?page=1&size=20>`__ to ensure
-permanent, versioned access to the data. In the event that an agency changes how they
-publish data or deletes old files, the data processing pipeline will still have access
+permanent, versioned access to the data. In the event that an agency changes how it
+publishes data or deletes old files, the data processing pipeline will still have access
 to the original inputs. Each of the data inputs may have several different versions
 archived, and all are assigned a unique DOI (digital object identifier) and made
 available through Zenodo's REST API.  You can read more about the Raw Data Archives in
@@ -73,8 +73,8 @@ Data Pipeline
 ^^^^^^^^^^^^^
 The data pipeline (this repo) ingests raw data from the archives, cleans and integrates
 it, and writes the resulting tables to `SQLite <https://sqlite.org>`__ and `Apache
-Parquet <https://parquet.apache.org/>`__ files, with some acompanying metadata stored as
-JSON.  Each release of the PUDL software contains a set of of DOIs indicating which
+Parquet <https://parquet.apache.org/>`__ files, with some accompanying metadata stored as
+JSON.  Each release of the PUDL software contains a set of DOIs indicating which
 versions of the raw inputs it processes. This helps ensure that the outputs are
 replicable. You can read more about our ETL (extract, transform, load) process in the
 `PUDL documentation <https://catalystcoop-pudl.readthedocs.io/en/nightly/#the-etl-process>`__.
