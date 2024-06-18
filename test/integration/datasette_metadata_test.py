@@ -24,8 +24,6 @@ def test_datasette_metadata_to_yml(ferc1_engine_xbrl, tmp_path):
     logger.info(f"Writing Datasette Metadata to {metadata_yml_path}")
 
     with metadata_yml_path.open("w") as f:
-        # We are not using helpers.create_datasette_metadata_yaml, because
-        # we need to restrict xbrl dataset ids to just ferc1_xbrl.
         # If --live-dbs is not true, we only feed in the ferc1 xbrl outputs
         # and this method would fail otherwise. Even though with --live-dbs
         # we could process all the datasets, we are opting for restricting

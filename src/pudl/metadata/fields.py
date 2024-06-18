@@ -989,6 +989,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Annual demand per km2 of a given service territory.",
         "unit": "MWh/km2",
     },
+    "has_demand_side_management": {
+        "type": "boolean",
+        "description": "Whether there were strategies or measures used to control electricity demand by customers",
+    },
     "depreciation_type": {
         "type": "string",
         "description": (
@@ -1644,6 +1648,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Average cost of fuel delivered in the report year per reported fuel unit (USD).",
         "unit": "USD",
     },
+    "fuel_cost_real_per_mmbtu_eiaaeo": {
+        "type": "number",
+        "description": (
+            "Average fuel cost per mmBTU of heat content in real USD, "
+            "standardized to the value of a USD in the year defined by "
+            "``real_cost_basis_year``."
+        ),
+        "unit": "USD_per_MMBtu",
+    },
     "fuel_derived_from": {
         "type": "string",
         "description": "Original fuel from which this refined fuel was derived.",
@@ -1826,6 +1839,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "geo_agg": {
         "type": "string",
         "description": "Category of geographic aggregation in EIA bulk electricity data.",
+    },
+    "has_green_pricing": {
+        "type": "boolean",
+        "description": "Whether a green pricing program was associated with this utility during the reporting year.",
     },
     "green_pricing_revenue": {
         "type": "number",
@@ -2463,9 +2480,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Net output for load (net generation - energy used for pumping) in megawatt-hours.",
         "unit": "MWh",
     },
-    "net_metering": {
+    "has_net_metering": {
         "type": "boolean",
-        "description": "Did this plant have a net metering agreement in effect during the reporting year?  (Only displayed for facilities that report the sun or wind as an energy source). This field was only reported up until 2015",
+        "description": "Whether the plant has a net metering agreement in effect during the reporting year.  (Only displayed for facilities that report the sun or wind as an energy source). This field was only reported up until 2015",
         # TODO: Is this really boolean? Or do we have non-null strings that mean False?
     },
     "net_output_penalty": {
@@ -3283,6 +3300,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Reactive Power Output (MVAr)",
         "unit": "MVAr",
     },
+    "real_cost_basis_year": {
+        "type": "integer",
+        "description": "Four-digit year which is the basis for any 'real cost' "
+        "monetary values (as opposed to nominal values).",
+    },
     "real_time_pricing": {
         "type": "boolean",
         "description": (
@@ -4076,7 +4098,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "and predefined, based on season, day of week, and time of day."
         ),
     },
-    "time_responsive_programs": {
+    "has_time_responsive_programs": {
         "type": "boolean",
         "description": (
             "Whether the respondent operates any time-based rate programs (e.g., "
@@ -4384,7 +4406,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "MMBtu_per_hour",
         "description": "Design waste-heat input rate at maximum continuous steam flow where a waste-heat boiler is a boiler that receives all or a substantial portion of its energy input from the noncumbustible exhaust gases of a separate fuel-burning process (MMBtu per hour).",
     },
-    "water_heater": {
+    "num_water_heaters": {
         "type": "integer",
         "description": (
             "The number of grid-enabled water heaters added to the respondent's "

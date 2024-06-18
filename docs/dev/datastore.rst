@@ -76,4 +76,4 @@ can make the PUDL Datastore aware of it by updating the appropriate DOI in
 the `Zenodo sandbox server <https://sandbox.zenodo.org>`__ for archives that are still
 in testing or development (sandbox DOIs have a prefix of ``10.5072``), or the
 `Zenodo production server <https://zenodo.org>`__ server if the archive is ready for
-public use (production DOIs hae a prefix of ``10.5281``).
+public use (production DOIs have a prefix of ``10.5281``).

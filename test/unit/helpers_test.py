@@ -22,6 +22,7 @@ from pudl.helpers import (
     fix_eia_na,
     flatten_list,
     remove_leading_zeros_from_numeric_strings,
+    retry,
     standardize_percentages_ratio,
     zero_pad_numeric_string,
 )
@@ -787,3 +788,13 @@ def test_standardize_percentages_ratio():
         standardized = standardize_percentages_ratio(
             over_100_df, mixed_cols=["mixed_col"], years_to_standardize=[1995, 1996]
         )
+
+
+def test_retry(mocker):
+    func = mocker.MagicMock(side_effect=[RuntimeError, RuntimeError, RuntimeError, 1])
+    sleep_mock = mocker.MagicMock()
+    with mocker.patch("time.sleep", sleep_mock):
+        assert retry(func=func, retry_on=(RuntimeError,)) == 1
+
+    assert sleep_mock.call_count == 3
+    sleep_mock.assert_has_calls([mocker.call(2**x) for x in range(3)])
