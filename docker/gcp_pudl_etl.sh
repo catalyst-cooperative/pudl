@@ -222,7 +222,7 @@ function clean_up_outputs_for_distribution() {
     cd "$PUDL_OUTPUT" && \
     zip -0 pudl_parquet.zip ./*.parquet && \
     cd "$HOME" && \
-    # Remove all other parquet output, which we are not yet distributing.
+    # Remove any remaiining files and directories we don't want to distribute
     rm -rf "$PUDL_OUTPUT/parquet" && \
     rm -f "$PUDL_OUTPUT/metadata.yml"
 }
