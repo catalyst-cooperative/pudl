@@ -360,9 +360,9 @@ def _core_eia860__generators_solar(
     solar_existing = raw_eia860__generator_solar_existing
     solar_retired = raw_eia860__generator_solar_retired
     # every boolean column in the raw solar tables has a uses prefix
-    boolean_columns_to_fix = list(solar_existing.filter(regex=r"^uses_"))
+    boolean_columns_to_fix = list(solar_existing.filter(regex=r"^uses_|^is_"))
     if mismatched_bool_cols := set(boolean_columns_to_fix).difference(
-        set(solar_retired.filter(regex=r"^uses_"))
+        set(solar_retired.filter(regex=r"^uses_|^is_"))
     ):
         raise AssertionError(
             "We expect that the raw existing and retired assets to have the exact same "
@@ -391,17 +391,19 @@ def _core_eia860__generators_solar(
 @asset
 def _core_eia860__generators_energy_storage(
     raw_eia860__generator_energy_storage_existing: pd.DataFrame,
+    raw_eia860__generator_energy_storage_proposed: pd.DataFrame,
     raw_eia860__generator_energy_storage_retired: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the energy storage specific generators table."""
     storage_ex = raw_eia860__generator_energy_storage_existing
+    storage_pr = raw_eia860__generator_energy_storage_proposed
     storage_re = raw_eia860__generator_energy_storage_retired
 
     # every boolean column in the raw storage tables has a served_ or stored_ prefix
-    boolean_columns_to_fix = list(storage_ex.filter(regex=r"^served_|^stored_"))
+    boolean_columns_to_fix = list(storage_ex.filter(regex=r"^served_|^stored_|^is_"))
 
     storage_df = (
-        pd.concat([storage_ex, storage_re], sort=True)
+        pd.concat([storage_ex, storage_pr, storage_re], sort=True)
         .pipe(pudl.helpers.fix_eia_na)
         .pipe(pudl.helpers.month_year_to_date)
         .pipe(pudl.helpers.convert_to_date)
