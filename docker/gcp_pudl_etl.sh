@@ -208,9 +208,20 @@ function merge_tag_into_branch() {
 
 function clean_up_outputs_for_distribution() {
     # Compress the SQLite DBs for easier distribution
-    gzip --verbose "$PUDL_OUTPUT"/*.sqlite && \
-    # Grab hourly tables which are only written to Parquet for distribution
-    cp "$PUDL_OUTPUT"/parquet/*__hourly_*.parquet "$PUDL_OUTPUT" && \
+    cd "$PUDL_OUTPUT" && \
+    for file in *.sqlite; do
+        echo "Compressing $file" && \
+        zip "$file.zip" "$file" && \
+        rm "$file"
+    done
+    cd "$HOME" && \
+    # Copy all parquet outputs to the top level output directory
+    cp "$PUDL_OUTPUT"/parquet/*.parquet "$PUDL_OUTPUT" && \
+    # Create a zip file of all the parquet outputs for distribution on Kaggle
+    # Don't try to compress the already compressed Parquet files with Zip.
+    cd "$PUDL_OUTPUT" && \
+    zip -0 "$PUDL_OUTPUT/pudl_parquet.zip" ./*.parquet && \
+    cd "$HOME" && \
     # Remove all other parquet output, which we are not yet distributing.
     rm -rf "$PUDL_OUTPUT/parquet" && \
     rm -f "$PUDL_OUTPUT/metadata.yml"
