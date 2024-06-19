@@ -579,10 +579,12 @@ def out_ferc714__yearly_planning_area_forecast_demand(
 
     return df
 
+
 # EVERYTHING BELOW WILL COME OUT - JUST FOR LOCAL DEV
 # Get the value of DAGSTER_HOME from environment variables
 import os
-dagster_home = os.getenv('DAGSTER_HOME')
+
+dagster_home = os.getenv("DAGSTER_HOME")
 
 # Define the file name
 file_name = "storage/raw_ferc714__yearly_planning_area_forecast_demand"
