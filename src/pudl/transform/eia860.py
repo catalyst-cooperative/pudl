@@ -31,7 +31,7 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
     Returns:
         Cleaned ``_core_eia860__ownership`` dataframe ready for harvesting.
     """
-    # Preiminary clean and get rid of unecessary 'year' column
+    # Preliminary clean and get rid of unnecessary 'year' column
     own_df = (
         raw_eia860__ownership.copy()
         .pipe(pudl.helpers.fix_eia_na)
@@ -112,6 +112,8 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
                     "2019-01-01",
                     "2020-01-01",
                     "2021-01-01",
+                    "2022-01-01",
+                    "2023-01-01",
                 ]
             )
         )
@@ -159,20 +161,6 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
     } | {"CN": "CAN"}
     own_df["owner_country"] = own_df["owner_state"].map(state_to_country)
     own_df.loc[own_df.owner_state == "CN", "owner_state"] = pd.NA
-
-    # Spot fix NA generator_id. Might want to change this once we have the official 2022
-    # data not just early release.
-    constraints = (own_df["plant_id_eia"] == 62844) & (
-        own_df["report_date"].dt.year == 2022
-    )
-    if 2022 not in own_df.report_date.dt.year.unique():
-        pass
-    elif len(own_df[constraints]) > 1:
-        raise AssertionError("Too many records getting spot fixed.")
-    elif own_df[constraints].generator_id.notna().all():
-        raise AssertionError("Generator ID filled in, you can remove this hack!")
-    else:
-        own_df.loc[constraints, "generator_id"] = "1"
 
     return own_df
 
@@ -353,16 +341,16 @@ def _core_eia860__generators_solar(
     * Both the ``tilt_angle`` and ``azimuth_angle`` columns have a small number of
       negative values (both under 40 records). This seems off, but not impossible?
     * A lot of the boolean columns in this table are mostly null. It is probably
-      that a lot of the nulls should coorespond to False's, but there is no sure way
+      that a lot of the nulls should correspond to False's, but there is no sure way
       to know, so nulls seem more appropriate.
 
     """
     solar_existing = raw_eia860__generator_solar_existing
     solar_retired = raw_eia860__generator_solar_retired
     # every boolean column in the raw solar tables has a uses prefix
-    boolean_columns_to_fix = list(solar_existing.filter(regex=r"^uses_|^is_"))
+    boolean_columns_to_fix = list(solar_existing.filter(regex=r"^uses_"))
     if mismatched_bool_cols := set(boolean_columns_to_fix).difference(
-        set(solar_retired.filter(regex=r"^uses_|^is_"))
+        set(solar_retired.filter(regex=r"^uses_"))
     ):
         raise AssertionError(
             "We expect that the raw existing and retired assets to have the exact same "
@@ -396,7 +384,9 @@ def _core_eia860__generators_energy_storage(
 ) -> pd.DataFrame:
     """Transform the energy storage specific generators table."""
     storage_ex = raw_eia860__generator_energy_storage_existing
-    storage_pr = raw_eia860__generator_energy_storage_proposed
+    storage_pr = raw_eia860__generator_energy_storage_proposed.pipe(
+        drop_null_generator_id, num_of_expected_nulls=1
+    )
     storage_re = raw_eia860__generator_energy_storage_retired
 
     # every boolean column in the raw storage tables has a served_ or stored_ prefix
@@ -428,6 +418,18 @@ def _core_eia860__generators_energy_storage(
     return storage_df
 
 
+def drop_null_generator_id(
+    df: pd.DataFrame, num_of_expected_nulls: int
+) -> pd.DataFrame:
+    """Drop a prescribed number of records with null generator IDs."""
+    # there is one record that has a null gen id. ensure there isn't more before dropping
+    if len(null_gens := df[df.generator_id.isnull()]) > num_of_expected_nulls:
+        raise AssertionError(
+            f"Expected {num_of_expected_nulls} or zero records with a null generator_id but found {null_gens}"
+        )
+    return df.dropna(subset=["generator_id"])
+
+
 @asset
 def _core_eia860__generators_wind(
     raw_eia860__generator_wind_existing: pd.DataFrame,
@@ -447,13 +449,9 @@ def _core_eia860__generators_wind(
 
     """
     wind_ex = raw_eia860__generator_wind_existing
-    wind_re = raw_eia860__generator_wind_retired
-    # there is one record that has a null gen id. ensure there isn't more before dropping
-    if len(null_gens := wind_re[wind_re.generator_id.isnull()]) > 1:
-        raise AssertionError(
-            f"Expected one or zero records with a null generator_id but found {null_gens}"
-        )
-    wind_re = wind_re.dropna(subset=["generator_id"])
+    wind_re = raw_eia860__generator_wind_retired.pipe(
+        drop_null_generator_id, num_of_expected_nulls=1
+    )
 
     wind_df = (
         pd.concat([wind_ex, wind_re], sort=True)
