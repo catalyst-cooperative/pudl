@@ -56,7 +56,7 @@ ENTITIES: dict[str, dict[str, list[str] | dict[str, str]]] = {
             "natural_gas_pipeline_name_2",
             "natural_gas_pipeline_name_3",
             "nerc_region",
-            "net_metering",
+            "has_net_metering",
             "pipeline_notes",
             "primary_purpose_id_naics",
             "regulatory_status_code",

@@ -2,7 +2,7 @@
 Existing Data Updates
 ===============================================================================
 
-Many of the raw data inputs for PUDL are published on a annual or monthly basis. These
+Many of the raw data inputs for PUDL are published on an annual or monthly basis. These
 instructions explain the process for integrating new versions of existing data into
 PUDL.
 
@@ -11,7 +11,7 @@ We update EIA monthly data and EPA CEMS hourly data on a quarterly basis.
 EIA typically publishes an "early release" version of their annual data in the summer
 followed by a final release in the fall. Our ``data_maturity`` column indicates
 which version has been integrated into PUDL ("final" vs. "provisional"). This column
-also shows when data are derrived from monthly updates ("monthly_update") or contain
+also shows when data are derived from monthly updates ("monthly_update") or contain
 incomplete year-to-date data ("incremental_ytd").
 
 FERC publishes form submissions on a rolling basis meaning there is no official
@@ -35,7 +35,7 @@ at the "Years Liberated" field.
 **1.1)** Add a new copy of the raw PUDL inputs from agency websites using the tools
 in the
 `pudl-archiver repository <https://github.com/catalyst-cooperative/pudl-archiver>`__.
-If the structure of the web pages or the URLs have changed, you may need to update the
+If the structure of the web pages or the URLs has changed, you may need to update the
 archivers themselves.
 
 **1.2)** Update the dictionary of production DOIs in :mod:`pudl.workspace.datastore` to
@@ -150,7 +150,7 @@ than the whole suite of tables from a source.
 
 B. FERC Form 1
 ^^^^^^^^^^^^^^
-**3.B.1)** Clone the all of the FERC 1 data (including the new year) into SQLite with:
+**3.B.1)** Clone all of the FERC 1 data (including the new year) into SQLite with:
 
 .. code-block:: bash
 
@@ -221,7 +221,7 @@ the relationship between DBF rows and XBRL rows in
     data. These ``xbrl_factoid`` entires are the value columns from the raw XBRL data.
 
     Look at the ``row_literal`` values for a given table and see which XBRL columns they
-    coorespond to. It's helpful to
+    correspond to. It's helpful to
     `view the XBRL taxonomy <https://xbrlview.ferc.gov/>`__ for the table in question.
 
     The ``row_literals`` may contain elements of the FERC 1 form such as
@@ -237,7 +237,7 @@ the relationship between DBF rows and XBRL rows in
     reported in the XBRL metadata.
 
     The ``dbf_only`` column is marked ``TRUE`` if the ``row_literal`` only shows up in
-    the DBF files. An common example is when several fields are aggregated in the DBF
+    the DBF files. A common example is when several fields are aggregated in the DBF
     data but not in XBRL. The ``notes`` column is a place to indicate complexity or
     reasoning and is intended for humans (vs. computers) to read.
 
@@ -246,7 +246,7 @@ the relationship between DBF rows and XBRL rows in
 use the FERC 1 debugging notebook ``devtools/ferc1-etl-debug.ipynb`` to run the
 transforms for each table. Heed any errors or warnings that pop up in the logs. One of
 the most likely bugs will be uncategorized strings (think new, strange fuel type
-spellings.
+spellings).
 
 **4.B.4)** If there's a new column, add it to the transform process. At the very least,
 you'll need to include it in the ``rename_columns`` dictionary in
@@ -255,7 +255,7 @@ you'll need to include it in the ``rename_columns`` dictionary in
 * Consider whether the column could benefit from any of the standard transforms in
   :mod:`pudl.transform.classes` or :mod:`pudl.transform.ferc1`. If so, add them to
   :py:const:`pudl.transform.params.ferc1.TRANSFORM_PARAMS`. Make sure that the
-  parameter you've added to ``TRANSFORM_PARAMS`` cooresponds to a method that gets
+  parameter you've added to ``TRANSFORM_PARAMS`` corresponds to a method that gets
   called in one of the high-level transform functions in
   :class:`pudl.transform.ferc1.Ferc1AbstractTableTransformer` (``process_xbrl``,
   ``process_dbf``, ``transform_start``, ``transform_main``) and/or any
@@ -372,7 +372,7 @@ to populate complete FERC 1 & PUDL DBs and EPA CEMS Parquet files.
 analytical routines to accommodate the new data if necessary. These are generally
 called from within the :class:`pudl.output.pudltabl.PudlTabl` class.
 
-* Are there new columns that should incorporated into the output tables?
+* Are there new columns that should be incorporated into the output tables?
 * Are there new tables that need to have an output function defined for them?
 
 **8.2)** To ensure that you fully exercise all of the possible output functions,
