@@ -215,12 +215,12 @@ function clean_up_outputs_for_distribution() {
         rm "$file"
     done
     popd && \
-    # Copy all parquet outputs to the top level output directory
-    cp "$PUDL_OUTPUT"/parquet/*.parquet "$PUDL_OUTPUT" && \
     # Create a zip file of all the parquet outputs for distribution on Kaggle
     # Don't try to compress the already compressed Parquet files with Zip.
-    pushd "$PUDL_OUTPUT" && \
-    zip -0 pudl_parquet.zip ./*.parquet && \
+    pushd "$PUDL_OUTPUT/parquet" && \
+    zip -0 "$PUDL_OUTPUT/pudl_parquet.zip" ./*.parquet && \
+    # Move the individual parquet outputs to the output directory for direct access
+    mv ./*.parquet "$PUDL_OUTPUT" && \
     popd && \
     # Remove any remaiining files and directories we don't want to distribute
     rm -rf "$PUDL_OUTPUT/parquet" && \
