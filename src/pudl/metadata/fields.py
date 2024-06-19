@@ -1553,6 +1553,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Indicates whether the boiler is capable of re-injecting fly ash.",
     },
+    "forecast_year": {
+        "type": "integer",
+        "description": "Four-digit year that applies to a particular forecasted value.",
+    },
     "fraction_owned": {
         "type": "number",
         "description": "Proportion of generator ownership attributable to this utility.",
@@ -2424,6 +2428,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "net metering agreement. Typically used for behind-the-meter solar PV."
         ),
         "unit": "MW",
+    },
+    "net_demand_mwh": {
+        "type": "number",
+        "description": "Net electricity demand for the specified period in megawatt-hours (MWh).",
+        "unit": "MWh",
     },
     "net_generation_adjusted_mwh": {
         "type": "number",

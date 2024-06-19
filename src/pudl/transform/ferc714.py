@@ -285,8 +285,12 @@ RENAME_COLS = {
         "respondent_id": "respondent_id_ferc714",
     },
     "out_ferc714__yearly_planning_area_forecast_demand": {
-        "report_yr": "report_year",
         "respondent_id": "respondent_id_ferc714",
+        "report_yr": "report_year",
+        "plan_year": "forecast_year",
+        "summer_forecast": "summer_peak_demand_mw",
+        "winter_forecast": "winter_peak_demand_mw",
+        "net_energy_forecast": "net_demand_mwh",
     },
 }
 
@@ -544,30 +548,47 @@ def out_ferc714__hourly_planning_area_demand(
     op_tags={"memory-use": "high"},  # Should this be high?
     compute_kind="pandas",
 )
-def out_ferc714__yearly_planning_area_forecast_demand(  # What is a planning area?
+def out_ferc714__yearly_planning_area_forecast_demand(
     raw_ferc714__yearly_planning_area_forecast_demand: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the yearly planning area forecast data per Planning Area.
 
     Transformations include:
 
-    - Drop unnecessary columns.
-    - TBD
+    - Drop/rename columns.
 
     Args:
         raw_ferc714__yearly_planning_area_forecast_demand: Raw table containing,
-            for each year and each entity, the forecasted summer and winter peak demand,
+            for each year and each planning area, the forecasted summer and winter peak demand,
             in megawatts, and annual net energy for load, in megawatthours, for the next
             ten years.
 
     Returns:
         Clean(er) version of the yearly forecasted demand by Planning Area.
     """
+    # Clean up columns
     df = _pre_process(
         raw_ferc714__yearly_planning_area_forecast_demand,
         table_name="out_ferc714__yearly_planning_area_forecast_demand",
     )
 
-    # TBD
+    # Check all data types and columns to ensure consistency with defined schema
+    df = _post_process(
+        df, table_name="out_ferc714__yearly_planning_area_forecast_demand"
+    )
 
     return df
+
+# EVERYTHING BELOW WILL COME OUT - JUST FOR LOCAL DEV
+# Get the value of DAGSTER_HOME from environment variables
+import os
+dagster_home = os.getenv('DAGSTER_HOME')
+
+# Define the file name
+file_name = "storage/raw_ferc714__yearly_planning_area_forecast_demand"
+
+# Construct the full file path
+file_path = os.path.join(dagster_home, file_name)
+# Load the pickle file into a DataFrame
+df = pd.read_pickle(file_path)
+out_ferc714__yearly_planning_area_forecast_demand(df)
