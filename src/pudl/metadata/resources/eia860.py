@@ -841,7 +841,7 @@ system IDs."""
                 "uses_material_thin_film_cigs",
                 "uses_material_thin_film_other",
                 "uses_material_other",
-                "uses_bifacial",
+                "uses_bifacial_panels",
             ],
             "primary_key": [
                 "plant_id_eia",

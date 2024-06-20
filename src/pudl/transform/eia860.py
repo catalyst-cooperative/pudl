@@ -5,6 +5,7 @@ import pandas as pd
 from dagster import AssetCheckResult, asset, asset_check
 
 import pudl
+from pudl.helpers import drop_records_with_null_pk
 from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.classes import DataSource
 from pudl.metadata.codes import CODE_METADATA
@@ -108,12 +109,10 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
         (
             own_df.report_date.isin(
                 [
-                    "2018-01-01",
-                    "2019-01-01",
-                    "2020-01-01",
-                    "2021-01-01",
-                    "2022-01-01",
-                    "2023-01-01",
+                    f"{year}-01-01"
+                    for year in range(
+                        2018, max(pudl.settings.Eia860Settings().years) + 1
+                    )
                 ]
             )
         )
@@ -385,7 +384,9 @@ def _core_eia860__generators_energy_storage(
     """Transform the energy storage specific generators table."""
     storage_ex = raw_eia860__generator_energy_storage_existing
     storage_pr = raw_eia860__generator_energy_storage_proposed.pipe(
-        drop_null_generator_id, num_of_expected_nulls=1
+        drop_records_with_null_pk,
+        primary_key_col="generator_id",
+        num_of_expected_nulls=1,
     )
     storage_re = raw_eia860__generator_energy_storage_retired
 
@@ -418,18 +419,6 @@ def _core_eia860__generators_energy_storage(
     return storage_df
 
 
-def drop_null_generator_id(
-    df: pd.DataFrame, num_of_expected_nulls: int
-) -> pd.DataFrame:
-    """Drop a prescribed number of records with null generator IDs."""
-    # there is one record that has a null gen id. ensure there isn't more before dropping
-    if len(null_gens := df[df.generator_id.isnull()]) > num_of_expected_nulls:
-        raise AssertionError(
-            f"Expected {num_of_expected_nulls} or zero records with a null generator_id but found {null_gens}"
-        )
-    return df.dropna(subset=["generator_id"])
-
-
 @asset
 def _core_eia860__generators_wind(
     raw_eia860__generator_wind_existing: pd.DataFrame,
@@ -442,7 +431,7 @@ def _core_eia860__generators_wind(
     Some notes for possible cleaning later:
 
     * technology_description: this field didn't exist in 2013. We could try to backfill.
-      this is an annual scd so it'll get slurpped up there and backfilling does happen
+      this is an annual scd so it'll get slurped up there and backfilling does happen
       in the output layer via :func:`pudl.output.eia.fill_generator_technology_description`
     * turbines_num: this field doesn't show up in this table for 2013 and 2014, but it does
       exist in the 2001-2012 generators tab. This is an annual generator scd.
@@ -450,7 +439,9 @@ def _core_eia860__generators_wind(
     """
     wind_ex = raw_eia860__generator_wind_existing
     wind_re = raw_eia860__generator_wind_retired.pipe(
-        drop_null_generator_id, num_of_expected_nulls=1
+        drop_records_with_null_pk,
+        primary_key_col="generator_id",
+        num_of_expected_nulls=1,
     )
 
     wind_df = (

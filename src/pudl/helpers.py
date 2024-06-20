@@ -1476,6 +1476,28 @@ def dedupe_and_drop_nas(
     )
 
 
+def drop_records_with_null_pk(
+    df: pd.DataFrame, primary_key_col: str, num_of_expected_nulls: int
+) -> pd.DataFrame:
+    """Drop a prescribed number of records with null values in a primary key column.
+
+    Args:
+        df: table with primary_key_col column.
+        primary_key_col: name of column which potential null values.
+        num_of_expected_nulls: the number of records
+
+    Raises:
+        AssertionError: If there are more nulls in the df then the
+            num_of_expected_nulls.
+    """
+    # there is one record that has a null gen id. ensure there isn't more before dropping
+    if len(null_gens := df[df[primary_key_col].isnull()]) > num_of_expected_nulls:
+        raise AssertionError(
+            f"Expected {num_of_expected_nulls} or zero records with a null {primary_key_col} but found {null_gens}"
+        )
+    return df.dropna(subset=[primary_key_col])
+
+
 def standardize_percentages_ratio(
     frac_df: pd.DataFrame,
     mixed_cols: list[str],
