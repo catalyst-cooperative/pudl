@@ -35,15 +35,15 @@ We also publish SQLite databases containing relatively pristine versions of our 
 difficult to parse inputs, especially the old Visual FoxPro (DBF, pre-2021) and new XBRL
 data (2021+) published by FERC:
 
-* `FERC Form 1 (DBF) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc1_dbf.sqlite.gz>`__
-* `FERC Form 1 (XBRL) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc1_xbrl.sqlite.gz>`__
-* `FERC Form 2 (DBF) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc2_dbf.sqlite.gz>`__
-* `FERC Form 2 (XBRL) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc2_xbrl.sqlite.gz>`__
-* `FERC Form 6 (DBF) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc6_dbf.sqlite.gz>`__
-* `FERC Form 6 (XBRL) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc6_xbrl.sqlite.gz>`__
-* `FERC Form 60 (DBF) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc60_dbf.sqlite.gz>`__
-* `FERC Form 60 (XBRL) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc60_xbrl.sqlite.gz>`__
-* `FERC Form 714 (XBRL) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc714_xbrl.sqlite.gz>`__
+* `FERC Form 1 (DBF) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc1_dbf.sqlite.zip>`__
+* `FERC Form 1 (XBRL) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc1_xbrl.sqlite.zip>`__
+* `FERC Form 2 (DBF) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc2_dbf.sqlite.zip>`__
+* `FERC Form 2 (XBRL) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc2_xbrl.sqlite.zip>`__
+* `FERC Form 6 (DBF) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc6_dbf.sqlite.zip>`__
+* `FERC Form 6 (XBRL) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc6_xbrl.sqlite.zip>`__
+* `FERC Form 60 (DBF) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc60_dbf.sqlite.zip>`__
+* `FERC Form 60 (XBRL) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc60_xbrl.sqlite.zip>`__
+* `FERC Form 714 (XBRL) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc714_xbrl.sqlite.zip>`__
 
 .. _raw-data-archive:
 
