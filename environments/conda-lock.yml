@@ -591,63 +591,66 @@ package:
     category: main
     optional: false
   - name: arelle-release
-    version: 2.28.1
+    version: 2.29.0
     manager: conda
     platform: linux-64
     dependencies:
       certifi: ""
+      filelock: ""
       isodate: 0.*
-      lxml: 4.*
+      lxml: ">=4,<6"
       numpy: 1.*
       openpyxl: 3.*
       pyparsing: 3.*
       python: ">=3.8"
       python-dateutil: 2.*
       regex: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.28.1-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.29.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 8a695f99e38f76d57d63f62ba9e1c486
-      sha256: 00b786700515762ee1d3efc0f754be3ea4d3d8729f4aa8ce5f2e50e661146827
+      md5: 4a42cc0b85ba186016b242b4512fb112
+      sha256: 27e0af11deff73e3593ad77affb1b3309f7aed9b053d394cecbf25c677daa9e0
     category: main
     optional: false
   - name: arelle-release
-    version: 2.28.1
+    version: 2.29.0
     manager: conda
     platform: osx-64
     dependencies:
       certifi: ""
+      filelock: ""
       regex: ""
       python: ">=3.8"
       numpy: 1.*
       python-dateutil: 2.*
       isodate: 0.*
-      lxml: 4.*
       openpyxl: 3.*
       pyparsing: 3.*
-    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.28.1-pyhd8ed1ab_0.conda
+      lxml: ">=4,<6"
+    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.29.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 8a695f99e38f76d57d63f62ba9e1c486
-      sha256: 00b786700515762ee1d3efc0f754be3ea4d3d8729f4aa8ce5f2e50e661146827
+      md5: 4a42cc0b85ba186016b242b4512fb112
+      sha256: 27e0af11deff73e3593ad77affb1b3309f7aed9b053d394cecbf25c677daa9e0
     category: main
     optional: false
   - name: arelle-release
-    version: 2.28.1
+    version: 2.29.0
     manager: conda
     platform: osx-arm64
     dependencies:
       certifi: ""
+      filelock: ""
       regex: ""
       python: ">=3.8"
       numpy: 1.*
       python-dateutil: 2.*
       isodate: 0.*
-      lxml: 4.*
       openpyxl: 3.*
       pyparsing: 3.*
-    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.28.1-pyhd8ed1ab_0.conda
+      lxml: ">=4,<6"
+    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.29.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 8a695f99e38f76d57d63f62ba9e1c486
-      sha256: 00b786700515762ee1d3efc0f754be3ea4d3d8729f4aa8ce5f2e50e661146827
+      md5: 4a42cc0b85ba186016b242b4512fb112
+      sha256: 27e0af11deff73e3593ad77affb1b3309f7aed9b053d394cecbf25c677daa9e0
     category: main
     optional: false
   - name: argon2-cffi
@@ -14483,52 +14486,54 @@ package:
     category: dev
     optional: true
   - name: lxml
-    version: 4.9.4
+    version: 5.2.2
     manager: conda
     platform: linux-64
     dependencies:
       libgcc-ng: ">=12"
-      libxml2: ">=2.12.3,<3.0.0a0"
+      libxml2: ">=2.12.6,<3.0a0"
       libxslt: ">=1.1.39,<2.0a0"
       libzlib: ">=1.2.13,<2.0.0a0"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/lxml-4.9.4-py312h37b5203_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/lxml-5.2.2-py312hb90d8a5_0.conda
     hash:
-      md5: 63a2797c48fe0401d7c9b29917f3724b
-      sha256: dbc08af92137a2b3be9cb920d8bfdc139741652e6ddc8834d2f826f440523c36
+      md5: da3e0a20f8eb75072ad036198c37be61
+      sha256: fab93c7618006b5595add86b0cb12501642dcb3a295de54eef17e0dd1aaf22ae
     category: main
     optional: false
   - name: lxml
-    version: 4.9.4
+    version: 5.2.2
     manager: conda
     platform: osx-64
     dependencies:
-      libxml2: ">=2.12.3,<3.0.0a0"
+      __osx: ">=10.13"
+      libxml2: ">=2.12.6,<3.0a0"
       libxslt: ">=1.1.39,<2.0a0"
       libzlib: ">=1.2.13,<2.0.0a0"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/lxml-4.9.4-py312h799ce31_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/lxml-5.2.2-py312h1aa9a54_0.conda
     hash:
-      md5: 86fff46ed5144152bb4e1168ff7c909f
-      sha256: 7991ff0ac6796705d72dcce725a255ca934693ed220bbd7b781d6ba2a0402933
+      md5: 17318078a298a3f6e4d84ce3bb2ef612
+      sha256: 9c8cc1e45243e6cd5756312a4596e2b6776a765b49d63abe7cf09ddd86145056
     category: main
     optional: false
   - name: lxml
-    version: 4.9.4
+    version: 5.2.2
     manager: conda
     platform: osx-arm64
     dependencies:
-      libxml2: ">=2.12.3,<3.0.0a0"
+      __osx: ">=11.0"
+      libxml2: ">=2.12.6,<3.0a0"
       libxslt: ">=1.1.39,<2.0a0"
       libzlib: ">=1.2.13,<2.0.0a0"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/lxml-4.9.4-py312h9bf3b9e_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/lxml-5.2.2-py312h0e5ab22_0.conda
     hash:
-      md5: eb593b5617588285db45bf94e763c70b
-      sha256: bed25b9a2987a6fd85b74609fbeea586214a41de29f8462685bf99fbe34d39b2
+      md5: d049fc23bf40c0f7d97bc4a35d91b97c
+      sha256: 6dda17b6be96e13adb7810e7aeaa676429b93ce472e636f73ba56f2b61918d24
     category: main
     optional: false
   - name: lz4-c

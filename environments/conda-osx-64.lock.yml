@@ -18,7 +18,7 @@ dependencies:
   - anyio=4.4.0=pyhd8ed1ab_0
   - appdirs=1.4.4=pyh9f0ad1d_0
   - appnope=0.1.4=pyhd8ed1ab_0
-  - arelle-release=2.28.1=pyhd8ed1ab_0
+  - arelle-release=2.29.0=pyhd8ed1ab_0
   - argon2-cffi=23.1.0=pyhd8ed1ab_0
   - argon2-cffi-bindings=21.2.0=py312h104f124_4
   - arrow=1.3.0=pyhd8ed1ab_0
@@ -327,7 +327,7 @@ dependencies:
   - llvmlite=0.43.0=py312hdeb90da_0
   - locket=1.0.0=pyhd8ed1ab_0
   - lsprotocol=2023.0.1=pyhd8ed1ab_0
-  - lxml=4.9.4=py312h799ce31_0
+  - lxml=5.2.2=py312h1aa9a54_0
   - lz4-c=1.9.4=hf0c8a7f_0
   - lzo=2.10=h10d778d_1001
   - mako=1.3.5=pyhd8ed1ab_0
