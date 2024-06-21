@@ -1483,7 +1483,7 @@ def drop_records_with_null_in_column(
 
     Args:
         df: table with column to check.
-        column: name of column which potential null values.
+        column: name of column with potential null values.
         num_of_expected_nulls: the number of records with null values in the column
 
     Raises:
