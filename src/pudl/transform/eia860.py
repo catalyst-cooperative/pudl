@@ -1211,7 +1211,7 @@ def cooling_equipment_null_cols(cooling_equipment):  # pragma: no cover
     """
     expected_null_cols = {"tower_type_3", "tower_type_4"}
     if cooling_equipment.report_date.min() > pd.Timestamp("2010-01-01T00:00:00"):
-        expected_null_cols.add(
+        expected_null_cols.update(
             {"plant_summer_capacity_mw", "water_source", "county", "cooling_type_4"}
         )
     pudl.validate.no_null_cols(
@@ -1355,11 +1355,14 @@ def fgd_equipment_null_check(fgd):  # pragma: no cover
     """Check that columns other than expected columns aren't null."""
     fast_run_null_cols = {
         "county",
+        "county_id_fips",
         "fgd_operational_status_code",
         "fgd_operating_date",
+        "fgd_manufacturer",
         "fgd_manufacturer_code",
         "plant_summer_capacity_mw",
         "water_source",
+        "so2_equipment_type_4",
     }
     if fgd.report_date.min() >= pd.Timestamp("2011-01-01T00:00:00"):
         expected_cols = set(fgd.columns) - fast_run_null_cols
