@@ -5,7 +5,7 @@ import pandas as pd
 from dagster import AssetCheckResult, asset, asset_check
 
 import pudl
-from pudl.helpers import drop_records_with_null_pk
+from pudl.helpers import drop_records_with_null_in_column
 from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.classes import DataSource
 from pudl.metadata.codes import CODE_METADATA
@@ -384,8 +384,8 @@ def _core_eia860__generators_energy_storage(
     """Transform the energy storage specific generators table."""
     storage_ex = raw_eia860__generator_energy_storage_existing
     storage_pr = raw_eia860__generator_energy_storage_proposed.pipe(
-        drop_records_with_null_pk,
-        primary_key_col="generator_id",
+        drop_records_with_null_in_column,
+        column="generator_id",
         num_of_expected_nulls=1,
     )
     storage_re = raw_eia860__generator_energy_storage_retired
@@ -439,8 +439,8 @@ def _core_eia860__generators_wind(
     """
     wind_ex = raw_eia860__generator_wind_existing
     wind_re = raw_eia860__generator_wind_retired.pipe(
-        drop_records_with_null_pk,
-        primary_key_col="generator_id",
+        drop_records_with_null_in_column,
+        column="generator_id",
         num_of_expected_nulls=1,
     )
 

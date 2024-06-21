@@ -1476,26 +1476,26 @@ def dedupe_and_drop_nas(
     )
 
 
-def drop_records_with_null_pk(
-    df: pd.DataFrame, primary_key_col: str, num_of_expected_nulls: int
+def drop_records_with_null_in_column(
+    df: pd.DataFrame, column: str, num_of_expected_nulls: int
 ) -> pd.DataFrame:
-    """Drop a prescribed number of records with null values in a primary key column.
+    """Drop a prescribed number of records with null values in a column.
 
     Args:
-        df: table with primary_key_col column.
-        primary_key_col: name of column which potential null values.
-        num_of_expected_nulls: the number of records
+        df: table with column to check.
+        column: name of column which potential null values.
+        num_of_expected_nulls: the number of records with null values in the column
 
     Raises:
         AssertionError: If there are more nulls in the df then the
             num_of_expected_nulls.
     """
-    # there is one record that has a null gen id. ensure there isn't more before dropping
-    if len(null_gens := df[df[primary_key_col].isnull()]) > num_of_expected_nulls:
+    # ensure there isn't more than the expected number of nulls before dropping
+    if len(null_records := df[df[column].isnull()]) > num_of_expected_nulls:
         raise AssertionError(
-            f"Expected {num_of_expected_nulls} or zero records with a null {primary_key_col} but found {null_gens}"
+            f"Expected {num_of_expected_nulls} or less records with a null values {column} but found {null_records}"
         )
-    return df.dropna(subset=[primary_key_col])
+    return df.dropna(subset=[column])
 
 
 def standardize_percentages_ratio(
