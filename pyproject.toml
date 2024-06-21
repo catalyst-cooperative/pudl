@@ -14,7 +14,7 @@ dependencies = [
     "addfips>=0.4",
     "alembic>=1.12",
     "boto3>=1.34",
-    "bottleneck>=1.3.7", # pandas[performance]; 1.3.7 required for Python 3.12
+    "bottleneck>=1.4.0", # pandas[performance]; 1.3.7 required for Python 3.12
     "build>=1.2",
     "catalystcoop.dbfread>=3.0,<3.1",
     "catalystcoop.ferc-xbrl-extractor>=1.4,<2",
@@ -33,8 +33,8 @@ dependencies = [
     "fsspec>=2024",
     "furo>=2024",
     "gcsfs>=2024",
-    "gdal>=3.9.0",  # 2024-05-13 Pinned to avoid 3.9.0 breaking pudl-archiver
-    "geopandas>=0.14",
+    "gdal>=3.9.0",
+    "geopandas>=0.14.4", # 0.14.4 required for Numpy 2.0
     "grpcio==1.62.2", # Required by dagster, binary dependencies are flaky
     "grpcio-health-checking==1.62.2", # Required by dagster, binary dependencies are flaky
     "grpcio-status==1.62.2", # Required by dagster, binary dependencies are flaky
@@ -47,7 +47,7 @@ dependencies = [
     "nbconvert>=7",
     "nbformat>=5.9",
     "networkx>=3.3",
-    "numba>=0.59", # pandas[performance]; 0.59 required for Python 3.12
+    "numba>=0.60", # pandas[performance]; 0.60 required for Numpy 2.0
     "numexpr>=2.8.0", # pandas[performance]
     "numpy>=1.26,<2.0a0",
     "packaging>=23",
@@ -335,6 +335,7 @@ channel-priority = "strict"
 name = "pudl-dev"
 
 [tool.conda-lock.dependencies]
+curl = ">=8.4.0"
 google-cloud-sdk = ">=474"
 nodejs = ">=20"
 pandoc = ">=2"
@@ -342,7 +343,7 @@ pip = ">=24"
 prettier = ">=3.0"
 python = ">=3.12,<3.13"
 sqlite = ">=3.45"
-curl = ">=8.4.0"
+zip = ">=3.0"
 
 [tool.coverage.run]
 source = ["src/pudl/", "test/integration/", "test/unit/"]
