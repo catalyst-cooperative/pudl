@@ -1476,6 +1476,28 @@ def dedupe_and_drop_nas(
     )
 
 
+def drop_records_with_null_in_column(
+    df: pd.DataFrame, column: str, num_of_expected_nulls: int
+) -> pd.DataFrame:
+    """Drop a prescribed number of records with null values in a column.
+
+    Args:
+        df: table with column to check.
+        column: name of column with potential null values.
+        num_of_expected_nulls: the number of records with null values in the column
+
+    Raises:
+        AssertionError: If there are more nulls in the df then the
+            num_of_expected_nulls.
+    """
+    # ensure there isn't more than the expected number of nulls before dropping
+    if len(null_records := df[df[column].isnull()]) > num_of_expected_nulls:
+        raise AssertionError(
+            f"Expected {num_of_expected_nulls} or less records with a null values {column} but found {null_records}"
+        )
+    return df.dropna(subset=[column])
+
+
 def standardize_percentages_ratio(
     frac_df: pd.DataFrame,
     mixed_cols: list[str],

@@ -78,6 +78,7 @@ raw_table_names = (
     "raw_eia860__generator_proposed",
     "raw_eia860__generator_retired",
     "raw_eia860__generator_energy_storage_existing",
+    "raw_eia860__generator_energy_storage_proposed",
     "raw_eia860__generator_energy_storage_retired",
     "raw_eia860__generator_solar_existing",
     "raw_eia860__generator_solar_retired",

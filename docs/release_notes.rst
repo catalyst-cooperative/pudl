@@ -19,6 +19,16 @@ EIA AEO
     fuel type, and include both nominal USD per MMBtu as well as real 2022 USD
     per MMBtu. See issue :issue:`3649` and PR :pr:`3656`.
 
+EIA 860
+~~~~~~~
+
+* Added EIA 860 early release data from 2023. This included adding a new tab with
+  proposed energy storage generators as well as adding a number of new columns
+  regarding energy storage and solar generators. See issue :issue:`3676` and PR
+  :pr:`3681`.
+
+
+
 .. _release-v2024.5.0:
 
 ---------------------------------------------------------------------------------------
