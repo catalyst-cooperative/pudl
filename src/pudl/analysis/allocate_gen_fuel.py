@@ -841,7 +841,7 @@ def remove_inactive_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
             proposed_plants,
             unassociated_plants,
         ]
-    )
+    ).drop_duplciates(keep="first")
 
     return gen_assoc_removed
 
@@ -853,13 +853,27 @@ def identify_retiring_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     report generator-specific generation data in the g table after their retirement
     date.
     """
-    retiring_generators = gen_assoc.loc[
+    # identify the complete set of generator ids that match this criteria
+    retiring_generator_identities = gen_assoc.loc[
         (gen_assoc.operational_status == "retired")
         & (
             (gen_assoc.report_date <= gen_assoc.generator_retirement_date)
             | (gen_assoc.net_generation_mwh_g_tbl.notnull())
-        )
-    ]
+        ),
+        ["plant_id_eia", "generator_id"],
+    ].drop_duplicates()
+
+    # merge these ids into gen_assoc and keep all months of data for these gens
+    retiring_generators = gen_assoc.copy().merge(
+        retiring_generator_identities,
+        how="outer",
+        on=["plant_id_eia", "generator_id"],
+        indicator="_retiring_gens",
+    )
+
+    retiring_generators = retiring_generators[
+        retiring_generators["_retiring_gens"] == "both"
+    ].drop(columns="_retiring_gens")
 
     return retiring_generators
 
