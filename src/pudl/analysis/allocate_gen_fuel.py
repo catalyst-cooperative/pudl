@@ -841,7 +841,7 @@ def remove_inactive_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
             proposed_plants,
             unassociated_plants,
         ]
-    ).drop_duplciates(keep="first")
+    ).drop_duplicates(keep="first")
 
     return gen_assoc_removed
 
