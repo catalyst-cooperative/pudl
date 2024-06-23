@@ -97,7 +97,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "ferc714",
         "etl_group": "outputs",
     },
-    "out_ferc714__yearly_planning_area_forecast_demand": {
+    "core_ferc714__yearly_planning_area_demand_forecast": {
         "description": (
             "10-year forecasted summer and winter peak demand and annual net energy per planning area. FERC Form 714, Part III, "
             "Schedule 2b."
