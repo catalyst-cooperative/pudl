@@ -48,7 +48,7 @@ datasets:
     eia923:
       years: [2020, 2024]
     eia860:
-      years: [2020, 2022]
+      years: [2020, 2023]
       eia860m: true
     eia860m:
       year_months: ["2024-02", "2024-03"]
