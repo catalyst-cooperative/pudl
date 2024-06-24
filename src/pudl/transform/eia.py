@@ -19,7 +19,6 @@ found in :func:`pudl.transform.eia._boiler_generator_assn`.
 import importlib.resources
 from collections import namedtuple
 from enum import StrEnum, auto
-from typing import Literal
 
 import networkx as nx
 import numpy as np
@@ -238,7 +237,7 @@ def _round_operating_date(
     entity_idx: list[str],
     col: str,
     cols_to_consit: list[str],
-    group_by_freq: Literal["M", "Y"],
+    group_by_freq: int = 730,
 ) -> pd.DataFrame:
     """Harvests operating dates by combining dates within the selected group_by_freq.
 
@@ -260,25 +259,36 @@ def _round_operating_date(
         cols_to_consit: a list of the columns to determine consistency.  This either the
             [entity_id] or the [entity_id, 'report_date'], depending on whether the
             entity is static or annual.
-        group_by_freq: Frequency to combine by ("M" for month, or "Y" for year)
+        group_by_freq: Threshold of window to combine records on (in days).
 
     Returns:
         A dataframe with all of the entity ids. Some will have harvested records from
         the clean_df. Some will have NA values if no consistently reported records were
         found.
     """
-    # grab the dirty plant records, round and get a new consistency
-    op_df = dirty_df.assign(
-        operating_rounded=dirty_df[col].dt.to_period(group_by_freq).dt.to_timestamp()
+    # grab the dirty plant records. If the min and max dates are within X days, take
+    # the last reported date.
+    grouped = (
+        dirty_df.sort_values("report_date")
+        .groupby(by=entity_idx)[col]
+        .agg(["first", "last", "min", "max"])
     )
-    logger.debug(f"Dirty {col} records: {len(op_df)}")
+    grouped["time_diff"] = grouped["max"] - grouped["min"]  # Get maximum time spread
+    # If time spread within limit, keep the most recently reported timestamp
+    grouped["fill"] = grouped[grouped.time_diff <= pd.Timedelta(days=group_by_freq)][
+        "last"
+    ]
+    op_df = dirty_df.merge(grouped, on=entity_idx)
+    op_df["fill"] = op_df["fill"].fillna(
+        op_df[col]
+    )  # If values not within time window, keep original.
+    op_df = op_df.drop(columns=col).rename(columns={"fill": col})
+
+    logger.info(f"Dirty {col} records: {len(op_df)}")
     # Group all records within the same rounded time period and assign them the max
     # value within that time period.
-    op_df[col] = op_df.groupby(cols_to_consit + ["operating_rounded"])[col].transform(
-        "max"
-    )
     op_df["table"] = "special_case"
-    op_df = op_df.drop("operating_rounded", axis=1)
+    op_df = op_df.drop(columns=["first", "last", "min", "max", "time_diff"], axis=1)
     op_df = occurrence_consistency(entity_idx, op_df, col, cols_to_consit)
     # grab the clean plants
     op_clean_df = clean_df.dropna()
@@ -542,7 +552,7 @@ def harvest_entity_tables(  # noqa: C901
     special_case_cols = {
         "latitude": [_lat_long, 1],
         "longitude": [_lat_long, 1],
-        "generator_operating_date": [_round_operating_date, "Y"],
+        "generator_operating_date": [_round_operating_date, 730],
     }
     consistency = pd.DataFrame(
         columns=["column", "consistent_ratio", "wrongos", "total"]
