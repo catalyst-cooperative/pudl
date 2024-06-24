@@ -84,8 +84,6 @@ dependencies:
   - charset-normalizer=3.3.2=pyhd8ed1ab_0
   - click=8.1.7=unix_pyh707e725_0
   - click-default-group=1.2.4=pyhd8ed1ab_0
-  - click-plugins=1.1.1=py_0
-  - cligj=0.7.2=pyhd8ed1ab_1
   - clikit=0.6.2=pyhd8ed1ab_2
   - cloudpickle=3.0.0=pyhd8ed1ab_0
   - colorama=0.4.6=pyhd8ed1ab_0
@@ -127,7 +125,6 @@ dependencies:
   - executing=2.0.1=pyhd8ed1ab_0
   - expat=2.6.2=hebf3989_0
   - filelock=3.15.4=pyhd8ed1ab_0
-  - fiona=1.9.6=py312h17a5523_3
   - flask=3.0.3=pyhd8ed1ab_0
   - flexcache=0.3=pyhd8ed1ab_0
   - flexparser=0.3.1=pyhd8ed1ab_0
@@ -152,8 +149,8 @@ dependencies:
   - gcsfs=2024.6.0=pyhd8ed1ab_0
   - gdal=3.9.0=py312hf4c14af_7
   - gdk-pixbuf=2.42.12=h7ddc832_0
-  - geopandas=0.14.4=pyhd8ed1ab_0
-  - geopandas-base=0.14.4=pyha770c72_0
+  - geopandas=1.0.0=pyhd8ed1ab_0
+  - geopandas-base=1.0.0=pyha770c72_0
   - geos=3.12.1=h965bd2d_0
   - geotiff=1.7.3=h7e5fb84_1
   - gettext=0.22.5=h8fbad5d_2
@@ -201,7 +198,7 @@ dependencies:
   - humanize=4.9.0=pyhd8ed1ab_0
   - hupper=1.12.1=pyhd8ed1ab_0
   - hyperframe=6.0.1=pyhd8ed1ab_0
-  - hypothesis=6.103.4=pyha770c72_0
+  - hypothesis=6.103.5=pyha770c72_0
   - icu=73.2=hc8870d7_0
   - identify=2.5.36=pyhd8ed1ab_0
   - idna=3.7=pyhd8ed1ab_0
@@ -308,7 +305,6 @@ dependencies:
   - librsvg=2.58.1=hbc281fb_0
   - librttopo=1.1.0=hc8f776e_15
   - libsodium=1.0.18=h27ca646_1
-  - libspatialindex=2.0.0=h00cdb27_0
   - libspatialite=5.1.0=h64db68f_7
   - libsqlite=3.46.0=hfb93653_0
   - libssh2=1.11.0=h7a5bd25_0
@@ -436,6 +432,7 @@ dependencies:
   - pynacl=1.5.0=py312h02f2b3b_3
   - pyobjc-core=10.3.1=py312hbb55c70_0
   - pyobjc-framework-cocoa=10.3.1=py312hbb55c70_0
+  - pyogrio=0.9.0=py312h15038b3_0
   - pyopenssl=24.0.0=pyhd8ed1ab_0
   - pyparsing=3.1.2=pyhd8ed1ab_0
   - pyproj=3.6.1=py312h64656f7_7
@@ -482,7 +479,6 @@ dependencies:
   - rich=13.7.1=pyhd8ed1ab_0
   - rpds-py=0.18.1=py312h552d48e_0
   - rsa=4.9=pyhd8ed1ab_0
-  - rtree=1.2.0=py312had13d0e_1
   - ruamel.yaml=0.18.6=py312he37b823_0
   - ruamel.yaml.clib=0.2.8=py312he37b823_0
   - ruff=0.4.10=py312h3402d49_0
