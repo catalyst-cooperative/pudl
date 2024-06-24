@@ -284,6 +284,14 @@ RENAME_COLS = {
         "report_yr": "report_year",
         "respondent_id": "respondent_id_ferc714",
     },
+    "core_ferc714__yearly_planning_area_demand_forecast": {
+        "respondent_id": "respondent_id_ferc714",
+        "report_yr": "report_year",
+        "plan_year": "forecast_year",
+        "summer_forecast": "summer_peak_demand_mw",
+        "winter_forecast": "winter_peak_demand_mw",
+        "net_energy_forecast": "net_demand_mwh",
+    },
 }
 
 
@@ -531,5 +539,40 @@ def out_ferc714__hourly_planning_area_demand(
     df = df.drop(columns=set(df.columns) - set(columns))
     df = _post_process(
         df[columns], table_name="out_ferc714__hourly_planning_area_demand"
+    )
+    return df
+
+
+@asset(
+    io_manager_key="pudl_io_manager",
+    compute_kind="pandas",
+)
+def core_ferc714__yearly_planning_area_demand_forecast(
+    raw_ferc714__yearly_planning_area_demand_forecast: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the yearly planning area forecast data per Planning Area.
+
+    Transformations include:
+
+    - Drop/rename columns.
+
+    Args:
+        raw_ferc714__yearly_planning_area_demand_forecast: Raw table containing,
+            for each year and each planning area, the forecasted summer and winter peak demand,
+            in megawatts, and annual net energy for load, in megawatthours, for the next
+            ten years.
+
+    Returns:
+        Clean(er) version of the yearly forecasted demand by Planning Area.
+    """
+    # Clean up columns
+    df = _pre_process(
+        raw_ferc714__yearly_planning_area_demand_forecast,
+        table_name="core_ferc714__yearly_planning_area_demand_forecast",
+    )
+
+    # Check all data types and columns to ensure consistency with defined schema
+    df = _post_process(
+        df, table_name="core_ferc714__yearly_planning_area_demand_forecast"
     )
     return df
