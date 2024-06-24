@@ -120,7 +120,7 @@ def core_eia860m__changelog_generators(
     eia860m_all["report_date_max"] = eia860m_all.groupby(gen_idx_no_date)[
         "report_date"
     ].transform("max")
-    # drop duplicates after sorting by date so we get the first appreance
+    # drop duplicates after sorting by date so we get the first appearance
     eia860m_changelog = eia860m_all.sort_values(
         by=["report_date"], ascending=True
     ).drop_duplicates(
@@ -133,6 +133,5 @@ def core_eia860m__changelog_generators(
         .groupby(gen_idx_no_date)["report_date"]
         .transform("shift")
         .fillna(eia860m_changelog.report_date_max)
-        .where(eia860m_changelog["report_date"] != eia860m_changelog["report_date_max"])
     )
     return eia860m_changelog
