@@ -295,7 +295,7 @@ def _last_operating_date(
     # add the newly cleaned records
     op_clean_df = pd.concat([op_clean_df, op_df])
     # assert all generator operating dates are not null
-    assert len(op_clean_df[op_clean_df.generator_operating_date.isnull()]) == 0
+    assert op_clean_df.generator_operating_date.notnull().all()
     # merge onto the plants df w/ all plant ids
     op_clean_df = entity_id_df.merge(op_clean_df, how="outer")
     return op_clean_df
