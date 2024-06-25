@@ -1826,7 +1826,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "generator_operating_date": {
         "type": "date",
-        "description": "Date the generator began commercial operation.",
+        "description": "Date the generator began commercial operation. If harvested values are <70 percent consistent, we default to using the most recently reported date.",
     },
     "generator_operating_year": {
         "type": "integer",

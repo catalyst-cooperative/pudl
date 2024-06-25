@@ -19,6 +19,12 @@ EIA AEO
     fuel type, and include both nominal USD per MMBtu as well as real 2022 USD
     per MMBtu. See issue :issue:`3649` and PR :pr:`3656`.
 
+Data Cleaning
+^^^^^^^^^^^^^
+* When ``generator_operating_date`` values are too inconsistent to be harvested
+  successfully, we now take the last reported date in EIA 860 and 860M. See
+  :issue:`423` and PR :pr:`3967`.
+
 .. _release-v2024.5.0:
 
 ---------------------------------------------------------------------------------------
