@@ -4825,6 +4825,95 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "disaggregated. See documentation for process: pudl.output.ferc1.disaggregate_null_or_total_tag"
         ),
     },
+    "is_ac_coupled": {
+        "type": "boolean",
+        "description": (
+            "Indicates if this energy storage device is AC-coupled (means the energy storage device "
+            "and the PV system are not installed on the same side of an inverter)."
+        ),
+    },
+    "is_dc_coupled": {
+        "type": "boolean",
+        "description": (
+            "Indicates if this energy storage device is DC-coupled (means the energy storage "
+            "device and the PV system are on the same side of an inverter and the battery can "
+            "still charge from the grid)."
+        ),
+    },
+    "id_dc_coupled_tightly": {
+        "type": "boolean",
+        "description": (
+            "Indicates if this energy storage device is DC tightly coupled (means the energy "
+            "storage device and the PV system are on the same side of an inverter and the battery "
+            "cannot charge from the grid)."
+        ),
+    },
+    "is_independent": {
+        "type": "boolean",
+        "description": "Indicates if this energy storage device is independent (not coupled with another generators)",
+    },
+    "is_direct_support": {
+        "type": "boolean",
+        "description": (
+            "Indicates if this energy storage device is intended for dedicated generator "
+            "firming or storing excess generation of other units."
+        ),
+    },
+    "plant_id_eia_direct_support_1": {
+        "type": "number",
+        "description": (
+            "The EIA Plant ID of the primary unit whose generation this energy storage "
+            "device is intended to firm or store."
+        ),
+    },
+    "generator_id_direct_support_1": {
+        "type": "string",
+        "description": (
+            "The EIA Generator ID of the primary unit whose generation this energy "
+            "storage device is intended to firm or store."
+        ),
+    },
+    "plant_id_eia_direct_support_2": {
+        "type": "number",
+        "description": (
+            "The EIA Plant ID of the secondary unit whose generation this energy storage "
+            "device is intended to firm or store."
+        ),
+    },
+    "generator_id_direct_support_2": {
+        "type": "string",
+        "description": (
+            "The EIA Generator ID of the secondary unit whose generation this energy "
+            "storage device is intended to firm or store."
+        ),
+    },
+    "plant_id_eia_direct_support_3": {
+        "type": "number",
+        "description": (
+            "The EIA Plant ID of the tertiary unit whose generation this energy storage "
+            "device is intended to firm or store."
+        ),
+    },
+    "generator_id_direct_support_3": {
+        "type": "string",
+        "description": (
+            "The EIA Generator ID of the tertiary unit whose generation this energy "
+            "storage device is intended to firm or store."
+        ),
+    },
+    "is_transmission_and_distribution_asset_support": {
+        "type": "boolean",
+        "description": (
+            "Indicate if the energy storage system is intended to support a specific substation, "
+            "transmission or distribution asset."
+        ),
+    },
+    "uses_bifacial_panels": {
+        "type": "boolean",
+        "description": (
+            "Indicates whether bifacial solar panels are used at this solar generating unit."
+        ),
+    },
 }
 """Field attributes by PUDL identifier (`field.name`).
 
