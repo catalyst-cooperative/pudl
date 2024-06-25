@@ -187,6 +187,7 @@ def _lat_long(
     col: str,
     cols_to_consit: list[str],
     round_to: int = 2,
+    **kwargs,
 ) -> pd.DataFrame:
     """Harvests more complete lat/long in special cases.
 
@@ -230,21 +231,19 @@ def _lat_long(
     return ll_clean_df
 
 
-def _round_operating_date(
+def _last_operating_date(
     dirty_df: pd.DataFrame,
     clean_df: pd.DataFrame,
     entity_id_df: pd.DataFrame,
     entity_idx: list[str],
     col: str,
     cols_to_consit: list[str],
-    group_by_freq: int = 730,
+    **kwargs,
 ) -> pd.DataFrame:
-    """Harvests operating dates by combining dates within the selected group_by_freq.
+    """When there's no consistent generator operating date, take the last reported one.
 
     For all of the entities where there is not a consistent enough reported
-    operating date, this function reduces the precision of the reported operating date
-    by only keeping the last record when records are within the time bandwidth
-    (default of one year) of one another.
+    operating date, this function keeps the most recently reported date.
 
     Args:
         dirty_df: a dataframe with entity records that have inconsistently reported
@@ -259,48 +258,44 @@ def _round_operating_date(
         cols_to_consit: a list of the columns to determine consistency.  This either the
             [entity_id] or the [entity_id, 'report_date'], depending on whether the
             entity is static or annual.
-        group_by_freq: Threshold of window to combine records on (in days).
 
     Returns:
         A dataframe with all of the entity ids. Some will have harvested records from
         the clean_df. Some will have NA values if no consistently reported records were
         found.
     """
-    # grab the dirty plant records. If the min and max dates are within X days, take
-    # the last reported date.
+    # take the last reported date for each unharvested generator.
     grouped = (
-        dirty_df.sort_values("report_date")
-        .groupby(by=entity_idx)[col]
-        .agg(["first", "last", "min", "max"])
+        dirty_df.sort_values("report_date").groupby(by=entity_idx)[col].agg(["last"])
     )
-    grouped["time_diff"] = grouped["max"] - grouped["min"]  # Get maximum time spread
-    # If time spread within limit, keep the most recently reported timestamp
-    grouped["fill"] = grouped[grouped.time_diff <= pd.Timedelta(days=group_by_freq)][
-        "last"
-    ]
-    op_df = dirty_df.merge(grouped, on=entity_idx)
-    op_df["fill"] = op_df["fill"].fillna(
-        op_df[col]
-    )  # If values not within time window, keep original.
-    op_df = op_df.drop(columns=col).rename(columns={"fill": col})
 
-    logger.info(f"Dirty {col} records: {len(op_df)}")
+    logger.info(
+        f"Taking the last generator operating date reported for {len(grouped)} generators."
+    )
+    op_df = dirty_df.merge(grouped, on=entity_idx)
+
+    op_df["last"] = op_df["last"].fillna(
+        op_df[col]
+    )  # If no value reported in last time slot, keep original.
+    op_df = op_df.drop(columns=col).rename(columns={"last": col})
+
     # Group all records within the same rounded time period and assign them the max
     # value within that time period.
     op_df["table"] = "special_case"
-    op_df = op_df.drop(columns=["first", "last", "min", "max", "time_diff"], axis=1)
     op_df = occurrence_consistency(entity_idx, op_df, col, cols_to_consit)
     # grab the clean plants
     op_clean_df = clean_df.dropna()
     # find the new clean plant records by selecting the True consistent records
     op_df = op_df[op_df[f"{col}_is_consistent"]].drop_duplicates(subset=entity_idx)
-    logger.info(f"Clean {col} records: {len(op_df)}")
+    logger.info(f"Rescued dates for {col} records: {len(op_df)}")
     logger.info(
-        f"Rescued rounded {col} for the following units ({entity_idx}): "
+        f"Rescued last {col} for the following units ({entity_idx}): "
         f"{sorted(op_df[entity_idx].apply(lambda row: '_'.join(row.to_numpy().astype(str)), axis=1))}"
     )
     # add the newly cleaned records
     op_clean_df = pd.concat([op_clean_df, op_df])
+    # assert all generator operating dates are not null
+    assert len(op_clean_df[op_clean_df.generator_operating_date.isnull()]) == 0
     # merge onto the plants df w/ all plant ids
     op_clean_df = entity_id_df.merge(op_clean_df, how="outer")
     return op_clean_df
@@ -550,9 +545,9 @@ def harvest_entity_tables(  # noqa: C901
     entity_df = entity_id_df.copy()
     annual_df = annual_id_df.copy()
     special_case_cols = {
-        "latitude": [_lat_long, 1],
-        "longitude": [_lat_long, 1],
-        "generator_operating_date": [_round_operating_date, 730],
+        "latitude": {"method": _lat_long, "round_to": 1},
+        "longitude": {"method": _lat_long, "round_to": 1},
+        "generator_operating_date": {"method": _last_operating_date},
     }
     consistency = pd.DataFrame(
         columns=["column", "consistent_ratio", "wrongos", "total"]
@@ -597,14 +592,14 @@ def harvest_entity_tables(  # noqa: C901
         dirty_df = col_df.merge(clean_df[clean_df[col].isnull()][id_cols])
 
         if col in special_case_cols:
-            clean_df = special_case_cols[col][0](
+            clean_df = special_case_cols[col]["method"](
                 dirty_df,
                 clean_df,
                 entity_id_df,
                 id_cols,
                 col,
                 cols_to_consit,
-                special_case_cols[col][1],
+                **special_case_cols[col],
             )
             if col in static_cols:
                 clean_df = clean_df[id_cols + [col]]
