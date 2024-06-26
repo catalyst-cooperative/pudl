@@ -73,11 +73,9 @@ ENTITIES: dict[str, dict[str, list[str] | dict[str, str]]] = {
         ],
         "mapped_schemas": [
             {"operator_utility_id_eia": "utility_id_eia"},
-            {
-                "plant_id_eia_direct_support_1": "plant_id_eia",
-                "plant_id_eia_direct_support_2": "plant_id_eia",
-                "plant_id_eia_direct_support_3": "plant_id_eia",
-            },
+            {"plant_id_eia_direct_support_1": "plant_id_eia"},
+            {"plant_id_eia_direct_support_2": "plant_id_eia"},
+            {"plant_id_eia_direct_support_3": "plant_id_eia"},
         ],
     },
     "generators": {
@@ -174,10 +172,14 @@ ENTITIES: dict[str, dict[str, list[str] | dict[str, str]]] = {
             {"operator_utility_id_eia": "utility_id_eia"},
             {
                 "plant_id_eia_direct_support_1": "plant_id_eia",
-                "plant_id_eia_direct_support_2": "plant_id_eia",
-                "plant_id_eia_direct_support_3": "plant_id_eia",
                 "generator_id_direct_support_1": "generator_id",
+            },
+            {
+                "plant_id_eia_direct_support_2": "plant_id_eia",
                 "generator_id_direct_support_2": "generator_id",
+            },
+            {
+                "plant_id_eia_direct_support_3": "plant_id_eia",
                 "generator_id_direct_support_3": "generator_id",
             },
         ],
