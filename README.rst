@@ -162,11 +162,16 @@ summary:
 Organizations using PUDL
 ------------------------
 
-This is an imcomplete list of organizations that have used PUDL in their work.
+This is an incomplete list of organizations that have used PUDL in their work.
 If your organization uses PUDL and you'd like to be listed here please open a
-pull request!
+pull request or email us at `hello@catalyst.coop <mailto:hello@catalyst.coop>`__!
 
-...
+* `The Utility Transition Hub <https://utilitytransitionhub.rmi.org/>`__ and `Optimus financial modelling tool <https://utilitytransitionhub.rmi.org/optimus/>`__ at RMI
+* `PowerGenome <https://github.com/PowerGenome/PowerGenome>`__ at ZEROLab at Princeton University
+* `Open Grid Emissions <https://singularity.energy/open-grid-emissions>`__ at Singularity Energy
+* `PyPSA - USA <https://github.com/PyPSA/pypsa-usa>`__
+* `Deployment Gap Model Education Fund <https://www.deploymentgap.fund/>`__
+
 
 Contributing to PUDL
 --------------------
