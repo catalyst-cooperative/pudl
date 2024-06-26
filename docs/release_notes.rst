@@ -6,6 +6,33 @@ PUDL Release Notes
 v2024.X.X (2024-XX-XX)
 ---------------------------------------------------------------------------------------
 
+New Data Coverage
+^^^^^^^^^^^^^^^^^
+
+EIA AEO
+~~~~~~~
+
+* Added new tables from EIA AEO table 54:
+
+  * :ref:`core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type`
+    contains fuel costs for the electric power sector. These are broken out by
+    fuel type, and include both nominal USD per MMBtu as well as real 2022 USD
+    per MMBtu. See issue :issue:`3649` and PR :pr:`3656`.
+
+EIA 860
+~~~~~~~
+
+* Added EIA 860 early release data from 2023. This included adding a new tab with
+  proposed energy storage generators as well as adding a number of new columns
+  regarding energy storage and solar generators. See issue :issue:`3676` and PR
+  :pr:`3681`.
+
+Data Cleaning
+^^^^^^^^^^^^^
+* When ``generator_operating_date`` values are too inconsistent to be harvested
+  successfully, we now take the last reported date in EIA 860 and 860M. See
+  :issue:`423` and PR :pr:`3967`.
+
 .. _release-v2024.5.0:
 
 ---------------------------------------------------------------------------------------
@@ -65,6 +92,8 @@ EIA AEO
   <https://www.eia.gov/outlooks/aeo/tables_ref.php>`__, which include future
   projections related to electric power and renewable energy through the year
   2050, across a variety of scenarios. See :issue:`3368` and :pr:`3538`.
+* Added new :ref:`core_eia861__yearly_short_form` table from EIA861 which contains
+  the shorter version of EIA861. See issues :issue:`3540` and PR :pr:`3565`.
 * Added new tables from EIA AEO table 54:
 
   * :ref:`core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology`

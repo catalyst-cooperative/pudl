@@ -3,9 +3,9 @@ Data Access
 =======================================================================================
 
 We publish the PUDL pipeline outputs in several ways to serve
-different users and use cases. We're always trying to increase accessibility of the
-PUDL data, so if you have a suggestion please `open a GitHub issue
-<https://github.com/catalyst-cooperative/pudl/issues>`__. If you have a question you
+different users and use cases. We're always trying to increase the accessibility of the
+PUDL data, so if you have a suggestion, please `open a GitHub issue
+<https://github.com/catalyst-cooperative/pudl/issues>`__. If you have a question, you
 can `create a GitHub discussion <https://github.com/orgs/catalyst-cooperative/discussions/new?category=help-me>`__.
 
 PUDL's primary data output is the ``pudl.sqlite`` database. We recommend working with
@@ -19,7 +19,7 @@ of tables, read through :ref:`PUDL's naming conventions <asset-naming>`.
 How Should You Access PUDL Data?
 ---------------------------------------------------------------------------------------
 
-We provide four primary ways of interacting with PUDL data. Here's how to find out
+We provide six primary ways of interacting with PUDL data. Here's how to find out
 which one is right for you and your use case.
 
 .. list-table::
@@ -54,7 +54,7 @@ which one is right for you and your use case.
      - Python Developer, Data Wrangler
      - Run the PUDL data processing pipeline on your own computer.
        Edit the PUDL source code and run the software tests and data validations.
-       Integrate a new data source or newly released data from one of existing sources.
+       Integrate a new data source or newly released data from one of the existing sources.
 
 .. _access-datasette:
 
@@ -78,7 +78,7 @@ data you've selected.
    <https://data.catalyst.coop/pudl>`__. There are also several FERC SQLite databases
    derived from their old Visual FoxPro and new XBRL data formats, which we publish as
    SQLite to improve accessibility of the raw inputs, but they should generally not be
-   used directly if the data you need has integrated into the PUDL database.
+   used directly if the data you need has been integrated into the PUDL database.
 
 .. _access-kaggle:
 
@@ -112,8 +112,8 @@ HTTPS using the following links:
 Fully Processed SQLite Databases
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* `Main PUDL Database <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/pudl.sqlite.gz>`__
-* `US Census DP1 Database (2010) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/censusdp1tract.sqlite.gz>`__
+* `Main PUDL Database <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/pudl.sqlite.zip>`__
+* `US Census DP1 Database (2010) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/censusdp1tract.sqlite.zip>`__
 
 Hourly Tables as Parquet
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -136,47 +136,37 @@ Raw FERC DBF & XBRL data converted to SQLite
 
 * FERC Form 1:
 
-  * `FERC-1 SQLite derived from DBF (1994-2020) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc1_dbf.sqlite.gz>`__
-  * `FERC-1 SQLite derived from XBRL (2021-2022) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc1_xbrl.sqlite.gz>`__
+  * `FERC-1 SQLite derived from DBF (1994-2020) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc1_dbf.sqlite.zip>`__
+  * `FERC-1 SQLite derived from XBRL (2021-2022) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc1_xbrl.sqlite.zip>`__
   * `FERC-1 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc1_xbrl_datapackage.json>`__
   * `FERC-1 XBRL Taxonomy Metadata as JSON (2021-2022) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc1_xbrl_taxonomy_metadata.json>`__
 
 * FERC Form 2:
 
-  * `FERC-2 SQLite derived from DBF (1996-2020) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc2_dbf.sqlite.gz>`__
-  * `FERC-2 SQLite derived from XBRL (2021-2022) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc2_xbrl.sqlite.gz>`__
+  * `FERC-2 SQLite derived from DBF (1996-2020) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc2_dbf.sqlite.zip>`__
+  * `FERC-2 SQLite derived from XBRL (2021-2022) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc2_xbrl.sqlite.zip>`__
   * `FERC-2 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc2_xbrl_datapackage.json>`__
   * `FERC-2 XBRL Taxonomy Metadata as JSON (2021-2022) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc2_xbrl_taxonomy_metadata.json>`__
 
 * FERC Form 6:
 
-  * `FERC-6 SQLite derived from DBF (2000-2020) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc6_dbf.sqlite.gz>`__
-  * `FERC-6 SQLite derived from XBRL (2021-2022) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc6_xbrl.sqlite.gz>`__
+  * `FERC-6 SQLite derived from DBF (2000-2020) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc6_dbf.sqlite.zip>`__
+  * `FERC-6 SQLite derived from XBRL (2021-2022) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc6_xbrl.sqlite.zip>`__
   * `FERC-6 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc6_xbrl_datapackage.json>`__
   * `FERC-6 XBRL Taxonomy Metadata as JSON (2021-2022) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc6_xbrl_taxonomy_metadata.json>`__
 
 * FERC Form 60:
 
-  * `FERC-60 SQLite derived from DBF (2006-2020) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc60_dbf.sqlite.gz>`__
-  * `FERC-60 SQLite derived from XBRL (2021-2022) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc60_xbrl.sqlite.gz>`__
+  * `FERC-60 SQLite derived from DBF (2006-2020) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc60_dbf.sqlite.zip>`__
+  * `FERC-60 SQLite derived from XBRL (2021-2022) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc60_xbrl.sqlite.zip>`__
   * `FERC-60 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc60_xbrl_datapackage.json>`__
   * `FERC-60 XBRL Taxonomy Metadata as JSON (2021) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc60_xbrl_taxonomy_metadata.json>`__
 
 * FERC Form 714:
 
-  * `FERC-714 SQLite derived from XBRL (2021-2022) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc714_xbrl.sqlite.gz>`__
+  * `FERC-714 SQLite derived from XBRL (2021-2022) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc714_xbrl.sqlite.zip>`__
   * `FERC-714 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc714_xbrl_datapackage.json>`__
   * `FERC-714 XBRL Taxonomy Metadata as JSON (2021-2022) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc714_xbrl_taxonomy_metadata.json>`__
-
-.. note::
-
-  To reduce network transfer times, we compress the SQLite databases using ``gzip``. To
-  decompress them locally, at the command line on Linux, MacOS, or Windows you can use
-  the ``gunzip`` command. (Git for Windows installs ``gzip`` / ``gunzip`` by default,
-  and it can also be installed using the conda package manager).
-
-  If you're not familiar with using Unix command line tools in Windows you can also use
-  a 3rd party tool like `7zip <https://www.7-zip.org/download.html>`__.
 
 .. _access-stable:
 
@@ -197,7 +187,7 @@ documentation for a specific version by hovering over the version selector at
 the bottom left of the page.
 
 If you're not after a *specific* version, but rather the *latest stable
-version*, you can find them on the `AWS Open Data Registry
+version*, you can find it on the `AWS Open Data Registry
 <https://registry.opendata.aws/catalyst-cooperative-pudl/>`__, in the
 ``stable/`` namespace:
 
@@ -219,7 +209,7 @@ We use Zenodo to archive and version our raw data inputs. You can find all of
 our archives in `the Catalyst Cooperative Community
 <https://zenodo.org/communities/catalyst-cooperative/>`__.
 
-These have been minimally processed - in some cases we've compressed them or
+These have been minimally processed - in some cases, we've compressed them or
 grouped them into ZIP archives to fit the Zenodo repository requirements. In
 all cases we've added some metadata to help identify the resources you're
 looking for. But, apart from that, these datasets are unmodified.
@@ -237,4 +227,4 @@ development environment. This is a bit involved, so it has its
 
 Most users shouldn't need to do this, and will probably find working with the
 pre-processed data via one of the other access modes easier. But if you want to
-:doc:`contribute to the project <CONTRIBUTING>` please give it a shot!
+:doc:`contribute to the project <CONTRIBUTING>`, please give it a shot!

@@ -9,9 +9,10 @@ changelog:
       - conda-lock
       - dependencies
   categories:
-    - title: New Data
+    - title: New & Updated Data
       labels:
         - new-data
+        - data-update
     - title: Other Changes
       labels:
         - "*"

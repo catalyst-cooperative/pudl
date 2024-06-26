@@ -1648,8 +1648,10 @@ class Resource(PudlMeta):
             raise ValueError(
                 f"{self.name} {len(dupes)}/{len(df)} duplicate primary keys ({pk=}) when enforcing schema."
             )
-        if pk and df.loc[:, pk].isna().any(axis=None):
-            raise ValueError(f"{self.name} Null values found in primary key columns.")
+        if pk and not (nulls := df[df[pk].isna().any(axis=1)]).empty:
+            raise ValueError(
+                f"{self.name} Null values found in primary key columns.\n{nulls}"
+            )
         return df
 
     def aggregate_df(

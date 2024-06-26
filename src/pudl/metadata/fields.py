@@ -989,6 +989,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Annual demand per km2 of a given service territory.",
         "unit": "MWh/km2",
     },
+    "has_demand_side_management": {
+        "type": "boolean",
+        "description": "Whether there were strategies or measures used to control electricity demand by customers",
+    },
     "depreciation_type": {
         "type": "string",
         "description": (
@@ -1644,6 +1648,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Average cost of fuel delivered in the report year per reported fuel unit (USD).",
         "unit": "USD",
     },
+    "fuel_cost_real_per_mmbtu_eiaaeo": {
+        "type": "number",
+        "description": (
+            "Average fuel cost per mmBTU of heat content in real USD, "
+            "standardized to the value of a USD in the year defined by "
+            "``real_cost_basis_year``."
+        ),
+        "unit": "USD_per_MMBtu",
+    },
     "fuel_derived_from": {
         "type": "string",
         "description": "Original fuel from which this refined fuel was derived.",
@@ -1813,7 +1826,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "generator_operating_date": {
         "type": "date",
-        "description": "Date the generator began commercial operation.",
+        "description": "Date the generator began commercial operation. If harvested values are inconsistent, we default to using the most recently reported date.",
     },
     "generator_operating_year": {
         "type": "integer",
@@ -1826,6 +1839,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "geo_agg": {
         "type": "string",
         "description": "Category of geographic aggregation in EIA bulk electricity data.",
+    },
+    "has_green_pricing": {
+        "type": "boolean",
+        "description": "Whether a green pricing program was associated with this utility during the reporting year.",
     },
     "green_pricing_revenue": {
         "type": "number",
@@ -2463,9 +2480,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Net output for load (net generation - energy used for pumping) in megawatt-hours.",
         "unit": "MWh",
     },
-    "net_metering": {
+    "has_net_metering": {
         "type": "boolean",
-        "description": "Did this plant have a net metering agreement in effect during the reporting year?  (Only displayed for facilities that report the sun or wind as an energy source). This field was only reported up until 2015",
+        "description": "Whether the plant has a net metering agreement in effect during the reporting year.  (Only displayed for facilities that report the sun or wind as an energy source). This field was only reported up until 2015",
         # TODO: Is this really boolean? Or do we have non-null strings that mean False?
     },
     "net_output_penalty": {
@@ -3283,6 +3300,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Reactive Power Output (MVAr)",
         "unit": "MVAr",
     },
+    "real_cost_basis_year": {
+        "type": "integer",
+        "description": "Four-digit year which is the basis for any 'real cost' "
+        "monetary values (as opposed to nominal values).",
+    },
     "real_time_pricing": {
         "type": "boolean",
         "description": (
@@ -4076,7 +4098,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "and predefined, based on season, day of week, and time of day."
         ),
     },
-    "time_responsive_programs": {
+    "has_time_responsive_programs": {
         "type": "boolean",
         "description": (
             "Whether the respondent operates any time-based rate programs (e.g., "
@@ -4384,7 +4406,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "MMBtu_per_hour",
         "description": "Design waste-heat input rate at maximum continuous steam flow where a waste-heat boiler is a boiler that receives all or a substantial portion of its energy input from the noncumbustible exhaust gases of a separate fuel-burning process (MMBtu per hour).",
     },
-    "water_heater": {
+    "num_water_heaters": {
         "type": "integer",
         "description": (
             "The number of grid-enabled water heaters added to the respondent's "
@@ -4801,6 +4823,95 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Indicates whether or not records with null values in the in_rate_base column were "
             "disaggregated. See documentation for process: pudl.output.ferc1.disaggregate_null_or_total_tag"
+        ),
+    },
+    "is_ac_coupled": {
+        "type": "boolean",
+        "description": (
+            "Indicates if this energy storage device is AC-coupled (means the energy storage device "
+            "and the PV system are not installed on the same side of an inverter)."
+        ),
+    },
+    "is_dc_coupled": {
+        "type": "boolean",
+        "description": (
+            "Indicates if this energy storage device is DC-coupled (means the energy storage "
+            "device and the PV system are on the same side of an inverter and the battery can "
+            "still charge from the grid)."
+        ),
+    },
+    "id_dc_coupled_tightly": {
+        "type": "boolean",
+        "description": (
+            "Indicates if this energy storage device is DC tightly coupled (means the energy "
+            "storage device and the PV system are on the same side of an inverter and the battery "
+            "cannot charge from the grid)."
+        ),
+    },
+    "is_independent": {
+        "type": "boolean",
+        "description": "Indicates if this energy storage device is independent (not coupled with another generators)",
+    },
+    "is_direct_support": {
+        "type": "boolean",
+        "description": (
+            "Indicates if this energy storage device is intended for dedicated generator "
+            "firming or storing excess generation of other units."
+        ),
+    },
+    "plant_id_eia_direct_support_1": {
+        "type": "number",
+        "description": (
+            "The EIA Plant ID of the primary unit whose generation this energy storage "
+            "device is intended to firm or store."
+        ),
+    },
+    "generator_id_direct_support_1": {
+        "type": "string",
+        "description": (
+            "The EIA Generator ID of the primary unit whose generation this energy "
+            "storage device is intended to firm or store."
+        ),
+    },
+    "plant_id_eia_direct_support_2": {
+        "type": "number",
+        "description": (
+            "The EIA Plant ID of the secondary unit whose generation this energy storage "
+            "device is intended to firm or store."
+        ),
+    },
+    "generator_id_direct_support_2": {
+        "type": "string",
+        "description": (
+            "The EIA Generator ID of the secondary unit whose generation this energy "
+            "storage device is intended to firm or store."
+        ),
+    },
+    "plant_id_eia_direct_support_3": {
+        "type": "number",
+        "description": (
+            "The EIA Plant ID of the tertiary unit whose generation this energy storage "
+            "device is intended to firm or store."
+        ),
+    },
+    "generator_id_direct_support_3": {
+        "type": "string",
+        "description": (
+            "The EIA Generator ID of the tertiary unit whose generation this energy "
+            "storage device is intended to firm or store."
+        ),
+    },
+    "is_transmission_and_distribution_asset_support": {
+        "type": "boolean",
+        "description": (
+            "Indicate if the energy storage system is intended to support a specific substation, "
+            "transmission or distribution asset."
+        ),
+    },
+    "uses_bifacial_panels": {
+        "type": "boolean",
+        "description": (
+            "Indicates whether bifacial solar panels are used at this solar generating unit."
         ),
     },
 }
