@@ -280,13 +280,6 @@ ENTITIES: dict[str, dict[str, list[str] | dict[str, str]]] = {
             "standard_so2_percent_scrubbed",
             "data_maturity",
         ],
-        "mapped_schemas": [
-            {
-                "plant_id_eia_direct_support_1": "plant_id_eia",
-                "plant_id_eia_direct_support_2": "plant_id_eia",
-                "plant_id_eia_direct_support_3": "plant_id_eia",
-            }
-        ],
     },
     "utilities": {
         "id_cols": ["utility_id_eia"],
