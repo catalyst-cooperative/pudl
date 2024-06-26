@@ -601,7 +601,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ],
             "primary_key": ["plant_id_eia", "generator_id"],
             "foreign_key_rules": {
-                "fields": [["plant_id_eia", "generator_id"]],
+                "fields": [
+                    ["plant_id_eia", "generator_id"],
+                    ["plant_id_eia_direct_support_1", "generator_id_direct_support_1"],
+                    ["plant_id_eia_direct_support_2", "generator_id_direct_support_2"],
+                    ["plant_id_eia_direct_support_3", "generator_id_direct_support_3"],
+                ],
                 # exclude core_epa__assn_eia_epacamd_subplant_ids bc there are generator ids in this
                 # glue table that come only from epacamd
                 # also exclude the 860 changelog table bc that table doesn't get harvested
