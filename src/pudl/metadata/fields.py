@@ -4860,7 +4860,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
     },
     "plant_id_eia_direct_support_1": {
-        "type": "number",
+        "type": "integer",
         "description": (
             "The EIA Plant ID of the primary unit whose generation this energy storage "
             "device is intended to firm or store."
@@ -4874,7 +4874,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
     },
     "plant_id_eia_direct_support_2": {
-        "type": "number",
+        "type": "integer",
         "description": (
             "The EIA Plant ID of the secondary unit whose generation this energy storage "
             "device is intended to firm or store."
@@ -4888,7 +4888,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
     },
     "plant_id_eia_direct_support_3": {
-        "type": "number",
+        "type": "integer",
         "description": (
             "The EIA Plant ID of the tertiary unit whose generation this energy storage "
             "device is intended to firm or store."
