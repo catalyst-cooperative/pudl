@@ -159,8 +159,11 @@ summary:
 * `The PUDL Development Environment <https://catalystcoop-pudl.readthedocs.io/en/nightly/dev/dev_setup.html>`__
   lets you run the PUDL data processing pipeline locally.
 
+
 Organizations using PUDL
 ------------------------
+
+.. _pudl_orgs_start:
 
 This is an incomplete list of organizations that have used PUDL in their work.
 If your organization uses PUDL and you'd like to be listed here please open a
@@ -171,6 +174,8 @@ pull request or email us at `hello@catalyst.coop <mailto:hello@catalyst.coop>`__
 * `Open Grid Emissions <https://singularity.energy/open-grid-emissions>`__ at Singularity Energy
 * `PyPSA - USA <https://github.com/PyPSA/pypsa-usa>`__
 * `Deployment Gap Model Education Fund <https://www.deploymentgap.fund/>`__
+
+.. _pudl_orgs_end:
 
 
 Contributing to PUDL
