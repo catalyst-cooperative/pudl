@@ -72,8 +72,8 @@ def inspect_data(datasets: list[str], pudl_output: Path) -> str:
     inspect before building the Docker image.
     """
     inspect_output = json.loads(
-        check_output(
-            [  # noqa: S603
+        check_output(  # noqa: S603
+            [
                 "datasette",
                 "inspect",
             ]
@@ -175,8 +175,8 @@ def deploy_datasette(
             f.write(make_dockerfile(databases))
 
         logging.info(f"Compressing {databases} and putting into docker context...")
-        check_call(
-            ["tar", "-a", "-czvf", fly_dir / "all_dbs.tar.zst"] + databases,  # noqa: S603
+        check_call(  # noqa: S603
+            ["tar", "-a", "-czvf", fly_dir / "all_dbs.tar.zst"] + databases,
             cwd=pudl_output,
         )
 
@@ -194,8 +194,8 @@ def deploy_datasette(
         with metadata_path.open("w") as f:
             f.write(metadata_yml)
 
-        check_call(
-            ["/usr/bin/env", "datasette", "serve", "-m", "metadata.yml"] + databases,  # noqa: S603
+        check_call(  # noqa: S603
+            ["/usr/bin/env", "datasette", "serve", "-m", "metadata.yml"] + databases,
             cwd=pudl_output,
         )
 
