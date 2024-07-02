@@ -185,8 +185,8 @@ def deploy_datasette(
         f.write(make_dockerfile(databases))
 
     logging.info(f"Compressing {databases} and putting into docker context...")
-    check_call(
-        ["tar", "-a", "-czvf", fly_dir / "all_dbs.tar.zst"] + databases,  # noqa: S603
+    check_call(  # noqa: S603
+        ["tar", "-a", "-czvf", fly_dir / "all_dbs.tar.zst"] + databases,
         cwd=pudl_output,
     )
 
@@ -227,12 +227,12 @@ def deploy_datasette(
 
     elif deploy == "local":
         logging.info("Running Datasette locally...")
-        check_call(
-            ["/usr/bin/env", "docker", "build", "-t", "pudl_datasette:local", "."],  # noqa: S603
+        check_call(  # noqa: S603
+            ["/usr/bin/env", "docker", "build", "-t", "pudl_datasette:local", "."],
             cwd=fly_dir,
         )
-        check_call(
-            ["/usr/bin/env", "docker", "run", "-p", "8080:8080", "pudl_datasette:local"]  # noqa: S603
+        check_call(  # noqa: S603
+            ["/usr/bin/env", "docker", "run", "-p", "8080:8080", "pudl_datasette:local"]
         )
 
     else:
