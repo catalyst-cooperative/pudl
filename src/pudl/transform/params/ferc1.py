@@ -541,6 +541,7 @@ FUEL_CATEGORIES: dict[str, set[str]] = {
             "natural",
             "natural  gas",
             "natural gas",
+            "natural gas/fuel oil",
             "ng",
             "ng, fo",
             "prop",

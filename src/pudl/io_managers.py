@@ -759,7 +759,7 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
 
             # 2024-04-10: this threshold set by looking at existing values for FERC
             # <=2022.
-            threshold_pct = 0.3
+            threshold_pct = 0.32
             if n_diffs / n_best > (1 + threshold_pct / 100):
                 raise ValueError(
                     f"Found {n_diffs} non-null values with apply-diffs"

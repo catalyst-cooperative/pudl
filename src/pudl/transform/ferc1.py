@@ -3407,7 +3407,9 @@ class HydroelectricPlantsTableTransformer(Ferc1AbstractTableTransformer):
 
     def transform_main(self, df):
         """Add bespoke removal of duplicate record after standard transform_main."""
-        return super().transform_main(df).pipe(self.targeted_drop_duplicates)
+        df = super().transform_main(df).pipe(self.targeted_drop_duplicates)
+        df.project_num = df.project_num.str.removeprefix(".")
+        return df
 
     def targeted_drop_duplicates(self, df):
         """Targeted removal of known duplicate record.
