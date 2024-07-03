@@ -10,11 +10,16 @@ from typing import Any
 import pydantic
 import pytest
 import sqlalchemy as sa
-from dagster import build_init_resource_context, graph, materialize_to_memory
+from dagster import (
+    JobDefinition,
+    build_init_resource_context,
+    graph,
+    materialize_to_memory,
+)
 
 import pudl
 from pudl import resources
-from pudl.etl.cli import pudl_etl_job_factory
+from pudl.etl import defs
 from pudl.extract.ferc1 import Ferc1DbfExtractor, raw_ferc1_xbrl__metadata_json
 from pudl.extract.xbrl import xbrl2sqlite_op_factory
 from pudl.io_managers import (
@@ -198,7 +203,7 @@ def ferc1_dbf_extract(
         Ferc1DbfExtractor.get_dagster_op()()
 
     if not live_dbs:
-        local_dbf_ferc1_graph.to_job(
+        execute_result = local_dbf_ferc1_graph.to_job(
             name="ferc_to_sqlite_dbf_ferc1",
             resource_defs=pudl.ferc_to_sqlite.default_resources_defs,
         ).execute_in_process(
@@ -214,6 +219,7 @@ def ferc1_dbf_extract(
                 },
             },
         )
+        assert execute_result.success, "ferc_to_sqlite_dbf_ferc1 failed!"
 
 
 @pytest.fixture(scope="session")
@@ -227,7 +233,7 @@ def ferc1_xbrl_extract(
         xbrl2sqlite_op_factory(XbrlFormNumber.FORM1)()
 
     if not live_dbs:
-        local_xbrl_ferc1_graph.to_job(
+        execute_result = local_xbrl_ferc1_graph.to_job(
             name="ferc_to_sqlite_xbrl_ferc1",
             resource_defs=pudl.ferc_to_sqlite.default_resources_defs,
         ).execute_in_process(
@@ -243,6 +249,7 @@ def ferc1_xbrl_extract(
                 },
             }
         )
+        assert execute_result.success, "ferc_to_sqlite_xbrl_ferc1 failed!"
 
 
 @pytest.fixture(scope="session", name="ferc1_engine_dbf")
@@ -272,6 +279,29 @@ def ferc1_xbrl_taxonomy_metadata(ferc1_engine_xbrl: sa.Engine):
     return result.output_for_node("raw_ferc1_xbrl__metadata_json")
 
 
+def _pudl_etl_job_factory(
+    logfile: str | None = None, loglevel: str = "INFO", process_epacems: bool = True
+) -> JobDefinition:
+    """Function that lets us pass jobs between processes.
+
+    If we are using e.g. a multi-process executor, we can't pass the whole
+    JobDefinition to the child processes. Instead we pass this function around
+    that makes JobDefinitions.
+
+    Args:
+        loglevel: The log level for the job's execution.
+        logfile: Path to a log file for the job's execution.
+        process_epacems: Include EPA CEMS assets in the job execution.
+
+    Returns:
+        The job definition to be executed.
+    """
+    pudl.logging_helpers.configure_root_logger(logfile=logfile, loglevel=loglevel)
+    if not process_epacems:
+        return defs.get_job_def("etl_full_no_cems")
+    return defs.get_job_def("etl_full")
+
+
 @pytest.fixture(scope="session")
 def pudl_io_manager(
     ferc1_engine_dbf: sa.Engine,  # Implicit dependency
@@ -293,7 +323,7 @@ def pudl_io_manager(
         md = PUDL_PACKAGE.to_sql()
         md.create_all(engine)
         # Run the ETL and generate a new PUDL SQLite DB for testing:
-        pudl_etl_job_factory()().execute_in_process(
+        execute_result = _pudl_etl_job_factory().execute_in_process(
             run_config={
                 "resources": {
                     "dataset_settings": {
@@ -305,6 +335,7 @@ def pudl_io_manager(
                 },
             },
         )
+        assert execute_result.success, "pudl_etl failed!"
     # Grab a connection to the freshly populated PUDL DB, and hand it off.
     # All the hard work here is being done by the datapkg and
     # datapkg_to_sqlite fixtures, above.
