@@ -304,7 +304,7 @@ spreadsheet tracking these errors, reload the ``epacems`` assets in Dagster.
 
 D. NREL ATB
 ^^^^^^^^^^^^
-**4.D.1)** Materialize the core assets (the ``core_nrelatb`` group) in Dagster.
+**4.D.1)** Materialize the ``_core_nrelatb`` asset in Dagster.
 
 5. Update the PUDL DB Schema
 ----------------------------

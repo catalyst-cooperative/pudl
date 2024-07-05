@@ -8,10 +8,14 @@ from dagster import AssetCheckResult, asset, asset_check
 from pydantic import BaseModel, field_validator
 
 import pudl.helpers as helpers
+from pudl import logging_helpers
+
+logger = logging_helpers.get_logger(__name__)
 
 IDX_ALL = [
     "report_year",
     "model_case_nrelatb",
+    "model_tax_credit_case_nrelatb",
     "projection_year",
     "cost_recovery_period_years",
     "scenario_atb",
@@ -164,6 +168,7 @@ class Unstacker(BaseModel):
         idx=[
             "report_year",
             "model_case_nrelatb",
+            "model_tax_credit_case_nrelatb",
             "projection_year",
             "technology_description",
             "core_metric_parameter",
@@ -274,6 +279,7 @@ def _core_nrelatb__transform_start(raw_nrelatb__data):
     rename_dict = {
         "core_metric_variable_year": "projection_year",
         "core_metric_case": "model_case_nrelatb",
+        "tax_credit_case": "model_tax_credit_case_nrelatb",
     }
     nrelatb = (
         raw_nrelatb__data.replace([""], pd.NA)
@@ -289,7 +295,18 @@ def _core_nrelatb__transform_start(raw_nrelatb__data):
         # we are dropping records that are completely dupes - not just dupes based on IDX_ALL
         .drop_duplicates(keep="first")
     )
-    assert not any(nrelatb.duplicated(IDX_ALL))
+    # In 2024, we see many records which are completely identical except for their core
+    # metric key, which we treat as a bad primary key. We should drop these duplicates.
+    logger.info(
+        f"Dropping {sum(nrelatb.duplicated(nrelatb.columns.difference(['core_metric_key']))):,} records where only difference is the core_metric_key."
+    )
+    nrelatb = nrelatb.drop_duplicates(
+        subset=nrelatb.columns.difference(["core_metric_key"])
+    )
+
+    assert not any(
+        nrelatb.duplicated(IDX_ALL)
+    ), f"Duplicated: {nrelatb[nrelatb.duplicated(IDX_ALL)]}"
 
     # ensure that we have the same set of parameters in the unstackers and in the rename
     params_found = set(nrelatb.core_metric_parameter.unique())
