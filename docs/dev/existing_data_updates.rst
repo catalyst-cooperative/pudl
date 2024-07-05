@@ -12,13 +12,16 @@ EIA typically publishes an "early release" version of their annual data in the s
 followed by a final release in the fall. Our ``data_maturity`` column indicates
 which version has been integrated into PUDL ("final" vs. "provisional"). This column
 also shows when data are derived from monthly updates ("monthly_update") or contain
-incomplete year-to-date data ("incremental_ytd").
+incomplete year-to-date data ("incremental_ytd"). Annual EIA data is updated
+first when early release data is published, and then again when final data is released.
 
 FERC publishes form submissions on a rolling basis meaning there is no official
 date that the data are considered final or complete. To figure out when the data are
 likely complete, we compare the number of respondents from prior years to the number of
 current respondents. We usually update FERC once a year around when we integrate EIA's
 final release in the fall.
+
+Finally, we currently update NREL ATB, the EIA-EPA crosswalk, and PHMSA once a year.
 
 To see what data we have available for each dataset, click on the links below and look
 at the "Years Liberated" field.
@@ -128,6 +131,12 @@ ZIP archive.
 ``iso-8859-1`` (Latin) rather than ``utf-8`` (Unicode). Note the per-file encoding
 in :py:const:`pudl.extract.ferc714.TABLE_ENCODING` and that it may change over time.
 
+C. NREL ATB
+^^^^^^^^^^^
+Inspect the raw data. Following the instructions for EIA data described above, map
+the raw column headers are mapped to shared column names in the ``data.csv``
+spreadsheet located in ``src/pudl/package_data/nrelatb``.
+
 3. Test Data Extraction
 -----------------------
 
@@ -168,6 +177,11 @@ C. EPA CEMS
 **3.C.1)** The CEMS data are so large that it doesn't make sense to store a raw and
 cleaned version of the data in the database. We'll test the extraction and
 transformation steps together in the next section.
+
+D. NREL ATB
+^^^^^^^^^^^^
+**3.D.1)** Materialize the raw assets (``raw_nrelatb``) in Dagster. If any errors occur,
+revisit the column mapping spreadsheets and check for any errors.
 
 4. Update Table & Column Transformations
 ----------------------------------------
@@ -287,6 +301,10 @@ C. EPA CEMS
 common errors will occur when new CEMS plants lack timezone data in the EIA database.
 See section 6.B.1 for instructions on how to fix this. Once you've updated the
 spreadsheet tracking these errors, reload the ``epacems`` assets in Dagster.
+
+D. NREL ATB
+^^^^^^^^^^^^
+**4.D.1)** Materialize the core assets (the ``core_nrelatb`` group) in Dagster.
 
 5. Update the PUDL DB Schema
 ----------------------------
