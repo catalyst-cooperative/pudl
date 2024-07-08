@@ -29,19 +29,19 @@ dependencies:
   - async-lru=2.0.4=pyhd8ed1ab_0
   - atk-1.0=2.38.0=h4bec284_2
   - attrs=23.2.0=pyh71513ae_0
-  - aws-c-auth=0.7.22=h2f80047_6
-  - aws-c-cal=0.6.15=hd73d8db_1
+  - aws-c-auth=0.7.22=he52cbe7_7
+  - aws-c-cal=0.7.0=hd73d8db_0
   - aws-c-common=0.9.23=hfdf4475_0
   - aws-c-compression=0.2.18=hd73d8db_7
   - aws-c-event-stream=0.4.2=ha5205da_14
-  - aws-c-http=0.8.2=hc7634fe_3
-  - aws-c-io=0.14.9=h2089a17_3
+  - aws-c-http=0.8.2=hf609411_4
+  - aws-c-io=0.14.9=h9f49e27_5
   - aws-c-mqtt=0.10.4=hcc4e2a5_7
-  - aws-c-s3=0.5.10=h7347a4b_4
+  - aws-c-s3=0.6.0=h8fdb93b_0
   - aws-c-sdkutils=0.1.16=hd73d8db_3
   - aws-checksums=0.1.18=hd73d8db_7
-  - aws-crt-cpp=0.26.12=hc167df4_1
-  - aws-sdk-cpp=1.11.329=h4fac305_6
+  - aws-crt-cpp=0.27.1=h7746516_1
+  - aws-sdk-cpp=1.11.329=h735c9e6_7
   - azure-core-cpp=1.12.0=hf8dbe3c_0
   - azure-identity-cpp=1.8.0=h906f3f0_1
   - azure-storage-blobs-cpp=12.11.0=h5f32033_1
@@ -252,13 +252,13 @@ dependencies:
   - libabseil=20240116.2=cxx17_hc1bcbd7_0
   - libaec=1.1.3=h73e2aa4_0
   - libarchive=3.7.4=h20e244c_0
-  - libarrow=15.0.2=h3f98013_16_cpu
-  - libarrow-acero=15.0.2=hf036a51_16_cpu
-  - libarrow-dataset=15.0.2=hf036a51_16_cpu
-  - libarrow-flight=15.0.2=hd834827_16_cpu
-  - libarrow-flight-sql=15.0.2=he1e86a1_16_cpu
-  - libarrow-gandiva=15.0.2=hfa04d5a_16_cpu
-  - libarrow-substrait=15.0.2=he1e86a1_16_cpu
+  - libarrow=15.0.2=hd572be3_17_cpu
+  - libarrow-acero=15.0.2=hf036a51_17_cpu
+  - libarrow-dataset=15.0.2=hf036a51_17_cpu
+  - libarrow-flight=15.0.2=hd834827_17_cpu
+  - libarrow-flight-sql=15.0.2=he1e86a1_17_cpu
+  - libarrow-gandiva=15.0.2=hfa04d5a_17_cpu
+  - libarrow-substrait=15.0.2=he1e86a1_17_cpu
   - libasprintf=0.22.5=h5ff76d1_2
   - libasprintf-devel=0.22.5=h5ff76d1_2
   - libblas=3.9.0=22_osx64_openblas
@@ -297,7 +297,7 @@ dependencies:
   - libnetcdf=4.9.2=nompi_h7334405_114
   - libnghttp2=1.58.0=h64cf6d3_1
   - libopenblas=0.3.27=openmp_h8869122_1
-  - libparquet=15.0.2=h904a336_16_cpu
+  - libparquet=15.0.2=h904a336_17_cpu
   - libpng=1.6.43=h92b6c6a_0
   - libpq=16.3=h4501773_0
   - libprotobuf=4.25.3=h4e4d658_0
@@ -415,7 +415,7 @@ dependencies:
   - pthread-stubs=0.4=hc929b4f_1001
   - ptyprocess=0.7.0=pyhd3deb0d_0
   - pure_eval=0.2.2=pyhd8ed1ab_0
-  - pyarrow=15.0.2=py312h7f4b4c1_16_cpu
+  - pyarrow=15.0.2=py312h7f4b4c1_17_cpu
   - pyasn1=0.6.0=pyhd8ed1ab_0
   - pyasn1-modules=0.4.0=pyhd8ed1ab_0
   - pybtex=0.24.0=pyhd8ed1ab_2
@@ -525,7 +525,7 @@ dependencies:
   - terminado=0.18.1=pyh31c8845_0
   - text-unidecode=1.3=pyhd8ed1ab_1
   - threadpoolctl=3.5.0=pyhc1e730c_0
-  - tiledb=2.24.1=h128764f_2
+  - tiledb=2.24.2=h3482062_0
   - time-machine=2.14.2=py312hbd25219_0
   - timezonefinder=6.5.2=py312hbd25219_0
   - tinycss2=1.3.0=pyhd8ed1ab_0

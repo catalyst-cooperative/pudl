@@ -30,19 +30,19 @@ dependencies:
   - async-lru=2.0.4=pyhd8ed1ab_0
   - atk-1.0=2.38.0=h04ea711_2
   - attrs=23.2.0=pyh71513ae_0
-  - aws-c-auth=0.7.22=hf36ad8f_6
-  - aws-c-cal=0.6.15=h816f305_1
+  - aws-c-auth=0.7.22=heee8711_7
+  - aws-c-cal=0.7.0=h816f305_0
   - aws-c-common=0.9.23=h4ab18f5_0
   - aws-c-compression=0.2.18=he027950_7
   - aws-c-event-stream=0.4.2=hb72ac1a_14
-  - aws-c-http=0.8.2=h75ac8c9_3
-  - aws-c-io=0.14.9=hd3d3696_3
+  - aws-c-http=0.8.2=had8cc17_4
+  - aws-c-io=0.14.9=h37d6bf3_5
   - aws-c-mqtt=0.10.4=hb0abfc5_7
-  - aws-c-s3=0.5.10=h44b787d_4
+  - aws-c-s3=0.6.0=h1f67ec3_0
   - aws-c-sdkutils=0.1.16=he027950_3
   - aws-checksums=0.1.18=he027950_7
-  - aws-crt-cpp=0.26.12=he940a02_1
-  - aws-sdk-cpp=1.11.329=h0f5bab0_6
+  - aws-crt-cpp=0.27.1=h93f15ff_1
+  - aws-sdk-cpp=1.11.329=h70d5bd1_7
   - azure-core-cpp=1.12.0=h830ed8b_0
   - azure-identity-cpp=1.8.0=hdb0d106_1
   - azure-storage-blobs-cpp=12.11.0=ha67cba7_1
@@ -149,7 +149,7 @@ dependencies:
   - fsspec=2024.6.1=pyhff2d567_0
   - furo=2024.5.6=pyhd8ed1ab_0
   - gcsfs=2024.6.1=pyhd8ed1ab_0
-  - gdal=3.9.1=py312h86af8fa_4
+  - gdal=3.9.1=py312h86af8fa_5
   - gdk-pixbuf=2.42.12=hb9ae30d_0
   - geopandas=1.0.1=pyhd8ed1ab_0
   - geopandas-base=1.0.1=pyha770c72_0
@@ -255,13 +255,13 @@ dependencies:
   - libabseil=20240116.2=cxx17_h59595ed_0
   - libaec=1.1.3=h59595ed_0
   - libarchive=3.7.4=hfca40fe_0
-  - libarrow=15.0.2=hd3a4c72_16_cpu
-  - libarrow-acero=15.0.2=h44f6110_16_cpu
-  - libarrow-dataset=15.0.2=h44f6110_16_cpu
-  - libarrow-flight=15.0.2=h55b8332_16_cpu
-  - libarrow-flight-sql=15.0.2=h61825be_16_cpu
-  - libarrow-gandiva=15.0.2=hfcb4b9d_16_cpu
-  - libarrow-substrait=15.0.2=h61825be_16_cpu
+  - libarrow=15.0.2=h9f4b207_17_cpu
+  - libarrow-acero=15.0.2=h44f6110_17_cpu
+  - libarrow-dataset=15.0.2=h44f6110_17_cpu
+  - libarrow-flight=15.0.2=h55b8332_17_cpu
+  - libarrow-flight-sql=15.0.2=h61825be_17_cpu
+  - libarrow-gandiva=15.0.2=hfcb4b9d_17_cpu
+  - libarrow-substrait=15.0.2=h61825be_17_cpu
   - libblas=3.9.0=22_linux64_openblas
   - libboost-headers=1.85.0=ha770c72_2
   - libbrotlicommon=1.1.0=hd590300_1
@@ -278,7 +278,7 @@ dependencies:
   - libffi=3.4.2=h7f98852_5
   - libgcc-ng=14.1.0=h77fa898_0
   - libgd=2.3.3=h119a65a_9
-  - libgdal=3.9.1=hdc8034c_4
+  - libgdal=3.9.1=ha654e03_5
   - libgfortran-ng=14.1.0=h69a702a_0
   - libgfortran5=14.1.0=hc5f4f2c_0
   - libglib=2.80.3=h8a4344b_1
@@ -297,7 +297,7 @@ dependencies:
   - libnl=3.9.0=hd590300_0
   - libnsl=2.0.1=hd590300_0
   - libopenblas=0.3.27=pthreads_hac2b453_1
-  - libparquet=15.0.2=hfd5bfe4_16_cpu
+  - libparquet=15.0.2=hfd5bfe4_17_cpu
   - libpng=1.6.43=h2797004_0
   - libpq=16.3=ha72fbe1_0
   - libprotobuf=4.25.3=h08a7969_0
@@ -400,7 +400,7 @@ dependencies:
   - pkgutil-resolve-name=1.3.10=pyhd8ed1ab_1
   - platformdirs=4.2.2=pyhd8ed1ab_0
   - pluggy=1.5.0=pyhd8ed1ab_0
-  - poppler=24.04.0=hb6cd0d7_0
+  - poppler=24.07.0=hb0d391f_0
   - poppler-data=0.4.12=hd8ed1ab_0
   - postgresql=16.3=h8e811e2_0
   - pre-commit=3.7.1=pyha770c72_0
@@ -418,7 +418,7 @@ dependencies:
   - pthread-stubs=0.4=h36c2ea0_1001
   - ptyprocess=0.7.0=pyhd3deb0d_0
   - pure_eval=0.2.2=pyhd8ed1ab_0
-  - pyarrow=15.0.2=py312h5b04a33_16_cpu
+  - pyarrow=15.0.2=py312h5b04a33_17_cpu
   - pyasn1=0.6.0=pyhd8ed1ab_0
   - pyasn1-modules=0.4.0=pyhd8ed1ab_0
   - pybtex=0.24.0=pyhd8ed1ab_2
@@ -485,7 +485,7 @@ dependencies:
   - ruamel.yaml.clib=0.2.8=py312h98912ed_0
   - ruff=0.5.1=py312hbe4c86d_0
   - ruff-lsp=0.0.54=pyhd8ed1ab_0
-  - s2n=1.4.16=he19d79f_0
+  - s2n=1.4.17=he19d79f_0
   - s3transfer=0.10.2=pyhd8ed1ab_0
   - scikit-learn=1.5.1=py312h775a589_0
   - scipy=1.14.0=py312hc2bc53b_1
@@ -529,7 +529,7 @@ dependencies:
   - terminado=0.18.1=pyh0d859eb_0
   - text-unidecode=1.3=pyhd8ed1ab_1
   - threadpoolctl=3.5.0=pyhc1e730c_0
-  - tiledb=2.24.1=haf8a068_2
+  - tiledb=2.24.2=hda44874_0
   - time-machine=2.14.2=py312h9a8786e_0
   - timezonefinder=6.5.2=py312h9a8786e_0
   - tinycss2=1.3.0=pyhd8ed1ab_0
