@@ -1,5 +1,5 @@
 ---
-name: Quarterly Update
+name: Quarterly Update {{ date | date('[Q]Q YYYY') }}
 about: Check-list for integrating the quarterly updates into PUDL
 title: ""
 labels: data-update
@@ -12,12 +12,10 @@ Once the new archives have been vetted and published, you can begin the process 
 
 Follow the steps in [Existing Data Updates Docs](https://catalystcoop-pudl.readthedocs.io/en/latest/dev/existing_data_updates.html)
 
-<!-- Update the quarter number and year -->
-
 ```[tasklist]
-- [ ] EIA 860m QX-YYYY Update
-- [ ] EIA 923 QX-YYYY Update
-- [ ] EIA 930 QX-YYYY Update
-- [ ] CEMS QX-YYYY Update
-- [ ] EIA Bulk API QX-YYYY Update
+- [ ] EIA 860m {{ date | date('[Q]Q YYYY') }} Update
+- [ ] EIA 923 {{ date | date('[Q]Q YYYY') }} Update
+- [ ] EIA 930 {{ date | date('[Q]Q YYYY') }} Update
+- [ ] CEMS {{ date | date('[Q]Q YYYY') }} Update
+- [ ] EIA Bulk API {{ date | date('[Q]Q YYYY') }} Update
 ```

@@ -1,6 +1,7 @@
 ---
 name: quarterly-update-issues
 on:
+  workflow_dispatch:
   schedule:
     - cron: "21 8 2 2,5,8,11 *" # 8:21 AM UTC, second of feb, may, aug, nov
 
