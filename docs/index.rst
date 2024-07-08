@@ -213,6 +213,14 @@ or when the data is loaded into SQLite.
 
 See our :doc:`dev/testing` documentation for more information.
 
+---------------------------------------------------------------------------------------
+Organizations using PUDL
+---------------------------------------------------------------------------------------
+.. include:: ../README.rst
+   :start-after: .. _pudl_orgs_start:
+   :end-before: .. _pudl_orgs_end:
+
+
 
 .. toctree::
   :hidden:
