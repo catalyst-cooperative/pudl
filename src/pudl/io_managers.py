@@ -758,14 +758,18 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
                 )
 
             # 2024-04-10: this threshold set by looking at existing values for FERC
-            # <=2022.
-            threshold_pct = 0.32
-            if n_diffs / n_best > (1 + threshold_pct / 100):
+            # <=2022. It was updated from .3 to .32 during the 2023 update.
+            threshold_ratio = 1.0032
+            if (found_ratio := n_diffs / n_best) > threshold_ratio:
                 raise ValueError(
-                    f"Found {n_diffs} non-null values with apply-diffs"
-                    f"methodology, and {n_best} with best-snapshot. "
-                    f"apply-diffs shouldn't be more than {threshold_pct}% "
-                    "greater than best-snapshot."
+                    "Found more than expected excess non-null values using the "
+                    f"currently  implemented apply_diffs methodology (#{n_diffs}) as "
+                    f"compared to the best_snapshot methodology (#{n_best}). We expected"
+                    " the apply_diffs methodology to result in no more than "
+                    f"{threshold_ratio:.2%} non-null records but found {found_ratio:.2%}.\n\n"
+                    "We are concerned about excess non-null values because apply-diffs "
+                    "grabs the most recent non-null values. If this error is raised, "
+                    "investigate filter_for_freshest_data."
                 )
 
         filing_metadata_cols = {"publication_time", "filing_name"}
