@@ -2218,7 +2218,7 @@ class DatasetteMetadata(PudlMeta):
             xbrl_resources=xbrl_resources,
         )
 
-    def to_yaml(self) -> None:
+    def to_yaml(self) -> str:
         """Output database, table, and column metadata to YAML file."""
         template = _get_jinja_environment().get_template("datasette-metadata.yml.jinja")
 

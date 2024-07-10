@@ -27,7 +27,11 @@ EIA 860
   regarding energy storage and solar generators. See issue :issue:`3676` and PR
   :pr:`3681`.
 
-
+Data Cleaning
+^^^^^^^^^^^^^
+* When ``generator_operating_date`` values are too inconsistent to be harvested
+  successfully, we now take the last reported date in EIA 860 and 860M. See
+  :issue:`423` and PR :pr:`3967`.
 
 .. _release-v2024.5.0:
 
