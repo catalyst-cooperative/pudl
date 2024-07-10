@@ -1,10 +1,13 @@
 """Transformation of the FERC Form 714 data."""
 
+from dataclasses import dataclass
+
 import re
 
 import numpy as np
 import pandas as pd
-from dagster import asset
+from dagster import AssetCheckResult, AssetChecksDefinition, asset, asset_check
+
 
 import pudl.logging_helpers
 from pudl.metadata import PUDL_PACKAGE
@@ -576,3 +579,41 @@ def core_ferc714__yearly_planning_area_demand_forecast(
         df, table_name="core_ferc714__yearly_planning_area_demand_forecast"
     )
     return df
+
+@dataclass
+class Ferc714CheckSpec:
+    """Define some simple checks that can run on FERC 714 assets."""
+
+    name: str
+    asset: str
+    num_rows_by_report_year: dict[int, int]
+
+check_specs = [
+    Ferc714CheckSpec(
+        name="yearly_planning_area_demand_forecast_check_spec",
+        asset="core_ferc714__yearly_planning_area_demand_forecast",
+        num_rows_by_report_year={2019: 950, 2020: 950},
+    )
+]
+
+
+def make_check(spec: Ferc714CheckSpec) -> AssetChecksDefinition:
+    """Turn the Ferc714CheckSpec into an actual Dagster asset check."""
+
+    @asset_check(asset=spec.asset)
+    def _check(df):
+        errors = []
+        for year, expected_rows in spec.num_rows_by_report_year.items():
+            if (num_rows := len(df.loc[df.report_year == year])) != expected_rows:
+                errors.append(
+                    f"Expected {expected_rows} for report year {year}, found {num_rows}"
+                )
+        if errors:
+            return AssetCheckResult(passed=False, metadata={"errors": errors})
+
+        return AssetCheckResult(passed=True)
+
+    return _check
+
+
+_checks = [make_check(spec) for spec in check_specs]

@@ -116,7 +116,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["ferc714"],
         "field_namespace": "ferc714",
         "etl_group": "ferc714",
-        "create_database_schema": False,
+        "create_database_schema": True,
     },
 }
 """FERC Form 714 resource attributes by PUDL identifier (``resource.name``).
