@@ -9,6 +9,11 @@ v2024.X.X (2024-XX-XX)
 New Data Coverage
 ^^^^^^^^^^^^^^^^^
 
+FERC Form 1
+~~~~~~~~~~~
+
+* Added FERC Form 1 data from 2023. See issue :issue:`3700` and PR :pr:`3701`.
+
 EIA AEO
 ~~~~~~~
 
