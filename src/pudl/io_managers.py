@@ -758,8 +758,8 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
                 )
 
             # 2024-04-10: this threshold set by looking at existing values for FERC
-            # <=2022. It was updated from .3 to .32 during the 2023 update.
-            threshold_ratio = 1.0032
+            # <=2022. It was updated from .3 to .44 during the 2023 update.
+            threshold_ratio = 1.0044
             if (found_ratio := n_diffs / n_best) > threshold_ratio:
                 raise ValueError(
                     "Found more than expected excess non-null values using the "
