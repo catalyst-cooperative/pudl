@@ -142,7 +142,6 @@ def test_convert_form(mocker):
             return f"filings_{year}_{form.value}"
 
     settings = FercGenericXbrlToSqliteSettings(
-        taxonomy="https://www.fake.taxonomy.url",
         years=[2020, 2021],
     )
 

@@ -683,12 +683,10 @@ class FercGenericXbrlToSqliteSettings(BaseSettings):
     """An immutable pydantic model to validate Ferc1 to SQLite settings.
 
     Args:
-        taxonomy: URL of XBRL taxonomy used to create structure of SQLite DB.
         years: list of years to validate.
         disabled: if True, skip processing this dataset.
     """
 
-    taxonomy: str
     years: list[int]
     disabled: bool = False
 
@@ -697,7 +695,6 @@ class Ferc1XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     """An immutable pydantic model to validate Ferc1 to SQLite settings.
 
     Args:
-        taxonomy: URL of taxonomy used to .
         years: list of years to validate.
     """
 
@@ -705,7 +702,6 @@ class Ferc1XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     years: list[int] = [
         year for year in data_source.working_partitions["years"] if year >= 2021
     ]
-    taxonomy: str = "https://eCollection.ferc.gov/taxonomy/form1/2022-01-01/form/form1/form-1_2022-01-01.xsd"
 
 
 class Ferc2XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
@@ -719,7 +715,6 @@ class Ferc2XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     years: list[int] = [
         year for year in data_source.working_partitions["years"] if year >= 2021
     ]
-    taxonomy: str = "https://eCollection.ferc.gov/taxonomy/form2/2022-01-01/form/form2/form-2_2022-01-01.xsd"
 
 
 class Ferc2DbfToSqliteSettings(GenericDatasetSettings):
@@ -766,7 +761,6 @@ class Ferc6XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     years: list[int] = [
         year for year in data_source.working_partitions["years"] if year >= 2021
     ]
-    taxonomy: str = "https://eCollection.ferc.gov/taxonomy/form6/2022-01-01/form/form6/form-6_2022-01-01.xsd"
 
 
 class Ferc60DbfToSqliteSettings(GenericDatasetSettings):
@@ -797,7 +791,6 @@ class Ferc60XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     years: list[int] = [
         year for year in data_source.working_partitions["years"] if year >= 2021
     ]
-    taxonomy: str = "https://eCollection.ferc.gov/taxonomy/form60/2022-01-01/form/form60/form-60_2022-01-01.xsd"
 
 
 class Ferc714XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
@@ -809,7 +802,6 @@ class Ferc714XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc714")
     years: list[int] = [2021, 2022]
-    taxonomy: str = "https://eCollection.ferc.gov/taxonomy/form714/2022-01-01/form/form714/form-714_2022-01-01.xsd"
 
 
 class FercToSqliteSettings(BaseSettings):
