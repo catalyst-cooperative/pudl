@@ -166,7 +166,7 @@ pytest-jupyter:
 # whose name contains "minmax_rows" so it's important to follow that naming convention.
 .PHONY: pytest-minmax-rows
 pytest-minmax-rows:
-	pytest --live-dbs test/validate -k minmax_rows
+	pytest -n 8 --no-cov --live-dbs test/validate -k minmax_rows
 
 # Build the FERC 1 and PUDL DBs, ignoring foreign key constraints.
 # Identify any plant or utility IDs in the DBs that haven't yet been mapped

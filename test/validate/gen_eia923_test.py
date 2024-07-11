@@ -1,9 +1,10 @@
 """Validate post-ETL Generation data from EIA 923."""
 
 import logging
-from test.conftest import skip_table_if_null_freq_table
 
 import pytest
+
+from test.conftest import skip_table_if_null_freq_table
 
 logger = logging.getLogger(__name__)
 

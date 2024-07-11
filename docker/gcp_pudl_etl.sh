@@ -208,10 +208,21 @@ function merge_tag_into_branch() {
 
 function clean_up_outputs_for_distribution() {
     # Compress the SQLite DBs for easier distribution
-    gzip --verbose "$PUDL_OUTPUT"/*.sqlite && \
-    # Grab hourly tables which are only written to Parquet for distribution
-    cp "$PUDL_OUTPUT"/parquet/*__hourly_*.parquet "$PUDL_OUTPUT" && \
-    # Remove all other parquet output, which we are not yet distributing.
+    pushd "$PUDL_OUTPUT" && \
+    for file in *.sqlite; do
+        echo "Compressing $file" && \
+        zip "$file.zip" "$file" && \
+        rm "$file"
+    done
+    popd && \
+    # Create a zip file of all the parquet outputs for distribution on Kaggle
+    # Don't try to compress the already compressed Parquet files with Zip.
+    pushd "$PUDL_OUTPUT/parquet" && \
+    zip -0 "$PUDL_OUTPUT/pudl_parquet.zip" ./*.parquet && \
+    # Move the individual parquet outputs to the output directory for direct access
+    mv ./*.parquet "$PUDL_OUTPUT" && \
+    popd && \
+    # Remove any remaiining files and directories we don't want to distribute
     rm -rf "$PUDL_OUTPUT/parquet" && \
     rm -f "$PUDL_OUTPUT/metadata.yml"
 }
@@ -260,7 +271,7 @@ if [[ $ETL_SUCCESS == 0 ]]; then
 
     # Deploy the updated data to datasette if we're on main
     if [[ "$BUILD_REF" == "main" ]]; then
-        python ~/pudl/devtools/datasette/publish.py 2>&1 | tee -a "$LOGFILE"
+        python ~/pudl/devtools/datasette/publish.py --production 2>&1 | tee -a "$LOGFILE"
         DATASETTE_SUCCESS=${PIPESTATUS[0]}
     fi
 
@@ -277,8 +288,9 @@ if [[ $ETL_SUCCESS == 0 ]]; then
         # Copy cleaned up outputs to the S3 and GCS distribution buckets
         copy_outputs_to_distribution_bucket | tee -a "$LOGFILE"
         DISTRIBUTION_BUCKET_SUCCESS=${PIPESTATUS[0]}
-        # TODO: this currently just makes a sandbox release, for testing. Should be
-        # switched to production and only run on push of a version tag eventually.
+        # Remove individual parquet outputs and distribute just the zipped parquet
+        # archives on Zenodo, due to their number of files limit
+        rm -f "$PUDL_OUTPUT"/*.parquet && \
         # Push a data release to Zenodo for long term accessiblity
         zenodo_data_release "$ZENODO_TARGET_ENV" 2>&1 | tee -a "$LOGFILE"
         ZENODO_SUCCESS=${PIPESTATUS[0]}

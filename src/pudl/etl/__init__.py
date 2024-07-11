@@ -140,7 +140,7 @@ def asset_check_from_schema(
         return None
     pandera_schema = resource.schema.to_pandera()
 
-    @asset_check(asset=asset_key)
+    @asset_check(asset=asset_key, blocking=True)
     def pandera_schema_check(asset_value) -> AssetCheckResult:
         try:
             pandera_schema.validate(asset_value, lazy=True)
