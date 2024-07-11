@@ -21,29 +21,23 @@ def _core_eia176__data(raw_eia176__data: pd.DataFrame) -> pd.DataFrame:
         raw_eia176__data["line"] + "_" + raw_eia176__data["atype"]
     )
     primary_key = ["report_year", "area", "id"]
-    variable_names = list(raw_eia176__data.groupby("variable_name").count().index)
-    wide_table = pd.DataFrame(columns=primary_key + variable_names)
 
-    granular_data = raw_eia176__data[
-        (raw_eia176__data["company"] != " Total of All Companies")
+    # TODO should probably sanitize this company name somewhere beforehand
+    granular = raw_eia176__data.loc[
+        raw_eia176__data.company.str.strip().str.lower() != "total of all companies"
     ]
-    for report_year, area, id_ in granular_data.groupby(primary_key).count().index:
-        # Get the data corresponding to one completed form EIA-176
-        form_data = granular_data[
-            (granular_data["report_year"] == report_year)
-            & (granular_data["area"] == area)
-            & (granular_data["id"] == id_)
-        ]
+    unstacked = (
+        granular.drop(columns=["itemsort", "item", "atype", "line", "company"])
+        .set_index(primary_key + ["variable_name"])
+        .unstack(level="variable_name")
+    )
 
-        wide_row = {"report_year": report_year, "area": area, "id": id_}
+    # columns is a weird multi-index with ("value", "actual column name") - clean that up
+    unstacked.columns = unstacked.columns.droplevel(0)
+    unstacked.columns.name = None  # gets rid of "variable_name" name of columns index
 
-        # Translate each piece of data entered into the form into its own column
-        for record in form_data.iterrows():
-            form_row = record[1]
-            wide_row[form_row["variable_name"]] = form_row["value"]
-
-        wide_table.loc[len(wide_table.index)] = wide_row
-
+    # TODO instead of "first NA value we see in each column" applied willy-nilly, we could check to see if there are any conflicting non-null values using .count() first.
+    wide_table = unstacked.groupby(level=primary_key).first().reset_index()
     return wide_table
 
 

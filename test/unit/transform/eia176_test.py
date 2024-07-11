@@ -4,7 +4,17 @@ from pudl.transform.eia176 import _compare_totals, _core_eia176__data
 
 
 def get_test_df():
-    col_names = ["area", "atype", "company", "id", "line", "report_year", "value"]
+    col_names = [
+        "area",
+        "atype",
+        "company",
+        "id",
+        "line",
+        "report_year",
+        "value",
+        "itemsort",
+        "item",
+    ]
     df = pd.DataFrame(columns=col_names)
     df.loc[0] = [
         "New Mexico",
@@ -14,6 +24,8 @@ def get_test_df():
         "1010",
         "2022",
         2013231.0,
+        "itemsort",
+        "item",
     ]
     df.loc[1] = [
         "New Mexico",
@@ -23,6 +35,8 @@ def get_test_df():
         "1010",
         "2022",
         2013231.0,
+        "itemsort",
+        "item",
     ]
 
     return df
@@ -48,6 +62,8 @@ def test_compare_totals_no_diff():
         "1010",
         "2022",
         1.0,
+        "itemsort",
+        "item",
     ]
     states_df.loc[1, "value"] += 1
 
@@ -71,6 +87,8 @@ def test_compare_totals_diff():
         "1010",
         "2022",
         1.0,
+        "itemsort",
+        "item",
     ]
 
     reported_state_totals = states_df[states_df["company"] == " Total of All Companies"]
