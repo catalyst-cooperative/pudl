@@ -801,7 +801,7 @@ class Ferc714XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc714")
-    years: list[int] = [2021, 2022]
+    years: list[int] = [2021, 2022, 2023]
 
 
 class FercToSqliteSettings(BaseSettings):
