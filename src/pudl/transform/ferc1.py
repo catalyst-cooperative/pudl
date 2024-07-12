@@ -3406,8 +3406,10 @@ class HydroelectricPlantsTableTransformer(Ferc1AbstractTableTransformer):
     table_id: TableIdFerc1 = TableIdFerc1.HYDROELECTRIC_PLANTS
 
     def transform_main(self, df):
-        """Add bespoke removal of duplicate record after standard transform_main."""
+        """Standard transform_main, bespoke remove duplicate record & remove ``.`` from project_num column."""
         df = super().transform_main(df).pipe(self.targeted_drop_duplicates)
+        # project_num is an integer column but in 2023 some of them have .'s
+        # as prefixes
         df.project_num = df.project_num.str.removeprefix(".")
         return df
 
