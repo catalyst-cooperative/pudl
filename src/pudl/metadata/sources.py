@@ -571,7 +571,7 @@ SOURCES: dict[str, Any] = {
         "field_namespace": "ferc6",
         "working_partitions": {
             # Years 2000-2020 are backed by DBF format.
-            # Years 2021-2022 are backed by XBRL.
+            # Years 2021-present are backed by XBRL.
             "years": sorted(set(range(2000, 2024))),
         },
         "contributors": [
