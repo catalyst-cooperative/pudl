@@ -1,0 +1,22 @@
+---
+name: quarterly-update-issues
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "21 8 2 2,5,8,11 *" # 8:21 AM UTC, second of feb, may, aug, nov
+
+jobs:
+  create_issue:
+    name: Create quarterly update issue
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create quarterly update issue
+        uses: JasonEtco/create-an-issue@v2.9.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        with:
+          filename: .github/ISSUE_TEMPLATE/quarterly_updates.md
