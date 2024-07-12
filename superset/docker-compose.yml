@@ -13,4 +13,4 @@ services:
       - "8080:8088"
     volumes:
       - ./duck.db:/app/duck.db
-      - ./roles/:/app/roles
+      - ./roles.json:/app/roles.json
