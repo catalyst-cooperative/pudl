@@ -35,8 +35,17 @@ EIA 860
 Data Cleaning
 ^^^^^^^^^^^^^
 * When ``generator_operating_date`` values are too inconsistent to be harvested
-  successfully, we now take the last reported date in EIA 860 and 860M. See
-  :issue:`423` and PR :pr:`3967`.
+  successfully, we now take the last reported date in EIA 860 and 860M. See :issue:`423`
+  and PR :pr:`3967`.
+
+Bug Fixes
+^^^^^^^^^
+
+* Disabled filling of missing values using rolling averages for the
+  ``fuel_cost_per_mmbtu`` column in the :ref:`out_eia923__fuel_receipts_costs` table, as
+  it was resulting in some anomlously high fuel prices. See :pr:`3716`. This results in
+  about 2% more records in the table being left ``NA`` after filling with the average
+  prices for that fuel type for the state and month found in the bulk EIA API data.
 
 .. _release-v2024.5.0:
 
