@@ -576,10 +576,16 @@ def core_ferc714__yearly_planning_area_demand_forecast(
     # group and take the mean measures
     # For the 2006-2020 data, there were only 20 such rows. In most cases, demand metrics were identical.
     # But for some, demand metrics were different - thus the need to take the average.
-    logger.info("Removing non-unique report rows and taking the average of non-equal metrics.")
-    df = df.groupby(
-        ["respondent_id_ferc714", "report_year", "forecast_year"]
-    )[["summer_peak_demand_mw", "winter_peak_demand_mw", "net_demand_mwh"]].mean().reset_index()
+    logger.info(
+        "Removing non-unique report rows and taking the average of non-equal metrics."
+    )
+    df = (
+        df.groupby(["respondent_id_ferc714", "report_year", "forecast_year"])[
+            ["summer_peak_demand_mw", "winter_peak_demand_mw", "net_demand_mwh"]
+        ]
+        .mean()
+        .reset_index()
+    )
 
     # Check all data types and columns to ensure consistency with defined schema
     df = _post_process(
@@ -601,7 +607,7 @@ check_specs = [
     Ferc714CheckSpec(
         name="yearly_planning_area_demand_forecast_check_spec",
         asset="core_ferc714__yearly_planning_area_demand_forecast",
-        num_rows_by_report_year = {
+        num_rows_by_report_year={
             2006: 1829,
             2007: 1570,
             2008: 1540,
@@ -616,7 +622,7 @@ check_specs = [
             2017: 980,
             2018: 961,
             2019: 950,
-            2020: 950
+            2020: 950,
         },
     )
 ]
