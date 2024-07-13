@@ -556,6 +556,7 @@ def core_ferc714__yearly_planning_area_demand_forecast(
     Transformations include:
 
     - Drop/rename columns.
+    - Remove duplicate rows and average out the metrics.
 
     Args:
         raw_ferc714__yearly_planning_area_demand_forecast: Raw table containing,
