@@ -1681,7 +1681,10 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
                 ("WT", "wind_onshore", "Wind Turbine, Onshore"),
             ],
         ).convert_dtypes(),
-        "code_fixes": {"ic": "IC"},  # there is literally one 'ic' from 2002.
+        "code_fixes": {
+            "ic": "IC",
+            "WY": "WT",
+        },  # there is literally one 'ic' from 2002.
         "ignored_codes": [],
     },
     "core_eia__codes_sector_consolidated": {
