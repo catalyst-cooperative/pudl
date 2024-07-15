@@ -592,6 +592,11 @@ def gen_fuel_nuclear(gen_fuel_nuke: pd.DataFrame) -> pd.DataFrame:
         "ST"
     )
 
+    # All nuclear plants use nuclear fuel
+    gen_fuel_nuke.loc[
+        gen_fuel_nuke["energy_source_code"] == "NUC", "fuel_type_code_aer"
+    ] = "NUC"
+
     # Aggregate remaining duplicates.
     gen_fuel_nuke = _aggregate_generation_fuel_duplicates(gen_fuel_nuke, nuclear=True)
 
