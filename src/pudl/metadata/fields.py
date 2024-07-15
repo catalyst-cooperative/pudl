@@ -4674,7 +4674,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "NREL's financial assumption cases. There are two cases which effect project finanical "
             "assumptions: R&D Only Case and Market + Policies Case. R&D Only includes only projected "
             "R&D improvements while Market + Policy case includes policy and tax incentives. "
-            "https://atb.nrel.gov/electricity/2023/financial_cases_&_methods"
+            "https://atb.nrel.gov/electricity/2024/financial_cases_&_methods"
+        ),
+        "constraints": {"enum": ["Market", "R&D"]},
+    },
+    "model_tax_credit_case_nrelatb": {
+        "type": "string",
+        "description": (
+            "NREL's tax credit assumption cases. There are two types of tax credits: "
+            "production tax credit (PTC) and investment tax credit (ITC). For more detail, see: "
+            "https://atb.nrel.gov/electricity/2024/financial_cases_&_methods"
         ),
         "constraints": {"enum": ["Market", "R&D"]},
     },

@@ -304,7 +304,42 @@ spreadsheet tracking these errors, reload the ``epacems`` assets in Dagster.
 
 D. NREL ATB
 ^^^^^^^^^^^^
-**4.D.1)** Materialize the ``_core_nrelatb`` asset in Dagster.
+**4.D.1)** Materialize the ``_core_nrelatb__ transform_start`` asset in Dagster. If
+there are new primary keys or ``core_metric_parameters``, this should raise errors. New
+core parameters should be renamed in ``core_metric_parameters_rename``, and new primary
+keys should be renamed in ``rename_dict``. Debug any remaining errors.
+
+**4.D.2)** If there are any new primary columns (e.g.,
+``model_tax_credit_case_nrelatb``), add them to the ``idx`` of the table whose
+``core_metric_parameters`` they describe as a primary key. You may have to create a new
+table, as needed.
+
+**4.D.3)** If there are new ``core_metric_parameters`` (e.g., ``inflation_rate``),
+identify which table they should live in.
+
+* Are they reported by model case, reference year, projection year and technology
+  description? If so, add them to the ``rate_table`` dictionary in
+  :class:`pudl.transform.nrelatb.Unstacker`.
+* Are they further broken out by scenario, tax credit case, and cost recovery period?
+  Add them to the ``scenario_table``.
+* Are they even further broken out by ``technology_description_detail_1`` or
+  ``technology_description_detail_2``?
+
+How do you ascertain this? The use of asterisks (\*) denotes wildcard values.
+Generally when an asterisk is in one of the ``IDX_ALL`` columns, the corresponding
+``core_metric_parameter`` should be associated with a table without that column as one
+of its ``idx``.
+
+**4.D.4)** To test the prior two steps, add these fields to the schema as described in
+Step 5 below. Then, materialize the ``core_nrelatb`` assets. Any errors pointing to
+duplicated indices or primary keys will likely point to an error in one of the steps
+above. Continue to iterate and debug until assets generate successfully.
+
+**4.D.5)** Finally, if any fields were added that are descriptive categoricals (e.g.,
+``technology_description_1``, ``units``), add them to
+:class:`pudl.transform.nrelatb.Normalizer` to create small subset tables. As needed,
+create new tables in :mod:`pudl.metadata.resources.nrelatb` for these descriptors,
+following the example of ``core_nrelatb__yearly_technology_status``.
 
 5. Update the PUDL DB Schema
 ----------------------------

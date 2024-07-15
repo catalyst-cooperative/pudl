@@ -168,7 +168,6 @@ class Unstacker(BaseModel):
         idx=[
             "report_year",
             "model_case_nrelatb",
-            "model_tax_credit_case_nrelatb",
             "projection_year",
             "technology_description",
             "core_metric_parameter",
@@ -187,6 +186,7 @@ class Unstacker(BaseModel):
         idx=rate_table.idx
         + [
             "scenario_atb",
+            "model_tax_credit_case_nrelatb",
             "cost_recovery_period_years",
         ],
         core_metric_parameters=[
@@ -194,7 +194,6 @@ class Unstacker(BaseModel):
             "wacc_real",
             "wacc_nominal",
             "capital_recovery_factor",
-            "fuel_cost_per_mwh",
             "fixed_charge_rate",
         ],
     )
@@ -209,6 +208,7 @@ class Unstacker(BaseModel):
             "capacity_factor",
             "opex_fixed_per_kw",
             "levelized_cost_of_energy_per_mwh",
+            "fuel_cost_per_mwh",
             "opex_variable_per_mwh",
             # 2023 only core_metric_parameters
             "heat_rate_mmbtu_per_mwh",
@@ -347,6 +347,9 @@ def core_nrelatb__yearly_projected_financial_cases_by_scenario(
     Right now, this unstacks the table and applies :func:`broadcast_fixed_charge_rate_across_tech_detail`.
     """
     unstack_scenario = Unstacker().scenario_table
+
+    # To handle errors in unstack where both the N/A tax credit case and the ITC tax
+    # credit case have the same value, temporarily fill the NA here with none.
     df = (
         transform_unstack(_core_nrelatb__transform_start, unstack_scenario)
         .pipe(
@@ -532,10 +535,6 @@ def check_technology_specific_parameters(df):
             ],
         },
         {
-            "technology_descriptions": {"OffShoreWind"},
-            "params": ["capex_grid_connection_per_kw"],
-        },
-        {
             "technology_descriptions": {
                 "Biopower",
                 "Coal_FE",
@@ -548,9 +547,12 @@ def check_technology_specific_parameters(df):
         },
     ]
     for tech_specific_param in tech_specific_params:
-        assert tech_specific_param["technology_descriptions"] == set(
+        technology_descriptors = set(
             df[
                 df[tech_specific_param["params"]].notnull().all(axis=1)
             ].technology_description.unique()
         )
+        assert (
+            tech_specific_param["technology_descriptions"] == technology_descriptors
+        ), f"{tech_specific_param['technology_descriptions']} does not equal {technology_descriptors}"
     return AssetCheckResult(passed=True)
