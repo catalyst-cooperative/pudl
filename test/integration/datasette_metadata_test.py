@@ -69,9 +69,7 @@ def test_datasette_metadata_to_yml(ferc1_engine_xbrl, tmp_path):
             raise AssertionError(f"pudl.{tbl_name}.columns is None")
 
 
-def test_database_metadata(
-    pudl_engine: sa.Engine,
-):
+def test_database_metadata(pudl_engine: sa.Engine):
     """Test to make sure all of the tables in the databases have metadata."""
     xbrl_ids = [
         db_file.name.replace(".sqlite", "")
@@ -82,7 +80,6 @@ def test_database_metadata(
         xbrl_ids=xbrl_ids,
     ).to_yaml()
 
-    # TODO(
     databases = (
         ["pudl.sqlite"]
         + sorted(str(p.name) for p in PudlPaths().pudl_output.glob("ferc*.sqlite"))
