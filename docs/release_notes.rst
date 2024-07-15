@@ -28,10 +28,11 @@ EIA 860
   :pr:`3681`.
 
 FERC 714
+~~~~~~~~
 
 * Added :ref:`core_ferc714__yearly_planning_area_demand_forecast` based on FERC
-Form 714, Part III, Schedule 2b. Data includes forecasted demand and net energy load.
-See issue :issue:`3519` and PR :pr:`3670`.
+  Form 714, Part III, Schedule 2b. Data includes forecasted demand and net energy load.
+  See issue :issue:`3519` and PR :pr:`3670`.
 
 Data Cleaning
 ^^^^^^^^^^^^^
