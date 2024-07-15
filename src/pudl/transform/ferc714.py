@@ -580,6 +580,10 @@ def core_ferc714__yearly_planning_area_demand_forecast(
     logger.info(
         "Removing non-unique report rows and taking the average of non-equal metrics."
     )
+
+    # Grab the number of rows before duplicate cleanup
+    num_rows_before = len(df)
+
     df = (
         df.groupby(["respondent_id_ferc714", "report_year", "forecast_year"])[
             ["summer_peak_demand_mw", "winter_peak_demand_mw", "net_demand_mwh"]
@@ -587,6 +591,15 @@ def core_ferc714__yearly_planning_area_demand_forecast(
         .mean()
         .reset_index()
     )
+
+    # Capture the number of rows after grouping
+    num_rows_after = len(df)
+
+    # Add the number of duplicates removed as metadata
+    num_duplicates_removed = num_rows_before - num_rows_after
+    logger.info(f"Number of duplicate rows removed: {num_duplicates_removed}")
+    # Assert that number of removed rows meets expectation
+    assert (num_duplicates_removed == 20), f"Expected 20 duplicates removed, but found {num_duplicates_removed}"
 
     # Check all data types and columns to ensure consistency with defined schema
     df = _post_process(
@@ -632,7 +645,7 @@ check_specs = [
 def make_check(spec: Ferc714CheckSpec) -> AssetChecksDefinition:
     """Turn the Ferc714CheckSpec into an actual Dagster asset check."""
 
-    @asset_check(asset=spec.asset)
+    @asset_check(asset=spec.asset, blocking=True)
     def _check(df):
         errors = []
         for year, expected_rows in spec.num_rows_by_report_year.items():
@@ -640,6 +653,7 @@ def make_check(spec: Ferc714CheckSpec) -> AssetChecksDefinition:
                 errors.append(
                     f"Expected {expected_rows} for report year {year}, found {num_rows}"
                 )
+
         if errors:
             return AssetCheckResult(passed=False, metadata={"errors": errors})
 
