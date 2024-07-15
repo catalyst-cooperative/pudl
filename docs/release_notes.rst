@@ -27,6 +27,12 @@ EIA 860
   regarding energy storage and solar generators. See issue :issue:`3676` and PR
   :pr:`3681`.
 
+
+EIA 923
+~~~~~~~
+
+* Added EIA 923 early release data from 2023. See :issue:`3719` and PR :pr:`3721`.
+
 Data Cleaning
 ^^^^^^^^^^^^^
 * When ``generator_operating_date`` values are too inconsistent to be harvested
