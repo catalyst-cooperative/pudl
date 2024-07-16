@@ -296,7 +296,9 @@ def _core_nrelatb__transform_start(raw_nrelatb__data):
         .drop_duplicates(keep="first")
     )
     # In 2024, we see many records which are completely identical except for their core
-    # metric key, which we treat as a bad primary key. We should drop these duplicates.
+    # metric key, which we are not currently using as a primary key due to changing,
+    # unexpected and undocumented behaviors. We should drop these duplicates.
+    # See issues #3506 and #3576 for an exploration of this column.
     logger.info(
         f"Dropping {sum(nrelatb.duplicated(nrelatb.columns.difference(['core_metric_key']))):,} records where only difference is the core_metric_key."
     )

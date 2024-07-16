@@ -13,7 +13,8 @@ followed by a final release in the fall. Our ``data_maturity`` column indicates
 which version has been integrated into PUDL ("final" vs. "provisional"). This column
 also shows when data are derived from monthly updates ("monthly_update") or contain
 incomplete year-to-date data ("incremental_ytd"). Annual EIA data is updated
-first when early release data is published, and then again when final data is released.
+first when early release data is published (around June-July), and then again when
+final data is released (around September-October).
 
 FERC publishes form submissions on a rolling basis meaning there is no official
 date that the data are considered final or complete. To figure out when the data are
@@ -134,8 +135,8 @@ in :py:const:`pudl.extract.ferc714.TABLE_ENCODING` and that it may change over t
 C. NREL ATB
 ^^^^^^^^^^^
 Inspect the raw data. Following the instructions for EIA data described above, map
-the raw column headers are mapped to shared column names in the ``data.csv``
-spreadsheet located in ``src/pudl/package_data/nrelatb``.
+the raw column headers to shared column names in the ``data.csv`` spreadsheet located
+in ``src/pudl/package_data/nrelatb``.
 
 3. Test Data Extraction
 -----------------------
@@ -309,7 +310,7 @@ there are new primary keys or ``core_metric_parameters``, this should raise erro
 core parameters should be renamed in ``core_metric_parameters_rename``, and new primary
 keys should be renamed in ``rename_dict``. Debug any remaining errors.
 
-**4.D.2)** If there are any new primary columns (e.g.,
+**4.D.2)** If there are any new primary key columns (e.g.,
 ``model_tax_credit_case_nrelatb``), add them to the ``idx`` of the table whose
 ``core_metric_parameters`` they describe as a primary key. You may have to create a new
 table, as needed.
