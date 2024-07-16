@@ -14,9 +14,9 @@ logger = pudl.logging_helpers.get_logger(__name__)
     op_tags={"memory-use": "high"},
 )
 def core_eia860m__changelog_generators(
-    raw_eia860m__generator_proposed,
-    raw_eia860m__generator_existing,
-    raw_eia860m__generator_retired,
+    raw_eia860m__generator_proposed: pd.DataFrame,
+    raw_eia860m__generator_existing: pd.DataFrame,
+    raw_eia860m__generator_retired: pd.DataFrame,
 ) -> pd.DataFrame:
     """Changelog of EIA-860M Generators based on operating status.
 
@@ -120,7 +120,7 @@ def core_eia860m__changelog_generators(
     eia860m_all["report_date_max"] = eia860m_all.groupby(gen_idx_no_date)[
         "report_date"
     ].transform("max")
-    # drop duplicates after sorting by date so we get the first appreance
+    # drop duplicates after sorting by date so we get the first appearance
     eia860m_changelog = eia860m_all.sort_values(
         by=["report_date"], ascending=True
     ).drop_duplicates(
@@ -128,11 +128,17 @@ def core_eia860m__changelog_generators(
         keep="first",
     )
 
-    eia860m_changelog["valid_until_date"] = (
+    report_date_max_mask = (
+        eia860m_changelog["report_date"] == eia860m_changelog["report_date_max"]
+    )
+    eia860m_changelog.loc[~report_date_max_mask, "valid_until_date"] = (
         eia860m_changelog.sort_values(gens_idx, ascending=False)
         .groupby(gen_idx_no_date)["report_date"]
         .transform("shift")
         .fillna(eia860m_changelog.report_date_max)
-        .where(eia860m_changelog["report_date"] != eia860m_changelog["report_date_max"])
+    )
+    # for all of the last month records, use the next month as the valid until date
+    eia860m_changelog.loc[report_date_max_mask, "valid_until_date"] = (
+        eia860m_changelog.report_date + pd.DateOffset(months=1)
     )
     return eia860m_changelog
