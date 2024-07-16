@@ -1,8 +1,8 @@
 """Add tax credit cases into ATB tables, move fuel cost to tech detail table
 
-Revision ID: 5ae753e245a1
+Revision ID: 2c52a938f5cc
 Revises: b9b6cb1a5405
-Create Date: 2024-07-16 13:40:09.347752
+Create Date: 2024-07-16 14:14:08.089062
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '5ae753e245a1'
+revision = '2c52a938f5cc'
 down_revision = 'b9b6cb1a5405'
 branch_labels = None
 depends_on = None

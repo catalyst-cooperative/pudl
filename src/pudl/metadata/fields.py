@@ -4706,7 +4706,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "is_technology_mature": {
         "type": "boolean",
-        "description": "Indicator of whether the technology is mature.",
+        "description": (
+            "Indicator of whether the technology is mature. Technologies are defined"
+            "as mature if a representative plant is operating or under construction"
+            "in the United States in the Base Year."
+        ),
     },
     "inflation_rate": {
         "type": "number",
