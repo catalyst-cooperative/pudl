@@ -351,7 +351,7 @@ datasets:
         2022,
       ]
   nrelatb:
-    years: [2021, 2022, 2023]
+    years: [2021, 2022, 2023, 2024]
   gridpathratoolkit:
     technology_types: ["wind", "solar"]
     processing_levels: ["extended"]
