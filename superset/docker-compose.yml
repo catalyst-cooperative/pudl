@@ -9,8 +9,23 @@ services:
       AUTH0_CLIENT_SECRET: ${AUTH0_CLIENT_SECRET}
       AUTH0_DOMAIN: ${AUTH0_DOMAIN}
       SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY}
+      SUPERSET_DB_HOST: ${SUPERSET_DB_HOST}
+      SUPERSET_DB_PORT: ${SUPERSET_DB_PORT}
+      SUPERSET_DB_USER: ${SUPERSET_DB_USER}
+      SUPERSET_DB_PASS: ${SUPERSET_DB_PASS}
+      SUPERSET_DB_NAME: ${SUPERSET_DB_NAME}
     ports:
       - "8080:8088"
     volumes:
       - ./duck.db:/app/duck.db
       - ./roles.json:/app/roles.json
+    depends_on:
+      - postgres
+  postgres:
+    image: postgis/postgis:13-3.1-alpine
+    environment:
+      POSTGRES_DB: superset
+      POSTGRES_USER: superset
+      POSTGRES_PASSWORD: superset
+    ports:
+      - 8081:5432

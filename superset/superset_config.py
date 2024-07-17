@@ -2,15 +2,16 @@
 
 import os
 
+import sqlalchemy as sa
 from flask_appbuilder.security.manager import (
     AUTH_OAUTH,
 )
 
 AUTH_TYPE = AUTH_OAUTH
 
-AUTH0_CLIENT_ID = os.getenv("AUTH0_CLIENT_ID")
-AUTH0_CLIENT_SECRET = os.getenv("AUTH0_CLIENT_SECRET")
-AUTH0_DOMAIN = os.getenv("AUTH0_DOMAIN")
+AUTH0_CLIENT_ID = os.environ["AUTH0_CLIENT_ID"]
+AUTH0_CLIENT_SECRET = os.environ["AUTH0_CLIENT_SECRET"]
+AUTH0_DOMAIN = os.environ["AUTH0_DOMAIN"]
 
 OAUTH_PROVIDERS = [
     {
@@ -28,3 +29,41 @@ OAUTH_PROVIDERS = [
 
 AUTH_USER_REGISTRATION = True
 AUTH_USER_REGISTRATION_ROLE = "Gamma"
+
+
+def get_db_connection_string() -> str:
+    """Get the database connection string."""
+    drivername = "postgresql+pg8000"
+    host = os.environ.get("SUPERSET_DB_HOST")
+    port = os.environ.get("SUPERSET_DB_PORT")
+    username = os.environ["SUPERSET_DB_USER"]
+    password = os.environ["SUPERSET_DB_PASS"]
+    database = os.environ["SUPERSET_DB_NAME"]
+
+    is_cloud_run = os.environ.get("IS_CLOUD_RUN", False)
+
+    if is_cloud_run:
+        cloud_sql_connection_name = os.environ.get("CLOUD_SQL_CONNECTION_NAME")
+        # return str(
+        #     sa.engine.url.URL.create(
+        #         drivername=drivername,
+        #         username=username,
+        #         password=password,
+        #         database=database,
+        #         query={"unix_sock": f"/cloudsql/{cloud_sql_connection_name}/.s.PGSQL.5432"}
+        #     ),
+        # )
+        return f"postgresql+psycopg2://{username}:{password}@/{database}?host=/cloudsql/{cloud_sql_connection_name}"
+    return str(
+        sa.engine.url.URL.create(
+            drivername=drivername,
+            host=host,
+            port=port,
+            username=username,
+            password=password,
+            database=database,
+        )
+    )
+
+
+SQLALCHEMY_DATABASE_URI = get_db_connection_string()

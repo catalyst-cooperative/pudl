@@ -152,6 +152,7 @@ dev = [
     "ruff-lsp",
     "jupyter-resource-usage",
     "pygraphviz",
+    "terraform>=1.9.2"
 ]
 
 [tool.setuptools]
