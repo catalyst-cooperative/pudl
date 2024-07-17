@@ -33,6 +33,15 @@ EIA 923
 
 * Added EIA 923 early release data from 2023. See :issue:`3719` and PR :pr:`3721`.
 
+NREL ATB
+~~~~~~~~
+
+* Added 2024 NREL ATB data. This includes adding a new tax credit case,
+  ``model_tax_credit_case_nrelatb``, a breakout of ``capex_grid_connection_per_kw`` for
+  all technologies, and more detailed nuclear breakdowns of ``fuel_cost_per_mwh``.
+  Simultaneously, updated the :mod:`docs.dev.existing_data_updates` documentation to
+  make it easier to add future years of data. See :issue:`3706` and :pr:`3719`.
+
 Data Cleaning
 ^^^^^^^^^^^^^
 * When ``generator_operating_date`` values are too inconsistent to be harvested
