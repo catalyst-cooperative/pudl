@@ -92,7 +92,7 @@ datasets:
   phmsagas:
     years: [2022]
   nrelatb:
-    years: [2023]
+    years: [2024]
   gridpathratoolkit:
     technology_types: ["wind"]
     processing_levels: ["extended"]
