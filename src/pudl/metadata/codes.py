@@ -1683,8 +1683,9 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         ).convert_dtypes(),
         "code_fixes": {
             "ic": "IC",
+            # There is literally one 'ic' from 2002.
             "WY": "WT",
-        },  # there is literally one 'ic' from 2002.
+        },  # The WY shows up once in plant_id_eia 65738 in 2023. Other years are WT.
         "ignored_codes": [],
     },
     "core_eia__codes_sector_consolidated": {
