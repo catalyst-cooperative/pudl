@@ -11,12 +11,22 @@ New Data Coverage
 
 FERC Form 1
 ~~~~~~~~~~~
+* Integrated FERC Form 1 data from 2023 into the main PUDL SQLite DB. See issue
+  :issue:`3700` and PR :pr:`3701`. This required updating to a new version of the
+  ``catalystcoop.ferc_xbrl_extractor`` package because there are now multiple XBRL
+  taxonomies in use by FERC in different years, or even within the same year. See `this
+  PR <https://github.com/catalyst-cooperative/ferc-xbrl-extractor/pull/242>`__ for more
+  details, as well as issue :issue:`3544` and PR :pr:`3710`.
 
-* Added FERC Form 1 data from 2023. See issue :issue:`3700` and PR :pr:`3701`.
+FERC Forms 2, 6, 60, & 714
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+* Updated the ``ferc_to_sqlite`` settings to extract 2023 XBRL data for FERC Forms 2, 6
+  60, and 714 and add them to their respective SQLite databases. Note that this data
+  is not yet being processed beyond the conversion from XBRL to SQLite. See PR
+  :pr:`3710`
 
 EIA AEO
 ~~~~~~~
-
 * Added new tables from EIA AEO table 54:
 
   * :ref:`core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type`
@@ -26,7 +36,6 @@ EIA AEO
 
 EIA 860
 ~~~~~~~
-
 * Added EIA 860 early release data from 2023. This included adding a new tab with
   proposed energy storage generators as well as adding a number of new columns
   regarding energy storage and solar generators. See issue :issue:`3676` and PR
@@ -34,7 +43,6 @@ EIA 860
 
 NREL ATB
 ~~~~~~~~
-
 * Added 2024 NREL ATB data. This includes adding a new tax credit case,
   ``model_tax_credit_case_nrelatb``, a breakout of ``capex_grid_connection_per_kw`` for
   all technologies, and more detailed nuclear breakdowns of ``fuel_cost_per_mwh``.
@@ -49,12 +57,21 @@ Data Cleaning
 
 Bug Fixes
 ^^^^^^^^^
-
 * Disabled filling of missing values using rolling averages for the
   ``fuel_cost_per_mmbtu`` column in the :ref:`out_eia923__fuel_receipts_costs` table, as
   it was resulting in some anomlously high fuel prices. See :pr:`3716`. This results in
   about 2% more records in the table being left ``NA`` after filling with the average
   prices for that fuel type for the state and month found in the bulk EIA API data.
+
+Qualtiy of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+* The full ETL settings are now read directly from ``etl_full.yml`` instead of using
+  default values defined in the settings classes.  This also results in the settings
+  showing up in the Dagster UI Launchpad, which previously they didn't, leading to
+  confusion when trying to re-run the FERC to SQLite conversions. See :pr:`3710`.
+* ``mlflow`` experiment tracking has been disabled by default when running the DAG,
+  since it is only really helpful during development of new record linkage or other ML
+  workflows. See :pr:`3710`.
 
 .. _release-v2024.5.0:
 
