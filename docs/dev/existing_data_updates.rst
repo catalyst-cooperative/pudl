@@ -12,13 +12,17 @@ EIA typically publishes an "early release" version of their annual data in the s
 followed by a final release in the fall. Our ``data_maturity`` column indicates
 which version has been integrated into PUDL ("final" vs. "provisional"). This column
 also shows when data are derived from monthly updates ("monthly_update") or contain
-incomplete year-to-date data ("incremental_ytd").
+incomplete year-to-date data ("incremental_ytd"). Annual EIA data is updated
+first when early release data is published (around June-July), and then again when
+final data is released (around September-October).
 
 FERC publishes form submissions on a rolling basis meaning there is no official
 date that the data are considered final or complete. To figure out when the data are
 likely complete, we compare the number of respondents from prior years to the number of
 current respondents. We usually update FERC once a year around when we integrate EIA's
 final release in the fall.
+
+Finally, we currently update NREL ATB, the EIA-EPA crosswalk, and PHMSA once a year.
 
 To see what data we have available for each dataset, click on the links below and look
 at the "Years Liberated" field.
@@ -128,6 +132,12 @@ ZIP archive.
 ``iso-8859-1`` (Latin) rather than ``utf-8`` (Unicode). Note the per-file encoding
 in :py:const:`pudl.extract.ferc714.TABLE_ENCODING` and that it may change over time.
 
+C. NREL ATB
+^^^^^^^^^^^
+Inspect the raw data. Following the instructions for EIA data described above, map
+the raw column headers to shared column names in the ``data.csv`` spreadsheet located
+in ``src/pudl/package_data/nrelatb``.
+
 3. Test Data Extraction
 -----------------------
 
@@ -168,6 +178,11 @@ C. EPA CEMS
 **3.C.1)** The CEMS data are so large that it doesn't make sense to store a raw and
 cleaned version of the data in the database. We'll test the extraction and
 transformation steps together in the next section.
+
+D. NREL ATB
+^^^^^^^^^^^^
+**3.D.1)** Materialize the raw assets (``raw_nrelatb``) in Dagster. If any errors occur,
+revisit the column mapping spreadsheets and check for any errors.
 
 4. Update Table & Column Transformations
 ----------------------------------------
@@ -287,6 +302,45 @@ C. EPA CEMS
 common errors will occur when new CEMS plants lack timezone data in the EIA database.
 See section 6.B.1 for instructions on how to fix this. Once you've updated the
 spreadsheet tracking these errors, reload the ``epacems`` assets in Dagster.
+
+D. NREL ATB
+^^^^^^^^^^^^
+**4.D.1)** Materialize the ``_core_nrelatb__ transform_start`` asset in Dagster. If
+there are new primary keys or ``core_metric_parameters``, this should raise errors. New
+core parameters should be renamed in ``core_metric_parameters_rename``, and new primary
+keys should be renamed in ``rename_dict``. Debug any remaining errors.
+
+**4.D.2)** If there are any new primary key columns (e.g.,
+``model_tax_credit_case_nrelatb``), add them to the ``idx`` of the table whose
+``core_metric_parameters`` they describe as a primary key. You may have to create a new
+table, as needed.
+
+**4.D.3)** If there are new ``core_metric_parameters`` (e.g., ``inflation_rate``),
+identify which table they should live in.
+
+* Are they reported by model case, reference year, projection year and technology
+  description? If so, add them to the ``rate_table`` dictionary in
+  :class:`pudl.transform.nrelatb.Unstacker`.
+* Are they further broken out by scenario, tax credit case, and cost recovery period?
+  Add them to the ``scenario_table``.
+* Are they even further broken out by ``technology_description_detail_1`` or
+  ``technology_description_detail_2``?
+
+How do you ascertain this? The use of asterisks (\*) denotes wildcard values.
+Generally when an asterisk is in one of the ``IDX_ALL`` columns, the corresponding
+``core_metric_parameter`` should be associated with a table without that column as one
+of its ``idx``.
+
+**4.D.4)** To test the prior two steps, add these fields to the schema as described in
+Step 5 below. Then, materialize the ``core_nrelatb`` assets. Any errors pointing to
+duplicated indices or primary keys will likely point to an error in one of the steps
+above. Continue to iterate and debug until assets generate successfully.
+
+**4.D.5)** Finally, if any fields were added that are descriptive categoricals (e.g.,
+``technology_description_1``, ``units``), add them to
+:class:`pudl.transform.nrelatb.Normalizer` to create small subset tables. As needed,
+create new tables in :mod:`pudl.metadata.resources.nrelatb` for these descriptors,
+following the example of ``core_nrelatb__yearly_technology_status``.
 
 5. Update the PUDL DB Schema
 ----------------------------
