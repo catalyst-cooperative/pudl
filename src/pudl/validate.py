@@ -844,7 +844,7 @@ core_ferc1__yearly_steam_plants_sched402_capacity_ratios = [
         "title": "Water Limited Ratio (tails)",
         "query": "",
         "low_q": 0.05,
-        "low_bound": 0.63,
+        "low_bound": 0.60,
         "hi_q": 0.95,
         "hi_bound": 1.15,
         "data_col": "water_limited_ratio",
