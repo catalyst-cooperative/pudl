@@ -2,7 +2,6 @@
 
 import io
 from collections.abc import Callable
-from datetime import date
 from pathlib import Path
 
 from dagster import op
@@ -24,19 +23,14 @@ class FercXbrlDatastore:
         """Instantiate datastore wrapper for ferc1 resources."""
         self.datastore = datastore
 
-    def get_taxonomy(self, year: int, form: XbrlFormNumber) -> tuple[io.BytesIO, str]:
+    def get_taxonomy(self, form: XbrlFormNumber) -> tuple[io.BytesIO, str]:
         """Returns the path to the taxonomy entry point within the an archive."""
-        taxonomy_dates = {2021: date(2022, 1, 1), 2022: date(2022, 1, 1)}
-        taxonomy_date = taxonomy_dates[year]
         raw_archive = self.datastore.get_unique_resource(
             f"ferc{form.value}",
-            year=taxonomy_date.year,
             data_format="xbrl_taxonomy",
         )
 
-        taxonomy_entry_point = f"taxonomy/form{form.value}/{taxonomy_date}/form/form{form.value}/form-{form.value}_{taxonomy_date.isoformat()}.xsd"
-
-        return io.BytesIO(raw_archive), taxonomy_entry_point
+        return io.BytesIO(raw_archive)
 
     def get_filings(self, year: int, form: XbrlFormNumber) -> io.BytesIO:
         """Return the corresponding archive full of XBRL filings."""
@@ -116,23 +110,24 @@ def convert_form(
     """
     datapackage_path = str(output_path / f"ferc{form.value}_xbrl_datapackage.json")
     metadata_path = str(output_path / f"ferc{form.value}_xbrl_taxonomy_metadata.json")
+
+    taxonomy_archive = datastore.get_taxonomy(form)
     # Process XBRL filings for each year requested
-    for year in form_settings.years:
-        taxonomy_archive, taxonomy_entry_point = datastore.get_taxonomy(year, form)
-        filings_archive = datastore.get_filings(year, form)
-        # if we set clobber=True, clobbers on *every* call to run_main;
-        # we already delete the existing base on `clobber=True` in `xbrl2sqlite`
-        run_main(
-            instance_path=filings_archive,
-            sql_path=sql_path,
-            clobber=False,
-            taxonomy=taxonomy_archive,
-            entry_point=taxonomy_entry_point,
-            form_number=form.value,
-            metadata_path=metadata_path,
-            datapackage_path=datapackage_path,
-            workers=workers,
-            batch_size=batch_size,
-            loglevel="INFO",
-            logfile=None,
-        )
+    filings_archives = [
+        datastore.get_filings(year, form) for year in form_settings.years
+    ]
+    # if we set clobber=True, clobbers on *every* call to run_main;
+    # we already delete the existing base on `clobber=True` in `xbrl2sqlite`
+    run_main(
+        filings=filings_archives,
+        db_path=sql_path,
+        clobber=False,
+        taxonomy=taxonomy_archive,
+        form_number=form.value,
+        metadata_path=metadata_path,
+        datapackage_path=datapackage_path,
+        workers=workers,
+        batch_size=batch_size,
+        loglevel="INFO",
+        logfile=None,
+    )
