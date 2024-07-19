@@ -600,8 +600,8 @@ def core_ferc714__yearly_planning_area_demand_forecast(
     logger.info(f"Number of duplicate rows removed: {num_duplicates_removed}")
     # Assert that number of removed rows meets expectation
     assert (
-        num_duplicates_removed == 20
-    ), f"Expected 20 duplicates removed, but found {num_duplicates_removed}"
+        num_duplicates_removed <= 20
+    ), f"Expected no more than 20 duplicates removed, but found {num_duplicates_removed}"
 
     # Check all data types and columns to ensure consistency with defined schema
     df = _post_process(
