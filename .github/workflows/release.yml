@@ -5,6 +5,8 @@ on: push
 
 jobs:
   build-distribution:
+    name: Build catalystcoop.pudl distribution for PyPI
+    if: github.repository == ‘catalyst-cooperative/pudl’
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
