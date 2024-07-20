@@ -359,7 +359,6 @@ def _standardize_offset_codes(df: pd.DataFrame, offset_fixes) -> pd.DataFrame:
 
     Args:
         df: DataFrame containing a utc_offset_code column that needs to be standardized.
-
         offset_fixes: A dictionary with respondent_id_ferc714 values as the keys, and a
             dictionary mapping non-standard UTC offset codes to the standardized UTC
             offset codes as the value.
