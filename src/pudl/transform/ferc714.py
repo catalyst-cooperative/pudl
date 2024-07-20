@@ -624,7 +624,7 @@ check_specs = [
         name="yearly_planning_area_demand_forecast_check_spec",
         asset="core_ferc714__yearly_planning_area_demand_forecast",
         num_rows_by_report_year={
-            2006: 1829,
+            2006: 1819,
             2007: 1570,
             2008: 1540,
             2009: 1269,
