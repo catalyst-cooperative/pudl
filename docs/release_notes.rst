@@ -41,6 +41,13 @@ EIA 860
   regarding energy storage and solar generators. See issue :issue:`3676` and PR
   :pr:`3681`.
 
+FERC 714
+~~~~~~~~
+
+* Added :ref:`core_ferc714__yearly_planning_area_demand_forecast` based on FERC
+  Form 714, Part III, Schedule 2b. Data includes forecasted demand and net energy load.
+  See issue :issue:`3519` and PR :pr:`3670`.
+
 NREL ATB
 ~~~~~~~~
 * Added 2024 NREL ATB data. This includes adding a new tax credit case,

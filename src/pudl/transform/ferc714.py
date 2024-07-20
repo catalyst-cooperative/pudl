@@ -1,10 +1,11 @@
 """Transformation of the FERC Form 714 data."""
 
 import re
+from dataclasses import dataclass
 
 import numpy as np
 import pandas as pd
-from dagster import asset
+from dagster import AssetCheckResult, AssetChecksDefinition, asset, asset_check
 
 import pudl.logging_helpers
 from pudl.metadata import PUDL_PACKAGE
@@ -284,6 +285,14 @@ RENAME_COLS = {
         "report_yr": "report_year",
         "respondent_id": "respondent_id_ferc714",
     },
+    "core_ferc714__yearly_planning_area_demand_forecast": {
+        "respondent_id": "respondent_id_ferc714",
+        "report_yr": "report_year",
+        "plan_year": "forecast_year",
+        "summer_forecast": "summer_peak_demand_mw",
+        "winter_forecast": "winter_peak_demand_mw",
+        "net_energy_forecast": "net_demand_mwh",
+    },
 }
 
 
@@ -533,3 +542,126 @@ def out_ferc714__hourly_planning_area_demand(
         df[columns], table_name="out_ferc714__hourly_planning_area_demand"
     )
     return df
+
+
+@asset(
+    io_manager_key="pudl_io_manager",
+    compute_kind="pandas",
+)
+def core_ferc714__yearly_planning_area_demand_forecast(
+    raw_ferc714__yearly_planning_area_demand_forecast: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the yearly planning area forecast data per Planning Area.
+
+    Transformations include:
+
+    - Drop/rename columns.
+    - Remove duplicate rows and average out the metrics.
+
+    Args:
+        raw_ferc714__yearly_planning_area_demand_forecast: Raw table containing,
+            for each year and each planning area, the forecasted summer and winter peak demand,
+            in megawatts, and annual net energy for load, in megawatthours, for the next
+            ten years.
+
+    Returns:
+        Clean(er) version of the yearly forecasted demand by Planning Area.
+    """
+    # Clean up columns
+    df = _pre_process(
+        raw_ferc714__yearly_planning_area_demand_forecast,
+        table_name="core_ferc714__yearly_planning_area_demand_forecast",
+    )
+
+    # For any rows with non-unique respondent_id_ferc714/report_year/forecast_year,
+    # group and take the mean measures
+    # For the 2006-2020 data, there were only 20 such rows. In most cases, demand metrics were identical.
+    # But for some, demand metrics were different - thus the need to take the average.
+    logger.info(
+        "Removing non-unique report rows and taking the average of non-equal metrics."
+    )
+
+    # Grab the number of rows before duplicate cleanup
+    num_rows_before = len(df)
+
+    df = (
+        df.groupby(["respondent_id_ferc714", "report_year", "forecast_year"])[
+            ["summer_peak_demand_mw", "winter_peak_demand_mw", "net_demand_mwh"]
+        ]
+        .mean()
+        .reset_index()
+    )
+
+    # Capture the number of rows after grouping
+    num_rows_after = len(df)
+
+    # Add the number of duplicates removed as metadata
+    num_duplicates_removed = num_rows_before - num_rows_after
+    logger.info(f"Number of duplicate rows removed: {num_duplicates_removed}")
+    # Assert that number of removed rows meets expectation
+    assert (
+        num_duplicates_removed <= 20
+    ), f"Expected no more than 20 duplicates removed, but found {num_duplicates_removed}"
+
+    # Check all data types and columns to ensure consistency with defined schema
+    df = _post_process(
+        df, table_name="core_ferc714__yearly_planning_area_demand_forecast"
+    )
+    return df
+
+
+@dataclass
+class Ferc714CheckSpec:
+    """Define some simple checks that can run on FERC 714 assets."""
+
+    name: str
+    asset: str
+    num_rows_by_report_year: dict[int, int]
+
+
+check_specs = [
+    Ferc714CheckSpec(
+        name="yearly_planning_area_demand_forecast_check_spec",
+        asset="core_ferc714__yearly_planning_area_demand_forecast",
+        num_rows_by_report_year={
+            2006: 1829,
+            2007: 1570,
+            2008: 1540,
+            2009: 1269,
+            2010: 1259,
+            2011: 1210,
+            2012: 1210,
+            2013: 1192,
+            2014: 1000,
+            2015: 990,
+            2016: 990,
+            2017: 980,
+            2018: 961,
+            2019: 950,
+            2020: 950,
+        },
+    )
+]
+
+
+def make_check(spec: Ferc714CheckSpec) -> AssetChecksDefinition:
+    """Turn the Ferc714CheckSpec into an actual Dagster asset check."""
+
+    @asset_check(asset=spec.asset, blocking=True)
+    def _check(df):
+        errors = []
+        for year, expected_rows in spec.num_rows_by_report_year.items():
+            if (num_rows := len(df.loc[df.report_year == year])) != expected_rows:
+                errors.append(
+                    f"Expected {expected_rows} for report year {year}, found {num_rows}"
+                )
+
+        if errors:
+            return AssetCheckResult(passed=False, metadata={"errors": errors})
+
+        return AssetCheckResult(passed=True)
+
+    return _check
+
+
+_checks = [make_check(spec) for spec in check_specs]
