@@ -1738,7 +1738,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "fuel_type_code_aer": {
         "type": "string",
-        "description": "A partial aggregation of the reported fuel type codes into larger categories used by EIA in, for example, the Annual Energy Review (AER). Two or three letter alphanumeric.",
+        "description": (
+            "A partial aggregation of the reported fuel type codes into larger "
+            "categories used by EIA in, for example, the Annual Energy Review (AER) or "
+            "Monthly Energy Review (MER). Two or three letter alphanumeric."
+        ),
     },
     "fuel_type_code_pudl": {
         "type": "string",

@@ -563,7 +563,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eia",
     },
     "core_eia__codes_fuel_types_aer": {
-        "description": "Descriptive labels for aggregated fuel types used in the Annual Energy Review. See EIA-923 Fuel Code table for additional information.",
+        "description": "Descriptive labels for aggregated fuel types used in the Annual Energy Review or Monthly Energy Review. See EIA-923 Fuel Code table for additional information.",
         "schema": {
             "fields": ["code", "description"],
             "primary_key": ["code"],
