@@ -159,6 +159,7 @@ OFFSET_CODE_FIXES_BY_YEAR = [
 ]
 
 BAD_RESPONDENTS = [
+    2,
     319,
     99991,
     99992,
@@ -357,11 +358,10 @@ def _standardize_offset_codes(df: pd.DataFrame, offset_fixes) -> pd.DataFrame:
     as defined by offset_fixes.
 
     Args:
-        df (pandas.DataFrame): A DataFrame containing a utc_offset_code column
-            that needs to be standardized.
-        offset_fixes (dict): A dictionary with respondent_id_ferc714 values as the
-            keys, and a dictionary mapping non-standard UTC offset codes to
-            the standardized UTC offset codes as the value.
+        df: DataFrame containing a utc_offset_code column that needs to be standardized.
+        offset_fixes: A dictionary with respondent_id_ferc714 values as the keys, and a
+            dictionary mapping non-standard UTC offset codes to the standardized UTC
+            offset codes as the value.
 
     Returns:
         Standardized UTC offset codes.
