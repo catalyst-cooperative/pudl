@@ -1555,7 +1555,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
         },
         "ignored_codes": ["UN"],
     },
-    "core_eia__codes_fuel_types_aer": {
+    "core_eia__codes_fuel_types_agg": {
         "df": pd.DataFrame(
             columns=["code", "description"],
             data=[
