@@ -1736,7 +1736,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": ("Fuel type reported for AEO end-use sector generation data."),
         "constraints": {"enum": FUEL_TYPES_EIAAEO},
     },
-    "fuel_type_code_aer": {
+    "fuel_type_code_agg": {
         "type": "string",
         "description": (
             "A partial aggregation of the reported fuel type codes into larger "

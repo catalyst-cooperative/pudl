@@ -1372,7 +1372,7 @@ intentionally.
 gf_eia923_oil_heat_content = [
     {
         "title": "Diesel Fuel Oil heat content (tails)",
-        "query": "fuel_type_code_aer=='DFO'",
+        "query": "fuel_type_code_agg=='DFO'",
         "low_q": 0.05,
         "low_bound": 5.5,
         "hi_q": 0.95,
@@ -1382,7 +1382,7 @@ gf_eia923_oil_heat_content = [
     },
     {
         "title": "Diesel Fuel Oil heat content (middle)",
-        "query": "fuel_type_code_aer=='DFO'",
+        "query": "fuel_type_code_agg=='DFO'",
         "low_q": 0.50,
         "low_bound": 5.75,
         "hi_q": 0.50,

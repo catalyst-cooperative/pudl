@@ -567,7 +567,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": ["code", "description"],
             "primary_key": ["code"],
-            "foreign_key_rules": {"fields": [["fuel_type_code_aer"]]},
+            "foreign_key_rules": {"fields": [["fuel_type_code_agg"]]},
         },
         "encoder": CODE_METADATA["core_eia__codes_fuel_types_aer"],
         "sources": ["eia923"],
