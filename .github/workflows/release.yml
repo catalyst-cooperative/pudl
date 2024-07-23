@@ -7,7 +7,7 @@ jobs:
   build-distribution:
     name: Build catalystcoop.pudl distribution for PyPI
     runs-on: ubuntu-latest
-    if: github.event.repository.fork == false
+    if: github.repository == ‘catalyst-cooperative/pudl’
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
