@@ -183,7 +183,7 @@ resource "google_cloud_run_v2_service" "default" {
         value_source {
           secret_key_ref {
             secret = "superset-auth0-client-secret"
-            version = "1"
+            version = "2"
           }
         }
       }
@@ -349,4 +349,16 @@ resource "google_secret_manager_secret_iam_member" "superset_auth0_domain_comput
   secret_id = google_secret_manager_secret.superset_auth0_domain.id
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:345950277072-compute@developer.gserviceaccount.com"
+}
+
+resource "google_storage_bucket" "superset_storage" {
+  name          = "superset.catalyst.coop"
+  location      = "US"
+  storage_class = "STANDARD"
+}
+
+resource "google_storage_bucket_iam_member" "superset_storage_compute_iam" {
+  bucket = google_storage_bucket.superset_storage.name
+  role = "roles/storage.objectViewer"
+  member = "serviceAccount:345950277072-compute@developer.gserviceaccount.com"
 }

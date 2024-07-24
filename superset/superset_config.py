@@ -28,7 +28,7 @@ OAUTH_PROVIDERS = [
 ]
 
 AUTH_USER_REGISTRATION = True
-AUTH_USER_REGISTRATION_ROLE = "Gamma"
+AUTH_USER_REGISTRATION_ROLE = "GammaSQLLab"
 
 
 def get_db_connection_string() -> str:
