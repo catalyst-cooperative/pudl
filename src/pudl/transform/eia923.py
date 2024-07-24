@@ -194,7 +194,7 @@ def _backfill_prime_mover_code(gen_fuel: pd.DataFrame) -> pd.DataFrame:
         gen_fuel.energy_source_code.eq("WAT") & gen_fuel.prime_mover_code.isna()
     )
     gen_fuel.loc[missing_hydro, "prime_mover_code"] = gen_fuel.loc[
-        missing_hydro, "fuel_type_code_aer"
+        missing_hydro, "fuel_type_code_agg"
     ].map(hydro_map)
 
     # Assign the rest to UNK
@@ -208,25 +208,25 @@ def _backfill_prime_mover_code(gen_fuel: pd.DataFrame) -> pd.DataFrame:
 
 
 def _get_most_frequent_energy_source_map(gen_fuel: pd.DataFrame) -> dict[str, str]:
-    """Get the a mapping of the most common energy_source for each fuel_type_code_aer.
+    """Get the a mapping of the most common energy_source for each fuel_type_code_agg.
 
     Args:
         gen_fuel: generation_fuel dataframe.
 
     Returns:
-        energy_source_map: mapping of fuel_type_code_aer to energy_source_code.
+        energy_source_map: mapping of fuel_type_code_agg to energy_source_code.
     """
     energy_source_counts = gen_fuel.groupby(
-        ["fuel_type_code_aer", "energy_source_code"]
+        ["fuel_type_code_agg", "energy_source_code"]
     ).plant_id_eia.count()
     energy_source_counts = energy_source_counts.reset_index().sort_values(
         by="plant_id_eia", ascending=False
     )
 
     energy_source_map = (
-        energy_source_counts.groupby(["fuel_type_code_aer"])
+        energy_source_counts.groupby(["fuel_type_code_agg"])
         .first()
-        .reset_index()[["fuel_type_code_aer", "energy_source_code"]]
+        .reset_index()[["fuel_type_code_agg", "energy_source_code"]]
     )
     return dict(energy_source_map.values)
 
@@ -256,7 +256,7 @@ def _clean_gen_fuel_energy_sources(gen_fuel: pd.DataFrame) -> pd.DataFrame:
     # impose the more recent categorization on the older EIA fuel types.
     msw_fuels = gen_fuel.energy_source_code.eq("MSW")
     gen_fuel.loc[msw_fuels, "energy_source_code"] = gen_fuel.loc[
-        msw_fuels, "fuel_type_code_aer"
+        msw_fuels, "fuel_type_code_agg"
     ].map(
         {
             "OTH": "MSN",  # non-biogenic municipal waste
@@ -274,12 +274,12 @@ def _clean_gen_fuel_energy_sources(gen_fuel: pd.DataFrame) -> pd.DataFrame:
     assert gen_fuel.energy_source_code.ne("MSW").all()
 
     # Fill in any missing fuel_types with the most common fuel type of each
-    # fuel_type_code_aer.
+    # fuel_type_code_agg.
     missing_energy_source = gen_fuel.energy_source_code.isna()
     frequent_energy_source_map = _get_most_frequent_energy_source_map(gen_fuel)
 
     gen_fuel.loc[missing_energy_source, "energy_source_code"] = gen_fuel.loc[
-        missing_energy_source, "fuel_type_code_aer"
+        missing_energy_source, "fuel_type_code_agg"
     ].map(frequent_energy_source_map)
     if gen_fuel.energy_source_code.isna().any():
         raise AssertionError("Missing data in generator_fuel_eia923.energy_source_code")
@@ -316,11 +316,11 @@ def _aggregate_generation_fuel_duplicates(
     is_duplicate = gen_fuel.duplicated(subset=natural_key_fields, keep=False)
 
     duplicates = gen_fuel[is_duplicate].copy()
-    fuel_type_code_aer_is_unique = (
-        duplicates.groupby(natural_key_fields).fuel_type_code_aer.nunique().eq(1).all()
+    fuel_type_code_agg_is_unique = (
+        duplicates.groupby(natural_key_fields).fuel_type_code_agg.nunique().eq(1).all()
     )
-    if not fuel_type_code_aer_is_unique:
-        raise AssertionError("Duplicate fuels have different fuel_type_code_aer.")
+    if not fuel_type_code_agg_is_unique:
+        raise AssertionError("Duplicate fuels have different fuel_type_code_agg.")
     data_maturity_is_unique = (
         duplicates.groupby(natural_key_fields).data_maturity.nunique().eq(1).all()
     )
@@ -334,11 +334,11 @@ def _aggregate_generation_fuel_duplicates(
         "fuel_consumed_for_electricity_mmbtu": "sum",
         "net_generation_mwh": "sum",
         # We can safely select the first values here because we know they are unique
-        # within each group of duplicates. We check explicitly for fuel_type_code_aer
-        # and data_maturity above, and fuel_type_code_pudl maps to fuel_type_code_aer
-        # such that if fuel_type_code_aer is unique, fuel_type_code_pudl must also
+        # within each group of duplicates. We check explicitly for fuel_type_code_agg
+        # and data_maturity above, and fuel_type_code_pudl maps to fuel_type_code_agg
+        # such that if fuel_type_code_agg is unique, fuel_type_code_pudl must also
         # be unique.
-        "fuel_type_code_aer": "first",
+        "fuel_type_code_agg": "first",
         "fuel_type_code_pudl": "first",
         "data_maturity": "first",
     }
@@ -591,6 +591,11 @@ def gen_fuel_nuclear(gen_fuel_nuke: pd.DataFrame) -> pd.DataFrame:
     gen_fuel_nuke.loc[:, "prime_mover_code"] = gen_fuel_nuke["prime_mover_code"].fillna(
         "ST"
     )
+
+    # All nuclear plants use nuclear fuel
+    gen_fuel_nuke.loc[
+        gen_fuel_nuke["energy_source_code"] == "NUC", "fuel_type_code_agg"
+    ] = "NUC"
 
     # Aggregate remaining duplicates.
     gen_fuel_nuke = _aggregate_generation_fuel_duplicates(gen_fuel_nuke, nuclear=True)
