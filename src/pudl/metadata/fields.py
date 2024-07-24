@@ -1736,9 +1736,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": ("Fuel type reported for AEO end-use sector generation data."),
         "constraints": {"enum": FUEL_TYPES_EIAAEO},
     },
-    "fuel_type_code_aer": {
+    "fuel_type_code_agg": {
         "type": "string",
-        "description": "A partial aggregation of the reported fuel type codes into larger categories used by EIA in, for example, the Annual Energy Review (AER). Two or three letter alphanumeric.",
+        "description": (
+            "A partial aggregation of the reported fuel type codes into larger "
+            "categories used by EIA in, for example, the Annual Energy Review (AER) or "
+            "Monthly Energy Review (MER). Two or three letter alphanumeric."
+        ),
     },
     "fuel_type_code_pudl": {
         "type": "string",

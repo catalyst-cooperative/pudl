@@ -41,9 +41,12 @@ EIA 860
   regarding energy storage and solar generators. See issue :issue:`3676` and PR
   :pr:`3681`.
 
+EIA 923
+~~~~~~~
+* Added EIA 923 early release data from 2023. See :issue:`3719` and PR :pr:`3721`.
+
 FERC 714
 ~~~~~~~~
-
 * Added :ref:`core_ferc714__yearly_planning_area_demand_forecast` based on FERC
   Form 714, Part III, Schedule 2b. Data includes forecasted demand and net energy load.
   See issue :issue:`3519` and PR :pr:`3670`.
