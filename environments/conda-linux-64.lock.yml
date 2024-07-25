@@ -482,7 +482,7 @@ dependencies:
   - readline=8.2=h8228510_1
   - readthedocs-sphinx-ext=2.2.5=pyhd8ed1ab_0
   - referencing=0.35.1=pyhd8ed1ab_0
-  - regex=2024.5.15=py312h9a8786e_0
+  - regex=2024.7.24=py312h41a817b_0
   - requests=2.32.3=pyhd8ed1ab_0
   - requests-oauthlib=2.0.0=pyhd8ed1ab_0
   - requests-toolbelt=1.0.0=pyhd8ed1ab_0

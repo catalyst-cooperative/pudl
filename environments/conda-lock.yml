@@ -21177,45 +21177,46 @@ package:
     category: main
     optional: false
   - name: regex
-    version: 2024.5.15
+    version: 2024.7.24
     manager: conda
     platform: linux-64
     dependencies:
+      __glibc: ">=2.17,<3.0.a0"
       libgcc-ng: ">=12"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/regex-2024.5.15-py312h9a8786e_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/regex-2024.7.24-py312h41a817b_0.conda
     hash:
-      md5: d3c8a64188a7331e3df3be6b06d5309e
-      sha256: 4050b3f70bd3ef81ae175acab0dfc2019fde84ab71b6b12903b3eb9bbd35661e
+      md5: 4f0f0c1e43c264e6d2367e310668e4e4
+      sha256: cecbbcf9234738773ee3cb6ace577aaa20270d03919d0ad0e1b7c0225c0ae81a
     category: main
     optional: false
   - name: regex
-    version: 2024.5.15
+    version: 2024.7.24
     manager: conda
     platform: osx-64
     dependencies:
       __osx: ">=10.13"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/regex-2024.5.15-py312hbd25219_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/regex-2024.7.24-py312hbd25219_0.conda
     hash:
-      md5: 529f6edec2c5cafa758671f5a50ff3d8
-      sha256: b4439a9eb708c3e36e87cc1bdd336004cc469bb61d1626644eb28d746da74d5c
+      md5: 06dcaa9ae59ec4540b2c337507f877fa
+      sha256: 5c0dd8942816670688490ecdd68f88164062f51b44e0f7e13cefb3bee1321b9a
     category: main
     optional: false
   - name: regex
-    version: 2024.5.15
+    version: 2024.7.24
     manager: conda
     platform: osx-arm64
     dependencies:
       __osx: ">=11.0"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/regex-2024.5.15-py312h7e5086c_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/regex-2024.7.24-py312h7e5086c_0.conda
     hash:
-      md5: 32fbee5a1711a9ad21c157f1b9ee6ea3
-      sha256: 7cf8fe1c9c70c0fb9c162dba3a9043319710311bff7fd8ab4c1510337ba8fae0
+      md5: eeee33b7cd93768e3647a1f1c15250f8
+      sha256: 77d6249e40e7f7695efa6f2cc698303365d97cee739908dd1c190fd9fc67d52c
     category: main
     optional: false
   - name: requests
