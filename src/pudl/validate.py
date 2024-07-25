@@ -121,7 +121,9 @@ def no_null_rows(df, cols="all", df_name="", thresh=0.9):
 
     null_rows = df[cols].isna().sum(axis="columns") / len(cols) > thresh
     if null_rows.any():
-        raise ValueError(f"Found {null_rows.sum(axis='rows')} Null rows in {df_name}.")
+        raise ValueError(
+            f"Found {null_rows.sum(axis='rows')} null rows in {df_name}./n {df[null_rows]}"
+        )
 
     return df
 
