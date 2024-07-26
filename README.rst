@@ -14,7 +14,7 @@ The Public Utility Data Liberation Project (PUDL)
    :target: https://codecov.io/gh/catalyst-cooperative/pudl
    :alt: Codecov Test Coverage
 .. |rtd| image:: https://img.shields.io/readthedocs/catalystcoop-pudl?style=flat&logo=readthedocs
-   :target: https://catalystcoop-pudl.readthedocs.io/en/latest/
+   :target: https://catalystcoop-pudl.readthedocs.io/en/nightly/
    :alt: Read the Docs Build Status
 .. |ruff| image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json
    :target: https://github.com/astral-sh/ruff
@@ -123,9 +123,11 @@ PUDL currently integrates data from:
 * **US Census Demographic Profile 1 Geodatabase**: 2010
   - `Source Docs <https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html>`__
 
-Thanks to support from the `Alfred P. Sloan Foundation Energy & Environment
-Program <https://sloan.org/programs/research/energy-and-environment>`__, from
-2021 to 2024 we will be cleaning and integrating the following data as well:
+Other data of interest
+----------------------
+
+If you're interested in any of these datasets, we'd love to integrate them into PUDL.
+Get in touch!
 
 * `EIA Form 176 <https://www.eia.gov/dnav/ng/TblDefs/NG_DataSources.html#s176>`__
   (The Annual Report of Natural Gas Supply and Disposition)
@@ -133,7 +135,6 @@ Program <https://sloan.org/programs/research/energy-and-environment>`__, from
 * `FERC Form 2 <https://www.ferc.gov/industries-data/natural-gas/overview/general-information/natural-gas-industry-forms/form-22a-data>`__
   (Annual Report of Major Natural Gas Companies)
 * `PHMSA Natural Gas Annual Report <https://www.phmsa.dot.gov/data-and-statistics/pipeline/gas-distribution-gas-gathering-gas-transmission-hazardous-liquids>`__
-* Machine Readable Specifications of State Clean Energy Standards
 
 How do I access the data?
 -------------------------
@@ -165,15 +166,17 @@ Organizations using PUDL
 
 .. _pudl_orgs_start:
 
-This is an incomplete list of organizations that have used PUDL in their work.
-If your organization uses PUDL and you'd like to be listed here please open a
+This is a partial list of organizations that have used PUDL in their work.
+If your organization uses PUDL we'd love to list you here! Please open a
 pull request or email us at `hello@catalyst.coop <mailto:hello@catalyst.coop>`__!
 
-* `The Utility Transition Hub <https://utilitytransitionhub.rmi.org/>`__ and `Optimus financial modelling tool <https://utilitytransitionhub.rmi.org/optimus/>`__ at RMI
-* `PowerGenome <https://github.com/PowerGenome/PowerGenome>`__ at ZEROLab at Princeton University
-* `Open Grid Emissions <https://singularity.energy/open-grid-emissions>`__ at Singularity Energy
-* `PyPSA - USA <https://github.com/PyPSA/pypsa-usa>`__
-* `Deployment Gap Model Education Fund <https://www.deploymentgap.fund/>`__
+* RMI via both their `Utility Transition Hub <https://utilitytransitionhub.rmi.org/>`__ and `Optimus financial modeling tool <https://utilitytransitionhub.rmi.org/optimus/>`__
+* The `PowerGenome Project <https://github.com/PowerGenome/PowerGenome>`__ out of `Jesse Jenkins' <https://mae.princeton.edu/people/faculty/jenkins>`__ ZERO Lab at Princeton University
+* `Energy Innovation <https://energyinnovation.org>`__
+* `Singularity Energy <https://singularity.enegy>`__ via the `Open Grid Emissions Initiative <https://singularity.energy/open-grid-emissions>`__
+* The open source `PyPSA-USA <https://github.com/PyPSA/pypsa-usa>`__ capacity expansion model.
+* `Win Climate <https://climate.win>`__
+* `The Deployment Gap Model Education Fund <https://www.deploymentgap.fund/>`__
 
 .. _pudl_orgs_end:
 
