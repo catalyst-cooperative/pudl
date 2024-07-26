@@ -45,7 +45,7 @@ dependencies:
   - aws-sdk-cpp=1.11.329=h46c3b66_9
   - azure-core-cpp=1.13.0=h935415a_0
   - azure-identity-cpp=1.8.0=hd126650_2
-  - azure-storage-blobs-cpp=12.11.0=hd2e3451_2
+  - azure-storage-blobs-cpp=12.12.0=hd2e3451_0
   - azure-storage-common-cpp=12.7.0=h10ac4d7_1
   - babel=2.14.0=pyhd8ed1ab_0
   - backoff=2.2.1=pyhd8ed1ab_0
@@ -57,8 +57,8 @@ dependencies:
   - bleach=6.1.0=pyhd8ed1ab_0
   - blinker=1.8.2=pyhd8ed1ab_0
   - blosc=1.21.6=hef167b5_0
-  - boto3=1.34.147=pyhd8ed1ab_0
-  - botocore=1.34.147=pyge310_1234567_0
+  - boto3=1.34.148=pyhd8ed1ab_0
+  - botocore=1.34.148=pyge310_1234567_0
   - bottleneck=1.4.0=py312h085067d_1
   - branca=0.7.2=pyhd8ed1ab_0
   - brotli=1.1.0=hd590300_1
@@ -94,7 +94,7 @@ dependencies:
   - contourpy=1.2.1=py312h8572e83_0
   - coverage=7.6.0=py312h41a817b_0
   - crashtest=0.4.1=pyhd8ed1ab_0
-  - croniter=3.0.0=pyhd8ed1ab_0
+  - croniter=3.0.1=pyhd8ed1ab_0
   - cryptography=42.0.8=py312hbcc2302_0
   - curl=8.9.0=h18eb788_0
   - cycler=0.12.1=pyhd8ed1ab_0
@@ -149,7 +149,7 @@ dependencies:
   - fsspec=2024.6.1=pyhff2d567_0
   - furo=2024.7.18=pyhd8ed1ab_0
   - gcsfs=2024.6.1=pyhd8ed1ab_0
-  - gdal=3.9.1=py312h7eda2e2_8
+  - gdal=3.9.1=py312h7eda2e2_9
   - gdk-pixbuf=2.42.12=hb9ae30d_0
   - geopandas=1.0.1=pyhd8ed1ab_0
   - geopandas-base=1.0.1=pyha770c72_0
@@ -277,20 +277,20 @@ dependencies:
   - libffi=3.4.2=h7f98852_5
   - libgcc-ng=14.1.0=h77fa898_0
   - libgd=2.3.3=h119a65a_9
-  - libgdal=3.9.1=ha770c72_8
-  - libgdal-core=3.9.1=h1d1841c_8
-  - libgdal-fits=3.9.1=hdd6600c_8
-  - libgdal-grib=3.9.1=h5f34788_8
-  - libgdal-hdf4=3.9.1=ha39a594_8
-  - libgdal-hdf5=3.9.1=ha2ed5f0_8
-  - libgdal-jp2openjpeg=3.9.1=h2ebfdf0_8
-  - libgdal-kea=3.9.1=h2b45729_8
-  - libgdal-netcdf=3.9.1=h94e7027_8
-  - libgdal-pdf=3.9.1=h562c687_8
-  - libgdal-pg=3.9.1=he047751_8
-  - libgdal-postgisraster=3.9.1=he047751_8
-  - libgdal-tiledb=3.9.1=hfcb00c0_8
-  - libgdal-xls=3.9.1=h062f1c4_8
+  - libgdal=3.9.1=ha770c72_9
+  - libgdal-core=3.9.1=h8f9377d_9
+  - libgdal-fits=3.9.1=hdd6600c_9
+  - libgdal-grib=3.9.1=h5f34788_9
+  - libgdal-hdf4=3.9.1=ha39a594_9
+  - libgdal-hdf5=3.9.1=ha2ed5f0_9
+  - libgdal-jp2openjpeg=3.9.1=h2ebfdf0_9
+  - libgdal-kea=3.9.1=h2b45729_9
+  - libgdal-netcdf=3.9.1=h94e7027_9
+  - libgdal-pdf=3.9.1=h562c687_9
+  - libgdal-pg=3.9.1=he047751_9
+  - libgdal-postgisraster=3.9.1=he047751_9
+  - libgdal-tiledb=3.9.1=h9d8aadb_9
+  - libgdal-xls=3.9.1=h062f1c4_9
   - libgfortran-ng=14.1.0=h69a702a_0
   - libgfortran5=14.1.0=hc5f4f2c_0
   - libglib=2.80.3=h8a4344b_1
@@ -451,7 +451,7 @@ dependencies:
   - pyproj=3.6.1=py312h5d05ceb_7
   - pyproject_hooks=1.1.0=pyhd8ed1ab_0
   - pysocks=1.7.1=pyha2e5f31_6
-  - pytest=8.3.1=pyhd8ed1ab_0
+  - pytest=8.3.2=pyhd8ed1ab_0
   - pytest-console-scripts=1.4.1=pyhd8ed1ab_0
   - pytest-cov=5.0.0=pyhd8ed1ab_0
   - pytest-mock=3.14.0=pyhd8ed1ab_0
@@ -496,7 +496,7 @@ dependencies:
   - rsa=4.9=pyhd8ed1ab_0
   - ruamel.yaml=0.18.6=py312h98912ed_0
   - ruamel.yaml.clib=0.2.8=py312h98912ed_0
-  - ruff=0.5.4=py312hbe4c86d_0
+  - ruff=0.5.5=py312hbe4c86d_0
   - ruff-lsp=0.0.54=pyhd8ed1ab_0
   - s2n=1.4.17=he19d79f_0
   - s3transfer=0.10.2=pyhd8ed1ab_0
@@ -542,7 +542,7 @@ dependencies:
   - terminado=0.18.1=pyh0d859eb_0
   - text-unidecode=1.3=pyhd8ed1ab_1
   - threadpoolctl=3.5.0=pyhc1e730c_0
-  - tiledb=2.24.2=h38570ab_3
+  - tiledb=2.25.0=h769197d_2
   - time-machine=2.14.2=py312h9a8786e_0
   - timezonefinder=6.5.2=py312h9a8786e_0
   - tinycss2=1.3.0=pyhd8ed1ab_0

@@ -62,7 +62,7 @@ table addition ensures there is also complete coverage of those units as well.
 
 For more information about the how this subplant_id is made, see the documentation for
 pudl.etl.glue_assets.make_subplant_ids and pudl.etl.glue_assets.update_subplant_ids
-from: https://catalystcoop-pudl.readthedocs.io/en/latest/autoapi/index.html
+from: https://catalystcoop-pudl.readthedocs.io/en/nightly/autoapi/index.html
 
 But by analyzing the relationships between combustors and generators,
 as provided in the core_epa__assn_eia_epacamd crosswalk, we can identify distinct power plants.
