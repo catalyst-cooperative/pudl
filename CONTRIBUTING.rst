@@ -28,7 +28,7 @@ Your first contribution
 **Setup**
 
 You'll need to fork this repository and get the
-`dev environment set up <https://catalystcoop-pudl.readthedocs.io/en/latest/dev/dev_setup.html>`__.
+`dev environment set up <https://catalystcoop-pudl.readthedocs.io/en/nightly/dev/dev_setup.html>`__.
 
 **Pick an issue**
 

@@ -10,12 +10,12 @@ labels:
 assignees: ""
 ---
 
-[Additional release process documentation](https://catalystcoop-pudl.readthedocs.io/en/latest/dev/run_a_release.html).
+[Additional release process documentation](https://catalystcoop-pudl.readthedocs.io/en/nightly/dev/run_a_release.html).
 
 ```[tasklist]
 ## Release Checklist
 - [ ] Set a release date & notify team
-- [ ] Close out the [PUDL Release Notes](https://catalystcoop-pudl.readthedocs.io/en/latest/release_notes.html) with an overview of the changes in this release
+- [ ] Close out the [PUDL Release Notes](https://catalystcoop-pudl.readthedocs.io/en/nightly/release_notes.html) with an overview of the changes in this release
 - [ ] Push vYYYY.M.x tag (4-digit year, month with no leading zero, and patch version)
 - [ ] Verify that the new [GitHub (software) release](https://github.com/catalyst-cooperative/pudl/releases) has been published
 - [ ] Verify [`catalystcoop.pudl` PyPI (software) release](https://pypi.org/project/catalystcoop.pudl/)
@@ -34,7 +34,7 @@ assignees: ""
 - [ ] Update Zenodo description and other metadata based on release notes (see task list below)
 - [ ] Manually publish the new Zenodo deposition with the updated metadata
 - [ ] Create an Announcement for the release in [our GitHub Discussions](https://github.com/orgs/catalyst-cooperative/discussions)
-- [ ] Update the [release documentation](https://catalystcoop-pudl.readthedocs.io/en/latest/dev/run_a_release.html) to better reflect the actual process for next time
+- [ ] Update the [release documentation](https://catalystcoop-pudl.readthedocs.io/en/nightly/dev/run_a_release.html) to better reflect the actual process for next time
 - [ ] Wait 2-12 hours for a bot to create a PR in the [PUDL conda-forge feedstock](https://github.com/conda-forge/catalystcoop.pudl-feedstock/pulls)
 - [ ] Review the `conda-forge` PR, updating dependencies and CLI entrypoints if necessary. Our direct dependencies (from `pyproject.toml`) should be pinned to the actual version appearing in `environments/conda-linux-64.lock.yml`
 ```
