@@ -16,7 +16,10 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-@click.command()
+@click.command(
+    name="parquet_to_duckdb",
+    context_settings={"help_option_names": ["-h", "--help"]},
+)
 @click.argument("parquet_dir", type=click.Path(exists=True, resolve_path=True))
 @click.argument(
     "duckdb_path", type=click.Path(resolve_path=True, writable=True, allow_dash=False)
@@ -29,14 +32,15 @@ logger = logging.getLogger(__name__)
     help="Only create metadata, don't load data.",
 )
 @click.option(
-    "--disable-fks",
+    "--check-fks",
     is_flag=True,
     show_default=True,
     default=False,
-    help="Only create metadata, don't load data.",
+    help="If true, enable foreign keys in the database. Currently,"
+    "the parquet load process freezes up when foreign keys are enabled.",
 )
-def convert_parquet_to_duckdb(
-    parquet_dir: str, duckdb_path: str, no_load: bool, disable_fks: bool
+def parquet_to_duckdb(
+    parquet_dir: str, duckdb_path: str, no_load: bool, check_fks: bool
 ):
     """Convert a directory of Parquet files to a DuckDB database.
 
@@ -44,10 +48,11 @@ def convert_parquet_to_duckdb(
         parquet_dir: Path to a directory of parquet files.
         duckdb_path: Path to the new DuckDB database file (should not exist).
         no_load: Only create metadata, don't load data.
-        disable_fks: Don't add foreign keys to the database.
+        check_fks: If true, enable foreign keys in the database. Currently,
+            the parquet load process freezes up when foreign keys are enabled.
 
     Example:
-        python parquet_to_duckdb.py /path/to/parquet/directory duckdb.db
+        parquet_to_duckdb /path/to/parquet/directory duckdb.db
     """
     parquet_dir = Path(parquet_dir)
     duckdb_path = Path(duckdb_path)
@@ -63,7 +68,7 @@ def convert_parquet_to_duckdb(
     resource_ids = (r.name for r in PUDL_PACKAGE.resources if len(r.name) <= 63)
     package = Package.from_resource_ids(resource_ids)
 
-    metadata = package.to_sql(dialect="duckdb", check_foreign_keys=not disable_fks)
+    metadata = package.to_sql(dialect="duckdb", check_foreign_keys=check_fks)
     engine = sa.create_engine(f"duckdb:///{duckdb_path}")
     metadata.create_all(engine)
 
@@ -76,16 +81,15 @@ def convert_parquet_to_duckdb(
         for table in metadata.sorted_tables:
             parquet_file_path = parquet_dir / f"{table.name}.parquet"
             if parquet_file_path.exists():
-                logger.info(f"Loading table: {table.name} into DuckDB")
+                logger.info(
+                    f"Loading parquet file: {parquet_file_path} into {duckdb_path}"
+                )
                 sql_command = f"""
                     COPY {table.name} FROM '{parquet_file_path}' (FORMAT PARQUET);
                 """
-                logger.info(sql_command)
                 duckdb_cursor.execute(sql_command)
             else:
-                logger.info("File not found: ", parquet_file_path)
-                # TODO: throw an error if there is a file that doesn't exist in the database
-                # raise FileNotFoundError("Parquet file not found for: ", table.name)
+                raise FileNotFoundError("Parquet file not found for: ", table.name)
 
         # Commit and close connections
         duckdb_conn.commit()
@@ -93,4 +97,4 @@ def convert_parquet_to_duckdb(
 
 
 if __name__ == "__main__":
-    convert_parquet_to_duckdb()
+    parquet_to_duckdb()

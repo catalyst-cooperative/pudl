@@ -130,6 +130,7 @@ keywords = [
 [project.scripts]
 ferc_to_sqlite = "pudl.ferc_to_sqlite.cli:main"
 metadata_to_rst = "pudl.convert.metadata_to_rst:metadata_to_rst"
+parquet_to_duckdb = "pudl.convert.parquet_to_duckdb:parquet_to_duckdb"
 pudl_check_fks = "pudl.etl.check_foreign_keys:pudl_check_fks"
 pudl_datastore = "pudl.workspace.datastore:pudl_datastore"
 pudl_etl = "pudl.etl.cli:pudl_etl"

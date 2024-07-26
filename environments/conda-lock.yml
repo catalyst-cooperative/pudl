@@ -591,7 +591,7 @@ package:
     category: main
     optional: false
   - name: arelle-release
-    version: 2.30.13
+    version: 2.30.14
     manager: conda
     platform: linux-64
     dependencies:
@@ -605,14 +605,14 @@ package:
       python: ">=3.8"
       python-dateutil: 2.*
       regex: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.30.13-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.30.14-pyhd8ed1ab_0.conda
     hash:
-      md5: 3fb67745d5ea1b4b7cbcf7dd11f309d2
-      sha256: 0023d27431b37d6928342f80e5208bc156c5842c23d078b01dfa8739fe6d4e94
+      md5: 62634472e44f62714ba9298322655eca
+      sha256: 89d3e2edc5e300116887f560451b4be3dac447ad47b178406c9176440fca4c60
     category: main
     optional: false
   - name: arelle-release
-    version: 2.30.13
+    version: 2.30.14
     manager: conda
     platform: osx-64
     dependencies:
@@ -626,14 +626,14 @@ package:
       openpyxl: 3.*
       pyparsing: 3.*
       lxml: ">=4,<6"
-    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.30.13-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.30.14-pyhd8ed1ab_0.conda
     hash:
-      md5: 3fb67745d5ea1b4b7cbcf7dd11f309d2
-      sha256: 0023d27431b37d6928342f80e5208bc156c5842c23d078b01dfa8739fe6d4e94
+      md5: 62634472e44f62714ba9298322655eca
+      sha256: 89d3e2edc5e300116887f560451b4be3dac447ad47b178406c9176440fca4c60
     category: main
     optional: false
   - name: arelle-release
-    version: 2.30.13
+    version: 2.30.14
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -647,10 +647,10 @@ package:
       openpyxl: 3.*
       pyparsing: 3.*
       lxml: ">=4,<6"
-    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.30.13-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.30.14-pyhd8ed1ab_0.conda
     hash:
-      md5: 3fb67745d5ea1b4b7cbcf7dd11f309d2
-      sha256: 0023d27431b37d6928342f80e5208bc156c5842c23d078b01dfa8739fe6d4e94
+      md5: 62634472e44f62714ba9298322655eca
+      sha256: 89d3e2edc5e300116887f560451b4be3dac447ad47b178406c9176440fca4c60
     category: main
     optional: false
   - name: argon2-cffi
@@ -2275,48 +2275,48 @@ package:
     category: main
     optional: false
   - name: boto3
-    version: 1.34.148
+    version: 1.34.149
     manager: conda
     platform: linux-64
     dependencies:
-      botocore: ">=1.34.148,<1.35.0"
+      botocore: ">=1.34.149,<1.35.0"
       jmespath: ">=0.7.1,<2.0.0"
       python: ">=3.8"
       s3transfer: ">=0.10.0,<0.11.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/boto3-1.34.148-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/boto3-1.34.149-pyhd8ed1ab_0.conda
     hash:
-      md5: c1fab78c52155e81112f58c17b0be12d
-      sha256: 9f80875572f232b742664f0e516883eae0486b64eceac3384c6dc2bf6b0ad60d
+      md5: b2a4de6bf5e8fd118e686fec75527b37
+      sha256: b4f2aa23ae8a3147216e63d51bc689496688ea73479172803fab4a088f54fc2a
     category: main
     optional: false
   - name: boto3
-    version: 1.34.148
+    version: 1.34.149
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.8"
       jmespath: ">=0.7.1,<2.0.0"
       s3transfer: ">=0.10.0,<0.11.0"
-      botocore: ">=1.34.148,<1.35.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/boto3-1.34.148-pyhd8ed1ab_0.conda
+      botocore: ">=1.34.149,<1.35.0"
+    url: https://conda.anaconda.org/conda-forge/noarch/boto3-1.34.149-pyhd8ed1ab_0.conda
     hash:
-      md5: c1fab78c52155e81112f58c17b0be12d
-      sha256: 9f80875572f232b742664f0e516883eae0486b64eceac3384c6dc2bf6b0ad60d
+      md5: b2a4de6bf5e8fd118e686fec75527b37
+      sha256: b4f2aa23ae8a3147216e63d51bc689496688ea73479172803fab4a088f54fc2a
     category: main
     optional: false
   - name: boto3
-    version: 1.34.148
+    version: 1.34.149
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.8"
       jmespath: ">=0.7.1,<2.0.0"
       s3transfer: ">=0.10.0,<0.11.0"
-      botocore: ">=1.34.148,<1.35.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/boto3-1.34.148-pyhd8ed1ab_0.conda
+      botocore: ">=1.34.149,<1.35.0"
+    url: https://conda.anaconda.org/conda-forge/noarch/boto3-1.34.149-pyhd8ed1ab_0.conda
     hash:
-      md5: c1fab78c52155e81112f58c17b0be12d
-      sha256: 9f80875572f232b742664f0e516883eae0486b64eceac3384c6dc2bf6b0ad60d
+      md5: b2a4de6bf5e8fd118e686fec75527b37
+      sha256: b4f2aa23ae8a3147216e63d51bc689496688ea73479172803fab4a088f54fc2a
     category: main
     optional: false
   - name: botocore
@@ -3879,45 +3879,45 @@ package:
     category: main
     optional: false
   - name: croniter
-    version: 3.0.1
+    version: 3.0.3
     manager: conda
     platform: linux-64
     dependencies:
       python: ">=3.7"
       python-dateutil: ""
       pytz: ">2021.1"
-    url: https://conda.anaconda.org/conda-forge/noarch/croniter-3.0.1-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/croniter-3.0.3-pyhd8ed1ab_0.conda
     hash:
-      md5: cc3e196f8958fdf14249e21fe9faf580
-      sha256: 2f485ebdeb0394e6557c01ddf7eda38f473aa1a5c8b056817010495fd2785004
+      md5: 937954ebd1d954d4661343762a42e2a6
+      sha256: 6f51ba947834278aa403509a3c9d066f38c03a5387645d054e022cef5c9d9e0f
     category: main
     optional: false
   - name: croniter
-    version: 3.0.1
+    version: 3.0.3
     manager: conda
     platform: osx-64
     dependencies:
       python-dateutil: ""
       python: ">=3.7"
       pytz: ">2021.1"
-    url: https://conda.anaconda.org/conda-forge/noarch/croniter-3.0.1-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/croniter-3.0.3-pyhd8ed1ab_0.conda
     hash:
-      md5: cc3e196f8958fdf14249e21fe9faf580
-      sha256: 2f485ebdeb0394e6557c01ddf7eda38f473aa1a5c8b056817010495fd2785004
+      md5: 937954ebd1d954d4661343762a42e2a6
+      sha256: 6f51ba947834278aa403509a3c9d066f38c03a5387645d054e022cef5c9d9e0f
     category: main
     optional: false
   - name: croniter
-    version: 3.0.1
+    version: 3.0.3
     manager: conda
     platform: osx-arm64
     dependencies:
       python-dateutil: ""
       python: ">=3.7"
       pytz: ">2021.1"
-    url: https://conda.anaconda.org/conda-forge/noarch/croniter-3.0.1-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/croniter-3.0.3-pyhd8ed1ab_0.conda
     hash:
-      md5: cc3e196f8958fdf14249e21fe9faf580
-      sha256: 2f485ebdeb0394e6557c01ddf7eda38f473aa1a5c8b056817010495fd2785004
+      md5: 937954ebd1d954d4661343762a42e2a6
+      sha256: 6f51ba947834278aa403509a3c9d066f38c03a5387645d054e022cef5c9d9e0f
     category: main
     optional: false
   - name: cryptography
@@ -23232,39 +23232,39 @@ package:
     category: main
     optional: false
   - name: sqlglot
-    version: 25.6.1
+    version: 25.7.1
     manager: conda
     platform: linux-64
     dependencies:
       python: ">=3.7"
-    url: https://conda.anaconda.org/conda-forge/noarch/sqlglot-25.6.1-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/sqlglot-25.7.1-pyhd8ed1ab_0.conda
     hash:
-      md5: a10af16d1d51e76c13ca7106d1e62749
-      sha256: 563c551e5e6e9203f3a7aa6f7c33478f249e5b0f9beafa23cd9e12ece2daee92
+      md5: 6636eaa707da0830508e61019e6bd6c7
+      sha256: 2d3c804c7a77b1a43ac67403871570b1d28e9ab62bd362c8c2706a5be3edb32e
     category: main
     optional: false
   - name: sqlglot
-    version: 25.6.1
+    version: 25.7.1
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.7"
-    url: https://conda.anaconda.org/conda-forge/noarch/sqlglot-25.6.1-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/sqlglot-25.7.1-pyhd8ed1ab_0.conda
     hash:
-      md5: a10af16d1d51e76c13ca7106d1e62749
-      sha256: 563c551e5e6e9203f3a7aa6f7c33478f249e5b0f9beafa23cd9e12ece2daee92
+      md5: 6636eaa707da0830508e61019e6bd6c7
+      sha256: 2d3c804c7a77b1a43ac67403871570b1d28e9ab62bd362c8c2706a5be3edb32e
     category: main
     optional: false
   - name: sqlglot
-    version: 25.6.1
+    version: 25.7.1
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.7"
-    url: https://conda.anaconda.org/conda-forge/noarch/sqlglot-25.6.1-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/sqlglot-25.7.1-pyhd8ed1ab_0.conda
     hash:
-      md5: a10af16d1d51e76c13ca7106d1e62749
-      sha256: 563c551e5e6e9203f3a7aa6f7c33478f249e5b0f9beafa23cd9e12ece2daee92
+      md5: 6636eaa707da0830508e61019e6bd6c7
+      sha256: 2d3c804c7a77b1a43ac67403871570b1d28e9ab62bd362c8c2706a5be3edb32e
     category: main
     optional: false
   - name: sqlite
