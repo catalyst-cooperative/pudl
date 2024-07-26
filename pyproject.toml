@@ -28,6 +28,7 @@ dependencies = [
     "dask-expr", # Required for dask[dataframe]
     "datasette>=0.64",
     "doc8>=1.1",
+    "duckdb-engine>=0.12.1",
     "email-validator>=1.0.3", # pydantic[email]
     "frictionless>=5,<6",
     "fsspec>=2024",

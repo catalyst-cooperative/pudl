@@ -554,7 +554,7 @@ class Field(PudlMeta):
         >>> field.to_pandas_dtype()
         CategoricalDtype(categories=['x', 'y'], ordered=False, categories_dtype=object)
         >>> field.to_sql()
-        Column('x', Enum('x', 'y'), CheckConstraint(...), table=None, comment='X')
+        Column('x', Enum('x', 'y', name='x_enum'), CheckConstraint(...), table=None, comment='X')
         >>> field = Field.from_id('utility_id_eia')
         >>> field.name
         'utility_id_eia'
@@ -641,7 +641,7 @@ class Field(PudlMeta):
     def to_sql_dtype(self) -> type:  # noqa: A003
         """Return SQLAlchemy data type."""
         if self.constraints.enum and self.type == "string":
-            return sa.Enum(*self.constraints.enum)
+            return sa.Enum(*self.constraints.enum, name=f"{self.name}_enum")
         return FIELD_DTYPES_SQL[self.type]
 
     def to_pyarrow_dtype(self) -> pa.lib.DataType:
@@ -661,59 +661,71 @@ class Field(PudlMeta):
 
     def to_sql(  # noqa: C901
         self,
-        dialect: Literal["sqlite"] = "sqlite",
+        dialect: Literal["sqlite", "duckdb"] = "sqlite",
         check_types: bool = True,
         check_values: bool = True,
     ) -> sa.Column:
         """Return equivalent SQL column."""
-        if dialect != "sqlite":
-            raise NotImplementedError(f"Dialect {dialect} is not supported")
         checks = []
         name = _format_for_sql(self.name, identifier=True)
-        if check_types:
-            # Required with TYPEOF since TYPEOF(NULL) = 'null'
-            prefix = "" if self.constraints.required else f"{name} IS NULL OR "
-            # Field type
-            if self.type == "string":
-                checks.append(f"{prefix}TYPEOF({name}) = 'text'")
-            elif self.type in ("integer", "year"):
-                checks.append(f"{prefix}TYPEOF({name}) = 'integer'")
-            elif self.type == "number":
-                checks.append(f"{prefix}TYPEOF({name}) = 'real'")
-            elif self.type == "boolean":
-                # Just IN (0, 1) accepts floats equal to 0, 1 (0.0, 1.0)
-                checks.append(
-                    f"{prefix}(TYPEOF({name}) = 'integer' AND {name} IN (0, 1))"
-                )
-            elif self.type == "date":
-                checks.append(f"{name} IS DATE({name})")
-            elif self.type == "datetime":
-                checks.append(f"{name} IS DATETIME({name})")
-        if check_values:
-            # Field constraints
-            if self.constraints.min_length is not None:
-                checks.append(f"LENGTH({name}) >= {self.constraints.min_length}")
-            if self.constraints.max_length is not None:
-                checks.append(f"LENGTH({name}) <= {self.constraints.max_length}")
-            if self.constraints.minimum is not None:
-                minimum = _format_for_sql(self.constraints.minimum)
-                checks.append(f"{name} >= {minimum}")
-            if self.constraints.maximum is not None:
-                maximum = _format_for_sql(self.constraints.maximum)
-                checks.append(f"{name} <= {maximum}")
-            if self.constraints.pattern:
-                pattern = _format_for_sql(self.constraints.pattern)
-                checks.append(f"{name} REGEXP {pattern}")
-            if self.constraints.enum:
-                enum = [_format_for_sql(x) for x in self.constraints.enum]
-                checks.append(f"{name} IN ({', '.join(enum)})")
+        field_type = self.to_sql_dtype()
+        if dialect == "sqlite":
+            if check_types:
+                # Required with TYPEOF since TYPEOF(NULL) = 'null'
+                prefix = "" if self.constraints.required else f"{name} IS NULL OR "
+                # Field type
+                if self.type == "string":
+                    checks.append(f"{prefix}TYPEOF({name}) = 'text'")
+                elif self.type in ("integer", "year"):
+                    checks.append(f"{prefix}TYPEOF({name}) = 'integer'")
+                elif self.type == "number":
+                    checks.append(f"{prefix}TYPEOF({name}) = 'real'")
+                elif self.type == "boolean":
+                    # Just IN (0, 1) accepts floats equal to 0, 1 (0.0, 1.0)
+                    checks.append(
+                        f"{prefix}(TYPEOF({name}) = 'integer' AND {name} IN (0, 1))"
+                    )
+                elif self.type == "date":
+                    checks.append(f"{name} IS DATE({name})")
+                elif self.type == "datetime":
+                    checks.append(f"{name} IS DATETIME({name})")
+            if check_values:
+                # Field constraints
+                if self.constraints.min_length is not None:
+                    checks.append(f"LENGTH({name}) >= {self.constraints.min_length}")
+                if self.constraints.max_length is not None:
+                    checks.append(f"LENGTH({name}) <= {self.constraints.max_length}")
+                if self.constraints.minimum is not None:
+                    minimum = _format_for_sql(self.constraints.minimum)
+                    checks.append(f"{name} >= {minimum}")
+                if self.constraints.maximum is not None:
+                    maximum = _format_for_sql(self.constraints.maximum)
+                    checks.append(f"{name} <= {maximum}")
+                if self.constraints.pattern:
+                    pattern = _format_for_sql(self.constraints.pattern)
+                    checks.append(f"{name} REGEXP {pattern}")
+                if self.constraints.enum:
+                    enum = [_format_for_sql(x) for x in self.constraints.enum]
+                    checks.append(f"{name} IN ({', '.join(enum)})")
+        elif dialect == "duckdb":
+            if isinstance(field_type, sa.Enum):
+                field_type = sa.String
+            if check_values:
+                checks = []
+        else:
+            raise NotImplementedError(f"Dialect {dialect} is not supported")
+        # string length greater, less than
+        # number is greater, less than
+        # string Matches regex
+        # If type is an ENUM, make the type a string. This is not ideal
         return sa.Column(
             self.name,
-            self.to_sql_dtype(),
+            field_type,
             *[sa.CheckConstraint(check, name=hash(check)) for check in checks],
             nullable=not self.constraints.required,
             unique=self.constraints.unique,
             comment=self.description,
+            autoincrement=False,  # https://github.com/Mause/duckdb_engine/issues/595#issuecomment-1495408566
         )
 
     def encode(self, col: pd.Series, dtype: type | None = None) -> pd.Series:  # noqa: A003
@@ -1462,6 +1474,7 @@ class Resource(PudlMeta):
         metadata: sa.MetaData = None,
         check_types: bool = True,
         check_values: bool = True,
+        dialect: Literal["sqlite", "duckdb"] = "sqlite",
     ) -> sa.Table:
         """Return equivalent SQL Table."""
         if metadata is None:
@@ -1470,6 +1483,7 @@ class Resource(PudlMeta):
             f.to_sql(
                 check_types=check_types,
                 check_values=check_values,
+                dialect=dialect,
             )
             for f in self.schema.fields
         ]
@@ -2011,6 +2025,7 @@ class Package(PudlMeta):
         self,
         check_types: bool = True,
         check_values: bool = True,
+        dialect: Literal["sqlite", "duckdb"] = "sqlite",
     ) -> sa.MetaData:
         """Return equivalent SQL MetaData."""
         metadata = sa.MetaData(
@@ -2028,6 +2043,7 @@ class Package(PudlMeta):
                     metadata,
                     check_types=check_types,
                     check_values=check_values,
+                    dialect=dialect,
                 )
         return metadata
 

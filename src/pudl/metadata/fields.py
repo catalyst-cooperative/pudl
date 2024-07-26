@@ -4995,7 +4995,9 @@ elements which should be overridden need to be specified.
 """
 
 FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
-    "sector_consolidated_eia": {"code": {"type": "integer"}},
+    "core_eia__codes_sector_consolidated": {"code": {"type": "integer"}},
+    "core_eia__codes_steam_plant_types": {"code": {"type": "integer"}},
+    "core_eia__codes_wind_quality_class": {"code": {"type": "integer"}},
     "core_ferc1__yearly_hydroelectric_plants_sched406": {
         "plant_type": {
             "type": "string",
