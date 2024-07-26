@@ -709,15 +709,29 @@ class Field(PudlMeta):
                     checks.append(f"{name} IN ({', '.join(enum)})")
         elif dialect == "duckdb":
             if isinstance(field_type, sa.Enum):
+                # TODO: Not supporting enums with duckdb right now because
+                # code tables primary keys are VARCHARS but the tables that
+                # reference them have ENUM types. Duckdb throws an error
+                # because of the mismatched types. It is ok for now because
+                # the enums are checked in SQLite and the foreign key relationship
+                # acts as an enum constraint.
                 field_type = sa.String
             if check_values:
-                checks = []
+                if self.constraints.min_length is not None:
+                    checks.append(f"length({name}) >= {self.constraints.min_length}")
+                if self.constraints.max_length is not None:
+                    checks.append(f"length({name}) >= {self.constraints.min_length}")
+                if self.constraints.minimum is not None:
+                    minimum = _format_for_sql(self.constraints.minimum)
+                    checks.append(f"{name} >= {minimum}")
+                if self.constraints.maximum is not None:
+                    maximum = _format_for_sql(self.constraints.maximum)
+                    checks.append(f"{name} <= {maximum}")
+                if self.constraints.pattern:
+                    pattern = _format_for_sql(self.constraints.pattern)
+                    checks.append(f"regexp_full_match({name}, {pattern})")
         else:
             raise NotImplementedError(f"Dialect {dialect} is not supported")
-        # string length greater, less than
-        # number is greater, less than
-        # string Matches regex
-        # If type is an ENUM, make the type a string. This is not ideal
         return sa.Column(
             self.name,
             field_type,
@@ -725,7 +739,7 @@ class Field(PudlMeta):
             nullable=not self.constraints.required,
             unique=self.constraints.unique,
             comment=self.description,
-            autoincrement=False,  # https://github.com/Mause/duckdb_engine/issues/595#issuecomment-1495408566
+            autoincrement=False,  # SQLAlchemy converts generic Integer type to Serial type with integer primary keys https://github.com/Mause/duckdb_engine/issues/595#issuecomment-1495408566
         )
 
     def encode(self, col: pd.Series, dtype: type | None = None) -> pd.Series:  # noqa: A003
