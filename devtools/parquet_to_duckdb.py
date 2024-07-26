@@ -5,6 +5,7 @@ import logging
 from pathlib import Path
 
 import click
+import duckdb
 import sqlalchemy as sa
 
 from pudl.metadata import PUDL_PACKAGE
@@ -20,12 +21,30 @@ logger = logging.getLogger(__name__)
 @click.argument(
     "duckdb_path", type=click.Path(resolve_path=True, writable=True, allow_dash=False)
 )
-def convert_parquet_to_duckdb(parquet_dir: str, duckdb_path: str):
+@click.option(
+    "--no-load",
+    is_flag=True,
+    show_default=True,
+    default=False,
+    help="Only create metadata, don't load data.",
+)
+@click.option(
+    "--disable-fks",
+    is_flag=True,
+    show_default=True,
+    default=False,
+    help="Only create metadata, don't load data.",
+)
+def convert_parquet_to_duckdb(
+    parquet_dir: str, duckdb_path: str, no_load: bool, disable_fks: bool
+):
     """Convert a directory of Parquet files to a DuckDB database.
 
     Args:
         parquet_dir: Path to a directory of parquet files.
         duckdb_path: Path to the new DuckDB database file (should not exist).
+        no_load: Only create metadata, don't load data.
+        disable_fks: Don't add foreign keys to the database.
 
     Example:
         python parquet_to_duckdb.py /path/to/parquet/directory duckdb.db
@@ -44,23 +63,33 @@ def convert_parquet_to_duckdb(parquet_dir: str, duckdb_path: str):
     resource_ids = (r.name for r in PUDL_PACKAGE.resources if len(r.name) <= 63)
     package = Package.from_resource_ids(resource_ids)
 
-    metadata = package.to_sql(dialect="duckdb")
+    metadata = package.to_sql(dialect="duckdb", check_foreign_keys=not disable_fks)
     engine = sa.create_engine(f"duckdb:///{duckdb_path}")
     metadata.create_all(engine)
 
-    # Iterate through the tables in order of foreign key dependency
-    for table in metadata.sorted_tables:
-        parquet_file_path = parquet_dir / f"{table.name}.parquet"
-        logger.info(f"Loading table: {table.name} into DuckDB")
-        if parquet_file_path.exists():
-            sql_command = f"""
-                COPY {table.name} FROM '{parquet_file_path}' (FORMAT PARQUET);
-            """
-            with engine.connect() as conn:
-                conn.execute(sa.text(sql_command))
-        else:
-            print("File not found: ", parquet_file_path)
-            # raise FileNotFoundError("Parquet file not found for: ", table.name)
+    if not no_load:
+        # Connect to DuckDB database
+        duckdb_conn = duckdb.connect(database=str(duckdb_path))
+        duckdb_cursor = duckdb_conn.cursor()
+
+        # Iterate through the tables in order of foreign key dependency
+        for table in metadata.sorted_tables:
+            parquet_file_path = parquet_dir / f"{table.name}.parquet"
+            if parquet_file_path.exists():
+                logger.info(f"Loading table: {table.name} into DuckDB")
+                sql_command = f"""
+                    COPY {table.name} FROM '{parquet_file_path}' (FORMAT PARQUET);
+                """
+                logger.info(sql_command)
+                duckdb_cursor.execute(sql_command)
+            else:
+                logger.info("File not found: ", parquet_file_path)
+                # TODO: throw an error if there is a file that doesn't exist in the database
+                # raise FileNotFoundError("Parquet file not found for: ", table.name)
+
+        # Commit and close connections
+        duckdb_conn.commit()
+        duckdb_conn.close()
 
 
 if __name__ == "__main__":

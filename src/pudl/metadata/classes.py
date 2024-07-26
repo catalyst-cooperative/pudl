@@ -1488,6 +1488,7 @@ class Resource(PudlMeta):
         metadata: sa.MetaData = None,
         check_types: bool = True,
         check_values: bool = True,
+        check_foreign_keys: bool = True,
         dialect: Literal["sqlite", "duckdb"] = "sqlite",
     ) -> sa.Table:
         """Return equivalent SQL Table."""
@@ -1504,8 +1505,9 @@ class Resource(PudlMeta):
         constraints = []
         if self.schema.primary_key:
             constraints.append(sa.PrimaryKeyConstraint(*self.schema.primary_key))
-        for key in self.schema.foreign_keys:
-            constraints.append(key.to_sql())
+        if check_foreign_keys:
+            for key in self.schema.foreign_keys:
+                constraints.append(key.to_sql())
         return sa.Table(self.name, metadata, *columns, *constraints)
 
     def to_pyarrow(self) -> pa.Schema:
@@ -2039,6 +2041,7 @@ class Package(PudlMeta):
         self,
         check_types: bool = True,
         check_values: bool = True,
+        check_foreign_keys: bool = True,
         dialect: Literal["sqlite", "duckdb"] = "sqlite",
     ) -> sa.MetaData:
         """Return equivalent SQL MetaData."""
@@ -2051,14 +2054,23 @@ class Package(PudlMeta):
                 "pk": "pk_%(table_name)s",
             }
         )
-        for resource in self.resources:
-            if resource.create_database_schema:
-                _ = resource.to_sql(
-                    metadata,
-                    check_types=check_types,
-                    check_values=check_values,
-                    dialect=dialect,
-                )
+        # Create schema for all resources in not sqlite dialect
+        # Filter out resources that are too big for sqlite if we're using sqlite
+        resources = self.resources
+        if dialect == "sqlite":
+            resources = [
+                resource
+                for resource in self.resources
+                if resource.create_database_schema
+            ]
+        for resource in resources:
+            _ = resource.to_sql(
+                metadata,
+                check_types=check_types,
+                check_values=check_values,
+                check_foreign_keys=check_foreign_keys,
+                dialect=dialect,
+            )
         return metadata
 
     def get_sorted_resources(self) -> StrictList[Resource]:
