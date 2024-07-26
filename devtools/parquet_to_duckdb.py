@@ -48,33 +48,18 @@ def convert_parquet_to_duckdb(parquet_dir: str, duckdb_path: str):
     engine = sa.create_engine(f"duckdb:///{duckdb_path}")
     metadata.create_all(engine)
 
-    # iterate through the parquet files and add them to the db
-    # throw an error if there is a missing paruqet file or an extra one
-
-    # # Fetch table names from SQLite database using DuckDB
-    # duckdb_cursor.execute(f"ATTACH DATABASE '{sqlite_path}' AS sqlite_db;")
-    # duckdb_cursor.execute("SELECT name FROM main.sqlite_master WHERE type='table';")
-    # table_names = [row[0] for row in duckdb_cursor.fetchall()]
-
-    # # Copy tables from SQLite to DuckDB
-    # for table_name in table_names:
-    #     logger.info(f"Working on table: {table_name}")
-    #     # Fetch column names and types from SQLite table using DuckDB
-    #     duckdb_cursor.execute(f"PRAGMA table_info(sqlite_db.{table_name});")
-    #     columns_info = duckdb_cursor.fetchall()
-    #     column_definitions = ", ".join([f"{col[1]} {col[2]}" for col in columns_info])
-
-    #     # Create equivalent table in DuckDB
-    #     duckdb_cursor.execute(f"CREATE TABLE {table_name} ({column_definitions});")
-
-    #     # Copy data from SQLite to DuckDB using DuckDB
-    #     duckdb_cursor.execute(
-    #         f"INSERT INTO {table_name} SELECT * FROM sqlite_db.{table_name};"  # noqa: S608
-    #     )
-
-    # # Commit and close connections
-    # duckdb_conn.commit()
-    # duckdb_conn.close()
+    for table in metadata.sorted_tables:
+        parquet_file_path = parquet_dir / f"{table.name}.parquet"
+        logger.info(f"Loading table: {table.name} into DuckDB")
+        if parquet_file_path.exists():
+            sql_command = f"""
+                COPY {table.name} FROM '{parquet_file_path}' (FORMAT PARQUET);
+            """
+            with engine.connect() as conn:
+                conn.execute(sa.text(sql_command))
+        else:
+            print("File not found: ", parquet_file_path)
+            # raise FileNotFoundError("Parquet file not found for: ", table.name)
 
 
 if __name__ == "__main__":
