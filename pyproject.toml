@@ -22,7 +22,7 @@ dependencies = [
     "coloredlogs>=14.0", # Dagster requires 14.0
     "conda-lock>=2.5.7",
     "coverage>=7",
-    "dagster>=1.7,!=1.7.13", # 1.7.13 breaks with python 3.12.4
+    "dagster>=1.7,<1.7.13", # Python 3.12.4 breaks 1.7.13. 1.7.14 caused local ETL failures
     "dagster-postgres>=0.23,<1", # Update when dagster-postgres graduates to 1.x
     "dask>=2024",
     "dask-expr", # Required for dask[dataframe]
@@ -74,7 +74,7 @@ dependencies = [
     "scikit-learn>=1.4",
     "scipy>=1.13",
     "Shapely>=2",
-    "splink>=3.9.14",
+    "splink>=3.9.14,<4", # Need to update PUDL to use new Splink v4 API. See issue #3735
     "sphinx>=7.4.4",
     "sphinx-autoapi>=3",
     "sphinx-issues>=1.2",

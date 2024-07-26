@@ -48,6 +48,7 @@ def convert_parquet_to_duckdb(parquet_dir: str, duckdb_path: str):
     engine = sa.create_engine(f"duckdb:///{duckdb_path}")
     metadata.create_all(engine)
 
+    # Iterate through the tables in order of foreign key dependency
     for table in metadata.sorted_tables:
         parquet_file_path = parquet_dir / f"{table.name}.parquet"
         logger.info(f"Loading table: {table.name} into DuckDB")
