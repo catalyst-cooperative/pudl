@@ -72,28 +72,29 @@ def parquet_to_duckdb(
     engine = sa.create_engine(f"duckdb:///{duckdb_path}")
     metadata.create_all(engine)
 
-    if not no_load:
-        # Connect to DuckDB database
-        duckdb_conn = duckdb.connect(database=str(duckdb_path))
+    with duckdb.connect(database=str(duckdb_path)) as duckdb_conn:
         duckdb_cursor = duckdb_conn.cursor()
-
         # Iterate through the tables in order of foreign key dependency
+        # Explicitly add comments to all tables and columns, since this is not done
+        # automatically by create_all():
         for table in metadata.sorted_tables:
-            parquet_file_path = parquet_dir / f"{table.name}.parquet"
-            if parquet_file_path.exists():
-                logger.info(
-                    f"Loading parquet file: {parquet_file_path} into {duckdb_path}"
-                )
-                sql_command = f"""
-                    COPY {table.name} FROM '{parquet_file_path}' (FORMAT PARQUET);
-                """
-                duckdb_cursor.execute(sql_command)
-            else:
-                raise FileNotFoundError("Parquet file not found for: ", table.name)
+            duckdb_cursor.execute(str(sa.schema.SetTableComment(table)))
+            for column in table.columns:
+                duckdb_cursor.execute(str(sa.schema.SetColumnComment(column)))
 
-        # Commit and close connections
-        duckdb_conn.commit()
-        duckdb_conn.close()
+            # Load data into the DuckDB database from parquet files, if requested:
+            if not no_load:
+                parquet_file_path = parquet_dir / f"{table.name}.parquet"
+                if parquet_file_path.exists():
+                    logger.info(
+                        f"Loading parquet file: {parquet_file_path} into {duckdb_path}"
+                    )
+                    sql_command = f"""
+                        COPY {table.name} FROM '{parquet_file_path}' (FORMAT PARQUET);
+                    """
+                    duckdb_cursor.execute(sql_command)
+                else:
+                    raise FileNotFoundError("Parquet file not found for: ", table.name)
 
 
 if __name__ == "__main__":
