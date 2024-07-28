@@ -1508,7 +1508,9 @@ class Resource(PudlMeta):
         if check_foreign_keys:
             for key in self.schema.foreign_keys:
                 constraints.append(key.to_sql())
-        return sa.Table(self.name, metadata, *columns, *constraints)
+        return sa.Table(
+            self.name, metadata, *columns, *constraints, comment=self.description
+        )
 
     def to_pyarrow(self) -> pa.Schema:
         """Construct a PyArrow schema for the resource."""
