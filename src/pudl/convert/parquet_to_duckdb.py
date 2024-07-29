@@ -72,10 +72,10 @@ def parquet_to_duckdb(
     engine = sa.create_engine(f"duckdb:///{duckdb_path}")
     metadata.create_all(engine)
 
-    with duckdb.connect(database=str(duckdb_path)) as duckdb_conn:
-        duckdb_cursor = duckdb_conn.cursor()
-        # Load data into the DuckDB database from parquet files, if requested:
-        if not no_load:
+    if not no_load:
+        with duckdb.connect(database=str(duckdb_path)) as duckdb_conn:
+            duckdb_cursor = duckdb_conn.cursor()
+            # Load data into the DuckDB database from parquet files, if requested:
             # Iterate through the tables in order of foreign key dependency
             for table in metadata.sorted_tables:
                 parquet_file_path = parquet_dir / f"{table.name}.parquet"
