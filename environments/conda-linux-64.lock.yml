@@ -198,7 +198,7 @@ dependencies:
   - humanize=4.10.0=pyhd8ed1ab_0
   - hupper=1.12.1=pyhd8ed1ab_0
   - hyperframe=6.0.1=pyhd8ed1ab_0
-  - hypothesis=6.108.4=pyha770c72_0
+  - hypothesis=6.108.5=pyha770c72_0
   - icu=73.2=h59595ed_0
   - identify=2.6.0=pyhd8ed1ab_0
   - idna=3.7=pyhd8ed1ab_0
@@ -391,7 +391,7 @@ dependencies:
   - packaging=24.1=pyhd8ed1ab_0
   - pandas=2.2.2=py312h1d6d2e6_1
   - pandera-core=0.20.0=pyhd8ed1ab_0
-  - pandoc=3.2.1=ha770c72_0
+  - pandoc=3.3=ha770c72_0
   - pandocfilters=1.5.0=pyhd8ed1ab_0
   - pango=1.54.0=h4c5309f_1
   - paramiko=3.4.0=pyhd8ed1ab_0
@@ -521,12 +521,12 @@ dependencies:
   - sphinx-basic-ng=1.0.0b2=pyhd8ed1ab_1
   - sphinx-issues=1.2.0=py_0
   - sphinx-reredirects=0.1.5=pyhd8ed1ab_0
-  - sphinxcontrib-applehelp=1.0.8=pyhd8ed1ab_0
+  - sphinxcontrib-applehelp=2.0.0=pyhd8ed1ab_0
   - sphinxcontrib-bibtex=2.6.2=pyhd8ed1ab_0
-  - sphinxcontrib-devhelp=1.0.6=pyhd8ed1ab_0
-  - sphinxcontrib-htmlhelp=2.0.6=pyhd8ed1ab_0
+  - sphinxcontrib-devhelp=2.0.0=pyhd8ed1ab_0
+  - sphinxcontrib-htmlhelp=2.1.0=pyhd8ed1ab_0
   - sphinxcontrib-jsmath=1.0.1=pyhd8ed1ab_0
-  - sphinxcontrib-qthelp=1.0.8=pyhd8ed1ab_0
+  - sphinxcontrib-qthelp=2.0.0=pyhd8ed1ab_0
   - sphinxcontrib-serializinghtml=1.1.10=pyhd8ed1ab_0
   - splink=3.9.15=pyhd8ed1ab_0
   - sqlalchemy=2.0.31=py312h9a8786e_0
