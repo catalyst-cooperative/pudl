@@ -198,7 +198,7 @@ dependencies:
   - humanize=4.10.0=pyhd8ed1ab_0
   - hupper=1.12.1=pyhd8ed1ab_0
   - hyperframe=6.0.1=pyhd8ed1ab_0
-  - hypothesis=6.108.4=pyha770c72_0
+  - hypothesis=6.108.5=pyha770c72_0
   - icu=73.2=h59595ed_0
   - identify=2.6.0=pyhd8ed1ab_0
   - idna=3.7=pyhd8ed1ab_0
