@@ -4111,8 +4111,8 @@ package:
       setuptools: ""
       jinja2: ""
       pytz: ""
-      rich: ""
       tabulate: ""
+      rich: ""
       filelock: ""
       python-dotenv: ""
       pywin32-on-windows: ""
@@ -4154,8 +4154,8 @@ package:
       setuptools: ""
       jinja2: ""
       pytz: ""
-      rich: ""
       tabulate: ""
+      rich: ""
       filelock: ""
       python-dotenv: ""
       pywin32-on-windows: ""
@@ -17232,36 +17232,36 @@ package:
     category: main
     optional: false
   - name: pandoc
-    version: 3.2.1
+    version: "3.3"
     manager: conda
     platform: linux-64
     dependencies: {}
-    url: https://conda.anaconda.org/conda-forge/linux-64/pandoc-3.2.1-ha770c72_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/pandoc-3.3-ha770c72_0.conda
     hash:
-      md5: b39b12d3809e4042f832b76192e0e7e8
-      sha256: 130bcefaeeb55ed68ea4403d45b21105390292a2e3167779da099e241d713109
+      md5: 0a3af8b93ba501c6ba020deacc9df841
+      sha256: 0a9591992ada40a6dd2a3f37bfe51cd01956e54b1fa9204f2bd92b31148cb55e
     category: main
     optional: false
   - name: pandoc
-    version: 3.2.1
+    version: "3.3"
     manager: conda
     platform: osx-64
     dependencies: {}
-    url: https://conda.anaconda.org/conda-forge/osx-64/pandoc-3.2.1-h694c41f_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/pandoc-3.3-h694c41f_0.conda
     hash:
-      md5: 41918abf697bb6544ba287ef5e15cf16
-      sha256: 48dedb78b6bf95ab5569c9d5d51a1f842dd754f4a9cf5132545d912eecaef391
+      md5: 52fbc816a7bcad1d21a372c0e1cb22c4
+      sha256: 420da5e93467729c270e9b62397061d1a265531eecb87d4c0f02ee80761c9fbc
     category: main
     optional: false
   - name: pandoc
-    version: 3.2.1
+    version: "3.3"
     manager: conda
     platform: osx-arm64
     dependencies: {}
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/pandoc-3.2.1-hce30654_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/pandoc-3.3-hce30654_0.conda
     hash:
-      md5: 9ab1789fa84c40b8257002cc979a2e1a
-      sha256: 46ada6736bc2448e88a7995e758d54b5f412e566d64a616e1d8de16384d9ef11
+      md5: d6414d4e7997d462d2d60a971e68d3b4
+      sha256: 097451021b144932e9932dbcc20d3996b728178878ff00bdd9c1ee0ef372491d
     category: main
     optional: false
   - name: pandocfilters
@@ -20129,7 +20129,6 @@ package:
       tk: ">=8.6.13,<8.7.0a0"
       tzdata: ""
       xz: ">=5.2.6,<6.0a0"
-      pip: ""
     url: https://conda.anaconda.org/conda-forge/linux-64/python-3.12.4-h194c7f8_0_cpython.conda
     hash:
       md5: d73490214f536cccb5819e9873048c92
@@ -20153,7 +20152,6 @@ package:
       tk: ">=8.6.13,<8.7.0a0"
       tzdata: ""
       xz: ">=5.2.6,<6.0a0"
-      pip: ""
     url: https://conda.anaconda.org/conda-forge/osx-64/python-3.12.4-h37a9e06_0_cpython.conda
     hash:
       md5: 94e2b77992f580ac6b7a4fc9b53018b3
@@ -20177,7 +20175,6 @@ package:
       tk: ">=8.6.13,<8.7.0a0"
       tzdata: ""
       xz: ">=5.2.6,<6.0a0"
-      pip: ""
     url: https://conda.anaconda.org/conda-forge/osx-arm64/python-3.12.4-h30c5eda_0_cpython.conda
     hash:
       md5: e3e44e0e72aed46dcb810fa3e96784be
@@ -22800,42 +22797,42 @@ package:
     category: main
     optional: false
   - name: sphinxcontrib-applehelp
-    version: 1.0.8
+    version: 2.0.0
     manager: conda
     platform: linux-64
     dependencies:
       python: ">=3.9"
       sphinx: ">=5"
-    url: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-applehelp-1.0.8-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-applehelp-2.0.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 611a35a27914fac3aa37611a6fe40bb5
-      sha256: 710013443a063518d587d2af82299e92ab6d6695edf35a676ac3a0ccc9e3f8e6
+      md5: 9075bd8c033f0257122300db914e49c9
+      sha256: 8ac476358cf26098e3a360b2a9037bd809243f72934c103953e25f4fda4b9f31
     category: main
     optional: false
   - name: sphinxcontrib-applehelp
-    version: 1.0.8
+    version: 2.0.0
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.9"
       sphinx: ">=5"
-    url: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-applehelp-1.0.8-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-applehelp-2.0.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 611a35a27914fac3aa37611a6fe40bb5
-      sha256: 710013443a063518d587d2af82299e92ab6d6695edf35a676ac3a0ccc9e3f8e6
+      md5: 9075bd8c033f0257122300db914e49c9
+      sha256: 8ac476358cf26098e3a360b2a9037bd809243f72934c103953e25f4fda4b9f31
     category: main
     optional: false
   - name: sphinxcontrib-applehelp
-    version: 1.0.8
+    version: 2.0.0
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.9"
       sphinx: ">=5"
-    url: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-applehelp-1.0.8-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-applehelp-2.0.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 611a35a27914fac3aa37611a6fe40bb5
-      sha256: 710013443a063518d587d2af82299e92ab6d6695edf35a676ac3a0ccc9e3f8e6
+      md5: 9075bd8c033f0257122300db914e49c9
+      sha256: 8ac476358cf26098e3a360b2a9037bd809243f72934c103953e25f4fda4b9f31
     category: main
     optional: false
   - name: sphinxcontrib-bibtex
@@ -22893,81 +22890,81 @@ package:
     category: main
     optional: false
   - name: sphinxcontrib-devhelp
-    version: 1.0.6
+    version: 2.0.0
     manager: conda
     platform: linux-64
     dependencies:
       python: ">=3.9"
       sphinx: ">=5"
-    url: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-devhelp-1.0.6-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-devhelp-2.0.0-pyhd8ed1ab_0.conda
     hash:
-      md5: d7e4954df0d3aea2eacc7835ad12671d
-      sha256: 63a6b60653ef13a6712848f4b3c4b713d4b564da1dae571893f1a3659cde85f3
+      md5: b3bcc38c471ebb738854f52a36059b48
+      sha256: 6790efe55f168816dfc9c14235054d5156e5150d28546c5baf2ff4973eff8f6b
     category: main
     optional: false
   - name: sphinxcontrib-devhelp
-    version: 1.0.6
+    version: 2.0.0
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.9"
       sphinx: ">=5"
-    url: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-devhelp-1.0.6-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-devhelp-2.0.0-pyhd8ed1ab_0.conda
     hash:
-      md5: d7e4954df0d3aea2eacc7835ad12671d
-      sha256: 63a6b60653ef13a6712848f4b3c4b713d4b564da1dae571893f1a3659cde85f3
+      md5: b3bcc38c471ebb738854f52a36059b48
+      sha256: 6790efe55f168816dfc9c14235054d5156e5150d28546c5baf2ff4973eff8f6b
     category: main
     optional: false
   - name: sphinxcontrib-devhelp
-    version: 1.0.6
+    version: 2.0.0
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.9"
       sphinx: ">=5"
-    url: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-devhelp-1.0.6-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-devhelp-2.0.0-pyhd8ed1ab_0.conda
     hash:
-      md5: d7e4954df0d3aea2eacc7835ad12671d
-      sha256: 63a6b60653ef13a6712848f4b3c4b713d4b564da1dae571893f1a3659cde85f3
+      md5: b3bcc38c471ebb738854f52a36059b48
+      sha256: 6790efe55f168816dfc9c14235054d5156e5150d28546c5baf2ff4973eff8f6b
     category: main
     optional: false
   - name: sphinxcontrib-htmlhelp
-    version: 2.0.6
+    version: 2.1.0
     manager: conda
     platform: linux-64
     dependencies:
       python: ">=3.9"
       sphinx: ">=5"
-    url: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-htmlhelp-2.0.6-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-htmlhelp-2.1.0-pyhd8ed1ab_0.conda
     hash:
-      md5: d6f4b617daa8c677f60c06a3a61e2743
-      sha256: ef8a4e783dba8003273622059363ada968009ca36f853c5faa54ea0f2f789fd3
+      md5: e25640d692c02e8acfff0372f547e940
+      sha256: 55e14b77ed786ab6ff752b8d75f8448536f385ed250f432bd408d2eff5ea4a9e
     category: main
     optional: false
   - name: sphinxcontrib-htmlhelp
-    version: 2.0.6
+    version: 2.1.0
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.9"
       sphinx: ">=5"
-    url: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-htmlhelp-2.0.6-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-htmlhelp-2.1.0-pyhd8ed1ab_0.conda
     hash:
-      md5: d6f4b617daa8c677f60c06a3a61e2743
-      sha256: ef8a4e783dba8003273622059363ada968009ca36f853c5faa54ea0f2f789fd3
+      md5: e25640d692c02e8acfff0372f547e940
+      sha256: 55e14b77ed786ab6ff752b8d75f8448536f385ed250f432bd408d2eff5ea4a9e
     category: main
     optional: false
   - name: sphinxcontrib-htmlhelp
-    version: 2.0.6
+    version: 2.1.0
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.9"
       sphinx: ">=5"
-    url: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-htmlhelp-2.0.6-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-htmlhelp-2.1.0-pyhd8ed1ab_0.conda
     hash:
-      md5: d6f4b617daa8c677f60c06a3a61e2743
-      sha256: ef8a4e783dba8003273622059363ada968009ca36f853c5faa54ea0f2f789fd3
+      md5: e25640d692c02e8acfff0372f547e940
+      sha256: 55e14b77ed786ab6ff752b8d75f8448536f385ed250f432bd408d2eff5ea4a9e
     category: main
     optional: false
   - name: sphinxcontrib-jsmath
@@ -23007,42 +23004,42 @@ package:
     category: main
     optional: false
   - name: sphinxcontrib-qthelp
-    version: 1.0.8
+    version: 2.0.0
     manager: conda
     platform: linux-64
     dependencies:
       python: ">=3.9"
       sphinx: ">=5"
-    url: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-qthelp-1.0.8-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-qthelp-2.0.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 179912c661d6aa9fe794e81c854f8d9f
-      sha256: d644031a17b970c89b11ebd6ff56e7dafc71d9096754840e7742e6597238527f
+      md5: d6e5ea5fe00164ac6c2dcc5d76a42192
+      sha256: 7ae639b729844de2ec74dbaf1acccc14843868a82fa46cd2ceb735bc8266af5b
     category: main
     optional: false
   - name: sphinxcontrib-qthelp
-    version: 1.0.8
+    version: 2.0.0
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.9"
       sphinx: ">=5"
-    url: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-qthelp-1.0.8-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-qthelp-2.0.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 179912c661d6aa9fe794e81c854f8d9f
-      sha256: d644031a17b970c89b11ebd6ff56e7dafc71d9096754840e7742e6597238527f
+      md5: d6e5ea5fe00164ac6c2dcc5d76a42192
+      sha256: 7ae639b729844de2ec74dbaf1acccc14843868a82fa46cd2ceb735bc8266af5b
     category: main
     optional: false
   - name: sphinxcontrib-qthelp
-    version: 1.0.8
+    version: 2.0.0
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.9"
       sphinx: ">=5"
-    url: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-qthelp-1.0.8-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-qthelp-2.0.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 179912c661d6aa9fe794e81c854f8d9f
-      sha256: d644031a17b970c89b11ebd6ff56e7dafc71d9096754840e7742e6597238527f
+      md5: d6e5ea5fe00164ac6c2dcc5d76a42192
+      sha256: 7ae639b729844de2ec74dbaf1acccc14843868a82fa46cd2ceb735bc8266af5b
     category: main
     optional: false
   - name: sphinxcontrib-serializinghtml
