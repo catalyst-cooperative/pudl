@@ -74,16 +74,10 @@ def parquet_to_duckdb(
 
     with duckdb.connect(database=str(duckdb_path)) as duckdb_conn:
         duckdb_cursor = duckdb_conn.cursor()
-        # Iterate through the tables in order of foreign key dependency
-        # Explicitly add comments to all tables and columns, since this is not done
-        # automatically by create_all():
-        for table in metadata.sorted_tables:
-            duckdb_cursor.execute(str(sa.schema.SetTableComment(table)))
-            for column in table.columns:
-                duckdb_cursor.execute(str(sa.schema.SetColumnComment(column)))
-
-            # Load data into the DuckDB database from parquet files, if requested:
-            if not no_load:
+        # Load data into the DuckDB database from parquet files, if requested:
+        if not no_load:
+            # Iterate through the tables in order of foreign key dependency
+            for table in metadata.sorted_tables:
                 parquet_file_path = parquet_dir / f"{table.name}.parquet"
                 if parquet_file_path.exists():
                     logger.info(
