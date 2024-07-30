@@ -18,7 +18,7 @@ dependencies:
   - anyio=4.4.0=pyhd8ed1ab_0
   - appdirs=1.4.4=pyh9f0ad1d_0
   - appnope=0.1.4=pyhd8ed1ab_0
-  - arelle-release=2.30.14=pyhd8ed1ab_0
+  - arelle-release=2.30.15=pyhd8ed1ab_0
   - argon2-cffi=23.1.0=pyhd8ed1ab_0
   - argon2-cffi-bindings=21.2.0=py312h104f124_4
   - arrow=1.3.0=pyhd8ed1ab_0
@@ -48,7 +48,7 @@ dependencies:
   - azure-storage-common-cpp=12.7.0=hf91904f_1
   - babel=2.14.0=pyhd8ed1ab_0
   - backoff=2.2.1=pyhd8ed1ab_0
-  - backports=1.0=pyhd8ed1ab_3
+  - backports=1.0=pyhd8ed1ab_4
   - backports.tarfile=1.0.0=pyhd8ed1ab_1
   - backports.zoneinfo=0.2.1=py312hb401068_8
   - bcrypt=4.2.0=py312ha47ea1c_0
@@ -197,7 +197,7 @@ dependencies:
   - humanize=4.10.0=pyhd8ed1ab_0
   - hupper=1.12.1=pyhd8ed1ab_0
   - hyperframe=6.0.1=pyhd8ed1ab_0
-  - hypothesis=6.108.4=pyha770c72_0
+  - hypothesis=6.108.5=pyha770c72_0
   - icu=73.2=hf5e326d_0
   - identify=2.6.0=pyhd8ed1ab_0
   - idna=3.7=pyhd8ed1ab_0
@@ -265,7 +265,7 @@ dependencies:
   - libcblas=3.9.0=22_osx64_openblas
   - libcrc32c=1.1.2=he49afe7_0
   - libcurl=8.9.0=hfcf2730_0
-  - libcxx=18.1.8=hef8daea_0
+  - libcxx=18.1.8=hef8daea_1
   - libdeflate=1.20=h49d49c5_0
   - libedit=3.1.20191231=h0678c8f_2
   - libev=4.33=h10d778d_2
@@ -382,7 +382,7 @@ dependencies:
   - packaging=24.1=pyhd8ed1ab_0
   - pandas=2.2.2=py312h1171441_1
   - pandera-core=0.20.0=pyhd8ed1ab_0
-  - pandoc=3.2.1=h694c41f_0
+  - pandoc=3.3=h694c41f_0
   - pandocfilters=1.5.0=pyhd8ed1ab_0
   - pango=1.54.0=h115fe74_1
   - paramiko=3.4.0=pyhd8ed1ab_0
@@ -511,12 +511,12 @@ dependencies:
   - sphinx-basic-ng=1.0.0b2=pyhd8ed1ab_1
   - sphinx-issues=1.2.0=py_0
   - sphinx-reredirects=0.1.5=pyhd8ed1ab_0
-  - sphinxcontrib-applehelp=1.0.8=pyhd8ed1ab_0
+  - sphinxcontrib-applehelp=2.0.0=pyhd8ed1ab_0
   - sphinxcontrib-bibtex=2.6.2=pyhd8ed1ab_0
-  - sphinxcontrib-devhelp=1.0.6=pyhd8ed1ab_0
-  - sphinxcontrib-htmlhelp=2.0.6=pyhd8ed1ab_0
+  - sphinxcontrib-devhelp=2.0.0=pyhd8ed1ab_0
+  - sphinxcontrib-htmlhelp=2.1.0=pyhd8ed1ab_0
   - sphinxcontrib-jsmath=1.0.1=pyhd8ed1ab_0
-  - sphinxcontrib-qthelp=1.0.8=pyhd8ed1ab_0
+  - sphinxcontrib-qthelp=2.0.0=pyhd8ed1ab_0
   - sphinxcontrib-serializinghtml=1.1.10=pyhd8ed1ab_0
   - splink=3.9.15=pyhd8ed1ab_0
   - sqlalchemy=2.0.31=py312hbd25219_0
