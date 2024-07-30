@@ -64,6 +64,11 @@ Data Cleaning
 * When ``generator_operating_date`` values are too inconsistent to be harvested
   successfully, we now take the last reported date in EIA 860 and 860M. See :issue:`423`
   and PR :pr:`3967`.
+* Added the ``generator_operating_date`` field into
+  :ref:`core_eia860m__changelog_generators`, adding 860M reported generator operating
+  dates into the changelog table. This table is not harvested, and thus does not affect
+  the ``generator_operating_date`` values reported in other core EIA tables. See
+  :issue:`3722` and PR :pr:`3751.`
 
 Bug Fixes
 ^^^^^^^^^
