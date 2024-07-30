@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: 47701cb29107fb7fcaaf7650f8ba1b9ec78b14a9a62a8fe0f918c99a863e33b0
-    osx-64: 77fa3ad02763e9905f7e3b38b8e3d4689b9dd58ca48ef9e69748e51b5dcdc4b4
-    osx-arm64: 5db1b5edefc239d54c16a9894a0041a8f9f0b3056cf00e8475d7141900144b9a
+    linux-64: fa48664f832b32fb654780c59376ac0a048b749ef3452828bfbe040c8a2014c3
+    osx-64: 0752354895cda330b7c0fcd78627b152655102540955085b143cb23fea2ca91f
+    osx-arm64: effba85c5b26f2821212c86be51fddc01fc2ab83df27e4d133d81de327e4f153
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -591,7 +591,7 @@ package:
     category: main
     optional: false
   - name: arelle-release
-    version: 2.30.14
+    version: 2.30.15
     manager: conda
     platform: linux-64
     dependencies:
@@ -605,14 +605,14 @@ package:
       python: ">=3.8"
       python-dateutil: 2.*
       regex: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.30.14-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.30.15-pyhd8ed1ab_0.conda
     hash:
-      md5: 62634472e44f62714ba9298322655eca
-      sha256: 89d3e2edc5e300116887f560451b4be3dac447ad47b178406c9176440fca4c60
+      md5: b512b64f40a41a7368f0f8dcf9f848ac
+      sha256: 23f0605d9f7d1802512b2c3b65df62f72e650737d250c53bc22b53b8956a37bd
     category: main
     optional: false
   - name: arelle-release
-    version: 2.30.14
+    version: 2.30.15
     manager: conda
     platform: osx-64
     dependencies:
@@ -626,14 +626,14 @@ package:
       openpyxl: 3.*
       pyparsing: 3.*
       lxml: ">=4,<6"
-    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.30.14-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.30.15-pyhd8ed1ab_0.conda
     hash:
-      md5: 62634472e44f62714ba9298322655eca
-      sha256: 89d3e2edc5e300116887f560451b4be3dac447ad47b178406c9176440fca4c60
+      md5: b512b64f40a41a7368f0f8dcf9f848ac
+      sha256: 23f0605d9f7d1802512b2c3b65df62f72e650737d250c53bc22b53b8956a37bd
     category: main
     optional: false
   - name: arelle-release
-    version: 2.30.14
+    version: 2.30.15
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -647,10 +647,10 @@ package:
       openpyxl: 3.*
       pyparsing: 3.*
       lxml: ">=4,<6"
-    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.30.14-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.30.15-pyhd8ed1ab_0.conda
     hash:
-      md5: 62634472e44f62714ba9298322655eca
-      sha256: 89d3e2edc5e300116887f560451b4be3dac447ad47b178406c9176440fca4c60
+      md5: b512b64f40a41a7368f0f8dcf9f848ac
+      sha256: 23f0605d9f7d1802512b2c3b65df62f72e650737d250c53bc22b53b8956a37bd
     category: main
     optional: false
   - name: argon2-cffi
@@ -1948,11 +1948,11 @@ package:
     manager: conda
     platform: linux-64
     dependencies:
-      python: ">=2.7"
-    url: https://conda.anaconda.org/conda-forge/noarch/backports-1.0-pyhd8ed1ab_3.conda
+      python: ">=3"
+    url: https://conda.anaconda.org/conda-forge/noarch/backports-1.0-pyhd8ed1ab_4.conda
     hash:
-      md5: 54ca2e08b3220c148a1d8329c2678e02
-      sha256: 711602276ae39276cb0faaca6fd0ac851fff0ca17151917569174841ef830bbd
+      md5: 67bdebbc334513034826e9b63f769d4c
+      sha256: 31b51537ce7d2ba8b5b3d0095f1813711884304ac1701bc55938ca75f6c82e19
     category: main
     optional: false
   - name: backports
@@ -1960,11 +1960,11 @@ package:
     manager: conda
     platform: osx-64
     dependencies:
-      python: ">=2.7"
-    url: https://conda.anaconda.org/conda-forge/noarch/backports-1.0-pyhd8ed1ab_3.conda
+      python: ">=3"
+    url: https://conda.anaconda.org/conda-forge/noarch/backports-1.0-pyhd8ed1ab_4.conda
     hash:
-      md5: 54ca2e08b3220c148a1d8329c2678e02
-      sha256: 711602276ae39276cb0faaca6fd0ac851fff0ca17151917569174841ef830bbd
+      md5: 67bdebbc334513034826e9b63f769d4c
+      sha256: 31b51537ce7d2ba8b5b3d0095f1813711884304ac1701bc55938ca75f6c82e19
     category: main
     optional: false
   - name: backports
@@ -1972,11 +1972,11 @@ package:
     manager: conda
     platform: osx-arm64
     dependencies:
-      python: ">=2.7"
-    url: https://conda.anaconda.org/conda-forge/noarch/backports-1.0-pyhd8ed1ab_3.conda
+      python: ">=3"
+    url: https://conda.anaconda.org/conda-forge/noarch/backports-1.0-pyhd8ed1ab_4.conda
     hash:
-      md5: 54ca2e08b3220c148a1d8329c2678e02
-      sha256: 711602276ae39276cb0faaca6fd0ac851fff0ca17151917569174841ef830bbd
+      md5: 67bdebbc334513034826e9b63f769d4c
+      sha256: 31b51537ce7d2ba8b5b3d0095f1813711884304ac1701bc55938ca75f6c82e19
     category: main
     optional: false
   - name: backports.tarfile
@@ -5016,6 +5016,51 @@ package:
     hash:
       md5: 50ea9a1ab48349f343ca2ae82833bda4
       sha256: e1ad41c6401ab2ada143d6e1dbbe6ae8afbe3e651211bb414b9ae1f0f8c13249
+    category: main
+    optional: false
+  - name: duckdb-engine
+    version: 0.12.1
+    manager: conda
+    platform: linux-64
+    dependencies:
+      packaging: ">=21.3"
+      python: ">=3.7"
+      python-duckdb: ">=0.4.0"
+      sqlalchemy: ">=1.3.19"
+    url: https://conda.anaconda.org/conda-forge/noarch/duckdb-engine-0.12.1-pyhd8ed1ab_0.conda
+    hash:
+      md5: 19675163fe045007713dc3faedf6337f
+      sha256: dd41818acfbdc7f922ce1c34cf2494c4978ed156e6ad6c3cd1fa38b26830e8c3
+    category: main
+    optional: false
+  - name: duckdb-engine
+    version: 0.12.1
+    manager: conda
+    platform: osx-64
+    dependencies:
+      python: ">=3.7"
+      packaging: ">=21.3"
+      sqlalchemy: ">=1.3.19"
+      python-duckdb: ">=0.4.0"
+    url: https://conda.anaconda.org/conda-forge/noarch/duckdb-engine-0.12.1-pyhd8ed1ab_0.conda
+    hash:
+      md5: 19675163fe045007713dc3faedf6337f
+      sha256: dd41818acfbdc7f922ce1c34cf2494c4978ed156e6ad6c3cd1fa38b26830e8c3
+    category: main
+    optional: false
+  - name: duckdb-engine
+    version: 0.12.1
+    manager: conda
+    platform: osx-arm64
+    dependencies:
+      python: ">=3.7"
+      packaging: ">=21.3"
+      sqlalchemy: ">=1.3.19"
+      python-duckdb: ">=0.4.0"
+    url: https://conda.anaconda.org/conda-forge/noarch/duckdb-engine-0.12.1-pyhd8ed1ab_0.conda
+    hash:
+      md5: 19675163fe045007713dc3faedf6337f
+      sha256: dd41818acfbdc7f922ce1c34cf2494c4978ed156e6ad6c3cd1fa38b26830e8c3
     category: main
     optional: false
   - name: email-validator
@@ -22588,10 +22633,10 @@ package:
       alabaster: ">=0.7.14,<0.8.dev0"
       babel: ">=2.13"
       docutils: ">=0.20,<0.22"
-      importlib-metadata: ">=6.0"
       pygments: ">=2.17"
       requests: ">=2.30.0"
       snowballstemmer: ">=2.2"
+      importlib-metadata: ">=6.0"
     url: https://conda.anaconda.org/conda-forge/noarch/sphinx-7.4.7-pyhd8ed1ab_0.conda
     hash:
       md5: c568e260463da2528ecfd7c5a0b41bbd
@@ -22618,10 +22663,10 @@ package:
       alabaster: ">=0.7.14,<0.8.dev0"
       babel: ">=2.13"
       docutils: ">=0.20,<0.22"
-      importlib-metadata: ">=6.0"
       pygments: ">=2.17"
       requests: ">=2.30.0"
       snowballstemmer: ">=2.2"
+      importlib-metadata: ">=6.0"
     url: https://conda.anaconda.org/conda-forge/noarch/sphinx-7.4.7-pyhd8ed1ab_0.conda
     hash:
       md5: c568e260463da2528ecfd7c5a0b41bbd

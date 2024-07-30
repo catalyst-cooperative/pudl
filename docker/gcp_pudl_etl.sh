@@ -123,6 +123,13 @@ function distribute_parquet() {
     fi
 }
 
+function create_and_distribute_duckdb() {
+    echo "Creating DuckDB file from parquet files and copying it to GCS"
+    GCS_PATH="gs://superset.catalyst.coop"
+    parquet_to_duckdb "$PUDL_OUTPUT/parquet" "$PUDL_OUTPUT/pudl.duckdb" && \
+    gsutil -q -m -u "$GCP_BILLING_PROJECT" cp "$PUDL_OUTPUT/pudl.duckdb" "$GCS_PATH"
+}
+
 function copy_outputs_to_distribution_bucket() {
     # Only attempt to update outputs if we have a real value of BUILD_REF
     # This avoids accidentally blowing away the whole bucket if it's not set.
@@ -282,6 +289,9 @@ if [[ $ETL_SUCCESS == 0 ]]; then
         # Distribute Parquet outputs to a private bucket
         distribute_parquet 2>&1 | tee -a "$LOGFILE"
         DISTRIBUTE_PARQUET_SUCCESS=${PIPESTATUS[0]}
+        # Create duckdb file from parquet files
+        create_duckdb 2>&1 | tee -a "$LOGFILE"
+        CREATE_DUCKDB_SUCCESS=${PIPESTATUS[0]}
         # Remove some cruft from the builds that we don't want to distribute
         clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
         CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
@@ -313,6 +323,7 @@ if [[ $ETL_SUCCESS == 0 && \
       $UPDATE_STABLE_SUCCESS == 0 && \
       $DATASETTE_SUCCESS == 0 && \
       $DISTRIBUTE_PARQUET_SUCCESS == 0 && \
+      $CREATE_DUCKDB_SUCCESS == 0 && \
       $CLEAN_UP_OUTPUTS_SUCCESS == 0 && \
       $DISTRIBUTION_BUCKET_SUCCESS == 0 && \
       $GCS_TEMPORARY_HOLD_SUCCESS == 0 && \
