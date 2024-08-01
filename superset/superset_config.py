@@ -44,16 +44,17 @@ def get_db_connection_string() -> str:
 
     if is_cloud_run:
         cloud_sql_connection_name = os.environ.get("CLOUD_SQL_CONNECTION_NAME")
-        # return str(
-        #     sa.engine.url.URL.create(
-        #         drivername=drivername,
-        #         username=username,
-        #         password=password,
-        #         database=database,
-        #         query={"unix_sock": f"/cloudsql/{cloud_sql_connection_name}/.s.PGSQL.5432"}
-        #     ),
-        # )
-        return f"postgresql+psycopg2://{username}:{password}@/{database}?host=/cloudsql/{cloud_sql_connection_name}"
+        return str(
+            sa.engine.url.URL.create(
+                drivername=drivername,
+                username=username,
+                password=password,
+                database=database,
+                query={
+                    "unix_sock": f"/cloudsql/{cloud_sql_connection_name}/.s.PGSQL.5432"
+                },
+            ),
+        )
     return str(
         sa.engine.url.URL.create(
             drivername=drivername,
