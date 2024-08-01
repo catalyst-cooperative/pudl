@@ -6,7 +6,7 @@ terraform {
   required_providers {
     google = {
       source  = "hashicorp/google"
-      version = "4.51.0"
+      version = "5.39.0"
     }
   }
 }
@@ -106,20 +106,31 @@ resource "google_storage_bucket_iam_binding" "binding" {
     format = "docker"
   }
 
-resource "google_cloud_run_v2_service" "default" {
+resource "google_cloud_run_v2_service" "pudl-superset" {
   name     = "pudl-superset"
   location = "us-central1"
   client   = "terraform"
 
+  launch_stage = "BETA"
+
   template {
+    execution_environment = "EXECUTION_ENVIRONMENT_GEN2"
     containers {
+      name = "pudl-superset-1"
       image = "us-central1-docker.pkg.dev/catalyst-cooperative-pudl/pudl-superset/pudl-superset:latest"
 
+      volume_mounts {
+        name       = "bucket"
+        mount_path = "/mnt/gcs"
+      }
       volume_mounts {
         name       = "cloudsql"
         mount_path = "/cloudsql"
       }
-
+      env {
+        name = "IS_CLOUD_RUN"
+        value = "True"
+      }
       env {
         name = "SUPERSET_DB_USER"
         value_source {
@@ -166,10 +177,6 @@ resource "google_cloud_run_v2_service" "default" {
         }
       }
       env {
-        name = "IS_CLOUD_RUN"
-        value = "True"
-      }
-      env {
         name = "AUTH0_CLIENT_ID"
         value_source {
           secret_key_ref {
@@ -208,6 +215,13 @@ resource "google_cloud_run_v2_service" "default" {
       }
     }
     volumes {
+      name = "bucket"
+      gcs {
+        bucket    = google_storage_bucket.superset_storage.name
+        read_only = false
+      }
+    }
+    volumes {
       name = "cloudsql"
       cloud_sql_instance {
         instances = ["catalyst-cooperative-pudl:us-central1:superset-database"]
@@ -217,8 +231,8 @@ resource "google_cloud_run_v2_service" "default" {
 }
 
 resource "google_cloud_run_v2_service_iam_member" "noauth" {
-  location = google_cloud_run_v2_service.default.location
-  name     = google_cloud_run_v2_service.default.name
+  location = google_cloud_run_v2_service.pudl-superset.location
+  name     = google_cloud_run_v2_service.pudl-superset.name
   role     = "roles/run.invoker"
   member   = "allUsers"
 }
@@ -226,7 +240,7 @@ resource "google_cloud_run_v2_service_iam_member" "noauth" {
 resource "google_secret_manager_secret" "superset_secret_key" {
   secret_id = "superset-secret-key"
   replication {
-    automatic = true
+    auto {}
   }
 }
 
@@ -253,26 +267,26 @@ resource "google_sql_database_instance" "postgres_pvp_instance_name" {
 resource "google_secret_manager_secret" "superset_database_username" {
   secret_id = "superset-database-username"
   replication {
-    automatic = true
+    auto {}
   }
 }
 resource "google_secret_manager_secret" "superset_database_database" {
   secret_id = "superset-database-database"
   replication {
-    automatic = true
+    auto {}
   }
 }
 resource "google_secret_manager_secret" "superset_database_password" {
   secret_id = "superset-database-password"
   replication {
-    automatic = true
+    auto {}
   }
 }
 
 resource "google_secret_manager_secret" "superset_database_connection_name" {
   secret_id = "superset-database-connection-name"
   replication {
-    automatic = true
+    auto {}
   }
 }
 
@@ -315,7 +329,7 @@ resource "google_project_iam_member" "cloud_sql_client_role" {
 resource "google_secret_manager_secret" "superset_auth0_client_id" {
   secret_id = "superset-auth0-client-id"
   replication {
-    automatic = true
+    auto {}
   }
 }
 
@@ -328,7 +342,7 @@ resource "google_secret_manager_secret_iam_member" "superset_auth0_client_id_com
 resource "google_secret_manager_secret" "superset_auth0_client_secret" {
   secret_id = "superset-auth0-client-secret"
   replication {
-    automatic = true
+    auto {}
   }
 }
 
@@ -341,7 +355,7 @@ resource "google_secret_manager_secret_iam_member" "superset_auth0_client_secret
 resource "google_secret_manager_secret" "superset_auth0_domain" {
   secret_id = "superset-auth0-domain"
   replication {
-    automatic = true
+    auto {}
   }
 }
 
