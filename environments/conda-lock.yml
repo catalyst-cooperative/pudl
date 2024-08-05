@@ -862,42 +862,42 @@ package:
     category: main
     optional: false
   - name: astroid
-    version: 3.2.4
+    version: 3.3.0
     manager: conda
     platform: linux-64
     dependencies:
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/astroid-3.2.4-py312h7900ff3_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/astroid-3.3.0-py312h7900ff3_0.conda
     hash:
-      md5: 06f82f9dc65aa8ebd14bf3cf2b34dad2
-      sha256: 83beac15a8ee0fd225c63e45e694276846153f927f3f3fc913433e61c4d7fcda
+      md5: e9708b898ee14724fe5f8e0ca76644a4
+      sha256: d9deefb1b35b5d76e543582066335485ee61a143ea27b5af80bf08ba8eb59901
     category: main
     optional: false
   - name: astroid
-    version: 3.2.4
+    version: 3.3.0
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/astroid-3.2.4-py312hb401068_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/astroid-3.3.0-py312hb401068_0.conda
     hash:
-      md5: e876a066ed096cfd60d1bb5285a39fba
-      sha256: 8ce827b01a7f23fb63158cceb040bed22271bbf421c02a194e2dc9517c7d88ad
+      md5: 4a64c9e89a3bcba0a6930ca0a63ad40c
+      sha256: 1424aeae93c91fb5ac184aeb83ebf1b1001f0b3c5207ef3f4ed2372a13560933
     category: main
     optional: false
   - name: astroid
-    version: 3.2.4
+    version: 3.3.0
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/astroid-3.2.4-py312h81bd7bf_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/astroid-3.3.0-py312h81bd7bf_0.conda
     hash:
-      md5: 4261fca4859927be9301a26c1aeedd1f
-      sha256: 6ffe5b150d4dcb52b2db95f67e4e52c8bdc214a92dbf317550c4132c232550a5
+      md5: d9624911c76f57394dfdd715e48be68a
+      sha256: dd469dcf20fa7e336b3da72c37494cb5f6325a982a9af2d56551ed1ea7024657
     category: main
     optional: false
   - name: asttokens
@@ -20140,7 +20140,6 @@ package:
       tk: ">=8.6.13,<8.7.0a0"
       tzdata: ""
       xz: ">=5.2.6,<6.0a0"
-      pip: ""
     url: https://conda.anaconda.org/conda-forge/linux-64/python-3.12.4-h194c7f8_0_cpython.conda
     hash:
       md5: d73490214f536cccb5819e9873048c92
@@ -20164,7 +20163,6 @@ package:
       tk: ">=8.6.13,<8.7.0a0"
       tzdata: ""
       xz: ">=5.2.6,<6.0a0"
-      pip: ""
     url: https://conda.anaconda.org/conda-forge/osx-64/python-3.12.4-h37a9e06_0_cpython.conda
     hash:
       md5: 94e2b77992f580ac6b7a4fc9b53018b3
@@ -20188,7 +20186,6 @@ package:
       tk: ">=8.6.13,<8.7.0a0"
       tzdata: ""
       xz: ">=5.2.6,<6.0a0"
-      pip: ""
     url: https://conda.anaconda.org/conda-forge/osx-arm64/python-3.12.4-h30c5eda_0_cpython.conda
     hash:
       md5: e3e44e0e72aed46dcb810fa3e96784be
