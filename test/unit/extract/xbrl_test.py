@@ -1,9 +1,9 @@
 """Tests for xbrl extraction module."""
 
 import pytest
-from dagster import ResourceDefinition, build_op_context
+from dagster import ResourceDefinition
 
-from pudl.extract.xbrl import FercXbrlDatastore, convert_form, xbrl2sqlite_op_factory
+from pudl.extract.xbrl import FercXbrlDatastore, convert_form
 from pudl.ferc_to_sqlite import ferc_to_sqlite
 from pudl.resources import RuntimeSettings
 from pudl.settings import (
@@ -25,20 +25,14 @@ def test_ferc_xbrl_datastore_get_taxonomy(mocker):
     datastore_mock.get_unique_resource.return_value = b"Fake taxonomy data."
 
     ferc_datastore = FercXbrlDatastore(datastore_mock)
-    raw_archive, taxonomy_entry_point = ferc_datastore.get_taxonomy(
-        2021, XbrlFormNumber.FORM1
-    )
+    raw_archive = ferc_datastore.get_taxonomy(XbrlFormNumber.FORM1)
 
     # 2021 data is published with 2022 taxonomy!
     datastore_mock.get_unique_resource.assert_called_with(
-        "ferc1", year=2022, data_format="xbrl_taxonomy"
+        "ferc1", data_format="xbrl_taxonomy"
     )
 
     assert raw_archive.getvalue() == b"Fake taxonomy data."
-    assert (
-        taxonomy_entry_point
-        == "taxonomy/form1/2022-01-01/form/form1/form-1_2022-01-01.xsd"
-    )
 
 
 def test_ferc_xbrl_datastore_get_filings(mocker):
@@ -116,7 +110,6 @@ def test_xbrl2sqlite(settings, forms, mocker, tmp_path):
             "runtime_settings": RuntimeSettings(
                 xbrl_batch_size=20,
                 xbrl_num_workers=10,
-                clobber=True,
             ),
         },
     )
@@ -135,68 +128,6 @@ def test_xbrl2sqlite(settings, forms, mocker, tmp_path):
         )
 
 
-def test_xbrl2sqlite_db_exists_no_clobber(mocker, tmp_path):
-    convert_form_mock = mocker.MagicMock()
-    mocker.patch("pudl.extract.xbrl.convert_form", new=convert_form_mock)
-
-    # Mock datastore object to allow comparison
-    mock_datastore = mocker.MagicMock()
-    mocker.patch("pudl.extract.xbrl.FercXbrlDatastore", return_value=mock_datastore)
-
-    ferc1_sqlite_path = PudlPaths().output_dir / "ferc1_xbrl.sqlite"
-    ferc1_sqlite_path.touch()
-    settings = FercToSqliteSettings(
-        ferc1_xbrl_to_sqlite_settings=Ferc1XbrlToSqliteSettings(),
-    )
-    context = build_op_context(
-        resources={
-            "ferc_to_sqlite_settings": settings,
-            "datastore": "datastore",
-            "runtime_settings": RuntimeSettings(
-                clobber=False,
-                xbrl_batch_size=20,
-                xbrl_num_workers=10,
-            ),
-        },
-    )
-
-    assert ferc1_sqlite_path.exists()
-    with pytest.raises(RuntimeError, match="Found existing DB"):
-        xbrl2sqlite_op_factory(XbrlFormNumber.FORM1)(context)
-    assert ferc1_sqlite_path.exists()
-
-
-def test_xbrl2sqlite_db_exists_yes_clobber(mocker, tmp_path):
-    convert_form_mock = mocker.MagicMock()
-    mocker.patch("pudl.extract.xbrl.convert_form", new=convert_form_mock)
-
-    # Mock datastore object to allow comparison
-    mock_datastore = mocker.MagicMock()
-    mocker.patch("pudl.extract.xbrl.FercXbrlDatastore", return_value=mock_datastore)
-
-    ferc1_sqlite_path = PudlPaths().output_dir / "ferc1_xbrl.sqlite"
-    ferc1_sqlite_path.touch()
-    settings = FercToSqliteSettings(
-        ferc1_xbrl_to_sqlite_settings=Ferc1XbrlToSqliteSettings(),
-    )
-
-    context = build_op_context(
-        resources={
-            "ferc_to_sqlite_settings": settings,
-            "datastore": "datastore",
-            "runtime_settings": RuntimeSettings(
-                clobber=True,
-                xbrl_batch_size=20,
-                xbrl_num_workers=10,
-            ),
-        },
-    )
-
-    assert ferc1_sqlite_path.exists()
-    xbrl2sqlite_op_factory(XbrlFormNumber.FORM1)(context)
-    assert not ferc1_sqlite_path.exists()
-
-
 def test_convert_form(mocker):
     """Test convert_form method is properly calling extractor."""
     extractor_mock = mocker.MagicMock()
@@ -204,17 +135,13 @@ def test_convert_form(mocker):
 
     # Create fake datastore class for testing
     class FakeDatastore:
-        def get_taxonomy(self, year, form: XbrlFormNumber):
-            return (
-                f"raw_archive_{year}_{form.value}",
-                f"taxonomy_entry_point_{year}_{form.value}",
-            )
+        def get_taxonomy(self, form: XbrlFormNumber):
+            return f"raw_archive_{form.value}"
 
         def get_filings(self, year, form: XbrlFormNumber):
             return f"filings_{year}_{form.value}"
 
     settings = FercGenericXbrlToSqliteSettings(
-        taxonomy="https://www.fake.taxonomy.url",
         years=[2020, 2021],
     )
 
@@ -233,27 +160,22 @@ def test_convert_form(mocker):
         )
 
         # Verify extractor is called correctly
-        expected_calls = []
-        for year in settings.years:
-            expected_calls.append(
-                mocker.call(
-                    instance_path=f"filings_{year}_{form.value}",
-                    sql_path=output_path / f"ferc{form.value}_xbrl.sqlite",
-                    clobber=False,
-                    taxonomy=f"raw_archive_{year}_{form.value}",
-                    entry_point=f"taxonomy_entry_point_{year}_{form.value}",
-                    form_number=form.value,
-                    metadata_path=str(
-                        output_path / f"ferc{form.value}_xbrl_taxonomy_metadata.json"
-                    ),
-                    datapackage_path=str(
-                        output_path / f"ferc{form.value}_xbrl_datapackage.json"
-                    ),
-                    workers=5,
-                    batch_size=10,
-                    loglevel="INFO",
-                    logfile=None,
-                )
-            )
-        assert extractor_mock.mock_calls == expected_calls
+        filings = [f"filings_{year}_{form.value}" for year in settings.years]
+        extractor_mock.assert_called_with(
+            filings=filings,
+            db_path=output_path / f"ferc{form.value}_xbrl.sqlite",
+            clobber=False,
+            taxonomy=f"raw_archive_{form.value}",
+            form_number=form.value,
+            metadata_path=str(
+                output_path / f"ferc{form.value}_xbrl_taxonomy_metadata.json"
+            ),
+            datapackage_path=str(
+                output_path / f"ferc{form.value}_xbrl_datapackage.json"
+            ),
+            workers=5,
+            batch_size=10,
+            loglevel="INFO",
+            logfile=None,
+        )
         extractor_mock.reset_mock()

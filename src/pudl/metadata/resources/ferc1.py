@@ -1686,6 +1686,45 @@ columns.""",
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
+    "out_ferc1__yearly_rate_base": {
+        "description": (
+            "This table contains granular data accounting consisting of what utilities can typically "
+            "include in their rate bases. This table is derived from seven FERC Form 1"
+            " accounting tables with nested calculations. "
+            "We reconciled these nested calculations and then identified the most "
+            "granular data across the tables.\n"
+            "We applied slight modifications to three columns (utility_type, plant_function & "
+            "plant_status) as compared to the originally reported values in our core tables. "
+            "The modifications were applied to either provide more specificity (i.e. we converted"
+            "some `total` utility_type's into `electric`) or to condense similar categories "
+            "for easier analysis (i.e. creating a `hydraulic_production` plant_function by "
+            "combining `hydraulic_production_conventional` and `hydraulic_production_pumped_storage`\n"
+            "See ``pudl.output.ferc1.Exploder`` for more details. This table was made entirely from "
+            "support and direction of RMI."
+        ),
+        "schema": {
+            "fields": [
+                "report_year",
+                "utility_id_ferc1",
+                "table_name",
+                "utility_type",
+                "plant_function",
+                "plant_status",
+                "xbrl_factoid",
+                "ending_balance",
+                "utility_type_other",
+                "rate_base_category",
+                "ferc_account",
+                "row_type_xbrl",
+                "record_id",
+                "is_disaggregated_utility_type",
+                "is_disaggregated_in_rate_base",
+            ],
+        },
+        "sources": ["ferc1"],
+        "etl_group": "outputs",
+        "field_namespace": "ferc1",
+    },
 }
 """FERC Form 1 resource attributes by PUDL identifier (``resource.name``).
 

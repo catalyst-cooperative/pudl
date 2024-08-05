@@ -4,37 +4,35 @@ The Public Utility Data Liberation Project (PUDL)
 
 .. readme-intro
 
-.. image:: https://www.repostatus.org/badges/latest/active.svg
+.. |repo-status| image:: https://www.repostatus.org/badges/latest/active.svg
    :target: https://www.repostatus.org/#active
    :alt: Project Status: Active
-
-.. image:: https://github.com/catalyst-cooperative/pudl/workflows/pytest/badge.svg
+.. |pytest| image:: https://github.com/catalyst-cooperative/pudl/workflows/pytest/badge.svg
    :target: https://github.com/catalyst-cooperative/pudl/actions?query=workflow%3Apytest
    :alt: PyTest Status
-
-.. image:: https://img.shields.io/codecov/c/github/catalyst-cooperative/pudl?style=flat&logo=codecov
+.. |codecov| image:: https://img.shields.io/codecov/c/github/catalyst-cooperative/pudl?style=flat&logo=codecov
    :target: https://codecov.io/gh/catalyst-cooperative/pudl
    :alt: Codecov Test Coverage
-
-.. image:: https://img.shields.io/readthedocs/catalystcoop-pudl?style=flat&logo=readthedocs
-   :target: https://catalystcoop-pudl.readthedocs.io/en/latest/
+.. |rtd| image:: https://img.shields.io/readthedocs/catalystcoop-pudl?style=flat&logo=readthedocs
+   :target: https://catalystcoop-pudl.readthedocs.io/en/nightly/
    :alt: Read the Docs Build Status
-
-.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
-   :target: https://github.com/psf/black
-   :alt: Any color you want, so long as it's black.
-
-.. image:: https://results.pre-commit.ci/badge/github/catalyst-cooperative/pudl/main.svg
+.. |ruff| image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json
+   :target: https://github.com/astral-sh/ruff
+.. |pre-commit-ci| image:: https://results.pre-commit.ci/badge/github/catalyst-cooperative/pudl/main.svg
    :target: https://results.pre-commit.ci/latest/github/catalyst-cooperative/pudl/main
    :alt: pre-commit CI
-
-.. image:: https://zenodo.org/badge/80646423.svg
+.. |zenodo-doi| image:: https://zenodo.org/badge/80646423.svg
    :target: https://zenodo.org/badge/latestdoi/80646423
    :alt: Zenodo DOI
-
-.. image:: https://img.shields.io/badge/calend.ly-officehours-darkgreen
+.. |office-hours| image:: https://img.shields.io/badge/calend.ly-officehours-darkgreen
    :target: https://calend.ly/catalyst-cooperative/pudl-office-hours
    :alt: Schedule a 1-on-1 chat with us about PUDL.
+.. |mastodon| image:: https://img.shields.io/mastodon/follow/110855618428885893?domain=https%3A%2F%2Fmastodon.energy&style=social&color=%23000000&link=https%3A%2F%2Fmastodon.energy%2F%40catalystcoop
+   :target: https://mastodon.energy/@catalystcoop
+   :alt: Follow CatalystCoop on Mastodon
+
+|repo-status| |pytest| |codecov| |rtd| |ruff| |pre-commit-ci| |zenodo-doi|
+|office-hours| |mastodon|
 
 What is PUDL?
 -------------
@@ -64,8 +62,8 @@ Raw Data Archives
 PUDL `archives <https://github.com/catalyst-cooperative/pudl-archiver>`__ all our raw
 inputs on `Zenodo
 <https://zenodo.org/communities/catalyst-cooperative/?page=1&size=20>`__ to ensure
-permanent, versioned access to the data. In the event that an agency changes how they
-publish data or deletes old files, the data processing pipeline will still have access
+permanent, versioned access to the data. In the event that an agency changes how it
+publishes data or deletes old files, the data processing pipeline will still have access
 to the original inputs. Each of the data inputs may have several different versions
 archived, and all are assigned a unique DOI (digital object identifier) and made
 available through Zenodo's REST API.  You can read more about the Raw Data Archives in
@@ -75,8 +73,8 @@ Data Pipeline
 ^^^^^^^^^^^^^
 The data pipeline (this repo) ingests raw data from the archives, cleans and integrates
 it, and writes the resulting tables to `SQLite <https://sqlite.org>`__ and `Apache
-Parquet <https://parquet.apache.org/>`__ files, with some acompanying metadata stored as
-JSON.  Each release of the PUDL software contains a set of of DOIs indicating which
+Parquet <https://parquet.apache.org/>`__ files, with some accompanying metadata stored as
+JSON.  Each release of the PUDL software contains a set of DOIs indicating which
 versions of the raw inputs it processes. This helps ensure that the outputs are
 replicable. You can read more about our ETL (extract, transform, load) process in the
 `PUDL documentation <https://catalystcoop-pudl.readthedocs.io/en/nightly/#the-etl-process>`__.
@@ -125,9 +123,11 @@ PUDL currently integrates data from:
 * **US Census Demographic Profile 1 Geodatabase**: 2010
   - `Source Docs <https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html>`__
 
-Thanks to support from the `Alfred P. Sloan Foundation Energy & Environment
-Program <https://sloan.org/programs/research/energy-and-environment>`__, from
-2021 to 2024 we will be cleaning and integrating the following data as well:
+Other data of interest
+----------------------
+
+If you're interested in any of these datasets, we'd love to integrate them into PUDL.
+Get in touch!
 
 * `EIA Form 176 <https://www.eia.gov/dnav/ng/TblDefs/NG_DataSources.html#s176>`__
   (The Annual Report of Natural Gas Supply and Disposition)
@@ -135,7 +135,6 @@ Program <https://sloan.org/programs/research/energy-and-environment>`__, from
 * `FERC Form 2 <https://www.ferc.gov/industries-data/natural-gas/overview/general-information/natural-gas-industry-forms/form-22a-data>`__
   (Annual Report of Major Natural Gas Companies)
 * `PHMSA Natural Gas Annual Report <https://www.phmsa.dot.gov/data-and-statistics/pipeline/gas-distribution-gas-gathering-gas-transmission-hazardous-liquids>`__
-* Machine Readable Specifications of State Clean Energy Standards
 
 How do I access the data?
 -------------------------
@@ -160,6 +159,27 @@ summary:
   for direct download links.
 * `The PUDL Development Environment <https://catalystcoop-pudl.readthedocs.io/en/nightly/dev/dev_setup.html>`__
   lets you run the PUDL data processing pipeline locally.
+
+
+Organizations using PUDL
+------------------------
+
+.. _pudl_orgs_start:
+
+This is a partial list of organizations that have used PUDL in their work.
+If your organization uses PUDL we'd love to list you here! Please open a
+pull request or email us at `hello@catalyst.coop <mailto:hello@catalyst.coop>`__!
+
+* `RMI <https://rmi.org>`__ via both their `Utility Transition Hub <https://utilitytransitionhub.rmi.org/>`__ and `Optimus financial modeling tool <https://utilitytransitionhub.rmi.org/optimus/>`__
+* The `PowerGenome Project <https://github.com/PowerGenome/PowerGenome>`__ out of `Jesse Jenkins' <https://mae.princeton.edu/people/faculty/jenkins>`__ ZERO Lab at Princeton University
+* `Energy Innovation <https://energyinnovation.org>`__
+* `Singularity Energy <https://singularity.energy>`__ via the `Open Grid Emissions Initiative <https://singularity.energy/open-grid-emissions>`__
+* The open source `PyPSA-USA <https://github.com/PyPSA/pypsa-usa>`__ capacity expansion model.
+* `Win Climate <https://climate.win>`__
+* `The Deployment Gap Model Education Fund <https://www.deploymentgap.fund/>`__
+
+.. _pudl_orgs_end:
+
 
 Contributing to PUDL
 --------------------

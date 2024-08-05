@@ -222,19 +222,7 @@ the job. The bottom part of the window contains dagster logs. You can
 view logs from the ``pudl`` package in the CLI window the ``dagster-webserver`` process
 is running in.
 
-If you need to set op configurations, such as the ``clobber`` setting, you can
-add them in the Launchpad tab of the job like so::
-
-  ops:
-    dbf2sqlite:
-      config:
-        clobber: true
-    xbrl2sqlite:
-      config:
-        clobber: true
-
-You can also adjust the years to process for each dataset using the Launchpad
-tab::
+You can adjust the years to process for each dataset using the Launchpad tab::
 
   resources:
     ferc_to_sqlite_settings:
@@ -471,15 +459,8 @@ what the script is doing, and file outputs the directory you specified via the
 files at e.g. ``$PUDL_OUTPUT/ferc1_dbf.sqlite``, ``$PUDL_OUTPUT/pudl.sqlite`` and
 ``$PUDL_OUTPUT/core_epacems__hourly_emissions.parquet``.
 
-If you need to re-run ``ferc_to_sqlite`` and want to overwrite their previous outputs
-you can add ``--clobber`` (run ``ferc_to_sqlite --clobber``).  All of the PUDL scripts
-also have help messages if you want additional information (run ``script_name --help``).
-
-.. note::
-
-  The ``pudl_etl`` command does not have a ``--clobber`` option because each etl run
-  uses the same database file to read and write tables.  This facilitates re-running
-  small portions of the ETL using Dagster.
+All of the PUDL scripts also have help messages if you want additional information (run
+``script_name --help``).
 
 Foreign Keys
 ------------

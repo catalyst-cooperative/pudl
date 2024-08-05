@@ -8,17 +8,110 @@ v2024.X.X (2024-XX-XX)
 
 New Data Coverage
 ^^^^^^^^^^^^^^^^^
+
+FERC Form 1
+~~~~~~~~~~~
+* Integrated FERC Form 1 data from 2023 into the main PUDL SQLite DB. See issue
+  :issue:`3700` and PR :pr:`3701`. This required updating to a new version of the
+  ``catalystcoop.ferc_xbrl_extractor`` package because there are now multiple XBRL
+  taxonomies in use by FERC in different years, or even within the same year. See `this
+  PR <https://github.com/catalyst-cooperative/ferc-xbrl-extractor/pull/242>`__ for more
+  details, as well as issue :issue:`3544` and PR :pr:`3710`.
+
+FERC Forms 2, 6, 60, & 714
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+* Updated the ``ferc_to_sqlite`` settings to extract 2023 XBRL data for FERC Forms 2, 6
+  60, and 714 and add them to their respective SQLite databases. Note that this data
+  is not yet being processed beyond the conversion from XBRL to SQLite. See PR
+  :pr:`3710`
+
+EIA AEO
+~~~~~~~
+* Added new tables from EIA AEO table 54:
+
+  * :ref:`core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type`
+    contains fuel costs for the electric power sector. These are broken out by
+    fuel type, and include both nominal USD per MMBtu as well as real 2022 USD
+    per MMBtu. See issue :issue:`3649` and PR :pr:`3656`.
+
+EIA 860
+~~~~~~~
+* Added EIA 860 early release data from 2023. This included adding a new tab with
+  proposed energy storage generators as well as adding a number of new columns
+  regarding energy storage and solar generators. See issue :issue:`3676` and PR
+  :pr:`3681`.
+
+EIA 923
+~~~~~~~
+* Added EIA 923 early release data from 2023. See :issue:`3719` and PR :pr:`3721`.
+
+FERC 714
+~~~~~~~~
+* Added :ref:`core_ferc714__yearly_planning_area_demand_forecast` based on FERC
+  Form 714, Part III, Schedule 2b. Data includes forecasted demand and net energy load.
+  See issue :issue:`3519` and PR :pr:`3670`.
+
+NREL ATB
+~~~~~~~~
+* Added 2024 NREL ATB data. This includes adding a new tax credit case,
+  ``model_tax_credit_case_nrelatb``, a breakout of ``capex_grid_connection_per_kw`` for
+  all technologies, and more detailed nuclear breakdowns of ``fuel_cost_per_mwh``.
+  Simultaneously, updated the :mod:`docs.dev.existing_data_updates` documentation to
+  make it easier to add future years of data. See :issue:`3706` and :pr:`3719`.
+
+Data Cleaning
+^^^^^^^^^^^^^
+* When ``generator_operating_date`` values are too inconsistent to be harvested
+  successfully, we now take the last reported date in EIA 860 and 860M. See :issue:`423`
+  and PR :pr:`3967`.
+* Added the ``generator_operating_date`` field into
+  :ref:`core_eia860m__changelog_generators`, adding 860M reported generator operating
+  dates into the changelog table. This table is not harvested, and thus does not affect
+  the ``generator_operating_date`` values reported in other core EIA tables. See
+  :issue:`3722` and PR :pr:`3751.`
+
+Bug Fixes
+^^^^^^^^^
+* Disabled filling of missing values using rolling averages for the
+  ``fuel_cost_per_mmbtu`` column in the :ref:`out_eia923__fuel_receipts_costs` table, as
+  it was resulting in some anomlously high fuel prices. See :pr:`3716`. This results in
+  about 2% more records in the table being left ``NA`` after filling with the average
+  prices for that fuel type for the state and month found in the bulk EIA API data.
+
+Qualtiy of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+* The full ETL settings are now read directly from ``etl_full.yml`` instead of using
+  default values defined in the settings classes.  This also results in the settings
+  showing up in the Dagster UI Launchpad, which previously they didn't, leading to
+  confusion when trying to re-run the FERC to SQLite conversions. See :pr:`3710`.
+* ``mlflow`` experiment tracking has been disabled by default when running the DAG,
+  since it is only really helpful during development of new record linkage or other ML
+  workflows. See :pr:`3710`.
+
+.. _release-v2024.5.0:
+
+---------------------------------------------------------------------------------------
+v2024.5.0 (2024-05-24)
+---------------------------------------------------------------------------------------
+
+We've just completed our quarterly integration of EIA data sources for 2024Q2
+(in support of RMI's Utility Transition Hub) and have also added a bunch of new
+tables over the last few months in an effort to better support energy system
+modelers (with support from GridLab). Details below.
+
+
+New Data Coverage
+^^^^^^^^^^^^^^^^^
+
+EIA-860 & EIA-923
+~~~~~~~~~~~~~~~~~
+
 * Added cleaned EIA860 Schedule 8E FGD Equipment and EIA923 Schedule 8C FGD Operation
   and Maintenance data to the PUDL database as
   :ref:`i_core_eia923__fgd_operation_maintenance` and
   :ref:`i_core_eia860__fgd_equipment`. Once harvested, these tables will eventually be
   removed from the database, but they are being published until then. See :issue:`3394`
   and :issue:`3392`, and :pr:`3403`.
-* Added a new ``gridpathratoolkit`` data source containing hourly wind and solar
-  generation profiles from the `GridPath Resoure Adequacy Toolkit
-  <https://gridlab.org/gridpathratoolkit>`__. See the `new Zenodo archive
-  <https://zenodo.org/records/10844662>`__, PR :pr:`3489` and `this PUDL archiver issue
-  <https://github.com/catalyst-cooperative/pudl-archiver/issues/296>`__.
 * Added new :ref:`core_eia860__scd_generators_wind` table from EIA860 Schedule 3.2
   which contains wind generator attributes. See :pr:`3522` and :pr:`3494`.
 * Added new :ref:`core_eia860__scd_generators_solar` table from EIA860 Schedule 3.3
@@ -28,16 +121,76 @@ New Data Coverage
   which contains solar generator attributes. See :pr:`3524` and :pr:`3482`
 * Added new :ref:`core_eia923__monthly_energy_storage` table from EIA923 which contains
   monthly energy and fuel consumption metrics. See :pr:`3516` and :pr:`3546`.
+* Added 2024 Q1 EIA923 and EIA860m data. See issues :issue:`3617,3618`, and PR
+  :pr:`3625`.
+
+GridPath RA Toolkit
+~~~~~~~~~~~~~~~~~~~
+
+* Added a new ``gridpathratoolkit`` data source containing hourly wind and solar
+  generation profiles from the `GridPath Resoure Adequacy Toolkit
+  <https://gridlab.org/gridpathratoolkit>`__. See :doc:`data_sources/gridpathratoolkit`
+  and the `new Zenodo archive <https://zenodo.org/records/10844662>`__, PR :pr:`3489`
+  and `this PUDL archiver issue
+  <https://github.com/catalyst-cooperative/pudl-archiver/issues/296>`__.
 * Integrated the most processed version of the GridPath RA Toolkit wind and solar
   generation profiles, as well as the tables describing how individual generators were
   aggregated together to create the profiles. See issues :issue:`3509,3510,3511,3515`
   and PR :pr:`3514`. The new tables include:
   :ref:`out_gridpathratoolkit__hourly_available_capacity_factor` and
   :ref:`core_gridpathratoolkit__assn_generator_aggregation_group`.
-* Extracted tables 54 and 56 from the `EIA Annual Energy Outlook 2023
+
+EIA AEO
+~~~~~~~
+
+* Extracted tables 13, 15, 20, and 54 from the `EIA Annual Energy Outlook 2023
   <https://www.eia.gov/outlooks/aeo/tables_ref.php>`__, which include future
   projections related to electric power and renewable energy through the year
   2050, across a variety of scenarios. See :issue:`3368` and :pr:`3538`.
+* Added new :ref:`core_eia861__yearly_short_form` table from EIA861 which contains
+  the shorter version of EIA861. See issues :issue:`3540` and PR :pr:`3565`.
+* Added new tables from EIA AEO table 54:
+
+  * :ref:`core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology`
+    contains generation capacity & generation projections for the electric
+    sector, broken out by technology type. See :issue:`3581` and :pr:`3582`.
+  * :ref:`core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type`
+    contains generation capacity & generation projections for the electric
+    sector, broken out by technology type. See :issue:`3581` and :pr:`3598`.
+  * :ref:`core_eiaaeo__yearly_projected_electric_sales` contains electric sales
+    projections until 2050, broken out by customer type. See :issue:`3581` and
+    :pr:`3617`.
+
+NREL ATB
+~~~~~~~~
+
+* Added new NREL ATB tables with annual technology cost and performance projections. See
+  issue :issue:`3465` and PRs :pr:`3498,3570`.
+
+EIA-930
+~~~~~~~
+
+* Added hourly generation, demand, and interchange tables from the EIA-930. See issues
+  :issue:`3486,3505` PR :pr:`3584` and `this issue in the PUDL archiver repo
+  <https://github.com/catalyst-cooperative/pudl-archiver/issues/295>`__. See the
+  data source documentation :doc:`data_sources/eia930` for more information.
+
+EPA CEMS
+~~~~~~~~
+
+* Added 2024 Q1 of CEMS data. See :issue:`3620` and :pr:`3624`
+
+EIA Bulk Electricity Data
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated the EIA Bulk Electricity data archive to include data that was available as of
+  2024-05-01, which covers up through 2024-02-01 (3 months more than the previously
+  used archive). See PR :pr:`3615`.
+
+FERC Form 1
+~~~~~~~~~~~
+* Added new :ref:`out_ferc1__yearly_rate_base` table which includes granular financial
+  data regarding what utilities include in their rate bases. See epic :issue:`2016`.
 
 Data Cleaning
 ^^^^^^^^^^^^^
@@ -46,7 +199,6 @@ Data Cleaning
   rescue records lost because of inconsistent month reporting in EIA 860 and 860M. See
   :issue:`3340` and PR :pr:`3419`. This change also fixed a bug that was preventing
   other columns harvested with a special process from being saved.
-
 * When ingesting FERC 1 XBRL filings, we now take the most recent non-null
   value instead of the value from the latest filing that applies for a specific
   row. This means that we no longer lose data if a utility posts a FERC filing
@@ -81,6 +233,32 @@ Schema Changes
   :ref:`out_eia861__yearly_utility_service_territory` and
   ``out_eia861__compiled_geometry_balancing_authorities`` is now
   :ref:`out_eia861__yearly_balancing_authority_service_territory`. See PR :pr:`3552`.
+* All hourly tables are now published only as Apache Parquet files, rather than being
+  written to the main PUDL SQLite database. This reduces the size of the PUDL DB, and
+  also makes accessing these large table much faster both during data processing and for
+  end users. See PR :pr:`3584`.  Affected tables include:
+
+  * :ref:`core_eia930__hourly_interchange`
+  * :ref:`core_eia930__hourly_net_generation_by_energy_source`
+  * :ref:`core_eia930__hourly_operations`
+  * :ref:`core_eia930__hourly_subregion_demand`
+  * :ref:`core_epacems__hourly_emissions`
+  * :ref:`out_ferc714__hourly_estimated_state_demand`
+  * :ref:`out_ferc714__hourly_planning_area_demand`
+  * :ref:`out_gridpathratoolkit__hourly_available_capacity_factor`
+
+  The FERC-714 hourly demand tables have been removed from the
+  :class:`pudl.output.pudltabl.PudlTabl` class, which has been deprecated.
+* The long derelict ``core_ferc__codes_accounts`` table has been removed from the PUDL
+  database. This table contained descriptions of the FERC accounts that were found in
+  the Electric Plant in Service table, but only pertained to a single year, and was not
+  being referenced or maintained elsewhere. See PR :pr:`3584`.
+* Additional columns were added to the :ref:`core_eia__codes_balancing_authorities`
+  table, indicating the timezone associated with each BA's reporting, whether it is a
+  generation only BA, and its date of retirement, and what region it is part of. See PR
+  :pr:`3584`.
+* A new :ref:`core_eia__codes_balancing_authority_subregions` table was added to
+  describe the relationships between BAs and their subregions. See PR :pr:`3584`.
 
 Bug Fixes
 ^^^^^^^^^
@@ -91,13 +269,21 @@ Bug Fixes
   used on any dataframe, with every column encoded based on the field definitions and
   FK constraints associated with the column name.
 
+CLI Changes
+^^^^^^^^^^^
+* Removed the ``--clobber`` option from the ``ferc_to_sqlite`` command and associated
+  assets. We rebuild these databases infrequently, and needing to either edit the
+  runtime parameters in Dagster's Launchpad or remove the existing databases from the
+  filesystem manually are brittle. Partly in response to issue :issue:`3612`; see PR
+  :pr:`3622`.
+
 .. _release-v2024.2.6:
 
 ---------------------------------------------------------------------------------------
 v2024.2.6 (2024-02-25)
 ---------------------------------------------------------------------------------------
-The main impetus behind this release is the quarterly update of some of ourcore datasets
-with preliminary data for 2023Q4. The :doc:`data_sources/eia860`,
+The main impetus behind this release is the quarterly update of some of our
+core datasets with preliminary data for 2023Q4. The :doc:`data_sources/eia860`,
 :doc:`data_sources/epacems`, and bulk EIA API data are all up to date through the end of
 2023, while the :doc:`data_sources/eia923` lags a month behind and is currently only
 available through November, 2023. We also addressed several issues we found in our

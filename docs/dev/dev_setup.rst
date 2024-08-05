@@ -44,6 +44,13 @@ with the following commands:
     $ mamba update mamba
     $ conda config --set channel_priority strict
 
+.. note::
+
+   Make sure that after you've installed ``conda`` or ``mamba`` that you can activate
+   and deactivate the ``base`` environment (which is created by default). Try creating
+   a simple new environment and activating it to make sure everything is working and
+   your shell has been correctly configured to use the new package manager.
+
 ------------------------------------------------------------------------------
 Fork and Clone the PUDL Repository
 ------------------------------------------------------------------------------
@@ -96,12 +103,13 @@ running the individual commands they wrap. If you'd like to learn more about how
 Makefiles work, check out `this excellent Makefile tutorial
 <https://makefiletutorial.com/>`__
 
-To create the ``pudl-dev`` environment and install the local PUDL package using
-``make``, run:
+To create the ``pudl-dev`` environment, install the local PUDL package, and activate the
+newly created environment, run:
 
 .. code-block:: console
 
     $ make install-pudl
+    $ mamba activate pudl-dev
 
 If you want to see all the bundled commands we've defined, open up the ``Makefile``.
 There's also some additional information in the :doc:`testing` documentation.
@@ -245,7 +253,12 @@ stuff should go. We call this a "PUDL workspace".
 
 First, create a directory to store local caches of raw PUDL data. You can put this
 anywhere, but we put this in ``~/pudl_input`` in the documentation.  Then create an
-environment variable called ``PUDL_INPUT`` to store the path to this new directory:
+environment variable called ``PUDL_INPUT`` to store the path to this new directory and
+make sure that it is set whenever you start up a new shell. These shorthand commands
+will append a line to the end of your shell initialization file. If you need to change
+it later you'll want to edit those files directly. Note that in the commands below you
+must replace the example path ``/absolute/path/to/pudl_input`` with the actual path to
+the directory you've created.
 
 .. code-block:: console
 
@@ -282,7 +295,8 @@ Zenodo for each datasource:
 Next, create a directory to store the outputs of the PUDL ETL. As above, you can put
 this anywhere, but typically this is ``~/pudl_output``. Then, as with ``PUDL_INPUT``,
 create an environment variable called ``PUDL_OUTPUT`` to store the path to this new
-directory:
+directory. In the commands below you must replace the example path
+``/absolute/path/to/pudl_output`` with the actual path to the directory you want to use.
 
 .. code-block:: console
 
@@ -301,7 +315,7 @@ The path stored in ``PUDL_OUTPUT`` contains all ETL outputs like ``pudl.sqlite``
 
 Remember that you'll need to either source your shell profile after adding the new
 environment variable definitions above, or export them at the command line for them to
-be active in the current shell:
+be active in the current shell. Again, note that these are fake example paths:
 
 .. code-block:: console
 

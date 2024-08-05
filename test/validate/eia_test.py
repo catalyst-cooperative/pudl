@@ -1,13 +1,13 @@
 """Validate post-ETL EIA 860 data and the associated derived outputs."""
 
 import logging
-from test.conftest import skip_table_if_null_freq_table
 
 import pytest
 
 from pudl import validate as pv
 from pudl.metadata.classes import Resource
 from pudl.output.pudltabl import PudlTabl
+from test.conftest import skip_table_if_null_freq_table
 
 logger = logging.getLogger(__name__)
 
@@ -46,22 +46,22 @@ def test_no_null_cols_eia(pudl_out_eia, live_dbs, cols, df_name):
 @pytest.mark.parametrize(
     "df_name,raw_rows,monthly_rows,annual_rows",
     [
-        ("bf_eia923", 1_607_692, 1_607_692, 128_252),
-        ("bga_eia860", 142_391, 142_391, 142_391),
-        ("boil_eia860", 83_418, 83_418, 83_418),
-        ("frc_eia923", 656_388, 268_352, 25_443),
-        ("gen_eia923", None, 5_179_478, 433_336),
-        ("gens_eia860", 557_369, 557_369, 557_369),
-        ("gf_eia923", 2_933_836, 2_933_836, 246_324),
-        ("own_eia860", 89_741, 89_741, 89_741),
-        ("plants_eia860", 200_851, 200_851, 200_851),
-        ("pu_eia860", 199_975, 199_975, 199_975),
-        ("utils_eia860", 140_025, 140_025, 140_025),
-        ("emissions_control_equipment_eia860", 56_616, 56_616, 56_616),
-        ("denorm_emissions_control_equipment_eia860", 56_616, 56_616, 56_616),
-        ("boiler_emissions_control_equipment_assn_eia860", 77_705, 77_705, 77_705),
-        ("boiler_cooling_assn_eia860", 41_282, 41_282, 41_282),
-        ("boiler_stack_flue_assn_eia860", 41_673, 41_673, 41_673),
+        ("bf_eia923", 1_642_829, 1_642_829, 135_980),
+        ("bga_eia860", 153_487, 153_487, 153_487),
+        ("boil_eia860", 89_051, 89_051, 89_051),
+        ("frc_eia923", 673_343, 274_479, 26_709),
+        ("gen_eia923", None, 5_494_932, 459_711),
+        ("gens_eia860", 590_881, 590_881, 590_881),
+        ("gf_eia923", 3_064_042, 3_064_042, 260_842),
+        ("own_eia860", 95_104, 95_104, 95_104),
+        ("plants_eia860", 215_884, 215_884, 215_884),
+        ("pu_eia860", 214_965, 214_965, 214_965),
+        ("utils_eia860", 147_877, 147_877, 147_877),
+        ("emissions_control_equipment_eia860", 62_102, 62_102, 62_102),
+        ("denorm_emissions_control_equipment_eia860", 62_102, 62_102, 62_102),
+        ("boiler_emissions_control_equipment_assn_eia860", 83_977, 83_977, 83_977),
+        ("boiler_cooling_assn_eia860", 44_185, 44_185, 44_185),
+        ("boiler_stack_flue_assn_eia860", 44_579, 44_579, 44_579),
     ],
 )
 def test_minmax_rows(

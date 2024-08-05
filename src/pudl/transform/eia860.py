@@ -1,12 +1,11 @@
 """Module to perform data cleaning functions on EIA860 data tables."""
 
-import warnings
-
 import numpy as np
 import pandas as pd
-from dagster import AssetCheckResult, ExperimentalWarning, asset, asset_check
+from dagster import AssetCheckResult, asset, asset_check
 
 import pudl
+from pudl.helpers import drop_records_with_null_in_column
 from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.classes import DataSource
 from pudl.metadata.codes import CODE_METADATA
@@ -15,10 +14,6 @@ from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.transform.eia861 import clean_nerc
 
 logger = pudl.logging_helpers.get_logger(__name__)
-
-# Asset Checks are still Experimental, silence the warning since we use them
-# everywhere.
-warnings.filterwarnings("ignore", category=ExperimentalWarning)
 
 
 @asset
@@ -37,7 +32,7 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
     Returns:
         Cleaned ``_core_eia860__ownership`` dataframe ready for harvesting.
     """
-    # Preiminary clean and get rid of unecessary 'year' column
+    # Preliminary clean and get rid of unnecessary 'year' column
     own_df = (
         raw_eia860__ownership.copy()
         .pipe(pudl.helpers.fix_eia_na)
@@ -114,10 +109,10 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
         (
             own_df.report_date.isin(
                 [
-                    "2018-01-01",
-                    "2019-01-01",
-                    "2020-01-01",
-                    "2021-01-01",
+                    f"{year}-01-01"
+                    for year in range(
+                        2018, max(pudl.settings.Eia860Settings().years) + 1
+                    )
                 ]
             )
         )
@@ -165,20 +160,6 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
     } | {"CN": "CAN"}
     own_df["owner_country"] = own_df["owner_state"].map(state_to_country)
     own_df.loc[own_df.owner_state == "CN", "owner_state"] = pd.NA
-
-    # Spot fix NA generator_id. Might want to change this once we have the official 2022
-    # data not just early release.
-    constraints = (own_df["plant_id_eia"] == 62844) & (
-        own_df["report_date"].dt.year == 2022
-    )
-    if 2022 not in own_df.report_date.dt.year.unique():
-        pass
-    elif len(own_df[constraints]) > 1:
-        raise AssertionError("Too many records getting spot fixed.")
-    elif own_df[constraints].generator_id.notna().all():
-        raise AssertionError("Generator ID filled in, you can remove this hack!")
-    else:
-        own_df.loc[constraints, "generator_id"] = "1"
 
     return own_df
 
@@ -359,7 +340,7 @@ def _core_eia860__generators_solar(
     * Both the ``tilt_angle`` and ``azimuth_angle`` columns have a small number of
       negative values (both under 40 records). This seems off, but not impossible?
     * A lot of the boolean columns in this table are mostly null. It is probably
-      that a lot of the nulls should coorespond to False's, but there is no sure way
+      that a lot of the nulls should correspond to False's, but there is no sure way
       to know, so nulls seem more appropriate.
 
     """
@@ -397,17 +378,23 @@ def _core_eia860__generators_solar(
 @asset
 def _core_eia860__generators_energy_storage(
     raw_eia860__generator_energy_storage_existing: pd.DataFrame,
+    raw_eia860__generator_energy_storage_proposed: pd.DataFrame,
     raw_eia860__generator_energy_storage_retired: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the energy storage specific generators table."""
     storage_ex = raw_eia860__generator_energy_storage_existing
+    storage_pr = raw_eia860__generator_energy_storage_proposed.pipe(
+        drop_records_with_null_in_column,
+        column="generator_id",
+        num_of_expected_nulls=1,
+    )
     storage_re = raw_eia860__generator_energy_storage_retired
 
     # every boolean column in the raw storage tables has a served_ or stored_ prefix
-    boolean_columns_to_fix = list(storage_ex.filter(regex=r"^served_|^stored_"))
+    boolean_columns_to_fix = list(storage_ex.filter(regex=r"^served_|^stored_|^is_"))
 
     storage_df = (
-        pd.concat([storage_ex, storage_re], sort=True)
+        pd.concat([storage_ex, storage_pr, storage_re], sort=True)
         .pipe(pudl.helpers.fix_eia_na)
         .pipe(pudl.helpers.month_year_to_date)
         .pipe(pudl.helpers.convert_to_date)
@@ -444,20 +431,18 @@ def _core_eia860__generators_wind(
     Some notes for possible cleaning later:
 
     * technology_description: this field didn't exist in 2013. We could try to backfill.
-      this is an annual scd so it'll get slurpped up there and backfilling does happen
+      this is an annual scd so it'll get slurped up there and backfilling does happen
       in the output layer via :func:`pudl.output.eia.fill_generator_technology_description`
     * turbines_num: this field doesn't show up in this table for 2013 and 2014, but it does
       exist in the 2001-2012 generators tab. This is an annual generator scd.
 
     """
     wind_ex = raw_eia860__generator_wind_existing
-    wind_re = raw_eia860__generator_wind_retired
-    # there is one record that has a null gen id. ensure there isn't more before dropping
-    if len(null_gens := wind_re[wind_re.generator_id.isnull()]) > 1:
-        raise AssertionError(
-            f"Expected one or zero records with a null generator_id but found {null_gens}"
-        )
-    wind_re = wind_re.dropna(subset=["generator_id"])
+    wind_re = raw_eia860__generator_wind_retired.pipe(
+        drop_records_with_null_in_column,
+        column="generator_id",
+        num_of_expected_nulls=1,
+    )
 
     wind_df = (
         pd.concat([wind_ex, wind_re], sort=True)
@@ -545,7 +530,7 @@ def _core_eia860__plants(raw_eia860__plant: pd.DataFrame) -> pd.DataFrame:
         "energy_storage",
         "natural_gas_storage",
         "liquefied_natural_gas_storage",
-        "net_metering",
+        "has_net_metering",
     ]
 
     for column in boolean_columns_to_fix:
@@ -1226,7 +1211,7 @@ def cooling_equipment_null_cols(cooling_equipment):  # pragma: no cover
     """
     expected_null_cols = {"tower_type_3", "tower_type_4"}
     if cooling_equipment.report_date.min() > pd.Timestamp("2010-01-01T00:00:00"):
-        expected_null_cols.add(
+        expected_null_cols.update(
             {"plant_summer_capacity_mw", "water_source", "county", "cooling_type_4"}
         )
     pudl.validate.no_null_cols(
@@ -1370,11 +1355,14 @@ def fgd_equipment_null_check(fgd):  # pragma: no cover
     """Check that columns other than expected columns aren't null."""
     fast_run_null_cols = {
         "county",
+        "county_id_fips",
         "fgd_operational_status_code",
         "fgd_operating_date",
+        "fgd_manufacturer",
         "fgd_manufacturer_code",
         "plant_summer_capacity_mw",
         "water_source",
+        "so2_equipment_type_4",
     }
     if fgd.report_date.min() >= pd.Timestamp("2011-01-01T00:00:00"):
         expected_cols = set(fgd.columns) - fast_run_null_cols

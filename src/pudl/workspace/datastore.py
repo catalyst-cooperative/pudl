@@ -23,6 +23,7 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 import pudl
+from pudl.helpers import retry
 from pudl.workspace import resource_cache
 from pudl.workspace.resource_cache import PudlResourceKey
 from pudl.workspace.setup import PudlPaths
@@ -189,26 +190,28 @@ class ZenodoDoiSettings(BaseSettings):
     eia176: ZenodoDoi = "10.5281/zenodo.10607843"
     eia191: ZenodoDoi = "10.5281/zenodo.10607837"
     eia757a: ZenodoDoi = "10.5281/zenodo.10607839"
-    eia860: ZenodoDoi = "10.5281/zenodo.10067566"
-    eia860m: ZenodoDoi = "10.5281/zenodo.10603998"
+    eia860: ZenodoDoi = "10.5281/zenodo.11662381"
+    eia860m: ZenodoDoi = "10.5281/zenodo.11110602"
     eia861: ZenodoDoi = "10.5281/zenodo.10204708"
-    eia923: ZenodoDoi = "10.5281/zenodo.10603997"
+    eia923: ZenodoDoi = "10.5281/zenodo.12656894"
     eia930: ZenodoDoi = "10.5281/zenodo.10840078"
     eiawater: ZenodoDoi = "10.5281/zenodo.10806016"
     eiaaeo: ZenodoDoi = "10.5281/zenodo.10838488"
-    eia_bulk_elec: ZenodoDoi = "10.5281/zenodo.10603995"
+    eia_bulk_elec: ZenodoDoi = "10.5281/zenodo.11111208"
     epacamd_eia: ZenodoDoi = "10.5281/zenodo.7900974"
-    epacems: ZenodoDoi = "10.5281/zenodo.10603994"
-    ferc1: ZenodoDoi = "10.5281/zenodo.8326634"
-    ferc2: ZenodoDoi = "10.5281/zenodo.8326697"
-    ferc6: ZenodoDoi = "10.5281/zenodo.8326696"
-    ferc60: ZenodoDoi = "10.5281/zenodo.8326695"
-    ferc714: ZenodoDoi = "10.5281/zenodo.8326694"
+    epacems: ZenodoDoi = "10.5281/zenodo.11111203"
+    ferc1: ZenodoDoi = "10.5281/zenodo.12549172"
+    ferc2: ZenodoDoi = "10.5281/zenodo.11408175"
+    ferc6: ZenodoDoi = "10.5281/zenodo.11408164"
+    ferc60: ZenodoDoi = "10.5281/zenodo.12021231"
+    ferc714: ZenodoDoi = "10.5281/zenodo.12021228"
     gridpathratoolkit: ZenodoDoi = "10.5281/zenodo.10892394"
     phmsagas: ZenodoDoi = "10.5281/zenodo.10493790"
-    nrelatb: ZenodoDoi = "10.5281/zenodo.10839268"
+    nrelatb: ZenodoDoi = "10.5281/zenodo.12609821"
 
-    model_config = SettingsConfigDict(env_prefix="pudl_zenodo_doi_", env_file=".env")
+    model_config = SettingsConfigDict(
+        env_prefix="pudl_zenodo_doi_", env_file=".env", extra="ignore"
+    )
 
 
 class ZenodoFetcher:
@@ -426,14 +429,17 @@ class Datastore:
             f"Got resource {dataset=}, {filters=}, {md5sum=}, "
             f"{len(resource_bytes)} bytes; turning into ZipFile"
         )
-        return zipfile.ZipFile(resource)
+        return retry(zipfile.ZipFile, retry_on=(zipfile.BadZipFile), file=resource)
 
     def get_zipfile_resources(
         self, dataset: str, **filters: Any
     ) -> Iterator[tuple[PudlResourceKey, zipfile.ZipFile]]:
         """Iterates over resources that match filters and opens each as ZipFile."""
         for resource_key, content in self.get_resources(dataset, **filters):
-            yield resource_key, zipfile.ZipFile(io.BytesIO(content))
+            yield (
+                resource_key,
+                retry(zipfile.ZipFile, retry_on=(zipfile.BadZipFile), file=content),
+            )
 
     def get_zipfile_file_names(self, zip_file: zipfile.ZipFile):
         """Given a zipfile, return a list of the file names in it."""

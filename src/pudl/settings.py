@@ -12,6 +12,7 @@ from pydantic import (
     AnyHttpUrl,
     BaseModel,
     ConfigDict,
+    Field,
     ValidationInfo,
     field_validator,
     model_validator,
@@ -243,41 +244,84 @@ class Eia860Settings(GenericDatasetSettings):
         data_source: DataSource metadata object
         years: list of years to validate.
         eia860m: whether or not to incorporate an EIA-860m month.
-        eia860m_year_month ClassVar[str]: The 860m year-month to incorporate.
+        eia860m_year_months ClassVar[str]: The 860m year-months to incorporate.
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia860")
     years: list[int] = data_source.working_partitions["years"]
-
     eia860m: bool = True
-    eia860m_year_month: ClassVar[str] = max(
-        DataSource.from_id("eia860m").working_partitions["year_months"]
-    )
+    all_eia860m_year_months: list[str] = DataSource.from_id(
+        "eia860m"
+    ).working_partitions["year_months"]
+    eia860m_year_months: list[str] = Field(validate_default=True, default=[])
 
-    @field_validator("eia860m")
+    @field_validator("eia860m_year_months")
     @classmethod
-    def check_eia860m_year_month(cls, eia860m: bool) -> bool:
-        """Check 860m date-year is exactly one year after most recent working 860 year.
+    def add_other_860m_years(cls, v, info: ValidationInfo) -> list[str]:
+        """Find extra years from EIA860m if applicable.
 
-        Args:
-            eia860m: True if 860m is requested.
+        There's a gap in reporting (after the new year but before the EIA 860 early
+        release data in June) when we rely on two years worth of EIA860m data instead
+        of just one. This function adds the last available month_year values for each
+        year of 860m data that is not yet available in 860.
 
-        Returns:
-            eia860m: True if 860m is requested.
-
-        Raises:
-            ValueError: the 860m date is within 860 working years.
         """
-        eia860m_year = pd.to_datetime(cls.eia860m_year_month).year
-        expected_year = max(cls.data_source.working_partitions["years"]) + 1
-        if eia860m and (eia860m_year != expected_year):
-            raise AssertionError(
-                f"Attempting to integrate an eia860m year "
-                f"({eia860m_year}) from {cls.eia860m_year_month} not immediately following"
-                f"the eia860 years: {cls.data_source.working_partitions['years']}. "
-                f"Consider switching eia860m parameter to False."
+        extra_eia860m_year_months_string = []
+        if info.data["eia860m"]:
+            all_eia860m_years = set(
+                pd.to_datetime(info.data["all_eia860m_year_months"]).year
             )
-        return eia860m
+            # The years in 860m that are not in 860
+            extra_eia860m_years = {
+                year
+                for year in all_eia860m_years
+                if year not in DataSource.from_id("eia860").working_partitions["years"]
+            }
+            # The years already listed as variables in eia860m_year_months
+            years_in_v = set(pd.to_datetime(v).year)
+            # The max year_month values available in 860m for each year not
+            # covered by EIA860 (and not already listed in the eia860m_year_months
+            # variable)
+            extra_eia860m_year_months = [
+                max(
+                    date
+                    for date in pd.to_datetime(info.data["all_eia860m_year_months"])
+                    if date.year == year
+                )
+                for year in (extra_eia860m_years - years_in_v)
+            ]
+            if extra_eia860m_year_months:
+                extra_eia860m_year_months_string = list(
+                    pd.Series(extra_eia860m_year_months).dt.strftime("%Y-%m")
+                )
+        return v + extra_eia860m_year_months_string
+
+    @field_validator("eia860m_year_months")
+    @classmethod
+    def no_repeat_years(cls, v, info: ValidationInfo) -> list[str]:
+        """Make sure there are no duplicate 860m year values."""
+        if info.data["eia860m"]:
+            years_in_v = pd.to_datetime(v).year
+            if len(years_in_v) != len(set(years_in_v)):
+                raise ValueError(f"{v} contains duplicate year values.")
+        return v
+
+    @field_validator("eia860m_year_months")
+    @classmethod
+    def validate_eia860m_params(cls, v, info: ValidationInfo) -> list[str]:
+        """Check that the year_month values for eia860m_year_months are valid."""
+        eia860m_settings = Eia860mSettings(year_months=v)
+        return eia860m_settings.year_months
+
+    @field_validator("eia860m_year_months")
+    @classmethod
+    def only_years_not_in_eia860(cls, v, info: ValidationInfo) -> list[str]:
+        """Ensure no EIA860m values are from years already in EIA860."""
+        if info.data["eia860m"]:
+            for year in pd.to_datetime(v).year.unique():
+                if year in info.data["years"]:
+                    raise ValueError(f"EIA860m year {year} available in EIA860")
+        return v
 
 
 class Eia860mSettings(GenericDatasetSettings):
@@ -639,12 +683,10 @@ class FercGenericXbrlToSqliteSettings(BaseSettings):
     """An immutable pydantic model to validate Ferc1 to SQLite settings.
 
     Args:
-        taxonomy: URL of XBRL taxonomy used to create structure of SQLite DB.
         years: list of years to validate.
         disabled: if True, skip processing this dataset.
     """
 
-    taxonomy: str
     years: list[int]
     disabled: bool = False
 
@@ -653,7 +695,6 @@ class Ferc1XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     """An immutable pydantic model to validate Ferc1 to SQLite settings.
 
     Args:
-        taxonomy: URL of taxonomy used to .
         years: list of years to validate.
     """
 
@@ -661,7 +702,6 @@ class Ferc1XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     years: list[int] = [
         year for year in data_source.working_partitions["years"] if year >= 2021
     ]
-    taxonomy: str = "https://eCollection.ferc.gov/taxonomy/form1/2022-01-01/form/form1/form-1_2022-01-01.xsd"
 
 
 class Ferc2XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
@@ -675,7 +715,6 @@ class Ferc2XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     years: list[int] = [
         year for year in data_source.working_partitions["years"] if year >= 2021
     ]
-    taxonomy: str = "https://eCollection.ferc.gov/taxonomy/form2/2022-01-01/form/form2/form-2_2022-01-01.xsd"
 
 
 class Ferc2DbfToSqliteSettings(GenericDatasetSettings):
@@ -722,7 +761,6 @@ class Ferc6XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     years: list[int] = [
         year for year in data_source.working_partitions["years"] if year >= 2021
     ]
-    taxonomy: str = "https://eCollection.ferc.gov/taxonomy/form6/2022-01-01/form/form6/form-6_2022-01-01.xsd"
 
 
 class Ferc60DbfToSqliteSettings(GenericDatasetSettings):
@@ -753,7 +791,6 @@ class Ferc60XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     years: list[int] = [
         year for year in data_source.working_partitions["years"] if year >= 2021
     ]
-    taxonomy: str = "https://eCollection.ferc.gov/taxonomy/form60/2022-01-01/form/form60/form-60_2022-01-01.xsd"
 
 
 class Ferc714XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
@@ -764,8 +801,7 @@ class Ferc714XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc714")
-    years: list[int] = [2021, 2022]
-    taxonomy: str = "https://eCollection.ferc.gov/taxonomy/form714/2022-01-01/form/form714/form-714_2022-01-01.xsd"
+    years: list[int] = [2021, 2022, 2023]
 
 
 class FercToSqliteSettings(BaseSettings):

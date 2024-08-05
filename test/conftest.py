@@ -10,7 +10,11 @@ from typing import Any
 import pydantic
 import pytest
 import sqlalchemy as sa
-from dagster import build_init_resource_context, graph, materialize_to_memory
+from dagster import (
+    build_init_resource_context,
+    graph,
+    materialize_to_memory,
+)
 
 import pudl
 from pudl import resources
@@ -198,7 +202,7 @@ def ferc1_dbf_extract(
         Ferc1DbfExtractor.get_dagster_op()()
 
     if not live_dbs:
-        local_dbf_ferc1_graph.to_job(
+        execute_result = local_dbf_ferc1_graph.to_job(
             name="ferc_to_sqlite_dbf_ferc1",
             resource_defs=pudl.ferc_to_sqlite.default_resources_defs,
         ).execute_in_process(
@@ -214,6 +218,7 @@ def ferc1_dbf_extract(
                 },
             },
         )
+        assert execute_result.success, "ferc_to_sqlite_dbf_ferc1 failed!"
 
 
 @pytest.fixture(scope="session")
@@ -227,7 +232,7 @@ def ferc1_xbrl_extract(
         xbrl2sqlite_op_factory(XbrlFormNumber.FORM1)()
 
     if not live_dbs:
-        local_xbrl_ferc1_graph.to_job(
+        execute_result = local_xbrl_ferc1_graph.to_job(
             name="ferc_to_sqlite_xbrl_ferc1",
             resource_defs=pudl.ferc_to_sqlite.default_resources_defs,
         ).execute_in_process(
@@ -243,6 +248,7 @@ def ferc1_xbrl_extract(
                 },
             }
         )
+        assert execute_result.success, "ferc_to_sqlite_xbrl_ferc1 failed!"
 
 
 @pytest.fixture(scope="session", name="ferc1_engine_dbf")
@@ -293,7 +299,7 @@ def pudl_io_manager(
         md = PUDL_PACKAGE.to_sql()
         md.create_all(engine)
         # Run the ETL and generate a new PUDL SQLite DB for testing:
-        pudl_etl_job_factory()().execute_in_process(
+        execute_result = pudl_etl_job_factory()().execute_in_process(
             run_config={
                 "resources": {
                     "dataset_settings": {
@@ -305,6 +311,7 @@ def pudl_io_manager(
                 },
             },
         )
+        assert execute_result.success, "pudl_etl failed!"
     # Grab a connection to the freshly populated PUDL DB, and hand it off.
     # All the hard work here is being done by the datapkg and
     # datapkg_to_sqlite fixtures, above.
@@ -333,7 +340,7 @@ def configure_paths_for_tests(tmp_path_factory, request):
     Set ``--live-dbs`` to force PUDL_OUTPUT to *NOT* be a temporary directory
     and instead inherit from environment.
 
-    ``--live--dbs`` flag is ignored in unit tests, see pudl/test/unit/conftest.py.
+    ``--live-dbs`` flag is ignored in unit tests, see pudl/test/unit/conftest.py.
     """
     # Just in case we need this later...
     pudl_tmpdir = tmp_path_factory.mktemp("pudl")

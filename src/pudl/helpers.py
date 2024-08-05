@@ -13,8 +13,9 @@ import json
 import pathlib
 import re
 import shutil
+import time
 from collections import defaultdict
-from collections.abc import Generator, Iterable
+from collections.abc import Callable, Generator, Iterable
 from functools import partial
 from io import BytesIO
 from typing import Any, Literal, NamedTuple
@@ -30,7 +31,6 @@ from dagster import AssetKey, AssetsDefinition, AssetSelection, SourceAsset
 from pandas._libs.missing import NAType
 
 import pudl.logging_helpers
-from pudl.metadata.classes import DatasetteMetadata
 from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
 from pudl.workspace.setup import PudlPaths
 
@@ -1476,6 +1476,55 @@ def dedupe_and_drop_nas(
     )
 
 
+def drop_records_with_null_in_column(
+    df: pd.DataFrame, column: str, num_of_expected_nulls: int
+) -> pd.DataFrame:
+    """Drop a prescribed number of records with null values in a column.
+
+    Args:
+        df: table with column to check.
+        column: name of column with potential null values.
+        num_of_expected_nulls: the number of records with null values in the column
+
+    Raises:
+        AssertionError: If there are more nulls in the df then the
+            num_of_expected_nulls.
+    """
+    # ensure there isn't more than the expected number of nulls before dropping
+    if len(null_records := df[df[column].isnull()]) > num_of_expected_nulls:
+        raise AssertionError(
+            f"Expected {num_of_expected_nulls} or less records with a null values {column} but found {null_records}"
+        )
+    return df.dropna(subset=[column])
+
+
+def drop_all_null_records_with_multiindex(
+    df: pd.DataFrame, idx_cols: list[str], idx_records: list[tuple[str | int | bool]]
+) -> pd.DataFrame:
+    """Given a set of multi-index values, drop expected all null rows.
+
+    Take a dataframe, and check that a row with given values in idx_cols (e.g.,
+    plant_id_eia, generator_id) is null in all other rows. If so, drop these rows from
+    the dataframe. If not, raise an assertion error to prevent accidentally dropping
+    data.
+
+    Args:
+        df: table with data to drop.
+        idx_cols: list of multi-index columns to index against.
+        idx_records: corresponding index values for each row to be dropped.
+
+    Raises:
+        AssertionError: If there is data in the expected rows.
+    """
+    # ensure there isn't more than the expected number of nulls before dropping
+    df = df.set_index(idx_cols)
+    assert df.loc[idx_records].isnull().all().all(), (
+        "Non-null data found where no data was expected:",
+        f"{df.loc[idx_records].dropna(axis='columns', how='all')}",
+    )  # Make sure all values in all rows and columns here are null
+    return df.drop(idx_records).reset_index()
+
+
 def standardize_percentages_ratio(
     frac_df: pd.DataFrame,
     mixed_cols: list[str],
@@ -2021,18 +2070,6 @@ def diff_wide_tables(
     )
 
 
-def create_datasette_metadata_yaml() -> str:
-    """Create datasette metadata yaml.
-
-    Returns:
-        Datasette metadata for all PUDL resources and XBRL databases as
-        derived from their datapackage.json as YAML.
-    """
-    pudl_output = PudlPaths().pudl_output
-    metadata = DatasetteMetadata.from_data_source_ids(pudl_output)
-    return metadata.to_yaml()
-
-
 def parse_datasette_metadata_yml(metadata_yml: str) -> dict:
     """Parse a yaml file of datasette metadata as json.
 
@@ -2103,3 +2140,33 @@ def check_tables_have_metadata(
     assert (
         has_no_missing_tables_with_missing_metadata
     ), f"These tables are missing datasette metadata: {tables_missing_metadata_results}"
+
+
+def retry(
+    func: Callable,
+    retry_on: tuple[type[BaseException], ...],
+    max_retries=5,
+    base_delay_sec=1,
+    **kwargs,
+):
+    """Retry a function with a short sleep between each try.
+
+    Sleeps twice as long before each retry as the last one, e.g. 1/2/4/8/16
+    seconds.
+
+    Args:
+    func: the function to retry
+    retry_on: the errors to catch.
+    base_delay_sec: how much time to sleep for the first retry.
+    kwargs: keyword arguments to pass to the wrapped function. Pass non-kwargs as kwargs too.
+    """
+    for try_count in range(max_retries):
+        delay = 2**try_count * base_delay_sec
+        try:
+            return func(**kwargs)
+        except retry_on as e:
+            logger.info(
+                f"{e}: retry in {delay}s. {try_count}/{max_retries} retries used."
+            )
+            time.sleep(delay)
+    return func(**kwargs)

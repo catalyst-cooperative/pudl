@@ -145,7 +145,7 @@ SOURCES: dict[str, Any] = {
             CONTRIBUTORS["catalyst-cooperative"],
         ],
         "working_partitions": {
-            "years": sorted(set(range(2001, 2023))),
+            "years": sorted(set(range(2001, 2024))),
         },
         "keywords": sorted(
             set(
@@ -181,7 +181,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "year_months": [
                 str(q).lower()
-                for q in pd.period_range(start="2015-07", end="2023-12", freq="M")
+                for q in pd.period_range(start="2015-07", end="2024-03", freq="M")
             ],
         },
         "keywords": sorted(
@@ -258,7 +258,7 @@ SOURCES: dict[str, Any] = {
         },
         "field_namespace": "eia",
         "working_partitions": {
-            "years": sorted(set(range(2001, 2024))),
+            "years": sorted(set(range(2001, 2025))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -426,7 +426,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "year_quarters": [
                 str(q).lower()
-                for q in pd.period_range(start="1995q1", end="2023q4", freq="Q")
+                for q in pd.period_range(start="1995q1", end="2024q1", freq="Q")
             ]
         },
         "contributors": [
@@ -507,7 +507,7 @@ SOURCES: dict[str, Any] = {
         },
         "field_namespace": "ferc1",
         "working_partitions": {
-            "years": sorted(set(range(1994, 2023))),
+            "years": sorted(set(range(1994, 2024))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -542,7 +542,7 @@ SOURCES: dict[str, Any] = {
             # Years 1991-1995 use strange formats that need to be investigated further.
             # Years 1996-1999 come in split archives and full archives and we are going
             # to be using the aggregated archives (part=None).
-            "years": sorted(set(range(1996, 2023))),
+            "years": sorted(set(range(1996, 2024))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -571,8 +571,8 @@ SOURCES: dict[str, Any] = {
         "field_namespace": "ferc6",
         "working_partitions": {
             # Years 2000-2020 are backed by DBF format.
-            # Years 2021-2022 are backed by XBRL.
-            "years": sorted(set(range(2000, 2022))),
+            # Years 2021-present are backed by XBRL.
+            "years": sorted(set(range(2000, 2024))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -600,7 +600,7 @@ SOURCES: dict[str, Any] = {
         ),
         "field_namespace": "ferc60",
         "working_partitions": {
-            "years": sorted(set(range(2006, 2023))),
+            "years": sorted(set(range(2006, 2024))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -753,7 +753,9 @@ SOURCES: dict[str, Any] = {
             "source_format": "Parquet",
         },
         "working_partitions": {
-            "years": sorted(set(range(2019, 2024))),
+            "years": list(
+                range(2021, 2025)
+            ),  # see issue #3576 for why 2019 and 2020 are not working
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],

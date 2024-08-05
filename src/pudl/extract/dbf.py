@@ -19,7 +19,6 @@ from dbfread import DBF, FieldParser
 import pudl
 import pudl.logging_helpers
 from pudl.metadata.classes import DataSource
-from pudl.resources import RuntimeSettings
 from pudl.settings import FercToSqliteSettings, GenericDatasetSettings
 from pudl.workspace.datastore import Datastore
 from pudl.workspace.setup import PudlPaths
@@ -433,7 +432,6 @@ class FercDbfExtractor:
         datastore: Datastore,
         settings: FercToSqliteSettings,
         output_path: Path,
-        clobber: bool = False,
     ):
         """Constructs new instance of FercDbfExtractor.
 
@@ -441,10 +439,8 @@ class FercDbfExtractor:
             datastore: top-level datastore instance for accessing raw data files.
             settings: generic settings object for this extrctor.
             output_path: directory where the output databases should be stored.
-            clobber: if True, existing databases should be replaced.
         """
         self.settings: GenericDatasetSettings = self.get_settings(settings)
-        self.clobber = clobber
         self.output_path = output_path
         self.datastore = datastore
         self.dbf_reader = self.get_dbf_reader(datastore)
@@ -483,12 +479,10 @@ class FercDbfExtractor:
             tags={"dataset": cls.DATASET, "data_format": "dbf"},
         )
         def inner_method(context) -> None:
-            rs: RuntimeSettings = context.resources.runtime_settings
             """Instantiates dbf extractor and runs it."""
             dbf_extractor = cls(
                 datastore=context.resources.datastore,
                 settings=context.resources.ferc_to_sqlite_settings,
-                clobber=rs.clobber,
                 output_path=PudlPaths().output_dir,
             )
             dbf_extractor.execute()
@@ -504,7 +498,6 @@ class FercDbfExtractor:
             logger.warning(f"Dataset {self.DATASET} extraction is disabled, skipping")
             return
 
-        # TODO(rousik): perhaps we should check clobber here before starting anything.
         self.delete_schema()
         self.create_sqlite_tables()
         self.load_table_data()
@@ -513,10 +506,7 @@ class FercDbfExtractor:
     def delete_schema(self):
         """Drops all tables from the existing sqlite database."""
         with contextlib.suppress(sa.exc.OperationalError):
-            pudl.helpers.drop_tables(
-                self.sqlite_engine,
-                clobber=self.clobber,
-            )
+            pudl.helpers.drop_tables(self.sqlite_engine, clobber=True)
 
         self.sqlite_engine = sa.create_engine(self.get_db_path())
         self.sqlite_meta = sa.MetaData()

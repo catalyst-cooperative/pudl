@@ -149,89 +149,99 @@ FERC_ACCOUNTS: pd.DataFrame = pd.DataFrame(
     ],
 )
 """FERC electric plant account IDs with associated row numbers and descriptions.
-
 From FERC Form 1 pages 204-207, Electric Plant in Service. Descriptions from:
 https://www.law.cornell.edu/cfr/text/18/part-101
 """
 
-FERC_DEPRECIATION_LINES: pd.DataFrame = pd.DataFrame(
-    columns=["row_number", "line_id", "ferc_account_description"],
-    data=[
-        # Section A. Balances and Changes During Year
-        (1, "balance_beginning_of_year", "Balance Beginning of Year"),
-        (3, "depreciation_expense", "(403) Depreciation Expense"),
-        (
-            4,
-            "depreciation_expense_asset_retirement",
-            "(403.1) Depreciation Expense for Asset Retirement Costs",
-        ),
-        (
-            5,
-            "expense_electric_plant_leased_to_others",
-            "(413) Exp. of Elec. Plt. Leas. to Others",
-        ),
-        (6, "transportation_expenses_clearing", "Transportation Expenses-Clearing"),
-        (7, "other_clearing_accounts", "Other Clearing Accounts"),
-        (
-            8,
-            "other_accounts_specified",
-            "Other Accounts (Specify, details in footnote):",
-        ),
-        # blank: might also be other charges like line 17.
-        (9, "other_charges", "Other Charges:"),
-        (
-            10,
-            "total_depreciation_provision_for_year",
-            "TOTAL Deprec. Prov for Year (Enter Total of lines 3 thru 9)",
-        ),
-        (11, "net_charges_for_plant_retired", "Net Charges for Plant Retired:"),
-        (12, "book_cost_of_plant_retired", "Book Cost of Plant Retired"),
-        (13, "cost_of_removal", "Cost of Removal"),
-        (14, "salvage_credit", "Salvage (Credit)"),
-        (
-            15,
-            "total_net_charges_for_plant_retired",
-            "TOTAL Net Chrgs. for Plant Ret. (Enter Total of lines 12 thru 14)",
-        ),
-        (
-            16,
-            "other_debit_or_credit_items",
-            "Other Debit or Cr. Items (Describe, details in footnote):",
-        ),
-        # blank: can be "Other Charges", e.g. in 2012 for PSCo.
-        (17, "other_charges_2", "Other Charges 2"),
-        (
-            18,
-            "book_cost_or_asset_retirement_costs_retired",
-            "Book Cost or Asset Retirement Costs Retired",
-        ),
-        (
-            19,
-            "balance_end_of_year",
-            "Balance End of Year (Enter Totals of lines 1, 10, 15, 16, and 18)",
-        ),
-        # Section B. Balances at End of Year According to Functional Classification
-        (20, "steam_production_end_of_year", "Steam Production"),
-        (21, "nuclear_production_end_of_year", "Nuclear Production"),
-        (22, "hydraulic_production_end_of_year", "Hydraulic Production-Conventional"),
-        (23, "pumped_storage_end_of_year", "Hydraulic Production-Pumped Storage"),
-        (24, "other_production", "Other Production"),
-        (25, "transmission", "Transmission"),
-        (26, "distribution", "Distribution"),
-        (
-            27,
-            "regional_transmission_and_market_operation",
-            "Regional Transmission and Market Operation",
-        ),
-        (28, "general", "General"),
-        (29, "total", "TOTAL (Enter Total of lines 20 thru 28)"),
-    ],
-)
-"""Row numbers, FERC account IDs, and FERC account descriptions.
-
-From FERC Form 1 page 219, Accumulated Provision for Depreciation of electric utility
-plant (Account 108).
-"""
+BALANCING_AUTHORITY_SUBREGIONS_EIA: pd.DataFrame = pd.read_csv(
+    StringIO(
+        """balancing_authority_code_eia,balancing_authority_subregion_code_eia,balancing_authority_subregion_name_eia
+CISO,PGAE,Pacific Gas and Electric
+CISO,SCE,Southern California Edison
+CISO,SDGE,San Diego Gas and Electric
+CISO,VEA,Valley Electric Association
+ERCO,COAS,Coast
+ERCO,EAST,East
+ERCO,FWES,Far West
+ERCO,NCEN,North Central
+ERCO,NRTH,North
+ERCO,SCEN,South Central
+ERCO,SOUT,South
+ERCO,WEST,West
+ISNE,"4001",Maine
+ISNE,"4002",New Hampshire
+ISNE,"4003",Vermont
+ISNE,"4004",Connecticut
+ISNE,"4005",Rhode Island
+ISNE,"4006",Southeast Mass.
+ISNE,"4007",Western/Central Mass.
+ISNE,"4008",Northeast Mass.
+MISO,"0001",Zone 1
+MISO,"0004",Zone 4
+MISO,"0006",Zone 6
+MISO,"0027",Zones 2 and 7
+MISO,"0035",Zones 3 and 5
+MISO,"8910","Zones 8, 9, and 10"
+NYIS,ZONA,West
+NYIS,ZONB,Genesee
+NYIS,ZONC,Central
+NYIS,ZOND,North
+NYIS,ZONE,Mohawk Valley
+NYIS,ZONF,Capital
+NYIS,ZONG,Hudson Valley
+NYIS,ZONH,Millwood
+NYIS,ZONI,Dunwoodie
+NYIS,ZONJ,New York City
+NYIS,ZONK,Long Island
+PJM,AE,Atlantic Electric zone
+PJM,AEP,American Electric Power zone
+PJM,AP,Allegheny Power zone
+PJM,ATSI,"American Transmission Systems, Inc. zone"
+PJM,BC,Baltimore Gas & Electric zone
+PJM,CE,Commonwealth Edison zone
+PJM,DAY,Dayton Power & Light zone
+PJM,DEOK,Duke Energy Ohio/Kentucky zone
+PJM,DOM,Dominion Virginia Power zone
+PJM,DPL,Delmarva Power & Light zone
+PJM,DUQ,Duquesne Lighting Company zone
+PJM,EKPC,East Kentucky Power Cooperative zone
+PJM,JC,Jersey Central Power & Light zone
+PJM,ME,Metropolitan Edison zone
+PJM,PE,PECO Energy zone
+PJM,PEP,Potomac Electric Power zone
+PJM,PL,Pennsylvania Power & Light zone
+PJM,PN,Pennsylvania Electric zone
+PJM,PS,Public Service Electric & Gas zone
+PJM,RECO,Rockland Electric (East) zone
+PNM,ACMA,City of Acoma Pueblo
+PNM,CYGA,City of Gallup
+PNM,FREP,Freeport
+PNM,JICA,Jicarilla Apache Nation
+PNM,KAFB,Kirtland Air Force Base
+PNM,KCEC,Kit Carson Electric Cooperative
+PNM,LAC,Los Alamos County
+PNM,NTUA,Navajo Tribal Utility Authority
+PNM,PNM,PNM System Firm Load
+PNM,TSGT,Tri-State Generation and Transmission
+SWPP,CSWS,AEPW American Electric Power West
+SWPP,EDE,Empire District Electric Company
+SWPP,GRDA,Grand River Dam Authority
+SWPP,INDN,Independence Power & Light
+SWPP,KACY,Kansas City Board of Public Utilities
+SWPP,KCPL,Kansas City Power & Light
+SWPP,LES,Lincoln Electric System
+SWPP,MPS,KCP&L Greater Missouri Operations
+SWPP,NPPD,Nebraska Public Power District
+SWPP,OKGE,Oklahoma Gas and Electric Co.
+SWPP,OPPD,Omaha Public Power District
+SWPP,SECI,Sunflower Electric
+SWPP,SPRM,City of Springfield
+SWPP,SPS,Southwestern Public Service Company
+SWPP,WAUE,Western Area Power Upper Great Plains East
+SWPP,WFEC,Western Farmers Electric Cooperative
+SWPP,WR,Westar Energy"""
+    ),
+).convert_dtypes()
 
 EIA_SECTOR_AGGREGATE_ASSN = pd.read_csv(
     StringIO(

@@ -569,7 +569,7 @@ def total_state_sales_eia861(
 
 
 @asset(
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     compute_kind="Python",
     config_schema={
         "mean_overlaps": Field(
