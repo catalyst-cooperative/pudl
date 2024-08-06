@@ -44,6 +44,8 @@ EIA 860
 EIA 923
 ~~~~~~~
 * Added EIA 923 early release data from 2023. See :issue:`3719` and PR :pr:`3721`.
+* Added EIA 923 monthly data through May as part of the Q2 quarterly release. See
+  :issue:`3760` and :pr:`3768`.
 
 FERC 714
 ~~~~~~~~
