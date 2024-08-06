@@ -298,10 +298,10 @@ script in the terminal. From within the pudl repo directory, run:
 C. EPA CEMS
 ^^^^^^^^^^^
 
-**4.C.1)** Use dagster to materialize the ``epacems`` asset group and debug. The most
-common errors will occur when new CEMS plants lack timezone data in the EIA database.
-See section 6.B.1 for instructions on how to fix this. Once you've updated the
-spreadsheet tracking these errors, reload the ``epacems`` assets in Dagster.
+**4.C.1)** Use dagster to materialize the ``core_epacems`` asset group and debug. The
+most common errors will occur when new CEMS plants lack timezone data in the EIA
+database. See section 6.B.1 for instructions on how to fix this. Once you've updated the
+spreadsheet tracking these errors, reload the ``core_epacems`` assets in Dagster.
 
 D. NREL ATB
 ^^^^^^^^^^^^
@@ -399,9 +399,11 @@ B. Missing EIA Plant Locations from CEMS
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 **6.B.1)** If there are any plants that appear in the EPA CEMS dataset that do not
 appear in the ``core_eia__entity_plants`` table, or that are missing latitude and
-longitude values, you'll get a warning when you try and materialize the ``core_epacamd``
-asset group in Dagster. You'll need to manually compile the missing information and add
-it to ``src/pudl/package_data/epacems/additional_epacems_plants.csv`` to enable accurate
+longitude values, you'll get a warning when you try and materialize assets downstream
+from ``core_epacems`` (``_core_epacems__emissions_unit_ids`` and
+``core_epa__assn_eia_epacamd_subplant_ids``). You'll need to manually compile the
+missing information and add it to
+``src/pudl/package_data/epacems/additional_epacems_plants.csv`` to enable accurate
 adjustment of the EPA CEMS timestamps to UTC. Using the Plant ID from the warning, look
 up the plant coordinates in the
 `EPA FACT API <https://www.epa.gov/airmarkets/field-audit-checklist-tool-fact-api>`__.
