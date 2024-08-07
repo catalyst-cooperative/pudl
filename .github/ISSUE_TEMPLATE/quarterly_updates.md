@@ -1,7 +1,7 @@
 ---
-name: Quarterly Update {{ date | date('[Q]Q YYYY') }}
+name: Quarterly updates checklist
 about: Check-list for integrating the quarterly updates into PUDL
-title: ""
+title: Update quarterly data for {{ date | date('[Q]Q YYYY') }}
 labels: data-update
 assignees: ""
 ---
