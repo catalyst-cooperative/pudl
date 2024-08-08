@@ -33,7 +33,7 @@ AUTH_USER_REGISTRATION_ROLE = "GammaSQLLab"
 
 def get_db_connection_string() -> str:
     """Get the database connection string."""
-    drivername = "postgresql+pg8000"
+    drivername = "postgresql+psycopg2"
     host = os.environ.get("SUPERSET_DB_HOST")
     port = os.environ.get("SUPERSET_DB_PORT")
     username = os.environ["SUPERSET_DB_USER"]
@@ -44,17 +44,9 @@ def get_db_connection_string() -> str:
 
     if is_cloud_run:
         cloud_sql_connection_name = os.environ.get("CLOUD_SQL_CONNECTION_NAME")
-        return str(
-            sa.engine.url.URL.create(
-                drivername=drivername,
-                username=username,
-                password=password,
-                database=database,
-                query={
-                    "unix_sock": f"/cloudsql/{cloud_sql_connection_name}/.s.PGSQL.5432"
-                },
-            ),
-        )
+        # I couldn't figure out how to use unix sockets with the sa.engine.url.URL
+        # class so I'm creating the connection string manually
+        return f"postgresql+psycopg2://{username}:{password}@/{database}?host=/cloudsql/{cloud_sql_connection_name}"
     return str(
         sa.engine.url.URL.create(
             drivername=drivername,
