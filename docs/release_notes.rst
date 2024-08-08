@@ -45,6 +45,10 @@ EIA 923
 ~~~~~~~
 * Added EIA 923 early release data from 2023. See :issue:`3719` and PR :pr:`3721`.
 
+EPA CEMS
+~~~~~~~~
+* Added 2024 Q2 of CEMS data. See :issue:`3762` and :pr:`3769`.
+
 FERC 714
 ~~~~~~~~
 * Added :ref:`core_ferc714__yearly_planning_area_demand_forecast` based on FERC
@@ -78,7 +82,7 @@ Bug Fixes
   about 2% more records in the table being left ``NA`` after filling with the average
   prices for that fuel type for the state and month found in the bulk EIA API data.
 
-Qualtiy of Life Improvements
+Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 * The full ETL settings are now read directly from ``etl_full.yml`` instead of using
   default values defined in the settings classes.  This also results in the settings
