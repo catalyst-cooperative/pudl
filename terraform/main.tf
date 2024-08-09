@@ -66,6 +66,10 @@ module "gh_oidc" {
       sa_name   = "projects/${var.project_id}/serviceAccounts/gce-github-action-test@catalyst-cooperative-pudl.iam.gserviceaccount.com"
       attribute = "attribute.repository/catalyst-cooperative/gce-build-test"
     }
+    "sec-extraction-test-github-action" = {
+      sa_name   = "projects/catalyst-cooperative-mozilla/serviceAccounts/mozilla-dev-sa@catalyst-cooperative-mozilla.iam.gserviceaccount.com"
+      attribute = "attribute.repository/catalyst-cooperative/mozilla-sec-eia"
+    }
   }
 }
 
