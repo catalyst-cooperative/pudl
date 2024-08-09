@@ -1,9 +1,12 @@
-.. _wip_future:
+.. _future_data:
 
 ===============================================================================
-Work in Progress & Future Datasets
+High Priority Target Datasets
 ===============================================================================
 
+This page lists datasets that we've identified for future integration into PUDL,
+including some which we've started work on but are not yet to the point of being
+available in the main PUDL database which we distribute.
 
 .. IMPORTANT:: Looking for a specific dataset?
 
@@ -18,10 +21,6 @@ Work in Progress & Future Datasets
    If you're **looking to help us integrate a specific dataset into PUDL**, find us at
    `office hours <https://calend.ly/catalyst-cooperative/pudl-office-hours>`__ and we
    can talk through next steps.
-
--------------------------------------------------------------------------------
-High Priority Target Datasets
--------------------------------------------------------------------------------
 
 There's a huge variety and quantity of data about the US electric utility system
 available to the public. The data we have integrated is just the beginning! Other data
@@ -40,7 +39,8 @@ EIA Form 176
 EIA `Form 176 <https://www.eia.gov/dnav/ng/TblDefs/NG_DataSources.html#s176>`__, also
 known as the **Annual Report of Natural and Supplemental Gas Supply and Disposition**,
 describes the origins, suppliers, and disposition of natural gas on a yearly and state
-by state basis.
+by state basis. EIA Forms 191 and 757a come in the same bulk data download and also
+pertain to natural gas.
 
 .. _data-ferceqr:
 
@@ -56,17 +56,6 @@ renewable energy power purchase agreements (PPAs). This is a large (~100s of GB)
 composed of a very large number of relatively clean CSV files, but it requires fuzzy
 processing to get at some of the interesting and only indirectly reported attributes.
 
-.. _data-ferc2:
-
-FERC Form 2
-^^^^^^^^^^^
-
-`FERC Form 2 <https://www.ferc.gov/industries-data/natural-gas/overview/general-information/natural-gas-industry-forms/form-22a-data>`__
-is analogous to FERC Form 1, but it pertains to gas rather than electric utilities.  The
-data paint a detailed picture of the finances of natural gas utilities, but
-unfortunately because FERC's jurisdiction over gas utilities is more limited than for
-electricity, it is limited to interstate gas transmission pipeline companies.
-
 .. _data-tds:
 
 Transmission and Distribution Systems
@@ -77,7 +66,7 @@ some kind of model of the interconnections between generation and loads. There d
 appear to be a generally accepted, publicly available set of these network descriptions
 (yet!).
 
-.. _data-eiah20:
+.. _data-eiawater:
 
 EIA Thermoelectric Water Usage
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

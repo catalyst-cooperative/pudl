@@ -69,10 +69,12 @@ bibtex_bibfiles = [
 # Redirects to keep folks from hitting 404 errors:
 redirects = {
     "data_dictionary": "data_dictionaries/pudl_db.html",
+    "data_sources/wip_future.html": "data_sources/future_data.html",
 }
 
 # Automatically generate API documentation during the doc build:
 autoapi_type = "python"
+autoapi_keep_files = False  # Set to True to debug auto-generated RST files
 autoapi_dirs = [
     "../src/pudl",
 ]
