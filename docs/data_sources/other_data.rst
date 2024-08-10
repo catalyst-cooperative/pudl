@@ -52,15 +52,24 @@ NREL Annual Technology Baseline (ATB)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 NREL publishes `Annual Technology Baseline (ATB) <https://atb.nrel.gov>`__ data for the
-`Electricity <https://atb.nrel.gov/electricity>`__
+`Electricity <https://atb.nrel.gov/electricity>`__ and
 `Transportation <https://atb.nrel.gov/transportation>`__ sectors. We have integrated the
 Electricity sector data into the PUDL DB, but haven't yet fully documented the data
 source. Look for ``nrelatb`` in the table name.
 
+FERC DBF & XBRL Data
+^^^^^^^^^^^^^^^^^^^^
+FERC publishes Forms 1, 2, 6, and 60 data as VisualFoxPro DBF files (2020 and earlier)
+and XBRL documents (2021 and later). We distribute these data as standalone SQLite
+database files which contain all the data from the original FERC filings, but converted
+to a more easily accessible format. Only a few dozen of the highest priority FERC Form 1
+tables have been integrated into the main PUDL database. See the :doc:`../data-access`
+page for detailed instructions.
+
 .. _data-ferc2:
 
 FERC Form 2
-^^^^^^^^^^^
+-----------
 
 `FERC Form 2 <https://www.ferc.gov/industries-data/natural-gas/overview/general-information/natural-gas-industry-forms/form-22a-data>`__
 is analogous to FERC Form 1, but reports on the finances of gas, rather than electric
@@ -68,32 +77,22 @@ utilities. Unfortunately because FERC's jurisdiction over gas utilities is more 
 than for electricity, Form 2 mostly describes interstate gas transmission pipeline
 companies, and not local gas distribution utilities.
 
-We distribute the FERC Form 2 data as a pair of standalone SQLite DBs which are
-converted from the original VisualFoxPro DBF files (2020 and earlier) and XBRL filings
-(2021 and later). None of this data has been integrated into the main PUDL DB.
-
 .. _data-ferc6:
 
 FERC Form 6
-^^^^^^^^^^^
+-----------
+
 `FERC Form 6 <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-66-q-overview-orders>`__
 (Annual Report of Oil Pipeline Companies) is a comprehensive financial and operating
 report submitted for oil pipelines rate regulation and financial audits.
 
-We distribute the FERC Form 6 data as a pair of standalone SQLite DBs which are
-converted from the original VisualFoxPro DBF files (2020 and earlier) and XBRL filings
-(2021 and later). None of this data has been integrated into the main PUDL DB.
-
 .. _data-ferc60:
 
 FERC Form 60
-^^^^^^^^^^^^
+------------
+
 `FERC Form 60 <https://www.ferc.gov/ferc-online/ferc-online/filing-forms/service-companies-filing-forms/form-60-annual-report>`__
 (Annual Report of Centralized Service Companies) is a comprehensive financial and
 operating report submitted for centralized service companies. These are utility
 subsidaries that provide services to more than one type of utility (electric, gas, or
 oil pipeline) such that they don't fit into any of the above Forms 1, 2, or 6.
-
-We distribute the FERC Form 60 data as a pair of standalone SQLite DBs which are
-converted from the original VisualFoxPro DBF files (2020 and earlier) and XBRL filings
-(2021 and later). None of this data has been integrated into the main PUDL DB.
