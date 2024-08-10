@@ -62,6 +62,8 @@ NREL ATB
   all technologies, and more detailed nuclear breakdowns of ``fuel_cost_per_mwh``.
   Simultaneously, updated the :mod:`docs.dev.existing_data_updates` documentation to
   make it easier to add future years of data. See :issue:`3706` and :pr:`3719`.
+* Updated NREL ATB data to include `error corrections in the 2024 data <https://atb.nrel.gov/electricity/2024/errata>`__.
+  See :issue:`3777` and PR :pr:`3778`.
 
 Data Cleaning
 ^^^^^^^^^^^^^
