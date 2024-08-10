@@ -63,7 +63,7 @@ FERC publishes Forms 1, 2, 6, and 60 data as VisualFoxPro DBF files (2020 and ea
 and XBRL documents (2021 and later). We distribute these data as standalone SQLite
 database files which contain all the data from the original FERC filings, but converted
 to a more easily accessible format. Only a few dozen of the highest priority FERC Form 1
-tables have been integrated into the main PUDL database. See the :doc:`../data-access`
+tables have been integrated into the main PUDL database. See the :doc:`../data_access`
 page for detailed instructions.
 
 .. _data-ferc2:
