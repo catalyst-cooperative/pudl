@@ -199,7 +199,7 @@ class ZenodoDoiSettings(BaseSettings):
     eiaaeo: ZenodoDoi = "10.5281/zenodo.10838488"
     eia_bulk_elec: ZenodoDoi = "10.5281/zenodo.11111208"
     epacamd_eia: ZenodoDoi = "10.5281/zenodo.7900974"
-    epacems: ZenodoDoi = "10.5281/zenodo.11111203"
+    epacems: ZenodoDoi = "10.5281/zenodo.13240556"
     ferc1: ZenodoDoi = "10.5281/zenodo.12549172"
     ferc2: ZenodoDoi = "10.5281/zenodo.11408175"
     ferc6: ZenodoDoi = "10.5281/zenodo.11408164"
@@ -207,7 +207,7 @@ class ZenodoDoiSettings(BaseSettings):
     ferc714: ZenodoDoi = "10.5281/zenodo.12021228"
     gridpathratoolkit: ZenodoDoi = "10.5281/zenodo.10892394"
     phmsagas: ZenodoDoi = "10.5281/zenodo.10493790"
-    nrelatb: ZenodoDoi = "10.5281/zenodo.12609821"
+    nrelatb: ZenodoDoi = "10.5281/zenodo.12658647"
 
     model_config = SettingsConfigDict(
         env_prefix="pudl_zenodo_doi_", env_file=".env", extra="ignore"

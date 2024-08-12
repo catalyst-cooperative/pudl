@@ -426,7 +426,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "year_quarters": [
                 str(q).lower()
-                for q in pd.period_range(start="1995q1", end="2024q1", freq="Q")
+                for q in pd.period_range(start="1995q1", end="2024q2", freq="Q")
             ]
         },
         "contributors": [
@@ -455,7 +455,7 @@ SOURCES: dict[str, Any] = {
         "path": "https://github.com/USEPA/camd-eia-crosswalk",
         "description": (
             "A file created collaboratively by EPA and EIA that connects EPA CAMD "
-            "smokestacks (units) with cooresponding EIA plant part ids reported in "
+            "smokestacks (units) with corresponding EIA plant part ids reported in "
             "EIA Forms 860 and 923 (plant_id_eia, boiler_id, generator_id). This "
             "one-to-many connection is necessary because pollutants from various plant "
             "parts are collecitvely emitted and measured from one point-source."
