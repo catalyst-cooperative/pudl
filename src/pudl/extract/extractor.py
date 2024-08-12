@@ -187,12 +187,12 @@ class GenericExtractor(ABC):
             extra_raw_cols = set(df.columns).difference(expected_cols)
             missing_raw_cols = set(expected_cols).difference(df.columns)
             if extra_raw_cols:
-                logger.warning(
+                raise ValueError(
                     f"{page}/{partition_selection}: Extra columns found in extracted table:"
                     f"\n{extra_raw_cols}"
                 )
             if missing_raw_cols:
-                logger.warning(
+                raise ValueError(
                     f"{page}/{partition_selection}: Expected columns not found in extracted table:"
                     f"\n{missing_raw_cols}"
                 )
