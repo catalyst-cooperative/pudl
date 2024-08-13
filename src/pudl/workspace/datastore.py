@@ -197,7 +197,7 @@ class ZenodoDoiSettings(BaseSettings):
     eia930: ZenodoDoi = "10.5281/zenodo.10840078"
     eiawater: ZenodoDoi = "10.5281/zenodo.10806016"
     eiaaeo: ZenodoDoi = "10.5281/zenodo.10838488"
-    eia_bulk_elec: ZenodoDoi = "10.5281/zenodo.11111208"
+    eia_bulk_elec: ZenodoDoi = "10.5281/zenodo.13149083"
     epacamd_eia: ZenodoDoi = "10.5281/zenodo.7900974"
     epacems: ZenodoDoi = "10.5281/zenodo.13240556"
     ferc1: ZenodoDoi = "10.5281/zenodo.12549172"
