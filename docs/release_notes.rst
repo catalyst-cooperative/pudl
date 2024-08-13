@@ -47,6 +47,11 @@ EIA 923
 * Added EIA 923 monthly data through May as part of the Q2 quarterly release. See
   :issue:`3760` and :pr:`3768`.
 
+EIA 930
+~~~~~~~
+* Added EIA 930 hourly data through the end of July as part of the Q2 quarterly release.
+  See :issue:`3761`` and :pr:`3789`.
+
 EPA CEMS
 ~~~~~~~~
 * Added 2024 Q2 of CEMS data. See :issue:`3762` and :pr:`3769`.
