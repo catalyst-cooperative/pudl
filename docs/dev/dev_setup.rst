@@ -196,6 +196,13 @@ To make sure they are run before you commit any code, you need to enable the
 
 The scripts that run are configured in the ``.pre-commit-config.yaml`` file.
 
+If you don't have the pre-commit framework already installed,
+you can install it with this command:
+
+.. code-block:: console
+
+    $ pip install pre-commit
+
 .. seealso::
 
     * The `pre-commit project <https://pre-commit.com/>`__: A framework for
