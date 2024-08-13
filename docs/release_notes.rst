@@ -44,6 +44,8 @@ EIA 860
 EIA 923
 ~~~~~~~
 * Added EIA 923 early release data from 2023. See :issue:`3719` and PR :pr:`3721`.
+* Added EIA 923 monthly data through May as part of the Q2 quarterly release. See
+  :issue:`3760` and :pr:`3768`.
 
 EPA CEMS
 ~~~~~~~~
@@ -69,6 +71,8 @@ NREL ATB
   all technologies, and more detailed nuclear breakdowns of ``fuel_cost_per_mwh``.
   Simultaneously, updated the :mod:`docs.dev.existing_data_updates` documentation to
   make it easier to add future years of data. See :issue:`3706` and :pr:`3719`.
+* Updated NREL ATB data to include `error corrections in the 2024 data <https://atb.nrel.gov/electricity/2024/errata>`__.
+  See :issue:`3777` and PR :pr:`3778`.
 
 Data Cleaning
 ^^^^^^^^^^^^^

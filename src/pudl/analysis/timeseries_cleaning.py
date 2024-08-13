@@ -8,7 +8,7 @@ published by regional grid operators like MISO, PJM, ERCOT, and SPP.
 They are adapted from code published and modified by:
 
 * Tyler Ruggles <truggles@carnegiescience.edu>
-* Greg Schivley <greg@carbonimpact.co>
+* Greg Schivley <greg.schivley@princeton.edu>
 
 And described at:
 
@@ -533,17 +533,7 @@ def impute_latc_tubal(  # noqa: C901
 
 
 class Timeseries:
-    """Multivariate timeseries for anomalies detection and imputation.
-
-    Attributes:
-        xi: Reference to the original values (can be null).
-            Many methods assume that these represent chronological, regular timeseries.
-        x: Copy of :attr:`xi` with any flagged values replaced with null.
-        flags: Flag label for each value, or null if not flagged.
-        flagged: Running list of flags that have been checked so far.
-        index: Row index.
-        columns: Column names.
-    """
+    """Multivariate timeseries for anomaly detection and imputation."""
 
     def __init__(self, x: np.ndarray | pd.DataFrame) -> None:
         """Initialize a multivariate timeseries.
@@ -556,8 +546,17 @@ class Timeseries:
                 `pandas.RangeIndex`.
         """
         self.xi: np.ndarray
+        """Reference to the original values (can be null).
+
+        Many methods assume that these represent chronological, regular timeseries.
+        """
+
         self.index: pd.Index
+        """Row index."""
+
         self.columns: pd.Index
+        """Column names."""
+
         if isinstance(x, pd.DataFrame):
             self.xi = x.to_numpy()
             self.index = x.index
@@ -566,9 +565,15 @@ class Timeseries:
             self.xi = x
             self.index = pd.RangeIndex(x.shape[0])
             self.columns = pd.RangeIndex(x.shape[1])
+
         self.x: np.ndarray = self.xi.copy()
+        """Copy of :attr:`xi` with any flagged values replaced with null."""
+
         self.flags: np.ndarray = np.empty(self.x.shape, dtype=object)
+        """Flag label for each value, or null if not flagged."""
+
         self.flagged: list[str] = []
+        """Running list of flags that have been checked so far."""
 
     def to_dataframe(self, array: np.ndarray = None, copy: bool = True) -> pd.DataFrame:
         """Return multivariate timeseries as a :class:`pandas.DataFrame`.
