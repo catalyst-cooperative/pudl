@@ -3,6 +3,7 @@
 import os
 
 import sqlalchemy as sa
+from flask import Flask
 from flask_appbuilder.security.manager import (
     AUTH_OAUTH,
 )
@@ -60,3 +61,14 @@ def get_db_connection_string() -> str:
 
 
 SQLALCHEMY_DATABASE_URI = get_db_connection_string()
+
+
+def FLASK_APP_MUTATOR(app: Flask) -> None:  # noqa: N802
+    """Superset function that allows you to configure the Flask app.
+
+    Args:
+        app: The Flask app instance
+    """
+    app.config.update(
+        PREFERRED_URL_SCHEME="https",
+    )

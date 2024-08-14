@@ -376,3 +376,19 @@ resource "google_storage_bucket_iam_member" "superset_storage_compute_iam" {
   role = "roles/storage.objectViewer"
   member = "serviceAccount:345950277072-compute@developer.gserviceaccount.com"
 }
+
+resource "google_cloud_run_v2_service_iam_member" "cloudbuild_superset" {
+  location = google_cloud_run_v2_service.pudl-superset.location
+  name     = google_cloud_run_v2_service.pudl-superset.name
+  role     = "roles/run.admin"
+  member   = "serviceAccount:345950277072@cloudbuild.gserviceaccount.com"
+}
+
+data "google_compute_default_service_account" "google_compute_default_service_account_data" {
+}
+
+resource "google_service_account_iam_member" "gce-default-account-iam" {
+  service_account_id = data.google_compute_default_service_account.google_compute_default_service_account_data.name
+  role               = "roles/iam.serviceAccountUser"
+  member             = "serviceAccount:345950277072@cloudbuild.gserviceaccount.com"
+}

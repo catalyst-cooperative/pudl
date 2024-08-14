@@ -15,3 +15,15 @@ steps:
         "push",
         "us-central1-docker.pkg.dev/catalyst-cooperative-pudl/pudl-superset/pudl-superset:latest",
       ]
+
+  - name: "gcr.io/cloud-builders/gcloud"
+    args:
+      [
+        "run",
+        "deploy",
+        "pudl-superset",
+        "--image",
+        "us-central1-docker.pkg.dev/catalyst-cooperative-pudl/pudl-superset/pudl-superset:latest",
+        "--region",
+        "us-central1",
+      ]

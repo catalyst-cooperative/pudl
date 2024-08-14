@@ -17,7 +17,7 @@ services:
     ports:
       - "8080:8088"
     volumes:
-      - ./duck.db:/app/duck.db
+      # - {path to your pudl.duckdb file}:/app/pudl.duckdb
       - ./roles.json:/app/roles.json
     depends_on:
       - postgres
