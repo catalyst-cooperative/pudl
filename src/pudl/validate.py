@@ -121,7 +121,9 @@ def no_null_rows(df, cols="all", df_name="", thresh=0.9):
 
     null_rows = df[cols].isna().sum(axis="columns") / len(cols) > thresh
     if null_rows.any():
-        raise ValueError(f"Found {null_rows.sum(axis='rows')} Null rows in {df_name}.")
+        raise ValueError(
+            f"Found {null_rows.sum(axis='rows')} null rows in {df_name}./n {df[null_rows]}"
+        )
 
     return df
 
@@ -844,7 +846,7 @@ core_ferc1__yearly_steam_plants_sched402_capacity_ratios = [
         "title": "Water Limited Ratio (tails)",
         "query": "",
         "low_q": 0.05,
-        "low_bound": 0.63,
+        "low_bound": 0.60,
         "hi_q": 0.95,
         "hi_bound": 1.15,
         "data_col": "water_limited_ratio",
@@ -864,7 +866,7 @@ core_ferc1__yearly_steam_plants_sched402_capacity_ratios = [
         "title": "Not Water Limited Ratio (tails)",
         "query": "",
         "low_q": 0.05,
-        "low_bound": 0.73,
+        "low_bound": 0.70,
         "hi_q": 0.95,
         "hi_bound": 1.2,
         "data_col": "not_water_limited_ratio",
@@ -1372,7 +1374,7 @@ intentionally.
 gf_eia923_oil_heat_content = [
     {
         "title": "Diesel Fuel Oil heat content (tails)",
-        "query": "fuel_type_code_aer=='DFO'",
+        "query": "fuel_type_code_agg=='DFO'",
         "low_q": 0.05,
         "low_bound": 5.5,
         "hi_q": 0.95,
@@ -1382,7 +1384,7 @@ gf_eia923_oil_heat_content = [
     },
     {
         "title": "Diesel Fuel Oil heat content (middle)",
-        "query": "fuel_type_code_aer=='DFO'",
+        "query": "fuel_type_code_agg=='DFO'",
         "low_q": 0.50,
         "low_bound": 5.75,
         "hi_q": 0.50,

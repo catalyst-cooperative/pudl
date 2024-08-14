@@ -137,7 +137,7 @@ def asset_check_from_schema(
         return None
     pandera_schema = resource.schema.to_pandera()
 
-    @asset_check(asset=asset_key)
+    @asset_check(asset=asset_key, blocking=True)
     def pandera_schema_check(asset_value) -> AssetCheckResult:
         try:
             pandera_schema.validate(asset_value, lazy=True)
@@ -262,7 +262,14 @@ defs: Definitions = Definitions(
         define_asset_job(
             name="etl_full",
             description="This job executes all years of all assets.",
-            config=default_config,
+            config=default_config
+            | {
+                "resources": {
+                    "dataset_settings": {
+                        "config": load_dataset_settings_from_file("etl_full")
+                    }
+                }
+            },
         ),
         define_asset_job(
             name="etl_full_no_cems",

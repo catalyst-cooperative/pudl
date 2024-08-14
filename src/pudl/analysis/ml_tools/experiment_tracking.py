@@ -65,7 +65,7 @@ class ExperimentTrackerConfig(Config):
     """Dagster config to setup experiment tracking with mlflow."""
 
     tracking_uri: str = f"sqlite:///{Path('./').absolute()}/experiments.sqlite"
-    tracking_enabled: bool = True
+    tracking_enabled: bool = False
     run_context: str = "production"
     #: Location to store artifacts. Artifact storage not currently used.
     artifact_location: str = str(Path("./").absolute())

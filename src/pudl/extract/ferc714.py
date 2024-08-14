@@ -47,7 +47,7 @@ FERC714_FILES: OrderedDict[str, dict[str, str]] = OrderedDict(
             "name": "Part 3 Schedule 1 - Planning Area Description.csv",
             "encoding": "iso-8859-1",
         },
-        "yearly_planning_area_forecast_demand": {
+        "yearly_planning_area_demand_forecast": {
             "name": "Part 3 Schedule 2 - Planning Area Forecast Demand.csv",
             "encoding": "utf-8",
         },

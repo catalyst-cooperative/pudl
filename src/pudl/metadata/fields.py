@@ -1557,6 +1557,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Indicates whether the boiler is capable of re-injecting fly ash.",
     },
+    "forecast_year": {
+        "type": "integer",
+        "description": "Four-digit year that applies to a particular forecasted value.",
+    },
     "fraction_owned": {
         "type": "number",
         "description": "Proportion of generator ownership attributable to this utility.",
@@ -1732,9 +1736,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": ("Fuel type reported for AEO end-use sector generation data."),
         "constraints": {"enum": FUEL_TYPES_EIAAEO},
     },
-    "fuel_type_code_aer": {
+    "fuel_type_code_agg": {
         "type": "string",
-        "description": "A partial aggregation of the reported fuel type codes into larger categories used by EIA in, for example, the Annual Energy Review (AER). Two or three letter alphanumeric.",
+        "description": (
+            "A partial aggregation of the reported fuel type codes into larger "
+            "categories used by EIA in, for example, the Annual Energy Review (AER) or "
+            "Monthly Energy Review (MER). Two or three letter alphanumeric."
+        ),
     },
     "fuel_type_code_pudl": {
         "type": "string",
@@ -2441,6 +2449,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "net metering agreement. Typically used for behind-the-meter solar PV."
         ),
         "unit": "MW",
+    },
+    "net_demand_mwh": {
+        "type": "number",
+        "description": "Net electricity demand for the specified period in megawatt-hours (MWh).",
+        "unit": "MWh",
     },
     "net_generation_adjusted_mwh": {
         "type": "number",
@@ -4674,7 +4687,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "NREL's financial assumption cases. There are two cases which effect project finanical "
             "assumptions: R&D Only Case and Market + Policies Case. R&D Only includes only projected "
             "R&D improvements while Market + Policy case includes policy and tax incentives. "
-            "https://atb.nrel.gov/electricity/2023/financial_cases_&_methods"
+            "https://atb.nrel.gov/electricity/2024/financial_cases_&_methods"
+        ),
+        "constraints": {"enum": ["Market", "R&D"]},
+    },
+    "model_tax_credit_case_nrelatb": {
+        "type": "string",
+        "description": (
+            "NREL's tax credit assumption cases. There are two types of tax credits: "
+            "production tax credit (PTC) and investment tax credit (ITC). For more detail, see: "
+            "https://atb.nrel.gov/electricity/2024/financial_cases_&_methods"
         ),
         "constraints": {"enum": ["Market", "R&D"]},
     },
@@ -4697,7 +4719,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "is_technology_mature": {
         "type": "boolean",
-        "description": "Indicator of whether the technology is mature.",
+        "description": (
+            "Indicator of whether the technology is mature. Technologies are defined"
+            "as mature if a representative plant is operating or under construction"
+            "in the United States in the Base Year."
+        ),
     },
     "inflation_rate": {
         "type": "number",
@@ -4860,7 +4886,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
     },
     "plant_id_eia_direct_support_1": {
-        "type": "number",
+        "type": "integer",
         "description": (
             "The EIA Plant ID of the primary unit whose generation this energy storage "
             "device is intended to firm or store."
@@ -4874,7 +4900,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
     },
     "plant_id_eia_direct_support_2": {
-        "type": "number",
+        "type": "integer",
         "description": (
             "The EIA Plant ID of the secondary unit whose generation this energy storage "
             "device is intended to firm or store."
@@ -4888,7 +4914,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
     },
     "plant_id_eia_direct_support_3": {
-        "type": "number",
+        "type": "integer",
         "description": (
             "The EIA Plant ID of the tertiary unit whose generation this energy storage "
             "device is intended to firm or store."
