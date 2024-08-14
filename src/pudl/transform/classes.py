@@ -261,7 +261,7 @@ class RenameColumns(TransformParams):
 
     columns: dict[str, str] = {}
     # A dictionary of columns to be renamed.
-    ignore_columns: list[str] = []
+    not_renamed_columns: list[str] = []
     # A list of raw columns which are expected not to be renamed. Any other
     # columns in the raw data which fail to be renamed will raise an error.
 
@@ -1246,12 +1246,12 @@ class AbstractTableTransformer(ABC):
                     f"Missing columns: {missing_cols}\nExisting Columns: {df.columns}"
                 )
             # If we fail to rename any columns that do appear in the dataframe,
-            # other than those we expect (ignore_columns), raise an error.
-            logger.warn(f"Ignore cols: {params.ignore_columns}")
+            # other than those we expect (not_renamed_columns), raise an error.
+            logger.warn(f"Ignore cols: {params.not_renamed_columns}")
             unmapped_cols = (
                 set(df.columns)
                 .difference(set(params.columns))
-                .difference(set(params.ignore_columns))
+                .difference(set(params.not_renamed_columns))
             )
             logger.warn(f"unmapped_cols is {unmapped_cols}")
             if unmapped_cols:
