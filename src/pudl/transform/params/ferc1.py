@@ -3435,7 +3435,8 @@ TRANSFORM_PARAMS = {
                     "entity_id": "utility_id_ferc1_xbrl",
                     "report_year": "report_year",
                     "xbrl_factoid": "liability_type",
-                }
+                },
+                "ignore_columns": ["starting_balance", "ending_balance"],
             },
         },
         "unstack_balances_to_report_year_instant_xbrl": {
@@ -3515,7 +3516,14 @@ TRANSFORM_PARAMS = {
                     "total": "depreciation_amortization_total_dollar_value",
                     "xbrl_factoid": "plant_function",
                     "report_prd": "report_prd",
-                }
+                },
+                "ignore_columns": [
+                    "utility_type_axis",
+                    "end_date",
+                    "entity_id",
+                    "report_year",
+                    "start_date",
+                ],
             },
             "xbrl": {
                 "columns": {
@@ -3678,7 +3686,13 @@ TRANSFORM_PARAMS = {
                     "rev_amt_crnt_yr": "dollar_value",
                     "mwh_sold_crnt_yr": "sales_mwh",
                     "avg_cstmr_crntyr": "avg_customers_per_month",
-                }
+                },
+                "ignore_columns": [
+                    "rev_amt_prev_yr",
+                    "mwh_sold_prev_yr",
+                    "avg_cstmr_prevyr",
+                    "acct_dsc",
+                ],
             },
         },
         "wide_to_tidy": {
@@ -3778,7 +3792,8 @@ TRANSFORM_PARAMS = {
                     "report_prd": "report_prd",
                     "xbrl_factoid": "earnings_type",
                     "prev_balance": "starting_balance",
-                }
+                },
+                "ignore_columns": ["item", "prmry_account", "amount"],
             },
         },
         "wide_to_tidy": {
@@ -4044,7 +4059,8 @@ TRANSFORM_PARAMS = {
                     "leased_plant": "leased_dollar_value",
                     "electric_plant": "in_service_dollar_value",
                     "xbrl_factoid": "depreciation_type",
-                }
+                },
+                "ignore_columns": ["item"],
             },
             "instant_xbrl": {
                 "columns": {
@@ -4165,7 +4181,8 @@ TRANSFORM_PARAMS = {
                     "leased_plant": "leased_ending_balance",
                     "electric_plant": "in_service_ending_balance",
                     "xbrl_factoid": "plant_function",
-                }
+                },
+                "ignore_columns": ["item"],
             },
             "instant_xbrl": {
                 "columns": {
@@ -4356,7 +4373,8 @@ TRANSFORM_PARAMS = {
                     "xbrl_factoid": "amount_type",
                     "amounts": "amount",
                     "prev_amounts": "starting_balance",
-                }
+                },
+                "ignore_columns": ["description"],
             },
         },
         "unstack_balances_to_report_year_instant_xbrl": {
@@ -4402,7 +4420,8 @@ TRANSFORM_PARAMS = {
                     "spplmnt_num": "spplmnt_num",
                     "crnt_yr_amt": "dollar_value",
                     "xbrl_factoid": "expense_type",
-                }
+                },
+                "ignore_columns": "prev_yr_amt",
             },
             "xbrl": {
                 "columns": {
@@ -4665,7 +4684,8 @@ TRANSFORM_PARAMS = {
                     "other_regulatory_liabilities_ending_balance": "ending_balance",
                     "other_regulatory_liabilities_starting_balance": "starting_balance",
                     "other_regulatory_liability_axis": "other_regulatory_liability_axis",
-                }
+                },
+                "ignore_columns": ["order_number", "start_date", "end_date"],
             },
         },
         "unstack_balances_to_report_year_instant_xbrl": {

@@ -260,6 +260,10 @@ class RenameColumns(TransformParams):
     """
 
     columns: dict[str, str] = {}
+    # A dictionary of columns to be renamed.
+    ignore_columns: list[str] = []
+    # A list of raw columns which are expected not to be renamed. Any other
+    # columns in the raw data which fail to be renamed will raise an error.
 
 
 ################################################################################
@@ -1220,8 +1224,8 @@ class AbstractTableTransformer(ABC):
     ) -> pd.DataFrame:
         """Rename the whole collection of dataframe columns using input params.
 
-        Log if there's any mismatch between the columns in the dataframe, and the
-        columns that have been defined in the mapping for renaming.
+        Raise an error if there's any mismatch between the columns in the dataframe, and
+        the columns that have been defined in the mapping for renaming.
         """
         if params is None:
             params = self.params.rename_columns
@@ -1230,15 +1234,32 @@ class AbstractTableTransformer(ABC):
             "columns."
         )
 
-        # If we are attempting to rename columns that do *not* appear in the dataframe,
-        # warn the user.
-        missing_cols = set(params.columns).difference(set(df.columns))
-        if missing_cols:
-            raise ValueError(
-                f"{self.table_id.value}: Attempting to rename columns which are not "
-                "present in the dataframe.\n"
-                f"Missing columns: {missing_cols}\nExisting Columns: {df.columns}"
+        # If we are actually renaming columns, do some defensive checks
+        if len(params.columns) > 0:
+            # If we are attempting to rename columns that do *not* appear in the dataframe,
+            # raise an error.
+            missing_cols = set(params.columns).difference(set(df.columns))
+            if missing_cols:
+                raise ValueError(
+                    f"{self.table_id.value}: Attempting to rename columns which are not "
+                    "present in the dataframe.\n"
+                    f"Missing columns: {missing_cols}\nExisting Columns: {df.columns}"
+                )
+            # If we fail to rename any columns that do appear in the dataframe,
+            # other than those we expect (ignore_columns), raise an error.
+            logger.warn(f"Ignore cols: {params.ignore_columns}")
+            unmapped_cols = (
+                set(df.columns)
+                .difference(set(params.columns))
+                .difference(set(params.ignore_columns))
             )
+            logger.warn(f"unmapped_cols is {unmapped_cols}")
+            if unmapped_cols:
+                raise ValueError(
+                    f"{self.table_id.value}: The following columns are present in the"
+                    " in the dataframe but not renamed.\n"
+                    f"Unmapped columns: {unmapped_cols}\nExisting Columns: {df.columns}"
+                )
         return df.rename(columns=params.columns)
 
     def normalize_strings(

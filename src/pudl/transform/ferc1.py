@@ -2595,6 +2595,9 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         """
         if not params:
             params = self.params.rename_columns_ferc1.__getattribute__(rename_stage)
+            # sched_table_name is never renamed for any type of FERC data, so we always
+            # ignore it when validating column renames.
+            params.ignore_columns.append("sched_table_name")
         df = super().rename_columns(df, params=params)
         return df
 
@@ -5907,7 +5910,7 @@ class CashFlowsTableTransformer(Ferc1AbstractTableTransformer):
         """Pre-processing required to make the instant and duration tables compatible.
 
         This table has a rename that needs to take place in an unusual spot -- after the
-        starting / ending balances have been usntacked, but before the instant &
+        starting / ending balances have been unstacked, but before the instant &
         duration tables are merged. This method just reversed the order in which these
         operations happen, comapared to the inherited method.
         """
