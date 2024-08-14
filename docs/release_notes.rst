@@ -40,6 +40,7 @@ EIA 860
   proposed energy storage generators as well as adding a number of new columns
   regarding energy storage and solar generators. See issue :issue:`3676` and PR
   :pr:`3681`.
+* Added EIA 860m data through June 2024. See issue :issue:`3759` and PR :pr:`3767`.
 
 EIA 923
 ~~~~~~~
@@ -47,9 +48,21 @@ EIA 923
 * Added EIA 923 monthly data through May as part of the Q2 quarterly release. See
   :issue:`3760` and :pr:`3768`.
 
+EIA 930
+~~~~~~~
+* Added EIA 930 hourly data through the end of July as part of the Q2 quarterly release.
+  See :issue:`3761`` and :pr:`3789`.
+
 EPA CEMS
 ~~~~~~~~
 * Added 2024 Q2 of CEMS data. See :issue:`3762` and :pr:`3769`.
+
+EIA Bulk Electricity Data
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated the EIA Bulk Electricity data archive to include data that was available as of
+  2024-08-01, which covers up through 2024-05-01 (3 months more than the previously
+  used archive). See :issue:`3763` and PR :pr:`3785`.
 
 FERC 714
 ~~~~~~~~
