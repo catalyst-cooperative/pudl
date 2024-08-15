@@ -1257,7 +1257,7 @@ class AbstractTableTransformer(ABC):
             if unmapped_cols:
                 raise ValueError(
                     f"{self.table_id.value}: The following columns are present in the"
-                    " in the dataframe but not renamed.\n"
+                    " dataframe but are not renamed.\n"
                     f"Unmapped columns: {sorted(unmapped_cols)}\nExisting Columns: {df.columns}"
                 )
         return df.rename(columns=params.columns)
