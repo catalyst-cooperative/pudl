@@ -40,6 +40,7 @@ EIA 860
   proposed energy storage generators as well as adding a number of new columns
   regarding energy storage and solar generators. See issue :issue:`3676` and PR
   :pr:`3681`.
+* Added EIA 860m data through June 2024. See issue :issue:`3759` and PR :pr:`3767`.
 
 EIA 923
 ~~~~~~~
