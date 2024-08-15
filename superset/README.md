@@ -43,4 +43,4 @@ Once you've made changes the superset docker image, you can update the productio
 gcloud builds submit --config cloudbuild.yaml .
 ```
 
-This command will use Cloud Build to build the docker image, push it to the Google Cloud Artifcat Registry and redeploy the Cloud Run `pudl-superset` service with the new docker image.
+This command will use Cloud Build to build the docker image, push it to the Google Cloud Artifact Registry and redeploy the Cloud Run `pudl-superset` service with the new docker image.
