@@ -37,7 +37,7 @@ If this is the first time running superset locally or you recently ran `docker c
 TODO: instructions on how to connect to Cloud SQL
 
 ## Deploy to Cloud Run
-Once you've made changes the superset docker image, you can update the production deploying with this command:
+Once you've made changes to the superset docker image, you can update the production deployment with this command:
 
 ```
 gcloud builds submit --config cloudbuild.yaml .
