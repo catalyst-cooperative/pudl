@@ -260,10 +260,10 @@ class RenameColumns(TransformParams):
     """
 
     columns: dict[str, str] = {}
-    # A dictionary of columns to be renamed.
+    """A dictionary of columns to be renamed."""
     not_renamed_columns: list[str] = []
-    # A list of raw columns which are expected not to be renamed. Any other
-    # columns in the raw data which fail to be renamed will raise an error.
+    """A list of raw columns which are expected not to be renamed. Any other
+    columns in the raw data which fail to be renamed will raise an error."""
 
 
 ################################################################################
@@ -1243,7 +1243,7 @@ class AbstractTableTransformer(ABC):
                 raise ValueError(
                     f"{self.table_id.value}: Attempting to rename columns which are not "
                     "present in the dataframe.\n"
-                    f"Missing columns: {missing_cols}\nExisting Columns: {df.columns}"
+                    f"Missing columns: {sorted(missing_cols)}\nExisting Columns: {df.columns}"
                 )
             # If we fail to rename any columns that do appear in the dataframe,
             # other than those we expect (not_renamed_columns), raise an error.
@@ -1258,7 +1258,7 @@ class AbstractTableTransformer(ABC):
                 raise ValueError(
                     f"{self.table_id.value}: The following columns are present in the"
                     " in the dataframe but not renamed.\n"
-                    f"Unmapped columns: {unmapped_cols}\nExisting Columns: {df.columns}"
+                    f"Unmapped columns: {sorted(unmapped_cols)}\nExisting Columns: {df.columns}"
                 )
         return df.rename(columns=params.columns)
 
