@@ -12,7 +12,10 @@ Before you start the service you'll need to set some environment variables
 
 ```
 # These auth0 are required for authentication
-# You can find these values in the the catalyst-cooperative-pudl GCP Secret Manager
+# For local development it's best that you create your own
+# Auth0 project so we don't accidently muck with the production
+# auth0 information.
+# You can follow the instructions here: https://auth0.com/docs/get-started/auth0-overview/create-applications
 export AUTH0_CLIENT_ID="auth0 client id"
 export AUTH0_CLIENT_SECRET="auth0 client secret"
 export AUTH0_DOMAIN="auth0 client domain"
