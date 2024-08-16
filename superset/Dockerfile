@@ -1,5 +1,5 @@
-# hadolint ignore=DL3006
-FROM apache/superset
+FROM apache/superset:4.0.2
+
 # hadolint ignore=DL3002
 USER root
 
