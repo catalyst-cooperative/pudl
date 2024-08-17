@@ -3406,8 +3406,12 @@ class HydroelectricPlantsTableTransformer(Ferc1AbstractTableTransformer):
     table_id: TableIdFerc1 = TableIdFerc1.HYDROELECTRIC_PLANTS
 
     def transform_main(self, df):
-        """Add bespoke removal of duplicate record after standard transform_main."""
-        return super().transform_main(df).pipe(self.targeted_drop_duplicates)
+        """Standard transform_main, bespoke remove duplicate record & remove ``.`` from project_num column."""
+        df = super().transform_main(df).pipe(self.targeted_drop_duplicates)
+        # project_num is an integer column but in 2023 some of them have .'s
+        # as prefixes
+        df.project_num = df.project_num.str.removeprefix(".")
+        return df
 
     def targeted_drop_duplicates(self, df):
         """Targeted removal of known duplicate record.
@@ -4461,7 +4465,7 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
         (Header and note rows are removed later).
 
         NOTE: Note rows that don't have a footnote indicator or note rows with a
-        footnote indicator that don't have a cooresponding plant row with the same
+        footnote indicator that don't have a corresponding plant row with the same
         indicator are not captured. They will ultimately get removed and their content
         will not be preserved.
 
@@ -4653,7 +4657,7 @@ class UtilityPlantSummaryTableTransformer(Ferc1AbstractTableTransformer):
     ) -> pd.DataFrame:
         """Do the default metadata processing plus add a new factoid.
 
-        The new factoid cooresponds to the aggregated factoid in
+        The new factoid corresponds to the aggregated factoid in
         :meth:`aggregated_xbrl_factoids`.
         """
         tbl_meta = super().convert_xbrl_metadata_json_to_df(xbrl_metadata_json)
@@ -6102,7 +6106,7 @@ def ferc1_transform_asset_factory(
 
     Args:
         table_name: The name of the table to create an asset for.
-        tfr_class: A transformer class cooresponding to the table_name.
+        tfr_class: A transformer class corresponding to the table_name.
         io_manager_key: the dagster io_manager key to use. None defaults
             to the fs_io_manager.
         convert_dtypes: convert dtypes of transformed dataframes.

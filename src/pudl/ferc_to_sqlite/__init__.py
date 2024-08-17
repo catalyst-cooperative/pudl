@@ -28,9 +28,23 @@ default_resources_defs = {
     "datastore": datastore,
 }
 
+ferc_to_sqlite_full_settings = EtlSettings.from_yaml(
+    importlib.resources.files("pudl.package_data.settings") / "etl_full.yml"
+).ferc_to_sqlite_settings
+
 ferc_to_sqlite_full = ferc_to_sqlite.to_job(
     resource_defs=default_resources_defs,
     name="ferc_to_sqlite_full",
+    config={
+        "resources": {
+            "ferc_to_sqlite_settings": {
+                "config": ferc_to_sqlite_full_settings.model_dump(),
+            },
+            "runtime_settings": {
+                "config": {},
+            },
+        },
+    },
 )
 
 ferc_to_sqlite_fast_settings = EtlSettings.from_yaml(

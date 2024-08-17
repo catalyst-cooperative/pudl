@@ -5,7 +5,7 @@ multiple tables.
 {% endblock %}
 
 {% block background %}
-The Form EIA-860 collects utility, owner, plant, and generator-level data from existing
+EIA-860 is an annual form that collects utility, owner, plant, and generator-level data from existing
 and planned entities with one or more megawatt of capacity. The form also contains
 information regarding environmental control equipment and construction cost data from
 2013-2018.
@@ -18,7 +18,13 @@ As of 2023, the EIA-860 Form is organized into the following schedules:
 * **Schedule 4:** Ownership of generators
 * **Schedule 6:** Information on Boilers and Associated Equipment
 
-(Schedule 5 contained generator construction cost information)
+(Schedule 5 contained generator construction cost information and was discontinued in 2018)
+
+There is also a monthly survey known as the Monthly Update to Annual Electric Generator
+Report (`EIA860M <https://www.eia.gov/electricity/data/eia860m/>`__) that provides sub-annual
+updates to generator stats. The capacity values reported in 860M are often retroactively fixed
+and are not considered as reliable as those in the annual form.
+
 {% endblock %}
 
 {% block download_docs %}
@@ -28,20 +34,17 @@ As of 2023, the EIA-860 Form is organized into the following schedules:
 {% endblock %}
 
 {% block availability %}
-EIA-860 data goes back to 2001, and PUDL incorporates most of the data from all those
-years. From 2001-2003 the data was distributed as VisualFoxPro DBF files. Starting in
-2004 the data is distributed as Microsoft Excel spreadsheets.
-
-Earlier data from the EIA-860A (utility) and EIA-860B (non-utility) forms exists for the
+PUDL incorporates almost all EIA-860 data dating back to it's first publication in 2001.
+Earlier data from the forms EIA-860A (utility) and EIA-860B (non-utility) exists for the
 years 1990-2000, but is not yet included in PUDL.
 
-PUDL does not yet include the EIA-860 data reporting:
+Each quarter, PUDL also combines data from the most recent EIA-860M filing with
+relevant EIA-860 tables. These records are marked with the ``monthly_update`` tag in the
+``data_maturity`` field.
 
-* Wind and Solar generators (Schedules 3.2 and 3.3)
-* Energy storage (Schedule 3.4)
-* Multi-fuel generators (Schedule 3.5)
-* Environmental Control Equipment (Schedule 6) has been partially incorporated.
+PUDL does not yet include the EIA-860 table for multi-fuel generators (Schedule 3.5).
 {% endblock %}
+
 
 {% block respondents %}
 Respondents include all existing and proposed plants that have a total generator
@@ -53,8 +56,13 @@ Jointly owned plants must be reported only once by their operator or planned ope
 {% endblock %}
 
 {% block original_data %}
-EIA typically publishes finally Form 860 data in the fall of the year after it was
-collected as a collection of spreadsheets with multiple tabs. The content of
+
+From 2001-2003 the data was distributed as VisualFoxPro DBF files. Starting in
+2004 the data is distributed as Microsoft Excel spreadsheets.
+
+EIA typically publishes 860 data from the prior year in two rounds: an early release in
+the summer and a final release in the fall. The data are published on the EIA
+website and distributed as a collection of spreadsheets with multiple tabs. The content of
 the spreadsheets varies from year to year as the questions in the form are updated.
 EIA also periodically changes the naming and structure of the spreadsheets without
 warning. Older "final" data may also be revised several years after it was published.

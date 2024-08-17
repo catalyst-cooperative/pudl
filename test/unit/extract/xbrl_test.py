@@ -25,20 +25,14 @@ def test_ferc_xbrl_datastore_get_taxonomy(mocker):
     datastore_mock.get_unique_resource.return_value = b"Fake taxonomy data."
 
     ferc_datastore = FercXbrlDatastore(datastore_mock)
-    raw_archive, taxonomy_entry_point = ferc_datastore.get_taxonomy(
-        2021, XbrlFormNumber.FORM1
-    )
+    raw_archive = ferc_datastore.get_taxonomy(XbrlFormNumber.FORM1)
 
     # 2021 data is published with 2022 taxonomy!
     datastore_mock.get_unique_resource.assert_called_with(
-        "ferc1", year=2022, data_format="xbrl_taxonomy"
+        "ferc1", data_format="xbrl_taxonomy"
     )
 
     assert raw_archive.getvalue() == b"Fake taxonomy data."
-    assert (
-        taxonomy_entry_point
-        == "taxonomy/form1/2022-01-01/form/form1/form-1_2022-01-01.xsd"
-    )
 
 
 def test_ferc_xbrl_datastore_get_filings(mocker):
@@ -141,17 +135,13 @@ def test_convert_form(mocker):
 
     # Create fake datastore class for testing
     class FakeDatastore:
-        def get_taxonomy(self, year, form: XbrlFormNumber):
-            return (
-                f"raw_archive_{year}_{form.value}",
-                f"taxonomy_entry_point_{year}_{form.value}",
-            )
+        def get_taxonomy(self, form: XbrlFormNumber):
+            return f"raw_archive_{form.value}"
 
         def get_filings(self, year, form: XbrlFormNumber):
             return f"filings_{year}_{form.value}"
 
     settings = FercGenericXbrlToSqliteSettings(
-        taxonomy="https://www.fake.taxonomy.url",
         years=[2020, 2021],
     )
 
@@ -170,27 +160,22 @@ def test_convert_form(mocker):
         )
 
         # Verify extractor is called correctly
-        expected_calls = []
-        for year in settings.years:
-            expected_calls.append(
-                mocker.call(
-                    instance_path=f"filings_{year}_{form.value}",
-                    sql_path=output_path / f"ferc{form.value}_xbrl.sqlite",
-                    clobber=False,
-                    taxonomy=f"raw_archive_{year}_{form.value}",
-                    entry_point=f"taxonomy_entry_point_{year}_{form.value}",
-                    form_number=form.value,
-                    metadata_path=str(
-                        output_path / f"ferc{form.value}_xbrl_taxonomy_metadata.json"
-                    ),
-                    datapackage_path=str(
-                        output_path / f"ferc{form.value}_xbrl_datapackage.json"
-                    ),
-                    workers=5,
-                    batch_size=10,
-                    loglevel="INFO",
-                    logfile=None,
-                )
-            )
-        assert extractor_mock.mock_calls == expected_calls
+        filings = [f"filings_{year}_{form.value}" for year in settings.years]
+        extractor_mock.assert_called_with(
+            filings=filings,
+            db_path=output_path / f"ferc{form.value}_xbrl.sqlite",
+            clobber=False,
+            taxonomy=f"raw_archive_{form.value}",
+            form_number=form.value,
+            metadata_path=str(
+                output_path / f"ferc{form.value}_xbrl_taxonomy_metadata.json"
+            ),
+            datapackage_path=str(
+                output_path / f"ferc{form.value}_xbrl_datapackage.json"
+            ),
+            workers=5,
+            batch_size=10,
+            loglevel="INFO",
+            logfile=None,
+        )
         extractor_mock.reset_mock()

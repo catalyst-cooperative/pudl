@@ -263,7 +263,14 @@ defs: Definitions = Definitions(
         define_asset_job(
             name="etl_full",
             description="This job executes all years of all assets.",
-            config=default_config,
+            config=default_config
+            | {
+                "resources": {
+                    "dataset_settings": {
+                        "config": load_dataset_settings_from_file("etl_full")
+                    }
+                }
+            },
         ),
         define_asset_job(
             name="etl_full_no_cems",

@@ -16,9 +16,10 @@ Data Sources
    ferc714
    phmsagas
    gridpathratoolkit
+   other_data
 
 .. toctree::
-   :caption: Work in Progress & Future Datasets
+   :caption: Future Target Data
    :maxdepth: 1
 
-   wip_future
+   future_data
