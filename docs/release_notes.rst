@@ -36,7 +36,7 @@ FERC Form 1
   details, as well as issue :issue:`3544` and PR :pr:`3710`.
 
 FERC Forms 2, 6, 60, & 714
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 * Updated the ``ferc_to_sqlite`` settings to extract 2023 XBRL data for FERC Forms 2, 6
   60, and 714 and add them to their respective SQLite databases. Note that this data
   is not yet being processed beyond the conversion from XBRL to SQLite. See PR
