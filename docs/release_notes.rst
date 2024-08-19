@@ -68,7 +68,7 @@ EIA 923
 EIA 930
 ~~~~~~~
 * Added EIA 930 hourly data through the end of July as part of the Q2 quarterly release.
-  See :issue:`3761`` and :pr:`3789`.
+  See :issue:`3761` and :pr:`3789`.
 
 EPA CEMS
 ~~~~~~~~
