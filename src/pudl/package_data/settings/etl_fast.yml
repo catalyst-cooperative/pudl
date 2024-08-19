@@ -51,7 +51,7 @@ datasets:
       years: [2020, 2023]
       eia860m: true
     eia860m:
-      year_months: ["2024-02", "2024-03"]
+      year_months: ["2024-05", "2024-06"]
     eia861:
       # eia861 runs fast. Discontinued tables break single-year ETL.
       # This is a temporary hack to make the tests pass!
@@ -81,7 +81,7 @@ datasets:
           2022,
         ]
     eia930:
-      half_years: ["2024half1"]
+      half_years: ["2024half2"]
     eiaaeo:
       years: [2023] # we can only handle 1 year at a time right now.
   epacems:
