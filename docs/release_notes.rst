@@ -3,8 +3,25 @@ PUDL Release Notes
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-v2024.X.X (2024-XX-XX)
+v2024.X.x (2024-XX-XX)
 ---------------------------------------------------------------------------------------
+
+.. _release-v2024.8.0:
+
+---------------------------------------------------------------------------------------
+v2024.8.0 (2024-08-19)
+---------------------------------------------------------------------------------------
+
+This is our regular quarterly release for 2024Q3. It includes quarterly updates to all
+datasets that are updated with quarterly or higher frequency by their publishers,
+including EIA-860M, EIA-923 (YTD data), EIA-930, the EIA's bulk electricity API data
+(used to fill in missing fuel prices), and the EPA CEMS hourly emissions data.
+
+Annual datasets which have been published since our last quarterly release have also
+been integrated. These include FERC Forms 1, 2, 6, 60, and 714, and the NREL ATB.
+
+This release also includes provisional versions of the annual 2023 EIA-860 and EIA-923
+datasets, whose final release will not happen until the fall.
 
 New Data Coverage
 ^^^^^^^^^^^^^^^^^
