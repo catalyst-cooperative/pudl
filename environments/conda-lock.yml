@@ -128,39 +128,39 @@ package:
     category: main
     optional: false
   - name: aiohappyeyeballs
-    version: 2.3.6
+    version: 2.3.7
     manager: conda
     platform: linux-64
     dependencies:
       python: ">=3.8.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/aiohappyeyeballs-2.3.6-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/aiohappyeyeballs-2.3.7-pyhd8ed1ab_0.conda
     hash:
-      md5: 319c86046bc9f049c7042d1ce3f5bffe
-      sha256: 2fdd1769e0a7b6712a5b2c0a582f895933ea1cc215aee0e6f419d539d6a53d6c
+      md5: 7b33dc817e19ef8628f67d5f26bcd35e
+      sha256: cc260a28de3241a56323f484cf412c5c4415b2897cd754a56f28d53bc10dce1c
     category: main
     optional: false
   - name: aiohappyeyeballs
-    version: 2.3.6
+    version: 2.3.7
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.8.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/aiohappyeyeballs-2.3.6-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/aiohappyeyeballs-2.3.7-pyhd8ed1ab_0.conda
     hash:
-      md5: 319c86046bc9f049c7042d1ce3f5bffe
-      sha256: 2fdd1769e0a7b6712a5b2c0a582f895933ea1cc215aee0e6f419d539d6a53d6c
+      md5: 7b33dc817e19ef8628f67d5f26bcd35e
+      sha256: cc260a28de3241a56323f484cf412c5c4415b2897cd754a56f28d53bc10dce1c
     category: main
     optional: false
   - name: aiohappyeyeballs
-    version: 2.3.6
+    version: 2.3.7
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.8.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/aiohappyeyeballs-2.3.6-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/aiohappyeyeballs-2.3.7-pyhd8ed1ab_0.conda
     hash:
-      md5: 319c86046bc9f049c7042d1ce3f5bffe
-      sha256: 2fdd1769e0a7b6712a5b2c0a582f895933ea1cc215aee0e6f419d539d6a53d6c
+      md5: 7b33dc817e19ef8628f67d5f26bcd35e
+      sha256: cc260a28de3241a56323f484cf412c5c4415b2897cd754a56f28d53bc10dce1c
     category: main
     optional: false
   - name: aiohttp
@@ -6996,8 +6996,8 @@ package:
       pyasn1-modules: ">=0.2.1"
       rsa: ">=3.1.4,<5"
       pyopenssl: ">=20.0.0"
-      pyu2f: ">=0.1.5"
       requests: ">=2.20.0,<3.0.0"
+      pyu2f: ">=0.1.5"
       cachetools: ">=2.0.0,<6.0"
       aiohttp: ">=3.6.2,<4.0.0"
       cryptography: ">=38.0.3"
@@ -7016,8 +7016,8 @@ package:
       pyasn1-modules: ">=0.2.1"
       rsa: ">=3.1.4,<5"
       pyopenssl: ">=20.0.0"
-      pyu2f: ">=0.1.5"
       requests: ">=2.20.0,<3.0.0"
+      pyu2f: ">=0.1.5"
       cachetools: ">=2.0.0,<6.0"
       aiohttp: ">=3.6.2,<4.0.0"
       cryptography: ">=38.0.3"
@@ -8924,42 +8924,42 @@ package:
     category: main
     optional: false
   - name: importlib_resources
-    version: 6.4.2
+    version: 6.4.3
     manager: conda
     platform: linux-64
     dependencies:
       python: ">=3.8"
       zipp: ">=3.1.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/importlib_resources-6.4.2-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/importlib_resources-6.4.3-pyhd8ed1ab_0.conda
     hash:
-      md5: ff64113bd700cf0f892ebf4b223e56aa
-      sha256: 1304c2ff6c1879628c13a0713fd070192910d1a250a2366e91208ceda1b6d2bf
+      md5: 82b36c572ecc0d42c612203769e19de5
+      sha256: 310ce095eada15a5cb5611c26e2c1caacd02f894452642b787db44ef86d668bf
     category: main
     optional: false
   - name: importlib_resources
-    version: 6.4.2
+    version: 6.4.3
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.8"
       zipp: ">=3.1.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/importlib_resources-6.4.2-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/importlib_resources-6.4.3-pyhd8ed1ab_0.conda
     hash:
-      md5: ff64113bd700cf0f892ebf4b223e56aa
-      sha256: 1304c2ff6c1879628c13a0713fd070192910d1a250a2366e91208ceda1b6d2bf
+      md5: 82b36c572ecc0d42c612203769e19de5
+      sha256: 310ce095eada15a5cb5611c26e2c1caacd02f894452642b787db44ef86d668bf
     category: main
     optional: false
   - name: importlib_resources
-    version: 6.4.2
+    version: 6.4.3
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.8"
       zipp: ">=3.1.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/importlib_resources-6.4.2-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/importlib_resources-6.4.3-pyhd8ed1ab_0.conda
     hash:
-      md5: ff64113bd700cf0f892ebf4b223e56aa
-      sha256: 1304c2ff6c1879628c13a0713fd070192910d1a250a2366e91208ceda1b6d2bf
+      md5: 82b36c572ecc0d42c612203769e19de5
+      sha256: 310ce095eada15a5cb5611c26e2c1caacd02f894452642b787db44ef86d668bf
     category: main
     optional: false
   - name: iniconfig
@@ -20215,7 +20215,6 @@ package:
       tk: ">=8.6.13,<8.7.0a0"
       tzdata: ""
       xz: ">=5.2.6,<6.0a0"
-      pip: ""
     url: https://conda.anaconda.org/conda-forge/linux-64/python-3.12.5-h2ad013b_0_cpython.conda
     hash:
       md5: 9c56c4df45f6571b13111d8df2448692
@@ -20239,7 +20238,6 @@ package:
       tk: ">=8.6.13,<8.7.0a0"
       tzdata: ""
       xz: ">=5.2.6,<6.0a0"
-      pip: ""
     url: https://conda.anaconda.org/conda-forge/osx-64/python-3.12.5-h37a9e06_0_cpython.conda
     hash:
       md5: 517cb4e16466f8d96ba2a72897d14c48
@@ -20263,7 +20261,6 @@ package:
       tk: ">=8.6.13,<8.7.0a0"
       tzdata: ""
       xz: ">=5.2.6,<6.0a0"
-      pip: ""
     url: https://conda.anaconda.org/conda-forge/osx-arm64/python-3.12.5-h30c5eda_0_cpython.conda
     hash:
       md5: 5e315581e2948dfe3bcac306540e9803
