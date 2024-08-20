@@ -682,7 +682,7 @@ class MakePlantParts:
         # Get the 'm' generator IDs 1:m
         one_to_many_single = match_to_single_plant_part(
             multi_gran_df=plant_parts_eia_filt,
-            ppl=plant_parts_eia,
+            ppe=plant_parts_eia,
             part_name="plant_gen",
             cols_to_keep=["plant_part"],
         )[["record_id_eia", "record_id_eia_plant_gen", "plant_part"]].rename(
@@ -1065,7 +1065,7 @@ class TrueGranLabeler:
     The coordinating function here is :meth``execute``.
     """
 
-    def execute(self, ppl):
+    def execute(self, ppe):
         """Merge the true granularity labels onto the plant part df.
 
         This method will add the columns ``true_gran``, ``appro_part_label``, and
@@ -1082,8 +1082,8 @@ class TrueGranLabeler:
             ppl: (pd.DataFrame) The plant parts list
         """
         parts_to_gens = match_to_single_plant_part(
-            multi_gran_df=ppl,
-            ppl=ppl,
+            multi_gran_df=ppe,
+            ppe=ppe,
             part_name="plant_gen",
             cols_to_keep=["plant_part"],
             one_to_many=True,
@@ -1132,11 +1132,11 @@ class TrueGranLabeler:
             true_grans, on="gens_combo", how="left", validate="m:1"
         ).drop(["plant_part", "gens_combo", "gen_id"], axis=1)
 
-        ppl_true_gran = ppl.merge(
+        ppe_true_gran = ppe.merge(
             record_id_true_gran, how="left", on="record_id_eia", validate="1:1"
         )
 
-        return ppl_true_gran
+        return ppe_true_gran
 
 
 class AddAttribute:
@@ -1440,7 +1440,7 @@ def add_record_id(part_df, id_cols, plant_part_col="plant_part", year=True):
 
 def match_to_single_plant_part(
     multi_gran_df: pd.DataFrame,
-    ppl: pd.DataFrame,
+    ppe: pd.DataFrame,
     part_name: PLANT_PARTS_LITERAL = "plant_gen",
     cols_to_keep: list[str] = [],
     one_to_many: bool = False,
@@ -1471,12 +1471,12 @@ def match_to_single_plant_part(
             some records could be of ``plant`` plant-part type while others are
             ``plant_gen`` or ``plant_prime_mover``).  All of the plant-part list columns
             need to be present in this table.
-        ppl: the EIA plant-part list.
+        ppe: the EIA plant-part list.
         part_name: name of the single plant part to match to. Must be a key in
             PLANT_PARTS dictionary.
         cols_to_keep: columns from the original data ``multi_gran_df`` that you want to
             show up in the output. These should not be columns that show up in the
-            ``ppl``.
+            ``ppe``.
         one_to_many: boolean (False by default). If True, add `plant_match_ferc1` into
             plant parts list.
 
@@ -1488,7 +1488,7 @@ def match_to_single_plant_part(
         up/down.
     """
     # select only the plant-part records that we are trying to scale to
-    ppl_part_df = ppl[ppl.plant_part == part_name]
+    ppe_part_df = ppe[ppe.plant_part == part_name]
     # convert the date to year start - this is necessary because the
     # depreciation data is often reported as EOY and the ppl is always SOY
     multi_gran_df.loc[:, "report_date"] = pd.to_datetime(
@@ -1508,7 +1508,7 @@ def match_to_single_plant_part(
                     pk_cols + ["record_id_eia"] + cols_to_keep
                 ]
             ),
-            ppl_part_df,
+            ppe_part_df,
             on=pk_cols,
             how="left",
             # this unfortunately needs to be a m:m bc sometimes the df

@@ -77,9 +77,9 @@ meant for use as an input into the record linkage between FERC1 plants and EIA."
                 "plant_id_report_year",
             ],
             "primary_key": ["record_id_eia"],
-            "foreign_key_rules": {
-                "fields": [["record_id_eia"], ["record_id_eia_plant_gen"]]
-            },
+            # "foreign_key_rules": {
+            #     "fields": [["record_id_eia"], ["record_id_eia_plant_gen"]]
+            # },
         },
         "sources": ["eia860", "eia923"],
         "etl_group": "outputs",
