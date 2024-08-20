@@ -1586,8 +1586,11 @@ def reassign_id_ownership_dupes(plant_parts_eia: pd.DataFrame) -> pd.DataFrame:
     return plant_parts_eia
 
 
-@asset
-def out_eia__yearly_plant_parts_plant_gen_assn(
+@asset(
+    io_manager_key="pudl_io_manager",
+    compute_kind="Python",
+)
+def out_eia__yearly_assn_plant_parts_plant_gen(
     out_eia__yearly_plant_parts: pd.DataFrame,
 ) -> pd.DataFrame:
     """Build association table between EIA plant parts and EIA generators.
@@ -1622,7 +1625,7 @@ def out_eia__yearly_plant_parts_plant_gen_assn(
 
 
 @asset_check(
-    asset="out_eia__yearly_plant_parts_plant_gen_assn",
+    asset="out_eia__yearly_assn_plant_parts_plant_gen",
     additional_ins={"ppe": AssetIn("out_eia__yearly_plant_parts")},
 )
 def ensure_all_ppe_ids_are_in_assn(ppe_assn, ppe):

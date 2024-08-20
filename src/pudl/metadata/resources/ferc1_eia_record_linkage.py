@@ -127,12 +127,12 @@ meant for use as an input into the record linkage between FERC1 plants and EIA."
         "etl_group": "outputs",
         "field_namespace": "eia",
     },
-    "out_eia__yearly_plant_parts_plant_gen_assn": {
+    "out_eia__yearly_assn_plant_parts_plant_gen": {
         "description": """In order to easily determine what generator records are associated with every
 plant part record, we made this association table. This table associates every plant part
-record (identified as ``record_id_eia``) to the possibly many 'plant_gen' records
-(identified as ``record_id_eia_plant_gen``). All of the columns in this table besides
-``record_id_eia`` are attributes of the plant_gen record and have a suffix of '_plant_gen'.""",
+record (identified as ``record_id_eia``) from the ``out_eia__yearly_plant_parts`` table to the associated
+'plant_gen' records (identified as ``record_id_eia_plant_gen``). All of the columns in this table
+besides ``record_id_eia`` are attributes of the plant_gen record and have a suffix of '_plant_gen'.""",
         "schema": {
             "fields": [
                 "record_id_eia",
