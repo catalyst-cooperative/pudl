@@ -77,6 +77,9 @@ meant for use as an input into the record linkage between FERC1 plants and EIA."
                 "plant_id_report_year",
             ],
             "primary_key": ["record_id_eia"],
+            "foreign_key_rules": {
+                "fields": [["record_id_eia"], ["record_id_eia_plant_gen"]]
+            },
         },
         "sources": ["eia860", "eia923"],
         "etl_group": "outputs",
@@ -124,6 +127,33 @@ meant for use as an input into the record linkage between FERC1 plants and EIA."
         "etl_group": "outputs",
         "field_namespace": "eia",
     },
+    # "out_eia__yearly_plant_parts_plant_gen_assn": {
+    #     "description": """In order to easily determine what generator records are associated with every
+    # plant part record, we made this association table. This table associates every plant part
+    # record (identified as ``record_id_eia``) to the possibly many 'plant_gen' records
+    # (identified as ``record_id_eia_plant_gen``).""",
+    #     "schema": {
+    #         "fields": [
+    #             "record_id_eia",
+    #             "record_id_eia_plant_gen",
+    #             "report_date_plant_gen",
+    #             "operational_status_pudl_plant_gen",
+    #             "energy_source_code_1_plant_gen",
+    #             "ferc1_generator_agg_id_plant_gen",
+    #             "prime_mover_code_plant_gen",
+    #             "unit_id_pudl_plant_gen",
+    #             "technology_description_plant_gen",
+    #             "ferc_acct_name_plant_gen",
+    #             "plant_id_eia_plant_gen",
+    #             "generator_operating_year_plant_gen",
+    #             "generator_id_plant_gen",
+    #         ],
+    #         "primary_key": ["record_id_eia", "record_id_eia_plant_gen"],
+    #         "sources": ["eia860", "eia923"],
+    #         "etl_group": "outputs",
+    #         "field_namespace": "eia",
+    #     },
+    # },
     "out_pudl__yearly_assn_eia_ferc1_plant_parts": {
         "description": """This table links power plant data reported in FERC Form 1 to related EIA data. It
 answers the question "What EIA data reported about plants or generators should be

@@ -685,12 +685,8 @@ class MakePlantParts:
             ppl=plant_parts_eia,
             part_name="plant_gen",
             cols_to_keep=["plant_part"],
-        )[["record_id_eia_og", "record_id_eia", "plant_part_og"]].rename(
-            columns={
-                "record_id_eia": "gen_id",
-                "record_id_eia_og": "record_id_eia",
-                "plant_part_og": "plant_part",
-            }
+        )[["record_id_eia", "record_id_eia_plant_gen", "plant_part"]].rename(
+            columns={"record_id_eia_plant_gen": "gen_id"}
         )
 
         # If any 'duplicate records' actually match to the same generator, these aren't 1:m matches. Drop them and any corresponding non-matches.
@@ -1091,12 +1087,8 @@ class TrueGranLabeler:
             part_name="plant_gen",
             cols_to_keep=["plant_part"],
             one_to_many=True,
-        )[["record_id_eia_og", "record_id_eia", "plant_part_og"]].rename(
-            columns={
-                "record_id_eia": "gen_id",
-                "record_id_eia_og": "record_id_eia",
-                "plant_part_og": "plant_part",
-            },
+        )[["record_id_eia", "record_id_eia_plant_gen", "plant_part"]].rename(
+            columns={"record_id_eia_plant_gen": "gen_id"},
         )
         # concatenate the gen id's to get the combo of gens for each record
         combos = (
@@ -1525,7 +1517,7 @@ def match_to_single_plant_part(
             # in aggregate_duplicate_eia. For instance, the depreciation
             # data has both PUC and FERC studies.
             validate="m:m",
-            suffixes=("_og", ""),
+            suffixes=("", f"_{part_name}"),
         )
         # there should be no records without a matching generator
         assert ~(part_df.record_id_eia.isnull().to_numpy().any())
@@ -1595,30 +1587,42 @@ def reassign_id_ownership_dupes(plant_parts_eia: pd.DataFrame) -> pd.DataFrame:
 
 
 @asset
-def out_eia__yearly_plant_parts_assn(out_eia__yearly_plant_parts) -> pd.DataFrame:
-    """Build association table between EIA plant parts and EIA generators."""
+def out_eia__yearly_plant_parts_plant_gen_assn(
+    out_eia__yearly_plant_parts: pd.DataFrame,
+) -> pd.DataFrame:
+    """Build association table between EIA plant parts and EIA generators.
+
+    In order to easily determine what generator records are associated with every
+    plant part record, we made this association table. This table associates every plant part
+    record (identified as ``record_id_eia``) to the possibly many 'plant_gen' records
+    (identified as ``record_id_eia_plant_gen``).
+    """
+    # luckily we already had a function that did the core of the work here to associate
+    # a ppe record with all of the associated records of a particular granularity (part_name).
     ppe_assn = match_to_single_plant_part(
-        out_eia__yearly_plant_parts,
-        out_eia__yearly_plant_parts,
+        multi_gran_df=out_eia__yearly_plant_parts,
+        ppe=out_eia__yearly_plant_parts,
         part_name="plant_gen",
         one_to_many=True,
         cols_to_keep=[],
     )
+    # the output of match_to_single_plant_part had the record_id_eia of the
+    # multi_gran_df, but no other columns because we set cols_to_keep=[], so
+    # every other column in here is associated with the `plant_gen`. We are
+    # giving everything a plant_gen suffix so its clear everything in those
+    # columns are about the generator ppe record.
     ppe_assn = (
-        ppe_assn[["record_id_eia_og", "record_id_eia"]]
-        .reset_index(drop=True)
-        .rename(
-            columns={
-                "record_id_eia_og": "record_id_eia",
-                "record_id_eia": "record_id_eia_generator",
-            }
-        )
+        ppe_assn.set_index(["record_id_eia", "record_id_eia_plant_gen"])[
+            make_id_cols_list()
+        ]
+        .add_suffix("_plant_gen")
+        .reset_index()
     )
     return ppe_assn
 
 
 @asset_check(
-    asset="out_eia__yearly_plant_parts_assn",
+    asset="out_eia__yearly_plant_parts_plant_gen_assn",
     additional_ins={"ppe": AssetIn("out_eia__yearly_plant_parts")},
 )
 def ensure_all_ppe_ids_are_in_assn(ppe_assn, ppe):
