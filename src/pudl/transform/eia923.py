@@ -833,6 +833,11 @@ def _core_eia923__boiler_fuel(raw_eia923__boiler_fuel: pd.DataFrame) -> pd.DataF
     * Create a fuel_type_code_pudl field that organizes fuel types into clean,
       distinguishable categories.
     * Combine year and month columns into a single date column.
+    * Drop duplicate rows with NA or 0 in all value columns.
+
+    Eventually we should truncate this table by the last year-month that was integrated.
+    Right now all months get integrated for a given year, regardless of whether there's
+    data for them.
 
     Args:
         raw_eia923__boiler_fuel: The raw ``raw_eia923__boiler_fuel`` dataframe.

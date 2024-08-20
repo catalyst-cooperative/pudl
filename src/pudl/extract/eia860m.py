@@ -3,7 +3,7 @@
 This modules pulls data from EIA's published Excel spreadsheets.
 
 This code is for use analyzing EIA Form 860M data. EIA 860M is only used in
-conjunction with EIA 860. This module boths extracts EIA 860M and appends
+conjunction with EIA 860. This module both extracts EIA 860M and appends
 the extracted EIA 860M dataframes to the extracted EIA 860 dataframes. Example
 setup with pre-genrated `eia860_raw_dfs` and datastore as `ds`:
 
@@ -68,7 +68,7 @@ class Extractor(excel.ExcelExtractor):
 def append_eia860m(
     eia860_raw_dfs: dict[str, pd.DataFrame], eia860m_raw_dfs: dict[str, pd.DataFrame]
 ) -> dict[str, pd.DataFrame]:
-    """Append EIA 860M to the pages to.
+    """Append EIA 860M to EIA860 data.
 
     Args:
         eia860_raw_dfs: EIA 860 raw tables. Result of

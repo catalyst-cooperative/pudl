@@ -716,7 +716,7 @@ def add_null_overrides(connects_ferc1_eia):
     have to add in these null matches after the fact.
 
     This function reads in a list of record_id_ferc1 values that are known to have no
-    cooresponding EIA record match and makes sure they are mapped as NA in the final
+    corresponding EIA record match and makes sure they are mapped as NA in the final
     record linkage output. It also updates the match_type field to indicate that this
     value has been overriden.
     """
