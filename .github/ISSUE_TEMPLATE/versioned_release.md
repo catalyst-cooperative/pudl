@@ -15,6 +15,8 @@ assignees: ""
 ```[tasklist]
 ## Release Checklist
 - [ ] Set a release date & notify team
+- [ ] Update our CITATION.cff file with the new release date and current Catalyst membership.
+- [ ] Update our .zenodo.json file with current Catalyst membership.
 - [ ] Close out the [PUDL Release Notes](https://catalystcoop-pudl.readthedocs.io/en/nightly/release_notes.html) with an overview of the changes in this release
 - [ ] Push vYYYY.M.x tag (4-digit year, month with no leading zero, and patch version)
 - [ ] Verify that the new [GitHub (software) release](https://github.com/catalyst-cooperative/pudl/releases) has been published
@@ -47,8 +49,6 @@ assignees: ""
 - [ ] Set keywords for Zenodo data release archive (automate!)
 - [ ] Set language of Zenodo data release archive (automate!)
 - [ ] Zenodo PUDL repo archive: update release notes (cut-and-paste from GitHub)
-- [ ] Zenodo PUDL repo archive: add keywords (automate with a `.zenodo.json` file for the repo)
-- [ ] Zenodo PUDL repo archive: set language to English (automate with a `.zenodo.json` file for the repo)
 ```
 
 ```[tasklist]
