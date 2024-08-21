@@ -1,8 +1,8 @@
 """Add my cool ppe assn table
 
-Revision ID: eb50ea39832b
+Revision ID: 57da8dbbbcc4
 Revises: 52aa9f44b6a7
-Create Date: 2024-08-20 16:26:52.224256
+Create Date: 2024-08-21 11:40:39.320499
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'eb50ea39832b'
+revision = '57da8dbbbcc4'
 down_revision = '52aa9f44b6a7'
 branch_labels = None
 depends_on = None
@@ -21,19 +21,24 @@ def upgrade() -> None:
     op.create_table('out_eia__yearly_assn_plant_parts_plant_gen',
     sa.Column('record_id_eia', sa.Text(), nullable=False, comment='Identifier for EIA plant parts analysis records.'),
     sa.Column('record_id_eia_plant_gen', sa.Text(), nullable=False, comment="Associated plant_gens' identifier for EIA plant parts analysis records."),
-    sa.Column('report_date_plant_gen', sa.Date(), nullable=True, comment="Associated plant_gen's date reported."),
-    sa.Column('operational_status_pudl_plant_gen', sa.Enum('operating', 'retired', 'proposed'), nullable=True, comment="Associated plant_gens' operating status of the asset using PUDL categories."),
+    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
+    sa.Column('plant_id_eia', sa.Integer(), nullable=True, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
+    sa.Column('utility_id_eia', sa.Integer(), nullable=True, comment='The EIA Utility Identification number.'),
+    sa.Column('ownership_record_type', sa.Enum('owned', 'total'), nullable=True, comment='Whether each generator record is for one owner or represents a total of all ownerships.'),
+    sa.Column('generator_id_plant_gen', sa.Text(), nullable=True, comment="Associated plant_gens' generator ID. This is usually numeric, but sometimes includes letters. Make sure you treat it as a string!"),
     sa.Column('energy_source_code_1_plant_gen', sa.Text(), nullable=True, comment="Associated plant_gens' code representing the most predominant type of energy that fuels the generator."),
-    sa.Column('ferc1_generator_agg_id_plant_gen', sa.Integer(), nullable=True, comment="Associated plant_gens' ID dynamically assigned by PUDL to EIA records with multiple matches to a single FERC ID in the FERC-EIA manual matching process"),
     sa.Column('prime_mover_code_plant_gen', sa.Text(), nullable=True, comment="Associated plant_gens' code for the type of prime mover (e.g. CT, CG)."),
     sa.Column('unit_id_pudl_plant_gen', sa.Integer(), nullable=True, comment="Associated plant_gens' dynamically assigned PUDL unit id. WARNING: This ID is not guaranteed to be static long term as the input data and algorithm may evolve over time."),
     sa.Column('technology_description_plant_gen', sa.Text(), nullable=True, comment="Associated plant_gens' high level description of the technology used by the generator to produce electricity."),
     sa.Column('ferc_acct_name_plant_gen', sa.Enum('Hydraulic', 'Nuclear', 'Steam', 'Other'), nullable=True, comment="Associated plant_gens' name of FERC account, derived from technology description and prime mover code."),
-    sa.Column('plant_id_eia_plant_gen', sa.Integer(), nullable=True, comment="Associated plant_gens' unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration."),
+    sa.Column('ferc1_generator_agg_id_plant_gen', sa.Integer(), nullable=True, comment="Associated plant_gens' ID dynamically assigned by PUDL to EIA records with multiple matches to a single FERC ID in the FERC-EIA manual matching process"),
     sa.Column('generator_operating_year_plant_gen', sa.Integer(), nullable=True, comment="The year an associated plant_gen's generator went into service."),
-    sa.Column('generator_id_plant_gen', sa.Text(), nullable=True, comment="Associated plant_gens' generator ID. This is usually numeric, but sometimes includes letters. Make sure you treat it as a string!"),
+    sa.Column('operational_status_pudl_plant_gen', sa.Enum('operating', 'retired', 'proposed'), nullable=True, comment="Associated plant_gens' operating status of the asset using PUDL categories."),
+    sa.Column('generators_number', sa.Integer(), nullable=True, comment='The number of generators associated with each ``record_id_eia``.'),
+    sa.ForeignKeyConstraint(['plant_id_eia', 'report_date'], ['core_eia860__scd_plants.plant_id_eia', 'core_eia860__scd_plants.report_date'], name=op.f('fk_out_eia__yearly_assn_plant_parts_plant_gen_plant_id_eia_core_eia860__scd_plants')),
     sa.ForeignKeyConstraint(['record_id_eia'], ['out_eia__yearly_plant_parts.record_id_eia'], name=op.f('fk_out_eia__yearly_assn_plant_parts_plant_gen_record_id_eia_out_eia__yearly_plant_parts')),
     sa.ForeignKeyConstraint(['record_id_eia_plant_gen'], ['out_eia__yearly_plant_parts.record_id_eia'], name=op.f('fk_out_eia__yearly_assn_plant_parts_plant_gen_record_id_eia_plant_gen_out_eia__yearly_plant_parts')),
+    sa.ForeignKeyConstraint(['utility_id_eia', 'report_date'], ['core_eia860__scd_utilities.utility_id_eia', 'core_eia860__scd_utilities.report_date'], name=op.f('fk_out_eia__yearly_assn_plant_parts_plant_gen_utility_id_eia_core_eia860__scd_utilities')),
     sa.PrimaryKeyConstraint('record_id_eia', 'record_id_eia_plant_gen', name=op.f('pk_out_eia__yearly_assn_plant_parts_plant_gen'))
     )
     with op.batch_alter_table('out_pudl__yearly_assn_eia_ferc1_plant_parts', schema=None) as batch_op:

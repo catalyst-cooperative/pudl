@@ -1079,7 +1079,7 @@ class TrueGranLabeler:
         is then merged on to get the plant part table with true granularity labels.
 
         Arguments:
-            ppl: (pd.DataFrame) The plant parts list
+            ppe: (pd.DataFrame) The plant parts list
         """
         parts_to_gens = match_to_single_plant_part(
             multi_gran_df=ppe,
@@ -1490,7 +1490,7 @@ def match_to_single_plant_part(
     # select only the plant-part records that we are trying to scale to
     ppe_part_df = ppe[ppe.plant_part == part_name]
     # convert the date to year start - this is necessary because the
-    # depreciation data is often reported as EOY and the ppl is always SOY
+    # depreciation data is often reported as EOY and the ppe is always SOY
     multi_gran_df.loc[:, "report_date"] = pd.to_datetime(
         multi_gran_df.report_date.dt.year, format="%Y"
     )
@@ -1615,11 +1615,22 @@ def out_eia__yearly_assn_plant_parts_plant_gen(
     # giving everything a plant_gen suffix so its clear everything in those
     # columns are about the generator ppe record.
     ppe_assn = (
-        ppe_assn.set_index(["record_id_eia", "record_id_eia_plant_gen"])[
-            make_id_cols_list()
+        ppe_assn[
+            ["record_id_eia", "record_id_eia_plant_gen"]
+            + IDX_OWN_TO_ADD
+            + make_id_cols_list()
         ]
+        .set_index(
+            ["record_id_eia", "record_id_eia_plant_gen", "plant_id_eia", "report_date"]
+            + IDX_OWN_TO_ADD
+        )
         .add_suffix("_plant_gen")
         .reset_index()
+        .assign(
+            generators_number=lambda x: x.groupby(["record_id_eia"])[
+                "record_id_eia_plant_gen"
+            ].transform("count")
+        )
     )
     return ppe_assn
 

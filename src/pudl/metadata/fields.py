@@ -3137,10 +3137,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.",
     },
-    "plant_id_eia_plant_gen": {
-        "type": "integer",
-        "description": "Associated plant_gens' unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.",
-    },
     "plant_id_epa": {
         "type": "integer",
         "description": "The ORISPL ID used by EPA to refer to the plant. Usually but not always the same as plant_id_eia.",
@@ -3426,10 +3422,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Indicates whether the plant is regulated or non-regulated.",
     },
     "report_date": {"type": "date", "description": "Date reported."},
-    "report_date_plant_gen": {
-        "type": "date",
-        "description": "Associated plant_gen's date reported.",
-    },
     "report_timezone": {
         "type": "string",
         "description": "Timezone used by the reporting entity. For use in localizing UTC times.",
@@ -5185,6 +5177,11 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                 "enum": ["electric", "gas", "common", "other", "other3", "other2"]
             },
         },
+    },
+    "out_eia__yearly_assn_plant_parts_plant_gen": {
+        "generators_number": {
+            "description": "The number of generators associated with each ``record_id_eia``."
+        }
     },
 }
 
