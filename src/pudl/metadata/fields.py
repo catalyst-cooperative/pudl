@@ -1292,7 +1292,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "energy_source_code_1_plant_gen": {
         "type": "string",
-        "description": "Associated plant_gens' code representing the most predominant type of energy that fuels the generator.",
+        "description": "Code representing the most predominant type of energy that fuels the record_id_eia_plant_gen's generator.",
     },
     "energy_source_code_2": {
         "type": "string",
@@ -1375,7 +1375,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "ferc1_generator_agg_id_plant_gen": {
         "type": "integer",
-        "description": "Associated plant_gens' ID dynamically assigned by PUDL to EIA records with multiple matches to a single FERC ID in the FERC-EIA manual matching process",
+        "description": "ID dynamically assigned by PUDL to EIA records with multiple matches to a single FERC ID in the FERC-EIA manual matching process. This ID is associated with the record_id_eia_plant_gen record.",
     },
     "ferc_account": {
         "type": "string",
@@ -1400,7 +1400,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "ferc_acct_name_plant_gen": {
         "type": "string",
-        "description": "Associated plant_gens' name of FERC account, derived from technology description and prime mover code.",
+        "description": "Name of FERC account, derived from technology description and prime mover code. This name is associated with the record_id_eia_plant_gen record.",
         "constraints": {"enum": ["Hydraulic", "Nuclear", "Steam", "Other"]},
     },
     "ferc_cogen_docket_no": {
@@ -1835,7 +1835,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "generator_id_plant_gen": {
         "type": "string",
-        "description": "Associated plant_gens' generator ID. This is usually numeric, but sometimes includes letters. Make sure you treat it as a string!",
+        "description": "Generator ID of the record_id_eia_plant_gen record. This is usually numeric, but sometimes includes letters. Make sure you treat it as a string!",
     },
     "generator_id_epa": {
         "type": "string",
@@ -2730,7 +2730,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "operational_status_pudl_plant_gen": {
         "type": "string",
-        "description": "Associated plant_gens' operating status of the asset using PUDL categories.",
+        "description": "The operating status of the asset using PUDL categories of the record_id_eia_plant_gen record .",
         "constraints": {"enum": ["operating", "retired", "proposed"]},
     },
     "opex_allowances": {"type": "number", "description": "Allowances.", "unit": "USD"},
@@ -3295,7 +3295,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "prime_mover_code_plant_gen": {
         "type": "string",
-        "description": "Associated plant_gens' code for the type of prime mover (e.g. CT, CG).",
+        "description": "Code for the type of prime mover (e.g. CT, CG) associated with the record_id_eia_plant_gen.",
     },
     "project_num": {"type": "integer", "description": "FERC Licensed Project Number."},
     "pudl_version": {
@@ -3391,7 +3391,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "record_id_eia_plant_gen": {
         "type": "string",
-        "description": "Associated plant_gens' identifier for EIA plant parts analysis records.",
+        "description": "Identifier for EIA plant parts analysis records which is at the plant_part level of plant_gen - meaning each record pertains to one generator.",
     },
     "record_id_ferc1": {
         "type": "string",
@@ -4110,7 +4110,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "technology_description_plant_gen": {
         "type": "string",
-        "description": "Associated plant_gens' high level description of the technology used by the generator to produce electricity.",
+        "description": "High level description of the technology used by the record_id_eia_plant_gen's generator to produce electricity.",
     },
     "technology_description_detail_1": {
         "type": "string",
@@ -4358,7 +4358,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "unit_id_pudl_plant_gen": {
         "type": "integer",
-        "description": "Associated plant_gens' dynamically assigned PUDL unit id. WARNING: This ID is not guaranteed to be static long term as the input data and algorithm may evolve over time.",
+        "description": "Dynamically assigned PUDL unit id of the record_id_eia_plant_gen. WARNING: This ID is not guaranteed to be static long term as the input data and algorithm may evolve over time.",
     },
     "unit_nox": {
         "type": "string",
