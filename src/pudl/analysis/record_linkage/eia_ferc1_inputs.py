@@ -296,11 +296,11 @@ def prep_train_connections(
     # Get the 'm' generator IDs 1:m
     one_to_many_single = match_to_single_plant_part(
         multi_gran_df=ppe.loc[ppe.index.isin(one_to_many.record_id_eia)].reset_index(),
-        ppl=ppe.reset_index(),
+        ppe=ppe.reset_index(),
         part_name="plant_gen",
         cols_to_keep=["plant_part"],
-    )[["record_id_eia_og", "record_id_eia"]].rename(
-        columns={"record_id_eia": "gen_id", "record_id_eia_og": "record_id_eia"}
+    )[["record_id_eia", "record_id_eia_plant_part"]].rename(
+        columns={"record_id_eia_plant_part": "gen_id"}
     )
     one_to_many = (
         one_to_many.merge(
