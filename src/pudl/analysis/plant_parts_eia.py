@@ -1615,12 +1615,7 @@ def out_eia__yearly_assn_plant_parts_plant_gen(
     # giving everything a plant_gen suffix so its clear everything in those
     # columns are about the generator ppe record.
     ppe_assn = (
-        ppe_assn[
-            ["record_id_eia", "record_id_eia_plant_gen"]
-            + IDX_OWN_TO_ADD
-            + make_id_cols_list()
-        ]
-        .set_index(
+        ppe_assn.set_index(
             ["record_id_eia", "record_id_eia_plant_gen", "plant_id_eia", "report_date"]
             + IDX_OWN_TO_ADD
         )
