@@ -18,12 +18,40 @@ details, see the `official EIA-861 page <{{ source.path }}>`__
 {% endblock %}
 
 {% block availability %}
+PUDL incorporates almost all available EIA-861 data dating back to 2001.
+Earlier data from the forms EIA-861 (utility, Sales to Ultimate Customers, and Operational data),
+and EIA-861S (Sales to Ultimate Customers) exists for the years 1990-2000, but is not yet included in PUDL.
+
+In May 2024, data from the EIA 861 short form from 2012 to 2022 (excluding 2019) was included in the EIA-861 data.
 {% endblock %}
 
 {% block respondents %}
+The data for Form EIA-861, Annual Electric Power Industry Report, and Form EIA-861S (the short form) is submitted
+by distribution utilities, power marketers, energy service providers, and distribution companies in the United States.
+This survey, which is a census of all U.S. electric utilities, collects retail sales of electricity and associated revenue
+on an annual basis. The short form is intended for smaller bundled-service utilities and requires less detailed responses.
+
+Form EIA-861M, Monthly Electric Power Industry Report, collects data from a statistically chosen sample of distribution
+utilities and power marketers of electricity in the United States. The respondents for Form EIA-861M are selected from the
+larger pool of respondents to Form EIA-861, Annual Electric Power Industry Report. This selection is based on the Annual
+Electric Utility Report and the Model-Based Sampling, Inference, and Imputation report. The EIA-861M survey provides more
+frequent updates, capturing monthly data, while the EIA-861 and EIA-861S forms focus on annual data collection.
 {% endblock %}
 
 {% block original_data %}
+The data is distributed as Microsoft Excel spreadsheets.
+
+EIA typically publishes 861 and 861S data yearly while the 861M data is published monthly.
+
+The data are published on the EIA website and distributed as a collection of spreadsheets.
+The content of the spreadsheets varies from year to year as the questions in the form are updated.
+EIA also periodically changes the naming and structure of the spreadsheets without warning.
+Older “final” data may also be revised several years after it was published.
+To ensure reproducible analyses, we archive `versioned snapshots of the EIA-861 data on Zenodo <https://zenodo.org/records/10204708>`__.
+These archives are periodically refreshed with new data from the `EIA website <{{ source.path }}>`__.
+
+To understand the details of how the form and data have evolved over time,
+we recommend reading the Form Instructions from different years, linked above.
 {% endblock %}
 
 {% block notable_irregularities %}
