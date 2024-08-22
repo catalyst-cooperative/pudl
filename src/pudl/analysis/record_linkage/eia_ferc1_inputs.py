@@ -299,8 +299,8 @@ def prep_train_connections(
         ppe=ppe.reset_index(),
         part_name="plant_gen",
         cols_to_keep=["plant_part"],
-    )[["record_id_eia", "record_id_eia_plant_part"]].rename(
-        columns={"record_id_eia_plant_part": "gen_id"}
+    )[["record_id_eia", "record_id_eia_plant_gen"]].rename(
+        columns={"record_id_eia_plant_gen": "gen_id"}
     )
     one_to_many = (
         one_to_many.merge(

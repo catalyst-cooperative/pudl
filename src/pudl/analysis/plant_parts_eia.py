@@ -674,6 +674,8 @@ class MakePlantParts:
         plant_parts_eia_filt = plant_parts_eia.loc[
             plant_parts_eia.record_id_eia.isin(one_to_many.record_id_eia)
         ]
+        if plant_parts_eia_filt.empty:  # If 1:m matches not in plant_part subset
+            return plant_parts_eia.assign(ferc1_generator_agg_id=pd.NA)
         # Get the 'm' generator IDs 1:m
         one_to_many_single = match_to_single_plant_part(
             multi_gran_df=plant_parts_eia_filt,
