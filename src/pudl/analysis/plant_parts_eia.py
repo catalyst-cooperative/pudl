@@ -674,11 +674,6 @@ class MakePlantParts:
         plant_parts_eia_filt = plant_parts_eia.loc[
             plant_parts_eia.record_id_eia.isin(one_to_many.record_id_eia)
         ]
-
-        if plant_parts_eia_filt.empty:  # If 1:m matches not in plant_part subset
-            PLANT_PARTS.pop("plant_match_ferc1")  # Remove from rest of workflow
-            return plant_parts_eia
-
         # Get the 'm' generator IDs 1:m
         one_to_many_single = match_to_single_plant_part(
             multi_gran_df=plant_parts_eia_filt,
@@ -1164,10 +1159,7 @@ class AddAttribute:
         self.attribute_col = attribute_col
         # the base columns will be the id columns, plus the other two main ids
         self.part_name = part_name
-        if self.part_name == "plant_match_ferc1":
-            self.id_cols = ["plant_id_eia", "ferc1_generator_agg_id"]
-        else:
-            self.id_cols = PLANT_PARTS[part_name]["id_cols"]
+        self.id_cols = PLANT_PARTS[part_name]["id_cols"]
         self.base_cols = self.id_cols + IDX_TO_ADD
         self.assign_col_dict = assign_col_dict
 
