@@ -272,7 +272,7 @@ class EmptyDraft(State):
         if "local" in openable_file.fs.protocol:
             return openable_file.open()
 
-        tmpfile = tempfile.NamedTemporaryFile()
+        tmpfile = tempfile.NamedTemporaryFile()  # noqa: SIM115
         openable_file.fs.get(openable_file.path, tmpfile.name)
         return tmpfile
 
