@@ -106,7 +106,7 @@ jobs:
   ci-integration:
     runs-on:
       group: large-runner-group
-      labels: ubuntu-22.04-8core
+      labels: ubuntu-22.04-4core
     if: github.event_name == 'workflow_dispatch' || github.event.merge_group
     permissions:
       contents: read
