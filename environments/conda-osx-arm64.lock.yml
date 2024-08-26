@@ -297,7 +297,7 @@ dependencies:
   - libiconv=1.17=h0d3ecfb_2
   - libintl=0.22.5=h8414b35_3
   - libjpeg-turbo=3.0.0=hb547adb_1
-  - libkml=1.3.0=h00ed6cc_1020
+  - libkml=1.3.0=he250239_1021
   - liblapack=3.9.0=23_osxarm64_openblas
   - libllvm14=14.0.6=hd1a9a77_4
   - libllvm16=16.0.6=haab561b_3
