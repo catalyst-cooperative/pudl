@@ -8,10 +8,14 @@ from dagster import AssetCheckResult, asset, asset_check
 from pydantic import BaseModel, field_validator
 
 import pudl.helpers as helpers
+from pudl import logging_helpers
+
+logger = logging_helpers.get_logger(__name__)
 
 IDX_ALL = [
     "report_year",
     "model_case_nrelatb",
+    "model_tax_credit_case_nrelatb",
     "projection_year",
     "cost_recovery_period_years",
     "scenario_atb",
@@ -182,6 +186,7 @@ class Unstacker(BaseModel):
         idx=rate_table.idx
         + [
             "scenario_atb",
+            "model_tax_credit_case_nrelatb",
             "cost_recovery_period_years",
         ],
         core_metric_parameters=[
@@ -189,7 +194,6 @@ class Unstacker(BaseModel):
             "wacc_real",
             "wacc_nominal",
             "capital_recovery_factor",
-            "fuel_cost_per_mwh",
             "fixed_charge_rate",
         ],
     )
@@ -204,6 +208,7 @@ class Unstacker(BaseModel):
             "capacity_factor",
             "opex_fixed_per_kw",
             "levelized_cost_of_energy_per_mwh",
+            "fuel_cost_per_mwh",
             "opex_variable_per_mwh",
             # 2023 only core_metric_parameters
             "heat_rate_mmbtu_per_mwh",
@@ -274,6 +279,7 @@ def _core_nrelatb__transform_start(raw_nrelatb__data):
     rename_dict = {
         "core_metric_variable_year": "projection_year",
         "core_metric_case": "model_case_nrelatb",
+        "tax_credit_case": "model_tax_credit_case_nrelatb",
     }
     nrelatb = (
         raw_nrelatb__data.replace([""], pd.NA)
@@ -289,7 +295,20 @@ def _core_nrelatb__transform_start(raw_nrelatb__data):
         # we are dropping records that are completely dupes - not just dupes based on IDX_ALL
         .drop_duplicates(keep="first")
     )
-    assert not any(nrelatb.duplicated(IDX_ALL))
+    # In 2024, we see many records which are completely identical except for their core
+    # metric key, which we are not currently using as a primary key due to changing,
+    # unexpected and undocumented behaviors. We should drop these duplicates.
+    # See issues #3506 and #3576 for an exploration of this column.
+    logger.info(
+        f"Dropping {sum(nrelatb.duplicated(nrelatb.columns.difference(['core_metric_key']))):,} records where only difference is the core_metric_key."
+    )
+    nrelatb = nrelatb.drop_duplicates(
+        subset=nrelatb.columns.difference(["core_metric_key"])
+    )
+
+    assert not any(
+        nrelatb.duplicated(IDX_ALL)
+    ), f"Duplicated: {nrelatb[nrelatb.duplicated(IDX_ALL)]}"
 
     # ensure that we have the same set of parameters in the unstackers and in the rename
     params_found = set(nrelatb.core_metric_parameter.unique())
@@ -330,6 +349,9 @@ def core_nrelatb__yearly_projected_financial_cases_by_scenario(
     Right now, this unstacks the table and applies :func:`broadcast_fixed_charge_rate_across_tech_detail`.
     """
     unstack_scenario = Unstacker().scenario_table
+
+    # To handle errors in unstack where both the N/A tax credit case and the ITC tax
+    # credit case have the same value, temporarily fill the NA here with none.
     df = (
         transform_unstack(_core_nrelatb__transform_start, unstack_scenario)
         .pipe(
@@ -515,10 +537,6 @@ def check_technology_specific_parameters(df):
             ],
         },
         {
-            "technology_descriptions": {"OffShoreWind"},
-            "params": ["capex_grid_connection_per_kw"],
-        },
-        {
             "technology_descriptions": {
                 "Biopower",
                 "Coal_FE",
@@ -531,9 +549,12 @@ def check_technology_specific_parameters(df):
         },
     ]
     for tech_specific_param in tech_specific_params:
-        assert tech_specific_param["technology_descriptions"] == set(
+        technology_descriptors = set(
             df[
                 df[tech_specific_param["params"]].notnull().all(axis=1)
             ].technology_description.unique()
         )
+        assert (
+            tech_specific_param["technology_descriptions"] == technology_descriptors
+        ), f"{tech_specific_param['technology_descriptions']} does not equal {technology_descriptors}"
     return AssetCheckResult(passed=True)

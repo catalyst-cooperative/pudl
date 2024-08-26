@@ -1,11 +1,15 @@
 ---
 name: release
 
-on: push
+on:
+  pull_request:
+  push:
 
 jobs:
   build-distribution:
+    name: Build catalystcoop.pudl distribution for PyPI
     runs-on: ubuntu-latest
+    if: github.event.pull_request.head.repo.fork == false
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -84,7 +88,7 @@ jobs:
           name: python-package-distributions
           path: dist/
       - name: Sign dist with Sigstore
-        uses: sigstore/gh-action-sigstore-python@v2.1.1
+        uses: sigstore/gh-action-sigstore-python@v3.0.0
         with:
           inputs: ./dist/*.tar.gz ./dist/*.whl
       - name: Upload artifact signatures to GitHub Release

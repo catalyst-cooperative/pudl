@@ -32,6 +32,7 @@ report_date."""
                 "energy_source_code_1",
                 "energy_storage_capacity_mwh",
                 "fuel_type_code_pudl",
+                "generator_operating_date",
                 "generator_retirement_date",
                 "latitude",
                 "longitude",

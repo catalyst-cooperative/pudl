@@ -88,8 +88,8 @@ def raw_censusdp1tract__all_tables(context):
             logger.info(f"extract_root = {extract_root}")
             assert extract_root.is_dir()
             logger.info(f"out_path = {out_path}")
-            subprocess.run(
-                [ogr2ogr, str(out_path), str(extract_root)],  # noqa: S603
+            subprocess.run(  # noqa: S603
+                [ogr2ogr, str(out_path), str(extract_root)],
                 check=True,
                 capture_output=True,
             )

@@ -10,12 +10,14 @@ labels:
 assignees: ""
 ---
 
-[Additional release process documentation](https://catalystcoop-pudl.readthedocs.io/en/latest/dev/run_a_release.html).
+[Additional release process documentation](https://catalystcoop-pudl.readthedocs.io/en/nightly/dev/run_a_release.html).
 
 ```[tasklist]
 ## Release Checklist
 - [ ] Set a release date & notify team
-- [ ] Close out the [PUDL Release Notes](https://catalystcoop-pudl.readthedocs.io/en/latest/release_notes.html) with an overview of the changes in this release
+- [ ] Update our CITATION.cff file with the new release date and current Catalyst membership.
+- [ ] Update our .zenodo.json file with current Catalyst membership.
+- [ ] Close out the [PUDL Release Notes](https://catalystcoop-pudl.readthedocs.io/en/nightly/release_notes.html) with an overview of the changes in this release
 - [ ] Push vYYYY.M.x tag (4-digit year, month with no leading zero, and patch version)
 - [ ] Verify that the new [GitHub (software) release](https://github.com/catalyst-cooperative/pudl/releases) has been published
 - [ ] Verify [`catalystcoop.pudl` PyPI (software) release](https://pypi.org/project/catalystcoop.pudl/)
@@ -34,7 +36,7 @@ assignees: ""
 - [ ] Update Zenodo description and other metadata based on release notes (see task list below)
 - [ ] Manually publish the new Zenodo deposition with the updated metadata
 - [ ] Create an Announcement for the release in [our GitHub Discussions](https://github.com/orgs/catalyst-cooperative/discussions)
-- [ ] Update the [release documentation](https://catalystcoop-pudl.readthedocs.io/en/latest/dev/run_a_release.html) to better reflect the actual process for next time
+- [ ] Update the [release documentation](https://catalystcoop-pudl.readthedocs.io/en/nightly/dev/run_a_release.html) to better reflect the actual process for next time
 - [ ] Wait 2-12 hours for a bot to create a PR in the [PUDL conda-forge feedstock](https://github.com/conda-forge/catalystcoop.pudl-feedstock/pulls)
 - [ ] Review the `conda-forge` PR, updating dependencies and CLI entrypoints if necessary. Our direct dependencies (from `pyproject.toml`) should be pinned to the actual version appearing in `environments/conda-linux-64.lock.yml`
 ```
@@ -47,8 +49,6 @@ assignees: ""
 - [ ] Set keywords for Zenodo data release archive (automate!)
 - [ ] Set language of Zenodo data release archive (automate!)
 - [ ] Zenodo PUDL repo archive: update release notes (cut-and-paste from GitHub)
-- [ ] Zenodo PUDL repo archive: add keywords (automate with a `.zenodo.json` file for the repo)
-- [ ] Zenodo PUDL repo archive: set language to English (automate with a `.zenodo.json` file for the repo)
 ```
 
 ```[tasklist]

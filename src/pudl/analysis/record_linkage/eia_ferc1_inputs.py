@@ -26,8 +26,8 @@ class InputManager:
             plants_all_ferc1: Table of all of the FERC1-reporting plants.
             fbp_ferc1: Table of the fuel reported aggregated to the FERC1 plant-level.
             plant_parts_eia: The EIA plant parts list.
-            start_date: Start date that cooresponds to the tables passed in.
-            end_date: End date that cooresponds to the tables passed in.
+            start_date: Start date that corresponds to the tables passed in.
+            end_date: End date that corresponds to the tables passed in.
         """
         self.plant_parts_eia = plant_parts_eia.set_index("record_id_eia")
         self.plants_all_ferc1 = plants_all_ferc1
