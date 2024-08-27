@@ -37,8 +37,9 @@ The Public Utility Data Liberation Project (PUDL)
 What is PUDL?
 -------------
 
-The `PUDL <https://catalyst.coop/pudl/>`__ Project is an open source data processing
-pipeline that makes US energy data easier to access and use programmatically.
+The `PUDL <https://catalyst.coop/pudl/>`__ Project (pronounced puddle) is an open source
+data processing pipeline that makes US energy data easier to access and use
+programmatically.
 
 Hundreds of gigabytes of valuable data are published by US government agencies, but it's
 often difficult to work with. PUDL takes the original spreadsheets, CSV files, and
