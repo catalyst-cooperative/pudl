@@ -70,7 +70,7 @@ def test_extract():
             # Testing the rename
             GenericMetadata,
             "get_column_map",
-            return_value={company_field: "company_rename"},
+            return_value={"company_rename": company_field},
         ),
         patch.object(
             # Transposing the df here to get the orientation we expect get_page_cols to return
@@ -83,5 +83,5 @@ def test_extract():
     assert len(res) == 1  # Assert only one page extracted
     assert list(res.keys()) == [PAGE]  # Assert it is named correctly
     assert (
-        res[PAGE]["company_rename"][0] == company_data
+        res[PAGE][company_field][0] == company_data
     )  # Assert that column correctly renamed and data is there.
