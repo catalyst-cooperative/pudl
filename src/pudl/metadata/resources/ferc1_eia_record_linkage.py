@@ -77,6 +77,9 @@ meant for use as an input into the record linkage between FERC1 plants and EIA."
                 "plant_id_report_year",
             ],
             "primary_key": ["record_id_eia"],
+            "foreign_key_rules": {
+                "fields": [["record_id_eia"], ["record_id_eia_plant_gen"]]
+            },
         },
         "sources": ["eia860", "eia923"],
         "etl_group": "outputs",
@@ -119,6 +122,42 @@ meant for use as an input into the record linkage between FERC1 plants and EIA."
                 "fraction_owned",
                 "ownership_record_type",
             ],
+        },
+        "sources": ["eia860", "eia923"],
+        "etl_group": "outputs",
+        "field_namespace": "eia",
+    },
+    "out_eia__yearly_assn_plant_parts_plant_gen": {
+        "description": """In order to easily determine what generator records are associated with every
+plant part record, we made this association table. This table associates every plant part
+record (identified as ``record_id_eia``) from the ``out_eia__yearly_plant_parts`` table to the associated
+'plant_gen' records (identified as ``record_id_eia_plant_gen``) from the same table. The plant part
+records have a one to many relationship to the associated 'plant_gen' records. The 'plant_gen' records
+are also included in the plant part records, so for these records there is a one to one relationship
+and the ``record_id_eia`` and the ``record_id_eia_plant_gen`` are the same.
+
+All of the columns in this table that have a suffix of '_plant_gen' are attributes of the
+``record_id_eia_plant_gen`` record.""",
+        "schema": {
+            "fields": [
+                "record_id_eia",
+                "record_id_eia_plant_gen",
+                "report_date",
+                "plant_id_eia",
+                "utility_id_eia",
+                "ownership_record_type",
+                "generator_id_plant_gen",
+                "energy_source_code_1_plant_gen",
+                "prime_mover_code_plant_gen",
+                "unit_id_pudl_plant_gen",
+                "technology_description_plant_gen",
+                "ferc_acct_name_plant_gen",
+                "ferc1_generator_agg_id_plant_gen",
+                "generator_operating_year_plant_gen",
+                "operational_status_pudl_plant_gen",
+                "generators_number",
+            ],
+            "primary_key": ["record_id_eia", "record_id_eia_plant_gen"],
         },
         "sources": ["eia860", "eia923"],
         "etl_group": "outputs",

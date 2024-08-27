@@ -1,0 +1,31 @@
+services:
+  superset:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pudl-superset
+    environment:
+      AUTH0_CLIENT_ID: ${AUTH0_CLIENT_ID}
+      AUTH0_CLIENT_SECRET: ${AUTH0_CLIENT_SECRET}
+      AUTH0_DOMAIN: ${AUTH0_DOMAIN}
+      SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY}
+      SUPERSET_DB_HOST: ${SUPERSET_DB_HOST-postgres}
+      SUPERSET_DB_PORT: ${SUPERSET_DB_PORT-5432}
+      SUPERSET_DB_USER: ${SUPERSET_DB_USER-superset}
+      SUPERSET_DB_PASS: ${SUPERSET_DB_PASS-superset}
+      SUPERSET_DB_NAME: ${SUPERSET_DB_NAME-superset}
+    ports:
+      - "8080:8088"
+    volumes:
+      - ${PUDL_OUTPUT}/pudl.duckdb:/app/pudl.duckdb
+      - ./roles.json:/app/roles.json
+    depends_on:
+      - postgres
+  postgres:
+    image: postgis/postgis:13-3.1-alpine
+    environment:
+      POSTGRES_DB: superset
+      POSTGRES_USER: superset
+      POSTGRES_PASSWORD: superset
+    ports:
+      - 8081:5432

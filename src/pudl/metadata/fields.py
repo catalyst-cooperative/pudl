@@ -1290,6 +1290,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "The code representing the most predominant type of energy that fuels the generator.",
     },
+    "energy_source_code_1_plant_gen": {
+        "type": "string",
+        "description": "Code representing the most predominant type of energy that fuels the record_id_eia_plant_gen's generator.",
+    },
     "energy_source_code_2": {
         "type": "string",
         "description": "The code representing the second most predominant type of energy that fuels the generator",
@@ -1369,6 +1373,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "ID dynamically assigned by PUDL to EIA records with multiple matches to a single FERC ID in the FERC-EIA manual matching process.",
     },
+    "ferc1_generator_agg_id_plant_gen": {
+        "type": "integer",
+        "description": "ID dynamically assigned by PUDL to EIA records with multiple matches to a single FERC ID in the FERC-EIA manual matching process. This ID is associated with the record_id_eia_plant_gen record.",
+    },
     "ferc_account": {
         "type": "string",
         "description": "Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting.",
@@ -1388,6 +1396,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "ferc_acct_name": {
         "type": "string",
         "description": "Name of FERC account, derived from technology description and prime mover code.",
+        "constraints": {"enum": ["Hydraulic", "Nuclear", "Steam", "Other"]},
+    },
+    "ferc_acct_name_plant_gen": {
+        "type": "string",
+        "description": "Name of FERC account, derived from technology description and prime mover code. This name is associated with the record_id_eia_plant_gen record.",
         "constraints": {"enum": ["Hydraulic", "Nuclear", "Steam", "Other"]},
     },
     "ferc_cogen_docket_no": {
@@ -1820,6 +1833,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "sure you treat it as a string!"
         ),
     },
+    "generator_id_plant_gen": {
+        "type": "string",
+        "description": "Generator ID of the record_id_eia_plant_gen record. This is usually numeric, but sometimes includes letters. Make sure you treat it as a string!",
+    },
     "generator_id_epa": {
         "type": "string",
         "description": "Generator ID used by the EPA.",
@@ -1839,6 +1856,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "generator_operating_year": {
         "type": "integer",
         "description": "Year a generator went into service.",
+    },
+    "generator_operating_year_plant_gen": {
+        "type": "integer",
+        "description": "The year an associated plant_gen's generator went into service.",
     },
     "generator_retirement_date": {
         "type": "date",
@@ -2707,6 +2728,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "The operating status of the asset using PUDL categories.",
         "constraints": {"enum": ["operating", "retired", "proposed"]},
     },
+    "operational_status_pudl_plant_gen": {
+        "type": "string",
+        "description": "The operating status of the asset using PUDL categories of the record_id_eia_plant_gen record .",
+        "constraints": {"enum": ["operating", "retired", "proposed"]},
+    },
     "opex_allowances": {"type": "number", "description": "Allowances.", "unit": "USD"},
     "opex_boiler": {
         "type": "number",
@@ -3267,6 +3293,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Code for the type of prime mover (e.g. CT, CG)",
     },
+    "prime_mover_code_plant_gen": {
+        "type": "string",
+        "description": "Code for the type of prime mover (e.g. CT, CG) associated with the record_id_eia_plant_gen.",
+    },
     "project_num": {"type": "integer", "description": "FERC Licensed Project Number."},
     "pudl_version": {
         "type": "string",
@@ -3358,6 +3388,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "record_id_eia": {
         "type": "string",
         "description": "Identifier for EIA plant parts analysis records.",
+    },
+    "record_id_eia_plant_gen": {
+        "type": "string",
+        "description": "Identifier for EIA plant parts analysis records which is at the plant_part level of plant_gen - meaning each record pertains to one generator.",
     },
     "record_id_ferc1": {
         "type": "string",
@@ -4074,6 +4108,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "High level description of the technology used by the generator to produce electricity.",
     },
+    "technology_description_plant_gen": {
+        "type": "string",
+        "description": "High level description of the technology used by the record_id_eia_plant_gen's generator to produce electricity.",
+    },
     "technology_description_detail_1": {
         "type": "string",
         "description": "Technology details indicate resource levels and specific technology subcategories.",
@@ -4317,6 +4355,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "unit_id_pudl": {
         "type": "integer",
         "description": "Dynamically assigned PUDL unit id. WARNING: This ID is not guaranteed to be static long term as the input data and algorithm may evolve over time.",
+    },
+    "unit_id_pudl_plant_gen": {
+        "type": "integer",
+        "description": "Dynamically assigned PUDL unit id of the record_id_eia_plant_gen. WARNING: This ID is not guaranteed to be static long term as the input data and algorithm may evolve over time.",
     },
     "unit_nox": {
         "type": "string",
@@ -5135,6 +5177,11 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                 "enum": ["electric", "gas", "common", "other", "other3", "other2"]
             },
         },
+    },
+    "out_eia__yearly_assn_plant_parts_plant_gen": {
+        "generators_number": {
+            "description": "The number of generators associated with each ``record_id_eia``."
+        }
     },
 }
 
