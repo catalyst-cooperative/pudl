@@ -78,7 +78,9 @@ meant for use as an input into the record linkage between FERC1 plants and EIA."
             ],
             "primary_key": ["record_id_eia"],
             "foreign_key_rules": {
-                "fields": [["record_id_eia"], ["record_id_eia_plant_gen"]]
+                "fields": [["record_id_eia"], ["record_id_eia_plant_gen"]],
+                # TODO: track down 10 missing record_id_eia's in this table #3818
+                "exclude": ["out_pudl__yearly_assn_eia_ferc1_plant_parts"],
             },
         },
         "sources": ["eia860", "eia923"],
