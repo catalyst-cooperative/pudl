@@ -27,7 +27,7 @@ class Extractor(excel.ExcelExtractor):
         super().__init__(*args, **kwargs)
 
     def process_renamed(self, newdata: pd.DataFrame, page: str, **partition):
-        """Drop columns that get mapped to other assets.
+        """Drop columns that get mapped to other assets and columns with unstructured data.
 
         Older years of PHMSA data have one Excel tab in the raw data, while newer data
         has multiple tabs. To extract data into tables that follow the newer data format
@@ -52,6 +52,32 @@ class Extractor(excel.ExcelExtractor):
                     f"\n{to_drop}"
                 )
                 newdata = newdata.drop(columns=to_drop, errors="ignore")
+        # there is an annoying middling number of columns in phmsa raw data that are unnamed
+        # and have a smattering of random values. we want to drop these guys. but we are going
+        # to enumerate what we expect to need to
+        unnamed_page_years = {
+            "yearly_distribution": [
+                2000,
+                2001,
+                2002,
+                2003,
+                2004,
+                2005,
+                2006,
+                2007,
+                2009,
+            ]
+        }
+        unnamed_columns = newdata.filter(like="unnamed").columns
+        if (page in unnamed_page_years) and (
+            int(partition["year"]) in unnamed_page_years[page]
+        ):
+            newdata = newdata.drop(columns=unnamed_columns)
+        elif not unnamed_columns.empty:
+            logger.warning(
+                "We found some unnamed columns that are probably not expected. "
+                f"Consider dropping them. Columns found: {unnamed_columns}"
+            )
         return newdata
 
 
