@@ -54,7 +54,12 @@ class Extractor(excel.ExcelExtractor):
                 newdata = newdata.drop(columns=to_drop, errors="ignore")
         # there is an annoying middling number of columns in phmsa raw data that are unnamed
         # and have a smattering of random values. we want to drop these guys. but we are going
-        # to enumerate what we expect to need to
+        # to enumerate what we expect to need to drop so if lots of new unmapped columns happen
+        # unexpectedly a warning will happen here (and a extraction validation error will happen)
+        # FYI: In 2009 there were a ton of extra columns seemingly from two records that had a
+        # multi-line comment that shifted the rest of the cells over. Presumably we could map
+        # them all and do a manual shift of the data. But its only 2 records so rn we are just
+        # droppign them.
         unnamed_page_years = {
             "yearly_distribution": [
                 2000,
