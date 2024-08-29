@@ -853,27 +853,28 @@ def identify_retiring_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     report generator-specific generation data in the g table after their retirement
     date.
     """
+    gen_assoc = gen_assoc.assign(report_year=lambda x: x.report_date.dt.year)
     # identify the complete set of generator ids that match this criteria
     retiring_generator_identities = gen_assoc.loc[
         (gen_assoc.operational_status == "retired")
         & (
             (gen_assoc.report_date <= gen_assoc.generator_retirement_date)
-            | (gen_assoc.net_generation_mwh_g_tbl.notnull())
+            | gen_assoc.filter(like="net_generation_mwh").notnull().any(axis=1)
+            | gen_assoc.filter(like="fuel_consumed").notnull().any(axis=1)
         ),
-        ["plant_id_eia", "generator_id"],
+        ["plant_id_eia", "generator_id", "report_year"],
     ].drop_duplicates()
 
     # merge these ids into gen_assoc and keep all months of data for these gens
-    retiring_generators = gen_assoc.copy().merge(
-        retiring_generator_identities,
-        how="outer",
-        on=["plant_id_eia", "generator_id"],
-        indicator="_retiring_gens",
+    retiring_generators = (
+        gen_assoc.copy()
+        .merge(
+            retiring_generator_identities,
+            how="inner",
+            on=["plant_id_eia", "generator_id", "report_year"],
+        )
+        .drop(columns=["report_year"])
     )
-
-    retiring_generators = retiring_generators[
-        retiring_generators["_retiring_gens"] == "both"
-    ].drop(columns="_retiring_gens")
 
     return retiring_generators
 
