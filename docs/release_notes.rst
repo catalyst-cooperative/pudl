@@ -3,8 +3,31 @@ PUDL Release Notes
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-v2024.X.X (2024-XX-XX)
+v2024.X.x (2024-XX-XX)
 ---------------------------------------------------------------------------------------
+
+.. _release-v2024.8.0:
+
+Schema Changes
+^^^^^^^^^^^^^^
+* Added :ref:`out_eia__yearly_assn_plant_parts_plant_gen` table. This table associates
+  records from the :ref:`out_eia__yearly_plant_parts` with ``plant_gen`` records from
+  that same plant parts table. See issue :issue:`3773` and PR :pr:`3774`.
+
+---------------------------------------------------------------------------------------
+v2024.8.0 (2024-08-19)
+---------------------------------------------------------------------------------------
+
+This is our regular quarterly release for 2024Q3. It includes quarterly updates to all
+datasets that are updated with quarterly or higher frequency by their publishers,
+including EIA-860M, EIA-923 (YTD data), EIA-930, the EIA's bulk electricity API data
+(used to fill in missing fuel prices), and the EPA CEMS hourly emissions data.
+
+Annual datasets which have been published since our last quarterly release have also
+been integrated. These include FERC Forms 1, 2, 6, 60, and 714, and the NREL ATB.
+
+This release also includes provisional versions of the annual 2023 EIA-860 and EIA-923
+datasets, whose final release will not happen until the fall.
 
 New Data Coverage
 ^^^^^^^^^^^^^^^^^
@@ -19,7 +42,7 @@ FERC Form 1
   details, as well as issue :issue:`3544` and PR :pr:`3710`.
 
 FERC Forms 2, 6, 60, & 714
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 * Updated the ``ferc_to_sqlite`` settings to extract 2023 XBRL data for FERC Forms 2, 6
   60, and 714 and add them to their respective SQLite databases. Note that this data
   is not yet being processed beyond the conversion from XBRL to SQLite. See PR
@@ -51,7 +74,7 @@ EIA 923
 EIA 930
 ~~~~~~~
 * Added EIA 930 hourly data through the end of July as part of the Q2 quarterly release.
-  See :issue:`3761`` and :pr:`3789`.
+  See :issue:`3761` and :pr:`3789`.
 
 EPA CEMS
 ~~~~~~~~
