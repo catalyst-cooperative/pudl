@@ -8,6 +8,12 @@ v2024.X.x (2024-XX-XX)
 
 .. _release-v2024.8.0:
 
+Schema Changes
+^^^^^^^^^^^^^^
+* Added :ref:`out_eia__yearly_assn_plant_parts_plant_gen` table. This table associates
+  records from the :ref:`out_eia__yearly_plant_parts` with ``plant_gen`` records from
+  that same plant parts table. See issue :issue:`3773` and PR :pr:`3774`.
+
 ---------------------------------------------------------------------------------------
 v2024.8.0 (2024-08-19)
 ---------------------------------------------------------------------------------------
