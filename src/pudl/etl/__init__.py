@@ -25,6 +25,7 @@ from pudl.io_managers import (
     epacems_io_manager,
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
+    ferc714_xbrl_sqlite_io_manager,
     parquet_io_manager,
     pudl_mixed_format_io_manager,
 )
@@ -201,6 +202,7 @@ default_resources = {
     "pudl_io_manager": pudl_mixed_format_io_manager,
     "ferc1_dbf_sqlite_io_manager": ferc1_dbf_sqlite_io_manager,
     "ferc1_xbrl_sqlite_io_manager": ferc1_xbrl_sqlite_io_manager,
+    "ferc714_xbrl_sqlite_io_manager": ferc714_xbrl_sqlite_io_manager,
     "dataset_settings": dataset_settings,
     "ferc_to_sqlite_settings": ferc_to_sqlite_settings,
     "epacems_io_manager": epacems_io_manager,
