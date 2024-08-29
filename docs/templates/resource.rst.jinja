@@ -17,8 +17,10 @@ This table is not published to Datasette.
   * - **Field Name**
     - **Type**
     - **Description**
+    - **Primary key**
 {%- for field in resource.schema.fields %}
   * - {{ field.name }}
     - {{ field.type }}
     - {{ field.description if field.description else "N/A" }}
+    - {{ "True" if field.name in resource.schema.primary_key else "False" }}
 {%- endfor %}
