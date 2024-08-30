@@ -7,7 +7,7 @@ Data Processed & Cleaned by PUDL
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 The PUDL data dictionary provides detailed information about the output tables,
 including field names, data types, and descriptions
-for each field within the respective tables.
+for each field by table.
 
 .. toctree::
    :maxdepth: 1
