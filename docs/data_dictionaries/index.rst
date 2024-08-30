@@ -17,7 +17,7 @@ for each field by table.
 
 Raw, Unprocessed Data
 ^^^^^^^^^^^^^^^^^^^^^
-This section outlines the raw, unprocessed data from the FERC forms,
+For data sources where substantial effort is required to publish raw databases (e.g., FERC Form 1), the dictionaries below provide key metadata on the raw data sources (e.g., table names and descriptions).
 detailing the table names, links to their corresponding database tables,
 raw file names, page numbers,
 data reporting frequency, and table descriptions.
