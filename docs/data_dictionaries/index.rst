@@ -5,7 +5,7 @@ Data Dictionaries
 
 Data Processed & Cleaned by PUDL
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-The PUDL data dictionary provides detailed information about the output tables,
+The PUDL data dictionary provides detailed metadata for core and output tables in the PUDL database,
 including field names, data types, and descriptions
 for each field by table.
 
