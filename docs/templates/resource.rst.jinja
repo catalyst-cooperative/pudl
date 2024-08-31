@@ -7,7 +7,7 @@
 {% if resource.schema.primary_key -%}
 **The table has the following primary keys:**
 {% for key in resource.schema.primary_key %}
-  - {{ key }}
+* {{ key }}
 {% endfor %}
 {% else -%}
 **This table has no primary key.**
