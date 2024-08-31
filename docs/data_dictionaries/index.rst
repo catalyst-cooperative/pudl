@@ -5,8 +5,8 @@ Data Dictionaries
 
 Data Processed & Cleaned by PUDL
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-The PUDL data dictionary provides detailed metadata for core and output tables in the PUDL database,
-including field names, data types, and descriptions
+The PUDL data dictionary provides detailed metadata for core and output tables in
+the PUDL database, including field names, data types, and descriptions
 for each field by table.
 
 .. toctree::
@@ -17,7 +17,9 @@ for each field by table.
 
 Raw, Unprocessed Data
 ^^^^^^^^^^^^^^^^^^^^^
-For data sources where substantial effort is required to publish raw databases (e.g., FERC Form 1), the dictionaries below provide key metadata on the raw data sources (e.g., table names and descriptions).
+For data sources where substantial effort is required to publish
+raw databases (e.g., FERC Form 1), the dictionaries below provide key
+metadata on the raw data sources (e.g., table names and descriptions).
 detailing the table names, links to their corresponding database tables,
 raw file names, page numbers,
 data reporting frequency, and table descriptions.
