@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: 882b5bb32ef17eef42d7c12515793d83b240baaee1673717c775d98a277a1986
-    osx-64: e15419041b31c22f3d977e76f8fdeb1df33008c108d2af93088d4e4392b5d839
-    osx-arm64: 3908dba3c893e95600365c9479d23ad448eac4cec038acf3f4d11a48a559aed3
+    linux-64: b2610ee55b183fd517d4158bd3d5a92b2a3e6ecb4ec36f5c25ea2322d6f7153b
+    osx-64: 5a412649bac72bc9a395942c8950212f93bc247e4dfddfc3190fe4ffc8731852
+    osx-arm64: 2d5b7d8e391f45430278b0fca83ba3108011e62e3662a1c94ac900bc2b940bae
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -6251,13 +6251,14 @@ package:
     manager: conda
     platform: linux-64
     dependencies:
-      libgcc-ng: ">=12"
+      __glibc: ">=2.17,<3.0.a0"
+      libgcc: ">=13"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/frozenlist-1.4.1-py312h98912ed_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/frozenlist-1.4.1-py312h66e93f0_1.conda
     hash:
-      md5: 2715764dfa5fb00343e03d5a59b64582
-      sha256: ad36b190476451b366e55a43430673ab9aeb1bfc128cad7245226d92373be450
+      md5: 0ad3232829b9509599d8f981c12c9d05
+      sha256: 0e8ac4efd090482470d8d64ad23c393f0fe9a9e40a18cff9b55e7381e88b01d3
     category: main
     optional: false
   - name: frozenlist
@@ -6265,12 +6266,13 @@ package:
     manager: conda
     platform: osx-64
     dependencies:
+      __osx: ">=10.13"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/frozenlist-1.4.1-py312h41838bb_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/frozenlist-1.4.1-py312hb553811_1.conda
     hash:
-      md5: 2057c85ac7062a3acf8a66af2523e6bf
-      sha256: 0b8160b6cbfb92a63afee33640ea4e8174e8f6374b1baa55086b0f50d9477c64
+      md5: cdddcd79505d7e048ad42aacc3915610
+      sha256: 963baa8c58201c217f48decb260d4961e64fe1cfa58cc3fccd6d5d22548617fc
     category: main
     optional: false
   - name: frozenlist
@@ -6278,12 +6280,13 @@ package:
     manager: conda
     platform: osx-arm64
     dependencies:
+      __osx: ">=11.0"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/frozenlist-1.4.1-py312he37b823_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/frozenlist-1.4.1-py312h024a12e_1.conda
     hash:
-      md5: 6cf2f14438b53376e9e1a4e75b44935c
-      sha256: c51735c67461632ff8bc0bbf5a3d0b389b8e9e4686a13642a010dcb514954e35
+      md5: 36a854ba6031d1b963db6988a561948b
+      sha256: 26bd6227520e1463fdc5d58fa8f7a4b13b432c9b549ac1c576057add3ec51524
     category: main
     optional: false
   - name: fsspec
@@ -17336,7 +17339,7 @@ package:
     category: main
     optional: false
   - name: pandera-core
-    version: 0.20.0
+    version: 0.20.4
     manager: conda
     platform: linux-64
     dependencies:
@@ -17350,14 +17353,14 @@ package:
       typing_extensions: ""
       typing_inspect: ">=0.6.0"
       wrapt: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/pandera-core-0.20.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/pandera-core-0.20.4-pyhd8ed1ab_0.conda
     hash:
-      md5: 1bff7217b96db3598c7689d51a0c3d62
-      sha256: 71be9cddeb18d689602e8aaf84b941ba17bf69f685ecafb661247c57f814421e
+      md5: d90e8a22f896876813f2964a082b9e61
+      sha256: 3619e1be19ae40f47de8e355f722c25ba9f6d1b8975dffebef75399061c4dec4
     category: main
     optional: false
   - name: pandera-core
-    version: 0.20.0
+    version: 0.20.4
     manager: conda
     platform: osx-64
     dependencies:
@@ -17371,14 +17374,14 @@ package:
       typing_inspect: ">=0.6.0"
       typeguard: ">=3.0.2"
       multimethod: <=1.10.0
-    url: https://conda.anaconda.org/conda-forge/noarch/pandera-core-0.20.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/pandera-core-0.20.4-pyhd8ed1ab_0.conda
     hash:
-      md5: 1bff7217b96db3598c7689d51a0c3d62
-      sha256: 71be9cddeb18d689602e8aaf84b941ba17bf69f685ecafb661247c57f814421e
+      md5: d90e8a22f896876813f2964a082b9e61
+      sha256: 3619e1be19ae40f47de8e355f722c25ba9f6d1b8975dffebef75399061c4dec4
     category: main
     optional: false
   - name: pandera-core
-    version: 0.20.0
+    version: 0.20.4
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -17392,10 +17395,10 @@ package:
       typing_inspect: ">=0.6.0"
       typeguard: ">=3.0.2"
       multimethod: <=1.10.0
-    url: https://conda.anaconda.org/conda-forge/noarch/pandera-core-0.20.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/pandera-core-0.20.4-pyhd8ed1ab_0.conda
     hash:
-      md5: 1bff7217b96db3598c7689d51a0c3d62
-      sha256: 71be9cddeb18d689602e8aaf84b941ba17bf69f685ecafb661247c57f814421e
+      md5: d90e8a22f896876813f2964a082b9e61
+      sha256: 3619e1be19ae40f47de8e355f722c25ba9f6d1b8975dffebef75399061c4dec4
     category: main
     optional: false
   - name: pandoc
@@ -22166,14 +22169,14 @@ package:
     dependencies:
       __glibc: ">=2.17,<3.0.a0"
       geos: ">=3.12.2,<3.12.3.0a0"
-      libgcc-ng: ">=12"
+      libgcc: ">=13"
       numpy: ">=1.19,<3"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/shapely-2.0.6-py312h8413631_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/shapely-2.0.6-py312h6cab151_1.conda
     hash:
-      md5: e82236100a899ce6504435fbc8c48f63
-      sha256: 131678e44f6cd1a7a070174a436f92263826b4c62d4b46561c79f3932522f4f7
+      md5: 5be02e05e1adaa42826cc6800ce399bc
+      sha256: b7818c7264926401b78b0afc9a7d2c98ff0fc0ed637ad9e5c126da38a40382f7
     category: main
     optional: false
   - name: shapely
@@ -22186,10 +22189,10 @@ package:
       numpy: ">=1.19,<3"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/shapely-2.0.6-py312h594820c_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/shapely-2.0.6-py312h8047845_1.conda
     hash:
-      md5: 25e241a99826d12f05be1b984eb2d0ee
-      sha256: e95ddbebe96f5f63b41691db69d68e27e7be0d2247c94c0e381e65cf57975aa8
+      md5: 2f4d580436a2f2162275c9994dd706cb
+      sha256: 8dbacc971bc78375537f4fc8879cb8d957f08d98622bf6262eaf3f8ea9cb31b3
     category: main
     optional: false
   - name: shapely
@@ -22202,10 +22205,10 @@ package:
       numpy: ">=1.19,<3"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/shapely-2.0.6-py312hbab3d11_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/shapely-2.0.6-py312ha6b2466_1.conda
     hash:
-      md5: a7b68ff4c23017e17cd67f31ffa2ae03
-      sha256: 9be93b850a6ebbe905da480114b2ab628c04d0c8b12012831c5de7b6c2803da7
+      md5: 946eaf02209d9b1047d9cffb3167ce78
+      sha256: ecba27a5a5fa5c708bb33516c580db609978550235668226c4096224db769c9d
     category: main
     optional: false
   - name: shellingham
