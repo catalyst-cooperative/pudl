@@ -92,7 +92,7 @@ dependencies:
   - coloredlogs=14.0=pyhd8ed1ab_3
   - comm=0.2.2=pyhd8ed1ab_0
   - conda-lock=2.5.7=pyhd8ed1ab_0
-  - contourpy=1.3.0=py312h68727a3_0
+  - contourpy=1.3.0=py312h68727a3_1
   - coverage=7.6.1=py312h66e93f0_1
   - crashtest=0.4.1=pyhd8ed1ab_0
   - croniter=3.0.3=pyhd8ed1ab_0
@@ -116,10 +116,10 @@ dependencies:
   - deprecated=1.2.14=pyh1a96a4e_0
   - distlib=0.3.8=pyhd8ed1ab_0
   - dnspython=2.6.1=pyhd8ed1ab_1
-  - doc8=1.1.2=pyhd8ed1ab_0
+  - doc8=1.1.2=pyhd8ed1ab_1
   - docker-py=7.1.0=pyhd8ed1ab_0
   - docstring_parser=0.16=pyhd8ed1ab_0
-  - docutils=0.20.1=py312h7900ff3_3
+  - docutils=0.21.2=pyhd8ed1ab_0
   - email-validator=2.2.0=pyhd8ed1ab_0
   - ensureconda=1.4.4=pyhd8ed1ab_0
   - entrypoints=0.4=pyhd8ed1ab_0
@@ -141,7 +141,7 @@ dependencies:
   - fontconfig=2.14.2=h14ed4e7_0
   - fonts-conda-ecosystem=1=0
   - fonts-conda-forge=1=0
-  - fonttools=4.53.1=py312h41a817b_0
+  - fonttools=4.53.1=py312h66e93f0_1
   - fqdn=1.5.1=pyhd8ed1ab_0
   - freetype=2.12.1=h267a509_2
   - freexl=2.0.0=h743c826_0
@@ -365,7 +365,7 @@ dependencies:
   - multimethod=1.9.1=pyhd8ed1ab_0
   - munkres=1.1.4=pyh9f0ad1d_0
   - mypy_extensions=1.0.0=pyha770c72_0
-  - narwhals=1.6.0=pyhd8ed1ab_0
+  - narwhals=1.6.2=pyhd8ed1ab_0
   - nbclient=0.10.0=pyhd8ed1ab_0
   - nbconvert=7.16.4=hd8ed1ab_1
   - nbconvert-core=7.16.4=pyhd8ed1ab_1
@@ -462,7 +462,7 @@ dependencies:
   - pytest-xdist=3.6.1=pyhd8ed1ab_0
   - python=3.12.5=h2ad013b_0_cpython
   - python-build=1.2.1=pyhd8ed1ab_0
-  - python-calamine=0.2.3=py312hf008fa9_0
+  - python-calamine=0.2.3=py312h12e396e_1
   - python-dateutil=2.9.0=pyhd8ed1ab_0
   - python-dotenv=1.0.1=pyhd8ed1ab_0
   - python-duckdb=1.0.0=py312hca68cad_0
