@@ -215,6 +215,6 @@ jobs:
       - name: Combine coverage data and check that we have required coverage
         # Required coverage is set in pyproject.toml section [tool.coverage.report]
         run: |
-          micromamba run -n coverage coverage combine coverage/*/.coverage
+          micromamba run -n coverage coverage combine coverage/*/coverage.xml
           micromamba run -n coverage coverage xml --fail-under=0
           micromamba run -n coverage coverage report
