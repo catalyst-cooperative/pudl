@@ -261,9 +261,6 @@ class RenameColumns(TransformParams):
 
     columns: dict[str, str] = {}
     """A dictionary of columns to be renamed."""
-    not_renamed_columns: list[str] = []
-    """A list of raw columns which are expected not to be renamed. Any other
-    columns in the raw data which fail to be renamed will raise an error."""
 
 
 ################################################################################
@@ -1234,31 +1231,15 @@ class AbstractTableTransformer(ABC):
             "columns."
         )
 
-        # If we are actually renaming columns, do some defensive checks
+        # If we are attempting to rename columns that do *not* appear in the dataframe,
+        # raise an error.
         if len(params.columns) > 0:
-            # If we are attempting to rename columns that do *not* appear in the dataframe,
-            # raise an error.
             missing_cols = set(params.columns).difference(set(df.columns))
             if missing_cols:
                 raise ValueError(
                     f"{self.table_id.value}: Attempting to rename columns which are not "
                     "present in the dataframe.\n"
                     f"Missing columns: {sorted(missing_cols)}\nExisting Columns: {df.columns}"
-                )
-            # If we fail to rename any columns that do appear in the dataframe,
-            # other than those we expect (not_renamed_columns), raise an error.
-            logger.warn(f"Ignore cols: {params.not_renamed_columns}")
-            unmapped_cols = (
-                set(df.columns)
-                .difference(set(params.columns))
-                .difference(set(params.not_renamed_columns))
-            )
-            logger.warn(f"unmapped_cols is {unmapped_cols}")
-            if unmapped_cols:
-                raise ValueError(
-                    f"{self.table_id.value}: The following columns are present in the"
-                    " dataframe but are not renamed.\n"
-                    f"Unmapped columns: {sorted(unmapped_cols)}\nExisting Columns: {df.columns}"
                 )
         return df.rename(columns=params.columns)
 

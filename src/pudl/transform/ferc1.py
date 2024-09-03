@@ -2595,9 +2595,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         """
         if not params:
             params = self.params.rename_columns_ferc1.__getattribute__(rename_stage)
-            # sched_table_name is never renamed for any type of FERC data, so we always
-            # ignore it when validating column renames.
-            params.not_renamed_columns.append("sched_table_name")
         df = super().rename_columns(df, params=params)
         return df
 
