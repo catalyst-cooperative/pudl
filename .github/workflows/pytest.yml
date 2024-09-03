@@ -61,6 +61,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-docs
+          include-hidden-files: true
           path: .coverage
 
   ci-unit:
@@ -115,6 +116,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-unit
+          include-hidden-files: true
           path: .coverage
 
   ci-integration:
@@ -199,6 +201,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-integration
+          include-hidden-files: true
           path: .coverage
 
       - name: Log post-test Zenodo datastore contents
