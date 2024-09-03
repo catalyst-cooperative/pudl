@@ -102,7 +102,7 @@ jobs:
           coverage debug config
           coverage debug sys
           coverage report --fail-under=0
-          ls -la ./*coverage*
+          ls -a
 
       - name: Upload unit tests coverage artifact
         uses: actions/upload-artifact@v4
