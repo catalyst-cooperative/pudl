@@ -6263,7 +6263,11 @@ def _core_ferc1__table_dimensions(**kwargs) -> pd.DataFrame:
         .drop_duplicates()
         .reset_index(drop=True)
     )
-    return dimensions
+    # Since we've converted the XBRL factoid columns into categoricals in the
+    # transformation of the core tables, we should ensure that the XBRL factoid
+    # column is a string as expected, rather than an object. We do this manually,
+    # as this table doesn't have a defined schema.
+    return dimensions.convert_dtypes()
 
 
 @asset(
