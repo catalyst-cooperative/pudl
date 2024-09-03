@@ -50,10 +50,6 @@ jobs:
           pip install --no-deps --editable .
           make docs-build
 
-      - name: List coverage files
-        run: |
-          ls -la ./*coverage*
-
       - name: Upload docs coverage artifact
         uses: actions/upload-artifact@v4
         with:
@@ -103,6 +99,9 @@ jobs:
 
       - name: List coverage files
         run: |
+          coverage debug config
+          coverage debug sys
+          coverage report --fail-under=0
           ls -la ./*coverage*
 
       - name: Upload unit tests coverage artifact
@@ -181,10 +180,6 @@ jobs:
           pip install --no-deps --editable .
           pudl_datastore --dataset epacems --partition year_quarter=2022q1
           make pytest-integration
-
-      - name: List coverage files
-        run: |
-          ls -la ./*coverage*
 
       - name: Upload integration test coverage artifact
         uses: actions/upload-artifact@v4
