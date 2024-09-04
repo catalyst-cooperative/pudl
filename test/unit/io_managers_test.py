@@ -360,12 +360,12 @@ def test_error_when_reading_view_without_metadata(fake_pudl_sqlite_io_manager_fi
 
 
 def test_ferc_xbrl_sqlite_io_manager_dedupes(mocker, tmp_path):
-    db_path = tmp_path / "test_db.sqlite"
+    db_path = tmp_path / "ferc1_xbrl.sqlite"
     # fake datapackage descriptor just to see if we can find the primary keys -
     # lots of optional stuff dropped.
     datapackage = json.dumps(
         {
-            "name": "test_db",
+            "name": "ferc1_xbrl",
             "title": "Ferc1 data extracted from XBRL filings",
             "resources": [
                 {
@@ -417,7 +417,7 @@ def test_ferc_xbrl_sqlite_io_manager_dedupes(mocker, tmp_path):
         }
     )
 
-    datapackage_path = tmp_path / "test_db_datapackage.json"
+    datapackage_path = tmp_path / "ferc1_xbrl_datapackage.json"
     with datapackage_path.open("w") as f:
         f.write(datapackage)
 
@@ -452,7 +452,7 @@ def test_ferc_xbrl_sqlite_io_manager_dedupes(mocker, tmp_path):
             )
         },
     )
-    io_manager = FercXBRLSQLiteIOManager(base_dir=tmp_path, db_name="test_db")
+    io_manager = FercXBRLSQLiteIOManager(base_dir=tmp_path, db_name="ferc1_xbrl")
     observed_table = io_manager.load_input(input_context)
 
     assert len(observed_table) == 1
