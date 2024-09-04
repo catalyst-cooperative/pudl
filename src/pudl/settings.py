@@ -147,7 +147,7 @@ class Ferc714Settings(GenericDatasetSettings):
     @property
     def xbrl_years(self):
         """Return validated years for which XBRL data is available."""
-        return [year for year in self.years if year <= 2021]
+        return [year for year in self.years if year >= 2021]
 
 
 class EpaCemsSettings(GenericDatasetSettings):
