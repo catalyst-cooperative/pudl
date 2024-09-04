@@ -1,11 +1,21 @@
 {% extends "data_source_parent.rst.jinja" %}
 
 {% block background %}
-EIA Form EIA-861 (and the short form EIA-861S) make up the Annual Electric Power
-Industry Report, collecting data from distribution utilities and power marketers.
-It is a census of all United States electric utilities. As of 2023 PUDL
-only incorporates the annual data, but there's also a less detailed monthly `Form
-EIA-861M <https: //www.eia.gov/electricity/data/eia861m />`__.
+EIA Form EIA-861 (and the short form EIA-861S) make up the Annual Electric Power Industry Report.
+This survey is a census of all U.S. electric utilities and collects information about retail
+sales of electricity and associated revenue on an annual basis.
+
+
+As of 2023, the EIA-861 Form is organized into the following schedules:
+
+* **Schedule 1:** Identification
+* **Schedule 2:** Energy Sources data
+* **Schedule 3:** Distribution information
+* **Schedule 4:** Sales data
+* **Schedule 5:** Mergers and/or Acquisition information
+* **Schedule 6:** Demand-side Management Information
+* **Schedule 7:** Net-Metering Programs Information
+* **Schedule 8:** Service Territory Information
 
 There are more than 20 different spreadsheets included in the annual zipfiles. For
 details, see the `official EIA-861 page <{{ source.path }}>`__
@@ -18,31 +28,30 @@ details, see the `official EIA-861 page <{{ source.path }}>`__
 {% endblock %}
 
 {% block availability %}
-PUDL incorporates almost all available EIA-861 data dating back to 2001.
+PUDL incorporates all available EIA-861 data (except the 2019 data) dating back to 2001.
 Earlier data from the forms EIA-861 (utility, Sales to Ultimate Customers, and Operational data),
 and EIA-861S (Sales to Ultimate Customers) exists for the years 1990-2000, but is not yet included in PUDL.
+As of 2023, PUDL only incorporates the annual data, but there's also a less detailed
+monthly `Form EIA-861M <https: //www.eia.gov/electricity/data/eia861m />`__.
 
-In May 2024, data from the EIA 861 short form from 2012 to 2022 (excluding 2019) was included in the EIA-861 data.
+EIA-861S was created in 2012 to reduce respondent burden on smaller utilities and all that
+data is available (from 2012-2022 except 2019 data).
 {% endblock %}
 
 {% block respondents %}
-The data for Form EIA-861, Annual Electric Power Industry Report, and Form EIA-861S (the short form) is submitted
-by distribution utilities, power marketers, energy service providers, and distribution companies in the United States.
-This survey, which is a census of all U.S. electric utilities, collects retail sales of electricity and associated revenue
-on an annual basis. The short form is intended for smaller bundled-service utilities and requires less detailed responses.
+The Form EIA-861 must be completed by electric power industry entities such as, but not limited to,
+electric utilities, all Demand Side Management (DSM) Program Managers (entities responsible for
+conducting or administering a DSM program), wholesale power marketers, energy service providers,
+electric power producers, transmission owners, transmission operators, and Third Party Owners of
+solar PV (TPO). Responses are collected at the operating company level (not at the holding company level).
+EIA-861S is intended for smaller bundled-service utilities and requires less detailed responses.
 
-Form EIA-861M, Monthly Electric Power Industry Report, collects data from a statistically chosen sample of distribution
-utilities and power marketers of electricity in the United States. The respondents for Form EIA-861M are selected from the
-larger pool of respondents to Form EIA-861, Annual Electric Power Industry Report. This selection is based on the Annual
-Electric Utility Report and the Model-Based Sampling, Inference, and Imputation report. The EIA-861M survey provides more
-frequent updates, capturing monthly data, while the EIA-861 and EIA-861S forms focus on annual data collection.
+EIA-861 and EIA-861S forms focus on annual data collection.
+However, respondents respond to either Form EIA-861 or Form EIA-861S and never both.
 {% endblock %}
 
 {% block original_data %}
-The data is distributed as Microsoft Excel spreadsheets.
-
-EIA typically publishes 861 and 861S data yearly while the 861M data is published monthly.
-
+EIA typically publishes 861 data from the prior year in two rounds: an early release in the summer and a final release in the fall.
 The data are published on the EIA website and distributed as a collection of spreadsheets.
 The content of the spreadsheets varies from year to year as the questions in the form are updated.
 EIA also periodically changes the naming and structure of the spreadsheets without warning.
