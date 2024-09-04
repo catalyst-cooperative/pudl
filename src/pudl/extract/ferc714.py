@@ -66,7 +66,7 @@ FERC714_CSV_ENCODING: OrderedDict[str, dict[str, str]] = OrderedDict(
         },
     }
 )
-"""Dictionary mapping PUDL tables to FERC-714 filenames and character encodings."""
+"""Dictionary mapping PUDL tables to FERC-714 CSV filenames and character encodings."""
 
 TABLE_NAME_MAP_FERC714: OrderedDict[str, dict[str, str]] = OrderedDict(
     {
@@ -84,6 +84,7 @@ TABLE_NAME_MAP_FERC714: OrderedDict[str, dict[str, str]] = OrderedDict(
         },
     }
 )
+"""A mapping of PUDL DB table names to their XBRL and CSV source table names."""
 
 
 def raw_ferc714_csv_asset_factory(table_name: str) -> AssetsDefinition:
