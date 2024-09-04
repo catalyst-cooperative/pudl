@@ -210,9 +210,9 @@ jobs:
   ci-coverage:
     runs-on: ubuntu-latest
     needs:
-      # - ci-docs
+      - ci-docs
       - ci-unit
-    # - ci-integration
+      - ci-integration
     steps:
       - uses: actions/checkout@v4
       - name: Download coverage
