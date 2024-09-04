@@ -85,49 +85,6 @@ TABLE_NAME_MAP_FERC714: OrderedDict[str, dict[str, str]] = OrderedDict(
     }
 )
 
-# FERC714_XBRL_FILES: OrderedDict[str, dict[str, str]] = OrderedDict(
-#     {
-#         "core_identification_and_certification_01_1": {
-#             "duration": "identification_and_certification_01_1_duration"
-#         },
-#         "core_generating_plants_included_in_reporting_balancing_authority_area_02_1": {
-#             "duration": "generating_plants_included_in_reporting_balancing_authority_area_02_1_duration"
-#         },
-#         "core_generating_plants_included_in_reporting_balancing_authority_area_totals_02_1": {
-#             "duration": "generating_plants_included_in_reporting_balancing_authority_area_totals_02_1_duration"
-#         },
-#         "core_balancing_authority_area_monthly_capabilities_at_time_of_monthly_peak_demand_02_2": {
-#             "duration": "balancing_authority_area_monthly_capabilities_at_time_of_monthly_peak_demand_02_2_duration"
-#         },
-#         "core_balancing_authority_area_net_energy_for_load_and_peak_demand_sources_by_month_02_3": {
-#             "duration": "balancing_authority_area_net_energy_for_load_and_peak_demand_sources_by_month_02_3_duration"
-#         },
-#         "core_adjacent_balancing_authority_area_interconnections_02_4": {
-#             "duration": "adjacent_balancing_authority_area_interconnections_02_4_duration"
-#         },
-#         "core_balancing_authority_area_scheduled_and_actual_interchange_02_5": {
-#             "duration": "balancing_authority_area_scheduled_and_actual_interchange_02_5_duration"
-#         },
-#         "core_balancing_authority_area_scheduled_and_actual_interchange_totals_02_5": {
-#             "duration": "balancing_authority_area_scheduled_and_actual_interchange_totals_02_5_duration"
-#         },
-#         "core_balancing_authority_area_system_lambda_data_and_description_of_economic_dispatch_02_6": {
-#             "duration": "balancing_authority_area_system_lambda_data_and_description_of_economic_dispatch_02_6_duration",
-#             "instant": "balancing_authority_area_system_lambda_data_and_description_of_economic_dispatch_02_6_instant",
-#         },
-#         "core_electric_utilities_that_compose_the_planning_area_03_1": {
-#             "duration": "electric_utilities_that_compose_the_planning_area_03_1_duration"
-#         },
-#         "core_planning_area_hourly_demand_and_forecast_summer_and_winter_peak_demand_and_annual_net_energy_for_load_03_2": {
-#             "duration": "planning_area_hourly_demand_and_forecast_summer_and_winter_peak_demand_and_annual_net_energy_for_load_03_2_duration",
-#             "instant": "planning_area_hourly_demand_and_forecast_summer_and_winter_peak_demand_and_annual_net_energy_for_load_03_2_instant",
-#         },
-#         "core_planning_area_hourly_demand_and_forecast_summer_and_winter_peak_demand_and_annual_net_energy_for_load_table_03_2": {
-#             "duration": "planning_area_hourly_demand_and_forecast_summer_and_winter_peak_demand_and_annual_net_energy_for_load_table_03_2_duration"
-#         },
-#     }
-# )
-
 
 def raw_ferc714_csv_asset_factory(table_name: str) -> AssetsDefinition:
     """Generates an asset for building the raw CSV-based FERC 714 dataframe."""
