@@ -7,7 +7,7 @@ Data Processed & Cleaned by PUDL
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 The PUDL data dictionary provides detailed metadata for the tables
 in the PUDL database. This includes table descriptions,
-field names, field, descriptions, and field datatypes.
+field names, field descriptions, and field datatypes.
 
 .. toctree::
    :maxdepth: 1
@@ -34,6 +34,8 @@ Code Descriptions & Metadata
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 This section contains mappings of codes in the raw tables to their
 corresponding labels and descriptions in the processed PUDL database tables.
+For example, the code, NV, represents the full description "Never to exceed"
+in the core_eia_codes_averaging_periods table.
 
 .. toctree::
    :maxdepth: 1
