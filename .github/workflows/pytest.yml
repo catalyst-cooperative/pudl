@@ -242,7 +242,7 @@ jobs:
           file: ./coverage.xml
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true # optional (default = false)
-          plugin: pycoverage
+          plugin: noop
           verbose: true
       - name: Display coverage report and ensure it meets required minimum
         # Required coverage is set in pyproject.toml section [tool.coverage.report]
