@@ -127,7 +127,7 @@ class Ferc1Settings(GenericDatasetSettings):
 
     @property
     def xbrl_years(self):
-        """Return validated years for which DBF data is available."""
+        """Return validated years for which XBRL data is available."""
         return [year for year in self.years if year >= 2021]
 
 
@@ -139,11 +139,15 @@ class Ferc714Settings(GenericDatasetSettings):
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc714")
-
-    # Note: Only older data is currently supported. Starting in 2021 FERC-714 is being
-    # published as XBRL, and we haven't integrated it. The older data is published as
-    # monolithic CSV files, so asking for any year processes all of them.
     years: list[int] = data_source.working_partitions["years"]
+
+    # The older 714 data is distributed as CSV files and has a different extraction
+    # process than the FERC DBF extraction process.
+
+    @property
+    def xbrl_years(self):
+        """Return validated years for which XBRL data is available."""
+        return [year for year in self.years if year <= 2021]
 
 
 class EpaCemsSettings(GenericDatasetSettings):
