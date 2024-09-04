@@ -3,9 +3,10 @@ Project Management
 ===============================================================================
 
 The people working on PUDL are distributed all over North America. Collaboration takes
-place online. We make extensive use of Github's build int project management tools and
-we work in public. You can follow our progress in our
-`GitHub Projects <https://github.com/orgs/catalyst-cooperative/projects/9>`__
+place online. We track our work in a public
+`GitHub Project <https://github.com/orgs/catalyst-cooperative/projects/9>`__ so you can
+follow our progress.
+
 
 -------------------------------------------------------------------------------
 Issues and Project Tracking
@@ -50,7 +51,7 @@ Pull Requests
 * Write good docstrings using the `Google format
   <https://www.sphinx-doc.org/en/master/usage/extensions/example_google.html#example-google>`__
 * Pull Requests should update the documentation to reflect changes to the
-  code, especially if it changes something user-facing, like how one of the
+  code, especially if they change something user-facing, like how one of the
   command line scripts works.
 
 -------------------------------------------------------------------------------

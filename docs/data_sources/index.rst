@@ -3,6 +3,8 @@
 Data Sources
 ============
 
+The following data sources serve as the foundation for our data pipeline.
+
 .. toctree::
    :caption: Currently Available Data
    :maxdepth: 1
@@ -16,9 +18,10 @@ Data Sources
    ferc714
    phmsagas
    gridpathratoolkit
+   other_data
 
 .. toctree::
-   :caption: Work in Progress & Future Datasets
+   :caption: Future Target Data
    :maxdepth: 1
 
-   wip_future
+   future_data

@@ -2,7 +2,7 @@
 Existing Data Updates
 ===============================================================================
 
-Many of the raw data inputs for PUDL are published on a annual or monthly basis. These
+Many of the raw data inputs for PUDL are published on an annual or monthly basis. These
 instructions explain the process for integrating new versions of existing data into
 PUDL.
 
@@ -11,14 +11,18 @@ We update EIA monthly data and EPA CEMS hourly data on a quarterly basis.
 EIA typically publishes an "early release" version of their annual data in the summer
 followed by a final release in the fall. Our ``data_maturity`` column indicates
 which version has been integrated into PUDL ("final" vs. "provisional"). This column
-also shows when data are derrived from monthly updates ("monthly_update") or contain
-incomplete year-to-date data ("incremental_ytd").
+also shows when data are derived from monthly updates ("monthly_update") or contain
+incomplete year-to-date data ("incremental_ytd"). Annual EIA data is updated
+first when early release data is published (around June-July), and then again when
+final data is released (around September-October).
 
 FERC publishes form submissions on a rolling basis meaning there is no official
 date that the data are considered final or complete. To figure out when the data are
 likely complete, we compare the number of respondents from prior years to the number of
 current respondents. We usually update FERC once a year around when we integrate EIA's
 final release in the fall.
+
+Finally, we currently update NREL ATB, the EIA-EPA crosswalk, and PHMSA once a year.
 
 To see what data we have available for each dataset, click on the links below and look
 at the "Years Liberated" field.
@@ -35,7 +39,7 @@ at the "Years Liberated" field.
 **1.1)** Add a new copy of the raw PUDL inputs from agency websites using the tools
 in the
 `pudl-archiver repository <https://github.com/catalyst-cooperative/pudl-archiver>`__.
-If the structure of the web pages or the URLs have changed, you may need to update the
+If the structure of the web pages or the URLs has changed, you may need to update the
 archivers themselves.
 
 **1.2)** Update the dictionary of production DOIs in :mod:`pudl.workspace.datastore` to
@@ -128,6 +132,12 @@ ZIP archive.
 ``iso-8859-1`` (Latin) rather than ``utf-8`` (Unicode). Note the per-file encoding
 in :py:const:`pudl.extract.ferc714.TABLE_ENCODING` and that it may change over time.
 
+C. NREL ATB
+^^^^^^^^^^^
+Inspect the raw data. Following the instructions for EIA data described above, map
+the raw column headers to shared column names in the ``data.csv`` spreadsheet located
+in ``src/pudl/package_data/nrelatb``.
+
 3. Test Data Extraction
 -----------------------
 
@@ -150,7 +160,7 @@ than the whole suite of tables from a source.
 
 B. FERC Form 1
 ^^^^^^^^^^^^^^
-**3.B.1)** Clone the all of the FERC 1 data (including the new year) into SQLite with:
+**3.B.1)** Clone all of the FERC 1 data (including the new year) into SQLite with:
 
 .. code-block:: bash
 
@@ -168,6 +178,11 @@ C. EPA CEMS
 **3.C.1)** The CEMS data are so large that it doesn't make sense to store a raw and
 cleaned version of the data in the database. We'll test the extraction and
 transformation steps together in the next section.
+
+D. NREL ATB
+^^^^^^^^^^^^
+**3.D.1)** Materialize the raw assets (``raw_nrelatb``) in Dagster. If any errors occur,
+revisit the column mapping spreadsheets and check for any errors.
 
 4. Update Table & Column Transformations
 ----------------------------------------
@@ -221,7 +236,7 @@ the relationship between DBF rows and XBRL rows in
     data. These ``xbrl_factoid`` entires are the value columns from the raw XBRL data.
 
     Look at the ``row_literal`` values for a given table and see which XBRL columns they
-    coorespond to. It's helpful to
+    correspond to. It's helpful to
     `view the XBRL taxonomy <https://xbrlview.ferc.gov/>`__ for the table in question.
 
     The ``row_literals`` may contain elements of the FERC 1 form such as
@@ -237,7 +252,7 @@ the relationship between DBF rows and XBRL rows in
     reported in the XBRL metadata.
 
     The ``dbf_only`` column is marked ``TRUE`` if the ``row_literal`` only shows up in
-    the DBF files. An common example is when several fields are aggregated in the DBF
+    the DBF files. A common example is when several fields are aggregated in the DBF
     data but not in XBRL. The ``notes`` column is a place to indicate complexity or
     reasoning and is intended for humans (vs. computers) to read.
 
@@ -246,7 +261,7 @@ the relationship between DBF rows and XBRL rows in
 use the FERC 1 debugging notebook ``devtools/ferc1-etl-debug.ipynb`` to run the
 transforms for each table. Heed any errors or warnings that pop up in the logs. One of
 the most likely bugs will be uncategorized strings (think new, strange fuel type
-spellings.
+spellings).
 
 **4.B.4)** If there's a new column, add it to the transform process. At the very least,
 you'll need to include it in the ``rename_columns`` dictionary in
@@ -255,7 +270,7 @@ you'll need to include it in the ``rename_columns`` dictionary in
 * Consider whether the column could benefit from any of the standard transforms in
   :mod:`pudl.transform.classes` or :mod:`pudl.transform.ferc1`. If so, add them to
   :py:const:`pudl.transform.params.ferc1.TRANSFORM_PARAMS`. Make sure that the
-  parameter you've added to ``TRANSFORM_PARAMS`` cooresponds to a method that gets
+  parameter you've added to ``TRANSFORM_PARAMS`` corresponds to a method that gets
   called in one of the high-level transform functions in
   :class:`pudl.transform.ferc1.Ferc1AbstractTableTransformer` (``process_xbrl``,
   ``process_dbf``, ``transform_start``, ``transform_main``) and/or any
@@ -283,10 +298,49 @@ script in the terminal. From within the pudl repo directory, run:
 C. EPA CEMS
 ^^^^^^^^^^^
 
-**4.C.1)** Use dagster to materialize the ``epacems`` asset group and debug. The most
-common errors will occur when new CEMS plants lack timezone data in the EIA database.
-See section 6.B.1 for instructions on how to fix this. Once you've updated the
-spreadsheet tracking these errors, reload the ``epacems`` assets in Dagster.
+**4.C.1)** Use dagster to materialize the ``core_epacems`` asset group and debug. The
+most common errors will occur when new CEMS plants lack timezone data in the EIA
+database. See section 6.B.1 for instructions on how to fix this. Once you've updated the
+spreadsheet tracking these errors, reload the ``core_epacems`` assets in Dagster.
+
+D. NREL ATB
+^^^^^^^^^^^^
+**4.D.1)** Materialize the ``_core_nrelatb__ transform_start`` asset in Dagster. If
+there are new primary keys or ``core_metric_parameters``, this should raise errors. New
+core parameters should be renamed in ``core_metric_parameters_rename``, and new primary
+keys should be renamed in ``rename_dict``. Debug any remaining errors.
+
+**4.D.2)** If there are any new primary key columns (e.g.,
+``model_tax_credit_case_nrelatb``), add them to the ``idx`` of the table whose
+``core_metric_parameters`` they describe as a primary key. You may have to create a new
+table, as needed.
+
+**4.D.3)** If there are new ``core_metric_parameters`` (e.g., ``inflation_rate``),
+identify which table they should live in.
+
+* Are they reported by model case, reference year, projection year and technology
+  description? If so, add them to the ``rate_table`` dictionary in
+  :class:`pudl.transform.nrelatb.Unstacker`.
+* Are they further broken out by scenario, tax credit case, and cost recovery period?
+  Add them to the ``scenario_table``.
+* Are they even further broken out by ``technology_description_detail_1`` or
+  ``technology_description_detail_2``?
+
+How do you ascertain this? The use of asterisks (\*) denotes wildcard values.
+Generally when an asterisk is in one of the ``IDX_ALL`` columns, the corresponding
+``core_metric_parameter`` should be associated with a table without that column as one
+of its ``idx``.
+
+**4.D.4)** To test the prior two steps, add these fields to the schema as described in
+Step 5 below. Then, materialize the ``core_nrelatb`` assets. Any errors pointing to
+duplicated indices or primary keys will likely point to an error in one of the steps
+above. Continue to iterate and debug until assets generate successfully.
+
+**4.D.5)** Finally, if any fields were added that are descriptive categoricals (e.g.,
+``technology_description_1``, ``units``), add them to
+:class:`pudl.transform.nrelatb.Normalizer` to create small subset tables. As needed,
+create new tables in :mod:`pudl.metadata.resources.nrelatb` for these descriptors,
+following the example of ``core_nrelatb__yearly_technology_status``.
 
 5. Update the PUDL DB Schema
 ----------------------------
@@ -345,9 +399,11 @@ B. Missing EIA Plant Locations from CEMS
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 **6.B.1)** If there are any plants that appear in the EPA CEMS dataset that do not
 appear in the ``core_eia__entity_plants`` table, or that are missing latitude and
-longitude values, you'll get a warning when you try and materialize the ``core_epacamd``
-asset group in Dagster. You'll need to manually compile the missing information and add
-it to ``src/pudl/package_data/epacems/additional_epacems_plants.csv`` to enable accurate
+longitude values, you'll get a warning when you try and materialize assets downstream
+from ``core_epacems`` (``_core_epacems__emissions_unit_ids`` and
+``core_epa__assn_eia_epacamd_subplant_ids``). You'll need to manually compile the
+missing information and add it to
+``src/pudl/package_data/epacems/additional_epacems_plants.csv`` to enable accurate
 adjustment of the EPA CEMS timestamps to UTC. Using the Plant ID from the warning, look
 up the plant coordinates in the
 `EPA FACT API <https://www.epa.gov/airmarkets/field-audit-checklist-tool-fact-api>`__.
@@ -372,7 +428,7 @@ to populate complete FERC 1 & PUDL DBs and EPA CEMS Parquet files.
 analytical routines to accommodate the new data if necessary. These are generally
 called from within the :class:`pudl.output.pudltabl.PudlTabl` class.
 
-* Are there new columns that should incorporated into the output tables?
+* Are there new columns that should be incorporated into the output tables?
 * Are there new tables that need to have an output function defined for them?
 
 **8.2)** To ensure that you fully exercise all of the possible output functions,

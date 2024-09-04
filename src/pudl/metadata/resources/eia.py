@@ -562,14 +562,14 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
         "field_namespace": "eia",
     },
-    "core_eia__codes_fuel_types_aer": {
-        "description": "Descriptive labels for aggregated fuel types used in the Annual Energy Review. See EIA-923 Fuel Code table for additional information.",
+    "core_eia__codes_fuel_types_agg": {
+        "description": "Descriptive labels for aggregated fuel types used in the Annual Energy Review or Monthly Energy Review. See EIA-923 Fuel Code table for additional information.",
         "schema": {
             "fields": ["code", "description"],
             "primary_key": ["code"],
-            "foreign_key_rules": {"fields": [["fuel_type_code_aer"]]},
+            "foreign_key_rules": {"fields": [["fuel_type_code_agg"]]},
         },
-        "encoder": CODE_METADATA["core_eia__codes_fuel_types_aer"],
+        "encoder": CODE_METADATA["core_eia__codes_fuel_types_agg"],
         "sources": ["eia923"],
         "etl_group": "static_eia",
         "field_namespace": "eia",
@@ -601,7 +601,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ],
             "primary_key": ["plant_id_eia", "generator_id"],
             "foreign_key_rules": {
-                "fields": [["plant_id_eia", "generator_id"]],
+                "fields": [
+                    ["plant_id_eia", "generator_id"],
+                    ["plant_id_eia_direct_support_1", "generator_id_direct_support_1"],
+                    ["plant_id_eia_direct_support_2", "generator_id_direct_support_2"],
+                    ["plant_id_eia_direct_support_3", "generator_id_direct_support_3"],
+                ],
                 # exclude core_epa__assn_eia_epacamd_subplant_ids bc there are generator ids in this
                 # glue table that come only from epacamd
                 # also exclude the 860 changelog table bc that table doesn't get harvested

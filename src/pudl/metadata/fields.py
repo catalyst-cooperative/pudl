@@ -1290,6 +1290,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "The code representing the most predominant type of energy that fuels the generator.",
     },
+    "energy_source_code_1_plant_gen": {
+        "type": "string",
+        "description": "Code representing the most predominant type of energy that fuels the record_id_eia_plant_gen's generator.",
+    },
     "energy_source_code_2": {
         "type": "string",
         "description": "The code representing the second most predominant type of energy that fuels the generator",
@@ -1369,6 +1373,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "ID dynamically assigned by PUDL to EIA records with multiple matches to a single FERC ID in the FERC-EIA manual matching process.",
     },
+    "ferc1_generator_agg_id_plant_gen": {
+        "type": "integer",
+        "description": "ID dynamically assigned by PUDL to EIA records with multiple matches to a single FERC ID in the FERC-EIA manual matching process. This ID is associated with the record_id_eia_plant_gen record.",
+    },
     "ferc_account": {
         "type": "string",
         "description": "Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting.",
@@ -1388,6 +1396,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "ferc_acct_name": {
         "type": "string",
         "description": "Name of FERC account, derived from technology description and prime mover code.",
+        "constraints": {"enum": ["Hydraulic", "Nuclear", "Steam", "Other"]},
+    },
+    "ferc_acct_name_plant_gen": {
+        "type": "string",
+        "description": "Name of FERC account, derived from technology description and prime mover code. This name is associated with the record_id_eia_plant_gen record.",
         "constraints": {"enum": ["Hydraulic", "Nuclear", "Steam", "Other"]},
     },
     "ferc_cogen_docket_no": {
@@ -1557,6 +1570,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Indicates whether the boiler is capable of re-injecting fly ash.",
     },
+    "forecast_year": {
+        "type": "integer",
+        "description": "Four-digit year that applies to a particular forecasted value.",
+    },
     "fraction_owned": {
         "type": "number",
         "description": "Proportion of generator ownership attributable to this utility.",
@@ -1648,6 +1665,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Average cost of fuel delivered in the report year per reported fuel unit (USD).",
         "unit": "USD",
     },
+    "fuel_cost_real_per_mmbtu_eiaaeo": {
+        "type": "number",
+        "description": (
+            "Average fuel cost per mmBTU of heat content in real USD, "
+            "standardized to the value of a USD in the year defined by "
+            "``real_cost_basis_year``."
+        ),
+        "unit": "USD_per_MMBtu",
+    },
     "fuel_derived_from": {
         "type": "string",
         "description": "Original fuel from which this refined fuel was derived.",
@@ -1723,9 +1749,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": ("Fuel type reported for AEO end-use sector generation data."),
         "constraints": {"enum": FUEL_TYPES_EIAAEO},
     },
-    "fuel_type_code_aer": {
+    "fuel_type_code_agg": {
         "type": "string",
-        "description": "A partial aggregation of the reported fuel type codes into larger categories used by EIA in, for example, the Annual Energy Review (AER). Two or three letter alphanumeric.",
+        "description": (
+            "A partial aggregation of the reported fuel type codes into larger "
+            "categories used by EIA in, for example, the Annual Energy Review (AER) or "
+            "Monthly Energy Review (MER). Two or three letter alphanumeric."
+        ),
     },
     "fuel_type_code_pudl": {
         "type": "string",
@@ -1803,6 +1833,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "sure you treat it as a string!"
         ),
     },
+    "generator_id_plant_gen": {
+        "type": "string",
+        "description": "Generator ID of the record_id_eia_plant_gen record. This is usually numeric, but sometimes includes letters. Make sure you treat it as a string!",
+    },
     "generator_id_epa": {
         "type": "string",
         "description": "Generator ID used by the EPA.",
@@ -1817,11 +1851,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "generator_operating_date": {
         "type": "date",
-        "description": "Date the generator began commercial operation.",
+        "description": "Date the generator began commercial operation. If harvested values are inconsistent, we default to using the most recently reported date.",
     },
     "generator_operating_year": {
         "type": "integer",
         "description": "Year a generator went into service.",
+    },
+    "generator_operating_year_plant_gen": {
+        "type": "integer",
+        "description": "The year an associated plant_gen's generator went into service.",
     },
     "generator_retirement_date": {
         "type": "date",
@@ -2433,6 +2471,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
+    "net_demand_mwh": {
+        "type": "number",
+        "description": "Net electricity demand for the specified period in megawatt-hours (MWh).",
+        "unit": "MWh",
+    },
     "net_generation_adjusted_mwh": {
         "type": "number",
         "description": "Reported net generation adjusted by EIA to reflect non-physical commercial transfers through pseudo-ties and dynamic scheduling.",
@@ -2683,6 +2726,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "operational_status_pudl": {
         "type": "string",
         "description": "The operating status of the asset using PUDL categories.",
+        "constraints": {"enum": ["operating", "retired", "proposed"]},
+    },
+    "operational_status_pudl_plant_gen": {
+        "type": "string",
+        "description": "The operating status of the asset using PUDL categories of the record_id_eia_plant_gen record .",
         "constraints": {"enum": ["operating", "retired", "proposed"]},
     },
     "opex_allowances": {"type": "number", "description": "Allowances.", "unit": "USD"},
@@ -3245,6 +3293,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Code for the type of prime mover (e.g. CT, CG)",
     },
+    "prime_mover_code_plant_gen": {
+        "type": "string",
+        "description": "Code for the type of prime mover (e.g. CT, CG) associated with the record_id_eia_plant_gen.",
+    },
     "project_num": {"type": "integer", "description": "FERC Licensed Project Number."},
     "pudl_version": {
         "type": "string",
@@ -3291,6 +3343,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Reactive Power Output (MVAr)",
         "unit": "MVAr",
     },
+    "real_cost_basis_year": {
+        "type": "integer",
+        "description": "Four-digit year which is the basis for any 'real cost' "
+        "monetary values (as opposed to nominal values).",
+    },
     "real_time_pricing": {
         "type": "boolean",
         "description": (
@@ -3331,6 +3388,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "record_id_eia": {
         "type": "string",
         "description": "Identifier for EIA plant parts analysis records.",
+    },
+    "record_id_eia_plant_gen": {
+        "type": "string",
+        "description": "Identifier for EIA plant parts analysis records which is at the plant_part level of plant_gen - meaning each record pertains to one generator.",
     },
     "record_id_ferc1": {
         "type": "string",
@@ -4047,6 +4108,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "High level description of the technology used by the generator to produce electricity.",
     },
+    "technology_description_plant_gen": {
+        "type": "string",
+        "description": "High level description of the technology used by the record_id_eia_plant_gen's generator to produce electricity.",
+    },
     "technology_description_detail_1": {
         "type": "string",
         "description": "Technology details indicate resource levels and specific technology subcategories.",
@@ -4290,6 +4355,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "unit_id_pudl": {
         "type": "integer",
         "description": "Dynamically assigned PUDL unit id. WARNING: This ID is not guaranteed to be static long term as the input data and algorithm may evolve over time.",
+    },
+    "unit_id_pudl_plant_gen": {
+        "type": "integer",
+        "description": "Dynamically assigned PUDL unit id of the record_id_eia_plant_gen. WARNING: This ID is not guaranteed to be static long term as the input data and algorithm may evolve over time.",
     },
     "unit_nox": {
         "type": "string",
@@ -4660,7 +4729,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "NREL's financial assumption cases. There are two cases which effect project finanical "
             "assumptions: R&D Only Case and Market + Policies Case. R&D Only includes only projected "
             "R&D improvements while Market + Policy case includes policy and tax incentives. "
-            "https://atb.nrel.gov/electricity/2023/financial_cases_&_methods"
+            "https://atb.nrel.gov/electricity/2024/financial_cases_&_methods"
+        ),
+        "constraints": {"enum": ["Market", "R&D"]},
+    },
+    "model_tax_credit_case_nrelatb": {
+        "type": "string",
+        "description": (
+            "NREL's tax credit assumption cases. There are two types of tax credits: "
+            "production tax credit (PTC) and investment tax credit (ITC). For more detail, see: "
+            "https://atb.nrel.gov/electricity/2024/financial_cases_&_methods"
         ),
         "constraints": {"enum": ["Market", "R&D"]},
     },
@@ -4683,7 +4761,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "is_technology_mature": {
         "type": "boolean",
-        "description": "Indicator of whether the technology is mature.",
+        "description": (
+            "Indicator of whether the technology is mature. Technologies are defined"
+            "as mature if a representative plant is operating or under construction"
+            "in the United States in the Base Year."
+        ),
     },
     "inflation_rate": {
         "type": "number",
@@ -4809,6 +4891,95 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Indicates whether or not records with null values in the in_rate_base column were "
             "disaggregated. See documentation for process: pudl.output.ferc1.disaggregate_null_or_total_tag"
+        ),
+    },
+    "is_ac_coupled": {
+        "type": "boolean",
+        "description": (
+            "Indicates if this energy storage device is AC-coupled (means the energy storage device "
+            "and the PV system are not installed on the same side of an inverter)."
+        ),
+    },
+    "is_dc_coupled": {
+        "type": "boolean",
+        "description": (
+            "Indicates if this energy storage device is DC-coupled (means the energy storage "
+            "device and the PV system are on the same side of an inverter and the battery can "
+            "still charge from the grid)."
+        ),
+    },
+    "id_dc_coupled_tightly": {
+        "type": "boolean",
+        "description": (
+            "Indicates if this energy storage device is DC tightly coupled (means the energy "
+            "storage device and the PV system are on the same side of an inverter and the battery "
+            "cannot charge from the grid)."
+        ),
+    },
+    "is_independent": {
+        "type": "boolean",
+        "description": "Indicates if this energy storage device is independent (not coupled with another generators)",
+    },
+    "is_direct_support": {
+        "type": "boolean",
+        "description": (
+            "Indicates if this energy storage device is intended for dedicated generator "
+            "firming or storing excess generation of other units."
+        ),
+    },
+    "plant_id_eia_direct_support_1": {
+        "type": "integer",
+        "description": (
+            "The EIA Plant ID of the primary unit whose generation this energy storage "
+            "device is intended to firm or store."
+        ),
+    },
+    "generator_id_direct_support_1": {
+        "type": "string",
+        "description": (
+            "The EIA Generator ID of the primary unit whose generation this energy "
+            "storage device is intended to firm or store."
+        ),
+    },
+    "plant_id_eia_direct_support_2": {
+        "type": "integer",
+        "description": (
+            "The EIA Plant ID of the secondary unit whose generation this energy storage "
+            "device is intended to firm or store."
+        ),
+    },
+    "generator_id_direct_support_2": {
+        "type": "string",
+        "description": (
+            "The EIA Generator ID of the secondary unit whose generation this energy "
+            "storage device is intended to firm or store."
+        ),
+    },
+    "plant_id_eia_direct_support_3": {
+        "type": "integer",
+        "description": (
+            "The EIA Plant ID of the tertiary unit whose generation this energy storage "
+            "device is intended to firm or store."
+        ),
+    },
+    "generator_id_direct_support_3": {
+        "type": "string",
+        "description": (
+            "The EIA Generator ID of the tertiary unit whose generation this energy "
+            "storage device is intended to firm or store."
+        ),
+    },
+    "is_transmission_and_distribution_asset_support": {
+        "type": "boolean",
+        "description": (
+            "Indicate if the energy storage system is intended to support a specific substation, "
+            "transmission or distribution asset."
+        ),
+    },
+    "uses_bifacial_panels": {
+        "type": "boolean",
+        "description": (
+            "Indicates whether bifacial solar panels are used at this solar generating unit."
         ),
     },
 }
@@ -5006,6 +5177,11 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                 "enum": ["electric", "gas", "common", "other", "other3", "other2"]
             },
         },
+    },
+    "out_eia__yearly_assn_plant_parts_plant_gen": {
+        "generators_number": {
+            "description": "The number of generators associated with each ``record_id_eia``."
+        }
     },
 }
 

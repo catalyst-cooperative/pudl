@@ -109,7 +109,6 @@ def test_eia_outputs(fast_out, df1_name, df2_name, mult, kwargs):
 @pytest.mark.parametrize(
     "df_name",
     [
-        "plant_parts_eia",
         "ferc1_eia",
         "gen_fuel_by_generator_energy_source_eia923",
         "gen_fuel_by_generator_eia923",

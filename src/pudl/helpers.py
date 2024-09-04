@@ -1476,6 +1476,55 @@ def dedupe_and_drop_nas(
     )
 
 
+def drop_records_with_null_in_column(
+    df: pd.DataFrame, column: str, num_of_expected_nulls: int
+) -> pd.DataFrame:
+    """Drop a prescribed number of records with null values in a column.
+
+    Args:
+        df: table with column to check.
+        column: name of column with potential null values.
+        num_of_expected_nulls: the number of records with null values in the column
+
+    Raises:
+        AssertionError: If there are more nulls in the df then the
+            num_of_expected_nulls.
+    """
+    # ensure there isn't more than the expected number of nulls before dropping
+    if len(null_records := df[df[column].isnull()]) > num_of_expected_nulls:
+        raise AssertionError(
+            f"Expected {num_of_expected_nulls} or less records with a null values {column} but found {null_records}"
+        )
+    return df.dropna(subset=[column])
+
+
+def drop_all_null_records_with_multiindex(
+    df: pd.DataFrame, idx_cols: list[str], idx_records: list[tuple[str | int | bool]]
+) -> pd.DataFrame:
+    """Given a set of multi-index values, drop expected all null rows.
+
+    Take a dataframe, and check that a row with given values in idx_cols (e.g.,
+    plant_id_eia, generator_id) is null in all other rows. If so, drop these rows from
+    the dataframe. If not, raise an assertion error to prevent accidentally dropping
+    data.
+
+    Args:
+        df: table with data to drop.
+        idx_cols: list of multi-index columns to index against.
+        idx_records: corresponding index values for each row to be dropped.
+
+    Raises:
+        AssertionError: If there is data in the expected rows.
+    """
+    # ensure there isn't more than the expected number of nulls before dropping
+    df = df.set_index(idx_cols)
+    assert df.loc[idx_records].isnull().all().all(), (
+        "Non-null data found where no data was expected:",
+        f"{df.loc[idx_records].dropna(axis='columns', how='all')}",
+    )  # Make sure all values in all rows and columns here are null
+    return df.drop(idx_records).reset_index()
+
+
 def standardize_percentages_ratio(
     frac_df: pd.DataFrame,
     mixed_cols: list[str],

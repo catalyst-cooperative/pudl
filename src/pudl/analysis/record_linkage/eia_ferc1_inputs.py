@@ -26,8 +26,8 @@ class InputManager:
             plants_all_ferc1: Table of all of the FERC1-reporting plants.
             fbp_ferc1: Table of the fuel reported aggregated to the FERC1 plant-level.
             plant_parts_eia: The EIA plant parts list.
-            start_date: Start date that cooresponds to the tables passed in.
-            end_date: End date that cooresponds to the tables passed in.
+            start_date: Start date that corresponds to the tables passed in.
+            end_date: End date that corresponds to the tables passed in.
         """
         self.plant_parts_eia = plant_parts_eia.set_index("record_id_eia")
         self.plants_all_ferc1 = plants_all_ferc1
@@ -296,11 +296,11 @@ def prep_train_connections(
     # Get the 'm' generator IDs 1:m
     one_to_many_single = match_to_single_plant_part(
         multi_gran_df=ppe.loc[ppe.index.isin(one_to_many.record_id_eia)].reset_index(),
-        ppl=ppe.reset_index(),
+        ppe=ppe.reset_index(),
         part_name="plant_gen",
         cols_to_keep=["plant_part"],
-    )[["record_id_eia_og", "record_id_eia"]].rename(
-        columns={"record_id_eia": "gen_id", "record_id_eia_og": "record_id_eia"}
+    )[["record_id_eia", "record_id_eia_plant_gen"]].rename(
+        columns={"record_id_eia_plant_gen": "gen_id"}
     )
     one_to_many = (
         one_to_many.merge(
