@@ -849,9 +849,11 @@ def remove_inactive_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
 def identify_retiring_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     """Identify any generators that retire mid-year.
 
-    These are generators with a retirement date after the earliest report_date or which
-    report generator-specific generation data in the g table after their retirement
-    date.
+    We want to include all of the generator records within any given year that
+    retired mid-year or any generators that reported any fuel use or generation.
+    These are generators with a retirement date after the earliest report_date
+    or which report generator-specific generation or fuel use after their
+    retirement date.
     """
     gen_assoc = gen_assoc.assign(report_year=lambda x: x.report_date.dt.year)
     # identify the complete set of generator ids that match this criteria
@@ -866,15 +868,11 @@ def identify_retiring_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     ].drop_duplicates()
 
     # merge these ids into gen_assoc and keep all months of data for these gens
-    retiring_generators = (
-        gen_assoc.copy()
-        .merge(
-            retiring_generator_identities,
-            how="inner",
-            on=["plant_id_eia", "generator_id", "report_year"],
-        )
-        .drop(columns=["report_year"])
-    )
+    retiring_generators = gen_assoc.merge(
+        retiring_generator_identities,
+        how="inner",
+        on=["plant_id_eia", "generator_id", "report_year"],
+    ).drop(columns=["report_year"])
 
     return retiring_generators
 
