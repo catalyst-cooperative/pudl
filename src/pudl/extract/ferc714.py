@@ -1,8 +1,8 @@
 """Routines used for extracting the raw FERC 714 data."""
 
-import copy
 import json
 from collections import OrderedDict
+from itertools import chain
 from pathlib import Path
 from typing import Any
 
@@ -14,7 +14,7 @@ from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
-FERC714_CSV_FILES: OrderedDict[str, dict[str, str]] = OrderedDict(
+FERC714_CSV_ENCODING: OrderedDict[str, dict[str, str]] = OrderedDict(
     {
         "yearly_id_certification": {
             "name": "Part 1 Schedule 1 - Identification Certification.csv",
@@ -68,53 +68,70 @@ FERC714_CSV_FILES: OrderedDict[str, dict[str, str]] = OrderedDict(
 )
 """Dictionary mapping PUDL tables to FERC-714 filenames and character encodings."""
 
-FERC714_XBRL_FILES: OrderedDict[str, dict[str, str]] = OrderedDict(
+TABLE_NAME_MAP_FERC714: OrderedDict[str, dict[str, str]] = OrderedDict(
     {
-        "core_identification_and_certification_01_1": {
-            "duration": "identification_and_certification_01_1_duration"
+        "core_ferc714__yearly_planning_area_demand_forecast": {
+            "csv": "Part 3 Schedule 2 - Planning Area Forecast Demand.csv",
+            "xbrl": "planning_area_hourly_demand_and_forecast_summer_and_winter_peak_demand_and_annual_net_energy_for_load_table_03_2",
         },
-        "core_generating_plants_included_in_reporting_balancing_authority_area_02_1": {
-            "duration": "generating_plants_included_in_reporting_balancing_authority_area_02_1_duration"
+        "out_ferc714__hourly_planning_area_demand": {
+            "csv": "Part 3 Schedule 2 - Planning Area Hourly Demand.csv",
+            "xbrl": "planning_area_hourly_demand_and_forecast_summer_and_winter_peak_demand_and_annual_net_energy_for_load_03_2",
         },
-        "core_generating_plants_included_in_reporting_balancing_authority_area_totals_02_1": {
-            "duration": "generating_plants_included_in_reporting_balancing_authority_area_totals_02_1_duration"
-        },
-        "core_balancing_authority_area_monthly_capabilities_at_time_of_monthly_peak_demand_02_2": {
-            "duration": "balancing_authority_area_monthly_capabilities_at_time_of_monthly_peak_demand_02_2_duration"
-        },
-        "core_balancing_authority_area_net_energy_for_load_and_peak_demand_sources_by_month_02_3": {
-            "duration": "balancing_authority_area_net_energy_for_load_and_peak_demand_sources_by_month_02_3_duration"
-        },
-        "core_adjacent_balancing_authority_area_interconnections_02_4": {
-            "duration": "adjacent_balancing_authority_area_interconnections_02_4_duration"
-        },
-        "core_balancing_authority_area_scheduled_and_actual_interchange_02_5": {
-            "duration": "balancing_authority_area_scheduled_and_actual_interchange_02_5_duration"
-        },
-        "core_balancing_authority_area_scheduled_and_actual_interchange_totals_02_5": {
-            "duration": "balancing_authority_area_scheduled_and_actual_interchange_totals_02_5_duration"
-        },
-        "core_balancing_authority_area_system_lambda_data_and_description_of_economic_dispatch_02_6": {
-            "duration": "balancing_authority_area_system_lambda_data_and_description_of_economic_dispatch_02_6_duration",
-            "instant": "balancing_authority_area_system_lambda_data_and_description_of_economic_dispatch_02_6_instant",
-        },
-        "core_electric_utilities_that_compose_the_planning_area_03_1": {
-            "duration": "electric_utilities_that_compose_the_planning_area_03_1_duration"
-        },
-        "core_planning_area_hourly_demand_and_forecast_summer_and_winter_peak_demand_and_annual_net_energy_for_load_03_2": {
-            "duration": "planning_area_hourly_demand_and_forecast_summer_and_winter_peak_demand_and_annual_net_energy_for_load_03_2_duration",
-            "instant": "planning_area_hourly_demand_and_forecast_summer_and_winter_peak_demand_and_annual_net_energy_for_load_03_2_instant",
-        },
-        "core_planning_area_hourly_demand_and_forecast_summer_and_winter_peak_demand_and_annual_net_energy_for_load_table_03_2": {
-            "duration": "planning_area_hourly_demand_and_forecast_summer_and_winter_peak_demand_and_annual_net_energy_for_load_table_03_2_duration"
+        "core_ferc714_respondent_id": {
+            "csv": "Respondent IDs.csv",
+            "xbrl": "identification_and_certification_01_1",
         },
     }
 )
 
+# FERC714_XBRL_FILES: OrderedDict[str, dict[str, str]] = OrderedDict(
+#     {
+#         "core_identification_and_certification_01_1": {
+#             "duration": "identification_and_certification_01_1_duration"
+#         },
+#         "core_generating_plants_included_in_reporting_balancing_authority_area_02_1": {
+#             "duration": "generating_plants_included_in_reporting_balancing_authority_area_02_1_duration"
+#         },
+#         "core_generating_plants_included_in_reporting_balancing_authority_area_totals_02_1": {
+#             "duration": "generating_plants_included_in_reporting_balancing_authority_area_totals_02_1_duration"
+#         },
+#         "core_balancing_authority_area_monthly_capabilities_at_time_of_monthly_peak_demand_02_2": {
+#             "duration": "balancing_authority_area_monthly_capabilities_at_time_of_monthly_peak_demand_02_2_duration"
+#         },
+#         "core_balancing_authority_area_net_energy_for_load_and_peak_demand_sources_by_month_02_3": {
+#             "duration": "balancing_authority_area_net_energy_for_load_and_peak_demand_sources_by_month_02_3_duration"
+#         },
+#         "core_adjacent_balancing_authority_area_interconnections_02_4": {
+#             "duration": "adjacent_balancing_authority_area_interconnections_02_4_duration"
+#         },
+#         "core_balancing_authority_area_scheduled_and_actual_interchange_02_5": {
+#             "duration": "balancing_authority_area_scheduled_and_actual_interchange_02_5_duration"
+#         },
+#         "core_balancing_authority_area_scheduled_and_actual_interchange_totals_02_5": {
+#             "duration": "balancing_authority_area_scheduled_and_actual_interchange_totals_02_5_duration"
+#         },
+#         "core_balancing_authority_area_system_lambda_data_and_description_of_economic_dispatch_02_6": {
+#             "duration": "balancing_authority_area_system_lambda_data_and_description_of_economic_dispatch_02_6_duration",
+#             "instant": "balancing_authority_area_system_lambda_data_and_description_of_economic_dispatch_02_6_instant",
+#         },
+#         "core_electric_utilities_that_compose_the_planning_area_03_1": {
+#             "duration": "electric_utilities_that_compose_the_planning_area_03_1_duration"
+#         },
+#         "core_planning_area_hourly_demand_and_forecast_summer_and_winter_peak_demand_and_annual_net_energy_for_load_03_2": {
+#             "duration": "planning_area_hourly_demand_and_forecast_summer_and_winter_peak_demand_and_annual_net_energy_for_load_03_2_duration",
+#             "instant": "planning_area_hourly_demand_and_forecast_summer_and_winter_peak_demand_and_annual_net_energy_for_load_03_2_instant",
+#         },
+#         "core_planning_area_hourly_demand_and_forecast_summer_and_winter_peak_demand_and_annual_net_energy_for_load_table_03_2": {
+#             "duration": "planning_area_hourly_demand_and_forecast_summer_and_winter_peak_demand_and_annual_net_energy_for_load_table_03_2_duration"
+#         },
+#     }
+# )
+
 
 def raw_ferc714_csv_asset_factory(table_name: str) -> AssetsDefinition:
     """Generates an asset for building the raw CSV-based FERC 714 dataframe."""
-    assert table_name in FERC714_CSV_FILES
+    assert table_name in FERC714_CSV_ENCODING
 
     @asset(
         name=f"raw_ferc714_csv__{table_name}",
@@ -136,11 +153,11 @@ def raw_ferc714_csv_asset_factory(table_name: str) -> AssetsDefinition:
         )
         with (
             ds.get_zipfile_resource("ferc714", name="ferc714.zip") as zf,
-            zf.open(FERC714_CSV_FILES[table_name]["name"]) as csv_file,
+            zf.open(FERC714_CSV_ENCODING[table_name]["name"]) as csv_file,
         ):
             df = pd.read_csv(
                 csv_file,
-                encoding=FERC714_CSV_FILES[table_name]["encoding"],
+                encoding=FERC714_CSV_ENCODING[table_name]["encoding"],
             )
         if table_name != "respondent_id":
             df = df.query("report_yr in @ferc714_settings.years")
@@ -167,20 +184,30 @@ def raw_ferc714_xbrl__metadata_json(
     with Path.open(metadata_path) as f:
         xbrl_meta_all = json.load(f)
 
-    def get_metadata(xbrl_table: str | list[str], xbrl_meta_all):
+    valid_tables = {
+        table_name: xbrl_table
+        for table_name in TABLE_NAME_MAP_FERC714
+        if (xbrl_table := TABLE_NAME_MAP_FERC714.get(table_name, {}).get("xbrl"))
+        is not None
+    }
+
+    def squash_period(xbrl_table: str | list[str], period, xbrl_meta_all):
         if isinstance(xbrl_table, str):
             xbrl_table = [xbrl_table]
         return [
             metadata
-            for table_name in xbrl_table
-            for metadata in xbrl_meta_all.get(table_name, [])
+            for table in xbrl_table
+            for metadata in xbrl_meta_all.get(f"{table}_{period}", [])
             if metadata
         ]
 
-    xbrl_meta_out = copy.deepcopy(FERC714_XBRL_FILES)
-    for table_name, periods in FERC714_XBRL_FILES.items():
-        for period, tt in periods.items():
-            xbrl_meta_out[table_name][period] = get_metadata(tt, xbrl_meta_all)
+    xbrl_meta_out = {
+        table_name: {
+            "instant": squash_period(xbrl_table, "instant", xbrl_meta_all),
+            "duration": squash_period(xbrl_table, "duration", xbrl_meta_all),
+        }
+        for table_name, xbrl_table in valid_tables.items()
+    }
 
     return xbrl_meta_out
 
@@ -196,20 +223,27 @@ def create_raw_ferc714_xbrl_assets() -> list[SourceAsset]:
     Returns:
         A list of FERC 714 SourceAssets.
     """
-    raw_table_names = [
-        v for value in FERC714_XBRL_FILES.values() for v in value.values()
-    ]
-    return [
+    # Create assets for the duration and instant tables
+    xbrls = (v["xbrl"] for v in TABLE_NAME_MAP_FERC714.values())
+    flattened_xbrls = chain.from_iterable(
+        x if isinstance(x, list) else [x] for x in xbrls
+    )
+    xbrls_with_periods = chain.from_iterable(
+        (f"{tn}_instant", f"{tn}_duration") for tn in flattened_xbrls
+    )
+    xbrl_table_names = tuple(set(xbrls_with_periods))
+    raw_ferc714_xbrl_assets = [
         SourceAsset(
             key=AssetKey(f"raw_ferc714_xbrl__{table_name}"),
             io_manager_key="ferc714_xbrl_sqlite_io_manager",
         )
-        for table_name in raw_table_names
+        for table_name in xbrl_table_names
     ]
+    return raw_ferc714_xbrl_assets
 
 
 raw_ferc714_csv_assets = [
-    raw_ferc714_csv_asset_factory(table_name) for table_name in FERC714_CSV_FILES
+    raw_ferc714_csv_asset_factory(table_name) for table_name in FERC714_CSV_ENCODING
 ]
 
 raw_ferc714_xbrl_assets = create_raw_ferc714_xbrl_assets()
