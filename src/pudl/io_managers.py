@@ -855,7 +855,7 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
             context: dagster keyword that provides access output information like asset
                 name.
         """
-        ferc_settings = context.resources.dataset_settings[
+        ferc_settings = context.resources.dataset_settings.get_datasets()[
             self.db_name.replace("_xbrl", "")
         ]
 
