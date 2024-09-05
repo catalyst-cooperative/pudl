@@ -6,6 +6,7 @@
 **/*.*.swp
 **/__pycache__/*
 docs/data_dictionaries/pudl_db.rst
+docs/autoapi/*
 .ipynb_checkpoints/
 .cache/
 .ruff_cache/
