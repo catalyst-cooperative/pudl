@@ -386,4 +386,4 @@ ND = "ND"
 BCK = "BCK"
 
 [tool.typos.files]
-extend-exclude = ["*.yml", "*.toml", "*.bib", ".csv"]
+extend-exclude = ["*.yml", "*.toml", "*.bib", "*.csv"]
