@@ -856,7 +856,8 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
                 name.
         """
         ferc_settings = getattr(
-            context.resources.dataset_settings, self.db_name.replace("_xbrl", "")
+            context.resources.dataset_settings,
+            re.search(r"ferc\d+", self.db_name).group(),
         )
 
         table_name = get_table_name_from_context(context)
