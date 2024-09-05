@@ -104,7 +104,7 @@ def raw_ferc714_csv_asset_factory(table_name: str) -> AssetsDefinition:
         """
         ds = context.resources.datastore
         ferc714_settings = context.resources.dataset_settings.ferc714
-        years = ", ".join(map(str, ferc714_settings.years))
+        years = ", ".join(map(str, ferc714_settings.csv_years))
 
         logger.info(
             f"Extracting {table_name} from CSV into pandas DataFrame (years: {years})."
