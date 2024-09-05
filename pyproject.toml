@@ -383,6 +383,7 @@ RTO = "RTO"
 Tabl = "Tabl"
 PudlTabl = "PudlTabl"
 ND = "ND"
+BCK = "BCK"
 
 [tool.typos.files]
-extend-exclude = ["*.yml", "*.toml"]
+extend-exclude = ["*.yml", "*.toml", "*.bib", ".csv"]
