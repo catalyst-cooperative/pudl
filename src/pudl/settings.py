@@ -145,6 +145,11 @@ class Ferc714Settings(GenericDatasetSettings):
     # process than the FERC DBF extraction process.
 
     @property
+    def csv_years(self):
+        """Return validated years for which CSV data is available."""
+        return [year for year in self.years if year < 2021]
+
+    @property
     def xbrl_years(self):
         """Return validated years for which XBRL data is available."""
         return [year for year in self.years if year >= 2021]
