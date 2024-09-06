@@ -97,6 +97,7 @@ FERC 714
 * Added :ref:`core_ferc714__yearly_planning_area_demand_forecast` based on FERC
   Form 714, Part III, Schedule 2b. Data includes forecasted demand and net energy load.
   See issue :issue:`3519` and PR :pr:`3670`.
+* WIP: Adding XBRL(2021+) data for FERC 714 tables. Track progress in :issue:`3822`.
 
 NREL ATB
 ~~~~~~~~
