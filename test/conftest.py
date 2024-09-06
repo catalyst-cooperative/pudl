@@ -20,11 +20,13 @@ import pudl
 from pudl import resources
 from pudl.etl.cli import pudl_etl_job_factory
 from pudl.extract.ferc1 import Ferc1DbfExtractor, raw_ferc1_xbrl__metadata_json
+from pudl.extract.ferc714 import raw_ferc714_xbrl__metadata_json
 from pudl.extract.xbrl import xbrl2sqlite_op_factory
 from pudl.io_managers import (
     PudlMixedFormatIOManager,
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
+    ferc714_xbrl_sqlite_io_manager,
     pudl_mixed_format_io_manager,
 )
 from pudl.metadata import PUDL_PACKAGE
@@ -260,6 +262,36 @@ def ferc1_dbf_sql_engine(ferc1_dbf_extract, dataset_settings_config) -> sa.Engin
     return ferc1_dbf_sqlite_io_manager(context).engine
 
 
+@pytest.fixture(scope="session")
+def ferc714_xbrl_extract(
+    live_dbs: bool, pudl_datastore_config, etl_settings: EtlSettings
+):
+    """Runs ferc_to_sqlite dagster job for FERC Form 714 XBRL data."""
+
+    @graph
+    def local_xbrl_ferc714_graph():
+        xbrl2sqlite_op_factory(XbrlFormNumber.FORM714)()
+
+    if not live_dbs:
+        execute_result = local_xbrl_ferc714_graph.to_job(
+            name="ferc_to_sqlite_xbrl_ferc1",
+            resource_defs=pudl.ferc_to_sqlite.default_resources_defs,
+        ).execute_in_process(
+            run_config={
+                "resources": {
+                    "ferc_to_sqlite_settings": {
+                        "config": etl_settings.ferc_to_sqlite_settings.model_dump(),
+                    },
+                    "datastore": {
+                        "config": pudl_datastore_config,
+                    },
+                    "runtime_settings": {"config": {"xbrl_num_workers": 2}},
+                },
+            }
+        )
+        assert execute_result.success, "ferc_to_sqlite_xbrl_ferc714 failed!"
+
+
 @pytest.fixture(scope="session", name="ferc1_engine_xbrl")
 def ferc1_xbrl_sql_engine(ferc1_xbrl_extract, dataset_settings_config) -> sa.Engine:
     """Grab a connection to the FERC Form 1 DB clone."""
@@ -278,10 +310,29 @@ def ferc1_xbrl_taxonomy_metadata(ferc1_engine_xbrl: sa.Engine):
     return result.output_for_node("raw_ferc1_xbrl__metadata_json")
 
 
+@pytest.fixture(scope="session", name="ferc714_engine_xbrl")
+def ferc714_xbrl_sql_engine(ferc714_xbrl_extract, dataset_settings_config) -> sa.Engine:
+    """Grab a connection to the FERC Form 714 DB clone."""
+    context = build_init_resource_context(
+        resources={"dataset_settings": dataset_settings_config}
+    )
+    return ferc714_xbrl_sqlite_io_manager(context).engine
+
+
+@pytest.fixture(scope="session", name="ferc714_xbrl_taxonomy_metadata")
+def ferc714_xbrl_taxonomy_metadata(ferc714_engine_xbrl: sa.Engine):
+    """Read the FERC 714 XBRL taxonomy metadata from JSON."""
+    result = materialize_to_memory([raw_ferc714_xbrl__metadata_json])
+    assert result.success
+
+    return result.output_for_node("raw_ferc714_xbrl__metadata_json")
+
+
 @pytest.fixture(scope="session")
 def pudl_io_manager(
     ferc1_engine_dbf: sa.Engine,  # Implicit dependency
     ferc1_engine_xbrl: sa.Engine,  # Implicit dependency
+    ferc714_engine_xbrl: sa.Engine,
     live_dbs: bool,
     pudl_datastore_config,
     dataset_settings_config,
