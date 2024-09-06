@@ -9,10 +9,10 @@ sales of electricity and associated revenue on an annual basis.
 As of 2023, the EIA-861 Form is organized into the following schedules:
 
 * **Schedule 1:** Identification
-* **Schedule 2:** Energy Sources data
-* **Schedule 3:** Distribution information
-* **Schedule 4:** Sales data
-* **Schedule 5:** Mergers and/or Acquisition information
+* **Schedule 2:** Energy Sources Data
+* **Schedule 3:** Distribution Information
+* **Schedule 4:** Sales Data
+* **Schedule 5:** Mergers and/or Acquisition Information
 * **Schedule 6:** Demand-side Management Information
 * **Schedule 7:** Net-Metering Programs Information
 * **Schedule 8:** Service Territory Information
@@ -28,11 +28,11 @@ details, see the `official EIA-861 page <{{ source.path }}>`__
 {% endblock %}
 
 {% block availability %}
-PUDL incorporates all available EIA-861 data (except the 2019 data) dating back to 2001.
-Earlier data from the forms EIA-861 (utility, Sales to Ultimate Customers, and Operational data),
-and EIA-861S (Sales to Ultimate Customers) exists for the years 1990-2000, but is not yet included in PUDL.
-As of 2023, PUDL only incorporates the annual data, but there's also a less detailed
-monthly `Form EIA-861M <https: //www.eia.gov/electricity/data/eia861m />`__.
+PUDL incorporates all annual EIA-861 data.
+Earlier data (1990-2000) exists but has not been incorporated into PUDL yet.
+There is also a less detailed monthly
+`Form EIA-861M <https: //www.eia.gov/electricity/data/eia861m />`__
+that is not incorporated into PUDL.
 {% endblock %}
 
 {% block respondents %}
@@ -41,10 +41,9 @@ electric utilities, all Demand Side Management (DSM) Program Managers (entities 
 conducting or administering a DSM program), wholesale power marketers, energy service providers,
 electric power producers, transmission owners, transmission operators, and Third Party Owners of
 solar PV (TPO). Responses are collected at the operating company level (not at the holding company level).
-EIA-861S is intended for smaller bundled-service utilities and requires less detailed responses.
 
-EIA-861 and EIA-861S forms focus on annual data collection.
-However, respondents respond to either Form EIA-861 or Form EIA-861S and never both.
+EIA-861S is intended for smaller bundled-service utilities and requires less detailed responses.
+Respondents respond to either Form EIA-861 or Form EIA-861S and never both.
 {% endblock %}
 
 {% block original_data %}
