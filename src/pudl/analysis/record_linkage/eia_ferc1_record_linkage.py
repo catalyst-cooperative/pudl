@@ -20,6 +20,7 @@ We train the parameters of the ``splink`` model using manually labeled training 
 that links together several thousand EIA and FERC plant records. This trained model is
 used to predict matches on the full dataset (see :func:`get_model_predictions`) using a
 threshold match probability to predict if records are a match or not.
+
 The model can return multiple EIA match options for each FERC1 record, so we rank the
 matches and choose the one with the highest score. Any matches identified by the model
 which are in conflict with our training data are overwritten with the manually
