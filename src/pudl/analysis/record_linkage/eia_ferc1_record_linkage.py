@@ -228,14 +228,14 @@ def get_model_predictions(eia_df, ferc_df, train_df, experiment_tracker):
         input_table_aliases=["eia_df", "ferc_df"],
         db_api=DuckDBAPI(),
     )
-    linker.register_table(train_df, "training_labels", overwrite=True)
-    linker.estimate_u_using_random_sampling(max_pairs=1e7)
-    linker.estimate_m_from_pairwise_labels("training_labels")
+    linker.table_management.register_table(train_df, "training_labels", overwrite=True)
+    linker.training.estimate_u_using_random_sampling(max_pairs=1e7)
+    linker.training.estimate_m_from_pairwise_labels("training_labels")
     threshold_prob = 0.9
     experiment_tracker.execute_logging(
         lambda: mlflow.log_params({"threshold match probability": threshold_prob})
     )
-    preds_df = linker.predict(threshold_match_probability=threshold_prob)
+    preds_df = linker.inference.predict(threshold_match_probability=threshold_prob)
     return preds_df.as_pandas_dataframe()
 
 
