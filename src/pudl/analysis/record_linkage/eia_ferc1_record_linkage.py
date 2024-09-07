@@ -37,7 +37,7 @@ import mlflow
 import numpy as np
 import pandas as pd
 from dagster import Out, graph, op
-from splink.duckdb.linker import DuckDBLinker
+from splink import DuckDBAPI, Linker, SettingsCreator
 
 import pudl
 from pudl.analysis.ml_tools import experiment_tracking, models
@@ -212,20 +212,21 @@ def get_training_data_df(inputs):
 @op
 def get_model_predictions(eia_df, ferc_df, train_df, experiment_tracker):
     """Train splink model and output predicted matches."""
-    settings_dict = {
-        "link_type": "link_only",
-        "unique_id_column_name": "record_id",
-        "additional_columns_to_retain": ["plant_id_pudl", "utility_id_pudl"],
-        "comparisons": COMPARISONS,
-        "blocking_rules_to_generate_predictions": BLOCKING_RULES,
-        "retain_matching_columns": True,
-        "retain_intermediate_calculation_columns": True,
-        "probability_two_random_records_match": 1 / len(eia_df),
-    }
-    linker = DuckDBLinker(
+    settings = SettingsCreator(
+        link_type="link_only",
+        unique_id_column_name="record_id",
+        additional_columns_to_retain=["plant_id_pudl", "utility_id_pudl"],
+        comparisons=COMPARISONS,
+        blocking_rules_to_generate_predictions=BLOCKING_RULES,
+        retain_matching_columns=True,
+        retain_intermediate_calculation_columns=True,
+        probability_two_random_records_match=(1.0 / len(eia_df)),
+    )
+    linker = Linker(
         [eia_df, ferc_df],
+        settings=settings,
         input_table_aliases=["eia_df", "ferc_df"],
-        settings_dict=settings_dict,
+        db_api=DuckDBAPI(),
     )
     linker.register_table(train_df, "training_labels", overwrite=True)
     linker.estimate_u_using_random_sampling(max_pairs=1e7)
