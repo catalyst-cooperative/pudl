@@ -17,6 +17,12 @@ Bug Fixes
 * Include more retiring generators in the net generation and fuel consumption
   allocation. Thanks to :user:`grgmiller` for this contirbution :pr:`3690`.
 
+Major Dependency Updates
+^^^^^^^^^^^^^^^^^^^^^^^^
+* Update to use `Numpy v2.0 <https://numpy.org/doc/stable/release/2.0.0-notes.html>`__
+  and `Splink v4.0 <https://moj-analytical-services.github.io/splink/blog/2024/07/24/splink-400-released.html>`__.
+  See issues :issue:`3736,3735` and PRs :pr:`3547,3834`.
+
 .. _release-v2024.8.0:
 
 ---------------------------------------------------------------------------------------
