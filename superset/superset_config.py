@@ -31,6 +31,13 @@ OAUTH_PROVIDERS = [
 AUTH_USER_REGISTRATION = True
 AUTH_USER_REGISTRATION_ROLE = "GammaSQLLab"
 
+# row limit when requesting chart data
+ROW_LIMIT = 200_000
+# row limit for native filters
+NATIVE_FILTER_DEFAULT_ROW_LIMIT = 200_000
+# Maximum number of rows returned for any analytical database query
+SQL_MAX_ROW = 200_000
+
 
 def get_db_connection_string() -> str:
     """Get the database connection string."""
