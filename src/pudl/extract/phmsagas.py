@@ -27,7 +27,7 @@ class Extractor(excel.ExcelExtractor):
         super().__init__(*args, **kwargs)
 
     def process_renamed(self, newdata: pd.DataFrame, page: str, **partition):
-        """Drop columns that get mapped to other assets.
+        """Drop columns that get mapped to other assets and columns with unstructured data.
 
         Older years of PHMSA data have one Excel tab in the raw data, while newer data
         has multiple tabs. To extract data into tables that follow the newer data format
@@ -52,6 +52,37 @@ class Extractor(excel.ExcelExtractor):
                     f"\n{to_drop}"
                 )
                 newdata = newdata.drop(columns=to_drop, errors="ignore")
+        # there is an annoying middling number of columns in phmsa raw data that are unnamed
+        # and have a smattering of random values. we want to drop these guys. but we are going
+        # to enumerate what we expect to need to drop so if lots of new unmapped columns happen
+        # unexpectedly a warning will happen here (and a extraction validation error will happen)
+        # FYI: In 2009 there were a ton of extra columns seemingly from two records that had a
+        # multi-line comment that shifted the rest of the cells over. Presumably we could map
+        # them all and do a manual shift of the data. But its only 2 records so rn we are just
+        # droppign them.
+        unnamed_page_years = {
+            "yearly_distribution": [
+                2000,
+                2001,
+                2002,
+                2003,
+                2004,
+                2005,
+                2006,
+                2007,
+                2009,
+            ]
+        }
+        unnamed_columns = newdata.filter(like="unnamed").columns
+        if (page in unnamed_page_years) and (
+            int(partition["year"]) in unnamed_page_years[page]
+        ):
+            newdata = newdata.drop(columns=unnamed_columns)
+        elif not unnamed_columns.empty:
+            logger.warning(
+                "We found some unnamed columns that are probably not expected. "
+                f"Consider dropping them. Columns found: {unnamed_columns}"
+            )
         return newdata
 
 

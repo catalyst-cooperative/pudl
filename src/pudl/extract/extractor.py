@@ -183,16 +183,16 @@ class GenericExtractor(ABC):
         page_cols = self.get_page_cols(page, partition_selection)
         expected_cols = page_cols.union(self.cols_added)
         if set(df.columns) != set(expected_cols):
-            # TODO (bendnorman): Enforce canonical fields for all raw fields?
+            # Ensure that expected and actually extracted columns match
             extra_raw_cols = set(df.columns).difference(expected_cols)
             missing_raw_cols = set(expected_cols).difference(df.columns)
             if extra_raw_cols:
-                logger.warning(
+                raise ValueError(
                     f"{page}/{partition_selection}: Extra columns found in extracted table:"
                     f"\n{extra_raw_cols}"
                 )
             if missing_raw_cols:
-                logger.warning(
+                raise ValueError(
                     f"{page}/{partition_selection}: Expected columns not found in extracted table:"
                     f"\n{missing_raw_cols}"
                 )
