@@ -424,3 +424,10 @@ resource "google_storage_bucket_iam_member" "usage_metrics_archiver_gcs_iam" {
   role = each.key
   member = "serviceAccount:${google_service_account.usage_metrics_archiver.email}"
 }
+
+resource "google_storage_bucket_iam_member" "usage_metrics_etl_gcs_iam" {
+
+  bucket = google_storage_bucket.pudl_usage_metrics_archive_bucket.name
+  role = "roles/storage.legacyBucketReader"
+  member = "serviceAccount:pudl-usage-metrics-etl@catalyst-cooperative-pudl.iam.gserviceaccount.com"
+}
