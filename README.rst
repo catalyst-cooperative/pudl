@@ -172,6 +172,7 @@ Organizations using PUDL
 
 Visit our `website <https://catalyst.coop/projects/>`__ to view the projects
 we've worked on and organizations we've worked with.
+
 If your organization uses PUDL we'd love to list you here! Please open a
 pull request or email us at `hello@catalyst.coop <mailto:hello@catalyst.coop>`__!
 
