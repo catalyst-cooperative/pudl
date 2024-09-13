@@ -383,7 +383,7 @@ def _standardize_offset_codes(df: pd.DataFrame, offset_fixes) -> pd.DataFrame:
     compute_kind="pandas",
 )
 def core_ferc714__respondent_id(
-    raw_ferc714__respondent_id: pd.DataFrame,
+    raw_ferc714_csv__respondent_id: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the FERC 714 respondent IDs, names, and EIA utility IDs.
 
@@ -393,13 +393,13 @@ def core_ferc714__respondent_id(
     PacifiCorp).
 
     Args:
-        raw_ferc714__respondent_id: Raw table describing the FERC 714 Respondents.
+        raw_ferc714_csv__respondent_id: Raw table describing the FERC 714 Respondents.
 
     Returns:
         A clean(er) version of the FERC-714 respondents table.
     """
     df = _pre_process(
-        raw_ferc714__respondent_id, table_name="core_ferc714__respondent_id"
+        raw_ferc714_csv__respondent_id, table_name="core_ferc714__respondent_id"
     )
     df["respondent_name_ferc714"] = df.respondent_name_ferc714.str.strip()
     df.loc[df.eia_code == 0, "eia_code"] = pd.NA
@@ -415,7 +415,7 @@ def core_ferc714__respondent_id(
     compute_kind="pandas",
 )
 def out_ferc714__hourly_planning_area_demand(
-    raw_ferc714__hourly_planning_area_demand: pd.DataFrame,
+    raw_ferc714_csv__hourly_planning_area_demand: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the hourly demand time series by Planning Area.
 
@@ -429,7 +429,7 @@ def out_ferc714__hourly_planning_area_demand(
     - Flip negative signs for reported demand.
 
     Args:
-        raw_ferc714__hourly_planning_area_demand: Raw table containing hourly demand
+        raw_ferc714_csv__hourly_planning_area_demand: Raw table containing hourly demand
             time series by Planning Area.
 
     Returns:
@@ -437,7 +437,7 @@ def out_ferc714__hourly_planning_area_demand(
     """
     logger.info("Converting dates into pandas Datetime types.")
     df = _pre_process(
-        raw_ferc714__hourly_planning_area_demand,
+        raw_ferc714_csv__hourly_planning_area_demand,
         table_name="out_ferc714__hourly_planning_area_demand",
     )
 
@@ -549,7 +549,7 @@ def out_ferc714__hourly_planning_area_demand(
     compute_kind="pandas",
 )
 def core_ferc714__yearly_planning_area_demand_forecast(
-    raw_ferc714__yearly_planning_area_demand_forecast: pd.DataFrame,
+    raw_ferc714_csv__yearly_planning_area_demand_forecast: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the yearly planning area forecast data per Planning Area.
 
@@ -559,7 +559,7 @@ def core_ferc714__yearly_planning_area_demand_forecast(
     - Remove duplicate rows and average out the metrics.
 
     Args:
-        raw_ferc714__yearly_planning_area_demand_forecast: Raw table containing,
+        raw_ferc714_csv__yearly_planning_area_demand_forecast: Raw table containing,
             for each year and each planning area, the forecasted summer and winter peak demand,
             in megawatts, and annual net energy for load, in megawatthours, for the next
             ten years.
@@ -569,7 +569,7 @@ def core_ferc714__yearly_planning_area_demand_forecast(
     """
     # Clean up columns
     df = _pre_process(
-        raw_ferc714__yearly_planning_area_demand_forecast,
+        raw_ferc714_csv__yearly_planning_area_demand_forecast,
         table_name="core_ferc714__yearly_planning_area_demand_forecast",
     )
 
