@@ -96,29 +96,20 @@ What data is available?
 PUDL currently integrates data from:
 
 * **EIA Form 860**:
-  - `Source Docs <https://www.eia.gov/electricity/data/eia860/>`__
   - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/eia860.html>`__
-* **EIA Form 860m**:
-  - `Source Docs <https://www.eia.gov/electricity/data/eia860m/>`__
 * **EIA Form 861**:
-  - `Source Docs <https://www.eia.gov/electricity/data/eia861/>`__
   - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/eia861.html>`__
 * **EIA Form 923**:
-  - `Source Docs <https://www.eia.gov/electricity/data/eia923/>`__
   - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/eia923.html>`__
 * **EIA Form 930**:
-  - `Source Docs <https://www.eia.gov/electricity/gridmonitor/>`__
   - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/eia930.html>`__
 * **EIA Annual Energy Outlook (AEO)** (a few tables):
   - `Source Docs <https://www.eia.gov/outlooks/aeo/>`__
 * **EPA Continuous Emissions Monitoring System (CEMS)**:
-  - `Source Docs <https://campd.epa.gov/>`__
   - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/epacems.html>`__
 * **FERC Form 1** (dozens of fully processed tables, plus raw data converted to SQLite):
-  - `Source Docs <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual>`__
   - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/ferc1.html>`__
 * **FERC Form 714** (a few fully processed tables):
-  - `Source Docs <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-no-714-annual-electric/data>`__
   - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/ferc714.html>`__
 * **FERC Form 2** (raw data converted to SQLite):
   - `Source Docs <https://www.ferc.gov/industries-data/natural-gas/industry-forms/form-2-2a-3-q-gas-historical-vfp-data>`__
@@ -129,7 +120,6 @@ PUDL currently integrates data from:
 * **NREL Annual Technology Baseline (ATB) for Electricity**:
   - `Source Docs <https://atb.nrel.gov/electricity/2024/data>`__
 * **GridPath Resource Adequacy Toolkit** (partial):
-  - `Source Docs <https://gridlab.org/gridpathratoolkit/>`__
   - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/gridpathratoolkit.html>`__
 * **US Census Demographic Profile 1 Geodatabase**:
   - `Source Docs <https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html>`__
