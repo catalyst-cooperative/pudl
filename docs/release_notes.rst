@@ -6,13 +6,24 @@ PUDL Release Notes
 v2024.X.x (2024-XX-XX)
 ---------------------------------------------------------------------------------------
 
-.. _release-v2024.8.0:
-
 Schema Changes
 ^^^^^^^^^^^^^^
 * Added :ref:`out_eia__yearly_assn_plant_parts_plant_gen` table. This table associates
   records from the :ref:`out_eia__yearly_plant_parts` with ``plant_gen`` records from
   that same plant parts table. See issue :issue:`3773` and PR :pr:`3774`.
+
+Bug Fixes
+^^^^^^^^^
+* Include more retiring generators in the net generation and fuel consumption
+  allocation. Thanks to :user:`grgmiller` for this contirbution :pr:`3690`.
+
+Major Dependency Updates
+^^^^^^^^^^^^^^^^^^^^^^^^
+* Update to use `Numpy v2.0 <https://numpy.org/doc/stable/release/2.0.0-notes.html>`__
+  and `Splink v4.0 <https://moj-analytical-services.github.io/splink/blog/2024/07/24/splink-400-released.html>`__.
+  See issues :issue:`3736,3735` and PRs :pr:`3547,3834`.
+
+.. _release-v2024.8.0:
 
 ---------------------------------------------------------------------------------------
 v2024.8.0 (2024-08-19)
@@ -92,6 +103,7 @@ FERC 714
 * Added :ref:`core_ferc714__yearly_planning_area_demand_forecast` based on FERC
   Form 714, Part III, Schedule 2b. Data includes forecasted demand and net energy load.
   See issue :issue:`3519` and PR :pr:`3670`.
+* WIP: Adding XBRL(2021+) data for FERC 714 tables. Track progress in :issue:`3822`.
 
 NREL ATB
 ~~~~~~~~

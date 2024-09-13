@@ -409,3 +409,54 @@ def test_allocate_gen_fuel_by_generator_drops_pm_data(extra_pm_in_bf):
         bf, allocated, bga, boiler_id_to_check="1", energy_source_code_to_check="DFO"
     )
     assert ratio_bf != ratio_allocated
+
+
+def test_identify_retiring_generators():
+    """Ensure identify_retiring_generators grabs all months from the year a generator is retiring."""
+    # i added a few records from the year before and after the retiring year to make sure those are not included in the output
+    gena_retiring = (
+        pd.read_csv(
+            StringIO(
+                """plant_id_eia,generator_id,report_date,operational_status,generator_retirement_date,net_generation_mwh_g_tbl,fuel_consumed_mmbtu_gf_tbl
+50937,GENA,2021-12-01,existing,,,0.0
+50937,GENA,2022-01-01,retired,2022-09-01,,85.0
+50937,GENA,2022-02-01,retired,2022-09-01,,91.0
+50937,GENA,2022-03-01,retired,2022-09-01,,278.0
+50937,GENA,2022-04-01,retired,2022-09-01,,127.0
+50937,GENA,2022-05-01,retired,2022-09-01,,79.0
+50937,GENA,2022-06-01,retired,2022-09-01,,85.0
+50937,GENA,2022-07-01,retired,2022-09-01,,91.0
+50937,GENA,2022-08-01,retired,2022-09-01,,85.0
+50937,GENA,2022-09-01,retired,2022-09-01,,48.0
+50937,GENA,2022-10-01,retired,2022-09-01,,67.0
+50937,GENA,2022-11-01,retired,2022-09-01,,67.0
+50937,GENA,2022-12-01,retired,2022-09-01,,
+50937,GENA,2023-01-01,retired,2022-09-01,,
+"""
+            )
+        )
+        .convert_dtypes()
+        .assign(report_date=lambda x: pd.to_datetime(x.report_date))
+    )
+    expected_retiring = (
+        pd.read_csv(
+            StringIO("""plant_id_eia,generator_id,report_date,operational_status,generator_retirement_date,net_generation_mwh_g_tbl,fuel_consumed_mmbtu_gf_tbl
+50937,GENA,2022-01-01,retired,2022-09-01,,85.0
+50937,GENA,2022-02-01,retired,2022-09-01,,91.0
+50937,GENA,2022-03-01,retired,2022-09-01,,278.0
+50937,GENA,2022-04-01,retired,2022-09-01,,127.0
+50937,GENA,2022-05-01,retired,2022-09-01,,79.0
+50937,GENA,2022-06-01,retired,2022-09-01,,85.0
+50937,GENA,2022-07-01,retired,2022-09-01,,91.0
+50937,GENA,2022-08-01,retired,2022-09-01,,85.0
+50937,GENA,2022-09-01,retired,2022-09-01,,48.0
+50937,GENA,2022-10-01,retired,2022-09-01,,67.0
+50937,GENA,2022-11-01,retired,2022-09-01,,67.0
+50937,GENA,2022-12-01,retired,2022-09-01,,
+""")
+        )
+        .convert_dtypes()
+        .assign(report_date=lambda x: pd.to_datetime(x.report_date))
+    )
+    out = allocate_gen_fuel.identify_retiring_generators(gena_retiring)
+    pd.testing.assert_frame_equal(expected_retiring, out, check_exact=False)
