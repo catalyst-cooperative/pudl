@@ -28,15 +28,31 @@ OAUTH_PROVIDERS = [
     }
 ]
 
+# Allow users to sign up
+# Give them the "GammaSQLLab" role
 AUTH_USER_REGISTRATION = True
 AUTH_USER_REGISTRATION_ROLE = "GammaSQLLab"
 
-# row limit when requesting chart data
-ROW_LIMIT = 200_000
-# row limit for native filters
-NATIVE_FILTER_DEFAULT_ROW_LIMIT = 200_000
+# Allow users to view superset without registering
+AUTH_ROLE_PUBLIC = "Public"
+PUBLIC_ROLE_LIKE = "Gamma"
+
+FEATURE_FLAGS = {
+    "DASHBOARD_RBAC": True,  # Allow for assigning roles to dashboards
+}
+
+# This limits the number of rows when requesting chart data
+# I think it needs to be <= SQL_MAX_ROW because superset
+# needs to query the database before it can make a chart
+ROW_LIMIT = 100_000
 # Maximum number of rows returned for any analytical database query
-SQL_MAX_ROW = 200_000
+SQL_MAX_ROW = 100_000
+
+# I'm ont sure how these two settings differ
+# row limit for native filters
+NATIVE_FILTER_DEFAULT_ROW_LIMIT = 100_000
+# max rows retrieved by filter select auto complete
+FILTER_SELECT_ROW_LIMIT = 100_000
 
 
 def get_db_connection_string() -> str:

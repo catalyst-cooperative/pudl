@@ -18,7 +18,7 @@ services:
       - "8080:8088"
     volumes:
       - ${PUDL_OUTPUT}/pudl.duckdb:/app/pudl.duckdb
-      - ./roles.json:/app/roles.json
+      - ./roles:/app/roles
     depends_on:
       - postgres
   postgres:
