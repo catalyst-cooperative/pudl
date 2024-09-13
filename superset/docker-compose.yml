@@ -29,3 +29,14 @@ services:
       POSTGRES_PASSWORD: superset
     ports:
       - 8081:5432
+  cloud_auth_proxy:
+    image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.13.0
+    profiles: [prod]
+    environment:
+      CLOUD_SQL_CONNECTION_NAME: ${CLOUD_SQL_CONNECTION_NAME}
+      GOOGLE_APPLICATION_CREDENTIALS: /tmp/keys/application_default_credentials.json
+    volumes:
+      - ${GOOGLE_GHA_CREDS_PATH}:/tmp/keys/application_default_credentials.json:ro
+    ports:
+      - 8082:5432
+    command: [$CLOUD_SQL_CONNECTION_NAME, "--address", "0.0.0.0"]

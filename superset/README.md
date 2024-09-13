@@ -37,7 +37,50 @@ docker compose up
 If this is the first time running superset locally or you recently ran `docker compose down` you'll need to run the commands in `setup.sh`.
 
 ## Making changes to the production deployment
-TODO: instructions on how to connect to Cloud SQL
+We'll need to occasionally make changes to the production deployment from our local machines. For example, we might need to debug Superset upgrades, apply migrations to the Superset database or update the predefined roles. We'll use the [Cloud Auth Proxy](https://cloud.google.com/sql/docs/postgres/connect-auth-proxy) to connect the local `superset` service to the production Cloud SQL database.
+
+First, run this command to authenticate with GCP:
+
+```
+gcloud auth application-default login
+```
+
+The command should emit this message:
+```
+Credentials saved to file: [/path_to_gcloud_config/application_default_credentials.json]
+```
+
+Create an environment variable to store this path:
+
+```
+export GOOGLE_GHA_CREDS_PATH={/path_to_gcloud_config/application_default_credentials.json}
+```
+
+This credential file will be mounted to the `cloud_auth_proxy` docker service so it can authenticate with GCP.
+
+Next you'll need to set a number of database connection environment variables. You can grab the
+database password using this command:
+
+```
+gcloud secrets versions access latest --secret="superset-database-password"
+```
+
+and then set the environment variables:
+
+```
+export SUPERSET_DB_HOST=cloud_auth_proxy
+export SUPERSET_DB_PORT=5432
+export SUPERSET_DB_USER=postgres
+export SUPERSET_DB_PASS={Grab the password from GCP Secret Manager}
+export SUPERSET_DB_NAME=postgres
+```
+
+Finally, run:
+
+```
+docker compose --profile prod up
+```
+
 
 ## Deploy to Cloud Run
 Once you've made changes to the superset docker image, you can update the production deployment with this command:
