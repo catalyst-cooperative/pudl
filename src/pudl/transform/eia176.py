@@ -25,17 +25,17 @@ def _core_eia176__data(
         raw_eia176__data["line"] + "_" + raw_eia176__data["atype"]
     )
 
-    company_drop_columns = ["itemsort", "item", "atype", "line", "company"]
-    aggregate_primary_key = ["report_year", "area"]
-
     # TODO should probably sanitize this company name somewhere beforehand
     long_company = raw_eia176__data.loc[
         raw_eia176__data.company.str.strip().str.lower() != "total of all companies"
     ]
+    aggregate_primary_key = ["report_year", "area"]
+    company_drop_columns = ["itemsort", "item", "atype", "line", "company"]
+
     wide_company = get_wide_table(
         long_table=long_company,
         primary_key=aggregate_primary_key + ["id"],
-        drop_columns=["itemsort", "item", "atype", "line", "company"],
+        drop_columns=company_drop_columns,
     )
 
     long_aggregate = raw_eia176__data.loc[
@@ -43,14 +43,13 @@ def _core_eia176__data(
     ]
     wide_aggregate = get_wide_table(
         long_table=long_aggregate,
-        primary_key=["report_year", "area"],
+        primary_key=aggregate_primary_key,
         drop_columns=company_drop_columns + ["id"],
     )
 
     return wide_company, wide_aggregate
 
 
-# TODO: Tests
 def get_wide_table(
     long_table: pd.DataFrame, primary_key: list[str], drop_columns: list[str]
 ) -> pd.DataFrame:
