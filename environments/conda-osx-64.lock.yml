@@ -30,18 +30,18 @@ dependencies:
   - async-lru=2.0.4=pyhd8ed1ab_0
   - atk-1.0=2.38.0=h4bec284_2
   - attrs=24.2.0=pyh71513ae_0
-  - aws-c-auth=0.7.29=h2dfa2de_1
+  - aws-c-auth=0.7.30=h0e83244_0
   - aws-c-cal=0.7.4=h8128ea2_1
   - aws-c-common=0.9.28=h00291cd_0
   - aws-c-compression=0.2.19=h8128ea2_1
   - aws-c-event-stream=0.4.3=hf6f7cdd_1
-  - aws-c-http=0.8.8=h2f86973_2
+  - aws-c-http=0.8.9=h2f86973_0
   - aws-c-io=0.14.18=hf9a0f1c_9
-  - aws-c-mqtt=0.10.4=he4b61a0_19
-  - aws-c-s3=0.6.5=h915d0f8_2
+  - aws-c-mqtt=0.10.5=h3e3652f_0
+  - aws-c-s3=0.6.5=h71dde6d_4
   - aws-c-sdkutils=0.1.19=h8128ea2_3
   - aws-checksums=0.1.18=h8128ea2_11
-  - aws-crt-cpp=0.28.2=h27d4fa7_4
+  - aws-crt-cpp=0.28.2=heb037f6_6
   - aws-sdk-cpp=1.11.379=h7a58a96_9
   - azure-core-cpp=1.13.0=hf8dbe3c_0
   - azure-identity-cpp=1.8.0=h60298e3_2
