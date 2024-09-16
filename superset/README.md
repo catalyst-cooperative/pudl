@@ -90,3 +90,28 @@ gcloud builds submit --config cloudbuild.yaml .
 ```
 
 This command will use Cloud Build to build the docker image, push it to the Google Cloud Artifact Registry and redeploy the Cloud Run `pudl-superset` service with the new docker image.
+
+## Update roles with the `superset` CLI
+Superset admins can create, delete and edit roles via the Superset UI. They can also change them using the Superset CLI
+which is helpful when adding a large number permissions to a new or existing role.
+
+To do this, make sure you are running the docker services and are connected to the production database.
+Then, drop into the superset container:
+
+```
+docker compose exec superset bash
+```
+
+Export the roles as a json file:
+
+```
+superset fab export-roles --path roles/roles.json
+```
+
+Edit the roles.json and then import the roles into the production database:
+
+```
+superset fab export-roles --path roles/roles.json
+```
+
+I've noticed the importing can sometimes take a few minutes.
