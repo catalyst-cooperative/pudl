@@ -370,7 +370,7 @@ def map_respondent_id_ferc714(df, source: Literal["csv", "xbrl"]):
     return df
 
 
-def remove_yearly_records(duration_xbrl):
+def remove_yearly_records_duration_xbrl(duration_xbrl):
     """Convert a table with mostly daily records with some annuals into fully daily.
 
     Almost all of the records have a start_date that == the end_date
@@ -468,7 +468,7 @@ def convert_dates_to_zero_offset_hours_xbrl(xbrl: pd.DataFrame) -> pd.DataFrame:
     return xbrl
 
 
-def parse_date_strings(df, datetime_format):
+def parse_date_strings_csv(df, datetime_format):
     """Convert report_date into pandas Datetime types."""
     # Parse date strings
     # NOTE: Faster to ignore trailing 00:00:00 and use exact=False
@@ -488,7 +488,7 @@ def parse_date_strings(df, datetime_format):
     return df
 
 
-def convert_dates_to_zero_seconds(xbrl: pd.DataFrame) -> pd.DataFrame:
+def convert_dates_to_zero_seconds_xbrl(xbrl: pd.DataFrame) -> pd.DataFrame:
     """Convert the last second of the day records to the first (0) second of the next day.
 
     There are a small amount of records which report the last "hour" of the day
@@ -508,30 +508,22 @@ def convert_dates_to_zero_seconds(xbrl: pd.DataFrame) -> pd.DataFrame:
 
 def ensure_dates_are_complete_and_unique(df):
     """Assert that all respondents and years have complete and unique dates."""
-    all_dates = {
-        year: set(pd.date_range(f"{year}-01-01", f"{year}-12-31", freq="1D"))
-        for year in range(df["report_year"].min(), df["report_year"].max() + 1)
-    }
-    assert (  # nosec B101
-        df.groupby(["respondent_id_ferc714", "report_year"])
-        .apply(lambda x: set(x["report_date"]) == all_dates[x.name[1]])
-        .all()
-    )
-
-
-def parse_date_strings_xbrl(xbrl: pd.DataFrame) -> pd.DataFrame:
-    """Convert report_date into pandas Datetime types."""
-    xbrl = xbrl.astype({"report_date": "datetime64[ns]"})
-    # ensure_dates_are_complete_and_unique(xbrl)
-
-    xbrl["gap"] = xbrl[["respondent_id_ferc714", "report_date"]].sort_values(
+    df["gap"] = df[["respondent_id_ferc714", "report_date"]].sort_values(
         by=["respondent_id_ferc714", "report_date"]
     ).groupby("respondent_id_ferc714").diff() > pd.to_timedelta("1h")
-    if not (gappy_dates := xbrl[xbrl.gap]).empty:
+    if not (gappy_dates := df[df.gap]).empty:
         raise AssertionError(
             "We expect there to be no gaps in the time series."
             f"but we found these gaps:\n{gappy_dates}"
         )
+    return df.drop(columns=["gap"])
+
+
+def parse_date_strings_xbrl(xbrl: pd.DataFrame) -> pd.DataFrame:
+    """Convert report_date into pandas Datetime types."""
+    xbrl = xbrl.astype({"report_date": "datetime64[ns]"}).pipe(
+        ensure_dates_are_complete_and_unique
+    )
     return xbrl
 
 
@@ -584,7 +576,7 @@ def construct_utc_datetime(df: pd.DataFrame) -> pd.DataFrame:
     # There should be less than 10 of these,
     # resulting from changes to a planning area's reporting timezone.
     duplicated = df.duplicated(["respondent_id_ferc714", "datetime_utc"])
-    (np.count_nonzero(duplicated))
+    # TODO: convert this into an error
     logger.info(f"Found {np.count_nonzero(duplicated)} duplicate UTC datetimes.")
     df = df.query("~@duplicated")
     return df
@@ -730,10 +722,10 @@ def out_ferc714__hourly_planning_area_demand(  # noqa: C901
         )
         .pipe(map_respondent_id_ferc714, "csv")
         .pipe(melt_hourx_columns_csv)
-        .pipe(parse_date_strings, datetime_format="%m/%d/%Y")
+        .pipe(parse_date_strings_csv, datetime_format="%m/%d/%Y")
     )
     # XBRL STUFF
-    duration_xbrl = remove_yearly_records(
+    duration_xbrl = remove_yearly_records_duration_xbrl(
         raw_ferc714_xbrl__planning_area_hourly_demand_and_forecast_summer_and_winter_peak_demand_and_annual_net_energy_for_load_03_2_duration
     )
     instant_xbrl = raw_ferc714_xbrl__planning_area_hourly_demand_and_forecast_summer_and_winter_peak_demand_and_annual_net_energy_for_load_03_2_instant
@@ -748,7 +740,7 @@ def out_ferc714__hourly_planning_area_demand(  # noqa: C901
         .pipe(map_respondent_id_ferc714, "xbrl")
         .pipe(convert_dates_to_zero_offset_hours_xbrl)
         .pipe(parse_date_strings_xbrl)
-        .pipe(convert_dates_to_zero_seconds)
+        .pipe(convert_dates_to_zero_seconds_xbrl)
     )
     # CONCATED STUFF
     df = (
