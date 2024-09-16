@@ -134,6 +134,8 @@ html_theme_options = {
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
 
+html_js_files = ["js/minisearch.js", "js/data_dictionary.js"]
+
 
 # -- Custom build operations -------------------------------------------------
 def data_dictionary_metadata_to_rst(app):

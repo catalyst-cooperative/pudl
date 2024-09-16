@@ -4,8 +4,17 @@ PUDL Data Dictionary
 
 The following data tables have been cleaned and transformed by our ETL process.
 
+.. raw:: html
+
+   <input type="text" id="search-input"></input>
+   <div class="resource-list">
+
 {% for resource in package.get_sorted_resources() %}
 .. _{{ resource.sphinx_ref_name }}:
 
 {% include 'resource.rst.jinja' %}
 {% endfor %}
+
+.. raw:: html
+
+   </div>
