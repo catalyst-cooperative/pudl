@@ -307,7 +307,7 @@ RENAME_COLS = {
 # Internal helper functions.
 ##############################################################################
 def _pre_process_csv(df: pd.DataFrame, table_name: str) -> pd.DataFrame:
-    """A simple transform function for until the real ones are written.
+    """A simple transform function for processing the CSV raw data.
 
     * Removes footnotes columns ending with _f
     * Drops report_prd, spplmnt_num, and row_num columns
