@@ -3,6 +3,7 @@
 # TODO: add note about architecture and reusing form 1 stuff.
 """
 
+import importlib
 import re
 from dataclasses import dataclass
 from typing import Literal
@@ -13,6 +14,7 @@ from dagster import AssetCheckResult, AssetChecksDefinition, AssetIn, asset, ass
 
 import pudl.logging_helpers
 from pudl.metadata import PUDL_PACKAGE
+from pudl.settings import Ferc714Settings
 from pudl.transform.classes import (
     RenameColumns,
     rename_columns,
@@ -27,172 +29,101 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 # More detailed fixes on a per respondent basis
 TIMEZONE_OFFSET_CODE_FIXES = {
-    102: {"CPT": "CST"},
-    110: {"CPT": "EST"},
-    115: {"MS": "MST"},
-    118: {
-        "CS": "CST",
-        "CD": "CDT",
-    },
-    120: {
-        "CTR": "CST",
-        "CSR": "CST",
-        "CPT": "CST",
-        "DST": "CST",
-        np.nan: "CST",
-    },
-    133: {
+    2: {"CPT": "CST"},
+    10: {"CPT": "EST"},
+    15: {"MS": "MST"},
+    17: {"CS": "CST", "CD": "CDT"},
+    19: {"CTR": "CST", "CSR": "CST", "CPT": "CST", "DST": "CST", np.nan: "CST"},
+    27: {
         "AKS": "AKST",
         "AST": "AKST",
         "AKD": "AKDT",
         "ADT": "AKDT",
+        "AKT": "AKST",
+        "1": "AKST",  # they swap from 1 - 2 in 2023
+        "2": "AKDT",
     },
-    134: {np.nan: "EST"},
-    137: {np.nan: "CST"},
-    140: {
-        "1": "EST",
-        "2": "EDT",
-        np.nan: "EST",
-    },
-    141: {np.nan: "CST"},
-    143: {"MS": "MST"},
-    146: {"DST": "EST"},
-    148: {np.nan: "CST"},
-    151: {
-        "DST": "CDT",
-        np.nan: "CST",
-    },
-    153: {np.nan: "MST"},
-    154: {np.nan: "MST"},
-    156: {np.nan: "CST"},
-    157: {
-        "DST": "EDT",
-        "EPT": "EST",
-    },
-    161: {"CPT": "CST"},
-    163: {"CPT": "CST"},
-    164: {np.nan: "CST"},
-    165: {"CS": "CST"},  # Uniform across the year.
-    173: {
-        "CPT": "CST",
-        np.nan: "CST",
-    },
-    174: {
+    28: {np.nan: "EST"},
+    31: {np.nan: "CST"},
+    34: {"1": "EST", "2": "EDT", np.nan: "EST", "UTC": "EST"},  # city of Tallahassee
+    35: {np.nan: "CST"},
+    37: {"MS": "MST"},
+    40: {"DST": "EST"},
+    42: {np.nan: "CST"},
+    45: {"DST": "CDT", np.nan: "CST"},
+    47: {np.nan: "MST"},
+    48: {np.nan: "MST"},
+    50: {np.nan: "CST"},
+    51: {"DST": "EDT", "EPT": "EST"},
+    54: {"CPT": "CST"},
+    56: {"CPT": "CST"},
+    57: {np.nan: "CST"},
+    58: {"CS": "CST"},  # Uniform across the year.
+    65: {"CPT": "CST", np.nan: "CST"},
+    66: {
         "CS": "CDT",  # Only shows up in summer! Seems backwards.
         "CD": "CST",  # Only shows up in winter! Seems backwards.
         "433": "CDT",
     },
-    176: {
-        "E": "EST",
-        np.nan: "EST",
-    },
-    182: {"PPT": "PDT"},  # Imperial Irrigation District P looks like D
-    186: {"EAS": "EST"},
-    189: {"CPT": "CST"},
-    190: {"CPT": "CST"},
-    193: {
-        "CS": "CST",
-        "CD": "CDT",
-    },
-    194: {"PPT": "PST"},  # LADWP, constant across all years.
-    195: {"CPT": "CST"},
-    208: {np.nan: "CST"},
-    211: {
-        "206": "EST",
-        "DST": "EDT",
-        np.nan: "EST",
-    },
-    213: {"CDS": "CDT"},
-    216: {np.nan: "CDT"},
-    217: {
-        "MPP": "MST",
-        "MPT": "MST",
-    },
-    224: {"DST": "EST"},
-    225: {
-        "EDS": "EDT",
-        "DST": "EDT",
-        "EPT": "EST",
-    },
-    226: {"DST": "CDT"},
-    230: {"EPT": "EST"},
-    233: {
-        "DST": "EDT",
-        "EPT": "EST",
-    },
-    234: {
-        "1": "EST",
-        "2": "EDT",
-        "DST": "EDT",
-    },
-    # Constant across the year. Never another timezone seen.
-    239: {"PPT": "PST"},
-    243: {"DST": "PST"},
-    245: {"CDS": "CDT"},
-    248: {"DST": "EDT"},
-    253: {"CPT": "CST"},
-    254: {"DST": "CDT"},
-    257: {"CPT": "CST"},
-    259: {"DST": "CDT"},
-    264: {"CDS": "CDT"},
-    271: {"EDS": "EDT"},
-    275: {"CPT": "CST"},
-    277: {
-        "CPT": "CST",
-        np.nan: "CST",
-    },
-    281: {"CEN": "CST"},
-    288: {np.nan: "EST"},
-    293: {np.nan: "MST"},
-    294: {np.nan: "EST"},
-    296: {"CPT": "CST"},
-    297: {"CPT": "CST"},
-    298: {"CPT": "CST"},
-    299: {"CPT": "CST"},
-    307: {"PPT": "PST"},  # Pacificorp, constant across the whole year.
-    308: {
-        "DST": "EDT",
-        "EDS": "EDT",
-        "EPT": "EST",
-    },
-    328: {
-        "EPT": "EST",
-    },
-    "C011454": {"CPT": "CST"},
-    "C001555": {"CPT": "CST"},
-    "C001552": {"CPT": "CST"},
-    "C001553": {"CPT": "CST"},
-    "C001556": {"CPT": "CST"},
-    "C001554": {"CPT": "CST"},
-    "C011510": {"PPT": "PST"},
-    "C003677": {"PPT": "PST"},
-    "C001646": {"PPT": "PST"},
-    "C003850": {"EPT": "EST"},
-    "C000135": {"EPT": "EST"},
-    "C000290": {"EPT": "EST"},
-    "C000136": {"EDT/EST": "EST", "EST/EDT": "EST"},  # this is duke.
-    "C011542": {  # more recent years have CST & CDT. CDST correspond to DST months
+    68: {"E": "EST", np.nan: "EST"},
+    73: {"PPT": "PDT"},  # Imperial Irrigation District P looks like D
+    77: {"EAS": "EST"},
+    80: {"CPT": "CST"},
+    81: {"CPT": "CST"},
+    83: {"CS": "CST", "CD": "CDT"},
+    84: {"PPT": "PST"},  # LADWP, constant across all years.
+    85: {"CPT": "CST"},
+    97: {np.nan: "CST"},
+    100: {"206": "EST", "DST": "EDT", np.nan: "EST"},
+    102: {"CDS": "CDT", "CDST": "CDT"},
+    105: {np.nan: "CDT"},
+    106: {"MPP": "MST", "MPT": "MST"},
+    113: {"DST": "EST"},
+    114: {"EDS": "EDT", "DST": "EDT", "EPT": "EST"},
+    115: {"DST": "CDT"},
+    119: {"EPT": "EST"},
+    122: {"DST": "EDT", "EPT": "EST"},
+    123: {"1": "EST", "2": "EDT", "DST": "EDT"},
+    128: {"PPT": "PST"},  # Constant across the year. Never another timezone seen.
+    132: {"DST": "PST", np.nan: "PST"},
+    134: {"CDS": "CDT"},
+    137: {"DST": "EDT"},
+    142: {"CPT": "CST"},
+    143: {"DST": "CDT"},
+    146: {"CPT": "CST"},
+    148: {"DST": "CDT"},
+    153: {"CDS": "CDT"},
+    159: {"EDS": "EDT"},
+    163: {"CPT": "CST"},
+    164: {"CPT": "CST", np.nan: "CST"},
+    168: {"CEN": "CST"},
+    175: {np.nan: "EST"},
+    180: {np.nan: "MST"},
+    181: {np.nan: "EST"},
+    183: {"CPT": "CST"},
+    184: {"CPT": "CST"},
+    185: {"CPT": "CST"},
+    186: {"CPT": "CST"},
+    194: {"PPT": "PST"},  # Pacificorp, constant across the whole year.
+    195: {"DST": "EDT", "EDS": "EDT", "EPT": "EST"},
+    210: {"EPT": "EST"},
+    217: {"CPT": "CST"},
+    214: {"EPT": "EST"},
+    215: {"EDT/EST": "EST", "EST/EDT": "EST"},  # this is duke.
+    211: {  # more recent years have CST & CDT. CDST correspond to DST months
         "CDST": "CDT"
     },
-    "C011543": {"CDST": "CDT"},
-    "C011100": {
-        "AKT": "AKST",
-        "1": "AKST",
-        "2": "AKDT",
-    },  # they swap from 1 - 2 in 2023
-    "C011474": {"UTC": "EST"},  # city of Tallahassee
-    "C011432": {"3": "MST"},  # black hills (CO). in year after this 3 its all MST
-    "C011568": {np.nan: "PST"},  # just empty in 2021, other years is PST
-    "C011431": {np.nan: "PST"},  # just empty in 2022, other years is PST
-    "C000618": {np.nan: "EST"},  # this was just one lil empty guy
-    "C011399": {np.nan: "PST"},  # this was just one lil empty guy
+    20: {"3": "MST"},  # black hills (CO). in year after this 3 its all MST
+    95: {np.nan: "PST"},  # just empty in 2021, other years is PST
+    29: {np.nan: "PST"},  # just empty in 2022, other years is PST
+    101: {np.nan: "EST"},  # this was just one lil empty guy
 }
 
 TIMEZONE_OFFSET_CODE_FIXES_BY_YEAR = [
-    {"respondent_id_ferc714": 139, "report_year": 2006, "utc_offset_code": "PST"},
-    {"respondent_id_ferc714": 235, "report_year": 2015, "utc_offset_code": "MST"},
-    {"respondent_id_ferc714": 289, "report_year": 2011, "utc_offset_code": "CST"},
-    {"respondent_id_ferc714": 292, "report_year": 2011, "utc_offset_code": "CST"},
+    {"respondent_id_ferc714": 33, "report_year": 2006, "utc_offset_code": "PST"},
+    {"respondent_id_ferc714": 124, "report_year": 2015, "utc_offset_code": "MST"},
+    {"respondent_id_ferc714": 176, "report_year": 2011, "utc_offset_code": "CST"},
+    {"respondent_id_ferc714": 179, "report_year": 2011, "utc_offset_code": "CST"},
 ]
 
 BAD_RESPONDENTS = [
@@ -271,7 +202,7 @@ EIA_CODE_FIXES = {
 RENAME_COLS = {
     "core_ferc714__respondent_id": {
         "csv": {
-            "respondent_id": "respondent_id_ferc714",
+            "respondent_id": "respondent_id_ferc714_csv",
             "respondent_name": "respondent_name_ferc714",
         }
     },
@@ -279,11 +210,11 @@ RENAME_COLS = {
         "csv": {
             "report_yr": "report_year",
             "plan_date": "report_date",
-            "respondent_id": "respondent_id_ferc714",  # TODO: change to respondent_id_ferc714_csv
+            "respondent_id": "respondent_id_ferc714_csv",  # TODO: change to respondent_id_ferc714_csv
             "timezone": "utc_offset_code",
         },
         "xbrl": {
-            "entity_id": "respondent_id_ferc714",  # TODO: change to respondent_id_ferc714_xbrl
+            "entity_id": "respondent_id_ferc714_xbrl",  # TODO: change to respondent_id_ferc714_xbrl
             "date": "report_date",
             "report_year": "report_year",
             "time_zone": "utc_offset_code",
@@ -292,7 +223,7 @@ RENAME_COLS = {
     },
     "core_ferc714__yearly_planning_area_demand_forecast": {
         "csv": {
-            "respondent_id": "respondent_id_ferc714",
+            "respondent_id": "respondent_id_ferc714_csv",
             "report_yr": "report_year",
             "plan_year": "forecast_year",
             "summer_forecast": "summer_peak_demand_mw",
@@ -323,16 +254,42 @@ def _pre_process_csv(df: pd.DataFrame, table_name: str) -> pd.DataFrame:
         .drop(["report_prd", "spplmnt_num", "row_num"], axis="columns", errors="ignore")
     )
     # Exclude fake Test IDs -- not real respondents
-    out_df = out_df[~out_df.respondent_id_ferc714.isin(BAD_RESPONDENTS)]
+    out_df = out_df[~out_df.respondent_id_ferc714_csv.isin(BAD_RESPONDENTS)]
     return out_df
 
 
-def _map_respondent_id_ferc714(df, source: Literal["csv", "xbrl"]):
-    """TODO: Make this map!
+def _assign_respondent_id_ferc714(
+    df: pd.DataFrame, source: Literal["csv", "xbrl"]
+) -> pd.DataFrame:
+    """Assign the PUDL-assigned respondent_id_ferc714 based on the native respondent ID.
 
-    See #3846. this little function should probably mirrored off of
-    `assign_utility_id_ferc1`.
+    We need to replace the natively reported respondent ID from each of the two FERC714
+    sources with a PUDL-assigned respondent ID. The mapping between the native ID's and
+    these PUDL-assigned ID's can be accessed in the database tables
+    ``respondents_csv_ferc714`` and ``respondents_xbrl_ferc714``.
+
+    Args:
+        df: the input table with the native respondent ID column.
+        source: the lower-case string name of the source of the FERC714 data. Either csv
+        or xbrl.
+
+    Returns:
+        an augmented version of the input ``df`` with a new column that replaces
+        the natively reported respondent ID with the PUDL-assigned respondent ID.
     """
+    respondent_map_ferc714 = pd.read_csv(
+        importlib.resources.files("pudl.package_data.glue")
+        / "respondent_id_ferc714.csv"
+    ).convert_dtypes()
+    # use the source utility ID column to get a unique map and for merging
+    resp_id_col = f"respondent_id_ferc714_{source}"
+    resp_map_series = (
+        respondent_map_ferc714.dropna(subset=[resp_id_col])
+        .set_index(resp_id_col)
+        .respondent_id_ferc714
+    )
+
+    df["respondent_id_ferc714"] = df[resp_id_col].map(resp_map_series)
     return df
 
 
@@ -437,16 +394,17 @@ class HourlyPlanningAreaDemand:
                 rename_columns,
                 params=RenameColumns(columns=RENAME_COLS[table_name]["xbrl"]),
             )
-            .pipe(_map_respondent_id_ferc714, "xbrl")
+            .pipe(_assign_respondent_id_ferc714, "xbrl")
             .pipe(cls.convert_dates_to_zero_offset_hours_xbrl)
             .astype({"report_date": "datetime64[ns]"})
             .pipe(cls.convert_dates_to_zero_seconds_xbrl)
+            .pipe(cls.spot_fix_records_xbrl)
             .pipe(cls.ensure_dates_are_continuous, source="xbrl")
         )
         # CSV STUFF
         csv = (
             _pre_process_csv(raw_csv, table_name=table_name)
-            .pipe(_map_respondent_id_ferc714, "csv")
+            .pipe(_assign_respondent_id_ferc714, "csv")
             .pipe(cls.melt_hourx_columns_csv)
             .pipe(cls.parse_date_strings_csv)
             .pipe(cls.ensure_dates_are_continuous, source="csv")
@@ -454,6 +412,7 @@ class HourlyPlanningAreaDemand:
         # CONCATED STUFF
         df = (
             pd.concat([csv, xbrl])
+            .reset_index(drop=True)
             .assign(
                 utc_offset_code=lambda x: cls.standardize_offset_codes(
                     x, TIMEZONE_OFFSET_CODE_FIXES
@@ -639,6 +598,17 @@ class HourlyPlanningAreaDemand:
         return xbrl
 
     @staticmethod
+    def spot_fix_records_xbrl(xbrl: pd.DataFrame):
+        """Spot fix some specific XBRL records."""
+        xbrl_years_mask = xbrl.report_date.dt.year >= min(Ferc714Settings().xbrl_years)
+        if (len_csv_years := len(xbrl[~xbrl_years_mask])) > 25:
+            raise AssertionError(
+                "We expected less than 25 XBRL records that have timestamps "
+                f"with years before the XBRL years, but we found {len_csv_years}"
+            )
+        return xbrl[xbrl_years_mask]
+
+    @staticmethod
     def ensure_dates_are_continuous(df: pd.DataFrame, source: Literal["csv", "xbrl"]):
         """Assert that almost all respondents have continuous timestamps.
 
@@ -753,7 +723,7 @@ class HourlyPlanningAreaDemand:
         duplicated = df.duplicated(["respondent_id_ferc714", "datetime_utc"])
         if (num_dupes := np.count_nonzero(duplicated)) > 10:
             raise AssertionError(
-                f"Found {num_dupes} duplicate UTC datetimes, but we expected 10 or less."
+                f"Found {num_dupes} duplicate UTC datetimes, but we expected 10 or less.\n{df[duplicated]}"
             )
         df = df.query("~@duplicated")
         return df
