@@ -1,3 +1,8 @@
+.. raw:: html
+
+   <script src="/_static/js/minisearch.js"></script>
+   <script src="/_static/js/data_dictionary.js"></script>
+
 ===============================================================================
 PUDL Data Dictionary
 ===============================================================================
@@ -6,7 +11,7 @@ The following data tables have been cleaned and transformed by our ETL process.
 
 .. raw:: html
 
-   <input type="text" id="search-input"></input>
+   <input type="text" id="search-input" placeholder="Search..."></input>
    <div class="resource-list">
 
 {% for resource in package.get_sorted_resources() %}

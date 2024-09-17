@@ -4,33 +4,54 @@ const makeQuerier = () => {
         .querySelectorAll("section")
     ];
 
+    const tocNodeMap = [
+        ...document.querySelector(".toc-tree li ul").children
+    ].reduce((acc, cur) => { acc[cur.innerText] = cur; return acc }, {});
+    // TODO 2024-09-17: long-term, it probably makes sense to just jam a bunch
+    // of structured data into the `package.rst.jinja` as a JSON.
+
     // TODO 2024-09-16: try having the core document be a *column* not a whole
     // table. and then - when rendering, show the table description + relevant columns.
     const documents = allSections.map(section => {
+        const title = section.getElementsByTagName("h2")[0].innerText;
         return {
             id: section.id,
-            title: section.getElementsByTagName("h2")[0].innerText,
+            title: title,
             text: section.innerText,
-            node: section
+            node: section,
+            tocNode: tocNodeMap[title]
         }
     });
 
-    // TODO 2024-09-16: tokenize better - split between source & form #; split underscores
     // TODO 2024-09-16: add stopwords & stemming
     const miniSearch = new MiniSearch({
         fields: ["title", "text"],
-        storeFields: ["id", "node"],
+        storeFields: ["id", "node", "tocNode"],
+        tokenize: (string, _fieldName) => string.replace(/(\d+)/g, "_$1").split(/[^a-zA-Z0-9]/)
     });
 
     miniSearch.addAll(documents);
 
     const query = e => {
-        const results = miniSearch.search(
-            // boost the out layer, unless core or raw are in the query
-            e.target.value,
+        const rawQuery = e.target.value.toLowerCase();
+        let results = [];
+        if (rawQuery.trim() === "") {
+            results = allSections.map(section => { node: section });
+        }
+
+        let query = rawQuery;
+
+        // TODO: actually parse out the layer as a structured field instead of searching like this.
+        if (rawQuery.search(/raw|core|out/) === -1) {
+            query += " out";
+        }
+
+        results = miniSearch.search(
+            query,
             {
                 prefix: true,
                 fuzzy: 0.2,
+                combineWith: "and",
             }
         );
         renderQueryResults(results);
@@ -51,12 +72,19 @@ const makeQuerier = () => {
 };
 
 const renderQueryResults = results => {
+    /**
+     * TODO 2024-09-17: use the result.match MatchInfo object to highlight the matching text:
+     * - find all the terms that matched (e.g. generator, generation, generated)
+     * - run a replaceAll on the innerHTML, wrapping all instances with <span class="highlighted"></span>
+     * - replace the innerHTML
+     * - make sure there's CSS that highlights the highlighted
+     */
     const resourceList = document.getElementsByClassName("resource-list")[0];
     const resultSections = results.map(s => s.node);
+    const resultTocNodes = results.map(s => s.tocNode);
     resourceList.replaceChildren(...resultSections);
-
-    // append the title to the list of result titles
-    // and make the .toc-tree only have those titles
+    const tocList = document.querySelector(".toc-tree li ul");
+    tocList.replaceChildren(...resultTocNodes);
 }
 
 
