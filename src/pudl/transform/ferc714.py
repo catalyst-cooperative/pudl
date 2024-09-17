@@ -9,7 +9,7 @@ from typing import Literal
 
 import numpy as np
 import pandas as pd
-from dagster import AssetCheckResult, AssetChecksDefinition, asset, asset_check
+from dagster import AssetCheckResult, AssetChecksDefinition, AssetIn, asset, asset_check
 
 import pudl.logging_helpers
 from pudl.metadata import PUDL_PACKAGE
@@ -319,7 +319,7 @@ class RenameColumnsFerc714(TransformParams):
 ##############################################################################
 # Internal helper functions.
 ##############################################################################
-def pre_process_csv(df: pd.DataFrame, table_name: str) -> pd.DataFrame:
+def _pre_process_csv(df: pd.DataFrame, table_name: str) -> pd.DataFrame:
     """A simple transform function for until the real ones are written.
 
     * Removes footnotes columns ending with _f
@@ -340,70 +340,13 @@ def pre_process_csv(df: pd.DataFrame, table_name: str) -> pd.DataFrame:
     return out_df
 
 
-def melt_hourx_columns_csv(df):
-    """Melt hourX columns into hours."""
-    # Almost all 25th hours are unusable (0.0 or daily totals),
-    # and they shouldn't really exist at all based on FERC instructions.
-    df = df.drop(columns="hour25")
+def _map_respondent_id_ferc714(df, source: Literal["csv", "xbrl"]):
+    """TODO: Make this map!
 
-    # Melt daily rows with 24 demands to hourly rows with single demand
-    logger.info("Melting daily FERC 714 records into hourly records.")
-    df = df.rename(
-        columns=lambda x: int(re.sub(r"^hour", "", x)) - 1 if "hour" in x else x,
-    )
-    df = df.melt(
-        id_vars=[
-            "respondent_id_ferc714",
-            "report_year",
-            "report_date",
-            "utc_offset_code",
-        ],
-        value_vars=range(24),
-        var_name="hour",
-        value_name="demand_mwh",
-    )
-    return df
-
-
-def map_respondent_id_ferc714(df, source: Literal["csv", "xbrl"]):
-    """TODO: Make this map!"""
-    return df
-
-
-def remove_yearly_records_duration_xbrl(duration_xbrl):
-    """Convert a table with mostly daily records with some annuals into fully daily.
-
-    Almost all of the records have a start_date that == the end_date
-    which I'm assuming means the record spans the duration of one day
-    there are a small handful of records which seem to span a full year.
+    See #3846. this little function should probably mirrored off of
+    `assign_utility_id_ferc1`.
     """
-    duration_xbrl = duration_xbrl.astype(
-        {"start_date": "datetime64[ns]", "end_date": "datetime64[ns]"}
-    )
-    one_day_mask = duration_xbrl.start_date == duration_xbrl.end_date
-    duration_xbrl_one_day = duration_xbrl[one_day_mask]
-    duration_xbrl_one_year = duration_xbrl[~one_day_mask]
-    # ensure there are really only a few of these multi-day records
-    assert len(duration_xbrl_one_year) / len(duration_xbrl_one_day) < 0.0005
-    # ensure all of these records are one year records
-    assert all(
-        duration_xbrl_one_year.start_date
-        + pd.DateOffset(years=1)
-        - pd.DateOffset(days=1)
-        == duration_xbrl_one_year.end_date
-    )
-    # these one-year records all show up as one-day records.
-    idx = ["entity_id", "report_year", "start_date"]
-    assert all(
-        duration_xbrl_one_year.merge(
-            duration_xbrl_one_day, on=idx, how="left", indicator=True
-        )._merge
-        == "both"
-    )
-    # all but two of them have the same timezone as the hourly data.
-    # two of them have UTC instead of a local timezone reported in hourly data.
-    # this leads me to think these are okay to just drop
-    return duration_xbrl_one_day
+    return df
 
 
 def assign_report_day(df: pd.DataFrame, date_col: str) -> pd.DataFrame:
@@ -411,189 +354,6 @@ def assign_report_day(df: pd.DataFrame, date_col: str) -> pd.DataFrame:
     return df.assign(
         report_day=pd.to_datetime(df[date_col], format="%Y-%m-%d", exact=False)
     )
-
-
-def merge_instant_and_duration_tables_xbrl(
-    instant_xbrl: pd.DataFrame, duration_xbrl: pd.DataFrame, table_name: str
-) -> pd.DataFrame:
-    """Merge XBRL instant and duration tables, reshaping instant as needed.
-
-    FERC714 XBRL instant period signifies that it is true as of the reported date,
-    while a duration fact pertains to the specified time period. The ``date`` column
-    for an instant fact corresponds to the ``end_date`` column of a duration fact.
-
-    Args:
-        instant_xbrl: table representing XBRL instant facts.
-        raw_xbrl_duration: table representing XBRL duration facts.
-
-    Returns:
-        A unified table combining the XBRL duration and instant facts, if both types
-        of facts were present. If either input dataframe is empty, the other
-        dataframe is returned unchanged, except that several unused columns are
-        dropped. If both input dataframes are empty, an empty dataframe is returned.
-    """
-    drop_cols = ["filing_name", "index"]
-    # Ignore errors in case not all drop_cols are present.
-    instant = instant_xbrl.drop(columns=drop_cols, errors="ignore").pipe(
-        assign_report_day, "date"
-    )
-    duration = duration_xbrl.drop(columns=drop_cols, errors="ignore").pipe(
-        assign_report_day, "start_date"
-    )
-
-    merge_keys = ["entity_id", "report_year", "report_day", "sched_table_name"]
-    # Merge instant into duration.
-    out_df = pd.merge(
-        instant,
-        duration,
-        how="left",
-        on=merge_keys,
-        validate="m:1",
-    ).drop(columns=["report_day", "start_date", "end_date"])
-    return out_df
-
-
-def convert_dates_to_zero_offset_hours_xbrl(xbrl: pd.DataFrame) -> pd.DataFrame:
-    """Convert all hours to: Hour (24-hour clock) as a zero-padded decimal number.
-
-    Some but not all of the records start with hour 0, while other start with hour 1.
-    It is not immediately clear whether or not hours 1-24 corresponds to 1-00 hours.
-    """
-    bad_24_hour_mask = xbrl.report_date.str.contains("T24:")
-
-    xbrl.loc[bad_24_hour_mask, "report_date"] = pd.to_datetime(
-        xbrl[bad_24_hour_mask].report_date.str.replace("T24:", "T23:"),
-        format="%Y-%m-%dT%H:%M:%S",
-    ) + np.timedelta64(1, "h")
-    return xbrl
-
-
-def parse_date_strings_csv(df, datetime_format):
-    """Convert report_date into pandas Datetime types."""
-    # Parse date strings
-    # NOTE: Faster to ignore trailing 00:00:00 and use exact=False
-    df["report_date"] = pd.to_datetime(
-        df["report_date"], format=datetime_format, exact=False
-    )
-    # Assert that all respondents and years have complete and unique dates
-    all_dates = {
-        year: set(pd.date_range(f"{year}-01-01", f"{year}-12-31", freq="1D"))
-        for year in range(df["report_year"].min(), df["report_year"].max() + 1)
-    }
-    assert (  # nosec B101
-        df.groupby(["respondent_id_ferc714", "report_year"])
-        .apply(lambda x: set(x["report_date"]) == all_dates[x.name[1]])
-        .all()
-    )
-    return df
-
-
-def convert_dates_to_zero_seconds_xbrl(xbrl: pd.DataFrame) -> pd.DataFrame:
-    """Convert the last second of the day records to the first (0) second of the next day.
-
-    There are a small amount of records which report the last "hour" of the day
-    with as last second of the day, as opposed to T24 cleaned in
-    :func:`convert_dates_to_zero_offset_hours_xbrl` or T00 which is standard for a
-    numpy datetime. This function finds these records and adds one second of them and
-    then ensures all of the records has 0's for seconds.
-    """
-    last_second_mask = xbrl.report_date.dt.second == 59
-
-    xbrl.loc[last_second_mask, "report_date"] = xbrl.loc[
-        last_second_mask, "report_date"
-    ] + pd.Timedelta("1s")
-    assert xbrl[xbrl.report_date.dt.second != 0].empty
-    return xbrl
-
-
-def ensure_dates_are_complete_and_unique(df):
-    """Assert that all respondents and years have complete and unique dates."""
-    df["gap"] = df[["respondent_id_ferc714", "report_date"]].sort_values(
-        by=["respondent_id_ferc714", "report_date"]
-    ).groupby("respondent_id_ferc714").diff() > pd.to_timedelta("1h")
-    if not (gappy_dates := df[df.gap]).empty:
-        raise AssertionError(
-            "We expect there to be no gaps in the time series."
-            f"but we found these gaps:\n{gappy_dates}"
-        )
-    return df.drop(columns=["gap"])
-
-
-def parse_date_strings_xbrl(xbrl: pd.DataFrame) -> pd.DataFrame:
-    """Convert report_date into pandas Datetime types."""
-    xbrl = xbrl.astype({"report_date": "datetime64[ns]"}).pipe(
-        ensure_dates_are_complete_and_unique
-    )
-    return xbrl
-
-
-def clean_utc_code_offsets_and_set_timezone(df):
-    """Clean UTC Codes and set timezone."""
-    # Clean UTC offset codes
-    df["utc_offset_code"] = df["utc_offset_code"].str.strip().str.upper()
-    df["utc_offset_code"] = _standardize_offset_codes(df, OFFSET_CODE_FIXES)
-
-    # NOTE: Assumes constant timezone for entire year
-    for fix in OFFSET_CODE_FIXES_BY_YEAR:
-        mask = (df["report_year"] == fix["report_year"]) & (
-            df["respondent_id_ferc714"] == fix["respondent_id_ferc714"]
-        )
-        df.loc[mask, "utc_offset_code"] = fix["utc_offset_code"]
-
-    # Replace UTC offset codes with UTC offset and timezone
-    df["utc_offset"] = df["utc_offset_code"].map(OFFSET_CODES)
-    df["timezone"] = df["utc_offset_code"].map(TZ_CODES)
-    return df
-
-
-def drop_missing_utc_offset(df):
-    """Drop records with missing UTC offsets and zero demand."""
-    # Assert that all records missing UTC offset have zero demand
-    missing_offset = df["utc_offset"].isna()
-    bad_offset_and_demand = df.loc[missing_offset & (df.demand_mwh != 0)]
-    if not bad_offset_and_demand.empty:
-        raise AssertionError(
-            "We expect all of the records without a cleaned utc_offset "
-            f"to not have any demand data, but we found {len(bad_offset_and_demand)} "
-            "records.\nUncleaned Codes: "
-            f"{bad_offset_and_demand.utc_offset_code.unique()}"
-        )
-    # Drop these records & then drop the original offset code
-    df = df.query("~@missing_offset").drop(columns="utc_offset_code")
-    return df
-
-
-def construct_utc_datetime(df: pd.DataFrame) -> pd.DataFrame:
-    """Construct datetime_utc column."""
-    # Construct UTC datetime
-    logger.info("Converting local time + offset code to UTC + timezone.")
-    hour_timedeltas = {i: pd.to_timedelta(i, unit="h") for i in range(24)}
-    df["report_date"] += df["hour"].map(hour_timedeltas)
-    df["datetime_utc"] = df["report_date"] - df["utc_offset"]
-    df = df.drop(columns=["hour", "utc_offset"])
-
-    # Report and drop duplicated UTC datetimes
-    # There should be less than 10 of these,
-    # resulting from changes to a planning area's reporting timezone.
-    duplicated = df.duplicated(["respondent_id_ferc714", "datetime_utc"])
-    # TODO: convert this into an error
-    logger.info(f"Found {np.count_nonzero(duplicated)} duplicate UTC datetimes.")
-    df = df.query("~@duplicated")
-    return df
-
-
-def spot_fix_values(df: pd.DataFrame) -> pd.DataFrame:
-    """Spot fix values."""
-    # Flip the sign on sections of demand which were reported as negative
-    mask = (
-        df["report_year"].isin([2006, 2007, 2008, 2009])
-        & (df["respondent_id_ferc714"] == 156)
-    ) | (
-        df["report_year"].isin([2006, 2007, 2008, 2009, 2010])
-        & (df["respondent_id_ferc714"] == 289)
-    )
-    df.loc[mask, "demand_mwh"] *= -1
-    return df
 
 
 def _post_process(df: pd.DataFrame, table_name: str) -> pd.DataFrame:
@@ -609,50 +369,6 @@ def _post_process(df: pd.DataFrame, table_name: str) -> pd.DataFrame:
         The post-processed dataframe.
     """
     return PUDL_PACKAGE.get_resource(table_name).enforce_schema(df)
-
-
-def _standardize_offset_codes(df: pd.DataFrame, offset_fixes) -> pd.DataFrame:
-    """Convert to standardized UTC offset abbreviations.
-
-    This function ensures that all of the 3-4 letter abbreviations used to indicate a
-    timestamp's localized offset from UTC are standardized, so that they can be used to
-    make the timestamps timezone aware. The standard abbreviations we're using are:
-
-    "HST": Hawaii Standard Time
-    "AKST": Alaska Standard Time
-    "AKDT": Alaska Daylight Time
-    "PST": Pacific Standard Time
-    "PDT": Pacific Daylight Time
-    "MST": Mountain Standard Time
-    "MDT": Mountain Daylight Time
-    "CST": Central Standard Time
-    "CDT": Central Daylight Time
-    "EST": Eastern Standard Time
-    "EDT": Eastern Daylight Time
-
-    In some cases different respondents use the same non-standard abbreviations to
-    indicate different offsets, and so the fixes are applied on a per-respondent basis,
-    as defined by offset_fixes.
-
-    Args:
-        df: DataFrame containing a utc_offset_code column that needs to be standardized.
-        offset_fixes: A dictionary with respondent_id_ferc714 values as the keys, and a
-            dictionary mapping non-standard UTC offset codes to the standardized UTC
-            offset codes as the value.
-
-    Returns:
-        Standardized UTC offset codes.
-    """
-    logger.info("Standardizing UTC offset codes.")
-    # We only need a couple of columns here:
-    codes = df[["respondent_id_ferc714", "utc_offset_code"]].copy()
-    # Set all blank "" missing UTC codes to np.nan
-    codes["utc_offset_code"] = codes.utc_offset_code.mask(codes.utc_offset_code == "")
-    # Apply specific fixes on a per-respondent basis:
-    codes = codes.groupby("respondent_id_ferc714").transform(
-        lambda x: x.replace(offset_fixes[x.name]) if x.name in offset_fixes else x
-    )
-    return codes
 
 
 @asset(
@@ -675,7 +391,7 @@ def core_ferc714__respondent_id(
     Returns:
         A clean(er) version of the FERC-714 respondents table.
     """
-    df = pre_process_csv(
+    df = _pre_process_csv(
         raw_ferc714_csv__respondent_id, table_name="core_ferc714__respondent_id"
     )
     df["respondent_name_ferc714"] = df.respondent_name_ferc714.str.strip()
@@ -686,74 +402,385 @@ def core_ferc714__respondent_id(
     return _post_process(df, table_name="core_ferc714__respondent_id")
 
 
+class HourlyPlanningAreaDemand:
+    """Class for building the :ref:`out_ferc714__hourly_planning_area_demand` asset.
+
+    The :ref:`out_ferc714__hourly_planning_area_demand` table is an hourly time
+    series of demand by Planning Area.
+
+    Most of the methods in this class as staticmethods. The purpose of using a class
+    in this instance is mostly for organizing the table specific transforms under the
+    same name-space.
+    """
+
+    @classmethod
+    def run(
+        cls,
+        raw_csv: pd.DataFrame,
+        raw_xbrl_duration: pd.DataFrame,
+        raw_xbrl_instant: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """Build the :ref:`out_ferc714__hourly_planning_area_demand` asset."""
+        table_name = "out_ferc714__hourly_planning_area_demand"
+        # CSV STUFF
+        csv = (
+            _pre_process_csv(raw_csv, table_name=table_name)
+            .pipe(_map_respondent_id_ferc714, "csv")
+            .pipe(cls.melt_hourx_columns_csv)
+            .pipe(cls.parse_date_strings_csv, datetime_format="%m/%d/%Y")
+        )
+        # XBRL STUFF
+        duration_xbrl = cls.remove_yearly_records_duration_xbrl(raw_xbrl_duration)
+        xbrl = (
+            cls.merge_instant_and_duration_tables_xbrl(
+                raw_xbrl_instant, duration_xbrl, table_name=table_name
+            )
+            .pipe(
+                rename_columns,
+                params=RenameColumns(columns=RENAME_COLS[table_name]["xbrl"]),
+            )
+            .pipe(_map_respondent_id_ferc714, "xbrl")
+            .pipe(cls.convert_dates_to_zero_offset_hours_xbrl)
+            .pipe(cls.parse_date_strings_xbrl)
+            .pipe(cls.convert_dates_to_zero_seconds_xbrl)
+            .pipe(cls.ensure_dates_are_complete_and_unique_xbrl)
+        )
+        # CONCATED STUFF
+        df = (
+            pd.concat([csv, xbrl])
+            .assign(
+                utc_offset_code=lambda x: cls.standardize_offset_codes(
+                    x, OFFSET_CODE_FIXES
+                )
+            )
+            .pipe(cls.clean_utc_code_offsets_and_set_timezone)
+            .pipe(cls.drop_missing_utc_offset)
+            .pipe(cls.construct_utc_datetime)
+            .pipe(cls.spot_fix_values)
+            # Convert report_date to first day of year
+            .assign(
+                report_date=lambda x: x.report_date.dt.to_period("Y").dt.to_timestamp()
+            )
+            .pipe(_post_process, table_name=table_name)
+        )
+        return df
+
+    @staticmethod
+    def melt_hourx_columns_csv(df):
+        """Melt hourX columns into hours."""
+        # Almost all 25th hours are unusable (0.0 or daily totals),
+        # and they shouldn't really exist at all based on FERC instructions.
+        df = df.drop(columns="hour25")
+
+        # Melt daily rows with 24 demands to hourly rows with single demand
+        logger.info("Melting daily FERC 714 records into hourly records.")
+        df = df.rename(
+            columns=lambda x: int(re.sub(r"^hour", "", x)) - 1 if "hour" in x else x,
+        )
+        df = df.melt(
+            id_vars=[
+                "respondent_id_ferc714",
+                "report_year",
+                "report_date",
+                "utc_offset_code",
+            ],
+            value_vars=range(24),
+            var_name="hour",
+            value_name="demand_mwh",
+        )
+        return df
+
+    @staticmethod
+    def parse_date_strings_csv(df, datetime_format):
+        """Convert report_date into pandas Datetime types."""
+        # Parse date strings
+        # NOTE: Faster to ignore trailing 00:00:00 and use exact=False
+        df["report_date"] = pd.to_datetime(
+            df["report_date"], format=datetime_format, exact=False
+        )
+        # Assert that all respondents and years have complete and unique dates
+        all_dates = {
+            year: set(pd.date_range(f"{year}-01-01", f"{year}-12-31", freq="1D"))
+            for year in range(df["report_year"].min(), df["report_year"].max() + 1)
+        }
+        assert (  # nosec B101
+            df.groupby(["respondent_id_ferc714", "report_year"])
+            .apply(lambda x: set(x["report_date"]) == all_dates[x.name[1]])
+            .all()
+        )
+        return df
+
+    @staticmethod
+    def remove_yearly_records_duration_xbrl(duration_xbrl):
+        """Convert a table with mostly daily records with some annuals into fully daily.
+
+        Almost all of the records have a start_date that == the end_date
+        which I'm assuming means the record spans the duration of one day
+        there are a small handful of records which seem to span a full year.
+        """
+        duration_xbrl = duration_xbrl.astype(
+            {"start_date": "datetime64[ns]", "end_date": "datetime64[ns]"}
+        )
+        one_day_mask = duration_xbrl.start_date == duration_xbrl.end_date
+        duration_xbrl_one_day = duration_xbrl[one_day_mask]
+        duration_xbrl_one_year = duration_xbrl[~one_day_mask]
+        # ensure there are really only a few of these multi-day records
+        assert len(duration_xbrl_one_year) / len(duration_xbrl_one_day) < 0.0005
+        # ensure all of these records are one year records
+        assert all(
+            duration_xbrl_one_year.start_date
+            + pd.DateOffset(years=1)
+            - pd.DateOffset(days=1)
+            == duration_xbrl_one_year.end_date
+        )
+        # these one-year records all show up as one-day records.
+        idx = ["entity_id", "report_year", "start_date"]
+        assert all(
+            duration_xbrl_one_year.merge(
+                duration_xbrl_one_day, on=idx, how="left", indicator=True
+            )._merge
+            == "both"
+        )
+        # all but two of them have the same timezone as the hourly data.
+        # two of them have UTC instead of a local timezone reported in hourly data.
+        # this leads me to think these are okay to just drop
+        return duration_xbrl_one_day
+
+    @staticmethod
+    def merge_instant_and_duration_tables_xbrl(
+        instant_xbrl: pd.DataFrame, duration_xbrl: pd.DataFrame, table_name: str
+    ) -> pd.DataFrame:
+        """Merge XBRL instant and duration tables, reshaping instant as needed.
+
+        FERC714 XBRL instant period signifies that it is true as of the reported date,
+        while a duration fact pertains to the specified time period. The ``date`` column
+        for an instant fact corresponds to the ``end_date`` column of a duration fact.
+
+        Args:
+            instant_xbrl: table representing XBRL instant facts.
+            raw_xbrl_duration: table representing XBRL duration facts.
+
+        Returns:
+            A unified table combining the XBRL duration and instant facts, if both types
+            of facts were present. If either input dataframe is empty, the other
+            dataframe is returned unchanged, except that several unused columns are
+            dropped. If both input dataframes are empty, an empty dataframe is returned.
+        """
+        drop_cols = ["filing_name", "index"]
+        # Ignore errors in case not all drop_cols are present.
+        instant = instant_xbrl.drop(columns=drop_cols, errors="ignore").pipe(
+            assign_report_day, "date"
+        )
+        duration = duration_xbrl.drop(columns=drop_cols, errors="ignore").pipe(
+            assign_report_day, "start_date"
+        )
+
+        merge_keys = ["entity_id", "report_year", "report_day", "sched_table_name"]
+        # Merge instant into duration.
+        out_df = pd.merge(
+            instant,
+            duration,
+            how="left",
+            on=merge_keys,
+            validate="m:1",
+        ).drop(columns=["report_day", "start_date", "end_date"])
+        return out_df
+
+    @staticmethod
+    def convert_dates_to_zero_offset_hours_xbrl(xbrl: pd.DataFrame) -> pd.DataFrame:
+        """Convert all hours to: Hour (24-hour clock) as a zero-padded decimal number.
+
+        Some but not all of the records start with hour 0, while other start with hour 1.
+        It is not immediately clear whether or not hours 1-24 corresponds to 1-00 hours.
+        """
+        bad_24_hour_mask = xbrl.report_date.str.contains("T24:")
+
+        xbrl.loc[bad_24_hour_mask, "report_date"] = pd.to_datetime(
+            xbrl[bad_24_hour_mask].report_date.str.replace("T24:", "T23:"),
+            format="%Y-%m-%dT%H:%M:%S",
+        ) + np.timedelta64(1, "h")
+        return xbrl
+
+    @staticmethod
+    def convert_dates_to_zero_seconds_xbrl(xbrl: pd.DataFrame) -> pd.DataFrame:
+        """Convert the last second of the day records to the first (0) second of the next day.
+
+        There are a small amount of records which report the last "hour" of the day
+        with as last second of the day, as opposed to T24 cleaned in
+        :func:`convert_dates_to_zero_offset_hours_xbrl` or T00 which is standard for a
+        numpy datetime. This function finds these records and adds one second of them and
+        then ensures all of the records has 0's for seconds.
+        """
+        last_second_mask = xbrl.report_date.dt.second == 59
+
+        xbrl.loc[last_second_mask, "report_date"] = xbrl.loc[
+            last_second_mask, "report_date"
+        ] + pd.Timedelta("1s")
+        assert xbrl[xbrl.report_date.dt.second != 0].empty
+        return xbrl
+
+    @staticmethod
+    def ensure_dates_are_complete_and_unique_xbrl(df):
+        """Assert that almost all respondents and years have complete and unique dates.
+
+        We found 41 gaps in the timeseries!
+        """
+        df["gap"] = df[["respondent_id_ferc714", "report_date"]].sort_values(
+            by=["respondent_id_ferc714", "report_date"]
+        ).groupby("respondent_id_ferc714").diff() > pd.to_timedelta("1h")
+        if len(gappy_dates := df[df.gap]) > 41:
+            raise AssertionError(
+                "We expect there to be nearly no gaps in the time series."
+                f"but we found these gaps:\n{gappy_dates}"
+            )
+        return df.drop(columns=["gap"])
+
+    @staticmethod
+    def parse_date_strings_xbrl(xbrl: pd.DataFrame) -> pd.DataFrame:
+        """Convert report_date into pandas Datetime types."""
+        xbrl = xbrl.astype({"report_date": "datetime64[ns]"})
+        return xbrl
+
+    @staticmethod
+    def standardize_offset_codes(df: pd.DataFrame, offset_fixes) -> pd.Series:
+        """Convert to standardized UTC offset abbreviations.
+
+        This function ensures that all of the 3-4 letter abbreviations used to indicate a
+        timestamp's localized offset from UTC are standardized, so that they can be used to
+        make the timestamps timezone aware. The standard abbreviations we're using are:
+
+        "HST": Hawaii Standard Time
+        "AKST": Alaska Standard Time
+        "AKDT": Alaska Daylight Time
+        "PST": Pacific Standard Time
+        "PDT": Pacific Daylight Time
+        "MST": Mountain Standard Time
+        "MDT": Mountain Daylight Time
+        "CST": Central Standard Time
+        "CDT": Central Daylight Time
+        "EST": Eastern Standard Time
+        "EDT": Eastern Daylight Time
+
+        In some cases different respondents use the same non-standard abbreviations to
+        indicate different offsets, and so the fixes are applied on a per-respondent basis,
+        as defined by offset_fixes.
+
+        Args:
+            df: DataFrame containing a utc_offset_code column that needs to be standardized.
+            offset_fixes: A dictionary with respondent_id_ferc714 values as the keys, and a
+                dictionary mapping non-standard UTC offset codes to the standardized UTC
+                offset codes as the value.
+
+        Returns:
+            Standardized UTC offset codes.
+        """
+        logger.info("Standardizing UTC offset codes.")
+        # Clean UTC offset codes
+        df["utc_offset_code"] = df["utc_offset_code"].str.strip().str.upper()
+        # We only need a couple of columns here:
+        codes = df[["respondent_id_ferc714", "utc_offset_code"]].copy()
+        # Set all blank "" missing UTC codes to np.nan
+        codes["utc_offset_code"] = codes.utc_offset_code.mask(
+            codes.utc_offset_code == ""
+        )
+        # Apply specific fixes on a per-respondent basis:
+        codes = codes.groupby("respondent_id_ferc714").transform(
+            lambda x: x.replace(offset_fixes[x.name]) if x.name in offset_fixes else x
+        )
+        return codes
+
+    @staticmethod
+    def clean_utc_code_offsets_and_set_timezone(df):
+        """Clean UTC Codes and set timezone."""
+        # NOTE: Assumes constant timezone for entire year
+        for fix in OFFSET_CODE_FIXES_BY_YEAR:
+            mask = (df["report_year"] == fix["report_year"]) & (
+                df["respondent_id_ferc714"] == fix["respondent_id_ferc714"]
+            )
+            df.loc[mask, "utc_offset_code"] = fix["utc_offset_code"]
+
+        # Replace UTC offset codes with UTC offset and timezone
+        df["utc_offset"] = df["utc_offset_code"].map(OFFSET_CODES)
+        df["timezone"] = df["utc_offset_code"].map(TZ_CODES)
+        return df
+
+    @staticmethod
+    def drop_missing_utc_offset(df):
+        """Drop records with missing UTC offsets and zero demand."""
+        # Assert that all records missing UTC offset have zero demand
+        missing_offset = df["utc_offset"].isna()
+        bad_offset_and_demand = df.loc[missing_offset & (df.demand_mwh != 0)]
+        if not bad_offset_and_demand.empty:
+            raise AssertionError(
+                "We expect all of the records without a cleaned utc_offset "
+                f"to not have any demand data, but we found {len(bad_offset_and_demand)} "
+                "records.\nUncleaned Codes: "
+                f"{bad_offset_and_demand.utc_offset_code.unique()}"
+            )
+        # Drop these records & then drop the original offset code
+        df = df.query("~@missing_offset").drop(columns="utc_offset_code")
+        return df
+
+    @staticmethod
+    def construct_utc_datetime(df: pd.DataFrame) -> pd.DataFrame:
+        """Construct datetime_utc column."""
+        # Construct UTC datetime
+        logger.info("Converting local time + offset code to UTC + timezone.")
+        hour_timedeltas = {i: pd.to_timedelta(i, unit="h") for i in range(24)}
+        df["report_date"] += df["hour"].map(hour_timedeltas)
+        df["datetime_utc"] = df["report_date"] - df["utc_offset"]
+        df = df.drop(columns=["hour", "utc_offset"])
+
+        # Report and drop duplicated UTC datetimes
+        # There should be less than 10 of these,
+        # resulting from changes to a planning area's reporting timezone.
+        duplicated = df.duplicated(["respondent_id_ferc714", "datetime_utc"])
+        # TODO: convert this into an error
+        logger.info(f"Found {np.count_nonzero(duplicated)} duplicate UTC datetimes.")
+        df = df.query("~@duplicated")
+        return df
+
+    @staticmethod
+    def spot_fix_values(df: pd.DataFrame) -> pd.DataFrame:
+        """Spot fix values."""
+        # Flip the sign on sections of demand which were reported as negative
+        mask = (
+            df["report_year"].isin([2006, 2007, 2008, 2009])
+            & (df["respondent_id_ferc714"] == 156)
+        ) | (
+            df["report_year"].isin([2006, 2007, 2008, 2009, 2010])
+            & (df["respondent_id_ferc714"] == 289)
+        )
+        df.loc[mask, "demand_mwh"] *= -1
+        return df
+
+
 @asset(
+    ins={
+        "raw_csv": AssetIn(key="raw_ferc714_csv__hourly_planning_area_demand"),
+        "raw_xbrl_duration": AssetIn(
+            key="raw_ferc714_xbrl__planning_area_hourly_demand_and_forecast_summer_and_winter_peak_demand_and_annual_net_energy_for_load_03_2_duration"
+        ),
+        "raw_xbrl_instant": AssetIn(
+            key="raw_ferc714_xbrl__planning_area_hourly_demand_and_forecast_summer_and_winter_peak_demand_and_annual_net_energy_for_load_03_2_instant"
+        ),
+    },
     io_manager_key="parquet_io_manager",
     op_tags={"memory-use": "high"},
     compute_kind="pandas",
 )
-def out_ferc714__hourly_planning_area_demand(  # noqa: C901
-    raw_ferc714_csv__hourly_planning_area_demand: pd.DataFrame,
-    raw_ferc714_xbrl__planning_area_hourly_demand_and_forecast_summer_and_winter_peak_demand_and_annual_net_energy_for_load_03_2_duration: pd.DataFrame,
-    raw_ferc714_xbrl__planning_area_hourly_demand_and_forecast_summer_and_winter_peak_demand_and_annual_net_energy_for_load_03_2_instant: pd.DataFrame,
+def out_ferc714__hourly_planning_area_demand(
+    raw_csv: pd.DataFrame,
+    raw_xbrl_duration: pd.DataFrame,
+    raw_xbrl_instant: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Transform the hourly demand time series by Planning Area.
+    """Build the :ref:`out_ferc714__hourly_planning_area_demand`.
 
-    Transformations include:
-
-    - Clean UTC offset codes.
-    - Replace UTC offset codes with UTC offset and timezone.
-    - Drop 25th hour rows.
-    - Set records with 0 UTC code to 0 demand.
-    - Drop duplicate rows.
-    - Flip negative signs for reported demand.
-
-    Args:
-        raw_ferc714_csv__hourly_planning_area_demand: Raw table containing hourly demand
-            time series by Planning Area.
-
-    Returns:
-        Clean(er) version of the hourly demand time series by Planning Area.
+    This is a light wrapper around :class:`HourlyPlanningAreaDemand` because
+    it seems you need to build an asset from a function - not a staticmethod of
+    a class.
     """
-    table_name = "out_ferc714__hourly_planning_area_demand"
-    # CSV STUFF
-    csv = (
-        pre_process_csv(
-            raw_ferc714_csv__hourly_planning_area_demand, table_name=table_name
-        )
-        .pipe(map_respondent_id_ferc714, "csv")
-        .pipe(melt_hourx_columns_csv)
-        .pipe(parse_date_strings_csv, datetime_format="%m/%d/%Y")
-    )
-    # XBRL STUFF
-    duration_xbrl = remove_yearly_records_duration_xbrl(
-        raw_ferc714_xbrl__planning_area_hourly_demand_and_forecast_summer_and_winter_peak_demand_and_annual_net_energy_for_load_03_2_duration
-    )
-    instant_xbrl = raw_ferc714_xbrl__planning_area_hourly_demand_and_forecast_summer_and_winter_peak_demand_and_annual_net_energy_for_load_03_2_instant
-    xbrl = (
-        merge_instant_and_duration_tables_xbrl(
-            instant_xbrl, duration_xbrl, table_name=table_name
-        )
-        .pipe(
-            rename_columns,
-            params=RenameColumns(columns=RENAME_COLS[table_name]["xbrl"]),
-        )
-        .pipe(map_respondent_id_ferc714, "xbrl")
-        .pipe(convert_dates_to_zero_offset_hours_xbrl)
-        .pipe(parse_date_strings_xbrl)
-        .pipe(convert_dates_to_zero_seconds_xbrl)
-    )
-    # CONCATED STUFF
-    df = (
-        pd.concat([csv, xbrl])
-        .pipe(clean_utc_code_offsets_and_set_timezone)
-        .pipe(drop_missing_utc_offset)
-        .pipe(construct_utc_datetime)
-        .pipe(spot_fix_values)
-        # Convert report_date to first day of year
-        .assign(report_date=lambda x: x.report_date.dt.to_period("Y").dt.to_timestamp())
-        .pipe(_post_process, table_name=table_name)
-    )
-    return df
+    return HourlyPlanningAreaDemand.run(raw_csv, raw_xbrl_duration, raw_xbrl_instant)
 
 
 @asset(
@@ -780,7 +807,7 @@ def core_ferc714__yearly_planning_area_demand_forecast(
         Clean(er) version of the yearly forecasted demand by Planning Area.
     """
     # Clean up columns
-    df = pre_process_csv(
+    df = _pre_process_csv(
         raw_ferc714_csv__yearly_planning_area_demand_forecast,
         table_name="core_ferc714__yearly_planning_area_demand_forecast",
     )
