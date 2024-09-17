@@ -31,7 +31,7 @@ export SUPERSET_DB_NAME=superset
 Then you can start the services
 
 ```
-docker compose up
+docker compose --profile local up
 ```
 
 If this is the first time running superset locally or you recently ran `docker compose down` you'll need to run the commands in `setup.sh`.
@@ -59,10 +59,11 @@ export GOOGLE_GHA_CREDS_PATH={/path_to_gcloud_config/application_default_credent
 This credential file will be mounted to the `cloud_auth_proxy` docker service so it can authenticate with GCP.
 
 Next you'll need to set a number of database connection environment variables. You can grab the
-database password using this command:
+database password and Cloud SQL connection name using these commands:
 
 ```
 gcloud secrets versions access latest --secret="superset-database-password"
+gcloud secrets versions access latest --secret="superset-database-connection-name"
 ```
 
 and then set the environment variables:
@@ -73,6 +74,7 @@ export SUPERSET_DB_PORT=5432
 export SUPERSET_DB_USER=postgres
 export SUPERSET_DB_PASS={Grab the password from GCP Secret Manager}
 export SUPERSET_DB_NAME=postgres
+export CLOUD_SQL_CONNECTION_NAME={Grab the database connection name from GCP Secret Manager}
 ```
 
 Finally, run:
