@@ -25,7 +25,7 @@ The data we've integrated from FERC Form 714 includes:
 The hourly demand data for 2006-2020 is about 15 million records. There are about 200
 respondents that show up in the respondents table.
 
-With the EIA IDs we can link the hourly electricity demand to a particular georgraphic
+With the EIA IDs we can link the hourly electricity demand to a particular geographic
 region at the county level because utilities and balancing authorities report their
 service territories in :ref:`core_eia861__yearly_service_territory`. From that
 information we estimate historical hourly electricity demand by state.
@@ -92,7 +92,7 @@ Respondent-to-balancing-authority inconsistencies
 -------------------------------------------------
 
 Because utilities and balancing authorities occasionally change their service
-territories or merge, the demand reproted by any individual "respondent" may correspond
+territories or merge, the demand reported by any individual "respondent" may correspond
 to wildly different consumers in different years. To make it at least somewhat possible
 to compare the reported data across time, we've also compiled historical service
 territory maps for the respondents based on data reported in :doc:`eia861`. However,
@@ -103,5 +103,35 @@ be found in :mod:`pudl.analysis.service_territory` and :mod:`pudl.analysis.spati
 
 The :mod:`pudl.analysis.state_demand` script brings together all of the above to
 estimate historical hourly electricity demand by state for 2006-2020.
+
+Combining XBRL and CSV data
+---------------------------
+
+The format of the company identifiers (CIDs) used in the CSV data (2006-2020) and the
+XBRL data (2021+) differs. To link respondents between both data formats, we manually
+map the IDs from both datasets and create a ``respondent_id_ferc714`` in
+:ref:`pudl.glue.package_data.respondent_id_ferc714.csv`.
+
+This CSV builds on the `migrated data
+<https://www.ferc.gov/filing-forms/eforms-refresh/migrated-data-downloads>`__ provided
+by FERC during the transition from CSV to XBRL data, which notes that:
+
+  Companies that did not have a CID prior to the migration have been assigned a CID that
+  begins with R, i.e., a temporary RID. These RIDs will be replaced in future with the
+  accurate CIDs and new datasets will be published.
+
+The file names of the migrated data (which correspond to CSV IDs) and the respondent
+CIDs in the migrated files provide the basis for ID mapping. Though CIDs are intended to
+be static, some of the CIDs in the migrated data weren't found in the actual XBRL data,
+while the same respondents were reporting data using different CIDs. To ensure accurate
+record matching, we manually reviewed the CIDss for each respondent, matching based on
+name and location. Some quirks to note:
+
+* All respondents are matched 1:1 from CSV to XBRL data. Unmatched respondents mostly
+  occur due to mergers, splits, acquisitions, and companies that no longer exist.
+* Some CIDs assigned during the migration process do not appear in the data. Given the
+  intention by FERC to make these CIDs permanent, they are still included in the mapping
+  CSV in case these respondents re-appear. All temporary IDs (beginning with R) were
+  removed.
 
 {% endblock %}
