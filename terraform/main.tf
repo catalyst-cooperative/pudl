@@ -207,6 +207,15 @@ resource "google_cloud_run_v2_service" "pudl-superset" {
           }
         }
       }
+      env {
+        name = "MAPBOX_API_KEY"
+        value_source {
+          secret_key_ref {
+            secret = "superset-mapbox-api-key"
+            version = "1"
+          }
+        }
+      }
 
       ports {
         container_port = 8088
@@ -243,6 +252,13 @@ resource "google_cloud_run_v2_service_iam_member" "noauth" {
 
 resource "google_secret_manager_secret" "superset_secret_key" {
   secret_id = "superset-secret-key"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret" "superset_mapbox_api_key" {
+  secret_id = "superset-mapbox-api-key"
   replication {
     auto {}
   }
@@ -314,6 +330,12 @@ resource "google_secret_manager_secret_iam_member" "superset_database_database_c
 
 resource "google_secret_manager_secret_iam_member" "superset_secret_key_compute_iam" {
   secret_id = google_secret_manager_secret.superset_secret_key.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:345950277072-compute@developer.gserviceaccount.com"
+}
+
+resource "google_secret_manager_secret_iam_member" "superset_mapbox_api_key_compute_iam" {
+  secret_id = google_secret_manager_secret.superset_mapbox_api_key.id
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:345950277072-compute@developer.gserviceaccount.com"
 }
@@ -418,7 +440,7 @@ resource "google_service_account" "usage_metrics_archiver" {
 }
 
 resource "google_storage_bucket_iam_member" "usage_metrics_archiver_gcs_iam" {
-  for_each = toset(["roles/storage.objectCreator", "roles/storage.objectViewer"])
+  for_each = toset(["roles/storage.objectCreator", "roles/storage.objectViewer", "roles/storage.insightsCollectorService"])
 
   bucket = google_storage_bucket.pudl_usage_metrics_archive_bucket.name
   role = each.key
