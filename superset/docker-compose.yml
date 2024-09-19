@@ -5,10 +5,10 @@ services:
       dockerfile: Dockerfile
     container_name: pudl-superset
     environment:
-      AUTH0_CLIENT_ID: ${AUTH0_CLIENT_ID}
-      AUTH0_CLIENT_SECRET: ${AUTH0_CLIENT_SECRET}
-      AUTH0_DOMAIN: ${AUTH0_DOMAIN}
-      SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY}
+      AUTH0_CLIENT_ID: ${AUTH0_CLIENT_ID?error}
+      AUTH0_CLIENT_SECRET: ${AUTH0_CLIENT_SECRET?error}
+      AUTH0_DOMAIN: ${AUTH0_DOMAIN?error}
+      SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY?error}
       SUPERSET_DB_HOST: ${SUPERSET_DB_HOST-postgres}
       SUPERSET_DB_PORT: ${SUPERSET_DB_PORT-5432}
       SUPERSET_DB_USER: ${SUPERSET_DB_USER-superset}
