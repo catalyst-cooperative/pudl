@@ -823,7 +823,8 @@ class YearlyPlanningAreaDemandForecast:
             .pipe(_post_process, table_name=table_name)
         )
         # CONCATED STUFF
-        return  # Need to add concated value
+        df = pd.concat([csv, xbrl]).reset_index(drop=True)
+        return df
 
     @staticmethod
     def spot_fix_forcast_years_xbrl(df):
