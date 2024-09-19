@@ -196,6 +196,9 @@ EIA_CODE_FIXES = {
     323: 58790,  # Gridforce Energy Management (missing)
     324: 58791,  # NaturEner Wind Watch LLC (Fixes bad ID 57995)
     329: 39347,  # East Texas Electricity Cooperative (missing)
+    # TODO: this is a placeholder! this is the new respondent_id_ferc714
+    # and everything above is a respondent_id_ferc714_csv
+    218: 56365,  # NaturEner Power Watch LLC (Fixes bad ID 57049, 57050)
 }
 """Overrides of FERC 714 respondent IDs with wrong or missing EIA Codes."""
 
@@ -204,7 +207,13 @@ RENAME_COLS = {
         "csv": {
             "respondent_id": "respondent_id_ferc714_csv",
             "respondent_name": "respondent_name_ferc714",
-        }
+            "eia_code": "eia_code",
+        },
+        "xbrl": {
+            "entity_id": "respondent_id_ferc714_xbrl",
+            "respondent_legal_name": "respondent_name_ferc714",
+            "respondent_identification_code": "eia_code",
+        },
     },
     "out_ferc714__hourly_planning_area_demand": {
         "csv": {
@@ -315,12 +324,96 @@ def _post_process(df: pd.DataFrame, table_name: str) -> pd.DataFrame:
     return PUDL_PACKAGE.get_resource(table_name).enforce_schema(df)
 
 
+class RespondentId:
+    """Class for building the :ref:`out_ferc714__hourly_planning_area_demand` asset.
+
+    Most of the methods in this class as staticmethods. The purpose of using a class
+    in this instance is mostly for organizing the table specific transforms under the
+    same name-space.
+    """
+
+    @classmethod
+    def run(
+        cls, raw_csv: pd.DataFrame, raw_xbrl_duration: pd.DataFrame
+    ) -> pd.DataFrame:
+        """Build the table for the :ref:`core_ferc714__respondent_id` asset.
+
+        TODO: Determine where the existing
+        """
+        table_name = "core_ferc714__respondent_id"
+        csv = _pre_process_csv(raw_csv, table_name)
+
+        xbrl = rename_columns(
+            raw_xbrl_duration,
+            params=RenameColumns(columns=RENAME_COLS[table_name]["xbrl"]),
+        ).pipe(cls.clean_eia_codes_xbrl)
+
+        df = pd.concat([csv, xbrl]).reset_index(drop=True)
+
+        return df
+
+    @staticmethod
+    def clean_eia_codes_xbrl(xbrl):
+        """Make eia_code's cleaner.
+
+        Desired outcomes here include all respondents have only one non-null
+        eia_code and all eia_codes that are actually the respondent_id_ferc714_xbrl
+        are nulled.
+
+        TODO: move the non-eia_code asserts
+        TODO: Convert bare asserts into Assertions
+        """
+        # we expect all of these submissions to be from the last Q
+        assert all(xbrl.report_period == "Q4")
+        # the CSV data does not vary by year, so we need to check if that is also going to be the case for the XBRL data
+        assert all(
+            xbrl.groupby(["respondent_id_ferc714_xbrl"])[  # noqa: PD101
+                ["respondent_name_ferc714"]
+            ].nunique()
+            == 1
+        )
+        # first we are gonna null out all of the "EIA" codes that are really just the respondent id
+        code_is_respondent_id_mask = xbrl.eia_code.str.startswith("C") & (
+            xbrl.respondent_id_ferc714_xbrl == xbrl.eia_code
+        )
+        xbrl.loc[code_is_respondent_id_mask, "eia_code"] = pd.NA
+
+        # lets null out some of the eia_code's from XBRL that we've manually culled
+        respondent_id_xbrl_to_bad_eia_code = {
+            "C002422": ["5776"],
+            "C011374": ["8376"],
+            "C002869": ["F720204"],
+            "C002732": ["F720204", "57049, 57050"],
+            "C011420": ["16606"],
+        }
+        for rid_xbrl, bad_eia_codes in respondent_id_xbrl_to_bad_eia_code.items():
+            xbrl.loc[
+                (xbrl.respondent_id_ferc714_xbrl == rid_xbrl)
+                & (xbrl.eia_code.isin(bad_eia_codes)),
+                "eia_code",
+            ] = pd.NA
+        assert all(
+            xbrl.dropna(subset=["eia_code"])  # noqa: PD101
+            .groupby(["respondent_id_ferc714_xbrl"])[["eia_code"]]
+            .nunique()
+            == 1
+        )
+        xbrl = xbrl.astype({"eia_code": pd.Int64Dtype()})
+        return xbrl
+
+
 @asset(
     io_manager_key="pudl_io_manager",
+    ins={
+        "raw_csv": AssetIn(key="raw_ferc714_csv__respondent_id"),
+        "raw_xbrl_duration": AssetIn(
+            key="raw_ferc714_xbrl__identification_and_certification_01_1_duration"
+        ),
+    },
     compute_kind="pandas",
 )
 def core_ferc714__respondent_id(
-    raw_ferc714_csv__respondent_id: pd.DataFrame,
+    raw_csv: pd.DataFrame, raw_xbrl_duration: pd.DataFrame
 ) -> pd.DataFrame:
     """Transform the FERC 714 respondent IDs, names, and EIA utility IDs.
 
@@ -329,15 +422,17 @@ def core_ferc714__respondent_id(
     corresponding EIA utility IDs provided by FERC for some reason (including
     PacifiCorp).
 
+    TODO: migrate transforms up into RespondentId.run() and just call that here.
+
     Args:
-        raw_ferc714_csv__respondent_id: Raw table describing the FERC 714 Respondents.
+        raw_csv: Raw table describing the FERC 714 Respondents from the CSV years.
+        raw_xbrl_duration: Raw table describing the FERC 714 Respondents from the
+            XBRL years.
 
     Returns:
         A clean(er) version of the FERC-714 respondents table.
     """
-    df = _pre_process_csv(
-        raw_ferc714_csv__respondent_id, table_name="core_ferc714__respondent_id"
-    )
+    df = _pre_process_csv(raw_csv, table_name="core_ferc714__respondent_id")
     df["respondent_name_ferc714"] = df.respondent_name_ferc714.str.strip()
     df.loc[df.eia_code == 0, "eia_code"] = pd.NA
     # There are a few utilities that seem mappable, but missing:
