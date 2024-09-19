@@ -226,9 +226,9 @@ RENAME_COLS = {
             "respondent_id": "respondent_id_ferc714_csv",
             "report_yr": "report_year",
             "plan_year": "forecast_year",
-            "summer_forecast": "summer_peak_demand_mw",
-            "winter_forecast": "winter_peak_demand_mw",
-            "net_energy_forecast": "net_demand_mwh",
+            "summer_forecast": "summer_peak_demand_forecast_mw",
+            "winter_forecast": "winter_peak_demand_forecast_mw",
+            "net_energy_forecast": "net_demand_forecast_mwh",
         },
         "xbrl": {
             "entity_id": "respondent_id_ferc714_xbrl",
@@ -236,9 +236,9 @@ RENAME_COLS = {
             "end_date": "end_date",
             "report_year": "report_year",
             "planning_area_hourly_demand_and_forecast_year": "forecast_year",
-            "planning_area_hourly_demand_and_forecast_summer_forecast": "summer_peak_demand_mw",
-            "planning_area_hourly_demand_and_forecast_winter_forecast": "winter_peak_demand_mw",
-            "planning_area_hourly_demand_and_forecast_forecast_of_annual_net_energy_for_load": "net_demand_mwh",
+            "planning_area_hourly_demand_and_forecast_summer_forecast": "summer_peak_demand_forecast_mw",
+            "planning_area_hourly_demand_and_forecast_winter_forecast": "winter_peak_demand_forecast_mw",
+            "planning_area_hourly_demand_and_forecast_forecast_of_annual_net_energy_for_load": "net_demand_forecast_mwh",
         },
     },
 }
@@ -895,7 +895,11 @@ class YearlyPlanningAreaDemandForecast:
         # Take the average of duplicate PK forecast values.
         df = (
             df.groupby(["respondent_id_ferc714", "report_year", "forecast_year"])[
-                ["summer_peak_demand_mw", "winter_peak_demand_mw", "net_demand_mwh"]
+                [
+                    "summer_peak_demand_forecast_mw",
+                    "winter_peak_demand_forecast_mw",
+                    "net_demand_forecast_mwh",
+                ]
             ]
             .mean()
             .reset_index()
