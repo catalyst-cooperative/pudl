@@ -40,6 +40,7 @@ from pudl.transform.classes import (
     cache_df,
     enforce_snake_case,
 )
+from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -6092,6 +6093,63 @@ FERC1_TFR_CLASSES: Mapping[str, type[Ferc1AbstractTableTransformer]] = {
 }
 
 
+def filter_for_freshest_data_xbrl(df: pd.DataFrame, primary_keys) -> pd.DataFrame:
+    """Get most updated values for each XBRL context.
+
+    An XBRL context includes an entity ID, the time period the data applies to, and
+    other dimensions such as utility type. Each context has its own ID, but they are
+    frequently redefined with the same contents but different IDs - so we identify
+    them by their actual content.
+
+    Each row in our SQLite database includes all the facts for one context/filing
+    pair.
+
+    If one context is represented in multiple filings, we take the most
+    recently-reported non-null value.
+
+    This means that if a utility reports a non-null value, then later
+    either reports a null value for it or simply omits it from the report,
+    we keep the old non-null value, which may be erroneous. This appears to
+    be fairly rare, affecting < 0.005% of reported values.
+    """
+
+    def __apply_diffs(
+        duped_groups: pd.core.groupby.DataFrameGroupBy,
+    ) -> pd.DataFrame:
+        """Take the latest reported non-null value for each group."""
+        return duped_groups.last()
+
+    if not df.empty:
+        filing_metadata_cols = {"publication_time", "filing_name"}
+        xbrl_context_cols = [c for c in primary_keys if c not in filing_metadata_cols]
+        original = df.sort_values("publication_time")
+        dupe_mask = original.duplicated(subset=xbrl_context_cols, keep=False)
+        duped_groups = original.loc[dupe_mask].groupby(
+            xbrl_context_cols, as_index=False, dropna=True
+        )
+        never_duped = original.loc[~dupe_mask]
+        apply_diffs = __apply_diffs(duped_groups)
+
+        df = pd.concat([never_duped, apply_diffs], ignore_index=True).drop(
+            columns=["publication_time"]
+        )
+    return df
+
+
+def _get_primary_key(sched_table_name: str) -> list[str]:
+    # TODO (daz): as of 2023-10-13, our datapackage.json is merely
+    # "frictionless-like" so we manually parse it as JSON. once we make our
+    # datapackage.json conformant, we will need to at least update the
+    # "primary_key" to "primaryKey", but maybe there will be other changes
+    # as well.
+    with (PudlPaths().output_dir / "ferc1_xbrl_datapackage.json").open() as f:
+        datapackage = json.loads(f.read())
+    [table_resource] = [
+        tr for tr in datapackage["resources"] if tr["name"] == sched_table_name
+    ]
+    return table_resource["schema"]["primary_key"]
+
+
 def ferc1_transform_asset_factory(
     table_name: str,
     tfr_class: Ferc1AbstractTableTransformer,
@@ -6121,13 +6179,13 @@ def ferc1_transform_asset_factory(
     dbf_tables = listify(TABLE_NAME_MAP_FERC1[table_name]["dbf"])
     xbrl_tables = listify(TABLE_NAME_MAP_FERC1[table_name]["xbrl"])
 
-    ins = {f"raw_dbf__{tn}": AssetIn(f"raw_ferc1_dbf__{tn}") for tn in dbf_tables}
+    ins = {f"raw_ferc1_dbf__{tn}": AssetIn(f"raw_ferc1_dbf__{tn}") for tn in dbf_tables}
     ins |= {
-        f"raw_xbrl_instant__{tn}": AssetIn(f"raw_ferc1_xbrl__{tn}_instant")
+        f"raw_ferc1_xbrl__{tn}_instant": AssetIn(f"raw_ferc1_xbrl__{tn}_instant")
         for tn in xbrl_tables
     }
     ins |= {
-        f"raw_xbrl_duration__{tn}": AssetIn(f"raw_ferc1_xbrl__{tn}_duration")
+        f"raw_ferc1_xbrl__{tn}_duration": AssetIn(f"raw_ferc1_xbrl__{tn}_duration")
         for tn in xbrl_tables
     }
     ins["_core_ferc1_xbrl__metadata_json"] = AssetIn("_core_ferc1_xbrl__metadata_json")
@@ -6160,13 +6218,31 @@ def ferc1_transform_asset_factory(
             )
 
         raw_dbf = pd.concat(
-            [df for key, df in kwargs.items() if key.startswith("raw_dbf__")]
+            [df for key, df in kwargs.items() if key.startswith("raw_ferc1_dbf__")]
         )
+        raw_xbrls = {
+            tn: filter_for_freshest_data_xbrl(
+                df=df,
+                primary_keys=_get_primary_key(tn.removeprefix("raw_ferc1_xbrl__")),
+            )
+            for tn, df in kwargs.items()
+            if tn.startswith("raw_ferc1_xbrl__")
+        }
+        for raw_xbrl_table_name in listify(TABLE_NAME_MAP_FERC1[table_name]["xbrl"]):
+            if (
+                raw_xbrls[f"raw_ferc1_xbrl__{raw_xbrl_table_name}_instant"].empty
+                and raw_xbrls[f"raw_ferc1_xbrl__{raw_xbrl_table_name}_durartion"].empty
+            ):
+                raise AssertionError(
+                    "We expect there to be no raw xbrl tables that have neither instant or duration "
+                    f"tables, but {raw_xbrl_table_name} has neither. Consider checking "
+                    "TABLE_NAME_MAP_FERC1 for spelling errors."
+                )
         raw_xbrl_instant = pd.concat(
-            [df for key, df in kwargs.items() if key.startswith("raw_xbrl_instant__")]
+            [df for key, df in raw_xbrls.items() if key.endswith("_instant")]
         )
         raw_xbrl_duration = pd.concat(
-            [df for key, df in kwargs.items() if key.startswith("raw_xbrl_duration__")]
+            [df for key, df in raw_xbrls.items() if key.endswith("_duration")]
         )
         df = transformer.transform(
             raw_dbf=raw_dbf,

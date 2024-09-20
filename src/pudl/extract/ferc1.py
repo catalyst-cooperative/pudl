@@ -197,7 +197,7 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
             "sales_of_electricity_by_rate_schedules_account_445_other_sales_to_public_authorities_304",
             "sales_of_electricity_by_rate_schedules_account_446_sales_to_railroads_and_railways_304",
             "sales_of_electricity_by_rate_schedules_account_448_interdepartmental_sales_304",
-            "sales_of_electricity_by_rate_schedules_account_4491_provision_for_rate_refunds_304",
+            "sales_of_electricity_by_rate_schedules_account_449_1_provision_for_rate_refunds_304",
             "sales_of_electricity_by_rate_schedules_account_totals_304",
         ],
     },

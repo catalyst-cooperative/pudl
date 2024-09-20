@@ -1,5 +1,6 @@
 """Unit tests specific to the FERC Form 1 table transformations."""
 
+import datetime
 import itertools
 from io import StringIO
 
@@ -28,6 +29,7 @@ from pudl.transform.ferc1 import (
     calculate_values_from_components,
     drop_duplicate_rows_dbf,
     fill_dbf_to_xbrl_map,
+    filter_for_freshest_data_xbrl,
     infer_intra_factoid_totals,
     make_xbrl_factoid_dimensions_explicit,
     read_dbf_to_xbrl_map,
@@ -1231,3 +1233,39 @@ table_1,factoid_1,electric,total,total,table_1,factoid_1,electric,future,general
         )
     )
     assert unexpected_total_components(no_extra_components, dimensions).empty
+
+
+def test_filter_for_freshest_data_xbrl():
+    df = pd.DataFrame.from_records(
+        [
+            {
+                "entity_id": "C000001",
+                "utility_type_axis": "electric",
+                "filing_name": "Utility_Co_0001",
+                "date": datetime.date(2021, 12, 31),
+                "publication_time": datetime.datetime(2022, 2, 1, 0, 0, 0),
+                "str_factoid": "original 2021 EOY value",
+            },
+            {
+                "entity_id": "C000001",
+                "utility_type_axis": "electric",
+                "filing_name": "Utility_Co_0002",
+                "date": datetime.date(2021, 12, 31),
+                "publication_time": datetime.datetime(2022, 2, 1, 1, 1, 1),
+                "str_factoid": "updated 2021 EOY value",
+            },
+        ]
+    )
+    observed_table = filter_for_freshest_data_xbrl(
+        df,
+        primary_keys=[
+            "entity_id",
+            "filing_name",
+            "publication_time",
+            "date",
+            "utility_type_axis",
+        ],
+    )
+
+    assert len(observed_table) == 1
+    assert observed_table.str_factoid.to_numpy().item() == "updated 2021 EOY value"

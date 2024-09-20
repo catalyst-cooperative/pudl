@@ -1,7 +1,5 @@
 """Test Dagster IO Managers."""
 
-import datetime
-import json
 from pathlib import Path
 
 import alembic.config
@@ -357,106 +355,6 @@ def test_error_when_reading_view_without_metadata(fake_pudl_sqlite_io_manager_fi
     input_context = build_input_context(asset_key=AssetKey(asset_key))
     with pytest.raises(ValueError):
         fake_pudl_sqlite_io_manager_fixture.load_input(input_context)
-
-
-def test_ferc_xbrl_sqlite_io_manager_dedupes(mocker, tmp_path):
-    db_path = tmp_path / "ferc1_test_db.sqlite"
-    # fake datapackage descriptor just to see if we can find the primary keys -
-    # lots of optional stuff dropped.
-    datapackage = json.dumps(
-        {
-            "name": "ferc1_test_db",
-            "title": "Ferc1 data extracted from XBRL filings",
-            "resources": [
-                {
-                    "path": f"{db_path}",
-                    "name": "test_table_instant",
-                    "schema": {
-                        "fields": [
-                            {
-                                "name": "entity_id",
-                                "type": "string",
-                                "description": "Entity ID",
-                            },
-                            {
-                                "name": "utility_type_axis",
-                                "type": "string",
-                                "description": "Utility type axis",
-                            },
-                            {
-                                "name": "filing_name",
-                                "type": "string",
-                                "description": "Filing name",
-                            },
-                            {
-                                "name": "publication_time",
-                                "type": "datetime",
-                                "description": "Publication time",
-                            },
-                            {
-                                "name": "date",
-                                "type": "date",
-                                "description": "Date",
-                            },
-                            {
-                                "name": "str_factoid",
-                                "type": "string",
-                                "description": "String factoid",
-                            },
-                        ],
-                        "primary_key": [
-                            "entity_id",
-                            "filing_name",
-                            "publication_time",
-                            "date",
-                            "utility_type_axis",
-                        ],
-                    },
-                }
-            ],
-        }
-    )
-
-    datapackage_path = tmp_path / "ferc1_test_db_datapackage.json"
-    with datapackage_path.open("w") as f:
-        f.write(datapackage)
-
-    df = pd.DataFrame.from_records(
-        [
-            {
-                "entity_id": "C000001",
-                "utility_type_axis": "electric",
-                "filing_name": "Utility_Co_0001",
-                "date": datetime.date(2021, 12, 31),
-                "publication_time": datetime.datetime(2022, 2, 1, 0, 0, 0),
-                "str_factoid": "original 2021 EOY value",
-            },
-            {
-                "entity_id": "C000001",
-                "utility_type_axis": "electric",
-                "filing_name": "Utility_Co_0002",
-                "date": datetime.date(2021, 12, 31),
-                "publication_time": datetime.datetime(2022, 2, 1, 1, 1, 1),
-                "str_factoid": "updated 2021 EOY value",
-            },
-        ]
-    )
-
-    conn = sa.create_engine(f"sqlite:///{db_path}")
-    df.to_sql("test_table_instant", conn)
-    input_context = build_input_context(
-        asset_key=AssetKey("test_table_instant"),
-        resources={
-            "dataset_settings": mocker.MagicMock(
-                ferc1=mocker.MagicMock(xbrl_years=[2021])
-            )
-        },
-    )
-    io_manager = FercXBRLSQLiteIOManager(base_dir=tmp_path, db_name="ferc1_test_db")
-    observed_table = io_manager.load_input(input_context)
-
-    assert len(observed_table) == 1
-    assert observed_table.str_factoid.to_numpy().item() == "updated 2021 EOY value"
 
 
 example_schema = pandera.DataFrameSchema(
