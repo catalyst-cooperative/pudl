@@ -868,7 +868,7 @@ class YearlyPlanningAreaDemandForecast:
         df.loc[mask, "forecast_year"] = 2033
         # Make sure forecast_year values are expected
         assert (
-            df["forecast_year"].isin(range(2021, 3001)).all()
+            df["forecast_year"].isin(range(2021, 2100)).all()
         ), "Forecast year values not in expected range"
         return df
 
