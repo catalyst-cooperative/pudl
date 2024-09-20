@@ -804,6 +804,10 @@ class YearlyPlanningAreaDemandForecast:
         (this data has not instant table), merge together the XBRL and CSV data, and
         process the combined datasets.
 
+        The main transforms include spot-fixing forecast years with
+        :meth:`spot_fix_forecast_years_xbrl`and averaging out duplicate forecast values
+        for duplicate primary key rows in the CSV table.
+
         """
         table_name = "core_ferc714__yearly_planning_area_demand_forecast"
         # XBRL STUFF
@@ -813,7 +817,7 @@ class YearlyPlanningAreaDemandForecast:
                 params=RenameColumns(columns=RENAME_COLS[table_name]["xbrl"]),
             )
             .pipe(_assign_respondent_id_ferc714, "xbrl")
-            .pipe(cls.spot_fix_forcast_years_xbrl)
+            .pipe(cls.spot_fix_forecast_years_xbrl)
         )
         # CSV STUFF
         csv = (
@@ -827,7 +831,7 @@ class YearlyPlanningAreaDemandForecast:
         return df
 
     @staticmethod
-    def spot_fix_forcast_years_xbrl(df):
+    def spot_fix_forecast_years_xbrl(df):
         """Spot fix forecast year errors.
 
         This function fixes the following errors:
