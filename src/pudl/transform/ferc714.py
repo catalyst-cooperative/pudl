@@ -364,12 +364,6 @@ def _post_process(df: pd.DataFrame, table_name: str) -> pd.DataFrame:
 class RespondentId:
     """Class for building the :ref:`out_ferc714__hourly_planning_area_demand` asset.
 
-    Process and combine the CSV and XBRL based data.
-    Clean up FERC-714 respondent names and manually assign EIA utility IDs to a few FERC
-    Form 714 respondents that report planning area demand, but which don't have their
-    corresponding EIA utility IDs provided by FERC for some reason (including
-    PacifiCorp).
-
     Most of the methods in this class as staticmethods. The purpose of using a class
     in this instance is mostly for organizing the table specific transforms under the
     same name-space.
@@ -379,7 +373,26 @@ class RespondentId:
     def run(
         cls, raw_csv: pd.DataFrame, raw_xbrl_duration: pd.DataFrame
     ) -> pd.DataFrame:
-        """Build the table for the :ref:`core_ferc714__respondent_id` asset."""
+        """Build the table for the :ref:`core_ferc714__respondent_id` asset.
+
+        Process and combine the CSV and XBRL based data.
+
+        There are two main threads of transforms happening here:
+        * Table compatibility: The CSV raw table is static (does not even report years)
+          while the xbrl table is reported annually. A lot of the downstream analysis
+          expects this table to be static. So the first step was to check whether or not
+          the columns that we have in the CSV years had consistent data over the few XBRL
+          years that we have. There are a small number of eia_code's we needed to clean
+          up, but besides that it was static. We then convert the XBRL data into a static
+          table, then we concat-ed the tables and checked the static-ness again via
+          :meth:`ensure_eia_code_uniqueness`.
+        * eia_code cleaning: Clean up FERC-714 respondent names and manually assign EIA
+          utility IDs to a few FERC Form 714 respondents that report planning area demand,
+          but which don't have their corresponding EIA utility IDs provided by FERC for
+          some reason (including PacifiCorp). Done all via :meth:`spot_fix_eia_codes` &
+          EIA_CODE_FIXES.
+
+        """
         table_name = "core_ferc714__respondent_id"
         # CSV STUFF
         csv = (
@@ -458,19 +471,9 @@ class RespondentId:
         Desired outcomes here include all respondents have only one non-null
         eia_code and all eia_codes that are actually the respondent_id_ferc714_xbrl
         are nulled.
-
-        TODO: move the non-eia_code asserts
-        TODO: Convert bare asserts into Assertions
         """
         # we expect all of these submissions to be from the last Q
         assert all(xbrl.report_period == "Q4")
-        # the CSV data does not vary by year, so we need to check if that is also going to be the case for the XBRL data
-        assert all(
-            xbrl.groupby(["respondent_id_ferc714_xbrl"])[  # noqa: PD101
-                ["respondent_name_ferc714"]
-            ].nunique()
-            == 1
-        )
         # first we are gonna null out all of the "EIA" codes that are really just the respondent id
         code_is_respondent_id_mask = xbrl.eia_code.str.startswith("C") & (
             xbrl.respondent_id_ferc714_xbrl == xbrl.eia_code
@@ -503,6 +506,16 @@ class RespondentId:
         whether or not the shared variables change over time and then
         converting this table into a non-time-varying table.
         """
+        # the CSV data does not vary by year, so we need to check if that is
+        # also going to be the case for the XBRL data. we check the eia_codes
+        # during ensure_eia_code_uniqueness. The name is less crucial but we
+        # should still check.
+        assert all(
+            xbrl.groupby(["respondent_id_ferc714_xbrl"])[  # noqa: PD101
+                ["respondent_name_ferc714"]
+            ].nunique()
+            == 1
+        )
         cols_to_keep = [
             "respondent_id_ferc714",
             "respondent_id_ferc714_xbrl",
