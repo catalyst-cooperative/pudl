@@ -18,7 +18,7 @@ Make sure to update relevant aspects of the documentation.
 
 ```[tasklist]
 - [ ] Update the [release notes](https://catalystcoop-pudl.readthedocs.io/en/nightly/release_notes.html): reference the PR and related issues.
-- [ ] Update relevant Data Source jinja tempaltes (see `docs/data_sources/templates`).
+- [ ] Update relevant Data Source jinja templates (see `docs/data_sources/templates`).
 - [ ] Update relevant table or source description metadata (see `src/metadata`).
 - [ ] Review and update any other aspects of the documentation that might be affected by this PR.
 ```
