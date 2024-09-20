@@ -805,7 +805,7 @@ class YearlyPlanningAreaDemandForecast:
         process the combined datasets.
 
         The main transforms include spot-fixing forecast years with
-        :meth:`spot_fix_forecast_years_xbrl`and averaging out duplicate forecast values
+        :func:`spot_fix_forecast_years_xbrl` and averaging out duplicate forecast values
         for duplicate primary key rows in the CSV table.
 
         """
