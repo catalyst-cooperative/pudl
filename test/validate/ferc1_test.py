@@ -49,9 +49,9 @@ unique_record_tables = [
 
 
 @pytest.mark.parametrize("table_name", unique_record_tables)
-def test_record_id_dupes(table_name):
+def test_record_id_dupes(table_name, asset_value_loader):
     """Verify that the generated ferc1 record_ids are unique."""
-    table = defs.load_asset_value(table_name)
+    table = asset_value_loader.load_asset_value(table_name)
     n_dupes = table.record_id.duplicated().to_numpy().sum()
 
     if n_dupes:
@@ -76,11 +76,13 @@ def test_record_id_dupes(table_name):
         ("out_ferc1__yearly_purchased_power_and_exchanges_sched326", "all"),
     ],
 )
-def test_no_null_cols_ferc1(live_dbs, cols, asset_key):
+def test_no_null_cols_ferc1(live_dbs, asset_value_loader, cols, asset_key):
     """Verify that output DataFrames have no entirely NULL columns."""
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
-    pv.no_null_cols(defs.load_asset_value(asset_key), cols=cols, df_name=asset_key)
+    pv.no_null_cols(
+        asset_value_loader.load_asset_value(asset_key), cols=cols, df_name=asset_key
+    )
 
 
 @pytest.mark.parametrize(
@@ -115,7 +117,7 @@ def test_no_null_cols_ferc1(live_dbs, cols, asset_key):
         ("out_ferc1__yearly_small_plants_sched410", 17_763),
     ],
 )
-def test_minmax_rows(live_dbs, expected_rows, asset_key):
+def test_minmax_rows(live_dbs, asset_value_loader, expected_rows, asset_key):
     """Verify that output DataFrames don't have too many or too few rows.
 
     Args:
@@ -130,7 +132,7 @@ def test_minmax_rows(live_dbs, expected_rows, asset_key):
     if expected_rows is None:
         pytest.skip("We don't actually have an expected value here yet.")
     _ = (
-        defs.load_asset_value(asset_key)
+        asset_value_loader.load_asset_value(asset_key)
         .pipe(
             pv.check_min_rows,
             expected_rows=expected_rows,
@@ -181,12 +183,12 @@ def test_minmax_rows(live_dbs, expected_rows, asset_key):
         ),
     ],
 )
-def test_unique_rows_ferc1(live_dbs, asset_key, unique_subset):
+def test_unique_rows_ferc1(live_dbs, asset_value_loader, asset_key, unique_subset):
     """Test whether dataframe has unique records within a subset of columns."""
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
     pv.check_unique_rows(
-        defs.load_asset_value(asset_key),
+        asset_value_loader.load_asset_value(asset_key),
         subset=unique_subset,
         df_name=asset_key,
     )
