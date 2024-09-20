@@ -85,35 +85,41 @@ def test_no_null_cols_ferc1(live_dbs, asset_value_loader, cols, asset_key):
     )
 
 
+# TODO 2024-09-20: many of these row counts haven't actually been confirmed to
+# be "correct", they're just "what the values were when we added them to the
+# test." Those tables are marked as "unverified" below
 @pytest.mark.parametrize(
     "asset_key,expected_rows",
     [
         ("_out_ferc1__yearly_plants_utilities", 7_887),
         ("out_ferc1__yearly_all_plants", 58_520),
-        ("out_ferc1__yearly_balance_sheet_assets_sched110", None),
-        ("out_ferc1__yearly_balance_sheet_liabilities_sched110", None),
-        ("out_ferc1__yearly_cash_flows_sched120", None),
-        ("out_ferc1__yearly_depreciation_by_function_sched219", None),
-        ("out_ferc1__yearly_depreciation_changes_sched219", None),
-        ("out_ferc1__yearly_depreciation_summary_sched336", None),
-        ("out_ferc1__yearly_energy_dispositions_sched401", None),
-        ("out_ferc1__yearly_energy_sources_sched401", None),
+        ("out_ferc1__yearly_balance_sheet_assets_sched110", 278_789),  # unverified
+        ("out_ferc1__yearly_balance_sheet_liabilities_sched110", 233_383),  # unverified
+        ("out_ferc1__yearly_cash_flows_sched120", 306_837),  # unverified
+        ("out_ferc1__yearly_depreciation_by_function_sched219", 148_352),  # unverified
+        ("out_ferc1__yearly_depreciation_changes_sched219", 263_942),  # unverified
+        ("out_ferc1__yearly_depreciation_summary_sched336", 216_710),  # unverified
+        ("out_ferc1__yearly_energy_dispositions_sched401", 25_954),  # unverified
+        ("out_ferc1__yearly_energy_sources_sched401", 38_315),  # unverified
         ("out_ferc1__yearly_hydroelectric_plants_sched406", 7_202),
-        ("out_ferc1__yearly_income_statements_sched114", None),
-        ("out_ferc1__yearly_operating_expenses_sched320", None),
-        ("out_ferc1__yearly_operating_revenues_sched300", None),
-        ("out_ferc1__yearly_other_regulatory_liabilities_sched278", None),
+        ("out_ferc1__yearly_income_statements_sched114", 347_394),  # unverified
+        ("out_ferc1__yearly_operating_expenses_sched320", 618_518),  # unverified
+        ("out_ferc1__yearly_operating_revenues_sched300", 77_646),  # unverified
+        (
+            "out_ferc1__yearly_other_regulatory_liabilities_sched278",
+            53015,
+        ),  # unverified
         ("out_ferc1__yearly_plant_in_service_sched204", 355_918),
         ("out_ferc1__yearly_pumped_storage_plants_sched408", 580),
         ("out_ferc1__yearly_purchased_power_and_exchanges_sched326", 211_794),
-        ("out_ferc1__yearly_retained_earnings_sched118", None),
-        ("out_ferc1__yearly_sales_by_rate_schedules_sched304", None),
-        ("out_ferc1__yearly_small_plants_sched410", None),
+        ("out_ferc1__yearly_retained_earnings_sched118", 105_585),  # unverified
+        ("out_ferc1__yearly_sales_by_rate_schedules_sched304", 304_009),  # unverified
+        ("out_ferc1__yearly_small_plants_sched410", 17763),  # unverified
         ("out_ferc1__yearly_steam_plants_fuel_by_plant_sched402", 26_947),
         ("out_ferc1__yearly_steam_plants_fuel_sched402", 51_238),
         ("out_ferc1__yearly_steam_plants_sched402", 32_975),
-        ("out_ferc1__yearly_transmission_lines_sched422", None),
-        ("out_ferc1__yearly_utility_plant_summary_sched200", None),
+        ("out_ferc1__yearly_transmission_lines_sched422", 640_619),  # unverified
+        ("out_ferc1__yearly_utility_plant_summary_sched200", 198_769),  # unverified
         ("out_ferc1__yearly_small_plants_sched410", 17_763),
     ],
 )
@@ -129,8 +135,6 @@ def test_minmax_rows(live_dbs, asset_value_loader, expected_rows, asset_key):
     """
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
-    if expected_rows is None:
-        pytest.skip("We don't actually have an expected value here yet.")
     _ = (
         asset_value_loader.load_asset_value(asset_key)
         .pipe(
