@@ -6231,7 +6231,7 @@ def ferc1_transform_asset_factory(
         for raw_xbrl_table_name in listify(TABLE_NAME_MAP_FERC1[table_name]["xbrl"]):
             if (
                 raw_xbrls[f"raw_ferc1_xbrl__{raw_xbrl_table_name}_instant"].empty
-                and raw_xbrls[f"raw_ferc1_xbrl__{raw_xbrl_table_name}_durartion"].empty
+                and raw_xbrls[f"raw_ferc1_xbrl__{raw_xbrl_table_name}_duration"].empty
             ):
                 raise AssertionError(
                     "We expect there to be no raw xbrl tables that have neither instant or duration "

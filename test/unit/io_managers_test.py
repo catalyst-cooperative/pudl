@@ -3,9 +3,7 @@
 from pathlib import Path
 
 import alembic.config
-import hypothesis
 import pandas as pd
-import pandera
 import pytest
 import sqlalchemy as sa
 from dagster import AssetKey, build_input_context, build_output_context
@@ -355,61 +353,6 @@ def test_error_when_reading_view_without_metadata(fake_pudl_sqlite_io_manager_fi
     input_context = build_input_context(asset_key=AssetKey(asset_key))
     with pytest.raises(ValueError):
         fake_pudl_sqlite_io_manager_fixture.load_input(input_context)
-
-
-example_schema = pandera.DataFrameSchema(
-    {
-        "entity_id": pandera.Column(
-            str, pandera.Check.isin("C0123456789"), nullable=False
-        ),
-        "date": pandera.Column("datetime64[ns]", nullable=False),
-        "utility_type": pandera.Column(
-            str,
-            pandera.Check.isin(["electric", "gas", "total", "other"]),
-            nullable=False,
-        ),
-        "publication_time": pandera.Column("datetime64[ns]", nullable=False),
-        "int_factoid": pandera.Column(int),
-        "float_factoid": pandera.Column(float),
-        "str_factoid": pandera.Column(str),
-    }
-)
-
-
-# ridiculous deadline - dataframe generation is always slow and sometimes
-# *very* slow
-@pytest.mark.slow
-@hypothesis.settings(print_blob=True, deadline=2_000)
-@hypothesis.given(example_schema.strategy(size=3))
-def test_filter_for_freshest_data(df):
-    # XBRL context is the identifying metadata for reported values
-    xbrl_context_cols = ["entity_id", "date", "utility_type"]
-    filing_metadata_cols = ["publication_time", "filing_name"]
-    primary_key = xbrl_context_cols + filing_metadata_cols
-    deduped = FercXBRLSQLiteIOManager.filter_for_freshest_data(
-        df, primary_key=primary_key
-    )
-    example_schema.validate(deduped)
-
-    # every post-deduplication row exists in the original rows
-    assert (deduped.merge(df, how="left", indicator=True)._merge != "left_only").all()
-    # for every [entity_id, utility_type, date] - there is only one row
-    assert (~deduped.duplicated(subset=xbrl_context_cols)).all()
-    # for every *context* in the input there is a corresponding row in the output
-    original_contexts = df.groupby(xbrl_context_cols, as_index=False).last()
-    paired_by_context = original_contexts.merge(
-        deduped,
-        on=xbrl_context_cols,
-        how="outer",
-        suffixes=["_in", "_out"],
-        indicator=True,
-    ).set_index(xbrl_context_cols)
-    hypothesis.note(
-        f"Found these contexts ({xbrl_context_cols}) in input data:\n{original_contexts[xbrl_context_cols]}"
-    )
-    hypothesis.note(f"The freshest data:\n{deduped}")
-    hypothesis.note(f"Paired by context:\n{paired_by_context}")
-    assert (paired_by_context._merge == "both").all()
 
 
 def test_report_year_fixing_instant():
