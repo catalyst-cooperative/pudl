@@ -175,30 +175,45 @@ TIMEZONE_CODES = {
 """Mapping between standardized time offset codes and canonical timezones."""
 
 EIA_CODE_FIXES = {
-    # FERC 714 Respondent ID: EIA BA or Utility ID
-    125: 2775,  # EIA BA CAISO (fixing bad EIA Code of 229)
-    134: 5416,  # Duke Energy Corp. (bad id was non-existent 3260)
-    203: 12341,  # MidAmerican Energy Co. (fixes typo, from 12431)
-    257: 59504,  # Southwest Power Pool (Fixing bad EIA Coding)
-    292: 20382,  # City of West Memphis -- (fixes a typo, from 20383)
-    295: 40229,  # Old Dominion Electric Cooperative (missing)
-    301: 14725,  # PJM Interconnection Eastern Hub (missing)
-    302: 14725,  # PJM Interconnection Western Hub (missing)
-    303: 14725,  # PJM Interconnection Illinois Hub (missing)
-    304: 14725,  # PJM Interconnection Northern Illinois Hub (missing)
-    305: 14725,  # PJM Interconnection Dominion Hub (missing)
-    306: 14725,  # PJM Interconnection AEP-Dayton Hub (missing)
-    # PacifiCorp Utility ID is 14354. It ALSO has 2 BA IDs: (14378, 14379)
-    # See https://github.com/catalyst-cooperative/pudl/issues/616
-    307: 14379,  # Using this ID for now only b/c it's in the HIFLD geometry
-    309: 12427,  # Michigan Power Pool / Power Coordination Center (missing)
-    315: 56090,  # Griffith Energy (bad id was 55124)
-    323: 58790,  # Gridforce Energy Management (missing)
-    324: 58791,  # NaturEner Wind Watch LLC (Fixes bad ID 57995)
-    329: 39347,  # East Texas Electricity Cooperative (missing)
-    # TODO: this is a placeholder! this is the new respondent_id_ferc714
-    # and everything above is a respondent_id_ferc714_csv
-    218: 56365,  # NaturEner Power Watch LLC (Fixes bad ID 57049, 57050)
+    "combined": {
+        # FERC 714 Respondent ID: EIA BA or Utility ID
+        125: 2775,  # EIA BA CAISO (fixing bad EIA Code of 229)
+        47: 56812,  # Duke Energy Control Area Services, LLC (Arlington Valley WECC AZ)
+        146: 59504,  # Southwest Power Pool (Fixing bad EIA Coding)
+        180: 32790,  # New Harquahala.
+        # PacifiCorp Utility ID is 14354. It ALSO has 2 BA IDs: (14378, 14379)
+        # See https://github.com/catalyst-cooperative/pudl/issues/616
+        194: 14379,  # Using this ID for now only b/c it's in the HIFLD geometry
+        206: 58791,  # NaturEner Wind Watch LLC (Fixes bad ID 57995)
+        201: 56090,  # Griffith Energy (bad id was 55124)
+        205: 58790,  # Gridforce Energy Management (missing or 11378 in xbrl)
+        213: 64898,  # GridLiance (missing)
+    },
+    "xbrl": {
+        # FERC 714 Respondent ID XBRL: EIA BA or Utility ID
+        "C011373": 14610,  # Florida Municipal Power Pool (lines up with CSV code & is FL util)
+        "C011421": 9617,  # JEA - lines up w/ CSV code and is EIA util
+        "C002732": 56365,  # NaturEner Power Watch LLC: Fixes bad ID "57049, 57050"
+        "C002447": 7004,  # Buckeye Power: was null or the entity_id
+        "C001526": 14369,  # Avangrid Renewables: was null or the entity_id
+        "C001132": 15248,  # PGE. Bad id was 43. New one lines up w/ CSV  and is EIA util
+    },
+    "csv": {
+        # FERC 714 Respondent ID CSV: EIA BA or Utility ID
+        134: 5416,  # Duke Energy Corp. (bad id was non-existent 3260)
+        203: 12341,  # MidAmerican Energy Co. (fixes typo, from 12431)
+        292: 20382,  # City of West Memphis -- (fixes a typo, from 20383)
+        295: 40229,  # Old Dominion Electric Cooperative (missing)
+        301: 14725,  # PJM Interconnection Eastern Hub (missing)
+        302: 14725,  # PJM Interconnection Western Hub (missing)
+        303: 14725,  # PJM Interconnection Illinois Hub (missing)
+        304: 14725,  # PJM Interconnection Northern Illinois Hub (missing)
+        305: 14725,  # PJM Interconnection Dominion Hub (missing)
+        306: 14725,  # PJM Interconnection AEP-Dayton Hub (missing)
+        309: 12427,  # Michigan Power Pool / Power Coordination Center (missing)
+        312: 59435,  # NaturEner Glacier Wind (missing)
+        329: 39347,  # East Texas Electricity Cooperative (missing)
+    },
 }
 """Overrides of FERC 714 respondent IDs with wrong or missing EIA Codes."""
 
@@ -302,6 +317,26 @@ def _assign_respondent_id_ferc714(
     return df
 
 
+def _fillna_respondent_id_ferc714_source(
+    df: pd.DataFrame, source: Literal["csv", "xbrl"]
+) -> pd.DataFrame:
+    """Fill missing CSV or XBRL respondent id."""
+    respondent_map_ferc714 = pd.read_csv(
+        importlib.resources.files("pudl.package_data.glue")
+        / "respondent_id_ferc714.csv"
+    ).convert_dtypes()
+    # use the source utility ID column to get a unique map and for merging
+    resp_id_col = f"respondent_id_ferc714_{source}"
+    resp_map_series = respondent_map_ferc714.dropna(subset=[resp_id_col]).set_index(
+        "respondent_id_ferc714"
+    )[resp_id_col]
+
+    df[resp_id_col] = df[resp_id_col].fillna(
+        df["respondent_id_ferc714"].map(resp_map_series)
+    )
+    return df
+
+
 def assign_report_day(df: pd.DataFrame, date_col: str) -> pd.DataFrame:
     """Add a report_day column."""
     return df.assign(
@@ -315,6 +350,8 @@ def _post_process(df: pd.DataFrame, table_name: str) -> pd.DataFrame:
     Applies standard data types and ensures that the tables generally conform to the
     schemas we have defined for them.
 
+    TODO: rip this out. enforce_schema happens via the io_managers now.
+
     Args:
         df: A dataframe to be post-processed.
 
@@ -327,6 +364,12 @@ def _post_process(df: pd.DataFrame, table_name: str) -> pd.DataFrame:
 class RespondentId:
     """Class for building the :ref:`out_ferc714__hourly_planning_area_demand` asset.
 
+    Process and combine the CSV and XBRL based data.
+    Clean up FERC-714 respondent names and manually assign EIA utility IDs to a few FERC
+    Form 714 respondents that report planning area demand, but which don't have their
+    corresponding EIA utility IDs provided by FERC for some reason (including
+    PacifiCorp).
+
     Most of the methods in this class as staticmethods. The purpose of using a class
     in this instance is mostly for organizing the table specific transforms under the
     same name-space.
@@ -336,25 +379,81 @@ class RespondentId:
     def run(
         cls, raw_csv: pd.DataFrame, raw_xbrl_duration: pd.DataFrame
     ) -> pd.DataFrame:
-        """Build the table for the :ref:`core_ferc714__respondent_id` asset.
-
-        TODO: Determine where the existing
-        """
+        """Build the table for the :ref:`core_ferc714__respondent_id` asset."""
         table_name = "core_ferc714__respondent_id"
-        csv = _pre_process_csv(raw_csv, table_name)
-
-        xbrl = rename_columns(
-            raw_xbrl_duration,
-            params=RenameColumns(columns=RENAME_COLS[table_name]["xbrl"]),
-        ).pipe(cls.clean_eia_codes_xbrl)
-
-        df = pd.concat([csv, xbrl]).reset_index(drop=True)
-
+        # CSV STUFF
+        csv = (
+            _pre_process_csv(raw_csv, table_name)
+            .pipe(_assign_respondent_id_ferc714, source="csv")
+            .astype({"eia_code": pd.Int64Dtype()})
+            .pipe(cls.spot_fix_eia_codes, "csv")
+            .pipe(cls.ensure_eia_code_uniqueness, "csv")
+            .assign(source="csv")
+        )
+        # XBRL STUFF
+        xbrl = (
+            rename_columns(
+                raw_xbrl_duration,
+                params=RenameColumns(columns=RENAME_COLS[table_name]["xbrl"]),
+            )
+            .pipe(_assign_respondent_id_ferc714, source="xbrl")
+            .pipe(cls.clean_eia_codes_xbrl)
+            .astype({"eia_code": pd.Int64Dtype()})
+            .pipe(cls.spot_fix_eia_codes, "xbrl")
+            .pipe(cls.ensure_eia_code_uniqueness, "xbrl")
+            .pipe(cls.convert_into_static_table_xbrl)
+            .assign(source="xbrl")
+        )
+        # CONCATED STUFF
+        df = (
+            pd.concat([csv, xbrl])
+            .reset_index(drop=True)
+            .convert_dtypes()
+            .pipe(cls.spot_fix_eia_codes, "combined")
+            .pipe(cls.ensure_eia_code_uniqueness, "combined")
+            .pipe(cls.condense_into_one_source_table)
+            .pipe(_fillna_respondent_id_ferc714_source, "csv")
+            # the xbrl version of this is fillna is not *strictly necessary*
+            # bc we are sorting the records to grab the xbrl record
+            .pipe(_fillna_respondent_id_ferc714_source, "xbrl")
+        )
         return df
 
     @staticmethod
-    def clean_eia_codes_xbrl(xbrl):
-        """Make eia_code's cleaner.
+    def spot_fix_eia_codes(
+        df: pd.DataFrame, source: Literal["csv", "xbrl", "combined"]
+    ) -> pd.DataFrame:
+        """Spot fix the eia_codes."""
+        df.loc[df.eia_code == 0, "eia_code"] = pd.NA
+        suffix = "" if source == "combined" else f"_{source}"
+        # There are a few utilities that seem mappable, but missing:
+        for rid, new_code in EIA_CODE_FIXES[source].items():
+            df.loc[df[f"respondent_id_ferc714{suffix}"] == rid, "eia_code"] = new_code
+        return df
+
+    @staticmethod
+    def ensure_eia_code_uniqueness(
+        df: pd.DataFrame, source: Literal["csv", "xbrl", "combined"]
+    ) -> pd.DataFrame:
+        """Ensure there is only one unique eia_code for each respondent."""
+        df["eia_code_count"] = (
+            df.dropna(subset=["eia_code"])
+            .groupby(["respondent_id_ferc714"])[["eia_code"]]
+            .transform("nunique")
+        )
+        if not (
+            multiple_eia_codes := df[(df.eia_code_count != 1) & (df.eia_code.notnull())]
+        ).empty:
+            raise AssertionError(
+                "We expected 0 respondents with multiple different eia_code's "
+                f"reported for each respondent in {source} data, "
+                f"but we found {len(multiple_eia_codes)}"
+            )
+        return df.drop(columns=["eia_code_count"])
+
+    @staticmethod
+    def clean_eia_codes_xbrl(xbrl: pd.DataFrame) -> pd.DataFrame:
+        """Make eia_code's cleaner coming from the XBRL data.
 
         Desired outcomes here include all respondents have only one non-null
         eia_code and all eia_codes that are actually the respondent_id_ferc714_xbrl
@@ -392,14 +491,50 @@ class RespondentId:
                 & (xbrl.eia_code.isin(bad_eia_codes)),
                 "eia_code",
             ] = pd.NA
-        assert all(
-            xbrl.dropna(subset=["eia_code"])  # noqa: PD101
-            .groupby(["respondent_id_ferc714_xbrl"])[["eia_code"]]
-            .nunique()
-            == 1
-        )
-        xbrl = xbrl.astype({"eia_code": pd.Int64Dtype()})
         return xbrl
+
+    @staticmethod
+    def convert_into_static_table_xbrl(xbrl: pd.DataFrame) -> pd.DataFrame:
+        """Convert this annually reported table into a skinner, static table.
+
+        The CSV table is entirely static - it doesn't have any reported
+        changes that vary over time. The XBRL table does have start and end
+        dates in it. In order to merge these two sources, we are checking
+        whether or not the shared variables change over time and then
+        converting this table into a non-time-varying table.
+        """
+        cols_to_keep = [
+            "respondent_id_ferc714",
+            "respondent_id_ferc714_xbrl",
+            "respondent_name_ferc714",
+            "eia_code",
+        ]
+        # we are not checking whether the respondent_name_ferc714 is exactly
+        # consistent across the submissions so before we grab the one true eia_code
+        # we are going to first sort by report year (descending) so the more recent
+        # name is the name we get
+        return (
+            xbrl.sort_values(["report_year"], ascending=False)[cols_to_keep]
+            .sort_values(["respondent_id_ferc714", "eia_code"])
+            .drop_duplicates(subset=["respondent_id_ferc714"], keep="first")
+        )
+
+    @staticmethod
+    def condense_into_one_source_table(df):
+        """Condense the CSV and XBRL records together into one record.
+
+        We have two records coming from each of the two sources in this table.
+        This method simply drops duplicates based on the PKs of the table.
+        We know that the names are different in the CSV vs the XBRL source.
+        We are going to grab the XBRL names because they are more recent.
+
+        NOTE: We could have merged the data in run instead of concatenating
+        along the index. We would have had to develop different methods for
+        :meth:`ensure_eia_code_uniqueness`.
+        """
+        return df.sort_values(["source"], ascending=False).drop_duplicates(
+            subset=["respondent_id_ferc714", "eia_code"], keep="first"
+        )
 
 
 @asset(
@@ -417,12 +552,8 @@ def core_ferc714__respondent_id(
 ) -> pd.DataFrame:
     """Transform the FERC 714 respondent IDs, names, and EIA utility IDs.
 
-    Clean up FERC-714 respondent names and manually assign EIA utility IDs to a few FERC
-    Form 714 respondents that report planning area demand, but which don't have their
-    corresponding EIA utility IDs provided by FERC for some reason (including
-    PacifiCorp).
-
-    TODO: migrate transforms up into RespondentId.run() and just call that here.
+    This is a light wrapper around :class:`RespondentId` because you need to
+    build an asset from a function - not a staticmethod of a class.
 
     Args:
         raw_csv: Raw table describing the FERC 714 Respondents from the CSV years.
@@ -432,13 +563,7 @@ def core_ferc714__respondent_id(
     Returns:
         A clean(er) version of the FERC-714 respondents table.
     """
-    df = _pre_process_csv(raw_csv, table_name="core_ferc714__respondent_id")
-    df["respondent_name_ferc714"] = df.respondent_name_ferc714.str.strip()
-    df.loc[df.eia_code == 0, "eia_code"] = pd.NA
-    # There are a few utilities that seem mappable, but missing:
-    for rid in EIA_CODE_FIXES:
-        df.loc[df.respondent_id_ferc714 == rid, "eia_code"] = EIA_CODE_FIXES[rid]
-    return _post_process(df, table_name="core_ferc714__respondent_id")
+    return RespondentId.run(raw_csv, raw_xbrl_duration)
 
 
 class HourlyPlanningAreaDemand:
