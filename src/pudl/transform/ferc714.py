@@ -378,6 +378,7 @@ class RespondentId:
         Process and combine the CSV and XBRL based data.
 
         There are two main threads of transforms happening here:
+
         * Table compatibility: The CSV raw table is static (does not even report years)
           while the xbrl table is reported annually. A lot of the downstream analysis
           expects this table to be static. So the first step was to check whether or not
