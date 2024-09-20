@@ -882,7 +882,7 @@ class YearlyPlanningAreaDemandForecast:
         duplicate primary keys.
 
         This function takes the average of the forecast values for rows
-        with duplicate primary keys. There are only 5 respondent/report_year/
+        with duplicate primary keys. There are only 6 respondent/report_year/
         forecast year rows where the forecast values differ. One of those is a
         pair where one forecast value is 0. We'll take the non-zero value here
         and average out the rest.
@@ -890,15 +890,21 @@ class YearlyPlanningAreaDemandForecast:
         # Record original length of dataframe
         original_len = len(df)
         # Remove duplicate row with 0 forecast values
-        mask = (
+        error_mask = (
             (df["respondent_id_ferc714"] == 100)
             & (df["report_year"] == 2013)
             & (df["forecast_year"] == 2014)
+            & (df["net_demand_forecast_mwh"] == 0)
         )
-        df = df[~mask]
+        assert len(df[error_mask] == 1)
+        df = df[~error_mask]
         # Take the average of duplicate PK forecast values.
-        df = (
-            df.groupby(["respondent_id_ferc714", "report_year", "forecast_year"])[
+        dupe_mask = df[
+            ["respondent_id_ferc714", "report_year", "forecast_year"]
+        ].duplicated(keep=False)
+        deduped_df = (
+            df[dupe_mask]
+            .groupby(["respondent_id_ferc714", "report_year", "forecast_year"])[
                 [
                     "summer_peak_demand_forecast_mw",
                     "winter_peak_demand_forecast_mw",
@@ -908,10 +914,11 @@ class YearlyPlanningAreaDemandForecast:
             .mean()
             .reset_index()
         )
+        df = pd.concat([df[~dupe_mask], deduped_df])
         # Make sure no more rows were dropped than expected
         assert (
-            original_len - len(df) == 21
-        ), f"dropped {original_len - len(df)} rows, expected 26"
+            original_len - len(df) <= 20
+        ), f"dropped {original_len - len(df)} rows, expected 20"
         return df
 
 
