@@ -3662,6 +3662,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "FERC Form 714 respondent ID. Note that this ID does not correspond to FERC respondent IDs from other forms.",
     },
+    "respondent_id_ferc714_csv": {
+        "type": "integer",
+        "description": "FERC Form 714 respondent ID. Note that this ID does not correspond to FERC respondent IDs from other forms.",
+    },
+    "respondent_id_ferc714_xbrl": {
+        "type": "integer",
+        "description": "FERC Form 714 respondent ID. Note that this ID does not correspond to FERC respondent IDs from other forms.",
+    },
     "respondent_name_ferc714": {
         "type": "string",
         "description": "Name of the utility, balancing area authority, or planning authority responding to FERC Form 714.",
