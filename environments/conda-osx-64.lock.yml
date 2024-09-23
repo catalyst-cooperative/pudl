@@ -77,7 +77,7 @@ dependencies:
   - cairo=1.18.0=h37bd5c4_3
   - catalystcoop.dbfread=3.0.0=py_0
   - catalystcoop.ferc_xbrl_extractor=1.5.1=pyhd8ed1ab_0
-  - cattrs=24.1.1=pyhd8ed1ab_0
+  - cattrs=24.1.2=pyhd8ed1ab_0
   - certifi=2024.8.30=pyhd8ed1ab_0
   - cffi=1.17.1=py312hf857d28_0
   - cfgv=3.3.1=pyhd8ed1ab_0
@@ -149,7 +149,7 @@ dependencies:
   - fsspec=2024.9.0=pyhff2d567_0
   - furo=2024.8.6=pyhd8ed1ab_0
   - gcsfs=2024.9.0=pyhd8ed1ab_0
-  - gdal=3.9.2=py312h365dfcf_3
+  - gdal=3.9.2=py312h365dfcf_4
   - gdk-pixbuf=2.42.12=ha587570_0
   - geopandas=1.0.1=pyhd8ed1ab_1
   - geopandas-base=1.0.1=pyha770c72_1
@@ -222,7 +222,7 @@ dependencies:
   - jinja2=3.1.4=pyhd8ed1ab_0
   - jmespath=1.0.1=pyhd8ed1ab_0
   - joblib=1.4.2=pyhd8ed1ab_0
-  - json-c=0.17=h6253ea5_1
+  - json-c=0.18=hc62ec3d_0
   - json5=0.9.25=pyhd8ed1ab_0
   - jsonpointer=3.0.0=py312hb401068_1
   - jsonschema=4.23.0=pyhd8ed1ab_0
@@ -271,20 +271,20 @@ dependencies:
   - libexpat=2.6.3=hac325c4_0
   - libffi=3.4.2=h0d85af4_5
   - libgd=2.3.3=h2e77e4f_10
-  - libgdal=3.9.2=h694c41f_3
-  - libgdal-core=3.9.2=h9aff623_3
-  - libgdal-fits=3.9.2=h2000d26_3
-  - libgdal-grib=3.9.2=h9237131_3
-  - libgdal-hdf4=3.9.2=hbfba102_3
-  - libgdal-hdf5=3.9.2=hc0c3446_3
-  - libgdal-jp2openjpeg=3.9.2=hd77bb1f_3
-  - libgdal-kea=3.9.2=he223473_3
-  - libgdal-netcdf=3.9.2=he83ae23_3
-  - libgdal-pdf=3.9.2=h85e1e31_3
-  - libgdal-pg=3.9.2=h7ffd8cf_3
-  - libgdal-postgisraster=3.9.2=h7ffd8cf_3
-  - libgdal-tiledb=3.9.2=h6b11327_3
-  - libgdal-xls=3.9.2=hc33d192_3
+  - libgdal=3.9.2=h694c41f_4
+  - libgdal-core=3.9.2=he345a44_4
+  - libgdal-fits=3.9.2=h2000d26_4
+  - libgdal-grib=3.9.2=h9237131_4
+  - libgdal-hdf4=3.9.2=hbfba102_4
+  - libgdal-hdf5=3.9.2=hc0c3446_4
+  - libgdal-jp2openjpeg=3.9.2=hd77bb1f_4
+  - libgdal-kea=3.9.2=he223473_4
+  - libgdal-netcdf=3.9.2=he83ae23_4
+  - libgdal-pdf=3.9.2=h85e1e31_4
+  - libgdal-pg=3.9.2=h7ffd8cf_4
+  - libgdal-postgisraster=3.9.2=h7ffd8cf_4
+  - libgdal-tiledb=3.9.2=h6b11327_4
+  - libgdal-xls=3.9.2=hc33d192_4
   - libgfortran=5.0.0=13_2_0_h97931a8_3
   - libgfortran5=13.2.0=h2873a65_3
   - libglib=2.80.3=h736d271_2
