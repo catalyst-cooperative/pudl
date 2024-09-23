@@ -13,7 +13,6 @@ import pandas as pd
 from dagster import AssetCheckResult, AssetChecksDefinition, AssetIn, asset, asset_check
 
 import pudl.logging_helpers
-from pudl.metadata import PUDL_PACKAGE
 from pudl.settings import Ferc714Settings
 from pudl.transform.classes import (
     RenameColumns,
@@ -378,23 +377,6 @@ def assign_report_day(df: pd.DataFrame, date_col: str) -> pd.DataFrame:
     )
 
 
-def _post_process(df: pd.DataFrame, table_name: str) -> pd.DataFrame:
-    """Uniform post-processing of FERC 714 tables.
-
-    Applies standard data types and ensures that the tables generally conform to the
-    schemas we have defined for them.
-
-    TODO: rip this out. enforce_schema happens via the io_managers now.
-
-    Args:
-        df: A dataframe to be post-processed.
-
-    Returns:
-        The post-processed dataframe.
-    """
-    return PUDL_PACKAGE.get_resource(table_name).enforce_schema(df)
-
-
 class RespondentId:
     """Class for building the :ref:`core_ferc714__respondent_id` asset.
 
@@ -701,6 +683,11 @@ class HourlyPlanningAreaDemand:
             .assign(
                 report_date=lambda x: x.report_date.dt.to_period("Y").dt.to_timestamp()
             )
+            .pipe(_fillna_respondent_id_ferc714_source, "xbrl")
+            .pipe(_fillna_respondent_id_ferc714_source, "csv")
+            # sort so that the parquet files have all the repeating IDs are next
+            # to each other for smoller storage
+            .sort_values(by=["respondent_id_ferc714", "datetime_utc"])
         )
         return df
 
@@ -723,6 +710,7 @@ class HourlyPlanningAreaDemand:
         df = df.melt(
             id_vars=[
                 "respondent_id_ferc714",
+                "respondent_id_ferc714_csv",
                 "report_year",
                 "report_date",
                 "utc_offset_code",
@@ -1088,7 +1076,6 @@ class YearlyPlanningAreaDemandForecast:
             _pre_process_csv(raw_csv, table_name=table_name)
             .pipe(_assign_respondent_id_ferc714, "csv")
             .pipe(cls.average_duplicate_pks_csv)
-            .pipe(_post_process, table_name=table_name)
         )
         # CONCATED STUFF
         df = pd.concat([csv, xbrl]).reset_index(drop=True)
