@@ -16,14 +16,11 @@ area and planning area operations.
 {% block availability %}
 The data we've integrated from FERC Form 714 includes:
 
-* Hourly electricity demand by utility or balancing authority from 2006-2023
-* WIP: annual demand forecast.
+* Hourly electricity demand by utility or balancing authority.
+* Annual demand forecast.
 * A table identifying the form respondents including their EIA utility or balancing
   authority ID, which allows us to link the FERC-714 data to other information
   reported in :doc:`eia860` and :doc:`eia861`.
-
-The hourly demand data for 2006-2020 is about 15 million records. There are about 200
-respondents that show up in the respondents table.
 
 With the EIA IDs we can link the hourly electricity demand to a particular geographic
 region at the county level because utilities and balancing authorities report their
@@ -55,7 +52,7 @@ formats:
 * **2021-present**: Standardized electronic filing using the XBRL (eXtensible Business
   Reporting Language) dialect of XML.
 
-We only have plans to integrate the data from the standardized electronic reporting era
+We only plan to integrate the data from the standardized electronic reporting era
 (2006+) since the format of the earlier data varies for each reporting balancing authority
 and utility, and would be very labor intensive to parse and reconcile.
 
@@ -110,7 +107,7 @@ Combining XBRL and CSV data
 The format of the company identifiers (CIDs) used in the CSV data (2006-2020) and the
 XBRL data (2021+) differs. To link respondents between both data formats, we manually
 map the IDs from both datasets and create a ``respondent_id_ferc714`` in
-:ref:`pudl.glue.package_data.respondent_id_ferc714.csv`.
+:mod:`pudl.package_data.glue.respondent_id_ferc714.csv`.
 
 This CSV builds on the `migrated data
 <https://www.ferc.gov/filing-forms/eforms-refresh/migrated-data-downloads>`__ provided
@@ -123,8 +120,8 @@ by FERC during the transition from CSV to XBRL data, which notes that:
 The file names of the migrated data (which correspond to CSV IDs) and the respondent
 CIDs in the migrated files provide the basis for ID mapping. Though CIDs are intended to
 be static, some of the CIDs in the migrated data weren't found in the actual XBRL data,
-while the same respondents were reporting data using different CIDs. To ensure accurate
-record matching, we manually reviewed the CIDss for each respondent, matching based on
+and the same respondents were reporting data using different CIDs. To ensure accurate
+record matching, we manually reviewed the CIDs for each respondent, matching based on
 name and location. Some quirks to note:
 
 * All respondents are matched 1:1 from CSV to XBRL data. Unmatched respondents mostly
