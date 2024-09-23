@@ -174,7 +174,7 @@ TIMEZONE_CODES = {
 }
 """Mapping between standardized time offset codes and canonical timezones."""
 
-EIA_CODE_FIXES = {
+EIA_CODE_FIXES: dict[Literal["combined", "csv", "xbrl"], dict[int | str], int] = {
     "combined": {
         # FERC 714 Respondent ID: EIA BA or Utility ID
         125: 2775,  # EIA BA CAISO (fixing bad EIA Code of 229)
@@ -215,7 +215,13 @@ EIA_CODE_FIXES = {
         329: 39347,  # East Texas Electricity Cooperative (missing)
     },
 }
-"""Overrides of FERC 714 respondent IDs with wrong or missing EIA Codes."""
+"""Overrides of FERC 714 respondent IDs with wrong or missing EIA Codes.
+
+This is used in :meth:`RespondentId.spot_fix_eia_codes`. The dictionary
+is organized by "source" keys ("combined", "csv", or "xbrl"). Each source's
+value is a secondary dictionary which contains source respondent ID's as keys
+and fixes for EIA codes as values.
+"""
 
 RENAME_COLS = {
     "core_ferc714__respondent_id": {
@@ -320,7 +326,17 @@ def _assign_respondent_id_ferc714(
 def _fillna_respondent_id_ferc714_source(
     df: pd.DataFrame, source: Literal["csv", "xbrl"]
 ) -> pd.DataFrame:
-    """Fill missing CSV or XBRL respondent id."""
+    """Fill missing CSV or XBRL respondent id.
+
+    The source (CSV or XBRL) tables get assigned a PUDL-derived
+    ``respondent_id_ferc714`` ID column (via :func:`_assign_respondent_id_ferc714`).
+    After we concatenate the source tables, we sometimes to backfill and
+    forward-fill the source IDs (``respondent_id_ferc714_csv`` and
+    ``respondent_id_ferc714_xbrl``). This way the older records from the CSV years
+    will also have the XBRL ID's and vice versa. This will enable users to find
+    the full timeseries of a respondent that given either source ID (instead of
+    using the source ID to find the PUDL-derived ID and then finding the records).
+    """
     respondent_map_ferc714 = pd.read_csv(
         importlib.resources.files("pudl.package_data.glue")
         / "respondent_id_ferc714.csv"
@@ -362,7 +378,7 @@ def _post_process(df: pd.DataFrame, table_name: str) -> pd.DataFrame:
 
 
 class RespondentId:
-    """Class for building the :ref:`out_ferc714__hourly_planning_area_demand` asset.
+    """Class for building the :ref:`core_ferc714__respondent_id` asset.
 
     Most of the methods in this class as staticmethods. The purpose of using a class
     in this instance is mostly for organizing the table specific transforms under the
@@ -437,7 +453,17 @@ class RespondentId:
     def spot_fix_eia_codes(
         df: pd.DataFrame, source: Literal["csv", "xbrl", "combined"]
     ) -> pd.DataFrame:
-        """Spot fix the eia_codes."""
+        """Spot fix the eia_codes.
+
+        We have manually compiled fixes to the EIA Codes that are reported
+        in :py:const:`EIA_CODE_FIXES`. We separated these fixes by either coming
+        directly from the CSV data, the XBRL data, or the combined data. We use the
+        corresponding source or PUDL-derived respondent ID to identify the EIA code to
+        overwrite. We could have combined these fixes all into one set of combined fixes
+        identified by the PUDL-derived ``respondent_id_ferc714``, but this way we can do
+        more targeted source-based cleaning and test each source's EIA codes before the
+        sources are concatenated together.
+        """
         df.loc[df.eia_code == 0, "eia_code"] = pd.NA
         suffix = "" if source == "combined" else f"_{source}"
         # There are a few utilities that seem mappable, but missing:
@@ -482,6 +508,8 @@ class RespondentId:
         xbrl.loc[code_is_respondent_id_mask, "eia_code"] = pd.NA
 
         # lets null out some of the eia_code's from XBRL that we've manually culled
+        # because they are were determined to be wrong. These respondents
+        # had more than one value for their eia_code and one was always wrong
         respondent_id_xbrl_to_bad_eia_code = {
             "C002422": ["5776"],
             "C011374": ["8376"],
@@ -499,7 +527,7 @@ class RespondentId:
 
     @staticmethod
     def convert_into_static_table_xbrl(xbrl: pd.DataFrame) -> pd.DataFrame:
-        """Convert this annually reported table into a skinner, static table.
+        """Convert this annually reported table into a skinnier, static table.
 
         The CSV table is entirely static - it doesn't have any reported
         changes that vary over time. The XBRL table does have start and end
