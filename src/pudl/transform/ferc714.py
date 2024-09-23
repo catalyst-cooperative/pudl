@@ -221,6 +221,14 @@ This is used in :meth:`RespondentId.spot_fix_eia_codes`. The dictionary
 is organized by "source" keys ("combined", "csv", or "xbrl"). Each source's
 value is a secondary dictionary which contains source respondent ID's as keys
 and fixes for EIA codes as values.
+
+We separated these fixes by either coming directly from the CSV data, the XBRL
+data, or the combined data. We use the corresponding source or PUDL-derived
+respondent ID to identify the EIA code to overwrite. We could have combined
+these fixes all into one set of combined fixes identified by the PUDL-derived
+``respondent_id_ferc714``, but this way we can do more targeted source-based
+cleaning and test each source's EIA codes before the sources are concatenated
+together.
 """
 
 RENAME_COLS = {
@@ -330,7 +338,7 @@ def _fillna_respondent_id_ferc714_source(
 
     The source (CSV or XBRL) tables get assigned a PUDL-derived
     ``respondent_id_ferc714`` ID column (via :func:`_assign_respondent_id_ferc714`).
-    After we concatenate the source tables, we sometimes to backfill and
+    After we concatenate the source tables, we sometimes backfill and
     forward-fill the source IDs (``respondent_id_ferc714_csv`` and
     ``respondent_id_ferc714_xbrl``). This way the older records from the CSV years
     will also have the XBRL ID's and vice versa. This will enable users to find
@@ -444,7 +452,8 @@ class RespondentId:
             .pipe(cls.condense_into_one_source_table)
             .pipe(_fillna_respondent_id_ferc714_source, "csv")
             # the xbrl version of this is fillna is not *strictly necessary*
-            # bc we are sorting the records to grab the xbrl record
+            # bc we are sorting the records grab the xbrl record if there is one
+            # for each respondent during condense_into_one_source_table.
             .pipe(_fillna_respondent_id_ferc714_source, "xbrl")
         )
         return df
@@ -455,14 +464,8 @@ class RespondentId:
     ) -> pd.DataFrame:
         """Spot fix the eia_codes.
 
-        We have manually compiled fixes to the EIA Codes that are reported
-        in :py:const:`EIA_CODE_FIXES`. We separated these fixes by either coming
-        directly from the CSV data, the XBRL data, or the combined data. We use the
-        corresponding source or PUDL-derived respondent ID to identify the EIA code to
-        overwrite. We could have combined these fixes all into one set of combined fixes
-        identified by the PUDL-derived ``respondent_id_ferc714``, but this way we can do
-        more targeted source-based cleaning and test each source's EIA codes before the
-        sources are concatenated together.
+        Using the manually compiled fixes to the ``eia_code`` column stored in
+        :py:const:`EIA_CODE_FIXES`, replace the reported values by respondent.
         """
         df.loc[df.eia_code == 0, "eia_code"] = pd.NA
         suffix = "" if source == "combined" else f"_{source}"
@@ -551,10 +554,9 @@ class RespondentId:
             "respondent_name_ferc714",
             "eia_code",
         ]
-        # we are not checking whether the respondent_name_ferc714 is exactly
-        # consistent across the submissions so before we grab the one true eia_code
         # we are going to first sort by report year (descending) so the more recent
-        # name is the name we get
+        # name is the name we get - just in case - we are checking for consistency of
+        # the name above.
         return (
             xbrl.sort_values(["report_year"], ascending=False)[cols_to_keep]
             .sort_values(["respondent_id_ferc714", "eia_code"])
@@ -570,7 +572,7 @@ class RespondentId:
         We know that the names are different in the CSV vs the XBRL source.
         We are going to grab the XBRL names because they are more recent.
 
-        NOTE: We could have merged the data in run instead of concatenating
+        NOTE: We could have merged the data in :meth:`run` instead of concatenating
         along the index. We would have had to develop different methods for
         :meth:`ensure_eia_code_uniqueness`.
         """
