@@ -20,14 +20,20 @@ This table is not published to Datasette.
 {%- endif %}
 
 .. list-table::
-  :widths: auto
-  :header-rows: 1
+   :widths: auto
+   :header-rows: 1
 
-  * - **Field Name**
-    - **Type**
-    - **Description**
-{%- for field in resource.schema.fields %}
-  * - {{ field.name }}
-    - {{ field.type }}
-    - {{ field.description if field.description else "N/A" }}
-{%- endfor %}
+   * - **Field Name**
+     - **Type**
+     - **Description**
+{% for field in resource.schema.fields %}
+   * - {{ field.name }}
+     - {{ field.type }}
+     - {{ field.description if field.description else "N/A" }}{%- if resource.schema.foreign_keys %}
+       {%- for key in resource.schema.foreign_keys %}
+         {% if field.name in key.fields %}
+          **Foreign key**: Encoded by the field **{{ key.reference.fields | join(', ') }}** of table **{{ key.reference.resource }}**.
+         {%- endif %}
+       {%- endfor %}
+     {%- endif %}
+{% endfor %}
