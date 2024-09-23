@@ -2680,9 +2680,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
-    "net_demand_mwh": {
+    "net_demand_forecast_mwh": {
         "type": "number",
-        "description": "Net electricity demand for the specified period in megawatt-hours (MWh).",
+        "description": "Net forecasted electricity demand for the specific period in megawatt-hours (MWh).",
         "unit": "MWh",
     },
     "net_generation_adjusted_mwh": {
@@ -4268,6 +4268,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "EIA estimated summer capacity (in MWh).",
         "unit": "MWh",
     },
+    "summer_peak_demand_forecast_mw": {
+        "type": "number",
+        "description": (
+            "The maximum forecasted hourly sumemr load (for the months of June through "
+            "September)."
+        ),
+        "unit": "MW",
+    },
     "summer_peak_demand_mw": {
         "type": "number",
         "description": (
@@ -4813,6 +4821,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "EIA estimated winter capacity (in MWh).",
         "unit": "MWh",
+    },
+    "winter_peak_demand_forecast_mw": {
+        "type": "number",
+        "description": (
+            "The maximum forecasted hourly winter load (for the months of January "
+            "through March)."
+        ),
+        "unit": "MW",
     },
     "winter_peak_demand_mw": {
         "type": "number",
