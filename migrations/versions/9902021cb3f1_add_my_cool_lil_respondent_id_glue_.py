@@ -1,8 +1,8 @@
-"""Add my cool lil respondent id glue tables
+"""Add my cool lil respondent id glue tables and other 714 xbrl updates
 
-Revision ID: cfd6ea17ee0c
-Revises: bbd84fd6320f
-Create Date: 2024-09-23 16:30:07.059409
+Revision ID: 9902021cb3f1
+Revises: a93bdb8d4fbd
+Create Date: 2024-09-23 17:59:44.690940
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'cfd6ea17ee0c'
-down_revision = 'bbd84fd6320f'
+revision = '9902021cb3f1'
+down_revision = 'a93bdb8d4fbd'
 branch_labels = None
 depends_on = None
 
@@ -40,8 +40,14 @@ def upgrade() -> None:
         batch_op.create_foreign_key(batch_op.f('fk_core_ferc714__respondent_id_respondent_id_ferc714_core_pudl__assn_ferc714_pudl_respondents'), 'core_pudl__assn_ferc714_pudl_respondents', ['respondent_id_ferc714'], ['respondent_id_ferc714'])
 
     with op.batch_alter_table('core_ferc714__yearly_planning_area_demand_forecast', schema=None) as batch_op:
+        batch_op.add_column(sa.Column('summer_peak_demand_forecast_mw', sa.Float(), nullable=True, comment='The maximum forecasted hourly sumemr load (for the months of June through September).'))
+        batch_op.add_column(sa.Column('winter_peak_demand_forecast_mw', sa.Float(), nullable=True, comment='The maximum forecasted hourly winter load (for the months of January through March).'))
+        batch_op.add_column(sa.Column('net_demand_forecast_mwh', sa.Float(), nullable=True, comment='Net forecasted electricity demand for the specific period in megawatt-hours (MWh).'))
         batch_op.drop_constraint('fk_core_ferc714__yearly_planning_area_demand_forecast_respondent_id_ferc714_core_ferc714__respondent_id', type_='foreignkey')
         batch_op.create_foreign_key(batch_op.f('fk_core_ferc714__yearly_planning_area_demand_forecast_respondent_id_ferc714_core_pudl__assn_ferc714_pudl_respondents'), 'core_pudl__assn_ferc714_pudl_respondents', ['respondent_id_ferc714'], ['respondent_id_ferc714'])
+        batch_op.drop_column('winter_peak_demand_mw')
+        batch_op.drop_column('summer_peak_demand_mw')
+        batch_op.drop_column('net_demand_mwh')
 
     with op.batch_alter_table('out_ferc714__respondents_with_fips', schema=None) as batch_op:
         batch_op.drop_constraint('fk_out_ferc714__respondents_with_fips_respondent_id_ferc714_core_ferc714__respondent_id', type_='foreignkey')
@@ -65,8 +71,14 @@ def downgrade() -> None:
         batch_op.create_foreign_key('fk_out_ferc714__respondents_with_fips_respondent_id_ferc714_core_ferc714__respondent_id', 'core_ferc714__respondent_id', ['respondent_id_ferc714'], ['respondent_id_ferc714'])
 
     with op.batch_alter_table('core_ferc714__yearly_planning_area_demand_forecast', schema=None) as batch_op:
+        batch_op.add_column(sa.Column('net_demand_mwh', sa.FLOAT(), nullable=True))
+        batch_op.add_column(sa.Column('summer_peak_demand_mw', sa.FLOAT(), nullable=True))
+        batch_op.add_column(sa.Column('winter_peak_demand_mw', sa.FLOAT(), nullable=True))
         batch_op.drop_constraint(batch_op.f('fk_core_ferc714__yearly_planning_area_demand_forecast_respondent_id_ferc714_core_pudl__assn_ferc714_pudl_respondents'), type_='foreignkey')
         batch_op.create_foreign_key('fk_core_ferc714__yearly_planning_area_demand_forecast_respondent_id_ferc714_core_ferc714__respondent_id', 'core_ferc714__respondent_id', ['respondent_id_ferc714'], ['respondent_id_ferc714'])
+        batch_op.drop_column('net_demand_forecast_mwh')
+        batch_op.drop_column('winter_peak_demand_forecast_mw')
+        batch_op.drop_column('summer_peak_demand_forecast_mw')
 
     with op.batch_alter_table('core_ferc714__respondent_id', schema=None) as batch_op:
         batch_op.drop_constraint(batch_op.f('fk_core_ferc714__respondent_id_respondent_id_ferc714_core_pudl__assn_ferc714_pudl_respondents'), type_='foreignkey')

@@ -6,6 +6,17 @@ PUDL Release Notes
 v2024.X.x (2024-XX-XX)
 ---------------------------------------------------------------------------------------
 
+New Data Coverage
+^^^^^^^^^^^^^^^^^
+
+FERC Form 714
+~~~~~~~~~~~~~
+* Integrate 2021-2023 years of the FERC Form 714 data. FERC updated its reporting
+  format for 2021 from a CSV files to XBRL files. This update integrates the two
+  raw data sources and extends the data coverage through 2023. See :issue:`3809`
+  and :pr:`3842`.
+
+
 Schema Changes
 ^^^^^^^^^^^^^^
 * Added :ref:`out_eia__yearly_assn_plant_parts_plant_gen` table. This table associates

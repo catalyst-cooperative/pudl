@@ -22,7 +22,21 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "out_ferc714__hourly_planning_area_demand": {
         "description": (
             "Hourly electricity demand by planning area. FERC Form 714, Part III, "
-            "Schedule 2a."
+            "Schedule 2a. This table includes data from the pre-2021 CSV raw source "
+            "as well as the newer 2021 through present XBRL raw source.\n An important "
+            "caveat to note is that there was some cleaning done to the datetime_utc "
+            "timestamps. The Form 714 includes sparse documentation for respondents "
+            "for how to interpret timestamps - the form asks respondents to provide "
+            "24 instances of hourly demand for each day. The form is labeled with hour "
+            "1-24. There is no indication if hour 1 begins at midnight.\nThe XBRL data "
+            "contained several formats of timestamps. Most records corresponding to hour "
+            "1 of the Form have a timestamp with hour 1 as T1. About two thirds of the records "
+            "in the hour 24 location of the form have a timestamp with an hour reported as "
+            "T24 while the remaining third report this as T00 of the next day. T24 is not a"
+            "valid format for the hour of a datetime, so we convert these T24 hours into "
+            "T00 of the next day. A smaller subset of the respondents reports the 24th hour "
+            "as the last second of the day - we also convert these records to the T00 of the "
+            "next day."
         ),
         "schema": {
             "fields": [
