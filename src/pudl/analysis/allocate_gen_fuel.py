@@ -841,7 +841,7 @@ def remove_inactive_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
             proposed_plants,
             unassociated_plants,
         ]
-    )
+    ).drop_duplicates(keep="first")
 
     return gen_assoc_removed
 
@@ -849,17 +849,30 @@ def remove_inactive_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
 def identify_retiring_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     """Identify any generators that retire mid-year.
 
-    These are generators with a retirement date after the earliest report_date or which
-    report generator-specific generation data in the g table after their retirement
-    date.
+    We want to include all of the generator records within any given year that
+    retired mid-year or any generators that reported any fuel use or generation.
+    These are generators with a mid-year retirement date or which report
+    generator-specific generation or fuel use after they are labeled as retired.
     """
-    retiring_generators = gen_assoc.loc[
+    gen_assoc = gen_assoc.assign(report_year=lambda x: x.report_date.dt.year)
+    # identify the complete set of generator ids that are retiring mid year
+    # or have fuel or generation use while being labeled as retired.
+    retiring_generator_identities = gen_assoc.loc[
         (gen_assoc.operational_status == "retired")
         & (
             (gen_assoc.report_date <= gen_assoc.generator_retirement_date)
-            | (gen_assoc.net_generation_mwh_g_tbl.notnull())
-        )
-    ]
+            | gen_assoc.filter(like="net_generation_mwh").notnull().any(axis=1)
+            | gen_assoc.filter(like="fuel_consumed").notnull().any(axis=1)
+        ),
+        ["plant_id_eia", "generator_id", "report_year"],
+    ].drop_duplicates()
+
+    # merge these ids into gen_assoc and keep all months of data for these gens
+    retiring_generators = gen_assoc.merge(
+        retiring_generator_identities,
+        how="inner",
+        on=["plant_id_eia", "generator_id", "report_year"],
+    ).drop(columns=["report_year"])
 
     return retiring_generators
 

@@ -855,12 +855,14 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
             context: dagster keyword that provides access output information like asset
                 name.
         """
-        # TODO (daz): this is hard-coded to FERC1, though this is nominally for all FERC datasets.
-        ferc1_settings = context.resources.dataset_settings.ferc1
+        ferc_settings = getattr(
+            context.resources.dataset_settings,
+            re.search(r"ferc\d+", self.db_name).group(),
+        )
 
         table_name = get_table_name_from_context(context)
         # Remove preceeding asset name metadata
-        table_name = table_name.replace("raw_ferc1_xbrl__", "")
+        table_name = table_name.replace(f"raw_{self.db_name}__", "")
 
         # TODO (bendnorman): Figure out a better to handle tables that
         # don't have duration and instant
@@ -887,7 +889,7 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
             )
             .pipe(
                 FercXBRLSQLiteIOManager.refine_report_year,
-                xbrl_years=ferc1_settings.xbrl_years,
+                xbrl_years=ferc_settings.xbrl_years,
             )
             .drop(columns=["publication_time"])
         )
@@ -895,10 +897,19 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
 
 @io_manager(required_resource_keys={"dataset_settings"})
 def ferc1_xbrl_sqlite_io_manager(init_context) -> FercXBRLSQLiteIOManager:
-    """Create a SQLiteManager dagster resource for the ferc1 dbf database."""
+    """Create a SQLiteManager dagster resource for the ferc1 xbrl database."""
     return FercXBRLSQLiteIOManager(
         base_dir=PudlPaths().output_dir,
         db_name="ferc1_xbrl",
+    )
+
+
+@io_manager(required_resource_keys={"dataset_settings"})
+def ferc714_xbrl_sqlite_io_manager(init_context) -> FercXBRLSQLiteIOManager:
+    """Create a SQLiteManager dagster resource for the ferc714 xbrl database."""
+    return FercXBRLSQLiteIOManager(
+        base_dir=PudlPaths().output_dir,
+        db_name="ferc714_xbrl",
     )
 
 

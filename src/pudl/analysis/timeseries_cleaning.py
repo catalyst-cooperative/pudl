@@ -61,11 +61,11 @@ def slice_axis(
     Examples:
         >>> x = np.random.random((3, 4, 5))
         >>> np.all(x[1:] == x[slice_axis(x, start=1, axis=0)])
-        True
+        np.True_
         >>> np.all(x[:, 1:] == x[slice_axis(x, start=1, axis=1)])
-        True
+        np.True_
         >>> np.all(x[:, :, 1:] == x[slice_axis(x, start=1, axis=2)])
-        True
+        np.True_
     """
     index = [slice(None)] * np.mod(axis, x.ndim) + [slice(start, end, step)]
     return tuple(index)
@@ -89,11 +89,11 @@ def array_diff(
     Examples:
         >>> x = np.random.random((4, 2))
         >>> np.all(array_diff(x, 1)[1:] == pd.DataFrame(x).diff(1).to_numpy()[1:])
-        True
+        np.True_
         >>> np.all(array_diff(x, 2)[2:] == pd.DataFrame(x).diff(2).to_numpy()[2:])
-        True
+        np.True_
         >>> np.all(array_diff(x, -1)[:-1] == pd.DataFrame(x).diff(-1).to_numpy()[:-1])
-        True
+        np.True_
     """
     if not periods:
         return x - x
@@ -203,7 +203,7 @@ def insert_run_length(  # noqa: C901
         ...     mask=~is_nan
         ... )
         >>> np.isnan(xi).sum() == 2 * is_nan.sum()
-        True
+        np.True_
 
         The same as above, with non-zero `padding`, yields a unique solution:
 
@@ -1206,7 +1206,7 @@ class Timeseries:
             array([[1, 2, 3],
                    [4, 5, 6]])
             >>> np.all(x == s.unfold_tensor(tensor))
-            True
+            np.True_
         """
         tensor_shape = self.x.shape[1], self.x.shape[0] // periods, periods
         x = self.x if x is None else x
