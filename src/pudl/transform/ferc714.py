@@ -174,37 +174,75 @@ TIMEZONE_CODES = {
 }
 """Mapping between standardized time offset codes and canonical timezones."""
 
-EIA_CODE_FIXES = {
-    # FERC 714 Respondent ID: EIA BA or Utility ID
-    125: 2775,  # EIA BA CAISO (fixing bad EIA Code of 229)
-    134: 5416,  # Duke Energy Corp. (bad id was non-existent 3260)
-    203: 12341,  # MidAmerican Energy Co. (fixes typo, from 12431)
-    257: 59504,  # Southwest Power Pool (Fixing bad EIA Coding)
-    292: 20382,  # City of West Memphis -- (fixes a typo, from 20383)
-    295: 40229,  # Old Dominion Electric Cooperative (missing)
-    301: 14725,  # PJM Interconnection Eastern Hub (missing)
-    302: 14725,  # PJM Interconnection Western Hub (missing)
-    303: 14725,  # PJM Interconnection Illinois Hub (missing)
-    304: 14725,  # PJM Interconnection Northern Illinois Hub (missing)
-    305: 14725,  # PJM Interconnection Dominion Hub (missing)
-    306: 14725,  # PJM Interconnection AEP-Dayton Hub (missing)
-    # PacifiCorp Utility ID is 14354. It ALSO has 2 BA IDs: (14378, 14379)
-    # See https://github.com/catalyst-cooperative/pudl/issues/616
-    307: 14379,  # Using this ID for now only b/c it's in the HIFLD geometry
-    309: 12427,  # Michigan Power Pool / Power Coordination Center (missing)
-    315: 56090,  # Griffith Energy (bad id was 55124)
-    323: 58790,  # Gridforce Energy Management (missing)
-    324: 58791,  # NaturEner Wind Watch LLC (Fixes bad ID 57995)
-    329: 39347,  # East Texas Electricity Cooperative (missing)
+EIA_CODE_FIXES: dict[Literal["combined", "csv", "xbrl"], dict[int | str], int] = {
+    "combined": {
+        # FERC 714 Respondent ID: EIA BA or Utility ID
+        125: 2775,  # EIA BA CAISO (fixing bad EIA Code of 229)
+        47: 56812,  # Duke Energy Control Area Services, LLC (Arlington Valley WECC AZ)
+        146: 59504,  # Southwest Power Pool (Fixing bad EIA Coding)
+        180: 32790,  # New Harquahala.
+        # PacifiCorp Utility ID is 14354. It ALSO has 2 BA IDs: (14378, 14379)
+        # See https://github.com/catalyst-cooperative/pudl/issues/616
+        194: 14379,  # Using this ID for now only b/c it's in the HIFLD geometry
+        206: 58791,  # NaturEner Wind Watch LLC (Fixes bad ID 57995)
+        201: 56090,  # Griffith Energy (bad id was 55124)
+        205: 58790,  # Gridforce Energy Management (missing or 11378 in xbrl)
+        213: 64898,  # GridLiance (missing)
+    },
+    "xbrl": {
+        # FERC 714 Respondent ID XBRL: EIA BA or Utility ID
+        "C011373": 14610,  # Florida Municipal Power Pool (lines up with CSV code & is FL util)
+        "C011421": 9617,  # JEA - lines up w/ CSV code and is EIA util
+        "C002732": 56365,  # NaturEner Power Watch LLC: Fixes bad ID "57049, 57050"
+        "C002447": 7004,  # Buckeye Power: was null or the entity_id
+        "C001526": 14369,  # Avangrid Renewables: was null or the entity_id
+        "C001132": 15248,  # PGE. Bad id was 43. New one lines up w/ CSV  and is EIA util
+    },
+    "csv": {
+        # FERC 714 Respondent ID CSV: EIA BA or Utility ID
+        134: 5416,  # Duke Energy Corp. (bad id was non-existent 3260)
+        203: 12341,  # MidAmerican Energy Co. (fixes typo, from 12431)
+        292: 20382,  # City of West Memphis -- (fixes a typo, from 20383)
+        295: 40229,  # Old Dominion Electric Cooperative (missing)
+        301: 14725,  # PJM Interconnection Eastern Hub (missing)
+        302: 14725,  # PJM Interconnection Western Hub (missing)
+        303: 14725,  # PJM Interconnection Illinois Hub (missing)
+        304: 14725,  # PJM Interconnection Northern Illinois Hub (missing)
+        305: 14725,  # PJM Interconnection Dominion Hub (missing)
+        306: 14725,  # PJM Interconnection AEP-Dayton Hub (missing)
+        309: 12427,  # Michigan Power Pool / Power Coordination Center (missing)
+        312: 59435,  # NaturEner Glacier Wind (missing)
+        329: 39347,  # East Texas Electricity Cooperative (missing)
+    },
 }
-"""Overrides of FERC 714 respondent IDs with wrong or missing EIA Codes."""
+"""Overrides of FERC 714 respondent IDs with wrong or missing EIA Codes.
+
+This is used in :meth:`RespondentId.spot_fix_eia_codes`. The dictionary
+is organized by "source" keys ("combined", "csv", or "xbrl"). Each source's
+value is a secondary dictionary which contains source respondent ID's as keys
+and fixes for EIA codes as values.
+
+We separated these fixes by either coming directly from the CSV data, the XBRL
+data, or the combined data. We use the corresponding source or PUDL-derived
+respondent ID to identify the EIA code to overwrite. We could have combined
+these fixes all into one set of combined fixes identified by the PUDL-derived
+``respondent_id_ferc714``, but this way we can do more targeted source-based
+cleaning and test each source's EIA codes before the sources are concatenated
+together.
+"""
 
 RENAME_COLS = {
     "core_ferc714__respondent_id": {
         "csv": {
             "respondent_id": "respondent_id_ferc714_csv",
             "respondent_name": "respondent_name_ferc714",
-        }
+            "eia_code": "eia_code",
+        },
+        "xbrl": {
+            "entity_id": "respondent_id_ferc714_xbrl",
+            "respondent_legal_name": "respondent_name_ferc714",
+            "respondent_identification_code": "eia_code",
+        },
     },
     "out_ferc714__hourly_planning_area_demand": {
         "csv": {
@@ -226,10 +264,20 @@ RENAME_COLS = {
             "respondent_id": "respondent_id_ferc714_csv",
             "report_yr": "report_year",
             "plan_year": "forecast_year",
-            "summer_forecast": "summer_peak_demand_mw",
-            "winter_forecast": "winter_peak_demand_mw",
-            "net_energy_forecast": "net_demand_mwh",
-        }
+            "summer_forecast": "summer_peak_demand_forecast_mw",
+            "winter_forecast": "winter_peak_demand_forecast_mw",
+            "net_energy_forecast": "net_demand_forecast_mwh",
+        },
+        "xbrl": {
+            "entity_id": "respondent_id_ferc714_xbrl",
+            "start_date": "start_date",
+            "end_date": "end_date",
+            "report_year": "report_year",
+            "planning_area_hourly_demand_and_forecast_year": "forecast_year",
+            "planning_area_hourly_demand_and_forecast_summer_forecast": "summer_peak_demand_forecast_mw",
+            "planning_area_hourly_demand_and_forecast_winter_forecast": "winter_peak_demand_forecast_mw",
+            "planning_area_hourly_demand_and_forecast_forecast_of_annual_net_energy_for_load": "net_demand_forecast_mwh",
+        },
     },
 }
 
@@ -293,6 +341,36 @@ def _assign_respondent_id_ferc714(
     return df
 
 
+def _fillna_respondent_id_ferc714_source(
+    df: pd.DataFrame, source: Literal["csv", "xbrl"]
+) -> pd.DataFrame:
+    """Fill missing CSV or XBRL respondent id.
+
+    The source (CSV or XBRL) tables get assigned a PUDL-derived
+    ``respondent_id_ferc714`` ID column (via :func:`_assign_respondent_id_ferc714`).
+    After we concatenate the source tables, we sometimes backfill and
+    forward-fill the source IDs (``respondent_id_ferc714_csv`` and
+    ``respondent_id_ferc714_xbrl``). This way the older records from the CSV years
+    will also have the XBRL ID's and vice versa. This will enable users to find
+    the full timeseries of a respondent that given either source ID (instead of
+    using the source ID to find the PUDL-derived ID and then finding the records).
+    """
+    respondent_map_ferc714 = pd.read_csv(
+        importlib.resources.files("pudl.package_data.glue")
+        / "respondent_id_ferc714.csv"
+    ).convert_dtypes()
+    # use the source utility ID column to get a unique map and for merging
+    resp_id_col = f"respondent_id_ferc714_{source}"
+    resp_map_series = respondent_map_ferc714.dropna(subset=[resp_id_col]).set_index(
+        "respondent_id_ferc714"
+    )[resp_id_col]
+
+    df[resp_id_col] = df[resp_id_col].fillna(
+        df["respondent_id_ferc714"].map(resp_map_series)
+    )
+    return df
+
+
 def assign_report_day(df: pd.DataFrame, date_col: str) -> pd.DataFrame:
     """Add a report_day column."""
     return df.assign(
@@ -306,6 +384,8 @@ def _post_process(df: pd.DataFrame, table_name: str) -> pd.DataFrame:
     Applies standard data types and ensures that the tables generally conform to the
     schemas we have defined for them.
 
+    TODO: rip this out. enforce_schema happens via the io_managers now.
+
     Args:
         df: A dataframe to be post-processed.
 
@@ -315,35 +395,229 @@ def _post_process(df: pd.DataFrame, table_name: str) -> pd.DataFrame:
     return PUDL_PACKAGE.get_resource(table_name).enforce_schema(df)
 
 
+class RespondentId:
+    """Class for building the :ref:`core_ferc714__respondent_id` asset.
+
+    Most of the methods in this class as staticmethods. The purpose of using a class
+    in this instance is mostly for organizing the table specific transforms under the
+    same name-space.
+    """
+
+    @classmethod
+    def run(
+        cls, raw_csv: pd.DataFrame, raw_xbrl_duration: pd.DataFrame
+    ) -> pd.DataFrame:
+        """Build the table for the :ref:`core_ferc714__respondent_id` asset.
+
+        Process and combine the CSV and XBRL based data.
+
+        There are two main threads of transforms happening here:
+
+        * Table compatibility: The CSV raw table is static (does not even report years)
+          while the xbrl table is reported annually. A lot of the downstream analysis
+          expects this table to be static. So the first step was to check whether or not
+          the columns that we have in the CSV years had consistent data over the few XBRL
+          years that we have. There are a small number of eia_code's we needed to clean
+          up, but besides that it was static. We then convert the XBRL data into a static
+          table, then we concat-ed the tables and checked the static-ness again via
+          :meth:`ensure_eia_code_uniqueness`.
+        * eia_code cleaning: Clean up FERC-714 respondent names and manually assign EIA
+          utility IDs to a few FERC Form 714 respondents that report planning area demand,
+          but which don't have their corresponding EIA utility IDs provided by FERC for
+          some reason (including PacifiCorp). Done all via :meth:`spot_fix_eia_codes` &
+          EIA_CODE_FIXES.
+
+        """
+        table_name = "core_ferc714__respondent_id"
+        # CSV STUFF
+        csv = (
+            _pre_process_csv(raw_csv, table_name)
+            .pipe(_assign_respondent_id_ferc714, source="csv")
+            .astype({"eia_code": pd.Int64Dtype()})
+            .pipe(cls.spot_fix_eia_codes, "csv")
+            .pipe(cls.ensure_eia_code_uniqueness, "csv")
+            .assign(source="csv")
+        )
+        # XBRL STUFF
+        xbrl = (
+            rename_columns(
+                raw_xbrl_duration,
+                params=RenameColumns(columns=RENAME_COLS[table_name]["xbrl"]),
+            )
+            .pipe(_assign_respondent_id_ferc714, source="xbrl")
+            .pipe(cls.clean_eia_codes_xbrl)
+            .astype({"eia_code": pd.Int64Dtype()})
+            .pipe(cls.spot_fix_eia_codes, "xbrl")
+            .pipe(cls.ensure_eia_code_uniqueness, "xbrl")
+            .pipe(cls.convert_into_static_table_xbrl)
+            .assign(source="xbrl")
+        )
+        # CONCATED STUFF
+        df = (
+            pd.concat([csv, xbrl])
+            .reset_index(drop=True)
+            .convert_dtypes()
+            .pipe(cls.spot_fix_eia_codes, "combined")
+            .pipe(cls.ensure_eia_code_uniqueness, "combined")
+            .pipe(cls.condense_into_one_source_table)
+            .pipe(_fillna_respondent_id_ferc714_source, "csv")
+            # the xbrl version of this is fillna is not *strictly necessary*
+            # bc we are sorting the records grab the xbrl record if there is one
+            # for each respondent during condense_into_one_source_table.
+            .pipe(_fillna_respondent_id_ferc714_source, "xbrl")
+        )
+        return df
+
+    @staticmethod
+    def spot_fix_eia_codes(
+        df: pd.DataFrame, source: Literal["csv", "xbrl", "combined"]
+    ) -> pd.DataFrame:
+        """Spot fix the eia_codes.
+
+        Using the manually compiled fixes to the ``eia_code`` column stored in
+        :py:const:`EIA_CODE_FIXES`, replace the reported values by respondent.
+        """
+        df.loc[df.eia_code == 0, "eia_code"] = pd.NA
+        suffix = "" if source == "combined" else f"_{source}"
+        # There are a few utilities that seem mappable, but missing:
+        for rid, new_code in EIA_CODE_FIXES[source].items():
+            df.loc[df[f"respondent_id_ferc714{suffix}"] == rid, "eia_code"] = new_code
+        return df
+
+    @staticmethod
+    def ensure_eia_code_uniqueness(
+        df: pd.DataFrame, source: Literal["csv", "xbrl", "combined"]
+    ) -> pd.DataFrame:
+        """Ensure there is only one unique eia_code for each respondent."""
+        df["eia_code_count"] = (
+            df.dropna(subset=["eia_code"])
+            .groupby(["respondent_id_ferc714"])[["eia_code"]]
+            .transform("nunique")
+        )
+        if not (
+            multiple_eia_codes := df[(df.eia_code_count != 1) & (df.eia_code.notnull())]
+        ).empty:
+            raise AssertionError(
+                "We expected 0 respondents with multiple different eia_code's "
+                f"reported for each respondent in {source} data, "
+                f"but we found {len(multiple_eia_codes)}"
+            )
+        return df.drop(columns=["eia_code_count"])
+
+    @staticmethod
+    def clean_eia_codes_xbrl(xbrl: pd.DataFrame) -> pd.DataFrame:
+        """Make eia_code's cleaner coming from the XBRL data.
+
+        Desired outcomes here include all respondents have only one non-null
+        eia_code and all eia_codes that are actually the respondent_id_ferc714_xbrl
+        are nulled.
+        """
+        # we expect all of these submissions to be from the last Q
+        assert all(xbrl.report_period == "Q4")
+        # first we are gonna null out all of the "EIA" codes that are really just the respondent id
+        code_is_respondent_id_mask = xbrl.eia_code.str.startswith("C") & (
+            xbrl.respondent_id_ferc714_xbrl == xbrl.eia_code
+        )
+        xbrl.loc[code_is_respondent_id_mask, "eia_code"] = pd.NA
+
+        # lets null out some of the eia_code's from XBRL that we've manually culled
+        # because they are were determined to be wrong. These respondents
+        # had more than one value for their eia_code and one was always wrong
+        respondent_id_xbrl_to_bad_eia_code = {
+            "C002422": ["5776"],
+            "C011374": ["8376"],
+            "C002869": ["F720204"],
+            "C002732": ["F720204", "57049, 57050"],
+            "C011420": ["16606"],
+        }
+        for rid_xbrl, bad_eia_codes in respondent_id_xbrl_to_bad_eia_code.items():
+            xbrl.loc[
+                (xbrl.respondent_id_ferc714_xbrl == rid_xbrl)
+                & (xbrl.eia_code.isin(bad_eia_codes)),
+                "eia_code",
+            ] = pd.NA
+        return xbrl
+
+    @staticmethod
+    def convert_into_static_table_xbrl(xbrl: pd.DataFrame) -> pd.DataFrame:
+        """Convert this annually reported table into a skinnier, static table.
+
+        The CSV table is entirely static - it doesn't have any reported
+        changes that vary over time. The XBRL table does have start and end
+        dates in it. In order to merge these two sources, we are checking
+        whether or not the shared variables change over time and then
+        converting this table into a non-time-varying table.
+        """
+        # the CSV data does not vary by year, so we need to check if that is
+        # also going to be the case for the XBRL data. we check the eia_codes
+        # during ensure_eia_code_uniqueness. The name is less crucial but we
+        # should still check.
+        assert all(
+            xbrl.groupby(["respondent_id_ferc714_xbrl"])[  # noqa: PD101
+                ["respondent_name_ferc714"]
+            ].nunique()
+            == 1
+        )
+        cols_to_keep = [
+            "respondent_id_ferc714",
+            "respondent_id_ferc714_xbrl",
+            "respondent_name_ferc714",
+            "eia_code",
+        ]
+        # we are going to first sort by report year (descending) so the more recent
+        # name is the name we get - just in case - we are checking for consistency of
+        # the name above.
+        return (
+            xbrl.sort_values(["report_year"], ascending=False)[cols_to_keep]
+            .sort_values(["respondent_id_ferc714", "eia_code"])
+            .drop_duplicates(subset=["respondent_id_ferc714"], keep="first")
+        )
+
+    @staticmethod
+    def condense_into_one_source_table(df):
+        """Condense the CSV and XBRL records together into one record.
+
+        We have two records coming from each of the two sources in this table.
+        This method simply drops duplicates based on the PKs of the table.
+        We know that the names are different in the CSV vs the XBRL source.
+        We are going to grab the XBRL names because they are more recent.
+
+        NOTE: We could have merged the data in :meth:`run` instead of concatenating
+        along the index. We would have had to develop different methods for
+        :meth:`ensure_eia_code_uniqueness`.
+        """
+        return df.sort_values(["source"], ascending=False).drop_duplicates(
+            subset=["respondent_id_ferc714", "eia_code"], keep="first"
+        )
+
+
 @asset(
     io_manager_key="pudl_io_manager",
+    ins={
+        "raw_csv": AssetIn(key="raw_ferc714_csv__respondent_id"),
+        "raw_xbrl_duration": AssetIn(
+            key="raw_ferc714_xbrl__identification_and_certification_01_1_duration"
+        ),
+    },
     compute_kind="pandas",
 )
 def core_ferc714__respondent_id(
-    raw_ferc714_csv__respondent_id: pd.DataFrame,
+    raw_csv: pd.DataFrame, raw_xbrl_duration: pd.DataFrame
 ) -> pd.DataFrame:
     """Transform the FERC 714 respondent IDs, names, and EIA utility IDs.
 
-    Clean up FERC-714 respondent names and manually assign EIA utility IDs to a few FERC
-    Form 714 respondents that report planning area demand, but which don't have their
-    corresponding EIA utility IDs provided by FERC for some reason (including
-    PacifiCorp).
+    This is a light wrapper around :class:`RespondentId` because you need to
+    build an asset from a function - not a staticmethod of a class.
 
     Args:
-        raw_ferc714_csv__respondent_id: Raw table describing the FERC 714 Respondents.
+        raw_csv: Raw table describing the FERC 714 Respondents from the CSV years.
+        raw_xbrl_duration: Raw table describing the FERC 714 Respondents from the
+            XBRL years.
 
     Returns:
         A clean(er) version of the FERC-714 respondents table.
     """
-    df = _pre_process_csv(
-        raw_ferc714_csv__respondent_id, table_name="core_ferc714__respondent_id"
-    )
-    df["respondent_name_ferc714"] = df.respondent_name_ferc714.str.strip()
-    df.loc[df.eia_code == 0, "eia_code"] = pd.NA
-    # There are a few utilities that seem mappable, but missing:
-    for rid in EIA_CODE_FIXES:
-        df.loc[df.respondent_id_ferc714 == rid, "eia_code"] = EIA_CODE_FIXES[rid]
-    return _post_process(df, table_name="core_ferc714__respondent_id")
+    return RespondentId.run(raw_csv, raw_xbrl_duration)
 
 
 class HourlyPlanningAreaDemand:
@@ -771,70 +1045,168 @@ def out_ferc714__hourly_planning_area_demand(
     return HourlyPlanningAreaDemand.run(raw_csv, raw_xbrl_duration, raw_xbrl_instant)
 
 
+class YearlyPlanningAreaDemandForecast:
+    """Class for building the :ref:`core_ferc714__yearly_planning_area_demand_forecast` asset.
+
+    The :ref:`core_ferc714__yearly_planning_area_demand_forecast` table is an annual, forecasted
+    time series of demand by Planning Area.
+
+    Most of the methods in this class as staticmethods. The purpose of using a class
+    in this instance is mostly for organizing the table specific transforms under the
+    same name-space.
+    """
+
+    @classmethod
+    def run(
+        cls,
+        raw_csv: pd.DataFrame,
+        raw_xbrl_duration: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """Build the :ref:`core_ferc714__yearly_planning_area_demand_forecast` asset.
+
+        To transform this table we have to process the CSV data and the XBRL duration data
+        (this data has not instant table), merge together the XBRL and CSV data, and
+        process the combined datasets.
+
+        The main transforms include spot-fixing forecast years with
+        :func:`spot_fix_forecast_years_xbrl` and averaging out duplicate forecast values
+        for duplicate primary key rows in the CSV table.
+
+        """
+        table_name = "core_ferc714__yearly_planning_area_demand_forecast"
+        # XBRL STUFF
+        xbrl = (
+            rename_columns(
+                df=raw_xbrl_duration,
+                params=RenameColumns(columns=RENAME_COLS[table_name]["xbrl"]),
+            )
+            .pipe(_assign_respondent_id_ferc714, "xbrl")
+            .pipe(cls.spot_fix_forecast_years_xbrl)
+        )
+        # CSV STUFF
+        csv = (
+            _pre_process_csv(raw_csv, table_name=table_name)
+            .pipe(_assign_respondent_id_ferc714, "csv")
+            .pipe(cls.average_duplicate_pks_csv)
+            .pipe(_post_process, table_name=table_name)
+        )
+        # CONCATED STUFF
+        df = pd.concat([csv, xbrl]).reset_index(drop=True)
+        return df
+
+    @staticmethod
+    def spot_fix_forecast_years_xbrl(df):
+        """Spot fix forecast year errors.
+
+        This function fixes the following errors:
+
+        - There's one record with an NA forecast_year value. This row
+          also has no demand forcast values. Because forcast_year is a primary key
+          we can't have any NA values. Because there are no substantive forcasts
+          in this row, we can safely remove this row.
+        - respondent_id_ferc714 number 107 reported their forecast_year
+          as YY instead of YYYY values.
+        - There's also at least one forecast year value reported as 3033 that should
+          be 2033.
+
+        This function also checks that the values for forecast year are within an
+        expected range.
+        """
+        df = df.astype({"forecast_year": "Int64"})
+        # Make sure there's only one NA forecast_year value and remove it
+        assert (
+            len(df[df["forecast_year"].isna()]) == 1
+        ), "Only expected one NA forecast year"
+        df = df[df["forecast_year"].notna()]
+        # Convert YY to YYYY for respondent 107 (the culprit).
+        # The earliest forecast year reported as YY is 22. Any numbers
+        # lower than that would signify a transition into 2100.
+        mask = (df["respondent_id_ferc714"] == 107) & (df["forecast_year"] > 21)
+        df.loc[mask, "forecast_year"] = df["forecast_year"] + 2000
+        # Fix extraneus 3022 value from respondent 17
+        mask = (
+            (df["respondent_id_ferc714"] == 17)
+            & (df["report_year"] == 2023)
+            & (df["forecast_year"] == 3033)
+        )
+        df.loc[mask, "forecast_year"] = 2033
+        # Make sure forecast_year values are expected
+        assert (
+            df["forecast_year"].isin(range(2021, 2100)).all()
+        ), "Forecast year values not in expected range"
+        return df
+
+    @staticmethod
+    def average_duplicate_pks_csv(df):
+        """Average forecast values for duplicate primary keys.
+
+        The XBRL data had duplicate primary keys, but it was easy to parse
+        them by keeping rows with the most recent publication_time value.
+        The CSVs have no such distinguishing column, dispite having some
+        duplicate primary keys.
+
+        This function takes the average of the forecast values for rows
+        with duplicate primary keys. There are only 6 respondent/report_year/
+        forecast year rows where the forecast values differ. One of those is a
+        pair where one forecast value is 0. We'll take the non-zero value here
+        and average out the rest.
+        """
+        # Record original length of dataframe
+        original_len = len(df)
+        # Remove duplicate row with 0 forecast values
+        error_mask = (
+            (df["respondent_id_ferc714"] == 100)
+            & (df["report_year"] == 2013)
+            & (df["forecast_year"] == 2014)
+            & (df["net_demand_forecast_mwh"] == 0)
+        )
+        assert len(df[error_mask] == 1)
+        df = df[~error_mask]
+        # Take the average of duplicate PK forecast values.
+        dupe_mask = df[
+            ["respondent_id_ferc714", "report_year", "forecast_year"]
+        ].duplicated(keep=False)
+        deduped_df = (
+            df[dupe_mask]
+            .groupby(["respondent_id_ferc714", "report_year", "forecast_year"])[
+                [
+                    "summer_peak_demand_forecast_mw",
+                    "winter_peak_demand_forecast_mw",
+                    "net_demand_forecast_mwh",
+                ]
+            ]
+            .mean()
+            .reset_index()
+        )
+        df = pd.concat([df[~dupe_mask], deduped_df])
+        # Make sure no more rows were dropped than expected
+        assert (
+            original_len - len(df) <= 20
+        ), f"dropped {original_len - len(df)} rows, expected 20"
+        return df
+
+
 @asset(
+    ins={
+        "raw_csv": AssetIn(key="raw_ferc714_csv__yearly_planning_area_demand_forecast"),
+        "raw_xbrl_duration": AssetIn(
+            key="raw_ferc714_xbrl__planning_area_hourly_demand_and_forecast_summer_and_winter_peak_demand_and_annual_net_energy_for_load_table_03_2_duration"
+        ),
+    },
     io_manager_key="pudl_io_manager",
     compute_kind="pandas",
 )
 def core_ferc714__yearly_planning_area_demand_forecast(
-    raw_ferc714_csv__yearly_planning_area_demand_forecast: pd.DataFrame,
+    raw_csv: pd.DataFrame,
+    raw_xbrl_duration: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Transform the yearly planning area forecast data per Planning Area.
+    """Build the :ref:`core_ferc714__yearly_planning_area_demand_forecast`.
 
-    Transformations include:
-
-    - Drop/rename columns.
-    - Remove duplicate rows and average out the metrics.
-
-    Args:
-        raw_ferc714_csv__yearly_planning_area_demand_forecast: Raw table containing,
-            for each year and each planning area, the forecasted summer and winter peak demand,
-            in megawatts, and annual net energy for load, in megawatthours, for the next
-            ten years.
-
-    Returns:
-        Clean(er) version of the yearly forecasted demand by Planning Area.
+    This is a light wrapper around :class:`YearlyPlanningAreaDemandForecast` because
+    it seems you need to build an asset from a function - not a staticmethod of
+    a class.
     """
-    # Clean up columns
-    df = _pre_process_csv(
-        raw_ferc714_csv__yearly_planning_area_demand_forecast,
-        table_name="core_ferc714__yearly_planning_area_demand_forecast",
-    )
-
-    # For any rows with non-unique respondent_id_ferc714/report_year/forecast_year,
-    # group and take the mean measures
-    # For the 2006-2020 data, there were only 20 such rows. In most cases, demand metrics were identical.
-    # But for some, demand metrics were different - thus the need to take the average.
-    logger.info(
-        "Removing non-unique report rows and taking the average of non-equal metrics."
-    )
-
-    # Grab the number of rows before duplicate cleanup
-    num_rows_before = len(df)
-
-    df = (
-        df.groupby(["respondent_id_ferc714", "report_year", "forecast_year"])[
-            ["summer_peak_demand_mw", "winter_peak_demand_mw", "net_demand_mwh"]
-        ]
-        .mean()
-        .reset_index()
-    )
-
-    # Capture the number of rows after grouping
-    num_rows_after = len(df)
-
-    # Add the number of duplicates removed as metadata
-    num_duplicates_removed = num_rows_before - num_rows_after
-    logger.info(f"Number of duplicate rows removed: {num_duplicates_removed}")
-    # Assert that number of removed rows meets expectation
-    assert (
-        num_duplicates_removed <= 20
-    ), f"Expected no more than 20 duplicates removed, but found {num_duplicates_removed}"
-
-    # Check all data types and columns to ensure consistency with defined schema
-    df = _post_process(
-        df, table_name="core_ferc714__yearly_planning_area_demand_forecast"
-    )
-    return df
+    return YearlyPlanningAreaDemandForecast.run(raw_csv, raw_xbrl_duration)
 
 
 @dataclass
@@ -866,6 +1238,9 @@ check_specs = [
             2018: 961,
             2019: 950,
             2020: 950,
+            2021: 905,
+            2022: 904,
+            2023: 904,
         },
     )
 ]
