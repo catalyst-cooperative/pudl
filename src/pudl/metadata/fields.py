@@ -3667,7 +3667,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "FERC Form 714 respondent ID. Note that this ID does not correspond to FERC respondent IDs from other forms.",
     },
     "respondent_id_ferc714_xbrl": {
-        "type": "integer",
+        "type": "string",
         "description": "FERC Form 714 respondent ID. Note that this ID does not correspond to FERC respondent IDs from other forms.",
     },
     "respondent_name_ferc714": {

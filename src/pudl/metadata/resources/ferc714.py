@@ -8,6 +8,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "respondent_id_ferc714",
+                "respondent_id_ferc714_csv",
+                "respondent_id_ferc714_xbrl",
                 "respondent_name_ferc714",
                 "eia_code",
             ],
@@ -25,6 +27,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "respondent_id_ferc714",
+                "respondent_id_ferc714_csv",
+                "respondent_id_ferc714_xbrl",
                 "report_date",
                 "datetime_utc",
                 "timezone",
