@@ -16,7 +16,6 @@ FERC Form 714
   raw data sources and extends the data coverage through 2023. See :issue:`3809`
   and :pr:`3842`.
 
-
 Schema Changes
 ^^^^^^^^^^^^^^
 * Added :ref:`out_eia__yearly_assn_plant_parts_plant_gen` table. This table associates

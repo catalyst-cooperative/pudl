@@ -36,7 +36,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "valid format for the hour of a datetime, so we convert these T24 hours into "
             "T00 of the next day. A smaller subset of the respondents reports the 24th hour "
             "as the last second of the day - we also convert these records to the T00 of the "
-            "next day."
+            "next day.\n\nThis table includes three respondent ID columns: one from the "
+            "CSV raw source, one from the XBRL raw source and another that is PUDL-derived "
+            "that links those two source ID's together. This table has filled in source IDs "
+            "for all records so you can select the full timeseries for a given respondent from "
+            "any of these three IDs."
         ),
         "schema": {
             "fields": [

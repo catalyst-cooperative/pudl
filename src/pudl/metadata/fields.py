@@ -3660,15 +3660,30 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "respondent_id_ferc714": {
         "type": "integer",
-        "description": "FERC Form 714 respondent ID. Note that this ID does not correspond to FERC respondent IDs from other forms.",
+        "description": (
+            "PUDL-assigned identifying a respondent to FERC Form 714. This ID associates "
+            "natively reported respondent IDs from the orignal CSV and XBRL data sources."
+        ),
     },
     "respondent_id_ferc714_csv": {
         "type": "integer",
-        "description": "FERC Form 714 respondent ID. Note that this ID does not correspond to FERC respondent IDs from other forms.",
+        "description": (
+            "FERC Form 714 respondent ID from CSV reported data - published from years: 2006-2020. "
+            "This ID is linked to the newer years of reported XBRL data through the PUDL-assigned "
+            "respondent_id_ferc714 ID. "
+            "This ID was originally reported as respondent_id. "
+            "Note that this ID does not correspond to FERC respondent IDs from other forms."
+        ),
     },
     "respondent_id_ferc714_xbrl": {
         "type": "string",
-        "description": "FERC Form 714 respondent ID. Note that this ID does not correspond to FERC respondent IDs from other forms.",
+        "description": (
+            "FERC Form 714 respondent ID from XBRL reported data - published from years: 2021-present. "
+            "This ID is linked to the older years of reported CSV data through the PUDL-assigned "
+            "respondent_id_ferc714 ID. "
+            "This ID was originally reported as entity_id. "
+            "Note that this ID does not correspond to FERC respondent IDs from other forms."
+        ),
     },
     "respondent_name_ferc714": {
         "type": "string",

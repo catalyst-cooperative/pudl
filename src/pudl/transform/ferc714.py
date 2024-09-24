@@ -847,7 +847,7 @@ class HourlyPlanningAreaDemand:
 
         There are a small amount of records which report the last "hour" of the day
         as last second of the day, as opposed to T24 cleaned in
-        :func:`convert_dates_to_zero_offset_hours_xbrl` or T00 which is standard for a
+        :meth:`convert_dates_to_zero_offset_hours_xbrl` or T00 which is standard for a
         datetime. This function finds these records and adds one second to them and
         then ensures all of the records has 0's for seconds.
         """
@@ -1057,7 +1057,7 @@ class YearlyPlanningAreaDemandForecast:
         process the combined datasets.
 
         The main transforms include spot-fixing forecast years with
-        :func:`spot_fix_forecast_years_xbrl` and averaging out duplicate forecast values
+        :meth:`spot_fix_forecast_years_xbrl` and averaging out duplicate forecast values
         for duplicate primary key rows in the CSV table.
 
         """

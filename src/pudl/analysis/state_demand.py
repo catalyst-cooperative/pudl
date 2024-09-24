@@ -289,13 +289,24 @@ def load_hourly_demand_matrix_ferc714(
         out_ferc714__hourly_planning_area_demand["datetime_utc"],
         out_ferc714__hourly_planning_area_demand["utc_offset"],
     )
+    # remove the records o/s of the working years because some
+    # respondents report one record of midnight of January first
+    # of the next year (report_date.dt.year + 1). and
+    # impute_ferc714_hourly_demand_matrix chunks over years at a time
+    # and having only one record
+    report_year_mask = out_ferc714__hourly_planning_area_demand[
+        "datetime"
+    ].dt.year.isin(pudl.settings.Ferc714Settings().years)
+    out_ferc714__hourly_planning_area_demand = out_ferc714__hourly_planning_area_demand[
+        report_year_mask
+    ]
     # Pivot to demand matrix: timestamps x respondents
     matrix = out_ferc714__hourly_planning_area_demand.pivot(
         index="datetime", columns="respondent_id_ferc714", values="demand_mwh"
     )
-    # List timezone by year for each respondent
+    # List timezone by year for each respondent by the datetime
     out_ferc714__hourly_planning_area_demand["year"] = (
-        out_ferc714__hourly_planning_area_demand["report_date"].dt.year
+        out_ferc714__hourly_planning_area_demand["datetime"].dt.year
     )
     utc_offset = out_ferc714__hourly_planning_area_demand.groupby(
         ["respondent_id_ferc714", "year"], as_index=False
@@ -395,12 +406,18 @@ def impute_ferc714_hourly_demand_matrix(df: pd.DataFrame) -> pd.DataFrame:
         Copy of `df` with imputed values.
     """
     results = []
-    for year, gdf in df.groupby(df.index.year):
-        logger.info(f"Imputing year {year}")
-        keep = df.columns[~gdf.isnull().all()]
-        tsi = pudl.analysis.timeseries_cleaning.Timeseries(gdf[keep])
-        result = tsi.to_dataframe(tsi.impute(method="tnn"), copy=False)
-        results.append(result)
+    # sort here and then don't sort in the groupby so we can process
+    # the newer years of data first. This is so we can see early if
+    # new data causes any failures.
+    df = df.sort_index(ascending=False)
+    for year, gdf in df.groupby(df.index.year, sort=False):
+        # skip any year that is not in the settings
+        if year in pudl.settings.Ferc714Settings().years:
+            logger.info(f"Imputing year {year}")
+            keep = df.columns[~gdf.isnull().all()]
+            tsi = pudl.analysis.timeseries_cleaning.Timeseries(gdf[keep])
+            result = tsi.to_dataframe(tsi.impute(method="tnn"), copy=False)
+            results.append(result)
     return pd.concat(results)
 
 
