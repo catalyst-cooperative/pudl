@@ -23,16 +23,16 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Hourly electricity demand by planning area. FERC Form 714, Part III, "
             "Schedule 2a. This table includes data from the pre-2021 CSV raw source "
-            "as well as the newer 2021 through present XBRL raw source.\n An important "
+            "as well as the newer 2021 through present XBRL raw source.\n\nAn important "
             "caveat to note is that there was some cleaning done to the datetime_utc "
             "timestamps. The Form 714 includes sparse documentation for respondents "
             "for how to interpret timestamps - the form asks respondents to provide "
             "24 instances of hourly demand for each day. The form is labeled with hour "
-            "1-24. There is no indication if hour 1 begins at midnight.\nThe XBRL data "
+            "1-24. There is no indication if hour 1 begins at midnight.\n\nThe XBRL data "
             "contained several formats of timestamps. Most records corresponding to hour "
             "1 of the Form have a timestamp with hour 1 as T1. About two thirds of the records "
             "in the hour 24 location of the form have a timestamp with an hour reported as "
-            "T24 while the remaining third report this as T00 of the next day. T24 is not a"
+            "T24 while the remaining third report this as T00 of the next day. T24 is not a "
             "valid format for the hour of a datetime, so we convert these T24 hours into "
             "T00 of the next day. A smaller subset of the respondents reports the 24th hour "
             "as the last second of the day - we also convert these records to the T00 of the "
@@ -116,8 +116,16 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
     "core_ferc714__yearly_planning_area_demand_forecast": {
         "description": (
-            "10-year forecasted summer and winter peak demand and annual net energy per planning area. FERC Form 714, Part III, "
-            "Schedule 2b."
+            "10-year forecasted summer and winter peak demand and annual net energy "
+            "per planning area. FERC Form 714, Part III, Schedule 2b. This table "
+            "includes data from the pre-2021 CSV raw source as well as the newer 2021 "
+            "through present XBRL raw source. We created the respondent_id_ferc714 "
+            "field to blend disparate IDs from the CSV and XBRL data over time. See "
+            "the core_ferc714_respondent_id table for links to the original source IDs.\n\n"
+            "This table contains forecasted net demand (MWh) as well as summer and winter "
+            "peak demand (MW) for the next ten years after after the report_date. "
+            "There is a small handful of respondents (~11) that report more than 10 "
+            "years and an even smaller handful that report less than 10 (~9)."
         ),
         "schema": {
             "fields": [
