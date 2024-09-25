@@ -263,10 +263,8 @@ def load_ventyx_hourly_state_demand(path: str) -> pd.DataFrame:
         "_out_ferc714__hourly_pivoted_demand_matrix": AssetOut(),
         "_out_ferc714__utc_offset": AssetOut(),
     },
-    required_resource_keys={"dataset_settings"},
 )
 def load_hourly_demand_matrix_ferc714(
-    context,
     out_ferc714__hourly_planning_area_demand: pd.DataFrame,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Read and format FERC 714 hourly demand into matrix form.
