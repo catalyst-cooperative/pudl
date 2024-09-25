@@ -1,6 +1,15 @@
 """Transformation of the FERC Form 714 data.
 
-# TODO: add note about architecture and reusing form 1 stuff.
+FERC Form 714 has two separate raw data sources - CSV and XBRL. For both sources
+there is usually some specific processing that needs to happen before the two
+data sources get concatenated together to create the full timeseries. We are
+currently processing three tables from 714. Each one is processed using a similar
+pattern: we've defined a class with a run classmethod as a coordinating method,
+any table-specific transforms are defined as staticmethod's within the table
+class and any generic 714 transforms are defined as internal module functions.
+The table assets are created through a small function that calls the run method.
+Any of the methods or functions that only apply to either of the raw data sources
+should include a raw datasource suffix.
 """
 
 import importlib
@@ -247,11 +256,11 @@ RENAME_COLS = {
         "csv": {
             "report_yr": "report_year",
             "plan_date": "report_date",
-            "respondent_id": "respondent_id_ferc714_csv",  # TODO: change to respondent_id_ferc714_csv
+            "respondent_id": "respondent_id_ferc714_csv",
             "timezone": "utc_offset_code",
         },
         "xbrl": {
-            "entity_id": "respondent_id_ferc714_xbrl",  # TODO: change to respondent_id_ferc714_xbrl
+            "entity_id": "respondent_id_ferc714_xbrl",
             "date": "report_date",
             "report_year": "report_year",
             "time_zone": "utc_offset_code",
