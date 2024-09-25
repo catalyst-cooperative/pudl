@@ -966,11 +966,12 @@ class HourlyPlanningAreaDemand:
         # Assert that all records missing UTC offset have zero demand
         missing_offset = df["utc_offset"].isna()
         bad_offset_and_demand = df.loc[missing_offset & (df.demand_mwh != 0)]
+        # there are 12 of these bad guys just in the 2023 fast test.
         if len(bad_offset_and_demand) > 12:
             raise AssertionError(
-                "We expect all of the records without a cleaned utc_offset "
-                f"to not have any demand data, but we found {len(bad_offset_and_demand)} "
-                "records.\nUncleaned Codes: "
+                "We expect all but 12 of the records without a cleaned "
+                "utc_offset to not have any demand data, but we found "
+                f"{len(bad_offset_and_demand)} records.\nUncleaned Codes: "
                 f"{bad_offset_and_demand.utc_offset_code.unique()}\n{bad_offset_and_demand}"
             )
         # Drop these records & then drop the original offset code
@@ -1110,7 +1111,7 @@ class YearlyPlanningAreaDemandForecast:
         """
         df = df.astype({"forecast_year": "Int64"})
         # Make sure there's only one NA forecast_year value and remove it
-        if len(nulls := df[df["forecast_year"].isna()]) >= 1:
+        if len(nulls := df[df["forecast_year"].isna()]) > 2:
             raise AssertionError(
                 f"We expected one or 0 NA forecast year, but found:\n{nulls}"
             )

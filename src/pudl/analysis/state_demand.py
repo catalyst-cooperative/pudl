@@ -283,7 +283,6 @@ def load_hourly_demand_matrix_ferc714(
         A second Dataframe lists the UTC offset in hours
         of each `respondent_id_ferc714` and reporting `year` (int).
     """
-    years = context.resources.dataset_settings.ferc714.years
     # Convert UTC to local time (ignoring daylight savings)
     out_ferc714__hourly_planning_area_demand["utc_offset"] = (
         out_ferc714__hourly_planning_area_demand["timezone"].map(STANDARD_UTC_OFFSETS)
@@ -292,17 +291,6 @@ def load_hourly_demand_matrix_ferc714(
         out_ferc714__hourly_planning_area_demand["datetime_utc"],
         out_ferc714__hourly_planning_area_demand["utc_offset"],
     )
-    # remove the records o/s of the working years because some
-    # respondents report one record of midnight of January first
-    # of the next year (report_date.dt.year + 1). and
-    # impute_ferc714_hourly_demand_matrix chunks over years at a time
-    # and having only one record
-    report_year_mask = out_ferc714__hourly_planning_area_demand[
-        "datetime"
-    ].dt.year.isin(years)
-    out_ferc714__hourly_planning_area_demand = out_ferc714__hourly_planning_area_demand[
-        report_year_mask
-    ]
     # Pivot to demand matrix: timestamps x respondents
     matrix = out_ferc714__hourly_planning_area_demand.pivot(
         index="datetime", columns="respondent_id_ferc714", values="demand_mwh"
@@ -417,6 +405,11 @@ def impute_ferc714_hourly_demand_matrix(
     # new data causes any failures.
     df = df.sort_index(ascending=False)
     for year, gdf in df.groupby(df.index.year, sort=False):
+        # remove the records o/s of the working years because some
+        # respondents report one record of midnight of January first
+        # of the next year (report_date.dt.year + 1). and
+        # impute_ferc714_hourly_demand_matrix chunks over years at a time
+        # and having only one record
         if year in years:
             logger.info(f"Imputing year {year}")
             keep = df.columns[~gdf.isnull().all()]
