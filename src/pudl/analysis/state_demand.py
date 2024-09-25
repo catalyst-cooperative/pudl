@@ -263,8 +263,10 @@ def load_ventyx_hourly_state_demand(path: str) -> pd.DataFrame:
         "_out_ferc714__hourly_pivoted_demand_matrix": AssetOut(),
         "_out_ferc714__utc_offset": AssetOut(),
     },
+    required_resource_keys={"dataset_settings"},
 )
 def load_hourly_demand_matrix_ferc714(
+    context,
     out_ferc714__hourly_planning_area_demand: pd.DataFrame,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Read and format FERC 714 hourly demand into matrix form.
@@ -281,6 +283,7 @@ def load_hourly_demand_matrix_ferc714(
         A second Dataframe lists the UTC offset in hours
         of each `respondent_id_ferc714` and reporting `year` (int).
     """
+    years = context.resources.dataset_settings.ferc714.years
     # Convert UTC to local time (ignoring daylight savings)
     out_ferc714__hourly_planning_area_demand["utc_offset"] = (
         out_ferc714__hourly_planning_area_demand["timezone"].map(STANDARD_UTC_OFFSETS)
@@ -296,7 +299,7 @@ def load_hourly_demand_matrix_ferc714(
     # and having only one record
     report_year_mask = out_ferc714__hourly_planning_area_demand[
         "datetime"
-    ].dt.year.isin(pudl.settings.Ferc714Settings().years)
+    ].dt.year.isin(years)
     out_ferc714__hourly_planning_area_demand = out_ferc714__hourly_planning_area_demand[
         report_year_mask
     ]
@@ -389,7 +392,9 @@ def filter_ferc714_hourly_demand_matrix(
     return df
 
 
-def impute_ferc714_hourly_demand_matrix(df: pd.DataFrame) -> pd.DataFrame:
+def impute_ferc714_hourly_demand_matrix(
+    df: pd.DataFrame, years: list[int]
+) -> pd.DataFrame:
     """Impute null values in FERC 714 hourly demand matrix.
 
     Imputation is performed separately for each year,
@@ -401,6 +406,7 @@ def impute_ferc714_hourly_demand_matrix(df: pd.DataFrame) -> pd.DataFrame:
     Args:
         df: FERC 714 hourly demand matrix,
           as described in :func:`load_ferc714_hourly_demand_matrix`.
+        years: list of years to input
 
     Returns:
         Copy of `df` with imputed values.
@@ -411,8 +417,7 @@ def impute_ferc714_hourly_demand_matrix(df: pd.DataFrame) -> pd.DataFrame:
     # new data causes any failures.
     df = df.sort_index(ascending=False)
     for year, gdf in df.groupby(df.index.year, sort=False):
-        # skip any year that is not in the settings
-        if year in pudl.settings.Ferc714Settings().years:
+        if year in years:
             logger.info(f"Imputing year {year}")
             keep = df.columns[~gdf.isnull().all()]
             tsi = pudl.analysis.timeseries_cleaning.Timeseries(gdf[keep])
@@ -491,8 +496,12 @@ def _out_ferc714__hourly_demand_matrix(
     return df
 
 
-@asset(compute_kind="NumPy")
+@asset(
+    compute_kind="NumPy",
+    required_resource_keys={"dataset_settings"},
+)
 def _out_ferc714__hourly_imputed_demand(
+    context,
     _out_ferc714__hourly_demand_matrix: pd.DataFrame,
     _out_ferc714__utc_offset: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -509,7 +518,8 @@ def _out_ferc714__hourly_imputed_demand(
     Returns:
         df: DataFrame with imputed FERC714 hourly demand.
     """
-    df = impute_ferc714_hourly_demand_matrix(_out_ferc714__hourly_demand_matrix)
+    years = context.resources.dataset_settings.ferc714.years
+    df = impute_ferc714_hourly_demand_matrix(_out_ferc714__hourly_demand_matrix, years)
     df = melt_ferc714_hourly_demand_matrix(df, _out_ferc714__utc_offset)
     return df
 

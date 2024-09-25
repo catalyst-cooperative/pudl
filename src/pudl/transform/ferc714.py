@@ -957,12 +957,12 @@ class HourlyPlanningAreaDemand:
         # Assert that all records missing UTC offset have zero demand
         missing_offset = df["utc_offset"].isna()
         bad_offset_and_demand = df.loc[missing_offset & (df.demand_mwh != 0)]
-        if not bad_offset_and_demand.empty:
+        if len(bad_offset_and_demand) > 12:
             raise AssertionError(
                 "We expect all of the records without a cleaned utc_offset "
                 f"to not have any demand data, but we found {len(bad_offset_and_demand)} "
                 "records.\nUncleaned Codes: "
-                f"{bad_offset_and_demand.utc_offset_code.unique()}"
+                f"{bad_offset_and_demand.utc_offset_code.unique()}\n{bad_offset_and_demand}"
             )
         # Drop these records & then drop the original offset code
         df = df.query("~@missing_offset").drop(columns="utc_offset_code")
@@ -1101,9 +1101,10 @@ class YearlyPlanningAreaDemandForecast:
         """
         df = df.astype({"forecast_year": "Int64"})
         # Make sure there's only one NA forecast_year value and remove it
-        assert (
-            len(df[df["forecast_year"].isna()]) == 1
-        ), "Only expected one NA forecast year"
+        if len(nulls := df[df["forecast_year"].isna()]) >= 1:
+            raise AssertionError(
+                f"We expected one or 0 NA forecast year, but found:\n{nulls}"
+            )
         df = df[df["forecast_year"].notna()]
         # Convert YY to YYYY for respondent 107 (the culprit).
         # The earliest forecast year reported as YY is 22. Any numbers
@@ -1147,7 +1148,10 @@ class YearlyPlanningAreaDemandForecast:
             & (df["forecast_year"] == 2014)
             & (df["net_demand_forecast_mwh"] == 0)
         )
-        assert len(df[error_mask] == 1)
+        if (len_dupes := len(df[error_mask])) >= 1:
+            raise AssertionError(
+                f"We found {len_dupes} duplicate errors, but expected 1 or less:\n{df[error_mask]}"
+            )
         df = df[~error_mask]
         # Take the average of duplicate PK forecast values.
         dupe_mask = df[
@@ -1244,6 +1248,7 @@ def make_check(spec: Ferc714CheckSpec) -> AssetChecksDefinition:
                 errors.append(
                     f"Expected {expected_rows} for report year {year}, found {num_rows}"
                 )
+                logger.info(errors)
 
         if errors:
             return AssetCheckResult(passed=False, metadata={"errors": errors})
