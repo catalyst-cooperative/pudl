@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: 287bc2ebfbbfb1a07de1011d427cf214a76fc1c2eacf59ba5c0fb9b904c0df67
-    osx-64: 7620009b19017e06b29d00ae9275ee59e347d90ca0b54786cb917ea2d818ee63
-    osx-arm64: ddfbf3c51fbb7e59b22035707b0f5dd8e55f5dc12c175a952bc093e69352f403
+    linux-64: ad8b6314f65a327784bf7a70ec8cbb1df4f7c3353ad76ece28c02838450e9a95
+    osx-64: ad57ba54c689ae71bddb7b6fefec458b3d9f595a5fec4496b55b202140505f7e
+    osx-arm64: bb4ff1d1ed0aa5bf3e9fbf002228ac0c41a8ad19b8de7a351e9a8a5c03f48cb9
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -23267,45 +23267,45 @@ package:
     category: main
     optional: false
   - name: starlette
-    version: 0.38.5
+    version: 0.39.0
     manager: conda
     platform: linux-64
     dependencies:
       anyio: <5,>=3.4.0
       python: ">=3.8"
       typing_extensions: ">=3.10.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/starlette-0.38.5-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/starlette-0.39.0-pyhd8ed1ab_0.conda
     hash:
-      md5: c8aa19153b5af4409fd114732966021e
-      sha256: d50621286d729eb1b64242ea8745f09c085af89b0dc6ada16c745807894e5988
+      md5: 809fd5d3bc42a5befeda04b8d75e12f2
+      sha256: 61cbc3536ea5f0aa828138a8989f531f4f40648e507795875112aac9163d7274
     category: dev
     optional: true
   - name: starlette
-    version: 0.38.5
+    version: 0.39.0
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.8"
       typing_extensions: ">=3.10.0"
       anyio: <5,>=3.4.0
-    url: https://conda.anaconda.org/conda-forge/noarch/starlette-0.38.5-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/starlette-0.39.0-pyhd8ed1ab_0.conda
     hash:
-      md5: c8aa19153b5af4409fd114732966021e
-      sha256: d50621286d729eb1b64242ea8745f09c085af89b0dc6ada16c745807894e5988
+      md5: 809fd5d3bc42a5befeda04b8d75e12f2
+      sha256: 61cbc3536ea5f0aa828138a8989f531f4f40648e507795875112aac9163d7274
     category: dev
     optional: true
   - name: starlette
-    version: 0.38.5
+    version: 0.39.0
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.8"
       typing_extensions: ">=3.10.0"
       anyio: <5,>=3.4.0
-    url: https://conda.anaconda.org/conda-forge/noarch/starlette-0.38.5-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/starlette-0.39.0-pyhd8ed1ab_0.conda
     hash:
-      md5: c8aa19153b5af4409fd114732966021e
-      sha256: d50621286d729eb1b64242ea8745f09c085af89b0dc6ada16c745807894e5988
+      md5: 809fd5d3bc42a5befeda04b8d75e12f2
+      sha256: 61cbc3536ea5f0aa828138a8989f531f4f40648e507795875112aac9163d7274
     category: dev
     optional: true
   - name: stevedore
@@ -25627,33 +25627,36 @@ package:
     manager: conda
     platform: linux-64
     dependencies:
-      libgcc-ng: ">=9.3.0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/xorg-libxdmcp-1.1.3-h7f98852_0.tar.bz2
+      __glibc: ">=2.17,<3.0.a0"
+      libgcc: ">=13"
+    url: https://conda.anaconda.org/conda-forge/linux-64/xorg-libxdmcp-1.1.3-hb9d3cd8_1.conda
     hash:
-      md5: be93aabceefa2fac576e971aef407908
-      sha256: 4df7c5ee11b8686d3453e7f3f4aa20ceef441262b49860733066c52cfd0e4a77
+      md5: 17dab5c3eac5123b7c441bb215c14b96
+      sha256: 84133941492869d6bd86070fba81f474a1ac005cd1f1c0e7a8bdbad5673043ce
     category: main
     optional: false
   - name: xorg-libxdmcp
     version: 1.1.3
     manager: conda
     platform: osx-64
-    dependencies: {}
-    url: https://conda.anaconda.org/conda-forge/osx-64/xorg-libxdmcp-1.1.3-h35c211d_0.tar.bz2
+    dependencies:
+      __osx: ">=10.13"
+    url: https://conda.anaconda.org/conda-forge/osx-64/xorg-libxdmcp-1.1.3-h00291cd_1.conda
     hash:
-      md5: 86ac76d6bf1cbb9621943eb3bd9ae36e
-      sha256: 485421c16f03a01b8ed09984e0b2ababdbb3527e1abf354ff7646f8329be905f
+      md5: 9e71504ab7a0d1d3d37c8c76a954a64d
+      sha256: c67d3e2e6db309646afd1d7c477d10988ff14555fbe0b09af4430102948459b1
     category: main
     optional: false
   - name: xorg-libxdmcp
     version: 1.1.3
     manager: conda
     platform: osx-arm64
-    dependencies: {}
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/xorg-libxdmcp-1.1.3-h27ca646_0.tar.bz2
+    dependencies:
+      __osx: ">=11.0"
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/xorg-libxdmcp-1.1.3-hd74edd7_1.conda
     hash:
-      md5: 6738b13f7fadc18725965abdd4129c36
-      sha256: d9a2fb4762779994718832f05a7d62ab2dcf6103a312235267628b5187ce88f7
+      md5: aeb231903efa4da33616c6ee93273801
+      sha256: 5aeeddccc4c4ec6e6896370fcd44a47345dd674a643b7f80e9153858ad7c0d43
     category: main
     optional: false
   - name: xorg-libxext
