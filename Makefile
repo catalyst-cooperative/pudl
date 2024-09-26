@@ -20,7 +20,7 @@ VPATH = environments:${PUDL_OUTPUT}
 ########################################################################################
 .PHONY: dagster
 dagster:
-	dagster-webserver -m pudl.etl -m pudl.ferc_to_sqlite
+	dagster-webserver
 
 .PHONY: jlab
 jlab:

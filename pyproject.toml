@@ -372,3 +372,6 @@ exclude_lines = [
     # Stuff that's not expected to run normally...
     "logger.debug",
 ]
+
+[tool.dagster]
+modules = [{ type = "module", name = "pudl.etl" }, { type = "module", name = "pudl.ferc_to_sqlite" }]

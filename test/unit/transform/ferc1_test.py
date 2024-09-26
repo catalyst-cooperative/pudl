@@ -36,6 +36,7 @@ from pudl.transform.ferc1 import (
     make_xbrl_factoid_dimensions_explicit,
     read_dbf_to_xbrl_map,
     reconcile_one_type_of_table_calculations,
+    select_current_year_annual_records_duration_xbrl,
     unexpected_total_components,
     unstack_balances_to_report_year_instant_xbrl,
     wide_to_tidy,
@@ -264,7 +265,7 @@ D,y,130
 
 
 def test_select_current_year_annual_records_duration_xbrl():
-    """Test :meth:`select_current_year_annual_records_duration_xbrl` date selection."""
+    """Test :func:`select_current_year_annual_records_duration_xbrl` date selection."""
     df = pd.read_csv(
         StringIO(
             """
@@ -279,12 +280,9 @@ report_year,start_date,end_date,values
         )
     )
 
-    class FakeTransformer(Ferc1AbstractTableTransformer):
-        # just need any table name here so that one method is callable
-        table_id = TableIdFerc1.STEAM_PLANTS_FUEL
-
-    fake_transformer = FakeTransformer()
-    df_out = fake_transformer.select_current_year_annual_records_duration_xbrl(df=df)
+    df_out = select_current_year_annual_records_duration_xbrl(
+        df=df, table_name="fake_table"
+    )
     df_expected = df[df.to_numpy() == "good"].astype(
         {"start_date": "datetime64[s]", "end_date": "datetime64[s]"}
     )

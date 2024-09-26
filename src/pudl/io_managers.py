@@ -703,7 +703,7 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
         is_instant = "date" in df.columns
 
         def get_year(df: pd.DataFrame, col: str) -> pd.Series:
-            datetimes = pd.to_datetime(df.loc[:, col])
+            datetimes = pd.to_datetime(df.loc[:, col], format="%Y-%m-%d", exact=False)
             if datetimes.isna().any():
                 raise ValueError(f"{col} has null values!")
             return datetimes.apply(lambda x: x.year)
