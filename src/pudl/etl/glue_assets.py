@@ -37,12 +37,17 @@ def create_glue_tables(context):
         A dictionary of DataFrames whose keys are the names of the corresponding
         database table.
     """
+    # TODO 2024-09-23: double check if these settings are actually
+    # doing anything for the FERC-EIA glue... doesn't look like it.
     dataset_settings = context.resources.dataset_settings
     # grab the glue tables for ferc1 & eia
     glue_dfs = pudl.glue.ferc1_eia.glue(
         ferc1=dataset_settings.glue.ferc1,
         eia=dataset_settings.glue.eia,
     )
+    # these 714 glue tables are so easy to build, it doesn't seem worth it
+    # to not build/load them if we are not etl-ing 714
+    glue_dfs = glue_dfs | pudl.glue.ferc714.glue()
 
     # Ensure they are sorted so they match up with the asset outs
     glue_dfs = dict(sorted(glue_dfs.items()))

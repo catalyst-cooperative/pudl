@@ -1669,6 +1669,30 @@ class Ferc1TableTransformParams(TableTransformParams):
         return list(dims)
 
 
+def select_current_year_annual_records_duration_xbrl(df: pd.DataFrame, table_name: str):
+    """Select for annual records within their report_year.
+
+    Select only records that have a start_date at beginning of the report_year and
+    have an end_date at the end of the report_year.
+    """
+    len_og = len(df)
+    df = df.astype({"start_date": "datetime64[s]", "end_date": "datetime64[s]"})
+    df = df[
+        (df.start_date.dt.year == df.report_year)
+        & (df.start_date.dt.month == 1)
+        & (df.start_date.dt.day == 1)
+        & (df.end_date.dt.year == df.report_year)
+        & (df.end_date.dt.month == 12)
+        & (df.end_date.dt.day == 31)
+    ]
+    len_out = len(df)
+    logger.info(
+        f"{table_name}: After selection of dates based on the report year,"
+        f" we have {len_out/len_og:.1%} of the original table."
+    )
+    return df
+
+
 ################################################################################
 # FERC 1 transform helper functions. Probably to be integrated into a class
 # below as methods or moved to a different module once it's clear where they belong.
@@ -2714,7 +2738,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         information from header and note rows. Outer merging messes up the order, so we
         need to use a one-sided merge. So far, it seems like the duration df contains
         all the index values in the instant df. To be sure, there's a check that makes
-        sure there are no unique intant df index values. If that passes, we merge the
+        sure there are no unique instant df index values. If that passes, we merge the
         instant table into the duration table, and the row order is preserved.
 
         Note: This should always be applied before :meth:``rename_columns``
@@ -2731,8 +2755,13 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         """
         drop_cols = ["filing_name", "index"]
         # Ignore errors in case not all drop_cols are present.
-        instant = raw_xbrl_instant.drop(columns=drop_cols, errors="ignore")
-        duration = raw_xbrl_duration.drop(columns=drop_cols, errors="ignore")
+        # Do any table-specific preprocessing of the instant and duration tables
+        instant = raw_xbrl_instant.drop(columns=drop_cols, errors="ignore").pipe(
+            self.process_instant_xbrl
+        )
+        duration = raw_xbrl_duration.drop(columns=drop_cols, errors="ignore").pipe(
+            self.process_duration_xbrl
+        )
 
         instant_axes = [
             col for col in raw_xbrl_instant.columns if col.endswith("_axis")
@@ -2750,10 +2779,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 f"    instant: {instant_axes}\n"
                 f"    duration: {duration_axes}"
             )
-
-        # Do any table-specific preprocessing of the instant and duration tables
-        instant = self.process_instant_xbrl(instant)
-        duration = self.process_duration_xbrl(duration)
 
         if instant.empty:
             logger.info(f"{self.table_id.value}: No XBRL instant table found.")
@@ -2838,31 +2863,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         """
         if not df.empty:
             df = self.rename_columns(df, rename_stage="duration_xbrl").pipe(
-                self.select_current_year_annual_records_duration_xbrl
+                select_current_year_annual_records_duration_xbrl, self.table_id.name
             )
-        return df
-
-    def select_current_year_annual_records_duration_xbrl(self, df):
-        """Select for annual records within their report_year.
-
-        Select only records that have a start_date at begining of the report_year and
-        have an end_date at the end of the report_year.
-        """
-        len_og = len(df)
-        df = df.astype({"start_date": "datetime64[s]", "end_date": "datetime64[s]"})
-        df = df[
-            (df.start_date.dt.year == df.report_year)
-            & (df.start_date.dt.month == 1)
-            & (df.start_date.dt.day == 1)
-            & (df.end_date.dt.year == df.report_year)
-            & (df.end_date.dt.month == 12)
-            & (df.end_date.dt.day == 31)
-        ]
-        len_out = len(df)
-        logger.info(
-            f"{self.table_id.value}: After selection of dates based on the report year,"
-            f" we have {len_out/len_og:.1%} of the original table."
-        )
         return df
 
     @cache_df(key="dbf")
@@ -6045,10 +6047,10 @@ class SalesByRateSchedulesTableTransformer(Ferc1AbstractTableTransformer):
     ) -> pd.DataFrame:
         """Rename columns before running wide_to_tidy."""
         logger.info(f"{self.table_id.value}: Processing XBRL data pre-concatenation.")
+        instant_xbrl = self.process_instant_xbrl(raw_xbrl_instant)
+        duration_xbrl = self.process_duration_xbrl(raw_xbrl_duration)
         return (
-            self.merge_instant_and_duration_tables_xbrl(
-                raw_xbrl_instant, raw_xbrl_duration
-            )
+            self.merge_instant_and_duration_tables_xbrl(instant_xbrl, duration_xbrl)
             .pipe(self.rename_columns, rename_stage="xbrl")
             .pipe(self.combine_axis_columns_xbrl)
             .pipe(self.add_axis_to_total_table_rows)
