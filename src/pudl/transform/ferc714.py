@@ -1158,7 +1158,7 @@ class YearlyPlanningAreaDemandForecast:
             & (df["forecast_year"] == 2014)
             & (df["net_demand_forecast_mwh"] == 0)
         )
-        if (len_dupes := len(df[error_mask])) >= 1:
+        if (len_dupes := len(df[error_mask])) > 1:
             raise AssertionError(
                 f"We found {len_dupes} duplicate errors, but expected 1 or less:\n{df[error_mask]}"
             )
