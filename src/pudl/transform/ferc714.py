@@ -22,11 +22,13 @@ import pandas as pd
 from dagster import AssetCheckResult, AssetChecksDefinition, AssetIn, asset, asset_check
 
 import pudl.logging_helpers
+from pudl.extract.ferc714 import TABLE_NAME_MAP_FERC714
 from pudl.settings import Ferc714Settings
 from pudl.transform.classes import (
     RenameColumns,
     rename_columns,
 )
+from pudl.transform.ferc import filter_for_freshest_data_xbrl, get_primary_key_raw_xbrl
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -349,6 +351,26 @@ def _assign_respondent_id_ferc714(
     return df
 
 
+def _filter_for_freshest_data_xbrl(
+    raw_xbrl: pd.DataFrame,
+    table_name: str,
+    instant_or_duration: Literal["instant", "duration"],
+):
+    """Wrapper around filter_for_freshest_data_xbrl.
+
+    Most of the specific stuff here is in just converting the core table name
+    into the raw instant or duration XBRL table name.
+    """
+    table_name_raw_xbrl = (
+        f"{TABLE_NAME_MAP_FERC714[table_name]["xbrl"]}_{instant_or_duration}"
+    )
+    xbrl = filter_for_freshest_data_xbrl(
+        df=raw_xbrl,
+        primary_keys=get_primary_key_raw_xbrl(table_name_raw_xbrl, "ferc714"),
+    )
+    return xbrl
+
+
 def _fillna_respondent_id_ferc714_source(
     df: pd.DataFrame, source: Literal["csv", "xbrl"]
 ) -> pd.DataFrame:
@@ -431,8 +453,9 @@ class RespondentId:
         )
         # XBRL STUFF
         xbrl = (
-            rename_columns(
-                raw_xbrl_duration,
+            _filter_for_freshest_data_xbrl(raw_xbrl_duration, table_name, "duration")
+            .pipe(
+                rename_columns,
                 params=RenameColumns(columns=RENAME_COLS[table_name]["xbrl"]),
             )
             .pipe(_assign_respondent_id_ferc714, source="xbrl")
@@ -650,10 +673,15 @@ class HourlyPlanningAreaDemand:
         """
         table_name = "out_ferc714__hourly_planning_area_demand"
         # XBRL STUFF
-        duration_xbrl = cls.remove_yearly_records_duration_xbrl(raw_xbrl_duration)
+        duration_xbrl = _filter_for_freshest_data_xbrl(
+            raw_xbrl_duration, table_name, "duration"
+        ).pipe(cls.remove_yearly_records_duration_xbrl)
+        instant_xbrl = _filter_for_freshest_data_xbrl(
+            raw_xbrl_instant, table_name, "instant"
+        )
         xbrl = (
             cls.merge_instant_and_duration_tables_xbrl(
-                raw_xbrl_instant, duration_xbrl, table_name=table_name
+                instant_xbrl, duration_xbrl, table_name=table_name
             )
             .pipe(
                 rename_columns,
@@ -1074,8 +1102,9 @@ class YearlyPlanningAreaDemandForecast:
         table_name = "core_ferc714__yearly_planning_area_demand_forecast"
         # XBRL STUFF
         xbrl = (
-            rename_columns(
-                df=raw_xbrl_duration,
+            _filter_for_freshest_data_xbrl(raw_xbrl_duration, table_name, "duration")
+            .pipe(
+                rename_columns,
                 params=RenameColumns(columns=RENAME_COLS[table_name]["xbrl"]),
             )
             .pipe(_assign_respondent_id_ferc714, "xbrl")
@@ -1158,7 +1187,7 @@ class YearlyPlanningAreaDemandForecast:
             & (df["forecast_year"] == 2014)
             & (df["net_demand_forecast_mwh"] == 0)
         )
-        if (len_dupes := len(df[error_mask])) >= 1:
+        if (len_dupes := len(df[error_mask])) > 1:
             raise AssertionError(
                 f"We found {len_dupes} duplicate errors, but expected 1 or less:\n{df[error_mask]}"
             )

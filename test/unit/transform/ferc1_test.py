@@ -1301,7 +1301,8 @@ def test_filter_for_freshest_data_xbrl(df):
     filing_metadata_cols = ["publication_time", "filing_name"]
     primary_key = xbrl_context_cols + filing_metadata_cols
     deduped = filter_for_freshest_data_xbrl(df, primary_keys=primary_key)
-    example_schema.validate(deduped)
+    deduped_schema = example_schema.remove_columns(["publication_time"])
+    deduped_schema.validate(deduped)
 
     # every post-deduplication row exists in the original rows
     assert (deduped.merge(df, how="left", indicator=True)._merge != "left_only").all()

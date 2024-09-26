@@ -30,6 +30,7 @@ class PudlPaths(BaseSettings):
         """Create PUDL input and output directories if they don't already exist."""
         self.input_dir.mkdir(parents=True, exist_ok=True)
         self.output_dir.mkdir(parents=True, exist_ok=True)
+        return self
 
     @property
     def input_dir(self) -> Path:
