@@ -91,12 +91,15 @@ a complete database based on the settings files stored in
 unmapped IDs to the ``devtools/ferc1-eia-glue`` directory that correspond to unmapped
 plants and utilities from FERC 1 and EIA.
 
-If you have already generated a databse without foreign-key constraints, you can run
+If you have already generated a database without foreign-key constraints, you can run
 just the script that extracts the umapped IDs with:
 
 .. code-block:: console
 
     $ pytest test/integration/glue_test.py --live-dbs --save-unmapped-ids
+
+The ``--save-unmapped-ids`` flag saves unmapped plants and utilities in the
+``devtools/ferc1-eia-glue`` folder by default.
 
 Assigning PUDL IDs to Unmapped Records
 --------------------------------------
@@ -114,10 +117,11 @@ same PUDL ID.
 Mapping Plants
 ^^^^^^^^^^^^^^
 
-The ``unmapped_plants_ferc1/eia.csv`` files should display basic plant information such
-as the facility name, utility name, and capacity. We show capacity here so that we can
-prioritize which plants to map. The larger the capacity, the more important it is to get
-it mapped. Sort the records by capacity so the highest priority records at the top.
+The ``missing_plant_id_in_plants_ferc1/eia.csv`` files should display basic plant
+information such as the facility name, utility name, and capacity. We show capacity here
+so that we can prioritize which plants to map. The larger the capacity, the more
+important it is to get it mapped. Sort the records by capacity so the highest priority
+records at the top.
 
 From the FERC and EIA unmapped plants spreadsheets, copy the ``plant_id_eia`` (only in
 EIA), ``plant_name_ferc1/eia``, ``utility_id_ferc1/eia``, and ``utility_name_ferc1/eia``
@@ -202,17 +206,16 @@ Linking FERC1-EIA Records
     The following section needs to be updated to include new steps for mapping FERC1
     XBRL utilities with DBF utilities.
 
-Copy the information output to the ``unmapped_utils_eia/ferc1.csv`` files and paste it
-in the appropriate columns at the bottom of the ``pudl_id_mapping.xlsx``  sheet. Note
-that FERC 1 utility information goes in the left-hand columns and EIA utility
-information goes in the right-hand columns.
+Copy the information output to the ``missing_utility_id_in_utilities_eia/ferc1.csv``
+files and paste it in the appropriate columns at the bottom of the
+``utility_id_pudl.csv``  sheet. Note that FERC 1 utility information goes in the
+left-hand columns and EIA utility information goes in the right-hand columns.
 
 Next, you'll have to manually assign ``utility_id_pudl`` values to each row. There is no
 formula you can drag down, so just find the largest ``utility_id_pudl`` and create new
 values incrementing from there. To double check whether a utility has already appeared,
-drag down the formulas in the ``check_utility_id_ferc1`` and ``check_utility_id_eia``
-columns. If there's a match, the correct ``utility_id_pudl`` will show up in the column,
-and you can create a reference to the original ``utility_id_pudl`` assignment above.
+search by name, creating a reference to the original ``utility_id_pudl`` assignment
+above.
 
 Make sure to save the file when you're done!
 
@@ -235,5 +238,5 @@ Integrating Newly Mapped Records into PUDL
 Once you’ve successfully mapped all unmapped PUDL IDs, you’ll want to rerun the ETL!
 This ensures that the newly mapped IDs get integrated into the PUDL database and output
 tables that folks are using. Make sure to tell everyone else to do so as well so that
-you can all use the newly mapped PUDL IDs. But furst, make sure to head back to the
+you can all use the newly mapped PUDL IDs. But first, make sure to head back to the
 :doc:`existing_data_updates` page to wrap up the validation tests!
