@@ -164,7 +164,8 @@ plant name string (e.g. for ``chenango solar``, you could search for ``chen``,
 or ``chenan``). Searching the entire plant tab helps find other records within
 both FERC and EIA that may be the same or part of the same facility. Searching
 for a piece can help catch misspellings in the plant name, which are more common
-in the FERC records.
+in the FERC records. Use the ``devtools/pudl_id_mapping_help.ipynb`` notebook to speed
+up this process.
 
     * **If co-located EIA plants have distinct plant IDs and no FERC 1 plant:**
         they should not be lumped under a single PUDL Plant ID, as that artificially
