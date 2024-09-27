@@ -31,47 +31,6 @@ def __best_snapshot(
     ).drop(columns="count", errors="ignore")
 
 
-def __compare_dedupe_methodologies_old(
-    apply_diffs: pd.DataFrame, best_snapshot: pd.DataFrame
-):
-    """Compare deduplication methodologies.
-
-    By cross-referencing these we can make sure that the apply-diff
-    methodology isn't doing something unexpected.
-
-    The main thing we want to keep tabs on is apply-diff adding new
-    non-null values compared to best-snapshot, because some of those
-    are instances of a value correctly being reported as `null`.
-
-    Instead of stacking the two datasets, merging by context, and then
-    looking for left_only or right_only values, we just count non-null
-    values. This is because we would want to use the report_year as a
-    merge key, but that isn't available until after we pipe the
-    dataframe through `refine_report_year`.
-    """
-    n_diffs = apply_diffs.count().sum()
-    n_best = best_snapshot.count().sum()
-
-    # 2024-04-10: this threshold set by looking at existing values for FERC
-    # <=2022. It was updated from .3 to .44 during the 2023 update.
-    threshold_ratio = 1.0044
-    found_ratio = n_diffs / n_best
-    # logger.info(
-    #     f"When comparing filtering methodologies, we found a ratio of {found_ratio:.4%}."
-    # )
-    if found_ratio > threshold_ratio:
-        raise ValueError(
-            "Found more than expected excess non-null values using the "
-            f"currently  implemented apply_diffs methodology (#{n_diffs}) as "
-            f"compared to the best_snapshot methodology (#{n_best}). We expected"
-            " the apply_diffs methodology to result in no more than "
-            f"{threshold_ratio:.2%} non-null records but found {found_ratio:.2%}.\n\n"
-            "We are concerned about excess non-null values because apply-diffs "
-            "grabs the most recent non-null values. If this error is raised, "
-            "investigate filter_for_freshest_data."
-        )
-
-
 def __compare_dedupe_methodologies(
     applied_diffs: pd.DataFrame,
     best_snapshot: pd.DataFrame,
@@ -82,9 +41,9 @@ def __compare_dedupe_methodologies(
     By cross-referencing these we can make sure that the apply-diff
     methodology isn't doing something unexpected.
 
-    The main thing we want to keep tabs on is apply-diff adding more
-    than expected differences compared to best-snapshot, because some
-    of those are instances of a value correctly being reported as `null`.
+    The main things we want to keep tabs on are: whether apply-diff is
+    adding more than expected differences compared to best-snapshot and
+    whether or not apply-diff is giving us more values than best-snapshot.
     """
 
     def _stack_pre_merge(df):
@@ -93,7 +52,7 @@ def __compare_dedupe_methodologies(
             df.set_index(xbrl_context_cols + ["report_year"])
             .drop(columns=filing_metadata_cols)
             .rename_axis("xbrl_factoid", axis=1)
-            .stack([0]),
+            .stack(0),
             columns=["value"],
         ).reset_index()
 
@@ -117,13 +76,10 @@ def __compare_dedupe_methodologies(
     threshold_ratio = 0.025
     if difference_ratio > threshold_ratio:
         raise AssertionError(
-            "We expected the currently implement apply_diffs methodology and the "
-            "best_snapshot methodology  result in no more than "
-            f"{threshold_ratio:.2%} of records records with differing values but "
-            f"found {difference_ratio:.2%}.\n\n"
-            "We are concerned about excess differing values because apply-diffs "
-            "grabs the most recent non-null values. If this error is raised, "
-            "investigate filter_for_freshest_data."
+            "We expected the currently implemented apply_diffs methodology and the "
+            "best_snapshot methodology to result in no more than "
+            f"{threshold_ratio:.2%} of records  with differing values but "
+            f"found {difference_ratio:.2%}."
         )
 
 

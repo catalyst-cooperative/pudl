@@ -199,7 +199,9 @@ def test_filter_for_freshest_data(
         logger.info(f"Checking if our filtering methodology works for {raw_table_name}")
         xbrl_table = defs.load_asset_value(raw_table_name)
         if not xbrl_table.empty:
-            primary_key = get_primary_key_raw_xbrl(
+            primary_keys = get_primary_key_raw_xbrl(
                 raw_table_name.removeprefix("raw_ferc1_xbrl__"), "ferc1"
             )
-            filter_for_freshest_data_xbrl(xbrl_table, primary_key, compare_methods=True)
+            filter_for_freshest_data_xbrl(
+                xbrl_table, primary_keys, compare_methods=True
+            )
