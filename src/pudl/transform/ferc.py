@@ -5,10 +5,13 @@ from typing import Literal
 
 import pandas as pd
 
+import pudl
 from pudl.workspace.setup import PudlPaths
 
+logger = pudl.logging_helpers.get_logger(__name__)
 
-def apply_diffs(
+
+def __apply_diffs(
     duped_groups: pd.core.groupby.DataFrameGroupBy,
 ) -> pd.DataFrame:
     """Take the latest reported non-null value for each group."""
@@ -28,7 +31,7 @@ def __best_snapshot(
     ).drop(columns="count", errors="ignore")
 
 
-def __compare_dedupe_methodologies(
+def __compare_dedupe_methodologies_old(
     apply_diffs: pd.DataFrame, best_snapshot: pd.DataFrame
 ):
     """Compare deduplication methodologies.
@@ -49,17 +52,14 @@ def __compare_dedupe_methodologies(
     n_diffs = apply_diffs.count().sum()
     n_best = best_snapshot.count().sum()
 
-    if n_diffs < n_best:
-        raise ValueError(
-            f"Found {n_diffs} non-null values with apply-diffs"
-            f"methodology, and {n_best} with best-snapshot. "
-            "apply-diffs should be >= best-snapshot."
-        )
-
     # 2024-04-10: this threshold set by looking at existing values for FERC
     # <=2022. It was updated from .3 to .44 during the 2023 update.
     threshold_ratio = 1.0044
-    if (found_ratio := n_diffs / n_best) > threshold_ratio:
+    found_ratio = n_diffs / n_best
+    # logger.info(
+    #     f"When comparing filtering methodologies, we found a ratio of {found_ratio:.4%}."
+    # )
+    if found_ratio > threshold_ratio:
         raise ValueError(
             "Found more than expected excess non-null values using the "
             f"currently  implemented apply_diffs methodology (#{n_diffs}) as "
@@ -72,8 +72,63 @@ def __compare_dedupe_methodologies(
         )
 
 
+def __compare_dedupe_methodologies(
+    applied_diffs: pd.DataFrame,
+    best_snapshot: pd.DataFrame,
+    xbrl_context_cols: list[str],
+):
+    """Compare deduplication methodologies.
+
+    By cross-referencing these we can make sure that the apply-diff
+    methodology isn't doing something unexpected.
+
+    The main thing we want to keep tabs on is apply-diff adding more
+    than expected differences compared to best-snapshot, because some
+    of those are instances of a value correctly being reported as `null`.
+    """
+
+    def _stack_pre_merge(df):
+        filing_metadata_cols = {"publication_time", "filing_name"}
+        return pd.DataFrame(
+            df.set_index(xbrl_context_cols + ["report_year"])
+            .drop(columns=filing_metadata_cols)
+            .rename_axis("xbrl_factoid", axis=1)
+            .stack([0]),
+            columns=["value"],
+        ).reset_index()
+
+    test_filters = pd.merge(
+        _stack_pre_merge(applied_diffs),
+        _stack_pre_merge(best_snapshot),
+        on=xbrl_context_cols + ["report_year", "value", "xbrl_factoid"],
+        how="outer",
+        indicator=True,
+    )
+    merge_counts = test_filters._merge.value_counts()
+    if (n_diffs := merge_counts.left_only) < (n_best := merge_counts.right_only):
+        raise AssertionError(
+            "We expected to find more values with the apply_diffs methodology, "
+            f"but we found {n_diffs} unique apply_diffs values and {n_best}"
+            f"unique best_snapshot values."
+        )
+    difference_ratio = sum(merge_counts.loc[["left_only", "right_only"]]) / sum(
+        merge_counts
+    )
+    threshold_ratio = 0.025
+    if difference_ratio > threshold_ratio:
+        raise AssertionError(
+            "We expected the currently implement apply_diffs methodology and the "
+            "best_snapshot methodology  result in no more than "
+            f"{threshold_ratio:.2%} of records records with differing values but "
+            f"found {difference_ratio:.2%}.\n\n"
+            "We are concerned about excess differing values because apply-diffs "
+            "grabs the most recent non-null values. If this error is raised, "
+            "investigate filter_for_freshest_data."
+        )
+
+
 def filter_for_freshest_data_xbrl(
-    df: pd.DataFrame, primary_keys, compare_methods: bool = False
+    xbrl_table: pd.DataFrame, primary_keys, compare_methods: bool = False
 ) -> pd.DataFrame:
     """Get most updated values for each XBRL context.
 
@@ -93,26 +148,28 @@ def filter_for_freshest_data_xbrl(
     we keep the old non-null value, which may be erroneous. This appears to
     be fairly rare, affecting < 0.005% of reported values.
     """
-    if not df.empty:
+    if not xbrl_table.empty:
         filing_metadata_cols = {"publication_time", "filing_name"}
         xbrl_context_cols = [c for c in primary_keys if c not in filing_metadata_cols]
-        original = df.sort_values("publication_time")
+        original = xbrl_table.sort_values("publication_time")
         dupe_mask = original.duplicated(subset=xbrl_context_cols, keep=False)
         duped_groups = original.loc[dupe_mask].groupby(
             xbrl_context_cols, as_index=False, dropna=True
         )
         never_duped = original.loc[~dupe_mask]
-        applied_diffs = apply_diffs(duped_groups)
+        applied_diffs = __apply_diffs(duped_groups)
         if compare_methods:
             best_snapshot = __best_snapshot(duped_groups)
             __compare_dedupe_methodologies(
-                apply_diffs=applied_diffs, best_snapshot=best_snapshot
+                applied_diffs=applied_diffs,
+                best_snapshot=best_snapshot,
+                xbrl_context_cols=xbrl_context_cols,
             )
 
-        df = pd.concat([never_duped, applied_diffs], ignore_index=True).drop(
+        xbrl_table = pd.concat([never_duped, applied_diffs], ignore_index=True).drop(
             columns=["publication_time"]
         )
-    return df
+    return xbrl_table
 
 
 def get_primary_key_raw_xbrl(

@@ -168,22 +168,23 @@ def test_unique_rows_ferc1(pudl_out_ferc1, live_dbs, df_name, unique_subset):
 
 @pytest.mark.parametrize(
     "table_name",
-    [
+    [  # some sample wide guys
         "core_ferc1__yearly_sales_by_rate_schedules_sched304",
         "core_ferc1__yearly_pumped_storage_plants_sched408",
         "core_ferc1__yearly_steam_plants_sched402",
         "core_ferc1__yearly_hydroelectric_plants_sched406",
         "core_ferc1__yearly_transmission_lines_sched422",
+        # some sample guys found to have higher filtering diffs
+        "core_ferc1__yearly_utility_plant_summary_sched200",
+        "core_ferc1__yearly_plant_in_service_sched204",
+        "core_ferc1__yearly_operating_expenses_sched320",
+        "core_ferc1__yearly_income_statements_sched114",
     ],
 )
 def test_filter_for_freshest_data(
     ferc1_engine_xbrl, table_name: pd.DataFrame
 ) -> pd.DataFrame:
-    """Test if we are unexpectedly replacing records during filter_for_freshest_data.
-
-    NOTE: None of this actually calls any of the code over in pudl.transform.ferc1 rn.
-    That's maybe okay because we are mostly testing the data updates mostly here.
-    """
+    """Test if we are unexpectedly replacing records during filter_for_freshest_data."""
 
     raw_table_names = TABLE_NAME_MAP_FERC1[table_name]["xbrl"]
     # sometimes there are many raw tables that go into one
