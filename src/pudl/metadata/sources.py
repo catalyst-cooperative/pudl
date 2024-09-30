@@ -844,7 +844,6 @@ SOURCES: dict[str, Any] = {
             "NOAA HRRR weather model. Profiles are stated as a capacity factor (a "
             "fraction of nameplate capacity) and exist for onshore wind, offshore "
             "wind, and fixed-tilt solar generation types."
-            ""
         ),
         "source_file_dict": {
             "sorce_format": "Comma Separated Value (.csv)",
