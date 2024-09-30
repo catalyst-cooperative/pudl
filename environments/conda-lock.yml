@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: 287bc2ebfbbfb1a07de1011d427cf214a76fc1c2eacf59ba5c0fb9b904c0df67
-    osx-64: 7620009b19017e06b29d00ae9275ee59e347d90ca0b54786cb917ea2d818ee63
-    osx-arm64: ddfbf3c51fbb7e59b22035707b0f5dd8e55f5dc12c175a952bc093e69352f403
+    linux-64: f3df417a834e816d4aba3298623aa69d63306ec3c25e7f3919bbc0b8fab352fb
+    osx-64: 4084fac6f801702d5b85c69b78d468f81702f23a5ed866ebf4f995790c9bb244
+    osx-arm64: 1169d0a660b06bb8ce9c71edab08f68a059100ab931579651bf36a25dc7af170
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -6997,8 +6997,8 @@ package:
       python: ">=3.7"
       pyasn1-modules: ">=0.2.1"
       rsa: ">=3.1.4,<5"
-      pyopenssl: ">=20.0.0"
       requests: ">=2.20.0,<3.0.0"
+      pyopenssl: ">=20.0.0"
       pyu2f: ">=0.1.5"
       cachetools: ">=2.0.0,<6.0"
       aiohttp: ">=3.6.2,<4.0.0"
@@ -7017,8 +7017,8 @@ package:
       python: ">=3.7"
       pyasn1-modules: ">=0.2.1"
       rsa: ">=3.1.4,<5"
-      pyopenssl: ">=20.0.0"
       requests: ">=2.20.0,<3.0.0"
+      pyopenssl: ">=20.0.0"
       pyu2f: ">=0.1.5"
       cachetools: ">=2.0.0,<6.0"
       aiohttp: ">=3.6.2,<4.0.0"
@@ -8068,8 +8068,8 @@ package:
     platform: osx-64
     dependencies:
       python: ">=3.6.1"
-      hyperframe: ">=6.0,<7"
       hpack: ">=4.0,<5"
+      hyperframe: ">=6.0,<7"
     url: https://conda.anaconda.org/conda-forge/noarch/h2-4.1.0-pyhd8ed1ab_0.tar.bz2
     hash:
       md5: b748fbf7060927a6e82df7cb5ee8f097
@@ -8082,8 +8082,8 @@ package:
     platform: osx-arm64
     dependencies:
       python: ">=3.6.1"
-      hyperframe: ">=6.0,<7"
       hpack: ">=4.0,<5"
+      hyperframe: ">=6.0,<7"
     url: https://conda.anaconda.org/conda-forge/noarch/h2-4.1.0-pyhd8ed1ab_0.tar.bz2
     hash:
       md5: b748fbf7060927a6e82df7cb5ee8f097
@@ -14894,8 +14894,8 @@ package:
     dependencies:
       python: ">=3.9"
       numpy: ">=1.23"
-      scipy: ">=1.8"
       scikit-learn: ">=1.0"
+      scipy: ">=1.8"
       networkx: ">=2.7"
       pandas: ">=1.4,!=1.5.0"
     url: https://conda.anaconda.org/conda-forge/noarch/mapclassify-2.8.1-pyhd8ed1ab_0.conda
@@ -14911,8 +14911,8 @@ package:
     dependencies:
       python: ">=3.9"
       numpy: ">=1.23"
-      scipy: ">=1.8"
       scikit-learn: ">=1.0"
+      scipy: ">=1.8"
       networkx: ">=2.7"
       pandas: ">=1.4,!=1.5.0"
     url: https://conda.anaconda.org/conda-forge/noarch/mapclassify-2.8.1-pyhd8ed1ab_0.conda
@@ -20119,7 +20119,6 @@ package:
       tk: ">=8.6.13,<8.7.0a0"
       tzdata: ""
       xz: ">=5.2.6,<6.0a0"
-      pip: ""
     url: https://conda.anaconda.org/conda-forge/linux-64/python-3.12.6-hc5c86c4_1_cpython.conda
     hash:
       md5: 00836baacdca254f28c54d2543e97514
@@ -20143,7 +20142,6 @@ package:
       tk: ">=8.6.13,<8.7.0a0"
       tzdata: ""
       xz: ">=5.2.6,<6.0a0"
-      pip: ""
     url: https://conda.anaconda.org/conda-forge/osx-64/python-3.12.6-h8f8b54e_1_cpython.conda
     hash:
       md5: 2627fbdbd524916e069afe9b38c61829
@@ -20167,7 +20165,6 @@ package:
       tk: ">=8.6.13,<8.7.0a0"
       tzdata: ""
       xz: ">=5.2.6,<6.0a0"
-      pip: ""
     url: https://conda.anaconda.org/conda-forge/osx-arm64/python-3.12.6-h739c21a_1_cpython.conda
     hash:
       md5: 5beefd0212cdea661f999f0ec29a2e3a
