@@ -9,6 +9,10 @@ v2024.X.x (2024-XX-XX)
 New Data Coverage
 ^^^^^^^^^^^^^^^^^
 
+EIA 923
+~~~~~~~
+* Added EIA 923 final release data from 2023. See :issue:`3684` and PR :pr:`3871`.
+
 FERC Form 714
 ~~~~~~~~~~~~~
 * Integrate 2021-2023 years of the FERC Form 714 data. FERC updated its reporting
