@@ -1258,13 +1258,7 @@ def test_filter_for_freshest_data_xbrl_simple():
     )
     observed_table = filter_for_freshest_data_xbrl(
         df,
-        primary_keys=[
-            "entity_id",
-            "filing_name",
-            "publication_time",
-            "date",
-            "utility_type_axis",
-        ],
+        ["entity_id", "filing_name", "publication_time", "date", "utility_type_axis"],
     )
 
     assert len(observed_table) == 1
@@ -1299,8 +1293,8 @@ def test_filter_for_freshest_data_xbrl(df):
     # XBRL context is the identifying metadata for reported values
     xbrl_context_cols = ["entity_id", "date", "utility_type"]
     filing_metadata_cols = ["publication_time", "filing_name"]
-    primary_key = xbrl_context_cols + filing_metadata_cols
-    deduped = filter_for_freshest_data_xbrl(df, primary_keys=primary_key)
+    primary_keys = xbrl_context_cols + filing_metadata_cols
+    deduped = filter_for_freshest_data_xbrl(df, primary_keys)
     deduped_schema = example_schema.remove_columns(["publication_time"])
     deduped_schema.validate(deduped)
 

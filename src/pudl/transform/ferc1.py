@@ -6167,10 +6167,8 @@ def ferc1_transform_asset_factory(
         )
         raw_xbrls = {
             tn: filter_for_freshest_data_xbrl(
-                df=df,
-                primary_keys=get_primary_key_raw_xbrl(
-                    tn.removeprefix("raw_ferc1_xbrl__"), "ferc1"
-                ),
+                df,
+                get_primary_key_raw_xbrl(tn.removeprefix("raw_ferc1_xbrl__"), "ferc1"),
             )
             for tn, df in kwargs.items()
             if tn.startswith("raw_ferc1_xbrl__")
