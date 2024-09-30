@@ -16,7 +16,7 @@ Based on the [Existing Data Updates Docs](https://catalystcoop-pudl.readthedocs.
 - [ ] [Update table and column transformations](https://catalystcoop-pudl.readthedocs.io/en/nightly/dev/existing_data_updates.html#update-table-column-transformations)
 - [ ] [Update the PUDL db schema](https://catalystcoop-pudl.readthedocs.io/en/nightly/dev/existing_data_updates.html#update-the-pudl-db-schema)
 - [ ] [Connect datasets](https://catalystcoop-pudl.readthedocs.io/en/nightly/dev/existing_data_updates.html#connect-datasets)
+- [ ] [Update the output routines](https://catalystcoop-pudl.readthedocs.io/en/nightly/dev/existing_data_updates.html#update-the-output-routines-and-run-full-tests)
 - [ ] [Run the ETL](https://catalystcoop-pudl.readthedocs.io/en/nightly/dev/existing_data_updates.html#run-the-etl)
-- [ ] [Update the output routines and run full tests](https://catalystcoop-pudl.readthedocs.io/en/nightly/dev/existing_data_updates.html#update-the-output-routines-and-run-full-tests)
 - [ ] [Run and update data validations](https://catalystcoop-pudl.readthedocs.io/en/nightly/dev/existing_data_updates.html#run-and-update-data-validations)
 - [ ] [Update the documentation](https://catalystcoop-pudl.readthedocs.io/en/nightly/dev/existing_data_updates.html#update-the-documentation)
