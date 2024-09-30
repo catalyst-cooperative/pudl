@@ -835,5 +835,42 @@ SOURCES: dict[str, Any] = {
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
+    "vceregen": {
+        "title": "Vibrant Clean Energy Renewable Generation",
+        "path": "https://vibrantcleanenergy.com/products/datasets/",
+        "description": (
+            "Hourly, county-level renewable generation profiles in the continental "
+            "United States. Compiled by Vibrant Clean Energy based on outputs from the "
+            "NOAA HRRR weather model. Profiles are stated as a capacity factor (a "
+            "fraction of nameplate capacity) and exist for onshore wind, offshore "
+            "wind, and fixed-tilt solar generation types."
+            ""
+        ),
+        "source_file_dict": {
+            "sorce_format": "Comma Separated Value (.csv)",
+        },
+        "keywords": sorted(
+            {
+                "solar",
+                "wind",
+                "time series",
+                "energy",
+                "electricity",
+                "generation",
+                "weather",
+                "capacity factor",
+                "hourly",
+                "united states",
+                "usa",
+                "resource adequacy",
+                "gridpath",
+                "vibrant clean energy",
+                "county",
+            }
+        ),
+        "license_raw": LICENSES["cc-by-4.0"],
+        "license_pudl": LICENSES["cc-by-4.0"],
+        "working_partitions": {"years": sorted(set(range(2019, 2024)))},
+    },
 }
 """Data source attributes by PUDL identifier."""
