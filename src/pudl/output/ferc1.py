@@ -225,7 +225,7 @@ def get_core_ferc1_asset_description(asset_name: str) -> str:
 
 
 def ferc1_output_asset_factory(table_name: str) -> AssetsDefinition:
-    """Create ferc1 assets."""
+    """Define an output asset for the FERC1 table by adding in utility IDs."""
     ins: Mapping[str, AssetIn] = {
         f"core_ferc1__{table_name}": AssetIn(f"core_ferc1__{table_name}"),
         "core_pudl__assn_ferc1_pudl_utilities": AssetIn(
@@ -242,7 +242,10 @@ def ferc1_output_asset_factory(table_name: str) -> AssetsDefinition:
     def _create_output_asset(
         **kwargs: dict[str, pd.DataFrame],
     ) -> pd.DataFrame:
-        """Generate an output dataframe from the corresponding FERC1 core table."""
+        """Generate an output dataframe from the corresponding FERC1 core table.
+
+        Merge in utility IDs from ``core_pudl__assn_ferc1_pudl_utilities``.
+        """
         return_df = kwargs[f"core_ferc1__{table_name}"].merge(
             kwargs["core_pudl__assn_ferc1_pudl_utilities"], on="utility_id_ferc1"
         )
