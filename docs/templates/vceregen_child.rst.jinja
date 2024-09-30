@@ -22,6 +22,17 @@ data reporting.
 {% endblock %}
 
 {% block original_data %}
+The data were distributed as proprietary CSVs until fall 2024 when VPE decided to
+publish the data through PUDL for public consumption.
+
+The contents of the original CSVs are stripped down so that Excel can display the
+data without crashing. There's one file per year per generation type, and each
+file contains an index column for time (simply 0, 1, 2, 3... to
+represent UTC hours in a year--a timeseries column takes up more space) and
+columns for each county populated with capacity factor values from 0-1.
+
+PUDL creates a timeseries column, adds spatial data, and combines these into a
+single table stored as parquet files.
 {% endblock %}
 
 {% block notable_irregularities %}
