@@ -224,6 +224,58 @@ def get_core_ferc1_asset_description(asset_name: str) -> str:
     return asset_description
 
 
+def ferc1_output_asset_factory(table_name: str) -> AssetsDefinition:
+    """Create ferc1 assets."""
+    ins: Mapping[str, AssetIn] = {
+        f"core_ferc1__{table_name}": AssetIn(f"core_ferc1__{table_name}"),
+        "core_pudl__assn_ferc1_pudl_utilities": AssetIn(
+            "core_pudl__assn_ferc1_pudl_utilities"
+        ),
+    }
+
+    @asset(
+        name=f"out_ferc1__{table_name}",
+        io_manager_key="pudl_io_manager",
+        compute_kind="Python",
+        ins=ins,
+    )
+    def _create_output_asset(
+        **kwargs: dict[str, pd.DataFrame],
+    ) -> pd.DataFrame:
+        """Generate an output dataframe from the corresponding FERC1 core table."""
+        return_df = kwargs[f"core_ferc1__{table_name}"].merge(
+            kwargs["core_pudl__assn_ferc1_pudl_utilities"], on="utility_id_ferc1"
+        )
+        return return_df
+
+    return _create_output_asset
+
+
+out_ferc1_assets = [
+    ferc1_output_asset_factory(table)
+    for table in [
+        "yearly_purchased_power_and_exchanges_sched326",
+        "yearly_plant_in_service_sched204",
+        "yearly_balance_sheet_assets_sched110",
+        "yearly_balance_sheet_liabilities_sched110",
+        "yearly_cash_flows_sched120",
+        "yearly_depreciation_summary_sched336",
+        "yearly_energy_dispositions_sched401",
+        "yearly_energy_sources_sched401",
+        "yearly_operating_expenses_sched320",
+        "yearly_operating_revenues_sched300",
+        "yearly_depreciation_changes_sched219",
+        "yearly_depreciation_by_function_sched219",
+        "yearly_sales_by_rate_schedules_sched304",
+        "yearly_income_statements_sched114",
+        "yearly_other_regulatory_liabilities_sched278",
+        "yearly_retained_earnings_sched118",
+        "yearly_transmission_lines_sched422",
+        "yearly_utility_plant_summary_sched200",
+    ]
+]
+
+
 @asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def _out_ferc1__yearly_plants_utilities(
     core_pudl__assn_ferc1_pudl_plants: pd.DataFrame,
@@ -429,417 +481,6 @@ def out_ferc1__yearly_steam_plants_fuel_sched402(
         )
     )
     return fuel_df
-
-
-## example/draft factory pattern
-specs = [
-    {"name": "ferc1__yearly_purchased_power_and_exchanges_sched326"},
-    {"name": "ferc1__yearly_plant_in_service_sched204"},
-    {"name": "ferc1__yearly_balance_sheet_assets_sched110"},
-]
-
-
-# draft asset_factory
-def generate_asset_factory(spec) -> AssetsDefinition:
-    """Create ferc1 assets."""
-    ins: Mapping[str, AssetIn] = {
-        f"core_{spec['name']}": AssetIn(f"core_{spec['name']}"),
-        "core_pudl__assn_ferc1_pudl_utilities": AssetIn(
-            "core_pudl__assn_ferc1_pudl_utilities"
-        ),
-    }
-
-    @asset(
-        name=f"out_{spec['name']}",
-        io_manager_key="pudl_io_manager",
-        compute_kind="Python",
-        ins=ins,
-    )
-    def _asset(
-        **kwargs: dict[str, pd.DataFrame],
-    ) -> pd.DataFrame:
-        """Generate a dataframe for {} asset specification.""".format(spec["name"])
-        return_df = kwargs[f"core_{spec['name']}"].merge(
-            kwargs["core_pudl__assn_ferc1_pudl_utilities"], on="utility_id_ferc1"
-        )
-        return return_df
-
-    return _asset
-
-
-def create_generated_assets() -> list[AssetsDefinition]:
-    """Create a list of generated FERC Form 1 assets.
-
-    Returns:
-        A list of :class:`AssetsDefinitions` where each asset is an generated FERC Form 1
-        table.
-    """
-    return [generate_asset_factory(spec) for spec in specs]
-
-
-generated_ferc1_assets = create_generated_assets()
-
-
-@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
-def out_ferc1__yearly_balance_sheet_liabilities_sched110(
-    core_ferc1__yearly_balance_sheet_liabilities_sched110: pd.DataFrame,
-    core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
-) -> pd.DataFrame:
-    """Pull a useful dataframe of FERC Form 1 balance_sheet liabilities data."""
-    out_ferc1__yearly_balance_sheet_liabilities_sched110 = (
-        core_ferc1__yearly_balance_sheet_liabilities_sched110.merge(
-            core_pudl__assn_ferc1_pudl_utilities, on="utility_id_ferc1"
-        ).pipe(
-            pudl.helpers.organize_cols,
-            [
-                "report_year",
-                "utility_id_ferc1",
-                "utility_id_pudl",
-                "utility_name_ferc1",
-                "record_id",
-                "liability_type",
-            ],
-        )
-    )
-    return out_ferc1__yearly_balance_sheet_liabilities_sched110
-
-
-@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
-def out_ferc1__yearly_cash_flows_sched120(
-    core_ferc1__yearly_cash_flows_sched120: pd.DataFrame,
-    core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
-) -> pd.DataFrame:
-    """Pull a useful dataframe of FERC Form 1 cash flow data."""
-    out_ferc1__yearly_cash_flows_sched120 = (
-        core_ferc1__yearly_cash_flows_sched120.merge(
-            core_pudl__assn_ferc1_pudl_utilities, on="utility_id_ferc1"
-        ).pipe(
-            pudl.helpers.organize_cols,
-            [
-                "report_year",
-                "utility_id_ferc1",
-                "utility_id_pudl",
-                "utility_name_ferc1",
-                "record_id",
-                "amount_type",
-            ],
-        )
-    )
-    return out_ferc1__yearly_cash_flows_sched120
-
-
-@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
-def out_ferc1__yearly_depreciation_summary_sched336(
-    core_ferc1__yearly_depreciation_summary_sched336: pd.DataFrame,
-    core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
-) -> pd.DataFrame:
-    """Pull a useful dataframe of FERC Form 1 depreciation amortization data."""
-    out_ferc1__yearly_depreciation_summary_sched336 = (
-        core_ferc1__yearly_depreciation_summary_sched336.merge(
-            core_pudl__assn_ferc1_pudl_utilities, on="utility_id_ferc1"
-        ).pipe(
-            pudl.helpers.organize_cols,
-            [
-                "report_year",
-                "utility_id_ferc1",
-                "utility_id_pudl",
-                "utility_name_ferc1",
-                "record_id",
-                "plant_function",
-                "ferc_account_label",
-            ],
-        )
-    )
-    return out_ferc1__yearly_depreciation_summary_sched336
-
-
-@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
-def out_ferc1__yearly_energy_dispositions_sched401(
-    core_ferc1__yearly_energy_dispositions_sched401: pd.DataFrame,
-    core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
-) -> pd.DataFrame:
-    """Pull a useful dataframe of FERC Form 1 energy dispositions data."""
-    out_ferc1__yearly_energy_dispositions_sched401 = (
-        core_ferc1__yearly_energy_dispositions_sched401.merge(
-            core_pudl__assn_ferc1_pudl_utilities, on="utility_id_ferc1"
-        ).pipe(
-            pudl.helpers.organize_cols,
-            [
-                "report_year",
-                "utility_id_ferc1",
-                "utility_id_pudl",
-                "utility_name_ferc1",
-                "record_id",
-                "energy_disposition_type",
-            ],
-        )
-    )
-    return out_ferc1__yearly_energy_dispositions_sched401
-
-
-@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
-def out_ferc1__yearly_energy_sources_sched401(
-    core_ferc1__yearly_energy_sources_sched401: pd.DataFrame,
-    core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
-) -> pd.DataFrame:
-    """Pull a useful dataframe of FERC Form 1 Purchased Power data."""
-    out_ferc1__yearly_energy_sources_sched401 = (
-        core_ferc1__yearly_energy_sources_sched401.merge(
-            core_pudl__assn_ferc1_pudl_utilities, on="utility_id_ferc1"
-        ).pipe(
-            pudl.helpers.organize_cols,
-            [
-                "report_year",
-                "utility_id_ferc1",
-                "utility_id_pudl",
-                "utility_name_ferc1",
-                "record_id",
-                "energy_source_type",
-            ],
-        )
-    )
-    return out_ferc1__yearly_energy_sources_sched401
-
-
-@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
-def out_ferc1__yearly_operating_expenses_sched320(
-    core_ferc1__yearly_operating_expenses_sched320: pd.DataFrame,
-    core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
-) -> pd.DataFrame:
-    """Pull a useful dataframe of FERC Form 1 Purchased Power data."""
-    out_ferc1__yearly_operating_expenses_sched320 = (
-        core_ferc1__yearly_operating_expenses_sched320.merge(
-            core_pudl__assn_ferc1_pudl_utilities, on="utility_id_ferc1"
-        ).pipe(
-            pudl.helpers.organize_cols,
-            [
-                "report_year",
-                "utility_id_ferc1",
-                "utility_id_pudl",
-                "utility_name_ferc1",
-                "record_id",
-                "expense_type",
-            ],
-        )
-    )
-    return out_ferc1__yearly_operating_expenses_sched320
-
-
-@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
-def out_ferc1__yearly_operating_revenues_sched300(
-    core_ferc1__yearly_operating_revenues_sched300: pd.DataFrame,
-    core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
-) -> pd.DataFrame:
-    """Pull a useful dataframe of FERC Form 1 Purchased Power data."""
-    out_ferc1__yearly_operating_revenues_sched300 = (
-        core_ferc1__yearly_operating_revenues_sched300.merge(
-            core_pudl__assn_ferc1_pudl_utilities, on="utility_id_ferc1"
-        ).pipe(
-            pudl.helpers.organize_cols,
-            [
-                "report_year",
-                "utility_id_ferc1",
-                "utility_id_pudl",
-                "utility_name_ferc1",
-                "record_id",
-                "revenue_type",
-            ],
-        )
-    )
-    return out_ferc1__yearly_operating_revenues_sched300
-
-
-@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
-def out_ferc1__yearly_depreciation_changes_sched219(
-    core_ferc1__yearly_depreciation_changes_sched219: pd.DataFrame,
-    core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
-) -> pd.DataFrame:
-    """Pull a useful dataframe of FERC Form 1 Purchased Power data."""
-    out_ferc1__yearly_depreciation_changes_sched219 = (
-        core_ferc1__yearly_depreciation_changes_sched219.merge(
-            core_pudl__assn_ferc1_pudl_utilities, on="utility_id_ferc1"
-        ).pipe(
-            pudl.helpers.organize_cols,
-            [
-                "report_year",
-                "utility_id_ferc1",
-                "utility_id_pudl",
-                "utility_name_ferc1",
-                "record_id",
-                "depreciation_type",
-                "plant_status",
-                "utility_type",
-            ],
-        )
-    )
-    return out_ferc1__yearly_depreciation_changes_sched219
-
-
-@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
-def out_ferc1__yearly_depreciation_by_function_sched219(
-    core_ferc1__yearly_depreciation_by_function_sched219: pd.DataFrame,
-    core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
-) -> pd.DataFrame:
-    """Pull a useful dataframe of FERC Form 1 Purchased Power data."""
-    out_ferc1__yearly_depreciation_by_function_sched219 = (
-        core_ferc1__yearly_depreciation_by_function_sched219.merge(
-            core_pudl__assn_ferc1_pudl_utilities, on="utility_id_ferc1"
-        ).pipe(
-            pudl.helpers.organize_cols,
-            [
-                "report_year",
-                "utility_id_ferc1",
-                "utility_id_pudl",
-                "utility_name_ferc1",
-                "record_id",
-                "plant_function",
-                "plant_status",
-                "utility_type",
-            ],
-        )
-    )
-    return out_ferc1__yearly_depreciation_by_function_sched219
-
-
-@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
-def out_ferc1__yearly_sales_by_rate_schedules_sched304(
-    core_ferc1__yearly_sales_by_rate_schedules_sched304: pd.DataFrame,
-    core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
-) -> pd.DataFrame:
-    """Pull a useful dataframe of FERC Form 1 Purchased Power data."""
-    out_ferc1__yearly_sales_by_rate_schedules_sched304 = (
-        core_ferc1__yearly_sales_by_rate_schedules_sched304.merge(
-            core_pudl__assn_ferc1_pudl_utilities, on="utility_id_ferc1"
-        ).pipe(
-            pudl.helpers.organize_cols,
-            [
-                "report_year",
-                "utility_id_ferc1",
-                "utility_id_pudl",
-                "utility_name_ferc1",
-                "record_id",
-            ],
-        )
-    )
-    return out_ferc1__yearly_sales_by_rate_schedules_sched304
-
-
-@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
-def out_ferc1__yearly_income_statements_sched114(
-    core_ferc1__yearly_income_statements_sched114: pd.DataFrame,
-    core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
-) -> pd.DataFrame:
-    """Pull a useful dataframe of FERC Form 1 Purchased Power data."""
-    out_ferc1__yearly_income_statements_sched114 = (
-        core_ferc1__yearly_income_statements_sched114.merge(
-            core_pudl__assn_ferc1_pudl_utilities, on="utility_id_ferc1"
-        ).pipe(
-            pudl.helpers.organize_cols,
-            [
-                "report_year",
-                "utility_id_ferc1",
-                "utility_id_pudl",
-                "utility_name_ferc1",
-                "record_id",
-                "utility_type",
-                "income_type",
-            ],
-        )
-    )
-    return out_ferc1__yearly_income_statements_sched114
-
-
-@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
-def out_ferc1__yearly_other_regulatory_liabilities_sched278(
-    core_ferc1__yearly_other_regulatory_liabilities_sched278: pd.DataFrame,
-    core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
-) -> pd.DataFrame:
-    """Pull a useful dataframe of FERC Form 1 Purchased Power data."""
-    out_ferc1__yearly_other_regulatory_liabilities_sched278 = (
-        core_ferc1__yearly_other_regulatory_liabilities_sched278.merge(
-            core_pudl__assn_ferc1_pudl_utilities, on="utility_id_ferc1"
-        ).pipe(
-            pudl.helpers.organize_cols,
-            [
-                "report_year",
-                "utility_id_ferc1",
-                "utility_id_pudl",
-                "utility_name_ferc1",
-            ],
-        )
-    )
-    return out_ferc1__yearly_other_regulatory_liabilities_sched278
-
-
-@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
-def out_ferc1__yearly_retained_earnings_sched118(
-    core_ferc1__yearly_retained_earnings_sched118: pd.DataFrame,
-    core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
-) -> pd.DataFrame:
-    """Pull a useful dataframe of FERC Form 1 Purchased Power data."""
-    out_ferc1__yearly_retained_earnings_sched118 = (
-        core_ferc1__yearly_retained_earnings_sched118.merge(
-            core_pudl__assn_ferc1_pudl_utilities, on="utility_id_ferc1"
-        ).pipe(
-            pudl.helpers.organize_cols,
-            [
-                "report_year",
-                "utility_id_ferc1",
-                "utility_id_pudl",
-                "utility_name_ferc1",
-                "record_id",
-                "earnings_type",
-            ],
-        )
-    )
-    return out_ferc1__yearly_retained_earnings_sched118
-
-
-@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
-def out_ferc1__yearly_transmission_lines_sched422(
-    core_ferc1__yearly_transmission_lines_sched422: pd.DataFrame,
-    core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
-) -> pd.DataFrame:
-    """Pull a useful dataframe of FERC Form 1 Purchased Power data."""
-    out_ferc1__yearly_transmission_lines_sched422 = (
-        core_ferc1__yearly_transmission_lines_sched422.merge(
-            core_pudl__assn_ferc1_pudl_utilities, on="utility_id_ferc1"
-        ).pipe(
-            pudl.helpers.organize_cols,
-            [
-                "report_year",
-                "utility_id_ferc1",
-                "utility_id_pudl",
-                "utility_name_ferc1",
-            ],
-        )
-    )
-    return out_ferc1__yearly_transmission_lines_sched422
-
-
-@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
-def out_ferc1__yearly_utility_plant_summary_sched200(
-    core_ferc1__yearly_utility_plant_summary_sched200: pd.DataFrame,
-    core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
-) -> pd.DataFrame:
-    """Pull a useful dataframe of FERC Form 1 Purchased Power data."""
-    out_ferc1__yearly_utility_plant_summary_sched200 = (
-        core_ferc1__yearly_utility_plant_summary_sched200.merge(
-            core_pudl__assn_ferc1_pudl_utilities, on="utility_id_ferc1"
-        ).pipe(
-            pudl.helpers.organize_cols,
-            [
-                "report_year",
-                "utility_id_ferc1",
-                "utility_id_pudl",
-                "utility_name_ferc1",
-                "record_id",
-                "utility_type",
-                "utility_plant_asset_type",
-            ],
-        )
-    )
-    return out_ferc1__yearly_utility_plant_summary_sched200
 
 
 @asset(io_manager_key="pudl_io_manager", compute_kind="Python")
