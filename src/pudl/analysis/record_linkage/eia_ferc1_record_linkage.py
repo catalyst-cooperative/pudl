@@ -20,6 +20,7 @@ We train the parameters of the ``splink`` model using manually labeled training 
 that links together several thousand EIA and FERC plant records. This trained model is
 used to predict matches on the full dataset (see :func:`get_model_predictions`) using a
 threshold match probability to predict if records are a match or not.
+
 The model can return multiple EIA match options for each FERC1 record, so we rank the
 matches and choose the one with the highest score. Any matches identified by the model
 which are in conflict with our training data are overwritten with the manually
@@ -36,7 +37,7 @@ import mlflow
 import numpy as np
 import pandas as pd
 from dagster import Out, graph, op
-from splink.duckdb.linker import DuckDBLinker
+from splink import DuckDBAPI, Linker, SettingsCreator
 
 import pudl
 from pudl.analysis.ml_tools import experiment_tracking, models
@@ -211,29 +212,30 @@ def get_training_data_df(inputs):
 @op
 def get_model_predictions(eia_df, ferc_df, train_df, experiment_tracker):
     """Train splink model and output predicted matches."""
-    settings_dict = {
-        "link_type": "link_only",
-        "unique_id_column_name": "record_id",
-        "additional_columns_to_retain": ["plant_id_pudl", "utility_id_pudl"],
-        "comparisons": COMPARISONS,
-        "blocking_rules_to_generate_predictions": BLOCKING_RULES,
-        "retain_matching_columns": True,
-        "retain_intermediate_calculation_columns": True,
-        "probability_two_random_records_match": 1 / len(eia_df),
-    }
-    linker = DuckDBLinker(
-        [eia_df, ferc_df],
-        input_table_aliases=["eia_df", "ferc_df"],
-        settings_dict=settings_dict,
+    settings = SettingsCreator(
+        link_type="link_only",
+        unique_id_column_name="record_id",
+        additional_columns_to_retain=["plant_id_pudl", "utility_id_pudl"],
+        comparisons=COMPARISONS,
+        blocking_rules_to_generate_predictions=BLOCKING_RULES,
+        retain_matching_columns=True,
+        retain_intermediate_calculation_columns=True,
+        probability_two_random_records_match=(1.0 / len(eia_df)),
     )
-    linker.register_table(train_df, "training_labels", overwrite=True)
-    linker.estimate_u_using_random_sampling(max_pairs=1e7)
-    linker.estimate_m_from_pairwise_labels("training_labels")
+    linker = Linker(
+        [eia_df, ferc_df],
+        settings=settings,
+        input_table_aliases=["eia_df", "ferc_df"],
+        db_api=DuckDBAPI(),
+    )
+    linker.table_management.register_table(train_df, "training_labels", overwrite=True)
+    linker.training.estimate_u_using_random_sampling(max_pairs=1e7)
+    linker.training.estimate_m_from_pairwise_labels("training_labels")
     threshold_prob = 0.9
     experiment_tracker.execute_logging(
         lambda: mlflow.log_params({"threshold match probability": threshold_prob})
     )
-    preds_df = linker.predict(threshold_match_probability=threshold_prob)
+    preds_df = linker.inference.predict(threshold_match_probability=threshold_prob)
     return preds_df.as_pandas_dataframe()
 
 
@@ -716,7 +718,7 @@ def add_null_overrides(connects_ferc1_eia):
     have to add in these null matches after the fact.
 
     This function reads in a list of record_id_ferc1 values that are known to have no
-    cooresponding EIA record match and makes sure they are mapped as NA in the final
+    corresponding EIA record match and makes sure they are mapped as NA in the final
     record linkage output. It also updates the match_type field to indicate that this
     value has been overriden.
     """

@@ -60,7 +60,6 @@ class Extractor(excel.ExcelExtractor):
                 f"column with {partition['year']}"
             )
             df.loc[mask, "report_year"] = partition["year"]
-        df = self.add_data_maturity(df, page, **partition)
         return df
 
     @staticmethod

@@ -17,8 +17,11 @@ from pudl.settings import (
     Eia923Settings,
     EiaSettings,
     EpaCemsSettings,
+    EtlSettings,
     Ferc1DbfToSqliteSettings,
     Ferc1Settings,
+    Ferc1XbrlToSqliteSettings,
+    FercToSqliteSettings,
     GenericDatasetSettings,
     _convert_settings_to_dagster_config,
 )
@@ -267,6 +270,23 @@ class TestDatasetsSettings:
         assert dct["eia"].keys() == expected_dct["eia"].keys()
         assert isinstance(dct["eia"]["eia860"]["years"], Field)
         assert isinstance(dct["eia"]["eia923"]["years"], Field)
+
+
+class TestEtlSettings:
+    """Test pydantic model that validates all the full ETL Settings."""
+
+    @staticmethod
+    def test_validate_xbrl_years():
+        """Test validation error is raised when FERC XBRL->SQLite years don't overlap with PUDL years."""
+        with pytest.raises(ValidationError):
+            _ = EtlSettings(
+                datasets=DatasetsSettings(ferc1=Ferc1Settings(years=[2021])),
+                ferc_to_sqlite_settings=FercToSqliteSettings(
+                    ferc1_xbrl_to_sqlite_settings=Ferc1XbrlToSqliteSettings(
+                        years=[2023]
+                    )
+                ),
+            )
 
 
 class TestGlobalConfig:

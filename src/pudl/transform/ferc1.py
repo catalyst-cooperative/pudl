@@ -1669,6 +1669,30 @@ class Ferc1TableTransformParams(TableTransformParams):
         return list(dims)
 
 
+def select_current_year_annual_records_duration_xbrl(df: pd.DataFrame, table_name: str):
+    """Select for annual records within their report_year.
+
+    Select only records that have a start_date at beginning of the report_year and
+    have an end_date at the end of the report_year.
+    """
+    len_og = len(df)
+    df = df.astype({"start_date": "datetime64[s]", "end_date": "datetime64[s]"})
+    df = df[
+        (df.start_date.dt.year == df.report_year)
+        & (df.start_date.dt.month == 1)
+        & (df.start_date.dt.day == 1)
+        & (df.end_date.dt.year == df.report_year)
+        & (df.end_date.dt.month == 12)
+        & (df.end_date.dt.day == 31)
+    ]
+    len_out = len(df)
+    logger.info(
+        f"{table_name}: After selection of dates based on the report year,"
+        f" we have {len_out/len_og:.1%} of the original table."
+    )
+    return df
+
+
 ################################################################################
 # FERC 1 transform helper functions. Probably to be integrated into a class
 # below as methods or moved to a different module once it's clear where they belong.
@@ -2714,7 +2738,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         information from header and note rows. Outer merging messes up the order, so we
         need to use a one-sided merge. So far, it seems like the duration df contains
         all the index values in the instant df. To be sure, there's a check that makes
-        sure there are no unique intant df index values. If that passes, we merge the
+        sure there are no unique instant df index values. If that passes, we merge the
         instant table into the duration table, and the row order is preserved.
 
         Note: This should always be applied before :meth:``rename_columns``
@@ -2731,8 +2755,13 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         """
         drop_cols = ["filing_name", "index"]
         # Ignore errors in case not all drop_cols are present.
-        instant = raw_xbrl_instant.drop(columns=drop_cols, errors="ignore")
-        duration = raw_xbrl_duration.drop(columns=drop_cols, errors="ignore")
+        # Do any table-specific preprocessing of the instant and duration tables
+        instant = raw_xbrl_instant.drop(columns=drop_cols, errors="ignore").pipe(
+            self.process_instant_xbrl
+        )
+        duration = raw_xbrl_duration.drop(columns=drop_cols, errors="ignore").pipe(
+            self.process_duration_xbrl
+        )
 
         instant_axes = [
             col for col in raw_xbrl_instant.columns if col.endswith("_axis")
@@ -2750,10 +2779,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 f"    instant: {instant_axes}\n"
                 f"    duration: {duration_axes}"
             )
-
-        # Do any table-specific preprocessing of the instant and duration tables
-        instant = self.process_instant_xbrl(instant)
-        duration = self.process_duration_xbrl(duration)
 
         if instant.empty:
             logger.info(f"{self.table_id.value}: No XBRL instant table found.")
@@ -2838,31 +2863,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         """
         if not df.empty:
             df = self.rename_columns(df, rename_stage="duration_xbrl").pipe(
-                self.select_current_year_annual_records_duration_xbrl
+                select_current_year_annual_records_duration_xbrl, self.table_id.name
             )
-        return df
-
-    def select_current_year_annual_records_duration_xbrl(self, df):
-        """Select for annual records within their report_year.
-
-        Select only records that have a start_date at begining of the report_year and
-        have an end_date at the end of the report_year.
-        """
-        len_og = len(df)
-        df = df.astype({"start_date": "datetime64[s]", "end_date": "datetime64[s]"})
-        df = df[
-            (df.start_date.dt.year == df.report_year)
-            & (df.start_date.dt.month == 1)
-            & (df.start_date.dt.day == 1)
-            & (df.end_date.dt.year == df.report_year)
-            & (df.end_date.dt.month == 12)
-            & (df.end_date.dt.day == 31)
-        ]
-        len_out = len(df)
-        logger.info(
-            f"{self.table_id.value}: After selection of dates based on the report year,"
-            f" we have {len_out/len_og:.1%} of the original table."
-        )
         return df
 
     @cache_df(key="dbf")
@@ -4465,7 +4467,7 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
         (Header and note rows are removed later).
 
         NOTE: Note rows that don't have a footnote indicator or note rows with a
-        footnote indicator that don't have a cooresponding plant row with the same
+        footnote indicator that don't have a corresponding plant row with the same
         indicator are not captured. They will ultimately get removed and their content
         will not be preserved.
 
@@ -4657,7 +4659,7 @@ class UtilityPlantSummaryTableTransformer(Ferc1AbstractTableTransformer):
     ) -> pd.DataFrame:
         """Do the default metadata processing plus add a new factoid.
 
-        The new factoid cooresponds to the aggregated factoid in
+        The new factoid corresponds to the aggregated factoid in
         :meth:`aggregated_xbrl_factoids`.
         """
         tbl_meta = super().convert_xbrl_metadata_json_to_df(xbrl_metadata_json)
@@ -5907,7 +5909,7 @@ class CashFlowsTableTransformer(Ferc1AbstractTableTransformer):
         """Pre-processing required to make the instant and duration tables compatible.
 
         This table has a rename that needs to take place in an unusual spot -- after the
-        starting / ending balances have been usntacked, but before the instant &
+        starting / ending balances have been unstacked, but before the instant &
         duration tables are merged. This method just reversed the order in which these
         operations happen, comapared to the inherited method.
         """
@@ -6045,10 +6047,10 @@ class SalesByRateSchedulesTableTransformer(Ferc1AbstractTableTransformer):
     ) -> pd.DataFrame:
         """Rename columns before running wide_to_tidy."""
         logger.info(f"{self.table_id.value}: Processing XBRL data pre-concatenation.")
+        instant_xbrl = self.process_instant_xbrl(raw_xbrl_instant)
+        duration_xbrl = self.process_duration_xbrl(raw_xbrl_duration)
         return (
-            self.merge_instant_and_duration_tables_xbrl(
-                raw_xbrl_instant, raw_xbrl_duration
-            )
+            self.merge_instant_and_duration_tables_xbrl(instant_xbrl, duration_xbrl)
             .pipe(self.rename_columns, rename_stage="xbrl")
             .pipe(self.combine_axis_columns_xbrl)
             .pipe(self.add_axis_to_total_table_rows)
@@ -6106,7 +6108,7 @@ def ferc1_transform_asset_factory(
 
     Args:
         table_name: The name of the table to create an asset for.
-        tfr_class: A transformer class cooresponding to the table_name.
+        tfr_class: A transformer class corresponding to the table_name.
         io_manager_key: the dagster io_manager key to use. None defaults
             to the fs_io_manager.
         convert_dtypes: convert dtypes of transformed dataframes.
@@ -6263,7 +6265,11 @@ def _core_ferc1__table_dimensions(**kwargs) -> pd.DataFrame:
         .drop_duplicates()
         .reset_index(drop=True)
     )
-    return dimensions
+    # Since we've converted the XBRL factoid columns into categoricals in the
+    # transformation of the core tables, we should ensure that the XBRL factoid
+    # column is a string as expected, rather than an object. We do this manually,
+    # as this table doesn't have a defined schema.
+    return dimensions.convert_dtypes()
 
 
 @asset(

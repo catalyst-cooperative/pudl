@@ -8,7 +8,7 @@ published by regional grid operators like MISO, PJM, ERCOT, and SPP.
 They are adapted from code published and modified by:
 
 * Tyler Ruggles <truggles@carnegiescience.edu>
-* Greg Schivley <greg@carbonimpact.co>
+* Greg Schivley <greg.schivley@princeton.edu>
 
 And described at:
 
@@ -61,11 +61,11 @@ def slice_axis(
     Examples:
         >>> x = np.random.random((3, 4, 5))
         >>> np.all(x[1:] == x[slice_axis(x, start=1, axis=0)])
-        True
+        np.True_
         >>> np.all(x[:, 1:] == x[slice_axis(x, start=1, axis=1)])
-        True
+        np.True_
         >>> np.all(x[:, :, 1:] == x[slice_axis(x, start=1, axis=2)])
-        True
+        np.True_
     """
     index = [slice(None)] * np.mod(axis, x.ndim) + [slice(start, end, step)]
     return tuple(index)
@@ -89,11 +89,11 @@ def array_diff(
     Examples:
         >>> x = np.random.random((4, 2))
         >>> np.all(array_diff(x, 1)[1:] == pd.DataFrame(x).diff(1).to_numpy()[1:])
-        True
+        np.True_
         >>> np.all(array_diff(x, 2)[2:] == pd.DataFrame(x).diff(2).to_numpy()[2:])
-        True
+        np.True_
         >>> np.all(array_diff(x, -1)[:-1] == pd.DataFrame(x).diff(-1).to_numpy()[:-1])
-        True
+        np.True_
     """
     if not periods:
         return x - x
@@ -203,7 +203,7 @@ def insert_run_length(  # noqa: C901
         ...     mask=~is_nan
         ... )
         >>> np.isnan(xi).sum() == 2 * is_nan.sum()
-        True
+        np.True_
 
         The same as above, with non-zero `padding`, yields a unique solution:
 
@@ -533,17 +533,7 @@ def impute_latc_tubal(  # noqa: C901
 
 
 class Timeseries:
-    """Multivariate timeseries for anomalies detection and imputation.
-
-    Attributes:
-        xi: Reference to the original values (can be null).
-            Many methods assume that these represent chronological, regular timeseries.
-        x: Copy of :attr:`xi` with any flagged values replaced with null.
-        flags: Flag label for each value, or null if not flagged.
-        flagged: Running list of flags that have been checked so far.
-        index: Row index.
-        columns: Column names.
-    """
+    """Multivariate timeseries for anomaly detection and imputation."""
 
     def __init__(self, x: np.ndarray | pd.DataFrame) -> None:
         """Initialize a multivariate timeseries.
@@ -556,8 +546,17 @@ class Timeseries:
                 `pandas.RangeIndex`.
         """
         self.xi: np.ndarray
+        """Reference to the original values (can be null).
+
+        Many methods assume that these represent chronological, regular timeseries.
+        """
+
         self.index: pd.Index
+        """Row index."""
+
         self.columns: pd.Index
+        """Column names."""
+
         if isinstance(x, pd.DataFrame):
             self.xi = x.to_numpy()
             self.index = x.index
@@ -566,9 +565,15 @@ class Timeseries:
             self.xi = x
             self.index = pd.RangeIndex(x.shape[0])
             self.columns = pd.RangeIndex(x.shape[1])
+
         self.x: np.ndarray = self.xi.copy()
+        """Copy of :attr:`xi` with any flagged values replaced with null."""
+
         self.flags: np.ndarray = np.empty(self.x.shape, dtype=object)
+        """Flag label for each value, or null if not flagged."""
+
         self.flagged: list[str] = []
+        """Running list of flags that have been checked so far."""
 
     def to_dataframe(self, array: np.ndarray = None, copy: bool = True) -> pd.DataFrame:
         """Return multivariate timeseries as a :class:`pandas.DataFrame`.
@@ -1201,7 +1206,7 @@ class Timeseries:
             array([[1, 2, 3],
                    [4, 5, 6]])
             >>> np.all(x == s.unfold_tensor(tensor))
-            True
+            np.True_
         """
         tensor_shape = self.x.shape[1], self.x.shape[0] // periods, periods
         x = self.x if x is None else x

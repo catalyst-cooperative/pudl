@@ -3,8 +3,52 @@ PUDL Release Notes
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-v2024.X.X (2024-XX-XX)
+v2024.X.x (2024-XX-XX)
 ---------------------------------------------------------------------------------------
+
+New Data Coverage
+^^^^^^^^^^^^^^^^^
+
+FERC Form 714
+~~~~~~~~~~~~~
+* Integrate 2021-2023 years of the FERC Form 714 data. FERC updated its reporting
+  format for 2021 from a CSV files to XBRL files. This update integrates the two
+  raw data sources and extends the data coverage through 2023. See :issue:`3809`
+  and :pr:`3842`.
+
+Schema Changes
+^^^^^^^^^^^^^^
+* Added :ref:`out_eia__yearly_assn_plant_parts_plant_gen` table. This table associates
+  records from the :ref:`out_eia__yearly_plant_parts` with ``plant_gen`` records from
+  that same plant parts table. See issue :issue:`3773` and PR :pr:`3774`.
+
+Bug Fixes
+^^^^^^^^^
+* Include more retiring generators in the net generation and fuel consumption
+  allocation. Thanks to :user:`grgmiller` for this contirbution :pr:`3690`.
+
+Major Dependency Updates
+^^^^^^^^^^^^^^^^^^^^^^^^
+* Update to use `Numpy v2.0 <https://numpy.org/doc/stable/release/2.0.0-notes.html>`__
+  and `Splink v4.0 <https://moj-analytical-services.github.io/splink/blog/2024/07/24/splink-400-released.html>`__.
+  See issues :issue:`3736,3735` and PRs :pr:`3547,3834`.
+
+.. _release-v2024.8.0:
+
+---------------------------------------------------------------------------------------
+v2024.8.0 (2024-08-19)
+---------------------------------------------------------------------------------------
+
+This is our regular quarterly release for 2024Q3. It includes quarterly updates to all
+datasets that are updated with quarterly or higher frequency by their publishers,
+including EIA-860M, EIA-923 (YTD data), EIA-930, the EIA's bulk electricity API data
+(used to fill in missing fuel prices), and the EPA CEMS hourly emissions data.
+
+Annual datasets which have been published since our last quarterly release have also
+been integrated. These include FERC Forms 1, 2, 6, 60, and 714, and the NREL ATB.
+
+This release also includes provisional versions of the annual 2023 EIA-860 and EIA-923
+datasets, whose final release will not happen until the fall.
 
 New Data Coverage
 ^^^^^^^^^^^^^^^^^
@@ -19,7 +63,7 @@ FERC Form 1
   details, as well as issue :issue:`3544` and PR :pr:`3710`.
 
 FERC Forms 2, 6, 60, & 714
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 * Updated the ``ferc_to_sqlite`` settings to extract 2023 XBRL data for FERC Forms 2, 6
   60, and 714 and add them to their respective SQLite databases. Note that this data
   is not yet being processed beyond the conversion from XBRL to SQLite. See PR
@@ -40,16 +84,36 @@ EIA 860
   proposed energy storage generators as well as adding a number of new columns
   regarding energy storage and solar generators. See issue :issue:`3676` and PR
   :pr:`3681`.
+* Added EIA 860m data through June 2024. See issue :issue:`3759` and PR :pr:`3767`.
 
 EIA 923
 ~~~~~~~
 * Added EIA 923 early release data from 2023. See :issue:`3719` and PR :pr:`3721`.
+* Added EIA 923 monthly data through May as part of the Q2 quarterly release. See
+  :issue:`3760` and :pr:`3768`.
+
+EIA 930
+~~~~~~~
+* Added EIA 930 hourly data through the end of July as part of the Q2 quarterly release.
+  See :issue:`3761` and :pr:`3789`.
+
+EPA CEMS
+~~~~~~~~
+* Added 2024 Q2 of CEMS data. See :issue:`3762` and :pr:`3769`.
+
+EIA Bulk Electricity Data
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated the EIA Bulk Electricity data archive to include data that was available as of
+  2024-08-01, which covers up through 2024-05-01 (3 months more than the previously
+  used archive). See :issue:`3763` and PR :pr:`3785`.
 
 FERC 714
 ~~~~~~~~
 * Added :ref:`core_ferc714__yearly_planning_area_demand_forecast` based on FERC
   Form 714, Part III, Schedule 2b. Data includes forecasted demand and net energy load.
   See issue :issue:`3519` and PR :pr:`3670`.
+* WIP: Adding XBRL(2021+) data for FERC 714 tables. Track progress in :issue:`3822`.
 
 NREL ATB
 ~~~~~~~~
@@ -58,6 +122,8 @@ NREL ATB
   all technologies, and more detailed nuclear breakdowns of ``fuel_cost_per_mwh``.
   Simultaneously, updated the :mod:`docs.dev.existing_data_updates` documentation to
   make it easier to add future years of data. See :issue:`3706` and :pr:`3719`.
+* Updated NREL ATB data to include `error corrections in the 2024 data <https://atb.nrel.gov/electricity/2024/errata>`__.
+  See :issue:`3777` and PR :pr:`3778`.
 
 Data Cleaning
 ^^^^^^^^^^^^^
@@ -78,7 +144,7 @@ Bug Fixes
   about 2% more records in the table being left ``NA`` after filling with the average
   prices for that fuel type for the state and month found in the bulk EIA API data.
 
-Qualtiy of Life Improvements
+Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 * The full ETL settings are now read directly from ``etl_full.yml`` instead of using
   default values defined in the settings classes.  This also results in the settings

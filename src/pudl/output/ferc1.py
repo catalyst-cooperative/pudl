@@ -1890,7 +1890,7 @@ class Exploder:
         between the reported value and calculable value from the standard set of
         subcomponents (via :func:`pudl.transform.ferc1.calculate_values_from_components`)
         and finding the child factiods that have the same value as the absolute difference.
-        This indicates that the calculable parent factiod is off by that cooresponding
+        This indicates that the calculable parent factiod is off by that corresponding
         child fact.
 
         Relatedly, :meth:`add_sizable_minority_corrections_to_calcs` adds these

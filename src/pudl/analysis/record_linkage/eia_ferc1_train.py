@@ -455,7 +455,7 @@ def validate_override_fixes(
         AssertionError: If there are EIA override ids that are duplicated throughout the
             override document.
         AssertionError: If the utility id in the EIA override id doesn't match the pudl
-            id cooresponding with the FERC record.
+            id corresponding with the FERC record.
         AssertionError: If there are EIA override id records that don't correspond to
             the correct report year.
         AssertionError: If you didn't expect to override overrides but the new training

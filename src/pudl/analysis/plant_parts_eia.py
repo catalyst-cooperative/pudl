@@ -21,7 +21,7 @@ the plant part they own and one for the plant part as a whole. The portion recor
 labeled in the ``ownership_record_type`` column as "owned" and the total records are
 labeled as "total".
 
-This module refers to "true granularies". Many plant parts we cobble together here in
+This module refers to "true granularities". Many plant parts we cobble together here in
 the master plant-part list refer to the same collection of infrastructure as other
 plant-part list records. For example, if we have a "plant_prime_mover" plant part record
 and a "plant_unit" plant part record which were both cobbled together from the same two
@@ -37,7 +37,7 @@ comes first as the unique granularity.
 :py:const:`PLANT_PARTS` is the main recipe book for how each of the plant-parts need to
 be compiled. These plant-parts represent ways to group generators based on widely
 reported values in EIA. All of these are logical ways to group collections of generators
-- in most cases - but some groupings of generators are more prevelant or relevant than
+- in most cases - but some groupings of generators are more prevalent or relevant than
 others for certain types of plants.
 
 The canonical example here is the ``plant_unit``. A unit is a collection of generators
@@ -139,7 +139,7 @@ The two main classes which enable the generation of the plant-part table are:
   of the plant parts. Then we have plant part dataframes with the columns which
   identify the plant part and all of the data columns aggregated to the level of
   the plant part. With that compiled plant part dataframe we also add in qualifier
-  columns with :class:`AddConsistentAttributes`. A qualifer column is a column which
+  columns with :class:`AddConsistentAttributes`. A qualifier column is a column which
   contain data that is not endemic to the plant part record (it is not one of
   the identifying columns or aggregated data columns) but the data is still
   useful data that is attributable to each of the plant part records. For more
@@ -185,7 +185,7 @@ from typing import Literal
 
 import numpy as np
 import pandas as pd
-from dagster import asset
+from dagster import AssetCheckResult, AssetIn, asset, asset_check
 
 import pudl
 from pudl.metadata.classes import Resource
@@ -218,7 +218,7 @@ PLANT_PARTS: OrderedDict[str, dict[str, list]] = OrderedDict(
         "plant_technology": {
             "id_cols": ["plant_id_eia", "technology_description"],
         },
-        "plant_prime_fuel": {  # 'plant_primary_fuel': {
+        "plant_prime_fuel": {
             "id_cols": ["plant_id_eia", "energy_source_code_1"],
         },
         "plant_ferc_acct": {
@@ -336,34 +336,6 @@ FIRST_COLS = [
     "appro_part_label",
 ]
 
-PPE_COLS = [
-    "record_id_eia",
-    "plant_name_ppe",
-    "plant_part",
-    "report_year",
-    "report_date",
-    "ownership_record_type",
-    "plant_name_eia",
-    "plant_id_eia",
-    "generator_id",
-    "unit_id_pudl",
-    "prime_mover_code",
-    "energy_source_code_1",
-    "technology_description",
-    "ferc_acct_name",
-    "generator_operating_year",
-    "utility_id_eia",
-    "utility_id_pudl",
-    "true_gran",
-    "appro_part_label",
-    "appro_record_id_eia",
-    "record_count",
-    "fraction_owned",
-    "ownership_dupe",
-    "operational_status",
-    "operational_status_pudl",
-]
-
 
 @asset(
     io_manager_key="pudl_io_manager",
@@ -460,7 +432,7 @@ class MakeMegaGenTbl:
     generators that have more than one owner, there are two "total" records
     with 100% of the capacity of that generator - one for each owner - and
     two "owned" records with the capacity scaled to the ownership stake
-    of each of the owner utilites - represented by ``fraction_owned``.
+    of each of the owner utilities - represented by ``fraction_owned``.
     """
 
     def __init__(self):
@@ -614,7 +586,7 @@ class MakePlantParts:
         """Initialize instance of :class:`MakePlantParts`."""
         self.parts_to_ids = make_parts_to_ids_dict()
 
-        # get a list of all of the id columns that constitue the primary keys
+        # get a list of all of the id columns that constitute the primary keys
         # for all of the plant parts
         self.id_cols_list = make_id_cols_list()
 
@@ -702,23 +674,16 @@ class MakePlantParts:
         plant_parts_eia_filt = plant_parts_eia.loc[
             plant_parts_eia.record_id_eia.isin(one_to_many.record_id_eia)
         ]
-
         if plant_parts_eia_filt.empty:  # If 1:m matches not in plant_part subset
-            PLANT_PARTS.pop("plant_match_ferc1")  # Remove from rest of workflow
-            return plant_parts_eia
-
+            return plant_parts_eia.assign(ferc1_generator_agg_id=pd.NA)
         # Get the 'm' generator IDs 1:m
         one_to_many_single = match_to_single_plant_part(
             multi_gran_df=plant_parts_eia_filt,
-            ppl=plant_parts_eia,
+            ppe=plant_parts_eia,
             part_name="plant_gen",
             cols_to_keep=["plant_part"],
-        )[["record_id_eia_og", "record_id_eia", "plant_part_og"]].rename(
-            columns={
-                "record_id_eia": "gen_id",
-                "record_id_eia_og": "record_id_eia",
-                "plant_part_og": "plant_part",
-            }
+        )[["record_id_eia", "record_id_eia_plant_gen", "plant_part"]].rename(
+            columns={"record_id_eia_plant_gen": "gen_id"}
         )
 
         # If any 'duplicate records' actually match to the same generator, these aren't 1:m matches. Drop them and any corresponding non-matches.
@@ -766,7 +731,7 @@ class MakePlantParts:
         return pd.concat([plant_parts_eia, part_df])
 
     def add_additional_cols(self, plant_parts_eia, plants_eia860, utils_eia860):
-        """Add additonal data and id columns.
+        """Add additional data and id columns.
 
         This method adds a set of either calculated columns or PUDL ID columns.
 
@@ -936,7 +901,7 @@ class PlantPart:
         sum_cols=SUM_COLS,
         wtavg_dict=WTAVG_DICT,
     ) -> pd.DataFrame:
-        """Aggregate the plant part by seperating ownership types.
+        """Aggregate the plant part by separating ownership types.
 
         There are total records and owned records in this master unit list.
         Those records need to be aggregated differently to scale. The "total"
@@ -958,7 +923,7 @@ class PlantPart:
         part_tot = gens_mega.loc[gens_mega.ownership_record_type == "total"].copy()
         if len(gens_mega) != len(part_own) + len(part_tot):
             raise AssertionError(
-                "Error occured in breaking apart ownership types."
+                "Error occurred in breaking apart ownership types."
                 "The total and owned slices should equal the total records."
                 "Check for nulls in the ownership_record_type column."
             )
@@ -974,8 +939,8 @@ class PlantPart:
         # the utility info (and drop duplicates bc a plant-part with many
         # generators will have multiple duplicate records for each owner)
         # we are going to generate the aggregated output for a utility-less
-        # "total" record and then merge back in the many utilites so each of
-        # the utilities is associated with an aggergated "total" plant-part
+        # "total" record and then merge back in the many utilities so each of
+        # the utilities is associated with an aggregated "total" plant-part
         # record
         part_tot_no_utils = part_tot.drop(columns=["utility_id_eia"]).drop_duplicates()
         # still need to re-calc the fraction owned for the part
@@ -1021,7 +986,7 @@ class PlantPart:
         # we must first get the total capacity of the full plant
         # Note: we could simply not include the ownership_record_type == "total" records
         # We are automatically assign fraction_owned == 1 to them, but it seems
-        # cleaner to run the full df through this same grouby
+        # cleaner to run the full df through this same groupby
         frac_owned = part_ag.groupby(
             by=self.id_cols + IDX_TO_ADD + ["ownership_record_type"], observed=True
         )[["capacity_mw"]].sum(min_count=1)
@@ -1097,7 +1062,7 @@ class TrueGranLabeler:
     The coordinating function here is :meth``execute``.
     """
 
-    def execute(self, ppl):
+    def execute(self, ppe):
         """Merge the true granularity labels onto the plant part df.
 
         This method will add the columns ``true_gran``, ``appro_part_label``, and
@@ -1111,20 +1076,16 @@ class TrueGranLabeler:
         is then merged on to get the plant part table with true granularity labels.
 
         Arguments:
-            ppl: (pd.DataFrame) The plant parts list
+            ppe: (pd.DataFrame) The plant parts list
         """
         parts_to_gens = match_to_single_plant_part(
-            multi_gran_df=ppl,
-            ppl=ppl,
+            multi_gran_df=ppe,
+            ppe=ppe,
             part_name="plant_gen",
             cols_to_keep=["plant_part"],
             one_to_many=True,
-        )[["record_id_eia_og", "record_id_eia", "plant_part_og"]].rename(
-            columns={
-                "record_id_eia": "gen_id",
-                "record_id_eia_og": "record_id_eia",
-                "plant_part_og": "plant_part",
-            },
+        )[["record_id_eia", "record_id_eia_plant_gen", "plant_part"]].rename(
+            columns={"record_id_eia_plant_gen": "gen_id"},
         )
         # concatenate the gen id's to get the combo of gens for each record
         combos = (
@@ -1168,11 +1129,11 @@ class TrueGranLabeler:
             true_grans, on="gens_combo", how="left", validate="m:1"
         ).drop(["plant_part", "gens_combo", "gen_id"], axis=1)
 
-        ppl_true_gran = ppl.merge(
+        ppe_true_gran = ppe.merge(
             record_id_true_gran, how="left", on="record_id_eia", validate="1:1"
         )
 
-        return ppl_true_gran
+        return ppe_true_gran
 
 
 class AddAttribute:
@@ -1187,7 +1148,7 @@ class AddAttribute:
         """Initialize a attribute adder.
 
         Args:
-            attribute_col (string): name of qualifer record that you want added.
+            attribute_col (string): name of qualifier record that you want added.
                 Must be in :py:const:`CONSISTENT_ATTRIBUTE_COLS` or a key in
                 :py:const:`PRIORITY_ATTRIBUTES_DICT`
                 or :py:const:`MAX_MIN_ATTRIBUTES_DICT`.
@@ -1200,10 +1161,7 @@ class AddAttribute:
         self.attribute_col = attribute_col
         # the base columns will be the id columns, plus the other two main ids
         self.part_name = part_name
-        if self.part_name == "plant_match_ferc1":
-            self.id_cols = ["plant_id_eia", "ferc1_generator_agg_id"]
-        else:
-            self.id_cols = PLANT_PARTS[part_name]["id_cols"]
+        self.id_cols = PLANT_PARTS[part_name]["id_cols"]
         self.base_cols = self.id_cols + IDX_TO_ADD
         self.assign_col_dict = assign_col_dict
 
@@ -1236,12 +1194,12 @@ class AddConsistentAttributes(AddAttribute):
         Identifier and qualifier columns are the same columns; whether a column
         is an identifier or a qualifier is a function of the plant part you're
         considering. All the other columns which could be identifiers in the
-        context of other plant parrts (but aren't for this plant part) are
+        context of other plant parts (but aren't for this plant part) are
         qualifiers.
 
         This method takes a part_df and goes and checks whether or not the data
         we are trying to grab from the record_name column is consistent across
-        every component genertor from each record.
+        every component generator from each record.
 
         Args:
             part_df (pandas.DataFrame): dataframe containing records associated
@@ -1267,7 +1225,7 @@ class AddConsistentAttributes(AddAttribute):
     def get_consistent_qualifiers(self, record_df):
         """Get fully consistent qualifier records.
 
-        When data is a qualifer column is identical for every record in a
+        When data is a qualifier column is identical for every record in a
         plant part, we associate this data point with the record. If the data
         points for the related generator records are not identical, then
         nothing is associated with the record.
@@ -1278,14 +1236,14 @@ class AddConsistentAttributes(AddAttribute):
             record_name (string) : name of qualitative record
         """
         # TODO: determine if we can move this up the chain so we can do this
-        # once per plant-part, not once per plant-part * qualifer record
+        # once per plant-part, not once per plant-part * qualifier record
         attribute_col = self.attribute_col
         base_cols = self.base_cols
         entity_count_df = pudl.helpers.count_records(
-            record_df, base_cols, "entity_occurences"
+            record_df, base_cols, "entity_occurrences"
         ).pipe(pudl.helpers.convert_cols_dtypes, "eia")
         record_count_df = pudl.helpers.count_records(
-            record_df, base_cols + [attribute_col], "record_occurences"
+            record_df, base_cols + [attribute_col], "record_occurrences"
         ).pipe(pudl.helpers.convert_cols_dtypes, "eia")
         re_count = (
             record_df[base_cols + [attribute_col]]
@@ -1294,8 +1252,8 @@ class AddConsistentAttributes(AddAttribute):
         )
         # find all of the matching records..
         consistent_records = (
-            re_count[re_count["entity_occurences"] == re_count["record_occurences"]]
-            .drop(columns=["entity_occurences", "record_occurences"])
+            re_count[re_count["entity_occurrences"] == re_count["record_occurrences"]]
+            .drop(columns=["entity_occurrences", "record_occurrences"])
             .drop_duplicates()
         )
         return consistent_records
@@ -1415,7 +1373,7 @@ def make_parts_to_ids_dict():
     plant_id_eia column is always first, so we're going to grab the last column.
 
     Returns:
-        dictionary: plant-part names (keys) cooresponding to the main ID column
+        dictionary: plant-part names (keys) corresponding to the main ID column
         (value).
     """
     parts_to_ids = {}
@@ -1476,7 +1434,7 @@ def add_record_id(part_df, id_cols, plant_part_col="plant_part", year=True):
 
 def match_to_single_plant_part(
     multi_gran_df: pd.DataFrame,
-    ppl: pd.DataFrame,
+    ppe: pd.DataFrame,
     part_name: PLANT_PARTS_LITERAL = "plant_gen",
     cols_to_keep: list[str] = [],
     one_to_many: bool = False,
@@ -1507,12 +1465,12 @@ def match_to_single_plant_part(
             some records could be of ``plant`` plant-part type while others are
             ``plant_gen`` or ``plant_prime_mover``).  All of the plant-part list columns
             need to be present in this table.
-        ppl: the EIA plant-part list.
+        ppe: the EIA plant-part list.
         part_name: name of the single plant part to match to. Must be a key in
             PLANT_PARTS dictionary.
         cols_to_keep: columns from the original data ``multi_gran_df`` that you want to
             show up in the output. These should not be columns that show up in the
-            ``ppl``.
+            ``ppe``.
         one_to_many: boolean (False by default). If True, add `plant_match_ferc1` into
             plant parts list.
 
@@ -1524,9 +1482,9 @@ def match_to_single_plant_part(
         up/down.
     """
     # select only the plant-part records that we are trying to scale to
-    ppl_part_df = ppl[ppl.plant_part == part_name]
+    ppe_part_df = ppe[ppe.plant_part == part_name]
     # convert the date to year start - this is necessary because the
-    # depreciation data is often reported as EOY and the ppl is always SOY
+    # depreciation data is often reported as EOY and the ppe is always SOY
     multi_gran_df.loc[:, "report_date"] = pd.to_datetime(
         multi_gran_df.report_date.dt.year, format="%Y"
     )
@@ -1544,7 +1502,7 @@ def match_to_single_plant_part(
                     pk_cols + ["record_id_eia"] + cols_to_keep
                 ]
             ),
-            ppl_part_df,
+            ppe_part_df,
             on=pk_cols,
             how="left",
             # this unfortunately needs to be a m:m bc sometimes the df
@@ -1553,7 +1511,7 @@ def match_to_single_plant_part(
             # in aggregate_duplicate_eia. For instance, the depreciation
             # data has both PUC and FERC studies.
             validate="m:m",
-            suffixes=("_og", ""),
+            suffixes=("", f"_{part_name}"),
         )
         # there should be no records without a matching generator
         assert ~(part_df.record_id_eia.isnull().to_numpy().any())
@@ -1620,3 +1578,57 @@ def reassign_id_ownership_dupes(plant_parts_eia: pd.DataFrame) -> pd.DataFrame:
     if og_index:
         plant_parts_eia = plant_parts_eia.set_index("record_id_eia")
     return plant_parts_eia
+
+
+@asset(
+    io_manager_key="pudl_io_manager",
+    compute_kind="Python",
+)
+def out_eia__yearly_assn_plant_parts_plant_gen(
+    out_eia__yearly_plant_parts: pd.DataFrame,
+) -> pd.DataFrame:
+    """Build association table between EIA plant parts and EIA generators.
+
+    In order to easily determine what generator records are associated with every
+    plant part record, we made this association table. This table associates every plant part
+    record (identified as ``record_id_eia``) to the possibly many 'plant_gen' records
+    (identified as ``record_id_eia_plant_gen``).
+    """
+    # luckily we already had a function that did the core of the work here to associate
+    # a ppe record with all of the associated records of a particular granularity (part_name).
+    ppe_assn = match_to_single_plant_part(
+        multi_gran_df=out_eia__yearly_plant_parts,
+        ppe=out_eia__yearly_plant_parts,
+        part_name="plant_gen",
+        one_to_many=True,
+        cols_to_keep=[],
+    )
+    # the output of match_to_single_plant_part had the record_id_eia of the
+    # multi_gran_df, but no other columns because we set cols_to_keep=[], so
+    # every other column in here is associated with the `plant_gen`. We are
+    # giving everything a plant_gen suffix so its clear everything in those
+    # columns are about the generator ppe record.
+    ppe_assn = (
+        ppe_assn.set_index(
+            ["record_id_eia", "record_id_eia_plant_gen", "plant_id_eia", "report_date"]
+            + IDX_OWN_TO_ADD
+        )
+        .add_suffix("_plant_gen")
+        .reset_index()
+        .assign(
+            generators_number=lambda x: x.groupby(["record_id_eia"])[
+                "record_id_eia_plant_gen"
+            ].transform("count")
+        )
+    )
+    return ppe_assn
+
+
+@asset_check(
+    asset="out_eia__yearly_assn_plant_parts_plant_gen",
+    additional_ins={"ppe": AssetIn("out_eia__yearly_plant_parts")},
+)
+def ensure_all_ppe_ids_are_in_assn(ppe_assn, ppe):
+    """Check to see if every ID in the EIA plant parts shows up in the assn table."""
+    assert set(ppe.record_id_eia) == set(ppe_assn.record_id_eia)
+    return AssetCheckResult(passed=True)
