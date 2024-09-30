@@ -836,7 +836,7 @@ SOURCES: dict[str, Any] = {
         "license_pudl": LICENSES["cc-by-4.0"],
     },
     "vceregen": {
-        "title": "Vibrant Clean Energy Renewable Generation",
+        "title": "Vibrant Clean Energy Renewable Generation Profiles",
         "path": "https://vibrantcleanenergy.com/products/datasets/",
         "description": (
             "Hourly, county-level renewable generation profiles in the continental "
