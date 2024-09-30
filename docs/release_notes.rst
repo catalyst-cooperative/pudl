@@ -9,9 +9,9 @@ v2024.X.x (2024-XX-XX)
 New Data Coverage
 ^^^^^^^^^^^^^^^^^
 
-EIA 923
+EIA 860
 ~~~~~~~
-* Added EIA 923 final release data from 2023. See :issue:`3684` and PR :pr:`3871`.
+* Added EIA 860 final release data from 2023. See :issue:`3684` and PR :pr:`3871`.
 
 FERC Form 714
 ~~~~~~~~~~~~~
