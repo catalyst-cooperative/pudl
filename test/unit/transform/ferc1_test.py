@@ -1,10 +1,13 @@
 """Unit tests specific to the FERC Form 1 table transformations."""
 
+import datetime
 import itertools
 from io import StringIO
 
+import hypothesis
 import numpy as np
 import pandas as pd
+import pandera
 import pytest
 
 import pudl.logging_helpers
@@ -28,6 +31,7 @@ from pudl.transform.ferc1 import (
     calculate_values_from_components,
     drop_duplicate_rows_dbf,
     fill_dbf_to_xbrl_map,
+    filter_for_freshest_data_xbrl,
     infer_intra_factoid_totals,
     make_xbrl_factoid_dimensions_explicit,
     read_dbf_to_xbrl_map,
@@ -1229,3 +1233,87 @@ table_1,factoid_1,electric,total,total,table_1,factoid_1,electric,future,general
         )
     )
     assert unexpected_total_components(no_extra_components, dimensions).empty
+
+
+def test_filter_for_freshest_data_xbrl_simple():
+    df = pd.DataFrame.from_records(
+        [
+            {
+                "entity_id": "C000001",
+                "utility_type_axis": "electric",
+                "filing_name": "Utility_Co_0001",
+                "date": datetime.date(2021, 12, 31),
+                "publication_time": datetime.datetime(2022, 2, 1, 0, 0, 0),
+                "str_factoid": "original 2021 EOY value",
+            },
+            {
+                "entity_id": "C000001",
+                "utility_type_axis": "electric",
+                "filing_name": "Utility_Co_0002",
+                "date": datetime.date(2021, 12, 31),
+                "publication_time": datetime.datetime(2022, 2, 1, 1, 1, 1),
+                "str_factoid": "updated 2021 EOY value",
+            },
+        ]
+    )
+    observed_table = filter_for_freshest_data_xbrl(
+        df,
+        ["entity_id", "filing_name", "publication_time", "date", "utility_type_axis"],
+    )
+
+    assert len(observed_table) == 1
+    assert observed_table.str_factoid.to_numpy().item() == "updated 2021 EOY value"
+
+
+example_schema = pandera.DataFrameSchema(
+    {
+        "entity_id": pandera.Column(
+            str, pandera.Check.isin("C0123456789"), nullable=False
+        ),
+        "date": pandera.Column("datetime64[ns]", nullable=False),
+        "utility_type": pandera.Column(
+            str,
+            pandera.Check.isin(["electric", "gas", "total", "other"]),
+            nullable=False,
+        ),
+        "publication_time": pandera.Column("datetime64[ns]", nullable=False),
+        "int_factoid": pandera.Column(int),
+        "float_factoid": pandera.Column(float),
+        "str_factoid": pandera.Column(str),
+    }
+)
+
+
+# ridiculous deadline - dataframe generation is always slow and sometimes
+# *very* slow
+@pytest.mark.slow
+@hypothesis.settings(print_blob=True, deadline=2_000)
+@hypothesis.given(example_schema.strategy(size=3))
+def test_filter_for_freshest_data_xbrl(df):
+    # XBRL context is the identifying metadata for reported values
+    xbrl_context_cols = ["entity_id", "date", "utility_type"]
+    filing_metadata_cols = ["publication_time", "filing_name"]
+    primary_keys = xbrl_context_cols + filing_metadata_cols
+    deduped = filter_for_freshest_data_xbrl(df, primary_keys)
+    deduped_schema = example_schema.remove_columns(["publication_time"])
+    deduped_schema.validate(deduped)
+
+    # every post-deduplication row exists in the original rows
+    assert (deduped.merge(df, how="left", indicator=True)._merge != "left_only").all()
+    # for every [entity_id, utility_type, date] - there is only one row
+    assert (~deduped.duplicated(subset=xbrl_context_cols)).all()
+    # for every *context* in the input there is a corresponding row in the output
+    original_contexts = df.groupby(xbrl_context_cols, as_index=False).last()
+    paired_by_context = original_contexts.merge(
+        deduped,
+        on=xbrl_context_cols,
+        how="outer",
+        suffixes=["_in", "_out"],
+        indicator=True,
+    ).set_index(xbrl_context_cols)
+    hypothesis.note(
+        f"Found these contexts ({xbrl_context_cols}) in input data:\n{original_contexts[xbrl_context_cols]}"
+    )
+    hypothesis.note(f"The freshest data:\n{deduped}")
+    hypothesis.note(f"Paired by context:\n{paired_by_context}")
+    assert (paired_by_context._merge == "both").all()
