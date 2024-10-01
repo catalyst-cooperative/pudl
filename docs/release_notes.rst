@@ -9,6 +9,10 @@ v2024.X.x (2024-XX-XX)
 New Data Coverage
 ^^^^^^^^^^^^^^^^^
 
+EIA 860
+~~~~~~~
+* Added EIA 860 final release data from 2023. See :issue:`3684` and PR :pr:`3871`.
+
 FERC Form 714
 ~~~~~~~~~~~~~
 * Integrate 2021-2023 years of the FERC Form 714 data. FERC updated its reporting
@@ -32,6 +36,12 @@ Major Dependency Updates
 * Update to use `Numpy v2.0 <https://numpy.org/doc/stable/release/2.0.0-notes.html>`__
   and `Splink v4.0 <https://moj-analytical-services.github.io/splink/blog/2024/07/24/splink-400-released.html>`__.
   See issues :issue:`3736,3735` and PRs :pr:`3547,3834`.
+
+Quality of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+* We now use an asset factory to generate Dagster assets for near-identical FERC1 output
+  tables. See :issue:`3147` and :pr:`3883`. Thanks to :user:`hfireborn` and
+  :user:`denimalpaca` for their work on this one!
 
 .. _release-v2024.8.0:
 
