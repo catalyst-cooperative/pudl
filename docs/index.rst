@@ -221,11 +221,11 @@ Organizations using PUDL
    :end-before: .. _pudl_orgs_end:
 
 
-
 .. toctree::
   :hidden:
   :maxdepth: 2
 
+  About PUDL <self>
   data_access
   data_sources/index
   data_dictionaries/index

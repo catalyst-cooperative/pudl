@@ -781,10 +781,11 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
         )
         never_duped = original.loc[~dupe_mask]
         apply_diffs = __apply_diffs(duped_groups)
-        best_snapshot = __best_snapshot(duped_groups)
-        __compare_dedupe_methodologies(
-            apply_diffs=apply_diffs, best_snapshot=best_snapshot
-        )
+        # TODO: MAKE THIS FASTER AND TURN IT BACK ON!!!
+        # best_snapshot = __best_snapshot(duped_groups)
+        # __compare_dedupe_methodologies(
+        #     apply_diffs=apply_diffs, best_snapshot=best_snapshot
+        # )
 
         deduped = pd.concat([never_duped, apply_diffs], ignore_index=True)
         return deduped
@@ -805,7 +806,7 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
         is_instant = "date" in df.columns
 
         def get_year(df: pd.DataFrame, col: str) -> pd.Series:
-            datetimes = pd.to_datetime(df.loc[:, col])
+            datetimes = pd.to_datetime(df.loc[:, col], format="%Y-%m-%d", exact=False)
             if datetimes.isna().any():
                 raise ValueError(f"{col} has null values!")
             return datetimes.apply(lambda x: x.year)
