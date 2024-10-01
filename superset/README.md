@@ -117,3 +117,35 @@ superset fab export-roles --path roles/roles.json
 ```
 
 I've noticed the importing can sometimes take a few minutes.
+
+## How to programmatically create PUDL table dashboards
+
+We've designed a dashboard template for filtering and downloading PUDL tables. The `./automation/create_table_dashboards.py` script
+programmatically creates one of these dashboards and all the charts it depends on.
+
+To use this script you'll first need to assign the `superset-bot` credentials to env vars:
+
+```
+export SUPERSET_USERNAME=superset-bot
+export SUPERSET_PASSWORD={grab password from Google Secrets}
+```
+
+Then, to create a dashboard, run:
+
+```
+python ./automation/create_table_dashboards.py [TABLE_NAMES]...
+```
+
+### Limitations / Open questions
+
+Generally the script is good enough for managing a few dashboards while we do user testing.
+It needs a lot of work if we want to use it in production:
+
+- There is no "create all the tables option". We could import this information from our metadata
+- This script creates the dataset, chart and dashboard from scratch so you'll have to delete everything if you want to update a dashboard.
+- It's still unclear how we'll want to programmatically update these charts. I think the best way to do it is to have a canonical
+  template chart that we edit in the UI, use the API to grab the configuration of the dashboard, recreate the `table_download_position.json` jinja template
+  and recreate all the dashboard elements.
+- The dashboard template does not add table descriptions to the Data Dictionary tab of the dashboard and it does not add filters
+- The script does not automatically publish the dashboard
+- For some reason, when the "Public" role has any permissions, the API authenticate as an anonymous user and throws an [error](https://github.com/apache/superset/discussions/18284) when sending POST requests.
