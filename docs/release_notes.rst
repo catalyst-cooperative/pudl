@@ -37,6 +37,12 @@ Major Dependency Updates
   and `Splink v4.0 <https://moj-analytical-services.github.io/splink/blog/2024/07/24/splink-400-released.html>`__.
   See issues :issue:`3736,3735` and PRs :pr:`3547,3834`.
 
+Quality of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+* We now use an asset factory to generate Dagster assets for near-identical FERC1 output
+  tables. See :issue:`3147` and :pr:`3883`. Thanks to :user:`hfireborn` and
+  :user:`denimalpaca` for their work on this one!
+
 .. _release-v2024.8.0:
 
 ---------------------------------------------------------------------------------------
