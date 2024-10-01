@@ -119,6 +119,11 @@ def _fill_fuel_costs_by_state(
         out_df["fuel_cost_per_mmbtu"].isnull()
         & out_df["bulk_agg_fuel_cost_per_mmbtu"].notnull()
     )
+    out_df.loc[  # add an indicator column to show if a value has been imputed
+        out_df["fuel_cost_source"].isnull()
+        & out_df["bulk_agg_fuel_cost_per_mmbtu"].notnull(),
+        "fuel_cost_source",
+    ] = "eiaapi"
     out_df.loc[:, "fuel_cost_per_mmbtu"] = out_df.loc[:, "fuel_cost_per_mmbtu"].fillna(
         out_df["bulk_agg_fuel_cost_per_mmbtu"]
     )
@@ -306,6 +311,7 @@ def out_eia923__fuel_receipts_costs(
         .merge(plant_states, how="left", on="plant_id_eia")
         .drop(columns=["mine_id_pudl"])
     )
+    frc_df.loc[frc_df.fuel_cost_per_mmbtu.notnull(), "fuel_cost_source"] = "original"
     if context.op_config["fill"]:
         logger.info("filling in fuel cost NaNs")
         frc_df = _fill_fuel_costs_by_state(
@@ -314,7 +320,7 @@ def out_eia923__fuel_receipts_costs(
     # add the flag column to note that we didn't fill in with API data
     else:
         frc_df = frc_df.assign(fuel_cost_from_eiaapi=False)
-    # this next step smoothes fuel_cost_per_mmbtu as a rolling monthly average.
+    # this next step smooths fuel_cost_per_mmbtu as a rolling monthly average.
     # for each month where there is any data make weighted averages of each
     # plant/fuel/month.
     if context.op_config["roll"]:
