@@ -360,3 +360,5 @@ datasets:
     technology_types: ["wind", "solar"]
     processing_levels: ["extended"]
     daily_weather: true
+  vceregen:
+    years: [2019, 2020, 2021, 2022, 2023]

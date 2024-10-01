@@ -97,3 +97,5 @@ datasets:
     technology_types: ["wind"]
     processing_levels: ["extended"]
     daily_weather: true
+  vceregen:
+    years: [2023]
