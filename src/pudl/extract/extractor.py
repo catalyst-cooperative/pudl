@@ -291,7 +291,7 @@ class GenericExtractor(ABC):
             )
             return all_page_dfs
         logger.info(f"Extracting {self._dataset_name} spreadsheet data.")
-        logger.warn(self._metadata.get_all_pages())
+
         for page in self._metadata.get_all_pages():
             if page in self.BLACKLISTED_PAGES:
                 logger.debug(f"Skipping blacklisted page {page}.")
@@ -299,13 +299,13 @@ class GenericExtractor(ABC):
             current_page_dfs = [
                 pd.DataFrame(),
             ]
-            logger.warn(f"Extracting {page}")
+
             for partition in pudl.helpers.iterate_multivalue_dict(**partitions):
                 # we are going to skip
                 if self.source_filename(page, **partition) == "-1":
                     logger.debug(f"No page for {self._dataset_name} {page} {partition}")
                     continue
-                logger.warning(
+                logger.debug(
                     f"Loading dataframe for {self._dataset_name} {page} {partition}"
                 )
                 df = self.load_source(page, **partition)
