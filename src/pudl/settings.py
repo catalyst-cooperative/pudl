@@ -411,6 +411,7 @@ class VCERegenSettings(GenericDatasetSettings):
 
     data_source: ClassVar[DataSource] = DataSource.from_id("vceregen")
     years: list[int] = data_source.working_partitions["years"]
+    fips: bool = True
 
 
 class GlueSettings(FrozenBaseModel):

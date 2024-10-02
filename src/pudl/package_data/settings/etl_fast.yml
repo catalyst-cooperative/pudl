@@ -99,3 +99,4 @@ datasets:
     daily_weather: true
   vceregen:
     years: [2023]
+    fips: True

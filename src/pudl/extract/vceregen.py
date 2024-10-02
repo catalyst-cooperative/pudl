@@ -166,7 +166,18 @@ def raw_vceregen_asset_factory(part: str) -> AssetsDefinition:
 
 raw_vceregen_assets = [raw_vceregen_asset_factory(part) for part in VCEREGEN_PAGES]
 
-# TODO: Figure out how to handle partition for this file!
-# @asset
-# def raw_vcegen__lat_lon_fips(ds: Datastore):
-#     return pd.read_csv(BytesIO(ds.get_unique_resource("vceregen", part=part)))
+
+@asset(required_resource_keys={"datastore", "dataset_settings"})
+def raw_vcegen__lat_lon_fips(context) -> pd.DataFrame:
+    """Extract lat/lon to FIPS and county mapping CSV.
+
+    This dataframe is static, so it has a distinct partition from the other datasets and
+    its extraction is controlled by a boolean in the ETL run.
+    """
+    ds = context.resources.datastore
+    partition_settings = context.resources.dataset_settings.vceregen
+    if partition_settings.fips:
+        return pd.read_csv(
+            BytesIO(ds.get_unique_resource("vceregen", fips=partition_settings.fips))
+        )
+    return pd.DataFrame()  # TODO: What makes sense here?
