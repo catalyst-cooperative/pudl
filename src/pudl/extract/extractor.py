@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 from collections import defaultdict
 from typing import Any
 
+import dask.dataframe as dd
 import pandas as pd
 from dagster import (
     AssetsDefinition,
@@ -13,6 +14,7 @@ from dagster import (
     DynamicOutput,
     In,
     OpDefinition,
+    Out,
     TypeCheckContext,
     graph_asset,
     op,
@@ -22,8 +24,62 @@ import pudl
 
 StrInt = str | int
 PartitionSelection = list[StrInt] | tuple[StrInt] | StrInt
+DataframeType = pd.DataFrame | dd.DataFrame
 
 logger = pudl.logging_helpers.get_logger(__name__)
+
+# Define some custom dagster data types
+# 2024-03-27: Dagster can't automatically convert union types within
+# parametrized types; we have to write our own custom DagsterType for now.
+
+
+def _is_dict_str_strint(_context: TypeCheckContext, x: Any) -> bool:
+    if not isinstance(x, dict):
+        return False
+    for key, value in x.items():
+        if not isinstance(key, str):
+            return False
+        if not isinstance(value, str | int):
+            return False
+    return True
+
+
+dagster_dict_str_strint = DagsterType(
+    name="dict[str, str | int]", type_check_fn=_is_dict_str_strint
+)
+
+
+def _is_dict_str_dataframe(_context: TypeCheckContext, x: Any) -> bool:
+    if not isinstance(x, dict):
+        return False
+    for key, value in x.items():
+        if not isinstance(key, str):
+            return False
+        if not isinstance(value, DataframeType):
+            return False
+    return True
+
+
+dataframe_dagster_type = DagsterType(
+    name="DataFrame Type Check", type_check_fn=_is_dict_str_dataframe
+)
+
+
+def _is_list_dict_str_dataframe(_context: TypeCheckContext, x: Any) -> bool:
+    if not isinstance(x, list):
+        return False
+    for item in x:
+        for key, value in item.items():
+            if not isinstance(key, str):
+                return False
+            if not isinstance(value, DataframeType):
+                return False
+    return True
+
+
+list_dataframe_dagster_type = DagsterType(
+    name="List DataFrame Type Check", type_check_fn=_is_list_dict_str_dataframe
+)
 
 
 class GenericMetadata:
@@ -197,7 +253,7 @@ class GenericExtractor(ABC):
                     f"\n{missing_raw_cols}"
                 )
 
-    def process_final_page(self, df: pd.DataFrame, page: str) -> pd.DataFrame:
+    def process_final_page(self, df: DataframeType, page: str) -> DataframeType:
         """Final processing stage applied to a page DataFrame."""
         return df
 
@@ -214,7 +270,7 @@ class GenericExtractor(ABC):
 
         return self.process_final_page(df, page)
 
-    def extract(self, **partitions: PartitionSelection) -> dict[str, pd.DataFrame]:
+    def extract(self, **partitions: PartitionSelection) -> dict[str, DataframeType]:
         """Extracts dataframes.
 
         Returns dict where keys are page names and values are
@@ -263,8 +319,12 @@ class GenericExtractor(ABC):
         return all_page_dfs
 
 
-@op(tags={"memory-use": "high"})
-def concat_pages(paged_dfs: list[dict[str, pd.DataFrame]]) -> dict[str, pd.DataFrame]:
+@op(
+    tags={"memory-use": "high"},
+    ins={"paged_dfs": In(dagster_type=list[dataframe_dagster_type])},
+    out=Out(dagster_type=dataframe_dagster_type),
+)
+def concat_pages(paged_dfs: list[dict[str, DataframeType]]) -> dict[str, DataframeType]:
     """Concatenate similar pages of data from different years into single dataframes.
 
     Transform a list of dictionaries of dataframes into a single dictionary of
@@ -285,37 +345,31 @@ def concat_pages(paged_dfs: list[dict[str, pd.DataFrame]]) -> dict[str, pd.DataF
         A dictionary of DataFrames keyed by page name, where the DataFrame contains that
         page's data from all extracted years concatenated together.
     """
+    # Figure out what's in each dataframe.
+    dtypes = [type(item) for dictionary in paged_dfs for item in dictionary.values()]
+
     # Transform the list of dictionaries of dataframes into a dictionary of lists of
     # dataframes, in which all dataframes in each list represent different instances of
     # the same page of data from different years
+
     all_data = defaultdict(list)
     for dfs in paged_dfs:
         for page in dfs:
             all_data[page].append(dfs[page])
 
     # concatenate the dataframes in each list in the dictionary into a single dataframe
-    for page in all_data:
-        all_data[page] = pd.concat(all_data[page]).reset_index(drop=True)
+    if all(x == pd.DataFrame for x in dtypes):  # If all dfs are pandas dfs
+        logger.warn("Concatenating pandas dataframes.")
+        for page in all_data:
+            all_data[page] = pd.concat(all_data[page]).reset_index(drop=True)
+    elif all(x == dd.DataFrame for x in dtypes):  # If all dfs are dask dfs
+        logger.warn("Concatenating pandas dataframes.")
+        for page in all_data:
+            all_data[page] = dd.concat(all_data[page])
+    else:
+        raise AssertionError(f"Concatenation not supported for dtypes: {dtypes}")
 
     return all_data
-
-
-def _is_dict_str_strint(_context: TypeCheckContext, x: Any) -> bool:
-    if not isinstance(x, dict):
-        return False
-    for key, value in x.items():
-        if not isinstance(key, str):
-            return False
-        if not isinstance(value, str | int):
-            return False
-    return True
-
-
-# 2024-03-27: Dagster can't automatically convert union types within
-# parametrized types; we have to write our own custom DagsterType for now.
-dagster_dict_str_strint = DagsterType(
-    name="dict[str, str | int]", type_check_fn=_is_dict_str_strint
-)
 
 
 def partition_extractor_factory(
@@ -332,10 +386,11 @@ def partition_extractor_factory(
         required_resource_keys={"datastore"},
         name=f"extract_single_{name}_partition",
         ins={"part_dict": In(dagster_type=dagster_dict_str_strint)},
+        out=Out(dagster_type=dataframe_dagster_type),
     )
     def extract_single_partition(
         context, part_dict: dict[str, str | int]
-    ) -> dict[str, pd.DataFrame]:
+    ) -> dict[str, DataframeType]:
         """A function that extracts a year of spreadsheet data from an Excel file.
 
         This function will be decorated with a Dagster op and returned.

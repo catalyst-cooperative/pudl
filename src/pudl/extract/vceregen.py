@@ -4,16 +4,20 @@ This dataset has 1,000s of columns, so we don't want to manually specify a renam
 import because we'll pivot these to a column. We adapt the standard extraction
 infrastructure to simply read in the data.
 
-Each zip folder contains a folder with three files:
+Each annual zip folder contains a folder with three files:
 Wind_Power_140m_Offshore_county.csv
 Wind_Power_100m_Onshore_county.csv
 Fixed_SolarPV_Lat_UPV_county.csv
 
-The drive also contains one more file: RA_county_lat_long_FIPS_table.csv.
+The drive also contains one more file: RA_county_lat_long_FIPS_table.csv. This file is
+not partitioned, so we always read it in regardless of the partitions configured for the
+run.
 """
 
-import dask
-from dagster import Output, asset
+from io import BytesIO
+
+import pandas as pd
+from dagster import AssetsDefinition, Output, asset
 from dask import dataframe as dd
 
 from pudl import logging_helpers
@@ -21,6 +25,12 @@ from pudl.extract.csv import CsvExtractor
 from pudl.extract.extractor import GenericMetadata, PartitionSelection, raw_df_factory
 
 logger = logging_helpers.get_logger(__name__)
+
+VCEREGEN_PAGES = [
+    "offshore_wind_power_140m",
+    "onshore_wind_power_100m",
+    "fixed_solar_pv_lat_upv",
+]
 
 
 class VCEMetadata(GenericMetadata):
@@ -37,11 +47,7 @@ class VCEMetadata(GenericMetadata):
 
     def get_all_pages(self) -> list[str]:
         """Hard code the page names, which usually are pulled from column rename spreadsheets."""
-        return [
-            "offshore_wind_power_140m",
-            "onshore_wind_power_100m",
-            "fixed_solar_pv_lat_upv",
-        ]
+        return VCEREGEN_PAGES
 
     def get_file_name(self, page, **partition):
         """Returns file name of given partition and page."""
@@ -67,6 +73,10 @@ class Extractor(CsvExtractor):
     def source_filename(self, page: str, **partition: PartitionSelection) -> str:
         """Produce the CSV file name as it will appear in the archive.
 
+        The files are nested in an additional folder with the year name inside of the
+        zipfile, so we add a prefix folder based on the yearly partition to the source
+        filename.
+
         Args:
             page: pudl name for the dataset contents, eg "boiler_generator_assn" or
                 "coal_stocks"
@@ -77,12 +87,9 @@ class Extractor(CsvExtractor):
         Returns:
             string name of the CSV file
         """
-        logger.warn(
-            f"{partition['year']}/{self._metadata.get_file_name(page, **partition)}"
-        )
         return f"{partition['year']}/{self._metadata.get_file_name(page, **partition)}"
 
-    def load_source(self, page: str, **partition: PartitionSelection) -> dask.dataframe:
+    def load_source(self, page: str, **partition: PartitionSelection) -> pd.DataFrame:
         """Produce the dataframe object for the given partition.
 
         Args:
@@ -95,38 +102,39 @@ class Extractor(CsvExtractor):
         Returns:
             pd.DataFrame instance containing CSV data
         """
-        filename = f"{partition['year']}/{self.source_filename(page, **partition)}"
-        logger.warn(f"Opening file {filename}")
-
         with (
             self.ds.get_zipfile_resource(self._dataset_name, **partition) as zf,
         ):
+            # # Get path to zipfile
+            # zippath = zf.filename
+            # Get list of file names in the zipfile
             files = zf.namelist()
-            file = next((x for x in files if filename in x), None)
-            logger.warn(
-                x for x in files if {self.source_filename(page, **partition)} in x
+            # Get the particular file of interest
+            file = next(
+                (x for x in files if self.source_filename(page, **partition) in x), None
             )
-            logger.warn(file)
-            df = dd.read_csv(file, **self.READ_CSV_KWARGS)
+            # # Read it in using dask
+            df = pd.read_csv(BytesIO(zf.read(file)), **self.READ_CSV_KWARGS)
 
         return df
 
     def process_raw(
-        self, df: dask.dataframe, page: str, **partition: PartitionSelection
-    ) -> dask.dataframe:
+        self, df: pd.DataFrame, page: str, **partition: PartitionSelection
+    ) -> pd.DataFrame:
         """Append report year to df to distinguish data from other years."""
         self.cols_added.append("report_year")
         selection = self._metadata._get_partition_selection(partition)
         return df.assign(report_year=selection)
 
     def validate(
-        self, df: dask.dataframe, page: str, **partition: PartitionSelection
-    ) -> dask.dataframe:
+        self, df: pd.DataFrame, page: str, **partition: PartitionSelection
+    ) -> pd.DataFrame:
         """Skip this step, as we aren't renaming any columns."""
         return df
 
-    def combine(self, dfs: list[dask.dataframe], page: str) -> dask.dataframe:
+    def combine(self, dfs: list[pd.DataFrame], page: str) -> dd.DataFrame:
         """Concatenate dataframes into one, take any special steps for processing final page."""
+        dfs = [dd.from_pandas(df, npartitions=2) for df in dfs]
         df = dd.concat(dfs, sort=True, ignore_index=True)
 
         return self.process_final_page(df, page)
@@ -135,11 +143,29 @@ class Extractor(CsvExtractor):
 raw_vceregen__all_dfs = raw_df_factory(Extractor, name="vceregen")
 
 
-@asset
-def raw_vceregen__fixed_solar_pv_lat_upv(raw_vceregen__all_dfs):
-    """Extract raw EIA company data from CSV sheets into dataframes.
+def raw_vceregen_asset_factory(part: str) -> AssetsDefinition:
+    """An asset factory for VCE hourly renewable generation profiles."""
+    asset_kwargs = {
+        "name": f"raw_vceregen__{part}",
+        "required_resource_keys": {"datastore", "dataset_settings"},
+        "compute_kind": "Python",
+    }
 
-    Returns:
-        An extracted EIA 176 dataframe.
-    """
-    return Output(value=raw_vceregen__all_dfs["fixed_solar_pv_lat_upv"])
+    @asset(**asset_kwargs)
+    def _extract(context, raw_vceregen__all_dfs):
+        """Extract raw GridPath RA Toolkit renewable energy generation profiles.
+
+        Args:
+            context: dagster keyword that provides access to resources and config.
+        """
+        return Output(value=raw_vceregen__all_dfs[part])
+
+    return _extract
+
+
+raw_vceregen_assets = [raw_vceregen_asset_factory(part) for part in VCEREGEN_PAGES]
+
+# TODO: Figure out how to handle partition for this file!
+# @asset
+# def raw_vcegen__lat_lon_fips(ds: Datastore):
+#     return pd.read_csv(BytesIO(ds.get_unique_resource("vceregen", part=part)))
