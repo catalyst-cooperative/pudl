@@ -18,7 +18,6 @@ from io import BytesIO
 
 import pandas as pd
 from dagster import AssetsDefinition, Output, asset
-from dask import dataframe as dd
 
 from pudl import logging_helpers
 from pudl.extract.csv import CsvExtractor
@@ -132,10 +131,12 @@ class Extractor(CsvExtractor):
         """Skip this step, as we aren't renaming any columns."""
         return df
 
-    def combine(self, dfs: list[pd.DataFrame], page: str) -> dd.DataFrame:
+    def combine(self, dfs: list[pd.DataFrame], page: str) -> pd.DataFrame:
         """Concatenate dataframes into one, take any special steps for processing final page."""
-        dfs = [dd.from_pandas(df, npartitions=2) for df in dfs]
-        df = dd.concat(dfs, sort=True, ignore_index=True)
+        # dfs = [dd.from_pandas(df, npartitions=2) for df in dfs]
+        # df = dd.concat(dfs)
+        # # TODO: Confirm that using pandas is preferable. Otherwise revert to this code.
+        df = pd.concat(dfs, sort=True, ignore_index=True)
 
         return self.process_final_page(df, page)
 
