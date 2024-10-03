@@ -822,12 +822,12 @@ plant_id_eia,energy_source_code,report_date,fuel_cost_per_mmbtu,fuel_cost_per_mm
 8102,BIT,2024-01-01,,2.88
 8102,BIT,2024-02-01,,
 8102,DFO,2023-01-01,12.1,
-8102,DFO,2023-02-01,15.75,14.97
-8102,DFO,2023-03-01,,15.27
-8102,DFO,2023-05-01,19.23,15.49
-8102,DFO,2023-06-01,12.49,15.53
-8102,DFO,2023-08-01,16.78,15.54
-8102,DFO,2023-09-01,15.11,15.65
+8102,DFO,2023-02-01,13.75,13.60
+8102,DFO,2023-03-01,,14.09
+8102,DFO,2023-05-01,12.49,14.49
+8102,DFO,2023-06-01,15.11,14.92
+8102,DFO,2023-08-01,16.78,15.44
+8102,DFO,2023-09-01,19.23,16.02
 8102,DFO,2023-11-01,,
 8102,DFO,2024-02-01,,
 """
@@ -842,3 +842,14 @@ plant_id_eia,energy_source_code,report_date,fuel_cost_per_mmbtu,fuel_cost_per_mm
         win_type="triang",
     ).round(2)
     pd.testing.assert_frame_equal(test_rolled, out, check_exact=False)
+    # reorder the input df using sample to make sure this works
+    # no matter how the input df is sorted
+    out_reordered = pudl.helpers.generate_rolling_avg(
+        test_rolled.sample(frac=1).drop(columns=["fuel_cost_per_mmbtu_rolling"]),
+        group_cols=["plant_id_eia", "energy_source_code"],
+        data_col="fuel_cost_per_mmbtu",
+        window=12,
+        min_periods=6,
+        win_type="triang",
+    ).round(2)
+    pd.testing.assert_frame_equal(test_rolled, out_reordered, check_exact=False)

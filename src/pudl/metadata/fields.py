@@ -1667,9 +1667,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Total fuel cost for plant (in $USD).",
         "unit": "USD",
     },
-    "fuel_cost_from_eiaapi": {
-        "type": "boolean",
-        "description": "Indicates whether the fuel cost was derived from the EIA API.",
+    "fuel_cost_per_mmbtu_source": {
+        "type": "string",
+        "description": (
+            "Indicates what the source of the values in the fuel_cost_per_mmbtu "
+            "column. The fuel cost either comes directly from the EIA forms "
+            "(original), was filled in from the EIA's API using state-level averages "
+            "(eiaapi), or was filled in using a rolling average (rolling_avg)."
+        ),
+        "constraints": {"enum": ["original", "eiaapi", "rolling_avg"]},
     },
     "fuel_mmbtu": {
         "type": "number",

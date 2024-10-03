@@ -1237,9 +1237,9 @@ def generate_rolling_avg(
         date_range.merge(groups)
         .drop(columns="tmp")  # drop the temp column
         .merge(df, on=group_cols + ["report_date"])
-        .set_index(group_cols + ["report_date"])
         .groupby(by=group_cols + ["report_date"])
         .mean(numeric_only=True)
+        .sort_index()
     )
     # with the aggregated data, get a rolling average
     bones[f"{data_col}_rolling"] = bones.groupby(by=group_cols)[data_col].transform(
@@ -1281,11 +1281,6 @@ def fillna_w_rolling_avg(
         suffixes=("", "_rollfilled"),
     )
     df_new[data_col] = df_new[data_col].fillna(df_new[f"{data_col}_rollfilled"])
-    df_new.loc[  # add an indicator column to show if a value has been imputed
-        df_new["fuel_cost_source"].isnull()
-        & df_new[f"{data_col}_rollfilled"].notnull(),
-        "fuel_cost_source",
-    ] = "roll_filled"
     return df_new.drop(columns=f"{data_col}_rollfilled")
 
 
