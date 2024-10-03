@@ -1670,7 +1670,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "fuel_cost_per_mmbtu_source": {
         "type": "string",
         "description": (
-            "Indicates what the source of the values in the fuel_cost_per_mmbtu "
+            "Indicates the source of the values in the fuel_cost_per_mmbtu "
             "column. The fuel cost either comes directly from the EIA forms "
             "(original), was filled in from the EIA's API using state-level averages "
             "(eiaapi), was filled in using a rolling average (rolling_avg) or "
