@@ -266,7 +266,7 @@ def out_eia923__boiler_fuel(
         ),
         "roll": Field(
             bool,
-            default_value=False,
+            default_value=True,
             description=("If True, use rolling averages to fill missing fuel prices."),
         ),
     },
