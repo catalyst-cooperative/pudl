@@ -4854,6 +4854,7 @@ TRANSFORM_PARAMS = {
                 "other_sales_to_public_authorities_axis",
                 "sales_to_railroads_and_railways_axis",
                 "interdepartmental_sales_axis",
+                "provision_for_rate_refunds_axis",
             ],
             "new_axis_column_name": "sales_axis",
         },

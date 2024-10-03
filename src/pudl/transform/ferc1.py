@@ -40,6 +40,7 @@ from pudl.transform.classes import (
     cache_df,
     enforce_snake_case,
 )
+from pudl.transform.ferc import filter_for_freshest_data_xbrl, get_primary_key_raw_xbrl
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -305,7 +306,7 @@ def wide_to_tidy(df: pd.DataFrame, params: WideToTidy) -> pd.DataFrame:
     )
     df_out.columns = new_cols
     df_out = (
-        df_out.stack(params.stacked_column_name, dropna=False)
+        df_out.stack(params.stacked_column_name, future_stack=True)
         .loc[:, params.value_types]
         .reset_index()
     )
@@ -6123,13 +6124,13 @@ def ferc1_transform_asset_factory(
     dbf_tables = listify(TABLE_NAME_MAP_FERC1[table_name]["dbf"])
     xbrl_tables = listify(TABLE_NAME_MAP_FERC1[table_name]["xbrl"])
 
-    ins = {f"raw_dbf__{tn}": AssetIn(f"raw_ferc1_dbf__{tn}") for tn in dbf_tables}
+    ins = {f"raw_ferc1_dbf__{tn}": AssetIn(f"raw_ferc1_dbf__{tn}") for tn in dbf_tables}
     ins |= {
-        f"raw_xbrl_instant__{tn}": AssetIn(f"raw_ferc1_xbrl__{tn}_instant")
+        f"raw_ferc1_xbrl__{tn}_instant": AssetIn(f"raw_ferc1_xbrl__{tn}_instant")
         for tn in xbrl_tables
     }
     ins |= {
-        f"raw_xbrl_duration__{tn}": AssetIn(f"raw_ferc1_xbrl__{tn}_duration")
+        f"raw_ferc1_xbrl__{tn}_duration": AssetIn(f"raw_ferc1_xbrl__{tn}_duration")
         for tn in xbrl_tables
     }
     ins["_core_ferc1_xbrl__metadata_json"] = AssetIn("_core_ferc1_xbrl__metadata_json")
@@ -6162,13 +6163,30 @@ def ferc1_transform_asset_factory(
             )
 
         raw_dbf = pd.concat(
-            [df for key, df in kwargs.items() if key.startswith("raw_dbf__")]
+            [df for key, df in kwargs.items() if key.startswith("raw_ferc1_dbf__")]
         )
+        raw_xbrls = {
+            tn: filter_for_freshest_data_xbrl(
+                df,
+                get_primary_key_raw_xbrl(tn.removeprefix("raw_ferc1_xbrl__"), "ferc1"),
+            )
+            for tn, df in kwargs.items()
+            if tn.startswith("raw_ferc1_xbrl__")
+        }
+        for raw_xbrl_table_name in listify(TABLE_NAME_MAP_FERC1[table_name]["xbrl"]):
+            if (
+                raw_xbrls[f"raw_ferc1_xbrl__{raw_xbrl_table_name}_instant"].empty
+                and raw_xbrls[f"raw_ferc1_xbrl__{raw_xbrl_table_name}_duration"].empty
+            ):
+                raise AssertionError(
+                    f"{raw_xbrl_table_name} has neither instant nor duration tables. "
+                    "Is it spelled correctly in pudl.extract.ferc1.TABLE_NAME_MAP_FERC1"
+                )
         raw_xbrl_instant = pd.concat(
-            [df for key, df in kwargs.items() if key.startswith("raw_xbrl_instant__")]
+            [df for key, df in raw_xbrls.items() if key.endswith("_instant")]
         )
         raw_xbrl_duration = pd.concat(
-            [df for key, df in kwargs.items() if key.startswith("raw_xbrl_duration__")]
+            [df for key, df in raw_xbrls.items() if key.endswith("_duration")]
         )
         df = transformer.transform(
             raw_dbf=raw_dbf,
@@ -6195,6 +6213,10 @@ def create_ferc1_transform_assets() -> list[AssetsDefinition]:
 
 
 ferc1_assets = create_ferc1_transform_assets()
+
+##########################################
+# Post-core tables/XBLR Calculations Stuff
+##########################################
 
 
 def other_dimensions(table_names: list[str]) -> list[str]:

@@ -145,7 +145,7 @@ def _out_eia__yearly_generators(
     )
 
     # If any generator data is completely empty, drop it.
-    # These are five known generators that originate from harvesting the plant and
+    # These are three known generators that originate from harvesting the plant and
     # generator IDs found in the plant_id_eia_direct_support_x and
     # generator_id_direct_support_x in EIA 860 energy storage tables, in
     # order to enable foreign key relationships with these columns.
@@ -153,10 +153,8 @@ def _out_eia__yearly_generators(
     # For more, see issue #3695 and PR #3699.
     empty_generator_ids = [
         (9170, "3093", "2023-01-01"),
-        (18170, "B8170", "2023-01-01"),
         (34516, "SOL1", "2023-01-01"),
         (64966, "GEN1", "2023-01-01"),
-        (60321, "PV1", "2023-01-01"),
     ]
     out_df = drop_all_null_records_with_multiindex(
         out_df, ["plant_id_eia", "generator_id", "report_date"], empty_generator_ids
