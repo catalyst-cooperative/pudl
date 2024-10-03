@@ -1,0 +1,21 @@
+version: "3.7"
+
+name: "datasette-pudl"
+
+services:
+  datasette:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - DATABASES=${DATASETTE_DATABASES-'pudl.sqlite'}
+      - DATASETTE_SECRET=${DATASETTE_SECRET-'devsecret'}
+    volumes:
+      - type: bind
+        source: $PUDL_OUTPUT
+        target: /data/nightly
+    ports:
+      - name: webserver
+        target: 8080
+        published: 8080
