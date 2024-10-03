@@ -558,7 +558,7 @@ def time_aggregated_eia923_asset_factory(
                     "total_mercury_content": pudl.helpers.sum_na,
                     "total_moisture_content": pudl.helpers.sum_na,
                     "total_chlorine_content": pudl.helpers.sum_na,
-                    "fuel_cost_per_mmbtu_source": "any",
+                    "fuel_cost_per_mmbtu_source": pudl.helpers.groupby_agg_label_unique_source_or_mixed,
                     "state": "first",
                     "data_maturity": "first",
                 }

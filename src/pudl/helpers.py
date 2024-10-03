@@ -1284,6 +1284,21 @@ def fillna_w_rolling_avg(
     return df_new.drop(columns=f"{data_col}_rollfilled")
 
 
+def groupby_agg_label_unique_source_or_mixed(x):
+    """Get either the unique source in a group or return mixed.
+
+    Custom function for groupby.agg. Written to
+    """
+    sources = [source for source in x.tolist() if isinstance(source, str)]
+    if len(sources) > 1:
+        source = "mixed"
+    elif len(sources) == 1:
+        source = sources[0]
+    else:
+        source = pd.NA
+    return source
+
+
 def count_records(
     df: pd.DataFrame, cols: list[str], new_count_col_name: str
 ) -> pd.DataFrame:

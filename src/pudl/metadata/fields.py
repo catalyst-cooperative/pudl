@@ -1673,9 +1673,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Indicates what the source of the values in the fuel_cost_per_mmbtu "
             "column. The fuel cost either comes directly from the EIA forms "
             "(original), was filled in from the EIA's API using state-level averages "
-            "(eiaapi), or was filled in using a rolling average (rolling_avg)."
+            "(eiaapi), was filled in using a rolling average (rolling_avg) or "
+            "When the records get aggregated together and contain multiple "
+            "sources (mixed)."
         ),
-        "constraints": {"enum": ["original", "eiaapi", "rolling_avg"]},
+        "constraints": {"enum": ["original", "eiaapi", "rolling_avg", "mixed"]},
     },
     "fuel_mmbtu": {
         "type": "number",

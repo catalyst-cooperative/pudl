@@ -477,7 +477,7 @@ def fuel_cost(
         {
             "total_fuel_cost": pudl.helpers.sum_na,
             "fuel_consumed_mmbtu": pudl.helpers.sum_na,
-            "fuel_cost_per_mmbtu_source": "any",
+            "fuel_cost_per_mmbtu_source": pudl.helpers.groupby_agg_label_unique_source_or_mixed,
         }
     )
     one_fuel_agg["fuel_cost_per_mmbtu"] = (
