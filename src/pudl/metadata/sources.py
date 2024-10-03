@@ -870,6 +870,7 @@ SOURCES: dict[str, Any] = {
         "license_raw": LICENSES["cc-by-4.0"],
         "license_pudl": LICENSES["cc-by-4.0"],
         "working_partitions": {"years": sorted(set(range(2019, 2024)))},
+        "contributors": [CONTRIBUTORS["vibrant-clean-energy"]],
     },
 }
 """Data source attributes by PUDL identifier."""
