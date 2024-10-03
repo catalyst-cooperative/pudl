@@ -837,7 +837,7 @@ SOURCES: dict[str, Any] = {
     },
     "vceregen": {
         "title": "Vibrant Clean Energy Renewable Generation Profiles",
-        "path": "https://vibrantcleanenergy.com/products/datasets/",
+        "path": "https://vibrantcleanenergy.com/wp-content/uploads/2020/08/VCE-Weather-Dataset-Overview_August2020.pdf",
         "description": (
             "This dataset was produced by Vibrant Clean Energy, and is licensed to "
             "the public under the Creative Commons Attribution 4.0 International "
