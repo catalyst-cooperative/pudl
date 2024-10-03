@@ -839,11 +839,13 @@ SOURCES: dict[str, Any] = {
         "title": "Vibrant Clean Energy Renewable Generation Profiles",
         "path": "https://vibrantcleanenergy.com/products/datasets/",
         "description": (
-            "Hourly, county-level renewable generation profiles in the continental "
-            "United States. Compiled by Vibrant Clean Energy based on outputs from the "
-            "NOAA HRRR weather model. Profiles are stated as a capacity factor (a "
-            "fraction of nameplate capacity) and exist for onshore wind, offshore "
-            "wind, and fixed-tilt solar generation types."
+            "This dataset was produced by Vibrant Clean Energy, and is licensed to "
+            "the public under the Creative Commons Attribution 4.0 International "
+            "license (CC-BY-4.0). The data consists of hourly, county-level renewable "
+            "generation profiles in the continental United States and was compiled "
+            "based on outputs from the NOAA HRRR weather model. Profiles are stated "
+            "as a capacity factor (a fraction of nameplate capacity) and exist for "
+            "onshore wind, offshore wind, and fixed-tilt solar generation types."
         ),
         "source_file_dict": {
             "sorce_format": "Comma Separated Value (.csv)",
