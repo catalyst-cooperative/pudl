@@ -28,7 +28,7 @@ jobs:
           fetch-depth: 2
 
       - name: Install conda-lock environment with micromamba
-        uses: mamba-org/setup-micromamba@v1
+        uses: mamba-org/setup-micromamba@v2
         with:
           environment-file: environments/conda-lock.yml
           environment-name: pudl-dev
@@ -78,7 +78,7 @@ jobs:
           fetch-depth: 2
 
       - name: Install conda-lock environment with micromamba
-        uses: mamba-org/setup-micromamba@v1
+        uses: mamba-org/setup-micromamba@v2
         with:
           environment-file: environments/conda-lock.yml
           environment-name: pudl-dev
@@ -139,7 +139,7 @@ jobs:
           fetch-depth: 2
 
       - name: Install Conda environment using mamba
-        uses: mamba-org/setup-micromamba@v1
+        uses: mamba-org/setup-micromamba@v2
         with:
           environment-file: environments/conda-lock.yml
           environment-name: pudl-dev
@@ -224,7 +224,7 @@ jobs:
         run: |
           find coverage -type f
       - name: Install Micromamba
-        uses: mamba-org/setup-micromamba@v1
+        uses: mamba-org/setup-micromamba@v2
         with:
           init-shell: bash
           environment-name: coverage
