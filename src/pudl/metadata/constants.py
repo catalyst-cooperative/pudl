@@ -196,7 +196,7 @@ CONTRIBUTORS: dict[str, dict[str, str]] = {
     },
     "elaine-hart": {
         "title": "Elaine Hart",
-        "email": "info@momentenergyinsights.com",
+        "email": "elaine@momentenergyinsights.com",
         "path": "https://www.momentenergyinsights.com/",
         "role": "author",
         "zenodo_role": "producer",
