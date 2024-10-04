@@ -727,6 +727,9 @@ SOURCES: dict[str, Any] = {
                 "wind_capacity_aggregations",
             ]
         },
+        "contributors": [
+            CONTRIBUTORS["elaine-hart"],
+        ],
     },
     "mshamines": {
         "title": "Mine Safety and Health Administration (MSHA) Mines",
@@ -837,7 +840,7 @@ SOURCES: dict[str, Any] = {
     },
     "vceregen": {
         "title": "Vibrant Clean Energy Renewable Generation Profiles",
-        "path": "https://vibrantcleanenergy.com/wp-content/uploads/2020/08/VCE-Weather-Dataset-Overview_August2020.pdf",
+        "path": "https://vibrantcleanenergy.com/products/datasets/",
         "description": (
             "This dataset was produced by Vibrant Clean Energy, and is licensed to "
             "the public under the Creative Commons Attribution 4.0 International "
