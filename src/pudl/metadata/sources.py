@@ -727,6 +727,9 @@ SOURCES: dict[str, Any] = {
                 "wind_capacity_aggregations",
             ]
         },
+        "contributors": [
+            CONTRIBUTORS["elaine-hart"],
+        ],
     },
     "mshamines": {
         "title": "Mine Safety and Health Administration (MSHA) Mines",
