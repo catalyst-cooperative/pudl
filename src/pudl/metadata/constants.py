@@ -194,6 +194,14 @@ CONTRIBUTORS: dict[str, dict[str, str]] = {
         "zenodo_role": "producer",
         "organization": "Vibrant Clean Energy",
     },
+    "elaine-hart": {
+        "title": "Elaine Hart",
+        "email": "elaine@momentenergyinsights.com",
+        "path": "https://www.momentenergyinsights.com/",
+        "role": "author",
+        "zenodo_role": "producer",
+        "organization": "Moment Energy Insights",
+    },
 }
 """PUDL Contributors for attribution. See the Data Package metadata https://specs.frictionlessdata.io/data-package/#metadata
 for examples. For zenodo_role, see the contributor types in the Zenodo documentation https://developers.zenodo.org/#representation."""
