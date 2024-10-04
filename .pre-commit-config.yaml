@@ -58,6 +58,12 @@ repos:
       - id: doc8
         args: [--config, pyproject.toml]
 
+  # Check Github Actions
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.2
+    hooks:
+      - id: actionlint
+
   #####################################################################################
   # Our own pre-commit hooks, which don't come from the pre-commit project
   #####################################################################################
