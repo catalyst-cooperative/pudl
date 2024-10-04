@@ -186,8 +186,17 @@ CONTRIBUTORS: dict[str, dict[str, str]] = {
         "organization": "Catalyst Cooperative",
         "orcid": "0000-0001-9784-8531",
     },
+    "vibrant-clean-energy": {
+        "title": "Vibrant Clean Energy",
+        "email": "info@vibrantcleanenergy.com",
+        "path": "https://vibrantcleanenergy.com/",
+        "role": "author",
+        "zenodo_role": "producer",
+        "organization": "Vibrant Clean Energy",
+    },
 }
-"""PUDL Contributors for attribution."""
+"""PUDL Contributors for attribution. See the Data Package metadata https://specs.frictionlessdata.io/data-package/#metadata
+for examples. For zenodo_role, see the contributor types in the Zenodo documentation https://developers.zenodo.org/#representation."""
 
 KEYWORDS: dict[str, list[str]] = {
     "electricity": [
