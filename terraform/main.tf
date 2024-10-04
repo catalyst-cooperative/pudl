@@ -58,6 +58,10 @@ module "gh_oidc" {
       sa_name   = "projects/${var.project_id}/serviceAccounts/pudl-usage-metrics-etl@catalyst-cooperative-pudl.iam.gserviceaccount.com"
       attribute = "attribute.repository/catalyst-cooperative/pudl-usage-metrics"
     }
+    "pudl-archiver-sources" = {
+      sa_name   = "projects/${var.project_id}/serviceAccounts/pudl-sources@catalyst-cooperative-pudl.iam.gserviceaccount.com"
+      attribute = "attribute.repository/catalyst-cooperative/pudl-archiver"
+    }
     "pudl-catalog-tox-pytest-github-action" = {
       sa_name   = "projects/${var.project_id}/serviceAccounts/tox-pytest-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
       attribute = "attribute.repository/catalyst-cooperative/pudl-catalog"
@@ -71,6 +75,19 @@ module "gh_oidc" {
       attribute = "attribute.repository/catalyst-cooperative/mozilla-sec-eia"
     }
   }
+}
+
+# Setup bucket for upstream sources and service account for WIF access
+resource "google_storage_bucket" "sources_storage" {
+  name          = "sources.catalyst.coop"
+  location      = "US"
+  storage_class = "STANDARD"
+}
+
+resource "google_storage_bucket_iam_member" "sources_storage_iam" {
+  bucket = google_storage_bucket.sources_storage.name
+  role = "roles/storage.objectViewer"
+  member = "serviceAccount:pudl-sources@catalyst-cooperative-pudl.iam.gserviceaccount.com"
 }
 
 # 2024-04-18: separate from the others because this was the first one - if we
