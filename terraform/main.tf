@@ -6,7 +6,7 @@ terraform {
   required_providers {
     google = {
       source  = "hashicorp/google"
-      version = "5.39.0"
+      version = "6.5.0"
     }
   }
 }
@@ -114,8 +114,6 @@ resource "google_cloud_run_v2_service" "pudl-superset" {
   name     = "pudl-superset"
   location = "us-central1"
   client   = "terraform"
-
-  launch_stage = "BETA"
 
   template {
     execution_environment = "EXECUTION_ENVIRONMENT_GEN2"
@@ -249,6 +247,42 @@ resource "google_cloud_run_v2_service_iam_member" "noauth" {
   name     = google_cloud_run_v2_service.pudl-superset.name
   role     = "roles/run.invoker"
   member   = "allUsers"
+}
+
+resource "google_cloud_run_v2_service" "pudl-datasette" {
+  name     = "pudl-datasette"
+  location = "us-central1"
+  client   = "terraform"
+
+  template {
+    execution_environment = "EXECUTION_ENVIRONMENT_GEN2"
+    containers {
+      name = "pudl-datasette-1"
+      image = "us-east1-docker.pkg.dev/catalyst-cooperative-pudl/pudl-datasette/pudl-datasette:latest"
+
+      volume_mounts {
+        name       = "bucket"
+        mount_path = "/data/"
+      }
+      ports {
+        container_port = 8088
+      }
+      resources {
+        limits = {
+          cpu    = "4"
+          memory = "4096Mi"
+        }
+        startup_cpu_boost = true
+      }
+    }
+    volumes {
+      name = "bucket"
+      gcs {
+        bucket    = "pudl.catalyst.coop"
+        read_only = true
+      }
+    }
+  }
 }
 
 resource "google_secret_manager_secret" "superset_secret_key" {
