@@ -19,8 +19,6 @@ services:
     volumes:
       - ${PUDL_OUTPUT}/pudl.duckdb:/app/pudl.duckdb
       - ./roles:/app/roles
-    depends_on:
-      - postgres
   postgres:
     image: postgis/postgis:13-3.1-alpine
     profiles: [local]

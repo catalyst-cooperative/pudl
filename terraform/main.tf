@@ -223,8 +223,9 @@ resource "google_cloud_run_v2_service" "pudl-superset" {
       resources {
         limits = {
           cpu    = "4"
-          memory = "2048Mi"
+          memory = "4096Mi"
         }
+        startup_cpu_boost = true
       }
     }
     volumes {
@@ -461,4 +462,11 @@ resource "google_storage_bucket_iam_member" "usage_metrics_etl_s3_logs_gcs_iam" 
   bucket = "pudl-s3-logs.catalyst.coop"
   role = each.key
   member = "serviceAccount:pudl-usage-metrics-etl@catalyst-cooperative-pudl.iam.gserviceaccount.com"
+}
+
+resource "google_secret_manager_secret" "superset_bot_password" {
+  secret_id = "superset-bot-password"
+  replication {
+    auto {}
+  }
 }
