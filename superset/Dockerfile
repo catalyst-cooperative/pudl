@@ -4,6 +4,8 @@ FROM apache/superset:4.0.2
 USER root
 
 COPY --chown=superset superset_config.py /app/
+COPY --chown=superset catalyst_logo.png /app/superset/static/assets/images/
+
 ENV SUPERSET_CONFIG_PATH /app/superset_config.py
 
 # add to requirements file
