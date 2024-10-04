@@ -1225,11 +1225,11 @@ def generate_rolling_avg(
             freq="MS",
             name="report_date",
         )
-    ).assign(tmp=1)  # assiging a temp column to merge on
+    ).assign(tmp=1)  # assigning a temp column to merge on
     groups = (
         df[group_cols + ["report_date"]]
         .drop_duplicates()
-        .assign(tmp=1)  # assiging a temp column to merge on
+        .assign(tmp=1)  # assigning a temp column to merge on
     )
     # merge the date range and the groups together
     # to get the backbone/complete date range/groups
@@ -1237,16 +1237,15 @@ def generate_rolling_avg(
         date_range.merge(groups)
         .drop(columns="tmp")  # drop the temp column
         .merge(df, on=group_cols + ["report_date"])
-        .set_index(group_cols + ["report_date"])
         .groupby(by=group_cols + ["report_date"])
         .mean(numeric_only=True)
+        .sort_index()
     )
     # with the aggregated data, get a rolling average
-    roll = bones.rolling(window=window, center=True, **kwargs).agg({data_col: "mean"})
-    # return the merged
-    return bones.merge(
-        roll, on=group_cols + ["report_date"], suffixes=("", "_rolling")
-    ).reset_index()
+    bones[f"{data_col}_rolling"] = bones.groupby(by=group_cols)[data_col].transform(
+        lambda x: x.rolling(window=window, center=True, **kwargs).mean()
+    )
+    return bones.reset_index()
 
 
 def fillna_w_rolling_avg(
@@ -1283,6 +1282,22 @@ def fillna_w_rolling_avg(
     )
     df_new[data_col] = df_new[data_col].fillna(df_new[f"{data_col}_rollfilled"])
     return df_new.drop(columns=f"{data_col}_rollfilled")
+
+
+def groupby_agg_label_unique_source_or_mixed(x: pd.Series) -> str | None:
+    """Get either the unique source in a group or return mixed.
+
+    Custom function for groupby.agg. Written specifically for
+    aggregating records with fuel_cost_per_mmbtu_source.
+    """
+    sources = [source for source in x.tolist() if isinstance(source, str)]
+    if len(sources) > 1:
+        source = "mixed"
+    elif len(sources) == 1:
+        source = sources[0]
+    else:
+        source = pd.NA
+    return source
 
 
 def count_records(

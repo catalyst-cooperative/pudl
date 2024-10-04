@@ -30,6 +30,9 @@ Bug Fixes
 ^^^^^^^^^
 * Include more retiring generators in the net generation and fuel consumption
   allocation. Thanks to :user:`grgmiller` for this contirbution :pr:`3690`.
+* Fix a bug found in the rolling averages used to impute missing values in
+  ``fuel_cost_per_mmbtu`` and to calculate ``capex_annual_addition_rolling``. Thanks
+  to RMI for identifying this bug! See issue :issue:`3889` and PR :pr:`3892`.
 
 Major Dependency Updates
 ^^^^^^^^^^^^^^^^^^^^^^^^
