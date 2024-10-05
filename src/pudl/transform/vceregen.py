@@ -120,7 +120,7 @@ def _stack_cap_fac_df(df, df_name: pd.DataFrame) -> pd.DataFrame:
     return df_stacked
 
 
-def combine_all_cap_fac_dfs(cap_fac_dict: dict[str, pd.DataFrame]) -> pd.DataFrame:
+def _combine_all_cap_fac_dfs(cap_fac_dict: dict[str, pd.DataFrame]) -> pd.DataFrame:
     """Combine capacity factor tables."""
     logger.info("Merging all the capacity factor tables into one")
     merge_keys = ["report_year", "hour", "year_hour", "county_state_names"]
@@ -144,7 +144,7 @@ def combine_all_cap_fac_dfs(cap_fac_dict: dict[str, pd.DataFrame]) -> pd.DataFra
     return mega_df
 
 
-def combine_cap_fac_with_fips_df(
+def _combine_cap_fac_with_fips_df(
     cap_fac_df: pd.DataFrame, fips_df: pd.DataFrame
 ) -> pd.DataFrame:
     """Combine the combined capacity factor df with the fips df."""
@@ -200,7 +200,7 @@ def out_vceregen__hourly_available_capacity_factor(
     # Clean up the FIPS table
     fips_df = _prep_lat_long_fips_df(raw_vcegen__lat_lon_fips)
     # Combine the data!
-    out_df = combine_all_cap_fac_dfs(df_dict).pipe(
-        combine_cap_fac_with_fips_df, fips_df
+    out_df = _combine_all_cap_fac_dfs(df_dict).pipe(
+        _combine_cap_fac_with_fips_df, fips_df
     )
     return out_df
