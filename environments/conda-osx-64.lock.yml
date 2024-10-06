@@ -24,7 +24,7 @@ dependencies:
   - arrow=1.3.0=pyhd8ed1ab_0
   - asgi-csrf=0.10=pyhd8ed1ab_0
   - asgiref=3.8.1=pyhd8ed1ab_0
-  - astroid=3.3.4=py312hb401068_0
+  - astroid=3.3.5=py312hb401068_0
   - asttokens=2.4.1=pyhd8ed1ab_0
   - async-lru=2.0.4=pyhd8ed1ab_0
   - atk-1.0=2.38.0=h4bec284_2
@@ -191,7 +191,7 @@ dependencies:
   - httptools=0.6.1=py312hb553811_1
   - httpx=0.27.2=pyhd8ed1ab_0
   - humanfriendly=10.0=pyhd8ed1ab_6
-  - humanize=4.10.0=pyhd8ed1ab_0
+  - humanize=4.11.0=pyhd8ed1ab_0
   - hupper=1.12.1=pyhd8ed1ab_0
   - hyperframe=6.0.1=pyhd8ed1ab_0
   - hypothesis=6.112.2=pyha770c72_0
@@ -378,7 +378,7 @@ dependencies:
   - pkgutil-resolve-name=1.3.10=pyhd8ed1ab_1
   - platformdirs=4.3.6=pyhd8ed1ab_0
   - pluggy=1.5.0=pyhd8ed1ab_0
-  - pre-commit=3.8.0=pyha770c72_1
+  - pre-commit=4.0.0=pyha770c72_0
   - prettier=3.3.3=h2ff3409_0
   - proj=9.5.0=h70d2bda_0
   - prometheus_client=0.21.0=pyhd8ed1ab_0

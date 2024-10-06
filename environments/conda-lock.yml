@@ -868,42 +868,42 @@ package:
     category: main
     optional: false
   - name: astroid
-    version: 3.3.4
+    version: 3.3.5
     manager: conda
     platform: linux-64
     dependencies:
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/astroid-3.3.4-py312h7900ff3_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/astroid-3.3.5-py312h7900ff3_0.conda
     hash:
-      md5: de030624ac2f4b27ac9881a322ecf61f
-      sha256: 7afadc499ab7b21aaf3f5b6f6fbf1af393ca9caded0152e81b98ecb7b0654592
+      md5: e1ed4d572a4a16b97368ab00fd646487
+      sha256: effb1c3acfb27e01c76c145b3a6c93e93b255a2567b8cefdf072c79dbbf58fb2
     category: main
     optional: false
   - name: astroid
-    version: 3.3.4
+    version: 3.3.5
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/astroid-3.3.4-py312hb401068_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/astroid-3.3.5-py312hb401068_0.conda
     hash:
-      md5: e3441d809831526512729ca8ac238fa0
-      sha256: 2a786575327d6561256a1cb5bf8e50f8dbe41004ee08aa7416114ab6ca82d816
+      md5: 009d46ee660f822efdfc9dc4cd3a2334
+      sha256: 0a0448e43f9535a81f5dd768e54ab27df26748fe2affc3c72ae1db88ce549e3e
     category: main
     optional: false
   - name: astroid
-    version: 3.3.4
+    version: 3.3.5
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/astroid-3.3.4-py312h81bd7bf_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/astroid-3.3.5-py312h81bd7bf_0.conda
     hash:
-      md5: 94d82fb9a142ba38888e33e8a3861037
-      sha256: c64c364db2eca82879f77af1a14d95a77f66e6f8ba03060ea62f43346a5a5539
+      md5: 82d02a369e442908d5246443d870c591
+      sha256: cbc286cac040925012df6553e5ad504a768d7ae838c68758a6c06dae4cdaece7
     category: main
     optional: false
   - name: asttokens
@@ -8409,39 +8409,39 @@ package:
     category: main
     optional: false
   - name: humanize
-    version: 4.10.0
+    version: 4.11.0
     manager: conda
     platform: linux-64
     dependencies:
-      python: ">=3.8"
-    url: https://conda.anaconda.org/conda-forge/noarch/humanize-4.10.0-pyhd8ed1ab_0.conda
+      python: ">=3.9"
+    url: https://conda.anaconda.org/conda-forge/noarch/humanize-4.11.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 6b0558b59bd41639cdfa5cc37ee951ec
-      sha256: d1acb9d131eb992b1905cef18c9f95bb2dfbabbcf87dd5bfbd31479b90ee8221
+      md5: 85b19c6cf705a85845172ade61e05a43
+      sha256: aeb87c0a422f5f68930041330ab34a784425e13933ba9fa25b0a9771a704ff66
     category: main
     optional: false
   - name: humanize
-    version: 4.10.0
+    version: 4.11.0
     manager: conda
     platform: osx-64
     dependencies:
-      python: ">=3.8"
-    url: https://conda.anaconda.org/conda-forge/noarch/humanize-4.10.0-pyhd8ed1ab_0.conda
+      python: ">=3.9"
+    url: https://conda.anaconda.org/conda-forge/noarch/humanize-4.11.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 6b0558b59bd41639cdfa5cc37ee951ec
-      sha256: d1acb9d131eb992b1905cef18c9f95bb2dfbabbcf87dd5bfbd31479b90ee8221
+      md5: 85b19c6cf705a85845172ade61e05a43
+      sha256: aeb87c0a422f5f68930041330ab34a784425e13933ba9fa25b0a9771a704ff66
     category: main
     optional: false
   - name: humanize
-    version: 4.10.0
+    version: 4.11.0
     manager: conda
     platform: osx-arm64
     dependencies:
-      python: ">=3.8"
-    url: https://conda.anaconda.org/conda-forge/noarch/humanize-4.10.0-pyhd8ed1ab_0.conda
+      python: ">=3.9"
+    url: https://conda.anaconda.org/conda-forge/noarch/humanize-4.11.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 6b0558b59bd41639cdfa5cc37ee951ec
-      sha256: d1acb9d131eb992b1905cef18c9f95bb2dfbabbcf87dd5bfbd31479b90ee8221
+      md5: 85b19c6cf705a85845172ade61e05a43
+      sha256: aeb87c0a422f5f68930041330ab34a784425e13933ba9fa25b0a9771a704ff66
     category: main
     optional: false
   - name: hupper
@@ -17013,7 +17013,7 @@ package:
     category: main
     optional: false
   - name: pre-commit
-    version: 3.8.0
+    version: 4.0.0
     manager: conda
     platform: linux-64
     dependencies:
@@ -17023,14 +17023,14 @@ package:
       python: ">=3.9"
       pyyaml: ">=5.1"
       virtualenv: ">=20.10.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/pre-commit-3.8.0-pyha770c72_1.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/pre-commit-4.0.0-pyha770c72_0.conda
     hash:
-      md5: 004cff3a7f6fafb0a041fb575de85185
-      sha256: c2b964c86b2cd00e494093d751b1f8697b3c4bf924ff70648387af161444cc82
+      md5: a635451e05b47b3db00fa91bdb8afab3
+      sha256: 23138d3aa3e58c168f2dd607eb3832cb9d918b9ae35f8280262760d27b7d5723
     category: main
     optional: false
   - name: pre-commit
-    version: 3.8.0
+    version: 4.0.0
     manager: conda
     platform: osx-64
     dependencies:
@@ -17040,14 +17040,14 @@ package:
       nodeenv: ">=0.11.1"
       cfgv: ">=2.0.0"
       virtualenv: ">=20.10.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/pre-commit-3.8.0-pyha770c72_1.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/pre-commit-4.0.0-pyha770c72_0.conda
     hash:
-      md5: 004cff3a7f6fafb0a041fb575de85185
-      sha256: c2b964c86b2cd00e494093d751b1f8697b3c4bf924ff70648387af161444cc82
+      md5: a635451e05b47b3db00fa91bdb8afab3
+      sha256: 23138d3aa3e58c168f2dd607eb3832cb9d918b9ae35f8280262760d27b7d5723
     category: main
     optional: false
   - name: pre-commit
-    version: 3.8.0
+    version: 4.0.0
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -17057,10 +17057,10 @@ package:
       nodeenv: ">=0.11.1"
       cfgv: ">=2.0.0"
       virtualenv: ">=20.10.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/pre-commit-3.8.0-pyha770c72_1.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/pre-commit-4.0.0-pyha770c72_0.conda
     hash:
-      md5: 004cff3a7f6fafb0a041fb575de85185
-      sha256: c2b964c86b2cd00e494093d751b1f8697b3c4bf924ff70648387af161444cc82
+      md5: a635451e05b47b3db00fa91bdb8afab3
+      sha256: 23138d3aa3e58c168f2dd607eb3832cb9d918b9ae35f8280262760d27b7d5723
     category: main
     optional: false
   - name: prettier
