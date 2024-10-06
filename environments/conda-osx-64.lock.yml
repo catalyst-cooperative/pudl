@@ -35,7 +35,7 @@ dependencies:
   - aws-c-compression=0.2.19=h8128ea2_1
   - aws-c-event-stream=0.4.3=hcd1ed9e_2
   - aws-c-http=0.8.10=h2f86973_0
-  - aws-c-io=0.14.18=hf9a0f1c_10
+  - aws-c-io=0.14.18=hf9a0f1c_11
   - aws-c-mqtt=0.10.6=h9d7d61c_0
   - aws-c-s3=0.6.6=hd01826e_0
   - aws-c-sdkutils=0.1.19=h8128ea2_3
@@ -112,7 +112,7 @@ dependencies:
   - defusedxml=0.7.1=pyhd8ed1ab_0
   - deprecated=1.2.14=pyh1a96a4e_0
   - distlib=0.3.8=pyhd8ed1ab_0
-  - dnspython=2.6.1=pyhd8ed1ab_1
+  - dnspython=2.7.0=pyhff2d567_0
   - doc8=1.1.2=pyhd8ed1ab_1
   - docker-py=7.1.0=pyhd8ed1ab_0
   - docstring_parser=0.16=pyhd8ed1ab_0
@@ -194,7 +194,7 @@ dependencies:
   - humanize=4.11.0=pyhd8ed1ab_0
   - hupper=1.12.1=pyhd8ed1ab_0
   - hyperframe=6.0.1=pyhd8ed1ab_0
-  - hypothesis=6.112.2=pyha770c72_0
+  - hypothesis=6.112.4=pyha770c72_0
   - icu=75.1=h120a0e1_0
   - identify=2.6.1=pyhd8ed1ab_0
   - idna=3.10=pyhd8ed1ab_0
@@ -358,7 +358,7 @@ dependencies:
   - packaging=24.1=pyhd8ed1ab_0
   - pandas=2.2.3=py312h98e817e_1
   - pandera-core=0.20.4=pyhd8ed1ab_0
-  - pandoc=3.4=h694c41f_0
+  - pandoc=3.5=h694c41f_0
   - pandocfilters=1.5.0=pyhd8ed1ab_0
   - pango=1.54.0=h115fe74_2
   - paramiko=3.5.0=pyhd8ed1ab_0
