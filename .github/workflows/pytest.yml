@@ -120,9 +120,7 @@ jobs:
           path: .coverage
 
   ci-integration:
-    runs-on:
-      group: large-runner-group
-      labels: ubuntu-latest-4core
+    runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch' || github.event.merge_group
     permissions:
       contents: read
