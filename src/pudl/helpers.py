@@ -1009,11 +1009,11 @@ def remove_leading_zeros_from_numeric_strings(
     return df
 
 
-def fix_eia_na(df: pd.DataFrame) -> pd.DataFrame:
+def fix_na(df: pd.DataFrame) -> pd.DataFrame:
     """Replace common ill-posed EIA NA spreadsheet values with np.nan.
 
     Currently replaces empty string, single decimal points with no numbers,
-    and any single whitespace character with np.nan.
+    any single whitespace character, and hyphens with np.nan.
 
     Args:
         df: The DataFrame to clean.
@@ -1021,7 +1021,7 @@ def fix_eia_na(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         DataFrame with regularized NA values.
     """
-    return df.replace(regex=r"(^\.$|^\s*$)", value=np.nan)
+    return df.replace(regex=r"(^\.$|^\s*$|^-+$)", value=np.nan)
 
 
 def simplify_columns(df: pd.DataFrame) -> pd.DataFrame:
@@ -2170,3 +2170,205 @@ def retry(
             )
             time.sleep(delay)
     return func(**kwargs)
+
+def standardize_phone_column(
+    df: pd.DataFrame, 
+    col_name: str
+) -> pd.DataFrame:
+    """Standardize phone numbers in the specified column of the DataFrame.
+
+    US numbers: ###-###-####
+    International numbers with the international code at the beginning.
+    Numbers with extensions will be appended with "x#".
+
+    Non-numeric entries will be returned as np.nan. Entries with fewer than
+    10 digits will be returned with no hyphens.
+
+    Args:
+    df: The DataFrame to modify.
+    col_name: The name of the column with phone numbers to standardize.
+
+    Returns:
+    The modified DataFrame with standardized phone numbers in the same column.
+    """
+    
+    # Function to clean and standardize phone numbers
+    def standardize_phone_number(phone: str) -> str:
+        # Check if the value is NaN, return it as is
+        if pd.isna(phone):
+            return phone
+        
+        # Split phone number and extension, if present
+        phone_parts = re.split(r'[xX]', str(phone))
+        phone_main = phone_parts[0]  # Main phone number
+        extension = phone_parts[1].strip() if len(phone_parts) > 1 else None  # Extension, if it exists
+
+        # Remove unwanted characters (parentheses, spaces, periods, and dashes) from the main phone number
+        phone_main = re.sub(r'[^\d]', '', phone_main.replace(".0", ""))  # Keep only digits
+        
+        # If phone_main is not numeric, return np.nan
+        if not phone_main.isdigit():
+            return np.nan
+
+        # If phone_main is all zeroes, return np.nan
+        if phone_main == '0' * len(phone_main):
+            return np.nan
+
+        # If the phone number has fewer than 10 digits, return it as a plain string
+        if len(phone_main) < 10:
+            return phone_main
+
+        # If the phone number has exactly 10 digits, format it as XXX-XXX-XXXX
+        if len(phone_main) == 10:
+            formatted_phone = f'{phone_main[:3]}-{phone_main[3:6]}-{phone_main[6:]}'
+        
+        # If the phone number has more than 10 digits, treat the additional digits as international code
+        elif len(phone_main) > 10:
+            intl_code = phone_main[:-10]  # Digits before the last 10
+            main_number = phone_main[-10:]  # Last 10 digits are the phone number
+            formatted_phone = f'+{intl_code}-{main_number[:3]}-{main_number[3:6]}-{main_number[6:]}'
+        
+        # Add the extension back if present
+        if extension:
+            return f'{formatted_phone}x{extension}'
+        
+        return formatted_phone
+
+    # Apply the standardization function directly to the specified column
+    df[col_name] = df[col_name].apply(standardize_phone_number)
+
+    return df
+
+def analyze_missing_values(
+    df: pd.DataFrame
+) -> list[str]:
+    """
+    Analyze columns of a DataFrame for missing or invalid values. Note that this is purely for analysis
+    and does not perform any data transformation or cleaning.
+
+    This function checks each column for missing or custom missing values and prints
+    a summary of the findings for string (object), numeric, and datetime columns.
+
+    Args:
+        df: The DataFrame to analyze.
+
+    Returns:
+        exception_cols: List of names of columns that couldn't be analyzed due to a caught exception.
+    """
+    
+    nan_cols = []
+    exception_cols = []
+    
+    # Define custom missing value markers
+    custom_missing_values = ['', ' ', 'NA', 'N/A', 'NULL', '-', 'None', 'NaN', '?', '*', '#']
+    
+    # Analyze columns for missing values
+    for col in df.columns:
+        try:
+            print(f"Analyzing column: {col}")
+            
+            # Get the column values
+            col_data = df[col]
+            
+            # Check if the column is of string (object) type
+            if col_data.dtype == 'object':
+                # Count rows where the value is NaN, None, empty string, or custom missing values
+                none_count = col_data.isna().sum()  # Count None (NaN)
+                empty_string_count = (col_data.str.strip() == '').sum()  # Count empty strings
+                custom_missing_count = col_data.isin(custom_missing_values).sum()  # Count custom missing values
+                
+                total_nan_count = none_count + empty_string_count + custom_missing_count
+                
+                if total_nan_count > 0:
+                    nan_cols.append(col)
+                
+                # Output counts
+                print(f"Column '{col}' is a string type.")
+                if none_count > 0:
+                    print(f"Rows with None values: {none_count}")
+                    print(df[df[col].isna()].head())
+                if empty_string_count > 0:
+                    print(f"Rows with empty strings: {empty_string_count}")
+                    print(df[df[col].str.strip() == ''].head())
+                if custom_missing_count > 0:
+                    print(f"Rows with custom missing values: {custom_missing_count}")
+                    print(df[df[col].isin(custom_missing_values)].head())
+                if none_count == 0 and empty_string_count == 0 and custom_missing_count == 0:
+                    print("Found nothing worth reporting here")
+            
+            # Check if the column is numeric (int or float)
+            elif pd.api.types.is_numeric_dtype(col_data):
+                # Count NA values in the column
+                na_count = col_data.isna().sum()
+                # Count custom missing values in numeric columns (if applicable)
+                custom_missing_numeric_count = col_data.isin([0]).sum()  # Assuming 0 is considered a missing value
+                
+                if na_count > 0 or custom_missing_numeric_count > 0:
+                    nan_cols.append(col)
+                
+                # Handle the non-NA data for further analysis
+                col_data_cleaned = col_data.dropna()
+                
+                if not col_data_cleaned.empty:
+                    # Calculate min and max
+                    min_val = col_data_cleaned.min()
+                    max_val = col_data_cleaned.max()
+                    
+                    if min_val < 0 or na_count > 0 or custom_missing_numeric_count > 0:
+                        print(f"Min value: {min_val}")
+                        print(f"Max value: {max_val}")
+                    if na_count > 0:
+                        print(f"Rows with NA values: {na_count}")
+                        print(df[df[col].isna()].head())
+                    if custom_missing_numeric_count > 0:
+                        print(f"Custom missing values (e.g., 0): {custom_missing_numeric_count}")
+                        print(df[df[col].isin([0])].head())
+                    if min_val > 0 and na_count == 0 and custom_missing_numeric_count == 0:
+                        print("Found nothing worth reporting here")
+                else:
+                    print(f"Column '{col}' is numeric but contains only NA values.")
+            
+            # Check if the column is a datetime type
+            elif pd.api.types.is_datetime64_any_dtype(col_data):
+                # Count NA values in the datetime column
+                na_count = col_data.isna().sum()
+                # Assuming custom missing values might be present in string form before conversion
+                custom_missing_count = col_data.isin(custom_missing_values).sum()
+    
+                if na_count > 0 or custom_missing_count > 0:
+                    nan_cols.append(col)
+    
+                # Handle the non-NA data for further analysis
+                col_data_cleaned = col_data.dropna()
+    
+                if not col_data_cleaned.empty:
+                    # Output min and max datetime values
+                    min_date = col_data_cleaned.min()
+                    max_date = col_data_cleaned.max()
+    
+                    if na_count > 0 or custom_missing_count > 0:
+                        print(f"Min date: {min_date}")
+                        print(f"Max date: {max_date}")
+                        print(f"Rows with NA values: {na_count}")
+                        print(df[df[col].isna()].head())
+                        print(f"Custom missing values: {custom_missing_count}")
+                        print(df[df[col].isin(custom_missing_values)].head())
+                    if na_count == 0 and custom_missing_count == 0:
+                        print("Found nothing worth reporting here")
+                else:
+                    print(f"Column '{col}' is datetime but contains only NA values.")
+            
+            # If the column is of some other type, simply note the type
+            else:
+                print(f"Column '{col}' is of type {col_data.dtype}.")
+            print("")
+    
+        except Exception as e:
+            exception_cols.append(col)
+            print(f"Caught exception for column {col}: {e}\n")
+            continue
+
+    print(f"Columns with NaNs or custom missing values: {nan_cols}")
+    print(f"Columns with exceptions during processing: {exception_cols}")
+
+    return exception_cols
