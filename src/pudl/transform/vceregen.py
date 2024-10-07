@@ -60,20 +60,17 @@ def _prep_lat_long_fips_df(raw_vcegen__lat_lon_fips: pd.DataFrame) -> pd.DataFra
 
 
 def _add_time_cols(df: pd.DataFrame) -> pd.DataFrame:
-    """Add datetime and year_hour columns.
+    """Add datetime and hour_of_year columns.
 
-    This function adds a datetime column and a year_hour column.
+    This function adds a datetime column and a hour_of_year column.
     The datetime column is important for merging the data with other
-    data, and the year_hour 0-8769 column is important for modeling
+    data, and the hour_of_year 1-8760 column is important for modeling
     purposes. The report_year column is also helpful for filtering,
     so we keep all three!
 
     For leap years (2020), December 31st is excluded.
-
-    TO-DO: decide whether to have the year_hour start at 0 or 1.
-    and update the date_range accordingly.
     """
-    logger.info("Adding datetime columns")
+    logger.info("Adding time columns")
     # This data is compiled for modeling purposes and skips the last
     # day of a leap year. When adding a datetime column, we need
     # to make sure that we skip the 31st of December, 2020 and that
@@ -113,7 +110,7 @@ def _stack_cap_fac_df(df, df_name: pd.DataFrame) -> pd.DataFrame:
     """
     logger.info("Stacking the county columns")
     df_stacked = (
-        df.set_index(["hour", "year_hour", "report_year"])
+        df.set_index(["hour", "hour_of_year", "report_year"])
         .stack()
         .reset_index()
         .rename(
@@ -127,7 +124,7 @@ def _stack_cap_fac_df(df, df_name: pd.DataFrame) -> pd.DataFrame:
 def _combine_all_cap_fac_dfs(cap_fac_dict: dict[str, pd.DataFrame]) -> pd.DataFrame:
     """Combine capacity factor tables."""
     logger.info("Merging all the capacity factor tables into one")
-    merge_keys = ["report_year", "hour", "year_hour", "county_state_names"]
+    merge_keys = ["report_year", "hour", "hour_of_year", "county_state_names"]
     # Can't merge all at once using reduce because that's too much memory
     # So we'll merge one at a time.
     mega_df = pd.merge(
