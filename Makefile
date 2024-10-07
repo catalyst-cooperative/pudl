@@ -52,7 +52,10 @@ conda-lock.yml: pyproject.toml
 .PHONY: pudl-dev
 pudl-dev:
 	${mamba} run --name base ${mamba} install --quiet --yes "conda-lock>=2.5.7"
-	${mamba} run --name base ${mamba} env remove --yes --name pudl-dev
+# Only attempt to remove the pudl-dev environment if it already exists.
+	if ${mamba} env list | grep -q pudl-dev; then \
+		${mamba} env remove --quiet --yes --name pudl-dev; \
+	fi
 	${mamba} run --name base conda-lock install \
 		--name pudl-dev \
 		--${mamba} \

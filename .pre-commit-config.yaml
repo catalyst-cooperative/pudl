@@ -11,7 +11,7 @@ repos:
 
   # Other file formatting, plus common Git mistakes & text file standardization:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v5.0.0
     hooks:
       - id: check-added-large-files # Don't accidentally commit giant files.
       - id: check-merge-conflict # Watch for lingering merge markers.
@@ -29,7 +29,7 @@ repos:
   # Formatters: hooks that re-write Python & documentation files
   ####################################################################################
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.6.8
+    rev: v0.6.9
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
@@ -60,7 +60,7 @@ repos:
 
   # Check Github Actions
   - repo: https://github.com/rhysd/actionlint
-    rev: v1.7.2
+    rev: v1.7.3
     hooks:
       - id: actionlint
 
@@ -71,7 +71,7 @@ repos:
     hooks:
       - id: nb-output-clear
         name: nb-output-clear
-        stages: [commit]
+        stages: [pre-commit]
         language: system
         verbose: false
         files: ".*\\.ipynb"
@@ -81,7 +81,7 @@ repos:
 
       - id: unit-tests
         name: unit-tests
-        stages: [commit]
+        stages: [pre-commit]
         language: system
         verbose: false
         pass_filenames: false
@@ -90,7 +90,7 @@ repos:
 
       - id: conda-lock
         name: conda-lock
-        stages: [commit]
+        stages: [pre-commit]
         language: system
         verbose: false
         files: "pyproject.toml"
