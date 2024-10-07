@@ -25,7 +25,7 @@ jobs:
         with:
           token: ${{ secrets.PUDL_BOT_PAT }}
       - name: Install Micromamba
-        uses: mamba-org/setup-micromamba@v1
+        uses: mamba-org/setup-micromamba@v2
         with:
           environment-name: conda-lock
           create-args: >-
