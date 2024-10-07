@@ -147,7 +147,7 @@ dependencies:
   - fsspec=2024.9.0=pyhff2d567_0
   - furo=2024.8.6=pyhd8ed1ab_1
   - gcsfs=2024.9.0=pyhd8ed1ab_0
-  - gdal=3.9.2=py312h365dfcf_6
+  - gdal=3.9.2=py312h365dfcf_7
   - gdk-pixbuf=2.42.12=ha587570_0
   - geopandas=1.0.1=pyhd8ed1ab_1
   - geopandas-base=1.0.1=pyha770c72_1
@@ -258,14 +258,14 @@ dependencies:
   - libcrc32c=1.1.2=he49afe7_0
   - libcurl=8.10.1=h58e7537_0
   - libcxx=19.1.1=hf95d169_0
-  - libdeflate=1.21=hfdf4475_0
+  - libdeflate=1.22=h00291cd_0
   - libedit=3.1.20191231=h0678c8f_2
   - libev=4.33=h10d778d_2
   - libevent=2.1.12=ha90c15b_1
   - libexpat=2.6.3=hac325c4_0
   - libffi=3.4.2=h0d85af4_5
   - libgd=2.3.3=h2e77e4f_10
-  - libgdal-core=3.9.2=ha8eff54_6
+  - libgdal-core=3.9.2=hba79287_7
   - libgfortran=5.0.0=13_2_0_h97931a8_3
   - libgfortran5=13.2.0=h2873a65_3
   - libglib=2.82.1=h63bbcf2_0
@@ -293,7 +293,7 @@ dependencies:
   - libsqlite=3.46.1=h4b8f8c9_0
   - libssh2=1.11.0=hd019ec5_0
   - libthrift=0.20.0=h75589b3_1
-  - libtiff=4.7.0=h5f227bf_0
+  - libtiff=4.7.0=h583c2ba_1
   - libutf8proc=2.8.0=hb7f2c08_0
   - libuv=1.49.0=hee94a50_0
   - libwebp-base=1.4.0=h10d778d_0
@@ -423,7 +423,7 @@ dependencies:
   - pytest-mock=3.14.0=pyhd8ed1ab_0
   - pytest-xdist=3.6.1=pyhd8ed1ab_0
   - python=3.12.7=h8f8b54e_0_cpython
-  - python-build=1.2.2=pyhd8ed1ab_0
+  - python-build=1.2.2.post1=pyhff2d567_0
   - python-calamine=0.2.3=py312h669792a_1
   - python-dateutil=2.9.0=pyhd8ed1ab_0
   - python-dotenv=1.0.1=pyhd8ed1ab_0

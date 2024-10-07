@@ -6382,10 +6382,10 @@ package:
       numpy: ">=1.19,<3"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/gdal-3.9.2-py312h1299960_6.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/gdal-3.9.2-py312h1299960_7.conda
     hash:
-      md5: 3f532b247ac4299cd06714a10b556c28
-      sha256: 11e252b5e6c9ab5cde6bfa7f6a30ec091c35af98b3ad971cafee3fd5d0fe132a
+      md5: 9cf27e3f9d97ea13f250db9253a25dc8
+      sha256: 656eea557c38f713cb6d94efa798ecae9b70b807976d2e99fd7080462575098d
     category: main
     optional: false
   - name: gdal
@@ -6401,10 +6401,10 @@ package:
       numpy: ">=1.19,<3"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/gdal-3.9.2-py312h365dfcf_6.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/gdal-3.9.2-py312h365dfcf_7.conda
     hash:
-      md5: 59fe6e62a7aed74e4a3aa2d8a85a3dd7
-      sha256: 34bb73e85dd2c928690866befd35ae86023a1284e19b05077abb5b554161cf5f
+      md5: d9cdf305ba3e2dc9989bfa116001104b
+      sha256: 0df4b2136311b288f52a9532accc50e45898eb512bae70a1f3db432d1204763b
     category: main
     optional: false
   - name: gdal
@@ -6420,10 +6420,10 @@ package:
       numpy: ">=1.19,<3"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/gdal-3.9.2-py312h936c49d_6.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/gdal-3.9.2-py312h936c49d_7.conda
     hash:
-      md5: d2ca2ad8460fbbad7ecdfa56a1fe5111
-      sha256: 0d45b024c1cb631f90cc9272da06a0928f4d1d4b5589cac2a2985ff5a6b5cd00
+      md5: 305595575712364e99c69bf43d7078f0
+      sha256: ffd8d88c9e7d3b8617df4cbe9ad4755995ef5f180bfb6afc50e1f8a4f68446a3
     category: main
     optional: false
   - name: gdk-pixbuf
@@ -11509,40 +11509,40 @@ package:
     category: main
     optional: false
   - name: libdeflate
-    version: "1.21"
+    version: "1.22"
     manager: conda
     platform: linux-64
     dependencies:
       __glibc: ">=2.17,<3.0.a0"
-      libgcc-ng: ">=12"
-    url: https://conda.anaconda.org/conda-forge/linux-64/libdeflate-1.21-h4bc722e_0.conda
+      libgcc: ">=13"
+    url: https://conda.anaconda.org/conda-forge/linux-64/libdeflate-1.22-hb9d3cd8_0.conda
     hash:
-      md5: 36ce76665bf67f5aac36be7a0d21b7f3
-      sha256: 728c24ce835700bfdfdf106bf04233fdb040a61ca4ecfd3f41b46fa90cd4f971
+      md5: b422943d5d772b7cc858b36ad2a92db5
+      sha256: 780f0530a3adfc1497ba49d626931c6afc978c540e1abfde6ccd57128ded6ad6
     category: main
     optional: false
   - name: libdeflate
-    version: "1.21"
+    version: "1.22"
     manager: conda
     platform: osx-64
     dependencies:
       __osx: ">=10.13"
-    url: https://conda.anaconda.org/conda-forge/osx-64/libdeflate-1.21-hfdf4475_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/libdeflate-1.22-h00291cd_0.conda
     hash:
-      md5: 88409b23a5585c15d52de0073f3c9c61
-      sha256: 1defb3e5243a74a9ef64de2a47812f524664e46ca9dbecb8d7c746cb1779038e
+      md5: a15785ccc62ae2a8febd299424081efb
+      sha256: 681035346974c3315685dc40898e26f65f1c00cbb0b5fd80cc2599e207a34b31
     category: main
     optional: false
   - name: libdeflate
-    version: "1.21"
+    version: "1.22"
     manager: conda
     platform: osx-arm64
     dependencies:
       __osx: ">=11.0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/libdeflate-1.21-h99b78c6_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/libdeflate-1.22-hd74edd7_0.conda
     hash:
-      md5: 67d666c1516be5a023c3aaa85867099b
-      sha256: 243ca6d733954df9522eb9da24f5fe58da7ac19a2ca9438fd4abef5bb2cd1f83
+      md5: 2d3e3f3d8ab315748420ef58d5a3ae0f
+      sha256: 3552894ca62bebc33d05982937cda25a4fa19e56a82af2ff20944ff4c2532fda
     category: main
     optional: false
   - name: libedit
@@ -11832,7 +11832,7 @@ package:
       lerc: ">=4.0.0,<5.0a0"
       libarchive: ">=3.7.4,<3.8.0a0"
       libcurl: ">=8.10.1,<9.0a0"
-      libdeflate: ">=1.21,<1.22.0a0"
+      libdeflate: ">=1.22,<1.23.0a0"
       libexpat: ">=2.6.3,<3.0a0"
       libgcc: ">=13"
       libiconv: ">=1.17,<2.0a0"
@@ -11854,10 +11854,10 @@ package:
       xerces-c: ">=3.2.5,<3.3.0a0"
       xz: ">=5.2.6,<6.0a0"
       zstd: ">=1.5.6,<1.6.0a0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/libgdal-core-3.9.2-hceee5e3_6.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/libgdal-core-3.9.2-hd5b9bfb_7.conda
     hash:
-      md5: e33dfcd6278478ebe004e69e27de3af8
-      sha256: dffd3c987894d36164c8e0ecf9ee8af0b50d7af2969c9287d296e4af296c3af5
+      md5: a23eb349d023a8543752566be00b6d88
+      sha256: afff658dece6c8f4dbff2fc459bc834f8491e7ed1a491397e23280cf0917aa19
     category: main
     optional: false
   - name: libgdal-core
@@ -11875,7 +11875,7 @@ package:
       libarchive: ">=3.7.4,<3.8.0a0"
       libcurl: ">=8.10.1,<9.0a0"
       libcxx: ">=17"
-      libdeflate: ">=1.21,<1.22.0a0"
+      libdeflate: ">=1.22,<1.23.0a0"
       libexpat: ">=2.6.3,<3.0a0"
       libiconv: ">=1.17,<2.0a0"
       libjpeg-turbo: ">=3.0.0,<4.0a0"
@@ -11894,10 +11894,10 @@ package:
       xerces-c: ">=3.2.5,<3.3.0a0"
       xz: ">=5.2.6,<6.0a0"
       zstd: ">=1.5.6,<1.6.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/libgdal-core-3.9.2-ha8eff54_6.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/libgdal-core-3.9.2-hba79287_7.conda
     hash:
-      md5: 6d8a08db36ea3941992b6ba9022515d0
-      sha256: 900cf93c09ac7d4402dd0c3fadaccfd4ea3bf56953a5064919d87748ee4a7b66
+      md5: 6db92ed40e16f879cca6783d008e249a
+      sha256: b2f0109e55644e1f9f9ef320cdda05ff36cf40ca60e3cede4b922a79f7143024
     category: main
     optional: false
   - name: libgdal-core
@@ -11915,7 +11915,7 @@ package:
       libarchive: ">=3.7.4,<3.8.0a0"
       libcurl: ">=8.10.1,<9.0a0"
       libcxx: ">=17"
-      libdeflate: ">=1.21,<1.22.0a0"
+      libdeflate: ">=1.22,<1.23.0a0"
       libexpat: ">=2.6.3,<3.0a0"
       libiconv: ">=1.17,<2.0a0"
       libjpeg-turbo: ">=3.0.0,<4.0a0"
@@ -11934,10 +11934,10 @@ package:
       xerces-c: ">=3.2.5,<3.3.0a0"
       xz: ">=5.2.6,<6.0a0"
       zstd: ">=1.5.6,<1.6.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/libgdal-core-3.9.2-h3535123_6.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/libgdal-core-3.9.2-hfd0b032_7.conda
     hash:
-      md5: 34b2b45e2fd7c96c20069c480b76784c
-      sha256: c727a9b605fdd5e968eb0aa42f23e173299aee7423ad987b9ae3d3f7cba8e654
+      md5: b553800429e5682120428772324184f6
+      sha256: 243f081ad166e32a614d02293a4fa2ba773ab8e4ba01e5945d64536b68414c71
     category: main
     optional: false
   - name: libgfortran
@@ -13207,7 +13207,7 @@ package:
     dependencies:
       __glibc: ">=2.17,<3.0.a0"
       lerc: ">=4.0.0,<5.0a0"
-      libdeflate: ">=1.21,<1.22.0a0"
+      libdeflate: ">=1.22,<1.23.0a0"
       libgcc: ">=13"
       libjpeg-turbo: ">=3.0.0,<4.0a0"
       libstdcxx: ">=13"
@@ -13215,10 +13215,10 @@ package:
       libzlib: ">=1.3.1,<2.0a0"
       xz: ">=5.2.6,<6.0a0"
       zstd: ">=1.5.6,<1.6.0a0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/libtiff-4.7.0-h6565414_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/libtiff-4.7.0-he137b08_1.conda
     hash:
-      md5: 80eaf80d84668fa5620ac9ec1b4bf56f
-      sha256: f50a0516ec5bbe6270f1a44feb8dae15626c62166d6c02a013bb0e5982eb0dd8
+      md5: 63872517c98aa305da58a757c443698e
+      sha256: 9890121db85f6ef463fe12eb04ef1471176e3ef3b5e2d62e8d6dac713df00df4
     category: main
     optional: false
   - name: libtiff
@@ -13229,16 +13229,16 @@ package:
       __osx: ">=10.13"
       lerc: ">=4.0.0,<5.0a0"
       libcxx: ">=17"
-      libdeflate: ">=1.21,<1.22.0a0"
+      libdeflate: ">=1.22,<1.23.0a0"
       libjpeg-turbo: ">=3.0.0,<4.0a0"
       libwebp-base: ">=1.4.0,<2.0a0"
       libzlib: ">=1.3.1,<2.0a0"
       xz: ">=5.2.6,<6.0a0"
       zstd: ">=1.5.6,<1.6.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/libtiff-4.7.0-h5f227bf_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/libtiff-4.7.0-h583c2ba_1.conda
     hash:
-      md5: 2ae42f38aacee5eda6c541cad957e703
-      sha256: 7a348f9e5833b3ade5036eb12e8ba8b4f4518413ee777ab6666766bb93db98d1
+      md5: 4b78bcdcc8780cede8b3d090deba874d
+      sha256: 4d58c695dfed6f308d0fd3ff552e0078bb98bc0be2ea0bf55820eb6e86fa5355
     category: main
     optional: false
   - name: libtiff
@@ -13249,16 +13249,16 @@ package:
       __osx: ">=11.0"
       lerc: ">=4.0.0,<5.0a0"
       libcxx: ">=17"
-      libdeflate: ">=1.21,<1.22.0a0"
+      libdeflate: ">=1.22,<1.23.0a0"
       libjpeg-turbo: ">=3.0.0,<4.0a0"
       libwebp-base: ">=1.4.0,<2.0a0"
       libzlib: ">=1.3.1,<2.0a0"
       xz: ">=5.2.6,<6.0a0"
       zstd: ">=1.5.6,<1.6.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/libtiff-4.7.0-h9c1d414_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/libtiff-4.7.0-hfce79cd_1.conda
     hash:
-      md5: 5f8f92ddf488a4cd50f9f5a9c4ff27c4
-      sha256: 2fb2d204de0ef47518587da769a0dfb114cce4ae4d4ba3b60a9f59d9759f9800
+      md5: b9abf45f7c64caf3303725f1aa0e9a4d
+      sha256: 97ba24c74750b6e731b3fe0d2a751cda6148b4937d2cc3f72d43bf7b3885c39d
     category: main
     optional: false
   - name: libutf8proc
@@ -18955,7 +18955,7 @@ package:
     category: main
     optional: false
   - name: python-build
-    version: 1.2.2
+    version: 1.2.2.post1
     manager: conda
     platform: linux-64
     dependencies:
@@ -18965,14 +18965,14 @@ package:
       pyproject_hooks: ""
       python: ">=3.8"
       tomli: ">=1.1.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/python-build-1.2.2-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/python-build-1.2.2.post1-pyhff2d567_0.conda
     hash:
-      md5: 7309d5de1e4e866df29bcd8ea5550035
-      sha256: dcf00631f394ee8aaf62beb93129f4c4c324d81bd06c496af8a8ddb1fa52777c
+      md5: bd5ae3c630d5eed353badb091fd3e603
+      sha256: 3bd9d4e762be15a1b23cc2727e8a0a61773a39303bf4da9d549f504336f5d912
     category: main
     optional: false
   - name: python-build
-    version: 1.2.2
+    version: 1.2.2.post1
     manager: conda
     platform: osx-64
     dependencies:
@@ -18982,14 +18982,14 @@ package:
       tomli: ">=1.1.0"
       packaging: ">=19.0"
       importlib-metadata: ">=4.6"
-    url: https://conda.anaconda.org/conda-forge/noarch/python-build-1.2.2-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/python-build-1.2.2.post1-pyhff2d567_0.conda
     hash:
-      md5: 7309d5de1e4e866df29bcd8ea5550035
-      sha256: dcf00631f394ee8aaf62beb93129f4c4c324d81bd06c496af8a8ddb1fa52777c
+      md5: bd5ae3c630d5eed353badb091fd3e603
+      sha256: 3bd9d4e762be15a1b23cc2727e8a0a61773a39303bf4da9d549f504336f5d912
     category: main
     optional: false
   - name: python-build
-    version: 1.2.2
+    version: 1.2.2.post1
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -18999,10 +18999,10 @@ package:
       tomli: ">=1.1.0"
       packaging: ">=19.0"
       importlib-metadata: ">=4.6"
-    url: https://conda.anaconda.org/conda-forge/noarch/python-build-1.2.2-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/python-build-1.2.2.post1-pyhff2d567_0.conda
     hash:
-      md5: 7309d5de1e4e866df29bcd8ea5550035
-      sha256: dcf00631f394ee8aaf62beb93129f4c4c324d81bd06c496af8a8ddb1fa52777c
+      md5: bd5ae3c630d5eed353badb091fd3e603
+      sha256: 3bd9d4e762be15a1b23cc2727e8a0a61773a39303bf4da9d549f504336f5d912
     category: main
     optional: false
   - name: python-calamine
