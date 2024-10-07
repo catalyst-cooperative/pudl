@@ -125,14 +125,16 @@ def _combine_all_cap_fac_dfs(cap_fac_dict: dict[str, pd.DataFrame]) -> pd.DataFr
     """Combine capacity factor tables."""
     logger.info("Merging all the capacity factor tables into one")
     merge_keys = ["report_year", "hour", "hour_of_year", "county_state_names"]
-    # Can't merge all at once using reduce because that's too much memory
-    # So we'll merge one at a time.
-    mega_df = pd.merge(
-        cap_fac_dict["solar_pv"],
-        cap_fac_dict["onshore_wind"],
-        on=merge_keys,
-        how="outer",
-    ).merge(cap_fac_dict["offshore_wind"], on=merge_keys, how="outer")
+    for name, df in cap_fac_dict.items():
+        cap_fac_dict[name] = df.set_index(merge_keys)
+    mega_df = pd.concat(
+        [
+            cap_fac_dict["solar_pv"],
+            cap_fac_dict["offshore_wind"],
+            cap_fac_dict["onshore_wind"],
+        ],
+        axis=1,
+    )
     # Make sure the merge didn't introduce any weird length issues
     if (
         not len(cap_fac_dict["solar_pv"])
