@@ -75,26 +75,30 @@ def _add_time_cols(df: pd.DataFrame) -> pd.DataFrame:
     """
     logger.info("Adding datetime columns")
     # This data is compiled for modeling purposes and skips the last
-    # day of a leap year. If we want to add a datetime column, we need
-    # to make sure that we skip the 31st of December, 2020.
-    # the [:-1] is because datetime will include both the 0th hour of the
-    # start date and the 0th hour of the end date. We only want one!
-    # Though we still need to decide which. This at least makes the math
-    # right.
-    to_leap_year_dates = pd.date_range(start="2019-01-01", end="2020-12-31", freq="h")[
-        :-1
-    ]
-    post_leap_year_dates = pd.date_range(
-        start="2021-01-01", end="2024-01-01", freq="h"
-    )[:-1]
-    # Add date sequence to pre and post leap year dates
-    df.loc[:, "report_year"] = df.report_year.astype("Int32")
-    df.loc[df["report_year"] < 2021, "hour"] = to_leap_year_dates
-    df.loc[df["report_year"] > 2020, "hour"] = post_leap_year_dates
-    # Add a year_date column for modeling purposes.
-    # Right now each year should go from 0-8759. We
-    # can decide to make that 1-8760 if we want to!
-    df.loc[:, "year_hour"] = df.hour.dt.hour + (df.hour.dt.dayofyear - 1) * 24
+    # day of a leap year. When adding a datetime column, we need
+    # to make sure that we skip the 31st of December, 2020 and that
+    # every year has exactly 8760 hours in it.
+    all_years = df.report_year.unique()
+    datetime8760_index = pd.DatetimeIndex(
+        pd.concat(
+            [
+                pd.Series(pd.date_range(start=f"{year}-01-01", periods=8760, freq="h"))
+                for year in all_years
+            ]
+        )
+    )
+    df.loc[:, "hour"] = datetime8760_index
+    # Make sure that leapyear date doesn't exist
+    if not df[df["hour"] == "2020-12-31 01:00:00"].empty:
+        raise AssertionError("There should be no Dec-31 in 2020")
+    # Rename the index column to reflect the hourly nature of the data and make
+    # sure it aligns with the date
+    df = df.rename(columns={"unnamed_0": "hour_of_year"}).assign(
+        hour_from_date=lambda x: x.hour.dt.hour + (x.hour.dt.dayofyear - 1) * 24 + 1
+    )
+    if not df[df["hour_from_date"] != df["hour_of_year"]].empty:
+        raise AssertionError("datetime columns doesn't align with hour of year")
+    df = df.drop(columns="hour_from_date")
     return df
 
 
