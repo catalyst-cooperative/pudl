@@ -78,7 +78,7 @@ TABLE_NAME_MAP_FERC714: OrderedDict[str, dict[str, str]] = OrderedDict(
             "csv": "Part 3 Schedule 2 - Planning Area Hourly Demand.csv",
             "xbrl": "planning_area_hourly_demand_and_forecast_summer_and_winter_peak_demand_and_annual_net_energy_for_load_03_2",
         },
-        "core_ferc714_respondent_id": {
+        "core_ferc714__respondent_id": {
             "csv": "Respondent IDs.csv",
             "xbrl": "identification_and_certification_01_1",
         },

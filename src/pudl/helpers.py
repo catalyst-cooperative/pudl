@@ -1225,11 +1225,11 @@ def generate_rolling_avg(
             freq="MS",
             name="report_date",
         )
-    ).assign(tmp=1)  # assiging a temp column to merge on
+    ).assign(tmp=1)  # assigning a temp column to merge on
     groups = (
         df[group_cols + ["report_date"]]
         .drop_duplicates()
-        .assign(tmp=1)  # assiging a temp column to merge on
+        .assign(tmp=1)  # assigning a temp column to merge on
     )
     # merge the date range and the groups together
     # to get the backbone/complete date range/groups

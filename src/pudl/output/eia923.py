@@ -113,12 +113,6 @@ def _fill_fuel_costs_by_state(
         on=["report_date", "state", "fuel_type_code_pudl"],
         how="left",
     )
-
-    out_df["fuel_cost_from_eiaapi"] = (
-        # add an indicator column to show if a value has been imputed
-        out_df["fuel_cost_per_mmbtu"].isnull()
-        & out_df["bulk_agg_fuel_cost_per_mmbtu"].notnull()
-    )
     out_df.loc[:, "fuel_cost_per_mmbtu"] = out_df.loc[:, "fuel_cost_per_mmbtu"].fillna(
         out_df["bulk_agg_fuel_cost_per_mmbtu"]
     )
@@ -272,7 +266,7 @@ def out_eia923__boiler_fuel(
         ),
         "roll": Field(
             bool,
-            default_value=False,
+            default_value=True,
             description=("If True, use rolling averages to fill missing fuel prices."),
         ),
     },
@@ -306,15 +300,33 @@ def out_eia923__fuel_receipts_costs(
         .merge(plant_states, how="left", on="plant_id_eia")
         .drop(columns=["mine_id_pudl"])
     )
+
+    def _add_fuel_cost_per_mmbtu_source_col(
+        frc_df: pd.DataFrame, source: Literal["original", "eiaapi", "rolling_avg"]
+    ):
+        """Add a source column indicator.
+
+        Assumes all non-null fuel costs that are not labeled with a source comes from
+        the input source. Apply to the original source before any imputations have been
+        applied and apply this directly after a new source of fuel cost has been added.
+        """
+        if "fuel_cost_per_mmbtu_source" not in frc_df:
+            frc_df["fuel_cost_per_mmbtu_source"] = pd.NA
+        frc_df.loc[
+            frc_df["fuel_cost_per_mmbtu_source"].isnull()
+            & frc_df["fuel_cost_per_mmbtu"].notnull(),
+            "fuel_cost_per_mmbtu_source",
+        ] = source
+        return frc_df
+
+    frc_df = _add_fuel_cost_per_mmbtu_source_col(frc_df, "original")
     if context.op_config["fill"]:
         logger.info("filling in fuel cost NaNs")
         frc_df = _fill_fuel_costs_by_state(
             frc_df, fuel_costs=_out_eia__monthly_state_fuel_prices
         )
-    # add the flag column to note that we didn't fill in with API data
-    else:
-        frc_df = frc_df.assign(fuel_cost_from_eiaapi=False)
-    # this next step smoothes fuel_cost_per_mmbtu as a rolling monthly average.
+        frc_df = _add_fuel_cost_per_mmbtu_source_col(frc_df, "eiaapi")
+    # this next step smooths fuel_cost_per_mmbtu as a rolling monthly average.
     # for each month where there is any data make weighted averages of each
     # plant/fuel/month.
     if context.op_config["roll"]:
@@ -327,6 +339,7 @@ def out_eia923__fuel_receipts_costs(
             min_periods=6,
             win_type="triang",
         )
+        frc_df = _add_fuel_cost_per_mmbtu_source_col(frc_df, "rolling_avg")
     # Calculate useful frequency-independent totals:
     frc_df["fuel_consumed_mmbtu"] = (
         frc_df["fuel_mmbtu_per_unit"] * frc_df["fuel_received_units"]
@@ -545,7 +558,7 @@ def time_aggregated_eia923_asset_factory(
                     "total_mercury_content": pudl.helpers.sum_na,
                     "total_moisture_content": pudl.helpers.sum_na,
                     "total_chlorine_content": pudl.helpers.sum_na,
-                    "fuel_cost_from_eiaapi": "any",
+                    "fuel_cost_per_mmbtu_source": pudl.helpers.groupby_agg_label_unique_source_or_mixed,
                     "state": "first",
                     "data_maturity": "first",
                 }

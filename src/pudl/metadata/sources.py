@@ -727,6 +727,9 @@ SOURCES: dict[str, Any] = {
                 "wind_capacity_aggregations",
             ]
         },
+        "contributors": [
+            CONTRIBUTORS["elaine-hart"],
+        ],
     },
     "mshamines": {
         "title": "Mine Safety and Health Administration (MSHA) Mines",
@@ -834,6 +837,45 @@ SOURCES: dict[str, Any] = {
         ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
+    },
+    "vceregen": {
+        "title": "Vibrant Clean Energy Renewable Generation Profiles",
+        "path": "https://vibrantcleanenergy.com/products/datasets/",
+        "description": (
+            "This dataset was produced by Vibrant Clean Energy, and is licensed to "
+            "the public under the Creative Commons Attribution 4.0 International "
+            "license (CC-BY-4.0). The data consists of hourly, county-level renewable "
+            "generation profiles in the continental United States and was compiled "
+            "based on outputs from the NOAA HRRR weather model. Profiles are stated "
+            "as a capacity factor (a fraction of nameplate capacity) and exist for "
+            "onshore wind, offshore wind, and fixed-tilt solar generation types."
+        ),
+        "source_file_dict": {
+            "sorce_format": "Comma Separated Value (.csv)",
+        },
+        "keywords": sorted(
+            {
+                "solar",
+                "wind",
+                "time series",
+                "energy",
+                "electricity",
+                "generation",
+                "weather",
+                "capacity factor",
+                "hourly",
+                "united states",
+                "usa",
+                "resource adequacy",
+                "gridpath",
+                "vibrant clean energy",
+                "county",
+            }
+        ),
+        "license_raw": LICENSES["cc-by-4.0"],
+        "license_pudl": LICENSES["cc-by-4.0"],
+        "working_partitions": {"years": sorted(set(range(2019, 2024)))},
+        "contributors": [CONTRIBUTORS["vibrant-clean-energy"]],
     },
 }
 """Data source attributes by PUDL identifier."""

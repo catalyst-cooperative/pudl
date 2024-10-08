@@ -293,9 +293,9 @@ def load_hourly_demand_matrix_ferc714(
     matrix = out_ferc714__hourly_planning_area_demand.pivot(
         index="datetime", columns="respondent_id_ferc714", values="demand_mwh"
     )
-    # List timezone by year for each respondent
+    # List timezone by year for each respondent by the datetime
     out_ferc714__hourly_planning_area_demand["year"] = (
-        out_ferc714__hourly_planning_area_demand["report_date"].dt.year
+        out_ferc714__hourly_planning_area_demand["datetime"].dt.year
     )
     utc_offset = out_ferc714__hourly_planning_area_demand.groupby(
         ["respondent_id_ferc714", "year"], as_index=False
@@ -378,7 +378,9 @@ def filter_ferc714_hourly_demand_matrix(
     return df
 
 
-def impute_ferc714_hourly_demand_matrix(df: pd.DataFrame) -> pd.DataFrame:
+def impute_ferc714_hourly_demand_matrix(
+    df: pd.DataFrame, years: list[int]
+) -> pd.DataFrame:
     """Impute null values in FERC 714 hourly demand matrix.
 
     Imputation is performed separately for each year,
@@ -390,17 +392,28 @@ def impute_ferc714_hourly_demand_matrix(df: pd.DataFrame) -> pd.DataFrame:
     Args:
         df: FERC 714 hourly demand matrix,
           as described in :func:`load_ferc714_hourly_demand_matrix`.
+        years: list of years to input
 
     Returns:
         Copy of `df` with imputed values.
     """
     results = []
-    for year, gdf in df.groupby(df.index.year):
-        logger.info(f"Imputing year {year}")
-        keep = df.columns[~gdf.isnull().all()]
-        tsi = pudl.analysis.timeseries_cleaning.Timeseries(gdf[keep])
-        result = tsi.to_dataframe(tsi.impute(method="tnn"), copy=False)
-        results.append(result)
+    # sort here and then don't sort in the groupby so we can process
+    # the newer years of data first. This is so we can see early if
+    # new data causes any failures.
+    df = df.sort_index(ascending=False)
+    for year, gdf in df.groupby(df.index.year, sort=False):
+        # remove the records o/s of the working years because some
+        # respondents report one record of midnight of January first
+        # of the next year (report_date.dt.year + 1). and
+        # impute_ferc714_hourly_demand_matrix chunks over years at a time
+        # and having only one record
+        if year in years:
+            logger.info(f"Imputing year {year}")
+            keep = df.columns[~gdf.isnull().all()]
+            tsi = pudl.analysis.timeseries_cleaning.Timeseries(gdf[keep])
+            result = tsi.to_dataframe(tsi.impute(method="tnn"), copy=False)
+            results.append(result)
     return pd.concat(results)
 
 
@@ -474,8 +487,12 @@ def _out_ferc714__hourly_demand_matrix(
     return df
 
 
-@asset(compute_kind="NumPy")
+@asset(
+    compute_kind="NumPy",
+    required_resource_keys={"dataset_settings"},
+)
 def _out_ferc714__hourly_imputed_demand(
+    context,
     _out_ferc714__hourly_demand_matrix: pd.DataFrame,
     _out_ferc714__utc_offset: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -492,7 +509,8 @@ def _out_ferc714__hourly_imputed_demand(
     Returns:
         df: DataFrame with imputed FERC714 hourly demand.
     """
-    df = impute_ferc714_hourly_demand_matrix(_out_ferc714__hourly_demand_matrix)
+    years = context.resources.dataset_settings.ferc714.years
+    df = impute_ferc714_hourly_demand_matrix(_out_ferc714__hourly_demand_matrix, years)
     df = melt_ferc714_hourly_demand_matrix(df, _out_ferc714__utc_offset)
     return df
 
