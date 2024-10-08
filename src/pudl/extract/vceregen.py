@@ -46,6 +46,10 @@ class VCEMetadata(GenericMetadata):
         super().__init__(*args, **kwargs)
         self._file_name = self._load_csv(self._pkg, "file_map.csv")
 
+    def _load_column_maps(self, column_map_pkg) -> dict:
+        """There are no column maps to load, so return an empty dictionary."""
+        return {}
+
     def get_all_pages(self) -> list[str]:
         """Hard code the page names, which usually are pulled from column rename spreadsheets."""
         return VCEREGEN_PAGES
