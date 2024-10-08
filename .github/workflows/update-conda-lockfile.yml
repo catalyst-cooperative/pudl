@@ -25,12 +25,12 @@ jobs:
         with:
           token: ${{ secrets.PUDL_BOT_PAT }}
       - name: Install Micromamba
-        uses: mamba-org/setup-micromamba@v1
+        uses: mamba-org/setup-micromamba@v2
         with:
           environment-name: conda-lock
           create-args: >-
             python=3.12
-            conda-lock>=2.5.2
+            conda-lock>=2.5.7
             prettier
       - name: Run conda-lock to recreate lockfile from scratch
         run: |
