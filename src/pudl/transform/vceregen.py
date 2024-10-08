@@ -38,7 +38,7 @@ def _prep_lat_long_fips_df(raw_vcegen__lat_lon_fips: pd.DataFrame) -> pd.DataFra
         .assign(county_id_fips=lambda x: zero_pad_numeric_string(x.fips, 5))
         .assign(state_id_fips=lambda x: x.county_id_fips.str.extract(r"(\d{2})"))
         .assign(
-            county_name_vce=lambda x: x.county_state_names.str.extract(
+            county=lambda x: x.county_state_names.str.extract(
                 rf"(.+)_({state_pattern})"
             )[0]
         )
@@ -51,7 +51,7 @@ def _prep_lat_long_fips_df(raw_vcegen__lat_lon_fips: pd.DataFrame) -> pd.DataFra
             columns={
                 "lat_county": "latitude",
                 "long_county": "longitude",
-                "subdivision_code": "state_code",
+                "subdivision_code": "state",
             }
         )
     )
@@ -83,14 +83,16 @@ def _add_time_cols(df: pd.DataFrame) -> pd.DataFrame:
             ]
         )
     )
-    df.loc[:, "hour"] = datetime8760_index
+    df.loc[:, "hour_utc"] = datetime8760_index
     # Make sure that leapyear date doesn't exist
-    if not df[df["hour"] == "2020-12-31 01:00:00"].empty:
+    if not df[df["hour_utc"] == "2020-12-31 01:00:00"].empty:
         raise AssertionError("There should be no Dec-31 in 2020")
     # Rename the index column to reflect the hourly nature of the data and make
     # sure it aligns with the date
     df = df.rename(columns={"unnamed_0": "hour_of_year"}).assign(
-        hour_from_date=lambda x: x.hour.dt.hour + (x.hour.dt.dayofyear - 1) * 24 + 1
+        hour_from_date=lambda x: x.hour_utc.dt.hour
+        + (x.hour_utc.dt.dayofyear - 1) * 24
+        + 1
     )
     if not df[df["hour_from_date"] != df["hour_of_year"]].empty:
         raise AssertionError("datetime columns doesn't align with hour of year")
@@ -109,7 +111,7 @@ def _stack_cap_fac_df(df, df_name: pd.DataFrame) -> pd.DataFrame:
     """
     logger.info("Stacking the county columns")
     df_stacked = (
-        df.set_index(["hour", "hour_of_year", "report_year"])
+        df.set_index(["hour_utc", "hour_of_year", "report_year"])
         .stack()
         .reset_index()
         .rename(
@@ -123,7 +125,7 @@ def _stack_cap_fac_df(df, df_name: pd.DataFrame) -> pd.DataFrame:
 def _combine_all_cap_fac_dfs(cap_fac_dict: dict[str, pd.DataFrame]) -> pd.DataFrame:
     """Combine capacity factor tables."""
     logger.info("Merging all the capacity factor tables into one")
-    merge_keys = ["report_year", "hour", "hour_of_year", "county_state_names"]
+    merge_keys = ["report_year", "hour_utc", "hour_of_year", "county_state_names"]
     for name, df in cap_fac_dict.items():
         cap_fac_dict[name] = df.set_index(merge_keys)
     mega_df = pd.concat(
@@ -133,7 +135,7 @@ def _combine_all_cap_fac_dfs(cap_fac_dict: dict[str, pd.DataFrame]) -> pd.DataFr
             cap_fac_dict["onshore_wind"],
         ],
         axis=1,
-    )
+    ).reset_index()
     # Make sure the merge didn't introduce any weird length issues
     if (
         not len(cap_fac_dict["solar_pv"])
@@ -161,7 +163,7 @@ def _combine_cap_fac_with_fips_df(
 
 @asset(
     io_manager_key="parquet_io_manager",
-    compute_kind="Python",
+    compute_kind="pandas",
     op_tags={"memory-use": "high"},
 )
 def out_vceregen__hourly_available_capacity_factor(

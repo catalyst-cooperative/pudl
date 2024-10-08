@@ -77,4 +77,5 @@ from . import (
     gridpathratoolkit,
     nrelatb,
     params,
+    vceregen,
 )
