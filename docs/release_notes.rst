@@ -30,12 +30,21 @@ Bug Fixes
 ^^^^^^^^^
 * Include more retiring generators in the net generation and fuel consumption
   allocation. Thanks to :user:`grgmiller` for this contirbution :pr:`3690`.
+* Fix a bug found in the rolling averages used to impute missing values in
+  ``fuel_cost_per_mmbtu`` and to calculate ``capex_annual_addition_rolling``. Thanks
+  to RMI for identifying this bug! See issue :issue:`3889` and PR :pr:`3892`.
 
 Major Dependency Updates
 ^^^^^^^^^^^^^^^^^^^^^^^^
 * Update to use `Numpy v2.0 <https://numpy.org/doc/stable/release/2.0.0-notes.html>`__
   and `Splink v4.0 <https://moj-analytical-services.github.io/splink/blog/2024/07/24/splink-400-released.html>`__.
   See issues :issue:`3736,3735` and PRs :pr:`3547,3834`.
+
+Quality of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+* We now use an asset factory to generate Dagster assets for near-identical FERC1 output
+  tables. See :issue:`3147` and :pr:`3883`. Thanks to :user:`hfireborn` and
+  :user:`denimalpaca` for their work on this one!
 
 .. _release-v2024.8.0:
 

@@ -422,7 +422,7 @@ def fuel_cost(
                 "fuel_type_code_pudl",
                 "total_fuel_cost",
                 "fuel_consumed_mmbtu",
-                "fuel_cost_from_eiaapi",
+                "fuel_cost_per_mmbtu_source",
             ],
         ],
         how="left",
@@ -451,7 +451,7 @@ def fuel_cost(
                 "report_date",
                 "fuel_cost_per_mmbtu",
                 "fuel_type_code_pudl",
-                "fuel_cost_from_eiaapi",
+                "fuel_cost_per_mmbtu_source",
             ],
         ],
         how="left",
@@ -477,7 +477,7 @@ def fuel_cost(
         {
             "total_fuel_cost": pudl.helpers.sum_na,
             "fuel_consumed_mmbtu": pudl.helpers.sum_na,
-            "fuel_cost_from_eiaapi": "any",
+            "fuel_cost_per_mmbtu_source": pudl.helpers.groupby_agg_label_unique_source_or_mixed,
         }
     )
     one_fuel_agg["fuel_cost_per_mmbtu"] = (
@@ -491,7 +491,7 @@ def fuel_cost(
                 "report_date",
                 "generator_id",
                 "unit_heat_rate_mmbtu_per_mwh",
-                "fuel_cost_from_eiaapi",
+                "fuel_cost_per_mmbtu_source",
             ]
         ],
         one_fuel_agg[["plant_id_eia", "report_date", "fuel_cost_per_mmbtu"]],
@@ -508,7 +508,7 @@ def fuel_cost(
             "generator_id",
             "fuel_cost_per_mmbtu",
             "unit_heat_rate_mmbtu_per_mwh",
-            "fuel_cost_from_eiaapi",
+            "fuel_cost_per_mmbtu_source",
         ]
     ]
 
@@ -607,7 +607,7 @@ def mcoe(
                 gens_idx
                 + [
                     "unit_id_pudl",
-                    "fuel_cost_from_eiaapi",
+                    "fuel_cost_per_mmbtu_source",
                     "fuel_cost_per_mmbtu",
                     "unit_heat_rate_mmbtu_per_mwh",
                     "fuel_cost_per_mwh",
