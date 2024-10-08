@@ -208,6 +208,7 @@ class ZenodoDoiSettings(BaseSettings):
     gridpathratoolkit: ZenodoDoi = "10.5281/zenodo.10892394"
     phmsagas: ZenodoDoi = "10.5281/zenodo.10493790"
     nrelatb: ZenodoDoi = "10.5281/zenodo.12658647"
+    vceregen: ZenodoDoi = "10.5281/zenodo.12345678"  # TODO: PLACEHOLDER!!
 
     model_config = SettingsConfigDict(
         env_prefix="pudl_zenodo_doi_", env_file=".env", extra="ignore"
