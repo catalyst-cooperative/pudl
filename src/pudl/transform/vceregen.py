@@ -54,6 +54,7 @@ def _prep_lat_long_fips_df(raw_vcegen__lat_lon_fips: pd.DataFrame) -> pd.DataFra
                 "subdivision_code": "state",
             }
         )
+        .drop(columns=["state_id_fips", "fips"])
     )
     return lat_long_fips
 
