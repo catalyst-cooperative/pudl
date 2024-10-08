@@ -14,8 +14,10 @@ not partitioned, so we always read it in regardless of the partitions configured
 run.
 """
 
+from collections import defaultdict
 from io import BytesIO
 
+import numpy as np
 import pandas as pd
 from dagster import AssetsDefinition, Output, asset
 
@@ -104,16 +106,22 @@ class Extractor(CsvExtractor):
         with (
             self.ds.get_zipfile_resource(self._dataset_name, **partition) as zf,
         ):
-            # # Get path to zipfile
-            # zippath = zf.filename
             # Get list of file names in the zipfile
             files = zf.namelist()
             # Get the particular file of interest
             file = next(
                 (x for x in files if self.source_filename(page, **partition) in x), None
             )
-            # # Read it in using dask
-            df = pd.read_csv(BytesIO(zf.read(file)), **self.READ_CSV_KWARGS)
+
+            # Read it in using pandas
+            # Set all dtypes except for the first unnamed hours column
+            # to be float32 to reduce memory on read-in
+            dtype_dict = defaultdict(lambda: np.float32)
+            dtype_dict["Unnamed: 0"] = (
+                "int"  # Set first unnamed column (hours) to be an integer.
+            )
+
+            df = pd.read_csv(BytesIO(zf.read(file)), dtype=dtype_dict)
 
         return df
 
@@ -133,9 +141,6 @@ class Extractor(CsvExtractor):
 
     def combine(self, dfs: list[pd.DataFrame], page: str) -> pd.DataFrame:
         """Concatenate dataframes into one, take any special steps for processing final page."""
-        # dfs = [dd.from_pandas(df, npartitions=2) for df in dfs]
-        # df = dd.concat(dfs)
-        # # TODO: Confirm that using pandas is preferable. Otherwise revert to this code.
         df = pd.concat(dfs, sort=True, ignore_index=True)
 
         return self.process_final_page(df, page)
@@ -149,7 +154,6 @@ def raw_vceregen_asset_factory(part: str) -> AssetsDefinition:
     asset_kwargs = {
         "name": f"raw_vceregen__{part}",
         "required_resource_keys": {"datastore", "dataset_settings"},
-        "compute_kind": "Python",
     }
 
     @asset(**asset_kwargs)
@@ -180,4 +184,4 @@ def raw_vcegen__lat_lon_fips(context) -> pd.DataFrame:
         return pd.read_csv(
             BytesIO(ds.get_unique_resource("vceregen", fips=partition_settings.fips))
         )
-    return pd.DataFrame()  # TODO: What makes sense here?
+    return pd.DataFrame()
