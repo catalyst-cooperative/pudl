@@ -24,7 +24,6 @@ def _prep_lat_long_fips_df(raw_vcegen__lat_lon_fips: pd.DataFrame) -> pd.DataFra
     logger.info(
         "Preping Lat-Long-FIPS table for merging with the capacity factor tables"
     )
-    # Get state name patterns from the POLITICAL_SUBDIVISIONS table
     ps_usa_df = POLITICAL_SUBDIVISIONS[POLITICAL_SUBDIVISIONS["country_code"] == "USA"]
     state_names = cleanstrings_snake(
         ps_usa_df, ["subdivision_name"]
@@ -32,30 +31,30 @@ def _prep_lat_long_fips_df(raw_vcegen__lat_lon_fips: pd.DataFrame) -> pd.DataFra
     state_pattern = "|".join(state_names)
     # Transform lat long fips table by making the county_state_names lowercase
     # to match the values in the capacity factor tables. Fix FIPS codes with
-    # no leading zeros, and add a unique country and state field.
+    # no leading zeros, and add a county and state field.
     lat_long_fips = (
         raw_vcegen__lat_lon_fips.pipe(simplify_columns)
         .assign(county_state_names=lambda x: x.county_state_names.str.lower())
-        .assign(fips=lambda x: zero_pad_numeric_string(x.fips, 5))
+        .assign(county_id_fips=lambda x: zero_pad_numeric_string(x.fips, 5))
+        .assign(state_id_fips=lambda x: x.county_id_fips.str.extract(r"(\d{2})"))
         .assign(
-            county=lambda x: x.county_state_names.str.extract(
+            county_name_vce=lambda x: x.county_state_names.str.extract(
                 rf"(.+)_({state_pattern})"
             )[0]
         )
-        .assign(
-            state=lambda x: x.county_state_names.str.extract(
-                rf"(.+)_({state_pattern})"
-            )[1]
+        .merge(
+            ps_usa_df[["state_id_fips", "subdivision_code"]],
+            on=["state_id_fips"],
+            how="left",
         )
         .rename(
             columns={
                 "lat_county": "latitude",
                 "long_county": "longitude",
-                "fips": "county_id_fips",
+                "subdivision_code": "state_code",
             }
         )
     )
-
     return lat_long_fips
 
 
