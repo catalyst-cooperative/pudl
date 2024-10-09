@@ -466,6 +466,18 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Fraction of potential generation that was actually reported for a plant part.",
     },
+    "capacity_factor_offshore_wind": {
+        "type": "number",
+        "description": "Fraction of potential generation calculated for offshore wind.",
+    },
+    "capacity_factor_onshore_wind": {
+        "type": "number",
+        "description": "Fraction of potential generation calculated for onshore wind.",
+    },
+    "capacity_factor_solar_pv": {
+        "type": "number",
+        "description": "Fraction of potential generation calculated for solar pv.",
+    },
     "capacity_mw": {
         "type": "number",
         "description": "Total installed (nameplate) capacity, in megawatts.",
@@ -1969,6 +1981,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "The energy contained in fuel burned, measured in million BTU.",
         "unit": "MMBtu",
+    },
+    "hour_of_year": {
+        "type": "number",
+        "description": "Number between 1 and 8670 representing the hour in a given year.",
+    },
+    "hour_utc": {
+        "type": "datetime",
+        "description": "Hourly datetime in UTC.",
+        "unit": "UTC",
     },
     "unit_heat_rate_mmbtu_per_mwh": {
         "type": "number",
