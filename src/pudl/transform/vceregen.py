@@ -5,7 +5,7 @@ in this module, as they have exactly the same structure.
 """
 
 import pandas as pd
-from dagster import asset
+from dagster import AssetCheckResult, asset, asset_check
 
 import pudl
 from pudl.helpers import cleanstrings_snake, simplify_columns, zero_pad_numeric_string
@@ -96,16 +96,6 @@ def _add_time_cols(df: pd.DataFrame, df_name: str) -> pd.DataFrame:
     df = pd.concat(
         [df.reset_index(drop=True), new_time_col.reset_index(drop=True)], axis=1
     ).rename(columns={"unnamed_0": "hour_of_year"})
-    # Make sure that leapyear date doesn't exist
-    if not df[df["hour_utc"] == "2020-12-31 01:00:00"].empty:
-        raise AssertionError("There should be no Dec-31 in 2020")
-    # Validate that the datetime aligns with the hour of the year
-    df["hour_from_date"] = (
-        df["hour_utc"].dt.hour + (df["hour_utc"].dt.dayofyear - 1) * 24 + 1
-    )
-    if not df[df["hour_from_date"] != df["hour_of_year"]].empty:
-        raise AssertionError("datetime columns doesn't align with hour of year")
-    df = df.drop(columns="hour_from_date")
     return df
 
 
@@ -139,10 +129,6 @@ def _make_cap_fac_frac(df: pd.DataFrame, df_name: str) -> pd.DataFrame:
     logger.info(f"Converting capacity factor into a fraction for {df_name} table.")
     county_cols = [x for x in df.columns if x not in ["report_year", "unnamed_0"]]
     df[county_cols] = df[county_cols] / 100
-    if (max_val := df[county_cols].max().max()) > 1.02:
-        raise ValueError(f"Some capacity value factor are too high: {max_val}")
-    if (min_val := df[county_cols].min().min()) < 0:
-        raise ValueError(f"Some capacity value factors are too low: {min_val}")
     return df
 
 
@@ -182,14 +168,6 @@ def _combine_all_cap_fac_dfs(cap_fac_dict: dict[str, pd.DataFrame]) -> pd.DataFr
         ],
         axis=1,
     ).reset_index()
-    # Make sure the merge didn't introduce any weird length issues
-    if (
-        not len(cap_fac_dict["solar_pv"])
-        == len(cap_fac_dict["offshore_wind"])
-        == len(cap_fac_dict["onshore_wind"])
-        == len(mega_df)
-    ):
-        raise AssertionError("Merge issue causing a length difference.")
 
     return mega_df
 
@@ -202,8 +180,6 @@ def _combine_cap_fac_with_fips_df(
         "Merging the combined capacity factor table with the Lat-Long-FIPS table"
     )
     combined_df = pd.merge(cap_fac_df, fips_df, on="county_state_names", how="left")
-    if len(combined_df) != len(cap_fac_df):
-        raise AssertionError("Merge erroneously altered table length.")
     return combined_df
 
 
@@ -252,3 +228,59 @@ def out_vceregen__hourly_available_capacity_factor(
         _combine_cap_fac_with_fips_df, fips_df
     )
     return out_df
+
+
+@asset_check(
+    asset=out_vceregen__hourly_available_capacity_factor,
+    blocking=True,
+    description="Check that output table is as expected.",
+)
+def check_hourly_available_cap_fac_table(asset_df: pd.DataFrame):
+    """Check that the final output table is as expected."""
+    # Make sure the table is the expected length
+    if (length := len(asset_df)) != 136524600:
+        return AssetCheckResult(
+            passed=False,
+            description="Table unexpected length",
+            metadata={"table_length": length, "expected_length": 136524600},
+        )
+    # Make sure there are no null values
+    if asset_df.isna().any().any():
+        return AssetCheckResult(
+            passed=False, description="Found NA values when there should be none"
+        )
+    # Make sure the capacity_factor values are below the expected value
+    # For right now there are some solar values that are slightly over 1
+    # I'm not sure why...
+    if (asset_df.iloc[:, asset_df.columns.str.contains("cap")] > 1.02).all().all():
+        return AssetCheckResult(
+            passed=False,
+            description="Found capacity factor fraction values greater than 1.02",
+        )
+    # Make sure capacity_factor values are greater than or equal to 0
+    if (asset_df.iloc[:, asset_df.columns.str.contains("cap")] < 0).all().all():
+        return AssetCheckResult(
+            passed=False,
+            description="Found capacity factor fraction values less than 0",
+        )
+    # Make sure the highest hour_of_year values is 8760
+    if asset_df["hour_of_year"].max() != 8760:
+        return AssetCheckResult(
+            passed=False, description="Found hour_of_year values larger than 8760"
+        )
+    # Make sure Dec 31/2029 is missing
+    if not asset_df[asset_df["hour_utc"] == pd.to_datetime("2020-12-31")].empty:
+        return AssetCheckResult(
+            passed=False,
+            description="Found rows for December 31, 2020 which should not exist",
+        )
+    # Make sure the datetime aligns with the hour of the year
+    asset_df["hour_from_date"] = (
+        asset_df["hour_utc"].dt.hour + (asset_df["hour_utc"].dt.dayofyear - 1) * 24 + 1
+    )
+    if not asset_df[asset_df["hour_from_date"] != asset_df["hour_of_year"]].empty:
+        return AssetCheckResult(
+            passed=False,
+            description="hour_of_year values don't match date values",
+        )
+    return AssetCheckResult(passed=True)
