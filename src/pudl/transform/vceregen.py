@@ -43,7 +43,7 @@ def _prep_lat_long_fips_df(raw_vcegen__lat_lon_fips: pd.DataFrame) -> pd.DataFra
         .assign(state_id_fips=lambda x: x.county_id_fips.str.extract(r"(\d{2})"))
         .assign(
             county=lambda x: x.county_state_names.str.extract(
-                rf"(.+)_({state_pattern})"
+                rf"(.+)_({state_pattern})$"
             )[0]
         )
         .merge(
@@ -63,7 +63,7 @@ def _prep_lat_long_fips_df(raw_vcegen__lat_lon_fips: pd.DataFrame) -> pd.DataFra
     return lat_long_fips
 
 
-def _add_time_cols(df: pd.DataFrame) -> pd.DataFrame:
+def _add_time_cols(df: pd.DataFrame, df_name: str) -> pd.DataFrame:
     """Add datetime and hour_of_year columns.
 
     This function adds a datetime column and a hour_of_year column.
@@ -74,7 +74,7 @@ def _add_time_cols(df: pd.DataFrame) -> pd.DataFrame:
 
     For leap years (2020), December 31st is excluded.
     """
-    logger.info("Adding time columns")
+    logger.info(f"Adding time columns for {df_name} table")
     # This data is compiled for modeling purposes and skips the last
     # day of a leap year. When adding a datetime column, we need
     # to make sure that we skip the 31st of December, 2020 and that
@@ -118,7 +118,7 @@ def _stack_cap_fac_df(df: pd.DataFrame, df_name: str) -> pd.DataFrame:
     This function is intended to save memory by being applied to each individual
     capacity factor table rather than the giant combined one.
     """
-    logger.info("Stacking the county columns")
+    logger.info(f"Stacking the county columns for {df_name} table.")
     df_stacked = (
         df.set_index(["hour_utc", "hour_of_year", "report_year"])
         .stack()
@@ -136,7 +136,7 @@ def _make_cap_fac_frac(df: pd.DataFrame, df_name: str) -> pd.DataFrame:
 
     This step happens before the table gets stacked to save memory.
     """
-    logger.info("Converting capacity factor into a fraction.")
+    logger.info(f"Converting capacity factor into a fraction for {df_name} table.")
     county_cols = [x for x in df.columns if x not in ["report_year", "unnamed_0"]]
     df[county_cols] = df[county_cols] / 100
     if (max_val := df[county_cols].max().max()) > 1.02:
@@ -147,12 +147,13 @@ def _make_cap_fac_frac(df: pd.DataFrame, df_name: str) -> pd.DataFrame:
 
 
 def _check_for_valid_counties(
-    df: pd.DataFrame, clean_fips_df: pd.DataFrame
+    df: pd.DataFrame, clean_fips_df: pd.DataFrame, df_name: str
 ) -> pd.DataFrame:
     """Make sure the state_county values show up in the fips table.
 
     This step happens before the table gets stacked to save memory.
     """
+    logger.info(f"Checking for valid counties in the {df_name} table.")
     county_state_names_fips = clean_fips_df.county_state_names.unique().tolist()
     county_state_names_cap_fac = df.columns.tolist()
     expected_non_counties = ["report_year", "unnamed_0"]
@@ -202,7 +203,7 @@ def _combine_cap_fac_with_fips_df(
     )
     combined_df = pd.merge(cap_fac_df, fips_df, on="county_state_names", how="left")
     if len(combined_df) != len(cap_fac_df):
-        raise AssertionError("Merge erroniously altered table length.")
+        raise AssertionError("Merge erroneously altered table length.")
     return combined_df
 
 
@@ -234,24 +235,20 @@ def out_vceregen__hourly_available_capacity_factor(
     # Apply the same transforms to all the capacity factor tables. This is slower
     # than doing it to a concatinated table but less memory intensive because
     # it doesn't need to process the ginormous table all at once.
-    df_dict = {
+    raw_dict = {
         "solar_pv": raw_vceregen__fixed_solar_pv_lat_upv,
         "offshore_wind": raw_vceregen__offshore_wind_power_140m,
         "onshore_wind": raw_vceregen__onshore_wind_power_100m,
     }
-    for df_name, df in df_dict.items():
-        logger.info(f"Prepping the {df_name} table")
-        df_dict[df_name] = (
-            _check_for_valid_counties(df, fips_df)
-            .pipe(_make_cap_fac_frac, df_name)
-            .pipe(_add_time_cols)
-            .pipe(_stack_cap_fac_df, df_name)
-        )
-    # Make sure there's no funny business
-    if len(df_dict) != 3:
-        raise AssertionError("Incorrect number of dataframes in the df_dict")
+    clean_dict = {
+        df_name: _check_for_valid_counties(df, fips_df, df_name)
+        .pipe(_make_cap_fac_frac, df_name)
+        .pipe(_add_time_cols, df_name)
+        .pipe(_stack_cap_fac_df, df_name)
+        for df_name, df in raw_dict.items()
+    }
     # Combine the data!
-    out_df = _combine_all_cap_fac_dfs(df_dict).pipe(
+    out_df = _combine_all_cap_fac_dfs(clean_dict).pipe(
         _combine_cap_fac_with_fips_df, fips_df
     )
     return out_df
