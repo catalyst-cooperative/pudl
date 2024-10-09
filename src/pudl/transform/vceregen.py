@@ -34,7 +34,11 @@ def _prep_lat_long_fips_df(raw_vcegen__lat_lon_fips: pd.DataFrame) -> pd.DataFra
     # no leading zeros, and add a county and state field.
     lat_long_fips = (
         raw_vcegen__lat_lon_fips.pipe(simplify_columns)
-        .assign(county_state_names=lambda x: x.county_state_names.str.lower())
+        .assign(
+            county_state_names=lambda x: x.county_state_names.str.lower().replace(
+                {r"\.": "", "-": "_"}, regex=True
+            )
+        )
         .assign(county_id_fips=lambda x: zero_pad_numeric_string(x.fips, 5))
         .assign(state_id_fips=lambda x: x.county_id_fips.str.extract(r"(\d{2})"))
         .assign(
