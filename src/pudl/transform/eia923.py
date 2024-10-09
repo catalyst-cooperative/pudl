@@ -651,7 +651,6 @@ def _core_eia923__pre_generation_fuel(raw_eia923__generation_fuel: pd.DataFrame)
         "total_fuel_consumption_mmbtu",
         "elec_fuel_consumption_mmbtu",
         "total_net_generation_mwh",
-        "early_release",
     ]
     gen_fuel = gen_fuel.drop(cols_to_drop, axis=1)
 
@@ -861,7 +860,6 @@ def _core_eia923__boiler_fuel(raw_eia923__boiler_fuel: pd.DataFrame) -> pd.DataF
         "fuel_unit",
         "total_fuel_consumption_quantity",
         "balancing_authority_code_eia",
-        "early_release",
         "reporting_frequency_code",
         # "data_maturity",
     ]
@@ -972,7 +970,6 @@ def _core_eia923__generation(raw_eia923__generator: pd.DataFrame) -> pd.DataFram
                 "nerc_region",
                 "naics_code",
                 "net_generation_mwh_year_to_date",
-                "early_release",
             ],
             axis="columns",
         )
@@ -1116,7 +1113,6 @@ def _core_eia923__fuel_receipts_costs(
         "state_id_fips",
         "mine_name",
         "regulated",
-        "early_release",
     ]
 
     cmi_df = (
