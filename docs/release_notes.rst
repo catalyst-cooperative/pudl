@@ -33,6 +33,26 @@ Bug Fixes
 * Fix a bug found in the rolling averages used to impute missing values in
   ``fuel_cost_per_mmbtu`` and to calculate ``capex_annual_addition_rolling``. Thanks
   to RMI for identifying this bug! See issue :issue:`3889` and PR :pr:`3892`.
+* Added preliminary data validation checks for several FERC 1 tables that were
+  missing it:
+
+  * out_ferc1__yearly_balance_sheet_assets_sched110
+  * out_ferc1__yearly_balance_sheet_liabilities_sched110
+  * out_ferc1__yearly_cash_flows_sched120
+  * out_ferc1__yearly_depreciation_by_function_sched219
+  * out_ferc1__yearly_depreciation_changes_sched219
+  * out_ferc1__yearly_depreciation_summary_sched336
+  * out_ferc1__yearly_energy_dispositions_sched401
+  * out_ferc1__yearly_energy_sources_sched401
+  * out_ferc1__yearly_income_statements_sched114
+  * out_ferc1__yearly_operating_expenses_sched320
+  * out_ferc1__yearly_operating_revenues_sched300
+  * out_ferc1__yearly_other_regulatory_liabilities_sched278
+  * out_ferc1__yearly_retained_earnings_sched118
+  * out_ferc1__yearly_sales_by_rate_schedules_sched304
+  * out_ferc1__yearly_small_plants_sched410
+  * out_ferc1__yearly_transmission_lines_sched422
+  * out_ferc1__yearly_utility_plant_summary_sched200
 
 Major Dependency Updates
 ^^^^^^^^^^^^^^^^^^^^^^^^
