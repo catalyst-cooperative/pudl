@@ -198,12 +198,6 @@ def out_vceregen__hourly_available_capacity_factor(
 
     Concatenates the solar and wind capacity factors into a single table and turns
     the columns for each county into a single county column.
-
-    Note that this transform is a bit unusual, in that it is producing a highly
-    processed output table. That's because we're working backwards from an archived
-    finished product to be able to provide a minimum viable product. Our intent is to
-    integrate or reimplement the steps required to produce this output table from
-    less processed original inputs in the future.
     """
     logger.info("Transforming the hourly available capacity factor tables")
     # Clean up the FIPS table
