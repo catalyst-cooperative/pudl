@@ -1,5 +1,6 @@
 FROM mambaorg/micromamba:2.0.2
 
+ENV CONTAINER_HOME=/home/$MAMBA_USER
 ENV PGDATA=${CONTAINER_HOME}/pgdata
 
 USER root
@@ -29,7 +30,6 @@ RUN pg_createcluster 15 dagster -u "$MAMBA_USER" -- -A trust
 
 # Switch back to being non-root user and get into the home directory
 USER $MAMBA_USER
-ENV CONTAINER_HOME=/home/$MAMBA_USER
 WORKDIR ${CONTAINER_HOME}
 
 ENV CONDA_PREFIX=${CONTAINER_HOME}/env
