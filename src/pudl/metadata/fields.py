@@ -1986,11 +1986,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Number between 1 and 8670 representing the hour in a given year.",
     },
-    "hour_utc": {
-        "type": "datetime",
-        "description": "Hourly datetime in UTC.",
-        "unit": "UTC",
-    },
     "unit_heat_rate_mmbtu_per_mwh": {
         "type": "number",
         "description": "Fuel content per unit of electricity generated. Coming from MCOE calculation.",

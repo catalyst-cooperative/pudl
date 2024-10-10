@@ -15,7 +15,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         ),
         "schema": {
             "fields": [
-                "hour_utc",
+                "datetime_utc",
                 "hour_of_year",
                 "report_year",
                 "county_id_fips",
@@ -27,7 +27,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "capacity_factor_onshore_wind",
                 "capacity_factor_offshore_wind",
             ],
-            "primary_key": ["hour_utc", "county_id_fips", "county"],
+            "primary_key": ["datetime_utc", "county_id_fips", "county"],
         },
         "sources": ["vceregen"],
         "field_namespace": "vceregen",

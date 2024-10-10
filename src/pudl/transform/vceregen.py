@@ -90,7 +90,7 @@ def _add_time_cols(df: pd.DataFrame, df_name: str) -> pd.DataFrame:
     )
     new_time_col = pd.DataFrame(
         {
-            "hour_utc": datetime8760_index,
+            "datetime_utc": datetime8760_index,
         }
     )
     df = pd.concat(
@@ -110,7 +110,7 @@ def _stack_cap_fac_df(df: pd.DataFrame, df_name: str) -> pd.DataFrame:
     """
     logger.info(f"Stacking the county columns for {df_name} table.")
     df_stacked = (
-        df.set_index(["hour_utc", "hour_of_year", "report_year"])
+        df.set_index(["datetime_utc", "hour_of_year", "report_year"])
         .stack()
         .reset_index()
         .rename(
@@ -157,7 +157,7 @@ def _check_for_valid_counties(
 def _combine_all_cap_fac_dfs(cap_fac_dict: dict[str, pd.DataFrame]) -> pd.DataFrame:
     """Combine capacity factor tables."""
     logger.info("Merging all the capacity factor tables into one")
-    merge_keys = ["report_year", "hour_utc", "hour_of_year", "county_state_names"]
+    merge_keys = ["report_year", "datetime_utc", "hour_of_year", "county_state_names"]
     for name, df in cap_fac_dict.items():
         cap_fac_dict[name] = df.set_index(merge_keys)
     mega_df = pd.concat(
@@ -269,14 +269,16 @@ def check_hourly_available_cap_fac_table(asset_df: pd.DataFrame):
             passed=False, description="Found hour_of_year values larger than 8760"
         )
     # Make sure Dec 31/2029 is missing
-    if not asset_df[asset_df["hour_utc"] == pd.to_datetime("2020-12-31")].empty:
+    if not asset_df[asset_df["datetime_utc"] == pd.to_datetime("2020-12-31")].empty:
         return AssetCheckResult(
             passed=False,
             description="Found rows for December 31, 2020 which should not exist",
         )
     # Make sure the datetime aligns with the hour of the year
     asset_df["hour_from_date"] = (
-        asset_df["hour_utc"].dt.hour + (asset_df["hour_utc"].dt.dayofyear - 1) * 24 + 1
+        asset_df["datetime_utc"].dt.hour
+        + (asset_df["datetime_utc"].dt.dayofyear - 1) * 24
+        + 1
     )
     if not asset_df[asset_df["hour_from_date"] != asset_df["hour_of_year"]].empty:
         return AssetCheckResult(
