@@ -19,7 +19,13 @@ def _prep_lat_long_fips_df(raw_vcegen__lat_lon_fips: pd.DataFrame) -> pd.DataFra
 
     Prep entails making sure the formatting and column names match those in the
     capacity factor tables, adding 0s to the beginning of FIPS codes with 4 values,
-    and making separate county and state columns.
+    and making separate county/subregion and state columns.
+
+    The county portion of the county_state column does not map directly to FIPS ID.
+    Some of the county names are actually subregions like cities or lakes. For this
+    reason we've named the column county_or_subregion and it should be considered
+    part of the primary key. There are several instances of multiple subregions that
+    map to a single county_id_fips value.
     """
     logger.info(
         "Preping Lat-Long-FIPS table for merging with the capacity factor tables"
@@ -31,7 +37,7 @@ def _prep_lat_long_fips_df(raw_vcegen__lat_lon_fips: pd.DataFrame) -> pd.DataFra
     state_pattern = "|".join(state_names)
     # Transform lat long fips table by making the county_state_names lowercase
     # to match the values in the capacity factor tables. Fix FIPS codes with
-    # no leading zeros, and add a county and state field.
+    # no leading zeros, and add a county_or_subregion and state field.
     lat_long_fips = (
         raw_vcegen__lat_lon_fips.pipe(simplify_columns)
         .assign(
@@ -42,7 +48,7 @@ def _prep_lat_long_fips_df(raw_vcegen__lat_lon_fips: pd.DataFrame) -> pd.DataFra
         .assign(county_id_fips=lambda x: zero_pad_numeric_string(x.fips, 5))
         .assign(state_id_fips=lambda x: x.county_id_fips.str.extract(r"(\d{2})"))
         .assign(
-            county=lambda x: x.county_state_names.str.extract(
+            county_or_subregion=lambda x: x.county_state_names.str.extract(
                 rf"(.+)_({state_pattern})$"
             )[0]
         )
@@ -102,13 +108,14 @@ def _add_time_cols(df: pd.DataFrame, df_name: str) -> pd.DataFrame:
 def _stack_cap_fac_df(df: pd.DataFrame, df_name: str) -> pd.DataFrame:
     """Funciton to transform each capacity factor table individually to save memory.
 
-    The main transforms are turning county columns into county rows and renaming columns
-    to be more human-readable and compatible with the FIPs df that will get merged in.
+    The main transforms are turning count/subregion columns into county/subregion rows
+    and renaming columns to be more human-readable and compatible with the FIPs df
+    that will get merged in.
 
     This function is intended to save memory by being applied to each individual
     capacity factor table rather than the giant combined one.
     """
-    logger.info(f"Stacking the county columns for {df_name} table.")
+    logger.info(f"Stacking the county/subregion columns for {df_name} table.")
     df_stacked = (
         df.set_index(["datetime_utc", "hour_of_year", "report_year"])
         .stack()
@@ -197,7 +204,7 @@ def out_vceregen__hourly_available_capacity_factor(
     """Transform raw Vibrant Clean Energy renewable generation profiles.
 
     Concatenates the solar and wind capacity factors into a single table and turns
-    the columns for each county into a single county column.
+    the columns for each county or subregion into a single county_or_subregion column.
     """
     logger.info("Transforming the hourly available capacity factor tables")
     # Clean up the FIPS table

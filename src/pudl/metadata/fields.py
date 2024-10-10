@@ -883,6 +883,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "County name as specified in Census DP1 Data.",
     },
+    "county_or_subregion": {
+        "type": "string",
+        "description": (
+            "County name or sub-county region--usually a lake or city. Note that this "
+            "field has a many:1 relationship to county fips code."
+        ),
+    },
     "country_code": {
         "type": "string",
         "description": "Three letter ISO-3166 country code (e.g. USA or CAN).",
