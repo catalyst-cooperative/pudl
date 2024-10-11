@@ -100,7 +100,7 @@ def _add_time_cols(df: pd.DataFrame, df_name: str) -> pd.DataFrame:
         }
     )
     df = pd.concat(
-        [df.reset_index(drop=True), new_time_col.reset_index(drop=True)], axis=1
+        [df.reset_index(drop=True), new_time_col.reset_index(drop=True)], axis="columns"
     ).rename(columns={"unnamed_0": "hour_of_year"})
     return df
 
@@ -173,7 +173,7 @@ def _combine_all_cap_fac_dfs(cap_fac_dict: dict[str, pd.DataFrame]) -> pd.DataFr
             cap_fac_dict["offshore_wind"],
             cap_fac_dict["onshore_wind"],
         ],
-        axis=1,
+        axis="columns",
     ).reset_index()
 
     return mega_df
