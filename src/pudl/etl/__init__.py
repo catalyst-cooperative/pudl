@@ -59,6 +59,7 @@ raw_module_groups = {
     "raw_gridpathratoolkit": [pudl.extract.gridpathratoolkit],
     "raw_phmsagas": [pudl.extract.phmsagas],
     "raw_nrelatb": [pudl.extract.nrelatb],
+    "raw_vceregen": [pudl.extract.vceregen],
 }
 
 
@@ -81,6 +82,7 @@ core_module_groups = {
     "core_ferc714": [pudl.transform.ferc714],
     "core_gridpathratoolkit": [pudl.transform.gridpathratoolkit],
     "core_nrelatb": [pudl.transform.nrelatb],
+    "core_vceregen": [pudl.transform.vceregen],
 }
 
 out_module_groups = {

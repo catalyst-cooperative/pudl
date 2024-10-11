@@ -39,6 +39,8 @@ PUBLIC_ROLE_LIKE = "Gamma"
 
 FEATURE_FLAGS = {
     "DASHBOARD_RBAC": True,  # Allow for assigning roles to dashboards
+    "TAGGING_SYSTEM": True,
+    "HORIZONTAL_FILTER_BAR": True,  # Show filter bar on top of dashboard
 }
 
 # This limits the number of rows when requesting chart data
@@ -53,6 +55,10 @@ SQL_MAX_ROW = 100_000
 NATIVE_FILTER_DEFAULT_ROW_LIMIT = 100_000
 # max rows retrieved by filter select auto complete
 FILTER_SELECT_ROW_LIMIT = 100_000
+
+APP_ICON = "/static/assets/images/catalyst_logo.png"
+APP_NAME = "PUDL"
+LOGO_RIGHT_TEXT = "PUDL"
 
 
 def get_db_connection_string() -> str:
