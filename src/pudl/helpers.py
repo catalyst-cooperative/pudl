@@ -2171,10 +2171,7 @@ def retry(
             time.sleep(delay)
     return func(**kwargs)
 
-def standardize_phone_column(
-    df: pd.DataFrame, 
-    col_name: str
-) -> pd.DataFrame:
+def standardize_phone_column(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
     """Standardize phone numbers in the specified column of the DataFrame.
 
     US numbers: ###-###-####
@@ -2239,9 +2236,7 @@ def standardize_phone_column(
 
     return df
 
-def analyze_missing_values(
-    df: pd.DataFrame
-) -> list[str]:
+def analyze_missing_values(df: pd.DataFrame) -> list[str]:
     """
     Analyze columns of a DataFrame for missing or invalid values. Note that this is purely for analysis
     and does not perform any data transformation or cleaning.
@@ -2372,3 +2367,39 @@ def analyze_missing_values(
     print(f"Columns with exceptions during processing: {exception_cols}")
 
     return exception_cols
+
+def standardize_state_columns(df: pd.DataFrame, state_columns: list) -> pd.DataFrame:
+    """
+    Standardizes the state strings in the specified columns by replacing full state names
+    with their two-letter abbreviations and capitalizing the strings.
+
+    Args:
+    df: The DataFrame containing the state columns to standardize.
+    state_columns: A list of column names where state standardization should be applied.
+
+    Returns:
+    The DataFrame with standardized state columns.
+    """
+    
+    # Dictionary mapping full state names to their two-letter abbreviations
+    state_abbreviations = {
+        "Alabama": "AL", "Alaska": "AK", "Arizona": "AZ", "Arkansas": "AR",
+        "California": "CA", "Colorado": "CO", "Connecticut": "CT", "Delaware": "DE",
+        "Florida": "FL", "Georgia": "GA", "Hawaii": "HI", "Idaho": "ID",
+        "Illinois": "IL", "Indiana": "IN", "Iowa": "IA", "Kansas": "KS",
+        "Kentucky": "KY", "Louisiana": "LA", "Maine": "ME", "Maryland": "MD",
+        "Massachusetts": "MA", "Michigan": "MI", "Minnesota": "MN", "Mississippi": "MS",
+        "Missouri": "MO", "Montana": "MT", "Nebraska": "NE", "Nevada": "NV",
+        "New Hampshire": "NH", "New Jersey": "NJ", "New Mexico": "NM", "New York": "NY",
+        "North Carolina": "NC", "North Dakota": "ND", "Ohio": "OH", "Oklahoma": "OK",
+        "Oregon": "OR", "Pennsylvania": "PA", "Rhode Island": "RI", "South Carolina": "SC",
+        "South Dakota": "SD", "Tennessee": "TN", "Texas": "TX", "Utah": "UT",
+        "Vermont": "VT", "Virginia": "VA", "Washington": "WA", "West Virginia": "WV",
+        "Wisconsin": "WI", "Wyoming": "WY"
+    }
+    
+    for col in state_columns:
+        df[col] = df[col].replace(state_abbreviations).str.upper()
+    
+    return df
+
