@@ -21,6 +21,8 @@ def _core_eia176__data(
 
     One table with data for each year and company, one with state- and US-level aggregates per year.
     """
+    raw_eia176__data["report_year"].astype(int)
+    raw_eia176__data["value"].astype(float)
     raw_eia176__data["variable_name"] = (
         raw_eia176__data["line"] + "_" + raw_eia176__data["atype"]
     )
@@ -35,6 +37,7 @@ def _core_eia176__data(
     wide_company = get_wide_table(
         long_table=long_company,
         primary_key=aggregate_primary_key + ["id"],
+        # TODO: Stop sharing drop cols
         drop_columns=company_drop_columns,
     )
 
@@ -74,7 +77,6 @@ def get_wide_table(
 #     text_fields = ['area', 'atype', 'company', 'id', 'item']
 
 
-# TODO: Write tests, break up as needed
 @asset_check(
     asset="core_eia176__yearly_company_data",
     additional_ins={"core_eia861__yearly_aggregate_data": AssetIn()},
@@ -100,7 +102,8 @@ def validate_totals(
     aggregate_state = comparable_aggregates[
         comparable_aggregates.area != " U.S. Total"
     ].reset_index(drop=True)
-    state_diff = aggregate_state.compare(state_data)
+    # Compare using the same columns
+    state_diff = aggregate_state[state_data.columns].compare(state_data)
 
     # Group calculated state-level data into US-level data and compare to reported totals
     us_data = (
@@ -116,7 +119,8 @@ def validate_totals(
         .sort_values("report_year")
         .reset_index(drop=True)
     )
-    us_diff = aggregate_us.compare(us_data)
+    # Compare using the same columns
+    us_diff = aggregate_us[us_data.columns].compare(us_data)
 
     return AssetCheckResult(passed=bool(us_diff.empty and state_diff.empty))
 
