@@ -27,9 +27,8 @@ def _core_eia176__data(
         raw_eia176__data["line"] + "_" + raw_eia176__data["atype"]
     )
 
-    # TODO should probably sanitize this company name somewhere beforehand
     long_company = raw_eia176__data.loc[
-        raw_eia176__data.company.str.strip().str.lower() != "total of all companies"
+        raw_eia176__data.company != "total of all companies"
     ]
     aggregate_primary_key = ["report_year", "area"]
     company_drop_columns = ["itemsort", "item", "atype", "line", "company"]
@@ -40,7 +39,7 @@ def _core_eia176__data(
     )
 
     long_aggregate = raw_eia176__data.loc[
-        raw_eia176__data.company.str.strip().str.lower() == "total of all companies"
+        raw_eia176__data.company == "total of all companies"
     ]
     wide_aggregate = get_wide_table(
         long_table=long_aggregate.drop(columns=company_drop_columns + ["id"]),
@@ -59,17 +58,11 @@ def get_wide_table(long_table: pd.DataFrame, primary_key: list[str]) -> pd.DataF
             level="variable_name"
         )
     )
-
     unstacked.columns = unstacked.columns.droplevel(0).fillna(0)
     unstacked.columns.name = None  # gets rid of "variable_name" name of columns index
 
     # TODO instead of "first NA value we see in each column" applied willy-nilly, we could check to see if there are any conflicting non-null values using .count() first.
     return unstacked.groupby(level=primary_key).first().reset_index()
-
-
-# TODO: Extract this to extraction preprocessing and clean before this point
-# def clean_raw_text(raw_data: pd.DataFrame) -> pd.DataFrame:
-#     text_fields = ['area', 'atype', 'company', 'id', 'item']
 
 
 @asset_check(
@@ -95,7 +88,7 @@ def validate_totals(
         .reset_index()
     )
     aggregate_state = comparable_aggregates[
-        comparable_aggregates.area != " U.S. Total"
+        comparable_aggregates.area != "u.s. total"
     ].reset_index(drop=True)
     # Compare using the same columns
     state_diff = aggregate_state[state_data.columns].compare(state_data)
@@ -109,7 +102,7 @@ def validate_totals(
         .reset_index()
     )
     aggregate_us = (
-        comparable_aggregates[comparable_aggregates.area == " U.S. Total"]
+        comparable_aggregates[comparable_aggregates.area == "u.s. total"]
         .drop(columns="area")
         .sort_values("report_year")
         .reset_index(drop=True)
