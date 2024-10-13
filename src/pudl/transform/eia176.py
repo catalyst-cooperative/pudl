@@ -35,34 +35,29 @@ def _core_eia176__data(
     company_drop_columns = ["itemsort", "item", "atype", "line", "company"]
 
     wide_company = get_wide_table(
-        long_table=long_company,
+        long_table=long_company.drop(columns=company_drop_columns),
         primary_key=aggregate_primary_key + ["id"],
-        # TODO: Stop sharing drop cols
-        drop_columns=company_drop_columns,
     )
 
     long_aggregate = raw_eia176__data.loc[
         raw_eia176__data.company.str.strip().str.lower() == "total of all companies"
     ]
     wide_aggregate = get_wide_table(
-        long_table=long_aggregate,
+        long_table=long_aggregate.drop(columns=company_drop_columns + ["id"]),
         primary_key=aggregate_primary_key,
-        drop_columns=company_drop_columns + ["id"],
     )
 
     return wide_company, wide_aggregate
 
 
-def get_wide_table(
-    long_table: pd.DataFrame, primary_key: list[str], drop_columns: list[str]
-) -> pd.DataFrame:
+def get_wide_table(long_table: pd.DataFrame, primary_key: list[str]) -> pd.DataFrame:
     """Take a 'long' or entity-attribute-value table and return a wide table with one column per attribute/variable."""
     unstacked = (
         # we must drop 'id' here and cannot use as primary key because its arbitrary/duplicate in aggregate records
         # 'id' is a reliable ID only in the context of granular company data
-        long_table.drop(columns=drop_columns)
-        .set_index(primary_key + ["variable_name"])
-        .unstack(level="variable_name")
+        long_table.set_index(primary_key + ["variable_name"]).unstack(
+            level="variable_name"
+        )
     )
 
     unstacked.columns = unstacked.columns.droplevel(0).fillna(0)

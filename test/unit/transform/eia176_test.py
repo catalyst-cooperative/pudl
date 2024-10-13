@@ -124,10 +124,10 @@ def test_get_wide_table():
     long_table.loc[0] = COMPANY_1
     long_table.loc[1] = COMPANY_2
     long_table["variable_name"] = long_table["line"] + "_" + long_table["atype"]
+    long_table = long_table.drop(columns=DROP_COLS)
 
-    drop_columns = DROP_COLS
     primary_key = ["report_year", "area", "id"]
-    wide_table = get_wide_table(long_table, primary_key, drop_columns)
+    wide_table = get_wide_table(long_table, primary_key)
     wide_table = wide_table.fillna(0)
 
     assert wide_table.shape == (2, 4)
