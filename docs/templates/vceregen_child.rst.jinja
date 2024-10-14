@@ -39,12 +39,15 @@ Sub-county regions
 ------------------
 
 The data include some sub-county regions such as lakes and cities meaning that the
-county_id_fips and datetime_utc fields are many:1 rather than 1:1.
+county_id_fips and datetime_utc fields are many:1 rather than 1:1. We've averaged out
+the cities but kept the lakes in the data. Note that lakes bordering multiple states
+will appear more than once in the data. VCE used a nearest neighbor technique to assign
+the state waters to the counties (this pertains to coastal areas as well).
 
 Abnormally large capacity factors
 ---------------------------------
 There are also a couple of capacity factor values for the solar pv data that exceed
-the maximum value of 1 for capacity factor.
+the maximum value of 1 for capacity factor. This is due to cooler panel temperatures.
 
 8760-hour years
 ---------------

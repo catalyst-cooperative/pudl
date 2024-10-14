@@ -292,8 +292,8 @@ def check_hourly_available_cap_fac_table(asset_df: pd.DataFrame):
             passed=False, description="Found NA values when there should be none"
         )
     # Make sure the capacity_factor values are below the expected value
-    # For right now there are some solar values that are slightly over 1
-    # I'm not sure why...
+    # There are some solar values that are slightly over 1 due to colder
+    # than average panel temperatures.
     if (asset_df.iloc[:, asset_df.columns.str.contains("cap")] > 1.02).all().all():
         return AssetCheckResult(
             passed=False,
