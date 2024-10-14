@@ -190,6 +190,46 @@ def _combine_cap_fac_with_fips_df(
     return combined_df
 
 
+def _combine_city_county_records(df: pd.DataFrame) -> pd.DataFrame:
+    """Average cap fac values for city and county values with the same FIPS ID.
+
+    There are several duplicate FIPS code values in the data. Most of them
+    are lakes within a county, but some of them are cities. Only one of the
+    cities, clifton forge city, has values, so we average those values
+    with that of the county. The other city, XXX, has no values so we
+    remove it.
+
+    """
+    bad_county_mask = df["county_state_names"].isin(
+        ["alleghany_virginia", "clifton_forge_city_virginia"]
+    )
+    # Take the subset of the data that's relevant to the changes and sort the values
+    # by county_state so that alleghany is first and those are the values that are
+    # preserved by the groupby "first" below.
+    subset_df = df[bad_county_mask].sort_values(by=["county_state_names"])
+    cap_fac_cols = [x for x in subset_df.columns if "capacity_factor" in x]
+    other_cols = [
+        x for x in subset_df.columns if x not in cap_fac_cols + ["datetime_utc"]
+    ]
+    grouped_df = (
+        subset_df.groupby(["datetime_utc"], sort=False)
+        .agg(
+            {
+                **{col: "mean" for col in cap_fac_cols},
+                **{col: "first" for col in other_cols},
+            }
+        )
+        .reset_index()
+    )
+    out_df = pd.concat([df[~bad_county_mask], grouped_df])
+    # Now lets remove the records for the other city with no values
+    bad_county_mask_2 = out_df["county_state_names"] == "bedford_city_virginia"
+    # Make sure there aren't any non-zero values
+    if not (out_df[bad_county_mask_2][cap_fac_cols] == 0).all().all():
+        raise AssertionError("Found non-zero values for bedford_city_virginia record.")
+    return out_df[~bad_county_mask_2]
+
+
 @asset(
     io_manager_key="parquet_io_manager",
     compute_kind="pandas",
@@ -225,10 +265,11 @@ def out_vceregen__hourly_available_capacity_factor(
         for df_name, df in raw_dict.items()
     }
     # Combine the data!
-    out_df = _combine_all_cap_fac_dfs(clean_dict).pipe(
-        _combine_cap_fac_with_fips_df, fips_df
+    return (
+        _combine_all_cap_fac_dfs(clean_dict)
+        .pipe(_combine_city_county_records)
+        .pipe(_combine_cap_fac_with_fips_df, fips_df)
     )
-    return out_df
 
 
 @asset_check(
@@ -239,11 +280,11 @@ def out_vceregen__hourly_available_capacity_factor(
 def check_hourly_available_cap_fac_table(asset_df: pd.DataFrame):
     """Check that the final output table is as expected."""
     # Make sure the table is the expected length
-    if (length := len(asset_df)) != 136524600:
+    if (length := len(asset_df)) != 136437000:
         return AssetCheckResult(
             passed=False,
             description="Table unexpected length",
-            metadata={"table_length": length, "expected_length": 136524600},
+            metadata={"table_length": length, "expected_length": 136437000},
         )
     # Make sure there are no null values
     if asset_df.isna().any().any():
