@@ -23,7 +23,7 @@ def _prep_lat_long_fips_df(raw_vcegen__lat_lon_fips: pd.DataFrame) -> pd.DataFra
 
     The county portion of the county_state column does not map directly to FIPS ID.
     Some of the county names are actually subregions like cities or lakes. For this
-    reason we've named the column county_or_subregion and it should be considered
+    reason we've named the column county_or_lake_name and it should be considered
     part of the primary key. There are several instances of multiple subregions that
     map to a single county_id_fips value.
     """
@@ -37,7 +37,7 @@ def _prep_lat_long_fips_df(raw_vcegen__lat_lon_fips: pd.DataFrame) -> pd.DataFra
     state_pattern = "|".join(state_names)
     # Transform lat long fips table by making the county_state_names lowercase
     # to match the values in the capacity factor tables. Fix FIPS codes with
-    # no leading zeros, and add a county_or_subregion and state field.
+    # no leading zeros, and add a county_or_lake_name and state field.
     lat_long_fips = (
         raw_vcegen__lat_lon_fips.pipe(simplify_columns)
         .assign(
@@ -48,7 +48,7 @@ def _prep_lat_long_fips_df(raw_vcegen__lat_lon_fips: pd.DataFrame) -> pd.DataFra
         .assign(county_id_fips=lambda x: zero_pad_numeric_string(x.fips, 5))
         .assign(state_id_fips=lambda x: x.county_id_fips.str.extract(r"(\d{2})"))
         .assign(
-            county_or_subregion=lambda x: x.county_state_names.str.extract(
+            county_or_lake_name=lambda x: x.county_state_names.str.extract(
                 rf"(.+)_({state_pattern})$"
             )[0]
         )
@@ -190,6 +190,46 @@ def _combine_cap_fac_with_fips_df(
     return combined_df
 
 
+def _combine_city_county_records(df: pd.DataFrame) -> pd.DataFrame:
+    """Average cap fac values for city and county values with the same FIPS ID.
+
+    There are several duplicate FIPS code values in the data. Most of them
+    are lakes within a county, but some of them are cities. Only one of the
+    cities, clifton forge city, has values, so we average those values
+    with that of the county. The other city, XXX, has no values so we
+    remove it.
+
+    """
+    bad_county_mask = df["county_state_names"].isin(
+        ["alleghany_virginia", "clifton_forge_city_virginia"]
+    )
+    # Take the subset of the data that's relevant to the changes and sort the values
+    # by county_state so that alleghany is first and those are the values that are
+    # preserved by the groupby "first" below.
+    subset_df = df[bad_county_mask].sort_values(by=["county_state_names"])
+    cap_fac_cols = [x for x in subset_df.columns if "capacity_factor" in x]
+    other_cols = [
+        x for x in subset_df.columns if x not in cap_fac_cols + ["datetime_utc"]
+    ]
+    grouped_df = (
+        subset_df.groupby(["datetime_utc"], sort=False)
+        .agg(
+            {
+                **{col: "mean" for col in cap_fac_cols},
+                **{col: "first" for col in other_cols},
+            }
+        )
+        .reset_index()
+    )
+    out_df = pd.concat([df[~bad_county_mask], grouped_df])
+    # Now lets remove the records for the other city with no values
+    bad_county_mask_2 = out_df["county_state_names"] == "bedford_city_virginia"
+    # Make sure there aren't any non-zero values
+    if not (out_df[bad_county_mask_2][cap_fac_cols] == 0).all().all():
+        raise AssertionError("Found non-zero values for bedford_city_virginia record.")
+    return out_df[~bad_county_mask_2]
+
+
 @asset(
     io_manager_key="parquet_io_manager",
     compute_kind="pandas",
@@ -204,7 +244,7 @@ def out_vceregen__hourly_available_capacity_factor(
     """Transform raw Vibrant Clean Energy renewable generation profiles.
 
     Concatenates the solar and wind capacity factors into a single table and turns
-    the columns for each county or subregion into a single county_or_subregion column.
+    the columns for each county or subregion into a single county_or_lake_name column.
     """
     logger.info("Transforming the hourly available capacity factor tables")
     # Clean up the FIPS table
@@ -225,10 +265,11 @@ def out_vceregen__hourly_available_capacity_factor(
         for df_name, df in raw_dict.items()
     }
     # Combine the data!
-    out_df = _combine_all_cap_fac_dfs(clean_dict).pipe(
-        _combine_cap_fac_with_fips_df, fips_df
+    return (
+        _combine_all_cap_fac_dfs(clean_dict)
+        .pipe(_combine_city_county_records)
+        .pipe(_combine_cap_fac_with_fips_df, fips_df)
     )
-    return out_df
 
 
 @asset_check(
@@ -239,11 +280,11 @@ def out_vceregen__hourly_available_capacity_factor(
 def check_hourly_available_cap_fac_table(asset_df: pd.DataFrame):
     """Check that the final output table is as expected."""
     # Make sure the table is the expected length
-    if (length := len(asset_df)) != 136524600:
+    if (length := len(asset_df)) != 136437000:
         return AssetCheckResult(
             passed=False,
             description="Table unexpected length",
-            metadata={"table_length": length, "expected_length": 136524600},
+            metadata={"table_length": length, "expected_length": 136437000},
         )
     # Make sure there are no null values
     if asset_df.isna().any().any():
