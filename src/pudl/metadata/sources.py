@@ -838,8 +838,8 @@ SOURCES: dict[str, Any] = {
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
-    "vceregen": {
-        "title": "Vibrant Clean Energy Renewable Generation Profiles",
+    "vcerare": {
+        "title": "Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset",
         "path": "https://vibrantcleanenergy.com/products/datasets/",
         "description": (
             "This dataset was produced by Vibrant Clean Energy, and is licensed to "
