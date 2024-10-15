@@ -31,3 +31,4 @@ natural_gas_delivery_contract_type_code,,,,,,,natural_gas_delivery_contract_type
 moisture_content_pct,,,,,,,moisture_content,moisture_content,moisture_content,moisture_content,moisture_content,moisture_content,moisture_content,moisture_content,moisture_content,moisture_content,moisture_content
 chlorine_content_ppm,,,,,,,chlorine_content,chlorine_content,chlorine_content,chlorine_content,chlorine_content,chlorine_content,chlorine_content,chlorine_content,chlorine_content,chlorine_content,chlorine_content
 balancing_authority_code_eia,,,,,,,,,,,balancing_authority_code,balancing_authority_code,balancing_authority_code,balancing_authority_code,balancing_authority_code,balancing_authority_code,ba_code
+early_release,,,,,,,,,,,,,,,,,
