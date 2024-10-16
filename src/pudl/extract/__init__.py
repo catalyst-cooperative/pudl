@@ -26,6 +26,6 @@ from . import (
     gridpathratoolkit,
     nrelatb,
     phmsagas,
-    vceregen,
+    vcerare,
     xbrl,
 )

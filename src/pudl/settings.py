@@ -401,15 +401,15 @@ class EiaAeoSettings(GenericDatasetSettings):
     years: list[int] = data_source.working_partitions["years"]
 
 
-class VCERegenSettings(GenericDatasetSettings):
-    """An immutable pydantic model to validate VCE Renewable Generation Profile settings.
+class VCERARESettings(GenericDatasetSettings):
+    """An immutable pydantic model to validate VCE RARE generation profile settings.
 
     Args:
         data_source: DataSource metadata object
         years: VCE report years to use.
     """
 
-    data_source: ClassVar[DataSource] = DataSource.from_id("vceregen")
+    data_source: ClassVar[DataSource] = DataSource.from_id("vcerare")
     years: list[int] = data_source.working_partitions["years"]
     fips: bool = True
 
@@ -584,7 +584,7 @@ class DatasetsSettings(FrozenBaseModel):
     phmsagas: PhmsaGasSettings | None = None
     nrelatb: NrelAtbSettings | None = None
     gridpathratoolkit: GridPathRAToolkitSettings | None = None
-    vceregen: VCERegenSettings | None = None
+    vcerare: VCERARESettings | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -606,7 +606,7 @@ class DatasetsSettings(FrozenBaseModel):
             data["phmsagas"] = PhmsaGasSettings()
             data["nrelatb"] = NrelAtbSettings()
             data["gridpathratoolkit"] = GridPathRAToolkitSettings()
-            data["vceregen"] = VCERegenSettings()
+            data["vcerare"] = VCERARESettings()
 
         return data
 

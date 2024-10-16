@@ -26,9 +26,14 @@ EIA 860
 ~~~~~~~
 * Added EIA 860 final release data from 2023. See :issue:`3684` and PR :pr:`3871`.
 
+EIA 923
+~~~~~~~
+* Added EIA 923 final release data from 2023 and revised data from 2022. See
+  :issue:`3902` and PR :pr:`3903`.
+
 FERC Form 714
 ~~~~~~~~~~~~~
-* Integrate 2021-2023 years of the FERC Form 714 data. FERC updated its reporting
+* Integrated 2021-2023 years of the FERC Form 714 data. FERC updated its reporting
   format for 2021 from a CSV files to XBRL files. This update integrates the two
   raw data sources and extends the data coverage through 2023. See :issue:`3809`
   and :pr:`3842`.
@@ -41,15 +46,15 @@ Schema Changes
 
 Bug Fixes
 ^^^^^^^^^
-* Include more retiring generators in the net generation and fuel consumption
+* Included more retiring generators in the net generation and fuel consumption
   allocation. Thanks to :user:`grgmiller` for this contirbution :pr:`3690`.
-* Fix a bug found in the rolling averages used to impute missing values in
+* Fixed a bug found in the rolling averages used to impute missing values in
   ``fuel_cost_per_mmbtu`` and to calculate ``capex_annual_addition_rolling``. Thanks
   to RMI for identifying this bug! See issue :issue:`3889` and PR :pr:`3892`.
 
 Major Dependency Updates
 ^^^^^^^^^^^^^^^^^^^^^^^^
-* Update to use `Numpy v2.0 <https://numpy.org/doc/stable/release/2.0.0-notes.html>`__
+* Updated to use `Numpy v2.0 <https://numpy.org/doc/stable/release/2.0.0-notes.html>`__
   and `Splink v4.0 <https://moj-analytical-services.github.io/splink/blog/2024/07/24/splink-400-released.html>`__.
   See issues :issue:`3736,3735` and PRs :pr:`3547,3834`.
 
