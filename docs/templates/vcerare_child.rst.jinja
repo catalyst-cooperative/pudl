@@ -1,8 +1,9 @@
 {% extends "data_source_parent.rst.jinja" %}
 {% block background %}
-The data in this table were produced by Vibrant Clean Energy based on outputs from the
-NOA HRRR model and are licensed to the public under the Creative Commons Attribution
-4.0 International license (CC-BY-4.0).
+The data in the Resource Adequacy Renewble Energy (RARE) Power Dataset was produced by
+Vibrant Clean Energy based on outputs from the NOA HRRR model and are licensed
+to the public under the Creative Commons Attribution 4.0 International license
+(CC-BY-4.0).
 
 See the Zenodo archive README for more detailed information.
 
@@ -44,10 +45,12 @@ the cities but kept the lakes in the data. Note that lakes bordering multiple st
 will appear more than once in the data. VCE used a nearest neighbor technique to assign
 the state waters to the counties (this pertains to coastal areas as well).
 
-Abnormally large capacity factors
----------------------------------
-There are also a couple of capacity factor values for the solar pv data that exceed
-the maximum value of 1 for capacity factor. This is due to cooler panel temperatures.
+Capacity factors > 1
+--------------------
+There are a couple of capacity factor values for the solar pv data that exceed
+the maximum value of 1 for capacity factor. This is due to power production performance
+being correlated with panel temperatures. During cold sunny periods, some solar capacity
+factor values are greater than 1 (but less that 1.1).
 
 8760-hour years
 ---------------

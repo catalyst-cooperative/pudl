@@ -162,7 +162,7 @@ def data_sources_metadata_to_rst(app):
         "epacems",
         "phmsagas",
         "gridpathratoolkit",
-        "vceregen",
+        "vcerare",
     ]
     package = PUDL_PACKAGE
     extra_etl_groups = {"eia860": ["entity_eia"], "ferc1": ["glue"]}

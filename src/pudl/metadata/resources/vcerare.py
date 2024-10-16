@@ -3,7 +3,7 @@
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
-    "out_vceregen__hourly_available_capacity_factor": {
+    "out_vcerare__hourly_available_capacity_factor": {
         "description": (
             "The data in this table were produced by Vibrant Clean Energy, and are "
             "licensed to the public under the Creative Commons Attribution 4.0 International "
@@ -54,9 +54,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ],
             "primary_key": ["datetime_utc", "state", "county_or_lake_name"],
         },
-        "sources": ["vceregen"],
-        "field_namespace": "vceregen",
-        "etl_group": "vceregen",
+        "sources": ["vcerare"],
+        "field_namespace": "vcerare",
+        "etl_group": "vcerare",
         "create_database_schema": False,
     },
 }

@@ -18,7 +18,7 @@ The following data sources serve as the foundation for our data pipeline.
    ferc714
    phmsagas
    gridpathratoolkit
-   vceregen
+   vcerare
    other_data
 
 .. toctree::

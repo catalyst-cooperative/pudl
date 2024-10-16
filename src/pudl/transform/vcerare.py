@@ -235,11 +235,11 @@ def _combine_city_county_records(df: pd.DataFrame) -> pd.DataFrame:
     compute_kind="pandas",
     op_tags={"memory-use": "high"},
 )
-def out_vceregen__hourly_available_capacity_factor(
+def out_vcerare__hourly_available_capacity_factor(
     raw_vcegen__lat_lon_fips: pd.DataFrame,
-    raw_vceregen__fixed_solar_pv_lat_upv: pd.DataFrame,
-    raw_vceregen__offshore_wind_power_140m: pd.DataFrame,
-    raw_vceregen__onshore_wind_power_100m: pd.DataFrame,
+    raw_vcerare__fixed_solar_pv_lat_upv: pd.DataFrame,
+    raw_vcerare__offshore_wind_power_140m: pd.DataFrame,
+    raw_vcerare__onshore_wind_power_100m: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform raw Vibrant Clean Energy renewable generation profiles.
 
@@ -253,9 +253,9 @@ def out_vceregen__hourly_available_capacity_factor(
     # than doing it to a concatinated table but less memory intensive because
     # it doesn't need to process the ginormous table all at once.
     raw_dict = {
-        "solar_pv": raw_vceregen__fixed_solar_pv_lat_upv,
-        "offshore_wind": raw_vceregen__offshore_wind_power_140m,
-        "onshore_wind": raw_vceregen__onshore_wind_power_100m,
+        "solar_pv": raw_vcerare__fixed_solar_pv_lat_upv,
+        "offshore_wind": raw_vcerare__offshore_wind_power_140m,
+        "onshore_wind": raw_vcerare__onshore_wind_power_100m,
     }
     clean_dict = {
         df_name: _check_for_valid_counties(df, fips_df, df_name)
@@ -273,7 +273,7 @@ def out_vceregen__hourly_available_capacity_factor(
 
 
 @asset_check(
-    asset=out_vceregen__hourly_available_capacity_factor,
+    asset=out_vcerare__hourly_available_capacity_factor,
     blocking=True,
     description="Check that output table is as expected.",
 )
