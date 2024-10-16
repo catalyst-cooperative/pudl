@@ -208,7 +208,7 @@ class ZenodoDoiSettings(BaseSettings):
     gridpathratoolkit: ZenodoDoi = "10.5281/zenodo.10892394"
     phmsagas: ZenodoDoi = "10.5281/zenodo.10493790"
     nrelatb: ZenodoDoi = "10.5281/zenodo.12658647"
-    vceregen: ZenodoDoi = "10.5072/zenodo.116832"  # TODO: UPDATE TEMP SANDBOX DOI
+    vcerare: ZenodoDoi = "10.5281/zenodo.13937523"
 
     model_config = SettingsConfigDict(
         env_prefix="pudl_zenodo_doi_", env_file=".env", extra="ignore"

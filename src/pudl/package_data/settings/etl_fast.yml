@@ -97,6 +97,6 @@ datasets:
     technology_types: ["wind"]
     processing_levels: ["extended"]
     daily_weather: true
-  vceregen:
+  vcerare:
     years: [2023]
     fips: True

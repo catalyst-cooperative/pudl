@@ -1,4 +1,4 @@
-"""Extract VCE renewable generation profile data from CSVs.
+"""Extract VCE Resource Adequacy Renewable Energy (RARE) generation profile data.
 
 This dataset has 1,000s of columns, so we don't want to manually specify a rename on
 import because we'll pivot these to a column. We adapt the standard extraction
@@ -9,7 +9,7 @@ Wind_Power_140m_Offshore_county.csv
 Wind_Power_100m_Onshore_county.csv
 Fixed_SolarPV_Lat_UPV_county.csv
 
-The drive also contains one more file: RA_county_lat_long_FIPS_table.csv. This file is
+The drive also contains one more file: vce_county_lat_long_fips_table.csv. This file is
 not partitioned, so we always read it in regardless of the partitions configured for the
 run.
 """
@@ -27,7 +27,7 @@ from pudl.extract.extractor import GenericMetadata, PartitionSelection, raw_df_f
 
 logger = logging_helpers.get_logger(__name__)
 
-VCEREGEN_PAGES = [
+VCERARE_PAGES = [
     "offshore_wind_power_140m",
     "onshore_wind_power_100m",
     "fixed_solar_pv_lat_upv",
@@ -35,7 +35,7 @@ VCEREGEN_PAGES = [
 
 
 class VCEMetadata(GenericMetadata):
-    """Special metadata class for VCE renewable generation profiles."""
+    """Special metadata class for VCE RARE renewable generation profiles."""
 
     def __init__(self, *args, **kwargs):
         """Initialize the module.
@@ -52,7 +52,7 @@ class VCEMetadata(GenericMetadata):
 
     def get_all_pages(self) -> list[str]:
         """Hard code the page names, which usually are pulled from column rename spreadsheets."""
-        return VCEREGEN_PAGES
+        return VCERARE_PAGES
 
     def get_file_name(self, page, **partition):
         """Returns file name of given partition and page."""
@@ -68,7 +68,7 @@ class Extractor(CsvExtractor):
         Args:
             ds (:class:datastore.Datastore): Initialized datastore.
         """
-        self.METADATA = VCEMetadata("vceregen")
+        self.METADATA = VCEMetadata("vcerare")
         super().__init__(*args, **kwargs)
 
     def get_column_map(self, page, **partition):
@@ -150,29 +150,29 @@ class Extractor(CsvExtractor):
         return self.process_final_page(df, page)
 
 
-raw_vceregen__all_dfs = raw_df_factory(Extractor, name="vceregen")
+raw_vcerare__all_dfs = raw_df_factory(Extractor, name="vcerare")
 
 
-def raw_vceregen_asset_factory(part: str) -> AssetsDefinition:
+def raw_vcerare_asset_factory(part: str) -> AssetsDefinition:
     """An asset factory for VCE hourly renewable generation profiles."""
     asset_kwargs = {
-        "name": f"raw_vceregen__{part}",
+        "name": f"raw_vcerare__{part}",
         "required_resource_keys": {"datastore", "dataset_settings"},
     }
 
     @asset(**asset_kwargs)
-    def _extract(context, raw_vceregen__all_dfs):
+    def _extract(context, raw_vcerare__all_dfs):
         """Extract raw GridPath RA Toolkit renewable energy generation profiles.
 
         Args:
             context: dagster keyword that provides access to resources and config.
         """
-        return Output(value=raw_vceregen__all_dfs[part])
+        return Output(value=raw_vcerare__all_dfs[part])
 
     return _extract
 
 
-raw_vceregen_assets = [raw_vceregen_asset_factory(part) for part in VCEREGEN_PAGES]
+raw_vcerare_assets = [raw_vcerare_asset_factory(part) for part in VCERARE_PAGES]
 
 
 @asset(required_resource_keys={"datastore", "dataset_settings"})
@@ -183,9 +183,9 @@ def raw_vcegen__lat_lon_fips(context) -> pd.DataFrame:
     its extraction is controlled by a boolean in the ETL run.
     """
     ds = context.resources.datastore
-    partition_settings = context.resources.dataset_settings.vceregen
+    partition_settings = context.resources.dataset_settings.vcerare
     if partition_settings.fips:
         return pd.read_csv(
-            BytesIO(ds.get_unique_resource("vceregen", fips=partition_settings.fips))
+            BytesIO(ds.get_unique_resource("vcerare", fips=partition_settings.fips))
         )
     return pd.DataFrame()
