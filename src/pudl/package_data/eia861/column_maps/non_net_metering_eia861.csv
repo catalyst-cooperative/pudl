@@ -26,7 +26,7 @@ commercial_all_storage_energy_capacity_mwh,-1,-1,-1,-1,-1,-1,-1,23
 industrial_all_storage_energy_capacity_mwh,-1,-1,-1,-1,-1,-1,-1,24
 transportation_all_storage_energy_capacity_mwh,-1,-1,-1,-1,-1,-1,-1,25
 direct_connection_all_storage_energy_capacity_mwh,-1,-1,-1,-1,-1,-1,-1,26
-total_all_storage_capacity_mw,-1,-1,-1,-1,-1,-1,-1,27
+total_all_storage_energy_capacity_mwh,-1,-1,-1,-1,-1,-1,-1,27
 residential_wind_capacity_mw,22,22,22,22,22,22,22,28
 commercial_wind_capacity_mw,23,23,23,23,23,23,23,29
 industrial_wind_capacity_mw,24,24,24,24,24,24,24,30
