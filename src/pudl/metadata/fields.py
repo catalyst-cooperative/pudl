@@ -474,10 +474,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Based on outputs from the NOAA HRRR operational numerical "
             "weather prediction model. Capacity factors are normalized "
             "to unity for maximal power output. "
-            "vertical slices of the atmosphere are considered across the "
+            "Vertical slices of the atmosphere are considered across the "
             "defined rotor swept area. Bringing together wind speed, density, "
             "temperature and icing information, a power capacity is estimated "
-            "using a representative power coeffienct (Cp) curve to determine "
+            "using a representative power coefficient (Cp) curve to determine "
             "the power from a given wind speed, atmospheric density and "
             "temperature. There is no wake modeling included in the dataset."
         ),
@@ -490,10 +490,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Based on outputs from the NOAA HRRR operational numerical "
             "weather prediction model. Capacity factors are normalized "
             "to unity for maximal power output. "
-            "vertical slices of the atmosphere are considered across the "
+            "Vertical slices of the atmosphere are considered across the "
             "defined rotor swept area. Bringing together wind speed, density, "
             "temperature and icing information, a power capacity is estimated "
-            "using a representative power coeffienct (Cp) curve to determine "
+            "using a representative power coefficient (Cp) curve to determine "
             "the power from a given wind speed, atmospheric density and "
             "temperature. There is no wake modeling included in the dataset."
         ),
@@ -501,7 +501,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "capacity_factor_solar_pv": {
         "type": "number",
         "description": (
-            "Estimated capacity factor (0-1) calculated for solar pv "
+            "Estimated capacity factor (0-1) calculated for solar PV "
             "assuming a fixed axis panel tilted at latitude and DC power "
             "outputs. To convert to AC, multiply by 1.34 and clip all "
             "values greater than 1. Note that some values are greater "

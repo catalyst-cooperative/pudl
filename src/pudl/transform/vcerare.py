@@ -106,9 +106,9 @@ def _add_time_cols(df: pd.DataFrame, df_name: str) -> pd.DataFrame:
 
 
 def _stack_cap_fac_df(df: pd.DataFrame, df_name: str) -> pd.DataFrame:
-    """Funciton to transform each capacity factor table individually to save memory.
+    """Function to transform each capacity factor table individually to save memory.
 
-    The main transforms are turning count/subregion columns into county/subregion rows
+    The main transforms are turning county/subregion columns into county/subregion rows
     and renaming columns to be more human-readable and compatible with the FIPs df
     that will get merged in.
 
@@ -195,7 +195,7 @@ def _combine_city_county_records(df: pd.DataFrame) -> pd.DataFrame:
 
     There are several duplicate FIPS code values in the data. Most of them
     are lakes within a county, but some of them are cities. Only one of the
-    cities, clifton forge city, has values, so we average those values
+    cities, Clifton Forge City, has values, so we average those values
     with that of the county. The other city, XXX, has no values so we
     remove it.
 
@@ -236,7 +236,7 @@ def _combine_city_county_records(df: pd.DataFrame) -> pd.DataFrame:
     op_tags={"memory-use": "high"},
 )
 def out_vcerare__hourly_available_capacity_factor(
-    raw_vcegen__lat_lon_fips: pd.DataFrame,
+    raw_vcerare__lat_lon_fips: pd.DataFrame,
     raw_vcerare__fixed_solar_pv_lat_upv: pd.DataFrame,
     raw_vcerare__offshore_wind_power_140m: pd.DataFrame,
     raw_vcerare__onshore_wind_power_100m: pd.DataFrame,
@@ -250,7 +250,7 @@ def out_vcerare__hourly_available_capacity_factor(
     # Clean up the FIPS table
     fips_df = _prep_lat_long_fips_df(raw_vcegen__lat_lon_fips)
     # Apply the same transforms to all the capacity factor tables. This is slower
-    # than doing it to a concatinated table but less memory intensive because
+    # than doing it to a concatenated table but less memory intensive because
     # it doesn't need to process the ginormous table all at once.
     raw_dict = {
         "solar_pv": raw_vcerare__fixed_solar_pv_lat_upv,
@@ -310,7 +310,7 @@ def check_hourly_available_cap_fac_table(asset_df: pd.DataFrame):
         return AssetCheckResult(
             passed=False, description="Found hour_of_year values larger than 8760"
         )
-    # Make sure Dec 31/2029 is missing
+    # Make sure Dec 31, 2020 is missing (leap year handling is correct)
     if not asset_df[asset_df["datetime_utc"] == pd.to_datetime("2020-12-31")].empty:
         return AssetCheckResult(
             passed=False,

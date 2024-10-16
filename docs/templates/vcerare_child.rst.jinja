@@ -18,7 +18,7 @@ The cleaned PUDL table is hundreds of millions of rows, so don't try and open it
 
 {% block availability %}
 Hourly, county-level data from 2019 - 2023 is integrated into PUDL. There is a
-second release of data for the years 2014 - 2018 expected in Q1 of 2025. This may or
+second release of data for the years 2014 - 2018 expected in Q1 of 2025, which will be integrated into PUDL pending funding availability.
 may not be integrated into PUDL.
 {% endblock %}
 
@@ -28,11 +28,11 @@ data reporting.
 {% endblock %}
 
 {% block original_data %}
-The contents of the original CSVs are stripped down so that Excel can display the
+The contents of the original CSVs are formatted so that Excel can display the
 data without crashing. There's one file per year per generation type, and each
 file contains an index column for time (simply 1, 2, 3...8760 to
 represent the hours in a year) and columns for each county populated with capacity
-factor values from 0-1.
+factor values as a percentage from 0-100.
 {% endblock %}
 
 {% block notable_irregularities %}
@@ -47,7 +47,7 @@ the state waters to the counties (this pertains to coastal areas as well).
 
 Capacity factors > 1
 --------------------
-There are a couple of capacity factor values for the solar pv data that exceed
+There are a couple of capacity factor values for the solar PV data that exceed
 the maximum value of 1 for capacity factor. This is due to power production performance
 being correlated with panel temperatures. During cold sunny periods, some solar capacity
 factor values are greater than 1 (but less that 1.1).
@@ -55,6 +55,6 @@ factor values are greater than 1 (but less that 1.1).
 8760-hour years
 ---------------
 This data is primarily used for modeling purposes and conforms to the 8760 hour/year
-standard regardless of leapyears. This means that 2020 is missing data for December 31st.
+standard regardless of leap years. This means that 2020 is missing data for December 31st.
 
 {% endblock %}

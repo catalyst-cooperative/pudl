@@ -12,7 +12,7 @@ New Data
 Vibrant Clean Energy Renewable Generation Profiles
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 * Integrate the VCE hourly capacity factor data for solar PV, onshore wind, and offshore wind
-  wind from 2019 to 2024. The data in this table were produced by Vibrant Clean
+  wind from 2019 through 2023. The data in this table were produced by Vibrant Clean
   Energy, and are licensed to the public under the Creative Commons Attribution
   4.0 International license (CC-BY-4.0). This data complements the WECC-wide GridPath RA Toolkit data currently incorporated into PUDL, providing capacity factor data nation-wide with a different set of modelling assumptions. See (LINK TO data source page or data_sources PDF) for more information.
   capacity factor data calculated at different granularities and using different
