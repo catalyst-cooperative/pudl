@@ -193,7 +193,7 @@ class ZenodoDoiSettings(BaseSettings):
     eia860: ZenodoDoi = "10.5281/zenodo.13682785"
     eia860m: ZenodoDoi = "10.5281/zenodo.12656895"
     eia861: ZenodoDoi = "10.5281/zenodo.10204708"
-    eia923: ZenodoDoi = "10.5281/zenodo.12721286"
+    eia923: ZenodoDoi = "10.5281/zenodo.13884405"
     eia930: ZenodoDoi = "10.5281/zenodo.13149087"
     eiawater: ZenodoDoi = "10.5281/zenodo.10806016"
     eiaaeo: ZenodoDoi = "10.5281/zenodo.10838488"
@@ -208,7 +208,7 @@ class ZenodoDoiSettings(BaseSettings):
     gridpathratoolkit: ZenodoDoi = "10.5281/zenodo.10892394"
     phmsagas: ZenodoDoi = "10.5281/zenodo.10493790"
     nrelatb: ZenodoDoi = "10.5281/zenodo.12658647"
-    vceregen: ZenodoDoi = "10.5072/zenodo.116832"  # TODO: UPDATE TEMP SANDBOX DOI
+    vcerare: ZenodoDoi = "10.5281/zenodo.13937523"
 
     model_config = SettingsConfigDict(
         env_prefix="pudl_zenodo_doi_", env_file=".env", extra="ignore"
