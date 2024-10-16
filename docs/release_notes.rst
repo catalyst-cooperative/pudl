@@ -11,7 +11,7 @@ New Data
 
 Vibrant Clean Energy Renewable Generation Profiles
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-* Integrate the VCE hourly capacity factor data for solar pv, onshore, and offshore
+* Integrate the VCE hourly capacity factor data for solar PV, onshore wind, and offshore wind
   wind from 2019 to 2024. The data in this table were produced by Vibrant Clean
   Energy, and are licensed to the public under the Creative Commons Attribution
   4.0 International license (CC-BY-4.0). Compare this data to the gridpathratoolkit
