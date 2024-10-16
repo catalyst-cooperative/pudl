@@ -298,7 +298,7 @@ if [[ $ETL_SUCCESS == 0 ]]; then
     # If running a tagged release, ensure that outputs can't be accidentally deleted
     # It's not clear that an object lock can be applied in S3 with the AWS CLI
     if [[ "$GITHUB_ACTION_TRIGGER" == "push" && "$BUILD_REF" == v20* ]]; then
-        gcloud storage --billing-project="catalyst-cooperative-pudl" objects update "gs://pudl.catalyst.coop/$BUILD_REF/*" --temporary-hold 2>&1 | tee -a "$LOGFILE"
+        gcloud storage --billing-project="$GCP_BILLING_PROJECT" objects update "gs://pudl.catalyst.coop/$BUILD_REF/*" --temporary-hold 2>&1 | tee -a "$LOGFILE"
         GCS_TEMPORARY_HOLD_SUCCESS=${PIPESTATUS[0]}
     fi
 fi

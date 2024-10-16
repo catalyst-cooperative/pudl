@@ -1,17 +1,16 @@
-"""Extract VCE Resource Adequacy Renewable Energy (RARE) generation profile data.
+"""Extract VCE Resource Adequacy Renewable Energy (RARE) Power Dataset.
 
 This dataset has 1,000s of columns, so we don't want to manually specify a rename on
-import because we'll pivot these to a column. We adapt the standard extraction
-infrastructure to simply read in the data.
+import because we'll pivot these to a column in the transform step. We adapt the
+standard extraction infrastructure to simply read in the data.
 
 Each annual zip folder contains a folder with three files:
 Wind_Power_140m_Offshore_county.csv
 Wind_Power_100m_Onshore_county.csv
 Fixed_SolarPV_Lat_UPV_county.csv
 
-The drive also contains one more file: vce_county_lat_long_fips_table.csv. This file is
-not partitioned, so we always read it in regardless of the partitions configured for the
-run.
+The drive also contains one more CSV file: vce_county_lat_long_fips_table.csv. This gets
+read in when the fips partition is set to True.
 """
 
 from collections import defaultdict
@@ -34,8 +33,8 @@ VCERARE_PAGES = [
 ]
 
 
-class VCEMetadata(GenericMetadata):
-    """Special metadata class for VCE RARE renewable generation profiles."""
+class VCERareMetadata(GenericMetadata):
+    """Special metadata class for VCE RARE Power Dataset."""
 
     def __init__(self, *args, **kwargs):
         """Initialize the module.
@@ -60,7 +59,7 @@ class VCEMetadata(GenericMetadata):
 
 
 class Extractor(CsvExtractor):
-    """Extractor for VCE renewable generation profiles."""
+    """Extractor for VCE RARE Power Dataset."""
 
     def __init__(self, *args, **kwargs):
         """Initialize the module.
@@ -68,7 +67,7 @@ class Extractor(CsvExtractor):
         Args:
             ds (:class:datastore.Datastore): Initialized datastore.
         """
-        self.METADATA = VCEMetadata("vcerare")
+        self.METADATA = VCERareMetadata("vcerare")
         super().__init__(*args, **kwargs)
 
     def get_column_map(self, page, **partition):
@@ -154,7 +153,7 @@ raw_vcerare__all_dfs = raw_df_factory(Extractor, name="vcerare")
 
 
 def raw_vcerare_asset_factory(part: str) -> AssetsDefinition:
-    """An asset factory for VCE hourly renewable generation profiles."""
+    """An asset factory for VCE RARE Power Dataset."""
     asset_kwargs = {
         "name": f"raw_vcerare__{part}",
         "required_resource_keys": {"datastore", "dataset_settings"},
@@ -162,7 +161,7 @@ def raw_vcerare_asset_factory(part: str) -> AssetsDefinition:
 
     @asset(**asset_kwargs)
     def _extract(context, raw_vcerare__all_dfs):
-        """Extract raw GridPath RA Toolkit renewable energy generation profiles.
+        """Extract VCE RARE Power Dataset.
 
         Args:
             context: dagster keyword that provides access to resources and config.
