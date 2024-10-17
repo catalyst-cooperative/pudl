@@ -19,13 +19,16 @@ def _prep_lat_long_fips_df(raw_vcegen__lat_lon_fips: pd.DataFrame) -> pd.DataFra
 
     Prep entails making sure the formatting and column names match those in the
     capacity factor tables, adding 0s to the beginning of FIPS codes with 4 values,
-    and making separate county/subregion and state columns.
+    and making separate county/subregion and state columns. Instead of pulling state
+    from the county_state column, we use the first two digits of the county FIPS ID
+    to pull in state code values from the census data stored in POLITICAL_SUBDIVISIONS.
 
     The county portion of the county_state column does not map directly to FIPS ID.
     Some of the county names are actually subregions like cities or lakes. For this
     reason we've named the column county_or_lake_name and it should be considered
     part of the primary key. There are several instances of multiple subregions that
     map to a single county_id_fips value.
+
     """
     logger.info(
         "Preping Lat-Long-FIPS table for merging with the capacity factor tables"
