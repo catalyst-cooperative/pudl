@@ -298,13 +298,13 @@ def check_hourly_available_cap_fac_table(asset_df: pd.DataFrame):
     # Make sure the capacity_factor values are below the expected value
     # There are some solar values that are slightly over 1 due to colder
     # than average panel temperatures.
-    if (asset_df.iloc[:, asset_df.columns.str.contains("cap")] > 1.02).all().all():
+    if (asset_df.iloc[:, asset_df.columns.str.contains("cap")] > 1.02).any().any():
         return AssetCheckResult(
             passed=False,
             description="Found capacity factor fraction values greater than 1.02",
         )
     # Make sure capacity_factor values are greater than or equal to 0
-    if (asset_df.iloc[:, asset_df.columns.str.contains("cap")] < 0).all().all():
+    if (asset_df.iloc[:, asset_df.columns.str.contains("cap")] < 0).any().any():
         return AssetCheckResult(
             passed=False,
             description="Found capacity factor fraction values less than 0",
