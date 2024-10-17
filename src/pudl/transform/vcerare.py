@@ -140,7 +140,7 @@ def _make_cap_fac_frac(df: pd.DataFrame, df_name: str) -> pd.DataFrame:
     This step happens before the table gets stacked to save memory.
     """
     logger.info(f"Converting capacity factor into a fraction for {df_name} table.")
-    county_cols = [x for x in df.columns if x not in ["report_year", "unnamed_0"]]
+    county_cols = [x for x in df.columns if x not in ["report_year", "hour_of_year"]]
     df[county_cols] = df[county_cols] / 100
     return df
 
@@ -263,8 +263,8 @@ def out_vcerare__hourly_available_capacity_factor(
     }
     clean_dict = {
         df_name: _check_for_valid_counties(df, fips_df, df_name)
-        .pipe(_make_cap_fac_frac, df_name)
         .pipe(_add_time_cols, df_name)
+        .pipe(_make_cap_fac_frac, df_name)
         .pipe(_stack_cap_fac_df, df_name)
         for df_name, df in raw_dict.items()
     }
