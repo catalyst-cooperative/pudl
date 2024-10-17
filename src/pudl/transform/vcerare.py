@@ -35,23 +35,25 @@ def _prep_lat_long_fips_df(raw_vcegen__lat_lon_fips: pd.DataFrame) -> pd.DataFra
         ps_usa_df, ["subdivision_name"]
     ).subdivision_name.tolist()
     state_pattern = "|".join(state_names)
-    # Transform lat long fips table by making the county_state_names lowercase
-    # to match the values in the capacity factor tables. Fix FIPS codes with
-    # no leading zeros, and add a county_or_lake_name and state field.
     lat_long_fips = (
+        # Making the county_state_names lowercase to match the values in the capacity factor tables
         raw_vcegen__lat_lon_fips.pipe(simplify_columns)
         .assign(
             county_state_names=lambda x: x.county_state_names.str.lower().replace(
                 {r"\.": "", "-": "_"}, regex=True
             )
         )
+        # Fix FIPS codes with no leading zeros
         .assign(county_id_fips=lambda x: zero_pad_numeric_string(x.fips, 5))
+        # Add a state FIPS code so we can merge in the state code
         .assign(state_id_fips=lambda x: x.county_id_fips.str.extract(r"(\d{2})"))
+        # Extract the county or lake name from the county_state_name field
         .assign(
             county_or_lake_name=lambda x: x.county_state_names.str.extract(
                 rf"(.+)_({state_pattern})$"
             )[0]
         )
+        # Add state column: e.g.: MA, RI, CA, TX
         .merge(
             ps_usa_df[["state_id_fips", "subdivision_code"]],
             on=["state_id_fips"],
@@ -64,6 +66,7 @@ def _prep_lat_long_fips_df(raw_vcegen__lat_lon_fips: pd.DataFrame) -> pd.DataFra
                 "subdivision_code": "state",
             }
         )
+        # Remove state FIPS code column in favor of the newly added state column.
         .drop(columns=["state_id_fips", "fips"])
     )
     return lat_long_fips
