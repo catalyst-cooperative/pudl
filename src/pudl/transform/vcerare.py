@@ -42,19 +42,27 @@ def _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips: pd.DataFrame) -> pd.DataFr
         # Making the county_state_names lowercase to match the values in the capacity factor tables
         raw_vcerare__lat_lon_fips.pipe(simplify_columns)
         .assign(
-            county_state_names=lambda x: x.county_state_names.str.lower().replace(
-                {r"\.": "", "-": "_"}, regex=True
-            )
+            county_state_names=lambda x: x.county_state_names.str.lower()
+            .replace({r"\.": "", "-": "_"}, regex=True)
+            .astype("category")
         )
         # Fix FIPS codes with no leading zeros
-        .assign(county_id_fips=lambda x: zero_pad_numeric_string(x.fips, 5))
+        .assign(
+            county_id_fips=lambda x: zero_pad_numeric_string(x.fips, 5).astype(
+                "category"
+            )
+        )
         # Add a state FIPS code so we can merge in the state code
-        .assign(state_id_fips=lambda x: x.county_id_fips.str.extract(r"(\d{2})"))
+        .assign(
+            state_id_fips=lambda x: x.county_id_fips.str.extract(r"(\d{2})").astype(
+                "category"
+            )
+        )
         # Extract the county or lake name from the county_state_name field
         .assign(
             county_or_lake_name=lambda x: x.county_state_names.str.extract(
-                rf"(.+)_({state_pattern})$"
-            )[0]
+                rf"([a-z_]+)_({state_pattern})$"
+            )[0].astype("category")
         )
         # Add state column: e.g.: MA, RI, CA, TX
         .merge(
@@ -67,11 +75,11 @@ def _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips: pd.DataFrame) -> pd.DataFr
             columns={
                 "lat_county": "latitude",
                 "long_county": "longitude",
-                "subdivision_code": "state",
             }
         )
+        .assign(state=lambda x: x.subdivision_code.astype("category"))
         # Remove state FIPS code column in favor of the newly added state column.
-        .drop(columns=["state_id_fips", "fips"])
+        .drop(columns=["state_id_fips", "fips", "subdivision_code"])
     )
     return lat_long_fips
 
