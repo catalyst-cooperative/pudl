@@ -401,6 +401,19 @@ class EiaAeoSettings(GenericDatasetSettings):
     years: list[int] = data_source.working_partitions["years"]
 
 
+class VCERareSettings(GenericDatasetSettings):
+    """An immutable pydantic model to validate VCE RARE Power Dataset settings.
+
+    Args:
+        data_source: DataSource metadata object
+        years: VCE RARE report years to use.
+    """
+
+    data_source: ClassVar[DataSource] = DataSource.from_id("vcerare")
+    years: list[int] = data_source.working_partitions["years"]
+    fips: bool = True
+
+
 class GlueSettings(FrozenBaseModel):
     """An immutable pydantic model to validate Glue settings.
 
@@ -571,6 +584,7 @@ class DatasetsSettings(FrozenBaseModel):
     phmsagas: PhmsaGasSettings | None = None
     nrelatb: NrelAtbSettings | None = None
     gridpathratoolkit: GridPathRAToolkitSettings | None = None
+    vcerare: VCERareSettings | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -592,6 +606,7 @@ class DatasetsSettings(FrozenBaseModel):
             data["phmsagas"] = PhmsaGasSettings()
             data["nrelatb"] = NrelAtbSettings()
             data["gridpathratoolkit"] = GridPathRAToolkitSettings()
+            data["vcerare"] = VCERareSettings()
 
         return data
 
@@ -810,7 +825,9 @@ class Ferc714XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc714")
-    years: list[int] = [2021, 2022, 2023]
+    years: list[int] = [
+        year for year in data_source.working_partitions["years"] if year >= 2021
+    ]
 
 
 class FercToSqliteSettings(BaseSettings):
@@ -901,6 +918,30 @@ class EtlSettings(BaseSettings):
         with fsspec.open(path) as f:
             yaml_file = yaml.safe_load(f)
         return cls.model_validate(yaml_file)
+
+    @model_validator(mode="after")
+    def validate_xbrl_years(self):
+        """Ensure the XBRL years in DatasetsSettings align with FercToSqliteSettings.
+
+        For each of the FERC forms that we are processing in PUDL, check to ensure
+        that the years we are trying to process in the PUDL ETL are included in the
+        XBRL to SQLite settings.
+        """
+        for which_ferc in ["ferc1", "ferc714"]:
+            if (
+                (pudl_ferc := getattr(self.datasets, which_ferc))
+                and (
+                    sqlite_ferc := getattr(
+                        self.ferc_to_sqlite_settings,
+                        f"{which_ferc}_xbrl_to_sqlite_settings",
+                    )
+                )
+            ) and not set(pudl_ferc.xbrl_years).issubset(set(sqlite_ferc.years)):
+                raise AssertionError(
+                    "You are trying to build a PUDL database with different XBRL years "
+                    f"than the ferc_to_sqlite_settings years for {which_ferc}."
+                )
+        return self
 
 
 def _convert_settings_to_dagster_config(settings_dict: dict[str, Any]) -> None:

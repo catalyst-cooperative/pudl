@@ -185,6 +185,9 @@ datasets:
         2018,
         2019,
         2020,
+        2021,
+        2022,
+        2023,
       ]
   eia:
     eia176:
@@ -357,3 +360,6 @@ datasets:
     technology_types: ["wind", "solar"]
     processing_levels: ["extended"]
     daily_weather: true
+  vcerare:
+    years: [2019, 2020, 2021, 2022, 2023]
+    fips: True

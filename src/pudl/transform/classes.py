@@ -263,6 +263,26 @@ class RenameColumns(TransformParams):
     """A dictionary of columns to be renamed."""
 
 
+def rename_columns(
+    df: pd.DataFrame, params: RenameColumns | None = None, **kwargs
+) -> pd.DataFrame:
+    """Rename the whole collection of dataframe columns using input params.
+
+    Raise an error if there's any mismatch between the columns in the dataframe, and
+    the columns that have been defined in the mapping for renaming.
+    """
+    # If we are attempting to rename columns that do *not* appear in the dataframe,
+    # raise an error.
+    if len(params.columns) > 0:
+        missing_cols = set(params.columns).difference(set(df.columns))
+        if missing_cols:
+            raise ValueError(
+                f"Attempting to rename columns which are not present in the dataframe.\n"
+                f"Missing columns: {sorted(missing_cols)}\nExisting Columns: {df.columns}"
+            )
+    return df.rename(columns=params.columns)
+
+
 ################################################################################
 # Normalize Strings
 ################################################################################
@@ -1230,18 +1250,7 @@ class AbstractTableTransformer(ABC):
             f"{self.table_id.value}: Attempting to rename {len(params.columns)} "
             "columns."
         )
-
-        # If we are attempting to rename columns that do *not* appear in the dataframe,
-        # raise an error.
-        if len(params.columns) > 0:
-            missing_cols = set(params.columns).difference(set(df.columns))
-            if missing_cols:
-                raise ValueError(
-                    f"{self.table_id.value}: Attempting to rename columns which are not "
-                    "present in the dataframe.\n"
-                    f"Missing columns: {sorted(missing_cols)}\nExisting Columns: {df.columns}"
-                )
-        return df.rename(columns=params.columns)
+        return rename_columns(df, params)
 
     def normalize_strings(
         self,

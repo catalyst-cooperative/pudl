@@ -32,7 +32,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Conda environment using mamba
-        uses: mamba-org/setup-micromamba@v1
+        uses: mamba-org/setup-micromamba@v2
         with:
           environment-file: environments/conda-lock.yml
           environment-name: pudl-dev
@@ -66,7 +66,7 @@ jobs:
 
       - name: Sync internal and public caches
         run: |
-          gsutil -u catalyst-cooperative-pudl -m rsync -dr ${{ env.INTERNAL_ZENODO_CACHE_BUCKET }} ${{ env.PUBLIC_ZENODO_CACHE_BUCKET }}
+          gcloud storage --billing-project=catalyst-cooperative-pudl rsync -r ${{ env.INTERNAL_ZENODO_CACHE_BUCKET }} ${{ env.PUBLIC_ZENODO_CACHE_BUCKET }}
 
   zenodo-cache-sync-notify:
     runs-on: ubuntu-latest

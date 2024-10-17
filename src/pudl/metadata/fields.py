@@ -1667,9 +1667,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Total fuel cost for plant (in $USD).",
         "unit": "USD",
     },
-    "fuel_cost_from_eiaapi": {
-        "type": "boolean",
-        "description": "Indicates whether the fuel cost was derived from the EIA API.",
+    "fuel_cost_per_mmbtu_source": {
+        "type": "string",
+        "description": (
+            "Indicates the source of the values in the fuel_cost_per_mmbtu "
+            "column. The fuel cost either comes directly from the EIA forms "
+            "(original), was filled in from the EIA's API using state-level averages "
+            "(eiaapi), was filled in using a rolling average (rolling_avg) or "
+            "When the records get aggregated together and contain multiple "
+            "sources (mixed)."
+        ),
+        "constraints": {"enum": ["original", "eiaapi", "rolling_avg", "mixed"]},
     },
     "fuel_mmbtu": {
         "type": "number",
@@ -2680,9 +2688,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
-    "net_demand_mwh": {
+    "net_demand_forecast_mwh": {
         "type": "number",
-        "description": "Net electricity demand for the specified period in megawatt-hours (MWh).",
+        "description": "Net forecasted electricity demand for the specific period in megawatt-hours (MWh).",
         "unit": "MWh",
     },
     "net_generation_adjusted_mwh": {
@@ -3660,7 +3668,30 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "respondent_id_ferc714": {
         "type": "integer",
-        "description": "FERC Form 714 respondent ID. Note that this ID does not correspond to FERC respondent IDs from other forms.",
+        "description": (
+            "PUDL-assigned identifying a respondent to FERC Form 714. This ID associates "
+            "natively reported respondent IDs from the orignal CSV and XBRL data sources."
+        ),
+    },
+    "respondent_id_ferc714_csv": {
+        "type": "integer",
+        "description": (
+            "FERC Form 714 respondent ID from CSV reported data - published from years: 2006-2020. "
+            "This ID is linked to the newer years of reported XBRL data through the PUDL-assigned "
+            "respondent_id_ferc714 ID. "
+            "This ID was originally reported as respondent_id. "
+            "Note that this ID does not correspond to FERC respondent IDs from other forms."
+        ),
+    },
+    "respondent_id_ferc714_xbrl": {
+        "type": "string",
+        "description": (
+            "FERC Form 714 respondent ID from XBRL reported data - published from years: 2021-present. "
+            "This ID is linked to the older years of reported CSV data through the PUDL-assigned "
+            "respondent_id_ferc714 ID. "
+            "This ID was originally reported as entity_id. "
+            "Note that this ID does not correspond to FERC respondent IDs from other forms."
+        ),
     },
     "respondent_name_ferc714": {
         "type": "string",
@@ -4268,6 +4299,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "EIA estimated summer capacity (in MWh).",
         "unit": "MWh",
     },
+    "summer_peak_demand_forecast_mw": {
+        "type": "number",
+        "description": (
+            "The maximum forecasted hourly sumemr load (for the months of June through "
+            "September)."
+        ),
+        "unit": "MW",
+    },
     "summer_peak_demand_mw": {
         "type": "number",
         "description": (
@@ -4813,6 +4852,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "EIA estimated winter capacity (in MWh).",
         "unit": "MWh",
+    },
+    "winter_peak_demand_forecast_mw": {
+        "type": "number",
+        "description": (
+            "The maximum forecasted hourly winter load (for the months of January "
+            "through March)."
+        ),
+        "unit": "MW",
     },
     "winter_peak_demand_mw": {
         "type": "number",

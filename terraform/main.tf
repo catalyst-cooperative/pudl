@@ -207,6 +207,15 @@ resource "google_cloud_run_v2_service" "pudl-superset" {
           }
         }
       }
+      env {
+        name = "MAPBOX_API_KEY"
+        value_source {
+          secret_key_ref {
+            secret = "superset-mapbox-api-key"
+            version = "1"
+          }
+        }
+      }
 
       ports {
         container_port = 8088
@@ -214,8 +223,9 @@ resource "google_cloud_run_v2_service" "pudl-superset" {
       resources {
         limits = {
           cpu    = "4"
-          memory = "2048Mi"
+          memory = "4096Mi"
         }
+        startup_cpu_boost = true
       }
     }
     volumes {
@@ -228,7 +238,7 @@ resource "google_cloud_run_v2_service" "pudl-superset" {
     volumes {
       name = "cloudsql"
       cloud_sql_instance {
-        instances = ["catalyst-cooperative-pudl:us-central1:superset-database"]
+        instances = ["catalyst-cooperative-pudl:us-central1:superset-database", "catalyst-cooperative-pudl:us-central1:pudl-usage-metrics-db"]
       }
     }
   }
@@ -243,6 +253,13 @@ resource "google_cloud_run_v2_service_iam_member" "noauth" {
 
 resource "google_secret_manager_secret" "superset_secret_key" {
   secret_id = "superset-secret-key"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret" "superset_mapbox_api_key" {
+  secret_id = "superset-mapbox-api-key"
   replication {
     auto {}
   }
@@ -314,6 +331,12 @@ resource "google_secret_manager_secret_iam_member" "superset_database_database_c
 
 resource "google_secret_manager_secret_iam_member" "superset_secret_key_compute_iam" {
   secret_id = google_secret_manager_secret.superset_secret_key.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:345950277072-compute@developer.gserviceaccount.com"
+}
+
+resource "google_secret_manager_secret_iam_member" "superset_mapbox_api_key_compute_iam" {
+  secret_id = google_secret_manager_secret.superset_mapbox_api_key.id
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:345950277072-compute@developer.gserviceaccount.com"
 }
@@ -395,4 +418,55 @@ resource "google_service_account_iam_member" "gce-default-account-iam" {
   service_account_id = data.google_compute_default_service_account.google_compute_default_service_account_data.name
   role               = "roles/iam.serviceAccountUser"
   member             = "serviceAccount:345950277072@cloudbuild.gserviceaccount.com"
+}
+
+resource "google_secret_manager_secret" "pudl_usage_metrics_db_connection_string" {
+  secret_id = "pudl-usage-metrics-db-connection-string"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_storage_bucket" "pudl_usage_metrics_archive_bucket" {
+  name          = "pudl-usage-metrics-archives.catalyst.coop"
+  location      = "US"
+  storage_class = "STANDARD"
+
+  uniform_bucket_level_access = true
+}
+
+resource "google_service_account" "usage_metrics_archiver" {
+  account_id   = "usage-metrics-archiver"
+  display_name = "PUDL usage metrics archiver github action service account"
+}
+
+resource "google_storage_bucket_iam_member" "usage_metrics_archiver_gcs_iam" {
+  for_each = toset(["roles/storage.objectCreator", "roles/storage.objectViewer", "roles/storage.insightsCollectorService"])
+
+  bucket = google_storage_bucket.pudl_usage_metrics_archive_bucket.name
+  role = each.key
+  member = "serviceAccount:${google_service_account.usage_metrics_archiver.email}"
+}
+
+resource "google_storage_bucket_iam_member" "usage_metrics_etl_gcs_iam" {
+  for_each = toset(["roles/storage.legacyBucketReader", "roles/storage.objectViewer"])
+
+  bucket = google_storage_bucket.pudl_usage_metrics_archive_bucket.name
+  role = each.key
+  member = "serviceAccount:pudl-usage-metrics-etl@catalyst-cooperative-pudl.iam.gserviceaccount.com"
+}
+
+resource "google_storage_bucket_iam_member" "usage_metrics_etl_s3_logs_gcs_iam" {
+  for_each = toset(["roles/storage.legacyBucketReader", "roles/storage.objectViewer"])
+
+  bucket = "pudl-s3-logs.catalyst.coop"
+  role = each.key
+  member = "serviceAccount:pudl-usage-metrics-etl@catalyst-cooperative-pudl.iam.gserviceaccount.com"
+}
+
+resource "google_secret_manager_secret" "superset_bot_password" {
+  secret_id = "superset-bot-password"
+  replication {
+    auto {}
+  }
 }
