@@ -201,37 +201,37 @@ def _combine_city_county_records(df: pd.DataFrame) -> pd.DataFrame:
 
     There are several duplicate FIPS code values in the data. Most of them
     are lakes within a county, but some of them are cities. Only one of the
-    cities, clifton forge city, has values, so we average those values
-    with that of the county. The other city, XXX, has no values so we
-    remove it.
+    cities, Clifton Forge City, has values, so we average those values
+    with that of the county. The other city, Bedford City VA, has no values
+    so we remove it.
 
     """
-    alleghany_to_combine_mask = df["county_state_names"].isin(
+    # Remove Bedford City values
+    no_bedford_city_df = df.loc[df["county_state_names"] == "bedford_city_virginia" :,]
+
+    alleghany_to_combine_mask = no_bedford_city_df["county_state_names"].isin(
         ["alleghany_virginia", "clifton_forge_city_virginia"]
     )
     cap_fac_cols = [x for x in df.columns if "capacity_factor" in x]
     other_cols = [x for x in df.columns if x not in cap_fac_cols]
-    combined_alleghany_clifton_cap_facs = (
+    combined_alleghany_clifton_cap_facs_df = (
         df.loc[alleghany_to_combine_mask, cap_fac_cols + ["datetime_utc"]]
         .groupby("datetime_utc")
         .mean()
     )
-    alleghany_combined = (
+    alleghany_combined_df = (
         df.loc[df["county_state_names"] == "alleghany_virginia", other_cols]
         .set_index("datetime_utc")
-        .merge(combined_alleghany_clifton_cap_facs, left_index=True, right_index=True)
+        .merge(
+            combined_alleghany_clifton_cap_facs_df, left_index=True, right_index=True
+        )
     )
-    bedford_city_mask = df["county_state_names"] == "bedford_city_virginia"
     # Combine the newly combined alleghany rows with the rest of the data
     # Also drop the bedford city values while you're at it.
     out_df = pd.concat(
-        [df[~(alleghany_to_combine_mask | bedford_city_mask)], alleghany_combined]
+        [no_bedford_city_df[~alleghany_to_combine_mask], alleghany_combined_df]
     )
-    # Now lets remove the records for the other city with no values
-    # Make sure there aren't any non-zero values
-    if not (out_df[bedford_city_mask][cap_fac_cols] == 0).all().all():
-        raise AssertionError("Found non-zero values for bedford_city_virginia record.")
-    return out_df[~bedford_city_mask]
+    return out_df
 
 
 @asset(
@@ -330,5 +330,13 @@ def check_hourly_available_cap_fac_table(asset_df: pd.DataFrame):
         return AssetCheckResult(
             passed=False,
             description="hour_of_year values don't match date values",
+        )
+    # Make sure there are no rows for Bedford City or Clifton Forge City
+    if not asset_df[
+        asset_df["county_or_lake_name"].isin(["bedford_city", "clifton_forge_city"])
+    ].empty:
+        return AssetCheckResult(
+            passed=False,
+            description="found records for bedford_city or clifton_forge_city that shouldn't exist",
         )
     return AssetCheckResult(passed=True)
