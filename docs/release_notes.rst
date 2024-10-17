@@ -13,6 +13,13 @@ EIA 860
 ~~~~~~~
 * Added EIA 860 final release data from 2023. See :issue:`3684` and PR :pr:`3871`.
 
+EIA 861
+~~~~~~~
+* Added EIA 861 final release data from 2023. See :issue:`3905` and PR :pr:`3911`. This
+  includes a new ``energy_capacity_mwh`` field for battery storage in
+  :ref:`core_eia861__yearly_net_metering_customer_fuel_class` and
+  :ref:`core_eia861__yearly_non_net_metering_customer_fuel_class`.
+
 FERC Form 714
 ~~~~~~~~~~~~~
 * Integrate 2021-2023 years of the FERC Form 714 data. FERC updated its reporting
