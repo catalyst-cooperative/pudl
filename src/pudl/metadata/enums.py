@@ -175,6 +175,7 @@ TECH_CLASSES: list[str] = [
     "pv",
     "steam",
     "storage_pv",
+    "storage_nonpv",
     "all_storage",  # need 'all' as prefix so as not to confuse with other storage category
     "total",
     "virtual_pv",

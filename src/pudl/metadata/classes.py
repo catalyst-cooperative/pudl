@@ -1642,6 +1642,15 @@ class Resource(PudlMeta):
                 f"schema: {missing_cols}"
             )
 
+        # Log warning if columns in dataframe are getting dropped in write
+        dropped_columns = list(df.columns.difference(expected_cols))
+        if dropped_columns:
+            logger.warning(
+                "The following columns are getting dropped when writing to SQLite:"
+                f"{dropped_columns}. To keep these columns, add them to the "
+                f"metadata.resources fields and update alembic."
+            )
+
         df = self.format_df(df)
         pk = self.schema.primary_key
         if pk and not (dupes := df[df.duplicated(subset=pk)]).empty:
