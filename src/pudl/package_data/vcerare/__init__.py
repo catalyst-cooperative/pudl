@@ -1,1 +1,1 @@
-"""CSV file extraction maps for VCE RARE generation profiles."""
+"""CSV file extraction maps for VCE RARE Power Dataset."""

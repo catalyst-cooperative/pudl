@@ -14,7 +14,7 @@ from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-def _prep_lat_long_fips_df(raw_vcegen__lat_lon_fips: pd.DataFrame) -> pd.DataFrame:
+def _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips: pd.DataFrame) -> pd.DataFrame:
     """Prep the lat_long_fips table to merge into the capacity factor tables.
 
     Prep entails making sure the formatting and column names match those in the
@@ -40,7 +40,7 @@ def _prep_lat_long_fips_df(raw_vcegen__lat_lon_fips: pd.DataFrame) -> pd.DataFra
     state_pattern = "|".join(state_names)
     lat_long_fips = (
         # Making the county_state_names lowercase to match the values in the capacity factor tables
-        raw_vcegen__lat_lon_fips.pipe(simplify_columns)
+        raw_vcerare__lat_lon_fips.pipe(simplify_columns)
         .assign(
             county_state_names=lambda x: x.county_state_names.str.lower().replace(
                 {r"\.": "", "-": "_"}, regex=True
@@ -246,7 +246,7 @@ def _combine_city_county_records(df: pd.DataFrame) -> pd.DataFrame:
     op_tags={"memory-use": "high"},
 )
 def out_vcerare__hourly_available_capacity_factor(
-    raw_vcegen__lat_lon_fips: pd.DataFrame,
+    raw_vcerare__lat_lon_fips: pd.DataFrame,
     raw_vcerare__fixed_solar_pv_lat_upv: pd.DataFrame,
     raw_vcerare__offshore_wind_power_140m: pd.DataFrame,
     raw_vcerare__onshore_wind_power_100m: pd.DataFrame,
@@ -258,7 +258,7 @@ def out_vcerare__hourly_available_capacity_factor(
     """
     logger.info("Transforming the hourly available capacity factor tables")
     # Clean up the FIPS table
-    fips_df = _prep_lat_long_fips_df(raw_vcegen__lat_lon_fips)
+    fips_df = _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips)
     # Apply the same transforms to all the capacity factor tables. This is slower
     # than doing it to a concatinated table but less memory intensive because
     # it doesn't need to process the ginormous table all at once.
