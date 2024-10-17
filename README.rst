@@ -96,29 +96,20 @@ What data is available?
 PUDL currently integrates data from:
 
 * **EIA Form 860**:
-  - `Source Docs <https://www.eia.gov/electricity/data/eia860/>`__
   - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/eia860.html>`__
-* **EIA Form 860m**:
-  - `Source Docs <https://www.eia.gov/electricity/data/eia860m/>`__
 * **EIA Form 861**:
-  - `Source Docs <https://www.eia.gov/electricity/data/eia861/>`__
   - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/eia861.html>`__
 * **EIA Form 923**:
-  - `Source Docs <https://www.eia.gov/electricity/data/eia923/>`__
   - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/eia923.html>`__
 * **EIA Form 930**:
-  - `Source Docs <https://www.eia.gov/electricity/gridmonitor/>`__
   - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/eia930.html>`__
 * **EIA Annual Energy Outlook (AEO)** (a few tables):
   - `Source Docs <https://www.eia.gov/outlooks/aeo/>`__
 * **EPA Continuous Emissions Monitoring System (CEMS)**:
-  - `Source Docs <https://campd.epa.gov/>`__
   - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/epacems.html>`__
 * **FERC Form 1** (dozens of fully processed tables, plus raw data converted to SQLite):
-  - `Source Docs <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual>`__
   - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/ferc1.html>`__
 * **FERC Form 714** (a few fully processed tables):
-  - `Source Docs <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-no-714-annual-electric/data>`__
   - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/ferc714.html>`__
 * **FERC Form 2** (raw data converted to SQLite):
   - `Source Docs <https://www.ferc.gov/industries-data/natural-gas/industry-forms/form-2-2a-3-q-gas-historical-vfp-data>`__
@@ -129,7 +120,6 @@ PUDL currently integrates data from:
 * **NREL Annual Technology Baseline (ATB) for Electricity**:
   - `Source Docs <https://atb.nrel.gov/electricity/2024/data>`__
 * **GridPath Resource Adequacy Toolkit** (partial):
-  - `Source Docs <https://gridlab.org/gridpathratoolkit/>`__
   - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/gridpathratoolkit.html>`__
 * **US Census Demographic Profile 1 Geodatabase**:
   - `Source Docs <https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html>`__
@@ -180,17 +170,11 @@ Organizations using PUDL
 
 .. _pudl_orgs_start:
 
-This is a partial list of organizations that have used PUDL in their work.
+Visit our `website <https://catalyst.coop/projects/>`__ to view the projects
+we've worked on and organizations we've worked with.
+
 If your organization uses PUDL we'd love to list you here! Please open a
 pull request or email us at `hello@catalyst.coop <mailto:hello@catalyst.coop>`__!
-
-* `RMI <https://rmi.org>`__ via both their `Utility Transition Hub <https://utilitytransitionhub.rmi.org/>`__ and `Optimus financial modeling tool <https://utilitytransitionhub.rmi.org/optimus/>`__
-* The `PowerGenome Project <https://github.com/PowerGenome/PowerGenome>`__ out of `Jesse Jenkins' <https://mae.princeton.edu/people/faculty/jenkins>`__ ZERO Lab at Princeton University
-* `Energy Innovation <https://energyinnovation.org>`__
-* `Singularity Energy <https://singularity.energy>`__ via the `Open Grid Emissions Initiative <https://singularity.energy/open-grid-emissions>`__
-* The open source `PyPSA-USA <https://github.com/PyPSA/pypsa-usa>`__ capacity expansion model.
-* `Win Climate <https://climate.win>`__
-* `The Deployment Gap Model Education Fund <https://www.deploymentgap.fund/>`__
 
 .. _pudl_orgs_end:
 
