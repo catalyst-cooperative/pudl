@@ -175,7 +175,7 @@ raw_vcerare_assets = [raw_vcerare_asset_factory(part) for part in VCERARE_PAGES]
 
 
 @asset(required_resource_keys={"datastore", "dataset_settings"})
-def raw_vcegen__lat_lon_fips(context) -> pd.DataFrame:
+def raw_vcerare__lat_lon_fips(context) -> pd.DataFrame:
     """Extract lat/lon to FIPS and county mapping CSV.
 
     This dataframe is static, so it has a distinct partition from the other datasets and
