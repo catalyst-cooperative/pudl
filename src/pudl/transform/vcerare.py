@@ -61,6 +61,7 @@ def _prep_lat_long_fips_df(raw_vcegen__lat_lon_fips: pd.DataFrame) -> pd.DataFra
             ps_usa_df[["state_id_fips", "subdivision_code"]],
             on=["state_id_fips"],
             how="left",
+            validate="1:1",
         )
         .rename(
             columns={
@@ -192,7 +193,9 @@ def _combine_cap_fac_with_fips_df(
     logger.info(
         "Merging the combined capacity factor table with the Lat-Long-FIPS table"
     )
-    combined_df = pd.merge(cap_fac_df, fips_df, on="county_state_names", how="left")
+    combined_df = pd.merge(
+        cap_fac_df, fips_df, on="county_state_names", how="left", validate="m:1"
+    )
     return combined_df
 
 
@@ -223,11 +226,14 @@ def _combine_city_county_records(df: pd.DataFrame) -> pd.DataFrame:
         df.loc[df["county_state_names"] == "alleghany_virginia", other_cols]
         .set_index("datetime_utc")
         .merge(
-            combined_alleghany_clifton_cap_facs_df, left_index=True, right_index=True
+            combined_alleghany_clifton_cap_facs_df,
+            left_index=True,
+            right_index=True,
+            validate="1:1",
         )
+        .reset_index()
     )
     # Combine the newly combined alleghany rows with the rest of the data
-    # Also drop the bedford city values while you're at it.
     out_df = pd.concat(
         [no_bedford_city_df[~alleghany_to_combine_mask], alleghany_combined_df]
     )
@@ -293,7 +299,8 @@ def check_hourly_available_cap_fac_table(asset_df: pd.DataFrame):
     # Make sure there are no null values
     if asset_df.isna().any().any():
         return AssetCheckResult(
-            passed=False, description="Found NA values when there should be none"
+            passed=False,
+            description="Found NA values when there should be none",
         )
     # Make sure the capacity_factor values are below the expected value
     # There are some solar values that are slightly over 1 due to colder
