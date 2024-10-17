@@ -28,11 +28,11 @@ data reporting.
 {% endblock %}
 
 {% block original_data %}
-The contents of the original CSVs are stripped down so that Excel can display the
+The contents of the original CSVs are formatted so that Excel can display the
 data without crashing. There's one file per year per generation type, and each
 file contains an index column for time (simply 1, 2, 3...8760 to
 represent the hours in a year) and columns for each county populated with capacity
-factor values from 0-1.
+factor values as a percentage from 0-100.
 {% endblock %}
 
 {% block notable_irregularities %}
@@ -56,6 +56,6 @@ cold sunny periods, some solar capacity factor values are greater than 1 (but le
 8760-hour years
 ---------------
 This data is primarily used for modeling purposes and conforms to the 8760 hour/year
-standard regardless of leapyears. This means that 2020 is missing data for December 31st.
+standard regardless of leap years. This means that 2020 is missing data for December 31st.
 
 {% endblock %}
