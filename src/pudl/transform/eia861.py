@@ -840,20 +840,21 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
 
 
 def clean_nerc(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame:
-    """Clean NERC region entries and make new rows for multiple nercs.
+    """Clean NERC region entries.
 
     This function examines reported NERC regions and makes sure the output column of the
     same name has reliable, singular NERC region acronyms. To do so, this function
     identifies entries where there are two or more NERC regions specified in a single
-    cell (such as SPP & ERCOT) and makes new, duplicate rows for each NERC region. It
-    also converts non-recognized reported nerc regions to 'UNK'.
+    cell (such as SPP & ERCOT) and makes a standardized hybrid entry separated by an
+    underscore (e.g., FRCC_SERC). It also converts non-recognized reported NERC regions
+    to 'UNK'.
 
     Args:
         df: A DataFrame with the column 'nerc_region' to be cleaned.
         idx_cols: A list of the primary keys and `nerc_region`.
 
     Returns:
-        A DataFrame with correct and clean nerc regions.
+        A DataFrame with correct and clean NERC regions.
     """
     idx_no_nerc = idx_cols.copy()
     if "nerc_region" in idx_no_nerc:

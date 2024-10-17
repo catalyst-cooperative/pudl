@@ -62,6 +62,7 @@ NERC_REGIONS: list[str] = [
     "SPP_TRE",
     "ERCOT_TRE",
     "MISO_TRE",
+    "FRCC_SERC",
     "VI",  # Virgin Islands
     "GU",  # Guam
     "PR",  # Puerto Rico
