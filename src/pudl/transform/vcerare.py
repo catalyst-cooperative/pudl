@@ -200,34 +200,32 @@ def _combine_city_county_records(df: pd.DataFrame) -> pd.DataFrame:
     remove it.
 
     """
-    bad_county_mask = df["county_state_names"].isin(
+    alleghany_to_combine_mask = df["county_state_names"].isin(
         ["alleghany_virginia", "clifton_forge_city_virginia"]
     )
-    # Take the subset of the data that's relevant to the changes and sort the values
-    # by county_state so that alleghany is first and those are the values that are
-    # preserved by the groupby "first" below.
-    subset_df = df[bad_county_mask].sort_values(by=["county_state_names"])
-    cap_fac_cols = [x for x in subset_df.columns if "capacity_factor" in x]
-    other_cols = [
-        x for x in subset_df.columns if x not in cap_fac_cols + ["datetime_utc"]
-    ]
-    grouped_df = (
-        subset_df.groupby(["datetime_utc"], sort=False)
-        .agg(
-            {
-                **{col: "mean" for col in cap_fac_cols},
-                **{col: "first" for col in other_cols},
-            }
-        )
-        .reset_index()
+    cap_fac_cols = [x for x in df.columns if "capacity_factor" in x]
+    other_cols = [x for x in df.columns if x not in cap_fac_cols]
+    combined_alleghany_clifton_cap_facs = (
+        df.loc[alleghany_to_combine_mask, cap_fac_cols + ["datetime_utc"]]
+        .groupby("datetime_utc")
+        .mean()
     )
-    out_df = pd.concat([df[~bad_county_mask], grouped_df])
+    alleghany_combined = (
+        df.loc[df["county_state_names"] == "alleghany_virginia", other_cols]
+        .set_index("datetime_utc")
+        .merge(combined_alleghany_clifton_cap_facs, left_index=True, right_index=True)
+    )
+    bedford_city_mask = df["county_state_names"] == "bedford_city_virginia"
+    # Combine the newly combined alleghany rows with the rest of the data
+    # Also drop the bedford city values while you're at it.
+    out_df = pd.concat(
+        [df[~(alleghany_to_combine_mask | bedford_city_mask)], alleghany_combined]
+    )
     # Now lets remove the records for the other city with no values
-    bad_county_mask_2 = out_df["county_state_names"] == "bedford_city_virginia"
     # Make sure there aren't any non-zero values
-    if not (out_df[bad_county_mask_2][cap_fac_cols] == 0).all().all():
+    if not (out_df[bedford_city_mask][cap_fac_cols] == 0).all().all():
         raise AssertionError("Found non-zero values for bedford_city_virginia record.")
-    return out_df[~bad_county_mask_2]
+    return out_df[~bedford_city_mask]
 
 
 @asset(
