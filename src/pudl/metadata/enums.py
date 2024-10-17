@@ -179,6 +179,8 @@ TECH_CLASSES: list[str] = [
     "all_storage",  # need 'all' as prefix so as not to confuse with other storage category
     "total",
     "virtual_pv",
+    "virtual_pv_under_1mw",  # Broken out in EIA 861 in 2023
+    "virtual_pv_over_1mw",  # Broken out in EIA 861 in 2023
     "wind",
 ]
 
