@@ -62,6 +62,7 @@ NERC_REGIONS: list[str] = [
     "SPP_TRE",
     "ERCOT_TRE",
     "MISO_TRE",
+    "FRCC_SERC",
     "VI",  # Virgin Islands
     "GU",  # Guam
     "PR",  # Puerto Rico
@@ -174,9 +175,12 @@ TECH_CLASSES: list[str] = [
     "pv",
     "steam",
     "storage_pv",
+    "storage_nonpv",
     "all_storage",  # need 'all' as prefix so as not to confuse with other storage category
     "total",
     "virtual_pv",
+    "virtual_pv_under_1mw",  # Broken out in EIA 861 in 2023
+    "virtual_pv_over_1mw",  # Broken out in EIA 861 in 2023
     "wind",
 ]
 
