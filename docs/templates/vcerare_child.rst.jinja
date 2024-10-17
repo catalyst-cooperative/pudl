@@ -1,0 +1,60 @@
+{% extends "data_source_parent.rst.jinja" %}
+{% block background %}
+The data in the Resource Adequacy Renewable Energy (RARE) Power Dataset was produced by
+Vibrant Clean Energy based on outputs from the NOA HRRR model and are licensed
+to the public under the Creative Commons Attribution 4.0 International license
+(CC-BY-4.0).
+
+See the Zenodo archive README for more detailed information.
+
+The cleaned PUDL table is hundreds of millions of rows, so don't try and open it with Excel!
+{% endblock %}
+
+{% block download_docs %}
+* `VCE Dataset Methods & Analysis (PDF) <https://vibrantcleanenergy.com/wp-content/uploads/2021/04/2018%20VCE%20Study_Dataset%20Methods%20and%20Analysis536960.pdf>`__
+* `VCE Dataset Overview (PDF) <https://vibrantcleanenergy.com/wp-content/uploads/2020/08/VCE-Weather-Dataset-Overview_August2020.pdf>`__
+* `NOAA HRRR Model Overview <https://rapidrefresh.noaa.gov/hrrr/>`__
+{% endblock %}
+
+{% block availability %}
+Hourly, county-level data from 2019 - 2023 is integrated into PUDL. There is a
+second release of data for the years 2014 - 2018 expected in Q1 of 2025, which will be integrated into PUDL pending funding availability.
+may not be integrated into PUDL.
+{% endblock %}
+
+{% block respondents %}
+This data does not come from a government agency, and is not the result of compulsory
+data reporting.
+{% endblock %}
+
+{% block original_data %}
+The contents of the original CSVs are formatted so that Excel can display the
+data without crashing. There's one file per year per generation type, and each
+file contains an index column for time (simply 1, 2, 3...8760 to
+represent the hours in a year) and columns for each county populated with capacity
+factor values as a percentage from 0-100.
+{% endblock %}
+
+{% block notable_irregularities %}
+Sub-county regions
+------------------
+
+The data include some sub-county regions such as lakes and cities meaning that the
+county_id_fips and datetime_utc fields are many:1 rather than 1:1. We've averaged out
+the cities but kept the lakes in the data. Note that lakes bordering multiple states
+will appear more than once in the data. VCE used a nearest neighbor technique to assign
+the state waters to the counties (this pertains to coastal areas as well).
+
+Capacity factors > 1
+--------------------
+There are a couple of capacity factor values for the solar PV data that exceed
+the maximum value of 1 for capacity factor. This is due to power production performance
+being correlated with panel temperatures. During cold sunny periods, some solar capacity
+factor values are greater than 1 (but less that 1.1).
+
+8760-hour years
+---------------
+This data is primarily used for modeling purposes and conforms to the 8760 hour/year
+standard regardless of leap years. This means that 2020 is missing data for December 31st.
+
+{% endblock %}
