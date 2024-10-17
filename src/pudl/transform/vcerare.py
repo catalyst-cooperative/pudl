@@ -61,7 +61,7 @@ def _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips: pd.DataFrame) -> pd.DataFr
             ps_usa_df[["state_id_fips", "subdivision_code"]],
             on=["state_id_fips"],
             how="left",
-            validate="1:1",
+            validate="m:1",
         )
         .rename(
             columns={
@@ -141,7 +141,11 @@ def _make_cap_fac_frac(df: pd.DataFrame, df_name: str) -> pd.DataFrame:
     This step happens before the table gets stacked to save memory.
     """
     logger.info(f"Converting capacity factor into a fraction for {df_name} table.")
-    county_cols = [x for x in df.columns if x not in ["report_year", "hour_of_year"]]
+    county_cols = [
+        x
+        for x in df.columns
+        if x not in ["report_year", "hour_of_year", "datetime_utc"]
+    ]
     df[county_cols] = df[county_cols] / 100
     return df
 
@@ -199,45 +203,21 @@ def _combine_cap_fac_with_fips_df(
     return combined_df
 
 
-def _combine_city_county_records(df: pd.DataFrame) -> pd.DataFrame:
-    """Average cap fac values for city and county values with the same FIPS ID.
+def _drop_city_records(df: pd.DataFrame) -> pd.DataFrame:
+    """Drop rows from cities.
 
     There are several duplicate FIPS code values in the data. Most of them
-    are lakes within a county, but some of them are cities. Only one of the
-    cities, Clifton Forge City, has values, so we average those values
-    with that of the county. The other city, Bedford City VA, has no values
-    so we remove it.
+    are lakes within a county, but some of them are cities. Bedford City
+    has no capacity factor values and Clifton Forge City has a few. We have
+    no way to weight these cities by area to join them with the county
+    values, so we drop them.
 
     """
-    # Remove Bedford City values
-    no_bedford_city_df = df.loc[df["county_state_names"] == "bedford_city_virginia" :,]
-
-    alleghany_to_combine_mask = no_bedford_city_df["county_state_names"].isin(
-        ["alleghany_virginia", "clifton_forge_city_virginia"]
-    )
-    cap_fac_cols = [x for x in df.columns if "capacity_factor" in x]
-    other_cols = [x for x in df.columns if x not in cap_fac_cols]
-    combined_alleghany_clifton_cap_facs_df = (
-        df.loc[alleghany_to_combine_mask, cap_fac_cols + ["datetime_utc"]]
-        .groupby("datetime_utc")
-        .mean()
-    )
-    alleghany_combined_df = (
-        df.loc[df["county_state_names"] == "alleghany_virginia", other_cols]
-        .set_index("datetime_utc")
-        .merge(
-            combined_alleghany_clifton_cap_facs_df,
-            left_index=True,
-            right_index=True,
-            validate="1:1",
+    return df.loc[
+        ~df["county_state_names"].isin(
+            ["clifton_forge_city_virginia", "bedford_city_virginia"]
         )
-        .reset_index()
-    )
-    # Combine the newly combined alleghany rows with the rest of the data
-    out_df = pd.concat(
-        [no_bedford_city_df[~alleghany_to_combine_mask], alleghany_combined_df]
-    )
-    return out_df
+    ]
 
 
 @asset(
@@ -277,7 +257,7 @@ def out_vcerare__hourly_available_capacity_factor(
     # Combine the data!
     return (
         _combine_all_cap_fac_dfs(clean_dict)
-        .pipe(_combine_city_county_records)
+        .pipe(_drop_city_records)
         .pipe(_combine_cap_fac_with_fips_df, fips_df)
     )
 
