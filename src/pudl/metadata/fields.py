@@ -466,6 +466,56 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Fraction of potential generation that was actually reported for a plant part.",
     },
+    "capacity_factor_offshore_wind": {
+        "type": "number",
+        "description": (
+            "Estimated capacity factor (0-1) calculated for offshore wind "
+            "assuming a 140m hub height and 120m rotor diameter."
+            "Based on outputs from the NOAA HRRR operational numerical "
+            "weather prediction model. Capacity factors are normalized "
+            "to unity for maximal power output. "
+            "Vertical slices of the atmosphere are considered across the "
+            "defined rotor swept area. Bringing together wind speed, density, "
+            "temperature and icing information, a power capacity is estimated "
+            "using a representative power coefficient (Cp) curve to determine "
+            "the power from a given wind speed, atmospheric density and "
+            "temperature. There is no wake modeling included in the dataset."
+        ),
+    },
+    "capacity_factor_onshore_wind": {
+        "type": "number",
+        "description": (
+            "Estimated capacity factor (0-1) calculated for onshore wind "
+            "assuming a 100m hub height and 120m rotor diameter."
+            "Based on outputs from the NOAA HRRR operational numerical "
+            "weather prediction model. Capacity factors are normalized "
+            "to unity for maximal power output. "
+            "Vertical slices of the atmosphere are considered across the "
+            "defined rotor swept area. Bringing together wind speed, density, "
+            "temperature and icing information, a power capacity is estimated "
+            "using a representative power coefficient (Cp) curve to determine "
+            "the power from a given wind speed, atmospheric density and "
+            "temperature. There is no wake modeling included in the dataset."
+        ),
+    },
+    "capacity_factor_solar_pv": {
+        "type": "number",
+        "description": (
+            "Estimated capacity factor (0-1) calculated for solar PV "
+            "assuming a fixed axis panel tilted at latitude and DC power "
+            "outputs. Due to power production performance being correlated "
+            "with panel temperatures, during cold sunny periods, some solar "
+            "capacity factor values are greater than 1 (but less that 1.1)."
+            "All values are based on outputs from the NOAA HRRR operational "
+            "numerical weather prediction model. Capacity factors are "
+            "normalized to unity for maximal power output. "
+            "Pertinent surface weather variables are pulled such as "
+            "incoming short wave radiation, direct normal irradiance "
+            "(calculated in the HRRR 2016 forward), surface temperature "
+            "and other parameters. These are used in a non-linear I-V curve "
+            "translation to power capacity factors."
+        ),
+    },
     "capacity_mw": {
         "type": "number",
         "description": "Total installed (nameplate) capacity, in megawatts.",
@@ -835,6 +885,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "county_name_census": {
         "type": "string",
         "description": "County name as specified in Census DP1 Data.",
+    },
+    "county_or_lake_name": {
+        "type": "string",
+        "description": (
+            "County or lake name. Lake names may also appear several times--once for "
+            "each state it touches. FIPS ID values for lakes have been nulled."
+        ),
     },
     "country_code": {
         "type": "string",
@@ -1969,6 +2026,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "The energy contained in fuel burned, measured in million BTU.",
         "unit": "MMBtu",
+    },
+    "hour_of_year": {
+        "type": "integer",
+        "description": "Integer between 1 and 8670 representing the hour in a given year.",
     },
     "unit_heat_rate_mmbtu_per_mwh": {
         "type": "number",

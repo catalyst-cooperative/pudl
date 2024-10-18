@@ -265,7 +265,7 @@ ways to install the Google Cloud SDK explained in the link above.
 
 .. code::
 
-  conda install -c conda-forge google-cloud-sdk
+  mamba install -c conda-forge google-cloud-sdk
 
 Log into the account you used to create your new project above by running:
 
@@ -297,16 +297,17 @@ that are available:
 
 .. code::
 
-   gsutil ls -lh gs://builds.catalyst.coop
+   gcloud storage ls --long --readable-sizes gs://builds.catalyst.coop
 
 You should see a list of directories with build IDs that have a naming convention:
 ``<YYYY-MM-DD-HHMM>-<short git commit SHA>-<git branch>``.
 
-To see what the outputs are for a given nightly build, you can use ``gsutil`` like this:
+To see what the outputs are for a given nightly build, you can use ``gcloud storage``
+like this:
 
 .. code::
 
-    gsutil ls -lh gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/
+    gcloud storage ls --long --readable-sizes gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/
 
     804.57 MiB  2024-01-03T11:19:15Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/censusdp1tract.sqlite
       5.01 GiB  2024-01-03T11:20:02Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/core_epacems__hourly_emissions.parquet
@@ -337,22 +338,23 @@ To see what the outputs are for a given nightly build, you can use ``gsutil`` li
     TOTAL: 25 objects, 23557650395 bytes (21.94 GiB)
 
 If you want to copy these files down directly to your computer, you can use
-the ``gsutil cp`` command, which behaves very much like the Unix ``cp`` command:
+the ``gcloud storage cp`` command, which behaves very much like the Unix ``cp`` command:
 
 .. code::
 
-   gsutil cp gs://builds.catalyst.coop/<build ID>/pudl.sqlite ./
+   gcloud storage cp gs://builds.catalyst.coop/<build ID>/pudl.sqlite ./
 
 If you wanted to download all of the build outputs (more than 10GB!) you could use ``cp
 -r`` on the whole directory:
 
 .. code::
 
-   gsutil cp -r gs://builds.catalyst.coop/<build ID>/ ./
+   gcloud storage cp --recursive gs://builds.catalyst.coop/<build ID>/ ./
 
-For more details on how to use ``gsutil`` in general see the
-`online documentation <https://cloud.google.com/storage/docs/gsutil>`__ or run:
+For more background on ``gcloud storage`` see the
+`quickstart guide <https://cloud.google.com/storage/docs/discover-object-storage-gcloud>`__
+or check out the CLI documentation with:
 
 .. code::
 
-   gsutil --help
+   gcloud storage --help
