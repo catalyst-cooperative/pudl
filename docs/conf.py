@@ -214,6 +214,7 @@ def cleanup_rsts(app, exception):
     (DOCS_DIR / "data_sources/epacems.rst").unlink()
     (DOCS_DIR / "data_sources/phmsagas.rst").unlink()
     (DOCS_DIR / "data_sources/gridpathratoolkit.rst").unlink()
+    (DOCS_DIR / "data_sources/vcerare.rst").unlink()
 
 
 def cleanup_csv_dir(app, exception):
