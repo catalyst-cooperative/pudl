@@ -5,7 +5,7 @@ in this module, as they have exactly the same structure.
 """
 
 import pandas as pd
-from dagster import AssetCheckResult, Backoff, Jitter, RetryPolicy, asset, asset_check
+from dagster import AssetCheckResult, asset, asset_check
 
 import pudl
 from pudl.helpers import cleanstrings_snake, simplify_columns, zero_pad_numeric_string
@@ -249,13 +249,7 @@ def _combine_cap_fac_with_fips_df(
 @asset(
     io_manager_key="parquet_io_manager",
     compute_kind="pandas",
-    op_tags={"memory-use": "very-high"},
-    retry_policy=RetryPolicy(
-        max_retries=3,
-        delay=60,  # holuppaminute
-        backoff=Backoff.EXPONENTIAL,
-        jitter=Jitter.PLUS_MINUS,
-    ),
+    op_tags={"memory-use": "high"},
 )
 def out_vcerare__hourly_available_capacity_factor(
     raw_vcerare__lat_lon_fips: pd.DataFrame,

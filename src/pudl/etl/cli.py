@@ -155,11 +155,6 @@ def pudl_etl(
             "value": "high",
             "limit": 4,
         },
-        {
-            "key": "memory-use",
-            "value": "very-high",
-            "limit": 1,
-        },
     ]
 
     run_config.update(
