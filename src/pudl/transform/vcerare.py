@@ -221,11 +221,42 @@ def _drop_city_records(df: pd.DataFrame) -> pd.DataFrame:
     values, so we drop them.
 
     """
+    logger.info("Dropping city rows with duplicate county rows")
     return df.loc[
         ~df["county_state_names"].isin(
             ["clifton_forge_city_virginia", "bedford_city_virginia"]
         )
     ]
+
+
+def _null_non_county_fips_rows(df: pd.DataFrame) -> pd.DataFrame:
+    """Null the county FIPS code for rows that aren't counties.
+
+    There are a handful of rows that are not counties but rather
+    cities or portions of lakes. We drop the city values in
+    :func:`_drop_city_records`, but we keep the lake values.
+    Because these are not within county geographies, we will
+    not assign them FIPS codes.
+    """
+    logger.info("Nulling FIPS IDs for lake rows")
+    lake_county_state_names = [
+        "lake_erie_ohio",
+        "lake_hurron_michigan",
+        "lake_michigan_illinois",
+        "lake_michigan_indiana",
+        "lake_michigan_michigan",
+        "lake_michigan_wisconsin",
+        "lake_ontario_new_york",
+        "lake_st_clair_michigan",
+        "lake_superior_minnesota",
+        "lake_superior_michigan",
+        "lake_superior_wisconsin",
+    ]
+    # Null all capacity factor values
+    df.loc[df["county_state_names"].isin(lake_county_state_names), "county_id_fips"] = (
+        pd.NA
+    )
+    return df
 
 
 @asset(
@@ -262,11 +293,12 @@ def out_vcerare__hourly_available_capacity_factor(
         .pipe(_stack_cap_fac_df, df_name)
         for df_name, df in raw_dict.items()
     }
-    # Combine the data!
+    # Combine the data and perform a few last cleaning mechanisms
     return (
         _combine_all_cap_fac_dfs(clean_dict)
         .pipe(_drop_city_records)
         .pipe(_combine_cap_fac_with_fips_df, fips_df)
+        .pipe(_null_non_county_fips_rows)
     )
 
 
@@ -284,11 +316,14 @@ def check_hourly_available_cap_fac_table(asset_df: pd.DataFrame):
             description="Table unexpected length",
             metadata={"table_length": length, "expected_length": 136437000},
         )
-    # Make sure there are no null values
-    if asset_df.isna().any().any():
+    # Make sure there are no null values (excluding FIPS code which should)
+    if asset_df[asset_df.columns.difference(["county_id_fips"])].isna().any().any():
         return AssetCheckResult(
             passed=False,
             description="Found NA values when there should be none",
+            metadata={
+                "NA index values": asset_df[asset_df.isna().any(axis="columns")].index
+            },
         )
     # Make sure the capacity_factor values are below the expected value
     # There are some solar values that are slightly over 1 due to colder
@@ -333,5 +368,23 @@ def check_hourly_available_cap_fac_table(asset_df: pd.DataFrame):
         return AssetCheckResult(
             passed=False,
             description="found records for bedford_city or clifton_forge_city that shouldn't exist",
+        )
+    # Make sure there are no duplicate county_id_fips values outside of NA
+    notna_county_fips_df = asset_df[asset_df["county_id_fips"].notna()]
+    if notna_county_fips_df[
+        notna_county_fips_df.duplicated(subset=["datetime_utc", "county_id_fips"])
+    ].any():
+        return AssetCheckResult(
+            passed=False,
+            description="Found duplicate county_id_fips values",
+            metadata={
+                "duplciate county FIPS values": notna_county_fips_df[
+                    notna_county_fips_df.duplicated(
+                        subset=["datetime_utc", "county_id_fips"]
+                    )
+                ]
+                .county_id_fips.unique()
+                .tolist()
+            },
         )
     return AssetCheckResult(passed=True)
