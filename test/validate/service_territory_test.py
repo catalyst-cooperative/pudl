@@ -16,9 +16,9 @@ logger = logging.getLogger(__name__)
     "df_name,expected_rows",
     [
         ("summarized_demand_ferc714", 3_924),
-        ("fipsified_respondents_ferc714", 156_392),
-        ("compiled_geometry_balancing_authority_eia861", 113_142),
-        ("compiled_geometry_utility_eia861", 256_949),
+        ("fipsified_respondents_ferc714", 165_131),
+        ("compiled_geometry_balancing_authority_eia861", 117_577),
+        ("compiled_geometry_utility_eia861", 268_665),
     ],
 )
 def test_minmax_rows(
