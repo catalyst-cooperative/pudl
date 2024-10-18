@@ -9,8 +9,8 @@ v2024.X.x (2024-XX-XX)
 New Data
 ^^^^^^^^
 
-Vibrant Clean Energy Renewable Generation Profiles
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 * Integrate the VCE hourly capacity factor data for solar PV, onshore wind, and
   offshore wind from 2019 through 2023. The data in this table were produced by
   Vibrant Clean Energy, and are licensed to the public under the Creative Commons
