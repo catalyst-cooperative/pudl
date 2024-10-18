@@ -370,10 +370,11 @@ def check_hourly_available_cap_fac_table(asset_df: pd.DataFrame):
             description="found records for bedford_city or clifton_forge_city that shouldn't exist",
         )
     # Make sure there are no duplicate county_id_fips values outside of NA
-    notna_county_fips_df = asset_df[asset_df["county_id_fips"].notna()]
-    if not notna_county_fips_df[
-        notna_county_fips_df.duplicated(subset=["datetime_utc", "county_id_fips"])
-    ].empty:
+    notna_county_fips_df = asset_df.dropna(subset="county_id_fips")
+    idx = pd.MultiIndex.from_frame(
+        notna_county_fips_df[["datetime_utc", "county_id_fips"]]
+    )
+    if not idx.is_unique:
         return AssetCheckResult(
             passed=False,
             description="Found duplicate county_id_fips values",

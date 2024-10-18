@@ -2028,8 +2028,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "MMBtu",
     },
     "hour_of_year": {
-        "type": "number",
-        "description": "Number between 1 and 8670 representing the hour in a given year.",
+        "type": "integer",
+        "description": "Integer between 1 and 8670 representing the hour in a given year.",
     },
     "unit_heat_rate_mmbtu_per_mwh": {
         "type": "number",
