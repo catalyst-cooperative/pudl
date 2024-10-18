@@ -19,7 +19,7 @@ Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset
   capacity factor data nation-wide with a different set of modelling assumptions.
   See :doc:`data_sources/gridpathratoolkit` and :doc:`data_sources/vcerare` for
   more information. Capacity factor data calculated at different granularities
-  and using different models.
+  and using different models. See :issue:`#3872`.
 
 
 New Data Coverage
