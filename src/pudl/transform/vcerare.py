@@ -31,7 +31,7 @@ def _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips: pd.DataFrame) -> pd.DataFr
 
     """
     logger.info(
-        "Preping Lat-Long-FIPS table for merging with the capacity factor tables"
+        "Prepping Lat-Long-FIPS table for merging with the capacity factor tables"
     )
     ps_usa_df = POLITICAL_SUBDIVISIONS[POLITICAL_SUBDIVISIONS["country_code"] == "USA"]
     state_names = cleanstrings_snake(
@@ -81,6 +81,23 @@ def _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips: pd.DataFrame) -> pd.DataFr
         # Remove state FIPS code column in favor of the newly added state column.
         .drop(columns=["state_id_fips", "fips", "subdivision_code"])
     )
+    logger.info("Nulling FIPS IDs for non-county regions.")
+    lake_county_state_names = [
+        "lake_erie_ohio",
+        "lake_hurron_michigan",
+        "lake_michigan_illinois",
+        "lake_michigan_indiana",
+        "lake_michigan_michigan",
+        "lake_michigan_wisconsin",
+        "lake_ontario_new_york",
+        "lake_st_clair_michigan",
+        "lake_superior_minnesota",
+        "lake_superior_michigan",
+        "lake_superior_wisconsin",
+    ]
+    lat_long_fips.loc[
+        lat_long_fips.county_state_names.isin(lake_county_state_names), "county_id_fips"
+    ] = pd.NA
     return lat_long_fips
 
 
@@ -120,6 +137,21 @@ def _add_time_cols(df: pd.DataFrame, df_name: str) -> pd.DataFrame:
     return df
 
 
+def _drop_city_cols(df: pd.DataFrame, df_name: str) -> pd.DataFrame:
+    """Drop city columns from the capacity factor tables before stacking.
+
+    We do this early since the columns can be droped by name here, and we don't have to
+    search through all of the stacked rows to find matching records.
+    """
+    city_cols = [
+        x
+        for x in ["bedford_city_virginia", "clifton_forge_city_virginia"]
+        if x in df.columns
+    ]
+    logger.info(f"Dropping {city_cols} from {df_name} table.")
+    return df.drop(columns=city_cols)
+
+
 def _stack_cap_fac_df(df: pd.DataFrame, df_name: str) -> pd.DataFrame:
     """Function to transform each capacity factor table individually to save memory.
 
@@ -136,7 +168,10 @@ def _stack_cap_fac_df(df: pd.DataFrame, df_name: str) -> pd.DataFrame:
         .stack()
         .reset_index()
         .rename(
-            columns={"level_3": "county_state_names", 0: f"capacity_factor_{df_name}"}
+            columns={
+                "level_3": "county_state_names",
+                0: f"capacity_factor_{df_name}",
+            }
         )
         .assign(county_state_names=lambda x: pd.Categorical(x.county_state_names))
     )
@@ -211,54 +246,6 @@ def _combine_cap_fac_with_fips_df(
     return combined_df
 
 
-def _drop_city_records(df: pd.DataFrame) -> pd.DataFrame:
-    """Drop rows from cities.
-
-    There are several duplicate FIPS code values in the data. Most of them
-    are lakes within a county, but some of them are cities. Bedford City
-    has no capacity factor values and Clifton Forge City has a few. We have
-    no way to weight these cities by area to join them with the county
-    values, so we drop them.
-
-    """
-    logger.info("Dropping city rows with duplicate county rows")
-    return df.loc[
-        ~df["county_state_names"].isin(
-            ["clifton_forge_city_virginia", "bedford_city_virginia"]
-        )
-    ]
-
-
-def _null_non_county_fips_rows(df: pd.DataFrame) -> pd.DataFrame:
-    """Null the county FIPS code for rows that aren't counties.
-
-    There are a handful of rows that are not counties but rather
-    cities or portions of lakes. We drop the city values in
-    :func:`_drop_city_records`, but we keep the lake values.
-    Because these are not within county geographies, we will
-    not assign them FIPS codes.
-    """
-    logger.info("Nulling FIPS IDs for lake rows")
-    lake_county_state_names = [
-        "lake_erie_ohio",
-        "lake_hurron_michigan",
-        "lake_michigan_illinois",
-        "lake_michigan_indiana",
-        "lake_michigan_michigan",
-        "lake_michigan_wisconsin",
-        "lake_ontario_new_york",
-        "lake_st_clair_michigan",
-        "lake_superior_minnesota",
-        "lake_superior_michigan",
-        "lake_superior_wisconsin",
-    ]
-    # Null county_id_fips codes
-    df.loc[df["county_state_names"].isin(lake_county_state_names), "county_id_fips"] = (
-        pd.NA
-    )
-    return df
-
-
 @asset(
     io_manager_key="parquet_io_manager",
     compute_kind="pandas",
@@ -275,7 +262,7 @@ def out_vcerare__hourly_available_capacity_factor(
     Concatenates the solar and wind capacity factors into a single table and turns
     the columns for each county or subregion into a single county_or_lake_name column.
     """
-    logger.info("Transforming the hourly available capacity factor tables")
+    logger.info("Transforming the VCE RARE hourly available capacity factor tables")
     # Clean up the FIPS table
     fips_df = _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips)
     # Apply the same transforms to all the capacity factor tables. This is slower
@@ -289,16 +276,14 @@ def out_vcerare__hourly_available_capacity_factor(
     clean_dict = {
         df_name: _check_for_valid_counties(df, fips_df, df_name)
         .pipe(_add_time_cols, df_name)
+        .pipe(_drop_city_cols, df_name)
         .pipe(_make_cap_fac_frac, df_name)
         .pipe(_stack_cap_fac_df, df_name)
         for df_name, df in raw_dict.items()
     }
     # Combine the data and perform a few last cleaning mechanisms
-    return (
-        _combine_all_cap_fac_dfs(clean_dict)
-        .pipe(_drop_city_records)
-        .pipe(_combine_cap_fac_with_fips_df, fips_df)
-        .pipe(_null_non_county_fips_rows)
+    return _combine_all_cap_fac_dfs(clean_dict).pipe(
+        _combine_cap_fac_with_fips_df, fips_df
     )
 
 
@@ -306,6 +291,7 @@ def out_vcerare__hourly_available_capacity_factor(
     asset=out_vcerare__hourly_available_capacity_factor,
     blocking=True,
     description="Check that output table is as expected.",
+    op_tags={"memory-use": "high"},
 )
 def check_hourly_available_cap_fac_table(asset_df: pd.DataFrame):  # noqa: C901
     """Check that the final output table is as expected."""
