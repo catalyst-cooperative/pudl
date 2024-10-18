@@ -124,7 +124,7 @@ def _stack_cap_fac_df(df: pd.DataFrame, df_name: str) -> pd.DataFrame:
     """Function to transform each capacity factor table individually to save memory.
 
     The main transforms are turning county/subregion columns into county/subregion rows
-    and renaming columns to be more human-readable and compatible with the FIPs df
+    and renaming columns to be more human-readable and compatible with the FIPS df
     that will get merged in.
 
     This function is intended to save memory by being applied to each individual
