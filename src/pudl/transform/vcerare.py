@@ -307,16 +307,16 @@ def out_vcerare__hourly_available_capacity_factor(
     blocking=True,
     description="Check that output table is as expected.",
 )
-def check_hourly_available_cap_fac_table(asset_df: pd.DataFrame):
+def check_hourly_available_cap_fac_table(asset_df: pd.DataFrame):  # noqa: C901
     """Check that the final output table is as expected."""
-    # Make sure the table is the expected length
+    logger.info("Check VCE RARE hourly table is the expected length")
     if (length := len(asset_df)) != 136437000:
         return AssetCheckResult(
             passed=False,
             description="Table unexpected length",
             metadata={"table_length": length, "expected_length": 136437000},
         )
-    # Make sure there are no null values (excluding FIPS code which should)
+    logger.info("Check there are no NA values in VCE RARE table (except FIPS)")
     if asset_df[asset_df.columns.difference(["county_id_fips"])].isna().any().any():
         return AssetCheckResult(
             passed=False,
@@ -328,29 +328,35 @@ def check_hourly_available_cap_fac_table(asset_df: pd.DataFrame):
     # Make sure the capacity_factor values are below the expected value
     # There are some solar values that are slightly over 1 due to colder
     # than average panel temperatures.
-    if (asset_df.iloc[:, asset_df.columns.str.contains("cap")] > 1.02).any().any():
+    logger.info("Check capacity factors in VCE RARE table are between 0 and 1.")
+    if asset_df.capacity_factor_solar_pv.max() > 1.02:
         return AssetCheckResult(
             passed=False,
-            description="Found capacity factor fraction values greater than 1.02",
+            description="Found PV capacity factor values greater than 1.02",
+        )
+    if asset_df.filter(regex=r"capacity_factor.*wind").max(axis=None) > 1.0:
+        return AssetCheckResult(
+            passed=False,
+            description="Found wind capacity factor values greater than 1.0",
         )
     # Make sure capacity_factor values are greater than or equal to 0
-    if (asset_df.iloc[:, asset_df.columns.str.contains("cap")] < 0).any().any():
+    if asset_df.filter(like="capacity_factor").min(axis=None) < 0:
         return AssetCheckResult(
             passed=False,
-            description="Found capacity factor fraction values less than 0",
+            description="Found capacity factor values less than 0",
         )
-    # Make sure the highest hour_of_year values is 8760
+    logger.info("Check max hour of year in VCE RARE table is 8760.")
     if asset_df["hour_of_year"].max() != 8760:
         return AssetCheckResult(
             passed=False, description="Found hour_of_year values larger than 8760"
         )
-    # Make sure Dec 31, 2020 is missing (leap year handling is correct)
+    logger.info("Check for unexpected Dec 31st, 2020 dates in VCE RARE table.")
     if not asset_df[asset_df["datetime_utc"] == pd.to_datetime("2020-12-31")].empty:
         return AssetCheckResult(
             passed=False,
             description="Found rows for December 31, 2020 which should not exist",
         )
-    # Make sure the datetime aligns with the hour of the year
+    logger.info("Check hour from date and hour of year match in VCE RARE table.")
     asset_df["hour_from_date"] = (
         asset_df["datetime_utc"].dt.hour
         + (asset_df["datetime_utc"].dt.dayofyear - 1) * 24
@@ -361,7 +367,9 @@ def check_hourly_available_cap_fac_table(asset_df: pd.DataFrame):
             passed=False,
             description="hour_of_year values don't match date values",
         )
-    # Make sure there are no rows for Bedford City or Clifton Forge City
+    logger.info(
+        "Check for rows for Bedford City or Clifton Forge City in VCE RARE table."
+    )
     if not asset_df[
         asset_df["county_or_lake_name"].isin(["bedford_city", "clifton_forge_city"])
     ].empty:
@@ -369,7 +377,7 @@ def check_hourly_available_cap_fac_table(asset_df: pd.DataFrame):
             passed=False,
             description="found records for bedford_city or clifton_forge_city that shouldn't exist",
         )
-    # Make sure there are no duplicate county_id_fips values outside of NA
+    logger.info("Check for duplicate county_id_fips values in VCE RARE table.")
     notna_county_fips_df = asset_df.dropna(subset="county_id_fips")
     idx = pd.MultiIndex.from_frame(
         notna_county_fips_df[["datetime_utc", "county_id_fips"]]
