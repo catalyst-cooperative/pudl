@@ -161,7 +161,7 @@ def _make_cap_fac_frac(df: pd.DataFrame, df_name: str) -> pd.DataFrame:
 def _check_for_valid_counties(
     df: pd.DataFrame, clean_fips_df: pd.DataFrame, df_name: str
 ) -> pd.DataFrame:
-    """Make sure the state_county values show up in the fips table.
+    """Make sure the state_county values show up in the FIPS table.
 
     This step happens before the table gets stacked to save memory.
     """
@@ -201,7 +201,7 @@ def _combine_all_cap_fac_dfs(cap_fac_dict: dict[str, pd.DataFrame]) -> pd.DataFr
 def _combine_cap_fac_with_fips_df(
     cap_fac_df: pd.DataFrame, fips_df: pd.DataFrame
 ) -> pd.DataFrame:
-    """Combine the combined capacity factor df with the fips df."""
+    """Combine the combined capacity factor df with the FIPS df."""
     logger.info(
         "Merging the combined capacity factor table with the Lat-Long-FIPS table"
     )
@@ -252,7 +252,7 @@ def _null_non_county_fips_rows(df: pd.DataFrame) -> pd.DataFrame:
         "lake_superior_michigan",
         "lake_superior_wisconsin",
     ]
-    # Null all capacity factor values
+    # Null county_id_fips codes
     df.loc[df["county_state_names"].isin(lake_county_state_names), "county_id_fips"] = (
         pd.NA
     )
