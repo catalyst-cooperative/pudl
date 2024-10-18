@@ -889,9 +889,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "county_or_lake_name": {
         "type": "string",
         "description": (
-            "County or lake name. Note that this field has a many:1 relationship "
-            "to county fips code. Each lake may also appear several times--once for "
-            "each state it touches."
+            "County or lake name. Lake names may also appear several times--once for "
+            "each state it touches. FIPS ID values for lakes have been nulled."
         ),
     },
     "country_code": {
