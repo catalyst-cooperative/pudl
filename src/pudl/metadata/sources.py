@@ -838,16 +838,16 @@ SOURCES: dict[str, Any] = {
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
-    "vceregen": {
-        "title": "Vibrant Clean Energy Renewable Generation Profiles",
+    "vcerare": {
+        "title": "Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset",
         "path": "https://vibrantcleanenergy.com/products/datasets/",
         "description": (
-            "This dataset was produced by Vibrant Clean Energy, and is licensed to "
+            "This dataset was produced by Vibrant Clean Energy and is licensed to "
             "the public under the Creative Commons Attribution 4.0 International "
             "license (CC-BY-4.0). The data consists of hourly, county-level renewable "
             "generation profiles in the continental United States and was compiled "
             "based on outputs from the NOAA HRRR weather model. Profiles are stated "
-            "as a capacity factor (a fraction of nameplate capacity) and exist for "
+            "as a capacity factor (a percentage of nameplate capacity) and exist for "
             "onshore wind, offshore wind, and fixed-tilt solar generation types."
         ),
         "source_file_dict": {

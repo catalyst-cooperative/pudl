@@ -401,6 +401,19 @@ class EiaAeoSettings(GenericDatasetSettings):
     years: list[int] = data_source.working_partitions["years"]
 
 
+class VCERareSettings(GenericDatasetSettings):
+    """An immutable pydantic model to validate VCE RARE Power Dataset settings.
+
+    Args:
+        data_source: DataSource metadata object
+        years: VCE RARE report years to use.
+    """
+
+    data_source: ClassVar[DataSource] = DataSource.from_id("vcerare")
+    years: list[int] = data_source.working_partitions["years"]
+    fips: bool = True
+
+
 class GlueSettings(FrozenBaseModel):
     """An immutable pydantic model to validate Glue settings.
 
@@ -571,6 +584,7 @@ class DatasetsSettings(FrozenBaseModel):
     phmsagas: PhmsaGasSettings | None = None
     nrelatb: NrelAtbSettings | None = None
     gridpathratoolkit: GridPathRAToolkitSettings | None = None
+    vcerare: VCERareSettings | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -592,6 +606,7 @@ class DatasetsSettings(FrozenBaseModel):
             data["phmsagas"] = PhmsaGasSettings()
             data["nrelatb"] = NrelAtbSettings()
             data["gridpathratoolkit"] = GridPathRAToolkitSettings()
+            data["vcerare"] = VCERareSettings()
 
         return data
 

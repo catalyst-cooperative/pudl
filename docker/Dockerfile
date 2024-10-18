@@ -15,7 +15,7 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Configure gsutil authentication
+# Configure gcloud authentication
 # hadolint ignore=DL3059
 RUN printf '[GoogleCompute]\nservice_account = default' > /etc/boto.cfg
 
