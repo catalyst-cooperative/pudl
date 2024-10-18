@@ -371,9 +371,9 @@ def check_hourly_available_cap_fac_table(asset_df: pd.DataFrame):
         )
     # Make sure there are no duplicate county_id_fips values outside of NA
     notna_county_fips_df = asset_df[asset_df["county_id_fips"].notna()]
-    if notna_county_fips_df[
+    if not notna_county_fips_df[
         notna_county_fips_df.duplicated(subset=["datetime_utc", "county_id_fips"])
-    ].any():
+    ].empty:
         return AssetCheckResult(
             passed=False,
             description="Found duplicate county_id_fips values",
