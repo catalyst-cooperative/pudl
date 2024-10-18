@@ -503,8 +503,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Estimated capacity factor (0-1) calculated for solar PV "
             "assuming a fixed axis panel tilted at latitude and DC power "
-            "outputs. Note that some values are greater "
-            "than 1 due to colder than average panel temperatures. "
+            "outputs. Due to power production performance being correlated "
+            "with panel temperatures, during cold sunny periods, some solar "
+            "capacity factor values are greater than 1 (but less that 1.1)."
             "All values are based on outputs from the NOAA HRRR operational "
             "numerical weather prediction model. Capacity factors are "
             "normalized to unity for maximal power output. "

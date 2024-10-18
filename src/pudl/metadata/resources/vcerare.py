@@ -36,7 +36,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "For solar capacity factors: pertinent surface weather variables are pulled such as "
             "incoming short wave radiation, direct normal irradiance (calculated in the HRRR 2016 "
             "forward), surface temperature and other parameters. These are used in a non-linear "
-            "I-V curve translation to power capacity factors."
+            "I-V curve translation to power capacity factors. Due to power production "
+            "performance being correlated with panel temperatures, during cold sunny periods, "
+            "some solar capacity factor values are greater than 1 (but less that 1.1)."
         ),
         "schema": {
             "fields": [
