@@ -255,7 +255,6 @@ class TestZenodoFetcher(unittest.TestCase):
             }
         )
 
-    @pytest.mark.xfail
     def test_doi_format_is_correct(self):
         """Verifies ZenodoFetcher DOIs have correct format and are not sandbox DOIs.
 

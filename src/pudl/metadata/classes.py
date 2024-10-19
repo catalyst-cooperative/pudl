@@ -1284,6 +1284,7 @@ class Resource(PudlMeta):
             "ppe",
             "pudl",
             "nrelatb",
+            "vcerare",
         ]
         | None
     ) = None
@@ -1311,6 +1312,7 @@ class Resource(PudlMeta):
             "static_pudl",
             "service_territories",
             "nrelatb",
+            "vcerare",
         ]
         | None
     ) = None
