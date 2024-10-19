@@ -5,15 +5,13 @@ Vibrant Clean Energy based on outputs from the NOA HRRR model and are licensed
 to the public under the Creative Commons Attribution 4.0 International license
 (CC-BY-4.0).
 
-See the `Zenodo archive README <https://doi.org/10.5281/zenodo.13937523>`__ for more
+See the `README <https://doi.org/10.5281/zenodo.13937523>`__ archived on Zenodo for more
 detailed information.
-
-The cleaned PUDL table is hundreds of millions of rows, so don't try and open it with Excel!
 {% endblock %}
 
 {% block download_docs %}
 {% for filename in download_paths %}
-* :download:`{{ filename.stem.replace("-", " ").replace("_", " ").title() }} ({{ filename.suffix.replace('.', '').upper() }}) <{{ filename }}>`
+* :download:`{{ filename.stem.replace("_", " ").title() }} ({{ filename.suffix.replace('.', '').upper() }}) <{{ filename }}>`
 {% endfor %}
 * `NOAA HRRR Model Overview <https://rapidrefresh.noaa.gov/hrrr/>`__
 {% endblock %}
