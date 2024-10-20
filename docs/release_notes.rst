@@ -3,8 +3,19 @@ PUDL Release Notes
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-v2024.X.x (2024-XX-XX)
+v2024.XX.x (2024-MM-DD)
 ---------------------------------------------------------------------------------------
+
+.. _release-v2024.10.0:
+
+---------------------------------------------------------------------------------------
+v2024.10.0 (2024-10-20)
+---------------------------------------------------------------------------------------
+
+This is a special early release to publish the new VCE Resource Adequacy Renewable
+Energy (RARE) dataset. It also includes final releases of EIA 860 and 923 data for 2023
+and the FERC Form 714 data for 2021-2023, which had previously been integrated from
+the XBRL data published by FERC. See details below
 
 New Data
 ^^^^^^^^
