@@ -36,9 +36,15 @@ The Public Utility Data Liberation Project (PUDL)
 .. |bluesky| image:: https://img.shields.io/badge/Bluesky-0285FF?logo=bluesky&logoColor=fff&style=flat
    :target: https://bsky.app/profile/catalyst.coop
    :alt: Follow @catalyst.coop on BlueSky
+.. |kaggle| image:: https://img.shields.io/badge/Kaggle-20BEFF?style=flat&logo=Kaggle&logoColor=white
+   :target: https://www.kaggle.com/datasets/catalystcooperative/pudl-project
+   :alt: The PUDL Dataset on Kaggle
+.. |aws| image:: https://img.shields.io/badge/Amazon_AWS-FF9900?style=flat&logo=amazonaws&logoColor=white
+   :target: https://registry.opendata.aws/catalyst-cooperative-pudl/
+   :alt: PUDL in the AWS Open Data Registry
 
 |repo-status| |pytest| |codecov| |rtd| |ruff| |pre-commit-ci| |zenodo-doi|
-|office-hours| |mastodon| |linkedin| |bluesky|
+|office-hours| |mastodon| |linkedin| |bluesky| |kaggle| |aws|
 
 What is PUDL?
 -------------
