@@ -13,6 +13,31 @@ tables with the ``out_`` prefix, as these tables contain the most complete and e
 to work with data. For more information about the different types
 of tables, read through :ref:`PUDL's naming conventions <asset-naming>`.
 
+
+Based on our assumptions of having three major users interested in the PUDL data,
+we would like to recommend a one-stop shop for you to get all you need from PUDL.
+
+Listed below are the user cases and the available data:
+
+* Energy Policy Expert and/or Non-Technical User:
+
+  You can download CSV or JSON files that are readily available for analysis in the
+  `PUDL database <https://data.catalyst.coop/pudl>`__.
+
+* Energy Modeler and/or Technical User:
+
+  We have parquet data formats in the AWS Open Data Registry. You can follow our
+  :doc:`nightly data builds tutorial <dev/nightly_data_builds>` on ingesting
+  the data from the registry into your development environment.
+
+* Open-Source Contributor:
+
+  Your contributions to PUDL are very much welcomed. If you're interested in
+  contributing, please refer to our :doc:`contribution guide <dev/dev_setup>`.
+
+If you need more specific user cases on how to access the PUDL data from a
+variety of locations, you can refer to the table below.
+
 .. _access-modes:
 
 ---------------------------------------------------------------------------------------
