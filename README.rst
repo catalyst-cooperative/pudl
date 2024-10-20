@@ -29,10 +29,16 @@ The Public Utility Data Liberation Project (PUDL)
    :alt: Schedule a 1-on-1 chat with us about PUDL.
 .. |mastodon| image:: https://img.shields.io/mastodon/follow/110855618428885893?domain=https%3A%2F%2Fmastodon.energy&style=social&color=%23000000&link=https%3A%2F%2Fmastodon.energy%2F%40catalystcoop
    :target: https://mastodon.energy/@catalystcoop
-   :alt: Follow CatalystCoop on Mastodon
+   :alt: Follow Catalyst Cooperative on Mastodon
+.. |linkedin| image:: https://img.shields.io/badge/LinkedIn-0077B5?style=flat&logo=linkedin&logoColor=white
+   :target: https://linkedin.com/company/catalyst-cooperative/
+   :alt: Follow Catalyst Cooperative on LinkedIn
+.. |bluesky| image:: https://img.shields.io/badge/Bluesky-0285FF?logo=bluesky&logoColor=fff&style=flat
+   :target: https://bsky.app/profile/catalyst.coop
+   :alt: Follow @catalyst.coop on BlueSky
 
 |repo-status| |pytest| |codecov| |rtd| |ruff| |pre-commit-ci| |zenodo-doi|
-|office-hours| |mastodon|
+|office-hours| |mastodon| |linkedin| |bluesky|
 
 What is PUDL?
 -------------
