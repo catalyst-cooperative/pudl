@@ -282,8 +282,12 @@ def out_vcerare__hourly_available_capacity_factor(
         for df_name, df in raw_dict.items()
     }
     # Combine the data and perform a few last cleaning mechanisms
-    return _combine_all_cap_fac_dfs(clean_dict).pipe(
-        _combine_cap_fac_with_fips_df, fips_df
+    # Sort the data by primary key columns to produce compact row groups
+    return (
+        _combine_all_cap_fac_dfs(clean_dict)
+        .pipe(_combine_cap_fac_with_fips_df, fips_df)
+        .sort_values(by=["state", "county_or_lake_name", "datetime_utc"])
+        .reset_index(drop=True)
     )
 
 

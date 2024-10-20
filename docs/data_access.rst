@@ -130,7 +130,7 @@ so we have moved to publishing all our hourly tables using the compressed, colum
 * `FERC-714 Hourly Estimated State Demand <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/out_ferc714__hourly_estimated_state_demand.parquet>`__
 * `FERC-714 Hourly Planning Area Demand <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/out_ferc714__hourly_planning_area_demand.parquet>`__
 * `GridPath RA Toolkit Hourly Available Capacity Factors <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/out_gridpathratoolkit__hourly_available_capacity_factor.parquet>`__
-* `VCE Resoruce Adequacy Renewable Energy Dataset <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ out_vcerare__hourly_available_capacity_factor.parquet>`__
+* `VCE Resource Adequacy Renewable Energy (RARE) Dataset <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/out_vcerare__hourly_available_capacity_factor.parquet>`__
 
 Raw FERC DBF & XBRL data converted to SQLite
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
