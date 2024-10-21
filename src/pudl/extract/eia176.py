@@ -35,6 +35,15 @@ class Extractor(CsvExtractor):
         selection = self._metadata._get_partition_selection(partition)
         return df.assign(report_year=selection)
 
+    def process_renamed(
+        self, df: pd.DataFrame, page: str, **partition: PartitionSelection
+    ) -> pd.DataFrame:
+        """Strip and lowercase raw text fields (except ID)."""
+        text_fields = ["area", "atype", "company", "item"]
+        for tf in text_fields:
+            df[tf] = df[tf].str.strip().str.lower()
+        return df
+
 
 raw_eia176__all_dfs = raw_df_factory(Extractor, name="eia176")
 
