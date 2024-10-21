@@ -17,7 +17,7 @@ dependencies:
   - anyio=4.6.2.post1=pyhd8ed1ab_0
   - appdirs=1.4.4=pyh9f0ad1d_0
   - appnope=0.1.4=pyhd8ed1ab_0
-  - arelle-release=2.31.0=pyhd8ed1ab_0
+  - arelle-release=2.32.1=pyhd8ed1ab_0
   - argon2-cffi=23.1.0=pyhd8ed1ab_0
   - argon2-cffi-bindings=21.2.0=py312hb553811_5
   - arrow=1.3.0=pyhd8ed1ab_0
@@ -277,7 +277,7 @@ dependencies:
   - libkml=1.3.0=h9ee1731_1021
   - liblapack=3.9.0=22_osx64_openblas
   - libllvm14=14.0.6=hc8e404f_4
-  - libnghttp2=1.58.0=h64cf6d3_1
+  - libnghttp2=1.63.0=hc7306c3_0
   - libntlm=1.4=h0d85af4_1002
   - libopenblas=0.3.27=openmp_h8869122_1
   - libparquet=17.0.0=hf1b0f52_16_cpu
@@ -328,7 +328,7 @@ dependencies:
   - multimethod=1.9.1=pyhd8ed1ab_0
   - munkres=1.1.4=pyh9f0ad1d_0
   - mypy_extensions=1.0.0=pyha770c72_0
-  - narwhals=1.9.4=pyhd8ed1ab_0
+  - narwhals=1.10.0=pyhd8ed1ab_0
   - nbclient=0.10.0=pyhd8ed1ab_0
   - nbconvert=7.16.4=hd8ed1ab_1
   - nbconvert-core=7.16.4=pyhd8ed1ab_1
@@ -369,7 +369,7 @@ dependencies:
   - petl=1.7.15=pyhd8ed1ab_0
   - pexpect=4.9.0=pyhd8ed1ab_0
   - pickleshare=0.7.5=py_1003
-  - pillow=11.0.0=py312h66fe14f_0
+  - pillow=10.4.0=py312h683ea77_1
   - pip=24.2=pyh8b19718_1
   - pixman=0.43.4=h73e2aa4_0
   - pkginfo=1.11.2=pyhd8ed1ab_0
@@ -458,7 +458,7 @@ dependencies:
   - rsa=4.9=pyhd8ed1ab_0
   - ruamel.yaml=0.18.6=py312h3d0f464_1
   - ruamel.yaml.clib=0.2.8=py312h3d0f464_1
-  - ruff=0.6.9=py312he6c0bb9_0
+  - ruff=0.7.0=py312h1d793c7_0
   - ruff-lsp=0.0.57=pyhd8ed1ab_0
   - s3transfer=0.10.3=pyhd8ed1ab_0
   - scikit-learn=1.5.2=py312h9d777eb_1
