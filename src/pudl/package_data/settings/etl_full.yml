@@ -307,6 +307,7 @@ datasets:
           2020,
           2021,
           2022,
+          2023,
         ]
     eia930:
       half_years: ["all"]
