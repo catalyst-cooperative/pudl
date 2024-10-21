@@ -33,7 +33,7 @@ dependencies = [
     "fsspec>=2024",
     "furo>=2024",
     "gcsfs>=2024",
-    "gdal>=3.9.0",
+    "gdal==3.9.2",  # pinned while waiting for conda forge feedstock update.
     "geopandas>=1.0", # >=0.14.4 required for Numpy 2.0
     "grpcio==1.62.2", # Required by dagster, binary dependencies are flaky
     "grpcio-health-checking==1.62.2", # Required by dagster, binary dependencies are flaky

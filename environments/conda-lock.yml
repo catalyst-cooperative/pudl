@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: 7a357cb19b3140af4f76efea7d76fdbde3eab8df77b4811300736582a4e0e911
-    osx-64: 6d958930c4b5695b04702632be0a2d3789b5514b18b764fccde9c9c197da183f
-    osx-arm64: 5d876da777c33789c2d588bbd5d1644d8c7db9642dac6eda7b3ee0e51a89ef91
+    linux-64: 565002f7f152698f3c24bc6551fc59970565ed8250a6517834408578b9b60aaf
+    osx-64: 5882f18531bd5c3558d477f21de17ccaa9bd96d310c8b83ab55e4313534dcf4a
+    osx-arm64: aec279aa6545d175f88034ee17433b859375a0eb3f2b2034b17a44d259e005d1
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -4093,7 +4093,7 @@ package:
     category: main
     optional: false
   - name: dagster
-    version: 1.8.11
+    version: 1.8.12
     manager: conda
     platform: linux-64
     dependencies:
@@ -4101,7 +4101,7 @@ package:
       click: ">=5.0"
       coloredlogs: ">=6.1,<=14.0"
       croniter: ">=0.3.34"
-      dagster-pipes: ">=1.8.11,<1.8.12.0a0"
+      dagster-pipes: ">=1.8.12,<1.8.13.0a0"
       docstring_parser: ""
       filelock: ""
       grpcio: ">=1.44.0"
@@ -4129,14 +4129,14 @@ package:
       tzdata: ""
       universal_pathlib: ">=0.2.0"
       watchdog: ">=0.8.3,<6"
-    url: https://conda.anaconda.org/conda-forge/noarch/dagster-1.8.11-pyhd8ed1ab_12.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/dagster-1.8.12-pyhd8ed1ab_12.conda
     hash:
-      md5: 74687d3de9390d21e04fb2ae6527d895
-      sha256: c05cba780536e40b2b9982d6bc05d9150396b6c322b3192b5b1fd072c0762f72
+      md5: 3dd56f95c0fed710e43bee8318dcda2e
+      sha256: 56e39a6d951f879dc9ac0eac5d95187e77324ed4186ebb5a4a101eb47b0882a4
     category: main
     optional: false
   - name: dagster
-    version: 1.8.11
+    version: 1.8.12
     manager: conda
     platform: osx-64
     dependencies:
@@ -4171,15 +4171,15 @@ package:
       watchdog: ">=0.8.3,<6"
       universal_pathlib: ">=0.2.0"
       pydantic: ">1.10.0,!=1.10.7,<2.10.0"
-      dagster-pipes: ">=1.8.11,<1.8.12.0a0"
-    url: https://conda.anaconda.org/conda-forge/noarch/dagster-1.8.11-pyhd8ed1ab_12.conda
+      dagster-pipes: ">=1.8.12,<1.8.13.0a0"
+    url: https://conda.anaconda.org/conda-forge/noarch/dagster-1.8.12-pyhd8ed1ab_12.conda
     hash:
-      md5: 74687d3de9390d21e04fb2ae6527d895
-      sha256: c05cba780536e40b2b9982d6bc05d9150396b6c322b3192b5b1fd072c0762f72
+      md5: 3dd56f95c0fed710e43bee8318dcda2e
+      sha256: 56e39a6d951f879dc9ac0eac5d95187e77324ed4186ebb5a4a101eb47b0882a4
     category: main
     optional: false
   - name: dagster
-    version: 1.8.11
+    version: 1.8.12
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -4214,161 +4214,161 @@ package:
       watchdog: ">=0.8.3,<6"
       universal_pathlib: ">=0.2.0"
       pydantic: ">1.10.0,!=1.10.7,<2.10.0"
-      dagster-pipes: ">=1.8.11,<1.8.12.0a0"
-    url: https://conda.anaconda.org/conda-forge/noarch/dagster-1.8.11-pyhd8ed1ab_12.conda
+      dagster-pipes: ">=1.8.12,<1.8.13.0a0"
+    url: https://conda.anaconda.org/conda-forge/noarch/dagster-1.8.12-pyhd8ed1ab_12.conda
     hash:
-      md5: 74687d3de9390d21e04fb2ae6527d895
-      sha256: c05cba780536e40b2b9982d6bc05d9150396b6c322b3192b5b1fd072c0762f72
+      md5: 3dd56f95c0fed710e43bee8318dcda2e
+      sha256: 56e39a6d951f879dc9ac0eac5d95187e77324ed4186ebb5a4a101eb47b0882a4
     category: main
     optional: false
   - name: dagster-graphql
-    version: 1.8.11
+    version: 1.8.12
     manager: conda
     platform: linux-64
     dependencies:
-      dagster: ">=1.8.11,<1.8.12.0a0"
+      dagster: ">=1.8.12,<1.8.13.0a0"
       gql-with-requests: ">=3.0.0,<4.0.0"
       graphene: ">=3,<4"
       python: ">=3.8,<3.13"
       requests: ""
       starlette: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/dagster-graphql-1.8.11-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/dagster-graphql-1.8.12-pyhd8ed1ab_0.conda
     hash:
-      md5: 90d030b0294f0ff341f8569226a92c00
-      sha256: 9bbf986b53b46f06a667da6ee45c908af15a1e7ba114f93ede648c9810a6b141
+      md5: ae46d19b309a30f9f98a11ffa0be956e
+      sha256: bfba3783e7704267934a3497b608c8ec9f4d6a78df4bf31838f6f760880facd5
     category: dev
     optional: true
   - name: dagster-graphql
-    version: 1.8.11
+    version: 1.8.12
     manager: conda
     platform: osx-64
-    dependencies:
-      requests: ""
-      starlette: ""
-      python: ">=3.8,<3.13"
-      gql-with-requests: ">=3.0.0,<4.0.0"
-      graphene: ">=3,<4"
-      dagster: ">=1.8.11,<1.8.12.0a0"
-    url: https://conda.anaconda.org/conda-forge/noarch/dagster-graphql-1.8.11-pyhd8ed1ab_0.conda
-    hash:
-      md5: 90d030b0294f0ff341f8569226a92c00
-      sha256: 9bbf986b53b46f06a667da6ee45c908af15a1e7ba114f93ede648c9810a6b141
-    category: dev
-    optional: true
-  - name: dagster-graphql
-    version: 1.8.11
-    manager: conda
-    platform: osx-arm64
     dependencies:
       requests: ""
       starlette: ""
       python: ">=3.8,<3.13"
       gql-with-requests: ">=3.0.0,<4.0.0"
       graphene: ">=3,<4"
-      dagster: ">=1.8.11,<1.8.12.0a0"
-    url: https://conda.anaconda.org/conda-forge/noarch/dagster-graphql-1.8.11-pyhd8ed1ab_0.conda
+      dagster: ">=1.8.12,<1.8.13.0a0"
+    url: https://conda.anaconda.org/conda-forge/noarch/dagster-graphql-1.8.12-pyhd8ed1ab_0.conda
     hash:
-      md5: 90d030b0294f0ff341f8569226a92c00
-      sha256: 9bbf986b53b46f06a667da6ee45c908af15a1e7ba114f93ede648c9810a6b141
+      md5: ae46d19b309a30f9f98a11ffa0be956e
+      sha256: bfba3783e7704267934a3497b608c8ec9f4d6a78df4bf31838f6f760880facd5
+    category: dev
+    optional: true
+  - name: dagster-graphql
+    version: 1.8.12
+    manager: conda
+    platform: osx-arm64
+    dependencies:
+      requests: ""
+      starlette: ""
+      python: ">=3.8,<3.13"
+      gql-with-requests: ">=3.0.0,<4.0.0"
+      graphene: ">=3,<4"
+      dagster: ">=1.8.12,<1.8.13.0a0"
+    url: https://conda.anaconda.org/conda-forge/noarch/dagster-graphql-1.8.12-pyhd8ed1ab_0.conda
+    hash:
+      md5: ae46d19b309a30f9f98a11ffa0be956e
+      sha256: bfba3783e7704267934a3497b608c8ec9f4d6a78df4bf31838f6f760880facd5
     category: dev
     optional: true
   - name: dagster-pipes
-    version: 1.8.11
+    version: 1.8.12
     manager: conda
     platform: linux-64
     dependencies:
       python: ">=3.8,<3.13"
-    url: https://conda.anaconda.org/conda-forge/noarch/dagster-pipes-1.8.11-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/dagster-pipes-1.8.12-pyhd8ed1ab_0.conda
     hash:
-      md5: 7e0f6c84956fa736b9318eb2a6d63f74
-      sha256: ca64843391f1189e8756e7304286cc56c38420ae6f28c7f722941da3c93c79e3
+      md5: f8677c4afee11377e740d34fd61153d2
+      sha256: 43ecfb6e6eef55a288ea940519321f84b16c580f92abe684ff39a2cb94ca1765
     category: main
     optional: false
   - name: dagster-pipes
-    version: 1.8.11
+    version: 1.8.12
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.8,<3.13"
-    url: https://conda.anaconda.org/conda-forge/noarch/dagster-pipes-1.8.11-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/dagster-pipes-1.8.12-pyhd8ed1ab_0.conda
     hash:
-      md5: 7e0f6c84956fa736b9318eb2a6d63f74
-      sha256: ca64843391f1189e8756e7304286cc56c38420ae6f28c7f722941da3c93c79e3
+      md5: f8677c4afee11377e740d34fd61153d2
+      sha256: 43ecfb6e6eef55a288ea940519321f84b16c580f92abe684ff39a2cb94ca1765
     category: main
     optional: false
   - name: dagster-pipes
-    version: 1.8.11
+    version: 1.8.12
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.8,<3.13"
-    url: https://conda.anaconda.org/conda-forge/noarch/dagster-pipes-1.8.11-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/dagster-pipes-1.8.12-pyhd8ed1ab_0.conda
     hash:
-      md5: 7e0f6c84956fa736b9318eb2a6d63f74
-      sha256: ca64843391f1189e8756e7304286cc56c38420ae6f28c7f722941da3c93c79e3
+      md5: f8677c4afee11377e740d34fd61153d2
+      sha256: 43ecfb6e6eef55a288ea940519321f84b16c580f92abe684ff39a2cb94ca1765
     category: main
     optional: false
   - name: dagster-postgres
-    version: 0.24.11
+    version: 0.24.12
     manager: conda
     platform: linux-64
     dependencies:
-      dagster: 1.8.11.*
+      dagster: 1.8.12.*
       psycopg2-binary: ""
       python: ">=3.8,<3.13"
-    url: https://conda.anaconda.org/conda-forge/noarch/dagster-postgres-0.24.11-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/dagster-postgres-0.24.12-pyhd8ed1ab_0.conda
     hash:
-      md5: 13f298871024e098a77fa0e0d1fc5af8
-      sha256: e06eb95c23e88254fa55c9cfe552586b12a4a91f22305a46810c13923c2f7726
+      md5: 30bd522e9c27ecf2387d3c4d422f3d0d
+      sha256: 118c36c1f39b2c2b9b850dc8c2fdde8faf0ff86606dac5883b5ba1ad07933ed0
     category: main
     optional: false
   - name: dagster-postgres
-    version: 0.24.11
+    version: 0.24.12
     manager: conda
     platform: osx-64
     dependencies:
       psycopg2-binary: ""
       python: ">=3.8,<3.13"
-      dagster: 1.8.11.*
-    url: https://conda.anaconda.org/conda-forge/noarch/dagster-postgres-0.24.11-pyhd8ed1ab_0.conda
+      dagster: 1.8.12.*
+    url: https://conda.anaconda.org/conda-forge/noarch/dagster-postgres-0.24.12-pyhd8ed1ab_0.conda
     hash:
-      md5: 13f298871024e098a77fa0e0d1fc5af8
-      sha256: e06eb95c23e88254fa55c9cfe552586b12a4a91f22305a46810c13923c2f7726
+      md5: 30bd522e9c27ecf2387d3c4d422f3d0d
+      sha256: 118c36c1f39b2c2b9b850dc8c2fdde8faf0ff86606dac5883b5ba1ad07933ed0
     category: main
     optional: false
   - name: dagster-postgres
-    version: 0.24.11
+    version: 0.24.12
     manager: conda
     platform: osx-arm64
     dependencies:
       psycopg2-binary: ""
       python: ">=3.8,<3.13"
-      dagster: 1.8.11.*
-    url: https://conda.anaconda.org/conda-forge/noarch/dagster-postgres-0.24.11-pyhd8ed1ab_0.conda
+      dagster: 1.8.12.*
+    url: https://conda.anaconda.org/conda-forge/noarch/dagster-postgres-0.24.12-pyhd8ed1ab_0.conda
     hash:
-      md5: 13f298871024e098a77fa0e0d1fc5af8
-      sha256: e06eb95c23e88254fa55c9cfe552586b12a4a91f22305a46810c13923c2f7726
+      md5: 30bd522e9c27ecf2387d3c4d422f3d0d
+      sha256: 118c36c1f39b2c2b9b850dc8c2fdde8faf0ff86606dac5883b5ba1ad07933ed0
     category: main
     optional: false
   - name: dagster-webserver
-    version: 1.8.11
+    version: 1.8.12
     manager: conda
     platform: linux-64
     dependencies:
       click: ">=7.0,<9.0"
-      dagster: ">=1.8.11,<1.8.12.0a0"
-      dagster-graphql: ">=1.8.11,<1.8.12.0a0"
+      dagster: ">=1.8.12,<1.8.13.0a0"
+      dagster-graphql: ">=1.8.12,<1.8.13.0a0"
       python: ">=3.8,<3.13"
       starlette: "!=0.36.0"
       uvicorn-standard: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/dagster-webserver-1.8.11-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/dagster-webserver-1.8.12-pyhd8ed1ab_0.conda
     hash:
-      md5: 59e97213958d1ec9822009c94ce5d741
-      sha256: 506f8c179b3875e3da488a941b1c1a2ea19ad156ed917cb4aa3e0436377129fc
+      md5: e54baa5823a6c0439275237da68b2aea
+      sha256: 96db0b5b1ba522ededc16d709d99aa14ec610dc12345387c2616a157fa7c236e
     category: dev
     optional: true
   - name: dagster-webserver
-    version: 1.8.11
+    version: 1.8.12
     manager: conda
     platform: osx-64
     dependencies:
@@ -4376,16 +4376,16 @@ package:
       python: ">=3.8,<3.13"
       click: ">=7.0,<9.0"
       starlette: "!=0.36.0"
-      dagster: ">=1.8.11,<1.8.12.0a0"
-      dagster-graphql: ">=1.8.11,<1.8.12.0a0"
-    url: https://conda.anaconda.org/conda-forge/noarch/dagster-webserver-1.8.11-pyhd8ed1ab_0.conda
+      dagster: ">=1.8.12,<1.8.13.0a0"
+      dagster-graphql: ">=1.8.12,<1.8.13.0a0"
+    url: https://conda.anaconda.org/conda-forge/noarch/dagster-webserver-1.8.12-pyhd8ed1ab_0.conda
     hash:
-      md5: 59e97213958d1ec9822009c94ce5d741
-      sha256: 506f8c179b3875e3da488a941b1c1a2ea19ad156ed917cb4aa3e0436377129fc
+      md5: e54baa5823a6c0439275237da68b2aea
+      sha256: 96db0b5b1ba522ededc16d709d99aa14ec610dc12345387c2616a157fa7c236e
     category: dev
     optional: true
   - name: dagster-webserver
-    version: 1.8.11
+    version: 1.8.12
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -4393,12 +4393,12 @@ package:
       python: ">=3.8,<3.13"
       click: ">=7.0,<9.0"
       starlette: "!=0.36.0"
-      dagster: ">=1.8.11,<1.8.12.0a0"
-      dagster-graphql: ">=1.8.11,<1.8.12.0a0"
-    url: https://conda.anaconda.org/conda-forge/noarch/dagster-webserver-1.8.11-pyhd8ed1ab_0.conda
+      dagster: ">=1.8.12,<1.8.13.0a0"
+      dagster-graphql: ">=1.8.12,<1.8.13.0a0"
+    url: https://conda.anaconda.org/conda-forge/noarch/dagster-webserver-1.8.12-pyhd8ed1ab_0.conda
     hash:
-      md5: 59e97213958d1ec9822009c94ce5d741
-      sha256: 506f8c179b3875e3da488a941b1c1a2ea19ad156ed917cb4aa3e0436377129fc
+      md5: e54baa5823a6c0439275237da68b2aea
+      sha256: 96db0b5b1ba522ededc16d709d99aa14ec610dc12345387c2616a157fa7c236e
     category: dev
     optional: true
   - name: dask-core
@@ -20604,18 +20604,18 @@ package:
       __glibc: ">=2.17,<3.0.a0"
       libblas: ">=3.9.0,<4.0a0"
       libcblas: ">=3.9.0,<4.0a0"
-      libgcc-ng: ">=13"
-      libgfortran-ng: ""
+      libgcc: ">=13"
+      libgfortran: ""
       libgfortran5: ">=13.3.0"
       liblapack: ">=3.9.0,<4.0a0"
-      libstdcxx-ng: ">=13"
+      libstdcxx: ">=13"
       numpy: ">=1.23.5"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/scipy-1.14.1-py312h7d485d2_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/scipy-1.14.1-py312h62794b6_1.conda
     hash:
-      md5: 7418a22e73008356d9aba99d93dfeeee
-      sha256: 79903e307183e08b19c7ef607672fd304ed4968b2a7530904147aa79536e70d1
+      md5: b43233a9e2f62fb94affe5607ea79473
+      sha256: d069a64edade554261672d8febf4756aeb56a6cb44bd91844eaa944e5d9f4eb9
     category: main
     optional: false
   - name: scipy
@@ -20633,10 +20633,10 @@ package:
       numpy: ">=1.23.5"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/scipy-1.14.1-py312he82a568_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/scipy-1.14.1-py312h888eae2_1.conda
     hash:
-      md5: dd3c55da62964fcadf27771e1928e67f
-      sha256: 21339aad0646f5c841ded61a2dae6fa46cef86d691098fd6160c5311e0a86454
+      md5: ee7a4ffe9742d2df44caa858b36814b8
+      sha256: 5a28ea91c935513e6c5f64baac5a02ce43d9ba183b98e20127220b207ec96529
     category: main
     optional: false
   - name: scipy
@@ -20654,10 +20654,10 @@ package:
       numpy: ">=1.23.5"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/scipy-1.14.1-py312heb3a901_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/scipy-1.14.1-py312h20deb59_1.conda
     hash:
-      md5: 807e90cb234c2d19a09b9453925aef95
-      sha256: 48cc4b609a9cd8ea2636fe571d5017ea8f21a7097819f97f4ed6fdc69a3c1c75
+      md5: c60ad657cccb6c2b97513f87ae27f47a
+      sha256: 1a4d655609bad7dbdbe9f44ba37fd100d01fb8e4e7060dfaed3c4a044ab40052
     category: main
     optional: false
   - name: secretstorage
