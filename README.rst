@@ -134,6 +134,9 @@ PUDL currently integrates data from:
 * **US Census Demographic Profile 1 Geodatabase**:
   - `Source Docs <https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html>`__
 
+*Please take note that the hyperlinked 'PUDL DOCS'
+lead to our transformed datasets on Readthedocs*
+
 High Priority Target Datasets
 -----------------------------
 
