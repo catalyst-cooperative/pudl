@@ -13,17 +13,11 @@ Asset Naming Conventions
 ---------------------------------------------------
 
 PUDL's data processing is divided into three layers of Dagster assets: Raw, Core
-and Output. Dagster assets, which are the core unit of computation in PUDL, are 
-organized into groups. PUDL's asset groups look like this:
-
-.. image:: ../images/asset_groups.png
-  :width: 800
-  :alt: Asset groups in Dagster UI
-
-The outputs of individual assets can be persisted to any type of storage though PUDL
-outputs are typically tables in a SQLite database, parquet files or pickle files
-(read more about this here: :doc:`../index`). The asset name is used for the table
-or parquet file name. Asset names should generally follow this naming convention:
+and Output. Dagster assets are the core unit of computation in PUDL. The outputs
+of assets can be persisted to any type of storage though PUDL outputs are typically
+tables in a SQLite database, parquet files or pickle files (read more about this here:
+:doc:`../index`). The asset name is used for the table or parquet file name. Asset
+names should generally follow this naming convention:
 
 .. code-block::
 

@@ -1237,16 +1237,15 @@ def generate_rolling_avg(
         date_range.merge(groups)
         .drop(columns="tmp")  # drop the temp column
         .merge(df, on=group_cols + ["report_date"])
-        .set_index(group_cols + ["report_date"])
         .groupby(by=group_cols + ["report_date"])
         .mean(numeric_only=True)
+        .sort_index()
     )
     # with the aggregated data, get a rolling average
-    roll = bones.rolling(window=window, center=True, **kwargs).agg({data_col: "mean"})
-    # return the merged
-    return bones.merge(
-        roll, on=group_cols + ["report_date"], suffixes=("", "_rolling")
-    ).reset_index()
+    bones[f"{data_col}_rolling"] = bones.groupby(by=group_cols)[data_col].transform(
+        lambda x: x.rolling(window=window, center=True, **kwargs).mean()
+    )
+    return bones.reset_index()
 
 
 def fillna_w_rolling_avg(
@@ -1283,6 +1282,22 @@ def fillna_w_rolling_avg(
     )
     df_new[data_col] = df_new[data_col].fillna(df_new[f"{data_col}_rollfilled"])
     return df_new.drop(columns=f"{data_col}_rollfilled")
+
+
+def groupby_agg_label_unique_source_or_mixed(x: pd.Series) -> str | None:
+    """Get either the unique source in a group or return mixed.
+
+    Custom function for groupby.agg. Written specifically for
+    aggregating records with fuel_cost_per_mmbtu_source.
+    """
+    sources = [source for source in x.tolist() if isinstance(source, str)]
+    if len(sources) > 1:
+        source = "mixed"
+    elif len(sources) == 1:
+        source = sources[0]
+    else:
+        source = pd.NA
+    return source
 
 
 def count_records(
@@ -2173,28 +2188,24 @@ def retry(
 
 def standardize_phone_column(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
     """Standardize phone numbers in the specified columns of the DataFrame.
-
     US numbers: ###-###-####
     International numbers with the international code at the beginning.
     Numbers with extensions will be appended with "x#".
-
     Non-numeric entries will be returned as np.nan. Entries with fewer than
     10 digits will be returned with no hyphens.
-
     Args:
     df: The DataFrame to modify.
     columns: A list of the names of the columns that need to be standardized
-
     Returns:
     The modified DataFrame with standardized phone numbers in the same column.
     """
-    
+
     # Function to clean and standardize phone numbers
     def standardize_phone_number(phone: str) -> str:
         # Check if the value is NaN, return it as is
         if pd.isna(phone):
             return phone
-        
+
         # Split phone number and extension, if present
         phone_parts = re.split(r'[xX]', str(phone))
         phone_main = phone_parts[0]  # Main phone number
@@ -2202,11 +2213,11 @@ def standardize_phone_column(df: pd.DataFrame, columns: list[str]) -> pd.DataFra
 
         # Remove unwanted characters (parentheses, spaces, periods, and dashes) from the main phone number
         phone_main = re.sub(r'[^\d]', '', phone_main.replace(".0", ""))  # Keep only digits
-        
+
         # If phone_main is not numeric, return np.nan
         if not phone_main.isdigit():
             return np.nan
-        
+
         # Grab the length for the next series of formatting steps
         phone_main_len = len(phone_main)
 
@@ -2221,17 +2232,17 @@ def standardize_phone_column(df: pd.DataFrame, columns: list[str]) -> pd.DataFra
         # If the phone number has exactly 10 digits, format it as XXX-XXX-XXXX
         if phone_main_len == 10:
             formatted_phone = f'{phone_main[:3]}-{phone_main[3:6]}-{phone_main[6:]}'
-        
+
         # If the phone number has more than 10 digits, treat the additional digits as international code
         elif phone_main_len > 10:
             intl_code = phone_main[:-10]  # Digits before the last 10
             main_number = phone_main[-10:]  # Last 10 digits are the phone number
             formatted_phone = f'+{intl_code}-{main_number[:3]}-{main_number[3:6]}-{main_number[6:]}'
-        
+
         # Add the extension back if present
         if extension:
             return f'{formatted_phone}x{extension}'
-        
+
         return formatted_phone
 
     # Apply the standardization function directly to the specified columns
@@ -2244,43 +2255,40 @@ def analyze_missing_values(df: pd.DataFrame) -> list[str]:
     """
     Analyze columns of a DataFrame for missing or invalid values. Note that this is purely for analysis
     and does not perform any data transformation or cleaning.
-
     This function checks each column for missing or custom missing values and prints
     a summary of the findings for string (object), numeric, and datetime columns.
-
     Args:
         df: The DataFrame to analyze.
-
     Returns:
         exception_cols: List of names of columns that couldn't be analyzed due to a caught exception.
     """
-    
+
     nan_cols = []
     exception_cols = []
-    
+
     # Define custom missing value markers
     custom_missing_values = ['', ' ', 'NA', 'N/A', 'NULL', '-', 'None', 'NaN', '?', '*', '#']
-    
+
     # Analyze columns for missing values
     for col in df.columns:
         try:
             print(f"Analyzing column: {col}")
-            
+
             # Get the column values
             col_data = df[col]
-            
+
             # Check if the column is of string (object) type
             if col_data.dtype == 'object':
                 # Count rows where the value is NaN, None, empty string, or custom missing values
                 none_count = col_data.isna().sum()  # Count None (NaN)
                 empty_string_count = (col_data.str.strip() == '').sum()  # Count empty strings
                 custom_missing_count = col_data.isin(custom_missing_values).sum()  # Count custom missing values
-                
+
                 total_nan_count = none_count + empty_string_count + custom_missing_count
-                
+
                 if total_nan_count > 0:
                     nan_cols.append(col)
-                
+
                 # Output counts
                 print(f"Column '{col}' is a string type.")
                 if none_count > 0:
@@ -2294,25 +2302,25 @@ def analyze_missing_values(df: pd.DataFrame) -> list[str]:
                     print(df[df[col].isin(custom_missing_values)].head())
                 if none_count == 0 and empty_string_count == 0 and custom_missing_count == 0:
                     print("Found nothing worth reporting here")
-            
+
             # Check if the column is numeric (int or float)
             elif pd.api.types.is_numeric_dtype(col_data):
                 # Count NA values in the column
                 na_count = col_data.isna().sum()
                 # Count custom missing values in numeric columns (if applicable)
                 custom_missing_numeric_count = col_data.isin([0]).sum()  # Assuming 0 is considered a missing value
-                
+
                 if na_count > 0 or custom_missing_numeric_count > 0:
                     nan_cols.append(col)
-                
+
                 # Handle the non-NA data for further analysis
                 col_data_cleaned = col_data.dropna()
-                
+
                 if not col_data_cleaned.empty:
                     # Calculate min and max
                     min_val = col_data_cleaned.min()
                     max_val = col_data_cleaned.max()
-                    
+
                     if min_val < 0 or na_count > 0 or custom_missing_numeric_count > 0:
                         print(f"Min value: {min_val}")
                         print(f"Max value: {max_val}")
@@ -2326,25 +2334,25 @@ def analyze_missing_values(df: pd.DataFrame) -> list[str]:
                         print("Found nothing worth reporting here")
                 else:
                     print(f"Column '{col}' is numeric but contains only NA values.")
-            
+
             # Check if the column is a datetime type
             elif pd.api.types.is_datetime64_any_dtype(col_data):
                 # Count NA values in the datetime column
                 na_count = col_data.isna().sum()
                 # Assuming custom missing values might be present in string form before conversion
                 custom_missing_count = col_data.isin(custom_missing_values).sum()
-    
+
                 if na_count > 0 or custom_missing_count > 0:
                     nan_cols.append(col)
-    
+
                 # Handle the non-NA data for further analysis
                 col_data_cleaned = col_data.dropna()
-    
+
                 if not col_data_cleaned.empty:
                     # Output min and max datetime values
                     min_date = col_data_cleaned.min()
                     max_date = col_data_cleaned.max()
-    
+
                     if na_count > 0 or custom_missing_count > 0:
                         print(f"Min date: {min_date}")
                         print(f"Max date: {max_date}")
@@ -2356,12 +2364,12 @@ def analyze_missing_values(df: pd.DataFrame) -> list[str]:
                         print("Found nothing worth reporting here")
                 else:
                     print(f"Column '{col}' is datetime but contains only NA values.")
-            
+
             # If the column is of some other type, simply note the type
             else:
                 print(f"Column '{col}' is of type {col_data.dtype}.")
             print("")
-    
+
         except Exception as e:
             exception_cols.append(col)
             print(f"Caught exception for column {col}: {e}\n")
@@ -2376,15 +2384,13 @@ def standardize_state_columns(df: pd.DataFrame, state_columns: list) -> pd.DataF
     """
     Standardizes the state strings in the specified columns by replacing full state names
     with their two-letter abbreviations and capitalizing the strings.
-
     Args:
     df: The DataFrame containing the state columns to standardize.
     state_columns: A list of column names where state standardization should be applied.
-
     Returns:
     The DataFrame with standardized state columns.
     """
-    
+
     # Dictionary mapping full state names to their two-letter abbreviations
     state_abbreviations = {
         "Alabama": "AL", "Alaska": "AK", "Arizona": "AZ", "Arkansas": "AR",
@@ -2401,9 +2407,8 @@ def standardize_state_columns(df: pd.DataFrame, state_columns: list) -> pd.DataF
         "Vermont": "VT", "Virginia": "VA", "Washington": "WA", "West Virginia": "WV",
         "Wisconsin": "WI", "Wyoming": "WY"
     }
-    
+
     for col in state_columns:
         df[col] = df[col].replace(state_abbreviations).str.upper()
-    
-    return df
 
+    return df
