@@ -2171,8 +2171,8 @@ def retry(
             time.sleep(delay)
     return func(**kwargs)
 
-def standardize_phone_column(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
-    """Standardize phone numbers in the specified column of the DataFrame.
+def standardize_phone_column(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    """Standardize phone numbers in the specified columns of the DataFrame.
 
     US numbers: ###-###-####
     International numbers with the international code at the beginning.
@@ -2183,7 +2183,7 @@ def standardize_phone_column(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
 
     Args:
     df: The DataFrame to modify.
-    col_name: The name of the column with phone numbers to standardize.
+    columns: A list of the names of the columns that need to be standardized
 
     Returns:
     The modified DataFrame with standardized phone numbers in the same column.
@@ -2206,21 +2206,24 @@ def standardize_phone_column(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
         # If phone_main is not numeric, return np.nan
         if not phone_main.isdigit():
             return np.nan
+        
+        # Grab the length for the next series of formatting steps
+        phone_main_len = len(phone_main)
 
         # If phone_main is all zeroes, return np.nan
-        if phone_main == '0' * len(phone_main):
+        if phone_main == '0' * phone_main_len:
             return np.nan
 
         # If the phone number has fewer than 10 digits, return it as a plain string
-        if len(phone_main) < 10:
+        if phone_main_len < 10:
             return phone_main
 
         # If the phone number has exactly 10 digits, format it as XXX-XXX-XXXX
-        if len(phone_main) == 10:
+        if phone_main_len == 10:
             formatted_phone = f'{phone_main[:3]}-{phone_main[3:6]}-{phone_main[6:]}'
         
         # If the phone number has more than 10 digits, treat the additional digits as international code
-        elif len(phone_main) > 10:
+        elif phone_main_len > 10:
             intl_code = phone_main[:-10]  # Digits before the last 10
             main_number = phone_main[-10:]  # Last 10 digits are the phone number
             formatted_phone = f'+{intl_code}-{main_number[:3]}-{main_number[3:6]}-{main_number[6:]}'
@@ -2231,8 +2234,9 @@ def standardize_phone_column(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
         
         return formatted_phone
 
-    # Apply the standardization function directly to the specified column
-    df[col_name] = df[col_name].apply(standardize_phone_number)
+    # Apply the standardization function directly to the specified columns
+    for column in columns:
+        df[column] = df[column].apply(standardize_phone_number)
 
     return df
 
