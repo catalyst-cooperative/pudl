@@ -3,8 +3,34 @@ PUDL Release Notes
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-v2024.X.x (2024-XX-XX)
+v2024.XX.x (2024-MM-DD)
 ---------------------------------------------------------------------------------------
+
+.. _release-v2024.10.0:
+
+---------------------------------------------------------------------------------------
+v2024.10.0 (2024-10-20)
+---------------------------------------------------------------------------------------
+
+This is a special early release to publish the new VCE Resource Adequacy Renewable
+Energy (RARE) dataset. It also includes final releases of EIA 860 and 923 data for 2023
+and the FERC Form 714 data for 2021-2023, which had previously been integrated from
+the XBRL data published by FERC. See details below
+
+New Data
+^^^^^^^^
+
+Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+* Integrate the VCE hourly capacity factor data for solar PV, onshore wind, and
+  offshore wind from 2019 through 2023. The data in this table were produced by
+  Vibrant Clean Energy, and are licensed to the public under the Creative Commons
+  Attribution 4.0 International license (CC-BY-4.0). This data complements the
+  WECC-wide GridPath RA Toolkit data currently incorporated into PUDL, providing
+  capacity factor data nation-wide with a different set of modeling assumptions and
+  a different granularity for the aggregation of outputs.
+  See :doc:`data_sources/gridpathratoolkit` and :doc:`data_sources/vcerare` for
+  more information.  See :issue:`#3872`.
 
 New Data Coverage
 ^^^^^^^^^^^^^^^^^
@@ -12,6 +38,13 @@ New Data Coverage
 EIA 860
 ~~~~~~~
 * Added EIA 860 final release data from 2023. See :issue:`3684` and PR :pr:`3871`.
+
+EIA 861
+~~~~~~~
+* Added EIA 861 final release data from 2023. See :issue:`3905` and PR :pr:`3911`. This
+  includes a new ``energy_capacity_mwh`` field for battery storage in
+  :ref:`core_eia861__yearly_net_metering_customer_fuel_class` and
+  :ref:`core_eia861__yearly_non_net_metering_customer_fuel_class`.
 
 EIA 923
 ~~~~~~~

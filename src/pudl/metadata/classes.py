@@ -1284,6 +1284,7 @@ class Resource(PudlMeta):
             "ppe",
             "pudl",
             "nrelatb",
+            "vcerare",
         ]
         | None
     ) = None
@@ -1311,6 +1312,7 @@ class Resource(PudlMeta):
             "static_pudl",
             "service_territories",
             "nrelatb",
+            "vcerare",
         ]
         | None
     ) = None
@@ -1640,6 +1642,16 @@ class Resource(PudlMeta):
             raise ValueError(
                 f"{self.name}: Missing columns found when enforcing table "
                 f"schema: {missing_cols}"
+            )
+
+        # Log warning if columns in dataframe are getting dropped in write
+        dropped_columns = list(df.columns.difference(expected_cols))
+        if dropped_columns:
+            logger.info(
+                "The following columns are getting dropped when the table is written:"
+                f"{dropped_columns}. This is often the intended behavior. If you want "
+                "to keep any of these columns, add them to the metadata.resources "
+                "fields and update alembic."
             )
 
         df = self.format_df(df)
