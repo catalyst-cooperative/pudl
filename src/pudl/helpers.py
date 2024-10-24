@@ -2186,6 +2186,7 @@ def retry(
             time.sleep(delay)
     return func(**kwargs)
 
+
 def standardize_phone_column(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
     """Standardize phone numbers in the specified columns of the DataFrame.
     US numbers: ###-###-####
@@ -2193,6 +2194,7 @@ def standardize_phone_column(df: pd.DataFrame, columns: list[str]) -> pd.DataFra
     Numbers with extensions will be appended with "x#".
     Non-numeric entries will be returned as np.nan. Entries with fewer than
     10 digits will be returned with no hyphens.
+
     Args:
     df: The DataFrame to modify.
     columns: A list of the names of the columns that need to be standardized
@@ -2207,12 +2209,16 @@ def standardize_phone_column(df: pd.DataFrame, columns: list[str]) -> pd.DataFra
             return phone
 
         # Split phone number and extension, if present
-        phone_parts = re.split(r'[xX]', str(phone))
+        phone_parts = re.split(r"[xX]", str(phone))
         phone_main = phone_parts[0]  # Main phone number
-        extension = phone_parts[1].strip() if len(phone_parts) > 1 else None  # Extension, if it exists
+        extension = (
+            phone_parts[1].strip() if len(phone_parts) > 1 else None
+        )  # Extension, if it exists
 
         # Remove unwanted characters (parentheses, spaces, periods, and dashes) from the main phone number
-        phone_main = re.sub(r'[^\d]', '', phone_main.replace(".0", ""))  # Keep only digits
+        phone_main = re.sub(
+            r"[^\d]", "", phone_main.replace(".0", "")
+        )  # Keep only digits
 
         # If phone_main is not numeric, return np.nan
         if not phone_main.isdigit():
@@ -2222,7 +2228,7 @@ def standardize_phone_column(df: pd.DataFrame, columns: list[str]) -> pd.DataFra
         phone_main_len = len(phone_main)
 
         # If phone_main is all zeroes, return np.nan
-        if phone_main == '0' * phone_main_len:
+        if phone_main == "0" * phone_main_len:
             return np.nan
 
         # If the phone number has fewer than 10 digits, return it as a plain string
@@ -2231,17 +2237,19 @@ def standardize_phone_column(df: pd.DataFrame, columns: list[str]) -> pd.DataFra
 
         # If the phone number has exactly 10 digits, format it as XXX-XXX-XXXX
         if phone_main_len == 10:
-            formatted_phone = f'{phone_main[:3]}-{phone_main[3:6]}-{phone_main[6:]}'
+            formatted_phone = f"{phone_main[:3]}-{phone_main[3:6]}-{phone_main[6:]}"
 
         # If the phone number has more than 10 digits, treat the additional digits as international code
         elif phone_main_len > 10:
             intl_code = phone_main[:-10]  # Digits before the last 10
             main_number = phone_main[-10:]  # Last 10 digits are the phone number
-            formatted_phone = f'+{intl_code}-{main_number[:3]}-{main_number[3:6]}-{main_number[6:]}'
+            formatted_phone = (
+                f"+{intl_code}-{main_number[:3]}-{main_number[3:6]}-{main_number[6:]}"
+            )
 
         # Add the extension back if present
         if extension:
-            return f'{formatted_phone}x{extension}'
+            return f"{formatted_phone}x{extension}"
 
         return formatted_phone
 
@@ -2251,23 +2259,36 @@ def standardize_phone_column(df: pd.DataFrame, columns: list[str]) -> pd.DataFra
 
     return df
 
+
 def analyze_missing_values(df: pd.DataFrame) -> list[str]:
-    """
-    Analyze columns of a DataFrame for missing or invalid values. Note that this is purely for analysis
+    """Analyze columns of a DataFrame for missing or invalid values. Note that this is purely for analysis
     and does not perform any data transformation or cleaning.
     This function checks each column for missing or custom missing values and prints
     a summary of the findings for string (object), numeric, and datetime columns.
+
     Args:
         df: The DataFrame to analyze.
+
     Returns:
         exception_cols: List of names of columns that couldn't be analyzed due to a caught exception.
     """
-
     nan_cols = []
     exception_cols = []
 
     # Define custom missing value markers
-    custom_missing_values = ['', ' ', 'NA', 'N/A', 'NULL', '-', 'None', 'NaN', '?', '*', '#']
+    custom_missing_values = [
+        "",
+        " ",
+        "NA",
+        "N/A",
+        "NULL",
+        "-",
+        "None",
+        "NaN",
+        "?",
+        "*",
+        "#",
+    ]
 
     # Analyze columns for missing values
     for col in df.columns:
@@ -2278,11 +2299,15 @@ def analyze_missing_values(df: pd.DataFrame) -> list[str]:
             col_data = df[col]
 
             # Check if the column is of string (object) type
-            if col_data.dtype == 'object':
+            if col_data.dtype == "object":
                 # Count rows where the value is NaN, None, empty string, or custom missing values
                 none_count = col_data.isna().sum()  # Count None (NaN)
-                empty_string_count = (col_data.str.strip() == '').sum()  # Count empty strings
-                custom_missing_count = col_data.isin(custom_missing_values).sum()  # Count custom missing values
+                empty_string_count = (
+                    col_data.str.strip() == ""
+                ).sum()  # Count empty strings
+                custom_missing_count = col_data.isin(
+                    custom_missing_values
+                ).sum()  # Count custom missing values
 
                 total_nan_count = none_count + empty_string_count + custom_missing_count
 
@@ -2296,11 +2321,15 @@ def analyze_missing_values(df: pd.DataFrame) -> list[str]:
                     print(df[df[col].isna()].head())
                 if empty_string_count > 0:
                     print(f"Rows with empty strings: {empty_string_count}")
-                    print(df[df[col].str.strip() == ''].head())
+                    print(df[df[col].str.strip() == ""].head())
                 if custom_missing_count > 0:
                     print(f"Rows with custom missing values: {custom_missing_count}")
                     print(df[df[col].isin(custom_missing_values)].head())
-                if none_count == 0 and empty_string_count == 0 and custom_missing_count == 0:
+                if (
+                    none_count == 0
+                    and empty_string_count == 0
+                    and custom_missing_count == 0
+                ):
                     print("Found nothing worth reporting here")
 
             # Check if the column is numeric (int or float)
@@ -2308,7 +2337,9 @@ def analyze_missing_values(df: pd.DataFrame) -> list[str]:
                 # Count NA values in the column
                 na_count = col_data.isna().sum()
                 # Count custom missing values in numeric columns (if applicable)
-                custom_missing_numeric_count = col_data.isin([0]).sum()  # Assuming 0 is considered a missing value
+                custom_missing_numeric_count = col_data.isin(
+                    [0]
+                ).sum()  # Assuming 0 is considered a missing value
 
                 if na_count > 0 or custom_missing_numeric_count > 0:
                     nan_cols.append(col)
@@ -2328,9 +2359,15 @@ def analyze_missing_values(df: pd.DataFrame) -> list[str]:
                         print(f"Rows with NA values: {na_count}")
                         print(df[df[col].isna()].head())
                     if custom_missing_numeric_count > 0:
-                        print(f"Custom missing values (e.g., 0): {custom_missing_numeric_count}")
+                        print(
+                            f"Custom missing values (e.g., 0): {custom_missing_numeric_count}"
+                        )
                         print(df[df[col].isin([0])].head())
-                    if min_val > 0 and na_count == 0 and custom_missing_numeric_count == 0:
+                    if (
+                        min_val > 0
+                        and na_count == 0
+                        and custom_missing_numeric_count == 0
+                    ):
                         print("Found nothing worth reporting here")
                 else:
                     print(f"Column '{col}' is numeric but contains only NA values.")
@@ -2380,32 +2417,70 @@ def analyze_missing_values(df: pd.DataFrame) -> list[str]:
 
     return exception_cols
 
+
 def standardize_state_columns(df: pd.DataFrame, state_columns: list) -> pd.DataFrame:
-    """
-    Standardizes the state strings in the specified columns by replacing full state names
+    """Standardizes the state strings in the specified columns by replacing full state names
     with their two-letter abbreviations and capitalizing the strings.
+
     Args:
     df: The DataFrame containing the state columns to standardize.
     state_columns: A list of column names where state standardization should be applied.
+
     Returns:
     The DataFrame with standardized state columns.
     """
-
     # Dictionary mapping full state names to their two-letter abbreviations
     state_abbreviations = {
-        "Alabama": "AL", "Alaska": "AK", "Arizona": "AZ", "Arkansas": "AR",
-        "California": "CA", "Colorado": "CO", "Connecticut": "CT", "Delaware": "DE",
-        "Florida": "FL", "Georgia": "GA", "Hawaii": "HI", "Idaho": "ID",
-        "Illinois": "IL", "Indiana": "IN", "Iowa": "IA", "Kansas": "KS",
-        "Kentucky": "KY", "Louisiana": "LA", "Maine": "ME", "Maryland": "MD",
-        "Massachusetts": "MA", "Michigan": "MI", "Minnesota": "MN", "Mississippi": "MS",
-        "Missouri": "MO", "Montana": "MT", "Nebraska": "NE", "Nevada": "NV",
-        "New Hampshire": "NH", "New Jersey": "NJ", "New Mexico": "NM", "New York": "NY",
-        "North Carolina": "NC", "North Dakota": "ND", "Ohio": "OH", "Oklahoma": "OK",
-        "Oregon": "OR", "Pennsylvania": "PA", "Rhode Island": "RI", "South Carolina": "SC",
-        "South Dakota": "SD", "Tennessee": "TN", "Texas": "TX", "Utah": "UT",
-        "Vermont": "VT", "Virginia": "VA", "Washington": "WA", "West Virginia": "WV",
-        "Wisconsin": "WI", "Wyoming": "WY"
+        "Alabama": "AL",
+        "Alaska": "AK",
+        "Arizona": "AZ",
+        "Arkansas": "AR",
+        "California": "CA",
+        "Colorado": "CO",
+        "Connecticut": "CT",
+        "Delaware": "DE",
+        "Florida": "FL",
+        "Georgia": "GA",
+        "Hawaii": "HI",
+        "Idaho": "ID",
+        "Illinois": "IL",
+        "Indiana": "IN",
+        "Iowa": "IA",
+        "Kansas": "KS",
+        "Kentucky": "KY",
+        "Louisiana": "LA",
+        "Maine": "ME",
+        "Maryland": "MD",
+        "Massachusetts": "MA",
+        "Michigan": "MI",
+        "Minnesota": "MN",
+        "Mississippi": "MS",
+        "Missouri": "MO",
+        "Montana": "MT",
+        "Nebraska": "NE",
+        "Nevada": "NV",
+        "New Hampshire": "NH",
+        "New Jersey": "NJ",
+        "New Mexico": "NM",
+        "New York": "NY",
+        "North Carolina": "NC",
+        "North Dakota": "ND",
+        "Ohio": "OH",
+        "Oklahoma": "OK",
+        "Oregon": "OR",
+        "Pennsylvania": "PA",
+        "Rhode Island": "RI",
+        "South Carolina": "SC",
+        "South Dakota": "SD",
+        "Tennessee": "TN",
+        "Texas": "TX",
+        "Utah": "UT",
+        "Vermont": "VT",
+        "Virginia": "VA",
+        "Washington": "WA",
+        "West Virginia": "WV",
+        "Wisconsin": "WI",
+        "Wyoming": "WY",
     }
 
     for col in state_columns:
