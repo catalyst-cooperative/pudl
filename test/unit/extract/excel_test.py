@@ -1,18 +1,16 @@
 """Unit tests for pudl.extract.excel module."""
 
-import unittest
-from unittest import mock as mock
-
 import pandas as pd
-
+import pytest
 from pudl.extract import excel
 
 
-class TestMetadata(unittest.TestCase):
+class TestMetadata():
     """Tests basic operation of the excel.Metadata object."""
-
+    
+    @pytest.fixture(autouse=True)
     def setUp(self):
-        """Cosntructs test metadata instance for testing."""
+        """Constructs test metadata instance for testing."""
         self._metadata = excel.ExcelMetadata("test")
 
     def test_basics(self):
@@ -31,6 +29,16 @@ class TestMetadata(unittest.TestCase):
         self.assertEqual(10, self._metadata.get_skiprows("boxes", year=2011))
         self.assertEqual(1, self._metadata.get_sheet_name("boxes", year=2011))
 
+    def test_metadata_methods(self):
+        """Test various metadata methods."""
+        assert self._metadata.get_all_columns("books") == ["author", "pages", "title"]
+        assert self._metadata.get_column_map("books", year=2010) == {
+            "book_title": "title",
+            "name": "author",
+            "pages": "pages",
+        }
+        assert self._metadata.get_skiprows("boxes", year=2011) == 10
+        assert self._metadata.get_sheet_name("boxes", year=2011) == 1
 
 class FakeExtractor(excel.ExcelExtractor):
     """Test friendly fake extractor returns strings instead of files."""
@@ -77,11 +85,10 @@ def _fake_data_frames(page_name, **kwargs):
     return fake_data[page_name]
 
 
-class TestExtractor(unittest.TestCase):
+class TestExtractor:
     """Test operation of the excel.Extractor class."""
 
-    @staticmethod
-    def test_extract():
+    def test_extract(self):
         extractor = FakeExtractor()
         res = extractor.extract(year=[2010, 2011])
         expected_books = {
