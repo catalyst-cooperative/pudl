@@ -13,7 +13,9 @@ detailed information.
 {% for filename in download_paths %}
 * :download:`{{ filename.stem.replace("_", " ").title() }} ({{ filename.suffix.replace('.', '').upper() }}) <{{ filename }}>`
 {% endfor %}
-* `NOAA HRRR Model Overview <https://rapidrefresh.noaa.gov/hrrr/>`__
+* `NOAA High Resolution Rapid Refresh (HRRR) Model Overview <https://rapidrefresh.noaa.gov/hrrr/>`__
+* `ESIG Weather Data for Power System Planning <https://www.esig.energy/weather-data-for-power-system-planning/>`__
+  White Paper
 {% endblock %}
 
 
@@ -21,6 +23,9 @@ detailed information.
 Hourly, county-level data from 2019 - 2023 is integrated into PUDL. There is a
 second release of data for the years 2014 - 2018 expected in Q1 of 2025, which will be
 integrated into PUDL pending funding availability.
+
+You can explore the VCE RARE dataset with
+`this Jupyter notebook on Kaggle <https://www.kaggle.com/code/catalystcooperative/04-renewable-generation-profiles>`__.
 {% endblock %}
 
 {% block respondents %}
@@ -49,6 +54,17 @@ contained no data -- and set the FIPS codes for the Great Lakes to NA. Note that
 bordering multiple states will appear more than once in the data. VCE used a nearest
 neighbor technique to assign the state waters to the counties (this pertains to coastal
 areas as well).
+
+Name and ID issues
+------------------
+* The place name for Lake Huron is misspelled "Hurron" in the original data.
+* The place name for Lake Saint Claire in the original data uses the abbreviation "St."
+  including the period character -- this is the only abbreviation and only non
+  alphabetical or underscore character in any of the place names.
+* In 2015 Shannon County, South Dakota was renamed Oglala Lakota County and assigned a
+  new FIPS code. The VCE data includes the new FIPS code (46102) but the old name, while
+  the Census DP1 dataset included with PUDL is from 2010, and so uses both the old name
+  and the old FIPS code (46113).
 
 Capacity factors > 1
 --------------------

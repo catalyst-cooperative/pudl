@@ -1224,6 +1224,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Account balance at end of year.",
         "unit": "USD",
     },
+    "energy_capacity_mwh": {
+        "type": "number",
+        "description": "The total amount of energy which the system can supply power before recharging is necessary, in megawatt-hours.",
+        "unit": "MWh",
+    },
     "energy_charges": {
         "type": "number",
         "description": "Energy charges (USD).",
