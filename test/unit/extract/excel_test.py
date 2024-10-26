@@ -2,12 +2,13 @@
 
 import pandas as pd
 import pytest
+
 from pudl.extract import excel
 
 
-class TestMetadata():
+class TestMetadata:
     """Tests basic operation of the excel.Metadata object."""
-    
+
     @pytest.fixture(autouse=True)
     def setUp(self):
         """Constructs test metadata instance for testing."""
@@ -39,6 +40,7 @@ class TestMetadata():
         }
         assert self._metadata.get_skiprows("boxes", year=2011) == 10
         assert self._metadata.get_sheet_name("boxes", year=2011) == 1
+
 
 class FakeExtractor(excel.ExcelExtractor):
     """Test friendly fake extractor returns strings instead of files."""

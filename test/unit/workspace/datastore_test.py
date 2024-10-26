@@ -3,7 +3,6 @@
 import io
 import json
 import re
-
 import zipfile
 from typing import Any
 
@@ -105,9 +104,7 @@ def test_get_resources_filtering():
         "doi-123",
         _make_resource("foo", group="first", color="red"),
         _make_resource("bar", group="first", color="blue", rank=5),
-        _make_resource(
-            "baz", group="second", color="blue", rank=5, mood="VeryHappy"
-        ),
+        _make_resource("baz", group="second", color="blue", rank=5, mood="VeryHappy"),
     )
     assert list(desc.get_resources()) == [
         PudlResourceKey("data", "doi-123", "foo"),
@@ -235,13 +232,22 @@ class TestZenodoFetcher:
         zf = datastore.ZenodoFetcher()
         assert zf.get_known_datasets()
         for dataset, doi in zf.zenodo_dois:
-            assert zf.get_doi(dataset) == doi, f"Zenodo DOI for {dataset} matches result of get_doi()"
-            assert not re.fullmatch(r"10\.5072/zenodo\.[0-9]{5,10}", doi), f"Zenodo sandbox DOI found for {dataset}: {doi}"
-            assert re.fullmatch(r"10\.5281/zenodo\.[0-9]{5,10}", doi), f"Zenodo production DOI for {dataset} is {doi}"
+            assert (
+                zf.get_doi(dataset) == doi
+            ), f"Zenodo DOI for {dataset} matches result of get_doi()"
+            assert not re.fullmatch(
+                r"10\.5072/zenodo\.[0-9]{5,10}", doi
+            ), f"Zenodo sandbox DOI found for {dataset}: {doi}"
+            assert re.fullmatch(
+                r"10\.5281/zenodo\.[0-9]{5,10}", doi
+            ), f"Zenodo production DOI for {dataset} is {doi}"
 
     def test_get_known_datasets(self):
         """Call to get_known_datasets() produces the expected results."""
-        assert sorted(name for name, doi in datastore.ZenodoFetcher().zenodo_dois) == self.fetcher.get_known_datasets()
+        assert (
+            sorted(name for name, doi in datastore.ZenodoFetcher().zenodo_dois)
+            == self.fetcher.get_known_datasets()
+        )
 
     def test_get_unknown_dataset(self):
         """Ensure that we get a failure when attempting to access an invalid dataset."""
@@ -253,7 +259,7 @@ class TestZenodoFetcher:
 
         This test verifies that the expected value is in use.
         """
-        assert self.PROD_EPACEMS_DOI == self.fetcher.get_doi("epacems")
+        assert self.fetcher.get_doi("epacems") == self.PROD_EPACEMS_DOI
 
     @responses.activate
     def test_get_descriptor_http_calls(self):
@@ -270,7 +276,7 @@ class TestZenodoFetcher:
             json=self.MOCK_EPACEMS_DATAPACKAGE,
         )
         desc = fetcher.get_descriptor("epacems")
-        assert self.MOCK_EPACEMS_DATAPACKAGE == desc.datapackage_json
+        assert desc.datapackage_json == self.MOCK_EPACEMS_DATAPACKAGE
 
     @responses.activate
     def test_get_resource(self):
