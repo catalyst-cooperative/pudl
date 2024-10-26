@@ -11,7 +11,6 @@ import random
 from contextlib import nullcontext as does_not_raise
 from datetime import date
 from string import ascii_letters
-from unittest.mock import MagicMock
 
 import numpy as np
 import pandas as pd
@@ -1006,115 +1005,367 @@ class TableTransformer(AbstractTableTransformer):
         return df
 
 
-def test_transform(mocker):
-    """Test the use of general transforms as part of a TableTransfomer class.
+@pytest.mark.parametrize(
+    "series,expected,params",
+    [
+        pytest.param(
+            STRING_DATA.raw, STRING_DATA.norm, FERC1_STRING_NORM, id="normalize_strings"
+        ),
+        pytest.param(
+            STRING_DATA.norm, STRING_DATA.cat, ANIMAL_CATS, id="categorize_strings"
+        ),
+        pytest.param(
+            NUMERIC_DATA.year,
+            NUMERIC_DATA.valid_year,
+            VALID_PLANT_YEARS,
+            id="nullify_outliers_year",
+        ),
+        pytest.param(
+            NUMERIC_DATA.capacity_mw,
+            NUMERIC_DATA.valid_capacity_mw,
+            VALID_CAPACITY_MW,
+            id="nullify_outliers_capacity",
+        ),
+        pytest.param(
+            NUMERIC_DATA.capacity_kw,
+            NUMERIC_DATA.capacity_mw,
+            KW_TO_MW,
+            id="convert_units_kw_to_mw",
+        ),
+        pytest.param(
+            NUMERIC_DATA.net_generation_kwh,
+            NUMERIC_DATA.net_generation_mwh,
+            KWH_TO_MWH,
+            id="convert_units_kwh_to_mwh",
+        ),
+    ],
+)
+def test_transform_functions(series, expected, params):
+    """Test various transform functions in isolation."""
+    if "normalize_strings" in params:
+        result = normalize_strings(series, StringNormalization(**params))
+    elif "categorize_strings" in params:
+        result = categorize_strings(series, StringCategories(**params))
+    elif "nullify_outliers" in params:
+        result = nullify_outliers(series, ValidRange(**params))
+    elif "convert_units" in params:
+        uc = UnitConversion(**params)
+        result = convert_units(series, params=uc)
+        result_back = convert_units(result, params=uc.inverse())
+        assert_series_equal(result_back, series)
+    assert_series_equal(result, expected, check_names=False)
 
-    This is trying to test the mechanics of the TableTransformer class, and not the
-    individual transforms, since they are exercised in more specific testes above.
 
-    However... the mocking doesn't seem to be working. The original functions are still
-    getting called. Is that because they're getting called from within class methods?
-    Or because they aren't normal "functions" and rather are callables that were
-    constructed by the multicol_transform_factory function??
+@pytest.mark.parametrize(
+    "df,expected,params",
+    [
+        pytest.param(
+            NUMERIC_DATA,
+            NUMERIC_DATA.loc[NUMERIC_DATA.id.isin([1, 2, 3, 4, 5, 6, 8, 9, 10])],
+            {
+                "invalid_values": [0, pd.NA, np.nan],
+                "required_valid_cols": [
+                    "valid_year",
+                    "valid_capacity_mw",
+                    "net_generation_mwh",
+                ],
+            },
+            id="drop_invalid_rows_required_valid_cols",
+        ),
+        pytest.param(
+            NUMERIC_DATA,
+            NUMERIC_DATA.loc[NUMERIC_DATA.id.isin([1, 2, 3, 4, 5, 6, 8, 9, 10])],
+            {
+                "invalid_values": [0, pd.NA, np.nan],
+                "allowed_invalid_cols": [
+                    "id",
+                    "year",
+                    "capacity_kw",
+                    "capacity_mw",
+                    "net_generation_kwh",
+                ],
+            },
+            id="drop_invalid_rows_allowed_invalid_cols",
+        ),
+    ],
+)
+def test_drop_invalid_rows(df, expected, params):
+    """Test our ability to select and drop invalid rows."""
+    invalid_row = InvalidRows(**params)
+    actual = drop_invalid_rows(df, params=invalid_row)
+    assert_frame_equal(actual, expected)
+
+
+@pytest.mark.parametrize(
+    "df,expected,params,errors",
+    [
+        pytest.param(
+            MIXED_TYPE_DATA, SPOT_FIXED_MIXED_TYPE_DATA, SPOT_PARAMS, does_not_raise()
+        ),
+        pytest.param(
+            MIXED_TYPE_DATA,
+            SPOT_FIXED_MIXED_TYPE_DATA,
+            [
+                {
+                    "idx_cols": ["id"],
+                    "fix_cols": ["capacity_mw"],
+                    "expect_unique": True,
+                    "spot_fixes": [
+                        (1, "i'm not a capacity"),
+                    ],
+                },
+            ],
+            pytest.raises(ValueError),
+        ),
+        pytest.param(
+            MIXED_TYPE_DATA,
+            SPOT_FIXED_MIXED_TYPE_DATA,
+            [
+                {
+                    "idx_cols": ["year"],
+                    "fix_cols": ["capacity_mw"],
+                    "expect_unique": True,
+                    "spot_fixes": [
+                        (1976, 200),
+                    ],
+                },
+            ],
+            pytest.raises(ValueError),
+        ),
+    ],
+)
+def test_spot_fix(df, expected, params, errors):
+    """Test our ability to spot fix values."""
+    with errors:
+        for param in params:
+            spot_fixes = SpotFixes(**param)
+            df = spot_fix_values(df=df, params=spot_fixes)
+        assert_frame_equal(df, expected, check_like=True)
+        # check_like ignores column order, which changes due to indexing.
+
+
+def test_enforce_snake_case():
+    """Test the enforce_snake_case function.
+
+    Ensure spaces are replaced with underscores, non-alphanumeric values are removed,
+    leading or trailing spaces are removed, caps are lowered, numbers remain, multiple
+    white-spaces in a row are converted into just one underscore and non-ascii
+    characters are removed.
     """
-    df = STRING_DATA
-    params = STRING_PARAMS
-
-    convert_units_mock: MagicMock = mocker.MagicMock(
-        name="convert_units", return_value=df
-    )
-    normalize_strings_mock: MagicMock = mocker.MagicMock(
-        name="normalize_strings", return_value=df
-    )
-    categorize_strings_mock: MagicMock = mocker.MagicMock(
-        name="categorize_strings", return_value=df
-    )
-    nullify_outliers_mock: MagicMock = mocker.MagicMock(
-        name="nullify_outliers", return_value=df
-    )
-    drop_invalid_rows_mock: MagicMock = mocker.MagicMock(
-        name="drop_invalid_rows", return_value=df
-    )
-
-    mocker.patch(
-        "pudl.transform.classes.convert_units_multicol",
-        new=convert_units_mock,
-    )
-    mocker.patch(
-        "pudl.transform.classes.normalize_strings_multicol",
-        new=normalize_strings_mock,
-    )
-    mocker.patch(
-        "pudl.transform.classes.categorize_strings_multicol",
-        new=categorize_strings_mock,
-    )
-    mocker.patch(
-        "pudl.transform.classes.nullify_outliers_multicol",
-        new=nullify_outliers_mock,
-    )
-    mocker.patch(
-        "pudl.transform.classes.drop_invalid_rows",
-        new=drop_invalid_rows_mock,
+    pd.testing.assert_series_equal(
+        enforce_snake_case(
+            pd.Series(
+                [
+                    "hello, world.",
+                    "  h3ll0 ",
+                    "SCREAM HI",
+                    "$smell ya l@t3r!",
+                    "smell    ya later",
+                    "ñ",
+                ]
+            )
+        ),
+        pd.Series(
+            [
+                "hello_world",
+                "h3ll0",
+                "scream_hi",
+                "smell_ya_lt3r",
+                "smell_ya_later",
+                "",
+            ]
+        ),
     )
 
-    params = TableTransformParams.from_dict(params["test_table"])
-    transformer = TableTransformer(params=params)
-    _ = transformer.transform(df)
 
-    # Mock can't compare dataframes since it uses the == operator, and for dataframes
-    # that returns a dataframe of bools, so we have to do it explicitly:
-    convert_units_mock.assert_called_once()
-    # assert_frame_equal(df, convert_units_mock.call_args.args[0])
-    assert isinstance(convert_units_mock.call_args.args[0], pd.DataFrame)  # nosec: B101
-    assert params.convert_units == convert_units_mock.call_args.args[1]  # nosec: B101
-
-    normalize_strings_mock.assert_called_once()
-    # assert_frame_equal(df, normalize_strings_mock.call_args.args[0])
-    assert isinstance(  # nosec: B101
-        normalize_strings_mock.call_args.args[0], pd.DataFrame
-    )
-    assert (  # nosec: B101
-        params.normalize_strings == normalize_strings_mock.call_args.args[1]
-    )
-
-    categorize_strings_mock.assert_called_once()
-    # assert_frame_equal(df, categorize_strings_mock.call_args.args[0])
-    assert isinstance(  # nosec: B101
-        categorize_strings_mock.call_args.args[0], pd.DataFrame
-    )
-    assert (  # nosec: B101
-        params.categorize_strings == categorize_strings_mock.call_args.args[1]
+def test_strip_non_numeric():
+    """Test whether ``strip_non_numeric_values`` converts messy strings properly."""
+    col = pd.Series(
+        [
+            " FERC Lic. Proj. No. 2175",
+            "2175",
+            2175,
+            "     FERC Licensed Proj. No. 0120",
+            "     FERC1 Licensed Proj. No. 0120",
+            "-120",
+            "No1 6.6",
+            "3.",
+            "3.3",
+            3.3,
+            0.03,
+            ".3",
+            "FERC1 Licenses 1234 & 5678",
+        ],
+        name="test",
     )
 
-    nullify_outliers_mock.assert_called_once()
-    # assert_frame_equal(df, nullify_outliers_mock.call_args.args[0])
-    assert isinstance(  # nosec: B101
-        nullify_outliers_mock.call_args.args[0], pd.DataFrame
+    expected_col = pd.Series(
+        [
+            "2175",
+            "2175",
+            "2175",
+            "0120",
+            "0120",
+            "-120",
+            "6.6",
+            "3.",
+            "3.3",
+            "3.3",
+            "0.03",
+            ".3",
+            "1234",
+        ],
+        name="test",
     )
-    assert (  # nosec: B101
-        params.nullify_outliers == nullify_outliers_mock.call_args.args[1]
-    )
+    out_col = strip_non_numeric_values(col)
+    pd.testing.assert_series_equal(expected_col, out_col)
 
-    drop_invalid_rows_mock.assert_called_once()
-    assert_frame_equal(df, drop_invalid_rows_mock.call_args.args[0])
-    # the params are a list of InvalidRows(), but the function takes one InvalidRow()
-    assert (  # nosec: B101
-        params.drop_invalid_rows[0] == drop_invalid_rows_mock.call_args.args[1]
-    )
 
-    caching_transformer = TableTransformer(
-        params=params,
-        cache_dfs=True,
-        clear_cached_dfs=False,
-    )
-    actual = caching_transformer.transform(df)
-    # The dataframe shouldn't change at all after the last stage is cached:
-    assert_frame_equal(actual, caching_transformer._cached_dfs["end"])
-    # Check that the dataframes were cached as expected after each stage:
-    for stage in ["start", "main", "end"]:
-        assert (  # nosec B101
-            (caching_transformer._cached_dfs[stage]["stage"] == stage).all()
-        ).all()
+def test_null_strip_non_numeric_values():
+    """Test whether :func:``strip_non_numeric_values`` nulls non-numeric values."""
+    col = pd.Series([" FERC Lic. Proj. No.", "N/A", pd.NA, np.nan, "BAD"])
+    out_col = strip_non_numeric_values(col)
+    if not out_col.isnull().all():
+        raise AssertionError("strip_non_numeric_values not nulling non-int values")
+
+
+@pytest.mark.parametrize(
+    "series,expected,params",
+    [
+        pytest.param(
+            STRING_DATA.raw, STRING_DATA.norm, FERC1_STRING_NORM, id="normalize_strings"
+        ),
+        pytest.param(
+            STRING_DATA.norm, STRING_DATA.cat, ANIMAL_CATS, id="categorize_strings"
+        ),
+        pytest.param(
+            NUMERIC_DATA.year,
+            NUMERIC_DATA.valid_year,
+            VALID_PLANT_YEARS,
+            id="nullify_outliers_year",
+        ),
+        pytest.param(
+            NUMERIC_DATA.capacity_mw,
+            NUMERIC_DATA.valid_capacity_mw,
+            VALID_CAPACITY_MW,
+            id="nullify_outliers_capacity",
+        ),
+        pytest.param(
+            NUMERIC_DATA.capacity_kw,
+            NUMERIC_DATA.capacity_mw,
+            KW_TO_MW,
+            id="convert_units_kw_to_mw",
+        ),
+        pytest.param(
+            NUMERIC_DATA.net_generation_kwh,
+            NUMERIC_DATA.net_generation_mwh,
+            KWH_TO_MWH,
+            id="convert_units_kwh_to_mwh",
+        ),
+    ],
+)
+def test_transform_functions(series, expected, params):
+    """Test various transform functions in isolation."""
+    if "normalize_strings" in params:
+        result = normalize_strings(series, StringNormalization(**params))
+    elif "categorize_strings" in params:
+        result = categorize_strings(series, StringCategories(**params))
+    elif "nullify_outliers" in params:
+        result = nullify_outliers(series, ValidRange(**params))
+    elif "convert_units" in params:
+        uc = UnitConversion(**params)
+        result = convert_units(series, params=uc)
+        result_back = convert_units(result, params=uc.inverse())
+        assert_series_equal(result_back, series)
+    assert_series_equal(result, expected, check_names=False)
+
+
+@pytest.mark.parametrize(
+    "df,expected,params",
+    [
+        pytest.param(
+            NUMERIC_DATA,
+            NUMERIC_DATA.loc[NUMERIC_DATA.id.isin([1, 2, 3, 4, 5, 6, 8, 9, 10])],
+            {
+                "invalid_values": [0, pd.NA, np.nan],
+                "required_valid_cols": [
+                    "valid_year",
+                    "valid_capacity_mw",
+                    "net_generation_mwh",
+                ],
+            },
+            id="drop_invalid_rows_required_valid_cols",
+        ),
+        pytest.param(
+            NUMERIC_DATA,
+            NUMERIC_DATA.loc[NUMERIC_DATA.id.isin([1, 2, 3, 4, 5, 6, 8, 9, 10])],
+            {
+                "invalid_values": [0, pd.NA, np.nan],
+                "allowed_invalid_cols": [
+                    "id",
+                    "year",
+                    "capacity_kw",
+                    "capacity_mw",
+                    "net_generation_kwh",
+                ],
+            },
+            id="drop_invalid_rows_allowed_invalid_cols",
+        ),
+    ],
+)
+def test_drop_invalid_rows(df, expected, params):
+    """Test our ability to select and drop invalid rows."""
+    invalid_row = InvalidRows(**params)
+    actual = drop_invalid_rows(df, params=invalid_row)
+    assert_frame_equal(actual, expected)
+
+
+@pytest.mark.parametrize(
+    "df,expected,params,errors",
+    [
+        pytest.param(
+            MIXED_TYPE_DATA, SPOT_FIXED_MIXED_TYPE_DATA, SPOT_PARAMS, does_not_raise()
+        ),
+        pytest.param(
+            MIXED_TYPE_DATA,
+            SPOT_FIXED_MIXED_TYPE_DATA,
+            [
+                {
+                    "idx_cols": ["id"],
+                    "fix_cols": ["capacity_mw"],
+                    "expect_unique": True,
+                    "spot_fixes": [
+                        (1, "i'm not a capacity"),
+                    ],
+                },
+            ],
+            pytest.raises(ValueError),
+        ),
+        pytest.param(
+            MIXED_TYPE_DATA,
+            SPOT_FIXED_MIXED_TYPE_DATA,
+            [
+                {
+                    "idx_cols": ["year"],
+                    "fix_cols": ["capacity_mw"],
+                    "expect_unique": True,
+                    "spot_fixes": [
+                        (1976, 200),
+                    ],
+                },
+            ],
+            pytest.raises(ValueError),
+        ),
+    ],
+)
+def test_spot_fix(df, expected, params, errors):
+    """Test our ability to spot fix values."""
+    with errors:
+        for param in params:
+            spot_fixes = SpotFixes(**param)
+            df = spot_fix_values(df=df, params=spot_fixes)
+        assert_frame_equal(df, expected, check_like=True)
+        # check_like ignores column order, which changes due to indexing.
 
 
 def test_enforce_snake_case():
