@@ -35,6 +35,7 @@ from pudl.output.ferc1 import (
 
 logger = logging.getLogger(__name__)
 
+
 class TestForestSetup:
     """Base class for forest testing."""
 

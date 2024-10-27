@@ -25,7 +25,6 @@ from pudl.transform.classes import (
     SpotFixes,
     StringCategories,
     StringNormalization,
-    TableTransformParams,
     TransformParams,
     UnitConversion,
     UnitCorrections,

@@ -4,7 +4,6 @@ import shutil
 import tempfile
 from pathlib import Path
 
-import pytest
 import requests.exceptions as requests_exceptions
 from google.api_core.exceptions import BadRequest
 from google.cloud.storage.retry import _should_retry
