@@ -14,29 +14,29 @@ class TestMetadata:
         """Constructs test metadata instance for testing."""
         self._metadata = excel.ExcelMetadata("test")
 
-    def test_basics(self, metadata):
+    def test_basics(self):
         """Test that basic API method return expected results."""
-        assert "test" == metadata.get_dataset_name()
-        assert ["books", "boxes", "shoes"] == metadata.get_all_pages()
-        assert ["author", "pages", "title"] == metadata.get_all_columns("books")
+        assert "test" == self._metadata.get_dataset_name()
+        assert ["books", "boxes", "shoes"] == self._metadata.get_all_pages()
+        assert ["author", "pages", "title"] == self._metadata.get_all_columns("books")
         assert {
             "book_title": "title",
             "name": "author",
             "pages": "pages",
-        } == metadata.get_column_map("books", year=2010)
-        assert 10 == metadata.get_skiprows("boxes", year=2011)
-        assert 1 == metadata.get_sheet_name("boxes", year=2011)
+        } == self._metadata.get_column_map("books", year=2010)
+        assert 10 == self._metadata.get_skiprows("boxes", year=2011)
+        assert 1 == self._metadata.get_sheet_name("boxes", year=2011)
 
-    def test_metadata_methods(self, metadata):
+    def test_metadata_methods(self):
         """Test various metadata methods."""
-        assert metadata.get_all_columns("books") == ["author", "pages", "title"]
-        assert metadata.get_column_map("books", year=2010) == {
+        assert self._metadata.get_all_columns("books") == ["author", "pages", "title"]
+        assert self._metadata.get_column_map("books", year=2010) == {
             "book_title": "title",
             "name": "author",
             "pages": "pages",
         }
-        assert metadata.get_skiprows("boxes", year=2011) == 10
-        assert metadata.get_sheet_name("boxes", year=2011) == 1
+        assert self._metadata.get_skiprows("boxes", year=2011) == 10
+        assert self._metadata.get_sheet_name("boxes", year=2011) == 1
 
 
 
