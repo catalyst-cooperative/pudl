@@ -16,7 +16,6 @@ class TestMetadata:
 
     def test_basics(self):
         """Test that basic API method return expected results."""
-<<<<<<< HEAD
         assert "test" == self._metadata.get_dataset_name()
         assert ["books", "boxes", "shoes"] == self._metadata.get_all_pages()
         assert ["author", "pages", "title"] == self._metadata.get_all_columns("books")
@@ -27,18 +26,6 @@ class TestMetadata:
         } == self._metadata.get_column_map("books", year=2010)
         assert 10 == self._metadata.get_skiprows("boxes", year=2011)
         assert 1 == self._metadata.get_sheet_name("boxes", year=2011)
-=======
-        assert metadata.get_dataset_name() == "test"
-        assert metadata.get_all_pages() == ["books", "boxes", "shoes"]
-        assert metadata.get_all_columns("books") == ["author", "pages", "title"]
-        assert metadata.get_column_map("books", year=2010) == {
-            "book_title": "title",
-            "name": "author",
-            "pages": "pages",
-        }
-        assert metadata.get_skiprows("boxes", year=2011) == 10
-        assert metadata.get_sheet_name("boxes", year=2011) == 1
->>>>>>> 79fb8189b283618473be68ebc340554b16a2d1df
 
     def test_metadata_methods(self):
         """Test various metadata methods."""
