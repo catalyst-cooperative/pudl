@@ -16,16 +16,16 @@ class TestMetadata:
 
     def test_basics(self, metadata):
         """Test that basic API method return expected results."""
-        assert "test" == metadata.get_dataset_name()
-        assert ["books", "boxes", "shoes"] == metadata.get_all_pages()
-        assert ["author", "pages", "title"] == metadata.get_all_columns("books")
-        assert {
+        assert metadata.get_dataset_name() == "test"
+        assert metadata.get_all_pages() == ["books", "boxes", "shoes"]
+        assert metadata.get_all_columns("books") == ["author", "pages", "title"]
+        assert metadata.get_column_map("books", year=2010) == {
             "book_title": "title",
             "name": "author",
             "pages": "pages",
-        } == metadata.get_column_map("books", year=2010)
-        assert 10 == metadata.get_skiprows("boxes", year=2011)
-        assert 1 == metadata.get_sheet_name("boxes", year=2011)
+        }
+        assert metadata.get_skiprows("boxes", year=2011) == 10
+        assert metadata.get_sheet_name("boxes", year=2011) == 1
 
     def test_metadata_methods(self, metadata):
         """Test various metadata methods."""
@@ -37,7 +37,6 @@ class TestMetadata:
         }
         assert metadata.get_skiprows("boxes", year=2011) == 10
         assert metadata.get_sheet_name("boxes", year=2011) == 1
-
 
 
 class FakeExtractor(excel.ExcelExtractor):
