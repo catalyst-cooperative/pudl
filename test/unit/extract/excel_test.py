@@ -6,16 +6,6 @@ import pytest
 from pudl.extract import excel
 
 
-<<<<<<< HEAD
-@pytest.fixture
-def metadata():
-    """Constructs test metadata instance for testing."""
-    return excel.ExcelMetadata("test")
-
-
-class TestMetadata:
-    """Tests basic operation of the excel.Metadata object."""
-=======
 class TestMetadata:
     """Tests basic operation of the excel.Metadata object."""
 
@@ -23,7 +13,6 @@ class TestMetadata:
     def setUp(self):
         """Constructs test metadata instance for testing."""
         self._metadata = excel.ExcelMetadata("test")
->>>>>>> dd0d66de5793d92b20b4e5ac335bdba85895aa86
 
     def test_basics(self, metadata):
         """Test that basic API method return expected results."""
