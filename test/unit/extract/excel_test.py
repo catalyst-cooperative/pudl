@@ -5,40 +5,39 @@ import pytest
 from pudl.extract import excel
 
 
-class TestMetadata():
+@pytest.fixture
+def metadata():
+    """Constructs test metadata instance for testing."""
+    return excel.ExcelMetadata("test")
+
+
+class TestMetadata:
     """Tests basic operation of the excel.Metadata object."""
-    
-    @pytest.fixture(autouse=True)
-    def setUp(self):
-        """Constructs test metadata instance for testing."""
-        self._metadata = excel.ExcelMetadata("test")
 
-    def test_basics(self):
+    def test_basics(self, metadata):
         """Test that basic API method return expected results."""
-        self.assertEqual("test", self._metadata.get_dataset_name())
-        self.assertListEqual(
-            ["books", "boxes", "shoes"], self._metadata.get_all_pages()
-        )
-        self.assertListEqual(
-            ["author", "pages", "title"], self._metadata.get_all_columns("books")
-        )
-        self.assertDictEqual(
-            {"book_title": "title", "name": "author", "pages": "pages"},
-            self._metadata.get_column_map("books", year=2010),
-        )
-        self.assertEqual(10, self._metadata.get_skiprows("boxes", year=2011))
-        self.assertEqual(1, self._metadata.get_sheet_name("boxes", year=2011))
+        assert "test" == metadata.get_dataset_name()
+        assert ["books", "boxes", "shoes"] == metadata.get_all_pages()
+        assert ["author", "pages", "title"] == metadata.get_all_columns("books")
+        assert {
+            "book_title": "title",
+            "name": "author",
+            "pages": "pages",
+        } == metadata.get_column_map("books", year=2010)
+        assert 10 == metadata.get_skiprows("boxes", year=2011)
+        assert 1 == metadata.get_sheet_name("boxes", year=2011)
 
-    def test_metadata_methods(self):
+    def test_metadata_methods(self, metadata):
         """Test various metadata methods."""
-        assert self._metadata.get_all_columns("books") == ["author", "pages", "title"]
-        assert self._metadata.get_column_map("books", year=2010) == {
+        assert metadata.get_all_columns("books") == ["author", "pages", "title"]
+        assert metadata.get_column_map("books", year=2010) == {
             "book_title": "title",
             "name": "author",
             "pages": "pages",
         }
-        assert self._metadata.get_skiprows("boxes", year=2011) == 10
-        assert self._metadata.get_sheet_name("boxes", year=2011) == 1
+        assert metadata.get_skiprows("boxes", year=2011) == 10
+        assert metadata.get_sheet_name("boxes", year=2011) == 1
+
 
 class FakeExtractor(excel.ExcelExtractor):
     """Test friendly fake extractor returns strings instead of files."""
@@ -110,7 +109,7 @@ class TestExtractor:
     # def test_resulting_dataframes(self):
     #     """Checks that pages across years are merged and columns are translated."""
     #     dfs = FakeExtractor().extract([2010, 2011], testing=True)
-    #     self.assertEqual(set(['books', 'boxes']), set(dfs.keys()))
+    #     assert set(['books', 'boxes']) == set(dfs.keys())
     #     pd.testing.assert_frame_equal(
     #         pd.DataFrame(data={
     #             'author': ['Laozi', 'Benjamin Hoff'],
@@ -125,5 +124,5 @@ class TestExtractor:
     #         }),
     #         dfs['boxes'])
 
-    # TODO(rousik@gmail.com): need to figure out how to test process_$x methods.
-    # TODO(rousik@gmail.com): we should test that empty columns are properly added.
+    # TODO: need to figure out how to test process_$x methods.
+    # TODO: we should test that empty columns are properly added.
