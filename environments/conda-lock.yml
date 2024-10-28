@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: 565002f7f152698f3c24bc6551fc59970565ed8250a6517834408578b9b60aaf
-    osx-64: 5882f18531bd5c3558d477f21de17ccaa9bd96d310c8b83ab55e4313534dcf4a
-    osx-arm64: aec279aa6545d175f88034ee17433b859375a0eb3f2b2034b17a44d259e005d1
+    linux-64: 8af9d1c282d662af392b11ef382067698c2124fd22b4591e6b7765f147994d10
+    osx-64: fe1c0c6ea5563c356af0d21b48d00bf897ba96e9aa45301769a38daf4d78abff
+    osx-arm64: fee9e06bb9d68c42f2573cd3f73beca380c76100d86033abeefe61517435dd55
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -574,7 +574,7 @@ package:
     category: main
     optional: false
   - name: arelle-release
-    version: 2.31.0
+    version: 2.33.1
     manager: conda
     platform: osx-64
     dependencies:
@@ -588,14 +588,15 @@ package:
       pyparsing: 3.*
       lxml: ">=4,<6"
       numpy: ">=1,<3"
-    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.31.0-pyhd8ed1ab_0.conda
+      pillow: 10.*
+    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.33.1-pyhd8ed1ab_0.conda
     hash:
-      md5: 7588aef2b7000443271fb6a6bac734c9
-      sha256: 0cda3faf20383090a661a1e02b8f777327f99258242dbec7268d9e9953915081
+      md5: e100d3d962dd49cc63ccd23bbcdc8b4f
+      sha256: d0084c4917cdda49b17cb066e04d00fb1e64866a47e3f5657e52e18ed4b53ff9
     category: main
     optional: false
   - name: arelle-release
-    version: 2.31.0
+    version: 2.33.1
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -609,10 +610,11 @@ package:
       pyparsing: 3.*
       lxml: ">=4,<6"
       numpy: ">=1,<3"
-    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.31.0-pyhd8ed1ab_0.conda
+      pillow: 10.*
+    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.33.1-pyhd8ed1ab_0.conda
     hash:
-      md5: 7588aef2b7000443271fb6a6bac734c9
-      sha256: 0cda3faf20383090a661a1e02b8f777327f99258242dbec7268d9e9953915081
+      md5: e100d3d962dd49cc63ccd23bbcdc8b4f
+      sha256: d0084c4917cdda49b17cb066e04d00fb1e64866a47e3f5657e52e18ed4b53ff9
     category: main
     optional: false
   - name: argon2-cffi
@@ -6340,61 +6342,61 @@ package:
     category: main
     optional: false
   - name: gdal
-    version: 3.9.2
+    version: 3.9.3
     manager: conda
     platform: linux-64
     dependencies:
       __glibc: ">=2.17,<3.0.a0"
       libgcc: ">=13"
-      libgdal-core: 3.9.2.*
+      libgdal-core: 3.9.3.*
       libkml: ">=1.3.0,<1.4.0a0"
       libstdcxx: ">=13"
       libxml2: ">=2.12.7,<3.0a0"
       numpy: ">=1.19,<3"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/gdal-3.9.2-py312h1299960_7.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/gdal-3.9.3-py312h1299960_0.conda
     hash:
-      md5: 9cf27e3f9d97ea13f250db9253a25dc8
-      sha256: 656eea557c38f713cb6d94efa798ecae9b70b807976d2e99fd7080462575098d
+      md5: f1f5f4c5875d5bce11cae27ed4bb8f7f
+      sha256: 2479449e48ac4d86e72552f35d35384ad5456bd58198a933a9cadebb55abbc74
     category: main
     optional: false
   - name: gdal
-    version: 3.9.2
+    version: 3.9.3
     manager: conda
     platform: osx-64
     dependencies:
       __osx: ">=10.13"
       libcxx: ">=17"
-      libgdal-core: 3.9.2.*
+      libgdal-core: 3.9.3.*
       libkml: ">=1.3.0,<1.4.0a0"
       libxml2: ">=2.12.7,<3.0a0"
       numpy: ">=1.19,<3"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/gdal-3.9.2-py312h365dfcf_7.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/gdal-3.9.3-py312h60d4072_0.conda
     hash:
-      md5: d9cdf305ba3e2dc9989bfa116001104b
-      sha256: 0df4b2136311b288f52a9532accc50e45898eb512bae70a1f3db432d1204763b
+      md5: f0414510e958129822fa7abf695c53b3
+      sha256: 94fc9ad184d46f2d9ea10783ea3200d0995a061c651df623d4206a3a2d7d4c9b
     category: main
     optional: false
   - name: gdal
-    version: 3.9.2
+    version: 3.9.3
     manager: conda
     platform: osx-arm64
     dependencies:
       __osx: ">=11.0"
       libcxx: ">=17"
-      libgdal-core: 3.9.2.*
+      libgdal-core: 3.9.3.*
       libkml: ">=1.3.0,<1.4.0a0"
       libxml2: ">=2.12.7,<3.0a0"
       numpy: ">=1.19,<3"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/gdal-3.9.2-py312h936c49d_7.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/gdal-3.9.3-py312h93175c8_0.conda
     hash:
-      md5: 305595575712364e99c69bf43d7078f0
-      sha256: ffd8d88c9e7d3b8617df4cbe9ad4755995ef5f180bfb6afc50e1f8a4f68446a3
+      md5: f92689932e29d08338ebed4065f78644
+      sha256: 753c0ba735d698a32e2d99f849c1f8caaf08064e5908c63e58eda6a7bc449f8a
     category: main
     optional: false
   - name: gdk-pixbuf
@@ -7994,8 +7996,8 @@ package:
     platform: osx-64
     dependencies:
       python: ">=3.6.1"
-      hyperframe: ">=6.0,<7"
       hpack: ">=4.0,<5"
+      hyperframe: ">=6.0,<7"
     url: https://conda.anaconda.org/conda-forge/noarch/h2-4.1.0-pyhd8ed1ab_0.tar.bz2
     hash:
       md5: b748fbf7060927a6e82df7cb5ee8f097
@@ -8008,8 +8010,8 @@ package:
     platform: osx-arm64
     dependencies:
       python: ">=3.6.1"
-      hyperframe: ">=6.0,<7"
       hpack: ">=4.0,<5"
+      hyperframe: ">=6.0,<7"
     url: https://conda.anaconda.org/conda-forge/noarch/h2-4.1.0-pyhd8ed1ab_0.tar.bz2
     hash:
       md5: b748fbf7060927a6e82df7cb5ee8f097
@@ -11787,7 +11789,7 @@ package:
     category: dev
     optional: true
   - name: libgdal-core
-    version: 3.9.2
+    version: 3.9.3
     manager: conda
     platform: linux-64
     dependencies:
@@ -11808,7 +11810,7 @@ package:
       libkml: ">=1.3.0,<1.4.0a0"
       libpng: ">=1.6.44,<1.7.0a0"
       libspatialite: ">=5.1.0,<5.2.0a0"
-      libsqlite: ">=3.46.1,<4.0a0"
+      libsqlite: ">=3.47.0,<4.0a0"
       libstdcxx: ">=13"
       libtiff: ">=4.7.0,<4.8.0a0"
       libuuid: ">=2.38.1,<3.0a0"
@@ -11822,14 +11824,14 @@ package:
       xerces-c: ">=3.2.5,<3.3.0a0"
       xz: ">=5.2.6,<6.0a0"
       zstd: ">=1.5.6,<1.6.0a0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/libgdal-core-3.9.2-hd5b9bfb_7.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/libgdal-core-3.9.3-hd5b9bfb_0.conda
     hash:
-      md5: a23eb349d023a8543752566be00b6d88
-      sha256: afff658dece6c8f4dbff2fc459bc834f8491e7ed1a491397e23280cf0917aa19
+      md5: f94cad05440d56c07d6b892a24722350
+      sha256: 07c7c1ce1f94a584463193fc9a2cac898aa38b6d6dba902e1688f661ae556214
     category: main
     optional: false
   - name: libgdal-core
-    version: 3.9.2
+    version: 3.9.3
     manager: conda
     platform: osx-64
     dependencies:
@@ -11850,7 +11852,7 @@ package:
       libkml: ">=1.3.0,<1.4.0a0"
       libpng: ">=1.6.44,<1.7.0a0"
       libspatialite: ">=5.1.0,<5.2.0a0"
-      libsqlite: ">=3.46.1,<4.0a0"
+      libsqlite: ">=3.47.0,<4.0a0"
       libtiff: ">=4.7.0,<4.8.0a0"
       libwebp-base: ">=1.4.0,<2.0a0"
       libxml2: ">=2.12.7,<3.0a0"
@@ -11862,14 +11864,14 @@ package:
       xerces-c: ">=3.2.5,<3.3.0a0"
       xz: ">=5.2.6,<6.0a0"
       zstd: ">=1.5.6,<1.6.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/libgdal-core-3.9.2-hba79287_7.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/libgdal-core-3.9.3-hd3a0912_0.conda
     hash:
-      md5: 6db92ed40e16f879cca6783d008e249a
-      sha256: b2f0109e55644e1f9f9ef320cdda05ff36cf40ca60e3cede4b922a79f7143024
+      md5: 960a6350c61004e516da8c02d9881bb4
+      sha256: c1f1511e1299730136479842bd76c6b86043b3ce5aabae92f2284c4ce3d96876
     category: main
     optional: false
   - name: libgdal-core
-    version: 3.9.2
+    version: 3.9.3
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -11890,7 +11892,7 @@ package:
       libkml: ">=1.3.0,<1.4.0a0"
       libpng: ">=1.6.44,<1.7.0a0"
       libspatialite: ">=5.1.0,<5.2.0a0"
-      libsqlite: ">=3.46.1,<4.0a0"
+      libsqlite: ">=3.47.0,<4.0a0"
       libtiff: ">=4.7.0,<4.8.0a0"
       libwebp-base: ">=1.4.0,<2.0a0"
       libxml2: ">=2.12.7,<3.0a0"
@@ -11902,10 +11904,10 @@ package:
       xerces-c: ">=3.2.5,<3.3.0a0"
       xz: ">=5.2.6,<6.0a0"
       zstd: ">=1.5.6,<1.6.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/libgdal-core-3.9.2-hfd0b032_7.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/libgdal-core-3.9.3-hb8ac103_0.conda
     hash:
-      md5: b553800429e5682120428772324184f6
-      sha256: 243f081ad166e32a614d02293a4fa2ba773ab8e4ba01e5945d64536b68414c71
+      md5: 81df5e2364827249a5711b165dc34546
+      sha256: 18140b86a89a3004438b6b13f627d5d386dde5cd573b911afa6083c3c434c07c
     category: main
     optional: false
   - name: libgfortran
@@ -16664,7 +16666,7 @@ package:
     category: main
     optional: false
   - name: pillow
-    version: 11.0.0
+    version: 10.4.0
     manager: conda
     platform: osx-64
     dependencies:
@@ -16672,22 +16674,22 @@ package:
       freetype: ">=2.12.1,<3.0a0"
       lcms2: ">=2.16,<3.0a0"
       libjpeg-turbo: ">=3.0.0,<4.0a0"
-      libtiff: ">=4.7.0,<4.8.0a0"
+      libtiff: ">=4.6.0,<4.8.0a0"
       libwebp-base: ">=1.4.0,<2.0a0"
-      libxcb: ">=1.17.0,<2.0a0"
+      libxcb: ">=1.16,<2.0.0a0"
       libzlib: ">=1.3.1,<2.0a0"
       openjpeg: ">=2.5.2,<3.0a0"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
       tk: ">=8.6.13,<8.7.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/pillow-11.0.0-py312h66fe14f_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/pillow-10.4.0-py312h683ea77_1.conda
     hash:
-      md5: 1e49b81b5aae7af9d74bcdac0cd0d174
-      sha256: 5e531eded0bb784c745abe3a1187c6c33478e153755bf8a8496aebff60801150
+      md5: fb17ec3065f089dad64d9b597b1e8ce4
+      sha256: 1e8d489190aa0b4682f52468efe4db46b37e50679c64879696e42578c9a283a4
     category: main
     optional: false
   - name: pillow
-    version: 11.0.0
+    version: 10.4.0
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -16695,18 +16697,18 @@ package:
       freetype: ">=2.12.1,<3.0a0"
       lcms2: ">=2.16,<3.0a0"
       libjpeg-turbo: ">=3.0.0,<4.0a0"
-      libtiff: ">=4.7.0,<4.8.0a0"
+      libtiff: ">=4.6.0,<4.8.0a0"
       libwebp-base: ">=1.4.0,<2.0a0"
-      libxcb: ">=1.17.0,<2.0a0"
+      libxcb: ">=1.16,<2.0.0a0"
       libzlib: ">=1.3.1,<2.0a0"
       openjpeg: ">=2.5.2,<3.0a0"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
       tk: ">=8.6.13,<8.7.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/pillow-11.0.0-py312haf37ca6_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/pillow-10.4.0-py312h8609ca0_1.conda
     hash:
-      md5: dc9b51fbd2b6f7fea9b5123458864dbb
-      sha256: 727b4c3faecdb6f6809cf20c5f32d2df4af34e0d5b9146b7588383bcba7990e8
+      md5: b71f08e05207fa6a9155e8581c3d473e
+      sha256: 980139e8dfc9da20a96a6260c796eb7c77c5c5658ee4032f33ebe0ac980b2e2b
     category: main
     optional: false
   - name: pip
@@ -18865,7 +18867,6 @@ package:
       tk: ">=8.6.13,<8.7.0a0"
       tzdata: ""
       xz: ">=5.2.6,<6.0a0"
-      pip: ""
     url: https://conda.anaconda.org/conda-forge/linux-64/python-3.12.7-hc5c86c4_0_cpython.conda
     hash:
       md5: 0515111a9cdf69f83278f7c197db9807
@@ -18889,7 +18890,6 @@ package:
       tk: ">=8.6.13,<8.7.0a0"
       tzdata: ""
       xz: ">=5.2.6,<6.0a0"
-      pip: ""
     url: https://conda.anaconda.org/conda-forge/osx-64/python-3.12.7-h8f8b54e_0_cpython.conda
     hash:
       md5: 7f81191b1ca1113e694e90e15c27a12f
@@ -18913,7 +18913,6 @@ package:
       tk: ">=8.6.13,<8.7.0a0"
       tzdata: ""
       xz: ">=5.2.6,<6.0a0"
-      pip: ""
     url: https://conda.anaconda.org/conda-forge/osx-arm64/python-3.12.7-h739c21a_0_cpython.conda
     hash:
       md5: e0d82e57ebb456077565e6d82cd4a323
