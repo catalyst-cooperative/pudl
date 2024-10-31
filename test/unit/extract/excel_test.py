@@ -16,16 +16,16 @@ class TestMetadata:
 
     def test_basics(self):
         """Test that basic API method return expected results."""
-        assert "test" == self._metadata.get_dataset_name()
-        assert ["books", "boxes", "shoes"] == self._metadata.get_all_pages()
-        assert ["author", "pages", "title"] == self._metadata.get_all_columns("books")
-        assert {
+        assert self._metadata.get_dataset_name() == "test"
+        assert self._metadata.get_all_pages() == ["books", "boxes", "shoes"]
+        assert self._metadata.get_all_columns("books") == ["author", "pages", "title"]
+        assert self._metadata.get_column_map("books", year=2010) == {
             "book_title": "title",
             "name": "author",
             "pages": "pages",
-        } == self._metadata.get_column_map("books", year=2010)
-        assert 10 == self._metadata.get_skiprows("boxes", year=2011)
-        assert 1 == self._metadata.get_sheet_name("boxes", year=2011)
+        }
+        assert self._metadata.get_skiprows("boxes", year=2011) == 10
+        assert self._metadata.get_sheet_name("boxes", year=2011) == 1
 
     def test_metadata_methods(self):
         """Test various metadata methods."""
