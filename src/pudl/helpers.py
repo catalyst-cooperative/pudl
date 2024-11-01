@@ -1023,6 +1023,7 @@ def standardize_na_values(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         DataFrame with regularized NA values.
     """
+
     def replace_with_nan(value):
         if pd.isna(value) or bool(re.match(r"(^\.$|^\s*$|^-+$)", str(value))):
             return np.nan

@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 from dagster import AssetIn, asset
 
-from pudl.helpers import zero_pad_numeric_string, standardize_phone_column, standardize_na_values
 import pudl.logging_helpers
 from pudl.helpers import (
     standardize_na_values,
@@ -12,8 +11,6 @@ from pudl.helpers import (
     zero_pad_numeric_string,
 )
 from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
-
-import pdb
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -108,13 +105,21 @@ def core_phmsagas__yearly_distribution_operators(
     raw_data: pd.DataFrame,
 ) -> pd.DataFrame:
     """Build the :ref:`core_phmsagas__yearly_distribution_operators`."""
-    df = raw_data.loc[:, YEARLY_DISTRIBUTION_OPERATORS_COLUMNS["columns_to_keep"]].copy()
+    df = raw_data.loc[
+        :, YEARLY_DISTRIBUTION_OPERATORS_COLUMNS["columns_to_keep"]
+    ].copy()
 
     # Specify the columns to convert to integer type
-    cols_to_convert = YEARLY_DISTRIBUTION_OPERATORS_COLUMNS["columns_to_convert_to_ints"]
-    
+    cols_to_convert = YEARLY_DISTRIBUTION_OPERATORS_COLUMNS[
+        "columns_to_convert_to_ints"
+    ]
+
     # Fill NaN values with pd.NA, then cast to "Int64" nullable integer type
-    df[cols_to_convert] = df[cols_to_convert].apply(lambda col: col.where(col.notna(), pd.NA)).astype("Int64")
+    df[cols_to_convert] = (
+        df[cols_to_convert]
+        .apply(lambda col: col.where(col.notna(), pd.NA))
+        .astype("Int64")
+    )
 
     # Ensure all "report_year" values have four digits
     mask = df["report_year"] < 100
@@ -173,9 +178,9 @@ def core_phmsagas__yearly_distribution_operators(
     df["office_address_state"] = df["office_address_state"].apply(standardize_state)
 
     # Strip whitespace from all object (string) columns in the DataFrame
-    df[df.select_dtypes(include=["object"]).columns] = df.select_dtypes(include=["object"]).apply(
-        lambda col: col.map(lambda x: x.strip() if isinstance(x, str) else x)
-    )
+    df[df.select_dtypes(include=["object"]).columns] = df.select_dtypes(
+        include=["object"]
+    ).apply(lambda col: col.map(lambda x: x.strip() if isinstance(x, str) else x))
 
     # Standardize telephone and fax number format and drop (000)-000-0000
     df = standardize_phone_column(df, ["preparer_phone", "preparer_fax"])
@@ -190,10 +195,12 @@ def core_phmsagas__yearly_distribution_operators(
 
     return df
 
+
 # EVERYTHING BELOW WILL COME OUT - JUST FOR LOCAL DEV
 # Get the value of DAGSTER_HOME from environment variables
 import os
-dagster_home = os.getenv('DAGSTER_HOME')
+
+dagster_home = os.getenv("DAGSTER_HOME")
 
 # Define the file name
 file_name = "storage/raw_phmsagas__yearly_distribution"
