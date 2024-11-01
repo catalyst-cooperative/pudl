@@ -2233,7 +2233,7 @@ def standardize_phone_column(df: pd.DataFrame, columns: list[str]) -> pd.DataFra
 
         # If the phone number has exactly 10 digits, format it as XXX-XXX-XXXX
         if phone_main_len == 10:
-            formatted_phone = f'{phone_main[:3]}-{phone_main[3:6]}-{phone_main[6:]}'
+            formatted_phone = f"{phone_main[:3]}-{phone_main[3:6]}-{phone_main[6:]}"
         # Return all numbers that are not 10 digits as-is
         else:
             formatted_phone = phone_main

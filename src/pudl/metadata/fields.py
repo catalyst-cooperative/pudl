@@ -8,7 +8,7 @@ from pytz import all_timezones
 
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.constants import FIELD_DTYPES_PANDAS
-from pudl.metadata.dfs import BALANCING_AUTHORITY_SUBREGIONS_EIA, POLITICAL_SUBDIVISIONS
+from pudl.metadata.dfs import BALANCING_AUTHORITY_SUBREGIONS_EIA
 from pudl.metadata.enums import (
     ASSET_TYPES_FERC1,
     COUNTRY_CODES_ISO3166,

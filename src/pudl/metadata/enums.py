@@ -643,8 +643,8 @@ INCOME_TYPES_FERC1: list[str] = [
 
 US_STATE_CODES: set[str] = set(
     POLITICAL_SUBDIVISIONS.loc[
-        (POLITICAL_SUBDIVISIONS.country_code == "USA") &
-        (POLITICAL_SUBDIVISIONS.subdivision_type == "state"),
-        "subdivision_name"
+        (POLITICAL_SUBDIVISIONS.country_code == "USA")
+        & (POLITICAL_SUBDIVISIONS.subdivision_type == "state"),
+        "subdivision_name",
     ]
 )

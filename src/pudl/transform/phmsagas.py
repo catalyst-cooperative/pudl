@@ -3,10 +3,12 @@
 import pandas as pd
 from dagster import AssetIn, asset
 
-from pudl.helpers import zero_pad_numeric_string, standardize_phone_column, standardize_na_values, standardize_state_columns
 import pudl.logging_helpers
-from pudl.extract.ferc714 import TABLE_NAME_MAP_FERC714
-from pudl.settings import PhmsaGasSettings
+from pudl.helpers import (
+    standardize_na_values,
+    standardize_phone_column,
+    zero_pad_numeric_string,
+)
 from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -121,8 +123,15 @@ def core_phmsagas__yearly_distribution_operators(
 
     # Standardize case for city, county, operator name, etc.
     # Capitalize the first letter of each word in all object-type columns except the excluded ones
-    df[df.select_dtypes(include=["object"]).columns.difference(YEARLY_DISTRIBUTION_OPERATORS_COLUMNS["capitalization_exclusion"])] = \
-        df[df.select_dtypes(include=["object"]).columns.difference(YEARLY_DISTRIBUTION_OPERATORS_COLUMNS["capitalization_exclusion"])].apply(lambda col: col.str.title())
+    df[
+        df.select_dtypes(include=["object"]).columns.difference(
+            YEARLY_DISTRIBUTION_OPERATORS_COLUMNS["capitalization_exclusion"]
+        )
+    ] = df[
+        df.select_dtypes(include=["object"]).columns.difference(
+            YEARLY_DISTRIBUTION_OPERATORS_COLUMNS["capitalization_exclusion"]
+        )
+    ].apply(lambda col: col.str.title())
 
     # Standardize state abbreviations
     # First create a dictionary of state names to abbreviations
@@ -132,11 +141,13 @@ def core_phmsagas__yearly_distribution_operators(
         if x.country_code == "USA" and x.subdivision_type == "state"
     }
     # Add abbreviations to the dictionary so we can make sure the abbreviations in the raw data exist
-    state_to_abbr.update({
-        x.subdivision_code: x.subdivision_code
-        for x in POLITICAL_SUBDIVISIONS.itertuples()
-        if x.country_code == "USA" and x.subdivision_type == "state"
-    })
+    state_to_abbr.update(
+        {
+            x.subdivision_code: x.subdivision_code
+            for x in POLITICAL_SUBDIVISIONS.itertuples()
+            if x.country_code == "USA" and x.subdivision_type == "state"
+        }
+    )
 
     # Function for looking up state names and abbreviations
     def standardize_state(state):
@@ -149,12 +160,16 @@ def core_phmsagas__yearly_distribution_operators(
         return standardized_state
 
     # Apply the function to your DataFrame columns
-    df["headquarters_address_state"] = df["headquarters_address_state"].apply(standardize_state)
+    df["headquarters_address_state"] = df["headquarters_address_state"].apply(
+        standardize_state
+    )
     df["office_address_state"] = df["office_address_state"].apply(standardize_state)
 
     # Trim all the object-type columns
-    df[df.select_dtypes(include=["object"]).columns] = df.select_dtypes(include=["object"]).applymap(lambda x: x.strip() if isinstance(x, str) else x)
-    
+    df[df.select_dtypes(include=["object"]).columns] = df.select_dtypes(
+        include=["object"]
+    ).applymap(lambda x: x.strip() if isinstance(x, str) else x)
+
     # Standardize telephone and fax number format and drop (000)-000-0000
     df = standardize_phone_column(df, ["preparer_phone", "preparer_fax"])
 

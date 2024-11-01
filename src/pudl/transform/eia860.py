@@ -866,7 +866,9 @@ def _core_eia860__emissions_control_equipment(
 ) -> pd.DataFrame:
     """Pull and transform the emissions control equipment table."""
     # Replace empty strings, whitespace, and '.' fields with real NA values
-    emce_df = pudl.helpers.standardize_na_values(raw_eia860__emissions_control_equipment)
+    emce_df = pudl.helpers.standardize_na_values(
+        raw_eia860__emissions_control_equipment
+    )
 
     # Spot fix bad months
     emce_df["emission_control_operating_month"] = emce_df[
@@ -1156,7 +1158,9 @@ def _core_eia860__cooling_equipment(
     ce_df = raw_eia860__cooling_equipment
 
     # Generic cleaning
-    ce_df = ce_df.pipe(pudl.helpers.standardize_na_values).pipe(pudl.helpers.add_fips_ids)
+    ce_df = ce_df.pipe(pudl.helpers.standardize_na_values).pipe(
+        pudl.helpers.add_fips_ids
+    )
 
     # Spot cleaning and date conversion
     ce_df.loc[
@@ -1271,7 +1275,9 @@ def _core_eia860__fgd_equipment(
     fgd_df = raw_eia860__fgd_equipment
 
     # Generic cleaning
-    fgd_df = fgd_df.pipe(pudl.helpers.standardize_na_values).pipe(pudl.helpers.add_fips_ids)
+    fgd_df = fgd_df.pipe(pudl.helpers.standardize_na_values).pipe(
+        pudl.helpers.add_fips_ids
+    )
 
     # Spot cleaning and date conversion
     fgd_df = fgd_df.pipe(pudl.helpers.month_year_to_date).pipe(

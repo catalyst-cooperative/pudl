@@ -1235,7 +1235,9 @@ def _core_eia923__cooling_system_information(
     second, with precision of 0.1 cfs."
     """
     csi_df = raw_eia923__cooling_system_information
-    csi_df = csi_df.pipe(pudl.helpers.standardize_na_values).pipe(pudl.helpers.convert_to_date)
+    csi_df = csi_df.pipe(pudl.helpers.standardize_na_values).pipe(
+        pudl.helpers.convert_to_date
+    )
 
     # cooling_id_eia is sometimes NA, but we also want to use it as a primary
     # key. fortunately it's a string so we can just convert all NA values to
@@ -1386,7 +1388,9 @@ def _core_eia923__fgd_operation_maintenance(
     fgd_df = fgd_df.drop_duplicates()
 
     # Replace the EIA923 NA value ('.') with a real NA value.
-    fgd_df = pudl.helpers.standardize_na_values(fgd_df).pipe(pudl.helpers.convert_to_date)
+    fgd_df = pudl.helpers.standardize_na_values(fgd_df).pipe(
+        pudl.helpers.convert_to_date
+    )
 
     # Convert thousands of dollars to dollars
     fgd_df.loc[:, fgd_df.columns.str.endswith("_1000_dollars")] *= 1000
