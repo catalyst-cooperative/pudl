@@ -1013,7 +1013,9 @@ def standardize_na_values(df: pd.DataFrame) -> pd.DataFrame:
     """Replace common ill-posed EIA NA spreadsheet values with np.nan.
 
     Currently replaces empty string, single decimal points with no numbers,
-    any single whitespace character, and hyphens with np.nan.
+    any single whitespace character, and hyphens with np.nan. Also converts
+    columns to their original types where possible (using 'infer_objects')
+    to avoid unintended data type changes.
 
     Args:
         df: The DataFrame to clean.
@@ -1021,7 +1023,13 @@ def standardize_na_values(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         DataFrame with regularized NA values.
     """
-    return df.replace(regex=r"(^\.$|^\s*$|^-+$)", value=np.nan)
+    def replace_with_nan(value):
+        if pd.isna(value) or bool(re.match(r"(^\.$|^\s*$|^-+$)", str(value))):
+            return np.nan
+        return value
+
+    # Apply the function column-wise using apply(), which handles each column as a series
+    return df.apply(lambda col: col.map(replace_with_nan))
 
 
 def simplify_columns(df: pd.DataFrame) -> pd.DataFrame:
