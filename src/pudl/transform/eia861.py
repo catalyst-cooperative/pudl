@@ -13,7 +13,7 @@ from pudl.helpers import (
     clean_eia_counties,
     convert_cols_dtypes,
     convert_to_date,
-    fix_na,
+    standardize_na_values,
 )
 from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.enums import (
@@ -544,7 +544,7 @@ def _pre_process(df: pd.DataFrame) -> pd.DataFrame:
     * Convert report_year column to report_date.
     """
     return (
-        fix_na(df)
+        standardize_na_values(df)
         .drop(columns=["early_release"], errors="ignore")
         .pipe(convert_to_date)
     )

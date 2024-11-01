@@ -19,7 +19,7 @@ from pudl.helpers import (
     dedupe_and_drop_nas,
     diff_wide_tables,
     expand_timeseries,
-    fix_na,
+    standardize_na_values,
     flatten_list,
     remove_leading_zeros_from_numeric_strings,
     retry,
@@ -443,7 +443,7 @@ def test_convert_to_date():
     assert_frame_equal(out_df, expected_df)
 
 
-def test_fix_na():
+def test_standardize_na_values():
     """Test cleanup of bad EIA spreadsheet NA values."""
     in_df = pd.DataFrame(
         {
@@ -479,7 +479,7 @@ def test_fix_na():
             ]
         }
     )
-    out_df = fix_na(in_df)
+    out_df = standardize_na_values(in_df)
     assert_frame_equal(out_df, expected_df)
 
 

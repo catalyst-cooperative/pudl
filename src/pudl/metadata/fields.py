@@ -8,7 +8,7 @@ from pytz import all_timezones
 
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.constants import FIELD_DTYPES_PANDAS
-from pudl.metadata.dfs import BALANCING_AUTHORITY_SUBREGIONS_EIA
+from pudl.metadata.dfs import BALANCING_AUTHORITY_SUBREGIONS_EIA, POLITICAL_SUBDIVISIONS
 from pudl.metadata.enums import (
     ASSET_TYPES_FERC1,
     COUNTRY_CODES_ISO3166,
@@ -35,6 +35,7 @@ from pudl.metadata.enums import (
     TECH_DESCRIPTIONS,
     TECH_DESCRIPTIONS_EIAAEO,
     TECH_DESCRIPTIONS_NRELATB,
+    US_STATE_CODES,
     US_TIMEZONES,
     UTILITY_PLANT_ASSET_TYPES_FERC1,
 )
@@ -4249,6 +4250,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         # different tables. E.g. state of the utility's HQ address vs. state that a
         # plant is located in vs. state in which a utility provides service.
         "description": "Two letter US state abbreviation.",
+        "constraints": {"enum": US_STATE_CODES},
     },
     "state_id_fips": {
         "type": "string",
