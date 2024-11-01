@@ -2225,13 +2225,7 @@ def standardize_phone_column(df: pd.DataFrame, columns: list[str]) -> pd.DataFra
         )  # Extension, if it exists
 
         # Remove unwanted characters (parentheses, spaces, periods, and dashes) from the main phone number
-        phone_main = re.sub(
-            r"[^\d]", "", phone_main.replace(".0", "")
-        )  # Keep only digits
-
-        # If phone_main is not numeric, return np.nan
-        if not phone_main.isdigit():
-            return np.nan
+        phone_main = re.sub(r"[^\d]", "", phone_main)  # Keep only digits
 
         # Grab the length for the next series of formatting steps
         phone_main_len = len(phone_main)
