@@ -129,7 +129,7 @@ class TestLayeredCache:
         res = PudlResourceKey("a", "b", "x.txt")
         self.layered_cache.add_cache_layer(self.cache_1)
         self.layered_cache.add_cache_layer(self.cache_2)
-        self.cache_1.add(res, "firstLayer")
+        self.cache_1.add(res, b"firstLayer")
         self.cache_2.add(res, b"secondLayer")
         assert self.layered_cache.get(res) == b"secondLayer"
 
