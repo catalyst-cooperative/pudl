@@ -1,6 +1,5 @@
 """Classes & functions to process PHMSA natural gas data before loading into the PUDL DB."""
 
-import numpy as np
 import pandas as pd
 from dagster import AssetIn, asset
 
