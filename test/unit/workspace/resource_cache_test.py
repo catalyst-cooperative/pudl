@@ -105,53 +105,55 @@ class TestLayeredCache:
 
     def test_add_caching_layers(self):
         """Adding layers has expected effect on the subsequent num_layers() calls."""
-        self.assertEqual(0, self.layered_cache.num_layers())
+        # self.assertEqual(0, self.layered_cache.num_layers())
+        assert self.layered_cache.num_layers() == 0
         self.layered_cache.add_cache_layer(self.cache_1)
-        self.assertEqual(1, self.layered_cache.num_layers())
+        assert self.layered_cache.num_layers() == 1
         self.layered_cache.add_cache_layer(self.cache_2)
-        self.assertEqual(2, self.layered_cache.num_layers())
+        assert self.layered_cache.num_layers() == 2
 
     def test_add_to_first_layer(self):
         """Adding to layered cache by default stores entires in the first layer."""
         self.layered_cache.add_cache_layer(self.cache_1)
         self.layered_cache.add_cache_layer(self.cache_2)
         res = PudlResourceKey("a", "b", "x.txt")
-        self.assertFalse(self.layered_cache.contains(res))
+        # self.assertFalse(self.layered_cache.contains(res))
+        assert not self.layered_cache.contains(res)
         self.layered_cache.add(res, b"sampleContent")
-        self.assertTrue(self.layered_cache.contains(res))
-        self.assertTrue(self.cache_1.contains(res))
-        self.assertFalse(self.cache_2.contains(res))
+        assert self.layered_cache.contains(res)
+        assert self.cache_1.contains(res)
+        assert not self.cache_2.contains(res)
 
     def test_get_uses_innermost_layer(self):
         """Resource is retrieved from the leftmost layer that contains it."""
         res = PudlResourceKey("a", "b", "x.txt")
         self.layered_cache.add_cache_layer(self.cache_1)
         self.layered_cache.add_cache_layer(self.cache_2)
-        # self.cache_1.add(res, "firstLayer")
+        self.cache_1.add(res, "firstLayer")
         self.cache_2.add(res, b"secondLayer")
-        self.assertEqual(b"secondLayer", self.layered_cache.get(res))
+        assert self.layered_cache.get(res) == b"secondLayer"
 
         self.cache_1.add(res, b"firstLayer")
-        self.assertEqual(b"firstLayer", self.layered_cache.get(res))
+        assert self.layered_cache.get(res) == b"firstLayer"
         # Set on layered cache updates innermost layer
         self.layered_cache.add(res, b"newContents")
-        self.assertEqual(b"newContents", self.layered_cache.get(res))
-        self.assertEqual(b"newContents", self.cache_1.get(res))
-        self.assertEqual(b"secondLayer", self.cache_2.get(res))
+        assert self.layered_cache.get(res) == b"newContents"
+        assert self.cache_1.get(res) == b"newContents"
+        assert self.cache_2.get(res) == b"secondLayer"
 
         # Deletion also only affects innermost layer
         self.layered_cache.delete(res)
-        self.assertTrue(self.layered_cache.contains(res))
-        self.assertFalse(self.cache_1.contains(res))
-        self.assertTrue(self.cache_2.contains(res))
-        self.assertEqual(b"secondLayer", self.layered_cache.get(res))
+        assert self.layered_cache.contains(res)
+        assert not self.cache_1.contains(res)
+        assert self.cache_2.contains(res)
+        assert self.cache_2.get(res) == b"secondLayer"
 
     def test_add_with_no_layers_does_nothing(self):
         """When add() is called on cache with no layers nothing happens."""
         res = PudlResourceKey("a", "b", "c")
-        self.assertFalse(self.layered_cache.contains(res))
+        assert not self.layered_cache.contains(res)
         self.layered_cache.add(res, b"sample")
-        self.assertFalse(self.layered_cache.contains(res))
+        assert not self.layered_cache.contains(res)
         self.layered_cache.delete(res)
 
     def test_read_only_layers_skipped_when_adding(self):
@@ -162,19 +164,19 @@ class TestLayeredCache:
 
         res = PudlResourceKey("a", "b", "c")
 
-        self.assertFalse(lc.contains(res))
-        self.assertFalse(c1.contains(res))
-        self.assertFalse(c2.contains(res))
+        assert not lc.contains(res)
+        assert not c1.contains(res)
+        assert not c2.contains(res)
 
         lc.add(res, b"test")
-        self.assertTrue(lc.contains(res))
-        self.assertFalse(c1.contains(res))
-        self.assertTrue(c2.contains(res))
+        assert lc.contains(res)
+        assert not c1.contains(res)
+        assert c2.contains(res)
 
         lc.delete(res)
-        self.assertFalse(lc.contains(res))
-        self.assertFalse(c1.contains(res))
-        self.assertFalse(c2.contains(res))
+        assert not lc.contains(res)
+        assert not c1.contains(res)
+        assert not c2.contains(res)
 
     def test_read_only_cache_ignores_modifications(self):
         """When cache is marked as read_only, add() and delete() calls are ignored."""
@@ -182,22 +184,22 @@ class TestLayeredCache:
         r2 = PudlResourceKey("a", "b", "r2")
         self.cache_1.add(r1, b"xxx")
         self.cache_2.add(r2, b"yyy")
-        self.assertTrue(self.cache_1.contains(r1))
-        self.assertTrue(self.cache_2.contains(r2))
+        assert self.cache_1.contains(r1)
+        assert self.cache_2.contains(r2)
         lc = resource_cache.LayeredCache(self.cache_1, self.cache_2, read_only=True)
 
-        self.assertTrue(lc.contains(r1))
-        self.assertTrue(lc.contains(r2))
+        assert lc.contains(r1)
+        assert lc.contains(r2)
 
         lc.delete(r1)
         lc.delete(r2)
-        self.assertTrue(lc.contains(r1))
-        self.assertTrue(lc.contains(r2))
-        self.assertTrue(self.cache_1.contains(r1))
-        self.assertTrue(self.cache_2.contains(r2))
+        assert lc.contains(r1)
+        assert lc.contains(r2)
+        assert self.cache_1.contains(r1)
+        assert self.cache_2.contains(r2)
 
         r_new = PudlResourceKey("a", "b", "new")
         lc.add(r_new, b"xyz")
-        self.assertFalse(lc.contains(r_new))
-        self.assertFalse(self.cache_1.contains(r_new))
-        self.assertFalse(self.cache_2.contains(r_new))
+        assert not lc.contains(r_new)
+        assert not self.cache_1.contains(r_new)
+        assert not self.cache_2.contains(r_new)
