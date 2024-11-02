@@ -155,16 +155,16 @@ def core_phmsagas__yearly_distribution_operators(
         state = state.strip()
         standardized_state = state_to_abbr.get(state, state)
         if standardized_state not in state_to_abbr.values():
-            return np.nan
+            return pd.NA
         return standardized_state
 
-    # Apply the function to your DataFrame columns
+    # Standardizing state columns with abbreviations
     df["headquarters_address_state"] = df["headquarters_address_state"].apply(
         standardize_state
     )
     df["office_address_state"] = df["office_address_state"].apply(standardize_state)
 
-    # Strip whitespace from all object (string) columns in the DataFrame
+    # Strip whitespace from all object (string) columns
     df[df.select_dtypes(include=["object"]).columns] = df.select_dtypes(
         include=["object"]
     ).apply(lambda col: col.map(lambda x: x.strip() if isinstance(x, str) else x))
@@ -181,19 +181,3 @@ def core_phmsagas__yearly_distribution_operators(
     )
 
     return df
-
-
-# EVERYTHING BELOW WILL COME OUT - JUST FOR LOCAL DEV
-# Get the value of DAGSTER_HOME from environment variables
-import os
-
-dagster_home = os.getenv("DAGSTER_HOME")
-
-# Define the file name
-file_name = "storage/raw_phmsagas__yearly_distribution"
-
-# Construct the full file path
-file_path = os.path.join(dagster_home, file_name)
-# Load the pickle file into a DataFrame
-df = pd.read_pickle(file_path)
-core_phmsagas__yearly_distribution_operators(df)
