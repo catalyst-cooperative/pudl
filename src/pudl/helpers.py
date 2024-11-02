@@ -2196,10 +2196,7 @@ def retry(
     return func(**kwargs)
 
 
-def standardize_phone_column(
-    df: pd.DataFrame, 
-    columns: list[str]
-) -> pd.DataFrame:
+def standardize_phone_column(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
     """Standardize phone numbers in the specified columns of the DataFrame.
 
     US numbers: ###-###-####
@@ -2260,19 +2257,18 @@ def standardize_phone_column(
 
 
 def analyze_missing_values(
-    df: pd.DataFrame, 
-    custom_missing_values: list[str] = None
+    df: pd.DataFrame, custom_missing_values: list[str] = None
 ) -> list[str]:
-    """Analyze columns of a DataFrame for missing or invalid values. 
-    
+    """Analyze columns of a DataFrame for missing or invalid values.
+
     Note that this is purely for analysis and does not perform any data
     transformation or cleaning. This function checks each column for missing
-    or custom missing values and logs a summary of the findings for 
+    or custom missing values and logs a summary of the findings for
     string (object), numeric, and datetime columns.
 
     Args:
         df: The DataFrame to analyze.
-        custom_missing_values: Optional list of custom values to consider 
+        custom_missing_values: Optional list of custom values to consider
             as "missing" (e.g., empty strings, specific strings like "NA",
             "NULL", etc.). If not provided, defaults to a standard set.
 
@@ -2296,7 +2292,7 @@ def analyze_missing_values(
             "NaN",
             "?",
             "*",
-            "#"
+            "#",
         ]
 
     # Analyze columns for missing values
