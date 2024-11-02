@@ -58,7 +58,12 @@ extensions = [
     "sphinx_issues",
     "sphinx_reredirects",
     "sphinxcontrib.bibtex",
+    "sphinxcontrib.googleanalytics",
 ]
+
+googleanalytics_id = "G-EXWBBTVMWK"
+googleanalytics_enabled = True
+
 todo_include_todos = True
 bibtex_bibfiles = [
     "catalyst_pubs.bib",
