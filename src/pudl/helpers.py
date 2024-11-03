@@ -2233,18 +2233,24 @@ def standardize_phone_column(df: pd.DataFrame, columns: list[str]) -> pd.DataFra
         phone_main = phone_main.str.replace(r"[^\d]", "", regex=True)
 
         # Handle numbers with exactly 10 digits (US format)
-        df[column] = (
-            phone_main.where(phone_main.str.len() != 10, 
-                             phone_main.str.slice(0, 3) + "-" + 
-                             phone_main.str.slice(3, 6) + "-" + 
-                             phone_main.str.slice(6, 10))
+        df[column] = phone_main.where(
+            phone_main.str.len() != 10,
+            phone_main.str.slice(0, 3)
+            + "-"
+            + phone_main.str.slice(3, 6)
+            + "-"
+            + phone_main.str.slice(6, 10),
         )
 
         # For numbers with an extension, append it back
         df[column] = df[column].where(extension.isna(), df[column] + "x" + extension)
 
         # Replace invalid or empty phone numbers with NaN
-        invalid_mask = (phone_main.isna()) | (phone_main.str.fullmatch(r"0+") == True) | (phone_main == "")
+        invalid_mask = (
+            (phone_main.isna())
+            | (phone_main.str.fullmatch(r"0+") == True)
+            | (phone_main == "")
+        )
         df[column] = df[column].mask(invalid_mask, np.nan)
 
     return df

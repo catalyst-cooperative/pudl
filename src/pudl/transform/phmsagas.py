@@ -70,7 +70,7 @@ YEARLY_DISTRIBUTION_OPERATORS_COLUMNS = {
         "services_shutoff_valve_in_system",
         "services_shutoff_valve_installed",
     ],
-    "capitalization_exclusion": ["headquarters_address_state", "office_address_state"]
+    "capitalization_exclusion": ["headquarters_address_state", "office_address_state"],
 }
 
 ##############################################################################
@@ -104,7 +104,9 @@ def core_phmsagas__yearly_distribution_operators(
 
     # Convert 2-digit years to appropriate 4-digit format (assume cutoff at year 50)
     # We could also use the first 4 digits of the "report_number" but there was at least one anomaly here with an invalid year
-    df.loc[mask, "report_year"] = 2000 + df.loc[mask, "report_year"].where(df.loc[mask, "report_year"] < 50, 1900)
+    df.loc[mask, "report_year"] = 2000 + df.loc[mask, "report_year"].where(
+        df.loc[mask, "report_year"] < 50, 1900
+    )
 
     # Standardize NAs
     df = standardize_na_values(df)
@@ -132,8 +134,11 @@ def core_phmsagas__yearly_distribution_operators(
     )
 
     for state_col in ["headquarters_address_state", "office_address_state"]:
-        df[state_col] = df[state_col].str.strip().replace(state_to_abbr).where(
-            df[state_col].isin(state_to_abbr.values()), pd.NA
+        df[state_col] = (
+            df[state_col]
+            .str.strip()
+            .replace(state_to_abbr)
+            .where(df[state_col].isin(state_to_abbr.values()), pd.NA)
         )
 
     # Standardize zip codes
@@ -151,6 +156,7 @@ def core_phmsagas__yearly_distribution_operators(
     df[obj_cols] = df[obj_cols].apply(lambda col: col.str.strip())
 
     return df
+
 
 # EVERYTHING BELOW WILL COME OUT - JUST FOR LOCAL DEV
 # Get the value of DAGSTER_HOME from environment variables
