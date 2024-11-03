@@ -91,6 +91,13 @@ def core_phmsagas__yearly_distribution_operators(
         :, YEARLY_DISTRIBUTION_OPERATORS_COLUMNS["columns_to_keep"]
     ].copy()
 
+    # Standardize NAs
+    df = standardize_na_values(df)
+
+    # Initial string cleaning
+    for col in df.select_dtypes(include=["object"]).columns:
+        df[col] = df[col].str.strip()
+
     # Specify the columns to convert to integer type
     cols_to_convert = YEARLY_DISTRIBUTION_OPERATORS_COLUMNS[
         "columns_to_convert_to_ints"
@@ -108,15 +115,12 @@ def core_phmsagas__yearly_distribution_operators(
         df.loc[mask, "report_year"] < 50, 1900
     )
 
-    # Standardize NAs
-    df = standardize_na_values(df)
-
     # Standardize case for city, county, operator name, etc.
     # Capitalize the first letter of each word in a list of columns
-    obj_cols = df.select_dtypes(include=["object"]).columns.difference(
+    cap_cols = df.select_dtypes(include=["object"]).columns.difference(
         YEARLY_DISTRIBUTION_OPERATORS_COLUMNS["capitalization_exclusion"]
     )
-    for col in obj_cols:
+    for col in cap_cols:
         df[col] = df[col].str.title()
 
     # Standardize state abbreviations
@@ -151,9 +155,6 @@ def core_phmsagas__yearly_distribution_operators(
 
     # Standardize telephone and fax number format and drop (000)-000-0000
     df = standardize_phone_column(df, ["preparer_phone", "preparer_fax"])
-
-    # Strip whitespace from all object (string) columns
-    df[obj_cols] = df[obj_cols].apply(lambda col: col.str.strip())
 
     return df
 
