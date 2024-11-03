@@ -2225,6 +2225,9 @@ def standardize_phone_column(df: pd.DataFrame, columns: list[str]) -> pd.DataFra
         # Convert column to string type for consistent processing
         df[column] = df[column].astype("string")
 
+        # Remove ".0" from the end of phone numbers, if present
+        df[column] = df[column].str.replace(r"\.0$", "", regex=True)
+
         # Separate phone number from extension, if present
         phone_main = df[column].str.extract(r"^(.*?)(?:[xX].*)?$")[0]
         extension = df[column].str.extract(extension_pattern)[0]
