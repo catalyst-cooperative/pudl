@@ -157,19 +157,3 @@ def core_phmsagas__yearly_distribution_operators(
     df = standardize_phone_column(df, ["preparer_phone", "preparer_fax"])
 
     return df
-
-
-# EVERYTHING BELOW WILL COME OUT - JUST FOR LOCAL DEV
-# Get the value of DAGSTER_HOME from environment variables
-import os
-
-dagster_home = os.getenv("DAGSTER_HOME")
-
-# Define the file name
-file_name = "storage/raw_phmsagas__yearly_distribution"
-
-# Construct the full file path
-file_path = os.path.join(dagster_home, file_name)
-# Load the pickle file into a DataFrame
-df = pd.read_pickle(file_path)
-core_phmsagas__yearly_distribution_operators(df)
