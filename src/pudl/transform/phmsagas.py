@@ -70,11 +70,7 @@ YEARLY_DISTRIBUTION_OPERATORS_COLUMNS = {
         "services_shutoff_valve_in_system",
         "services_shutoff_valve_installed",
     ],
-    "capitalization_exclusion": ["headquarters_address_state", "office_address_state"],
-    "cols_for_state_standardization": [
-        "headquarters_address_state",
-        "office_address_state",
-    ],
+    "capitalization_exclusion": ["headquarters_address_state", "office_address_state"]
 }
 
 ##############################################################################
@@ -101,44 +97,32 @@ def core_phmsagas__yearly_distribution_operators(
     ]
 
     # Fill NaN values with pd.NA, then cast to "Int64" nullable integer type
-    df[cols_to_convert] = (
-        df[cols_to_convert]
-        .apply(lambda col: col.where(col.notna(), pd.NA))
-        .astype("Int64")
-    )
+    df[cols_to_convert] = df[cols_to_convert].fillna(pd.NA).astype("Int64")
 
     # Ensure all "report_year" values have four digits
     mask = df["report_year"] < 100
 
     # Convert 2-digit years to appropriate 4-digit format (assume cutoff at year 50)
     # We could also use the first 4 digits of the "report_number" but there was at least one anomaly here with an invalid year
-    df.loc[mask, "report_year"] = df.loc[mask, "report_year"].apply(
-        lambda x: 2000 + x if x < 50 else 1900 + x
-    )
+    df.loc[mask, "report_year"] = 2000 + df.loc[mask, "report_year"].where(df.loc[mask, "report_year"] < 50, 1900)
 
-    # Fill in bad strings
+    # Standardize NAs
     df = standardize_na_values(df)
 
     # Standardize case for city, county, operator name, etc.
-    # Capitalize the first letter of each word in all object-type columns except the excluded ones
-    df[
-        df.select_dtypes(include=["object"]).columns.difference(
-            YEARLY_DISTRIBUTION_OPERATORS_COLUMNS["capitalization_exclusion"]
-        )
-    ] = df[
-        df.select_dtypes(include=["object"]).columns.difference(
-            YEARLY_DISTRIBUTION_OPERATORS_COLUMNS["capitalization_exclusion"]
-        )
-    ].apply(lambda col: col.str.title())
+    # Capitalize the first letter of each word in a list of columns
+    obj_cols = df.select_dtypes(include=["object"]).columns.difference(
+        YEARLY_DISTRIBUTION_OPERATORS_COLUMNS["capitalization_exclusion"]
+    )
+    for col in obj_cols:
+        df[col] = df[col].str.title()
 
     # Standardize state abbreviations
-    # First create a dictionary of state names to abbreviations
     state_to_abbr = {
         x.subdivision_name: x.subdivision_code
         for x in POLITICAL_SUBDIVISIONS.itertuples()
         if x.country_code == "USA" and x.subdivision_type == "state"
     }
-    # Add abbreviations to the dictionary so we can make sure the abbreviations in the raw data exist
     state_to_abbr.update(
         {
             x.subdivision_code: x.subdivision_code
@@ -147,29 +131,10 @@ def core_phmsagas__yearly_distribution_operators(
         }
     )
 
-    # Function for looking up state names and abbreviations
-    def standardize_state(state):
-        if pd.isna(state):
-            return state
-        state = state.strip()
-        standardized_state = state_to_abbr.get(state, state)
-        if standardized_state not in state_to_abbr.values():
-            return pd.NA
-        return standardized_state
-
-    # Standardizing state columns with abbreviations
-    df["headquarters_address_state"] = df["headquarters_address_state"].apply(
-        standardize_state
-    )
-    df["office_address_state"] = df["office_address_state"].apply(standardize_state)
-
-    # Strip whitespace from all object (string) columns
-    df[df.select_dtypes(include=["object"]).columns] = df.select_dtypes(
-        include=["object"]
-    ).apply(lambda col: col.map(lambda x: x.strip() if isinstance(x, str) else x))
-
-    # Standardize telephone and fax number format and drop (000)-000-0000
-    df = standardize_phone_column(df, ["preparer_phone", "preparer_fax"])
+    for state_col in ["headquarters_address_state", "office_address_state"]:
+        df[state_col] = df[state_col].str.strip().replace(state_to_abbr).where(
+            df[state_col].isin(state_to_abbr.values()), pd.NA
+        )
 
     # Standardize zip codes
     df["office_address_zip"] = zero_pad_numeric_string(
@@ -179,4 +144,25 @@ def core_phmsagas__yearly_distribution_operators(
         df["headquarters_address_zip"], n_digits=5
     )
 
+    # Standardize telephone and fax number format and drop (000)-000-0000
+    df = standardize_phone_column(df, ["preparer_phone", "preparer_fax"])
+
+    # Strip whitespace from all object (string) columns
+    df[obj_cols] = df[obj_cols].apply(lambda col: col.str.strip())
+
     return df
+
+# EVERYTHING BELOW WILL COME OUT - JUST FOR LOCAL DEV
+# Get the value of DAGSTER_HOME from environment variables
+import os
+
+dagster_home = os.getenv("DAGSTER_HOME")
+
+# Define the file name
+file_name = "storage/raw_phmsagas__yearly_distribution"
+
+# Construct the full file path
+file_path = os.path.join(dagster_home, file_name)
+# Load the pickle file into a DataFrame
+df = pd.read_pickle(file_path)
+core_phmsagas__yearly_distribution_operators(df)

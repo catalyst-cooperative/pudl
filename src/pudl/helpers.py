@@ -1023,14 +1023,19 @@ def standardize_na_values(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         DataFrame with regularized NA values.
     """
+    # Define a regex pattern to match ill-posed NA values
+    na_patterns = r"(^\.$|^\s*$|^-+$)"
 
-    def replace_with_nan(value):
-        if pd.isna(value) or bool(re.match(r"(^\.$|^\s*$|^-+$)", str(value))):
-            return np.nan
-        return value
+    # Replace empty strings with np.nan
+    df = df.replace("", np.nan)
 
-    # Apply the function column-wise using apply(), which handles each column as a series
-    return df.apply(lambda col: col.map(replace_with_nan))
+    # Replace matching patterns in all object columns with np.nan
+    df = df.replace(na_patterns, np.nan, regex=True)
+
+    # Attempt to infer original types where possible to avoid unwanted type changes
+    df = df.infer_objects()
+
+    return df
 
 
 def simplify_columns(df: pd.DataFrame) -> pd.DataFrame:
@@ -2212,46 +2217,35 @@ def standardize_phone_column(df: pd.DataFrame, columns: list[str]) -> pd.DataFra
     Returns:
         The modified DataFrame with standardized phone numbers in the same column.
     """
+    # Define a regex pattern to identify and separate extensions
+    extension_pattern = r"[xX](\d+)$"
 
-    # Function to clean and standardize phone numbers
-    def standardize_phone_number(phone: str) -> str:
-        # Check if the value is NaN, return it as is
-        if pd.isna(phone):
-            return phone
-
-        # Split phone number and extension, if present
-        phone_parts = re.split(r"[xX]", str(phone))
-        phone_main = phone_parts[0]  # Main phone number
-        extension = (
-            phone_parts[1].strip() if len(phone_parts) > 1 else None
-        )  # Extension, if it exists
-
-        # Remove unwanted characters (parentheses, spaces, periods, and dashes) from the main phone number
-        phone_main = re.sub(r"[^\d]", "", phone_main)  # Keep only digits
-
-        # Grab the length for the next series of formatting steps
-        phone_main_len = len(phone_main)
-
-        # If phone_main is all zeroes, return np.nan
-        if phone_main == "0" * phone_main_len:
-            return np.nan
-
-        # If the phone number has exactly 10 digits, format it as XXX-XXX-XXXX
-        if phone_main_len == 10:
-            formatted_phone = f"{phone_main[:3]}-{phone_main[3:6]}-{phone_main[6:]}"
-        # Return all numbers that are not 10 digits as-is
-        else:
-            formatted_phone = phone_main
-
-        # Add the extension back if present
-        if extension:
-            return f"{formatted_phone}x{extension}"
-
-        return formatted_phone
-
-    # Apply the standardization function directly to the specified columns
+    # Standardize each specified column
     for column in columns:
-        df[column] = df[column].apply(standardize_phone_number)
+        # Convert column to string type for consistent processing
+        df[column] = df[column].astype("string")
+
+        # Separate phone number from extension, if present
+        phone_main = df[column].str.extract(r"^(.*?)(?:[xX].*)?$")[0]
+        extension = df[column].str.extract(extension_pattern)[0]
+
+        # Remove non-digit characters from the main phone number
+        phone_main = phone_main.str.replace(r"[^\d]", "", regex=True)
+
+        # Handle numbers with exactly 10 digits (US format)
+        df[column] = (
+            phone_main.where(phone_main.str.len() != 10, 
+                             phone_main.str.slice(0, 3) + "-" + 
+                             phone_main.str.slice(3, 6) + "-" + 
+                             phone_main.str.slice(6, 10))
+        )
+
+        # For numbers with an extension, append it back
+        df[column] = df[column].where(extension.isna(), df[column] + "x" + extension)
+
+        # Replace invalid or empty phone numbers with NaN
+        invalid_mask = (phone_main.isna()) | (phone_main.str.fullmatch(r"0+") == True) | (phone_main == "")
+        df[column] = df[column].mask(invalid_mask, np.nan)
 
     return df
 
