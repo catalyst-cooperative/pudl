@@ -56,8 +56,8 @@ dependencies:
   - bleach=6.2.0=pyhd8ed1ab_0
   - blinker=1.8.2=pyhd8ed1ab_0
   - blosc=1.21.6=h5499902_0
-  - boto3=1.35.52=pyhd8ed1ab_0
-  - botocore=1.35.53=pyge310_1234567_0
+  - boto3=1.35.54=pyhd8ed1ab_0
+  - botocore=1.35.54=pyge310_1234567_0
   - bottleneck=1.4.2=py312h147345f_0
   - branca=0.7.2=pyhd8ed1ab_0
   - brotli=1.1.0=hd74edd7_2
@@ -92,16 +92,16 @@ dependencies:
   - contourpy=1.3.0=py312h4721b07_2
   - coverage=7.6.4=py312ha0ccf2a_0
   - crashtest=0.4.1=pyhd8ed1ab_0
-  - croniter=5.0.1=pyhd8ed1ab_0
+  - croniter=3.0.4=pyhd8ed1ab_0
   - cryptography=43.0.3=py312h5fad481_0
   - curl=8.10.1=h13a7ad3_0
   - cycler=0.12.1=pyhd8ed1ab_0
   - cyrus-sasl=2.1.27=h60b93bd_7
-  - dagster=1.8.13=pyhd8ed1ab_12
-  - dagster-graphql=1.8.13=pyhd8ed1ab_0
-  - dagster-pipes=1.8.13=pyhd8ed1ab_0
-  - dagster-postgres=0.24.13=pyhd8ed1ab_0
-  - dagster-webserver=1.8.13=pyhd8ed1ab_0
+  - dagster=1.9.0=pyhd8ed1ab_12
+  - dagster-graphql=1.9.0=pyhd8ed1ab_0
+  - dagster-pipes=1.9.0=pyhd8ed1ab_0
+  - dagster-postgres=0.25.0=pyhd8ed1ab_0
+  - dagster-webserver=1.9.0=pyhd8ed1ab_0
   - dask-core=2024.10.0=pyhd8ed1ab_0
   - dask-expr=1.1.16=pyhd8ed1ab_0
   - databricks-sdk=0.34.0=pyhd8ed1ab_0
@@ -279,7 +279,7 @@ dependencies:
   - libllvm14=14.0.6=hd1a9a77_4
   - libnghttp2=1.64.0=h6d7220d_0
   - libntlm=1.4=h3422bc3_1002
-  - libopenblas=0.3.28=openmp_h517c56d_0
+  - libopenblas=0.3.28=openmp_h8b6c093_0
   - libparquet=17.0.0=hf0ba9ef_16_cpu
   - libpng=1.6.44=hc14010f_0
   - libpq=17.0=h9fd3c6c_4
@@ -328,7 +328,7 @@ dependencies:
   - multimethod=1.9.1=pyhd8ed1ab_0
   - munkres=1.1.4=pyh9f0ad1d_0
   - mypy_extensions=1.0.0=pyha770c72_0
-  - narwhals=1.12.1=pyhd8ed1ab_0
+  - narwhals=1.13.1=pyhd8ed1ab_0
   - nbclassic=1.1.0=pyhd8ed1ab_0
   - nbclient=0.10.0=pyhd8ed1ab_0
   - nbconvert=7.16.4=hd8ed1ab_1
@@ -402,7 +402,7 @@ dependencies:
   - pycparser=2.22=pyhd8ed1ab_0
   - pydantic=2.9.2=pyhd8ed1ab_0
   - pydantic-core=2.23.4=py312he431725_0
-  - pydantic-settings=2.6.0=pyh3cfb1c2_0
+  - pydantic-settings=2.6.1=pyh3cfb1c2_0
   - pygls=1.3.1=pyhd8ed1ab_0
   - pygments=2.18.0=pyhd8ed1ab_0
   - pygraphviz=1.14=py312h1fbede1_0
@@ -454,12 +454,12 @@ dependencies:
   - rfc3339-validator=0.1.4=pyhd8ed1ab_0
   - rfc3986=2.0.0=pyhd8ed1ab_0
   - rfc3986-validator=0.1.1=pyh9f0ad1d_0
-  - rich=13.9.3=pyhd8ed1ab_0
-  - rpds-py=0.20.0=py312he431725_1
+  - rich=13.9.4=pyhd8ed1ab_0
+  - rpds-py=0.20.1=py312hcd83bfe_0
   - rsa=4.9=pyhd8ed1ab_0
   - ruamel.yaml=0.18.6=py312h0bf5046_1
   - ruamel.yaml.clib=0.2.8=py312h0bf5046_1
-  - ruff=0.7.1=py312hb3462b1_0
+  - ruff=0.7.2=py312h5d18b81_0
   - ruff-lsp=0.0.58=pyhd8ed1ab_0
   - s3transfer=0.10.3=pyhd8ed1ab_0
   - scikit-learn=1.5.2=py312h387f99c_1
@@ -501,7 +501,7 @@ dependencies:
   - structlog=24.4.0=pyhd8ed1ab_0
   - tabulate=0.9.0=pyhd8ed1ab_1
   - terminado=0.18.1=pyh31c8845_0
-  - terraform=1.9.2=h75b854d_0
+  - terraform=1.9.8=hd02bf31_0
   - text-unidecode=1.3=pyhd8ed1ab_1
   - threadpoolctl=3.5.0=pyhc1e730c_0
   - timezonefinder=6.5.4=py312h0bf5046_0
@@ -515,7 +515,7 @@ dependencies:
   - tornado=6.4.1=py312h024a12e_1
   - tqdm=4.66.6=pyhd8ed1ab_0
   - traitlets=5.14.3=pyhd8ed1ab_0
-  - typeguard=4.4.0=pyhd8ed1ab_0
+  - typeguard=4.4.1=pyhd8ed1ab_0
   - typer=0.12.5=pyhd8ed1ab_0
   - typer-slim=0.12.5=pyhd8ed1ab_0
   - typer-slim-standard=0.12.5=hd8ed1ab_0
@@ -544,7 +544,7 @@ dependencies:
   - webencodings=0.5.1=pyhd8ed1ab_2
   - websocket-client=1.8.0=pyhd8ed1ab_0
   - websockets=11.0.3=py312h02f2b3b_1
-  - werkzeug=3.1.0=pyhd8ed1ab_0
+  - werkzeug=3.1.1=pyhd8ed1ab_0
   - wheel=0.44.0=pyhd8ed1ab_0
   - widgetsnbextension=4.0.13=pyhd8ed1ab_0
   - wrapt=1.16.0=py312h024a12e_1
