@@ -279,7 +279,7 @@ dependencies:
   - libllvm14=14.0.6=hd1a9a77_4
   - libnghttp2=1.64.0=h6d7220d_0
   - libntlm=1.4=h3422bc3_1002
-  - libopenblas=0.3.28=openmp_h517c56d_0
+  - libopenblas=0.3.28=openmp_h8b6c093_0
   - libparquet=17.0.0=hf0ba9ef_16_cpu
   - libpng=1.6.44=hc14010f_0
   - libpq=17.0=h9fd3c6c_4
