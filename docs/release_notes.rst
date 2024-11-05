@@ -38,6 +38,8 @@ New Data Coverage
 EIA 860
 ~~~~~~~
 * Added EIA 860 final release data from 2023. See :issue:`3684` and PR :pr:`3871`.
+* Added 2024 EIA 860m data from August, September, and October. See :issue:`3940`
+  and PR :pr:`3949`.
 
 EIA 861
 ~~~~~~~
