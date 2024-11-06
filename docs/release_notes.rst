@@ -17,7 +17,7 @@ EIA 930
 EIA 860M
 ~~~~~~~~
 * Added 2024 EIA 860m data from August, September, and October as part of the Q3
-  quarterly release.. See :issue:`3940` and PR :pr:`3949`.
+  quarterly release. See :issue:`3940` and PR :pr:`3949`.
 
 .. _release-v2024.10.0:
 
