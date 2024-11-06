@@ -6,6 +6,14 @@ PUDL Release Notes
 v2024.XX.x (2024-MM-DD)
 ---------------------------------------------------------------------------------------
 
+New Data Coverage
+^^^^^^^^^^^^^^^^^
+
+EIA 930
+~~~~~~~
+* Added EIA 930 hourly data through the end of October as part of the Q3 quarterly
+  release. See :issue:`3942` and :pr:`3946`.
+
 .. _release-v2024.10.0:
 
 ---------------------------------------------------------------------------------------
