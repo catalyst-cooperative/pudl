@@ -19,6 +19,11 @@ EIA 923
 * Added EIA 923 data from August 2024 as part of the Q3 quarterly release.
   See :issue:`3941` and PR :pr:`3950`.
 
+EIA 860M
+~~~~~~~~
+* Added 2024 EIA 860m data from August, September, and October as part of the Q3
+  quarterly release.. See :issue:`3940` and PR :pr:`3949`.
+
 .. _release-v2024.10.0:
 
 ---------------------------------------------------------------------------------------
@@ -51,8 +56,6 @@ New Data Coverage
 EIA 860
 ~~~~~~~
 * Added EIA 860 final release data from 2023. See :issue:`3684` and PR :pr:`3871`.
-* Added 2024 EIA 860m data from August, September, and October. See :issue:`3940`
-  and PR :pr:`3949`.
 
 EIA 861
 ~~~~~~~
