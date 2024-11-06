@@ -14,6 +14,11 @@ EIA 930
 * Added EIA 930 hourly data through the end of October as part of the Q3 quarterly
   release. See :issue:`3942` and :pr:`3946`.
 
+EIA 923
+~~~~~~~
+* Added EIA 923 data from August 2024 as part of the Q3 quarterly release.
+  See :issue:`3941` and PR :pr:`3950`.
+
 .. _release-v2024.10.0:
 
 ---------------------------------------------------------------------------------------
