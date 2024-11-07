@@ -14,6 +14,13 @@ EIA 930
 * Added EIA 930 hourly data through the end of October as part of the Q3 quarterly
   release. See :issue:`3942` and :pr:`3946`.
 
+EIA Bulk Electricity Data
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated the EIA Bulk Electricity data archive to include data that was available as of
+  2024-11-01, which covers up through 2024-08-01 (3 months more than the previously
+  used archive). See :issue:`3944` and PR :pr:`3951`.
+
 .. _release-v2024.10.0:
 
 ---------------------------------------------------------------------------------------
