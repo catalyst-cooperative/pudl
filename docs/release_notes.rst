@@ -16,9 +16,7 @@ EIA 930
 
 EIA Bulk Electricity Data
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-* Updated the EIA Bulk Electricity data archive to include data that was available as of
-  2024-11-01, which covers up through 2024-08-01 (3 months more than the previously
-  used archive). See :issue:`3944` and PR :pr:`3951`.
+* Updated the EIA Bulk Electricity data to include data published up through 2024-08-01. See :issue:`3944` and PR :pr:`3951`.
 
 EPA CEMS
 ~~~~~~~~
