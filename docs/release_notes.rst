@@ -19,6 +19,10 @@ EIA 923
 * Added EIA 923 data from August 2024 as part of the Q3 quarterly release.
   See :issue:`3941` and PR :pr:`3950`.
 
+EPA CEMS
+~~~~~~~~
+* Added 2024 Q3 of CEMS data. See :issue:`3943` and :pr:`3948`.
+
 .. _release-v2024.10.0:
 
 ---------------------------------------------------------------------------------------
