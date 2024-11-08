@@ -4,12 +4,23 @@ Wind and solar profiles are extracted separately, but concatenated into a single
 in this module, as they have exactly the same structure.
 """
 
+from dataclasses import make_dataclass
+
 import pandas as pd
-from dagster import AssetCheckResult, asset, asset_check
+from dagster import (
+    AssetCheckResult,
+    DynamicOut,
+    DynamicOutput,
+    In,
+    asset_check,
+    graph_asset,
+    op,
+)
 
 import pudl
 from pudl.helpers import cleanstrings_snake, simplify_columns, zero_pad_numeric_string
 from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
+from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -246,17 +257,55 @@ def _combine_cap_fac_with_fips_df(
     return combined_df
 
 
-@asset(
-    io_manager_key="parquet_io_manager",
-    compute_kind="pandas",
-    op_tags={"memory-use": "high"},
+VCERARE_RAW_TABLES = [
+    "raw_vcerare__fixed_solar_pv_lat_upv",
+    "raw_vcerare__offshore_wind_power_140m",
+    "raw_vcerare__onshore_wind_power_100m",
+]
+
+
+OneYearDfs = make_dataclass(
+    "OneYearDfs",
+    [
+        *[(table_name, pd.DataFrame) for table_name in VCERARE_RAW_TABLES],
+        ("year", int),
+    ],
 )
-def out_vcerare__hourly_available_capacity_factor(
+
+
+@op(
+    ins={table_name: In() for table_name in VCERARE_RAW_TABLES},
+    out=DynamicOut(),
+    required_resource_keys={"dataset_settings"},
+)
+def get_single_year_dfs(context, **raw_dfs):
+    """Return set of years in settings.
+
+    These will be used to kick off worker processes to process each year of data in
+    parallel.
+    """
+    for year in context.resources.dataset_settings.vcerare.years:
+        yield DynamicOutput(
+            OneYearDfs(
+                **{
+                    table_name: raw_dfs[table_name][
+                        raw_dfs[table_name].report_year == str(year)
+                    ]
+                    for table_name in VCERARE_RAW_TABLES
+                },
+                year=str(year),
+            ),
+            mapping_key=str(year),
+        )
+
+
+@op(
+    tags={"memory-use": "high"},
+)
+def one_year_hourly_available_capacity_factor(
     raw_vcerare__lat_lon_fips: pd.DataFrame,
-    raw_vcerare__fixed_solar_pv_lat_upv: pd.DataFrame,
-    raw_vcerare__offshore_wind_power_140m: pd.DataFrame,
-    raw_vcerare__onshore_wind_power_100m: pd.DataFrame,
-) -> pd.DataFrame:
+    raw_inputs: OneYearDfs,
+):
     """Transform raw Vibrant Clean Energy renewable generation profiles.
 
     Concatenates the solar and wind capacity factors into a single table and turns
@@ -269,9 +318,9 @@ def out_vcerare__hourly_available_capacity_factor(
     # than doing it to a concatenated table but less memory intensive because
     # it doesn't need to process the ginormous table all at once.
     raw_dict = {
-        "solar_pv": raw_vcerare__fixed_solar_pv_lat_upv,
-        "offshore_wind": raw_vcerare__offshore_wind_power_140m,
-        "onshore_wind": raw_vcerare__onshore_wind_power_100m,
+        "solar_pv": raw_inputs.raw_vcerare__fixed_solar_pv_lat_upv,
+        "offshore_wind": raw_inputs.raw_vcerare__offshore_wind_power_140m,
+        "onshore_wind": raw_inputs.raw_vcerare__onshore_wind_power_100m,
     }
     clean_dict = {
         df_name: _check_for_valid_counties(df, fips_df, df_name)
@@ -283,11 +332,46 @@ def out_vcerare__hourly_available_capacity_factor(
     }
     # Combine the data and perform a few last cleaning mechanisms
     # Sort the data by primary key columns to produce compact row groups
-    return (
+    df = (
         _combine_all_cap_fac_dfs(clean_dict)
         .pipe(_combine_cap_fac_with_fips_df, fips_df)
         .sort_values(by=["state", "county_or_lake_name", "datetime_utc"])
         .reset_index(drop=True)
+    )
+    partitioned_path = PudlPaths().parquet_path(
+        "out_vcerare__hourly_available_capacity_factor"
+    )
+    partitioned_path.mkdir(exist_ok=True)
+    df.to_parquet(
+        partitioned_path
+        / f"vcerare_hourly_available_capacity_factor-{raw_inputs.year}",
+        index=False,
+    )
+
+
+@graph_asset
+def out_vcerare__hourly_available_capacity_factor(
+    raw_vcerare__lat_lon_fips: pd.DataFrame,
+    raw_vcerare__fixed_solar_pv_lat_upv: pd.DataFrame,
+    raw_vcerare__offshore_wind_power_140m: pd.DataFrame,
+    raw_vcerare__onshore_wind_power_100m: pd.DataFrame,
+):
+    """Transform raw Vibrant Clean Energy renewable generation profiles.
+
+    Concatenates the solar and wind capacity factors into a single table and turns
+    the columns for each county or subregion into a single county_or_lake_name column.
+    Graph asset will process 1 year of data at a time to limit peak memory usage.
+    """
+    raw_dfs = get_single_year_dfs(
+        raw_vcerare__fixed_solar_pv_lat_upv=raw_vcerare__fixed_solar_pv_lat_upv,
+        raw_vcerare__offshore_wind_power_140m=raw_vcerare__offshore_wind_power_140m,
+        raw_vcerare__onshore_wind_power_100m=raw_vcerare__onshore_wind_power_100m,
+    )
+    return raw_dfs.map(
+        lambda raw_dfs: one_year_hourly_available_capacity_factor(
+            raw_vcerare__lat_lon_fips,
+            raw_dfs,
+        )
     )
 
 
@@ -297,8 +381,13 @@ def out_vcerare__hourly_available_capacity_factor(
     description="Check that output table is as expected.",
     op_tags={"memory-use": "high"},
 )
-def check_hourly_available_cap_fac_table(asset_df: pd.DataFrame):  # noqa: C901
+def check_hourly_available_cap_fac_table():  # noqa: C901
     """Check that the final output table is as expected."""
+    partitioned_path = PudlPaths().parquet_path(
+        "out_vcerare__hourly_available_capacity_factor"
+    )
+    asset_df = pd.read_parquet(partitioned_path)
+
     logger.info("Check VCE RARE hourly table is the expected length")
     if (length := len(asset_df)) != 136437000:
         return AssetCheckResult(

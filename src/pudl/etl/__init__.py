@@ -216,7 +216,7 @@ default_tag_concurrency_limits = [
     {
         "key": "memory-use",
         "value": "high",
-        "limit": 4,
+        "limit": 2,
     },
 ]
 default_config = pudl.helpers.get_dagster_execution_config(
