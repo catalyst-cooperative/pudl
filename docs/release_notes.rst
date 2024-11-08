@@ -14,6 +14,11 @@ EIA 930
 * Added EIA 930 hourly data through the end of October as part of the Q3 quarterly
   release. See :issue:`3942` and :pr:`3946`.
 
+EIA Bulk Electricity Data
+~~~~~~~~~~~~~~~~~~~~~~~~~
+* Updated the EIA Bulk Electricity data to include data published up through
+  2024-08-01. See :issue:`3944` and PR :pr:`3951`.
+
 EPA CEMS
 ~~~~~~~~
 * Added 2024 Q3 of CEMS data. See :issue:`3943` and :pr:`3948`.
