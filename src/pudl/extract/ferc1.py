@@ -343,16 +343,17 @@ class Ferc1DbfExtractor(FercDbfExtractor):
 
 
 # DAGSTER ASSETS
-def create_raw_ferc1_assets() -> list[AssetSpec]:
+def create_raw_ferc1_assets() -> AssetsDefinition:
     """Create asset specifications for raw ferc1 tables.
 
-    AssetSpec objects allow you to access assets that are generated elsewhere.  In our
-    case, the xbrl and dbf database are created in a separate dagster Definition.
+    Define assets for the raw FERC 1 tables, using AssetSpecs since they are external to
+    the main PUDL DAG, as the DBF and XBRL databases are created in a separate dagster
+    Definition.
 
     Returns:
-        A list of ferc1 AssetSpecs
+        AssetsDefinition containing all the raw FERC 1 assets.
     """
-    # Deduplicate the table names because f1_elctrc_erg_acct feeds into multiple pudl tables.
+    # Deduplicate table names since f1_elctrc_erg_acct feeds into multiple pudl tables.
     dbfs = (v["dbf"] for v in TABLE_NAME_MAP_FERC1.values())
     flattened_dbfs = chain.from_iterable(
         x if isinstance(x, list) else [x] for x in dbfs
