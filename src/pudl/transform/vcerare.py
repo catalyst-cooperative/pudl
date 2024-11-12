@@ -6,6 +6,7 @@ in this module, as they have exactly the same structure.
 
 from dataclasses import make_dataclass
 
+import duckdb
 import pandas as pd
 from dagster import (
     AssetCheckResult,
@@ -386,93 +387,112 @@ def check_hourly_available_cap_fac_table():  # noqa: C901
     partitioned_path = PudlPaths().parquet_path(
         "out_vcerare__hourly_available_capacity_factor"
     )
-    asset_df = pd.read_parquet(partitioned_path)
+    vce = duckdb.read_parquet(f"{partitioned_path}/*")
 
     logger.info("Check VCE RARE hourly table is the expected length")
-    if (length := len(asset_df)) != 136437000:
+    (length,) = duckdb.query("SELECT COUNT(*) FROM vce").fetchone()
+    if length != 136437000:
         return AssetCheckResult(
             passed=False,
             description="Table unexpected length",
             metadata={"table_length": length, "expected_length": 136437000},
         )
+
     logger.info("Check there are no NA values in VCE RARE table (except FIPS)")
-    if asset_df[asset_df.columns.difference(["county_id_fips"])].isna().any().any():
-        return AssetCheckResult(
-            passed=False,
-            description="Found NA values when there should be none",
-            metadata={
-                "NA index values": asset_df[asset_df.isna().any(axis="columns")].index
-            },
-        )
+    columns = [c for c in vce.columns if c != "county_id_fips"]
+    for c in columns:
+        nulls = duckdb.query(f"SELECT {c} FROM vce WHERE {c} IS NULL").fetchall()  # noqa: S608
+        if len(nulls) > 0:
+            return AssetCheckResult(
+                passed=False,
+                description=f"Found NA values in column {c}",
+            )
     # Make sure the capacity_factor values are below the expected value
     # There are some solar values that are slightly over 1 due to colder
     # than average panel temperatures.
     logger.info("Check capacity factors in VCE RARE table are between 0 and 1.")
-    if asset_df.capacity_factor_solar_pv.max() > 1.02:
+    if len(duckdb.query("SELECT * FROM vce WHERE capacity_factor_solar_pv > 1.02")) > 0:
         return AssetCheckResult(
             passed=False,
             description="Found PV capacity factor values greater than 1.02",
         )
-    if asset_df.filter(regex=r"capacity_factor.*wind").max(axis=None) > 1.0:
-        return AssetCheckResult(
-            passed=False,
-            description="Found wind capacity factor values greater than 1.0",
-        )
+
+    columns = [c for c in vce.columns if c.endswith("wind")]
+    for c in columns:
+        if len(duckdb.query(f"SELECT {c} FROM vce WHERE {c} > 1.0").fetchall()) > 0:  # noqa: S608
+            return AssetCheckResult(
+                passed=False,
+                description=f"Found wind capacity factor values greater than 1.0 in column {c}",
+            )
     # Make sure capacity_factor values are greater than or equal to 0
-    if asset_df.filter(like="capacity_factor").min(axis=None) < 0:
-        return AssetCheckResult(
-            passed=False,
-            description="Found capacity factor values less than 0",
-        )
+    columns = [c for c in vce.columns if c.startswith("capacity_factor")]
+    for c in columns:
+        if len(duckdb.query(f"SELECT {c} FROM vce WHERE {c} < 0.0").fetchall()) > 0:  # noqa: S608
+            return AssetCheckResult(
+                passed=False,
+                description=f"Found capacity factor values less than 0 from column {c}",
+            )
     logger.info("Check max hour of year in VCE RARE table is 8760.")
-    if asset_df["hour_of_year"].max() != 8760:
+    if (
+        len(
+            duckdb.query(
+                "SELECT hour_of_year FROM vce WHERE hour_of_year > 8760"
+            ).fetchall()
+        )
+        > 0
+    ):
         return AssetCheckResult(
             passed=False, description="Found hour_of_year values larger than 8760"
         )
     logger.info("Check for unexpected Dec 31st, 2020 dates in VCE RARE table.")
-    if not asset_df[asset_df["datetime_utc"] == pd.to_datetime("2020-12-31")].empty:
+    if (
+        len(
+            duckdb.query(
+                "SELECT datetime_utc FROM vce WHERE datetime_utc = make_date(2020, 12, 31)"
+            ).fetchall()
+        )
+        > 0
+    ):
         return AssetCheckResult(
             passed=False,
             description="Found rows for December 31, 2020 which should not exist",
         )
     logger.info("Check hour from date and hour of year match in VCE RARE table.")
-    asset_df["hour_from_date"] = (
-        asset_df["datetime_utc"].dt.hour
-        + (asset_df["datetime_utc"].dt.dayofyear - 1) * 24
-        + 1
-    )
-    if not asset_df[asset_df["hour_from_date"] != asset_df["hour_of_year"]].empty:
+    mismatched_hours = duckdb.query("""SELECT * FROM vce WHERE
+(datepart('hr', datetime_utc) +
+((datepart('dayofyear', datetime_utc)-1)*24)+1) != hour_of_year""").fetchall()
+    if len(mismatched_hours) > 0:
         return AssetCheckResult(
             passed=False,
             description="hour_of_year values don't match date values",
         )
+
     logger.info(
         "Check for rows for Bedford City or Clifton Forge City in VCE RARE table."
     )
-    if not asset_df[
-        asset_df["county_or_lake_name"].isin(["bedford_city", "clifton_forge_city"])
-    ].empty:
+    if (
+        len(
+            duckdb.query(
+                "SELECT * FROM vce WHERE county_or_lake_name = 'bedford_city' or county_or_lake_name = 'clifton_forge_city'"
+            ).fetchall()
+        )
+        > 0
+    ):
         return AssetCheckResult(
             passed=False,
             description="found records for bedford_city or clifton_forge_city that shouldn't exist",
         )
     logger.info("Check for duplicate county_id_fips values in VCE RARE table.")
-    notna_county_fips_df = asset_df.dropna(subset="county_id_fips")
-    idx = pd.MultiIndex.from_frame(
-        notna_county_fips_df[["datetime_utc", "county_id_fips"]]
-    )
-    if not idx.is_unique:
+    if (
+        len(
+            duckdb.query(
+                "SELECT county_id_fips, datetime_utc FROM vce WHERE county_id_fips IS NOT NULL GROUP BY ALL HAVING COUNT(*) > 0"
+            ).fetchall()
+        )
+        > 0
+    ):
         return AssetCheckResult(
             passed=False,
             description="Found duplicate county_id_fips values",
-            metadata={
-                "duplciate county FIPS values": notna_county_fips_df[
-                    notna_county_fips_df.duplicated(
-                        subset=["datetime_utc", "county_id_fips"]
-                    )
-                ]
-                .county_id_fips.unique()
-                .tolist()
-            },
         )
     return AssetCheckResult(passed=True)
