@@ -248,16 +248,9 @@ class CompanyNameCleaner(BaseModel):
         """Apply the normalization of legal terms according to dictionary of regex rules."""
         # Make sure to remove extra spaces, so legal terms can be found in the end (if requested)
         clean_col = col.str.strip()
-
-        json_source = files("pudl.package_data.settings").joinpath(
-            NAME_LEGAL_TERMS_DICT_FILE
-        )
-        with json_source.open() as json_file:
-            legal_terms_dict = json.load(json_file)[NAME_JSON_ENTRY_LEGAL_TERMS]["en"]
-
         # Apply normalization for legal terms
         # Iterate through the dictionary of legal terms
-        for replacement, legal_terms in legal_terms_dict.items():
+        for replacement, legal_terms in self.legal_terms_dict.items():
             # Each replacement has a list of possible terms to be searched for
             replacement = " " + replacement.lower() + " "
             for legal_term in legal_terms:
