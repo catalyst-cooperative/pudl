@@ -292,9 +292,9 @@ class CompanyNameCleaner(BaseModel):
         clean_col = clean_col.str.replace(regex_rule, "", regex=True)
         clean_col = clean_col.str.strip()
         # strip commas or other special chars that might be at the end of the name
-        sepcial_char_regex = r"[^[^\w&\s]+|[^\w&\s]+$]+"
-        clean_col = clean_col.str.replace(sepcial_char_regex, "", clean_col)
-        clean_col = clean_col.str.strip()
+        special_char_regex = r"[^[^\w&\s]+|[^\w&\s]+$]+"
+        clean_col = clean_col.str.replace(special_char_regex, "", clean_col)
+        clean_col = clean_col.fillna(pd.NA).str.strip()
         return clean_col
 
     def get_clean_data(self, col: pd.Series) -> pd.Series:
