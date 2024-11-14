@@ -4,18 +4,12 @@ Wind and solar profiles are extracted separately, but concatenated into a single
 in this module, as they have exactly the same structure.
 """
 
-from dataclasses import make_dataclass
-
 import duckdb
 import pandas as pd
 from dagster import (
     AssetCheckResult,
-    DynamicOut,
-    DynamicOutput,
-    In,
+    asset,
     asset_check,
-    graph_asset,
-    op,
 )
 
 import pudl
@@ -258,54 +252,16 @@ def _combine_cap_fac_with_fips_df(
     return combined_df
 
 
-VCERARE_RAW_TABLES = [
-    "raw_vcerare__fixed_solar_pv_lat_upv",
-    "raw_vcerare__offshore_wind_power_140m",
-    "raw_vcerare__onshore_wind_power_100m",
-]
+def _get_parquet_path():
+    return PudlPaths().parquet_path("out_vcerare__hourly_available_capacity_factor")
 
 
-OneYearDfs = make_dataclass(
-    "OneYearDfs",
-    [
-        *[(table_name, pd.DataFrame) for table_name in VCERARE_RAW_TABLES],
-        ("year", int),
-    ],
-)
-
-
-@op(
-    ins={table_name: In() for table_name in VCERARE_RAW_TABLES},
-    out=DynamicOut(),
-    required_resource_keys={"dataset_settings"},
-)
-def get_single_year_dfs(context, **raw_dfs):
-    """Return set of years in settings.
-
-    These will be used to kick off worker processes to process each year of data in
-    parallel.
-    """
-    for year in context.resources.dataset_settings.vcerare.years:
-        yield DynamicOutput(
-            OneYearDfs(
-                **{
-                    table_name: raw_dfs[table_name][
-                        raw_dfs[table_name].report_year == str(year)
-                    ]
-                    for table_name in VCERARE_RAW_TABLES
-                },
-                year=str(year),
-            ),
-            mapping_key=str(year),
-        )
-
-
-@op(
-    tags={"memory-use": "high"},
-)
 def one_year_hourly_available_capacity_factor(
+    year: int,
     raw_vcerare__lat_lon_fips: pd.DataFrame,
-    raw_inputs: OneYearDfs,
+    raw_vcerare__fixed_solar_pv_lat_upv: pd.DataFrame,
+    raw_vcerare__offshore_wind_power_140m: pd.DataFrame,
+    raw_vcerare__onshore_wind_power_100m: pd.DataFrame,
 ):
     """Transform raw Vibrant Clean Energy renewable generation profiles.
 
@@ -319,9 +275,9 @@ def one_year_hourly_available_capacity_factor(
     # than doing it to a concatenated table but less memory intensive because
     # it doesn't need to process the ginormous table all at once.
     raw_dict = {
-        "solar_pv": raw_inputs.raw_vcerare__fixed_solar_pv_lat_upv,
-        "offshore_wind": raw_inputs.raw_vcerare__offshore_wind_power_140m,
-        "onshore_wind": raw_inputs.raw_vcerare__onshore_wind_power_100m,
+        "solar_pv": raw_vcerare__fixed_solar_pv_lat_upv,
+        "offshore_wind": raw_vcerare__offshore_wind_power_140m,
+        "onshore_wind": raw_vcerare__onshore_wind_power_100m,
     }
     clean_dict = {
         df_name: _check_for_valid_counties(df, fips_df, df_name)
@@ -339,18 +295,15 @@ def one_year_hourly_available_capacity_factor(
         .sort_values(by=["state", "county_or_lake_name", "datetime_utc"])
         .reset_index(drop=True)
     )
-    partitioned_path = PudlPaths().parquet_path(
-        "out_vcerare__hourly_available_capacity_factor"
-    )
-    partitioned_path.mkdir(exist_ok=True)
+    parquet_path = _get_parquet_path()
+    parquet_path.mkdir(exist_ok=True)
     df.to_parquet(
-        partitioned_path
-        / f"vcerare_hourly_available_capacity_factor-{raw_inputs.year}",
+        parquet_path / f"vcerare_hourly_available_capacity_factor-{year}",
         index=False,
     )
 
 
-@graph_asset
+@asset
 def out_vcerare__hourly_available_capacity_factor(
     raw_vcerare__lat_lon_fips: pd.DataFrame,
     raw_vcerare__fixed_solar_pv_lat_upv: pd.DataFrame,
@@ -363,17 +316,164 @@ def out_vcerare__hourly_available_capacity_factor(
     the columns for each county or subregion into a single county_or_lake_name column.
     Graph asset will process 1 year of data at a time to limit peak memory usage.
     """
-    raw_dfs = get_single_year_dfs(
-        raw_vcerare__fixed_solar_pv_lat_upv=raw_vcerare__fixed_solar_pv_lat_upv,
-        raw_vcerare__offshore_wind_power_140m=raw_vcerare__offshore_wind_power_140m,
-        raw_vcerare__onshore_wind_power_100m=raw_vcerare__onshore_wind_power_100m,
-    )
-    return raw_dfs.map(
-        lambda raw_dfs: one_year_hourly_available_capacity_factor(
-            raw_vcerare__lat_lon_fips,
-            raw_dfs,
+
+    def _get_year(df, year):
+        return df.loc[df["report_year"] == year]
+
+    for year in raw_vcerare__fixed_solar_pv_lat_upv["report_year"].unique():
+        one_year_hourly_available_capacity_factor(
+            year=year,
+            raw_vcerare__lat_lon_fips=raw_vcerare__lat_lon_fips,
+            raw_vcerare__fixed_solar_pv_lat_upv=_get_year(
+                raw_vcerare__fixed_solar_pv_lat_upv, year
+            ),
+            raw_vcerare__offshore_wind_power_140m=_get_year(
+                raw_vcerare__offshore_wind_power_140m, year
+            ),
+            raw_vcerare__onshore_wind_power_100m=_get_year(
+                raw_vcerare__onshore_wind_power_100m, year
+            ),
         )
+
+
+def _check_rows(vce) -> AssetCheckResult | None:
+    logger.info("Check VCE RARE hourly table is the expected length")
+    (length,) = duckdb.query("SELECT COUNT(*) FROM vce").fetchone()
+    if length != 136437000:
+        return AssetCheckResult(
+            passed=False,
+            description="Table unexpected length",
+            metadata={"table_length": length, "expected_length": 136437000},
+        )
+    return None
+
+
+def _check_nulls(vce) -> AssetCheckResult | None:
+    logger.info("Check there are no NA values in VCE RARE table (except FIPS)")
+    columns = [c for c in vce.columns if c != "county_id_fips"]
+    for c in columns:
+        nulls = duckdb.query(f"SELECT {c} FROM vce WHERE {c} IS NULL").fetchall()  # noqa: S608
+        if len(nulls) > 0:
+            return AssetCheckResult(
+                passed=False,
+                description=f"Found NA values in column {c}",
+            )
+    return None
+
+
+def _check_pv_capacity_factor_upper_bound(vce) -> AssetCheckResult | None:
+    # Make sure the capacity_factor values are below the expected value
+    # There are some solar values that are slightly over 1 due to colder
+    # than average panel temperatures.
+    logger.info("Check capacity factors in VCE RARE table are between 0 and 1.")
+    cap_oob = duckdb.query(
+        "SELECT * FROM vce WHERE capacity_factor_solar_pv > 1.02"
+    ).fetchall()
+    if len(cap_oob) > 0:
+        return AssetCheckResult(
+            passed=False,
+            description="Found PV capacity factor values greater than 1.02",
+        )
+    return None
+
+
+def _check_wind_capacity_factor_upper_bound(vce) -> AssetCheckResult | None:
+    columns = [c for c in vce.columns if c.endswith("wind")]
+    for c in columns:
+        cap_oob = duckdb.query(f"SELECT {c} FROM vce WHERE {c} > 1.0").fetchall()  # noqa: S608
+        if len(cap_oob) > 0:  # noqa: S608
+            return AssetCheckResult(
+                passed=False,
+                description=f"Found wind capacity factor values greater than 1.0 in column {c}",
+            )
+    return None
+
+
+def _check_capacity_factor_lower_bound(vce) -> AssetCheckResult | None:
+    # Make sure capacity_factor values are greater than or equal to 0
+    columns = [c for c in vce.columns if c.startswith("capacity_factor")]
+    for c in columns:
+        cap_oob = duckdb.query(f"SELECT {c} FROM vce WHERE {c} < 0.0").fetchall()  # noqa: S608
+        if len(cap_oob) > 0:
+            return AssetCheckResult(
+                passed=False,
+                description=f"Found capacity factor values less than 0 from column {c}",
+            )
+    return None
+
+
+def _check_max_hour_of_year(vce) -> AssetCheckResult | None:
+    logger.info("Check max hour of year in VCE RARE table is 8760.")
+    max_hours = duckdb.query(
+        "SELECT hour_of_year FROM vce WHERE hour_of_year > 8760"
+    ).fetchall()
+    if len(max_hours) > 0:
+        return AssetCheckResult(
+            passed=False,
+            description="Found hour_of_year values larger than 8760",
+        )
+    return None
+
+
+def _check_unexpected_dates(vce) -> AssetCheckResult | None:
+    logger.info("Check for unexpected Dec 31st, 2020 dates in VCE RARE table.")
+    unexpected_dates = duckdb.query(
+        "SELECT datetime_utc FROM vce WHERE datetime_utc = make_date(2020, 12, 31)"
+    ).fetchall()
+    if len(unexpected_dates) > 0:
+        return AssetCheckResult(
+            passed=False,
+            description="Found rows for December 31, 2020 which should not exist",
+        )
+    return None
+
+
+def _check_hour_from_date(vce) -> AssetCheckResult | None:
+    logger.info("Check hour from date and hour of year match in VCE RARE table.")
+    mismatched_hours = duckdb.query(
+        "SELECT * FROM vce WHERE"
+        "(datepart('hr', datetime_utc) +"
+        "((datepart('dayofyear', datetime_utc)-1)*24)+1) != hour_of_year"
+    ).fetchall()
+    if len(mismatched_hours) > 0:
+        return AssetCheckResult(
+            passed=False,
+            description="hour_of_year values don't match date values",
+            metadata={"mismatched_hours": mismatched_hours},
+        )
+    return None
+
+
+def _check_unexpected_counties(vce) -> AssetCheckResult | None:
+    logger.info(
+        "Check for rows for Bedford City or Clifton Forge City in VCE RARE table."
     )
+    unexpected_counties = duckdb.query(
+        "SELECT * FROM vce "
+        "WHERE county_or_lake_name = 'bedford_city' or county_or_lake_name = 'clifton_forge_city'"
+    ).fetchall()
+    if len(unexpected_counties) > 0:
+        return AssetCheckResult(
+            passed=False,
+            description="found records for bedford_city or clifton_forge_city that shouldn't exist",
+            metadata={"unexpected_counties": unexpected_counties},
+        )
+    return None
+
+
+def _check_duplicate_county_id_fips(vce) -> AssetCheckResult | None:
+    logger.info("Check for duplicate county_id_fips values in VCE RARE table.")
+    duplicate_county_ids = duckdb.query(
+        "SELECT county_id_fips, datetime_utc "
+        "FROM vce WHERE county_id_fips "
+        "IS NOT NULL GROUP BY ALL HAVING COUNT(*) > 1"
+    ).fetchall()
+    if len(duplicate_county_ids) > 0:
+        return AssetCheckResult(
+            passed=False,
+            description="Found duplicate county_id_fips values",
+        )
+    return None
 
 
 @asset_check(
@@ -384,115 +484,37 @@ def out_vcerare__hourly_available_capacity_factor(
 )
 def check_hourly_available_cap_fac_table():  # noqa: C901
     """Check that the final output table is as expected."""
-    partitioned_path = PudlPaths().parquet_path(
-        "out_vcerare__hourly_available_capacity_factor"
-    )
-    vce = duckdb.read_parquet(f"{partitioned_path}/*")
+    parquet_path = f"{str(_get_parquet_path())}/*"
+    vce = duckdb.read_parquet(parquet_path)
 
-    logger.info("Check VCE RARE hourly table is the expected length")
-    (length,) = duckdb.query("SELECT COUNT(*) FROM vce").fetchone()
-    if length != 136437000:
-        return AssetCheckResult(
-            passed=False,
-            description="Table unexpected length",
-            metadata={"table_length": length, "expected_length": 136437000},
-        )
+    if (error := _check_rows(vce)) is not None:
+        return error
 
-    logger.info("Check there are no NA values in VCE RARE table (except FIPS)")
-    columns = [c for c in vce.columns if c != "county_id_fips"]
-    for c in columns:
-        nulls = duckdb.query(f"SELECT {c} FROM vce WHERE {c} IS NULL").fetchall()  # noqa: S608
-        if len(nulls) > 0:
-            return AssetCheckResult(
-                passed=False,
-                description=f"Found NA values in column {c}",
-            )
-    # Make sure the capacity_factor values are below the expected value
-    # There are some solar values that are slightly over 1 due to colder
-    # than average panel temperatures.
-    logger.info("Check capacity factors in VCE RARE table are between 0 and 1.")
-    if len(duckdb.query("SELECT * FROM vce WHERE capacity_factor_solar_pv > 1.02")) > 0:
-        return AssetCheckResult(
-            passed=False,
-            description="Found PV capacity factor values greater than 1.02",
-        )
+    if (error := _check_nulls(vce)) is not None:
+        return error
 
-    columns = [c for c in vce.columns if c.endswith("wind")]
-    for c in columns:
-        if len(duckdb.query(f"SELECT {c} FROM vce WHERE {c} > 1.0").fetchall()) > 0:  # noqa: S608
-            return AssetCheckResult(
-                passed=False,
-                description=f"Found wind capacity factor values greater than 1.0 in column {c}",
-            )
-    # Make sure capacity_factor values are greater than or equal to 0
-    columns = [c for c in vce.columns if c.startswith("capacity_factor")]
-    for c in columns:
-        if len(duckdb.query(f"SELECT {c} FROM vce WHERE {c} < 0.0").fetchall()) > 0:  # noqa: S608
-            return AssetCheckResult(
-                passed=False,
-                description=f"Found capacity factor values less than 0 from column {c}",
-            )
-    logger.info("Check max hour of year in VCE RARE table is 8760.")
-    if (
-        len(
-            duckdb.query(
-                "SELECT hour_of_year FROM vce WHERE hour_of_year > 8760"
-            ).fetchall()
-        )
-        > 0
-    ):
-        return AssetCheckResult(
-            passed=False, description="Found hour_of_year values larger than 8760"
-        )
-    logger.info("Check for unexpected Dec 31st, 2020 dates in VCE RARE table.")
-    if (
-        len(
-            duckdb.query(
-                "SELECT datetime_utc FROM vce WHERE datetime_utc = make_date(2020, 12, 31)"
-            ).fetchall()
-        )
-        > 0
-    ):
-        return AssetCheckResult(
-            passed=False,
-            description="Found rows for December 31, 2020 which should not exist",
-        )
-    logger.info("Check hour from date and hour of year match in VCE RARE table.")
-    mismatched_hours = duckdb.query("""SELECT * FROM vce WHERE
-(datepart('hr', datetime_utc) +
-((datepart('dayofyear', datetime_utc)-1)*24)+1) != hour_of_year""").fetchall()
-    if len(mismatched_hours) > 0:
-        return AssetCheckResult(
-            passed=False,
-            description="hour_of_year values don't match date values",
-        )
+    if (error := _check_pv_capacity_factor_upper_bound(vce)) is not None:
+        return error
 
-    logger.info(
-        "Check for rows for Bedford City or Clifton Forge City in VCE RARE table."
-    )
-    if (
-        len(
-            duckdb.query(
-                "SELECT * FROM vce WHERE county_or_lake_name = 'bedford_city' or county_or_lake_name = 'clifton_forge_city'"
-            ).fetchall()
-        )
-        > 0
-    ):
-        return AssetCheckResult(
-            passed=False,
-            description="found records for bedford_city or clifton_forge_city that shouldn't exist",
-        )
-    logger.info("Check for duplicate county_id_fips values in VCE RARE table.")
-    if (
-        len(
-            duckdb.query(
-                "SELECT county_id_fips, datetime_utc FROM vce WHERE county_id_fips IS NOT NULL GROUP BY ALL HAVING COUNT(*) > 0"
-            ).fetchall()
-        )
-        > 0
-    ):
-        return AssetCheckResult(
-            passed=False,
-            description="Found duplicate county_id_fips values",
-        )
+    if (error := _check_wind_capacity_factor_upper_bound(vce)) is not None:
+        return error
+
+    if (error := _check_capacity_factor_lower_bound(vce)) is not None:
+        return error
+
+    if (error := _check_max_hour_of_year(vce)) is not None:
+        return error
+
+    if (error := _check_unexpected_dates(vce)) is not None:
+        return error
+
+    if (error := _check_hour_from_date(vce)) is not None:
+        return error
+
+    if (error := _check_unexpected_counties(vce)) is not None:
+        return error
+
+    if (error := _check_duplicate_county_id_fips(vce)) is not None:
+        return error
+
     return AssetCheckResult(passed=True)
