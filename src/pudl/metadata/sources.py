@@ -181,7 +181,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "year_months": [
                 str(q).lower()
-                for q in pd.period_range(start="2015-07", end="2024-06", freq="M")
+                for q in pd.period_range(start="2015-07", end="2024-09", freq="M")
             ],
         },
         "keywords": sorted(
@@ -426,7 +426,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "year_quarters": [
                 str(q).lower()
-                for q in pd.period_range(start="1995q1", end="2024q2", freq="Q")
+                for q in pd.period_range(start="1995q1", end="2024q3", freq="Q")
             ]
         },
         "contributors": [
