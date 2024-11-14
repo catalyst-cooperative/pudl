@@ -66,15 +66,17 @@ def create_glue_tables(context):
 def raw_pudl__assn_eia_epacamd(context) -> pd.DataFrame:
     """Extract the EPACAMD-EIA Crosswalk from the Datastore."""
     logger.info("Extracting the EPACAMD-EIA crosswalk from Zenodo")
-    csv_map = {
-        2018: "camd-eia-crosswalk-master/epa_eia_crosswalk.csv",
-        2021: "camd-eia-crosswalk-2021-main/epa_eia_crosswalk.csv",
-    }
 
     ds = context.resources.datastore
     year_matches = []
-    for year, csv_path in csv_map.items():
-        with ds.get_zipfile_resource("epacamd_eia", year=year).open(csv_path) as f:
+    for year in ds.get_datapackage_descriptor("epacamd_eia").get_partitions()["year"]:
+        archive = ds.get_zipfile_resource("epacamd_eia", year=year)
+        [csv_path] = [
+            name
+            for name in archive.namelist()
+            if name.endswith("epa_eia_crosswalk.csv")
+        ]
+        with archive.open(csv_path) as f:
             df = pd.read_csv(f)
             df["report_year"] = year
             year_matches.append(df)
