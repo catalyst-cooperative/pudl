@@ -6,6 +6,8 @@ in this module, as they have exactly the same structure.
 
 import duckdb
 import pandas as pd
+import pyarrow as pa
+import pyarrow.parquet as pq
 from dagster import (
     AssetCheckResult,
     asset,
@@ -14,7 +16,9 @@ from dagster import (
 
 import pudl
 from pudl.helpers import cleanstrings_snake, simplify_columns, zero_pad_numeric_string
+from pudl.metadata.classes import Resource
 from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
+from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -262,7 +266,7 @@ def one_year_hourly_available_capacity_factor(
     raw_vcerare__fixed_solar_pv_lat_upv: pd.DataFrame,
     raw_vcerare__offshore_wind_power_140m: pd.DataFrame,
     raw_vcerare__onshore_wind_power_100m: pd.DataFrame,
-):
+) -> pd.DataFrame:
     """Transform raw Vibrant Clean Energy renewable generation profiles.
 
     Concatenates the solar and wind capacity factors into a single table and turns
@@ -289,17 +293,11 @@ def one_year_hourly_available_capacity_factor(
     }
     # Combine the data and perform a few last cleaning mechanisms
     # Sort the data by primary key columns to produce compact row groups
-    df = (
+    return apply_pudl_dtypes(
         _combine_all_cap_fac_dfs(clean_dict)
         .pipe(_combine_cap_fac_with_fips_df, fips_df)
         .sort_values(by=["state", "county_or_lake_name", "datetime_utc"])
         .reset_index(drop=True)
-    )
-    parquet_path = _get_parquet_path()
-    parquet_path.mkdir(exist_ok=True)
-    df.to_parquet(
-        parquet_path / f"vcerare_hourly_available_capacity_factor-{year}",
-        index=False,
     )
 
 
@@ -314,26 +312,37 @@ def out_vcerare__hourly_available_capacity_factor(
 
     Concatenates the solar and wind capacity factors into a single table and turns
     the columns for each county or subregion into a single county_or_lake_name column.
-    Graph asset will process 1 year of data at a time to limit peak memory usage.
+    Asset will process 1 year of data at a time to limit peak memory usage.
     """
 
     def _get_year(df, year):
         return df.loc[df["report_year"] == year]
 
-    for year in raw_vcerare__fixed_solar_pv_lat_upv["report_year"].unique():
-        one_year_hourly_available_capacity_factor(
-            year=year,
-            raw_vcerare__lat_lon_fips=raw_vcerare__lat_lon_fips,
-            raw_vcerare__fixed_solar_pv_lat_upv=_get_year(
-                raw_vcerare__fixed_solar_pv_lat_upv, year
-            ),
-            raw_vcerare__offshore_wind_power_140m=_get_year(
-                raw_vcerare__offshore_wind_power_140m, year
-            ),
-            raw_vcerare__onshore_wind_power_100m=_get_year(
-                raw_vcerare__onshore_wind_power_100m, year
-            ),
-        )
+    parquet_path = _get_parquet_path()
+    schema = Resource.from_id(
+        "out_vcerare__hourly_available_capacity_factor"
+    ).to_pyarrow()
+
+    with pq.ParquetWriter(
+        where=parquet_path, schema=schema, compression="snappy", version="2.6"
+    ) as parquet_writer:
+        for year in raw_vcerare__fixed_solar_pv_lat_upv["report_year"].unique():
+            df = one_year_hourly_available_capacity_factor(
+                year=year,
+                raw_vcerare__lat_lon_fips=raw_vcerare__lat_lon_fips,
+                raw_vcerare__fixed_solar_pv_lat_upv=_get_year(
+                    raw_vcerare__fixed_solar_pv_lat_upv, year
+                ),
+                raw_vcerare__offshore_wind_power_140m=_get_year(
+                    raw_vcerare__offshore_wind_power_140m, year
+                ),
+                raw_vcerare__onshore_wind_power_100m=_get_year(
+                    raw_vcerare__onshore_wind_power_100m, year
+                ),
+            )
+            parquet_writer.write_table(
+                pa.Table.from_pandas(df, schema=schema, preserve_index=False)
+            )
 
 
 def _check_rows(vce) -> AssetCheckResult | None:
