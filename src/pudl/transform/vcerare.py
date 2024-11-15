@@ -301,7 +301,7 @@ def one_year_hourly_available_capacity_factor(
     )
 
 
-@asset
+@asset(op_tags={"memory-use": "high"})
 def out_vcerare__hourly_available_capacity_factor(
     raw_vcerare__lat_lon_fips: pd.DataFrame,
     raw_vcerare__fixed_solar_pv_lat_upv: pd.DataFrame,
