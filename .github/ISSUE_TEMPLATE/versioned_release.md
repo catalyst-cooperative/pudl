@@ -18,7 +18,8 @@ assignees: ""
 - [ ] Update our CITATION.cff file with the new release date and current Catalyst membership.
 - [ ] Update our .zenodo.json file with current Catalyst membership.
 - [ ] Close out the [PUDL Release Notes](https://catalystcoop-pudl.readthedocs.io/en/nightly/release_notes.html) with an overview of the changes in this release
-- [ ] Push vYYYY.M.x tag (4-digit year, month with no leading zero, and patch version)
+- [ ] Merge those changes into `main`
+- [ ] Push vYYYY.M.x tag (4-digit year, month with no leading zero, and patch version) to `main`
 - [ ] Verify that the new [GitHub (software) release](https://github.com/catalyst-cooperative/pudl/releases) has been published
 - [ ] Verify [`catalystcoop.pudl` PyPI (software) release](https://pypi.org/project/catalystcoop.pudl/)
 - [ ] Verify that [PUDL repo archive on Zenodo](https://zenodo.org/doi/10.5281/zenodo.3404014) has been updated w/ new version
