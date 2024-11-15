@@ -1,7 +1,7 @@
 ---
-name: Versioned Release Checklist
-about: The process for creating a new release.
-title: Release vYYYY.MM.DD Checklist
+name: PUDL Data Release
+about: Create a new versioned PUDL data release for distribution.
+title: PUDL Data Release vYYYY.MM.x
 labels:
   - metadata
   - packaging
