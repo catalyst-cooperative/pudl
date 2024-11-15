@@ -9,6 +9,25 @@ v2024.XX.x (2024-MM-DD)
 New Data Coverage
 ^^^^^^^^^^^^^^^^^
 
+Bug Fixes
+^^^^^^^^^
+
+Major Dependency Updates
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. _release-v2024.11.0:
+
+---------------------------------------------------------------------------------------
+v2024.11.0 (2024-11-14)
+---------------------------------------------------------------------------------------
+
+PUDL v2024.11.0 is a regularly scheduled quarterly release, incorporating a few updates
+to the following datasets that have come out since the special release we did in
+October.
+
+New Data Coverage
+^^^^^^^^^^^^^^^^^
+
 EIA 930
 ~~~~~~~
 * Added EIA 930 hourly data through the end of October as part of the Q3 quarterly
