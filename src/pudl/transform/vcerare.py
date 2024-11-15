@@ -464,10 +464,8 @@ def check_max_hour_of_year() -> AssetCheckResult:
     """Check max hour of year."""
     vce = _load_duckdb_table()  # noqa: F841
     logger.info("Check max hour of year in VCE RARE table is 8760.")
-    max_hours = duckdb.query(
-        "SELECT hour_of_year FROM vce WHERE hour_of_year > 8760"
-    ).fetchall()
-    if len(max_hours) > 0:
+    (max_hour,) = duckdb.query("SELECT MAX(hour_of_year) FROM vce").fetchone()
+    if max_hour != 8760:
         return AssetCheckResult(
             passed=False,
             description="Found hour_of_year values larger than 8760",
