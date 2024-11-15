@@ -383,13 +383,17 @@ def check_nulls() -> AssetCheckResult:
     logger.info("Check there are no NA values in VCE RARE table (except FIPS)")
     vce = _load_duckdb_table()
     columns = [c for c in vce.columns if c != "county_id_fips"]
+    null_columns = []
     for c in columns:
         nulls = duckdb.query(f"SELECT {c} FROM vce WHERE {c} IS NULL").fetchall()  # noqa: S608
         if len(nulls) > 0:
-            return AssetCheckResult(
-                passed=False,
-                description=f"Found NA values in column {c}",
-            )
+            null_columns.append(c)
+
+    if len(null_columns) > 0:
+        return AssetCheckResult(
+            passed=False,
+            description=f"Found NULL values in columns {', '.join(null_columns)}",
+        )
     return AssetCheckResult(passed=True)
 
 
@@ -425,13 +429,17 @@ def check_wind_capacity_factor_upper_bound() -> AssetCheckResult:
     """Check wind capacity upper bound."""
     vce = _load_duckdb_table()
     columns = [c for c in vce.columns if c.endswith("wind")]
+    cap_oob_columns = []
     for c in columns:
         cap_oob = duckdb.query(f"SELECT {c} FROM vce WHERE {c} > 1.0").fetchall()  # noqa: S608
         if len(cap_oob) > 0:  # noqa: S608
-            return AssetCheckResult(
-                passed=False,
-                description=f"Found wind capacity factor values greater than 1.0 in column {c}",
-            )
+            cap_oob_columns.append(c)
+
+    if len(cap_oob_columns) > 0:
+        return AssetCheckResult(
+            passed=False,
+            description=f"Found wind capacity factor values greater than 1.0 in column {', '.join(cap_oob_columns)}",
+        )
     return AssetCheckResult(passed=True)
 
 
@@ -445,13 +453,17 @@ def check_capacity_factor_lower_bound() -> AssetCheckResult:
     vce = _load_duckdb_table()
     # Make sure capacity_factor values are greater than or equal to 0
     columns = [c for c in vce.columns if c.startswith("capacity_factor")]
+    cap_oob_columns = []
     for c in columns:
         cap_oob = duckdb.query(f"SELECT {c} FROM vce WHERE {c} < 0.0").fetchall()  # noqa: S608
         if len(cap_oob) > 0:
-            return AssetCheckResult(
-                passed=False,
-                description=f"Found capacity factor values less than 0 from column {c}",
-            )
+            cap_oob_columns.append(c)
+
+    if len(cap_oob_columns) > 0:
+        return AssetCheckResult(
+            passed=False,
+            description=f"Found capacity factor values less than 0 from column {', '.join(cap_oob_columns)}",
+        )
     return AssetCheckResult(passed=True)
 
 
