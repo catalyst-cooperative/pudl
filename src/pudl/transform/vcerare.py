@@ -345,8 +345,21 @@ def out_vcerare__hourly_available_capacity_factor(
             )
 
 
-def _check_rows(vce) -> AssetCheckResult | None:
+def _load_duckdb_table():
+    """Load VCE RARE output table to duckdb for running asset checks."""
+    parquet_path = str(_get_parquet_path())
+    return duckdb.read_parquet(parquet_path)
+
+
+@asset_check(
+    asset=out_vcerare__hourly_available_capacity_factor,
+    blocking=True,
+    description="Check that row count matches expected.",
+)
+def check_rows() -> AssetCheckResult:
+    """Check rows."""
     logger.info("Check VCE RARE hourly table is the expected length")
+    vce = _load_duckdb_table()  # noqa: F841
     (length,) = duckdb.query("SELECT COUNT(*) FROM vce").fetchone()
     if length != 136437000:
         return AssetCheckResult(
@@ -354,11 +367,18 @@ def _check_rows(vce) -> AssetCheckResult | None:
             description="Table unexpected length",
             metadata={"table_length": length, "expected_length": 136437000},
         )
-    return None
+    return AssetCheckResult(passed=True)
 
 
-def _check_nulls(vce) -> AssetCheckResult | None:
+@asset_check(
+    asset=out_vcerare__hourly_available_capacity_factor,
+    blocking=True,
+    description="Check for unexpected nulls.",
+)
+def check_nulls() -> AssetCheckResult:
+    """Check nulls."""
     logger.info("Check there are no NA values in VCE RARE table (except FIPS)")
+    vce = _load_duckdb_table()
     columns = [c for c in vce.columns if c != "county_id_fips"]
     for c in columns:
         nulls = duckdb.query(f"SELECT {c} FROM vce WHERE {c} IS NULL").fetchall()  # noqa: S608
@@ -367,14 +387,21 @@ def _check_nulls(vce) -> AssetCheckResult | None:
                 passed=False,
                 description=f"Found NA values in column {c}",
             )
-    return None
+    return AssetCheckResult(passed=True)
 
 
-def _check_pv_capacity_factor_upper_bound(vce) -> AssetCheckResult | None:
+@asset_check(
+    asset=out_vcerare__hourly_available_capacity_factor,
+    blocking=True,
+    description="Check for PV capacity factor above upper bound.",
+)
+def check_pv_capacity_factor_upper_bound() -> AssetCheckResult:
+    """Check pv capacity upper bound."""
     # Make sure the capacity_factor values are below the expected value
     # There are some solar values that are slightly over 1 due to colder
     # than average panel temperatures.
     logger.info("Check capacity factors in VCE RARE table are between 0 and 1.")
+    vce = _load_duckdb_table()  # noqa: F841
     cap_oob = duckdb.query(
         "SELECT * FROM vce WHERE capacity_factor_solar_pv > 1.02"
     ).fetchall()
@@ -383,10 +410,17 @@ def _check_pv_capacity_factor_upper_bound(vce) -> AssetCheckResult | None:
             passed=False,
             description="Found PV capacity factor values greater than 1.02",
         )
-    return None
+    return AssetCheckResult(passed=True)
 
 
-def _check_wind_capacity_factor_upper_bound(vce) -> AssetCheckResult | None:
+@asset_check(
+    asset=out_vcerare__hourly_available_capacity_factor,
+    blocking=True,
+    description="Check for wind capacity factor above upper bound.",
+)
+def check_wind_capacity_factor_upper_bound() -> AssetCheckResult:
+    """Check wind capacity upper bound."""
+    vce = _load_duckdb_table()
     columns = [c for c in vce.columns if c.endswith("wind")]
     for c in columns:
         cap_oob = duckdb.query(f"SELECT {c} FROM vce WHERE {c} > 1.0").fetchall()  # noqa: S608
@@ -395,10 +429,17 @@ def _check_wind_capacity_factor_upper_bound(vce) -> AssetCheckResult | None:
                 passed=False,
                 description=f"Found wind capacity factor values greater than 1.0 in column {c}",
             )
-    return None
+    return AssetCheckResult(passed=True)
 
 
-def _check_capacity_factor_lower_bound(vce) -> AssetCheckResult | None:
+@asset_check(
+    asset=out_vcerare__hourly_available_capacity_factor,
+    blocking=True,
+    description="Check capacity factors below lower bound.",
+)
+def check_capacity_factor_lower_bound() -> AssetCheckResult:
+    """Check capacity lower bound."""
+    vce = _load_duckdb_table()
     # Make sure capacity_factor values are greater than or equal to 0
     columns = [c for c in vce.columns if c.startswith("capacity_factor")]
     for c in columns:
@@ -408,10 +449,17 @@ def _check_capacity_factor_lower_bound(vce) -> AssetCheckResult | None:
                 passed=False,
                 description=f"Found capacity factor values less than 0 from column {c}",
             )
-    return None
+    return AssetCheckResult(passed=True)
 
 
-def _check_max_hour_of_year(vce) -> AssetCheckResult | None:
+@asset_check(
+    asset=out_vcerare__hourly_available_capacity_factor,
+    blocking=True,
+    description="Check max hour of year in VCE RARE table is 8760.",
+)
+def check_max_hour_of_year() -> AssetCheckResult:
+    """Check max hour of year."""
+    vce = _load_duckdb_table()  # noqa: F841
     logger.info("Check max hour of year in VCE RARE table is 8760.")
     max_hours = duckdb.query(
         "SELECT hour_of_year FROM vce WHERE hour_of_year > 8760"
@@ -421,10 +469,17 @@ def _check_max_hour_of_year(vce) -> AssetCheckResult | None:
             passed=False,
             description="Found hour_of_year values larger than 8760",
         )
-    return None
+    return AssetCheckResult(passed=True)
 
 
-def _check_unexpected_dates(vce) -> AssetCheckResult | None:
+@asset_check(
+    asset=out_vcerare__hourly_available_capacity_factor,
+    blocking=True,
+    description="Check for unexpected Dec 31st, 2020 dates in VCE RARE table.",
+)
+def check_unexpected_dates() -> AssetCheckResult:
+    """Check unexpected dates."""
+    vce = _load_duckdb_table()  # noqa: F841
     logger.info("Check for unexpected Dec 31st, 2020 dates in VCE RARE table.")
     unexpected_dates = duckdb.query(
         "SELECT datetime_utc FROM vce WHERE datetime_utc = make_date(2020, 12, 31)"
@@ -434,10 +489,17 @@ def _check_unexpected_dates(vce) -> AssetCheckResult | None:
             passed=False,
             description="Found rows for December 31, 2020 which should not exist",
         )
-    return None
+    return AssetCheckResult(passed=True)
 
 
-def _check_hour_from_date(vce) -> AssetCheckResult | None:
+@asset_check(
+    asset=out_vcerare__hourly_available_capacity_factor,
+    blocking=True,
+    description="Check hour from date and hour of year match in VCE RARE table.",
+)
+def check_hour_from_date() -> AssetCheckResult:
+    """Check hour from date."""
+    vce = _load_duckdb_table()  # noqa: F841
     logger.info("Check hour from date and hour of year match in VCE RARE table.")
     mismatched_hours = duckdb.query(
         "SELECT * FROM vce WHERE"
@@ -450,10 +512,17 @@ def _check_hour_from_date(vce) -> AssetCheckResult | None:
             description="hour_of_year values don't match date values",
             metadata={"mismatched_hours": mismatched_hours},
         )
-    return None
+    return AssetCheckResult(passed=True)
 
 
-def _check_unexpected_counties(vce) -> AssetCheckResult | None:
+@asset_check(
+    asset=out_vcerare__hourly_available_capacity_factor,
+    blocking=True,
+    description="Check for rows for Bedford City or Clifton Forge City in VCE RARE table.",
+)
+def check_unexpected_counties() -> AssetCheckResult | None:
+    """Check unexpected counties."""
+    vce = _load_duckdb_table()  # noqa: F841
     logger.info(
         "Check for rows for Bedford City or Clifton Forge City in VCE RARE table."
     )
@@ -467,10 +536,17 @@ def _check_unexpected_counties(vce) -> AssetCheckResult | None:
             description="found records for bedford_city or clifton_forge_city that shouldn't exist",
             metadata={"unexpected_counties": unexpected_counties},
         )
-    return None
+    return AssetCheckResult(passed=True)
 
 
-def _check_duplicate_county_id_fips(vce) -> AssetCheckResult | None:
+@asset_check(
+    asset=out_vcerare__hourly_available_capacity_factor,
+    blocking=True,
+    description="Check for duplicate county_id_fips values in VCE RARE table.",
+)
+def check_duplicate_county_id_fips() -> AssetCheckResult | None:
+    """Check duplicate county ID."""
+    vce = _load_duckdb_table()  # noqa: F841
     logger.info("Check for duplicate county_id_fips values in VCE RARE table.")
     duplicate_county_ids = duckdb.query(
         "SELECT county_id_fips, datetime_utc "
@@ -482,48 +558,4 @@ def _check_duplicate_county_id_fips(vce) -> AssetCheckResult | None:
             passed=False,
             description="Found duplicate county_id_fips values",
         )
-    return None
-
-
-@asset_check(
-    asset=out_vcerare__hourly_available_capacity_factor,
-    blocking=True,
-    description="Check that output table is as expected.",
-    op_tags={"memory-use": "high"},
-)
-def check_hourly_available_cap_fac_table():  # noqa: C901
-    """Check that the final output table is as expected."""
-    parquet_path = f"{str(_get_parquet_path())}/*"
-    vce = duckdb.read_parquet(parquet_path)
-
-    if (error := _check_rows(vce)) is not None:
-        return error
-
-    if (error := _check_nulls(vce)) is not None:
-        return error
-
-    if (error := _check_pv_capacity_factor_upper_bound(vce)) is not None:
-        return error
-
-    if (error := _check_wind_capacity_factor_upper_bound(vce)) is not None:
-        return error
-
-    if (error := _check_capacity_factor_lower_bound(vce)) is not None:
-        return error
-
-    if (error := _check_max_hour_of_year(vce)) is not None:
-        return error
-
-    if (error := _check_unexpected_dates(vce)) is not None:
-        return error
-
-    if (error := _check_hour_from_date(vce)) is not None:
-        return error
-
-    if (error := _check_unexpected_counties(vce)) is not None:
-        return error
-
-    if (error := _check_duplicate_county_id_fips(vce)) is not None:
-        return error
-
     return AssetCheckResult(passed=True)
