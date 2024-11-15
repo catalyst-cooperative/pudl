@@ -533,7 +533,7 @@ def check_hour_from_date() -> AssetCheckResult:
     blocking=True,
     description="Check for rows for Bedford City or Clifton Forge City in VCE RARE table.",
 )
-def check_unexpected_counties() -> AssetCheckResult | None:
+def check_unexpected_counties() -> AssetCheckResult:
     """Check unexpected counties."""
     vce = _load_duckdb_table()  # noqa: F841
     logger.info(
@@ -557,7 +557,7 @@ def check_unexpected_counties() -> AssetCheckResult | None:
     blocking=True,
     description="Check for duplicate county_id_fips values in VCE RARE table.",
 )
-def check_duplicate_county_id_fips() -> AssetCheckResult | None:
+def check_duplicate_county_id_fips() -> AssetCheckResult:
     """Check duplicate county ID."""
     vce = _load_duckdb_table()  # noqa: F841
     logger.info("Check for duplicate county_id_fips values in VCE RARE table.")
