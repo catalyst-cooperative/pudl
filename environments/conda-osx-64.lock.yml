@@ -8,7 +8,7 @@ dependencies:
   - addfips=0.4.2=pyhd8ed1ab_0
   - aiofiles=24.1.0=pyhd8ed1ab_0
   - aiohappyeyeballs=2.4.3=pyhd8ed1ab_0
-  - aiohttp=3.10.10=py312hca98d7e_0
+  - aiohttp=3.11.2=py312h3520af0_0
   - aiosignal=1.3.1=pyhd8ed1ab_0
   - alabaster=1.0.0=pyhd8ed1ab_0
   - alembic=1.14.0=pyhd8ed1ab_0
@@ -21,7 +21,7 @@ dependencies:
   - argon2-cffi=23.1.0=pyhd8ed1ab_0
   - argon2-cffi-bindings=21.2.0=py312hb553811_5
   - arrow=1.3.0=pyhd8ed1ab_0
-  - asgi-csrf=0.10=pyhd8ed1ab_0
+  - asgi-csrf=0.11=pyhff2d567_0
   - asgiref=3.8.1=pyhd8ed1ab_0
   - astroid=3.3.5=py312hb401068_0
   - asttokens=2.4.1=pyhd8ed1ab_0
@@ -56,8 +56,8 @@ dependencies:
   - bleach=6.2.0=pyhd8ed1ab_0
   - blinker=1.9.0=pyhff2d567_0
   - blosc=1.21.6=h7d75f6d_0
-  - boto3=1.35.60=pyhd8ed1ab_0
-  - botocore=1.35.60=pyge310_1234567_0
+  - boto3=1.35.62=pyhd8ed1ab_0
+  - botocore=1.35.62=pyge310_1234567_0
   - bottleneck=1.4.2=py312h59f7578_0
   - branca=0.7.2=pyhd8ed1ab_0
   - brotli=1.1.0=h00291cd_2
@@ -90,21 +90,21 @@ dependencies:
   - comm=0.2.2=pyhd8ed1ab_0
   - conda-lock=2.5.7=pyhd8ed1ab_0
   - contourpy=1.3.1=py312hc47a885_0
-  - coverage=7.6.4=py312hbe3f5e4_0
+  - coverage=7.6.7=py312h3520af0_0
   - crashtest=0.4.1=pyhd8ed1ab_0
   - croniter=3.0.4=pyhd8ed1ab_0
   - cryptography=43.0.3=py312h83535b2_0
   - curl=8.10.1=h58e7537_0
   - cycler=0.12.1=pyhd8ed1ab_0
   - cyrus-sasl=2.1.27=hf9bab2b_7
-  - dagster=1.9.1=pyhd8ed1ab_12
-  - dagster-graphql=1.9.1=pyhd8ed1ab_0
-  - dagster-pipes=1.9.1=pyhd8ed1ab_0
-  - dagster-postgres=0.25.1=pyhd8ed1ab_0
-  - dagster-webserver=1.9.1=pyhd8ed1ab_0
+  - dagster=1.9.2=pyhd8ed1ab_12
+  - dagster-graphql=1.9.2=pyhd8ed1ab_0
+  - dagster-pipes=1.9.2=pyhd8ed1ab_0
+  - dagster-postgres=0.25.2=pyhd8ed1ab_0
+  - dagster-webserver=1.9.2=pyhd8ed1ab_0
   - dask-core=2024.11.2=pyhd8ed1ab_0
   - dask-expr=1.1.19=pyhd8ed1ab_0
-  - databricks-sdk=0.34.0=pyhd8ed1ab_0
+  - databricks-sdk=0.37.0=pyhd8ed1ab_0
   - datasette=0.65=pyhd8ed1ab_0
   - debugpy=1.8.8=py312haafddd8_0
   - decorator=5.1.1=pyhd8ed1ab_0
@@ -135,7 +135,7 @@ dependencies:
   - fontconfig=2.15.0=h37eeddb_1
   - fonts-conda-ecosystem=1=0
   - fonts-conda-forge=1=0
-  - fonttools=4.54.1=py312hbe3f5e4_1
+  - fonttools=4.55.0=py312h3520af0_0
   - fqdn=1.5.1=pyhd8ed1ab_0
   - freetype=2.12.1=h60636b9_2
   - freexl=2.0.0=h3ec172f_0
@@ -185,14 +185,14 @@ dependencies:
   - harfbuzz=9.0.0=h098a298_1
   - hpack=4.0.0=pyh9f0ad1d_0
   - html5lib=1.1=pyhd8ed1ab_1
-  - httpcore=1.0.6=pyhd8ed1ab_0
+  - httpcore=1.0.7=pyhd8ed1ab_0
   - httptools=0.6.1=py312hb553811_1
   - httpx=0.27.2=pyhd8ed1ab_0
   - humanfriendly=10.0=pyhd81877a_7
   - humanize=4.11.0=pyhd8ed1ab_0
   - hupper=1.12.1=pyhd8ed1ab_0
   - hyperframe=6.0.1=pyhd8ed1ab_0
-  - hypothesis=6.118.8=pyha770c72_0
+  - hypothesis=6.119.0=pyha770c72_0
   - icu=75.1=h120a0e1_0
   - identify=2.6.2=pyhd8ed1ab_0
   - idna=3.10=pyhd8ed1ab_0
@@ -555,7 +555,7 @@ dependencies:
   - xyzservices=2024.9.0=pyhd8ed1ab_0
   - xz=5.2.6=h775f41a_0
   - yaml=0.2.5=h0d85af4_2
-  - yarl=1.16.0=py312h3d0f464_0
+  - yarl=1.17.1=py312h01d7ebd_1
   - zeromq=4.3.5=h7130eaa_7
   - zip=3.0=h0dc2134_3
   - zipp=3.21.0=pyhd8ed1ab_0
