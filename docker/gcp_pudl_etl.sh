@@ -75,7 +75,7 @@ function save_outputs_to_gcs() {
     rm -f "$PUDL_OUTPUT/success"
 }
 
-function upload_to_dist_path() {
+function remove_dist_path() {
     DIST_PATH=$1
     # Only attempt to update outputs if we have an argument
     # This avoids accidentally blowing away the whole bucket if it's not set.
@@ -83,30 +83,29 @@ function upload_to_dist_path() {
         GCS_PATH="gs://pudl.catalyst.coop/$DIST_PATH/"
         AWS_PATH="s3://pudl.catalyst.coop/$DIST_PATH/"
         # If the old outputs don't exist, these will exit with status 1, so we
-        # don't && them with the rest of the commands.
+        # don't && them like with many of the other commands.
         echo "Removing old outputs from $GCS_PATH."
         gcloud storage --quiet --billing-project="$GCP_BILLING_PROJECT" rm -r "$GCS_PATH"
         echo "Removing old outputs from $AWS_PATH."
         aws s3 rm --quiet --recursive "$AWS_PATH"
-
-        echo "Copying outputs to $GCS_PATH:" && \
-        gcloud storage --quiet --billing-project="$GCP_BILLING_PROJECT" cp -r "$PUDL_OUTPUT/*" "$GCS_PATH" && \
-        echo "Copying outputs to $AWS_PATH" && \
-        aws s3 cp --quiet --recursive "$PUDL_OUTPUT/" "$AWS_PATH"
     else
         echo "No distribution path provided. Not updating outputs."
         exit 1
     fi
 }
 
-function distribute_parquet() {
+function upload_to_dist_path() {
     DIST_PATH=$1
-    PARQUET_BUCKET="gs://parquet.catalyst.coop"
-    # Only attempt to update outputs if we have a real value of BUILD_REF
+    # Only attempt to update outputs if we have an argument
     # This avoids accidentally blowing away the whole bucket if it's not set.
-    echo "Copying outputs to $PARQUET_BUCKET/$DIST_PATH" && \
     if [[ -n "$DIST_PATH" ]]; then
-        gcloud storage --quiet --billing-project="$GCP_BILLING_PROJECT" cp -r "$PUDL_OUTPUT/parquet/*" "$PARQUET_BUCKET/$DIST_PATH"
+        GCS_PATH="gs://pudl.catalyst.coop/$DIST_PATH/"
+        AWS_PATH="s3://pudl.catalyst.coop/$DIST_PATH/"
+        remove_dist_path "$DIST_PATH" && \
+        echo "Copying outputs to $GCS_PATH:" && \
+        gcloud storage --quiet --billing-project="$GCP_BILLING_PROJECT" cp -r "$PUDL_OUTPUT/*" "$GCS_PATH" && \
+        echo "Copying outputs to $AWS_PATH" && \
+        aws s3 cp --quiet --recursive "$PUDL_OUTPUT/" "$AWS_PATH"
     else
         echo "No distribution path provided. Not updating outputs."
         exit 1
@@ -215,7 +214,6 @@ SAVE_OUTPUTS_SUCCESS=0
 UPDATE_NIGHTLY_SUCCESS=0
 UPDATE_STABLE_SUCCESS=0
 DATASETTE_SUCCESS=0
-DISTRIBUTE_PARQUET_SUCCESS=0
 CLEAN_UP_OUTPUTS_SUCCESS=0
 DISTRIBUTION_BUCKET_SUCCESS=0
 ZENODO_SUCCESS=0
@@ -261,9 +259,6 @@ if [[ "$BUILD_TYPE" == "nightly" ]]; then
     # Update our datasette deployment
     python ~/pudl/devtools/datasette/publish.py --production 2>&1 | tee -a "$LOGFILE"
     DATASETTE_SUCCESS=${PIPESTATUS[0]}
-    # Distribute Parquet outputs to a private bucket
-    distribute_parquet "nightly" 2>&1 | tee -a "$LOGFILE"
-    DISTRIBUTE_PARQUET_SUCCESS=${PIPESTATUS[0]}
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
     clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
     CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
@@ -280,10 +275,6 @@ if [[ "$BUILD_TYPE" == "nightly" ]]; then
 elif [[ "$BUILD_TYPE" == "stable" ]]; then
     merge_tag_into_branch "$BUILD_REF" stable 2>&1 | tee -a "$LOGFILE"
     UPDATE_STABLE_SUCCESS=${PIPESTATUS[0]}
-    # Distribute Parquet outputs to a private bucket
-    distribute_parquet "$BUILD_REF" 2>&1 | tee -a "$LOGFILE" && \
-    distribute_parquet "stable" 2>&1 | tee -a "$LOGFILE"
-    DISTRIBUTE_PARQUET_SUCCESS=${PIPESTATUS[0]}
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
     clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
     CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
@@ -305,17 +296,14 @@ elif [[ "$BUILD_TYPE" == "stable" ]]; then
     fi
 
 elif [[ "$BUILD_TYPE" == "workflow_dispatch" ]]; then
-    # FOR TESTING ONLY. REMOVE BEFORE MERGING.
-    distribute_parquet "$BUILD_ID" 2>&1 | tee -a "$LOGFILE"
-    DISTRIBUTE_PARQUET_SUCCESS=${PIPESTATUS[0]}
-
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
     clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
     CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
 
     # FOR TESTING ONLY. REMOVE BEFORE MERGING.
-    copy_outputs_to_distribution_bucket "$BUILD_ID" | tee -a "$LOGFILE"
+    copy_outputs_to_distribution_bucket "$BUILD_ID" | tee -a "$LOGFILE" && \
     DISTRIBUTION_BUCKET_SUCCESS=${PIPESTATUS[0]}
+    remove_dist_path "$BUILD_ID" | tee -a "$LOGFILE"
 
     # Remove individual parquet outputs and distribute just the zipped parquet
     # archives on Zenodo, due to their number of files limit
@@ -342,7 +330,6 @@ if [[ $ETL_SUCCESS == 0 && \
       $UPDATE_NIGHTLY_SUCCESS == 0 && \
       $UPDATE_STABLE_SUCCESS == 0 && \
       $DATASETTE_SUCCESS == 0 && \
-      $DISTRIBUTE_PARQUET_SUCCESS == 0 && \
       $CLEAN_UP_OUTPUTS_SUCCESS == 0 && \
       $DISTRIBUTION_BUCKET_SUCCESS == 0 && \
       $GCS_TEMPORARY_HOLD_SUCCESS == 0 && \
