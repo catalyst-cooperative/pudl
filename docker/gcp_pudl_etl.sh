@@ -283,7 +283,7 @@ if [[ "$BUILD_TYPE" == "nightly" ]]; then
     DISTRIBUTION_BUCKET_SUCCESS=${PIPESTATUS[0]}
     # Remove individual parquet outputs and distribute just the zipped parquet
     # archives on Zenodo, due to their number of files limit
-    rm -f "$PUDL_OUTPUT"/*.parquet && \
+    rm -f "$PUDL_OUTPUT"/*.parquet
     # push a data release to Zenodo sandbox
     zenodo_data_release "$ZENODO_TARGET_ENV" 2>&1 | tee -a "$LOGFILE"
     ZENODO_SUCCESS=${PIPESTATUS[0]}
@@ -300,7 +300,7 @@ elif [[ "$BUILD_TYPE" == "stable" ]]; then
     DISTRIBUTION_BUCKET_SUCCESS=${PIPESTATUS[0]}
     # Remove individual parquet outputs and distribute just the zipped parquet
     # archives on Zenodo, due to their number of files limit
-    rm -f "$PUDL_OUTPUT"/*.parquet && \
+    rm -f "$PUDL_OUTPUT"/*.parquet
     # push a data release to Zenodo production
     zenodo_data_release "$ZENODO_TARGET_ENV" 2>&1 | tee -a "$LOGFILE"
     ZENODO_SUCCESS=${PIPESTATUS[0]}
@@ -316,14 +316,14 @@ elif [[ "$BUILD_TYPE" == "workflow_dispatch" ]]; then
     clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
     CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
 
-    copy_outputs_to_distribution_bucket "$BUILD_ID" | tee -a "$LOGFILE" && \
+    copy_outputs_to_distribution_bucket "$BUILD_ID" | tee -a "$LOGFILE"
     DISTRIBUTION_BUCKET_SUCCESS=${PIPESTATUS[0]}
     # UNCOMMENT AFTER TESTING
     # remove_dist_path "$BUILD_ID" | tee -a "$LOGFILE"
 
     # Remove individual parquet outputs and distribute just the zipped parquet
     # archives on Zenodo, due to their number of files limit
-    rm -f "$PUDL_OUTPUT"/*.parquet && \
+    rm -f "$PUDL_OUTPUT"/*.parquet
     # push a data release to Zenodo sandbox
     zenodo_data_release "$ZENODO_TARGET_ENV" 2>&1 | tee -a "$LOGFILE"
     ZENODO_SUCCESS=${PIPESTATUS[0]}
