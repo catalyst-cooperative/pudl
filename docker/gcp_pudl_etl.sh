@@ -237,6 +237,21 @@ fi
 : "${PUDL_GCS_OUTPUT:=gs://builds.catalyst.coop/$BUILD_ID}"
 : "${PUDL_SETTINGS_YML:=/home/mambauser/pudl/src/pudl/package_data/settings/etl_full.yml}"
 
+# Save credentials for working with AWS S3
+# set +x / set -x is used to avoid printing the AWS credentials in the logs
+set +x
+echo "Setting AWS credentials"
+echo "[default]" > ~/.aws/credentials
+echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >> ~/.aws/credentials
+echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >> ~/.aws/credentials
+set -x
+
+# TEST AWS S3 ACCESS. REMOVE BEFORE MERGING PR.
+echo "Testing AWS access" > aws-access-test.txt
+gcloud storage ls s3://pudl.catalyst.coop
+gcloud storage cp aws-access-test.txt s3://pudl.catalyst.coop/aws-access-test.txt
+gcloud storage rm s3://pudl.catalyst.coop/aws-access-test.txt
+
 # Run ETL. Copy outputs to GCS and shutdown VM if ETL succeeds or fails
 # 2>&1 redirects stderr to stdout.
 run_pudl_etl 2>&1 | tee "$LOGFILE"
@@ -323,6 +338,8 @@ fi
 
 # This way we also save the logs from latter steps in the script
 gcloud storage --quiet cp "$LOGFILE" "$PUDL_GCS_OUTPUT"
+# Remove the AWS credentials file just in case the disk image sticks around
+rm -f ~/.aws/credentials
 
 # Notify slack about entire pipeline's success or failure;
 if [[ $ETL_SUCCESS == 0 && \
