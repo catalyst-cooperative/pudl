@@ -305,9 +305,18 @@ elif [[ "$BUILD_TYPE" == "stable" ]]; then
     fi
 
 elif [[ "$BUILD_TYPE" == "workflow_dispatch" ]]; then
+    # FOR TESTING ONLY. REMOVE BEFORE MERGING.
+    distribute_parquet "temp" 2>&1 | tee -a "$LOGFILE"
+    DISTRIBUTE_PARQUET_SUCCESS=${PIPESTATUS[0]}
+
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
     clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
     CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
+
+    # FOR TESTING ONLY. REMOVE BEFORE MERGING.
+    copy_outputs_to_distribution_bucket "temp" | tee -a "$LOGFILE"
+    DISTRIBUTION_BUCKET_SUCCESS=${PIPESTATUS[0]}
+
     # Remove individual parquet outputs and distribute just the zipped parquet
     # archives on Zenodo, due to their number of files limit
     rm -f "$PUDL_OUTPUT"/*.parquet && \
