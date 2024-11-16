@@ -18,7 +18,7 @@ dependencies:
   - annotated-types=0.7.0=pyhd8ed1ab_0
   - anyio=4.6.2.post1=pyhd8ed1ab_0
   - appdirs=1.4.4=pyh9f0ad1d_0
-  - arelle-release=2.35.5=pyhd8ed1ab_0
+  - arelle-release=2.35.6=pyhd8ed1ab_0
   - argon2-cffi=23.1.0=pyhd8ed1ab_0
   - argon2-cffi-bindings=21.2.0=py312h66e93f0_5
   - arrow=1.3.0=pyhd8ed1ab_0
@@ -195,7 +195,7 @@ dependencies:
   - humanize=4.11.0=pyhd8ed1ab_0
   - hupper=1.12.1=pyhd8ed1ab_0
   - hyperframe=6.0.1=pyhd8ed1ab_0
-  - hypothesis=6.119.0=pyha770c72_0
+  - hypothesis=6.119.1=pyha770c72_0
   - icu=75.1=he02047a_0
   - identify=2.6.2=pyhd8ed1ab_0
   - idna=3.10=pyhd8ed1ab_0

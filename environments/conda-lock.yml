@@ -555,7 +555,7 @@ package:
     category: main
     optional: false
   - name: arelle-release
-    version: 2.35.5
+    version: 2.35.6
     manager: conda
     platform: linux-64
     dependencies:
@@ -570,14 +570,14 @@ package:
       python: ">=3.9,<3.13"
       python-dateutil: 2.*
       regex: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.35.5-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.35.6-pyhd8ed1ab_0.conda
     hash:
-      md5: 3c2e0720d187b80a210279dc6dc70c22
-      sha256: 3b619cc643e1cec6cdfe1d1c91ba8677cfafeff56b3b0a540c65931befa526e1
+      md5: 57273b5e1898e8e7e91072669da8965b
+      sha256: b1255aebbc489168fb6af41357388115a02624464b56317dba9ce7098fffbd56
     category: main
     optional: false
   - name: arelle-release
-    version: 2.35.5
+    version: 2.35.6
     manager: conda
     platform: osx-64
     dependencies:
@@ -592,14 +592,14 @@ package:
       lxml: ">=4,<6"
       numpy: ">=1,<3"
       pillow: ">=10,<12"
-    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.35.5-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.35.6-pyhd8ed1ab_0.conda
     hash:
-      md5: 3c2e0720d187b80a210279dc6dc70c22
-      sha256: 3b619cc643e1cec6cdfe1d1c91ba8677cfafeff56b3b0a540c65931befa526e1
+      md5: 57273b5e1898e8e7e91072669da8965b
+      sha256: b1255aebbc489168fb6af41357388115a02624464b56317dba9ce7098fffbd56
     category: main
     optional: false
   - name: arelle-release
-    version: 2.35.5
+    version: 2.35.6
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -614,10 +614,10 @@ package:
       lxml: ">=4,<6"
       numpy: ">=1,<3"
       pillow: ">=10,<12"
-    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.35.5-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.35.6-pyhd8ed1ab_0.conda
     hash:
-      md5: 3c2e0720d187b80a210279dc6dc70c22
-      sha256: 3b619cc643e1cec6cdfe1d1c91ba8677cfafeff56b3b0a540c65931befa526e1
+      md5: 57273b5e1898e8e7e91072669da8965b
+      sha256: b1255aebbc489168fb6af41357388115a02624464b56317dba9ce7098fffbd56
     category: main
     optional: false
   - name: argon2-cffi
@@ -8467,7 +8467,7 @@ package:
     category: main
     optional: false
   - name: hypothesis
-    version: 6.119.0
+    version: 6.119.1
     manager: conda
     platform: linux-64
     dependencies:
@@ -8478,14 +8478,14 @@ package:
       python: ">=3.8"
       setuptools: ""
       sortedcontainers: ">=2.1.0,<3.0.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.119.0-pyha770c72_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.119.1-pyha770c72_0.conda
     hash:
-      md5: 2bf2b7a6dc855870f35c76653a1d9fd0
-      sha256: 8254f32cfe7a294c60adb980464af0ae3f5d85bdbc67269c94bb3b7fe765081b
+      md5: 2df500b6bb015e8aa9955fb57e6999bf
+      sha256: 11f35616c90fc68e8aa83dd7dfe4559b5e2812f811b408ef540a41564d0d94c5
     category: main
     optional: false
   - name: hypothesis
-    version: 6.119.0
+    version: 6.119.1
     manager: conda
     platform: osx-64
     dependencies:
@@ -8496,14 +8496,14 @@ package:
       sortedcontainers: ">=2.1.0,<3.0.0"
       backports.zoneinfo: ">=0.2.1"
       exceptiongroup: ">=1.0.0rc8"
-    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.119.0-pyha770c72_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.119.1-pyha770c72_0.conda
     hash:
-      md5: 2bf2b7a6dc855870f35c76653a1d9fd0
-      sha256: 8254f32cfe7a294c60adb980464af0ae3f5d85bdbc67269c94bb3b7fe765081b
+      md5: 2df500b6bb015e8aa9955fb57e6999bf
+      sha256: 11f35616c90fc68e8aa83dd7dfe4559b5e2812f811b408ef540a41564d0d94c5
     category: main
     optional: false
   - name: hypothesis
-    version: 6.119.0
+    version: 6.119.1
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -8514,10 +8514,10 @@ package:
       sortedcontainers: ">=2.1.0,<3.0.0"
       backports.zoneinfo: ">=0.2.1"
       exceptiongroup: ">=1.0.0rc8"
-    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.119.0-pyha770c72_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.119.1-pyha770c72_0.conda
     hash:
-      md5: 2bf2b7a6dc855870f35c76653a1d9fd0
-      sha256: 8254f32cfe7a294c60adb980464af0ae3f5d85bdbc67269c94bb3b7fe765081b
+      md5: 2df500b6bb015e8aa9955fb57e6999bf
+      sha256: 11f35616c90fc68e8aa83dd7dfe4559b5e2812f811b408ef540a41564d0d94c5
     category: main
     optional: false
   - name: icu

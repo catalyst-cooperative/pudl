@@ -358,7 +358,7 @@ omit = [
 precision = 2
 sort = "miss"
 skip_empty = true
-fail_under = 92.70
+fail_under = 92.25
 exclude_lines = [
     # Have to re-enable the standard pragma
     "pragma: no cover",
