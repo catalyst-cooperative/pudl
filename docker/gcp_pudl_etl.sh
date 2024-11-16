@@ -85,9 +85,9 @@ function remove_dist_path() {
         # If the old outputs don't exist, these will exit with status 1, so we
         # don't && them like with many of the other commands.
         echo "Removing old outputs from $GCS_PATH."
-        gcloud storage --quiet --billing-project="$GCP_BILLING_PROJECT" rm -r "$GCS_PATH"
+        gcloud storage rm --quiet --recursive --billing-project="$GCP_BILLING_PROJECT" "$GCS_PATH"
         echo "Removing old outputs from $AWS_PATH."
-        aws s3 rm --quiet --recursive "$AWS_PATH"
+        gcloud storage rm --quiet --recursive "$AWS_PATH"
     else
         echo "No distribution path provided. Not updating outputs."
         exit 1
@@ -103,9 +103,9 @@ function upload_to_dist_path() {
         AWS_PATH="s3://pudl.catalyst.coop/$DIST_PATH/"
         remove_dist_path "$DIST_PATH" && \
         echo "Copying outputs to $GCS_PATH:" && \
-        gcloud storage --quiet --billing-project="$GCP_BILLING_PROJECT" cp -r "$PUDL_OUTPUT/*" "$GCS_PATH" && \
+        gcloud storage cp --quiet --recursive --billing-project="$GCP_BILLING_PROJECT" "$PUDL_OUTPUT/*" "$GCS_PATH" && \
         echo "Copying outputs to $AWS_PATH" && \
-        aws s3 cp --quiet --recursive "$PUDL_OUTPUT/" "$AWS_PATH"
+        gcloud storage cp --quiet --recursive "$PUDL_OUTPUT/" "$AWS_PATH"
     else
         echo "No distribution path provided. Not updating outputs."
         exit 1
@@ -300,10 +300,10 @@ elif [[ "$BUILD_TYPE" == "workflow_dispatch" ]]; then
     clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
     CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
 
-    # FOR TESTING ONLY. REMOVE BEFORE MERGING.
     copy_outputs_to_distribution_bucket "$BUILD_ID" | tee -a "$LOGFILE" && \
     DISTRIBUTION_BUCKET_SUCCESS=${PIPESTATUS[0]}
-    remove_dist_path "$BUILD_ID" | tee -a "$LOGFILE"
+    # UNCOMMENT AFTER TESTING
+    # remove_dist_path "$BUILD_ID" | tee -a "$LOGFILE"
 
     # Remove individual parquet outputs and distribute just the zipped parquet
     # archives on Zenodo, due to their number of files limit

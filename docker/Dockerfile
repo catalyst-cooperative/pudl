@@ -8,10 +8,9 @@ USER root
 SHELL [ "/bin/bash", "-exo", "pipefail", "-c" ]
 
 # Install some linux packages
-# awscli requires unzip, less, groff and mandoc
 # hadolint ignore=DL3008
 RUN apt-get update && \
-    apt-get install --no-install-recommends -y git jq unzip less groff mandoc postgresql && \
+    apt-get install --no-install-recommends -y git jq postgresql && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -61,13 +60,6 @@ COPY --chown=${MAMBA_USER}:${MAMBA_USER} . ${PUDL_REPO}
 # can't find libraries contained within the environment. It's unclear why!
 ENV LD_LIBRARY_PATH=${CONDA_PREFIX}/lib
 RUN ${CONDA_RUN} pip install --no-cache-dir --no-deps --editable ${PUDL_REPO}
-
-# Install awscli2
-# Change back to root because the install script needs access to /usr/local/aws-cli
-# curl commands run within conda environment because curl is installed by conda.
-USER root
-RUN ${CONDA_RUN} bash -c 'curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && unzip awscliv2.zip && ./aws/install'
-USER $MAMBA_USER
 
 # Install flyctl
 # hadolint ignore=DL3059
