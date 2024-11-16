@@ -1,4 +1,4 @@
-FROM mambaorg/micromamba:2.0.2
+FROM mambaorg/micromamba:2.0.3
 
 ENV CONTAINER_HOME=/home/$MAMBA_USER
 ENV PGDATA=${CONTAINER_HOME}/pgdata
