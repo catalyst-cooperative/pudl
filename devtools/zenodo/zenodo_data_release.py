@@ -375,7 +375,10 @@ class CompleteDraft(State):
     required=True,
     help="Path to a directory whose contents will be uploaded to Zenodo. "
     "Subdirectories are ignored. Can get files from GCS as well - just prefix "
-    "with gs://.",
+    "with gs://. NOTE: nightly build outputs are NOT suitable for creating a Zenodo "
+    "data release, as they include hundreds of individual Parquet files, which we "
+    "archive on Zenodo as a single zipfile. Check what files should actually be "
+    "distributed. E.g. it may be *.log *.zip *.json ",
 )
 @click.option(
     "--publish/--no-publish",
