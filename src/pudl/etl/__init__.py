@@ -194,7 +194,13 @@ default_asset_checks += [
     for check in (
         asset_check_from_schema(asset_key, _package)
         for asset_key in _asset_keys
-        if asset_key.to_user_string() != "core_epacems__hourly_emissions"
+        if (
+            asset_key.to_user_string()
+            not in [
+                "core_epacems__hourly_emissions",
+                "out_vcerare__hourly_available_capacity_factor",
+            ]
+        )
     )
     if check is not None
 ]

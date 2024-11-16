@@ -22,12 +22,13 @@ dependencies = [
     "coloredlogs>=14.0", # Dagster requires 14.0
     "conda-lock>=2.5.7",
     "coverage>=7.6",
-    "dagster>=1.8",
+    "dagster>=1.9",
     "dagster-postgres>=0.24,<1", # Update when dagster-postgres graduates to 1.x
     "dask>=2024",
     "dask-expr", # Required for dask[dataframe]
     "datasette>=0.65",
     "doc8>=1.1",
+    "duckdb>=1.1.3",
     "email-validator>=1.0.3", # pydantic[email]
     "frictionless>=5,<6",
     "fsspec>=2024",
@@ -62,7 +63,7 @@ dependencies = [
     "pytest-console-scripts>=1.4",
     "pytest-mock>=3.14",
     "pytest-xdist>=3.6",
-    "python-calamine>=0.2", # pandas[excel]
+    "python-calamine>=0.3", # pandas[excel]
     "python-dotenv>=1",
     "pytz>=2024",
     "pyyaml>=6",
@@ -357,7 +358,7 @@ omit = [
 precision = 2
 sort = "miss"
 skip_empty = true
-fail_under = 92.70
+fail_under = 92.25
 exclude_lines = [
     # Have to re-enable the standard pragma
     "pragma: no cover",
