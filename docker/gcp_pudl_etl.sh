@@ -2,7 +2,7 @@
 # This script runs the entire ETL and validation tests in a docker container on a Google Compute Engine instance.
 # This script won't work locally because it needs adequate GCP permissions.
 
-LOGFILE="${PUDL_OUTPUT}/${BUILD_ID}-pudl-etl.log"
+LOGFILE="${PUDL_OUTPUT}/${BUILD_ID}.log"
 
 function send_slack_msg() {
     echo "sending Slack message"
@@ -160,7 +160,7 @@ function notify_slack() {
     message+="GCS_TEMPORARY_HOLD_SUCCESS: $GCS_TEMPORARY_HOLD_SUCCESS \n"
     message+="ZENODO_SUCCESS: $ZENODO_SUCCESS\n\n"
     message+="*Query* logs on <https://console.cloud.google.com/batch/jobsDetail/regions/us-west1/jobs/run-etl-$BUILD_ID/logs?project=catalyst-cooperative-pudl|Google Batch Console>.\n\n"
-    message+="*Download* logs at <https://console.cloud.google.com/storage/browser/_details/builds.catalyst.coop/$BUILD_ID/$BUILD_ID-pudl-etl.log|gs://builds.catalyst.coop/${BUILD_ID}/${BUILD_ID}-pudl-etl.log>\n\n"
+    message+="*Download* logs at <https://console.cloud.google.com/storage/browser/_details/builds.catalyst.coop/$BUILD_ID/$BUILD_ID.log|gs://builds.catalyst.coop/${BUILD_ID}/${BUILD_ID}.log>\n\n"
     message+="Get *full outputs* at <https://console.cloud.google.com/storage/browser/builds.catalyst.coop/$BUILD_ID|gs://builds.catalyst.coop/${BUILD_ID}>."
 
     send_slack_msg "$message"
@@ -306,7 +306,7 @@ elif [[ "$BUILD_TYPE" == "stable" ]]; then
 
 elif [[ "$BUILD_TYPE" == "workflow_dispatch" ]]; then
     # FOR TESTING ONLY. REMOVE BEFORE MERGING.
-    distribute_parquet "temp" 2>&1 | tee -a "$LOGFILE"
+    distribute_parquet "$BUILD_ID" 2>&1 | tee -a "$LOGFILE"
     DISTRIBUTE_PARQUET_SUCCESS=${PIPESTATUS[0]}
 
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
@@ -314,7 +314,7 @@ elif [[ "$BUILD_TYPE" == "workflow_dispatch" ]]; then
     CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
 
     # FOR TESTING ONLY. REMOVE BEFORE MERGING.
-    copy_outputs_to_distribution_bucket "temp" | tee -a "$LOGFILE"
+    copy_outputs_to_distribution_bucket "$BUILD_ID" | tee -a "$LOGFILE"
     DISTRIBUTION_BUCKET_SUCCESS=${PIPESTATUS[0]}
 
     # Remove individual parquet outputs and distribute just the zipped parquet
