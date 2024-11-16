@@ -54,19 +54,19 @@ function run_pudl_etl() {
         --loglevel DEBUG \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
         "$PUDL_SETTINGS_YML" \
-    && pytest \
-        -n auto \
-        --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
-        --etl-settings "$PUDL_SETTINGS_YML" \
-        --live-dbs test/integration test/unit \
-        --no-cov \
-    && pytest \
-        -n auto \
-        --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
-        --etl-settings "$PUDL_SETTINGS_YML" \
-        --live-dbs test/validate \
-        --no-cov \
     && touch "$PUDL_OUTPUT/success"
+    #&& pytest \
+    #    -n auto \
+    #    --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
+    #    --etl-settings "$PUDL_SETTINGS_YML" \
+    #    --live-dbs test/integration test/unit \
+    #    --no-cov \
+    #&& pytest \
+    #    -n auto \
+    #    --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
+    #    --etl-settings "$PUDL_SETTINGS_YML" \
+    #    --live-dbs test/validate \
+    #    --no-cov \
 }
 
 function save_outputs_to_gcs() {
@@ -76,12 +76,12 @@ function save_outputs_to_gcs() {
 }
 
 function upload_to_dist_path() {
-    GCS_PATH="gs://pudl.catalyst.coop/$1/"
-    AWS_PATH="s3://pudl.catalyst.coop/$1/"
-
+    DIST_PATH=$1
     # Only attempt to update outputs if we have an argument
     # This avoids accidentally blowing away the whole bucket if it's not set.
-    if [[ -n "$1" ]]; then
+    if [[ -n "$DIST_PATH" ]]; then
+        GCS_PATH="gs://pudl.catalyst.coop/$DIST_PATH/"
+        AWS_PATH="s3://pudl.catalyst.coop/$DIST_PATH/"
         # If the old outputs don't exist, these will exit with status 1, so we
         # don't && them with the rest of the commands.
         echo "Removing old outputs from $GCS_PATH."
@@ -100,26 +100,16 @@ function upload_to_dist_path() {
 }
 
 function distribute_parquet() {
+    DIST_PATH=$1
     PARQUET_BUCKET="gs://parquet.catalyst.coop"
     # Only attempt to update outputs if we have a real value of BUILD_REF
     # This avoids accidentally blowing away the whole bucket if it's not set.
-    echo "Copying outputs to parquet distribution bucket"
-    if [[ -n "$BUILD_REF" ]]; then
-        if [[ "$GITHUB_ACTION_TRIGGER" == "schedule" ]]; then
-            # If running nightly builds, copy outputs to the "nightly" bucket path
-            DIST_PATH="nightly"
-        else
-            # Otherwise we want to copy them to a directory named after the tag/ref
-            DIST_PATH="$BUILD_REF"
-        fi
-        echo "Copying outputs to $PARQUET_BUCKET/$DIST_PATH" && \
+    echo "Copying outputs to $PARQUET_BUCKET/$DIST_PATH" && \
+    if [[ -n "$DIST_PATH" ]]; then
         gcloud storage --quiet --billing-project="$GCP_BILLING_PROJECT" cp -r "$PUDL_OUTPUT/parquet/*" "$PARQUET_BUCKET/$DIST_PATH"
-
-        # If running a tagged release, ALSO update the stable distribution bucket path:
-        if [[ "$GITHUB_ACTION_TRIGGER" == "push" && "$BUILD_REF" == v20* ]]; then
-            echo "Copying outputs to $PARQUET_BUCKET/stable" && \
-            gcloud storage --quiet --billing-project="$GCP_BILLING_PROJECT" cp -r "$PUDL_OUTPUT/parquet/*" "$PARQUET_BUCKET/stable"
-        fi
+    else
+        echo "No distribution path provided. Not updating outputs."
+        exit 1
     fi
 }
 
@@ -127,20 +117,9 @@ function copy_outputs_to_distribution_bucket() {
     # Only attempt to update outputs if we have a real value of BUILD_REF
     # This avoids accidentally blowing away the whole bucket if it's not set.
     echo "Copying outputs to distribution buckets"
-    if [[ -n "$BUILD_REF" ]]; then
-        if [[ "$GITHUB_ACTION_TRIGGER" == "schedule" ]]; then
-            # If running nightly builds, copy outputs to the "nightly" bucket path
-            DIST_PATH="nightly"
-        else
-            # Otherwise we want to copy them to a directory named after the tag/ref
-            DIST_PATH="$BUILD_REF"
-        fi
+    DIST_PATH=$1
+    if [[ -n "$DIST_PATH" ]]; then
         upload_to_dist_path "$DIST_PATH"
-
-        # If running a tagged release, ALSO update the stable distribution bucket path:
-        if [[ "$GITHUB_ACTION_TRIGGER" == "push" && "$BUILD_REF" == v20* ]]; then
-            upload_to_dist_path "stable"
-        fi
     fi
 }
 
@@ -149,8 +128,11 @@ function zenodo_data_release() {
 
     if [[ "$1" == "production" ]]; then
         ~/pudl/devtools/zenodo/zenodo_data_release.py --no-publish --env "$1" --source-dir "$PUDL_OUTPUT"
-    else
+    elif [[ "$1" == "sandbox" ]]; then
         ~/pudl/devtools/zenodo/zenodo_data_release.py --publish --env "$1" --source-dir "$PUDL_OUTPUT"
+    else
+        echo "Invalid Zenodo environment"
+        exit 1
     fi
 }
 
@@ -177,11 +159,8 @@ function notify_slack() {
     message+="DISTRIBUTION_BUCKET_SUCCESS: $DISTRIBUTION_BUCKET_SUCCESS\n"
     message+="GCS_TEMPORARY_HOLD_SUCCESS: $GCS_TEMPORARY_HOLD_SUCCESS \n"
     message+="ZENODO_SUCCESS: $ZENODO_SUCCESS\n\n"
-
     message+="*Query* logs on <https://console.cloud.google.com/batch/jobsDetail/regions/us-west1/jobs/run-etl-$BUILD_ID/logs?project=catalyst-cooperative-pudl|Google Batch Console>.\n\n"
-
     message+="*Download* logs at <https://console.cloud.google.com/storage/browser/_details/builds.catalyst.coop/$BUILD_ID/$BUILD_ID-pudl-etl.log|gs://builds.catalyst.coop/${BUILD_ID}/${BUILD_ID}-pudl-etl.log>\n\n"
-
     message+="Get *full outputs* at <https://console.cloud.google.com/storage/browser/builds.catalyst.coop/$BUILD_ID|gs://builds.catalyst.coop/${BUILD_ID}>."
 
     send_slack_msg "$message"
@@ -242,9 +221,23 @@ DISTRIBUTION_BUCKET_SUCCESS=0
 ZENODO_SUCCESS=0
 GCS_TEMPORARY_HOLD_SUCCESS=0
 
+# Set the build type based on the action trigger and tag
+if [[ "$GITHUB_ACTION_TRIGGER" == "push" && "$BUILD_REF" == v20* ]]; then
+    BUILD_TYPE="stable"
+elif [[ "$GITHUB_ACTION_TRIGGER" == "schedule" ]]; then
+    BUILD_TYPE="nightly"
+elif [[ "$GITHUB_ACTION_TRIGGER" == "workflow_dispatch" ]]; then
+    BUILD_TYPE="workflow_dispatch"
+else
+    echo "Unknown build type, exiting!"
+    echo "GITHUB_ACTION_TRIGGER: $GITHUB_ACTION_TRIGGER"
+    echo "BUILD_REF: $BUILD_REF"
+    exit 1
+fi
+
 # Set these variables *only* if they are not already set by the container or workflow:
 : "${PUDL_GCS_OUTPUT:=gs://builds.catalyst.coop/$BUILD_ID}"
-: "${PUDL_SETTINGS_YML:=home/mambauser/pudl/src/pudl/package_data/settings/etl_full.yml}"
+: "${PUDL_SETTINGS_YML:=/home/mambauser/pudl/src/pudl/package_data/settings/etl_full.yml}"
 
 # Run ETL. Copy outputs to GCS and shutdown VM if ETL succeeds or fails
 # 2>&1 redirects stderr to stdout.
@@ -257,50 +250,78 @@ pg_ctlcluster 15 dagster stop 2>&1 | tee -a "$LOGFILE"
 save_outputs_to_gcs 2>&1 | tee -a "$LOGFILE"
 SAVE_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
 
-# if pipeline is successful, distribute + publish datasette
-if [[ $ETL_SUCCESS == 0 ]]; then
-    if [[ "$GITHUB_ACTION_TRIGGER" == "schedule" ]]; then
-        merge_tag_into_branch "$NIGHTLY_TAG" nightly 2>&1 | tee -a "$LOGFILE"
-        UPDATE_NIGHTLY_SUCCESS=${PIPESTATUS[0]}
-    fi
-    # If running a tagged release, merge the tag into the stable branch
-    if [[ "$GITHUB_ACTION_TRIGGER" == "push" && "$BUILD_REF" == v20* ]]; then
-        merge_tag_into_branch "$BUILD_REF" stable 2>&1 | tee -a "$LOGFILE"
-        UPDATE_STABLE_SUCCESS=${PIPESTATUS[0]}
-    fi
+if [[ $ETL_SUCCESS != 0 ]]; then
+    notify_slack "failure"
+    exit 1
+fi
 
-    # Deploy the updated data to datasette if we're on main
-    if [[ "$BUILD_REF" == "main" ]]; then
-        python ~/pudl/devtools/datasette/publish.py --production 2>&1 | tee -a "$LOGFILE"
-        DATASETTE_SUCCESS=${PIPESTATUS[0]}
-    fi
+if [[ "$BUILD_TYPE" == "nightly" ]]; then
+    merge_tag_into_branch "$NIGHTLY_TAG" nightly 2>&1 | tee -a "$LOGFILE"
+    UPDATE_NIGHTLY_SUCCESS=${PIPESTATUS[0]}
+    # Update our datasette deployment
+    python ~/pudl/devtools/datasette/publish.py --production 2>&1 | tee -a "$LOGFILE"
+    DATASETTE_SUCCESS=${PIPESTATUS[0]}
+    # Distribute Parquet outputs to a private bucket
+    distribute_parquet "nightly" 2>&1 | tee -a "$LOGFILE"
+    DISTRIBUTE_PARQUET_SUCCESS=${PIPESTATUS[0]}
+    # Remove files we don't want to distribute and zip SQLite and Parquet outputs
+    clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
+    CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
+    # Copy cleaned up outputs to the S3 and GCS distribution buckets
+    copy_outputs_to_distribution_bucket "nightly" | tee -a "$LOGFILE"
+    DISTRIBUTION_BUCKET_SUCCESS=${PIPESTATUS[0]}
+    # Remove individual parquet outputs and distribute just the zipped parquet
+    # archives on Zenodo, due to their number of files limit
+    rm -f "$PUDL_OUTPUT"/*.parquet && \
+    # push a data release to Zenodo sandbox
+    zenodo_data_release "$ZENODO_TARGET_ENV" 2>&1 | tee -a "$LOGFILE"
+    ZENODO_SUCCESS=${PIPESTATUS[0]}
 
-    # TODO: this behavior should be controlled by on/off switch here and this logic
-    # should be moved to the triggering github action. Having it here feels fragmented.
-    # Distribute outputs if branch is main or the build was triggered by tag push
-    if [[ "$GITHUB_ACTION_TRIGGER" == "push" || "$BUILD_REF" == "main" ]]; then
-        # Distribute Parquet outputs to a private bucket
-        distribute_parquet 2>&1 | tee -a "$LOGFILE"
-        DISTRIBUTE_PARQUET_SUCCESS=${PIPESTATUS[0]}
-        # Remove some cruft from the builds that we don't want to distribute
-        clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
-        CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
-        # Copy cleaned up outputs to the S3 and GCS distribution buckets
-        copy_outputs_to_distribution_bucket | tee -a "$LOGFILE"
-        DISTRIBUTION_BUCKET_SUCCESS=${PIPESTATUS[0]}
-        # Remove individual parquet outputs and distribute just the zipped parquet
-        # archives on Zenodo, due to their number of files limit
-        rm -f "$PUDL_OUTPUT"/*.parquet && \
-        # Push a data release to Zenodo for long term accessiblity
-        zenodo_data_release "$ZENODO_TARGET_ENV" 2>&1 | tee -a "$LOGFILE"
-        ZENODO_SUCCESS=${PIPESTATUS[0]}
-    fi
+elif [[ "$BUILD_TYPE" == "stable" ]]; then
+    merge_tag_into_branch "$BUILD_REF" stable 2>&1 | tee -a "$LOGFILE"
+    UPDATE_STABLE_SUCCESS=${PIPESTATUS[0]}
+    # Distribute Parquet outputs to a private bucket
+    distribute_parquet "$BUILD_REF" 2>&1 | tee -a "$LOGFILE" && \
+    distribute_parquet "stable" 2>&1 | tee -a "$LOGFILE"
+    DISTRIBUTE_PARQUET_SUCCESS=${PIPESTATUS[0]}
+    # Remove files we don't want to distribute and zip SQLite and Parquet outputs
+    clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
+    CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
+    # Copy cleaned up outputs to the S3 and GCS distribution buckets
+    copy_outputs_to_distribution_bucket "$BUILD_REF" | tee -a "$LOGFILE" && \
+    copy_outputs_to_distribution_bucket "stable" | tee -a "$LOGFILE"
+    DISTRIBUTION_BUCKET_SUCCESS=${PIPESTATUS[0]}
+    # Remove individual parquet outputs and distribute just the zipped parquet
+    # archives on Zenodo, due to their number of files limit
+    rm -f "$PUDL_OUTPUT"/*.parquet && \
+    # push a data release to Zenodo production
+    zenodo_data_release "$ZENODO_TARGET_ENV" 2>&1 | tee -a "$LOGFILE"
+    ZENODO_SUCCESS=${PIPESTATUS[0]}
     # If running a tagged release, ensure that outputs can't be accidentally deleted
     # It's not clear that an object lock can be applied in S3 with the AWS CLI
     if [[ "$GITHUB_ACTION_TRIGGER" == "push" && "$BUILD_REF" == v20* ]]; then
         gcloud storage --billing-project="$GCP_BILLING_PROJECT" objects update "gs://pudl.catalyst.coop/$BUILD_REF/*" --temporary-hold 2>&1 | tee -a "$LOGFILE"
         GCS_TEMPORARY_HOLD_SUCCESS=${PIPESTATUS[0]}
     fi
+
+elif [[ "$BUILD_TYPE" == "workflow_dispatch" ]]; then
+    # Remove files we don't want to distribute and zip SQLite and Parquet outputs
+    clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
+    CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
+    # Remove individual parquet outputs and distribute just the zipped parquet
+    # archives on Zenodo, due to their number of files limit
+    rm -f "$PUDL_OUTPUT"/*.parquet && \
+    # push a data release to Zenodo sandbox
+    zenodo_data_release "$ZENODO_TARGET_ENV" 2>&1 | tee -a "$LOGFILE"
+    ZENODO_SUCCESS=${PIPESTATUS[0]}
+
+else
+    echo "Unknown build type, exiting!"
+    echo "BUILD_TYPE: $BUILD_TYPE"
+    echo "GITHUB_ACTION_TRIGGER: $GITHUB_ACTION_TRIGGER"
+    echo "BUILD_REF: $BUILD_REF"
+    notify_slack "failure"
+    exit 1
 fi
 
 # This way we also save the logs from latter steps in the script

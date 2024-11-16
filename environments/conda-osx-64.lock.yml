@@ -56,8 +56,8 @@ dependencies:
   - bleach=6.2.0=pyhd8ed1ab_0
   - blinker=1.9.0=pyhff2d567_0
   - blosc=1.21.6=h7d75f6d_0
-  - boto3=1.35.62=pyhd8ed1ab_0
-  - botocore=1.35.62=pyge310_1234567_0
+  - boto3=1.35.63=pyhd8ed1ab_0
+  - botocore=1.35.63=pyge310_1234567_0
   - bottleneck=1.4.2=py312h59f7578_0
   - branca=0.7.2=pyhd8ed1ab_0
   - brotli=1.1.0=h00291cd_2
