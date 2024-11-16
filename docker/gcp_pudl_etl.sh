@@ -247,12 +247,6 @@ echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >> ~/.aws/credentials
 echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >> ~/.aws/credentials
 set -x
 
-# TEST AWS S3 ACCESS. REMOVE BEFORE MERGING PR.
-echo "Testing AWS access" > aws-access-test.txt
-gcloud storage ls s3://pudl.catalyst.coop
-gcloud storage cp aws-access-test.txt s3://pudl.catalyst.coop/aws-access-test.txt
-gcloud storage rm s3://pudl.catalyst.coop/aws-access-test.txt
-
 # Run ETL. Copy outputs to GCS and shutdown VM if ETL succeeds or fails
 # 2>&1 redirects stderr to stdout.
 run_pudl_etl 2>&1 | tee "$LOGFILE"
