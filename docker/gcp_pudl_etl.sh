@@ -2,8 +2,6 @@
 # This script runs the entire ETL and validation tests in a docker container on a Google Compute Engine instance.
 # This script won't work locally because it needs adequate GCP permissions.
 
-LOGFILE="${PUDL_OUTPUT}/${BUILD_ID}.log"
-
 function send_slack_msg() {
     echo "sending Slack message"
     curl -X POST -H "Content-type: application/json" -H "Authorization: Bearer ${SLACK_TOKEN}" https://slack.com/api/chat.postMessage --data "{\"channel\": \"C03FHB9N0PQ\", \"text\": \"$1\"}"
@@ -208,6 +206,8 @@ function clean_up_outputs_for_distribution() {
 ########################################################################################
 # MAIN SCRIPT
 ########################################################################################
+LOGFILE="${PUDL_OUTPUT}/${BUILD_ID}.log"
+
 # Initialize our success variables so they all definitely have a value to check
 ETL_SUCCESS=0
 SAVE_OUTPUTS_SUCCESS=0
@@ -239,9 +239,10 @@ fi
 
 # Save credentials for working with AWS S3
 # set +x / set -x is used to avoid printing the AWS credentials in the logs
-set +x
 echo "Setting AWS credentials"
+mkdir -p ~/.aws
 echo "[default]" > ~/.aws/credentials
+set +x
 echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >> ~/.aws/credentials
 echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >> ~/.aws/credentials
 set -x
