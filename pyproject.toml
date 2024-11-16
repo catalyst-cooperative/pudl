@@ -338,13 +338,13 @@ name = "pudl-dev"
 
 [tool.conda-lock.dependencies]
 curl = ">=8.4.0"
-google-cloud-sdk = ">=474"
+google-cloud-sdk = ">=500"
 nodejs = ">=20"
 pandoc = ">=2"
 pip = ">=24"
 prettier = ">=3.0"
 python = ">=3.12,<3.13"
-sqlite = ">=3.45"
+sqlite = ">=3.47"
 zip = ">=3.0"
 
 [tool.coverage.run]
