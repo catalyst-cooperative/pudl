@@ -290,25 +290,21 @@ elif [[ "$BUILD_TYPE" == "stable" ]]; then
     # push a data release to Zenodo production
     zenodo_data_release "$ZENODO_TARGET_ENV" 2>&1 | tee -a "$LOGFILE"
     ZENODO_SUCCESS=${PIPESTATUS[0]}
-    # If running a tagged release, ensure that outputs can't be accidentally deleted
-    # It's not clear that an object lock can be applied in S3 with the AWS CLI
-    if [[ "$GITHUB_ACTION_TRIGGER" == "push" && "$BUILD_REF" == v20* ]]; then
-        gcloud storage --billing-project="$GCP_BILLING_PROJECT" objects update "gs://pudl.catalyst.coop/$BUILD_REF/*" --temporary-hold 2>&1 | tee -a "$LOGFILE"
-        GCS_TEMPORARY_HOLD_SUCCESS=${PIPESTATUS[0]}
-    fi
+    # This is a versioned release. Ensure that outputs can't be accidentally deleted.
+    # We can only do this on the GCS bucket, not S3
+    gcloud storage --billing-project="$GCP_BILLING_PROJECT" objects update "gs://pudl.catalyst.coop/$BUILD_REF/*" --temporary-hold 2>&1 | tee -a "$LOGFILE"
+    GCS_TEMPORARY_HOLD_SUCCESS=${PIPESTATUS[0]}
 
 elif [[ "$BUILD_TYPE" == "workflow_dispatch" ]]; then
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
     clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
     CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
-
     # Upload to GCS / S3 just to test that it works.
     upload_to_dist_path "$BUILD_ID" | tee -a "$LOGFILE"
     DISTRIBUTION_BUCKET_SUCCESS=${PIPESTATUS[0]}
     Remove the uploaded files:
     # Remove those uploads since they were just for testing.
     remove_dist_path "$BUILD_ID" | tee -a "$LOGFILE"
-
     # Remove individual parquet outputs and distribute just the zipped parquet
     # archives on Zenodo, due to their number of files limit
     rm -f "$PUDL_OUTPUT"/*.parquet
