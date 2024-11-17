@@ -105,7 +105,7 @@ function upload_to_dist_path() {
         echo "Copying outputs to $GCS_PATH:" && \
         gcloud storage cp --quiet --recursive --billing-project="$GCP_BILLING_PROJECT" "$PUDL_OUTPUT/*" "$GCS_PATH" && \
         echo "Copying outputs to $AWS_PATH" && \
-        gcloud storage cp --quiet --recursive "$PUDL_OUTPUT/" "$AWS_PATH"
+        gcloud storage cp --quiet --recursive "$PUDL_OUTPUT/*" "$AWS_PATH"
     else
         echo "No distribution path provided. Not updating outputs."
         exit 1
