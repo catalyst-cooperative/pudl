@@ -212,7 +212,7 @@ ZENODO_SUCCESS=0
 GCS_TEMPORARY_HOLD_SUCCESS=0
 
 # Set the build type based on the action trigger and tag
-if [[ "$GITHUB_ACTION_TRIGGER" == "push" && "$BUILD_REF" == "^v20[0-9]{2}\.([1-9]|1[0-2])\.[0-9]{1,2}$" ]]; then
+if [[ "$GITHUB_ACTION_TRIGGER" == "push" && "$BUILD_REF" =~ ^v20[2-9][0-9]\.([1-9]|1[0-2])\.([0-9]|[1-9][0-9]{1,3})$ ]]; then
     BUILD_TYPE="stable"
 elif [[ "$GITHUB_ACTION_TRIGGER" == "schedule" ]]; then
     BUILD_TYPE="nightly"
