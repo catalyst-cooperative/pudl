@@ -52,19 +52,19 @@ function run_pudl_etl() {
         --loglevel DEBUG \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
         "$PUDL_SETTINGS_YML" \
+    && pytest \
+        -n auto \
+        --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
+        --etl-settings "$PUDL_SETTINGS_YML" \
+        --live-dbs test/integration test/unit \
+        --no-cov \
+    && pytest \
+        -n auto \
+        --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
+        --etl-settings "$PUDL_SETTINGS_YML" \
+        --live-dbs test/validate \
+        --no-cov \
     && touch "$PUDL_OUTPUT/success"
-    #&& pytest \
-    #    -n auto \
-    #    --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
-    #    --etl-settings "$PUDL_SETTINGS_YML" \
-    #    --live-dbs test/integration test/unit \
-    #    --no-cov \
-    #&& pytest \
-    #    -n auto \
-    #    --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
-    #    --etl-settings "$PUDL_SETTINGS_YML" \
-    #    --live-dbs test/validate \
-    #    --no-cov \
 }
 
 function save_outputs_to_gcs() {
@@ -314,8 +314,7 @@ elif [[ "$BUILD_TYPE" == "workflow_dispatch" ]]; then
 
     copy_outputs_to_distribution_bucket "$BUILD_ID" | tee -a "$LOGFILE"
     DISTRIBUTION_BUCKET_SUCCESS=${PIPESTATUS[0]}
-    # UNCOMMENT AFTER TESTING
-    # remove_dist_path "$BUILD_ID" | tee -a "$LOGFILE"
+    remove_dist_path "$BUILD_ID" | tee -a "$LOGFILE"
 
     # Remove individual parquet outputs and distribute just the zipped parquet
     # archives on Zenodo, due to their number of files limit
