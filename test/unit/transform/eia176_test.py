@@ -98,6 +98,20 @@ US_AGGREGATE = [
     "residential sales volume",
 ]
 
+ID_4 = "4"
+VOLUME_4 = 4.0
+COMPANY_4 = [
+    "alaska",
+    "vl",
+    "alaska gas inc",
+    ID_4,
+    "1020",
+    "2022",
+    VOLUME_4,
+    "[10.2]",
+    "some other volume",
+]
+
 DROP_COLS = ["itemsort", "item", "atype", "line", "company"]
 
 
@@ -111,29 +125,37 @@ def test_core_eia176__data():
 
     company_row = wide_company.loc[0]
     assert list(company_row.index) == ["report_year", "area", "id", "1010_vl"]
-    assert list(company_row.values) == ["2022", "new mexico", ID_1, VOLUME_1]
+    assert list(company_row.values) == [2022, "new mexico", ID_1, VOLUME_1]
 
     assert wide_aggregate.shape == (1, 3)
     aggregate_row = wide_aggregate.loc[0]
     assert list(aggregate_row.index) == ["report_year", "area", "1010_vl"]
-    assert list(aggregate_row.values) == ["2022", "new mexico", NM_VOLUME]
+    assert list(aggregate_row.values) == [2022, "new mexico", NM_VOLUME]
 
 
 def test_get_wide_table():
     long_table = pd.DataFrame(columns=COLUMN_NAMES)
     long_table.loc[0] = COMPANY_1
     long_table.loc[1] = COMPANY_2
+    # We need a row measuring a different variable to test filling NAs
+    long_table.loc[3] = COMPANY_4
     long_table["variable_name"] = long_table["line"] + "_" + long_table["atype"]
     long_table = long_table.drop(columns=DROP_COLS)
 
     primary_key = ["report_year", "area", "id"]
     wide_table = get_wide_table(long_table, primary_key)
-    wide_table = wide_table.fillna(0)
 
-    assert wide_table.shape == (2, 4)
-    assert list(wide_table.loc[0].index) == ["report_year", "area", "id", "1010_vl"]
-    assert list(wide_table.loc[0].values) == ["2022", "new mexico", ID_2, VOLUME_2]
-    assert list(wide_table.loc[1].values) == ["2022", "new mexico", ID_1, VOLUME_1]
+    assert wide_table.shape == (3, 5)
+    assert list(wide_table.loc[0].index) == [
+        "report_year",
+        "area",
+        "id",
+        "1010_vl",
+        "1020_vl",
+    ]
+    assert list(wide_table.loc[0].values) == ["2022", "alaska", ID_4, 0, VOLUME_4]
+    assert list(wide_table.loc[1].values) == ["2022", "new mexico", ID_2, VOLUME_2, 0]
+    assert list(wide_table.loc[2].values) == ["2022", "new mexico", ID_1, VOLUME_1, 0]
 
 
 def test_validate__totals():

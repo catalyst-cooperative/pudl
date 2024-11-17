@@ -21,28 +21,31 @@ def _core_eia176__data(
 
     One table with data for each year and company, one with state- and US-level aggregates per year.
     """
-    raw_eia176__data["report_year"].astype(int)
-    raw_eia176__data["value"].astype(float)
+    raw_eia176__data = raw_eia176__data.astype({"report_year": int, "value": float})
     raw_eia176__data["variable_name"] = (
         raw_eia176__data["line"] + "_" + raw_eia176__data["atype"]
     )
 
+    aggregate_primary_key = ["report_year", "area"]
+    company_primary_key = aggregate_primary_key + ["id"]
+    company_drop_columns = ["itemsort", "item", "atype", "line", "company"]
+    # We must drop 'id' here and cannot use as primary key because its arbitrary/duplicate in aggregate records
+    # 'id' is a reliable ID only in the context of granular company data
+    aggregate_drop_columns = company_drop_columns + ["id"]
+
     long_company = raw_eia176__data.loc[
         raw_eia176__data.company != "total of all companies"
     ]
-    aggregate_primary_key = ["report_year", "area"]
-    company_drop_columns = ["itemsort", "item", "atype", "line", "company"]
-
     wide_company = get_wide_table(
         long_table=long_company.drop(columns=company_drop_columns),
-        primary_key=aggregate_primary_key + ["id"],
+        primary_key=company_primary_key,
     )
 
     long_aggregate = raw_eia176__data.loc[
         raw_eia176__data.company == "total of all companies"
     ]
     wide_aggregate = get_wide_table(
-        long_table=long_aggregate.drop(columns=company_drop_columns + ["id"]),
+        long_table=long_aggregate.drop(columns=aggregate_drop_columns),
         primary_key=aggregate_primary_key,
     )
 
@@ -51,18 +54,12 @@ def _core_eia176__data(
 
 def get_wide_table(long_table: pd.DataFrame, primary_key: list[str]) -> pd.DataFrame:
     """Take a 'long' or entity-attribute-value table and return a wide table with one column per attribute/variable."""
-    unstacked = (
-        # we must drop 'id' here and cannot use as primary key because its arbitrary/duplicate in aggregate records
-        # 'id' is a reliable ID only in the context of granular company data
-        long_table.set_index(primary_key + ["variable_name"]).unstack(
-            level="variable_name"
-        )
+    unstacked = long_table.set_index(primary_key + ["variable_name"]).unstack(
+        level="variable_name"
     )
-    unstacked.columns = unstacked.columns.droplevel(0).fillna(0)
+    unstacked.columns = unstacked.columns.droplevel(0)
     unstacked.columns.name = None  # gets rid of "variable_name" name of columns index
-
-    # TODO instead of "first NA value we see in each column" applied willy-nilly, we could check to see if there are any conflicting non-null values using .count() first.
-    return unstacked.groupby(level=primary_key).first().reset_index()
+    return unstacked.reset_index().fillna(0)
 
 
 @asset_check(
