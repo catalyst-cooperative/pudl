@@ -5,10 +5,10 @@ services:
       dockerfile: Dockerfile
     container_name: pudl-superset
     environment:
-      AUTH0_CLIENT_ID: ${AUTH0_CLIENT_ID}
-      AUTH0_CLIENT_SECRET: ${AUTH0_CLIENT_SECRET}
-      AUTH0_DOMAIN: ${AUTH0_DOMAIN}
-      SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY}
+      AUTH0_CLIENT_ID: ${AUTH0_CLIENT_ID?error}
+      AUTH0_CLIENT_SECRET: ${AUTH0_CLIENT_SECRET?error}
+      AUTH0_DOMAIN: ${AUTH0_DOMAIN?error}
+      SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY?error}
       SUPERSET_DB_HOST: ${SUPERSET_DB_HOST-postgres}
       SUPERSET_DB_PORT: ${SUPERSET_DB_PORT-5432}
       SUPERSET_DB_USER: ${SUPERSET_DB_USER-superset}
@@ -18,14 +18,24 @@ services:
       - "8080:8088"
     volumes:
       - ${PUDL_OUTPUT}/pudl.duckdb:/app/pudl.duckdb
-      - ./roles.json:/app/roles.json
-    depends_on:
-      - postgres
+      - ./roles:/app/roles
   postgres:
     image: postgis/postgis:13-3.1-alpine
+    profiles: [local]
     environment:
       POSTGRES_DB: superset
       POSTGRES_USER: superset
       POSTGRES_PASSWORD: superset
     ports:
       - 8081:5432
+  cloud_auth_proxy:
+    image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.13.0
+    profiles: [prod]
+    environment:
+      CLOUD_SQL_CONNECTION_NAME: ${CLOUD_SQL_CONNECTION_NAME}
+      GOOGLE_APPLICATION_CREDENTIALS: /tmp/keys/application_default_credentials.json
+    volumes:
+      - ${GOOGLE_GHA_CREDS_PATH}:/tmp/keys/application_default_credentials.json:ro
+    ports:
+      - 8082:5432
+    command: [$CLOUD_SQL_CONNECTION_NAME, "--address", "0.0.0.0"]

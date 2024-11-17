@@ -3248,7 +3248,6 @@ TRANSFORM_PARAMS = {
                         "utility_plant_leased_to_others",
                         "utility_plant_held_for_future_use",
                         "amortization_of_other_utility_plant_utility_plant_in_service",
-                        "amortization_of_underground_storage_land_and_land_rights_utility_plant_in_service",
                         "utility_plant_in_service_completed_construction_not_classified",
                         "utility_plant_in_service_plant_purchased_or_sold",
                         "construction_work_in_progress",
@@ -3358,12 +3357,16 @@ TRANSFORM_PARAMS = {
                     "pri_yr_q4_bal": "pri_yr_q4_bal",
                 }
             },
+            "instant_xbrl": {
+                "columns": {
+                    "preliminary_natural_gas_survey_and_investigation_charges_and_other_preliminary_survey_and_investigation_charges": "preliminary_natural_gas_survey_and_investigation_charges"
+                },
+            },
             "xbrl": {
                 "columns": {
                     "entity_id": "utility_id_ferc1_xbrl",
                     "report_year": "report_year",
                     "xbrl_factoid": "asset_type",
-                    "preliminary_natural_gas_survey_and_investigation_charges_and_other_preliminary_survey_and_investigation_charges": "preliminary_natural_gas_survey_and_investigation_charges",
                 }
             },
         },
@@ -4706,7 +4709,6 @@ TRANSFORM_PARAMS = {
                 "columns": {
                     "entity_id": "utility_id_ferc1_xbrl",
                     "report_year": "report_year",
-                    "sales_axis": "sales_axis",
                     "description_of_number_and_title_of_rate_schedule": "rate_schedule_description",
                     "average_number_of_customers_per_month_residential_sales": "residential_total_avg_customers_per_month",
                     "average_number_of_customers_per_month_residential_sales_billed": "residential_billed_avg_customers_per_month",
@@ -4852,6 +4854,7 @@ TRANSFORM_PARAMS = {
                 "other_sales_to_public_authorities_axis",
                 "sales_to_railroads_and_railways_axis",
                 "interdepartmental_sales_axis",
+                "provision_for_rate_refunds_axis",
             ],
             "new_axis_column_name": "sales_axis",
         },

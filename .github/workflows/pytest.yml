@@ -28,7 +28,7 @@ jobs:
           fetch-depth: 2
 
       - name: Install conda-lock environment with micromamba
-        uses: mamba-org/setup-micromamba@v1
+        uses: mamba-org/setup-micromamba@v2
         with:
           environment-file: environments/conda-lock.yml
           environment-name: pudl-dev
@@ -50,11 +50,19 @@ jobs:
           pip install --no-deps --editable .
           make docs-build
 
+      - name: Coverage debugging output
+        run: |
+          coverage debug config
+          coverage debug sys
+          coverage report --fail-under=0
+          ls -a
+
       - name: Upload docs coverage artifact
         uses: actions/upload-artifact@v4
         with:
           name: coverage-docs
-          path: ./*coverage*
+          include-hidden-files: true
+          path: .coverage
 
   ci-unit:
     runs-on: ubuntu-latest
@@ -70,7 +78,7 @@ jobs:
           fetch-depth: 2
 
       - name: Install conda-lock environment with micromamba
-        uses: mamba-org/setup-micromamba@v1
+        uses: mamba-org/setup-micromamba@v2
         with:
           environment-file: environments/conda-lock.yml
           environment-name: pudl-dev
@@ -97,16 +105,22 @@ jobs:
           pip install --no-deps --editable .
           make pytest-unit
 
+      - name: Coverage debugging output
+        run: |
+          coverage debug config
+          coverage debug sys
+          coverage report --fail-under=0
+          ls -a
+
       - name: Upload unit tests coverage artifact
         uses: actions/upload-artifact@v4
         with:
           name: coverage-unit
-          path: ./*coverage*
+          include-hidden-files: true
+          path: .coverage
 
   ci-integration:
-    runs-on:
-      group: large-runner-group
-      labels: ubuntu-22.04-4core
+    runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch' || github.event.merge_group
     permissions:
       contents: read
@@ -123,7 +137,7 @@ jobs:
           fetch-depth: 2
 
       - name: Install Conda environment using mamba
-        uses: mamba-org/setup-micromamba@v1
+        uses: mamba-org/setup-micromamba@v2
         with:
           environment-file: environments/conda-lock.yml
           environment-name: pudl-dev
@@ -174,11 +188,19 @@ jobs:
           pudl_datastore --dataset epacems --partition year_quarter=2022q1
           make pytest-integration
 
+      - name: Coverage debugging output
+        run: |
+          coverage debug config
+          coverage debug sys
+          coverage report --fail-under=0
+          ls -a
+
       - name: Upload integration test coverage artifact
         uses: actions/upload-artifact@v4
         with:
           name: coverage-integration
-          path: ./*coverage*
+          include-hidden-files: true
+          path: .coverage
 
       - name: Log post-test Zenodo datastore contents
         run: find ${{ env.PUDL_INPUT }}
@@ -199,22 +221,28 @@ jobs:
       - name: List downloaded files
         run: |
           find coverage -type f
-      - name: Upload test coverage report to CodeCov
-        uses: codecov/codecov-action@v4
-        with:
-          directory: coverage
-          token: ${{ secrets.CODECOV_TOKEN }}
       - name: Install Micromamba
-        uses: mamba-org/setup-micromamba@v1
+        uses: mamba-org/setup-micromamba@v2
         with:
           init-shell: bash
           environment-name: coverage
           create-args: >-
             python=3.12
-            coverage>=7.4.1
-      - name: Combine coverage data and check that we have required coverage
-        # Required coverage is set in pyproject.toml section [tool.coverage.report]
+            coverage>=7.6.1
+      - name: Combine coverage data and output XML report
         run: |
           micromamba run -n coverage coverage combine coverage/*/.coverage
           micromamba run -n coverage coverage xml --fail-under=0
+      - name: Upload XML coverage report to CodeCov
+        uses: codecov/codecov-action@v4
+        with:
+          disable_search: true
+          file: ./coverage.xml
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true # optional (default = false)
+          plugin: noop
+          verbose: true
+      - name: Display coverage report and ensure it meets required minimum
+        # Required coverage is set in pyproject.toml section [tool.coverage.report]
+        run: |
           micromamba run -n coverage coverage report

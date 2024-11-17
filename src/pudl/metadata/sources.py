@@ -181,7 +181,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "year_months": [
                 str(q).lower()
-                for q in pd.period_range(start="2015-07", end="2024-06", freq="M")
+                for q in pd.period_range(start="2015-07", end="2024-09", freq="M")
             ],
         },
         "keywords": sorted(
@@ -211,7 +211,7 @@ SOURCES: dict[str, Any] = {
         ),
         "field_namespace": "eia",
         "working_partitions": {
-            "years": sorted(set(range(2001, 2023))),
+            "years": sorted(set(range(2001, 2024))),
         },
         "contributors": [],
         "keywords": sorted(
@@ -426,7 +426,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "year_quarters": [
                 str(q).lower()
-                for q in pd.period_range(start="1995q1", end="2024q2", freq="Q")
+                for q in pd.period_range(start="1995q1", end="2024q3", freq="Q")
             ]
         },
         "contributors": [
@@ -631,9 +631,9 @@ SOURCES: dict[str, Any] = {
         ),
         "field_namespace": "ferc714",
         "working_partitions": {
-            # 2021 and later data is in XBRL and not yet supported.
+            # 2021 and later data is in XBRL.
             # 2006-2020 data is in monolithic CSV files, so any year means all years.
-            "years": sorted(set(range(2006, 2021))),
+            "years": sorted(set(range(2006, 2024))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -727,6 +727,9 @@ SOURCES: dict[str, Any] = {
                 "wind_capacity_aggregations",
             ]
         },
+        "contributors": [
+            CONTRIBUTORS["elaine-hart"],
+        ],
     },
     "mshamines": {
         "title": "Mine Safety and Health Administration (MSHA) Mines",
@@ -834,6 +837,45 @@ SOURCES: dict[str, Any] = {
         ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
+    },
+    "vcerare": {
+        "title": "Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset",
+        "path": "https://vibrantcleanenergy.com/products/datasets/",
+        "description": (
+            "This dataset was produced by Vibrant Clean Energy and is licensed to "
+            "the public under the Creative Commons Attribution 4.0 International "
+            "license (CC-BY-4.0). The data consists of hourly, county-level renewable "
+            "generation profiles in the continental United States and was compiled "
+            "based on outputs from the NOAA HRRR weather model. Profiles are stated "
+            "as a capacity factor (a percentage of nameplate capacity) and exist for "
+            "onshore wind, offshore wind, and fixed-tilt solar generation types."
+        ),
+        "source_file_dict": {
+            "sorce_format": "Comma Separated Value (.csv)",
+        },
+        "keywords": sorted(
+            {
+                "solar",
+                "wind",
+                "time series",
+                "energy",
+                "electricity",
+                "generation",
+                "weather",
+                "capacity factor",
+                "hourly",
+                "united states",
+                "usa",
+                "resource adequacy",
+                "gridpath",
+                "vibrant clean energy",
+                "county",
+            }
+        ),
+        "license_raw": LICENSES["cc-by-4.0"],
+        "license_pudl": LICENSES["cc-by-4.0"],
+        "working_partitions": {"years": sorted(set(range(2019, 2024)))},
+        "contributors": [CONTRIBUTORS["vibrant-clean-energy"]],
     },
 }
 """Data source attributes by PUDL identifier."""

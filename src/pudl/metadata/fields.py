@@ -10,15 +10,20 @@ from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.constants import FIELD_DTYPES_PANDAS
 from pudl.metadata.dfs import BALANCING_AUTHORITY_SUBREGIONS_EIA
 from pudl.metadata.enums import (
+    ASSET_TYPES_FERC1,
     COUNTRY_CODES_ISO3166,
     CUSTOMER_CLASSES,
     DIVISION_CODES_US_CENSUS,
     ELECTRICITY_MARKET_MODULE_REGIONS,
+    ENERGY_DISPOSITION_TYPES_FERC1,
+    ENERGY_SOURCE_TYPES_FERC1,
     EPACEMS_MEASUREMENT_CODES,
     EPACEMS_STATES,
     FUEL_CLASSES,
     FUEL_TYPES_EIAAEO,
     GENERATION_ENERGY_SOURCES_EIA930,
+    INCOME_TYPES_FERC1,
+    LIABILITY_TYPES_FERC1,
     MODEL_CASES_EIAAEO,
     NERC_REGIONS,
     PLANT_PARTS,
@@ -31,6 +36,7 @@ from pudl.metadata.enums import (
     TECH_DESCRIPTIONS_EIAAEO,
     TECH_DESCRIPTIONS_NRELATB,
     US_TIMEZONES,
+    UTILITY_PLANT_ASSET_TYPES_FERC1,
 )
 from pudl.metadata.labels import ESTIMATED_OR_ACTUAL, FUEL_UNITS_EIA
 from pudl.metadata.sources import SOURCES
@@ -196,6 +202,25 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "asset_type": {
         "type": "string",
         "description": "Type of asset being reported to the core_ferc1__yearly_balance_sheet_assets_sched110 table.",
+        "constraints": {
+            "enum": ASSET_TYPES_FERC1.extend(
+                # Add all possible correction records into enum
+                [
+                    "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_correction",
+                    "assets_and_other_debits_correction",
+                    "construction_work_in_progress_correction",
+                    "current_and_accrued_assets_correction",
+                    "deferred_debits_correction",
+                    "nuclear_fuel_in_process_of_refinement_conversion_enrichment_and_fabrication_correction",
+                    "nuclear_fuel_net_correction",
+                    "nuclear_materials_held_for_sale_correction",
+                    "other_property_and_investments_correction",
+                    "utility_plant_and_construction_work_in_progress_correction",
+                    "utility_plant_and_nuclear_fuel_net_correction",
+                    "utility_plant_net_correction",
+                ]
+            )
+        },
     },
     "associated_combined_heat_power": {
         "type": "boolean",
@@ -440,6 +465,56 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "capacity_factor_ferc1": {
         "type": "number",
         "description": "Fraction of potential generation that was actually reported for a plant part.",
+    },
+    "capacity_factor_offshore_wind": {
+        "type": "number",
+        "description": (
+            "Estimated capacity factor (0-1) calculated for offshore wind "
+            "assuming a 140m hub height and 120m rotor diameter."
+            "Based on outputs from the NOAA HRRR operational numerical "
+            "weather prediction model. Capacity factors are normalized "
+            "to unity for maximal power output. "
+            "Vertical slices of the atmosphere are considered across the "
+            "defined rotor swept area. Bringing together wind speed, density, "
+            "temperature and icing information, a power capacity is estimated "
+            "using a representative power coefficient (Cp) curve to determine "
+            "the power from a given wind speed, atmospheric density and "
+            "temperature. There is no wake modeling included in the dataset."
+        ),
+    },
+    "capacity_factor_onshore_wind": {
+        "type": "number",
+        "description": (
+            "Estimated capacity factor (0-1) calculated for onshore wind "
+            "assuming a 100m hub height and 120m rotor diameter."
+            "Based on outputs from the NOAA HRRR operational numerical "
+            "weather prediction model. Capacity factors are normalized "
+            "to unity for maximal power output. "
+            "Vertical slices of the atmosphere are considered across the "
+            "defined rotor swept area. Bringing together wind speed, density, "
+            "temperature and icing information, a power capacity is estimated "
+            "using a representative power coefficient (Cp) curve to determine "
+            "the power from a given wind speed, atmospheric density and "
+            "temperature. There is no wake modeling included in the dataset."
+        ),
+    },
+    "capacity_factor_solar_pv": {
+        "type": "number",
+        "description": (
+            "Estimated capacity factor (0-1) calculated for solar PV "
+            "assuming a fixed axis panel tilted at latitude and DC power "
+            "outputs. Due to power production performance being correlated "
+            "with panel temperatures, during cold sunny periods, some solar "
+            "capacity factor values are greater than 1 (but less that 1.1)."
+            "All values are based on outputs from the NOAA HRRR operational "
+            "numerical weather prediction model. Capacity factors are "
+            "normalized to unity for maximal power output. "
+            "Pertinent surface weather variables are pulled such as "
+            "incoming short wave radiation, direct normal irradiance "
+            "(calculated in the HRRR 2016 forward), surface temperature "
+            "and other parameters. These are used in a non-linear I-V curve "
+            "translation to power capacity factors."
+        ),
     },
     "capacity_mw": {
         "type": "number",
@@ -811,6 +886,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "County name as specified in Census DP1 Data.",
     },
+    "county_or_lake_name": {
+        "type": "string",
+        "description": (
+            "County or lake name. Lake names may also appear several times--once for "
+            "each state it touches. FIPS ID values for lakes have been nulled."
+        ),
+    },
     "country_code": {
         "type": "string",
         "description": "Three letter ISO-3166 country code (e.g. USA or CAN).",
@@ -1142,6 +1224,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Account balance at end of year.",
         "unit": "USD",
     },
+    "energy_capacity_mwh": {
+        "type": "number",
+        "description": "The total amount of energy which the system can supply power before recharging is necessary, in megawatt-hours.",
+        "unit": "MWh",
+    },
     "energy_charges": {
         "type": "number",
         "description": "Energy charges (USD).",
@@ -1150,6 +1237,19 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "energy_disposition_type": {
         "type": "string",
         "description": "Type of energy disposition reported in the core_ferc1__yearly_energy_dispositions_sched401. Dispositions include sales to customers, re-sales of energy, energy used internally, losses, etc.",
+        "constraints": {
+            "enum": ENERGY_DISPOSITION_TYPES_FERC1.extend(
+                # Add all possible correction records to enum
+                [
+                    "disposition_of_energy_correction",
+                    "megawatt_hours_sold_sales_to_ultimate_consumers_correction",
+                    "net_energy_generation_correction",
+                    "net_energy_through_power_exchanges_correction",
+                    "net_transmission_energy_for_others_electric_power_wheeling_correction",
+                    "sources_of_energy_correction",
+                ]
+            )
+        },
     },
     "energy_efficiency_annual_actual_peak_reduction_mw": {
         "type": "number",
@@ -1290,6 +1390,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "The code representing the most predominant type of energy that fuels the generator.",
     },
+    "energy_source_code_1_plant_gen": {
+        "type": "string",
+        "description": "Code representing the most predominant type of energy that fuels the record_id_eia_plant_gen's generator.",
+    },
     "energy_source_code_2": {
         "type": "string",
         "description": "The code representing the second most predominant type of energy that fuels the generator",
@@ -1313,6 +1417,19 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "energy_source_type": {
         "type": "string",
         "description": "Type of energy source reported in the core_ferc1__yearly_energy_sources_sched401 table. There are three groups of energy sources: generation, power exchanges and transmission.",
+        "constraints": {
+            "enum": ENERGY_SOURCE_TYPES_FERC1.extend(
+                # Add all possible correction records to enum
+                [
+                    "disposition_of_energy_correction",
+                    "megawatt_hours_sold_sales_to_ultimate_consumers_correction",
+                    "net_energy_generation_correction",
+                    "net_energy_through_power_exchanges_correction",
+                    "net_transmission_energy_for_others_electric_power_wheeling_correction",
+                    "sources_of_energy_correction",
+                ]
+            )
+        },
     },
     "energy_storage": {
         "type": "boolean",
@@ -1369,6 +1486,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "ID dynamically assigned by PUDL to EIA records with multiple matches to a single FERC ID in the FERC-EIA manual matching process.",
     },
+    "ferc1_generator_agg_id_plant_gen": {
+        "type": "integer",
+        "description": "ID dynamically assigned by PUDL to EIA records with multiple matches to a single FERC ID in the FERC-EIA manual matching process. This ID is associated with the record_id_eia_plant_gen record.",
+    },
     "ferc_account": {
         "type": "string",
         "description": "Actual FERC Account number (e.g. '359.1') if available, or a PUDL assigned ID when FERC accounts have been split or combined in reporting.",
@@ -1388,6 +1509,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "ferc_acct_name": {
         "type": "string",
         "description": "Name of FERC account, derived from technology description and prime mover code.",
+        "constraints": {"enum": ["Hydraulic", "Nuclear", "Steam", "Other"]},
+    },
+    "ferc_acct_name_plant_gen": {
+        "type": "string",
+        "description": "Name of FERC account, derived from technology description and prime mover code. This name is associated with the record_id_eia_plant_gen record.",
         "constraints": {"enum": ["Hydraulic", "Nuclear", "Steam", "Other"]},
     },
     "ferc_cogen_docket_no": {
@@ -1603,9 +1729,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Total fuel cost for plant (in $USD).",
         "unit": "USD",
     },
-    "fuel_cost_from_eiaapi": {
-        "type": "boolean",
-        "description": "Indicates whether the fuel cost was derived from the EIA API.",
+    "fuel_cost_per_mmbtu_source": {
+        "type": "string",
+        "description": (
+            "Indicates the source of the values in the fuel_cost_per_mmbtu "
+            "column. The fuel cost either comes directly from the EIA forms "
+            "(original), was filled in from the EIA's API using state-level averages "
+            "(eiaapi), was filled in using a rolling average (rolling_avg) or "
+            "When the records get aggregated together and contain multiple "
+            "sources (mixed)."
+        ),
+        "constraints": {"enum": ["original", "eiaapi", "rolling_avg", "mixed"]},
     },
     "fuel_mmbtu": {
         "type": "number",
@@ -1820,6 +1954,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "sure you treat it as a string!"
         ),
     },
+    "generator_id_plant_gen": {
+        "type": "string",
+        "description": "Generator ID of the record_id_eia_plant_gen record. This is usually numeric, but sometimes includes letters. Make sure you treat it as a string!",
+    },
     "generator_id_epa": {
         "type": "string",
         "description": "Generator ID used by the EPA.",
@@ -1839,6 +1977,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "generator_operating_year": {
         "type": "integer",
         "description": "Year a generator went into service.",
+    },
+    "generator_operating_year_plant_gen": {
+        "type": "integer",
+        "description": "The year an associated plant_gen's generator went into service.",
     },
     "generator_retirement_date": {
         "type": "date",
@@ -1889,6 +2031,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "The energy contained in fuel burned, measured in million BTU.",
         "unit": "MMBtu",
+    },
+    "hour_of_year": {
+        "type": "integer",
+        "description": "Integer between 1 and 8670 representing the hour in a given year.",
     },
     "unit_heat_rate_mmbtu_per_mwh": {
         "type": "number",
@@ -1949,7 +2095,150 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "income_type": {
         "type": "string",
-        "description": "Type of income reported in income_statement_ferc1 table.",
+        "description": "Type of income reported in core_ferc1__yearly_income_statements_sched114 table.",
+        "constraints": {
+            "enum": INCOME_TYPES_FERC1.extend(
+                # Add all possible correction records to enum
+                [
+                    "accretion_expense_correction",
+                    "accretion_expense_subdimension_correction",
+                    "allowance_for_borrowed_funds_used_during_construction_credit_correction",
+                    "allowance_for_borrowed_funds_used_during_construction_credit_subdimension_correction",
+                    "allowance_for_other_funds_used_during_construction_correction",
+                    "allowance_for_other_funds_used_during_construction_subdimension_correction",
+                    "amortization_and_depletion_of_utility_plant_correction",
+                    "amortization_and_depletion_of_utility_plant_subdimension_correction",
+                    "amortization_of_conversion_expenses_correction",
+                    "amortization_of_conversion_expenses_subdimension_correction",
+                    "amortization_of_debt_discount_and_expense_correction",
+                    "amortization_of_debt_discount_and_expense_subdimension_correction",
+                    "amortization_of_electric_plant_acquisition_adjustments_correction",
+                    "amortization_of_electric_plant_acquisition_adjustments_subdimension_correction",
+                    "amortization_of_gain_on_reacquired_debt_credit_correction",
+                    "amortization_of_gain_on_reacquired_debt_credit_subdimension_correction",
+                    "amortization_of_loss_on_reacquired_debt_correction",
+                    "amortization_of_loss_on_reacquired_debt_subdimension_correction",
+                    "amortization_of_premium_on_debt_credit_correction",
+                    "amortization_of_premium_on_debt_credit_subdimension_correction",
+                    "amortization_of_property_losses_unrecovered_plant_and_regulatory_study_costs_correction",
+                    "amortization_of_property_losses_unrecovered_plant_and_regulatory_study_costs_subdimension_correction",
+                    "costs_and_expenses_of_merchandising_jobbing_and_contract_work_correction",
+                    "costs_and_expenses_of_merchandising_jobbing_and_contract_work_subdimension_correction",
+                    "depreciation_expense_correction",
+                    "depreciation_expense_for_asset_retirement_costs_correction",
+                    "depreciation_expense_for_asset_retirement_costs_subdimension_correction",
+                    "depreciation_expense_subdimension_correction",
+                    "donations_correction",
+                    "donations_subdimension_correction",
+                    "equity_in_earnings_of_subsidiary_companies_correction",
+                    "equity_in_earnings_of_subsidiary_companies_subdimension_correction",
+                    "expenditures_for_certain_civic_political_and_related_activities_correction",
+                    "expenditures_for_certain_civic_political_and_related_activities_subdimension_correction",
+                    "expenses_of_nonutility_operations_correction",
+                    "expenses_of_nonutility_operations_subdimension_correction",
+                    "extraordinary_deductions_correction",
+                    "extraordinary_deductions_subdimension_correction",
+                    "extraordinary_income_correction",
+                    "extraordinary_income_subdimension_correction",
+                    "extraordinary_items_after_taxes_correction",
+                    "extraordinary_items_after_taxes_subdimension_correction",
+                    "gain_on_disposition_of_property_correction",
+                    "gain_on_disposition_of_property_subdimension_correction",
+                    "gains_from_disposition_of_allowances_correction",
+                    "gains_from_disposition_of_allowances_subdimension_correction",
+                    "gains_from_disposition_of_plant_correction",
+                    "gains_from_disposition_of_plant_subdimension_correction",
+                    "income_before_extraordinary_items_correction",
+                    "income_before_extraordinary_items_subdimension_correction",
+                    "income_taxes_extraordinary_items_correction",
+                    "income_taxes_extraordinary_items_subdimension_correction",
+                    "income_taxes_federal_correction",
+                    "income_taxes_federal_subdimension_correction",
+                    "income_taxes_operating_income_correction",
+                    "income_taxes_operating_income_subdimension_correction",
+                    "income_taxes_other_correction",
+                    "income_taxes_other_subdimension_correction",
+                    "income_taxes_utility_operating_income_other_correction",
+                    "income_taxes_utility_operating_income_other_subdimension_correction",
+                    "interest_and_dividend_income_correction",
+                    "interest_and_dividend_income_subdimension_correction",
+                    "interest_on_debt_to_associated_companies_correction",
+                    "interest_on_debt_to_associated_companies_subdimension_correction",
+                    "interest_on_long_term_debt_correction",
+                    "interest_on_long_term_debt_subdimension_correction",
+                    "investment_tax_credit_adjustments_correction",
+                    "investment_tax_credit_adjustments_nonutility_operations_correction",
+                    "investment_tax_credit_adjustments_nonutility_operations_subdimension_correction",
+                    "investment_tax_credit_adjustments_subdimension_correction",
+                    "investment_tax_credits_correction",
+                    "investment_tax_credits_subdimension_correction",
+                    "life_insurance_correction",
+                    "life_insurance_subdimension_correction",
+                    "loss_on_disposition_of_property_correction",
+                    "loss_on_disposition_of_property_subdimension_correction",
+                    "losses_from_disposition_of_allowances_correction",
+                    "losses_from_disposition_of_allowances_subdimension_correction",
+                    "losses_from_disposition_of_service_company_plant_correction",
+                    "losses_from_disposition_of_service_company_plant_subdimension_correction",
+                    "maintenance_expense_correction",
+                    "maintenance_expense_subdimension_correction",
+                    "miscellaneous_amortization_correction",
+                    "miscellaneous_amortization_subdimension_correction",
+                    "miscellaneous_nonoperating_income_correction",
+                    "miscellaneous_nonoperating_income_subdimension_correction",
+                    "net_extraordinary_items_correction",
+                    "net_extraordinary_items_subdimension_correction",
+                    "net_income_loss_correction",
+                    "net_income_loss_subdimension_correction",
+                    "net_interest_charges_correction",
+                    "net_interest_charges_subdimension_correction",
+                    "net_other_income_and_deductions_correction",
+                    "net_other_income_and_deductions_subdimension_correction",
+                    "net_utility_operating_income_correction",
+                    "net_utility_operating_income_subdimension_correction",
+                    "nonoperating_rental_income_correction",
+                    "nonoperating_rental_income_subdimension_correction",
+                    "operating_revenues_correction",
+                    "operating_revenues_subdimension_correction",
+                    "operation_expense_correction",
+                    "operation_expense_subdimension_correction",
+                    "other_deductions_correction",
+                    "other_deductions_subdimension_correction",
+                    "other_income_correction",
+                    "other_income_deductions_correction",
+                    "other_income_deductions_subdimension_correction",
+                    "other_income_subdimension_correction",
+                    "other_interest_expense_correction",
+                    "other_interest_expense_subdimension_correction",
+                    "penalties_correction",
+                    "penalties_subdimension_correction",
+                    "provision_for_deferred_income_taxes_credit_operating_income_correction",
+                    "provision_for_deferred_income_taxes_credit_operating_income_subdimension_correction",
+                    "provision_for_deferred_income_taxes_credit_other_income_and_deductions_correction",
+                    "provision_for_deferred_income_taxes_credit_other_income_and_deductions_subdimension_correction",
+                    "provision_for_deferred_income_taxes_other_income_and_deductions_correction",
+                    "provision_for_deferred_income_taxes_other_income_and_deductions_subdimension_correction",
+                    "provisions_for_deferred_income_taxes_utility_operating_income_correction",
+                    "provisions_for_deferred_income_taxes_utility_operating_income_subdimension_correction",
+                    "regulatory_credits_correction",
+                    "regulatory_credits_subdimension_correction",
+                    "regulatory_debits_correction",
+                    "regulatory_debits_subdimension_correction",
+                    "revenues_from_merchandising_jobbing_and_contract_work_correction",
+                    "revenues_from_merchandising_jobbing_and_contract_work_subdimension_correction",
+                    "revenues_from_nonutility_operations_correction",
+                    "revenues_from_nonutility_operations_subdimension_correction",
+                    "taxes_on_other_income_and_deductions_correction",
+                    "taxes_on_other_income_and_deductions_subdimension_correction",
+                    "taxes_other_than_income_taxes_other_income_and_deductions_correction",
+                    "taxes_other_than_income_taxes_other_income_and_deductions_subdimension_correction",
+                    "taxes_other_than_income_taxes_utility_operating_income_correction",
+                    "taxes_other_than_income_taxes_utility_operating_income_subdimension_correction",
+                    "utility_operating_expenses_correction",
+                    "utility_operating_expenses_subdimension_correction",
+                ]
+            )
+        },
     },
     "increase_in_other_regulatory_liabilities": {
         "type": "number",
@@ -2072,6 +2361,21 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "liability_type": {
         "type": "string",
         "description": "Type of liability being reported to the core_ferc1__yearly_balance_sheet_liabilities_sched110 table.",
+        "constraints": {
+            "enum": LIABILITY_TYPES_FERC1.extend(
+                # Add all possible correction records to enum
+                [
+                    "current_and_accrued_liabilities_correction",
+                    "deferred_credits_correction",
+                    "liabilities_and_other_credits_correction",
+                    "long_term_debt_correction",
+                    "other_noncurrent_liabilities_correction",
+                    "proprietary_capital_correction",
+                    "retained_earnings_correction",
+                    "unappropriated_undistributed_subsidiary_earnings_correction",
+                ]
+            )
+        },
     },
     "license_id_ferc1": {
         "type": "integer",
@@ -2450,9 +2754,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
-    "net_demand_mwh": {
+    "net_demand_forecast_mwh": {
         "type": "number",
-        "description": "Net electricity demand for the specified period in megawatt-hours (MWh).",
+        "description": "Net forecasted electricity demand for the specific period in megawatt-hours (MWh).",
         "unit": "MWh",
     },
     "net_generation_adjusted_mwh": {
@@ -2705,6 +3009,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "operational_status_pudl": {
         "type": "string",
         "description": "The operating status of the asset using PUDL categories.",
+        "constraints": {"enum": ["operating", "retired", "proposed"]},
+    },
+    "operational_status_pudl_plant_gen": {
+        "type": "string",
+        "description": "The operating status of the asset using PUDL categories of the record_id_eia_plant_gen record .",
         "constraints": {"enum": ["operating", "retired", "proposed"]},
     },
     "opex_allowances": {"type": "number", "description": "Allowances.", "unit": "USD"},
@@ -3267,6 +3576,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Code for the type of prime mover (e.g. CT, CG)",
     },
+    "prime_mover_code_plant_gen": {
+        "type": "string",
+        "description": "Code for the type of prime mover (e.g. CT, CG) associated with the record_id_eia_plant_gen.",
+    },
     "project_num": {"type": "integer", "description": "FERC Licensed Project Number."},
     "pudl_version": {
         "type": "string",
@@ -3359,6 +3672,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Identifier for EIA plant parts analysis records.",
     },
+    "record_id_eia_plant_gen": {
+        "type": "string",
+        "description": "Identifier for EIA plant parts analysis records which is at the plant_part level of plant_gen - meaning each record pertains to one generator.",
+    },
     "record_id_ferc1": {
         "type": "string",
         "description": "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.",
@@ -3417,7 +3734,30 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "respondent_id_ferc714": {
         "type": "integer",
-        "description": "FERC Form 714 respondent ID. Note that this ID does not correspond to FERC respondent IDs from other forms.",
+        "description": (
+            "PUDL-assigned identifying a respondent to FERC Form 714. This ID associates "
+            "natively reported respondent IDs from the orignal CSV and XBRL data sources."
+        ),
+    },
+    "respondent_id_ferc714_csv": {
+        "type": "integer",
+        "description": (
+            "FERC Form 714 respondent ID from CSV reported data - published from years: 2006-2020. "
+            "This ID is linked to the newer years of reported XBRL data through the PUDL-assigned "
+            "respondent_id_ferc714 ID. "
+            "This ID was originally reported as respondent_id. "
+            "Note that this ID does not correspond to FERC respondent IDs from other forms."
+        ),
+    },
+    "respondent_id_ferc714_xbrl": {
+        "type": "string",
+        "description": (
+            "FERC Form 714 respondent ID from XBRL reported data - published from years: 2021-present. "
+            "This ID is linked to the older years of reported CSV data through the PUDL-assigned "
+            "respondent_id_ferc714 ID. "
+            "This ID was originally reported as entity_id. "
+            "Note that this ID does not correspond to FERC respondent IDs from other forms."
+        ),
     },
     "respondent_name_ferc714": {
         "type": "string",
@@ -4025,6 +4365,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "EIA estimated summer capacity (in MWh).",
         "unit": "MWh",
     },
+    "summer_peak_demand_forecast_mw": {
+        "type": "number",
+        "description": (
+            "The maximum forecasted hourly sumemr load (for the months of June through "
+            "September)."
+        ),
+        "unit": "MW",
+    },
     "summer_peak_demand_mw": {
         "type": "number",
         "description": (
@@ -4073,6 +4421,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "technology_description": {
         "type": "string",
         "description": "High level description of the technology used by the generator to produce electricity.",
+    },
+    "technology_description_plant_gen": {
+        "type": "string",
+        "description": "High level description of the technology used by the record_id_eia_plant_gen's generator to produce electricity.",
     },
     "technology_description_detail_1": {
         "type": "string",
@@ -4318,6 +4670,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "Dynamically assigned PUDL unit id. WARNING: This ID is not guaranteed to be static long term as the input data and algorithm may evolve over time.",
     },
+    "unit_id_pudl_plant_gen": {
+        "type": "integer",
+        "description": "Dynamically assigned PUDL unit id of the record_id_eia_plant_gen. WARNING: This ID is not guaranteed to be static long term as the input data and algorithm may evolve over time.",
+    },
     "unit_nox": {
         "type": "string",
         "description": "Numeric value for the unit of measurement specified for nitrogen oxide.",
@@ -4381,6 +4737,67 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "utility_plant_asset_type": {
         "type": "string",
         "description": "Type of utility plant asset reported in the core_ferc1__yearly_utility_plant_summary_sched200 table. Assets include those leased to others, held for future use, construction work-in-progress and details of accumulated depreciation.",
+        "constraints": {
+            "enum": UTILITY_PLANT_ASSET_TYPES_FERC1.extend(
+                # Add all possible correction records to enum
+                [
+                    "abandonment_of_leases_correction",
+                    "abandonment_of_leases_subdimension_correction",
+                    "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_correction",
+                    "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_subdimension_correction",
+                    "amortization_and_depletion_of_producing_natural_gas_land_and_land_rights_utility_plant_in_service_correction",
+                    "amortization_and_depletion_of_producing_natural_gas_land_and_land_rights_utility_plant_in_service_subdimension_correction",
+                    "amortization_and_depletion_utility_plant_leased_to_others_correction",
+                    "amortization_and_depletion_utility_plant_leased_to_others_subdimension_correction",
+                    "amortization_of_other_utility_plant_utility_plant_in_service_correction",
+                    "amortization_of_other_utility_plant_utility_plant_in_service_subdimension_correction",
+                    "amortization_of_plant_acquisition_adjustment_correction",
+                    "amortization_of_plant_acquisition_adjustment_subdimension_correction",
+                    "amortization_of_underground_storage_land_and_land_rights_utility_plant_in_service_correction",
+                    "amortization_of_underground_storage_land_and_land_rights_utility_plant_in_service_subdimension_correction",
+                    "amortization_utility_plant_held_for_future_use_correction",
+                    "amortization_utility_plant_held_for_future_use_subdimension_correction",
+                    "construction_work_in_progress_correction",
+                    "construction_work_in_progress_subdimension_correction",
+                    "depreciation_amortization_and_depletion_utility_plant_in_service_correction",
+                    "depreciation_amortization_and_depletion_utility_plant_in_service_subdimension_correction",
+                    "depreciation_amortization_and_depletion_utility_plant_leased_to_others_correction",
+                    "depreciation_amortization_and_depletion_utility_plant_leased_to_others_subdimension_correction",
+                    "depreciation_and_amortization_utility_plant_held_for_future_use_correction",
+                    "depreciation_and_amortization_utility_plant_held_for_future_use_subdimension_correction",
+                    "depreciation_utility_plant_held_for_future_use_correction",
+                    "depreciation_utility_plant_held_for_future_use_subdimension_correction",
+                    "depreciation_utility_plant_in_service_correction",
+                    "depreciation_utility_plant_in_service_subdimension_correction",
+                    "depreciation_utility_plant_leased_to_others_correction",
+                    "depreciation_utility_plant_leased_to_others_subdimension_correction",
+                    "utility_plant_acquisition_adjustment_correction",
+                    "utility_plant_acquisition_adjustment_subdimension_correction",
+                    "utility_plant_and_construction_work_in_progress_correction",
+                    "utility_plant_and_construction_work_in_progress_subdimension_correction",
+                    "utility_plant_held_for_future_use_correction",
+                    "utility_plant_held_for_future_use_subdimension_correction",
+                    "utility_plant_in_service_classified_and_property_under_capital_leases_correction",
+                    "utility_plant_in_service_classified_and_property_under_capital_leases_subdimension_correction",
+                    "utility_plant_in_service_classified_and_unclassified_correction",
+                    "utility_plant_in_service_classified_and_unclassified_subdimension_correction",
+                    "utility_plant_in_service_classified_correction",
+                    "utility_plant_in_service_classified_subdimension_correction",
+                    "utility_plant_in_service_completed_construction_not_classified_correction",
+                    "utility_plant_in_service_completed_construction_not_classified_subdimension_correction",
+                    "utility_plant_in_service_experimental_plant_unclassified_correction",
+                    "utility_plant_in_service_experimental_plant_unclassified_subdimension_correction",
+                    "utility_plant_in_service_plant_purchased_or_sold_correction",
+                    "utility_plant_in_service_plant_purchased_or_sold_subdimension_correction",
+                    "utility_plant_in_service_property_under_capital_leases_correction",
+                    "utility_plant_in_service_property_under_capital_leases_subdimension_correction",
+                    "utility_plant_leased_to_others_correction",
+                    "utility_plant_leased_to_others_subdimension_correction",
+                    "utility_plant_net_correction",
+                    "utility_plant_net_subdimension_correction",
+                ]
+            )
+        },
     },
     "utility_type": {
         "type": "string",
@@ -4501,6 +4918,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "EIA estimated winter capacity (in MWh).",
         "unit": "MWh",
+    },
+    "winter_peak_demand_forecast_mw": {
+        "type": "number",
+        "description": (
+            "The maximum forecasted hourly winter load (for the months of January "
+            "through March)."
+        ),
+        "unit": "MW",
     },
     "winter_peak_demand_mw": {
         "type": "number",
@@ -5037,6 +5462,574 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
             },
         }
     },
+    "core_ferc1__yearly_plant_in_service_sched204": {
+        "ferc_account_label": {
+            "type": "string",
+            "constraints": {
+                "enum": {
+                    "accessory_electric_equipment_hydraulic_production",
+                    "accessory_electric_equipment_nuclear_production",
+                    "accessory_electric_equipment_other_production",
+                    "accessory_electric_equipment_steam_production",
+                    "asset_retirement_costs_for_distribution_plant_distribution_plant",
+                    "asset_retirement_costs_for_general_plant_general_plant",
+                    "asset_retirement_costs_for_hydraulic_production_plant_hydraulic_production",
+                    "asset_retirement_costs_for_nuclear_production_plant_nuclear_production",
+                    "asset_retirement_costs_for_other_production_plant_other_production",
+                    "asset_retirement_costs_for_regional_transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant",
+                    "asset_retirement_costs_for_steam_production_plant_steam_production",
+                    "asset_retirement_costs_for_transmission_plant_transmission_plant",
+                    "boiler_plant_equipment_steam_production",
+                    "communication_equipment_general_plant",
+                    "communication_equipment_regional_transmission_and_market_operation_plant",
+                    "computer_hardware_regional_transmission_and_market_operation_plant",
+                    "computer_software_regional_transmission_and_market_operation_plant",
+                    "distribution_plant",
+                    "electric_plant_in_service",
+                    "electric_plant_in_service_and_completed_construction_not_classified_electric",
+                    "electric_plant_purchased",
+                    "electric_plant_sold",
+                    "energy_storage_equipment_distribution_plant",
+                    "energy_storage_equipment_other_production",
+                    "energy_storage_equipment_transmission_plant",
+                    "engines_and_engine_driven_generators_steam_production",
+                    "experimental_electric_plant_unclassified",
+                    "franchises_and_consents",
+                    "fuel_holders_products_and_accessories_other_production",
+                    "general_plant",
+                    "general_plant_excluding_other_tangible_property_and_asset_retirement_costs_for_general_plant",
+                    "generators_other_production",
+                    "hydraulic_production_plant",
+                    "installations_on_customer_premises_distribution_plant",
+                    "intangible_plant",
+                    "laboratory_equipment_general_plant",
+                    "land_and_land_rights_distribution_plant",
+                    "land_and_land_rights_general_plant",
+                    "land_and_land_rights_hydraulic_production",
+                    "land_and_land_rights_nuclear_production",
+                    "land_and_land_rights_other_production",
+                    "land_and_land_rights_regional_transmission_and_market_operation_plant",
+                    "land_and_land_rights_steam_production",
+                    "land_and_land_rights_transmission_plant",
+                    "leased_property_on_customer_premises_distribution_plant",
+                    "line_transformers_distribution_plant",
+                    "meters_distribution_plant",
+                    "miscellaneous_equipment_general_plant",
+                    "miscellaneous_intangible_plant",
+                    "miscellaneous_power_plant_equipment_hydraulic_production",
+                    "miscellaneous_power_plant_equipment_nuclear_production",
+                    "miscellaneous_power_plant_equipment_other_production",
+                    "miscellaneous_power_plant_equipment_steam_production",
+                    "miscellaneous_regional_transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant",
+                    "nuclear_production_plant",
+                    "office_furniture_and_equipment_general_plant",
+                    "organization",
+                    "other_production_plant",
+                    "other_tangible_property_general_plant",
+                    "overhead_conductors_and_devices_distribution_plant",
+                    "overhead_conductors_and_devices_transmission_plant",
+                    "poles_and_fixtures_transmission_plant",
+                    "poles_towers_and_fixtures_distribution_plant",
+                    "power_operated_equipment_general_plant",
+                    "prime_movers_other_production",
+                    "production_plant",
+                    "reactor_plant_equipment_nuclear_production",
+                    "reservoirs_dams_and_waterways_hydraulic_production",
+                    "roads_and_trails_transmission_plant",
+                    "roads_railroads_and_bridges_hydraulic_production",
+                    "services_distribution_plant",
+                    "station_equipment_distribution_plant",
+                    "station_equipment_transmission_plant",
+                    "steam_production_plant",
+                    "stores_equipment_general_plant",
+                    "street_lighting_and_signal_systems_distribution_plant",
+                    "structures_and_improvements_distribution_plant",
+                    "structures_and_improvements_general_plant",
+                    "structures_and_improvements_hydraulic_production",
+                    "structures_and_improvements_nuclear_production",
+                    "structures_and_improvements_other_production",
+                    "structures_and_improvements_regional_transmission_and_market_operation_plant",
+                    "structures_and_improvements_steam_production",
+                    "structures_and_improvements_transmission_plant",
+                    "tools_shop_and_garage_equipment_general_plant",
+                    "towers_and_fixtures_transmission_plant",
+                    "transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant",
+                    "transmission_plant",
+                    "transportation_equipment_general_plant",
+                    "turbogenerator_units_nuclear_production",
+                    "turbogenerator_units_steam_production",
+                    "underground_conductors_and_devices_distribution_plant",
+                    "underground_conductors_and_devices_transmission_plant",
+                    "underground_conduit_distribution_plant",
+                    "underground_conduit_transmission_plant",
+                    "water_wheels_turbines_and_generators_hydraulic_production",
+                    "distribution_plant_correction",
+                    "electric_plant_in_service_and_completed_construction_not_classified_electric_correction",
+                    "electric_plant_in_service_correction",
+                    "general_plant_correction",
+                    "general_plant_excluding_other_tangible_property_and_asset_retirement_costs_for_general_plant_correction",
+                    "hydraulic_production_plant_correction",
+                    "intangible_plant_correction",
+                    "nuclear_production_plant_correction",
+                    "other_production_plant_correction",
+                    "production_plant_correction",
+                    "steam_production_plant_correction",
+                    "transmission_and_market_operation_plant_regional_transmission_and_market_operation_plant_correction",
+                    "transmission_plant_correction",
+                }
+            },
+        }
+    },
+    "core_ferc1__yearly_depreciation_summary_sched336": {
+        "ferc_account_label": {
+            "type": "string",
+            "constraints": {
+                "enum": {
+                    "amortization_limited_term_electric_plant",
+                    "amortization_limited_term_electric_plant_correction",
+                    "amortization_limited_term_electric_plant_subdimension_correction",
+                    "amortization_other_electric_plant",
+                    "amortization_other_electric_plant_correction",
+                    "amortization_other_electric_plant_subdimension_correction",
+                    "depreciation_amortization_total",
+                    "depreciation_amortization_total_correction",
+                    "depreciation_amortization_total_subdimension_correction",
+                    "depreciation_expense",
+                    "depreciation_expense_asset_retirement",
+                    "depreciation_expense_asset_retirement_correction",
+                    "depreciation_expense_asset_retirement_subdimension_correction",
+                    "depreciation_expense_correction",
+                    "depreciation_expense_subdimension_correction",
+                }
+            },
+        }
+    },
+    "core_ferc1__yearly_depreciation_changes_sched219": {
+        "depreciation_type": {
+            "type": "string",
+            "constraints": {
+                "enum": {
+                    "book_cost_of_asset_retirement_costs",
+                    "book_cost_of_asset_retirement_costs_correction",
+                    "book_cost_of_asset_retirement_costs_subdimension_correction",
+                    "book_cost_of_retired_plant",
+                    "book_cost_of_retired_plant_correction",
+                    "book_cost_of_retired_plant_subdimension_correction",
+                    "cost_of_removal_of_plant",
+                    "cost_of_removal_of_plant_correction",
+                    "cost_of_removal_of_plant_subdimension_correction",
+                    "depreciation_expense_excluding_adjustments",
+                    "depreciation_expense_excluding_adjustments_correction",
+                    "depreciation_expense_excluding_adjustments_subdimension_correction",
+                    "depreciation_expense_for_asset_retirement_costs",
+                    "depreciation_expense_for_asset_retirement_costs_correction",
+                    "depreciation_expense_for_asset_retirement_costs_subdimension_correction",
+                    "depreciation_provision",
+                    "depreciation_provision_correction",
+                    "depreciation_provision_subdimension_correction",
+                    "ending_balance",
+                    "ending_balance_correction",
+                    "ending_balance_subdimension_correction",
+                    "expenses_of_electric_plant_leased_to_others",
+                    "expenses_of_electric_plant_leased_to_others_correction",
+                    "expenses_of_electric_plant_leased_to_others_subdimension_correction",
+                    "net_charges_for_retired_plant",
+                    "net_charges_for_retired_plant_correction",
+                    "net_charges_for_retired_plant_subdimension_correction",
+                    "other_accounts",
+                    "other_accounts_correction",
+                    "other_accounts_subdimension_correction",
+                    "other_adjustments_to_accumulated_depreciation",
+                    "other_adjustments_to_accumulated_depreciation_correction",
+                    "other_adjustments_to_accumulated_depreciation_subdimension_correction",
+                    "other_clearing_accounts",
+                    "other_clearing_accounts_correction",
+                    "other_clearing_accounts_subdimension_correction",
+                    "salvage_value_of_retired_plant",
+                    "salvage_value_of_retired_plant_correction",
+                    "salvage_value_of_retired_plant_subdimension_correction",
+                    "starting_balance",
+                    "starting_balance_correction",
+                    "starting_balance_subdimension_correction",
+                    "transportation_expenses_clearing",
+                    "transportation_expenses_clearing_correction",
+                    "transportation_expenses_clearing_subdimension_correction",
+                }
+            },
+        }
+    },
+    "core_ferc1__yearly_depreciation_by_function_sched219": {
+        "depreciation_type": {
+            "type": "string",
+            "constraints": {
+                "enum": {
+                    "accumulated_depreciation",
+                    "accumulated_depreciation_correction",
+                    "accumulated_depreciation_subdimension_correction",
+                }
+            },
+        }
+    },
+    "core_ferc1__yearly_operating_expenses_sched320": {
+        "expense_type": {
+            "type": "string",
+            "constraints": {
+                "enum": {
+                    "administrative_and_general_expenses",
+                    "administrative_and_general_expenses_correction",
+                    "administrative_and_general_operation_expense",
+                    "administrative_and_general_operation_expense_correction",
+                    "administrative_and_general_salaries",
+                    "administrative_expenses_transferred_credit",
+                    "advertising_expenses",
+                    "allowances",
+                    "ancillary_services_market_administration",
+                    "capacity_market_administration",
+                    "coolants_and_water",
+                    "customer_account_expenses",
+                    "customer_account_expenses_correction",
+                    "customer_assistance_expenses",
+                    "customer_installations_expenses",
+                    "customer_records_and_collection_expenses",
+                    "customer_service_and_information_expenses",
+                    "customer_service_and_information_expenses_correction",
+                    "day_ahead_and_real_time_market_administration",
+                    "demonstrating_and_selling_expenses",
+                    "distribution_expenses",
+                    "distribution_expenses_correction",
+                    "distribution_maintenance_expense_electric",
+                    "distribution_maintenance_expense_electric_correction",
+                    "distribution_operation_expenses_electric",
+                    "distribution_operation_expenses_electric_correction",
+                    "duplicate_charges_credit",
+                    "electric_expenses_hydraulic_power_generation",
+                    "electric_expenses_nuclear_power_generation",
+                    "electric_expenses_steam_power_generation",
+                    "employee_pensions_and_benefits",
+                    "franchise_requirements",
+                    "fuel",
+                    "fuel_steam_power_generation",
+                    "general_advertising_expenses",
+                    "generation_expenses",
+                    "generation_interconnection_studies",
+                    "hydraulic_expenses",
+                    "hydraulic_power_generation_maintenance_expense",
+                    "hydraulic_power_generation_maintenance_expense_correction",
+                    "hydraulic_power_generation_operations_expense",
+                    "hydraulic_power_generation_operations_expense_correction",
+                    "informational_and_instructional_advertising_expenses",
+                    "injuries_and_damages",
+                    "load_dispatch_monitor_and_operate_transmission_system",
+                    "load_dispatch_reliability",
+                    "load_dispatch_transmission_service_and_scheduling",
+                    "load_dispatching",
+                    "load_dispatching_transmission_expense",
+                    "maintenance_of_boiler_plant_steam_power_generation",
+                    "maintenance_of_communication_equipment_electric_transmission",
+                    "maintenance_of_communication_equipment_regional_market_expenses",
+                    "maintenance_of_computer_hardware",
+                    "maintenance_of_computer_hardware_transmission",
+                    "maintenance_of_computer_software",
+                    "maintenance_of_computer_software_transmission",
+                    "maintenance_of_electric_plant_hydraulic_power_generation",
+                    "maintenance_of_electric_plant_nuclear_power_generation",
+                    "maintenance_of_electric_plant_steam_power_generation",
+                    "maintenance_of_energy_storage_equipment",
+                    "maintenance_of_energy_storage_equipment_other_power_generation",
+                    "maintenance_of_energy_storage_equipment_transmission",
+                    "maintenance_of_general_plant",
+                    "maintenance_of_generating_and_electric_plant",
+                    "maintenance_of_line_transformers",
+                    "maintenance_of_meters",
+                    "maintenance_of_miscellaneous_distribution_plant",
+                    "maintenance_of_miscellaneous_hydraulic_plant",
+                    "maintenance_of_miscellaneous_market_operation_plant",
+                    "maintenance_of_miscellaneous_nuclear_plant",
+                    "maintenance_of_miscellaneous_other_power_generation_plant",
+                    "maintenance_of_miscellaneous_regional_transmission_plant",
+                    "maintenance_of_miscellaneous_steam_plant",
+                    "maintenance_of_miscellaneous_transmission_plant",
+                    "maintenance_of_overhead_lines",
+                    "maintenance_of_overhead_lines_transmission",
+                    "maintenance_of_reactor_plant_equipment_nuclear_power_generation",
+                    "maintenance_of_reservoirs_dams_and_waterways",
+                    "maintenance_of_station_equipment",
+                    "maintenance_of_station_equipment_transmission",
+                    "maintenance_of_street_lighting_and_signal_systems",
+                    "maintenance_of_structures",
+                    "maintenance_of_structures_and_improvements_regional_market_expenses",
+                    "maintenance_of_structures_distribution_expense",
+                    "maintenance_of_structures_hydraulic_power_generation",
+                    "maintenance_of_structures_nuclear_power_generation",
+                    "maintenance_of_structures_steam_power_generation",
+                    "maintenance_of_structures_transmission_expense",
+                    "maintenance_of_underground_lines",
+                    "maintenance_of_underground_lines_transmission",
+                    "maintenance_supervision_and_engineering",
+                    "maintenance_supervision_and_engineering_electric_transmission_expenses",
+                    "maintenance_supervision_and_engineering_hydraulic_power_generation",
+                    "maintenance_supervision_and_engineering_nuclear_power_generation",
+                    "maintenance_supervision_and_engineering_other_power_generation",
+                    "maintenance_supervision_and_engineering_steam_power_generation",
+                    "market_facilitation_monitoring_and_compliance_services",
+                    "market_monitoring_and_compliance",
+                    "meter_expenses",
+                    "meter_reading_expenses",
+                    "miscellaneous_customer_accounts_expenses",
+                    "miscellaneous_customer_service_and_informational_expenses",
+                    "miscellaneous_distribution_expenses",
+                    "miscellaneous_general_expenses",
+                    "miscellaneous_hydraulic_power_generation_expenses",
+                    "miscellaneous_nuclear_power_expenses",
+                    "miscellaneous_other_power_generation_expenses",
+                    "miscellaneous_sales_expenses",
+                    "miscellaneous_steam_power_expenses",
+                    "miscellaneous_transmission_expenses",
+                    "nuclear_fuel_expense",
+                    "nuclear_power_generation_maintenance_expense",
+                    "nuclear_power_generation_maintenance_expense_correction",
+                    "nuclear_power_generation_operations_expense",
+                    "nuclear_power_generation_operations_expense_correction",
+                    "office_supplies_and_expenses",
+                    "operation_of_energy_storage_equipment",
+                    "operation_of_energy_storage_equipment_distribution",
+                    "operation_of_energy_storage_equipment_transmission_expense",
+                    "operation_supervision",
+                    "operation_supervision_and_engineering_distribution_expense",
+                    "operation_supervision_and_engineering_electric_transmission_expenses",
+                    "operation_supervision_and_engineering_hydraulic_power_generation",
+                    "operation_supervision_and_engineering_nuclear_power_generation",
+                    "operation_supervision_and_engineering_other_power_generation",
+                    "operation_supervision_and_engineering_steam_power_generation",
+                    "operations_and_maintenance_expenses_electric",
+                    "operations_and_maintenance_expenses_electric_correction",
+                    "other_expenses_other_power_supply_expenses",
+                    "other_power_generation_maintenance_expense",
+                    "other_power_generation_maintenance_expense_correction",
+                    "other_power_generation_operations_expense",
+                    "other_power_generation_operations_expense_correction",
+                    "other_power_supply_expense",
+                    "other_power_supply_expense_correction",
+                    "outside_services_employed",
+                    "overhead_line_expense",
+                    "overhead_line_expenses",
+                    "power_production_expenses",
+                    "power_production_expenses_correction",
+                    "power_production_expenses_hydraulic_power",
+                    "power_production_expenses_hydraulic_power_correction",
+                    "power_production_expenses_nuclear_power",
+                    "power_production_expenses_nuclear_power_correction",
+                    "power_production_expenses_other_power",
+                    "power_production_expenses_other_power_correction",
+                    "power_production_expenses_steam_power",
+                    "power_production_expenses_steam_power_correction",
+                    "power_purchased_for_storage_operations",
+                    "property_insurance",
+                    "purchased_power",
+                    "regional_market_expenses",
+                    "regional_market_expenses_correction",
+                    "regional_market_maintenance_expense",
+                    "regional_market_maintenance_expense_correction",
+                    "regional_market_operation_expense",
+                    "regional_market_operation_expense_correction",
+                    "regulatory_commission_expenses",
+                    "reliability_planning_and_standards_development",
+                    "reliability_planning_and_standards_development_services",
+                    "rents_administrative_and_general_expense",
+                    "rents_distribution_expense",
+                    "rents_hydraulic_power_generation",
+                    "rents_nuclear_power_generation",
+                    "rents_other_power_generation",
+                    "rents_regional_market_expenses",
+                    "rents_steam_power_generation",
+                    "rents_transmission_electric_expense",
+                    "sales_expenses",
+                    "sales_expenses_correction",
+                    "scheduling_system_control_and_dispatch_services",
+                    "station_expenses_distribution",
+                    "station_expenses_transmission_expense",
+                    "steam_expenses_nuclear_power_generation",
+                    "steam_expenses_steam_power_generation",
+                    "steam_from_other_sources",
+                    "steam_from_other_sources_nuclear_power_generation",
+                    "steam_power_generation_maintenance_expense",
+                    "steam_power_generation_maintenance_expense_correction",
+                    "steam_power_generation_operations_expense",
+                    "steam_power_generation_operations_expense_correction",
+                    "steam_transferred_credit",
+                    "steam_transferred_credit_nuclear_power_generation",
+                    "street_lighting_and_signal_system_expenses",
+                    "supervision_customer_account_expenses",
+                    "supervision_customer_service_and_information_expenses",
+                    "supervision_sales_expense",
+                    "system_control_and_load_dispatching_electric",
+                    "transmission_expenses",
+                    "transmission_expenses_correction",
+                    "transmission_maintenance_expense_electric",
+                    "transmission_maintenance_expense_electric_correction",
+                    "transmission_of_electricity_by_others",
+                    "transmission_operation_expense",
+                    "transmission_operation_expense_correction",
+                    "transmission_rights_market_administration",
+                    "transmission_service_studies",
+                    "uncollectible_accounts",
+                    "underground_line_expenses",
+                    "underground_line_expenses_transmission_expense",
+                    "water_for_power",
+                }
+            },
+        }
+    },
+    "core_ferc1__yearly_retained_earnings_sched118": {
+        "earnings_type": {
+            "type": "string",
+            "constraints": {
+                "enum": {
+                    "adjustments_to_retained_earnings_credit",
+                    "adjustments_to_retained_earnings_debit",
+                    "appropriated_retained_earnings",
+                    "appropriated_retained_earnings_amortization_reserve_federal",
+                    "appropriated_retained_earnings_including_reserve_amortization",
+                    "appropriated_retained_earnings_including_reserve_amortization_correction",
+                    "appropriations_of_retained_earnings",
+                    "balance_transferred_from_income",
+                    "changes_unappropriated_undistributed_subsidiary_earnings_credits",
+                    "dividends_declared_common_stock",
+                    "dividends_declared_preferred_stock",
+                    "dividends_received",
+                    "equity_in_earnings_of_subsidiary_companies",
+                    "retained_earnings",
+                    "retained_earnings_correction",
+                    "transfers_from_unappropriated_undistributed_subsidiary_earnings",
+                    "unappropriated_retained_earnings",
+                    "unappropriated_retained_earnings_correction",
+                    "unappropriated_retained_earnings_previous_year",
+                    "unappropriated_undistributed_subsidiary_earnings",
+                    "unappropriated_undistributed_subsidiary_earnings_correction",
+                    "unappropriated_undistributed_subsidiary_earnings_previous_year",
+                }
+            },
+        }
+    },
+    "core_ferc1__yearly_operating_revenues_sched300": {
+        "revenue_type": {
+            "type": "string",
+            "constraints": {
+                "enum": {
+                    "electric_operating_revenues",
+                    "electric_operating_revenues_correction",
+                    "forfeited_discounts",
+                    "interdepartmental_rents",
+                    "interdepartmental_sales",
+                    "interdepartmental_sales_correction",
+                    "large_or_industrial",
+                    "large_or_industrial_correction",
+                    "miscellaneous_revenue",
+                    "miscellaneous_service_revenues",
+                    "other_electric_revenue",
+                    "other_miscellaneous_operating_revenues",
+                    "other_operating_revenues",
+                    "other_operating_revenues_correction",
+                    "other_sales_to_public_authorities",
+                    "other_sales_to_public_authorities_correction",
+                    "provision_for_rate_refunds",
+                    "public_street_and_highway_lighting",
+                    "public_street_and_highway_lighting_correction",
+                    "regional_transmission_service_revenues",
+                    "rent_from_electric_property",
+                    "residential_sales",
+                    "residential_sales_correction",
+                    "revenues_from_transmission_of_electricity_of_others",
+                    "revenues_net_of_provision_for_refunds",
+                    "revenues_net_of_provision_for_refunds_correction",
+                    "sales_for_resale",
+                    "sales_for_resale_correction",
+                    "sales_of_electricity",
+                    "sales_of_electricity_correction",
+                    "sales_of_water_and_water_power",
+                    "sales_to_railroads_and_railways",
+                    "sales_to_railroads_and_railways_correction",
+                    "sales_to_ultimate_consumers",
+                    "sales_to_ultimate_consumers_correction",
+                    "small_or_commercial",
+                    "small_or_commercial_correction",
+                }
+            },
+        }
+    },
+    "core_ferc1__yearly_cash_flows_sched120": {
+        "amount_type": {
+            "type": "string",
+            "constraints": {
+                "enum": {
+                    "acquisition_of_other_noncurrent_assets",
+                    "allowance_for_other_funds_used_during_construction_investing_activities",
+                    "allowance_for_other_funds_used_during_construction_operating_activities",
+                    "cash_flows_provided_from_used_in_financing_activities_correction",
+                    "cash_flows_provided_from_used_in_investment_activities_correction",
+                    "cash_outflows_for_plant",
+                    "cash_outflows_for_plant_correction",
+                    "cash_provided_by_outside_sources",
+                    "cash_provided_by_outside_sources_correction",
+                    "collections_on_loans",
+                    "contributions_and_advances_from_associated_and_subsidiary_companies",
+                    "deferred_income_taxes_net",
+                    "depreciation_and_depletion",
+                    "disposition_of_investments_in_and_advances_to_associated_and_subsidiary_companies",
+                    "dividends_on_common_stock",
+                    "dividends_on_preferred_stock",
+                    "gross_additions_to_common_utility_plant_investing_activities",
+                    "gross_additions_to_nonutility_plant_investing_activities",
+                    "gross_additions_to_nuclear_fuel_investing_activities",
+                    "gross_additions_to_utility_plant_less_nuclear_fuel_investing_activities",
+                    "investment_tax_credit_adjustments_net",
+                    "investments_in_and_advances_to_associated_and_subsidiary_companies",
+                    "loans_made_or_purchased",
+                    "net_cash_flow_from_operating_activities_correction",
+                    "net_decrease_in_short_term_debt",
+                    "net_income_loss",
+                    "net_income_loss_correction",
+                    "net_increase_decrease_in_allowances_held_for_speculation_investing_activities",
+                    "net_increase_decrease_in_allowances_inventory_operating_activities",
+                    "net_increase_decrease_in_inventory_investing_activities",
+                    "net_increase_decrease_in_inventory_operating_activities",
+                    "net_increase_decrease_in_other_regulatory_assets_operating_activities",
+                    "net_increase_decrease_in_other_regulatory_liabilities_operating_activities",
+                    "net_increase_decrease_in_payables_and_accrued_expenses_investing_activities",
+                    "net_increase_decrease_in_payables_and_accrued_expenses_operating_activities",
+                    "net_increase_decrease_in_receivables_investing_activities",
+                    "net_increase_decrease_in_receivables_operating_activities",
+                    "net_increase_in_short_term_debt",
+                    "noncash_adjustments_to_cash_flows_from_operating_activities",
+                    "other_adjustments_by_outside_sources_to_cash_flows_from_financing_activities",
+                    "other_adjustments_to_cash_flows_from_financing_activities",
+                    "other_adjustments_to_cash_flows_from_investment_activities",
+                    "other_adjustments_to_cash_flows_from_operating_activities",
+                    "other_construction_and_acquisition_of_plant_investment_activities",
+                    "other_retirements_of_balances_impacting_cash_flows_from_financing_activities",
+                    "payments_for_retirement_of_common_stock_financing_activities",
+                    "payments_for_retirement_of_long_term_debt_financing_activities",
+                    "payments_for_retirement_of_preferred_stock_financing_activities",
+                    "proceeds_from_disposal_of_noncurrent_assets",
+                    "proceeds_from_issuance_of_common_stock_financing_activities",
+                    "proceeds_from_issuance_of_long_term_debt_financing_activities",
+                    "proceeds_from_issuance_of_preferred_stock_financing_activities",
+                    "proceeds_from_sales_of_investment_securities",
+                    "purchase_of_investment_securities",
+                    "undistributed_earnings_from_subsidiary_companies_operating_activities",
+                    "net_cash_flow_from_operating_activities",
+                    "cash_flows_provided_from_used_in_investment_activities",
+                    "cash_flows_provided_from_used_in_financing_activities",
+                    "net_increase_decrease_in_cash_and_cash_equivalents",
+                    "starting_balance",
+                    "ending_balance",
+                    "disposition_of_investments_in_and_advances_to_associated_and_subsidiary_companies_abstract",
+                    "net_increase_decrease_in_cash_and_cash_equivalents_abstract",
+                    "payments_for_retirement_abstract",
+                }
+            },
+        }
+    },
     "plant_parts_eia": {
         "energy_source_code_1": {
             "constraints": {
@@ -5135,6 +6128,11 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                 "enum": ["electric", "gas", "common", "other", "other3", "other2"]
             },
         },
+    },
+    "out_eia__yearly_assn_plant_parts_plant_gen": {
+        "generators_number": {
+            "description": "The number of generators associated with each ``record_id_eia``."
+        }
     },
 }
 

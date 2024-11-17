@@ -25,6 +25,7 @@ from pudl.io_managers import (
     epacems_io_manager,
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
+    ferc714_xbrl_sqlite_io_manager,
     parquet_io_manager,
     pudl_mixed_format_io_manager,
 )
@@ -58,6 +59,7 @@ raw_module_groups = {
     "raw_gridpathratoolkit": [pudl.extract.gridpathratoolkit],
     "raw_phmsagas": [pudl.extract.phmsagas],
     "raw_nrelatb": [pudl.extract.nrelatb],
+    "raw_vcerare": [pudl.extract.vcerare],
 }
 
 
@@ -81,6 +83,7 @@ core_module_groups = {
     "core_ferc714": [pudl.transform.ferc714],
     "core_gridpathratoolkit": [pudl.transform.gridpathratoolkit],
     "core_nrelatb": [pudl.transform.nrelatb],
+    "core_vcerare": [pudl.transform.vcerare],
 }
 
 out_module_groups = {
@@ -192,7 +195,13 @@ default_asset_checks += [
     for check in (
         asset_check_from_schema(asset_key, _package)
         for asset_key in _asset_keys
-        if asset_key.to_user_string() != "core_epacems__hourly_emissions"
+        if (
+            asset_key.to_user_string()
+            not in [
+                "core_epacems__hourly_emissions",
+                "out_vcerare__hourly_available_capacity_factor",
+            ]
+        )
     )
     if check is not None
 ]
@@ -202,6 +211,7 @@ default_resources = {
     "pudl_io_manager": pudl_mixed_format_io_manager,
     "ferc1_dbf_sqlite_io_manager": ferc1_dbf_sqlite_io_manager,
     "ferc1_xbrl_sqlite_io_manager": ferc1_xbrl_sqlite_io_manager,
+    "ferc714_xbrl_sqlite_io_manager": ferc714_xbrl_sqlite_io_manager,
     "dataset_settings": dataset_settings,
     "ferc_to_sqlite_settings": ferc_to_sqlite_settings,
     "epacems_io_manager": epacems_io_manager,

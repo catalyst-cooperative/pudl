@@ -15,10 +15,10 @@ logger = logging.getLogger(__name__)
 @pytest.mark.parametrize(
     "df_name,expected_rows",
     [
-        ("summarized_demand_ferc714", 3_195),
-        ("fipsified_respondents_ferc714", 136_011),
-        ("compiled_geometry_balancing_authority_eia861", 113_142),
-        ("compiled_geometry_utility_eia861", 256_949),
+        ("summarized_demand_ferc714", 3_924),
+        ("fipsified_respondents_ferc714", 165_131),
+        ("compiled_geometry_balancing_authority_eia861", 117_577),
+        ("compiled_geometry_utility_eia861", 268_665),
     ],
 )
 def test_minmax_rows(
@@ -44,7 +44,7 @@ def test_minmax_rows(
 
 @pytest.mark.parametrize(
     "resource_id,expected_rows",
-    [("out_ferc714__hourly_planning_area_demand", 15_608_154)],
+    [("out_ferc714__hourly_planning_area_demand", 17_968_411)],
 )
 def test_minmax_rows_and_year_in_ferc714_hourly_planning_area_demand(
     live_dbs: bool,

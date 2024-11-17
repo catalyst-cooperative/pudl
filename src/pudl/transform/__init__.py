@@ -72,9 +72,11 @@ from . import (
     eia_bulk_elec,
     eiaaeo,
     epacems,
+    ferc,
     ferc1,
     ferc714,
     gridpathratoolkit,
     nrelatb,
     params,
+    vcerare,
 )

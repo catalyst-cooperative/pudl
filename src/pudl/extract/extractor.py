@@ -49,12 +49,7 @@ class GenericMetadata:
         self._dataset_name = dataset_name
         self._pkg = f"pudl.package_data.{dataset_name}"
         column_map_pkg = self._pkg + ".column_maps"
-        self._column_map = {}
-        for res_path in importlib.resources.files(column_map_pkg).iterdir():
-            # res_path is expected to end with ${page}.csv
-            if res_path.suffix == ".csv":
-                column_map = self._load_csv(column_map_pkg, res_path.name)
-                self._column_map[res_path.stem] = column_map
+        self._column_map = self._load_column_maps(column_map_pkg)
 
     def get_dataset_name(self) -> str:
         """Returns the name of the dataset described by this metadata."""
@@ -65,6 +60,16 @@ class GenericMetadata:
         return pd.read_csv(
             importlib.resources.files(package) / filename, index_col=0, comment="#"
         )
+
+    def _load_column_maps(self, column_map_pkg: str) -> dict:
+        """Create a dictionary of all column mapping CSVs to use in get_column_map()."""
+        column_dict = {}
+        for res_path in importlib.resources.files(column_map_pkg).iterdir():
+            # res_path is expected to end with ${page}.csv
+            if res_path.suffix == ".csv":
+                column_map = self._load_csv(column_map_pkg, res_path.name)
+                column_dict[res_path.stem] = column_map
+        return column_dict
 
     def _get_partition_selection(self, partition: dict[str, PartitionSelection]) -> str:
         """Grab the partition key."""
@@ -183,16 +188,16 @@ class GenericExtractor(ABC):
         page_cols = self.get_page_cols(page, partition_selection)
         expected_cols = page_cols.union(self.cols_added)
         if set(df.columns) != set(expected_cols):
-            # TODO (bendnorman): Enforce canonical fields for all raw fields?
+            # Ensure that expected and actually extracted columns match
             extra_raw_cols = set(df.columns).difference(expected_cols)
             missing_raw_cols = set(expected_cols).difference(df.columns)
             if extra_raw_cols:
-                logger.warning(
+                raise ValueError(
                     f"{page}/{partition_selection}: Extra columns found in extracted table:"
                     f"\n{extra_raw_cols}"
                 )
             if missing_raw_cols:
-                logger.warning(
+                raise ValueError(
                     f"{page}/{partition_selection}: Expected columns not found in extracted table:"
                     f"\n{missing_raw_cols}"
                 )

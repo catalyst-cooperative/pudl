@@ -3,7 +3,7 @@
 from unittest.mock import MagicMock, patch
 
 import pandas as pd
-from pytest import raises
+import pytest
 
 from pudl.extract.csv import CsvExtractor
 from pudl.extract.extractor import GenericMetadata
@@ -22,30 +22,31 @@ class FakeExtractor(CsvExtractor):
         super().__init__(ds=MagicMock())
 
 
-def test_source_filename_valid_partition():
-    extractor = FakeExtractor()
+@pytest.fixture
+def extractor():
+    # Create an instance of the CsvExtractor class
+    return FakeExtractor()
+
+
+def test_source_filename_valid_partition(extractor):
     assert extractor.source_filename(PAGE, **PARTITION) == CSV_FILENAME
 
 
-def test_source_filename_multipart_partition():
-    extractor = FakeExtractor()
+def test_source_filename_multipart_partition(extractor):
     multipart_partition = PARTITION.copy()
     multipart_partition["month"] = 12
-    with raises(AssertionError):
+    with pytest.raises(AssertionError):
         extractor.source_filename(PAGE, **multipart_partition)
 
 
-def test_source_filename_multiple_selections():
-    extractor = FakeExtractor()
+def test_source_filename_multiple_selections(extractor):
     multiple_selections = {"year": [PARTITION_SELECTION, 2024]}
-    with raises(AssertionError):
+    with pytest.raises(AssertionError):
         extractor.source_filename(PAGE, **multiple_selections)
 
 
 @patch("pudl.extract.csv.pd")
-def test_load_source(mock_pd):
-    extractor = FakeExtractor()
-
+def test_load_source(mock_pd, extractor):
     assert extractor.load_source(PAGE, **PARTITION) == mock_pd.read_csv.return_value
     extractor.ds.get_zipfile_resource.assert_called_once_with(DATASET, **PARTITION)
     zipfile = extractor.ds.get_zipfile_resource.return_value.__enter__.return_value
@@ -54,8 +55,7 @@ def test_load_source(mock_pd):
     mock_pd.read_csv.assert_called_once_with(file)
 
 
-def test_extract():
-    extractor = FakeExtractor()
+def test_extract(extractor):
     # Create a sample of data we could expect from an EIA CSV
     company_field = "company"
     company_data = "Total of All Companies"
@@ -70,7 +70,7 @@ def test_extract():
             # Testing the rename
             GenericMetadata,
             "get_column_map",
-            return_value={company_field: "company_rename"},
+            return_value={"company_rename": company_field},
         ),
         patch.object(
             # Transposing the df here to get the orientation we expect get_page_cols to return
@@ -83,5 +83,71 @@ def test_extract():
     assert len(res) == 1  # Assert only one page extracted
     assert list(res.keys()) == [PAGE]  # Assert it is named correctly
     assert (
-        res[PAGE]["company_rename"][0] == company_data
+        res[PAGE][company_field][0] == company_data
     )  # Assert that column correctly renamed and data is there.
+
+
+@patch.object(FakeExtractor, "METADATA")
+def test_validate_exact_columns(mock_metadata, extractor):
+    # Mock the partition selection and page columns
+    # mock_metadata._get_partition_selection.return_value = "partition1"
+    extractor.get_page_cols = MagicMock(return_value={"col1", "col2"})
+
+    # Create a DataFrame with the exact expected columns
+    df = pd.DataFrame(columns=["col1", "col2"])
+
+    # Call the validate method. No exceptions should be raised.
+    extractor.validate(df, "page1", partition="partition1")
+
+
+@patch.object(FakeExtractor, "METADATA")
+def test_validate_extra_columns(mock_metadata, extractor):
+    # Mock the partition selection and page columns
+    mock_metadata._get_partition_selection.return_value = "partition1"
+    extractor.get_page_cols = MagicMock(return_value={"col1", "col2"})
+
+    # Create a DataFrame with extra columns
+    df = pd.DataFrame(columns=["col1", "col2", "col3"])
+
+    # Call the validate method and check for ValueError
+    with pytest.raises(ValueError, match="Extra columns found in extracted table"):
+        extractor.validate(df, "page1", partition="partition1")
+
+
+@patch.object(FakeExtractor, "METADATA")
+def test_validate_missing_columns(mock_metadata, extractor):
+    # Mock the partition selection and page columns
+    mock_metadata._get_partition_selection.return_value = "partition1"
+    extractor.get_page_cols = MagicMock(return_value={"col1", "col2"})
+
+    # Create a DataFrame with missing columns
+    df = pd.DataFrame(columns=["col1"])
+
+    # Call the validate method and check for ValueError
+    with pytest.raises(
+        ValueError, match="Expected columns not found in extracted table"
+    ):
+        extractor.validate(df, "page1", partition="partition1")
+
+
+@patch.object(FakeExtractor, "METADATA")
+def test_validate_extra_and_missing_columns(mock_metadata, extractor):
+    # Mock the partition selection and page columns
+    mock_metadata._get_partition_selection.return_value = "partition1"
+    extractor.get_page_cols = MagicMock(return_value={"col1", "col2"})
+
+    # Create a DataFrame with both extra and missing columns
+    df = pd.DataFrame(columns=["col1", "col3"])
+
+    # Call the validate method and check for ValueError
+    with pytest.raises(ValueError, match="Extra columns found in extracted table"):
+        extractor.validate(df, "page1", partition="partition1")
+
+    # Adjust the DataFrame to only have missing columns
+    df = pd.DataFrame(columns=["col1"])
+
+    # Call the validate method and check for ValueError
+    with pytest.raises(
+        ValueError, match="Expected columns not found in extracted table"
+    ):
+        extractor.validate(df, "page1", partition="partition1")

@@ -3,8 +3,149 @@ PUDL Release Notes
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-v2024.X.X (2024-XX-XX)
+v2024.XX.x (2024-MM-DD)
 ---------------------------------------------------------------------------------------
+
+New Data Coverage
+^^^^^^^^^^^^^^^^^
+
+Bug Fixes
+^^^^^^^^^
+
+Major Dependency Updates
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. _release-v2024.11.0:
+
+---------------------------------------------------------------------------------------
+v2024.11.0 (2024-11-14)
+---------------------------------------------------------------------------------------
+
+PUDL v2024.11.0 is a regularly scheduled quarterly release, incorporating a few updates
+to the following datasets that have come out since the special release we did in
+October.
+
+New Data Coverage
+^^^^^^^^^^^^^^^^^
+
+EIA 930
+~~~~~~~
+* Added EIA 930 hourly data through the end of October as part of the Q3 quarterly
+  release. See :issue:`3942` and :pr:`3946`.
+
+EIA 923
+~~~~~~~
+* Added EIA 923 data from August 2024 as part of the Q3 quarterly release.
+  See :issue:`3941` and PR :pr:`3950`.
+
+EIA 860M
+~~~~~~~~
+* Added 2024 EIA 860m data from August, September, and October as part of the Q3
+  quarterly release. See :issue:`3940` and PR :pr:`3949`.
+
+EIA Bulk Electricity Data
+~~~~~~~~~~~~~~~~~~~~~~~~~
+* Updated the EIA Bulk Electricity data to include data published up through
+  2024-08-01. See :issue:`3944` and PR :pr:`3951`.
+
+EPA CEMS
+~~~~~~~~
+* Added 2024 Q3 of CEMS data. See :issue:`3943` and :pr:`3948`.
+
+.. _release-v2024.10.0:
+
+---------------------------------------------------------------------------------------
+v2024.10.0 (2024-10-20)
+---------------------------------------------------------------------------------------
+
+This is a special early release to publish the new VCE Resource Adequacy Renewable
+Energy (RARE) dataset. It also includes final releases of EIA 860 and 923 data for 2023
+and the FERC Form 714 data for 2021-2023, which had previously been integrated from
+the XBRL data published by FERC. See details below
+
+New Data
+^^^^^^^^
+
+Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+* Integrate the VCE hourly capacity factor data for solar PV, onshore wind, and
+  offshore wind from 2019 through 2023. The data in this table were produced by
+  Vibrant Clean Energy, and are licensed to the public under the Creative Commons
+  Attribution 4.0 International license (CC-BY-4.0). This data complements the
+  WECC-wide GridPath RA Toolkit data currently incorporated into PUDL, providing
+  capacity factor data nation-wide with a different set of modeling assumptions and
+  a different granularity for the aggregation of outputs.
+  See :doc:`data_sources/gridpathratoolkit` and :doc:`data_sources/vcerare` for
+  more information.  See :issue:`#3872`.
+
+New Data Coverage
+^^^^^^^^^^^^^^^^^
+
+EIA 860
+~~~~~~~
+* Added EIA 860 final release data from 2023. See :issue:`3684` and PR :pr:`3871`.
+
+EIA 861
+~~~~~~~
+* Added EIA 861 final release data from 2023. See :issue:`3905` and PR :pr:`3911`. This
+  includes a new ``energy_capacity_mwh`` field for battery storage in
+  :ref:`core_eia861__yearly_net_metering_customer_fuel_class` and
+  :ref:`core_eia861__yearly_non_net_metering_customer_fuel_class`.
+
+EIA 923
+~~~~~~~
+* Added EIA 923 final release data from 2023 and revised data from 2022. See
+  :issue:`3902` and PR :pr:`3903`.
+
+FERC Form 714
+~~~~~~~~~~~~~
+* Integrated 2021-2023 years of the FERC Form 714 data. FERC updated its reporting
+  format for 2021 from a CSV files to XBRL files. This update integrates the two
+  raw data sources and extends the data coverage through 2023. See :issue:`3809`
+  and :pr:`3842`.
+
+Schema Changes
+^^^^^^^^^^^^^^
+* Added :ref:`out_eia__yearly_assn_plant_parts_plant_gen` table. This table associates
+  records from the :ref:`out_eia__yearly_plant_parts` with ``plant_gen`` records from
+  that same plant parts table. See issue :issue:`3773` and PR :pr:`3774`.
+
+Bug Fixes
+^^^^^^^^^
+* Included more retiring generators in the net generation and fuel consumption
+  allocation. Thanks to :user:`grgmiller` for this contirbution :pr:`3690`.
+* Fixed a bug found in the rolling averages used to impute missing values in
+  ``fuel_cost_per_mmbtu`` and to calculate ``capex_annual_addition_rolling``. Thanks
+  to RMI for identifying this bug! See issue :issue:`3889` and PR :pr:`3892`.
+
+Major Dependency Updates
+^^^^^^^^^^^^^^^^^^^^^^^^
+* Updated to use `Numpy v2.0 <https://numpy.org/doc/stable/release/2.0.0-notes.html>`__
+  and `Splink v4.0 <https://moj-analytical-services.github.io/splink/blog/2024/07/24/splink-400-released.html>`__.
+  See issues :issue:`3736,3735` and PRs :pr:`3547,3834`.
+
+Quality of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+* We now use an asset factory to generate Dagster assets for near-identical FERC1 output
+  tables. See :issue:`3147` and :pr:`3883`. Thanks to :user:`hfireborn` and
+  :user:`denimalpaca` for their work on this one!
+
+.. _release-v2024.8.0:
+
+---------------------------------------------------------------------------------------
+v2024.8.0 (2024-08-19)
+---------------------------------------------------------------------------------------
+
+This is our regular quarterly release for 2024Q3. It includes quarterly updates to all
+datasets that are updated with quarterly or higher frequency by their publishers,
+including EIA-860M, EIA-923 (YTD data), EIA-930, the EIA's bulk electricity API data
+(used to fill in missing fuel prices), and the EPA CEMS hourly emissions data.
+
+Annual datasets which have been published since our last quarterly release have also
+been integrated. These include FERC Forms 1, 2, 6, 60, and 714, and the NREL ATB.
+
+This release also includes provisional versions of the annual 2023 EIA-860 and EIA-923
+datasets, whose final release will not happen until the fall.
 
 New Data Coverage
 ^^^^^^^^^^^^^^^^^
@@ -19,7 +160,7 @@ FERC Form 1
   details, as well as issue :issue:`3544` and PR :pr:`3710`.
 
 FERC Forms 2, 6, 60, & 714
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 * Updated the ``ferc_to_sqlite`` settings to extract 2023 XBRL data for FERC Forms 2, 6
   60, and 714 and add them to their respective SQLite databases. Note that this data
   is not yet being processed beyond the conversion from XBRL to SQLite. See PR
@@ -51,7 +192,7 @@ EIA 923
 EIA 930
 ~~~~~~~
 * Added EIA 930 hourly data through the end of July as part of the Q2 quarterly release.
-  See :issue:`3761`` and :pr:`3789`.
+  See :issue:`3761` and :pr:`3789`.
 
 EPA CEMS
 ~~~~~~~~
@@ -69,6 +210,7 @@ FERC 714
 * Added :ref:`core_ferc714__yearly_planning_area_demand_forecast` based on FERC
   Form 714, Part III, Schedule 2b. Data includes forecasted demand and net energy load.
   See issue :issue:`3519` and PR :pr:`3670`.
+* WIP: Adding XBRL(2021+) data for FERC 714 tables. Track progress in :issue:`3822`.
 
 NREL ATB
 ~~~~~~~~

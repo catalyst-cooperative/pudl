@@ -2,7 +2,7 @@
 The Public Utility Data Liberation Project
 ===============================================================================
 
-PUDL is a data processing pipeline created by `Catalyst Cooperative
+PUDL (pronounced puddle) is a data processing pipeline created by `Catalyst Cooperative
 <https://catalyst.coop/>`__ that cleans, integrates, and standardizes some of the most
 widely used public energy datasets in the US. The data serve researchers, activists,
 journalists, and policy makers that might not have the technical expertise to access it
@@ -221,11 +221,11 @@ Organizations using PUDL
    :end-before: .. _pudl_orgs_end:
 
 
-
 .. toctree::
   :hidden:
   :maxdepth: 2
 
+  About PUDL <self>
   data_access
   data_sources/index
   data_dictionaries/index

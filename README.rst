@@ -29,16 +29,29 @@ The Public Utility Data Liberation Project (PUDL)
    :alt: Schedule a 1-on-1 chat with us about PUDL.
 .. |mastodon| image:: https://img.shields.io/mastodon/follow/110855618428885893?domain=https%3A%2F%2Fmastodon.energy&style=social&color=%23000000&link=https%3A%2F%2Fmastodon.energy%2F%40catalystcoop
    :target: https://mastodon.energy/@catalystcoop
-   :alt: Follow CatalystCoop on Mastodon
+   :alt: Follow Catalyst Cooperative on Mastodon
+.. |linkedin| image:: https://img.shields.io/badge/LinkedIn-0077B5?style=flat&logo=linkedin&logoColor=white
+   :target: https://linkedin.com/company/catalyst-cooperative/
+   :alt: Follow Catalyst Cooperative on LinkedIn
+.. |bluesky| image:: https://img.shields.io/badge/Bluesky-0285FF?logo=bluesky&logoColor=fff&style=flat
+   :target: https://bsky.app/profile/catalyst.coop
+   :alt: Follow @catalyst.coop on BlueSky
+.. |kaggle| image:: https://img.shields.io/badge/Kaggle-20BEFF?style=flat&logo=Kaggle&logoColor=white
+   :target: https://www.kaggle.com/datasets/catalystcooperative/pudl-project
+   :alt: The PUDL Dataset on Kaggle
+.. |aws| image:: https://img.shields.io/badge/Amazon_AWS-FF9900?style=flat&logo=amazonaws&logoColor=white
+   :target: https://registry.opendata.aws/catalyst-cooperative-pudl/
+   :alt: PUDL in the AWS Open Data Registry
 
 |repo-status| |pytest| |codecov| |rtd| |ruff| |pre-commit-ci| |zenodo-doi|
-|office-hours| |mastodon|
+|office-hours| |mastodon| |linkedin| |bluesky| |kaggle| |aws|
 
 What is PUDL?
 -------------
 
-The `PUDL <https://catalyst.coop/pudl/>`__ Project is an open source data processing
-pipeline that makes US energy data easier to access and use programmatically.
+The `PUDL <https://catalyst.coop/pudl/>`__ Project (pronounced puddle) is an open source
+data processing pipeline that makes US energy data easier to access and use
+programmatically.
 
 Hundreds of gigabytes of valuable data are published by US government agencies, but it's
 often difficult to work with. PUDL takes the original spreadsheets, CSV files, and

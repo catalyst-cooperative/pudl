@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 @pytest.mark.parametrize(
     "resource_id,expected_rows",
-    [("out_ferc714__hourly_estimated_state_demand", 6_706_318)],
+    [("out_ferc714__hourly_estimated_state_demand", 8_046_602)],
 )
 def test_minmax_rows(live_dbs: bool, resource_id: str, expected_rows: int):
     """Verify that output DataFrames don't have too many or too few rows.

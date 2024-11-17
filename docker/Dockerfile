@@ -1,5 +1,6 @@
-FROM mambaorg/micromamba:1.5.8
+FROM mambaorg/micromamba:2.0.2
 
+ENV CONTAINER_HOME=/home/$MAMBA_USER
 ENV PGDATA=${CONTAINER_HOME}/pgdata
 
 USER root
@@ -14,7 +15,7 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Configure gsutil authentication
+# Configure gcloud authentication
 # hadolint ignore=DL3059
 RUN printf '[GoogleCompute]\nservice_account = default' > /etc/boto.cfg
 
@@ -29,7 +30,6 @@ RUN pg_createcluster 15 dagster -u "$MAMBA_USER" -- -A trust
 
 # Switch back to being non-root user and get into the home directory
 USER $MAMBA_USER
-ENV CONTAINER_HOME=/home/$MAMBA_USER
 WORKDIR ${CONTAINER_HOME}
 
 ENV CONDA_PREFIX=${CONTAINER_HOME}/env
