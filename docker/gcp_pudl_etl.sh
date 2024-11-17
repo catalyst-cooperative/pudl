@@ -99,7 +99,9 @@ function upload_to_dist_path() {
     if [[ -n "$DIST_PATH" ]]; then
         GCS_PATH="gs://pudl.catalyst.coop/$DIST_PATH/"
         AWS_PATH="s3://pudl.catalyst.coop/$DIST_PATH/"
-        remove_dist_path "$DIST_PATH" && \
+        # Do not && this command with the others, as it will exit with status 1 if the
+        # old outputs don't exist.
+        remove_dist_path "$DIST_PATH"
         echo "Copying outputs to $GCS_PATH:" && \
         gcloud storage cp --quiet --recursive --billing-project="$GCP_BILLING_PROJECT" "$PUDL_OUTPUT/*" "$GCS_PATH" && \
         echo "Copying outputs to $AWS_PATH" && \
