@@ -112,16 +112,6 @@ function upload_to_dist_path() {
     fi
 }
 
-function copy_outputs_to_distribution_bucket() {
-    # Only attempt to update outputs if we have a real value of BUILD_REF
-    # This avoids accidentally blowing away the whole bucket if it's not set.
-    echo "Copying outputs to distribution buckets"
-    DIST_PATH=$1
-    if [[ -n "$DIST_PATH" ]]; then
-        upload_to_dist_path "$DIST_PATH"
-    fi
-}
-
 function zenodo_data_release() {
     echo "Creating a new PUDL data release on Zenodo."
 
@@ -275,7 +265,7 @@ if [[ "$BUILD_TYPE" == "nightly" ]]; then
     clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
     CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
     # Copy cleaned up outputs to the S3 and GCS distribution buckets
-    copy_outputs_to_distribution_bucket "nightly" | tee -a "$LOGFILE"
+    upload_to_dist_path "nightly" | tee -a "$LOGFILE"
     DISTRIBUTION_BUCKET_SUCCESS=${PIPESTATUS[0]}
     # Remove individual parquet outputs and distribute just the zipped parquet
     # archives on Zenodo, due to their number of files limit
@@ -291,8 +281,8 @@ elif [[ "$BUILD_TYPE" == "stable" ]]; then
     clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
     CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
     # Copy cleaned up outputs to the S3 and GCS distribution buckets
-    copy_outputs_to_distribution_bucket "$BUILD_REF" | tee -a "$LOGFILE" && \
-    copy_outputs_to_distribution_bucket "stable" | tee -a "$LOGFILE"
+    upload_to_dist_path "$BUILD_REF" | tee -a "$LOGFILE" && \
+    upload_to_dist_path "stable" | tee -a "$LOGFILE"
     DISTRIBUTION_BUCKET_SUCCESS=${PIPESTATUS[0]}
     # Remove individual parquet outputs and distribute just the zipped parquet
     # archives on Zenodo, due to their number of files limit
@@ -312,8 +302,11 @@ elif [[ "$BUILD_TYPE" == "workflow_dispatch" ]]; then
     clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
     CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
 
-    copy_outputs_to_distribution_bucket "$BUILD_ID" | tee -a "$LOGFILE"
+    # Upload to GCS / S3 just to test that it works.
+    upload_to_dist_path "$BUILD_ID" | tee -a "$LOGFILE"
     DISTRIBUTION_BUCKET_SUCCESS=${PIPESTATUS[0]}
+    Remove the uploaded files:
+    # Remove those uploads since they were just for testing.
     remove_dist_path "$BUILD_ID" | tee -a "$LOGFILE"
 
     # Remove individual parquet outputs and distribute just the zipped parquet
