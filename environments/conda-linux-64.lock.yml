@@ -111,7 +111,7 @@ dependencies:
   - debugpy=1.8.8=py312h2ec8cdc_0
   - decorator=5.1.1=pyhd8ed1ab_0
   - defusedxml=0.7.1=pyhd8ed1ab_0
-  - deprecated=1.2.14=pyh1a96a4e_0
+  - deprecated=1.2.15=pyhff2d567_0
   - distlib=0.3.9=pyhd8ed1ab_0
   - dnspython=2.7.0=pyhff2d567_0
   - doc8=1.1.2=pyhd8ed1ab_1
@@ -195,7 +195,7 @@ dependencies:
   - humanize=4.11.0=pyhd8ed1ab_0
   - hupper=1.12.1=pyhd8ed1ab_0
   - hyperframe=6.0.1=pyhd8ed1ab_0
-  - hypothesis=6.119.1=pyha770c72_0
+  - hypothesis=6.119.3=pyha770c72_0
   - icu=75.1=he02047a_0
   - identify=2.6.2=pyhd8ed1ab_0
   - idna=3.10=pyhd8ed1ab_0
@@ -236,7 +236,7 @@ dependencies:
   - jupyter_events=0.10.0=pyhd8ed1ab_0
   - jupyter_server=2.14.2=pyhd8ed1ab_0
   - jupyter_server_terminals=0.5.3=pyhd8ed1ab_0
-  - jupyterlab=4.3.0=pyhd8ed1ab_0
+  - jupyterlab=4.3.1=pyhff2d567_0
   - jupyterlab-lsp=5.1.0=pyhd8ed1ab_2
   - jupyterlab_pygments=0.3.0=pyhd8ed1ab_1
   - jupyterlab_server=2.27.3=pyhd8ed1ab_0
@@ -318,7 +318,7 @@ dependencies:
   - lxml=5.3.0=py312he28fd5a_2
   - lz4-c=1.9.4=hcb278e6_0
   - lzo=2.10=hd590300_1001
-  - mako=1.3.5=pyhd8ed1ab_0
+  - mako=1.3.6=pyhff2d567_0
   - mapclassify=2.8.1=pyhd8ed1ab_0
   - markdown=3.6=pyhd8ed1ab_0
   - markdown-it-py=3.0.0=pyhd8ed1ab_0
@@ -339,7 +339,7 @@ dependencies:
   - multimethod=1.9.1=pyhd8ed1ab_0
   - munkres=1.1.4=pyh9f0ad1d_0
   - mypy_extensions=1.0.0=pyha770c72_0
-  - narwhals=1.13.5=pyhff2d567_0
+  - narwhals=1.14.0=pyhff2d567_0
   - nbclassic=1.1.0=pyhd8ed1ab_0
   - nbclient=0.10.0=pyhd8ed1ab_0
   - nbconvert=7.16.4=hd8ed1ab_1
@@ -350,7 +350,7 @@ dependencies:
   - nest-asyncio=1.6.0=pyhd8ed1ab_0
   - networkx=3.4.2=pyh267e887_2
   - nodeenv=1.9.1=pyhd8ed1ab_0
-  - nodejs=22.9.0=hf235a45_0
+  - nodejs=22.11.0=hf235a45_0
   - nomkl=1.0=h5ca1d4c_0
   - notebook=6.5.7=pyha770c72_0
   - notebook-shim=0.2.4=pyhd8ed1ab_0
@@ -367,7 +367,7 @@ dependencies:
   - opentelemetry-semantic-conventions=0.37b0=pyhd8ed1ab_0
   - orc=2.0.2=h669347b_0
   - overrides=7.7.0=pyhd8ed1ab_0
-  - packaging=24.2=pyhd8ed1ab_0
+  - packaging=24.2=pyhff2d567_1
   - pandas=2.2.3=py312hf9745cd_1
   - pandera-core=0.20.4=pyhd8ed1ab_0
   - pandoc=3.5=ha770c72_0
@@ -418,7 +418,7 @@ dependencies:
   - pygls=1.3.1=pyhd8ed1ab_0
   - pygments=2.18.0=pyhd8ed1ab_0
   - pygraphviz=1.14=py312h011e53f_0
-  - pyjwt=2.9.0=pyhd8ed1ab_1
+  - pyjwt=2.10.0=pyhff2d567_0
   - pylev=1.4.0=pyhd8ed1ab_0
   - pynacl=1.5.0=py312h66e93f0_4
   - pyogrio=0.10.0=py312he8b4914_0
@@ -435,7 +435,7 @@ dependencies:
   - python=3.12.7=hc5c86c4_0_cpython
   - python-build=1.2.2.post1=pyhff2d567_0
   - python-calamine=0.3.1=py312h12e396e_0
-  - python-dateutil=2.9.0=pyhd8ed1ab_0
+  - python-dateutil=2.9.0.post0=pyhff2d567_0
   - python-dotenv=1.0.1=pyhd8ed1ab_0
   - python-duckdb=1.1.3=py312h2ec8cdc_0
   - python-fastjsonschema=2.20.0=pyhd8ed1ab_0
@@ -573,7 +573,7 @@ dependencies:
   - xyzservices=2024.9.0=pyhd8ed1ab_0
   - xz=5.2.6=h166bdaf_0
   - yaml=0.2.5=h7f98852_2
-  - yarl=1.17.1=py312h66e93f0_1
+  - yarl=1.17.2=py312h66e93f0_0
   - zeromq=4.3.5=h3b0a872_7
   - zip=3.0=hd590300_3
   - zipp=3.21.0=pyhd8ed1ab_0
