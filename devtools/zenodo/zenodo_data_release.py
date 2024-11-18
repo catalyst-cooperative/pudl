@@ -87,24 +87,26 @@ class ZenodoClient:
 
         logger.info(f"Using Zenodo token: {token[:4]}...{token[-4:]}")
 
-    def retry_request(self, *, method, url, max_tries=5, timeout=5, **kwargs):
+    def retry_request(self, *, method, url, max_tries=6, timeout=2, **kwargs):
         """Wrap requests.request in retry logic.
 
         Passes method, url, and **kwargs to requests.request.
         """
-        base_timeout = 2
         for try_num in range(1, max_tries):
             try:
                 return requests.request(
-                    method=method, url=url, timeout=timeout, **kwargs
+                    method=method, url=url, timeout=timeout**try_num, **kwargs
                 )
             except requests.RequestException as e:
-                timeout = base_timeout**try_num
-                logger.warning(f"Attempt #{try_num} Got {e}, retrying in {timeout} s")
-                time.sleep(timeout)
+                logger.warning(
+                    f"Attempt #{try_num} Got {e}, retrying in {timeout**try_num} s"
+                )
+                time.sleep(timeout**try_num)
 
         # don't catch errors on the last try.
-        return requests.request(method=method, url=url, timeout=timeout, **kwargs)
+        return requests.request(
+            method=method, url=url, timeout=timeout**max_tries, **kwargs
+        )
 
     def get_deposition(self, deposition_id: int) -> _LegacyDeposition:
         """LEGACY API: Get JSON describing a deposition.
@@ -115,7 +117,6 @@ class ZenodoClient:
             method="GET",
             url=f"{self.base_url}/deposit/depositions/{deposition_id}",
             headers=self.auth_headers,
-            timeout=5,
         )
         logger.debug(
             f"License from JSON for {deposition_id} is "
@@ -132,7 +133,6 @@ class ZenodoClient:
             method="GET",
             url=f"{self.base_url}/records/{record_id}",
             headers=self.auth_headers,
-            timeout=5,
         )
         return _NewRecord(**response.json())
 
@@ -146,7 +146,6 @@ class ZenodoClient:
             method="POST",
             url=f"{self.base_url}/records/{record_id}/versions",
             headers=self.auth_headers,
-            timeout=5,
         )
         return _NewRecord(**response.json())
 
@@ -162,7 +161,7 @@ class ZenodoClient:
         data = {"metadata": metadata.model_dump()}
         logger.debug(f"Setting metadata for {deposition_id} to {data}")
         response = self.retry_request(
-            method="PUT", url=url, json=data, headers=self.auth_headers, timeout=5
+            method="PUT", url=url, json=data, headers=self.auth_headers
         )
         return _LegacyDeposition(**response.json())
 
@@ -175,7 +174,6 @@ class ZenodoClient:
             method="DELETE",
             url=f"{self.base_url}/deposit/depositions/{deposition_id}/files/{file_id}",
             headers=self.auth_headers,
-            timeout=5,
         )
 
     def create_bucket_file(
@@ -196,7 +194,6 @@ class ZenodoClient:
             url=url,
             headers=self.auth_headers,
             data=file_content,
-            timeout=5,
         )
         return response
 
@@ -206,7 +203,6 @@ class ZenodoClient:
             method="POST",
             url=f"{self.base_url}/deposit/depositions/{deposition_id}/actions/publish",
             headers=self.auth_headers,
-            timeout=5,
         )
         return _LegacyDeposition(**response.json())
 
