@@ -1,4 +1,5 @@
 import pandas as pd
+from pytest import fixture
 
 from pudl.transform.eia176 import _core_eia176__data, get_wide_table, validate_totals
 
@@ -115,10 +116,27 @@ COMPANY_4 = [
 DROP_COLS = ["itemsort", "item", "atype", "line", "company"]
 
 
-def test_core_eia176__data():
-    eav_model = pd.DataFrame(columns=COLUMN_NAMES)
-    eav_model.loc[0] = COMPANY_1
-    eav_model.loc[1] = NM_AGGREGATE
+@fixture
+def df():
+    df = pd.DataFrame(columns=COLUMN_NAMES)
+    df.loc[0] = COMPANY_1
+    df.loc[1] = COMPANY_2
+    df.loc[2] = NM_AGGREGATE
+    df.loc[3] = COMPANY_3
+    df.loc[4] = TX_AGGREGATE
+    df.loc[5] = US_AGGREGATE
+    df.loc[6] = COMPANY_4
+    df = df.set_index(["area", "company"])
+    return df
+
+
+def test_core_eia176__data(df):
+    eav_model = df.loc[
+        [
+            ("new mexico", "new mexico gas company"),
+            ("new mexico", "total of all companies"),
+        ]
+    ].reset_index()
 
     wide_company, wide_aggregate = _core_eia176__data(eav_model)
     assert wide_company.shape == (1, 4)
@@ -133,12 +151,16 @@ def test_core_eia176__data():
     assert list(aggregate_row.values) == [2022, "new mexico", NM_VOLUME]
 
 
-def test_get_wide_table():
-    long_table = pd.DataFrame(columns=COLUMN_NAMES)
-    long_table.loc[0] = COMPANY_1
-    long_table.loc[1] = COMPANY_2
-    # We need a row measuring a different variable to test filling NAs
-    long_table.loc[3] = COMPANY_4
+def test_get_wide_table(df):
+    long_table = df.loc[
+        [
+            ("new mexico", "new mexico gas company"),
+            ("new mexico", "west texas gas inc"),
+            # Row measuring a different variable to test filling NAs
+            ("alaska", "alaska gas inc"),
+        ]
+    ].reset_index()
+
     long_table["variable_name"] = long_table["line"] + "_" + long_table["atype"]
     long_table = long_table.drop(columns=DROP_COLS)
 
@@ -158,22 +180,28 @@ def test_get_wide_table():
     assert list(wide_table.loc[2].values) == ["2022", "new mexico", ID_1, VOLUME_1, 0]
 
 
-def test_validate__totals():
+def test_validate__totals(df):
     # Our test data will have only measurements for this 1010_vl variable
-    validation_cols = COLUMN_NAMES + ["1010_vl"]
-
-    company_data = pd.DataFrame(columns=validation_cols)
+    company_data = df.loc[
+        [
+            ("new mexico", "new mexico gas company"),
+            ("new mexico", "west texas gas inc"),
+            ("texas", "west texas gas inc"),
+        ]
+    ].reset_index()
     # Add the value for the 1010_vl variable
-    company_data.loc[0] = COMPANY_1 + [f"{VOLUME_1}"]
-    company_data.loc[1] = COMPANY_2 + [f"{VOLUME_2}"]
-    company_data.loc[2] = COMPANY_3 + [f"{VOLUME_3}"]
+    company_data["1010_vl"] = [str(v) for v in [VOLUME_1, VOLUME_2, VOLUME_3]]
     company_data = company_data.drop(columns=DROP_COLS)
 
-    aggregate_data = pd.DataFrame(columns=validation_cols)
+    aggregate_data = df.loc[
+        [
+            ("new mexico", "total of all companies"),
+            ("texas", "total of all companies"),
+            ("u.s. total", "total of all companies"),
+        ]
+    ].reset_index()
     # Add the value for the 1010_vl variable
-    aggregate_data.loc[0] = NM_AGGREGATE + [f"{NM_VOLUME}"]
-    aggregate_data.loc[1] = TX_AGGREGATE + [f"{TX_VOLUME}"]
-    aggregate_data.loc[2] = US_AGGREGATE + [f"{US_VOLUME}"]
+    aggregate_data["1010_vl"] = [str(v) for v in [NM_VOLUME, TX_VOLUME, US_VOLUME]]
     aggregate_data = aggregate_data.drop(columns=DROP_COLS + ["id"])
 
     validate_totals(company_data, aggregate_data)
