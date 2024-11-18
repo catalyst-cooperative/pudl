@@ -234,7 +234,7 @@ jobs:
           micromamba run -n coverage coverage combine coverage/*/.coverage
           micromamba run -n coverage coverage xml --fail-under=0
       - name: Upload XML coverage report to CodeCov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           disable_search: true
           file: ./coverage.xml
