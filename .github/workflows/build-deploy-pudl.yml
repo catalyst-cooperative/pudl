@@ -152,7 +152,7 @@ jobs:
       - name: Post to a pudl-deployments channel
         if: always()
         id: slack
-        uses: slackapi/slack-github-action@v1
+        uses: slackapi/slack-github-action@v2
         with:
           channel-id: "C03FHB9N0PQ"
           slack-message: "`${{ env.BUILD_ID }}` build-deploy-pudl status: ${{ (env.SKIP_BUILD == 'true') && 'skipped' || job.status }}\n${{ env.GCS_OUTPUT_BUCKET }}/${{ env.BUILD_ID }}"

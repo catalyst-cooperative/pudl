@@ -43,6 +43,11 @@ EIA 860M
 * Added 2024 EIA 860m data from August, September, and October as part of the Q3
   quarterly release. See :issue:`3940` and PR :pr:`3949`.
 
+EIA 861
+~~~~~~~
+
+* Added final release EIA 861 data. See :issue:`3905` and PR :pr:`3911`.
+
 EIA Bulk Electricity Data
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 * Updated the EIA Bulk Electricity data to include data published up through
