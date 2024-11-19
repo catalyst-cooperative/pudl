@@ -9,7 +9,7 @@ import warnings
 from collections.abc import Callable, Iterable
 from functools import cached_property, lru_cache
 from pathlib import Path
-from typing import Annotated, Any, Literal, Self, TypeVar
+from typing import Annotated, Any, Literal, Self, TypeVar, Optional
 
 import jinja2
 import numpy as np
@@ -897,11 +897,19 @@ class Contributor(PudlMeta):
         "work package leader",
     ] = "project member"
     organization: String | None = None
-    orcid: String | None = None
+    orcid: Optional[String]| None = None
+    
+    def __repr__(self):
+        """ representation excluding None values."""
+        attrs = {k: v for k, v in self.__dict__.items() if v is not None}
+        attr_str = ", ".join(f"{k}={repr(v)}" for k, v in attrs.items())
+        return f"{self.__class__.__name__}({attr_str})"
 
     @staticmethod
     def dict_from_id(x: str) -> dict:
         """Construct dictionary from PUDL identifier."""
+        #data = copy.deepcopy(CONTRIBUTORS[x])
+    
         return copy.deepcopy(CONTRIBUTORS[x])
 
     @classmethod
