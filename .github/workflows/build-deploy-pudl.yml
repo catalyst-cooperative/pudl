@@ -1,9 +1,10 @@
+---
 name: build-deploy-pudl
 on:
   workflow_dispatch:
   push:
     tags:
-      - "v20*"
+      - "v20[0-9][0-9].[0-9]+.[0-9]+"
   schedule:
     # 6am UTC daily (11pm PDT, 2am EDT)
     # But only if there are changes since the last nightly build.
