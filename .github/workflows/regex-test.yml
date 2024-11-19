@@ -17,4 +17,4 @@ jobs:
 
       - name: Report status
         run: |
-          echo "PATTERN MATCHED!!! github.ref_name = {{ github.ref_name }}"
+          echo "PATTERN MATCHED!!! github.ref_name = ${{ github.ref_name }}"
