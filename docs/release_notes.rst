@@ -9,10 +9,53 @@ v2024.XX.x (2024-MM-DD)
 New Data Coverage
 ^^^^^^^^^^^^^^^^^
 
+Bug Fixes
+^^^^^^^^^
+
+Major Dependency Updates
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. _release-v2024.11.0:
+
+---------------------------------------------------------------------------------------
+v2024.11.0 (2024-11-14)
+---------------------------------------------------------------------------------------
+
+PUDL v2024.11.0 is a regularly scheduled quarterly release, incorporating a few updates
+to the following datasets that have come out since the special release we did in
+October.
+
+New Data Coverage
+^^^^^^^^^^^^^^^^^
+
 EIA 930
 ~~~~~~~
 * Added EIA 930 hourly data through the end of October as part of the Q3 quarterly
   release. See :issue:`3942` and :pr:`3946`.
+
+EIA 923
+~~~~~~~
+* Added EIA 923 data from August 2024 as part of the Q3 quarterly release.
+  See :issue:`3941` and PR :pr:`3950`.
+
+EIA 860M
+~~~~~~~~
+* Added 2024 EIA 860m data from August, September, and October as part of the Q3
+  quarterly release. See :issue:`3940` and PR :pr:`3949`.
+
+EIA 861
+~~~~~~~
+
+* Added final release EIA 861 data. See :issue:`3905` and PR :pr:`3911`.
+
+EIA Bulk Electricity Data
+~~~~~~~~~~~~~~~~~~~~~~~~~
+* Updated the EIA Bulk Electricity data to include data published up through
+  2024-08-01. See :issue:`3944` and PR :pr:`3951`.
+
+EPA CEMS
+~~~~~~~~
+* Added 2024 Q3 of CEMS data. See :issue:`3943` and :pr:`3948`.
 
 .. _release-v2024.10.0:
 
