@@ -149,13 +149,13 @@ jobs:
         if: ${{ env.SKIP_BUILD != 'true' }}
         run: gcloud batch jobs submit run-etl-${{ env.BATCH_JOB_ID }} --config ${{ env.BATCH_JOB_JSON }} --location us-west1
 
-      - name: Post to a pudl-deployments channel
+      - name: Post to pudl-deployments channel
         if: always()
         id: slack
         uses: slackapi/slack-github-action@v2
         with:
-          channel-id: "C03FHB9N0PQ"
-          slack-message: "`${{ env.BUILD_ID }}` build-deploy-pudl status: ${{ (env.SKIP_BUILD == 'true') && 'skipped' || job.status }}\n${{ env.GCS_OUTPUT_BUCKET }}/${{ env.BUILD_ID }}"
-        env:
-          channel-id: "C03FHB9N0PQ"
-          SLACK_BOT_TOKEN: ${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }}
+          method: chat.postMessage
+          token: ${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }}
+          payload: |
+            text: "`${{ env.BUILD_ID }}` build-deploy-pudl status: ${{ (env.SKIP_BUILD == 'true') && 'skipped' || job.status }}\n${{ env.GCS_OUTPUT_BUCKET }}/${{ env.BUILD_ID }}"
+            channel: "C03FHB9N0PQ"
