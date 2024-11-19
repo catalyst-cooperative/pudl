@@ -23,7 +23,8 @@ RUN printf '[GoogleCompute]\nservice_account = default' > /etc/boto.cfg
 RUN usermod -aG postgres "$MAMBA_USER"
 
 # Create new cluster for Dagster usage that's owned by $MAMBA_USER.
-# When the PG major version changes we'll have to update this from 15 to 16
+# Remember to bump the Postgres version. Postgres 17 was released in September, 2024.
+# Note that the Postgres version is also hardcoded in 2 places the nightly build script.
 # hadolint ignore=DL3059
 RUN pg_createcluster 16 dagster -u "$MAMBA_USER" -- -A trust
 
