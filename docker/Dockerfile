@@ -25,7 +25,7 @@ RUN usermod -aG postgres "$MAMBA_USER"
 # Create new cluster for Dagster usage that's owned by $MAMBA_USER.
 # When the PG major version changes we'll have to update this from 15 to 16
 # hadolint ignore=DL3059
-RUN pg_createcluster 17 dagster -u "$MAMBA_USER" -- -A trust
+RUN pg_createcluster 16 dagster -u "$MAMBA_USER" -- -A trust
 
 # Switch back to being non-root user and get into the home directory
 USER $MAMBA_USER

@@ -30,7 +30,7 @@ function initialize_postgres() {
     # 5. make a database for dagster, which is owned by the dagster user
     #
     # When the PG major version changes we'll have to update this from 15 to 16
-    pg_ctlcluster 17 dagster start && \
+    pg_ctlcluster 16 dagster start && \
     createdb -h127.0.0.1 -p5433 && \
     psql -v "ON_ERROR_STOP=1" -h127.0.0.1 -p5433 && \
     psql -c "CREATE USER dagster WITH SUPERUSER PASSWORD 'dagster_password'" -h127.0.0.1 -p5433 && \
@@ -245,7 +245,7 @@ run_pudl_etl 2>&1 | tee "$LOGFILE"
 ETL_SUCCESS=${PIPESTATUS[0]}
 
 # This needs to happen regardless of the ETL outcome:
-pg_ctlcluster 17 dagster stop 2>&1 | tee -a "$LOGFILE"
+pg_ctlcluster 16 dagster stop 2>&1 | tee -a "$LOGFILE"
 
 save_outputs_to_gcs 2>&1 | tee -a "$LOGFILE"
 SAVE_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
