@@ -1,0 +1,20 @@
+---
+name: regex-test
+on:
+  push:
+    tags:
+      - "z30*"
+
+jobs:
+  test_version_tag_pattern:
+    name: test version tag pattern matching
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Report status
+        run: |
+          echo "PATTERN MATCHED!!! github.ref_name = {{ github.ref_name }}"
