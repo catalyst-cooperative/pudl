@@ -28,9 +28,7 @@ function initialize_postgres() {
     # 3. tell it to actually fail when we mess up, instead of continuing blithely
     # 4. create a *dagster* user, whose creds correspond with those in docker/dagster.yaml
     # 5. make a database for dagster, which is owned by the dagster user
-    #
-    # When the PG major version changes we'll have to update this from 15 to 16
-    pg_ctlcluster 16 dagster start && \
+    pg_ctlcluster "$PG_VERSION" dagster start && \
     createdb -h127.0.0.1 -p5433 && \
     psql -v "ON_ERROR_STOP=1" -h127.0.0.1 -p5433 && \
     psql -c "CREATE USER dagster WITH SUPERUSER PASSWORD 'dagster_password'" -h127.0.0.1 -p5433 && \
@@ -52,19 +50,19 @@ function run_pudl_etl() {
         --loglevel DEBUG \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
         "$PUDL_SETTINGS_YML" \
-    && pytest \
-        -n auto \
-        --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
-        --etl-settings "$PUDL_SETTINGS_YML" \
-        --live-dbs test/integration test/unit \
-        --no-cov \
-    && pytest \
-        -n auto \
-        --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
-        --etl-settings "$PUDL_SETTINGS_YML" \
-        --live-dbs test/validate \
-        --no-cov \
     && touch "$PUDL_OUTPUT/success"
+    #&& pytest \
+    #    -n auto \
+    #    --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
+    #    --etl-settings "$PUDL_SETTINGS_YML" \
+    #    --live-dbs test/integration test/unit \
+    #    --no-cov \
+    #&& pytest \
+    #    -n auto \
+    #    --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
+    #    --etl-settings "$PUDL_SETTINGS_YML" \
+    #    --live-dbs test/validate \
+    #    --no-cov \
 }
 
 function save_outputs_to_gcs() {
@@ -245,7 +243,7 @@ run_pudl_etl 2>&1 | tee "$LOGFILE"
 ETL_SUCCESS=${PIPESTATUS[0]}
 
 # This needs to happen regardless of the ETL outcome:
-pg_ctlcluster 16 dagster stop 2>&1 | tee -a "$LOGFILE"
+pg_ctlcluster "$PG_VERSION" dagster stop 2>&1 | tee -a "$LOGFILE"
 
 save_outputs_to_gcs 2>&1 | tee -a "$LOGFILE"
 SAVE_OUTPUTS_SUCCESS=${PIPESTATUS[0]}

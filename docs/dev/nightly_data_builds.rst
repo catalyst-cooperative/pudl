@@ -120,7 +120,7 @@ permissions.
 
 How to access the nightly build outputs from AWS
 ------------------------------------------------
-You can downlowad the outputs from a successful nightly build data directly from the
+You can download the outputs from a successful nightly build data directly from the
 ``s3://pudl.catalyst.coop`` bucket. To do this, you'll
 need to `follow the instructions
 <https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html>`__
@@ -255,8 +255,8 @@ the ``gcloud storage cp`` command, which behaves very much like the Unix ``cp`` 
 
    gcloud storage cp gs://builds.catalyst.coop/<build ID>/pudl.sqlite ./
 
-If you want to download all of the build outputs (~20GB!) you can do a recursive copy of
-the whole directory hierarchy:
+If you need to download all of the build outputs (~20GB!) you can do a recursive copy of
+the whole directory hierarchy (note that this will incurr egress charges):
 
 .. code::
 
