@@ -24,7 +24,7 @@ assignees: ""
 - [ ] Verify [`catalystcoop.pudl` PyPI (software) release](https://pypi.org/project/catalystcoop.pudl/)
 - [ ] Verify that [PUDL repo archive on Zenodo](https://zenodo.org/doi/10.5281/zenodo.3404014) has been updated w/ new version
 - [ ] Wait 6-10 hours for a successful build to complete
-- [ ] Activate new version on the [RTD admin panel](https://readthedocs.org/projects/catalystcoop-pudl/versions/) and verify that it builds successfully.
+- [ ] Activate new version on the [RTD admin panel](https://app.readthedocs.org/projects/catalystcoop-pudl/) and verify that it builds successfully.
 - [ ] Verify that `stable` and the version tag point at same git ref
 - [ ] Verify that [`stable` docs on RTD](https://catalystcoop-pudl.readthedocs.io/en/stable/) have been updated
 - [ ] Verify `gs://pudl.catalyst.coop/vYYYY.M.x` has the new expected data.
