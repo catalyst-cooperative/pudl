@@ -8291,8 +8291,8 @@ package:
     platform: osx-64
     dependencies:
       certifi: ""
-      idna: ""
       sniffio: ""
+      idna: ""
       anyio: ""
       python: ">=3.8"
       httpcore: 1.*
@@ -8308,8 +8308,8 @@ package:
     platform: osx-arm64
     dependencies:
       certifi: ""
-      idna: ""
       sniffio: ""
+      idna: ""
       anyio: ""
       python: ">=3.8"
       httpcore: 1.*
@@ -11429,27 +11429,27 @@ package:
     category: main
     optional: false
   - name: libcxx
-    version: 19.1.3
+    version: 19.1.4
     manager: conda
     platform: osx-64
     dependencies:
       __osx: ">=10.13"
-    url: https://conda.anaconda.org/conda-forge/osx-64/libcxx-19.1.3-hf95d169_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/libcxx-19.1.4-hf95d169_0.conda
     hash:
-      md5: 86801fc56d4641e3ef7a63f5d996b960
-      sha256: 466f259bb13a8058fef28843977c090d21ad337b71a842ccc0407bccf8d27011
+      md5: 5f23923c08151687ff2fc3002b0a7234
+      sha256: 48c6d0ab9dd0c66693f79f4a032cd9ebb64fb88329dfa747aeac5299f9b3f33b
     category: main
     optional: false
   - name: libcxx
-    version: 19.1.3
+    version: 19.1.4
     manager: conda
     platform: osx-arm64
     dependencies:
       __osx: ">=11.0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/libcxx-19.1.3-ha82da77_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/libcxx-19.1.4-ha82da77_0.conda
     hash:
-      md5: bf691071fba4734984231617783225bc
-      sha256: 6d062760c6439e75b9a44d800d89aff60fe3441998d87506c62dc94c50412ef4
+      md5: a2d3d484d95889fccdd09498d8f6bf9a
+      sha256: 342896ebc1d6acbf022ca6df006a936b9a472579e91e3c502cb1f52f218b78e9
     category: main
     optional: false
   - name: libdeflate
@@ -14308,7 +14308,7 @@ package:
     category: main
     optional: false
   - name: mlflow
-    version: 2.17.2
+    version: 2.18.0
     manager: conda
     platform: linux-64
     dependencies:
@@ -14320,24 +14320,24 @@ package:
       jinja2: <4,>=2.11
       markdown: <4,>=3.3
       matplotlib-base: <4
-      mlflow-ui: 2.17.2
+      mlflow-ui: 2.18.0
       numpy: <3
       pandas: <3
       prometheus_flask_exporter: <1
-      pyarrow: <18,>=4.0.0
+      pyarrow: <19,>=4.0.0
       python_abi: 3.12.*
       querystring_parser: <2
       scikit-learn: <2
       scipy: <2
       sqlalchemy: ">=1.4.0,<3"
-    url: https://conda.anaconda.org/conda-forge/linux-64/mlflow-2.17.2-h7900ff3_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/mlflow-2.18.0-h7900ff3_0.conda
     hash:
-      md5: e0703d0a12f4d5530ae30313d3cc8ca3
-      sha256: 5446b915828e642e4bc61796b2a14a52fb5f16b56dccb19bad04850adfaa99d3
+      md5: 34ee68e9926d77fc3235e459b34991bc
+      sha256: 62fbf0d4f1cb32c0a734cd6c2d771323b9b243b7651781a7267857d9f7ba7ef4
     category: main
     optional: false
   - name: mlflow
-    version: 2.17.2
+    version: 2.18.0
     manager: conda
     platform: osx-64
     dependencies:
@@ -14349,24 +14349,24 @@ package:
       jinja2: <4,>=2.11
       markdown: <4,>=3.3
       matplotlib-base: <4
-      mlflow-ui: 2.17.2
+      mlflow-ui: 2.18.0
       numpy: <3
       pandas: <3
       prometheus_flask_exporter: <1
-      pyarrow: <18,>=4.0.0
+      pyarrow: <19,>=4.0.0
       python_abi: 3.12.*
       querystring_parser: <2
       scikit-learn: <2
       scipy: <2
       sqlalchemy: ">=1.4.0,<3"
-    url: https://conda.anaconda.org/conda-forge/osx-64/mlflow-2.17.2-hb401068_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/mlflow-2.18.0-hb401068_0.conda
     hash:
-      md5: 7c8f9d65992f318e3ad9d761e350127e
-      sha256: 34535e4268a7d03cd23ef62d72cc9869c72d7e02cea3bb59f07e17a886540cb8
+      md5: 2f88ee852e22c0405db37bd4547c406f
+      sha256: 26e8e76598b5605b853708ebffa44346954df49fe9807e06b47963fda9b1681b
     category: main
     optional: false
   - name: mlflow
-    version: 2.17.2
+    version: 2.18.0
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -14378,25 +14378,25 @@ package:
       jinja2: <4,>=2.11
       markdown: <4,>=3.3
       matplotlib-base: <4
-      mlflow-ui: 2.17.2
+      mlflow-ui: 2.18.0
       numpy: <3
       pandas: <3
       prometheus_flask_exporter: <1
-      pyarrow: <18,>=4.0.0
+      pyarrow: <19,>=4.0.0
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
       querystring_parser: <2
       scikit-learn: <2
       scipy: <2
       sqlalchemy: ">=1.4.0,<3"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/mlflow-2.17.2-py312h81bd7bf_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/mlflow-2.18.0-py312h81bd7bf_0.conda
     hash:
-      md5: 180655f1d98275c156a407c8bc82be50
-      sha256: e0e9fffa6bc1b03838e9b95b5a83309b89978901cc8180d551e29e0dc9434784
+      md5: 1b15f30789e0379014ea615de00690ea
+      sha256: 6ddbefb88a978b8225e5df1ec9ec1e269d6efec74eef5a8a9ce07ee79bfeacbf
     category: main
     optional: false
   - name: mlflow-skinny
-    version: 2.17.2
+    version: 2.18.0
     manager: conda
     platform: linux-64
     dependencies:
@@ -14417,14 +14417,14 @@ package:
       pyyaml: ">=5.1,<7"
       requests: ">=2.17.3,<3"
       sqlparse: ">=0.4.0,<1"
-    url: https://conda.anaconda.org/conda-forge/linux-64/mlflow-skinny-2.17.2-py312h7900ff3_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/mlflow-skinny-2.18.0-py312h7900ff3_0.conda
     hash:
-      md5: 0dbaa33d7e0d91e0b8b8573973f5ffd8
-      sha256: df1e25db2591f50facf46e7097fb80e0e55283ec0dcc9a62345e4c69a8f2cb77
+      md5: 19b36b1c50ea845bd1c759a1b777e1b3
+      sha256: d4eee9878d2c6c2539227325241c41fb967a3d8751d338f517092d415723d6d8
     category: main
     optional: false
   - name: mlflow-skinny
-    version: 2.17.2
+    version: 2.18.0
     manager: conda
     platform: osx-64
     dependencies:
@@ -14445,14 +14445,14 @@ package:
       pyyaml: ">=5.1,<7"
       requests: ">=2.17.3,<3"
       sqlparse: ">=0.4.0,<1"
-    url: https://conda.anaconda.org/conda-forge/osx-64/mlflow-skinny-2.17.2-py312hb401068_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/mlflow-skinny-2.18.0-py312hb401068_0.conda
     hash:
-      md5: 38ce677d23c3f9b4033365a5f02c0572
-      sha256: 4bbb7c7ccb68a8e51152296b32001160f321b17da1635509dd7818f8ba67212d
+      md5: fba04a313c30c6e06d28ac5a90039963
+      sha256: 7323aaa4a61c2521c1affc400e5d5cb1250e2721b82a9e25f2a2d4e25bfcd214
     category: main
     optional: false
   - name: mlflow-skinny
-    version: 2.17.2
+    version: 2.18.0
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -14473,61 +14473,61 @@ package:
       pyyaml: ">=5.1,<7"
       requests: ">=2.17.3,<3"
       sqlparse: ">=0.4.0,<1"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/mlflow-skinny-2.17.2-py312h81bd7bf_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/mlflow-skinny-2.18.0-py312h81bd7bf_0.conda
     hash:
-      md5: 7b67fde6b12bfd05913a0efc77e1cce5
-      sha256: 9fcb30fe9414aa79dce6f8983175e2314de07e9cc6a4faf1ea5a50394785acea
+      md5: 6a8c4c7bc0038c4345440396cd604fda
+      sha256: 95558261545b392aeebf6ba67d780d1dbcf4c76c1059a1e5ea75f8cddab899fc
     category: main
     optional: false
   - name: mlflow-ui
-    version: 2.17.2
+    version: 2.18.0
     manager: conda
     platform: linux-64
     dependencies:
       flask: <4
       gunicorn: <23
-      mlflow-skinny: 2.17.2
+      mlflow-skinny: 2.18.0
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
       querystring_parser: <2
-    url: https://conda.anaconda.org/conda-forge/linux-64/mlflow-ui-2.17.2-py312h7900ff3_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/mlflow-ui-2.18.0-py312h7900ff3_0.conda
     hash:
-      md5: 74c90b9f9c86c1d154f336c8bd713a5d
-      sha256: 6c43d0799996c02dc455ba84d9f6ac6bda0b5116202b98e3ebb4de3a3f24a735
+      md5: d8f4aadcb96e11fa4e10552a09a39cef
+      sha256: df6408620b5fed80cdff38e5aeee93b4a72b1c27a34e6e9718bb9c6200b44b1a
     category: main
     optional: false
   - name: mlflow-ui
-    version: 2.17.2
+    version: 2.18.0
     manager: conda
     platform: osx-64
     dependencies:
       flask: <4
       gunicorn: <23
-      mlflow-skinny: 2.17.2
+      mlflow-skinny: 2.18.0
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
       querystring_parser: <2
-    url: https://conda.anaconda.org/conda-forge/osx-64/mlflow-ui-2.17.2-py312hb401068_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/mlflow-ui-2.18.0-py312hb401068_0.conda
     hash:
-      md5: 24802598b409a0be749a0a9dca959969
-      sha256: 06bce095b15f1c1b556ec2d5c53cfbf7fcfda4fefa73dcf39978ff1f6ac2655d
+      md5: 857fd014ab9fb0fbdaf4c7e3d3a8587b
+      sha256: c5c80bb877d7c26be73f3039a5b0f5e9af9683f2851d4bc47a607df9c82f3c33
     category: main
     optional: false
   - name: mlflow-ui
-    version: 2.17.2
+    version: 2.18.0
     manager: conda
     platform: osx-arm64
     dependencies:
       flask: <4
       gunicorn: <23
-      mlflow-skinny: 2.17.2
+      mlflow-skinny: 2.18.0
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
       querystring_parser: <2
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/mlflow-ui-2.17.2-py312h81bd7bf_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/mlflow-ui-2.18.0-py312h81bd7bf_0.conda
     hash:
-      md5: 16ec3014dc8b5a4982e9f319c05d985d
-      sha256: 1d85dcf19f0defcdd859b19c7d42b30f42644ff0d5c80130e0943fb778b7596e
+      md5: bfa52f1ec6cc55159b40f59c033fc045
+      sha256: f7c7f94829a38c5104c9c4fc7b49e69c3c4de7ebc43db17054929e819bda29f2
     category: main
     optional: false
   - name: more-itertools
@@ -14764,39 +14764,39 @@ package:
     category: main
     optional: false
   - name: narwhals
-    version: 1.14.0
+    version: 1.14.1
     manager: conda
     platform: linux-64
     dependencies:
       python: ">=3.9"
-    url: https://conda.anaconda.org/conda-forge/noarch/narwhals-1.14.0-pyhff2d567_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/narwhals-1.14.1-pyhff2d567_0.conda
     hash:
-      md5: dc78d38bb510dc63524b17cdd1ef3e99
-      sha256: 4f1f539340b51541ff3c1e3018f8a06fac9c8c4f2d077ceb3ede71fe2e3e6ee4
+      md5: 6aeb2311753a549bb28ceb732d803a9c
+      sha256: d0396c1f29adc6654851120c957fe8b7dbbe1154f543d4a276ebe779a90f6fc8
     category: main
     optional: false
   - name: narwhals
-    version: 1.14.0
+    version: 1.14.1
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.9"
-    url: https://conda.anaconda.org/conda-forge/noarch/narwhals-1.14.0-pyhff2d567_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/narwhals-1.14.1-pyhff2d567_0.conda
     hash:
-      md5: dc78d38bb510dc63524b17cdd1ef3e99
-      sha256: 4f1f539340b51541ff3c1e3018f8a06fac9c8c4f2d077ceb3ede71fe2e3e6ee4
+      md5: 6aeb2311753a549bb28ceb732d803a9c
+      sha256: d0396c1f29adc6654851120c957fe8b7dbbe1154f543d4a276ebe779a90f6fc8
     category: main
     optional: false
   - name: narwhals
-    version: 1.14.0
+    version: 1.14.1
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.9"
-    url: https://conda.anaconda.org/conda-forge/noarch/narwhals-1.14.0-pyhff2d567_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/narwhals-1.14.1-pyhff2d567_0.conda
     hash:
-      md5: dc78d38bb510dc63524b17cdd1ef3e99
-      sha256: 4f1f539340b51541ff3c1e3018f8a06fac9c8c4f2d077ceb3ede71fe2e3e6ee4
+      md5: 6aeb2311753a549bb28ceb732d803a9c
+      sha256: d0396c1f29adc6654851120c957fe8b7dbbe1154f543d4a276ebe779a90f6fc8
     category: main
     optional: false
   - name: nbclassic
