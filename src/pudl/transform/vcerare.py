@@ -356,7 +356,7 @@ def _load_duckdb_table():
 
 @asset_check(
     asset=out_vcerare__hourly_available_capacity_factor,
-    blocking=False,
+    blocking=True,
     description="Check that row count matches expected.",
 )
 def check_rows() -> AssetCheckResult:

@@ -138,7 +138,7 @@ jobs:
             --container-env OMP_NUM_THREADS=4 \
             --container-env PUDL_BOT_PAT=${{ secrets.PUDL_BOT_PAT }} \
             --container-env PUDL_GCS_OUTPUT=${{ env.PUDL_GCS_OUTPUT }} \
-            --container-env PUDL_SETTINGS_YML="/home/mambauser/pudl/src/pudl/package_data/settings/etl_fast.yml" \
+            --container-env PUDL_SETTINGS_YML="/home/mambauser/pudl/src/pudl/package_data/settings/etl_full.yml" \
             --container-env SLACK_TOKEN=${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }} \
             --container-env ZENODO_SANDBOX_TOKEN_PUBLISH=${{ secrets.ZENODO_SANDBOX_TOKEN_PUBLISH }} \
             --container-env ZENODO_TARGET_ENV=${{ (startsWith(github.ref_name, 'v20') && 'production') || 'sandbox' }} \
