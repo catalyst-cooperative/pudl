@@ -6,37 +6,44 @@ import pytest
 from pudl.extract import excel
 
 
+@pytest.fixture
+def metadata():
+    """Constructs test metadata instance for testing."""
+    return excel.ExcelMetadata("test")
+
+
+@pytest.fixture
+def extractor():
+    """Constructs test extractor instance for testing."""
+    return FakeExtractor()
+
+
 class TestMetadata:
     """Tests basic operation of the excel.Metadata object."""
 
-    @pytest.fixture(autouse=True)
-    def setUp(self):
-        """Constructs test metadata instance for testing."""
-        self._metadata = excel.ExcelMetadata("test")
-
-    def test_basics(self):
+    def test_basics(self, metadata):
         """Test that basic API method return expected results."""
-        assert self._metadata.get_dataset_name() == "test"
-        assert self._metadata.get_all_pages() == ["books", "boxes", "shoes"]
-        assert self._metadata.get_all_columns("books") == ["author", "pages", "title"]
-        assert self._metadata.get_column_map("books", year=2010) == {
+        assert metadata.get_dataset_name() == "test"
+        assert metadata.get_all_pages() == ["books", "boxes", "shoes"]
+        assert metadata.get_all_columns("books") == ["author", "pages", "title"]
+        assert metadata.get_column_map("books", year=2010) == {
             "book_title": "title",
             "name": "author",
             "pages": "pages",
         }
-        assert self._metadata.get_skiprows("boxes", year=2011) == 10
-        assert self._metadata.get_sheet_name("boxes", year=2011) == 1
+        assert metadata.get_skiprows("boxes", year=2011) == 10
+        assert metadata.get_sheet_name("boxes", year=2011) == 1
 
-    def test_metadata_methods(self):
+    def test_metadata_methods(self, metadata):
         """Test various metadata methods."""
-        assert self._metadata.get_all_columns("books") == ["author", "pages", "title"]
-        assert self._metadata.get_column_map("books", year=2010) == {
+        assert metadata.get_all_columns("books") == ["author", "pages", "title"]
+        assert metadata.get_column_map("books", year=2010) == {
             "book_title": "title",
             "name": "author",
             "pages": "pages",
         }
-        assert self._metadata.get_skiprows("boxes", year=2011) == 10
-        assert self._metadata.get_sheet_name("boxes", year=2011) == 1
+        assert metadata.get_skiprows("boxes", year=2011) == 10
+        assert metadata.get_sheet_name("boxes", year=2011) == 1
 
 
 class FakeExtractor(excel.ExcelExtractor):
@@ -87,8 +94,7 @@ def _fake_data_frames(page_name, **kwargs):
 class TestExtractor:
     """Test operation of the excel.Extractor class."""
 
-    def test_extract(self):
-        extractor = FakeExtractor()
+    def test_extract(self, extractor):
         res = extractor.extract(year=[2010, 2011])
         expected_books = {
             "author": {0: "Laozi", 1: "Benjamin Hoff"},
