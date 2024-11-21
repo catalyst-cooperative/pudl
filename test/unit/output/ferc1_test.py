@@ -36,8 +36,107 @@ from pudl.output.ferc1 import (
 logger = logging.getLogger(__name__)
 
 
+@pytest.fixture
+def forest_setup():
+    """Fixture to set up nodes and edges for tests."""
+    root = NodeId(
+        table_name="table_1",
+        xbrl_factoid="reported_1",
+        utility_type="electric",
+        plant_status=pd.NA,
+        plant_function=pd.NA,
+    )
+    root_child = NodeId(
+        table_name="table_1",
+        xbrl_factoid="reported_11",
+        utility_type="electric",
+        plant_status=pd.NA,
+        plant_function=pd.NA,
+    )
+    root_other = NodeId(
+        table_name="table_1",
+        xbrl_factoid="reported_2",
+        utility_type="electric",
+        plant_status=pd.NA,
+        plant_function=pd.NA,
+    )
+    root_other_child = NodeId(
+        table_name="table_1",
+        xbrl_factoid="reported_21",
+        utility_type="electric",
+        plant_status=pd.NA,
+        plant_function=pd.NA,
+    )
+    return root, root_child, root_other, root_other_child
+
+
+@pytest.fixture
+def tag_propagation_setup():
+    """Fixture to set up nodes and edges for tests."""
+    parent = NodeId(
+        table_name="table_1",
+        xbrl_factoid="reported_1",
+        utility_type="electric",
+        plant_status=pd.NA,
+        plant_function=pd.NA,
+    )
+    parent_correction = NodeId(
+        table_name="table_1",
+        xbrl_factoid="reported_1_correction",
+        utility_type="electric",
+        plant_status=pd.NA,
+        plant_function=pd.NA,
+    )
+    child1 = NodeId(
+        table_name="table_1",
+        xbrl_factoid="reported_1_1",
+        utility_type="electric",
+        plant_status=pd.NA,
+        plant_function=pd.NA,
+    )
+    child2 = NodeId(
+        table_name="table_1",
+        xbrl_factoid="reported_1_2",
+        utility_type="electric",
+        plant_status=pd.NA,
+        plant_function=pd.NA,
+    )
+    grand_child11 = NodeId(
+        table_name="table_1",
+        xbrl_factoid="reported_1_1_1",
+        utility_type="electric",
+        plant_status=pd.NA,
+        plant_function=pd.NA,
+    )
+    grand_child12 = NodeId(
+        table_name="table_1",
+        xbrl_factoid="reported_1_1_2",
+        utility_type="electric",
+        plant_status=pd.NA,
+        plant_function=pd.NA,
+    )
+    child1_correction = NodeId(
+        table_name="table_1",
+        xbrl_factoid="reported_1_1_correction",
+        utility_type="electric",
+        plant_status=pd.NA,
+        plant_function=pd.NA,
+    )
+    return (
+        parent,
+        parent_correction,
+        child1,
+        child2,
+        grand_child11,
+        grand_child12,
+        child1_correction,
+    )
+
+
 class TestForestSetup:
-    """Base class for forest testing."""
+    def setUp(self):
+        # this is where you add nodes you want to use
+        pass
 
     def _exploded_calcs_from_edges(self, edges: list[tuple[NodeId, NodeId]]):
         records = []
@@ -87,40 +186,11 @@ class TestForestSetup:
 
 
 class TestPrunnedNode(TestForestSetup):
-    @pytest.fixture(autouse=True)
-    def setup_nodes(self):
-        """Setup nodes for testing."""
-        self.root = NodeId(
-            table_name="table_1",
-            xbrl_factoid="reported_1",
-            utility_type="electric",
-            plant_status=pd.NA,
-            plant_function=pd.NA,
+    def test_pruned_nodes(self, forest_setup):
+        """Test that pruned nodes are correct."""
+        self.root, self.root_child, self.root_other, self.root_other_child = (
+            forest_setup
         )
-        self.root_child = NodeId(
-            table_name="table_1",
-            xbrl_factoid="reported_11",
-            utility_type="electric",
-            plant_status=pd.NA,
-            plant_function=pd.NA,
-        )
-        self.root_other = NodeId(
-            table_name="table_1",
-            xbrl_factoid="reported_2",
-            utility_type="electric",
-            plant_status=pd.NA,
-            plant_function=pd.NA,
-        )
-        self.root_other_child = NodeId(
-            table_name="table_1",
-            xbrl_factoid="reported_21",
-            utility_type="electric",
-            plant_status=pd.NA,
-            plant_function=pd.NA,
-        )
-
-    def test_pruned_nodes(self):
-        """Test pruned nodes."""
         edges = [(self.root, self.root_child), (self.root_other, self.root_other_child)]
         tags = pd.DataFrame(columns=list(NodeId._fields)).convert_dtypes()
         forest = XbrlCalculationForestFerc1(
@@ -133,63 +203,17 @@ class TestPrunnedNode(TestForestSetup):
 
 
 class TestTagPropagation(TestForestSetup):
-    """Test tag propagation functionality."""
-
-    @pytest.fixture(autouse=True)
-    def setup_nodes(self):
-        """Setup nodes for testing."""
-        self.parent = NodeId(
-            table_name="table_1",
-            xbrl_factoid="reported_1",
-            utility_type="electric",
-            plant_status=pd.NA,
-            plant_function=pd.NA,
-        )
-        self.parent_correction = NodeId(
-            table_name="table_1",
-            xbrl_factoid="reported_1_correction",
-            utility_type="electric",
-            plant_status=pd.NA,
-            plant_function=pd.NA,
-        )
-        self.child1 = NodeId(
-            table_name="table_1",
-            xbrl_factoid="reported_1_1",
-            utility_type="electric",
-            plant_status=pd.NA,
-            plant_function=pd.NA,
-        )
-        self.child2 = NodeId(
-            table_name="table_1",
-            xbrl_factoid="reported_1_2",
-            utility_type="electric",
-            plant_status=pd.NA,
-            plant_function=pd.NA,
-        )
-        self.grand_child11 = NodeId(
-            table_name="table_1",
-            xbrl_factoid="reported_1_1_1",
-            utility_type="electric",
-            plant_status=pd.NA,
-            plant_function=pd.NA,
-        )
-        self.grand_child12 = NodeId(
-            table_name="table_1",
-            xbrl_factoid="reported_1_1_2",
-            utility_type="electric",
-            plant_status=pd.NA,
-            plant_function=pd.NA,
-        )
-        self.child1_correction = NodeId(
-            table_name="table_1",
-            xbrl_factoid="reported_1_1_correction",
-            utility_type="electric",
-            plant_status=pd.NA,
-            plant_function=pd.NA,
-        )
-
-    def test_leafward_prop_undecided_children(self):
-        """Test leadward propagation with undecided children."""
+    def test_leafward_prop_undecided_children(self, tag_propagation_setup):
+        """If parent has a tag, children should inherit it."""
+        (
+            self.parent,
+            self.parent_correction,
+            self.child1,
+            self.child2,
+            self.grand_child11,
+            self.grand_child12,
+            self.child1_correction,
+        ) = tag_propagation_setup
         edges = [(self.parent, self.child1), (self.parent, self.child2)]
         tags = pd.DataFrame([self.parent, self.child1, self.child2]).assign(
             in_rate_base=["yes", pd.NA, pd.NA]
@@ -202,8 +226,17 @@ class TestTagPropagation(TestForestSetup):
                 == annotated_tags[self.parent]["in_rate_base"]
             )
 
-    def test_leafward_prop_disagreeing_child(self):
+    def test_leafward_prop_disagreeing_child(self, tag_propagation_setup):
         """Don't force the diagreeing child to follow the parent."""
+        (
+            self.parent,
+            self.parent_correction,
+            self.child1,
+            self.child2,
+            self.grand_child11,
+            self.grand_child12,
+            self.child1_correction,
+        ) = tag_propagation_setup
         edges = [(self.parent, self.child1), (self.parent, self.child2)]
         tags = pd.DataFrame([self.parent, self.child1, self.child2]).assign(
             in_rate_base=["yes", "no", pd.NA]
@@ -216,8 +249,17 @@ class TestTagPropagation(TestForestSetup):
             == annotated_tags[self.parent]["in_rate_base"]
         )
 
-    def test_leafward_prop_preserve_non_propagating_tags(self):
+    def test_leafward_prop_preserve_non_propagating_tags(self, tag_propagation_setup):
         """Only propagate tags that actually get inherited - i.e., not `in_root_boose`."""
+        (
+            self.parent,
+            self.parent_correction,
+            self.child1,
+            self.child2,
+            self.grand_child11,
+            self.grand_child12,
+            self.child1_correction,
+        ) = tag_propagation_setup
         edges = [(self.parent, self.child1), (self.parent, self.child2)]
         tags = pd.DataFrame([self.parent, self.child1, self.child2]).assign(
             in_rate_base=["yes", "no", pd.NA],
@@ -234,8 +276,17 @@ class TestTagPropagation(TestForestSetup):
         assert annotated_tags[self.child1]["in_root_boose"] == "nu"
         assert not annotated_tags[self.child2].get("in_root_boose")
 
-    def test_rootward_prop_disagreeing_children(self):
+    def test_rootward_prop_disagreeing_children(self, tag_propagation_setup):
         """Parents should not pick sides between disagreeing children."""
+        (
+            self.parent,
+            self.parent_correction,
+            self.child1,
+            self.child2,
+            self.grand_child11,
+            self.grand_child12,
+            self.child1_correction,
+        ) = tag_propagation_setup
         edges = [(self.parent, self.child1), (self.parent, self.child2)]
         tags = pd.DataFrame([self.child1, self.child2]).assign(
             in_rate_base=["no", "yes"]
@@ -245,7 +296,7 @@ class TestTagPropagation(TestForestSetup):
         assert annotated_tags[self.child1]["in_rate_base"] == "no"
         assert annotated_tags[self.child2]["in_rate_base"] == "yes"
 
-    def test_prop_no_tags(self):
+    def test_prop_no_tags(self, tag_propagation_setup):
         """If no tags, don't propagate anything.
 
         This also tests whether a fully null tag input behaves the same as an
@@ -253,6 +304,15 @@ class TestTagPropagation(TestForestSetup):
         the propogated tags are all null but there is another non-propagating
         tag.
         """
+        (
+            self.parent,
+            self.parent_correction,
+            self.child1,
+            self.child2,
+            self.grand_child11,
+            self.grand_child12,
+            self.child1_correction,
+        ) = tag_propagation_setup
         edges = [(self.parent, self.child1), (self.parent, self.child2)]
         null_tag_edges = [self.parent, self.child1, self.child2]
         tags = pd.DataFrame(null_tag_edges).assign(in_rate_base=[pd.NA, pd.NA, pd.NA])
@@ -275,12 +335,21 @@ class TestTagPropagation(TestForestSetup):
             # do we still have a non-null value for the non-propped tag
             assert annotated_tags[node].get("a_non_propped_tag")
 
-    def test_annotated_forest_propagates_rootward(self):
+    def test_annotated_forest_propagates_rootward(self, tag_propagation_setup):
         """If two grandchildren have the same tag, their parent does inhert the tag.
 
         But, the rootward propagation only happens when all of a nodes children have
         the same tag.
         """
+        (
+            self.parent,
+            self.parent_correction,
+            self.child1,
+            self.child2,
+            self.grand_child11,
+            self.grand_child12,
+            self.child1_correction,
+        ) = tag_propagation_setup
         edges = [
             (self.parent, self.child1),
             (self.parent, self.child2),
@@ -297,8 +366,19 @@ class TestTagPropagation(TestForestSetup):
         assert annotated_tags[self.grand_child11]["in_rate_base"] == "yes"
         assert annotated_tags[self.grand_child12]["in_rate_base"] == "yes"
 
-    def test_annotated_forest_propagates_rootward_disagreeing_sibling(self):
+    def test_annotated_forest_propagates_rootward_disagreeing_sibling(
+        self, tag_propagation_setup
+    ):
         """If two siblings disagree, their parent does not inherit either of their tag values."""
+        (
+            self.parent,
+            self.parent_correction,
+            self.child1,
+            self.child2,
+            self.grand_child11,
+            self.grand_child12,
+            self.child1_correction,
+        ) = tag_propagation_setup
         edges = [
             (self.parent, self.child1),
             (self.parent, self.child2),
@@ -315,7 +395,19 @@ class TestTagPropagation(TestForestSetup):
         assert annotated_tags[self.grand_child11]["in_rate_base"] == "yes"
         assert annotated_tags[self.grand_child12]["in_rate_base"] == "no"
 
-    def test_annotated_forest_propagates_rootward_correction(self):
+    def test_annotated_forest_propagates_rootward_correction(
+        self, tag_propagation_setup
+    ):
+        """If a correction is a leaf, it inherits the tag of its parent."""
+        (
+            self.parent,
+            self.parent_correction,
+            self.child1,
+            self.child2,
+            self.grand_child11,
+            self.grand_child12,
+            self.child1_correction,
+        ) = tag_propagation_setup
         edges = [
             (self.child1, self.grand_child11),
             (self.child1, self.child1_correction),
@@ -331,7 +423,19 @@ class TestTagPropagation(TestForestSetup):
             == annotated_tags[self.child1]["in_rate_base"]
         )
 
-    def test_annotated_forest_propagates_rootward_two_layers(self):
+    def test_annotated_forest_propagates_rootward_two_layers(
+        self, tag_propagation_setup
+    ):
+        """If a correction is a leaf, it inherits the tag of its parent."""
+        (
+            self.parent,
+            self.parent_correction,
+            self.child1,
+            self.child2,
+            self.grand_child11,
+            self.grand_child12,
+            self.child1_correction,
+        ) = tag_propagation_setup
         edges = [
             (self.parent, self.child1),
             (self.parent, self.child2),
@@ -348,7 +452,19 @@ class TestTagPropagation(TestForestSetup):
         for post_yes_node in [self.child1, self.parent]:
             assert annotated_tags[post_yes_node]["in_rate_base"] == "yes"
 
-    def test_annotated_forest_propagates_rootward_two_layers_plus_corrections(self):
+    def test_annotated_forest_propagates_rootward_two_layers_plus_corrections(
+        self, tag_propagation_setup
+    ):
+        """If a correction is a leaf, it inherits the tag of its parent."""
+        (
+            self.parent,
+            self.parent_correction,
+            self.child1,
+            self.child2,
+            self.grand_child11,
+            self.grand_child12,
+            self.child1_correction,
+        ) = tag_propagation_setup
         edges = [
             (self.parent, self.child1),
             (self.parent, self.child2),
@@ -374,7 +490,6 @@ class TestTagPropagation(TestForestSetup):
 
 
 def test_get_core_ferc1_asset_description():
-    """Test core FERC1 asset description extraction."""
     valid_core_ferc1_asset_name = "core_ferc1__yearly_income_statements_sched114"
     valid_core_ferc1_asset_name_result = get_core_ferc1_asset_description(
         valid_core_ferc1_asset_name
