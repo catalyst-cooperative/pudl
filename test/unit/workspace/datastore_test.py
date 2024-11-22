@@ -209,15 +209,15 @@ class TestZenodoFetcher:
         r"^10\.(5072|5281)/zenodo\.(\d+)$", PROD_EPACEMS_DOI
     ).group(2)
 
-    @pytest.fixture(autouse=True)
-    def setup(self):
+    @classmethod
+    def setup_method(cls):
         """Constructs mockable Zenodo fetcher based on MOCK_EPACEMS_DATAPACKAGE."""
-        self.fetcher = MockableZenodoFetcher(
+        cls.fetcher = MockableZenodoFetcher(
             descriptors={
-                self.PROD_EPACEMS_DOI: datastore.DatapackageDescriptor(
-                    self.MOCK_EPACEMS_DATAPACKAGE,
+                cls.PROD_EPACEMS_DOI: datastore.DatapackageDescriptor(
+                    cls.MOCK_EPACEMS_DATAPACKAGE,
                     dataset="epacems",
-                    doi=self.PROD_EPACEMS_DOI,
+                    doi=cls.PROD_EPACEMS_DOI,
                 )
             }
         )
