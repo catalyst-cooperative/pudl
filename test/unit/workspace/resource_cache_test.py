@@ -1,4 +1,4 @@
-"""Unit tests for resource_cache."""
+"""Pytests for resource_cache."""
 
 import shutil
 import tempfile
@@ -31,14 +31,16 @@ class TestGoogleCloudStorageCache:
 class TestLocalFileCache:
     """Unit tests for the LocalFileCache class."""
 
-    def setup_method(self):
-        """Prepares temporary directory for storing cache contents."""
-        self.test_dir = tempfile.mkdtemp()
-        self.cache = resource_cache.LocalFileCache(Path(self.test_dir))
+    @classmethod
+    def setup_method(cls):
+        """Creates temporary directories for storing cache contents."""
+        cls.test_dir = tempfile.mkdtemp()
+        cls.cache = resource_cache.LocalFileCache(Path(cls.test_dir))
 
-    def teardown_method(self):
+    @classmethod
+    def teardown_method(cls):
         """Deletes content of the temporary directories."""
-        shutil.rmtree(self.test_dir)
+        shutil.rmtree(cls.test_dir)
 
     def test_add_single_resource(self):
         """Adding resource has expected effect on later get() and contains() calls."""
@@ -90,18 +92,20 @@ class TestLocalFileCache:
 class TestLayeredCache:
     """Unit tests for LayeredCache class."""
 
-    def setup_method(self):
-        """Constructs two LocalFileCache layers pointed at temporary directories."""
-        self.layered_cache = resource_cache.LayeredCache()
-        self.test_dir_1 = tempfile.mkdtemp()
-        self.test_dir_2 = tempfile.mkdtemp()
-        self.cache_1 = resource_cache.LocalFileCache(self.test_dir_1)
-        self.cache_2 = resource_cache.LocalFileCache(self.test_dir_2)
+    @classmethod
+    def setup_method(cls):
+        """Create temporary directories for storing cache contents."""
+        cls.layered_cache = resource_cache.LayeredCache()
+        cls.test_dir_1 = tempfile.mkdtemp()
+        cls.test_dir_2 = tempfile.mkdtemp()
+        cls.cache_1 = resource_cache.LocalFileCache(cls.test_dir_1)
+        cls.cache_2 = resource_cache.LocalFileCache(cls.test_dir_2)
 
-    def tearDown(self):
-        """Remove temporary directories storing the cache contents."""
-        shutil.rmtree(self.test_dir_1)
-        shutil.rmtree(self.test_dir_2)
+    @classmethod
+    def teardown_method(cls):
+        """Deletes content of the temporary directories."""
+        shutil.rmtree(cls.test_dir_1)
+        shutil.rmtree(cls.test_dir_2)
 
     def test_add_caching_layers(self):
         """Adding layers has expected effect on the subsequent num_layers() calls."""
