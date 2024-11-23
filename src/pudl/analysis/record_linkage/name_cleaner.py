@@ -86,6 +86,15 @@ class HandleLegalTerms(enum.Enum):
     REMOVE = 2
 
 
+def _get_legal_terms_dict() -> dict[str, list]:
+    json_source = files("pudl.package_data.settings").joinpath(
+        NAME_LEGAL_TERMS_DICT_FILE
+    )
+    with json_source.open() as json_file:
+        legal_terms_dict = json.load(json_file)[NAME_JSON_ENTRY_LEGAL_TERMS]["en"]
+    return legal_terms_dict
+
+
 class CompanyNameCleaner(BaseModel):
     """Class to normalize/clean up text based company names.
 
@@ -117,19 +126,7 @@ class CompanyNameCleaner(BaseModel):
     output_lettercase: Lettercase = Lettercase.LOWER
     legal_term_location: LegalTermLocation = LegalTermLocation.AT_THE_END
     remove_accents: bool = False
-    legal_terms_dict: dict[str, list] = Field(default_factory=dict)
-
-    @model_validator(mode="before")
-    @classmethod
-    def _get_legal_terms_dict(cls, data) -> Self:
-        json_source = files("pudl.package_data.settings").joinpath(
-            NAME_LEGAL_TERMS_DICT_FILE
-        )
-        with json_source.open() as json_file:
-            data["legal_terms_dict"] = json.load(json_file)[
-                NAME_JSON_ENTRY_LEGAL_TERMS
-            ]["en"]
-        return data
+    legal_terms_dict: dict[str, list] = Field(default_factory=_get_legal_terms_dict)
 
     @model_validator(mode="after")
     def _validate_cleaning_rules(self) -> Self:
@@ -285,9 +282,7 @@ class CompanyNameCleaner(BaseModel):
         clean_col = clean_col.str.replace(regex_rule, "", regex=True)
         clean_col = clean_col.str.strip()
         # strip commas or other special chars that might be at the end of the name
-        special_char_regex = r"[^[^\w&\s]+|[^\w&\s]+$]+"
-        clean_col = clean_col.str.replace(special_char_regex, "", clean_col)
-        clean_col = clean_col.fillna(pd.NA).str.strip()
+        clean_col = clean_col.str.strip(".,!?()':;[]* \n\t")
         return clean_col
 
     def get_clean_data(self, col: pd.Series) -> pd.Series:
