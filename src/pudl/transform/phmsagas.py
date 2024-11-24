@@ -1,7 +1,8 @@
 """Classes & functions to process PHMSA natural gas data before loading into the PUDL DB."""
 
 import pandas as pd
-from dagster import AssetIn, asset
+from dagster import AssetCheckResult, AssetChecksDefinition, AssetIn, asset, asset_check
+from dataclasses import dataclass
 
 import pudl.logging_helpers
 from pudl.helpers import (
@@ -69,8 +70,13 @@ YEARLY_DISTRIBUTION_OPERATORS_COLUMNS = {
         "services_efv_installed",
         "services_shutoff_valve_in_system",
         "services_shutoff_valve_installed",
+        "federal_land_leaks_repaired_or_scheduled"
     ],
-    "capitalization_exclusion": ["headquarters_address_state", "office_address_state"],
+    "capitalization_exclusion": [
+        "headquarters_address_state", 
+        "office_address_state",
+        "preparer_email"
+    ]
 }
 
 ##############################################################################
@@ -86,7 +92,24 @@ YEARLY_DISTRIBUTION_OPERATORS_COLUMNS = {
 def core_phmsagas__yearly_distribution_operators(
     raw_data: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Build the :ref:`core_phmsagas__yearly_distribution_operators`."""
+    """Pull and transform the yearly distribution PHMSA data into operator-level data. 
+    
+    Transformations include:
+
+    * Standardize NAs.
+    * Strip blank spaces around string values.
+    * Convert specific columns to integers.
+    * Standardize report_year values.
+    * Standardize address columns.
+    * Standardize phone and fax numbers.
+
+    Args:
+        raw_phmsagas__yearly_distribution: The raw ``raw_phmsagas__yearly_distribution`` dataframe.
+
+    Returns:
+        Transformed ``core_phmsagas__yearly_distribution_operators`` dataframe.
+
+    """
     df = raw_data.loc[
         :, YEARLY_DISTRIBUTION_OPERATORS_COLUMNS["columns_to_keep"]
     ].copy()
@@ -103,8 +126,8 @@ def core_phmsagas__yearly_distribution_operators(
         "columns_to_convert_to_ints"
     ]
 
-    # Fill NaN values with pd.NA, then cast to "Int64" nullable integer type
-    df[cols_to_convert] = df[cols_to_convert].fillna(pd.NA).astype("Int64")
+    # Use convert_dtypes() to convert columns to the most appropriate nullable types
+    df[cols_to_convert] = df[cols_to_convert].convert_dtypes()
 
     # Ensure all "report_year" values have four digits
     mask = df["report_year"] < 100
@@ -155,5 +178,46 @@ def core_phmsagas__yearly_distribution_operators(
 
     # Standardize telephone and fax number format and drop (000)-000-0000
     df = standardize_phone_column(df, ["preparer_phone", "preparer_fax"])
+    
+    pdb.set_trace()
 
     return df
+
+@dataclass
+class PhmsagasCheckSpec:
+    """Define some simple checks that can run on FERC 714 assets."""
+
+    name: str
+    asset: str
+    percent_unaccounted_for_gas_negative_threshold: float
+
+check_specs = [
+    PhmsagasCheckSpec(
+        name="phmsagas__yearly_distribution_check_spec",
+        asset="raw_phmsagas__yearly_distribution",
+        # Threshold to use when making sure we aren't seeing tons of negative values in percent_unaccounted_for_gas
+        percent_unaccounted_for_gas_negative_threshold = .05
+    )
+]
+
+def make_check_phmsagas_yearly_distribution(spec: PhmsagasCheckSpec) -> AssetChecksDefinition:
+    """Turn the Ferc714CheckSpec into an actual Dagster asset check."""
+
+    @asset_check(asset=spec.asset, blocking=True)
+    def _check(df):
+
+        # Count the rows where percent_unaccounted_for_gas is negative
+        negative_count = (df["percent_unaccounted_for_gas"] < 0).sum()
+
+        # Calculate the percentage
+        negative_percentage = (negative_count / len(df))
+        if negative_percentage > PhmsagasCheckSpec.percent_unaccounted_for_gas_negative_threshold:
+            error = "Percentage of rows with negative percent_unaccounted_for_gas values: {negative_percentage:.2f}"
+            logger.info(error)
+
+        if error:
+            return AssetCheckResult(passed=False, metadata={"errors": error})
+
+        return AssetCheckResult(passed=True)
+
+    return _check

@@ -1032,9 +1032,6 @@ def standardize_na_values(df: pd.DataFrame) -> pd.DataFrame:
     # Replace matching patterns in all object columns with np.nan
     df = df.replace(na_patterns, np.nan, regex=True)
 
-    # Attempt to infer original types where possible to avoid unwanted type changes
-    df = df.infer_objects()
-
     return df
 
 
@@ -2264,14 +2261,17 @@ def analyze_missing_values(
 ) -> list[str]:
     """Analyze columns of a DataFrame for missing or invalid values.
 
-    Note that this is purely for analysis and does not perform any data
-    transformation or cleaning. This function checks each column for missing
-    or custom missing values and logs a summary of the findings for
-    string (object), numeric, and datetime columns.
+    PLEASE NOTE: No calls to this method should be included in any final
+    transformation scripts. This is purely for analysis and does not perform
+    any data transformation or cleaning. 
+    
+    This function checks each column for missing or custom missing values
+    and logs a summary of the findings for string (object), numeric, and
+    datetime columns.
 
     Args:
         df: The DataFrame to analyze.
-        custom_missing_values: Optional list of custom values to consider
+    custom_missing_values: Optional list of custom values to consider
             as "missing" (e.g., empty strings, specific strings like "NA",
             "NULL", etc.). If not provided, defaults to a standard set.
 

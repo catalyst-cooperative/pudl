@@ -3,6 +3,16 @@
 from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
 
 COUNTRY_CODES_ISO3166: set[str] = set(POLITICAL_SUBDIVISIONS.country_code)
+
+US_STATE_CODES: set[str] = set(
+    POLITICAL_SUBDIVISIONS.loc[
+        (POLITICAL_SUBDIVISIONS.country_code == "USA")
+        & (POLITICAL_SUBDIVISIONS.subdivision_type == "state"),
+        "subdivision_name",
+    ]
+)
+""" Two-letter ANSI state codes."""
+
 SUBDIVISION_CODES_ISO3166: set[str] = set(POLITICAL_SUBDIVISIONS.subdivision_code)
 EPACEMS_STATES: set[str] = set(
     POLITICAL_SUBDIVISIONS.loc[
@@ -640,11 +650,3 @@ INCOME_TYPES_FERC1: list[str] = [
     "utility_operating_expenses",
 ]
 """Income types for FERC Form 1 data."""
-
-US_STATE_CODES: set[str] = set(
-    POLITICAL_SUBDIVISIONS.loc[
-        (POLITICAL_SUBDIVISIONS.country_code == "USA")
-        & (POLITICAL_SUBDIVISIONS.subdivision_type == "state"),
-        "subdivision_name",
-    ]
-)
