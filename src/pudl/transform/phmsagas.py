@@ -1,8 +1,9 @@
 """Classes & functions to process PHMSA natural gas data before loading into the PUDL DB."""
 
+from dataclasses import dataclass
+
 import pandas as pd
 from dagster import AssetCheckResult, AssetChecksDefinition, AssetIn, asset, asset_check
-from dataclasses import dataclass
 
 import pudl.logging_helpers
 from pudl.helpers import (
@@ -70,13 +71,13 @@ YEARLY_DISTRIBUTION_OPERATORS_COLUMNS = {
         "services_efv_installed",
         "services_shutoff_valve_in_system",
         "services_shutoff_valve_installed",
-        "federal_land_leaks_repaired_or_scheduled"
+        "federal_land_leaks_repaired_or_scheduled",
     ],
     "capitalization_exclusion": [
-        "headquarters_address_state", 
+        "headquarters_address_state",
         "office_address_state",
-        "preparer_email"
-    ]
+        "preparer_email",
+    ],
 }
 
 ##############################################################################
@@ -92,8 +93,8 @@ YEARLY_DISTRIBUTION_OPERATORS_COLUMNS = {
 def core_phmsagas__yearly_distribution_operators(
     raw_data: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Pull and transform the yearly distribution PHMSA data into operator-level data. 
-    
+    """Pull and transform the yearly distribution PHMSA data into operator-level data.
+
     Transformations include:
 
     * Standardize NAs.
@@ -178,10 +179,11 @@ def core_phmsagas__yearly_distribution_operators(
 
     # Standardize telephone and fax number format and drop (000)-000-0000
     df = standardize_phone_column(df, ["preparer_phone", "preparer_fax"])
-    
+
     pdb.set_trace()
 
     return df
+
 
 @dataclass
 class PhmsagasCheckSpec:
@@ -191,27 +193,33 @@ class PhmsagasCheckSpec:
     asset: str
     percent_unaccounted_for_gas_negative_threshold: float
 
+
 check_specs = [
     PhmsagasCheckSpec(
         name="phmsagas__yearly_distribution_check_spec",
         asset="raw_phmsagas__yearly_distribution",
         # Threshold to use when making sure we aren't seeing tons of negative values in percent_unaccounted_for_gas
-        percent_unaccounted_for_gas_negative_threshold = .05
+        percent_unaccounted_for_gas_negative_threshold=0.05,
     )
 ]
 
-def make_check_phmsagas_yearly_distribution(spec: PhmsagasCheckSpec) -> AssetChecksDefinition:
+
+def make_check_phmsagas_yearly_distribution(
+    spec: PhmsagasCheckSpec,
+) -> AssetChecksDefinition:
     """Turn the Ferc714CheckSpec into an actual Dagster asset check."""
 
     @asset_check(asset=spec.asset, blocking=True)
     def _check(df):
-
         # Count the rows where percent_unaccounted_for_gas is negative
         negative_count = (df["percent_unaccounted_for_gas"] < 0).sum()
 
         # Calculate the percentage
-        negative_percentage = (negative_count / len(df))
-        if negative_percentage > PhmsagasCheckSpec.percent_unaccounted_for_gas_negative_threshold:
+        negative_percentage = negative_count / len(df)
+        if (
+            negative_percentage
+            > PhmsagasCheckSpec.percent_unaccounted_for_gas_negative_threshold
+        ):
             error = "Percentage of rows with negative percent_unaccounted_for_gas values: {negative_percentage:.2f}"
             logger.info(error)
 
