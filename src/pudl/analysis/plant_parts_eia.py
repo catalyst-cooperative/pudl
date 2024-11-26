@@ -1483,10 +1483,14 @@ def match_to_single_plant_part(
     """
     # select only the plant-part records that we are trying to scale to
     ppe_part_df = ppe[ppe.plant_part == part_name]
+    if not pd.api.types.is_datetime64_any_dtype(ppe_part_df["report_date"]):
+        ppe_part_df["report_date"] = pd.to_datetime(ppe_part_df["report_date"])
+    if not pd.api.types.is_datetime64_any_dtype(multi_gran_df["report_date"]):
+        multi_gran_df["report_date"] = pd.to_datetime(multi_gran_df["report_date"])
     # convert the date to year start - this is necessary because the
     # depreciation data is often reported as EOY and the ppe is always SOY
     multi_gran_df.loc[:, "report_date"] = pd.to_datetime(
-        multi_gran_df.report_date.dt.year, format="%Y"
+        multi_gran_df["report_date"].dt.year, format="%Y"
     )
     out_dfs = []
     for merge_part in PLANT_PARTS:
