@@ -1,7 +1,7 @@
 """Integration tests that verify that Zenodo datapackages are correct."""
 
 import pytest
-from requests.exceptions import ConnectionError, RetryError
+from requests.exceptions import ConnectionError, RetryError  # noqa: A004
 from urllib3.exceptions import MaxRetryError, ResponseError
 
 from pudl.workspace.datastore import Datastore

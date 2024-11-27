@@ -29,7 +29,7 @@ repos:
   # Formatters: hooks that re-write Python & documentation files
   ####################################################################################
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.7.0
+    rev: v0.8.0
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
@@ -60,7 +60,7 @@ repos:
 
   # Check Github Actions
   - repo: https://github.com/rhysd/actionlint
-    rev: v1.7.3
+    rev: v1.7.4
     hooks:
       - id: actionlint
 
