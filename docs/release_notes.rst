@@ -57,6 +57,12 @@ EPA CEMS
 ~~~~~~~~
 * Added 2024 Q3 of CEMS data. See :issue:`3943` and :pr:`3948`.
 
+FERC to EIA Record Linkage
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+* Updated the ``splink`` FERC to EIA development notebook to be compatible with
+  the latest version of ``splink``. This notebook is not run in production but
+  is helpful for visualizing model weights and what is happening under the hood.
+
 .. _release-v2024.10.0:
 
 ---------------------------------------------------------------------------------------
