@@ -138,7 +138,7 @@ def test_core_eia176__data(df):
         ]
     ].reset_index()
 
-    wide_company, wide_aggregate = _core_eia176__data(eav_model)
+    wide_company, wide_aggregate = (o.value for o in _core_eia176__data(eav_model))
     assert wide_company.shape == (1, 4)
 
     company_row = wide_company.loc[0]
@@ -190,8 +190,8 @@ def test_validate__totals(df):
         ]
     ].reset_index()
     # Add the value for the 1010_vl variable
-    company_data["1010_vl"] = [str(v) for v in [VOLUME_1, VOLUME_2, VOLUME_3]]
-    company_data = company_data.drop(columns=DROP_COLS)
+    company_data["1010_vl"] = [VOLUME_1, VOLUME_2, VOLUME_3]
+    company_data = company_data.drop(columns=DROP_COLS + ["value"])
 
     aggregate_data = df.loc[
         [
@@ -201,7 +201,7 @@ def test_validate__totals(df):
         ]
     ].reset_index()
     # Add the value for the 1010_vl variable
-    aggregate_data["1010_vl"] = [str(v) for v in [NM_VOLUME, TX_VOLUME, US_VOLUME]]
-    aggregate_data = aggregate_data.drop(columns=DROP_COLS + ["id"])
+    aggregate_data["1010_vl"] = [NM_VOLUME, TX_VOLUME, US_VOLUME]
+    aggregate_data = aggregate_data.drop(columns=DROP_COLS + ["id", "value"])
 
     validate_totals(company_data, aggregate_data)
