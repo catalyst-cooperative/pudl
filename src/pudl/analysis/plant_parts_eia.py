@@ -1486,7 +1486,7 @@ def match_to_single_plant_part(
     # convert the date to year start - this is necessary because the
     # depreciation data is often reported as EOY and the ppe is always SOY
     multi_gran_df.loc[:, "report_date"] = pd.to_datetime(
-        multi_gran_df.report_date.dt.year, format="%Y"
+        multi_gran_df["report_date"].dt.year, format="%Y"
     )
     out_dfs = []
     for merge_part in PLANT_PARTS:
