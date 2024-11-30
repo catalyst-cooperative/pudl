@@ -9,8 +9,19 @@ v2024.XX.x (2024-MM-DD)
 New Data Coverage
 ^^^^^^^^^^^^^^^^^
 
+* Add a couple of semi-transformed interim EIA-176 (natural gas sources and
+  dispositions) tables. They aren't yet being written to the database, but are one step
+  closer. See :issue:`3555` and PRs :pr:`3590,3978`. Thanks to :user:`davidmudrauskas`
+  for moving this dataset forward.
+
 Bug Fixes
 ^^^^^^^^^
+
+* Fix an accidentally swapped set of starting balance / ending balance column rename
+  parameters in the pre-2021 DBF derived data that feeds into
+  :ref:`core_ferc1__yearly_other_regulatory_liabilities_sched278`. See issue
+  :issue:`3952` and PRs :pr:`3969,3979`. Thanks to :user:`yolandazzz13` for making
+  this fix.
 
 Major Dependency Updates
 ^^^^^^^^^^^^^^^^^^^^^^^^
