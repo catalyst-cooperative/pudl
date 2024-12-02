@@ -109,6 +109,12 @@ def live_databases(request) -> bool:
 
 @pytest.fixture(scope="session")
 def asset_value_loader() -> AssetValueLoader:
+    """Fixture that initializes an asset value loader.
+
+    Use this as ``asset_value_loader.load_asset_value`` instead
+    of ``defs.load_asset_value`` to not reinitialize the asset
+    value loader over and over again.
+    """
     return defs.get_asset_value_loader()
 
 
