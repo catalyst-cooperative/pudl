@@ -135,9 +135,11 @@ class CompanyNameCleaner(BaseModel):
         ]
         invalid_rules = set(self.cleaning_rules_list) - set(cleaning_rules_list_valid)
         if len(invalid_rules) > 0:
-            logger.warning(f"The following cleaning rules have not been implemented \
+            logger.warning(
+                f"The following cleaning rules have not been implemented \
                         in the CompanyNameCleaner class and will have no effect: \
-                        {invalid_rules}")
+                        {invalid_rules}"
+            )
         if ("remove_all_punctuation_except_dot" in cleaning_rules_list_valid) and (
             "remove_all_punctuation" in cleaning_rules_list_valid
         ):
