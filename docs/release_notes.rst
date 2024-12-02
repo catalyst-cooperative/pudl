@@ -3,8 +3,102 @@ PUDL Release Notes
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-v2024.X.x (2024-XX-XX)
+v2024.XX.x (2024-MM-DD)
 ---------------------------------------------------------------------------------------
+
+New Data Coverage
+^^^^^^^^^^^^^^^^^
+
+* Add a couple of semi-transformed interim EIA-176 (natural gas sources and
+  dispositions) tables. They aren't yet being written to the database, but are one step
+  closer. See :issue:`3555` and PRs :pr:`3590,3978`. Thanks to :user:`davidmudrauskas`
+  for moving this dataset forward.
+
+Bug Fixes
+^^^^^^^^^
+
+* Fix an accidentally swapped set of starting balance / ending balance column rename
+  parameters in the pre-2021 DBF derived data that feeds into
+  :ref:`core_ferc1__yearly_other_regulatory_liabilities_sched278`. See issue
+  :issue:`3952` and PRs :pr:`3969,3979`. Thanks to :user:`yolandazzz13` for making
+  this fix.
+
+Major Dependency Updates
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. _release-v2024.11.0:
+
+---------------------------------------------------------------------------------------
+v2024.11.0 (2024-11-14)
+---------------------------------------------------------------------------------------
+
+PUDL v2024.11.0 is a regularly scheduled quarterly release, incorporating a few updates
+to the following datasets that have come out since the special release we did in
+October.
+
+New Data Coverage
+^^^^^^^^^^^^^^^^^
+
+EIA 930
+~~~~~~~
+* Added EIA 930 hourly data through the end of October as part of the Q3 quarterly
+  release. See :issue:`3942` and :pr:`3946`.
+
+EIA 923
+~~~~~~~
+* Added EIA 923 data from August 2024 as part of the Q3 quarterly release.
+  See :issue:`3941` and PR :pr:`3950`.
+
+EIA 860M
+~~~~~~~~
+* Added 2024 EIA 860m data from August, September, and October as part of the Q3
+  quarterly release. See :issue:`3940` and PR :pr:`3949`.
+
+EIA 861
+~~~~~~~
+
+* Added final release EIA 861 data. See :issue:`3905` and PR :pr:`3911`.
+
+EIA Bulk Electricity Data
+~~~~~~~~~~~~~~~~~~~~~~~~~
+* Updated the EIA Bulk Electricity data to include data published up through
+  2024-08-01. See :issue:`3944` and PR :pr:`3951`.
+
+EPA CEMS
+~~~~~~~~
+* Added 2024 Q3 of CEMS data. See :issue:`3943` and :pr:`3948`.
+
+FERC to EIA Record Linkage
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+* Updated the ``splink`` FERC to EIA development notebook to be compatible with
+  the latest version of ``splink``. This notebook is not run in production but
+  is helpful for visualizing model weights and what is happening under the hood.
+
+.. _release-v2024.10.0:
+
+---------------------------------------------------------------------------------------
+v2024.10.0 (2024-10-20)
+---------------------------------------------------------------------------------------
+
+This is a special early release to publish the new VCE Resource Adequacy Renewable
+Energy (RARE) dataset. It also includes final releases of EIA 860 and 923 data for 2023
+and the FERC Form 714 data for 2021-2023, which had previously been integrated from
+the XBRL data published by FERC. See details below
+
+New Data
+^^^^^^^^
+
+Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+* Integrate the VCE hourly capacity factor data for solar PV, onshore wind, and
+  offshore wind from 2019 through 2023. The data in this table were produced by
+  Vibrant Clean Energy, and are licensed to the public under the Creative Commons
+  Attribution 4.0 International license (CC-BY-4.0). This data complements the
+  WECC-wide GridPath RA Toolkit data currently incorporated into PUDL, providing
+  capacity factor data nation-wide with a different set of modeling assumptions and
+  a different granularity for the aggregation of outputs.
+  See :doc:`data_sources/gridpathratoolkit` and :doc:`data_sources/vcerare` for
+  more information.  See :issue:`#3872`.
 
 New Data Coverage
 ^^^^^^^^^^^^^^^^^
@@ -13,9 +107,21 @@ EIA 860
 ~~~~~~~
 * Added EIA 860 final release data from 2023. See :issue:`3684` and PR :pr:`3871`.
 
+EIA 861
+~~~~~~~
+* Added EIA 861 final release data from 2023. See :issue:`3905` and PR :pr:`3911`. This
+  includes a new ``energy_capacity_mwh`` field for battery storage in
+  :ref:`core_eia861__yearly_net_metering_customer_fuel_class` and
+  :ref:`core_eia861__yearly_non_net_metering_customer_fuel_class`.
+
+EIA 923
+~~~~~~~
+* Added EIA 923 final release data from 2023 and revised data from 2022. See
+  :issue:`3902` and PR :pr:`3903`.
+
 FERC Form 714
 ~~~~~~~~~~~~~
-* Integrate 2021-2023 years of the FERC Form 714 data. FERC updated its reporting
+* Integrated 2021-2023 years of the FERC Form 714 data. FERC updated its reporting
   format for 2021 from a CSV files to XBRL files. This update integrates the two
   raw data sources and extends the data coverage through 2023. See :issue:`3809`
   and :pr:`3842`.
@@ -28,9 +134,9 @@ Schema Changes
 
 Bug Fixes
 ^^^^^^^^^
-* Include more retiring generators in the net generation and fuel consumption
+* Included more retiring generators in the net generation and fuel consumption
   allocation. Thanks to :user:`grgmiller` for this contirbution :pr:`3690`.
-* Fix a bug found in the rolling averages used to impute missing values in
+* Fixed a bug found in the rolling averages used to impute missing values in
   ``fuel_cost_per_mmbtu`` and to calculate ``capex_annual_addition_rolling``. Thanks
   to RMI for identifying this bug! See issue :issue:`3889` and PR :pr:`3892`.
 * Added preliminary data validation checks for several FERC 1 tables that were
@@ -56,7 +162,7 @@ Bug Fixes
 
 Major Dependency Updates
 ^^^^^^^^^^^^^^^^^^^^^^^^
-* Update to use `Numpy v2.0 <https://numpy.org/doc/stable/release/2.0.0-notes.html>`__
+* Updated to use `Numpy v2.0 <https://numpy.org/doc/stable/release/2.0.0-notes.html>`__
   and `Splink v4.0 <https://moj-analytical-services.github.io/splink/blog/2024/07/24/splink-400-released.html>`__.
   See issues :issue:`3736,3735` and PRs :pr:`3547,3834`.
 

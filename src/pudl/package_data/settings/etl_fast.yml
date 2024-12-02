@@ -79,6 +79,7 @@ datasets:
           2020,
           2021,
           2022,
+          2023,
         ]
     eia930:
       half_years: ["2024half2"]
@@ -97,3 +98,6 @@ datasets:
     technology_types: ["wind"]
     processing_levels: ["extended"]
     daily_weather: true
+  vcerare:
+    years: [2023]
+    fips: True

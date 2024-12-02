@@ -58,7 +58,12 @@ extensions = [
     "sphinx_issues",
     "sphinx_reredirects",
     "sphinxcontrib.bibtex",
+    "sphinxcontrib.googleanalytics",
 ]
+
+googleanalytics_id = "G-EXWBBTVMWK"
+googleanalytics_enabled = True
+
 todo_include_todos = True
 bibtex_bibfiles = [
     "catalyst_pubs.bib",
@@ -162,6 +167,7 @@ def data_sources_metadata_to_rst(app):
         "epacems",
         "phmsagas",
         "gridpathratoolkit",
+        "vcerare",
     ]
     package = PUDL_PACKAGE
     extra_etl_groups = {"eia860": ["entity_eia"], "ferc1": ["glue"]}
@@ -213,6 +219,7 @@ def cleanup_rsts(app, exception):
     (DOCS_DIR / "data_sources/epacems.rst").unlink()
     (DOCS_DIR / "data_sources/phmsagas.rst").unlink()
     (DOCS_DIR / "data_sources/gridpathratoolkit.rst").unlink()
+    (DOCS_DIR / "data_sources/vcerare.rst").unlink()
 
 
 def cleanup_csv_dir(app, exception):

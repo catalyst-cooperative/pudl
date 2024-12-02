@@ -63,6 +63,7 @@ tables is normalized as a whole.
 from . import (
     classes,
     eia,
+    eia176,
     eia860,
     eia860m,
     eia861,
@@ -77,4 +78,5 @@ from . import (
     gridpathratoolkit,
     nrelatb,
     params,
+    vcerare,
 )

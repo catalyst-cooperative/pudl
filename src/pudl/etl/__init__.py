@@ -59,10 +59,12 @@ raw_module_groups = {
     "raw_gridpathratoolkit": [pudl.extract.gridpathratoolkit],
     "raw_phmsagas": [pudl.extract.phmsagas],
     "raw_nrelatb": [pudl.extract.nrelatb],
+    "raw_vcerare": [pudl.extract.vcerare],
 }
 
 
 core_module_groups = {
+    "core_eia176": [pudl.transform.eia176],
     "core_assn": [glue_assets],
     "core_censusdp1tract": [
         pudl.convert.censusdp1tract_to_sqlite,
@@ -81,6 +83,7 @@ core_module_groups = {
     "core_ferc714": [pudl.transform.ferc714],
     "core_gridpathratoolkit": [pudl.transform.gridpathratoolkit],
     "core_nrelatb": [pudl.transform.nrelatb],
+    "core_vcerare": [pudl.transform.vcerare],
 }
 
 out_module_groups = {
@@ -192,7 +195,13 @@ default_asset_checks += [
     for check in (
         asset_check_from_schema(asset_key, _package)
         for asset_key in _asset_keys
-        if asset_key.to_user_string() != "core_epacems__hourly_emissions"
+        if (
+            asset_key.to_user_string()
+            not in [
+                "core_epacems__hourly_emissions",
+                "out_vcerare__hourly_available_capacity_factor",
+            ]
+        )
     )
     if check is not None
 ]
