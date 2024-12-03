@@ -110,25 +110,3 @@ class TestExtractor:
             "size": {0: 10, 1: 99},
         }
         assert expected_boxes == res["boxes"].to_dict()
-
-    # @patch('pudl.extract.excel.pd.read_excel', _fake_data_frames)
-    # def test_resulting_dataframes(self):
-    #     """Checks that pages across years are merged and columns are translated."""
-    #     dfs = FakeExtractor().extract([2010, 2011], testing=True)
-    #     assert set(['books', 'boxes']) == set(dfs.keys())
-    #     pd.testing.assert_frame_equal(
-    #         pd.DataFrame(data={
-    #             'author': ['Laozi', 'Benjamin Hoff'],
-    #             'pages': [0, 158],
-    #             'title': ['Tao Te Ching', 'The Tao of Pooh'],
-    #         }),
-    #         dfs['books'])
-    #     pd.testing.assert_frame_equal(
-    #         pd.DataFrame(data={
-    #             'material': ['cardboard', 'metal'],
-    #             'size': [10, 99],
-    #         }),
-    #         dfs['boxes'])
-
-    # TODO: need to figure out how to test process_$x methods.
-    # TODO: we should test that empty columns are properly added.

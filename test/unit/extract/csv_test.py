@@ -1,7 +1,5 @@
 """Pytest for pudl.extract.csv module."""
 
-from unittest.mock import MagicMock
-
 import pandas as pd
 import pytest
 
@@ -16,16 +14,16 @@ CSV_FILENAME = f"{DATASET}_{PARTITION_SELECTION}.csv"
 
 
 class FakeExtractor(CsvExtractor):
-    def __init__(self):
+    def __init__(self, ds):
         # TODO: Make these tests independent of the eia176 implementation
         self.METADATA = GenericMetadata("eia176")
-        super().__init__(ds=MagicMock())
+        super().__init__(ds=ds)
 
 
 @pytest.fixture
-def extractor():
+def extractor(mocker):
     # Create an instance of the CsvExtractor class
-    return FakeExtractor()
+    return FakeExtractor(mocker.MagicMock())
 
 
 def test_source_filename_valid_partition(extractor):
