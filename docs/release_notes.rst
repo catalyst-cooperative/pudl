@@ -22,6 +22,8 @@ Bug Fixes
   :ref:`core_ferc1__yearly_other_regulatory_liabilities_sched278`. See issue
   :issue:`3952` and PRs :pr:`3969,3979`. Thanks to :user:`yolandazzz13` for making
   this fix.
+* Added preliminary data validation checks for several FERC 1 tables that were
+  missing it :pr:`3860`.
 
 Major Dependency Updates
 ^^^^^^^^^^^^^^^^^^^^^^^^
