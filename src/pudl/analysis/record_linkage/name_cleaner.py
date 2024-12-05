@@ -96,36 +96,41 @@ def _get_legal_terms_dict() -> dict[str, list]:
 
 
 class CompanyNameCleaner(BaseModel):
-    """Class to normalize/clean up text based company names.
-
-    Attributes:
-        cleaning_rules_list (list[str]): A list of cleaning rules that the
-            CompanyNameCleaner should apply. Will be validated to ensure
-            rules comply to allowed cleaning functions.
-        handle_legal_terms (bool): A flag to indicate if the cleaning process
-            should remove or normalize legal terms, or keep them as is.
-        place_word_the_at_beginning (bool): A flag to indicate that
-            if the word 'the' appears at the end of a string, remove it and
-            place 'the' at the beginning of the string.
-        remove_unicode (bool): Define if unicode characters should be removed
-            from text's name. This cleaning rule is treated separated from the
-            regex rules because it depends on the language of the text's name.
-            For instance, russian or japanese text's may contain unicode characters,
-            while portuguese and french companies may not.
-        output_lettercase (bool): Define the letter case of the cleaning output.
-        legal_term_location (LegalTermLocation): Where in the string are legal
-            terms found.
-        remove_accents (bool): Define if the letters with accents are replaced
-            with non-accented ones.
-    """
+    """Class to normalize/clean up text based company names."""
 
     cleaning_rules_list: list[str] = DEFAULT_CLEANING_RULES_LIST
+    """A list of cleaning rules that the CompanyNameCleaner should apply.
+
+    Will be validated to ensure rules comply to allowed cleaning functions.
+    """
     handle_legal_terms: HandleLegalTerms = HandleLegalTerms.NORMALIZE
+    """A flag to indicate how to habndle legal terms.
+
+    Options are to remove, normalize, or keep them as is.
+    """
     place_word_the_at_beginning: bool = False
+    """A flag to indicate whether to move 'the' to the start of a string.
+
+    If True, then if the word 'the' appears at the end of a string,
+    remove it and place 'the' at the beginning of the string.
+    """
     remove_unicode: bool = False
+    """Define if unicode characters should be removed from text's name.
+
+    This cleaning rule is treated separated from the regex rules because it
+    depends on the language of the text's name. For instance, Russian or
+    Japanese text's may contain unicode characters, while Portuguese and
+    French companies may not.
+    """
     output_lettercase: Lettercase = Lettercase.LOWER
+    """Define the letter case of the cleaning output."""
     legal_term_location: LegalTermLocation = LegalTermLocation.AT_THE_END
+    """Indicates where in the string legal terms are found."""
     remove_accents: bool = False
+    """Flag to indicate whether to remove accents from strings.
+
+    If True, replace letters with accents with non-accented ones.
+    """
     legal_terms_dict: dict[str, list] = Field(default_factory=_get_legal_terms_dict)
 
     @model_validator(mode="after")
