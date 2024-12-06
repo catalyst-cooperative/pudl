@@ -2261,8 +2261,8 @@ def analyze_missing_values(
 
     PLEASE NOTE: No calls to this method should be included in any final
     transformation scripts. This is purely for analysis and does not perform
-    any data transformation or cleaning. 
-    
+    any data transformation or cleaning.
+
     This function checks each column for missing or custom missing values
     and logs a summary of the findings for string (object), numeric, and
     datetime columns.
