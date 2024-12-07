@@ -84,6 +84,7 @@ core_module_groups = {
     "core_gridpathratoolkit": [pudl.transform.gridpathratoolkit],
     "core_nrelatb": [pudl.transform.nrelatb],
     "core_vcerare": [pudl.transform.vcerare],
+    "core_phmsagas": [pudl.transform.phmsagas],
 }
 
 out_module_groups = {

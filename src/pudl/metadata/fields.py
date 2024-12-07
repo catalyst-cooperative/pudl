@@ -57,6 +57,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Demand reduction actually achieved by demand response activities. Measured at the time of the company's annual system peak hour.",
         "unit": "MW",
     },
+    "additional_information": {
+        "type": "string",
+        "description": "Field for any additional non-structured data supplied.",
+    },
     "additions": {
         "type": "number",
         "description": "Cost of acquisition of items classified within the account.",
@@ -1466,6 +1470,30 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Whether the reported technology data is estimated or actual.",
         "constraints": {"enum": list(ESTIMATED_OR_ACTUAL.values())},
     },
+    "excavation_damage_excavation_practices": {
+        "type": "integer",
+        "description": "Count of excavation practices resulting in excavation damage related to natural gas distribution.",
+    },
+    "excavation_damage_locating_practices": {
+        "type": "integer",
+        "description": "Count of locating practices resulting in excavation damage related to natural gas distribution.",
+    },
+    "excavation_damage_one_call_notification": {
+        "type": "integer",
+        "description": "Count of one-call notification practices resulting in excavation damage related to natural gas distribution.",
+    },
+    "excavation_damage_other": {
+        "type": "integer",
+        "description": "Count of other excavation practices resulting in excavation damage related to natural gas distribution.",
+    },
+    "excavation_damage_total": {
+        "type": "integer",
+        "description": "Count of reported instances excavation damage related to natural gas distribution.",
+    },
+    "excavation_tickets": {
+        "type": "integer",
+        "description": "Count of excavation tickets related to natural gas distribution.",
+    },
     "exchange_energy_delivered_mwh": {
         "type": "number",
         "description": (
@@ -1483,6 +1511,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "MWh",
     },
     "expense_type": {"type": "string", "description": "The type of expense."},
+    "federal_land_leaks_repaired_or_scheduled": {
+        "type": "number",
+        "description": "Total number of leaks on federal land repaired or scheduled for repair.",
+    },
     "ferc1_generator_agg_id": {
         "type": "integer",
         "description": "ID dynamically assigned by PUDL to EIA records with multiple matches to a single FERC ID in the FERC-EIA manual matching process.",
@@ -2027,6 +2059,26 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Average power in megawatts delivered during time interval measured.",
         "unit": "MW",
+    },
+    "headquarters_address_city": {
+        "type": "string",
+        "description": "City where an operator's headquarters are located.",
+    },
+    "headquarters_address_county": {
+        "type": "string",
+        "description": "County where an operator's headquarters are located.",
+    },
+    "headquarters_address_state": {
+        "type": "string",
+        "description": "State where an operator's headquarters are located.",
+    },
+    "headquarters_address_street": {
+        "type": "string",
+        "description": "Street address for an operator's headquarters.",
+    },
+    "headquarters_address_zip": {
+        "type": "string",
+        "description": "Zipcode where an operator's headquarters are located.",
     },
     "heat_content_mmbtu": {
         "type": "number",
@@ -2966,6 +3018,26 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "Number of circuits in a transmission line.",
     },
+    "office_address_city": {
+        "type": "string",
+        "description": "City where an operator's office is located.",
+    },
+    "office_address_county": {
+        "type": "string",
+        "description": "County where an operator's office is located.",
+    },
+    "office_address_state": {
+        "type": "string",
+        "description": "State where an operator's office is located.",
+    },
+    "office_address_street": {
+        "type": "string",
+        "description": "Street address of an operator's office.",
+    },
+    "office_address_zip": {
+        "type": "string",
+        "description": "Zipcode where an operator's office is located.",
+    },
     "oil_fraction_cost": {
         "type": "number",
         "description": "Oil cost as a percentage of overall fuel cost.",
@@ -3016,6 +3088,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "The operating status of the asset using PUDL categories of the record_id_eia_plant_gen record .",
         "constraints": {"enum": ["operating", "retired", "proposed"]},
+    },
+    "operator_id_phmsa": {
+        "type": "integer",
+        "description": "PHMSA unique operator ID.",
+    },
+    "operator_name_phmsa": {
+        "type": "string",
+        "description": "PHMSA operator name.",
     },
     "opex_allowances": {"type": "number", "description": "Allowances.", "unit": "USD"},
     "opex_boiler": {
@@ -3325,6 +3405,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         # TODO Disambiguate column names. Usually this is over 60 minutes, but in
         # other tables it's not specified.
     },
+    "percent_unaccounted_for_gas": {
+        "type": "number",
+        "description": (
+            "Unaccounted for gas as a percent of total consumption "
+            "for the 12 months ending June 30 of the reporting year. "
+            "Percentage is calculated as follows: "
+            "Take the sum of: purchased gas + produced gas minus customer use + company use "
+            "+ appropriate adjustments. Then divide by the sum of customer use + company use "
+            "+ appropriate adjustments. Multiply the output by 100."
+        ),
+    },
     "percent_dry_cooling": {
         "description": "Percent of cooling load served by dry cooling components",
         "type": "number",
@@ -3536,6 +3627,26 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "unit": "MW",
     },
+    "preparer_email": {
+        "type": "string",
+        "description": "Email address of representative who filed report.",
+    },
+    "preparer_fax": {
+        "type": "string",
+        "description": "Fax number of representative who filed report.",
+    },
+    "preparer_name": {
+        "type": "string",
+        "description": "Name of representative who filed report.",
+    },
+    "preparer_phone": {
+        "type": "string",
+        "description": "Phone number of representative who filed report.",
+    },
+    "preparer_title": {
+        "type": "string",
+        "description": "Title of representative who filed report.",
+    },
     "previously_canceled": {
         "type": "boolean",
         "description": "Indicates whether the generator was previously reported as indefinitely postponed or canceled",
@@ -3710,6 +3821,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Timezone used by the reporting entity. For use in localizing UTC times.",
         "constraints": {"enum": US_TIMEZONES},
+    },
+    "report_number": {
+        "type": "integer",
+        "description": "Report number.",
+    },
+    "report_submission_type": {
+        "type": "string",
+        "description": "Type of report submitted.",
     },
     "report_year": {
         "type": "integer",
@@ -3977,6 +4096,33 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Service area in which plant is located; for unregulated companies, it's the electric utility with which plant is interconnected",
     },
+    "services_efv_in_system": {
+        "type": "integer",
+        "description": (
+            "Estimated number of services with Excess Flow Valve "
+            "in the system at end of reported year related to "
+            "natural gas distribution."
+        )
+    },
+    "services_efv_installed": {
+        "type": "integer",
+        "description": (
+            "Total number of services with Excess Flow Valve installed "
+            "during reported year related to natural gas distribution."
+        )},
+    "services_shutoff_valve_in_system": {
+        "type": "integer",
+        "description": (
+            "Estimated number of services with manual service line "
+            "shut-off valves installed in the system at end of report year "
+            "related to natural gas distribution."
+        )},
+    "services_shutoff_valve_installed": {
+        "type": "integer",
+        "description": (
+            "Total number of manual service line shut-off valves installed "
+            "during reported year related to natural gas distribution."
+        )},
     "service_type": {
         "type": "string",
         "description": (

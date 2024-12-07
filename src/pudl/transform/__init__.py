@@ -79,4 +79,5 @@ from . import (
     nrelatb,
     params,
     vcerare,
+    phmsagas,
 )

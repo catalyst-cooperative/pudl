@@ -22,10 +22,9 @@ logger = pudl.logging_helpers.get_logger(__name__)
 YEARLY_DISTRIBUTION_OPERATORS_COLUMNS = {
     "columns_to_keep": [
         "report_date",
-        "report_number",  # not in pudl/metadata/fields.py
-        "report_submission_type",  # not in pudl/metadata/fields.py
+        "report_number",
+        "report_submission_type",
         "report_year",
-        # None of the columns below are in pudl/metadata/fields.py
         "operator_id_phmsa",
         "operator_name_phmsa",
         "office_address_street",
@@ -179,8 +178,6 @@ def core_phmsagas__yearly_distribution_operators(
 
     # Standardize telephone and fax number format and drop (000)-000-0000
     df = standardize_phone_column(df, ["preparer_phone", "preparer_fax"])
-
-    pdb.set_trace()
 
     return df
 
