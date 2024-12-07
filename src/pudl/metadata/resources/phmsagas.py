@@ -42,10 +42,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "preparer_phone",
                 "preparer_title",
             ],
-            "primary_key": [
-                "operator_id_phmsa",
-                "report_number"
-            ],
+            "primary_key": ["operator_id_phmsa", "report_number"],
         },
         "sources": ["phmsagas"],
         "field_namespace": "phmsagas",
