@@ -1346,5 +1346,6 @@ finished_eia_assets = [
         "core_eia860__scd_generators_wind": "_core_eia860__generators_wind",
         "core_eia860__scd_generators_solar": "_core_eia860__generators_solar",
         "core_eia860__scd_generators_energy_storage": "_core_eia860__generators_energy_storage",
+        "core_eia860__multifuel": "_core_eia860__multifuel",
     }.items()
 ]
