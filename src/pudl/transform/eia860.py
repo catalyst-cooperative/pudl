@@ -468,6 +468,68 @@ def _core_eia860__generators_wind(
     return wind_df
 
 
+# TODO: ask about generator_operating_month vs current_month and year
+# also ask how the initial column mapping happens
+@asset
+def _core_eia860__multifuel(
+    raw_eia860__multifuel_existing: pd.DataFrame,
+    raw_eia860__multifuel_proposed: pd.DataFrame,
+    raw_eia860__multifuel_retired: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the multifuel generators table."""
+    multifuel_ex = raw_eia860__multifuel_existing
+    multifuel_pr = raw_eia860__multifuel_proposed
+    multifuel_re = raw_eia860__multifuel_retired
+
+    boolean_columns_to_fix = ["multiple_fuels", "cofire_fuels", "switch_oil_gas"]
+
+    # A subset of the columns have zero values, where NA is appropriate:
+    nulls_replace_cols = {
+        col: {" ": np.nan, 0: np.nan}
+        for col in [
+            "winter_capacity_mw",
+            "summer_capacity_mw",
+        ]
+    }
+
+    multifuel_df = (
+        pd.concat([multifuel_ex, multifuel_pr, multifuel_re], sort=True)
+        .dropna(subset=["generator_id", "plant_id_eia"])
+        .pipe(pudl.helpers.fix_eia_na)
+        .pipe(
+            pudl.helpers.fix_boolean_columns,
+            boolean_columns_to_fix=boolean_columns_to_fix,
+        )
+        .replace(to_replace=nulls_replace_cols)
+        .pipe(pudl.helpers.month_year_to_date)
+        .pipe(PUDL_PACKAGE.encode)
+    )
+
+    multifuel_df["fuel_type_code_pudl"] = (
+        multifuel_df.energy_source_code_1.str.upper().map(
+            pudl.helpers.label_map(
+                CODE_METADATA["core_eia__codes_energy_sources"]["df"],
+                from_col="code",
+                to_col="fuel_type_code_pudl",
+                null_value=pd.NA,
+            )
+        )
+    )
+
+    multifuel_df["operational_status"] = (
+        multifuel_df.operational_status_code.str.upper().map(
+            pudl.helpers.label_map(
+                CODE_METADATA["core_eia__codes_operational_status"]["df"],
+                from_col="operational_status_code",
+                to_col="operational_status",
+                null_value=pd.NA,
+            )
+        )
+    )
+
+    return multifuel_df
+
+
 @asset
 def _core_eia860__plants(raw_eia860__plant: pd.DataFrame) -> pd.DataFrame:
     """Pull and transform the plants table.
