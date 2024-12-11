@@ -7,7 +7,7 @@ state,state,state,state,state,state,state,state,state,state,state,state,state,st
 county,,,,,,county,county,county,county,county,county,county,county,county,county,county,county,county,county,county
 generator_id,gencode,gencode,gencode,gencode,gencode,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id,generator_id
 operational_status_code,,,,,,,,status,status,status,status,status,status,status,status,status,status,status,status,status
-technology_description,,,,,,,,,,,Technology,Technology,Technology,Technology,Technology,Technology,Technology,Technology,Technology,Technology
+technology_description,,,,,,,,,,,technology,technology,technology,technology,technology,technology,technology,technology,technology,technology
 prime_mover_code,primemover,primemover,primemover,primemover,primemover,prime_mover,prime_mover,prime_mover,prime_mover,prime_mover,prime_mover,prime_mover,prime_mover,prime_mover,prime_mover,prime_mover,prime_mover,prime_mover,prime_mover,prime_mover
 sector_name_eia,,,,,,,,sector_name,sector_name,sector_name,sector_name,sector_name,sector_name,sector_name,sector_name,sector_name,sector_name,sector_name,sector_name,sector_name
 sector_id_eia,,,,,,,,sector,sector,sector,sector,sector,sector,sector,sector,sector,sector,sector,sector,sector

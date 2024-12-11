@@ -481,7 +481,16 @@ def _core_eia860__multifuel(
     multifuel_pr = raw_eia860__multifuel_proposed
     multifuel_re = raw_eia860__multifuel_retired
 
-    boolean_columns_to_fix = ["multiple_fuels", "cofire_fuels", "switch_oil_gas"]
+    boolean_columns_to_fix = [
+        "air_permit_limits",
+        "cofire_fuels",
+        "factors_that_limit_switching",
+        "multiple_fuels",
+        "other_limits",
+        "storage_limits",
+        "switch_oil_gas",
+        "switch_when_operating",
+    ]
 
     # A subset of the columns have zero values, where NA is appropriate:
     nulls_replace_cols = {
@@ -511,17 +520,6 @@ def _core_eia860__multifuel(
                 CODE_METADATA["core_eia__codes_energy_sources"]["df"],
                 from_col="code",
                 to_col="fuel_type_code_pudl",
-                null_value=pd.NA,
-            )
-        )
-    )
-
-    multifuel_df["operational_status"] = (
-        multifuel_df.operational_status_code.str.upper().map(
-            pudl.helpers.label_map(
-                CODE_METADATA["core_eia__codes_operational_status"]["df"],
-                from_col="operational_status_code",
-                to_col="operational_status",
                 null_value=pd.NA,
             )
         )
