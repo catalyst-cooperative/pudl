@@ -78,11 +78,9 @@ plant_name_cleaner = name_cleaner.CompanyNameCleaner(
     cleaning_rules_list=[
         "remove_word_the_from_the_end",
         "remove_word_the_from_the_beginning",
-        "replace_amperstand_between_space_by_AND",
+        "replace_ampersand_by_AND",
         "replace_hyphen_by_space",
-        "replace_hyphen_between_spaces_by_single_space",
         "replace_underscore_by_space",
-        "replace_underscore_between_spaces_by_single_space",
         "remove_all_punctuation",
         "remove_numbers",
         "remove_math_symbols",
