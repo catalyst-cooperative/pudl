@@ -4102,27 +4102,30 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Estimated number of services with Excess Flow Valve "
             "in the system at end of reported year related to "
             "natural gas distribution."
-        )
+        ),
     },
     "services_efv_installed": {
         "type": "integer",
         "description": (
             "Total number of services with Excess Flow Valve installed "
             "during reported year related to natural gas distribution."
-        )},
+        ),
+    },
     "services_shutoff_valve_in_system": {
         "type": "integer",
         "description": (
             "Estimated number of services with manual service line "
             "shut-off valves installed in the system at end of report year "
             "related to natural gas distribution."
-        )},
+        ),
+    },
     "services_shutoff_valve_installed": {
         "type": "integer",
         "description": (
             "Total number of manual service line shut-off valves installed "
             "during reported year related to natural gas distribution."
-        )},
+        ),
+    },
     "service_type": {
         "type": "string",
         "description": (
