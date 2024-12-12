@@ -179,8 +179,96 @@ def core_phmsagas__yearly_distribution_operators(
     # Standardize telephone and fax number format and drop (000)-000-0000
     df = standardize_phone_column(df, ["preparer_phone", "preparer_fax"])
 
+    # Drop duplicates
+    df = df.drop_duplicates()
+
+    # Identify non-unique groups based on our PKs
+    non_unique_groups = df[df.groupby(["operator_id_phmsa", "report_number"])["report_number"].transform('size') > 1]
+
+    # Apply some custom filtering logic to non-unique groups
+    filtered_non_unique_rows = (
+        non_unique_groups
+        .groupby(["operator_id_phmsa", "report_number"], group_keys=False)
+        .apply(combined_filter)
+    )
+
+    # Combine filtered non-unique rows with untouched unique rows
+    unique_rows = df.drop(non_unique_groups.index)
+    df = pd.concat([unique_rows, filtered_non_unique_rows], ignore_index=True)
+
     return df
 
+def filter_if_test_in_address(group: pd.DataFrame) -> pd.DataFrame:
+    """
+    Filters out rows with "test" in address columns. The logic is as follows:
+    
+    1. For any group of rows with the same combination of "operator_id_phmsa" 
+       and "report_number":
+        - If at least one row in the group does not contain the string "test" 
+          (case-insensitive) in either "office_address_street" or 
+          "headquarters_address_street", keep only the rows in the group 
+          that do not contain "test" in these columns.
+        - If all rows in the group contain "test" in either of the columns, 
+          leave the group unchanged.
+
+    Args:
+        group (DataFrame): A grouped subset of the DataFrame.
+
+    Returns:
+        DataFrame: The filtered group of rows.
+    """
+    # Check if at least one row in the group does NOT contain "test" in both of the specified columns
+    contains_test = group.apply(
+        lambda row: "test" in str(row["office_address_street"]).lower() or 
+                    "test" in str(row["headquarters_address_street"]).lower(),
+        axis=1
+    )
+    has_non_test = not contains_test.all()
+
+    if has_non_test:
+        # Keep rows where "test" does NOT appear in either column
+        return group[~contains_test]
+    else:
+        # If all rows have "test", keep the group as is
+        return group
+
+def filter_by_city_in_name(group: pd.DataFrame) -> pd.DataFrame:
+    """
+    Deduplication filter to only keep rows where "office_address_city" value
+    is contained in the "operator_name_phmsa" value (case insensitive).
+
+    Args:
+        group (pd.DataFrame): A grouped subset of the DataFrame.
+
+    Returns:
+        pd.DataFrame: The filtered group of rows.
+    """
+    # Check if any row has "office_address_city" contained in "operator_name_phmsa" (case insensitive)
+    city_in_name = group["office_address_city"].str.lower().apply(
+        lambda city: any(city in name.lower() for name in group["operator_name_phmsa"])
+    )
+    
+    if city_in_name.any():
+        # If any city is contained in the operator name, keep only those rows
+        return group[city_in_name]
+    else:
+        # If no city is contained in the operator name, return the group as-is
+        return group
+    
+def combined_filter(group: pd.DataFrame) -> pd.DataFrame:
+    """
+    Apply all required filters to DataFrame.
+
+    Args:
+        group (pd.DataFrame): A grouped subset of the DataFrame.
+
+    Returns:
+        pd.DataFrame: The filtered group of rows.
+    """
+    # Apply filters
+    group = filter_by_city_in_name(group)
+    group = filter_if_test_in_address(group)
+    return group
 
 @dataclass
 class PhmsagasCheckSpec:
@@ -189,6 +277,7 @@ class PhmsagasCheckSpec:
     name: str
     asset: str
     percent_unaccounted_for_gas_negative_threshold: float
+    pk_deduplication_theshold: int
 
 
 check_specs = [
@@ -197,17 +286,19 @@ check_specs = [
         asset="raw_phmsagas__yearly_distribution",
         # Threshold to use when making sure we aren't seeing tons of negative values in percent_unaccounted_for_gas
         percent_unaccounted_for_gas_negative_threshold=0.05,
+        # Threshold to use when making sure we aren't dropping a large number of rows based on non-unique PKs
+        pk_deduplication_theshold=10,
     )
 ]
 
 
 def make_check_phmsagas_yearly_distribution(
     spec: PhmsagasCheckSpec,
-) -> AssetChecksDefinition:
-    """Turn the Ferc714CheckSpec into an actual Dagster asset check."""
+) -> list[AssetChecksDefinition]:
+    """Turn the Ferc714CheckSpec into Dagster asset checks."""
 
     @asset_check(asset=spec.asset, blocking=True)
-    def _check(df):
+    def _check_percent_unaccounted_for_gas(df):
         # Count the rows where percent_unaccounted_for_gas is negative
         negative_count = (df["percent_unaccounted_for_gas"] < 0).sum()
 
@@ -219,10 +310,34 @@ def make_check_phmsagas_yearly_distribution(
         ):
             error = "Percentage of rows with negative percent_unaccounted_for_gas values: {negative_percentage:.2f}"
             logger.info(error)
-
-        if error:
             return AssetCheckResult(passed=False, metadata={"errors": error})
 
         return AssetCheckResult(passed=True)
 
-    return _check
+    @asset_check(asset=spec.asset, blocking=True)
+    def _check_pk_deduplication(df):
+        """Check if the size of filtered non-unique rows exceeds the threshold."""
+        # Identify non-unique groups
+        non_unique_groups = (
+            df.groupby(["operator_id_phmsa", "report_number"])
+            .filter(lambda group: len(group) > 1)
+        )
+
+        # Apply the filters to non-unique groups
+        filtered_non_unique_rows = (
+            non_unique_groups
+            .groupby(["operator_id_phmsa", "report_number"], group_keys=False)
+            .apply(combined_filter)
+        )
+
+        if len(filtered_non_unique_rows) > spec.pk_deduplication_theshold:
+            error = (
+                f"Number of filtered non-unique rows ({len(filtered_non_unique_rows)})\n"
+                f"Exceeds the threshold of {spec.pk_deduplication_theshold}"
+            )
+            logger.info(error)
+            return AssetCheckResult(passed=False, metadata={"errors": error})
+        
+        return AssetCheckResult(passed=True)
+    
+    return [_check_percent_unaccounted_for_gas, _check_pk_deduplication]

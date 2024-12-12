@@ -2269,7 +2269,7 @@ def analyze_missing_values(
 
     Args:
         df: The DataFrame to analyze.
-    custom_missing_values: Optional list of custom values to consider
+        custom_missing_values: Optional list of custom values to consider
             as "missing" (e.g., empty strings, specific strings like "NA",
             "NULL", etc.). If not provided, defaults to a standard set.
 
