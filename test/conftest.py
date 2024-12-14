@@ -11,6 +11,7 @@ import pydantic
 import pytest
 import sqlalchemy as sa
 from dagster import (
+    AssetValueLoader,
     build_init_resource_context,
     graph,
     materialize_to_memory,
@@ -18,6 +19,7 @@ from dagster import (
 
 import pudl
 from pudl import resources
+from pudl.etl import defs
 from pudl.etl.cli import pudl_etl_job_factory
 from pudl.extract.ferc1 import Ferc1DbfExtractor, raw_ferc1_xbrl__metadata_json
 from pudl.extract.ferc714 import raw_ferc714_xbrl__metadata_json
@@ -103,6 +105,17 @@ def test_directory():
 def live_databases(request) -> bool:
     """Fixture that tells whether to use existing live FERC1/PUDL DBs)."""
     return request.config.getoption("--live-dbs")
+
+
+@pytest.fixture(scope="session")
+def asset_value_loader() -> AssetValueLoader:
+    """Fixture that initializes an asset value loader.
+
+    Use this as ``asset_value_loader.load_asset_value`` instead
+    of ``defs.load_asset_value`` to not reinitialize the asset
+    value loader over and over again.
+    """
+    return defs.get_asset_value_loader()
 
 
 @pytest.fixture(scope="session", name="save_unmapped_ids")

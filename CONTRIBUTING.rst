@@ -45,6 +45,7 @@ You'll need to fork this repository and get the
 
 * Once you have an idea of how you want to tackle this issue, write out your
   plan so we can guide you around obstacles in your way! Post a comment outlining:
+
   * what steps have you broken this down into?
   * what is the output of each step?
   * how will one know that each step is working?

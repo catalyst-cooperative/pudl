@@ -9,8 +9,21 @@ v2024.XX.x (2024-MM-DD)
 New Data Coverage
 ^^^^^^^^^^^^^^^^^
 
+* Add a couple of semi-transformed interim EIA-176 (natural gas sources and
+  dispositions) tables. They aren't yet being written to the database, but are one step
+  closer. See :issue:`3555` and PRs :pr:`3590,3978`. Thanks to :user:`davidmudrauskas`
+  for moving this dataset forward.
+
 Bug Fixes
 ^^^^^^^^^
+
+* Fix an accidentally swapped set of starting balance / ending balance column rename
+  parameters in the pre-2021 DBF derived data that feeds into
+  :ref:`core_ferc1__yearly_other_regulatory_liabilities_sched278`. See issue
+  :issue:`3952` and PRs :pr:`3969,3979`. Thanks to :user:`yolandazzz13` for making
+  this fix.
+* Added preliminary data validation checks for several FERC 1 tables that were
+  missing it :pr:`3860`.
 
 Major Dependency Updates
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -56,6 +69,12 @@ EIA Bulk Electricity Data
 EPA CEMS
 ~~~~~~~~
 * Added 2024 Q3 of CEMS data. See :issue:`3943` and :pr:`3948`.
+
+FERC to EIA Record Linkage
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+* Updated the ``splink`` FERC to EIA development notebook to be compatible with
+  the latest version of ``splink``. This notebook is not run in production but
+  is helpful for visualizing model weights and what is happening under the hood.
 
 .. _release-v2024.10.0:
 
