@@ -1,35 +1,49 @@
 """Unit tests for pudl.extract.excel module."""
 
-import unittest
-from unittest import mock as mock
-
 import pandas as pd
+import pytest
 
 from pudl.extract import excel
 
 
-class TestMetadata(unittest.TestCase):
+@pytest.fixture
+def metadata():
+    """Constructs test metadata instance for testing."""
+    return excel.ExcelMetadata("test")
+
+
+@pytest.fixture
+def extractor():
+    """Constructs test extractor instance for testing."""
+    return FakeExtractor()
+
+
+class TestMetadata:
     """Tests basic operation of the excel.Metadata object."""
 
-    def setUp(self):
-        """Cosntructs test metadata instance for testing."""
-        self._metadata = excel.ExcelMetadata("test")
-
-    def test_basics(self):
+    def test_basics(self, metadata):
         """Test that basic API method return expected results."""
-        self.assertEqual("test", self._metadata.get_dataset_name())
-        self.assertListEqual(
-            ["books", "boxes", "shoes"], self._metadata.get_all_pages()
-        )
-        self.assertListEqual(
-            ["author", "pages", "title"], self._metadata.get_all_columns("books")
-        )
-        self.assertDictEqual(
-            {"book_title": "title", "name": "author", "pages": "pages"},
-            self._metadata.get_column_map("books", year=2010),
-        )
-        self.assertEqual(10, self._metadata.get_skiprows("boxes", year=2011))
-        self.assertEqual(1, self._metadata.get_sheet_name("boxes", year=2011))
+        assert metadata.get_dataset_name() == "test"
+        assert metadata.get_all_pages() == ["books", "boxes", "shoes"]
+        assert metadata.get_all_columns("books") == ["author", "pages", "title"]
+        assert metadata.get_column_map("books", year=2010) == {
+            "book_title": "title",
+            "name": "author",
+            "pages": "pages",
+        }
+        assert metadata.get_skiprows("boxes", year=2011) == 10
+        assert metadata.get_sheet_name("boxes", year=2011) == 1
+
+    def test_metadata_methods(self, metadata):
+        """Test various metadata methods."""
+        assert metadata.get_all_columns("books") == ["author", "pages", "title"]
+        assert metadata.get_column_map("books", year=2010) == {
+            "book_title": "title",
+            "name": "author",
+            "pages": "pages",
+        }
+        assert metadata.get_skiprows("boxes", year=2011) == 10
+        assert metadata.get_sheet_name("boxes", year=2011) == 1
 
 
 class FakeExtractor(excel.ExcelExtractor):
@@ -77,12 +91,10 @@ def _fake_data_frames(page_name, **kwargs):
     return fake_data[page_name]
 
 
-class TestExtractor(unittest.TestCase):
+class TestExtractor:
     """Test operation of the excel.Extractor class."""
 
-    @staticmethod
-    def test_extract():
-        extractor = FakeExtractor()
+    def test_extract(self, extractor):
         res = extractor.extract(year=[2010, 2011])
         expected_books = {
             "author": {0: "Laozi", 1: "Benjamin Hoff"},
@@ -98,25 +110,3 @@ class TestExtractor(unittest.TestCase):
             "size": {0: 10, 1: 99},
         }
         assert expected_boxes == res["boxes"].to_dict()
-
-    # @patch('pudl.extract.excel.pd.read_excel', _fake_data_frames)
-    # def test_resulting_dataframes(self):
-    #     """Checks that pages across years are merged and columns are translated."""
-    #     dfs = FakeExtractor().extract([2010, 2011], testing=True)
-    #     self.assertEqual(set(['books', 'boxes']), set(dfs.keys()))
-    #     pd.testing.assert_frame_equal(
-    #         pd.DataFrame(data={
-    #             'author': ['Laozi', 'Benjamin Hoff'],
-    #             'pages': [0, 158],
-    #             'title': ['Tao Te Ching', 'The Tao of Pooh'],
-    #         }),
-    #         dfs['books'])
-    #     pd.testing.assert_frame_equal(
-    #         pd.DataFrame(data={
-    #             'material': ['cardboard', 'metal'],
-    #             'size': [10, 99],
-    #         }),
-    #         dfs['boxes'])
-
-    # TODO(rousik@gmail.com): need to figure out how to test process_$x methods.
-    # TODO(rousik@gmail.com): we should test that empty columns are properly added.
