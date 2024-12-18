@@ -9,7 +9,8 @@ PUDL data, so if you have a suggestion, please `open a GitHub issue
 can `create a GitHub discussion <https://github.com/orgs/catalyst-cooperative/discussions/new?category=help-me>`__.
 
 PUDL's primary data output is the ``pudl.sqlite`` database. All the tables are also
-distributed as individual Parquet files which are more space efficient, have richer
+distributed as individual `Apache Parquet <https://parquet.apache.org/docs/>`__ files
+which are more space efficient, have richer
 data types and are better suited for distributed and large-scale data analysis.
 We recommend working with tables with the ``out_`` prefix, as these tables contain
 the most complete and easiest to work with data. For more information about the
@@ -108,7 +109,9 @@ resulting outputs pass all of the data validation tests we've defined, the outpu
 automatically uploaded to the `AWS Open Data Registry
 <https://registry.opendata.aws/catalyst-cooperative-pudl/>`__, and used to deploy a new
 version of Datasette (see above). These nightly build outputs can be accessed using the
-AWS CLI, or programmatically via the S3 API. If you don't want to mess with the API
+AWS CLI, or programmatically via the S3 API.
+
+If you don't want to mess with the API
 or CLI, you can also download the data directly over HTTPS. The download links for
 each table's Parquet file can be found in
 the :doc:`PUDL data dictionary page </data_dictionaries/pudl_db>`.
@@ -120,6 +123,22 @@ Fully Processed SQLite Databases
 
 * `Main PUDL Database <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/pudl.sqlite.zip>`__
 * `US Census DP1 Database (2010) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/censusdp1tract.sqlite.zip>`__
+
+Hourly Tables as Parquet
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Hourly time series take up a lot of space in SQLite and can be slow to query in bulk,
+so all our hourly tables are only distributed as Parquet files:
+
+* `EIA-930 BA Hourly Interchange <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_eia930__hourly_interchange.parquet>`__
+* `EIA-930 BA Hourly Net Generation by Energy Source <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_eia930__hourly_net_generation_by_energy_source.parquet>`__
+* `EIA-930 BA Hourly Operations <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_eia930__hourly_operations.parquet>`__
+* `EIA-930 BA Hourly Subregion Demand <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_eia930__hourly_subregion_demand.parquet>`__
+* `EPA CEMS Hourly Emissions <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_epacems__hourly_emissions.parquet>`__
+* `FERC-714 Hourly Estimated State Demand <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/out_ferc714__hourly_estimated_state_demand.parquet>`__
+* `FERC-714 Hourly Planning Area Demand <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/out_ferc714__hourly_planning_area_demand.parquet>`__
+* `GridPath RA Toolkit Hourly Available Capacity Factors <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/out_gridpathratoolkit__hourly_available_capacity_factor.parquet>`__
+* `VCE Resource Adequacy Renewable Energy (RARE) Dataset <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/out_vcerare__hourly_available_capacity_factor.parquet>`__
 
 Raw FERC DBF & XBRL data converted to SQLite
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
