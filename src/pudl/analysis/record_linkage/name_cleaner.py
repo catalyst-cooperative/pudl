@@ -31,7 +31,7 @@ CLEANING_RULES_DICT = {
     "remove_hashtags": [" ", r"#\S+"],
     "remove_numbers": [" ", r"\w*\d+\w*"],
     "remove_text_punctuation": ["", r'\;|\:|\,|\.|\?|\!|"|\''],
-    "remove_text_punctuation_except_dot": [" ", r'\;|\:|\,|\?|\!|"\''],
+    "remove_text_punctuation_except_dot": ["", r'\;|\:|\,|\?|\!|"\''],
     "remove_math_symbols": [" ", r"\+|\-|\*|\>|\<|\=|\%"],
     "remove_math_symbols_except_dash": [" ", r"\+|\*|\>|\<|\=|\%"],
     "remove_parentheses": ["", r"\(|\)"],
