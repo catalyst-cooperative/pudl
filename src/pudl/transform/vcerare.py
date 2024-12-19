@@ -378,7 +378,7 @@ def check_rows(context: AssetCheckExecutionContext) -> AssetCheckResult:
         return AssetCheckResult(
             passed=False,
             description="Table unexpected length",
-            metadata={"table_length": length, "expected_length": expecteded_length},
+            metadata={"table_length": length, "expected_length": expected_length},
         )
     return AssetCheckResult(passed=True)
 
