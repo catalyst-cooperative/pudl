@@ -372,9 +372,7 @@ def check_rows(context: AssetCheckExecutionContext) -> AssetCheckResult:
 
     vce = _load_duckdb_table()  # noqa: F841
     (length,) = duckdb.query("SELECT COUNT(*) FROM vce").fetchone()
-    if (
-        expected_length := row_counts[context.op_execution_context.job_name]
-    ) != length:
+    if (expected_length := row_counts[context.op_execution_context.job_name]) != length:
         return AssetCheckResult(
             passed=False,
             description="Table unexpected length",
