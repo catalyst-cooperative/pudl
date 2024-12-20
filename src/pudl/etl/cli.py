@@ -36,10 +36,11 @@ def pudl_etl_job_factory(
         The job definition to be executed.
     """
 
-    def get_pudl_etl_job():
+    def get_pudl_etl_job(job_name: str | None = None):
         """Create an pudl_etl_job wrapped by to be wrapped by reconstructable."""
         pudl.logging_helpers.configure_root_logger(logfile=logfile, loglevel=loglevel)
-        job_name = "etl_full_no_cems" if not process_epacems else "etl_full"
+        if job_name is None:
+            job_name = "etl_full_no_cems" if not process_epacems else "etl_full"
         return defs.get_job_def(job_name)
 
     return get_pudl_etl_job
