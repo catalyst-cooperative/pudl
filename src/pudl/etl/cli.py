@@ -8,14 +8,13 @@ import click
 import fsspec
 from dagster import (
     DagsterInstance,
-    Definitions,
     JobDefinition,
     build_reconstructable_job,
-    define_asset_job,
     execute_job,
 )
 
 import pudl
+from pudl.etl import defs
 from pudl.helpers import get_dagster_execution_config
 from pudl.settings import EpaCemsSettings, EtlSettings
 from pudl.workspace.setup import PudlPaths
@@ -37,24 +36,12 @@ def pudl_etl_job_factory(
         The job definition to be executed.
     """
 
-    def get_pudl_etl_job():
+    def get_pudl_etl_job(job_name: str | None = None):
         """Create an pudl_etl_job wrapped by to be wrapped by reconstructable."""
         pudl.logging_helpers.configure_root_logger(logfile=logfile, loglevel=loglevel)
-        jobs = [define_asset_job("etl_job")]
-        if not process_epacems:
-            jobs = [
-                define_asset_job(
-                    "etl_job",
-                    selection=pudl.etl.create_non_cems_selection(
-                        pudl.etl.default_assets
-                    ),
-                )
-            ]
-        return Definitions(
-            assets=pudl.etl.default_assets,
-            resources=pudl.etl.default_resources,
-            jobs=jobs,
-        ).get_job_def("etl_job")
+        if job_name is None:
+            job_name = "etl_full_no_cems" if not process_epacems else "etl_full"
+        return defs.get_job_def(job_name)
 
     return get_pudl_etl_job
 

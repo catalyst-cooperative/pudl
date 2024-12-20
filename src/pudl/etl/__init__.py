@@ -34,8 +34,6 @@ from pudl.resources import dataset_settings, datastore, ferc_to_sqlite_settings
 from pudl.settings import EtlSettings
 
 from . import (
-    check_foreign_keys,
-    cli,
     eia_bulk_elec_assets,
     epacems_assets,
     glue_assets,

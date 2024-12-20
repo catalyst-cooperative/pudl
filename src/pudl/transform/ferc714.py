@@ -1276,25 +1276,28 @@ check_specs = [
 ]
 
 
-def make_check(spec: Ferc714CheckSpec) -> AssetChecksDefinition:
+def make_row_num_check(spec: Ferc714CheckSpec) -> AssetChecksDefinition:
     """Turn the Ferc714CheckSpec into an actual Dagster asset check."""
 
-    @asset_check(asset=spec.asset, blocking=True)
-    def _check(df):
+    @asset_check(
+        asset=spec.asset, required_resource_keys={"dataset_settings"}, blocking=True
+    )
+    def _row_num_check(context, df):
         errors = []
-        for year, expected_rows in spec.num_rows_by_report_year.items():
+        for year in context.resources.dataset_settings.ferc714.years:
+            expected_rows = spec.num_rows_by_report_year[year]
             if (num_rows := len(df.loc[df.report_year == year])) != expected_rows:
                 errors.append(
                     f"Expected {expected_rows} for report year {year}, found {num_rows}"
                 )
-                logger.info(errors)
+        logger.warning(errors)
 
         if errors:
             return AssetCheckResult(passed=False, metadata={"errors": errors})
 
         return AssetCheckResult(passed=True)
 
-    return _check
+    return _row_num_check
 
 
-_checks = [make_check(spec) for spec in check_specs]
+_checks = [make_row_num_check(spec) for spec in check_specs]
