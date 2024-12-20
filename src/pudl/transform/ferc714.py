@@ -1276,7 +1276,7 @@ check_specs = [
 ]
 
 
-def make_check(spec: Ferc714CheckSpec) -> AssetChecksDefinition:
+def make_row_num_check(spec: Ferc714CheckSpec) -> AssetChecksDefinition:
     """Turn the Ferc714CheckSpec into an actual Dagster asset check."""
 
     @asset_check(
@@ -1290,7 +1290,7 @@ def make_check(spec: Ferc714CheckSpec) -> AssetChecksDefinition:
                 errors.append(
                     f"Expected {expected_rows} for report year {year}, found {num_rows}"
                 )
-                logger.warning(errors)
+        logger.warning(errors)
 
         if errors:
             return AssetCheckResult(passed=False, metadata={"errors": errors})
@@ -1300,4 +1300,4 @@ def make_check(spec: Ferc714CheckSpec) -> AssetChecksDefinition:
     return _row_num_check
 
 
-_checks = [make_check(spec) for spec in check_specs]
+_checks = [make_row_num_check(spec) for spec in check_specs]
