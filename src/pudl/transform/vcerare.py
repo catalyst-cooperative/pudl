@@ -365,6 +365,8 @@ def check_rows(context: AssetCheckExecutionContext) -> AssetCheckResult:
     logger.info("Check VCE RARE hourly table is the expected length")
 
     # Define row counts for fast/full etl
+    # TODO 2024-12-27: make this check row counts per year instead of having
+    # two different counts based on job name - less brittle.
     row_counts = {
         "etl_full": 136437000,
         "etl_fast": 27287400,
