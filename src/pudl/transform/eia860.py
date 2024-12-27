@@ -468,10 +468,8 @@ def _core_eia860__generators_wind(
     return wind_df
 
 
-# TODO: ask about generator_operating_month vs current_month and year
-# also ask how the initial column mapping happens
 @asset
-def _core_eia860__multifuel(
+def _core_eia860__generators_multifuel(
     raw_eia860__multifuel_existing: pd.DataFrame,
     raw_eia860__multifuel_proposed: pd.DataFrame,
     raw_eia860__multifuel_retired: pd.DataFrame,
@@ -520,6 +518,17 @@ def _core_eia860__multifuel(
                 CODE_METADATA["core_eia__codes_energy_sources"]["df"],
                 from_col="code",
                 to_col="fuel_type_code_pudl",
+                null_value=pd.NA,
+            )
+        )
+    )
+
+    multifuel_df["operational_status"] = (
+        multifuel_df.operational_status_code.str.upper().map(
+            pudl.helpers.label_map(
+                CODE_METADATA["core_eia__codes_operational_status"]["df"],
+                from_col="code",
+                to_col="operational_status",
                 null_value=pd.NA,
             )
         )

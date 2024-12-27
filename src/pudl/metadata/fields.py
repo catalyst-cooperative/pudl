@@ -87,6 +87,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "cfm",
         "description": "Total air flow including excess air at 100 percent load, reported at standard temperature and pressure (i.e. 68 F and one atmosphere pressure).",
     },
+    "air_permit_limits": {
+        "type": "boolean",
+        "description": "True if there are air permit limits",
+    },
     "alternative_fuel_vehicle_2_activity": {
         "type": "boolean",
         "description": "Whether the utility plants to operate alternative-fueled vehicles this coming year.",
@@ -729,9 +733,41 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Originally reported short code.",
     },
+    "cofire_100_oil": {
+        "type": "boolean",
+        "description": "Can the generator co-fire 100 oil?",
+    },
     "cofire_fuels": {
         "type": "boolean",
-        "description": "Can the generator co-fire fuels?.",
+        "description": "Can the generator co-fire fuels?",
+    },
+    "cofire_oil_and_gas": {
+        "type": "boolean",
+        "description": "Can the generator co-fire oil and gas?",
+    },
+    "cofire_energy_source_1": {
+        "type": "string",
+        "description": "Type of fuel.",
+    },
+    "cofire_energy_source_2": {
+        "type": "string",
+        "description": "Type of fuel.",
+    },
+    "cofire_energy_source_3": {
+        "type": "string",
+        "description": "Type of fuel.",
+    },
+    "cofire_energy_source_4": {
+        "type": "string",
+        "description": "Type of fuel.",
+    },
+    "cofire_energy_source_5": {
+        "type": "string",
+        "description": "Type of fuel.",
+    },
+    "cofire_energy_source_6": {
+        "type": "string",
+        "description": "Type of fuel.",
     },
     "coincident_peak_demand_mw": {
         "type": "number",
@@ -926,6 +962,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "current_planned_generator_operating_date": {
         "type": "date",
         "description": "The most recently updated effective date on which the generator is scheduled to start operation",
+    },
+    "current_planned_generator_operating_month": {
+        "type": "integer",
+        "description": "The most recently updated effective month on which the generator is scheduled to start operation",
+    },
+    "current_planned_generator_operating_year": {
+        "type": "integer",
+        "description": "The most recently updated effective year on which the generator is scheduled to start operation",
     },
     "customer_class": {
         "type": "string",
@@ -1482,6 +1526,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "MWh",
     },
     "expense_type": {"type": "string", "description": "The type of expense."},
+    "factors_that_limit_switching": {
+        "type": "boolean",
+        "description": "True if there are factors that limit switching.",
+    },
     "ferc1_generator_agg_id": {
         "type": "integer",
         "description": "ID dynamically assigned by PUDL to EIA records with multiple matches to a single FERC ID in the FERC-EIA manual matching process.",
@@ -1858,6 +1906,34 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "fuel_received_units": {
         "type": "number",
         "description": "Quanity of fuel received in tons, barrel, or Mcf.",
+    },
+    "fuel_switch": {
+        "type": "boolean",
+        "description": "TK",
+    },
+    "fuel_switch_energy_source_1": {
+        "type": "string",
+        "description": "TK",
+    },
+    "fuel_switch_energy_source_2": {
+        "type": "string",
+        "description": "TK",
+    },
+    "fuel_switch_energy_source_3": {
+        "type": "string",
+        "description": "TK",
+    },
+    "fuel_switch_energy_source_4": {
+        "type": "string",
+        "description": "TK",
+    },
+    "fuel_switch_energy_source_5": {
+        "type": "string",
+        "description": "TK",
+    },
+    "fuel_switch_energy_source_6": {
+        "type": "string",
+        "description": "TK",
     },
     "fuel_type": {
         "type": "string",
@@ -2491,6 +2567,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Maximum heat content per physical unit of fuel in MMBtu.",
         "unit": "MMBtu",
     },
+    "max_oil_heat_input": {
+        "type": "number",
+        "description": "TK",
+    },
+    "max_oil_output_mw": {
+        "type": "number",
+        "description": "MW",
+    },
     "max_steam_flow_1000_lbs_per_hour": {
         "type": "number",
         "unit": "1000_lbs_per_hour",
@@ -2814,6 +2898,26 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "delivered. This entry should not include wholesale energy purchased from "
             "or sold to regulated companies or unregulated companies for other systems."
         ),
+        "unit": "MWh",
+    },
+    "net_summer_capacity_with_natural_gas_mw": {
+        "type": "number",
+        "description": "Summer capacity with natural gas.",
+        "unit": "MWh",
+    },
+    "net_summer_capacity_with_oil_mw": {
+        "type": "number",
+        "description": "Summer capacity with oil.",
+        "unit": "MWh",
+    },
+    "net_winter_capacity_with_natural_gas_mw": {
+        "type": "number",
+        "description": "Winter capacity with natural gas.",
+        "unit": "MWh",
+    },
+    "net_winter_capacity_with_oil_mw": {
+        "type": "number",
+        "description": "Winter capacity with oil",
         "unit": "MWh",
     },
     "net_wheeled_power_mwh": {
@@ -3225,6 +3329,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "aren't directly associated with customer incentives."
         ),
         "unit": "USD",
+    },
+    "other_limits": {
+        "type": "boolean",
+        "description": "True if there are other limits on the generator.",
     },
     "other_modifications_date": {
         "type": "date",
@@ -3684,6 +3792,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Human-readable name of a US Census region.",
     },
+    "regulatory_limits": {"type": "string", "description": "TK"},
     "regulation_mercury": {
         "type": "string",
         "description": "Most stringent type of statute or regulation code under which the boiler is operating for mercury control standards.",
@@ -4274,6 +4383,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "A code representing the enclosure type that best describes where the generator is located.",
     },
+    "storage_limits": {
+        "type": "boolean",
+        "description": "True if there are storage limits",
+    },
     "storage_technology_code_1": {
         "type": "string",
         "description": "The electro-chemical storage technology used for this battery applications.",
@@ -4402,6 +4515,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Indicates whether the generator switch between oil and natural gas.",
     },
+    "switch_when_operating": {
+        "type": "boolean",
+        "description": "Indicates whether the generator switches fuel while operating.",
+    },
     "syncronized_transmission_grid": {
         "type": "boolean",
         "description": "Indicates whether standby generators (SB status) can be synchronized to the grid.",
@@ -4477,6 +4594,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "The number of cusomters participating in the respondent's time-based "
             "rate programs."
         ),
+    },
+    "time_to_switch": {
+        "type": "string",
+        "description": "Time needed to switch between fuel sources",
     },
     "timezone": {
         "type": "string",
