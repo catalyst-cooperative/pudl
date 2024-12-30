@@ -6,7 +6,7 @@ terraform {
   required_providers {
     google = {
       source  = "hashicorp/google"
-      version = "5.39.0"
+      version = "6.14.1"
     }
   }
 }
@@ -70,6 +70,10 @@ module "gh_oidc" {
       sa_name   = "projects/catalyst-cooperative-mozilla/serviceAccounts/mozilla-dev-sa@catalyst-cooperative-mozilla.iam.gserviceaccount.com"
       attribute = "attribute.repository/catalyst-cooperative/mozilla-sec-eia"
     }
+    "nrel-finito-inputs-gha" = {
+      sa_name   = "projects/${var.project_id}/serviceAccounts/${google_service_account.nrel_finito_inputs_gha.email}"
+      attribute = "attribute.repository/catalyst-cooperative/nrel-fuel-and-industry-inputs"
+    }
   }
 }
 
@@ -115,7 +119,7 @@ resource "google_cloud_run_v2_service" "pudl-superset" {
   location = "us-central1"
   client   = "terraform"
 
-  launch_stage = "BETA"
+  launch_stage = "GA"
 
   template {
     execution_environment = "EXECUTION_ENVIRONMENT_GEN2"
@@ -279,6 +283,7 @@ resource "google_sql_database_instance" "postgres_pvp_instance_name" {
       password_change_interval    = "30s"
       enable_password_policy      = true
     }
+
   }
   # set `deletion_protection` to true, will ensure that one cannot accidentally delete this instance by
   # use of Terraform whereas `deletion_protection_enabled` flag protects this instance at the GCP level.
@@ -469,4 +474,29 @@ resource "google_secret_manager_secret" "superset_bot_password" {
   replication {
     auto {}
   }
+}
+
+resource "google_storage_bucket" "pudl_archive_bucket" {
+  name          = "archives.catalyst.coop"
+  location      = "US-EAST1"
+  storage_class = "STANDARD"
+
+  uniform_bucket_level_access = true
+}
+
+resource "google_service_account" "nrel_finito_inputs_gha" {
+  account_id   = "nrel-finito-inputs-gha"
+  display_name = "NREL FINITO inputs github action service account"
+}
+
+resource "google_storage_bucket_iam_member" "nrel_finito_inputs_archiver_gcs_iam" {
+  for_each = toset([
+    "roles/storage.objectCreator",
+    "roles/storage.objectViewer",
+    "roles/storage.insightsCollectorService"
+  ])
+
+  bucket = google_storage_bucket.pudl_archive_bucket.name
+  role = each.key
+  member = "serviceAccount:${google_service_account.nrel_finito_inputs_gha.email}"
 }
