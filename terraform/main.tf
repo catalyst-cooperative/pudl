@@ -500,3 +500,10 @@ resource "google_storage_bucket_iam_member" "nrel_finito_inputs_archiver_gcs_iam
   role = each.key
   member = "serviceAccount:${google_service_account.nrel_finito_inputs_gha.email}"
 }
+
+resource "google_artifact_registry_repository" "pudl-viewer" {
+  location      = "us-east1"  # or your preferred region
+  repository_id = "pudl-viewer"
+  description   = "Docker repository for PUDL viewer"
+  format        = "DOCKER"
+}
