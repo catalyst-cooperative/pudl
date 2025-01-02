@@ -186,6 +186,10 @@ quantities are actually different.
 * Regardless of what label utilities are given in the original data source
   (e.g. ``operator`` in EIA or ``respondent`` in FERC) we refer to them as
   ``utilities`` in PUDL.
+* Include verb prefixes (e.g.: ``is_{x}``, ``has_{x}``, or ``served_{x}``)
+  to boolean columns to highlight their binary nature. (Not all columns in
+  the PUDL database follow this standard, but we'd like them to moving
+  forward).
 
 Naming Conventions in Code
 --------------------------
