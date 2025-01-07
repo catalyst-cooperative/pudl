@@ -18,6 +18,13 @@ EIA 176
 * Extracted these interim tables up through the latest 2023 data release. See
   :issue:`4002` and :pr:`4004`.
 
+PHMSA
+~~~~~
+* Add a transformed table containing annual operator data from PHMSA natural gas
+  distributors. This is a subset of the overall distributor data, focusing on
+  company-level attributes. Thanks to :user:`seeess1` for all of your work on this! See
+  :issue:`3770` and :pr:`4005`.
+
 Bug Fixes
 ^^^^^^^^^
 
