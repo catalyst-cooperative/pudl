@@ -8,10 +8,13 @@ PUDL data, so if you have a suggestion, please `open a GitHub issue
 <https://github.com/catalyst-cooperative/pudl/issues>`__. If you have a question, you
 can `create a GitHub discussion <https://github.com/orgs/catalyst-cooperative/discussions/new?category=help-me>`__.
 
-PUDL's primary data output is the ``pudl.sqlite`` database. We recommend working with
-tables with the ``out_`` prefix, as these tables contain the most complete and easiest
-to work with data. For more information about the different types
-of tables, read through :ref:`PUDL's naming conventions <asset-naming>`.
+PUDL's primary data output is the ``pudl.sqlite`` database. All the tables are also
+distributed as individual `Apache Parquet <https://parquet.apache.org/docs/>`__ files
+which are more space efficient, have richer
+data types and are better suited for distributed and large-scale data analysis.
+We recommend working with tables with the ``out_`` prefix, as these tables contain
+the most complete and easiest to work with data. For more information about the
+different types of tables, read through :ref:`PUDL's naming conventions <asset-naming>`.
 
 .. _access-modes:
 
@@ -106,8 +109,14 @@ resulting outputs pass all of the data validation tests we've defined, the outpu
 automatically uploaded to the `AWS Open Data Registry
 <https://registry.opendata.aws/catalyst-cooperative-pudl/>`__, and used to deploy a new
 version of Datasette (see above). These nightly build outputs can be accessed using the
-AWS CLI, or programmatically via the S3 API. They can also be downloaded directly over
-HTTPS using the following links:
+AWS CLI, or programmatically via the S3 API.
+
+If you don't want to mess with the API
+or CLI, you can also download the data directly over HTTPS. The download links for
+each table's Parquet file can be found in
+the :doc:`PUDL data dictionary page </data_dictionaries/pudl_db>`.
+
+These are the download links for the PUDL and raw FERC SQLite databases:
 
 Fully Processed SQLite Databases
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -119,8 +128,7 @@ Hourly Tables as Parquet
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 Hourly time series take up a lot of space in SQLite and can be slow to query in bulk,
-so we have moved to publishing all our hourly tables using the compressed, columnar
-`Apache Parquet <https://parquet.apache.org/docs/>`__ file format.
+so all our hourly tables are only distributed as Parquet files:
 
 * `EIA-930 BA Hourly Interchange <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_eia930__hourly_interchange.parquet>`__
 * `EIA-930 BA Hourly Net Generation by Energy Source <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_eia930__hourly_net_generation_by_energy_source.parquet>`__
