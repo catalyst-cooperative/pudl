@@ -8,7 +8,7 @@ US_STATE_CODES: set[str] = set(
     POLITICAL_SUBDIVISIONS.loc[
         (POLITICAL_SUBDIVISIONS.country_code == "USA")
         & (POLITICAL_SUBDIVISIONS.subdivision_type == "state"),
-        "subdivision_name",
+        "subdivision_code",
     ]
 )
 """ Two-letter ANSI state codes."""

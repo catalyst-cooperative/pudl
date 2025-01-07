@@ -86,8 +86,8 @@ YEARLY_DISTRIBUTION_OPERATORS_COLUMNS = {
 
 @asset(
     ins={"raw_data": AssetIn(key="raw_phmsagas__yearly_distribution")},
-    io_manager_key=None,  # TODO: check on this one ("pudl_io_manager"? something else?)
-    compute_kind=None,  # TODO: check on this one
+    io_manager_key="pudl_io_manager",
+    compute_kind="pandas",
 )
 def core_phmsagas__yearly_distribution_operators(
     raw_data: pd.DataFrame,
@@ -203,16 +203,14 @@ def core_phmsagas__yearly_distribution_operators(
 
 
 def filter_if_test_in_address(group: pd.DataFrame) -> pd.DataFrame:
-    """Filters out rows with "test" in address columns. The logic is as follows:
+    """Filters out rows with "test" in address columns.
 
-    1. For any group of rows with the same combination of "operator_id_phmsa"
-       and "report_number":
-        - If at least one row in the group does not contain the string "test"
-          (case-insensitive) in either "office_address_street" or
-          "headquarters_address_street", keep only the rows in the group
-          that do not contain "test" in these columns.
-        - If all rows in the group contain "test" in either of the columns,
-          leave the group unchanged.
+    For any group of rows with the same combination of "operator_id_phmsa"
+    and "report_number", if at least one row in the group does not contain the string
+    "test" (case-insensitive) in either "office_address_street" or
+    "headquarters_address_street", keep only the rows in the group that do not contain
+    "test" in these columns. If all rows in the group contain "test" in either of the
+    columns, leave the group unchanged.
 
     Args:
         group (DataFrame): A grouped subset of the DataFrame.
@@ -236,8 +234,10 @@ def filter_if_test_in_address(group: pd.DataFrame) -> pd.DataFrame:
 
 
 def filter_by_city_in_name(group: pd.DataFrame) -> pd.DataFrame:
-    """Deduplication filter to only keep rows where "office_address_city" value
-    is contained in the "operator_name_phmsa" value (case insensitive).
+    """Deduplication to keep duplicated rows where city and operator name overlap.
+
+    Filter to only keep rows where "office_address_city" value is contained in the
+    "operator_name_phmsa" value (case insensitive).
 
     Args:
         group (pd.DataFrame): A grouped subset of the DataFrame.
