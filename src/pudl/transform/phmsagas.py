@@ -1,9 +1,7 @@
 """Classes & functions to process PHMSA natural gas data before loading into the PUDL DB."""
 
-from dataclasses import dataclass
-
 import pandas as pd
-from dagster import AssetCheckResult, AssetChecksDefinition, AssetIn, asset, asset_check
+from dagster import AssetCheckResult, AssetIn, asset, asset_check
 
 import pudl.logging_helpers
 from pudl.helpers import (
@@ -278,71 +276,40 @@ def combined_filter(group: pd.DataFrame) -> pd.DataFrame:
     return group
 
 
-@dataclass
-class PhmsagasCheckSpec:
-    """Define some simple checks that can run on FERC 714 assets."""
+@asset_check(asset=core_phmsagas__yearly_distribution_operators, blocking=True)
+def _check_percent_unaccounted_for_gas(df):
+    # Count the rows where percent_unaccounted_for_gas is negative
+    negative_count = (df["percent_unaccounted_for_gas"] < 0).sum()
 
-    name: str
-    asset: str
-    percent_unaccounted_for_gas_negative_threshold: float
-    pk_deduplication_theshold: int
+    # Calculate the percentage
+    negative_percentage = negative_count / len(df)
+    if negative_percentage > 0.05:
+        error = "Percentage of rows with negative percent_unaccounted_for_gas values: {negative_percentage:.2f}"
+        logger.info(error)
+        return AssetCheckResult(passed=False, metadata={"errors": error})
+
+    return AssetCheckResult(passed=True)
 
 
-check_specs = [
-    PhmsagasCheckSpec(
-        name="phmsagas__yearly_distribution_check_spec",
-        asset="raw_phmsagas__yearly_distribution",
-        # Threshold to use when making sure we aren't seeing tons of negative values in percent_unaccounted_for_gas
-        percent_unaccounted_for_gas_negative_threshold=0.05,
-        # Threshold to use when making sure we aren't dropping a large number of rows based on non-unique PKs
-        pk_deduplication_theshold=10,
+@asset_check(asset=core_phmsagas__yearly_distribution_operators, blocking=True)
+def _check_pk_deduplication(df):
+    """Check if the size of filtered non-unique rows exceeds the threshold."""
+    # Identify non-unique groups
+    non_unique_groups = df.groupby(["operator_id_phmsa", "report_number"]).filter(
+        lambda group: len(group) > 1
     )
-]
 
+    # Apply the filters to non-unique groups
+    filtered_non_unique_rows = non_unique_groups.groupby(
+        ["operator_id_phmsa", "report_number"], group_keys=False
+    ).apply(combined_filter)
 
-def make_check_phmsagas_yearly_distribution(
-    spec: PhmsagasCheckSpec,
-) -> list[AssetChecksDefinition]:
-    """Turn the Ferc714CheckSpec into Dagster asset checks."""
-
-    @asset_check(asset=spec.asset, blocking=True)
-    def _check_percent_unaccounted_for_gas(df):
-        # Count the rows where percent_unaccounted_for_gas is negative
-        negative_count = (df["percent_unaccounted_for_gas"] < 0).sum()
-
-        # Calculate the percentage
-        negative_percentage = negative_count / len(df)
-        if (
-            negative_percentage
-            > PhmsagasCheckSpec.percent_unaccounted_for_gas_negative_threshold
-        ):
-            error = "Percentage of rows with negative percent_unaccounted_for_gas values: {negative_percentage:.2f}"
-            logger.info(error)
-            return AssetCheckResult(passed=False, metadata={"errors": error})
-
-        return AssetCheckResult(passed=True)
-
-    @asset_check(asset=spec.asset, blocking=True)
-    def _check_pk_deduplication(df):
-        """Check if the size of filtered non-unique rows exceeds the threshold."""
-        # Identify non-unique groups
-        non_unique_groups = df.groupby(["operator_id_phmsa", "report_number"]).filter(
-            lambda group: len(group) > 1
+    if len(filtered_non_unique_rows) > 10:
+        error = (
+            f"Number of filtered non-unique rows ({len(filtered_non_unique_rows)})\n"
+            f"Exceeds the threshold of 10."
         )
+        logger.info(error)
+        return AssetCheckResult(passed=False, metadata={"errors": error})
 
-        # Apply the filters to non-unique groups
-        filtered_non_unique_rows = non_unique_groups.groupby(
-            ["operator_id_phmsa", "report_number"], group_keys=False
-        ).apply(combined_filter)
-
-        if len(filtered_non_unique_rows) > spec.pk_deduplication_theshold:
-            error = (
-                f"Number of filtered non-unique rows ({len(filtered_non_unique_rows)})\n"
-                f"Exceeds the threshold of {spec.pk_deduplication_theshold}"
-            )
-            logger.info(error)
-            return AssetCheckResult(passed=False, metadata={"errors": error})
-
-        return AssetCheckResult(passed=True)
-
-    return [_check_percent_unaccounted_for_gas, _check_pk_deduplication]
+    return AssetCheckResult(passed=True)
