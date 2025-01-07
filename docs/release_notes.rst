@@ -9,10 +9,14 @@ v2024.XX.x (2024-MM-DD)
 New Data Coverage
 ^^^^^^^^^^^^^^^^^
 
+EIA 176
+~~~~~~~
 * Add a couple of semi-transformed interim EIA-176 (natural gas sources and
   dispositions) tables. They aren't yet being written to the database, but are one step
   closer. See :issue:`3555` and PRs :pr:`3590,3978`. Thanks to :user:`davidmudrauskas`
   for moving this dataset forward.
+* Extracted these interim tables up through the latest 2023 data release. See
+  :issue:`4002` and :pr:`4004`.
 
 Bug Fixes
 ^^^^^^^^^

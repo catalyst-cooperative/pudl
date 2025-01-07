@@ -47,7 +47,7 @@ SOURCES: dict[str, Any] = {
             "source_format": "Comma Separated Value (.csv)",
         },
         "field_namespace": "eia",
-        "working_partitions": {"years": sorted(set(range(1997, 2023)))},
+        "working_partitions": {"years": sorted(set(range(1997, 2024)))},
         "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
         "keywords": sorted(
             set(
