@@ -1035,20 +1035,22 @@ class DataSource(PudlMeta):
             sys.stdout.write(rendered)
 
     @classmethod
-    def from_field_namespace(cls, x: str) -> list["DataSource"]:
+    def from_field_namespace(
+        cls, x: str, sources: dict[str, Any] = SOURCES
+    ) -> list["DataSource"]:
         """Return list of DataSource objects by field namespace."""
         return [
             cls(**cls.dict_from_id(name))
-            for name, val in SOURCES.items()
+            for name, val in sources.items()
             if val.get("field_namespace") == x
         ]
 
     @staticmethod
-    def dict_from_id(x: str) -> dict:
+    def dict_from_id(x: str, sources: dict[str, Any] = SOURCES) -> dict:
         """Look up the source by source name in the metadata."""
         # If ID ends with _xbrl strip end to find data source
         lookup_id = x.replace("_xbrl", "")
-        return {"name": x, **copy.deepcopy(SOURCES[lookup_id])}
+        return {"name": x, **copy.deepcopy(sources[lookup_id])}
 
     @classmethod
     def from_id(cls, x: str) -> "DataSource":
@@ -1285,6 +1287,7 @@ class Resource(PudlMeta):
             "pudl",
             "nrelatb",
             "vcerare",
+            "phmsagas",
         ]
         | None
     ) = None
@@ -1313,6 +1316,7 @@ class Resource(PudlMeta):
             "service_territories",
             "nrelatb",
             "vcerare",
+            "phmsagas",
         ]
         | None
     ) = None
