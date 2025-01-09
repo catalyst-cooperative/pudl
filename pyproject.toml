@@ -7,7 +7,7 @@ name = "catalystcoop.pudl"
 description = "An open data processing pipeline for US energy data"
 readme = { file = "README.rst", content-type = "text/x-rst" }
 authors = [{ name = "Catalyst Cooperative", email = "pudl@catalyst.coop" }]
-requires-python = ">=3.12,<3.13"
+requires-python = ">=3.10,<3.13"
 dynamic = ["version"]
 license = { file = "LICENSE.txt" }
 dependencies = [
@@ -23,10 +23,12 @@ dependencies = [
     "conda-lock>=2.5.7",
     "coverage>=7.6",
     "dagster>=1.9",
+    "dagster-dbt>=0.25.6,<1",
     "dagster-postgres>=0.24,<1", # Update when dagster-postgres graduates to 1.x
     "dask>=2024",
     "dask-expr", # Required for dask[dataframe]
     "datasette>=0.65",
+    "dbt-duckdb",
     "doc8>=1.1",
     "duckdb>=1.1.3",
     "email-validator>=1.0.3", # pydantic[email]
@@ -83,6 +85,7 @@ dependencies = [
     "sphinxcontrib_googleanalytics>=0.4",
     "sqlalchemy>=2",
     "sqlglot>=25",
+    "s3fs>=2024",
     "timezonefinder>=6.2",
     "universal_pathlib>=0.2",
     "urllib3>=1.26.18",
@@ -343,7 +346,7 @@ nodejs = ">=20"
 pandoc = ">=2"
 pip = ">=24"
 prettier = ">=3.0"
-python = ">=3.12,<3.13"
+python = ">=3.10,<3.13"
 sqlite = ">=3.47"
 zip = ">=3.0"
 

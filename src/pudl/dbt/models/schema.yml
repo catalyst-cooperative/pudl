@@ -1,0 +1,12 @@
+version: 2
+
+sources:
+  - name: pudl_nightly
+    meta:
+      external_location: "https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/{name}.parquet"
+    tables:
+      - name: out_vcerare__hourly_available_capacity_factor
+        columns:
+          - name: capacity_factor_solar_pv
+            tests:
+              - not_null

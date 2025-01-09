@@ -1,0 +1,5 @@
+version: 2
+data_tests:
+  - name: vcerare_wind_cap_factor_upper_bound
+    description: >
+      Check uper bound of wind capacity factors.

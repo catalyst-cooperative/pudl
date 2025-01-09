@@ -1,0 +1,9 @@
+pudl_dbt:
+  outputs:
+    dev:
+      type: duckdb
+      path: /tmp/pudl.duckdb
+      filesystems:
+        - fs: s3
+
+  target: dev

@@ -362,7 +362,7 @@ def _filter_for_freshest_data_xbrl(
     into the raw instant or duration XBRL table name.
     """
     table_name_raw_xbrl = (
-        f"{TABLE_NAME_MAP_FERC714[table_name]["xbrl"]}_{instant_or_duration}"
+        f"{TABLE_NAME_MAP_FERC714[table_name]['xbrl']}_{instant_or_duration}"
     )
     xbrl = filter_for_freshest_data_xbrl(
         raw_xbrl,
