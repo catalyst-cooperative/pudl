@@ -24,10 +24,13 @@ SOURCES: dict[str, Any] = {
         "license_pudl": LICENSES["cc-by-4.0"],
         "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
     },
-    "censusfips": {
-        "title": "Population Estimates FIPS Codes",
+    "censuspep": {
+        "title": "Population Estimates Program's (PEP) Federal Information Processing Series (FIPS) Codes",
         "path": "https://www.census.gov/geographies/reference-files/2023/demo/popest/2023-fips.html",
-        "description": "Reference files for Federal Information Processing Series (FIPS) Geographic Codes.",
+        "description": (
+            "Reference files for Federal Information Processing Series (FIPS) Geographic Codes. "
+            "These FIPS Codes are a subset of a broader Population Estimates dataset."
+        ),
         "working_partitions": {"years": sorted(set(range(2011, 2024)))},
         "keywords": sorted(
             {
