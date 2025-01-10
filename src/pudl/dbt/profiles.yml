@@ -1,9 +1,17 @@
 pudl_dbt:
   outputs:
-    dev:
+    # Define targets for nightly builds, and local ETL full/fast
+    # See models/schema.yml for further configuration
+    nightly:
       type: duckdb
       path: /tmp/pudl.duckdb
       filesystems:
         - fs: s3
+    etl-full:
+      type: duckdb
+      path: /tmp/pudl.duckdb
+    etl-fast:
+      type: duckdb
+      path: /tmp/pudl.duckdb
 
-  target: dev
+  target: nightly

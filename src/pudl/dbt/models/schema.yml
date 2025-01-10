@@ -1,12 +1,22 @@
 version: 2
 
 sources:
-  - name: pudl_nightly
+  - name: pudl
     meta:
-      external_location: "https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/{name}.parquet"
+      external_location: |
+        {%- if target.name == "nightly" -%} 'https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/{name}.parquet'
+        {%- else -%} '{{ env_var('PUDL_OUTPUT') }}/parquet/{name}.parquet'
+        {%- endif -%}
     tables:
       - name: out_vcerare__hourly_available_capacity_factor
         columns:
           - name: capacity_factor_solar_pv
-            tests:
+            data_tests:
               - not_null
+              - dbt_expectations.expect_column_max_to_be_between:
+                  max_value: 1.02
+          - name: capacity_factor_offshore_wind
+            data_tests:
+              - not_null
+              - dbt_expectations.expect_column_max_to_be_between:
+                  max_value: 1.00
