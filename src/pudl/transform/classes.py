@@ -748,7 +748,7 @@ def correct_units(df: pd.DataFrame, params: UnitCorrections) -> pd.DataFrame:
     na_after = sum(selected.isna())
     total_nullified = na_after - na_before
     logger.info(
-        f"{total_nullified}/{len(selected)} ({total_nullified/len(selected):.2%}) "
+        f"{total_nullified}/{len(selected)} ({total_nullified / len(selected):.2%}) "
         "of records could not be corrected and were set to NA."
     )
     # Combine our cleaned up values with the other values we didn't select.
@@ -859,7 +859,7 @@ def drop_invalid_rows(df: pd.DataFrame, params: InvalidRows) -> pd.DataFrame:
     # Mask the input dataframe and make a copy to avoid returning a slice.
     df_out = df[mask].copy()
     logger.info(
-        f"{1 - (len(df_out)/pre_drop_len):.1%} of records ({pre_drop_len-len(df_out)} "
+        f"{1 - (len(df_out) / pre_drop_len):.1%} of records ({pre_drop_len - len(df_out)} "
         f"rows) contain only {params.invalid_values} values in required columns. "
         "Dropped these 💩💩💩 records."
     )
@@ -1067,8 +1067,7 @@ def cache_df(key: str = "main") -> Callable[..., pd.DataFrame]:
                 )
             if self.cache_dfs:
                 logger.debug(
-                    f"{self.table_id.value}: Caching df to {key=} "
-                    f"in {func.__name__}()"
+                    f"{self.table_id.value}: Caching df to {key=} in {func.__name__}()"
                 )
                 self._cached_dfs[key] = df.copy()
             return df

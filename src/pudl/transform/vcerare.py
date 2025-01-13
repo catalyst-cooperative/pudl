@@ -274,8 +274,7 @@ def one_year_hourly_available_capacity_factor(
     the columns for each county or subregion into a single county_or_lake_name column.
     """
     logger.info(
-        "Transforming the VCE RARE hourly available capacity factor tables "
-        f"for {year}."
+        f"Transforming the VCE RARE hourly available capacity factor tables for {year}."
     )
     # Clean up the FIPS table
     fips_df = _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips)

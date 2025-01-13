@@ -328,7 +328,7 @@ def core_epa__assn_eia_epacamd_subplant_ids(
     ]
     logger.info(
         "Edited subplant_ids after update_subplant_ids: "
-        f"{len(subplant_id_diff)/len(subplant_ids_updated):.1}%"
+        f"{len(subplant_id_diff) / len(subplant_ids_updated):.1}%"
     )
     # overwrite the subplant ids and apply mannual update
     subplant_ids_updated = (
@@ -456,9 +456,9 @@ def _subplant_ids_from_prepped_crosswalk(prepped: pd.DataFrame) -> pd.DataFrame:
     )
     for i, node_set in enumerate(nx.connected_components(graph)):
         subgraph = graph.subgraph(node_set)
-        assert nx.algorithms.bipartite.is_bipartite(
-            subgraph
-        ), f"non-bipartite: i={i}, node_set={node_set}"
+        assert nx.algorithms.bipartite.is_bipartite(subgraph), (
+            f"non-bipartite: i={i}, node_set={node_set}"
+        )
         nx.set_edge_attributes(subgraph, name="global_subplant_id", values=i)
     return nx.to_pandas_edgelist(graph)
 

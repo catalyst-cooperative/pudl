@@ -306,9 +306,9 @@ def _core_nrelatb__transform_start(raw_nrelatb__data):
         subset=nrelatb.columns.difference(["core_metric_key"])
     )
 
-    assert not any(
-        nrelatb.duplicated(IDX_ALL)
-    ), f"Duplicated: {nrelatb[nrelatb.duplicated(IDX_ALL)]}"
+    assert not any(nrelatb.duplicated(IDX_ALL)), (
+        f"Duplicated: {nrelatb[nrelatb.duplicated(IDX_ALL)]}"
+    )
 
     # ensure that we have the same set of parameters in the unstackers and in the rename
     params_found = set(nrelatb.core_metric_parameter.unique())
@@ -556,5 +556,7 @@ def check_technology_specific_parameters(df):
         )
         assert (
             tech_specific_param["technology_descriptions"] == technology_descriptors
-        ), f"{tech_specific_param['technology_descriptions']} does not equal {technology_descriptors}"
+        ), (
+            f"{tech_specific_param['technology_descriptions']} does not equal {technology_descriptors}"
+        )
     return AssetCheckResult(passed=True)

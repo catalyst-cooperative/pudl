@@ -206,8 +206,7 @@ SOURCES: dict[str, Any] = {
         "title": "EIA Form 861 -- Annual Electric Power Industry Report",
         "path": "https://www.eia.gov/electricity/data/eia861",
         "description": (
-            "EIA Form 861 Annual Electric Power Industry Report, detailed "
-            "data files."
+            "EIA Form 861 Annual Electric Power Industry Report, detailed data files."
         ),
         "field_namespace": "eia",
         "working_partitions": {

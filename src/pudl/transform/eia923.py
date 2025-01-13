@@ -79,13 +79,13 @@ def _get_plant_nuclear_unit_id_map(nuc_fuel: pd.DataFrame) -> dict[int, str]:
     plant_to_nuc_id = plant_to_nuc_id.explode()
 
     # check there is one nuclear unit per plant.
-    assert (
-        plant_to_nuc_id.index.is_unique
-    ), "Found multiple nuclear units in plant_to_nuc_id mapping."
+    assert plant_to_nuc_id.index.is_unique, (
+        "Found multiple nuclear units in plant_to_nuc_id mapping."
+    )
     # Check there are no missing nuclear unit ids.
-    assert (
-        ~plant_to_nuc_id.isna()
-    ).all(), "Found missing nuclear_unit_ids in plant_to_nuc_id mappings."
+    assert (~plant_to_nuc_id.isna()).all(), (
+        "Found missing nuclear_unit_ids in plant_to_nuc_id mappings."
+    )
 
     plant_to_nuc_id = plant_to_nuc_id.astype("string")
 
@@ -154,13 +154,13 @@ def _get_plant_prime_mover_map(gen_fuel: pd.DataFrame) -> dict[int, str]:
     plant_to_prime_mover = plant_to_prime_mover.explode()
 
     # check there is one prime mover per plant.
-    assert (
-        plant_to_prime_mover.index.is_unique
-    ), "Found multiple plants in plant_to_prime_mover mapping."
+    assert plant_to_prime_mover.index.is_unique, (
+        "Found multiple plants in plant_to_prime_mover mapping."
+    )
     # Check there are no missing prime mover codes.
-    assert (
-        plant_to_prime_mover.notnull()
-    ).all(), "Found missing prime_mover_codes in plant_to_prime_mover mappings."
+    assert (plant_to_prime_mover.notnull()).all(), (
+        "Found missing prime_mover_codes in plant_to_prime_mover mappings."
+    )
 
     return dict(plant_to_prime_mover)
 
@@ -201,9 +201,9 @@ def _backfill_prime_mover_code(gen_fuel: pd.DataFrame) -> pd.DataFrame:
     missing_prime_movers = gen_fuel.prime_mover_code.isna()
     gen_fuel.loc[missing_prime_movers, "prime_mover_code"] = "UNK"
 
-    assert (
-        gen_fuel.prime_mover_code.notna().all()
-    ), "generation_fuel_923.prime_mover_code has missing values after backfill."
+    assert gen_fuel.prime_mover_code.notna().all(), (
+        "generation_fuel_923.prime_mover_code has missing values after backfill."
+    )
     return gen_fuel
 
 
