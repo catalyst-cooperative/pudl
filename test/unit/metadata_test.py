@@ -102,12 +102,12 @@ def test_get_sorted_resources() -> None:
 
     first_resource_name = resources[0].name
     last_resource_name = resources[-1].name
-    assert first_resource_name.startswith(
-        "out"
-    ), f"{first_resource_name} is the first resource. Expected a resource with the prefix 'out'"
-    assert last_resource_name.startswith(
-        "_out"
-    ), f"{last_resource_name} is the last resource. Expected a resource with the prefix '_out'"
+    assert first_resource_name.startswith("out"), (
+        f"{first_resource_name} is the first resource. Expected a resource with the prefix 'out'"
+    )
+    assert last_resource_name.startswith("_out"), (
+        f"{last_resource_name} is the last resource. Expected a resource with the prefix '_out'"
+    )
 
 
 def test_resource_descriptors_valid():

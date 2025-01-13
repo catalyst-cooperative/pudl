@@ -422,7 +422,7 @@ def drop_duplicate_rows_dbf(
         .drop(columns=["null_data"])
     )
     logger.info(
-        f"Dropped {len_og - len(df)} duplicate records: {(len_og - len(df))/len_og:.1%}"
+        f"Dropped {len_og - len(df)} duplicate records: {(len_og - len(df)) / len_og:.1%}"
         " of total rows."
     )
     return df
@@ -1689,7 +1689,7 @@ def select_current_year_annual_records_duration_xbrl(df: pd.DataFrame, table_nam
     len_out = len(df)
     logger.info(
         f"{table_name}: After selection of dates based on the report year,"
-        f" we have {len_out/len_og:.1%} of the original table."
+        f" we have {len_out / len_og:.1%} of the original table."
     )
     return df
 
@@ -2635,7 +2635,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             df = df[df.report_prd == 12].copy()
             logger.info(
                 f"{self.table_id.value}: After selection of only annual records,"
-                f" we have {len(df)/len_og:.1%} of the original table."
+                f" we have {len(df) / len_og:.1%} of the original table."
             )
         return df
 
@@ -4374,10 +4374,10 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
         useful_rows_len = len(df[df["row_type"].isna()])
 
         logger.info(
-            f"Added fuel types to {new_fuel_type_count-old_fuel_type_count} plant rows "
-            f"({round((new_fuel_type_count-old_fuel_type_count)/useful_rows_len*100)}%). "
-            f"Added plant types to {new_plant_type_count-old_plant_type_count} plant "
-            f"rows ({round((new_plant_type_count-old_plant_type_count)/useful_rows_len*100)}%)."
+            f"Added fuel types to {new_fuel_type_count - old_fuel_type_count} plant rows "
+            f"({round((new_fuel_type_count - old_fuel_type_count) / useful_rows_len * 100)}%). "
+            f"Added plant types to {new_plant_type_count - old_plant_type_count} plant "
+            f"rows ({round((new_plant_type_count - old_plant_type_count) / useful_rows_len * 100)}%)."
         )
 
         return df
@@ -5107,7 +5107,7 @@ class IncomeStatementsTableTransformer(Ferc1AbstractTableTransformer):
             )
         ].copy()
         logger.info(
-            f"Dropped {len_og - len(raw_dbf)} records ({(len_og - len(raw_dbf))/len_og:.1%} of"
+            f"Dropped {len_og - len(raw_dbf)} records ({(len_og - len(raw_dbf)) / len_og:.1%} of"
             "total) records from 2003 from the f1_incm_stmnt_2 DBF table that have "
             "known incorrect row numbers."
         )
