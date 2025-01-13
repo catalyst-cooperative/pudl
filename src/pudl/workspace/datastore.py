@@ -460,7 +460,7 @@ def print_partitions(dstore: Datastore, datasets: list[str]) -> None:
                 parts = sorted(partitions[partition_key])
             except TypeError:
                 parts = partitions[partition_key]
-            print(f'  {partition_key}: {", ".join(str(x) for x in parts)}')
+            print(f"  {partition_key}: {', '.join(str(x) for x in parts)}")
         if not partitions:
             print("  -- no known partitions --")
 
