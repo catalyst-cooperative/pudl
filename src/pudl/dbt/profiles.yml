@@ -4,14 +4,14 @@ pudl_dbt:
     # See models/schema.yml for further configuration
     nightly:
       type: duckdb
-      path: /tmp/pudl.duckdb
+      path: "{{ env_var('PUDL_OUTPUT') }}/pudl.duckdb"
       filesystems:
         - fs: s3
     etl-full:
       type: duckdb
-      path: /tmp/pudl.duckdb
+      path: "{{ env_var('PUDL_OUTPUT') }}/pudl.duckdb"
     etl-fast:
       type: duckdb
-      path: /tmp/pudl.duckdb
+      path: "{{ env_var('PUDL_OUTPUT') }}/pudl.duckdb"
 
   target: nightly
