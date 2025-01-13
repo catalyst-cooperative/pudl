@@ -7,7 +7,7 @@ name = "catalystcoop.pudl"
 description = "An open data processing pipeline for US energy data"
 readme = { file = "README.rst", content-type = "text/x-rst" }
 authors = [{ name = "Catalyst Cooperative", email = "pudl@catalyst.coop" }]
-requires-python = ">=3.12,<3.13"
+requires-python = ">=3.12,<3.13.0a0"
 dynamic = ["version"]
 license = { file = "LICENSE.txt" }
 dependencies = [
@@ -22,9 +22,9 @@ dependencies = [
     "coloredlogs>=14.0", # Dagster requires 14.0
     "conda-lock>=2.5.7",
     "coverage>=7.6",
-    "dagster>=1.9.7",
-    "dagster-dbt>=0.25.7,<1",
-    "dagster-postgres>=0.25.7,<1", # Update when dagster-postgres graduates to 1.x
+    "dagster>=1.9.8",
+    "dagster-dbt>=0.25.8,<1",
+    "dagster-postgres>=0.25.8,<1", # Update when dagster-postgres graduates to 1.x
     "dask>=2024",
     "dask-expr", # Required for dask[dataframe]
     "datasette>=0.65",
@@ -36,16 +36,16 @@ dependencies = [
     "fsspec>=2024",
     "furo>=2024",
     "gcsfs>=2024",
-    "gdal==3.9.3",  # pinned, because we need it to work with pudl-archiver
+    "gdal==3.10.0",  # pinned, because we need it to work with pudl-archiver
     "geopandas>=1.0", # >=0.14.4 required for Numpy 2.0
     "grpcio==1.67.1", # Required by dagster, binary dependencies are flaky
     "grpcio-health-checking==1.67.1", # Required by dagster, binary dependencies are flaky
     "grpcio-status==1.67.1", # Required by dagster, binary dependencies are flaky
-    "hypothesis>=6.110",
+    "hypothesis>=6.123",
     "jellyfish>=1",
     "jinja2>=3.1",
     "jupyter",
-    "matplotlib>=3.9",
+    "matplotlib>=3.10",
     "mlflow>=2.19",
     "nbconvert>=7",
     "nbformat>=5.10",
@@ -55,7 +55,7 @@ dependencies = [
     "numpy>=2",
     "packaging>=24",
     "pandas>=2.2.3",
-    "pandera>=0.20",
+    "pandera>=0.22",
     "pre-commit>=3",
     "pyarrow>=18.1", # pandas[parquet]
     "pydantic>=2.10",
@@ -72,7 +72,7 @@ dependencies = [
     "readthedocs-sphinx-ext>=2",
     "requests>=2.32",
     "responses>=0.25",
-    "ruff>=0.8,<0.9",
+    "ruff>=0.9",
     "scikit-learn>=1.6",
     "scipy>=1.15",
     "Shapely>=2",
@@ -150,8 +150,8 @@ pudl_service_territories = "pudl.analysis.service_territory:pudl_service_territo
 
 [project.optional-dependencies]
 dev = [
-    "dagster-webserver>=1.9.7",
-    "jupyterlab>4.1",
+    "dagster-webserver>=1.9",
+    "jupyterlab>4.3",
     "jupyter-lsp",
     "jupyterlab-lsp",
     "ruff-lsp",
@@ -346,7 +346,7 @@ nodejs = ">=20"
 pandoc = ">=2"
 pip = ">=24"
 prettier = ">=3.0"
-python = ">=3.12,<3.13"
+python = ">=3.12,<3.13.0a0"
 sqlite = ">=3.47"
 zip = ">=3.0"
 

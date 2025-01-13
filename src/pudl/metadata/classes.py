@@ -606,8 +606,7 @@ class Field(PudlMeta):
         dtype = info.data["type"]
         if dtype not in ["string", "integer"]:
             errors.append(
-                "Encoding only supported for string and integer fields, found "
-                f"{dtype}"
+                f"Encoding only supported for string and integer fields, found {dtype}"
             )
         if errors:
             raise ValueError(format_errors(*errors, pydantic=True))

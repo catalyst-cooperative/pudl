@@ -582,7 +582,7 @@ def add_backfilled_ba_code_column(df, by_cols: list[str]) -> pd.DataFrame:
     start_nas = len(df.loc[df.balancing_authority_code_eia.isnull()])
     logger.info(
         f"Started with {start_nas} missing BA Codes out of {start_len} "
-        f"records ({start_nas/start_len:.2%})"
+        f"records ({start_nas / start_len:.2%})"
     )
     ba_ids = (
         df[by_cols + ["balancing_authority_code_eia", "report_date"]]
@@ -606,7 +606,7 @@ def add_backfilled_ba_code_column(df, by_cols: list[str]) -> pd.DataFrame:
     )
     logger.info(
         f"Ended with {end_nas} missing BA Codes out of {end_len} "
-        f"records ({end_nas/end_len:.2%})"
+        f"records ({end_nas / end_len:.2%})"
     )
     return ba_eia861_filled
 
@@ -768,9 +768,9 @@ def _drop_dupes(df, df_name, subset):
     deduped_df = df.drop_duplicates(subset=subset)
     deduped_nrows = len(df)
     logger.info(
-        f"Dropped {tidy_nrows-deduped_nrows} duplicate records from EIA 861 "
+        f"Dropped {tidy_nrows - deduped_nrows} duplicate records from EIA 861 "
         f"{df_name} table, out of a total of {tidy_nrows} records "
-        f"({(tidy_nrows-deduped_nrows)/tidy_nrows:.4%} of all records). "
+        f"({(tidy_nrows - deduped_nrows) / tidy_nrows:.4%} of all records). "
     )
     return deduped_df
 

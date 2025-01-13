@@ -555,7 +555,7 @@ class MakeMegaGenTbl:
         )
 
         logger.info(
-            f"Labeled {len(gen_df.loc[~existing_mask])/len(gen_df):.02%} of "
+            f"Labeled {len(gen_df.loc[~existing_mask]) / len(gen_df):.02%} of "
             "generators as non-operative."
         )
         return gen_df
@@ -726,7 +726,9 @@ class MakePlantParts:
             )
         ]
 
-        assert double_df.empty, f"The following record ids have >1 faked part. Double-check these records or move them to the eia_ferc1_null.csv: {one_to_many.loc[one_to_many.gen_id.isin(orig_ids.record_id_eia), 'record_id_ferc1'].drop_duplicates().tolist()}"
+        assert double_df.empty, (
+            f"The following record ids have >1 faked part. Double-check these records or move them to the eia_ferc1_null.csv: {one_to_many.loc[one_to_many.gen_id.isin(orig_ids.record_id_eia), 'record_id_ferc1'].drop_duplicates().tolist()}"
+        )
 
         return pd.concat([plant_parts_eia, part_df])
 
