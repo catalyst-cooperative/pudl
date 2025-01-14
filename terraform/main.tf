@@ -107,6 +107,69 @@ resource "google_storage_bucket_iam_binding" "binding" {
   ]
 }
 
+# Generate a random password for the mlflow db user
+resource "random_password" "mlflow_postgresql_password" {
+  length  = 16  # Adjust the password length as needed
+  special = true  # Include special characters
+  upper   = true  # Include uppercase letters
+  lower   = true  # Include lowercase letters
+  numeric  = true  # Include numbers
+}
+
+# Create secret to store mlflow db password
+resource "google_secret_manager_secret" "mlflow_postgresql_password_secret" {
+  secret_id = "mlflow-postgresql-password"
+  replication {
+    auto {}
+  }
+}
+
+# Create version of secret with mlflow password set
+resource "google_secret_manager_secret_version" "mlflow_postgresql_password_version" {
+  secret      = google_secret_manager_secret.mlflow_postgresql_password_secret.id
+  secret_data = random_password.mlflow_postgresql_password.result
+}
+
+# Create mlflow postgresql instance for backend storage
+resource "google_sql_database_instance" "mlflow_backend_store" {
+  name             = "mlflow-backend-store"
+  region           = "us-central1"
+  database_version = "POSTGRES_14"
+  settings {
+    tier = "db-f1-micro"
+    password_validation_policy {
+      min_length                  = 6
+      reuse_interval              = 2
+      complexity                  = "COMPLEXITY_DEFAULT"
+      disallow_username_substring = true
+      password_change_interval    = "30s"
+      enable_password_policy      = true
+    }
+
+  }
+  # set `deletion_protection` to true, will ensure that one cannot accidentally delete this instance by
+  # use of Terraform whereas `deletion_protection_enabled` flag protects this instance at the GCP level.
+  deletion_protection = true
+}
+
+resource "google_storage_bucket" "pudl_models_outputs" {
+  name          = "model-outputs.catalyst.coop"
+  location      = "US"
+  storage_class = "STANDARD"
+}
+
+resource "google_sql_user" "mlflow_postgresql_user" {
+  name     = "postgres"
+  instance = google_sql_database_instance.mlflow_backend_store.name
+  password = random_password.mlflow_postgresql_password.result
+}
+
+# Optional: Create a database in the PostgreSQL instance
+resource "google_sql_database" "mlflow_postgresql_database" {
+  name     = "mlflow"
+  instance = google_sql_database_instance.mlflow_backend_store.name
+}
+
 resource "google_artifact_registry_repository" "pudl-superset-repo" {
   location      = "us-central1"
   repository_id = "pudl-superset"
