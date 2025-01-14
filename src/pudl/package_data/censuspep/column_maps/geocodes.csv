@@ -1,0 +1,8 @@
+year_index,2023
+fips_level,summary_level
+state_id_fips,state_fips_code
+county_id_fips,county_fips_code
+county_subdivision_fips,county_subdivision_fips_code
+place_fips,place_fips_code
+consolidated_city_fips,consolidated_city_fips_code
+area_name,area_name

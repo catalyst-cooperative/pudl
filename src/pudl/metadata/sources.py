@@ -31,7 +31,7 @@ SOURCES: dict[str, Any] = {
             "Reference files for Federal Information Processing Series (FIPS) Geographic Codes. "
             "These FIPS Codes are a subset of a broader Population Estimates dataset."
         ),
-        "working_partitions": {"years": sorted(set(range(2011, 2024)))},
+        "working_partitions": {"years": [2023]},
         "keywords": sorted(
             {
                 "fips",
