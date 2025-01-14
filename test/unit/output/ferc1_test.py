@@ -37,8 +37,6 @@ logger = logging.getLogger(__name__)
 
 
 class TestForestSetup:
-    """Base class for forest testing."""
-
     def _exploded_calcs_from_edges(self, edges: list[tuple[NodeId, NodeId]]):
         records = []
         for parent, child in edges:
@@ -86,10 +84,8 @@ class TestForestSetup:
         return annotated_tags
 
 
-class TestPrunnedNode(TestForestSetup):
-    @pytest.fixture(autouse=True)
-    def setup_nodes(self):
-        """Setup nodes for testing."""
+class TestPrunedNode(TestForestSetup):
+    def setup_method(self):
         self.root = NodeId(
             table_name="table_1",
             xbrl_factoid="reported_1",
@@ -120,7 +116,6 @@ class TestPrunnedNode(TestForestSetup):
         )
 
     def test_pruned_nodes(self):
-        """Test pruned nodes."""
         edges = [(self.root, self.root_child), (self.root_other, self.root_other_child)]
         tags = pd.DataFrame(columns=list(NodeId._fields)).convert_dtypes()
         forest = XbrlCalculationForestFerc1(
@@ -133,11 +128,7 @@ class TestPrunnedNode(TestForestSetup):
 
 
 class TestTagPropagation(TestForestSetup):
-    """Test tag propagation functionality."""
-
-    @pytest.fixture(autouse=True)
-    def setup_nodes(self):
-        """Setup nodes for testing."""
+    def setup_method(self):
         self.parent = NodeId(
             table_name="table_1",
             xbrl_factoid="reported_1",
@@ -189,7 +180,6 @@ class TestTagPropagation(TestForestSetup):
         )
 
     def test_leafward_prop_undecided_children(self):
-        """Test leadward propagation with undecided children."""
         edges = [(self.parent, self.child1), (self.parent, self.child2)]
         tags = pd.DataFrame([self.parent, self.child1, self.child2]).assign(
             in_rate_base=["yes", pd.NA, pd.NA]
@@ -374,7 +364,6 @@ class TestTagPropagation(TestForestSetup):
 
 
 def test_get_core_ferc1_asset_description():
-    """Test core FERC1 asset description extraction."""
     valid_core_ferc1_asset_name = "core_ferc1__yearly_income_statements_sched114"
     valid_core_ferc1_asset_name_result = get_core_ferc1_asset_description(
         valid_core_ferc1_asset_name
