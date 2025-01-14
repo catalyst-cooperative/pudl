@@ -232,15 +232,15 @@ class TestZenodoFetcher:
         zf = datastore.ZenodoFetcher()
         assert zf.get_known_datasets()
         for dataset, doi in zf.zenodo_dois:
-            assert (
-                zf.get_doi(dataset) == doi
-            ), f"Zenodo DOI for {dataset} matches result of get_doi()"
-            assert not re.fullmatch(
-                r"10\.5072/zenodo\.[0-9]{5,10}", doi
-            ), f"Zenodo sandbox DOI found for {dataset}: {doi}"
-            assert re.fullmatch(
-                r"10\.5281/zenodo\.[0-9]{5,10}", doi
-            ), f"Zenodo production DOI for {dataset} is {doi}"
+            assert zf.get_doi(dataset) == doi, (
+                f"Zenodo DOI for {dataset} matches result of get_doi()"
+            )
+            assert not re.fullmatch(r"10\.5072/zenodo\.[0-9]{5,10}", doi), (
+                f"Zenodo sandbox DOI found for {dataset}: {doi}"
+            )
+            assert re.fullmatch(r"10\.5281/zenodo\.[0-9]{5,10}", doi), (
+                f"Zenodo production DOI for {dataset} is {doi}"
+            )
 
     def test_get_known_datasets(self):
         """Call to get_known_datasets() produces the expected results."""
