@@ -187,13 +187,13 @@ class ZenodoDoiSettings(BaseSettings):
     """Digital Object Identifiers pointing to currently used Zenodo archives."""
 
     censusdp1tract: ZenodoDoi = "10.5281/zenodo.4127049"
-    eia176: ZenodoDoi = "10.5281/zenodo.10607843"
+    eia176: ZenodoDoi = "10.5281/zenodo.14589676"
     eia191: ZenodoDoi = "10.5281/zenodo.10607837"
     eia757a: ZenodoDoi = "10.5281/zenodo.10607839"
     eia860: ZenodoDoi = "10.5281/zenodo.13682785"
     eia860m: ZenodoDoi = "10.5281/zenodo.14026426"
     eia861: ZenodoDoi = "10.5281/zenodo.13907096"
-    eia923: ZenodoDoi = "10.5281/zenodo.13884405"
+    eia923: ZenodoDoi = "10.5281/zenodo.13922907"
     eia930: ZenodoDoi = "10.5281/zenodo.14026427"
     eiawater: ZenodoDoi = "10.5281/zenodo.10806016"
     eiaaeo: ZenodoDoi = "10.5281/zenodo.10838488"
@@ -460,7 +460,7 @@ def print_partitions(dstore: Datastore, datasets: list[str]) -> None:
                 parts = sorted(partitions[partition_key])
             except TypeError:
                 parts = partitions[partition_key]
-            print(f'  {partition_key}: {", ".join(str(x) for x in parts)}')
+            print(f"  {partition_key}: {', '.join(str(x) for x in parts)}")
         if not partitions:
             print("  -- no known partitions --")
 

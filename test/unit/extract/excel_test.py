@@ -53,7 +53,7 @@ class FakeExtractor(excel.ExcelExtractor):
 
     def load_source(self, page, **partition):
         """Returns fake file contents for given page and partition."""
-        page_name = f'{page}-{partition["year"]}'
+        page_name = f"{page}-{partition['year']}"
         return _fake_data_frames(page_name)
 
 

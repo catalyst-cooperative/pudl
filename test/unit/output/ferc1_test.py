@@ -410,8 +410,8 @@ report_year,utility_id_ferc1,xbrl_factoid,cool_tag_col,ending_balance
 report_year,utility_id_ferc1,xbrl_factoid,cool_tag_col,ending_balance,is_disaggregated_cool_tag_col
 2010,13,cool_factor,coolest,{coolest},False
 2010,13,cool_factor,cooler,{cooler},False
-2010,13,pal_scale,cooler,{total*(cooler/cool_factor_total)},True
-2010,13,pal_scale,coolest,{total*(coolest/cool_factor_total)},True
+2010,13,pal_scale,cooler,{total * (cooler / cool_factor_total)},True
+2010,13,pal_scale,coolest,{total * (coolest / cool_factor_total)},True
 """
         ),
     ).convert_dtypes()

@@ -9,15 +9,61 @@ v2024.XX.x (2024-MM-DD)
 New Data Coverage
 ^^^^^^^^^^^^^^^^^
 
+EIA 176
+~~~~~~~
+* Add a couple of semi-transformed interim EIA-176 (natural gas sources and
+  dispositions) tables. They aren't yet being written to the database, but are one step
+  closer. See :issue:`3555` and PRs :pr:`3590,3978`. Thanks to :user:`davidmudrauskas`
+  for moving this dataset forward.
+* Extracted these interim tables up through the latest 2023 data release. See
+  :issue:`4002` and :pr:`4004`.
+
+Bug Fixes
+^^^^^^^^^
+
+* Fix an accidentally swapped set of starting balance / ending balance column rename
+  parameters in the pre-2021 DBF derived data that feeds into
+  :ref:`core_ferc1__yearly_other_regulatory_liabilities_sched278`. See issue
+  :issue:`3952` and PRs :pr:`3969,3979`. Thanks to :user:`yolandazzz13` for making
+  this fix.
+* Added preliminary data validation checks for several FERC 1 tables that were
+  missing it :pr:`3860`.
+
+Major Dependency Updates
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. _release-v2024.11.0:
+
+---------------------------------------------------------------------------------------
+v2024.11.0 (2024-11-14)
+---------------------------------------------------------------------------------------
+
+PUDL v2024.11.0 is a regularly scheduled quarterly release, incorporating a few updates
+to the following datasets that have come out since the special release we did in
+October.
+
+New Data Coverage
+^^^^^^^^^^^^^^^^^
+
 EIA 930
 ~~~~~~~
 * Added EIA 930 hourly data through the end of October as part of the Q3 quarterly
   release. See :issue:`3942` and :pr:`3946`.
 
+EIA 923
+~~~~~~~
+* Added EIA 923 data from August 2024 as part of the Q3 quarterly release.
+  See :issue:`3941` and PR :pr:`3950`.
+
 EIA 860M
 ~~~~~~~~
 * Added 2024 EIA 860m data from August, September, and October as part of the Q3
   quarterly release. See :issue:`3940` and PR :pr:`3949`.
+
+EIA 861
+~~~~~~~
+
+* Added final release EIA 861 data. See :issue:`3905` and PR :pr:`3911`.
 
 EIA Bulk Electricity Data
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -27,6 +73,18 @@ EIA Bulk Electricity Data
 EPA CEMS
 ~~~~~~~~
 * Added 2024 Q3 of CEMS data. See :issue:`3943` and :pr:`3948`.
+
+Record Linkage
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+* Updated the ``splink`` FERC to EIA development notebook to be compatible with
+  the latest version of ``splink``. This notebook is not run in production but
+  is helpful for visualizing model weights and what is happening under the hood.
+* Updated ``pudl.analysis.record_linkage.name_cleaner`` company name cleaning
+  module to be more efficient by removing all ``.apply`` and instead use
+  ``pd.Series.replace`` to make regex replacement rules vectorized. Also removed
+  some of the allowed replacement rules to make the cleaner simpler and more
+  effective. This module runs approximately 3x faster now when cleaning a
+  string Series.
 
 .. _release-v2024.10.0:
 

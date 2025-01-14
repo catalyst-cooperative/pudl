@@ -5,37 +5,33 @@ import json
 import logging
 import re
 from importlib.resources import files
-from typing import Literal
+from typing import Self
 
 import pandas as pd
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, model_validator
 
 logger = logging.getLogger(__name__)
 
 CLEANING_RULES_DICT = {
     "remove_email": [" ", r"\S*@\S*\s?"],
     "remove_url": [" ", r"https*\S+"],
-    "remove_word_the_from_the_end": [" ", r"the$"],
-    "remove_word_the_from_the_beginning": [" ", r"^the"],
-    "place_word_the_at_the_beginning": [" ", r"the$"],
+    "remove_word_the_from_the_end": ["", r"\s+the$"],
+    "remove_word_the_from_the_beginning": ["", r"^the\s+"],
     "remove_www_address": [" ", r"https?://[.\w]{3,}|www.[.\w]{3,}"],
     "enforce_single_space_between_words": [" ", r"\s+"],
-    "replace_amperstand_by_AND": [" and ", r"&"],
-    "add_space_between_amperstand": [" & ", r"&"],
+    "replace_ampersand_by_AND": [" and ", r"\s*&\s*"],
+    "add_space_between_ampersand": [" & ", r"&"],
     "add_space_before_opening_parentheses": [" (", r"\("],
     "add_space_after_closing_parentheses": [") ", r"\)"],
-    "replace_amperstand_between_space_by_AND": [" and ", r"\s+&\s+"],
-    "replace_hyphen_by_space": [" ", r"-"],
-    "replace_hyphen_between_spaces_by_single_space": [" ", r"\s+-\s+"],
-    "replace_underscore_by_space": [" ", r"_"],
-    "replace_underscore_between_spaces_by_single_space": [" ", r"\s+_\s+"],
+    "replace_hyphen_by_space": [" ", r"\s*-\s*"],
+    "replace_underscore_by_space": [" ", r"\s*_\s*"],
     "remove_all_punctuation": [" ", r"([^\w\s])"],
     "remove_punctuation_except_dot": [" ", r"([^\w\s.])"],
     "remove_mentions": [" ", r"@\S+"],
     "remove_hashtags": [" ", r"#\S+"],
     "remove_numbers": [" ", r"\w*\d+\w*"],
-    "remove_text_puctuation": [" ", r'\;|\:|\,|\.|\?|\!|"'],
-    "remove_text_puctuation_except_dot": [" ", r'\;|\:|\,|\?|\!|"'],
+    "remove_text_punctuation": ["", r'\;|\:|\,|\.|\?|\!|"|\''],
+    "remove_text_punctuation_except_dot": ["", r'\;|\:|\,|\?|\!|"\''],
     "remove_math_symbols": [" ", r"\+|\-|\*|\>|\<|\=|\%"],
     "remove_math_symbols_except_dash": [" ", r"\+|\*|\>|\<|\=|\%"],
     "remove_parentheses": ["", r"\(|\)"],
@@ -48,6 +44,24 @@ CLEANING_RULES_DICT = {
     "repeat_remove_words_in_parentheses": [" ", r"remove_words_in_parentheses"],
 }
 
+DEFAULT_CLEANING_RULES_LIST = [
+    "remove_word_the_from_the_end",
+    "remove_word_the_from_the_beginning",
+    "replace_ampersand_by_AND",
+    "replace_hyphen_by_space",
+    "replace_underscore_by_space",
+    "remove_all_punctuation",
+    "remove_numbers",
+    "remove_math_symbols",
+    "remove_words_in_parentheses",
+    "remove_parentheses",
+    "remove_brackets",
+    "remove_curly_brackets",
+    "enforce_single_space_between_words",
+]
+NAME_LEGAL_TERMS_DICT_FILE = "us_legal_forms.json"
+NAME_JSON_ENTRY_LEGAL_TERMS = "legal_forms"
+
 
 class LegalTermLocation(enum.Enum):
     """The location of the legal terms within the name string."""
@@ -56,69 +70,114 @@ class LegalTermLocation(enum.Enum):
     ANYWHERE = 2
 
 
+class Lettercase(enum.Enum):
+    """Allowed cases for output strings."""
+
+    LOWER = 1
+    TITLE = 2
+    UPPER = 3
+
+
+class HandleLegalTerms(enum.Enum):
+    """Whether to leave, remove, or normalize legal terms."""
+
+    NORMALIZE = 3
+    LEAVE_AS_IS = 1
+    REMOVE = 2
+
+
+def _get_legal_terms_dict() -> dict[str, list]:
+    json_source = files("pudl.package_data.settings").joinpath(
+        NAME_LEGAL_TERMS_DICT_FILE
+    )
+    with json_source.open() as json_file:
+        legal_terms_dict = json.load(json_file)[NAME_JSON_ENTRY_LEGAL_TERMS]["en"]
+    return legal_terms_dict
+
+
 class CompanyNameCleaner(BaseModel):
     """Class to normalize/clean up text based company names."""
 
-    # Constants used internally by the class
-    __NAME_LEGAL_TERMS_DICT_FILE = "us_legal_forms.json"
-    __NAME_JSON_ENTRY_LEGAL_TERMS = "legal_forms"
+    cleaning_rules_list: list[str] = DEFAULT_CLEANING_RULES_LIST
+    """A list of cleaning rules that the CompanyNameCleaner should apply.
 
-    #: A flag to indicate if the cleaning process must normalize
-    #: text's legal terms. e.g. LTD => LIMITED.
-    cleaning_rules_list: list[str] = [
-        "remove_word_the_from_the_end",
-        "remove_word_the_from_the_beginning",
-        "replace_amperstand_between_space_by_AND",
-        "replace_hyphen_by_space",
-        "replace_hyphen_between_spaces_by_single_space",
-        "replace_underscore_by_space",
-        "replace_underscore_between_spaces_by_single_space",
-        "remove_all_punctuation",
-        "remove_numbers",
-        "remove_math_symbols",
-        "remove_words_in_parentheses",
-        "remove_parentheses",
-        "remove_brackets",
-        "remove_curly_brackets",
-        "enforce_single_space_between_words",
-    ]
+    Will be validated to ensure rules comply to allowed cleaning functions.
+    """
+    handle_legal_terms: HandleLegalTerms = HandleLegalTerms.NORMALIZE
+    """A flag to indicate how to habndle legal terms.
 
-    #: A flag to indicate if the cleaning process must normalize
-    normalize_legal_terms: bool = True
+    Options are to remove, normalize, or keep them as is.
+    """
+    place_word_the_at_beginning: bool = False
+    """A flag to indicate whether to move 'the' to the start of a string.
 
-    #: Define if unicode characters should be removed from text's name
-    #: This cleaning rule is treated separated from the regex rules because it depends on the
-    #: language of the text's name. For instance, russian or japanese text's may contain
-    #: unicode characters, while portuguese and french companies may not.
+    If True, then if the word 'the' appears at the end of a string,
+    remove it and place 'the' at the beginning of the string.
+    """
     remove_unicode: bool = False
+    """Define if unicode characters should be removed from text's name.
 
-    #: Define the letter case of the cleaning output
-    output_lettercase: Literal["lower", "title"] = "lower"
-
-    #: Where in the string are legal terms found
+    This cleaning rule is treated separated from the regex rules because it
+    depends on the language of the text's name. For instance, Russian or
+    Japanese text's may contain unicode characters, while Portuguese and
+    French companies may not.
+    """
+    output_lettercase: Lettercase = Lettercase.LOWER
+    """Define the letter case of the cleaning output."""
     legal_term_location: LegalTermLocation = LegalTermLocation.AT_THE_END
-
-    #: Define if the letters with accents are replaced with non-accented ones
+    """Indicates where in the string legal terms are found."""
     remove_accents: bool = False
+    """Flag to indicate whether to remove accents from strings.
+
+    If True, replace letters with accents with non-accented ones.
+    """
+    legal_terms_dict: dict[str, list] = Field(default_factory=_get_legal_terms_dict)
+
+    @model_validator(mode="after")
+    def _validate_cleaning_rules(self) -> Self:
+        cleaning_rules_list_valid = [
+            rule for rule in self.cleaning_rules_list if rule in CLEANING_RULES_DICT
+        ]
+        invalid_rules = set(self.cleaning_rules_list) - set(cleaning_rules_list_valid)
+        if len(invalid_rules) > 0:
+            logger.warning(
+                f"The following cleaning rules have not been implemented \
+                        in the CompanyNameCleaner class and will have no effect: \
+                        {invalid_rules}"
+            )
+        if ("remove_all_punctuation_except_dot" in cleaning_rules_list_valid) and (
+            "remove_all_punctuation" in cleaning_rules_list_valid
+        ):
+            cleaning_rules_list_valid.remove("remove_all_punctuation")
+        if ("remove_text_punctuation" in cleaning_rules_list_valid) and (
+            "remove_text_punctuation_except_dot" in cleaning_rules_list_valid
+        ):
+            cleaning_rules_list_valid.remove("remove_text_punctuation")
+        if ("remove_math_symbols" in cleaning_rules_list_valid) and (
+            "remove_math_symbols_except_dash" in cleaning_rules_list_valid
+        ):
+            cleaning_rules_list_valid.remove("remove_math_symbols")
+        self.cleaning_rules_list = cleaning_rules_list_valid
+        return self
 
     def _apply_regex_rules(
-        self, str_value: str, dict_regex_rules: dict[str, list[str]]
-    ) -> str:
+        self, col: pd.Series, dict_regex_rules: dict[str, list[str]]
+    ) -> pd.Series:
         r"""Applies several cleaning rules based on a custom dictionary.
 
         The dictionary must contain cleaning rules written in regex format.
 
         Arguments:
-            str_value (str): any value as string to be cleaned up.
+            col (pd.Series): The column that needs to be cleaned.
             dict_regex_rules (dict): a dictionary of cleaning rules writen in regex with the format
                 [rule name] : ['replacement', 'regex rule']
 
         Returns:
-            (str): the modified/cleaned value.
+            (pd.Series): the modified/cleaned column.
         """
-        clean_value = str_value
+        clean_col = col
         # Iterate through the dictionary and apply each regex rule
-        for name_rule, cleaning_rule in dict_regex_rules.items():
+        for _, cleaning_rule in dict_regex_rules.items():
             # First element is the replacement
             replacement = cleaning_rule[0]
             # Second element is the regex rule
@@ -133,61 +192,69 @@ class CompanyNameCleaner(BaseModel):
 
             # Make sure to use raw string
             regex_rule = rf"{regex_rule}"
-
-            # Treat the special case of the word THE at the end of a text's name
-            found_the_word_the = None
-            if name_rule == "place_word_the_at_the_beginning":
-                found_the_word_the = re.search(regex_rule, clean_value)
-
             # Apply the regex rule
-            clean_value = re.sub(regex_rule, replacement, clean_value)
+            clean_col = clean_col.str.replace(regex_rule, replacement, regex=True)
 
-            # Adjust the name for the case of rule <place_word_the_at_the_beginning>
-            if found_the_word_the is not None:
-                clean_value = "the " + clean_value
+        return clean_col
 
-        return clean_value
-
-    def _remove_unicode_chars(self, value: str) -> str:
-        """Removes unicode character that is unreadable when converted to ASCII format.
+    def _remove_unicode_chars(self, col: pd.Series) -> pd.Series:
+        """Removes unicode characters that are unreadable in ASCII format.
 
         Arguments:
-            value (str): any string containing unicode characters.
+            col (pd.Series): series containing unicode characters.
 
         Returns:
-            (str): the corresponding input string without unicode characters.
+            (pd.Series): the corresponding input series without unicode characters.
         """
-        # Remove all unicode characters if any
-        clean_value = value.encode("ascii", "ignore").decode()
-        return clean_value
+        return col.str.encode("ascii", "ignore").str.decode("ascii")
 
-    def _apply_cleaning_rules(self, company_name: str) -> str:
+    def _move_the_to_beginning(self, col: pd.Series) -> pd.Series:
+        remove_the_from_end_regex_rule = CLEANING_RULES_DICT[
+            "remove_word_the_from_the_end"
+        ][1]
+        remove_the_from_end_replacement = CLEANING_RULES_DICT[
+            "remove_word_the_from_the_end"
+        ][0]
+        # find matches with the at end
+        the_at_end_matches = col.str.contains(
+            remove_the_from_end_regex_rule, regex=True
+        )
+
+        # remove the from end of strings
+        clean_col = col.str.replace(
+            remove_the_from_end_regex_rule,
+            remove_the_from_end_replacement,
+            regex=True,
+        )
+        clean_col = clean_col.where(~the_at_end_matches, "the " + clean_col)
+        return clean_col
+
+    def _apply_cleaning_rules(self, col: pd.Series) -> pd.Series:
         """Apply the cleaning rules from the dictionary of regex rules."""
+        if self.place_word_the_at_beginning:
+            col = self._move_the_to_beginning(col)
+
         cleaning_dict = {}
         for rule_name in self.cleaning_rules_list:
             cleaning_dict[rule_name] = CLEANING_RULES_DICT[rule_name]
 
         # Apply all the cleaning rules
-        clean_company_name = self._apply_regex_rules(company_name, cleaning_dict)
-        return clean_company_name
-
-    def _apply_normalization_of_legal_terms(self, company_name: str) -> str:
-        """Apply the normalizattion of legal terms according to dictionary of regex rules."""
-        # Make sure to remove extra spaces, so legal terms can be found in the end (if requested)
-        clean_company_name = company_name.strip()
-
-        # The dictionary of legal terms define how to normalize the text's legal form abreviations
-        json_source = files("pudl.package_data.settings").joinpath(
-            self.__NAME_LEGAL_TERMS_DICT_FILE
+        clean_col = self._apply_regex_rules(col, cleaning_dict)
+        # Enforce single spaces again in case some where created
+        clean_col = clean_col.str.replace(
+            CLEANING_RULES_DICT["enforce_single_space_between_words"][1],
+            CLEANING_RULES_DICT["enforce_single_space_between_words"][0],
+            regex=True,
         )
-        with json_source.open() as json_file:
-            _dict_legal_terms = json.load(json_file)[
-                self.__NAME_JSON_ENTRY_LEGAL_TERMS
-            ]["en"]
+        return clean_col
 
+    def _apply_normalization_of_legal_terms(self, col: pd.Series) -> pd.Series:
+        """Apply the normalization of legal terms according to dictionary of regex rules."""
+        # Make sure to remove extra spaces, so legal terms can be found in the end (if requested)
+        clean_col = col.str.strip()
         # Apply normalization for legal terms
         # Iterate through the dictionary of legal terms
-        for replacement, legal_terms in _dict_legal_terms.items():
+        for replacement, legal_terms in self.legal_terms_dict.items():
             # Each replacement has a list of possible terms to be searched for
             replacement = " " + replacement.lower() + " "
             for legal_term in legal_terms:
@@ -206,55 +273,57 @@ class CompanyNameCleaner(BaseModel):
                 # ...and it's a raw string
                 regex_rule = rf"{legal_term}"
                 # Apply the replacement
-                clean_company_name = re.sub(regex_rule, replacement, clean_company_name)
-        return clean_company_name
+                clean_col = clean_col.str.replace(regex_rule, replacement, regex=True)
+        return clean_col
 
-    def get_clean_data(self, company_name: str) -> str:
-        """Clean a name and normalize legal terms.
+    def _apply_removal_of_legal_terms(self, col: pd.Series) -> pd.Series:
+        """Remove legal terms from a string."""
+        full_terms_list = list(self.legal_terms_dict.keys())
+        for key in self.legal_terms_dict:
+            full_terms_list += self.legal_terms_dict[key]
+            full_terms_list += [key]
+        clean_col = col.str.strip()
+        regex_rule = (
+            r"\b(?:" + "|".join(re.escape(word) for word in full_terms_list) + r")\b"
+        )
+        clean_col = clean_col.str.replace(regex_rule, "", regex=True)
+        clean_col = clean_col.str.strip()
+        # strip commas or other special chars that might be at the end of the name
+        clean_col = clean_col.str.strip(".,!?()':;[]* \n\t")
+        return clean_col
 
-        If ``company_name`` is null or not a string value, pd.NA
-        will be returned.
+    def get_clean_data(self, col: pd.Series) -> pd.Series:
+        """Clean names and normalize legal terms.
 
         Arguments:
-            company_name (str): the original text
+            col (pd.Series): the column that is to be cleaned
 
         Returns:
-            clean_company_name (str): the clean version of the text
+            clean_col (pd.Series): the clean version of the column
         """
-        if not isinstance(company_name, str):
-            if company_name is not pd.NA:
-                logger.warning(f"{company_name} is not a string.")
-            return pd.NA
+        # remove unicode characters
+        clean_col = self._remove_unicode_chars(col) if self.remove_unicode else col
 
-        # Remove all unicode characters in the text's name, if requested
-        if self.remove_unicode:
-            clean_company_name = self._remove_unicode_chars(company_name)
-        else:
-            clean_company_name = company_name
+        clean_col = clean_col.str.strip().str.lower()
+        clean_col = self._apply_cleaning_rules(clean_col)
 
-        # Remove space in the beginning and in the end and convert it to lower case
-        clean_company_name = clean_company_name.strip().lower()
-
-        # Apply all the cleaning rules
-        clean_company_name = self._apply_cleaning_rules(clean_company_name)
-
-        # Apply normalization for legal terms
-        if self.normalize_legal_terms:
-            clean_company_name = self._apply_normalization_of_legal_terms(
-                clean_company_name
-            )
+        # Handle legal terms
+        if self.handle_legal_terms == HandleLegalTerms.REMOVE:
+            clean_col = self._apply_removal_of_legal_terms(clean_col)
+        elif self.handle_legal_terms == HandleLegalTerms.NORMALIZE:
+            clean_col = self._apply_normalization_of_legal_terms(clean_col)
 
         # Apply the letter case, if different from 'lower'
-        if self.output_lettercase == "upper":
-            clean_company_name = clean_company_name.upper()
-        elif self.output_lettercase == "title":
-            clean_company_name = clean_company_name.title()
+        if self.output_lettercase == Lettercase.UPPER:
+            clean_col = clean_col.str.upper()
+        elif self.output_lettercase == Lettercase.TITLE:
+            clean_col = clean_col.str.title()
 
         # Remove excess of white space that might be introduced during previous cleaning
-        clean_company_name = clean_company_name.strip()
-        clean_company_name = re.sub(r"\s+", " ", clean_company_name)
+        clean_col = clean_col.str.strip()
+        clean_col = clean_col.str.replace(r"\s+", " ", regex=True)
 
-        return clean_company_name
+        return clean_col
 
     def apply_name_cleaning(
         self, df: pd.DataFrame, return_as_dframe: bool = False
@@ -275,10 +344,10 @@ class CompanyNameCleaner(BaseModel):
             clean_df = pd.DataFrame()
             for col in df.columns:
                 clean_df = pd.concat(
-                    [clean_df, df[col].apply(self.get_clean_data)], axis=1
+                    [clean_df, self.get_clean_data(clean_df[col])], axis=1
                 )
             return clean_df
-        out = df.squeeze().apply(self.get_clean_data)
+        out = self.get_clean_data(df.squeeze())
         if return_as_dframe:
             return out.to_frame()
         return out

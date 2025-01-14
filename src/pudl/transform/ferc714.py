@@ -362,7 +362,7 @@ def _filter_for_freshest_data_xbrl(
     into the raw instant or duration XBRL table name.
     """
     table_name_raw_xbrl = (
-        f"{TABLE_NAME_MAP_FERC714[table_name]["xbrl"]}_{instant_or_duration}"
+        f"{TABLE_NAME_MAP_FERC714[table_name]['xbrl']}_{instant_or_duration}"
     )
     xbrl = filter_for_freshest_data_xbrl(
         raw_xbrl,
@@ -1158,9 +1158,9 @@ class YearlyPlanningAreaDemandForecast:
         )
         df.loc[mask, "forecast_year"] = 2033
         # Make sure forecast_year values are expected
-        assert (
-            df["forecast_year"].isin(range(2021, 2100)).all()
-        ), "Forecast year values not in expected range"
+        assert df["forecast_year"].isin(range(2021, 2100)).all(), (
+            "Forecast year values not in expected range"
+        )
         return df
 
     @staticmethod
@@ -1210,9 +1210,9 @@ class YearlyPlanningAreaDemandForecast:
         )
         df = pd.concat([df[~dupe_mask], deduped_df])
         # Make sure no more rows were dropped than expected
-        assert (
-            original_len - len(df) <= 20
-        ), f"dropped {original_len - len(df)} rows, expected 20"
+        assert original_len - len(df) <= 20, (
+            f"dropped {original_len - len(df)} rows, expected 20"
+        )
         return df
 
 
@@ -1276,25 +1276,28 @@ check_specs = [
 ]
 
 
-def make_check(spec: Ferc714CheckSpec) -> AssetChecksDefinition:
+def make_row_num_check(spec: Ferc714CheckSpec) -> AssetChecksDefinition:
     """Turn the Ferc714CheckSpec into an actual Dagster asset check."""
 
-    @asset_check(asset=spec.asset, blocking=True)
-    def _check(df):
+    @asset_check(
+        asset=spec.asset, required_resource_keys={"dataset_settings"}, blocking=True
+    )
+    def _row_num_check(context, df):
         errors = []
-        for year, expected_rows in spec.num_rows_by_report_year.items():
+        for year in context.resources.dataset_settings.ferc714.years:
+            expected_rows = spec.num_rows_by_report_year[year]
             if (num_rows := len(df.loc[df.report_year == year])) != expected_rows:
                 errors.append(
                     f"Expected {expected_rows} for report year {year}, found {num_rows}"
                 )
-                logger.info(errors)
+        logger.warning(errors)
 
         if errors:
             return AssetCheckResult(passed=False, metadata={"errors": errors})
 
         return AssetCheckResult(passed=True)
 
-    return _check
+    return _row_num_check
 
 
-_checks = [make_check(spec) for spec in check_specs]
+_checks = [make_row_num_check(spec) for spec in check_specs]

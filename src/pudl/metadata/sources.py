@@ -47,7 +47,7 @@ SOURCES: dict[str, Any] = {
             "source_format": "Comma Separated Value (.csv)",
         },
         "field_namespace": "eia",
-        "working_partitions": {"years": sorted(set(range(1997, 2023)))},
+        "working_partitions": {"years": sorted(set(range(1997, 2024)))},
         "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
         "keywords": sorted(
             set(
@@ -206,8 +206,7 @@ SOURCES: dict[str, Any] = {
         "title": "EIA Form 861 -- Annual Electric Power Industry Report",
         "path": "https://www.eia.gov/electricity/data/eia861",
         "description": (
-            "EIA Form 861 Annual Electric Power Industry Report, detailed "
-            "data files."
+            "EIA Form 861 Annual Electric Power Industry Report, detailed data files."
         ),
         "field_namespace": "eia",
         "working_partitions": {
