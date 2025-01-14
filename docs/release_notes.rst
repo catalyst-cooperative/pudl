@@ -32,6 +32,15 @@ Bug Fixes
 Major Dependency Updates
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
+Quality of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+* We added a ``sources`` parameter to ``pudl.metadata.classes.DataSource.from_id()``
+  in order to make it possible to use the `pudl-archiver
+  <https://www.github.com/catalyst-cooperative/pudl-archiver>`__ repository to
+  archive datasets that won't necessarily be ingested into PUDL. See `this PUDL archiver
+  issue <https://github.com/catalyst-cooperative/pudl-archiver/pull/506>`__ and PRs
+  :pr:`4003` and :pr:`4013`.
+
 .. _release-v2024.11.0:
 
 ---------------------------------------------------------------------------------------
