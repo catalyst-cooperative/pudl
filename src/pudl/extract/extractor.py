@@ -396,9 +396,9 @@ def partitions_from_settings_factory(name: str) -> OpDefinition:
                 for date_partition in ["years", "half_years", "year_quarters"]
             )
         ]
-        assert (
-            len(partition) == 1
-        ), f"Only one working partition is supported: {partition}."
+        assert len(partition) == 1, (
+            f"Only one working partition is supported: {partition}."
+        )
         partition = partition[0]
         parts = getattr(data_settings, partition)  # Get the actual values
         # In Zenodo we use "year", "half_year" as the partition, but in our settings

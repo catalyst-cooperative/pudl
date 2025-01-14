@@ -1041,7 +1041,7 @@ def _allocate_unassociated_pm_records(
     )
     logger.info(
         f"Associating and allocating {len(eia_generators_unassociated)} "
-        f"({len(eia_generators_unassociated)/len(gen_assoc):.1%}) records with "
+        f"({len(eia_generators_unassociated) / len(gen_assoc):.1%}) records with "
         f"unexpected {col_w_unexpected_codes}."
     )
 
@@ -1579,7 +1579,7 @@ def distribute_annually_reported_data_to_months_if_annual(
         ]
 
         logger.info(
-            f"Distributing {len(annual_reporters)/len(reporters):.1%} annually reported"
+            f"Distributing {len(annual_reporters) / len(reporters):.1%} annually reported"
             " records to months."
         )
         # first convert the december month to january bc expand_timeseries expands from
@@ -1965,7 +1965,7 @@ def _test_gen_pm_fuel_output(
         & (gen_pm_fuel_test.net_generation_mwh_diff.notnull())
     ]
     logger.info(
-        f"{len(bad_diff)/len(gen_pm_fuel):.03%} of records have are partially "
+        f"{len(bad_diff) / len(gen_pm_fuel):.03%} of records have are partially "
         "off from their 'IDX_PM_ESC' group"
     )
     no_cap_gen = gen_pm_fuel_test[
@@ -1978,11 +1978,11 @@ def _test_gen_pm_fuel_output(
     fuel_net_gen = gf[gf.plant_id_eia != "99999"].net_generation_mwh.sum()
     logger.info(
         "gen v fuel table net gen diff:      "
-        f"{(gen.net_generation_mwh.sum())/fuel_net_gen:.1%}"
+        f"{(gen.net_generation_mwh.sum()) / fuel_net_gen:.1%}"
     )
     logger.info(
         "new v fuel table net gen diff:      "
-        f"{(gen_pm_fuel_test.net_generation_mwh.sum())/fuel_net_gen:.1%}"
+        f"{(gen_pm_fuel_test.net_generation_mwh.sum()) / fuel_net_gen:.1%}"
     )
 
     gen_pm_fuel_test = gen_pm_fuel_test.drop(
