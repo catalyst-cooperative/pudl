@@ -1045,16 +1045,16 @@ class DataSource(PudlMeta):
         ]
 
     @staticmethod
-    def dict_from_id(x: str, sources: dict[str, Any] = SOURCES) -> dict:
+    def dict_from_id(x: str, sources: dict[str, Any]) -> dict:
         """Look up the source by source name in the metadata."""
         # If ID ends with _xbrl strip end to find data source
         lookup_id = x.replace("_xbrl", "")
         return {"name": x, **copy.deepcopy(sources[lookup_id])}
 
     @classmethod
-    def from_id(cls, x: str) -> "DataSource":
+    def from_id(cls, x: str, sources: dict[str, Any] = SOURCES) -> "DataSource":
         """Construct Source by source name in the metadata."""
-        return cls(**cls.dict_from_id(x))
+        return cls(**cls.dict_from_id(x, sources=sources))
 
 
 class ResourceHarvest(PudlMeta):
