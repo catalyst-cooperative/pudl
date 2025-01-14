@@ -36,6 +36,9 @@ SOURCES: dict[str, Any] = {
             {
                 "fips",
                 "census",
+                "county",
+                "state",
+                "geography",
             }
         ),
         "license_raw": LICENSES["us-govt"],
