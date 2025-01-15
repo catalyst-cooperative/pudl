@@ -1039,7 +1039,7 @@ class DataSource(PudlMeta):
     ) -> list["DataSource"]:
         """Return list of DataSource objects by field namespace."""
         return [
-            cls(**cls.dict_from_id(name))
+            cls(**cls.dict_from_id(name, sources))
             for name, val in sources.items()
             if val.get("field_namespace") == x
         ]
