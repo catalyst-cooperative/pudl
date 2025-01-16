@@ -572,6 +572,19 @@ class Field(PudlMeta):
     harvest: FieldHarvest = FieldHarvest()
     encoder: Encoder | None = None
 
+    @classmethod
+    def from_pyarrow_field(cls, field: pa.Field) -> "Field":
+        """Construct from pyarrow field."""
+        # Reverse map from frictionless -> pyarrow to pyarrow -> frictionless
+        type_map = {
+            value: key for value, key in FIELD_DTYPES_PYARROW.items() if key != "year"
+        } | {pa.int64(): "integer"}
+        return cls(
+            name=field.name,
+            type=type_map[field.type],
+            description=field.metadata[b"description"].decode(),
+        )
+
     @field_validator("constraints")
     @classmethod
     def _check_constraints(cls, value, info: ValidationInfo):  # noqa: C901
@@ -793,6 +806,15 @@ class Schema(PudlMeta):
     _check_unique = _validator(
         "missing_values", "primary_key", "foreign_keys", fn=_check_unique
     )
+
+    @classmethod
+    def from_pyarrow_schema(cls, schema: pa.Schema) -> "Schema":
+        """Construct from a pyarrow schema."""
+        return cls(
+            fields=[
+                Field.from_pyarrow_field(schema.field(name)) for name in schema.names
+            ]
+        )
 
     @field_validator("fields")
     @classmethod
@@ -1447,6 +1469,17 @@ class Resource(PudlMeta):
     def from_id(cls, x: str) -> "Resource":
         """Construct from PUDL identifier (`resource.name`)."""
         return cls(**cls.dict_from_id(x))
+
+    @classmethod
+    def from_pyarrow_schema(
+        cls, name: str, description: str, schema: pa.Schema
+    ) -> "Resource":
+        """Construct from a pyarrow schema."""
+        return cls(
+            name=name,
+            description=description,
+            schema=Schema.from_pyarrow_schema(schema),
+        )
 
     def get_field(self, name: str) -> Field:
         """Return field with the given name if it's part of the Resources."""
