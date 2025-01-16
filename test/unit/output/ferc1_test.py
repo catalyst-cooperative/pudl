@@ -19,7 +19,6 @@ Stuff we are testing:
 """
 
 import logging
-import unittest
 from io import StringIO
 
 import networkx as nx
@@ -37,11 +36,7 @@ from pudl.output.ferc1 import (
 logger = logging.getLogger(__name__)
 
 
-class TestForestSetup(unittest.TestCase):
-    def setUp(self):
-        # this is where you add nodes you want to use
-        pass
-
+class TestForestSetup:
     def _exploded_calcs_from_edges(self, edges: list[tuple[NodeId, NodeId]]):
         records = []
         for parent, child in edges:
@@ -89,8 +84,8 @@ class TestForestSetup(unittest.TestCase):
         return annotated_tags
 
 
-class TestPrunnedNode(TestForestSetup):
-    def setUp(self):
+class TestPrunedNode(TestForestSetup):
+    def setup_method(self):
         self.root = NodeId(
             table_name="table_1",
             xbrl_factoid="reported_1",
@@ -133,7 +128,7 @@ class TestPrunnedNode(TestForestSetup):
 
 
 class TestTagPropagation(TestForestSetup):
-    def setUp(self):
+    def setup_method(self):
         self.parent = NodeId(
             table_name="table_1",
             xbrl_factoid="reported_1",
