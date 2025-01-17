@@ -967,14 +967,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "date",
         "description": "The most recently updated effective date on which the generator is scheduled to start operation",
     },
-    "current_planned_generator_operating_month": {
-        "type": "integer",
-        "description": "The most recently updated effective month on which the generator is scheduled to start operation",
-    },
-    "current_planned_generator_operating_year": {
-        "type": "integer",
-        "description": "The most recently updated effective year on which the generator is scheduled to start operation",
-    },
     "customer_class": {
         "type": "string",
         "description": f"High level categorization of customer type: {CUSTOMER_CLASSES}.",

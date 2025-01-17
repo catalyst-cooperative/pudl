@@ -510,6 +510,7 @@ def _core_eia860__generators_multifuel(
         )
         .replace(to_replace=nulls_replace_cols)
         .pipe(pudl.helpers.month_year_to_date)
+        .pipe(pudl.helpers.convert_to_date)
         .pipe(PUDL_PACKAGE.encode)
     )
 
@@ -535,6 +536,15 @@ def _core_eia860__generators_multifuel(
         )
     )
 
+    # There are some pesky duplicate rows from the plant_id 56032 gen_id 1
+    # The rows are almost identical, so this gets rid of the duplicates.
+    # It only drops known duplicates from 56032 so we can spot any other
+    # irregularities in the future.
+    dupe_pk_rows_to_drop = multifuel_df[
+        multifuel_df[["report_date", "plant_id_eia", "generator_id"]].duplicated()
+        & (multifuel_df["plant_id_eia"] == 56032)
+    ]
+    multifuel_df = multifuel_df.drop(dupe_pk_rows_to_drop.index)
     return multifuel_df
 
 

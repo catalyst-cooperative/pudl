@@ -913,6 +913,7 @@ system IDs."""
         ),
         "schema": {
             "fields": [
+                "report_date",
                 "utility_id_eia",
                 "utility_name_eia",
                 "plant_id_eia",
@@ -928,8 +929,7 @@ system IDs."""
                 "capacity_mw",
                 "summer_capacity_mw",
                 "winter_capacity_mw",
-                "current_planned_generator_operating_month",
-                "current_planned_generator_operating_year",
+                "current_planned_generator_operating_date",
                 "energy_source_code_1",
                 "energy_source_code_2",
                 "multiple_fuels",
@@ -965,6 +965,7 @@ system IDs."""
                 "fuel_switch_energy_source_6",
             ],
             "primary_key": [
+                "report_date",
                 "utility_id_eia",
                 "generator_id",
                 "plant_id_eia",
