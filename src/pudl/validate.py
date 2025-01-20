@@ -93,7 +93,7 @@ def check_date_freq(df1: pd.DataFrame, df2: pd.DataFrame, mult: int) -> None:
     if mult * n1 != n2:
         raise AssertionError(
             f"Expected ratio of distinct report_date values to be {mult}, "
-            f"but found {n2} / {n1} = {n2/n1}"
+            f"but found {n2} / {n1} = {n2 / n1}"
         )
 
 

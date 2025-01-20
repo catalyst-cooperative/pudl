@@ -13,11 +13,37 @@ EIA 860
 ~~~~~~~
 * Added EIA 860 Multifuel data. See :issue:`3438` and :pr:`3946`.
 
+EIA 176
+~~~~~~~
+* Add a couple of semi-transformed interim EIA-176 (natural gas sources and
+  dispositions) tables. They aren't yet being written to the database, but are one step
+  closer. See :issue:`3555` and PRs :pr:`3590,3978`. Thanks to :user:`davidmudrauskas`
+  for moving this dataset forward.
+* Extracted these interim tables up through the latest 2023 data release. See
+  :issue:`4002` and :pr:`4004`.
+
 Bug Fixes
 ^^^^^^^^^
 
+* Fix an accidentally swapped set of starting balance / ending balance column rename
+  parameters in the pre-2021 DBF derived data that feeds into
+  :ref:`core_ferc1__yearly_other_regulatory_liabilities_sched278`. See issue
+  :issue:`3952` and PRs :pr:`3969,3979`. Thanks to :user:`yolandazzz13` for making
+  this fix.
+* Added preliminary data validation checks for several FERC 1 tables that were
+  missing it :pr:`3860`.
+
 Major Dependency Updates
 ^^^^^^^^^^^^^^^^^^^^^^^^
+
+Quality of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+* We added a ``sources`` parameter to ``pudl.metadata.classes.DataSource.from_id()``
+  in order to make it possible to use the `pudl-archiver
+  <https://www.github.com/catalyst-cooperative/pudl-archiver>`__ repository to
+  archive datasets that won't necessarily be ingested into PUDL. See `this PUDL archiver
+  issue <https://github.com/catalyst-cooperative/pudl-archiver/pull/506>`__ and PRs
+  :pr:`4003` and :pr:`4013`.
 
 .. _release-v2024.11.0:
 
@@ -60,6 +86,18 @@ EIA Bulk Electricity Data
 EPA CEMS
 ~~~~~~~~
 * Added 2024 Q3 of CEMS data. See :issue:`3943` and :pr:`3948`.
+
+Record Linkage
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+* Updated the ``splink`` FERC to EIA development notebook to be compatible with
+  the latest version of ``splink``. This notebook is not run in production but
+  is helpful for visualizing model weights and what is happening under the hood.
+* Updated ``pudl.analysis.record_linkage.name_cleaner`` company name cleaning
+  module to be more efficient by removing all ``.apply`` and instead use
+  ``pd.Series.replace`` to make regex replacement rules vectorized. Also removed
+  some of the allowed replacement rules to make the cleaner simpler and more
+  effective. This module runs approximately 3x faster now when cleaning a
+  string Series.
 
 .. _release-v2024.10.0:
 

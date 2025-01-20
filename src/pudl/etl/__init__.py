@@ -34,8 +34,6 @@ from pudl.resources import dataset_settings, datastore, ferc_to_sqlite_settings
 from pudl.settings import EtlSettings
 
 from . import (
-    check_foreign_keys,
-    cli,
     eia_bulk_elec_assets,
     epacems_assets,
     glue_assets,
@@ -64,6 +62,7 @@ raw_module_groups = {
 
 
 core_module_groups = {
+    "core_eia176": [pudl.transform.eia176],
     "core_assn": [glue_assets],
     "core_censusdp1tract": [
         pudl.convert.censusdp1tract_to_sqlite,
