@@ -11,7 +11,7 @@ dependencies:
   - aiohttp=3.11.11=py312h998013c_0
   - aiosignal=1.3.2=pyhd8ed1ab_0
   - alabaster=1.0.0=pyhd8ed1ab_1
-  - alembic=1.14.0=pyhd8ed1ab_1
+  - alembic=1.14.1=pyhd8ed1ab_0
   - altair=5.5.0=pyhd8ed1ab_1
   - annotated-types=0.7.0=pyhd8ed1ab_1
   - antlr-python-runtime=4.13.2=pyhd8ed1ab_1
@@ -245,10 +245,10 @@ dependencies:
   - lerc=4.0.0=h9a09cb3_0
   - libabseil=20240722.0=cxx17_h07bc746_4
   - libarchive=3.7.7=h3b16cec_3
-  - libarrow=18.1.0=h540c450_9_cpu
-  - libarrow-acero=18.1.0=hf07054f_9_cpu
-  - libarrow-dataset=18.1.0=hf07054f_9_cpu
-  - libarrow-substrait=18.1.0=h4239455_9_cpu
+  - libarrow=18.1.0=h1f1efc6_11_cpu
+  - libarrow-acero=18.1.0=hf07054f_11_cpu
+  - libarrow-dataset=18.1.0=hf07054f_11_cpu
+  - libarrow-substrait=18.1.0=h4239455_11_cpu
   - libavif16=1.1.1=h45b7238_2
   - libblas=3.9.0=26_osxarm64_openblas
   - libbrotlicommon=1.1.0=hd74edd7_2
@@ -284,7 +284,7 @@ dependencies:
   - libnghttp2=1.64.0=h6d7220d_0
   - libntlm=1.8=h5505292_0
   - libopenblas=0.3.28=openmp_hf332438_1
-  - libparquet=18.1.0=h636d7b7_9_cpu
+  - libparquet=18.1.0=h636d7b7_11_cpu
   - libpng=1.6.45=h3783ad8_0
   - libpq=17.2=ha9b7db8_1
   - libprotobuf=5.28.3=h3bd63a1_1
@@ -297,7 +297,7 @@ dependencies:
   - libssh2=1.11.1=h9cc3647_0
   - libthrift=0.21.0=h64651cc_0
   - libtiff=4.7.0=h551f018_3
-  - libutf8proc=2.9.0=h5505292_1
+  - libutf8proc=2.10.0=hda25de7_0
   - libuv=1.50.0=h5505292_0
   - libwebp-base=1.5.0=h2471fea_0
   - libxcb=1.17.0=hdb1d25a_0
