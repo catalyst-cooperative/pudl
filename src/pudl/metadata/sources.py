@@ -24,6 +24,27 @@ SOURCES: dict[str, Any] = {
         "license_pudl": LICENSES["cc-by-4.0"],
         "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
     },
+    "censuspep": {
+        "title": "Population Estimates Program's (PEP) Federal Information Processing Series (FIPS) Codes",
+        "path": "https://www.census.gov/geographies/reference-files/2023/demo/popest/2023-fips.html",
+        "description": (
+            "Reference files for Federal Information Processing Series (FIPS) Geographic Codes. "
+            "These FIPS Codes are a subset of a broader Population Estimates dataset."
+        ),
+        "working_partitions": {"years": [2023]},
+        "keywords": sorted(
+            {
+                "fips",
+                "census",
+                "county",
+                "state",
+                "geography",
+            }
+        ),
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
+        "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
+    },
     "eia176": {
         "title": "EIA Form 176 -- Annual Report of Natural and Supplemental Gas Supply and Disposition",
         "path": "https://www.eia.gov/naturalgas/ngqs/",
