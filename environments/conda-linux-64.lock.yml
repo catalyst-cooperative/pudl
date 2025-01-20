@@ -13,7 +13,7 @@ dependencies:
   - aiohttp=3.11.11=py312h178313f_0
   - aiosignal=1.3.2=pyhd8ed1ab_0
   - alabaster=1.0.0=pyhd8ed1ab_1
-  - alembic=1.14.0=pyhd8ed1ab_1
+  - alembic=1.14.1=pyhd8ed1ab_0
   - altair=5.5.0=pyhd8ed1ab_1
   - annotated-types=0.7.0=pyhd8ed1ab_1
   - antlr-python-runtime=4.13.2=pyhd8ed1ab_1
