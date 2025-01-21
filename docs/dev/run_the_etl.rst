@@ -172,7 +172,7 @@ variable to the path of the new directory:
     $ echo "export DAGSTER_HOME=/path/to/dagster_home" >> ~/.bashrc # bash
     $ set -Ux DAGSTER_HOME /path/to/dagster_home # fish
 
-Add ``DAGSTER_HOME`` to the currecnt session with
+Add ``DAGSTER_HOME`` to the current session with
 
 .. code-block:: console
 

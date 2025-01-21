@@ -119,7 +119,7 @@ Updating the PUDL Development Environment
 -------------------------------------------------------------------------------
 
 You will need to periodically update your installed development (``pudl-dev``) conda
-environment to get you newer versions of existing dependencies and incorporate any
+environment to get newer versions of existing dependencies and incorporate any
 changes to the environment specification that have been made by other contributors. The
 most reliable way to do this is to remove the existing environment and recreate it.
 
