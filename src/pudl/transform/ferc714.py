@@ -1158,9 +1158,9 @@ class YearlyPlanningAreaDemandForecast:
         )
         df.loc[mask, "forecast_year"] = 2033
         # Make sure forecast_year values are expected
-        assert (
-            df["forecast_year"].isin(range(2021, 2100)).all()
-        ), "Forecast year values not in expected range"
+        assert df["forecast_year"].isin(range(2021, 2100)).all(), (
+            "Forecast year values not in expected range"
+        )
         return df
 
     @staticmethod
@@ -1210,9 +1210,9 @@ class YearlyPlanningAreaDemandForecast:
         )
         df = pd.concat([df[~dupe_mask], deduped_df])
         # Make sure no more rows were dropped than expected
-        assert (
-            original_len - len(df) <= 20
-        ), f"dropped {original_len - len(df)} rows, expected 20"
+        assert original_len - len(df) <= 20, (
+            f"dropped {original_len - len(df)} rows, expected 20"
+        )
         return df
 
 

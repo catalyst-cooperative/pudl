@@ -77,9 +77,9 @@ def _map_key_codes_to_readable_values(compound_keys: pd.DataFrame) -> pd.DataFra
     }
     for col_name, mapping in mappings.items():
         keys.loc[:, col_name] = keys.loc[:, col_name].map(mapping)
-        assert (
-            keys.loc[:, col_name].notnull().all()
-        ), f"{col_name} contains an unmapped category."
+        assert keys.loc[:, col_name].notnull().all(), (
+            f"{col_name} contains an unmapped category."
+        )
 
     keys = keys.astype("category")
     return keys
