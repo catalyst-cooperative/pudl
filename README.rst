@@ -229,23 +229,28 @@ flowing, and the project is sustainable long term. They're also involved in our
 quarterly planning process. To learn more see `the PUDL Project page on Open Collective
 <https://opencollective.com/pudl>`__.
 
-Gigawatt Tier
-^^^^^^^^^^^^^
+Gigawatt Tier (≥$25,000/year)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. image:: docs/images/sustainer_logos/RMI.png
-   :width: 600
+   :width: 400
+   :target: https://rmi.org
 
 .. image:: docs/images/sustainer_logos/GridLab.png
-   :width: 600
+   :width: 400
+   :target: https://gridlab.org
 
-Megawatt Tier
-^^^^^^^^^^^^^
+Megawatt Tier (≥$16,000/year)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. image:: docs/images/sustainer_logos/ZEROLab.png
-   :width: 600
+   :width: 200
+   :target: https://zero.lab.princeton.edu/
 
-Kilowatt Tier
-^^^^^^^^^^^^^
+Kilowatt Tier (≥$8,000/year)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Become our first `kilowatt tier sustainer <https://opencollective.com/pudl>`__!
 
 Licensing
 ---------
