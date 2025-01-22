@@ -218,10 +218,34 @@ Find PUDL useful? Want to help make it better? There are lots of ways to help!
   `Github issue tracker <https://github.com/catalyst-cooperative/pudl/issues>`__.
 * Feel free to fork the project and make a pull request with new code, better
   documentation, or example notebooks.
-* `Make a recurring financial contribution <https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=PZBZDFNKBJW5E&source=url>`__
-  to support our work liberating public energy data.
 * `Hire us to do some custom analysis <https://catalyst.coop/hire-catalyst/>`__ and
   allow us to integrate the resulting code into PUDL.
+
+PUDL Sustainers
+---------------
+
+The PUDL Sustainers provide ongoing financial support to ensure the open data keeps
+flowing, and the project is sustainable long term. They're also involved in our
+quarterly planning process. To learn more see `the PUDL Project page on Open Collective
+<https://opencollective.com/pudl>`__.
+
+Gigawatt Tier
+^^^^^^^^^^^^^
+
+.. image:: docs/images/sustainer_logos/RMI.png
+   :width: 600
+
+.. image:: docs/images/sustainer_logos/GridLab.png
+   :width: 600
+
+Megawatt Tier
+^^^^^^^^^^^^^
+
+.. image:: docs/images/sustainer_logos/ZEROLab.png
+   :width: 600
+
+Kilowatt Tier
+^^^^^^^^^^^^^
 
 Licensing
 ---------
@@ -255,6 +279,7 @@ Contact Us
 * `Follow us on HuggingFace <https://huggingface.co/catalystcooperative>`__
 * Follow us on Twitter: `@CatalystCoop <https://twitter.com/CatalystCoop>`__
 * `Follow us on Kaggle <https://www.kaggle.com/catalystcooperative/>`__
+* `Follow us on YouTube <https://youtube.com/@CatalystCoop>`__
 * More info on our website: https://catalyst.coop
 * Email us if you'd like to hire us to provide customized data extraction and analysis:
   `hello@catalyst.coop <mailto:hello@catalyst.coop>`__
