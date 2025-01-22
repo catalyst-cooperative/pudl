@@ -49,3 +49,9 @@ devtools/datasette/fly/Dockerfile
 devtools/datasette/fly/inspect-data.json
 devtools/datasette/fly/metadata.yml
 devtools/datasette/fly/all_dbs.tar.zst
+
+# dbt specific ignores
+dbt/dbt_packages/
+dbt/target/
+dbt/logs/
+dbt/.user.yml
