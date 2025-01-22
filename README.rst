@@ -230,25 +230,28 @@ quarterly planning process. To learn more see `the PUDL Project page on Open Col
 <https://opencollective.com/pudl>`__.
 
 Gigawatt Tier (≥$25,000/year)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. image:: docs/images/sustainer_logos/RMI.png
    :width: 400
    :target: https://rmi.org
+   :alt: RMI
 
 .. image:: docs/images/sustainer_logos/GridLab.png
    :width: 400
    :target: https://gridlab.org
+   :alt: GridLab
 
 Megawatt Tier (≥$16,000/year)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. image:: docs/images/sustainer_logos/ZEROLab.png
-   :width: 200
+   :width: 400
    :target: https://zero.lab.princeton.edu/
+   :alt: ZERO Lab at Princeton University
 
 Kilowatt Tier (≥$8,000/year)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Become our first `kilowatt tier sustainer <https://opencollective.com/pudl>`__!
 
