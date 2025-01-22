@@ -240,12 +240,12 @@ Gigawatt Tier (≥$25,000/year)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. image:: docs/images/sustainer_logos/RMI.png
-   :width: 400
+   :width: 600
    :target: https://rmi.org
    :alt: RMI
 
 .. image:: docs/images/sustainer_logos/GridLab.png
-   :width: 400
+   :width: 600
    :target: https://gridlab.org
    :alt: GridLab
 
