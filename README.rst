@@ -39,12 +39,18 @@ The Public Utility Data Liberation Project (PUDL)
 .. |kaggle| image:: https://img.shields.io/badge/Kaggle-20BEFF?style=flat&logo=Kaggle&logoColor=white
    :target: https://www.kaggle.com/datasets/catalystcooperative/pudl-project
    :alt: The PUDL Dataset on Kaggle
+.. |youtube| image:: https://img.shields.io/badge/YouTube-%23FF0000.svg?logo=YouTube&logoColor=white
+   :target: https://youtube.com/@CatalystCooperative
+   :alt: Catalyst Cooperative on YouTube
+.. |twitter| image:: https://img.shields.io/badge/X-%23000000.svg?logo=X&logoColor=white
+   :target: https://x.com/CatalystCoop
+   :alt: Catalyst Cooperative on Twitter
 .. |aws| image:: https://img.shields.io/badge/Amazon_AWS-FF9900?style=flat&logo=amazonaws&logoColor=white
    :target: https://registry.opendata.aws/catalyst-cooperative-pudl/
    :alt: PUDL in the AWS Open Data Registry
 
 |repo-status| |pytest| |codecov| |rtd| |ruff| |pre-commit-ci| |zenodo-doi|
-|office-hours| |mastodon| |linkedin| |bluesky| |kaggle| |aws|
+|office-hours| |mastodon| |linkedin| |bluesky| |kaggle| |youtube| |twitter| |aws|
 
 What is PUDL?
 -------------
@@ -197,15 +203,16 @@ If your organization uses PUDL we'd love to list you here! Please open a
 pull request or email us at `hello@catalyst.coop <mailto:hello@catalyst.coop>`__!
 
 * `RMI <https://rmi.org>`__ via both their `Utility Transition Hub <https://utilitytransitionhub.rmi.org/>`__ and `Optimus financial modeling tool <https://utilitytransitionhub.rmi.org/optimus/>`__
-* The `PowerGenome Project <https://github.com/PowerGenome/PowerGenome>`__ out of `Jesse Jenkins' <https://mae.princeton.edu/people/faculty/jenkins>`__ ZERO Lab at Princeton University
+* `The ZERO Lab at Princeton University <https://zero.lab.princeton.edu>`__
+* `PyPSA-USA <https://github.com/PyPSA/pypsa-usa>`__ an open source power systems model.
 * `Energy Innovation <https://energyinnovation.org>`__
-* `Singularity Energy <https://singularity.energy>`__ via the `Open Grid Emissions Initiative <https://singularity.energy/open-grid-emissions>`__
-* The open source `PyPSA-USA <https://github.com/PyPSA/pypsa-usa>`__ capacity expansion model.
+* `The PowerGenome Project <https://github.com/PowerGenome/PowerGenome>`__
+* `Singularity Energy <https://singularity.energy>`__
+* `The Open Grid Emissions Initiative <https://singularity.energy/open-grid-emissions>`__
 * `Win Climate <https://climate.win>`__
 * `The Deployment Gap Model Education Fund <https://www.deploymentgap.fund/>`__
 
 .. _pudl_orgs_end:
-
 
 Contributing to PUDL
 --------------------
