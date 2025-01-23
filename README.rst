@@ -31,7 +31,7 @@ The Public Utility Data Liberation Project (PUDL)
    :target: https://mastodon.energy/@catalystcoop
    :alt: Follow Catalyst Cooperative on Mastodon
 .. |slack| image:: https://img.shields.io/badge/Slack-4A154B?logo=slack&logoColor=fff
-   target:: https://join.slack.com/t/catalystcooperative/shared_invite/zt-2yg1v2sb7-GsoGlA9Ojc_LCJ00vPWKbQ
+   :target: https://join.slack.com/t/catalystcooperative/shared_invite/zt-2yg1v2sb7-GsoGlA9Ojc_LCJ00vPWKbQ
 .. |linkedin| image:: https://img.shields.io/badge/LinkedIn-0077B5?style=flat&logo=linkedin&logoColor=white
    :target: https://linkedin.com/company/catalyst-cooperative/
    :alt: Follow Catalyst Cooperative on LinkedIn
