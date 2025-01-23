@@ -52,7 +52,8 @@ The Public Utility Data Liberation Project (PUDL)
    :alt: PUDL in the AWS Open Data Registry
 
 |repo-status| |pytest| |codecov| |rtd| |ruff| |pre-commit-ci| |zenodo-doi|
-|office-hours| |mastodon| |linkedin| |bluesky| |kaggle| |youtube| |twitter| |aws|
+|office-hours| |mastodon| |linkedin| |bluesky| |kaggle| |slack| |youtube| |twitter|
+|aws|
 
 What is PUDL?
 -------------
