@@ -239,12 +239,12 @@ quarterly planning process. To learn more see `the PUDL Project page on Open Col
 Gigawatt Tier (≥$25,000/year)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. image:: docs/images/sustainer_logos/RMI.png
+.. image:: docs/images/logos/RMI.png
    :width: 600
    :target: https://rmi.org
    :alt: RMI
 
-.. image:: docs/images/sustainer_logos/GridLab.png
+.. image:: docs/images/logos/GridLab.png
    :width: 600
    :target: https://gridlab.org
    :alt: GridLab
@@ -252,7 +252,7 @@ Gigawatt Tier (≥$25,000/year)
 Megawatt Tier (≥$16,000/year)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. image:: docs/images/sustainer_logos/ZEROLab.png
+.. image:: docs/images/logos/ZEROLab.png
    :width: 400
    :target: https://zero.lab.princeton.edu/
    :alt: ZERO Lab at Princeton University
@@ -261,6 +261,26 @@ Kilowatt Tier (≥$8,000/year)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Become our first `kilowatt tier sustainer <https://opencollective.com/pudl>`__!
+
+Grant Funders
+-------------
+
+The PUDL Project has been supported by three grants from the `Alfred P. Sloan
+Foundation's Energy and Environment Program
+<https://sloan.org/programs/research/energy-and-environment>`__ and one grant from the
+`National Science Foundation's Pathways to Enable Open Source Ecosystems (POSE) program
+<https://new.nsf.gov/funding/opportunities/pathways-enable-open-source-ecosystems-pose>`__
+(`award 2346139 <https://www.nsf.gov/awardsearch/showAward?AWD_ID=2346139>`__).
+
+.. image:: docs/images/logos/Sloan.png
+   :width: 400
+   :target: https://sloan.org/programs/research/energy-and-environment/
+   :alt: Alfred P. Sloan Foundation Energy and Environment Program
+
+.. image:: docs/images/logos/NSF.png
+   :width: 400
+   :target: https://new.nsf.gov/funding/opportunities/pathways-enable-open-source-ecosystems-pose
+   :alt: National Science Foundation Pathways to Enable Open Source Ecosystems (POSE)
 
 Licensing
 ---------
