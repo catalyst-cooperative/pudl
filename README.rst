@@ -269,7 +269,7 @@ Alfred P. Sloan Foundation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. image:: docs/images/logos/Sloan.png
-   :width: 600
+   :width: 400
    :target: https://sloan.org/programs/research/energy-and-environment/
    :alt: Alfred P. Sloan Foundation Energy and Environment Program
 
@@ -281,7 +281,7 @@ National Science Foundation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. image:: docs/images/logos/NSF.png
-   :width: 600
+   :width: 400
    :target: https://new.nsf.gov/funding/opportunities/pathways-enable-open-source-ecosystems-pose
    :alt: National Science Foundation Pathways to Enable Open Source Ecosystems (POSE)
 
