@@ -58,8 +58,8 @@ dependencies:
   - bleach-with-css=6.2.0=h82add2a_4
   - blinker=1.9.0=pyhff2d567_0
   - blosc=1.21.6=h7dd00d9_1
-  - boto3=1.36.3=pyhd8ed1ab_0
-  - botocore=1.36.3=pyge310_1234567_0
+  - boto3=1.36.4=pyhd8ed1ab_0
+  - botocore=1.36.4=pyge310_1234567_0
   - bottleneck=1.4.2=py312h147345f_0
   - branca=0.8.1=pyhd8ed1ab_0
   - brotli=1.1.0=hd74edd7_2
@@ -143,11 +143,11 @@ dependencies:
   - freexl=2.0.0=h3ab3353_2
   - fribidi=1.0.10=h27ca646_0
   - frictionless=5.18.0=pyhd8ed1ab_1
-  - frozenlist=1.5.0=py312h0bf5046_0
+  - frozenlist=1.5.0=py312h998013c_1
   - fsspec=2024.12.0=pyhd8ed1ab_0
   - furo=2024.8.6=pyhd8ed1ab_2
   - gcsfs=2024.12.0=pyhd8ed1ab_0
-  - gdal=3.10.1=py312h1afea5f_1
+  - gdal=3.10.1=py312h1afea5f_2
   - gdk-pixbuf=2.42.12=h7ddc832_0
   - geopandas=1.0.1=pyhd8ed1ab_3
   - geopandas-base=1.0.1=pyha770c72_3
@@ -159,7 +159,7 @@ dependencies:
   - gitpython=3.1.44=pyhff2d567_0
   - glog=0.7.1=heb240a5_0
   - google-api-core=2.24.0=pyhd8ed1ab_0
-  - google-auth=2.37.0=pyhd8ed1ab_0
+  - google-auth=2.38.0=pyhd8ed1ab_0
   - google-auth-oauthlib=1.2.1=pyhd8ed1ab_1
   - google-cloud-core=2.4.1=pyhd8ed1ab_1
   - google-cloud-sdk=506.0.0=py312h81bd7bf_0
@@ -185,7 +185,7 @@ dependencies:
   - h2=4.1.0=pyhd8ed1ab_1
   - h3-py=4.1.1=py312hf02c72a_1
   - harfbuzz=10.2.0=ha0dd535_0
-  - hpack=4.0.0=pyhd8ed1ab_1
+  - hpack=4.1.0=pyhd8ed1ab_0
   - html5lib=1.1=pyhd8ed1ab_2
   - httpcore=1.0.7=pyh29332c3_1
   - httptools=0.6.4=py312hea69d52_0
@@ -193,7 +193,7 @@ dependencies:
   - humanfriendly=10.0=pyh707e725_8
   - humanize=4.11.0=pyhd8ed1ab_1
   - hupper=1.12.1=pyhd8ed1ab_1
-  - hyperframe=6.0.1=pyhd8ed1ab_1
+  - hyperframe=6.1.0=pyhd8ed1ab_0
   - hypothesis=6.124.2=pyha770c72_0
   - icu=75.1=hfee45f7_0
   - identify=2.6.6=pyhd8ed1ab_0
@@ -266,7 +266,7 @@ dependencies:
   - libexpat=2.6.4=h286801f_0
   - libffi=3.4.2=h3422bc3_5
   - libgd=2.3.3=hb2c3a21_11
-  - libgdal-core=3.10.1=h9ef0d2d_1
+  - libgdal-core=3.10.1=h9ef0d2d_2
   - libgfortran=5.0.0=13_2_0_hd922786_3
   - libgfortran5=13.2.0=hf226fd6_3
   - libglib=2.82.2=hdff4504_1
@@ -386,7 +386,7 @@ dependencies:
   - prometheus_flask_exporter=0.23.1=pyhd8ed1ab_1
   - prompt-toolkit=3.0.50=pyha770c72_0
   - prompt_toolkit=3.0.50=hd8ed1ab_0
-  - propcache=0.2.1=py312hea69d52_0
+  - propcache=0.2.1=py312h998013c_1
   - proto-plus=1.25.0=pyhd8ed1ab_1
   - protobuf=5.28.3=py312hd8f9ff3_0
   - psutil=5.9.8=py312he37b823_0
@@ -506,7 +506,7 @@ dependencies:
   - svt-av1=2.3.0=hf24288c_0
   - tabulate=0.9.0=pyhd8ed1ab_2
   - terminado=0.18.1=pyh31c8845_0
-  - terraform=1.10.4=hd02bf31_0
+  - terraform=1.10.5=hd02bf31_0
   - text-unidecode=1.3=pyhd8ed1ab_2
   - threadpoolctl=3.5.0=pyhc1e730c_0
   - timezonefinder=6.5.8=py312hea69d52_0

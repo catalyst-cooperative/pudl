@@ -30,6 +30,8 @@ The Public Utility Data Liberation Project (PUDL)
 .. |mastodon| image:: https://img.shields.io/mastodon/follow/110855618428885893?domain=https%3A%2F%2Fmastodon.energy&style=social&color=%23000000&link=https%3A%2F%2Fmastodon.energy%2F%40catalystcoop
    :target: https://mastodon.energy/@catalystcoop
    :alt: Follow Catalyst Cooperative on Mastodon
+.. |slack| image:: https://img.shields.io/badge/Slack-4A154B?logo=slack&logoColor=fff
+   target:: https://join.slack.com/t/catalystcooperative/shared_invite/zt-2yg1v2sb7-GsoGlA9Ojc_LCJ00vPWKbQ
 .. |linkedin| image:: https://img.shields.io/badge/LinkedIn-0077B5?style=flat&logo=linkedin&logoColor=white
    :target: https://linkedin.com/company/catalyst-cooperative/
    :alt: Follow Catalyst Cooperative on LinkedIn
@@ -329,6 +331,7 @@ Contact Us
 * Follow us on Twitter: `@CatalystCoop <https://twitter.com/CatalystCoop>`__
 * `Follow us on Kaggle <https://www.kaggle.com/catalystcooperative/>`__
 * `Follow us on YouTube <https://youtube.com/@CatalystCoop>`__
+* `Join our Slack <https://join.slack.com/t/catalystcooperative/shared_invite/zt-2yg1v2sb7-GsoGlA9Ojc_LCJ00vPWKbQ>`__
 * More info on our website: https://catalyst.coop
 * Email us if you'd like to hire us to provide customized data extraction and analysis:
   `hello@catalyst.coop <mailto:hello@catalyst.coop>`__
