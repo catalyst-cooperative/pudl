@@ -262,8 +262,8 @@ Kilowatt Tier (≥$8,000/year)
 
 Become our first `kilowatt tier sustainer <https://opencollective.com/pudl>`__!
 
-Grant Funders
--------------
+Major Grant Funders
+-------------------
 
 Alfred P. Sloan Foundation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -275,7 +275,8 @@ Alfred P. Sloan Foundation
 
 The PUDL Project has been supported by three grants from the `Alfred P. Sloan
 Foundation's Energy and Environment Program
-<https://sloan.org/programs/research/energy-and-environment>`__.
+<https://sloan.org/programs/research/energy-and-environment>`__, in 2019, 2021, and
+2024.
 
 National Science Foundation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -285,10 +286,10 @@ National Science Foundation
    :target: https://new.nsf.gov/funding/opportunities/pathways-enable-open-source-ecosystems-pose
    :alt: National Science Foundation Pathways to Enable Open Source Ecosystems (POSE)
 
-The PUDL Project was awarded a grant from the
-`National Science Foundation's Pathways to Enable Open Source Ecosystems (POSE) program
+The PUDL Project was awarded a grant from the National Science Foundation's `Pathways to
+Enable Open Source Ecosystems (POSE) program
 <https://new.nsf.gov/funding/opportunities/pathways-enable-open-source-ecosystems-pose>`__
-(`award 2346139 <https://www.nsf.gov/awardsearch/showAward?AWD_ID=2346139>`__).
+(`award 2346139 <https://www.nsf.gov/awardsearch/showAward?AWD_ID=2346139>`__) in 2024.
 
 Licensing
 ---------
