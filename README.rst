@@ -265,22 +265,24 @@ Become our first `kilowatt tier sustainer <https://opencollective.com/pudl>`__!
 Grant Funders
 -------------
 
-The PUDL Project has been supported by three grants from the `Alfred P. Sloan
-Foundation's Energy and Environment Program
-<https://sloan.org/programs/research/energy-and-environment>`__ and one grant from the
-`National Science Foundation's Pathways to Enable Open Source Ecosystems (POSE) program
-<https://new.nsf.gov/funding/opportunities/pathways-enable-open-source-ecosystems-pose>`__
-(`award 2346139 <https://www.nsf.gov/awardsearch/showAward?AWD_ID=2346139>`__).
-
 .. image:: docs/images/logos/Sloan.png
    :width: 400
    :target: https://sloan.org/programs/research/energy-and-environment/
    :alt: Alfred P. Sloan Foundation Energy and Environment Program
 
+The PUDL Project has been supported by three grants from the `Alfred P. Sloan
+Foundation's Energy and Environment Program
+<https://sloan.org/programs/research/energy-and-environment>`__.
+
 .. image:: docs/images/logos/NSF.png
    :width: 400
    :target: https://new.nsf.gov/funding/opportunities/pathways-enable-open-source-ecosystems-pose
    :alt: National Science Foundation Pathways to Enable Open Source Ecosystems (POSE)
+
+The PUDL Project was awarded a grant from the
+`National Science Foundation's Pathways to Enable Open Source Ecosystems (POSE) program
+<https://new.nsf.gov/funding/opportunities/pathways-enable-open-source-ecosystems-pose>`__
+(`award 2346139 <https://www.nsf.gov/awardsearch/showAward?AWD_ID=2346139>`__).
 
 Licensing
 ---------
