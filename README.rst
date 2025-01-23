@@ -243,11 +243,13 @@ Gigawatt Tier (≥$25,000/year)
    :width: 600
    :target: https://rmi.org
    :alt: RMI
+   :align: center
 
 .. image:: docs/images/logos/GridLab.png
    :width: 600
    :target: https://gridlab.org
    :alt: GridLab
+   :align: center
 
 Megawatt Tier (≥$16,000/year)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -256,6 +258,7 @@ Megawatt Tier (≥$16,000/year)
    :width: 400
    :target: https://zero.lab.princeton.edu/
    :alt: ZERO Lab at Princeton University
+   :align: center
 
 Kilowatt Tier (≥$8,000/year)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -272,6 +275,7 @@ Alfred P. Sloan Foundation
    :width: 400
    :target: https://sloan.org/programs/research/energy-and-environment/
    :alt: Alfred P. Sloan Foundation Energy and Environment Program
+   :align: center
 
 The PUDL Project has been supported by three grants from the `Alfred P. Sloan
 Foundation's Energy and Environment Program
@@ -285,6 +289,7 @@ National Science Foundation
    :width: 400
    :target: https://new.nsf.gov/funding/opportunities/pathways-enable-open-source-ecosystems-pose
    :alt: National Science Foundation Pathways to Enable Open Source Ecosystems (POSE)
+   :align: center
 
 The PUDL Project was awarded a grant from the National Science Foundation's `Pathways to
 Enable Open Source Ecosystems (POSE) program
