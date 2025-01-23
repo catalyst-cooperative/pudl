@@ -331,7 +331,7 @@ Contact Us
 * `Follow us on HuggingFace <https://huggingface.co/catalystcooperative>`__
 * Follow us on Twitter: `@CatalystCoop <https://twitter.com/CatalystCoop>`__
 * `Follow us on Kaggle <https://www.kaggle.com/catalystcooperative/>`__
-* `Follow us on YouTube <https://youtube.com/@CatalystCoop>`__
+* `Follow us on YouTube <https://youtube.com/@CatalystCooperative>`__
 * `Join our Slack <https://join.slack.com/t/catalystcooperative/shared_invite/zt-2yg1v2sb7-GsoGlA9Ojc_LCJ00vPWKbQ>`__
 * More info on our website: https://catalyst.coop
 * Email us if you'd like to hire us to provide customized data extraction and analysis:
