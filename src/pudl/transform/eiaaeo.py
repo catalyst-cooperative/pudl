@@ -164,12 +164,12 @@ def filter_enrich_sanitize(
         )
     )
 
-    assert (
-        sanitized.region_series == sanitized.region_category
-    ).all(), "Series and category must agree on region!"
-    assert (
-        sanitized.case_series == sanitized.model_case_eiaaeo
-    ).all(), "Series and taxonomy must agree on case!"
+    assert (sanitized.region_series == sanitized.region_category).all(), (
+        "Series and category must agree on region!"
+    )
+    assert (sanitized.case_series == sanitized.model_case_eiaaeo).all(), (
+        "Series and taxonomy must agree on case!"
+    )
 
     # TODO 2024-04-20: one day we'll include report year in the extract step -
     # at that point we'll have to compare that with the report year extracted
@@ -237,9 +237,9 @@ def core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology(
             year over year. The index is set when passing ``eventual_pk`` to
             ``unstack()``.
         """
-        assert (
-            df.index.names[-1] == "projection_year"
-        ), "Projection year must be last level of index!"
+        assert df.index.names[-1] == "projection_year", (
+            "Projection year must be last level of index!"
+        )
         new_columns = {}
         for decumulate_column in decumulate_columns:
             cumulative_colname = f"cumulative_{decumulate_column}"
@@ -268,9 +268,9 @@ def core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology(
             ],
             dimension_column="dimension",
         )
-        assert (
-            0.999 < ratio_close_reported_calculated <= 1.0
-        ), f"reported vs. calculated totals: {ratio_close_reported_calculated}"
+        assert 0.999 < ratio_close_reported_calculated <= 1.0, (
+            f"reported vs. calculated totals: {ratio_close_reported_calculated}"
+        )
 
         totals = unstacked.xs("total", level="dimension")
         ratio_close_additions_to_total = series_sum_ratio(
@@ -279,9 +279,9 @@ def core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology(
             ],
             total=totals.cumulative_total_additions,
         )
-        assert (
-            0.999 < ratio_close_additions_to_total <= 1.0
-        ), f"planned + unplanned vs. total: {ratio_close_additions_to_total}"
+        assert 0.999 < ratio_close_additions_to_total <= 1.0, (
+            f"planned + unplanned vs. total: {ratio_close_additions_to_total}"
+        )
         return
 
     sanitized = (

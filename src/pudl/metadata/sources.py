@@ -24,6 +24,27 @@ SOURCES: dict[str, Any] = {
         "license_pudl": LICENSES["cc-by-4.0"],
         "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
     },
+    "censuspep": {
+        "title": "Population Estimates Program's (PEP) Federal Information Processing Series (FIPS) Codes",
+        "path": "https://www.census.gov/geographies/reference-files/2023/demo/popest/2023-fips.html",
+        "description": (
+            "Reference files for Federal Information Processing Series (FIPS) Geographic Codes. "
+            "These FIPS Codes are a subset of a broader Population Estimates dataset."
+        ),
+        "working_partitions": {"years": [2023]},
+        "keywords": sorted(
+            {
+                "fips",
+                "census",
+                "county",
+                "state",
+                "geography",
+            }
+        ),
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
+        "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
+    },
     "eia176": {
         "title": "EIA Form 176 -- Annual Report of Natural and Supplemental Gas Supply and Disposition",
         "path": "https://www.eia.gov/naturalgas/ngqs/",
@@ -47,7 +68,7 @@ SOURCES: dict[str, Any] = {
             "source_format": "Comma Separated Value (.csv)",
         },
         "field_namespace": "eia",
-        "working_partitions": {"years": sorted(set(range(1997, 2023)))},
+        "working_partitions": {"years": sorted(set(range(1997, 2024)))},
         "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
         "keywords": sorted(
             set(
@@ -206,8 +227,7 @@ SOURCES: dict[str, Any] = {
         "title": "EIA Form 861 -- Annual Electric Power Industry Report",
         "path": "https://www.eia.gov/electricity/data/eia861",
         "description": (
-            "EIA Form 861 Annual Electric Power Industry Report, detailed "
-            "data files."
+            "EIA Form 861 Annual Electric Power Industry Report, detailed data files."
         ),
         "field_namespace": "eia",
         "working_partitions": {
