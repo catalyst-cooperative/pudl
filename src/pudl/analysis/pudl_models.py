@@ -9,12 +9,13 @@ from deltalake import DeltaTable
 
 
 def get_model_tables() -> list[str]:
+    """Return all tables produced by PUDL models or empty list if env variable not set."""
     pudl_models_tables = []
     if os.getenv("USE_PUDL_MODELS"):
         pudl_models_tables = [
-            # "core_sec10k__company_information",
-            # "core_sec10k__exhibit_21_company_ownership",
-            # "core_sec10k__filings",
+            "core_sec10k__company_information",
+            "core_sec10k__exhibit_21_company_ownership",
+            "core_sec10k__filings",
             "out_sec_10k__parents_and_subsidiaries",
         ]
 
