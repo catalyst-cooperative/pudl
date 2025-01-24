@@ -36,6 +36,7 @@ from pydantic import (
 )
 
 import pudl.logging_helpers
+from pudl.analysis.pudl_models import get_model_table_schemas
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.constants import (
     CONSTRAINT_DTYPES,
@@ -578,7 +579,12 @@ class Field(PudlMeta):
         # Reverse map from frictionless -> pyarrow to pyarrow -> frictionless
         type_map = {
             value: key for value, key in FIELD_DTYPES_PYARROW.items() if key != "year"
-        } | {pa.int64(): "integer"}
+        } | {
+            pa.bool8(): "boolean",
+            pa.int32(): "integer",
+            pa.int64(): "integer",
+            pa.date32(): "date",
+        }
         return cls(
             name=field.name,
             type=type_map[field.type],
@@ -1994,6 +2000,12 @@ class Package(PudlMeta):
                 out of Package.
         """
         resources = [Resource.dict_from_id(x) for x in resource_ids]
+        resources += [
+            Resource.from_pyarrow_schema(name, description, schema).model_dump(
+                by_alias=True
+            )
+            for name, description, schema in get_model_table_schemas()
+        ]
         if resolve_foreign_keys:
             # Add missing resources based on foreign keys
             names = list(resource_ids)
