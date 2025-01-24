@@ -2000,12 +2000,6 @@ class Package(PudlMeta):
                 out of Package.
         """
         resources = [Resource.dict_from_id(x) for x in resource_ids]
-        resources += [
-            Resource.from_pyarrow_schema(name, description, schema).model_dump(
-                by_alias=True
-            )
-            for name, description, schema in get_model_table_schemas()
-        ]
         if resolve_foreign_keys:
             # Add missing resources based on foreign keys
             names = list(resource_ids)
@@ -2020,6 +2014,12 @@ class Package(PudlMeta):
                 if len(names) > i:
                     resources += [Resource.dict_from_id(x) for x in names[i:]]
 
+        resources += [
+            Resource.from_pyarrow_schema(name, description, schema).model_dump(
+                by_alias=True
+            )
+            for name, description, schema in get_model_table_schemas()
+        ]
         if excluded_etl_groups:
             resources = [
                 resource
