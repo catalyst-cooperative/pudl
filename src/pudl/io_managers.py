@@ -327,6 +327,7 @@ class PudlParquetIOManager(IOManager):
         if table_name not in get_model_tables():
             res = Resource.from_id(table_name)
         else:
+            # For tables coming from PUDL modelling repo just use already parsed resource metadata
             [res] = [r for r in PUDL_PACKAGE.resources if r.name == table_name]
         return res
 
