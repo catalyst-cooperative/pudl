@@ -31,7 +31,8 @@ def pudl_models_asset_factory(table_name: str) -> AssetsDefinition:
 
     @asset(
         name=table_name,
-        io_manager_key="pudl_io_manager",
+        io_manager_key="parquet_io_manager",
+        group_name="pudl_models",
     )
     def _asset() -> pd.DataFrame:
         return DeltaTable(_get_table_uri(table_name)).to_pandas()

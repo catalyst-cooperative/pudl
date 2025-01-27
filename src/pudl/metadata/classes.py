@@ -1486,6 +1486,7 @@ class Resource(PudlMeta):
             name=name,
             description=description,
             schema=Schema.from_pyarrow_schema(schema),
+            create_database_schema=False,
         )
 
     def get_field(self, name: str) -> Field:
