@@ -16,7 +16,7 @@ def get_model_tables() -> list[str]:
             "core_sec10k__company_information",
             "core_sec10k__exhibit_21_company_ownership",
             "core_sec10k__filings",
-            "out_sec_10k__parents_and_subsidiaries",
+            "out_sec10k__parents_and_subsidiaries",
         ]
 
     return pudl_models_tables
