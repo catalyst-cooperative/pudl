@@ -112,7 +112,7 @@ dependencies:
   - decorator=5.1.1=pyhd8ed1ab_1
   - defusedxml=0.7.1=pyhd8ed1ab_0
   - deltalake=0.24.0=py312h30a1e44_0
-  - deprecated=1.2.15=pyhd8ed1ab_1
+  - deprecated=1.2.18=pyhd8ed1ab_0
   - distlib=0.3.9=pyhd8ed1ab_1
   - dnspython=2.7.0=pyhff2d567_1
   - doc8=1.1.2=pyhd8ed1ab_2
@@ -332,7 +332,7 @@ dependencies:
   - multidict=6.1.0=py312hdb8e49c_1
   - munkres=1.1.4=pyh9f0ad1d_0
   - mypy_extensions=1.0.0=pyha770c72_1
-  - narwhals=1.23.0=pyhd8ed1ab_0
+  - narwhals=1.24.0=pyhd8ed1ab_0
   - nbclient=0.10.2=pyhd8ed1ab_0
   - nbconvert=7.16.5=hd8ed1ab_1
   - nbconvert-core=7.16.5=pyhd8ed1ab_1

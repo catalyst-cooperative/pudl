@@ -4872,42 +4872,42 @@ package:
     category: main
     optional: false
   - name: deprecated
-    version: 1.2.15
+    version: 1.2.18
     manager: conda
     platform: linux-64
     dependencies:
       python: ">=3.9"
       wrapt: <2,>=1.10
-    url: https://conda.anaconda.org/conda-forge/noarch/deprecated-1.2.15-pyhd8ed1ab_1.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/deprecated-1.2.18-pyhd8ed1ab_0.conda
     hash:
-      md5: eaef2e94d5bd76f758545d172c1fda67
-      sha256: a20ebf2c9b02a6eb32412ceb5c4cffaae49417db7e75414a76417538293a9402
+      md5: 0cef44b1754ae4d6924ac0eef6b9fdbe
+      sha256: d614bcff10696f1efc714df07651b50bf3808401fcc03814309ecec242cc8870
     category: main
     optional: false
   - name: deprecated
-    version: 1.2.15
+    version: 1.2.18
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.9"
       wrapt: <2,>=1.10
-    url: https://conda.anaconda.org/conda-forge/noarch/deprecated-1.2.15-pyhd8ed1ab_1.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/deprecated-1.2.18-pyhd8ed1ab_0.conda
     hash:
-      md5: eaef2e94d5bd76f758545d172c1fda67
-      sha256: a20ebf2c9b02a6eb32412ceb5c4cffaae49417db7e75414a76417538293a9402
+      md5: 0cef44b1754ae4d6924ac0eef6b9fdbe
+      sha256: d614bcff10696f1efc714df07651b50bf3808401fcc03814309ecec242cc8870
     category: main
     optional: false
   - name: deprecated
-    version: 1.2.15
+    version: 1.2.18
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.9"
       wrapt: <2,>=1.10
-    url: https://conda.anaconda.org/conda-forge/noarch/deprecated-1.2.15-pyhd8ed1ab_1.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/deprecated-1.2.18-pyhd8ed1ab_0.conda
     hash:
-      md5: eaef2e94d5bd76f758545d172c1fda67
-      sha256: a20ebf2c9b02a6eb32412ceb5c4cffaae49417db7e75414a76417538293a9402
+      md5: 0cef44b1754ae4d6924ac0eef6b9fdbe
+      sha256: d614bcff10696f1efc714df07651b50bf3808401fcc03814309ecec242cc8870
     category: main
     optional: false
   - name: distlib
@@ -15008,39 +15008,39 @@ package:
     category: main
     optional: false
   - name: narwhals
-    version: 1.23.0
+    version: 1.24.0
     manager: conda
     platform: linux-64
     dependencies:
       python: ">=3.9"
-    url: https://conda.anaconda.org/conda-forge/noarch/narwhals-1.23.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/narwhals-1.24.0-pyhd8ed1ab_0.conda
     hash:
-      md5: dbd6f152a45ce4879394ab0ec706c1bc
-      sha256: 3b6990dc091796cdd864c933a2c48c4e2e4d97ce736c83340cb6d640e113f2d2
+      md5: b187b5de2d50b8ac9e525513238c484d
+      sha256: 82817e04d9c947d5d8e633893ca104bee690d5e1a0a7d926b898f90384867666
     category: main
     optional: false
   - name: narwhals
-    version: 1.23.0
+    version: 1.24.0
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.9"
-    url: https://conda.anaconda.org/conda-forge/noarch/narwhals-1.23.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/narwhals-1.24.0-pyhd8ed1ab_0.conda
     hash:
-      md5: dbd6f152a45ce4879394ab0ec706c1bc
-      sha256: 3b6990dc091796cdd864c933a2c48c4e2e4d97ce736c83340cb6d640e113f2d2
+      md5: b187b5de2d50b8ac9e525513238c484d
+      sha256: 82817e04d9c947d5d8e633893ca104bee690d5e1a0a7d926b898f90384867666
     category: main
     optional: false
   - name: narwhals
-    version: 1.23.0
+    version: 1.24.0
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.9"
-    url: https://conda.anaconda.org/conda-forge/noarch/narwhals-1.23.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/narwhals-1.24.0-pyhd8ed1ab_0.conda
     hash:
-      md5: dbd6f152a45ce4879394ab0ec706c1bc
-      sha256: 3b6990dc091796cdd864c933a2c48c4e2e4d97ce736c83340cb6d640e113f2d2
+      md5: b187b5de2d50b8ac9e525513238c484d
+      sha256: 82817e04d9c947d5d8e633893ca104bee690d5e1a0a7d926b898f90384867666
     category: main
     optional: false
   - name: nbclient
