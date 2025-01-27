@@ -55,6 +55,7 @@ def _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips: pd.DataFrame) -> pd.DataFr
         .assign(
             county_state_names=lambda x: x.county_state_names.str.lower()
             .replace({r"\.": "", "-": "_"}, regex=True)
+            .pipe(_spot_fix_great_lakes_values)
             .astype("category")
         )
         # Fix FIPS codes with no leading zeros
@@ -92,16 +93,19 @@ def _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips: pd.DataFrame) -> pd.DataFr
         # Remove state FIPS code column in favor of the newly added state column.
         .drop(columns=["state_id_fips", "fips", "subdivision_code"])
     )
+
+    logger.info("Spot check: fixed typos in great lakes.")
+
     logger.info("Nulling FIPS IDs for non-county regions.")
     lake_county_state_names = [
         "lake_erie_ohio",
-        "lake_hurron_michigan",
+        "lake_huron_michigan",
         "lake_michigan_illinois",
         "lake_michigan_indiana",
         "lake_michigan_michigan",
         "lake_michigan_wisconsin",
         "lake_ontario_new_york",
-        "lake_st_clair_michigan",
+        "lake_saint_clair_michigan",
         "lake_superior_minnesota",
         "lake_superior_michigan",
         "lake_superior_wisconsin",
@@ -261,6 +265,23 @@ def _get_parquet_path():
     return PudlPaths().parquet_path("out_vcerare__hourly_available_capacity_factor")
 
 
+def _spot_fix_great_lakes_values(sr: pd.Series) -> pd.Series:
+    """Normalize spelling of great lakes in cell values."""
+    return sr.replace("lake_hurron_michigan", "lake_huron_michigan").replace(
+        "lake_st_clair_michigan", "lake_saint_clair_michigan"
+    )
+
+
+def _spot_fix_great_lakes_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """Normalize spelling of great lakes in column names."""
+    return df.rename(
+        columns={
+            "lake_hurron_michigan": "lake_huron_michigan",
+            "lake_st_clair_michigan": "lake_saint_clair_michigan",
+        }
+    )
+
+
 def one_year_hourly_available_capacity_factor(
     year: int,
     raw_vcerare__lat_lon_fips: pd.DataFrame,
@@ -287,7 +308,8 @@ def one_year_hourly_available_capacity_factor(
         "onshore_wind": raw_vcerare__onshore_wind_power_100m,
     }
     clean_dict = {
-        df_name: _check_for_valid_counties(df, fips_df, df_name)
+        df_name: _spot_fix_great_lakes_columns(df)
+        .pipe(_check_for_valid_counties, fips_df, df_name)
         .pipe(_add_time_cols, df_name)
         .pipe(_drop_city_cols, df_name)
         .pipe(_make_cap_fac_frac, df_name)
@@ -369,6 +391,7 @@ def check_rows(context: AssetCheckExecutionContext) -> AssetCheckResult:
     row_counts = {
         "etl_full": 136437000,
         "etl_fast": 27287400,
+        "__ASSET_JOB": 136437000,
     }
 
     vce = _load_duckdb_table()  # noqa: F841
@@ -575,7 +598,10 @@ def check_duplicate_county_id_fips() -> AssetCheckResult:
         "FROM vce WHERE county_id_fips "
         "IS NOT NULL GROUP BY ALL HAVING COUNT(*) > 1"
     ).fetchall()
-    if len(duplicate_county_ids) > 0:
+    if (dupecount := len(duplicate_county_ids)) > 0:
+        logger.error(
+            f"Found {dupecount} duplicate county_id_fips values; first ten: {duplicate_county_ids[:10]}"
+        )
         return AssetCheckResult(
             passed=False,
             description="Found duplicate county_id_fips values",
