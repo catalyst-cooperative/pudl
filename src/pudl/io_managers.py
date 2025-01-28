@@ -25,7 +25,6 @@ from packaging import version
 from upath import UPath
 
 import pudl
-from pudl.analysis.pudl_models import get_model_tables
 from pudl.metadata.classes import PUDL_PACKAGE, Package, Resource
 from pudl.workspace.setup import PudlPaths
 
@@ -322,22 +321,13 @@ class SQLiteIOManager(IOManager):
 class PudlParquetIOManager(IOManager):
     """IOManager that writes pudl tables to pyarrow parquet files."""
 
-    def _get_table_resource(self, table_name: str) -> Resource:
-        """Return resource class for table."""
-        if table_name not in get_model_tables():
-            res = Resource.from_id(table_name)
-        else:
-            # For tables coming from PUDL modelling repo just use already parsed resource metadata
-            [res] = [r for r in PUDL_PACKAGE.resources if r.name == table_name]
-        return res
-
     def handle_output(self, context: OutputContext, df: Any) -> None:
         """Writes pudl dataframe to parquet file."""
         assert isinstance(df, pd.DataFrame), "Only panda dataframes are supported."
         table_name = get_table_name_from_context(context)
         parquet_path = PudlPaths().parquet_path(table_name)
         parquet_path.parent.mkdir(parents=True, exist_ok=True)
-        res = self._get_table_resource(table_name)
+        res = Resource.from_id(table_name)
 
         df = res.enforce_schema(df)
         schema = res.to_pyarrow()
@@ -355,7 +345,7 @@ class PudlParquetIOManager(IOManager):
         """Loads pudl table from parquet file."""
         table_name = get_table_name_from_context(context)
         parquet_path = PudlPaths().parquet_path(table_name)
-        res = self._get_table_resource(table_name)
+        res = Resource.from_id(table_name)
         df = pq.read_table(source=parquet_path, schema=res.to_pyarrow()).to_pandas()
         return res.enforce_schema(df)
 

@@ -3,12 +3,10 @@
 import os
 
 import pandas as pd
-import pyarrow as pa
 from dagster import AssetsDefinition, asset
-from deltalake import DeltaTable
 
 
-def get_model_tables() -> list[str]:
+def _get_model_tables() -> list[str]:
     """Return all tables produced by PUDL models or empty list if env variable not set."""
     pudl_models_tables = []
     if os.getenv("USE_PUDL_MODELS"):
@@ -35,21 +33,11 @@ def pudl_models_asset_factory(table_name: str) -> AssetsDefinition:
         group_name="pudl_models",
     )
     def _asset() -> pd.DataFrame:
-        return DeltaTable(_get_table_uri(table_name)).to_pandas()
+        return pd.read_parquet(_get_table_uri(table_name))
 
     return _asset
 
 
 def get_pudl_models_assets() -> list[AssetsDefinition]:
     """Generate a collection of assets for all PUDL model tables."""
-    return [pudl_models_asset_factory(table) for table in get_model_tables()]
-
-
-def get_model_table_schemas() -> list[str, str, pa.Schema]:
-    """Return pyarrow schemas for all PUDL models tables."""
-    dts = [DeltaTable(_get_table_uri(table_name)) for table_name in get_model_tables()]
-
-    return [
-        (dt.metadata().name, dt.metadata().description, dt.schema().to_pyarrow())
-        for dt in dts
-    ]
+    return [pudl_models_asset_factory(table) for table in _get_model_tables()]
