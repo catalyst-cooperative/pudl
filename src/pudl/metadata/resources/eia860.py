@@ -908,8 +908,8 @@ system IDs."""
     },
     "core_eia860__scd_generators_multifuel": {
         "description": (
-            "Annually reported information about energy storage from EIA-860 Schedule 3. "
-            "Contains data on fuel-switching and the use of multiple fuels by surveyed generators."
+            "Annually reported information from EIA-860 Schedule 3 that contains information about "
+            "fuel-switching and the use of multiple fuels by surveyed generators."
         ),
         "schema": {
             "fields": [
