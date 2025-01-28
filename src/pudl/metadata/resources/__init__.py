@@ -152,7 +152,7 @@ ENTITIES: dict[str, dict[str, list[str] | dict[str, str]]] = {
             "other_modifications_date",
             "planned_generator_retirement_date",
             "carbon_capture",
-            "cofire_fuels",
+            "can_cofire_fuels",
             "switch_oil_gas",
             "turbines_inverters_hydrokinetics",
             "nameplate_power_factor",

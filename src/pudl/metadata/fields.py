@@ -463,7 +463,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "can_switch_when_operating": {
         "type": "boolean",
-        "description": "Whether the generator switches fuel while operating.",
+        "description": "Whether the generator can switch fuel while operating.",
     },
     "capacity_eoy_mw": {
         "type": "number",
@@ -745,9 +745,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Originally reported short code.",
     },
-    "cofire_fuels": {
+    "can_cofire_fuels": {
         "type": "boolean",
-        "description": "Can the generator co-fire fuels?",
+        "description": "Whether the generator can co-fire fuels.",
     },
     "cofire_energy_source_1": {
         "type": "string",
@@ -1123,7 +1123,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Whether there are factors that limit the generator's ability to switch between oil and natural gas.",
     },
-    "has_other_limits": {
+    "has_other_factors_that_limit_switching": {
         "type": "boolean",
         "description": "Whether there are factors other than air permit limits and storage that limit the generator's ability to switch between oil and natural gas.",
     },
@@ -2774,9 +2774,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "unit": "gal",
     },
-    "multiple_fuels": {
+    "can_burn_multiple_fuels": {
         "type": "boolean",
-        "description": "Can the generator burn multiple fuels?",
+        "description": "Whether the generator can burn multiple fuels.",
     },
     "nameplate_power_factor": {
         "type": "number",
@@ -2906,22 +2906,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MWh",
     },
-    "net_summer_capacity_with_natural_gas_mw": {
+    "net_summer_capacity_natural_gas_mw": {
         "type": "number",
         "description": "The maximum net summer output achievable when running on natural gas.",
         "unit": "MW",
     },
-    "net_summer_capacity_with_oil_mw": {
+    "net_summer_capacity_oil_mw": {
         "type": "number",
         "description": "The maximum net summer output achievable when running on oil.",
         "unit": "MW",
     },
-    "net_winter_capacity_with_natural_gas_mw": {
+    "net_winter_capacity_natural_gas_mw": {
         "type": "number",
         "description": "The maximum net winter output achievable when running on natural gas.",
         "unit": "MW",
     },
-    "net_winter_capacity_with_oil_mw": {
+    "net_winter_capacity_oil_mw": {
         "type": "number",
         "description": "The maximum net summer output achievable when running on oil.",
         "unit": "MW",
@@ -3794,8 +3794,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Human-readable name of a US Census region.",
     },
-    "regulatory_limits": {
-        "type": "string",
+    "has_regulatory_limits": {
+        "type": "boolean",
         "description": "Whether there are factors that limit the operation of the generator when running on 100 percent oil",
     },
     "regulation_mercury": {
@@ -4512,9 +4512,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Supporting structure of the transmission line.",
     },
-    "switch_oil_gas": {
+    "can_switch_oil_gas": {
         "type": "boolean",
-        "description": "Indicates whether the generator switch between oil and natural gas.",
+        "description": "Whether the generator can switch between oil and natural gas.",
     },
     "syncronized_transmission_grid": {
         "type": "boolean",
@@ -4577,6 +4577,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "and predefined, based on season, day of week, and time of day."
         ),
     },
+    "time_to_switch_gas_to_oil": {
+        "type": "string",
+        "description": "The time required to switch the generator from running 100 percent natural gas to running 100 percent oil.",
+    },
+    "time_to_switch_oil_to_gas": {
+        "type": "string",
+        "description": "The time required to switch the generator from running 100 percent oil to running 100 percent natural gas.",
+    },
     "has_time_responsive_programs": {
         "type": "boolean",
         "description": (
@@ -4591,10 +4599,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "The number of cusomters participating in the respondent's time-based "
             "rate programs."
         ),
-    },
-    "time_to_switch": {
-        "type": "string",
-        "description": "Time needed to switch between fuel sources",
     },
     "timezone": {
         "type": "string",
