@@ -16,7 +16,7 @@ def get_model_tables() -> list[str]:
             "core_sec10k__company_information",
             "core_sec10k__exhibit_21_company_ownership",
             "core_sec10k__filings",
-            "out_sec_10k__parents_and_subsidiaries",
+            "out_sec10k__parents_and_subsidiaries",
         ]
 
     return pudl_models_tables
@@ -31,7 +31,8 @@ def pudl_models_asset_factory(table_name: str) -> AssetsDefinition:
 
     @asset(
         name=table_name,
-        io_manager_key="pudl_io_manager",
+        io_manager_key="parquet_io_manager",
+        group_name="pudl_models",
     )
     def _asset() -> pd.DataFrame:
         return DeltaTable(_get_table_uri(table_name)).to_pandas()
