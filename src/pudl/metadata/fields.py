@@ -451,19 +451,19 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "can_cofire_100_oil": {
         "type": "boolean",
-        "description": "Can the generator co-fire 100 oil?",
+        "description": "Whether the generator can co-fire 100 oil.",
     },
     "can_cofire_oil_and_gas": {
         "type": "boolean",
-        "description": "Can the generator co-fire oil and gas?",
+        "description": "Whether the generator can co-fire oil and gas.",
     },
     "can_fuel_switch": {
         "type": "boolean",
-        "description": "TK",
+        "description": "Whether a unit is able to switch fuels.",
     },
     "can_switch_when_operating": {
         "type": "boolean",
-        "description": "Indicates whether the generator switches fuel while operating.",
+        "description": "Whether the generator switches fuel while operating.",
     },
     "capacity_eoy_mw": {
         "type": "number",
@@ -751,27 +751,27 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "cofire_energy_source_1": {
         "type": "string",
-        "description": "Type of fuel.",
+        "description": "The codes representing the type of fuel that will be co-fired.",
     },
     "cofire_energy_source_2": {
         "type": "string",
-        "description": "Type of fuel.",
+        "description": "The codes representing the type of fuel that will be co-fired.",
     },
     "cofire_energy_source_3": {
         "type": "string",
-        "description": "Type of fuel.",
+        "description": "The codes representing the type of fuel that will be co-fired.",
     },
     "cofire_energy_source_4": {
         "type": "string",
-        "description": "Type of fuel.",
+        "description": "The codes representing the type of fuel that will be co-fired.",
     },
     "cofire_energy_source_5": {
         "type": "string",
-        "description": "Type of fuel.",
+        "description": "The codes representing the type of fuel that will be co-fired.",
     },
     "cofire_energy_source_6": {
         "type": "string",
-        "description": "Type of fuel.",
+        "description": "The codes representing the type of fuel that will be co-fired.",
     },
     "coincident_peak_demand_mw": {
         "type": "number",
@@ -1113,7 +1113,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "has_air_permit_limits": {
         "type": "boolean",
-        "description": "True if there are air permit limits",
+        "description": "Whether air permit limits are a factor that limits the operation of the generator when running on 100 percent oil.",
     },
     "has_demand_side_management": {
         "type": "boolean",
@@ -1121,15 +1121,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "has_factors_that_limit_switching": {
         "type": "boolean",
-        "description": "True if there are factors that limit switching.",
+        "description": "Whether there are factors that limit the generator's ability to switch between oil and natural gas.",
     },
     "has_other_limits": {
         "type": "boolean",
-        "description": "True if there are other limits on the generator.",
+        "description": "Whether there are factors other than air permit limits and storage that limit the generator's ability to switch between oil and natural gas.",
     },
     "has_storage_limits": {
         "type": "boolean",
-        "description": "True if there are storage limits",
+        "description": "Whether limited on-site fuel storage is a factor that limits the generator's ability to switch between oil and natural gas.",
     },
     "depreciation_type": {
         "type": "string",
@@ -1917,27 +1917,27 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "fuel_switch_energy_source_1": {
         "type": "string",
-        "description": "TK",
+        "description": "The codes representing the type of fuel that will be able to be used as a sole source of fuel for this unit.",
     },
     "fuel_switch_energy_source_2": {
         "type": "string",
-        "description": "TK",
+        "description": "The codes representing the type of fuel that will be able to be used as a sole source of fuel for this unit.",
     },
     "fuel_switch_energy_source_3": {
         "type": "string",
-        "description": "TK",
+        "description": "The codes representing the type of fuel that will be able to be used as a sole source of fuel for this unit.",
     },
     "fuel_switch_energy_source_4": {
         "type": "string",
-        "description": "TK",
+        "description": "The codes representing the type of fuel that will be able to be used as a sole source of fuel for this unit.",
     },
     "fuel_switch_energy_source_5": {
         "type": "string",
-        "description": "TK",
+        "description": "The codes representing the type of fuel that will be able to be used as a sole source of fuel for this unit.",
     },
     "fuel_switch_energy_source_6": {
         "type": "string",
-        "description": "TK",
+        "description": "The codes representing the type of fuel that will be able to be used as a sole source of fuel for this unit.",
     },
     "fuel_type": {
         "type": "string",
@@ -2573,11 +2573,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "max_oil_heat_input": {
         "type": "number",
-        "description": "TK",
+        "description": "The maximum oil heat input (percent of MMBtus) expected for proposed unit when co-firing with natural gas",
+        "unit": "% MMBtu",
     },
     "max_oil_output_mw": {
         "type": "number",
-        "description": "MW",
+        "description": "The maximum output (net MW) expected for proposed unit, when making the maximum use of oil and co-firing natural gas.",
+        "unit": "MW",
     },
     "max_steam_flow_1000_lbs_per_hour": {
         "type": "number",
@@ -2906,23 +2908,23 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "net_summer_capacity_with_natural_gas_mw": {
         "type": "number",
-        "description": "Summer capacity with natural gas.",
-        "unit": "MWh",
+        "description": "The maximum net summer output achievable when running on natural gas.",
+        "unit": "MW",
     },
     "net_summer_capacity_with_oil_mw": {
         "type": "number",
-        "description": "Summer capacity with oil.",
-        "unit": "MWh",
+        "description": "The maximum net summer output achievable when running on oil.",
+        "unit": "MW",
     },
     "net_winter_capacity_with_natural_gas_mw": {
         "type": "number",
-        "description": "Winter capacity with natural gas.",
-        "unit": "MWh",
+        "description": "The maximum net winter output achievable when running on natural gas.",
+        "unit": "MW",
     },
     "net_winter_capacity_with_oil_mw": {
         "type": "number",
-        "description": "Winter capacity with oil",
-        "unit": "MWh",
+        "description": "The maximum net summer output achievable when running on oil.",
+        "unit": "MW",
     },
     "net_wheeled_power_mwh": {
         "type": "number",
@@ -3792,7 +3794,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Human-readable name of a US Census region.",
     },
-    "regulatory_limits": {"type": "string", "description": "TK"},
+    "regulatory_limits": {
+        "type": "string",
+        "description": "Whether there are factors that limit the operation of the generator when running on 100 percent oil",
+    },
     "regulation_mercury": {
         "type": "string",
         "description": "Most stringent type of statute or regulation code under which the boiler is operating for mercury control standards.",
