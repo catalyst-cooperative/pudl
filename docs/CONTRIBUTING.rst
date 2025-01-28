@@ -2,16 +2,25 @@
 Contributing to PUDL
 ===============================================================================
 
-
 Welcome! We're excited that you're interested in contributing to the Public Utility
 Data Liberation effort!
 
 We need lots of help with :ref:`user-feedback`, we welcome :ref:`code-contribs`, and
-it would be great to :ref:`connect-orgs` that we can work with.
+it would be great to :ref:`connect-orgs` that we can work with. Financial support via
+our :ref:`pudl-sustainers` program is always welcome.
 
-Finally, `financial donations
-<https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=PZBZDFNKBJW5E&source=url>`__
-are welcome too!
+.. _pudl-sustainers:
+
+---------------
+PUDL Sustainers
+---------------
+
+If you use or appreciate PUDL data and want to help ensure that it continues to be
+openly and freely available to the public (and yourself) please consider becoming a PUDL
+Sustainer. See the `PUDL project profile on Open Collective
+<https://opencollective.com/pudl>`__ for more information. Contributions of any size are
+appreciated. Sustainers at higher tiers are invited to help guide the project's
+priorities in our quarterly planning process.
 
 ---------------
 Code of Conduct
