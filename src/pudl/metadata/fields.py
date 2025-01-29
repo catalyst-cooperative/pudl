@@ -5516,6 +5516,16 @@ elements which should be overridden need to be specified.
 """
 
 FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
+    "core_sec10k__exhibit_21_company_ownership": {
+        "fraction_owned": {
+            "description": "Fraction of subsidiary company owned by parent.",
+        }
+    },
+    "out_sec10k__parents_and_subsidiaries": {
+        "fraction_owned": {
+            "description": "Fraction of subsidiary company owned by parent.",
+        }
+    },
     "sector_consolidated_eia": {"code": {"type": "integer"}},
     "core_ferc1__yearly_hydroelectric_plants_sched406": {
         "plant_type": {
