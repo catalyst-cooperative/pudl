@@ -2,6 +2,7 @@
 
 import importlib.resources
 import itertools
+import os
 import warnings
 
 import pandera as pr
@@ -115,7 +116,10 @@ default_assets = list(
         )
         for group_name, modules in all_asset_modules.items()
     )
-) + load_assets_from_modules([pudl.analysis.pudl_models])
+)
+
+if os.getenv("USE_PUDL_MODELS"):
+    default_assets += load_assets_from_modules([pudl.analysis.pudl_models])
 
 default_asset_checks = list(
     itertools.chain.from_iterable(
