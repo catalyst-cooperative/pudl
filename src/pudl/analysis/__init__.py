@@ -12,6 +12,7 @@ from . import (
     fuel_by_plant,
     mcoe,
     plant_parts_eia,
+    pudl_models,
     record_linkage,
     service_territory,
     spatial,

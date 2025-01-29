@@ -331,14 +331,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "or charging rent to host cell antennas on transmission towers."
         ),
     },
-    "block": {
-        "type": "string",
-        "description": "Title of block of data.",
-    },
-    "block_count": {
-        "type": "integer",
-        "description": "Some blocks are repeated, `block_count` defines the index of the data block.",
-    },
     "boiler_fuel_code_1": {
         "type": "string",
         "description": "The code representing the most predominant type of energy that fuels the boiler.",
@@ -750,9 +742,33 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Average monthly coincident peak (CP) demand (for requirements purchases, and any transactions involving demand charges). Monthly CP demand is the metered demand during the hour (60-minute integration) in which the supplier's system reaches its monthly peak. In megawatts.",
         "unit": "MW",
     },
+    "company_id_sec": {
+        "type": "string",
+        "description": "Assigned identifier for the company.",
+    },
+    "company_information_block": {
+        "type": "string",
+        "description": "Title of block of data.",
+    },
+    "company_information_block_count": {
+        "type": "integer",
+        "description": "Some blocks are repeated, this defines the index of the data block.",
+    },
+    "company_information_fact_name": {
+        "type": "string",
+        "description": "Name of fact within a ``company_information_block``.",
+    },
+    "company_information_fact_value": {
+        "type": "string",
+        "description": "Value corresponding with ``company_information_fact_name``.",
+    },
     "company_name": {
         "type": "string",
         "description": "Name of company submitting SEC 10k filing.",
+    },
+    "company_name_former": {
+        "type": "string",
+        "description": "Former name of company.",
     },
     "company_name_raw": {
         "type": "string",
@@ -1643,13 +1659,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Total number of flue gas desulfurization unit scrubber trains.",
     },
-    "former_conformed_name": {
-        "type": "string",
-        "description": "Former name of the company.",
-    },
     "filer_count": {
         "type": "integer",
         "description": "Index company information as some filings contain information for multiple companies.",
+    },
+    "filename_sec10k": {
+        "type": "string",
+        "description": "Name of filing as provided by SEC data portal.",
     },
     "files_10k": {
         "type": "boolean",
@@ -1730,10 +1746,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "forecast_year": {
         "type": "integer",
         "description": "Four-digit year that applies to a particular forecasted value.",
-    },
-    "form_type": {
-        "type": "string",
-        "description": "Specific version of SEC 10k filed.",
     },
     "fraction_owned": {
         "type": "number",
@@ -2377,7 +2389,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Original reported energy interchange between adjacent balancing authorities.",
         "unit": "MWh",
     },
-    "irs_number": {"type": "string", "description": "ID of the company with the IRS."},
+    "company_id_irs": {
+        "type": "string",
+        "description": "ID of the company with the IRS.",
+    },
     "is_epacems_state": {
         "type": "boolean",
         "description": (
@@ -2392,10 +2407,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "iso_rto_code": {
         "type": "string",
         "description": "The code of the plant's ISO or RTO. NA if not reported in that year.",
-    },
-    "key": {
-        "type": "string",
-        "description": "Key within block.",
     },
     "kwh_per_customer": {"type": "number", "description": "kWh per customer."},
     "label": {
@@ -2509,11 +2520,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
-    "location": {
-        "type": "string",
-        "description": "Location of subsidiary company.",
-    },
-    "location_of_inc": {
+    "location_of_incorporation": {
         "type": "string",
         "description": "Cleaned location of incorporation of the company.",
     },
@@ -3350,10 +3357,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Whether each generator record is for one owner or represents a total of all ownerships.",
         "constraints": {"enum": ["owned", "total"]},
     },
-    "ownership_percentage": {
-        "type": "string",
-        "description": "Percentage of subsidiary company owned by parent.",
-    },
     "ownership_code": {
         "type": "string",
         "description": "Identifies the ownership for each generator.",
@@ -3362,9 +3365,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Whether a plant part record has a duplicate record with different ownership status.",
     },
-    "parent_company_cik": {
+    "parent_company_central_index_key": {
         "type": "string",
-        "description": "CIK of the company's parent company.",
+        "description": "Central index key (CIK) of the company's parent company.",
     },
     "particulate_control_id_eia": {
         "type": "string",
@@ -3981,13 +3984,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Estimated electricity demand scaled by the total sales within a state.",
         "unit": "MWh",
     },
-    "sec_company_id": {
+    "sec10k_version": {
         "type": "string",
-        "description": "Assigned identifier for the company.",
-    },
-    "sec10k_filename": {
-        "type": "string",
-        "description": "Name of filing as provided by SEC data portal.",
+        "description": "Specific version of SEC 10k filed.",
     },
     "secondary_transportation_mode_code": {
         "type": "string",
@@ -4384,10 +4383,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         # TODO: Disambiguate as this means different things in different tables.
         "description": "Physical street address.",
     },
-    "street_address_2": {
-        "type": "string",
-        "description": "Secondary street address.",
-    },
     "subcritical_tech": {
         "type": "boolean",
         "description": "Indicates whether the generator uses subcritical technology",
@@ -4417,9 +4412,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "Sub-plant ID links EPA CEMS emissions units to EIA units.",
     },
-    "subsidiary": {
+    "subsidiary_company_name": {
         "type": "string",
         "description": "Name of subsidiary company.",
+    },
+    "subsidiary_location": {
+        "type": "string",
+        "description": "Location of subsidiary company.",
     },
     "sulfur_content_pct": {
         "type": "number",
@@ -4903,10 +4902,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "valid_until_date": {
         "type": "date",
         "description": "The record in the changelog is valid until this date. The record is valid from the report_date up until but not including the valid_until_date.",
-    },
-    "value": {
-        "type": "string",
-        "description": "String value of data point.",
     },
     "variable_peak_pricing": {
         "type": "boolean",
