@@ -573,7 +573,10 @@ def check_unexpected_counties() -> AssetCheckResult:
     )
     unexpected_counties = duckdb.query(
         "SELECT * FROM vce "
-        "WHERE county_or_lake_name = 'bedford_city' or county_or_lake_name = 'clifton_forge_city'"
+        "WHERE county_or_lake_name in ("
+        "'bedford_city','clifton_forge_city',"
+        "'lake_hurron','lake_st_clair'"
+        ")"
     ).fetchall()
     if len(unexpected_counties) > 0:
         return AssetCheckResult(
