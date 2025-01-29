@@ -1113,7 +1113,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "has_air_permit_limits": {
         "type": "boolean",
-        "description": "Whether air permit limits are a factor that limits the operation of the generator when running on 100 percent oil.",
+        "description": "Whether air permit limits are a factor that limits the generator's ability to switch between oil and natural gas.",
     },
     "has_demand_side_management": {
         "type": "boolean",
