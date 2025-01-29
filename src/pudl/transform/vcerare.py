@@ -396,7 +396,9 @@ def check_rows(context: AssetCheckExecutionContext) -> AssetCheckResult:
 
     vce = _load_duckdb_table()  # noqa: F841
     errors = []
-    for (report_year, length) in duckdb.query("SELECT report_year, COUNT(*) FROM vce GROUP BY ALL").fetchall():
+    for report_year, length in duckdb.query(
+        "SELECT report_year, COUNT(*) FROM vce GROUP BY ALL"
+    ).fetchall():
         if (expected_length := row_counts_by_year[report_year]) != length:
             errors.append(
                 f"Expected {expected_length} for report year {report_year}, found {length}"
