@@ -18,6 +18,11 @@ def _compute_fraction_owned(percent_ownership: pd.Series) -> pd.Series:
     ) / 100.0
 
 
+def _year_quarter_to_date(year_quarter: pd.Series) -> pd.Series:
+    """Clean percent ownership, convert to float, then convert percent to ratio."""
+    return pd.PeriodIndex(year_quarter, freq="Q").to_timestamp()
+
+
 @asset(
     io_manager_key="parquet_io_manager",
     group_name="pudl_models",
@@ -34,6 +39,9 @@ def core_sec10k__company_information() -> pd.DataFrame:
             "value": "company_information_fact_value",
         }
     )
+
+    # Get date from year quarters
+    df["report_date"] = _year_quarter_to_date(df.year_quarter)
 
     return df
 
@@ -56,6 +64,9 @@ def core_sec10k__exhibit_21_company_ownership() -> pd.DataFrame:
     # Convert ownership percentage
     df["fraction_owned"] = _compute_fraction_owned(df.ownership_percentage)
 
+    # Get date from year quarters
+    df["report_date"] = _year_quarter_to_date(df.year_quarter)
+
     return df
 
 
@@ -72,6 +83,9 @@ def core_sec10k__filings() -> pd.DataFrame:
             "form_type": "sec10k_version",
         }
     )
+
+    # Get date from year quarters
+    df["report_date"] = _year_quarter_to_date(df.year_quarter)
 
     return df
 

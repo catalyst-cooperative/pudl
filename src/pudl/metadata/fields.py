@@ -5036,10 +5036,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "Year the data was reported in, used for partitioning EPA CEMS.",
     },
-    "year_quarter": {
-        "type": "string",
-        "description": "Year quarter filing applies to.",
-    },
     "zip_code": {
         "type": "string",
         "description": "Five digit US Zip Code.",

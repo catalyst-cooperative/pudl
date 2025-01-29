@@ -13,7 +13,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "sec10k_version",
                 "date_filed",
                 "exhibit_21_version",
-                "year_quarter",
+                "report_date",
             ],
             "primary_key": [
                 "filename_sec10k",
@@ -32,7 +32,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "subsidiary_company_name",
                 "subsidiary_location",
                 "fraction_owned",
-                "year_quarter",
+                "report_date",
             ],
         },
         "sources": ["sec10k"],
@@ -50,7 +50,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "company_information_block_count",
                 "company_information_fact_name",
                 "company_information_fact_value",
-                "year_quarter",
+                "report_date",
             ],
             "primary_key": [
                 "filename_sec10k",
