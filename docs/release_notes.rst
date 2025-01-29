@@ -28,6 +28,9 @@ Bug Fixes
   this fix.
 * Added preliminary data validation checks for several FERC 1 tables that were
   missing it :pr:`3860`.
+* Fix spelling of Lake Huron and Lake Saint Clair in
+  :ref:`out_vcerare__hourly_available_capacity_factor` and related tables. See issue
+  :issue:`4007` and PR :pr:`4029`.
 
 Major Dependency Updates
 ^^^^^^^^^^^^^^^^^^^^^^^^
