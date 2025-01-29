@@ -385,22 +385,28 @@ def check_rows(context: AssetCheckExecutionContext) -> AssetCheckResult:
     """Check rows."""
     logger.info("Check VCE RARE hourly table is the expected length")
 
-    # Define row counts for fast/full etl
-    # TODO 2024-12-27: make this check row counts per year instead of having
-    # two different counts based on job name - less brittle.
-    row_counts = {
-        "etl_full": 136437000,
-        "etl_fast": 27287400,
-        "__ASSET_JOB": 136437000,
+    # Define row counts for report years
+    row_counts_by_year = {
+        2019: 27287400,
+        2020: 27287400,
+        2021: 27287400,
+        2022: 27287400,
+        2023: 27287400,
     }
 
     vce = _load_duckdb_table()  # noqa: F841
-    (length,) = duckdb.query("SELECT COUNT(*) FROM vce").fetchone()
-    if (expected_length := row_counts[context.op_execution_context.job_name]) != length:
+    errors = []
+    for (report_year, length) in duckdb.query("SELECT report_year, COUNT(*) FROM vce GROUP BY ALL").fetchall():
+        if (expected_length := row_counts_by_year[report_year]) != length:
+            errors.append(
+                f"Expected {expected_length} for report year {report_year}, found {length}"
+            )
+    if errors:
+        logger.warning(errors)
         return AssetCheckResult(
             passed=False,
-            description="Table unexpected length",
-            metadata={"table_length": length, "expected_length": expected_length},
+            description="One or more report years have unexpected length",
+            metadata={"errors": errors},
         )
     return AssetCheckResult(passed=True)
 
