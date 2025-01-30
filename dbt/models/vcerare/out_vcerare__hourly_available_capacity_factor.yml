@@ -1,7 +1,7 @@
 version: 2
 
 sources:
-  - name: vcerare
+  - name: pudl
     tables:
       - name: out_vcerare__hourly_available_capacity_factor
         data_tests:

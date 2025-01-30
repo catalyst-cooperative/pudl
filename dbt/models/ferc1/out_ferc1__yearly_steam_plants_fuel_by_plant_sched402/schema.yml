@@ -1,12 +1,12 @@
 version: 2
 
 sources:
-  - name: ferc1
+  - name: pudl
     tables:
       - name: out_ferc1__yearly_steam_plants_fuel_by_plant_sched402
 
 models:
-  - name: ferc1_fbp_cost_per_mmbtu
+  - name: validate_ferc1__yearly_steam_plants_fuel_by_plant_sched402
     columns:
       - name: gas_cost_per_mmbtu
         data_tests:
