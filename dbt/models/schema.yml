@@ -1,7 +1,0 @@
-version: 2
-
-sources:
-  - name: ferc1
-    description: "Data tests for ferc1 assets."
-  - name: eia923
-    description: "Data tests for eia923 assets."

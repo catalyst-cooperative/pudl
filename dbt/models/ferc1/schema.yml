@@ -2,11 +2,6 @@ version: 2
 
 sources:
   - name: ferc1
-    meta:
-      external_location: |
-        {%- if target.name == "nightly" -%} 'https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/{name}.parquet'
-        {%- else -%} '{{ env_var('PUDL_OUTPUT') }}/parquet/{name}.parquet'
-        {%- endif -%}
     tables:
       - name: out_ferc1__yearly_steam_plants_fuel_by_plant_sched402
 

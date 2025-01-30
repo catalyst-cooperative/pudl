@@ -1,12 +1,7 @@
 version: 2
 
 sources:
-  - name: pudl
-    meta:
-      external_location: |
-        {%- if target.name == "nightly" -%} 'https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/{name}.parquet'
-        {%- else -%} '{{ env_var('PUDL_OUTPUT') }}/parquet/{name}.parquet'
-        {%- endif -%}
+  - name: vcerare
     tables:
       - name: out_vcerare__hourly_available_capacity_factor
         data_tests:
