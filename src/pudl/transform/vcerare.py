@@ -9,6 +9,7 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 from dagster import (
+    AssetCheckExecutionContext,
     AssetCheckResult,
     asset,
     asset_check,
@@ -273,8 +274,7 @@ def one_year_hourly_available_capacity_factor(
     the columns for each county or subregion into a single county_or_lake_name column.
     """
     logger.info(
-        "Transforming the VCE RARE hourly available capacity factor tables "
-        f"for {year}."
+        f"Transforming the VCE RARE hourly available capacity factor tables for {year}."
     )
     # Clean up the FIPS table
     fips_df = _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips)
@@ -359,16 +359,25 @@ def _load_duckdb_table():
     blocking=True,
     description="Check that row count matches expected.",
 )
-def check_rows() -> AssetCheckResult:
+def check_rows(context: AssetCheckExecutionContext) -> AssetCheckResult:
     """Check rows."""
     logger.info("Check VCE RARE hourly table is the expected length")
+
+    # Define row counts for fast/full etl
+    # TODO 2024-12-27: make this check row counts per year instead of having
+    # two different counts based on job name - less brittle.
+    row_counts = {
+        "etl_full": 136437000,
+        "etl_fast": 27287400,
+    }
+
     vce = _load_duckdb_table()  # noqa: F841
     (length,) = duckdb.query("SELECT COUNT(*) FROM vce").fetchone()
-    if length != 136437000:
+    if (expected_length := row_counts[context.op_execution_context.job_name]) != length:
         return AssetCheckResult(
             passed=False,
             description="Table unexpected length",
-            metadata={"table_length": length, "expected_length": 136437000},
+            metadata={"table_length": length, "expected_length": expected_length},
         )
     return AssetCheckResult(passed=True)
 

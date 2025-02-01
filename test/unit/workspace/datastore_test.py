@@ -3,7 +3,6 @@
 import io
 import json
 import re
-import unittest
 import zipfile
 from typing import Any
 
@@ -46,154 +45,121 @@ def _make_descriptor(
     )
 
 
-class TestDatapackageDescriptor(unittest.TestCase):
-    """Unit tests for the DatapackageDescriptor class."""
+def test_get_partition_filters():
+    desc = _make_descriptor(
+        "blabla",
+        "doi-123",
+        _make_resource("foo", group="first", color="red"),
+        _make_resource("bar", group="first", color="blue"),
+        _make_resource("baz", group="second", color="black", order=1),
+    )
+    assert list(desc.get_partition_filters()) == [
+        {"group": "first", "color": "red"},
+        {"group": "first", "color": "blue"},
+        {"group": "second", "color": "black", "order": 1},
+    ]
+    assert list(desc.get_partition_filters(group="first")) == [
+        {"group": "first", "color": "red"},
+        {"group": "first", "color": "blue"},
+    ]
+    assert list(desc.get_partition_filters(color="blue")) == [
+        {"group": "first", "color": "blue"},
+    ]
+    assert list(desc.get_partition_filters(color="blue", group="second")) == []
 
-    def test_get_partition_filters(self):
-        desc = _make_descriptor(
-            "blabla",
-            "doi-123",
-            _make_resource("foo", group="first", color="red"),
-            _make_resource("bar", group="first", color="blue"),
-            _make_resource("baz", group="second", color="black", order=1),
-        )
-        self.assertEqual(
-            [
-                {"group": "first", "color": "red"},
-                {"group": "first", "color": "blue"},
-                {"group": "second", "color": "black", "order": 1},
-            ],
-            list(desc.get_partition_filters()),
-        )
-        self.assertEqual(
-            [
-                {"group": "first", "color": "red"},
-                {"group": "first", "color": "blue"},
-            ],
-            list(desc.get_partition_filters(group="first")),
-        )
-        self.assertEqual(
-            [
-                {"group": "first", "color": "blue"},
-            ],
-            list(desc.get_partition_filters(color="blue")),
-        )
-        self.assertEqual(
-            [], list(desc.get_partition_filters(color="blue", group="second"))
-        )
 
-    def test_get_resource_path(self):
-        """Check that get_resource_path returns correct paths."""
-        desc = _make_descriptor(
-            "blabla",
-            "doi-123",
-            _make_resource("foo", group="first", color="red"),
-            _make_resource("bar", group="first", color="blue"),
-        )
-        self.assertEqual("http://localhost/foo", desc.get_resource_path("foo"))
-        self.assertEqual("http://localhost/bar", desc.get_resource_path("bar"))
-        # The following resource does not exist and should throw KeyError
-        self.assertRaises(KeyError, desc.get_resource_path, "other")
+def test_get_resource_path():
+    """Check that get_resource_path returns correct paths."""
+    desc = _make_descriptor(
+        "blabla",
+        "doi-123",
+        _make_resource("foo", group="first", color="red"),
+        _make_resource("bar", group="first", color="blue"),
+    )
+    assert desc.get_resource_path("foo") == "http://localhost/foo"
+    assert desc.get_resource_path("bar") == "http://localhost/bar"
+    with pytest.raises(KeyError):
+        desc.get_resource_path("other")
 
-    def test_modernize_zenodo_legacy_api_url(self):
-        legacy_url = "https://zenodo.org/api/files/082e4932-c772-4e9c-a670-376a1acc3748/datapackage.json"
 
-        descriptor = datastore.DatapackageDescriptor(
-            {"resources": [{"name": "datapackage.json", "path": legacy_url}]},
-            dataset="test",
-            doi="10.5281/zenodo.123123",
-        )
+def test_modernize_zenodo_legacy_api_url():
+    legacy_url = "https://zenodo.org/api/files/082e4932-c772-4e9c-a670-376a1acc3748/datapackage.json"
 
-        assert (
-            descriptor.get_resource_path("datapackage.json")
-            == "https://zenodo.org/records/123123/files/datapackage.json"
-        )
+    descriptor = datastore.DatapackageDescriptor(
+        {"resources": [{"name": "datapackage.json", "path": legacy_url}]},
+        dataset="test",
+        doi="10.5281/zenodo.123123",
+    )
 
-    def test_get_resources_filtering(self):
-        """Verifies correct operation of get_resources()."""
-        desc = _make_descriptor(
-            "data",
-            "doi-123",
-            _make_resource("foo", group="first", color="red"),
-            _make_resource("bar", group="first", color="blue", rank=5),
-            _make_resource(
-                "baz", group="second", color="blue", rank=5, mood="VeryHappy"
-            ),
-        )
-        self.assertEqual(
-            [
-                PudlResourceKey("data", "doi-123", "foo"),
-                PudlResourceKey("data", "doi-123", "bar"),
-                PudlResourceKey("data", "doi-123", "baz"),
-            ],
-            list(desc.get_resources()),
-        )
-        # Simple filtering by one attribute.
-        self.assertEqual(
-            [
-                PudlResourceKey("data", "doi-123", "foo"),
-                PudlResourceKey("data", "doi-123", "bar"),
-            ],
-            list(desc.get_resources(group="first")),
-        )
-        # Filter by two attributes
-        self.assertEqual(
-            [
-                PudlResourceKey("data", "doi-123", "bar"),
-            ],
-            list(desc.get_resources(group="first", rank=5)),
-        )
-        # Attributes that do not match anything
-        self.assertEqual(
-            [],
-            list(desc.get_resources(group="second", shape="square")),
-        )
-        # Search attribute values are cast to lowercase strings
-        self.assertEqual(
-            [
-                PudlResourceKey("data", "doi-123", "baz"),
-            ],
-            list(desc.get_resources(rank="5", mood="VERYhappy")),
-        )
-        # Test lookup by name
-        self.assertEqual(
-            [
-                PudlResourceKey("data", "doi-123", "foo"),
-            ],
-            list(desc.get_resources("foo")),
-        )
+    assert (
+        descriptor.get_resource_path("datapackage.json")
+        == "https://zenodo.org/records/123123/files/datapackage.json"
+    )
 
-    def test_json_string_representation(self):
-        """Checks that json representation parses to the same dict."""
-        desc = _make_descriptor(
-            "data",
-            "doi-123",
-            _make_resource("foo", group="first"),
-            _make_resource("bar", group="second"),
-            _make_resource("baz"),
-        )
-        self.assertEqual(
+
+def test_get_resources_filtering():
+    """Verifies correct operation of get_resources()."""
+    desc = _make_descriptor(
+        "data",
+        "doi-123",
+        _make_resource("foo", group="first", color="red"),
+        _make_resource("bar", group="first", color="blue", rank=5),
+        _make_resource("baz", group="second", color="blue", rank=5, mood="VeryHappy"),
+    )
+    assert list(desc.get_resources()) == [
+        PudlResourceKey("data", "doi-123", "foo"),
+        PudlResourceKey("data", "doi-123", "bar"),
+        PudlResourceKey("data", "doi-123", "baz"),
+    ]
+    # Simple filtering by one attribute.
+    assert list(desc.get_resources(group="first")) == [
+        PudlResourceKey("data", "doi-123", "foo"),
+        PudlResourceKey("data", "doi-123", "bar"),
+    ]
+    # Filter by two attributes
+    assert list(desc.get_resources(group="first", rank=5)) == [
+        PudlResourceKey("data", "doi-123", "bar"),
+    ]
+    # Attributes that do not match anything
+    assert list(desc.get_resources(group="second", shape="square")) == []
+    # Search attribute values are cast to lowercase strings
+    assert list(desc.get_resources(rank="5", mood="VERYhappy")) == [
+        PudlResourceKey("data", "doi-123", "baz"),
+    ]
+    # Test lookup by name
+    assert list(desc.get_resources("foo")) == [
+        PudlResourceKey("data", "doi-123", "foo"),
+    ]
+
+
+def test_json_string_representation():
+    """Checks that json representation parses to the same dict."""
+    desc = _make_descriptor(
+        "data",
+        "doi-123",
+        _make_resource("foo", group="first"),
+        _make_resource("bar", group="second"),
+        _make_resource("baz"),
+    )
+    assert json.loads(desc.get_json_string()) == {
+        "resources": [
             {
-                "resources": [
-                    {
-                        "name": "foo",
-                        "path": "http://localhost/foo",
-                        "parts": {"group": "first"},
-                    },
-                    {
-                        "name": "bar",
-                        "path": "http://localhost/bar",
-                        "parts": {"group": "second"},
-                    },
-                    {
-                        "name": "baz",
-                        "path": "http://localhost/baz",
-                        "parts": {},
-                    },
-                ],
+                "name": "foo",
+                "path": "http://localhost/foo",
+                "parts": {"group": "first"},
             },
-            json.loads(desc.get_json_string()),
-        )
+            {
+                "name": "bar",
+                "path": "http://localhost/bar",
+                "parts": {"group": "second"},
+            },
+            {
+                "name": "baz",
+                "path": "http://localhost/baz",
+                "parts": {},
+            },
+        ],
+    }
 
 
 class MockableZenodoFetcher(datastore.ZenodoFetcher):
@@ -210,7 +176,7 @@ class MockableZenodoFetcher(datastore.ZenodoFetcher):
         self._descriptor_cache = descriptors
 
 
-class TestZenodoFetcher(unittest.TestCase):
+class TestZenodoFetcher:
     """Unit tests for ZenodoFetcher class."""
 
     MOCK_EPACEMS_DEPOSITION = {
@@ -243,7 +209,8 @@ class TestZenodoFetcher(unittest.TestCase):
         r"^10\.(5072|5281)/zenodo\.(\d+)$", PROD_EPACEMS_DOI
     ).group(2)
 
-    def setUp(self):
+    @pytest.fixture(autouse=True)
+    def setup(self):
         """Constructs mockable Zenodo fetcher based on MOCK_EPACEMS_DATAPACKAGE."""
         self.fetcher = MockableZenodoFetcher(
             descriptors={
@@ -263,38 +230,36 @@ class TestZenodoFetcher(unittest.TestCase):
         identified.
         """
         zf = datastore.ZenodoFetcher()
-        self.assertTrue(zf.get_known_datasets())
+        assert zf.get_known_datasets()
         for dataset, doi in zf.zenodo_dois:
-            self.assertTrue(
-                zf.get_doi(dataset) == doi,
-                msg=f"Zenodo DOI for {dataset} matches result of get_doi()",
+            assert zf.get_doi(dataset) == doi, (
+                f"Zenodo DOI for {dataset} matches result of get_doi()"
             )
-            self.assertFalse(
-                re.fullmatch(r"10\.5072/zenodo\.[0-9]{5,10}", doi),
-                msg=f"Zenodo sandbox DOI found for {dataset}: {doi}",
+            assert not re.fullmatch(r"10\.5072/zenodo\.[0-9]{5,10}", doi), (
+                f"Zenodo sandbox DOI found for {dataset}: {doi}"
             )
-            self.assertTrue(
-                re.fullmatch(r"10\.5281/zenodo\.[0-9]{5,10}", doi),
-                msg=f"Zenodo production DOI for {dataset} is {doi}",
+            assert re.fullmatch(r"10\.5281/zenodo\.[0-9]{5,10}", doi), (
+                f"Zenodo production DOI for {dataset} is {doi}"
             )
 
     def test_get_known_datasets(self):
         """Call to get_known_datasets() produces the expected results."""
-        self.assertEqual(
-            sorted(name for name, doi in datastore.ZenodoFetcher().zenodo_dois),
-            self.fetcher.get_known_datasets(),
+        assert (
+            sorted(name for name, doi in datastore.ZenodoFetcher().zenodo_dois)
+            == self.fetcher.get_known_datasets()
         )
 
     def test_get_unknown_dataset(self):
         """Ensure that we get a failure when attempting to access an invalid dataset."""
-        self.assertRaises(AttributeError, self.fetcher.get_doi, "unknown")
+        with pytest.raises(AttributeError):
+            self.fetcher.get_doi("unknown")
 
     def test_doi_of_prod_epacems_matches(self):
         """Most of the tests assume specific DOI for production epacems dataset.
 
         This test verifies that the expected value is in use.
         """
-        self.assertEqual(self.PROD_EPACEMS_DOI, self.fetcher.get_doi("epacems"))
+        assert self.fetcher.get_doi("epacems") == self.PROD_EPACEMS_DOI
 
     @responses.activate
     def test_get_descriptor_http_calls(self):
@@ -311,8 +276,7 @@ class TestZenodoFetcher(unittest.TestCase):
             json=self.MOCK_EPACEMS_DATAPACKAGE,
         )
         desc = fetcher.get_descriptor("epacems")
-        self.assertEqual(self.MOCK_EPACEMS_DATAPACKAGE, desc.datapackage_json)
-        # self.assertTrue(responses.assert_call_count("http://localhost/my/datapackage.json", 1))
+        assert desc.datapackage_json == self.MOCK_EPACEMS_DATAPACKAGE
 
     @responses.activate
     def test_get_resource(self):
@@ -321,21 +285,21 @@ class TestZenodoFetcher(unittest.TestCase):
         res = self.fetcher.get_resource(
             PudlResourceKey("epacems", self.PROD_EPACEMS_DOI, "first")
         )
-        self.assertEqual(b"blah", res)
+        assert res == b"blah"
 
     @responses.activate
     def test_get_resource_with_invalid_checksum(self):
         """Test that resource with bad checksum raises ChecksumMismatchError."""
         responses.add(responses.GET, "http://localhost/first", body="wrongContent")
         res = PudlResourceKey("epacems", self.PROD_EPACEMS_DOI, "first")
-        self.assertRaises(
-            datastore.ChecksumMismatchError, self.fetcher.get_resource, res
-        )
+        with pytest.raises(datastore.ChecksumMismatchError):
+            self.fetcher.get_resource(res)
 
     def test_get_resource_with_nonexistent_resource_fails(self):
         """If resource does not exist, get_resource() throws KeyError."""
         res = PudlResourceKey("epacems", self.PROD_EPACEMS_DOI, "nonexistent")
-        self.assertRaises(KeyError, self.fetcher.get_resource, res)
+        with pytest.raises(KeyError):
+            self.fetcher.get_resource(res)
 
 
 def test_get_zipfile_resource_failure(mocker):
@@ -415,4 +379,4 @@ def test_get_zipfile_resources_eventual_success(mocker):
                 assert test_file.read().decode(encoding="utf-8") == file_contents
 
 
-# TODO(rousik): add unit tests for Datasource class as well
+# TODO: add unit tests for Datasource class as well

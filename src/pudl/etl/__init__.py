@@ -21,6 +21,7 @@ from dagster import (
 from dagster._core.definitions.cacheable_assets import CacheableAssetsDefinition
 
 import pudl
+from pudl.analysis.pudl_models import get_pudl_models_assets
 from pudl.io_managers import (
     epacems_io_manager,
     ferc1_dbf_sqlite_io_manager,
@@ -34,8 +35,6 @@ from pudl.resources import dataset_settings, datastore, ferc_to_sqlite_settings
 from pudl.settings import EtlSettings
 
 from . import (
-    check_foreign_keys,
-    cli,
     eia_bulk_elec_assets,
     epacems_assets,
     glue_assets,
@@ -109,14 +108,17 @@ out_module_groups = {
 }
 
 all_asset_modules = raw_module_groups | core_module_groups | out_module_groups
-default_assets = list(
-    itertools.chain.from_iterable(
-        load_assets_from_modules(
-            modules,
-            group_name=group_name,
+default_assets = (
+    list(
+        itertools.chain.from_iterable(
+            load_assets_from_modules(
+                modules,
+                group_name=group_name,
+            )
+            for group_name, modules in all_asset_modules.items()
         )
-        for group_name, modules in all_asset_modules.items()
     )
+    + get_pudl_models_assets()
 )
 
 default_asset_checks = list(

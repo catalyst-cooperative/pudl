@@ -363,7 +363,7 @@ def pudl_io_manager(
         md = PUDL_PACKAGE.to_sql()
         md.create_all(engine)
         # Run the ETL and generate a new PUDL SQLite DB for testing:
-        execute_result = pudl_etl_job_factory()().execute_in_process(
+        execute_result = pudl_etl_job_factory(base_job="etl_fast")().execute_in_process(
             run_config={
                 "resources": {
                     "dataset_settings": {

@@ -36,6 +36,7 @@ from pydantic import (
 )
 
 import pudl.logging_helpers
+from pudl.analysis.pudl_models import get_model_table_schemas
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.constants import (
     CONSTRAINT_DTYPES,
@@ -572,6 +573,24 @@ class Field(PudlMeta):
     harvest: FieldHarvest = FieldHarvest()
     encoder: Encoder | None = None
 
+    @classmethod
+    def from_pyarrow_field(cls, field: pa.Field) -> "Field":
+        """Construct from pyarrow field."""
+        # Reverse map from frictionless -> pyarrow to pyarrow -> frictionless
+        type_map = {
+            value: key for value, key in FIELD_DTYPES_PYARROW.items() if key != "year"
+        } | {
+            pa.bool8(): "boolean",
+            pa.int32(): "integer",
+            pa.int64(): "integer",
+            pa.date32(): "date",
+        }
+        return cls(
+            name=field.name,
+            type=type_map[field.type],
+            description=field.metadata[b"description"].decode(),
+        )
+
     @field_validator("constraints")
     @classmethod
     def _check_constraints(cls, value, info: ValidationInfo):  # noqa: C901
@@ -606,8 +625,7 @@ class Field(PudlMeta):
         dtype = info.data["type"]
         if dtype not in ["string", "integer"]:
             errors.append(
-                "Encoding only supported for string and integer fields, found "
-                f"{dtype}"
+                f"Encoding only supported for string and integer fields, found {dtype}"
             )
         if errors:
             raise ValueError(format_errors(*errors, pydantic=True))
@@ -793,6 +811,15 @@ class Schema(PudlMeta):
     _check_unique = _validator(
         "missing_values", "primary_key", "foreign_keys", fn=_check_unique
     )
+
+    @classmethod
+    def from_pyarrow_schema(cls, schema: pa.Schema) -> "Schema":
+        """Construct from a pyarrow schema."""
+        return cls(
+            fields=[
+                Field.from_pyarrow_field(schema.field(name)) for name in schema.names
+            ]
+        )
 
     @field_validator("fields")
     @classmethod
@@ -1035,25 +1062,27 @@ class DataSource(PudlMeta):
             sys.stdout.write(rendered)
 
     @classmethod
-    def from_field_namespace(cls, x: str) -> list["DataSource"]:
+    def from_field_namespace(
+        cls, x: str, sources: dict[str, Any] = SOURCES
+    ) -> list["DataSource"]:
         """Return list of DataSource objects by field namespace."""
         return [
-            cls(**cls.dict_from_id(name))
-            for name, val in SOURCES.items()
+            cls(**cls.dict_from_id(name, sources))
+            for name, val in sources.items()
             if val.get("field_namespace") == x
         ]
 
     @staticmethod
-    def dict_from_id(x: str) -> dict:
+    def dict_from_id(x: str, sources: dict[str, Any]) -> dict:
         """Look up the source by source name in the metadata."""
         # If ID ends with _xbrl strip end to find data source
         lookup_id = x.replace("_xbrl", "")
-        return {"name": x, **copy.deepcopy(SOURCES[lookup_id])}
+        return {"name": x, **copy.deepcopy(sources[lookup_id])}
 
     @classmethod
-    def from_id(cls, x: str) -> "DataSource":
+    def from_id(cls, x: str, sources: dict[str, Any] = SOURCES) -> "DataSource":
         """Construct Source by source name in the metadata."""
-        return cls(**cls.dict_from_id(x))
+        return cls(**cls.dict_from_id(x, sources=sources))
 
 
 class ResourceHarvest(PudlMeta):
@@ -1447,6 +1476,18 @@ class Resource(PudlMeta):
     def from_id(cls, x: str) -> "Resource":
         """Construct from PUDL identifier (`resource.name`)."""
         return cls(**cls.dict_from_id(x))
+
+    @classmethod
+    def from_pyarrow_schema(
+        cls, name: str, description: str, schema: pa.Schema
+    ) -> "Resource":
+        """Construct from a pyarrow schema."""
+        return cls(
+            name=name,
+            description=description,
+            schema=Schema.from_pyarrow_schema(schema),
+            create_database_schema=False,
+        )
 
     def get_field(self, name: str) -> Field:
         """Return field with the given name if it's part of the Resources."""
@@ -1974,6 +2015,12 @@ class Package(PudlMeta):
                 if len(names) > i:
                     resources += [Resource.dict_from_id(x) for x in names[i:]]
 
+        resources += [
+            Resource.from_pyarrow_schema(name, description, schema).model_dump(
+                by_alias=True
+            )
+            for name, description, schema in get_model_table_schemas()
+        ]
         if excluded_etl_groups:
             resources = [
                 resource
