@@ -358,9 +358,8 @@ def create_raw_ferc1_assets() -> list[AssetSpec]:
     )
     dbf_table_names = tuple(set(flattened_dbfs))
     raw_ferc1_dbf_assets = [
-        AssetSpec(
-            key=AssetKey(f"raw_ferc1_dbf__{table_name}"),
-            metadata={"dagster/io_manager_key": "ferc1_dbf_sqlite_io_manager"},
+        AssetSpec(key=AssetKey(f"raw_ferc1_dbf__{table_name}")).with_io_manager_key(
+            "ferc1_dbf_sqlite_io_manager"
         )
         for table_name in dbf_table_names
     ]
@@ -375,9 +374,8 @@ def create_raw_ferc1_assets() -> list[AssetSpec]:
     )
     xbrl_table_names = tuple(set(xbrls_with_periods))
     raw_ferc1_xbrl_assets = [
-        AssetSpec(
-            key=AssetKey(f"raw_ferc1_xbrl__{table_name}"),
-            metadata={"dagster/io_manager_key": "ferc1_xbrl_sqlite_io_manager"},
+        AssetSpec(key=AssetKey(f"raw_ferc1_xbrl__{table_name}")).with_io_manager_key(
+            "ferc1_xbrl_sqlite_io_manager"
         )
         for table_name in xbrl_table_names
     ]
