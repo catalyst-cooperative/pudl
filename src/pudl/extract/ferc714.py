@@ -191,8 +191,9 @@ def create_raw_ferc714_xbrl_assets() -> list[AssetSpec]:
     )
     xbrl_table_names = tuple(set(xbrls_with_periods))
     raw_ferc714_xbrl_assets = [
-        AssetSpec(
-            key=AssetKey(f"raw_ferc714_xbrl__{table_name}")).with_io_manager_key("ferc714_xbrl_sqlite_io_manager")
+        AssetSpec(key=AssetKey(f"raw_ferc714_xbrl__{table_name}")).with_io_manager_key(
+            "ferc714_xbrl_sqlite_io_manager"
+        )
         for table_name in xbrl_table_names
     ]
     return raw_ferc714_xbrl_assets
