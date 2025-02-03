@@ -25,5 +25,5 @@ class Extractor(excel.ExcelExtractor):
         df = df.rename(columns=self._metadata.get_column_map(page, **partition))
         if "report_year" not in df.columns:
             df["report_year"] = list(partition.values())[0]
-        self.cols_added = ["report_year"]
+            self.cols_added.append("report_year")
         return df
