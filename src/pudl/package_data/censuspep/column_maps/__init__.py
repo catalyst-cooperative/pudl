@@ -1,1 +1,1 @@
-"""Metadata linking semantic meaning of EIA 860 spreadsheet columns across years."""
+"""Metadata linking semantic meaning of Census PEP FIPS codes spreadsheet columns across years."""
