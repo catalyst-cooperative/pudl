@@ -1,1 +1,1 @@
-"""Excel spreadsheet extraction maps for EIA 860."""
+"""Excel spreadsheet extraction maps for Census PEP FIPS codes."""
