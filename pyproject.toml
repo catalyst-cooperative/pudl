@@ -45,11 +45,11 @@ dependencies = [
     "jinja2>=3.1",
     "jupyter",
     "matplotlib>=3.10",
-    "mlflow>=2.19",
+    "mlflow>=2.20",
     "nbconvert>=7",
     "nbformat>=5.10",
     "networkx>=3.4",
-    "numba>=0.60", # pandas[performance]; 0.60 required for Numpy 2.0
+    "numba>=0.61", # pandas[performance]; 0.60 required for Numpy 2.0
     "numexpr>=2.10", # pandas[performance]
     "numpy>=2",
     "packaging>=24",
@@ -343,7 +343,7 @@ google-cloud-sdk = ">=500"
 nodejs = ">=20"
 pandoc = ">=2"
 pip = ">=24"
-prettier = ">=3.0"
+prettier = ">=3.0,<4"
 python = ">=3.12,<3.13"
 sqlite = ">=3.47"
 zip = ">=3.0"
