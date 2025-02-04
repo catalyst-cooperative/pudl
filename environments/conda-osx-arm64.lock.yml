@@ -20,7 +20,7 @@ dependencies:
   - aom=3.9.1=h7bae524_0
   - appdirs=1.4.4=pyhd8ed1ab_1
   - appnope=0.1.4=pyhd8ed1ab_1
-  - arelle-release=2.36.8=pyhd8ed1ab_0
+  - arelle-release=2.36.9=pyhd8ed1ab_0
   - argon2-cffi=23.1.0=pyhd8ed1ab_1
   - argon2-cffi-bindings=21.2.0=py312h024a12e_5
   - arrow=1.3.0=pyhd8ed1ab_1
@@ -54,7 +54,7 @@ dependencies:
   - backports=1.0=pyhd8ed1ab_5
   - backports.tarfile=1.2.0=pyhd8ed1ab_1
   - bcrypt=4.2.1=py312hcd83bfe_0
-  - beautifulsoup4=4.13.1=pyha770c72_0
+  - beautifulsoup4=4.13.2=pyha770c72_0
   - bleach=6.2.0=pyh29332c3_4
   - bleach-with-css=6.2.0=h82add2a_4
   - blinker=1.9.0=pyhff2d567_0
@@ -106,7 +106,7 @@ dependencies:
   - dagster-webserver=1.9.11=pyhc5d1ea7_0
   - dask-core=2025.1.0=pyhd8ed1ab_0
   - dask-expr=2.0.0=pyhd8ed1ab_0
-  - databricks-sdk=0.42.0=pyhd8ed1ab_0
+  - databricks-sdk=0.43.0=pyhd8ed1ab_0
   - datasette=0.65.1=pyhd8ed1ab_0
   - dav1d=1.2.1=hb547adb_0
   - debugpy=1.8.12=py312hd8f9ff3_0

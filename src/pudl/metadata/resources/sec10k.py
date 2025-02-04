@@ -67,7 +67,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "description": "Denormalized table containing SEC 10k company information with mapping between subsidiary and parent companies, as well as a linkage to EIA companies.",
         "schema": {
             "fields": [
-                "company_id_sec",
+                "company_id_sec10k",
                 "filename_sec10k",
                 "report_date",
                 "central_index_key",

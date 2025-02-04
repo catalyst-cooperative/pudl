@@ -666,7 +666,7 @@ package:
     category: main
     optional: false
   - name: arelle-release
-    version: 2.36.8
+    version: 2.36.9
     manager: conda
     platform: linux-64
     dependencies:
@@ -681,14 +681,14 @@ package:
       python: ">=3.9,<3.13"
       python-dateutil: 2.*
       regex: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.36.8-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.36.9-pyhd8ed1ab_0.conda
     hash:
-      md5: 35e1ca03f44d10d3419f4b15cdb5e03d
-      sha256: e5bb1904bcc23ad13678b5b0d482f01709f9c7b13acfa754e3fc55a34facffc6
+      md5: 9ece791f1f00560d5b3a5ceb24b28bca
+      sha256: a0b12e726303a2497074001b184eec96e807a388ea84a38e98ccb1fd7053cde7
     category: main
     optional: false
   - name: arelle-release
-    version: 2.36.8
+    version: 2.36.9
     manager: conda
     platform: osx-64
     dependencies:
@@ -703,14 +703,14 @@ package:
       lxml: ">=4,<6"
       numpy: ">=1,<3"
       pillow: ">=10,<12"
-    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.36.8-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.36.9-pyhd8ed1ab_0.conda
     hash:
-      md5: 35e1ca03f44d10d3419f4b15cdb5e03d
-      sha256: e5bb1904bcc23ad13678b5b0d482f01709f9c7b13acfa754e3fc55a34facffc6
+      md5: 9ece791f1f00560d5b3a5ceb24b28bca
+      sha256: a0b12e726303a2497074001b184eec96e807a388ea84a38e98ccb1fd7053cde7
     category: main
     optional: false
   - name: arelle-release
-    version: 2.36.8
+    version: 2.36.9
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -725,10 +725,10 @@ package:
       lxml: ">=4,<6"
       numpy: ">=1,<3"
       pillow: ">=10,<12"
-    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.36.8-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.36.9-pyhd8ed1ab_0.conda
     hash:
-      md5: 35e1ca03f44d10d3419f4b15cdb5e03d
-      sha256: e5bb1904bcc23ad13678b5b0d482f01709f9c7b13acfa754e3fc55a34facffc6
+      md5: 9ece791f1f00560d5b3a5ceb24b28bca
+      sha256: a0b12e726303a2497074001b184eec96e807a388ea84a38e98ccb1fd7053cde7
     category: main
     optional: false
   - name: argon2-cffi
@@ -2223,45 +2223,45 @@ package:
     category: main
     optional: false
   - name: beautifulsoup4
-    version: 4.13.1
+    version: 4.13.2
     manager: conda
     platform: linux-64
     dependencies:
       python: ">=3.9"
       soupsieve: ">=1.2"
       typing-extensions: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/beautifulsoup4-4.13.1-pyha770c72_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/beautifulsoup4-4.13.2-pyha770c72_0.conda
     hash:
-      md5: 27919cdfaf859d161bc4a5552246b964
-      sha256: f27f8399c2587143128d101729c0d09ee0610f24d47c5f9798d47abd4be4ae2c
+      md5: 22b08b8f283909afee4cfff36b79f083
+      sha256: edc85562d1302c2f29005e23a71e1541b1c20647f47f9a1f690767e297f57b7b
     category: main
     optional: false
   - name: beautifulsoup4
-    version: 4.13.1
+    version: 4.13.2
     manager: conda
     platform: osx-64
     dependencies:
       typing-extensions: ""
       python: ">=3.9"
       soupsieve: ">=1.2"
-    url: https://conda.anaconda.org/conda-forge/noarch/beautifulsoup4-4.13.1-pyha770c72_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/beautifulsoup4-4.13.2-pyha770c72_0.conda
     hash:
-      md5: 27919cdfaf859d161bc4a5552246b964
-      sha256: f27f8399c2587143128d101729c0d09ee0610f24d47c5f9798d47abd4be4ae2c
+      md5: 22b08b8f283909afee4cfff36b79f083
+      sha256: edc85562d1302c2f29005e23a71e1541b1c20647f47f9a1f690767e297f57b7b
     category: main
     optional: false
   - name: beautifulsoup4
-    version: 4.13.1
+    version: 4.13.2
     manager: conda
     platform: osx-arm64
     dependencies:
       typing-extensions: ""
       python: ">=3.9"
       soupsieve: ">=1.2"
-    url: https://conda.anaconda.org/conda-forge/noarch/beautifulsoup4-4.13.1-pyha770c72_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/beautifulsoup4-4.13.2-pyha770c72_0.conda
     hash:
-      md5: 27919cdfaf859d161bc4a5552246b964
-      sha256: f27f8399c2587143128d101729c0d09ee0610f24d47c5f9798d47abd4be4ae2c
+      md5: 22b08b8f283909afee4cfff36b79f083
+      sha256: edc85562d1302c2f29005e23a71e1541b1c20647f47f9a1f690767e297f57b7b
     category: main
     optional: false
   - name: bleach
@@ -4598,45 +4598,45 @@ package:
     category: main
     optional: false
   - name: databricks-sdk
-    version: 0.42.0
+    version: 0.43.0
     manager: conda
     platform: linux-64
     dependencies:
       google-auth: ">=2.0,<3"
       python: ">=3.9"
       requests: ">=2.28.1,<3"
-    url: https://conda.anaconda.org/conda-forge/noarch/databricks-sdk-0.42.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/databricks-sdk-0.43.0-pyhd8ed1ab_0.conda
     hash:
-      md5: ab734df729200eabfb8b31e8c99e7ce9
-      sha256: 8c5c2326c401f5d64e851c7e6a40419f7d59ad145909e129f5a5cf1edc45fc82
+      md5: b56db2df08e71054541f172008a0ce50
+      sha256: 512c1b314c51017450c8baa56b112611106bbffe3e4e08b496e2ae09c50294c8
     category: main
     optional: false
   - name: databricks-sdk
-    version: 0.42.0
+    version: 0.43.0
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.9"
       requests: ">=2.28.1,<3"
       google-auth: ">=2.0,<3"
-    url: https://conda.anaconda.org/conda-forge/noarch/databricks-sdk-0.42.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/databricks-sdk-0.43.0-pyhd8ed1ab_0.conda
     hash:
-      md5: ab734df729200eabfb8b31e8c99e7ce9
-      sha256: 8c5c2326c401f5d64e851c7e6a40419f7d59ad145909e129f5a5cf1edc45fc82
+      md5: b56db2df08e71054541f172008a0ce50
+      sha256: 512c1b314c51017450c8baa56b112611106bbffe3e4e08b496e2ae09c50294c8
     category: main
     optional: false
   - name: databricks-sdk
-    version: 0.42.0
+    version: 0.43.0
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.9"
       requests: ">=2.28.1,<3"
       google-auth: ">=2.0,<3"
-    url: https://conda.anaconda.org/conda-forge/noarch/databricks-sdk-0.42.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/databricks-sdk-0.43.0-pyhd8ed1ab_0.conda
     hash:
-      md5: ab734df729200eabfb8b31e8c99e7ce9
-      sha256: 8c5c2326c401f5d64e851c7e6a40419f7d59ad145909e129f5a5cf1edc45fc82
+      md5: b56db2df08e71054541f172008a0ce50
+      sha256: 512c1b314c51017450c8baa56b112611106bbffe3e4e08b496e2ae09c50294c8
     category: main
     optional: false
   - name: datasette
@@ -4688,8 +4688,8 @@ package:
       asgi-csrf: ">=0.9"
       itsdangerous: ">=1.1"
       pluggy: ">=1.0"
-      hupper: ">=1.9"
       platformdirs: ">=2.1.0"
+      hupper: ">=1.9"
       uvicorn: ">=0.11"
       flexcache: ">=0.3"
       aiofiles: ">=0.4"
@@ -4720,8 +4720,8 @@ package:
       asgi-csrf: ">=0.9"
       itsdangerous: ">=1.1"
       pluggy: ">=1.0"
-      hupper: ">=1.9"
       platformdirs: ">=2.1.0"
+      hupper: ">=1.9"
       uvicorn: ">=0.11"
       flexcache: ">=0.3"
       aiofiles: ">=0.4"

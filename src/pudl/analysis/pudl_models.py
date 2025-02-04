@@ -101,7 +101,7 @@ def out_sec10k__parents_and_subsidiaries() -> pd.DataFrame:
     df = df.rename(
         columns={
             "sec10k_filename": "filename_sec10k",
-            "sec_company_id": "company_id_sec",
+            "sec_company_id": "company_id_sec10k",
             "street_address_2": "address_2",
             "former_conformed_name": "company_name_former",
             "location_of_inc": "location_of_incorporation",
@@ -119,6 +119,6 @@ def out_sec10k__parents_and_subsidiaries() -> pd.DataFrame:
     df[["industry_description_sic", "industry_id_sic"]] = df[
         "standard_industrial_classification"
     ].str.extract(r"(.+)\[(\d{4})\]")
-    df["industry_id_sic"] = df["industry_id_sic"].astype("Int64")
+    df["industry_id_sic"] = df["industry_id_sic"].astype("string")
 
     return df

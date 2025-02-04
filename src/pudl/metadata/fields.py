@@ -782,11 +782,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Average monthly coincident peak (CP) demand (for requirements purchases, and any transactions involving demand charges). Monthly CP demand is the metered demand during the hour (60-minute integration) in which the supplier's system reaches its monthly peak. In megawatts.",
         "unit": "MW",
     },
-    "company_id_sec": {
+    "company_id_sec10k": {
         "type": "string",
         "description": (
-            "Algorithmically assigned ID for companies that file SEC 10k's or are "
-            "referenced in exhibit 21 attachments to 10k's. May not be stable over time."
+            "PUDL-assigned ID for companies that file SEC Form 10-K or are referenced "
+            "in exhibit 21 attachments to Form 10-K. May not be stable over time."
         ),
     },
     "company_information_block": {
@@ -2433,8 +2433,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Four-digit Standard Industrial Classification (SIC) code identifying "
             "the company's primary industry. SIC codes have been replaced by NAICS "
-            "codes in many applications, but are still used by the SEC."
+            "codes in many applications, but are still used by the SEC. See e.g. "
+            "https://www.osha.gov/data/sic-manual for code definitions."
         ),
+        "constraints": {
+            "pattern": r"^\d{4}$",
+        },
     },
     "installation_year": {
         "type": "integer",
