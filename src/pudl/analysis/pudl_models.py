@@ -113,4 +113,10 @@ def out_sec10k__parents_and_subsidiaries() -> pd.DataFrame:
     # Convert ownership percentage
     df["fraction_owned"] = _compute_fraction_owned(df.ownership_percentage)
 
+    # Split standard industrial classification into ID and description columns
+    df[["industry_description_sic", "industry_id_sic"]] = df[
+        "standard_industrial_classification"
+    ].str.extract(r"(.+)\[(\d{4})\]")
+    df["industry_id_sic"] = df["industry_id_sic"].astype("Int64")
+
     return df

@@ -2348,6 +2348,18 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
+    "industry_description_sic": {
+        "type": "string",
+        "description": "Text description of Standard Industrial Classification (SIC)",
+    },
+    "industry_id_sic": {
+        "type": "string",
+        "description": (
+            "Four-digit Standard Industrial Classification (SIC) code identifying "
+            "the company's primary industry. SIC codes have been replaced by NAICS "
+            "codes in many applications, but are still used by the SEC."
+        ),
+    },
     "installation_year": {
         "type": "integer",
         "description": "Year the plant's most recently built unit was installed.",
@@ -4280,10 +4292,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "constraints": {"enum": RELIABILITY_STANDARDS},
         # TODO: Might want to make this column more specific to outages: ex: outage calculation standard.
-    },
-    "standard_industrial_classification": {
-        "type": "string",
-        "description": "The company's type of business.",
     },
     "standard_nox_rate": {
         "type": "number",
