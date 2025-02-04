@@ -9,6 +9,10 @@ v2024.XX.x (2024-MM-DD)
 New Data Coverage
 ^^^^^^^^^^^^^^^^^
 
+EIA 860
+~~~~~~~
+* Added EIA 860 Multifuel data. See :issue:`3438` and :pr:`3946`.
+
 EIA 176
 ~~~~~~~
 * Add a couple of semi-transformed interim EIA-176 (natural gas sources and

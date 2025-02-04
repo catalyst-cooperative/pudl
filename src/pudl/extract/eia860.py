@@ -85,6 +85,7 @@ raw_table_names = (
     "raw_eia860__generator_wind_existing",
     "raw_eia860__generator_wind_retired",
     "raw_eia860__multifuel_existing",
+    "raw_eia860__multifuel_proposed",
     "raw_eia860__multifuel_retired",
     "raw_eia860__ownership",
     "raw_eia860__plant",
