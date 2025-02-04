@@ -4541,7 +4541,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Name of subsidiary company.",
     },
-    "subsidiary_location": {
+    "subsidiary_company_location": {
         "type": "string",
         "description": "Location of subsidiary company.",
     },

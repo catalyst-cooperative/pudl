@@ -29,7 +29,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "filename_sec10k",
                 "subsidiary_company_name",
-                "subsidiary_location",
+                "subsidiary_company_location",
                 "fraction_owned",
                 "report_date",
             ],

@@ -57,7 +57,7 @@ def core_sec10k__exhibit_21_company_ownership() -> pd.DataFrame:
         columns={
             "sec10k_filename": "filename_sec10k",
             "subsidiary": "subsidiary_company_name",
-            "location": "subsidiary_location",
+            "location": "subsidiary_company_location",
         }
     )
 
