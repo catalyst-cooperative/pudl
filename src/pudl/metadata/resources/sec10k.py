@@ -73,7 +73,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "company_id_sec",
                 "filename_sec10k",
                 "report_date",
-                "report_year",
                 "central_index_key",
                 "utility_id_eia",
                 "street_address",
