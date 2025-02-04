@@ -744,7 +744,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "company_id_sec": {
         "type": "string",
-        "description": "Assigned identifier for companies that file SEC10k forms, or show up in Exhibit 21 attachments.",
+        "description": (
+            "Algorithmically assigned ID for companies that file SEC 10k's or are "
+            "referenced in exhibit 21 attachments to 10k's. May not be stable over time."
+        ),
     },
     "company_information_block": {
         "type": "string",
