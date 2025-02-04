@@ -21,7 +21,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "sources": ["sec10k"],
         "etl_group": "pudl_models",
-        "create_database_schema": False,
         "field_namespace": "sec10k",
     },
     "core_sec10k__exhibit_21_company_ownership": {
@@ -37,7 +36,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "sources": ["sec10k"],
         "etl_group": "pudl_models",
-        "create_database_schema": False,
         "field_namespace": "sec10k",
     },
     "core_sec10k__company_information": {
@@ -63,7 +61,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "sources": ["sec10k"],
         "etl_group": "pudl_models",
-        "create_database_schema": False,
         "field_namespace": "sec10k",
     },
     "out_sec10k__parents_and_subsidiaries": {
@@ -94,7 +91,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "sources": ["sec10k"],
         "etl_group": "pudl_models",
-        "create_database_schema": False,
         "field_namespace": "sec10k",
     },
 }

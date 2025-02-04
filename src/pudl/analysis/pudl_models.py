@@ -24,7 +24,7 @@ def _year_quarter_to_date(year_quarter: pd.Series) -> pd.Series:
 
 
 @asset(
-    io_manager_key="parquet_io_manager",
+    io_manager_key="pudl_io_manager",
     group_name="pudl_models",
 )
 def core_sec10k__company_information() -> pd.DataFrame:
@@ -47,7 +47,7 @@ def core_sec10k__company_information() -> pd.DataFrame:
 
 
 @asset(
-    io_manager_key="parquet_io_manager",
+    io_manager_key="pudl_io_manager",
     group_name="pudl_models",
 )
 def core_sec10k__exhibit_21_company_ownership() -> pd.DataFrame:
@@ -71,7 +71,7 @@ def core_sec10k__exhibit_21_company_ownership() -> pd.DataFrame:
 
 
 @asset(
-    io_manager_key="parquet_io_manager",
+    io_manager_key="pudl_io_manager",
     group_name="pudl_models",
 )
 def core_sec10k__filings() -> pd.DataFrame:
@@ -91,7 +91,7 @@ def core_sec10k__filings() -> pd.DataFrame:
 
 
 @asset(
-    io_manager_key="parquet_io_manager",
+    io_manager_key="pudl_io_manager",
     group_name="pudl_models",
 )
 def out_sec10k__parents_and_subsidiaries() -> pd.DataFrame:
