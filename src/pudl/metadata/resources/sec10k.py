@@ -87,7 +87,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "state_of_incorporation",
                 "location_of_incorporation",
                 "company_id_irs",
-                "files_10k",
+                "files_sec10k",
                 "parent_company_central_index_key",
                 "fraction_owned",
             ],

@@ -19,7 +19,7 @@ def _compute_fraction_owned(percent_ownership: pd.Series) -> pd.Series:
 
 
 def _year_quarter_to_date(year_quarter: pd.Series) -> pd.Series:
-    """Clean percent ownership, convert to float, then convert percent to ratio."""
+    """Convert a year quarter in the format '2024q1' to date type."""
     return pd.PeriodIndex(year_quarter, freq="Q").to_timestamp()
 
 
@@ -106,6 +106,7 @@ def out_sec10k__parents_and_subsidiaries() -> pd.DataFrame:
             "location_of_inc": "location_of_incorporation",
             "irs_number": "company_id_irs",
             "parent_company_cik": "parent_company_central_index_key",
+            "files_10k": "files_sec10k",
         }
     )
 

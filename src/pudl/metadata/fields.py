@@ -1667,9 +1667,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Name of filing as provided by SEC data portal.",
     },
-    "files_10k": {
+    "files_sec10k": {
         "type": "boolean",
-        "description": "Indicates whether the company files a 10-K.",
+        "description": "Indicates whether the company files an SEC 10-K.",
     },
     "firing_rate_using_coal_tons_per_hour": {
         "type": "number",
