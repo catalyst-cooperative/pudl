@@ -1038,11 +1038,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "constraints": {"enum": list(SOURCES)},
     },
     "date_filed": {
-        "type": "datetime",
+        "type": "date",
         "description": "Date filing was submitted.",
     },
     "date_of_name_change": {
-        "type": "datetime",
+        "type": "date",
         "description": "Date of last name change of the company.",
     },
     "datetime_utc": {
