@@ -81,6 +81,7 @@ def core_sec10k__filings() -> pd.DataFrame:
         columns={
             "sec10k_filename": "filename_sec10k",
             "form_type": "sec10k_version",
+            "date_filed": "filing_date",
         }
     )
 
@@ -107,6 +108,7 @@ def out_sec10k__parents_and_subsidiaries() -> pd.DataFrame:
             "irs_number": "company_id_irs",
             "parent_company_cik": "parent_company_central_index_key",
             "files_10k": "files_sec10k",
+            "date_of_name_change": "name_change_date",
         }
     )
 

@@ -1077,14 +1077,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Code identifying a dataset available within PUDL.",
         "constraints": {"enum": list(SOURCES)},
     },
-    "date_filed": {
-        "type": "date",
-        "description": "Date filing was submitted.",
-    },
-    "date_of_name_change": {
-        "type": "date",
-        "description": "Date of last name change of the company.",
-    },
     "datetime_utc": {
         "type": "datetime",
         "description": "Date and time converted to Coordinated Universal Time (UTC).",
@@ -1729,6 +1721,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "files_sec10k": {
         "type": "boolean",
         "description": "Indicates whether the company files an SEC 10-K.",
+    },
+    "filing_date": {
+        "type": "date",
+        "description": "Date filing was submitted.",
     },
     "firing_rate_using_coal_tons_per_hour": {
         "type": "number",
@@ -2860,6 +2856,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "can_burn_multiple_fuels": {
         "type": "boolean",
         "description": "Whether the generator can burn multiple fuels.",
+    },
+    "name_change_date": {
+        "type": "date",
+        "description": "Date of last name change of the company.",
     },
     "nameplate_power_factor": {
         "type": "number",
