@@ -38,7 +38,8 @@ get compared to observed row counts in the table when running tests.
 
 If a table is not partitioned by year, you can add the option
 `--partition-column {column_name}` to the command. This will find row counts per
-unique value in the column.
+unique value in the column. This is common for monthly and hourly tables that are
+often partitioned by `report_date` and `datetime_utc` respectively.
 
 To see all options for command run:
 
