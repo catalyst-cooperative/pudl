@@ -115,7 +115,7 @@ def generate_row_counts(
     # Get existing row counts table
     row_counts_df = pd.read_csv(_get_row_count_csv_path())
 
-    if table_name in row_counts_df["table_name"] and not clobber:
+    if table_name in row_counts_df["table_name"].to_numpy() and not clobber:
         return AddTableResult(
             success=False,
             message=f"There are already row counts for table {table_name} in row counts table and clobber is not set.",
@@ -196,7 +196,11 @@ def add_table(
     """Scaffold dbt yaml for a single table."""
     data_source = get_data_source(table_name)
 
-    _log_add_table_result(write_table_yaml(table_name, data_source, clobber=clobber))
+    _log_add_table_result(
+        write_table_yaml(
+            table_name, data_source, partition_column=partition_column, clobber=clobber
+        )
+    )
     _log_add_table_result(
         generate_row_counts(
             table_name=table_name,
@@ -254,6 +258,7 @@ def add_tables(
         add_table(
             table_name=table_name,
             use_nightly_tables=use_nightly_tables,
+            partition_column=partition_column,
             clobber=clobber,
         )
         for table_name in tables
