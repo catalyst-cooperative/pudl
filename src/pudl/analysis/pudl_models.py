@@ -120,5 +120,13 @@ def out_sec10k__parents_and_subsidiaries() -> pd.DataFrame:
         "standard_industrial_classification"
     ].str.extract(r"(.+)\[(\d{4})\]")
     df["industry_id_sic"] = df["industry_id_sic"].astype("string")
+    # Some utilities harvested from EIA 861 data that don't show up in our entity
+    # tables. These didn't end up improving coverage, and so will be removed upstream.
+    # Hack for now is to just drop them so the FK constraint is respected.
+    # See https://github.com/catalyst-cooperative/pudl/issues/4050
+    bad_utility_ids = [
+        3579,  # Cirro Group, Inc. in Texas
+    ]
+    df = df[~df.utility_id_eia.isin(bad_utility_ids)]
 
     return df

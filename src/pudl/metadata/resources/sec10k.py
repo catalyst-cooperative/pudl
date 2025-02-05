@@ -65,7 +65,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
     "out_sec10k__parents_and_subsidiaries": {
         "description": (
-            "Denormalized table containing SEC 10k company information with mapping "
+            "Denormalized table containing SEC 10-K company information with mapping "
             "between subsidiary and parent companies, as well as a linkage to EIA "
             "utilities."
         ),
