@@ -1,0 +1,21 @@
+version: 2
+
+sources:
+  - name: pudl
+    tables:
+      - name: out_ferc1__yearly_steam_plants_sched402
+        data_tests:
+          - check_yearly_row_counts:
+              table_name: out_ferc1__yearly_steam_plants_sched402
+              partition_column: report_year
+
+models:
+  - name: validate_ferc1__yearly_steam_plants_sched402
+    columns:
+      - name: gas_cost_per_mmbtu
+        data_tests:
+          - expect_column_weighted_quantile_values_to_be_between:
+              quantile: 0.5
+              min_value: 200000
+              max_value: 600000
+              weight_column: capacity_mw
