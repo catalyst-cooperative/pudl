@@ -32,15 +32,22 @@ class DbtTable(BaseModel):
     columns: list[DbtColumn]
 
     @staticmethod
-    def get_row_count_test_dict(partition_column: str):
+    def get_row_count_test_dict(table_name: str, partition_column: str):
         """Return a dictionary with a dbt row count data test encoded in a dict."""
-        return [{"check_yearly_row_counts": {"partition_column": partition_column}}]
+        return [
+            {
+                "check_row_counts_per_partition": {
+                    "table_name": table_name,
+                    "partition_column": partition_column,
+                }
+            }
+        ]
 
     @classmethod
     def from_table_name(cls, table_name: str, partition_column: str) -> "DbtSchema":
         """Construct configuration defining table from PUDL metadata."""
         return cls(
-            data_tests=cls.get_row_count_test_dict(partition_column),
+            data_tests=cls.get_row_count_test_dict(table_name, partition_column),
             name=table_name,
             columns=[
                 DbtColumn(name=f.name)

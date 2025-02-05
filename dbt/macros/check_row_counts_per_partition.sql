@@ -1,4 +1,4 @@
-{% test check_yearly_row_counts(model, table_name, partition_column) %}
+{% test check_row_counts_per_partition(model, table_name, partition_column) %}
 
 WITH
     expected AS (
