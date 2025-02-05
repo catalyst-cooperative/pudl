@@ -27,7 +27,7 @@ def _year_quarter_to_date(year_quarter: pd.Series) -> pd.Series:
     io_manager_key="pudl_io_manager",
     group_name="pudl_models",
 )
-def core_sec10k__company_information() -> pd.DataFrame:
+def core_sec10k__quarterly_company_information() -> pd.DataFrame:
     """Basic company information extracted from SEC10k filings."""
     df = _load_table_from_gcs("core_sec10k__company_information")
     df = df.rename(
@@ -50,7 +50,7 @@ def core_sec10k__company_information() -> pd.DataFrame:
     io_manager_key="pudl_io_manager",
     group_name="pudl_models",
 )
-def core_sec10k__exhibit_21_company_ownership() -> pd.DataFrame:
+def core_sec10k__quarterly_exhibit_21_company_ownership() -> pd.DataFrame:
     """Company ownership information extracted from sec10k exhibit 21 attachments."""
     df = _load_table_from_gcs("core_sec10k__exhibit_21_company_ownership")
     df = df.rename(
@@ -74,7 +74,7 @@ def core_sec10k__exhibit_21_company_ownership() -> pd.DataFrame:
     io_manager_key="pudl_io_manager",
     group_name="pudl_models",
 )
-def core_sec10k__filings() -> pd.DataFrame:
+def core_sec10k__quarterly_filings() -> pd.DataFrame:
     """Metadata on all 10k filings submitted to SEC."""
     df = _load_table_from_gcs("core_sec10k__filings")
     df = df.rename(

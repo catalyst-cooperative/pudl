@@ -3,7 +3,7 @@
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
-    "core_sec10k__filings": {
+    "core_sec10k__quarterly_filings": {
         "description": "Metadata describing all submitted SEC 10k filings.",
         "schema": {
             "fields": [
@@ -23,7 +23,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "pudl_models",
         "field_namespace": "sec10k",
     },
-    "core_sec10k__exhibit_21_company_ownership": {
+    "core_sec10k__quarterly_exhibit_21_company_ownership": {
         "description": "Company ownership data extracted from Exhibit 21 attachments to SEC 10k filings.",
         "schema": {
             "fields": [
@@ -38,7 +38,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "pudl_models",
         "field_namespace": "sec10k",
     },
-    "core_sec10k__company_information": {
+    "core_sec10k__quarterly_company_information": {
         "description": "Company information extracted from SEC 10k filings.",
         "schema": {
             "fields": [
@@ -64,7 +64,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "sec10k",
     },
     "out_sec10k__parents_and_subsidiaries": {
-        "description": "Denormalized table containing SEC 10k company information with mapping between subsidiary and parent companies, as well as a linkage to EIA companies.",
+        "description": (
+            "Denormalized table containing SEC 10k company information with mapping "
+            "between subsidiary and parent companies, as well as a linkage to EIA "
+            "utilities."
+        ),
         "schema": {
             "fields": [
                 "company_id_sec10k",
