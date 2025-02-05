@@ -15,8 +15,13 @@ EIA 860
 
 EIA 860M
 ~~~~~~~~
-* Ran quarterly Updates for 2025 Q1 including new EIA860m data from 2024-10 through
+* Run quarterly updates for 2025 Q1 including new EIA860m data from 2024-10 through
   2024-12.
+
+EIA 923
+~~~~~~~
+* Run quarterly updates for 2025 Q1 including new EIA 923 data from 2024-09 through
+  2024-11.
 
 EIA 176
 ~~~~~~~
