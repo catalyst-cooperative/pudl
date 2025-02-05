@@ -46,6 +46,11 @@ EIA 860
 ~~~~~~~
 * Added EIA 860 Multifuel data. See :issue:`3438` and :pr:`3946`.
 
+EIA Bulk Electricity Data
+~~~~~~~~~~~~~~~~~~~~~~~~~
+* Updated the EIA Bulk Electricity data to include data published up through
+  2024-11-01. See :issue:`4042` and PR :pr:`4051`.
+
 EIA 176
 ~~~~~~~
 * Add a couple of semi-transformed interim EIA-176 (natural gas sources and
