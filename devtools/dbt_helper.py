@@ -101,7 +101,7 @@ def _get_row_count_csv_path() -> Path:
 def generate_row_counts(
     table_name: str,
     partition_column: str = "report_year",
-    table_source: str = "nightly",
+    use_nightly_tables: bool = True,
     clobber: bool = False,
 ) -> AddTableResult:
     """Generate row counts per partition and write to csv file within dbt project."""
@@ -115,7 +115,7 @@ def generate_row_counts(
         )
 
     # Load table of interest
-    if table_source == "nightly":
+    if use_nightly_tables:
         df = pd.read_parquet(_get_nightly_url(table_name))
     else:
         df = defs.load_asset_value(table_name)
@@ -183,7 +183,7 @@ def _log_add_table_result(result: AddTableResult):
 def add_table(
     table_name: str,
     partition_column: str = "report_year",
-    table_source: str = "nightly",
+    use_nightly_tables: bool = True,
     clobber: bool = False,
 ) -> AddTableResult:
     """Scaffold dbt yaml for a single table."""
@@ -194,7 +194,7 @@ def add_table(
         generate_row_counts(
             table_name=table_name,
             partition_column=partition_column,
-            table_source=table_source,
+            use_nightly_tables=use_nightly_tables,
             clobber=clobber,
         )
     )
@@ -205,15 +205,34 @@ def dbt_helper():
     """Top level cli."""
 
 
-@click.command()
-@click.option("--tables", multiple=True)
-@click.option("--partition-column", default="report_year", type=str)
-@click.option("--table-source", default="nightly", type=str)
-@click.option("--clobber", default=False, type=bool)
+@click.command(help="Generate scaffolding to add a new table to the dbt project.")
+@click.option(
+    "--tables",
+    multiple=True,
+    help="List of table names to add to dbt. Can be a single table or 'all' to add all PUDL tables.",
+)
+@click.option(
+    "--partition-column",
+    default="report_year",
+    type=str,
+    help="Column used to generate row count per partition test.",
+)
+@click.option(
+    "--use-nightly-tables",
+    default=True,
+    type=bool,
+    help="Get table directly from nightly builds when generating row count tests, otherwise look for table locally.",
+)
+@click.option(
+    "--clobber",
+    default=False,
+    type=bool,
+    help="Overwrite existing yaml and row counts. If false command will fail if yaml or row counts already exist.",
+)
 def add_tables(
     tables: list[str],
     partition_column: str = "report_year",
-    table_source: str = "nightly",
+    use_nightly_tables: bool = True,
     clobber: bool = False,
 ):
     """Generate dbt yaml to add PUDL table(s) as dbt source(s)."""
@@ -227,7 +246,7 @@ def add_tables(
     [
         add_table(
             table_name=table_name,
-            table_source=table_source,
+            use_nightly_tables=use_nightly_tables,
             clobber=clobber,
         )
         for table_name in tables
