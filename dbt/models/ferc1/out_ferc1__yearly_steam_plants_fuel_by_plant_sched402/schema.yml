@@ -4,6 +4,10 @@ sources:
   - name: pudl
     tables:
       - name: out_ferc1__yearly_steam_plants_fuel_by_plant_sched402
+        data_tests:
+          - check_yearly_row_counts:
+              table_name: out_ferc1__yearly_steam_plants_fuel_by_plant_sched402
+              partition_column: report_year
 
 models:
   - name: validate_ferc1__yearly_steam_plants_fuel_by_plant_sched402
