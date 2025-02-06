@@ -132,6 +132,7 @@ def generate_row_counts(
         .size()
         .reset_index(name="row_count")
         .rename(columns={partition_column: "partition"})
+        .astype({"partition": "str"})
     )
     new_row_counts["table_name"] = table_name
 
@@ -187,6 +188,20 @@ def _log_add_table_result(result: AddTableResult):
         logger.error(result.message)
 
 
+def _infer_partition_column(table_name: str) -> str:
+    all_columns = [c.name for c in PUDL_PACKAGE.get_resource(table_name).schema.fields]
+    if (
+        (partition_column := "report_year") in all_columns
+        or (partition_column := "report_date") in all_columns
+        or (partition_column := "datetime_utc") in all_columns
+    ):
+        return partition_column
+    raise RuntimeError(
+        f"Could not determine partition column for table {table_name}. "
+        "You can pass this in manually with the '--partition-column' option."
+    )
+
+
 def add_table(
     table_name: str,
     partition_column: str = "report_year",
@@ -195,6 +210,9 @@ def add_table(
 ) -> AddTableResult:
     """Scaffold dbt yaml for a single table."""
     data_source = get_data_source(table_name)
+
+    if partition_column == "inferred":
+        partition_column = _infer_partition_column(table_name)
 
     _log_add_table_result(
         write_table_yaml(
@@ -224,9 +242,9 @@ def dbt_helper():
 )
 @click.option(
     "--partition-column",
-    default="report_year",
+    default="inferred",
     type=str,
-    help="Column used to generate row count per partition test.",
+    help="Column used to generate row count per partition test. If 'inferred' the script will attempt to infer a reasonable partitioning column.",
 )
 @click.option(
     "--use-nightly-tables",
