@@ -1552,6 +1552,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
             "rr": "RR",
             "pl": "PL",
             "rv": "RV",
+            "RT": "TR",  # This is based on a guess. No definitive proof. Culprit is plant_id_eia 3935 in October 2024 in the coalmine table.
         },
         "ignored_codes": ["UN"],
     },

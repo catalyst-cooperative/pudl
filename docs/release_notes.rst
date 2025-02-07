@@ -46,6 +46,16 @@ EIA 860
 ~~~~~~~
 * Added EIA 860 Multifuel data. See :issue:`3438` and :pr:`3946`.
 
+EIA 860M
+~~~~~~~~
+* Run quarterly updates for 2025 Q1 including new EIA860m data from 2024-10 through
+  2024-12.
+
+EIA 923
+~~~~~~~
+* Run quarterly updates for 2025 Q1 including new EIA 923 data from 2024-09 through
+  2024-11.
+
 EIA 176
 ~~~~~~~
 * Add a couple of semi-transformed interim EIA-176 (natural gas sources and
@@ -54,6 +64,7 @@ EIA 176
   for moving this dataset forward.
 * Extracted these interim tables up through the latest 2023 data release. See
   :issue:`4002` and :pr:`4004`.
+
 
 Bug Fixes
 ^^^^^^^^^
