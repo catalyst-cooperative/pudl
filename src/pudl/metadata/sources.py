@@ -446,7 +446,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "year_quarters": [
                 str(q).lower()
-                for q in pd.period_range(start="1995q1", end="2024q3", freq="Q")
+                for q in pd.period_range(start="1995q1", end="2024q4", freq="Q")
             ]
         },
         "contributors": [
