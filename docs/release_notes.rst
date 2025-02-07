@@ -38,6 +38,10 @@ SEC Form 10-K Parent-Subsidiary Ownership
 New Data Coverage
 ^^^^^^^^^^^^^^^^^
 
+EPA CEMS
+~~~~~~~~
+* Added 2024 Q4 of CEMS data. See :issue:`4041` and :pr:`4052`.
+
 EIA 860
 ~~~~~~~
 * Added EIA 860 Multifuel data. See :issue:`3438` and :pr:`3946`.
