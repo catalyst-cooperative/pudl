@@ -3,7 +3,7 @@
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
-    "core_sec10k__filings": {
+    "core_sec10k__quarterly_filings": {
         "description": (
             """Metadata describing all submitted SEC 10k filings.
 This metadata contains information about the filing from the SEC's EDGAR database."""
@@ -26,7 +26,7 @@ This metadata contains information about the filing from the SEC's EDGAR databas
         "etl_group": "pudl_models",
         "field_namespace": "sec10k",
     },
-    "core_sec10k__exhibit_21_company_ownership": {
+    "core_sec10k__quarterly_exhibit_21_company_ownership": {
         "description": (
             """Company ownership data extracted from Exhibit 21 attachments to SEC 10k filings.
 This data is extracted from PDFs of the Exhibit 21 attachment using an information extraction
@@ -48,7 +48,7 @@ and thus it contains errors in the parsing and structure of the data."""
         "etl_group": "pudl_models",
         "field_namespace": "sec10k",
     },
-    "core_sec10k__company_information": {
+    "core_sec10k__quarterly_company_information": {
         "description": (
             """Company information extracted from SEC 10K filings.
 This table contains all year-quarters of data from SEC 10K filers.
