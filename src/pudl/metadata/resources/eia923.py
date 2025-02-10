@@ -480,7 +480,10 @@ is for those supplies."""
         "etl_group": "outputs",
     },
     "out_eia923__monthly_generation": {
-        "description": TABLE_DESCRIPTIONS["core_eia923__monthly_generation"],
+        "description": TABLE_DESCRIPTIONS["core_eia923__monthly_generation"]
+        + "\n\nThis table exists for naming consistency. While it is technically "
+        "aggregated by month, it ends up being identical to the "
+        "``out_eia923__generation`` table from which it is derived.",
         "schema": {
             "fields": [
                 "report_date",
