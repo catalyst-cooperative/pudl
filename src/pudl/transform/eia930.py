@@ -58,15 +58,16 @@ def core_eia930__hourly_operations_assets(
         .rename(
             # Rename columns so that they contain only the energy source and the level
             # of processing with the pattern: energysource_levelofprocessing so the
-            # column name can be split on "_" to build a MultiIndex before stacking.
-            # Note that this means energy_source CAN'T have an underscore in it.
+            # column name can be rsplit on "_" to build a MultiIndex before stacking.
             lambda col: col.removeprefix("net_generation_").removesuffix("_mwh"),
             axis="columns",
         )
         .set_index(nondata_cols)
     )
     netgen_by_source.columns = pd.MultiIndex.from_tuples(
-        [x.split("_") for x in netgen_by_source.columns],
+        # Some of our energy sources have multiple terms in them, so we rsplit on
+        # a maximum of one underscore to ensure we get the exact two results we need:
+        [x.rsplit("_", maxsplit=1) for x in netgen_by_source.columns],
         names=["generation_energy_source", None],
     )
     netgen_by_source = (
