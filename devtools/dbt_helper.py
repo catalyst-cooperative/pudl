@@ -108,7 +108,7 @@ def _get_row_count_csv_path() -> Path:
 def generate_row_counts(
     table_name: str,
     partition_column: str = "report_year",
-    use_nightly_tables: bool = True,
+    use_local_tables: bool = False,
     clobber: bool = False,
 ) -> AddTableResult:
     """Generate row counts per partition and write to csv file within dbt project."""
@@ -122,7 +122,7 @@ def generate_row_counts(
         )
 
     # Load table of interest
-    if use_nightly_tables:
+    if not use_local_tables:
         df = pd.read_parquet(_get_nightly_url(table_name))
     else:
         df = defs.load_asset_value(table_name)
@@ -148,7 +148,17 @@ def generate_row_counts(
     )
 
 
-def write_table_yaml(
+def _write_dbt_yaml_config(schema_path: Path, schema: DbtSchema):
+    with schema_path.open("w") as schema_file:
+        yaml.dump(
+            schema.model_dump(exclude_none=True),
+            schema_file,
+            default_flow_style=False,
+            sort_keys=False,
+        )
+
+
+def generate_table_yaml(
     table_name: str,
     data_source: str,
     partition_column: str = "report_year",
@@ -165,15 +175,10 @@ def write_table_yaml(
     table_config = DbtSchema.from_table_name(
         table_name, partition_column=partition_column
     )
+    model_path.mkdir(parents=True, exist_ok=True)
+    _write_dbt_yaml_config(model_path / "schema.yml", table_config)
 
     model_path.mkdir(parents=True, exist_ok=True)
-    with (model_path / "schema.yml").open("w") as schema_file:
-        yaml.dump(
-            table_config.model_dump(),
-            schema_file,
-            default_flow_style=False,
-            sort_keys=False,
-        )
 
     return AddTableResult(
         success=True,
@@ -205,7 +210,7 @@ def _infer_partition_column(table_name: str) -> str:
 def add_table(
     table_name: str,
     partition_column: str = "report_year",
-    use_nightly_tables: bool = True,
+    use_local_tables: bool = False,
     clobber: bool = False,
 ) -> AddTableResult:
     """Scaffold dbt yaml for a single table."""
@@ -215,7 +220,7 @@ def add_table(
         partition_column = _infer_partition_column(table_name)
 
     _log_add_table_result(
-        write_table_yaml(
+        generate_table_yaml(
             table_name, data_source, partition_column=partition_column, clobber=clobber
         )
     )
@@ -223,22 +228,16 @@ def add_table(
         generate_row_counts(
             table_name=table_name,
             partition_column=partition_column,
-            use_nightly_tables=use_nightly_tables,
+            use_local_tables=use_local_tables,
             clobber=clobber,
         )
     )
 
 
-@click.group()
-def dbt_helper():
-    """Top level cli."""
-
-
 @click.command(help="Generate scaffolding to add a new table to the dbt project.")
-@click.option(
-    "--tables",
-    multiple=True,
-    help="List of table names to add to dbt. Can be a single table or 'all' to add all PUDL tables.",
+@click.argument(
+    "tables",
+    nargs=-1,
 )
 @click.option(
     "--partition-column",
@@ -247,21 +246,23 @@ def dbt_helper():
     help="Column used to generate row count per partition test. If 'inferred' the script will attempt to infer a reasonable partitioning column.",
 )
 @click.option(
-    "--use-nightly-tables",
-    default=True,
+    "--use-local-tables",
+    default=False,
     type=bool,
-    help="Get table directly from nightly builds when generating row count tests, otherwise look for table locally.",
+    is_flag=True,
+    help="If set look for tables locally when generating row counts, otherwise get tables from nightly builds.",
 )
 @click.option(
     "--clobber",
     default=False,
+    is_flag=True,
     type=bool,
     help="Overwrite existing yaml and row counts. If false command will fail if yaml or row counts already exist.",
 )
 def add_tables(
     tables: list[str],
     partition_column: str = "report_year",
-    use_nightly_tables: bool = True,
+    use_local_tables: bool = False,
     clobber: bool = False,
 ):
     """Generate dbt yaml to add PUDL table(s) as dbt source(s)."""
@@ -275,12 +276,17 @@ def add_tables(
     [
         add_table(
             table_name=table_name,
-            use_nightly_tables=use_nightly_tables,
+            use_local_tables=use_local_tables,
             partition_column=partition_column,
             clobber=clobber,
         )
         for table_name in tables
     ]
+
+
+@click.group()
+def dbt_helper():
+    """Top level cli."""
 
 
 dbt_helper.add_command(add_tables)
