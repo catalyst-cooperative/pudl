@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: 518df3e79eb72dd916fdc1c303420209334d8f8ff0fdc064aaa06f61b6424f90
-    osx-64: 5dd47238de94d750f9268aac48577d2a1fc83a07c0320e0e4199206e801c6471
-    osx-arm64: fcb3f7be7aa8d7ab0292117a0d2c42aeb32641c256d77461d1750860ce18a874
+    linux-64: 17868cb060258ffba68e6ec8a027e690aeaaf903491bc3cbdf948787c99c390b
+    osx-64: 3ba3060f95f7cca7b0b57dcc26b27cf7362f666479bfecb76c998d5ed4b74e2f
+    osx-arm64: 73cdf399b1dae90c8f5b420504c02e42883d416d1790e0d8390943326d33eea8
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -13500,43 +13500,43 @@ package:
     category: main
     optional: false
   - name: libsqlite
-    version: 3.49.0
+    version: 3.48.0
     manager: conda
     platform: linux-64
     dependencies:
       __glibc: ">=2.17,<3.0.a0"
       libgcc: ">=13"
       libzlib: ">=1.3.1,<2.0a0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/libsqlite-3.49.0-hee588c1_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/libsqlite-3.48.0-hee588c1_1.conda
     hash:
-      md5: a12aa55f2a4446af8aa44d69ac563d58
-      sha256: 51c68794a1f32c2742cbcfc8ea8cd730bb19148bed437197380778d3a6d49385
+      md5: 3fa05c528d8a1e2a67bbf1e36f22d3bc
+      sha256: 22853d289ef6ec8a5b20f1aa261895b06525439990d3b139f8bfd0b5c5e32a3a
     category: main
     optional: false
   - name: libsqlite
-    version: 3.49.0
+    version: 3.48.0
     manager: conda
     platform: osx-64
     dependencies:
       __osx: ">=10.13"
       libzlib: ">=1.3.1,<2.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/libsqlite-3.49.0-hdb6dae5_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/libsqlite-3.48.0-hdb6dae5_1.conda
     hash:
-      md5: a2420c8aa0c7f88f7caa9ee7a308549f
-      sha256: d90d5212f9cf1a30f9e6e4f17963b4cad113581bc71f29eb592eeeb70fe72011
+      md5: 6c4d367a4916ea169d614590bdf33b7c
+      sha256: ccff3309ed7b1561d3bb00f1e4f36d9d1323af998013e3182a13bf0b5dcef4ec
     category: main
     optional: false
   - name: libsqlite
-    version: 3.49.0
+    version: 3.48.0
     manager: conda
     platform: osx-arm64
     dependencies:
       __osx: ">=11.0"
       libzlib: ">=1.3.1,<2.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/libsqlite-3.49.0-h3f77e49_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/libsqlite-3.48.0-h3f77e49_1.conda
     hash:
-      md5: 282620ee38444d3d74738309ecef03cf
-      sha256: 5c22c46c76b9f1a07231b6bfb914924e57b21bfaf312e4ce7dc8258c9cb0a1bc
+      md5: 4c55169502ecddf8077973a987d08f08
+      sha256: 17c06940cc2a13fd6a17effabd6881b1477db38b2cd3ee2571092d293d3fdd75
     category: main
     optional: false
   - name: libssh2
@@ -22377,52 +22377,52 @@ package:
     category: main
     optional: false
   - name: sqlite
-    version: 3.49.0
+    version: 3.48.0
     manager: conda
     platform: linux-64
     dependencies:
       __glibc: ">=2.17,<3.0.a0"
       libgcc: ">=13"
-      libsqlite: 3.49.0
+      libsqlite: 3.48.0
       libzlib: ">=1.3.1,<2.0a0"
       ncurses: ">=6.5,<7.0a0"
       readline: ">=8.2,<9.0a0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/sqlite-3.49.0-h9eae976_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/sqlite-3.48.0-h9eae976_1.conda
     hash:
-      md5: 2edd91512d2708b94afe289bd2688f73
-      sha256: a5be8ebce0c85f3f6ebac3163c7edea78a501dbe5093c347373cea2a65c1654e
+      md5: 0ca48fd3357c877f21ea4440fe18e2b7
+      sha256: 6fc397698fa5b3d283c69e3ec35c9b50b953267deec3e96e599ebe26f809d7d9
     category: main
     optional: false
   - name: sqlite
-    version: 3.49.0
+    version: 3.48.0
     manager: conda
     platform: osx-64
     dependencies:
       __osx: ">=10.13"
-      libsqlite: 3.49.0
+      libsqlite: 3.48.0
       libzlib: ">=1.3.1,<2.0a0"
       ncurses: ">=6.5,<7.0a0"
       readline: ">=8.2,<9.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/sqlite-3.49.0-h2e4c9dc_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/sqlite-3.48.0-h2e4c9dc_1.conda
     hash:
-      md5: f5a31c409bc42fadb5f817d119cad8fa
-      sha256: 1d99369b57039ef9d37bc84c460cbd9260d95e3a51b15048dc54590d2c9e5ab6
+      md5: f0d4e053e7d85d30f689e731e62762bc
+      sha256: 3da756d4a6f7412620f49b4363a7263ef6fa72c55f48944adbb31ce688cd8c2a
     category: main
     optional: false
   - name: sqlite
-    version: 3.49.0
+    version: 3.48.0
     manager: conda
     platform: osx-arm64
     dependencies:
       __osx: ">=11.0"
-      libsqlite: 3.49.0
+      libsqlite: 3.48.0
       libzlib: ">=1.3.1,<2.0a0"
       ncurses: ">=6.5,<7.0a0"
       readline: ">=8.2,<9.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/sqlite-3.49.0-hd7222ec_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/sqlite-3.48.0-hd7222ec_1.conda
     hash:
-      md5: 7f3d1ff7ea51fac55246e9ed41922f6b
-      sha256: 69471a7ac5701d1503681009a4204884a7cb692a34a338b4cbe0836cf1c50766
+      md5: 802cc94c9fa238cb3f802d430a528bd5
+      sha256: 6c1609abe16ed39dd099eb7e32e2f3228105ab81bdd8da65700d46ee0984013e
     category: main
     optional: false
   - name: sqlparse
