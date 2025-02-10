@@ -25,8 +25,7 @@ from packaging import version
 from upath import UPath
 
 import pudl
-from pudl.metadata import PUDL_PACKAGE
-from pudl.metadata.classes import Package, Resource
+from pudl.metadata.classes import PUDL_PACKAGE, Package, Resource
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)

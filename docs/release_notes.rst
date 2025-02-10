@@ -3,11 +3,48 @@ PUDL Release Notes
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-v2024.XX.x (2024-MM-DD)
+v2025.XX.x (2025-MM-DD)
 ---------------------------------------------------------------------------------------
+
+New Data
+^^^^^^^^
+
+SEC Form 10-K Parent-Subsidiary Ownership
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* We have added some new tables describing the parent-subsidary company ownership
+  relationships reported in the
+  `SEC's Form 10-K <https://en.wikipedia.org/wiki/Form_10-K>`__, Exhibit 21
+  "Subsidiaries of the Registrant". Where possible these tables link the SEC filers or
+  their subsidiary companies to the corresponding EIA utilities. This work was funded
+  by
+  `a grant from the Mozilla Foundation <https://catalyst.coop/2024/02/15/beating-utility-ownership-shell-game/>`__.
+  Most of the ML models and data preparation took place in the `mozilla-sec-eia
+  repository <https://github.com/catalyst-cooperative/mozilla-sec-eia>`__ separate from
+  the main PUDL ETL, as it requires processing hundreds of thousands of PDFs and the
+  deployment of some ML experiment tracking infrastructure. The new tables are handed
+  off as nearly finished products to the PUDL ETL pipeline. **Note that these are
+  preliminary, experimental data products and are known to be incomplete and to contain
+  errors.** Extracting data tables from unstructured PDFs and the SEC to EIA record
+  linkage are necessarily probabalistic processes.
+* See PRs :pr:`4026,4031,4035,4046,4048,4050` and check out the table descriptions in
+  the PUDL data dictionary:
+
+  * :ref:`out_sec10k__parents_and_subsidiaries`
+  * :ref:`core_sec10k__quarterly_filings`
+  * :ref:`core_sec10k__quarterly_exhibit_21_company_ownership`
+  * :ref:`core_sec10k__quarterly_company_information`
 
 New Data Coverage
 ^^^^^^^^^^^^^^^^^
+
+EPA CEMS
+~~~~~~~~
+* Added 2024 Q4 of CEMS data. See :issue:`4041` and :pr:`4052`.
+
+EIA 860
+~~~~~~~
+* Added EIA 860 Multifuel data. See :issue:`3438` and :pr:`3946`.
 
 EIA 176
 ~~~~~~~
@@ -28,6 +65,9 @@ Bug Fixes
   this fix.
 * Added preliminary data validation checks for several FERC 1 tables that were
   missing it :pr:`3860`.
+* Fix spelling of Lake Huron and Lake Saint Clair in
+  :ref:`out_vcerare__hourly_available_capacity_factor` and related tables. See issue
+  :issue:`4007` and PR :pr:`4029`.
 
 Major Dependency Updates
 ^^^^^^^^^^^^^^^^^^^^^^^^
