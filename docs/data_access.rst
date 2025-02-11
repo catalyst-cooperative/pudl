@@ -21,9 +21,9 @@ Quick Reference
    :widths: auto
    :header-rows: 1
 
-   * - Platform
-     - Format
-     - Version
+   * - :ref:`Platform <access-platform>`
+     - :ref:`Format <access-format>`
+     - :ref:`Version <access-version>`
      - User Types
      - Use Cases
    * - :ref:`access-datasette`
@@ -49,7 +49,7 @@ Quick Reference
        computing platforms or GitHub Actions.
        Fast bulk download of SQLite or Parquet outputs for local use.
        Parquet based data warehouse for large-scale data analysis in the cloud.
-       Integrates well with Pandas and other dataframe libraries, as well as DuckDB.
+       Integrates well with Pandas, DuckDB, and other dataframe libraries.
    * - :ref:`access-zenodo`
      - SQLite, Parquet
      - ``stable``
@@ -71,6 +71,8 @@ When choosing an access method you'll want to consider:
 - What data format are you most comfortable with?
 - Which historical version of the data do you want?
 
+.. _access-platform:
+
 Data Platform
 ^^^^^^^^^^^^^
 
@@ -78,35 +80,30 @@ PUDL data is distributed on a number of different platforms to acommodate a vari
 different use cases. These include :ref:`access-datasette`, :ref:`access-kaggle`,
 :ref:`access-cloud`, and :ref:`access-zenodo`.
 
+.. _access-format:
+
 Data Format
 ^^^^^^^^^^^
 
 PUDL data is distributed in two main file formats
 
-  - `SQLite <https://www.sqlite.org>`__: a self-contained relational database that holds
-    many tables in a single file, supported by many programming languages and tools.
-  - `Apache Parquet <https://parquet.apache.org/docs/>`__: a compressed,
-    columnar storage format in which each file stores a single table. Parquet supports
-    rich data types and metadata, and is highly performant.
+- `SQLite <https://www.sqlite.org>`__: a self-contained relational database that holds
+  many tables in a single file, supported by many programming languages and tools.
+- `Apache Parquet <https://parquet.apache.org/docs/>`__: a compressed,
+  columnar storage format in which each file stores a single table. Parquet supports
+  rich data types and metadata, and is highly performant.
 
 .. note::
 
    Tad is a free, multi-platform desktop application that can be used to view and filter
-   data in both SQLite and Parquet formats.  `You can download it here
-   <https://www.tadviewer.com/>`__.
+   data in both SQLite and Parquet formats.  `You can download it here <https://www.tadviewer.com/>`__.
 
-However, not all tables are available in both formats.
+- **Parquet Only**: The hourly data tables are distributed only as Parquet files.
+  These tables have ``hourly`` in their names.
+- **SQLite Only**: The :ref:`minimally processed FERC data <access-raw-ferc>` which we
+  have converted from XBRL and DBF into SQLite are only available in SQLite.
 
-Due to their size, the fully processed hourly data tables are only distributed as
-Parquet files.
-
-We convert FERC data that is originally distributed using obsolete or difficult to parse
-file formats to SQLite, and distribute those SQLite files. We use SQLite for this data
-because it is relatively unstructured and SQLite is much more forgiving about data
-structure than Parquet. These FERC databases also contain many hundreds of tables and
-would be unwieldy to distribute if if every table was its own file. We distribute these
-minimally processed SQLite databases because they are more accessible than the original
-data from FERC.
+.. _access-version:
 
 Data Version
 ^^^^^^^^^^^^
@@ -145,11 +142,11 @@ Datasette for each table if it is included in our SQLite outputs.
 .. note::
 
    The only SQLite database containing cleaned and integrated data is `the core PUDL
-   database <https://data.catalyst.coop/pudl>`__. There are also several FERC SQLite
-   databases derived from their old Visual FoxPro and new XBRL data formats, which we
-   publish as SQLite to improve accessibility of the raw inputs, but they should
-   generally not be used directly if the data you need has been integrated into the PUDL
-   database.
+   database <https://data.catalyst.coop/pudl>`__. There are also several
+   :ref:`FERC SQLite databases <access-raw-ferc>` derived from the old Visual FoxPro
+   and new XBRL data formats, which we publish as SQLite to improve accessibility of the
+   raw inputs, but they should generally not be used directly if the data you need has
+   been integrated into the PUDL database.
 
 .. note::
 
@@ -187,8 +184,8 @@ releases. These include data in both SQLite and Parquet formats. The AWS S3 buck
    s3://pudl.catalyst.coop
 
 The same outputs are available in a similarly named "requester pays" Google Cloud
-Storage bucket, if that cloud provider happens to be more convenient for you. However
-you will need to authenticate your GCP account. The GCS bucket is:
+Storage bucket. However, you will need to authenticate your GCP account. The GCS
+bucket is:
 
 .. code-block:: bash
 
@@ -243,16 +240,23 @@ The AWS CLI
 
 You can also use `the AWS CLI <https://aws.amazon.com/cli/>`__ to see what data is
 available and download it locally. For example, to list the contents of the AWS S3
-bucket to see what historic versions are available, and then download the full PUDL
-SQLite database from the nightly build outputs:
+bucket to see what historic versions are available:
 
 .. code-block:: bash
 
    aws s3 ls --no-sign-request s3://pudl.catalyst.coop/
-   aws s3 cp --no-sign-request s3://pudl.catalyst.coop/nightly/pudl.sqlite.zip .
 
-The :doc:`PUDL data dictionary </data_dictionaries/pudl_db>` provides direct links to
-download the full Parquet output for every table alongside its metadata.
+To list the contents of a particular version:
+
+.. code-block:: bash
+
+   aws s3 ls --no-sign-request s3://pudl.catalyst.coop/v2024.8.0/
+
+And then download the full PUDL SQLite database from the nightly build outputs:
+
+.. code-block:: bash
+
+   aws s3 cp --no-sign-request s3://pudl.catalyst.coop/nightly/pudl.sqlite.zip .
 
 The links below will download the most recent nightly builds of all the PUDL SQLite
 databases and their metadata in bulk.
@@ -262,6 +266,8 @@ Fully Processed SQLite Databases
 
 * `Main PUDL Database <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/pudl.sqlite.zip>`__
 * `US Census DP1 Database (2010) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/censusdp1tract.sqlite.zip>`__
+
+.. _access-raw-ferc:
 
 Raw FERC DBF & XBRL data converted to SQLite
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
