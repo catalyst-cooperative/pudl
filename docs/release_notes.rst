@@ -48,11 +48,16 @@ EIA 860
 
 EIA 860M
 ~~~~~~~~
-* Added EIA 860m through December 2024. See :issue:`4038` and pr:`4047`.
+* Added EIA 860m through December 2024. See :issue:`4038` and :pr:`4047`.
 
 EIA 923
 ~~~~~~~
-* Added EIA 923 monthly data through September 2024. See :issue:`4038` and pr:`4047`.
+* Added EIA 923 monthly data through September 2024. See :issue:`4038` and :pr:`4047`.
+
+EIA Bulk Electricity Data
+~~~~~~~~~~~~~~~~~~~~~~~~~
+* Updated the EIA Bulk Electricity data to include data published up through
+  2024-11-01. See :issue:`4042` and PR :pr:`4051`.
 
 EIA 176
 ~~~~~~~
