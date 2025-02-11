@@ -2,6 +2,7 @@
 
 import importlib.resources
 import itertools
+import os
 import warnings
 
 import pandera as pr
@@ -21,7 +22,6 @@ from dagster import (
 from dagster._core.definitions.cacheable_assets import CacheableAssetsDefinition
 
 import pudl
-from pudl.analysis.pudl_models import get_pudl_models_assets
 from pudl.io_managers import (
     epacems_io_manager,
     ferc1_dbf_sqlite_io_manager,
@@ -108,18 +108,18 @@ out_module_groups = {
 }
 
 all_asset_modules = raw_module_groups | core_module_groups | out_module_groups
-default_assets = (
-    list(
-        itertools.chain.from_iterable(
-            load_assets_from_modules(
-                modules,
-                group_name=group_name,
-            )
-            for group_name, modules in all_asset_modules.items()
+default_assets = list(
+    itertools.chain.from_iterable(
+        load_assets_from_modules(
+            modules,
+            group_name=group_name,
         )
+        for group_name, modules in all_asset_modules.items()
     )
-    + get_pudl_models_assets()
 )
+
+if os.getenv("USE_PUDL_MODELS"):
+    default_assets += load_assets_from_modules([pudl.analysis.pudl_models])
 
 default_asset_checks = list(
     itertools.chain.from_iterable(
