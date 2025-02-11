@@ -62,7 +62,6 @@ EIA 176
 
 EIA 930
 ~~~~~~~
-<<<<<<< HEAD
 * Updated the EIA 930 data to include data published up through the beginning of
   February 2025. See :issue:`4040` and PR :pr:`4054`. 10 new energy sources
   were added and 3 were retired; see
