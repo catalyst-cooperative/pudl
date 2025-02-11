@@ -2220,8 +2220,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Whether or not a record from the detailed income statement data should be "
             "considered in a utility's revenue requirement. This flag was mannually "
-            "compiled by RMI utility accounting experts based on the xbrl_factoid and"
-            " sometimes varies based on the utility_type or plant_function as well."
+            "compiled by RMI utility accounting experts based on the xbrl_factoid and "
+            "sometimes varies based on the utility_type or plant_function as well."
         ),
     },
     "inactive_accounts_included": {
