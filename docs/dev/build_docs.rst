@@ -30,7 +30,7 @@ directly:
 This will only update any files that have been changed since the last time the
 documentation was generated.
 
-To view the documentation that's been output at HTML, you'll need to open the
+To view the documentation that's been output as HTML, you'll need to open the
 ``docs/_build/html/index.html`` file within the PUDL repository with a web
 browser. You may also be able to set up automatic previewing of the rendered
 documentation in your text editor with appropriate plugins.
