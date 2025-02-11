@@ -71,7 +71,7 @@ def raw_pudl__assn_eia_epacamd(context) -> pd.DataFrame:
         year: f"camd-eia-crosswalk-latest-{year}/epa_eia_crosswalk.csv"
         for year in range(2019, 2024)
     }
-    logger.info(csv_map)
+
     ds = context.resources.datastore
     year_matches = []
     for year, csv_path in csv_map.items():

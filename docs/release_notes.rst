@@ -44,8 +44,8 @@ EPA CEMS
 
 EPA CAMD EIA Crosswalk
 ~~~~~~~~~~~~~~~~~~~~~~
-* Ran the crosswalk using 2019, 2020, 2022 and 2023 EIA data, and incorporated the new
-  crosswalk data into the generation of :ref:`core_epa__assn_eia_epacamd` and
+* Updated the crosswalk using 2019, 2020, 2022 and 2023 EIA data, and incorporated the
+  new crosswalk data into the generation of :ref:`core_epa__assn_eia_epacamd` and
   :ref:`core_epa__assn_eia_epacamd_subplant_ids`. See :issue:`4039` and :pr:`4056`.
 
 EIA 860
