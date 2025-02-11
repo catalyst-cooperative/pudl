@@ -29,7 +29,7 @@ Quick Reference
    * - :ref:`access-datasette`
      - SQLite
      - ``nightly``
-     - Casual Data Explorer, Spreasheet Analyst
+     - Data Explorer, Spreasheet Analyst
      - Explore PUDL SQLite databases interactively in a web browser.
        Select data to download as CSVs for local analysis in spreadsheets.
        Create sharable links to a particular selection of data.

@@ -185,7 +185,7 @@ summary:
 * `Kaggle <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html#access-kaggle>`__
   provides easy Jupyter notebook access to the PUDL data, updated weekly:
   https://www.kaggle.com/datasets/catalystcooperative/pudl-project
-* `Cloud object storage <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html#access-cloud>`__
+* `Cloud storage <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html#access-cloud>`__
   is populated by our nightly data builds, and is free to access thanks to the `AWS
   Open Data Registry <https://registry.opendata.aws/catalyst-cooperative-pudl/>`__.
 * `Zenodo <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html#access-zenodo>`__
