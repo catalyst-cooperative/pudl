@@ -2215,6 +2215,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "indicates if the boiler is a heat recovery steam generator (HRSG).",
     },
+    "in_revenue_requirement_review": {
+        "type": "boolean",
+        "description": (
+            "Whether or not a record from the detailed income statement data should be "
+            "considered in a utility's revenue requirement. This flag was mannually "
+            "compiled by RMI utility accounting experts based on the xbrl_factoid and"
+            " sometimes varies based on the utility_type or plant_function as well."
+        ),
+    },
     "inactive_accounts_included": {
         "type": "boolean",
         "description": (
@@ -4011,6 +4020,63 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "revenue_type": {
         "type": "string",
         "description": "Label describing types of revenues.",
+    },
+    "revenue_requirement_category": {
+        "type": "string",
+        "description": (
+            "A category of revenue requirement components. "
+            "These categories were mannually compiled by RMI utility accounting experts "
+            "based on the xbrl_factoid and sometimes varies based on the utility_type or "
+            "plant_function as well."
+        ),
+        "constraints": {
+            "enum": [
+                "depreciation_amortization_depletion",
+                "depreciation_arc",
+                "fuel",
+                "investment_tax_credit",
+                "maintenance",
+                "non_fuel_operation",
+                "other",
+                "purchased_power",
+                "regulatory_debits_credits",
+                "taxes",
+            ]
+        },
+    },
+    "revenue_requirement_technology": {
+        "type": "string",
+        "description": (
+            "A category of technology types associated with components of utility's "
+            "revenue requirement. "
+            "These categories were mannually compiled by RMI utility accounting experts "
+            "based on the xbrl_factoid and sometimes varies based on the utility_type or "
+            "plant_function as well."
+        ),
+        "constraints": {
+            "enum": [
+                "administrative",
+                "common_plant_electric",
+                "customer_accounts",
+                "customer_service",
+                "distribution",
+                "general",
+                "hydraulic_production",
+                "hydraulic_production_conventional",
+                "hydraulic_production_pumped_storage",
+                "intangible",
+                "nuclear_production",
+                "other",
+                "other_electric_plant",
+                "other_power_supply",
+                "other_production",
+                "purchased_power",
+                "regional_transmission_and_market_operation",
+                "sales",
+                "steam_production",
+                "transmission",
+            ]
+        },
     },
     "row_type_xbrl": {
         "type": "string",

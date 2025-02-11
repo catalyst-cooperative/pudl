@@ -202,7 +202,7 @@ is a tree structure to being a dag. These xbrl_factoids were added in
 def get_core_ferc1_asset_description(asset_name: str) -> str:
     """Get the asset description portion of a core FERC FORM 1 asset.
 
-    This is useful when programatically constructing output assets
+    This is useful when programmatically constructing output assets
     from core assets using asset factories.
 
     Args:
@@ -219,7 +219,7 @@ def get_core_ferc1_asset_description(asset_name: str) -> str:
     else:
         raise ValueError(
             f"The asset description can not be parsed from {asset_name}"
-            "because it is not a valide core FERC Form 1 asset name."
+            "because it is not a valid core FERC Form 1 asset name."
         )
     return asset_description
 
@@ -936,7 +936,7 @@ def exploded_table_asset_factory(
     ins |= {table_name: AssetIn(table_name) for table_name in table_names}
 
     @asset(
-        name=f"_out_ferc1__detailed_{get_core_ferc1_asset_description(root_table)}",
+        name=f"out_ferc1__yearly_detailed_{get_core_ferc1_asset_description(root_table)}",
         ins=ins,
         io_manager_key=io_manager_key,
     )
@@ -995,6 +995,7 @@ EXPLOSION_ARGS = [
             ),
         ],
         "off_by_facts": [],
+        "io_manager_key": "pudl_io_manager",
     },
     {
         "root_table": "core_ferc1__yearly_balance_sheet_assets_sched110",
@@ -1450,6 +1451,7 @@ class Exploder:
         # remove the tag_ prefix. the tag verbage is helpful in the context
         # of the forest construction but after that its distracting
         exploded.columns = exploded.columns.str.removeprefix("tags_")
+        exploded = replace_dimension_columns_with_aggregatable(exploded)
 
         # TODO: Validate the root node calculations.
         # Verify that we get the same values for the root nodes using only the input
@@ -2634,11 +2636,11 @@ def check_for_correction_xbrl_factoids_with_tag(
 
 check_specs_detailed_tables_tags = [
     {
-        "asset": "_out_ferc1__detailed_balance_sheet_assets",
-        "tag_columns": ["in_rate_base", "aggregatable_utility_type"],
+        "asset": "out_ferc1__yearly_detailed_balance_sheet_assets",
+        "tag_columns": ["in_rate_base", "utility_type"],
     },
     {
-        "asset": "_out_ferc1__detailed_balance_sheet_liabilities",
+        "asset": "out_ferc1__yearly_detailed_balance_sheet_liabilities",
         "tag_columns": ["in_rate_base"],
     },
 ]
@@ -2682,16 +2684,16 @@ _checks = [
 
 @asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def out_ferc1__yearly_rate_base(
-    _out_ferc1__detailed_balance_sheet_assets: pd.DataFrame,
-    _out_ferc1__detailed_balance_sheet_liabilities: pd.DataFrame,
+    out_ferc1__yearly_detailed_balance_sheet_assets: pd.DataFrame,
+    out_ferc1__yearly_detailed_balance_sheet_liabilities: pd.DataFrame,
     core_ferc1__yearly_operating_expenses_sched320: pd.DataFrame,
 ) -> pd.DataFrame:
     """Make a table of granular utility rate base data.
 
     This table contains granular data consisting of what utilities can
     include in their rate bases. This information comes from two core
-    inputs: ``_out_ferc1__detailed_balance_sheet_assets`` and
-    ``_out_ferc1__detailed_balance_sheet_liabilities``. These two detailed tables
+    inputs: ``out_ferc1__yearly_detailed_balance_sheet_assets`` and
+    ``out_ferc1__yearly_detailed_balance_sheet_liabilities``. These two detailed tables
     are generated from seven different core_ferc1_* accounting tables with
     nested calculations. We chose only the most granular data from these tables.
     See :class:`Exploder` for more details.
@@ -2704,8 +2706,8 @@ def out_ferc1__yearly_rate_base(
     columns: ``utility_type`` and ``in_rate_base`` via
     :func:`disaggregate_null_or_total_tag`.
     """
-    assets = _out_ferc1__detailed_balance_sheet_assets
-    liabilities = _out_ferc1__detailed_balance_sheet_liabilities.assign(
+    assets = out_ferc1__yearly_detailed_balance_sheet_assets
+    liabilities = out_ferc1__yearly_detailed_balance_sheet_liabilities.assign(
         ending_balance=lambda x: -x.ending_balance
     )
     cash_working_capital = prep_cash_working_capital(
@@ -2721,10 +2723,6 @@ def out_ferc1__yearly_rate_base(
                 cash_working_capital,
             ]
         )
-        # Note: This step could happen at the end of the Explode.boom process.
-        # we're doing it here for now to preserve the augmented versions of
-        # the dimensions for a little longer in the process.
-        .pipe(replace_dimension_columns_with_aggregatable)
         .pipe(
             disaggregate_null_or_total_tag,
             tag_col="utility_type",
@@ -2741,7 +2739,13 @@ def out_ferc1__yearly_rate_base(
 
 def replace_dimension_columns_with_aggregatable(df: pd.DataFrame) -> pd.DataFrame:
     """Replace the dimenion columns with their aggregatable counterparts."""
-    dimensions = [f for f in NodeId._fields if f not in ["table_name", "xbrl_factoid"]]
+    # some tables have a dimension column but we didn't agument them
+    # with tags so they never got aggregatable_ columns so we skip those
+    dimensions = [
+        f
+        for f in NodeId._fields
+        if f not in ["table_name", "xbrl_factoid"] and f"aggregatable_{f}" in df
+    ]
     dimensions_tags = [f"aggregatable_{d}" for d in dimensions]
     for dim in dimensions:
         df = df.assign(**{dim: lambda x: x[f"aggregatable_{dim}"]})  # noqa: B023

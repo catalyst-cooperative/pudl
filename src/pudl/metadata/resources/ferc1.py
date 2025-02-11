@@ -156,7 +156,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
     "core_ferc1__yearly_operating_expenses_sched320": {
         "description": (
-            "Operating and maintenance costs associated with producing electricty, "
+            "Operating and maintenance costs associated with producing electricity, "
             "reported in Schedule 320 of FERC Form 1."
         ),
         "schema": {
@@ -753,7 +753,7 @@ columns.""",
     "core_ferc1__yearly_utility_plant_summary_sched200": {
         "description": (
             "Summary of utility plant and accumulated provisions for depreciation, "
-            "amortization and depletion of utilty plant assets reported annually at "
+            "amortization and depletion of utility plant assets reported annually at "
             "the end of the report year. Schedule 200 of FERC Form 1."
         ),
         "schema": {
@@ -805,7 +805,7 @@ columns.""",
     },
     "core_ferc1__yearly_operating_revenues_sched300": {
         "description": (
-            "Electric operating revenues - The structed part of schedule 300."
+            "Electric operating revenues - The structured part of schedule 300."
             "There are a number of revenue_type's that do not have sales_mwh,"
             "or avg_customers_per_month provided, in which case these columns"
             "will be NULL."
@@ -1686,9 +1686,56 @@ columns.""",
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
+    "out_ferc1__detailed_income_statements": {
+        "description": (
+            "This table contains granular accounting data from utilities' income statements."
+            "This table is derived from four FERC Form 1 accounting tables with nested calculations:\n"
+            " - `core_ferc1__yearly_income_statements_sched114`\n"
+            " - `core_ferc1__yearly_depreciation_summary_sched336`\n"
+            " - `core_ferc1__yearly_operating_expenses_sched320`\n"
+            " - `core_ferc1__yearly_operating_revenues_sched300`\n"
+            "We reconciled the nested calculations within these tables and then identified the "
+            "most granular data across the tables.\n"
+            "We applied slight modifications to two columns (utility_type & plant_function)"
+            "as compared to the originally reported values in our core tables. "
+            "The modifications were applied to either provide more specificity (i.e. we converted"
+            "some `total` utility_type's into `electric`) or to condense similar categories "
+            "for easier analysis (i.e. creating a `hydraulic_production` plant_function by "
+            "combining `hydraulic_production_conventional` and `hydraulic_production_pumped_storage`\n"
+            "See ``pudl.output.ferc1.Exploder`` for more details. This table was made entirely from "
+            "support and direction of RMI."
+        ),
+        "schema": {
+            "fields": [
+                "report_year",
+                "utility_id_ferc1",
+                "xbrl_factoid",
+                "utility_type",
+                "plant_function",
+                "revenue_requirement_technology",
+                "dollar_value",
+                "in_revenue_requirement_review",
+                "revenue_requirement_category",
+                "table_name",
+            ]
+            # This table would have a composite primary_key of the first 5 columns listed here, but
+            # there are expected nulls in utility_type and plant_function. and ~60 records from 1998
+            # and before would have dupes with those pks.
+        },
+        "sources": ["ferc1"],
+        "etl_group": "outputs",
+        "field_namespace": "ferc1",
+    },
+    # TODO: Add these other two tables
+    # "out_ferc1__detailed_balance_sheet_assets": {
+    #   "description": (
+    #      "Thi"
+    #   )
+    # },
+    # "out_ferc1__detailed_balance_sheet_liabilities": {},
     "out_ferc1__yearly_rate_base": {
         "description": (
-            "This table contains granular data accounting consisting of what utilities can typically "
+            "This table contains granular accounting data consisting of what utilities can typically "
             "include in their rate bases. This table is derived from seven FERC Form 1"
             " accounting tables with nested calculations. "
             "We reconciled these nested calculations and then identified the most "
@@ -1706,7 +1753,6 @@ columns.""",
             "fields": [
                 "report_year",
                 "utility_id_ferc1",
-                "table_name",
                 "utility_type",
                 "plant_function",
                 "plant_status",
@@ -1719,6 +1765,7 @@ columns.""",
                 "record_id",
                 "is_disaggregated_utility_type",
                 "is_disaggregated_in_rate_base",
+                "table_name",
             ],
         },
         "sources": ["ferc1"],
