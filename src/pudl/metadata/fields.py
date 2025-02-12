@@ -4026,7 +4026,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "A category of revenue requirement components. "
             "These categories were mannually compiled by RMI utility accounting experts "
-            "based on the xbrl_factoid and sometimes varies based on the utility_type or "
+            "based on the xbrl_factoid and sometimes vary based on the utility_type or "
             "plant_function as well."
         ),
         "constraints": {
