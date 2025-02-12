@@ -1702,8 +1702,8 @@ columns.""",
             "some `total` utility_type's into `electric`) or to condense similar categories "
             "for easier analysis (i.e. creating a `hydraulic_production` plant_function by "
             "combining `hydraulic_production_conventional` and `hydraulic_production_pumped_storage`\n"
-            "See ``pudl.output.ferc1.Exploder`` for more details. This table was made entirely from "
-            "support and direction of RMI."
+            "See ``pudl.output.ferc1.Exploder`` for more details. This table was made entirely with "
+            "support and direction from RMI."
         ),
         "schema": {
             "fields": [
