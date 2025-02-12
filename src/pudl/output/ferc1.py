@@ -2739,7 +2739,7 @@ def out_ferc1__yearly_rate_base(
 
 def replace_dimension_columns_with_aggregatable(df: pd.DataFrame) -> pd.DataFrame:
     """Replace the dimenion columns with their aggregatable counterparts."""
-    # some tables have a dimension column but we didn't agument them
+    # some tables have a dimension column but we didn't augment them
     # with tags so they never got aggregatable_ columns so we skip those
     dimensions = [
         f
