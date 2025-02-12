@@ -996,7 +996,7 @@ EXPLOSION_ARGS = [
             ),
         ],
         "off_by_facts": [],
-        # "io_manager_key": "pudl_io_manager",
+        "io_manager_key": "pudl_io_manager",
     },
     {
         "root_table": "core_ferc1__yearly_balance_sheet_assets_sched110",
@@ -1056,7 +1056,7 @@ EXPLOSION_ARGS = [
                 pd.NA,
             ),
         ],
-        # "io_manager_key": "pudl_io_manager",
+        "io_manager_key": "pudl_io_manager",
     },
     {
         "root_table": "core_ferc1__yearly_balance_sheet_liabilities_sched110",
@@ -1077,7 +1077,7 @@ EXPLOSION_ARGS = [
             )
         ],
         "off_by_facts": [],
-        # "io_manager_key": "pudl_io_manager",
+        "io_manager_key": "pudl_io_manager",
     },
 ]
 
