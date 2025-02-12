@@ -1438,19 +1438,6 @@ class Exploder:
             .pipe(self.reconcile_intertable_calculations)
             .pipe(self.calculation_forest.leafy_data, value_col=self.value_col)
         )
-        # Identify which columns should be kept in the output...
-        # TODO: Define schema for the tables explicitly.
-        cols_to_keep = list(set(self.exploded_pks + self.dimensions + [self.value_col]))
-        if ("utility_type" in cols_to_keep) and (
-            "utility_type_other" in exploded.columns
-        ):
-            cols_to_keep += ["utility_type_other"]
-        cols_to_keep += exploded.filter(regex="tags.*").columns.to_list()
-        cols_to_keep += [
-            "ferc_account",
-            "row_type_xbrl",
-        ]
-        exploded = exploded[cols_to_keep]
         # remove the tag_ prefix. the tag verbage is helpful in the context
         # of the forest construction but after that its distracting
         exploded.columns = exploded.columns.str.removeprefix("tags_")
@@ -1460,7 +1447,9 @@ class Exploder:
         # Verify that we get the same values for the root nodes using only the input
         # data from the leaf nodes:
         # root_calcs = self.calculation_forest.root_calculations
-        return exploded.convert_dtypes()
+
+        # convert_cols_dtypes mostly to properly conver the booleans!
+        return pudl.helpers.convert_cols_dtypes(exploded)
 
     def initial_explosion_concatenation(
         self, tables_to_explode: dict[str, pd.DataFrame]

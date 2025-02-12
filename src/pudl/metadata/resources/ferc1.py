@@ -1686,7 +1686,7 @@ columns.""",
         "etl_group": "outputs",
         "field_namespace": "ferc1",
     },
-    "out_ferc1__detailed_income_statements": {
+    "out_ferc1__yearly_detailed_income_statements": {
         "description": (
             "This table contains granular accounting data from utilities' income statements."
             "This table is derived from four FERC Form 1 accounting tables with nested calculations:\n"

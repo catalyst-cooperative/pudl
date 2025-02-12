@@ -5554,6 +5554,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
                 "general_plant",
                 "regional_transmission_and_market_operation",
                 "other_production",
+                "other_noncurrent_liabilities",
                 "hydro",
                 "net_utility_plant",
                 "intangible_plant",
@@ -5562,6 +5563,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
                 "net_ADIT",
                 "asset_retirement_costs",
                 "utility_plant",
+                "electric_plant_leased_to_others",
+                "electric_plant_held_for_future_use",
+                "non_utility_plant",
+                "construction_work_in_progress",
                 "AROs",
                 "correction",
             ]
