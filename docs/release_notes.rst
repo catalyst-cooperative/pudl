@@ -68,6 +68,13 @@ EIA 176
 * Extracted these interim tables up through the latest 2023 data release. See
   :issue:`4002` and :pr:`4004`.
 
+EIA 930
+~~~~~~~
+* Updated the EIA 930 data to include data published up through the beginning of
+  February 2025. See :issue:`4040` and PR :pr:`4054`. 10 new energy sources
+  were added and 3 were retired; see
+  :ref:`data-sources-eia930-changes-in-energy-source-granularity-over-time` for
+  more information.
 
 Bug Fixes
 ^^^^^^^^^
