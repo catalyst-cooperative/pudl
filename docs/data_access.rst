@@ -13,6 +13,10 @@ We recommend working with tables with the ``out_`` prefix, as these tables conta
 most complete and easiest to work with data. For more information about the different
 types of tables, read through :ref:`PUDL's naming conventions <asset-naming>`.
 
+The :doc:`PUDL data dictionary </data_dictionaries/pudl_db>` provides direct links to
+:ref:`access-datasette` for each table if it is included in our SQLite outputs, and to
+the Parquet outputs if the table is available in that format.
+
 ---------------------------------------------------------------------------------------
 Quick Reference
 ---------------------------------------------------------------------------------------
@@ -27,9 +31,9 @@ Quick Reference
      - User Types
      - Use Cases
    * - :ref:`access-datasette`
-     - SQLite
+     - SQLite, CSV
      - ``nightly``
-     - Data Explorer, Spreasheet Analyst
+     - Data Explorer, Spreadsheet Analyst
      - Explore PUDL SQLite databases interactively in a web browser.
        Select data to download as CSVs for local analysis in spreadsheets.
        Create sharable links to a particular selection of data.
@@ -93,10 +97,8 @@ PUDL data is distributed in two main file formats
   columnar storage format in which each file stores a single table. Parquet supports
   rich data types and metadata, and is highly performant.
 
-.. note::
-
-   Tad is a free, multi-platform desktop application that can be used to view and filter
-   data in both SQLite and Parquet formats.  `You can download it here <https://www.tadviewer.com/>`__.
+Any data that is published using SQLite is available through :ref:`access-datasette`,
+and can be downloaded as a CSV through that platform. See below.
 
 - **Parquet Only**: The hourly data tables are distributed only as Parquet files.
   These tables have ``hourly`` in their names.
@@ -135,9 +137,6 @@ an interactive front-end. It allows users to the PUDL database and metadata, fil
 data them using dropdown menus or SQL, and download the selected data to CSVs.  All the
 query parameters are stored in the URL so you can also share links to the data you've
 selected.
-
-The :doc:`PUDL data dictionary </data_dictionaries/pudl_db>` provides direct links to
-Datasette for each table if it is included in our SQLite outputs.
 
 .. note::
 
@@ -258,19 +257,22 @@ And then download the full PUDL SQLite database from the nightly build outputs:
 
    aws s3 cp --no-sign-request s3://pudl.catalyst.coop/nightly/pudl.sqlite.zip .
 
-The links below will download the most recent nightly builds of all the PUDL SQLite
-databases and their metadata in bulk.
+Direct Links for Bulk Download
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The links below allow bulk download the most recent ``nightly`` builds of all the SQLite
+databases produced by PUDL, as well as their associated metadata in JSON.
 
 Fully Processed SQLite Databases
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* `Main PUDL Database <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/pudl.sqlite.zip>`__
+* `Main PUDL Database <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/pudl.sqlite.zip>`__ (~3GB)
 * `US Census DP1 Database (2010) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/censusdp1tract.sqlite.zip>`__
 
 .. _access-raw-ferc:
 
 Raw FERC DBF & XBRL data converted to SQLite
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * FERC Form 1:
 
