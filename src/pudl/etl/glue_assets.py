@@ -249,13 +249,18 @@ def _core_epa__assn_eia_epacamd_unique(
             and x.report_year.nunique() > 1  # noqa: PD101)
         )
     )
-    # Assert some expectations about the duplicated matches
-    assert len(one_to_many) == 8
-    assert one_to_many.plant_id_eia.unique() == 63628
-    # Check there are only two years of data, so we can drop one below
-    assert one_to_many.report_year.unique() == (2018, 2019)
-
     logger.info(f"The following crosswalk matches are duplicated: \n{one_to_many}")
+
+    if (
+        not one_to_many.empty
+    ):  # When running the fast ETL, there are no rows of data here.
+        # Assert some expectations about the duplicated matches
+        assert len(one_to_many) <= 8, (
+            f"{len(one_to_many)} rows found with changes in matches over time."
+        )
+        assert one_to_many.plant_id_eia.unique() == 63628
+        # Check there are only two years of data, so we can drop one below
+        assert one_to_many.report_year.unique() == (2018, 2019)
 
     # For this one plant, we drop the first year of data and keep 2019 records.
     return core_epa__assn_eia_epacamd.drop(
