@@ -4050,7 +4050,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "The technology type associated with components of a utility's "
             "revenue requirement. "
             "These categories were mannually compiled by RMI utility accounting experts "
-            "based on the xbrl_factoid and sometimes varies based on the utility_type or "
+            "based on the xbrl_factoid and sometimes vary based on the utility_type or "
             "plant_function as well."
         ),
         "constraints": {
