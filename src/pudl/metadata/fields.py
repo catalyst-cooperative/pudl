@@ -2215,6 +2215,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "indicates if the boiler is a heat recovery steam generator (HRSG).",
     },
+    "in_rate_base": {
+        "type": "boolean",
+        "description": (
+            "Whether or not a record from the detailed FERC1 accounting tables should "
+            "be considered allowable in a utility's rate base based on utility "
+            "accounting standards. "
+            "This flag was mannually compiled by RMI utility accounting experts "
+            "based on the xbrl_factoid and sometimes varies based on the utility_type "
+            "plant_status or plant_function as well."
+        ),
+    },
     "in_revenue_requirement_review": {
         "type": "boolean",
         "description": (

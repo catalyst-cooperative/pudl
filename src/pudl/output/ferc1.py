@@ -3,6 +3,7 @@
 import importlib
 import re
 from copy import deepcopy
+from dataclasses import dataclass
 from functools import cached_property
 from typing import Any, Literal, NamedTuple, Self
 
@@ -995,7 +996,7 @@ EXPLOSION_ARGS = [
             ),
         ],
         "off_by_facts": [],
-        "io_manager_key": "pudl_io_manager",
+        # "io_manager_key": "pudl_io_manager",
     },
     {
         "root_table": "core_ferc1__yearly_balance_sheet_assets_sched110",
@@ -1055,6 +1056,7 @@ EXPLOSION_ARGS = [
                 pd.NA,
             ),
         ],
+        # "io_manager_key": "pudl_io_manager",
     },
     {
         "root_table": "core_ferc1__yearly_balance_sheet_liabilities_sched110",
@@ -1075,6 +1077,7 @@ EXPLOSION_ARGS = [
             )
         ],
         "off_by_facts": [],
+        # "io_manager_key": "pudl_io_manager",
     },
 ]
 
@@ -2752,40 +2755,83 @@ def replace_dimension_columns_with_aggregatable(df: pd.DataFrame) -> pd.DataFram
     return df.drop(columns=dimensions_tags)
 
 
-@asset_check(asset="out_ferc1__yearly_rate_base", blocking=True)
-def check_pks(df):
-    """Check the primary keys of this table.
+@dataclass
+class Ferc1DetailedCheckSpec:
+    """Define some simple checks that can run on FERC 1 assets."""
 
-    We do this as an asset check instead of actually setting them as primary keys
-    in the db schema because there are many expected nulls in these columns.
-    """
-    idx = [
-        "report_year",
-        "utility_id_ferc1",
-        "xbrl_factoid",
-        "table_name",
-        "utility_type",
-        "plant_function",
-        "plant_status",
-    ]
-    dupes = df[
-        df.duplicated(idx, keep=False)
-        # this needs to be in here bc xbrl_factoid==utility_plant_net_correction
-        # had correcitons w/ total and sub-dimensions utility types
-        # and then we dissagregated the total utility_type into the
-        # sub-dimensions
-        & (df.xbrl_factoid != "utility_plant_net_correction")
-        # this needs to be here bc we condensed two kinds of hydro
-        # plant functions (conventional & pumped storage) into one
-        # categeory for easier id-ing of all the hydro assets/liabiltiies
-        & (df.plant_function != "hydraulic_production")
-    ]
-    if not dupes.empty:
-        raise AssertionError(
-            "Found duplicate records given expected primary keys of the table:\n"
-            f"{dupes.set_index(idx).sort_index()}"
-        )
-    return AssetCheckResult(passed=True)
+    name: str
+    asset: str
+    idx: dict[int, int]
+
+
+check_specs = [
+    Ferc1DetailedCheckSpec(
+        name="out_ferc1__yearly_rate_base_check_spec",
+        asset="out_ferc1__yearly_rate_base",
+        idx=[
+            "report_year",
+            "utility_id_ferc1",
+            "xbrl_factoid",
+            "utility_type",
+            "plant_function",
+            "plant_status",
+        ],
+    ),
+    Ferc1DetailedCheckSpec(
+        name="out_ferc1__yearly_detailed_balance_sheet_assets_check_spec",
+        asset="out_ferc1__yearly_detailed_balance_sheet_assets",
+        idx=[
+            "report_year",
+            "utility_id_ferc1",
+            "xbrl_factoid",
+            "utility_type",
+            "plant_function",
+            "plant_status",
+        ],
+    ),
+    Ferc1DetailedCheckSpec(
+        name="out_ferc1__yearly_detailed_balance_sheet_liabilitiess_check_spec",
+        asset="out_ferc1__yearly_detailed_balance_sheet_liabilities",
+        idx=["report_year", "utility_id_ferc1", "xbrl_factoid", "utility_type"],
+    ),
+    Ferc1DetailedCheckSpec(
+        name="out_ferc1__yearly_detailed_income_statements_check_spec",
+        asset="out_ferc1__yearly_detailed_income_statements",
+        idx=[
+            "report_year",
+            "utility_id_ferc1",
+            "xbrl_factoid",
+            "utility_type",
+            "plant_function",
+        ],
+    ),
+]
+
+
+def make_idx_check(spec: Ferc1DetailedCheckSpec) -> AssetChecksDefinition:
+    """Turn the Ferc1DetailedCheckSpec into an actual Dagster asset check."""
+
+    @asset_check(asset=spec.asset, blocking=True)
+    def _idk_check(context, df):
+        idx = spec.idx
+        dupes = df[df.duplicated(idx, keep=False)]
+        if "plant_function" in dupes:
+            # this needs to be here bc we condensed two kinds of hydro
+            # plant functions (conventional & pumped storage) into one
+            # categeory for easier id-ing of all the hydro assets/liabiltiies
+            dupes = dupes[dupes.plant_function != "hydraulic_production"]
+
+        if not dupes.empty:
+            raise AssertionError(
+                "Found duplicate records given expected primary keys of the table:\n"
+                f"{dupes.set_index(idx).sort_index()}"
+            )
+        return AssetCheckResult(passed=True)
+
+    return _idk_check
+
+
+_checks = [make_idx_check(spec) for spec in check_specs]
 
 
 def prep_cash_working_capital(
