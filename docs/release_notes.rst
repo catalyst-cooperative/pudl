@@ -42,6 +42,12 @@ EPA CEMS
 ~~~~~~~~
 * Added 2024 Q4 of CEMS data. See :issue:`4041` and :pr:`4052`.
 
+EPA CAMD EIA Crosswalk
+~~~~~~~~~~~~~~~~~~~~~~
+* Updated the crosswalk using 2019, 2020, 2022 and 2023 EIA data, and incorporated the
+  new crosswalk data into the generation of :ref:`core_epa__assn_eia_epacamd` and
+  :ref:`core_epa__assn_eia_epacamd_subplant_ids`. See :issue:`4039` and :pr:`4056`.
+
 EIA 860
 ~~~~~~~
 * Added EIA 860 Multifuel data. See :issue:`3438` and :pr:`3946`.
