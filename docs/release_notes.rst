@@ -46,6 +46,14 @@ EIA 860
 ~~~~~~~
 * Added EIA 860 Multifuel data. See :issue:`3438` and :pr:`3946`.
 
+EIA 860M
+~~~~~~~~
+* Added EIA 860m through December 2024. See :issue:`4038` and :pr:`4047`.
+
+EIA 923
+~~~~~~~
+* Added EIA 923 monthly data through September 2024. See :issue:`4038` and :pr:`4047`.
+
 EIA Bulk Electricity Data
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 * Updated the EIA Bulk Electricity data to include data published up through
