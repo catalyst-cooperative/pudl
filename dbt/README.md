@@ -27,11 +27,11 @@ script to automate the process at `devtools/dbt_helper.py`.
 Basic usage of the helper script looks like:
 
 ```
-python devtools/dbt_helper.py --tables {table_name(s)}
+python devtools/dbt_helper.py {table_name(s)}
 ```
 
-This will add a file called `dbt/models/{data_source}/{table_name}/schema.yml` which
-tells `dbt` about the table and it's schema. It will also apply the test
+This will add a file called `dbt/models/{data_source}/{table_name}/schema.yml` for
+each table. This yaml file tells `dbt` about the table and it's schema. It will also apply the test
 `check_row_counts_per_partition`, which by default will check row counts per year.
 To accomplish this it will add row counts to the file `seeds/row_counts.csv`, which
 get compared to observed row counts in the table when running tests.
@@ -119,3 +119,51 @@ dbt test --select {model_name}
 #### Selecting target profile
 To select between `nightly`, `etl-full`, and `etl-fast` profiles, append
 `--target {target_name}` to any of the previous commands.
+
+
+### Test migration example
+This section will walk through migrating an existing collection of validation
+tests. As an example, we'll use the tests in `test/validate/mcoe_test.py`.
+This file contains a collection of tests which use some common methods
+defined in `pudl/validate.py`. These tests are representative of many
+of the types of tests we're looking to migrate.
+
+#### `vs_bounds` tests
+We'll start with a set of tests which use the `vs_bounds` method defined
+in `validate.py`. These check that a specified quantile of a numeric column
+is within a configurable set of bounds. The values to configure the quantiles
+and the bounds are defined in config  `dict`'s, in `validate.py`. For
+example, the test, `test_gas_capacity_factor`, references
+configuration stored in the variable `mcoe_gas_capacity_factor`. Once we
+know where the configuration is stored, we need to identify the specific
+tables used in the test. This test is producing tables with the `PudlTabl`
+method `mcoe_generators`. This method returns the tables
+`out_eia__monthly_generators`, and `out_eia__yearly_generators`. To migrate these tests we'll first want generate `dbt` configuration for these
+tables.
+
+```
+python devtools/dbt_helper.py add-tables out_eia__monthly_generators out_eia__yearly_generators
+```
+
+This will create the files `dbt/models/output/out_eia__{AGG}_generators/schema.yml`,
+which will tell `dbt` about the table and generate row count tests.
+Note the exact format of this file might be modified by our linting tools,
+but this does not change functionality.
+
+Next, we want to update the `dbt` configuration to add tests equivalent
+to the `vs_bounds` tests. The `dbt_helper` script contains a command that
+can automatically generate this `dbt` configuration from the exisitng python
+config. To do this you can use a command like:
+
+```
+python devtools/dbt_helper.py migrate-tests \
+    --table-name out_eia__AGG_generators \
+    --test-config-name mcoe_gas_capacity_factor
+```
+
+This command will add the necessary tests. There is a chance that formatting
+could get messed up slightly in the translation, but will work out of
+the box in the general case.
+
+To see the output of these commands look to the `schema.yml` files
+mentioned above.

@@ -1,6 +1,7 @@
 """A basic CLI to autogenerate dbt yml."""
 
-from collections import namedtuple
+import re
+from collections import defaultdict, namedtuple
 from pathlib import Path
 
 import click
@@ -8,6 +9,7 @@ import pandas as pd
 import yaml
 from pydantic import BaseModel
 
+from pudl import validate
 from pudl.etl import defs
 from pudl.logging_helpers import configure_root_logger, get_logger
 from pudl.metadata.classes import PUDL_PACKAGE
@@ -22,14 +24,32 @@ class DbtColumn(BaseModel):
     """Define yaml structure of a dbt column."""
 
     name: str
+    data_tests: list | None = None
+
+    def add_column_tests(self, column_tests: list) -> "DbtColumn":
+        """Add data tests to columns in dbt config."""
+        data_tests = self.data_tests if self.data_tests is not None else []
+        return self.model_copy(update={"data_tests": data_tests + column_tests})
 
 
 class DbtTable(BaseModel):
     """Define yaml structure of a dbt table."""
 
     name: str
-    data_tests: list
+    data_tests: list | None
     columns: list[DbtColumn]
+
+    def add_column_tests(self, column_tests: dict[str, list]) -> "DbtSource":
+        """Add data tests to columns in dbt config."""
+        columns = {column.name: column for column in self.columns}
+        columns.update(
+            {
+                name: columns[name].add_column_tests(tests)
+                for name, tests in column_tests.items()
+            }
+        )
+
+        return self.model_copy(update={"columns": list(columns.values())})
 
     @staticmethod
     def get_row_count_test_dict(table_name: str, partition_column: str):
@@ -62,12 +82,34 @@ class DbtSource(BaseModel):
     name: str = "pudl"
     tables: list[DbtTable]
 
+    def add_column_tests(self, column_tests: dict[list]) -> "DbtSource":
+        """Add data tests to columns in dbt config."""
+        return self.model_copy(
+            update={"tables": [self.tables[0].add_column_tests(column_tests)]}
+        )
+
 
 class DbtSchema(BaseModel):
     """Define basic structure of a dbt models yaml file."""
 
     version: int = 2
     sources: list[DbtSource]
+    models: list[DbtTable] | None = None
+
+    def add_column_tests(
+        self, column_tests: dict[list], model_name: str | None = None
+    ) -> "DbtSchema":
+        """Add data tests to columns in dbt config."""
+        if model_name is None:
+            schema = self.model_copy(
+                update={"sources": [self.sources[0].add_column_tests(column_tests)]}
+            )
+        else:
+            models = {model.name: model for model in self.models}
+            models[model_name] = models[model_name].add_column_tests(column_tests)
+            schema = self.model_copy(update={"models": list(models.values())})
+
+        return schema
 
     @classmethod
     def from_table_name(cls, table_name: str, partition_column: str) -> "DbtSchema":
@@ -75,9 +117,10 @@ class DbtSchema(BaseModel):
         return cls(
             sources=[
                 DbtSource(
-                    tables=[DbtTable.from_table_name(table_name, partition_column)]
+                    version=2,
+                    tables=[DbtTable.from_table_name(table_name, partition_column)],
                 )
-            ]
+            ],
         )
 
 
@@ -155,6 +198,7 @@ def _write_dbt_yaml_config(schema_path: Path, schema: DbtSchema):
             schema_file,
             default_flow_style=False,
             sort_keys=False,
+            width=float("inf"),
         )
 
 
@@ -284,12 +328,100 @@ def add_tables(
     ]
 
 
+def _get_config(test_config_name: str) -> list[dict]:
+    return validate.__getattribute__(test_config_name)
+
+
+def _load_schema_yaml(schema_path: Path) -> DbtSchema:
+    with schema_path.open("r") as schema_yaml:
+        return DbtSchema(**yaml.safe_load(schema_yaml))
+
+
+def _get_test_name(test_config: dict) -> str:
+    if not test_config.get("weight_col"):
+        test_name = "dbt_expectations.expect_column_quantile_values_to_be_between"
+    else:
+        test_name = "expect_column_weighted_quantile_values_to_be_between"
+    return test_name
+
+
+def _clean_row_condition(row_condition: str) -> str:
+    row_condition = (
+        re.sub(
+            r"'(\d{4})-0*(\d{1,2})-0*(\d{1,2})'",
+            r"{{ dbt_date.date(\1, \2, \3) }}",
+            row_condition,
+        )
+        .replace("==", "=")
+        .replace("!=", "<>")
+    )
+    return f'"{row_condition}"'
+
+
+def _generate_quantile_bounds_test(test_config: dict) -> list[dict]:
+    """Convert dict of config from `validate.py` to construct config for dbt test."""
+    return [
+        {
+            _get_test_name(test_config): {
+                "quantile": test_config[quantile_key],
+                min_max_value: test_config[bound_key],
+                "row_condition": _clean_row_condition(test_config.get("query")),
+                "weight_column": test_config.get("weight_col"),
+            }
+        }
+        for quantile_key, bound_key, min_max_value in [
+            ("low_q", "low_bound", "min_value"),
+            ("hi_q", "hi_bound", "max_value"),
+        ]
+        if quantile_key in test_config
+    ]
+
+
+@click.command(
+    help="Generate dbt tests to check quantiles vs bounds using existing configuration."
+)
+@click.option("--table-name", type=str, help="Name of table test will be applied to.")
+@click.option(
+    "--test-config-name",
+    type=str,
+    help="Name variable containing test configuration in `pudl.validate`.",
+)
+@click.option(
+    "--model-name",
+    default=None,
+    help="Name of model if test should be applied to an intermediate dbt model and not the table directly.",
+)
+def migrate_tests(table_name: str, test_config_name: str, model_name: str | None):
+    """Generate dbt tests to check quantiles vs bounds using existing configuration."""
+    schema_path = (
+        _get_model_path(table_name, get_data_source(table_name)) / "schema.yml"
+    )
+    if not schema_path.exists():
+        raise RuntimeError(
+            f"Can not migrate tests for table {table_name}, "
+            "because no dbt configuration exists for the table."
+        )
+
+    schema = _load_schema_yaml(schema_path)
+    test_config = _get_config(test_config_name)
+
+    dbt_tests = defaultdict(list)
+    for config in test_config:
+        logger.info(f"Adding test {config['title']}")
+        dbt_tests[config["data_col"]] += _generate_quantile_bounds_test(config)
+
+    schema = schema.add_column_tests(dbt_tests)
+
+    _write_dbt_yaml_config(schema_path, schema)
+
+
 @click.group()
 def dbt_helper():
     """Top level cli."""
 
 
 dbt_helper.add_command(add_tables)
+dbt_helper.add_command(migrate_tests)
 
 
 if __name__ == "__main__":
