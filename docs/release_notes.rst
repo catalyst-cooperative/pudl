@@ -27,8 +27,54 @@ Quality of Life Improvements
 v2025.2.0 (2025-02-13)
 ---------------------------------------------------------------------------------------
 
+This is our regular quarterly release for 2025Q1. It includes updates to all the
+datasets that are published with quarterly or higher frequency, plus initial verisons
+of a few new data sources that have been in the works for a while.
+
+One major change this quarter is that we are now publishing all processed PUDL data as
+Apache Parquet files, alongside our existing SQLite databases. See :doc:`data_access`
+for more on how to access these outputs.
+
+Some potentially breaking changes to be aware of:
+
+* In the :doc:`data_sources/eia930` a number of new energy sources have been added, and
+  some old energy sources have been split into more granular categories. See
+  :ref:`data-sources-eia930-changes-in-energy-source-granularity-over-time`.
+* We are now running the EPA's CAMD to EIA unit crosswalk code for each individual year
+  starting from 2018, rather than just 2018 and 2021, resulting in more connections
+  between these two datasets, and different sub-plant IDs. See :ref:`data-epacamd_eia`
+  for more details.
+
+Many thanks to the organizations who make these regular updates possible! Especially
+`GridLab <https://gridlab.org>`__, `RMI <https://rmi.org>`__, and the `ZERO Lab at
+Princeton University <https://zero.lab.princeton.edu/>`__. If you rely on PUDL and would
+like to help ensure that the data keeps flowing, please consider joining them as a `PUDL
+Sustainer <https://opencollective.com/pudl>`__, as we are still fundraising for 2025.
+
 New Data
 ^^^^^^^^
+
+EIA 176
+~~~~~~~
+* Add a couple of semi-transformed interim EIA-176 (natural gas sources and
+  dispositions) tables. They aren't yet being written to the database, but are one step
+  closer. See :issue:`3555` and PRs :pr:`3590,3978`. Thanks to :user:`davidmudrauskas`
+  for moving this dataset forward.
+* Extracted these interim tables up through the latest 2023 data release. See
+  :issue:`4002` and :pr:`4004`.
+
+EIA 860
+~~~~~~~
+* Added EIA 860 Multifuel table. See :issue:`3438` and :pr:`3946`.
+
+FERC 1
+~~~~~~
+* Added three new output tables containing granular utility accounting data.
+  See :pr:`4057`, :issue:`3642` and the table descriptions in the data dictionary:
+
+  * :ref:`out_ferc1__yearly_detailed_income_statements`
+  * :ref:`out_ferc1__yearly_detailed_balance_sheet_assets`
+  * :ref:`out_ferc1__yearly_detailed_balance_sheet_liabilities`
 
 SEC Form 10-K Parent-Subsidiary Ownership
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -55,28 +101,6 @@ SEC Form 10-K Parent-Subsidiary Ownership
   * :ref:`core_sec10k__quarterly_filings`
   * :ref:`core_sec10k__quarterly_exhibit_21_company_ownership`
   * :ref:`core_sec10k__quarterly_company_information`
-
-EIA 176
-~~~~~~~
-* Add a couple of semi-transformed interim EIA-176 (natural gas sources and
-  dispositions) tables. They aren't yet being written to the database, but are one step
-  closer. See :issue:`3555` and PRs :pr:`3590,3978`. Thanks to :user:`davidmudrauskas`
-  for moving this dataset forward.
-* Extracted these interim tables up through the latest 2023 data release. See
-  :issue:`4002` and :pr:`4004`.
-
-EIA 860
-~~~~~~~
-* Added EIA 860 Multifuel table. See :issue:`3438` and :pr:`3946`.
-
-FERC 1
-~~~~~~
-* Added three new output tables containing granular utility accounting data.
-  See :pr:`4057`, :issue:`3642` and the table descriptions in the data dictionary:
-
-  * :ref:`out_ferc1__yearly_detailed_income_statements`
-  * :ref:`out_ferc1__yearly_detailed_balance_sheet_assets`
-  * :ref:`out_ferc1__yearly_detailed_balance_sheet_liabilities`
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
