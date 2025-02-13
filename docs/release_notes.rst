@@ -12,7 +12,7 @@ New Data
 SEC Form 10-K Parent-Subsidiary Ownership
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* We have added some new tables describing the parent-subsidary company ownership
+* We have added some new tables describing the parent-subsidiary company ownership
   relationships reported in the
   `SEC's Form 10-K <https://en.wikipedia.org/wiki/Form_10-K>`__, Exhibit 21
   "Subsidiaries of the Registrant". Where possible these tables link the SEC filers or
@@ -34,6 +34,15 @@ SEC Form 10-K Parent-Subsidiary Ownership
   * :ref:`core_sec10k__quarterly_filings`
   * :ref:`core_sec10k__quarterly_exhibit_21_company_ownership`
   * :ref:`core_sec10k__quarterly_company_information`
+
+FERC 1
+~~~~~~
+* Added three new output tables containing granular utility accounting data.
+  See :pr:`4057`, :issue:`3642` and the table descriptions in the data dictionary:
+
+  * :ref:`out_ferc1__yearly_detailed_income_statements`
+  * :ref:`out_ferc1__yearly_detailed_balance_sheet_assets`
+  * :ref:`out_ferc1__yearly_detailed_balance_sheet_liabilities`
 
 New Data Coverage
 ^^^^^^^^^^^^^^^^^
