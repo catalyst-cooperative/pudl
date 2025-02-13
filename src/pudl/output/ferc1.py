@@ -2669,7 +2669,7 @@ def make_check_correction_tags(spec) -> AssetChecksDefinition:
     return _check
 
 
-_checks = [
+_tag_checks = [
     make_check_tag_propagation(spec) for spec in check_specs_detailed_tables_tags
 ] + [make_check_correction_tags(spec) for spec in check_specs_detailed_tables_tags]
 
@@ -2801,7 +2801,12 @@ def make_idx_check(spec: Ferc1DetailedCheckSpec) -> AssetChecksDefinition:
     """Turn the Ferc1DetailedCheckSpec into an actual Dagster asset check."""
 
     @asset_check(asset=spec.asset, blocking=True)
-    def _idk_check(context, df):
+    def _idx_check(df):
+        """Check the primary keys of this table.
+
+        We do this as an asset check instead of actually setting them as primary keys
+        in the db schema because there are many expected nulls in these columns.
+        """
         idx = spec.idx
         dupes = df[df.duplicated(idx, keep=False)]
         if "plant_function" in dupes:
@@ -2817,10 +2822,10 @@ def make_idx_check(spec: Ferc1DetailedCheckSpec) -> AssetChecksDefinition:
             )
         return AssetCheckResult(passed=True)
 
-    return _idk_check
+    return _idx_check
 
 
-_checks = [make_idx_check(spec) for spec in check_specs]
+_idx_checks = [make_idx_check(spec) for spec in check_specs]
 
 
 def prep_cash_working_capital(

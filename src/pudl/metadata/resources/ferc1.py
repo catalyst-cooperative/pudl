@@ -1689,11 +1689,11 @@ columns.""",
     "out_ferc1__yearly_detailed_income_statements": {
         "description": (
             "This table contains granular accounting data from utilities' income statements."
-            "This table is derived from four FERC Form 1 accounting tables with nested calculations:\n"
-            " - `core_ferc1__yearly_income_statements_sched114`\n"
-            " - `core_ferc1__yearly_depreciation_summary_sched336`\n"
-            " - `core_ferc1__yearly_operating_expenses_sched320`\n"
-            " - `core_ferc1__yearly_operating_revenues_sched300`\n"
+            "This table is derived from four FERC Form 1 accounting tables with nested calculations:\n\n"
+            " * `core_ferc1__yearly_income_statements_sched114`\n"
+            " * `core_ferc1__yearly_depreciation_summary_sched336`\n"
+            " * `core_ferc1__yearly_operating_expenses_sched320`\n"
+            " * `core_ferc1__yearly_operating_revenues_sched300`\n\n"
             "We reconciled the nested calculations within these tables and then identified the "
             "most granular data across the tables.\n"
             "We applied slight modifications to two columns (utility_type & plant_function)"
@@ -1714,7 +1714,7 @@ columns.""",
                 "plant_function",
                 "revenue_requirement_technology",
                 "dollar_value",
-                "in_revenue_requirement_review",
+                "in_revenue_requirement",
                 "revenue_requirement_category",
                 "table_name",
             ]
@@ -1726,11 +1726,11 @@ columns.""",
     "out_ferc1__yearly_detailed_balance_sheet_assets": {
         "description": (
             "This table contains granular accounting data from utilities' balance sheet assets. "
-            "This table is derived from four FERC Form 1 accounting tables with nested calculations:\n"
-            " - `core_ferc1__yearly_balance_sheet_assets_sched110`\n"
-            " - `core_ferc1__yearly_utility_plant_summary_sched200`\n"
-            " - `core_ferc1__yearly_plant_in_service_sched204`\n"
-            " - `core_ferc1__yearly_depreciation_by_function_sched219`\n"
+            "This table is derived from four FERC Form 1 accounting tables with nested calculations:\n\n"
+            " * `core_ferc1__yearly_balance_sheet_assets_sched110`\n"
+            " * `core_ferc1__yearly_utility_plant_summary_sched200`\n"
+            " * `core_ferc1__yearly_plant_in_service_sched204`\n"
+            " * `core_ferc1__yearly_depreciation_by_function_sched219`\n\n"
             "We reconciled the nested calculations within these tables and then identified the "
             "most granular data across the tables.\n"
             "We applied slight modifications to three columns (utility_type, plant_function & plant_status) "
@@ -1764,9 +1764,9 @@ columns.""",
     "out_ferc1__yearly_detailed_balance_sheet_liabilities": {
         "description": (
             "This table contains granular accounting data from utilities' balance sheet liabilities. "
-            "This table is derived from two FERC Form 1 accounting tables with nested calculations:\n"
-            " - `core_ferc1__yearly_balance_sheet_liabilities_sched110`\n"
-            " - `core_ferc1__yearly_retained_earnings_sched118`\n"
+            "This table is derived from two FERC Form 1 accounting tables with nested calculations:\n\n"
+            " * `core_ferc1__yearly_balance_sheet_liabilities_sched110`\n"
+            " * `core_ferc1__yearly_retained_earnings_sched118`\n\n"
             "We reconciled the nested calculations within these tables and then identified the "
             "most granular data across the tables.\n"
             "We applied slight modifications to three columns (utility_type, plant_function & plant_status) "

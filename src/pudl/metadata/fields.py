@@ -2222,17 +2222,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "be considered allowable in a utility's rate base based on utility "
             "accounting standards. "
             "This flag was mannually compiled by RMI utility accounting experts "
-            "based on the xbrl_factoid and sometimes varies based on the utility_type "
-            "plant_status or plant_function as well."
+            "based on the xbrl_factoid and sometimes varies based on the utility_type, "
+            "plant_status or plant_function."
         ),
     },
-    "in_revenue_requirement_review": {
+    "in_revenue_requirement": {
         "type": "boolean",
         "description": (
-            "Whether or not a record from the detailed income statement data should be "
-            "considered in a utility's revenue requirement. This flag was mannually "
+            "Whether or not a record from the detailed income statement data is typically "
+            "included in a utility's revenue requirement. This flag was mannually "
             "compiled by RMI utility accounting experts based on the xbrl_factoid and "
-            "sometimes varies based on the utility_type or plant_function as well."
+            "sometimes varies based on the utility_type or plant_function."
         ),
     },
     "inactive_accounts_included": {
@@ -4035,10 +4035,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "revenue_requirement_category": {
         "type": "string",
         "description": (
-            "A category of revenue requirement components. "
+            "The category of revenue requirement associated with each component of utility's"
+            "income statements. "
             "These categories were mannually compiled by RMI utility accounting experts "
             "based on the xbrl_factoid and sometimes vary based on the utility_type or "
-            "plant_function as well."
+            "plant_function. This column is intended to be used to aggregate this "
+            "table."
         ),
         "constraints": {
             "enum": [
@@ -4062,7 +4064,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "revenue requirement. "
             "These categories were mannually compiled by RMI utility accounting experts "
             "based on the xbrl_factoid and sometimes vary based on the utility_type or "
-            "plant_function as well."
+            "plant_function as well. This column is intended to be used to aggregate this "
+            "table."
         ),
         "constraints": {
             "enum": [
