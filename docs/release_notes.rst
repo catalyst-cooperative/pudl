@@ -42,8 +42,8 @@ Some potentially breaking changes to be aware of:
   :ref:`data-sources-eia930-changes-in-energy-source-granularity-over-time`.
 * We are now running the EPA's CAMD to EIA unit crosswalk code for each individual year
   starting from 2018, rather than just 2018 and 2021, resulting in more connections
-  between these two datasets, and different sub-plant IDs. See :ref:`data-epacamd_eia`
-  for more details.
+  between these two datasets and changes to some sub-plant IDs. See the note below for
+  more details.
 
 Many thanks to the organizations who make these regular updates possible! Especially
 `GridLab <https://gridlab.org>`__, `RMI <https://rmi.org>`__, and the `ZERO Lab at
@@ -111,9 +111,21 @@ EPA CEMS
 
 EPA CAMD EIA Crosswalk
 ~~~~~~~~~~~~~~~~~~~~~~
-* Updated the crosswalk using 2019, 2020, 2022 and 2023 EIA data, and incorporated the
-  new crosswalk data into the generation of :ref:`core_epa__assn_eia_epacamd` and
-  :ref:`core_epa__assn_eia_epacamd_subplant_ids`. See :issue:`4039` and :pr:`4056`.
+* In the past, the crosswalk in PUDL has used the EPA's published crosswalk (run with
+  2018 data), and an additional crosswalk we ran with 2021 EIA 860 data. To ensure that
+  the crosswalk reflects updates in both EIA and EPA data, we re-ran the EPA R code
+  which generates the EPA CAMD EIA crosswalk with 4 new years of data: 2019, 2020, 2022
+  and 2023. Re-running the crosswalk pulls the latest data from the CAMD FACT API, which
+  results in some changes to the generator and unit IDs reported on the EPA side of the
+  crosswalk, which feeds into the creation of :ref:`core_epa__assn_eia_epacamd`.
+* The changes only result in the addition of new units and generators in the EPA data,
+  with no changes to matches at the plant level. However, the updates to generator and
+  unit IDs have resulted in changes to the subplant IDs - some EIA boilers and
+  generators which previously had no matches to EPA data have now been matched to EPA
+  unit data, resulting in an overall **reduction** in the number of rows in the
+  :ref:`core_epa__assn_eia_epacamd_subplant_ids` table. See issues :issue:`4039`
+  and PR :pr:`4056` for a discussion of the changes observed in the course of this
+  update.
 
 EIA 860M
 ~~~~~~~~
