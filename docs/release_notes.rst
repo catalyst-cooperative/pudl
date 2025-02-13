@@ -9,6 +9,27 @@ v2025.XX.x (2025-MM-DD)
 New Data
 ^^^^^^^^
 
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+Bug Fixes
+^^^^^^^^^
+
+Major Dependency Updates
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Quality of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. _release-v2025.2.0:
+
+---------------------------------------------------------------------------------------
+v2025.2.0 (2025-02-13)
+---------------------------------------------------------------------------------------
+
+New Data
+^^^^^^^^
+
 SEC Form 10-K Parent-Subsidiary Ownership
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -35,6 +56,19 @@ SEC Form 10-K Parent-Subsidiary Ownership
   * :ref:`core_sec10k__quarterly_exhibit_21_company_ownership`
   * :ref:`core_sec10k__quarterly_company_information`
 
+EIA 176
+~~~~~~~
+* Add a couple of semi-transformed interim EIA-176 (natural gas sources and
+  dispositions) tables. They aren't yet being written to the database, but are one step
+  closer. See :issue:`3555` and PRs :pr:`3590,3978`. Thanks to :user:`davidmudrauskas`
+  for moving this dataset forward.
+* Extracted these interim tables up through the latest 2023 data release. See
+  :issue:`4002` and :pr:`4004`.
+
+EIA 860
+~~~~~~~
+* Added EIA 860 Multifuel table. See :issue:`3438` and :pr:`3946`.
+
 FERC 1
 ~~~~~~
 * Added three new output tables containing granular utility accounting data.
@@ -44,8 +78,8 @@ FERC 1
   * :ref:`out_ferc1__yearly_detailed_balance_sheet_assets`
   * :ref:`out_ferc1__yearly_detailed_balance_sheet_liabilities`
 
-New Data Coverage
-^^^^^^^^^^^^^^^^^
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
 
 EPA CEMS
 ~~~~~~~~
@@ -56,10 +90,6 @@ EPA CAMD EIA Crosswalk
 * Updated the crosswalk using 2019, 2020, 2022 and 2023 EIA data, and incorporated the
   new crosswalk data into the generation of :ref:`core_epa__assn_eia_epacamd` and
   :ref:`core_epa__assn_eia_epacamd_subplant_ids`. See :issue:`4039` and :pr:`4056`.
-
-EIA 860
-~~~~~~~
-* Added EIA 860 Multifuel data. See :issue:`3438` and :pr:`3946`.
 
 EIA 860M
 ~~~~~~~~
@@ -73,15 +103,6 @@ EIA Bulk Electricity Data
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 * Updated the EIA Bulk Electricity data to include data published up through
   2024-11-01. See :issue:`4042` and PR :pr:`4051`.
-
-EIA 176
-~~~~~~~
-* Add a couple of semi-transformed interim EIA-176 (natural gas sources and
-  dispositions) tables. They aren't yet being written to the database, but are one step
-  closer. See :issue:`3555` and PRs :pr:`3590,3978`. Thanks to :user:`davidmudrauskas`
-  for moving this dataset forward.
-* Extracted these interim tables up through the latest 2023 data release. See
-  :issue:`4002` and :pr:`4004`.
 
 EIA 930
 ~~~~~~~
@@ -104,9 +125,6 @@ Bug Fixes
 * Fix spelling of Lake Huron and Lake Saint Clair in
   :ref:`out_vcerare__hourly_available_capacity_factor` and related tables. See issue
   :issue:`4007` and PR :pr:`4029`.
-
-Major Dependency Updates
-^^^^^^^^^^^^^^^^^^^^^^^^
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
