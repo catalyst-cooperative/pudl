@@ -29,6 +29,12 @@ sources:
           - name: capex_equipment
           - name: capex_land
           - name: capex_per_mw
+            data_tests:
+              - expect_column_weighted_quantile_values_to_be_between:
+                  quantile: 0.5
+                  min_value: 200000
+                  max_value: 600000
+                  weight_column: capacity_mw
           - name: capex_structures
           - name: capex_total
           - name: capex_wo_retirement_total
@@ -67,10 +73,4 @@ sources:
 models:
   - name: validate_ferc1__yearly_steam_plants_sched402
     columns:
-      - name: gas_cost_per_mmbtu
-        data_tests:
-          - expect_column_weighted_quantile_values_to_be_between:
-              quantile: 0.5
-              min_value: 200000
-              max_value: 600000
-              weight_column: capacity_mw
+      - name: capex_per_mw

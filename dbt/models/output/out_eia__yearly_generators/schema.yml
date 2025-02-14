@@ -27,6 +27,27 @@ sources:
           - name: fuel_type_code_pudl
           - name: planned_generator_retirement_date
           - name: capacity_factor
+            data_tests:
+              - expect_column_weighted_quantile_values_to_be_between:
+                  quantile: 0.65
+                  min_value: 0.4
+                  row_condition: fuel_type_code_pudl='gas' and report_date>=CAST('2015-01-01' AS DATE) and capacity_factor<>0.0
+                  weight_column: capacity_mw
+              - expect_column_weighted_quantile_values_to_be_between:
+                  quantile: 0.65
+                  max_value: 0.83
+                  row_condition: fuel_type_code_pudl='gas' and report_date>=CAST('2015-01-01' AS DATE) and capacity_factor<>0.0
+                  weight_column: capacity_mw
+              - expect_column_weighted_quantile_values_to_be_between:
+                  quantile: 0.15
+                  min_value: 0.005
+                  row_condition: fuel_type_code_pudl='gas' and report_date>=CAST('2015-01-01' AS DATE) and capacity_factor<>0.0
+                  weight_column: capacity_mw
+              - expect_column_weighted_quantile_values_to_be_between:
+                  quantile: 0.95
+                  max_value: 0.95
+                  row_condition: fuel_type_code_pudl='gas' and report_date>=CAST('2015-01-01' AS DATE) and capacity_factor<>0.0
+                  weight_column: capacity_mw
           - name: fuel_cost_per_mmbtu_source
           - name: fuel_cost_per_mmbtu
           - name: fuel_cost_per_mwh
@@ -39,7 +60,7 @@ sources:
           - name: bypass_heat_recovery
           - name: carbon_capture
           - name: city
-          - name: cofire_fuels
+          - name: can_cofire_fuels
           - name: county
           - name: current_planned_generator_operating_date
           - name: data_maturity
@@ -64,7 +85,7 @@ sources:
           - name: latitude
           - name: longitude
           - name: minimum_load_mw
-          - name: multiple_fuels
+          - name: can_burn_multiple_fuels
           - name: nameplate_power_factor
           - name: net_capacity_mwdc
           - name: operating_switch
@@ -104,7 +125,7 @@ sources:
           - name: summer_capacity_mw
           - name: summer_estimated_capability_mw
           - name: supercritical_tech
-          - name: switch_oil_gas
+          - name: can_switch_oil_gas
           - name: syncronized_transmission_grid
           - name: time_cold_shutdown_full_load_code
           - name: timezone

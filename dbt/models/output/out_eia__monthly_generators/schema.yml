@@ -31,22 +31,22 @@ sources:
               - expect_column_weighted_quantile_values_to_be_between:
                   quantile: 0.65
                   min_value: 0.4
-                  row_condition: '"fuel_type_code_pudl=''gas'' and report_date>={{ dbt_date.date(2015, 1, 1) }} and capacity_factor<>0.0"'
+                  row_condition: fuel_type_code_pudl='gas' and report_date>=CAST('2015-01-01' AS DATE) and capacity_factor<>0.0
                   weight_column: capacity_mw
               - expect_column_weighted_quantile_values_to_be_between:
                   quantile: 0.65
                   max_value: 0.7
-                  row_condition: '"fuel_type_code_pudl=''gas'' and report_date>={{ dbt_date.date(2015, 1, 1) }} and capacity_factor<>0.0"'
+                  row_condition: fuel_type_code_pudl='gas' and report_date>=CAST('2015-01-01' AS DATE) and capacity_factor<>0.0
                   weight_column: capacity_mw
               - expect_column_weighted_quantile_values_to_be_between:
                   quantile: 0.15
                   min_value: 0.005
-                  row_condition: '"fuel_type_code_pudl=''gas'' and report_date>={{ dbt_date.date(2015, 1, 1) }} and capacity_factor<>0.0"'
+                  row_condition: fuel_type_code_pudl='gas' and report_date>=CAST('2015-01-01' AS DATE) and capacity_factor<>0.0
                   weight_column: capacity_mw
               - expect_column_weighted_quantile_values_to_be_between:
                   quantile: 0.95
                   max_value: 0.95
-                  row_condition: '"fuel_type_code_pudl=''gas'' and report_date>={{ dbt_date.date(2015, 1, 1) }} and capacity_factor<>0.0"'
+                  row_condition: fuel_type_code_pudl='gas' and report_date>=CAST('2015-01-01' AS DATE) and capacity_factor<>0.0
                   weight_column: capacity_mw
           - name: fuel_cost_per_mmbtu_source
           - name: fuel_cost_per_mmbtu

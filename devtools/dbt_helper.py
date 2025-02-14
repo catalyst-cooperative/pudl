@@ -348,14 +348,14 @@ def _get_test_name(test_config: dict) -> str:
 def _clean_row_condition(row_condition: str) -> str:
     row_condition = (
         re.sub(
-            r"'(\d{4})-0*(\d{1,2})-0*(\d{1,2})'",
-            r"{{ dbt_date.date(\1, \2, \3) }}",
+            r"('\d{4}-\d{2}-\d{2}')",
+            r"CAST(\1 AS DATE)",
             row_condition,
         )
         .replace("==", "=")
         .replace("!=", "<>")
     )
-    return f'"{row_condition}"'
+    return row_condition
 
 
 def _generate_quantile_bounds_test(test_config: dict) -> list[dict]:

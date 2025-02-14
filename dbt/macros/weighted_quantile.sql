@@ -6,7 +6,8 @@ WITH CumulativeWeights AS (
         {{ weight_col }},
         SUM({{ weight_col }}) OVER (ORDER BY {{ column_name }}) AS cumulative_weight,
         SUM({{ weight_col }}) OVER () AS total_weight
-    FROM bf
+    FROM {{ model }}
+    WHERE {{ column_name }} IS NOT NULL OR {{ weight_col }} IS NOT NULL
 ),
 QuantileData AS (
     SELECT
@@ -19,7 +20,7 @@ QuantileData AS (
 )
 SELECT {{ column_name }}
 FROM QuantileData
-WHERE cumulative_probability >= {{ quantile }} AND {{ column_name }} < {{ lower_bound }}
+WHERE cumulative_probability >= {{ quantile }}
 ORDER BY {{ column_name }}
 LIMIT 1
 
