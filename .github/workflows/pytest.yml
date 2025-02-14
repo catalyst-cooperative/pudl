@@ -12,6 +12,7 @@ env:
   PUDL_OUTPUT: /home/runner/pudl-work/output/
   PUDL_INPUT: /home/runner/pudl-work/input/
   DAGSTER_HOME: /home/runner/pudl-work/dagster_home/
+  USE_PUDL_MODELS: True
 
 jobs:
   ci-docs:
