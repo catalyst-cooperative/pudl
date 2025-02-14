@@ -185,14 +185,12 @@ summary:
 * `Kaggle <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html#access-kaggle>`__
   provides easy Jupyter notebook access to the PUDL data, updated weekly:
   https://www.kaggle.com/datasets/catalystcooperative/pudl-project
+* `Cloud storage <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html#access-cloud>`__
+  is populated by our nightly data builds, and is free to access thanks to the `AWS
+  Open Data Registry <https://registry.opendata.aws/catalyst-cooperative-pudl/>`__.
 * `Zenodo <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html#access-zenodo>`__
   provides stable long-term access to our versioned data releases with a citeable DOI:
   https://doi.org/10.5281/zenodo.3653158
-* `Nightly Data Builds <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html#access-nightly-builds>`__
-  push their outputs to the AWS Open Data Registry:
-  https://registry.opendata.aws/catalyst-cooperative-pudl/
-  See `the nightly build docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html#access-nightly-builds>`__
-  for direct download links.
 * `The PUDL Development Environment <https://catalystcoop-pudl.readthedocs.io/en/nightly/dev/dev_setup.html>`__
   lets you run the PUDL data processing pipeline locally.
 

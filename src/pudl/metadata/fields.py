@@ -2215,6 +2215,26 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "indicates if the boiler is a heat recovery steam generator (HRSG).",
     },
+    "in_rate_base": {
+        "type": "boolean",
+        "description": (
+            "Whether or not a record from the detailed FERC1 accounting tables should "
+            "be considered allowable in a utility's rate base based on utility "
+            "accounting standards. "
+            "This flag was mannually compiled by RMI utility accounting experts "
+            "based on the xbrl_factoid and sometimes varies based on the utility_type, "
+            "plant_status or plant_function."
+        ),
+    },
+    "in_revenue_requirement": {
+        "type": "boolean",
+        "description": (
+            "Whether or not a record from the detailed income statement data is typically "
+            "included in a utility's revenue requirement. This flag was mannually "
+            "compiled by RMI utility accounting experts based on the xbrl_factoid and "
+            "sometimes varies based on the utility_type or plant_function."
+        ),
+    },
     "inactive_accounts_included": {
         "type": "boolean",
         "description": (
@@ -4012,6 +4032,66 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Label describing types of revenues.",
     },
+    "revenue_requirement_category": {
+        "type": "string",
+        "description": (
+            "The category of revenue requirement associated with each component of utility's"
+            "income statements. "
+            "These categories were mannually compiled by RMI utility accounting experts "
+            "based on the xbrl_factoid and sometimes vary based on the utility_type or "
+            "plant_function. This column is intended to be used to aggregate this "
+            "table."
+        ),
+        "constraints": {
+            "enum": [
+                "depreciation_amortization_depletion",
+                "depreciation_arc",
+                "fuel",
+                "investment_tax_credit",
+                "maintenance",
+                "non_fuel_operation",
+                "other",
+                "purchased_power",
+                "regulatory_debits_credits",
+                "taxes",
+            ]
+        },
+    },
+    "revenue_requirement_technology": {
+        "type": "string",
+        "description": (
+            "The technology type associated with components of a utility's "
+            "revenue requirement. "
+            "These categories were mannually compiled by RMI utility accounting experts "
+            "based on the xbrl_factoid and sometimes vary based on the utility_type or "
+            "plant_function as well. This column is intended to be used to aggregate this "
+            "table."
+        ),
+        "constraints": {
+            "enum": [
+                "administrative",
+                "common_plant_electric",
+                "customer_accounts",
+                "customer_service",
+                "distribution",
+                "general",
+                "hydraulic_production",
+                "hydraulic_production_conventional",
+                "hydraulic_production_pumped_storage",
+                "intangible",
+                "nuclear_production",
+                "other",
+                "other_electric_plant",
+                "other_power_supply",
+                "other_production",
+                "purchased_power",
+                "regional_transmission_and_market_operation",
+                "sales",
+                "steam_production",
+                "transmission",
+            ]
+        },
+    },
     "row_type_xbrl": {
         "type": "string",
         "description": "Indicates whether the value reported in the row is calculated, or uniquely reported within the table.",
@@ -5477,6 +5557,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
                 "general_plant",
                 "regional_transmission_and_market_operation",
                 "other_production",
+                "other_noncurrent_liabilities",
                 "hydro",
                 "net_utility_plant",
                 "intangible_plant",
@@ -5485,6 +5566,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
                 "net_ADIT",
                 "asset_retirement_costs",
                 "utility_plant",
+                "electric_plant_leased_to_others",
+                "electric_plant_held_for_future_use",
+                "non_utility_plant",
+                "construction_work_in_progress",
                 "AROs",
                 "correction",
             ]
