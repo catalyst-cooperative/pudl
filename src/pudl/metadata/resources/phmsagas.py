@@ -4,7 +4,17 @@ from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_phmsagas__yearly_distribution_operators": {
-        "description": "Operator-level natural gas distribution data. PHMSA gas distrubtion system annual report.",
+        "description": (
+            "This table contains operator-level natural gas distribution"
+            "data, corresponding to Parts A and D-I of the 2023 PHMSA gas "
+            "distribution system annual report. That includes data on the "
+            "operator name and location, the type of operator "
+            "(e.g., investor-owned, municipally-owned), the type of gas "
+            "being transported, and information on system-wide excavation "
+            "damage, leaks, and unaccounted for gas. Each row corresponds "
+            "to one report for one operator in one state, where revisions "
+            "to the original submission have a different report ID."
+        ),
         "schema": {
             "fields": [
                 "report_date",

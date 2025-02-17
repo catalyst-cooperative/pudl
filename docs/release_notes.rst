@@ -70,7 +70,6 @@ EIA 176
 * Extracted these interim tables up through the latest 2023 data release. See
   :issue:`4002` and :pr:`4004`.
 
-=======
 EIA 860
 ~~~~~~~
 * Added EIA 860 Multifuel table. See :issue:`3438` and :pr:`3946`.
