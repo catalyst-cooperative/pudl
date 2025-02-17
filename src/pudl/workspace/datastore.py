@@ -191,15 +191,15 @@ class ZenodoDoiSettings(BaseSettings):
     eia191: ZenodoDoi = "10.5281/zenodo.10607837"
     eia757a: ZenodoDoi = "10.5281/zenodo.10607839"
     eia860: ZenodoDoi = "10.5281/zenodo.13682785"
-    eia860m: ZenodoDoi = "10.5281/zenodo.14026426"
+    eia860m: ZenodoDoi = "10.5281/zenodo.14842914"
     eia861: ZenodoDoi = "10.5281/zenodo.13907096"
-    eia923: ZenodoDoi = "10.5281/zenodo.13922907"
-    eia930: ZenodoDoi = "10.5281/zenodo.14026427"
+    eia923: ZenodoDoi = "10.5281/zenodo.14745188"
+    eia930: ZenodoDoi = "10.5281/zenodo.14842901"
     eiawater: ZenodoDoi = "10.5281/zenodo.10806016"
     eiaaeo: ZenodoDoi = "10.5281/zenodo.10838488"
-    eia_bulk_elec: ZenodoDoi = "10.5281/zenodo.14026418"
-    epacamd_eia: ZenodoDoi = "10.5281/zenodo.7900974"
-    epacems: ZenodoDoi = "10.5281/zenodo.14037184"
+    eia_bulk_elec: ZenodoDoi = "10.5281/zenodo.14745186"
+    epacamd_eia: ZenodoDoi = "10.5281/zenodo.14834878"
+    epacems: ZenodoDoi = "10.5281/zenodo.14792708"
     ferc1: ZenodoDoi = "10.5281/zenodo.13149094"
     ferc2: ZenodoDoi = "10.5281/zenodo.13149082"
     ferc6: ZenodoDoi = "10.5281/zenodo.13149089"
@@ -460,7 +460,7 @@ def print_partitions(dstore: Datastore, datasets: list[str]) -> None:
                 parts = sorted(partitions[partition_key])
             except TypeError:
                 parts = partitions[partition_key]
-            print(f'  {partition_key}: {", ".join(str(x) for x in parts)}')
+            print(f"  {partition_key}: {', '.join(str(x) for x in parts)}")
         if not partitions:
             print("  -- no known partitions --")
 

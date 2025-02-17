@@ -422,7 +422,7 @@ def add_consistent_ba_code_column(plants: pd.DataFrame) -> pd.DataFrame:
     )
     plants_w_ba_codes = plants[plants.balancing_authority_code_eia_consistent.notnull()]
     logger.info(
-        f"{len(plants_w_ba_codes)/len(plants):.1%} of plant records have consistently "
+        f"{len(plants_w_ba_codes) / len(plants):.1%} of plant records have consistently "
         "reported BA Codes"
     )
     return plants
@@ -472,7 +472,7 @@ def fill_in_missing_ba_codes(plants: pd.DataFrame) -> pd.DataFrame:
         """
         currently_null_len = len(plants[plants.balancing_authority_code_eia.isnull()])
         logger.info(
-            f"{method_str}. {currently_null_len/len(plants):.1%} of records have no BA codes"
+            f"{method_str}. {currently_null_len / len(plants):.1%} of records have no BA codes"
         )
 
     # add a column for each of our backfilling options

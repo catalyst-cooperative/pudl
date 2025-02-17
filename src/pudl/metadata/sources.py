@@ -24,6 +24,27 @@ SOURCES: dict[str, Any] = {
         "license_pudl": LICENSES["cc-by-4.0"],
         "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
     },
+    "censuspep": {
+        "title": "Population Estimates Program's (PEP) Federal Information Processing Series (FIPS) Codes",
+        "path": "https://www.census.gov/geographies/reference-files/2023/demo/popest/2023-fips.html",
+        "description": (
+            "Reference files for Federal Information Processing Series (FIPS) Geographic Codes. "
+            "These FIPS Codes are a subset of a broader Population Estimates dataset."
+        ),
+        "working_partitions": {"years": [2023]},
+        "keywords": sorted(
+            {
+                "fips",
+                "census",
+                "county",
+                "state",
+                "geography",
+            }
+        ),
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
+        "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
+    },
     "eia176": {
         "title": "EIA Form 176 -- Annual Report of Natural and Supplemental Gas Supply and Disposition",
         "path": "https://www.eia.gov/naturalgas/ngqs/",
@@ -181,7 +202,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "year_months": [
                 str(q).lower()
-                for q in pd.period_range(start="2015-07", end="2024-09", freq="M")
+                for q in pd.period_range(start="2015-07", end="2024-12", freq="M")
             ],
         },
         "keywords": sorted(
@@ -206,8 +227,7 @@ SOURCES: dict[str, Any] = {
         "title": "EIA Form 861 -- Annual Electric Power Industry Report",
         "path": "https://www.eia.gov/electricity/data/eia861",
         "description": (
-            "EIA Form 861 Annual Electric Power Industry Report, detailed "
-            "data files."
+            "EIA Form 861 Annual Electric Power Industry Report, detailed data files."
         ),
         "field_namespace": "eia",
         "working_partitions": {
@@ -302,8 +322,8 @@ SOURCES: dict[str, Any] = {
         "field_namespace": "eia",
         "working_partitions": {
             "half_years": [
-                f"{year}half{half}" for year in range(2015, 2025) for half in [1, 2]
-            ][1:]  # Begins in H2 of 2015 and currently ends in H2 of 2024
+                f"{year}half{half}" for year in range(2015, 2026) for half in [1, 2]
+            ][1:-1]  # Begins in H2 of 2015 and currently ends in H1 of 2025
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -426,7 +446,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "year_quarters": [
                 str(q).lower()
-                for q in pd.period_range(start="1995q1", end="2024q3", freq="Q")
+                for q in pd.period_range(start="1995q1", end="2024q4", freq="Q")
             ]
         },
         "contributors": [
@@ -465,7 +485,7 @@ SOURCES: dict[str, Any] = {
             "source_format": "Comma Separated Value (.csv)",
         },
         "field_namespace": "glue",
-        "working_partitions": {},
+        "working_partitions": {"year": sorted(set(range(2018, 2024)))},
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
         ],

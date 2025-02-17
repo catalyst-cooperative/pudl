@@ -19,7 +19,6 @@ Stuff we are testing:
 """
 
 import logging
-import unittest
 from io import StringIO
 
 import networkx as nx
@@ -37,11 +36,7 @@ from pudl.output.ferc1 import (
 logger = logging.getLogger(__name__)
 
 
-class TestForestSetup(unittest.TestCase):
-    def setUp(self):
-        # this is where you add nodes you want to use
-        pass
-
+class TestForestSetup:
     def _exploded_calcs_from_edges(self, edges: list[tuple[NodeId, NodeId]]):
         records = []
         for parent, child in edges:
@@ -89,8 +84,8 @@ class TestForestSetup(unittest.TestCase):
         return annotated_tags
 
 
-class TestPrunnedNode(TestForestSetup):
-    def setUp(self):
+class TestPrunedNode(TestForestSetup):
+    def setup_method(self):
         self.root = NodeId(
             table_name="table_1",
             xbrl_factoid="reported_1",
@@ -133,7 +128,7 @@ class TestPrunnedNode(TestForestSetup):
 
 
 class TestTagPropagation(TestForestSetup):
-    def setUp(self):
+    def setup_method(self):
         self.parent = NodeId(
             table_name="table_1",
             xbrl_factoid="reported_1",
@@ -404,8 +399,8 @@ report_year,utility_id_ferc1,xbrl_factoid,cool_tag_col,ending_balance
 report_year,utility_id_ferc1,xbrl_factoid,cool_tag_col,ending_balance,is_disaggregated_cool_tag_col
 2010,13,cool_factor,coolest,{coolest},False
 2010,13,cool_factor,cooler,{cooler},False
-2010,13,pal_scale,cooler,{total*(cooler/cool_factor_total)},True
-2010,13,pal_scale,coolest,{total*(coolest/cool_factor_total)},True
+2010,13,pal_scale,cooler,{total * (cooler / cool_factor_total)},True
+2010,13,pal_scale,coolest,{total * (coolest / cool_factor_total)},True
 """
         ),
     ).convert_dtypes()

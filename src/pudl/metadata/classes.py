@@ -606,8 +606,7 @@ class Field(PudlMeta):
         dtype = info.data["type"]
         if dtype not in ["string", "integer"]:
             errors.append(
-                "Encoding only supported for string and integer fields, found "
-                f"{dtype}"
+                f"Encoding only supported for string and integer fields, found {dtype}"
             )
         if errors:
             raise ValueError(format_errors(*errors, pydantic=True))
@@ -1040,22 +1039,22 @@ class DataSource(PudlMeta):
     ) -> list["DataSource"]:
         """Return list of DataSource objects by field namespace."""
         return [
-            cls(**cls.dict_from_id(name))
+            cls(**cls.dict_from_id(name, sources))
             for name, val in sources.items()
             if val.get("field_namespace") == x
         ]
 
     @staticmethod
-    def dict_from_id(x: str, sources: dict[str, Any] = SOURCES) -> dict:
+    def dict_from_id(x: str, sources: dict[str, Any]) -> dict:
         """Look up the source by source name in the metadata."""
         # If ID ends with _xbrl strip end to find data source
         lookup_id = x.replace("_xbrl", "")
         return {"name": x, **copy.deepcopy(sources[lookup_id])}
 
     @classmethod
-    def from_id(cls, x: str) -> "DataSource":
+    def from_id(cls, x: str, sources: dict[str, Any] = SOURCES) -> "DataSource":
         """Construct Source by source name in the metadata."""
-        return cls(**cls.dict_from_id(x))
+        return cls(**cls.dict_from_id(x, sources=sources))
 
 
 class ResourceHarvest(PudlMeta):
@@ -1288,6 +1287,7 @@ class Resource(PudlMeta):
             "nrelatb",
             "vcerare",
             "phmsagas",
+            "sec10k",
         ]
         | None
     ) = None
@@ -1317,6 +1317,7 @@ class Resource(PudlMeta):
             "nrelatb",
             "vcerare",
             "phmsagas",
+            "pudl_models",
         ]
         | None
     ) = None

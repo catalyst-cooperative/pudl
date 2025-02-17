@@ -218,7 +218,7 @@ def add_fips_ids(
 
     logger.info(
         f"Assigned state FIPS codes for "
-        f"{len(df[df.state_id_fips.notnull()])/len(df):.2%} of records."
+        f"{len(df[df.state_id_fips.notnull()]) / len(df):.2%} of records."
     )
     if county_col:
         df["county_id_fips"] = df.apply(
@@ -234,7 +234,7 @@ def add_fips_ids(
         df = df.astype({"county_id_fips": pd.StringDtype()})
         logger.info(
             f"Assigned county FIPS codes for "
-            f"{len(df[df.county_id_fips.notnull()])/len(df):.2%} of records."
+            f"{len(df[df.county_id_fips.notnull()]) / len(df):.2%} of records."
         )
     return df
 
@@ -1387,7 +1387,7 @@ def zero_pad_numeric_string(col: pd.Series, n_digits: int) -> pd.Series:
         # Replace anything that's not entirely digits with NA
         .replace(r"[^\d]+", pd.NA, regex=True)
         # Set any string longer than n_digits to NA
-        .replace(f"[\\d]{{{n_digits+1},}}", pd.NA, regex=True)
+        .replace(f"[\\d]{{{n_digits + 1},}}", pd.NA, regex=True)
         # Pad the numeric string with leading zeroes to n_digits length
         .str.zfill(n_digits)
         # All-zero ZIP & FIPS codes are invalid.
@@ -1584,7 +1584,7 @@ def standardize_percentages_ratio(
         frac_df.loc[dates, col] /= 100
         if frac_df[col].max() > 1:
             raise AssertionError(
-                f"{col}: Values >100pct observed: {frac_df.loc[frac_df[col]>1][col].unique()}"
+                f"{col}: Values >100pct observed: {frac_df.loc[frac_df[col] > 1][col].unique()}"
             )
     return frac_df
 
@@ -2161,9 +2161,9 @@ def check_tables_have_metadata(
         not bool(value) for value in tables_missing_metadata_results.values()
     )
 
-    assert (
-        has_no_missing_tables_with_missing_metadata
-    ), f"These tables are missing datasette metadata: {tables_missing_metadata_results}"
+    assert has_no_missing_tables_with_missing_metadata, (
+        f"These tables are missing datasette metadata: {tables_missing_metadata_results}"
+    )
 
 
 def retry(

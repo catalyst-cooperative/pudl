@@ -2,8 +2,9 @@
 {% block database_text %}
 Clicking on the links will show you a description of the table as well as the names and
 descriptions of each of its fields. Due to the size of the EIA-930 hourly tables we only
-publish them as Parquet files, which are not browseable online. See :ref:`access-kaggle`
-and :ref:`access-nightly-builds` for information on how to access these outputs.
+publish them as Parquet files, which are not browseable online, but they can be
+downloaded directly from :ref:`access-cloud` via the links embedded in the
+:doc:`/data_dictionaries/pudl_db` or accessed on :ref:`access-kaggle`.
 {% endblock %}
 
 {% block background %}
@@ -127,6 +128,41 @@ EIA publishes the original raw data as it is supplied by the balancing authoriti
 it includes many irregularities including oulying and missing values, which they attempt
 to manage in their aggregated (daily or nationwide) data, but which are present in the
 original reported data.
+
+.. _data-sources-eia930-changes-in-energy-source-granularity-over-time:
+
+Changes in energy source granularity over time
+----------------------------------------------
+In the Q1 2025 data release, the wind, solar, and hydro power energy source columns
+were removed from the raw dataset, and new columns for multiple different kinds of
+wind, solar, hydro power, and energy storage were added. The change takes effect
+starting in 2024half2. Analyses that cross this temporal boundary will need to
+aggregate in order to compare e.g. 2025 solar with 2023 solar.
+
+.. list-table::
+   :widths: 20 20
+   :header-rows: 1
+
+   * - Removed in Q1 2025 release
+     - Added in Q1 2025 release
+   * -
+     - ``battery_storage``
+   * -
+     - ``geothermal``
+   * - ``hydro``
+     - | ``hydro_excluding_pumped_storage``
+       | ``pumped_storage``
+   * -
+     - ``other_energy_storage``
+   * - ``solar``
+     - | ``solar_w_integrated_battery_storage``
+       | ``solar_wo_integrated_battery_storage``
+   * -
+     - ``unknown_energy_storage``
+   * - ``wind``
+     - | ``wind_w_integrated_battery_storage``
+       | ``wind_wo_integrated_battery_storage``
+
 
 Inconsistent interchange
 ------------------------

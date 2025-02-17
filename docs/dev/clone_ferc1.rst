@@ -29,8 +29,8 @@ The FoxPro / XBRL derived FERC Form 1 databases include 100+ tables, containing 
 columns.
 
 If you need to work with this relatively unprocessed data, we highly recommend
-downloading it from one of our periodic data releases or our
-:ref:`access-nightly-builds`.
+downloading it from one of our stable data releases or nightly build outputs, which
+can be found in the PUDL :ref:`access-zenodo` or :ref:`access-cloud`.
 
 Cloning the original FERC database is the first step in the PUDL ETL process. This can
 be done using the dagster UI (see :ref:`run-dagster-ui`) or with the ``ferc_to_sqlite``

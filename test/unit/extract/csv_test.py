@@ -1,7 +1,3 @@
-"""Unit tests for pudl.extract.csv module."""
-
-from unittest.mock import MagicMock, patch
-
 import pandas as pd
 import pytest
 
@@ -16,16 +12,16 @@ CSV_FILENAME = f"{DATASET}_{PARTITION_SELECTION}.csv"
 
 
 class FakeExtractor(CsvExtractor):
-    def __init__(self):
+    def __init__(self, mocker):
         # TODO: Make these tests independent of the eia176 implementation
         self.METADATA = GenericMetadata("eia176")
-        super().__init__(ds=MagicMock())
+        super().__init__(ds=mocker.MagicMock())
 
 
 @pytest.fixture
-def extractor():
-    # Create an instance of the CsvExtractor class
-    return FakeExtractor()
+def extractor(mocker):
+    # Create an instance of the CsvExtractor class with mocker
+    return FakeExtractor(mocker)
 
 
 def test_source_filename_valid_partition(extractor):
@@ -45,8 +41,8 @@ def test_source_filename_multiple_selections(extractor):
         extractor.source_filename(PAGE, **multiple_selections)
 
 
-@patch("pudl.extract.csv.pd")
-def test_load_source(mock_pd, extractor):
+def test_load_source(mocker, extractor):
+    mock_pd = mocker.patch("pudl.extract.csv.pd")
     assert extractor.load_source(PAGE, **PARTITION) == mock_pd.read_csv.return_value
     extractor.ds.get_zipfile_resource.assert_called_once_with(DATASET, **PARTITION)
     zipfile = extractor.ds.get_zipfile_resource.return_value.__enter__.return_value
@@ -55,7 +51,7 @@ def test_load_source(mock_pd, extractor):
     mock_pd.read_csv.assert_called_once_with(file)
 
 
-def test_extract(extractor):
+def test_extract(mocker, extractor):
     # Create a sample of data we could expect from an EIA CSV
     company_field = "company"
     company_data = "Total of All Companies"
@@ -64,22 +60,20 @@ def test_extract(extractor):
 
     # TODO: Once FakeExtractor is independent of eia176, mock out populating _column_map for PARTITION_SELECTION;
     #  Also include negative tests, i.e., for partition selections not in the _column_map
-    with (
-        patch.object(CsvExtractor, "load_source", return_value=df),
-        patch.object(
-            # Testing the rename
-            GenericMetadata,
-            "get_column_map",
-            return_value={"company_rename": company_field},
-        ),
-        patch.object(
-            # Transposing the df here to get the orientation we expect get_page_cols to return
-            CsvExtractor,
-            "get_page_cols",
-            return_value=df.T.index,
-        ),
-    ):
-        res = extractor.extract(**PARTITION)
+    mocker.patch.object(CsvExtractor, "load_source", return_value=df)
+    # Testing the rename
+    mocker.patch.object(
+        GenericMetadata,
+        "get_column_map",
+        return_value={"company_rename": company_field},
+    )
+    # Transposing the df here to get the orientation we expect get_page_cols to return
+    mocker.patch.object(
+        CsvExtractor,
+        "get_page_cols",
+        return_value=df.T.index,
+    )
+    res = extractor.extract(**PARTITION)
     assert len(res) == 1  # Assert only one page extracted
     assert list(res.keys()) == [PAGE]  # Assert it is named correctly
     assert (
@@ -87,11 +81,9 @@ def test_extract(extractor):
     )  # Assert that column correctly renamed and data is there.
 
 
-@patch.object(FakeExtractor, "METADATA")
-def test_validate_exact_columns(mock_metadata, extractor):
+def test_validate_exact_columns(mocker, extractor):
     # Mock the partition selection and page columns
-    # mock_metadata._get_partition_selection.return_value = "partition1"
-    extractor.get_page_cols = MagicMock(return_value={"col1", "col2"})
+    extractor.get_page_cols = mocker.MagicMock(return_value={"col1", "col2"})
 
     # Create a DataFrame with the exact expected columns
     df = pd.DataFrame(columns=["col1", "col2"])
@@ -100,11 +92,9 @@ def test_validate_exact_columns(mock_metadata, extractor):
     extractor.validate(df, "page1", partition="partition1")
 
 
-@patch.object(FakeExtractor, "METADATA")
-def test_validate_extra_columns(mock_metadata, extractor):
+def test_validate_extra_columns(mocker, extractor):
     # Mock the partition selection and page columns
-    mock_metadata._get_partition_selection.return_value = "partition1"
-    extractor.get_page_cols = MagicMock(return_value={"col1", "col2"})
+    extractor.get_page_cols = mocker.MagicMock(return_value={"col1", "col2"})
 
     # Create a DataFrame with extra columns
     df = pd.DataFrame(columns=["col1", "col2", "col3"])
@@ -114,11 +104,9 @@ def test_validate_extra_columns(mock_metadata, extractor):
         extractor.validate(df, "page1", partition="partition1")
 
 
-@patch.object(FakeExtractor, "METADATA")
-def test_validate_missing_columns(mock_metadata, extractor):
+def test_validate_missing_columns(mocker, extractor):
     # Mock the partition selection and page columns
-    mock_metadata._get_partition_selection.return_value = "partition1"
-    extractor.get_page_cols = MagicMock(return_value={"col1", "col2"})
+    extractor.get_page_cols = mocker.MagicMock(return_value={"col1", "col2"})
 
     # Create a DataFrame with missing columns
     df = pd.DataFrame(columns=["col1"])
@@ -130,11 +118,9 @@ def test_validate_missing_columns(mock_metadata, extractor):
         extractor.validate(df, "page1", partition="partition1")
 
 
-@patch.object(FakeExtractor, "METADATA")
-def test_validate_extra_and_missing_columns(mock_metadata, extractor):
+def test_validate_extra_and_missing_columns(mocker, extractor):
     # Mock the partition selection and page columns
-    mock_metadata._get_partition_selection.return_value = "partition1"
-    extractor.get_page_cols = MagicMock(return_value={"col1", "col2"})
+    extractor.get_page_cols = mocker.MagicMock(return_value={"col1", "col2"})
 
     # Create a DataFrame with both extra and missing columns
     df = pd.DataFrame(columns=["col1", "col3"])

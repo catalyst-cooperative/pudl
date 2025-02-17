@@ -150,7 +150,7 @@ def test_outputs_by_table_suffix(fast_out, table_suffix):
         logger.info(f"Checking that {table} is a DataFrame with no null columns.")
         df = fast_out.__getattribute__(table)()
 
-        assert isinstance(df, pd.DataFrame), f"{table } is {type(df)}, not DataFrame!"
+        assert isinstance(df, pd.DataFrame), f"{table} is {type(df)}, not DataFrame!"
         assert not df.empty, f"{table} is empty!"
         for col in df.columns:
             if df[col].isna().all():

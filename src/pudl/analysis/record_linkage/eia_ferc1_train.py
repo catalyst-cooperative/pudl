@@ -399,9 +399,9 @@ def _check_id_consistency(
     """
     logger.debug(f"Checking {id_col} consistency for {error_message}")
 
-    assert (
-        len(bad_ids := df[~df[id_col].isin(actual_ids)][id_col].to_list()) == 0
-    ), f"{id_col} {error_message}: {bad_ids}"
+    assert len(bad_ids := df[~df[id_col].isin(actual_ids)][id_col].to_list()) == 0, (
+        f"{id_col} {error_message}: {bad_ids}"
+    )
 
 
 def check_if_already_in_training(training_data, validated_connections):
@@ -511,8 +511,10 @@ def validate_override_fixes(
             ]
         )
         == 0
-    ), f"Found record_id_eia_override_1 duplicates: \
+    ), (
+        f"Found record_id_eia_override_1 duplicates: \
     {override_dups.record_id_eia_override_1.unique()}"
+    )
 
     if not allow_mismatched_utilities:
         # Make sure the EIA utility id from the override matches the PUDL id from the

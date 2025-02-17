@@ -1,5 +1,3 @@
-from unittest.mock import MagicMock, patch
-
 import pandas as pd
 import pytest
 
@@ -8,20 +6,20 @@ from pudl.extract.phmsagas import Extractor
 
 
 class FakeExtractor(Extractor):
-    def __init__(self):
+    def __init__(self, mocker):
         self.METADATA = ExcelMetadata("phmsagas")
-        super().__init__(ds=MagicMock())
-        self._metadata = MagicMock()
+        super().__init__(ds=mocker.Mock())
+        self._metadata = mocker.Mock()
 
 
 @pytest.fixture
-def extractor():
+def extractor(mocker):
     # Create an instance of the CsvExtractor class
-    return FakeExtractor()
+    return FakeExtractor(mocker)
 
 
-@patch("pudl.extract.phmsagas.logger")
-def test_process_renamed_drop_columns(mock_logger, extractor):
+def test_process_renamed_drop_columns(mocker, extractor):
+    mock_logger = mocker.patch("pudl.extract.phmsagas.logger")
     # Mock metadata methods
     extractor._metadata.get_form.return_value = "gas_transmission_gathering"
     extractor._metadata.get_all_columns.return_value = ["col1", "col2"]
@@ -38,8 +36,8 @@ def test_process_renamed_drop_columns(mock_logger, extractor):
     mock_logger.info.assert_called_once()
 
 
-@patch("pudl.extract.phmsagas.logger")
-def test_process_renamed_keep_columns(mock_logger, extractor):
+def test_process_renamed_keep_columns(mocker, extractor):
+    mock_logger = mocker.patch("pudl.extract.phmsagas.logger")
     # Mock metadata methods
     extractor._metadata.get_form.return_value = "gas_transmission_gathering"
     extractor._metadata.get_all_columns.return_value = ["col1", "col2"]
@@ -56,8 +54,8 @@ def test_process_renamed_keep_columns(mock_logger, extractor):
     mock_logger.info.assert_not_called()
 
 
-@patch("pudl.extract.phmsagas.logger")
-def test_process_renamed_drop_unnamed_columns(mock_logger, extractor):
+def test_process_renamed_drop_unnamed_columns(mocker, extractor):
+    mock_logger = mocker.patch("pudl.extract.phmsagas.logger")
     # Mock metadata methods
     extractor._metadata.get_form.return_value = "some_form"
     extractor._metadata.get_all_columns.return_value = ["col1", "col2"]
@@ -74,8 +72,8 @@ def test_process_renamed_drop_unnamed_columns(mock_logger, extractor):
     mock_logger.warning.assert_not_called()
 
 
-@patch("pudl.extract.phmsagas.logger")
-def test_process_renamed_warn_unnamed_columns(mock_logger, extractor):
+def test_process_renamed_warn_unnamed_columns(mocker, extractor):
+    mock_logger = mocker.patch("pudl.extract.phmsagas.logger")
     # Mock metadata methods
     extractor._metadata.get_form.return_value = "some_form"
     extractor._metadata.get_all_columns.return_value = ["col1", "col2"]

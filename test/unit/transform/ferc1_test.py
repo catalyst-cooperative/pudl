@@ -523,11 +523,11 @@ table_name,xbrl_factoid,planet,value,utility_id_ferc1,report_year
 books,lil_fact_x,venus,10,44,2312
 books,lil_fact_z,venus,11,44,2312
 books,lil_fact_y,venus,12,44,2312
-books,big_fact,venus,{10+11+12},44,2312
+books,big_fact,venus,{10 + 11 + 12},44,2312
 books,lil_fact_x,earth,3,44,2312
 books,lil_fact_z,earth,4,44,2312
 books,lil_fact_y,earth,5,44,2312
-books,big_fact,earth,{3+4+5},44,2312
+books,big_fact,earth,{3 + 4 + 5},44,2312
 """
         )
     )
@@ -538,11 +538,11 @@ table_name,xbrl_factoid,planet,value,utility_id_ferc1,report_year,calculated_val
 books,lil_fact_x,venus,10.0,44,2312,
 books,lil_fact_z,venus,11.0,44,2312,
 books,lil_fact_y,venus,12.0,44,2312,
-books,big_fact,venus,33.0,44,2312,{10+11+12}
+books,big_fact,venus,33.0,44,2312,{10 + 11 + 12}
 books,lil_fact_x,earth,3.0,44,2312,
 books,lil_fact_z,earth,4.0,44,2312,
 books,lil_fact_y,earth,5.0,44,2312,
-books,big_fact,earth,12.0,44,2312,{3+4+5}
+books,big_fact,earth,12.0,44,2312,{3 + 4 + 5}
 """
         )
     ).convert_dtypes()
@@ -790,11 +790,11 @@ total,total,{total_total_value}
             StringIO(
                 f"""
 xbrl_factoid,utility_type,plant_status,value
-my_cool_fact_subdimension_correction,electric,total,{et-eis-ef}
-my_cool_fact_subdimension_correction,gas,total,{gt-gis-gf}
-my_cool_fact_subdimension_correction,total,future,{tf-ef-gf}
-my_cool_fact_subdimension_correction,total,in_service,{tis-eis-gis}
-my_cool_fact_subdimension_correction,total,total,{total_total_value-eis-ef-gis-gf}
+my_cool_fact_subdimension_correction,electric,total,{et - eis - ef}
+my_cool_fact_subdimension_correction,gas,total,{gt - gis - gf}
+my_cool_fact_subdimension_correction,total,future,{tf - ef - gf}
+my_cool_fact_subdimension_correction,total,in_service,{tis - eis - gis}
+my_cool_fact_subdimension_correction,total,total,{total_total_value - eis - ef - gis - gf}
     """
             )
         )
