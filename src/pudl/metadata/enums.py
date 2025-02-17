@@ -7,7 +7,12 @@ COUNTRY_CODES_ISO3166: set[str] = set(POLITICAL_SUBDIVISIONS.country_code)
 US_STATE_CODES: set[str] = set(
     POLITICAL_SUBDIVISIONS.loc[
         (POLITICAL_SUBDIVISIONS.country_code == "USA")
-        & (POLITICAL_SUBDIVISIONS.subdivision_type == "state"),
+        # Grab the territories (e.g., PR) and DC too
+        & (
+            POLITICAL_SUBDIVISIONS.subdivision_type.isin(
+                ["state", "outlying_area", "district"]
+            )
+        ),
         "subdivision_code",
     ]
 )

@@ -503,7 +503,7 @@ def _core_eia860__generators_multifuel(
     multifuel_df = (
         pd.concat([multifuel_ex, multifuel_pr, multifuel_re], sort=True)
         .dropna(subset=["generator_id", "plant_id_eia"])
-        .pipe(pudl.helpers.fix_eia_na)
+        .pipe(pudl.helpers.standardize_na_values)
         .pipe(
             pudl.helpers.fix_boolean_columns,
             boolean_columns_to_fix=boolean_columns_to_fix,
