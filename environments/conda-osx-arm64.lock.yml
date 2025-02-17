@@ -59,8 +59,8 @@ dependencies:
   - bleach-with-css=6.2.0=h82add2a_4
   - blinker=1.9.0=pyhff2d567_0
   - blosc=1.21.6=h7dd00d9_1
-  - boto3=1.36.20=pyhd8ed1ab_0
-  - botocore=1.36.20=pyge310_1234567_0
+  - boto3=1.36.21=pyhd8ed1ab_0
+  - botocore=1.36.21=pyge310_1234567_0
   - bottleneck=1.4.2=py312h147345f_0
   - branca=0.8.1=pyhd8ed1ab_0
   - brotli=1.1.0=hd74edd7_2
@@ -99,11 +99,11 @@ dependencies:
   - curl=8.12.1=h73640d1_0
   - cycler=0.12.1=pyhd8ed1ab_1
   - cyrus-sasl=2.1.27=h60b93bd_7
-  - dagster=1.10.0=pyh56b92e0_12
-  - dagster-graphql=1.10.0=pyh49bb05e_0
-  - dagster-pipes=1.10.0=pyh49bb05e_0
-  - dagster-postgres=0.26.0=pyh29332c3_0
-  - dagster-webserver=1.10.0=pyh49bb05e_0
+  - dagster=1.10.1=pyh56b92e0_12
+  - dagster-graphql=1.10.1=pyhc5d1ea7_0
+  - dagster-pipes=1.10.1=pyhc5d1ea7_0
+  - dagster-postgres=0.26.1=pyh29332c3_0
+  - dagster-webserver=1.10.1=pyhc5d1ea7_0
   - dask-core=2025.2.0=pyhd8ed1ab_0
   - dask-expr=2.0.0=pyhd8ed1ab_0
   - databricks-sdk=0.44.1=pyhd8ed1ab_0
@@ -195,7 +195,7 @@ dependencies:
   - httptools=0.6.4=py312hea69d52_0
   - httpx=0.28.1=pyhd8ed1ab_0
   - humanfriendly=10.0=pyh707e725_8
-  - humanize=4.11.0=pyhd8ed1ab_1
+  - humanize=4.12.0=pyhd8ed1ab_0
   - hupper=1.12.1=pyhd8ed1ab_1
   - hyperframe=6.1.0=pyhd8ed1ab_0
   - hypothesis=6.125.1=pyha770c72_0
@@ -249,10 +249,10 @@ dependencies:
   - lerc=4.0.0=h9a09cb3_0
   - libabseil=20240722.0=cxx17_h07bc746_4
   - libarchive=3.7.7=h3b16cec_3
-  - libarrow=18.1.0=h5b094fc_15_cpu
-  - libarrow-acero=18.1.0=hf07054f_15_cpu
-  - libarrow-dataset=18.1.0=hf07054f_15_cpu
-  - libarrow-substrait=18.1.0=h4239455_15_cpu
+  - libarrow=18.1.0=h4deb652_16_cpu
+  - libarrow-acero=18.1.0=hf07054f_16_cpu
+  - libarrow-dataset=18.1.0=hf07054f_16_cpu
+  - libarrow-substrait=18.1.0=h4239455_16_cpu
   - libasprintf=0.23.1=h493aca8_0
   - libavif16=1.1.1=h45b7238_2
   - libblas=3.9.0=29_h10e41b3_openblas
@@ -276,8 +276,8 @@ dependencies:
   - libgfortran=5.0.0=13_2_0_hd922786_3
   - libgfortran5=13.2.0=hf226fd6_3
   - libglib=2.82.2=hdff4504_1
-  - libgoogle-cloud=2.34.0=hdbe95d5_0
-  - libgoogle-cloud-storage=2.34.0=h7081f7f_0
+  - libgoogle-cloud=2.35.0=hdbe95d5_0
+  - libgoogle-cloud-storage=2.35.0=h7081f7f_0
   - libgrpc=1.67.1=h0a426d6_1
   - libheif=1.19.5=gpl_h297b2c4_100
   - libiconv=1.17=h0d3ecfb_2
@@ -285,12 +285,12 @@ dependencies:
   - libjpeg-turbo=3.0.0=hb547adb_1
   - libkml=1.3.0=he250239_1021
   - liblapack=3.9.0=29_hc9a63f6_openblas
-  - libllvm15=15.0.7=h2621b3d_4
+  - libllvm15=15.0.7=h4429f82_5
   - liblzma=5.6.4=h39f12f2_0
   - libnghttp2=1.64.0=h6d7220d_0
   - libntlm=1.8=h5505292_0
   - libopenblas=0.3.28=openmp_hf332438_1
-  - libparquet=18.1.0=h636d7b7_15_cpu
+  - libparquet=18.1.0=h636d7b7_16_cpu
   - libpng=1.6.46=h3783ad8_0
   - libpq=17.3=h6896619_0
   - libprotobuf=5.28.3=h3bd63a1_1
@@ -422,7 +422,7 @@ dependencies:
   - pyogrio=0.10.0=py312hfd5e53c_1
   - pyopenssl=25.0.0=pyhd8ed1ab_0
   - pyparsing=3.2.1=pyhd8ed1ab_0
-  - pyproj=3.7.0=py312h1ab748d_0
+  - pyproj=3.7.1=py312h4b98159_0
   - pyproject_hooks=1.2.0=pyhd8ed1ab_1
   - pysocks=1.7.1=pyha55dd90_7
   - pytest=8.3.4=pyhd8ed1ab_1
@@ -472,14 +472,14 @@ dependencies:
   - ruff-lsp=0.0.62=pyhd8ed1ab_0
   - s3transfer=0.11.2=pyhd8ed1ab_0
   - scikit-learn=1.6.1=py312h39203ce_0
-  - scipy=1.15.1=py312hb7ffdcd_0
+  - scipy=1.15.2=py312h99a188d_0
   - send2trash=1.8.3=pyh31c8845_1
   - setuptools=75.8.0=pyhff2d567_0
   - shapely=2.0.7=py312ha6455e5_0
   - shellingham=1.5.4=pyhd8ed1ab_1
   - simpleeval=0.9.13=pyhd8ed1ab_1
   - six=1.17.0=pyhd8ed1ab_0
-  - smmap=5.0.0=pyhd8ed1ab_0
+  - smmap=5.0.2=pyhd8ed1ab_0
   - snappy=1.2.1=h98b9ce2_1
   - sniffio=1.3.1=pyhd8ed1ab_1
   - snowballstemmer=2.2.0=pyhd8ed1ab_0
@@ -526,7 +526,7 @@ dependencies:
   - tornado=6.4.2=py312hea69d52_0
   - tqdm=4.67.1=pyhd8ed1ab_1
   - traitlets=5.14.3=pyhd8ed1ab_1
-  - typeguard=4.4.1=pyhd8ed1ab_1
+  - typeguard=4.4.2=pyhd8ed1ab_0
   - typer=0.15.1=pyhd8ed1ab_0
   - typer-slim=0.15.1=pyhd8ed1ab_0
   - typer-slim-standard=0.15.1=hd8ed1ab_0
