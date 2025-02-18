@@ -759,3 +759,39 @@ resource "google_project_iam_member" "pudl_viewer_cloud_sql" {
   role    = "roles/cloudsql.client"
   member  = google_service_account.pudl_viewer_sa.member
 }
+
+
+// PUDL viewer log sink
+resource "google_storage_bucket" "pudl_viewer_logs" {
+  name          = "pudl-viewer-logs.catalyst.coop"
+  location      = "US"
+  storage_class = "STANDARD"
+
+  lifecycle_rule {
+    condition {
+      age = 180
+    }
+    action {
+      type = "Delete"
+    }
+  }
+}
+
+resource "google_logging_project_sink" "pudl_viewer_log_sink" {
+  name        = "pudl-viewer-log-sink"
+  description = "Move PUDL viewer logs into Cloud Storage for longer persistence."
+  destination = "storage.googleapis.com/${google_storage_bucket.pudl_viewer_logs.name}"
+  filter      = <<EOT
+    resource.type = "cloud_run_revision"
+    AND resource.labels.service_name="${google_cloud_run_v2_service.pudl_viewer.name}"
+  EOT
+
+  unique_writer_identity = true
+}
+
+resource "google_storage_bucket_iam_member" "pudl_viewer_log_writer" {
+  bucket = google_storage_bucket.pudl_viewer_logs.name
+  role   = "roles/storage.objectCreator"
+
+  member = google_logging_project_sink.pudl_viewer_log_sink.writer_identity
+}
