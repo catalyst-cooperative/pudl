@@ -109,11 +109,11 @@ resource "google_storage_bucket_iam_binding" "binding" {
 
 # Generate a random password for the mlflow db user
 resource "random_password" "mlflow_postgresql_password" {
-  length  = 16  # Adjust the password length as needed
-  special = true  # Include special characters
-  upper   = true  # Include uppercase letters
-  lower   = true  # Include lowercase letters
-  numeric  = true  # Include numbers
+  length  = 16   # Adjust the password length as needed
+  special = true # Include special characters
+  upper   = true # Include uppercase letters
+  lower   = true # Include lowercase letters
+  numeric = true # Include numbers
 }
 
 # Create secret to store mlflow db password
@@ -603,7 +603,7 @@ resource "google_sql_database_instance" "pudl_viewer_database" {
 }
 
 resource "google_sql_database" "pudl_viewer_database" {
-  name = "pudl_viewer"
+  name     = "pudl_viewer"
   instance = google_sql_database_instance.pudl_viewer_database.name
 }
 
@@ -631,9 +631,9 @@ resource "google_cloud_run_v2_service" "pudl_viewer" {
 
   template {
     annotations = {
-      "client.knative.dev/user-image"         = "us-east1-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.pudl_viewer.name}/pudl-viewer:latest"
-      "run.googleapis.com/client-name"        = "terraform"
-      "run.googleapis.com/client-version"     = timestamp()
+      "client.knative.dev/user-image"     = "us-east1-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.pudl_viewer.name}/pudl-viewer:latest"
+      "run.googleapis.com/client-name"    = "terraform"
+      "run.googleapis.com/client-version" = timestamp()
     }
 
     service_account = google_service_account.pudl_viewer_sa.email
@@ -648,17 +648,17 @@ resource "google_cloud_run_v2_service" "pudl_viewer" {
       image = "us-east1-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.pudl_viewer.name}/pudl-viewer:latest"
 
       volume_mounts {
-        name = "cloudsql"
+        name       = "cloudsql"
         mount_path = "/cloudsql"
       }
 
       env {
-        name = "IS_CLOUD_RUN"
+        name  = "IS_CLOUD_RUN"
         value = "True"
       }
 
       env {
-        name = "CLOUD_SQL_CONNECTION_NAME"
+        name  = "CLOUD_SQL_CONNECTION_NAME"
         value = google_sql_database_instance.pudl_viewer_database.connection_name
       }
 
@@ -696,21 +696,21 @@ resource "google_cloud_run_v2_job" "pudl_viewer_db_migration" {
       }
 
       containers {
-        image = "us-east1-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.pudl_viewer.name}/pudl-viewer:latest"
+        image   = "us-east1-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.pudl_viewer.name}/pudl-viewer:latest"
         command = ["uv", "run", "flask", "--app", "parquet_fe_prototype", "db", "upgrade"]
 
         volume_mounts {
-          name = "cloudsql"
+          name       = "cloudsql"
           mount_path = "/cloudsql"
         }
 
         env {
-          name = "IS_CLOUD_RUN"
+          name  = "IS_CLOUD_RUN"
           value = "True"
         }
 
         env {
-          name = "CLOUD_SQL_CONNECTION_NAME"
+          name  = "CLOUD_SQL_CONNECTION_NAME"
           value = google_sql_database_instance.pudl_viewer_database.connection_name
         }
 
