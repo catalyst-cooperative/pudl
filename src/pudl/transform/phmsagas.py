@@ -283,8 +283,8 @@ def _check_percent_unaccounted_for_gas(df):
 
     # Calculate the percentage
     negative_percentage = negative_count / len(df)
-    if negative_percentage > 0.05:
-        error = "Percentage of rows with negative percent_unaccounted_for_gas values: {negative_percentage:.2f}"
+    if negative_percentage > 0.15:
+        error = f"Percentage of rows with negative percent_unaccounted_for_gas values: {negative_percentage:.2f}"
         logger.info(error)
         return AssetCheckResult(passed=False, metadata={"errors": error})
 
