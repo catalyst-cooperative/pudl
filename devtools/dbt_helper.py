@@ -5,14 +5,15 @@ from collections import defaultdict, namedtuple
 from pathlib import Path
 
 import click
+import duckdb
 import pandas as pd
 import yaml
 from pydantic import BaseModel
 
 from pudl import validate
-from pudl.etl import defs
 from pudl.logging_helpers import configure_root_logger, get_logger
 from pudl.metadata.classes import PUDL_PACKAGE
+from pudl.workspace.setup import PudlPaths
 
 configure_root_logger()
 logger = get_logger(__file__)
@@ -140,6 +141,10 @@ def _get_nightly_url(table_name: str) -> str:
     return f"https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/{table_name}.parquet"
 
 
+def _get_local_table_path(table_name):
+    return PudlPaths().parquet_path(table_name)
+
+
 def _get_model_path(table_name: str, data_source: str) -> Path:
     return Path("./dbt") / "models" / data_source / table_name
 
@@ -166,15 +171,16 @@ def generate_row_counts(
 
     # Load table of interest
     if not use_local_tables:
-        df = pd.read_parquet(_get_nightly_url(table_name))
+        table_path = _get_nightly_url(table_name)
     else:
-        df = defs.load_asset_value(table_name)
+        table_path = _get_local_table_path(table_name)
 
     new_row_counts = (
-        df.groupby([partition_column])
-        .size()
-        .reset_index(name="row_count")
-        .rename(columns={partition_column: "partition"})
+        duckdb.sql(
+            f"SELECT {partition_column} as partition, COUNT(*) as row_count"
+            f"FROM '{table_path}' GROUP BY {partition_column}"
+        )
+        .df()
         .astype({"partition": "str"})
     )
     new_row_counts["table_name"] = table_name
