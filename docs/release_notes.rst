@@ -23,7 +23,7 @@ Quality of Life Improvements
 
 * We now publish a `Frictionless data package
   <https://datapackage.org/standard/data-package/>`__ describing our Parquet
-  outputs, with the name `pudl_datapackage.json`. See :issue:`4069` and :pr:`4070`.
+  outputs, with the name ``pudl_datapackage.json``. See :issue:`4069` and :pr:`4070`.
 
 .. _release-v2025.2.0:
 
