@@ -65,6 +65,12 @@ function run_pudl_etl() {
     && touch "$PUDL_OUTPUT/success"
 }
 
+function write_pudl_datapackage() {
+    echo "Writing PUDL datapackage."
+    python -c "from pudl.metadata.classes import PUDL_PACKAGE; print(PUDL_PACKAGE.to_frictionless().to_json())" > "$PUDL_OUTPUT/pudl_datapackage.json"
+    return $?
+}
+
 function save_outputs_to_gcs() {
     echo "Copying outputs to GCP bucket $PUDL_GCS_OUTPUT" && \
     gcloud storage --quiet cp -r "$PUDL_OUTPUT" "$PUDL_GCS_OUTPUT" && \
@@ -204,6 +210,7 @@ SAVE_OUTPUTS_SUCCESS=0
 UPDATE_NIGHTLY_SUCCESS=0
 UPDATE_STABLE_SUCCESS=0
 DATASETTE_SUCCESS=0
+WRITE_DATAPACKAGE_SUCCESS=0
 CLEAN_UP_OUTPUTS_SUCCESS=0
 DISTRIBUTION_BUCKET_SUCCESS=0
 ZENODO_SUCCESS=0
@@ -259,6 +266,9 @@ if [[ "$BUILD_TYPE" == "nightly" ]]; then
     # Update our datasette deployment
     python ~/pudl/devtools/datasette/publish.py --production 2>&1 | tee -a "$LOGFILE"
     DATASETTE_SUCCESS=${PIPESTATUS[0]}
+    # Write out a datapackage.json for external consumption
+    write_pudl_datapackage 2>&1 | tee -a "$LOGFILE"
+    WRITE_DATAPACKAGE_SUCCESS=${PIPESTATUS[0]}
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
     clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
     CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
@@ -275,6 +285,9 @@ if [[ "$BUILD_TYPE" == "nightly" ]]; then
 elif [[ "$BUILD_TYPE" == "stable" ]]; then
     merge_tag_into_branch "$BUILD_REF" stable 2>&1 | tee -a "$LOGFILE"
     UPDATE_STABLE_SUCCESS=${PIPESTATUS[0]}
+    # Write out a datapackage.json for external consumption
+    write_pudl_datapackage 2>&1 | tee -a "$LOGFILE"
+    WRITE_DATAPACKAGE_SUCCESS=${PIPESTATUS[0]}
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
     clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
     CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
@@ -294,6 +307,9 @@ elif [[ "$BUILD_TYPE" == "stable" ]]; then
     GCS_TEMPORARY_HOLD_SUCCESS=${PIPESTATUS[0]}
 
 elif [[ "$BUILD_TYPE" == "workflow_dispatch" ]]; then
+    # Write out a datapackage.json for external consumption
+    write_pudl_datapackage 2>&1 | tee -a "$LOGFILE"
+    WRITE_DATAPACKAGE_SUCCESS=${PIPESTATUS[0]}
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
     clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
     CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
