@@ -249,6 +249,10 @@ set -x
 run_pudl_etl 2>&1 | tee "$LOGFILE"
 ETL_SUCCESS=${PIPESTATUS[0]}
 
+# Write out a datapackage.json for external consumption
+write_pudl_datapackage 2>&1 | tee -a "$LOGFILE"
+WRITE_DATAPACKAGE_SUCCESS=${PIPESTATUS[0]}
+
 # This needs to happen regardless of the ETL outcome:
 pg_ctlcluster "$PG_VERSION" dagster stop 2>&1 | tee -a "$LOGFILE"
 
@@ -266,9 +270,6 @@ if [[ "$BUILD_TYPE" == "nightly" ]]; then
     # Update our datasette deployment
     python ~/pudl/devtools/datasette/publish.py --production 2>&1 | tee -a "$LOGFILE"
     DATASETTE_SUCCESS=${PIPESTATUS[0]}
-    # Write out a datapackage.json for external consumption
-    write_pudl_datapackage 2>&1 | tee -a "$LOGFILE"
-    WRITE_DATAPACKAGE_SUCCESS=${PIPESTATUS[0]}
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
     clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
     CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
@@ -285,9 +286,6 @@ if [[ "$BUILD_TYPE" == "nightly" ]]; then
 elif [[ "$BUILD_TYPE" == "stable" ]]; then
     merge_tag_into_branch "$BUILD_REF" stable 2>&1 | tee -a "$LOGFILE"
     UPDATE_STABLE_SUCCESS=${PIPESTATUS[0]}
-    # Write out a datapackage.json for external consumption
-    write_pudl_datapackage 2>&1 | tee -a "$LOGFILE"
-    WRITE_DATAPACKAGE_SUCCESS=${PIPESTATUS[0]}
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
     clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
     CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
@@ -307,9 +305,6 @@ elif [[ "$BUILD_TYPE" == "stable" ]]; then
     GCS_TEMPORARY_HOLD_SUCCESS=${PIPESTATUS[0]}
 
 elif [[ "$BUILD_TYPE" == "workflow_dispatch" ]]; then
-    # Write out a datapackage.json for external consumption
-    write_pudl_datapackage 2>&1 | tee -a "$LOGFILE"
-    WRITE_DATAPACKAGE_SUCCESS=${PIPESTATUS[0]}
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
     clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
     CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
