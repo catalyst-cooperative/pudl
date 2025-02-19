@@ -62,7 +62,7 @@ function run_pudl_etl() {
 
 function write_pudl_datapackage() {
     echo "Writing PUDL datapackage."
-    python -c "from pudl.metadata.classes import PUDL_PACKAGE; print(PUDL_PACKAGE.to_frictionless().to_json())" > "$PUDL_OUTPUT/pudl_datapackage.json"
+    python -c "from pudl.metadata.classes import PUDL_PACKAGE; print(PUDL_PACKAGE.to_frictionless().to_json())" > "$PUDL_OUTPUT/parquet/pudl_parquet_datapackage.json"
     return $?
 }
 
@@ -189,6 +189,8 @@ function clean_up_outputs_for_distribution() {
     zip -0 "$PUDL_OUTPUT/pudl_parquet.zip" ./*.parquet && \
     # Move the individual parquet outputs to the output directory for direct access
     mv ./*.parquet "$PUDL_OUTPUT" && \
+    # Move the parquet datapackage to the output directory also!
+    mv ./pudl_parquet_datapackage.json "$PUDL_OUTPUT" && \
     popd && \
     # Remove any remaiining files and directories we don't want to distribute
     rm -rf "$PUDL_OUTPUT/parquet" && \
