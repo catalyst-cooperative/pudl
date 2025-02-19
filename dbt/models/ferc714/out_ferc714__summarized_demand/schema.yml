@@ -1,0 +1,26 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_ferc714__summarized_demand
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: out_ferc714__summarized_demand
+              partition_column: report_date
+        columns:
+          - name: report_date
+          - name: respondent_id_ferc714
+          - name: demand_annual_mwh
+          - name: population
+          - name: area_km2
+          - name: population_density_km2
+          - name: demand_annual_per_capita_mwh
+          - name: demand_density_mwh_km2
+          - name: eia_code
+          - name: respondent_type
+          - name: respondent_name_ferc714
+          - name: balancing_authority_id_eia
+          - name: balancing_authority_code_eia
+          - name: balancing_authority_name_eia
+          - name: utility_id_eia
+          - name: utility_name_eia

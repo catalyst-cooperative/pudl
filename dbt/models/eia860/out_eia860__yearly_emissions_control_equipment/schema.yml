@@ -1,0 +1,30 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_eia860__yearly_emissions_control_equipment
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: out_eia860__yearly_emissions_control_equipment
+              partition_column: report_year
+        columns:
+          - name: report_year
+          - name: plant_id_eia
+          - name: plant_id_pudl
+          - name: plant_name_eia
+          - name: utility_id_eia
+          - name: utility_id_pudl
+          - name: utility_name_eia
+          - name: emission_control_id_pudl
+          - name: data_maturity
+          - name: emission_control_equipment_type_code
+          - name: operational_status_code
+          - name: operational_status
+          - name: mercury_control_id_eia
+          - name: nox_control_id_eia
+          - name: particulate_control_id_eia
+          - name: so2_control_id_eia
+          - name: acid_gas_control
+          - name: emission_control_equipment_cost
+          - name: emission_control_operating_date
+          - name: emission_control_retirement_date

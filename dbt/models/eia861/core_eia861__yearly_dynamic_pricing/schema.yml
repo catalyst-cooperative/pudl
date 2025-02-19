@@ -1,0 +1,24 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia861__yearly_dynamic_pricing
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_eia861__yearly_dynamic_pricing
+              partition_column: report_date
+        columns:
+          - name: balancing_authority_code_eia
+          - name: critical_peak_pricing
+          - name: critical_peak_rebate
+          - name: customer_class
+          - name: customers
+          - name: real_time_pricing
+          - name: report_date
+          - name: short_form
+          - name: state
+          - name: time_of_use_pricing
+          - name: utility_id_eia
+          - name: utility_name_eia
+          - name: variable_peak_pricing
+          - name: data_maturity

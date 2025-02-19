@@ -2,6 +2,7 @@
 
 import re
 from collections import defaultdict, namedtuple
+from dataclasses import dataclass
 from pathlib import Path
 
 import click
@@ -18,7 +19,7 @@ from pudl.workspace.setup import PudlPaths
 configure_root_logger()
 logger = get_logger(__file__)
 
-ALL_TABLES = [r.name for r in PUDL_PACKAGE.resources]
+ALL_TABLES = [r.name for r in PUDL_PACKAGE.resources if not r.name.startswith("_")]
 
 
 class DbtColumn(BaseModel):
@@ -142,26 +143,30 @@ def _get_nightly_url(table_name: str) -> str:
 
 
 def _get_local_table_path(table_name):
-    return PudlPaths().parquet_path(table_name)
+    return str(PudlPaths().parquet_path(table_name))
 
 
 def _get_model_path(table_name: str, data_source: str) -> Path:
     return Path("./dbt") / "models" / data_source / table_name
 
 
-def _get_row_count_csv_path() -> Path:
-    return Path("./dbt") / "seeds" / "row_counts.csv"
+def _get_row_count_csv_path(etl_fast: bool = False) -> Path:
+    if etl_fast:
+        return Path("./dbt") / "seeds" / "etl_fast_row_counts.csv"
+    return Path("./dbt") / "seeds" / "etl_full_row_counts.csv"
 
 
 def generate_row_counts(
     table_name: str,
     partition_column: str = "report_year",
     use_local_tables: bool = False,
+    etl_fast: bool = False,
     clobber: bool = False,
 ) -> AddTableResult:
     """Generate row counts per partition and write to csv file within dbt project."""
     # Get existing row counts table
-    row_counts_df = pd.read_csv(_get_row_count_csv_path())
+    csv_path = _get_row_count_csv_path(etl_fast)
+    row_counts_df = pd.read_csv(csv_path, dtype={"partition": str})
 
     if table_name in row_counts_df["table_name"].to_numpy() and not clobber:
         return AddTableResult(
@@ -175,21 +180,29 @@ def generate_row_counts(
     else:
         table_path = _get_local_table_path(table_name)
 
-    new_row_counts = (
-        duckdb.sql(
-            f"SELECT {partition_column} as partition, COUNT(*) as row_count"
-            f"FROM '{table_path}' GROUP BY {partition_column}"
+    if partition_column == "report_year":
+        row_count_query = (
+            f"SELECT {partition_column} as partition, COUNT(*) as row_count "  # noqa: S608
+            f"FROM '{table_path}' GROUP BY {partition_column}"  # noqa: S608
         )
-        .df()
-        .astype({"partition": "str"})
-    )
+    elif partition_column in ["report_date", "datetime_utc"]:
+        row_count_query = (
+            f"SELECT CAST(YEAR({partition_column}) as VARCHAR) as partition, COUNT(*) as row_count "  # noqa: S608
+            f"FROM '{table_path}' GROUP BY YEAR({partition_column})"  # noqa: S608
+        )
+    else:
+        row_count_query = (
+            f"SELECT '' as partition, COUNT(*) as row_count FROM '{table_path}'"  # noqa: S608
+        )
+
+    new_row_counts = duckdb.sql(row_count_query).df().astype({"partition": str})
     new_row_counts["table_name"] = table_name
 
     all_row_counts = pd.concat([row_counts_df, new_row_counts]).drop_duplicates(
         subset=["partition", "table_name"], keep="last"
     )
 
-    all_row_counts.to_csv(_get_row_count_csv_path(), index=False)
+    all_row_counts.to_csv(csv_path, index=False)
 
     return AddTableResult(
         success=True,
@@ -251,10 +264,7 @@ def _infer_partition_column(table_name: str) -> str:
         or (partition_column := "datetime_utc") in all_columns
     ):
         return partition_column
-    raise RuntimeError(
-        f"Could not determine partition column for table {table_name}. "
-        "You can pass this in manually with the '--partition-column' option."
-    )
+    return None
 
 
 def add_table(
@@ -264,24 +274,19 @@ def add_table(
     clobber: bool = False,
 ) -> AddTableResult:
     """Scaffold dbt yaml for a single table."""
-    data_source = get_data_source(table_name)
 
-    if partition_column == "inferred":
-        partition_column = _infer_partition_column(table_name)
 
-    _log_add_table_result(
-        generate_table_yaml(
-            table_name, data_source, partition_column=partition_column, clobber=clobber
-        )
-    )
-    _log_add_table_result(
-        generate_row_counts(
-            table_name=table_name,
-            partition_column=partition_column,
-            use_local_tables=use_local_tables,
-            clobber=clobber,
-        )
-    )
+@dataclass
+class AddTablesArgs:
+    """Define a single class to collect all args for add-tables command."""
+
+    tables: list[str]
+    partition_column: str = "report_year"
+    use_local_tables: bool = False
+    clobber: bool = False
+    etl_fast: bool = False
+    yaml_only: bool = False
+    row_counts_only: bool = False
 
 
 @click.command(help="Generate scaffolding to add a new table to the dbt project.")
@@ -309,13 +314,32 @@ def add_table(
     type=bool,
     help="Overwrite existing yaml and row counts. If false command will fail if yaml or row counts already exist.",
 )
-def add_tables(
-    tables: list[str],
-    partition_column: str = "report_year",
-    use_local_tables: bool = False,
-    clobber: bool = False,
-):
+@click.option(
+    "--etl-fast",
+    default=False,
+    is_flag=True,
+    type=bool,
+    help="Update row counts for fast ETL counts.",
+)
+@click.option(
+    "--yaml-only",
+    default=False,
+    is_flag=True,
+    type=bool,
+    help="Only generate yaml and ignore row counts.",
+)
+@click.option(
+    "--row-counts-only",
+    default=False,
+    is_flag=True,
+    type=bool,
+    help="Only generate row counts and ignore yaml.",
+)
+def add_tables(**kwargs):
     """Generate dbt yaml to add PUDL table(s) as dbt source(s)."""
+    args = AddTablesArgs(**kwargs)
+
+    tables = args.tables
     if "all" in tables:
         tables = ALL_TABLES
     elif len(bad_tables := [name for name in tables if name not in ALL_TABLES]) > 0:
@@ -323,15 +347,32 @@ def add_tables(
             f"The following table(s) could not be found in PUDL metadata: {bad_tables}"
         )
 
-    [
-        add_table(
-            table_name=table_name,
-            use_local_tables=use_local_tables,
-            partition_column=partition_column,
-            clobber=clobber,
-        )
-        for table_name in tables
-    ]
+    for table_name in tables:
+        data_source = get_data_source(table_name)
+
+        partition_column = args.partition_column
+        if partition_column == "inferred":
+            partition_column = _infer_partition_column(table_name)
+
+        if not args.row_counts_only:
+            _log_add_table_result(
+                generate_table_yaml(
+                    table_name,
+                    data_source,
+                    partition_column=partition_column,
+                    clobber=args.clobber,
+                )
+            )
+        if not args.yaml_only:
+            _log_add_table_result(
+                generate_row_counts(
+                    table_name=table_name,
+                    partition_column=partition_column,
+                    use_local_tables=args.use_local_tables,
+                    etl_fast=args.etl_fast,
+                    clobber=args.clobber,
+                )
+            )
 
 
 def _get_config(test_config_name: str) -> list[dict]:
