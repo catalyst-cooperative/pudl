@@ -115,9 +115,9 @@ function zenodo_data_release() {
     echo "Creating a new PUDL data release on Zenodo."
 
     if [[ "$1" == "production" ]]; then
-        ~/pudl/devtools/zenodo/zenodo_data_release.py --no-publish --env "$1" --source-dir "$PUDL_OUTPUT"
+        ~/pudl/devtools/zenodo/zenodo_data_release.py --no-publish --env "$1" --source-dir "$PUDL_OUTPUT" --ignore $PUDL_OUTPUT/pudl_parquet_datapackage.json
     elif [[ "$1" == "sandbox" ]]; then
-        ~/pudl/devtools/zenodo/zenodo_data_release.py --publish --env "$1" --source-dir "$PUDL_OUTPUT"
+        ~/pudl/devtools/zenodo/zenodo_data_release.py --publish --env "$1" --source-dir "$PUDL_OUTPUT" --ignore $PUDL_OUTPUT/pudl_parquet_datapackage.json
     else
         echo "Invalid Zenodo environment"
         exit 1
