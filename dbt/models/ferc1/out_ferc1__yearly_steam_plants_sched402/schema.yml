@@ -29,6 +29,17 @@ sources:
           - name: capex_equipment
           - name: capex_land
           - name: capex_per_mw
+            data_tests:
+              - expect_column_weighted_quantile_values_to_be_between:
+                  quantile: 0.5
+                  min_value: 200000
+                  max_value: |
+                    {% if target.name == "etl-fast" %}
+                    760000
+                    {% else %}
+                    600000
+                    {% endif %}
+                  weight_column: capacity_mw
           - name: capex_structures
           - name: capex_total
           - name: capex_wo_retirement_total
@@ -63,3 +74,8 @@ sources:
           - name: plant_type
           - name: record_id
           - name: water_limited_capacity_mw
+
+models:
+  - name: validate_ferc1__yearly_steam_plants_sched402
+    columns:
+      - name: capex_per_mw
