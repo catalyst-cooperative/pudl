@@ -7,11 +7,6 @@ function send_slack_msg() {
     curl -X POST -H "Content-type: application/json" -H "Authorization: Bearer ${SLACK_TOKEN}" https://slack.com/api/chat.postMessage --data "{\"channel\": \"C03FHB9N0PQ\", \"text\": \"$1\"}"
 }
 
-function upload_file_to_slack() {
-    echo "Uploading file to slack with comment $2"
-    curl -F "file=@$1" -F "initial_comment=$2" -F channels=C03FHB9N0PQ -H "Authorization: Bearer ${SLACK_TOKEN}" https://slack.com/api/files.upload
-}
-
 function authenticate_gcp() {
     # Set the default gcloud project id so the zenodo-cache bucket
     # knows what project to bill for egress
@@ -144,6 +139,7 @@ function notify_slack() {
 
     message+="Stage status (0 means success):\n"
     message+="ETL_SUCCESS: $ETL_SUCCESS\n"
+    message+="WRITE_DATAPACKAGE_SUCCESS: $WRITE_DATAPACKAGE_SUCCESS\n"
     message+="SAVE_OUTPUTS_SUCCESS: $SAVE_OUTPUTS_SUCCESS\n"
     message+="UPDATE_NIGHTLY_SUCCESS: $UPDATE_NIGHTLY_SUCCESS\n"
     message+="UPDATE_STABLE_SUCCESS: $UPDATE_STABLE_SUCCESS\n"
@@ -152,12 +148,12 @@ function notify_slack() {
     message+="DISTRIBUTION_BUCKET_SUCCESS: $DISTRIBUTION_BUCKET_SUCCESS\n"
     message+="GCS_TEMPORARY_HOLD_SUCCESS: $GCS_TEMPORARY_HOLD_SUCCESS \n"
     message+="ZENODO_SUCCESS: $ZENODO_SUCCESS\n\n"
-    message+="*Query* logs on <https://console.cloud.google.com/batch/jobsDetail/regions/us-west1/jobs/run-etl-$BUILD_ID/logs?project=catalyst-cooperative-pudl|Google Batch Console>.\n\n"
-    message+="*Download* logs at <https://console.cloud.google.com/storage/browser/_details/builds.catalyst.coop/$BUILD_ID/$BUILD_ID.log|gs://builds.catalyst.coop/${BUILD_ID}/${BUILD_ID}.log>\n\n"
-    message+="Get *full outputs* at <https://console.cloud.google.com/storage/browser/builds.catalyst.coop/$BUILD_ID|gs://builds.catalyst.coop/${BUILD_ID}>."
+    # we need to trim off the last dash-delimited section off the build ID to get a valid log link
+    message+="<https://console.cloud.google.com/batch/jobsDetail/regions/us-west1/jobs/run-etl-${BUILD_ID%-*}/logs?project=catalyst-cooperative-pudl|*Query logs online*>\n\n"
+    message+="<https://storage.cloud.google.com/builds.catalyst.coop/$BUILD_ID/$BUILD_ID.log|*Download logs to your computer*>\n\n"
+    message+="<https://console.cloud.google.com/storage/browser/builds.catalyst.coop/$BUILD_ID|*Browse full build outputs*>"
 
     send_slack_msg "$message"
-    upload_file_to_slack "$LOGFILE" "$BUILD_ID logs:"
 }
 
 function merge_tag_into_branch() {
