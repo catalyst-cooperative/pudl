@@ -91,29 +91,19 @@ dbt build
 
 This command will first run any models, then execute all tests.
 
-For more finegrained control, first run:
-
-```
-dbt run
-```
-
-This will run all models, thus prepairing any `sql` views that will be referenced in
-tests. Once you've done this, you can run all tests with:
-
-```
-dbt test
-```
+For more finegrained control, you can use the `--select` option to only run tests
+on a specific table.
 
 To run all tests for a single source table:
 
 ```
-dbt test --select source:pudl.{table_name}
+dbt build --select source:pudl.{table_name}
 ```
 
-To run all tests for a model table:
+To run all tests on a table that uses an intermediate `dbt model`, you can do:
 
 ```
-dbt test --select {model_name}
+dbt build --select {model_name}
 ```
 
 #### Selecting target profile
