@@ -784,6 +784,7 @@ resource "google_logging_project_sink" "pudl_viewer_log_sink" {
   filter      = <<EOT
     resource.type = "cloud_run_revision"
     AND resource.labels.service_name="${google_cloud_run_v2_service.pudl_viewer.name}"
+    AND (severity >= DEFAULT)
   EOT
 
   unique_writer_identity = true
