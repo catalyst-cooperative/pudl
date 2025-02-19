@@ -82,6 +82,9 @@ and define tests exactly as you would for a `source` table. See
 `models/ferc1/out_ferc1__yearly_steam_plants_fuel_by_plant_sched402` for an example of this
 pattern.
 
+Note: when adding a model, it will be stored as a SQL `view` in the file
+`{PUDL_OUTPUT}/pudl.duckdb`.
+
 ### Running tests
 There are a few ways to execute tests. To run all tests with a single command:
 
