@@ -19,7 +19,7 @@ from pudl.workspace.setup import PudlPaths
 configure_root_logger()
 logger = get_logger(__file__)
 
-ALL_TABLES = [r.name for r in PUDL_PACKAGE.resources if not r.name.startswith("_")]
+ALL_TABLES = [r.name for r in PUDL_PACKAGE.resources if r.name.startswith("_")]
 
 
 class DbtColumn(BaseModel):

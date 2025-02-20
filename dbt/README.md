@@ -235,3 +235,22 @@ This produces the output:
 
 This is failing because the `max_value` is set to `0.7`. If we change this value
 to 0.83, this test should now pass.
+
+#### `no_null_cols` tests
+The method `test_no_null_cols_mcoe` in `mcoe_test.py` checks a number of tables to
+validate that there are no completely null columns. We've added a custom test
+to the `dbt` project that can accomplish this. To use this test, simply apply the
+`not_all_null` test to a column in question:
+
+```
+    columns:
+    - name: report_date
+      data_tests:
+      - not_all_null
+```
+
+See `dbt/models/_out_eia__monthly_heat_rate_by_unit/schema.yml` for specific examples.
+Note: there is also a builtin test in `dbt` called `not_null` that will make sure
+there are no null values at all in a column.
+
+#### `no_null_rows` tests
