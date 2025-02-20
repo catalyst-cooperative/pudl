@@ -636,6 +636,11 @@ resource "google_cloud_run_v2_service" "pudl_viewer" {
       "run.googleapis.com/client-version" = timestamp()
     }
 
+    scaling {
+      min_instance_count = 1
+      max_instance_count = 1
+    }
+
     service_account = google_service_account.pudl_viewer_sa.email
     volumes {
       name = "cloudsql"
@@ -646,6 +651,14 @@ resource "google_cloud_run_v2_service" "pudl_viewer" {
 
     containers {
       image = "us-east1-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.pudl_viewer.name}/pudl-viewer:latest"
+
+      resources {
+        limits = {
+          cpu    = "1000m"
+          memory = "768Mi"
+        }
+        cpu_idle = true
+      }
 
       volume_mounts {
         name       = "cloudsql"
