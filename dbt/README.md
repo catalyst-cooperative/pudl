@@ -250,7 +250,55 @@ to the `dbt` project that can accomplish this. To use this test, simply apply th
 ```
 
 See `dbt/models/_out_eia__monthly_heat_rate_by_unit/schema.yml` for specific examples.
+
 Note: there is also a builtin test in `dbt` called `not_null` that will make sure
 there are no null values at all in a column.
 
 #### `no_null_rows` tests
+The method `test_no_null_rows_mcoe` in `mcoe_test.py` checks a number of tables to
+validate that there are no completely null rows. We've added a custom test
+to the `dbt` project that can accomplish this. To use this test, simply apply the
+`no_null_rows` test to a table:
+
+```
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: _out_eia__monthly_derived_generator_attributes
+        data_tests:
+          - no_null_rows
+```
+
+See `dbt/models/_out_eia__monthly_derived_generator_attributes/schema.yml` for
+a specific example.
+
+#### `bespoke` tests
+As the name implies, `bespoke` tests will require some degree of custom handling.
+That being said, there are common patterns for how/where to add these tests. Some
+tests can also potentially make use of builtin tests provided by `dbt_expectations`,
+`dbt_utils`, and `dbt` itself.
+
+For an example, we'll demonstrate migrating the test `test_idle_capacity`. This
+test is applied to the `out_eia__{freq}_generators` tables. Because this test is applied
+to two different tables, we'll define it as a
+[generic data test](https://docs.getdbt.com/docs/build/data-tests#generic-data-tests).
+This allows us to reuse a single test on both tables. If this test was only used
+on a single table, we could create a
+[singular data test](https://docs.getdbt.com/docs/build/data-tests#singular-data-tests).
+
+To create a new generic test, we will add a new file called `dbt/macros/test_idle_capacity.sql`.
+Then, we develop a SQL query to mimic the behavior of the original test. For details
+see the SQL file. It uses `jinja` fairly extensively to set/access bounds. Once this
+new test has been developed, we can apply it to the tables by modifying their `schema.yml`
+as so:
+
+```
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_eia__yearly_generators
+        data_tests:
+          - test_idle_capacity
+```

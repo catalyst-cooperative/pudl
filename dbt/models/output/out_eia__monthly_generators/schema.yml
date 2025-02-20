@@ -4,6 +4,7 @@ sources:
     tables:
       - name: out_eia__monthly_generators
         data_tests:
+          - test_idle_capacity
           - check_row_counts_per_partition:
               table_name: out_eia__monthly_generators
               partition_column: report_date
