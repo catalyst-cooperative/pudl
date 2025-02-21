@@ -35,14 +35,9 @@ python devtools/dbt_helper.py add-tables {table_name(s)}
 
 This will add a file called `dbt/models/{data_source}/{table_name}/schema.yml` for
 each table. This yaml file tells `dbt` about the table and it's schema. It will also apply the test
-`check_row_counts_per_partition`, which by default will look for a date partition
-column in the table, and check row counts per partition.
-To accomplish this it will add row counts to the file `seeds/row_counts.csv`, which
-get compared to observed row counts in the table when running tests.
-
-You can explicityly set the partition column by adding the option
-`--partition-column {column_name}` to the command. This will find row counts per
-unique value in the column.
+`check_row_counts_per_partition`. This test works by storing row counts per year (or all row counts
+for time independent tables) in the csv files called `etl_fast_row_counts.csv` and `etl_full_row_counts.csv`
+and checking these row counts against the actual table.
 
 To see all options for this command run:
 
