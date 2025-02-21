@@ -19,7 +19,7 @@ from pudl.workspace.setup import PudlPaths
 configure_root_logger()
 logger = get_logger(__file__)
 
-ALL_TABLES = [r.name for r in PUDL_PACKAGE.resources if r.name.startswith("_")]
+ALL_TABLES = [r.name for r in PUDL_PACKAGE.resources]
 
 
 class DbtColumn(BaseModel):
@@ -295,12 +295,6 @@ class AddTablesArgs:
     nargs=-1,
 )
 @click.option(
-    "--partition-column",
-    default="inferred",
-    type=str,
-    help="Column used to generate row count per partition test. If 'inferred' the script will attempt to infer a reasonable partitioning column.",
-)
-@click.option(
     "--use-local-tables",
     default=False,
     type=bool,
@@ -444,7 +438,7 @@ def _generate_quantile_bounds_test(test_config: dict) -> list[dict]:
     help="Name of model if test should be applied to an intermediate dbt model and not the table directly.",
 )
 def migrate_tests(table_name: str, test_config_name: str, model_name: str | None):
-    """Generate dbt tests to check quantiles vs bounds using existing configuration.
+    """Generate dbt tests that mirror existing vs_bounds tests.
 
     This command expects a table name, and the name of a config variable in
     ``validate.py``. It will then use this configuration to add a new dbt test which
