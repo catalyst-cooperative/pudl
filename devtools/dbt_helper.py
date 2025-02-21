@@ -267,21 +267,11 @@ def _infer_partition_column(table_name: str) -> str:
     return None
 
 
-def add_table(
-    table_name: str,
-    partition_column: str = "report_year",
-    use_local_tables: bool = False,
-    clobber: bool = False,
-) -> AddTableResult:
-    """Scaffold dbt yaml for a single table."""
-
-
 @dataclass
 class AddTablesArgs:
     """Define a single class to collect all args for add-tables command."""
 
     tables: list[str]
-    partition_column: str = "report_year"
     use_local_tables: bool = False
     clobber: bool = False
     etl_fast: bool = False
@@ -351,9 +341,7 @@ def add_tables(**kwargs):
     for table_name in tables:
         data_source = get_data_source(table_name)
 
-        partition_column = args.partition_column
-        if partition_column == "inferred":
-            partition_column = _infer_partition_column(table_name)
+        partition_column = _infer_partition_column(table_name)
 
         if not args.row_counts_only:
             _log_add_table_result(
