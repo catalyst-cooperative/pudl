@@ -1,4 +1,4 @@
-"""A basic CLI to autogenerate dbt yml."""
+"""A basic CLI to autogenerate dbt data test configurations."""
 
 import re
 from collections import defaultdict, namedtuple
@@ -289,7 +289,7 @@ class AddTablesArgs:
     default=False,
     type=bool,
     is_flag=True,
-    help="If set look for tables locally when generating row counts, otherwise get tables from nightly builds.",
+    help="If set read tables from parquet files in $PUDL_OUTPUT locally when generating row counts, otherwise get tables from nightly builds.",
 )
 @click.option(
     "--clobber",
@@ -310,7 +310,7 @@ class AddTablesArgs:
     default=False,
     is_flag=True,
     type=bool,
-    help="Only generate yaml and ignore row counts.",
+    help="Only generate new source table schema.yml config and ignore row counts.",
 )
 @click.option(
     "--row-counts-only",
@@ -423,7 +423,7 @@ def _generate_quantile_bounds_test(test_config: dict) -> list[dict]:
 @click.option(
     "--model-name",
     default=None,
-    help="Name of model if test should be applied to an intermediate dbt model and not the table directly.",
+    help="Name of model if test should be applied to an ephemeral dbt model and not the (source) table directly.",
 )
 def migrate_tests(table_name: str, test_config_name: str, model_name: str | None):
     """Generate dbt tests that mirror existing vs_bounds tests.
