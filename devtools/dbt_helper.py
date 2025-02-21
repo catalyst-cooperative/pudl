@@ -418,7 +418,7 @@ def _generate_quantile_bounds_test(test_config: dict) -> list[dict]:
 @click.option(
     "--test-config-name",
     type=str,
-    help="Name variable containing test configuration in `pudl.validate`.",
+    help="Name of variable containing test configuration in `pudl.validate`.",
 )
 @click.option(
     "--model-name",
@@ -439,6 +439,12 @@ def migrate_tests(table_name: str, test_config_name: str, model_name: str | None
     from the orginal tests, because the method for computing quantiles is not
     quite identical. After generating the tests, it may take some slight
     modifications to bounds to get the tests passing.
+
+    Example usage:
+
+    python devtools/dbt_helper.py migrate-tests \
+        --table-name out_eia__yearly_generators \
+        --test-config-name mcoe_gas_capacity_factor
     """
     schema_path = (
         _get_model_path(table_name, get_data_source(table_name)) / "schema.yml"
