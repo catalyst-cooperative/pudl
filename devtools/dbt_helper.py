@@ -289,7 +289,7 @@ class AddTablesArgs:
     default=False,
     type=bool,
     is_flag=True,
-    help="If set look for tables locally when generating row counts, otherwise get tables from nightly builds.",
+    help="If set read tables from parquet files in $PUDL_OUTPUT locally when generating row counts, otherwise get tables from nightly builds.",
 )
 @click.option(
     "--clobber",
