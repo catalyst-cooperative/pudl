@@ -310,7 +310,7 @@ class AddTablesArgs:
     default=False,
     is_flag=True,
     type=bool,
-    help="Only generate yaml and ignore row counts.",
+    help="Only generate new source table schema.yml config and ignore row counts.",
 )
 @click.option(
     "--row-counts-only",
