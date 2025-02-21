@@ -1,0 +1,52 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: _core_eia860__cooling_equipment
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: _core_eia860__cooling_equipment
+              partition_column: report_date
+        columns:
+          - name: report_date
+          - name: plant_id_eia
+          - name: plant_name_eia
+          - name: cooling_id_eia
+          - name: utility_id_eia
+          - name: utility_name_eia
+          - name: county
+          - name: state
+          - name: chlorine_equipment_cost
+          - name: chlorine_equipment_operating_date
+          - name: cooling_equipment_total_cost
+          - name: cooling_status_code
+          - name: cooling_system_operating_date
+          - name: cooling_type_1
+          - name: cooling_type_2
+          - name: cooling_type_3
+          - name: cooling_type_4
+          - name: cooling_water_discharge
+          - name: cooling_water_source
+          - name: intake_distance_shore_feet
+          - name: intake_distance_surface_feet
+          - name: intake_rate_100pct_gallons_per_minute
+          - name: outlet_distance_shore_feet
+          - name: outlet_distance_surface_feet
+          - name: percent_dry_cooling
+          - name: plant_summer_capacity_mw
+          - name: pond_cost
+          - name: pond_operating_date
+          - name: pond_surface_area_acres
+          - name: pond_volume_acre_feet
+          - name: power_requirement_mw
+          - name: steam_plant_type_code
+          - name: tower_cost
+          - name: tower_operating_date
+          - name: tower_type_1
+          - name: tower_type_2
+          - name: tower_type_3
+          - name: tower_type_4
+          - name: tower_water_rate_100pct_gallons_per_minute
+          - name: water_source_code
+          - name: water_source
+          - name: water_type_code

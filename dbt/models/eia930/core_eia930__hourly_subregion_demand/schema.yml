@@ -1,0 +1,14 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia930__hourly_subregion_demand
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_eia930__hourly_subregion_demand
+              partition_column: datetime_utc
+        columns:
+          - name: datetime_utc
+          - name: balancing_authority_code_eia
+          - name: balancing_authority_subregion_code_eia
+          - name: demand_reported_mwh

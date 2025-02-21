@@ -1,0 +1,21 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_nrelatb__yearly_projected_financial_cases
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_nrelatb__yearly_projected_financial_cases
+              partition_column: report_year
+        columns:
+          - name: report_year
+          - name: model_case_nrelatb
+          - name: projection_year
+          - name: technology_description
+          - name: inflation_rate
+          - name: interest_rate_during_construction_nominal
+          - name: interest_rate_calculated_real
+          - name: interest_rate_nominal
+          - name: rate_of_return_on_equity_calculated_real
+          - name: rate_of_return_on_equity_nominal
+          - name: tax_rate_federal_state

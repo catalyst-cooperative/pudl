@@ -1,0 +1,20 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology
+              partition_column: report_year
+        columns:
+          - name: report_year
+          - name: electricity_market_module_region_eiaaeo
+          - name: model_case_eiaaeo
+          - name: projection_year
+          - name: technology_description_eiaaeo
+          - name: summer_capacity_mw
+          - name: summer_capacity_planned_additions_mw
+          - name: summer_capacity_unplanned_additions_mw
+          - name: summer_capacity_retirements_mw
+          - name: gross_generation_mwh

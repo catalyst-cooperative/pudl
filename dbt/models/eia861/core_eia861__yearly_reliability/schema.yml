@@ -1,0 +1,32 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia861__yearly_reliability
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_eia861__yearly_reliability
+              partition_column: report_date
+        columns:
+          - name: caidi_w_major_event_days_minus_loss_of_service_minutes
+          - name: caidi_w_major_event_days_minutes
+          - name: caidi_wo_major_event_days_minutes
+          - name: customers
+          - name: entity_type
+          - name: highest_distribution_voltage_kv
+          - name: inactive_accounts_included
+          - name: momentary_interruption_definition
+          - name: outages_recorded_automatically
+          - name: report_date
+          - name: saidi_w_major_event_days_minus_loss_of_service_minutes
+          - name: saidi_w_major_event_days_minutes
+          - name: saidi_wo_major_event_days_minutes
+          - name: saifi_w_major_event_days_customers
+          - name: saifi_w_major_event_days_minus_loss_of_service_customers
+          - name: saifi_wo_major_event_days_customers
+          - name: short_form
+          - name: standard
+          - name: state
+          - name: utility_id_eia
+          - name: utility_name_eia
+          - name: data_maturity

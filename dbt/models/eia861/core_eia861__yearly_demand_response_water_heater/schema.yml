@@ -1,0 +1,16 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia861__yearly_demand_response_water_heater
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_eia861__yearly_demand_response_water_heater
+              partition_column: report_date
+        columns:
+          - name: balancing_authority_code_eia
+          - name: report_date
+          - name: state
+          - name: utility_id_eia
+          - name: num_water_heaters
+          - name: data_maturity

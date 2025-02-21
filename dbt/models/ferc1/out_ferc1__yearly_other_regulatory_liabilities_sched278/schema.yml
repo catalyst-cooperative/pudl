@@ -1,0 +1,20 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_ferc1__yearly_other_regulatory_liabilities_sched278
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: out_ferc1__yearly_other_regulatory_liabilities_sched278
+              partition_column: report_year
+        columns:
+          - name: utility_id_ferc1
+          - name: utility_id_pudl
+          - name: utility_name_ferc1
+          - name: report_year
+          - name: description
+          - name: ending_balance
+          - name: starting_balance
+          - name: increase_in_other_regulatory_liabilities
+          - name: account_detail
+          - name: decrease_in_other_regulatory_liabilities

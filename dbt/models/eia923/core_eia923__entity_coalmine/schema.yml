@@ -1,0 +1,17 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia923__entity_coalmine
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_eia923__entity_coalmine
+              partition_column: null
+        columns:
+          - name: mine_id_pudl
+          - name: mine_name
+          - name: mine_type_code
+          - name: state
+          - name: county_id_fips
+          - name: mine_id_msha
+          - name: data_maturity

@@ -1,0 +1,21 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia861__yearly_distributed_generation_misc
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_eia861__yearly_distributed_generation_misc
+              partition_column: report_date
+        columns:
+          - name: backup_capacity_mw
+          - name: distributed_generation_owned_capacity_mw
+          - name: estimated_or_actual_capacity_data
+          - name: generators_num_less_1_mw
+          - name: generators_number
+          - name: report_date
+          - name: state
+          - name: total_capacity_less_1_mw
+          - name: utility_id_eia
+          - name: utility_name_eia
+          - name: data_maturity

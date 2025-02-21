@@ -1,0 +1,27 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia861__yearly_energy_efficiency
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_eia861__yearly_energy_efficiency
+              partition_column: report_date
+        columns:
+          - name: balancing_authority_code_eia
+          - name: customer_class
+          - name: customer_incentives_incremental_cost
+          - name: customer_incentives_incremental_life_cycle_cost
+          - name: customer_other_costs_incremental_life_cycle_cost
+          - name: incremental_energy_savings_mwh
+          - name: incremental_life_cycle_energy_savings_mwh
+          - name: incremental_life_cycle_peak_reduction_mw
+          - name: incremental_peak_reduction_mw
+          - name: other_costs_incremental_cost
+          - name: report_date
+          - name: short_form
+          - name: state
+          - name: utility_id_eia
+          - name: utility_name_eia
+          - name: weighted_average_life_years
+          - name: data_maturity

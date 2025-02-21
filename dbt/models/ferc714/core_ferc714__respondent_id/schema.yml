@@ -1,0 +1,15 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_ferc714__respondent_id
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_ferc714__respondent_id
+              partition_column: null
+        columns:
+          - name: respondent_id_ferc714
+          - name: respondent_id_ferc714_csv
+          - name: respondent_id_ferc714_xbrl
+          - name: respondent_name_ferc714
+          - name: eia_code

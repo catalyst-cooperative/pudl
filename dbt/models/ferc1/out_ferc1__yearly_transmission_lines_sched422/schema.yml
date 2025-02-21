@@ -1,0 +1,31 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_ferc1__yearly_transmission_lines_sched422
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: out_ferc1__yearly_transmission_lines_sched422
+              partition_column: report_year
+        columns:
+          - name: record_id
+          - name: utility_id_ferc1
+          - name: utility_id_pudl
+          - name: utility_name_ferc1
+          - name: report_year
+          - name: start_point
+          - name: end_point
+          - name: operating_voltage_kv
+          - name: designed_voltage_kv
+          - name: supporting_structure_type
+          - name: transmission_line_length_miles
+          - name: transmission_line_and_structures_length_miles
+          - name: num_transmission_circuits
+          - name: conductor_size_and_material
+          - name: capex_land
+          - name: capex_other
+          - name: capex_total
+          - name: opex_operations
+          - name: opex_maintenance
+          - name: opex_rents
+          - name: opex_total

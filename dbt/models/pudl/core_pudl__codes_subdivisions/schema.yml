@@ -1,0 +1,21 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_pudl__codes_subdivisions
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_pudl__codes_subdivisions
+              partition_column: null
+        columns:
+          - name: country_code
+          - name: country_name
+          - name: subdivision_code
+          - name: subdivision_name
+          - name: subdivision_type
+          - name: timezone_approx
+          - name: state_id_fips
+          - name: division_name_us_census
+          - name: division_code_us_census
+          - name: region_name_us_census
+          - name: is_epacems_state

@@ -1,0 +1,12 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_pudl__assn_utilities_plants
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_pudl__assn_utilities_plants
+              partition_column: null
+        columns:
+          - name: utility_id_pudl
+          - name: plant_id_pudl

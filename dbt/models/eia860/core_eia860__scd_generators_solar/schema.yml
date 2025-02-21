@@ -1,0 +1,37 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia860__scd_generators_solar
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_eia860__scd_generators_solar
+              partition_column: report_date
+        columns:
+          - name: plant_id_eia
+          - name: generator_id
+          - name: report_date
+          - name: standard_testing_conditions_capacity_mwdc
+          - name: net_metering_capacity_mwdc
+          - name: uses_net_metering_agreement
+          - name: uses_virtual_net_metering_agreement
+          - name: virtual_net_metering_capacity_mwdc
+          - name: azimuth_angle_deg
+          - name: tilt_angle_deg
+          - name: uses_technology_lenses_mirrors
+          - name: uses_technology_single_axis_tracking
+          - name: uses_technology_dual_axis_tracking
+          - name: uses_technology_fixed_tilt
+          - name: uses_technology_east_west_fixed_tilt
+          - name: uses_technology_parabolic_trough
+          - name: uses_technology_linear_fresnel
+          - name: uses_technology_power_tower
+          - name: uses_technology_dish_engine
+          - name: uses_technology_other
+          - name: uses_material_crystalline_silicon
+          - name: uses_material_thin_film_a_si
+          - name: uses_material_thin_film_cdte
+          - name: uses_material_thin_film_cigs
+          - name: uses_material_thin_film_other
+          - name: uses_material_other
+          - name: uses_bifacial_panels

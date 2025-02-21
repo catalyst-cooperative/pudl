@@ -1,0 +1,26 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia861__yearly_advanced_metering_infrastructure
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_eia861__yearly_advanced_metering_infrastructure
+              partition_column: report_date
+        columns:
+          - name: advanced_metering_infrastructure
+          - name: automated_meter_reading
+          - name: balancing_authority_code_eia
+          - name: customer_class
+          - name: daily_digital_access_customers
+          - name: direct_load_control_customers
+          - name: energy_served_ami_mwh
+          - name: entity_type
+          - name: home_area_network
+          - name: non_amr_ami
+          - name: report_date
+          - name: short_form
+          - name: state
+          - name: utility_id_eia
+          - name: utility_name_eia
+          - name: data_maturity

@@ -1,0 +1,20 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_ferc1__yearly_depreciation_changes_sched219
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_ferc1__yearly_depreciation_changes_sched219
+              partition_column: report_year
+        columns:
+          - name: utility_id_ferc1
+          - name: report_year
+          - name: depreciation_type
+          - name: plant_status
+          - name: utility_type
+          - name: dollar_value
+          - name: record_id
+          - name: balance
+          - name: ferc_account
+          - name: row_type_xbrl

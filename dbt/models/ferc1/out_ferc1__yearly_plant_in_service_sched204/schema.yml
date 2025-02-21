@@ -1,0 +1,26 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_ferc1__yearly_plant_in_service_sched204
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: out_ferc1__yearly_plant_in_service_sched204
+              partition_column: report_year
+        columns:
+          - name: report_year
+          - name: utility_id_ferc1
+          - name: utility_id_pudl
+          - name: utility_name_ferc1
+          - name: utility_type
+          - name: plant_status
+          - name: record_id
+          - name: additions
+          - name: adjustments
+          - name: ending_balance
+          - name: ferc_account
+          - name: ferc_account_label
+          - name: retirements
+          - name: row_type_xbrl
+          - name: starting_balance
+          - name: transfers

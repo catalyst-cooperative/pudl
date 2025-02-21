@@ -1,0 +1,30 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_ferc1__yearly_purchased_power_and_exchanges_sched326
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: out_ferc1__yearly_purchased_power_and_exchanges_sched326
+              partition_column: report_year
+        columns:
+          - name: report_year
+          - name: utility_id_ferc1
+          - name: utility_id_pudl
+          - name: utility_name_ferc1
+          - name: seller_name
+          - name: record_id
+          - name: billing_demand_mw
+          - name: coincident_peak_demand_mw
+          - name: delivered_mwh
+          - name: demand_charges
+          - name: energy_charges
+          - name: non_coincident_peak_demand_mw
+          - name: other_charges
+          - name: purchase_type_code
+          - name: purchased_mwh
+          - name: purchased_storage_mwh
+          - name: purchased_other_than_storage_mwh
+          - name: received_mwh
+          - name: tariff
+          - name: total_settlement

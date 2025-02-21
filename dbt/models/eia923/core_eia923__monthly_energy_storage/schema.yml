@@ -1,0 +1,20 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia923__monthly_energy_storage
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_eia923__monthly_energy_storage
+              partition_column: report_date
+        columns:
+          - name: plant_id_eia
+          - name: report_date
+          - name: prime_mover_code
+          - name: energy_source_code
+          - name: data_maturity
+          - name: fuel_units
+          - name: fuel_consumed_for_electricity_units
+          - name: fuel_consumed_units
+          - name: gross_generation_mwh
+          - name: net_generation_mwh

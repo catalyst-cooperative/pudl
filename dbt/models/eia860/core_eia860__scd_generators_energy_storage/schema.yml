@@ -1,0 +1,43 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia860__scd_generators_energy_storage
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_eia860__scd_generators_energy_storage
+              partition_column: report_date
+        columns:
+          - name: plant_id_eia
+          - name: generator_id
+          - name: report_date
+          - name: max_charge_rate_mw
+          - name: max_discharge_rate_mw
+          - name: storage_enclosure_code
+          - name: storage_technology_code_1
+          - name: storage_technology_code_2
+          - name: storage_technology_code_3
+          - name: storage_technology_code_4
+          - name: served_arbitrage
+          - name: served_backup_power
+          - name: served_co_located_renewable_firming
+          - name: served_frequency_regulation
+          - name: served_load_following
+          - name: served_load_management
+          - name: served_ramping_spinning_reserve
+          - name: served_system_peak_shaving
+          - name: served_transmission_and_distribution_deferral
+          - name: served_voltage_or_reactive_power_support
+          - name: stored_excess_wind_and_solar_generation
+          - name: is_ac_coupled
+          - name: is_dc_coupled
+          - name: id_dc_coupled_tightly
+          - name: is_independent
+          - name: is_transmission_and_distribution_asset_support
+          - name: is_direct_support
+          - name: plant_id_eia_direct_support_1
+          - name: generator_id_direct_support_1
+          - name: plant_id_eia_direct_support_2
+          - name: generator_id_direct_support_2
+          - name: plant_id_eia_direct_support_3
+          - name: generator_id_direct_support_3

@@ -1,0 +1,13 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia__codes_cooling_water_sources
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_eia__codes_cooling_water_sources
+              partition_column: null
+        columns:
+          - name: code
+          - name: label
+          - name: description

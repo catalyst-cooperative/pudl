@@ -1,0 +1,16 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_ferc714__yearly_planning_area_demand_forecast
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_ferc714__yearly_planning_area_demand_forecast
+              partition_column: report_year
+        columns:
+          - name: respondent_id_ferc714
+          - name: report_year
+          - name: forecast_year
+          - name: summer_peak_demand_forecast_mw
+          - name: winter_peak_demand_forecast_mw
+          - name: net_demand_forecast_mwh

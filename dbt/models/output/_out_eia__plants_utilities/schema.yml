@@ -1,0 +1,18 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: _out_eia__plants_utilities
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: _out_eia__plants_utilities
+              partition_column: report_date
+        columns:
+          - name: report_date
+          - name: plant_id_eia
+          - name: plant_name_eia
+          - name: plant_id_pudl
+          - name: utility_id_eia
+          - name: utility_name_eia
+          - name: utility_id_pudl
+          - name: data_maturity

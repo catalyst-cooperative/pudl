@@ -1,0 +1,43 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia860m__changelog_generators
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_eia860m__changelog_generators
+              partition_column: report_date
+        columns:
+          - name: report_date
+          - name: valid_until_date
+          - name: plant_id_eia
+          - name: plant_name_eia
+          - name: utility_id_eia
+          - name: utility_name_eia
+          - name: generator_id
+          - name: balancing_authority_code_eia
+          - name: capacity_mw
+          - name: county
+          - name: current_planned_generator_operating_date
+          - name: data_maturity
+          - name: energy_source_code_1
+          - name: energy_storage_capacity_mwh
+          - name: fuel_type_code_pudl
+          - name: generator_operating_date
+          - name: generator_retirement_date
+          - name: latitude
+          - name: longitude
+          - name: net_capacity_mwdc
+          - name: operational_status
+          - name: operational_status_code
+          - name: planned_derate_date
+          - name: planned_generator_retirement_date
+          - name: planned_net_summer_capacity_derate_mw
+          - name: planned_net_summer_capacity_uprate_mw
+          - name: planned_uprate_date
+          - name: prime_mover_code
+          - name: sector_id_eia
+          - name: state
+          - name: summer_capacity_mw
+          - name: technology_description
+          - name: winter_capacity_mw

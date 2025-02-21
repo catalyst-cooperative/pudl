@@ -1,0 +1,20 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_ferc1__yearly_operating_revenues_sched300
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_ferc1__yearly_operating_revenues_sched300
+              partition_column: report_year
+        columns:
+          - name: utility_id_ferc1
+          - name: report_year
+          - name: record_id
+          - name: revenue_type
+          - name: dollar_value
+          - name: sales_mwh
+          - name: avg_customers_per_month
+          - name: ferc_account
+          - name: utility_type
+          - name: row_type_xbrl

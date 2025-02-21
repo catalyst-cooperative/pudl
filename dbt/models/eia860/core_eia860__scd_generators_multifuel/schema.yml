@@ -1,0 +1,61 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia860__scd_generators_multifuel
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_eia860__scd_generators_multifuel
+              partition_column: report_date
+        columns:
+          - name: report_date
+          - name: utility_id_eia
+          - name: utility_name_eia
+          - name: plant_id_eia
+          - name: plant_name_eia
+          - name: state
+          - name: county
+          - name: generator_id
+          - name: operational_status_code
+          - name: technology_description
+          - name: prime_mover_code
+          - name: sector_name_eia
+          - name: sector_id_eia
+          - name: capacity_mw
+          - name: summer_capacity_mw
+          - name: winter_capacity_mw
+          - name: current_planned_generator_operating_date
+          - name: energy_source_code_1
+          - name: energy_source_code_2
+          - name: can_burn_multiple_fuels
+          - name: can_cofire_fuels
+          - name: cofire_energy_source_1
+          - name: cofire_energy_source_2
+          - name: cofire_energy_source_3
+          - name: cofire_energy_source_4
+          - name: cofire_energy_source_5
+          - name: cofire_energy_source_6
+          - name: can_switch_oil_gas
+          - name: time_to_switch_oil_to_gas
+          - name: time_to_switch_gas_to_oil
+          - name: can_switch_when_operating
+          - name: net_summer_capacity_natural_gas_mw
+          - name: net_summer_capacity_oil_mw
+          - name: net_winter_capacity_natural_gas_mw
+          - name: net_winter_capacity_oil_mw
+          - name: has_factors_that_limit_switching
+          - name: has_storage_limits
+          - name: has_air_permit_limits
+          - name: has_other_factors_that_limit_switching
+          - name: can_cofire_oil_and_gas
+          - name: can_cofire_100_oil
+          - name: max_oil_heat_input
+          - name: max_oil_output_mw
+          - name: can_fuel_switch
+          - name: has_regulatory_limits
+          - name: fuel_switch_energy_source_1
+          - name: fuel_switch_energy_source_2
+          - name: fuel_switch_energy_source_3
+          - name: fuel_switch_energy_source_4
+          - name: fuel_switch_energy_source_5
+          - name: fuel_switch_energy_source_6

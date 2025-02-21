@@ -1,0 +1,13 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia861__assn_utility
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_eia861__assn_utility
+              partition_column: report_date
+        columns:
+          - name: report_date
+          - name: utility_id_eia
+          - name: state

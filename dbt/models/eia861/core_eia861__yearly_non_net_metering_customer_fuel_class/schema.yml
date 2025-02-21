@@ -1,0 +1,20 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia861__yearly_non_net_metering_customer_fuel_class
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_eia861__yearly_non_net_metering_customer_fuel_class
+              partition_column: report_date
+        columns:
+          - name: balancing_authority_code_eia
+          - name: capacity_mw
+          - name: energy_capacity_mwh
+          - name: customer_class
+          - name: report_date
+          - name: state
+          - name: tech_class
+          - name: utility_id_eia
+          - name: utility_name_eia
+          - name: data_maturity
