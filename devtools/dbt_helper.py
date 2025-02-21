@@ -1,4 +1,4 @@
-"""A basic CLI to autogenerate dbt yml."""
+"""A basic CLI to autogenerate dbt data test configurations."""
 
 import re
 from collections import defaultdict, namedtuple
