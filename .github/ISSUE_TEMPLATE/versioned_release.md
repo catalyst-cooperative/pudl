@@ -29,8 +29,6 @@ assignees: ""
 - [ ] Verify that [`stable` docs on RTD](https://catalystcoop-pudl.readthedocs.io/en/stable/) have been updated
 - [ ] Verify `gs://pudl.catalyst.coop/vYYYY.M.x` has the new expected data.
 - [ ] Verify `gs://pudl.catalyst.coop/stable` has the new expected data.
-- [ ] Verify `gs://parquet.catalyst.coop/vYYYY.M.x` has the new expected data.
-- [ ] Verify `gs://parquet.catalyst.coop/stable` has the new expected data.
 - [ ] Verify `s3://pudl.catalyst.coop/vYYYY.M.x` has the new expected data.
 - [ ] Verify `s3://pudl.catalyst.coop/stable` has the new expected data.
 - [ ] Verify that draft deposition for [this Zenodo archive](https://doi.org/10.5281/zenodo.3653158) has the new expected data
