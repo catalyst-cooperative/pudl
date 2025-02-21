@@ -423,7 +423,7 @@ def _generate_quantile_bounds_test(test_config: dict) -> list[dict]:
 @click.option(
     "--model-name",
     default=None,
-    help="Name of model if test should be applied to an intermediate dbt model and not the table directly.",
+    help="Name of model if test should be applied to an ephemeral dbt model and not the (source) table directly.",
 )
 def migrate_tests(table_name: str, test_config_name: str, model_name: str | None):
     """Generate dbt tests that mirror existing vs_bounds tests.
