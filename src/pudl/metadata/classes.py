@@ -11,6 +11,7 @@ from functools import cached_property, lru_cache
 from pathlib import Path
 from typing import Annotated, Any, Literal, Self, TypeVar
 
+import frictionless
 import jinja2
 import numpy as np
 import pandas as pd
@@ -1485,6 +1486,22 @@ class Resource(PudlMeta):
             constraints.append(key.to_sql())
         return sa.Table(self.name, metadata, *columns, *constraints)
 
+    def to_frictionless(self) -> frictionless.Resource:
+        """Convert to a Frictionless Resource."""
+        schema = frictionless.Schema(
+            fields=[
+                frictionless.Field(name=f.name, description=f.description)
+                for f in self.schema.fields
+            ],
+            primary_key=self.schema.primary_key,
+        )
+        return frictionless.Resource(
+            name=self.name,
+            description=self.description,
+            schema=schema,
+            path=f"{self.name}.parquet",
+        )
+
     def to_pyarrow(self) -> pa.Schema:
         """Construct a PyArrow schema for the resource."""
         fields = [field.to_pyarrow() for field in self.schema.fields]
@@ -2110,6 +2127,12 @@ class Package(PudlMeta):
                     encoded_df[col], dtype=Field.from_id(col).to_pandas_dtype()
                 )
         return encoded_df
+
+    def to_frictionless(self) -> frictionless.Package:
+        """Convert to a Frictionless Datapackage."""
+        resources = [r.to_frictionless() for r in self.resources]
+        package = frictionless.Package(name=self.name, resources=resources)
+        return package
 
 
 PUDL_PACKAGE = Package.from_resource_ids()
