@@ -24,7 +24,10 @@ To add a new table to the project, you must add it as a
 script to automate the process at `devtools/dbt_helper.py`.
 
 #### Usage
-Basic usage of the helper script looks like:
+##### `add-tables`
+The first command provided by the helper script is `add-tables`. This has already
+been run for all existing tables, but may be useful when we add new tables to
+PUDL.
 
 ```
 python devtools/dbt_helper.py add-tables {table_name(s)}
@@ -46,6 +49,24 @@ To see all options for this command run:
 ```
 python devtools/dbt_helper.py add-tables --help
 ```
+
+##### `migrate-tests`
+The second command in the helper script is called `migrate-tests`. This command is used
+to migrate existing `vs_bounds` tests. There are many of these tests in our existing
+validation framework, and the configuration is relatively verbose, so this script
+should be very useful for migrating these tests quickly.
+
+The basic usage of this command looks like:
+
+```
+python devtools/dbt_helper.py migrate-tests \
+    --test-config-name {config_variable}
+    --table-name {table_name}
+```
+
+Where `config_variable` points to a variable defined in `src/pudl/validate.py`, which contains
+a list of configuration `dict`s for the `vs_bounds` tests, and `table_name` refers to the table
+the test should be applied to. See below for an example of using this command.
 
 ### Adding tests
 #### Default case
@@ -113,6 +134,54 @@ dbt build --select {model_name}
 To select between `nightly`, `etl-full`, and `etl-fast` profiles, append
 `--target {target_name}` to any of the previous commands.
 
+### Updating a table
+#### Modify `schema.yml`
+Once we have generated an initial `schema.yml` file, we expect this configuration
+to be maintained/updated manually in the future. For example, we can add
+[data-tests](https://docs.getdbt.com/docs/build/data-tests) as described in the `dbt`
+docs, or add/remove columns if the table schema is changed.
+
+In the future we might migrate much of our schema/constraint testing into `dbt` as well.
+In this case the easiest approach would be to update the `dbt_helper.py` script to
+generate the necessary configuration from our existing metadata structures. In this case,
+we should be careful to make the script not overwrite any manual configuration changes that
+we make between now and then.
+
+#### Update row counts
+When we run the `add-tables` command, it generates a test for each table called
+`check_row_counts_per_partition`. This test uses row counts that are stored in
+csv files called `etl_fast_row_counts.csv` and `etl_full_row_counts.csv` and compares
+these counts to the row counts found in the actual table when the test is run. The test
+partitions row counts by year, so there are a number of rows in these csv files for each
+table (unless the table has no time dimension).
+
+During development row counts often change for normal and expected reasons like adding
+new data, updating transformations, etc. When these changes happen, the tests will fail
+unless we update the row counts stored in the csv files mentioned above. To see where
+these tests failed, you can run:
+
+```
+dbt build --select source:pudl.{table_name} --store-failures --target={etl-fast|etl-full}
+```
+
+The output of this command should show you a `sql` query you can use to see partitions where
+the row count test failed. To see these, you can do:
+
+```
+duckdb {PUDL_OUTPUT}/pudl.duckdb
+```
+
+Then copy and paste the query into the duckdb CLI (you'll need to add a semicolon to the end).
+This should show you the years and the expected and found row counts. If the changes seem
+reasonable and expected, you can manually update these files, or you can run the command:
+
+```
+python devtools/dbt_helper.py add-tables {table_name} --row-counts-only --clobber --use-local-tables
+```
+
+This will tell the helper script to overwrite the existing row counts with new row counts from
+the table in your local `PUDL_OUTPUT` stash. If you want to update the `etl-fast` row counts,
+simply append the option `--etl-fast` to the above command.
 
 ### Test migration example
 This section will walk through migrating an existing collection of validation
