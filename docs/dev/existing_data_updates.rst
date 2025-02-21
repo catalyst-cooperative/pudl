@@ -434,6 +434,32 @@ to populate complete FERC 1 & PUDL DBs and EPA CEMS Parquet files.
 9. Run and Update Data Validations
 ----------------------------------
 
+**9.x)** If there are new tables, add them as
+`dbt sources <https://docs.getdbt.com/docs/build/sources>`__:
+
+.. code-block:: console
+
+    $ python devtools/dbt_helper.py add-tables {table_name(s)}
+
+This will add a file called ``dbt/models/{data_source}/{table_name}/schema.yml`` for
+each table. This yaml file tells ``dbt`` about the table and its schema. It will also
+apply the test ``check_row_counts_per_partition``, which by default will look for a
+date partition column in the table, and check row counts per partition. To accomplish
+this it will add row counts to the file ``seeds/row_counts.csv``, which get compared
+to observed row counts in the table when running tests.
+
+You can explicitly set the partition column by adding the option
+``--partition-column {column_name}`` to the command. This will find row counts per
+unique value in the column.
+
+Once a table is included as a ``source``, you can add tests for the table. You can
+either add a generic test directly in
+``src/pudl/dbt/models/{table_name}/schema.yml``, or create a ``sql`` file in the
+directory ``src/pudl/dbt/tests/``, which references the ``source``.
+
+For more detailed information about adding new ``dbt`` tables and tests, see the
+`PUDL dbt README <https://github.com/catalyst-cooperative/pudl/blob/main/dbt/README.md>`__.
+
 **9.1)** To ensure that you fully exercise all of the possible output functions,
 run all the integration tests against your live PUDL DB with:
 
@@ -442,14 +468,51 @@ run all the integration tests against your live PUDL DB with:
     $ make pytest-integration-full
 
 **9.2)** When the CI tests are passing against all years of data, sanity check the data
-in the database and the derived outputs by running
+in the database and the derived outputs by running validation tests.
+
+We are partway through migrating validation tests to use ``dbt``, so this comes in
+two parts.
+
+**9.2.1)** Run ``pytest`` validations:
 
 .. code-block:: console
 
     $ make pytest-validate
 
-We expect at least some of the validation tests to fail initially because we haven't
-updated the number of records we expect to see in each table.
+These tests might need updates to account for
+(TODO: what do the Left Behind tests check?)
+
+**9.2.2)** Run ``dbt`` tests:
+
+.. code-block:: console
+
+    $ cd dbt
+    $ dbt build --target etl-full
+
+If you need to debug the results for a particular table, you can run only the tests
+for that table and get information about which partitions failed using:
+
+.. code-block:: console
+
+    $ dbt build --target etl-full --select source:pudl.{table_name} --store-failures
+
+Then use the SQL query in the output to examine the results using:
+
+.. code-block:: console
+
+    $ duckdb ${PUDL_OUTPUT}/pudl.duckdb
+
+If the changes seem reasonable and expected, you can update the reference values. The
+reference values are stored in a csv files called ``etl_full_row_counts.csv`` for the
+``check_row_counts_per_partition`` test for that table. Edit them manually, or use
+the helper script:
+
+.. code-block:: console
+
+    $ python devtools/dbt_helper.py add-tables {table_name} --row-counts-only --clobber --use-local-tables
+
+For more detailed information about running and updating ``dbt`` tests, see the
+`PUDL dbt README <https://github.com/catalyst-cooperative/pudl/blob/main/dbt/README.md>`__.
 
 **9.3)** You may also need to update the expected distribution of fuel prices if they
 were particularly high or low in the new year of data. Other values like expected heat

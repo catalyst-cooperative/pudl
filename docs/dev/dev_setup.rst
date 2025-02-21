@@ -165,6 +165,19 @@ If you are working with locally processed data and there have been changes to th
 expectations about that data in the PUDL software, you may also need to regenerate your
 PUDL SQLite database or other outputs. See :doc:`run_the_etl` for more details.
 
+.. _dbt_setup:
+
+-------------------------------------------------------------------------------
+Set Up DBT
+-------------------------------------------------------------------------------
+We use ``dbt`` for data validation testing. To set up the ``dbt`` project, run the
+following commands from the ``dbt`` directory:
+
+.. code-block:: console
+
+    $ dbt deps
+    $ dbt seed
+
 .. _linting:
 
 -------------------------------------------------------------------------------
