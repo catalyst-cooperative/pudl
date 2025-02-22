@@ -1,0 +1,13 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_gridpathratoolkit__hourly_available_capacity_factor
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: out_gridpathratoolkit__hourly_available_capacity_factor
+              partition_column: datetime_utc
+        columns:
+          - name: datetime_utc
+          - name: aggregation_group
+          - name: capacity_factor

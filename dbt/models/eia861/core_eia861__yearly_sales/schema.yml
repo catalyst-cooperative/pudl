@@ -1,0 +1,25 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia861__yearly_sales
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_eia861__yearly_sales
+              partition_column: report_date
+        columns:
+          - name: utility_id_eia
+          - name: state
+          - name: report_date
+          - name: balancing_authority_code_eia
+          - name: customer_class
+          - name: business_model
+          - name: data_observed
+          - name: entity_type
+          - name: service_type
+          - name: short_form
+          - name: utility_name_eia
+          - name: customers
+          - name: sales_mwh
+          - name: sales_revenue
+          - name: data_maturity

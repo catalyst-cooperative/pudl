@@ -1,0 +1,23 @@
+# Name your project! Project names should contain only lowercase characters
+# and underscores. A good package name should reflect your organization's
+# name or the intended use of these models
+name: "pudl_dbt"
+version: "1.0.0"
+
+# This setting configures which "profile" dbt uses for this project.
+profile: "pudl_dbt"
+
+# These configurations specify where dbt should look for different types of files.
+# The `model-paths` config, for example, states that models in this project can be
+# found in the "models/" directory. You probably won't need to change these!
+model-paths: ["models"]
+macro-paths: ["macros"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+
+sources:
+  pudl_dbt:
+    +external_location: |
+      {%- if target.name == "nightly" -%} 'https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/{name}.parquet'
+      {%- else -%} '{{ env_var('PUDL_OUTPUT') }}/parquet/{name}.parquet'
+      {%- endif -%}
