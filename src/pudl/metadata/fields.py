@@ -1724,7 +1724,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "filing_date": {
         "type": "date",
-        "description": "Date filing was submitted.",
+        "description": "Date filing was submitted, reported at a daily frequency.",
     },
     "firing_rate_using_coal_tons_per_hour": {
         "type": "number",

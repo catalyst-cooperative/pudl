@@ -87,6 +87,7 @@ def core_sec10k__quarterly_filings() -> pd.DataFrame:
 
     # Get date from year quarters
     df["report_date"] = _year_quarter_to_date(df.year_quarter)
+    df["central_index_key"] = df["central_index_key"].str.zfill(10)
 
     return df
 
