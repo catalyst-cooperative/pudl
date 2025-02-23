@@ -38,8 +38,34 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "pudl_models",
         "field_namespace": "sec10k",
     },
+    # TODO: update this with the real schema and primary key
     "core_sec10k__quarterly_company_information": {
-        "description": "Company information extracted from SEC 10k filings.",
+        "description": "Company information harvested from headers of SEC10k filings.",
+        "schema": {
+            "fields": [
+                "filename_sec10k",
+                "filer_count",
+                "company_information_block",
+                "company_information_block_count",
+                "company_information_fact_name",
+                "company_information_fact_value",
+                "report_date",
+            ],
+            "primary_key": [
+                "filename_sec10k",
+                "filer_count",
+                "company_information_block",
+                "company_information_block_count",
+                "company_information_fact_name",
+                "company_information_fact_value",
+            ],
+        },
+        "sources": ["sec10k"],
+        "etl_group": "pudl_models",
+        "field_namespace": "sec10k",
+    },
+    "raw_sec10k__quarterly_company_information": {
+        "description": "Raw company information harvested from headers of SEC10k filings.",
         "schema": {
             "fields": [
                 "filename_sec10k",
