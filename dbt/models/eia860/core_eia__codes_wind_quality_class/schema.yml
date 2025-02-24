@@ -1,0 +1,17 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia__codes_wind_quality_class
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_eia__codes_wind_quality_class
+              partition_column: null
+        columns:
+          - name: code
+          - name: label
+          - name: description
+          - name: wind_speed_avg_ms
+          - name: extreme_fifty_year_gust_ms
+          - name: turbulence_intensity_a
+          - name: turbulence_intensity_b

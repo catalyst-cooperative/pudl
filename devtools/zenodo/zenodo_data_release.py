@@ -4,6 +4,7 @@
 import datetime
 import logging
 import os
+import re
 import tempfile
 import time
 from dataclasses import dataclass
@@ -272,7 +273,7 @@ class EmptyDraft(State):
         openable_file.fs.get(openable_file.path, tmpfile.name)
         return tmpfile
 
-    def sync_directory(self, source_dir: str) -> "ContentComplete":
+    def sync_directory(self, source_dir: str, ignore: tuple[str]) -> "ContentComplete":
         """Read data from source_dir and upload it."""
         logger.info(f"Syncing files from {source_dir} to draft {self.record_id}...")
         bucket_url = self.zenodo_client.get_deposition(self.record_id).links.bucket
@@ -293,8 +294,14 @@ class EmptyDraft(State):
                 for p in maybe_dir.fs.ls(maybe_dir.path)
             ]
         )
+        all_ignore_regex = re.compile("|".join(ignore))
         for openable_file in files:
             name = Path(openable_file.path).name
+            if all_ignore_regex.search(openable_file.path):
+                logger.info(
+                    f"Ignoring {openable_file.path} because it matched {all_ignore_regex}"
+                )
+                continue
             with self._open_fsspec_file(openable_file) as upload_source:
                 response = self.zenodo_client.create_bucket_file(
                     bucket_url=bucket_url, file_name=name, file_content=upload_source
@@ -377,12 +384,19 @@ class CompleteDraft(State):
     "distributed. E.g. it may be *.log *.zip *.json ",
 )
 @click.option(
+    "--ignore",
+    multiple=True,
+    help="Filenames that match these regex patterns will be ignored.",
+)
+@click.option(
     "--publish/--no-publish",
     default=False,
     help="Whether to publish the new record without confirmation, or leave it as a draft to be reviewed.",
     show_default=True,
 )
-def pudl_zenodo_data_release(env: str, source_dir: str, publish: bool):
+def pudl_zenodo_data_release(
+    env: str, source_dir: str, publish: bool, ignore: tuple[str]
+):
     """Publish a new PUDL data release to Zenodo."""
     zenodo_client = ZenodoClient(env)
     if env == SANDBOX:
@@ -394,7 +408,7 @@ def pudl_zenodo_data_release(env: str, source_dir: str, publish: bool):
     completed_draft = (
         InitialDataset(zenodo_client=zenodo_client, record_id=rec_id)
         .get_empty_draft()
-        .sync_directory(source_dir)
+        .sync_directory(source_dir, ignore)
         .update_metadata()
     )
 

@@ -3,11 +3,60 @@ PUDL Release Notes
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-v2024.XX.x (2024-MM-DD)
+v2025.XX.x (2025-MM-DD)
 ---------------------------------------------------------------------------------------
 
-New Data Coverage
-^^^^^^^^^^^^^^^^^
+New Data
+^^^^^^^^
+
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+Bug Fixes
+^^^^^^^^^
+
+Major Dependency Updates
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Quality of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* We now publish a `Frictionless data package
+  <https://datapackage.org/standard/data-package/>`__ describing our Parquet
+  outputs, with the name ``pudl_datapackage.json``. See :issue:`4069` and :pr:`4070`.
+
+.. _release-v2025.2.0:
+
+---------------------------------------------------------------------------------------
+v2025.2.0 (2025-02-13)
+---------------------------------------------------------------------------------------
+
+This is our regular quarterly release for 2025Q1. It includes updates to all the
+datasets that are published with quarterly or higher frequency, plus initial verisons
+of a few new data sources that have been in the works for a while.
+
+One major change this quarter is that we are now publishing all processed PUDL data as
+Apache Parquet files, alongside our existing SQLite databases. See :doc:`data_access`
+for more on how to access these outputs.
+
+Some potentially breaking changes to be aware of:
+
+* In the :doc:`data_sources/eia930` a number of new energy sources have been added, and
+  some old energy sources have been split into more granular categories. See
+  :ref:`data-sources-eia930-changes-in-energy-source-granularity-over-time`.
+* We are now running the EPA's CAMD to EIA unit crosswalk code for each individual year
+  starting from 2018, rather than just 2018 and 2021, resulting in more connections
+  between these two datasets and changes to some sub-plant IDs. See the note below for
+  more details.
+
+Many thanks to the organizations who make these regular updates possible! Especially
+`GridLab <https://gridlab.org>`__, `RMI <https://rmi.org>`__, and the `ZERO Lab at
+Princeton University <https://zero.lab.princeton.edu/>`__. If you rely on PUDL and would
+like to help ensure that the data keeps flowing, please consider joining them as a `PUDL
+Sustainer <https://opencollective.com/pudl>`__, as we are still fundraising for 2025.
+
+New Data
+^^^^^^^^
 
 EIA 176
 ~~~~~~~
@@ -17,6 +66,91 @@ EIA 176
   for moving this dataset forward.
 * Extracted these interim tables up through the latest 2023 data release. See
   :issue:`4002` and :pr:`4004`.
+
+EIA 860
+~~~~~~~
+* Added EIA 860 Multifuel table. See :issue:`3438` and :pr:`3946`.
+
+FERC 1
+~~~~~~
+* Added three new output tables containing granular utility accounting data.
+  See :pr:`4057`, :issue:`3642` and the table descriptions in the data dictionary:
+
+  * :ref:`out_ferc1__yearly_detailed_income_statements`
+  * :ref:`out_ferc1__yearly_detailed_balance_sheet_assets`
+  * :ref:`out_ferc1__yearly_detailed_balance_sheet_liabilities`
+
+SEC Form 10-K Parent-Subsidiary Ownership
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* We have added some new tables describing the parent-subsidiary company ownership
+  relationships reported in the
+  `SEC's Form 10-K <https://en.wikipedia.org/wiki/Form_10-K>`__, Exhibit 21
+  "Subsidiaries of the Registrant". Where possible these tables link the SEC filers or
+  their subsidiary companies to the corresponding EIA utilities. This work was funded
+  by
+  `a grant from the Mozilla Foundation <https://catalyst.coop/2024/02/15/beating-utility-ownership-shell-game/>`__.
+  Most of the ML models and data preparation took place in the `mozilla-sec-eia
+  repository <https://github.com/catalyst-cooperative/mozilla-sec-eia>`__ separate from
+  the main PUDL ETL, as it requires processing hundreds of thousands of PDFs and the
+  deployment of some ML experiment tracking infrastructure. The new tables are handed
+  off as nearly finished products to the PUDL ETL pipeline. **Note that these are
+  preliminary, experimental data products and are known to be incomplete and to contain
+  errors.** Extracting data tables from unstructured PDFs and the SEC to EIA record
+  linkage are necessarily probabalistic processes.
+* See PRs :pr:`4026,4031,4035,4046,4048,4050` and check out the table descriptions in
+  the PUDL data dictionary:
+
+  * :ref:`out_sec10k__parents_and_subsidiaries`
+  * :ref:`core_sec10k__quarterly_filings`
+  * :ref:`core_sec10k__quarterly_exhibit_21_company_ownership`
+  * :ref:`core_sec10k__quarterly_company_information`
+
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+EPA CEMS
+~~~~~~~~
+* Added 2024 Q4 of CEMS data. See :issue:`4041` and :pr:`4052`.
+
+EPA CAMD EIA Crosswalk
+~~~~~~~~~~~~~~~~~~~~~~
+* In the past, the crosswalk in PUDL has used the EPA's published crosswalk (run with
+  2018 data), and an additional crosswalk we ran with 2021 EIA 860 data. To ensure that
+  the crosswalk reflects updates in both EIA and EPA data, we re-ran the EPA R code
+  which generates the EPA CAMD EIA crosswalk with 4 new years of data: 2019, 2020, 2022
+  and 2023. Re-running the crosswalk pulls the latest data from the CAMD FACT API, which
+  results in some changes to the generator and unit IDs reported on the EPA side of the
+  crosswalk, which feeds into the creation of :ref:`core_epa__assn_eia_epacamd`.
+* The changes only result in the addition of new units and generators in the EPA data,
+  with no changes to matches at the plant level. However, the updates to generator and
+  unit IDs have resulted in changes to the subplant IDs - some EIA boilers and
+  generators which previously had no matches to EPA data have now been matched to EPA
+  unit data, resulting in an overall **reduction** in the number of rows in the
+  :ref:`core_epa__assn_eia_epacamd_subplant_ids` table. See issues :issue:`4039`
+  and PR :pr:`4056` for a discussion of the changes observed in the course of this
+  update.
+
+EIA 860M
+~~~~~~~~
+* Added EIA 860m through December 2024. See :issue:`4038` and :pr:`4047`.
+
+EIA 923
+~~~~~~~
+* Added EIA 923 monthly data through September 2024. See :issue:`4038` and :pr:`4047`.
+
+EIA Bulk Electricity Data
+~~~~~~~~~~~~~~~~~~~~~~~~~
+* Updated the EIA Bulk Electricity data to include data published up through
+  2024-11-01. See :issue:`4042` and PR :pr:`4051`.
+
+EIA 930
+~~~~~~~
+* Updated the EIA 930 data to include data published up through the beginning of
+  February 2025. See :issue:`4040` and PR :pr:`4054`. 10 new energy sources
+  were added and 3 were retired; see
+  :ref:`data-sources-eia930-changes-in-energy-source-granularity-over-time` for
+  more information.
 
 Bug Fixes
 ^^^^^^^^^
@@ -28,9 +162,9 @@ Bug Fixes
   this fix.
 * Added preliminary data validation checks for several FERC 1 tables that were
   missing it :pr:`3860`.
-
-Major Dependency Updates
-^^^^^^^^^^^^^^^^^^^^^^^^
+* Fix spelling of Lake Huron and Lake Saint Clair in
+  :ref:`out_vcerare__hourly_available_capacity_factor` and related tables. See issue
+  :issue:`4007` and PR :pr:`4029`.
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^

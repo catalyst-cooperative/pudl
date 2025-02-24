@@ -1,0 +1,17 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type
+              partition_column: report_year
+        columns:
+          - name: report_year
+          - name: electricity_market_module_region_eiaaeo
+          - name: model_case_eiaaeo
+          - name: projection_year
+          - name: fuel_type_eiaaeo
+          - name: summer_capacity_mw
+          - name: gross_generation_mwh

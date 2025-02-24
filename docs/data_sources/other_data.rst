@@ -27,15 +27,26 @@ converted directly from the original geodatabase distributed by the US Census Bu
 EPA CAMD to EIA Power Sector Data Crosswalk
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This crosswalk is periodically updated through a collaboration between the US EPA and
-the EIA, and connects EPA CAMD emissions units (smokestacks) which appear in
-:doc:`epacems` with corresponding EIA plant components reported in EIA Forms 860
-and 923 (``plant_id_eia``, ``boiler_id``, ``generator_id``).  This one-to-many
-connection is necessary because pollutants from various plant parts are collecitvely
-emitted and measured from one point-source. We augment the crosswalk that they publish
-on GitHub.
+The `original EPA CAMD to EIA crosswalk <https://github.com/USEPA/camd-eia-crosswalk>`__
+was published by the US Environmental Protection Agency on GitHub and connects EPA CAMD
+emissions units (smokestacks) which appear in :doc:`epacems` with corresponding EIA
+plant components reported in EIA Forms 860 and 923 (``plant_id_eia``, ``boiler_id``,
+``generator_id``). This many-to-many connection is necessary because pollutants from
+various plant parts are collecitvely emitted and measured from one point-source.
 
-The crosswalk is distributed by EPA `via GitHub <https://github.com/USEPA/camd-eia-crosswalk>`__.
+The original crosswalk was generated using only 2018 data. However, there is useful
+information in all years of data, and we augment the crosswalk that they publish on
+GitHub by running their code against all available later years of data.
+
+Re-running the crosswalk pulls the latest data from the
+`CAMD FACT API <https://www.epa.gov/power-sector/field-audit-checklist-tool-fact-api>`__
+which results in some changes to the generator and unit IDs reported on the EPA side of
+the crosswalk. The changes only result in the addition of new units and generators in
+the EPA data, with no changes to matches at the plant level (other than identification
+of new plant-plant matches). We derive sub-plant IDs (``subplant_id``) from the
+crosswalk in the table :ref:`core_epa__assn_eia_epacamd_subplant_ids`. Note that these
+IDs are not necessarily stable across multiple releases of this data, and should not be
+hard-coded into analyses.
 
 .. _data-eiaaeo:
 

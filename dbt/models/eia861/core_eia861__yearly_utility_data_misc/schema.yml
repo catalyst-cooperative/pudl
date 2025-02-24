@@ -1,0 +1,29 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia861__yearly_utility_data_misc
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_eia861__yearly_utility_data_misc
+              partition_column: report_date
+        columns:
+          - name: alternative_fuel_vehicle_2_activity
+          - name: alternative_fuel_vehicle_activity
+          - name: bundled_activity
+          - name: buying_distribution_activity
+          - name: buying_transmission_activity
+          - name: distribution_activity
+          - name: entity_type
+          - name: generation_activity
+          - name: nerc_region
+          - name: operates_generating_plant
+          - name: report_date
+          - name: retail_marketing_activity
+          - name: short_form
+          - name: state
+          - name: transmission_activity
+          - name: utility_id_eia
+          - name: utility_name_eia
+          - name: wholesale_marketing_activity
+          - name: data_maturity
