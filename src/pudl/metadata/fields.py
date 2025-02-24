@@ -1726,6 +1726,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "date",
         "description": "Date filing was submitted, reported at a daily frequency.",
     },
+    "film_number": {
+        "type": "string",
+        "description": "Document control number used in the SEC database.",
+    },
     "firing_rate_using_coal_tons_per_hour": {
         "type": "number",
         "unit": "tons_per_hour",
@@ -1756,6 +1760,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "firing_type_3": {
         "type": "string",
         "description": "EIA short code indicating the type of firing used by this boiler.",
+    },
+    "fiscal_year_end": {
+        "type": "string",
+        "description": "The end date of an SEC filing company's fiscal year, in MMDD format.",
     },
     "flow_rate_method": {
         "description": (
@@ -3416,6 +3424,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Production expenses: water for power (USD).",
         "unit": "USD",
     },
+    "organization_name": {
+        "type": "string",
+        "description": "SEC standardized type of organization of the company.",
+    },
     "original_planned_generator_operating_date": {
         "type": "date",
         "description": "The date the generator was originally scheduled to be operational",
@@ -4196,6 +4208,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Estimated electricity demand scaled by the total sales within a state.",
         "unit": "MWh",
+    },
+    "sec_act": {
+        "type": "string",
+        "description": "SEC Act through which the form was enacted, e.g. 1934 act.",
+    },
+    "sec_file_number": {
+        "type": "string",
+        "description": "Filing number used internally by the SEC commission to track filing.",
     },
     "sec10k_version": {
         "type": "string",

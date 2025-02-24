@@ -1,7 +1,7 @@
 """Implement utilities for working with data produced in the pudl modelling repo."""
 
 import pandas as pd
-from dagster import asset
+from dagster import AssetIn, asset
 
 
 def _load_table_from_gcs(table_name: str) -> pd.DataFrame:
@@ -39,33 +39,64 @@ def raw_sec10k__quarterly_company_information() -> pd.DataFrame:
             "value": "company_information_fact_value",
         }
     )
-
     # Get date from year quarters
     df["report_date"] = _year_quarter_to_date(df.year_quarter)
 
     return df
 
 
-# TODO: Update this asset to be a normalized version of the raw table.
 @asset(
     io_manager_key="pudl_io_manager",
     group_name="pudl_models",
+    ins={"raw_df": AssetIn("raw_sec10k__quarterly_company_information")},
 )
-def core_sec10k__quarterly_company_information() -> pd.DataFrame:
+def core_sec10k__quarterly_company_information(raw_df: pd.DataFrame) -> pd.DataFrame:
     """Company information extracted from SEC10k filings."""
-    df = _load_table_from_gcs("core_sec10k__company_information")
+    # Strip erroneous "]" characters
+    raw_df["company_information_fact_name"] = raw_df[
+        "company_information_fact_name"
+    ].str.strip("]")
+    raw_df["company_information_block"] = pd.Categorical(
+        raw_df["company_information_block"],
+        [
+            "business_address",
+            "mail_address",
+            "company_data",
+            "filing_values",
+            "former_company",
+        ],
+    )
+    df = raw_df.sort_values("company_information_block").pivot_table(
+        values="company_information_fact_value",
+        index=["filename_sec10k", "report_date"],
+        columns="company_information_fact_name",
+        aggfunc="first",
+    )
+    df.columns.name = None
+    df = df.reset_index()
+    # we want central_index_key and report_date to be a primary key
+    # prioritize records where the filer is the same
+    # as the harvested central index key value
+    df["filer_cik"] = df["filename_sec10k"].str.split("/").str[2].str.zfill(10)
+    df["filer_cik_matches_cik"] = df["filer_cik"] == df["central_index_key"]
+    df = df.sort_values(by="filer_cik_matches_cik", ascending=False).drop_duplicates(
+        subset=["central_index_key", "report_date"], keep="first"
+    )
+    df = df.drop(columns=["filer_cik", "filer_cik_matches_cik"])
     df = df.rename(
         columns={
-            "sec10k_filename": "filename_sec10k",
-            "block": "company_information_block",
-            "block_count": "company_information_block_count",
-            "key": "company_information_fact_name",
-            "value": "company_information_fact_value",
+            "street_1": "street_address",
+            "street_2": "address_2",
+            "company_conformed_name": "company_name",
+            "date_of_name_change": "name_change_date",
+            "zip": "zip_code",
+            "business_phone": "phone_number",
+            "irs_number": "company_id_irs",
+            "former_conformed_name": "company_name_former",
+            "form_type": "sec10k_version",
+            "standard_industrial_classification": "industry_id_sic",
         }
     )
-
-    # Get date from year quarters
-    df["report_date"] = _year_quarter_to_date(df.year_quarter)
 
     return df
 

@@ -38,27 +38,38 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "pudl_models",
         "field_namespace": "sec10k",
     },
-    # TODO: update this with the real schema and primary key
     "core_sec10k__quarterly_company_information": {
-        "description": "Company information harvested from headers of SEC10k filings.",
+        "description": (
+            """Company information extracted from SEC10k filings.
+This table provides attributes about SEC 10k filing companies across time.
+It represents a pivoted version of the raw company information table with extracted
+field values from the raw table as columns in this core table."""
+        ),
         "schema": {
             "fields": [
-                "filename_sec10k",
-                "filer_count",
-                "company_information_block",
-                "company_information_block_count",
-                "company_information_fact_name",
-                "company_information_fact_value",
+                "central_index_key",
                 "report_date",
-            ],
-            "primary_key": [
                 "filename_sec10k",
-                "filer_count",
-                "company_information_block",
-                "company_information_block_count",
-                "company_information_fact_name",
-                "company_information_fact_value",
+                "phone_number",
+                "city",
+                "company_name",
+                "name_change_date",
+                "film_number",
+                "fiscal_year_end",
+                "sec10k_version",
+                "company_name_former",
+                "company_id_irs",
+                "organization_name",
+                "sec_act",
+                "sec_file_number",
+                "industry_id_sic",
+                "state",
+                "state_of_incorporation",
+                "street_address",
+                "address_2",
+                "zip_code",
             ],
+            "primary_key": ["central_index_key", "report_date"],
         },
         "sources": ["sec10k"],
         "etl_group": "pudl_models",
