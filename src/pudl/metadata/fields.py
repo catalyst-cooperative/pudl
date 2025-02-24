@@ -5764,6 +5764,12 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
             "description": "Fraction of subsidiary company owned by parent.",
         }
     },
+    "raw_sec10k__quarterly_company_information": {
+        "report_date": {
+            "type": "date",
+            "description": "The quarter in which the filing was submitted.",
+        }
+    },
     "sector_consolidated_eia": {"code": {"type": "integer"}},
     "core_ferc1__yearly_hydroelectric_plants_sched406": {
         "plant_type": {
