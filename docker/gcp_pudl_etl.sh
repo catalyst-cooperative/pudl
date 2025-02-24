@@ -127,6 +127,7 @@ function zenodo_data_release() {
 function notify_slack() {
     # Notify pudl-deployment slack channel of deployment status
     echo "Notifying Slack about deployment status"
+    overall_status="success"
     message="${BUILD_ID} status\n\n"
     if [[ "$1" == "success" ]]; then
         message+=":large_green_circle: :sunglasses: :unicorn_face: :rainbow: deployment succeeded!! :partygritty: :database_parrot: :blob-dance: :large_green_circle:\n\n"
@@ -137,21 +138,26 @@ function notify_slack() {
         exit 1
     fi
 
-    message+="Stage status (0 means success):\n"
-    message+="ETL_SUCCESS: $ETL_SUCCESS\n"
-    message+="WRITE_DATAPACKAGE_SUCCESS: $WRITE_DATAPACKAGE_SUCCESS\n"
-    message+="SAVE_OUTPUTS_SUCCESS: $SAVE_OUTPUTS_SUCCESS\n"
-    message+="UPDATE_NIGHTLY_SUCCESS: $UPDATE_NIGHTLY_SUCCESS\n"
-    message+="UPDATE_STABLE_SUCCESS: $UPDATE_STABLE_SUCCESS\n"
-    message+="DATASETTE_SUCCESS: $DATASETTE_SUCCESS\n"
-    message+="CLEAN_UP_OUTPUTS_SUCCESS: $CLEAN_UP_OUTPUTS_SUCCESS\n"
-    message+="DISTRIBUTION_BUCKET_SUCCESS: $DISTRIBUTION_BUCKET_SUCCESS\n"
-    message+="GCS_TEMPORARY_HOLD_SUCCESS: $GCS_TEMPORARY_HOLD_SUCCESS \n"
-    message+="ZENODO_SUCCESS: $ZENODO_SUCCESS\n\n"
+    message+=$(printf 'Took %02d:%02d\n' $(($SECONDS/3600)) $(($SECONDS%3600/60)))
+
+    for varname in ${!_STATUS}; do
+        if [[ "${!varname}" == "0" ]]; then
+            status="success"
+        elif [[ "${!varname}" == "-1" ]]; then
+            status="unstarted"
+        else
+            status="FAILURE"
+        fi
+        step=${varname%_STATUS}
+        step=${step#*_}
+        message+="${status}: ${step}\n"
+    done
+
     # we need to trim off the last dash-delimited section off the build ID to get a valid log link
     message+="<https://console.cloud.google.com/batch/jobsDetail/regions/us-west1/jobs/run-etl-${BUILD_ID%-*}/logs?project=catalyst-cooperative-pudl|*Query logs online*>\n\n"
     message+="<https://storage.cloud.google.com/builds.catalyst.coop/$BUILD_ID/$BUILD_ID.log|*Download logs to your computer*>\n\n"
     message+="<https://console.cloud.google.com/storage/browser/builds.catalyst.coop/$BUILD_ID|*Browse full build outputs*>"
+
 
     send_slack_msg "$message"
 }
@@ -203,16 +209,18 @@ function clean_up_outputs_for_distribution() {
 LOGFILE="${PUDL_OUTPUT}/${BUILD_ID}.log"
 
 # Initialize our success variables so they all definitely have a value to check
-ETL_SUCCESS=0
-SAVE_OUTPUTS_SUCCESS=0
-UPDATE_NIGHTLY_SUCCESS=0
-UPDATE_STABLE_SUCCESS=0
-DATASETTE_SUCCESS=0
-WRITE_DATAPACKAGE_SUCCESS=0
-CLEAN_UP_OUTPUTS_SUCCESS=0
-DISTRIBUTION_BUCKET_SUCCESS=0
-ZENODO_SUCCESS=0
-GCS_TEMPORARY_HOLD_SUCCESS=0
+# -1 for uninitialized, 0 for success, >0 for failure.
+00_ETL_STATUS=-1
+10_WRITE_DATAPACKAGE_STATUS=-1
+20_SAVE_OUTPUTS_STATUS=-1
+30_UPDATE_NIGHTLY_STATUS=-1
+40_UPDATE_STABLE_STATUS=-1
+50_DATASETTE_STATUS=-1
+60_CLEAN_UP_OUTPUTS_STATUS=-1
+70_DISTRIBUTION_BUCKET_STATUS=-1
+90_ZENODO_STATUS=-1
+80_GCS_TEMPORARY_HOLD_STATUS=-1
+
 
 # Set the build type based on the action trigger and tag
 if [[ "$GITHUB_ACTION_TRIGGER" == "push" && "$BUILD_REF" =~ ^v20.*$ ]]; then
@@ -245,70 +253,70 @@ set -x
 # Run ETL. Copy outputs to GCS and shutdown VM if ETL succeeds or fails
 # 2>&1 redirects stderr to stdout.
 run_pudl_etl 2>&1 | tee "$LOGFILE"
-ETL_SUCCESS=${PIPESTATUS[0]}
+00_ETL_STATUS=${PIPESTATUS[0]}
 
 # Write out a datapackage.json for external consumption
 write_pudl_datapackage 2>&1 | tee -a "$LOGFILE"
-WRITE_DATAPACKAGE_SUCCESS=${PIPESTATUS[0]}
+10_WRITE_DATAPACKAGE_STATUS=${PIPESTATUS[0]}
 
 # This needs to happen regardless of the ETL outcome:
 pg_ctlcluster "$PG_VERSION" dagster stop 2>&1 | tee -a "$LOGFILE"
 
 save_outputs_to_gcs 2>&1 | tee -a "$LOGFILE"
-SAVE_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
+20_SAVE_OUTPUTS_STATUS=${PIPESTATUS[0]}
 
-if [[ $ETL_SUCCESS != 0 ]]; then
+if [[ $00_ETL_STATUS != 0 ]]; then
     notify_slack "failure"
     exit 1
 fi
 
 if [[ "$BUILD_TYPE" == "nightly" ]]; then
     merge_tag_into_branch "$NIGHTLY_TAG" nightly 2>&1 | tee -a "$LOGFILE"
-    UPDATE_NIGHTLY_SUCCESS=${PIPESTATUS[0]}
+    30_UPDATE_NIGHTLY_STATUS=${PIPESTATUS[0]}
     # Update our datasette deployment
     python ~/pudl/devtools/datasette/publish.py --production 2>&1 | tee -a "$LOGFILE"
-    DATASETTE_SUCCESS=${PIPESTATUS[0]}
+    50_DATASETTE_STATUS=${PIPESTATUS[0]}
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
     clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
-    CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
+    60_CLEAN_UP_OUTPUTS_STATUS=${PIPESTATUS[0]}
     # Copy cleaned up outputs to the S3 and GCS distribution buckets
     upload_to_dist_path "nightly" | tee -a "$LOGFILE"
-    DISTRIBUTION_BUCKET_SUCCESS=${PIPESTATUS[0]}
+    70_DISTRIBUTION_BUCKET_STATUS=${PIPESTATUS[0]}
     # Remove individual parquet outputs and distribute just the zipped parquet
     # archives on Zenodo, due to their number of files limit
     rm -f "$PUDL_OUTPUT"/*.parquet
     # push a data release to Zenodo sandbox
     zenodo_data_release "$ZENODO_TARGET_ENV" 2>&1 | tee -a "$LOGFILE"
-    ZENODO_SUCCESS=${PIPESTATUS[0]}
+    90_ZENODO_STATUS=${PIPESTATUS[0]}
 
 elif [[ "$BUILD_TYPE" == "stable" ]]; then
     merge_tag_into_branch "$BUILD_REF" stable 2>&1 | tee -a "$LOGFILE"
-    UPDATE_STABLE_SUCCESS=${PIPESTATUS[0]}
+    40_UPDATE_STABLE_STATUS=${PIPESTATUS[0]}
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
     clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
-    CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
+    60_CLEAN_UP_OUTPUTS_STATUS=${PIPESTATUS[0]}
     # Copy cleaned up outputs to the S3 and GCS distribution buckets
     upload_to_dist_path "$BUILD_REF" | tee -a "$LOGFILE" && \
     upload_to_dist_path "stable" | tee -a "$LOGFILE"
-    DISTRIBUTION_BUCKET_SUCCESS=${PIPESTATUS[0]}
+    70_DISTRIBUTION_BUCKET_STATUS=${PIPESTATUS[0]}
     # Remove individual parquet outputs and distribute just the zipped parquet
     # archives on Zenodo, due to their number of files limit
     rm -f "$PUDL_OUTPUT"/*.parquet
     # push a data release to Zenodo production
     zenodo_data_release "$ZENODO_TARGET_ENV" 2>&1 | tee -a "$LOGFILE"
-    ZENODO_SUCCESS=${PIPESTATUS[0]}
+    90_ZENODO_STATUS=${PIPESTATUS[0]}
     # This is a versioned release. Ensure that outputs can't be accidentally deleted.
     # We can only do this on the GCS bucket, not S3
     gcloud storage --billing-project="$GCP_BILLING_PROJECT" objects update "gs://pudl.catalyst.coop/$BUILD_REF/*" --temporary-hold 2>&1 | tee -a "$LOGFILE"
-    GCS_TEMPORARY_HOLD_SUCCESS=${PIPESTATUS[0]}
+    80_GCS_TEMPORARY_HOLD_STATUS=${PIPESTATUS[0]}
 
 elif [[ "$BUILD_TYPE" == "workflow_dispatch" ]]; then
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
     clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
-    CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
+    60_CLEAN_UP_OUTPUTS_STATUS=${PIPESTATUS[0]}
     # Upload to GCS / S3 just to test that it works.
     upload_to_dist_path "$BUILD_ID" | tee -a "$LOGFILE"
-    DISTRIBUTION_BUCKET_SUCCESS=${PIPESTATUS[0]}
+    70_DISTRIBUTION_BUCKET_STATUS=${PIPESTATUS[0]}
     Remove the uploaded files:
     # Remove those uploads since they were just for testing.
     remove_dist_path "$BUILD_ID" | tee -a "$LOGFILE"
@@ -317,7 +325,7 @@ elif [[ "$BUILD_TYPE" == "workflow_dispatch" ]]; then
     rm -f "$PUDL_OUTPUT"/*.parquet
     # push a data release to Zenodo sandbox
     zenodo_data_release "$ZENODO_TARGET_ENV" 2>&1 | tee -a "$LOGFILE"
-    ZENODO_SUCCESS=${PIPESTATUS[0]}
+    90_ZENODO_STATUS=${PIPESTATUS[0]}
 
 else
     echo "Unknown build type, exiting!"
@@ -334,15 +342,16 @@ gcloud storage --quiet cp "$LOGFILE" "$PUDL_GCS_OUTPUT"
 rm -f ~/.aws/credentials
 
 # Notify slack about entire pipeline's success or failure;
-if [[ $ETL_SUCCESS == 0 && \
-      $SAVE_OUTPUTS_SUCCESS == 0 && \
-      $UPDATE_NIGHTLY_SUCCESS == 0 && \
-      $UPDATE_STABLE_SUCCESS == 0 && \
-      $DATASETTE_SUCCESS == 0 && \
-      $CLEAN_UP_OUTPUTS_SUCCESS == 0 && \
-      $DISTRIBUTION_BUCKET_SUCCESS == 0 && \
-      $GCS_TEMPORARY_HOLD_SUCCESS == 0 && \
-      $ZENODO_SUCCESS == 0
+if [[ $00_ETL_STATUS == 0 && \
+      $10_WRITE_DATAPACKAGE_STATUS == 0 && \
+      $20_SAVE_OUTPUTS_STATUS == 0 && \
+      $30_UPDATE_NIGHTLY_STATUS == 0 && \
+      $40_UPDATE_STABLE_STATUS == 0 && \
+      $50_DATASETTE_STATUS == 0 && \
+      $60_CLEAN_UP_OUTPUTS_STATUS == 0 && \
+      $70_DISTRIBUTION_BUCKET_STATUS == 0 && \
+      $80_GCS_TEMPORARY_HOLD_STATUS == 0 && \
+      $90_ZENODO_STATUS == 0
 ]]; then
     notify_slack "success"
 else
