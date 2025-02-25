@@ -18,7 +18,5 @@ How will we know that we're done?
 * [ ] ...
 
 
-```[tasklist]
 ### Next steps
 * [ ] ...
-```
