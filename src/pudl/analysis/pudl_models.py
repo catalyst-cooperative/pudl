@@ -3,6 +3,10 @@
 import pandas as pd
 from dagster import AssetIn, asset
 
+from pudl import logging_helpers
+
+logger = logging_helpers.get_logger(__name__)
+
 
 def _load_table_from_gcs(table_name: str) -> pd.DataFrame:
     return pd.read_parquet(f"gs://model-outputs.catalyst.coop/sec10k/{table_name}")
