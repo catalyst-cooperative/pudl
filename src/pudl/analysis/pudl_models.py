@@ -134,6 +134,33 @@ def out_sec10k__quarterly_company_information(
 @asset(
     io_manager_key="pudl_io_manager",
     group_name="pudl_models",
+    ins={
+        "core_df": AssetIn("core_sec10k__quarterly_company_information"),
+    },
+)
+def core_sec10k__changelog_company_name(
+    core_df: pd.DataFrame,
+) -> pd.DataFrame:
+    """Changes in SEC company names and the date of change as reported in 10k filings."""
+    changelog_df = core_df[
+        [
+            "central_index_key",
+            "report_date",
+            "company_name",
+            "name_change_date",
+            "company_name_former",
+        ]
+    ]
+    changelog_df = changelog_df[
+        (~changelog_df["name_change_date"].isnull())
+        | (~changelog_df["company_name_former"].isnull())
+    ]
+    return changelog_df
+
+
+@asset(
+    io_manager_key="pudl_io_manager",
+    group_name="pudl_models",
 )
 def core_sec10k__quarterly_exhibit_21_company_ownership() -> pd.DataFrame:
     """Company ownership information extracted from sec10k exhibit 21 attachments."""

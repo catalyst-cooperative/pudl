@@ -75,6 +75,26 @@ field values from the raw table as columns in this core table."""
         "etl_group": "pudl_models",
         "field_namespace": "sec10k",
     },
+    "core_sec10k__changelog_company_name": {
+        "description": (
+            """A record of SEC company name changes and the reported date of the name change.
+This table is pulled from ``core_sec10k__quarterly_company_information`` and contains
+data extracted from SEC 10k filings."""
+        ),
+        "schema": {
+            "fields": [
+                "central_index_key",
+                "report_date",
+                "company_name",
+                "name_change_date",
+                "company_name_former",
+            ],
+            "primary_key": ["central_index_key", "report_date"],
+        },
+        "sources": ["sec10k"],
+        "etl_group": "pudl_models",
+        "field_namespace": "sec10k",
+    },
     "out_sec10k__quarterly_company_information": {
         "description": (
             """Company information extracted from SEC10k filings and matched
