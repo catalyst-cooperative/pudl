@@ -9,14 +9,38 @@ sources:
               partition_column: report_date
         columns:
           - name: plant_id_eia
+            data_tests:
+              - not_all_null
           - name: generator_id
+            data_tests:
+              - not_all_null
           - name: unit_id_pudl
+            data_tests:
+              - not_all_null
           - name: report_date
+            data_tests:
+              - not_all_null
           - name: capacity_factor
+            data_tests:
+              - not_all_null
           - name: fuel_cost_per_mmbtu_source
+            data_tests:
+              - not_all_null
           - name: fuel_cost_per_mmbtu
+            data_tests:
+              - not_all_null
           - name: fuel_cost_per_mwh
+            data_tests:
+              - not_all_null
           - name: unit_heat_rate_mmbtu_per_mwh
+            data_tests:
+              - not_all_null
           - name: net_generation_mwh
+            data_tests:
+              - not_all_null
           - name: total_fuel_cost
+            data_tests:
+              - not_all_null
           - name: total_mmbtu
+            data_tests:
+              - not_all_null

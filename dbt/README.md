@@ -328,7 +328,7 @@ validate that there are no completely null columns. We've added a custom test to
       - not_all_null
 ```
 
-See `dbt/models/_out_eia__monthly_heat_rate_by_unit/schema.yml` for specific examples.
+See `dbt/models/output/_out_eia__monthly_heat_rate_by_unit/schema.yml` for specific examples.
 
 Note: there is also a builtin test in `dbt` called `not_null` that will make sure
 there are no null values at all in a column.
