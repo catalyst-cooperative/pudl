@@ -1287,6 +1287,7 @@ class Resource(PudlMeta):
             "pudl",
             "nrelatb",
             "vcerare",
+            "phmsagas",
             "sec10k",
         ]
         | None
@@ -1316,6 +1317,7 @@ class Resource(PudlMeta):
             "service_territories",
             "nrelatb",
             "vcerare",
+            "phmsagas",
             "pudl_models",
         ]
         | None
