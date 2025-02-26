@@ -75,6 +75,47 @@ field values from the raw table as columns in this core table."""
         "etl_group": "pudl_models",
         "field_namespace": "sec10k",
     },
+    "out_sec10k__quarterly_company_information": {
+        "description": (
+            """Company information extracted from SEC10k filings and matched
+to EIA utilities using probabilistic record linkage. This table provides
+attributes about SEC 10k filing companies across time. The match between ``central_index_key``
+and ``utility_id_eia`` is one to one and doesn't change over time - the highest probability
+EIA utility match for each SEC company is used for all dates of reported information for
+that CIK."""
+        ),
+        "schema": {
+            "fields": [
+                "central_index_key",
+                "report_date",
+                "filename_sec10k",
+                "utility_id_eia",
+                "utility_name_eia",
+                "phone_number",
+                "city",
+                "company_name",
+                "name_change_date",
+                "film_number",
+                "fiscal_year_end",
+                "sec10k_version",
+                "company_name_former",
+                "company_id_irs",
+                "organization_name",
+                "sec_act",
+                "sec_file_number",
+                "industry_id_sic",
+                "state",
+                "state_of_incorporation",
+                "street_address",
+                "address_2",
+                "zip_code",
+            ],
+            "primary_key": ["central_index_key", "report_date"],
+        },
+        "sources": ["sec10k"],
+        "etl_group": "pudl_models",
+        "field_namespace": "sec10k",
+    },
     "raw_sec10k__quarterly_company_information": {
         "description": "Raw company information harvested from headers of SEC10k filings.",
         "schema": {

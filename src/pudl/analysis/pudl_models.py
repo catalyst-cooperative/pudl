@@ -108,6 +108,32 @@ def core_sec10k__quarterly_company_information(raw_df: pd.DataFrame) -> pd.DataF
 @asset(
     io_manager_key="pudl_io_manager",
     group_name="pudl_models",
+    ins={
+        "core_df": AssetIn("core_sec10k__quarterly_company_information"),
+        "eia_utils_df": AssetIn("core_eia__entity_utilities"),
+    },
+)
+def out_sec10k__quarterly_company_information(
+    core_df: pd.DataFrame, eia_utils_df: pd.DataFrame
+) -> pd.DataFrame:
+    """Company information extracted from SEC10k filings and matched to EIA utilities."""
+    matched_df = _load_table_from_gcs("out_sec10k__parents_and_subsidiaries")
+    matched_df = (
+        matched_df[["central_index_key", "utility_id_eia"]]
+        .dropna()
+        .drop_duplicates(
+            subset="central_index_key"
+        )  # matches should already be 1-to-1 but drop duplicates to ensure this is true
+    )
+    out_df = core_df.merge(matched_df, how="left", on="central_index_key")
+    # merge utility name on
+    out_df = out_df.merge(eia_utils_df, how="left", on="utility_id_eia")
+    return out_df
+
+
+@asset(
+    io_manager_key="pudl_io_manager",
+    group_name="pudl_models",
 )
 def core_sec10k__quarterly_exhibit_21_company_ownership() -> pd.DataFrame:
     """Company ownership information extracted from sec10k exhibit 21 attachments."""
