@@ -17,11 +17,30 @@ QuantileData AS (
         total_weight,
         cumulative_weight / total_weight AS cumulative_probability
     FROM CumulativeWeights
+),
+QuantilePoints AS (
+    SELECT 
+        {{ column_name }} AS lower_value,
+        LEAD({{ column_name }}) OVER (ORDER BY cumulative_probability) AS upper_value,
+        cumulative_probability AS lower_prob,
+        LEAD(cumulative_probability) OVER (ORDER BY cumulative_probability) AS upper_prob
+    FROM QuantileData
+    WHERE cumulative_probability <= {{ quantile }}
+),
+InterpolatedQuantile AS (
+    SELECT
+        CASE
+            WHEN {{ quantile }} = 0 THEN MIN({{ column_name }})  -- Handling quantile = 0
+            WHEN {{ quantile }} = 1 THEN MAX({{ column_name }})  -- Handling quantile = 1
+            ELSE lower_value + 
+                 (upper_value - lower_value) * 
+                 (({{ quantile }} - lower_prob) / (upper_prob - lower_prob))  -- Regular interpolation
+        END AS interpolated_value
+    FROM QuantilePoints
+    WHERE lower_prob <= {{ quantile }} AND upper_prob >= {{ quantile }}
+    LIMIT 1
 )
-SELECT {{ column_name }}
-FROM QuantileData
-WHERE cumulative_probability >= {{ quantile }}
-ORDER BY {{ column_name }}
-LIMIT 1
+SELECT interpolated_value
+FROM InterpolatedQuantile
 
 {%  endmacro %}
