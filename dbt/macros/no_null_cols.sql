@@ -14,7 +14,7 @@
 
     {% if null_columns | length > 0 %}
         -- Return the list of columns with all null values (test fails)
-        SELECT 
+        SELECT
             '{{ null_columns | join(", ") }}' AS column_with_all_nulls
     {% else %}
         -- If no columns with all nulls, return no rows, meaning the test passes
