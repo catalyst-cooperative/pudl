@@ -161,8 +161,13 @@ def core_sec10k__changelog_company_name(
 @asset(
     io_manager_key="pudl_io_manager",
     group_name="pudl_models",
+    ins={
+        "filings_df": AssetIn("core_sec10k__quarterly_filings"),
+    },
 )
-def core_sec10k__quarterly_exhibit_21_company_ownership() -> pd.DataFrame:
+def core_sec10k__quarterly_exhibit_21_company_ownership(
+    filings_df: pd.DataFrame,
+) -> pd.DataFrame:
     """Company ownership information extracted from sec10k exhibit 21 attachments."""
     df = _load_table_from_gcs("core_sec10k__exhibit_21_company_ownership")
     df = df.rename(
@@ -175,9 +180,36 @@ def core_sec10k__quarterly_exhibit_21_company_ownership() -> pd.DataFrame:
 
     # Convert ownership percentage
     df["fraction_owned"] = _compute_fraction_owned(df.ownership_percentage)
-
-    # Get date from year quarters
-    df["report_date"] = _year_quarter_to_date(df.year_quarter)
+    df = df.merge(
+        filings_df[
+            [
+                "filename_sec10k",
+                "central_index_key",
+                "company_name",
+                "filing_date",
+                "report_date",
+            ]
+        ],
+        how="left",
+        on="filename_sec10k",
+    )
+    df = df.rename(
+        columns={
+            "company_name": "parent_company_name",
+            "central_index_key": "parent_company_central_index_key",
+        }
+    )
+    df["parent_company_name"] = df["parent_company_name"].str.lower()
+    # sometimes there are subsidiaries with the same name but different
+    # locations of incorporation listed in the same ex. 21, so include
+    # location in the ID
+    df.loc[:, "subsidiary_company_id_sec10k"] = (
+        df["parent_central_index_key"]
+        + "_"
+        + df["subsidiary_company_name"]
+        + "_"
+        + df["subsidiary_company_location"].fillna("")
+    )
 
     return df
 

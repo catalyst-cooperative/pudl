@@ -3530,6 +3530,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Central index key (CIK) of the company's parent company.",
     },
+    "parent_company_name": {
+        "type": "string",
+        "description": "Name of the parent company.",
+    },
     "particulate_control_id_eia": {
         "type": "string",
         "description": "Particulate matter control identification number. This ID is not a unique identifier.",
@@ -4640,6 +4644,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "subplant_id": {
         "type": "integer",
         "description": "Sub-plant ID links EPA CEMS emissions units to EIA units.",
+    },
+    "subsidiary_company_id_sec10k": {
+        "type": "string",
+        "description": "ID for subsidiaries extracted from SEC 10k Ex. 21 attachments.",
     },
     "subsidiary_company_name": {
         "type": "string",

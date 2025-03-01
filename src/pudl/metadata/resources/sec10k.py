@@ -28,10 +28,14 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "filename_sec10k",
+                "report_date",
+                "parent_company_central_index_key",
+                "parent_company_name",
                 "subsidiary_company_name",
                 "subsidiary_company_location",
+                "subsidiary_company_id_sec10k",
                 "fraction_owned",
-                "report_date",
+                "filing_date",
             ],
         },
         "sources": ["sec10k"],
