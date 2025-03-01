@@ -94,7 +94,7 @@ issues_github_path = "catalyst-cooperative/pudl"
 # we need to define these package to URL mappings:
 intersphinx_mapping = {
     "arrow": ("https://arrow.apache.org/docs/", None),
-    # "dagster": ("https://docs.dagster.io/", None),  # See: https://github.com/dagster-io/dagster/issues/27328
+    "dagster": ("https://docs.dagster.io/", None),
     "dask": ("https://docs.dask.org/en/latest/", None),
     "datasette": ("https://docs.datasette.io/en/stable/", None),
     "geopandas": ("https://geopandas.org/en/stable/", None),

@@ -1,0 +1,34 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia861__yearly_demand_side_management_ee_dr
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_eia861__yearly_demand_side_management_ee_dr
+              partition_column: report_date
+        columns:
+          - name: annual_indirect_program_cost
+          - name: annual_total_cost
+          - name: customer_class
+          - name: energy_efficiency_annual_actual_peak_reduction_mw
+          - name: energy_efficiency_annual_cost
+          - name: energy_efficiency_annual_effects_mwh
+          - name: energy_efficiency_annual_incentive_payment
+          - name: energy_efficiency_incremental_actual_peak_reduction_mw
+          - name: energy_efficiency_incremental_effects_mwh
+          - name: load_management_annual_actual_peak_reduction_mw
+          - name: load_management_annual_cost
+          - name: load_management_annual_effects_mwh
+          - name: load_management_annual_incentive_payment
+          - name: load_management_annual_potential_peak_reduction_mw
+          - name: load_management_incremental_actual_peak_reduction_mw
+          - name: load_management_incremental_effects_mwh
+          - name: load_management_incremental_potential_peak_reduction_mw
+          - name: nerc_region
+          - name: price_responsiveness_customers
+          - name: report_date
+          - name: state
+          - name: time_responsiveness_customers
+          - name: utility_id_eia
+          - name: data_maturity

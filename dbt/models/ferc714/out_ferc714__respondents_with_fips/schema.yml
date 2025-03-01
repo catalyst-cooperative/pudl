@@ -1,0 +1,24 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_ferc714__respondents_with_fips
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: out_ferc714__respondents_with_fips
+              partition_column: report_date
+        columns:
+          - name: eia_code
+          - name: respondent_type
+          - name: respondent_id_ferc714
+          - name: respondent_name_ferc714
+          - name: report_date
+          - name: balancing_authority_id_eia
+          - name: balancing_authority_code_eia
+          - name: balancing_authority_name_eia
+          - name: utility_id_eia
+          - name: utility_name_eia
+          - name: state
+          - name: county
+          - name: state_id_fips
+          - name: county_id_fips
