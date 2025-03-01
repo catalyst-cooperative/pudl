@@ -1,7 +1,11 @@
 """Implement utilities for working with data produced in the pudl modelling repo."""
 
 import pandas as pd
-from dagster import asset
+from dagster import AssetIn, asset
+
+from pudl import logging_helpers
+
+logger = logging_helpers.get_logger(__name__)
 
 
 def _load_table_from_gcs(table_name: str) -> pd.DataFrame:
@@ -27,8 +31,8 @@ def _year_quarter_to_date(year_quarter: pd.Series) -> pd.Series:
     io_manager_key="pudl_io_manager",
     group_name="pudl_models",
 )
-def core_sec10k__quarterly_company_information() -> pd.DataFrame:
-    """Basic company information extracted from SEC10k filings."""
+def raw_sec10k__quarterly_company_information() -> pd.DataFrame:
+    """Raw company information harvested from headers of SEC10k filings."""
     df = _load_table_from_gcs("core_sec10k__company_information")
     df = df.rename(
         columns={
@@ -39,7 +43,6 @@ def core_sec10k__quarterly_company_information() -> pd.DataFrame:
             "value": "company_information_fact_value",
         }
     )
-
     # Get date from year quarters
     df["report_date"] = _year_quarter_to_date(df.year_quarter)
 
@@ -49,8 +52,122 @@ def core_sec10k__quarterly_company_information() -> pd.DataFrame:
 @asset(
     io_manager_key="pudl_io_manager",
     group_name="pudl_models",
+    ins={"raw_df": AssetIn("raw_sec10k__quarterly_company_information")},
 )
-def core_sec10k__quarterly_exhibit_21_company_ownership() -> pd.DataFrame:
+def core_sec10k__quarterly_company_information(raw_df: pd.DataFrame) -> pd.DataFrame:
+    """Company information extracted from SEC10k filings."""
+    # Strip erroneous "]" characters
+    raw_df["company_information_fact_name"] = raw_df[
+        "company_information_fact_name"
+    ].str.strip("]")
+    raw_df["company_information_block"] = pd.Categorical(
+        raw_df["company_information_block"],
+        [
+            "business_address",
+            "mail_address",
+            "company_data",
+            "filing_values",
+            "former_company",
+        ],
+    )
+    df = raw_df.sort_values("company_information_block").pivot_table(
+        values="company_information_fact_value",
+        index=["filename_sec10k", "report_date"],
+        columns="company_information_fact_name",
+        aggfunc="first",
+    )
+    df.columns.name = None
+    df = df.reset_index()
+    # we want central_index_key and report_date to be a primary key
+    # prioritize records where the filer is the same
+    # as the harvested central index key value
+    df["filer_cik"] = df["filename_sec10k"].str.split("/").str[2].str.zfill(10)
+    df["filer_cik_matches_cik"] = df["filer_cik"] == df["central_index_key"]
+    df = df.sort_values(by="filer_cik_matches_cik", ascending=False).drop_duplicates(
+        subset=["central_index_key", "report_date"], keep="first"
+    )
+    df = df.drop(columns=["filer_cik", "filer_cik_matches_cik"])
+    df = df.rename(
+        columns={
+            "street_1": "street_address",
+            "street_2": "address_2",
+            "company_conformed_name": "company_name",
+            "date_of_name_change": "name_change_date",
+            "zip": "zip_code",
+            "business_phone": "phone_number",
+            "irs_number": "company_id_irs",
+            "former_conformed_name": "company_name_former",
+            "form_type": "sec10k_version",
+            "standard_industrial_classification": "industry_id_sic",
+        }
+    )
+
+    return df
+
+
+@asset(
+    io_manager_key="pudl_io_manager",
+    group_name="pudl_models",
+    ins={
+        "core_df": AssetIn("core_sec10k__quarterly_company_information"),
+        "eia_utils_df": AssetIn("core_eia__entity_utilities"),
+    },
+)
+def out_sec10k__quarterly_company_information(
+    core_df: pd.DataFrame, eia_utils_df: pd.DataFrame
+) -> pd.DataFrame:
+    """Company information extracted from SEC10k filings and matched to EIA utilities."""
+    matched_df = _load_table_from_gcs("out_sec10k__parents_and_subsidiaries")
+    matched_df = (
+        matched_df[["central_index_key", "utility_id_eia"]]
+        .dropna()
+        .drop_duplicates(
+            subset="central_index_key"
+        )  # matches should already be 1-to-1 but drop duplicates to ensure this is true
+    )
+    out_df = core_df.merge(matched_df, how="left", on="central_index_key")
+    # merge utility name on
+    out_df = out_df.merge(eia_utils_df, how="left", on="utility_id_eia")
+    return out_df
+
+
+@asset(
+    io_manager_key="pudl_io_manager",
+    group_name="pudl_models",
+    ins={
+        "core_df": AssetIn("core_sec10k__quarterly_company_information"),
+    },
+)
+def core_sec10k__changelog_company_name(
+    core_df: pd.DataFrame,
+) -> pd.DataFrame:
+    """Changes in SEC company names and the date of change as reported in 10k filings."""
+    changelog_df = core_df[
+        [
+            "central_index_key",
+            "report_date",
+            "company_name",
+            "name_change_date",
+            "company_name_former",
+        ]
+    ]
+    changelog_df = changelog_df[
+        (~changelog_df["name_change_date"].isnull())
+        | (~changelog_df["company_name_former"].isnull())
+    ]
+    return changelog_df
+
+
+@asset(
+    io_manager_key="pudl_io_manager",
+    group_name="pudl_models",
+    ins={
+        "filings_df": AssetIn("core_sec10k__quarterly_filings"),
+    },
+)
+def core_sec10k__quarterly_exhibit_21_company_ownership(
+    filings_df: pd.DataFrame,
+) -> pd.DataFrame:
     """Company ownership information extracted from sec10k exhibit 21 attachments."""
     df = _load_table_from_gcs("core_sec10k__exhibit_21_company_ownership")
     df = df.rename(
@@ -63,9 +180,36 @@ def core_sec10k__quarterly_exhibit_21_company_ownership() -> pd.DataFrame:
 
     # Convert ownership percentage
     df["fraction_owned"] = _compute_fraction_owned(df.ownership_percentage)
-
-    # Get date from year quarters
-    df["report_date"] = _year_quarter_to_date(df.year_quarter)
+    df = df.merge(
+        filings_df[
+            [
+                "filename_sec10k",
+                "central_index_key",
+                "company_name",
+                "filing_date",
+                "report_date",
+            ]
+        ],
+        how="left",
+        on="filename_sec10k",
+    )
+    df = df.rename(
+        columns={
+            "company_name": "parent_company_name",
+            "central_index_key": "parent_company_central_index_key",
+        }
+    )
+    df["parent_company_name"] = df["parent_company_name"].str.lower()
+    # sometimes there are subsidiaries with the same name but different
+    # locations of incorporation listed in the same ex. 21, so include
+    # location in the ID
+    df.loc[:, "subsidiary_company_id_sec10k"] = (
+        df["parent_central_index_key"]
+        + "_"
+        + df["subsidiary_company_name"]
+        + "_"
+        + df["subsidiary_company_location"].fillna("")
+    )
 
     return df
 
@@ -87,6 +231,7 @@ def core_sec10k__quarterly_filings() -> pd.DataFrame:
 
     # Get date from year quarters
     df["report_date"] = _year_quarter_to_date(df.year_quarter)
+    df["central_index_key"] = df["central_index_key"].str.zfill(10)
 
     return df
 
