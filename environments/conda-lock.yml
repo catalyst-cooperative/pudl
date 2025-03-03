@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: f1008f48ac495a4e3668de87ccfa94fb8ec22c361cb5607354a8733f5fa3bfe6
-    osx-64: 20b06fbe9629daee54bab112c658c27b71983b5ba5886ddc78ed22d2d2c2507e
-    osx-arm64: 6b260fcde356ef66d71272dbcfee43730e5657e482f833ce986bf60f7ee31f41
+    linux-64: 5d4728824c8eebbf939ea0f4fadac466b0dd9b0f2cbd43eb27020963afb953ac
+    osx-64: 5f9ea17eee2dab04e9aae7872ffa63808a10288fa92d85e0ea2b52564c7a4052
+    osx-arm64: 58d07e3e5513ee79b9ba11aad6873e8c3854ff18637ac06a10eb93feb0279cad
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -17528,57 +17528,60 @@ package:
     category: main
     optional: false
   - name: pandera-core
-    version: 0.23.0
+    version: 0.22.1
     manager: conda
     platform: linux-64
     dependencies:
-      numpy: ">=1.24.4"
+      numpy: ""
       packaging: ""
-      pandas: ">=2.1.1"
+      pandas: ""
       pydantic: ""
-      python: ">=3.9"
+      python: ">=3.7"
       typeguard: ">=3.0.2"
+      typing_extensions: ""
       typing_inspect: ">=0.6.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/pandera-core-0.23.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/pandera-core-0.22.1-pyhd8ed1ab_0.conda
     hash:
-      md5: 68d5211c399ac4d641732fdb847647c1
-      sha256: db8086984b9d5c0d6bf6455ecc2e6cfd2324bda5cfeb13d60ee1835e3bc18fee
+      md5: c207f677a5a9edd56e49e34720f4ba3c
+      sha256: f08b35d50ca6d8ae6d7fb6f81f4a8f0afc7721492c49d4d5a64b7fa3ba41dc2c
     category: main
     optional: false
   - name: pandera-core
-    version: 0.23.0
+    version: 0.22.1
     manager: conda
     platform: osx-64
     dependencies:
+      numpy: ""
+      pandas: ""
       packaging: ""
+      typing_extensions: ""
       pydantic: ""
-      python: ">=3.9"
+      python: ">=3.7"
       typing_inspect: ">=0.6.0"
-      numpy: ">=1.24.4"
       typeguard: ">=3.0.2"
-      pandas: ">=2.1.1"
-    url: https://conda.anaconda.org/conda-forge/noarch/pandera-core-0.23.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/pandera-core-0.22.1-pyhd8ed1ab_0.conda
     hash:
-      md5: 68d5211c399ac4d641732fdb847647c1
-      sha256: db8086984b9d5c0d6bf6455ecc2e6cfd2324bda5cfeb13d60ee1835e3bc18fee
+      md5: c207f677a5a9edd56e49e34720f4ba3c
+      sha256: f08b35d50ca6d8ae6d7fb6f81f4a8f0afc7721492c49d4d5a64b7fa3ba41dc2c
     category: main
     optional: false
   - name: pandera-core
-    version: 0.23.0
+    version: 0.22.1
     manager: conda
     platform: osx-arm64
     dependencies:
+      numpy: ""
+      pandas: ""
       packaging: ""
+      typing_extensions: ""
       pydantic: ""
-      python: ">=3.9"
+      python: ">=3.7"
       typing_inspect: ">=0.6.0"
-      numpy: ">=1.24.4"
       typeguard: ">=3.0.2"
-      pandas: ">=2.1.1"
-    url: https://conda.anaconda.org/conda-forge/noarch/pandera-core-0.23.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/pandera-core-0.22.1-pyhd8ed1ab_0.conda
     hash:
-      md5: 68d5211c399ac4d641732fdb847647c1
-      sha256: db8086984b9d5c0d6bf6455ecc2e6cfd2324bda5cfeb13d60ee1835e3bc18fee
+      md5: c207f677a5a9edd56e49e34720f4ba3c
+      sha256: f08b35d50ca6d8ae6d7fb6f81f4a8f0afc7721492c49d4d5a64b7fa3ba41dc2c
     category: main
     optional: false
   - name: pandoc
