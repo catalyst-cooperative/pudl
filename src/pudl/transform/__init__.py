@@ -78,5 +78,6 @@ from . import (
     gridpathratoolkit,
     nrelatb,
     params,
+    phmsagas,
     vcerare,
 )
