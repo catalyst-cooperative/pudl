@@ -2247,6 +2247,6 @@ def standardize_phone_column(df: pd.DataFrame, columns: list[str]) -> pd.DataFra
         invalid_mask = (
             (phone_main.isna()) | (phone_main.str.fullmatch(r"0+")) | (phone_main == "")
         )
-        df[column] = df[column].mask(invalid_mask, np.nan)
+        df[column] = df[column].mask(invalid_mask, pd.NA)
 
     return df
