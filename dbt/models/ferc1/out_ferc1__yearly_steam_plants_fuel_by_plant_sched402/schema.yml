@@ -65,3 +65,13 @@ models:
           - dbt_expectations.expect_column_median_to_be_between:
               min_value: 1.0
               max_value: 2.5
+      - name: total_cost_fraction
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0.999999
+              max_value: 1.000001
+      - name: total_mmbtu_fraction
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0.999999
+              max_value: 1.000001
