@@ -1,0 +1,20 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_ferc1__yearly_depreciation_summary_sched336
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: out_ferc1__yearly_depreciation_summary_sched336
+              partition_column: report_year
+        columns:
+          - name: record_id
+          - name: report_year
+          - name: utility_id_ferc1
+          - name: utility_id_pudl
+          - name: utility_name_ferc1
+          - name: plant_function
+          - name: ferc_account_label
+          - name: ferc_account
+          - name: utility_type
+          - name: dollar_value

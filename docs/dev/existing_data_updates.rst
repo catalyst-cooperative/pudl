@@ -190,7 +190,7 @@ Currently, our FERC and EIA tables utilize different transform processes.
 
 A. EIA Forms
 ^^^^^^^^^^^^
-**4.A.1)** You can either materialize the ``_core`` (clean) and ``_core`` (normalized)
+**4.A.1)** You can either materialize the ``_core`` (clean) and ``core`` (normalized)
 dagster asset groups for your dataset of interest (ex: ``_core_eia860`` and
 ``core_eia860``) or use the EIA ETL Debugging notebook mentioned above to run the
 initial transform step on all tables of the new year of data. As mentioned in 3.A.1,

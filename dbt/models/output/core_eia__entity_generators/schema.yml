@@ -1,0 +1,30 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia__entity_generators
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_eia__entity_generators
+              partition_column: null
+        columns:
+          - name: plant_id_eia
+          - name: generator_id
+          - name: duct_burners
+          - name: generator_operating_date
+          - name: topping_bottoming_code
+          - name: solid_fuel_gasification
+          - name: pulverized_coal_tech
+          - name: fluidized_bed_tech
+          - name: subcritical_tech
+          - name: supercritical_tech
+          - name: ultrasupercritical_tech
+          - name: stoker_tech
+          - name: other_combustion_tech
+          - name: bypass_heat_recovery
+          - name: rto_iso_lmp_node_id
+          - name: rto_iso_location_wholesale_reporting_id
+          - name: associated_combined_heat_power
+          - name: original_planned_generator_operating_date
+          - name: operating_switch
+          - name: previously_canceled

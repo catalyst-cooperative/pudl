@@ -1,0 +1,19 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia860__scd_generators_wind
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_eia860__scd_generators_wind
+              partition_column: report_date
+        columns:
+          - name: plant_id_eia
+          - name: generator_id
+          - name: report_date
+          - name: design_wind_speed_mph
+          - name: obstacle_id_faa
+          - name: predominant_turbine_manufacturer
+          - name: predominant_turbine_model
+          - name: turbine_hub_height_feet
+          - name: wind_quality_class
