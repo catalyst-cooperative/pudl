@@ -74,6 +74,7 @@ YEARLY_DISTRIBUTION_OPERATORS_COLUMNS = {
         "headquarters_address_state",
         "office_address_state",
         "preparer_email",
+        "additional_information",
     ],
 }
 
@@ -114,6 +115,9 @@ def core_phmsagas__yearly_distribution_operators(
 
     # Standardize NAs
     df = standardize_na_values(df)
+
+    # Convert report date to datetime
+    df["report_date"] = pd.to_datetime(df["report_date"])
 
     # Initial string cleaning
     for col in df.select_dtypes(include=["object"]).columns:
