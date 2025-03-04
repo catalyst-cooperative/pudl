@@ -204,12 +204,13 @@ def core_sec10k__quarterly_exhibit_21_company_ownership(
     # locations of incorporation listed in the same ex. 21, so include
     # location in the ID
     df.loc[:, "subsidiary_company_id_sec10k"] = (
-        df["parent_central_index_key"]
+        df["parent_company_central_index_key"]
         + "_"
         + df["subsidiary_company_name"]
         + "_"
         + df["subsidiary_company_location"].fillna("")
     )
+    logger.warning(f"LENGTH: {len(df)}")
 
     return df
 
@@ -239,9 +240,15 @@ def core_sec10k__quarterly_filings() -> pd.DataFrame:
 @asset(
     io_manager_key="pudl_io_manager",
     group_name="pudl_models",
+    ins={
+        "ownership_df": AssetIn("core_sec10k__quarterly_exhibit_21_company_ownership"),
+        "company_info_df": AssetIn("out_sec10k__quarterly_company_information"),
+    },
 )
-def out_sec10k__parents_and_subsidiaries() -> pd.DataFrame:
-    """Denormalized output table with sec10k info and company ownership linked to EIA."""
+def out_sec10k__parents_and_subsidiaries(
+    ownership_df: pd.DataFrame, company_info_df: pd.DataFrame
+) -> pd.DataFrame:
+    """Denormalized output table with Sec10k company attributes and ownership info linked to EIA."""
     df = _load_table_from_gcs("out_sec10k__parents_and_subsidiaries")
     df = df.rename(
         columns={
