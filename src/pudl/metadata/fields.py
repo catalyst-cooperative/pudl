@@ -35,7 +35,6 @@ from pudl.metadata.enums import (
     TECH_DESCRIPTIONS,
     TECH_DESCRIPTIONS_EIAAEO,
     TECH_DESCRIPTIONS_NRELATB,
-    US_STATE_CODES,
     US_TIMEZONES,
     UTILITY_PLANT_ASSET_TYPES_FERC1,
 )
@@ -4687,8 +4686,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         # TODO: disambiguate the column name. State means different things in
         # different tables. E.g. state of the utility's HQ address vs. state that a
         # plant is located in vs. state in which a utility provides service.
+        # TODO: Figure out which enum to use here - include Canadian provinces?
         "description": "Two letter US state abbreviation.",
-        "constraints": {"enum": US_STATE_CODES},
     },
     "state_id_fips": {
         "type": "string",
