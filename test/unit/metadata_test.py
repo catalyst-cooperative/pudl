@@ -187,3 +187,23 @@ def test_resource_descriptors_can_encode_schemas(dummy_pandera_schema):
 def test_resource_descriptor_schema_failures(error_msg, data, dummy_pandera_schema):
     with pytest.raises(pr.errors.SchemaError, match=error_msg):
         dummy_pandera_schema.validate(data)
+
+
+def test_frictionless_data_package_non_empty():
+    datapackage = PUDL_PACKAGE.to_frictionless()
+    assert len(datapackage.resources) == len(RESOURCE_METADATA)
+
+
+def test_frictionless_data_package_resources_populated():
+    datapackage = PUDL_PACKAGE.to_frictionless()
+    for resource in datapackage.resources:
+        assert resource.name in RESOURCE_METADATA
+        expected_resource = RESOURCE_METADATA[resource.name]
+        assert expected_resource["description"] == resource.description
+        assert expected_resource["schema"]["fields"] == [
+            f.name for f in resource.schema.fields
+        ]
+        assert (
+            expected_resource["schema"].get("primary_key", [])
+            == resource.schema.primary_key
+        )

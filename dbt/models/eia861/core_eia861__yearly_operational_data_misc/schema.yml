@@ -1,0 +1,38 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia861__yearly_operational_data_misc
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_eia861__yearly_operational_data_misc
+              partition_column: report_date
+        columns:
+          - name: consumed_by_facility_mwh
+          - name: consumed_by_respondent_without_charge_mwh
+          - name: data_observed
+          - name: entity_type
+          - name: exchange_energy_delivered_mwh
+          - name: exchange_energy_received_mwh
+          - name: furnished_without_charge_mwh
+          - name: nerc_region
+          - name: net_generation_mwh
+          - name: net_power_exchanged_mwh
+          - name: net_wheeled_power_mwh
+          - name: report_date
+          - name: retail_sales_mwh
+          - name: sales_for_resale_mwh
+          - name: short_form
+          - name: state
+          - name: summer_peak_demand_mw
+          - name: total_disposition_mwh
+          - name: total_energy_losses_mwh
+          - name: total_sources_mwh
+          - name: transmission_by_other_losses_mwh
+          - name: utility_id_eia
+          - name: utility_name_eia
+          - name: wheeled_power_delivered_mwh
+          - name: wheeled_power_received_mwh
+          - name: wholesale_power_purchases_mwh
+          - name: winter_peak_demand_mw
+          - name: data_maturity
