@@ -1,7 +1,7 @@
 """Implement utilities for working with data produced in the pudl modelling repo."""
 
 import pandas as pd
-from dagster import AssetIn, asset
+from dagster import asset
 
 from pudl import logging_helpers
 from pudl.helpers import convert_cols_dtypes
@@ -52,25 +52,32 @@ def raw_sec10k__quarterly_company_information() -> pd.DataFrame:
 @asset(
     io_manager_key="pudl_io_manager",
     group_name="pudl_models",
-    ins={"raw_df": AssetIn("raw_sec10k__quarterly_company_information")},
 )
-def core_sec10k__quarterly_company_information(raw_df: pd.DataFrame) -> pd.DataFrame:
+def core_sec10k__quarterly_company_information(
+    raw_sec10k__quarterly_company_information: pd.DataFrame,
+) -> pd.DataFrame:
     """Company information extracted from SEC10k filings."""
     # Strip erroneous "]" characters
-    raw_df["company_information_fact_name"] = raw_df[
-        "company_information_fact_name"
-    ].str.strip("]")
-    raw_df["company_information_block"] = pd.Categorical(
-        raw_df["company_information_block"],
-        [
-            "business_address",
-            "mail_address",
-            "company_data",
-            "filing_values",
-            "former_company",
-        ],
+    raw_sec10k__quarterly_company_information["company_information_fact_name"] = (
+        raw_sec10k__quarterly_company_information[
+            "company_information_fact_name"
+        ].str.lstrip("]")
     )
-    df = raw_df.sort_values("company_information_block").pivot_table(
+    raw_sec10k__quarterly_company_information["company_information_block"] = (
+        pd.Categorical(
+            raw_sec10k__quarterly_company_information["company_information_block"],
+            [
+                "business_address",
+                "mail_address",
+                "company_data",
+                "filing_values",
+                "former_company",
+            ],
+        )
+    )
+    df = raw_sec10k__quarterly_company_information.sort_values(
+        "company_information_block"
+    ).pivot_table(
         values="company_information_fact_value",
         index=["filename_sec10k", "report_date"],
         columns="company_information_fact_name",
@@ -116,13 +123,10 @@ def core_sec10k__quarterly_company_information(raw_df: pd.DataFrame) -> pd.DataF
 @asset(
     io_manager_key="pudl_io_manager",
     group_name="pudl_models",
-    ins={
-        "core_df": AssetIn("core_sec10k__quarterly_company_information"),
-        "eia_utils_df": AssetIn("core_eia__entity_utilities"),
-    },
 )
 def out_sec10k__quarterly_company_information(
-    core_df: pd.DataFrame, eia_utils_df: pd.DataFrame
+    core_sec10k__quarterly_company_information: pd.DataFrame,
+    core_eia__entity_utilities: pd.DataFrame,
 ) -> pd.DataFrame:
     """Company information extracted from SEC10k filings and matched to EIA utilities."""
     matched_df = _load_table_from_gcs("out_sec10k__parents_and_subsidiaries")
@@ -133,24 +137,23 @@ def out_sec10k__quarterly_company_information(
             subset="central_index_key"
         )  # matches should already be 1-to-1 but drop duplicates to ensure this is true
     )
-    out_df = core_df.merge(matched_df, how="left", on="central_index_key")
+    out_df = core_sec10k__quarterly_company_information.merge(
+        matched_df, how="left", on="central_index_key"
+    )
     # merge utility name on
-    out_df = out_df.merge(eia_utils_df, how="left", on="utility_id_eia")
+    out_df = out_df.merge(core_eia__entity_utilities, how="left", on="utility_id_eia")
     return out_df
 
 
 @asset(
     io_manager_key="pudl_io_manager",
     group_name="pudl_models",
-    ins={
-        "core_df": AssetIn("core_sec10k__quarterly_company_information"),
-    },
 )
 def core_sec10k__changelog_company_name(
-    core_df: pd.DataFrame,
+    core_sec10k__quarterly_company_information: pd.DataFrame,
 ) -> pd.DataFrame:
     """Changes in SEC company names and the date of change as reported in 10k filings."""
-    changelog_df = core_df[
+    changelog_df = core_sec10k__quarterly_company_information[
         [
             "central_index_key",
             "report_date",
