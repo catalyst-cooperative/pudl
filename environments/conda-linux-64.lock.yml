@@ -187,7 +187,7 @@ dependencies:
   - google-cloud-storage=3.1.0=pyhd8ed1ab_0
   - google-crc32c=1.1.2=py312hb42adb9_6
   - google-resumable-media=2.7.2=pyhd8ed1ab_2
-  - googleapis-common-protos=1.69.0=pyhd8ed1ab_0
+  - googleapis-common-protos=1.68.0=pyhd8ed1ab_0
   - gql=3.5.0=pyhd8ed1ab_2
   - gql-with-requests=3.5.0=hd8ed1ab_2
   - graphene=3.4.3=pyhd8ed1ab_1
@@ -216,7 +216,7 @@ dependencies:
   - humanize=4.12.1=pyhd8ed1ab_0
   - hupper=1.12.1=pyhd8ed1ab_1
   - hyperframe=6.1.0=pyhd8ed1ab_0
-  - hypothesis=6.127.6=pyha770c72_0
+  - hypothesis=6.127.4=pyha770c72_0
   - icu=75.1=he02047a_0
   - identify=2.6.8=pyhd8ed1ab_0
   - idna=3.10=pyhd8ed1ab_1

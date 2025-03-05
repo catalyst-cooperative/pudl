@@ -3,6 +3,11 @@
 import pandas as pd
 from dagster import asset
 
+from pudl import logging_helpers
+from pudl.helpers import convert_cols_dtypes
+
+logger = logging_helpers.get_logger(__name__)
+
 
 def _load_table_from_gcs(table_name: str) -> pd.DataFrame:
     return pd.read_parquet(f"gs://model-outputs.catalyst.coop/sec10k/{table_name}")
@@ -24,11 +29,10 @@ def _year_quarter_to_date(year_quarter: pd.Series) -> pd.Series:
 
 
 @asset(
-    io_manager_key="pudl_io_manager",
     group_name="pudl_models",
 )
-def core_sec10k__quarterly_company_information() -> pd.DataFrame:
-    """Basic company information extracted from SEC10k filings."""
+def raw_sec10k__quarterly_company_information() -> pd.DataFrame:
+    """Raw company information harvested from headers of SEC10k filings."""
     df = _load_table_from_gcs("core_sec10k__company_information")
     df = df.rename(
         columns={
@@ -39,11 +43,130 @@ def core_sec10k__quarterly_company_information() -> pd.DataFrame:
             "value": "company_information_fact_value",
         }
     )
-
     # Get date from year quarters
     df["report_date"] = _year_quarter_to_date(df.year_quarter)
 
     return df
+
+
+@asset(
+    io_manager_key="pudl_io_manager",
+    group_name="pudl_models",
+)
+def core_sec10k__quarterly_company_information(
+    raw_sec10k__quarterly_company_information: pd.DataFrame,
+) -> pd.DataFrame:
+    """Company information extracted from SEC10k filings."""
+    # Strip erroneous "]" characters
+    raw_sec10k__quarterly_company_information["company_information_fact_name"] = (
+        raw_sec10k__quarterly_company_information[
+            "company_information_fact_name"
+        ].str.lstrip("]")
+    )
+    raw_sec10k__quarterly_company_information["company_information_block"] = (
+        pd.Categorical(
+            raw_sec10k__quarterly_company_information["company_information_block"],
+            [
+                "business_address",
+                "mail_address",
+                "company_data",
+                "filing_values",
+                "former_company",
+            ],
+        )
+    )
+    df = raw_sec10k__quarterly_company_information.sort_values(
+        "company_information_block"
+    ).pivot_table(
+        values="company_information_fact_value",
+        index=["filename_sec10k", "report_date"],
+        columns="company_information_fact_name",
+        aggfunc="first",
+    )
+    df.columns.name = None
+    df = df.reset_index()
+    # we want central_index_key and report_date to be a primary key
+    # prioritize records where the filer is the same
+    # as the harvested central index key value
+    df["filer_cik"] = df["filename_sec10k"].str.split("/").str[2].str.zfill(10)
+    df["filer_cik_matches_cik"] = df["filer_cik"] == df["central_index_key"]
+    df = df.sort_values(by="filer_cik_matches_cik", ascending=False).drop_duplicates(
+        subset=["central_index_key", "report_date"], keep="first"
+    )
+    df = df.drop(columns=["filer_cik", "filer_cik_matches_cik"])
+    df = df.rename(
+        columns={
+            "street_1": "street_address",
+            "street_2": "address_2",
+            "company_conformed_name": "company_name",
+            "date_of_name_change": "name_change_date",
+            "zip": "zip_code",
+            "business_phone": "phone_number",
+            "irs_number": "company_id_irs",
+            "former_conformed_name": "company_name_former",
+            "form_type": "sec10k_version",
+            "standard_industrial_classification": "industry_id_sic",
+        }
+    )
+    df["zip_code"] = df["zip_code"].str[:5]
+    df["name_change_date"] = pd.to_datetime(df["name_change_date"], format="%Y%m%d")
+    df["state"] = df["state"].str.upper()
+    df["state_of_incorporation"] = df["state_of_incorporation"].str.upper()
+    df[["industry_description_sic", "industry_id_sic"]] = df[
+        "industry_id_sic"
+    ].str.extract(r"^([\D]*)\[(\d{4})\]$")
+    df = convert_cols_dtypes(df, data_source="sec10k")
+
+    return df
+
+
+@asset(
+    io_manager_key="pudl_io_manager",
+    group_name="pudl_models",
+)
+def out_sec10k__quarterly_company_information(
+    core_sec10k__quarterly_company_information: pd.DataFrame,
+    core_eia__entity_utilities: pd.DataFrame,
+) -> pd.DataFrame:
+    """Company information extracted from SEC10k filings and matched to EIA utilities."""
+    matched_df = _load_table_from_gcs("out_sec10k__parents_and_subsidiaries")
+    matched_df = (
+        matched_df[["central_index_key", "utility_id_eia"]]
+        .dropna()
+        .drop_duplicates(
+            subset="central_index_key"
+        )  # matches should already be 1-to-1 but drop duplicates to ensure this is true
+    )
+    out_df = core_sec10k__quarterly_company_information.merge(
+        matched_df, how="left", on="central_index_key"
+    )
+    # merge utility name on
+    out_df = out_df.merge(core_eia__entity_utilities, how="left", on="utility_id_eia")
+    return out_df
+
+
+@asset(
+    io_manager_key="pudl_io_manager",
+    group_name="pudl_models",
+)
+def core_sec10k__changelog_company_name(
+    core_sec10k__quarterly_company_information: pd.DataFrame,
+) -> pd.DataFrame:
+    """Changes in SEC company names and the date of change as reported in 10k filings."""
+    changelog_df = core_sec10k__quarterly_company_information[
+        [
+            "central_index_key",
+            "report_date",
+            "company_name",
+            "name_change_date",
+            "company_name_former",
+        ]
+    ]
+    changelog_df = changelog_df[
+        (~changelog_df["name_change_date"].isnull())
+        | (~changelog_df["company_name_former"].isnull())
+    ]
+    return changelog_df
 
 
 @asset(
@@ -87,6 +210,7 @@ def core_sec10k__quarterly_filings() -> pd.DataFrame:
 
     # Get date from year quarters
     df["report_date"] = _year_quarter_to_date(df.year_quarter)
+    df["central_index_key"] = df["central_index_key"].str.zfill(10)
 
     return df
 
