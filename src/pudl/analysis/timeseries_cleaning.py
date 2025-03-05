@@ -29,6 +29,7 @@ And described at:
 * https://github.com/xinychen/tensor-learning
 """
 
+import datetime
 import functools
 import warnings
 from collections.abc import Iterable, Sequence
@@ -42,6 +43,24 @@ import scipy.stats
 from pudl.logging_helpers import get_logger
 
 logger = get_logger(__file__)
+
+# --- Constants --- #
+
+STANDARD_UTC_OFFSETS: dict[str, str] = {
+    "Pacific/Honolulu": -10,
+    "America/Anchorage": -9,
+    "America/Los_Angeles": -8,
+    "America/Denver": -7,
+    "America/Chicago": -6,
+    "America/New_York": -5,
+    "America/Halifax": -4,
+}
+"""Hour offset from Coordinated Universal Time (UTC) by time zone.
+
+Time zones are canonical names (e.g. 'America/Denver') from tzdata (
+https://www.iana.org/time-zones)
+mapped to their standard-time UTC offset.
+"""
 
 # ---- Helpers ---- #
 
@@ -1460,7 +1479,6 @@ def clean_timeseries_matrix(
 
 def prepare_timeseries_matrix(
     df: pd.DataFrame,
-    datetime_col: str = "datetime_utc",
     id_col: str = "respondent_id_ferc714",
     value_col: str = "demand_mwh",
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -1479,15 +1497,114 @@ def prepare_timeseries_matrix(
         of each `respondent_id_ferc714` and reporting `year` (int).
     """
     # Pivot to demand matrix: timestamps x respondents
-    matrix = df.pivot(index=datetime_col, columns=id_col, values=value_col)
+    matrix = df.pivot(index="datetime", columns=id_col, values=value_col)
     return matrix
+
+
+def utc_to_local(utc: pd.Series, tz: Iterable) -> pd.Series:
+    """Convert UTC times to local.
+
+    Args:
+        utc: UTC times (tz-naive ``datetime64[ns]`` or ``datetime64[ns, UTC]``).
+        tz: For each time, a timezone (see :meth:`DatetimeIndex.tz_localize`)
+          or UTC offset in hours (``int`` or ``float``).
+
+    Returns:
+        Local times (tz-naive ``datetime64[ns]``).
+
+    Examples:
+        >>> s = pd.Series([pd.Timestamp(2020, 1, 1), pd.Timestamp(2020, 1, 1)])
+        >>> utc_to_local(s, [-7, -6])
+        0   2019-12-31 17:00:00
+        1   2019-12-31 18:00:00
+        dtype: datetime64[ns]
+        >>> utc_to_local(s, ['America/Denver', 'America/Chicago'])
+        0   2019-12-31 17:00:00
+        1   2019-12-31 18:00:00
+        dtype: datetime64[ns]
+    """
+    if utc.dt.tz is None:
+        utc = utc.dt.tz_localize("UTC")
+    return utc.groupby(tz, observed=True).transform(
+        lambda x: x.dt.tz_convert(
+            datetime.timezone(datetime.timedelta(hours=x.name))
+            if isinstance(x.name, int | float)
+            else x.name
+        ).dt.tz_localize(None)
+    )
+
+
+def local_to_utc(local: pd.Series, tz: Iterable, **kwargs: Any) -> pd.Series:
+    """Convert local times to UTC.
+
+    Args:
+        local: Local times (tz-naive ``datetime64[ns]``).
+        tz: For each time, a timezone (see :meth:`DatetimeIndex.tz_localize`)
+            or UTC offset in hours (``int`` or ``float``).
+        kwargs: Optional arguments to :meth:`DatetimeIndex.tz_localize`.
+
+    Returns:
+        UTC times (tz-naive ``datetime64[ns]``).
+
+    Examples:
+        >>> s = pd.Series([pd.Timestamp(2020, 1, 1), pd.Timestamp(2020, 1, 1)])
+        >>> local_to_utc(s, [-7, -6])
+        0   2020-01-01 07:00:00
+        1   2020-01-01 06:00:00
+        dtype: datetime64[ns]
+        >>> local_to_utc(s, ['America/Denver', 'America/Chicago'])
+        0   2020-01-01 07:00:00
+        1   2020-01-01 06:00:00
+        dtype: datetime64[ns]
+    """
+    return local.groupby(tz, observed=True).transform(
+        lambda x: x.dt.tz_localize(
+            datetime.timezone(datetime.timedelta(hours=x.name))
+            if isinstance(x.name, int | float)
+            else x.name,
+            **kwargs,
+        ).dt.tz_convert(None)
+    )
+
+
+def localize_datetimes(input_df: pd.DataFrame) -> pd.DataFrame:
+    """Return DataFrame with localized ``datetime`` column."""
+    # Convert UTC datetimes to local datetimes (ignoring daylight savings)
+    input_df["utc_offset"] = input_df["timezone"].map(STANDARD_UTC_OFFSETS)
+    input_df["datetime"] = utc_to_local(
+        input_df["datetime_utc"],
+        input_df["utc_offset"],
+    )
+
+    # List timezone by year for each respondent by the datetime
+    input_df["year"] = input_df["datetime"].dt.year
+    return input_df
+
+
+def local_to_datetime_utc(
+    localized_df: pd.DataFrame,
+    imputed_df: pd.DataFrame,
+    id_col: str,
+) -> pd.DataFrame:
+    """Return DataFrame with localized ``datetime`` converted back to ``datetime_utc``."""
+    utc_offset = localized_df.groupby([id_col, "year"], as_index=False)[
+        "utc_offset"
+    ].first()
+
+    # Convert local times to UTC
+    imputed_df["year"] = imputed_df["datetime"].dt.year
+    df = imputed_df.merge(utc_offset, on=[id_col, "year"])
+    df["datetime_utc"] = local_to_utc(df["datetime"], df["utc_offset"])
+    df = df.drop(columns=["utc_offset", "datetime"])
+    return df
 
 
 def impute_timeseries(
     input_df: pd.DataFrame,
     years: list[int],
-    datetime_col: str = "datetime_utc",
     value_col: str = "demand_mwh",
+    imputed_value_col: str = "demand_imputed_mwh",
+    reported_value_col: str = "demand_reported_mwh",
     id_col: str = "",
 ) -> pd.DataFrame:
     """Imputed FERC714 hourly demand in long format.
@@ -1499,13 +1616,25 @@ def impute_timeseries(
     Returns:
         df: DataFrame with imputed FERC714 hourly demand.
     """
+    localized_df = localize_datetimes(input_df)
     df = prepare_timeseries_matrix(
-        input_df,
-        datetime_col=datetime_col,
+        localized_df,
         id_col=id_col,
         value_col=value_col,
     )
     df = clean_timeseries_matrix(df)
     df = impute_flagged_values(df, years)
     df = melt_imputed_matrix(df)
+    df = local_to_datetime_utc(
+        localized_df,
+        df,
+        id_col,
+    )
+
+    # Merge back on core table
+    df = df.rename(columns={value_col: imputed_value_col}).merge(
+        localized_df.rename(columns={value_col: reported_value_col}),
+        on=[id_col, "datetime_utc"],
+    )
+
     return df

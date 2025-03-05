@@ -17,10 +17,6 @@ Additional predictive spatial variables will be required to obtain more granular
 electricity demand estimates (e.g. at the county level).
 """
 
-import datetime
-from collections.abc import Iterable
-from typing import Any
-
 import geopandas as gpd
 import pandas as pd
 from dagster import Field, asset
@@ -30,22 +26,6 @@ import pudl.output.pudltabl
 from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
 
 # --- Constants --- #
-
-STANDARD_UTC_OFFSETS: dict[str, str] = {
-    "Pacific/Honolulu": -10,
-    "America/Anchorage": -9,
-    "America/Los_Angeles": -8,
-    "America/Denver": -7,
-    "America/Chicago": -6,
-    "America/New_York": -5,
-    "America/Halifax": -4,
-}
-"""Hour offset from Coordinated Universal Time (UTC) by time zone.
-
-Time zones are canonical names (e.g. 'America/Denver') from tzdata (
-https://www.iana.org/time-zones)
-mapped to their standard-time UTC offset.
-"""
 
 STATES: list[dict[str, str]] = [
     {
@@ -161,72 +141,6 @@ def total_state_sales_eia861(
     return df[["state_id_fips", "year", "demand_mwh"]]
 
 
-def utc_to_local(utc: pd.Series, tz: Iterable) -> pd.Series:
-    """Convert UTC times to local.
-
-    Args:
-        utc: UTC times (tz-naive ``datetime64[ns]`` or ``datetime64[ns, UTC]``).
-        tz: For each time, a timezone (see :meth:`DatetimeIndex.tz_localize`)
-          or UTC offset in hours (``int`` or ``float``).
-
-    Returns:
-        Local times (tz-naive ``datetime64[ns]``).
-
-    Examples:
-        >>> s = pd.Series([pd.Timestamp(2020, 1, 1), pd.Timestamp(2020, 1, 1)])
-        >>> utc_to_local(s, [-7, -6])
-        0   2019-12-31 17:00:00
-        1   2019-12-31 18:00:00
-        dtype: datetime64[ns]
-        >>> utc_to_local(s, ['America/Denver', 'America/Chicago'])
-        0   2019-12-31 17:00:00
-        1   2019-12-31 18:00:00
-        dtype: datetime64[ns]
-    """
-    if utc.dt.tz is None:
-        utc = utc.dt.tz_localize("UTC")
-    return utc.groupby(tz, observed=True).transform(
-        lambda x: x.dt.tz_convert(
-            datetime.timezone(datetime.timedelta(hours=x.name))
-            if isinstance(x.name, int | float)
-            else x.name
-        ).dt.tz_localize(None)
-    )
-
-
-def local_to_utc(local: pd.Series, tz: Iterable, **kwargs: Any) -> pd.Series:
-    """Convert local times to UTC.
-
-    Args:
-        local: Local times (tz-naive ``datetime64[ns]``).
-        tz: For each time, a timezone (see :meth:`DatetimeIndex.tz_localize`)
-            or UTC offset in hours (``int`` or ``float``).
-        kwargs: Optional arguments to :meth:`DatetimeIndex.tz_localize`.
-
-    Returns:
-        UTC times (tz-naive ``datetime64[ns]``).
-
-    Examples:
-        >>> s = pd.Series([pd.Timestamp(2020, 1, 1), pd.Timestamp(2020, 1, 1)])
-        >>> local_to_utc(s, [-7, -6])
-        0   2020-01-01 07:00:00
-        1   2020-01-01 06:00:00
-        dtype: datetime64[ns]
-        >>> local_to_utc(s, ['America/Denver', 'America/Chicago'])
-        0   2020-01-01 07:00:00
-        1   2020-01-01 06:00:00
-        dtype: datetime64[ns]
-    """
-    return local.groupby(tz, observed=True).transform(
-        lambda x: x.dt.tz_localize(
-            datetime.timezone(datetime.timedelta(hours=x.name))
-            if isinstance(x.name, int | float)
-            else x.name,
-            **kwargs,
-        ).dt.tz_convert(None)
-    )
-
-
 @asset(
     io_manager_key="parquet_io_manager",
     compute_kind="Python",
@@ -237,46 +151,13 @@ def out_ferc714__hourly_planning_area_demand(
     core_ferc714__hourly_planning_area_demand: pd.DataFrame,
 ) -> pd.DataFrame:
     """Impute hourly demand on core_ferc714__hourly_planning_area_demand table."""
-    # Convert UTC to local time (ignoring daylight savings)
-    core_ferc714__hourly_planning_area_demand["utc_offset"] = (
-        core_ferc714__hourly_planning_area_demand["timezone"].map(STANDARD_UTC_OFFSETS)
-    )
-    core_ferc714__hourly_planning_area_demand["datetime"] = utc_to_local(
-        core_ferc714__hourly_planning_area_demand["datetime_utc"],
-        core_ferc714__hourly_planning_area_demand["utc_offset"],
-    )
-
-    # List timezone by year for each respondent by the datetime
-    core_ferc714__hourly_planning_area_demand["year"] = (
-        core_ferc714__hourly_planning_area_demand["datetime"].dt.year
-    )
-    utc_offset = core_ferc714__hourly_planning_area_demand.groupby(
-        ["respondent_id_ferc714", "year"], as_index=False
-    )["utc_offset"].first()
-
     df = pudl.analysis.timeseries_cleaning.impute_timeseries(
         core_ferc714__hourly_planning_area_demand,
         years=context.resources.dataset_settings.ferc714.years,
-        datetime_col="datetime",
         value_col="demand_mwh",
         id_col="respondent_id_ferc714",
     )
-
-    # Convert local times to UTC
-    df["year"] = df["datetime"].dt.year
-    df = df.merge(utc_offset, on=["respondent_id_ferc714", "year"])
-    df["datetime_utc"] = local_to_utc(df["datetime"], df["utc_offset"])
-    df = df.drop(columns=["utc_offset", "datetime"])
-
-    # Merge back on core table
-    df = df.rename(columns={"demand_mwh": "demand_imputed_mwh"}).merge(
-        core_ferc714__hourly_planning_area_demand.rename(
-            columns={"demand_mwh": "demand_reported_mwh"}
-        ),
-        on=["respondent_id_ferc714", "datetime_utc"],
-    )
-
-    return df
+    return df.drop_duplicates(subset=["respondent_id_ferc714", "datetime_utc"])
 
 
 @asset(
