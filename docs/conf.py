@@ -132,6 +132,15 @@ html_icon = "_static/favicon.ico"
 # documentation.
 html_theme_options = {
     "navigation_with_keys": True,
+    "announcement": "<b>Take the <a href='https://forms.gle/cT1ZY4yunhza3YLK9'>2025 PUDL Community Survey</a> (~10 min)</b>",
+    "light_css_variables": {
+        "color-announcement-background": "yellow",
+        "color-announcement-text": "red",
+    },
+    "dark_css_variables": {
+        "color-announcement-background": "yellow",
+        "color-announcement-text": "red",
+    },
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,

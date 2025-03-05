@@ -55,7 +55,7 @@ dependencies = [
     "numpy>=2",
     "packaging>=24",
     "pandas>=2.2.3",
-    "pandera>=0.22",
+    "pandera>=0.22,<0.23",
     "pre-commit>=4",
     "pyarrow>=18.1", # pandas[parquet]
     "pydantic>=2.10",
@@ -151,6 +151,7 @@ pudl_service_territories = "pudl.analysis.service_territory:pudl_service_territo
 [project.optional-dependencies]
 dev = [
     "dagster-webserver>=1.10",
+    "ipython<9",
     "jupyterlab>4.3",
     "jupyter-lsp",
     "jupyterlab-lsp",
