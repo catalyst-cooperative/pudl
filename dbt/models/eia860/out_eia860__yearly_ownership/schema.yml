@@ -22,4 +22,8 @@ sources:
           - name: owner_street_address
           - name: owner_zip_code
           - name: fraction_owned
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  min_value: 0.0
+                  max_value: 1.0
           - name: data_maturity
