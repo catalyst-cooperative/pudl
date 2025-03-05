@@ -28,7 +28,6 @@ def _year_quarter_to_date(year_quarter: pd.Series) -> pd.Series:
 
 
 @asset(
-    io_manager_key="pudl_io_manager",
     group_name="pudl_models",
 )
 def raw_sec10k__quarterly_company_information() -> pd.DataFrame:
@@ -50,7 +49,7 @@ def raw_sec10k__quarterly_company_information() -> pd.DataFrame:
 
 
 @asset(
-    io_manager_key="pudl_io_manager",
+    # io_manager_key="pudl_io_manager",
     group_name="pudl_models",
     ins={"raw_df": AssetIn("raw_sec10k__quarterly_company_information")},
 )
@@ -101,6 +100,10 @@ def core_sec10k__quarterly_company_information(raw_df: pd.DataFrame) -> pd.DataF
             "standard_industrial_classification": "industry_id_sic",
         }
     )
+    df["zip_code"] = df["zip_code"].str[:5]
+    df["name_change_date"] = pd.to_datetime(df["name_change_date"], format="%Y%m%d")
+    df["state"] = df["state"].str.upper()
+    df["state_of_incorporation"] = df["state_of_incorporation"].str.upper()
 
     return df
 
