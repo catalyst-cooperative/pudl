@@ -8,10 +8,24 @@ sources:
               table_name: core_sec10k__quarterly_company_information
               partition_column: report_date
         columns:
-          - name: filename_sec10k
-          - name: filer_count
-          - name: company_information_block
-          - name: company_information_block_count
-          - name: company_information_fact_name
-          - name: company_information_fact_value
+          - name: central_index_key
           - name: report_date
+          - name: filename_sec10k
+          - name: phone_number
+          - name: city
+          - name: company_name
+          - name: name_change_date
+          - name: film_number
+          - name: fiscal_year_end
+          - name: sec10k_version
+          - name: company_name_former
+          - name: company_id_irs
+          - name: organization_name
+          - name: sec_act
+          - name: sec_file_number
+          - name: industry_id_sic
+          - name: state
+          - name: state_of_incorporation
+          - name: street_address
+          - name: address_2
+          - name: zip_code
