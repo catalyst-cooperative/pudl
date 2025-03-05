@@ -13,6 +13,12 @@ We recommend working with tables with the ``out_`` prefix, as these tables conta
 most complete and easiest to work with data. For more information about the different
 types of tables, read through :ref:`PUDL's naming conventions <asset-naming>`.
 
+.. note::
+
+  We recently released a beta `PUDL Database Viewer <https://viewer.catalyst.coop/>`__.
+  It provides fuzzy table search, live preview, and CSV export of up to 5 million rows.
+  It also provides links to the Parquet downloads for each table.
+
 The :doc:`PUDL data dictionary </data_dictionaries/pudl_db>` provides direct links to
 :ref:`access-datasette` for each table if it is included in our SQLite outputs, and to
 the Parquet outputs if the table is available in that format.
