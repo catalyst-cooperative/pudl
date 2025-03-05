@@ -23,6 +23,7 @@ sources:
           - name: organization_name
           - name: sec_act
           - name: sec_file_number
+          - name: industry_description_sic
           - name: industry_id_sic
           - name: state
           - name: state_of_incorporation

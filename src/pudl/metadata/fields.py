@@ -789,22 +789,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "in exhibit 21 attachments to Form 10-K. May not be stable over time."
         ),
     },
-    "company_information_block": {
-        "type": "string",
-        "description": "Title of block of data.",
-    },
-    "company_information_block_count": {
-        "type": "integer",
-        "description": "Some blocks are repeated, this defines the index of the data block.",
-    },
-    "company_information_fact_name": {
-        "type": "string",
-        "description": "Name of fact within a ``company_information_block``.",
-    },
-    "company_information_fact_value": {
-        "type": "string",
-        "description": "Value corresponding with ``company_information_fact_name``.",
-    },
     "company_name": {
         "type": "string",
         "description": "Name of company submitting SEC 10k filing.",
@@ -1709,10 +1693,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "fgd_trains_total": {
         "type": "number",
         "description": "Total number of flue gas desulfurization unit scrubber trains.",
-    },
-    "filer_count": {
-        "type": "integer",
-        "description": "Index company information as some filings contain information for multiple companies.",
     },
     "filename_sec10k": {
         "type": "string",
@@ -5762,12 +5742,6 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     "out_sec10k__parents_and_subsidiaries": {
         "fraction_owned": {
             "description": "Fraction of subsidiary company owned by parent.",
-        }
-    },
-    "raw_sec10k__quarterly_company_information": {
-        "report_date": {
-            "type": "date",
-            "description": "The quarter in which the filing was submitted.",
         }
     },
     "sector_consolidated_eia": {"code": {"type": "integer"}},

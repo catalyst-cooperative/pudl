@@ -4,6 +4,7 @@ import pandas as pd
 from dagster import AssetIn, asset
 
 from pudl import logging_helpers
+from pudl.helpers import convert_cols_dtypes
 
 logger = logging_helpers.get_logger(__name__)
 
@@ -49,7 +50,7 @@ def raw_sec10k__quarterly_company_information() -> pd.DataFrame:
 
 
 @asset(
-    # io_manager_key="pudl_io_manager",
+    io_manager_key="pudl_io_manager",
     group_name="pudl_models",
     ins={"raw_df": AssetIn("raw_sec10k__quarterly_company_information")},
 )
@@ -104,6 +105,10 @@ def core_sec10k__quarterly_company_information(raw_df: pd.DataFrame) -> pd.DataF
     df["name_change_date"] = pd.to_datetime(df["name_change_date"], format="%Y%m%d")
     df["state"] = df["state"].str.upper()
     df["state_of_incorporation"] = df["state_of_incorporation"].str.upper()
+    df[["industry_description_sic", "industry_id_sic"]] = df[
+        "industry_id_sic"
+    ].str.extract(r"^([\D]*)\[(\d{4})\]$")
+    df = convert_cols_dtypes(df, data_source="sec10k")
 
     return df
 
