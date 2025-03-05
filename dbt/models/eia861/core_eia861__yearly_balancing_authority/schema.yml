@@ -1,0 +1,14 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia861__yearly_balancing_authority
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_eia861__yearly_balancing_authority
+              partition_column: report_date
+        columns:
+          - name: report_date
+          - name: balancing_authority_id_eia
+          - name: balancing_authority_code_eia
+          - name: balancing_authority_name_eia

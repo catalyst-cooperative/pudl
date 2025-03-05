@@ -1,0 +1,32 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia923__monthly_fuel_receipts_costs
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_eia923__monthly_fuel_receipts_costs
+              partition_column: report_date
+        columns:
+          - name: plant_id_eia
+          - name: report_date
+          - name: contract_type_code
+          - name: contract_expiration_date
+          - name: energy_source_code
+          - name: fuel_type_code_pudl
+          - name: fuel_group_code
+          - name: mine_id_pudl
+          - name: supplier_name
+          - name: fuel_received_units
+          - name: fuel_mmbtu_per_unit
+          - name: sulfur_content_pct
+          - name: ash_content_pct
+          - name: mercury_content_ppm
+          - name: fuel_cost_per_mmbtu
+          - name: primary_transportation_mode_code
+          - name: secondary_transportation_mode_code
+          - name: natural_gas_transport_code
+          - name: natural_gas_delivery_contract_type_code
+          - name: moisture_content_pct
+          - name: chlorine_content_ppm
+          - name: data_maturity

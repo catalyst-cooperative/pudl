@@ -246,7 +246,7 @@ def _core_eia860__generators(
     }
     boolean_columns_to_fix = [
         "duct_burners",
-        "multiple_fuels",
+        "can_burn_multiple_fuels",
         "deliver_power_transgrid",
         "syncronized_transmission_grid",
         "solid_fuel_gasification",
@@ -258,8 +258,8 @@ def _core_eia860__generators(
         "carbon_capture",
         "stoker_tech",
         "other_combustion_tech",
-        "cofire_fuels",
-        "switch_oil_gas",
+        "can_cofire_fuels",
+        "can_switch_oil_gas",
         "bypass_heat_recovery",
         "associated_combined_heat_power",
         "planned_modifications",
@@ -466,6 +466,86 @@ def _core_eia860__generators_wind(
         )
     )
     return wind_df
+
+
+@asset
+def _core_eia860__generators_multifuel(
+    raw_eia860__multifuel_existing: pd.DataFrame,
+    raw_eia860__multifuel_proposed: pd.DataFrame,
+    raw_eia860__multifuel_retired: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the multifuel generators table."""
+    multifuel_ex = raw_eia860__multifuel_existing
+    multifuel_pr = raw_eia860__multifuel_proposed
+    multifuel_re = raw_eia860__multifuel_retired
+
+    boolean_columns_to_fix = [
+        "has_air_permit_limits",
+        "can_cofire_100_oil",
+        "can_cofire_fuels",
+        "has_factors_that_limit_switching",
+        "can_burn_multiple_fuels",
+        "has_other_factors_that_limit_switching",
+        "has_storage_limits",
+        "can_switch_oil_gas",
+        "can_switch_when_operating",
+    ]
+
+    # A subset of the columns have zero values, where NA is appropriate:
+    nulls_replace_cols = {
+        col: {" ": np.nan, 0: np.nan}
+        for col in [
+            "winter_capacity_mw",
+            "summer_capacity_mw",
+        ]
+    }
+
+    multifuel_df = (
+        pd.concat([multifuel_ex, multifuel_pr, multifuel_re], sort=True)
+        .dropna(subset=["generator_id", "plant_id_eia"])
+        .pipe(pudl.helpers.fix_eia_na)
+        .pipe(
+            pudl.helpers.fix_boolean_columns,
+            boolean_columns_to_fix=boolean_columns_to_fix,
+        )
+        .replace(to_replace=nulls_replace_cols)
+        .pipe(pudl.helpers.month_year_to_date)
+        .pipe(pudl.helpers.convert_to_date)
+        .pipe(PUDL_PACKAGE.encode)
+    )
+
+    multifuel_df["fuel_type_code_pudl"] = (
+        multifuel_df.energy_source_code_1.str.upper().map(
+            pudl.helpers.label_map(
+                CODE_METADATA["core_eia__codes_energy_sources"]["df"],
+                from_col="code",
+                to_col="fuel_type_code_pudl",
+                null_value=pd.NA,
+            )
+        )
+    )
+
+    multifuel_df["operational_status"] = (
+        multifuel_df.operational_status_code.str.upper().map(
+            pudl.helpers.label_map(
+                CODE_METADATA["core_eia__codes_operational_status"]["df"],
+                from_col="code",
+                to_col="operational_status",
+                null_value=pd.NA,
+            )
+        )
+    )
+
+    # There are some pesky duplicate rows from the plant_id 56032 gen_id 1
+    # The rows are almost identical, so this gets rid of the duplicates.
+    # It only drops known duplicates from 56032 so we can spot any other
+    # irregularities in the future.
+    dupe_pk_rows_to_drop = multifuel_df[
+        multifuel_df[["report_date", "plant_id_eia", "generator_id"]].duplicated()
+        & (multifuel_df["plant_id_eia"] == 56032)
+    ]
+    multifuel_df = multifuel_df.drop(dupe_pk_rows_to_drop.index)
+    return multifuel_df
 
 
 @asset
