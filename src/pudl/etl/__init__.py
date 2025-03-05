@@ -153,8 +153,10 @@ def asset_check_from_schema(
                 metadata={
                     "errors": [
                         {
-                            "failure_cases": str(err.failure_cases),
-                            "data": str(err.data),
+                            "schema": str(err.schema),
+                            "failure_cases": err.failure_cases.to_dict(
+                                orient="records"
+                            ),
                         }
                         for err in schema_errors.schema_errors
                     ],
