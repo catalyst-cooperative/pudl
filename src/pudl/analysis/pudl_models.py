@@ -50,7 +50,7 @@ def raw_sec10k__quarterly_company_information() -> pd.DataFrame:
 
 
 @asset(
-    # io_manager_key="pudl_io_manager",
+    io_manager_key="pudl_io_manager",
     group_name="sec10k",
 )
 def core_sec10k__quarterly_company_information(
@@ -173,7 +173,7 @@ def out_sec10k__quarterly_company_information(
 
 
 @asset(
-    # io_manager_key="pudl_io_manager",
+    io_manager_key="pudl_io_manager",
     group_name="sec10k",
 )
 def core_sec10k__changelog_company_name(
@@ -187,11 +187,8 @@ def core_sec10k__changelog_company_name(
     """
     changelog_df = core_sec10k__quarterly_company_information[
         ["central_index_key", "company_name", "name_change_date", "company_name_former"]
-    ]
-    changelog_df = changelog_df[
-        (~changelog_df["name_change_date"].isnull())
-        | (~changelog_df["company_name"].isnull())
     ].drop_duplicates()
+    changelog_df = changelog_df[~changelog_df["company_name"].isnull()]
     # often a company never filed a 10k under its former name
     # create records for these former names and concatenate
     # them with the changed names so that we can have a log
