@@ -2498,9 +2498,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Original reported energy interchange between adjacent balancing authorities.",
         "unit": "MWh",
     },
-    "company_id_irs": {
+    "taxpayer_id_irs": {
         "type": "string",
-        "description": "ID of the company with the IRS.",
+        "description": "Taxpayer ID of the company with the IRS.",
+        "constraints": {
+            "pattern": r"^\d{2}-\d{7}$",
+        },
     },
     "is_epacems_state": {
         "type": "boolean",

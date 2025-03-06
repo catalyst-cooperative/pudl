@@ -115,7 +115,7 @@ def core_sec10k__quarterly_company_information(
             "date_of_name_change": "name_change_date",
             "zip": "zip_code",
             "business_phone": "phone_number",
-            "irs_number": "company_id_irs",
+            "irs_number": "taxpayer_id_irs",
             "former_conformed_name": "company_name_former",
             "form_type": "sec10k_version",
             "standard_industrial_classification": "industry_id_sic",
@@ -141,6 +141,16 @@ def core_sec10k__quarterly_company_information(
         ),
         "fiscal_year_end",
     ] = None
+    # make taxpayer ID a 9 digit number with a dash separating the first two digits
+    df["taxpayer_id_irs"] = df["taxpayer_id_irs"].str.replace("-", "", regex=False)
+    df["taxpayer_id_irs"] = df["taxpayer_id_irs"].where(
+        (df["taxpayer_id_irs"].str.len() == 9)
+        & (df["taxpayer_id_irs"].str.isnumeric().all()),
+        pd.NA,
+    )
+    df["taxpayer_id_irs"] = (
+        df["taxpayer_id_irs"].str[:2] + "-" + df["taxpayer_id_irs"].str[-7:]
+    )
     df = convert_cols_dtypes(df, data_source="sec10k")
     df = df.sort_values(by=["central_index_key", "report_date"])
 
@@ -271,7 +281,7 @@ def out_sec10k__parents_and_subsidiaries() -> pd.DataFrame:
             "street_address_2": "address_2",
             "former_conformed_name": "company_name_former",
             "location_of_inc": "location_of_incorporation",
-            "irs_number": "company_id_irs",
+            "irs_number": "taxpayer_id_irs",
             "parent_company_cik": "parent_company_central_index_key",
             "files_10k": "files_sec10k",
             "date_of_name_change": "name_change_date",
