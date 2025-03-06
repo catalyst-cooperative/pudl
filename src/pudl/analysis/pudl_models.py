@@ -50,7 +50,7 @@ def raw_sec10k__quarterly_company_information() -> pd.DataFrame:
 
 
 @asset(
-    io_manager_key="pudl_io_manager",
+    # io_manager_key="pudl_io_manager",
     group_name="pudl_models",
 )
 def core_sec10k__quarterly_company_information(
@@ -115,7 +115,18 @@ def core_sec10k__quarterly_company_information(
     df[["industry_description_sic", "industry_id_sic"]] = df[
         "industry_id_sic"
     ].str.extract(r"^([\D]*)\[(\d{4})\]$")
+    df["sec_act"] = df["sec_act"].where(df["sec_act"].isnull(), "1934 act")
+    # fiscal year end should conform to MMDD format
+    df["fiscal_year_end"] = df["fiscal_year_end"].str.zfill(4)
+    df.loc[
+        ~df.fiscal_year_end.str.contains(
+            r"^(?:(?:0[1-9]|1[0-2])(?:0[1-9]|1\d|2\d|3[01])|(?:0[13-9]|1[0-2])(?:29|30)|(?:0[13578]|1[02])31)$",
+            na=False,
+        ),
+        "fiscal_year_end",
+    ] = None
     df = convert_cols_dtypes(df, data_source="sec10k")
+    df = df.sort_values(by=["central_index_key", "report_date"])
 
     return df
 

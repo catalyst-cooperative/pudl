@@ -1708,7 +1708,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "film_number": {
         "type": "string",
-        "description": "Document control number used in the SEC database.",
+        "description": "Document control number used in the SEC EDGAR database. The first four digits can be used to access scans of the document in the SEC's Virtual Private Reference Room.",
     },
     "firing_rate_using_coal_tons_per_hour": {
         "type": "number",
@@ -1744,6 +1744,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "fiscal_year_end": {
         "type": "string",
         "description": "The end date of an SEC filing company's fiscal year, in MMDD format.",
+        "constraints": {
+            "pattern": r"^(?:(?:0[1-9]|1[0-2])(?:0[1-9]|1\d|2\d|3[01])|(?:0[13-9]|1[0-2])(?:29|30)|(?:0[13578]|1[02])31)$",
+        },
     },
     "flow_rate_method": {
         "description": (
