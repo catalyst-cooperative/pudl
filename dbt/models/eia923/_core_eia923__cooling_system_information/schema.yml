@@ -7,6 +7,32 @@ sources:
           - check_row_counts_per_partition:
               table_name: _core_eia923__cooling_system_information
               partition_column: report_date
+          - group_mean_continuity_check:
+              ordered_group_column: report_date
+              n_outliers_allowed: 2
+              thresholds:
+                - column: annual_average_consumption_rate_gallons_per_minute
+                  max_fr_change: 0.1
+                - column: annual_average_discharge_rate_gallons_per_minute
+                  max_fr_change: 0.1
+                - column: annual_average_withdrawal_rate_gallons_per_minute
+                  max_fr_change: 0.1
+                - column: monthly_average_consumption_rate_gallons_per_minute
+                  max_fr_change: 0.5
+                - column: monthly_average_discharge_rate_gallons_per_minute
+                  max_fr_change: 0.2
+                - column: monthly_average_diversion_rate_gallons_per_minute
+                  max_fr_change: 1.3
+                - column: monthly_average_withdrawal_rate_gallons_per_minute
+                  max_fr_change: 0.2
+                - column: monthly_total_consumption_volume_gallons
+                  max_fr_change: 0.4
+                - column: monthly_total_discharge_volume_gallons
+                  max_fr_change: 0.3
+                - column: monthly_total_diversion_volume_gallons
+                  max_fr_change: 1.3
+                - column: monthly_total_withdrawal_volume_gallons
+                  max_fr_change: 0.3
         columns:
           - name: report_date
           - name: plant_id_eia
