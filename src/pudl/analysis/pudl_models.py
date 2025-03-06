@@ -50,41 +50,54 @@ def raw_sec10k__quarterly_company_information() -> pd.DataFrame:
 
 
 @asset(
-    io_manager_key="pudl_io_manager",
+    # io_manager_key="pudl_io_manager",
     group_name="sec10k",
 )
 def core_sec10k__quarterly_company_information(
     raw_sec10k__quarterly_company_information: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Company information extracted from SEC10k filings."""
+    """Company information extracted from SEC10k filings.
+
+    Consolidate company information extracted from key: value blocks
+    within the headers of the SEC 10k filings such that there
+    is one record of company information per block. One company's
+    information may be reported in multiple filings on the same report date.
+    However, we only want to keep one of those records per company and report date,
+    (``central index key`` and ``report_date`` are a primary key for the table).
+    We prioritize keeping records from filings where that company's extracted
+    ``central_index_key`` matches the filer's central index key, meaning that
+    that company filed the 10k itself.
+    """
     # Strip erroneous "]" characters
     raw_sec10k__quarterly_company_information["company_information_fact_name"] = (
         raw_sec10k__quarterly_company_information[
             "company_information_fact_name"
         ].str.lstrip("]")
     )
-    raw_sec10k__quarterly_company_information["company_information_block"] = (
-        pd.Categorical(
-            raw_sec10k__quarterly_company_information["company_information_block"],
-            [
-                "business_address",
-                "mail_address",
-                "company_data",
-                "filing_values",
-                "former_company",
-            ],
-        )
-    )
-    df = raw_sec10k__quarterly_company_information.sort_values(
-        "company_information_block"
-    ).pivot_table(
+    df = raw_sec10k__quarterly_company_information.pivot(
         values="company_information_fact_value",
-        index=["filename_sec10k", "report_date"],
+        index=[
+            "filename_sec10k",
+            "report_date",
+            "company_information_block",
+            "company_information_block_count",
+        ],
         columns="company_information_fact_name",
-        aggfunc="first",
     )
     df.columns.name = None
     df = df.reset_index()
+    # consolidate information extracted from blocks within the header
+    # so that there is one record per block
+    df = (
+        (
+            df.groupby(
+                ["filename_sec10k", "report_date", "company_information_block_count"]
+            ).first()
+        )
+        .reset_index()
+        .drop(columns=["company_information_block", "company_information_block_count"])
+        .dropna(subset="central_index_key")
+    )
     # we want central_index_key and report_date to be a primary key
     # prioritize records where the filer is the same
     # as the harvested central index key value
@@ -160,25 +173,43 @@ def out_sec10k__quarterly_company_information(
 
 
 @asset(
-    io_manager_key="pudl_io_manager",
+    # io_manager_key="pudl_io_manager",
     group_name="sec10k",
 )
 def core_sec10k__changelog_company_name(
     core_sec10k__quarterly_company_information: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Changes in SEC company names and the date of change as reported in 10k filings."""
+    """Changes in SEC company names and the date of change as reported in 10k filings.
+
+    When a company never reported under its former name, create a record
+    for that company name and concatenate with the existing names
+    to get a log of name changes.
+    """
     changelog_df = core_sec10k__quarterly_company_information[
-        [
-            "central_index_key",
-            "report_date",
-            "company_name",
-            "name_change_date",
-            "company_name_former",
-        ]
+        ["central_index_key", "company_name", "name_change_date", "company_name_former"]
     ]
     changelog_df = changelog_df[
         (~changelog_df["name_change_date"].isnull())
-        | (~changelog_df["company_name_former"].isnull())
+        | (~changelog_df["company_name"].isnull())
+    ].drop_duplicates()
+    # often a company never filed a 10k under its former name
+    # create records for these former names and concatenate
+    # them with the changed names so that we can have a log
+    # of names changes
+    former_names_df = (
+        changelog_df[["central_index_key", "company_name_former"]]
+        .dropna(subset="company_name_former")
+        .rename(columns={"company_name_former": "company_name"})
+    )
+    changelog_df = pd.concat([changelog_df, former_names_df])
+    changelog_df = changelog_df.sort_values(
+        by=["central_index_key", "name_change_date"], na_position="first"
+    )
+    changelog_df = changelog_df.drop_duplicates(
+        subset=["central_index_key", "company_name"], keep="last"
+    )
+    changelog_df = changelog_df[
+        ["central_index_key", "company_name", "name_change_date"]
     ]
     return changelog_df
 

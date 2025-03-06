@@ -42,8 +42,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             """Company information extracted from SEC10k filings.
 This table provides attributes about SEC 10k filing companies across time.
-It represents a pivoted version of the raw company information table with extracted
-field values from the raw table as columns in this core table."""
+In the raw data, company information may be reported in multiple SEC 10k
+filings from the same filing date. In this table, only one of these reported
+blocks of information is kept. Records from filings where that company's extracted
+``central_index_key`` matches the filer's central index key (meaning that
+that company filed the 10k itself) are prioritized."""
         ),
         "schema": {
             "fields": [
@@ -85,12 +88,10 @@ data extracted from SEC 10k filings."""
         "schema": {
             "fields": [
                 "central_index_key",
-                "report_date",
                 "company_name",
                 "name_change_date",
-                "company_name_former",
             ],
-            "primary_key": ["central_index_key", "report_date"],
+            "primary_key": ["central_index_key", "company_name"],
         },
         "sources": ["sec10k"],
         "etl_group": "pudl_models",
