@@ -29,7 +29,7 @@ def _year_quarter_to_date(year_quarter: pd.Series) -> pd.Series:
 
 
 @asset(
-    group_name="pudl_models",
+    group_name="sec10k",
 )
 def raw_sec10k__quarterly_company_information() -> pd.DataFrame:
     """Raw company information harvested from headers of SEC10k filings."""
@@ -50,8 +50,8 @@ def raw_sec10k__quarterly_company_information() -> pd.DataFrame:
 
 
 @asset(
-    # io_manager_key="pudl_io_manager",
-    group_name="pudl_models",
+    io_manager_key="pudl_io_manager",
+    group_name="sec10k",
 )
 def core_sec10k__quarterly_company_information(
     raw_sec10k__quarterly_company_information: pd.DataFrame,
@@ -106,15 +106,18 @@ def core_sec10k__quarterly_company_information(
             "former_conformed_name": "company_name_former",
             "form_type": "sec10k_version",
             "standard_industrial_classification": "industry_id_sic",
+            "sec_file_number": "filing_number_sec",
         }
     )
     df["zip_code"] = df["zip_code"].str[:5]
+    df["zip_code_4"] = df["zip_code"].str[-4:]
+    df["zip_code_4"].where(df["zip_code"].str.len() > 5, None)
     df["name_change_date"] = pd.to_datetime(df["name_change_date"], format="%Y%m%d")
     df["state"] = df["state"].str.upper()
     df["state_of_incorporation"] = df["state_of_incorporation"].str.upper()
-    df[["industry_description_sic", "industry_id_sic"]] = df[
-        "industry_id_sic"
-    ].str.extract(r"^([\D]*)\[(\d{4})\]$")
+    df[["industry_name_sic", "industry_id_sic"]] = df["industry_id_sic"].str.extract(
+        r"^(.+)\[(\d{4})\]$"
+    )
     df["sec_act"] = df["sec_act"].where(df["sec_act"].isnull(), "1934 act")
     # fiscal year end should conform to MMDD format
     df["fiscal_year_end"] = df["fiscal_year_end"].str.zfill(4)
@@ -133,7 +136,7 @@ def core_sec10k__quarterly_company_information(
 
 @asset(
     io_manager_key="pudl_io_manager",
-    group_name="pudl_models",
+    group_name="sec10k",
 )
 def out_sec10k__quarterly_company_information(
     core_sec10k__quarterly_company_information: pd.DataFrame,
@@ -158,7 +161,7 @@ def out_sec10k__quarterly_company_information(
 
 @asset(
     io_manager_key="pudl_io_manager",
-    group_name="pudl_models",
+    group_name="sec10k",
 )
 def core_sec10k__changelog_company_name(
     core_sec10k__quarterly_company_information: pd.DataFrame,
@@ -182,7 +185,7 @@ def core_sec10k__changelog_company_name(
 
 @asset(
     io_manager_key="pudl_io_manager",
-    group_name="pudl_models",
+    group_name="sec10k",
 )
 def core_sec10k__quarterly_exhibit_21_company_ownership() -> pd.DataFrame:
     """Company ownership information extracted from sec10k exhibit 21 attachments."""
@@ -206,7 +209,7 @@ def core_sec10k__quarterly_exhibit_21_company_ownership() -> pd.DataFrame:
 
 @asset(
     io_manager_key="pudl_io_manager",
-    group_name="pudl_models",
+    group_name="sec10k",
 )
 def core_sec10k__quarterly_filings() -> pd.DataFrame:
     """Metadata on all 10k filings submitted to SEC."""
@@ -228,7 +231,7 @@ def core_sec10k__quarterly_filings() -> pd.DataFrame:
 
 @asset(
     io_manager_key="pudl_io_manager",
-    group_name="pudl_models",
+    group_name="sec10k",
 )
 def out_sec10k__parents_and_subsidiaries() -> pd.DataFrame:
     """Denormalized output table with sec10k info and company ownership linked to EIA."""
@@ -251,9 +254,9 @@ def out_sec10k__parents_and_subsidiaries() -> pd.DataFrame:
     df["fraction_owned"] = _compute_fraction_owned(df.ownership_percentage)
 
     # Split standard industrial classification into ID and description columns
-    df[["industry_description_sic", "industry_id_sic"]] = df[
+    df[["industry_name_sic", "industry_id_sic"]] = df[
         "standard_industrial_classification"
-    ].str.extract(r"(.+)\[(\d{4})\]")
+    ].str.extract(r"^(.+)\[(\d{4})\]$")
     df["industry_id_sic"] = df["industry_id_sic"].astype("string")
     # Some utilities harvested from EIA 861 data that don't show up in our entity
     # tables. These didn't end up improving coverage, and so will be removed upstream.

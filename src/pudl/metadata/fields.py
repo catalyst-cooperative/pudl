@@ -2435,7 +2435,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
-    "industry_description_sic": {
+    "industry_name_sic": {
         "type": "string",
         "description": "Text description of Standard Industrial Classification (SIC)",
     },
@@ -3407,10 +3407,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Production expenses: water for power (USD).",
         "unit": "USD",
     },
-    "organization_name": {
-        "type": "string",
-        "description": "SEC standardized type of organization of the company.",
-    },
     "original_planned_generator_operating_date": {
         "type": "date",
         "description": "The date the generator was originally scheduled to be operational",
@@ -4196,7 +4192,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "SEC Act through which the form was enacted, e.g. 1934 act.",
     },
-    "sec_file_number": {
+    "filing_number_sec": {
         "type": "string",
         "description": "Filing number used internally by the SEC commission to track filing.",
     },
