@@ -1563,6 +1563,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "exhibit_21_version": {
         "type": "string",
         "description": "Version of exhibit 21 submitted (if applicable).",
+        "constraints": {
+            "pattern": r"^21\.*\d*$",
+        },
     },
     "expense_type": {"type": "string", "description": "The type of expense."},
     "ferc1_generator_agg_id": {
