@@ -154,8 +154,11 @@ def out_sec10k__quarterly_company_information(
     out_df = core_sec10k__quarterly_company_information.merge(
         matched_df, how="left", on="central_index_key"
     )
+    logger.warning(f"CORE COLS: {core_sec10k__quarterly_company_information.columns}")
     # merge utility name on
     out_df = out_df.merge(core_eia__entity_utilities, how="left", on="utility_id_eia")
+    logger.warning(f"HEAD: {out_df.head()}")
+    logger.warning(f"COLUMNS: {out_df.columns}")
     return out_df
 
 

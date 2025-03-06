@@ -62,6 +62,7 @@ field values from the raw table as columns in this core table."""
                 "sec_act",
                 "filing_number_sec",
                 "industry_id_sic",
+                "industry_name_sic",
                 "state",
                 "state_of_incorporation",
                 "street_address",
