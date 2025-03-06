@@ -19,18 +19,21 @@ sources:
           - name: annual_average_consumption_rate_gallons_per_minute
             data_tests:
               - group_mean_continuity_check:
-                  group_column: report_date
-                  max_pct_change: 0.1
+                  ordered_group_column: report_date
+                  max_fr_change: 0.1
+                  n_outliers_allowed: 2
           - name: annual_average_discharge_rate_gallons_per_minute
             data_tests:
               - group_mean_continuity_check:
-                  group_column: report_date
-                  max_pct_change: 0.1
+                  ordered_group_column: report_date
+                  max_fr_change: 0.1
+                  n_outliers_allowed: 2
           - name: annual_average_withdrawal_rate_gallons_per_minute
             data_tests:
               - group_mean_continuity_check:
-                  group_column: report_date
-                  max_pct_change: 0.1
+                  ordered_group_column: report_date
+                  max_fr_change: 0.1
+                  n_outliers_allowed: 2
           - name: annual_maximum_intake_summer_temperature_fahrenheit
           - name: annual_maximum_intake_winter_temperature_fahrenheit
           - name: annual_maximum_outlet_summer_temperature_fahrenheit
@@ -39,46 +42,54 @@ sources:
           - name: monthly_average_consumption_rate_gallons_per_minute
             data_tests:
               - group_mean_continuity_check:
-                  group_column: report_date
-                  max_pct_change: 0.5
+                  ordered_group_column: report_date
+                  max_fr_change: 0.5
+                  n_outliers_allowed: 2
           - name: monthly_average_discharge_rate_gallons_per_minute
             data_tests:
               - group_mean_continuity_check:
-                  group_column: report_date
-                  max_pct_change: 0.2
+                  ordered_group_column: report_date
+                  max_fr_change: 0.2
+                  n_outliers_allowed: 2
           - name: monthly_average_discharge_temperature_fahrenheit
           - name: monthly_average_diversion_rate_gallons_per_minute
             data_tests:
               - group_mean_continuity_check:
-                  group_column: report_date
-                  max_pct_change: 1.3
+                  ordered_group_column: report_date
+                  max_fr_change: 1.3
+                  n_outliers_allowed: 2
           - name: monthly_average_intake_temperature_fahrenheit
           - name: monthly_average_withdrawal_rate_gallons_per_minute
             data_tests:
               - group_mean_continuity_check:
-                  group_column: report_date
-                  max_pct_change: 0.2
+                  ordered_group_column: report_date
+                  max_fr_change: 0.2
+                  n_outliers_allowed: 2
           - name: monthly_maximum_discharge_temperature_fahrenheit
           - name: monthly_maximum_intake_temperature_fahrenheit
           - name: monthly_total_chlorine_lbs
           - name: monthly_total_consumption_volume_gallons
             data_tests:
               - group_mean_continuity_check:
-                  group_column: report_date
-                  max_pct_change: 0.4
+                  ordered_group_column: report_date
+                  max_fr_change: 0.4
+                  n_outliers_allowed: 2
           - name: monthly_total_discharge_volume_gallons
             data_tests:
               - group_mean_continuity_check:
-                  group_column: report_date
-                  max_pct_change: 0.3
+                  ordered_group_column: report_date
+                  max_fr_change: 0.3
+                  n_outliers_allowed: 2
           - name: monthly_total_diversion_volume_gallons
             data_tests:
               - group_mean_continuity_check:
-                  group_column: report_date
-                  max_pct_change: 1.3
+                  ordered_group_column: report_date
+                  max_fr_change: 1.3
+                  n_outliers_allowed: 2
           - name: monthly_total_withdrawal_volume_gallons
             data_tests:
               - group_mean_continuity_check:
-                  group_column: report_date
-                  max_pct_change: 0.3
+                  ordered_group_column: report_date
+                  max_fr_change: 0.3
+                  n_outliers_allowed: 2
           - name: data_maturity
