@@ -13,12 +13,6 @@ We recommend working with tables with the ``out_`` prefix, as these tables conta
 most complete and easiest to work with data. For more information about the different
 types of tables, read through :ref:`PUDL's naming conventions <asset-naming>`.
 
-.. note::
-
-  We recently released a beta `PUDL Database Viewer <https://viewer.catalyst.coop/>`__.
-  It provides flexible search of table descriptions, live data preview, and CSV export of up to 5 million rows. It also provides access to tables that were too large for Datasette, such as the EPA CEMS emissions data and the VCE RARE hourly renewable capacity factors data.
-  Finally, it also has links to the Parquet downloads for each table, which you can view directly with tools like `Tad <https://www.tadviewer.com/>`__.
-
 The :doc:`PUDL data dictionary </data_dictionaries/pudl_db>` provides direct links to
 :ref:`access-datasette` for each table if it is included in our SQLite outputs, and to
 the Parquet outputs if the table is available in that format.
@@ -36,11 +30,18 @@ Quick Reference
      - :ref:`Version <access-version>`
      - User Types
      - Use Cases
+
+   * - :ref:`access-viewer`
+     - Parquet, CSV
+     - ``nightly``
+     - Data Explorer, Spreadsheet Analyst
+     - Explore PUDL data interactively in a web browser, including hourly timeseries data.
+       Select data to download as CSVs for local analysis in spreadsheets.
    * - :ref:`access-datasette`
      - SQLite, CSV
      - ``nightly``
-     - Data Explorer, Spreadsheet Analyst
-     - Explore PUDL SQLite databases interactively in a web browser.
+     - Data Explorer, Spreadsheet Analyst, SQL User
+     - Run SQL queries on our SQLite database within your browser.
        Select data to download as CSVs for local analysis in spreadsheets.
        Create sharable links to a particular selection of data.
    * - :ref:`access-kaggle`
@@ -87,7 +88,8 @@ Data Platform
 ^^^^^^^^^^^^^
 
 PUDL data is distributed on a number of different platforms to acommodate a variety of
-different use cases. These include :ref:`access-datasette`, :ref:`access-kaggle`,
+different use cases. These include :ref:`access-viewer`,
+:ref:`access-datasette`, :ref:`access-kaggle`,
 :ref:`access-cloud`, and :ref:`access-zenodo`.
 
 .. _access-format:
@@ -103,13 +105,18 @@ PUDL data is distributed in two main file formats
   columnar storage format in which each file stores a single table. Parquet supports
   rich data types and metadata, and is highly performant.
 
-Any data that is published using SQLite is available through :ref:`access-datasette`,
-and can be downloaded as a CSV through that platform. See below.
+All data is distributed with both formats, except:
 
 - **Parquet Only**: The hourly data tables are distributed only as Parquet files.
   These tables have ``hourly`` in their names.
 - **SQLite Only**: The :ref:`minimally processed FERC data <access-raw-ferc>` which we
   have converted from XBRL and DBF into SQLite are only available in SQLite.
+
+All Parquet data is available through :ref:`access-viewer`, and can be
+downloaded as a CSV through that platform.
+
+All SQLite data is available through :ref:`access-datasette`,
+and can be downloaded as a CSV through that platform.
 
 .. _access-version:
 
@@ -126,11 +133,35 @@ We also provide access to a ``nightly`` development build of the data, which is 
 most weekday mornings. These builds are useful for beta testing new outputs, but are
 ephemeral and may not be as well validated as the ``stable`` releases.
 
+.. _access-viewer:
+
+---------------------------------------------------------------------------------------
+PUDL Viewer
+---------------------------------------------------------------------------------------
+
+We recently released the `PUDL Viewer <https://viewer.catalyst.coop/>`__ in beta.
+
+It provides flexible search of table descriptions, live data preview, and CSV
+export of up to 5 million rows. It also provides access to tables that were too
+large for Datasette, such as the EPA CEMS emissions data and the VCE RARE
+hourly renewable capacity factors data.
+
+Finally, it also has links to the Parquet downloads for each table, which you can view directly with tools like `Tad <https://www.tadviewer.com/>`__.
+
+Note that the raw :ref:`FERC SQLite databases <access-raw-ferc>` derived from
+the old Visual FoxPro and new XBRL data formats are not available here yet - if
+you need that, see :ref:`access-datasette`.
+
 .. _access-datasette:
 
 ---------------------------------------------------------------------------------------
 Datasette
 ---------------------------------------------------------------------------------------
+
+.. warning::
+
+  Our Datasette instance is deprecated. For performance reasons, we will be
+  moving all data access to our new :ref:`access-viewer` in early-mid 2025.
 
 We provide web-based access to the PUDL data via a
 `Datasette <https://datasette.io>`__ deployment at:
@@ -157,7 +188,8 @@ selected.
 
    Only PUDL database tables that are available in SQLite are accessible via Datasette.
    Due to their size, we currently do not load any of the hourly tables into SQLite, and
-   distribute them only as Parquet files.
+   distribute them only as Parquet files. For access to the hourly tables, see
+   the :ref:`access-viewer`.
 
 .. _access-kaggle:
 
