@@ -182,6 +182,20 @@ def out_sec10k__quarterly_company_information(
     return out_df
 
 
+@asset(io_manager_key="pudl_io_manager", group_name="sec10k")
+def core_sec10k__assn__sec10k_filers_and_eia_utilities() -> pd.DataFrame:
+    """An association table between SEC 10k filing companies and EIA utilities."""
+    matched_df = _load_table_from_gcs("out_sec10k__parents_and_subsidiaries")
+    matched_df = (
+        matched_df[["central_index_key", "utility_id_eia"]]
+        .dropna()
+        .drop_duplicates(
+            subset="central_index_key"
+        )  # matches should already be 1-to-1 but drop duplicates to ensure this is true
+    )
+    return matched_df
+
+
 @asset(
     io_manager_key="pudl_io_manager",
     group_name="sec10k",

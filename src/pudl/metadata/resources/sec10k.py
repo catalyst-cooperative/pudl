@@ -3,6 +3,18 @@
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
+    "core_sec10k__assn__sec10k_filers_and_eia_utilities": {
+        "description": """Associations between SEC 10k filing companies and EIA utilities.
+SEC company index keys are matched to EIA utility IDs using probabilistic
+record linkage. The match between ``central_index_key``and ``utility_id_eia`` is one to one
+and doesn't change over time - the highest probability
+EIA utility match for each SEC company is used for all dates of reported information for
+that CIK.""",
+        "schema": {"fields": ["central_index_key", "utility_id_eia"]},
+        "sources": ["sec10k"],
+        "etl_group": "pudl_models",
+        "field_namespace": "sec10k",
+    },
     "core_sec10k__quarterly_filings": {
         "description": "Metadata describing all submitted SEC 10k filings.",
         "schema": {
