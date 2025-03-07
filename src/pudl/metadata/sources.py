@@ -33,13 +33,7 @@ SOURCES: dict[str, Any] = {
         ),
         "working_partitions": {"years": [2023]},
         "keywords": sorted(
-            {
-                "fips",
-                "census",
-                "county",
-                "state",
-                "geography",
-            }
+            {"fips", "census", "county", "state", "geography", "geocodes"}
         ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
