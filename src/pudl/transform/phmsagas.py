@@ -1,7 +1,7 @@
 """Classes & functions to process PHMSA natural gas data before loading into the PUDL DB."""
 
 import pandas as pd
-from dagster import AssetCheckResult, AssetIn, asset, asset_check
+from dagster import AssetCheckResult, asset, asset_check
 
 import pudl.logging_helpers
 from pudl.helpers import (
@@ -84,12 +84,11 @@ YEARLY_DISTRIBUTION_OPERATORS_COLUMNS = {
 
 
 @asset(
-    ins={"raw_data": AssetIn(key="raw_phmsagas__yearly_distribution")},
     io_manager_key="pudl_io_manager",
     compute_kind="pandas",
 )
 def core_phmsagas__yearly_distribution_operators(
-    raw_data: pd.DataFrame,
+    raw_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull and transform the yearly distribution PHMSA data into operator-level data.
 
@@ -109,7 +108,7 @@ def core_phmsagas__yearly_distribution_operators(
         Transformed ``core_phmsagas__yearly_distribution_operators`` dataframe.
 
     """
-    df = raw_data.loc[
+    df = raw_phmsagas__yearly_distribution.loc[
         :, YEARLY_DISTRIBUTION_OPERATORS_COLUMNS["columns_to_keep"]
     ].copy()
 
@@ -215,10 +214,10 @@ def filter_if_test_in_address(group: pd.DataFrame) -> pd.DataFrame:
     columns, leave the group unchanged.
 
     Args:
-        group (DataFrame): A grouped subset of the DataFrame.
+        group: A grouped subset of the DataFrame.
 
     Returns:
-        DataFrame: The filtered group of rows.
+        The filtered group of rows.
     """
     # Check if at least one row in the group does NOT contain "test" in both of the specified columns
     contains_test = group.apply(
@@ -242,10 +241,10 @@ def filter_by_city_in_name(group: pd.DataFrame) -> pd.DataFrame:
     "operator_name_phmsa" value (case insensitive).
 
     Args:
-        group (pd.DataFrame): A grouped subset of the DataFrame.
+        group: A grouped subset of the DataFrame.
 
     Returns:
-        pd.DataFrame: The filtered group of rows.
+        The filtered group of rows.
     """
     # Check if any row has "office_address_city" contained in "operator_name_phmsa" (case insensitive)
     city_in_name = (
@@ -269,10 +268,10 @@ def combined_filter(group: pd.DataFrame) -> pd.DataFrame:
     """Apply all required filters to DataFrame.
 
     Args:
-        group (pd.DataFrame): A grouped subset of the DataFrame.
+        group: A grouped subset of the DataFrame.
 
     Returns:
-        pd.DataFrame: The filtered group of rows.
+        The filtered group of rows.
     """
     # Apply filters
     group = filter_by_city_in_name(group)

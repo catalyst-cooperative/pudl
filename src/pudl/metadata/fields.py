@@ -58,7 +58,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "additional_information": {
         "type": "string",
-        "description": "Field for any additional non-structured data supplied.",
+        "description": "Any additional information which will assist in clarifying or classifying the reported data.",
     },
     "additions": {
         "type": "number",
@@ -1566,27 +1566,51 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "excavation_damage_excavation_practices": {
         "type": "integer",
-        "description": "Count of excavation practices resulting in excavation damage related to natural gas distribution.",
+        "description": (
+            "Number of incidents in which damages resulted from failure to maintain "
+            "marks; or failure to support exposed facilities; or failure to use hand "
+            "tools where required; or failure to test-hole (pot-hole); or improper "
+            "backfilling practices; or failure to maintain clearance; or other "
+            "insufficient excavation practices."
+        ),
     },
     "excavation_damage_locating_practices": {
         "type": "integer",
-        "description": "Count of locating practices resulting in excavation damage related to natural gas distribution.",
+        "description": (
+            "Number of incidents in which damages resulted from facility could not be "
+            "found or located; or facility marking or location not sufficient; or "
+            "facility was not located or marked; or incorrect facility records/maps."
+        ),
     },
     "excavation_damage_one_call_notification": {
         "type": "integer",
-        "description": "Count of one-call notification practices resulting in excavation damage related to natural gas distribution.",
+        "description": (
+            "Number of incidents in which damages resulted from no notification made "
+            "to the One-Call Center; or notification to one-call center made, but not "
+            "sufficient; or wrong information provided to One Call Center"
+        ),
     },
     "excavation_damage_other": {
         "type": "integer",
-        "description": "Count of other excavation practices resulting in excavation damage related to natural gas distribution.",
+        "description": (
+            "Number of incidents in which damages resulted from from One-Call Center "
+            "error; or abandoned facility; or deteriorated facility; or previous "
+            "damage or data not collected; or other."
+        ),
     },
     "excavation_damage_total": {
         "type": "integer",
-        "description": "Count of reported instances excavation damage related to natural gas distribution.",
+        "description": (
+            "Total number of incidents resulting in damage resulting from any cause."
+        ),
     },
     "excavation_tickets": {
         "type": "integer",
-        "description": "Count of excavation tickets related to natural gas distribution.",
+        "description": (
+            "Number of Excavation Tickets received by the operator during the year, "
+            "(i.e., receipt of information by the operator from the notification "
+            "center)."
+        ),
     },
     "exchange_energy_delivered_mwh": {
         "type": "number",
@@ -1610,8 +1634,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "expense_type": {"type": "string", "description": "The type of expense."},
     "federal_land_leaks_repaired_or_scheduled": {
-        "type": "number",
-        "description": "Total number of leaks on federal land repaired or scheduled for repair.",
+        "type": "integer",
+        "description": (
+            "Total number of leaks repaired, eliminated, or scheduled for repair on "
+            "federal land during the reporting year."
+        ),
     },
     "ferc1_generator_agg_id": {
         "type": "integer",
