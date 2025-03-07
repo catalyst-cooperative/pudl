@@ -13,10 +13,6 @@ We recommend working with tables with the ``out_`` prefix, as these tables conta
 most complete and easiest to work with data. For more information about the different
 types of tables, read through :ref:`PUDL's naming conventions <asset-naming>`.
 
-The :doc:`PUDL data dictionary </data_dictionaries/pudl_db>` provides direct links to
-:ref:`access-datasette` for each table if it is included in our SQLite outputs, and to
-the Parquet outputs if the table is available in that format.
-
 ---------------------------------------------------------------------------------------
 Quick Reference
 ---------------------------------------------------------------------------------------
@@ -144,12 +140,13 @@ PUDL Viewer
 
 We recently released the `PUDL Viewer <https://viewer.catalyst.coop/>`__ in beta.
 
-It provides flexible search of table metadata, live data preview, and CSV
-export of up to 5 million rows. It also provides access to tables that were too
-large for Datasette, such as the EPA CEMS emissions data and the VCE RARE
-hourly renewable capacity factors data.
+It provides flexible search of table metadata, live data preview with filtering
+and sorting, and CSV export of up to 5 million rows. It also provides access to
+tables that were too large for Datasette, such as the EPA CEMS emissions data
+and the VCE RARE hourly renewable capacity factors data.
 
-Finally, it also has links to the Parquet downloads for each table, which you can view directly with tools like `Tad <https://www.tadviewer.com/>`__.
+Finally, it also has links to the Parquet downloads for each table, which you
+can view directly with tools like `Tad <https://www.tadviewer.com/>`__.
 
 Note that the raw :ref:`FERC SQLite databases <access-raw-ferc>` derived from
 the old Visual FoxPro and new XBRL data formats are not available here yet - if
