@@ -1,0 +1,28 @@
+version: 2
+
+macros:
+  - name: test_group_mean_continuity_check
+    description: >
+      Check that certain variables don't vary by too much. Groups the data by
+      ``ordered_group_column``, takes the mean of each group, then compares neighboring
+      means in ``ordered_group_column`` order. Useful for saying something like "the
+      average water usage of cooling systems didn't jump by 10x from 2012-2013."
+    arguments:
+      - name: ordered_group_column
+        type: string
+        description: The name of the column to group and order by (usually ``report_date`` or similar).
+      - name: thresholds
+        type: list
+        description: >
+          List of thresholds to check. Each element in the list should specify two keys.
+          The `column` key should indicate the name of the column. The `max_fr_change` key
+          should indicate the ratio by which the means of this column are permitted to
+          fluctuate from one group to the next. For an example, see
+          _core_eia923__cooling_system_information.
+      - name: n_outliers_allowed
+        type: int
+        description: >
+          How many data points are allowed to be above the threshold; default 0. This is
+          computed per column, so if you specify n_outliers_allowed = 1, then each
+          threshold column can have 1 instance where the change between groups exceeds its
+          threshold.
