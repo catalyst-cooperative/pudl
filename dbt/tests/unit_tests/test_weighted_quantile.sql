@@ -1,6 +1,6 @@
 WITH test_data AS (
     -- Mock dataset for testing
-    SELECT * FROM (VALUES 
+    SELECT * FROM (VALUES
         (10, 2),
         (20, 3),
         (30, 5),
@@ -20,7 +20,7 @@ expected_results AS (
 
 actual_results AS (
     -- Call the macro for different quantiles
-    SELECT 
+    SELECT
         e.quantile,
         (select * from ({{ weighted_quantile("test_data", "column_name", "weight_col", "e.quantile") }})) AS computed_value,
         e.expected_value
