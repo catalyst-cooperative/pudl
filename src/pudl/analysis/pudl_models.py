@@ -296,6 +296,16 @@ def out_sec10k__parents_and_subsidiaries() -> pd.DataFrame:
         "standard_industrial_classification"
     ].str.extract(r"^(.+)\[(\d{4})\]$")
     df["industry_id_sic"] = df["industry_id_sic"].astype("string")
+    # make taxpayer ID a 9 digit number with a dash separating the first two digits
+    df["taxpayer_id_irs"] = df["taxpayer_id_irs"].str.replace("-", "", regex=False)
+    df["taxpayer_id_irs"] = df["taxpayer_id_irs"].where(
+        (df["taxpayer_id_irs"].str.len() == 9)
+        & (df["taxpayer_id_irs"].str.isnumeric().all()),
+        pd.NA,
+    )
+    df["taxpayer_id_irs"] = (
+        df["taxpayer_id_irs"].str[:2] + "-" + df["taxpayer_id_irs"].str[-7:]
+    )
     # Some utilities harvested from EIA 861 data that don't show up in our entity
     # tables. These didn't end up improving coverage, and so will be removed upstream.
     # Hack for now is to just drop them so the FK constraint is respected.
