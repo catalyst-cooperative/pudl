@@ -34,16 +34,19 @@ Quick Reference
    * - :ref:`access-viewer`
      - Parquet, CSV
      - ``nightly``
-     - Data Explorer, Spreadsheet Analyst
-     - Explore PUDL data interactively in a web browser, including hourly timeseries data.
-       Select data to download as CSVs for local analysis in spreadsheets.
+     - Data Explorer, Spreadsheet Analyst, Jupyter Notebook User
+     - Explore PUDL data interactively in a web browser, including hourly
+       timeseries data. Select data to download as CSVs for local analysis in
+       spreadsheets. Download full tables as Parquet files to play with
+       programmatically.
    * - :ref:`access-datasette`
      - SQLite, CSV
      - ``nightly``
      - Data Explorer, Spreadsheet Analyst, SQL User
-     - Run SQL queries on our SQLite database within your browser.
-       Select data to download as CSVs for local analysis in spreadsheets.
-       Create sharable links to a particular selection of data.
+     - **DEPRECATED - in early-to-mid-2025 we will switch to**
+       :ref:`access-viewer`. Run SQL queries on our SQLite database within your
+       browser. Select data to download as CSVs for local analysis in
+       spreadsheets. Create sharable links to a particular selection of data.
    * - :ref:`access-kaggle`
      - SQLite, Parquet
      - ``nightly``
@@ -141,7 +144,7 @@ PUDL Viewer
 
 We recently released the `PUDL Viewer <https://viewer.catalyst.coop/>`__ in beta.
 
-It provides flexible search of table descriptions, live data preview, and CSV
+It provides flexible search of table metadata, live data preview, and CSV
 export of up to 5 million rows. It also provides access to tables that were too
 large for Datasette, such as the EPA CEMS emissions data and the VCE RARE
 hourly renewable capacity factors data.
