@@ -30,8 +30,9 @@ QuantilePoints AS (
 InterpolatedQuantile AS (
     SELECT
         CASE
-            WHEN {{ quantile }} = 0 THEN MIN({{ column_name }})  -- Handling quantile = 0
-            WHEN {{ quantile }} = 1 THEN MAX({{ column_name }})  -- Handling quantile = 1
+            WHEN {{ quantile }} = 0 THEN (SELECT MIN({{ column_name }}) FROM QuantileData)  -- Handling quantile = 0
+            WHEN {{ quantile }} = 1 THEN (SELECT MAX({{ column_name }}) FROM QuantileData)  -- Handling quantile = 1
+            WHEN upper_value is null then lower_value
             ELSE lower_value +
                  (upper_value - lower_value) *
                  (({{ quantile }} - lower_prob) / (upper_prob - lower_prob))  -- Regular interpolation
