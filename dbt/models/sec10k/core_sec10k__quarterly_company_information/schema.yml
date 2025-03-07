@@ -19,13 +19,14 @@ sources:
           - name: fiscal_year_end
           - name: sec10k_version
           - name: company_name_former
-          - name: company_id_irs
-          - name: organization_name
+          - name: taxpayer_id_irs
           - name: sec_act
-          - name: sec_file_number
+          - name: filing_number_sec
+          - name: industry_name_sic
           - name: industry_id_sic
           - name: state
           - name: state_of_incorporation
           - name: street_address
           - name: address_2
           - name: zip_code
+          - name: zip_code_4

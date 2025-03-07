@@ -1,9 +1,10 @@
 """Implement utilities for working with data produced in the pudl modelling repo."""
 
 import pandas as pd
-from dagster import AssetIn, asset
+from dagster import asset
 
 from pudl import logging_helpers
+from pudl.helpers import convert_cols_dtypes
 
 logger = logging_helpers.get_logger(__name__)
 
@@ -28,7 +29,7 @@ def _year_quarter_to_date(year_quarter: pd.Series) -> pd.Series:
 
 
 @asset(
-    group_name="pudl_models",
+    group_name="sec10k",
 )
 def raw_sec10k__quarterly_company_information() -> pd.DataFrame:
     """Raw company information harvested from headers of SEC10k filings."""
@@ -49,34 +50,54 @@ def raw_sec10k__quarterly_company_information() -> pd.DataFrame:
 
 
 @asset(
-    # io_manager_key="pudl_io_manager",
-    group_name="pudl_models",
-    ins={"raw_df": AssetIn("raw_sec10k__quarterly_company_information")},
+    io_manager_key="pudl_io_manager",
+    group_name="sec10k",
 )
-def core_sec10k__quarterly_company_information(raw_df: pd.DataFrame) -> pd.DataFrame:
-    """Company information extracted from SEC10k filings."""
+def core_sec10k__quarterly_company_information(
+    raw_sec10k__quarterly_company_information: pd.DataFrame,
+) -> pd.DataFrame:
+    """Company information extracted from SEC10k filings.
+
+    Consolidate company information extracted from key: value blocks
+    within the headers of the SEC 10k filings such that there
+    is one record of company information per block. One company's
+    information may be reported in multiple filings on the same report date.
+    However, we only want to keep one of those records per company and report date,
+    (``central index key`` and ``report_date`` are a primary key for the table).
+    We prioritize keeping records from filings where that company's extracted
+    ``central_index_key`` matches the filer's central index key, meaning that
+    that company filed the 10k itself.
+    """
     # Strip erroneous "]" characters
-    raw_df["company_information_fact_name"] = raw_df[
-        "company_information_fact_name"
-    ].str.strip("]")
-    raw_df["company_information_block"] = pd.Categorical(
-        raw_df["company_information_block"],
-        [
-            "business_address",
-            "mail_address",
-            "company_data",
-            "filing_values",
-            "former_company",
-        ],
+    raw_sec10k__quarterly_company_information["company_information_fact_name"] = (
+        raw_sec10k__quarterly_company_information[
+            "company_information_fact_name"
+        ].str.lstrip("]")
     )
-    df = raw_df.sort_values("company_information_block").pivot_table(
+    df = raw_sec10k__quarterly_company_information.pivot(
         values="company_information_fact_value",
-        index=["filename_sec10k", "report_date"],
+        index=[
+            "filename_sec10k",
+            "report_date",
+            "company_information_block",
+            "company_information_block_count",
+        ],
         columns="company_information_fact_name",
-        aggfunc="first",
     )
     df.columns.name = None
     df = df.reset_index()
+    # consolidate information extracted from blocks within the header
+    # so that there is one record per block
+    df = (
+        (
+            df.groupby(
+                ["filename_sec10k", "report_date", "company_information_block_count"]
+            ).first()
+        )
+        .reset_index()
+        .drop(columns=["company_information_block", "company_information_block_count"])
+        .dropna(subset="central_index_key")
+    )
     # we want central_index_key and report_date to be a primary key
     # prioritize records where the filer is the same
     # as the harvested central index key value
@@ -94,30 +115,55 @@ def core_sec10k__quarterly_company_information(raw_df: pd.DataFrame) -> pd.DataF
             "date_of_name_change": "name_change_date",
             "zip": "zip_code",
             "business_phone": "phone_number",
-            "irs_number": "company_id_irs",
+            "irs_number": "taxpayer_id_irs",
             "former_conformed_name": "company_name_former",
             "form_type": "sec10k_version",
             "standard_industrial_classification": "industry_id_sic",
+            "sec_file_number": "filing_number_sec",
         }
     )
     df["zip_code"] = df["zip_code"].str[:5]
+    df["zip_code_4"] = df["zip_code"].str[-4:]
+    df["zip_code_4"].where(df["zip_code"].str.len() > 5, None)
     df["name_change_date"] = pd.to_datetime(df["name_change_date"], format="%Y%m%d")
     df["state"] = df["state"].str.upper()
     df["state_of_incorporation"] = df["state_of_incorporation"].str.upper()
+    df[["industry_name_sic", "industry_id_sic"]] = df["industry_id_sic"].str.extract(
+        r"^(.+)\[(\d{4})\]$"
+    )
+    df["sec_act"] = df["sec_act"].where(df["sec_act"].isnull(), "1934 act")
+    # fiscal year end should conform to MMDD format
+    df["fiscal_year_end"] = df["fiscal_year_end"].str.zfill(4)
+    df.loc[
+        ~df.fiscal_year_end.str.contains(
+            r"^(?:(?:0[1-9]|1[0-2])(?:0[1-9]|1\d|2\d|3[01])|(?:0[13-9]|1[0-2])(?:29|30)|(?:0[13578]|1[02])31)$",
+            na=False,
+        ),
+        "fiscal_year_end",
+    ] = None
+    # make taxpayer ID a 9 digit number with a dash separating the first two digits
+    df["taxpayer_id_irs"] = df["taxpayer_id_irs"].str.replace("-", "", regex=False)
+    df["taxpayer_id_irs"] = df["taxpayer_id_irs"].where(
+        (df["taxpayer_id_irs"].str.len() == 9)
+        & (df["taxpayer_id_irs"].str.isnumeric().all()),
+        pd.NA,
+    )
+    df["taxpayer_id_irs"] = (
+        df["taxpayer_id_irs"].str[:2] + "-" + df["taxpayer_id_irs"].str[-7:]
+    )
+    df = convert_cols_dtypes(df, data_source="sec10k")
+    df = df.sort_values(by=["central_index_key", "report_date"])
 
     return df
 
 
 @asset(
     io_manager_key="pudl_io_manager",
-    group_name="pudl_models",
-    ins={
-        "core_df": AssetIn("core_sec10k__quarterly_company_information"),
-        "eia_utils_df": AssetIn("core_eia__entity_utilities"),
-    },
+    group_name="sec10k",
 )
 def out_sec10k__quarterly_company_information(
-    core_df: pd.DataFrame, eia_utils_df: pd.DataFrame
+    core_sec10k__quarterly_company_information: pd.DataFrame,
+    core_eia__entity_utilities: pd.DataFrame,
 ) -> pd.DataFrame:
     """Company information extracted from SEC10k filings and matched to EIA utilities."""
     matched_df = _load_table_from_gcs("out_sec10k__parents_and_subsidiaries")
@@ -128,48 +174,59 @@ def out_sec10k__quarterly_company_information(
             subset="central_index_key"
         )  # matches should already be 1-to-1 but drop duplicates to ensure this is true
     )
-    out_df = core_df.merge(matched_df, how="left", on="central_index_key")
+    out_df = core_sec10k__quarterly_company_information.merge(
+        matched_df, how="left", on="central_index_key"
+    )
     # merge utility name on
-    out_df = out_df.merge(eia_utils_df, how="left", on="utility_id_eia")
+    out_df = out_df.merge(core_eia__entity_utilities, how="left", on="utility_id_eia")
     return out_df
 
 
 @asset(
     io_manager_key="pudl_io_manager",
-    group_name="pudl_models",
-    ins={
-        "core_df": AssetIn("core_sec10k__quarterly_company_information"),
-    },
+    group_name="sec10k",
 )
 def core_sec10k__changelog_company_name(
-    core_df: pd.DataFrame,
+    core_sec10k__quarterly_company_information: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Changes in SEC company names and the date of change as reported in 10k filings."""
-    changelog_df = core_df[
-        [
-            "central_index_key",
-            "report_date",
-            "company_name",
-            "name_change_date",
-            "company_name_former",
-        ]
-    ]
+    """Changes in SEC company names and the date of change as reported in 10k filings.
+
+    When a company never reported under its former name, create a record
+    for that company name and concatenate with the existing names
+    to get a log of name changes.
+    """
+    changelog_df = core_sec10k__quarterly_company_information[
+        ["central_index_key", "company_name", "name_change_date", "company_name_former"]
+    ].drop_duplicates()
+    changelog_df = changelog_df[~changelog_df["company_name"].isnull()]
+    # often a company never filed a 10k under its former name
+    # create records for these former names and concatenate
+    # them with the changed names so that we can have a log
+    # of names changes
+    former_names_df = (
+        changelog_df[["central_index_key", "company_name_former"]]
+        .dropna(subset="company_name_former")
+        .rename(columns={"company_name_former": "company_name"})
+    )
+    changelog_df = pd.concat([changelog_df, former_names_df])
+    changelog_df = changelog_df.sort_values(
+        by=["central_index_key", "name_change_date"], na_position="first"
+    )
+    changelog_df = changelog_df.drop_duplicates(
+        subset=["central_index_key", "company_name"], keep="last"
+    )
     changelog_df = changelog_df[
-        (~changelog_df["name_change_date"].isnull())
-        | (~changelog_df["company_name_former"].isnull())
+        ["central_index_key", "company_name", "name_change_date"]
     ]
     return changelog_df
 
 
 @asset(
     io_manager_key="pudl_io_manager",
-    group_name="pudl_models",
-    ins={
-        "filings_df": AssetIn("core_sec10k__quarterly_filings"),
-    },
+    group_name="sec10k",
 )
 def core_sec10k__quarterly_exhibit_21_company_ownership(
-    filings_df: pd.DataFrame,
+    core_sec10k__quarterly_filings: pd.DataFrame,
 ) -> pd.DataFrame:
     """Company ownership information extracted from sec10k exhibit 21 attachments."""
     df = _load_table_from_gcs("core_sec10k__exhibit_21_company_ownership")
@@ -184,7 +241,7 @@ def core_sec10k__quarterly_exhibit_21_company_ownership(
     # Convert ownership percentage
     df["fraction_owned"] = _compute_fraction_owned(df.ownership_percentage)
     df = df.merge(
-        filings_df[
+        core_sec10k__quarterly_filings[
             [
                 "filename_sec10k",
                 "central_index_key",
@@ -220,7 +277,7 @@ def core_sec10k__quarterly_exhibit_21_company_ownership(
 
 @asset(
     io_manager_key="pudl_io_manager",
-    group_name="pudl_models",
+    group_name="sec10k",
 )
 def core_sec10k__quarterly_filings() -> pd.DataFrame:
     """Metadata on all 10k filings submitted to SEC."""
@@ -242,15 +299,9 @@ def core_sec10k__quarterly_filings() -> pd.DataFrame:
 
 @asset(
     io_manager_key="pudl_io_manager",
-    group_name="pudl_models",
-    ins={
-        "ownership_df": AssetIn("core_sec10k__quarterly_exhibit_21_company_ownership"),
-        "company_info_df": AssetIn("out_sec10k__quarterly_company_information"),
-    },
+    group_name="sec10k",
 )
-def out_sec10k__parents_and_subsidiaries(
-    ownership_df: pd.DataFrame, company_info_df: pd.DataFrame
-) -> pd.DataFrame:
+def out_sec10k__parents_and_subsidiaries() -> pd.DataFrame:
     """Denormalized output table with Sec10k company attributes and ownership info linked to EIA."""
     df = _load_table_from_gcs("out_sec10k__parents_and_subsidiaries")
     df = df.rename(
@@ -260,7 +311,7 @@ def out_sec10k__parents_and_subsidiaries(
             "street_address_2": "address_2",
             "former_conformed_name": "company_name_former",
             "location_of_inc": "location_of_incorporation",
-            "irs_number": "company_id_irs",
+            "irs_number": "taxpayer_id_irs",
             "parent_company_cik": "parent_company_central_index_key",
             "files_10k": "files_sec10k",
             "date_of_name_change": "name_change_date",
@@ -271,9 +322,9 @@ def out_sec10k__parents_and_subsidiaries(
     df["fraction_owned"] = _compute_fraction_owned(df.ownership_percentage)
 
     # Split standard industrial classification into ID and description columns
-    df[["industry_description_sic", "industry_id_sic"]] = df[
+    df[["industry_name_sic", "industry_id_sic"]] = df[
         "standard_industrial_classification"
-    ].str.extract(r"(.+)\[(\d{4})\]")
+    ].str.extract(r"^(.+)\[(\d{4})\]$")
     df["industry_id_sic"] = df["industry_id_sic"].astype("string")
     # Some utilities harvested from EIA 861 data that don't show up in our entity
     # tables. These didn't end up improving coverage, and so will be removed upstream.

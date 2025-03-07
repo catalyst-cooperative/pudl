@@ -46,8 +46,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             """Company information extracted from SEC10k filings.
 This table provides attributes about SEC 10k filing companies across time.
-It represents a pivoted version of the raw company information table with extracted
-field values from the raw table as columns in this core table."""
+In the raw data, company information may be reported in multiple SEC 10k
+filings from the same filing date. In this table, only one of these reported
+blocks of information is kept. Records from filings where that company's extracted
+``central_index_key`` matches the filer's central index key (meaning that
+that company filed the 10k itself) are prioritized."""
         ),
         "schema": {
             "fields": [
@@ -62,16 +65,17 @@ field values from the raw table as columns in this core table."""
                 "fiscal_year_end",
                 "sec10k_version",
                 "company_name_former",
-                "company_id_irs",
-                "organization_name",
+                "taxpayer_id_irs",
                 "sec_act",
-                "sec_file_number",
+                "filing_number_sec",
                 "industry_id_sic",
+                "industry_name_sic",
                 "state",
                 "state_of_incorporation",
                 "street_address",
                 "address_2",
                 "zip_code",
+                "zip_code_4",
             ],
             "primary_key": ["central_index_key", "report_date"],
         },
@@ -88,12 +92,10 @@ data extracted from SEC 10k filings."""
         "schema": {
             "fields": [
                 "central_index_key",
-                "report_date",
                 "company_name",
                 "name_change_date",
-                "company_name_former",
             ],
-            "primary_key": ["central_index_key", "report_date"],
+            "primary_key": ["central_index_key", "company_name"],
         },
         "sources": ["sec10k"],
         "etl_group": "pudl_models",
@@ -123,43 +125,19 @@ that CIK."""
                 "fiscal_year_end",
                 "sec10k_version",
                 "company_name_former",
-                "company_id_irs",
-                "organization_name",
+                "taxpayer_id_irs",
                 "sec_act",
-                "sec_file_number",
+                "filing_number_sec",
+                "industry_name_sic",
                 "industry_id_sic",
                 "state",
                 "state_of_incorporation",
                 "street_address",
                 "address_2",
                 "zip_code",
+                "zip_code_4",
             ],
             "primary_key": ["central_index_key", "report_date"],
-        },
-        "sources": ["sec10k"],
-        "etl_group": "pudl_models",
-        "field_namespace": "sec10k",
-    },
-    "raw_sec10k__quarterly_company_information": {
-        "description": "Raw company information harvested from headers of SEC10k filings.",
-        "schema": {
-            "fields": [
-                "filename_sec10k",
-                "filer_count",
-                "company_information_block",
-                "company_information_block_count",
-                "company_information_fact_name",
-                "company_information_fact_value",
-                "report_date",
-            ],
-            "primary_key": [
-                "filename_sec10k",
-                "filer_count",
-                "company_information_block",
-                "company_information_block_count",
-                "company_information_fact_name",
-                "company_information_fact_value",
-            ],
         },
         "sources": ["sec10k"],
         "etl_group": "pudl_models",
@@ -185,11 +163,11 @@ that CIK."""
                 "company_name_raw",
                 "name_change_date",
                 "company_name_former",
-                "industry_description_sic",
+                "industry_name_sic",
                 "industry_id_sic",
                 "state_of_incorporation",
                 "location_of_incorporation",
-                "company_id_irs",
+                "taxpayer_id_irs",
                 "files_sec10k",
                 "parent_company_central_index_key",
                 "fraction_owned",

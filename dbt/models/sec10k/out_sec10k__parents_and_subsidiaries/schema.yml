@@ -20,11 +20,11 @@ sources:
           - name: company_name_raw
           - name: name_change_date
           - name: company_name_former
-          - name: industry_description_sic
+          - name: industry_name_sic
           - name: industry_id_sic
           - name: state_of_incorporation
           - name: location_of_incorporation
-          - name: company_id_irs
+          - name: taxpayer_id_irs
           - name: files_sec10k
           - name: parent_company_central_index_key
           - name: fraction_owned
