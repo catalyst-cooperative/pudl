@@ -1,0 +1,44 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_phmsagas__yearly_distribution_operators
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_phmsagas__yearly_distribution_operators
+              partition_column: report_year
+        columns:
+          - name: report_date
+          - name: report_number
+          - name: report_submission_type
+          - name: report_year
+          - name: operator_id_phmsa
+          - name: operator_name_phmsa
+          - name: office_address_street
+          - name: office_address_city
+          - name: office_address_state
+          - name: office_address_zip
+          - name: office_address_county
+          - name: headquarters_address_street
+          - name: headquarters_address_city
+          - name: headquarters_address_state
+          - name: headquarters_address_zip
+          - name: headquarters_address_county
+          - name: excavation_damage_excavation_practices
+          - name: excavation_damage_locating_practices
+          - name: excavation_damage_one_call_notification
+          - name: excavation_damage_other
+          - name: excavation_damage_total
+          - name: excavation_tickets
+          - name: services_efv_in_system
+          - name: services_efv_installed
+          - name: services_shutoff_valve_in_system
+          - name: services_shutoff_valve_installed
+          - name: federal_land_leaks_repaired_or_scheduled
+          - name: percent_unaccounted_for_gas
+          - name: additional_information
+          - name: preparer_email
+          - name: preparer_fax
+          - name: preparer_name
+          - name: preparer_phone
+          - name: preparer_title
