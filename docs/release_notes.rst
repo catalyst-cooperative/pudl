@@ -99,13 +99,14 @@ SEC Form 10-K Parent-Subsidiary Ownership
   preliminary, experimental data products and are known to be incomplete and to contain
   errors.** Extracting data tables from unstructured PDFs and the SEC to EIA record
   linkage are necessarily probabalistic processes.
-* See PRs :pr:`4026,4031,4035,4046,4048,4050` and check out the table descriptions in
-  the PUDL data dictionary:
+* See PRs :pr:`4026,4031,4035,4046,4048,4050,4079` and check out the table descriptions
+  in the PUDL data dictionary:
 
   * :ref:`out_sec10k__parents_and_subsidiaries`
   * :ref:`core_sec10k__quarterly_filings`
   * :ref:`core_sec10k__quarterly_exhibit_21_company_ownership`
   * :ref:`core_sec10k__quarterly_company_information`
+  * :ref:`core_sec10k__changelog_company_name`
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^

@@ -789,22 +789,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "in exhibit 21 attachments to Form 10-K. May not be stable over time."
         ),
     },
-    "company_information_block": {
-        "type": "string",
-        "description": "Title of block of data.",
-    },
-    "company_information_block_count": {
-        "type": "integer",
-        "description": "Some blocks are repeated, this defines the index of the data block.",
-    },
-    "company_information_fact_name": {
-        "type": "string",
-        "description": "Name of fact within a ``company_information_block``.",
-    },
-    "company_information_fact_value": {
-        "type": "string",
-        "description": "Value corresponding with ``company_information_fact_name``.",
-    },
     "company_name": {
         "type": "string",
         "description": "Name of company submitting SEC 10k filing.",
@@ -1579,6 +1563,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "exhibit_21_version": {
         "type": "string",
         "description": "Version of exhibit 21 submitted (if applicable).",
+        "constraints": {
+            "pattern": r"^21\.*\d*$",
+        },
     },
     "expense_type": {"type": "string", "description": "The type of expense."},
     "ferc1_generator_agg_id": {
@@ -1710,10 +1697,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Total number of flue gas desulfurization unit scrubber trains.",
     },
-    "filer_count": {
-        "type": "integer",
-        "description": "Index company information as some filings contain information for multiple companies.",
-    },
     "filename_sec10k": {
         "type": "string",
         "description": "Name of filing as provided by SEC data portal.",
@@ -1724,7 +1707,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "filing_date": {
         "type": "date",
-        "description": "Date filing was submitted.",
+        "description": "Date filing was submitted, reported at a daily frequency.",
+    },
+    "film_number": {
+        "type": "string",
+        "description": "Document control number used in the SEC EDGAR database. The first four digits can be used to access scans of the document in the SEC's Virtual Private Reference Room.",
     },
     "firing_rate_using_coal_tons_per_hour": {
         "type": "number",
@@ -1756,6 +1743,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "firing_type_3": {
         "type": "string",
         "description": "EIA short code indicating the type of firing used by this boiler.",
+    },
+    "fiscal_year_end": {
+        "type": "string",
+        "description": "The end date of an SEC filing company's fiscal year, in MMDD format.",
+        "constraints": {
+            "pattern": r"^(?:(?:0[1-9]|1[0-2])(?:0[1-9]|1\d|2\d|3[01])|(?:0[13-9]|1[0-2])(?:29|30)|(?:0[13578]|1[02])31)$",
+        },
     },
     "flow_rate_method": {
         "description": (
@@ -2444,7 +2438,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
-    "industry_description_sic": {
+    "industry_name_sic": {
         "type": "string",
         "description": "Text description of Standard Industrial Classification (SIC)",
     },
@@ -2504,9 +2498,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Original reported energy interchange between adjacent balancing authorities.",
         "unit": "MWh",
     },
-    "company_id_irs": {
+    "taxpayer_id_irs": {
         "type": "string",
-        "description": "ID of the company with the IRS.",
+        "description": "Taxpayer ID of the company with the IRS.",
+        "constraints": {
+            "pattern": r"^\d{2}-\d{7}$",
+        },
     },
     "is_epacems_state": {
         "type": "boolean",
@@ -4196,6 +4193,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Estimated electricity demand scaled by the total sales within a state.",
         "unit": "MWh",
+    },
+    "sec_act": {
+        "type": "string",
+        "description": "SEC Act through which the form was enacted, e.g. 1934 act.",
+    },
+    "filing_number_sec": {
+        "type": "string",
+        "description": "Filing number used internally by the SEC commission to track filing.",
     },
     "sec10k_version": {
         "type": "string",
