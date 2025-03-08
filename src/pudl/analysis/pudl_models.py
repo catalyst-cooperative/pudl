@@ -1,5 +1,9 @@
 """Implement utilities for working with data produced in the pudl modelling repo."""
 
+import re
+from importlib import resources
+from pathlib import Path
+
 import pandas as pd
 from dagster import asset
 
@@ -26,6 +30,157 @@ def _compute_fraction_owned(percent_ownership: pd.Series) -> pd.Series:
 def _year_quarter_to_date(year_quarter: pd.Series) -> pd.Series:
     """Convert a year quarter in the format '2024q1' to date type."""
     return pd.PeriodIndex(year_quarter, freq="Q").to_timestamp()
+
+
+def _get_cik_from_filename(filename_sec10k: pd.Series) -> pd.Series:
+    """Get the CIK of the filer from the filename strings."""
+    return filename_sec10k.str.split("/").str[2].str.zfill(10)
+
+
+def _get_sec_state_code_dict() -> dict[str, str]:
+    """Create a dictionary mapping state codes to their names.
+
+    Table found at https://www.sec.gov/submit-filings/filer-support-resources/edgar-state-country-codes
+    Published by SEC and reports valid state codes
+    for filers of Form D. Used to standardize the state codes
+    in the SEC 10K filings. The expanded names of the state codes
+    are comments in the XML file, so we have to read the XML in as
+    text and parse it.
+    """
+    xml_filepath = (
+        resources.files("pudl.package_data.sec10k") / "formDStateCodes.xsd.xml"
+    )
+    with Path.open(xml_filepath) as file:
+        xml_text = file.read()
+
+    pattern = r'<xs:enumeration value="(.*?)"/>.*?<!--\s*(.*?)\s*-->'
+    state_code_dict = {
+        code.lower(): name.lower()
+        for code, name in re.findall(pattern, xml_text, re.DOTALL)
+    }
+    return state_code_dict
+
+
+def _clean_location_of_incorporation(loc_col: pd.Series) -> pd.Series:
+    state_code_to_name = _get_sec_state_code_dict()
+    out = (
+        loc_col.replace(state_code_to_name)
+        .fillna(pd.NA)
+        .str.strip()
+        .str.lower()
+        .replace("", pd.NA)
+    )
+    return out
+
+
+def match_ex21_subsidiaries_to_filer_company(
+    filer_info_df: pd.DataFrame,
+    ownership_df: pd.DataFrame,
+) -> pd.DataFrame:
+    """Match Ex. 21 subsidiaries to filer companies.
+
+    We want to assign CIKs to Ex. 21 subsidiaries if they in turn
+    file a 10k. To do this, we merge the Ex. 21 subsidiaries to 10k
+    filers on comapny name. If there are multiple matches with the same
+    company name we take the company with the most overlap in location of
+    incorporation and nearest report years. Then we merge the CIK back onto
+    the Ex. 21 df.
+
+    Returns:
+        A dataframe of the Ex. 21 subsidiaries with a column for the
+        subsidiaries CIK (null if the subsidiary doesn't file).
+    """
+    filer_info_df = filer_info_df.drop_duplicates(
+        subset=[
+            "central_index_key",
+            "company_name",
+            "state_of_incorporation",
+            "report_date",
+        ]
+    )
+    filer_info_df["state_of_incorporation"] = _clean_location_of_incorporation(
+        filer_info_df["state_of_incorporation"]
+    )
+    ownership_df["subsidiary_company_location"] = _clean_location_of_incorporation(
+        ownership_df["subsidiary_company_location"]
+    )
+    merged_df = filer_info_df.merge(
+        ownership_df[
+            [
+                "subsidiary_company_name",
+                "subsidiary_company_id_sec10k",
+                "subsidiary_company_location",
+                "report_date",
+            ]
+        ],
+        how="inner",
+        left_on="company_name",
+        right_on="subsidiary_company_name",
+        suffixes=("_sec", "_ex21"),
+    )
+    # split up the location of incorporation on whitespace, creating a column
+    # with lists of word tokens
+    merged_df.loc[:, "loc_tokens_sec"] = (
+        merged_df["state_of_incorporation"].fillna("").str.lower().str.split()
+    )
+    merged_df.loc[:, "loc_tokens_ex21"] = (
+        merged_df["subsidiary_company_location"].fillna("").str.lower().str.split()
+    )
+    # get the number of words overlapping between location of incorporation tokens
+    merged_df["loc_overlap"] = merged_df.apply(
+        lambda row: len(set(row["loc_tokens_sec"]) & set(row["loc_tokens_ex21"])),
+        axis=1,
+    )
+    # get the difference in report dates
+    merged_df["report_date_diff_days"] = (
+        merged_df["report_date_sec"] - merged_df["report_date_ex21"]
+    ).dt.days
+    merged_df = merged_df.sort_values(
+        by=[
+            "company_name",
+            "subsidiary_company_location",
+            "loc_overlap",
+            "report_date_diff_days",
+        ],
+        ascending=[True, True, False, True],
+    )
+    # Select the row with the highest loc overlap and nearest report dates
+    # for each company name and location
+    closest_match_df = merged_df.groupby(
+        ["company_name", "subsidiary_company_location"], as_index=False
+    ).first()
+    # TODO: does it work to merge with null values in location or do
+    # we have to put filename and report date in the groupby above
+    ownership_with_cik_df = ownership_df.merge(
+        closest_match_df[
+            [
+                "company_name",
+                "subsidiary_company_location",
+                "central_index_key",
+            ]
+        ],
+        how="left",
+        left_on=["subsidiary_company_name", "subsidiary_company_location"],
+        right_on=["company_name", "subsidiary_company_location"],
+    ).rename(columns={"central_index_key": "subsidiary_company_central_index_key"})
+    # if a subsidiary doesn't have a CIK and has a null location
+    # but its company name was assigned a CIK (with a different location)
+    # then assign that CIK to the subsidiary
+    ownership_with_cik_df = ownership_with_cik_df.merge(
+        closest_match_df[["company_name", "central_index_key"]],
+        how="left",
+        on="company_name",
+    ).rename(columns={"central_index_key": "company_name_merge_cik"})
+    ownership_with_cik_df["subsidiary_company_central_index_key"] = (
+        ownership_with_cik_df["subsidiary_company_central_index_key"].where(
+            ~(ownership_with_cik_df.subsidiary_company_central_index_key.isnull())
+            | ~(ownership_with_cik_df.subsidiary_company_location.isnull()),
+            ownership_with_cik_df["company_name_merge_cik"],
+        )
+    )
+    ownership_with_cik_df = ownership_with_cik_df.drop(columns="company_name_merge_cik")
+
+    return ownership_with_cik_df
 
 
 @asset(
@@ -101,7 +256,7 @@ def core_sec10k__quarterly_company_information(
     # we want central_index_key and report_date to be a primary key
     # prioritize records where the filer is the same
     # as the harvested central index key value
-    df["filer_cik"] = df["filename_sec10k"].str.split("/").str[2].str.zfill(10)
+    df["filer_cik"] = _get_cik_from_filename(df["filename_sec10k"])
     df["filer_cik_matches_cik"] = df["filer_cik"] == df["central_index_key"]
     df = df.sort_values(by="filer_cik_matches_cik", ascending=False).drop_duplicates(
         subset=["central_index_key", "report_date"], keep="first"
@@ -241,7 +396,9 @@ def core_sec10k__changelog_company_name(
     io_manager_key="pudl_io_manager",
     group_name="sec10k",
 )
-def core_sec10k__quarterly_exhibit_21_company_ownership() -> pd.DataFrame:
+def core_sec10k__quarterly_exhibit_21_company_ownership(
+    core_sec10k__quarterly_filings: pd.DataFrame,
+) -> pd.DataFrame:
     """Company ownership information extracted from sec10k exhibit 21 attachments."""
     df = _load_table_from_gcs("core_sec10k__exhibit_21_company_ownership")
     df = df.rename(
@@ -254,9 +411,36 @@ def core_sec10k__quarterly_exhibit_21_company_ownership() -> pd.DataFrame:
 
     # Convert ownership percentage
     df["fraction_owned"] = _compute_fraction_owned(df.ownership_percentage)
-
-    # Get date from year quarters
-    df["report_date"] = _year_quarter_to_date(df.year_quarter)
+    df = df.merge(
+        core_sec10k__quarterly_filings[
+            [
+                "filename_sec10k",
+                "central_index_key",
+                "company_name",
+                "filing_date",
+                "report_date",
+            ]
+        ],
+        how="left",
+        on="filename_sec10k",
+    )
+    df = df.rename(
+        columns={
+            "company_name": "parent_company_name",
+            "central_index_key": "parent_company_central_index_key",
+        }
+    )
+    df["parent_company_name"] = df["parent_company_name"].str.lower()
+    # sometimes there are subsidiaries with the same name but different
+    # locations of incorporation listed in the same ex. 21, so include
+    # location in the ID
+    df.loc[:, "subsidiary_company_id_sec10k"] = (
+        df["parent_company_central_index_key"]
+        + "_"
+        + df["subsidiary_company_name"]
+        + "_"
+        + df["subsidiary_company_location"].fillna("")
+    )
 
     return df
 
@@ -283,52 +467,92 @@ def core_sec10k__quarterly_filings() -> pd.DataFrame:
     return df
 
 
+@asset(io_manager_key="pudl_io_manager", group_name="sec10k")
+def core_sec10k__assn__exhibit_21_subsidiaries_and_filers(
+    core_sec10k__quarterly_company_information,
+    core_sec10k__quarterly_exhibit_21_company_ownership,
+) -> pd.DataFrame:
+    """Match Ex. 21 subsidiaries to SEC 10k filing companies.
+
+    Create an association between ``subsidiary_company_id_sec10k``
+    and ``central_index_key``.
+    """
+    matched_df = match_ex21_subsidiaries_to_filer_company(
+        filer_info_df=core_sec10k__quarterly_company_information,
+        ownership_df=core_sec10k__quarterly_exhibit_21_company_ownership,
+    )
+    matched_df = (
+        matched_df[
+            ["subsidiary_company_id_sec10k", "subsidiary_company_central_index_key"]
+        ]
+        .rename(columns={"subsidiary_company_central_index_key": "central_index_key"})
+        .dropna(subset="central_index_key")
+    ).drop_duplicates(subset="subsidiary_company_id_sec10k")
+    return matched_df
+
+
 @asset(
     io_manager_key="pudl_io_manager",
     group_name="sec10k",
 )
-def out_sec10k__parents_and_subsidiaries() -> pd.DataFrame:
-    """Denormalized output table with sec10k info and company ownership linked to EIA."""
-    df = _load_table_from_gcs("out_sec10k__parents_and_subsidiaries")
-    df = df.rename(
-        columns={
-            "sec10k_filename": "filename_sec10k",
-            "sec_company_id": "company_id_sec10k",
-            "street_address_2": "address_2",
-            "former_conformed_name": "company_name_former",
-            "location_of_inc": "location_of_incorporation",
-            "irs_number": "taxpayer_id_irs",
-            "parent_company_cik": "parent_company_central_index_key",
-            "files_10k": "files_sec10k",
-            "date_of_name_change": "name_change_date",
-        }
+def out_sec10k__parents_and_subsidiaries(
+    core_sec10k__quarterly_exhibit_21_company_ownership: pd.DataFrame,
+    out_sec10k__quarterly_company_information: pd.DataFrame,
+    core_sec10k__assn__exhibit_21_subsidiaries_and_filers: pd.DataFrame,
+) -> pd.DataFrame:
+    """Denormalized output table with Sec10k company attributes and ownership info linked to EIA."""
+    # merge parent attributes on
+    company_info_df = out_sec10k__quarterly_company_information.drop(
+        columns=["filename_sec10k", "company_name"]
+    )
+    parents_info_df = company_info_df.add_prefix("parent_company_")
+    df = (
+        core_sec10k__quarterly_exhibit_21_company_ownership.merge(
+            parents_info_df,
+            how="left",
+            left_on=["parent_company_central_index_key", "report_date"],
+            right_on=["parent_company_central_index_key", "parent_company_report_date"],
+        )
+        .drop(columns="parent_company_report_date")
+        .rename(
+            columns={"parent_company_company_name_former": "parent_company_name_former"}
+        )
+    )
+    # merge a central index key on for subsidiaries that file a 10k
+    df = df.merge(
+        core_sec10k__assn__exhibit_21_subsidiaries_and_filers,
+        how="left",
+        on="subsidiary_company_id_sec10k",
+    ).rename(columns={"central_index_key": "subsidiary_company_central_index_key"})
+
+    # merge subsidiary company attributes on
+    subs_info_df = company_info_df.add_prefix("subsidiary_company_")
+    df = (
+        df.merge(
+            subs_info_df,
+            how="left",
+            left_on=["subsidiary_company_central_index_key", "report_date"],
+            right_on=[
+                "subsidiary_company_central_index_key",
+                "subsidiary_company_report_date",
+            ],
+        )
+        .drop(columns=["subsidiary_company_report_date"])
+        .rename(
+            columns={
+                "subsidiary_company_company_name_former": "subsidiary_company_name_former"
+            }
+        )
     )
 
-    # Convert ownership percentage
-    df["fraction_owned"] = _compute_fraction_owned(df.ownership_percentage)
-
-    # Split standard industrial classification into ID and description columns
-    df[["industry_name_sic", "industry_id_sic"]] = df[
-        "standard_industrial_classification"
-    ].str.extract(r"^(.+)\[(\d{4})\]$")
-    df["industry_id_sic"] = df["industry_id_sic"].astype("string")
-    # make taxpayer ID a 9 digit number with a dash separating the first two digits
-    df["taxpayer_id_irs"] = df["taxpayer_id_irs"].str.replace("-", "", regex=False)
-    df["taxpayer_id_irs"] = df["taxpayer_id_irs"].where(
-        (df["taxpayer_id_irs"].str.len() == 9)
-        & (df["taxpayer_id_irs"].str.isnumeric()),
-        pd.NA,
-    )
-    df["taxpayer_id_irs"] = (
-        df["taxpayer_id_irs"].str[:2] + "-" + df["taxpayer_id_irs"].str[-7:]
-    )
     # Some utilities harvested from EIA 861 data that don't show up in our entity
     # tables. These didn't end up improving coverage, and so will be removed upstream.
     # Hack for now is to just drop them so the FK constraint is respected.
     # See https://github.com/catalyst-cooperative/pudl/issues/4050
+    """
     bad_utility_ids = [
         3579,  # Cirro Group, Inc. in Texas
     ]
     df = df[~df.utility_id_eia.isin(bad_utility_ids)]
-
+    """
     return df
