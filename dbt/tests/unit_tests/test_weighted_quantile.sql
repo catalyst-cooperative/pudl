@@ -10,12 +10,13 @@ WITH test_data AS (
 ),
 
 expected_results AS (
-    -- Expected output for different quantiles
-    SELECT 0.25 AS quantile, 20 AS expected_value
-    UNION ALL
-    SELECT 0.50 AS quantile, 40 AS expected_value
-    UNION ALL
-    SELECT 0.75 AS quantile, 50 AS expected_value
+    SELECT * FROM (VALUES 
+        (0.00, 10),  -- Minimum value (no interpolation)
+        (0.25, 25),  -- Requires interpolation
+        (0.50, 35),  -- Requires interpolation
+        (0.75, 42.5),-- Requires interpolation
+        (1.00, 50)   -- Maximum value (no interpolation)
+    ) AS t(quantile, expected_value)
 ),
 
 actual_results AS (
