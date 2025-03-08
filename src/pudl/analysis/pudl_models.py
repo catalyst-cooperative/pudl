@@ -1,5 +1,9 @@
 """Implement utilities for working with data produced in the pudl modelling repo."""
 
+import re
+from importlib import resources
+from pathlib import Path
+
 import pandas as pd
 from dagster import asset
 
@@ -33,6 +37,42 @@ def _get_cik_from_filename(filename_sec10k: pd.Series) -> pd.Series:
     return filename_sec10k.str.split("/").str[2].str.zfill(10)
 
 
+def _get_sec_state_code_dict() -> dict[str, str]:
+    """Create a dictionary mapping state codes to their names.
+
+    Table found at https://www.sec.gov/submit-filings/filer-support-resources/edgar-state-country-codes
+    Published by SEC and reports valid state codes
+    for filers of Form D. Used to standardize the state codes
+    in the SEC 10K filings. The expanded names of the state codes
+    are comments in the XML file, so we have to read the XML in as
+    text and parse it.
+    """
+    xml_filepath = (
+        resources.files("pudl.package_data.sec10k") / "formDStateCodes.xsd.xml"
+    )
+    with Path.open(xml_filepath) as file:
+        xml_text = file.read()
+
+    pattern = r'<xs:enumeration value="(.*?)"/>.*?<!--\s*(.*?)\s*-->'
+    state_code_dict = {
+        code.lower(): name.lower()
+        for code, name in re.findall(pattern, xml_text, re.DOTALL)
+    }
+    return state_code_dict
+
+
+def _clean_location_of_incorporation(loc_col: pd.Series) -> pd.Series:
+    state_code_to_name = _get_sec_state_code_dict()
+    out = (
+        loc_col.replace(state_code_to_name)
+        .fillna(pd.NA)
+        .str.strip()
+        .str.lower()
+        .replace("", pd.NA)
+    )
+    return out
+
+
 def match_ex21_subsidiaries_to_filer_company(
     filer_info_df: pd.DataFrame,
     ownership_df: pd.DataFrame,
@@ -57,6 +97,12 @@ def match_ex21_subsidiaries_to_filer_company(
             "state_of_incorporation",
             "report_date",
         ]
+    )
+    filer_info_df["state_of_incorporation"] = _clean_location_of_incorporation(
+        filer_info_df["state_of_incorporation"]
+    )
+    ownership_df["subsidiary_company_location"] = _clean_location_of_incorporation(
+        ownership_df["subsidiary_company_location"]
     )
     merged_df = filer_info_df.merge(
         ownership_df[
@@ -133,6 +179,7 @@ def match_ex21_subsidiaries_to_filer_company(
         )
     )
     ownership_with_cik_df = ownership_with_cik_df.drop(columns="company_name_merge_cik")
+
     return ownership_with_cik_df
 
 
@@ -418,7 +465,7 @@ def core_sec10k__quarterly_filings() -> pd.DataFrame:
     return df
 
 
-@asset(group_name="sec10k")
+@asset(io_manager_key="pudl_io_manager", group_name="sec10k")
 def core_sec10k__assn__exhibit_21_subsidiaries_and_filers(
     core_sec10k__quarterly_company_information,
     core_sec10k__quarterly_exhibit_21_company_ownership,
@@ -432,7 +479,6 @@ def core_sec10k__assn__exhibit_21_subsidiaries_and_filers(
         filer_info_df=core_sec10k__quarterly_company_information,
         ownership_df=core_sec10k__quarterly_exhibit_21_company_ownership,
     )
-    # TODO: does this table change over time? include report_date?
     matched_df = (
         matched_df[
             ["subsidiary_company_id_sec10k", "subsidiary_company_central_index_key"]
@@ -450,6 +496,7 @@ def core_sec10k__assn__exhibit_21_subsidiaries_and_filers(
 def out_sec10k__parents_and_subsidiaries(
     core_sec10k__quarterly_exhibit_21_company_ownership: pd.DataFrame,
     core_sec10k__quarterly_company_information: pd.DataFrame,
+    core_sec10k__assn__exhibit_21_subsidiaries_and_filers: pd.DataFrame,
 ) -> pd.DataFrame:
     """Denormalized output table with Sec10k company attributes and ownership info linked to EIA."""
     # merge parent attributes on

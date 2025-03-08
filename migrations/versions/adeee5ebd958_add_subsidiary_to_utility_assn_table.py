@@ -1,8 +1,8 @@
-"""add core ex 21 ownership table
+"""add subsidiary to utility assn table
 
-Revision ID: b0b3835f8f47
-Revises: f6ca9e20e5b0
-Create Date: 2025-03-06 21:22:59.514705
+Revision ID: adeee5ebd958
+Revises: 10e3df180112
+Create Date: 2025-03-07 14:12:45.430794
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'b0b3835f8f47'
-down_revision = 'f6ca9e20e5b0'
+revision = 'adeee5ebd958'
+down_revision = '10e3df180112'
 branch_labels = None
 depends_on = None
 
