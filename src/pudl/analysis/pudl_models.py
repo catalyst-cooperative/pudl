@@ -122,9 +122,11 @@ def core_sec10k__quarterly_company_information(
             "sec_file_number": "filing_number_sec",
         }
     )
-    df["zip_code"] = df["zip_code"].str[:5]
-    df["zip_code_4"] = df["zip_code"].str[-4:]
-    df["zip_code_4"].where(df["zip_code"].str.len() > 5, None)
+    df["zip_code_raw"] = df["zip_code"].copy()
+    df["zip_code"] = df["zip_code_raw"].str[:5]
+    df["zip_code_4"] = df["zip_code_raw"].str[-4:]
+    df["zip_code_4"] = df["zip_code_4"].where(df["zip_code_raw"].str.len() > 5, pd.NA)
+    df = df.drop(columns=["zip_code_raw"])
     df["name_change_date"] = pd.to_datetime(df["name_change_date"], format="%Y%m%d")
     df["state"] = df["state"].str.upper()
     df["state_of_incorporation"] = df["state_of_incorporation"].str.upper()
@@ -145,7 +147,7 @@ def core_sec10k__quarterly_company_information(
     df["taxpayer_id_irs"] = df["taxpayer_id_irs"].str.replace("-", "", regex=False)
     df["taxpayer_id_irs"] = df["taxpayer_id_irs"].where(
         (df["taxpayer_id_irs"].str.len() == 9)
-        & (df["taxpayer_id_irs"].str.isnumeric().all()),
+        & (df["taxpayer_id_irs"].str.isnumeric()),
         pd.NA,
     )
     df["taxpayer_id_irs"] = (
@@ -314,7 +316,7 @@ def out_sec10k__parents_and_subsidiaries() -> pd.DataFrame:
     df["taxpayer_id_irs"] = df["taxpayer_id_irs"].str.replace("-", "", regex=False)
     df["taxpayer_id_irs"] = df["taxpayer_id_irs"].where(
         (df["taxpayer_id_irs"].str.len() == 9)
-        & (df["taxpayer_id_irs"].str.isnumeric().all()),
+        & (df["taxpayer_id_irs"].str.isnumeric()),
         pd.NA,
     )
     df["taxpayer_id_irs"] = (
