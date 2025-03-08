@@ -497,58 +497,62 @@ def core_sec10k__assn__exhibit_21_subsidiaries_and_filers(
 )
 def out_sec10k__parents_and_subsidiaries(
     core_sec10k__quarterly_exhibit_21_company_ownership: pd.DataFrame,
-    core_sec10k__quarterly_company_information: pd.DataFrame,
+    out_sec10k__quarterly_company_information: pd.DataFrame,
     core_sec10k__assn__exhibit_21_subsidiaries_and_filers: pd.DataFrame,
 ) -> pd.DataFrame:
     """Denormalized output table with Sec10k company attributes and ownership info linked to EIA."""
     # merge parent attributes on
-    df = core_sec10k__quarterly_exhibit_21_company_ownership.merge(
-        core_sec10k__quarterly_company_information,
+    company_info_df = out_sec10k__quarterly_company_information.drop(
+        columns=["filename_sec10k", "company_name"]
+    )
+    parents_info_df = company_info_df.add_prefix("parent_company_")
+    df = (
+        core_sec10k__quarterly_exhibit_21_company_ownership.merge(
+            parents_info_df,
+            how="left",
+            left_on=["parent_company_central_index_key", "report_date"],
+            right_on=["parent_company_central_index_key", "parent_company_report_date"],
+        )
+        .drop(columns="parent_company_report_date")
+        .rename(
+            columns={"parent_company_company_name_former": "parent_company_name_former"}
+        )
+    )
+    # merge a central index key on for subsidiaries that file a 10k
+    df = df.merge(
+        core_sec10k__assn__exhibit_21_subsidiaries_and_filers,
         how="left",
-        left_on=["parent_company_central_index_key", "report_date"],
-        right_on=["central_index_key", "report_date"],
+        on="subsidiary_company_id_sec10k",
+    ).rename(columns={"central_index_key": "subsidiary_company_central_index_key"})
+
+    # merge subsidiary company attributes on
+    subs_info_df = company_info_df.add_prefix("subsidiary_company_")
+    df = (
+        df.merge(
+            subs_info_df,
+            how="left",
+            left_on=["subsidiary_company_central_index_key", "report_date"],
+            right_on=[
+                "subsidiary_company_central_index_key",
+                "subsidiary_company_report_date",
+            ],
+        )
+        .drop(columns=["subsidiary_company_report_date"])
+        .rename(
+            columns={
+                "subsidiary_company_company_name_former": "subsidiary_company_name_former"
+            }
+        )
     )
 
-    df = _load_table_from_gcs("out_sec10k__parents_and_subsidiaries")
-    df = df.rename(
-        columns={
-            "sec10k_filename": "filename_sec10k",
-            "sec_company_id": "company_id_sec10k",
-            "street_address_2": "address_2",
-            "former_conformed_name": "company_name_former",
-            "location_of_inc": "location_of_incorporation",
-            "irs_number": "taxpayer_id_irs",
-            "parent_company_cik": "parent_company_central_index_key",
-            "files_10k": "files_sec10k",
-            "date_of_name_change": "name_change_date",
-        }
-    )
-
-    # Convert ownership percentage
-    df["fraction_owned"] = _compute_fraction_owned(df.ownership_percentage)
-
-    # Split standard industrial classification into ID and description columns
-    df[["industry_name_sic", "industry_id_sic"]] = df[
-        "standard_industrial_classification"
-    ].str.extract(r"^(.+)\[(\d{4})\]$")
-    df["industry_id_sic"] = df["industry_id_sic"].astype("string")
-    # make taxpayer ID a 9 digit number with a dash separating the first two digits
-    df["taxpayer_id_irs"] = df["taxpayer_id_irs"].str.replace("-", "", regex=False)
-    df["taxpayer_id_irs"] = df["taxpayer_id_irs"].where(
-        (df["taxpayer_id_irs"].str.len() == 9)
-        & (df["taxpayer_id_irs"].str.isnumeric()),
-        pd.NA,
-    )
-    df["taxpayer_id_irs"] = (
-        df["taxpayer_id_irs"].str[:2] + "-" + df["taxpayer_id_irs"].str[-7:]
-    )
     # Some utilities harvested from EIA 861 data that don't show up in our entity
     # tables. These didn't end up improving coverage, and so will be removed upstream.
     # Hack for now is to just drop them so the FK constraint is respected.
     # See https://github.com/catalyst-cooperative/pudl/issues/4050
+    """
     bad_utility_ids = [
         3579,  # Cirro Group, Inc. in Texas
     ]
     df = df[~df.utility_id_eia.isin(bad_utility_ids)]
-
+    """
     return df

@@ -782,13 +782,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Average monthly coincident peak (CP) demand (for requirements purchases, and any transactions involving demand charges). Monthly CP demand is the metered demand during the hour (60-minute integration) in which the supplier's system reaches its monthly peak. In megawatts.",
         "unit": "MW",
     },
-    "company_id_sec10k": {
-        "type": "string",
-        "description": (
-            "PUDL-assigned ID for companies that file SEC Form 10-K or are referenced "
-            "in exhibit 21 attachments to Form 10-K. May not be stable over time."
-        ),
-    },
     "company_name": {
         "type": "string",
         "description": "Name of company submitting SEC 10k filing.",
@@ -796,10 +789,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "company_name_former": {
         "type": "string",
         "description": "Former name of company.",
-    },
-    "company_name_raw": {
-        "type": "string",
-        "description": "Uncleaned name of company.",
     },
     "compliance_year_nox": {
         "type": "integer",
@@ -1700,10 +1689,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "filename_sec10k": {
         "type": "string",
         "description": "Name of filing as provided by SEC data portal.",
-    },
-    "files_sec10k": {
-        "type": "boolean",
-        "description": "Indicates whether the company files an SEC 10-K.",
     },
     "filing_date": {
         "type": "date",
@@ -2632,10 +2617,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
-    "location_of_incorporation": {
-        "type": "string",
-        "description": "Cleaned location of incorporation of the company.",
-    },
     "longitude": {
         "type": "number",
         "description": "Longitude of the plant's location, in degrees.",
@@ -3511,13 +3492,67 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Whether a plant part record has a duplicate record with different ownership status.",
     },
+    "parent_company_address_2": {
+        "type": "string",
+        "description": "Second line of the parent company address.",
+    },
     "parent_company_central_index_key": {
         "type": "string",
-        "description": "Central index key (CIK) of the company's parent company.",
+        "description": "Central index key (CIK) of the parent company.",
+    },
+    "parent_company_city": {
+        "type": "string",
+        "description": "City the parent company is located in.",
     },
     "parent_company_name": {
         "type": "string",
         "description": "Name of the parent company.",
+    },
+    "parent_company_name_change_date": {
+        "type": "string",
+        "description": "Date of last name change of the parent company.",
+    },
+    "parent_company_name_former": {
+        "type": "string",
+        "description": "Former name of the parent company.",
+    },
+    "parent_company_phone_number": {
+        "type": "string",
+        "description": "Phone number of the parent company.",
+    },
+    "parent_company_state": {
+        "type": "string",
+        "description": "State the parent company is located in.",
+    },
+    "parent_company_state_of_incorporation": {
+        "type": "string",
+        "description": "State the parent company is incorporated in.",
+    },
+    "parent_company_street_address": {
+        "type": "string",
+        "description": "Street address of the parent company.",
+    },
+    "parent_company_utility_id_eia": {
+        "type": "string",
+        "description": "The EIA utility ID of the parent company.",
+    },
+    "parent_company_utility_name_eia": {
+        "type": "string",
+        "description": "The EIA reported utility name of the parent company.",
+    },
+    "parent_company_zip_code": {
+        "type": "string",
+        "description": "Five digit US Zip Code of the parent company.",
+        "constraints": {
+            "pattern": r"^\d{5}$",
+        },
+    },
+    "parent_company_zip_code_4": {
+        "type": "string",
+        "description": "Four digit US Zip Code suffix of the parent company.",
+        "constraints": {
+            "pattern": r"^\d{4}$",
+        },
     },
     "particulate_control_id_eia": {
         "type": "string",
@@ -4630,17 +4665,75 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "Sub-plant ID links EPA CEMS emissions units to EIA units.",
     },
+    "subsidiary_company_address_2": {
+        "type": "string",
+        "description": "Second line of the subsidiary company address.",
+    },
+    "subsidiary_company_central_index_key": {
+        "type": "string",
+        "description": "Central index key (CIK) of the subsidiary company.",
+    },
+    "subsidiary_company_city": {
+        "type": "string",
+        "description": "City the subsidiary company is located in.",
+    },
     "subsidiary_company_id_sec10k": {
         "type": "string",
-        "description": "ID for subsidiaries extracted from SEC 10k Ex. 21 attachments.",
+        "description": "PUDL-assigned ID for subsidiaries extracted from SEC 10k Ex. 21 attachments. May not be stable over time.",
+    },
+    "subsidiary_company_location": {
+        "type": "string",
+        "description": "Location of subsidiary company.",
     },
     "subsidiary_company_name": {
         "type": "string",
         "description": "Name of subsidiary company.",
     },
-    "subsidiary_company_location": {
+    "subsidiary_company_name_change_date": {
         "type": "string",
-        "description": "Location of subsidiary company.",
+        "description": "Date of last name change of the subsidiary company.",
+    },
+    "subsidiary_company_name_former": {
+        "type": "string",
+        "description": "Former name of the subsidiary company.",
+    },
+    "subsidiary_company_phone_number": {
+        "type": "string",
+        "description": "Phone number of the subsidiary company.",
+    },
+    "subsidiary_company_state": {
+        "type": "string",
+        "description": "State the subsidiary company is located in.",
+    },
+    "subsidiary_company_state_of_incorporation": {
+        "type": "string",
+        "description": "State the subsidiary company is incorporated in.",
+    },
+    "subsidiary_company_street_address": {
+        "type": "string",
+        "description": "Street address of the subsidiary company.",
+    },
+    "subsidiary_company_utility_id_eia": {
+        "type": "string",
+        "description": "The EIA utility ID of the subsidiary company.",
+    },
+    "subsidiary_company_utility_name_eia": {
+        "type": "string",
+        "description": "The EIA reported utility name of the subsidiary company.",
+    },
+    "subsidiary_company_zip_code": {
+        "type": "string",
+        "description": "Five digit US Zip Code of the parent company.",
+        "constraints": {
+            "pattern": r"^\d{5}$",
+        },
+    },
+    "subsidiary_company_zip_code_4": {
+        "type": "string",
+        "description": "Four digit US Zip Code suffix of the parent company.",
+        "constraints": {
+            "pattern": r"^\d{4}$",
+        },
     },
     "sulfur_content_pct": {
         "type": "number",
