@@ -25,7 +25,6 @@ QuantilePoints AS (
         cumulative_probability AS lower_prob,
         LEAD(cumulative_probability) OVER (ORDER BY cumulative_probability) AS upper_prob
     FROM QuantileData
-    WHERE cumulative_probability <= {{ quantile }}
 ),
 InterpolatedQuantile AS (
     SELECT
