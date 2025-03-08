@@ -10,7 +10,7 @@ WITH test_data AS (
 ),
 
 expected_results AS (
-    SELECT * FROM (VALUES 
+    SELECT * FROM (VALUES
         (0.00, 10),  -- Minimum value (no interpolation)
         (0.25, 25),  -- Requires interpolation
         (0.50, 35),  -- Requires interpolation
