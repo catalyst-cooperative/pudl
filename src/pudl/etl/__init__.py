@@ -95,6 +95,7 @@ out_module_groups = {
     "out_eia": [
         pudl.output.eia,
         pudl.output.eia860,
+        pudl.output.eia930,
         pudl.output.eia923,
         pudl.output.eia_bulk_elec,
     ],

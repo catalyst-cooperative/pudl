@@ -154,4 +154,32 @@ below provides more information on subregions."""
         "etl_group": "eia930",
         "create_database_schema": False,
     },
+    "out_eia930__hourly_subregion_demand": {
+        "description": (
+            """EIA-930 hourly balancing authority subregion demand.
+
+For select BAs, demand by subregion data provide demand at a further level of geographic
+disaggregation (for example, load zones, weather zones, operating company areas, local
+BAs, etc.) within a BA's electric system. A BA's reporting demand by subregion section
+below provides more information on subregions."""
+        ),
+        "schema": {
+            "fields": [
+                "datetime_utc",
+                "balancing_authority_code_eia",
+                "balancing_authority_subregion_code_eia",
+                "demand_reported_mwh",
+                "demand_imputed_mwh",
+            ],
+            "primary_key": [
+                "datetime_utc",
+                "balancing_authority_code_eia",
+                "balancing_authority_subregion_code_eia",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia930"],
+        "etl_group": "eia930",
+        "create_database_schema": False,
+    },
 }
