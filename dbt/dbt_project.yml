@@ -11,9 +11,9 @@ profile: "pudl_dbt"
 # The `model-paths` config, for example, states that models in this project can be
 # found in the "models/" directory. You probably won't need to change these!
 model-paths: ["models"]
-macro-paths: ["macros"]
+macro-paths: ["macros", "tests/data_tests/generic_tests"]
 seed-paths: ["seeds"]
-test-paths: ["tests"]
+test-paths: ["tests/data_tests/singular_tests", "tests/unit_tests"]
 
 sources:
   pudl_dbt:
