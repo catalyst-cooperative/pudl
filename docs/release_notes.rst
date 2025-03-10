@@ -69,7 +69,8 @@ EIA 176
 
 EIA 860
 ~~~~~~~
-* Added EIA 860 Multifuel table. See :issue:`3438` and :pr:`3946`.
+* Added EIA 860 Multifuel table. See :issue:`3438` and :pr:`3988`. Thanks to
+  :user:`jmelot` for working on adding this new table.
 
 FERC 1
 ~~~~~~
