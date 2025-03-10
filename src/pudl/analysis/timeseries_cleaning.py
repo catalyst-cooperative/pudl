@@ -1231,8 +1231,8 @@ class Timeseries:
             >>> np.all(x == s.unfold_tensor(tensor))
             np.True_
         """
-        tensor_shape = self.x.shape[1], self.x.shape[0] // periods, periods
         x = self.x if x is None else x
+        tensor_shape = x.shape[1], x.shape[0] // periods, periods
         return x.T.reshape(tensor_shape)
 
     def unfold_tensor(self, tensor: np.ndarray) -> np.ndarray:
@@ -1370,7 +1370,10 @@ def impute_flagged_values(df: pd.DataFrame, years: list[int]) -> pd.DataFrame:
         # of the next year (report_date.dt.year + 1). and
         # impute_ferc714_hourly_demand_matrix chunks over years at a time
         # and having only one record
-        if year in years:
+        # ``year != 2025`` is a TEMPORARY solution
+        # Incomplete timeseries in 2025 is causing reshaping issues later on
+        # TODO: Implement more robust solution to handle this case
+        if (year in years) and (year != 2025):
             logger.info(f"Imputing year {year}")
             keep = df.columns[~gdf.isnull().all()]
             tsi = Timeseries(gdf[keep])
@@ -1379,7 +1382,7 @@ def impute_flagged_values(df: pd.DataFrame, years: list[int]) -> pd.DataFrame:
     return pd.concat(results)
 
 
-def melt_imputed_matrix(df: pd.DataFrame) -> pd.DataFrame:
+def melt_imputed_matrix(df: pd.DataFrame, imputed_value_col: str) -> pd.DataFrame:
     """Melt FERC 714 hourly demand matrix to long format.
 
     Args:
@@ -1393,7 +1396,7 @@ def melt_imputed_matrix(df: pd.DataFrame) -> pd.DataFrame:
         ``year`` (int), ``datetime_utc``, and ``demand_mwh``.
     """
     # Melt demand matrix to long format
-    df = df.melt(value_name="demand_mwh", ignore_index=False)
+    df = df.melt(value_name=imputed_value_col, ignore_index=False)
     df = df.reset_index()
     return df
 
@@ -1422,7 +1425,7 @@ def filter_missing_values(
     has_data = ~df.isnull()
     coverage = (
         # Last timestamp with demand in year
-        has_data[::-1].groupby(df.index.year[::-1]).idxmax()
+        has_data.iloc[::-1].groupby(df.index.year[::-1]).idxmax()
         -
         # First timestamp with demand in year
         has_data.groupby(df.index.year).idxmax()
@@ -1624,7 +1627,7 @@ def impute_timeseries(
     )
     df = clean_timeseries_matrix(df)
     df = impute_flagged_values(df, years)
-    df = melt_imputed_matrix(df)
+    df = melt_imputed_matrix(df, imputed_value_col)
     df = local_to_datetime_utc(
         localized_df,
         df,
