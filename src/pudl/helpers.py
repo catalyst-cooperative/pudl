@@ -27,7 +27,7 @@ import pandas as pd
 import requests
 import sqlalchemy as sa
 import yaml
-from dagster import AssetKey, AssetsDefinition, AssetSelection, SourceAsset
+from dagster import AssetKey, AssetsDefinition, AssetSelection, AssetSpec
 from pandas._libs.missing import NAType
 
 import pudl.logging_helpers
@@ -1763,15 +1763,15 @@ def get_asset_keys(
 
     Args:
         assets: list of asset definitions.
-        exclude_source_assets: exclude SourceAssets in the returned list.
-            Some selection operations don't allow SourceAsset keys.
+        exclude_source_assets: exclude AssetSpecs in the returned list.
+            Some selection operations don't allow AssetSpec keys.
 
     Returns:
         A set of asset keys.
     """
     asset_keys = set()
     for asset in assets:
-        if isinstance(asset, SourceAsset):
+        if isinstance(asset, AssetSpec):
             if not exclude_source_assets:
                 asset_keys = asset_keys.union(asset.key)
         else:
