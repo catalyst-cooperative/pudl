@@ -7,6 +7,7 @@ sources:
           - check_row_counts_per_partition:
               table_name: out_ferc1__yearly_steam_plants_fuel_by_plant_sched402
               partition_column: report_year
+          - expect_matching_primary_fuel
         columns:
           - name: report_year
           - name: utility_id_ferc1
@@ -28,7 +29,6 @@ sources:
           - name: primary_fuel_by_mmbtu
           - name: waste_fraction_cost
           - name: waste_fraction_mmbtu
-
 models:
   - name: validate_ferc1__yearly_steam_plants_fuel_by_plant_sched402
     columns:
@@ -38,7 +38,7 @@ models:
               quantile: 0.05
               min_value: 1.5
           - dbt_expectations.expect_column_quantile_values_to_be_between:
-              quantile: 0.90
+              quantile: 0.9
               max_value: 15.0
           - dbt_expectations.expect_column_median_to_be_between:
               min_value: 2.0
@@ -46,10 +46,10 @@ models:
       - name: oil_cost_per_mmbtu
         data_tests:
           - dbt_expectations.expect_column_quantile_values_to_be_between:
-              quantile: 0.10
+              quantile: 0.1
               min_value: 3.5
           - dbt_expectations.expect_column_quantile_values_to_be_between:
-              quantile: 0.90
+              quantile: 0.9
               max_value: 26.1
           - dbt_expectations.expect_column_median_to_be_between:
               min_value: 6.5
@@ -57,10 +57,10 @@ models:
       - name: coal_cost_per_mmbtu
         data_tests:
           - dbt_expectations.expect_column_quantile_values_to_be_between:
-              quantile: 0.10
+              quantile: 0.1
               min_value: 0.75
           - dbt_expectations.expect_column_quantile_values_to_be_between:
-              quantile: 0.90
+              quantile: 0.9
               max_value: 4.0
           - dbt_expectations.expect_column_median_to_be_between:
               min_value: 1.0

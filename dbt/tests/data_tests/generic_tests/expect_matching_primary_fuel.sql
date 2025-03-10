@@ -1,3 +1,4 @@
+{% test expect_matching_primary_fuel(model) %}
 with MismatchMicro as (
 select
 case
@@ -9,8 +10,10 @@ case
     else 0
 end as mismatch,
 1 as base_count
-from {{ source('pudl', 'out_ferc1__yearly_steam_plants_fuel_by_plant_sched402') }}
+from {{ model }}
 ), MismatchSummary as (
 select sum(mismatch) as mismatch_count, sum(base_count) as base_count from MismatchMicro
 )
 select * from MismatchSummary where mismatch_count / base_count > 0.05
+
+{% endtest %}

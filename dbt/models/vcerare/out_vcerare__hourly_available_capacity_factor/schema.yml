@@ -7,18 +7,26 @@ sources:
           - check_row_counts_per_partition:
               table_name: out_vcerare__hourly_available_capacity_factor
               partition_column: report_year
+          - expect_valid_hour_of_year
+          - expect_unique_combination:
+              columns:
+                - county_id_fips
+                - datetime_utc
         columns:
           - name: state
           - name: county_or_lake_name
             data_tests:
               - not_null
               - dbt_expectations.expect_column_values_to_not_be_in_set:
-                  value_set: ["bedford_city", "clifton_forge_city"]
+                  value_set:
+                    - bedford_city
+                    - clifton_forge_city
           - name: datetime_utc
             data_tests:
               - not_null
               - dbt_expectations.expect_column_values_to_not_be_in_set:
-                  value_set: ["{{ dbt_date.date(2020, 12, 31) }}"]
+                  value_set:
+                    - "{{ dbt_date.date(2020, 12, 31) }}"
           - name: report_year
           - name: hour_of_year
             data_tests:
@@ -35,12 +43,12 @@ sources:
               - dbt_expectations.expect_column_max_to_be_between:
                   max_value: 1.02
               - dbt_expectations.expect_column_min_to_be_between:
-                  min_value: 0.00
+                  min_value: 0.0
           - name: capacity_factor_onshore_wind
           - name: capacity_factor_offshore_wind
             data_tests:
               - not_null
               - dbt_expectations.expect_column_max_to_be_between:
-                  max_value: 1.00
+                  max_value: 1.0
               - dbt_expectations.expect_column_min_to_be_between:
-                  min_value: 0.00
+                  min_value: 0.0

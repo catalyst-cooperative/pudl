@@ -1,4 +1,4 @@
-{% test expect_fgd_cost_totals_to_agree(model, column_name) %}
+{% test expect_fgd_cost_totals_to_agree(model) %}
 with Discrepancies as (
     select
         case

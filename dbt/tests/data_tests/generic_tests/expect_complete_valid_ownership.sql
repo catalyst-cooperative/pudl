@@ -1,3 +1,4 @@
+{% test expect_complete_valid_ownership(model) %}
 with OwnSum as (
     select
         report_date,
@@ -5,7 +6,7 @@ with OwnSum as (
         generator_id,
         sum(fraction_owned) as fraction_owned,
         1 as toy_join
-    from {{ source('pudl', 'out_eia860__yearly_ownership') }}
+    from {{ model }}
     group by
         report_date,
         plant_id_eia,
@@ -31,3 +32,5 @@ with OwnSum as (
     where fraction_owned > 1.02
 )
 select * from Summary where (report_date is not null) or (pct_missing >= 0.5)
+
+{% endtest %}
