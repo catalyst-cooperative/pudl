@@ -1,3 +1,4 @@
+{% test expect_fgd_cost_totals_to_agree(model, column_name) %}
 with Discrepancies as (
     select
         case
@@ -8,7 +9,7 @@ with Discrepancies as (
         case when (discrepancy > 0.01) and (sum_cost != 0 or total_fgd_equipment_cost != 0) then 1 -- additional sum_cost and total_ constraints drop any nan entries which would otherwise match
         else 0
         end as exceeds_threshold
-    from {{ source('pudl', '_core_eia860__fgd_equipment') }}
+    from {{ model }}
 ), DiscrepancyCounts as (
     select
         exceeds_threshold,
@@ -21,3 +22,5 @@ with Discrepancies as (
     where exceeds_threshold=1
     limit 1
 ) select * from TargetRate where rate >= 0.01
+
+{% endtest %}
