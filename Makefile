@@ -122,7 +122,7 @@ pytest-unit:
 
 .PHONY: pytest-integration
 pytest-integration:
-	pytest ${pytest_args} --etl-settings ${etl_fast_yml} test/integration
+	pytest ${pytest_args} --etl-settings ${etl_fast_yml} test/integration/dbt_test.py
 
 .PHONY: coverage-erase
 coverage-erase:

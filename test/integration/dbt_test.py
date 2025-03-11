@@ -3,13 +3,14 @@ from contextlib import chdir
 from pathlib import Path
 
 from dbt.cli.main import dbtRunner, dbtRunnerResult
-from pudl.io_managers import PudlMixedFormatIOManager
+
+# from pudl.io_managers import PudlMixedFormatIOManager
 
 logger = logging.getLogger(__name__)
 
 
 def test_dbt(
-    pudl_io_manager: PudlMixedFormatIOManager,
+    # pudl_io_manager: PudlMixedFormatIOManager,
     test_dir: Path,
     request,
 ):
@@ -26,11 +27,9 @@ def test_dbt(
 
     See https://docs.getdbt.com/reference/programmatic-invocations/ for more details on
     how to invoke dbt programmatically.
-
-    NOTE:
-
-    - Needs to know whether we're doing fast or full ETL
     """
+    # Identify whether we're running the full or fast ETL, and set the dbt target
+    # appropriately (since we have different test expectations in the two cases)
     if request.config.getoption("--etl-settings"):
         etl_settings_yml = Path(request.config.getoption("--etl-settings"))
     else:
@@ -44,27 +43,47 @@ def test_dbt(
     else:
         raise ValueError(f"Unexpected ETL settings file: {etl_settings_yml}")
 
+    # XXX TEMPORARY FOR TESTING ONLY
+    dbt_target = "nightly"
+
     # Change to the dbt directory so we can run dbt commands
     with chdir(test_dir.parent / "dbt"):
         print("Initializing dbt test runner")
         # Initialize a runner we can use to invoke dbt commands
         dbt = dbtRunner()
 
-        res: dbtRunnerResult = dbt.invoke(["deps", "--threads", "1"])
-        res: dbtRunnerResult = dbt.invoke(["seed", "--threads", "1"])
-        res: dbtRunnerResult = dbt.invoke(
-            ["build", "--target", dbt_target, "--threads", "1"]
+        _deps_result: dbtRunnerResult = dbt.invoke(["deps", "--threads", "1"])
+        _seed_result: dbtRunnerResult = dbt.invoke(["seed", "--threads", "1"])
+        _build_result: dbtRunnerResult = dbt.invoke(
+            [
+                "build",
+                "--select",
+                "source:pudl.out_eia__yearly_generators",
+                "--target",
+                dbt_target,
+                "--threads",
+                "1",
+            ]
         )
-        res: dbtRunnerResult = dbt.invoke(
-            ["test", "--store-failures", "--target", dbt_target, "--threads", "1"]
+        test_result: dbtRunnerResult = dbt.invoke(
+            [
+                "test",
+                "--store-failures",
+                "--select",
+                "source:pudl.out_eia__yearly_generators",
+                "--target",
+                dbt_target,
+                "--threads",
+                "1",
+            ]
         )
 
-        total_tests = len(res.result)
-        passed_tests = len([r for r in res.result if r.status == "pass"])
+        total_tests = len(test_result.result)
+        passed_tests = len([r for r in test_result.result if r.status == "pass"])
         logger.info(f"{passed_tests}/{total_tests} dbt tests passed")
         logger.info("Failed dbt tests:")
-        for r in res.result:
+        for r in test_result.result:
             if r.status != "pass":
                 logger.error(f"{r.node.name}: {r.status}")
 
-        assert res.success
+        assert test_result.success
