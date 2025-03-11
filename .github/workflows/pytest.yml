@@ -133,7 +133,7 @@ jobs:
 
   ci-integration:
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' || github.event.merge_group
+    # if: github.event_name == 'workflow_dispatch' || github.event.merge_group
     permissions:
       contents: read
       id-token: write
