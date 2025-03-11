@@ -22,6 +22,20 @@ macros:
       - name: partition_column
         type: string
         description: The name of the column to partition by
+  - name: compare_all_same_col_values
+    description:
+      Check that all values in a column or set of columns are the same
+      as the same set of columns in another table. Similar to a foreign key
+      constraint, but rather than check if values from the model table exist in a comparison table,
+      this checks if the comparison table has values that don't exist in the model table.
+    arguments:
+      - name: compare_df_name
+        type: string
+        description: The name of the table to compare columns with
+      - name: compare_cols
+        type: list
+        description: A list of the column names to compare accross tables. This
+          list will act as a composite key.
   - name: expect_column_quantile_values_to_be_between
     description: Check that the quantile values of a column are within a range
     arguments:

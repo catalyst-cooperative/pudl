@@ -7,6 +7,9 @@ sources:
           - check_row_counts_per_partition:
               table_name: out_eia__yearly_assn_plant_parts_plant_gen
               partition_column: report_date
+          - compare_all_same_col_values:
+              compare_df_name: out_eia__yearly_plant_parts
+              compare_cols: [record_id_eia]
         columns:
           - name: record_id_eia
           - name: record_id_eia_plant_gen
