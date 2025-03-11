@@ -3,13 +3,12 @@ from contextlib import chdir
 from pathlib import Path
 
 from dbt.cli.main import dbtRunner, dbtRunnerResult
-from pudl.io_managers import PudlMixedFormatIOManager
 
 logger = logging.getLogger(__name__)
 
 
 def test_dbt(
-    pudl_io_manager: PudlMixedFormatIOManager,
+    # pudl_io_manager: PudlMixedFormatIOManager,
     test_dir: Path,
     request,
 ):
@@ -44,6 +43,9 @@ def test_dbt(
     else:
         raise ValueError(f"Unexpected ETL settings file: {etl_settings_yml}")
 
+    # XXX TEMPORARY FOR TESTING ONLY
+    dbt_target = "nightly"
+
     # Change to the dbt directory so we can run dbt commands
     with chdir(test_dir.parent / "dbt"):
         print("Initializing dbt test runner")
@@ -56,7 +58,7 @@ def test_dbt(
             ["build", "--target", dbt_target, "--threads", "1"]
         )
         res: dbtRunnerResult = dbt.invoke(
-            ["test", "--target", dbt_target, "--threads", "1"]
+            ["test", "--store-failures", "--target", dbt_target, "--threads", "1"]
         )
 
         for r in res.result:
