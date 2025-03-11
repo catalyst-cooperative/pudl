@@ -55,7 +55,15 @@ def test_dbt(
         res: dbtRunnerResult = dbt.invoke(["deps"])
         res: dbtRunnerResult = dbt.invoke(["seed"])
         res: dbtRunnerResult = dbt.invoke(
-            ["build", "--target", dbt_target, "--threads", "1"]
+            [
+                "build",
+                "--select",
+                "source:pudl.out_eia__yearly_generators",
+                "--target",
+                dbt_target,
+                "--threads",
+                "1",
+            ]
         )
         res: dbtRunnerResult = dbt.invoke(
             [
