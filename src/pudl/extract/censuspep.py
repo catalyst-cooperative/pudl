@@ -26,18 +26,11 @@ class Extractor(excel.ExcelExtractor):
 
     @staticmethod
     def get_dtypes(page, **partition):
-        """Returns dtypes for plant id columns and county FIPS column."""
+        """Returns nullable string dtypes for all columns.
+
+        FIPS codes often have leading zeros. This preserves them.
+        """
         return pd.StringDtype()
-        # {
-        #     col: pd.StringDtype()
-        #     for col in [
-        #         "State FIPS Code",
-        #         "County FIPS Code",
-        #         "County Subdivision FIPS Code",
-        #         "Place FIPS Code",
-        #         "Consolidated City FIPS Code",
-        #     ]
-        # }
 
     def process_raw(self, df, page, **partition):
         """Apply necessary pre-processing to the dataframe."""
