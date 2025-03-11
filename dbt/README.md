@@ -244,11 +244,10 @@ above. You can also execute these tests with the following command.
 dbt test --select source:pudl.out_eia__AGG_generators
 ```
 
-When we run these tests, there will be a couple of errors as the generated tests are not
-a perfect translation of the old tests. Namely, the
-`expect_column_weighted_quantile_values_to_be_between` tests will compute a discrete
-weighted quantile, while the old python tests compute continuous quantiles. First, the
-following test on the yearly table will fail:
+When we run these tests, if there were errors in the
+`expect_column_weighted_quantile_values_to_be_between` due to changes in the
+distribution of the underlying data, or because they SQL based calculation isn't exactly
+the same as the Python based calculation, in say, this example test:
 
 ```
 - expect_column_weighted_quantile_values_to_be_between:
@@ -258,7 +257,7 @@ following test on the yearly table will fail:
   weight_column: capacity_mw
 ```
 
-To debug this test, we can use `duckdb` directly. There are many ways to interact with
+You debug it using `duckdb`. There are many ways to interact with
 `duckdb`, here will use the CLI. See the [here](https://duckdb.org/docs/installation/)
 for installation directions. To launch the CLI, navigate to the directory that your
 `PUDL_OUTPUT` environment variable points to, and execute:

@@ -36,7 +36,7 @@ sources:
                   weight_column: capacity_mw
               - expect_column_weighted_quantile_values_to_be_between:
                   quantile: 0.65
-                  max_value: 0.83
+                  max_value: 0.7
                   row_condition: fuel_type_code_pudl='gas' and report_date>=CAST('2015-01-01' AS DATE) and capacity_factor<>0.0
                   weight_column: capacity_mw
               - expect_column_weighted_quantile_values_to_be_between:
