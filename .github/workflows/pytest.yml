@@ -119,6 +119,11 @@ jobs:
           include-hidden-files: true
           path: .coverage
 
+      - name: Enumerate all outputs from the unit tests
+        if: always()
+        run: |
+          find ${{ env.PUDL_OUTPUT }} -type f -exec echo {} \;
+
       - name: Upload dbt test failure database artifact
         if: always()
         uses: actions/upload-artifact@v4
@@ -208,6 +213,11 @@ jobs:
           name: coverage-integration
           include-hidden-files: true
           path: .coverage
+
+      - name: Enumerate all outputs from the integration tests
+        if: always()
+        run: |
+          find ${{ env.PUDL_OUTPUT }} -type f -exec echo {} \;
 
       - name: Upload dbt test failure database artifact
         if: always()
