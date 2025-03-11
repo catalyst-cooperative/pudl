@@ -81,9 +81,10 @@ def test_dbt(
         total_tests = len(test_result.result)
         passed_tests = len([r for r in test_result.result if r.status == "pass"])
         logger.info(f"{passed_tests}/{total_tests} dbt tests passed")
-        logger.info("Failed dbt tests:")
-        for r in test_result.result:
-            if r.status != "pass":
-                logger.error(f"{r.node.name}: {r.status}")
+        if passed_tests < total_tests:
+            logger.error("Failed dbt tests:")
+            for r in test_result.result:
+                if r.status != "pass":
+                    logger.error(f"{r.node.name}: {r.status}")
 
         assert test_result.success
