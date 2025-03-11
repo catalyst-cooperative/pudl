@@ -119,6 +119,12 @@ jobs:
           include-hidden-files: true
           path: .coverage
 
+      - name: Upload dbt test failure database artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dbt-failures
+          path: ${{ env.PUDL_OUTPUT }}/pudl_dbt_tests.duckdb
+
   ci-integration:
     runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch' || github.event.merge_group

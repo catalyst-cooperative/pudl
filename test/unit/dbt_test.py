@@ -61,7 +61,13 @@ def test_dbt(
             ["test", "--store-failures", "--target", dbt_target, "--threads", "1"]
         )
 
-        for r in res.result:
-            logger.info(f"{r.node.name}: {r.status}")
+        total_tests = len(res.result)
+        passed_tests = len([r for r in res.result if r.status == "pass"])
+        logger.info(f"{passed_tests}/{total_tests} dbt tests passed")
+        if passed_tests != total_tests:
+            logger.info("Failed dbt tests:")
+            for r in res.result:
+                if r.status != "pass":
+                    logger.error(f"{r.node.name}: {r.status}")
 
         assert res.success
