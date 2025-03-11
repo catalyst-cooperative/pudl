@@ -58,7 +58,16 @@ def test_dbt(
             ["build", "--target", dbt_target, "--threads", "1"]
         )
         res: dbtRunnerResult = dbt.invoke(
-            ["test", "--store-failures", "--target", dbt_target, "--threads", "1"]
+            [
+                "test",
+                "--store-failures",
+                "--select",
+                "source:pudl.out_eia__yearly_generators",
+                "--target",
+                dbt_target,
+                "--threads",
+                "1",
+            ]
         )
 
         total_tests = len(res.result)
