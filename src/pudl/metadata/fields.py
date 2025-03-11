@@ -4204,7 +4204,29 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "sec10k_version": {
         "type": "string",
-        "description": "Specific version of SEC 10k filed.",
+        "description": (
+            "Specific version of SEC 10-K that was filed. 10-k: the standard annual "
+            "report. 10-k/a: an amended version of the annual report. 10-k405: filed "
+            "to report insider trading that was not reported in a timely fashion. "
+            "10-k405/a: an amended version of the 10-k405. 10-kt: submitted in lieu of "
+            "or in addition to a standard 10-K annual report when a company changes "
+            "the end of its fiscal year (e.g. due to a merger) leaving the company "
+            "with a longer or shorter reporting period. 10-kt/a: an amended version of "
+            "the 10-kt. 10-ksb: the annual report for small businesses, also known as "
+            "penny stocks. 10-ksb/a: an amended version of the 10-ksb."
+        ),
+        "constraints": {
+            "enum": [
+                "10-k",
+                "10-k/a",
+                "10-k405",
+                "10-k405/a",
+                "10-kt",
+                "10-kt/a",
+                "10-ksb",
+                "10-ksb/a",
+            ]
+        },
     },
     "secondary_transportation_mode_code": {
         "type": "string",
