@@ -52,7 +52,7 @@ def test_dbt(
         # Initialize a runner we can use to invoke dbt commands
         dbt = dbtRunner()
 
-        _deps_result: dbtRunnerResult = dbt.invoke(["deps", "--threads", "1"])
+        _deps_result: dbtRunnerResult = dbt.invoke(["deps"])
         _seed_result: dbtRunnerResult = dbt.invoke(["seed", "--threads", "1"])
         _build_result: dbtRunnerResult = dbt.invoke(
             [

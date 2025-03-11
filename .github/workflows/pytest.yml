@@ -122,7 +122,7 @@ jobs:
       - name: Enumerate all outputs from the unit tests
         if: always()
         run: |
-          find ${{ env.PUDL_OUTPUT }} -type f -exec echo {} \;
+          find ${{ env.PUDL_OUTPUT }} -type f
 
       - name: Upload dbt test failure database artifact
         if: always()
@@ -217,7 +217,7 @@ jobs:
       - name: Enumerate all outputs from the integration tests
         if: always()
         run: |
-          find ${{ env.PUDL_OUTPUT }} -type f -exec echo {} \;
+          find ${{ env.PUDL_OUTPUT }} -type f
 
       - name: Upload dbt test failure database artifact
         if: always()
