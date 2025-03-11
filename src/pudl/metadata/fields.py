@@ -4197,6 +4197,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "sec_act": {
         "type": "string",
         "description": "SEC Act through which the form was enacted, e.g. 1934 act.",
+        "constraints": {
+            "enum": ["1934 act"],
+        },
     },
     "filing_number_sec": {
         "type": "string",
