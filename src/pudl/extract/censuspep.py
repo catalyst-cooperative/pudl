@@ -1,8 +1,12 @@
 """Retrieve data from Census PEP spreadsheets."""
 
+import pandas as pd
+from dagster import Output, asset
+
 import pudl
 import pudl.logging_helpers
 from pudl.extract import excel
+from pudl.extract.extractor import raw_df_factory
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -20,6 +24,21 @@ class Extractor(excel.ExcelExtractor):
         self.cols_added = []
         super().__init__(*args, **kwargs)
 
+    @staticmethod
+    def get_dtypes(page, **partition):
+        """Returns dtypes for plant id columns and county FIPS column."""
+        return pd.StringDtype()
+        # {
+        #     col: pd.StringDtype()
+        #     for col in [
+        #         "State FIPS Code",
+        #         "County FIPS Code",
+        #         "County Subdivision FIPS Code",
+        #         "Place FIPS Code",
+        #         "Consolidated City FIPS Code",
+        #     ]
+        # }
+
     def process_raw(self, df, page, **partition):
         """Apply necessary pre-processing to the dataframe."""
         df = df.rename(columns=self._metadata.get_column_map(page, **partition))
@@ -27,3 +46,16 @@ class Extractor(excel.ExcelExtractor):
             df["report_year"] = list(partition.values())[0]
             self.cols_added.append("report_year")
         return df
+
+
+raw_censuspep__all_dfs = raw_df_factory(Extractor, name="censuspep")
+
+
+@asset
+def raw_censuspep__geocodes(raw_censuspep__all_dfs):
+    """Extract raw Census PEP FIPS codes data into dataframes.
+
+    Returns:
+        An extracted Census PEP FIPS codes dataframe.
+    """
+    return Output(value=raw_censuspep__all_dfs["geocodes"])

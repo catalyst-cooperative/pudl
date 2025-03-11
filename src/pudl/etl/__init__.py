@@ -44,6 +44,7 @@ from . import (
 logger = pudl.logging_helpers.get_logger(__name__)
 
 raw_module_groups = {
+    "raw_censuspep": [pudl.extract.censuspep],
     "raw_eia176": [pudl.extract.eia176],
     "raw_eia191": [pudl.extract.eia191],
     "raw_eia757a": [pudl.extract.eia757a],
@@ -69,6 +70,7 @@ core_module_groups = {
         pudl.convert.censusdp1tract_to_sqlite,
         pudl.output.censusdp1tract,
     ],
+    # "core_censuspep": [pudl.transform.censuspep],
     "core_codes": [static_assets],
     "core_eia": [pudl.transform.eia],
     "core_eiaaeo": [pudl.transform.eiaaeo],
