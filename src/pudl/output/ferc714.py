@@ -648,16 +648,16 @@ def out_ferc714__summarized_demand(
         pd.merge(
             _out_ferc714__annualized_respondents,
             out_ferc714__hourly_planning_area_demand.loc[
-                :, ["report_date", "respondent_id_ferc714", "demand_mwh"]
+                :, ["report_date", "respondent_id_ferc714", "demand_imputed_mwh"]
             ],
             on=["report_date", "respondent_id_ferc714"],
             how="left",
         )
         .groupby(["report_date", "respondent_id_ferc714"], as_index=False)[
-            ["demand_mwh"]
+            ["demand_imputed_mwh"]
         ]
         .sum(min_count=1)
-        .rename(columns={"demand_mwh": "demand_annual_mwh"})
+        .rename(columns={"demand_imputed_mwh": "demand_annual_mwh"})
         .merge(
             _out_ferc714__georeferenced_counties.groupby(
                 ["report_date", "respondent_id_ferc714"], as_index=False
