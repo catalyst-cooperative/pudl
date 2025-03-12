@@ -58,8 +58,8 @@ def test_dbt(
         _seed_result: dbtRunnerResult = dbt.invoke(
             [
                 "seed",
-                # "--threads",
-                # "1",
+                "--threads",
+                "1",
             ]
         )
         _build_result: dbtRunnerResult = dbt.invoke(
@@ -69,8 +69,8 @@ def test_dbt(
                 "source:pudl.out_eia__yearly_generators",
                 "--target",
                 dbt_target,
-                # "--threads",
-                # "1",
+                "--threads",
+                "1",
             ]
         )
         test_result: dbtRunnerResult = dbt.invoke(
@@ -81,8 +81,8 @@ def test_dbt(
                 "source:pudl.out_eia__yearly_generators",
                 "--target",
                 dbt_target,
-                # "--threads",
-                # "1",
+                "--threads",
+                "1",
             ]
         )
 
