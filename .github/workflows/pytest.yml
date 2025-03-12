@@ -119,17 +119,12 @@ jobs:
           include-hidden-files: true
           path: .coverage
 
-      - name: Enumerate all outputs from the unit tests
-        if: always()
-        run: |
-          find /tmp/pytest-of-runner/
-
       - name: Upload dbt test failure database artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: dbt-failures
-          path: ${{ env.PUDL_OUTPUT }}pudl_dbt_tests.duckdb
+          path: pudl_dbt_tests.duckdb
 
   ci-integration:
     runs-on: ubuntu-latest
@@ -214,17 +209,12 @@ jobs:
           include-hidden-files: true
           path: .coverage
 
-      - name: Enumerate all outputs from the integration tests
-        if: always()
-        run: |
-          find /tmp/pytest-of-runner/
-
       - name: Upload dbt test failure database artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: dbt-failures
-          path: ${{ env.PUDL_OUTPUT }}pudl_dbt_tests.duckdb
+          path: pudl_dbt_tests.duckdb
 
       - name: Log post-test Zenodo datastore contents
         run: find ${{ env.PUDL_INPUT }}
