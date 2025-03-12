@@ -1,0 +1,45 @@
+version: 2
+
+macros:
+  - name: test_expect_complete_valid_ownership
+    description: >
+      Check whether ``fraction_owned`` columns sum too high (for any individual
+      generator) or too low (for too many generators). Designed for use on
+      ```out_eia860__yearly_ownership``. Fails when any generator has
+      sum(fraction_owned) more than 1.02, or when more than half of generators have
+      sum(fraction_owned) less than 0.98.
+  - name: test_expect_consistent_generator_ids
+    description: >
+      Check whether generator ids have entries that vary only in punctuation or case. Designed for use on ``_out_eia__yearly_generators``. Fails when any ``plant_id_eia`` has multiple generators with the same id after dropping all [^A-Z0-9] characters. Accepts 40 known generators with multiple ids.
+  - name: test_expect_fgd_cost_totals_to_agree
+    description: >
+      Check whether the sum of itemized costs matches the total cost. Designed for use on ``_core_eia860__fgd_equipment``. Fails when more than 1% of rows have a sum that differs from the total by more than 1%. Includes careful null and nan handling.
+  - name: test_expect_matching_primary_fuel
+    description: >
+      Check whether the primary fuel by cost matches the primary fuel by mmbtu. Designed for use on ``out_ferc1__yearly_steam_plants_fuel_by_plant_sched402``. Fails when more than 5% of rows have different cost vs mmbtu primary fuels.
+  - name: test_expect_one2one_mapping
+    description: >
+      Check whether there is a 1:1 mapping between two columns. Fails when a value in the ``every`` column is paired with more than one value in the ``should_have_only_one`` column.
+    arguments:
+      - name: every_column
+        type: string
+        description: The name of the column to group by.
+      - name: should_have_only_one_column
+        type: string
+        description: The name of the column to count.
+      - name: n_acceptable
+        type: integer
+        description: The number of acceptable ``every`` values having more than one ``should_have_only_one`` value.
+  - name: test_expect_unique_combination
+    description: >
+      Check whether the combination of values of the specified columns is unique. Fails when any combination occurs more than once.
+    arguments:
+      - name: columns
+        type: list[str]
+        description: The columns in the unique combination.
+  - name: test_expect_unique_owner_utility_id_eia
+    description: >
+      Check whether each generator has exactly one owner utility on any particular date. Designed for use on ``out_eia860__yearly_ownership``. Fails when any (``report_date``, ``plant_id_eia``, ``generator_id``) combination has more than one unique value for ``owner_utility_id_eia``. Accepts 730 known generators with multiple owner utilities.
+  - name: test_expect_valid_hour_of_year
+    description: >
+      Check whether ``hour_of_year`` is consistent with ``datetime_utc``. Designed for use on ``out_vcerare__hourly_available_capacity_factor``. Fails when the hour computed from the datetime does not match.
