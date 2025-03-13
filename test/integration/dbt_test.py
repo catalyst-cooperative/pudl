@@ -7,8 +7,7 @@ from pathlib import Path
 import duckdb
 
 from dbt.cli.main import dbtRunner, dbtRunnerResult
-
-# from pudl.io_managers import PudlMixedFormatIOManager
+from pudl.io_managers import PudlMixedFormatIOManager
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +16,7 @@ duckdb.execute("FORCE INSTALL httpfs")
 
 
 def test_dbt(
-    # pudl_io_manager: PudlMixedFormatIOManager,
+    pudl_io_manager: PudlMixedFormatIOManager,
     test_dir: Path,
     request,
 ):
