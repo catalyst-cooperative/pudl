@@ -50,9 +50,6 @@ def test_dbt(
     else:
         raise ValueError(f"Unexpected ETL settings file: {etl_settings_yml}")
 
-    # XXX TEMPORARY FOR TESTING ONLY
-    dbt_target = "nightly"
-
     print("Initializing dbt test runner")
     dbt = dbtRunner()
 
@@ -96,8 +93,6 @@ def test_dbt(
                 logger.error(f"{r.node.name}: {r.status}")
 
     db_path = Path(os.environ["PUDL_OUTPUT"]) / "pudl_dbt_tests.duckdb"
-    db_size = db_path.stat().st_size / 1024
-    logger.info(f"dbt output database size: {db_size} KB")
     # copy the output database to a known location if we are in CI
     # so it can be uploaded as an artifact
     if os.getenv("GITHUB_ACTIONS", False):
