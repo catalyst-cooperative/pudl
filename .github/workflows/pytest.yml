@@ -185,8 +185,8 @@ jobs:
       - name: Run integration tests, trying to use GCS cache if possible
         run: |
           pip install --no-deps --editable .
-          pudl_datastore --dataset epacems --partition year_quarter=2022q1
           make pytest-integration
+#         pudl_datastore --dataset epacems --partition year_quarter=2022q1
 
       - name: Coverage debugging output
         run: |
