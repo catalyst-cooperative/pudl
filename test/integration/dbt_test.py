@@ -12,6 +12,8 @@ from pudl.io_managers import PudlMixedFormatIOManager
 logger = logging.getLogger(__name__)
 
 # Ensure that httpfs is installed before doing any multi-threaded dbt operations
+# This prevents errors where multiple threads attempt to install the extension, and
+# all but the first one finds that it's mysteriously already been installed.
 duckdb.execute("FORCE INSTALL httpfs")
 
 
