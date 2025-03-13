@@ -11,6 +11,7 @@ from pandas.tseries.offsets import BYearEnd
 
 import pudl
 from pudl.helpers import (
+    add_fips_ids,
     apply_pudl_dtypes,
     convert_col_to_bool,
     convert_df_to_excel_file,
@@ -853,3 +854,49 @@ plant_id_eia,energy_source_code,report_date,fuel_cost_per_mmbtu,fuel_cost_per_mm
         win_type="triang",
     ).round(2)
     pd.testing.assert_frame_equal(test_rolled, out_reordered, check_exact=False)
+
+
+def test_add_fips():
+    geocodes = pd.read_csv(
+        StringIO(
+            """
+area_name,county_id_fips,fips_level,report_year,state_id_fips,state
+Maryland,00000,040,2023,24,MD
+Virginia,00000,040,2023,51,VA
+Baltimore County,24005,050,2023,24,MD
+Baltimore city,24510,050,2023,24,MD
+Bedford County,51019,050,2023,51,VA
+Bedford city,51515,050,2009,51,VA"""
+        ),
+        dtype=pd.StringDtype(),
+    )
+    df = pd.read_csv(
+        StringIO(
+            """
+county,state
+Baltimore County,MD
+Baltimore city,MD
+Baltimore,MD
+Bedford County,VA
+Bedford,VA
+Bedford city,VA"""
+        ),
+        dtype=pd.StringDtype(),
+    )
+    # Note: I couldn't find real instances of area's called "Bedford City"
+    # which is good because right now the ex
+    expected = pd.read_csv(
+        StringIO(
+            """
+county,state,state_id_fips,county_id_fips
+Baltimore County,MD,24,24005
+Baltimore city,MD,24,24510
+Baltimore,MD,24,24510
+Bedford County,VA,51,51019
+Bedford,VA,51,51019
+Bedford city,VA,51,51515"""
+        ),
+        dtype=pd.StringDtype(),
+    )
+    out = add_fips_ids(df, geocodes)
+    pd.testing.assert_frame_equal(out, expected)
