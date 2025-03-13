@@ -54,10 +54,18 @@ def test_dbt(
     # Change to the dbt directory so we can run dbt commands
     with chdir(test_dir.parent / "dbt"):
         _deps_result: dbtRunnerResult = dbt.invoke(["deps"])
-        _seed_result: dbtRunnerResult = dbt.invoke(["seed"])
+        _seed_result: dbtRunnerResult = dbt.invoke(
+            [
+                "seed",
+                "--threads",
+                "1",
+            ]
+        )
         _build_result: dbtRunnerResult = dbt.invoke(
             [
                 "build",
+                "--threads",
+                "1",
                 "--target",
                 dbt_target,
             ]
@@ -65,6 +73,8 @@ def test_dbt(
         test_result: dbtRunnerResult = dbt.invoke(
             [
                 "test",
+                "--threads",
+                "1",
                 "--store-failures",
                 "--target",
                 dbt_target,
