@@ -48,12 +48,11 @@ def test_dbt(
     # XXX TEMPORARY FOR TESTING ONLY
     dbt_target = "nightly"
 
+    print("Initializing dbt test runner")
+    dbt = dbtRunner()
+
     # Change to the dbt directory so we can run dbt commands
     with chdir(test_dir.parent / "dbt"):
-        print("Initializing dbt test runner")
-        # Initialize a runner we can use to invoke dbt commands
-        dbt = dbtRunner()
-
         _deps_result: dbtRunnerResult = dbt.invoke(["deps"])
         _seed_result: dbtRunnerResult = dbt.invoke(
             [
@@ -86,20 +85,20 @@ def test_dbt(
             ]
         )
 
-        total_tests = len(test_result.result)
-        passed_tests = len([r for r in test_result.result if r.status == "pass"])
-        logger.info(f"{passed_tests}/{total_tests} dbt tests passed")
-        if passed_tests < total_tests:
-            logger.error("Failed dbt tests:")
-            for r in test_result.result:
-                if r.status != "pass":
-                    logger.error(f"{r.node.name}: {r.status}")
+    total_tests = len(test_result.result)
+    passed_tests = len([r for r in test_result.result if r.status == "pass"])
+    logger.info(f"{passed_tests}/{total_tests} dbt tests passed")
+    if passed_tests < total_tests:
+        logger.error("Failed dbt tests:")
+        for r in test_result.result:
+            if r.status != "pass":
+                logger.error(f"{r.node.name}: {r.status}")
 
-        # copy the output database to a known location if we are in CI
-        # so it can be uploaded as an artifact
-        if os.getenv("GITHUB_ACTIONS", False):
-            shutil.copy(
-                Path(os.getenv("PUDL_OUTPUT")) / "pudl_dbt_tests.duckdb",
-                test_dir.parent / "pudl_dbt_tests.duckdb",
-            )
-        assert test_result.success
+    # copy the output database to a known location if we are in CI
+    # so it can be uploaded as an artifact
+    if os.getenv("GITHUB_ACTIONS", False):
+        db_path = Path(os.environ["PUDL_OUTPUT"]) / "pudl_dbt_tests.duckdb"
+        db_size = db_path.stat().st_size / 1024
+        logger.info(f"dbt output database size: {db_size} KB")
+        shutil.copy(db_path, test_dir.parent / "pudl_dbt_tests.duckdb")
+    assert test_result.success
