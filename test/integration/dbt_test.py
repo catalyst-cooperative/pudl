@@ -54,34 +54,20 @@ def test_dbt(
     # Change to the dbt directory so we can run dbt commands
     with chdir(test_dir.parent / "dbt"):
         _deps_result: dbtRunnerResult = dbt.invoke(["deps"])
-        _seed_result: dbtRunnerResult = dbt.invoke(
-            [
-                "seed",
-                "--threads",
-                "1",
-            ]
-        )
+        _seed_result: dbtRunnerResult = dbt.invoke(["seed"])
         _build_result: dbtRunnerResult = dbt.invoke(
             [
                 "build",
-                "--select",
-                "source:pudl.out_eia__yearly_generators",
                 "--target",
                 dbt_target,
-                "--threads",
-                "1",
             ]
         )
         test_result: dbtRunnerResult = dbt.invoke(
             [
                 "test",
                 "--store-failures",
-                "--select",
-                "source:pudl.out_eia__yearly_generators",
                 "--target",
                 dbt_target,
-                "--threads",
-                "1",
             ]
         )
 
