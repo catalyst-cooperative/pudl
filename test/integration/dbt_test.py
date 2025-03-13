@@ -4,11 +4,16 @@ import shutil
 from contextlib import chdir
 from pathlib import Path
 
+import duckdb
+
 from dbt.cli.main import dbtRunner, dbtRunnerResult
 
 # from pudl.io_managers import PudlMixedFormatIOManager
 
 logger = logging.getLogger(__name__)
+
+# Ensure that httpfs is installed before doing any multi-threaded dbt operations
+duckdb.execute("FORCE INSTALL httpfs")
 
 
 def test_dbt(
@@ -96,5 +101,5 @@ def test_dbt(
     # copy the output database to a known location if we are in CI
     # so it can be uploaded as an artifact
     if os.getenv("GITHUB_ACTIONS", False):
-        shutil.copy(db_path, test_dir.parent / "pudl_dbt_tests.duckdb")
+        shutil.move(db_path, test_dir.parent / "pudl_dbt_tests.duckdb")
     assert test_result.success
