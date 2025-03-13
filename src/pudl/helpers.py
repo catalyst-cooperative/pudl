@@ -30,7 +30,6 @@ from dagster import AssetKey, AssetsDefinition, AssetSelection, SourceAsset
 from pandas._libs.missing import NAType
 
 import pudl.logging_helpers
-from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
 from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
 from pudl.workspace.setup import PudlPaths
 
@@ -204,41 +203,19 @@ def add_fips_ids(
     return df
 
 
-def _clean_area_name_col(area_name_col: pd.Series, replace_dict: dict):
-    """Clean a area name column - meant for use in FIPS code adding."""
-    return area_name_col.str.lower().replace(to_replace=replace_dict, regex=True)
-
-
 def add_state_id_fips(
     df: pd.DataFrame, geocodes: pd.DataFrame, state_col: str
 ) -> pd.DataFrame:
-    """Add the State FIPS codes.
-
-    First we need to merge in the state abbreviation to the fips codes
-
-    Note: There are state fips codes in this pudl-compiled POLITICAL_SUBDIVISIONS
-    going with using the census based codes instead of our compiled codes even though
-    I checked they are all the same. Still feels better to sue a more og source.
-    """
-    state_abbr = (
-        POLITICAL_SUBDIVISIONS.loc[:, ["subdivision_code", "subdivision_name"]]
-        .rename(
-            columns={"subdivision_code": state_col, "subdivision_name": "area_name"}
-        )
-        .assign(area_name_tmp=lambda x: _clean_area_name_col(x["area_name"], {}))
-    )
+    """Add the State FIPS codes."""
     states = (
-        geocodes.loc[geocodes["fips_level"] == "040", ["area_name", "state_id_fips"]]
+        geocodes.loc[geocodes["fips_level"] == "040", ["state", "state_id_fips"]]
+        .rename(columns={"state": state_col})
         .drop_duplicates()
-        .assign(area_name_tmp=lambda x: _clean_area_name_col(x["area_name"], {}))
-        .merge(state_abbr, on=["area_name_tmp"], how="left", validate="1:1")[
-            [state_col, "state_id_fips"]
-        ]
     )
     df = df.merge(states, on=state_col, how="left", validate="m:1")
     logger.info(
         f"Assigned state FIPS codes for "
-        f"{len(df[df.state_id_fips.notnull()]) / len(df):.5%} of records."
+        f"{len(df[df.state_id_fips.notnull()]) / len(df):.2%} of records."
     )
     return df
 
@@ -247,7 +224,12 @@ def add_county_fips_id(
     df: pd.DataFrame, geocodes: pd.DataFrame, county_col: str
 ) -> pd.DataFrame:
     """Add the County FIPS codes to a table with State FIPS codes."""
-    diacretics = {
+
+    def _clean_area_name_col(area_name_col: pd.Series, replace_dict: dict):
+        """Clean a area name column - meant for use in FIPS code adding."""
+        return area_name_col.str.lower().replace(to_replace=replace_dict, regex=True)
+
+    diacritics = {
         r"ñ": "n",
         r"'": "",
         r"ó": "o",
@@ -264,17 +246,14 @@ def add_county_fips_id(
     abbrevs = {"ft. ": "fort ", "st. ": "saint ", "ste. ": "sainte "}
 
     county_types = {
-        r" (county|city|city and borough|borough|census area|municipio|municipality|district|parish)$": ""
+        r" (county|city|city and borough|borough|census area|municipio|municipality|district|parish|island)$": ""
     }
 
     # compile the counties.
     counties = geocodes.loc[
         geocodes["fips_level"] == "050",
         ["area_name", "state_id_fips", "county_id_fips"],
-    ].assign(  # squish the state and county fips together to get the full code
-        county_id_fips=lambda x: x.state_id_fips + x.county_id_fips
-    )
-    # compile all of the many possible ways these county columns could show up.
+    ]  # compile all of the many possible ways these county columns could show up.
     counties = pd.concat(
         [
             counties.assign(
@@ -282,9 +261,9 @@ def add_county_fips_id(
             )
             for replace_dict in [
                 {},
-                diacretics | abbrevs,
+                diacritics | abbrevs,
                 county_types,
-                diacretics | abbrevs | county_types,
+                diacritics | abbrevs | county_types,
                 county_types | {"'s": "s"},
             ]
         ]
@@ -292,30 +271,38 @@ def add_county_fips_id(
 
     # see assertion note below. we keep the city records because all instances
     # of the city as county reported we've seen always note lone city as county
-    # name instead of lone county
+    # name instead of lone county. There is one exception which is Bedford.. #3531
     city_county_dupe_mask = counties.duplicated(
         ["state_id_fips", "county_tmp"], keep=False
-    ) & ~(counties.area_name.str.lower().str.contains("city"))
-
-    if len(city_county_dupes := counties[city_county_dupe_mask]) > 10:
+    ) & (
+        (
+            counties.area_name.str.lower().str.contains("county|borough")
+            & ~counties.area_name.str.lower().str.contains("bedford")
+        )
+        | (
+            counties.area_name.str.lower().str.contains("city")
+            & counties.area_name.str.lower().str.contains("bedford")
+        )
+    )
+    if len(city_county_dupes := counties[city_county_dupe_mask]) > 9:
         raise AssertionError(
-            "We expect there to be 10 county records that have the same name and state "
+            "We expect there to be 9 county records that have the same name and state "
             "but have different county fips codes. This is due to pair counties that have "
             "a city jurisdiction and a corresponding county jurisdiction (ex. Baltimore "
             "County and Baltimore City which is also a county). We found "
-            f"{len(city_county_dupes)}:\n{city_county_dupes}"
+            f"{len(city_county_dupes)}:\n{city_county_dupes.sort_values('county_tmp')}"
         )
     counties = counties[~city_county_dupe_mask]
 
     df = (
         df.assign(county_tmp=_clean_area_name_col(df[county_col], {}))
         .merge(counties, on=["state_id_fips", "county_tmp"], how="left", validate="m:1")
-        .drop(columns=["county_tmp"])
+        .drop(columns=["county_tmp", "area_name"])
     )
 
     logger.info(
         f"Assigned county FIPS codes for "
-        f"{len(df[df.county_id_fips.notnull()]) / len(df):.5%} of records."
+        f"{len(df[df.county_id_fips.notnull()]) / len(df):.2%} of records."
     )
     return df
 

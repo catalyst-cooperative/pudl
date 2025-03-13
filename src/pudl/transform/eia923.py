@@ -435,7 +435,9 @@ def _yearly_to_monthly_records(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def _coalmine_cleanup(cmi_df: pd.DataFrame, raw_censuspep__geocodes) -> pd.DataFrame:
+def _coalmine_cleanup(
+    cmi_df: pd.DataFrame, _core_censuspep__yearly_geocodes
+) -> pd.DataFrame:
     """Clean up the core_eia923__entity_coalmine table.
 
     This function does most of the core_eia923__entity_coalmine table transformation. It is separate
@@ -487,7 +489,9 @@ def _coalmine_cleanup(cmi_df: pd.DataFrame, raw_censuspep__geocodes) -> pd.DataF
         )
         # No leading or trailing whitespace:
         .pipe(pudl.helpers.simplify_strings, columns=["mine_name"])
-        .pipe(pudl.helpers.add_fips_ids, raw_censuspep__geocodes, county_col=None)
+        .pipe(
+            pudl.helpers.add_fips_ids, _core_censuspep__yearly_geocodes, county_col=None
+        )
     )
     # join state and partial county FIPS into five digit county FIPS
     cmi_df["county_id_fips"] = cmi_df["state_id_fips"] + cmi_df["county_id_fips"]

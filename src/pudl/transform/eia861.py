@@ -1025,7 +1025,8 @@ def _harvest_associations(dfs: list[pd.DataFrame], cols: list[str]) -> pd.DataFr
 ###############################################################################
 @asset(io_manager_key="pudl_io_manager")
 def core_eia861__yearly_service_territory(
-    raw_eia861__service_territory: pd.DataFrame, raw_censuspep__geocodes: pd.DataFrame
+    raw_eia861__service_territory: pd.DataFrame,
+    _core_censuspep__yearly_geocodes: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the EIA 861 utility service territory table.
 
@@ -1050,7 +1051,7 @@ def core_eia861__yearly_service_territory(
         # Ensure that we have the canonical US Census county names:
         .pipe(clean_eia_counties, fixes=EIA_FIPS_COUNTY_FIXES)
         # Add FIPS IDs based on county & state names:
-        .pipe(add_fips_ids, raw_censuspep__geocodes)
+        .pipe(add_fips_ids, _core_censuspep__yearly_geocodes)
         .assign(short_form=lambda x: _make_yn_bool(x.short_form))
         .pipe(_post_process)
     )
