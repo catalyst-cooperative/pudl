@@ -1008,7 +1008,8 @@ def _core_eia923__generation(raw_eia923__generator: pd.DataFrame) -> pd.DataFram
 
 @asset
 def _core_eia923__coalmine(
-    raw_eia923__fuel_receipts_costs: pd.DataFrame, raw_censuspep__geocodes: pd.DataFrame
+    raw_eia923__fuel_receipts_costs: pd.DataFrame,
+    _core_censuspep__yearly_geocodes: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transforms the raw_eia923__fuel_receipts_costs table.
 
@@ -1039,7 +1040,7 @@ def _core_eia923__coalmine(
     # to use again for populating the FRC table (see below)
     cmi_df = raw_eia923__fuel_receipts_costs
     # Keep only the columns listed above:
-    cmi_df = _coalmine_cleanup(cmi_df, raw_censuspep__geocodes)
+    cmi_df = _coalmine_cleanup(cmi_df, _core_censuspep__yearly_geocodes)
 
     cmi_df = cmi_df[coalmine_cols]
 
@@ -1085,7 +1086,7 @@ def _core_eia923__coalmine(
 def _core_eia923__fuel_receipts_costs(
     raw_eia923__fuel_receipts_costs: pd.DataFrame,
     _core_eia923__coalmine: pd.DataFrame,
-    raw_censuspep__geocodes: pd.DataFrame,
+    _core_censuspep__yearly_geocodes: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transforms the eia923__fuel_receipts_costs dataframe.
 
@@ -1139,7 +1140,7 @@ def _core_eia923__fuel_receipts_costs(
     # is populated, and here (since we need them to be identical for the
     # following merge)
     frc_df = (
-        frc_df.pipe(_coalmine_cleanup, raw_censuspep__geocodes)
+        frc_df.pipe(_coalmine_cleanup, _core_censuspep__yearly_geocodes)
         .merge(
             cmi_df,
             how="left",

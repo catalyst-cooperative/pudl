@@ -279,10 +279,7 @@ def add_county_fips_id(
             counties.area_name.str.lower().str.contains("county|borough")
             & ~counties.area_name.str.lower().str.contains("bedford")
         )
-        | (
-            counties.area_name.str.lower().str.contains("city")
-            & counties.area_name.str.lower().str.contains("bedford")
-        )
+        | (counties.area_name.str.lower() == "bedford city")
     )
     if len(city_county_dupes := counties[city_county_dupe_mask]) > 9:
         raise AssertionError(
