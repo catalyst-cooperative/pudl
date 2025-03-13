@@ -122,7 +122,8 @@ pytest-unit:
 
 .PHONY: pytest-integration
 pytest-integration:
-	pytest ${pytest_args} --etl-settings ${etl_fast_yml} test/integration/dbt_test.py
+# XXX CHANGE BACK TO ETL FAST FOR REAL CI TESTS
+	pytest ${pytest_args} --etl-settings ${etl_full_yml} test/integration/dbt_test.py
 
 .PHONY: coverage-erase
 coverage-erase:
