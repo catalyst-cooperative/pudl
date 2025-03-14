@@ -186,6 +186,7 @@ jobs:
         run: |
           pip install --no-deps --editable .
           pudl_datastore --dataset epacems --partition year_quarter=2022q1
+
           make pytest-integration
       - name: Coverage debugging output
         run: |
