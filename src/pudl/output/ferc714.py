@@ -8,6 +8,7 @@ import pandas as pd
 from dagster import Field, asset
 
 import pudl
+from pudl.analysis.imputation.timeseries_cleaning import impute_timeseries_asset_factory
 from pudl.analysis.service_territory import utility_ids_all_eia
 from pudl.metadata.fields import apply_pudl_dtypes
 
@@ -676,3 +677,12 @@ def out_ferc714__summarized_demand(
         demand_annual, _out_ferc714__categorized_respondents, how="left"
     ).pipe(apply_pudl_dtypes)
     return demand_summary
+
+
+imputed_hourly_planning_area_demand_assets = impute_timeseries_asset_factory(
+    input_asset_name="core_ferc714__hourly_planning_area_demand",
+    output_asset_name="out_ferc714__hourly_planning_area_demand",
+    years=sorted(set(range(2006, 2024))),
+    value_col="demand_mwh",
+    id_col="respondent_id_ferc714",
+)

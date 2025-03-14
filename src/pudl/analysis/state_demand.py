@@ -21,7 +21,6 @@ import geopandas as gpd
 import pandas as pd
 from dagster import Field, asset
 
-import pudl.analysis.timeseries_cleaning
 import pudl.output.pudltabl
 from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
 
@@ -139,25 +138,6 @@ def total_state_sales_eia861(
     df = df.rename(columns={"sales_mwh": "demand_mwh"})
     df = df[df["demand_mwh"].gt(0)]
     return df[["state_id_fips", "year", "demand_mwh"]]
-
-
-@asset(
-    io_manager_key="parquet_io_manager",
-    compute_kind="Python",
-    required_resource_keys={"dataset_settings"},
-)
-def out_ferc714__hourly_planning_area_demand(
-    context,
-    core_ferc714__hourly_planning_area_demand: pd.DataFrame,
-) -> pd.DataFrame:
-    """Impute hourly demand on core_ferc714__hourly_planning_area_demand table."""
-    df = pudl.analysis.timeseries_cleaning.impute_timeseries(
-        core_ferc714__hourly_planning_area_demand,
-        years=context.resources.dataset_settings.ferc714.years,
-        value_col="demand_mwh",
-        id_col="respondent_id_ferc714",
-    )
-    return df.drop_duplicates(subset=["respondent_id_ferc714", "datetime_utc"])
 
 
 @asset(

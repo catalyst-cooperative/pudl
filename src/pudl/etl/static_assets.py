@@ -43,6 +43,7 @@ def _read_static_encoding_tables(
     outs={
         table_name: AssetOut(io_manager_key="pudl_io_manager")
         for table_name in Package.get_etl_group_tables("static_pudl")
+        if table_name != "core_pudl__codes_imputation_reasons"
     },
     required_resource_keys={"dataset_settings", "datastore"},
 )
