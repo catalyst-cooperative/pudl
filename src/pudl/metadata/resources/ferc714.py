@@ -92,6 +92,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "timezone",
                 "demand_reported_mwh",
                 "demand_imputed_mwh",
+                "demand_imputed_mwh_imputation_reason_code",
             ],
             "primary_key": ["respondent_id_ferc714", "datetime_utc"],
         },

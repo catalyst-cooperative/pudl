@@ -233,7 +233,7 @@ class FlaggedTimeseries:
         """
         # Only flag unflagged values
         mask = mask & ~np.isnan(self.x)
-        self.flags[mask] = flag
+        self.flags[mask] = flag.name
         # Null flagged values
         self.x[mask] = np.nan
         return self
@@ -1634,11 +1634,11 @@ def impute_timeseries_asset_factory(
         # Melt imputed matrix/flag matrix to long format
         df = matrix.melt(value_name=imputed_value_col, ignore_index=False)
         flags = flags.melt(
-            value_name=f"{imputed_value_col}_imputation_code", ignore_index=False
+            value_name=f"{imputed_value_col}_imputation_reason_code", ignore_index=False
         )
 
         # Merge flags onto imputed df
-        df = df.merge(flags, on=[id_col, "datetime_utc"])
+        df = df.merge(flags, on=["id_col", "datetime"])
 
         # Convert back to datetime_utc
         df = local_dataframe_to_utc(df)
