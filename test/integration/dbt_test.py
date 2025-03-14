@@ -76,6 +76,7 @@ def test_dbt(
                 dbt_target,
             ]
         )
+        # NOTE 2025-03-14: running this with more threads was causing segfaults
         test_result: dbtRunnerResult = dbt.invoke(
             [
                 "test",
