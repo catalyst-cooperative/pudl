@@ -21,7 +21,6 @@ import geopandas as gpd
 import pandas as pd
 from dagster import Field, asset
 
-import pudl.output.pudltabl
 from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
 
 # --- Constants --- #
