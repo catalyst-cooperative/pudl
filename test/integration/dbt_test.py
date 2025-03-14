@@ -4,8 +4,6 @@ import shutil
 from contextlib import chdir
 from pathlib import Path
 
-import pytest
-
 from dbt.cli.main import dbtRunner, dbtRunnerResult
 from pudl.io_managers import PudlMixedFormatIOManager
 
@@ -23,7 +21,6 @@ SEC10K_EXCLUDE = [
 ]
 
 
-@pytest.mark.xfail(reason="Gas capacity factor & SEC 10-K tests are failing")
 def test_dbt(
     pudl_io_manager: PudlMixedFormatIOManager,
     test_dir: Path,
