@@ -684,5 +684,6 @@ imputed_hourly_planning_area_demand_assets = impute_timeseries_asset_factory(
     output_asset_name="out_ferc714__hourly_planning_area_demand",
     years=sorted(set(range(2006, 2024))),
     value_col="demand_mwh",
+    imputed_value_col="demand_imputed_pudl_mwh",
     id_col="respondent_id_ferc714",
 )
