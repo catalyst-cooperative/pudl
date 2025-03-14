@@ -51,7 +51,7 @@ AS_MS_ONLY_FREQ_TABLES = [
 ]
 
 # In general we run our tests and some subprocesses using more than one thread, and
-# sometimes we access remove HTTPS / S3 resources. When this happens it's possible
+# sometimes we access remote HTTPS / S3 resources. When this happens it's possible
 # for DuckDB to get confused about whether the httpfs extension is installed and error
 # out if one processes is trying to install it after another one already has. Doing
 # this forced installation during setup avoids that issue.
