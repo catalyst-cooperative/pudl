@@ -4,19 +4,12 @@ import shutil
 from contextlib import chdir
 from pathlib import Path
 
-import duckdb
 import pytest
 
 from dbt.cli.main import dbtRunner, dbtRunnerResult
 from pudl.io_managers import PudlMixedFormatIOManager
 
 logger = logging.getLogger(__name__)
-
-# Ensure that httpfs is installed before doing any multi-threaded dbt operations
-# This prevents errors where multiple threads attempt to install the extension, and
-# all but the first one finds that it's mysteriously already been installed. Only
-# important if we are running dbt using multiple threads.
-duckdb.execute("FORCE INSTALL httpfs")
 
 
 @pytest.mark.xfail(reason="Gas capacity factor & SEC 10-K tests are failing")
