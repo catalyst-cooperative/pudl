@@ -2,11 +2,11 @@
 
 WITH column_checks AS (
     {% set columns = dbt_utils.get_columns_in_relation(model) %}
-    
+
     {% for column in columns %}
         {% set column_name = column.name %}
-        
-        SELECT 
+
+        SELECT
             '{{ column_name }}' AS column_name,
             COUNT(*) AS relevant_rows,  -- Count rows in scope (filtered or full)
             {% if column_name in filtered_columns and filter_condition %}
@@ -15,9 +15,9 @@ WITH column_checks AS (
                 COUNT({{ column_name }}) AS non_null_rows
             {% endif %}
         FROM {{ model }}
-        
+
         {% if not loop.last %} UNION ALL {% endif %}
-        
+
     {% endfor %}
 )
 
