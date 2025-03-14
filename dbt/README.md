@@ -81,7 +81,7 @@ adding `sql` tests like this, you should construct a query that `SELECT`'s rows 
 indicate a failure. That is, if the query returns any rows, `dbt` will raise a failure
 for that test.
 
-The project includes [dbt-expectations](https://github.com/calogica/dbt-expectations)
+The project includes [dbt-expectations](https://github.com/metaplane/dbt-expectations)
 and [dbt-utils](https://github.com/dbt-labs/dbt-utils) as dependencies. These packages
 include useful tests out of the box that can be applied to any tables in the project.
 There are several examples in
