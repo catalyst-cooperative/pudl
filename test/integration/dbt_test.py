@@ -60,27 +60,12 @@ def test_dbt(
 
     # Change to the dbt directory so we can run dbt commands
     with chdir(test_dir.parent / "dbt"):
-        _deps_result: dbtRunnerResult = dbt.invoke(["deps"])
-        _seed_result: dbtRunnerResult = dbt.invoke(
-            [
-                "seed",
-                "--threads",
-                "1",
-            ]
-        )
-        _build_result: dbtRunnerResult = dbt.invoke(
-            [
-                "build",
-                "--threads",
-                "1",
-                "--target",
-                dbt_target,
-            ]
-        )
+        _ = dbt.invoke(["deps"])
         # NOTE 2025-03-14: running this with more threads was causing segfaults
         test_result: dbtRunnerResult = dbt.invoke(
             [
-                "test",
+                "build",
+                "--full-refresh",
                 "--threads",
                 "1",
                 "--store-failures",
@@ -98,7 +83,7 @@ def test_dbt(
     passed_tests = len([r for r in test_result.result if r.status == "pass"])
     logger.info(f"{passed_tests}/{total_tests} dbt tests passed")
     if passed_tests < total_tests:
-        logger.error("Failed dbt tests:")
+        logger.error("Non-passing dbt tests:")
         for r in test_result.result:
             if r.status != "pass":
                 logger.error(f"{r.node.name}: {r.status}")
