@@ -10,7 +10,7 @@ from pudl.io_managers import PudlMixedFormatIOManager
 logger = logging.getLogger(__name__)
 
 
-# These tables need to be excluded from our GitHub CI until they are being broght into
+# These tables need to be excluded from our GitHub CI until they are being brought into
 # PUDL in the normal way via a Zenodo archive. Currently the row count checks don't
 # fail -- they result in an error (since the tables don't exist at all.)
 SEC10K_EXCLUDE = [
