@@ -12,7 +12,9 @@ from pudl.io_managers import PudlMixedFormatIOManager
 logger = logging.getLogger(__name__)
 
 
-# These
+# These tables need to be excluded from our GitHub CI until they are being broght into
+# PUDL in the normal way via a Zenodo archive. Currently the row count checks don't
+# fail -- they result in an error (since the tables don't exist at all.)
 SEC10K_EXCLUDE = [
     "source:pudl.core_sec10k__quarterly_company_information",
     "source:pudl.core_sec10k__quarterly_exhibit_21_company_ownership",
