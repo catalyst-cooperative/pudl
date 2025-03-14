@@ -2,17 +2,17 @@ pudl_dbt:
   outputs:
     # Define targets for nightly build outputs, and local full/fast ETL outputs
     nightly:
-      threads: 4
+      threads: 1
       type: duckdb
       path: "{{ env_var('PUDL_OUTPUT') }}/pudl_dbt_tests.duckdb"
       filesystems:
         - fs: s3
     etl-full:
-      threads: 4
+      threads: 1
       type: duckdb
       path: "{{ env_var('PUDL_OUTPUT') }}/pudl_dbt_tests.duckdb"
     etl-fast:
-      threads: 4
+      threads: 1
       type: duckdb
       path: "{{ env_var('PUDL_OUTPUT') }}/pudl_dbt_tests.duckdb"
 

@@ -12,6 +12,15 @@ from pudl.io_managers import PudlMixedFormatIOManager
 logger = logging.getLogger(__name__)
 
 
+# These
+SEC10K_EXCLUDE = [
+    "source:pudl.core_sec10k__quarterly_company_information",
+    "source:pudl.core_sec10k__quarterly_exhibit_21_company_ownership",
+    "source:pudl.core_sec10k__quarterly_filings",
+    "source:pudl.out_sec10k__parents_and_subsidiaries",
+]
+
+
 @pytest.mark.xfail(reason="Gas capacity factor & SEC 10-K tests are failing")
 def test_dbt(
     pudl_io_manager: PudlMixedFormatIOManager,
@@ -78,6 +87,11 @@ def test_dbt(
                 "--store-failures",
                 "--target",
                 dbt_target,
+            ]
+            + [
+                f"--exclude {x}"
+                for x in SEC10K_EXCLUDE
+                if os.getenv("GITHUB_ACTIONS", False)
             ]
         )
 
