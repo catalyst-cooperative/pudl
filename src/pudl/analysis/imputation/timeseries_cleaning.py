@@ -106,11 +106,11 @@ def _local_to_utc(local: pd.Series, tz: Iterable, **kwargs: Any) -> pd.Series:
 
     Examples:
         >>> s = pd.Series([pd.Timestamp(2020, 1, 1), pd.Timestamp(2020, 1, 1)])
-        >>> local_to_utc(s, [-7, -6])
+        >>> _local_to_utc(s, [-7, -6])
         0   2020-01-01 07:00:00
         1   2020-01-01 06:00:00
         dtype: datetime64[ns]
-        >>> local_to_utc(s, ['America/Denver', 'America/Chicago'])
+        >>> _local_to_utc(s, ['America/Denver', 'America/Chicago'])
         0   2020-01-01 07:00:00
         1   2020-01-01 06:00:00
         dtype: datetime64[ns]
@@ -138,11 +138,11 @@ def _utc_to_local(utc: pd.Series, tz: Iterable) -> pd.Series:
 
     Examples:
         >>> s = pd.Series([pd.Timestamp(2020, 1, 1), pd.Timestamp(2020, 1, 1)])
-        >>> utc_to_local(s, [-7, -6])
+        >>> _utc_to_local(s, [-7, -6])
         0   2019-12-31 17:00:00
         1   2019-12-31 18:00:00
         dtype: datetime64[ns]
-        >>> utc_to_local(s, ['America/Denver', 'America/Chicago'])
+        >>> _utc_to_local(s, ['America/Denver', 'America/Chicago'])
         0   2019-12-31 17:00:00
         1   2019-12-31 18:00:00
         dtype: datetime64[ns]
@@ -1288,7 +1288,7 @@ def plot_flags(self, name: Any = 0) -> None:
 
 
 def simulate_nulls(
-    self,
+    x: pd.DataFrame,
     lengths: Sequence[int] = None,
     padding: int = 1,
     intersect: bool = False,
@@ -1297,6 +1297,7 @@ def simulate_nulls(
     """Find non-null values to null to match a run-length distribution.
 
     Args:
+        x: Timeseries matrix as described in :func:`_prepare_timeseries_matrix`.
         length: Length of null runs to simulate for each series.
             By default, uses the run lengths of null values in each series.
         padding: Minimum number of non-null values between simulated null runs
@@ -1313,15 +1314,14 @@ def simulate_nulls(
 
     Examples:
         >>> x = np.column_stack([[1, 2, np.nan, 4, 5, 6, 7, np.nan, np.nan]])
-        >>> s = Timeseries(x)
-        >>> s.simulate_nulls().ravel()
+        >>> simulate_nulls(x).ravel()
         array([ True, False, False, False, True, True, False, False, False])
-        >>> s.simulate_nulls(lengths=[4], padding=0).ravel()
+        >>> simulate_nulls(x, lengths=[4], padding=0).ravel()
         array([False, False, False, True, True, True, True, False, False])
     """
-    new_nulls = np.zeros(self.x.shape, dtype=bool)
-    for col in range(self.x.shape[1]):
-        is_null = np.isnan(self.x[:, col])
+    new_nulls = np.zeros(x.shape, dtype=bool)
+    for col in range(x.shape[1]):
+        is_null = np.isnan(x[:, col])
         if lengths is None:
             run_values, run_lengths = encode_run_length(is_null)
             run_lengths = run_lengths[run_values]
@@ -1355,12 +1355,11 @@ def fold_tensor(x: np.ndarray, periods: int = 24) -> np.ndarray:
 
     Returns:
         >>> x = np.column_stack([[1, 2, 3, 4, 5, 6], [10, 20, 30, 40, 50, 60]])
-        >>> s = Timeseries(x)
-        >>> tensor = s.fold_tensor(periods=3)
+        >>> tensor = fold_tensor(x, periods=3)
         >>> tensor[0]
         array([[1, 2, 3],
                [4, 5, 6]])
-        >>> np.all(x == s.unfold_tensor(tensor))
+        >>> np.all(x == unfold_tensor(tensor, x.shape))
         np.True_
     """
     tensor_shape = x.shape[1], x.shape[0] // periods, periods
@@ -1460,7 +1459,7 @@ def summarize_imputed(self, imputed: np.ndarray, mask: np.ndarray) -> pd.DataFra
 
 
 def impute_flagged_values(df: pd.DataFrame, years: list[int]) -> pd.DataFrame:
-    """Impute null values in FERC 714 hourly demand matrix.
+    """Impute null values in input timeseries matrix.
 
     Imputation is performed separately for each year,
     with only the respondents reporting data in that year.
@@ -1469,8 +1468,7 @@ def impute_flagged_values(df: pd.DataFrame, years: list[int]) -> pd.DataFrame:
         Takes about 15 minutes.
 
     Args:
-        df: FERC 714 hourly demand matrix,
-          as described in :func:`load_ferc714_hourly_demand_matrix`.
+        df: Timeseries matrix as described in :func:`_prepare_timeseries_matrix`.
         years: list of years to input
 
     Returns:
@@ -1485,7 +1483,7 @@ def impute_flagged_values(df: pd.DataFrame, years: list[int]) -> pd.DataFrame:
         # remove the records o/s of the working years because some
         # respondents report one record of midnight of January first
         # of the next year (report_date.dt.year + 1). and
-        # impute_ferc714_hourly_demand_matrix chunks over years at a time
+        # timeseries matrix chunks over years at a time
         # and having only one record
         # ``year != 2025`` is a TEMPORARY solution
         # Incomplete timeseries in 2025 is causing reshaping issues later on
@@ -1503,14 +1501,13 @@ def filter_missing_values(
     min_data: int = 100,
     min_data_fraction: float = 0.9,
 ) -> pd.DataFrame:
-    """Filter incomplete years from FERC 714 hourly demand matrix.
+    """Filter incomplete years from timseries matrix.
 
     Nulls respondent-years with too few data and
     drops respondents with no data across all years.
 
     Args:
-        df: FERC 714 hourly demand matrix,
-          as described in :func:`load_ferc714_hourly_demand_matrix`.
+        df: Timeseries matrix as described in :func:`_prepare_timeseries_matrix`.
         min_data: Minimum number of non-null hours in a year.
         min_data_fraction: Minimum fraction of non-null hours between the first and last
           non-null hour in a year.
@@ -1563,15 +1560,19 @@ def impute_timeseries_asset_factory(
     imputed_value_col: str = "demand_imputed_mwh",
     reported_value_col: str = "demand_reported_mwh",
     id_col: str = "",
+    output_io_manager_key: str = "parquet_io_manager",
 ) -> pd.DataFrame:
-    """Imputed FERC714 hourly demand in long format.
+    """Produces assets to impute values for a given timeseries table/column.
 
-    Impute null values for FERC 714 hourly demand matrix, performing imputation
-    separately for each year using only respondents reporting data in that year. Then,
-    melt data into a long format.
-
-    Returns:
-        df: DataFrame with imputed FERC714 hourly demand.
+    Args:
+        input_asset_name: Name of upstream asset to perform imputation on.
+        output_asset_name: Name of final output asset with imputed column.
+        years: List of years to perform imputation on.
+        value_col: Column imputation will be performed on.
+        imputed_value_col: Name of column in output asset with imputed values.
+        reported_value_col: Name of column in output asset with original reported values.
+        id_col: Name of column identifying entities to group timeseries by.
+        output_io_manager_key: IO-manager to use for final output asset.
     """
     timeseries_matrix_asset = f"_{output_asset_name}_timeseries_matrix"
     cleaned_timeseries_matrix_asset = f"_{output_asset_name}_cleaned_timeseries_matrix"
@@ -1582,6 +1583,14 @@ def impute_timeseries_asset_factory(
         name=timeseries_matrix_asset,
     )
     def _prepare_timeseries_matrix(input_df: pd.DataFrame) -> pd.DataFrame:
+        """Take input timeseries table and convert to timeseries matrix for imputation.
+
+        Returns:
+            Input table as a matrix with a `datetime` row index
+            (e.g. '2006-01-01 00:00:00', ..., '2019-12-31 23:00:00')
+            in local time ignoring daylight-savings,
+            and a `id_col` column index (e.g. 101, ..., 329).
+        """
         # Convert from datetime_utc to local datetime
         localized_df = utc_dataframe_to_local(
             input_df.rename(columns={value_col: "value_col", id_col: "id_col"})
@@ -1601,6 +1610,7 @@ def impute_timeseries_asset_factory(
     def _flag_timeseries_matrix(
         matrix: pd.DataFrame,
     ) -> tuple[pd.DataFrame, pd.DataFrame]:
+        """Flag/Null anomalous and missing values."""
         matrix, flags = flag_ruggles(matrix)
         matrix = filter_missing_values(matrix)
         return matrix, flags
@@ -1612,10 +1622,12 @@ def impute_timeseries_asset_factory(
             "input_df": AssetIn(input_asset_name),
         },
         name=output_asset_name,
+        io_manager_key=output_io_manager_key,
     )
     def _impute_timeseries(
         input_df: pd.DataFrame, matrix: pd.DataFrame, flags: pd.DataFrame
     ) -> pd.DataFrame:
+        """Perform imputation and prepare output asset."""
         # Impute flagged/missing values
         matrix = impute_flagged_values(matrix, years)
 
