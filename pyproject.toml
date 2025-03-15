@@ -22,9 +22,9 @@ dependencies = [
     "coloredlogs>=14.0", # Dagster requires 14.0
     "conda-lock>=2.5.7",
     "coverage>=7.6",
-    "dagster>=1.10",
-    "dagster-dbt>=0.26,<1",
-    "dagster-postgres>=0.26,<1", # Update when dagster-postgres graduates to 1.x
+    "dagster>=1.10.5",
+    "dagster-dbt",  # Automatically follows dagster version
+    "dagster-postgres",  # Automatically follows dagster version
     "dask>=2025",
     "dask-expr>=2", # Required for dask[dataframe]
     "datasette>=0.65",
@@ -72,7 +72,7 @@ dependencies = [
     "readthedocs-sphinx-ext>=2",
     "requests>=2.32",
     "responses>=0.25",
-    "ruff>=0.9",
+    "ruff>=0.11",
     "scikit-learn>=1.6",
     "scipy>=1.15",
     "Shapely>=2",
@@ -292,6 +292,9 @@ filterwarnings = [
     "ignore:pkg_resources is deprecated as an API.:DeprecationWarning",
     "ignore:Subclassing validator classes is not intended to be part of their public API.:DeprecationWarning",
     "ignore:Subclassing validator classes:DeprecationWarning:tableschema",
+    "ignore:datetime.datetime.utcnow() is deprecated:DeprecationWarning:dbt_common[.*]",
+    "ignore:datetime.datetime.utcnow() is deprecated:DeprecationWarning:dbt[.*]",
+    "ignore:Python 3.14 will, by default, filter extracted tar archives:DeprecationWarning:dbt_common[.*]",
     "ignore:The Shapely GEOS version:UserWarning:geopandas[.*]",
     "ignore:The `__fields__` attribute is deprecated:pydantic.PydanticDeprecatedSince20:unittest.mock",
     "ignore:The `__fields_set__` attribute is deprecated:pydantic.PydanticDeprecatedSince20:unittest.mock",
