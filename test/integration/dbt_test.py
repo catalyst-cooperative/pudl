@@ -1,0 +1,87 @@
+import logging
+import os
+import shutil
+from contextlib import chdir
+from pathlib import Path
+
+from dbt.cli.main import dbtRunner, dbtRunnerResult
+from pudl.io_managers import PudlMixedFormatIOManager
+
+logger = logging.getLogger(__name__)
+
+
+# These tables need to be excluded from our GitHub CI until they are being brought into
+# PUDL in the normal way via a Zenodo archive. Currently the row count checks don't
+# fail -- they result in an error (since the tables don't exist at all.)
+SEC10K_EXCLUDE = [
+    "source:pudl.core_sec10k__quarterly_company_information",
+    "source:pudl.core_sec10k__quarterly_exhibit_21_company_ownership",
+    "source:pudl.core_sec10k__quarterly_filings",
+    "source:pudl.out_sec10k__parents_and_subsidiaries",
+]
+
+
+def test_dbt(
+    pudl_io_manager: PudlMixedFormatIOManager,
+    test_dir: Path,
+    request,
+):
+    """Run the dbt data validations programmatically.
+
+    Because the dbt read data from our Parquet outputs, and the location of the Parquet
+    outputs is determined by the PUDL_OUTPUT environment variable, and that environment
+    variable is set during the test setup, we shouldn't need to do any special setup
+    here to point dbt at the outputs.
+
+    The dependency on pudl_io_manager is necessary because it ensures that the dbt
+    tests don't run until after the ETL has completed and the Parquet files are
+    available.
+
+    See https://docs.getdbt.com/reference/programmatic-invocations/ for more details on
+    how to invoke dbt programmatically.
+    """
+    # Identify whether we're running the full or fast ETL, and set the dbt target
+    # appropriately (since we have different test expectations in the two cases)
+    if request.config.getoption("--etl-settings"):
+        etl_settings_yml = Path(request.config.getoption("--etl-settings"))
+    else:
+        etl_settings_yml = Path(
+            test_dir.parent / "src/pudl/package_data/settings/etl_fast.yml"
+        )
+    if etl_settings_yml.name == "etl_full.yml":
+        dbt_target = "etl-full"
+    elif etl_settings_yml.name == "etl_fast.yml":
+        dbt_target = "etl-fast"
+    else:
+        raise ValueError(f"Unexpected ETL settings file: {etl_settings_yml}")
+
+    print("Initializing dbt test runner")
+    dbt = dbtRunner()
+
+    # Change to the dbt directory so we can run dbt commands
+    with chdir(test_dir.parent / "dbt"):
+        _ = dbt.invoke(["deps"])
+        # NOTE 2025-03-14: running this with more threads was causing segfaults
+        dbt_result: dbtRunnerResult = dbt.invoke(
+            [
+                "build",
+                "--store-failures",
+                "--threads",
+                "1",
+                "--target",
+                dbt_target,
+            ]
+            + [
+                f"--exclude {x}"
+                for x in SEC10K_EXCLUDE
+                if os.getenv("GITHUB_ACTIONS", False)
+            ]
+        )
+
+    # copy the output database to a known location if we are in CI
+    # so it can be uploaded as an artifact
+    if os.getenv("GITHUB_ACTIONS", False):
+        db_path = Path(os.environ["PUDL_OUTPUT"]) / "pudl_dbt_tests.duckdb"
+        shutil.move(db_path, test_dir.parent / "pudl_dbt_tests.duckdb")
+
+    assert dbt_result.success

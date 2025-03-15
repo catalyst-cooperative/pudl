@@ -81,7 +81,7 @@ adding `sql` tests like this, you should construct a query that `SELECT`'s rows 
 indicate a failure. That is, if the query returns any rows, `dbt` will raise a failure
 for that test.
 
-The project includes [dbt-expectations](https://github.com/calogica/dbt-expectations)
+The project includes [dbt-expectations](https://github.com/metaplane/dbt-expectations)
 and [dbt-utils](https://github.com/dbt-labs/dbt-utils) as dependencies. These packages
 include useful tests out of the box that can be applied to any tables in the project.
 There are several examples in
@@ -109,7 +109,7 @@ and define tests exactly as you would for a `source` table. See
 this pattern.
 
 Note: when adding a model, it will be stored as a SQL `view` in the file
-`{PUDL_OUTPUT}/pudl.duckdb`.
+`{PUDL_OUTPUT}/pudl_dbt_tests.duckdb`.
 
 ## Running tests
 
@@ -178,7 +178,7 @@ The output of this command should show you a `sql` query you can use to see part
 where the row count test failed. To see these, you can do:
 
 ```
-duckdb {PUDL_OUTPUT}/pudl.duckdb
+duckdb {PUDL_OUTPUT}/pudl_dbt_tests.duckdb
 ```
 
 Then copy and paste the query into the duckdb CLI (you'll need to add a semicolon to the
@@ -263,7 +263,7 @@ for installation directions. To launch the CLI, navigate to the directory that y
 `PUDL_OUTPUT` environment variable points to, and execute:
 
 ```
-duckdb pudl.duckdb
+duckdb pudl_dbt_tests.duckdb
 ```
 
 Now we want to execute portions of the compiled SQL produced by `dbt`. To find this,

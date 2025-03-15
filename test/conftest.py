@@ -7,6 +7,7 @@ import logging
 from pathlib import Path
 from typing import Any
 
+import duckdb
 import pydantic
 import pytest
 import sqlalchemy as sa
@@ -48,6 +49,13 @@ AS_MS_ONLY_FREQ_TABLES = [
     "gen_eia923",
     "gen_fuel_by_generator_eia923",
 ]
+
+# In general we run our tests and some subprocesses using more than one thread, and
+# sometimes we access remote HTTPS / S3 resources. When this happens it's possible
+# for DuckDB to get confused about whether the httpfs extension is installed and error
+# out if one processes is trying to install it after another one already has. Doing
+# this forced installation during setup avoids that issue.
+duckdb.execute("FORCE INSTALL httpfs")
 
 
 def pytest_addoption(parser):
