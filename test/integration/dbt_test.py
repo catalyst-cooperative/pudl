@@ -14,10 +14,10 @@ logger = logging.getLogger(__name__)
 # PUDL in the normal way via a Zenodo archive. Currently the row count checks don't
 # fail -- they result in an error (since the tables don't exist at all.)
 SEC10K_EXCLUDE = [
-    "source:pudl.core_sec10k__quarterly_company_information",
-    "source:pudl.core_sec10k__quarterly_exhibit_21_company_ownership",
-    "source:pudl.core_sec10k__quarterly_filings",
-    "source:pudl.out_sec10k__parents_and_subsidiaries",
+    "core_sec10k__quarterly_company_information",
+    "core_sec10k__quarterly_exhibit_21_company_ownership",
+    "core_sec10k__quarterly_filings",
+    "out_sec10k__parents_and_subsidiaries",
 ]
 
 
@@ -64,7 +64,12 @@ def test_dbt(
         "1",
         "--target",
         dbt_target,
-    ] + [f"--exclude {x}" for x in SEC10K_EXCLUDE if os.getenv("GITHUB_ACTIONS", False)]
+    ] + [
+        arg
+        for table in SEC10K_EXCLUDE
+        if os.getenv("GITHUB_ACTIONS", False)
+        for arg in ("--exclude", f"source:pudl.{table}")
+    ]
 
     # Change to the dbt directory so we can run dbt commands
     with chdir(test_dir.parent / "dbt"):
