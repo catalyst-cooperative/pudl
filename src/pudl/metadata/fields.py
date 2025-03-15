@@ -1120,6 +1120,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Electricity demand calculated by subtracting BA interchange from net generation, with outliers and missing values imputed by EIA.",
         "unit": "MWh",
     },
+    "demand_imputed_pudl_mwh": {
+        "type": "number",
+        "description": "Electricity demand calculated by subtracting BA interchange from net generation, with outliers and missing values imputed by in PUDL.",
+        "unit": "MWh",
+    },
+    "demand_imputed_pudl_mwh_imputation_code": {
+        "type": "number",
+        "description": "Code describing why a demand value was flagged for imputation.",
+        "unit": "MWh",
+    },
     "demand_reported_mwh": {
         "type": "number",
         "description": "Originally reported electricity demand, calculated by taking the net generation within the BA and subtracting the interchange with adjacent BAs.",

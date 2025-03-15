@@ -254,7 +254,7 @@ RENAME_COLS = {
             "respondent_identification_code": "eia_code",
         },
     },
-    "out_ferc714__hourly_planning_area_demand": {
+    "core_ferc714__hourly_planning_area_demand": {
         "csv": {
             "report_yr": "report_year",
             "plan_date": "report_date",
@@ -635,9 +635,9 @@ def core_ferc714__respondent_id(
 
 
 class HourlyPlanningAreaDemand:
-    """Class for building the :ref:`out_ferc714__hourly_planning_area_demand` asset.
+    """Class for building the :ref:`core_ferc714__hourly_planning_area_demand` asset.
 
-    The :ref:`out_ferc714__hourly_planning_area_demand` table is an hourly time
+    The :ref:`core_ferc714__hourly_planning_area_demand` table is an hourly time
     series of demand by Planning Area.
 
     Most of the methods in this class as staticmethods. The purpose of using a class
@@ -652,7 +652,7 @@ class HourlyPlanningAreaDemand:
         raw_xbrl_duration: pd.DataFrame,
         raw_xbrl_instant: pd.DataFrame,
     ) -> pd.DataFrame:
-        """Build the :ref:`out_ferc714__hourly_planning_area_demand` asset.
+        """Build the :ref:`core_ferc714__hourly_planning_area_demand` asset.
 
         To transform this table we have to process the instant and duration xbrl
         tables so we can merge them together and process the XBRL data. We also
@@ -671,7 +671,7 @@ class HourlyPlanningAreaDemand:
 
         The outcome here is nearly continuous and non-duplicative time series.
         """
-        table_name = "out_ferc714__hourly_planning_area_demand"
+        table_name = "core_ferc714__hourly_planning_area_demand"
         # XBRL STUFF
         duration_xbrl = _filter_for_freshest_data_xbrl(
             raw_xbrl_duration, table_name, "duration"
@@ -1057,12 +1057,12 @@ class HourlyPlanningAreaDemand:
     op_tags={"memory-use": "high"},
     compute_kind="pandas",
 )
-def out_ferc714__hourly_planning_area_demand(
+def core_ferc714__hourly_planning_area_demand(
     raw_csv: pd.DataFrame,
     raw_xbrl_duration: pd.DataFrame,
     raw_xbrl_instant: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Build the :ref:`out_ferc714__hourly_planning_area_demand`.
+    """Build the :ref:`core_ferc714__hourly_planning_area_demand`.
 
     This is a light wrapper around :class:`HourlyPlanningAreaDemand` because
     it seems you need to build an asset from a function - not a staticmethod of
