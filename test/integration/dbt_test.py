@@ -55,33 +55,30 @@ def test_dbt(
     else:
         raise ValueError(f"Unexpected ETL settings file: {etl_settings_yml}")
 
-    print("Initializing dbt test runner")
+    # NOTE 2025-03-14: running this with more threads was causing segfaults
+    logger.info("Initializing dbt test runner")
     dbt = dbtRunner()
+    cli_args = [
+        "--store-failures",
+        "--threads",
+        "1",
+        "--target",
+        dbt_target,
+    ] + [f"--exclude {x}" for x in SEC10K_EXCLUDE if os.getenv("GITHUB_ACTIONS", False)]
 
     # Change to the dbt directory so we can run dbt commands
     with chdir(test_dir.parent / "dbt"):
         _ = dbt.invoke(["deps"])
-        # NOTE 2025-03-14: running this with more threads was causing segfaults
-        dbt_result: dbtRunnerResult = dbt.invoke(
-            [
-                "build",
-                "--store-failures",
-                "--threads",
-                "1",
-                "--target",
-                dbt_target,
-            ]
-            + [
-                f"--exclude {x}"
-                for x in SEC10K_EXCLUDE
-                if os.getenv("GITHUB_ACTIONS", False)
-            ]
-        )
+        _ = dbt.invoke(["seed"])
+        _ = dbt.invoke(["run"] + cli_args)
+        test_result: dbtRunnerResult = dbt.invoke(["test"] + cli_args)
 
     # copy the output database to a known location if we are in CI
     # so it can be uploaded as an artifact
     if os.getenv("GITHUB_ACTIONS", False):
         db_path = Path(os.environ["PUDL_OUTPUT"]) / "pudl_dbt_tests.duckdb"
-        shutil.move(db_path, test_dir.parent / "pudl_dbt_tests.duckdb")
+        if db_path.exists():
+            logger.info("PUDL dbt tests DB exists.")
+            shutil.move(db_path, test_dir.parent / "pudl_dbt_tests.duckdb")
 
-    assert dbt_result.success
+    assert test_result.success

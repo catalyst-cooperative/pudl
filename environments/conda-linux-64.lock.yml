@@ -38,19 +38,19 @@ dependencies:
   - at-spi2-core=2.40.3=h0630a04_0
   - atk-1.0=2.38.0=h04ea711_2
   - attrs=25.3.0=pyh71513ae_0
-  - aws-c-auth=0.8.6=h10f1e91_2
-  - aws-c-cal=0.8.6=h15dedbf_0
-  - aws-c-common=0.11.3=hb9d3cd8_0
-  - aws-c-compression=0.3.1=hc3974a3_1
-  - aws-c-event-stream=0.5.4=ha2c7578_1
-  - aws-c-http=0.9.4=he2cc932_2
-  - aws-c-io=0.17.0=h6e8becc_4
-  - aws-c-mqtt=0.12.2=h06c92d0_1
-  - aws-c-s3=0.7.12=h2fb38a8_2
-  - aws-c-sdkutils=0.2.3=hc3974a3_1
-  - aws-checksums=0.2.3=hc3974a3_1
-  - aws-crt-cpp=0.31.0=h2940762_2
-  - aws-sdk-cpp=1.11.510=hd40ee4d_2
+  - aws-c-auth=0.8.6=h544b0e5_3
+  - aws-c-cal=0.8.6=h043a21b_1
+  - aws-c-common=0.12.0=hb9d3cd8_0
+  - aws-c-compression=0.3.1=h3870646_2
+  - aws-c-event-stream=0.5.4=h04a3f94_2
+  - aws-c-http=0.9.4=hb7dcd10_3
+  - aws-c-io=0.17.0=h9aa2de0_5
+  - aws-c-mqtt=0.12.2=h108da3e_2
+  - aws-c-s3=0.7.13=hfdb1a59_1
+  - aws-c-sdkutils=0.2.3=h3870646_2
+  - aws-checksums=0.2.3=h3870646_2
+  - aws-crt-cpp=0.31.0=hacb7569_3
+  - aws-sdk-cpp=1.11.510=h37a5c72_3
   - azure-core-cpp=1.14.0=h5cfcd09_0
   - azure-identity-cpp=1.10.0=h113e628_0
   - azure-storage-blobs-cpp=12.13.0=h3cf044e_1
