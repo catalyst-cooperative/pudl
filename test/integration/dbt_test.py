@@ -62,13 +62,12 @@ def test_dbt(
     with chdir(test_dir.parent / "dbt"):
         _ = dbt.invoke(["deps"])
         # NOTE 2025-03-14: running this with more threads was causing segfaults
-        test_result: dbtRunnerResult = dbt.invoke(
+        dbt_result: dbtRunnerResult = dbt.invoke(
             [
                 "build",
-                "--full-refresh",
+                "--store-failures",
                 "--threads",
                 "1",
-                "--store-failures",
                 "--target",
                 dbt_target,
             ]
@@ -79,18 +78,10 @@ def test_dbt(
             ]
         )
 
-    total_tests = len(test_result.result)
-    passed_tests = len([r for r in test_result.result if r.status == "pass"])
-    logger.info(f"{passed_tests}/{total_tests} dbt tests passed")
-    if passed_tests < total_tests:
-        logger.error("Non-passing dbt tests:")
-        for r in test_result.result:
-            if r.status != "pass":
-                logger.error(f"{r.node.name}: {r.status}")
-
-    db_path = Path(os.environ["PUDL_OUTPUT"]) / "pudl_dbt_tests.duckdb"
     # copy the output database to a known location if we are in CI
     # so it can be uploaded as an artifact
     if os.getenv("GITHUB_ACTIONS", False):
+        db_path = Path(os.environ["PUDL_OUTPUT"]) / "pudl_dbt_tests.duckdb"
         shutil.move(db_path, test_dir.parent / "pudl_dbt_tests.duckdb")
-    assert test_result.success
+
+    assert dbt_result.success
