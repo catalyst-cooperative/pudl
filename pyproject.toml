@@ -292,8 +292,7 @@ filterwarnings = [
     "ignore:pkg_resources is deprecated as an API.:DeprecationWarning",
     "ignore:Subclassing validator classes is not intended to be part of their public API.:DeprecationWarning",
     "ignore:Subclassing validator classes:DeprecationWarning:tableschema",
-    "ignore:datetime.datetime.utcnow() is deprecated:DeprecationWarning:dbt_common[.*]",
-    "ignore:datetime.datetime.utcnow() is deprecated:DeprecationWarning:dbt[.*]",
+    "ignore:datetime.datetime.utcnow() is deprecated:DeprecationWarning",
     "ignore:Python 3.14 will, by default, filter extracted tar archives:DeprecationWarning:dbt_common[.*]",
     "ignore:The Shapely GEOS version:UserWarning:geopandas[.*]",
     "ignore:The `__fields__` attribute is deprecated:pydantic.PydanticDeprecatedSince20:unittest.mock",
@@ -311,6 +310,7 @@ filterwarnings = [
     "once:open_text is deprecated:DeprecationWarning:pudl.glue.ferc1_eia",
     "once:The behavior of DataFrame concatenation with empty or all-NA entries is deprecated.:FutureWarning",
     "once:Valid config keys have changed in V2:UserWarning",
+    "once:AssetExecutionContext.op_config is deprecated:DeprecationWarning",
 ]
 
 markers = ["slow: marks tests as slow (deselect with '-m \"not slow\"')"]
