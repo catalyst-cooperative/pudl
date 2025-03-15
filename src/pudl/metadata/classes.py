@@ -471,7 +471,7 @@ class Encoder(PudlMeta):
         """A mapping of all known codes to their standardized values, or NA."""
         code_map = {code: code for code in self.df["code"]}
         code_map.update(self.code_fixes)
-        code_map.update({code: pd.NA for code in self.ignored_codes})
+        code_map.update(dict.fromkeys(self.ignored_codes, pd.NA))
         return code_map
 
     def encode(
