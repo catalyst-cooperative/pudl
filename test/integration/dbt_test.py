@@ -75,7 +75,7 @@ def test_dbt(
     with chdir(test_dir.parent / "dbt"):
         _ = dbt.invoke(["deps"])
         _ = dbt.invoke(["seed"])
-        _ = dbt.invoke(["run"] + cli_args)
+        _ = dbt.invoke(["build"] + cli_args)
         test_result: dbtRunnerResult = dbt.invoke(["test"] + cli_args)
 
     # copy the output database to a known location if we are in CI
