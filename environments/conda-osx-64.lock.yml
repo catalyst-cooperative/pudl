@@ -35,19 +35,19 @@ dependencies:
   - async-lru=2.0.4=pyhd8ed1ab_1
   - atk-1.0=2.38.0=h4bec284_2
   - attrs=25.3.0=pyh71513ae_0
-  - aws-c-auth=0.8.6=h4e1368d_2
-  - aws-c-cal=0.8.6=h73b2063_0
-  - aws-c-common=0.11.3=h6e16a3a_0
-  - aws-c-compression=0.3.1=ha45c541_1
-  - aws-c-event-stream=0.5.4=h443b5d4_1
-  - aws-c-http=0.9.4=h029acec_2
-  - aws-c-io=0.17.0=ha550a04_4
-  - aws-c-mqtt=0.12.2=h8a5939d_1
-  - aws-c-s3=0.7.12=h69e9a6c_2
-  - aws-c-sdkutils=0.2.3=ha45c541_1
-  - aws-checksums=0.2.3=ha45c541_1
-  - aws-crt-cpp=0.31.0=h466b65a_2
-  - aws-sdk-cpp=1.11.510=h78b68b3_2
+  - aws-c-auth=0.8.6=h289e7a2_3
+  - aws-c-cal=0.8.6=hfaf822f_1
+  - aws-c-common=0.12.0=h6e16a3a_0
+  - aws-c-compression=0.3.1=hb1ee187_2
+  - aws-c-event-stream=0.5.4=hf9b3e9c_2
+  - aws-c-http=0.9.4=h7c88943_3
+  - aws-c-io=0.17.0=h0ab3fe8_5
+  - aws-c-mqtt=0.12.2=h6a909e1_2
+  - aws-c-s3=0.7.13=h8d6a120_1
+  - aws-c-sdkutils=0.2.3=hb1ee187_2
+  - aws-checksums=0.2.3=hb1ee187_2
+  - aws-crt-cpp=0.31.0=h5d0811c_3
+  - aws-sdk-cpp=1.11.510=ha0394b9_3
   - azure-core-cpp=1.14.0=h9a36307_0
   - azure-identity-cpp=1.10.0=ha4e2ba9_0
   - azure-storage-blobs-cpp=12.13.0=h3d2f5f1_1
@@ -134,7 +134,6 @@ dependencies:
   - docutils=0.21.2=pyhd8ed1ab_1
   - email-validator=2.2.0=pyhd8ed1ab_1
   - ensureconda=1.4.4=pyhd8ed1ab_1
-  - entrypoints=0.4=pyhd8ed1ab_1
   - epoxy=1.5.10=h5eb16cf_1
   - et_xmlfile=2.0.0=pyhd8ed1ab_1
   - exceptiongroup=1.2.2=pyhd8ed1ab_1
@@ -214,7 +213,7 @@ dependencies:
   - humanize=4.12.1=pyhd8ed1ab_0
   - hupper=1.12.1=pyhd8ed1ab_1
   - hyperframe=6.1.0=pyhd8ed1ab_0
-  - hypothesis=6.129.1=pyha770c72_0
+  - hypothesis=6.129.2=pyha770c72_0
   - icu=75.1=h120a0e1_0
   - identify=2.6.9=pyhd8ed1ab_0
   - idna=3.10=pyhd8ed1ab_1
@@ -267,10 +266,10 @@ dependencies:
   - lerc=4.0.0=hb486fe8_0
   - libabseil=20250127.0=cxx17_h0e468a2_0
   - libarchive=3.7.7=h1a33361_3
-  - libarrow=18.1.0=h8310a5a_20_cpu
-  - libarrow-acero=18.1.0=hdc53af8_20_cpu
-  - libarrow-dataset=18.1.0=hdc53af8_20_cpu
-  - libarrow-substrait=18.1.0=ha37b807_20_cpu
+  - libarrow=19.0.1=he025383_4_cpu
+  - libarrow-acero=19.0.1=hdc53af8_4_cpu
+  - libarrow-dataset=19.0.1=hdc53af8_4_cpu
+  - libarrow-substrait=19.0.1=ha37b807_4_cpu
   - libavif16=1.2.0=hecd9f61_1
   - libblas=3.9.0=31_h7f60823_openblas
   - libbrotlicommon=1.1.0=h00291cd_2
@@ -306,7 +305,9 @@ dependencies:
   - libnghttp2=1.64.0=hc7306c3_0
   - libntlm=1.8=h6e16a3a_0
   - libopenblas=0.3.29=openmp_hbf64a52_0
-  - libparquet=18.1.0=h283e888_20_cpu
+  - libopentelemetry-cpp=1.18.0=h30c661f_2
+  - libopentelemetry-cpp-headers=1.18.0=h694c41f_2
+  - libparquet=19.0.1=h283e888_4_cpu
   - libpng=1.6.47=h3c4a55f_0
   - libpq=17.4=h9c5cfc2_0
   - libprotobuf=5.29.3=h1c7185b_0
@@ -346,9 +347,9 @@ dependencies:
   - mergedeep=1.3.4=pyhd8ed1ab_1
   - minizip=4.0.7=hfb7a1ec_3
   - mistune=3.1.2=pyhd8ed1ab_0
-  - mlflow=2.20.3=hb401068_0
-  - mlflow-skinny=2.20.3=py312hb401068_0
-  - mlflow-ui=2.20.3=py312hb401068_0
+  - mlflow=2.20.4=hb401068_0
+  - mlflow-skinny=2.20.4=hb401068_0
+  - mlflow-ui=2.20.4=py312hb401068_0
   - more-itertools=10.6.0=pyhd8ed1ab_0
   - msgpack-python=1.1.0=py312hc5c4d5f_0
   - multidict=6.1.0=py312h6f3313d_1
@@ -363,6 +364,7 @@ dependencies:
   - ncurses=6.5=h0622a9a_3
   - nest-asyncio=1.6.0=pyhd8ed1ab_1
   - networkx=3.4.2=pyh267e887_2
+  - nlohmann_json=3.11.3=hf036a51_1
   - nodeenv=1.9.1=pyhd8ed1ab_1
   - nodejs=22.13.0=hffbc63d_0
   - notebook=7.3.3=pyhd8ed1ab_0
@@ -409,6 +411,7 @@ dependencies:
   - pre-commit=4.1.0=pyha770c72_0
   - prettier=3.5.3=h059b09a_0
   - proj=9.5.1=h5273da6_0
+  - prometheus-cpp=1.3.0=h7802330_0
   - prometheus_client=0.21.1=pyhd8ed1ab_0
   - prometheus_flask_exporter=0.23.2=pyhd8ed1ab_0
   - prompt-toolkit=3.0.50=pyha770c72_0
@@ -422,8 +425,8 @@ dependencies:
   - pthread-stubs=0.4=h00291cd_1002
   - ptyprocess=0.7.0=pyhd8ed1ab_1
   - pure_eval=0.2.3=pyhd8ed1ab_1
-  - pyarrow=18.1.0=py312hb401068_0
-  - pyarrow-core=18.1.0=py312h5157fe3_0_cpu
+  - pyarrow=19.0.1=py312hb401068_0
+  - pyarrow-core=19.0.1=py312h5157fe3_0_cpu
   - pyasn1=0.6.1=pyhd8ed1ab_2
   - pyasn1-modules=0.4.1=pyhd8ed1ab_1
   - pybtex=0.24.0=pyhd8ed1ab_3
