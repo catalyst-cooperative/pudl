@@ -893,7 +893,7 @@ def _aggregatable_dimension_tags(
     idx = list(NodeId._fields)
     tags_df = (
         pd.read_csv(tags_csv)
-        .assign(**{dim: pd.NA for dim in dimensions})
+        .assign(**dict.fromkeys(dimensions, pd.NA))
         .astype(pd.StringDtype())
         .pipe(
             pudl.transform.ferc1.make_xbrl_factoid_dimensions_explicit,

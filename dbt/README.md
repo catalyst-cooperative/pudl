@@ -81,7 +81,7 @@ adding `sql` tests like this, you should construct a query that `SELECT`'s rows 
 indicate a failure. That is, if the query returns any rows, `dbt` will raise a failure
 for that test.
 
-The project includes [dbt-expectations](https://github.com/calogica/dbt-expectations)
+The project includes [dbt-expectations](https://github.com/metaplane/dbt-expectations)
 and [dbt-utils](https://github.com/dbt-labs/dbt-utils) as dependencies. These packages
 include useful tests out of the box that can be applied to any tables in the project.
 There are several examples in
@@ -109,7 +109,7 @@ and define tests exactly as you would for a `source` table. See
 this pattern.
 
 Note: when adding a model, it will be stored as a SQL `view` in the file
-`{PUDL_OUTPUT}/pudl.duckdb`.
+`{PUDL_OUTPUT}/pudl_dbt_tests.duckdb`.
 
 ## Running tests
 
@@ -178,7 +178,7 @@ The output of this command should show you a `sql` query you can use to see part
 where the row count test failed. To see these, you can do:
 
 ```
-duckdb {PUDL_OUTPUT}/pudl.duckdb
+duckdb {PUDL_OUTPUT}/pudl_dbt_tests.duckdb
 ```
 
 Then copy and paste the query into the duckdb CLI (you'll need to add a semicolon to the
@@ -244,11 +244,10 @@ above. You can also execute these tests with the following command.
 dbt test --select source:pudl.out_eia__AGG_generators
 ```
 
-When we run these tests, there will be a couple of errors as the generated tests are not
-a perfect translation of the old tests. Namely, the
-`expect_column_weighted_quantile_values_to_be_between` tests will compute a discrete
-weighted quantile, while the old python tests compute continuous quantiles. First, the
-following test on the yearly table will fail:
+When we run these tests, if there were errors in the
+`expect_column_weighted_quantile_values_to_be_between` due to changes in the
+distribution of the underlying data, or because they SQL based calculation isn't exactly
+the same as the Python based calculation, in say, this example test:
 
 ```
 - expect_column_weighted_quantile_values_to_be_between:
@@ -258,13 +257,13 @@ following test on the yearly table will fail:
   weight_column: capacity_mw
 ```
 
-To debug this test, we can use `duckdb` directly. There are many ways to interact with
+You debug it using `duckdb`. There are many ways to interact with
 `duckdb`, here will use the CLI. See the [here](https://duckdb.org/docs/installation/)
 for installation directions. To launch the CLI, navigate to the directory that your
 `PUDL_OUTPUT` environment variable points to, and execute:
 
 ```
-duckdb pudl.duckdb
+duckdb pudl_dbt_tests.duckdb
 ```
 
 Now we want to execute portions of the compiled SQL produced by `dbt`. To find this,
