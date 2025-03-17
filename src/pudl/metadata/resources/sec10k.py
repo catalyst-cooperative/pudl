@@ -3,6 +3,18 @@
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
+    "core_sec10k__assn__sec10k_filers_and_eia_utilities": {
+        "description": """Associations between SEC 10k filing companies and EIA utilities.
+SEC company index keys are matched to EIA utility IDs using probabilistic
+record linkage. The match between ``central_index_key``and ``utility_id_eia`` is one to one
+and doesn't change over time - the highest probability
+EIA utility match for each SEC company is used for all dates of reported information for
+that CIK.""",
+        "schema": {"fields": ["central_index_key", "utility_id_eia"]},
+        "sources": ["sec10k"],
+        "etl_group": "pudl_models",
+        "field_namespace": "sec10k",
+    },
     "core_sec10k__quarterly_filings": {
         "description": "Metadata describing all submitted SEC 10k filings.",
         "schema": {
@@ -39,25 +51,101 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "sec10k",
     },
     "core_sec10k__quarterly_company_information": {
-        "description": "Company information extracted from SEC 10k filings.",
+        "description": (
+            """Company information extracted from SEC10k filings.
+This table provides attributes about SEC 10k filing companies across time.
+In the raw data, company information may be reported in multiple SEC 10k
+filings from the same filing date. In this table, only one of these reported
+blocks of information is kept. Records from filings where that company's extracted
+``central_index_key`` matches the filer's central index key (meaning that
+that company filed the 10k itself) are prioritized."""
+        ),
         "schema": {
             "fields": [
-                "filename_sec10k",
-                "filer_count",
-                "company_information_block",
-                "company_information_block_count",
-                "company_information_fact_name",
-                "company_information_fact_value",
+                "central_index_key",
                 "report_date",
-            ],
-            "primary_key": [
                 "filename_sec10k",
-                "filer_count",
-                "company_information_block",
-                "company_information_block_count",
-                "company_information_fact_name",
-                "company_information_fact_value",
+                "phone_number",
+                "city",
+                "company_name",
+                "name_change_date",
+                "film_number",
+                "fiscal_year_end",
+                "sec10k_version",
+                "company_name_former",
+                "taxpayer_id_irs",
+                "sec_act",
+                "filing_number_sec",
+                "industry_id_sic",
+                "industry_name_sic",
+                "state",
+                "state_of_incorporation",
+                "street_address",
+                "address_2",
+                "zip_code",
+                "zip_code_4",
             ],
+            "primary_key": ["central_index_key", "report_date"],
+        },
+        "sources": ["sec10k"],
+        "etl_group": "pudl_models",
+        "field_namespace": "sec10k",
+    },
+    "core_sec10k__changelog_company_name": {
+        "description": (
+            """A record of SEC company name changes and the reported date of the name change.
+This table is pulled from ``core_sec10k__quarterly_company_information`` and contains
+data extracted from SEC 10k filings."""
+        ),
+        "schema": {
+            "fields": [
+                "central_index_key",
+                "company_name",
+                "name_change_date",
+            ],
+            "primary_key": ["central_index_key", "company_name"],
+        },
+        "sources": ["sec10k"],
+        "etl_group": "pudl_models",
+        "field_namespace": "sec10k",
+    },
+    "out_sec10k__quarterly_company_information": {
+        "description": (
+            """Company information extracted from SEC10k filings and matched
+to EIA utilities using probabilistic record linkage. This table provides
+attributes about SEC 10k filing companies across time. The match between ``central_index_key``
+and ``utility_id_eia`` is one to one and doesn't change over time - the highest probability
+EIA utility match for each SEC company is used for all dates of reported information for
+that CIK."""
+        ),
+        "schema": {
+            "fields": [
+                "central_index_key",
+                "report_date",
+                "filename_sec10k",
+                "utility_id_eia",
+                "utility_name_eia",
+                "phone_number",
+                "city",
+                "company_name",
+                "name_change_date",
+                "film_number",
+                "fiscal_year_end",
+                "sec10k_version",
+                "company_name_former",
+                "taxpayer_id_irs",
+                "sec_act",
+                "filing_number_sec",
+                "industry_name_sic",
+                "industry_id_sic",
+                "state",
+                "state_of_incorporation",
+                "street_address",
+                "address_2",
+                "zip_code",
+                "zip_code_4",
+            ],
+            "primary_key": ["central_index_key", "report_date"],
         },
         "sources": ["sec10k"],
         "etl_group": "pudl_models",
@@ -83,11 +171,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "company_name_raw",
                 "name_change_date",
                 "company_name_former",
-                "industry_description_sic",
+                "industry_name_sic",
                 "industry_id_sic",
                 "state_of_incorporation",
                 "location_of_incorporation",
-                "company_id_irs",
+                "taxpayer_id_irs",
                 "files_sec10k",
                 "parent_company_central_index_key",
                 "fraction_owned",
