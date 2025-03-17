@@ -23,7 +23,7 @@ dependencies:
   - aom=3.9.1=h7bae524_0
   - appdirs=1.4.4=pyhd8ed1ab_1
   - appnope=0.1.4=pyhd8ed1ab_1
-  - arelle-release=2.36.25=pyhd8ed1ab_0
+  - arelle-release=2.36.26=pyhd8ed1ab_0
   - argon2-cffi=23.1.0=pyhd8ed1ab_1
   - argon2-cffi-bindings=21.2.0=py312h024a12e_5
   - arpack=3.9.1=nompi_h1f29f7c_102
@@ -32,21 +32,21 @@ dependencies:
   - asgiref=3.8.1=pyhd8ed1ab_1
   - astroid=3.3.9=py312h81bd7bf_0
   - asttokens=3.0.0=pyhd8ed1ab_1
-  - async-lru=2.0.4=pyhd8ed1ab_1
+  - async-lru=2.0.5=pyh29332c3_0
   - atk-1.0=2.38.0=hd03087b_2
   - attrs=25.3.0=pyh71513ae_0
-  - aws-c-auth=0.8.6=hd554430_3
-  - aws-c-cal=0.8.6=h8f38403_1
+  - aws-c-auth=0.8.6=h660070d_4
+  - aws-c-cal=0.8.7=h8f38403_0
   - aws-c-common=0.12.0=h5505292_0
   - aws-c-compression=0.3.1=hd84a0f8_2
   - aws-c-event-stream=0.5.4=h3c33643_2
-  - aws-c-http=0.9.4=h153acb4_3
-  - aws-c-io=0.17.0=hcdc4722_5
+  - aws-c-http=0.9.4=hedcc1e3_4
+  - aws-c-io=0.17.0=ha705ebb_6
   - aws-c-mqtt=0.12.2=h82c6c6a_2
-  - aws-c-s3=0.7.13=hbf2c619_1
+  - aws-c-s3=0.7.13=hb857f95_2
   - aws-c-sdkutils=0.2.3=hd84a0f8_2
   - aws-checksums=0.2.3=hd84a0f8_2
-  - aws-crt-cpp=0.31.0=hcca5aa8_3
+  - aws-crt-cpp=0.31.0=h7378f02_4
   - aws-sdk-cpp=1.11.510=hf067f9e_3
   - azure-core-cpp=1.14.0=hd50102c_0
   - azure-identity-cpp=1.10.0=hc602bab_0
@@ -97,7 +97,7 @@ dependencies:
   - comm=0.2.2=pyhd8ed1ab_1
   - conda-lock=2.5.7=pyhd8ed1ab_1
   - contourpy=1.3.1=py312hb23fbb9_0
-  - coverage=7.6.12=py312h998013c_0
+  - coverage=7.7.0=py312h998013c_0
   - crashtest=0.4.1=pyhd8ed1ab_1
   - cryptography=44.0.2=py312hf9bd80e_0
   - curl=8.12.1=h73640d1_0
@@ -133,12 +133,15 @@ dependencies:
   - docstring_parser=0.16=pyhd8ed1ab_0
   - docutils=0.21.2=pyhd8ed1ab_1
   - email-validator=2.2.0=pyhd8ed1ab_1
+  - email_validator=2.2.0=hd8ed1ab_1
   - ensureconda=1.4.4=pyhd8ed1ab_1
   - epoxy=1.5.10=h1c322ee_1
   - et_xmlfile=2.0.0=pyhd8ed1ab_1
   - exceptiongroup=1.2.2=pyhd8ed1ab_1
   - execnet=2.1.1=pyhd8ed1ab_1
   - executing=2.1.0=pyhd8ed1ab_1
+  - fastapi=0.115.11=pyh29332c3_0
+  - fastapi-cli=0.0.7=pyhd8ed1ab_0
   - filelock=3.18.0=pyhd8ed1ab_0
   - flask=3.1.0=pyhd8ed1ab_1
   - flexcache=0.3=pyhd8ed1ab_1
@@ -180,7 +183,7 @@ dependencies:
   - google-auth=2.38.0=pyhd8ed1ab_0
   - google-auth-oauthlib=1.2.1=pyhd8ed1ab_1
   - google-cloud-core=2.4.3=pyhd8ed1ab_0
-  - google-cloud-sdk=513.0.0=py312h81bd7bf_0
+  - google-cloud-sdk=514.0.0=py312h81bd7bf_0
   - google-cloud-storage=3.1.0=pyhd8ed1ab_0
   - google-crc32c=1.1.2=py312h1fa1217_6
   - google-resumable-media=2.7.2=pyhd8ed1ab_2
@@ -213,7 +216,7 @@ dependencies:
   - humanize=4.12.1=pyhd8ed1ab_0
   - hupper=1.12.1=pyhd8ed1ab_1
   - hyperframe=6.1.0=pyhd8ed1ab_0
-  - hypothesis=6.129.2=pyha770c72_0
+  - hypothesis=6.129.3=pyha770c72_0
   - icu=75.1=hfee45f7_0
   - identify=2.6.9=pyhd8ed1ab_0
   - idna=3.10=pyhd8ed1ab_1
@@ -316,7 +319,7 @@ dependencies:
   - librttopo=1.1.0=ha2cf0f4_17
   - libsodium=1.0.20=h99b78c6_0
   - libspatialite=5.1.0=hf92fc0a_12
-  - libsqlite=3.49.1=h3f77e49_1
+  - libsqlite=3.49.1=h3f77e49_2
   - libssh2=1.11.1=h9cc3647_0
   - libthrift=0.21.0=h64651cc_0
   - libtiff=4.7.0=h551f018_3
@@ -347,9 +350,9 @@ dependencies:
   - mergedeep=1.3.4=pyhd8ed1ab_1
   - minizip=4.0.7=hff1a8ea_3
   - mistune=3.1.2=pyhd8ed1ab_0
-  - mlflow=2.20.4=py312h81bd7bf_0
-  - mlflow-skinny=2.20.4=py312h81bd7bf_0
-  - mlflow-ui=2.20.4=py312h81bd7bf_0
+  - mlflow=2.21.0=py312h81bd7bf_0
+  - mlflow-skinny=2.21.0=py312h81bd7bf_0
+  - mlflow-ui=2.21.0=py312h81bd7bf_0
   - more-itertools=10.6.0=pyhd8ed1ab_0
   - msgpack-python=1.1.0=py312h6142ec9_0
   - multidict=6.1.0=py312hdb8e49c_1
@@ -460,7 +463,7 @@ dependencies:
   - python-calamine=0.3.1=py312hcd83bfe_0
   - python-dateutil=2.9.0.post0=pyhff2d567_1
   - python-dotenv=1.0.1=pyhd8ed1ab_1
-  - python-duckdb=1.2.0=py312hd8f9ff3_0
+  - python-duckdb=1.2.1=py312hd8f9ff3_0
   - python-fastjsonschema=2.21.1=pyhd8ed1ab_0
   - python-igraph=0.11.8=py312h8e54378_0
   - python-json-logger=2.0.7=pyhd8ed1ab_0
@@ -491,6 +494,7 @@ dependencies:
   - rfc3986=2.0.0=pyhd8ed1ab_1
   - rfc3986-validator=0.1.1=pyh9f0ad1d_0
   - rich=13.9.4=pyhd8ed1ab_1
+  - rich-toolkit=0.11.3=pyh29332c3_0
   - roman-numerals-py=3.1.0=pyhd8ed1ab_0
   - rpds-py=0.23.1=py312hd60eec9_0
   - rsa=4.9=pyhd8ed1ab_1
@@ -533,7 +537,7 @@ dependencies:
   - sqlglot=26.0.1=pyhd8ed1ab_0
   - sqlglot-rs=26.0.1=hd8ed1ab_0
   - sqlglotrs=0.3.0=py312hcd83bfe_0
-  - sqlite=3.49.1=hd7222ec_1
+  - sqlite=3.49.1=hd7222ec_2
   - sqlparse=0.5.3=pyhd8ed1ab_0
   - stack_data=0.6.3=pyhd8ed1ab_1
   - starlette=0.46.1=pyha770c72_0
