@@ -35,6 +35,7 @@ import uuid
 import warnings
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
+from enum import Enum, unique
 from typing import Any
 
 import matplotlib.pyplot as plt
@@ -45,7 +46,6 @@ import scipy.stats
 from dagster import AssetIn, AssetOut, asset, multi_asset
 from pandera.typing import DataFrame, Series
 
-from pudl.analysis.imputation.codes import ImputationReasonCodes
 from pudl.logging_helpers import get_logger
 
 logger = get_logger(__file__)
@@ -70,6 +70,27 @@ mapped to their standard-time UTC offset.
 
 
 # --- Data structures --- #
+
+
+@unique
+class ImputationReasonCodes(Enum):
+    """Defines all reasons a value might be flagged for imputation."""
+
+    ANOMALOUS_REGION = "Indicates that value is surrounded by flagged values."
+    NEGATIVE_OR_ZERO = "Indicates value is negative or zero value."
+    IDENTICAL_RUN = (
+        "Indicates value is among last values in an identical run of values."
+    )
+    GLOBAL_OUTLIER = (
+        "Indicates value is greater or less than n times the global median."
+    )
+    GLOBAL_OUTLIER_NEIGHBOR = "Indicates value is a neighbors global outliers."
+    LOCAL_OUTLIER_HIGH = "Indicates value is a local outlier on the high end."
+    LOCAL_OUTLIER_LOW = "Indicates value is a local outlier on the low end."
+    DOUBLE_DELTA = "Indicates value is very different from neighbors on either side."
+    SINGLE_DELTA = (
+        "Indicates value is significantly different from nearest unflagged value."
+    )
 
 
 class UTCTimeseriesDataFrame(pa.DataFrameModel):
@@ -809,7 +830,6 @@ def rolling_median_offset(ts: FlaggedTimeseries, window: int = 48) -> np.ndarray
     """
     # RUGGLES: dem_minus_rolling
     m = rolling_median(ts, window=window)
-    logger.info(f"CACHE HITS: {rolling_median.cache_info().hits}")
     return ts.x - m
 
 
@@ -887,8 +907,6 @@ def median_prediction(
     """
     # RUGGLES: hourly_median_dem_dev (multiplied by rollingDem)
     m = rolling_median(ts, window=window)
-    logger.info("Got ROLLING MEDIAN")
-    logger.info(f"CACHE HITS: {rolling_median.cache_info().hits}")
     return m * (
         1
         + median_of_rolling_median_offset(ts, window=window, shifts=shifts)
@@ -1204,13 +1222,9 @@ def flag_ruggles(timeseries_matrix: pd.DataFrame) -> tuple[pd.DataFrame, pd.Data
     ts = FlaggedTimeseries.from_dataframe(timeseries_matrix)
 
     # Step 1
-    logger.info("Flagging negative or zero")
     ts = flag_negative_or_zero(ts)
-    logger.info("Flagging identical runs")
     ts = flag_identical_run(ts, length=3)
-    logger.info("Flagging global outliers")
     ts = flag_global_outlier(ts, medians=9)
-    logger.info("Flagging global outlier neighbors")
     ts = flag_global_outlier_neighbor(ts, neighbors=1)
     # Step 2
     # NOTE: In original code, statistics used for the flags below are precomputed
@@ -1219,7 +1233,6 @@ def flag_ruggles(timeseries_matrix: pd.DataFrame) -> tuple[pd.DataFrame, pd.Data
     long_window = 480
     iqr_window = 240
     shifts = range(-240, 241, 24)
-    logger.info("Flagging local outlier")
     ts = flag_local_outlier(
         ts,
         window=window,
@@ -1228,9 +1241,7 @@ def flag_ruggles(timeseries_matrix: pd.DataFrame) -> tuple[pd.DataFrame, pd.Data
         iqr_window=iqr_window,
         multiplier=(3.5, 2.5),
     )
-    logger.info("Flagging double delta")
     ts = flag_double_delta(ts, iqr_window=iqr_window, multiplier=2)
-    logger.info("Flagging single delta")
     ts = flag_single_delta(
         ts,
         window=window,
@@ -1240,7 +1251,6 @@ def flag_ruggles(timeseries_matrix: pd.DataFrame) -> tuple[pd.DataFrame, pd.Data
         multiplier=5,
         rel_multiplier=15,
     )
-    logger.info("Flagging anomalous region")
     ts = flag_anomalous_region(ts, window=window + 1, threshold=0.15)
     return ts.to_dataframes()
 
@@ -1564,6 +1574,16 @@ def impute_timeseries_asset_factory(
 ) -> pd.DataFrame:
     """Produces assets to impute values for a given timeseries table/column.
 
+    This factory function produces a set of assets which perform timeseries imputation
+    on one column in a specified table. This process is split into a series of assets
+    to reduce peak memory usage by offloading intermediate products onto disk. The
+    assets also correspond with the three steps that make up the the timeseries
+    imputation process:
+
+    1. Convert datetime UTC to local datetimes and pivot dataframe to timeseries matrix
+    2. Flag anomalous and missing values in timeseries
+    3. Perform imputation and melt back to expected output table structure
+
     Args:
         input_asset_name: Name of upstream asset to perform imputation on.
         output_asset_name: Name of final output asset with imputed column.
@@ -1606,6 +1626,7 @@ def impute_timeseries_asset_factory(
     @multi_asset(
         ins={"matrix": AssetIn(timeseries_matrix_asset)},
         outs={cleaned_timeseries_matrix_asset: AssetOut(), flags_asset: AssetOut()},
+        op_tags={"memory-use": "high"},
     )
     def _flag_timeseries_matrix(
         matrix: pd.DataFrame,
@@ -1635,7 +1656,7 @@ def impute_timeseries_asset_factory(
         df = matrix.melt(value_name=imputed_value_col, ignore_index=False)
         flags = flags.melt(
             value_name=f"{imputed_value_col}_imputation_reason_code", ignore_index=False
-        )
+        ).reset_index()
 
         # Merge flags onto imputed df
         df = df.merge(flags, on=["id_col", "datetime"])

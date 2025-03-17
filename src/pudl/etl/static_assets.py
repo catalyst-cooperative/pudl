@@ -3,9 +3,10 @@
 from typing import Literal
 
 import pandas as pd
-from dagster import AssetOut, Output, multi_asset
+from dagster import AssetOut, Output, asset, multi_asset
 
 import pudl
+from pudl.analysis.timeseries_cleaning import ImputationReasonCodes
 from pudl.metadata.classes import Package
 from pudl.metadata.dfs import FERC_ACCOUNTS, POLITICAL_SUBDIVISIONS
 
@@ -37,6 +38,17 @@ def _read_static_encoding_tables(
         for r in Package.from_resource_ids().resources
         if r.etl_group == etl_group and r.encoder
     }
+
+
+@asset(io_manager_key="pudl_io_manager")
+def core_pudl__codes_imputation_reasons() -> pd.DataFrame:
+    """Static table containing all ImputationReasonCodes and descriptions."""
+    return pd.DataFrame(
+        [
+            {"code": code.name, "description": code.value}
+            for code in ImputationReasonCodes
+        ]
+    )
 
 
 @multi_asset(

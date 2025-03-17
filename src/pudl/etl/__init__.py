@@ -69,7 +69,7 @@ core_module_groups = {
         pudl.convert.censusdp1tract_to_sqlite,
         pudl.output.censusdp1tract,
     ],
-    "core_codes": [static_assets, pudl.analysis.imputation.codes],
+    "core_codes": [static_assets],
     "core_eia": [pudl.transform.eia],
     "core_eiaaeo": [pudl.transform.eiaaeo],
     "core_eia_bulk_elec": [eia_bulk_elec_assets],
