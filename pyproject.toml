@@ -46,7 +46,7 @@ dependencies = [
     "jinja2>=3.1",
     "jupyter",
     "matplotlib>=3.10",
-    "mlflow>=2.20",
+    "mlflow>=2.21",
     "nbconvert>=7",
     "nbformat>=5.10",
     "networkx>=3.4",
@@ -57,7 +57,7 @@ dependencies = [
     "pandas>=2.2.3",
     "pandera>=0.23.1",
     "pre-commit>=4",
-    "pyarrow>=18.1", # pandas[parquet]
+    "pyarrow>=19", # pandas[parquet]
     "pydantic>=2.10",
     "pydantic-settings>=2.7",
     "pytest>=8",
