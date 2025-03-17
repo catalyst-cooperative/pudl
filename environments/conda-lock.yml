@@ -5963,6 +5963,42 @@ package:
       sha256: b91a19eb78edfc2dbb36de9a67f74ee2416f1b5273dd7327abe53f2dbf864736
     category: main
     optional: false
+  - name: email_validator
+    version: 2.2.0
+    manager: conda
+    platform: linux-64
+    dependencies:
+      email-validator: ">=2.2.0,<2.2.1.0a0"
+    url: https://conda.anaconda.org/conda-forge/noarch/email_validator-2.2.0-hd8ed1ab_1.conda
+    hash:
+      md5: 0794f8807ff2c6f020422cacb1bd7bfa
+      sha256: e0d0fdf587aa0ed0ff08b2bce3ab355f46687b87b0775bfba01cc80a859ee6a2
+    category: main
+    optional: false
+  - name: email_validator
+    version: 2.2.0
+    manager: conda
+    platform: osx-64
+    dependencies:
+      email-validator: ">=2.2.0,<2.2.1.0a0"
+    url: https://conda.anaconda.org/conda-forge/noarch/email_validator-2.2.0-hd8ed1ab_1.conda
+    hash:
+      md5: 0794f8807ff2c6f020422cacb1bd7bfa
+      sha256: e0d0fdf587aa0ed0ff08b2bce3ab355f46687b87b0775bfba01cc80a859ee6a2
+    category: main
+    optional: false
+  - name: email_validator
+    version: 2.2.0
+    manager: conda
+    platform: osx-arm64
+    dependencies:
+      email-validator: ">=2.2.0,<2.2.1.0a0"
+    url: https://conda.anaconda.org/conda-forge/noarch/email_validator-2.2.0-hd8ed1ab_1.conda
+    hash:
+      md5: 0794f8807ff2c6f020422cacb1bd7bfa
+      sha256: e0d0fdf587aa0ed0ff08b2bce3ab355f46687b87b0775bfba01cc80a859ee6a2
+    category: main
+    optional: false
   - name: ensureconda
     version: 1.4.4
     manager: conda
@@ -6204,6 +6240,114 @@ package:
     hash:
       md5: 1d6afef758879ef5ee78127eb4cd2c4a
       sha256: 1848c7db9e264e3b8036ee133d570dd880422983cd20dd9585a505289606d276
+    category: main
+    optional: false
+  - name: fastapi
+    version: 0.115.11
+    manager: conda
+    platform: linux-64
+    dependencies:
+      python: ""
+      starlette: ">=0.40.0,<0.47.0"
+      typing_extensions: ">=4.8.0"
+      pydantic: ">=1.7.4,!=1.8,!=1.8.1,!=2.0.0,!=2.0.1,!=2.1.0,<3.0.0"
+      email_validator: ">=2.0.0"
+      fastapi-cli: ">=0.0.5"
+      httpx: ">=0.23.0"
+      jinja2: ">=3.1.5"
+      python-multipart: ">=0.0.18"
+      uvicorn-standard: ">=0.12.0"
+    url: https://conda.anaconda.org/conda-forge/noarch/fastapi-0.115.11-pyh29332c3_0.conda
+    hash:
+      md5: a3085f0ade4096d261ecb15208fa5148
+      sha256: 06b93154b2412fd55a235b44580db144334e90cabfec0e57c69155ce35f40962
+    category: main
+    optional: false
+  - name: fastapi
+    version: 0.115.11
+    manager: conda
+    platform: osx-64
+    dependencies:
+      python: ">=3.9"
+      httpx: ">=0.23.0"
+      typing_extensions: ">=4.8.0"
+      pydantic: ">=1.7.4,!=1.8,!=1.8.1,!=2.0.0,!=2.0.1,!=2.1.0,<3.0.0"
+      email_validator: ">=2.0.0"
+      python-multipart: ">=0.0.18"
+      fastapi-cli: ">=0.0.5"
+      uvicorn-standard: ">=0.12.0"
+      jinja2: ">=3.1.5"
+      starlette: ">=0.40.0,<0.47.0"
+    url: https://conda.anaconda.org/conda-forge/noarch/fastapi-0.115.11-pyh29332c3_0.conda
+    hash:
+      md5: a3085f0ade4096d261ecb15208fa5148
+      sha256: 06b93154b2412fd55a235b44580db144334e90cabfec0e57c69155ce35f40962
+    category: main
+    optional: false
+  - name: fastapi
+    version: 0.115.11
+    manager: conda
+    platform: osx-arm64
+    dependencies:
+      python: ">=3.9"
+      httpx: ">=0.23.0"
+      typing_extensions: ">=4.8.0"
+      pydantic: ">=1.7.4,!=1.8,!=1.8.1,!=2.0.0,!=2.0.1,!=2.1.0,<3.0.0"
+      email_validator: ">=2.0.0"
+      python-multipart: ">=0.0.18"
+      fastapi-cli: ">=0.0.5"
+      uvicorn-standard: ">=0.12.0"
+      jinja2: ">=3.1.5"
+      starlette: ">=0.40.0,<0.47.0"
+    url: https://conda.anaconda.org/conda-forge/noarch/fastapi-0.115.11-pyh29332c3_0.conda
+    hash:
+      md5: a3085f0ade4096d261ecb15208fa5148
+      sha256: 06b93154b2412fd55a235b44580db144334e90cabfec0e57c69155ce35f40962
+    category: main
+    optional: false
+  - name: fastapi-cli
+    version: 0.0.7
+    manager: conda
+    platform: linux-64
+    dependencies:
+      python: ">=3.9"
+      rich-toolkit: ">=0.11.1"
+      typer: ">=0.12.3"
+      uvicorn-standard: ">=0.15.0"
+    url: https://conda.anaconda.org/conda-forge/noarch/fastapi-cli-0.0.7-pyhd8ed1ab_0.conda
+    hash:
+      md5: d960e0ea9e1c561aa928f6c4439f04c7
+      sha256: 300683731013b7221922339cd40430bb3c2ddeeb658fd7e37f5099ffe64e4db0
+    category: main
+    optional: false
+  - name: fastapi-cli
+    version: 0.0.7
+    manager: conda
+    platform: osx-64
+    dependencies:
+      python: ">=3.9"
+      typer: ">=0.12.3"
+      uvicorn-standard: ">=0.15.0"
+      rich-toolkit: ">=0.11.1"
+    url: https://conda.anaconda.org/conda-forge/noarch/fastapi-cli-0.0.7-pyhd8ed1ab_0.conda
+    hash:
+      md5: d960e0ea9e1c561aa928f6c4439f04c7
+      sha256: 300683731013b7221922339cd40430bb3c2ddeeb658fd7e37f5099ffe64e4db0
+    category: main
+    optional: false
+  - name: fastapi-cli
+    version: 0.0.7
+    manager: conda
+    platform: osx-arm64
+    dependencies:
+      python: ">=3.9"
+      typer: ">=0.12.3"
+      uvicorn-standard: ">=0.15.0"
+      rich-toolkit: ">=0.11.1"
+    url: https://conda.anaconda.org/conda-forge/noarch/fastapi-cli-0.0.7-pyhd8ed1ab_0.conda
+    hash:
+      md5: d960e0ea9e1c561aa928f6c4439f04c7
+      sha256: 300683731013b7221922339cd40430bb3c2ddeeb658fd7e37f5099ffe64e4db0
     category: main
     optional: false
   - name: filelock
@@ -9339,8 +9483,8 @@ package:
     hash:
       md5: 8b1160b32557290b64d5be68db3d996d
       sha256: 621e7e050b888e5239d33e37ea72d6419f8367e5babcad38b755586f20264796
-    category: dev
-    optional: true
+    category: main
+    optional: false
   - name: httptools
     version: 0.6.4
     manager: conda
@@ -9353,8 +9497,8 @@ package:
     hash:
       md5: f6aafe99d80fef4764145043fe1785a4
       sha256: 8b94eeb98ed8e462754fde0c5883814de0e702b4d93f5c3f3943c910c3ee99c1
-    category: dev
-    optional: true
+    category: main
+    optional: false
   - name: httptools
     version: 0.6.4
     manager: conda
@@ -9367,8 +9511,8 @@ package:
     hash:
       md5: e1747a8e8d2aca5499aaea9993bf31ff
       sha256: 5e93cda79e32e8c0039e05ea1939e688da336187dab025f699b42ef529e848be
-    category: dev
-    optional: true
+    category: main
+    optional: false
   - name: httpx
     version: 0.28.1
     manager: conda
@@ -15837,19 +15981,20 @@ package:
     category: main
     optional: false
   - name: mlflow
-    version: 2.20.4
+    version: 2.21.0
     manager: conda
     platform: linux-64
     dependencies:
       alembic: <2,!=1.10
       docker-py: ">=4.0.0,<8"
+      fastapi: <1
       flask: <4
       graphene: <4
       gunicorn: <24
       jinja2: <4,>=2.11
       markdown: <4,>=3.3
       matplotlib-base: <4
-      mlflow-ui: 2.20.4
+      mlflow-ui: 2.21.0
       numpy: <3
       pandas: <3
       prometheus_flask_exporter: <1
@@ -15859,26 +16004,28 @@ package:
       scikit-learn: <2
       scipy: <2
       sqlalchemy: ">=1.4.0,<3"
-    url: https://conda.anaconda.org/conda-forge/linux-64/mlflow-2.20.4-h7900ff3_0.conda
+      uvicorn: <1
+    url: https://conda.anaconda.org/conda-forge/linux-64/mlflow-2.21.0-h7900ff3_0.conda
     hash:
-      md5: 8e8aa31a393b1811a801b6c1359eb091
-      sha256: 457f45ac5d6d5386fc76cabeab0cf10c201c02a59cca582c20e8eae843d8aed9
+      md5: 91e52b0ed7c6474caa0ad40267744b84
+      sha256: 1d6cedc40588ba4d1b9478640c0c639d627f336eba74580eaace7115976cbb77
     category: main
     optional: false
   - name: mlflow
-    version: 2.20.4
+    version: 2.21.0
     manager: conda
     platform: osx-64
     dependencies:
       alembic: <2,!=1.10
       docker-py: ">=4.0.0,<8"
+      fastapi: <1
       flask: <4
       graphene: <4
       gunicorn: <24
       jinja2: <4,>=2.11
       markdown: <4,>=3.3
       matplotlib-base: <4
-      mlflow-ui: 2.20.4
+      mlflow-ui: 2.21.0
       numpy: <3
       pandas: <3
       prometheus_flask_exporter: <1
@@ -15888,26 +16035,28 @@ package:
       scikit-learn: <2
       scipy: <2
       sqlalchemy: ">=1.4.0,<3"
-    url: https://conda.anaconda.org/conda-forge/osx-64/mlflow-2.20.4-hb401068_0.conda
+      uvicorn: <1
+    url: https://conda.anaconda.org/conda-forge/osx-64/mlflow-2.21.0-hb401068_0.conda
     hash:
-      md5: 151b1a17bc3e3b50173762e9e14254ef
-      sha256: 5a177a3fffeea9d46a51005554542499c33417f088dc0847dea34b3a18e1a45b
+      md5: b5afcc4a25cfb51df1a1f411cb13dcea
+      sha256: 706447b1be8f110627e1f88d73314d36bd0befcf2c1baa0a6d616bef1603c438
     category: main
     optional: false
   - name: mlflow
-    version: 2.20.4
+    version: 2.21.0
     manager: conda
     platform: osx-arm64
     dependencies:
       alembic: <2,!=1.10
       docker-py: ">=4.0.0,<8"
+      fastapi: <1
       flask: <4
       graphene: <4
       gunicorn: <24
       jinja2: <4,>=2.11
       markdown: <4,>=3.3
       matplotlib-base: <4
-      mlflow-ui: 2.20.4
+      mlflow-ui: 2.21.0
       numpy: <3
       pandas: <3
       prometheus_flask_exporter: <1
@@ -15918,14 +16067,15 @@ package:
       scikit-learn: <2
       scipy: <2
       sqlalchemy: ">=1.4.0,<3"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/mlflow-2.20.4-py312h81bd7bf_0.conda
+      uvicorn: <1
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/mlflow-2.21.0-py312h81bd7bf_0.conda
     hash:
-      md5: 3b83fe1d4e8084f1ac4806ad01f42163
-      sha256: 20591ff2ab93c49140ee162dfe5db3d705ecf8b8bdbbc94337ce25b8a788c4fd
+      md5: 3f779088949bd3e022cdb8fd6c7fdf46
+      sha256: a08d0ff805074c74ce5e59a6d8d4eb71fa76cc643704b9a1d4185827d2d1d785
     category: main
     optional: false
   - name: mlflow-skinny
-    version: 2.20.4
+    version: 2.21.0
     manager: conda
     platform: linux-64
     dependencies:
@@ -15933,6 +16083,7 @@ package:
       click: <9,>=7.0
       cloudpickle: <4
       databricks-sdk: <1,>=0.20.0
+      fastapi: <1
       gitpython: <4,>=3.1.9
       importlib-metadata: <9,>=3.7.0,!=4.7.0
       opentelemetry-api: <3,>=1.9.0
@@ -15945,14 +16096,15 @@ package:
       requests: <3,>=2.17.3
       sqlparse: <1,>=0.4.0
       typing-extensions: <5,>=4.0.0
-    url: https://conda.anaconda.org/conda-forge/linux-64/mlflow-skinny-2.20.4-h7900ff3_0.conda
+      uvicorn: <1
+    url: https://conda.anaconda.org/conda-forge/linux-64/mlflow-skinny-2.21.0-h7900ff3_0.conda
     hash:
-      md5: cdbf8c1a2061e132fc4696fe4aedc4c9
-      sha256: c26396986a89da0226f481ee89220f23cd28dd224b61ae6a83543a03f26ed955
+      md5: e170224b1bfb1d1fa4cc028a865654dc
+      sha256: 24701c47bdd07946a77e4880ad659c07acd66c426216e3e8dce3b6f38ec42b4e
     category: main
     optional: false
   - name: mlflow-skinny
-    version: 2.20.4
+    version: 2.21.0
     manager: conda
     platform: osx-64
     dependencies:
@@ -15960,6 +16112,7 @@ package:
       click: <9,>=7.0
       cloudpickle: <4
       databricks-sdk: <1,>=0.20.0
+      fastapi: <1
       gitpython: <4,>=3.1.9
       importlib-metadata: <9,>=3.7.0,!=4.7.0
       opentelemetry-api: <3,>=1.9.0
@@ -15972,14 +16125,15 @@ package:
       requests: <3,>=2.17.3
       sqlparse: <1,>=0.4.0
       typing-extensions: <5,>=4.0.0
-    url: https://conda.anaconda.org/conda-forge/osx-64/mlflow-skinny-2.20.4-hb401068_0.conda
+      uvicorn: <1
+    url: https://conda.anaconda.org/conda-forge/osx-64/mlflow-skinny-2.21.0-hb401068_0.conda
     hash:
-      md5: 5022b41ec36181f50d70639cd6fbfc82
-      sha256: a2f4e37cb604ef03ac04625b99d8865cd1de51517e7b4fe0cbc9416952d59f48
+      md5: 8417b7c9630f606b0916f20fca4a093f
+      sha256: 6c9acc2d09fb55b67ac3e8cb5d769c65de7394d346322049675181dee86b9f92
     category: main
     optional: false
   - name: mlflow-skinny
-    version: 2.20.4
+    version: 2.21.0
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -15987,6 +16141,7 @@ package:
       click: <9,>=7.0
       cloudpickle: <4
       databricks-sdk: <1,>=0.20.0
+      fastapi: <1
       gitpython: <4,>=3.1.9
       importlib-metadata: <9,>=3.7.0,!=4.7.0
       opentelemetry-api: <3,>=1.9.0
@@ -16000,61 +16155,62 @@ package:
       requests: <3,>=2.17.3
       sqlparse: <1,>=0.4.0
       typing-extensions: <5,>=4.0.0
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/mlflow-skinny-2.20.4-py312h81bd7bf_0.conda
+      uvicorn: <1
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/mlflow-skinny-2.21.0-py312h81bd7bf_0.conda
     hash:
-      md5: 02feb5a8c91d36401eaf5e52ba45edfe
-      sha256: 5e53d5dd108dcf33a293671509fac7b5d5f792d9d47a0cbeaabcce2a4ea103ef
+      md5: 7647dacc3d672e524d671c4ea4677823
+      sha256: daa736556e345b64f76bdd3f89da15cb049d4b8b1e535f00300fa01729ebb145
     category: main
     optional: false
   - name: mlflow-ui
-    version: 2.20.4
+    version: 2.21.0
     manager: conda
     platform: linux-64
     dependencies:
       flask: <4
       gunicorn: <24
-      mlflow-skinny: 2.20.4
+      mlflow-skinny: 2.21.0
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
       querystring_parser: <2
-    url: https://conda.anaconda.org/conda-forge/linux-64/mlflow-ui-2.20.4-py312h7900ff3_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/mlflow-ui-2.21.0-py312h7900ff3_0.conda
     hash:
-      md5: 24960fc10f32b9fea9523481ee8447fe
-      sha256: 5ae9e36bf0173db4b7c3111640a86333dd02d64174a7da0abc6178c6950fd456
+      md5: 44d63833efadfb55322405f1645f7e7a
+      sha256: 01887ab3cdf8bd8230907a5984927f2c384579b690317342502f10b990e1e086
     category: main
     optional: false
   - name: mlflow-ui
-    version: 2.20.4
+    version: 2.21.0
     manager: conda
     platform: osx-64
     dependencies:
       flask: <4
       gunicorn: <24
-      mlflow-skinny: 2.20.4
+      mlflow-skinny: 2.21.0
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
       querystring_parser: <2
-    url: https://conda.anaconda.org/conda-forge/osx-64/mlflow-ui-2.20.4-py312hb401068_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/mlflow-ui-2.21.0-py312hb401068_0.conda
     hash:
-      md5: 3a80ce0c8f8f31721339b7082965c33a
-      sha256: 50130e2597f5c8c6b0e2abbfaf100b530085dc425c6278d9277f707496fb9bb1
+      md5: f9ddba4f0c257168bd5b179fa83a599c
+      sha256: 5bc30a8fad2c254108e81c8ee19fcea6422e8ae41614ca82d066e3d59d33d0a8
     category: main
     optional: false
   - name: mlflow-ui
-    version: 2.20.4
+    version: 2.21.0
     manager: conda
     platform: osx-arm64
     dependencies:
       flask: <4
       gunicorn: <24
-      mlflow-skinny: 2.20.4
+      mlflow-skinny: 2.21.0
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
       querystring_parser: <2
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/mlflow-ui-2.20.4-py312h81bd7bf_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/mlflow-ui-2.21.0-py312h81bd7bf_0.conda
     hash:
-      md5: b15f4af4e9984632522893c216afaaa7
-      sha256: 2f41108d2741eb82dbd467750c24dfc5914959c9ae549005000514b77ffc8d89
+      md5: fc90c973fed8862806131d8766a71038
+      sha256: 77c68e8160e536f2ee4c49208bbefc7090c1243d9950f213ef3dad3a6570575d
     category: main
     optional: false
   - name: more-itertools
@@ -22128,6 +22284,51 @@ package:
       sha256: 06a760c5ae572e72e865d5a87e9fe3cc171e1a9c996e63daf3db52ff1a0b4457
     category: main
     optional: false
+  - name: rich-toolkit
+    version: 0.11.3
+    manager: conda
+    platform: linux-64
+    dependencies:
+      python: ""
+      rich: ">=13.7.1"
+      click: ">=8.1.7"
+      typing_extensions: ">=4.12.2"
+    url: https://conda.anaconda.org/conda-forge/noarch/rich-toolkit-0.11.3-pyh29332c3_0.conda
+    hash:
+      md5: 4ba15ae9388b67d09782798347481f69
+      sha256: e558f8c254a9ff9164d069110da162fc79497d70c60f2c09a5d3d0d7101c5628
+    category: main
+    optional: false
+  - name: rich-toolkit
+    version: 0.11.3
+    manager: conda
+    platform: osx-64
+    dependencies:
+      python: ">=3.9"
+      click: ">=8.1.7"
+      typing_extensions: ">=4.12.2"
+      rich: ">=13.7.1"
+    url: https://conda.anaconda.org/conda-forge/noarch/rich-toolkit-0.11.3-pyh29332c3_0.conda
+    hash:
+      md5: 4ba15ae9388b67d09782798347481f69
+      sha256: e558f8c254a9ff9164d069110da162fc79497d70c60f2c09a5d3d0d7101c5628
+    category: main
+    optional: false
+  - name: rich-toolkit
+    version: 0.11.3
+    manager: conda
+    platform: osx-arm64
+    dependencies:
+      python: ">=3.9"
+      click: ">=8.1.7"
+      typing_extensions: ">=4.12.2"
+      rich: ">=13.7.1"
+    url: https://conda.anaconda.org/conda-forge/noarch/rich-toolkit-0.11.3-pyh29332c3_0.conda
+    hash:
+      md5: 4ba15ae9388b67d09782798347481f69
+      sha256: e558f8c254a9ff9164d069110da162fc79497d70c60f2c09a5d3d0d7101c5628
+    category: main
+    optional: false
   - name: roman-numerals-py
     version: 3.1.0
     manager: conda
@@ -24112,8 +24313,8 @@ package:
     hash:
       md5: db2f992eed837d11aed1dab97af9e408
       sha256: 821c9e23e9dffaa1519faac109c60f02ebccc6436efd58ea60b85dd7b7f6e9ec
-    category: dev
-    optional: true
+    category: main
+    optional: false
   - name: starlette
     version: 0.46.1
     manager: conda
@@ -24126,8 +24327,8 @@ package:
     hash:
       md5: db2f992eed837d11aed1dab97af9e408
       sha256: 821c9e23e9dffaa1519faac109c60f02ebccc6436efd58ea60b85dd7b7f6e9ec
-    category: dev
-    optional: true
+    category: main
+    optional: false
   - name: starlette
     version: 0.46.1
     manager: conda
@@ -24140,8 +24341,8 @@ package:
     hash:
       md5: db2f992eed837d11aed1dab97af9e408
       sha256: 821c9e23e9dffaa1519faac109c60f02ebccc6436efd58ea60b85dd7b7f6e9ec
-    category: dev
-    optional: true
+    category: main
+    optional: false
   - name: stdlib-list
     version: 0.11.1
     manager: conda
@@ -25794,8 +25995,8 @@ package:
     hash:
       md5: 32a94143a7f65d76d2d5da37dcb4ed79
       sha256: 87e1531e175e75122f9f37608eb953af4c977465ab0ae11283cc01fef954e4ec
-    category: dev
-    optional: true
+    category: main
+    optional: false
   - name: uvicorn-standard
     version: 0.34.0
     manager: conda
@@ -25813,8 +26014,8 @@ package:
     hash:
       md5: 32a94143a7f65d76d2d5da37dcb4ed79
       sha256: 87e1531e175e75122f9f37608eb953af4c977465ab0ae11283cc01fef954e4ec
-    category: dev
-    optional: true
+    category: main
+    optional: false
   - name: uvicorn-standard
     version: 0.34.0
     manager: conda
@@ -25832,8 +26033,8 @@ package:
     hash:
       md5: 32a94143a7f65d76d2d5da37dcb4ed79
       sha256: 87e1531e175e75122f9f37608eb953af4c977465ab0ae11283cc01fef954e4ec
-    category: dev
-    optional: true
+    category: main
+    optional: false
   - name: uvloop
     version: 0.21.0
     manager: conda
@@ -25848,8 +26049,8 @@ package:
     hash:
       md5: 998e481e17c1b6a74572e73b06f2df08
       sha256: 9337a80165fcf70b06b9d6ba920dad702260ca966419ae77560a15540e41ab72
-    category: dev
-    optional: true
+    category: main
+    optional: false
   - name: uvloop
     version: 0.21.0
     manager: conda
@@ -25863,8 +26064,8 @@ package:
     hash:
       md5: 149b35c6d518e759dc7477a785e44169
       sha256: 3dcbf983d96a8dc85f3dd86d84077d6725fe2254af7030f6c21d8f88b6af9dda
-    category: dev
-    optional: true
+    category: main
+    optional: false
   - name: uvloop
     version: 0.21.0
     manager: conda
@@ -25878,8 +26079,8 @@ package:
     hash:
       md5: 4f5110253ba80ebf27e55c4ab333880a
       sha256: b1efa77aa4871d7bb09c8dd297fa9bd9070ba7f0f95f2d12ae9cdd31ce8b6b22
-    category: dev
-    optional: true
+    category: main
+    optional: false
   - name: validators
     version: 0.34.0
     manager: conda
@@ -26019,8 +26220,8 @@ package:
     hash:
       md5: fa5bb5b364b0f8162d67c31009c985c9
       sha256: 04227e72c1e8c30afca18860491462461d35ffa1dba552770adce61794aa7114
-    category: dev
-    optional: true
+    category: main
+    optional: false
   - name: watchfiles
     version: 0.24.0
     manager: conda
@@ -26034,8 +26235,8 @@ package:
     hash:
       md5: 37e5423e63089d1e26578ef1a41c5f82
       sha256: f1d9f268ea350296950c710bdbc6fd9e15ee5a86115e6448e7cb80a6bca824ec
-    category: dev
-    optional: true
+    category: main
+    optional: false
   - name: watchfiles
     version: 0.24.0
     manager: conda
@@ -26049,8 +26250,8 @@ package:
     hash:
       md5: 7fd741404e6fcab22a988ee6742dc778
       sha256: e92ec8593fee0ce6cb2b565900eb9792c73efacc129d2bf92dba074bca505598
-    category: dev
-    optional: true
+    category: main
+    optional: false
   - name: wayland
     version: 1.23.1
     manager: conda
@@ -26223,8 +26424,8 @@ package:
     hash:
       md5: 3123a367461a5d95ed28a97fe38b964c
       sha256: eaa50688d9abfa36ef9f059a761a42783e921a2dfd1f15527c9242f39e5d3f0a
-    category: dev
-    optional: true
+    category: main
+    optional: false
   - name: websockets
     version: 11.0.3
     manager: conda
@@ -26236,8 +26437,8 @@ package:
     hash:
       md5: 6425222edff4c8ab3f6ddb2210cfa1e2
       sha256: ea987813c114932e97f46d955c7e733dacc6febda81aebf1d303707308d96577
-    category: dev
-    optional: true
+    category: main
+    optional: false
   - name: websockets
     version: 11.0.3
     manager: conda
@@ -26249,8 +26450,8 @@ package:
     hash:
       md5: 4def78137c8de8c6e99abbba2ca8ab6d
       sha256: 17a604ced7c1d06d77ffc12de788cc7568d522efba4bb3c42b9906bf0ff7d28f
-    category: dev
-    optional: true
+    category: main
+    optional: false
   - name: werkzeug
     version: 3.1.3
     manager: conda
