@@ -24,7 +24,7 @@ dependencies:
   - anyio=4.8.0=pyhd8ed1ab_0
   - aom=3.9.1=hac33072_0
   - appdirs=1.4.4=pyhd8ed1ab_1
-  - arelle-release=2.36.25=pyhd8ed1ab_0
+  - arelle-release=2.36.26=pyhd8ed1ab_0
   - argon2-cffi=23.1.0=pyhd8ed1ab_1
   - argon2-cffi-bindings=21.2.0=py312h66e93f0_5
   - arpack=3.9.1=nompi_hf03ea27_102
@@ -33,23 +33,23 @@ dependencies:
   - asgiref=3.8.1=pyhd8ed1ab_1
   - astroid=3.3.9=py312h7900ff3_0
   - asttokens=3.0.0=pyhd8ed1ab_1
-  - async-lru=2.0.4=pyhd8ed1ab_1
+  - async-lru=2.0.5=pyh29332c3_0
   - at-spi2-atk=2.38.0=h0630a04_3
   - at-spi2-core=2.40.3=h0630a04_0
   - atk-1.0=2.38.0=h04ea711_2
   - attrs=25.3.0=pyh71513ae_0
-  - aws-c-auth=0.8.6=h544b0e5_3
-  - aws-c-cal=0.8.6=h043a21b_1
+  - aws-c-auth=0.8.6=hd08a7f5_4
+  - aws-c-cal=0.8.7=h043a21b_0
   - aws-c-common=0.12.0=hb9d3cd8_0
   - aws-c-compression=0.3.1=h3870646_2
   - aws-c-event-stream=0.5.4=h04a3f94_2
-  - aws-c-http=0.9.4=hb7dcd10_3
-  - aws-c-io=0.17.0=h9aa2de0_5
+  - aws-c-http=0.9.4=hb9b18c6_4
+  - aws-c-io=0.17.0=h3dad3f2_6
   - aws-c-mqtt=0.12.2=h108da3e_2
-  - aws-c-s3=0.7.13=hfdb1a59_1
+  - aws-c-s3=0.7.13=h822ba82_2
   - aws-c-sdkutils=0.2.3=h3870646_2
   - aws-checksums=0.2.3=h3870646_2
-  - aws-crt-cpp=0.31.0=hacb7569_3
+  - aws-crt-cpp=0.31.0=h55f77e1_4
   - aws-sdk-cpp=1.11.510=h37a5c72_3
   - azure-core-cpp=1.14.0=h5cfcd09_0
   - azure-identity-cpp=1.10.0=h113e628_0
@@ -100,7 +100,7 @@ dependencies:
   - comm=0.2.2=pyhd8ed1ab_1
   - conda-lock=2.5.7=pyhd8ed1ab_1
   - contourpy=1.3.1=py312h68727a3_0
-  - coverage=7.6.12=py312h178313f_0
+  - coverage=7.7.0=py312h178313f_0
   - crashtest=0.4.1=pyhd8ed1ab_1
   - cryptography=44.0.2=py312hda17c39_0
   - curl=8.12.1=h332b0f4_0
@@ -138,7 +138,6 @@ dependencies:
   - docutils=0.21.2=pyhd8ed1ab_1
   - email-validator=2.2.0=pyhd8ed1ab_1
   - ensureconda=1.4.4=pyhd8ed1ab_1
-  - entrypoints=0.4=pyhd8ed1ab_1
   - epoxy=1.5.10=h166bdaf_1
   - et_xmlfile=2.0.0=pyhd8ed1ab_1
   - exceptiongroup=1.2.2=pyhd8ed1ab_1
@@ -186,7 +185,7 @@ dependencies:
   - google-auth=2.38.0=pyhd8ed1ab_0
   - google-auth-oauthlib=1.2.1=pyhd8ed1ab_1
   - google-cloud-core=2.4.3=pyhd8ed1ab_0
-  - google-cloud-sdk=513.0.0=py312h7900ff3_0
+  - google-cloud-sdk=514.0.0=py312h7900ff3_0
   - google-cloud-storage=3.1.0=pyhd8ed1ab_0
   - google-crc32c=1.1.2=py312hb42adb9_6
   - google-resumable-media=2.7.2=pyhd8ed1ab_2
@@ -219,7 +218,7 @@ dependencies:
   - humanize=4.12.1=pyhd8ed1ab_0
   - hupper=1.12.1=pyhd8ed1ab_1
   - hyperframe=6.1.0=pyhd8ed1ab_0
-  - hypothesis=6.129.2=pyha770c72_0
+  - hypothesis=6.129.3=pyha770c72_0
   - icu=75.1=he02047a_0
   - identify=2.6.9=pyhd8ed1ab_0
   - idna=3.10=pyhd8ed1ab_1
@@ -275,10 +274,10 @@ dependencies:
   - lerc=4.0.0=h27087fc_0
   - libabseil=20250127.0=cxx17_hbbce691_0
   - libarchive=3.7.7=h4585015_3
-  - libarrow=18.1.0=h30f107e_20_cpu
-  - libarrow-acero=18.1.0=hcb10f89_20_cpu
-  - libarrow-dataset=18.1.0=hcb10f89_20_cpu
-  - libarrow-substrait=18.1.0=h1bed206_20_cpu
+  - libarrow=19.0.1=hc4b51b1_4_cpu
+  - libarrow-acero=19.0.1=hcb10f89_4_cpu
+  - libarrow-dataset=19.0.1=hcb10f89_4_cpu
+  - libarrow-substrait=19.0.1=h1bed206_4_cpu
   - libavif16=1.2.0=h63b8bd6_1
   - libblas=3.9.0=31_h59b9bed_openblas
   - libbrotlicommon=1.1.0=hb9d3cd8_2
@@ -317,7 +316,9 @@ dependencies:
   - libnsl=2.0.1=hd590300_0
   - libntlm=1.8=hb9d3cd8_0
   - libopenblas=0.3.29=pthreads_h94d23a6_0
-  - libparquet=18.1.0=h081d1f1_20_cpu
+  - libopentelemetry-cpp=1.18.0=hd1b1c89_2
+  - libopentelemetry-cpp-headers=1.18.0=ha770c72_2
+  - libparquet=19.0.1=h081d1f1_4_cpu
   - libpng=1.6.47=h943b412_0
   - libpq=17.4=h27ae623_0
   - libprotobuf=5.29.3=h501fc15_0
@@ -326,7 +327,7 @@ dependencies:
   - librttopo=1.1.0=h97f6797_17
   - libsodium=1.0.20=h4ab18f5_0
   - libspatialite=5.1.0=h1b4f908_12
-  - libsqlite=3.49.1=hee588c1_1
+  - libsqlite=3.49.1=hee588c1_2
   - libssh2=1.11.1=hf672d98_0
   - libstdcxx=14.2.0=h8f9b012_2
   - libstdcxx-ng=14.2.0=h4852527_2
@@ -361,9 +362,9 @@ dependencies:
   - mergedeep=1.3.4=pyhd8ed1ab_1
   - minizip=4.0.7=h05a5f5f_3
   - mistune=3.1.2=pyhd8ed1ab_0
-  - mlflow=2.20.3=h7900ff3_0
-  - mlflow-skinny=2.20.3=py312h7900ff3_0
-  - mlflow-ui=2.20.3=py312h7900ff3_0
+  - mlflow=2.20.4=h7900ff3_0
+  - mlflow-skinny=2.20.4=h7900ff3_0
+  - mlflow-ui=2.20.4=py312h7900ff3_0
   - more-itertools=10.6.0=pyhd8ed1ab_0
   - msgpack-python=1.1.0=py312h68727a3_0
   - multidict=6.1.0=py312h178313f_2
@@ -378,6 +379,7 @@ dependencies:
   - ncurses=6.5=h2d0b736_3
   - nest-asyncio=1.6.0=pyhd8ed1ab_1
   - networkx=3.4.2=pyh267e887_2
+  - nlohmann_json=3.11.3=he02047a_1
   - nodeenv=1.9.1=pyhd8ed1ab_1
   - nodejs=22.13.0=hf235a45_0
   - nomkl=1.0=h5ca1d4c_0
@@ -425,6 +427,7 @@ dependencies:
   - pre-commit=4.1.0=pyha770c72_0
   - prettier=3.5.3=hdfa8007_0
   - proj=9.5.1=h0054346_0
+  - prometheus-cpp=1.3.0=ha5d0236_0
   - prometheus_client=0.21.1=pyhd8ed1ab_0
   - prometheus_flask_exporter=0.23.2=pyhd8ed1ab_0
   - prompt-toolkit=3.0.50=pyha770c72_0
@@ -438,8 +441,8 @@ dependencies:
   - pthread-stubs=0.4=hb9d3cd8_1002
   - ptyprocess=0.7.0=pyhd8ed1ab_1
   - pure_eval=0.2.3=pyhd8ed1ab_1
-  - pyarrow=18.1.0=py312h7900ff3_0
-  - pyarrow-core=18.1.0=py312h01725c0_0_cpu
+  - pyarrow=19.0.1=py312h7900ff3_0
+  - pyarrow-core=19.0.1=py312h01725c0_0_cpu
   - pyasn1=0.6.1=pyhd8ed1ab_2
   - pyasn1-modules=0.4.1=pyhd8ed1ab_1
   - pybtex=0.24.0=pyhd8ed1ab_3
@@ -471,7 +474,7 @@ dependencies:
   - python-calamine=0.3.1=py312h12e396e_0
   - python-dateutil=2.9.0.post0=pyhff2d567_1
   - python-dotenv=1.0.1=pyhd8ed1ab_1
-  - python-duckdb=1.2.0=py312h2ec8cdc_0
+  - python-duckdb=1.2.1=py312h2ec8cdc_0
   - python-fastjsonschema=2.21.1=pyhd8ed1ab_0
   - python-igraph=0.11.8=py312h3262465_0
   - python-json-logger=2.0.7=pyhd8ed1ab_0
@@ -546,7 +549,7 @@ dependencies:
   - sqlglot=26.0.1=pyhd8ed1ab_0
   - sqlglot-rs=26.0.1=hd8ed1ab_0
   - sqlglotrs=0.3.0=py312h12e396e_0
-  - sqlite=3.49.1=h9eae976_1
+  - sqlite=3.49.1=h9eae976_2
   - sqlparse=0.5.3=pyhd8ed1ab_0
   - stack_data=0.6.3=pyhd8ed1ab_1
   - starlette=0.46.1=pyha770c72_0
