@@ -36,7 +36,7 @@ import warnings
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from enum import Enum, unique
-from typing import Any
+from typing import Any, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -44,7 +44,7 @@ import pandas as pd
 import pandera as pa
 import scipy.stats
 from dagster import AssetIn, AssetOut, asset, multi_asset
-from pandera.typing import DataFrame, Series
+from pandera.typing import DataFrame, Index, Series
 
 from pudl.logging_helpers import get_logger
 
@@ -98,8 +98,8 @@ class UTCTimeseriesDataFrame(pa.DataFrameModel):
 
     id_col: Series[int]
     datetime_utc: Series[pa.dtypes.DateTime]
-    timezone: Series[str]
-    value_col: Series[float]
+    timezone: Optional[Series[str]]
+    value_col: Series[float] = pa.Field(nullable=True)
 
 
 class LocalizedTimeseriesDataFrame(pa.DataFrameModel):
@@ -107,10 +107,22 @@ class LocalizedTimeseriesDataFrame(pa.DataFrameModel):
 
     id_col: Series[int]
     datetime: Series[pa.dtypes.DateTime]
-    timezone: Series[str]
-    utc_offset: Series[int]
+    value_col: Series[float] = pa.Field(nullable=True)
+    flags: Optional[Series[str]] = pa.Field(nullable=True)
+
+
+class UTCOffset(pa.DataFrameModel):
+    """Define schema of temporary dataframe containing utc offsets for each entity."""
+
+    id_col: Series[int]
     year: Series[pd.Int32Dtype]
-    value_col: Series[float]
+    utc_offset: Series[int]
+
+
+class TimeseriesMatrix(pa.DataFrameModel):
+    """Define schema for timeseries matrix used during imputation."""
+
+    datetime: Index[pa.dtypes.DateTime]
 
 
 def _local_to_utc(local: pd.Series, tz: Iterable, **kwargs: Any) -> pd.Series:
@@ -199,13 +211,30 @@ def utc_dataframe_to_local(
 @pa.check_types
 def local_dataframe_to_utc(
     input_df: DataFrame[LocalizedTimeseriesDataFrame],
+    utc_offset: DataFrame[UTCOffset],
 ) -> DataFrame[UTCTimeseriesDataFrame]:
     """Return DataFrame with localized ``datetime`` converted back to ``datetime_utc``."""
+    input_df["year"] = input_df["datetime"].dt.year
+    input_df = input_df.merge(utc_offset, on=["id_col", "year"])
+
     # Convert local times to UTC
     input_df["datetime_utc"] = _local_to_utc(
         input_df["datetime"], input_df["utc_offset"]
     )
     return input_df
+
+
+@pa.check_types
+def melt_imputed_timeseries_matrix(
+    imputed_matrix: DataFrame[TimeseriesMatrix],
+    flag_matrix: DataFrame[TimeseriesMatrix],
+) -> DataFrame[LocalizedTimeseriesDataFrame]:
+    """Melt imputed timeseries matrix and flag matrix to localized dataframe."""
+    df = imputed_matrix.melt(value_name="value_col", ignore_index=False).reset_index()
+    flags = flag_matrix.melt(value_name="flags", ignore_index=False).reset_index()
+
+    df = df.merge(flags, on=["id_col", "datetime"])
+    return df
 
 
 @dataclass
@@ -254,7 +283,7 @@ class FlaggedTimeseries:
         """
         # Only flag unflagged values
         mask = mask & ~np.isnan(self.x)
-        self.flags[mask] = flag.name
+        self.flags[mask] = flag.name.lower()
         # Null flagged values
         self.x[mask] = np.nan
         return self
@@ -1595,14 +1624,21 @@ def impute_timeseries_asset_factory(
         output_io_manager_key: IO-manager to use for final output asset.
     """
     timeseries_matrix_asset = f"_{output_asset_name}_timeseries_matrix"
+    utc_offset_asset = f"_{output_asset_name}_utc_offset"
     cleaned_timeseries_matrix_asset = f"_{output_asset_name}_cleaned_timeseries_matrix"
     flags_asset = f"_{output_asset_name}_timeseries_matrix_flags"
+    imputed_asset = f"_{output_asset_name}_imputed_matrix"
 
-    @asset(
+    @multi_asset(
         ins={"input_df": AssetIn(input_asset_name)},
-        name=timeseries_matrix_asset,
+        outs={
+            timeseries_matrix_asset: AssetOut(),
+            utc_offset_asset: AssetOut(),
+        },
     )
-    def _prepare_timeseries_matrix(input_df: pd.DataFrame) -> pd.DataFrame:
+    def _prepare_timeseries_matrix(
+        input_df: pd.DataFrame,
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
         """Take input timeseries table and convert to timeseries matrix for imputation.
 
         Returns:
@@ -1615,13 +1651,16 @@ def impute_timeseries_asset_factory(
         localized_df = utc_dataframe_to_local(
             input_df.rename(columns={value_col: "value_col", id_col: "id_col"})
         )
-        logger.info("Localized timeseries.")
+        utc_offset = localized_df.groupby(
+            ["id_col", "year"],
+            as_index=False,
+        )["utc_offset"].first()
 
         # Pivot to timeseries matrix
         matrix = localized_df.pivot(
             index="datetime", columns="id_col", values="value_col"
         )
-        return matrix
+        return matrix, utc_offset
 
     @multi_asset(
         ins={"matrix": AssetIn(timeseries_matrix_asset)},
@@ -1639,37 +1678,54 @@ def impute_timeseries_asset_factory(
     @asset(
         ins={
             "matrix": AssetIn(cleaned_timeseries_matrix_asset),
+        },
+        name=imputed_asset,
+    )
+    def _impute_timeseries(matrix: pd.DataFrame) -> pd.DataFrame:
+        """Perform imputation."""
+        # Impute flagged/missing values
+        return impute_flagged_values(matrix, years)
+
+    @asset(
+        ins={
+            "matrix": AssetIn(imputed_asset),
             "flags": AssetIn(flags_asset),
             "input_df": AssetIn(input_asset_name),
+            "utc_offset": AssetIn(utc_offset_asset),
         },
         name=output_asset_name,
         io_manager_key=output_io_manager_key,
     )
-    def _impute_timeseries(
-        input_df: pd.DataFrame, matrix: pd.DataFrame, flags: pd.DataFrame
+    def _create_output_asset(
+        input_df: pd.DataFrame,
+        matrix: pd.DataFrame,
+        flags: pd.DataFrame,
+        utc_offset: pd.DataFrame,
     ) -> pd.DataFrame:
         """Perform imputation and prepare output asset."""
-        # Impute flagged/missing values
-        matrix = impute_flagged_values(matrix, years)
-
         # Melt imputed matrix/flag matrix to long format
-        df = matrix.melt(value_name=imputed_value_col, ignore_index=False)
-        flags = flags.melt(
-            value_name=f"{imputed_value_col}_imputation_reason_code", ignore_index=False
-        ).reset_index()
-
-        # Merge flags onto imputed df
-        df = df.merge(flags, on=["id_col", "datetime"])
+        localized_df = melt_imputed_timeseries_matrix(matrix, flags)
 
         # Convert back to datetime_utc
-        df = local_dataframe_to_utc(df)
+        df = local_dataframe_to_utc(localized_df, utc_offset)
 
         # Merge back on core table
-        df = df.rename(columns={"id_col": id_col}).merge(
+        df = df.rename(
+            columns={
+                "id_col": id_col,
+                "value_col": imputed_value_col,
+                "flags": f"{imputed_value_col}_imputation_code",
+            }
+        ).merge(
             input_df.rename(columns={value_col: reported_value_col}),
             on=[id_col, "datetime_utc"],
         )
 
         return df.drop_duplicates(subset=[id_col, "datetime_utc"])
 
-    return [_prepare_timeseries_matrix, _flag_timeseries_matrix, _impute_timeseries]
+    return [
+        _prepare_timeseries_matrix,
+        _flag_timeseries_matrix,
+        _impute_timeseries,
+        _create_output_asset,
+    ]

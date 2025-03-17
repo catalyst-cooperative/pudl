@@ -1126,9 +1126,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "MWh",
     },
     "demand_imputed_pudl_mwh_imputation_code": {
-        "type": "number",
+        "type": "string",
         "description": "Code describing why a demand value was flagged for imputation.",
-        "unit": "MWh",
     },
     "demand_reported_mwh": {
         "type": "number",

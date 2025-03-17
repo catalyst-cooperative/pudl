@@ -45,7 +45,7 @@ def core_pudl__codes_imputation_reasons() -> pd.DataFrame:
     """Static table containing all ImputationReasonCodes and descriptions."""
     return pd.DataFrame(
         [
-            {"code": code.name, "description": code.value}
+            {"code": code.name.lower(), "description": code.value}
             for code in ImputationReasonCodes
         ]
     )
