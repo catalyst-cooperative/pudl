@@ -1,7 +1,7 @@
 """Implement utilities for working with data produced in the pudl modelling repo."""
 
 import pandas as pd
-from dagster import asset
+from dagster import AssetOut, asset, multi_asset
 
 from pudl import logging_helpers
 from pudl.helpers import convert_cols_dtypes
@@ -49,26 +49,48 @@ def raw_sec10k__quarterly_company_information() -> pd.DataFrame:
     return df
 
 
-@asset(
-    io_manager_key="pudl_io_manager",
-    group_name="sec10k",
+@multi_asset(
+    outs={
+        "core_sec10k__quarterly_company_information": AssetOut(
+            # io_manager_key="pudl_io_manager",
+            group_name="sec10k",
+        ),
+        "core_sec10k__quarterly_filing_information": AssetOut(
+            # io_manager_key="pudl_io_manager",
+            group_name="sec10k",
+        ),
+        "core_sec10k__changelog_company_name": AssetOut(
+            # io_manager_key="pudl_io_manager",
+            group_name="sec10k",
+        ),
+    }
 )
-def core_sec10k__quarterly_company_information(
+def core_sec10k__company_info(
     raw_sec10k__quarterly_company_information: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Company information extracted from SEC10k filings.
+    """Company information extracted from SEC 10-K filings.
 
-    Consolidate company information extracted from key: value blocks
-    within the headers of the SEC 10k filings such that there
-    is one record of company information per block. One company's
-    information may be reported in multiple filings on the same report date.
-    However, we only want to keep one of those records per company and report date,
-    (``central index key`` and ``report_date`` are a primary key for the table).
-    We prioritize keeping records from filings where that company's extracted
-    ``central_index_key`` matches the filer's central index key, meaning that
-    that company filed the 10k itself.
+    Each SEC 10-K filing contains a header block that lists information the filer, and
+    potentially a number of other related companies. Each company level block of
+    information may includes the company's name, physical address, some details about
+    how it files the SEC 10-K, and some other company attributes like taxpayer ID
+    number, industrial classification, etc. It may also include a mailing address that
+    is distinct from the physical address, and the history of names that the company has
+    had over time.
+
+    This function normalizes the raw key-value pairs extracted from these headers and
+    into three tables describing:
+
+    - filing-level information
+    - company-level information
+    - the history of company name changes
+
+    This information is used elsewhere for matching SEC 10-K filers to EIA utilities
+    and for identifying the companies that are mentioned in the unstructured Exhibit 21
+    attachements.
     """
-    # Strip erroneous "]" characters
+    # Strip erroneous "]" characters from company information fact names (the keys in
+    # the key-value pairs). This has to be done before the table is re-shaped.
     raw_sec10k__quarterly_company_information["company_information_fact_name"] = (
         raw_sec10k__quarterly_company_information[
             "company_information_fact_name"
