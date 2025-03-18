@@ -1092,7 +1092,7 @@ def _calculation_components_subdimension_calculations(
 ) -> pd.DataFrame:
     """Add total to subdimension calculations into calculation components."""
     meta_w_dims = xbrl_metadata.assign(
-        **{dim: pd.NA for dim in dim_cols} | {"table_name": table_name}
+        **dict.fromkeys(dim_cols, pd.NA) | {"table_name": table_name}
     ).pipe(
         make_xbrl_factoid_dimensions_explicit,
         table_dimensions_ferc1=table_dims,
@@ -6323,7 +6323,7 @@ def _core_ferc1_xbrl__metadata(**kwargs) -> pd.DataFrame:
     metadata_all = (
         pd.concat(tbl_metas)
         .reset_index(drop=True)
-        .assign(**{dim: pd.NA for dim in dimensions})
+        .assign(**dict.fromkeys(dimensions, pd.NA))
         .pipe(
             make_xbrl_factoid_dimensions_explicit,
             table_dimensions_ferc1=_core_ferc1__table_dimensions,

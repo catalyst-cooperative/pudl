@@ -9,6 +9,10 @@ The PUDL data dictionary provides detailed metadata for the tables
 in the PUDL database. This includes table descriptions,
 field names, field descriptions, and field datatypes.
 
+**You can find this data at the** `beta PUDL Viewer
+<https://viewer.catalyst.coop>`__ **if you want interactive search, filtering,
+and CSV export.**
+
 .. toctree::
    :maxdepth: 1
    :titlesonly:

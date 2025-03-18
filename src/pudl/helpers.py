@@ -905,9 +905,9 @@ def fix_int_na(
 
     """
     return (
-        df.replace({c: float_na for c in columns}, int_na)
-        .astype({c: int for c in columns})
-        .astype({c: str for c in columns})
+        df.replace(dict.fromkeys(columns, float_na), int_na)
+        .astype(dict.fromkeys(columns, int))
+        .astype(dict.fromkeys(columns, str))
         .replace({c: str(int_na) for c in columns}, str_na)
     )
 
@@ -1241,9 +1241,9 @@ def convert_cols_dtypes(
         df = df.astype({"utility_id_eia": "float"})
     df = (
         df.astype(non_bool_cols)
-        .astype({col: "boolean" for col in bool_cols})
-        .replace(to_replace="nan", value={col: pd.NA for col in string_cols})
-        .replace(to_replace="<NA>", value={col: pd.NA for col in string_cols})
+        .astype(dict.fromkeys(bool_cols, "boolean"))
+        .replace(to_replace="nan", value=dict.fromkeys(string_cols, pd.NA))
+        .replace(to_replace="<NA>", value=dict.fromkeys(string_cols, pd.NA))
     )
 
     # Zip codes are highly correlated with datatype. If they datatype gets
@@ -1919,7 +1919,7 @@ def fix_boolean_columns(
     have "U" values, presumably for "Unknown," which must be set to null in order to
     convert the columns to datatype Boolean.
     """
-    fillna_cols = {col: pd.NA for col in boolean_columns_to_fix}
+    fillna_cols = dict.fromkeys(boolean_columns_to_fix, pd.NA)
     boolean_replace_cols = {
         col: {"Y": True, "N": False, "X": False, "U": pd.NA}
         for col in boolean_columns_to_fix
