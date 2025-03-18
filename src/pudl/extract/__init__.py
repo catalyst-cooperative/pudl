@@ -9,6 +9,7 @@ are ready for normalization and data cleaning by the data source specific module
 """
 
 from . import (
+    censuspep,
     eia176,
     eia191,
     eia757a,

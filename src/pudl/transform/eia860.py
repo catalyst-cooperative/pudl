@@ -1210,6 +1210,7 @@ def _core_eia860__boiler_stack_flue(
 @asset(io_manager_key="pudl_io_manager")
 def _core_eia860__cooling_equipment(
     raw_eia860__cooling_equipment: pd.DataFrame,
+    _core_censuspep__yearly_geocodes: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the EIA 860 cooling equipment table.
 
@@ -1236,7 +1237,9 @@ def _core_eia860__cooling_equipment(
     ce_df = raw_eia860__cooling_equipment
 
     # Generic cleaning
-    ce_df = ce_df.pipe(pudl.helpers.fix_eia_na).pipe(pudl.helpers.add_fips_ids)
+    ce_df = ce_df.pipe(pudl.helpers.fix_eia_na).pipe(
+        pudl.helpers.add_fips_ids, _core_censuspep__yearly_geocodes
+    )
 
     # Spot cleaning and date conversion
     ce_df.loc[
@@ -1336,6 +1339,7 @@ def cooling_equipment_continuity(cooling_equipment):  # pragma: no cover
 @asset(io_manager_key="pudl_io_manager")
 def _core_eia860__fgd_equipment(
     raw_eia860__fgd_equipment: pd.DataFrame,
+    _core_censuspep__yearly_geocodes: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the EIA 860 FGD equipment table.
 
@@ -1351,7 +1355,9 @@ def _core_eia860__fgd_equipment(
     fgd_df = raw_eia860__fgd_equipment
 
     # Generic cleaning
-    fgd_df = fgd_df.pipe(pudl.helpers.fix_eia_na).pipe(pudl.helpers.add_fips_ids)
+    fgd_df = fgd_df.pipe(pudl.helpers.fix_eia_na).pipe(
+        pudl.helpers.add_fips_ids, _core_censuspep__yearly_geocodes
+    )
 
     # Spot cleaning and date conversion
     fgd_df = fgd_df.pipe(pudl.helpers.month_year_to_date).pipe(
