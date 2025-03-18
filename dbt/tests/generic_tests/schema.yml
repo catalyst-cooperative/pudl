@@ -12,7 +12,7 @@ macros:
         description: The name of the second column
       - name: correlation_coef
         type: float
-        description: The correlation coefficient to check for
+        description: The minimum correlation coefficient we expect between the two columns.
   - name: check_row_counts_per_partition
     description: Check that the number of rows in each partition is as expected
     arguments:
