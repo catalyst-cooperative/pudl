@@ -20,9 +20,9 @@ def _core_censuspep__yearly_geocodes(raw_censuspep__geocodes):
       codes of integers but there are meaningful leading zeros so they have
       nullable string dtypes).
 
-    Note: There are state fips codes in this pudl-compiled POLITICAL_SUBDIVISIONS
-    going with using the census based codes instead of our compiled codes even though
-    I checked they are all the same. Still feels better to use a primary source.
+    Note: There are state fips codes in the pudl-compiled POLITICAL_SUBDIVISIONS,
+    but we use the census based codes here so that everything is coming from the same
+    primary source (though I checked and they are all the same).
 
     """
     territories_and_fixes = pd.read_csv(
