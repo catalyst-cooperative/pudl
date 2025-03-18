@@ -682,7 +682,7 @@ def out_ferc714__summarized_demand(
 imputed_hourly_planning_area_demand_assets = impute_timeseries_asset_factory(
     input_asset_name="core_ferc714__hourly_planning_area_demand",
     output_asset_name="out_ferc714__hourly_planning_area_demand",
-    years=sorted(set(range(2006, 2024))),
+    years_from_context=lambda context: context.resources.dataset_settings.ferc714.years,
     value_col="demand_mwh",
     imputed_value_col="demand_imputed_pudl_mwh",
     id_col="respondent_id_ferc714",

@@ -29,11 +29,10 @@ And described at:
 * https://github.com/xinychen/tensor-learning
 """
 
-import datetime
 import functools
 import uuid
 import warnings
-from collections.abc import Iterable, Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from enum import Enum, unique
 from typing import Any, Optional
@@ -99,7 +98,7 @@ class UTCTimeseriesDataFrame(pa.DataFrameModel):
     id_col: Series[int]
     datetime_utc: Series[pa.dtypes.DateTime]
     timezone: Optional[Series[str]]
-    value_col: Series[float] = pa.Field(nullable=True)
+    value_col: Series[pd.Float64Dtype] = pa.Field(nullable=True)
 
 
 class LocalizedTimeseriesDataFrame(pa.DataFrameModel):
@@ -107,7 +106,7 @@ class LocalizedTimeseriesDataFrame(pa.DataFrameModel):
 
     id_col: Series[int]
     datetime: Series[pa.dtypes.DateTime]
-    value_col: Series[float] = pa.Field(nullable=True)
+    value_col: Series[pd.Float64Dtype] = pa.Field(nullable=True)
     flags: Optional[Series[str]] = pa.Field(nullable=True)
 
 
@@ -125,40 +124,7 @@ class TimeseriesMatrix(pa.DataFrameModel):
     datetime: Index[pa.dtypes.DateTime]
 
 
-def _local_to_utc(local: pd.Series, tz: Iterable, **kwargs: Any) -> pd.Series:
-    """Convert local times to UTC.
-
-    Args:
-        local: Local times (tz-naive ``datetime64[ns]``).
-        tz: For each time, a timezone (see :meth:`DatetimeIndex.tz_localize`)
-            or UTC offset in hours (``int`` or ``float``).
-        kwargs: Optional arguments to :meth:`DatetimeIndex.tz_localize`.
-
-    Returns:
-        UTC times (tz-naive ``datetime64[ns]``).
-
-    Examples:
-        >>> s = pd.Series([pd.Timestamp(2020, 1, 1), pd.Timestamp(2020, 1, 1)])
-        >>> _local_to_utc(s, [-7, -6])
-        0   2020-01-01 07:00:00
-        1   2020-01-01 06:00:00
-        dtype: datetime64[ns]
-        >>> _local_to_utc(s, ['America/Denver', 'America/Chicago'])
-        0   2020-01-01 07:00:00
-        1   2020-01-01 06:00:00
-        dtype: datetime64[ns]
-    """
-    return local.groupby(tz, observed=True).transform(
-        lambda x: x.dt.tz_localize(
-            datetime.timezone(datetime.timedelta(hours=x.name))
-            if isinstance(x.name, int | float)
-            else x.name,
-            **kwargs,
-        ).dt.tz_convert(None)
-    )
-
-
-def _utc_to_local(utc: pd.Series, tz: Iterable) -> pd.Series:
+def _utc_to_local(utc: pd.Series, utc_offset: pd.Series) -> pd.Series:
     """Convert UTC times to local.
 
     Args:
@@ -175,20 +141,8 @@ def _utc_to_local(utc: pd.Series, tz: Iterable) -> pd.Series:
         0   2019-12-31 17:00:00
         1   2019-12-31 18:00:00
         dtype: datetime64[ns]
-        >>> _utc_to_local(s, ['America/Denver', 'America/Chicago'])
-        0   2019-12-31 17:00:00
-        1   2019-12-31 18:00:00
-        dtype: datetime64[ns]
     """
-    if utc.dt.tz is None:
-        utc = utc.dt.tz_localize("UTC")
-    return utc.groupby(tz, observed=True).transform(
-        lambda x: x.dt.tz_convert(
-            datetime.timezone(datetime.timedelta(hours=x.name))
-            if isinstance(x.name, int | float)
-            else x.name
-        ).dt.tz_localize(None)
-    )
+    return utc + pd.to_timedelta(utc_offset, unit="hours")
 
 
 @pa.check_types
@@ -205,22 +159,6 @@ def utc_dataframe_to_local(
 
     # List timezone by year for each respondent by the datetime
     input_df["year"] = input_df["datetime"].dt.year
-    return input_df
-
-
-@pa.check_types
-def local_dataframe_to_utc(
-    input_df: DataFrame[LocalizedTimeseriesDataFrame],
-    utc_offset: DataFrame[UTCOffset],
-) -> DataFrame[UTCTimeseriesDataFrame]:
-    """Return DataFrame with localized ``datetime`` converted back to ``datetime_utc``."""
-    input_df["year"] = input_df["datetime"].dt.year
-    input_df = input_df.merge(utc_offset, on=["id_col", "year"])
-
-    # Convert local times to UTC
-    input_df["datetime_utc"] = _local_to_utc(
-        input_df["datetime"], input_df["utc_offset"]
-    )
     return input_df
 
 
@@ -1524,10 +1462,7 @@ def impute_flagged_values(df: pd.DataFrame, years: list[int]) -> pd.DataFrame:
         # of the next year (report_date.dt.year + 1). and
         # timeseries matrix chunks over years at a time
         # and having only one record
-        # ``year != 2025`` is a TEMPORARY solution
-        # Incomplete timeseries in 2025 is causing reshaping issues later on
-        # TODO: Implement more robust solution to handle this case
-        if (year in years) and (year != 2025):
+        if year in years:
             logger.info(f"Imputing year {year}")
             keep = df.columns[~gdf.isnull().all()]
             result = impute(gdf[keep])
@@ -1594,7 +1529,7 @@ def filter_missing_values(
 def impute_timeseries_asset_factory(
     input_asset_name: str,
     output_asset_name: str,
-    years: list[int],
+    years_from_context: Callable,
     value_col: str = "demand_mwh",
     imputed_value_col: str = "demand_imputed_mwh",
     reported_value_col: str = "demand_reported_mwh",
@@ -1624,7 +1559,7 @@ def impute_timeseries_asset_factory(
         output_io_manager_key: IO-manager to use for final output asset.
     """
     timeseries_matrix_asset = f"_{output_asset_name}_timeseries_matrix"
-    utc_offset_asset = f"_{output_asset_name}_utc_offset"
+    localized_input_asset = f"_{input_asset_name}_localized"
     cleaned_timeseries_matrix_asset = f"_{output_asset_name}_cleaned_timeseries_matrix"
     flags_asset = f"_{output_asset_name}_timeseries_matrix_flags"
     imputed_asset = f"_{output_asset_name}_imputed_matrix"
@@ -1633,7 +1568,7 @@ def impute_timeseries_asset_factory(
         ins={"input_df": AssetIn(input_asset_name)},
         outs={
             timeseries_matrix_asset: AssetOut(),
-            utc_offset_asset: AssetOut(),
+            localized_input_asset: AssetOut(),
         },
     )
     def _prepare_timeseries_matrix(
@@ -1651,16 +1586,12 @@ def impute_timeseries_asset_factory(
         localized_df = utc_dataframe_to_local(
             input_df.rename(columns={value_col: "value_col", id_col: "id_col"})
         )
-        utc_offset = localized_df.groupby(
-            ["id_col", "year"],
-            as_index=False,
-        )["utc_offset"].first()
 
         # Pivot to timeseries matrix
         matrix = localized_df.pivot(
             index="datetime", columns="id_col", values="value_col"
         )
-        return matrix, utc_offset
+        return matrix, localized_df
 
     @multi_asset(
         ins={"matrix": AssetIn(timeseries_matrix_asset)},
@@ -1676,52 +1607,46 @@ def impute_timeseries_asset_factory(
         return matrix, flags
 
     @asset(
+        required_resource_keys={"dataset_settings"},
         ins={
             "matrix": AssetIn(cleaned_timeseries_matrix_asset),
         },
         name=imputed_asset,
     )
-    def _impute_timeseries(matrix: pd.DataFrame) -> pd.DataFrame:
+    def _impute_timeseries(context, matrix: pd.DataFrame) -> pd.DataFrame:
         """Perform imputation."""
         # Impute flagged/missing values
-        return impute_flagged_values(matrix, years)
+        return impute_flagged_values(matrix, years_from_context(context))
 
     @asset(
         ins={
             "matrix": AssetIn(imputed_asset),
             "flags": AssetIn(flags_asset),
-            "input_df": AssetIn(input_asset_name),
-            "utc_offset": AssetIn(utc_offset_asset),
+            "localized_df": AssetIn(localized_input_asset),
         },
         name=output_asset_name,
         io_manager_key=output_io_manager_key,
     )
     def _create_output_asset(
-        input_df: pd.DataFrame,
+        localized_df: pd.DataFrame,
         matrix: pd.DataFrame,
         flags: pd.DataFrame,
-        utc_offset: pd.DataFrame,
     ) -> pd.DataFrame:
         """Perform imputation and prepare output asset."""
         # Melt imputed matrix/flag matrix to long format
-        localized_df = melt_imputed_timeseries_matrix(matrix, flags)
-
-        # Convert back to datetime_utc
-        df = local_dataframe_to_utc(localized_df, utc_offset)
+        imputed_df = melt_imputed_timeseries_matrix(matrix, flags)
 
         # Merge back on core table
-        df = df.rename(
+        df = localized_df.merge(imputed_df, on=["id_col", "datetime"], how="left")
+
+        return df.rename(
             columns={
                 "id_col": id_col,
-                "value_col": imputed_value_col,
+                "value_col_x": imputed_value_col,
                 "flags": f"{imputed_value_col}_imputation_code",
+                "value_col_y": reported_value_col,
             }
-        ).merge(
-            input_df.rename(columns={value_col: reported_value_col}),
-            on=[id_col, "datetime_utc"],
         )
-
-        return df.drop_duplicates(subset=[id_col, "datetime_utc"])
 
     return [
         _prepare_timeseries_matrix,
