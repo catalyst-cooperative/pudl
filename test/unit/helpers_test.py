@@ -856,7 +856,7 @@ plant_id_eia,energy_source_code,report_date,fuel_cost_per_mmbtu,fuel_cost_per_mm
     pd.testing.assert_frame_equal(test_rolled, out_reordered, check_exact=False)
 
 
-def test_add_fips():
+def test_add_fips_ids():
     geocodes = pd.read_csv(
         StringIO(
             """
@@ -883,8 +883,6 @@ Bedford city,VA"""
         ),
         dtype=pd.StringDtype(),
     )
-    # Note: I couldn't find real instances of area's called "Bedford City"
-    # which is good because right now the ex
     expected = pd.read_csv(
         StringIO(
             """
