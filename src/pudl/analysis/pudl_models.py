@@ -8,9 +8,22 @@ import pandas as pd
 from dagster import asset
 
 from pudl import logging_helpers
+from pudl.analysis.record_linkage import name_cleaner
 from pudl.helpers import convert_cols_dtypes
 
 logger = logging_helpers.get_logger(__name__)
+
+company_name_cleaner = name_cleaner.CompanyNameCleaner(
+    cleaning_rules_list=[
+        "replace_hyphen_by_space",
+        "replace_underscore_by_space",
+        "remove_text_punctuation",
+        "remove_parentheses",
+        "remove_brackets",
+        "remove_curly_brackets",
+        "enforce_single_space_between_words",
+    ]
+)
 
 
 def _load_table_from_gcs(table_name: str) -> pd.DataFrame:
@@ -71,6 +84,26 @@ def _clean_location_of_incorporation(loc_col: pd.Series) -> pd.Series:
         .replace("", pd.NA)
     )
     return out
+
+
+def _clean_company_name(col: pd.Series) -> pd.Series:
+    """Conduct cleaning on a company name column and add column without legal terms.
+
+    Uses the PUDL name cleaner object to do basic cleaning on `col_name` column
+    such as stripping punctuation, correcting case, normalizing legal
+    terms etc.
+
+    Arguments:
+        col: The series of names that is to be cleaned.
+
+    Returns:
+        pd.Series: The original Series now containing cleaned names.
+    """
+    col = col.fillna(pd.NA).str.strip().str.lower()
+    col = company_name_cleaner.apply_name_cleaning(col).str.strip()
+    col = col.replace("", pd.NA)
+
+    return col
 
 
 def match_ex21_subsidiaries_to_filer_company(
@@ -142,15 +175,13 @@ def match_ex21_subsidiaries_to_filer_company(
             "loc_overlap",
             "report_date_diff_days",
         ],
-        ascending=[True, True, False, True],
+        ascending=[True, True, False, False],
     )
     # Select the row with the highest loc overlap and nearest report dates
     # for each company name and location
     closest_match_df = merged_df.groupby(
         ["company_name", "subsidiary_company_location"], as_index=False
     ).first()
-    # TODO: does it work to merge with null values in location or do
-    # we have to put filename and report date in the groupby above
     ownership_with_cik_df = ownership_df.merge(
         closest_match_df[
             [
@@ -169,7 +200,8 @@ def match_ex21_subsidiaries_to_filer_company(
     ownership_with_cik_df = ownership_with_cik_df.merge(
         closest_match_df[["company_name", "central_index_key"]],
         how="left",
-        on="company_name",
+        left_on="subsidiary_company_name",
+        right_on="company_name",
     ).rename(columns={"central_index_key": "company_name_merge_cik"})
     ownership_with_cik_df["subsidiary_company_central_index_key"] = (
         ownership_with_cik_df["subsidiary_company_central_index_key"].where(
@@ -477,6 +509,16 @@ def core_sec10k__assn__exhibit_21_subsidiaries_and_filers(
     Create an association between ``subsidiary_company_id_sec10k``
     and ``central_index_key``.
     """
+    core_sec10k__quarterly_company_information["company_name"] = _clean_company_name(
+        core_sec10k__quarterly_company_information["company_name"]
+    )
+    core_sec10k__quarterly_exhibit_21_company_ownership["subsidiary_company_name"] = (
+        _clean_company_name(
+            core_sec10k__quarterly_exhibit_21_company_ownership[
+                "subsidiary_company_name"
+            ]
+        )
+    )
     matched_df = match_ex21_subsidiaries_to_filer_company(
         filer_info_df=core_sec10k__quarterly_company_information,
         ownership_df=core_sec10k__quarterly_exhibit_21_company_ownership,
@@ -487,8 +529,60 @@ def core_sec10k__assn__exhibit_21_subsidiaries_and_filers(
         ]
         .rename(columns={"subsidiary_company_central_index_key": "central_index_key"})
         .dropna(subset="central_index_key")
-    ).drop_duplicates(subset="subsidiary_company_id_sec10k")
+    ).drop_duplicates()
     return matched_df
+
+
+@asset(io_manager_key="pudl_io_manager", group_name="sec10k")
+def core_sec10k__assn__exhibit_21_subsidiaries_and_eia_utilities(
+    core_sec10k__assn__sec10k_filers_and_eia_utilities: pd.DataFrame,
+    core_eia__entity_utilities: pd.DataFrame,
+    core_sec10k__quarterly_exhibit_21_company_ownership: pd.DataFrame,
+    core_sec10k__assn__exhibit_21_subsidiaries_and_filers: pd.DataFrame,
+) -> pd.DataFrame:
+    """An association table between Exhibit 21 subsidiaries and EIA utilities.
+
+    Take the EIA utilities that haven't been matched to a filer company
+    and merge them by company name onto the Ex. 21 subsidiaries.
+    """
+    unmatched_eia_utils_df = core_eia__entity_utilities[
+        ~core_eia__entity_utilities["utility_id_eia"].isin(
+            core_sec10k__assn__sec10k_filers_and_eia_utilities[
+                "utility_id_eia"
+            ].unique()
+        )
+    ]
+    unmatched_eia_utils_df["utility_name_eia"] = _clean_company_name(
+        unmatched_eia_utils_df["utility_name_eia"]
+    )
+    unmatched_eia_utils_df = unmatched_eia_utils_df.drop_duplicates(
+        subset=["utility_name_eia"]
+    )
+    # if a subsidiary is already matched to an SEC filer then
+    # it would have gone through the record linkage process to be
+    # matched to an EIA utility
+    unmatched_subs_df = core_sec10k__quarterly_exhibit_21_company_ownership[
+        ~core_sec10k__quarterly_exhibit_21_company_ownership[
+            "subsidiary_company_id_sec10k"
+        ].isin(
+            core_sec10k__assn__exhibit_21_subsidiaries_and_filers[
+                "subsidiary_company_id_sec10k"
+            ].unique()
+        )
+    ][["subsidiary_company_name", "subsidiary_company_id_sec10k"]].drop_duplicates()
+    unmatched_subs_df["subsidiary_company_name"] = _clean_company_name(
+        unmatched_subs_df["subsidiary_company_name"]
+    )
+    out_df = unmatched_subs_df.merge(
+        unmatched_eia_utils_df[["utility_id_eia", "utility_name_eia"]].rename(
+            columns={"utility_name_eia": "subsidiary_company_name"}
+        ),
+        how="left",
+        on="subsidiary_company_name",
+    ).dropna(subset="utility_id_eia")[
+        ["subsidiary_company_id_sec10k", "utility_id_eia"]
+    ]
+    return out_df
 
 
 @asset(

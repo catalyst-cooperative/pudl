@@ -18,6 +18,20 @@ name, and location of incorporation.""",
         "etl_group": "pudl_models",
         "field_namespace": "sec10k",
     },
+    "core_sec10k__assn__exhibit_21_subsidiaries_and_eia_utilities": {
+        "description": """A table matching subsidiary companies in Exhibit 21 attachments to
+EIA utilities. Only subsidiaries which don't file an SEC 10-K filing themselves are included in
+this table. We match these subsidiaries to EIA utilities with an exact match on company
+name. ``subsidiary_company_id_sec10k`` is an ID created from the subsidiary's filing,
+name, and location of incorporation.""",
+        "schema": {
+            "fields": ["subsidiary_company_id_sec10k", "utility_id_eia"],
+            "primary_key": ["subsidiary_company_id_sec10k"],
+        },
+        "sources": ["sec10k"],
+        "etl_group": "pudl_models",
+        "field_namespace": "sec10k",
+    },
     "core_sec10k__assn__sec10k_filers_and_eia_utilities": {
         "description": """Associations between SEC 10k filing companies and EIA utilities.
 SEC company index keys are matched to EIA utility IDs using probabilistic
