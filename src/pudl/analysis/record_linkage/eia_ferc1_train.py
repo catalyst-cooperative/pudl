@@ -16,7 +16,7 @@ validate them, and incorporate them into the existing training data.
 """
 
 import importlib.resources
-import os
+import pathlib
 from typing import Literal
 
 import numpy as np
@@ -735,7 +735,7 @@ def validate_and_add_to_training(
         all_multi_matches_list = []
 
     # Loop through all the files, validate, and combine them.
-    all_files = os.listdir(path_to_new_training)
+    all_files = pathlib.Path(path_to_new_training).iterdir()
     excel_files = [file for file in all_files if file.endswith(".xlsx")]
     if not excel_files:
         raise AssertionError("Found no override files in the add_to_training directory")
