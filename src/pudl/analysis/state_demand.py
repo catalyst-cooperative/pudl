@@ -198,9 +198,9 @@ def out_ferc714__hourly_estimated_state_demand(
     with_demand = (
         out_ferc714__hourly_planning_area_demand.groupby(
             ["respondent_id_ferc714", "year"], as_index=False
-        )["demand_imputed_mwh"]
+        )["demand_imputed_pudl_mwh"]
         .sum()
-        .query("demand_imputed_mwh > 0")
+        .query("demand_imputed_pudl_mwh > 0")
     )[["respondent_id_ferc714", "year"]]
     # Pre-compute state-county assignments
     counties["state_id_fips"] = counties["county_id_fips"].str[:2]
@@ -231,7 +231,7 @@ def out_ferc714__hourly_estimated_state_demand(
     # Multiply respondent-state weights with demands
     df = weights.merge(
         out_ferc714__hourly_planning_area_demand, on=["respondent_id_ferc714", "year"]
-    ).rename(columns={"demand_imputed_mwh": "demand_mwh"})
+    ).rename(columns={"demand_imputed_pudl_mwh": "demand_mwh"})
     df["demand_mwh"] *= df["weight"]
     # Scale estimates using state totals
     if total_sales_eia861 is not None:
