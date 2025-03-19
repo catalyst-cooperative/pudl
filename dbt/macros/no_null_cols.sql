@@ -13,8 +13,8 @@ WITH column_checks AS (
                 {% set condition_sql = partial_col.get('expect_at_least_one_value_when') %}
             {% endif %}
         {% endfor %}
-        
-        SELECT 
+
+        SELECT
             '{{ column_name }}' AS column_name,
             COUNT(CASE WHEN {{ condition_sql }} THEN 1 END) AS relevant_rows,  -- Count rows in scope (filtered or full)
             COUNT(CASE WHEN {{ condition_sql }} THEN {{ column_name }} END) AS non_null_rows
