@@ -24,23 +24,63 @@ sources:
           - name: sludge_pond
           - name: sludge_pond_lined
           - name: pond_landfill_requirements_acre_foot_per_year
+            data_tests:
+              - group_mean_continuity_check:
+                  ordered_group_column: report_date
+                  max_fr_change: 0.1
+                  n_outliers_allowed: 1
           - name: fgd_structure_cost
           - name: fgd_other_cost
           - name: sludge_disposal_cost
           - name: total_fgd_equipment_cost
+            data_tests:
+              - group_mean_continuity_check:
+                  ordered_group_column: report_date
+                  max_fr_change: 0.2
+                  n_outliers_allowed: 1
           - name: fgd_trains_100pct
           - name: fgd_trains_total
           - name: flue_gas_entering_fgd_pct_of_total
           - name: flue_gas_exit_rate_cubic_feet_per_minute
+            data_tests:
+              - group_mean_continuity_check:
+                  ordered_group_column: report_date
+                  max_fr_change: 0.1
+                  n_outliers_allowed: 1
           - name: flue_gas_exit_temperature_fahrenheit
+            data_tests:
+              - group_mean_continuity_check:
+                  ordered_group_column: report_date
+                  max_fr_change: 0.1
+                  n_outliers_allowed: 1
           - name: so2_emission_rate_lbs_per_hour
+            data_tests:
+              - group_mean_continuity_check:
+                  ordered_group_column: report_date
+                  max_fr_change: 0.1
+                  n_outliers_allowed: 1
           - name: so2_equipment_type_1
           - name: so2_equipment_type_2
           - name: so2_equipment_type_3
           - name: so2_equipment_type_4
           - name: so2_removal_efficiency_design
+            data_tests:
+              - group_mean_continuity_check:
+                  ordered_group_column: report_date
+                  max_fr_change: 0.1
+                  n_outliers_allowed: 1
           - name: specifications_of_coal_ash
+            data_tests:
+              - group_mean_continuity_check:
+                  ordered_group_column: report_date
+                  max_fr_change: 0.1
+                  n_outliers_allowed: 1
           - name: specifications_of_coal_sulfur
+            data_tests:
+              - group_mean_continuity_check:
+                  ordered_group_column: report_date
+                  max_fr_change: 7
+                  n_outliers_allowed: 1
           - name: sorbent_type_1
           - name: sorbent_type_2
           - name: sorbent_type_3
@@ -49,5 +89,10 @@ sources:
           - name: fgd_manufacturer_code
           - name: steam_plant_type_code
           - name: plant_summer_capacity_mw
+            data_tests:
+              - group_mean_continuity_check:
+                  ordered_group_column: report_date
+                  max_fr_change: 0.1
+                  n_outliers_allowed: 1
           - name: water_source
           - name: data_maturity
