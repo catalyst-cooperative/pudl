@@ -20,9 +20,34 @@ sources:
           - name: fgd_control_flag
           - name: fgd_operational_status_code
           - name: fgd_hours_in_service
+            data_tests:
+              - group_mean_continuity_check:
+                  ordered_group_column: report_date
+                  max_fr_change: 0.1
+                  n_outliers_allowed: 1
           - name: fgd_electricity_consumption_mwh
+            data_tests:
+              - group_mean_continuity_check:
+                  ordered_group_column: report_date
+                  max_fr_change: 0.3
+                  n_outliers_allowed: 1
           - name: fgd_sorbent_consumption_1000_tons
+            data_tests:
+              - group_mean_continuity_check:
+                  ordered_group_column: report_date
+                  max_fr_change: 0.2
+                  n_outliers_allowed: 1
           - name: so2_removal_efficiency_tested
+            data_tests:
+              - group_mean_continuity_check:
+                  ordered_group_column: report_date
+                  max_fr_change: 0.1
+                  n_outliers_allowed: 1
           - name: so2_removal_efficiency_annual
+            data_tests:
+              - group_mean_continuity_check:
+                  ordered_group_column: report_date
+                  max_fr_change: 0.1
+                  n_outliers_allowed: 1
           - name: so2_test_date
           - name: data_maturity
