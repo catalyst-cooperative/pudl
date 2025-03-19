@@ -1642,9 +1642,9 @@ def impute_timeseries_asset_factory(
         return df.rename(
             columns={
                 "id_col": id_col,
-                "value_col_x": imputed_value_col,
+                "value_col_y": imputed_value_col,
                 "flags": f"{imputed_value_col}_imputation_code",
-                "value_col_y": reported_value_col,
+                "value_col_x": reported_value_col,
             }
         )
 
