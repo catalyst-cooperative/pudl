@@ -593,6 +593,8 @@ def out_sec10k__parents_and_subsidiaries(
     core_sec10k__quarterly_exhibit_21_company_ownership: pd.DataFrame,
     out_sec10k__quarterly_company_information: pd.DataFrame,
     core_sec10k__assn__exhibit_21_subsidiaries_and_filers: pd.DataFrame,
+    core_sec10k__assn__exhibit_21_subsidiaries_and_eia_utilities: pd.DataFrame,
+    core_eia__entity_utilities: pd.DataFrame,
 ) -> pd.DataFrame:
     """Denormalized output table with Sec10k company attributes and ownership info linked to EIA."""
     # merge parent attributes on
@@ -619,6 +621,21 @@ def out_sec10k__parents_and_subsidiaries(
         on="subsidiary_company_id_sec10k",
     ).rename(columns={"central_index_key": "subsidiary_company_central_index_key"})
 
+    # merge utility_id_eia onto subsidiaries
+    df = df.merge(
+        core_sec10k__assn__exhibit_21_subsidiaries_and_eia_utilities,
+        how="left",
+        on="subsidiary_company_id_sec10k",
+    )
+
+    # merge utility name onto subsidiaries
+    df = df.merge(core_eia__entity_utilities, how="left", on="utility_id_eia").rename(
+        columns={
+            "utility_id_eia": "sub_only_utility_id_eia",
+            "utility_name_eia": "sub_only_utility_name_eia",
+        }
+    )
+
     # merge subsidiary company attributes on
     subs_info_df = company_info_df.add_prefix("subsidiary_company_")
     df = (
@@ -638,6 +655,14 @@ def out_sec10k__parents_and_subsidiaries(
             }
         )
     )
+    # combine utility_id_eia and utility_name_eia columns for subs into one column
+    df["subsidiary_company_utility_id_eia"] = df[
+        "subsidiary_company_utility_id_eia"
+    ].fillna(df["sub_only_utility_id_eia"])
+    df["subsidiary_company_utility_name_eia"] = df[
+        "subsidiary_company_utility_name_eia"
+    ].fillna(df["sub_only_utility_name_eia"])
+    df = df.drop(columns=["sub_only_utility_id_eia", "sub_only_utility_name_eia"])
 
     # Some utilities harvested from EIA 861 data that don't show up in our entity
     # tables. These didn't end up improving coverage, and so will be removed upstream.
