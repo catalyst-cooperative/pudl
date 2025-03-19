@@ -17,7 +17,7 @@ flags:
 model-paths: ["models"]
 macro-paths: ["macros", "tests/data_tests/generic_tests"]
 seed-paths: ["seeds"]
-test-paths: ["tests"]
+test-paths: ["tests/data_tests/singular_tests", "tests/unit_tests"]
 
 sources:
   pudl_dbt:
