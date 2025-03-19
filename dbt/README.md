@@ -319,16 +319,47 @@ This is failing because the `max_value` is set to `0.7`. If we change this value
 The method `test_no_null_cols_mcoe` in `mcoe_test.py` checks a number of tables to
 validate that there are no completely null columns. We've added a custom test to the
 `dbt` project that can accomplish this. To use this test, simply apply the
-`not_all_null` test to a column in question:
-
+`no_null_cols` test to a model in question:
 ```
+models:
+  - name: some_model
+    data_tests:
+      - no_null_cols
     columns:
-    - name: report_date
-      data_tests:
-      - not_all_null
+      - ...
+```
+
+By default the `no_null_cols` test applies to all columns in the table. To handle deprecated columns (where it is expected that after a certain date the column will only product null values), you can add conditions to select columns for when the test should apply:
+```
+models:
+  - name: some_model
+    data_tests:
+      - no_null_cols:
+          partial_columns:
+            - column_name: "old_column"
+              expect_at_least_one_value_when: "created_at < '2024-01-01'"
+            - column_name: "deprecated_column"
+              expect_at_least_one_value_when: "is_active = TRUE"
 ```
 
 See `dbt/models/_out_eia__monthly_heat_rate_by_unit/schema.yml` for specific examples.
+
+If there are many exceptions, it may be cleaner to apply the test on a column-by-column basis, in which case you can use the `not_all_null` test on a single column instead:
+```
+    columns:
+    - name: some_column
+      data_tests:
+      - not_all_null
+```
+This test accepts an optional `filter` condition for when the test applies:
+```
+columns:
+  - name: deprecated_column
+    data_tests:
+      - not_all_null:
+          filter: "WHERE report_date < '2025-01-01'"
+
+```
 
 Note: there is also a builtin test in `dbt` called `not_null` that will make sure
 there are no null values at all in a column.
