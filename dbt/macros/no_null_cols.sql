@@ -1,19 +1,23 @@
-{% test no_null_cols(model, filter_condition=None, filtered_columns=[]) %}
+{% test no_null_cols(model, partial_columns=[]) %}
 
 WITH column_checks AS (
-    {% set columns = dbt_utils.get_columns_in_relation(model) %}
+    {% set columns = adapter.get_columns_in_relation(model) %}
 
     {% for column in columns %}
         {% set column_name = column.name %}
+        {% set condition_sql = "1=1" %}  -- Default: test all rows
 
-        SELECT
-            '{{ column_name }}' AS column_name,
-            COUNT(*) AS relevant_rows,  -- Count rows in scope (filtered or full)
-            {% if column_name in filtered_columns and filter_condition %}
-                COUNT(CASE WHEN {{ filter_condition }} THEN {{ column_name }} END) AS non_null_rows
-            {% else %}
-                COUNT({{ column_name }}) AS non_null_rows
+        {# Check if this column has a specific condition #}
+        {% for partial_col in partial_columns %}
+            {% if partial_col.get('column_name') == column_name %}
+                {% set condition_sql = partial_col.get('expect_at_least_one_value_when') %}
             {% endif %}
+        {% endfor %}
+        
+        SELECT 
+            '{{ column_name }}' AS column_name,
+            COUNT(CASE WHEN {{ condition_sql }} THEN 1 END) AS relevant_rows,  -- Count rows in scope (filtered or full)
+            COUNT(CASE WHEN {{ condition_sql }} THEN {{ column_name }} END) AS non_null_rows
         FROM {{ model }}
 
         {% if not loop.last %} UNION ALL {% endif %}
