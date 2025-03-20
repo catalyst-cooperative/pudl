@@ -8,7 +8,7 @@ from pathlib import Path
 import click
 import duckdb
 import pandas as pd
-import yaml
+import ruamel.yaml
 from pydantic import BaseModel
 
 from pudl import validate
@@ -16,6 +16,7 @@ from pudl.logging_helpers import configure_root_logger, get_logger
 from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.workspace.setup import PudlPaths
 
+yaml = ruamel.yaml.YAML()
 configure_root_logger()
 logger = get_logger(__file__)
 
