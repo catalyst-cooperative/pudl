@@ -36,7 +36,6 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from typing import Any, Optional
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pandera as pa
@@ -1254,35 +1253,6 @@ def summarize_flags(
     return pd.DataFrame(
         {"count": grouped.size(), "median": grouped[value_col].median()}
     )
-
-
-def plot_flags(self, name: Any = 0) -> None:
-    """Plot cleaned series and anomalous values colored by flag.
-
-    Args:
-        name: Series to plot, as either an integer index or name in :attr:`columns`.
-    """
-    if name not in self.columns:
-        name = self.columns[name]
-    col = list(self.columns).index(name)
-    plt.plot(self.index, self.x[:, col], color="lightgrey", marker=".", zorder=1)
-    colors = {
-        "NEGATIVE_OR_ZERO": "pink",
-        "IDENTICAL_RUN": "blue",
-        "GLOBAL_OUTLIER": "brown",
-        "GLOBAL_OUTLIER_NEIGHBOR": "brown",
-        "LOCAL_OUTLIER_HIGH": "purple",
-        "LOCAL_OUTLIER_LOW": "purple",
-        "DOUBLE_DELTA": "green",
-        "SINGLE_DELTA": "red",
-        "ANOMALOUS_REGION": "orange",
-    }
-    for flag in colors:
-        mask = self.flags[:, col] == flag
-        x, y = self.index[mask], self.xi[mask, col]
-        # Set zorder manually to ensure flagged points are drawn on top
-        plt.scatter(x, y, c=colors[flag], label=flag, zorder=2)
-    plt.legend()
 
 
 def simulate_nulls(
