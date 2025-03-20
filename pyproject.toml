@@ -72,6 +72,7 @@ dependencies = [
     "readthedocs-sphinx-ext>=2",
     "requests>=2.32",
     "responses>=0.25",
+    "ruamel.yaml",
     "ruff>=0.9",
     "scikit-learn>=1.6",
     "scipy>=1.15",
