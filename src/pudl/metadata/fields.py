@@ -22,6 +22,7 @@ from pudl.metadata.enums import (
     FUEL_CLASSES,
     FUEL_TYPES_EIAAEO,
     GENERATION_ENERGY_SOURCES_EIA930,
+    IMPUTATION_REASON_CODES,
     INCOME_TYPES_FERC1,
     LIABILITY_TYPES_FERC1,
     MODEL_CASES_EIAAEO,
@@ -1128,6 +1129,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "demand_imputed_pudl_mwh_imputation_code": {
         "type": "string",
         "description": "Code describing why a demand value was flagged for imputation.",
+        "constraints": {"enum": IMPUTATION_REASON_CODES},
     },
     "demand_reported_mwh": {
         "type": "number",

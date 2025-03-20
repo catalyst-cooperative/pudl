@@ -1,7 +1,34 @@
 """Enumerations of valid field values."""
 
+from enum import Enum, unique
+
 from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
 
+
+@unique
+class ImputationReasonCodes(Enum):
+    """Defines all reasons a value might be flagged for imputation."""
+
+    ANOMALOUS_REGION = "Indicates that value is surrounded by flagged values."
+    NEGATIVE_OR_ZERO = "Indicates value is negative or zero value."
+    IDENTICAL_RUN = (
+        "Indicates value is among last values in an identical run of values."
+    )
+    GLOBAL_OUTLIER = (
+        "Indicates value is greater or less than n times the global median."
+    )
+    GLOBAL_OUTLIER_NEIGHBOR = "Indicates value is a neighbors global outliers."
+    LOCAL_OUTLIER_HIGH = "Indicates value is a local outlier on the high end."
+    LOCAL_OUTLIER_LOW = "Indicates value is a local outlier on the low end."
+    DOUBLE_DELTA = "Indicates value is very different from neighbors on either side."
+    SINGLE_DELTA = (
+        "Indicates value is significantly different from nearest unflagged value."
+    )
+
+
+IMPUTATION_REASON_CODES: set[str] = {
+    code.name.lower() for code in ImputationReasonCodes
+}
 COUNTRY_CODES_ISO3166: set[str] = set(POLITICAL_SUBDIVISIONS.country_code)
 SUBDIVISION_CODES_ISO3166: set[str] = set(POLITICAL_SUBDIVISIONS.subdivision_code)
 EPACEMS_STATES: set[str] = set(

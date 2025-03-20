@@ -6,9 +6,9 @@ import pandas as pd
 from dagster import AssetOut, Output, asset, multi_asset
 
 import pudl
-from pudl.analysis.timeseries_cleaning import ImputationReasonCodes
 from pudl.metadata.classes import Package
 from pudl.metadata.dfs import FERC_ACCOUNTS, POLITICAL_SUBDIVISIONS
+from pudl.metadata.enums import ImputationReasonCodes
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
