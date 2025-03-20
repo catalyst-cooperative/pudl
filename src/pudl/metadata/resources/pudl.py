@@ -35,8 +35,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_pudl__codes_imputation_reasons": {
         "title": "Imputation Reason Codes",
         "description": (
-            "Contains codes and descriptions, which indicate why a value was flagged."
-            "for imputation. Any time a column is imputed, there will be a corresponding"
+            "Contains codes and descriptions explaining why a value was flagged "
+            "for imputation. Any time a column is imputed, there should be a corresponding "
             "column which contains codes for every value in the column that was imputed."
         ),
         "schema": {

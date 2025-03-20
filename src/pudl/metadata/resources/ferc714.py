@@ -61,13 +61,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
     "out_ferc714__hourly_planning_area_demand": {
         "description": (
-            "See ``core_ferc714__hourly_planning_area_demand`` for details. This "
-            "table performs imputation on the ``demand_mwh`` column to fill missing "
-            "and anomalous values. The imputed values are in the column "
-            "``demand_imputed_pudl_mwh``, with column "
-            "``demand_imputed_mwh_imputation_code`` indicating why each imputed "
-            "value was selected for imputation. See the table "
-            "``core_pudl__codes_imputation_reasons`` for descriptions of each code."
+            "This table is based on ``core_ferc714__hourly_planning_area_demand``, but adds "
+            "imputed demand values where the original data was missing or anomalous. "
+            "Codes explaining why values have been imputed can be found in the "
+            "``core_pudl__codes_imputation_reasons`` table."
         ),
         "schema": {
             "fields": [

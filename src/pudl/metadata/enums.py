@@ -10,14 +10,14 @@ class ImputationReasonCodes(Enum):
     """Defines all reasons a value might be flagged for imputation."""
 
     ANOMALOUS_REGION = "Indicates that value is surrounded by flagged values."
-    NEGATIVE_OR_ZERO = "Indicates value is negative or zero value."
+    NEGATIVE_OR_ZERO = "Indicates value is negative or zero."
     IDENTICAL_RUN = (
         "Indicates value is among last values in an identical run of values."
     )
     GLOBAL_OUTLIER = (
         "Indicates value is greater or less than n times the global median."
     )
-    GLOBAL_OUTLIER_NEIGHBOR = "Indicates value is a neighbors global outliers."
+    GLOBAL_OUTLIER_NEIGHBOR = "Indicates value neighbors global outliers."
     LOCAL_OUTLIER_HIGH = "Indicates value is a local outlier on the high end."
     LOCAL_OUTLIER_LOW = "Indicates value is a local outlier on the low end."
     DOUBLE_DELTA = "Indicates value is very different from neighbors on either side."

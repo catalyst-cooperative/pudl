@@ -1123,7 +1123,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "demand_imputed_pudl_mwh": {
         "type": "number",
-        "description": "Electricity demand calculated by subtracting BA interchange from net generation, with outliers and missing values imputed by in PUDL.",
+        "description": "Electricity demand calculated by subtracting BA interchange from net generation, with outliers and missing values imputed in PUDL.",
         "unit": "MWh",
     },
     "demand_imputed_pudl_mwh_imputation_code": {
