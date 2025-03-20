@@ -1,9 +1,12 @@
 """Tests for timeseries anomalies detection and imputation."""
 
 import numpy as np
+import pandas as pd
+import pandera as pa
 import pytest
+from pandera.typing import DataFrame
 
-import pudl.analysis.timeseries_cleaning
+from pudl.analysis import timeseries_cleaning
 
 
 def simulate_series(
@@ -44,6 +47,24 @@ def simulate_series(
     )
 
 
+@pa.check_types
+def _to_timeseries_matrix(
+    x: np.ndarray,
+    n: int = 10,
+    periods: int = 20,
+    frequency: int = 24,
+) -> DataFrame[timeseries_cleaning.TimeseriesMatrix]:
+    start_date = "2025-03-20 00:00:00"
+    return pd.DataFrame(
+        x,
+        columns=pd.Index(range(n), name="id_col"),
+        index=pd.DatetimeIndex(
+            pd.date_range(periods=periods * frequency, freq="h", start=start_date),
+            name="datetime",
+        ),
+    )
+
+
 def simulate_anomalies(
     x: np.ndarray,
     n: int = 100,
@@ -67,7 +88,6 @@ def simulate_anomalies(
     return x.flat[indices] + values, indices
 
 
-@pytest.mark.xfail
 @pytest.mark.parametrize(
     "series_seed,anomalies_seed",
     [
@@ -86,25 +106,42 @@ def simulate_anomalies(
 def test_flags_and_imputes_anomalies(series_seed, anomalies_seed) -> None:
     """Flags and imputes anomalies within modest thresholds of success."""
     x = simulate_series(seed=series_seed)
+
     # Insert anomalies
     values, indices = simulate_anomalies(x, seed=anomalies_seed)
     x.flat[indices] = values
+
+    # Convert to timeseries matrix
+    matrix = _to_timeseries_matrix(x)
+
     # Flag anomalies
-    s = pudl.analysis.timeseries_cleaning.Timeseries(x)
-    s.flag_ruggles()
-    flag_indices = np.flatnonzero(~np.equal(s.flags, None))
+    matrix, flags = timeseries_cleaning.flag_ruggles(matrix)
+    flagged_df = timeseries_cleaning.melt_imputed_timeseries_matrix(matrix, flags)
+
     # Flag summary table has the right flag count
-    assert s.summarize_flags()["count"].sum() == flag_indices.size
+    assert (
+        timeseries_cleaning.summarize_flags(
+            flagged_df, id_col="id_col", value_col="value_col", flag_col="flags"
+        )["count"].sum()
+        == flagged_df["flags"].notnull().sum()
+    )
+
     # Flagged values are 90%+ inserted anomalous values
+    flag_indices = np.where(flags.notnull().to_numpy().flatten())[0]
     assert np.isin(flag_indices, indices).sum() > 0.9 * flag_indices.size
+
     # Add additional null values alongside nulled anomalies
-    mask = s.simulate_nulls()
+    mask = timeseries_cleaning.simulate_nulls(matrix.to_numpy())
     for method in "tubal", "tnn":
         # Impute null values
-        imputed0 = s.impute(mask=mask, method=method, rho0=1, maxiter=1)
-        imputed = s.impute(mask=mask, method=method, rho0=1, maxiter=10)
+        imputed0 = timeseries_cleaning.impute(
+            matrix, mask=mask, method=method, rho0=1, maxiter=1
+        )
+        imputed = timeseries_cleaning.impute(
+            matrix, mask=mask, method=method, rho0=1, maxiter=100
+        )
         # Deviations between original and imputed values
-        fit0 = s.summarize_imputed(imputed0, mask)
-        fit = s.summarize_imputed(imputed, mask)
+        fit0 = timeseries_cleaning.summarize_imputed(matrix, imputed0, mask)
+        fit = timeseries_cleaning.summarize_imputed(matrix, imputed, mask)
         # Mean MAPE (mean absolute percent error) is converging
         assert fit["mape"].mean() < fit0["mape"].mean()

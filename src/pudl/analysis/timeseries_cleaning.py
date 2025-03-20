@@ -1260,17 +1260,21 @@ def flag_ruggles(
     return ts.to_dataframes()
 
 
-def summarize_flags(ts: FlaggedTimeseries) -> pd.DataFrame:
-    """Summarize flagged values by flag, count and median."""
-    stats = {}
-    for col in range(ts.x.shape[1]):
-        stats[ts.columns[col]] = (
-            pd.Series(ts.x[:, col]).groupby(ts.flags[:, col]).agg(["count", "median"])
-        )
-    df = pd.concat(stats, names=["column", "flag"]).reset_index()
-    # Sort flags by flagged order
-    ordered = df["flag"].astype(pd.CategoricalDtype(set(ts.flags)))
-    return df.assign(flag=ordered).sort_values(["column", "flag"])
+def summarize_flags(
+    imputed_df: pd.DataFrame,
+    id_col: str,
+    value_col: str,
+    flag_col: str,
+) -> pd.DataFrame:
+    """Summarize flagged values by flag, count and median.
+
+    Args:
+        imputed_df: DataFrame
+    """
+    grouped = imputed_df.groupby([id_col, flag_col])
+    return pd.DataFrame(
+        {"count": grouped.size(), "median": grouped[value_col].median()}
+    )
 
 
 def plot_flags(self, name: Any = 0) -> None:
@@ -1303,7 +1307,7 @@ def plot_flags(self, name: Any = 0) -> None:
 
 
 def simulate_nulls(
-    x: pd.DataFrame,
+    x: np.ndarray,
     lengths: Sequence[int] = None,
     padding: int = 1,
     intersect: bool = False,
@@ -1389,14 +1393,15 @@ def unfold_tensor(tensor: np.ndarray, shape) -> np.ndarray:
     return tensor.T.reshape(shape, order="F")
 
 
+@pa.check_types
 def impute(
-    df: pd.DataFrame,
+    df: DataFrame[TimeseriesMatrix],
     mask: np.ndarray = None,
     periods: int = 24,
     blocks: int = 1,
     method: str = "tubal",
     **kwargs: Any,
-) -> np.ndarray:
+) -> DataFrame[TimeseriesMatrix]:
     """Impute null values.
 
     .. note::
@@ -1437,7 +1442,12 @@ def impute(
     return pd.DataFrame(x, columns=df.columns, index=df.index)
 
 
-def summarize_imputed(self, imputed: np.ndarray, mask: np.ndarray) -> pd.DataFrame:
+@pa.check_types
+def summarize_imputed(
+    matrix: DataFrame[TimeseriesMatrix],
+    imputed_matrix: DataFrame[TimeseriesMatrix],
+    mask: np.ndarray,
+) -> pd.DataFrame:
     """Summarize the fit of imputed values to actual values.
 
     Summarizes the agreement between actual and imputed values with the
@@ -1456,16 +1466,18 @@ def summarize_imputed(self, imputed: np.ndarray, mask: np.ndarray) -> pd.DataFra
         Table of imputed value statistics for each series.
     """
     stats = []
-    for col in range(self.x.shape[1]):
-        x = self.x[mask[:, col], col]
-        if not x.size:
+    x = matrix.to_numpy()
+    imputed = imputed_matrix.to_numpy()
+    for col in range(x.shape[1]):
+        flagged_vals = x[mask[:, col], col]
+        if not flagged_vals.size:
             continue
-        pe = (x - imputed[mask[:, col], col]) / x
+        pe = (flagged_vals - imputed[mask[:, col], col]) / flagged_vals
         pe = pe[~np.isnan(pe)]
         stats.append(
             {
-                "column": self.columns[col],
-                "count": x.size,
+                "column": matrix.columns[col],
+                "count": flagged_vals.size,
                 "mpe": np.mean(pe),
                 "mape": np.mean(np.abs(pe)),
             }
