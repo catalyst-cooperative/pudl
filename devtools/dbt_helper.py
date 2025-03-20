@@ -8,7 +8,7 @@ from pathlib import Path
 import click
 import duckdb
 import pandas as pd
-import yaml
+import ruamel.yaml
 from pydantic import BaseModel
 
 from pudl import validate
@@ -213,6 +213,7 @@ def generate_row_counts(
 
 
 def _write_dbt_yaml_config(schema_path: Path, schema: DbtSchema):
+    yaml = ruamel.yaml.YAML()
     with schema_path.open("w") as schema_file:
         yaml.dump(
             schema.model_dump(exclude_none=True),
