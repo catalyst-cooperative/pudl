@@ -1563,10 +1563,10 @@ def impute_timeseries_asset_factory(
     input_asset_name: str,
     output_asset_name: str,
     years_from_context: Callable,
+    id_col: str,
     value_col: str = "demand_mwh",
     imputed_value_col: str = "demand_imputed_mwh",
     reported_value_col: str = "demand_reported_mwh",
-    id_col: str = "",
     output_io_manager_key: str = "parquet_io_manager",
 ) -> pd.DataFrame:
     """Produces assets to impute values for a given timeseries table/column.
