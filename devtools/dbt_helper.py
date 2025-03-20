@@ -224,8 +224,10 @@ def generate_row_counts(
     new_row_counts = duckdb.sql(row_count_query).df().astype({"partition": str})
     new_row_counts["table_name"] = table_name
 
-    all_row_counts = pd.concat([row_counts_df, new_row_counts]).drop_duplicates(
-        subset=["partition", "table_name"], keep="last"
+    all_row_counts = (
+        pd.concat([row_counts_df, new_row_counts])
+        .drop_duplicates(subset=["partition", "table_name"], keep="last")
+        .sort_values(["table_name", "partition"])
     )
 
     all_row_counts.to_csv(csv_path, index=False)
