@@ -1570,8 +1570,8 @@ def impute_timeseries_asset_factory(
     @multi_asset(
         ins={"input_df": AssetIn(input_asset_name)},
         outs={
-            timeseries_matrix_asset: AssetOut(),
-            localized_input_asset: AssetOut(),
+            timeseries_matrix_asset: AssetOut(key=timeseries_matrix_asset),
+            localized_input_asset: AssetOut(key=localized_input_asset),
         },
     )
     def _prepare_timeseries_matrix(
@@ -1596,7 +1596,12 @@ def impute_timeseries_asset_factory(
 
     @multi_asset(
         ins={"matrix": AssetIn(timeseries_matrix_asset)},
-        outs={cleaned_timeseries_matrix_asset: AssetOut(), flags_asset: AssetOut()},
+        outs={
+            cleaned_timeseries_matrix_asset: AssetOut(
+                key=cleaned_timeseries_matrix_asset
+            ),
+            flags_asset: AssetOut(key=flags_asset),
+        },
         op_tags={"memory-use": "high"},
     )
     def _flag_timeseries_matrix(
