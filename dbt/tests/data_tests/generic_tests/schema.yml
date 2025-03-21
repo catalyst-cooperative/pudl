@@ -19,7 +19,7 @@ macros:
       Check whether the primary fuel by cost matches the primary fuel by mmbtu. Designed for use on ``out_ferc1__yearly_steam_plants_fuel_by_plant_sched402``. Fails when more than 5% of rows have different cost vs mmbtu primary fuels.
   - name: test_expect_one2one_mapping
     description: >
-      Check whether there is a 1:1 mapping between two columns. Fails when a value in the ``every`` column is paired with more than one value in the ``should_have_only_one`` column.
+      Check whether there is a 1:1 mapping between two columns, aka assert that every value in X should have only one value in Y. Fails when a value in the ``every`` column is paired with more than one value in the ``should_have_only_one`` column.
     arguments:
       - name: every_column
         type: string
