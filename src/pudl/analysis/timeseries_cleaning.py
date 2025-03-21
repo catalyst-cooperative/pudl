@@ -44,7 +44,7 @@ from dagster import AssetIn, AssetOut, asset, multi_asset
 from pandera.typing import DataFrame, Index, Series
 
 from pudl.logging_helpers import get_logger
-from pudl.metadata.enums import ImputationReasonCodes
+from pudl.metadata.dfs import ImputationReasonCodes
 
 logger = get_logger(__file__)
 

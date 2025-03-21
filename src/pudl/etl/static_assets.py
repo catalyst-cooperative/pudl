@@ -3,12 +3,15 @@
 from typing import Literal
 
 import pandas as pd
-from dagster import AssetOut, Output, asset, multi_asset
+from dagster import AssetOut, Output, multi_asset
 
 import pudl
 from pudl.metadata.classes import Package
-from pudl.metadata.dfs import FERC_ACCOUNTS, POLITICAL_SUBDIVISIONS
-from pudl.metadata.enums import ImputationReasonCodes
+from pudl.metadata.dfs import (
+    FERC_ACCOUNTS,
+    IMPUTATION_REASON_CODES,
+    POLITICAL_SUBDIVISIONS,
+)
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -40,22 +43,10 @@ def _read_static_encoding_tables(
     }
 
 
-@asset(io_manager_key="pudl_io_manager")
-def core_pudl__codes_imputation_reasons() -> pd.DataFrame:
-    """Static table containing all ImputationReasonCodes and descriptions."""
-    return pd.DataFrame(
-        [
-            {"code": code.name.lower(), "description": code.value}
-            for code in ImputationReasonCodes
-        ]
-    )
-
-
 @multi_asset(
     outs={
         table_name: AssetOut(io_manager_key="pudl_io_manager")
         for table_name in Package.get_etl_group_tables("static_pudl")
-        if table_name != "core_pudl__codes_imputation_reasons"
     },
     required_resource_keys={"dataset_settings", "datastore"},
 )
@@ -64,7 +55,10 @@ def static_pudl_tables(context):
     ds = context.resources.datastore
     dataset_settings = context.resources.dataset_settings
 
-    static_pudl_tables_dict = {"core_pudl__codes_subdivisions": POLITICAL_SUBDIVISIONS}
+    static_pudl_tables_dict = {
+        "core_pudl__codes_subdivisions": POLITICAL_SUBDIVISIONS,
+        "core_pudl__codes_imputation_reasons": IMPUTATION_REASON_CODES,
+    }
     static_pudl_tables_dict["core_pudl__codes_datasources"] = (
         dataset_settings.make_datasources_table(ds)
     )
