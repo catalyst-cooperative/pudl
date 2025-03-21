@@ -231,6 +231,7 @@ class FlaggedTimeseries:
         self.flags[mask] = flag.name.lower()
         # Null flagged values
         self.x[mask] = np.nan
+        self.uuid = uuid.uuid4()
         return self
 
 
