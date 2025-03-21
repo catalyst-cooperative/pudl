@@ -1,4 +1,4 @@
-{% test expect_complete_valid_ownership(model) %}
+{% test expect_complete_valid_ownership(model, n_acceptable_failures=0) %}
 with OwnSum as (
     select
         report_date,
@@ -12,6 +12,9 @@ with OwnSum as (
         plant_id_eia,
         generator_id
     having fraction_owned not null
+), OwnSumInvalid as (
+    select * from OwnSum where fraction_owned > 1.02
+    limit 1e6 offset {{ n_acceptable_failures }}
 ), PercentileScores as (
     select
         fraction_owned,
@@ -28,8 +31,7 @@ with OwnSum as (
     limit 1
 ), Summary as (
     select *
-    from OwnSum right join PercentileMissing using (toy_join)
-    where fraction_owned > 1.02
+    from OwnSumInvalid right join PercentileMissing using (toy_join)
 )
 select * from Summary where (report_date is not null) or (pct_missing >= 0.5)
 
