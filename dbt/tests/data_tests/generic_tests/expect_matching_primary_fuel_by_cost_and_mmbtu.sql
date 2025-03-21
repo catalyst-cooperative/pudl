@@ -1,4 +1,4 @@
-{% test expect_matching_primary_fuel(model) %}
+{% test expect_matching_primary_fuel_by_cost_and_mmbtu(model) %}
 with MismatchMicro as (
 select
 case

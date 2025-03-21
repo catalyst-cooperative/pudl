@@ -14,7 +14,7 @@ macros:
   - name: test_expect_fgd_cost_totals_to_agree
     description: >
       Check whether the sum of itemized costs matches the total cost. Designed for use on ``_core_eia860__fgd_equipment``. Fails when more than 1% of rows have a sum that differs from the total by more than 1%. Includes careful null and nan handling.
-  - name: test_expect_matching_primary_fuel
+  - name: test_expect_matching_primary_fuel_by_cost_and_mmbtu
     description: >
       Check whether the primary fuel by cost matches the primary fuel by mmbtu. Designed for use on ``out_ferc1__yearly_steam_plants_fuel_by_plant_sched402``. Fails when more than 5% of rows have different cost vs mmbtu primary fuels.
   - name: test_expect_one2one_mapping

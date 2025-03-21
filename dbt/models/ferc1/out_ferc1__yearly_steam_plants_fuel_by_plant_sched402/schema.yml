@@ -7,7 +7,7 @@ sources:
           - check_row_counts_per_partition:
               table_name: out_ferc1__yearly_steam_plants_fuel_by_plant_sched402
               partition_column: report_year
-          - expect_matching_primary_fuel
+          - expect_matching_primary_fuel_by_cost_and_mmbtu
         columns:
           - name: report_year
           - name: utility_id_ferc1
