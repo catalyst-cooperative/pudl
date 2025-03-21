@@ -75,3 +75,19 @@ macros:
       ```out_eia__yearly_plant_parts``. Fails when any owned plant part with nonzero
       capacity has sum(fraction_owned) more than 1e-6 away from 1, or when more than
       60 plant parts have capacity 0 and fraction_owned 0.
+  - name: test_expect_sum_to_target_discrepancy_rate_less_than
+    description: >
+      Check whether the sum of the specified columns matches a target column. Fails when the fraction of records with more than ``discrepancy_threshold`` difference to the target (as a fraction of the target value) exceeds ``max_discrepancy_rate``. Records with null target value do not count as discrepancies. Nulls in sum columns are coerced to 0.
+    arguments:
+      - name: sum_columns
+        type: list[str]
+        description: The columns whose sum should match the target.
+      - name: target_column
+        type: str
+        description: The column containing the target value.
+      - name: discrepancy_threshold
+        type: float
+        description: Count a record as a discrepancy if the sum of the sum columns, minus the target column, divided by the target column, exceeds this value.
+      - name: max_discrepancy_rate
+        type: float
+        description: Maximum acceptable fraction of records which can be counted as a discrepancy before the test should fail.
