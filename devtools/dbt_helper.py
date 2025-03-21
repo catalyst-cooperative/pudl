@@ -38,8 +38,13 @@ class DbtTable(BaseModel):
     """Define yaml structure of a dbt table."""
 
     name: str
-    data_tests: list | None
+    data_tests: list | None = None
     columns: list[DbtColumn]
+
+    def add_source_tests(self, source_tests: list) -> "DbtSource":
+        """Add data tests to source in dbt config."""
+        data_tests = self.data_tests if self.data_tests is not None else []
+        return self.model_copy(update={"data_tests": data_tests + source_tests})
 
     def add_column_tests(self, column_tests: dict[str, list]) -> "DbtSource":
         """Add data tests to columns in dbt config."""
@@ -84,6 +89,12 @@ class DbtSource(BaseModel):
     name: str = "pudl"
     tables: list[DbtTable]
 
+    def add_source_tests(self, source_tests: list) -> "DbtSource":
+        """Add data tests to source in dbt config."""
+        return self.model_copy(
+            update={"tables": [self.tables[0].add_source_tests(source_tests)]}
+        )
+
     def add_column_tests(self, column_tests: dict[list]) -> "DbtSource":
         """Add data tests to columns in dbt config."""
         return self.model_copy(
@@ -97,6 +108,21 @@ class DbtSchema(BaseModel):
     version: int = 2
     sources: list[DbtSource]
     models: list[DbtTable] | None = None
+
+    def add_source_tests(
+        self, source_tests: list, model_name: str | None = None
+    ) -> "DbtSchema":
+        """Add data tests to source in dbt config."""
+        if model_name is None:
+            schema = self.model_copy(
+                update={"sources": [self.sources[0].add_source_tests(source_tests)]}
+            )
+        else:
+            models = {model.name: model for model in self.models}
+            models[model_name] = models[model_name].add_source_tests(source_tests)
+            schema = self.model_copy(update={"models": list(models.values())})
+
+        return schema
 
     def add_column_tests(
         self, column_tests: dict[list], model_name: str | None = None
