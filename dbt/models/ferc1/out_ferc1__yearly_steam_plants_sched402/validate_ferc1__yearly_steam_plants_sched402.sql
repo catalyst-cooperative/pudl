@@ -1,3 +1,5 @@
+{# validation table for out_ferc1__yearly_steam_plants_sched402 #}
+{# generates capacity ratios; not currently tested in schema.yml #}
 select
 water_limited_capacity_mw / capacity_mw as water_limited_ratio,
 not_water_limited_capacity_mw / capacity_mw as not_water_limited_ratio,
