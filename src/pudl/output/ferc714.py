@@ -9,6 +9,7 @@ from dagster import Field, asset
 
 import pudl
 from pudl.analysis.service_territory import utility_ids_all_eia
+from pudl.analysis.timeseries_cleaning import impute_timeseries_asset_factory
 from pudl.metadata.fields import apply_pudl_dtypes
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -648,16 +649,16 @@ def out_ferc714__summarized_demand(
         pd.merge(
             _out_ferc714__annualized_respondents,
             out_ferc714__hourly_planning_area_demand.loc[
-                :, ["report_date", "respondent_id_ferc714", "demand_mwh"]
+                :, ["report_date", "respondent_id_ferc714", "demand_imputed_pudl_mwh"]
             ],
             on=["report_date", "respondent_id_ferc714"],
             how="left",
         )
         .groupby(["report_date", "respondent_id_ferc714"], as_index=False)[
-            ["demand_mwh"]
+            ["demand_imputed_pudl_mwh"]
         ]
         .sum(min_count=1)
-        .rename(columns={"demand_mwh": "demand_annual_mwh"})
+        .rename(columns={"demand_imputed_pudl_mwh": "demand_annual_mwh"})
         .merge(
             _out_ferc714__georeferenced_counties.groupby(
                 ["report_date", "respondent_id_ferc714"], as_index=False
@@ -676,3 +677,13 @@ def out_ferc714__summarized_demand(
         demand_annual, _out_ferc714__categorized_respondents, how="left"
     ).pipe(apply_pudl_dtypes)
     return demand_summary
+
+
+imputed_hourly_planning_area_demand_assets = impute_timeseries_asset_factory(
+    input_asset_name="core_ferc714__hourly_planning_area_demand",
+    output_asset_name="out_ferc714__hourly_planning_area_demand",
+    years_from_context=lambda context: context.resources.dataset_settings.ferc714.years,
+    value_col="demand_mwh",
+    imputed_value_col="demand_imputed_pudl_mwh",
+    id_col="respondent_id_ferc714",
+)
