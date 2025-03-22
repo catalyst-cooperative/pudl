@@ -19,7 +19,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "ferc714",
         "etl_group": "ferc714",
     },
-    "out_ferc714__hourly_planning_area_demand": {
+    "core_ferc714__hourly_planning_area_demand": {
         "description": (
             "Hourly electricity demand by planning area. FERC Form 714, Part III, "
             "Schedule 2a. This table includes data from the pre-2021 CSV raw source "
@@ -51,6 +51,32 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "datetime_utc",
                 "timezone",
                 "demand_mwh",
+            ],
+            "primary_key": ["respondent_id_ferc714", "datetime_utc"],
+        },
+        "sources": ["ferc714"],
+        "field_namespace": "ferc714",
+        "etl_group": "ferc714",
+        "create_database_schema": False,
+    },
+    "out_ferc714__hourly_planning_area_demand": {
+        "description": (
+            "This table is based on ``core_ferc714__hourly_planning_area_demand``, but adds "
+            "imputed demand values where the original data was missing or anomalous. "
+            "Codes explaining why values have been imputed can be found in the "
+            "``core_pudl__codes_imputation_reasons`` table."
+        ),
+        "schema": {
+            "fields": [
+                "respondent_id_ferc714",
+                "respondent_id_ferc714_csv",
+                "respondent_id_ferc714_xbrl",
+                "report_date",
+                "datetime_utc",
+                "timezone",
+                "demand_reported_mwh",
+                "demand_imputed_pudl_mwh",
+                "demand_imputed_pudl_mwh_imputation_code",
             ],
             "primary_key": ["respondent_id_ferc714", "datetime_utc"],
         },
