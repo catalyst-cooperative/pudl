@@ -161,12 +161,6 @@ nuke: coverage-erase docs-build pytest-unit ferc pudl
 pytest-jupyter:
 	pytest --live-dbs test/integration/jupyter_notebooks_test.py
 
-# Compare actual and expected number of rows in many tables. This will run any test
-# whose name contains "minmax_rows" so it's important to follow that naming convention.
-.PHONY: pytest-minmax-rows
-pytest-minmax-rows:
-	pytest -n 8 --no-cov --live-dbs test/validate -k minmax_rows
-
 # Build the FERC 1 and PUDL DBs, ignoring foreign key constraints.
 # Identify any plant or utility IDs in the DBs that haven't yet been mapped
 # NOTE: This probably needs to be turned into a script of some kind not a test.
