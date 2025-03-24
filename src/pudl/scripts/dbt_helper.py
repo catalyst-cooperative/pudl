@@ -88,6 +88,7 @@ class DbtSource(BaseModel):
 
     name: str = "pudl"
     tables: list[DbtTable]
+    data_tests: list | None = None
 
     def add_source_tests(self, source_tests: list) -> "DbtSource":
         """Add data tests to source in dbt config."""
