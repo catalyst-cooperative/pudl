@@ -1,0 +1,19 @@
+version: 2
+
+macros:
+  - name: test_group_mean_continuity_check
+    description: >
+      Check that certain variables don't vary by too much. Groups the data by
+      ``ordered_group_column``, takes the mean, then compares in
+      ``ordered_group_column`` order. Useful for saying something like "the average
+      water usage of cooling systems didn't jump by 10x from 2012-2013."
+    arguments:
+      - name: ordered_group_column
+        type: string
+        description: The name of the column to group and order by (usually ``report_date`` or similar).
+      - name: max_fr_change
+        type: float
+        description: The ratio by which means are permitted to fluctuate from one group to the next.
+      - name: n_outliers_allowed
+        type: int
+        description: How many data points are allowed to be above the threshold.
