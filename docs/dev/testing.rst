@@ -64,9 +64,6 @@ above there are also:
   PUDL DB.
 * ``pytest-jupyter``: Check that select Jupyter notebooks checked into the repository
   can run successfully. (Currently disabled)
-* ``pytest-minmax-rows``: Check that various database tables have the expected number of
-  records in them, and report back the actual number of records found. Requires an
-  existing PUDL DB.
 * ``pytest-coverage``: Run all the software tests and generate a test coverage report.
   This will fail if test coverage has fallen below the threshold defined in
   ``pyproject.toml``.
