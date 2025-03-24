@@ -35,13 +35,17 @@ def generate_legible_output(
     return "\n\n".join(components)
 
 
-def get_schema_path(table_name):
+def get_schema_path(table_name) -> Path:
     data_source = get_data_source(table_name)
     model_path = _get_model_path(table_name, data_source)
     return (model_path / "schema.yml").resolve()
 
 
 def test_dbt_schema_drift():
+    """Verify that pudl and dbt catalog identical tables and fields.
+
+    If differences are found, detail which index is missing which items.
+    """
     all_pudl_tables = [r.name for r in PUDL_PACKAGE.resources]
 
     pudl_tables_not_in_dbt = set()
@@ -52,14 +56,15 @@ def test_dbt_schema_drift():
     dbt_tables_not_in_pudl = set()
     dbt_fields_not_in_pudl = defaultdict(set)
 
-    # check pudl -> dbt direction first
+    # check pudl -> dbt direction first, then clean up any dbt items
+    # we didn't hit along the way
     for table_name in all_pudl_tables:
         schema_path = get_schema_path(table_name)
         try:
             all_dbt_schema_paths.remove(schema_path)
         except KeyError:
             assert not schema_path.exists(), (
-                f"Something is wrong with {schema_path}: it was generated from the model path but was not found by glob"
+                f"Something is wrong with {schema_path}: the file exists as generated from the model path but was not found by glob"
             )
             pudl_tables_not_in_dbt.add(table_name)
             continue
