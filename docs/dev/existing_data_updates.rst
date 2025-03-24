@@ -456,7 +456,7 @@ were particularly high or low in the new year of data. Other values like expecte
 content per unit of fuel should be relatively stable. If the required adjustments are
 large, or there are other types of validations failing, they should be investigated.
 
-**9.4)** Update the expected number of rows in the minmax_row validation tests. Pay
+**9.4)** Update the expected number of rows in the ``dbt`` row count tests. Pay
 attention to how far off of previous expectations the new tables are. E.g. if there
 are already 20 years of data, and you're integrating 1 new year of data, probably the
 number of rows in the tables should be increasing by around 5% (since 1/20 = 0.05).
