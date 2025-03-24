@@ -38,7 +38,7 @@ class DbtTable(BaseModel):
     """Define yaml structure of a dbt table."""
 
     name: str
-    data_tests: list | None
+    data_tests: list | None = None
     columns: list[DbtColumn]
 
     def add_column_tests(self, column_tests: dict[str, list]) -> "DbtSource":
@@ -83,6 +83,7 @@ class DbtSource(BaseModel):
 
     name: str = "pudl"
     tables: list[DbtTable]
+    data_tests: list | None = None
 
     def add_column_tests(self, column_tests: dict[list]) -> "DbtSource":
         """Add data tests to columns in dbt config."""
