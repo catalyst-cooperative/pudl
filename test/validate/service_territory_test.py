@@ -10,7 +10,7 @@ from pudl.workspace.setup import PudlPaths
 logger = logging.getLogger(__name__)
 
 
-def test_minmax_rows_and_year_in_ferc714_hourly_planning_area_demand(live_dbs: bool):
+def test_year_in_ferc714_hourly_planning_area_demand(live_dbs: bool):
     """Test if the majority of the years in the two date columns are identical."""
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
