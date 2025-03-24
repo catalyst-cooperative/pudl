@@ -65,9 +65,7 @@ def raw_sec10k__quarterly_company_information() -> pd.DataFrame:
         ),
     }
 )
-def core_sec10k__company_info(
-    raw_sec10k__quarterly_company_information: pd.DataFrame,
-) -> pd.DataFrame:
+def core_sec10k__company_info(raw_sec10k__quarterly_company_information: pd.DataFrame):
     """Company information extracted from SEC 10-K filings.
 
     Each SEC 10-K filing contains a header block that lists information the filer, and
