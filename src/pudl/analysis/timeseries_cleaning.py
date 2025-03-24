@@ -1436,7 +1436,11 @@ def summarize_imputed(
 
 @pa.check_types
 def impute_flagged_values(
-    df: DataFrame[TimeseriesMatrix], years: list[int]
+    df: DataFrame[TimeseriesMatrix],
+    years: list[int],
+    periods: int = 24,
+    blocks: int = 1,
+    method: str = "tubal",
 ) -> DataFrame[TimeseriesMatrix]:
     """Impute null values in input timeseries matrix.
 
@@ -1449,6 +1453,12 @@ def impute_flagged_values(
     Args:
         df: Timeseries matrix as described in :func:`_prepare_timeseries_matrix`.
         years: list of years to input
+        periods: Number of consecutive values in each series to fold into a group.
+            See :meth:`fold_tensor`.
+        blocks: Number of blocks into which to split the series for imputation.
+            This has been found to reduce processing time for `method='tnn'`.
+        method: Imputation method to use
+            ('tubal': :func:`impute_latc_tubal`, 'tnn': :func:`impute_latc_tnn`).
 
     Returns:
         Copy of `df` with imputed values.
@@ -1529,6 +1539,22 @@ def filter_missing_values(
     return df
 
 
+@dataclass
+class ImputeTimeseriesSettings:
+    """Define settings used for timeseries imputation."""
+
+    min_data_fraction: float = 0.7
+    """Fraction of values in a year which must be non-null to do imputation on year."""
+    min_data: int = 100
+    """Minimum number of values which must be non-null to do imputation on year."""
+    periods: int = 24
+    """Number of consecutive values in each series to fold into a group. See :meth:`fold_tensor`"""
+    blocks: int = 1
+    """Number of blocks into which to split the series for imputation."""
+    method: str = "tubal"
+    """Imputation method to use ('tubal': :func:`impute_latc_tubal`, 'tnn': :func:`impute_latc_tnn`)."""
+
+
 def impute_timeseries_asset_factory(
     input_asset_name: str,
     output_asset_name: str,
@@ -1538,6 +1564,7 @@ def impute_timeseries_asset_factory(
     imputed_value_col: str = "demand_imputed_mwh",
     reported_value_col: str = "demand_reported_mwh",
     output_io_manager_key: str = "parquet_io_manager",
+    settings: ImputeTimeseriesSettings = ImputeTimeseriesSettings(),
 ) -> pd.DataFrame:
     """Produces assets to impute values for a given timeseries table/column.
 
@@ -1611,7 +1638,11 @@ def impute_timeseries_asset_factory(
     ) -> tuple[pd.DataFrame, pd.DataFrame]:
         """Flag/Null anomalous and missing values."""
         matrix, flags = flag_ruggles(matrix)
-        matrix = filter_missing_values(matrix)
+        matrix = filter_missing_values(
+            matrix,
+            min_data=settings.min_data,
+            min_data_fraction=settings.min_data_fraction,
+        )
         return matrix, flags
 
     @asset(
@@ -1624,7 +1655,13 @@ def impute_timeseries_asset_factory(
     def _impute_timeseries(context, matrix: pd.DataFrame) -> pd.DataFrame:
         """Perform imputation and return TimeseriesMatrix with imputed values."""
         # Impute flagged/missing values
-        return impute_flagged_values(matrix, years_from_context(context))
+        return impute_flagged_values(
+            matrix,
+            years=years_from_context(context),
+            periods=settings.periods,
+            blocks=settings.blocks,
+            method=settings.method,
+        )
 
     @asset(
         ins={
