@@ -79,7 +79,7 @@ class UTCTimeseriesDataFrame(pa.DataFrameModel):
     to a ``TimeseriesMatrix``.
     """
 
-    id_col: Series[int]
+    id_col: Series[Any]
     """Column of entity ID's."""
     datetime_utc: Series[pa.dtypes.DateTime]
     """Datetimes in UTC timezone."""
@@ -96,7 +96,7 @@ class AligneTimeseriesDataFrame(pa.DataFrameModel):
     the ``datetime_utc`` values are converted to local ``datetime``'s.
     """
 
-    id_col: Series[int]
+    id_col: Series[Any]
     """Column of entity ID's."""
     datetime: Series[pa.dtypes.DateTime]
     """Datetimes shifted by UTC offset to align all timeseries'."""
@@ -1476,7 +1476,7 @@ def impute_flagged_values(
 def filter_missing_values(
     df: DataFrame[TimeseriesMatrix],
     min_data: int = 100,
-    min_data_fraction: float = 0.9,
+    min_data_fraction: float = 0.7,
 ) -> DataFrame[TimeseriesMatrix]:
     """Filter incomplete years from timseries matrix.
 
@@ -1573,6 +1573,7 @@ def impute_timeseries_asset_factory(
             timeseries_matrix_asset: AssetOut(key=timeseries_matrix_asset),
             localized_input_asset: AssetOut(key=localized_input_asset),
         },
+        name=f"_{output_asset_name}_prepare_timeseries_matrix",
     )
     def _prepare_timeseries_matrix(
         input_df: pd.DataFrame,
@@ -1603,6 +1604,7 @@ def impute_timeseries_asset_factory(
             flags_asset: AssetOut(key=flags_asset),
         },
         op_tags={"memory-use": "high"},
+        name=f"_{output_asset_name}_flag_timeseries_matrix",
     )
     def _flag_timeseries_matrix(
         matrix: pd.DataFrame,

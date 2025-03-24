@@ -18,7 +18,6 @@ BA_TIMEZONE_MAP = {
 
 
 @asset(
-    io_manager_key="parquet_io_manager",
     compute_kind="Python",
     required_resource_keys={"dataset_settings"},
 )
@@ -44,7 +43,7 @@ imputed_subregion_demand_assets = impute_timeseries_asset_factory(
     years_from_context=lambda context: [
         int(half_year[:4])
         for half_year in context.resources.dataset_settings.eia.eia930.half_years
-        if 2025 not in half_year
+        if "2025" not in half_year
     ],
     value_col="demand_reported_mwh",
     imputed_value_col="demand_imputed_pudl_mwh",
