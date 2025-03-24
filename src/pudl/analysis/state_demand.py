@@ -168,9 +168,7 @@ def out_ferc714__hourly_estimated_state_demand(
     """Estimate hourly electricity demand by state.
 
     Args:
-        out_ferc714__hourly_planning_area_demand: Hourly demand timeseries, with columns
-            ``respondent_id_ferc714``, report ``year``, ``datetime_utc``, and
-            ``demand_mwh``.
+        out_ferc714__hourly_planning_area_demand: Hourly demand timeseries, with imputed demand.
         _core_censusdp1tract__counties: The county layer of the Census DP1 shapefile.
         out_ferc714__respondents_with_fips: Annual respondents with the county FIPS IDs
             for their service territories.
