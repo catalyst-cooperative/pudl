@@ -145,7 +145,7 @@ dependencies:
   - exceptiongroup=1.2.2=pyhd8ed1ab_1
   - execnet=2.1.1=pyhd8ed1ab_1
   - executing=2.1.0=pyhd8ed1ab_1
-  - fastapi=0.115.11=pyh29332c3_0
+  - fastapi=0.115.12=pyh29332c3_0
   - fastapi-cli=0.0.7=pyhd8ed1ab_0
   - filelock=3.18.0=pyhd8ed1ab_0
   - flask=3.1.0=pyhd8ed1ab_1
@@ -308,7 +308,6 @@ dependencies:
   - libjpeg-turbo=3.0.0=hb547adb_1
   - libkml=1.3.0=he250239_1021
   - liblapack=3.9.0=31_hc9a63f6_openblas
-  - libllvm15=15.0.7=h4429f82_5
   - liblzma=5.6.4=h39f12f2_0
   - libnghttp2=1.64.0=h6d7220d_0
   - libntlm=1.8=h5505292_0
@@ -336,7 +335,7 @@ dependencies:
   - libxslt=1.1.39=h223e5b9_0
   - libzlib=1.3.1=h8359307_2
   - llvm-openmp=20.1.1=hdb05f8b_1
-  - llvmlite=0.44.0=py312h728bc31_0
+  - llvmlite=0.44.0=py312h728bc31_1
   - locket=1.0.0=pyhd8ed1ab_0
   - lsprotocol=2023.0.1=pyhd8ed1ab_1
   - lxml=5.3.1=py312h9535dd2_0
@@ -455,7 +454,7 @@ dependencies:
   - pyobjc-framework-cocoa=11.0=py312hb9d441b_0
   - pyogrio=0.10.0=py312hfd5e53c_1
   - pyopenssl=25.0.0=pyhd8ed1ab_0
-  - pyparsing=3.2.1=pyhd8ed1ab_0
+  - pyparsing=3.2.2=pyhd8ed1ab_0
   - pyproj=3.7.1=py312h4b98159_0
   - pyproject_hooks=1.2.0=pyhd8ed1ab_1
   - pysocks=1.7.1=pyha55dd90_7
