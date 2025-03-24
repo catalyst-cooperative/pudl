@@ -24,7 +24,7 @@ BA_TIMEZONE_MAP = {
 def _out_eia930__hourly_subregion_demand(
     core_eia930__hourly_subregion_demand: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Create intermediate asset with timezone column added to core subregion demand."""
+    """Adds timezone column and combined ID with BA/subregion used for imputation."""
     core_eia930__hourly_subregion_demand["timezone"] = (
         core_eia930__hourly_subregion_demand["balancing_authority_code_eia"].map(
             BA_TIMEZONE_MAP
