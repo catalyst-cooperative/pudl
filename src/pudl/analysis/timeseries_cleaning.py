@@ -1475,9 +1475,12 @@ def impute_flagged_values(
         # timeseries matrix chunks over years at a time
         # and having only one record
         if year in years:
+            year_method = method
+            if year == 2019:
+                year_method = "tnn"
             logger.info(f"Imputing year {year}")
             keep = df.columns[~gdf.isnull().all()]
-            result = impute(gdf[keep])
+            result = impute(gdf[keep], method=year_method)
             results.append(result)
     return pd.concat(results)
 
