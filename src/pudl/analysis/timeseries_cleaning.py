@@ -227,7 +227,7 @@ class FlaggedTimeseries:
             flag: Flag name.
         """
         # Only flag unflagged values
-        if flag != ImputationReasonCodes.NULL:
+        if flag != ImputationReasonCodes.MISSING_VALUE:
             mask = mask & ~np.isnan(self.x)
         self.flags[mask] = flag.name.lower()
         # Null flagged values
@@ -730,7 +730,7 @@ def impute_latc_tubal(  # noqa: C901
 def flag_null(ts: FlaggedTimeseries) -> FlaggedTimeseries:
     """Flag null values (NULL)."""
     mask = np.isnan(ts.x)
-    return ts.flag(mask, ImputationReasonCodes.NULL)
+    return ts.flag(mask, ImputationReasonCodes.MISSING_VALUE)
 
 
 def flag_negative_or_zero(ts: FlaggedTimeseries) -> FlaggedTimeseries:
