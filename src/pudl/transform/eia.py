@@ -18,23 +18,29 @@ found in :func:`pudl.transform.eia._boiler_generator_assn`.
 
 import importlib.resources
 from collections import namedtuple
+from contextlib import chdir
 from enum import StrEnum, auto
+from pathlib import Path
 
 import networkx as nx
 import numpy as np
 import pandas as pd
 import timezonefinder
 from dagster import (
+    AssetCheckExecutionContext,
+    AssetCheckResult,
     AssetIn,
     AssetOut,
     AssetsDefinition,
     Field,
     Output,
     asset,
+    asset_check,
     multi_asset,
 )
 
 import pudl
+from dbt.cli.main import dbtRunner
 from pudl.helpers import convert_cols_dtypes
 from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.enums import APPROXIMATE_TIMEZONES
@@ -1325,6 +1331,34 @@ def finished_eia_asset_factory(
         )
 
     return finished_eia_asset
+
+
+@asset_check(asset="core_eia860__assn_boiler_cooling", blocking=True)
+def dbt_dummy_check(context: AssetCheckExecutionContext) -> AssetCheckResult:
+    """Foo."""
+    asset_name = "core_eia860__assn_boiler_cooling"
+    dbt_target = "etl-fast"
+
+    dbt_resource_name = f"pudl_dbt.eia860.{asset_name}.*"
+    dbt = dbtRunner()
+    pudl_root_dir = Path(__file__).parent.parent.parent.parent
+    with chdir(pudl_root_dir / "dbt"):
+        _ = dbt.invoke(["deps"])
+        _ = dbt.invoke(["seed"])
+        test_result = dbt.invoke(
+            [
+                "test",
+                "--store-failures",
+                "--threads",
+                "1",
+                "--target",
+                dbt_target,
+                "--select",
+                dbt_resource_name,
+            ]
+        )
+
+    return AssetCheckResult(passed=test_result.success)
 
 
 finished_eia_assets = [
