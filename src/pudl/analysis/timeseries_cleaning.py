@@ -227,7 +227,8 @@ class FlaggedTimeseries:
             flag: Flag name.
         """
         # Only flag unflagged values
-        mask = mask & ~np.isnan(self.x)
+        if flag != ImputationReasonCodes.NULL:
+            mask = mask & ~np.isnan(self.x)
         self.flags[mask] = flag.name.lower()
         # Null flagged values
         self.x[mask] = np.nan
@@ -726,6 +727,12 @@ def impute_latc_tubal(  # noqa: C901
 
 
 # ---- Anomaly detection ---- #
+def flag_null(ts: FlaggedTimeseries) -> FlaggedTimeseries:
+    """Flag null values (NULL)."""
+    mask = np.isnan(ts.x)
+    return ts.flag(mask, ImputationReasonCodes.NULL)
+
+
 def flag_negative_or_zero(ts: FlaggedTimeseries) -> FlaggedTimeseries:
     """Flag negative or zero values (NEGATIVE_OR_ZERO)."""
     mask = ts.x <= 0
@@ -1205,6 +1212,7 @@ def flag_ruggles(
     ts = FlaggedTimeseries.from_dataframe(timeseries_matrix)
 
     # Step 1
+    ts = flag_null(ts)
     ts = flag_negative_or_zero(ts)
     ts = flag_identical_run(ts, length=3)
     ts = flag_global_outlier(ts, medians=9)
