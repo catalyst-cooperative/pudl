@@ -25,6 +25,22 @@ import pandas as pd
 from pudl.metadata.enums import IMPUTATION_CODES
 
 
+def _filter_df(
+    df: pd.DataFrame,
+    idx_cols: list[str],
+    idx_vals: tuple[Any],
+    start_date: str,
+    end_date: str,
+    time_col: str = "datetime_utc",
+) -> pd.DataFrame:
+    return (
+        df.set_index(idx_cols + [time_col])
+        .sort_index()
+        .loc[idx_vals]
+        .loc[start_date:end_date]
+    )
+
+
 def plot_imputation(
     df: pd.DataFrame,
     idx_cols: list[str],
@@ -45,12 +61,7 @@ def plot_imputation(
     """
     # Set the dataframe index to the ID columns and the time column
     # Select specified index values that fall within the specified date range:
-    filtered = (
-        df.set_index(idx_cols + [time_col])
-        .sort_index()
-        .loc[idx_vals]
-        .loc[start_date:end_date]
-    )
+    filtered = _filter_df(df, idx_cols, idx_vals, start_date, end_date, time_col)
     plt.plot(filtered.index, filtered[reported_col], lw=1, label="reported")
     for code in IMPUTATION_CODES:
         mask = filtered[imputed_col + "_imputation_code"] == code
@@ -61,6 +72,34 @@ def plot_imputation(
             s=3,
         )
     plt.title(f"Reported vs Imputed Values for {idx_vals}")
+    plt.ylabel(ylabel)
+    plt.legend(
+        bbox_to_anchor=(1.05, 1),
+        loc="upper left",
+        borderaxespad=0.0,
+        scatterpoints=3,  # Increase the size of points in the legend
+        markerscale=3,  # Scale up the marker size in the legend
+    )
+    plt.tight_layout()  # Adjust layout to make room for the legend
+    plt.show()
+
+
+def plot_compare_timeseries(
+    df: pd.DataFrame,
+    idx_cols: list[str],
+    idx_vals: tuple[Any],
+    start_date: str,
+    end_date: str,
+    timeseries_a: str,
+    timeseries_b: str,
+    time_col: str = "datetime_utc",
+    ylabel: str = "Demand [MWh]",
+):
+    """Plot two timeseries of the same information like demand for comparison."""
+    filtered = _filter_df(df, idx_cols, idx_vals, start_date, end_date, time_col)
+    plt.plot(filtered.index, filtered[timeseries_a], lw=1, label=timeseries_a)
+    plt.plot(filtered.index, filtered[timeseries_b], lw=1, label=timeseries_b, ls="--")
+    plt.title(f"{timeseries_a} vs {timeseries_b} for {idx_vals}")
     plt.ylabel(ylabel)
     plt.legend(
         bbox_to_anchor=(1.05, 1),
