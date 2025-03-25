@@ -100,12 +100,13 @@ def plot_imputation(
     plt.show()
 
 
-def plot_compare_timeseries(
+def plot_compare_imputation(
     df: pd.DataFrame,
     idx_cols: list[str],
     idx_vals: tuple[Any],
     start_date: str,
     end_date: str,
+    reported_col: str,
     timeseries_a: str,
     timeseries_b: str,
     time_col: str = "datetime_utc",
@@ -113,6 +114,18 @@ def plot_compare_timeseries(
 ):
     """Plot two timeseries of the same information like demand for comparison."""
     filtered = _filter_df(df, idx_cols, idx_vals, start_date, end_date, time_col)
+
+    # Plot reported
+    plt.figure(figsize=(12, 6))
+    plt.plot(
+        filtered.index,
+        filtered[reported_col],
+        lw=1,
+        color="gray",
+        label="reported",
+        alpha=0.5,
+    )
+
     plt.plot(filtered.index, filtered[timeseries_a], lw=1, label=timeseries_a)
     plt.plot(filtered.index, filtered[timeseries_b], lw=1, label=timeseries_b, ls="--")
     plt.title(f"{timeseries_a} vs {timeseries_b} for {idx_vals}")
