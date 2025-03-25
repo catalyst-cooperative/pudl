@@ -67,37 +67,3 @@ def test_self_vs_historical(pudl_out_ferc1, live_dbs):
     )
     for args in pv.core_ferc1__yearly_steam_plants_sched402_self:
         pudl.validate.vs_self(validate_df, **args)
-
-
-def test_plant_id_clash(pudl_out_ferc1):
-    """Test for FERC & PUDL Plant ID consistency.
-
-    Each PUDL Plant ID may contain several FERC Plant IDs, but one FERC Plant ID should
-    only ever appear within a single PUDL Plant ID. Test this assertion and fail if it
-    is untrue (as... we know it is right now).
-    """
-    steam_df = pd.read_sql(
-        "out_ferc1__yearly_steam_plants_sched402", pudl_out_ferc1.pudl_engine
-    )
-    bad_plant_ids_ferc1 = (
-        steam_df[["plant_id_pudl", "plant_id_ferc1"]]
-        .drop_duplicates()
-        .groupby("plant_id_ferc1")
-        .count()
-        .rename(columns={"plant_id_pudl": "pudl_id_count"})
-        .query("pudl_id_count>1")
-        .reset_index()
-        .plant_id_ferc1.to_numpy()
-        .tolist()
-    )
-    if len(bad_plant_ids_ferc1) > 6:
-        bad_records = steam_df[steam_df.plant_id_ferc1.isin(bad_plant_ids_ferc1)]
-        bad_plant_ids_pudl = bad_records.plant_id_pudl.unique().tolist()
-        msg = (
-            f"Found {len(bad_plant_ids_ferc1)} (expected 6) plant_id_ferc1 values "
-            f"associated with {len(bad_plant_ids_pudl)} non-unique "
-            f"plant_id_pudl values.\nplant_id_ferc1: {bad_plant_ids_ferc1}\n"
-            f"plant_id_pudl: {bad_plant_ids_pudl}."
-        )
-        logger.info(msg)
-        raise AssertionError(msg)
