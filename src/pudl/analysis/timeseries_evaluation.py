@@ -13,6 +13,8 @@ Line plot showing two different timeseries overlaid on each other. Allow zooming
 panning along the whole series. Color code values by a categorical column (imputation
 codes).
 
+Static reported vs. imputed values with color coded points for the imputations
+
 """
 
 from collections.abc import Sequence
@@ -62,7 +64,22 @@ def plot_imputation(
     # Set the dataframe index to the ID columns and the time column
     # Select specified index values that fall within the specified date range:
     filtered = _filter_df(df, idx_cols, idx_vals, start_date, end_date, time_col)
-    plt.plot(filtered.index, filtered[reported_col], lw=1, label="reported")
+    filtered = (
+        df.set_index(idx_cols + [time_col])
+        .sort_index()
+        .loc[idx_vals]
+        .loc[start_date:end_date]
+    )
+    plt.figure(figsize=(12, 6))
+    plt.plot(
+        filtered.index,
+        filtered[reported_col],
+        lw=1,
+        color="gray",
+        label="reported",
+        alpha=0.5,
+    )
+    plt.plot(filtered.index, filtered[imputed_col], lw=1, label="imputed")
     for code in IMPUTATION_CODES:
         mask = filtered[imputed_col + "_imputation_code"] == code
         plt.scatter(
@@ -77,8 +94,7 @@ def plot_imputation(
         bbox_to_anchor=(1.05, 1),
         loc="upper left",
         borderaxespad=0.0,
-        scatterpoints=3,  # Increase the size of points in the legend
-        markerscale=3,  # Scale up the marker size in the legend
+        markerscale=2,  # Scale up the marker size in the legend
     )
     plt.tight_layout()  # Adjust layout to make room for the legend
     plt.show()
