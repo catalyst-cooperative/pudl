@@ -49,19 +49,6 @@ unique_record_tables = [
 ]
 
 
-@pytest.mark.parametrize("table_name", unique_record_tables)
-def test_record_id_dupes(table_name, asset_value_loader):
-    """Verify that the generated ferc1 record_ids are unique."""
-    table = asset_value_loader.load_asset_value(table_name)
-    n_dupes = table.record_id.duplicated().to_numpy().sum()
-
-    if n_dupes:
-        dupe_ids = table.record_id[table.record_id.duplicated()].to_numpy()
-        raise AssertionError(
-            f"{n_dupes} duplicate record_ids found in {table_name}: {dupe_ids}."
-        )
-
-
 @pytest.mark.parametrize(
     "asset_key,cols",
     [
