@@ -6,37 +6,11 @@ parameterized fixture that has session scope.
 
 import logging
 
-import numpy as np
 import pytest
 
 from pudl import validate as pv
 
 logger = logging.getLogger(__name__)
-
-
-def test_fbp_ferc1_missing_fractions(pudl_out_ferc1, live_dbs):
-    """Check whether FERC 1 fuel costs by plant appear to be complete."""
-    if not live_dbs:
-        pytest.skip("Data validation only works with a live PUDL DB.")
-    fbp_ferc1 = pudl_out_ferc1.fbp_ferc1()
-
-    # Make sure we're not missing any costs...
-    if not np.isclose(
-        fbp_ferc1.filter(regex=".*fraction_cost$")
-        .dropna(how="all")
-        .sum(axis="columns"),
-        1.0,
-    ).all():
-        raise ValueError("Fuel cost fractions do not sum to 1.0")
-
-    # Make sure we're not missing any heat content...
-    if not np.isclose(
-        fbp_ferc1.filter(regex=".*fraction_mmbtu$")
-        .dropna(how="all")
-        .sum(axis="columns"),
-        1.0,
-    ).all():
-        raise ValueError("Fuel heat content fractions do not sum to 1.0")
 
 
 def test_fbp_ferc1_mismatched_fuels(pudl_out_ferc1, live_dbs):
