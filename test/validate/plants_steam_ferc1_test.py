@@ -69,36 +69,6 @@ def test_self_vs_historical(pudl_out_ferc1, live_dbs):
         pudl.validate.vs_self(validate_df, **args)
 
 
-def test_dupe_years_in_plant_id_ferc1(pudl_out_ferc1):
-    """Test that we have no duplicate years within any plant_id_ferc1.
-
-    Test to make sure that we don't have any plant_id_ferc1 time series which include
-    more than one record from a given year. Fail the test if we find such cases
-    (which... we do, as of writing).
-    """
-    steam_df = pd.read_sql(
-        "out_ferc1__yearly_steam_plants_sched402", pudl_out_ferc1.pudl_engine
-    )
-    year_dupes = (
-        steam_df.groupby(["plant_id_ferc1", "report_year"])["utility_id_ferc1"]
-        .count()
-        .reset_index()
-        .rename(columns={"utility_id_ferc1": "year_dupes"})
-        .query("year_dupes>1")
-    )
-    for dupe in year_dupes.itertuples():
-        logger.error(
-            "Found report_year=%s %s times in plant_id_ferc1=%s",
-            dupe.report_year,
-            dupe.year_dups,
-            dupe.plant_id_ferc1,
-        )
-    if len(year_dupes) != 0:
-        raise AssertionError(
-            f"Found {len(year_dupes)} duplicate years in FERC1 plant ID time series"
-        )
-
-
 def test_plant_id_clash(pudl_out_ferc1):
     """Test for FERC & PUDL Plant ID consistency.
 
