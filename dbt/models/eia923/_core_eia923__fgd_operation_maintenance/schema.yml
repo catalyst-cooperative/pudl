@@ -7,6 +7,17 @@ sources:
           - check_row_counts_per_partition:
               table_name: _core_eia923__fgd_operation_maintenance
               partition_column: report_date
+          - expect_sum_to_target_discrepancy_rate_less_than:
+              name: opex_cost_discrepancy_rate
+              sum_columns:
+                - opex_fgd_feed_materials_chemical
+                - opex_fgd_labor_supervision
+                - opex_fgd_land_acquisition
+                - opex_fgd_maintenance_material_other
+                - opex_fgd_waste_disposal
+              target_column: opex_fgd_total_cost
+              discrepancy_threshold: 0.01
+              max_discrepancy_rate: 0.1
         columns:
           - name: report_date
           - name: plant_id_eia
