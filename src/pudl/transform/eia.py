@@ -1339,7 +1339,7 @@ def dbt_dummy_check(context: AssetCheckExecutionContext) -> AssetCheckResult:
     asset_name = "core_eia860__assn_boiler_cooling"
     dbt_target = "etl-fast"
 
-    dbt_resource_name = f"pudl_dbt.eia860.{asset_name}.*"
+    dbt_resource_name = f"source:pudl_dbt.pudl.{asset_name}"
     dbt = dbtRunner()
     pudl_root_dir = Path(__file__).parent.parent.parent.parent
     with chdir(pudl_root_dir / "dbt"):
@@ -1347,7 +1347,7 @@ def dbt_dummy_check(context: AssetCheckExecutionContext) -> AssetCheckResult:
         _ = dbt.invoke(["seed"])
         test_result = dbt.invoke(
             [
-                "test",
+                "build",
                 "--store-failures",
                 "--threads",
                 "1",
