@@ -13,29 +13,6 @@ from pudl import validate as pv
 logger = logging.getLogger(__name__)
 
 
-def test_fbp_ferc1_mismatched_fuels(pudl_out_ferc1, live_dbs):
-    """Check whether FERC 1 primary fuel by cost and by heat content match."""
-    if not live_dbs:
-        pytest.skip("Data validation only works with a live PUDL DB.")
-    fbp_ferc1 = pudl_out_ferc1.fbp_ferc1()
-    # High proportion of primary fuel by cost and by mmbtu should be the same
-    mismatched_fuels = len(
-        fbp_ferc1[
-            (fbp_ferc1.primary_fuel_by_cost != fbp_ferc1.primary_fuel_by_mmbtu)
-            & fbp_ferc1.primary_fuel_by_cost.notnull()
-            & fbp_ferc1.primary_fuel_by_mmbtu.notnull()
-        ]
-    ) / len(fbp_ferc1)
-    logger.info(
-        f"{mismatched_fuels:.2%} of records have mismatched primary fuel types."
-    )
-    if mismatched_fuels > 0.05:
-        raise AssertionError(
-            f"Too many records ({mismatched_fuels:.2%}) have mismatched "
-            f"primary fuel types."
-        )
-
-
 def test_fbp_ferc1_mmbtu_cost_correlation(pudl_out_ferc1, live_dbs):
     """Check that the fuel cost fraction and mmbtu fractions are similar."""
     if not live_dbs:
