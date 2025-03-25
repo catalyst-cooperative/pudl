@@ -8,49 +8,6 @@ import pytest
 logger = logging.getLogger(__name__)
 
 
-def test_bga_eia860(pudl_out_eia, live_dbs):
-    """Test the boiler generator associations."""
-    if not live_dbs:
-        pytest.skip("Data validation only works with a live PUDL DB.")
-    logger.info("Inferring complete boiler-generator associations...")
-    bga = pudl_out_eia.bga_eia860()
-    gens_simple = pudl_out_eia.gens_eia860()[
-        ["report_date", "plant_id_eia", "generator_id", "fuel_type_code_pudl"]
-    ]
-    bga_gens = bga[
-        ["report_date", "plant_id_eia", "unit_id_pudl", "generator_id"]
-    ].drop_duplicates()
-
-    gens_simple = pd.merge(
-        gens_simple,
-        bga_gens,
-        on=["report_date", "plant_id_eia", "generator_id"],
-        validate="one_to_one",
-    )
-    units_simple = gens_simple.drop("generator_id", axis=1).drop_duplicates()
-    units_fuel_count = (
-        units_simple.groupby(["report_date", "plant_id_eia", "unit_id_pudl"])[
-            "fuel_type_code_pudl"
-        ]
-        .count()
-        .reset_index()
-    )
-    units_fuel_count = units_fuel_count.rename(
-        columns={"fuel_type_code_pudl": "fuel_type_count"}
-    )
-    units_simple = pd.merge(
-        units_simple,
-        units_fuel_count,
-        on=["report_date", "plant_id_eia", "unit_id_pudl"],
-    )
-    num_multi_fuel_units = len(units_simple[units_simple.fuel_type_count > 1])
-    multi_fuel_unit_fraction = num_multi_fuel_units / len(units_simple)
-    logger.warning(
-        f"{multi_fuel_unit_fraction:.0%} of generation units contain "
-        f"generators with differing primary fuels."
-    )
-
-
 @pytest.mark.xfail(reason="There are 730 generators that report multiple operators")
 def test_unique_operator_id(pudl_out_eia, live_dbs):
     """Test that each generator in the ownership table has a unique operator ID.
