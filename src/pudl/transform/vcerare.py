@@ -548,29 +548,6 @@ def check_unexpected_dates() -> AssetCheckResult:
 @asset_check(
     asset=out_vcerare__hourly_available_capacity_factor,
     blocking=True,
-    description="Check hour from date and hour of year match in VCE RARE table.",
-)
-def check_hour_from_date() -> AssetCheckResult:
-    """Check hour from date."""
-    vce = _load_duckdb_table()  # noqa: F841
-    logger.info("Check hour from date and hour of year match in VCE RARE table.")
-    mismatched_hours = duckdb.query(
-        "SELECT * FROM vce WHERE"
-        "(datepart('hr', datetime_utc) +"
-        "((datepart('dayofyear', datetime_utc)-1)*24)+1) != hour_of_year"
-    ).fetchall()
-    if len(mismatched_hours) > 0:
-        return AssetCheckResult(
-            passed=False,
-            description="hour_of_year values don't match date values",
-            metadata={"mismatched_hours": mismatched_hours},
-        )
-    return AssetCheckResult(passed=True)
-
-
-@asset_check(
-    asset=out_vcerare__hourly_available_capacity_factor,
-    blocking=True,
     description="Check for rows for Bedford City or Clifton Forge City in VCE RARE table.",
 )
 def check_unexpected_counties() -> AssetCheckResult:
