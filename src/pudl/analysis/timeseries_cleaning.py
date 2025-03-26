@@ -30,6 +30,7 @@ And described at:
 """
 
 import functools
+import math
 import uuid
 import warnings
 from collections.abc import Callable, Sequence
@@ -55,6 +56,7 @@ STANDARD_UTC_OFFSETS: dict[str, str] = {
     "America/Anchorage": -9,
     "America/Los_Angeles": -8,
     "America/Denver": -7,
+    "America/Phoenix": -7,
     "America/Chicago": -6,
     "America/New_York": -5,
     "America/Halifax": -4,
@@ -164,9 +166,19 @@ def utc_dataframe_to_aligned(
 @pa.check_types
 def pivot_aligned_timeseries_dataframe(
     aligned_df: DataFrame[AlignedTimeseriesDataFrame],
+    periods: int,
 ) -> DataFrame[TimeseriesMatrix]:
-    """Pivot aligned timeseries dataframe into timeseries matrix."""
-    return aligned_df.pivot(index="datetime", columns="id_col", values="value_col")
+    """Pivot aligned timeseries dataframe into timeseries matrix and pad if needed."""
+    matrix = aligned_df.pivot(index="datetime", columns="id_col", values="value_col")
+
+    # Pad matrix with any missing hours from timeseries
+    start = matrix.index.min().replace(hour=0)
+    hour_diff = (matrix.index.max() - start).total_seconds() / 3600
+    groups = math.ceil(hour_diff / periods)
+    all_hours = pd.date_range(
+        start=matrix.index.min(), periods=groups * periods, freq="h", name="datetime"
+    )
+    return matrix.reindex(all_hours)
 
 
 @pa.check_types
@@ -1630,7 +1642,7 @@ def impute_timeseries_asset_factory(
         )
 
         # Pivot to timeseries matrix
-        matrix = pivot_aligned_timeseries_dataframe(aligned_df)
+        matrix = pivot_aligned_timeseries_dataframe(aligned_df, settings.periods)
         return matrix, aligned_df
 
     @multi_asset(

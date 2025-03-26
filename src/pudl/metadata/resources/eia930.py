@@ -45,13 +45,13 @@ electric system."""
                 "balancing_authority_code_eia",
                 "net_generation_reported_mwh",
                 "net_generation_adjusted_mwh",
-                "net_generation_imputed_mwh",
+                "net_generation_imputed_eia_mwh",
                 "interchange_reported_mwh",
                 "interchange_adjusted_mwh",
-                "interchange_imputed_mwh",
+                "interchange_imputed_eia_mwh",
                 "demand_reported_mwh",
                 "demand_adjusted_mwh",
-                "demand_imputed_mwh",
+                "demand_imputed_eia_mwh",
                 "demand_forecast_mwh",
             ],
             "primary_key": [
@@ -87,7 +87,7 @@ investigation."""
                 "generation_energy_source",
                 "net_generation_reported_mwh",
                 "net_generation_adjusted_mwh",
-                "net_generation_imputed_mwh",
+                "net_generation_imputed_eia_mwh",
             ],
             "primary_key": [
                 "datetime_utc",
@@ -147,6 +147,40 @@ below provides more information on subregions."""
                 "datetime_utc",
                 "balancing_authority_code_eia",
                 "balancing_authority_subregion_code_eia",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia930"],
+        "etl_group": "eia930",
+        "create_database_schema": False,
+    },
+    "out_eia930__hourly_operations": {
+        "description": (
+            "This table is based on ``core_eia930__hourly_operations``, but adds "
+            "imputed demand values where the original data was missing or anomalous. "
+            "Codes explaining why values have been imputed can be found in the "
+            "``core_pudl__codes_imputation_reasons`` table."
+        ),
+        "schema": {
+            "fields": [
+                "datetime_utc",
+                "balancing_authority_code_eia",
+                "net_generation_reported_mwh",
+                "net_generation_adjusted_mwh",
+                "net_generation_imputed_eia_mwh",
+                "interchange_reported_mwh",
+                "interchange_adjusted_mwh",
+                "interchange_imputed_eia_mwh",
+                "demand_reported_mwh",
+                "demand_adjusted_mwh",
+                "demand_imputed_pudl_mwh",
+                "demand_imputed_pudl_mwh_imputation_code",
+                "demand_imputed_eia_mwh",
+                "demand_forecast_mwh",
+            ],
+            "primary_key": [
+                "datetime_utc",
+                "balancing_authority_code_eia",
             ],
         },
         "field_namespace": "eia",
