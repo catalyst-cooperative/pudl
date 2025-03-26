@@ -329,7 +329,7 @@ models:
       - ...
 ```
 
-By default the `no_null_cols` test applies to all columns in the table. To handle deprecated columns (where it is expected that after a certain date the column will only product null values), you can add conditions to select columns for when the test should apply:
+By default the `no_null_cols` test applies to all columns in the table. To handle deprecated columns (where it is expected that after a certain date the column will only produce null values), you can add conditions to select the rows when the test should apply:
 ```
 models:
   - name: some_model
@@ -357,7 +357,7 @@ columns:
   - name: deprecated_column
     data_tests:
       - not_all_null:
-          filter: "WHERE report_date < '2025-01-01'"
+          filter: "report_date < '2025-01-01'"
 
 ```
 
