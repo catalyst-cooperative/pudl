@@ -3,8 +3,12 @@ with Discrepancies as (
     select
         ({% for c in sum_columns %}
         coalesce({{ c }}, 0) {% if not loop.last %}+ {% endif %}
-        {% endfor %} - {{ target_column }}) / {{ target_column }} as discrepancy,
-        discrepancy is not null and discrepancy > {{ discrepancy_threshold }} as bad_discrepancy
+        {% endfor %}) as sum_cost,
+        abs(sum_cost - {{ target_column }}) / {{ target_column }} as discrepancy,
+        {{ target_column }} is not null and (sum_cost != {{ target_column }}) and discrepancy > {{ discrepancy_threshold }} as bad_discrepancy
+        -- null target column should not count
+        -- zero target column with sum_cost!=0 (discrepancy=inf) should count
+        -- zero target column with sum_cost=0 (discrepancy=nan) should not count
     from {{ model }}
 ), BadDiscrepancies as (
     select * from Discrepancies where discrepancy is not null and discrepancy > {{ discrepancy_threshold }}
@@ -15,10 +19,11 @@ with Discrepancies as (
         count(*) over (partition by bad_discrepancy) as discrepancy_count,
         discrepancy_count / total_count as discrepancy_rate
     from Discrepancies
-    order by bad_discrepancy desc
+    order by bad_discrepancy desc -- so we get bad_discrepancy=true first, if any exist
     limit 1
 )
 select * from DiscrepancyRate
-where discrepancy_rate > {{ max_discrepancy_rate }}
+where bad_discrepancy is true and discrepancy_rate > {{ max_discrepancy_rate }}
+-- if no bad discrepancies exist, we pass
 
 {% endtest %}
