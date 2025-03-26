@@ -34,6 +34,7 @@ description: >
   except where the dataset already executes fast and/or is necessary in all cases.
 version: 0.1.0
 datasets:
+  etl_type: fast
   ferc1:
     years: [2020, 2021, 2023]
   ferc714:

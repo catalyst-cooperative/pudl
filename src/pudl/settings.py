@@ -2,7 +2,7 @@
 
 import json
 from enum import Enum, StrEnum, auto, unique
-from typing import Any, ClassVar, Self
+from typing import Any, ClassVar, Literal, Self
 
 import fsspec
 import pandas as pd
@@ -535,6 +535,8 @@ class EiaSettings(FrozenBaseModel):
 
 class DatasetsSettings(FrozenBaseModel):
     """An immutable pydantic model to validate PUDL Dataset settings."""
+
+    etl_type: Literal["fast", "full"] = "full"
 
     eia: EiaSettings | None = None
     epacems: EpaCemsSettings | None = None
