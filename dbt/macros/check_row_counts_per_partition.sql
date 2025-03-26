@@ -24,9 +24,11 @@ WITH
         FROM {{ model }}
         {% endif %}
     )
-SELECT expected.partition, expected.expected_count, observed.observed_count
+SELECT expected.partition as expected_partition, observed.partition as observed_partition, expected.expected_count, observed.observed_count
 FROM expected
-INNER JOIN observed ON expected.partition=observed.partition
+FULL OUTER JOIN observed ON expected.partition=observed.partition
 WHERE expected.expected_count != observed.observed_count
+  OR expected.expected_count IS NULL
+  OR observed.observed_count IS NULL
 
 {% endtest %}
