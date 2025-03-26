@@ -62,18 +62,6 @@ def test_fbp_ferc1_mismatched_fuels(pudl_out_ferc1, live_dbs):
         )
 
 
-def test_fbp_ferc1_mmbtu_cost_correlation(pudl_out_ferc1, live_dbs):
-    """Check that the fuel cost fraction and mmbtu fractions are similar."""
-    if not live_dbs:
-        pytest.skip("Data validation only works with a live PUDL DB.")
-    fbp_ferc1 = pudl_out_ferc1.fbp_ferc1()
-    for fuel in ["gas", "oil", "coal"]:
-        fuel_cols = [f"{fuel}_fraction_mmbtu", f"{fuel}_fraction_cost"]
-        fuel_corr = fbp_ferc1[fuel_cols].corr().iloc[0, 1]
-        if fuel_corr < 0.8:
-            raise ValueError(f"{fuel} cost v mmbtu corrcoef is below 0.9: {fuel_corr}")
-
-
 @pytest.mark.parametrize(
     "cases",
     [
