@@ -6,7 +6,7 @@ association tables for various technology types are also concatenated together.
 """
 
 import pandas as pd
-from dagster import AssetCheckResult, AssetIn, asset, asset_check
+from dagster import asset
 
 import pudl
 
@@ -143,27 +143,3 @@ def core_gridpathratoolkit__assn_generator_aggregation_group(
             if not agg_df.empty
         ]
     )
-
-
-@asset_check(
-    asset="out_gridpathratoolkit__hourly_available_capacity_factor",
-    additional_ins={
-        "aggs": AssetIn("core_gridpathratoolkit__assn_generator_aggregation_group")
-    },
-    blocking=True,
-)
-def check_valid_aggregation_groups(
-    out_gridpathratoolkit__hourly_available_capacity_factor,
-    aggs: pd.DataFrame,
-) -> AssetCheckResult:
-    """Check that every capacity factor aggregation key appears in the aggregations.
-
-    This isn't a normal foreign-key relationship, since the aggregation group isn't the
-    primary key in the aggregation tables, and is not unique in either of these tables,
-    but if an aggregation group appears in the capacity factor time series and never
-    appears in the aggregation table, then something is wrong.
-    """
-    missing_agg_groups = set(
-        out_gridpathratoolkit__hourly_available_capacity_factor.aggregation_group.unique()
-    ).difference(set(aggs.aggregation_group.unique()))
-    return AssetCheckResult(passed=missing_agg_groups == set())
