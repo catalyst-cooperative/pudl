@@ -11,7 +11,7 @@ with Discrepancies as (
         -- zero target column with sum_cost=0 (discrepancy=nan) should not count
     from {{ model }}
 ), BadDiscrepancies as (
-    select * from Discrepancies where discrepancy is not null and discrepancy > {{ discrepancy_threshold }}
+    select * from Discrepancies where bad_discrepancy is true
 ), DiscrepancyRate as (
     select
         bad_discrepancy,
