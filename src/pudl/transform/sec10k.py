@@ -152,6 +152,7 @@ def core_sec10k__company_info(
 
 @asset(
     # io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     group_name="core_sec10k",
 )
 def core_sec10k__quarterly_company_information(
@@ -254,7 +255,8 @@ def core_sec10k__quarterly_company_information(
 
 @asset(
     # io_manager_key="pudl_io_manager",
-    group_name="core_sec10k"
+    io_manager_key="parquet_io_manager",
+    group_name="core_sec10k",
 )
 def core_sec10k__changelog_company_name(
     _core_sec10k__changelog_company_name: pd.DataFrame,

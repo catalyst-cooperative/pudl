@@ -29,14 +29,3 @@ def out_sec10k__quarterly_company_information(
     # merge utility name on
     out_df = out_df.merge(core_eia__entity_utilities, how="left", on="utility_id_eia")
     return out_df
-
-
-@dg.asset(
-    # io_manager_key="pudl_io_manager",
-    group_name="out_sec10k",
-)
-def out_sec10k__changelog_company_name(
-    core_sec10k__changelog_company_name: pd.DataFrame,
-) -> pd.DataFrame:
-    """A denormalized output table for the SEC 10-K company name changelog."""
-    return core_sec10k__changelog_company_name
