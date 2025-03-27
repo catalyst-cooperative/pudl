@@ -31,7 +31,7 @@ So far we have created the following tests:
   ``test_fbp_ferc1_mmbtu_cost_correlation`` pytest.
   See :issue:`4094`, :pr:`4117`. You can find the implementation in the
   `check_column_correlation.sql
-  <../../dbt/tests/data_tests/check_column_correlation.sql>`__ file.
+  <../../dbt/tests/data_tests/generic_tests/check_column_correlation.sql>`__ file.
 
 * We now publish a `Frictionless data package
   <https://datapackage.org/standard/data-package/>`__ describing our Parquet
