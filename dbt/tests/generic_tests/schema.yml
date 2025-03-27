@@ -1,7 +1,7 @@
 version: 2
 
 macros:
-  - name: check_column_correlation
+  - name: test_check_column_correlation
     description: Check the correlation between two columns
     arguments:
       - name: column1
@@ -13,7 +13,7 @@ macros:
       - name: correlation_coef
         type: float
         description: The correlation coefficient to check for
-  - name: check_row_counts_per_partition
+  - name: test_check_row_counts_per_partition
     description: Check that the number of rows in each partition is as expected
     arguments:
       - name: table_name
@@ -22,7 +22,7 @@ macros:
       - name: partition_column
         type: string
         description: The name of the column to partition by
-  - name: expect_includes_all_value_combinations_from
+  - name: test_expect_includes_all_value_combinations_from
     description:
       Check that all values in a column or set of columns are the same
       as the same set of columns in another table. Similar to a foreign key
@@ -38,7 +38,7 @@ macros:
       - name: compare_cols
         type: list
         description: A list of column names present in both tables. The test will succeed only if all combinations of column values present in at least one row in the comparison table are present in this table.
-  - name: expect_column_quantile_values_to_be_between
+  - name: test_expect_column_quantile_values_to_be_between
     description: Check that the quantile values of a column are within a range
     arguments:
       - name: quantile
@@ -62,7 +62,7 @@ macros:
       - name: strictly
         type: boolean
         description: Whether the values should be strictly between the min and max values
-  - name: no_null_rows
+  - name: test_no_null_rows
     description: Check that there are no null rows in the table
-  - name: not_all_null
+  - name: test_not_all_null
     description: Check that not all values in a column are null
