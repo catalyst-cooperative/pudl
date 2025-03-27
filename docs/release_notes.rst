@@ -25,7 +25,7 @@ New Tests
 ^^^^^^^^^
 We're in the process of migrating our tests to use the
 `dbt <https://docs.getdbt.com/docs/introduction>`__ framework.
-So far we have created the following tests:
+So far we have converted the following tests:
 
 * ``check_column_correlation`` – a more generic replacement for the old
   ``test_fbp_ferc1_mmbtu_cost_correlation`` pytest.
