@@ -56,14 +56,14 @@ raw_module_groups = {
     "raw_ferc1": [pudl.extract.ferc1],
     "raw_ferc714": [pudl.extract.ferc714],
     "raw_gridpathratoolkit": [pudl.extract.gridpathratoolkit],
-    "raw_phmsagas": [pudl.extract.phmsagas],
     "raw_nrelatb": [pudl.extract.nrelatb],
+    "raw_phmsagas": [pudl.extract.phmsagas],
+    "raw_sec10k": [pudl.extract.sec10k],
     "raw_vcerare": [pudl.extract.vcerare],
 }
 
 
 core_module_groups = {
-    "core_eia176": [pudl.transform.eia176],
     "core_assn": [glue_assets],
     "core_censusdp1tract": [
         pudl.convert.censusdp1tract_to_sqlite,
@@ -73,6 +73,7 @@ core_module_groups = {
     "core_eia": [pudl.transform.eia],
     "core_eiaaeo": [pudl.transform.eiaaeo],
     "core_eia_bulk_elec": [eia_bulk_elec_assets],
+    "core_eia176": [pudl.transform.eia176],
     "core_eia860": [pudl.transform.eia860, pudl.transform.eia860m],
     "core_eia861": [pudl.transform.eia861],
     "core_eia923": [pudl.transform.eia923],
@@ -82,6 +83,7 @@ core_module_groups = {
     "core_ferc714": [pudl.transform.ferc714],
     "core_gridpathratoolkit": [pudl.transform.gridpathratoolkit],
     "core_nrelatb": [pudl.transform.nrelatb],
+    "core_sec10k": [pudl.transform.sec10k],
     "core_vcerare": [pudl.transform.vcerare],
 }
 
@@ -103,6 +105,7 @@ out_module_groups = {
         pudl.analysis.record_linkage.classify_plants_ferc1,
     ],
     "out_respondents_ferc714": [pudl.output.ferc714],
+    "out_sec10k": [pudl.output.sec10k],
     "out_service_territory_eia861": [pudl.analysis.service_territory],
     "out_state_demand_ferc714": [pudl.analysis.state_demand],
 }
