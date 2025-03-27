@@ -22,7 +22,7 @@ macros:
       - name: partition_column
         type: string
         description: The name of the column to partition by
-  - name: compare_all_same_col_values
+  - name: expect_includes_all_value_combinations_from
     description:
       Check that all values in a column or set of columns are the same
       as the same set of columns in another table. Similar to a foreign key

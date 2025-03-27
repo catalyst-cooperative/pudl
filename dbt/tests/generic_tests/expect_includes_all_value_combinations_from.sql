@@ -1,4 +1,4 @@
-{% test compare_all_same_col_values(model, compare_df_name, compare_cols) %}
+{% test expect_includes_all_value_combinations_from(model, compare_table_name, compare_cols) %}
 
 WITH
     compare_df AS (
