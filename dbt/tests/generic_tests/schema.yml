@@ -34,8 +34,7 @@ macros:
         description: The name of the table to compare columns with
       - name: compare_cols
         type: list
-        description: A list of the column names to compare accross tables. This
-          list will act as a composite key.
+        description: A list of column names present in both tables. The test will succeed only if all combinations of column values present in at least one row in the comparison table are present in this table.
   - name: expect_column_quantile_values_to_be_between
     description: Check that the quantile values of a column are within a range
     arguments:
