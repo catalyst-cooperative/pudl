@@ -292,7 +292,8 @@ def add_county_fips_id(
     counties = counties[~city_county_dupe_mask]
 
     df = (
-        df.assign(county_tmp=_clean_area_name_col(df[county_col], {}))
+        df.astype({county_col: pd.StringDtype()})
+        .assign(county_tmp=lambda x: _clean_area_name_col(x[county_col], {}))
         .merge(counties, on=["state_id_fips", "county_tmp"], how="left", validate="m:1")
         .drop(columns=["county_tmp", "area_name"])
     )
