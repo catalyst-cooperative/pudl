@@ -406,15 +406,20 @@ def core_sec10k__quarterly_exhibit_21_company_ownership(
     raw_sec10k__exhibit_21_company_ownership: pd.DataFrame,
 ) -> pd.DataFrame:
     """Standardize the contents of the SEC 10-K exhibit 21 company ownership table."""
-    df = raw_sec10k__exhibit_21_company_ownership.rename(
-        columns={
-            "sec10k_filename": "filename_sec10k",
-            "subsidiary": "subsidiary_company_name",
-            "location": "subsidiary_company_location",
-        }
-    ).assign(
-        fraction_owned=lambda x: _compute_fraction_owned(x["ownership_percentage"]),
-        report_date=lambda x: _year_quarter_to_date(x["year_quarter"]),
+    df = (
+        raw_sec10k__exhibit_21_company_ownership.rename(
+            columns={
+                "sec10k_filename": "filename_sec10k",
+                "subsidiary": "subsidiary_company_name",
+                "location": "subsidiary_company_location",
+            }
+        )
+        .assign(
+            filename_sec10k=lambda x: _simplify_filename_sec10k(x["filename_sec10k"]),
+            fraction_owned=lambda x: _compute_fraction_owned(x["ownership_percentage"]),
+            report_date=lambda x: _year_quarter_to_date(x["year_quarter"]),
+        )
+        .drop(columns=["ownership_percentage", "year_quarter"])
     )
     return df
 

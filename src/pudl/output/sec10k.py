@@ -6,6 +6,7 @@ import pandas as pd
 
 @dg.asset(
     # io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     group_name="out_sec10k",
 )
 def out_sec10k__quarterly_company_information(
@@ -18,14 +19,18 @@ def out_sec10k__quarterly_company_information(
     out_df = (
         pd.merge(
             left=core_sec10k__quarterly_company_information,
-            right=core_sec10k__assn_sec10k_filers_and_eia_utilities,
+            right=core_sec10k__assn_sec10k_filers_and_eia_utilities.loc[
+                :, ["central_index_key", "utility_id_eia"]
+            ],
             how="left",
             on="central_index_key",
+            validate="many_to_one",
         )
         .merge(
             core_eia__entity_utilities.loc[:, ["utility_id_eia", "utility_name_eia"]],
             how="left",
             on="utility_id_eia",
+            validate="many_to_one",
         )
         .merge(
             core_sec10k__quarterly_filings.loc[
@@ -33,10 +38,10 @@ def out_sec10k__quarterly_company_information(
             ],
             how="left",
             on="filename_sec10k",
-            validate="one_to_many",
+            validate="many_to_one",
         )
         .assign(
             source_url=lambda x: f"https://www.sec.gov/Archives/edgar/data/{x.filename_sec10k}.txt"
         )
-    )
+    ).convert_dtypes()
     return out_df

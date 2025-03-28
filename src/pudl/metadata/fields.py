@@ -4484,6 +4484,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Indicates whether the generator is part of a solid fuel gasification system",
     },
+    "source_url": {
+        "type": "string",
+        "description": "URL pointing to the original source of the data in the record.",
+        "constraints": {
+            "pattern": r"^https?://.+",
+        },
+    },
     "specifications_of_coal_ash": {
         "type": "number",
         "description": (
