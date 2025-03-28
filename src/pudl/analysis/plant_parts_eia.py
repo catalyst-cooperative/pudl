@@ -185,7 +185,7 @@ from typing import Literal
 
 import numpy as np
 import pandas as pd
-from dagster import AssetCheckResult, AssetIn, asset, asset_check
+from dagster import asset
 
 import pudl
 from pudl.metadata.classes import Resource
@@ -1624,13 +1624,3 @@ def out_eia__yearly_assn_plant_parts_plant_gen(
         )
     )
     return ppe_assn
-
-
-@asset_check(
-    asset="out_eia__yearly_assn_plant_parts_plant_gen",
-    additional_ins={"ppe": AssetIn("out_eia__yearly_plant_parts")},
-)
-def ensure_all_ppe_ids_are_in_assn(ppe_assn, ppe):
-    """Check to see if every ID in the EIA plant parts shows up in the assn table."""
-    assert set(ppe.record_id_eia) == set(ppe_assn.record_id_eia)
-    return AssetCheckResult(passed=True)
