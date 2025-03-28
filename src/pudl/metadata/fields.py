@@ -22,6 +22,7 @@ from pudl.metadata.enums import (
     FUEL_CLASSES,
     FUEL_TYPES_EIAAEO,
     GENERATION_ENERGY_SOURCES_EIA930,
+    IMPUTATION_CODES,
     INCOME_TYPES_FERC1,
     LIABILITY_TYPES_FERC1,
     MODEL_CASES_EIAAEO,
@@ -1119,6 +1120,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Electricity demand calculated by subtracting BA interchange from net generation, with outliers and missing values imputed by EIA.",
         "unit": "MWh",
+    },
+    "demand_imputed_pudl_mwh": {
+        "type": "number",
+        "description": "Electricity demand calculated by subtracting BA interchange from net generation, with outliers and missing values imputed in PUDL.",
+        "unit": "MWh",
+    },
+    "demand_imputed_pudl_mwh_imputation_code": {
+        "type": "string",
+        "description": "Code describing why a demand value was flagged for imputation.",
+        "constraints": {"enum": IMPUTATION_CODES},
     },
     "demand_reported_mwh": {
         "type": "number",
