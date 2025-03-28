@@ -1,19 +1,19 @@
 {% test expect_includes_all_value_combinations_from(model, compare_table_name, compare_cols) %}
 
 WITH
-    compare_df AS (
+    compare_table AS (
         SELECT DISTINCT
             {{ ", ".join(compare_cols) }}
-        FROM {{ source('pudl', compare_df_name )}}
+        FROM {{ source('pudl', compare_table_name )}}
     ),
-    model_df AS (
+    model_table AS (
         SELECT DISTINCT
             {{ ", ".join(compare_cols) }}
         FROM {{ model }}
     )
 
-SELECT * from compare_df
+SELECT * from compare_table
 EXCEPT
-SELECT * from model_df
+SELECT * from model_table
 
 {% endtest %}
