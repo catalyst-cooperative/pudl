@@ -3,8 +3,6 @@
 import dagster as dg
 import pandas as pd
 
-from pudl.extract.sec10k import _load_table_from_gcs
-
 
 @dg.asset(
     # io_manager_key="pudl_io_manager",
@@ -12,20 +10,33 @@ from pudl.extract.sec10k import _load_table_from_gcs
 )
 def out_sec10k__quarterly_company_information(
     core_sec10k__quarterly_company_information: pd.DataFrame,
+    core_sec10k__quarterly_filings: pd.DataFrame,
+    core_sec10k__assn_sec10k_filers_and_eia_utilities: pd.DataFrame,
     core_eia__entity_utilities: pd.DataFrame,
 ) -> pd.DataFrame:
     """Company information extracted from SEC10k filings and matched to EIA utilities."""
-    matched_df = _load_table_from_gcs("out_sec10k__parents_and_subsidiaries")
-    matched_df = (
-        matched_df[["central_index_key", "utility_id_eia"]]
-        .dropna()
-        .drop_duplicates(
-            subset="central_index_key"
-        )  # matches should already be 1-to-1 but drop duplicates to ensure this is true
+    out_df = (
+        pd.merge(
+            left=core_sec10k__quarterly_company_information,
+            right=core_sec10k__assn_sec10k_filers_and_eia_utilities,
+            how="left",
+            on="central_index_key",
+        )
+        .merge(
+            core_eia__entity_utilities.loc[:, ["utility_id_eia", "utility_name_eia"]],
+            how="left",
+            on="utility_id_eia",
+        )
+        .merge(
+            core_sec10k__quarterly_filings.loc[
+                :, ["filename_sec10k", "report_date", "filing_date"]
+            ],
+            how="left",
+            on="filename_sec10k",
+            validate="one_to_many",
+        )
+        .assign(
+            source_url=lambda x: f"https://www.sec.gov/Archives/edgar/data/{x.filename_sec10k}.txt"
+        )
     )
-    out_df = core_sec10k__quarterly_company_information.merge(
-        matched_df, how="left", on="central_index_key"
-    )
-    # merge utility name on
-    out_df = out_df.merge(core_eia__entity_utilities, how="left", on="utility_id_eia")
     return out_df

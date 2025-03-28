@@ -58,7 +58,6 @@ raw_module_groups = {
     "raw_gridpathratoolkit": [pudl.extract.gridpathratoolkit],
     "raw_nrelatb": [pudl.extract.nrelatb],
     "raw_phmsagas": [pudl.extract.phmsagas],
-    "raw_sec10k": [pudl.extract.sec10k],
     "raw_vcerare": [pudl.extract.vcerare],
 }
 
@@ -83,7 +82,6 @@ core_module_groups = {
     "core_ferc714": [pudl.transform.ferc714],
     "core_gridpathratoolkit": [pudl.transform.gridpathratoolkit],
     "core_nrelatb": [pudl.transform.nrelatb],
-    "core_sec10k": [pudl.transform.sec10k],
     "core_vcerare": [pudl.transform.vcerare],
 }
 
@@ -105,7 +103,6 @@ out_module_groups = {
         pudl.analysis.record_linkage.classify_plants_ferc1,
     ],
     "out_respondents_ferc714": [pudl.output.ferc714],
-    "out_sec10k": [pudl.output.sec10k],
     "out_service_territory_eia861": [pudl.analysis.service_territory],
     "out_state_demand_ferc714": [pudl.analysis.state_demand],
 }
@@ -121,8 +118,16 @@ default_assets = list(
     )
 )
 
+# For details on why this is needed now, and how we can get rid of it see
+# https://github.com/catalyst-cooperative/pudl/issues/4065
 if os.getenv("USE_PUDL_MODELS"):
-    default_assets += load_assets_from_modules([pudl.analysis.pudl_models])
+    default_assets += load_assets_from_modules(
+        [
+            pudl.extract.sec10k,
+            pudl.transform.sec10k,
+            pudl.output.sec10k,
+        ]
+    )
 
 default_asset_checks = list(
     itertools.chain.from_iterable(
