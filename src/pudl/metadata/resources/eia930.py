@@ -154,4 +154,31 @@ below provides more information on subregions."""
         "etl_group": "eia930",
         "create_database_schema": False,
     },
+    "out_eia930__hourly_subregion_demand": {
+        "description": (
+            "This table is based on ``core_eia930__hourly_subregion_demand``, but adds "
+            "imputed demand values where the original data was missing or anomalous. "
+            "Codes explaining why values have been imputed can be found in the "
+            "``core_pudl__codes_imputation_reasons`` table."
+        ),
+        "schema": {
+            "fields": [
+                "datetime_utc",
+                "balancing_authority_code_eia",
+                "balancing_authority_subregion_code_eia",
+                "demand_reported_mwh",
+                "demand_imputed_pudl_mwh",
+                "demand_imputed_pudl_mwh_imputation_code",
+            ],
+            "primary_key": [
+                "datetime_utc",
+                "balancing_authority_code_eia",
+                "balancing_authority_subregion_code_eia",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia930"],
+        "etl_group": "eia930",
+        "create_database_schema": False,
+    },
 }
