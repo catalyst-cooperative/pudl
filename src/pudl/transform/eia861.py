@@ -1026,6 +1026,7 @@ def _harvest_associations(dfs: list[pd.DataFrame], cols: list[str]) -> pd.DataFr
 @asset(io_manager_key="pudl_io_manager")
 def core_eia861__yearly_service_territory(
     raw_eia861__service_territory: pd.DataFrame,
+    _core_censuspep__yearly_geocodes: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the EIA 861 utility service territory table.
 
@@ -1050,18 +1051,10 @@ def core_eia861__yearly_service_territory(
         # Ensure that we have the canonical US Census county names:
         .pipe(clean_eia_counties, fixes=EIA_FIPS_COUNTY_FIXES)
         # Add FIPS IDs based on county & state names:
-        .pipe(add_fips_ids)
+        .pipe(add_fips_ids, _core_censuspep__yearly_geocodes)
         .assign(short_form=lambda x: _make_yn_bool(x.short_form))
         .pipe(_post_process)
     )
-    # The Virgin Islands and Guam aren't covered by addfips but they have FIPS:
-    st_croix = (df.state == "VI") & (df.county.isin(["St. Croix", "Saint Croix"]))
-    df.loc[st_croix, "county_id_fips"] = "78010"
-    st_john = (df.state == "VI") & (df.county.isin(["St. John", "Saint John"]))
-    df.loc[st_john, "county_id_fips"] = "78020"
-    st_thomas = (df.state == "VI") & (df.county.isin(["St. Thomas", "Saint Thomas"]))
-    df.loc[st_thomas, "county_id_fips"] = "78030"
-    df.loc[df.state == "GU", "county_id_fips"] = "66010"
 
     pk = PUDL_PACKAGE.get_resource(
         "core_eia861__yearly_service_territory"

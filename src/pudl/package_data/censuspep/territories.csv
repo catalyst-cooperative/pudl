@@ -1,0 +1,21 @@
+state_id_fips,county_id_fips,area_name,fips_level,report_date
+60,000,American Samoa,040,2020
+66,000,Guam,040,2020
+69,000,Northern Mariana Islands,040,2020
+74,000,U.S. Minor Outlying Islands,040,2020
+78,000,Virgin Islands,040,2020
+60,010,Eastern District,050,2020
+60,020,Manu'a District,050,2020
+60,030,Rose Island,050,2020
+60,040,Swains Island,050,2020
+60,050,Western District,050,2020
+66,010,Guam,050,2020
+66,010,Agana,050,2010
+69,085,Northern Islands Municipality,050,2020
+69,100,Rota Municipality,050,2020
+69,110,Saipan Municipality,050,2020
+69,120,Tinian Municipality,050,2020
+74,300,Midway Islands,050,2020
+78,010,St. Croix Island,050,2020
+78,020,St. John Island,050,2020
+78,030,St. Thomas Island,050,2020
