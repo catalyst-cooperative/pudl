@@ -3,6 +3,7 @@
 import pandas as pd
 import pandera as pr
 import pytest
+from docutils.core import publish_doctree
 
 from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.classes import (
@@ -207,3 +208,65 @@ def test_frictionless_data_package_resources_populated():
             expected_resource["schema"].get("primary_key", [])
             == resource.schema.primary_key
         )
+
+
+description_compliant_tables = [
+    "_core_eia860__fgd_equipment",
+    # "core_eia861__yearly_demand_side_management_ee_dr", # noncompliant for testing unit test
+]
+
+
+@pytest.mark.parametrize(
+    "resource_name", sorted(description_compliant_tables)
+)  # someday: sorted(PUDL_RESOURCES.keys()))
+def test_description_compliance(resource_name):
+    meta = RESOURCE_METADATA[resource_name]
+    desc = meta["description"]
+    tree = publish_doctree(desc)
+    front_matter = []
+    for c in tree.children:
+        if c.tagname == "paragraph":
+            front_matter.append(c.astext())
+        else:
+            break
+    layer = "core"  # todo: replace with cg's extractor
+    source = "eia860"  # todo: replace with cg's extractor. or maybe just use meta["sources"]?
+    source_labels = [
+        SOURCES[s]["label"] for s in meta["sources"]
+    ]  # todo: what if source extracted from table name isn't in meta["sources"]???
+    asset_type = (
+        "scd" if "_scd_" in resource_name else None
+    )  # todo: replace with cg's extractor
+    has_pk = "primary_key" in meta["schema"]
+    # todo: break each category of check out into its own function
+    # todo: layer-based checks
+    # source-based checks
+    for paragraph in front_matter:
+        if paragraph.startswith("Derived from"):
+            if any((s in paragraph) for s in source_labels):
+                break
+    else:
+        # todo: refer to a template or wizard for additional help
+        assert False, f"""Table {resource_name} has sources {str(meta["sources"])},
+but the description does not explain them in the required format. We expect a
+paragraph in the front matter starting with 'Derived from' and including any of the
+source labels {str(source_labels)} as exact strings."""
+    # todo: asset_type-based checks
+    # pk-based checks
+    if not has_pk:
+        # some paragraph should declare no primary key and explain why
+        for paragraph in front_matter:
+            if paragraph.startswith("This table has no primary key."):
+                paragraph_sentences = paragraph.split(".")
+                if len(paragraph_sentences[1].strip()) > 5:
+                    # okay so technically "This table has no primary key. lololol" will
+                    # pass this test but ideally that kind of hijinks gets caught in
+                    # review
+                    break
+        else:
+            # todo: refer to a template or wizard for additional help
+            assert False, f"""Table {resource_name} has no primary key, but the
+description does not explain it in the required format. We expect a paragraph in the
+front matter to start with 'This table has no primary key.' and go on to briefly
+describe what each record represents and, if needed, why no primary key is
+possible."""

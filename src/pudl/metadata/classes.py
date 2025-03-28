@@ -934,6 +934,7 @@ class DataSource(PudlMeta):
 
     name: SnakeCase
     title: String | None = None
+    label: String | None = None
     description: String | None = None
     field_namespace: String | None = None
     keywords: list[str] = []
