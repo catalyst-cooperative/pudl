@@ -62,8 +62,7 @@ def _standardize_industrial_classification(sic: pd.Series) -> pd.DataFrame:
 
 
 @dg.asset(
-    # io_manager_key="pudl_io_manager",
-    io_manager_key="parquet_io_manager",
+    io_manager_key="pudl_io_manager",
     group_name="core_sec10k",
 )
 def core_sec10k__quarterly_filings(
@@ -230,8 +229,7 @@ def core_sec10k__company_info(
 
 
 @dg.asset(
-    # io_manager_key="pudl_io_manager",
-    io_manager_key="parquet_io_manager",
+    io_manager_key="pudl_io_manager",
     group_name="core_sec10k",
 )
 def core_sec10k__quarterly_company_information(
@@ -353,8 +351,7 @@ def core_sec10k__changelog_company_name(
 
 
 @dg.asset(
-    # io_manager_key="pudl_io_manager",
-    io_manager_key="parquet_io_manager",
+    io_manager_key="pudl_io_manager",
     group_name="core_sec10k",
 )
 def core_sec10k__parents_and_subsidiaries(
@@ -405,8 +402,7 @@ def core_sec10k__parents_and_subsidiaries(
 
 
 @dg.asset(
-    # io_manager_key="pudl_io_manager",
-    io_manager_key="parquet_io_manager",
+    io_manager_key="pudl_io_manager",
     group_name="core_sec10k",
 )
 def core_sec10k__quarterly_exhibit_21_company_ownership(
@@ -432,8 +428,7 @@ def core_sec10k__quarterly_exhibit_21_company_ownership(
 
 
 @dg.asset(
-    # io_manager_key="pudl_io_manager",
-    io_manager_key="parquet_io_manager",
+    io_manager_key="pudl_io_manager",
     group_name="core_sec10k",
 )
 def core_sec10k__assn_sec10k_filers_and_eia_utilities(
