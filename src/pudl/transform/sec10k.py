@@ -34,6 +34,7 @@ def _compute_fraction_owned(percent_ownership: pd.Series) -> pd.Series:
 
 @dg.asset(
     # io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     group_name="core_sec10k",
 )
 def core_sec10k__quarterly_filings(
@@ -190,11 +191,11 @@ def core_sec10k__company_info(
     return (
         dg.Output(
             output_name="_core_sec10k__quarterly_company_information",
-            value=company_info,
+            value=company_info.convert_dtypes(),
         ),
         dg.Output(
             output_name="_core_sec10k__changelog_company_name",
-            value=name_changes,
+            value=name_changes.convert_dtypes(),
         ),
     )
 
@@ -299,7 +300,7 @@ def core_sec10k__quarterly_company_information(
     assert sum(invalid_sec10k_type.dropna()) < 11
     clean_info.loc[invalid_sec10k_type, "sec10k_type"] = pd.NA
 
-    return clean_info
+    return clean_info.convert_dtypes()
 
 
 @dg.asset(
@@ -335,7 +336,7 @@ def core_sec10k__changelog_company_name(
             .fillna(x["company_conformed_name"])
         )
         .drop(columns="company_conformed_name")
-    )
+    ).convert_dtypes()
     # Drop records where there's no name change recorded
     name_changelog = name_changelog.loc[
         name_changelog["company_name_old"] != name_changelog["company_name_new"]
@@ -345,6 +346,7 @@ def core_sec10k__changelog_company_name(
 
 @dg.asset(
     # io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     group_name="core_sec10k",
 )
 def core_sec10k__parents_and_subsidiaries(
@@ -395,11 +397,12 @@ def core_sec10k__parents_and_subsidiaries(
     ]
     df = df[~df.utility_id_eia.isin(bad_utility_ids)]
 
-    return df
+    return df.convert_dtypes()
 
 
 @dg.asset(
     # io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     group_name="core_sec10k",
 )
 def core_sec10k__quarterly_exhibit_21_company_ownership(
@@ -420,12 +423,13 @@ def core_sec10k__quarterly_exhibit_21_company_ownership(
             report_date=lambda x: _year_quarter_to_date(x["year_quarter"]),
         )
         .drop(columns=["ownership_percentage", "year_quarter"])
-    )
+    ).convert_dtypes()
     return df
 
 
 @dg.asset(
     # io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     group_name="core_sec10k",
 )
 def core_sec10k__assn_sec10k_filers_and_eia_utilities(
@@ -438,7 +442,7 @@ def core_sec10k__assn_sec10k_filers_and_eia_utilities(
         ]
         .drop_duplicates(subset="central_index_key")
         .dropna()
-    )
+    ).convert_dtypes()
     # Verify that each CIK is matched to only one utility
     # TODO: this is failing, so I added the drop_duplicates() back in above,
     # but should ask Katie about why and if it's expected / important....

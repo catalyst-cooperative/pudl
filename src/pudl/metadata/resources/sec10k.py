@@ -3,7 +3,7 @@
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
-    "core_sec10k__assn__sec10k_filers_and_eia_utilities": {
+    "core_sec10k__assn_sec10k_filers_and_eia_utilities": {
         "description": """Associations between SEC 10k filing companies and EIA utilities.
 SEC company index keys are matched to EIA utility IDs using probabilistic
 record linkage. The match between ``central_index_key``and ``utility_id_eia`` is one to one
@@ -142,6 +142,8 @@ that CIK."""
                 "central_index_key",
                 "utility_id_eia",
                 "utility_name_eia",
+                "report_date",
+                "filing_date",
                 "company_name",
                 "fiscal_year_end",
                 "taxpayer_id_irs",
@@ -168,8 +170,6 @@ that CIK."""
                 "mail_zip_code_4",
                 "mail_postal_code",
                 "source_url",
-                "report_date",
-                "filing_date",
             ],
             "primary_key": ["filename_sec10k", "filer_count"],
         },
@@ -177,7 +177,7 @@ that CIK."""
         "etl_group": "sec10k",
         "field_namespace": "sec",
     },
-    "out_sec10k__parents_and_subsidiaries": {
+    "core_sec10k__parents_and_subsidiaries": {
         "description": (
             "Denormalized table containing SEC 10-K company information with mapping "
             "between subsidiary and parent companies, as well as a linkage to EIA "

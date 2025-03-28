@@ -16,7 +16,7 @@ def out_sec10k__quarterly_company_information(
     core_eia__entity_utilities: pd.DataFrame,
 ) -> pd.DataFrame:
     """Company information extracted from SEC10k filings and matched to EIA utilities."""
-    out_df = (
+    company_info = (
         pd.merge(
             left=core_sec10k__quarterly_company_information,
             right=core_sec10k__assn_sec10k_filers_and_eia_utilities.loc[
@@ -40,8 +40,11 @@ def out_sec10k__quarterly_company_information(
             on="filename_sec10k",
             validate="many_to_one",
         )
-        .assign(
-            source_url=lambda x: f"https://www.sec.gov/Archives/edgar/data/{x.filename_sec10k}.txt"
-        )
-    ).convert_dtypes()
-    return out_df
+        .convert_dtypes()
+    )
+    company_info["source_url"] = (
+        "https://www.sec.gov/Archives/edgar/data/"
+        + company_info["filename_sec10k"]
+        + ".txt"
+    )
+    return company_info
