@@ -1,7 +1,8 @@
 """Enumerations of valid field values."""
 
-from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
+from pudl.metadata.dfs import IMPUTATION_REASON_CODES, POLITICAL_SUBDIVISIONS
 
+IMPUTATION_CODES: set[str] = set(IMPUTATION_REASON_CODES.code)
 COUNTRY_CODES_ISO3166: set[str] = set(POLITICAL_SUBDIVISIONS.country_code)
 SUBDIVISION_CODES_ISO3166: set[str] = set(POLITICAL_SUBDIVISIONS.subdivision_code)
 EPACEMS_STATES: set[str] = set(

@@ -7,7 +7,11 @@ from dagster import AssetOut, Output, multi_asset
 
 import pudl
 from pudl.metadata.classes import Package
-from pudl.metadata.dfs import FERC_ACCOUNTS, POLITICAL_SUBDIVISIONS
+from pudl.metadata.dfs import (
+    FERC_ACCOUNTS,
+    IMPUTATION_REASON_CODES,
+    POLITICAL_SUBDIVISIONS,
+)
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -51,7 +55,10 @@ def static_pudl_tables(context):
     ds = context.resources.datastore
     dataset_settings = context.resources.dataset_settings
 
-    static_pudl_tables_dict = {"core_pudl__codes_subdivisions": POLITICAL_SUBDIVISIONS}
+    static_pudl_tables_dict = {
+        "core_pudl__codes_subdivisions": POLITICAL_SUBDIVISIONS,
+        "core_pudl__codes_imputation_reasons": IMPUTATION_REASON_CODES,
+    }
     static_pudl_tables_dict["core_pudl__codes_datasources"] = (
         dataset_settings.make_datasources_table(ds)
     )

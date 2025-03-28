@@ -12,7 +12,7 @@ macros:
         description: The name of the second column
       - name: correlation_coef
         type: float
-        description: The correlation coefficient to check for
+        description: The minimum correlation coefficient we expect between the two columns.
   - name: test_check_row_counts_per_partition
     description: Check that the number of rows in each partition is as expected
     arguments:
@@ -38,30 +38,6 @@ macros:
       - name: compare_cols
         type: list
         description: A list of column names present in both tables. The test will succeed only if all combinations of column values present in at least one row in the comparison table are present in this table.
-  - name: test_expect_column_quantile_values_to_be_between
-    description: Check that the quantile values of a column are within a range
-    arguments:
-      - name: quantile
-        type: float
-        description: The quantile to check
-      - name: weight_column
-        type: string
-        description: The name of the column to use as weights
-      - name: min_value
-        type: float
-        description: The minimum value for the quantile
-      - name: max_value
-        type: float
-        description: The maximum value for the quantile
-      - name: group_by
-        type: string
-        description: The name of the column to group by
-      - name: row_condition
-        type: string
-        description: The condition to filter rows by
-      - name: strictly
-        type: boolean
-        description: Whether the values should be strictly between the min and max values
   - name: test_no_null_rows
     description: Check that there are no null rows in the table
   - name: test_not_all_null
