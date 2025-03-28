@@ -32,7 +32,7 @@ macros:
       don't exist in the comparison table, you'll need to call this function in the schema of the
       comparison table as well.
     arguments:
-      - name: compare_df_name
+      - name: compare_table_name
         type: string
         description: The name of the table to compare columns with
       - name: compare_cols
