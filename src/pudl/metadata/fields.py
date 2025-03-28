@@ -2649,7 +2649,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "location_of_incorporation": {
         "type": "string",
-        "description": "Cleaned location of incorporation of the company.",
+        "description": (
+            "Location of the company's incorporation. This can be a full US state "
+            "name, a state abbreviation, the name of a foreign country, etc. Not yet "
+            "standardized / cleaned."
+        ),
     },
     "longitude": {
         "type": "number",

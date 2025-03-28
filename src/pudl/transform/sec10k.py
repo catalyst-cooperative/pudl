@@ -32,6 +32,35 @@ def _compute_fraction_owned(percent_ownership: pd.Series) -> pd.Series:
     ) / 100.0
 
 
+def _standardize_taxpayer_id_irs(taxpayer_id_irs: pd.Series) -> pd.Series:
+    """Standardize the IRS taxpayer ID number to NN-NNNNNNN format."""
+    # Ensure that the EIN/TIN is valid and standardize formatting
+    # Should be a 9-digit number formatted NN-NNNNNNN
+    # Replace any non-digit characters in the TIN with the empty string
+    tin = taxpayer_id_irs.astype("string").str.replace(r"[^\d]", "", regex=True)
+    not_nine_digits = ~tin.str.match(r"^\d{9}$")
+    logger.info(f"Nulling {sum(not_nine_digits.dropna())} invalid TINs.")
+    nine_zeroes = tin == "000000000"
+    logger.info(f"Nulling {sum(nine_zeroes.dropna())} all-zero TINs.")
+    tin.loc[(not_nine_digits | nine_zeroes)] = pd.NA
+    tin = tin.str[:2] + "-" + tin.str[2:]
+    return tin
+
+
+def _standardize_industrial_classification(sic: pd.Series) -> pd.DataFrame:
+    """Split industry names and codes into separate columns."""
+    sic_df = pd.DataFrame()
+    sic_df[["industry_name_sic", "industry_id_sic"]] = sic.str.extract(
+        r"^(.+)\[(\d{4})\]$"
+    )
+    # Fill NA values with the value from the standard_industrial_classification column
+    # if and only if the standard_industrial_classification column is a 4-digit number.
+    sic_df["industry_id_sic"] = sic_df["industry_id_sic"].fillna(
+        sic.where(sic.str.match(r"\d{4}"), pd.NA)
+    )
+    return sic_df
+
+
 @dg.asset(
     # io_manager_key="pudl_io_manager",
     io_manager_key="parquet_io_manager",
@@ -250,20 +279,12 @@ def core_sec10k__quarterly_company_information(
         ].str.split("-", expand=True)
         clean_info = clean_info.drop(columns=[zip_col, f"{zip_col}_clean"])
 
-    # Split out the name and code for standard industrial classifications based on the
-    # most common reporting pattern
-    clean_info[["industry_name_sic", "industry_id_sic"]] = clean_info[
-        "standard_industrial_classification"
-    ].str.extract(r"^(.+)\[(\d{4})\]$")
-    # Fill in NA values in the industry_id_sic column with the value from the
-    # standard_industrial_classification column if and only if the
-    # standard_industrial_classification column is a 4-digit number.
-    clean_info["industry_id_sic"] = clean_info["industry_id_sic"].fillna(
-        clean_info["standard_industrial_classification"].where(
-            clean_info["standard_industrial_classification"].str.match(r"\d{4}"), pd.NA
+    clean_info[["industry_name_sic", "industry_id_sic"]] = (
+        _standardize_industrial_classification(
+            clean_info["standard_industrial_classification"]
         )
     )
-    clean_info = clean_info.drop(columns=["standard_industrial_classification"])
+
     # Use a single standard value for the SEC Act column
     clean_info["sec_act"] = clean_info["sec_act"].replace("34", "1934 act")
 
@@ -276,23 +297,8 @@ def core_sec10k__quarterly_company_information(
     assert sum(invalid_fye_mask.dropna()) < 5
     clean_info.loc[invalid_fye_mask, "fiscal_year_end"] = pd.NA
 
-    # Ensure that the EIN/TIN is valid and standardize formatting
-    # Should be a 9-digit number formatted NN-NNNNNNN
-    # Replace any non-digit characters in the TIN with the empty string
-    clean_info["taxpayer_id_irs"] = clean_info["taxpayer_id_irs"].str.replace(
-        r"[^\d]", "", regex=True
-    )
-    not_nine_digits = ~clean_info["taxpayer_id_irs"].str.match(r"^\d{9}$")
-    logger.info(f"Nulling {sum(not_nine_digits.dropna())} invalid TINs.")
-    assert sum(not_nine_digits.dropna()) < 543
-    nine_zeroes = clean_info["taxpayer_id_irs"] == "000000000"
-    logger.info(f"Nulling {sum(nine_zeroes.dropna())} all-zero TINs.")
-    assert sum(nine_zeroes.dropna()) < 25_156
-    clean_info.loc[not_nine_digits | nine_zeroes, "taxpayer_id_irs"] = pd.NA
-    clean_info["taxpayer_id_irs"] = (
-        clean_info["taxpayer_id_irs"].str[:2]
-        + "-"
-        + clean_info["taxpayer_id_irs"].str[2:]
+    clean_info["taxpayer_id_irs"] = _standardize_taxpayer_id_irs(
+        clean_info["taxpayer_id_irs"]
     )
 
     # Remove invalid 10-k form types. The only observed bad values are "th"
@@ -300,7 +306,9 @@ def core_sec10k__quarterly_company_information(
     assert sum(invalid_sec10k_type.dropna()) < 11
     clean_info.loc[invalid_sec10k_type, "sec10k_type"] = pd.NA
 
-    return clean_info.convert_dtypes()
+    return clean_info.drop(
+        columns="standard_industrial_classification"
+    ).convert_dtypes()
 
 
 @dg.asset(
@@ -360,34 +368,22 @@ def core_sec10k__parents_and_subsidiaries(
             "street_address_2": "address_2",
             "former_conformed_name": "company_name_old",
             "location_of_inc": "location_of_incorporation",
+            "state_of_incorporation": "incorporation_state",
             "irs_number": "taxpayer_id_irs",
             "parent_company_cik": "parent_company_central_index_key",
             "files_10k": "files_sec10k",
             "date_of_name_change": "name_change_date",
         }
+    ).assign(
+        filename_sec10k=lambda x: _simplify_filename_sec10k(x["filename_sec10k"]),
+        fraction_owned=lambda x: _compute_fraction_owned(x["ownership_percentage"]),
     )
 
-    # Clean up the ownership percentange and convert it to a fraction for mathing
-    df["fraction_owned"] = _compute_fraction_owned(df.ownership_percentage)
-
-    # TODO: Factor out SIC cleaning function above.
-    # Split standard industrial classification into ID and description columns
-    df[["industry_name_sic", "industry_id_sic"]] = df[
-        "standard_industrial_classification"
-    ].str.extract(r"^(.+)\[(\d{4})\]$")
-    df["industry_id_sic"] = df["industry_id_sic"].astype("string")
-
-    # TODO: Factor out EIN/TIN cleaning function above.
-    # make taxpayer ID a 9 digit number with a dash separating the first two digits
-    df["taxpayer_id_irs"] = df["taxpayer_id_irs"].str.replace("-", "", regex=False)
-    df["taxpayer_id_irs"] = df["taxpayer_id_irs"].where(
-        (df["taxpayer_id_irs"].str.len() == 9)
-        & (df["taxpayer_id_irs"].str.isnumeric()),
-        pd.NA,
+    df[["industry_name_sic", "industry_id_sic"]] = (
+        _standardize_industrial_classification(df["standard_industrial_classification"])
     )
-    df["taxpayer_id_irs"] = (
-        df["taxpayer_id_irs"].str[:2] + "-" + df["taxpayer_id_irs"].str[-7:]
-    )
+    df["taxpayer_id_irs"] = _standardize_taxpayer_id_irs(df["taxpayer_id_irs"])
+
     # Some utilities harvested from EIA 861 data that don't show up in our entity
     # tables. These didn't end up improving coverage, and so will be removed upstream.
     # Hack for now is to just drop them so the FK constraint is respected.
@@ -397,7 +393,15 @@ def core_sec10k__parents_and_subsidiaries(
     ]
     df = df[~df.utility_id_eia.isin(bad_utility_ids)]
 
-    return df.convert_dtypes()
+    df = df.drop(
+        columns=[
+            "standard_industrial_classification",
+            "ownership_percentage",
+            "report_year",
+        ]
+    ).convert_dtypes()
+
+    return df
 
 
 @dg.asset(
