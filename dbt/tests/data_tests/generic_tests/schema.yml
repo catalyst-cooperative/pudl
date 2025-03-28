@@ -1,6 +1,31 @@
 version: 2
 
 macros:
+  - name: test_check_column_correlation
+    description: Check the correlation between two columns
+    arguments:
+      - name: column1
+        type: string
+        description: The name of the first column
+      - name: column2
+        type: string
+        description: The name of the second column
+      - name: correlation_coef
+        type: float
+        description: The minimum correlation coefficient we expect between the two columns.
+  - name: test_check_row_counts_per_partition
+    description: Check that the number of rows in each partition is as expected
+    arguments:
+      - name: table_name
+        type: string
+        description: The name of the table to check
+      - name: partition_column
+        type: string
+        description: The name of the column to partition by
+  - name: test_no_null_rows
+    description: Check that there are no null rows in the table
+  - name: test_not_all_null
+    description: Check that not all values in a column are null
   - name: test_expect_complete_valid_ownership
     description: >
       Check whether ``fraction_owned`` columns sum too high (for any individual
@@ -35,7 +60,7 @@ macros:
       Check whether the combination of values of the specified columns is unique. Fails when any combination occurs more than once.
     arguments:
       - name: columns
-        type: list[str]
+        type: list[string]
         description: The columns in the unique combination.
   - name: test_expect_unique_owner_utility_id_eia
     description: >

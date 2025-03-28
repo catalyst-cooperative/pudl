@@ -21,6 +21,18 @@ Major Dependency Updates
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+New Tests
+^^^^^^^^^
+We're in the process of migrating our tests to use the
+`dbt <https://docs.getdbt.com/docs/introduction>`__ framework.
+So far we have converted the following tests:
+
+* ``check_column_correlation`` – a more generic replacement for the old
+  ``test_fbp_ferc1_mmbtu_cost_correlation`` pytest.
+  See :issue:`4094`, :pr:`4117`. You can find the implementation in the
+  `check_column_correlation.sql
+  <../../dbt/tests/data_tests/generic_tests/check_column_correlation.sql>`__ file.
+
 * We now publish a `Frictionless data package
   <https://datapackage.org/standard/data-package/>`__ describing our Parquet
   outputs, with the name ``pudl_datapackage.json``. See :issue:`4069` and :pr:`4070`.
