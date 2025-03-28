@@ -9,7 +9,8 @@ sources:
               partition_column: report_date
           - expect_includes_all_value_combinations_from:
               compare_table_name: out_eia__yearly_plant_parts
-              compare_cols: [record_id_eia]
+              compare_cols:
+                - record_id_eia
         columns:
           - name: record_id_eia
           - name: record_id_eia_plant_gen
