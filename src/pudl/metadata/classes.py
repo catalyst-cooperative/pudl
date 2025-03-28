@@ -6,6 +6,7 @@ import json
 import re
 import sys
 import warnings
+from collections import namedtuple
 from collections.abc import Callable, Iterable
 from functools import cached_property, lru_cache
 from pathlib import Path
@@ -934,6 +935,7 @@ class DataSource(PudlMeta):
 
     name: SnakeCase
     title: String | None = None
+    label: String | None = None
     description: String | None = None
     field_namespace: String | None = None
     keywords: list[str] = []
@@ -1867,6 +1869,8 @@ class Resource(PudlMeta):
 
 # ---- Package ---- #
 
+SourceLabels = namedtuple("SourceLabels", "label title")
+
 
 class MetaFromResourceName(PudlMeta):
     """Class to extract standard metadata to add to Resource.description."""
@@ -1877,20 +1881,22 @@ class MetaFromResourceName(PudlMeta):
     layer_map: dict = {
         "raw": (
             "Data has been extracted from original format, columns have been renamed for "
-            "consistency and multiple reporting periods have been concatenated but no "
+            "consistency, and multiple reporting periods have been concatenated, but no "
             "transformations or cleaning have been applied."
         ),
         "_core": (
-            "Intermediate cleaned but not tidied/normalized. "
-            "These tables are generally published in this semi-processed stage temporarily."
+            "Data has been cleaned but not tidied/normalized. Published only "
+            "temporarily; [will be removed when [condition] / may be removed without "
+            "notice]."
         ),
         "core": (
-            "This layer contains tables that typically break denormalized raw tables into well-modeled tables that serve as building blocks for downstream wide tables and analyses."
+            "Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses."
         ),
         "_out": "Intermediate output table.",
         "out": (
-            "Wide/denormalized (helpful values for easy of use have been "
-            "merged back into these tables). Possible calculations or imputations."
+            "Data has been expanded into a wide/denormalized format, with IDs and codes "
+            "accompanied by human-readable names and descriptions. [Includes "
+            "calculations / imputations / records borrowed from other sources.]"
         ),
     }
     layer_string: str = "|".join(layer_map.keys())
@@ -1898,46 +1904,96 @@ class MetaFromResourceName(PudlMeta):
     # TODO: add link to https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/{datasource_name}.html
     # if we have a data_sources page for it.
     datasource_map: dict = {
-        datasource_name: SOURCES[datasource_name]["title"]
+        datasource_name: SourceLabels(
+            SOURCES[datasource_name]["label"], SOURCES[datasource_name]["title"]
+        )
         for datasource_name in SOURCES
     } | {
-        "eia": "EIA -- Mix of multiple EIA Forms",
-        "epa": "EPA -- Mix of multiple EPA sources.",
-        "ferc": "FERC -- Mix of multiple FERC Forms.",
-        "ferc1_xbrl": "FERC 1 XBRL -- Post-2021 years of Annual Report of Major Electric Utilities.",
-        "ferc1_dbf": "FERC 1 DBF -- Pre-2021 years of Annual Report of Major Electric Utilities.",
+        "eia": SourceLabels("EIA", "EIA -- Mix of multiple EIA Forms"),
+        "epa": SourceLabels("EPA", "EPA -- Mix of multiple EPA sources."),
+        "ferc": SourceLabels("FERC", "FERC -- Mix of multiple FERC Forms."),
+        "ferc1_xbrl": SourceLabels(
+            "FERC 1 XBRL",
+            "FERC 1 XBRL -- Post-2021 years of Annual Report of Major Electric Utilities.",
+        ),
+        "ferc1_dbf": SourceLabels(
+            "FERC 1 DBF",
+            "FERC 1 DBF -- Pre-2021 years of Annual Report of Major Electric Utilities.",
+        ),
     }
 
     datasource_strings: str = "|".join(datasource_map.keys())
 
     time_detail_map: dict = {
-        "yearly": "Time Detail: Annual time series.",
-        "monthly": "Time Detail: Monthly time series.",
-        "hourly": "Time Detail: Hourly time series.",
+        "yearly": "Annual time series",
+        "monthly": "Monthly time series",
+        "hourly": "Hourly time series",
     }
     time_string: str = "|".join(time_detail_map.keys())
 
-    misc_map: dict = {
-        "assn": "Table Type: Association table that provide connections between entities.",
+    tabletype_map: dict = {
+        "assn": "Association table providing connections between [entities].",
         "codes": (
-            "Table Type: Code table which contain more verbose descriptions of categorical "
-            "codes typically manually compiled from source data dictionaries."
+            "Code table containing descriptions of categorical "
+            "codes for [topic]. [typically] Manually compiled from source data dictionaries."
         ),
-        "entity": (
-            "Table Type: Entity tables which contain static information about entities."
-        ),
+        "entity": ("Entity table containing static information about [entities]."),
         "scd": (
-            "Table Type: Slowly changing dimension (SCD) table which describe attributes of entities "
+            "Slowly changing dimension (SCD) table describing attributes of [entities] "
             "that rarely change."
         ),
+        "timeseries": (
+            "containing [attributes about entities] expected to change for each reported timestamp."
+        ),
     }
-    misc_string: str = "|".join(misc_map.keys())
-    table_name_pattern: str = rf"^({layer_string})_({datasource_strings})__({time_string}|)(?:_|)({misc_string}|)(?:_|)(?:_|)(.*)$"
+    tabletype_string: str = "|".join(tabletype_map.keys())
+    table_name_pattern: str = rf"^(?P<layer>{layer_string})_(?P<datasource>{datasource_strings})__(?P<time>{time_string}|)(?:_|)(?P<tabletype>{tabletype_string}|)(?:_|)(?:_|)(?P<slug>.*)$"
+
+    _match = None
 
     @property
     def match(self):
         """Return the regex match for the table name."""
-        return re.match(self.table_name_pattern, self.name)
+        if self._match is None:
+            self._match = re.match(self.table_name_pattern, self.name)
+        return self._match
+
+    @property
+    def layer(self):
+        """Layer extracted from table name."""
+        return self.match.group("layer")
+
+    @property
+    def datasource(self):
+        """Datasource extracted from table name."""
+        return self.match.group("datasource")
+
+    @property
+    def datasource_labels(self):
+        """Labels (label, title) for datasource extracted from table name."""
+        return self.datasource_map[self.datasource]
+
+    @property
+    def tabletype(self):
+        """Table type extracted from table name."""
+        if tt := self.match.group("tabletype"):
+            return tt
+        if self.match.group("time"):
+            return "timeseries"
+        return None
+
+    @property
+    def time(self):
+        """Time (detail) extracted from table name."""
+        return self.match.group("time")
+
+    @property
+    def slug(self):
+        """Slug extracted from table name.
+
+        Possible use case: extract what is being associated from an assn table.
+        """
+        return self.match.group("slug")
 
     @model_validator(mode="after")
     def table_name_check(self: Self):
@@ -1950,37 +2006,25 @@ class MetaFromResourceName(PudlMeta):
 
     def description_layer(self) -> str:
         """Return a layer description from the resource name."""
-        layer: str = self.match.group(1)
-        layer_description = f"Processing Stage: {self.layer_map[layer]}"
+        layer_description = f"Processing Stage: {self.layer_map[self.layer]}"
         return layer_description
 
     def description_datasource(self) -> str:
         """Return a description of the datasource from the table name."""
-        datasource: str = self.match.group(2)
-        description = f"Data Source: {self.datasource_map[datasource]}"
+        description = f"Data Source: {self.datasource_labels.title}"
         return description
 
-    def description_misc(self) -> str:
-        """Return a description of the miscellaneous from the table name."""
-        misc_opt: str | None = self.match.group(4)
-        description = self.misc_map.get(misc_opt, None)
+    def description_tabletype(self) -> str:
+        """Return a description of the table type from the table name."""
+        description = f"Table type: {self.tabletype_map.get(self.tabletype)}"
         return description
 
     def description_time(self) -> str:
         """Return a description of the time-dimension from table name."""
         # TODO: ?maybe? we could add the date column into the description.
         # we'd need to look into the table's columns via its metadata
-        time_opt: str | None = self.match.group(3)
-        description = self.time_detail_map.get(time_opt, None)
+        description = f"Time detail: {self.time_detail_map.get(self.time, None)}"
         return description
-
-    def slug(self) -> str:
-        """Table name slug.
-
-        Possible use case: extract what is being associated from an assn table.
-        """
-        slug: str = self.match.group(5)
-        return slug
 
 
 class Package(PudlMeta):

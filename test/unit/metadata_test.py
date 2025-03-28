@@ -3,11 +3,13 @@
 import pandas as pd
 import pandera as pr
 import pytest
+from docutils.core import publish_doctree
 
 from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.classes import (
     DataSource,
     Field,
+    MetaFromResourceName,
     Package,
     PudlResourceDescriptor,
     Resource,
@@ -207,3 +209,81 @@ def test_frictionless_data_package_resources_populated():
             expected_resource["schema"].get("primary_key", [])
             == resource.schema.primary_key
         )
+
+
+def _parse_description(desc):
+    tree = publish_doctree(desc)
+    front_matter = []
+    for c in tree.children:
+        if c.tagname == "paragraph":
+            front_matter.append(c.astext())
+        elif c.tagname == "definition_list":
+            for d in c.children:
+                front_matter.append(d.astext())
+        else:
+            break
+    return tree, front_matter
+
+
+def _description_source_checks(front_matter, source_labels, properties):
+    """Some entry should declare what sources this table is derived from."""
+    for paragraph in front_matter:
+        if paragraph.startswith("Derived from") and (
+            any((s in paragraph) for s in source_labels)
+            or (properties.datasource_labels.label in paragraph)
+        ):
+            return True
+    return False
+
+
+def _description_pk_checks(front_matter):
+    """Some paragraph should declare no primary key and explain why."""
+    for paragraph in front_matter:
+        if paragraph.startswith("This table has no primary key."):
+            paragraph_sentences = paragraph.split(".")
+            if len(paragraph_sentences[1].strip()) > 5:
+                # okay so technically "This table has no primary key. lololol" will
+                # pass this test but ideally that kind of hijinks gets caught in
+                # review
+                return True
+    return False
+
+
+description_compliant_tables = [
+    "_core_eia860__fgd_equipment",
+    "core_eia923__monthly_boiler_fuel",
+    # "core_eia861__yearly_demand_side_management_ee_dr", # noncompliant for testing unit test
+]
+
+
+@pytest.mark.parametrize(
+    "resource_name", sorted(description_compliant_tables)
+)  # someday: sorted(PUDL_RESOURCES.keys()))
+def test_description_compliance(resource_name):
+    properties = MetaFromResourceName(name=resource_name)
+    meta = RESOURCE_METADATA[resource_name]
+    desc = meta["description"]
+    tree, front_matter = _parse_description(desc)
+    source_labels = [SOURCES[s]["label"] for s in meta["sources"]]
+    has_pk = "primary_key" in meta["schema"]
+    # todo: layer-based checks
+    # source-based checks
+    # todo: refer to a template or wizard for additional help
+    assert _description_source_checks(
+        front_matter, source_labels, properties
+    ), f"""Table {resource_name} has sources {str(meta["sources"])} and/or
+{properties.datasource_labels.label}, but the description does not explain them in
+the required format. We expect a paragraph in the front matter starting with 'Derived
+from' and including any of the source labels {str(source_labels)} as exact
+strings."""
+    # todo: asset_type-based checks
+    # pk-based checks
+    if not has_pk:
+        # todo: refer to a template or wizard for additional help
+        assert _description_pk_checks(
+            front_matter
+        ), """Table {resource_name} has no primary key, but the
+description does not explain it in the required format. We expect a paragraph in the
+front matter to start with 'This table has no primary key.' and go on to briefly
+describe what each record represents and, if needed, why no primary key is
+possible."""
