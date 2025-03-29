@@ -10,7 +10,10 @@ record linkage. The match between ``central_index_key``and ``utility_id_eia`` is
 and doesn't change over time - the highest probability
 EIA utility match for each SEC company is used for all dates of reported information for
 that CIK.""",
-        "schema": {"fields": ["central_index_key", "utility_id_eia"]},
+        "schema": {
+            "fields": ["central_index_key", "utility_id_eia"],
+            "primary_key": ["central_index_key", "utility_id_eia"],
+        },
         "sources": ["sec10k"],
         "etl_group": "sec10k",
         "field_namespace": "sec",
