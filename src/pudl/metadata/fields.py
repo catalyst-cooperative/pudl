@@ -6543,6 +6543,18 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
             "unit": "USD_per_MWh",
         }
     },
+    "core_sec10k__changelog_company_name": {
+        "central_index_key": {
+            "constraints": {
+                "required": True,
+            }
+        },
+        "name_change_date": {
+            "constraints": {
+                "required": True,
+            }
+        },
+    },
     "out_ferc1__yearly_rate_base": {
         "plant_function": {
             "type": "string",
