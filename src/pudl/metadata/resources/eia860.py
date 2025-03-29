@@ -503,7 +503,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "core_sec10k__quarterly_filings",
                     "core_sec10k__quarterly_exhibit_21_company_ownership",
                     "core_sec10k__quarterly_company_information",
-                    "out_sec10k__parents_and_subsidiaries",
+                    "core_sec10k__parents_and_subsidiaries",
                 ],
             },
         },
