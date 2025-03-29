@@ -5,8 +5,7 @@ import pandas as pd
 
 
 @dg.asset(
-    # io_manager_key="pudl_io_manager",
-    io_manager_key="parquet_io_manager",
+    io_manager_key="pudl_io_manager",
     group_name="out_sec10k",
 )
 def out_sec10k__quarterly_company_information(
