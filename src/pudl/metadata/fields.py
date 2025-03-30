@@ -1714,7 +1714,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "filename_sec10k": {
         "type": "string",
-        "description": "Name of filing as provided by SEC data portal.",
+        "description": (
+            "Unique portion of the filename associated with the SEC 10-K filing in the "
+            "EDGAR database. The full source URL can be reconstructed by prepending "
+            "https://www.sec.gov/Archives/edgar/data/ and adding the .txt file type "
+            "extension."
+        ),
     },
     "files_sec10k": {
         "type": "boolean",

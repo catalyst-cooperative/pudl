@@ -21,7 +21,12 @@ def _year_quarter_to_date(year_quarter: pd.Series) -> pd.Series:
 
 
 def _simplify_filename_sec10k(filename_sec10k: pd.Series) -> pd.Series:
-    """Strip the path and extension from SEC 10-K filenames."""
+    """Strip non-unique path and file type extension from partial SEC 10-K filenames.
+
+    The full source URL can be constructed by prepending
+    https://www.sec.gov/Archives/edgar/data/ and adding back the ".txt" file type
+    extension, as is done for the source_url column in the output tables.
+    """
     return (
         filename_sec10k.str.removeprefix("edgar/data/")
         .str.removesuffix(".txt")
@@ -40,7 +45,12 @@ def _compute_fraction_owned(percent_ownership: pd.Series) -> pd.Series:
 
 
 def _standardize_taxpayer_id_irs(taxpayer_id_irs: pd.Series) -> pd.Series:
-    """Standardize the IRS taxpayer ID number to NN-NNNNNNN format."""
+    """Standardize the IRS taxpayer ID number to NN-NNNNNNN format.
+
+    - Remove all non-numeric characters
+    - Set all values that are not 9 digits long or are entirely zeroes to pd.NA
+    - Reformat to NN-NNNNNNN format.
+    """
     # Ensure that the EIN/TIN is valid and standardize formatting
     # Should be a 9-digit number formatted NN-NNNNNNN
     # Replace any non-digit characters in the TIN with the empty string
@@ -55,7 +65,17 @@ def _standardize_taxpayer_id_irs(taxpayer_id_irs: pd.Series) -> pd.Series:
 
 
 def _standardize_industrial_classification(sic: pd.Series) -> pd.DataFrame:
-    """Split industry names and codes into separate columns."""
+    """Split industry names and codes into separate columns.
+
+    Most values take the form of "Industry description [1234]", but some are just
+    4-digit numbers. This function splits the industry name and code into separate
+    columns, and fills in the code column with the value from the
+    standard_industrial_classification column if it is a 4-digit number. Any values
+    that don't fit either of these two patterns are set to NA. No effort is made to
+    fill in missing industry descriptions based on the industry code.
+
+    See e.g. https://www.osha.gov/data/sic-manual for code definitions."
+    """
     sic_df = pd.DataFrame()
     sic_df[["industry_name_sic", "industry_id_sic"]] = sic.str.extract(
         r"^(.+)\[(\d{4})\]$"
@@ -103,25 +123,20 @@ def core_sec10k__quarterly_filings(
     raw_sec10k__quarterly_filings: pd.DataFrame,
 ) -> pd.DataFrame:
     """Standardize the contents of the SEC 10-K filings table."""
-    filings = (
-        raw_sec10k__quarterly_filings.rename(
-            columns={
-                "sec10k_filename": "filename_sec10k",
-                "form_type": "sec10k_type",
-                "date_filed": "filing_date",
-            }
-        )
-        .assign(
-            filename_sec10k=lambda x: _simplify_filename_sec10k(x["filename_sec10k"]),
-            report_date=lambda x: _year_quarter_to_date(x["year_quarter"]),
-            filing_date=lambda x: pd.to_datetime(x["filing_date"]),
-            central_index_key=lambda x: x["central_index_key"].str.zfill(10),
-            # Lower case these fields so they are the same as in other tables.
-            company_name=lambda x: x["company_name"].str.lower(),
-            sec10k_type=lambda x: x["sec10k_type"].str.lower(),
-        )
-        .drop(columns="year_quarter")
-        .convert_dtypes()
+    filings = raw_sec10k__quarterly_filings.rename(
+        columns={
+            "sec10k_filename": "filename_sec10k",
+            "form_type": "sec10k_type",
+            "date_filed": "filing_date",
+        }
+    ).assign(
+        filename_sec10k=lambda x: _simplify_filename_sec10k(x["filename_sec10k"]),
+        report_date=lambda x: _year_quarter_to_date(x["year_quarter"]),
+        filing_date=lambda x: pd.to_datetime(x["filing_date"]),
+        central_index_key=lambda x: x["central_index_key"].str.zfill(10),
+        # Lower case these fields so they are the same as in other tables.
+        company_name=lambda x: x["company_name"].str.lower(),
+        sec10k_type=lambda x: x["sec10k_type"].str.lower(),
     )
     return filings
 
@@ -230,7 +245,6 @@ def core_sec10k__company_info(
             validate="one_to_one",
         )
         .reset_index()
-        .drop(["block_count"], axis="columns")
     )
     # If this isn't unique then our assumption about the merges above is wrong.
     assert company_info.index.is_unique
@@ -256,11 +270,11 @@ def core_sec10k__company_info(
     return (
         dg.Output(
             output_name="_core_sec10k__quarterly_company_information",
-            value=company_info.convert_dtypes(),
+            value=company_info,
         ),
         dg.Output(
             output_name="_core_sec10k__changelog_company_name",
-            value=name_changes.convert_dtypes(),
+            value=name_changes,
         ),
     )
 
@@ -343,9 +357,7 @@ def core_sec10k__quarterly_company_information(
     assert sum(invalid_sec10k_type.dropna()) < 11
     clean_info.loc[invalid_sec10k_type, "sec10k_type"] = pd.NA
 
-    return clean_info.drop(
-        columns="standard_industrial_classification"
-    ).convert_dtypes()
+    return clean_info
 
 
 @dg.asset(
@@ -355,7 +367,14 @@ def core_sec10k__quarterly_company_information(
 def core_sec10k__changelog_company_name(
     _core_sec10k__changelog_company_name: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Clean version of the company name changelog."""
+    """Clean and standardize the SEC 10-K company name changelog table.
+
+    The original data contains only the former name and date of the name change, leaving
+    the current name out. However we have merged the name of the company associatd with
+    the filing onto the table during normalization, and can use that to fill in the most
+    recent name. To avoid having a null name change date or needing to span multiple
+    records, we include both old and new company name columns.
+    """
     name_changelog = (
         _core_sec10k__changelog_company_name.assign(
             name_change_date=lambda x: pd.to_datetime(x["date_of_name_change"])
@@ -379,8 +398,7 @@ def core_sec10k__changelog_company_name(
             .shift(-1)
             .fillna(x["company_conformed_name"])
         )
-        .drop(columns="company_conformed_name")
-    ).convert_dtypes()
+    )
     # Drop records where there's no name change recorded
     name_changelog = name_changelog.loc[
         name_changelog["company_name_old"] != name_changelog["company_name_new"]
@@ -428,14 +446,6 @@ def core_sec10k__parents_and_subsidiaries(
     ]
     df = df[~df.utility_id_eia.isin(bad_utility_ids)]
 
-    df = df.drop(
-        columns=[
-            "standard_industrial_classification",
-            "ownership_percentage",
-            "report_year",
-        ]
-    ).convert_dtypes()
-
     return df
 
 
@@ -447,21 +457,17 @@ def core_sec10k__quarterly_exhibit_21_company_ownership(
     raw_sec10k__exhibit_21_company_ownership: pd.DataFrame,
 ) -> pd.DataFrame:
     """Standardize the contents of the SEC 10-K exhibit 21 company ownership table."""
-    df = (
-        raw_sec10k__exhibit_21_company_ownership.rename(
-            columns={
-                "sec10k_filename": "filename_sec10k",
-                "subsidiary": "subsidiary_company_name",
-                "location": "subsidiary_company_location",
-            }
-        )
-        .assign(
-            filename_sec10k=lambda x: _simplify_filename_sec10k(x["filename_sec10k"]),
-            fraction_owned=lambda x: _compute_fraction_owned(x["ownership_percentage"]),
-            report_date=lambda x: _year_quarter_to_date(x["year_quarter"]),
-        )
-        .drop(columns=["ownership_percentage", "year_quarter"])
-    ).convert_dtypes()
+    df = raw_sec10k__exhibit_21_company_ownership.rename(
+        columns={
+            "sec10k_filename": "filename_sec10k",
+            "subsidiary": "subsidiary_company_name",
+            "location": "subsidiary_company_location",
+        }
+    ).assign(
+        filename_sec10k=lambda x: _simplify_filename_sec10k(x["filename_sec10k"]),
+        fraction_owned=lambda x: _compute_fraction_owned(x["ownership_percentage"]),
+        report_date=lambda x: _year_quarter_to_date(x["year_quarter"]),
+    )
     return df
 
 
@@ -479,7 +485,7 @@ def core_sec10k__assn_sec10k_filers_and_eia_utilities(
         ]
         .drop_duplicates(subset="central_index_key")
         .dropna()
-    ).convert_dtypes()
+    )
     # Verify that each CIK is matched to only one utility
     # TODO: this is failing, so I added the drop_duplicates() back in above,
     # but should ask Katie about why and if it's expected / important....
