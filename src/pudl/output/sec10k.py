@@ -52,3 +52,31 @@ def out_sec10k__quarterly_company_information(
         + ".txt"
     )
     return company_info
+
+
+@dg.asset(
+    io_manager_key="pudl_io_manager",
+    group_name="out_sec10k",
+)
+def out_sec10k__changelog_company_name(
+    core_sec10k__changelog_company_name: pd.DataFrame,
+) -> pd.DataFrame:
+    """Denormalized table for company name changes from SEC 10-K filings.
+
+    The original data contains only the former name and date of the name change, leaving
+    the current name out. This asset constructs a column with the new company name in
+    it, by shifting the old name column by one row within each central_index_key group,
+    and then fills in the last new company name value with the current company name.
+    """
+    name_changelog = core_sec10k__changelog_company_name.sort_values(
+        ["central_index_key", "name_change_date"]
+    ).assign(
+        company_name_new=lambda x: x.groupby("central_index_key")["company_name_old"]
+        .shift(-1)
+        .fillna(x["company_name"])
+    )
+    # Drop records where there's no name change recorded
+    name_changelog = name_changelog.loc[
+        name_changelog["company_name_old"] != name_changelog["company_name_new"]
+    ]
+    return name_changelog

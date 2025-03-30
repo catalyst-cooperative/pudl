@@ -135,16 +135,32 @@ name change associated with a company up to the date of that filing. Because ind
 companies may appear in multiple filings in the same year, and the samy historical name
 changes will be reported in multiple years, the raw input data contains many duplicate
 entries, which are deduplicated to create this table. The original name change data only
-contains the former name and the date of the change. We use the most recently reported
-company name associated with the ``central_index_key`` to fill in the most recent value
-of ``company_name_new``.
+contains the former name and the date of the change.
 
 Roughly 2% of all records describe multiple name changes happening on the same date
 (they are duplicates on the basis of ``central_index_key`` and ``name_change_date``).
 This may be due to company name reporting inconsistencies or reporting errors in which
-the old and new company names have been swapped. Rougly 1000 reported "name changes"
-in which the old and new names were identical have been dropped."""
+the old and new company names have been swapped."""
         ),
+        "schema": {
+            "fields": [
+                "central_index_key",
+                "name_change_date",
+                "company_name_old",
+                "company_name",
+            ],
+        },
+        "sources": ["sec10k"],
+        "etl_group": "sec10k",
+        "field_namespace": "sec",
+    },
+    "out_sec10k__changelog_company_name": {
+        "description": """Denormalized table for company name changes from SEC 10-K filings.
+
+We use the company name reported in association each name change block in the company
+information table to fill in the most recent value of ``company_name_new``. Roughly
+1000 reported "name changes" in which the old and new names were identical have been
+dropped.""",
         "schema": {
             "fields": [
                 "central_index_key",

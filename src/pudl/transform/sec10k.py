@@ -258,6 +258,12 @@ def core_sec10k__company_info(
     ]
     assert len(orphan_mail_address) <= 22_612
 
+    # This merge is necessary to ensure that the company name changelog table has access
+    # to the current company name that was found in the associated filing. Inutitively
+    # we would want to merge this information in based on the CIK in the output table,
+    # but we don't have a well normalized table associating all CIKs with the
+    # corresponding company name as a function of time -- this is the information that
+    # we are trying to glean from the company name changelog.
     name_changes = pd.merge(
         left=company_data[["central_index_key", "company_conformed_name"]],
         right=former_company,
@@ -367,42 +373,19 @@ def core_sec10k__quarterly_company_information(
 def core_sec10k__changelog_company_name(
     _core_sec10k__changelog_company_name: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Clean and standardize the SEC 10-K company name changelog table.
-
-    The original data contains only the former name and date of the name change, leaving
-    the current name out. However we have merged the name of the company associatd with
-    the filing onto the table during normalization, and can use that to fill in the most
-    recent name. To avoid having a null name change date or needing to span multiple
-    records, we include both old and new company name columns.
-    """
+    """Clean and standardize the SEC 10-K company name changelog table."""
     name_changelog = (
         _core_sec10k__changelog_company_name.assign(
             name_change_date=lambda x: pd.to_datetime(x["date_of_name_change"])
         )
-        .rename(columns={"former_conformed_name": "company_name_old"})
-        .sort_values(["central_index_key", "name_change_date"])
-        .drop_duplicates()
-        .loc[
-            :,
-            [
-                "central_index_key",
-                "name_change_date",
-                "company_name_old",
-                "company_conformed_name",
-            ],
-        ]
-        .assign(
-            company_name_new=lambda x: x.groupby("central_index_key")[
-                "company_name_old"
-            ]
-            .shift(-1)
-            .fillna(x["company_conformed_name"])
+        .rename(
+            columns={
+                "former_conformed_name": "company_name_old",
+                "company_conformed_name": "company_name",
+            }
         )
+        .drop_duplicates()
     )
-    # Drop records where there's no name change recorded
-    name_changelog = name_changelog.loc[
-        name_changelog["company_name_old"] != name_changelog["company_name_new"]
-    ]
     return name_changelog
 
 
