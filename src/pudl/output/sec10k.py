@@ -1,4 +1,9 @@
-"""Denormalized output tables for the SEC 10-K assets."""
+"""Denormalized output tables for the SEC 10-K assets.
+
+These tables are created by joining the raw SEC 10-K tables with other data from the
+PUDL database, and enriching them with additional information. The resulting tables are
+more user-friendly and easier to work with than the normalized core tables.
+"""
 
 import dagster as dg
 import pandas as pd

@@ -1,4 +1,8 @@
-"""Rehsaping and data cleaning operations for the SEC 10-K data source."""
+"""Rehsaping and data cleaning routines that are applied to the SEC 10-K data tables.
+
+Assets produced here are the core tables that are used to build the denormalized output
+tables latter.
+"""
 
 import dagster as dg
 import pandas as pd
@@ -8,6 +12,9 @@ from pudl import logging_helpers
 logger = logging_helpers.get_logger(__name__)
 
 
+######################################################################
+### Helper functions for cleaning and reshaping the SEC 10-K data. ###
+######################################################################
 def _year_quarter_to_date(year_quarter: pd.Series) -> pd.Series:
     """Convert a year quarter in the format '2024q1' to date type."""
     return pd.PeriodIndex(year_quarter, freq="Q").to_timestamp()
@@ -61,6 +68,33 @@ def _standardize_industrial_classification(sic: pd.Series) -> pd.DataFrame:
     return sic_df
 
 
+def _pivot_info_block(df: pd.DataFrame, block: str) -> pd.DataFrame:
+    """Select and pivot distinct blocks of company information for further processing.
+
+    Args:
+        df: The dataframe containing the SEC 10-K company information.
+        block: The block of associated information to pivot.
+    """
+    pivoted = (
+        df.loc[df["block"] == block]
+        .pivot(
+            values="value",
+            index=[
+                "filename_sec10k",
+                "filer_count",
+                "block_count",
+            ],
+            columns="key",
+        )
+        .convert_dtypes()
+    )
+    pivoted.columns.name = None
+    return pivoted
+
+
+#######################################
+### SEC 10-K core asset definitions ###
+#######################################
 @dg.asset(
     io_manager_key="pudl_io_manager",
     group_name="core_sec10k",
@@ -82,6 +116,9 @@ def core_sec10k__quarterly_filings(
             report_date=lambda x: _year_quarter_to_date(x["year_quarter"]),
             filing_date=lambda x: pd.to_datetime(x["filing_date"]),
             central_index_key=lambda x: x["central_index_key"].str.zfill(10),
+            # Lower case these fields so they are the same as in other tables.
+            company_name=lambda x: x["company_name"].str.lower(),
+            sec10k_type=lambda x: x["sec10k_type"].str.lower(),
         )
         .drop(columns="year_quarter")
         .convert_dtypes()
@@ -102,7 +139,7 @@ def core_sec10k__quarterly_filings(
 def core_sec10k__company_info(
     raw_sec10k__quarterly_company_information: pd.DataFrame,
 ):
-    """Company information extracted from SEC 10-K filings.
+    """Reshape data from the raw SEC 10-K company information table.
 
     Each SEC 10-K filing contains a header block that lists information the filer, and
     potentially a number of other related companies. Each company level block of
@@ -112,18 +149,36 @@ def core_sec10k__company_info(
     is distinct from the physical address, and the history of names that the company has
     had over time.
 
-    This asset normalizes the raw key-value pairs extracted from these headers into
-    two tables:
+    In its original form, this data is mostly contained in two poorly normalized "key"
+    and "value" columns, with the key indicating what kind of data will be contained in
+    the value column. Here we pivot the keys into column names so that each column has
+    a homogeneous type of value.
 
-    - company information on a per-filing basis
+    Each filing may contain information about multiple companies, with each identified
+    by a different filer_count. For each company there are several different potential
+    types of information provide in distinct named "blocks" (business_address,
+    company_data, filing_values, mail_address, and former_company). Each block type
+    needs to be extracted and pivoted independently to avoid column name collisions and
+    because they don't all have the same set of block_count and filer_count values.
+
+    After they've been pivoted, the blocks are merged together into two disinct tables:
+
+    - per-filing company and filing information
     - the history of company name changes
 
     This information is used elsewhere for matching SEC 10-K filers to EIA utilities
     and for identifying the companies that are mentioned in the unstructured Exhibit 21
     attachements.
 
+    There is a 1-to-1 correspondence between the company_data and filing_values blocks,
+    and virtually all business_address blocks (99.9%), but a substantial number (~5%) of
+    mail_address blocks do not share index values with any company_data or filing_values
+    blocks, and are ultimately dropped. The former_company blocks contain a large amount
+    of duplicative data, but can be associated with a central_index_key value for later
+    association with an individual SEC 10-K filer.
+
     Further processing that standardizes the contents of these tables is deferred to
-    individual downstream core assets.
+    separate downstream core assets.
     """
     raw_company_info = raw_sec10k__quarterly_company_information.rename(
         columns={
@@ -134,33 +189,15 @@ def core_sec10k__company_info(
         filename_sec10k=lambda x: _simplify_filename_sec10k(x["filename_sec10k"]),
     )
 
-    def pivot_info_block(df: pd.DataFrame, block: str) -> pd.DataFrame:
-        """Extract distinct blocks of company information for separate processing."""
-        pivoted = (
-            df.loc[df["block"] == block]
-            .pivot(
-                values="value",
-                index=[
-                    "filename_sec10k",
-                    "filer_count",
-                    "block_count",
-                ],
-                columns="key",
-            )
-            .convert_dtypes()
-        )
-        pivoted.columns.name = None
-        return pivoted
-
-    business_address = pivot_info_block(raw_company_info, "business_address").rename(
-        columns={"business_phone": "phone"}
-    )
-    company_data = pivot_info_block(raw_company_info, "company_data").drop(
+    business_address = _pivot_info_block(
+        raw_company_info, block="business_address"
+    ).rename(columns={"business_phone": "phone"})
+    company_data = _pivot_info_block(raw_company_info, block="company_data").drop(
         columns=["organization_name"]
     )
-    filing_values = pivot_info_block(raw_company_info, "filing_values")
-    mail_address = pivot_info_block(raw_company_info, "mail_address")
-    former_company = pivot_info_block(raw_company_info, "former_company")
+    filing_values = _pivot_info_block(raw_company_info, block="filing_values")
+    mail_address = _pivot_info_block(raw_company_info, block="mail_address")
+    former_company = _pivot_info_block(raw_company_info, block="former_company")
 
     # Add prefixes where needed to ensure that column names are distinct after concatentation.
     business_address.columns = [f"business_{col}" for col in business_address.columns]
@@ -235,7 +272,7 @@ def core_sec10k__company_info(
 def core_sec10k__quarterly_company_information(
     _core_sec10k__quarterly_company_information: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Standardize the contents of the SEC 10-K company information table."""
+    """Clean and standardize the contents of the SEC 10-K company information table."""
     clean_info = _core_sec10k__quarterly_company_information.rename(
         columns={
             "company_conformed_name": "company_name",
@@ -288,9 +325,11 @@ def core_sec10k__quarterly_company_information(
 
     # Ensure fiscal year end conforms to MMDD format and specifies a valid date.
     mmdd_regex = r"^(?:(?:0[1-9]|1[0-2])(?:0[1-9]|1\d|2\d|3[01])|(?:0[13-9]|1[0-2])(?:29|30)|(?:0[13578]|1[02])31)$"
+    # Fix a handful of typos
     clean_info["fiscal_year_end"] = (
         clean_info["fiscal_year_end"].str.zfill(4).replace("0939", "0930")
     )
+    # Set the irredemable values to NA
     invalid_fye_mask = ~clean_info["fiscal_year_end"].str.match(mmdd_regex)
     assert sum(invalid_fye_mask.dropna()) < 5
     clean_info.loc[invalid_fye_mask, "fiscal_year_end"] = pd.NA
