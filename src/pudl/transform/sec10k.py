@@ -51,9 +51,6 @@ def _standardize_taxpayer_id_irs(taxpayer_id_irs: pd.Series) -> pd.Series:
     - Set all values that are not 9 digits long or are entirely zeroes to pd.NA
     - Reformat to NN-NNNNNNN format.
     """
-    # Ensure that the EIN/TIN is valid and standardize formatting
-    # Should be a 9-digit number formatted NN-NNNNNNN
-    # Replace any non-digit characters in the TIN with the empty string
     tin = taxpayer_id_irs.astype("string").str.replace(r"[^\d]", "", regex=True)
     not_nine_digits = ~tin.str.match(r"^\d{9}$")
     logger.info(f"Nulling {sum(not_nine_digits.dropna())} invalid TINs.")
@@ -80,8 +77,6 @@ def _standardize_industrial_classification(sic: pd.Series) -> pd.DataFrame:
     sic_df[["industry_name_sic", "industry_id_sic"]] = sic.str.extract(
         r"^(.+)\[(\d{4})\]$"
     )
-    # Fill NA values with the value from the standard_industrial_classification column
-    # if and only if the standard_industrial_classification column is a 4-digit number.
     sic_df["industry_id_sic"] = sic_df["industry_id_sic"].fillna(
         sic.where(sic.str.match(r"\d{4}"), pd.NA)
     )
@@ -469,8 +464,8 @@ def core_sec10k__assn_sec10k_filers_and_eia_utilities(
         .drop_duplicates(subset="central_index_key")
         .dropna()
     )
-    # Verify that each CIK is matched to only one utility
-    # TODO: this is failing, so I added the drop_duplicates() back in above,
-    # but should ask Katie about why and if it's expected / important....
+    # TODO: this assertion is failing, so I added the drop_duplicates() back in above,
+    # but should ask Katie about why and if it's expected / important...
+    # Verify that each CIK is matched to only one utility:
     # assert sec_eia_matches["central_index_key"].nunique() == len(sec_eia_matches)
     return sec_eia_matches
