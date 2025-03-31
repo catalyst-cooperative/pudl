@@ -386,7 +386,14 @@ def core_sec10k__changelog_company_name(
                 "company_conformed_name": "company_name",
             }
         )
-        .drop_duplicates()
+        .drop_duplicates(
+            subset=[
+                "central_index_key",
+                "name_change_date",
+                "company_name_old",
+                "company_name",
+            ]
+        )
     )
     return name_changelog
 
