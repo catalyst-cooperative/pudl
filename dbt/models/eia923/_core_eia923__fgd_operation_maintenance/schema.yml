@@ -18,7 +18,6 @@ sources:
               target_column: opex_fgd_total_cost
               discrepancy_threshold: 0.01
               max_discrepancy_rate: 0.01
-              # dbt results do not match notebook results; figure out why
         columns:
           - name: report_date
           - name: plant_id_eia
