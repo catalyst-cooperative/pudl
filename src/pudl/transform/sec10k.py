@@ -1,7 +1,8 @@
-"""Rehsaping and data cleaning routines that are applied to the SEC 10-K data tables.
+"""Transformations and standardizations for SEC 10-K data tables.
 
-Assets produced here are the core tables that are used to build the denormalized output
-tables latter.
+This module contains routines for reshaping, cleaning, and standardizing the raw SEC
+10-K data into normalized core tables. These core tables serve as the building blocks
+for denormalized output tables.
 """
 
 import dagster as dg
@@ -74,11 +75,13 @@ def _standardize_industrial_classification(sic: pd.Series) -> pd.DataFrame:
     See e.g. https://www.osha.gov/data/sic-manual for code definitions."
     """
     sic_df = pd.DataFrame()
+    sic = sic.str.strip()
     sic_df[["industry_name_sic", "industry_id_sic"]] = sic.str.extract(
         r"^(.+)\[(\d{4})\]$"
     )
+    sic_df["industry_name_sic"] = sic_df["industry_name_sic"].str.strip()
     sic_df["industry_id_sic"] = sic_df["industry_id_sic"].fillna(
-        sic.where(sic.str.match(r"\d{4}"), pd.NA)
+        sic.where(sic.str.match(r"^\d{4}$"), pd.NA)
     )
     return sic_df
 
