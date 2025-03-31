@@ -80,9 +80,13 @@ def _standardize_industrial_classification(sic: pd.Series) -> pd.DataFrame:
         r"^(.+)\[(\d{4})\]$"
     )
     sic_df["industry_name_sic"] = sic_df["industry_name_sic"].str.strip()
+    sic_name_zero = sic_df["industry_name_sic"].str.contains("0000").fillna(False)
+    sic_df.loc[sic_name_zero, "industry_name_sic"] = pd.NA
     sic_df["industry_id_sic"] = sic_df["industry_id_sic"].fillna(
         sic.where(sic.str.match(r"^\d{4}$"), pd.NA)
     )
+    sic_id_zero = (sic_df["industry_id_sic"] == "0000").fillna(False)
+    sic_df.loc[sic_id_zero, "industry_id_sic"] = pd.NA
     return sic_df
 
 
