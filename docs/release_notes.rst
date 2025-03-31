@@ -21,6 +21,10 @@ Major Dependency Updates
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* We now publish a `Frictionless data package
+  <https://datapackage.org/standard/data-package/>`__ describing our Parquet
+  outputs, with the name ``pudl_datapackage.json``. See :issue:`4069` and :pr:`4070`.
+
 New Tests
 ^^^^^^^^^
 We're in the process of migrating our tests to use the
@@ -32,10 +36,7 @@ So far we have converted the following tests:
   See :issue:`4094`, :pr:`4117`. You can find the implementation in the
   `check_column_correlation.sql
   <../../dbt/tests/data_tests/generic_tests/check_column_correlation.sql>`__ file.
-
-* We now publish a `Frictionless data package
-  <https://datapackage.org/standard/data-package/>`__ describing our Parquet
-  outputs, with the name ``pudl_datapackage.json``. See :issue:`4069` and :pr:`4070`.
+* 19 tests which required special handling; see :issue:`4093`, :pr:`4114`, :pr:`4151`.
 
 .. _release-v2025.2.0:
 
