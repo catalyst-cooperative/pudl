@@ -15,14 +15,17 @@ logger = logging_helpers.get_logger(__name__)
 
 company_name_cleaner = name_cleaner.CompanyNameCleaner(
     cleaning_rules_list=[
+        "replace_ampersand_in_spaces_by_AND",
         "replace_hyphen_by_space",
         "replace_underscore_by_space",
         "remove_text_punctuation",
         "remove_parentheses",
         "remove_brackets",
         "remove_curly_brackets",
+        "remove_words_between_slashes",
         "enforce_single_space_between_words",
-    ]
+    ],
+    legal_term_location=2,
 )
 
 
@@ -77,10 +80,10 @@ def _get_sec_state_code_dict() -> dict[str, str]:
 def _clean_location_of_incorporation(loc_col: pd.Series) -> pd.Series:
     state_code_to_name = _get_sec_state_code_dict()
     out = (
-        loc_col.replace(state_code_to_name)
-        .fillna(pd.NA)
-        .str.strip()
+        loc_col.str.strip()
         .str.lower()
+        .replace(state_code_to_name)
+        .fillna(pd.NA)
         .replace("", pd.NA)
     )
     return out
@@ -123,14 +126,14 @@ def match_ex21_subsidiaries_to_filer_company(
         A dataframe of the Ex. 21 subsidiaries with a column for the
         subsidiaries CIK (null if the subsidiary doesn't file).
     """
-    filer_info_df = filer_info_df.drop_duplicates(
-        subset=[
-            "central_index_key",
-            "company_name",
-            "state_of_incorporation",
-            "report_date",
-        ]
+    filer_info_df["subsidiary_company_name"] = _clean_company_name(
+        filer_info_df["company_name"]
     )
+    ownership_df["subsidiary_company_name"] = _clean_company_name(
+        ownership_df["subsidiary_company_name"]
+    )
+    filer_info_df = filer_info_df.dropna(subset="subsidiary_company_name")
+    ownership_df = ownership_df.dropna(subset="subsidiary_company_name")
     filer_info_df["state_of_incorporation"] = _clean_location_of_incorporation(
         filer_info_df["state_of_incorporation"]
     )
@@ -147,8 +150,7 @@ def match_ex21_subsidiaries_to_filer_company(
             ]
         ],
         how="inner",
-        left_on="company_name",
-        right_on="subsidiary_company_name",
+        on="subsidiary_company_name",
         suffixes=("_sec", "_ex21"),
     )
     # split up the location of incorporation on whitespace, creating a column
@@ -159,49 +161,53 @@ def match_ex21_subsidiaries_to_filer_company(
     merged_df.loc[:, "loc_tokens_ex21"] = (
         merged_df["subsidiary_company_location"].fillna("").str.lower().str.split()
     )
-    # get the number of words overlapping between location of incorporation tokens
+    # get the fraction of overlapping words between location of incorporation tokens
+    # this could be done with a set similarity metric but is probably good enough
+    # for now
     merged_df["loc_overlap"] = merged_df.apply(
-        lambda row: len(set(row["loc_tokens_sec"]) & set(row["loc_tokens_ex21"])),
+        lambda row: len(set(row["loc_tokens_sec"]) & set(row["loc_tokens_ex21"]))
+        / max(len(row["loc_tokens_sec"]), len(row["loc_tokens_ex21"]), 1),
         axis=1,
     )
     # get the difference in report dates
-    merged_df["report_date_diff_days"] = (
-        merged_df["report_date_sec"] - merged_df["report_date_ex21"]
-    ).dt.days
+    merged_df["report_date_diff_days"] = abs(
+        (merged_df["report_date_sec"] - merged_df["report_date_ex21"]).dt.days
+    )
     merged_df = merged_df.sort_values(
         by=[
-            "company_name",
+            "subsidiary_company_name",
             "subsidiary_company_location",
             "loc_overlap",
             "report_date_diff_days",
         ],
-        ascending=[True, True, False, False],
+        ascending=[True, True, False, True],
     )
     # Select the row with the highest loc overlap and nearest report dates
-    # for each company name and location
+    # for each company name and location.
+    # We could choose the best match for each subsidiary_company_id_sec10k
+    # but we don't, because if a company name is the same but locations are actually
+    # different (not just NaN) then they shouldn't be matched
     closest_match_df = merged_df.groupby(
-        ["company_name", "subsidiary_company_location"], as_index=False
+        ["subsidiary_company_name", "subsidiary_company_location"], as_index=False
     ).first()
     ownership_with_cik_df = ownership_df.merge(
         closest_match_df[
             [
-                "company_name",
+                "subsidiary_company_name",
                 "subsidiary_company_location",
                 "central_index_key",
             ]
         ],
         how="left",
-        left_on=["subsidiary_company_name", "subsidiary_company_location"],
-        right_on=["company_name", "subsidiary_company_location"],
+        on=["subsidiary_company_name", "subsidiary_company_location"],
     ).rename(columns={"central_index_key": "subsidiary_company_central_index_key"})
-    # if a subsidiary doesn't have a CIK and has a null location
-    # but its company name was assigned a CIK (with a different location)
-    # then assign that CIK to the subsidiary
+    # if a subsidiary has a null location and doesn't have a matched CIK,
+    # but the same company name with a non-null location was assigned a CIK
+    # then assign that CIK to the null location subsidiary
     ownership_with_cik_df = ownership_with_cik_df.merge(
-        closest_match_df[["company_name", "central_index_key"]],
+        closest_match_df[["subsidiary_company_name", "central_index_key"]],
         how="left",
-        left_on="subsidiary_company_name",
-        right_on="company_name",
+        on="subsidiary_company_name",
     ).rename(columns={"central_index_key": "company_name_merge_cik"})
     ownership_with_cik_df["subsidiary_company_central_index_key"] = (
         ownership_with_cik_df["subsidiary_company_central_index_key"].where(
@@ -509,31 +515,33 @@ def core_sec10k__assn__exhibit_21_subsidiaries_and_filers(
     Create an association between ``subsidiary_company_id_sec10k``
     and ``central_index_key``.
     """
-    core_sec10k__quarterly_company_information["company_name"] = _clean_company_name(
-        core_sec10k__quarterly_company_information["company_name"]
-    )
-    core_sec10k__quarterly_exhibit_21_company_ownership["subsidiary_company_name"] = (
-        _clean_company_name(
-            core_sec10k__quarterly_exhibit_21_company_ownership[
-                "subsidiary_company_name"
-            ]
-        )
-    )
     matched_df = match_ex21_subsidiaries_to_filer_company(
         filer_info_df=core_sec10k__quarterly_company_information,
         ownership_df=core_sec10k__quarterly_exhibit_21_company_ownership,
     )
-    matched_df = (
-        matched_df[
-            ["subsidiary_company_id_sec10k", "subsidiary_company_central_index_key"]
+    out_df = matched_df[
+        [
+            "subsidiary_company_id_sec10k",
+            "subsidiary_company_central_index_key",
+            "report_date",
         ]
-        .rename(columns={"subsidiary_company_central_index_key": "central_index_key"})
-        .dropna(subset="central_index_key")
-    ).drop_duplicates()
-    return matched_df
+    ].dropna(subset="subsidiary_company_central_index_key")
+    # Sometimes a company will change CIK in the SEC
+    # database (without changing name).
+    # We only want one CIK per subsidiary company ID, so keep the
+    # most recent CIK match for each subsidiary company.
+    out_df = out_df.sort_values(
+        by=["subsidiary_company_id_sec10k", "report_date"], ascending=[True, False]
+    ).drop_duplicates(subset="subsidiary_company_id_sec10k", keep="first")
+    out_df = out_df[
+        ["subsidiary_company_id_sec10k", "subsidiary_company_central_index_key"]
+    ].rename(columns={"subsidiary_company_central_index_key": "central_index_key"})
+    return out_df
 
 
-@asset(io_manager_key="pudl_io_manager", group_name="sec10k")
+@asset(  # io_manager_key="pudl_io_manager",
+    group_name="sec10k"
+)
 def core_sec10k__assn__exhibit_21_subsidiaries_and_eia_utilities(
     core_sec10k__assn__sec10k_filers_and_eia_utilities: pd.DataFrame,
     core_eia__entity_utilities: pd.DataFrame,
@@ -664,14 +672,4 @@ def out_sec10k__parents_and_subsidiaries(
     ].fillna(df["sub_only_utility_name_eia"])
     df = df.drop(columns=["sub_only_utility_id_eia", "sub_only_utility_name_eia"])
 
-    # Some utilities harvested from EIA 861 data that don't show up in our entity
-    # tables. These didn't end up improving coverage, and so will be removed upstream.
-    # Hack for now is to just drop them so the FK constraint is respected.
-    # See https://github.com/catalyst-cooperative/pudl/issues/4050
-    """
-    bad_utility_ids = [
-        3579,  # Cirro Group, Inc. in Texas
-    ]
-    df = df[~df.utility_id_eia.isin(bad_utility_ids)]
-    """
     return df
