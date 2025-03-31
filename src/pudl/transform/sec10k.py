@@ -470,16 +470,25 @@ def core_sec10k__quarterly_exhibit_21_company_ownership(
 def core_sec10k__assn_sec10k_filers_and_eia_utilities(
     core_sec10k__parents_and_subsidiaries: pd.DataFrame,
 ) -> pd.DataFrame:
-    """An association table between SEC 10k filing companies and EIA utilities."""
-    sec_eia_matches = (
+    """Create an association table between SEC 10-K companies and EIA utilities.
+
+    We are retroactively extracting this simple association table (crosswalk) from the
+    un-normalized parent/subsidiary relationships handed off from the SEC process
+    upstream so it is available as an easy to understand core table.
+
+    Because we accept only the single, highest probability match from the Splink record
+    linkage process, we expect a 1-to-1 relationship between these IDs. Note that most
+    companies in this table have no CIK because most records come from the unstructured
+    Exhibit 21 data, and most that do have a CIK have no EIA Utility ID because most
+    companies are not utilities, and most utilities are still unmatched.
+    """
+    sec_eia_assn = (
         core_sec10k__parents_and_subsidiaries.loc[
             :, ["central_index_key", "utility_id_eia"]
         ]
-        .drop_duplicates(subset="central_index_key")
         .dropna()
+        .drop_duplicates(subset=["central_index_key", "utility_id_eia"])
     )
-    # TODO: this assertion is failing, so I added the drop_duplicates() back in above,
-    # but should ask Katie about why and if it's expected / important...
-    # Verify that each CIK is matched to only one utility:
-    # assert sec_eia_matches["central_index_key"].nunique() == len(sec_eia_matches)
-    return sec_eia_matches
+    assert sec_eia_assn["central_index_key"].is_unique
+    assert sec_eia_assn["utility_id_eia"].is_unique
+    return sec_eia_assn
