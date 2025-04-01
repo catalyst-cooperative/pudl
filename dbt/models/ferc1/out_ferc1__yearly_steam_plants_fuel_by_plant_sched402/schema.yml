@@ -43,6 +43,12 @@ sources:
           - name: waste_fraction_mmbtu
 models:
   - name: validate_ferc1__yearly_steam_plants_fuel_by_plant_sched402
+    description: >
+      This is a validation model which takes the above table as input and computes
+      values more convenient for testing, including:
+
+      - total cost and mmbtu fractions for range tests
+      - fuel costs per mmbtu for quantile and median tests
     columns:
       - name: gas_cost_per_mmbtu
         data_tests:

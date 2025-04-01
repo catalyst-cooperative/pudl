@@ -1,6 +1,3 @@
-{# validation table for out_ferc1__yearly_steam_plants_fuel_by_plant_sched402 #}
-{# generates total cost and mmbtu fractions for range tests in schema.yml #}
-{# generates fuel costs per mmbtu for quantile and median tests in schema.yml #}
 select
 report_year, plant_id_pudl,
 {% for fraction_type in ["cost", "mmbtu"] %}
