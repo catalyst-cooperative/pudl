@@ -17,12 +17,17 @@ Static reported vs. imputed values with color coded points for the imputations
 
 """
 
+import zipfile
 from collections.abc import Sequence
+from io import BytesIO
 from typing import Any
 
+import matplotlib.cm as cm
+import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import requests
 
 from pudl.metadata.enums import IMPUTATION_CODES
 
@@ -31,16 +36,157 @@ def _filter_df(
     df: pd.DataFrame,
     idx_cols: list[str],
     idx_vals: tuple[Any],
-    start_date: str,
-    end_date: str,
+    start_date: str | None = None,
+    end_date: str | None = None,
     time_col: str = "datetime_utc",
 ) -> pd.DataFrame:
+    """Filter a dataframe based on index columns and date range."""
+    if start_date is None:
+        start_date = df[time_col].min()
+    if end_date is None:
+        end_date = df[time_col].max()
     return (
         df.set_index(idx_cols + [time_col])
         .sort_index()
         .loc[idx_vals]
         .loc[start_date:end_date]
     )
+
+
+def extract_baseline_eia930_imputation() -> pd.DataFrame:
+    """Download and extract an existing imputation of the EIA-930 demand data.
+
+    Useful as a baseline for evaluating our imputation results in development.
+    Originally by Tyler Ruggles, Alicia Wongel, and David Farnham (2025). See:
+    https://doi.org/10.5281/zenodo.14768167 (data)
+    and https://doi.org/10.5281/zenodo.14768152 (code).
+    """
+    r = requests.get(
+        "https://zenodo.org/records/14768167/files/truggles/EIA_Cleaned_Hourly_Electricity_Demand_Data-v1.4.zip?download=1",
+        timeout=30,
+    )
+    f = BytesIO(r.content)
+    subregions = []
+    base_path = "truggles-EIA_Cleaned_Hourly_Electricity_Demand_Data-5c959df/data/"
+    archive = zipfile.Path(f, at=base_path)
+    for release in [
+        "release_2020_Oct_include_subregions",
+        "release_2025_Jan_include_subregions",
+    ]:
+        for path in (
+            archive / release / "subregions_and_balancing_authorities"
+        ).iterdir():
+            if path.suffix != ".csv":
+                continue
+            df = pd.read_csv(path.open())
+
+            # Get subregion/ba
+            name = path.stem.split("-")
+            ba = name[0]
+            subregion = None if len(name) == 1 else name[1]
+            df["balancing_authority_code_eia"] = ba
+            df["balancing_authority_subregion_code_eia"] = subregion
+
+            subregions.append(df)
+    df = pd.concat(subregions).rename(
+        columns={"cleaned demand (MW)": "baseline_demand_mwh"}
+    )
+    df["datetime_utc"] = pd.to_datetime(df["date_time"])
+    return df[
+        [
+            "datetime_utc",
+            "baseline_demand_mwh",
+            "balancing_authority_code_eia",
+            "balancing_authority_subregion_code_eia",
+        ]
+    ]
+
+
+def plot_correlation(
+    df: pd.DataFrame,
+    timeseries_x: str,
+    timeseries_y: str,
+    idx_cols: list[str],
+    idx_vals: list[tuple[Any] | str] | None = None,
+    xylim: tuple[float] | None = None,
+    xlabel: str = "",
+    ylabel: str = "",
+    title: str = "",
+    time_col: str = "datetime_utc",
+    start_date: str | None = None,
+    end_date: str | None = None,
+    log: bool = True,
+    legend: bool = True,
+    alpha: float = 0.1,
+):
+    """Plot the correlation between two analogous time series."""
+    plt.figure(figsize=(12, 12))
+
+    # Generate a color palette using Matplotlib
+    # Use the "tab10" colormap with the required number of colors
+    cmap = cm.get_cmap("tab10", len(idx_vals))
+    # Convert colors to hex format
+    palette = [mcolors.to_hex(cmap(i)) for i in range(len(idx_vals))]
+    color_map = {group: palette[i] for i, group in enumerate(idx_vals)}
+
+    for idx in idx_vals:
+        filtered = _filter_df(
+            df,
+            idx_cols=idx_cols,
+            idx_vals=idx,
+            start_date=start_date,
+            end_date=end_date,
+            time_col=time_col,
+        )
+        label = "-".join(str(idx)) if isinstance(idx, tuple) else str(idx)
+        plt.scatter(
+            filtered[timeseries_x],
+            filtered[timeseries_y],
+            s=0.1,
+            alpha=alpha,
+            label=label,
+            color=color_map[idx],
+        )
+
+    if xylim is not None:
+        plt.xlim(xylim)
+        plt.ylim(xylim)
+    if log:
+        plt.xscale("log")
+        plt.yscale("log")
+
+    # Add some gridlines
+    plt.grid(True, which="both", ls="--", lw=0.5, alpha=0.5)
+    # Show line for perfect correlation where x == y
+    xlim = plt.gca().get_xlim()
+    ylim = plt.gca().get_ylim()
+    min_val = max(min(xlim), min(ylim))
+    max_val = min(max(xlim), max(ylim))
+    plt.plot(
+        [min_val, max_val],
+        [min_val, max_val],
+        linestyle="--",
+        color="gray",
+        linewidth=0.5,
+    )
+
+    if legend:
+        leg = plt.legend(
+            loc="upper left",
+            scatterpoints=3,
+            markerscale=10,
+            labelspacing=1.2,
+        )
+        for lh in leg.legend_handles:
+            lh.set_alpha(1.0)
+
+    # Label the plot
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.title(title)
+
+    plt.tight_layout()
+    plt.show()
 
 
 def plot_imputation(
@@ -64,12 +210,6 @@ def plot_imputation(
     # Set the dataframe index to the ID columns and the time column
     # Select specified index values that fall within the specified date range:
     filtered = _filter_df(df, idx_cols, idx_vals, start_date, end_date, time_col)
-    filtered = (
-        df.set_index(idx_cols + [time_col])
-        .sort_index()
-        .loc[idx_vals]
-        .loc[start_date:end_date]
-    )
     plt.figure(figsize=(12, 6))
     plt.plot(
         filtered.index,
@@ -134,8 +274,6 @@ def plot_compare_imputation(
         bbox_to_anchor=(1.05, 1),
         loc="upper left",
         borderaxespad=0.0,
-        scatterpoints=3,  # Increase the size of points in the legend
-        markerscale=3,  # Scale up the marker size in the legend
     )
     plt.tight_layout()  # Adjust layout to make room for the legend
     plt.show()
