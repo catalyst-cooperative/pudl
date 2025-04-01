@@ -33,7 +33,7 @@ import functools
 import uuid
 import warnings
 from collections.abc import Callable, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Optional
 
 import numpy as np
@@ -1446,9 +1446,9 @@ def summarize_imputed(
 def impute_flagged_values(
     df: DataFrame[TimeseriesMatrix],
     years: list[int],
+    method: dict[int, str],
     periods: int = 24,
     blocks: int = 1,
-    method: str = "tubal",
 ) -> DataFrame[TimeseriesMatrix]:
     """Impute null values in input timeseries matrix.
 
@@ -1465,7 +1465,7 @@ def impute_flagged_values(
             See :meth:`fold_tensor`.
         blocks: Number of blocks into which to split the series for imputation.
             This has been found to reduce processing time for `method='tnn'`.
-        method: Imputation method to use
+        method: Map year to imputation method, which must be one of the following
             ('tubal': :func:`impute_latc_tubal`, 'tnn': :func:`impute_latc_tnn`).
 
     Returns:
@@ -1483,12 +1483,9 @@ def impute_flagged_values(
         # timeseries matrix chunks over years at a time
         # and having only one record
         if year in years:
-            year_method = method
-            if year == 2019:
-                year_method = "tnn"
             logger.info(f"Imputing year {year}")
             keep = df.columns[~gdf.isnull().all()]
-            result = impute(gdf[keep], method=year_method)
+            result = impute(gdf[keep], method=method[year])
             results.append(result)
     return pd.concat(results)
 
@@ -1564,6 +1561,8 @@ class ImputeTimeseriesSettings:
     """Number of blocks into which to split the series for imputation."""
     method: str = "tubal"
     """Imputation method to use ('tubal': :func:`impute_latc_tubal`, 'tnn': :func:`impute_latc_tnn`)."""
+    method_overrides: dict[int, str] = field(default_factory=dict)
+    """Override imputation method for specific years ('tubal': :func:`impute_latc_tubal`, 'tnn': :func:`impute_latc_tnn`)."""
 
 
 def impute_timeseries_asset_factory(
@@ -1666,12 +1665,14 @@ def impute_timeseries_asset_factory(
     def _impute_timeseries(context, matrix: pd.DataFrame) -> pd.DataFrame:
         """Perform imputation and return TimeseriesMatrix with imputed values."""
         # Impute flagged/missing values
+        years = years_from_context(context)
+        method = dict.fromkeys(years, settings.method) | settings.method_overrides
         return impute_flagged_values(
             matrix,
-            years=years_from_context(context),
+            years=years,
             periods=settings.periods,
             blocks=settings.blocks,
-            method=settings.method,
+            method=method,
         )
 
     @asset(
