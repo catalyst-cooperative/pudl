@@ -81,7 +81,7 @@ imputed_subregion_demand_assets = impute_timeseries_asset_factory(
     value_col="demand_reported_mwh",
     imputed_value_col="demand_imputed_pudl_mwh",
     id_col="combined_subregion_ba_id",
-    settings=ImputeTimeseriesSettings(method_overrides={2019: "tnn"}),
+    settings=ImputeTimeseriesSettings(method_overrides={2019: "tnn", 2025: "tnn"}),
 )
 
 

@@ -30,7 +30,6 @@ And described at:
 """
 
 import functools
-import math
 import uuid
 import warnings
 from collections.abc import Callable, Sequence
@@ -170,11 +169,8 @@ def pivot_aligned_timeseries_dataframe(
 
     # Pad matrix with any missing hours from timeseries
     start = matrix.index.min().replace(hour=0)
-    hour_diff = (matrix.index.max() - start).total_seconds() / 3600
-    groups = math.ceil(hour_diff / periods)
-    all_hours = pd.date_range(
-        start=matrix.index.min(), periods=groups * periods, freq="h", name="datetime"
-    )
+    end = matrix.index.max().replace(hour=23)
+    all_hours = pd.date_range(start=start, end=end, freq="h", name="datetime")
     return matrix.reindex(all_hours)
 
 
