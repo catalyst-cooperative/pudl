@@ -18,6 +18,8 @@ EIA 930
 ~~~~~~~
 * Added the table :ref:`out_eia930__hourly_subregion_demand`, which
   contains an imputed version of subregion demand.
+* Added the table :ref:`out_eia930__hourly_operations`, which
+  contains an imputed version of BA level demand.
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
