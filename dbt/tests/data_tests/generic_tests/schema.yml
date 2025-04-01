@@ -1,0 +1,44 @@
+version: 2
+
+macros:
+  - name: test_check_column_correlation
+    description: Check the correlation between two columns
+    arguments:
+      - name: column1
+        type: string
+        description: The name of the first column
+      - name: column2
+        type: string
+        description: The name of the second column
+      - name: correlation_coef
+        type: float
+        description: The minimum correlation coefficient we expect between the two columns.
+  - name: test_check_row_counts_per_partition
+    description: Check that the number of rows in each partition is as expected
+    arguments:
+      - name: table_name
+        type: string
+        description: The name of the table to check
+      - name: partition_column
+        type: string
+        description: The name of the column to partition by
+  - name: test_expect_includes_all_value_combinations_from
+    description:
+      Check that all values in a column or set of columns are the same
+      as the same set of columns in another table. Similar to a foreign key
+      constraint, but rather than check if values from the model table exist in a comparison table,
+      this checks if the comparison table has values that don't exist in the model table. Note that
+      this check is only one way. If you also want to check whether the model table has values that
+      don't exist in the comparison table, you'll need to call this function in the schema of the
+      comparison table as well.
+    arguments:
+      - name: compare_table_name
+        type: string
+        description: The name of the table to compare columns with
+      - name: compare_cols
+        type: list
+        description: A list of column names present in both tables. The test will succeed only if all combinations of column values present in at least one row in the comparison table are present in this table.
+  - name: test_no_null_rows
+    description: Check that there are no null rows in the table
+  - name: test_not_all_null
+    description: Check that not all values in a column are null

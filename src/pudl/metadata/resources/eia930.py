@@ -190,10 +190,14 @@ below provides more information on subregions."""
     },
     "out_eia930__hourly_subregion_demand": {
         "description": (
-            "This table is based on ``core_eia930__hourly_subregion_demand``, but adds "
-            "imputed demand values where the original data was missing or anomalous. "
-            "Codes explaining why values have been imputed can be found in the "
-            "``core_pudl__codes_imputation_reasons`` table."
+            """EXPERIMENTAL / WORK-IN-PROGRESS, 2025-03-31.
+
+This table is based on ``core_eia930__hourly_subregion_demand``, but adds imputed demand
+values where the original data was missing or anomalous.  Codes explaining why values
+have been imputed can be found in the ``core_pudl__codes_imputation_reasons`` table.
+
+This table is available in the nightly builds during development, but has not been fully
+vetted yet."""
         ),
         "schema": {
             "fields": [

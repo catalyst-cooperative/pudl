@@ -18,4 +18,5 @@ from . import (
     spatial,
     state_demand,
     timeseries_cleaning,
+    timeseries_evaluation,
 )
