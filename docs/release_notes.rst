@@ -36,6 +36,11 @@ So far we have converted the following tests:
   See :issue:`4094`, :pr:`4117`. You can find the implementation in the
   `check_column_correlation.sql
   <../../dbt/tests/data_tests/generic_tests/check_column_correlation.sql>`__ file.
+* ``expect_includes_all_value_combinations_from`` - a more generic replacement for the
+  old ``ensure_all_ppe_ids_are_in_assn`` pytest. See :issue:`4096`, :pr:`9123`. You
+  can find the implementation in the `expect_includes_all_value_combinations_from.sql
+  <../../dbt/tests/data_tests/generic_tests/expect_includes_all_value_combinations_from.sql>`__
+  file.
 * 19 tests which required special handling; see :issue:`4093`, :pr:`4114`, :pr:`4151`.
 
 .. _release-v2025.2.0:

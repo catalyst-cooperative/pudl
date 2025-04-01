@@ -1,4 +1,9 @@
-{% test expect_consistent_generator_ids(model) %}
+{% test expect_consistent_generator_ids(model, n_acceptable_failures=0) %}
+-- Check if there are any plants that report inconsistent generator IDs.
+--
+-- There are some instances in which a plant will report generator IDs differently in
+-- different years, such that the IDs differ only in terms of the case of letters, or
+-- non-alphanumeric characters. This test identifies them. We haven't fixed them yet.
 with GenIds as (
     select distinct
         plant_id_eia,
@@ -16,6 +21,6 @@ with GenIds as (
 ) select *
 from GenIds join MultipleIds using (plant_id_eia, simple_id)
 order by plant_id_eia, simple_id
-limit 1e6 offset 40 -- as of 2021 there were 40 known inconsistent generator IDs
+limit 1e6 offset {{ n_acceptable_failures }}
 
 {% endtest %}
