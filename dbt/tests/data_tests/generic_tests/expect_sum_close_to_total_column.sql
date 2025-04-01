@@ -1,11 +1,11 @@
-{% test expect_sum_to_target_discrepancy_rate_less_than(model, sum_columns, target_column, discrepancy_threshold, max_discrepancy_rate) %}
+{% test expect_sum_close_to_total_column(model, sum_columns, total_column, discrepancy_threshold, max_discrepancy_rate) %}
 with Discrepancies as (
     select
         ({% for c in sum_columns %}
         coalesce({{ c }}, 0) {% if not loop.last %}+ {% endif %}
         {% endfor %}) as sum_cost,
-        abs(sum_cost - {{ target_column }}) / {{ target_column }} as discrepancy,
-        {{ target_column }} is not null and (sum_cost != {{ target_column }}) and discrepancy > {{ discrepancy_threshold }} as bad_discrepancy
+        abs(sum_cost - {{ total_column }}) / {{ total_column }} as discrepancy,
+        {{ total_column }} is not null and (sum_cost != {{ total_column }}) and discrepancy > {{ discrepancy_threshold }} as bad_discrepancy
         -- null target column should not count
         -- zero target column with sum_cost!=0 (discrepancy=inf) should count
         -- zero target column with sum_cost=0 (discrepancy=nan) should not count

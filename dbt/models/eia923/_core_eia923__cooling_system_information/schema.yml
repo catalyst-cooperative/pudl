@@ -7,21 +7,21 @@ sources:
           - check_row_counts_per_partition:
               table_name: _core_eia923__cooling_system_information
               partition_column: report_date
-          - expect_sum_to_target_discrepancy_rate_less_than:
+          - expect_sum_close_to_total_column:
               name: monthly_withdrawal_discrepancy_rate
               sum_columns:
                 - monthly_average_consumption_rate_gallons_per_minute
                 - monthly_average_discharge_rate_gallons_per_minute
-              target_column: monthly_average_withdrawal_rate_gallons_per_minute
+              total_column: monthly_average_withdrawal_rate_gallons_per_minute
               discrepancy_threshold: 0.01
               # Discrepancy rate on etl-fast observed April 2025: 0.1002
               max_discrepancy_rate: 0.101
-          - expect_sum_to_target_discrepancy_rate_less_than:
+          - expect_sum_close_to_total_column:
               name: annual_withdrawal_discrepancy_rate
               sum_columns:
                 - annual_average_consumption_rate_gallons_per_minute
                 - annual_average_discharge_rate_gallons_per_minute
-              target_column: annual_average_withdrawal_rate_gallons_per_minute
+              total_column: annual_average_withdrawal_rate_gallons_per_minute
               discrepancy_threshold: 0.01
               max_discrepancy_rate: 0.1
         columns:
