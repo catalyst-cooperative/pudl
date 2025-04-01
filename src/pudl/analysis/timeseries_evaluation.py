@@ -17,7 +17,9 @@ Static reported vs. imputed values with color coded points for the imputations
 
 """
 
+import zipfile
 from collections.abc import Sequence
+from io import BytesIO
 from typing import Any
 
 import matplotlib.cm as cm
@@ -25,6 +27,7 @@ import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import requests
 
 from pudl.metadata.enums import IMPUTATION_CODES
 
@@ -48,6 +51,55 @@ def _filter_df(
         .loc[idx_vals]
         .loc[start_date:end_date]
     )
+
+
+def extract_baseline_eia930_imputation() -> pd.DataFrame:
+    """Download and extract an existing imputation of the EIA-930 demand data.
+
+    Useful as a baseline for evaluating our imputation results in development.
+    Originally by Tyler Ruggles, Alicia Wongel, and David Farnham (2025). See:
+    https://doi.org/10.5281/zenodo.14768167 (data)
+    and https://doi.org/10.5281/zenodo.14768152 (code).
+    """
+    r = requests.get(
+        "https://zenodo.org/records/14768167/files/truggles/EIA_Cleaned_Hourly_Electricity_Demand_Data-v1.4.zip?download=1",
+        timeout=30,
+    )
+    f = BytesIO(r.content)
+    subregions = []
+    base_path = "truggles-EIA_Cleaned_Hourly_Electricity_Demand_Data-5c959df/data/"
+    archive = zipfile.Path(f, at=base_path)
+    for release in [
+        "release_2020_Oct_include_subregions",
+        "release_2025_Jan_include_subregions",
+    ]:
+        for path in (
+            archive / release / "subregions_and_balancing_authorities"
+        ).iterdir():
+            if path.suffix != ".csv":
+                continue
+            df = pd.read_csv(path.open())
+
+            # Get subregion/ba
+            name = path.stem.split("-")
+            ba = name[0]
+            subregion = None if len(name) == 1 else name[1]
+            df["balancing_authority_code_eia"] = ba
+            df["balancing_authority_subregion_code_eia"] = subregion
+
+            subregions.append(df)
+    df = pd.concat(subregions).rename(
+        columns={"cleaned demand (MW)": "baseline_demand_mwh"}
+    )
+    df["datetime_utc"] = pd.to_datetime(df["date_time"])
+    return df[
+        [
+            "datetime_utc",
+            "baseline_demand_mwh",
+            "balancing_authority_code_eia",
+            "balancing_authority_subregion_code_eia",
+        ]
+    ]
 
 
 def plot_correlation(
