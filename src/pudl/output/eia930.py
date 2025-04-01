@@ -8,17 +8,6 @@ from pudl.analysis.timeseries_cleaning import (
     impute_timeseries_asset_factory,
 )
 
-BA_TIMEZONE_MAP = {
-    "CISO": "America/Los_Angeles",
-    "ERCO": "America/Chicago",
-    "ISNE": "America/New_York",
-    "MISO": "America/Chicago",
-    "NYIS": "America/New_York",
-    "PJM": "America/New_York",
-    "PNM": "America/Denver",
-    "SWPP": "America/Chicago",
-}
-
 
 def _add_timezone(
     df: pd.DataFrame, core_eia__codes_balancing_authorities: pd.DataFrame
@@ -78,14 +67,17 @@ def _out_eia930__hourly_subregion_demand(
     return core_eia930__hourly_subregion_demand
 
 
+def _years_from_context(context) -> list[int]:
+    return [
+        int(half_year[:4])
+        for half_year in context.resources.dataset_settings.eia.eia930.half_years
+    ]
+
+
 imputed_subregion_demand_assets = impute_timeseries_asset_factory(
     input_asset_name="_out_eia930__hourly_subregion_demand",
     output_asset_name="out_eia930__hourly_subregion_demand",
-    years_from_context=lambda context: [
-        int(half_year[:4])
-        for half_year in context.resources.dataset_settings.eia.eia930.half_years
-        if "2025" not in half_year
-    ],
+    years_from_context=_years_from_context,
     value_col="demand_reported_mwh",
     imputed_value_col="demand_imputed_pudl_mwh",
     id_col="combined_subregion_ba_id",
@@ -96,11 +88,7 @@ imputed_subregion_demand_assets = impute_timeseries_asset_factory(
 imputed_ba_demand_assets = impute_timeseries_asset_factory(
     input_asset_name="_out_eia930__hourly_operations",
     output_asset_name="out_eia930__hourly_operations",
-    years_from_context=lambda context: [
-        int(half_year[:4])
-        for half_year in context.resources.dataset_settings.eia.eia930.half_years
-        if "2025" not in half_year
-    ],
+    years_from_context=_years_from_context,
     value_col="demand_reported_mwh",
     imputed_value_col="demand_imputed_pudl_mwh",
     id_col="balancing_authority_code_eia",
