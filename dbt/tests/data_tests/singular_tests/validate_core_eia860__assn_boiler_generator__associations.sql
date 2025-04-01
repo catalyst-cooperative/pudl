@@ -1,3 +1,4 @@
+-- Test the boiler generator associations.
 with GensSimple as (
     select
         report_date,
@@ -40,6 +41,6 @@ with GensSimple as (
     from DifferingPrimaryFuels
 )
 select * from DifferingPrimaryFuelRate
-where (num_multi_fuel_units / all_units) >= 0.01 -- existing test has no failure condition
-                                                 -- and just logs the current rate
-                                                 -- (0.0087 for etl-fast)
+where (num_multi_fuel_units / all_units) >= 0.01
+-- Failure rate for etl-fast as of Mar 2025 was 0.0087
+-- (we're primarily checking that this is not getting worse)

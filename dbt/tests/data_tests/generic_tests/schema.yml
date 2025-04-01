@@ -33,9 +33,17 @@ macros:
       ```out_eia860__yearly_ownership``. Fails when any generator has
       sum(fraction_owned) more than 1.02, or when more than half of generators have
       sum(fraction_owned) less than 0.98.
+    arguments:
+      - name: n_acceptable_failures
+        type: integer
+        description: The number of generators allowed to have sum(fraction_owned) more than 1.02; default 0.
   - name: test_expect_consistent_generator_ids
     description: >
-      Check whether generator ids have entries that vary only in punctuation or case. Designed for use on ``_out_eia__yearly_generators``. Fails when any ``plant_id_eia`` has multiple generators with the same id after dropping all [^A-Z0-9] characters. Accepts 40 known generators with multiple ids.
+      Check whether generator ids have entries that vary only in punctuation or case. Designed for use on ``_out_eia__yearly_generators``. Fails when any ``plant_id_eia`` has multiple generators with the same id after dropping all [^A-Z0-9] characters.
+    arguments:
+      - name: n_acceptable_failures
+        type: integer
+        description: The number of generators allowed to have inconsistent spellings.
   - name: test_expect_fgd_cost_totals_to_agree
     description: >
       Check whether the sum of itemized costs matches the total cost. Designed for use on ``_core_eia860__fgd_equipment``. Fails when more than 1% of rows have a sum that differs from the total by more than 1%. Includes careful null and nan handling.
@@ -62,9 +70,13 @@ macros:
       - name: columns
         type: list[string]
         description: The columns in the unique combination.
-  - name: test_expect_unique_owner_utility_id_eia
+  - name: test_expect_unique_utility_id_eia
     description: >
-      Check whether each generator has exactly one owner utility on any particular date. Designed for use on ``out_eia860__yearly_ownership``. Fails when any (``report_date``, ``plant_id_eia``, ``generator_id``) combination has more than one unique value for ``owner_utility_id_eia``. Accepts 730 known generators with multiple owner utilities.
+      Check whether each generator has exactly one operator utility on any particular date. Designed for use on ``out_eia860__yearly_ownership``. Fails when any (``report_date``, ``plant_id_eia``, ``generator_id``) combination has more than one unique value for ``utility_id_eia``. NOTE: As of March 2025, no such column ``utility_id_eia`` exists in table ``out_eia860__yearly_ownership`` and this test should not be used. Maybe someday we figure out where to really test for this.
+    arguments:
+      - name: n_acceptable_failures
+        type: integer
+        description: The number of generators allowed to multiple operator utilities on any particular date; default 0.
   - name: test_expect_valid_hour_of_year
     description: >
       Check whether ``hour_of_year`` is consistent with ``datetime_utc``. Designed for use on ``out_vcerare__hourly_available_capacity_factor``. Fails when the hour computed from the datetime does not match.
