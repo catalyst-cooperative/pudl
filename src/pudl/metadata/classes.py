@@ -1868,6 +1868,106 @@ class Resource(PudlMeta):
 # ---- Package ---- #
 
 
+class MetaFromResourceName(PudlMeta):
+    """Class to extract standard metadata to add to Resource.description."""
+
+    name: SnakeCase
+    """Resource name (aka table name)."""
+
+    layer_map: dict = {
+        "_core": (
+            "Processing Stage: Intermediate cleaned but not tidied/normalized. "
+            "These tables are generally published in this semi-processed stage temporarily."
+        ),
+        "core": "Processing Stage: Cleaned, tidied/normalized.",
+        "_out": "Processing Stage: Intermediate output table.",
+        "out": (
+            "Processing Stage: Wide/denormalized (helpful values for easy of use have been "
+            "merged back into these tables). Possible calculations or imputations."
+        ),
+    }
+    layer_string: str = "|".join(layer_map.keys())
+
+    # TODO: add link to https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/{datasource_name}.html
+    # if we have a data_sources page for it.
+    datasource_map: dict = {
+        datasource_name: f"Data Source: {SOURCES[datasource_name]['title']}"
+        for datasource_name in SOURCES
+    } | {
+        "eia": "Data Source: EIA -- Mix of multiple EIA Forms",
+        "epa": "Data Source: EPA -- Mix of multiple EPA sources.",
+    }
+
+    datasource_strings: str = "|".join(datasource_map.keys())
+
+    time_detail_map: dict = {
+        "yearly": "Time Detail: Annual time series.",
+        "monthly": "Time Detail: Monthly time series.",
+        "hourly": "Time Detail: Hourly time series.",
+    }
+    time_string: str = "|".join(time_detail_map.keys())
+
+    misc_map: dict = {
+        "assn": "Association assets provide connections between entities.",
+        "codes": (
+            "Code tables contain more verbose descriptions of categorical "
+            "codes typically manually compiled from source data dictionaries."
+        ),
+        "entity": ("Entity tables contain static information about entities."),
+        "scd": (
+            "Slowly changing dimension tables describe attributes of entities "
+            "that rarely change."
+        ),
+    }
+    misc_string: str = "|".join(misc_map.keys())
+    table_name_pattern: str = rf"^({layer_string})_({datasource_strings})__({time_string}|)(?:_|)({misc_string}|)(?:_|)(?:_|)(.*)$"
+
+    @classmethod
+    def match(cls):
+        """Return the regex match for the table name."""
+        return re.match(cls.table_name_pattern, cls.name)
+
+    @model_validator(mode="after")
+    def table_name_check(self: Self):
+        """Check the expected pattern of the table name."""
+        if not self.match:
+            raise ValueError(
+                f"Table name not formatted as expected. Table name found: {self.name}.\nExpected table name pattern: {self.table_name_pattern}"
+            )
+
+    def description_layer(self) -> str:
+        """Return a layer description from the resource name."""
+        layer: str = self.match.group(1)
+        layer_description = self.layer_map[layer]
+        return layer_description
+
+    def description_datasource(self) -> str:
+        """Return a description of the datasource from the table name."""
+        datasource: str = self.match.group(2)
+        title = DataSource.from_id(datasource).title
+        description = f"Data Source: {title}"
+        return description
+
+    def description_misc(self) -> str:
+        """Return a description of the miscellaneous from the table name."""
+        misc_opt: str | None = self.match.group(4)
+        description = self.misc_map.get(misc_opt, pd.NA)
+        return description
+
+    def description_time(self) -> str:
+        """Return a description of the time-dimension from table name."""
+        # TODO: ?maybe? we could add the date column into the description.
+        # we'd need to look into the table's columns via its metadata
+        time_opt: str | None = self.match.group(3)
+        description = self.time_detail_map.get(time_opt, pd.NA)
+        return description
+
+    def slug(self) -> str:
+        """Table name slug."""
+        slug: str = self.match.group(5)
+        return slug
+
+
 class Package(PudlMeta):
     """Tabular data package.
 
