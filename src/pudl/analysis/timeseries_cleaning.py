@@ -225,6 +225,8 @@ class FlaggedTimeseries:
         """
         # Only flag unflagged values
         if flag != ImputationReasonCodes.MISSING_VALUE:
+            # This would assume missing values were flagged for a different
+            # reason, so don't do this check for `MISSING_VALUE` flag
             mask = mask & ~np.isnan(self.x)
         self.flags[mask] = flag.name.lower()
         # Null flagged values
@@ -1559,7 +1561,7 @@ class ImputeTimeseriesSettings:
 Default of 24 is meant for hourly data with a diurnal periodicity.
     """
     blocks: int = 1
-    """Number of blocks into which to split the series for imputation."""
+    """Split timeseries matrix into equal sized blocks before running imputation."""
     method: str = "tubal"
     """Imputation method to use ('tubal': :func:`impute_latc_tubal`, 'tnn': :func:`impute_latc_tnn`)."""
     method_overrides: dict[int, str] = field(default_factory=dict)
