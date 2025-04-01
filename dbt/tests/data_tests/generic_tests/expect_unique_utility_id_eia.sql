@@ -4,14 +4,14 @@ with OperatorCheck as (
         report_date,
         plant_id_eia,
         generator_id,
-        count(distinct utility_id_pudl) as utility_id_pudl
+        count(distinct operator_utility_id_eia) as operator_utility_id_eia
     from {{ model }}
     group by
         report_date,
         plant_id_eia,
         generator_id
 )
-select * from OperatorCheck where utility_id_pudl > 1
+select * from OperatorCheck where operator_utility_id_eia > 1
 limit 1e6 offset {{ n_acceptable_failures }} --
 
 {% endtest %}

@@ -11,12 +11,7 @@ sources:
               # Known failures as of March 2025:
               # 341 CT5 has 1.5 total ownership fraction for 2021, 2022, and 2023
               n_acceptable_failures: 3
-        # This test relies on a column that no longer exists?
-        #           - expect_unique_utility_id_eia:
-        #               # Known failures as of March 2025:
-        #               n_acceptable_failures: 18799
-        #               # Known failures as of Aug 2021:
-        #               n_acceptable_failures: 730
+          - expect_unique_utility_id_eia
         columns:
           - name: report_date
           - name: plant_id_eia

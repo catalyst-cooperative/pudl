@@ -72,7 +72,7 @@ macros:
         description: The columns in the unique combination.
   - name: test_expect_unique_utility_id_eia
     description: >
-      Check whether each generator has exactly one operator utility on any particular date. Designed for use on ``out_eia860__yearly_ownership``. Fails when any (``report_date``, ``plant_id_eia``, ``generator_id``) combination has more than one unique value for ``utility_id_eia``. NOTE: As of March 2025, no such column ``utility_id_eia`` exists in table ``out_eia860__yearly_ownership`` and this test should not be used. Maybe someday we figure out where to really test for this.
+      Check whether each generator has exactly one operator utility on any particular date. Designed for use on ``out_eia860__yearly_ownership``. Fails when any (``report_date``, ``plant_id_eia``, ``generator_id``) combination has more than one unique value for ``operator_utility_id_eia``.
     arguments:
       - name: n_acceptable_failures
         type: integer
