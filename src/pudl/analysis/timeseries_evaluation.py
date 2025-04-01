@@ -20,10 +20,11 @@ Static reported vs. imputed values with color coded points for the imputations
 from collections.abc import Sequence
 from typing import Any
 
+import matplotlib.cm as cm
+import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sns
 
 from pudl.metadata.enums import IMPUTATION_CODES
 
@@ -69,7 +70,11 @@ def plot_correlation(
     """Plot the correlation between two analogous time series."""
     plt.figure(figsize=(12, 12))
 
-    palette = sns.color_palette("tab10", len(idx_vals))
+    # Generate a color palette using Matplotlib
+    # Use the "tab10" colormap with the required number of colors
+    cmap = cm.get_cmap("tab10", len(idx_vals))
+    # Convert colors to hex format
+    palette = [mcolors.to_hex(cmap(i)) for i in range(len(idx_vals))]
     color_map = {group: palette[i] for i, group in enumerate(idx_vals)}
 
     for idx in idx_vals:
