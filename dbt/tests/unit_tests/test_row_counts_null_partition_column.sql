@@ -30,6 +30,5 @@ result_comparison AS (
 )
 
 SELECT *
-FROM observed_mismatches
--- FROM result_comparison
--- WHERE observed_mismatch_count != expected_mismatch_count
+FROM result_comparison
+WHERE observed_mismatch_count != expected_mismatch_count
