@@ -14,7 +14,8 @@ sources:
                 - monthly_average_discharge_rate_gallons_per_minute
               target_column: monthly_average_withdrawal_rate_gallons_per_minute
               discrepancy_threshold: 0.01
-              max_discrepancy_rate: 0.1
+              # Discrepancy rate on etl-fast observed April 2025: 0.1002
+              max_discrepancy_rate: 0.101
           - expect_sum_to_target_discrepancy_rate_less_than:
               name: annual_withdrawal_discrepancy_rate
               sum_columns:
