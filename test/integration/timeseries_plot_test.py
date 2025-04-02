@@ -2,7 +2,12 @@
 
 import pandas as pd
 
-from pudl.analysis.timeseries_evaluation import plot_correlation, plot_imputation
+from pudl.analysis.timeseries_evaluation import (
+    extract_baseline_eia930_imputation,
+    plot_compare_imputation,
+    plot_correlation,
+    plot_imputation,
+)
 
 
 def test_plot_imputation(pudl_io_manager, mocker, asset_value_loader):
@@ -69,4 +74,37 @@ def test_plot_correlation(pudl_io_manager, mocker, asset_value_loader):
         title="Correlation between BA Reported Demand and Aggregated Subregion Demand",
         xylim=(1e3, 2e5),
         alpha=0.1,
+    )
+
+
+def test_plot_compare_imputation(pudl_io_manager, mocker, asset_value_loader):
+    """Test that plot function doesn't error."""
+    mocker.patch("pudl.analysis.timeseries_evaluation.plt.show")
+    eia930_sub = asset_value_loader.load_asset_value(
+        "out_eia930__hourly_subregion_demand"
+    )
+    baseline_subregion_demand = extract_baseline_eia930_imputation()
+
+    df = eia930_sub.merge(
+        baseline_subregion_demand,
+        on=[
+            "datetime_utc",
+            "balancing_authority_code_eia",
+            "balancing_authority_subregion_code_eia",
+        ],
+        how="inner",
+    )
+
+    plot_compare_imputation(
+        df,
+        idx_cols=[
+            "balancing_authority_code_eia",
+            "balancing_authority_subregion_code_eia",
+        ],
+        idx_vals=("SWPP", "INDN"),
+        start_date="2024-12-14",
+        end_date="2024-12-21",
+        timeseries_a="baseline_demand_mwh",
+        timeseries_b="demand_imputed_pudl_mwh",
+        reported_col="demand_reported_mwh",
     )
