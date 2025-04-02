@@ -40,7 +40,7 @@ def _out_eia930__hourly_subregion_demand(
     return core_eia930__hourly_subregion_demand
 
 
-imputed_subregion_demand_assets = impute_timeseries_asset_factory(
+imputed_subregion_demand_assets = impute_timeseries_asset_factory(  # pragma: no cover
     input_asset_name="_out_eia930__hourly_subregion_demand",
     output_asset_name="out_eia930__hourly_subregion_demand",
     years_from_context=lambda context: [

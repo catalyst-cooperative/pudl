@@ -251,7 +251,7 @@ def plot_compare_imputation(
     timeseries_b: str,
     time_col: str = "datetime_utc",
     ylabel: str = "Demand [MWh]",
-):
+):  # pragma: no cover
     """Plot two timeseries of the same information like demand for comparison."""
     filtered = _filter_df(df, idx_cols, idx_vals, start_date, end_date, time_col)
 
