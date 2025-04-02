@@ -7,17 +7,17 @@
 
 WITH
     expected AS (
-        SELECT table_name, CAST(partition as VARCHAR) as partition, row_count as expected_count
+        SELECT table_name, COALESCE(CAST(partition as VARCHAR), '') as partition, row_count as expected_count
         FROM {{ row_counts_table }}
         WHERE table_name = '{{ table_name }}'
     ),
     observed AS (
         {% if partition_column == "report_year" %}
-        SELECT CAST({{ partition_column }} as VARCHAR) as partition, COUNT(*) as observed_count
+        SELECT COALESCE(CAST({{ partition_column }} as VARCHAR), '') as partition, COUNT(*) as observed_count
         FROM {{ model }}
         GROUP BY {{ partition_column }}
         {% elif partition_column in ["report_date", "datetime_utc"] %}
-        SELECT CAST(YEAR({{ partition_column }}) as VARCHAR) as partition, COUNT(*) as observed_count
+        SELECT COALESCE(CAST(YEAR({{ partition_column }}) as VARCHAR), '') as partition, COUNT(*) as observed_count
         FROM {{ model }}
         GROUP BY YEAR({{ partition_column }})
         {% else %}
@@ -26,14 +26,16 @@ WITH
         {% endif %}
     )
 SELECT
+    '{{ table_name }}' as table_name,
     expected.partition as expected_partition,
     observed.partition as observed_partition,
-    expected.expected_count,
-    observed.observed_count
+    expected_count,
+    observed_count,
+    (observed_count - expected_count) / expected_count as diff_relative_to_expected,
 FROM expected
 FULL OUTER JOIN observed ON expected.partition=observed.partition
-WHERE expected.expected_count != observed.observed_count
-    OR expected.expected_count IS NULL
-    OR observed.observed_count IS NULL
+WHERE expected_count != observed_count
+    OR expected_count IS NULL
+    OR observed_count IS NULL
 
 {% endmacro %}
