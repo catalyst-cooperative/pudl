@@ -1,0 +1,5 @@
+version: 2
+models:
+  - name: test_model
+    data_tests:
+      - check_columns_exist
