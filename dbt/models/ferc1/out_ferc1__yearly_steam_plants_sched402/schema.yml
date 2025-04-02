@@ -11,7 +11,7 @@ sources:
               groupby_column: plant_id_ferc1
               counted_column: plant_id_pudl
               n_acceptable: 6
-          - expect_unique_combination:
+          - expect_unique_column_combination:
               columns:
                 - plant_id_ferc1
                 - report_year

@@ -10,6 +10,7 @@ import pandas as pd
 class ImputationReasonCodes(Enum):
     """Defines all reasons a value might be flagged for imputation."""
 
+    MISSING_VALUE = "Indicates that reported value was already NULL."
     ANOMALOUS_REGION = "Indicates that value is surrounded by flagged values."
     NEGATIVE_OR_ZERO = "Indicates value is negative or zero."
     IDENTICAL_RUN = "Indicates value is part of an identical run of values, excluding first value in run."

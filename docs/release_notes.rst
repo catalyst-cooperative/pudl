@@ -9,6 +9,16 @@ v2025.XX.x (2025-MM-DD)
 New Data
 ^^^^^^^^
 
+FERC 714
+~~~~~~~~
+* Added the table :ref:`out_ferc714__hourly_planning_area_demand`, which
+  contains an imputed version of demand.
+
+EIA 930
+~~~~~~~
+* Added the table :ref:`out_eia930__hourly_subregion_demand`, which
+  contains an imputed version of subregion demand.
+
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
