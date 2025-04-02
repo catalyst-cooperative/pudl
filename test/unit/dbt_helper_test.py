@@ -1,4 +1,5 @@
 import unittest
+from collections import namedtuple
 from dataclasses import dataclass
 from io import StringIO
 
@@ -21,75 +22,62 @@ TEMPLATE = {
 }
 
 
-@dataclass
-class HelperTestConfig:
-    given: list = None
-    expect: list = None
+GivenExpect = namedtuple("GivenExpect", ["given", "expect"])
 
-    def add(self, given, expect):
-        if self.given is None:
-            self.given = []
-        if self.expect is None:
-            self.expect = []
-        self.given.append(given)
-        self.expect.append(expect)
-
-
-GENERATE_QUANTILE_BOUNDS = HelperTestConfig()
-GENERATE_QUANTILE_BOUNDS.add(
-    given=dict(title="Hi only", hi_q=0, hi_bound=1, **TEMPLATE),
-    expect=[
-        {
-            "dbt_expectations.expect_column_quantile_values_to_be_between": {
-                "quantile": 0,
-                "max_value": 1,
-                "row_condition": "",
-                "weight_column": "",
+GENERATE_QUANTILE_BOUNDS = [
+    GivenExpect(
+        given=dict(title="Hi only", hi_q=0, hi_bound=1, **TEMPLATE),
+        expect=[
+            {
+                "dbt_expectations.expect_column_quantile_values_to_be_between": {
+                    "quantile": 0,
+                    "max_value": 1,
+                    "row_condition": "",
+                    "weight_column": "",
+                }
             }
-        }
-    ],
-)
-
-GENERATE_QUANTILE_BOUNDS.add(
-    given=dict(title="Low only", low_q=0, low_bound=1, **TEMPLATE),
-    expect=[
-        {
-            "dbt_expectations.expect_column_quantile_values_to_be_between": {
-                "quantile": 0,
-                "min_value": 1,
-                "row_condition": "",
-                "weight_column": "",
+        ],
+    ),
+    GivenExpect(
+        given=dict(title="Low only", low_q=0, low_bound=1, **TEMPLATE),
+        expect=[
+            {
+                "dbt_expectations.expect_column_quantile_values_to_be_between": {
+                    "quantile": 0,
+                    "min_value": 1,
+                    "row_condition": "",
+                    "weight_column": "",
+                }
             }
-        }
-    ],
-)
-
-GENERATE_QUANTILE_BOUNDS.add(
-    given=dict(title="Both", low_q=0, low_bound=1, hi_q=2, hi_bound=3, **TEMPLATE),
-    expect=[
-        {
-            "dbt_expectations.expect_column_quantile_values_to_be_between": {
-                "quantile": 0,
-                "min_value": 1,
-                "row_condition": "",
-                "weight_column": "",
-            }
-        },
-        {
-            "dbt_expectations.expect_column_quantile_values_to_be_between": {
-                "quantile": 2,
-                "max_value": 3,
-                "row_condition": "",
-                "weight_column": "",
-            }
-        },
-    ],
-)
+        ],
+    ),
+    GivenExpect(
+        given=dict(title="Both", low_q=0, low_bound=1, hi_q=2, hi_bound=3, **TEMPLATE),
+        expect=[
+            {
+                "dbt_expectations.expect_column_quantile_values_to_be_between": {
+                    "quantile": 0,
+                    "min_value": 1,
+                    "row_condition": "",
+                    "weight_column": "",
+                }
+            },
+            {
+                "dbt_expectations.expect_column_quantile_values_to_be_between": {
+                    "quantile": 2,
+                    "max_value": 3,
+                    "row_condition": "",
+                    "weight_column": "",
+                }
+            },
+        ],
+    ),
+]
 
 
 @pytest.mark.parametrize(
     "test_config,expected",
-    zip(GENERATE_QUANTILE_BOUNDS.given, GENERATE_QUANTILE_BOUNDS.expect, strict=True),
+    GENERATE_QUANTILE_BOUNDS,
 )
 def test__generate_quantile_bounds_test(test_config, expected):
     actual = _generate_quantile_bounds_test(test_config)
