@@ -53,7 +53,7 @@ def _filter_df(
     )
 
 
-def extract_baseline_eia930_imputation() -> pd.DataFrame:
+def extract_baseline_eia930_imputation() -> pd.DataFrame:  # pragma: no cover
     """Download and extract an existing imputation of the EIA-930 demand data.
 
     Useful as a baseline for evaluating our imputation results in development.
@@ -284,7 +284,9 @@ def plot_compare_imputation(
 ###############################################################################
 
 
-def encode_run_length(x: Sequence | np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+def encode_run_length(
+    x: Sequence | np.ndarray,
+) -> tuple[np.ndarray, np.ndarray]:  # pragma: no cover
     """Encode vector with run-length encoding.
 
     Args:
@@ -325,7 +327,7 @@ def insert_run_length(  # noqa: C901
     mask: Sequence[bool] = None,
     padding: int = 0,
     intersect: bool = False,
-) -> np.ndarray:
+) -> np.ndarray:  # pragma: no cover
     """Insert run-length encoded values into a vector.
 
     Args:
@@ -462,7 +464,7 @@ def insert_run_length(  # noqa: C901
     return x
 
 
-def summarize_flags(self) -> pd.DataFrame:
+def summarize_flags(self) -> pd.DataFrame:  # pragma: no cover
     """Summarize flagged values by flag, count and median."""
     stats = {}
     for col in range(self.xi.shape[1]):
@@ -477,7 +479,7 @@ def summarize_flags(self) -> pd.DataFrame:
     return df.assign(flag=ordered).sort_values(["column", "flag"])
 
 
-def plot_flags(self, name: Any = 0) -> None:
+def plot_flags(self, name: Any = 0) -> None:  # pragma: no cover
     """Plot cleaned series and anomalous values colored by flag.
 
     Args:
@@ -506,7 +508,7 @@ def plot_flags(self, name: Any = 0) -> None:
     plt.legend()
 
 
-def simulate_nulls(
+def simulate_nulls(  # pragma: no cover
     self,
     lengths: Sequence[int] = None,
     padding: int = 1,
