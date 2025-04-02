@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: 845feb0604dd50279744486ad0907fc0d4316b05c946e79e083d691ef85ed2c1
-    osx-64: dc4806e86ebcf6ea6dc0867f3b4360252b8d94ee6b86eb03575cb1dcdcebfede
-    osx-arm64: 9be6a9ce84cdc144a44245739ba56c3e53de122c9c14584ca812c0260ec3443a
+    linux-64: 93a7f3dd6795318fcd3c930593c86b1fe63b90507aa85e6595e128625af6b6ab
+    osx-64: db151e2b4ec695cb6aa9bf570a592a836bc343d6b08565a6e9a452b722e882ca
+    osx-arm64: 51b611e9955fa8a5550268cd5c0fdbbecd62176fa2cc5238d6ab1a3bcf933886
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -52,45 +52,6 @@ package:
       sha256: fbe2c5e56a653bebb982eda4876a9178aedfc2b545f25d0ce9c4c0b508253d22
     category: main
     optional: false
-  - name: addfips
-    version: 0.4.2
-    manager: conda
-    platform: linux-64
-    dependencies:
-      importlib_resources: ">=5.0"
-      python: ">=3.9"
-    url: https://conda.anaconda.org/conda-forge/noarch/addfips-0.4.2-pyhd8ed1ab_1.conda
-    hash:
-      md5: 54180e9327e02431c174c73112abdb7a
-      sha256: f18e57e83c187632880fe1d95dbeb035dae175d0f8df632b0f971685197d96b2
-    category: main
-    optional: false
-  - name: addfips
-    version: 0.4.2
-    manager: conda
-    platform: osx-64
-    dependencies:
-      python: ">=3.9"
-      importlib_resources: ">=5.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/addfips-0.4.2-pyhd8ed1ab_1.conda
-    hash:
-      md5: 54180e9327e02431c174c73112abdb7a
-      sha256: f18e57e83c187632880fe1d95dbeb035dae175d0f8df632b0f971685197d96b2
-    category: main
-    optional: false
-  - name: addfips
-    version: 0.4.2
-    manager: conda
-    platform: osx-arm64
-    dependencies:
-      python: ">=3.9"
-      importlib_resources: ">=5.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/addfips-0.4.2-pyhd8ed1ab_1.conda
-    hash:
-      md5: 54180e9327e02431c174c73112abdb7a
-      sha256: f18e57e83c187632880fe1d95dbeb035dae175d0f8df632b0f971685197d96b2
-    category: main
-    optional: false
   - name: adwaita-icon-theme
     version: "48.0"
     manager: conda
@@ -168,8 +129,8 @@ package:
       isodate: ">=0.5.4"
       babel: ">=2.0"
       leather: ">=0.3.2"
-      python-slugify: ">=1.2.1"
       pytimeparse: ">=1.1.5"
+      python-slugify: ">=1.2.1"
       parsedatetime: "!=2.5,!=2.6,>=2.1"
     url: https://conda.anaconda.org/conda-forge/noarch/agate-1.9.1-pyh707e725_1.conda
     hash:
@@ -190,8 +151,8 @@ package:
       isodate: ">=0.5.4"
       babel: ">=2.0"
       leather: ">=0.3.2"
-      python-slugify: ">=1.2.1"
       pytimeparse: ">=1.1.5"
+      python-slugify: ">=1.2.1"
       parsedatetime: "!=2.5,!=2.6,>=2.1"
     url: https://conda.anaconda.org/conda-forge/noarch/agate-1.9.1-pyh707e725_1.conda
     hash:
@@ -13595,11 +13556,11 @@ package:
     manager: conda
     platform: osx-64
     dependencies:
-      libgfortran5: 14.2.0
-    url: https://conda.anaconda.org/conda-forge/osx-64/libgfortran-5.0.0-14_2_0_h51e75f0_1.conda
+      libgfortran5: 13.2.0
+    url: https://conda.anaconda.org/conda-forge/osx-64/libgfortran-5.0.0-13_2_0_h97931a8_3.conda
     hash:
-      md5: e8b6b4962db050d7923e2cee3efff446
-      sha256: fcf482d36f4ea05b6183813ff59c893998e568d48cbc82a7ad5f4c3abd35ec6a
+      md5: 0b6e23a012ee7a9a5f6b244f5a92c1d5
+      sha256: 4874422e567b68334705c135c17e5acdca1404de8255673ce30ad3510e00be0d
     category: main
     optional: false
   - name: libgfortran
@@ -13607,11 +13568,11 @@ package:
     manager: conda
     platform: osx-arm64
     dependencies:
-      libgfortran5: 14.2.0
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/libgfortran-5.0.0-14_2_0_h6c33f7e_1.conda
+      libgfortran5: 13.2.0
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/libgfortran-5.0.0-13_2_0_hd922786_3.conda
     hash:
-      md5: d0e8a9e0efd41b9821833d5bbfd7e653
-      sha256: 00adc502de159fef380cc16150ec328309910e241b4a465500f2084e6c9646dd
+      md5: 4a55d9e169114b2b90d3ec4604cd7bbf
+      sha256: 44e541b4821c96b28b27fef5630883a60ce4fee91fd9c79f25a199f8f73f337b
     category: main
     optional: false
   - name: libgfortran5
@@ -13628,27 +13589,27 @@ package:
     category: main
     optional: false
   - name: libgfortran5
-    version: 14.2.0
+    version: 13.2.0
     manager: conda
     platform: osx-64
     dependencies:
       llvm-openmp: ">=8.0.0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/libgfortran5-14.2.0-h51e75f0_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/libgfortran5-13.2.0-h2873a65_3.conda
     hash:
-      md5: 9e089ae71e7caca1565af0b632027d4d
-      sha256: 4f0b4bed6a3dae0e91c74f84cfc4adde3dbd8bdcf5307ae53489cedfbf1509df
+      md5: e4fb4d23ec2870ff3c40d10afe305aec
+      sha256: da3db4b947e30aec7596a3ef92200d17e774cccbbf7efc47802529a4ca5ca31b
     category: main
     optional: false
   - name: libgfortran5
-    version: 14.2.0
+    version: 13.2.0
     manager: conda
     platform: osx-arm64
     dependencies:
       llvm-openmp: ">=8.0.0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/libgfortran5-14.2.0-h6c33f7e_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/libgfortran5-13.2.0-hf226fd6_3.conda
     hash:
-      md5: fa7750a7197063eed8fdf8e74e148d03
-      sha256: a578ecffb79d81eb67bbdeac7bcddbfea5908393d51b0c4a9a461e73a3524274
+      md5: 66ac81d54e95c534ae488726c1f698ea
+      sha256: bafc679eedb468a86aa4636061c55966186399ee0a04b605920d208d97ac579a
     category: main
     optional: false
   - name: libglib
@@ -21067,7 +21028,6 @@ package:
       readline: ">=8.2,<9.0a0"
       tk: ">=8.6.13,<8.7.0a0"
       tzdata: ""
-      pip: ""
     url: https://conda.anaconda.org/conda-forge/linux-64/python-3.12.9-h9e4cc4f_1_cpython.conda
     hash:
       md5: d82342192dfc9145185190e651065aa9
@@ -21091,7 +21051,6 @@ package:
       readline: ">=8.2,<9.0a0"
       tk: ">=8.6.13,<8.7.0a0"
       tzdata: ""
-      pip: ""
     url: https://conda.anaconda.org/conda-forge/osx-64/python-3.12.9-h9ccd52b_1_cpython.conda
     hash:
       md5: b878567b6b749f993dbdbc2834115bc3
@@ -21115,7 +21074,6 @@ package:
       readline: ">=8.2,<9.0a0"
       tk: ">=8.6.13,<8.7.0a0"
       tzdata: ""
-      pip: ""
     url: https://conda.anaconda.org/conda-forge/osx-arm64/python-3.12.9-hc22306f_1_cpython.conda
     hash:
       md5: d9fac7b334ff6e5f93abd27509a53060
