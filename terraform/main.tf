@@ -74,8 +74,8 @@ module "gh_oidc" {
       sa_name   = "projects/${var.project_id}/serviceAccounts/${google_service_account.nrel_finito_inputs_gha.email}"
       attribute = "attribute.repository/catalyst-cooperative/nrel-fuel-and-industry-inputs"
     }
-    "metrics-dashboard-deploy-gha" = {
-      sa_name   = "projects/${var.project_id}/serviceAccounts/${google_service_account.metrics_dashboard_deploy_gha.email}"
+    "pudl-usage-metrics-dashboard-deploy-gha" = {
+      sa_name   = "projects/${var.project_id}/serviceAccounts/${google_service_account.pudl_usage_metrics_dashboard_deploy_gha.email}"
       attribute = "attribute.repository/catalyst-cooperative/pudl-usage-metrics-dashboard"
     }
   }
