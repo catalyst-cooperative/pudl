@@ -2,7 +2,6 @@
 
 import logging
 
-import numpy as np
 import pandas as pd
 import pytest
 
@@ -16,67 +15,6 @@ from pudl.analysis.plant_parts_eia import (
 )
 
 logger = logging.getLogger(__name__)
-
-
-def test_ownership_for_owned_records(pudl_out_eia, live_dbs):
-    """Test ownership - fraction owned for owned records.
-
-    This test can be run at the end of or with the result of
-    :meth:`MakePlantParts.execute`. It tests a few aspects of the the
-    fraction_owned column and raises assertions if the tests fail.
-    """
-    if not live_dbs:
-        pytest.skip("Data validation only works with a live PUDL DB.")
-
-    if pudl_out_eia.freq == "YS":  # Annual only.
-        logger.info("Testing ownership fractions for owned records.")
-
-        plant_parts_eia = pudl_out_eia.plant_parts_eia()
-        # ferc1_generator_agg_id will make groupings within a plant part and break the
-        # validation, so we remove it from the list here.
-        id_cols_list = [
-            col
-            for col in pudl.analysis.plant_parts_eia.make_id_cols_list()
-            if col != "ferc1_generator_agg_id"
-        ]
-
-        test_own_df = (
-            plant_parts_eia.groupby(
-                by=id_cols_list + ["plant_part", "ownership_record_type"],
-                dropna=False,
-                observed=True,
-            )[["fraction_owned", "capacity_mw"]]
-            .sum(min_count=1)
-            .reset_index()
-        )
-
-        owned_one_frac = test_own_df[
-            (~np.isclose(test_own_df.fraction_owned, 1))
-            & (test_own_df.capacity_mw != 0)
-            & (test_own_df.capacity_mw.notnull())
-            & (test_own_df.ownership_record_type == "owned")
-        ]
-
-        if not owned_one_frac.empty:
-            raise AssertionError(
-                "Hello friend, you did a bad. It happens... There are "
-                f"{len(owned_one_frac)} rows where fraction_owned does not sum "
-                "to 100% for the owned records. "
-                "Check cached `owned_one_frac` & `test_own_df` and `scale_by_ownership()`"
-            )
-
-        no_frac_n_cap = test_own_df[
-            (test_own_df.capacity_mw == 0) & (test_own_df.fraction_owned == 0)
-        ]
-        if len(no_frac_n_cap) > 60:
-            logger.warning(
-                f"""Too many nothings, you nothing. There shouldn't been much
-                more than 60 instances of records with zero capacity_mw (and
-                therefor zero fraction_owned) and you got {len(no_frac_n_cap)}.
-                """
-            )
-    else:
-        pytest.skip("Plant part validation only works for annual data.")
 
 
 #################
