@@ -1,4 +1,4 @@
-{% test expect_complete_valid_plantparts_ownership(model) %}
+{% test expect_valid_plantparts_ownership_fraction(model) %}
 
 {% set ownership_keys = ['energy_source_code_1', 'ferc_acct_name', 'generator_id', 'generator_operating_year', 'operational_status_pudl', 'plant_id_eia', 'prime_mover_code', 'report_date', 'technology_description', 'unit_id_pudl', 'plant_part', 'ownership_record_type'] %}
 

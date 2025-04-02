@@ -96,7 +96,7 @@ macros:
   - name: test_expect_valid_hour_of_year
     description: >
       Check whether ``hour_of_year`` is consistent with ``datetime_utc``. Designed for use on ``out_vcerare__hourly_available_capacity_factor``. Fails when the hour computed from the datetime does not match.
-  - name: test_expect_complete_valid_plantparts_ownership
+  - name: test_expect_valid_plantparts_ownership_fraction
     description: >
       Check whether ``fraction_owned`` columns sum too high (for any individual plant
       part) or too low (for too many plant parts). Designed for use on
