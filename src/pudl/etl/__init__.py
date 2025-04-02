@@ -96,6 +96,7 @@ out_module_groups = {
         pudl.output.eia,
         pudl.output.eia860,
         pudl.output.eia923,
+        pudl.output.eia930,
         pudl.output.eia_bulk_elec,
     ],
     "out_ferc1": [
