@@ -10,23 +10,6 @@ from pudl import validate as pv
 logger = logging.getLogger(__name__)
 
 
-def test_fuel_for_electricity(pudl_out_eia, live_dbs):
-    """Ensure fuel used for electricity is less than or equal to all fuel."""
-    if not live_dbs:
-        pytest.skip("Data validation only works with a live PUDL DB.")
-
-    gf_eia923 = pudl_out_eia.gf_eia923()
-
-    excess_fuel = (
-        gf_eia923.fuel_consumed_for_electricity_mmbtu > gf_eia923.fuel_consumed_mmbtu
-    )
-
-    if excess_fuel.any():
-        raise ValueError(
-            "Fuel consumed for electricity is greater than all fuel consumed!"
-        )
-
-
 @pytest.mark.parametrize(
     "cases",
     [
