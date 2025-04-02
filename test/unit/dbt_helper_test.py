@@ -110,6 +110,7 @@ class DbtSchemaMocks:
 
 @pytest.fixture
 def dbt_schema_mocks(mocker):
+    """Set up mocks to check two ways of making the same basic schema: from metadata, and from yaml."""
     mocked_field = mocker.Mock()
     mocked_field.name = str(mocker.sentinel.field_name)
     mocked_resource = mocker.Mock()
