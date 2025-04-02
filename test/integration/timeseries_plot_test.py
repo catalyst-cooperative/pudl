@@ -2,10 +2,7 @@
 
 import pandas as pd
 
-from pudl.analysis.timeseries_evaluation import (
-    plot_correlation,
-    plot_imputation,
-)
+from pudl.analysis.timeseries_evaluation import plot_correlation, plot_imputation
 
 
 def test_plot_imputation(pudl_io_manager, mocker, asset_value_loader):
