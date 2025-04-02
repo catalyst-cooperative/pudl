@@ -1,4 +1,4 @@
-{% test expect_unique_combination(model, columns) %}
+{% test expect_unique_column_combination(model, columns) %}
 select
     {% for column_i in columns %}{{ column_i }},
     {% endfor %}

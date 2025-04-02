@@ -8,7 +8,7 @@ sources:
               table_name: out_vcerare__hourly_available_capacity_factor
               partition_column: report_year
           - expect_valid_hour_of_year
-          - expect_unique_combination:
+          - expect_unique_column_combination:
               columns:
                 - county_id_fips
                 - datetime_utc
