@@ -258,11 +258,7 @@ Gigawatt Tier (≥$25,000/year)
 Megawatt Tier (≥$16,000/year)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. image:: docs/images/logos/ZEROLab.png
-   :width: 400
-   :target: https://zero.lab.princeton.edu/
-   :alt: ZERO Lab at Princeton University
-   :align: center
+Become our first `Megawatt tier sustainer <https://opencollective.com/pudl>`__!
 
 Kilowatt Tier (≥$8,000/year)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
