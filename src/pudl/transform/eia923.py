@@ -1299,6 +1299,44 @@ def cooling_system_information_null_check(csi):  # pragma: no cover
 
 
 @asset_check(asset=_core_eia923__cooling_system_information, blocking=True)
+def cooling_system_information_withdrawal_discrepancy_check(csi):  # pragma: no cover
+    """Withdrawal should be equal to discharge + consumption.
+
+    To allow for *some* data quality errors we assert that withdrawal ~=
+    discharge + consumption at least 90% of the time (with a 1% acceptable
+    discrepancy).
+    """
+
+    def sum_to_target_rate(sum_cols, target, threshold):
+        discrepancies = (
+            csi.loc[:, sum_cols].sum(axis="columns") - csi.loc[:, target]
+        ).dropna() / csi.loc[:, target]
+        return (discrepancies > threshold).sum() / len(discrepancies)
+
+    monthly_withdrawal_discrepancy_rate = sum_to_target_rate(
+        sum_cols=[
+            "monthly_average_consumption_rate_gallons_per_minute",
+            "monthly_average_discharge_rate_gallons_per_minute",
+        ],
+        target="monthly_average_withdrawal_rate_gallons_per_minute",
+        threshold=0.01,
+    )
+    assert monthly_withdrawal_discrepancy_rate < 0.1
+
+    annual_withdrawal_discrepancy_rate = sum_to_target_rate(
+        sum_cols=[
+            "annual_average_consumption_rate_gallons_per_minute",
+            "annual_average_discharge_rate_gallons_per_minute",
+        ],
+        target="annual_average_withdrawal_rate_gallons_per_minute",
+        threshold=0.01,
+    )
+    assert annual_withdrawal_discrepancy_rate < 0.1
+
+    return AssetCheckResult(passed=True)
+
+
+@asset_check(asset=_core_eia923__cooling_system_information, blocking=True)
 def cooling_system_information_continuity(csi):  # pragma: no cover
     """Check to see if columns vary as slowly as expected."""
     return pudl.validate.group_mean_continuity_check(
@@ -1415,6 +1453,32 @@ def fgd_operation_maintenance_null_check(fgd):  # pragma: no cover
     else:
         expected_cols = set(fgd.columns)
     pudl.validate.no_null_cols(fgd, cols=expected_cols)
+    return AssetCheckResult(passed=True)
+
+
+@asset_check(asset=_core_eia923__fgd_operation_maintenance, blocking=True)
+def fgd_cost_discrepancy_check(fgd):  # pragma: no cover
+    """Opex costs should sum to opex_fgd_total_cost.
+
+    To allow for *some* data quality errors we assert that costs ~=
+    total cost at least 99% of the time (with a 1% acceptable
+    discrepancy).
+    """
+
+    def sum_to_target_rate(sum_cols, target, threshold):
+        discrepancies = (
+            fgd.loc[:, sum_cols].sum(axis="columns") - fgd.loc[:, target]
+        ).dropna() / fgd.loc[:, target]
+        return (discrepancies > threshold).sum() / len(discrepancies)
+
+    opex_cost_discrepancy_rate = sum_to_target_rate(
+        sum_cols=[col for col in fgd if "opex_fgd" in col and "total_cost" not in col],
+        target="opex_fgd_total_cost",
+        threshold=0.01,
+    )
+    logger.info(f"Observed opex cost discrepancy: {opex_cost_discrepancy_rate}")
+    assert opex_cost_discrepancy_rate < 0.01
+
     return AssetCheckResult(passed=True)
 
 

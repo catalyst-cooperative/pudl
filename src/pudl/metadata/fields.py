@@ -3244,10 +3244,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "The operating status of the asset using PUDL categories of the record_id_eia_plant_gen record .",
         "constraints": {"enum": ["operating", "retired", "proposed"]},
     },
-    "operator_utility_id_eia": {
-        "type": "integer",
-        "description": "The EIA utility Identification number for the operator utility.",
-    },
     "opex_allowances": {"type": "number", "description": "Allowances.", "unit": "USD"},
     "opex_boiler": {
         "type": "number",
@@ -6471,11 +6467,6 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     "out_eia__yearly_assn_plant_parts_plant_gen": {
         "generators_number": {
             "description": "The number of generators associated with each ``record_id_eia``."
-        }
-    },
-    "out_eia860__yearly_ownership": {
-        "utility_id_pudl": {
-            "description": "A manually assigned PUDL utility ID for the owner company that is responsible for the day-to-day operations of the generator, not the operator utility. May not be stable over time."
         }
     },
 }

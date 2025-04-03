@@ -260,7 +260,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_date",
                 "owner_utility_id_eia",
-                "operator_utility_id_eia",
                 "plant_id_eia",
                 "generator_id",
                 "owner_utility_name_eia",
@@ -296,7 +295,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "plant_id_pudl",
                 "plant_name_eia",
                 "owner_utility_id_eia",
-                "operator_utility_id_eia",
                 "utility_id_pudl",
                 "owner_utility_name_eia",
                 "generator_id",

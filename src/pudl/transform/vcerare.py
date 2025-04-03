@@ -548,6 +548,29 @@ def check_unexpected_dates() -> AssetCheckResult:
 @asset_check(
     asset=out_vcerare__hourly_available_capacity_factor,
     blocking=True,
+    description="Check hour from date and hour of year match in VCE RARE table.",
+)
+def check_hour_from_date() -> AssetCheckResult:
+    """Check hour from date."""
+    vce = _load_duckdb_table()  # noqa: F841
+    logger.info("Check hour from date and hour of year match in VCE RARE table.")
+    mismatched_hours = duckdb.query(
+        "SELECT * FROM vce WHERE"
+        "(datepart('hr', datetime_utc) +"
+        "((datepart('dayofyear', datetime_utc)-1)*24)+1) != hour_of_year"
+    ).fetchall()
+    if len(mismatched_hours) > 0:
+        return AssetCheckResult(
+            passed=False,
+            description="hour_of_year values don't match date values",
+            metadata={"mismatched_hours": mismatched_hours},
+        )
+    return AssetCheckResult(passed=True)
+
+
+@asset_check(
+    asset=out_vcerare__hourly_available_capacity_factor,
+    blocking=True,
     description="Check for rows for Bedford City or Clifton Forge City in VCE RARE table.",
 )
 def check_unexpected_counties() -> AssetCheckResult:
@@ -568,5 +591,30 @@ def check_unexpected_counties() -> AssetCheckResult:
             passed=False,
             description="found records for bedford_city or clifton_forge_city that shouldn't exist",
             metadata={"unexpected_counties": unexpected_counties},
+        )
+    return AssetCheckResult(passed=True)
+
+
+@asset_check(
+    asset=out_vcerare__hourly_available_capacity_factor,
+    blocking=True,
+    description="Check for duplicate county_id_fips values in VCE RARE table.",
+)
+def check_duplicate_county_id_fips() -> AssetCheckResult:
+    """Check duplicate county ID."""
+    vce = _load_duckdb_table()  # noqa: F841
+    logger.info("Check for duplicate county_id_fips values in VCE RARE table.")
+    duplicate_county_ids = duckdb.query(
+        "SELECT county_id_fips, datetime_utc "
+        "FROM vce WHERE county_id_fips "
+        "IS NOT NULL GROUP BY ALL HAVING COUNT(*) > 1"
+    ).fetchall()
+    if (dupecount := len(duplicate_county_ids)) > 0:
+        logger.error(
+            f"Found {dupecount} duplicate county_id_fips values; first ten: {duplicate_county_ids[:10]}"
+        )
+        return AssetCheckResult(
+            passed=False,
+            description="Found duplicate county_id_fips values",
         )
     return AssetCheckResult(passed=True)

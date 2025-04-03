@@ -7,14 +7,6 @@ sources:
           - check_row_counts_per_partition:
               table_name: out_ferc1__yearly_steam_plants_sched402
               partition_column: report_year
-          - expect_one2one_mapping:
-              groupby_column: plant_id_ferc1
-              counted_column: plant_id_pudl
-              n_acceptable: 6
-          - expect_unique_column_combination:
-              columns:
-                - plant_id_ferc1
-                - report_year
         columns:
           - name: report_year
           - name: utility_id_ferc1
@@ -71,12 +63,8 @@ sources:
           - name: plant_type
           - name: record_id
           - name: water_limited_capacity_mw
+
 models:
   - name: validate_ferc1__yearly_steam_plants_sched402
-    description: >
-      This is a validation model which takes the above table as input and computes
-      values more convenient for testing, including:
-
-      - capacity ratios; not currently tested
     columns:
       - name: capex_per_mw
