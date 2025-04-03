@@ -375,7 +375,17 @@ def core_sec10k__quarterly_company_information(
 def core_sec10k__changelog_company_name(
     _core_sec10k__changelog_company_name: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Clean and standardize the SEC 10-K company name changelog table."""
+    """Clean and standardize the SEC 10-K company name changelog table.
+
+    Every filing that references a company independently reports the history of its name
+    changes, so after combining them we end up with many copies of the name change
+    histories for some companies. We deduplicate the combined history and keep only a
+    single instance of each reported name change.
+
+    There are a handful of cases in which the same name change events seem to have been
+    reported differently in different filings (slightly different company names or
+    dates) which make the results here imperfect, but for the most part it works well.
+    """
     name_changelog = (
         _core_sec10k__changelog_company_name.assign(
             name_change_date=lambda x: pd.to_datetime(x["date_of_name_change"])
