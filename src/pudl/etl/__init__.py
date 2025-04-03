@@ -34,6 +34,7 @@ from pudl.io_managers import (
 from pudl.metadata import PUDL_PACKAGE
 from pudl.resources import dataset_settings, datastore, ferc_to_sqlite_settings
 from pudl.settings import EtlSettings
+from pudl.workspace.setup import PUDL_ROOT_DIR
 
 from . import (
     dbt_asset_checks,
@@ -222,7 +223,7 @@ default_asset_checks += dbt_asset_checks.make_dbt_asset_checks(_asset_keys)
 default_resources = {
     "datastore": datastore,
     "dbt_runner": dbt_asset_checks.DbtRunner(
-        dbt_dir=str(Path(__file__).parent.parent.parent.parent / "dbt"),
+        dbt_dir=str(PUDL_ROOT_DIR / "dbt"),
         target="etl-fast",
     ),
     "pudl_io_manager": pudl_mixed_format_io_manager,

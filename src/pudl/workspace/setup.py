@@ -14,6 +14,9 @@ logger = pudl.logging_helpers.get_logger(__name__)
 PotentialDirectoryPath = DirectoryPath | NewPath
 
 
+PUDL_ROOT_DIR = Path(__file__).parent.parent.parent.parent
+
+
 class PudlPaths(BaseSettings):
     """These settings provide access to various PUDL directories.
 
