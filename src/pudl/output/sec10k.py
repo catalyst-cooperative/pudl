@@ -13,6 +13,26 @@ import pandas as pd
     io_manager_key="pudl_io_manager",
     group_name="out_sec10k",
 )
+def out_sec10k__quarterly_filings(
+    core_sec10k__quarterly_filings: pd.DataFrame,
+) -> pd.DataFrame:
+    """Denormalized table for SEC 10-K quarterly filings.
+
+    This table contains the basic information about the quarterly filings, including
+    the filing date, report date, and the URL to the filing.
+    """
+    # Construct the source URL so people can see where the data came from.
+    return core_sec10k__quarterly_filings.assign(
+        source_url=lambda x: (
+            "https://www.sec.gov/Archives/edgar/data/" + x["filename_sec10k"] + ".txt"
+        )
+    )
+
+
+@dg.asset(
+    io_manager_key="pudl_io_manager",
+    group_name="out_sec10k",
+)
 def out_sec10k__quarterly_company_information(
     core_sec10k__quarterly_company_information: pd.DataFrame,
     core_sec10k__quarterly_filings: pd.DataFrame,

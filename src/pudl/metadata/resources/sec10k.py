@@ -47,6 +47,35 @@ key.""",
         "etl_group": "sec10k",
         "field_namespace": "sec",
     },
+    "out_sec10k__quarterly_filings": {
+        "description": """Metadata describing SEC 10-K filings.
+
+Each SEC 10-K filing is submitted by a single company, but may contain information about
+numerous other companies. This table indicates the company submitting the filing, as
+well as some information about the overall filing. Each filing is guaranteed to have a
+unique filename, but ~1% of all filings are one company submitting the same form
+multiple times on the same day, so the filename is the only available natural primary
+key. This output table adds a link to the source URL for the filing, which is
+constructed from the filename.""",
+        "schema": {
+            "fields": [
+                "filename_sec10k",
+                "central_index_key",
+                "company_name",
+                "sec10k_type",
+                "filing_date",
+                "exhibit_21_version",
+                "report_date",
+                "source_url",
+            ],
+            "primary_key": [
+                "filename_sec10k",
+            ],
+        },
+        "sources": ["sec10k"],
+        "etl_group": "sec10k",
+        "field_namespace": "sec",
+    },
     "core_sec10k__quarterly_exhibit_21_company_ownership": {
         "description": """Subsidiary company ownership data from the SEC 10-K Exhibit 21 attachments.
 
