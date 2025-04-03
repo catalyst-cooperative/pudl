@@ -9,6 +9,16 @@ v2025.XX.x (2025-MM-DD)
 New Data
 ^^^^^^^^
 
+FERC 714
+~~~~~~~~
+* Added the table :ref:`out_ferc714__hourly_planning_area_demand`, which
+  contains an imputed version of demand.
+
+EIA 930
+~~~~~~~
+* Added the table :ref:`out_eia930__hourly_subregion_demand`, which
+  contains an imputed version of subregion demand.
+
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
@@ -20,6 +30,10 @@ Major Dependency Updates
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* We now publish a `Frictionless data package
+  <https://datapackage.org/standard/data-package/>`__ describing our Parquet
+  outputs, with the name ``pudl_datapackage.json``. See :issue:`4069` and :pr:`4070`.
 
 New Tests
 ^^^^^^^^^
@@ -37,10 +51,7 @@ So far we have converted the following tests:
   can find the implementation in the `expect_includes_all_value_combinations_from.sql
   <../../dbt/tests/data_tests/generic_tests/expect_includes_all_value_combinations_from.sql>`__
   file.
-
-* We now publish a `Frictionless data package
-  <https://datapackage.org/standard/data-package/>`__ describing our Parquet
-  outputs, with the name ``pudl_datapackage.json``. See :issue:`4069` and :pr:`4070`.
+* 19 tests which required special handling; see :issue:`4093`, :pr:`4114`, :pr:`4151`.
 
 .. _release-v2025.2.0:
 
