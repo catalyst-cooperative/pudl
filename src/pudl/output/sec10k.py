@@ -70,12 +70,18 @@ def out_sec10k__changelog_company_name(
     """
     name_changelog = core_sec10k__changelog_company_name.sort_values(
         ["central_index_key", "name_change_date"]
-    ).assign(
+    )
+    # Only a handdful of empty company names. Replace with the empty string to avoid
+    # inappropriately filling them with the current name when constructing new name
+    # for the most recent name change.
+    assert name_changelog["company_name_old"].isna().sum() < 5
+    name_changelog = name_changelog.assign(
+        company_name_old=lambda x: x["company_name_old"].fillna(""),
         company_name_new=lambda x: x.groupby("central_index_key")["company_name_old"]
         .shift(-1)
-        .fillna(x["company_name"])
+        .fillna(x["company_name"]),
     )
-    # Drop records where there's no name change recorded
+    # Drop records where the "name change" is a no-op.
     name_changelog = name_changelog.loc[
         name_changelog["company_name_old"] != name_changelog["company_name_new"]
     ]

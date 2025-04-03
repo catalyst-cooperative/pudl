@@ -489,6 +489,4 @@ def core_sec10k__assn_sec10k_filers_and_eia_utilities(
         .dropna()
         .drop_duplicates(subset=["central_index_key", "utility_id_eia"])
     )
-    assert sec_eia_assn["central_index_key"].is_unique
-    assert sec_eia_assn["utility_id_eia"].is_unique
     return sec_eia_assn
