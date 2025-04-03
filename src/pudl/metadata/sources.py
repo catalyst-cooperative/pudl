@@ -9,6 +9,7 @@ from pudl.metadata.constants import CONTRIBUTORS, KEYWORDS, LICENSES
 SOURCES: dict[str, Any] = {
     "censusdp1tract": {
         "title": "Census DP1 -- Profile of General Demographic Characteristics",
+        "label": "Census DP1",
         "path": "https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html",
         "description": (
             "US Census Demographic Profile 1 (DP1) County and Tract GeoDatabase."
@@ -26,6 +27,7 @@ SOURCES: dict[str, Any] = {
     },
     "censuspep": {
         "title": "Population Estimates Program's (PEP) Federal Information Processing Series (FIPS) Codes",
+        "label": "Census PEP",
         "path": "https://www.census.gov/geographies/reference-files/2023/demo/popest/2023-fips.html",
         "description": (
             "Reference files for Federal Information Processing Series (FIPS) Geographic Codes. "
@@ -47,6 +49,7 @@ SOURCES: dict[str, Any] = {
     },
     "eia176": {
         "title": "EIA Form 176 -- Annual Report of Natural and Supplemental Gas Supply and Disposition",
+        "label": "EIA Form 176",
         "path": "https://www.eia.gov/naturalgas/ngqs/",
         "description": (
             "The EIA Form 176, also known as the Annual Report of Natural and "
@@ -86,6 +89,7 @@ SOURCES: dict[str, Any] = {
     },
     "eia191": {
         "title": "EIA Form 191 -- Monthly Underground Natural Gas Storage Report",
+        "label": "EIA Form 191",
         "path": "https://www.eia.gov/naturalgas/ngqs/",
         "description": (
             "The EIA Form 191, also known as the Monthly Underground Natural Gas "
@@ -118,6 +122,7 @@ SOURCES: dict[str, Any] = {
     },
     "eia757a": {
         "title": "EIA Form 757A -- Natural Gas Processing Plant Survey",
+        "label": "EIA Form 757A",
         "path": "https://www.eia.gov/naturalgas/ngqs/",
         "description": (
             "The EIA Form 757A, also known as the Natural Gas Processing Plant Survey "
@@ -150,6 +155,7 @@ SOURCES: dict[str, Any] = {
     },
     "eia860": {
         "title": "EIA Form 860 -- Annual Electric Generator Report",
+        "label": "EIA Form 860",
         "path": "https://www.eia.gov/electricity/data/eia860",
         "description": (
             "US Energy Information Administration (EIA) Form 860 data for "
@@ -190,6 +196,7 @@ SOURCES: dict[str, Any] = {
     },
     "eia860m": {
         "title": "EIA Form 860M -- Monthly Update to the Annual Electric Generator Report",
+        "label": "EIA Form 860M",
         "path": "https://www.eia.gov/electricity/data/eia860m",
         "description": (
             "US Energy Information Administration (EIA) Form 860 M data for "
@@ -225,6 +232,7 @@ SOURCES: dict[str, Any] = {
     },
     "eia861": {
         "title": "EIA Form 861 -- Annual Electric Power Industry Report",
+        "label": "EIA Form 861",
         "path": "https://www.eia.gov/electricity/data/eia861",
         "description": (
             "EIA Form 861 Annual Electric Power Industry Report, detailed data files."
@@ -262,6 +270,7 @@ SOURCES: dict[str, Any] = {
     },
     "eia923": {
         "title": "EIA Form 923 -- Power Plant Operations Report",
+        "label": "EIA Form 923",
         "path": "https://www.eia.gov/electricity/data/eia923",
         "description": (
             "The EIA Form 923 collects detailed monthly and annual electric "
@@ -303,6 +312,7 @@ SOURCES: dict[str, Any] = {
     },
     "eia930": {
         "title": "EIA Form 930 -- Hourly and Daily Balancing Authority Operations Report",
+        "label": "EIA Form 930",
         "path": "https://www.eia.gov/electricity/gridmonitor/",
         "description": (
             "The EIA Form 930 provides hourly demand and generation statistics by "
@@ -349,6 +359,7 @@ SOURCES: dict[str, Any] = {
     },
     "eiaaeo": {
         "title": "EIA Annual Energy Outlook (AEO)",
+        "label": "EIA AEO",
         "path": "https://www.eia.gov/outlooks/aeo/",
         "description": (
             "The EIA Annual Energy Outlook provides projections of future fuel prices, "
@@ -385,6 +396,7 @@ SOURCES: dict[str, Any] = {
     },
     "eia_bulk_elec": {
         "title": "EIA Bulk Electricity API Data",
+        "label": "EIA Bulk",
         "path": "https://www.eia.gov/opendata/bulkfiles.php",
         "description": (
             "Aggregate national, state, and plant-level electricity generation "
@@ -419,6 +431,7 @@ SOURCES: dict[str, Any] = {
     },
     "eiawater": {
         "title": "EIA Thermoelectric Cooling Water",
+        "label": "EIA Water",
         "path": "https://www.eia.gov/electricity/data/water",
         "description": (
             "Monthly cooling water usage by generator and boiler. Data "
@@ -432,6 +445,7 @@ SOURCES: dict[str, Any] = {
     },
     "epacems": {
         "title": "EPA Hourly Continuous Emission Monitoring System (CEMS)",
+        "label": "EPA CEMS",
         "path": "https://campd.epa.gov/",
         "description": (
             "US EPA hourly Continuous Emissions Monitoring System (CEMS) data."
@@ -472,6 +486,7 @@ SOURCES: dict[str, Any] = {
     },
     "epacamd_eia": {
         "title": "EPA CAMD to EIA Power Sector Data Crosswalk",
+        "label": "EPA CAMD-EIA Crosswalk",
         "path": "https://github.com/USEPA/camd-eia-crosswalk",
         "description": (
             "A file created collaboratively by EPA and EIA that connects EPA CAMD "
@@ -513,6 +528,7 @@ SOURCES: dict[str, Any] = {
     },
     "ferc1": {
         "title": "FERC Form 1 -- Annual Report of Major Electric Utilities",
+        "label": "FERC Form 1",
         "path": "https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual",
         "description": (
             "The Federal Energy Regulatory Commission (FERC) Form 1 is a "
@@ -551,6 +567,7 @@ SOURCES: dict[str, Any] = {
     },
     "ferc2": {
         "title": "FERC Form 2 -- Annual Report of Major Natural Gas Companies",
+        "label": "FERC Form 2",
         "path": "https://www.ferc.gov/industries-data/natural-gas/industry-forms/form-2-2a-3-q-gas-historical-vfp-data",
         "description": (
             "The Federal Energy Regulatory Commission (FERC) Form 2 is a "
@@ -582,6 +599,7 @@ SOURCES: dict[str, Any] = {
     },
     "ferc6": {
         "title": "FERC Form 6 -- Annual Report of Oil Pipeline Companies",
+        "label": "FERC Form 6",
         "path": "https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-66-q-overview-orders",
         "description": (
             "The Federal Energy Regulatory Commission (FERC) Form 6 is a "
@@ -612,6 +630,7 @@ SOURCES: dict[str, Any] = {
     },
     "ferc60": {
         "title": "FERC Form 60 -- Annual Report of Centralized Service Companies",
+        "label": "FERC Form 60",
         "path": "https://www.ferc.gov/ferc-online/ferc-online/filing-forms/service-companies-filing-forms/form-60-annual-report",
         "description": (
             "The Federal Energy Regulatory Commission (FERC) Form 60 is a "
@@ -640,6 +659,7 @@ SOURCES: dict[str, Any] = {
     },
     "ferc714": {
         "title": "FERC Form 714 -- Annual Electric Balancing Authority Area and Planning Area Report",
+        "label": "FERC Form 714",
         "path": "https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-no-714-annual-electric",
         "description": (
             "Electric transmitting utilities operating balancing authority "
@@ -674,6 +694,7 @@ SOURCES: dict[str, Any] = {
     },
     "ferceqr": {
         "title": "FERC Form 920 -- Electric Quarterly Report (EQR)",
+        "label": "FERC Form 920",
         "path": "https://www.ferc.gov/industries-data/electric/power-sales-and-markets/electric-quarterly-reports-eqr",
         "description": (
             "The EQR contains Seller-provided data summarizing contractual terms and "
@@ -698,6 +719,7 @@ SOURCES: dict[str, Any] = {
     },
     "gridpathratoolkit": {
         "title": "GridPath Resource Adequacy Toolkit Data",
+        "label": "GridPath RA Toolkit",
         "path": "https://gridlab.org/gridpathratoolkit/",
         "description": (
             "Hourly renewable generation profiles compiled for the Western United "
@@ -753,6 +775,7 @@ SOURCES: dict[str, Any] = {
     },
     "mshamines": {
         "title": "Mine Safety and Health Administration (MSHA) Mines",
+        "label": "MSHA Mines",
         "path": "https://arlweb.msha.gov/OpenGovernmentData/OGIMSHA.asp",
         "description": (
             "The Mine dataset lists all Coal and Metal/Non-Metal mines under MSHA's "
@@ -766,6 +789,7 @@ SOURCES: dict[str, Any] = {
     },
     "nrelatb": {
         "title": "NREL Annual Technology Baseline (ATB) for Electricity",
+        "label": "NREL ATB",
         "path": "https://atb.nrel.gov/",
         "description": (
             "The NREL Annual Technology Baseline (ATB) for Electricity publishes "
@@ -802,6 +826,7 @@ SOURCES: dict[str, Any] = {
     },
     "phmsagas": {
         "title": "Pipelines and Hazardous Materials Safety Administration (PHMSA) Annual Natural Gas Report",
+        "label": "PHMSA Gas",
         "path": "https://www.phmsa.dot.gov/data-and-statistics/pipeline/gas-distribution-gas-gathering-gas-transmission-hazardous-liquids",
         "description": (
             "Annual reports submitted to PHMSA from gas distribution, gas gathering, "
@@ -822,6 +847,7 @@ SOURCES: dict[str, Any] = {
     },
     "pudl": {
         "title": "The Public Utility Data Liberation (PUDL) Project",
+        "label": "PUDL",
         "path": "https://catalyst.coop/pudl",
         "description": (
             "PUDL is a data processing pipeline created by Catalyst Cooperative that "
@@ -843,6 +869,7 @@ SOURCES: dict[str, Any] = {
     },
     "sec10k": {
         "title": "Securities and Exchange Commission form 10-K",
+        "label": "SEC 10-K",
         "path": "https://www.sec.gov/files/form10-k.pdf",
         "description": (
             "10-K offers a detailed picture of a company’s business, the risks it"
@@ -860,6 +887,7 @@ SOURCES: dict[str, Any] = {
     },
     "vcerare": {
         "title": "Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset",
+        "label": "VCE RARE",
         "path": "https://vibrantcleanenergy.com/products/datasets/",
         "description": (
             "This dataset was produced by Vibrant Clean Energy and is licensed to "
