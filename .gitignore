@@ -55,3 +55,4 @@ dbt/dbt_packages/
 dbt/target/
 dbt/logs/
 dbt/.user.yml
+dbt/dbt.lock

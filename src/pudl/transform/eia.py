@@ -18,35 +18,29 @@ found in :func:`pudl.transform.eia._boiler_generator_assn`.
 
 import importlib.resources
 from collections import namedtuple
-from contextlib import chdir
 from enum import StrEnum, auto
-from pathlib import Path
 
 import networkx as nx
 import numpy as np
 import pandas as pd
 import timezonefinder
 from dagster import (
-    AssetCheckResult,
     AssetIn,
     AssetOut,
     AssetsDefinition,
     Field,
     Output,
-    ResourceParam,
     asset,
-    asset_check,
     multi_asset,
 )
 
 import pudl
-from dbt.cli.main import dbtRunner
 from pudl.helpers import convert_cols_dtypes
 from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.enums import APPROXIMATE_TIMEZONES
 from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
 from pudl.metadata.resources import ENTITIES
-from pudl.settings import EiaSettings, EtlSettings
+from pudl.settings import EiaSettings
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -1331,47 +1325,6 @@ def finished_eia_asset_factory(
         )
 
     return finished_eia_asset
-
-
-@asset_check(
-    asset="core_eia860__assn_boiler_cooling",
-    blocking=True,
-)
-def dbt_dummy_check(
-    dataset_settings: ResourceParam[EtlSettings],
-) -> AssetCheckResult:
-    """Foo."""
-    asset_name = "core_eia860__assn_boiler_cooling"
-    dbt_target = f"etl-{dataset_settings.etl_type}"
-
-    dbt_resource_name = f"source:pudl_dbt.pudl.{asset_name}"
-    dbt = dbtRunner()
-    pudl_root_dir = Path(__file__).parent.parent.parent.parent
-    with chdir(pudl_root_dir / "dbt"):
-        _ = dbt.invoke(["deps"])
-        _ = dbt.invoke(["seed"])
-        test_results = dbt.invoke(
-            [
-                "build",
-                "--threads",
-                "1",
-                "--target",
-                dbt_target,
-                "--select",
-                dbt_resource_name,
-            ]
-        )
-
-    error_infos = []
-    if test_results.exception:
-        error_infos.append({"message": repr(test_results.exception)})
-    else:
-        for res in test_results.result.results:
-            error_infos.append({"message": res.message, "n_failures": res.failures})
-
-    return AssetCheckResult(
-        passed=test_results.success, metadata={"failures": error_infos}
-    )
 
 
 finished_eia_assets = [
