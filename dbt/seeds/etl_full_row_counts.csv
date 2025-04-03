@@ -1983,6 +1983,7 @@ core_pudl__assn_ferc714_xbrl_pudl_respondents,,118
 core_pudl__assn_utilities_plants,,18790
 core_pudl__codes_data_maturities,,4
 core_pudl__codes_datasources,,11
+core_pudl__codes_imputation_reasons,,9
 core_pudl__codes_subdivisions,,69
 core_pudl__entity_plants_pudl,,19840
 core_pudl__entity_utilities_pudl,,16730

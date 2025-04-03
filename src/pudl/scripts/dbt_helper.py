@@ -88,6 +88,7 @@ class DbtSource(BaseModel):
 
     name: str = "pudl"
     tables: list[DbtTable]
+    data_tests: list | None = None
 
     def add_source_tests(self, source_tests: list) -> "DbtSource":
         """Add data tests to source in dbt config."""
@@ -496,7 +497,9 @@ def migrate_tests(table_name: str, test_config_name: str, model_name: str | None
     _write_dbt_yaml_config(schema_path, schema)
 
 
-@click.group()
+@click.group(
+    context_settings={"help_option_names": ["-h", "--help"]},
+)
 def dbt_helper():
     """Script for auto-generating dbt configuration and migrating existing tests.
 
