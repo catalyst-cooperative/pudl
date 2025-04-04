@@ -181,7 +181,7 @@ class Sec10kSettings(GenericDatasetSettings):
 
     data_source: ClassVar[DataSource] = DataSource.from_id("sec10k")
 
-    years: list[int] = range(1993, 2025)
+    years: list[int] = range(1993, 2024)
     """The list of years to validate."""
 
     tables: list[str] = data_source.working_partitions["tables"]
