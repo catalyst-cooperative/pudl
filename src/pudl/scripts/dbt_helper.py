@@ -425,20 +425,44 @@ def _clean_row_condition(row_condition: str) -> str:
 
 def _generate_quantile_bounds_test(test_config: dict) -> list[dict]:
     """Convert dict of config from `validate.py` to construct config for dbt test."""
+    test_name = _get_test_name(test_config)
+    base_entry = {
+        "row_condition": _clean_row_condition(test_config.get("query")),
+        "weight_column": test_config.get("weight_col"),
+    }
+    if (
+        "low_q" in test_config
+        and "hi_q" in test_config
+        and test_config["low_q"] is test_config["hi_q"]
+    ):
+        # then we're trying to capture a single quantile between two bounds;
+        # this can be specified with a single test entry
+        return [
+            {
+                test_name: dict(
+                    quantile=test_config["low_q"],
+                    min_value=test_config["low_bound"],
+                    max_value=test_config["hi_bound"],
+                    **base_entry,
+                )
+            }
+        ]
+    # otherwise, we need separate entries for each quantile
     return [
         {
-            _get_test_name(test_config): {
-                "quantile": test_config[quantile_key],
-                min_max_value: test_config[bound_key],
-                "row_condition": _clean_row_condition(test_config.get("query")),
-                "weight_column": test_config.get("weight_col"),
-            }
+            test_name: dict(
+                **{
+                    "quantile": test_config[quantile_key],
+                    min_max_value: test_config[bound_key],
+                },
+                **base_entry,
+            )
         }
         for quantile_key, bound_key, min_max_value in [
             ("low_q", "low_bound", "min_value"),
             ("hi_q", "hi_bound", "max_value"),
         ]
-        if quantile_key in test_config
+        if (quantile_key in test_config) and test_config[quantile_key] is not False
     ]
 
 
