@@ -4227,9 +4227,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "sec_act": {
         "type": "string",
         "description": "SEC Act through which the form was enacted, e.g. 1934 act.",
-        # "constraints": {
-        #    "enum": ["1934 act"],
-        # },
+        "constraints": {
+            "enum": ["1934 act"],
+        },
     },
     "filing_number_sec": {
         "type": "string",
@@ -4248,18 +4248,18 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "the 10-kt. 10-ksb: the annual report for small businesses, also known as "
             "penny stocks. 10-ksb/a: an amended version of the 10-ksb."
         ),
-        # "constraints": {
-        #    "enum": [
-        #        "10-k",
-        #        "10-k/a",
-        #        "10-k405",
-        #        "10-k405/a",
-        #        "10-kt",
-        #        "10-kt/a",
-        #        "10-ksb",
-        #        "10-ksb/a",
-        #    ]
-        # },
+        "constraints": {
+            "enum": [
+                "10-k",
+                "10-k/a",
+                "10-k405",
+                "10-k405/a",
+                "10-kt",
+                "10-kt/a",
+                "10-ksb",
+                "10-ksb/a",
+            ]
+        },
     },
     "secondary_transportation_mode_code": {
         "type": "string",
