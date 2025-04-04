@@ -9,6 +9,13 @@ import dagster as dg
 import pandas as pd
 
 
+def _filename_sec10k_to_source_url(
+    filename_sec10k: pd.Series,
+) -> pd.Series:
+    """Construct the source URL for SEC 10-K filings."""
+    return "https://www.sec.gov/Archives/edgar/data/" + filename_sec10k + ".txt"
+
+
 @dg.asset(
     io_manager_key="pudl_io_manager",
     group_name="out_sec10k",
@@ -23,9 +30,7 @@ def out_sec10k__quarterly_filings(
     """
     # Construct the source URL so people can see where the data came from.
     return core_sec10k__quarterly_filings.assign(
-        source_url=lambda x: (
-            "https://www.sec.gov/Archives/edgar/data/" + x["filename_sec10k"] + ".txt"
-        )
+        source_url=lambda x: _filename_sec10k_to_source_url(x["filename_sec10k"])
     )
 
 
@@ -65,12 +70,7 @@ def out_sec10k__quarterly_company_information(
             validate="many_to_one",
         )
         .convert_dtypes()
-    )
-    company_info["source_url"] = (
-        "https://www.sec.gov/Archives/edgar/data/"
-        + company_info["filename_sec10k"]
-        + ".txt"
-    )
+    ).assign(source_url=lambda x: _filename_sec10k_to_source_url(x["filename_sec10k"]))
     return company_info
 
 
