@@ -1,9 +1,6 @@
 """Shim to associate DBT checks with the assets they check."""
 
-<<<<<<< HEAD
-=======
 import json
->>>>>>> 37a990a6d (feat: factorify asset checks.)
 from contextlib import chdir
 from pathlib import Path
 
@@ -19,12 +16,6 @@ from dagster import (
 from filelock import FileLock
 
 from dbt.cli.main import dbtRunner
-from pudl.settings import EtlSettings
-<<<<<<< HEAD
-
-
-class DbtRunner(ConfigurableResource):
-=======
 from pudl.workspace.setup import PUDL_ROOT_DIR
 
 
@@ -37,28 +28,17 @@ class DbtRunner(ConfigurableResource):
 
     # NOTE 2025-04-04 dbt_dir is a str, not a Path, to work around Dagster
     # resource attr type limitations.
->>>>>>> 37a990a6d (feat: factorify asset checks.)
     dbt_dir: str
     target: str
 
     def setup_for_execution(self, context: InitResourceContext):
-<<<<<<< HEAD
-=======
         """Dagster resource lifecycle hook - runs once-per-run setup for DBT."""
->>>>>>> 37a990a6d (feat: factorify asset checks.)
         with FileLock(Path(self.dbt_dir) / "dbt.lock"), chdir(self.dbt_dir):
             dbt = dbtRunner()
             dbt.invoke(["deps"])
             dbt.invoke(["seed"])
 
     def build(self, resource_name: str):
-<<<<<<< HEAD
-        with FileLock(Path(self.dbt_dir) / "dbt.lock"), chdir(self.dbt_dir):
-            dbt = dbtRunner()
-            return dbt.invoke(
-                [
-                    "build",
-=======
         """Build a dagster resource, including tests.
 
         Args:
@@ -69,13 +49,15 @@ class DbtRunner(ConfigurableResource):
         success: whether or not the dang thing worked
 
         """
-        with FileLock(Path(self.dbt_dir) / "dbt.lock"), chdir(self.dbt_dir):
+        lock_path = Path(self.dbt_dir) / "dbt.lock"
+        with FileLock(lock_path), chdir(self.dbt_dir):
             dbt = dbtRunner()
+            dbt.invoke(["deps", "--quiet"])
+            dbt.invoke(["seed", "--quiet"])
             build_result = dbt.invoke(
                 [
                     "build",
                     "--store-failures",
->>>>>>> 37a990a6d (feat: factorify asset checks.)
                     "--threads",
                     "1",
                     "--target",
@@ -84,8 +66,6 @@ class DbtRunner(ConfigurableResource):
                     resource_name,
                 ]
             )
-<<<<<<< HEAD
-=======
             if build_result.exception:
                 raise RuntimeError(build_result.exception)
             failure_infos = []
@@ -108,40 +88,25 @@ class DbtRunner(ConfigurableResource):
                             for row in r.agate_table.rows
                         ]
             return {"success": build_result.success, "failures": failure_infos}
->>>>>>> 37a990a6d (feat: factorify asset checks.)
 
 
 def make_dbt_asset_checks(
     dagster_assets: list[AssetKey],
 ) -> list[AssetChecksDefinition]:
-<<<<<<< HEAD
-    """Associate dbt resources with dagster assets, then run the build at asset-check time."""
-    dbt = dbtRunner()
-    dbt_dir = Path(__file__).parent.parent.parent.parent / "dbt"
-    with FileLock(dbt_dir / "dbt.lock"), chdir(dbt_dir):
-        _ = dbt.invoke(["deps"])
-        invocation = dbt.invoke(["ls"])
-        if invocation.exception:
-            raise RuntimeError(invocation.exception)
-        resources = [name.rsplit(".", 1) for name in dbt.invoke(["ls"]).result]
-
-    dagster_asset_names = {da.to_user_string() for da in dagster_assets}
-    assets = {
-        short_name: f"{prefix}.{short_name}"
-        for prefix, short_name in resources
-=======
     """Associate dbt resources with dagster assets, then run the build at asset-check time.
 
     1. get the possible dbt resources to run
     2. get the dagster assets
     3. build checks for the intersection.
     """
-    dbt = dbtRunner()
     dbt_dir = PUDL_ROOT_DIR / "dbt"
     manifest_path = dbt_dir / "target" / "manifest.json"
-    with FileLock(dbt_dir / "dbt.lock"), chdir(dbt_dir):
+    lock_path = dbt_dir / "dbt.lock"
+    with FileLock(lock_path), chdir(dbt_dir):
+        dbt = dbtRunner()
         _ = dbt.invoke(["deps", "--quiet"])
         parse_result = dbt.invoke(["parse", "--quiet"])
+        del dbt
         if parse_result.exception:
             raise RuntimeError(parse_result.exception)
         resources = __get_dbt_selection_names(manifest_path)
@@ -150,7 +115,6 @@ def make_dbt_asset_checks(
     assets = {
         short_name: select_id
         for select_id, short_name in resources
->>>>>>> 37a990a6d (feat: factorify asset checks.)
         if short_name in dagster_asset_names
     }
     return [
@@ -170,29 +134,16 @@ def __make_dbt_asset_check(
         blocking=True,
     )
     def dbt_build_resource(
-        dataset_settings: ResourceParam[EtlSettings],
         dbt_runner: ResourceParam[DbtRunner],
     ) -> AssetCheckResult:
         """Build DBT resource, along with all attendant checks."""
         test_results = dbt_runner.build(dbt_resource_name)
-<<<<<<< HEAD
-        error_infos = []
-        if test_results.exception:
-            error_infos.append({"message": repr(test_results.exception)})
-        else:
-            for res in test_results.result.results:
-                error_infos.append({"message": res.message, "n_failures": res.failures})
-
-        return AssetCheckResult(
-            passed=test_results.success, metadata={"failures": error_infos}
-        )
-
-    return dbt_build_resource
-=======
 
         return AssetCheckResult(
             passed=test_results["success"],
-            metadata={"failures": test_results["failures"]},
+            metadata={"failures": test_results["failures"]}
+            if not test_results["success"]
+            else {},
         )
 
     return dbt_build_resource
@@ -231,4 +182,3 @@ def __get_dbt_selection_names(manifest_path: Path):
         for res in manifest["sources"].values()
     ]
     return nodes + sources
->>>>>>> 37a990a6d (feat: factorify asset checks.)
