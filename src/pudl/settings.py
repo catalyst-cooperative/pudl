@@ -177,7 +177,7 @@ class PhmsaGasSettings(GenericDatasetSettings):
 
 
 class Sec10kSettings(GenericDatasetSettings):
-    """An immutable pydantic model to validate PHMSA settings."""
+    """An immutable Pydantic model to validate SEC 10-K settings."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("sec10k")
 
