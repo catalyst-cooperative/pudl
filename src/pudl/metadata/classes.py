@@ -2,13 +2,13 @@
 
 import copy
 import datetime
-import hashlib
 import json
 import re
 import sys
 import warnings
 from collections.abc import Callable, Iterable
 from functools import cached_property, lru_cache
+from hashlib import sha1
 from pathlib import Path
 from typing import Annotated, Any, Literal, Self, TypeVar
 
@@ -714,7 +714,7 @@ class Field(PudlMeta):
             *[
                 sa.CheckConstraint(
                     check,
-                    name=hashlib.sha1(check.encode("utf-8")).hexdigest()[:8],  # noqa: S324
+                    name=sha1(check.encode("utf-8")).hexdigest()[:8],  # noqa: S324
                 )
                 for check in checks
             ],
