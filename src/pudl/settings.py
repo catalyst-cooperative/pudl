@@ -176,6 +176,17 @@ class PhmsaGasSettings(GenericDatasetSettings):
     """The list of years to validate."""
 
 
+class Sec10kSettings(GenericDatasetSettings):
+    """An immutable Pydantic model to validate SEC 10-K settings."""
+
+    data_source: ClassVar[DataSource] = DataSource.from_id("sec10k")
+
+    years: list[int] = range(1993, 2024)
+    """The list of years to validate."""
+
+    tables: list[str] = data_source.working_partitions["tables"]
+
+
 class NrelAtbSettings(GenericDatasetSettings):
     """An immutable pydantic model to validate NREL ATB settings."""
 
