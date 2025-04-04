@@ -21,6 +21,7 @@ pages for each source:
 * :doc:`data_sources/eia860`
 * :doc:`data_sources/eia861`
 * :doc:`data_sources/eia923`
+* :doc:`data_sources/eia930`
 * :doc:`data_sources/epacems`
 * :doc:`data_sources/ferc1`
 * :doc:`data_sources/ferc714`
@@ -221,12 +222,83 @@ Organizations using PUDL
    :end-before: .. _pudl_orgs_end:
 
 
+---------------------------------------------------------------------------------------
+PUDL Sustainers
+---------------------------------------------------------------------------------------
+
+The PUDL Sustainers provide ongoing financial support to ensure the open data keeps
+flowing, and the project is sustainable long term. They're also involved in our
+quarterly planning process. To learn more see `the PUDL Project page on Open Collective
+<https://opencollective.com/pudl>`__.
+
+Gigawatt Tier (≥$25,000/year)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. image:: images/logos/RMI.png
+   :width: 600
+   :target: https://rmi.org
+   :alt: RMI
+   :align: center
+
+.. image:: images/logos/GridLab.png
+   :width: 600
+   :target: https://gridlab.org
+   :alt: GridLab
+   :align: center
+
+Megawatt Tier (≥$16,000/year)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. image:: images/logos/ZEROLab.png
+   :width: 400
+   :target: https://zero.lab.princeton.edu/
+   :alt: ZERO Lab at Princeton University
+   :align: center
+
+Kilowatt Tier (≥$8,000/year)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Become our first `kilowatt tier sustainer <https://opencollective.com/pudl>`__!
+
+---------------------------------------------------------------------------------------
+Major Grant Funders
+---------------------------------------------------------------------------------------
+
+Alfred P. Sloan Foundation
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. image:: images/logos/Sloan.png
+   :width: 400
+   :target: https://sloan.org/programs/research/energy-and-environment/
+   :alt: Alfred P. Sloan Foundation Energy and Environment Program
+   :align: center
+
+The PUDL Project has been supported by three grants from the `Alfred P. Sloan
+Foundation's Energy and Environment Program
+<https://sloan.org/programs/research/energy-and-environment>`__, in 2019, 2021, and
+2024.
+
+National Science Foundation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. image:: images/logos/NSF.png
+   :width: 400
+   :target: https://new.nsf.gov/funding/opportunities/pathways-enable-open-source-ecosystems-pose
+   :alt: National Science Foundation Pathways to Enable Open Source Ecosystems (POSE)
+   :align: center
+
+The PUDL Project was awarded a grant from the National Science Foundation's `Pathways to
+Enable Open Source Ecosystems (POSE) program
+<https://new.nsf.gov/funding/opportunities/pathways-enable-open-source-ecosystems-pose>`__
+(`award 2346139 <https://www.nsf.gov/awardsearch/showAward?AWD_ID=2346139>`__) in 2024.
+
 .. toctree::
   :hidden:
   :maxdepth: 2
 
   About PUDL <self>
   data_access
+  PUDL Database Viewer <https://viewer.catalyst.coop>
   data_sources/index
   data_dictionaries/index
   Contributing <CONTRIBUTING>

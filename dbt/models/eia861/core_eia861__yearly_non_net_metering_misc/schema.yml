@@ -1,0 +1,19 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia861__yearly_non_net_metering_misc
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_eia861__yearly_non_net_metering_misc
+              partition_column: report_date
+        columns:
+          - name: backup_capacity_mw
+          - name: balancing_authority_code_eia
+          - name: generators_number
+          - name: pv_current_flow_type
+          - name: report_date
+          - name: state
+          - name: utility_id_eia
+          - name: utility_owned_capacity_mw
+          - name: data_maturity

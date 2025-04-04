@@ -190,7 +190,7 @@ Currently, our FERC and EIA tables utilize different transform processes.
 
 A. EIA Forms
 ^^^^^^^^^^^^
-**4.A.1)** You can either materialize the ``_core`` (clean) and ``_core`` (normalized)
+**4.A.1)** You can either materialize the ``_core`` (clean) and ``core`` (normalized)
 dagster asset groups for your dataset of interest (ex: ``_core_eia860`` and
 ``core_eia860``) or use the EIA ETL Debugging notebook mentioned above to run the
 initial transform step on all tables of the new year of data. As mentioned in 3.A.1,
@@ -456,7 +456,7 @@ were particularly high or low in the new year of data. Other values like expecte
 content per unit of fuel should be relatively stable. If the required adjustments are
 large, or there are other types of validations failing, they should be investigated.
 
-**9.4)** Update the expected number of rows in the minmax_row validation tests. Pay
+**9.4)** Update the expected number of rows in the ``dbt`` row count tests. Pay
 attention to how far off of previous expectations the new tables are. E.g. if there
 are already 20 years of data, and you're integrating 1 new year of data, probably the
 number of rows in the tables should be increasing by around 5% (since 1/20 = 0.05).

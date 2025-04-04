@@ -1,0 +1,57 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: _core_eia923__cooling_system_information
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: _core_eia923__cooling_system_information
+              partition_column: report_date
+          - expect_sum_close_to_total_column:
+              name: monthly_withdrawal_discrepancy_rate
+              sum_columns:
+                - monthly_average_consumption_rate_gallons_per_minute
+                - monthly_average_discharge_rate_gallons_per_minute
+              total_column: monthly_average_withdrawal_rate_gallons_per_minute
+              discrepancy_threshold: 0.01
+              # Discrepancy rate on etl-fast observed April 2025: 0.1002
+              max_discrepancy_rate: 0.101
+          - expect_sum_close_to_total_column:
+              name: annual_withdrawal_discrepancy_rate
+              sum_columns:
+                - annual_average_consumption_rate_gallons_per_minute
+                - annual_average_discharge_rate_gallons_per_minute
+              total_column: annual_average_withdrawal_rate_gallons_per_minute
+              discrepancy_threshold: 0.01
+              max_discrepancy_rate: 0.1
+        columns:
+          - name: report_date
+          - name: plant_id_eia
+          - name: cooling_id_eia
+          - name: cooling_status_code
+          - name: cooling_type
+          - name: monthly_total_cooling_hours_in_service
+          - name: flow_rate_method
+          - name: temperature_method
+          - name: annual_maximum_intake_summer_temperature_fahrenheit
+          - name: annual_maximum_intake_winter_temperature_fahrenheit
+          - name: monthly_average_intake_temperature_fahrenheit
+          - name: monthly_maximum_intake_temperature_fahrenheit
+          - name: annual_maximum_outlet_summer_temperature_fahrenheit
+          - name: annual_maximum_outlet_winter_temperature_fahrenheit
+          - name: monthly_average_discharge_temperature_fahrenheit
+          - name: monthly_maximum_discharge_temperature_fahrenheit
+          - name: annual_average_consumption_rate_gallons_per_minute
+          - name: monthly_average_consumption_rate_gallons_per_minute
+          - name: monthly_total_consumption_volume_gallons
+          - name: annual_average_discharge_rate_gallons_per_minute
+          - name: monthly_average_discharge_rate_gallons_per_minute
+          - name: monthly_total_discharge_volume_gallons
+          - name: monthly_average_diversion_rate_gallons_per_minute
+          - name: monthly_total_diversion_volume_gallons
+          - name: annual_average_withdrawal_rate_gallons_per_minute
+          - name: monthly_average_withdrawal_rate_gallons_per_minute
+          - name: monthly_total_withdrawal_volume_gallons
+          - name: annual_total_chlorine_lbs
+          - name: monthly_total_chlorine_lbs
+          - name: data_maturity

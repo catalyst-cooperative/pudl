@@ -12,7 +12,6 @@ assignees: ""
 
 [Additional release process documentation](https://catalystcoop-pudl.readthedocs.io/en/nightly/dev/run_a_release.html).
 
-```[tasklist]
 ## Release Checklist
 - [ ] Set a release date & notify team
 - [ ] Update our CITATION.cff file with the new release date and current Catalyst membership.
@@ -29,8 +28,6 @@ assignees: ""
 - [ ] Verify that [`stable` docs on RTD](https://catalystcoop-pudl.readthedocs.io/en/stable/) have been updated
 - [ ] Verify `gs://pudl.catalyst.coop/vYYYY.M.x` has the new expected data.
 - [ ] Verify `gs://pudl.catalyst.coop/stable` has the new expected data.
-- [ ] Verify `gs://parquet.catalyst.coop/vYYYY.M.x` has the new expected data.
-- [ ] Verify `gs://parquet.catalyst.coop/stable` has the new expected data.
 - [ ] Verify `s3://pudl.catalyst.coop/vYYYY.M.x` has the new expected data.
 - [ ] Verify `s3://pudl.catalyst.coop/stable` has the new expected data.
 - [ ] Verify that draft deposition for [this Zenodo archive](https://doi.org/10.5281/zenodo.3653158) has the new expected data
@@ -40,9 +37,7 @@ assignees: ""
 - [ ] Update the [release documentation](https://catalystcoop-pudl.readthedocs.io/en/nightly/dev/run_a_release.html) to better reflect the actual process for next time
 - [ ] Wait 2-12 hours for a bot to create a PR in the [PUDL conda-forge feedstock](https://github.com/conda-forge/catalystcoop.pudl-feedstock/pulls)
 - [ ] Review the `conda-forge` PR, updating dependencies and CLI entrypoints if necessary. Our direct dependencies (from `pyproject.toml`) should be pinned to the actual version appearing in `environments/conda-linux-64.lock.yml`
-```
 
-```[tasklist]
 ### Zenodo Metadata Tasks
 - [ ] Make sure all Catalyst members are listed in creators (automate!)
 - [ ] Update Zenodo deposition description to reflect current release (automate!)
@@ -50,9 +45,6 @@ assignees: ""
 - [ ] Set keywords for Zenodo data release archive (automate!)
 - [ ] Set language of Zenodo data release archive (automate!)
 - [ ] Zenodo PUDL repo archive: update release notes (cut-and-paste from GitHub)
-```
 
-```[tasklist]
 ### Issues that we ran into
 - [ ] Take notes here during the release if stuff happens.
-```

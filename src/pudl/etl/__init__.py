@@ -2,6 +2,7 @@
 
 import importlib.resources
 import itertools
+import os
 import warnings
 
 import pandera as pr
@@ -95,6 +96,7 @@ out_module_groups = {
         pudl.output.eia,
         pudl.output.eia860,
         pudl.output.eia923,
+        pudl.output.eia930,
         pudl.output.eia_bulk_elec,
     ],
     "out_ferc1": [
@@ -116,6 +118,9 @@ default_assets = list(
         for group_name, modules in all_asset_modules.items()
     )
 )
+
+if os.getenv("USE_PUDL_MODELS"):
+    default_assets += load_assets_from_modules([pudl.analysis.pudl_models])
 
 default_asset_checks = list(
     itertools.chain.from_iterable(

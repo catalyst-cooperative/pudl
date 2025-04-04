@@ -66,9 +66,10 @@ def create_glue_tables(context):
 def raw_pudl__assn_eia_epacamd(context) -> pd.DataFrame:
     """Extract the EPACAMD-EIA Crosswalk from the Datastore."""
     logger.info("Extracting the EPACAMD-EIA crosswalk from Zenodo")
-    csv_map = {
-        2018: "camd-eia-crosswalk-master/epa_eia_crosswalk.csv",
-        2021: "camd-eia-crosswalk-2021-main/epa_eia_crosswalk.csv",
+
+    csv_map = {2018: "camd-eia-crosswalk-master/epa_eia_crosswalk.csv"} | {
+        year: f"camd-eia-crosswalk-latest-{year}/epa_eia_crosswalk.csv"
+        for year in range(2019, 2024)
     }
 
     ds = context.resources.datastore
@@ -129,8 +130,9 @@ def core_epa__assn_eia_epacamd(
     We talk more about the complexities regarding EPA "units" in our :doc:`Data Source
     documentation page for EPACEMS </data_sources/epacems>`.
 
-    It's also important to note that the crosswalk is a static file: there is no year
-    field. The plant_id_eia and generator_id fields, however, are foreign keys from an
+    In it's original format, the crosswalk is a static file - however, we manually
+    run the crosswalk code for each year of EIA data, adding the report_date field
+    to the crosswalk. The plant_id_eia and generator_id fields are foreign keys from an
     annualized table. If the fast ETL is run (on one year of data) the test will break
     because the crosswalk tables with ``plant_id_eia`` and ``generator_id`` contain
     values from various years. To keep the crosswalk in alignment with the available eia
@@ -218,12 +220,12 @@ def _core_epa__assn_eia_epacamd_unique(
 ) -> pd.DataFrame:
     """Intermediate asset that contains all unique core_epa__assn_eia_epacamd matches.
 
-    The core_epa__assn_eia_epacamd asset contains crosswalk matches from both 2018 and 2021. This
-    means there are many duplicate matches found from both years. Several downstream
-    assets expect these matches to be unique, so this asset will drop duplicates to
-    serve as the input to those downstream assets. This asset, however, will not itself
-    be written to the PUDL DB. This asset will also address conflicting matches by
-    taking the match from the most recent year (2021).
+    The core_epa__assn_eia_epacamd asset contains crosswalk matches from 2018 through
+    the latest full year of EIA 860 data. This means there are many duplicate matches
+    found from both years. Several downstream assets expect these matches to be unique,
+    so this asset will drop duplicates to serve as the input to those downstream assets.
+    This asset, however, will not itself be written to the PUDL DB. This asset will also
+    address conflicting matches by taking the match from the most recent year.
 
     Args:
         core_epa__assn_eia_epacamd: Cleaned crosswalk with duplicate matches.
@@ -237,14 +239,30 @@ def _core_epa__assn_eia_epacamd_unique(
     )
 
     # Find mismatches where there are different plant_id_eia values between years for
-    # the same plant_id_epa and emissions_unit_id_epa value.
-    one_to_many = core_epa__assn_eia_epacamd.groupby(
-        ["plant_id_epa", "emissions_unit_id_epa"]
-    ).filter(
-        lambda x: x.plant_id_eia.nunique() > 1  # noqa: PD101
-        and x.report_year.nunique() > 1  # noqa: PD101)
+    # the same plant_id_epa and emissions_unit_id_epa value. Keep the value from
+    # the most recent year.
+    one_to_many = (
+        core_epa__assn_eia_epacamd.sort_values("report_year")
+        .groupby(["plant_id_epa", "emissions_unit_id_epa"])
+        .filter(
+            lambda x: x.plant_id_eia.nunique() > 1  # noqa: PD101
+            and x.report_year.nunique() > 1  # noqa: PD101
+        )
     )
-    # For each mismatch drop the one from 2018, then drop report_year column
+    logger.info(f"The following crosswalk matches are duplicated: \n{one_to_many}")
+
+    if (
+        not one_to_many.empty
+    ):  # When running the fast ETL, there are no rows of data here.
+        # Assert some expectations about the duplicated matches
+        assert len(one_to_many) <= 8, (
+            f"{len(one_to_many)} rows found with changes in matches over time."
+        )
+        assert one_to_many.plant_id_eia.unique() == 63628
+        # Check there are only two years of data, so we can drop one below
+        assert one_to_many.report_year.unique() == (2018, 2019)
+
+    # For this one plant, we drop the first year of data and keep 2019 records.
     return core_epa__assn_eia_epacamd.drop(
         one_to_many[one_to_many.report_year == 2018].index
     ).drop(["report_year"], axis=1)

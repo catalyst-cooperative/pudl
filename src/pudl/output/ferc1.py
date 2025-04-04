@@ -3,6 +3,7 @@
 import importlib
 import re
 from copy import deepcopy
+from dataclasses import dataclass
 from functools import cached_property
 from typing import Any, Literal, NamedTuple, Self
 
@@ -202,7 +203,7 @@ is a tree structure to being a dag. These xbrl_factoids were added in
 def get_core_ferc1_asset_description(asset_name: str) -> str:
     """Get the asset description portion of a core FERC FORM 1 asset.
 
-    This is useful when programatically constructing output assets
+    This is useful when programmatically constructing output assets
     from core assets using asset factories.
 
     Args:
@@ -219,7 +220,7 @@ def get_core_ferc1_asset_description(asset_name: str) -> str:
     else:
         raise ValueError(
             f"The asset description can not be parsed from {asset_name}"
-            "because it is not a valide core FERC Form 1 asset name."
+            "because it is not a valid core FERC Form 1 asset name."
         )
     return asset_description
 
@@ -892,7 +893,7 @@ def _aggregatable_dimension_tags(
     idx = list(NodeId._fields)
     tags_df = (
         pd.read_csv(tags_csv)
-        .assign(**{dim: pd.NA for dim in dimensions})
+        .assign(**dict.fromkeys(dimensions, pd.NA))
         .astype(pd.StringDtype())
         .pipe(
             pudl.transform.ferc1.make_xbrl_factoid_dimensions_explicit,
@@ -936,7 +937,7 @@ def exploded_table_asset_factory(
     ins |= {table_name: AssetIn(table_name) for table_name in table_names}
 
     @asset(
-        name=f"_out_ferc1__detailed_{get_core_ferc1_asset_description(root_table)}",
+        name=f"out_ferc1__yearly_detailed_{get_core_ferc1_asset_description(root_table)}",
         ins=ins,
         io_manager_key=io_manager_key,
     )
@@ -995,6 +996,7 @@ EXPLOSION_ARGS = [
             ),
         ],
         "off_by_facts": [],
+        "io_manager_key": "pudl_io_manager",
     },
     {
         "root_table": "core_ferc1__yearly_balance_sheet_assets_sched110",
@@ -1054,6 +1056,7 @@ EXPLOSION_ARGS = [
                 pd.NA,
             ),
         ],
+        "io_manager_key": "pudl_io_manager",
     },
     {
         "root_table": "core_ferc1__yearly_balance_sheet_liabilities_sched110",
@@ -1074,6 +1077,7 @@ EXPLOSION_ARGS = [
             )
         ],
         "off_by_facts": [],
+        "io_manager_key": "pudl_io_manager",
     },
 ]
 
@@ -1434,28 +1438,18 @@ class Exploder:
             .pipe(self.reconcile_intertable_calculations)
             .pipe(self.calculation_forest.leafy_data, value_col=self.value_col)
         )
-        # Identify which columns should be kept in the output...
-        # TODO: Define schema for the tables explicitly.
-        cols_to_keep = list(set(self.exploded_pks + self.dimensions + [self.value_col]))
-        if ("utility_type" in cols_to_keep) and (
-            "utility_type_other" in exploded.columns
-        ):
-            cols_to_keep += ["utility_type_other"]
-        cols_to_keep += exploded.filter(regex="tags.*").columns.to_list()
-        cols_to_keep += [
-            "ferc_account",
-            "row_type_xbrl",
-        ]
-        exploded = exploded[cols_to_keep]
         # remove the tag_ prefix. the tag verbage is helpful in the context
         # of the forest construction but after that its distracting
         exploded.columns = exploded.columns.str.removeprefix("tags_")
+        exploded = replace_dimension_columns_with_aggregatable(exploded)
 
         # TODO: Validate the root node calculations.
         # Verify that we get the same values for the root nodes using only the input
         # data from the leaf nodes:
         # root_calcs = self.calculation_forest.root_calculations
-        return exploded.convert_dtypes()
+
+        # convert_cols_dtypes mostly to properly conver the booleans!
+        return pudl.helpers.convert_cols_dtypes(exploded)
 
     def initial_explosion_concatenation(
         self, tables_to_explode: dict[str, pd.DataFrame]
@@ -2634,11 +2628,11 @@ def check_for_correction_xbrl_factoids_with_tag(
 
 check_specs_detailed_tables_tags = [
     {
-        "asset": "_out_ferc1__detailed_balance_sheet_assets",
-        "tag_columns": ["in_rate_base", "aggregatable_utility_type"],
+        "asset": "out_ferc1__yearly_detailed_balance_sheet_assets",
+        "tag_columns": ["in_rate_base", "utility_type"],
     },
     {
-        "asset": "_out_ferc1__detailed_balance_sheet_liabilities",
+        "asset": "out_ferc1__yearly_detailed_balance_sheet_liabilities",
         "tag_columns": ["in_rate_base"],
     },
 ]
@@ -2675,23 +2669,23 @@ def make_check_correction_tags(spec) -> AssetChecksDefinition:
     return _check
 
 
-_checks = [
+_tag_checks = [
     make_check_tag_propagation(spec) for spec in check_specs_detailed_tables_tags
 ] + [make_check_correction_tags(spec) for spec in check_specs_detailed_tables_tags]
 
 
 @asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def out_ferc1__yearly_rate_base(
-    _out_ferc1__detailed_balance_sheet_assets: pd.DataFrame,
-    _out_ferc1__detailed_balance_sheet_liabilities: pd.DataFrame,
+    out_ferc1__yearly_detailed_balance_sheet_assets: pd.DataFrame,
+    out_ferc1__yearly_detailed_balance_sheet_liabilities: pd.DataFrame,
     core_ferc1__yearly_operating_expenses_sched320: pd.DataFrame,
 ) -> pd.DataFrame:
     """Make a table of granular utility rate base data.
 
     This table contains granular data consisting of what utilities can
     include in their rate bases. This information comes from two core
-    inputs: ``_out_ferc1__detailed_balance_sheet_assets`` and
-    ``_out_ferc1__detailed_balance_sheet_liabilities``. These two detailed tables
+    inputs: ``out_ferc1__yearly_detailed_balance_sheet_assets`` and
+    ``out_ferc1__yearly_detailed_balance_sheet_liabilities``. These two detailed tables
     are generated from seven different core_ferc1_* accounting tables with
     nested calculations. We chose only the most granular data from these tables.
     See :class:`Exploder` for more details.
@@ -2704,8 +2698,8 @@ def out_ferc1__yearly_rate_base(
     columns: ``utility_type`` and ``in_rate_base`` via
     :func:`disaggregate_null_or_total_tag`.
     """
-    assets = _out_ferc1__detailed_balance_sheet_assets
-    liabilities = _out_ferc1__detailed_balance_sheet_liabilities.assign(
+    assets = out_ferc1__yearly_detailed_balance_sheet_assets
+    liabilities = out_ferc1__yearly_detailed_balance_sheet_liabilities.assign(
         ending_balance=lambda x: -x.ending_balance
     )
     cash_working_capital = prep_cash_working_capital(
@@ -2721,10 +2715,6 @@ def out_ferc1__yearly_rate_base(
                 cash_working_capital,
             ]
         )
-        # Note: This step could happen at the end of the Explode.boom process.
-        # we're doing it here for now to preserve the augmented versions of
-        # the dimensions for a little longer in the process.
-        .pipe(replace_dimension_columns_with_aggregatable)
         .pipe(
             disaggregate_null_or_total_tag,
             tag_col="utility_type",
@@ -2741,47 +2731,101 @@ def out_ferc1__yearly_rate_base(
 
 def replace_dimension_columns_with_aggregatable(df: pd.DataFrame) -> pd.DataFrame:
     """Replace the dimenion columns with their aggregatable counterparts."""
-    dimensions = [f for f in NodeId._fields if f not in ["table_name", "xbrl_factoid"]]
+    # some tables have a dimension column but we didn't augment them
+    # with tags so they never got aggregatable_ columns so we skip those
+    dimensions = [
+        f
+        for f in NodeId._fields
+        if f not in ["table_name", "xbrl_factoid"] and f"aggregatable_{f}" in df
+    ]
     dimensions_tags = [f"aggregatable_{d}" for d in dimensions]
     for dim in dimensions:
         df = df.assign(**{dim: lambda x: x[f"aggregatable_{dim}"]})  # noqa: B023
     return df.drop(columns=dimensions_tags)
 
 
-@asset_check(asset="out_ferc1__yearly_rate_base", blocking=True)
-def check_pks(df):
-    """Check the primary keys of this table.
+@dataclass
+class Ferc1DetailedCheckSpec:
+    """Define some simple checks that can run on FERC 1 assets."""
 
-    We do this as an asset check instead of actually setting them as primary keys
-    in the db schema because there are many expected nulls in these columns.
-    """
-    idx = [
-        "report_year",
-        "utility_id_ferc1",
-        "xbrl_factoid",
-        "table_name",
-        "utility_type",
-        "plant_function",
-        "plant_status",
-    ]
-    dupes = df[
-        df.duplicated(idx, keep=False)
-        # this needs to be in here bc xbrl_factoid==utility_plant_net_correction
-        # had correcitons w/ total and sub-dimensions utility types
-        # and then we dissagregated the total utility_type into the
-        # sub-dimensions
-        & (df.xbrl_factoid != "utility_plant_net_correction")
-        # this needs to be here bc we condensed two kinds of hydro
-        # plant functions (conventional & pumped storage) into one
-        # categeory for easier id-ing of all the hydro assets/liabiltiies
-        & (df.plant_function != "hydraulic_production")
-    ]
-    if not dupes.empty:
-        raise AssertionError(
-            "Found duplicate records given expected primary keys of the table:\n"
-            f"{dupes.set_index(idx).sort_index()}"
-        )
-    return AssetCheckResult(passed=True)
+    name: str
+    asset: str
+    idx: dict[int, int]
+
+
+check_specs = [
+    Ferc1DetailedCheckSpec(
+        name="out_ferc1__yearly_rate_base_check_spec",
+        asset="out_ferc1__yearly_rate_base",
+        idx=[
+            "report_year",
+            "utility_id_ferc1",
+            "xbrl_factoid",
+            "utility_type",
+            "plant_function",
+            "plant_status",
+        ],
+    ),
+    Ferc1DetailedCheckSpec(
+        name="out_ferc1__yearly_detailed_balance_sheet_assets_check_spec",
+        asset="out_ferc1__yearly_detailed_balance_sheet_assets",
+        idx=[
+            "report_year",
+            "utility_id_ferc1",
+            "xbrl_factoid",
+            "utility_type",
+            "plant_function",
+            "plant_status",
+        ],
+    ),
+    Ferc1DetailedCheckSpec(
+        name="out_ferc1__yearly_detailed_balance_sheet_liabilitiess_check_spec",
+        asset="out_ferc1__yearly_detailed_balance_sheet_liabilities",
+        idx=["report_year", "utility_id_ferc1", "xbrl_factoid", "utility_type"],
+    ),
+    Ferc1DetailedCheckSpec(
+        name="out_ferc1__yearly_detailed_income_statements_check_spec",
+        asset="out_ferc1__yearly_detailed_income_statements",
+        idx=[
+            "report_year",
+            "utility_id_ferc1",
+            "xbrl_factoid",
+            "utility_type",
+            "plant_function",
+        ],
+    ),
+]
+
+
+def make_idx_check(spec: Ferc1DetailedCheckSpec) -> AssetChecksDefinition:
+    """Turn the Ferc1DetailedCheckSpec into an actual Dagster asset check."""
+
+    @asset_check(asset=spec.asset, blocking=True)
+    def _idx_check(df):
+        """Check the primary keys of this table.
+
+        We do this as an asset check instead of actually setting them as primary keys
+        in the db schema because there are many expected nulls in these columns.
+        """
+        idx = spec.idx
+        dupes = df[df.duplicated(idx, keep=False)]
+        if "plant_function" in dupes:
+            # this needs to be here bc we condensed two kinds of hydro
+            # plant functions (conventional & pumped storage) into one
+            # categeory for easier id-ing of all the hydro assets/liabiltiies
+            dupes = dupes[dupes.plant_function != "hydraulic_production"]
+
+        if not dupes.empty:
+            raise AssertionError(
+                "Found duplicate records given expected primary keys of the table:\n"
+                f"{dupes.set_index(idx).sort_index()}"
+            )
+        return AssetCheckResult(passed=True)
+
+    return _idx_check
+
+
+_idx_checks = [make_idx_check(spec) for spec in check_specs]
 
 
 def prep_cash_working_capital(

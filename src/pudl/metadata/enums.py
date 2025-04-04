@@ -1,7 +1,8 @@
 """Enumerations of valid field values."""
 
-from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
+from pudl.metadata.dfs import IMPUTATION_REASON_CODES, POLITICAL_SUBDIVISIONS
 
+IMPUTATION_CODES: set[str] = set(IMPUTATION_REASON_CODES.code)
 COUNTRY_CODES_ISO3166: set[str] = set(POLITICAL_SUBDIVISIONS.country_code)
 SUBDIVISION_CODES_ISO3166: set[str] = set(POLITICAL_SUBDIVISIONS.subdivision_code)
 EPACEMS_STATES: set[str] = set(
@@ -94,15 +95,18 @@ GENERATION_ENERGY_SOURCES_EIA930 = [
     "solar",
     "unknown",
     "wind",
+    "battery_storage",
+    "geothermal",
+    "hydro_excluding_pumped_storage",
+    "other_energy_storage",
+    "pumped_storage",
+    "solar_w_integrated_battery_storage",
+    "solar_wo_integrated_battery_storage",
+    "unknown_energy_storage",
+    "wind_w_integrated_battery_storage",
+    "wind_wo_integrated_battery_storage",
 ]
-"""Energy sources used to categorize generation in the EIA 930 data.
-
-These strings are used to construct a multi-index for stacking the net generation data
-and must not contain underscores, as that character is used to split the longer column
-names into different parts.
-"""
-for energy_source in GENERATION_ENERGY_SOURCES_EIA930:
-    assert "_" not in energy_source
+"""Energy sources used to categorize generation in the EIA 930 data."""
 
 ELECTRICITY_MARKET_MODULE_REGIONS: list[str] = [
     "florida_reliability_coordinating_council",
