@@ -1,8 +1,8 @@
-"""consolidate sec10k migrations
+"""Re-consolidate alembic migrations to rename constraints
 
-Revision ID: 5171086d7f2b
+Revision ID: 86f3e64fecd9
 Revises: 58ff77a4079c
-Create Date: 2025-04-03 10:30:52.741779
+Create Date: 2025-04-03 22:54:52.112340
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '5171086d7f2b'
+revision = '86f3e64fecd9'
 down_revision = '58ff77a4079c'
 branch_labels = None
 depends_on = None
@@ -29,6 +29,17 @@ def upgrade() -> None:
     sa.Column('name_change_date', sa.Date(), nullable=False, comment='Date of last name change of the company.'),
     sa.Column('company_name_old', sa.Text(), nullable=True, comment='Name of company prior to name change.'),
     sa.Column('company_name_new', sa.Text(), nullable=True, comment='Name of company after name change.')
+    )
+    op.create_table('out_sec10k__quarterly_filings',
+    sa.Column('filename_sec10k', sa.Text(), nullable=False, comment='Unique portion of the filename associated with the SEC 10-K filing in the EDGAR database. The full source URL can be reconstructed by prepending https://www.sec.gov/Archives/edgar/data/ and adding the .txt file type extension.'),
+    sa.Column('central_index_key', sa.Text(), nullable=True, comment='Identifier of the company in SEC database.'),
+    sa.Column('company_name', sa.Text(), nullable=True, comment='Name of company submitting SEC 10k filing.'),
+    sa.Column('sec10k_type', sa.Text(), nullable=True, comment='Specific version of SEC 10-K that was filed. 10-k: the standard annual report. 10-k/a: an amended version of the annual report. 10-k405: filed to report insider trading that was not reported in a timely fashion. 10-k405/a: an amended version of the 10-k405. 10-kt: submitted in lieu of or in addition to a standard 10-K annual report when a company changes the end of its fiscal year (e.g. due to a merger) leaving the company with a longer or shorter reporting period. 10-kt/a: an amended version of the 10-kt. 10-ksb: the annual report for small businesses, also known as penny stocks. 10-ksb/a: an amended version of the 10-ksb.'),
+    sa.Column('filing_date', sa.Date(), nullable=True, comment='Date filing was submitted, reported at a daily frequency.'),
+    sa.Column('exhibit_21_version', sa.Text(), nullable=True, comment='Version of exhibit 21 submitted (if applicable).'),
+    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
+    sa.Column('source_url', sa.Text(), nullable=True, comment='URL pointing to the original source of the data in the record.'),
+    sa.PrimaryKeyConstraint('filename_sec10k', name=op.f('pk_out_sec10k__quarterly_filings'))
     )
     op.create_table('core_sec10k__assn_sec10k_filers_and_eia_utilities',
     sa.Column('central_index_key', sa.Text(), nullable=False, comment='Identifier of the company in SEC database.'),
@@ -124,11 +135,11 @@ def upgrade() -> None:
         batch_op.add_column(sa.Column('mail_zip_code', sa.Text(), nullable=True, comment="Zip code of the company's mailing address."))
         batch_op.add_column(sa.Column('mail_zip_code_4', sa.Text(), nullable=True, comment="Zip code suffix of the company's mailing address."))
         batch_op.add_column(sa.Column('mail_postal_code', sa.Text(), nullable=True, comment="Non-US postal code of the company's mailing address."))
-        batch_op.drop_column('report_date')
         batch_op.drop_column('company_information_fact_name')
+        batch_op.drop_column('company_information_block')
+        batch_op.drop_column('report_date')
         batch_op.drop_column('company_information_block_count')
         batch_op.drop_column('company_information_fact_value')
-        batch_op.drop_column('company_information_block')
 
     with op.batch_alter_table('core_sec10k__quarterly_filings', schema=None) as batch_op:
         batch_op.add_column(sa.Column('sec10k_type', sa.Text(), nullable=True, comment='Specific version of SEC 10-K that was filed. 10-k: the standard annual report. 10-k/a: an amended version of the annual report. 10-k405: filed to report insider trading that was not reported in a timely fashion. 10-k405/a: an amended version of the 10-k405. 10-kt: submitted in lieu of or in addition to a standard 10-K annual report when a company changes the end of its fiscal year (e.g. due to a merger) leaving the company with a longer or shorter reporting period. 10-kt/a: an amended version of the 10-kt. 10-ksb: the annual report for small businesses, also known as penny stocks. 10-ksb/a: an amended version of the 10-ksb.'))
@@ -144,11 +155,11 @@ def downgrade() -> None:
         batch_op.drop_column('sec10k_type')
 
     with op.batch_alter_table('core_sec10k__quarterly_company_information', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('company_information_block', sa.TEXT(), nullable=False))
         batch_op.add_column(sa.Column('company_information_fact_value', sa.TEXT(), nullable=False))
         batch_op.add_column(sa.Column('company_information_block_count', sa.INTEGER(), nullable=False))
-        batch_op.add_column(sa.Column('company_information_fact_name', sa.TEXT(), nullable=False))
         batch_op.add_column(sa.Column('report_date', sa.DATE(), nullable=True))
+        batch_op.add_column(sa.Column('company_information_block', sa.TEXT(), nullable=False))
+        batch_op.add_column(sa.Column('company_information_fact_name', sa.TEXT(), nullable=False))
         batch_op.drop_column('mail_postal_code')
         batch_op.drop_column('mail_zip_code_4')
         batch_op.drop_column('mail_zip_code')
@@ -202,6 +213,7 @@ def downgrade() -> None:
     op.drop_table('out_sec10k__quarterly_company_information')
     op.drop_table('core_sec10k__parents_and_subsidiaries')
     op.drop_table('core_sec10k__assn_sec10k_filers_and_eia_utilities')
+    op.drop_table('out_sec10k__quarterly_filings')
     op.drop_table('out_sec10k__changelog_company_name')
     op.drop_table('core_sec10k__changelog_company_name')
     # ### end Alembic commands ###
