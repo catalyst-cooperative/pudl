@@ -121,6 +121,42 @@ GENERATE_QUANTILE_BOUNDS = [
             },
         ],
     ),
+    GivenExpect(
+        given=dict(
+            title="Median", low_q=0, low_bound=1, hi_q=0, hi_bound=3, **TEMPLATE
+        ),
+        expect=[
+            {
+                "dbt_expectations.expect_column_quantile_values_to_be_between": {
+                    "quantile": 0,
+                    "min_value": 1,
+                    "max_value": 3,
+                    "row_condition": "",
+                    "weight_column": "",
+                }
+            },
+        ],
+    ),
+    GivenExpect(
+        given=dict(
+            title="One-tailed",
+            low_q=False,
+            low_bound=False,
+            hi_q=0,
+            hi_bound=1,
+            **TEMPLATE,
+        ),
+        expect=[
+            {
+                "dbt_expectations.expect_column_quantile_values_to_be_between": {
+                    "quantile": 0,
+                    "max_value": 1,
+                    "row_condition": "",
+                    "weight_column": "",
+                }
+            }
+        ],
+    ),
 ]
 
 
