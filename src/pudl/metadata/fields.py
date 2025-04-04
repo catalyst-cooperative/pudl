@@ -1767,9 +1767,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "fiscal_year_end": {
         "type": "string",
         "description": "The end date of an SEC filing company's fiscal year, in MMDD format.",
-        "constraints": {
-            "pattern": r"^(?:(?:0[1-9]|1[0-2])(?:0[1-9]|1\d|2\d|3[01])|(?:0[13-9]|1[0-2])(?:29|30)|(?:0[13578]|1[02])31)$",
-        },
+        # This REGEXP constraint was causing issues w/ SQLAlchemy / SQLite.
+        # https://github.com/sqlalchemy/sqlalchemy/discussions/12498
+        # "constraints": {
+        #    "pattern": r"^(?:(?:0[1-9]|1[0-2])(?:0[1-9]|1\d|2\d|3[01])|(?:0[13-9]|1[0-2])(?:29|30)|(?:0[13578]|1[02])31)$",
+        # },
     },
     "flow_rate_method": {
         "description": (
