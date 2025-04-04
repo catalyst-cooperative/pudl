@@ -31,4 +31,4 @@ primary_region = "bos"
     timeout = 2000
 
 [deploy]
-wait_timeout = "15m"
+wait_timeout = "25m"
