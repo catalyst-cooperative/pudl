@@ -33,17 +33,17 @@ def _out_eia930__hourly_operations(
         core_eia930__hourly_operations,
         core_eia__codes_balancing_authorities,
     )
-    core_eia930__hourly_operations = core_eia930__hourly_operations.rename(
-        columns={
-            "demand_imputed_mwh": "demand_imputed_eia_mwh",
-            "interchange_imputed_mwh": "interchange_imputed_eia_mwh",
-            "net_generation_imputed_mwh": "net_generation_imputed_eia_mwh",
-        }
-    )
     # TODO: BA code WAUE does not have listed timezone, so dropping these records for now
-    return core_eia930__hourly_operations[
-        core_eia930__hourly_operations.timezone.notnull()
-    ]
+    waue_mask = core_eia930__hourly_operations["balancing_authority_code_eia"] == "WAUE"
+    assert core_eia930__hourly_operations.loc[waue_mask, "timezone"].isnull().all(), (
+        "WAUE not expected to have a timezone"
+    )
+    core_eia930__hourly_operations = core_eia930__hourly_operations.loc[~waue_mask]
+    assert core_eia930__hourly_operations.timezone.notnull().all(), (
+        "All records should have a timezone after dropping WAUE"
+    )
+
+    return core_eia930__hourly_operations
 
 
 @asset(

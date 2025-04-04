@@ -164,7 +164,12 @@ def pivot_aligned_timeseries_dataframe(
     aligned_df: DataFrame[AlignedTimeseriesDataFrame],
     periods: int,
 ) -> DataFrame[TimeseriesMatrix]:
-    """Pivot aligned timeseries dataframe into timeseries matrix and pad if needed."""
+    """Pivot aligned timeseries dataframe into timeseries matrix and pad if needed.
+
+    Padding finds the complete list of hours from the start of the first day
+    present in the timeseries to the end of the last, and then fills any missing hours
+    with NULLs.
+    """
     matrix = aligned_df.pivot(index="datetime", columns="id_col", values="value_col")
 
     # Pad matrix with any missing hours from timeseries
