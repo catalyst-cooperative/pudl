@@ -20,7 +20,7 @@ dependencies = [
     "catalystcoop.ferc-xbrl-extractor>=1.5.1,<2",
     "click>=8",
     "coloredlogs>=14.0", # Dagster requires 14.0
-    "conda-lock>=2.5.7",
+    "conda-lock>=3",
     "coverage>=7.6",
     "dagster>=1.10.5",
     "dagster-dbt",  # Automatically follows dagster version
@@ -88,7 +88,7 @@ dependencies = [
     "s3fs>=2024",
     "timezonefinder>=6.2",
     "universal_pathlib>=0.2",
-    "urllib3>=1.26.18",
+    "urllib3>=2",
     "xlsxwriter>=3.2", # pandas[excel]
 ]
 classifiers = [
