@@ -704,7 +704,9 @@ class Field(PudlMeta):
                 checks.append(f"{name} <= {maximum}")
             if self.constraints.pattern:
                 pattern = _format_for_sql(self.constraints.pattern)
-                checks.append(f"{name} REGEXP {pattern}")
+                # Need to escape colons in regex to avoid this issue:
+                # https://github.com/sqlalchemy/sqlalchemy/discussions/12498
+                checks.append(f"{name} REGEXP {pattern.replace(':', r'\:')}")
             if self.constraints.enum:
                 enum = [_format_for_sql(x) for x in self.constraints.enum]
                 checks.append(f"{name} IN ({', '.join(enum)})")
