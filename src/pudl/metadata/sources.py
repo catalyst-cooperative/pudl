@@ -850,7 +850,12 @@ SOURCES: dict[str, Any] = {
         ),
         "field_namespace": "sec",
         "working_partitions": {
-            "years": sorted(set(range(1994, 2023))),
+            "tables": [
+                "raw_sec10k__quarterly_filings",
+                "raw_sec10k__quarterly_company_information",
+                "raw_sec10k__parents_and_subsidiaries",
+                "raw_sec10k__exhibit_21_company_ownership",
+            ],
         },
         "keywords": sorted(
             set(KEYWORDS["sec"] + KEYWORDS["us_govt"] + KEYWORDS["finance"])
