@@ -24,7 +24,7 @@ dependencies:
   - anyio=4.9.0=pyh29332c3_0
   - aom=3.9.1=hac33072_0
   - appdirs=1.4.4=pyhd8ed1ab_1
-  - arelle-release=2.36.39=pyhd8ed1ab_0
+  - arelle-release=2.36.40=pyhd8ed1ab_0
   - argon2-cffi=23.1.0=pyhd8ed1ab_1
   - argon2-cffi-bindings=21.2.0=py312h66e93f0_5
   - arpack=3.9.1=nompi_hf03ea27_102
@@ -108,13 +108,13 @@ dependencies:
   - cyrus-sasl=2.1.27=h54b06d7_7
   - cytoolz=1.0.1=py312h66e93f0_0
   - daff=1.3.46=pyhd8ed1ab_1
-  - dagster=1.10.8=pyh56b92e0_12
-  - dagster-dbt=1!0.26.8=pyh29332c3_0
-  - dagster-graphql=1.10.8=pyh49bb05e_0
-  - dagster-pipes=1.10.8=pyh49bb05e_0
-  - dagster-postgres=1!0.26.8=pyh29332c3_0
-  - dagster-shared=0.26.8=pyh49bb05e_0
-  - dagster-webserver=1.10.8=pyh49bb05e_0
+  - dagster=1.10.9=pyh56b92e0_12
+  - dagster-dbt=1!0.26.9=pyh29332c3_0
+  - dagster-graphql=1.10.9=pyh49bb05e_0
+  - dagster-pipes=1.10.9=pyh49bb05e_0
+  - dagster-postgres=1!0.26.9=pyh29332c3_0
+  - dagster-shared=0.26.9=pyh49bb05e_0
+  - dagster-webserver=1.10.9=pyh49bb05e_0
   - dask=2025.3.0=pyhd8ed1ab_0
   - dask-core=2025.3.0=pyhd8ed1ab_0
   - dask-expr=2.0.0=pyhd8ed1ab_0
@@ -186,7 +186,7 @@ dependencies:
   - giflib=5.2.2=hd590300_0
   - gitdb=4.0.12=pyhd8ed1ab_0
   - gitpython=3.1.44=pyhff2d567_0
-  - glib-tools=2.84.0=h4833e2c_0
+  - glib-tools=2.84.1=h4833e2c_0
   - glog=0.7.1=hbabe93e_0
   - glpk=5.0=h445213a_0
   - gmp=6.3.0=hac33072_2
@@ -309,7 +309,7 @@ dependencies:
   - libgdal-core=3.10.1=h3359108_2
   - libgfortran=14.2.0=h69a702a_2
   - libgfortran5=14.2.0=hf1ad2bd_2
-  - libglib=2.84.0=h2ff4ddf_0
+  - libglib=2.84.1=h2ff4ddf_0
   - libgomp=14.2.0=h767d61c_2
   - libgoogle-cloud=2.36.0=hc4361e1_1
   - libgoogle-cloud-storage=2.36.0=h0121fbd_1
@@ -319,7 +319,7 @@ dependencies:
   - libjpeg-turbo=3.0.0=hd590300_1
   - libkml=1.3.0=hf539b9f_1021
   - liblapack=3.9.0=31_h7ac8fdf_openblas
-  - liblzma=5.6.4=hb9d3cd8_0
+  - liblzma=5.8.1=hb9d3cd8_0
   - libnghttp2=1.64.0=h161d5f1_0
   - libnsl=2.0.1=hd590300_0
   - libntlm=1.8=hb9d3cd8_0
@@ -348,7 +348,7 @@ dependencies:
   - libxcb=1.17.0=h8a09558_0
   - libxcrypt=4.4.36=hd590300_1
   - libxkbcommon=1.8.1=hc4a0caf_0
-  - libxml2=2.13.7=h8d12d68_0
+  - libxml2=2.13.7=h4bc477f_1
   - libxslt=1.1.39=h76b75d6_0
   - libzlib=1.3.1=hb9d3cd8_2
   - llvmlite=0.44.0=py312h374181b_1
@@ -520,7 +520,7 @@ dependencies:
   - rsa=4.9=pyhd8ed1ab_1
   - ruamel.yaml=0.18.10=py312h66e93f0_0
   - ruamel.yaml.clib=0.2.8=py312h66e93f0_1
-  - ruff=0.11.3=py312hf79aa60_0
+  - ruff=0.11.4=py312h286b59f_0
   - ruff-lsp=0.0.62=pyhd8ed1ab_0
   - s2n=1.5.15=hd830067_0
   - s3fs=2025.3.2=pyhd8ed1ab_0
@@ -530,7 +530,7 @@ dependencies:
   - secretstorage=3.3.3=py312h7900ff3_3
   - semver=3.0.4=pyhd8ed1ab_0
   - send2trash=1.8.3=pyh0d859eb_1
-  - setuptools=75.8.2=pyhff2d567_0
+  - setuptools=78.1.0=pyhff2d567_0
   - shapely=2.0.7=py312h391bc85_0
   - shellingham=1.5.4=pyhd8ed1ab_1
   - simpleeval=0.9.13=pyhd8ed1ab_1
@@ -593,11 +593,11 @@ dependencies:
   - typer-slim=0.15.2=pyh29332c3_0
   - typer-slim-standard=0.15.2=h801b22e_0
   - types-python-dateutil=2.9.0.20241206=pyhd8ed1ab_0
-  - types-pyyaml=6.0.12.20241230=pyhd8ed1ab_0
+  - types-pyyaml=6.0.12.20250402=pyhd8ed1ab_0
   - types-requests=2.32.0.20250306=pyhd8ed1ab_0
-  - typing-extensions=4.13.0=h9fa5a19_1
+  - typing-extensions=4.13.1=hf5ce1d7_0
   - typing-inspection=0.4.0=pyhd8ed1ab_0
-  - typing_extensions=4.13.0=pyh29332c3_1
+  - typing_extensions=4.13.1=pyh29332c3_0
   - typing_inspect=0.9.0=pyhd8ed1ab_1
   - typing_utils=0.1.0=pyhd8ed1ab_1
   - tzdata=2025b=h78e105d_0

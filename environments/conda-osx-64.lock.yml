@@ -23,7 +23,7 @@ dependencies:
   - aom=3.9.1=hf036a51_0
   - appdirs=1.4.4=pyhd8ed1ab_1
   - appnope=0.1.4=pyhd8ed1ab_1
-  - arelle-release=2.36.39=pyhd8ed1ab_0
+  - arelle-release=2.36.40=pyhd8ed1ab_0
   - argon2-cffi=23.1.0=pyhd8ed1ab_1
   - argon2-cffi-bindings=21.2.0=py312hb553811_5
   - arpack=3.9.1=nompi_hdfe9103_102
@@ -105,13 +105,13 @@ dependencies:
   - cyrus-sasl=2.1.27=hf9bab2b_7
   - cytoolz=1.0.1=py312h01d7ebd_0
   - daff=1.3.46=pyhd8ed1ab_1
-  - dagster=1.10.8=pyh56b92e0_12
-  - dagster-dbt=1!0.26.8=pyh29332c3_0
-  - dagster-graphql=1.10.8=pyh49bb05e_0
-  - dagster-pipes=1.10.8=pyh49bb05e_0
-  - dagster-postgres=1!0.26.8=pyh29332c3_0
-  - dagster-shared=0.26.8=pyh49bb05e_0
-  - dagster-webserver=1.10.8=pyh49bb05e_0
+  - dagster=1.10.9=pyh56b92e0_12
+  - dagster-dbt=1!0.26.9=pyh29332c3_0
+  - dagster-graphql=1.10.9=pyh49bb05e_0
+  - dagster-pipes=1.10.9=pyh49bb05e_0
+  - dagster-postgres=1!0.26.9=pyh29332c3_0
+  - dagster-shared=0.26.9=pyh49bb05e_0
+  - dagster-webserver=1.10.9=pyh49bb05e_0
   - dask=2025.3.0=pyhd8ed1ab_0
   - dask-core=2025.3.0=pyhd8ed1ab_0
   - dask-expr=2.0.0=pyhd8ed1ab_0
@@ -309,7 +309,7 @@ dependencies:
   - libjpeg-turbo=3.0.0=h0dc2134_1
   - libkml=1.3.0=h9ee1731_1021
   - liblapack=3.9.0=31_h236ab99_openblas
-  - liblzma=5.6.4=hd471939_0
+  - liblzma=5.8.1=hd471939_0
   - libnghttp2=1.64.0=hc7306c3_0
   - libntlm=1.8=h6e16a3a_0
   - libopenblas=0.3.29=openmp_hbf64a52_0
@@ -332,7 +332,7 @@ dependencies:
   - libuv=1.50.0=h4cb831e_0
   - libwebp-base=1.5.0=h6cf52b4_0
   - libxcb=1.17.0=hf1f96e2_0
-  - libxml2=2.13.7=hebb159f_0
+  - libxml2=2.13.7=h93c44a6_1
   - libxslt=1.1.39=h03b04e6_0
   - libzlib=1.3.1=hd23fc13_2
   - llvm-openmp=20.1.2=ha54dae1_0
@@ -506,7 +506,7 @@ dependencies:
   - rsa=4.9=pyhd8ed1ab_1
   - ruamel.yaml=0.18.10=py312h01d7ebd_0
   - ruamel.yaml.clib=0.2.8=py312h3d0f464_1
-  - ruff=0.11.3=py312ha54e1fc_0
+  - ruff=0.11.4=py312h60e8e2e_0
   - ruff-lsp=0.0.62=pyhd8ed1ab_0
   - s3fs=2025.3.2=pyhd8ed1ab_0
   - s3transfer=0.11.3=pyhd8ed1ab_0
@@ -514,7 +514,7 @@ dependencies:
   - scipy=1.15.2=py312hd04560d_0
   - semver=3.0.4=pyhd8ed1ab_0
   - send2trash=1.8.3=pyh31c8845_1
-  - setuptools=75.8.2=pyhff2d567_0
+  - setuptools=78.1.0=pyhff2d567_0
   - shapely=2.0.7=py312hfb9f375_0
   - shellingham=1.5.4=pyhd8ed1ab_1
   - simpleeval=0.9.13=pyhd8ed1ab_1
@@ -577,11 +577,11 @@ dependencies:
   - typer-slim=0.15.2=pyh29332c3_0
   - typer-slim-standard=0.15.2=h801b22e_0
   - types-python-dateutil=2.9.0.20241206=pyhd8ed1ab_0
-  - types-pyyaml=6.0.12.20241230=pyhd8ed1ab_0
+  - types-pyyaml=6.0.12.20250402=pyhd8ed1ab_0
   - types-requests=2.32.0.20250306=pyhd8ed1ab_0
-  - typing-extensions=4.13.0=h9fa5a19_1
+  - typing-extensions=4.13.1=hf5ce1d7_0
   - typing-inspection=0.4.0=pyhd8ed1ab_0
-  - typing_extensions=4.13.0=pyh29332c3_1
+  - typing_extensions=4.13.1=pyh29332c3_0
   - typing_inspect=0.9.0=pyhd8ed1ab_1
   - typing_utils=0.1.0=pyhd8ed1ab_1
   - tzdata=2025b=h78e105d_0
