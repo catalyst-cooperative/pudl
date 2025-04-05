@@ -1116,7 +1116,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Day ahead demand forecast.",
         "unit": "MWh",
     },
-    "demand_imputed_mwh": {
+    "demand_imputed_eia_mwh": {
         "type": "number",
         "description": "Electricity demand calculated by subtracting BA interchange from net generation, with outliers and missing values imputed by EIA.",
         "unit": "MWh",
@@ -2505,7 +2505,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Energy interchange between adjacent balancing authorities, adjusted by EIA to reflect non-physical commercial transfers through pseudo-ties and dynamic scheduling.",
         "unit": "MWh",
     },
-    "interchange_imputed_mwh": {
+    "interchange_imputed_eia_mwh": {
         "type": "number",
         "description": "Energy interchange between adjacent balancing authorities, with outliers and missing values imputed by EIA.",
         "unit": "MWh",
@@ -2972,7 +2972,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Reported net generation adjusted by EIA to reflect non-physical commercial transfers through pseudo-ties and dynamic scheduling.",
         "unit": "MWh",
     },
-    "net_generation_imputed_mwh": {
+    "net_generation_imputed_eia_mwh": {
         "type": "number",
         "description": "Reported net generation with outlying values removed and missing values imputed by EIA.",
         "unit": "MWh",

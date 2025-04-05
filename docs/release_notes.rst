@@ -11,13 +11,27 @@ New Data
 
 FERC 714
 ~~~~~~~~
-* Added the table :ref:`out_ferc714__hourly_planning_area_demand`, which
-  contains an imputed version of demand.
+* We refactored our timseries imputation functions to be more generalized and reusable,
+  so they can be applied to electricity demand curves from both FERC-714 and EIA-930,
+  as well as other time series data in the future. This resulted in some minor changes
+  to the imputation results. See issue :issue:`4112` and PR :pr:`4113`.
+* Added the table :ref:`out_ferc714__hourly_planning_area_demand`, which contains an
+  imputed version of demand. Previously these imputed values were not being distributed
+  directly, and fed into the :ref:`out_ferc714__hourly_estimated_state_demand` table.
 
 EIA 930
 ~~~~~~~
+Work on producing EIA 930 demand curves suitable for use in electricity system modeling
+is being done in collaboration with :user:`awongel` at
+`Carnegie Science <https://carnegiescience.edu>`__, with support from `GridLab
+<https://gridlab.org>`__. See issue :issue:`4083` for a list of related issues.
+
 * Added the table :ref:`out_eia930__hourly_subregion_demand`, which
-  contains an imputed version of subregion demand.
+  contains an imputed version of subregion demand. See issues :issue:`4124,4136` and PR
+  :pr:`4149`
+* Added the table :ref:`out_eia930__hourly_operations`, which
+  contains an imputed version of BA level demand. See issue :issue:`4138` and PR
+  :pr:`4162`
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
