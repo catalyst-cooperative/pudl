@@ -206,8 +206,9 @@ class ZenodoDoiSettings(BaseSettings):
     ferc60: ZenodoDoi = "10.5281/zenodo.13149090"
     ferc714: ZenodoDoi = "10.5281/zenodo.13149091"
     gridpathratoolkit: ZenodoDoi = "10.5281/zenodo.10892394"
-    phmsagas: ZenodoDoi = "10.5281/zenodo.10493790"
     nrelatb: ZenodoDoi = "10.5281/zenodo.12658647"
+    phmsagas: ZenodoDoi = "10.5281/zenodo.10493790"
+    sec10k: ZenodoDoi = "10.5072/zenodo.194523"
     vcerare: ZenodoDoi = "10.5281/zenodo.13937523"
 
     model_config = SettingsConfigDict(

@@ -9,37 +9,56 @@ Zenodo archiving system we use for all of our other inputs. See:
 https://github.com/catalyst-cooperative/pudl/issues/4065
 """
 
+from io import BytesIO
+
 import dagster as dg
 import pandas as pd
 
-
-def _load_table_from_gcs(table_name: str) -> pd.DataFrame:
-    return pd.read_parquet(f"gs://model-outputs.catalyst.coop/sec10k/{table_name}")
-
-
-@dg.asset(group_name="raw_sec10k")
-def raw_sec10k__quarterly_filings() -> pd.DataFrame:
-    """Metadata of all SEC 10-K filings."""
-    return _load_table_from_gcs("core_sec10k__filings")
+from pudl.settings import DataSource, Sec10kSettings
+from pudl.workspace.datastore import Datastore
 
 
-@dg.asset(group_name="raw_sec10k")
-def raw_sec10k__quarterly_company_information() -> pd.DataFrame:
-    """Company information extracted from the text headers of SEC 10-K filings."""
-    return _load_table_from_gcs("core_sec10k__company_information")
+def extract(ds: Datastore, table: str, years: list[int]) -> pd.DataFrame:
+    """Extract SEC 10-K data from the datastore.
 
+    Args:
+        ds: Initialized PUDL datastore.
+        partition: Partition selection for the data extraction.
 
-@dg.asset(group_name="raw_sec10k")
-def raw_sec10k__parents_and_subsidiaries() -> pd.DataFrame:
-    """Parent/subsidiary relationships inferred from SEC 10-K filing data."""
-    return _load_table_from_gcs("out_sec10k__parents_and_subsidiaries")
-
-
-@dg.asset(group_name="raw_sec10k")
-def raw_sec10k__exhibit_21_company_ownership() -> pd.DataFrame:
-    """Subsidiary ownership information extracted from SEC 10-K Exhibit 21.
-
-    Exhibit 21 is an unstructured text or PDF attachment to the main SEC 10-K filing
-    that is used to describe the subsidiaries owned by the filing company.
+    Returns:
+        A dataframe containing the SEC 10-K data.
     """
-    return _load_table_from_gcs("core_sec10k__exhibit_21_company_ownership")
+    resource = ds.get_unique_resource("sec10k", table_name=table)
+    df = pd.read_parquet(BytesIO(resource))
+    # if "year_quarter" in df.columns:
+    #    # Filter the dataframe by the specified years
+    #    df = df[df["year_quarter"].isin(years)]
+    # elif "report_date" in df.columns:
+    #    # Filter the dataframe by the specified years
+    #    df = df[df["report_date"].dt.year.isin(years)]
+
+    return df
+
+
+def raw_sec10k_asset_factory(table) -> dg.AssetsDefinition:
+    """Extract shit."""
+
+    @dg.asset(
+        group_name="raw_sec10k",
+        name=table,
+        required_resource_keys={"datastore", "dataset_settings"},
+    )
+    def sec10k_asset(context) -> pd.DataFrame:
+        sec10k_settings: Sec10kSettings = context.resources.dataset_settings.sec10k
+        ds: Datastore = context.resources.datastore
+        if table in sec10k_settings.tables:
+            return extract(ds=ds, table=table, years=sec10k_settings.years)
+        raise ValueError(f"Unrecognized SEC 10-K table: {table}")  # pragma: no cover
+
+    return sec10k_asset
+
+
+raw_sec10k_assets = [
+    raw_sec10k_asset_factory(table)
+    for table in DataSource.from_id("sec10k").working_partitions["tables"]
+]
