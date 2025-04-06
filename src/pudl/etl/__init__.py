@@ -243,22 +243,6 @@ default_config = pudl.helpers.get_dagster_execution_config(
 default_config |= pudl.analysis.ml_tools.get_ml_models_config()
 
 
-def create_non_cems_selection(all_assets: list[AssetsDefinition]) -> AssetSelection:
-    """Create a selection of assets excluding CEMS and all downstream assets.
-
-    Args:
-        all_assets: A list of asset definitions to remove CEMS assets from.
-
-    Returns:
-        An asset selection with all_assets assets excluding CEMS assets.
-    """
-    all_asset_keys = pudl.helpers.get_asset_keys(all_assets)
-    all_selection = AssetSelection.assets(*all_asset_keys)
-
-    cems_selection = AssetSelection.assets(AssetKey("core_epacems__hourly_emissions"))
-    return all_selection - cems_selection.downstream()
-
-
 def load_dataset_settings_from_file(setting_filename: str) -> dict:
     """Load dataset settings from a settings file in `pudl.package_data.settings`.
 
@@ -294,12 +278,6 @@ defs: Definitions = Definitions(
             },
         ),
         define_asset_job(
-            name="etl_full_no_cems",
-            selection=create_non_cems_selection(default_assets),
-            description="This job executes all years of all assets except the "
-            "core_epacems__hourly_emissions asset and all assets downstream.",
-        ),
-        define_asset_job(
             name="etl_fast",
             config=default_config
             | {
@@ -310,19 +288,6 @@ defs: Definitions = Definitions(
                 }
             },
             description="This job executes the most recent year of each asset.",
-        ),
-        define_asset_job(
-            name="etl_fast_no_cems",
-            selection=create_non_cems_selection(default_assets),
-            config={
-                "resources": {
-                    "dataset_settings": {
-                        "config": load_dataset_settings_from_file("etl_fast")
-                    }
-                }
-            },
-            description="This job executes the most recent year of each asset except the "
-            "core_epacems__hourly_emissions asset and all assets downstream.",
         ),
     ],
 )
