@@ -180,10 +180,8 @@ class Sec10kSettings(GenericDatasetSettings):
     """An immutable Pydantic model to validate SEC 10-K settings."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("sec10k")
-
-    years: list[int] = list(range(1993, 2024))
-    """The list of valid years for which data is available."""
-
+    years: list[int] = data_source.working_partitions["years"]
+    """The list of valid years for which SEC 10-K data is available."""
     tables: list[str] = data_source.working_partitions["tables"]
 
 

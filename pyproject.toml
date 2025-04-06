@@ -358,10 +358,6 @@ source = ["src/pudl/", "test/integration/", "test/unit/"]
 omit = [
     # Never hit by integration tests:
     "src/pudl/validate.py",
-    # TODO: remove after we fix https://github.com/catalyst-cooperative/pudl/issues/4065
-    "src/pudl/extract/sec10k.py",
-    "src/pudl/transform/sec10k.py",
-    "src/pudl/load/sec10k.py",
 ]
 
 [tool.coverage.report]

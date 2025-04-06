@@ -297,8 +297,8 @@ dependencies:
   - libffi=3.4.6=h1da3d7d_1
   - libgd=2.3.3=hb2c3a21_11
   - libgdal-core=3.10.1=h9ef0d2d_2
-  - libgfortran=5.0.0=14_2_0_h6c33f7e_2
-  - libgfortran5=14.2.0=h6c33f7e_2
+  - libgfortran=14.2.0=14_2_0_heb5dd2a_104
+  - libgfortran5=14.2.0=h2c44a93_104
   - libglib=2.84.0=hdff4504_0
   - libgoogle-cloud=2.36.0=h9484b08_1
   - libgoogle-cloud-storage=2.36.0=h7081f7f_1
@@ -347,7 +347,7 @@ dependencies:
   - mapclassify=2.8.1=pyhd8ed1ab_1
   - markdown=3.6=pyhd8ed1ab_0
   - markdown-it-py=3.0.0=pyhd8ed1ab_1
-  - marko=2.1.2=pyhd8ed1ab_1
+  - marko=2.1.3=pyhd8ed1ab_0
   - markupsafe=3.0.2=py312h998013c_1
   - mashumaro=3.14=pyhd8ed1ab_0
   - matplotlib-base=3.10.1=py312hdbc7e53_0
@@ -361,7 +361,7 @@ dependencies:
   - mlflow-ui=2.21.3=py312h81bd7bf_0
   - more-itertools=10.6.0=pyhd8ed1ab_0
   - msgpack-python=1.1.0=py312h6142ec9_0
-  - multidict=6.2.0=py312hdb8e49c_0
+  - multidict=6.3.2=py312hdb8e49c_0
   - munkres=1.1.4=pyh9f0ad1d_0
   - mypy_extensions=1.0.0=pyha770c72_1
   - narwhals=1.33.0=pyhd8ed1ab_0
@@ -407,7 +407,7 @@ dependencies:
   - pathspec=0.12.1=pyhd8ed1ab_1
   - pbr=6.1.1=pyhd8ed1ab_1
   - pcre2=10.44=h297a79d_2
-  - petl=1.7.15=pyhd8ed1ab_0
+  - petl=1.7.16=pyhd8ed1ab_0
   - pexpect=4.9.0=pyhd8ed1ab_1
   - pickleshare=0.7.5=pyhd8ed1ab_1004
   - pillow=11.1.0=py312h50aef2c_0
@@ -460,7 +460,7 @@ dependencies:
   - pysocks=1.7.1=pyha55dd90_7
   - pytest=8.3.5=pyhd8ed1ab_0
   - pytest-console-scripts=1.4.1=pyhd8ed1ab_1
-  - pytest-cov=6.0.0=pyhd8ed1ab_1
+  - pytest-cov=6.1.1=pyhd8ed1ab_0
   - pytest-mock=3.14.0=pyhd8ed1ab_1
   - pytest-xdist=3.6.1=pyhd8ed1ab_1
   - python=3.12.9=hc22306f_1_cpython
@@ -482,7 +482,7 @@ dependencies:
   - pyu2f=0.1.5=pyhd8ed1ab_1
   - pywin32-on-windows=0.1.0=pyh1179c8e_3
   - pyyaml=6.0.2=py312h998013c_2
-  - pyzmq=26.3.0=py312hf4875e0_0
+  - pyzmq=26.4.0=py312hf4875e0_0
   - qhull=2020.2=h420ef59_5
   - querystring_parser=1.2.4=pyhd8ed1ab_2
   - rav1e=0.6.6=h69fbcac_2

@@ -856,6 +856,7 @@ SOURCES: dict[str, Any] = {
                 "raw_sec10k__parents_and_subsidiaries",
                 "raw_sec10k__exhibit_21_company_ownership",
             ],
+            "years": sorted(range(1993, 2024)),
         },
         "keywords": sorted(
             set(KEYWORDS["sec"] + KEYWORDS["us_govt"] + KEYWORDS["finance"])

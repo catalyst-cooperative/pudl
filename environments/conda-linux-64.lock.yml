@@ -362,7 +362,7 @@ dependencies:
   - mapclassify=2.8.1=pyhd8ed1ab_1
   - markdown=3.6=pyhd8ed1ab_0
   - markdown-it-py=3.0.0=pyhd8ed1ab_1
-  - marko=2.1.2=pyhd8ed1ab_1
+  - marko=2.1.3=pyhd8ed1ab_0
   - markupsafe=3.0.2=py312h178313f_1
   - mashumaro=3.14=pyhd8ed1ab_0
   - matplotlib-base=3.10.1=py312hd3ec401_0
@@ -376,7 +376,7 @@ dependencies:
   - mlflow-ui=2.21.3=py312h7900ff3_0
   - more-itertools=10.6.0=pyhd8ed1ab_0
   - msgpack-python=1.1.0=py312h68727a3_0
-  - multidict=6.2.0=py312h178313f_0
+  - multidict=6.3.2=py312h178313f_0
   - munkres=1.1.4=pyh9f0ad1d_0
   - mypy_extensions=1.0.0=pyha770c72_1
   - narwhals=1.33.0=pyhd8ed1ab_0
@@ -423,7 +423,7 @@ dependencies:
   - pathspec=0.12.1=pyhd8ed1ab_1
   - pbr=6.1.1=pyhd8ed1ab_1
   - pcre2=10.44=hba22ea6_2
-  - petl=1.7.15=pyhd8ed1ab_0
+  - petl=1.7.16=pyhd8ed1ab_0
   - pexpect=4.9.0=pyhd8ed1ab_1
   - pickleshare=0.7.5=pyhd8ed1ab_1004
   - pillow=11.1.0=py312h80c1187_0
@@ -474,7 +474,7 @@ dependencies:
   - pysocks=1.7.1=pyha55dd90_7
   - pytest=8.3.5=pyhd8ed1ab_0
   - pytest-console-scripts=1.4.1=pyhd8ed1ab_1
-  - pytest-cov=6.0.0=pyhd8ed1ab_1
+  - pytest-cov=6.1.1=pyhd8ed1ab_0
   - pytest-mock=3.14.0=pyhd8ed1ab_1
   - pytest-xdist=3.6.1=pyhd8ed1ab_1
   - python=3.12.9=h9e4cc4f_1_cpython
@@ -496,7 +496,7 @@ dependencies:
   - pyu2f=0.1.5=pyhd8ed1ab_1
   - pywin32-on-windows=0.1.0=pyh1179c8e_3
   - pyyaml=6.0.2=py312h178313f_2
-  - pyzmq=26.3.0=py312hbf22597_0
+  - pyzmq=26.4.0=py312hbf22597_0
   - qhull=2020.2=h434a139_5
   - querystring_parser=1.2.4=pyhd8ed1ab_2
   - rav1e=0.6.6=he8a937b_2
