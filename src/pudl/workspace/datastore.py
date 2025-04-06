@@ -208,7 +208,7 @@ class ZenodoDoiSettings(BaseSettings):
     gridpathratoolkit: ZenodoDoi = "10.5281/zenodo.10892394"
     nrelatb: ZenodoDoi = "10.5281/zenodo.12658647"
     phmsagas: ZenodoDoi = "10.5281/zenodo.10493790"
-    sec10k: ZenodoDoi = "10.5072/zenodo.194523"
+    sec10k: ZenodoDoi = "10.5281/zenodo.15161694"
     vcerare: ZenodoDoi = "10.5281/zenodo.13937523"
 
     model_config = SettingsConfigDict(
