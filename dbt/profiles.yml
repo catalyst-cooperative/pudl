@@ -16,4 +16,4 @@ pudl_dbt:
       type: duckdb
       path: "{{ env_var('PUDL_OUTPUT') }}/pudl_dbt_tests.duckdb"
 
-  target: nightly
+  target: etl-full
