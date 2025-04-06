@@ -32,7 +32,7 @@ def extract(ds: Datastore, table: str, years: list[int]) -> pd.DataFrame:
     Returns:
         A dataframe containing the SEC 10-K data.
     """
-    resource = ds.get_unique_resource("sec10k", table_name=table)
+    resource = ds.get_unique_resource("sec10k", table=table)
     df = pd.read_parquet(BytesIO(resource))
     if "year_quarter" in df.columns:
         date_col = "year_quarter"
