@@ -8,7 +8,7 @@ sources:
               table_name: _out_eia__yearly_generators
               partition_column: report_date
           - expect_consistent_generator_ids:
-              # Number of failures as of March 2025:
+              description: There are 60 known failures as of March 2025.
               n_acceptable_failures: 60
         columns:
           - name: report_date

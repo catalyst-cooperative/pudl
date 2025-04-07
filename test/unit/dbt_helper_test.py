@@ -24,7 +24,7 @@ from pudl.scripts.dbt_helper import (
 TEMPLATE = {
     "data_col": "data",
     "query": "",
-    "weight_col": "",
+    "weight_col": "weight",
 }
 
 
@@ -81,7 +81,7 @@ GENERATE_QUANTILE_BOUNDS = [
             {
                 "expect_quantile_constraints": {
                     "row_condition": "",
-                    "weight_column": "",
+                    "weight_column": "weight",
                     "constraints": [
                         {
                             "quantile": 0,
@@ -98,7 +98,7 @@ GENERATE_QUANTILE_BOUNDS = [
             {
                 "expect_quantile_constraints": {
                     "row_condition": "",
-                    "weight_column": "",
+                    "weight_column": "weight",
                     "constraints": [
                         {
                             "quantile": 0,
@@ -117,7 +117,7 @@ GENERATE_QUANTILE_BOUNDS = [
             {
                 "expect_quantile_constraints": {
                     "row_condition": "",
-                    "weight_column": "",
+                    "weight_column": "weight",
                     "constraints": [
                         {
                             "quantile": 0,
@@ -140,7 +140,7 @@ GENERATE_QUANTILE_BOUNDS = [
             {
                 "expect_quantile_constraints": {
                     "row_condition": "",
-                    "weight_column": "",
+                    "weight_column": "weight",
                     "constraints": [
                         {
                             "quantile": 0,
@@ -167,7 +167,7 @@ GENERATE_QUANTILE_BOUNDS = [
             {
                 "expect_quantile_constraints": {
                     "row_condition": "",
-                    "weight_column": "",
+                    "weight_column": "weight",
                     "constraints": [
                         {
                             "quantile": 0,
@@ -312,7 +312,7 @@ QUANTILE_TESTS = [
                 {
                     "expect_quantile_constraints": {
                         "row_condition": "",
-                        "weight_column": "",
+                        "weight_column": "weight",
                         "constraints": [
                             {
                                 "quantile": 0,
@@ -349,7 +349,7 @@ QUANTILE_TESTS = [
                 {
                     "expect_quantile_constraints": {
                         "row_condition": "",
-                        "weight_column": "",
+                        "weight_column": "weight",
                         "constraints": [
                             {
                                 "quantile": 0,
@@ -394,7 +394,6 @@ QUANTILE_TESTS = [
                 {
                     "expect_quantile_constraints": {
                         "row_condition": "a",
-                        "weight_column": "",
                         "constraints": [
                             {
                                 "quantile": 0,
@@ -407,7 +406,6 @@ QUANTILE_TESTS = [
                 {
                     "expect_quantile_constraints": {
                         "row_condition": "b",
-                        "weight_column": "",
                         "constraints": [
                             {
                                 "quantile": 0,
