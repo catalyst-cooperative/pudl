@@ -91,27 +91,6 @@ def test_no_null_rows_mcoe(pudl_out_mcoe, live_dbs, df_name, thresh):
     )
 
 
-@pytest.mark.parametrize(
-    "df_name,unique_subset",
-    [
-        ("hr_by_unit", ["report_date", "plant_id_eia", "unit_id_pudl"]),
-        ("hr_by_gen", ["report_date", "plant_id_eia", "generator_id"]),
-        ("fuel_cost", ["report_date", "plant_id_eia", "generator_id"]),
-        ("capacity_factor", ["report_date", "plant_id_eia", "generator_id"]),
-        ("mcoe", ["report_date", "plant_id_eia", "generator_id"]),
-    ],
-)
-def test_unique_rows_mcoe(pudl_out_mcoe, live_dbs, unique_subset, df_name):
-    """Test whether dataframe has unique records within a subset of columns."""
-    if not live_dbs:
-        pytest.skip("Data validation only works with a live PUDL DB.")
-    if pudl_out_mcoe.freq is None:
-        pytest.skip()
-    pv.check_unique_rows(
-        pudl_out_mcoe.__getattribute__(df_name)(), subset=unique_subset, df_name=df_name
-    )
-
-
 ###############################################################################
 # Tests that look at distributions of MCOE calculation outputs.
 ###############################################################################

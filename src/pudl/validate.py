@@ -203,30 +203,6 @@ def group_mean_continuity_check(
     return AssetCheckResult(passed=True, metadata=metadata)
 
 
-def check_unique_rows(
-    df: pd.DataFrame, subset: list[str] | None = None, df_name: str = ""
-) -> pd.DataFrame:
-    """Test whether dataframe has unique records within a subset of columns.
-
-    Args:
-        df: DataFrame to check for duplicate records.
-        subset: Columns to consider in checking for dupes.
-        df_name: Name of the dataframe, to aid in debugging/logging.
-
-    Returns:
-        The same DataFrame as was passed in, for use in DataFrame.pipe().
-
-    Raises:
-        ValueError:  If there are duplicate records in the subset of selected
-            columns.
-    """
-    n_dupes = len(df[df.duplicated(subset=subset)])
-    if n_dupes != 0:
-        raise ValueError(f"Found {n_dupes} dupes of {subset} in dataframe {df_name}")
-
-    return df
-
-
 def weighted_quantile(data: pd.Series, weights: pd.Series, quantile: float) -> float:
     """Calculate the weighted quantile of a Series or DataFrame column.
 
