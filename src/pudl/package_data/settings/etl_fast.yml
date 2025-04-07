@@ -101,3 +101,5 @@ datasets:
   vcerare:
     years: [2023]
     fips: True
+  sec10k:
+    years: [2022, 2023]

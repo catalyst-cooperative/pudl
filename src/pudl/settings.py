@@ -181,7 +181,7 @@ class Sec10kSettings(GenericDatasetSettings):
 
     data_source: ClassVar[DataSource] = DataSource.from_id("sec10k")
 
-    years: list[int] = range(1993, 2024)
+    years: list[int] = list(range(1993, 2024))
     """The list of years to validate."""
 
     tables: list[str] = data_source.working_partitions["tables"]
@@ -536,6 +536,7 @@ class DatasetsSettings(FrozenBaseModel):
     ferc714: Ferc714Settings | None = None
     glue: GlueSettings | None = None
     phmsagas: PhmsaGasSettings | None = None
+    sec10k: Sec10kSettings | None = None
     nrelatb: NrelAtbSettings | None = None
     gridpathratoolkit: GridPathRAToolkitSettings | None = None
     vcerare: VCERareSettings | None = None
@@ -561,6 +562,7 @@ class DatasetsSettings(FrozenBaseModel):
             data["nrelatb"] = NrelAtbSettings()
             data["gridpathratoolkit"] = GridPathRAToolkitSettings()
             data["vcerare"] = VCERareSettings()
+            data["sec10k"] = Sec10kSettings()
 
         return data
 

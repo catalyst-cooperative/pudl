@@ -9,37 +9,42 @@ Zenodo archiving system we use for all of our other inputs. See:
 https://github.com/catalyst-cooperative/pudl/issues/4065
 """
 
+from io import BytesIO
+
 import dagster as dg
 import pandas as pd
 
-
-def _load_table_from_gcs(table_name: str) -> pd.DataFrame:
-    return pd.read_parquet(f"gs://model-outputs.catalyst.coop/sec10k/{table_name}")
+from pudl.settings import Sec10kSettings
 
 
-@dg.asset(group_name="raw_sec10k")
-def raw_sec10k__quarterly_filings() -> pd.DataFrame:
-    """Metadata of all SEC 10-K filings."""
-    return _load_table_from_gcs("core_sec10k__filings")
+def raw_sec10k_asset_factory(table_name: str):
+    """Provide an asset factory to extract raw SEC10k data from parquet files."""
+
+    @dg.asset(
+        name=table_name,
+        required_resource_keys={"datastore", "dataset_settings"},
+    )
+    def _extract_sec10k_table(context):
+        ds = context.resources.datastore
+        sec10k_settings = context.resources.dataset_settings.sec10k
+        df = pd.read_parquet(
+            BytesIO(ds.get_unique_resource("sec10k", table=table_name)),
+        )
+
+        if "report_year" in df.columns:
+            df = df[df["report_year"].isin(sec10k_settings.years)]
+        elif "year_quarter" in df.columns:
+            df = df[df["year_quarter"].str[:4].isin(map(str, sec10k_settings.years))]
+        else:
+            raise RuntimeError(
+                f"Expected table {table_name} to have a `report_year` or `year_quarter` column."
+            )
+
+        return df
+
+    return _extract_sec10k_table
 
 
-@dg.asset(group_name="raw_sec10k")
-def raw_sec10k__quarterly_company_information() -> pd.DataFrame:
-    """Company information extracted from the text headers of SEC 10-K filings."""
-    return _load_table_from_gcs("core_sec10k__company_information")
-
-
-@dg.asset(group_name="raw_sec10k")
-def raw_sec10k__parents_and_subsidiaries() -> pd.DataFrame:
-    """Parent/subsidiary relationships inferred from SEC 10-K filing data."""
-    return _load_table_from_gcs("out_sec10k__parents_and_subsidiaries")
-
-
-@dg.asset(group_name="raw_sec10k")
-def raw_sec10k__exhibit_21_company_ownership() -> pd.DataFrame:
-    """Subsidiary ownership information extracted from SEC 10-K Exhibit 21.
-
-    Exhibit 21 is an unstructured text or PDF attachment to the main SEC 10-K filing
-    that is used to describe the subsidiaries owned by the filing company.
-    """
-    return _load_table_from_gcs("core_sec10k__exhibit_21_company_ownership")
+assets = [
+    raw_sec10k_asset_factory(table_name) for table_name in Sec10kSettings().tables
+]
