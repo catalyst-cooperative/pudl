@@ -21,7 +21,7 @@ constraint_{{ loop.index0 }} as (
     strictly=strictly
 ) }}
 {% else %}
-{{ dbt_expectations.expect_column_quantile_values_to_be_between(
+{{ dbt_expectations.test_expect_column_quantile_values_to_be_between(
     model=model,
     column_name=column_name,
     quantile=constraint.quantile,
