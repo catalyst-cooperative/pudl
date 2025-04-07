@@ -423,47 +423,60 @@ def _clean_row_condition(row_condition: str) -> str:
     return row_condition
 
 
-def _generate_quantile_bounds_test(test_config: dict) -> list[dict]:
-    """Convert dict of config from `validate.py` to construct config for dbt test."""
-    test_name = _get_test_name(test_config)
+def _check_matching(key, value, list_of_dicts):
+    for d in list_of_dicts:
+        assert value == d[key], (
+            f"Mismatched {key} among\n{'\n'.join(str(d) for d in list_of_dicts)}"
+        )
+
+
+def _generate_quantile_bounds_test(test_configs: list[dict]) -> list[dict]:
+    """Convert config dicts from `validate.py` to dbt test."""
+    test_name = "expect_quantile_constraints"
+
+    row_condition = test_configs[0].get("query")
+    _check_matching("query", row_condition, test_configs[1:])
+
+    weight_column = test_configs[0].get("weight_col")
+    _check_matching("weight_col", weight_column, test_configs[1:])
+
+    constraints = []
     base_entry = {
-        "row_condition": _clean_row_condition(test_config.get("query")),
-        "weight_column": test_config.get("weight_col"),
+        "row_condition": _clean_row_condition(row_condition),
+        "weight_column": weight_column,
+        "constraints": constraints,
     }
-    if (
-        "low_q" in test_config
-        and "hi_q" in test_config
-        and test_config["low_q"] is test_config["hi_q"]
-    ):
-        # then we're trying to capture a single quantile between two bounds;
-        # this can be specified with a single test entry
-        return [
-            {
-                test_name: dict(
-                    quantile=test_config["low_q"],
-                    min_value=test_config["low_bound"],
-                    max_value=test_config["hi_bound"],
-                    **base_entry,
-                )
-            }
-        ]
-    # otherwise, we need separate entries for each quantile
-    return [
-        {
-            test_name: dict(
-                **{
-                    "quantile": test_config[quantile_key],
-                    min_max_value: test_config[bound_key],
-                },
-                **base_entry,
+    for test_config in test_configs:
+        if (
+            "low_q" in test_config
+            and "hi_q" in test_config
+            and test_config["low_q"] is test_config["hi_q"]
+        ):
+            # then we're trying to capture a single quantile between two bounds;
+            # this can be specified with a single test entry
+            constraints.append(
+                {
+                    "quantile": test_config["low_q"],
+                    "min_value": test_config["low_bound"],
+                    "max_value": test_config["hi_bound"],
+                }
             )
-        }
-        for quantile_key, bound_key, min_max_value in [
-            ("low_q", "low_bound", "min_value"),
-            ("hi_q", "hi_bound", "max_value"),
-        ]
-        if (quantile_key in test_config) and test_config[quantile_key] is not False
-    ]
+        # otherwise, we need separate entries for each quantile
+        else:
+            for quantile_key, bound_key, min_max_value in [
+                ("low_q", "low_bound", "min_value"),
+                ("hi_q", "hi_bound", "max_value"),
+            ]:
+                if (quantile_key in test_config) and test_config[
+                    quantile_key
+                ] is not False:
+                    constraints.append(
+                        {
+                            "quantile": test_config[quantile_key],
+                            min_max_value: test_config[bound_key],
+                        }
+                    )
+    return [{test_name: base_entry}]
 
 
 @click.command
@@ -509,16 +522,29 @@ def migrate_tests(table_name: str, test_config_name: str, model_name: str | None
         )
 
     schema = _load_schema_yaml(schema_path)
-    test_config = _get_config(test_config_name)
 
-    dbt_tests = defaultdict(list)
-    for config in test_config:
-        logger.info(f"Adding test {config['title']}")
-        dbt_tests[config["data_col"]] += _generate_quantile_bounds_test(config)
-
-    schema = schema.add_column_tests(dbt_tests)
+    schema = schema.add_column_tests(
+        _convert_config_variable_to_quantile_tests(test_config_name)
+    )
 
     _write_dbt_yaml_config(schema_path, schema)
+
+
+def _convert_config_variable_to_quantile_tests(test_config_name) -> dict:
+    test_config = _get_config(test_config_name)
+
+    configs_by_group = defaultdict(list)
+    for config in test_config:
+        configs_by_group[(config["data_col"], config["query"])].append(config)
+
+    dbt_tests = defaultdict(list)
+    for (data_col, query), configs in configs_by_group.items():
+        logger.info(
+            f"Adding test {data_col} @ {query}: {', '.join(config['title'] for config in configs)}"
+        )
+        dbt_tests[data_col] += _generate_quantile_bounds_test(configs)
+
+    return dbt_tests
 
 
 @click.group(
