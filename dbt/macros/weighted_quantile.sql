@@ -1,4 +1,4 @@
-{% macro weighted_quantile(model, column_name, weight_col, quantile) %}
+{% macro weighted_quantile(model, column_name, weight_col, quantile, row_condition=None) %}
 
 WITH CumulativeWeights AS (
     SELECT
@@ -7,7 +7,8 @@ WITH CumulativeWeights AS (
         SUM({{ weight_col }}) OVER (ORDER BY {{ column_name }}) AS cumulative_weight,
         SUM({{ weight_col }}) OVER () AS total_weight
     FROM {{ model }}
-    WHERE {{ column_name }} IS NOT NULL OR {{ weight_col }} IS NOT NULL
+    WHERE ({{ column_name }} IS NOT NULL OR {{ weight_col }} IS NOT NULL)
+    {% if row_condition %}and {{ row_condition }}{% endif %}
 ),
 QuantileData AS (
     SELECT
