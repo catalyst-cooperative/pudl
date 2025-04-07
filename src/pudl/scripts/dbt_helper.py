@@ -443,9 +443,10 @@ def _generate_quantile_bounds_test(test_configs: list[dict]) -> list[dict]:
     constraints = []
     base_entry = {
         "row_condition": _clean_row_condition(row_condition),
-        "weight_column": weight_column,
         "constraints": constraints,
     }
+    if weight_column:
+        base_entry["weight_column"] = weight_column
     for test_config in test_configs:
         if (
             "low_q" in test_config
@@ -518,7 +519,8 @@ def migrate_tests(table_name: str, test_config_name: str, model_name: str | None
     if not schema_path.exists():
         raise RuntimeError(
             f"Can not migrate tests for table {table_name}, "
-            "because no dbt configuration exists for the table."
+            "because no dbt configuration exists for the table "
+            f"(expected at {schema_path})."
         )
 
     schema = _load_schema_yaml(schema_path)
