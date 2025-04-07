@@ -22,6 +22,7 @@ from pudl.metadata.enums import (
     FUEL_CLASSES,
     FUEL_TYPES_EIAAEO,
     GENERATION_ENERGY_SOURCES_EIA930,
+    IMPUTATION_CODES,
     INCOME_TYPES_FERC1,
     LIABILITY_TYPES_FERC1,
     MODEL_CASES_EIAAEO,
@@ -786,9 +787,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Name of company submitting SEC 10k filing.",
     },
-    "company_name_former": {
+    "company_name_new": {
         "type": "string",
-        "description": "Former name of company.",
+        "description": "Name of company after name change.",
+    },
+    "company_name_old": {
+        "type": "string",
+        "description": "Name of company prior to name change.",
     },
     "compliance_year_nox": {
         "type": "integer",
@@ -1092,6 +1097,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Electricity demand calculated by subtracting BA interchange from net generation, with outliers and missing values imputed by EIA.",
         "unit": "MWh",
+    },
+    "demand_imputed_pudl_mwh": {
+        "type": "number",
+        "description": "Electricity demand calculated by subtracting BA interchange from net generation, with outliers and missing values imputed in PUDL.",
+        "unit": "MWh",
+    },
+    "demand_imputed_pudl_mwh_imputation_code": {
+        "type": "string",
+        "description": "Code describing why a demand value was flagged for imputation.",
+        "constraints": {"enum": IMPUTATION_CODES},
     },
     "demand_reported_mwh": {
         "type": "number",
@@ -1688,7 +1703,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "filename_sec10k": {
         "type": "string",
-        "description": "Name of filing as provided by SEC data portal.",
+        "description": (
+            "Unique portion of the filename associated with the SEC 10-K filing in the "
+            "EDGAR database. The full source URL can be reconstructed by prepending "
+            "https://www.sec.gov/Archives/edgar/data/ and adding the .txt file type "
+            "extension."
+        ),
     },
     "filing_date": {
         "type": "date",
@@ -3211,6 +3231,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "The operating status of the asset using PUDL categories of the record_id_eia_plant_gen record .",
         "constraints": {"enum": ["operating", "retired", "proposed"]},
     },
+    "operator_utility_id_eia": {
+        "type": "integer",
+        "description": "The EIA utility Identification number for the operator utility.",
+    },
     "opex_allowances": {"type": "number", "description": "Allowances.", "unit": "USD"},
     "opex_boiler": {
         "type": "number",
@@ -4236,14 +4260,39 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "sec_act": {
         "type": "string",
         "description": "SEC Act through which the form was enacted, e.g. 1934 act.",
+        # "constraints": {
+        #    "enum": ["1934 act"],
+        # },
     },
     "filing_number_sec": {
         "type": "string",
         "description": "Filing number used internally by the SEC commission to track filing.",
     },
-    "sec10k_version": {
+    "sec10k_type": {
         "type": "string",
-        "description": "Specific version of SEC 10k filed.",
+        "description": (
+            "Specific version of SEC 10-K that was filed. 10-k: the standard annual "
+            "report. 10-k/a: an amended version of the annual report. 10-k405: filed "
+            "to report insider trading that was not reported in a timely fashion. "
+            "10-k405/a: an amended version of the 10-k405. 10-kt: submitted in lieu of "
+            "or in addition to a standard 10-K annual report when a company changes "
+            "the end of its fiscal year (e.g. due to a merger) leaving the company "
+            "with a longer or shorter reporting period. 10-kt/a: an amended version of "
+            "the 10-kt. 10-ksb: the annual report for small businesses, also known as "
+            "penny stocks. 10-ksb/a: an amended version of the 10-ksb."
+        ),
+        # "constraints": {
+        #    "enum": [
+        #        "10-k",
+        #        "10-k/a",
+        #        "10-k405",
+        #        "10-k405/a",
+        #        "10-kt",
+        #        "10-kt/a",
+        #        "10-ksb",
+        #        "10-ksb/a",
+        #    ]
+        # },
     },
     "secondary_transportation_mode_code": {
         "type": "string",
@@ -4483,6 +4532,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Indicates whether the generator is part of a solid fuel gasification system",
     },
+    "source_url": {
+        "type": "string",
+        "description": "URL pointing to the original source of the data in the record.",
+        "constraints": {
+            "pattern": r"^https?://.+",
+        },
+    },
     "specifications_of_coal_ash": {
         "type": "number",
         "description": (
@@ -4590,7 +4646,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "pattern": r"^\d{2}$",
         },
     },
-    "state_of_incorporation": {
+    "incorporation_state": {
         "type": "string",
         "description": "Two letter state code where company is incorporated.",
     },
@@ -5785,11 +5841,84 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Indicates whether bifacial solar panels are used at this solar generating unit."
         ),
     },
+    "business_city": {
+        "type": "string",
+        "description": "City where the company's place of business is located.",
+    },
+    "business_state": {
+        "type": "string",
+        "description": "State where the company's place of business is located.",
+    },
+    "business_street_address": {
+        "type": "string",
+        "description": "Street address of the company's place of business.",
+    },
+    "business_street_address_2": {
+        "type": "string",
+        "description": "Second line of the street address of the company's place of business.",
+    },
+    "business_zip_code": {
+        "type": "string",
+        "description": "Zip code of the company's place of business.",
+        "constraints": {
+            "pattern": r"^\d{5}$",
+        },
+    },
+    "business_zip_code_4": {
+        "type": "string",
+        "description": "Zip code suffix of the company's place of business.",
+        "constraints": {
+            "pattern": r"^\d{4}$",
+        },
+    },
+    "business_postal_code": {
+        "type": "string",
+        "description": "Non-US postal code of the company's place of business.",
+    },
+    "filer_count": {
+        "type": "integer",
+        "description": "A counter indicating which observation of company data within an SEC 10-K filing header the record pertains to.",
+    },
+    # "fraction_owned": {
+    #    "type": "number",
+    #    "description": "Fraction of subsidiary company owned by parent.",
+    # },
+    "mail_street_address": {
+        "type": "string",
+        "description": "Street portion of the company's for mailing address.",
+    },
+    "mail_street_address_2": {
+        "type": "string",
+        "description": "Second line of the street portion of the company's mailing address.",
+    },
+    "mail_city": {
+        "type": "string",
+        "description": "City of the company's mailing address.",
+    },
+    "mail_state": {
+        "type": "string",
+        "description": "State of the company's mailing address.",
+    },
+    "mail_zip_code": {
+        "type": "string",
+        "description": "Zip code of the company's mailing address.",
+        "constraints": {
+            "pattern": r"^\d{5}$",
+        },
+    },
+    "mail_zip_code_4": {
+        "type": "string",
+        "description": "Zip code suffix of the company's mailing address.",
+        "constraints": {
+            "pattern": r"^\d{4}$",
+        },
+    },
+    "mail_postal_code": {
+        "type": "string",
+        "description": "Non-US postal code of the company's mailing address.",
+    },
 }
-"""Field attributes by PUDL identifier (`field.name`).
-
-Keys are in alphabetical order.
-"""
+"""Field attributes by PUDL identifier (`field.name`)."""
 
 FIELD_METADATA_BY_GROUP: dict[str, dict[str, Any]] = {
     "epacems": {
@@ -5840,16 +5969,6 @@ elements which should be overridden need to be specified.
 """
 
 FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
-    "core_sec10k__exhibit_21_company_ownership": {
-        "fraction_owned": {
-            "description": "Fraction of subsidiary company owned by parent.",
-        }
-    },
-    "out_sec10k__parents_and_subsidiaries": {
-        "fraction_owned": {
-            "description": "Fraction of subsidiary company owned by parent.",
-        }
-    },
     "sector_consolidated_eia": {"code": {"type": "integer"}},
     "core_ferc1__yearly_hydroelectric_plants_sched406": {
         "plant_type": {
@@ -6530,6 +6649,30 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
             "unit": "USD_per_MWh",
         }
     },
+    "core_sec10k__changelog_company_name": {
+        "central_index_key": {
+            "constraints": {
+                "required": True,
+            }
+        },
+        "name_change_date": {
+            "constraints": {
+                "required": True,
+            }
+        },
+    },
+    "out_sec10k__changelog_company_name": {
+        "central_index_key": {
+            "constraints": {
+                "required": True,
+            }
+        },
+        "name_change_date": {
+            "constraints": {
+                "required": True,
+            }
+        },
+    },
     "out_ferc1__yearly_rate_base": {
         "plant_function": {
             "type": "string",
@@ -6562,6 +6705,11 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     "out_eia__yearly_assn_plant_parts_plant_gen": {
         "generators_number": {
             "description": "The number of generators associated with each ``record_id_eia``."
+        }
+    },
+    "out_eia860__yearly_ownership": {
+        "utility_id_pudl": {
+            "description": "A manually assigned PUDL utility ID for the owner company that is responsible for the day-to-day operations of the generator, not the operator utility. May not be stable over time."
         }
     },
 }

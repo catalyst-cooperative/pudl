@@ -564,7 +564,7 @@ def groupby_aggregate(
     reports = {}
     if not raised:
         # Prepare data columns for error objects returned by their aggregation function
-        df = df.astype({col: object for col in data_columns})
+        df = df.astype(dict.fromkeys(data_columns, object))
     aggfuncs = {
         col: try_aggfunc(
             func,

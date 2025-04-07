@@ -22,9 +22,9 @@ dependencies = [
     "coloredlogs>=14.0", # Dagster requires 14.0
     "conda-lock>=2.5.7",
     "coverage>=7.6",
-    "dagster>=1.10",
-    "dagster-dbt>=0.26,<1",
-    "dagster-postgres>=0.26,<1", # Update when dagster-postgres graduates to 1.x
+    "dagster>=1.10.5",
+    "dagster-dbt", # Automatically follows dagster version
+    "dagster-postgres", # Automatically follows dagster version
     "dask>=2025",
     "dask-expr>=2", # Required for dask[dataframe]
     "datasette>=0.65",
@@ -36,17 +36,17 @@ dependencies = [
     "fsspec>=2025",
     "furo>=2024",
     "gcsfs>=2025",
-    "gdal==3.10.1",  # pinned, because we need it to work with pudl-archiver
+    "gdal==3.10.1", # pinned, because we need it to work with pudl-archiver
     "geopandas>=1.0",
-    "grpcio==1.67.1", # Required by dagster, binary dependencies are flaky
-    "grpcio-health-checking==1.67.1", # Required by dagster, binary dependencies are flaky
-    "grpcio-status==1.67.1", # Required by dagster, binary dependencies are flaky
+    "grpcio==1.71.0", # Required by dagster, binary dependencies are flaky
+    "grpcio-health-checking==1.71.0", # Required by dagster, binary dependencies are flaky
+    "grpcio-status==1.71.0", # Required by dagster, binary dependencies are flaky
     "hypothesis>=6.123",
     "jellyfish>=1",
     "jinja2>=3.1",
     "jupyter",
     "matplotlib>=3.10",
-    "mlflow>=2.20",
+    "mlflow>=2.21",
     "nbconvert>=7",
     "nbformat>=5.10",
     "networkx>=3.4",
@@ -55,9 +55,9 @@ dependencies = [
     "numpy>=2",
     "packaging>=24",
     "pandas>=2.2.3",
-    "pandera>=0.22,<0.23",
+    "pandera>=0.23.1",
     "pre-commit>=4",
-    "pyarrow>=18.1", # pandas[parquet]
+    "pyarrow>=19", # pandas[parquet]
     "pydantic>=2.10",
     "pydantic-settings>=2.7",
     "pytest>=8",
@@ -72,7 +72,7 @@ dependencies = [
     "readthedocs-sphinx-ext>=2",
     "requests>=2.32",
     "responses>=0.25",
-    "ruff>=0.9",
+    "ruff>=0.11",
     "scikit-learn>=1.6",
     "scipy>=1.15",
     "Shapely>=2",
@@ -151,14 +151,13 @@ pudl_service_territories = "pudl.analysis.service_territory:pudl_service_territo
 [project.optional-dependencies]
 dev = [
     "dagster-webserver>=1.10",
-    "ipython<9",
     "jupyterlab>4.3",
     "jupyter-lsp",
     "jupyterlab-lsp",
     "ruff-lsp",
     "jupyter-resource-usage",
     "pygraphviz",
-    "terraform>=1.9.2"
+    "terraform>=1.9.2",
 ]
 
 [tool.setuptools]
@@ -293,6 +292,8 @@ filterwarnings = [
     "ignore:pkg_resources is deprecated as an API.:DeprecationWarning",
     "ignore:Subclassing validator classes is not intended to be part of their public API.:DeprecationWarning",
     "ignore:Subclassing validator classes:DeprecationWarning:tableschema",
+    "ignore:datetime.datetime.utcnow() is deprecated:DeprecationWarning",
+    "ignore:Python 3.14 will, by default, filter extracted tar archives:DeprecationWarning:dbt_common[.*]",
     "ignore:The Shapely GEOS version:UserWarning:geopandas[.*]",
     "ignore:The `__fields__` attribute is deprecated:pydantic.PydanticDeprecatedSince20:unittest.mock",
     "ignore:The `__fields_set__` attribute is deprecated:pydantic.PydanticDeprecatedSince20:unittest.mock",
@@ -309,6 +310,7 @@ filterwarnings = [
     "once:open_text is deprecated:DeprecationWarning:pudl.glue.ferc1_eia",
     "once:The behavior of DataFrame concatenation with empty or all-NA entries is deprecated.:FutureWarning",
     "once:Valid config keys have changed in V2:UserWarning",
+    "once:AssetExecutionContext.op_config is deprecated:DeprecationWarning",
 ]
 
 markers = ["slow: marks tests as slow (deselect with '-m \"not slow\"')"]
@@ -324,7 +326,7 @@ addopts = """\
     """
 log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
 log_date_format = "%Y-%m-%d %H:%M:%S"
-log_cli = "true"
+log_cli = true
 log_cli_level = "DEBUG"
 doctest_optionflags = ["NORMALIZE_WHITESPACE", "IGNORE_EXCEPTION_DETAIL", "ELLIPSIS"]
 
@@ -356,6 +358,10 @@ source = ["src/pudl/", "test/integration/", "test/unit/"]
 omit = [
     # Never hit by integration tests:
     "src/pudl/validate.py",
+    # TODO: remove after we fix https://github.com/catalyst-cooperative/pudl/issues/4065
+    "src/pudl/extract/sec10k.py",
+    "src/pudl/transform/sec10k.py",
+    "src/pudl/load/sec10k.py",
 ]
 
 [tool.coverage.report]
@@ -380,4 +386,7 @@ exclude_lines = [
 ]
 
 [tool.dagster]
-modules = [{ type = "module", name = "pudl.etl" }, { type = "module", name = "pudl.ferc_to_sqlite" }]
+modules = [
+    { type = "module", name = "pudl.etl" },
+    { type = "module", name = "pudl.ferc_to_sqlite" },
+]

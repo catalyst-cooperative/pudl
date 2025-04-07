@@ -2,10 +2,10 @@ version: 2
 sources:
   - name: pudl
     tables:
-      - name: out_sec10k__parents_and_subsidiaries
+      - name: core_sec10k__parents_and_subsidiaries
         data_tests:
           - check_row_counts_per_partition:
-              table_name: out_sec10k__parents_and_subsidiaries
+              table_name: core_sec10k__parents_and_subsidiaries
               partition_column: report_date
         columns:
           - name: company_id_sec10k
@@ -19,10 +19,10 @@ sources:
           - name: state
           - name: company_name_raw
           - name: name_change_date
-          - name: company_name_former
+          - name: company_name_old
           - name: industry_name_sic
           - name: industry_id_sic
-          - name: state_of_incorporation
+          - name: incorporation_state
           - name: location_of_incorporation
           - name: taxpayer_id_irs
           - name: files_sec10k

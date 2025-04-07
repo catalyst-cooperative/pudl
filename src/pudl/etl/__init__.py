@@ -56,14 +56,13 @@ raw_module_groups = {
     "raw_ferc1": [pudl.extract.ferc1],
     "raw_ferc714": [pudl.extract.ferc714],
     "raw_gridpathratoolkit": [pudl.extract.gridpathratoolkit],
-    "raw_phmsagas": [pudl.extract.phmsagas],
     "raw_nrelatb": [pudl.extract.nrelatb],
+    "raw_phmsagas": [pudl.extract.phmsagas],
     "raw_vcerare": [pudl.extract.vcerare],
 }
 
 
 core_module_groups = {
-    "core_eia176": [pudl.transform.eia176],
     "core_assn": [glue_assets],
     "core_censusdp1tract": [
         pudl.convert.censusdp1tract_to_sqlite,
@@ -73,6 +72,7 @@ core_module_groups = {
     "core_eia": [pudl.transform.eia],
     "core_eiaaeo": [pudl.transform.eiaaeo],
     "core_eia_bulk_elec": [eia_bulk_elec_assets],
+    "core_eia176": [pudl.transform.eia176],
     "core_eia860": [pudl.transform.eia860, pudl.transform.eia860m],
     "core_eia861": [pudl.transform.eia861],
     "core_eia923": [pudl.transform.eia923],
@@ -96,6 +96,7 @@ out_module_groups = {
         pudl.output.eia,
         pudl.output.eia860,
         pudl.output.eia923,
+        pudl.output.eia930,
         pudl.output.eia_bulk_elec,
     ],
     "out_ferc1": [
@@ -118,8 +119,16 @@ default_assets = list(
     )
 )
 
+# For details on why this is needed now, and how we can get rid of it see
+# https://github.com/catalyst-cooperative/pudl/issues/4065
 if os.getenv("USE_PUDL_MODELS"):
-    default_assets += load_assets_from_modules([pudl.analysis.pudl_models])
+    default_assets += load_assets_from_modules(
+        [
+            pudl.extract.sec10k,
+            pudl.transform.sec10k,
+            pudl.output.sec10k,
+        ]
+    )
 
 default_asset_checks = list(
     itertools.chain.from_iterable(

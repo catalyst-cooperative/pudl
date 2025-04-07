@@ -1,0 +1,190 @@
+"""Denormalized output tables for the SEC 10-K assets.
+
+These tables are created by joining the raw SEC 10-K tables with other data from the
+PUDL database, and enriching them with additional information. The resulting tables are
+more user-friendly and easier to work with than the normalized core tables.
+"""
+
+import dagster as dg
+import pandas as pd
+
+
+@dg.asset(
+    io_manager_key="pudl_io_manager",
+    group_name="out_sec10k",
+)
+def out_sec10k__quarterly_filings(
+    core_sec10k__quarterly_filings: pd.DataFrame,
+) -> pd.DataFrame:
+    """Denormalized table for SEC 10-K quarterly filings.
+
+    This table contains the basic information about the quarterly filings, including
+    the filing date, report date, and the URL to the filing.
+    """
+    # Construct the source URL so people can see where the data came from.
+    return core_sec10k__quarterly_filings.assign(
+        source_url=lambda x: (
+            "https://www.sec.gov/Archives/edgar/data/" + x["filename_sec10k"] + ".txt"
+        )
+    )
+
+
+@dg.asset(
+    io_manager_key="pudl_io_manager",
+    group_name="out_sec10k",
+)
+def out_sec10k__quarterly_company_information(
+    core_sec10k__quarterly_company_information: pd.DataFrame,
+    core_sec10k__quarterly_filings: pd.DataFrame,
+    core_sec10k__assn_sec10k_filers_and_eia_utilities: pd.DataFrame,
+    core_eia__entity_utilities: pd.DataFrame,
+) -> pd.DataFrame:
+    """Company information extracted from SEC10k filings and matched to EIA utilities."""
+    company_info = (
+        pd.merge(
+            left=core_sec10k__quarterly_company_information,
+            right=core_sec10k__assn_sec10k_filers_and_eia_utilities.loc[
+                :, ["central_index_key", "utility_id_eia"]
+            ],
+            how="left",
+            on="central_index_key",
+            validate="many_to_one",
+        )
+        .merge(
+            core_eia__entity_utilities.loc[:, ["utility_id_eia", "utility_name_eia"]],
+            how="left",
+            on="utility_id_eia",
+            validate="many_to_one",
+        )
+        .merge(
+            core_sec10k__quarterly_filings.loc[
+                :, ["filename_sec10k", "report_date", "filing_date"]
+            ],
+            how="left",
+            on="filename_sec10k",
+            validate="many_to_one",
+        )
+        .convert_dtypes()
+    )
+    company_info["source_url"] = (
+        "https://www.sec.gov/Archives/edgar/data/"
+        + company_info["filename_sec10k"]
+        + ".txt"
+    )
+    return company_info
+
+
+@dg.asset(
+    io_manager_key="pudl_io_manager",
+    group_name="out_sec10k",
+)
+def out_sec10k__changelog_company_name(
+    core_sec10k__changelog_company_name: pd.DataFrame,
+) -> pd.DataFrame:
+    """Denormalized table for company name changes from SEC 10-K filings.
+
+    The original data contains only the former name and date of the name change, leaving
+    the current name out. This asset constructs a column with the new company name in
+    it, by shifting the old name column by one row within each central_index_key group,
+    and then fills in the last new company name value with the current company name.
+    """
+    name_changelog = core_sec10k__changelog_company_name.sort_values(
+        ["central_index_key", "name_change_date"]
+    )
+    # Only a handdful of empty company names. Replace with the empty string to avoid
+    # inappropriately filling them with the current name when constructing new name
+    # for the most recent name change.
+    assert name_changelog["company_name_old"].isna().sum() < 5
+    name_changelog = name_changelog.assign(
+        company_name_old=lambda x: x["company_name_old"].fillna(""),
+        company_name_new=lambda x: x.groupby("central_index_key")["company_name_old"]
+        .shift(-1)
+        .fillna(x["company_name"]),
+    )
+    # Drop records where the "name change" is a no-op.
+    name_changelog = name_changelog.loc[
+        name_changelog["company_name_old"] != name_changelog["company_name_new"]
+    ]
+    return name_changelog
+
+
+@dg.asset(
+    io_manager_key="pudl_io_manager",
+    group_name="out_sec10k",
+)
+def out_sec10k__parents_and_subsidiaries(
+    core_sec10k__quarterly_exhibit_21_company_ownership: pd.DataFrame,
+    out_sec10k__quarterly_company_information: pd.DataFrame,
+    core_sec10k__assn_exhibit_21_subsidiaries_and_filers: pd.DataFrame,
+    core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities: pd.DataFrame,
+    core_eia__entity_utilities: pd.DataFrame,
+) -> pd.DataFrame:
+    """Denormalized output table with Sec10k company attributes and ownership info linked to EIA."""
+    # merge parent attributes on
+    company_info_df = out_sec10k__quarterly_company_information.drop(
+        columns=["filename_sec10k", "company_name"]
+    )
+    parents_info_df = company_info_df.add_prefix("parent_company_")
+    df = (
+        core_sec10k__quarterly_exhibit_21_company_ownership.merge(
+            parents_info_df,
+            how="left",
+            left_on=["parent_company_central_index_key", "report_date"],
+            right_on=["parent_company_central_index_key", "parent_company_report_date"],
+        )
+        .drop(columns="parent_company_report_date")
+        .rename(
+            columns={"parent_company_company_name_former": "parent_company_name_former"}
+        )
+    )
+    # merge central index key on for subsidiaries that file a 10k
+    df = df.merge(
+        core_sec10k__assn_exhibit_21_subsidiaries_and_filers,
+        how="left",
+        on="subsidiary_company_id_sec10k",
+    ).rename(columns={"central_index_key": "subsidiary_company_central_index_key"})
+
+    # merge utility_id_eia onto subsidiaries
+    df = df.merge(
+        core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities,
+        how="left",
+        on="subsidiary_company_id_sec10k",
+    )
+
+    # merge utility name onto subsidiaries
+    df = df.merge(core_eia__entity_utilities, how="left", on="utility_id_eia").rename(
+        columns={
+            "utility_id_eia": "sub_only_utility_id_eia",
+            "utility_name_eia": "sub_only_utility_name_eia",
+        }
+    )
+
+    # merge subsidiary company attributes on
+    subs_info_df = company_info_df.add_prefix("subsidiary_company_")
+    df = (
+        df.merge(
+            subs_info_df,
+            how="left",
+            left_on=["subsidiary_company_central_index_key", "report_date"],
+            right_on=[
+                "subsidiary_company_central_index_key",
+                "subsidiary_company_report_date",
+            ],
+        )
+        .drop(columns=["subsidiary_company_report_date"])
+        .rename(
+            columns={
+                "subsidiary_company_company_name_former": "subsidiary_company_name_former"
+            }
+        )
+    )
+    # combine utility_id_eia and utility_name_eia columns for subs into one column
+    df["subsidiary_company_utility_id_eia"] = df[
+        "subsidiary_company_utility_id_eia"
+    ].fillna(df["sub_only_utility_id_eia"])
+    df["subsidiary_company_utility_name_eia"] = df[
+        "subsidiary_company_utility_name_eia"
+    ].fillna(df["sub_only_utility_name_eia"])
+    df = df.drop(columns=["sub_only_utility_id_eia", "sub_only_utility_name_eia"])
+
+    return df

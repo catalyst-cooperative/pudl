@@ -6,27 +6,33 @@ sources:
         data_tests:
           - check_row_counts_per_partition:
               table_name: core_sec10k__quarterly_company_information
-              partition_column: report_date
+              partition_column: null
         columns:
-          - name: central_index_key
-          - name: report_date
           - name: filename_sec10k
-          - name: phone_number
-          - name: city
+          - name: filer_count
+          - name: central_index_key
           - name: company_name
-          - name: name_change_date
-          - name: film_number
           - name: fiscal_year_end
-          - name: sec10k_version
-          - name: company_name_former
           - name: taxpayer_id_irs
-          - name: sec_act
-          - name: filing_number_sec
+          - name: incorporation_state
           - name: industry_name_sic
           - name: industry_id_sic
-          - name: state
-          - name: state_of_incorporation
-          - name: street_address
-          - name: address_2
-          - name: zip_code
-          - name: zip_code_4
+          - name: film_number
+          - name: sec10k_type
+          - name: sec_act
+          - name: filing_number_sec
+          - name: phone_number
+          - name: business_street_address
+          - name: business_street_address_2
+          - name: business_city
+          - name: business_state
+          - name: business_zip_code
+          - name: business_zip_code_4
+          - name: business_postal_code
+          - name: mail_street_address
+          - name: mail_street_address_2
+          - name: mail_city
+          - name: mail_state
+          - name: mail_zip_code
+          - name: mail_zip_code_4
+          - name: mail_postal_code
