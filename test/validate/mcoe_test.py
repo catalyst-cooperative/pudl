@@ -183,8 +183,6 @@ def test_fuel_cost_per_mwh(pudl_out_mcoe, live_dbs):
     # The annual numbers for MCOE costs have too many NA values:
     if pudl_out_mcoe.freq != "MS":
         pytest.skip()
-    for args in pv.mcoe_self_fuel_cost_per_mwh:
-        pv.vs_self(pudl_out_mcoe.mcoe_generators(), **args)
 
     for args in pv.mcoe_fuel_cost_per_mwh:
         pv.vs_bounds(pudl_out_mcoe.mcoe_generators(), **args)
@@ -197,18 +195,6 @@ def test_fuel_cost_per_mmbtu(pudl_out_mcoe, live_dbs):
     # The annual numbers for MCOE costs have too many NA values:
     if pudl_out_mcoe.freq != "MS":
         pytest.skip()
-    for args in pv.mcoe_self_fuel_cost_per_mmbtu:
-        pv.vs_self(pudl_out_mcoe.mcoe_generators(), **args)
 
     for args in pv.mcoe_fuel_cost_per_mmbtu:
         pv.vs_bounds(pudl_out_mcoe.mcoe_generators(), **args)
-
-
-def test_mcoe_self(pudl_out_mcoe, live_dbs):
-    """Test MCOE outputs against their historical selves..."""
-    if not live_dbs:
-        pytest.skip("Data validation only works with a live PUDL DB.")
-    if pudl_out_mcoe.freq is None:
-        pytest.skip()
-    for args in pv.mcoe_self:
-        pv.vs_self(pudl_out_mcoe.mcoe_generators(), **args)

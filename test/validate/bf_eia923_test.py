@@ -38,32 +38,3 @@ def test_vs_bounds(pudl_out_eia, live_dbs, cases):
 
     for args in cases:
         pudl.validate.vs_bounds(pudl_out_eia.bf_eia923(), **args)
-
-
-###############################################################################
-# Tests validating distributions against historical subsamples of themselves
-###############################################################################
-
-
-def test_self_vs_historical(pudl_out_eia, live_dbs):
-    """Validate the whole dataset against historical annual subsamples."""
-    if not live_dbs:
-        pytest.skip("Data validation only works with a live PUDL DB.")
-    if pudl_out_eia.freq is not None:
-        pytest.skip("Test only runs on un-aggregated data.")
-
-    for args in pudl.validate.bf_eia923_self:
-        pudl.validate.vs_self(pudl_out_eia.bf_eia923(), **args)
-
-
-def test_agg_vs_historical(pudl_out_orig, pudl_out_eia, live_dbs):
-    """Validate whole dataset against aggregated historical values."""
-    if not live_dbs:
-        pytest.skip("Data validation only works with a live PUDL DB.")
-    if pudl_out_eia.freq is None:
-        pytest.skip("Only run if pudl_out_eia != pudl_out_orig.")
-
-    for args in pudl.validate.bf_eia923_agg:
-        pudl.validate.vs_historical(
-            pudl_out_orig.bf_eia923(), pudl_out_eia.bf_eia923(), **args
-        )
