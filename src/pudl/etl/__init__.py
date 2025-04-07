@@ -58,6 +58,7 @@ raw_module_groups = {
     "raw_gridpathratoolkit": [pudl.extract.gridpathratoolkit],
     "raw_nrelatb": [pudl.extract.nrelatb],
     "raw_phmsagas": [pudl.extract.phmsagas],
+    "raw_sec10k": [pudl.extract.sec10k],
     "raw_vcerare": [pudl.extract.vcerare],
 }
 
@@ -81,6 +82,7 @@ core_module_groups = {
     "core_ferc1": [pudl.transform.ferc1],
     "core_ferc714": [pudl.transform.ferc714],
     "core_gridpathratoolkit": [pudl.transform.gridpathratoolkit],
+    "core_sec10k": [pudl.transform.sec10k],
     "core_nrelatb": [pudl.transform.nrelatb],
     "core_vcerare": [pudl.transform.vcerare],
 }
@@ -104,6 +106,7 @@ out_module_groups = {
         pudl.analysis.record_linkage.classify_plants_ferc1,
     ],
     "out_respondents_ferc714": [pudl.output.ferc714],
+    "out_sec10k": [pudl.output.sec10k],
     "out_service_territory_eia861": [pudl.analysis.service_territory],
     "out_state_demand_ferc714": [pudl.analysis.state_demand],
 }
@@ -119,16 +122,6 @@ default_assets = list(
     )
 )
 
-# For details on why this is needed now, and how we can get rid of it see
-# https://github.com/catalyst-cooperative/pudl/issues/4065
-if os.getenv("USE_PUDL_MODELS"):
-    default_assets += load_assets_from_modules(
-        [
-            pudl.extract.sec10k,
-            pudl.transform.sec10k,
-            pudl.output.sec10k,
-        ]
-    )
 
 default_asset_checks = list(
     itertools.chain.from_iterable(
@@ -243,22 +236,6 @@ default_config = pudl.helpers.get_dagster_execution_config(
 default_config |= pudl.analysis.ml_tools.get_ml_models_config()
 
 
-def create_non_cems_selection(all_assets: list[AssetsDefinition]) -> AssetSelection:
-    """Create a selection of assets excluding CEMS and all downstream assets.
-
-    Args:
-        all_assets: A list of asset definitions to remove CEMS assets from.
-
-    Returns:
-        An asset selection with all_assets assets excluding CEMS assets.
-    """
-    all_asset_keys = pudl.helpers.get_asset_keys(all_assets)
-    all_selection = AssetSelection.assets(*all_asset_keys)
-
-    cems_selection = AssetSelection.assets(AssetKey("core_epacems__hourly_emissions"))
-    return all_selection - cems_selection.downstream()
-
-
 def load_dataset_settings_from_file(setting_filename: str) -> dict:
     """Load dataset settings from a settings file in `pudl.package_data.settings`.
 
@@ -294,12 +271,6 @@ defs: Definitions = Definitions(
             },
         ),
         define_asset_job(
-            name="etl_full_no_cems",
-            selection=create_non_cems_selection(default_assets),
-            description="This job executes all years of all assets except the "
-            "core_epacems__hourly_emissions asset and all assets downstream.",
-        ),
-        define_asset_job(
             name="etl_fast",
             config=default_config
             | {
@@ -310,19 +281,6 @@ defs: Definitions = Definitions(
                 }
             },
             description="This job executes the most recent year of each asset.",
-        ),
-        define_asset_job(
-            name="etl_fast_no_cems",
-            selection=create_non_cems_selection(default_assets),
-            config={
-                "resources": {
-                    "dataset_settings": {
-                        "config": load_dataset_settings_from_file("etl_fast")
-                    }
-                }
-            },
-            description="This job executes the most recent year of each asset except the "
-            "core_epacems__hourly_emissions asset and all assets downstream.",
         ),
     ],
 )

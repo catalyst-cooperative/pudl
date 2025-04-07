@@ -17,6 +17,10 @@ sources:
           - name: filing_date
           - name: company_name
           - name: fiscal_year_end
+            data_tests:
+              - dbt_expectations.expect_column_values_to_match_regex:
+                  regex: '^(?:(?:0[1-9]|1[0-2])(?:0[1-9]|1\d|2\d|3[01])|(?:0[13-9]|1[0-2])(?:29|30)|(?:0[13578]|1[02])31)$'
+                  is_raw: True
           - name: taxpayer_id_irs
           - name: incorporation_state
           - name: industry_name_sic

@@ -24,4 +24,4 @@ primary_region = "bos"
   cpus = 1
 
 [deploy]
-wait_timeout = "15m"
+wait_timeout = "25m"

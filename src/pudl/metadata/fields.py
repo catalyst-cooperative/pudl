@@ -1093,7 +1093,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Day ahead demand forecast.",
         "unit": "MWh",
     },
-    "demand_imputed_mwh": {
+    "demand_imputed_eia_mwh": {
         "type": "number",
         "description": "Electricity demand calculated by subtracting BA interchange from net generation, with outliers and missing values imputed by EIA.",
         "unit": "MWh",
@@ -1752,6 +1752,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "fiscal_year_end": {
         "type": "string",
         "description": "The end date of an SEC filing company's fiscal year, in MMDD format.",
+        # This REGEXP constraint was causing issues w/ SQLAlchemy / SQLite.
+        # https://github.com/sqlalchemy/sqlalchemy/discussions/12498
         "constraints": {
             "pattern": r"^(?:(?:0[1-9]|1[0-2])(?:0[1-9]|1\d|2\d|3[01])|(?:0[13-9]|1[0-2])(?:29|30)|(?:0[13578]|1[02])31)$",
         },
@@ -2493,7 +2495,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Energy interchange between adjacent balancing authorities, adjusted by EIA to reflect non-physical commercial transfers through pseudo-ties and dynamic scheduling.",
         "unit": "MWh",
     },
-    "interchange_imputed_mwh": {
+    "interchange_imputed_eia_mwh": {
         "type": "number",
         "description": "Energy interchange between adjacent balancing authorities, with outliers and missing values imputed by EIA.",
         "unit": "MWh",
@@ -2959,7 +2961,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Reported net generation adjusted by EIA to reflect non-physical commercial transfers through pseudo-ties and dynamic scheduling.",
         "unit": "MWh",
     },
-    "net_generation_imputed_mwh": {
+    "net_generation_imputed_eia_mwh": {
         "type": "number",
         "description": "Reported net generation with outlying values removed and missing values imputed by EIA.",
         "unit": "MWh",
@@ -4260,9 +4262,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "sec_act": {
         "type": "string",
         "description": "SEC Act through which the form was enacted, e.g. 1934 act.",
-        # "constraints": {
-        #    "enum": ["1934 act"],
-        # },
+        "constraints": {
+            "enum": ["1934 act"],
+        },
     },
     "filing_number_sec": {
         "type": "string",
@@ -4281,18 +4283,18 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "the 10-kt. 10-ksb: the annual report for small businesses, also known as "
             "penny stocks. 10-ksb/a: an amended version of the 10-ksb."
         ),
-        # "constraints": {
-        #    "enum": [
-        #        "10-k",
-        #        "10-k/a",
-        #        "10-k405",
-        #        "10-k405/a",
-        #        "10-kt",
-        #        "10-kt/a",
-        #        "10-ksb",
-        #        "10-ksb/a",
-        #    ]
-        # },
+        "constraints": {
+            "enum": [
+                "10-k",
+                "10-k/a",
+                "10-k405",
+                "10-k405/a",
+                "10-kt",
+                "10-kt/a",
+                "10-ksb",
+                "10-ksb/a",
+            ]
+        },
     },
     "secondary_transportation_mode_code": {
         "type": "string",

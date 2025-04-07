@@ -11,13 +11,50 @@ New Data
 
 FERC 714
 ~~~~~~~~
-* Added the table :ref:`out_ferc714__hourly_planning_area_demand`, which
-  contains an imputed version of demand.
+* We refactored our timseries imputation functions to be more generalized and reusable,
+  so they can be applied to electricity demand curves from both FERC-714 and EIA-930,
+  as well as other time series data in the future. This resulted in some minor changes
+  to the imputation results. See issue :issue:`4112` and PR :pr:`4113`.
+* Added the table :ref:`out_ferc714__hourly_planning_area_demand`, which contains an
+  imputed version of demand. Previously these imputed values were not being distributed
+  directly, and fed into the :ref:`out_ferc714__hourly_estimated_state_demand` table.
 
 EIA 930
 ~~~~~~~
+Work on producing EIA 930 demand curves suitable for use in electricity system modeling
+is being done in collaboration with :user:`awongel` at
+`Carnegie Science <https://carnegiescience.edu>`__, with support from `GridLab
+<https://gridlab.org>`__. See issue :issue:`4083` for a list of related issues.
+
 * Added the table :ref:`out_eia930__hourly_subregion_demand`, which
-  contains an imputed version of subregion demand.
+  contains an imputed version of subregion demand. See issues :issue:`4124,4136` and PR
+  :pr:`4149`
+* Added the table :ref:`out_eia930__hourly_operations`, which
+  contains an imputed version of BA level demand. See issue :issue:`4138` and PR
+  :pr:`4162`
+
+SEC 10-K
+^^^^^^^^
+* Reorganized the preliminary SEC 10-K data that was integrated into our last release.
+  See issue :issue:`4078` and PR :pr:`4134`. The SEC 10-K tables are now more fully
+  normalized and better conform to existing PUDL naming conventions. Overall revision of
+  the SEC 10-K data is being tracked in issue :issue:`4085`.
+
+  Note that the SEC 10-K data is still a work in progress, and there are known issues
+  that remain to be resolved in the `upstream repository
+  <https://github.com/catalyst-cooperative/mozilla-sec-eia>`__ that generates this data.
+
+  The new tables include:
+
+  * :ref:`core_sec10k__quarterly_filings`
+  * :ref:`core_sec10k__quarterly_company_information`
+  * :ref:`core_sec10k__changelog_company_name`
+  * :ref:`core_sec10k__quarterly_exhibit_21_company_ownership`
+  * :ref:`core_sec10k__parents_and_subsidiaries`
+  * :ref:`core_sec10k__assn_sec10k_filers_and_eia_utilities`
+  * :ref:`out_sec10k__quarterly_filings`
+  * :ref:`out_sec10k__changelog_company_name`
+  * :ref:`out_sec10k__changelog_company_name`
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -78,10 +115,10 @@ Some potentially breaking changes to be aware of:
   more details.
 
 Many thanks to the organizations who make these regular updates possible! Especially
-`GridLab <https://gridlab.org>`__, `RMI <https://rmi.org>`__, and the `ZERO Lab at
-Princeton University <https://zero.lab.princeton.edu/>`__. If you rely on PUDL and would
-like to help ensure that the data keeps flowing, please consider joining them as a `PUDL
-Sustainer <https://opencollective.com/pudl>`__, as we are still fundraising for 2025.
+`GridLab <https://gridlab.org>`__, and `RMI <https://rmi.org>`__. If you rely on PUDL
+and would like to help ensure that the data keeps flowing, please consider joining them
+as a `PUDL Sustainer <https://opencollective.com/pudl>`__, as we are still fundraising
+for 2025.
 
 New Data
 ^^^^^^^^
