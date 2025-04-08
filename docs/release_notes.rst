@@ -50,7 +50,6 @@ SEC 10-K
   * :ref:`core_sec10k__quarterly_company_information`
   * :ref:`core_sec10k__changelog_company_name`
   * :ref:`core_sec10k__quarterly_exhibit_21_company_ownership`
-  * :ref:`core_sec10k__parents_and_subsidiaries`
   * :ref:`core_sec10k__assn_sec10k_filers_and_eia_utilities`
   * :ref:`out_sec10k__quarterly_filings`
   * :ref:`out_sec10k__changelog_company_name`
