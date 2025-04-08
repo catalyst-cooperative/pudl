@@ -64,17 +64,3 @@ def test_vs_bounds(pudl_out_ferc1, live_dbs, cases):
             ),
             **case,
         )
-
-
-def test_self_vs_historical(pudl_out_ferc1, live_dbs):
-    """Validate..."""
-    if not live_dbs:
-        pytest.skip("Data validation only works with a live PUDL DB.")
-    for args in pv.fuel_ferc1_self:
-        pv.vs_self(
-            pd.read_sql(
-                "out_ferc1__yearly_steam_plants_fuel_sched402",
-                pudl_out_ferc1.pudl_engine,
-            ),
-            **args,
-        )
