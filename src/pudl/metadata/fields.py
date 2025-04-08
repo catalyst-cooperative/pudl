@@ -3518,45 +3518,53 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Whether a plant part record has a duplicate record with different ownership status.",
     },
-    "parent_company_address_2": {
-        "type": "string",
-        "description": "Second line of the parent company address.",
-    },
     "parent_company_central_index_key": {
         "type": "string",
         "description": "Central index key (CIK) of the parent company.",
     },
-    "parent_company_city": {
+    "parent_company_business_city": {
         "type": "string",
-        "description": "City the parent company is located in.",
+        "description": "City where the parent company's place of business is located.",
+    },
+    "parent_company_mail_city": {
+        "type": "string",
+        "description": "City of the parent company's mailing address.",
     },
     "parent_company_name": {
         "type": "string",
         "description": "Name of the parent company.",
     },
-    "parent_company_name_change_date": {
-        "type": "string",
-        "description": "Date of last name change of the parent company.",
-    },
-    "parent_company_name_former": {
-        "type": "string",
-        "description": "Former name of the parent company.",
-    },
     "parent_company_phone_number": {
         "type": "string",
         "description": "Phone number of the parent company.",
     },
-    "parent_company_state": {
+    "parent_company_business_state": {
         "type": "string",
-        "description": "State the parent company is located in.",
+        "description": "State where the parent company's place of business is located.",
     },
-    "parent_company_state_of_incorporation": {
+    "parent_company_mail_state": {
         "type": "string",
-        "description": "State the parent company is incorporated in.",
+        "description": "State of the parent company's mailing address.",
     },
-    "parent_company_street_address": {
+    "parent_company_incorporation_state": {
         "type": "string",
-        "description": "Street address of the parent company.",
+        "description": "Two letter state code where parent company is incorporated.",
+    },
+    "parent_company_business_street_address": {
+        "type": "string",
+        "description": "Street address of the parent company's place of business.",
+    },
+    "parent_company_business_street_address_2": {
+        "type": "string",
+        "description": "Second line of the street address of the parent company's place of business.",
+    },
+    "parent_company_mail_street_address": {
+        "type": "string",
+        "description": "Street portion of the parent company's mailing address.",
+    },
+    "parent_company_mail_street_address_2": {
+        "type": "string",
+        "description": "Second line of the street portion of the parent company's mailing address.",
     },
     "parent_company_utility_id_eia": {
         "type": "string",
@@ -3566,16 +3574,30 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "The EIA reported utility name of the parent company.",
     },
-    "parent_company_zip_code": {
+    "parent_company_business_zip_code": {
         "type": "string",
-        "description": "Five digit US Zip Code of the parent company.",
+        "description": "Zip code of the parent company's place of business.",
         "constraints": {
             "pattern": r"^\d{5}$",
         },
     },
-    "parent_company_zip_code_4": {
+    "parent_company_business_zip_code_4": {
         "type": "string",
-        "description": "Four digit US Zip Code suffix of the parent company.",
+        "description": "Zip code suffix of the company's place of business.",
+        "constraints": {
+            "pattern": r"^\d{4}$",
+        },
+    },
+    "parent_company_mail_zip_code": {
+        "type": "string",
+        "description": "Zip code of the parent company's mailing address.",
+        "constraints": {
+            "pattern": r"^\d{5}$",
+        },
+    },
+    "parent_company_mail_zip_code_4": {
+        "type": "string",
+        "description": "Zip code suffix of the parent company's mailing address.",
         "constraints": {
             "pattern": r"^\d{4}$",
         },
@@ -4723,17 +4745,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "Sub-plant ID links EPA CEMS emissions units to EIA units.",
     },
-    "subsidiary_company_address_2": {
-        "type": "string",
-        "description": "Second line of the subsidiary company address.",
-    },
     "subsidiary_company_central_index_key": {
         "type": "string",
         "description": "Central index key (CIK) of the subsidiary company.",
     },
-    "subsidiary_company_city": {
+    "subsidiary_company_business_city": {
         "type": "string",
-        "description": "City the subsidiary company is located in.",
+        "description": "City where the subsidiary company's place of business is located.",
+    },
+    "subsidiary_company_mail_city": {
+        "type": "string",
+        "description": "City of the subsidiary company's mailing address.",
     },
     "subsidiary_company_id_sec10k": {
         "type": "string",
@@ -4747,29 +4769,37 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Name of subsidiary company.",
     },
-    "subsidiary_company_name_change_date": {
-        "type": "string",
-        "description": "Date of last name change of the subsidiary company.",
-    },
-    "subsidiary_company_name_former": {
-        "type": "string",
-        "description": "Former name of the subsidiary company.",
-    },
     "subsidiary_company_phone_number": {
         "type": "string",
         "description": "Phone number of the subsidiary company.",
     },
-    "subsidiary_company_state": {
+    "subsidiary_company_business_state": {
         "type": "string",
-        "description": "State the subsidiary company is located in.",
+        "description": "State where the subsidiary company's place of business is located.",
     },
-    "subsidiary_company_state_of_incorporation": {
+    "subsidiary_company_mail_state": {
         "type": "string",
-        "description": "State the subsidiary company is incorporated in.",
+        "description": "State of the parent company's mailing address.",
     },
-    "subsidiary_company_street_address": {
+    "subsidiary_company_incorporation_state": {
         "type": "string",
-        "description": "Street address of the subsidiary company.",
+        "description": "Two letter state code where subisidary company is incorporated.",
+    },
+    "subsidiary_company_business_street_address": {
+        "type": "string",
+        "description": "Street address of the subsidiary company's place of business.",
+    },
+    "subsidiary_company_business_street_address_2": {
+        "type": "string",
+        "description": "Second line of the street address of the subsidiary company's place of business.",
+    },
+    "subsidiary_company_mail_street_address": {
+        "type": "string",
+        "description": "Street portion of the subsidiary company's mailing address.",
+    },
+    "subsidiary_company_mail_street_address_2": {
+        "type": "string",
+        "description": "Second line of the street portion of the subsidiary company's mailing address.",
     },
     "subsidiary_company_utility_id_eia": {
         "type": "string",
@@ -4779,16 +4809,30 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "The EIA reported utility name of the subsidiary company.",
     },
-    "subsidiary_company_zip_code": {
+    "subsidiary_company_business_zip_code": {
         "type": "string",
-        "description": "Five digit US Zip Code of the parent company.",
+        "description": "Zip code of the subsidiary company's place of business.",
         "constraints": {
             "pattern": r"^\d{5}$",
         },
     },
-    "subsidiary_company_zip_code_4": {
+    "subsidiary_company_business_zip_code_4": {
         "type": "string",
-        "description": "Four digit US Zip Code suffix of the parent company.",
+        "description": "Zip code suffix of the subsidiary company's place of business.",
+        "constraints": {
+            "pattern": r"^\d{4}$",
+        },
+    },
+    "subsidiary_company_mail_zip_code": {
+        "type": "string",
+        "description": "Zip code of the subsidiary company's mailing address.",
+        "constraints": {
+            "pattern": r"^\d{5}$",
+        },
+    },
+    "subsidiary_company_mail_zip_code_4": {
+        "type": "string",
+        "description": "Zip code suffix of the subsidiary company's mailing address.",
         "constraints": {
             "pattern": r"^\d{4}$",
         },
@@ -5887,7 +5931,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     # },
     "mail_street_address": {
         "type": "string",
-        "description": "Street portion of the company's for mailing address.",
+        "description": "Street portion of the company's mailing address.",
     },
     "mail_street_address_2": {
         "type": "string",

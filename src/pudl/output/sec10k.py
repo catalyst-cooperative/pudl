@@ -8,6 +8,10 @@ more user-friendly and easier to work with than the normalized core tables.
 import dagster as dg
 import pandas as pd
 
+from pudl import logging_helpers
+
+logger = logging_helpers.get_logger(__name__)
+
 
 def _filename_sec10k_to_source_url(
     filename_sec10k: pd.Series,
@@ -120,23 +124,25 @@ def out_sec10k__parents_and_subsidiaries(
     core_eia__entity_utilities: pd.DataFrame,
 ) -> pd.DataFrame:
     """Denormalized output table with Sec10k company attributes and ownership info linked to EIA."""
+    parents_info_df = out_sec10k__quarterly_company_information.add_prefix(
+        "parent_company_"
+    ).drop(columns=["parent_company_company_name"])
+    logger.info(
+        f"""There are {len(parents_info_df[parents_info_df.duplicated(subset=["parent_company_filename_sec10k", "parent_company_central_index_key", "parent_company_report_date"])])}
+        company info records with duplicate filenames, CIKs, and report dates."""
+    )
     # merge parent attributes on
-    company_info_df = out_sec10k__quarterly_company_information.drop(
-        columns=["filename_sec10k", "company_name"]
-    )
-    parents_info_df = company_info_df.add_prefix("parent_company_")
-    df = (
-        core_sec10k__quarterly_exhibit_21_company_ownership.merge(
-            parents_info_df,
-            how="left",
-            left_on=["parent_company_central_index_key", "report_date"],
-            right_on=["parent_company_central_index_key", "parent_company_report_date"],
-        )
-        .drop(columns="parent_company_report_date")
-        .rename(
-            columns={"parent_company_company_name_former": "parent_company_name_former"}
-        )
-    )
+    df = core_sec10k__quarterly_exhibit_21_company_ownership.merge(
+        parents_info_df,
+        how="left",
+        left_on=["filename_sec10k", "parent_company_central_index_key", "report_date"],
+        right_on=[
+            "parent_company_filename_sec10k",
+            "parent_company_central_index_key",
+            "parent_company_report_date",
+        ],
+    ).drop(columns=["parent_company_report_date", "parent_company_filename_sec10k"])
+    # TODO: log a message about the number of CIK, filename, report date instances were not unique in that merge
     # merge central index key on for subsidiaries that file a 10k
     df = df.merge(
         core_sec10k__assn_exhibit_21_subsidiaries_and_filers,
@@ -158,27 +164,28 @@ def out_sec10k__parents_and_subsidiaries(
             "utility_name_eia": "sub_only_utility_name_eia",
         }
     )
-
+    subs_info_df = out_sec10k__quarterly_company_information.add_prefix(
+        "subsidiary_company_"
+    ).drop(columns=["subsidiary_company_company_name"])
     # merge subsidiary company attributes on
-    subs_info_df = company_info_df.add_prefix("subsidiary_company_")
-    df = (
-        df.merge(
-            subs_info_df,
-            how="left",
-            left_on=["subsidiary_company_central_index_key", "report_date"],
-            right_on=[
-                "subsidiary_company_central_index_key",
-                "subsidiary_company_report_date",
-            ],
-        )
-        .drop(columns=["subsidiary_company_report_date"])
-        .rename(
-            columns={
-                "subsidiary_company_company_name_former": "subsidiary_company_name_former"
-            }
-        )
+    df = df.merge(
+        subs_info_df,
+        how="left",
+        left_on=[
+            "filename_sec10k",
+            "subsidiary_company_central_index_key",
+            "report_date",
+        ],
+        right_on=[
+            "subsidiary_company_filename_sec10k",
+            "subsidiary_company_central_index_key",
+            "subsidiary_company_report_date",
+        ],
+    ).drop(
+        columns=["subsidiary_company_report_date", "subsidiary_company_filename_sec10k"]
     )
-    # combine utility_id_eia and utility_name_eia columns for subs into one column
+    # TODO: log a message about the number of CIK, filename, report date instances were not unique in that merge
+    # combine the sub-only and filing-subs EIA utility columns
     df["subsidiary_company_utility_id_eia"] = df[
         "subsidiary_company_utility_id_eia"
     ].fillna(df["sub_only_utility_id_eia"])

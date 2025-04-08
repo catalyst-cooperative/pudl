@@ -215,8 +215,8 @@ def _match_ex21_subsidiaries_to_filer_company(
     )
     filer_info_df = filer_info_df.dropna(subset="subsidiary_company_name")
     ownership_df = ownership_df.dropna(subset="subsidiary_company_name")
-    filer_info_df["state_of_incorporation"] = _clean_location_of_incorporation(
-        filer_info_df["state_of_incorporation"]
+    filer_info_df["incorporation_state"] = _clean_location_of_incorporation(
+        filer_info_df["incorporation_state"]
     )
     ownership_df["subsidiary_company_location"] = _clean_location_of_incorporation(
         ownership_df["subsidiary_company_location"]
@@ -237,7 +237,7 @@ def _match_ex21_subsidiaries_to_filer_company(
     # split up the location of incorporation on whitespace, creating a column
     # with lists of word tokens
     merged_df.loc[:, "loc_tokens_sec"] = (
-        merged_df["state_of_incorporation"].fillna("").str.lower().str.split()
+        merged_df["incorporation_state"].fillna("").str.lower().str.split()
     )
     merged_df.loc[:, "loc_tokens_ex21"] = (
         merged_df["subsidiary_company_location"].fillna("").str.lower().str.split()
@@ -680,6 +680,7 @@ def core_sec10k__assn_sec10k_filers_and_eia_utilities(
 
 @dg.asset(io_manager_key="pudl_io_manager", group_name="core_sec10k")
 def core_sec10k__assn_exhibit_21_subsidiaries_and_filers(
+    core_sec10k__quarterly_filings,
     core_sec10k__quarterly_company_information,
     core_sec10k__quarterly_exhibit_21_company_ownership,
 ) -> pd.DataFrame:
@@ -688,8 +689,13 @@ def core_sec10k__assn_exhibit_21_subsidiaries_and_filers(
     Create an association between ``subsidiary_company_id_sec10k``
     and ``central_index_key``.
     """
+    filer_info_df = core_sec10k__quarterly_company_information.merge(
+        core_sec10k__quarterly_filings[["filename_sec10k", "report_date"]],
+        how="left",
+        on="filename_sec10k",
+    )
     matched_df = _match_ex21_subsidiaries_to_filer_company(
-        filer_info_df=core_sec10k__quarterly_company_information,
+        filer_info_df=filer_info_df,
         ownership_df=core_sec10k__quarterly_exhibit_21_company_ownership,
     )
     out_df = matched_df[
