@@ -600,49 +600,6 @@ def core_sec10k__changelog_company_name(
     io_manager_key="pudl_io_manager",
     group_name="core_sec10k",
 )
-def core_sec10k__parents_and_subsidiaries(
-    raw_sec10k__parents_and_subsidiaries: pd.DataFrame,
-) -> pd.DataFrame:
-    """Standardize the contents of the SEC 10-K parents and subsidiaries table."""
-    df = raw_sec10k__parents_and_subsidiaries.rename(
-        columns={
-            "sec10k_filename": "filename_sec10k",
-            "sec_company_id": "company_id_sec10k",
-            "street_address_2": "address_2",
-            "former_conformed_name": "company_name_old",
-            "location_of_inc": "location_of_incorporation",
-            "state_of_incorporation": "incorporation_state",
-            "irs_number": "taxpayer_id_irs",
-            "parent_company_cik": "parent_company_central_index_key",
-            "files_10k": "files_sec10k",
-            "date_of_name_change": "name_change_date",
-        }
-    ).assign(
-        filename_sec10k=lambda x: _simplify_filename_sec10k(x["filename_sec10k"]),
-        fraction_owned=lambda x: _compute_fraction_owned(x["ownership_percentage"]),
-    )
-
-    df[["industry_name_sic", "industry_id_sic"]] = (
-        _standardize_industrial_classification(df["standard_industrial_classification"])
-    )
-    df["taxpayer_id_irs"] = _standardize_taxpayer_id_irs(df["taxpayer_id_irs"])
-
-    # Some utilities harvested from EIA 861 data that don't show up in our entity
-    # tables. These didn't end up improving coverage, and so will be removed upstream.
-    # Hack for now is to just drop them so the FK constraint is respected.
-    # See https://github.com/catalyst-cooperative/pudl/issues/4050
-    bad_utility_ids = [
-        3579,  # Cirro Group, Inc. in Texas
-    ]
-    df = df[~df.utility_id_eia.isin(bad_utility_ids)]
-
-    return df
-
-
-@dg.asset(
-    io_manager_key="pudl_io_manager",
-    group_name="core_sec10k",
-)
 def core_sec10k__quarterly_exhibit_21_company_ownership(
     raw_sec10k__exhibit_21_company_ownership: pd.DataFrame,
     core_sec10k__quarterly_filings: pd.DataFrame,
@@ -657,7 +614,6 @@ def core_sec10k__quarterly_exhibit_21_company_ownership(
     ).assign(
         filename_sec10k=lambda x: _simplify_filename_sec10k(x["filename_sec10k"]),
         fraction_owned=lambda x: _compute_fraction_owned(x["ownership_percentage"]),
-        report_date=lambda x: _year_quarter_to_date(x["year_quarter"]),
     )
     df = df.merge(
         core_sec10k__quarterly_filings[
@@ -698,7 +654,7 @@ def core_sec10k__quarterly_exhibit_21_company_ownership(
     group_name="core_sec10k",
 )
 def core_sec10k__assn_sec10k_filers_and_eia_utilities(
-    core_sec10k__parents_and_subsidiaries: pd.DataFrame,
+    raw_sec10k__parents_and_subsidiaries: pd.DataFrame,
 ) -> pd.DataFrame:
     """Create an association table between SEC 10-K companies and EIA utilities.
 
@@ -713,7 +669,7 @@ def core_sec10k__assn_sec10k_filers_and_eia_utilities(
     companies are not utilities, and most utilities are still unmatched.
     """
     sec_eia_assn = (
-        core_sec10k__parents_and_subsidiaries.loc[
+        raw_sec10k__parents_and_subsidiaries.loc[
             :, ["central_index_key", "utility_id_eia"]
         ]
         .dropna()

@@ -287,31 +287,6 @@ well as providing a link to the source URL for the filing."""
         "etl_group": "sec10k",
         "field_namespace": "sec",
     },
-    "core_sec10k__parents_and_subsidiaries": {
-        "description": (
-            """Denormalized table containing SEC company ownership data
-extracted from Exhibit 21 attachments with attributes about the parent and
-subsidiary companies. Company attributes are extracted from the headers of
-the SEC 10k filing. Company information is present for subsidiary companies
-when that subsidiary in turn files a 10k. The connection between SEC filers
-and EIA utilities is conducted with probabilistic record linkage. The connection
-between Ex. 21 subsidiaries (who don't file a 10k) and EIA utilities is done with
-a fuzzy match on the company name."""
-        ),
-        "schema": {
-            "fields": [
-                "filename_sec10k",
-                "subsidiary_company_name",
-                "subsidiary_company_location",
-                "subsidiary_company_id_sec10k",
-                "fraction_owned",
-                "report_date",
-            ],
-        },
-        "sources": ["sec10k"],
-        "etl_group": "sec10k",
-        "field_namespace": "sec",
-    },
     "out_sec10k__parents_and_subsidiaries": {
         "description": (
             """Denormalized table containing SEC company ownership data

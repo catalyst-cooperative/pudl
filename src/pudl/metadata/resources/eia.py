@@ -780,7 +780,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     # in the EIA data for that year.
                     "core_sec10k__assn_sec10k_filers_and_eia_utilities",
                     "out_sec10k__quarterly_company_information",
-                    "core_sec10k__parents_and_subsidiaries",
                 ],
             },
         },
