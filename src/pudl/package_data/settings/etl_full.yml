@@ -133,6 +133,7 @@ description: >
   years of EPA CEMS hourly emissions data (output to Parquet).
 version: 0.1.0
 datasets:
+  etl_type: full
   ferc1:
     years:
       [
