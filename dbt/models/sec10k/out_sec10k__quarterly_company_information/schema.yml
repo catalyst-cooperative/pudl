@@ -2,15 +2,19 @@ version: 2
 sources:
   - name: pudl
     tables:
-      - name: core_sec10k__quarterly_company_information
+      - name: out_sec10k__quarterly_company_information
         data_tests:
           - check_row_counts_per_partition:
-              table_name: core_sec10k__quarterly_company_information
-              partition_column: null
+              table_name: out_sec10k__quarterly_company_information
+              partition_column: report_date
         columns:
           - name: filename_sec10k
           - name: filer_count
           - name: central_index_key
+          - name: utility_id_eia
+          - name: utility_name_eia
+          - name: report_date
+          - name: filing_date
           - name: company_name
           - name: fiscal_year_end
             data_tests:
@@ -40,3 +44,4 @@ sources:
           - name: mail_zip_code
           - name: mail_zip_code_4
           - name: mail_postal_code
+          - name: source_url

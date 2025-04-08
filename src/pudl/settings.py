@@ -176,6 +176,15 @@ class PhmsaGasSettings(GenericDatasetSettings):
     """The list of years to validate."""
 
 
+class Sec10kSettings(GenericDatasetSettings):
+    """An immutable Pydantic model to validate SEC 10-K settings."""
+
+    data_source: ClassVar[DataSource] = DataSource.from_id("sec10k")
+    years: list[int] = data_source.working_partitions["years"]
+    """The list of valid years for which SEC 10-K data is available."""
+    tables: list[str] = data_source.working_partitions["tables"]
+
+
 class NrelAtbSettings(GenericDatasetSettings):
     """An immutable pydantic model to validate NREL ATB settings."""
 
@@ -524,9 +533,10 @@ class DatasetsSettings(FrozenBaseModel):
     ferc1: Ferc1Settings | None = None
     ferc714: Ferc714Settings | None = None
     glue: GlueSettings | None = None
-    phmsagas: PhmsaGasSettings | None = None
-    nrelatb: NrelAtbSettings | None = None
     gridpathratoolkit: GridPathRAToolkitSettings | None = None
+    nrelatb: NrelAtbSettings | None = None
+    phmsagas: PhmsaGasSettings | None = None
+    sec10k: Sec10kSettings | None = None
     vcerare: VCERareSettings | None = None
 
     @model_validator(mode="before")
@@ -546,9 +556,10 @@ class DatasetsSettings(FrozenBaseModel):
             data["ferc1"] = Ferc1Settings()
             data["ferc714"] = Ferc714Settings()
             data["glue"] = GlueSettings()
-            data["phmsagas"] = PhmsaGasSettings()
-            data["nrelatb"] = NrelAtbSettings()
             data["gridpathratoolkit"] = GridPathRAToolkitSettings()
+            data["nrelatb"] = NrelAtbSettings()
+            data["phmsagas"] = PhmsaGasSettings()
+            data["sec10k"] = Sec10kSettings()
             data["vcerare"] = VCERareSettings()
 
         return data
