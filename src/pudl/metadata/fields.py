@@ -1144,6 +1144,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Electricity demand (energy) within a given timeframe.",
         "unit": "MWh",
     },
+    "demand_agg_mwh": {
+        "type": "number",
+        "description": "Electricity demand (energy) within a given timeframe aggregated to the level of region, interconnect and contiguous United States.",
+        "unit": "MWh",
+    },
     "demand_density_mwh_km2": {
         "type": "number",
         "description": "Annual demand per km2 of a given service territory.",
@@ -2519,6 +2524,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Original reported energy interchange between adjacent balancing authorities.",
         "unit": "MWh",
+    },
+    "interconnect_code_eia": {
+        "type": "string",
+        "description": "EIA interconnect code.",
+        "constraints": {"enum": {"EASTERN", "WESTERN", "ERCOT"}},
     },
     "taxpayer_id_irs": {
         "type": "string",

@@ -93,3 +93,44 @@ imputed_ba_demand_assets = impute_timeseries_asset_factory(
     imputed_value_col="demand_imputed_pudl_mwh",
     id_col="balancing_authority_code_eia",
 )
+
+
+@asset(io_manager_key="parquet_io_manager")
+def out_eia930__hourly_demand(
+    out_eia930__hourly_operations: pd.DataFrame,
+    core_eia__codes_balancing_authorities: pd.DataFrame,
+) -> pd.DataFrame:
+    """Aggregate imputed demand from the BA level to region, interconnect, and contiguous US."""
+    aggregation_levels = {
+        "ba": "balancing_authority_region_code_eia",
+        "interconnect": "interconnect_code_eia",
+    }
+
+    # Mege with ``core_eia__codes_balancing_authorities`` to get mapping between
+    # Balancing authorities and regions/interconnects
+    other = core_eia__codes_balancing_authorities[
+        [
+            "code",
+            "balancing_authority_region_code_eia",
+            "interconnect_code_eia",
+        ]
+    ].rename(columns={"code": "balancing_authority_code_eia"})
+
+    df = out_eia930__hourly_operations.merge(other, on=["balancing_authority_code_eia"])
+
+    # Sum to aggregation levels and rename columns
+    aggregated_dfs = []
+    for level, column in aggregation_levels.items():
+        aggregated_df = (
+            df.groupby([column, "datetime_utc"], as_index=False)[
+                "demand_imputed_pudl_mwh"
+            ]
+            .sum()
+            .rename(
+                columns={column: "code", "demand_imputed_pudl_mwh": "demand_agg_mwh"}
+            )
+        )
+        aggregated_df["aggregation_group"] = level
+        aggregated_dfs.append(aggregated_df)
+
+    return pd.concat(aggregated_dfs)
