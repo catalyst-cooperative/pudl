@@ -203,30 +203,6 @@ def group_mean_continuity_check(
     return AssetCheckResult(passed=True, metadata=metadata)
 
 
-def check_unique_rows(
-    df: pd.DataFrame, subset: list[str] | None = None, df_name: str = ""
-) -> pd.DataFrame:
-    """Test whether dataframe has unique records within a subset of columns.
-
-    Args:
-        df: DataFrame to check for duplicate records.
-        subset: Columns to consider in checking for dupes.
-        df_name: Name of the dataframe, to aid in debugging/logging.
-
-    Returns:
-        The same DataFrame as was passed in, for use in DataFrame.pipe().
-
-    Raises:
-        ValueError:  If there are duplicate records in the subset of selected
-            columns.
-    """
-    n_dupes = len(df[df.duplicated(subset=subset)])
-    if n_dupes != 0:
-        raise ValueError(f"Found {n_dupes} dupes of {subset} in dataframe {df_name}")
-
-    return df
-
-
 def weighted_quantile(data: pd.Series, weights: pd.Series, quantile: float) -> float:
     """Calculate the weighted quantile of a Series or DataFrame column.
 
@@ -362,91 +338,6 @@ def vs_bounds(
                 f"{hi_q:.0%} quantile ({hi_test}) "
                 f"is above upper bound ({hi_bound}) "
                 f"in validation entitled {title}"
-            )
-
-
-def vs_self(
-    df, data_col, weight_col, query="", title="", low_q=0.05, mid_q=0.5, hi_q=0.95
-):
-    """Test a distribution against its own historical range.
-
-    This is a special case of the :func:`pudl.validate.vs_historical` function, in which
-    both the ``orig_df`` and ``test_df`` are the same. Mostly it helps ensure that the
-    test itself is valid for the given distribution.
-    """
-    if weight_col is None or weight_col == "":
-        df["ones"] = 1.0
-        weight_col = "ones"
-    vs_historical(
-        df,
-        df,
-        data_col,
-        weight_col,
-        query=query,
-        low_q=low_q,
-        mid_q=mid_q,
-        hi_q=hi_q,
-        title=title,
-    )
-
-
-def vs_historical(  # noqa: C901
-    orig_df,
-    test_df,
-    data_col,
-    weight_col,
-    query="",
-    low_q=0.05,
-    mid_q=0.5,
-    hi_q=0.95,
-    title="",
-):
-    """Validate aggregated distributions against original data."""
-    if query != "":
-        orig_df = orig_df.copy().query(query)
-        test_df = test_df.copy().query(query)
-    if title != "":
-        logger.info(title)
-    if weight_col is None or weight_col == "":
-        orig_df["ones"] = 1.0
-        test_df["ones"] = 1.0
-        weight_col = "ones"
-    if low_q:
-        low_range = historical_distribution(orig_df, data_col, weight_col, low_q)
-        low_test = weighted_quantile(test_df[data_col], test_df[weight_col], low_q)
-        logger.info(f"{data_col} ({low_q:.0%}): {low_test:.6} >= {min(low_range):.6}")
-        if low_test < min(low_range):
-            raise ValueError(
-                f"Lower value {low_test} below lower limit {min(low_range)} "
-                f"in validation of {data_col}"
-            )
-
-    if mid_q:
-        mid_range = historical_distribution(orig_df, data_col, weight_col, mid_q)
-        mid_test = weighted_quantile(test_df[data_col], test_df[weight_col], mid_q)
-        logger.info(
-            f"{data_col} ({mid_q:.0%}): {min(mid_range):.6} <= {mid_test:.6} "
-            f"<= {max(mid_range):.6}"
-        )
-        if mid_test < min(mid_range):
-            raise ValueError(
-                f"Middle value {mid_test} below lower limit {min(mid_range)} "
-                f"in validation of {data_col}"
-            )
-        if mid_test > max(mid_range):
-            raise ValueError(
-                f"Middle value {mid_test} above upper limit {max(mid_range)} "
-                f"in validation of {data_col}"
-            )
-
-    if hi_q:
-        hi_range = historical_distribution(orig_df, data_col, weight_col, hi_q)
-        hi_test = weighted_quantile(test_df[data_col], test_df[weight_col], hi_q)
-        logger.info(f"{data_col} ({hi_q:.0%}): {hi_test:.6} <= {max(hi_range):.6}.")
-        if hi_test > max(hi_range):
-            raise ValueError(
-                f"Upper value {hi_test} above upper limit {max(hi_range)} "
-                f"in validation of {data_col}"
             )
 
 
@@ -622,30 +513,6 @@ def plot_vs_bounds(df, validation_cases):
             warnings.warn("ERROR: Validation Failed", stacklevel=1)
 
         bounds_histogram(df, **args)
-
-
-def plot_vs_self(df, validation_cases):
-    """Validate a bunch of distributions against themselves."""
-    for args in validation_cases:
-        try:
-            vs_self(df, **args)
-        except ValueError as e:
-            logger.error(str(e))
-            warnings.warn("ERROR: Validation Failed", stacklevel=1)
-
-        historical_histogram(df, test_df=None, **args)
-
-
-def plot_vs_agg(orig_df, agg_df, validation_cases):
-    """Validate a bunch of distributions against aggregated versions."""
-    for args in validation_cases:
-        try:
-            vs_historical(orig_df, agg_df, **args)
-        except ValueError as e:
-            logger.error(str(e))
-            warnings.warn("ERROR: Validation Failed", stacklevel=1)
-
-        historical_histogram(orig_df, agg_df, **args)
 
 
 ###############################################################################

@@ -37,7 +37,7 @@ conda-clean:
 
 # Regenerate the conda lockfile and render platform specific conda environments.
 conda-lock.yml: pyproject.toml
-	${mamba} run --name base ${mamba} install --quiet --yes "conda-lock>=2.5.7" prettier
+	${mamba} run --name base ${mamba} install --quiet --yes "conda-lock>=3" prettier
 	${mamba} run --name base conda-lock \
 		--${mamba} \
 		--file=pyproject.toml \
@@ -51,7 +51,7 @@ conda-lock.yml: pyproject.toml
 # Create the pudl-dev conda environment based on the universal lockfile
 .PHONY: pudl-dev
 pudl-dev:
-	${mamba} run --name base ${mamba} install --quiet --yes "conda-lock>=2.5.7"
+	${mamba} run --name base ${mamba} install --quiet --yes "conda-lock>=3"
 # Only attempt to remove the pudl-dev environment if it already exists.
 	if ${mamba} env list | grep -q pudl-dev; then \
 		${mamba} env remove --quiet --yes --name pudl-dev; \

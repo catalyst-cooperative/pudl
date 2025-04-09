@@ -1,0 +1,14 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_sec10k__changelog_company_name
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_sec10k__changelog_company_name
+              partition_column: null
+        columns:
+          - name: central_index_key
+          - name: name_change_date
+          - name: company_name_old
+          - name: company_name

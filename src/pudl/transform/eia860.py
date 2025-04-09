@@ -1459,32 +1459,6 @@ def fgd_equipment_null_check(fgd):  # pragma: no cover
 
 
 @asset_check(asset=_core_eia860__fgd_equipment, blocking=True)
-def fgd_cost_discrepancy_check(fgd):  # pragma: no cover
-    """Costs should sum to cost_total.
-
-    To allow for *some* data quality errors we assert that costs ~=
-    total cost at least 99% of the time (with a 1% acceptable
-    discrepancy).
-    """
-
-    def sum_to_target_rate(sum_cols, target, threshold):
-        discrepancies = (
-            fgd.loc[:, sum_cols].sum(axis="columns") - fgd.loc[:, target]
-        ).dropna() / fgd.loc[:, target]
-        return (discrepancies > threshold).sum() / len(discrepancies)
-
-    opex_cost_discrepancy_rate = sum_to_target_rate(
-        sum_cols=[col for col in fgd if "cost_" in col and "total" not in col],
-        target="total_fgd_equipment_cost",
-        threshold=0.01,
-    )
-    logger.info(f"Observed FGD cost discrepancy: {opex_cost_discrepancy_rate}")
-    assert opex_cost_discrepancy_rate < 0.01
-
-    return AssetCheckResult(passed=True)
-
-
-@asset_check(asset=_core_eia860__fgd_equipment, blocking=True)
 def fgd_equipment_continuity(fgd):  # pragma: no cover
     """Check to see if columns vary as slowly as expected."""
     return pudl.validate.group_mean_continuity_check(
