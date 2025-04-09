@@ -28,10 +28,95 @@ sources:
           - name: fuel_type_code_pudl
           - name: planned_generator_retirement_date
           - name: capacity_factor
+            data_tests:
+              - expect_quantile_constraints:
+                  row_condition: fuel_type_code_pudl='coal' and capacity_factor<>0.0
+                  constraints:
+                    - quantile: 0.6
+                      min_value: 0.5
+                      max_value: 0.9
+                    - quantile: 0.1
+                      min_value: 0.036
+                    - quantile: 0.95
+                      max_value: 0.95
+                  weight_column: capacity_mw
+                  description: Quantile 0.1 dropped from 0.04 to 0.036 in April 2025. Keep an eye on it, and investigate if it gets worse.
           - name: fuel_cost_per_mmbtu_source
           - name: fuel_cost_per_mmbtu
+            data_tests:
+              - expect_quantile_constraints:
+                  row_condition: fuel_type_code_pudl='coal'
+                  constraints:
+                    - quantile: 0.5
+                      min_value: 1.5
+                      max_value: 3.0
+                    - quantile: 0.05
+                      min_value: 1.2
+                    - quantile: 0.95
+                      max_value: 4.5
+                  weight_column: total_mmbtu
+              - expect_quantile_constraints:
+                  row_condition: fuel_type_code_pudl='gas' and report_date>=CAST('2015-01-01' AS DATE)
+                  constraints:
+                    - quantile: 0.5
+                      min_value: 2.0
+                      max_value: 4.0
+                    - quantile: 0.05
+                      min_value: 1.48
+                    - quantile: 0.95
+                      max_value: 8.0
+                  weight_column: total_mmbtu
+                  description: Quantile 0.05 dropped from 1.65 to 1.489 in April 2025. Keep an eye on it, and investigate if it gets worse.
           - name: fuel_cost_per_mwh
+            data_tests:
+              - expect_quantile_constraints:
+                  row_condition: fuel_type_code_pudl='coal'
+                  constraints:
+                    - quantile: 0.5
+                      min_value: 18.0
+                      max_value: 27.0
+                    - quantile: 0.05
+                      min_value: 10.0
+                    - quantile: 0.95
+                      max_value: 50.0
+                  weight_column: net_generation_mwh
+              - expect_quantile_constraints:
+                  row_condition: fuel_type_code_pudl='gas' and report_date>=CAST('2015-01-01' AS DATE)
+                  constraints:
+                    - quantile: 0.5
+                      min_value: 20.0
+                      max_value: 30.0
+                    - quantile: 0.05
+                      min_value: 10.0
+                    - quantile: 0.95
+                      max_value: 61.4
+                  weight_column: net_generation_mwh
+                  description: Demoted to warning in April 2025 when quantile 0.5 dropped from 20.0 to 16.42. Investigate in issue 4187.
+                  severity: warn
           - name: unit_heat_rate_mmbtu_per_mwh
+            data_tests:
+              - expect_quantile_constraints:
+                  row_condition: fuel_type_code_pudl='gas' and report_date>=CAST('2015-01-01' AS DATE)
+                  constraints:
+                    - quantile: 0.5
+                      min_value: 7.0
+                      max_value: 7.5
+                    - quantile: 0.05
+                      min_value: 6.4
+                    - quantile: 0.95
+                      max_value: 13.0
+                  weight_column: net_generation_mwh
+              - expect_quantile_constraints:
+                  row_condition: fuel_type_code_pudl='coal'
+                  constraints:
+                    - quantile: 0.5
+                      min_value: 10.0
+                      max_value: 11.0
+                    - quantile: 0.05
+                      min_value: 9.0
+                    - quantile: 0.95
+                      max_value: 12.5
+                  weight_column: net_generation_mwh
           - name: net_generation_mwh
           - name: total_fuel_cost
           - name: total_mmbtu
