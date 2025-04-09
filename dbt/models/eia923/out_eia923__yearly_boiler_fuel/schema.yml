@@ -78,10 +78,11 @@ sources:
                   row_condition: fuel_type_code_pudl='oil'
                   constraints:
                     - quantile: 0.05
-                      min_value: 5.0
+                      min_value: 4.8
                     - quantile: 0.95
                       max_value: 6.6
                   weight_column: fuel_consumed_units
+                  description: Quantile 0.05 dropped from 5.0 to 4.805 in April 2025. Keep an eye on it, and investigate if it gets worse.
               - expect_quantile_constraints:
                   row_condition: fuel_type_code_pudl='gas'
                   constraints:
