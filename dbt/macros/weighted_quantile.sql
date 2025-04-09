@@ -7,7 +7,7 @@ WITH CumulativeWeights AS (
         SUM({{ weight_col }}) OVER (ORDER BY {{ column_name }}) AS cumulative_weight,
         SUM({{ weight_col }}) OVER () AS total_weight
     FROM {{ model }}
-    WHERE ({{ column_name }} IS NOT NULL OR {{ weight_col }} IS NOT NULL)
+    WHERE ({{ column_name }} IS NOT NULL AND {{ weight_col }} IS NOT NULL)
     {% if row_condition %}and {{ row_condition }}{% endif %}
 ),
 QuantileData AS (
