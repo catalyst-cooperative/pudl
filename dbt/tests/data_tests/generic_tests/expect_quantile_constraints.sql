@@ -35,7 +35,7 @@ constraint_{{ loop.index0 }} as (
 ){%- if not loop.last %},{%- endif %} -- end constraint_{{ loop.index0 }}
 {% endfor %}
 {% for constraint in constraints %}
-select '{{ constraint.quantile }}' as quantile, expression from constraint_{{ loop.index0 }}
+select distinct '{{ constraint.quantile }}' as quantile, expression from constraint_{{ loop.index0 }}
 {% if not loop.last %}UNION ALL{% endif %}
 {% endfor %}
 {% endtest %}
