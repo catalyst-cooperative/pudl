@@ -38,6 +38,7 @@ class DbtTable(BaseModel):
     """Define yaml structure of a dbt table."""
 
     name: str
+    description: str | None = None
     data_tests: list | None = None
     columns: list[DbtColumn]
 
@@ -525,9 +526,8 @@ def migrate_tests(table_name: str, test_config_name: str, model_name: str | None
 
     schema = _load_schema_yaml(schema_path)
 
-    schema = schema.add_column_tests(
-        _convert_config_variable_to_quantile_tests(test_config_name)
-    )
+    quantile_tests = _convert_config_variable_to_quantile_tests(test_config_name)
+    schema = schema.add_column_tests(quantile_tests, model_name=model_name)
 
     _write_dbt_yaml_config(schema_path, schema)
 
