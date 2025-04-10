@@ -374,6 +374,14 @@ class VCERareSettings(GenericDatasetSettings):
     """Include FIPS codes in VCE RARE Power Dataset."""
 
 
+class CensusPepSettings(GenericDatasetSettings):
+    """An immutable pydantic model to validate Census PEP settings."""
+
+    data_source: ClassVar[DataSource] = DataSource.from_id("censuspep")
+    years: list[int] = data_source.working_partitions["years"]
+    """The list of years to validate."""
+
+
 class GlueSettings(FrozenBaseModel):
     """An immutable pydantic model to validate Glue settings."""
 
@@ -538,6 +546,7 @@ class DatasetsSettings(FrozenBaseModel):
     phmsagas: PhmsaGasSettings | None = None
     sec10k: Sec10kSettings | None = None
     vcerare: VCERareSettings | None = None
+    censuspep: CensusPepSettings | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -561,6 +570,7 @@ class DatasetsSettings(FrozenBaseModel):
             data["phmsagas"] = PhmsaGasSettings()
             data["sec10k"] = Sec10kSettings()
             data["vcerare"] = VCERareSettings()
+            data["censuspep"] = CensusPepSettings()
 
         return data
 
