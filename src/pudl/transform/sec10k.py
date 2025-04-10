@@ -134,12 +134,12 @@ def _pivot_info_block(df: pd.DataFrame, block: str) -> pd.DataFrame:
     return pivoted
 
 
-def _clean_company_name(col: pd.Series) -> pd.Series:
-    """Conduct cleaning on a company name column and add column without legal terms.
+def _standardize_company_name(col: pd.Series) -> pd.Series:
+    """Clean a company name column and standardize legal terms.
 
     Uses the PUDL name cleaner object to do basic cleaning on `col_name` column
-    such as stripping punctuation, correcting case, normalizing legal
-    terms etc.
+    such as stripping punctuation, correcting case, and normalizing legal
+    terms, i.e. llc -> limited liability company.
 
     Arguments:
         col: The series of names that is to be cleaned.
@@ -154,19 +154,17 @@ def _clean_company_name(col: pd.Series) -> pd.Series:
     return col
 
 
-def _get_sec_state_code_dict() -> dict[str, str]:
+def _get_edgar_state_code_dict() -> dict[str, str]:
     """Create a dictionary mapping state codes to their names.
 
-    Table found at https://www.sec.gov/submit-filings/filer-support-resources/edgar-state-country-codes
+    Table found at https://www.sec.gov/submit-filings/filer-support-resources/edgar-state-country-codes .
     Published by SEC and reports valid state codes
     for filers of Form D. Used to standardize the state codes
     in the SEC 10K filings. The expanded names of the state codes
     are comments in the XML file, so we have to read the XML in as
     text and parse it.
     """
-    xml_filepath = (
-        resources.files("pudl.package_data.sec10k") / "formDStateCodes.xsd.xml"
-    )
+    xml_filepath = resources.files("pudl.package_data.sec") / "formDStateCodes.xsd.xml"
     with Path.open(xml_filepath) as file:
         xml_text = file.read()
 
@@ -178,12 +176,39 @@ def _get_sec_state_code_dict() -> dict[str, str]:
     return state_code_dict
 
 
-def _clean_location_of_incorporation(loc_col: pd.Series) -> pd.Series:
-    state_code_to_name = _get_sec_state_code_dict()
+def _get_alpha_2_country_code_dict() -> dict[str, str]:
+    """Create a dictionary mapping alpha 2 country codes to their names.
+
+    Table found at https://github.com/lukes/ISO-3166-Countries-with-Regional-Codes/blob/master/all/all.csv .
+    Most SEC locations from Ex. 21 attachments match the two digit EDGAR codes, however
+    some use alpha 2 country codes, i.e. us -> united states and ch -> switzerland.
+    Get a dictionary mapping these codes as well for use during location standardization.
+    """
+    df = pd.read_csv(
+        resources.files("pudl.package_data.sec") / "alpha-2_country_codes.csv",
+        dtype={"alpha-2": "string", "name": "string"},
+        keep_default_na=False,
+    )[["alpha-2", "name"]]
+    country_code_dict = df.set_index("alpha-2").to_dict()["name"]
+    country_code_dict = {k.lower(): v.lower() for k, v in country_code_dict.items()}
+    # do some adhoc standardization for the sake of better matching
+    # with common Ex. 21 location strings, e.g. one of the most common
+    # two digit strings that aren't already captured by these dictionaries
+    # is uk -> united kingdom
+    country_code_dict["uk"] = "united kingdom"
+    country_code_dict["us"] = "united states"
+    return country_code_dict
+
+
+def _standardize_location(loc_col: pd.Series) -> pd.Series:
+    """Map two letter state codes to full names using EDGAR state and country code mapping."""
+    edgar_code_to_name = _get_edgar_state_code_dict()
+    country_code_to_name = _get_alpha_2_country_code_dict()
     out = (
         loc_col.str.strip()
         .str.lower()
-        .replace(state_code_to_name)
+        .replace(edgar_code_to_name)
+        .replace(country_code_to_name)
         .fillna(pd.NA)
         .replace("", pd.NA)
     )
@@ -207,19 +232,18 @@ def _match_ex21_subsidiaries_to_filer_company(
         A dataframe of the Ex. 21 subsidiaries with a column for the
         subsidiaries CIK (null if the subsidiary doesn't file).
     """
-    filer_info_df["subsidiary_company_name"] = _clean_company_name(
+    filer_info_df["subsidiary_company_name"] = _standardize_company_name(
         filer_info_df["company_name"]
     )
-    ownership_df["subsidiary_company_name"] = _clean_company_name(
+    ownership_df["subsidiary_company_name"] = _standardize_company_name(
         ownership_df["subsidiary_company_name"]
     )
     filer_info_df = filer_info_df.dropna(subset="subsidiary_company_name")
     ownership_df = ownership_df.dropna(subset="subsidiary_company_name")
-    filer_info_df["incorporation_state"] = _clean_location_of_incorporation(
+    # expand two letter states codes to full location names to match
+    # the subsidiary_company_location column of the ownership table
+    filer_info_df["incorporation_state"] = _standardize_location(
         filer_info_df["incorporation_state"]
-    )
-    ownership_df["subsidiary_company_location"] = _clean_location_of_incorporation(
-        ownership_df["subsidiary_company_location"]
     )
     merged_df = filer_info_df.merge(
         ownership_df[
@@ -614,6 +638,9 @@ def core_sec10k__quarterly_exhibit_21_company_ownership(
     ).assign(
         filename_sec10k=lambda x: _simplify_filename_sec10k(x["filename_sec10k"]),
         fraction_owned=lambda x: _compute_fraction_owned(x["ownership_percentage"]),
+        subsidiary_company_location=lambda x: _standardize_location(
+            x["subsidiary_company_location"]
+        ),
     )
     df = df.merge(
         core_sec10k__quarterly_filings[
@@ -634,7 +661,6 @@ def core_sec10k__quarterly_exhibit_21_company_ownership(
             "central_index_key": "parent_company_central_index_key",
         }
     )
-    df["parent_company_name"] = df["parent_company_name"].str.lower()
     # sometimes there are subsidiaries with the same name but different
     # locations of incorporation listed in the same ex. 21, so include
     # location in the ID
@@ -735,7 +761,7 @@ def core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities(
             core_sec10k__assn_sec10k_filers_and_eia_utilities["utility_id_eia"].unique()
         )
     ]
-    unmatched_eia_utils_df["utility_name_eia"] = _clean_company_name(
+    unmatched_eia_utils_df["utility_name_eia"] = _standardize_company_name(
         unmatched_eia_utils_df["utility_name_eia"]
     )
     unmatched_eia_utils_df = unmatched_eia_utils_df.drop_duplicates(
@@ -753,7 +779,7 @@ def core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities(
             ].unique()
         )
     ][["subsidiary_company_name", "subsidiary_company_id_sec10k"]].drop_duplicates()
-    unmatched_subs_df["subsidiary_company_name"] = _clean_company_name(
+    unmatched_subs_df["subsidiary_company_name"] = _standardize_company_name(
         unmatched_subs_df["subsidiary_company_name"]
     )
     out_df = unmatched_subs_df.merge(

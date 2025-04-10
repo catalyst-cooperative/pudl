@@ -4763,7 +4763,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "subsidiary_company_location": {
         "type": "string",
-        "description": "Location of subsidiary company.",
+        "description": (
+            "Location of subsidiary company. This is the full US state name or country name "
+            "and occasionally a two digit code that was not mapped to a full name during cleaning."
+        ),
     },
     "subsidiary_company_name": {
         "type": "string",
