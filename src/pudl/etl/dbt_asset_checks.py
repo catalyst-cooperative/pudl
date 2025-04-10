@@ -9,13 +9,14 @@ from dagster import (
     AssetChecksDefinition,
     AssetKey,
     ConfigurableResource,
-    InitResourceContext,
+    ResourceDependency,
     ResourceParam,
     asset_check,
 )
 from filelock import FileLock
 
 from dbt.cli.main import dbtRunner
+from pudl.settings import DatasetsSettings
 from pudl.workspace.setup import PUDL_ROOT_DIR
 
 
@@ -29,14 +30,20 @@ class DbtRunner(ConfigurableResource):
     # NOTE 2025-04-04 dbt_dir is a str, not a Path, to work around Dagster
     # resource attr type limitations.
     dbt_dir: str
-    target: str
+    dataset_settings: ResourceDependency[DatasetsSettings]
 
-    def setup_for_execution(self, context: InitResourceContext):
-        """Dagster resource lifecycle hook - runs once-per-run setup for DBT."""
-        with FileLock(Path(self.dbt_dir) / "dbt.lock"), chdir(self.dbt_dir):
-            dbt = dbtRunner()
-            dbt.invoke(["deps"])
-            dbt.invoke(["seed"])
+    @property
+    def target(self):
+        """The DBT target, derived from dataset settings.
+
+        For runs that aren't associated with any predefined ETL type (e.g. if
+        you just call ``materialize()``), assume that the DBT target should be
+        "etl-fast". We could add the option to define ad-hoc seed data, but
+        haven't done so yet as of 2025-04-10.
+        """
+        etl_settings = self.dataset_settings.etl_type
+        target = etl_settings if etl_settings != "adhoc" else "fast"
+        return f"etl-{target}"
 
     def build(self, resource_name: str):
         """Build a dagster resource, including tests.
@@ -52,8 +59,8 @@ class DbtRunner(ConfigurableResource):
         lock_path = Path(self.dbt_dir) / "dbt.lock"
         with FileLock(lock_path), chdir(self.dbt_dir):
             dbt = dbtRunner()
-            dbt.invoke(["deps", "--quiet"])
-            dbt.invoke(["seed", "--quiet"])
+            dbt.invoke(["deps", "--target", self.target, "--quiet"])
+            dbt.invoke(["seed", "--target", self.target, "--quiet"])
             build_result = dbt.invoke(
                 [
                     "build",

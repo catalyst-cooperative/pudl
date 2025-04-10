@@ -536,7 +536,7 @@ class EiaSettings(FrozenBaseModel):
 class DatasetsSettings(FrozenBaseModel):
     """An immutable pydantic model to validate PUDL Dataset settings."""
 
-    etl_type: Literal["fast", "full"] = "full"
+    etl_type: Literal["fast", "full", "adhoc"] = "adhoc"
 
     eia: EiaSettings | None = None
     epacems: EpaCemsSettings | None = None

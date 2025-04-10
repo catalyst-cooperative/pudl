@@ -224,7 +224,7 @@ default_resources = {
     "datastore": datastore,
     "dbt_runner": dbt_asset_checks.DbtRunner(
         dbt_dir=str(PUDL_ROOT_DIR / "dbt"),
-        target="etl-fast",
+        dataset_settings=dataset_settings,
     ),
     "pudl_io_manager": pudl_mixed_format_io_manager,
     "ferc1_dbf_sqlite_io_manager": ferc1_dbf_sqlite_io_manager,
