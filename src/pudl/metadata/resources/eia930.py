@@ -204,7 +204,7 @@ It aggregates demand to the level of EIA regions, interconnects, and the contigu
                 "datetime_utc",
                 "code",
                 "aggregation_group",
-                "demand_agg_mwh",
+                "demand_imputed_pudl_mwh",
             ],
             "primary_key": [
                 "datetime_utc",
