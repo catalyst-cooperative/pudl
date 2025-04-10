@@ -61,6 +61,7 @@ tables is normalized as a whole.
 """
 
 from . import (
+    censuspep,
     classes,
     eia,
     eia176,

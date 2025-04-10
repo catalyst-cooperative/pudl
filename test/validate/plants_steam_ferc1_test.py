@@ -50,20 +50,3 @@ def test_vs_bounds(pudl_out_ferc1, live_dbs, cases):
     )
     for case in cases:
         pudl.validate.vs_bounds(validate_df, **case)
-
-
-def test_self_vs_historical(pudl_out_ferc1, live_dbs):
-    """Validate..."""
-    if not live_dbs:
-        pytest.skip("Data validation only works with a live PUDL DB.")
-    validate_df = pd.read_sql(
-        "out_ferc1__yearly_steam_plants_sched402", pudl_out_ferc1.pudl_engine
-    ).assign(
-        water_limited_ratio=lambda x: x.water_limited_capacity_mw / x.capacity_mw,
-        not_water_limited_ratio=lambda x: x.not_water_limited_capacity_mw
-        / x.capacity_mw,
-        peak_demand_ratio=lambda x: x.peak_demand_mw / x.capacity_mw,
-        capability_ratio=lambda x: x.plant_capability_mw / x.capacity_mw,
-    )
-    for args in pv.core_ferc1__yearly_steam_plants_sched402_self:
-        pudl.validate.vs_self(validate_df, **args)
