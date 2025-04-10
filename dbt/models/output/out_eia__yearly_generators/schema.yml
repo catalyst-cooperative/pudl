@@ -103,6 +103,7 @@ sources:
                       max_value: 61.4
                   weight_column: net_generation_mwh
                   description: Demoted to warning in April 2025 when quantile 0.5 dropped from 20.0 to 16.55. Investigate in issue 4188.
+                  severity: warn
           - name: unit_heat_rate_mmbtu_per_mwh
             data_tests:
               - expect_quantile_constraints:
