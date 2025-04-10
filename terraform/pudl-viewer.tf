@@ -167,7 +167,7 @@ resource "google_cloud_run_v2_job" "pudl_viewer_db_migration" {
 
       containers {
         image   = "us-east1-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.pudl_viewer.name}/pudl-viewer:latest"
-        command = ["uv", "run", "flask", "--app", "parquet_fe_prototype", "db", "upgrade"]
+        command = ["uv", "run", "flask", "--app", "eel_hole", "db", "upgrade"]
 
         volume_mounts {
           name       = "cloudsql"
