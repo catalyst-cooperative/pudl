@@ -197,18 +197,20 @@ vetted yet."""
             """EXPERIMENTAL / WORK-IN-PROGRESS, 2025-04-04.
 
 This aggregates imputed demand from the ``out_eia930__hourly_operations`` table.
-It aggregates demand to the level of EIA regions, interconnects, and the contiguous United States."""
+It aggregates demand to the level of EIA regions, interconnects, and the contiguous
+United States. The spatial granularity of each record is indicated by
+``aggregation_level``."""
         ),
         "schema": {
             "fields": [
                 "datetime_utc",
-                "code",
+                "aggregation_level",
                 "aggregation_group",
                 "demand_imputed_pudl_mwh",
             ],
             "primary_key": [
                 "datetime_utc",
-                "code",
+                "aggregation_level",
                 "aggregation_group",
             ],
         },

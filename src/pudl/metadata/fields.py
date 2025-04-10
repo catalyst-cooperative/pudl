@@ -83,6 +83,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "A label identifying a group of aggregated generator capacity factors.",
     },
+    "aggregation_level": {
+        "type": "string",
+        "description": "Indicates the spacial granularity of aggregated value.",
+        "constraints": {
+            "enum": ["BA", "INTERCONNECT", "CONUS"],
+        },
+    },
     "air_flow_100pct_load_cubic_feet_per_minute": {
         "type": "number",
         "unit": "cfm",
@@ -6620,6 +6627,11 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     "out_eia860__yearly_ownership": {
         "utility_id_pudl": {
             "description": "A manually assigned PUDL utility ID for the owner company that is responsible for the day-to-day operations of the generator, not the operator utility. May not be stable over time."
+        }
+    },
+    "out_eia930__hourly_demand": {
+        "aggregation_group": {
+            "description": "Label indentifying a group of aggregated deamnd."
         }
     },
 }

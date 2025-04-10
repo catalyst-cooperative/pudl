@@ -126,15 +126,15 @@ def out_eia930__hourly_demand(
                 "demand_imputed_pudl_mwh"
             ]
             .sum()
-            .rename(columns={column: "code"})
+            .rename(columns={column: "aggregation_group"})
         )
-        aggregated_df["aggregation_group"] = level
+        aggregated_df["aggregation_level"] = level
         aggregated_dfs.append(aggregated_df)
 
     conus_df = df.groupby(["datetime_utc"], as_index=False)[
         "demand_imputed_pudl_mwh"
     ].sum()
-    conus_df["code"] = "CONUS"
     conus_df["aggregation_group"] = "CONUS"
+    conus_df["aggregation_level"] = "CONUS"
 
     return pd.concat(aggregated_dfs + [conus_df])
