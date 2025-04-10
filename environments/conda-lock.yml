@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: 9b7c77a6799b7a56f55a0a98ab69d01ca94523798875eb7467bd94fe64dbea81
-    osx-64: f53762f0273d18c353215da820fbb3c35ec036d5c2510f3978ce46489343b9db
-    osx-arm64: 50adeedc9455e50abee4053e6fede4c26daa5bc40906b18bad146675d05b5a00
+    linux-64: dc52ddfe2163d8a2bdf3d778bde3b8e899457ff0304a5aca150e595d674b0937
+    osx-64: c2f83499d9f2dfc6060213fdb9f034b9be1e79208ae6d82a5533d5133f404a15
+    osx-arm64: ed164c97693325f13122be0c9f31334f1bf5621c9039cfc70e8f1406f45f8481
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -6393,42 +6393,6 @@ package:
       sha256: a54317217ac986038b01c254a9f06b59f4401587f936ba2089e5fc025c7fc698
     category: main
     optional: false
-  - name: entrypoints
-    version: "0.4"
-    manager: conda
-    platform: linux-64
-    dependencies:
-      python: ">=3.9"
-    url: https://conda.anaconda.org/conda-forge/noarch/entrypoints-0.4-pyhd8ed1ab_1.conda
-    hash:
-      md5: 3366592d3c219f2731721f11bc93755c
-      sha256: 80f579bfc71b3dab5bef74114b89e26c85cb0df8caf4c27ab5ffc16363d57ee7
-    category: main
-    optional: false
-  - name: entrypoints
-    version: "0.4"
-    manager: conda
-    platform: osx-64
-    dependencies:
-      python: ">=3.9"
-    url: https://conda.anaconda.org/conda-forge/noarch/entrypoints-0.4-pyhd8ed1ab_1.conda
-    hash:
-      md5: 3366592d3c219f2731721f11bc93755c
-      sha256: 80f579bfc71b3dab5bef74114b89e26c85cb0df8caf4c27ab5ffc16363d57ee7
-    category: main
-    optional: false
-  - name: entrypoints
-    version: "0.4"
-    manager: conda
-    platform: osx-arm64
-    dependencies:
-      python: ">=3.9"
-    url: https://conda.anaconda.org/conda-forge/noarch/entrypoints-0.4-pyhd8ed1ab_1.conda
-    hash:
-      md5: 3366592d3c219f2731721f11bc93755c
-      sha256: 80f579bfc71b3dab5bef74114b89e26c85cb0df8caf4c27ab5ffc16363d57ee7
-    category: main
-    optional: false
   - name: epoxy
     version: 1.5.10
     manager: conda
@@ -10505,42 +10469,6 @@ package:
       sha256: 24cabcd711d03d2865a67ebc17941bc9bde949b3f0c9a34655c4153dce1c34c3
     category: main
     optional: false
-  - name: ipython_genutils
-    version: 0.2.0
-    manager: conda
-    platform: linux-64
-    dependencies:
-      python: ">=3.9"
-    url: https://conda.anaconda.org/conda-forge/noarch/ipython_genutils-0.2.0-pyhd8ed1ab_2.conda
-    hash:
-      md5: 2f0ba4bc12af346bc6c99bdc377e8944
-      sha256: 45821a8986b4cb2421f766b240dbe6998a3c3123f012dd566720c1322e9b6e18
-    category: main
-    optional: false
-  - name: ipython_genutils
-    version: 0.2.0
-    manager: conda
-    platform: osx-64
-    dependencies:
-      python: ">=3.9"
-    url: https://conda.anaconda.org/conda-forge/noarch/ipython_genutils-0.2.0-pyhd8ed1ab_2.conda
-    hash:
-      md5: 2f0ba4bc12af346bc6c99bdc377e8944
-      sha256: 45821a8986b4cb2421f766b240dbe6998a3c3123f012dd566720c1322e9b6e18
-    category: main
-    optional: false
-  - name: ipython_genutils
-    version: 0.2.0
-    manager: conda
-    platform: osx-arm64
-    dependencies:
-      python: ">=3.9"
-    url: https://conda.anaconda.org/conda-forge/noarch/ipython_genutils-0.2.0-pyhd8ed1ab_2.conda
-    hash:
-      md5: 2f0ba4bc12af346bc6c99bdc377e8944
-      sha256: 45821a8986b4cb2421f766b240dbe6998a3c3123f012dd566720c1322e9b6e18
-    category: main
-    optional: false
   - name: ipython_pygments_lexers
     version: 1.1.1
     manager: conda
@@ -11513,60 +11441,57 @@ package:
     category: dev
     optional: true
   - name: jupyter_client
-    version: 7.4.9
+    version: 8.6.3
     manager: conda
     platform: linux-64
     dependencies:
-      entrypoints: ""
-      jupyter_core: ">=4.9.2"
-      nest-asyncio: ">=1.5.4"
-      python: ">=3.7"
+      importlib-metadata: ">=4.8.3"
+      jupyter_core: ">=4.12,!=5.0.*"
+      python: ">=3.9"
       python-dateutil: ">=2.8.2"
       pyzmq: ">=23.0"
       tornado: ">=6.2"
-      traitlets: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/jupyter_client-7.4.9-pyhd8ed1ab_0.conda
+      traitlets: ">=5.3"
+    url: https://conda.anaconda.org/conda-forge/noarch/jupyter_client-8.6.3-pyhd8ed1ab_1.conda
     hash:
-      md5: 5cbf9a31a19d4ef9103adb7d71fd45fd
-      sha256: 38e67f3e0d631f4aeeab4bbd4062dcb6f4ae9dc35803053c995d02912a999b65
+      md5: 4ebae00eae9705b0c3d6d1018a81d047
+      sha256: 19d8bd5bb2fde910ec59e081eeb59529491995ce0d653a5209366611023a0b3a
     category: main
     optional: false
   - name: jupyter_client
-    version: 7.4.9
+    version: 8.6.3
     manager: conda
     platform: osx-64
     dependencies:
-      entrypoints: ""
-      jupyter_core: ">=4.9.2"
-      nest-asyncio: ">=1.5.4"
-      python: ">=3.7"
+      importlib-metadata: ">=4.8.3"
+      jupyter_core: ">=4.12,!=5.0.*"
+      python: ">=3.9"
       python-dateutil: ">=2.8.2"
       pyzmq: ">=23.0"
       tornado: ">=6.2"
-      traitlets: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/jupyter_client-7.4.9-pyhd8ed1ab_0.conda
+      traitlets: ">=5.3"
+    url: https://conda.anaconda.org/conda-forge/noarch/jupyter_client-8.6.3-pyhd8ed1ab_1.conda
     hash:
-      md5: 5cbf9a31a19d4ef9103adb7d71fd45fd
-      sha256: 38e67f3e0d631f4aeeab4bbd4062dcb6f4ae9dc35803053c995d02912a999b65
+      md5: 4ebae00eae9705b0c3d6d1018a81d047
+      sha256: 19d8bd5bb2fde910ec59e081eeb59529491995ce0d653a5209366611023a0b3a
     category: main
     optional: false
   - name: jupyter_client
-    version: 7.4.9
+    version: 8.6.3
     manager: conda
     platform: osx-arm64
     dependencies:
-      entrypoints: ""
-      jupyter_core: ">=4.9.2"
-      nest-asyncio: ">=1.5.4"
-      python: ">=3.7"
+      importlib-metadata: ">=4.8.3"
+      jupyter_core: ">=4.12,!=5.0.*"
+      python: ">=3.9"
       python-dateutil: ">=2.8.2"
       pyzmq: ">=23.0"
       tornado: ">=6.2"
-      traitlets: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/jupyter_client-7.4.9-pyhd8ed1ab_0.conda
+      traitlets: ">=5.3"
+    url: https://conda.anaconda.org/conda-forge/noarch/jupyter_client-8.6.3-pyhd8ed1ab_1.conda
     hash:
-      md5: 5cbf9a31a19d4ef9103adb7d71fd45fd
-      sha256: 38e67f3e0d631f4aeeab4bbd4062dcb6f4ae9dc35803053c995d02912a999b65
+      md5: 4ebae00eae9705b0c3d6d1018a81d047
+      sha256: 19d8bd5bb2fde910ec59e081eeb59529491995ce0d653a5209366611023a0b3a
     category: main
     optional: false
   - name: jupyter_console
@@ -16812,54 +16737,6 @@ package:
       sha256: 18dc93235ee5d54a663913edfb47634972ca9ec4dc089414f798fa786be2d4da
     category: main
     optional: false
-  - name: nbclassic
-    version: 1.2.0
-    manager: conda
-    platform: linux-64
-    dependencies:
-      ipykernel: ""
-      ipython_genutils: ""
-      nest-asyncio: ">=1.5"
-      notebook-shim: ">=0.2.3"
-      python: ">=3.9"
-    url: https://conda.anaconda.org/conda-forge/noarch/nbclassic-1.2.0-pyhd8ed1ab_0.conda
-    hash:
-      md5: abc7d3f122281a59dbbfec4a5823e11f
-      sha256: ed917b37260bb75fc3de2f9e27b404cf32336a51615d63b411da1dfea620d80d
-    category: main
-    optional: false
-  - name: nbclassic
-    version: 1.2.0
-    manager: conda
-    platform: osx-64
-    dependencies:
-      ipykernel: ""
-      ipython_genutils: ""
-      nest-asyncio: ">=1.5"
-      notebook-shim: ">=0.2.3"
-      python: ">=3.9"
-    url: https://conda.anaconda.org/conda-forge/noarch/nbclassic-1.2.0-pyhd8ed1ab_0.conda
-    hash:
-      md5: abc7d3f122281a59dbbfec4a5823e11f
-      sha256: ed917b37260bb75fc3de2f9e27b404cf32336a51615d63b411da1dfea620d80d
-    category: main
-    optional: false
-  - name: nbclassic
-    version: 1.2.0
-    manager: conda
-    platform: osx-arm64
-    dependencies:
-      ipykernel: ""
-      ipython_genutils: ""
-      nest-asyncio: ">=1.5"
-      notebook-shim: ">=0.2.3"
-      python: ">=3.9"
-    url: https://conda.anaconda.org/conda-forge/noarch/nbclassic-1.2.0-pyhd8ed1ab_0.conda
-    hash:
-      md5: abc7d3f122281a59dbbfec4a5823e11f
-      sha256: ed917b37260bb75fc3de2f9e27b404cf32336a51615d63b411da1dfea620d80d
-    category: main
-    optional: false
   - name: nbclient
     version: 0.10.2
     manager: conda
@@ -17370,87 +17247,54 @@ package:
     category: main
     optional: false
   - name: notebook
-    version: 6.5.7
+    version: 7.4.0
     manager: conda
     platform: linux-64
     dependencies:
-      argon2-cffi: ""
-      ipykernel: ""
-      ipython_genutils: ""
-      jinja2: ""
-      jupyter_client: ">=5.3.4,<8"
-      jupyter_core: ">=4.6.1"
-      nbclassic: ">=0.4.7"
-      nbconvert-core: ">=5"
-      nbformat: ""
-      nest-asyncio: ">=1.5"
-      prometheus_client: ""
-      python: ">=3.7"
-      pyzmq: ">=17"
-      send2trash: ">=1.8.0"
-      terminado: ">=0.8.3"
-      tornado: ">=6.1"
-      traitlets: ">=4.2.1"
-    url: https://conda.anaconda.org/conda-forge/noarch/notebook-6.5.7-pyha770c72_0.conda
+      jupyter_server: ">=2.4.0,<3"
+      jupyterlab: ">=4.4.0,<4.5"
+      jupyterlab_server: ">=2.27.1,<3"
+      notebook-shim: ">=0.2,<0.3"
+      python: ">=3.9"
+      tornado: ">=6.2.0"
+    url: https://conda.anaconda.org/conda-forge/noarch/notebook-7.4.0-pyhd8ed1ab_0.conda
     hash:
-      md5: f81a6fe643390df9347984644727d796
-      sha256: e37db45223e432bcad809897177e05fff31828dfcfc3ef18f046ae44ec01286c
+      md5: 7e82caa4495c513bcfb33a159e1222d4
+      sha256: d3f70987bc1e1a20b122726a49a24e5e6f09d00c9862bb399cd1682cd59a1e1e
     category: main
     optional: false
   - name: notebook
-    version: 6.5.7
+    version: 7.4.0
     manager: conda
     platform: osx-64
     dependencies:
-      argon2-cffi: ""
-      ipykernel: ""
-      ipython_genutils: ""
-      jinja2: ""
-      jupyter_client: ">=5.3.4,<8"
-      jupyter_core: ">=4.6.1"
-      nbclassic: ">=0.4.7"
-      nbconvert-core: ">=5"
-      nbformat: ""
-      nest-asyncio: ">=1.5"
-      prometheus_client: ""
-      python: ">=3.7"
-      pyzmq: ">=17"
-      send2trash: ">=1.8.0"
-      terminado: ">=0.8.3"
-      tornado: ">=6.1"
-      traitlets: ">=4.2.1"
-    url: https://conda.anaconda.org/conda-forge/noarch/notebook-6.5.7-pyha770c72_0.conda
+      jupyter_server: ">=2.4.0,<3"
+      jupyterlab: ">=4.4.0,<4.5"
+      jupyterlab_server: ">=2.27.1,<3"
+      notebook-shim: ">=0.2,<0.3"
+      python: ">=3.9"
+      tornado: ">=6.2.0"
+    url: https://conda.anaconda.org/conda-forge/noarch/notebook-7.4.0-pyhd8ed1ab_0.conda
     hash:
-      md5: f81a6fe643390df9347984644727d796
-      sha256: e37db45223e432bcad809897177e05fff31828dfcfc3ef18f046ae44ec01286c
+      md5: 7e82caa4495c513bcfb33a159e1222d4
+      sha256: d3f70987bc1e1a20b122726a49a24e5e6f09d00c9862bb399cd1682cd59a1e1e
     category: main
     optional: false
   - name: notebook
-    version: 6.5.7
+    version: 7.4.0
     manager: conda
     platform: osx-arm64
     dependencies:
-      argon2-cffi: ""
-      ipykernel: ""
-      ipython_genutils: ""
-      jinja2: ""
-      jupyter_client: ">=5.3.4,<8"
-      jupyter_core: ">=4.6.1"
-      nbclassic: ">=0.4.7"
-      nbconvert-core: ">=5"
-      nbformat: ""
-      nest-asyncio: ">=1.5"
-      prometheus_client: ""
-      python: ">=3.7"
-      pyzmq: ">=17"
-      send2trash: ">=1.8.0"
-      terminado: ">=0.8.3"
-      tornado: ">=6.1"
-      traitlets: ">=4.2.1"
-    url: https://conda.anaconda.org/conda-forge/noarch/notebook-6.5.7-pyha770c72_0.conda
+      jupyter_server: ">=2.4.0,<3"
+      jupyterlab: ">=4.4.0,<4.5"
+      jupyterlab_server: ">=2.27.1,<3"
+      notebook-shim: ">=0.2,<0.3"
+      python: ">=3.9"
+      tornado: ">=6.2.0"
+    url: https://conda.anaconda.org/conda-forge/noarch/notebook-7.4.0-pyhd8ed1ab_0.conda
     hash:
-      md5: f81a6fe643390df9347984644727d796
-      sha256: e37db45223e432bcad809897177e05fff31828dfcfc3ef18f046ae44ec01286c
+      md5: 7e82caa4495c513bcfb33a159e1222d4
+      sha256: d3f70987bc1e1a20b122726a49a24e5e6f09d00c9862bb399cd1682cd59a1e1e
     category: main
     optional: false
   - name: notebook-shim
@@ -17493,7 +17337,7 @@ package:
     category: main
     optional: false
   - name: numba
-    version: 0.61.0
+    version: 0.61.2
     manager: conda
     platform: linux-64
     dependencies:
@@ -17502,49 +17346,49 @@ package:
       libgcc: ">=13"
       libstdcxx: ">=13"
       llvmlite: ">=0.44.0,<0.45.0a0"
-      numpy: ">=1.24,<2.2"
+      numpy: ">=1.24"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/numba-0.61.0-py312h2e6246c_1.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/numba-0.61.2-py312h2e6246c_0.conda
     hash:
-      md5: f65d300639d0d9d2777cd4cb10440eab
-      sha256: 1ebd4f29d7ffa7aa8320a16caee7e6722b719daf4819c08cdb30c8c636f005b9
+      md5: be539dab9ccbe8390fc8df775a7d696d
+      sha256: 1fa61c53a0f7ac9eaec09b7f089479383cc0b82d0f611c08c594f783d5ee90c4
     category: main
     optional: false
   - name: numba
-    version: 0.61.0
+    version: 0.61.2
     manager: conda
     platform: osx-64
     dependencies:
       __osx: ">=10.13"
       libcxx: ">=18"
-      llvm-openmp: ">=19.1.7"
+      llvm-openmp: ">=20.1.2"
       llvmlite: ">=0.44.0,<0.45.0a0"
-      numpy: ">=1.24,<2.2"
+      numpy: ">=1.24"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/numba-0.61.0-py312hfa89a5f_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/numba-0.61.2-py312hfa89a5f_0.conda
     hash:
-      md5: 21d5d1c7a1e4cb6e94b274487975b03d
-      sha256: 42beb920fc839d299a03a478d6fc15429c8a1dfeedb5ddde2367eb84db52e63b
+      md5: 1cf44f1ac1157a4a123ea686c5447caf
+      sha256: c7a3b099e0668ff51e4b9162c296a9fa658900855c2783b62d8f05fd660ee02e
     category: main
     optional: false
   - name: numba
-    version: 0.61.0
+    version: 0.61.2
     manager: conda
     platform: osx-arm64
     dependencies:
       __osx: ">=11.0"
       libcxx: ">=18"
-      llvm-openmp: ">=19.1.7"
+      llvm-openmp: ">=20.1.2"
       llvmlite: ">=0.44.0,<0.45.0a0"
-      numpy: ">=1.24,<2.2"
+      numpy: ">=1.24"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/numba-0.61.0-py312hdf12f13_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/numba-0.61.2-py312hdf12f13_0.conda
     hash:
-      md5: c71f93305452b543043100f7dc71f9ac
-      sha256: ad53ce23810a69901ffca9492c1bafcecac53256a8064209be6f8de6153ee966
+      md5: 362eab5dbc3b54691cae3d56b319cd6f
+      sha256: b2de003be998e51fbb6d4a8d1b728239acb9ac0ef05882b82d689429608c1709
     category: main
     optional: false
   - name: numexpr
@@ -17598,7 +17442,7 @@ package:
     category: main
     optional: false
   - name: numpy
-    version: 2.1.3
+    version: 2.2.4
     manager: conda
     platform: linux-64
     dependencies:
@@ -17610,14 +17454,14 @@ package:
       libstdcxx: ">=13"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/numpy-2.1.3-py312h58c1407_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/numpy-2.2.4-py312h72c5963_0.conda
     hash:
-      md5: dfdbc12e6d81889ba4c494a23f23eba8
-      sha256: e4c14f71588a5627a6935d3e7d9ca78a8387229ec8ebc91616b0988ce57ba0dc
+      md5: 3f2871f111d8c0abd9c3150a8627507e
+      sha256: 47b3b2ae21efb227db7410f2701291cf47d816fd96461bdede415d7d75d8a436
     category: main
     optional: false
   - name: numpy
-    version: 2.1.3
+    version: 2.2.4
     manager: conda
     platform: osx-64
     dependencies:
@@ -17628,14 +17472,14 @@ package:
       liblapack: ">=3.9.0,<4.0a0"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/numpy-2.1.3-py312hfc93d17_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/numpy-2.2.4-py312h6693b03_0.conda
     hash:
-      md5: 011118baf131914d1cb48e07317f0946
-      sha256: 2f120e958da2d6ab7e4785a42515b4f65f70422b8b722e1a75654962fcfb26e9
+      md5: 5ac6821ebd39e56eb3e32149340ab51c
+      sha256: 21fe25afa23299c02b88114f1f774d124d4b52517f6b275359c281ac06f0996e
     category: main
     optional: false
   - name: numpy
-    version: 2.1.3
+    version: 2.2.4
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -17646,10 +17490,10 @@ package:
       liblapack: ">=3.9.0,<4.0a0"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/numpy-2.1.3-py312h94ee1e1_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/numpy-2.2.4-py312h7c1f314_0.conda
     hash:
-      md5: a2af54c86582e08718805c69af737897
-      sha256: cd287b6c270ee8af77d200c46d56fdfe1e2a9deeff68044439718b8d073214dd
+      md5: 001a57e8f4cc0c12841d341b94ef8787
+      sha256: 68eafd2b7beca8467fe84a8a03767680be686d601a0771d3414c7019f3302ee0
     category: main
     optional: false
   - name: oauthlib
