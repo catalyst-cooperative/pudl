@@ -15,23 +15,26 @@ def generate_legible_output(
 ) -> str:
     components = []
 
-    def tables(name, dct):
-        return f"{name} is missing the following tables:\n\t{'\n\t'.join(sorted(dct))}"
+    def tables(desc, dct):
+        return f"{desc} tables:\n\t{'\n\t'.join(sorted(dct))}"
 
-    def fields(name, dct):
-        scratch = [f"{name} is missing the following fields:"]
+    def fields(desc, dct):
+        scratch = [f"{desc} fields:"]
         for table, fields in dct.items():
             scratch.append(f"\t{table}\n\t\t{'\n\t\t'.join(fields)}")
         return "\n".join(scratch)
 
+    not_in_dbt_desc = "dbt is missing the following"
+    not_in_pudl_desc = "dbt has the following extra"
+
     if pudl_tables_not_in_dbt:
-        components.append(tables("dbt", pudl_tables_not_in_dbt))
+        components.append(tables(not_in_dbt_desc, pudl_tables_not_in_dbt))
     if pudl_fields_not_in_dbt:
-        components.append(fields("dbt", pudl_fields_not_in_dbt))
+        components.append(fields(not_in_dbt_desc, pudl_fields_not_in_dbt))
     if dbt_tables_not_in_pudl:
-        components.append(tables("pudl", dbt_tables_not_in_pudl))
+        components.append(tables(not_in_pudl_desc, dbt_tables_not_in_pudl))
     if dbt_fields_not_in_pudl:
-        components.append(fields("pudl", dbt_fields_not_in_pudl))
+        components.append(fields(not_in_pudl_desc, dbt_fields_not_in_pudl))
     return "\n\n".join(components)
 
 
