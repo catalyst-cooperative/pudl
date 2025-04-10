@@ -88,9 +88,9 @@ sources:
                     - quantile: 0.05
                       min_value: 0.98
                     - quantile: 0.95
-                      max_value: 1.095
+                      max_value: 1.096
                   weight_column: fuel_consumed_units
-                  description: Quantile 0.95 rose from 1.08 to 1.095 April 2025. Keep an eye on it, and investigate if it gets worse.
+                  description: Quantile 0.95 rose from 1.08 to 1.096 April 2025. Keep an eye on it, and investigate if it gets worse.
           - name: fuel_type_code_pudl
           - name: fuel_units
           - name: record_id
