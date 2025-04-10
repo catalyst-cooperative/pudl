@@ -5,12 +5,32 @@ This module contains routines for reshaping, cleaning, and standardizing the raw
 for denormalized output tables.
 """
 
+import re
+from importlib import resources
+from pathlib import Path
+
 import dagster as dg
 import pandas as pd
 
 from pudl import logging_helpers
+from pudl.analysis.record_linkage import name_cleaner
 
 logger = logging_helpers.get_logger(__name__)
+
+company_name_cleaner = name_cleaner.CompanyNameCleaner(
+    cleaning_rules_list=[
+        "replace_ampersand_in_spaces_by_AND",
+        "replace_hyphen_by_space",
+        "replace_underscore_by_space",
+        "remove_text_punctuation",
+        "remove_parentheses",
+        "remove_brackets",
+        "remove_curly_brackets",
+        "remove_words_between_slashes",
+        "enforce_single_space_between_words",
+    ],
+    legal_term_location=2,
+)
 
 
 ######################################################################
@@ -112,6 +132,198 @@ def _pivot_info_block(df: pd.DataFrame, block: str) -> pd.DataFrame:
     )
     pivoted.columns.name = None
     return pivoted
+
+
+def _standardize_company_name(col: pd.Series) -> pd.Series:
+    """Clean a company name column and standardize legal terms.
+
+    Uses the PUDL name cleaner object to do basic cleaning on `col_name` column
+    such as stripping punctuation, correcting case, and normalizing legal
+    terms, i.e. llc -> limited liability company.
+
+    Arguments:
+        col: The series of names that is to be cleaned.
+
+    Returns:
+        pd.Series: The original Series now containing cleaned names.
+    """
+    col = col.fillna(pd.NA).str.strip().str.lower()
+    col = company_name_cleaner.apply_name_cleaning(col).str.strip()
+    col = col.replace("", pd.NA)
+
+    return col
+
+
+def _get_edgar_state_code_dict() -> dict[str, str]:
+    """Create a dictionary mapping state codes to their names.
+
+    Table found at https://www.sec.gov/submit-filings/filer-support-resources/edgar-state-country-codes .
+    Published by SEC and reports valid state codes
+    for filers of Form D. Used to standardize the state codes
+    in the SEC 10K filings. The expanded names of the state codes
+    are comments in the XML file, so we have to read the XML in as
+    text and parse it.
+    """
+    xml_filepath = resources.files("pudl.package_data.sec") / "formDStateCodes.xsd.xml"
+    with Path.open(xml_filepath) as file:
+        xml_text = file.read()
+
+    pattern = r'<xs:enumeration value="(.*?)"/>.*?<!--\s*(.*?)\s*-->'
+    state_code_dict = {
+        code.lower(): name.lower()
+        for code, name in re.findall(pattern, xml_text, re.DOTALL)
+    }
+    return state_code_dict
+
+
+def _get_alpha_2_country_code_dict() -> dict[str, str]:
+    """Create a dictionary mapping alpha 2 country codes to their names.
+
+    Table found at https://github.com/lukes/ISO-3166-Countries-with-Regional-Codes/blob/master/all/all.csv .
+    Most SEC locations from Ex. 21 attachments match the two digit EDGAR codes, however
+    some use alpha 2 country codes, i.e. us -> united states and ch -> switzerland.
+    Get a dictionary mapping these codes as well for use during location standardization.
+    """
+    df = pd.read_csv(
+        resources.files("pudl.package_data.sec") / "alpha-2_country_codes.csv",
+        dtype={"alpha-2": "string", "name": "string"},
+        keep_default_na=False,
+    )[["alpha-2", "name"]]
+    country_code_dict = df.set_index("alpha-2").to_dict()["name"]
+    country_code_dict = {k.lower(): v.lower() for k, v in country_code_dict.items()}
+    # do some adhoc standardization for the sake of better matching
+    # with common Ex. 21 location strings, e.g. one of the most common
+    # two digit strings that aren't already captured by these dictionaries
+    # is uk -> united kingdom
+    country_code_dict["uk"] = "united kingdom"
+    country_code_dict["us"] = "united states"
+    return country_code_dict
+
+
+def _standardize_location(loc_col: pd.Series) -> pd.Series:
+    """Map two letter state codes to full names using EDGAR state and country code mapping."""
+    edgar_code_to_name = _get_edgar_state_code_dict()
+    country_code_to_name = _get_alpha_2_country_code_dict()
+    out = (
+        loc_col.str.strip()
+        .str.lower()
+        .replace(edgar_code_to_name)
+        .replace(country_code_to_name)
+        .fillna(pd.NA)
+        .replace("", pd.NA)
+    )
+    return out
+
+
+def _match_ex21_subsidiaries_to_filer_company(
+    filer_info_df: pd.DataFrame,
+    ownership_df: pd.DataFrame,
+) -> pd.DataFrame:
+    """Match Ex. 21 subsidiaries to filer companies.
+
+    We want to assign CIKs to Ex. 21 subsidiaries if they in turn
+    file a 10k. To do this, we merge the Ex. 21 subsidiaries to 10k
+    filers on comapny name. If there are multiple matches with the same
+    company name we take the company with the most overlap in location of
+    incorporation and nearest report years. Then we merge the CIK back onto
+    the Ex. 21 df.
+
+    Returns:
+        A dataframe of the Ex. 21 subsidiaries with a column for the
+        subsidiaries CIK (null if the subsidiary doesn't file).
+    """
+    filer_info_df["subsidiary_company_name"] = _standardize_company_name(
+        filer_info_df["company_name"]
+    )
+    ownership_df["subsidiary_company_name"] = _standardize_company_name(
+        ownership_df["subsidiary_company_name"]
+    )
+    filer_info_df = filer_info_df.dropna(subset="subsidiary_company_name")
+    ownership_df = ownership_df.dropna(subset="subsidiary_company_name")
+    # expand two letter states codes to full location names to match
+    # the subsidiary_company_location column of the ownership table
+    filer_info_df["incorporation_state"] = _standardize_location(
+        filer_info_df["incorporation_state"]
+    )
+    merged_df = filer_info_df.merge(
+        ownership_df[
+            [
+                "subsidiary_company_name",
+                "subsidiary_company_id_sec10k",
+                "subsidiary_company_location",
+                "report_date",
+            ]
+        ],
+        how="inner",
+        on="subsidiary_company_name",
+        suffixes=("_sec", "_ex21"),
+    )
+    # split up the location of incorporation on whitespace, creating a column
+    # with lists of word tokens
+    merged_df.loc[:, "loc_tokens_sec"] = (
+        merged_df["incorporation_state"].fillna("").str.lower().str.split()
+    )
+    merged_df.loc[:, "loc_tokens_ex21"] = (
+        merged_df["subsidiary_company_location"].fillna("").str.lower().str.split()
+    )
+    # get the fraction of overlapping words between location of incorporation tokens
+    # this could be done with a set similarity metric but is probably good enough
+    # for now
+    merged_df["loc_overlap"] = merged_df.apply(
+        lambda row: len(set(row["loc_tokens_sec"]) & set(row["loc_tokens_ex21"]))
+        / max(len(row["loc_tokens_sec"]), len(row["loc_tokens_ex21"]), 1),
+        axis=1,
+    )
+    # get the difference in report dates
+    merged_df["report_date_diff_days"] = abs(
+        (merged_df["report_date_sec"] - merged_df["report_date_ex21"]).dt.days
+    )
+    merged_df = merged_df.sort_values(
+        by=[
+            "subsidiary_company_name",
+            "subsidiary_company_location",
+            "loc_overlap",
+            "report_date_diff_days",
+        ],
+        ascending=[True, True, False, True],
+    )
+    # Select the row with the highest loc overlap and nearest report dates
+    # for each company name and location.
+    # We could choose the best match for each subsidiary_company_id_sec10k
+    # but we don't, because if a company name is the same but locations are actually
+    # different (not just NaN) then they shouldn't be matched
+    closest_match_df = merged_df.groupby(
+        ["subsidiary_company_name", "subsidiary_company_location"], as_index=False
+    ).first()
+    ownership_with_cik_df = ownership_df.merge(
+        closest_match_df[
+            [
+                "subsidiary_company_name",
+                "subsidiary_company_location",
+                "central_index_key",
+            ]
+        ],
+        how="left",
+        on=["subsidiary_company_name", "subsidiary_company_location"],
+    ).rename(columns={"central_index_key": "subsidiary_company_central_index_key"})
+    # if a subsidiary has a null location and doesn't have a matched CIK,
+    # but the same company name with a non-null location was assigned a CIK
+    # then assign that CIK to the null location subsidiary
+    ownership_with_cik_df = ownership_with_cik_df.merge(
+        closest_match_df[["subsidiary_company_name", "central_index_key"]],
+        how="left",
+        on="subsidiary_company_name",
+    ).rename(columns={"central_index_key": "company_name_merge_cik"})
+    ownership_with_cik_df["subsidiary_company_central_index_key"] = (
+        ownership_with_cik_df["subsidiary_company_central_index_key"].where(
+            ~(ownership_with_cik_df.subsidiary_company_central_index_key.isnull())
+            | ~(ownership_with_cik_df.subsidiary_company_location.isnull()),
+            ownership_with_cik_df["company_name_merge_cik"],
+        )
+    )
+    ownership_with_cik_df = ownership_with_cik_df.drop(columns="company_name_merge_cik")
+
+    return ownership_with_cik_df
 
 
 #######################################
@@ -412,51 +624,9 @@ def core_sec10k__changelog_company_name(
     io_manager_key="pudl_io_manager",
     group_name="core_sec10k",
 )
-def core_sec10k__parents_and_subsidiaries(
-    raw_sec10k__parents_and_subsidiaries: pd.DataFrame,
-) -> pd.DataFrame:
-    """Standardize the contents of the SEC 10-K parents and subsidiaries table."""
-    df = raw_sec10k__parents_and_subsidiaries.rename(
-        columns={
-            "sec10k_filename": "filename_sec10k",
-            "sec_company_id": "company_id_sec10k",
-            "street_address_2": "address_2",
-            "former_conformed_name": "company_name_old",
-            "location_of_inc": "location_of_incorporation",
-            "state_of_incorporation": "incorporation_state",
-            "irs_number": "taxpayer_id_irs",
-            "parent_company_cik": "parent_company_central_index_key",
-            "files_10k": "files_sec10k",
-            "date_of_name_change": "name_change_date",
-        }
-    ).assign(
-        filename_sec10k=lambda x: _simplify_filename_sec10k(x["filename_sec10k"]),
-        fraction_owned=lambda x: _compute_fraction_owned(x["ownership_percentage"]),
-    )
-
-    df[["industry_name_sic", "industry_id_sic"]] = (
-        _standardize_industrial_classification(df["standard_industrial_classification"])
-    )
-    df["taxpayer_id_irs"] = _standardize_taxpayer_id_irs(df["taxpayer_id_irs"])
-
-    # Some utilities harvested from EIA 861 data that don't show up in our entity
-    # tables. These didn't end up improving coverage, and so will be removed upstream.
-    # Hack for now is to just drop them so the FK constraint is respected.
-    # See https://github.com/catalyst-cooperative/pudl/issues/4050
-    bad_utility_ids = [
-        3579,  # Cirro Group, Inc. in Texas
-    ]
-    df = df[~df.utility_id_eia.isin(bad_utility_ids)]
-
-    return df
-
-
-@dg.asset(
-    io_manager_key="pudl_io_manager",
-    group_name="core_sec10k",
-)
 def core_sec10k__quarterly_exhibit_21_company_ownership(
     raw_sec10k__exhibit_21_company_ownership: pd.DataFrame,
+    core_sec10k__quarterly_filings: pd.DataFrame,
 ) -> pd.DataFrame:
     """Standardize the contents of the SEC 10-K exhibit 21 company ownership table."""
     df = raw_sec10k__exhibit_21_company_ownership.rename(
@@ -468,8 +638,40 @@ def core_sec10k__quarterly_exhibit_21_company_ownership(
     ).assign(
         filename_sec10k=lambda x: _simplify_filename_sec10k(x["filename_sec10k"]),
         fraction_owned=lambda x: _compute_fraction_owned(x["ownership_percentage"]),
-        report_date=lambda x: _year_quarter_to_date(x["year_quarter"]),
+        subsidiary_company_location=lambda x: _standardize_location(
+            x["subsidiary_company_location"]
+        ),
     )
+    df = df.merge(
+        core_sec10k__quarterly_filings[
+            [
+                "filename_sec10k",
+                "central_index_key",
+                "company_name",
+                "filing_date",
+                "report_date",
+            ]
+        ],
+        how="left",
+        on="filename_sec10k",
+    )
+    df = df.rename(
+        columns={
+            "company_name": "parent_company_name",
+            "central_index_key": "parent_company_central_index_key",
+        }
+    )
+    # sometimes there are subsidiaries with the same name but different
+    # locations of incorporation listed in the same ex. 21, so include
+    # location in the ID
+    df.loc[:, "subsidiary_company_id_sec10k"] = (
+        df["parent_company_central_index_key"]
+        + "_"
+        + df["subsidiary_company_name"]
+        + "_"
+        + df["subsidiary_company_location"].fillna("")
+    )
+
     return df
 
 
@@ -478,7 +680,7 @@ def core_sec10k__quarterly_exhibit_21_company_ownership(
     group_name="core_sec10k",
 )
 def core_sec10k__assn_sec10k_filers_and_eia_utilities(
-    core_sec10k__parents_and_subsidiaries: pd.DataFrame,
+    raw_sec10k__parents_and_subsidiaries: pd.DataFrame,
 ) -> pd.DataFrame:
     """Create an association table between SEC 10-K companies and EIA utilities.
 
@@ -493,10 +695,100 @@ def core_sec10k__assn_sec10k_filers_and_eia_utilities(
     companies are not utilities, and most utilities are still unmatched.
     """
     sec_eia_assn = (
-        core_sec10k__parents_and_subsidiaries.loc[
+        raw_sec10k__parents_and_subsidiaries.loc[
             :, ["central_index_key", "utility_id_eia"]
         ]
         .dropna()
         .drop_duplicates(subset=["central_index_key", "utility_id_eia"])
     )
     return sec_eia_assn
+
+
+@dg.asset(io_manager_key="pudl_io_manager", group_name="core_sec10k")
+def core_sec10k__assn_exhibit_21_subsidiaries_and_filers(
+    core_sec10k__quarterly_filings,
+    core_sec10k__quarterly_company_information,
+    core_sec10k__quarterly_exhibit_21_company_ownership,
+) -> pd.DataFrame:
+    """Match Ex. 21 subsidiaries to SEC 10k filing companies.
+
+    Create an association between ``subsidiary_company_id_sec10k``
+    and ``central_index_key``.
+    """
+    filer_info_df = core_sec10k__quarterly_company_information.merge(
+        core_sec10k__quarterly_filings[["filename_sec10k", "report_date"]],
+        how="left",
+        on="filename_sec10k",
+    )
+    matched_df = _match_ex21_subsidiaries_to_filer_company(
+        filer_info_df=filer_info_df,
+        ownership_df=core_sec10k__quarterly_exhibit_21_company_ownership,
+    )
+    out_df = matched_df[
+        [
+            "subsidiary_company_id_sec10k",
+            "subsidiary_company_central_index_key",
+            "report_date",
+        ]
+    ].dropna(subset="subsidiary_company_central_index_key")
+    # Sometimes a company will change CIK in the SEC
+    # database (without changing name).
+    # We only want one CIK per subsidiary company ID, so keep the
+    # most recent CIK match for each subsidiary company.
+    out_df = out_df.sort_values(
+        by=["subsidiary_company_id_sec10k", "report_date"], ascending=[True, False]
+    ).drop_duplicates(subset="subsidiary_company_id_sec10k", keep="first")
+    out_df = out_df[
+        ["subsidiary_company_id_sec10k", "subsidiary_company_central_index_key"]
+    ].rename(columns={"subsidiary_company_central_index_key": "central_index_key"})
+    return out_df
+
+
+@dg.asset(io_manager_key="pudl_io_manager", group_name="core_sec10k")
+def core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities(
+    core_sec10k__assn_sec10k_filers_and_eia_utilities: pd.DataFrame,
+    core_eia__entity_utilities: pd.DataFrame,
+    core_sec10k__quarterly_exhibit_21_company_ownership: pd.DataFrame,
+    core_sec10k__assn_exhibit_21_subsidiaries_and_filers: pd.DataFrame,
+) -> pd.DataFrame:
+    """An association table between Exhibit 21 subsidiaries and EIA utilities.
+
+    Take the EIA utilities that haven't been matched to a filer company
+    and merge them by company name onto the Ex. 21 subsidiaries.
+    """
+    unmatched_eia_utils_df = core_eia__entity_utilities[
+        ~core_eia__entity_utilities["utility_id_eia"].isin(
+            core_sec10k__assn_sec10k_filers_and_eia_utilities["utility_id_eia"].unique()
+        )
+    ]
+    unmatched_eia_utils_df["utility_name_eia"] = _standardize_company_name(
+        unmatched_eia_utils_df["utility_name_eia"]
+    )
+    unmatched_eia_utils_df = unmatched_eia_utils_df.drop_duplicates(
+        subset=["utility_name_eia"]
+    )
+    # if a subsidiary is already matched to an SEC filer then
+    # it would have gone through the record linkage process to be
+    # matched to an EIA utility
+    unmatched_subs_df = core_sec10k__quarterly_exhibit_21_company_ownership[
+        ~core_sec10k__quarterly_exhibit_21_company_ownership[
+            "subsidiary_company_id_sec10k"
+        ].isin(
+            core_sec10k__assn_exhibit_21_subsidiaries_and_filers[
+                "subsidiary_company_id_sec10k"
+            ].unique()
+        )
+    ][["subsidiary_company_name", "subsidiary_company_id_sec10k"]].drop_duplicates()
+    unmatched_subs_df["subsidiary_company_name"] = _standardize_company_name(
+        unmatched_subs_df["subsidiary_company_name"]
+    )
+    out_df = unmatched_subs_df.merge(
+        unmatched_eia_utils_df[["utility_id_eia", "utility_name_eia"]].rename(
+            columns={"utility_name_eia": "subsidiary_company_name"}
+        ),
+        how="left",
+        on="subsidiary_company_name",
+    ).dropna(subset="utility_id_eia")[
+        ["subsidiary_company_id_sec10k", "utility_id_eia"]
+    ]
+    return out_df
