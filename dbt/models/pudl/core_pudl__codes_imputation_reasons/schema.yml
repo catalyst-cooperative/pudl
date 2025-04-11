@@ -1,0 +1,12 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_pudl__codes_imputation_reasons
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_pudl__codes_imputation_reasons
+              partition_column: null
+        columns:
+          - name: code
+          - name: description

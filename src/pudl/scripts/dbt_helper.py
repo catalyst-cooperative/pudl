@@ -88,6 +88,7 @@ class DbtSource(BaseModel):
 
     name: str = "pudl"
     tables: list[DbtTable]
+    data_tests: list | None = None
 
     def add_source_tests(self, source_tests: list) -> "DbtSource":
         """Add data tests to source in dbt config."""
@@ -470,7 +471,7 @@ def migrate_tests(table_name: str, test_config_name: str, model_name: str | None
 
     Example usage:
 
-    python devtools/dbt_helper.py migrate-tests \
+    dbt_helper migrate-tests \
         --table-name out_eia__yearly_generators \
         --test-config-name mcoe_gas_capacity_factor
     """
@@ -496,7 +497,9 @@ def migrate_tests(table_name: str, test_config_name: str, model_name: str | None
     _write_dbt_yaml_config(schema_path, schema)
 
 
-@click.group()
+@click.group(
+    context_settings={"help_option_names": ["-h", "--help"]},
+)
 def dbt_helper():
     """Script for auto-generating dbt configuration and migrating existing tests.
 
@@ -506,8 +509,7 @@ def dbt_helper():
     used to migrate ``vs_bounds`` tests. This command uses configuration defined in
     ``validate.py`` to generate dbt tests.
 
-    Run ``python devtools/dbt_helper.py {command} --help`` for detailed usage on each
-    command.
+    Run ``dbt_helper {command} --help`` for detailed usage on each command.
     """
 
 
