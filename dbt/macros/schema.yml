@@ -1,0 +1,12 @@
+version: 2
+
+macros:
+  - name: debug_quantile_constraints
+    description: Print out quantiles using the settings from a particular data_test. Useful for figuring out how bad a quantile check has failed without having to dig through the epically gnarly sql in the compiled test. Run this using "dbt run-operation debug_quantile_constraints --args {...} --target ..."
+    arguments:
+      - name: table
+        type: string
+        description: Name of the table or model failing the test
+      - name: test
+        type: string
+        description: Name of the failing test. You can copy this from the failed test output, or trace it back to the entry in schema.yml and set a more legible name there to use while you debug.

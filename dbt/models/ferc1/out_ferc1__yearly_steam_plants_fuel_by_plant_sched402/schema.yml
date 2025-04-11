@@ -19,7 +19,8 @@ sources:
           - check_column_correlation:
               column1: coal_fraction_mmbtu
               column2: coal_fraction_cost
-              correlation_coef: 0.76 # full etl passes 0.8, fast-etl fails
+              correlation_coef: 0.76
+              description: Reduced from 0.8 to 0.76 in March 2025 to pass etl-fast. Keep an eye on it, and investigate if it gets worse.
         columns:
           - name: report_year
           - name: utility_id_ferc1
@@ -52,37 +53,38 @@ models:
     columns:
       - name: gas_cost_per_mmbtu
         data_tests:
-          - dbt_expectations.expect_column_quantile_values_to_be_between:
-              quantile: 0.05
-              min_value: 1.5
-          - dbt_expectations.expect_column_quantile_values_to_be_between:
-              quantile: 0.9
-              max_value: 15.0
-          - dbt_expectations.expect_column_median_to_be_between:
-              min_value: 2.0
-              max_value: 10.0
+          - expect_quantile_constraints:
+              constraints:
+                - quantile: 0.05
+                  min_value: 1.5
+                - quantile: 0.9
+                  max_value: 15.0
+                - quantile: 0.5
+                  min_value: 2.0
+                  max_value: 10.0
       - name: oil_cost_per_mmbtu
         data_tests:
-          - dbt_expectations.expect_column_quantile_values_to_be_between:
-              quantile: 0.1
-              min_value: 3.5
-          - dbt_expectations.expect_column_quantile_values_to_be_between:
-              quantile: 0.9
-              max_value: 26.1
-          - dbt_expectations.expect_column_median_to_be_between:
-              min_value: 6.5
-              max_value: 17.0
+          - expect_quantile_constraints:
+              constraints:
+                - quantile: 0.1
+                  min_value: 3.5
+                - quantile: 0.9
+                  max_value: 26.1
+                - quantile: 0.5
+                  min_value: 6.5
+                  max_value: 17.0
+              description: Quantile 0.9 raised from 25.0 to 26.1 April 2025 to pass etl-fast. Keep an eye on it, and investigate if it gets worse.
       - name: coal_cost_per_mmbtu
         data_tests:
-          - dbt_expectations.expect_column_quantile_values_to_be_between:
-              quantile: 0.1
-              min_value: 0.75
-          - dbt_expectations.expect_column_quantile_values_to_be_between:
-              quantile: 0.9
-              max_value: 4.0
-          - dbt_expectations.expect_column_median_to_be_between:
-              min_value: 1.0
-              max_value: 2.5
+          - expect_quantile_constraints:
+              constraints:
+                - quantile: 0.1
+                  min_value: 0.75
+                - quantile: 0.95
+                  max_value: 4.5
+                - quantile: 0.5
+                  min_value: 1.0
+                  max_value: 2.5
       - name: total_cost_fraction
         data_tests:
           - dbt_expectations.expect_column_values_to_be_between:

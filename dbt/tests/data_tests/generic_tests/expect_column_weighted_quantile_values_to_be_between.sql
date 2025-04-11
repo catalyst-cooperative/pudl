@@ -8,7 +8,7 @@
                                                                     strictly=False
                                                                     ) %}
 {% set expression %}
-({{ weighted_quantile(model, column_name, weight_column, quantile) }})
+({{ weighted_quantile(model, column_name, weight_column, quantile, row_condition) }})
 {% endset %}
 {{ dbt_expectations.expression_between(model,
                                         expression=expression,
