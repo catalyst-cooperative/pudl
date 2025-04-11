@@ -12,7 +12,12 @@ from pudl.scripts.dbt_helper import (
     DbtTable,
     _clean_row_condition,
     _generate_quantile_bounds_test,
+    _get_local_table_path,
+    _get_model_path,
+    _get_row_count_csv_path,
+    _infer_partition_column,
     _load_schema_yaml,
+    get_data_source,
 )
 
 TEMPLATE = {
@@ -20,6 +25,50 @@ TEMPLATE = {
     "query": "",
     "weight_col": "",
 }
+
+
+def with_name(mock, name):
+    """Helper function to set the name attribute on a Mock without it getting sucked into the Mock internals (for repr, etc)."""
+    mock.name = name
+    return mock
+
+
+def test_get_data_source(mocker):
+    mock_resource = mocker.Mock()
+    mocker.patch(
+        "pudl.scripts.dbt_helper.PUDL_PACKAGE"
+    ).get_resource.return_value = mock_resource
+    mock_resource.sources = [""] * 2
+    assert get_data_source("multiple sources") == "output"
+    mock_resource.sources = [with_name(mocker.Mock(), str(mocker.sentinel.source))]
+    assert get_data_source("one source") == str(mocker.sentinel.source)
+
+
+def test__get_local_table_path(mocker):
+    mock_pudlpaths = mocker.Mock()
+    mocker.patch("pudl.scripts.dbt_helper.PudlPaths").return_value = mock_pudlpaths
+    _get_local_table_path(mocker.sentinel.table)
+    mock_pudlpaths.parquet_path.assert_called_once_with(mocker.sentinel.table)
+
+
+def test__get_model_path():
+    assert "models" in str(_get_model_path("", ""))
+
+
+def test__get_row_count_csv_path():
+    assert _get_row_count_csv_path(etl_fast=True) != _get_row_count_csv_path(
+        etl_fast=False
+    )
+
+
+@pytest.mark.parametrize("key", ["report_year", "report_date", "datetime_utc", None])
+def test__infer_partition_column(mocker, key):
+    mock_resource = mocker.Mock()
+    mocker.patch(
+        "pudl.scripts.dbt_helper.PUDL_PACKAGE"
+    ).get_resource.return_value = mock_resource
+    mock_resource.schema.fields = [with_name(mocker.Mock(), key)]
+    assert _infer_partition_column("") == key
 
 
 GivenExpect = namedtuple("GivenExpect", ["given", "expect"])

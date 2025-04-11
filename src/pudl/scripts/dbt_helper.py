@@ -471,7 +471,7 @@ def migrate_tests(table_name: str, test_config_name: str, model_name: str | None
 
     Example usage:
 
-    python devtools/dbt_helper.py migrate-tests \
+    dbt_helper migrate-tests \
         --table-name out_eia__yearly_generators \
         --test-config-name mcoe_gas_capacity_factor
     """
@@ -509,8 +509,7 @@ def dbt_helper():
     used to migrate ``vs_bounds`` tests. This command uses configuration defined in
     ``validate.py`` to generate dbt tests.
 
-    Run ``python devtools/dbt_helper.py {command} --help`` for detailed usage on each
-    command.
+    Run ``dbt_helper {command} --help`` for detailed usage on each command.
     """
 
 

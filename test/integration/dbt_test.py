@@ -4,6 +4,8 @@ import shutil
 from contextlib import chdir
 from pathlib import Path
 
+import pytest
+
 from dbt.cli.main import dbtRunner, dbtRunnerResult
 from pudl.io_managers import PudlMixedFormatIOManager
 
@@ -87,3 +89,17 @@ def test_dbt(
             shutil.move(db_path, test_dir.parent / "pudl_dbt_tests.duckdb")
 
     assert test_result.success
+
+
+@pytest.mark.script_launch_mode("inprocess")
+def test_dbt_helper(script_runner):
+    ret = script_runner.run(
+        [
+            "dbt_helper",
+            "add-tables",
+            "--etl-fast",
+            "all",
+        ],
+        print_result=True,
+    )
+    assert ret.success
