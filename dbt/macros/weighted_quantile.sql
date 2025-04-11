@@ -16,7 +16,7 @@ QuantileData AS (
         {{ weight_col }},
         cumulative_weight,
         total_weight,
-        cumulative_weight / total_weight AS cumulative_probability
+        (cumulative_weight - 0.5 * {{ weight_col }}) / total_weight AS cumulative_probability
     FROM CumulativeWeights
 ),
 QuantilePoints AS (
