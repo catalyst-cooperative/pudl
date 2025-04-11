@@ -170,6 +170,7 @@ sources:
                     - quantile: 0.95
                       max_value: 3.3
                   weight_column: fuel_received_units
+                  description: Based on values given in the EIA 923 instructions, but with the lower bound set by the expected lower bound of heat content on blast furnace gas (since there were "other" gasses with bounds lower than the expected 0.32 in the data)
               - expect_quantile_constraints:
                   row_condition: energy_source_code='AB'
                   constraints:
@@ -306,6 +307,7 @@ sources:
                       min_value: 0.0
                       max_value: 0.1
                   weight_column: fuel_received_units
+                  description: Based on USGS FS095-01. Historically, upper tail may fail because of a population of extremely high mercury content coal (9.0ppm) which is likely a reporting error.
           - name: primary_transportation_mode_code
           - name: secondary_transportation_mode_code
           - name: natural_gas_transport_code

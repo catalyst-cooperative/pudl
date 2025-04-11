@@ -71,6 +71,7 @@ sources:
                     - quantile: 0.95
                       max_value: 12.0
                   weight_column: fuel_consumed_units
+                  description: Passing in April 20205, but had been marked xfail with tracking issue 2073.
           - name: fuel_cost_per_unit_delivered
           - name: fuel_mmbtu_per_unit
             data_tests:

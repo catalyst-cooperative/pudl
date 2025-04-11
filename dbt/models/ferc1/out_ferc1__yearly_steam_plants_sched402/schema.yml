@@ -203,3 +203,4 @@ models:
                   min_value: 0.5
                 - quantile: 0.95
                   max_value: 1.18
+              description: XBRL data (post-2021) reports 0 capability for ~22% of plants, so we exclude.

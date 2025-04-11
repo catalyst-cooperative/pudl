@@ -66,7 +66,7 @@ sources:
                     - quantile: 0.95
                       max_value: 8.0
                   weight_column: total_mmbtu
-                  description: Quantile 0.05 dropped from 1.65 to 1.489 in April 2025. Keep an eye on it, and investigate if it gets worse.
+                  description: Quantile 0.05 dropped from 1.65 to 1.489 in April 2025. Keep an eye on it, and investigate if it gets worse. Historical note, EIA natural gas reporting really only becomes usable in 2015.
           - name: fuel_cost_per_mwh
             data_tests:
               - expect_quantile_constraints:
@@ -91,7 +91,7 @@ sources:
                     - quantile: 0.95
                       max_value: 61.4
                   weight_column: net_generation_mwh
-                  description: Demoted to warning in April 2025 when quantile 0.5 dropped from 20.0 to 16.42. Investigate in issue 4187.
+                  description: Demoted to warning in April 2025 when quantile 0.5 dropped from 20.0 to 16.42. Investigate in issue 4187. Historical note, EIA natural gas reporting really only becomes usable in 2015.
                   severity: warn
           - name: unit_heat_rate_mmbtu_per_mwh
             data_tests:
@@ -106,6 +106,7 @@ sources:
                     - quantile: 0.95
                       max_value: 13.0
                   weight_column: net_generation_mwh
+                  description: Historical note, EIA natural gas reporting really only becomes usable in 2015.
               - expect_quantile_constraints:
                   row_condition: fuel_type_code_pudl='coal'
                   constraints:

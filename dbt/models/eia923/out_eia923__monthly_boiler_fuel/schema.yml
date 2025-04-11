@@ -94,7 +94,7 @@ sources:
                     - quantile: 0.99
                       max_value: 1.15
                   weight_column: fuel_consumed_units
-                  description: Demoted to warning in April 2025 when quantile 0.01 dropped from 0.95 to 0.068. Investigate this further in issue 4181.
+                  description: Demoted to warning in April 2025 when quantile 0.01 dropped from 0.95 to 0.068. Investigate this further in issue 4181. Historically, this test may fail because of a population of bad data around 0.1 mmbtu/unit. This appears to be an off-by-10x error, possibly due to reporting error in units used.
                   severity: warn
           - name: fuel_consumed_mmbtu
           - name: sulfur_content_pct

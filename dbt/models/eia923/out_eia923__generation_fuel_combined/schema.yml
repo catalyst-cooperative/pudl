@@ -30,6 +30,7 @@ sources:
                       min_value: 10.0
                       max_value: 30.0
                   weight_column: fuel_consumed_units
+                  description: The Generation Fuel table does not break different coal types out separately, so we can only test the validity of the entire suite of coal records.
               - expect_quantile_constraints:
                   row_condition: fuel_type_code_agg='DFO'
                   constraints:
