@@ -1,100 +1,19 @@
 """Shim to associate DBT checks with the assets they check."""
 
 import json
-from contextlib import chdir
 from pathlib import Path
 
 from dagster import (
     AssetCheckResult,
     AssetChecksDefinition,
     AssetKey,
-    ConfigurableResource,
-    ResourceDependency,
     ResourceParam,
     asset_check,
 )
-from filelock import FileLock
+from dagster_dbt import DbtCliResource
 
-from dbt.cli.main import dbtRunner
 from pudl.settings import DatasetsSettings
 from pudl.workspace.setup import PUDL_ROOT_DIR
-
-
-class DbtRunner(ConfigurableResource):
-    """Resource to manage only having one DBT runner active at once.
-
-    Uses FileLock to manage cross-process concurrency.
-
-    """
-
-    # NOTE 2025-04-04 dbt_dir is a str, not a Path, to work around Dagster
-    # resource attr type limitations.
-    dbt_dir: str
-    dataset_settings: ResourceDependency[DatasetsSettings]
-
-    @property
-    def target(self):
-        """The DBT target, derived from dataset settings.
-
-        For runs that aren't associated with any predefined ETL type (e.g. if
-        you just call ``materialize()``), assume that the DBT target should be
-        "etl-fast". We could add the option to define ad-hoc seed data, but
-        haven't done so yet as of 2025-04-10.
-        """
-        etl_settings = self.dataset_settings.etl_type
-        target = etl_settings if etl_settings != "adhoc" else "fast"
-        return f"etl-{target}"
-
-    def build(self, resource_name: str):
-        """Build a dagster resource, including tests.
-
-        Args:
-        resource_name: the string you'd pass in to dbt build --select to get
-            dbt to find your resource.
-
-        Returns:
-        success: whether or not the dang thing worked
-
-        """
-        lock_path = Path(self.dbt_dir) / "dbt.lock"
-        with FileLock(lock_path), chdir(self.dbt_dir):
-            dbt = dbtRunner()
-            dbt.invoke(["deps", "--target", self.target, "--quiet"])
-            dbt.invoke(["seed", "--target", self.target, "--quiet"])
-            build_result = dbt.invoke(
-                [
-                    "build",
-                    "--store-failures",
-                    "--threads",
-                    "1",
-                    "--target",
-                    self.target,
-                    "--select",
-                    resource_name,
-                ]
-            )
-            if build_result.exception:
-                raise RuntimeError(build_result.exception)
-            failure_infos = []
-            for res in build_result.result.results:
-                if res.failures != 0:
-                    show_result = dbt.invoke(
-                        [
-                            "show",
-                            "--target",
-                            self.target,
-                            "--select",
-                            resource_name,
-                        ]
-                    )
-                    if show_result.exception:
-                        raise RuntimeError(show_result.exception)
-                    for r in show_result.result.results:
-                        failure_infos += [
-                            dict(zip(r.agate_table.column_names, row, strict=True))
-                            for row in r.agate_table.rows
-                        ]
-            return {"success": build_result.success, "failures": failure_infos}
 
 
 def make_dbt_asset_checks(
@@ -108,15 +27,7 @@ def make_dbt_asset_checks(
     """
     dbt_dir = PUDL_ROOT_DIR / "dbt"
     manifest_path = dbt_dir / "target" / "manifest.json"
-    lock_path = dbt_dir / "dbt.lock"
-    with FileLock(lock_path), chdir(dbt_dir):
-        dbt = dbtRunner()
-        _ = dbt.invoke(["deps", "--quiet"])
-        parse_result = dbt.invoke(["parse", "--quiet"])
-        del dbt
-        if parse_result.exception:
-            raise RuntimeError(parse_result.exception)
-        resources = __get_dbt_selection_names(manifest_path)
+    resources = __get_dbt_selection_names(manifest_path)
 
     dagster_asset_names = {da.to_user_string() for da in dagster_assets}
     assets = {
@@ -141,16 +52,32 @@ def __make_dbt_asset_check(
         blocking=True,
     )
     def dbt_build_resource(
-        dbt_runner: ResourceParam[DbtRunner],
+        dbt_cli: ResourceParam[DbtCliResource],
+        dataset_settings: ResourceParam[DatasetsSettings],
     ) -> AssetCheckResult:
         """Build DBT resource, along with all attendant checks."""
-        test_results = dbt_runner.build(dbt_resource_name)
-
+        # default to etl-fast target if ad-hoc ETL.
+        dbt_target = "etl-full" if dataset_settings.etl_type == "full" else "etl-fast"
+        dbt_cli.cli(
+            args=["seed", "--target", dbt_target, "--quiet"],
+            raise_on_error=True,
+            manifest=PUDL_ROOT_DIR / "dbt" / "target" / "manifest.json",
+        ).wait()
+        build_run = dbt_cli.cli(
+            args=[
+                "build",
+                "--target",
+                dbt_target,
+                "--select",
+                dbt_resource_name,
+                "--store-failures",
+            ],
+            raise_on_error=False,
+            manifest=PUDL_ROOT_DIR / "dbt" / "target" / "manifest.json",
+        )
+        build_success = build_run.wait().is_successful()
         return AssetCheckResult(
-            passed=test_results["success"],
-            metadata={"failures": test_results["failures"]}
-            if not test_results["success"]
-            else {},
+            passed=build_success,
         )
 
     return dbt_build_resource

@@ -21,8 +21,17 @@ from dagster import (
     load_assets_from_modules,
 )
 from dagster._core.definitions.cacheable_assets import CacheableAssetsDefinition
+from dagster_dbt import DbtCliResource
 
 import pudl
+from pudl.etl import (
+    dbt_asset_checks,
+    dbt_config,
+    eia_bulk_elec_assets,
+    epacems_assets,
+    glue_assets,
+    static_assets,
+)
 from pudl.io_managers import (
     epacems_io_manager,
     ferc1_dbf_sqlite_io_manager,
@@ -35,14 +44,6 @@ from pudl.metadata import PUDL_PACKAGE
 from pudl.resources import dataset_settings, datastore, ferc_to_sqlite_settings
 from pudl.settings import EtlSettings
 from pudl.workspace.setup import PUDL_ROOT_DIR
-
-from . import (
-    dbt_asset_checks,
-    eia_bulk_elec_assets,
-    epacems_assets,
-    glue_assets,
-    static_assets,
-)
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -220,12 +221,11 @@ default_asset_checks += [
 default_asset_checks += dbt_asset_checks.make_dbt_asset_checks(_asset_keys)
 
 
+dbt_config.dbt_project.prepare_if_dev()
+
 default_resources = {
     "datastore": datastore,
-    "dbt_runner": dbt_asset_checks.DbtRunner(
-        dbt_dir=str(PUDL_ROOT_DIR / "dbt"),
-        dataset_settings=dataset_settings,
-    ),
+    "dbt_cli": DbtCliResource(project_dir=dbt_config.dbt_project),
     "pudl_io_manager": pudl_mixed_format_io_manager,
     "ferc1_dbf_sqlite_io_manager": ferc1_dbf_sqlite_io_manager,
     "ferc1_xbrl_sqlite_io_manager": ferc1_xbrl_sqlite_io_manager,
