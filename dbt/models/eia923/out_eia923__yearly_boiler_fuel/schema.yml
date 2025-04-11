@@ -95,7 +95,7 @@ sources:
                       max_value: 1.15
                   weight_column: fuel_consumed_units
                   severity: warn
-                  description: Demoted to warning in April 2025 when quantile 0.01 dropped from 0.95 to 0.032 on etl-fast. Investigate in issue 4186.
+                  description: Demoted to warning in April 2025 when quantile 0.01 dropped from 0.95 to 0.049 on etl-fast. Investigate in issue 4186.
           - name: fuel_consumed_mmbtu
           - name: sulfur_content_pct
             data_tests:

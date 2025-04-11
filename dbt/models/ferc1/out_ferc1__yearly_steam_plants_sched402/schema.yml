@@ -160,7 +160,7 @@ models:
                   min_value: 0.6
                 - quantile: 0.95
                   max_value: 1.15
-              description: Demoted to warning in April 2025 when quantil 0.05 dropped from 0.6 to 0.0. Investigate in issue 4197. Quantile 0.5 dropped from 0.89 to 0.88 in April 2025. Keep an eye on it, and investigate if it gets worse.
+              description: Demoted to warning in April 2025 when quantile 0.05 dropped from 0.6 to 0.0. Investigate in issue 4197. Quantile 0.5 dropped from 0.89 to 0.88 in April 2025. Keep an eye on it, and investigate if it gets worse.
               severity: warn
       - name: not_water_limited_ratio
         data_tests:

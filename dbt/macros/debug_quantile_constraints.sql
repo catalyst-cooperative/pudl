@@ -34,9 +34,10 @@ select {{ constraint.quantile }} as quantile, interpolated_value, {{ constraint.
 {% endset %}
 
 {% do log(fq_table, info=True) %}
-{% do log(column_name, info=True) %}
 {% do log(node.test_metadata.name, info=True) %}
+{% do log(column_name, info=True) %}
 {% do log(row_condition, info=True) %}
+{% do log(node.description, info=True) %}
 
 {% set results = run_query(expression) %}
 
