@@ -12,11 +12,11 @@ sources:
           - name: balancing_authority_code_eia
           - name: net_generation_reported_mwh
           - name: net_generation_adjusted_mwh
-          - name: net_generation_imputed_mwh
+          - name: net_generation_imputed_eia_mwh
           - name: interchange_reported_mwh
           - name: interchange_adjusted_mwh
-          - name: interchange_imputed_mwh
+          - name: interchange_imputed_eia_mwh
           - name: demand_reported_mwh
           - name: demand_adjusted_mwh
-          - name: demand_imputed_mwh
+          - name: demand_imputed_eia_mwh
           - name: demand_forecast_mwh

@@ -13,4 +13,4 @@ sources:
           - name: generation_energy_source
           - name: net_generation_reported_mwh
           - name: net_generation_adjusted_mwh
-          - name: net_generation_imputed_mwh
+          - name: net_generation_imputed_eia_mwh
