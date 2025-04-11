@@ -2530,7 +2530,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "interconnect_code_eia": {
         "type": "string",
         "description": "EIA interconnect code.",
-        "constraints": {"enum": {"EASTERN", "WESTERN", "ERCOT"}},
+        "constraints": {"enum": {"eastern", "western", "ercot"}},
     },
     "taxpayer_id_irs": {
         "type": "string",
