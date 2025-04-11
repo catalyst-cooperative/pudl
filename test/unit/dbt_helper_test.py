@@ -236,3 +236,114 @@ def test__load_schema_yaml(mocker, dbt_schema_mocks):
         mock_path.open.return_value = f
         actual = _load_schema_yaml(mock_path)
     assert actual == dbt_schema_mocks.schema
+
+
+@pytest.fixture
+def blank_schema():
+    return DbtSchema(
+        sources=[
+            DbtSource(
+                tables=[
+                    DbtTable(
+                        name="source-table",
+                        columns=[
+                            DbtColumn(
+                                name="source_column",
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
+        models=[
+            DbtTable(
+                name="model-table",
+                columns=[
+                    DbtColumn(
+                        name="model_column",
+                    ),
+                ],
+            ),
+        ],
+    )
+
+
+def test_dbt_schema__add_source_tests(mocker, blank_schema):
+    # check sources
+    one_source_test = blank_schema.add_source_tests([mocker.sentinel.first_source_test])
+    assert (
+        mocker.sentinel.first_source_test
+        in one_source_test.sources[0].tables[0].data_tests
+    )
+
+    # make sure we don't clobber existing tests on add
+    two_source_tests = one_source_test.add_source_tests(
+        [mocker.sentinel.second_source_test]
+    )
+    assert (
+        mocker.sentinel.first_source_test
+        in two_source_tests.sources[0].tables[0].data_tests
+    )
+    assert (
+        mocker.sentinel.second_source_test
+        in two_source_tests.sources[0].tables[0].data_tests
+    )
+
+    # check models
+    one_model_test = blank_schema.add_source_tests(
+        [mocker.sentinel.first_model_test], model_name="model-table"
+    )
+    assert mocker.sentinel.first_model_test in one_model_test.models[0].data_tests
+
+    # make sure we don't clobber existing tests on add
+    two_model_tests = one_model_test.add_source_tests(
+        [mocker.sentinel.second_model_test], model_name="model-table"
+    )
+    assert mocker.sentinel.first_model_test in two_model_tests.models[0].data_tests
+    assert mocker.sentinel.second_model_test in two_model_tests.models[0].data_tests
+
+
+def test_dbt_schema__add_column_tests(mocker, blank_schema):
+    # check sources
+    one_source_test = blank_schema.add_column_tests(
+        {"source_column": [mocker.sentinel.first_source_test]}
+    )
+    assert (
+        mocker.sentinel.first_source_test
+        in one_source_test.sources[0].tables[0].columns[0].data_tests
+    )
+
+    # make sure we don't clobber existing tests on add
+    two_source_tests = one_source_test.add_column_tests(
+        {"source_column": [mocker.sentinel.second_source_test]}
+    )
+    assert (
+        mocker.sentinel.first_source_test
+        in two_source_tests.sources[0].tables[0].columns[0].data_tests
+    )
+    assert (
+        mocker.sentinel.second_source_test
+        in two_source_tests.sources[0].tables[0].columns[0].data_tests
+    )
+
+    # check models
+    one_model_test = blank_schema.add_column_tests(
+        {"model_column": [mocker.sentinel.first_model_test]}, model_name="model-table"
+    )
+    assert (
+        mocker.sentinel.first_model_test
+        in one_model_test.models[0].columns[0].data_tests
+    )
+
+    # make sure we don't clobber existing tests on add
+    two_model_tests = one_model_test.add_column_tests(
+        {"model_column": [mocker.sentinel.second_model_test]}, model_name="model-table"
+    )
+    assert (
+        mocker.sentinel.first_model_test
+        in two_model_tests.models[0].columns[0].data_tests
+    )
+    assert (
+        mocker.sentinel.second_model_test
+        in two_model_tests.models[0].columns[0].data_tests
+    )
