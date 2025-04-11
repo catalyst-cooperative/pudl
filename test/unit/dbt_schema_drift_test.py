@@ -12,7 +12,7 @@ def generate_legible_output(
     pudl_fields_not_in_dbt,
     dbt_tables_not_in_pudl,
     dbt_fields_not_in_pudl,
-) -> str: # pragma: no cover
+) -> str:  # pragma: no cover
     components = []
 
     def tables(desc, dct):
@@ -65,7 +65,7 @@ def test_dbt_schema_drift():
         schema_path = get_schema_path(table_name)
         try:
             all_dbt_schema_paths.remove(schema_path)
-        except KeyError: # pragma: no cover
+        except KeyError:  # pragma: no cover
             assert not schema_path.exists(), (
                 f"Something is wrong with {schema_path}: the file exists as generated from the model path but was not found by glob"
             )
@@ -83,13 +83,13 @@ def test_dbt_schema_drift():
         ]:
             try:
                 schema_fields.remove(field_name)
-            except KeyError: # pragma: no cover
+            except KeyError:  # pragma: no cover
                 pudl_fields_not_in_dbt[table_name].add(field_name)
         # schema_fields should be empty if pudl had all the fields dbt knows about
-        if schema_fields: # pragma: no cover
+        if schema_fields:  # pragma: no cover
             dbt_fields_not_in_pudl[table_name].update(schema_fields)
     # all_dbt_schema_paths should be empty if pudl had all the tables dbt knows about
-    for schema_path in all_dbt_schema_paths: # pragma: no cover
+    for schema_path in all_dbt_schema_paths:  # pragma: no cover
         schema = _load_schema_yaml(schema_path)
         dbt_tables_not_in_pudl.update(
             table.name for source in schema.sources for table in source.tables
