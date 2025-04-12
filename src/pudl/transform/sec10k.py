@@ -642,6 +642,10 @@ def core_sec10k__quarterly_exhibit_21_company_ownership(
             x["subsidiary_company_location"]
         ),
     )
+    df["subsidiary_company_name"] = (
+        df["subsidiary_company_name"].str.strip().str.lower().replace("", pd.NA)
+    )
+    df = df.dropna(subset="subsidiary_company_name")
     df = df.merge(
         core_sec10k__quarterly_filings[
             [
