@@ -32,6 +32,10 @@ company_name_cleaner = name_cleaner.CompanyNameCleaner(
     legal_term_location=2,
 )
 
+legal_term_remover = name_cleaner.CompanyNameCleaner(
+    cleaning_rules_list=[], handle_legal_terms=2
+)
+
 
 ######################################################################
 ### Helper functions for cleaning and reshaping the SEC 10-K data. ###
@@ -152,6 +156,39 @@ def _standardize_company_name(col: pd.Series) -> pd.Series:
     col = col.replace("", pd.NA)
 
     return col
+
+
+def _remove_bad_subsidiary_names(col: pd.Series) -> pd.Series:
+    """Remove subsidiary names that are obviously erroneous.
+
+    The model makes common mistakes while extracting subsidiary
+    names from Ex. 21 filings, such as extracting "llc" as a complete
+    name. Remove names that are just legal terms as well as a list
+    of other common erroneous names. Replace these bad names with
+    NaNs.
+    """
+    clean_col = legal_term_remover.apply_name_cleaning(col).str.strip()
+    # some common bad names that aren't removed by the legal term remover
+    clean_col = clean_col.replace(
+        [
+            "the",
+            "",
+            "gmbh",
+            "i",
+            "name",
+            "of",
+            "branch",
+            "international",
+            "partnership",
+            "s.a",  # spanish language legal term
+            "b.v",
+            "c.v",  # spanish language legal term
+            "services",
+            "holdings",
+        ],
+        pd.NA,
+    )
+    return col.where(~clean_col.isnull(), pd.NA)
 
 
 def _get_edgar_state_code_dict() -> dict[str, str]:
@@ -642,10 +679,11 @@ def core_sec10k__quarterly_exhibit_21_company_ownership(
             x["subsidiary_company_location"]
         ),
     )
-    df["subsidiary_company_name"] = (
-        df["subsidiary_company_name"].str.strip().str.lower().replace("", pd.NA)
+    df["subsidiary_company_name"] = _remove_bad_subsidiary_names(
+        df["subsidiary_company_name"].str.strip().str.lower()
     )
-    df = df.dropna(subset="subsidiary_company_name")
+    # a record is not meaningful if the subsidiary name is null
+    df = df.dropna(subset=["subsidiary_company_name"])
     df = df.merge(
         core_sec10k__quarterly_filings[
             [
