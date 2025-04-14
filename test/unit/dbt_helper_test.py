@@ -431,6 +431,7 @@ def test__convert_config_variable_to_quantile_tests(mocker, config, expected):
     actual = _convert_config_variable_to_quantile_tests("")
     assert actual == expected
 
+
 @pytest.fixture
 def blank_schema():
     return DbtSchema(
