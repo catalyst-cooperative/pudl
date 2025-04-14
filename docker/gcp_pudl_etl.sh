@@ -36,6 +36,7 @@ function run_pudl_etl() {
     initialize_postgres && \
     authenticate_gcp && \
     alembic upgrade head && \
+    dagster-dbt project prepare-and-package --file src/pudl/etl/dbt_config.py && \
     ferc_to_sqlite \
         --loglevel DEBUG \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \

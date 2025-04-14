@@ -11,9 +11,12 @@ from dagster import (
     asset_check,
 )
 from dagster_dbt import DbtCliResource
+from filelock import FileLock
 
 from pudl.settings import DatasetsSettings
 from pudl.workspace.setup import PUDL_ROOT_DIR
+
+DBT_LOCKFILE = PUDL_ROOT_DIR / "dbt" / "dbt.lock"
 
 
 def make_dbt_asset_checks(
@@ -58,24 +61,25 @@ def __make_dbt_asset_check(
         """Build DBT resource, along with all attendant checks."""
         # default to etl-fast target if ad-hoc ETL.
         dbt_target = "etl-full" if dataset_settings.etl_type == "full" else "etl-fast"
-        dbt_cli.cli(
-            args=["seed", "--target", dbt_target, "--quiet"],
-            raise_on_error=True,
-            manifest=PUDL_ROOT_DIR / "dbt" / "target" / "manifest.json",
-        ).wait()
-        build_run = dbt_cli.cli(
-            args=[
-                "build",
-                "--target",
-                dbt_target,
-                "--select",
-                dbt_resource_name,
-                "--store-failures",
-            ],
-            raise_on_error=False,
-            manifest=PUDL_ROOT_DIR / "dbt" / "target" / "manifest.json",
-        )
-        build_success = build_run.wait().is_successful()
+        with FileLock(DBT_LOCKFILE, timeout=60 * 30):
+            dbt_cli.cli(
+                args=["seed", "--target", dbt_target, "--quiet"],
+                raise_on_error=True,
+                manifest=PUDL_ROOT_DIR / "dbt" / "target" / "manifest.json",
+            ).wait()
+            build_run = dbt_cli.cli(
+                args=[
+                    "build",
+                    "--target",
+                    dbt_target,
+                    "--select",
+                    dbt_resource_name,
+                    "--store-failures",
+                ],
+                raise_on_error=False,
+                manifest=PUDL_ROOT_DIR / "dbt" / "target" / "manifest.json",
+            )
+            build_success = build_run.wait().is_successful()
         return AssetCheckResult(
             passed=build_success,
         )
