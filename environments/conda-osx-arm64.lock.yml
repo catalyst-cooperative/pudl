@@ -81,7 +81,7 @@ dependencies:
   - cachetools=5.5.2=pyhd8ed1ab_0
   - cairo=1.18.4=h6a3b0d2_0
   - catalystcoop.dbfread=3.0.0=pyhd8ed1ab_1
-  - catalystcoop.ferc_xbrl_extractor=1.5.1=pyhd8ed1ab_1
+  - catalystcoop.ferc_xbrl_extractor=1.5.2=pyhd8ed1ab_0
   - cattrs=24.1.2=pyhd8ed1ab_1
   - certifi=2025.1.31=pyhd8ed1ab_0
   - cffi=1.17.1=py312h0fad829_0
@@ -328,7 +328,7 @@ dependencies:
   - libxml2=2.13.7=h52572c6_1
   - libxslt=1.1.39=h223e5b9_0
   - libzlib=1.3.1=h8359307_2
-  - llvm-openmp=20.1.2=hdb05f8b_0
+  - llvm-openmp=20.1.2=hdb05f8b_1
   - llvmlite=0.44.0=py312h728bc31_1
   - locket=1.0.0=pyhd8ed1ab_0
   - lsprotocol=2023.0.1=pyhd8ed1ab_1
@@ -417,7 +417,7 @@ dependencies:
   - prometheus_flask_exporter=0.23.2=pyhd8ed1ab_0
   - prompt-toolkit=3.0.50=pyha770c72_0
   - prompt_toolkit=3.0.50=hd8ed1ab_0
-  - propcache=0.2.1=py312h998013c_1
+  - propcache=0.3.1=py312h998013c_0
   - proto-plus=1.26.1=pyhd8ed1ab_0
   - protobuf=5.29.3=py312hbb633d4_0
   - psutil=5.9.8=py312he37b823_0
