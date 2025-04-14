@@ -3421,7 +3421,7 @@ package:
     category: main
     optional: false
   - name: catalystcoop.ferc_xbrl_extractor
-    version: 1.5.1
+    version: 1.5.2
     manager: conda
     platform: linux-64
     dependencies:
@@ -3433,17 +3433,17 @@ package:
       pandas: ">=1.5,<3"
       pyarrow: ">=14.0.1"
       pydantic: ">=2,<3"
-      python: ">=3.10,<3.13"
+      python: ">=3.10,<3.14"
       sqlalchemy: ">=1.4,<3"
       stringcase: ">=1.2,<2"
-    url: https://conda.anaconda.org/conda-forge/noarch/catalystcoop.ferc_xbrl_extractor-1.5.1-pyhd8ed1ab_1.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/catalystcoop.ferc_xbrl_extractor-1.5.2-pyhd8ed1ab_0.conda
     hash:
-      md5: 9776089ffde04c05e76591f15f02b78b
-      sha256: e74b72416e530f78a2ad6b3491fa6bff37ec6377b555fcc1ecf260822a060b95
+      md5: a08b2e111aed02021f34dec0387cd512
+      sha256: 1f00d94cd70daedce1add64ebd67bf19777ab874b8bfec5cf8698c74ecaf3e5d
     category: main
     optional: false
   - name: catalystcoop.ferc_xbrl_extractor
-    version: 1.5.1
+    version: 1.5.2
     manager: conda
     platform: osx-64
     dependencies:
@@ -3455,17 +3455,17 @@ package:
       pandas: ">=1.5,<3"
       pyarrow: ">=14.0.1"
       pydantic: ">=2,<3"
-      python: ">=3.10,<3.13"
+      python: ">=3.10,<3.14"
       sqlalchemy: ">=1.4,<3"
       stringcase: ">=1.2,<2"
-    url: https://conda.anaconda.org/conda-forge/noarch/catalystcoop.ferc_xbrl_extractor-1.5.1-pyhd8ed1ab_1.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/catalystcoop.ferc_xbrl_extractor-1.5.2-pyhd8ed1ab_0.conda
     hash:
-      md5: 9776089ffde04c05e76591f15f02b78b
-      sha256: e74b72416e530f78a2ad6b3491fa6bff37ec6377b555fcc1ecf260822a060b95
+      md5: a08b2e111aed02021f34dec0387cd512
+      sha256: 1f00d94cd70daedce1add64ebd67bf19777ab874b8bfec5cf8698c74ecaf3e5d
     category: main
     optional: false
   - name: catalystcoop.ferc_xbrl_extractor
-    version: 1.5.1
+    version: 1.5.2
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -3477,13 +3477,13 @@ package:
       pandas: ">=1.5,<3"
       pyarrow: ">=14.0.1"
       pydantic: ">=2,<3"
-      python: ">=3.10,<3.13"
+      python: ">=3.10,<3.14"
       sqlalchemy: ">=1.4,<3"
       stringcase: ">=1.2,<2"
-    url: https://conda.anaconda.org/conda-forge/noarch/catalystcoop.ferc_xbrl_extractor-1.5.1-pyhd8ed1ab_1.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/catalystcoop.ferc_xbrl_extractor-1.5.2-pyhd8ed1ab_0.conda
     hash:
-      md5: 9776089ffde04c05e76591f15f02b78b
-      sha256: e74b72416e530f78a2ad6b3491fa6bff37ec6377b555fcc1ecf260822a060b95
+      md5: a08b2e111aed02021f34dec0387cd512
+      sha256: 1f00d94cd70daedce1add64ebd67bf19777ab874b8bfec5cf8698c74ecaf3e5d
     category: main
     optional: false
   - name: cattrs
@@ -15150,10 +15150,10 @@ package:
     platform: osx-64
     dependencies:
       __osx: ">=10.13"
-    url: https://conda.anaconda.org/conda-forge/osx-64/llvm-openmp-20.1.2-ha54dae1_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/llvm-openmp-20.1.2-ha54dae1_1.conda
     hash:
-      md5: 86e822e810ac7658cbed920d548f8398
-      sha256: ed87c6faeee008dd4ea3957e14d410d754f00734a2121067cbb942910b5cdd4d
+      md5: 0919db81cb42375dd9f2ab1ec032af94
+      sha256: 01dfbc83bfba8d674f574908d86bc3ffad12e42fa4f16bd71579c6bc2b7f6153
     category: main
     optional: false
   - name: llvm-openmp
@@ -15162,10 +15162,10 @@ package:
     platform: osx-arm64
     dependencies:
       __osx: ">=11.0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/llvm-openmp-20.1.2-hdb05f8b_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/llvm-openmp-20.1.2-hdb05f8b_1.conda
     hash:
-      md5: 922f10fcb42090cdb0b74340dee96c08
-      sha256: 3510c986f94d8baf8bfef834c0a4fa9f059dbaa5940abe59c60342761fb77e27
+      md5: a4f336d84b7ad192c0c8a6b345ff7da9
+      sha256: 5c00ea9e47e94d59513d65c76185891ae0da7fa6a233b3430c93cc5b7ba5ef6e
     category: main
     optional: false
   - name: llvmlite
@@ -19112,7 +19112,7 @@ package:
     category: main
     optional: false
   - name: propcache
-    version: 0.2.1
+    version: 0.3.1
     manager: conda
     platform: linux-64
     dependencies:
@@ -19120,38 +19120,38 @@ package:
       libgcc: ">=13"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/propcache-0.2.1-py312h178313f_1.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/propcache-0.3.1-py312h178313f_0.conda
     hash:
-      md5: 349635694b4df27336bc15a49e9220e9
-      sha256: 6d5ff6490c53e14591b70924711fe7bd70eb7fbeeeb1cbd9ed2f6d794ec8c4eb
+      md5: 0cf580c1b73146bb9ff1bbdb4d4c8cf9
+      sha256: d0ff67d89cf379a9f0367f563320621f0bc3969fe7f5c85e020f437de0927bb4
     category: main
     optional: false
   - name: propcache
-    version: 0.2.1
+    version: 0.3.1
     manager: conda
     platform: osx-64
     dependencies:
       __osx: ">=10.13"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/propcache-0.2.1-py312h3520af0_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/propcache-0.3.1-py312h3520af0_0.conda
     hash:
-      md5: e712bcabf1db361f1350b638be66caca
-      sha256: 04cd2c807af8ae2921e54c372620bb6d3391a7ad59c0aa566e4d21be0e558ae1
+      md5: 9e58210edacc700e43c515206904f0ca
+      sha256: b589b640427dbfdc09a54783f89716440f4c9a4d9e479a2e4f33696f1073c401
     category: main
     optional: false
   - name: propcache
-    version: 0.2.1
+    version: 0.3.1
     manager: conda
     platform: osx-arm64
     dependencies:
       __osx: ">=11.0"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/propcache-0.2.1-py312h998013c_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/propcache-0.3.1-py312h998013c_0.conda
     hash:
-      md5: 83678928c58c9ae76778a435b6c7a94a
-      sha256: 96145760baad111d7ae4213ea8f8cc035cf33b001f5ff37d92268e4d28b0941d
+      md5: d8280c97e09e85c72916a3d98a4076d7
+      sha256: dd97df075f5198d42cc4be6773f1c41a9c07d631d95f91bfee8e9953eccc965b
     category: main
     optional: false
   - name: proto-plus
