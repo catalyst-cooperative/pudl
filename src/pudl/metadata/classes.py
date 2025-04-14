@@ -1995,6 +1995,11 @@ class MetaFromResourceName(PudlMeta):
         """
         return self.match.group("slug")
 
+    @property
+    def meta(self):
+        """Metadata dict for table."""
+        return RESOURCE_METADATA[self.name]
+
     @model_validator(mode="after")
     def table_name_check(self: Self):
         """Check the expected pattern of the table name."""
@@ -2006,25 +2011,21 @@ class MetaFromResourceName(PudlMeta):
 
     def description_layer(self) -> str:
         """Return a layer description from the resource name."""
-        layer_description = f"Processing Stage: {self.layer_map[self.layer]}"
-        return layer_description
+        return self.layer_map[self.layer]
 
     def description_datasource(self) -> str:
         """Return a description of the datasource from the table name."""
-        description = f"Data Source: {self.datasource_labels.title}"
-        return description
+        return self.datasource_labels.title
 
     def description_tabletype(self) -> str:
         """Return a description of the table type from the table name."""
-        description = f"Table type: {self.tabletype_map.get(self.tabletype)}"
-        return description
+        return self.tabletype_map.get(self.tabletype)
 
     def description_time(self) -> str:
         """Return a description of the time-dimension from table name."""
         # TODO: ?maybe? we could add the date column into the description.
         # we'd need to look into the table's columns via its metadata
-        description = f"Time detail: {self.time_detail_map.get(self.time, None)}"
-        return description
+        return self.time_detail_map.get(self.time, None)
 
 
 class Package(PudlMeta):
