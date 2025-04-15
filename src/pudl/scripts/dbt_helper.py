@@ -237,7 +237,6 @@ def update_row_counts(
     clobber: bool = False,
 ) -> UpdateResult:
     """Generate updated row counts per partition and write to csv file within dbt project."""
-
     existing = _get_existing_row_counts(etl_fast)
     if table_name in existing["table_name"].values and not clobber:
         return UpdateResult(
