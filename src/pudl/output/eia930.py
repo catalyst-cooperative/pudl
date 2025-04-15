@@ -129,6 +129,9 @@ def out_eia930__hourly_demand(
             .rename(columns={column: "aggregation_group"})
         )
         aggregated_df["aggregation_level"] = level
+        aggregated_df["aggregation_group"] = aggregated_df[
+            "aggregation_group"
+        ].str.lower()
         aggregated_dfs.append(aggregated_df)
 
     conus_df = df.groupby(["datetime_utc"], as_index=False)[
