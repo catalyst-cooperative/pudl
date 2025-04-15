@@ -162,7 +162,7 @@ def get_data_source(table_name: str) -> str:
     return resource.sources[0].name
 
 
-AddTableResult = namedtuple("AddTableResult", ["success", "message"])
+UpdateResult = namedtuple("UpdateResult", ["success", "message"])
 
 
 def _get_nightly_url(table_name: str) -> str:
@@ -189,14 +189,14 @@ def generate_row_counts(
     use_local_tables: bool = False,
     etl_fast: bool = False,
     clobber: bool = False,
-) -> AddTableResult:
+) -> UpdateResult:
     """Generate row counts per partition and write to csv file within dbt project."""
     # Get existing row counts table
     csv_path = _get_row_count_csv_path(etl_fast)
     row_counts_df = pd.read_csv(csv_path, dtype={"partition": str})
 
     if table_name in row_counts_df["table_name"].to_numpy() and not clobber:
-        return AddTableResult(
+        return UpdateResult(
             success=False,
             message=f"There are already row counts for table {table_name} in row counts table and clobber is not set.",
         )
@@ -218,9 +218,7 @@ def generate_row_counts(
             f"FROM '{table_path}' GROUP BY YEAR({partition_column})"  # noqa: S608
         )
     else:
-        row_count_query = (
-            f"SELECT '' as partition, COUNT(*) as row_count FROM '{table_path}'"  # noqa: S608
-        )
+        row_count_query = f"SELECT '' as partition, COUNT(*) as row_count FROM '{table_path}'"  # noqa: S608
 
     new_row_counts = duckdb.sql(row_count_query).df().astype({"partition": str})
     new_row_counts["table_name"] = table_name
@@ -233,7 +231,7 @@ def generate_row_counts(
 
     all_row_counts.to_csv(csv_path, index=False)
 
-    return AddTableResult(
+    return UpdateResult(
         success=True,
         message=f"Successfully updated row count table with counts from {table_name}.",
     )
@@ -255,11 +253,11 @@ def generate_table_yaml(
     data_source: str,
     partition_column: str = "report_year",
     clobber: bool = False,
-) -> AddTableResult:
+) -> UpdateResult:
     """Generate yaml defining a new table."""
     model_path = _get_model_path(table_name, data_source)
     if model_path.exists() and not clobber:
-        return AddTableResult(
+        return UpdateResult(
             success=False,
             message=f"DBT configuration already exists for table {table_name} and clobber is not set.",
         )
@@ -272,13 +270,13 @@ def generate_table_yaml(
 
     model_path.mkdir(parents=True, exist_ok=True)
 
-    return AddTableResult(
+    return UpdateResult(
         success=True,
         message=f"Wrote yaml configuration for table {table_name} at {model_path / 'schema.yml'}.",
     )
 
 
-def _log_add_table_result(result: AddTableResult):
+def _log_add_table_result(result: UpdateResult):
     if result.success:
         logger.info(result.message)
     else:
