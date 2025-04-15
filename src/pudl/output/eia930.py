@@ -102,8 +102,8 @@ def out_eia930__hourly_demand(
 ) -> pd.DataFrame:
     """Aggregate imputed demand from the BA level to region, interconnect, and contiguous US."""
     aggregation_levels = {
-        "BA": "balancing_authority_region_code_eia",
-        "INTERCONNECT": "interconnect_code_eia",
+        "region": "balancing_authority_region_code_eia",
+        "interconnect": "interconnect_code_eia",
     }
 
     # Mege with ``core_eia__codes_balancing_authorities`` to get mapping between
@@ -134,7 +134,7 @@ def out_eia930__hourly_demand(
     conus_df = df.groupby(["datetime_utc"], as_index=False)[
         "demand_imputed_pudl_mwh"
     ].sum()
-    conus_df["aggregation_group"] = "CONUS"
-    conus_df["aggregation_level"] = "CONUS"
+    conus_df["aggregation_group"] = "conus"
+    conus_df["aggregation_level"] = "conus"
 
     return pd.concat(aggregated_dfs + [conus_df])

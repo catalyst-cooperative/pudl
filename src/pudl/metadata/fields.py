@@ -87,7 +87,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Indicates the spacial granularity of aggregated value.",
         "constraints": {
-            "enum": ["BA", "INTERCONNECT", "CONUS"],
+            "enum": ["region", "interconnect", "conus"],
         },
     },
     "air_flow_100pct_load_cubic_feet_per_minute": {
