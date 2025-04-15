@@ -2038,13 +2038,24 @@ def get_dagster_execution_config(
     executor, otherwise multi-process executor with maximum of num_workers
     will be used.
 
+    If we use the multi-process executor AND the ``forkserver`` start method is
+    available, we pre-import the ``pudl`` package in the template process. This
+    allows us to reduce the startup latency of each op.
+
     Args:
         num_workers: The number of workers to use for the dagster execution config.
             If 0, then the dagster execution config will not include a multiprocess
             executor.
         tag_concurrency_limits: A set of limits that are applied to steps with
             particular tags. This is helpful for applying concurrency limits to
-            highly concurrent and memory-intensive portions of the ETL like CEMS.
+            highly concurrent and memory intensive portions of the ETL like CEMS.
+
+            Dagster description: If a value is set, the limit is applied to
+            only that key-value pair. If no value is set, the limit is applied
+            across all values of that key. If the value is set to a dict with
+            `applyLimitPerUniqueValue: true`, the limit will apply to the
+            number of unique values for that key. Note that these limits are
+            per run, not global.
 
     Returns:
         A dagster execution config.
@@ -2058,7 +2069,6 @@ def get_dagster_execution_config(
             },
         }
 
-    # Check if forkserver is available
     start_method_config = {}
     if "forkserver" in multiprocessing.get_all_start_methods():
         start_method_config = {"forkserver": {"preload_modules": ["pudl"]}}

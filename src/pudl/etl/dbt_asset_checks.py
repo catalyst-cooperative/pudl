@@ -2,6 +2,7 @@
 
 import json
 from pathlib import Path
+from typing import NamedTuple
 
 from dagster import (
     AssetCheckResult,
@@ -22,7 +23,13 @@ DBT_LOCKFILE = PUDL_ROOT_DIR / "dbt" / "dbt.lock"
 def make_dbt_asset_checks(
     dagster_assets: list[AssetKey],
 ) -> list[AssetChecksDefinition]:
-    """Associate dbt resources with dagster assets, then run the build at asset-check time.
+    """Associate dbt resource checks with dagster assets.
+
+    Requires there to be a ``dbt/target/manifest.json`` file in the
+    PUDL_ROOT_DIR. If you're running ``dagster dev``, this should be getting
+    updated automatically - but if not, ``dagster-dbt project
+    prepare-and-package --file src/pudl/etl/dbt_config.py`` should do the
+    trick.
 
     1. get the possible dbt resources to run
     2. get the dagster assets
@@ -58,8 +65,25 @@ def __make_dbt_asset_check(
         dbt_cli: ResourceParam[DbtCliResource],
         dataset_settings: ResourceParam[DatasetsSettings],
     ) -> AssetCheckResult:
-        """Build DBT resource, along with all attendant checks."""
-        # default to etl-fast target if ad-hoc ETL.
+        """Build DBT resource, along with all attendant checks.
+
+        Will build against the ``etl-fast`` target unless explicitly run with
+        the ``etl-full` job in Dagster. This means that ad-hoc materializations
+        are checked against the ``etl-fast`` dbt target.
+
+        NOTE 2025-04-15: We can potentially add an ``etl-adhoc`` target in the
+        future that can be adjusted for local development, but seemed out of
+        scope.
+
+        NOTE 2025-04-15: Does not expose the actual failing rows - though the
+        query to find them is captured in the Dagster logs and in the
+        ``stdout`` tab of the Dagster UI. For some reason the dbt_cli.cli()
+        output doesn't want to ingest any of the events that occur for ``dbt
+        build``. We *could* use the ``dbt.cli.main.dbtRunner`` class, but for
+        some reason that was having concurrency issues accessing DuckDB, even
+        wrapped with FileLock, while the ``dagster_dbt.DbtCliResource`` does
+        not.
+        """
         dbt_target = "etl-full" if dataset_settings.etl_type == "full" else "etl-fast"
         with FileLock(DBT_LOCKFILE, timeout=60 * 30):
             dbt_cli.cli(
@@ -87,7 +111,19 @@ def __make_dbt_asset_check(
     return dbt_build_resource
 
 
-def __get_dbt_selection_names(manifest_path: Path):
+class DbtSelection(NamedTuple):
+    """Named tuple to hold dbt selection strings and their corresponding asset names.
+
+    Attributes:
+        dbt_selector: The dbt selection string.
+        dagster_name: The name of the asset in Dagster.
+    """
+
+    dbt_selector: str
+    dagster_name: str
+
+
+def __get_dbt_selection_names(manifest_path: Path) -> list[DbtSelection]:
     """Associate dbt selection strings with dagster asset names.
 
     The strings that work with ``dbt build --select`` and the strings that
@@ -106,17 +142,19 @@ def __get_dbt_selection_names(manifest_path: Path):
     replace that period. That's stored in ``manifest.json`` as
     ``.sources.[].unique_id``.
     """
-    # TODO 2025-04-04: return a list of namedtuple(select_id, short_name)
     with manifest_path.open() as f:
         manifest = json.load(f)
 
     nodes = [
-        (res["name"], res["name"])
+        DbtSelection(dbt_selector=res["name"], dagster_name=res["name"])
         for res in manifest["nodes"].values()
         if res["resource_type"] != "test"
     ]
     sources = [
-        (res["unique_id"].replace("source.", "source:", 1), res["name"])
+        DbtSelection(
+            dbt_selector=res["unique_id"].replace("source.", "source:", 1),
+            dagster_name=res["name"],
+        )
         for res in manifest["sources"].values()
     ]
     return nodes + sources
