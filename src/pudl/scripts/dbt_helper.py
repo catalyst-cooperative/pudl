@@ -183,53 +183,71 @@ def _get_row_count_csv_path(etl_fast: bool = False) -> Path:
     return Path("./dbt") / "seeds" / "etl_full_row_counts.csv"
 
 
-def generate_row_counts(
+def _get_existing_row_counts(etl_fast: bool = False) -> pd.DataFrame:
+    return pd.read_csv(_get_row_count_csv_path(etl_fast), dtype={"partition": str})
+
+
+def _calculate_row_counts(
+    table_name: str,
+    partition_column: str = "report_year",
+    use_local_tables: bool = False,
+) -> pd.DataFrame:
+    table_path = (
+        _get_local_table_path(table_name)
+        if use_local_tables
+        else _get_nightly_url(table_name)
+    )
+
+    if partition_column == "report_year":
+        query = f"""
+            SELECT {partition_column} as partition, COUNT(*) as row_count
+            FROM '{table_path}' GROUP BY {partition_column}
+        """
+    elif partition_column in ["report_date", "datetime_utc"]:
+        query = f"""
+            SELECT CAST(YEAR({partition_column}) as VARCHAR) as partition, COUNT(*) as row_count
+            FROM '{table_path}' GROUP BY YEAR({partition_column})
+        """
+    else:
+        query = f"SELECT '' as partition, COUNT(*) as row_count FROM '{table_path}'"
+
+    df = duckdb.sql(query).df().astype({"partition": str})
+    df["table_name"] = table_name
+    return df
+
+
+def _combine_row_counts(existing: pd.DataFrame, new: pd.DataFrame) -> pd.DataFrame:
+    return (
+        pd.concat([existing, new])
+        .drop_duplicates(subset=["partition", "table_name"], keep="last")
+        .sort_values(["table_name", "partition"])
+    )
+
+
+def _write_row_counts(row_counts: pd.DataFrame, etl_fast: bool = False):
+    csv_path = _get_row_count_csv_path(etl_fast)
+    row_counts.to_csv(csv_path, index=False)
+
+
+def update_row_counts(
     table_name: str,
     partition_column: str = "report_year",
     use_local_tables: bool = False,
     etl_fast: bool = False,
     clobber: bool = False,
 ) -> UpdateResult:
-    """Generate row counts per partition and write to csv file within dbt project."""
-    # Get existing row counts table
-    csv_path = _get_row_count_csv_path(etl_fast)
-    row_counts_df = pd.read_csv(csv_path, dtype={"partition": str})
+    """Generate updated row counts per partition and write to csv file within dbt project."""
 
-    if table_name in row_counts_df["table_name"].to_numpy() and not clobber:
+    existing = _get_existing_row_counts(etl_fast)
+    if table_name in existing["table_name"].values and not clobber:
         return UpdateResult(
             success=False,
-            message=f"There are already row counts for table {table_name} in row counts table and clobber is not set.",
+            message=f"Row counts for {table_name} already exist (run with clobber to overwrite).",
         )
 
-    # Load table of interest
-    if not use_local_tables:
-        table_path = _get_nightly_url(table_name)
-    else:
-        table_path = _get_local_table_path(table_name)
-
-    if partition_column == "report_year":
-        row_count_query = (
-            f"SELECT {partition_column} as partition, COUNT(*) as row_count "  # noqa: S608
-            f"FROM '{table_path}' GROUP BY {partition_column}"  # noqa: S608
-        )
-    elif partition_column in ["report_date", "datetime_utc"]:
-        row_count_query = (
-            f"SELECT CAST(YEAR({partition_column}) as VARCHAR) as partition, COUNT(*) as row_count "  # noqa: S608
-            f"FROM '{table_path}' GROUP BY YEAR({partition_column})"  # noqa: S608
-        )
-    else:
-        row_count_query = f"SELECT '' as partition, COUNT(*) as row_count FROM '{table_path}'"  # noqa: S608
-
-    new_row_counts = duckdb.sql(row_count_query).df().astype({"partition": str})
-    new_row_counts["table_name"] = table_name
-
-    all_row_counts = (
-        pd.concat([row_counts_df, new_row_counts])
-        .drop_duplicates(subset=["partition", "table_name"], keep="last")
-        .sort_values(["table_name", "partition"])
-    )
-
-    all_row_counts.to_csv(csv_path, index=False)
+    new = _calculate_row_counts(table_name, partition_column, use_local_tables)
+    combined = _combine_row_counts(existing, new)
+    _write_row_counts(combined, etl_fast)
 
     return UpdateResult(
         success=True,
@@ -381,7 +399,7 @@ def add_tables(**kwargs):
             )
         if not args.yaml_only:
             _log_add_table_result(
-                generate_row_counts(
+                update_row_counts(
                     table_name=table_name,
                     partition_column=partition_column,
                     use_local_tables=args.use_local_tables,
