@@ -403,14 +403,6 @@ def _load_schema_yaml(schema_path: Path) -> DbtSchema:
         return DbtSchema(**yaml.safe_load(schema_yaml))
 
 
-def _get_test_name(test_config: dict) -> str:
-    if not test_config.get("weight_col"):
-        test_name = "dbt_expectations.expect_column_quantile_values_to_be_between"
-    else:
-        test_name = "expect_column_weighted_quantile_values_to_be_between"
-    return test_name
-
-
 def _clean_row_condition(row_condition: str) -> str:
     row_condition = (
         re.sub(
