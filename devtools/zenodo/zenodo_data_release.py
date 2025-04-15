@@ -98,7 +98,7 @@ class ZenodoClient:
                 return requests.request(
                     method=method, url=url, timeout=timeout**try_num, **kwargs
                 )
-            except requests.RequestException as e:
+            except (requests.RequestException, OSError) as e:
                 logger.warning(
                     f"Attempt #{try_num} Got {e}, retrying in {timeout**try_num} s"
                 )
@@ -195,6 +195,7 @@ class ZenodoClient:
             url=url,
             headers=self.auth_headers,
             data=file_content,
+            stream=True,
         )
         return response
 
