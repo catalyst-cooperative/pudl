@@ -131,13 +131,11 @@ def core_phmsagas__yearly_distribution_operators(
     df[cols_to_convert] = df[cols_to_convert].convert_dtypes()
 
     # Ensure all "report_year" values have four digits
-    mask = df["report_year"] < 100
+    # We expect these to all be years prior to 2000, and reporting starts in 1970
+    mask = (df["report_year"] < 100) & (df["report_year"] >= 70)
 
-    # Convert 2-digit years to appropriate 4-digit format (assume cutoff at year 50)
-    # We could also use the first 4 digits of the "report_number" but there was at least one anomaly here with an invalid year
-    df.loc[mask, "report_year"] = 2000 + df.loc[mask, "report_year"].where(
-        df.loc[mask, "report_year"] < 50, 1900
-    )
+    # Convert 2-digit years to appropriate 4-digit format
+    df.loc[mask, "report_year"] = 1900 + df.loc[mask, "report_year"]
 
     # Standardize case for city, county, operator name, etc.
     # Capitalize the first letter of each word in a list of columns
