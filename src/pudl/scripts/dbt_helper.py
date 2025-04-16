@@ -199,21 +199,22 @@ def _calculate_row_counts(
     )
 
     if partition_column == "report_year":
-        query = f"""
-            SELECT {partition_column} as partition, COUNT(*) as row_count
-            FROM '{table_path}' GROUP BY {partition_column}
-        """
+        row_count_query = (
+            f"SELECT {partition_column} as partition, COUNT(*) as row_count "  # noqa: S608
+            f"FROM '{table_path}' GROUP BY {partition_column}"  # noqa: S608
+        )
     elif partition_column in ["report_date", "datetime_utc"]:
-        query = f"""
-            SELECT CAST(YEAR({partition_column}) as VARCHAR) as partition, COUNT(*) as row_count
-            FROM '{table_path}' GROUP BY YEAR({partition_column})
-        """
+        row_count_query = (
+            f"SELECT CAST(YEAR({partition_column}) as VARCHAR) as partition, COUNT(*) as row_count "  # noqa: S608
+            f"FROM '{table_path}' GROUP BY YEAR({partition_column})"  # noqa: S608
+        )
     else:
-        query = f"SELECT '' as partition, COUNT(*) as row_count FROM '{table_path}'"
+        row_count_query = f"SELECT '' as partition, COUNT(*) as row_count FROM '{table_path}'"  # noqa: S608
 
-    df = duckdb.sql(query).df().astype({"partition": str})
-    df["table_name"] = table_name
-    return df
+    new_row_counts = duckdb.sql(row_count_query).df().astype({"partition": str})
+    new_row_counts["table_name"] = table_name
+
+    return new_row_counts
 
 
 def _combine_row_counts(existing: pd.DataFrame, new: pd.DataFrame) -> pd.DataFrame:
@@ -238,7 +239,7 @@ def update_row_counts(
 ) -> UpdateResult:
     """Generate updated row counts per partition and write to csv file within dbt project."""
     existing = _get_existing_row_counts(etl_fast)
-    if table_name in existing["table_name"].values and not clobber:
+    if table_name in existing["table_name"].to_numpy() and not clobber:
         return UpdateResult(
             success=False,
             message=f"Row counts for {table_name} already exist (run with clobber to overwrite).",
