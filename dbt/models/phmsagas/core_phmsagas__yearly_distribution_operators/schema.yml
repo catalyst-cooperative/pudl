@@ -14,16 +14,16 @@ sources:
           - name: report_year
           - name: operator_id_phmsa
           - name: operator_name_phmsa
-          - name: office_address_street
-          - name: office_address_city
-          - name: office_address_state
-          - name: office_address_zip
-          - name: office_address_county
-          - name: headquarters_address_street
-          - name: headquarters_address_city
-          - name: headquarters_address_state
-          - name: headquarters_address_zip
-          - name: headquarters_address_county
+          - name: office_street_address
+          - name: office_city
+          - name: office_county
+          - name: office_state
+          - name: office_zip
+          - name: headquarters_street_address
+          - name: headquarters_city
+          - name: headquarters_county
+          - name: headquarters_state
+          - name: headquarters_zip
           - name: excavation_damage_excavation_practices
           - name: excavation_damage_locating_practices
           - name: excavation_damage_one_call_notification

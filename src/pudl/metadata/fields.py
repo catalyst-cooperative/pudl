@@ -2241,25 +2241,28 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Average power in megawatts delivered during time interval measured.",
         "unit": "MW",
     },
-    "headquarters_address_city": {
+    "headquarters_city": {
         "type": "string",
         "description": "City where an operator's headquarters are located.",
     },
-    "headquarters_address_county": {
+    "headquarters_county": {
         "type": "string",
         "description": "County where an operator's headquarters are located.",
     },
-    "headquarters_address_state": {
+    "headquarters_state": {
         "type": "string",
         "description": "State where an operator's headquarters are located.",
     },
-    "headquarters_address_street": {
+    "headquarters_street_address": {
         "type": "string",
         "description": "Street address for an operator's headquarters.",
     },
-    "headquarters_address_zip": {
+    "headquarters_zip": {
         "type": "string",
         "description": "Zipcode where an operator's headquarters are located.",
+        "constraints": {
+            "pattern": r"^\d{5}$",
+        },
     },
     "heat_content_mmbtu": {
         "type": "number",
@@ -3284,25 +3287,28 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "Number of circuits in a transmission line.",
     },
-    "office_address_city": {
+    "office_city": {
         "type": "string",
         "description": "City where an operator's office is located.",
     },
-    "office_address_county": {
+    "office_county": {
         "type": "string",
         "description": "County where an operator's office is located.",
     },
-    "office_address_state": {
+    "office_state": {
         "type": "string",
         "description": "State where an operator's office is located.",
     },
-    "office_address_street": {
+    "office_street_address": {
         "type": "string",
         "description": "Street address of an operator's office.",
     },
-    "office_address_zip": {
+    "office_zip": {
         "type": "string",
         "description": "Zipcode where an operator's office is located.",
+        "constraints": {
+            "pattern": r"^\d{5}$",
+        },
     },
     "oil_fraction_cost": {
         "type": "number",

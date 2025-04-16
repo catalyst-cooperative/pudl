@@ -25,16 +25,16 @@ YEARLY_DISTRIBUTION_OPERATORS_COLUMNS = {
         "report_year",
         "operator_id_phmsa",
         "operator_name_phmsa",
-        "office_address_street",
-        "office_address_city",
-        "office_address_state",
-        "office_address_zip",
-        "office_address_county",
-        "headquarters_address_street",
-        "headquarters_address_city",
-        "headquarters_address_state",
-        "headquarters_address_zip",
-        "headquarters_address_county",
+        "office_street_address",
+        "office_city",
+        "office_state",
+        "office_zip",
+        "office_county",
+        "headquarters_street_address",
+        "headquarters_city",
+        "headquarters_county",
+        "headquarters_state",
+        "headquarters_zip",
         "excavation_damage_excavation_practices",
         "excavation_damage_locating_practices",
         "excavation_damage_one_call_notification",
@@ -71,8 +71,8 @@ YEARLY_DISTRIBUTION_OPERATORS_COLUMNS = {
         "federal_land_leaks_repaired_or_scheduled",
     ],
     "capitalization_exclusion": [
-        "headquarters_address_state",
-        "office_address_state",
+        "headquarters_state",
+        "office_state",
         "preparer_email",
         "additional_information",
     ],
@@ -161,7 +161,7 @@ def core_phmsagas__yearly_distribution_operators(
         }
     )
 
-    for state_col in ["headquarters_address_state", "office_address_state"]:
+    for state_col in ["headquarters_state", "office_state"]:
         df[state_col] = (
             df[state_col]
             .str.strip()
@@ -170,12 +170,8 @@ def core_phmsagas__yearly_distribution_operators(
         )
 
     # Standardize zip codes
-    df["office_address_zip"] = zero_pad_numeric_string(
-        df["office_address_zip"], n_digits=5
-    )
-    df["headquarters_address_zip"] = zero_pad_numeric_string(
-        df["headquarters_address_zip"], n_digits=5
-    )
+    df["office_zip"] = zero_pad_numeric_string(df["office_zip"], n_digits=5)
+    df["headquarters_zip"] = zero_pad_numeric_string(df["headquarters_zip"], n_digits=5)
 
     # Standardize telephone and fax number format and drop (000)-000-0000
     df = standardize_phone_column(df, ["preparer_phone", "preparer_fax"])
@@ -208,8 +204,8 @@ def filter_if_test_in_address(group: pd.DataFrame) -> pd.DataFrame:
 
     For any group of rows with the same combination of "operator_id_phmsa"
     and "report_number", if at least one row in the group does not contain the string
-    "test" (case-insensitive) in either "office_address_street" or
-    "headquarters_address_street", keep only the rows in the group that do not contain
+    "test" (case-insensitive) in either "office_street_address" or
+    "headquarters_street_address", keep only the rows in the group that do not contain
     "test" in these columns. If all rows in the group contain "test" in either of the
     columns, leave the group unchanged.
 
@@ -221,8 +217,8 @@ def filter_if_test_in_address(group: pd.DataFrame) -> pd.DataFrame:
     """
     # Check if at least one row in the group does NOT contain "test" in both of the specified columns
     contains_test = group.apply(
-        lambda row: "test" in str(row["office_address_street"]).lower()
-        or "test" in str(row["headquarters_address_street"]).lower(),
+        lambda row: "test" in str(row["office_street_address"]).lower()
+        or "test" in str(row["headquarters_street_address"]).lower(),
         axis=1,
     )
     has_non_test = not contains_test.all()
@@ -237,7 +233,7 @@ def filter_if_test_in_address(group: pd.DataFrame) -> pd.DataFrame:
 def filter_by_city_in_name(group: pd.DataFrame) -> pd.DataFrame:
     """Deduplication to keep duplicated rows where city and operator name overlap.
 
-    Filter to only keep rows where "office_address_city" value is contained in the
+    Filter to only keep rows where "office_city" value is contained in the
     "operator_name_phmsa" value (case insensitive).
 
     Args:
@@ -246,9 +242,9 @@ def filter_by_city_in_name(group: pd.DataFrame) -> pd.DataFrame:
     Returns:
         The filtered group of rows.
     """
-    # Check if any row has "office_address_city" contained in "operator_name_phmsa" (case insensitive)
+    # Check if any row has "office_city" contained in "operator_name_phmsa" (case insensitive)
     city_in_name = (
-        group["office_address_city"]
+        group["office_city"]
         .str.lower()
         .apply(
             lambda city: any(
