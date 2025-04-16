@@ -20,8 +20,17 @@ from dagster import (
     load_assets_from_modules,
 )
 from dagster._core.definitions.cacheable_assets import CacheableAssetsDefinition
+from dagster_dbt import DbtCliResource
 
 import pudl
+from pudl import dbt_config
+from pudl.etl import (
+    dbt_asset_checks,
+    eia_bulk_elec_assets,
+    epacems_assets,
+    glue_assets,
+    static_assets,
+)
 from pudl.io_managers import (
     epacems_io_manager,
     ferc1_dbf_sqlite_io_manager,
@@ -33,13 +42,7 @@ from pudl.io_managers import (
 from pudl.metadata import PUDL_PACKAGE
 from pudl.resources import dataset_settings, datastore, ferc_to_sqlite_settings
 from pudl.settings import EtlSettings
-
-from . import (
-    eia_bulk_elec_assets,
-    epacems_assets,
-    glue_assets,
-    static_assets,
-)
+from pudl.workspace.setup import PUDL_ROOT_DIR
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -193,8 +196,10 @@ def _get_keys_from_assets(
 
 
 _package = PUDL_PACKAGE
-_asset_keys = itertools.chain.from_iterable(
-    _get_keys_from_assets(asset_def) for asset_def in default_assets
+_asset_keys = list(
+    itertools.chain.from_iterable(
+        _get_keys_from_assets(asset_def) for asset_def in default_assets
+    )
 )
 default_asset_checks += [
     check
@@ -212,8 +217,13 @@ default_asset_checks += [
     if check is not None
 ]
 
+default_asset_checks += dbt_asset_checks.make_dbt_asset_checks(
+    dagster_assets=_asset_keys, dbt_project=dbt_config.dbt_project
+)
+
 default_resources = {
     "datastore": datastore,
+    "dbt_cli": DbtCliResource(project_dir=dbt_config.dbt_project),
     "pudl_io_manager": pudl_mixed_format_io_manager,
     "ferc1_dbf_sqlite_io_manager": ferc1_dbf_sqlite_io_manager,
     "ferc1_xbrl_sqlite_io_manager": ferc1_xbrl_sqlite_io_manager,

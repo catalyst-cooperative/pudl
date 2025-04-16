@@ -10,6 +10,7 @@ with cleaning and restructing dataframes.
 import importlib.resources
 import itertools
 import json
+import multiprocessing
 import pathlib
 import re
 import shutil
@@ -2033,9 +2034,13 @@ def get_dagster_execution_config(
     """Get the dagster execution config for a given number of workers.
 
     If num_workers is 0, then the dagster execution config will not include
-    any limits. With num_workesr set to 1, we will use in-process serial
+    any limits. With num_workers set to 1, we will use in-process serial
     executor, otherwise multi-process executor with maximum of num_workers
     will be used.
+
+    If we use the multi-process executor AND the ``forkserver`` start method is
+    available, we pre-import the ``pudl`` package in the template process. This
+    allows us to reduce the startup latency of each op.
 
     Args:
         num_workers: The number of workers to use for the dagster execution config.
@@ -2045,11 +2050,12 @@ def get_dagster_execution_config(
             particular tags. This is helpful for applying concurrency limits to
             highly concurrent and memory intensive portions of the ETL like CEMS.
 
-            Dagster description: If a value is set, the limit is applied to only
-            that key-value pair. If no value is set, the limit is applied across
-            all values of that key. If the value is set to a dict with
-            `applyLimitPerUniqueValue: true`, the limit will apply to the number
-            of unique values for that key. Note that these limits are per run, not global.
+            Dagster description: If a value is set, the limit is applied to
+            only that key-value pair. If no value is set, the limit is applied
+            across all values of that key. If the value is set to a dict with
+            `applyLimitPerUniqueValue: true`, the limit will apply to the
+            number of unique values for that key. Note that these limits are
+            per run, not global.
 
     Returns:
         A dagster execution config.
@@ -2062,12 +2068,18 @@ def get_dagster_execution_config(
                 },
             },
         }
+
+    start_method_config = {}
+    if "forkserver" in multiprocessing.get_all_start_methods():
+        start_method_config = {"forkserver": {"preload_modules": ["pudl"]}}
+
     return {
         "execution": {
             "config": {
                 "multiprocess": {
                     "max_concurrent": num_workers,
                     "tag_concurrency_limits": tag_concurrency_limits,
+                    "start_method": start_method_config,
                 },
             },
         },
