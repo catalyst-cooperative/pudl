@@ -1841,7 +1841,7 @@ FPL,florida_power_and_light,Florida Power & Light Company,America/New_York,Flori
 GCPD,public_utility_grant_county,"Public Utility District No. 2 of Grant County, Washington",America/Los_Angeles,Northwest,,NW,western,False
 GLHB,gridliance,GridLiance (GLHB),America/Chicago,Midwest,2022-09-01,MIDW,,True
 GRDA,grand_river_dam,Grand River Dam Authority,,,,,,False
-GRID,gridforce_energy_management,"Gridforce Energy Management, LLC",America/Los_Angeles,Pacific Northwest,,,,True
+GRID,gridforce_energy_management,"Gridforce Energy Management, LLC",America/Los_Angeles,Pacific Northwest,,,western,True
 GRIF,griffith_energy,"Griffith Energy, LLC",America/Phoenix,Southwest,2023-11-01,SW,western,True
 GRIS,gridforce_south,Gridforce South,,,,,,False
 GRMA,gila_river_power,"Gila River Power, LLC",America/Phoenix,Southwest,2018-05-03,SW,western,True
@@ -1899,7 +1899,7 @@ TEC,tampa_electric,Tampa Electric Company,America/New_York,Florida,,FLA,eastern,
 TEPC,tuscon_electric_power,Tucson Electric Power Company,America/Phoenix,Southwest,,SW,western,False
 TIDC,turlock_irrigation_district,Turlock Irrigation District,America/Los_Angeles,California,,CAL,western,False
 TPWR,city_of_tacoma,"City of Tacoma, Department of Public Utilities, Light Division",America/Los_Angeles,Northwest,,NW,western,False
-TVA,tennessee_valley_authority,Tennessee Valley Authority,America/Chicago,Tennessee,,,eastern,False
+TVA,tennessee_valley_authority,Tennessee Valley Authority,America/Chicago,Tennessee,,TEN,eastern,False
 WACM,western_area_power_mountain,Western Area Power Administration - Rocky Mountain Region,America/Phoenix,Northwest,,NW,western,False
 WALC,western_area_power_southwest,Western Area Power Administration - Desert Southwest Region,America/Phoenix,Southwest,,SW,western,False
 WAUE,western_area_power_east,Western Area Power Administration - Upper Great Plains East,,,,,,False
