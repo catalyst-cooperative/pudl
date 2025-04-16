@@ -1078,8 +1078,10 @@ def remove_leading_zeros_from_numeric_strings(
 def standardize_na_values(df: pd.DataFrame) -> pd.DataFrame:
     """Replace common ill-posed EIA NA spreadsheet values with np.nan.
 
-    Currently replaces empty string, single decimal points with no numbers,
-    any single whitespace character, and hyphens with np.nan.
+    Currently replaces the empty string, any string entirely composed of whitespace,
+    bare decimal points, and any string entirely composed of hyphens, all of which are
+    common stand-ins for NA in spreadsheets. Note that this function should only be
+    applied to columns whose true type is expected to be numeric.
 
     Args:
         df: The DataFrame to clean.
@@ -1089,9 +1091,6 @@ def standardize_na_values(df: pd.DataFrame) -> pd.DataFrame:
     """
     # Define a regex pattern to match ill-posed NA values
     na_patterns = r"(^\.$|^\s*$|^-+$)"
-
-    # Replace empty strings with np.nan
-    df = df.replace("", np.nan)
 
     # Replace matching patterns in all object columns with np.nan
     df = df.replace(na_patterns, np.nan, regex=True)
