@@ -4106,7 +4106,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "report_submission_type": {
         "type": "string",
-        "description": "Type of report submitted.",
+        "description": "Type of report submitted, either Initial or Supplemental.",
+        "constraints": {
+            "enum": ["Initial", "Supplemental"]
+        }
     },
     "report_year": {
         "type": "integer",
