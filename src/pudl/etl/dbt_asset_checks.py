@@ -11,7 +11,7 @@ from dagster import (
     ResourceParam,
     asset_check,
 )
-from dagster_dbt import DbtCliResource
+from dagster_dbt import DbtCliResource, DbtProject
 from filelock import FileLock
 
 from pudl.settings import DatasetsSettings
@@ -22,6 +22,7 @@ DBT_LOCKFILE = PUDL_ROOT_DIR / "dbt" / "dbt.lock"
 
 def make_dbt_asset_checks(
     dagster_assets: list[AssetKey],
+    dbt_project: DbtProject,
 ) -> list[AssetChecksDefinition]:
     """Associate dbt resource checks with dagster assets.
 
@@ -35,8 +36,10 @@ def make_dbt_asset_checks(
     2. get the dagster assets
     3. build checks for the intersection.
     """
-    dbt_dir = PUDL_ROOT_DIR / "dbt"
-    manifest_path = dbt_dir / "target" / "manifest.json"
+    manifest_path = dbt_project.manifest_path
+
+    dbt_project.preparer.prepare(dbt_project)
+
     resources = __get_dbt_selection_names(manifest_path)
 
     dagster_asset_names = {da.to_user_string() for da in dagster_assets}
@@ -112,12 +115,7 @@ def __make_dbt_asset_check(
 
 
 class DbtSelection(NamedTuple):
-    """Named tuple to hold dbt selection strings and their corresponding asset names.
-
-    Attributes:
-        dbt_selector: The dbt selection string.
-        dagster_name: The name of the asset in Dagster.
-    """
+    """Named tuple to hold dbt selection strings and their corresponding asset names."""
 
     dbt_selector: str
     dagster_name: str

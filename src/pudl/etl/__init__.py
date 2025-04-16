@@ -23,9 +23,9 @@ from dagster._core.definitions.cacheable_assets import CacheableAssetsDefinition
 from dagster_dbt import DbtCliResource
 
 import pudl
+from pudl import dbt_config
 from pudl.etl import (
     dbt_asset_checks,
-    dbt_config,
     eia_bulk_elec_assets,
     epacems_assets,
     glue_assets,
@@ -217,10 +217,9 @@ default_asset_checks += [
     if check is not None
 ]
 
-default_asset_checks += dbt_asset_checks.make_dbt_asset_checks(_asset_keys)
-
-
-dbt_config.dbt_project.prepare_if_dev()
+default_asset_checks += dbt_asset_checks.make_dbt_asset_checks(
+    dagster_assets=_asset_keys, dbt_project=dbt_config.dbt_project
+)
 
 default_resources = {
     "datastore": datastore,

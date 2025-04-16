@@ -33,7 +33,6 @@ function initialize_postgres() {
 function run_pudl_etl() {
     echo "Running PUDL ETL"
     send_slack_msg ":large_yellow_circle: Deployment started for $BUILD_ID :floppy_disk:"
-    dagster-dbt project prepare-and-package --file src/pudl/etl/dbt_config.py && \
     initialize_postgres && \
     authenticate_gcp && \
     alembic upgrade head && \
