@@ -296,7 +296,7 @@ def generate_table_yaml(
     )
 
 
-def _log_add_table_result(result: UpdateResult):
+def _log_update_result(result: UpdateResult):
     if result.success:
         logger.info(result.message)
     else:
@@ -391,7 +391,7 @@ def add_tables(**kwargs):
         partition_column = _infer_partition_column(table_name)
 
         if not args.row_counts_only:
-            _log_add_table_result(
+            _log_update_result(
                 generate_table_yaml(
                     table_name,
                     data_source,
@@ -400,7 +400,7 @@ def add_tables(**kwargs):
                 )
             )
         if not args.yaml_only:
-            _log_add_table_result(
+            _log_update_result(
                 update_row_counts(
                     table_name=table_name,
                     partition_column=partition_column,
