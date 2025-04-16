@@ -1076,7 +1076,7 @@ def remove_leading_zeros_from_numeric_strings(
 
 
 def standardize_na_values(df: pd.DataFrame) -> pd.DataFrame:
-    """Replace common ill-posed EIA NA spreadsheet values with np.nan.
+    """Replace common apparently NA values in numerical columns with the floating point np.nan.
 
     Currently replaces the empty string, any string entirely composed of whitespace,
     bare decimal points, and any string entirely composed of hyphens, all of which are
