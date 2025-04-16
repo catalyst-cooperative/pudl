@@ -20,11 +20,21 @@ logger = pudl.logging_helpers.get_logger(__name__)
 YEARLY_DISTRIBUTION_OPERATORS_COLUMNS = {
     "columns_to_keep": [
         "report_date",
+        "filing_date",
+        "correction_date",
+        "data_date",
         "report_number",
+        "supplemental_report_number",
         "report_submission_type",
+        "original_report",
+        "supplementary_report",
         "report_year",
+        "log",
         "operator_id_phmsa",
         "operator_name_phmsa",
+        "operating_state",
+        "operator_type",
+        "commodity",
         "office_street_address",
         "office_city",
         "office_state",
@@ -53,6 +63,7 @@ YEARLY_DISTRIBUTION_OPERATORS_COLUMNS = {
         "preparer_name",
         "preparer_phone",
         "preparer_title",
+        "form_revision",
     ],
     "columns_to_convert_to_ints": [
         "report_year",
@@ -71,6 +82,7 @@ YEARLY_DISTRIBUTION_OPERATORS_COLUMNS = {
         "federal_land_leaks_repaired_or_scheduled",
     ],
     "capitalization_exclusion": [
+        "operating_state",
         "headquarters_state",
         "office_state",
         "preparer_email",
@@ -84,7 +96,7 @@ YEARLY_DISTRIBUTION_OPERATORS_COLUMNS = {
 
 
 @asset(
-    io_manager_key="pudl_io_manager",
+    # io_manager_key="pudl_io_manager",
     compute_kind="pandas",
 )
 def core_phmsagas__yearly_distribution_operators(
@@ -115,8 +127,9 @@ def core_phmsagas__yearly_distribution_operators(
     # Standardize NAs
     df = standardize_na_values(df)
 
-    # Convert report date to datetime
-    df["report_date"] = pd.to_datetime(df["report_date"])
+    # Convert date columns to datetime
+    for col in ["report_date", "filing_date", "correction_date", "data_date"]:
+        df[col] = pd.to_datetime(df[col])
 
     # Initial string cleaning
     for col in df.select_dtypes(include=["object"]).columns:
@@ -174,21 +187,37 @@ def core_phmsagas__yearly_distribution_operators(
     # Standardize telephone and fax number format and drop (000)-000-0000
     df = standardize_phone_column(df, ["preparer_phone", "preparer_fax"])
 
+    # Convert percent unaccounted for gas to a fraction
+    df["unaccounted_for_gas_fraction"] = df["percent_unaccounted_for_gas"] / 100
+    df = df.drop(columns=["percent_unaccounted_for_gas"])
+
+    # Streamline the initial and supplementary report columns
+    df["report_submission_type"].mask(
+        df["original_report"] == "Y", "Initial", inplace=True
+    )
+    df["report_submission_type"].mask(
+        df["supplementary_report"] == "Y", "Supplemental", inplace=True
+    )
+    df = df.drop(columns=["original_report", "supplementary_report"])
+
     # Drop duplicates
     df = df.drop_duplicates()
 
-    # Identify non-unique groups based on our PKs
-    non_unique_groups = df[
-        df.groupby(["operator_id_phmsa", "report_number"])["report_number"].transform(
-            "size"
-        )
-        > 1
-    ]
+    # Identify non-unique groups based on our PK
+    # There are a small number of records with duplicate report numbers
+    # and either duplicate or "test" data in the rows. Remove the 'bad data'
+    # to ensure a unique primary key.
+    non_unique_groups = df[df.duplicated(["report_number"], keep=False)]
 
     # Apply some custom filtering logic to non-unique groups
     filtered_non_unique_rows = non_unique_groups.groupby(
-        ["operator_id_phmsa", "report_number"], group_keys=False
+        ["report_number"], group_keys=False
     ).apply(combined_filter)
+
+    # There are ten values that we expect to be duplicated.
+    assert len(filtered_non_unique_rows) <= 10, (
+        f"Found {len(filtered_non_unique_rows)} records with duplicates, expected ten or less."
+    )
 
     # Combine filtered non-unique rows with untouched unique rows
     unique_rows = df.drop(non_unique_groups.index)
@@ -274,38 +303,17 @@ def combined_filter(group: pd.DataFrame) -> pd.DataFrame:
 
 
 @asset_check(asset=core_phmsagas__yearly_distribution_operators, blocking=True)
-def _check_percent_unaccounted_for_gas(df):
-    # Count the rows where percent_unaccounted_for_gas is negative
-    negative_count = (df["percent_unaccounted_for_gas"] < 0).sum()
+def _check_unaccounted_for_gas_fraction(df):
+    """Check what percentage of unaccounted gas values are reported as a negative number.
+    This is technically impossible but allowed by PHMSA.
+    """
+    # Count the rows where unaccounted gas is negative.
+    negative_count = (df["unaccounted_for_gas_fraction"] < 0).sum()
 
     # Calculate the percentage
     negative_percentage = negative_count / len(df)
     if negative_percentage > 0.15:
-        error = f"Percentage of rows with negative percent_unaccounted_for_gas values: {negative_percentage:.2f}"
-        logger.info(error)
-        return AssetCheckResult(passed=False, metadata={"errors": error})
-
-    return AssetCheckResult(passed=True)
-
-
-@asset_check(asset=core_phmsagas__yearly_distribution_operators, blocking=True)
-def _check_pk_deduplication(df):
-    """Check if the size of filtered non-unique rows exceeds the threshold."""
-    # Identify non-unique groups
-    non_unique_groups = df.groupby(["operator_id_phmsa", "report_number"]).filter(
-        lambda group: len(group) > 1
-    )
-
-    # Apply the filters to non-unique groups
-    filtered_non_unique_rows = non_unique_groups.groupby(
-        ["operator_id_phmsa", "report_number"], group_keys=False
-    ).apply(combined_filter)
-
-    if len(filtered_non_unique_rows) > 10:
-        error = (
-            f"Number of filtered non-unique rows ({len(filtered_non_unique_rows)})\n"
-            f"Exceeds the threshold of 10."
-        )
+        error = f"Percentage of rows with negative unaccounted_for_gas_fraction values: {negative_percentage:.2f}"
         logger.info(error)
         return AssetCheckResult(passed=False, metadata={"errors": error})
 

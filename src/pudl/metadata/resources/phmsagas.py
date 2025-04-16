@@ -44,7 +44,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "services_shutoff_valve_in_system",
                 "services_shutoff_valve_installed",
                 "federal_land_leaks_repaired_or_scheduled",
-                "percent_unaccounted_for_gas",
+                "unaccounted_for_gas_fraction",
                 "additional_information",
                 "preparer_email",
                 "preparer_fax",

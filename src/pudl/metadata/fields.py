@@ -3685,15 +3685,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         # TODO Disambiguate column names. Usually this is over 60 minutes, but in
         # other tables it's not specified.
     },
-    "percent_unaccounted_for_gas": {
+    "unaccounted_for_gas_fraction": {
         "type": "number",
         "description": (
-            "Unaccounted for gas as a percent of total consumption "
+            "Unaccounted for gas as a fraction of total consumption "
             "for the 12 months ending June 30 of the reporting year. "
-            "Percentage is calculated as follows: "
+            "Calculated as follows: "
             "Take the sum of: purchased gas + produced gas minus customer use + company use "
             "+ appropriate adjustments. Then divide by the sum of customer use + company use "
-            "+ appropriate adjustments. Multiply the output by 100."
+            "+ appropriate adjustments."
         ),
     },
     "percent_dry_cooling": {
