@@ -19,6 +19,7 @@ from dagster import (
 )
 
 import pudl
+from pudl.workspace.datastore import Datastore
 
 StrInt = str | int
 PartitionSelection = list[StrInt] | tuple[StrInt] | StrInt
@@ -121,11 +122,11 @@ class GenericExtractor(ABC):
     BLACKLISTED_PAGES = []
     """List of supported pages that should not be extracted."""
 
-    def __init__(self, ds):
+    def __init__(self, ds: Datastore):
         """Create new extractor object and load metadata.
 
         Args:
-            ds (datastore.Datastore): An initialized datastore, or subclass
+            ds: An initialized datastore, or subclass
         """
         if not self.METADATA:
             raise NotImplementedError("self.METADATA must be set.")

@@ -187,6 +187,7 @@ class ZenodoDoiSettings(BaseSettings):
     """Digital Object Identifiers pointing to currently used Zenodo archives."""
 
     censusdp1tract: ZenodoDoi = "10.5281/zenodo.4127049"
+    censuspep: ZenodoDoi = "10.5281/zenodo.14648211"
     eia176: ZenodoDoi = "10.5281/zenodo.14589676"
     eia191: ZenodoDoi = "10.5281/zenodo.10607837"
     eia757a: ZenodoDoi = "10.5281/zenodo.10607839"
@@ -206,8 +207,9 @@ class ZenodoDoiSettings(BaseSettings):
     ferc60: ZenodoDoi = "10.5281/zenodo.13149090"
     ferc714: ZenodoDoi = "10.5281/zenodo.13149091"
     gridpathratoolkit: ZenodoDoi = "10.5281/zenodo.10892394"
-    phmsagas: ZenodoDoi = "10.5281/zenodo.14589677"
     nrelatb: ZenodoDoi = "10.5281/zenodo.12658647"
+    phmsagas: ZenodoDoi = "10.5281/zenodo.14589677"
+    sec10k: ZenodoDoi = "10.5281/zenodo.15161694"
     vcerare: ZenodoDoi = "10.5281/zenodo.13937523"
 
     model_config = SettingsConfigDict(

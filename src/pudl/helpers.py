@@ -20,7 +20,6 @@ from functools import partial
 from io import BytesIO
 from typing import Any, Literal, NamedTuple
 
-import addfips
 import datasette
 import numpy as np
 import pandas as pd
@@ -190,52 +189,119 @@ def download_zip_url(
 
 def add_fips_ids(
     df: pd.DataFrame,
+    geocodes: pd.DataFrame,
     state_col: str = "state",
     county_col: str = "county",
-    vintage: int = 2015,
 ) -> pd.DataFrame:
     """Add State and County FIPS IDs to a dataframe.
 
     To just add State FIPS IDs, make county_col = None.
     """
-    # force the columns to be the nullable string types so we have a consistent
-    # null value to filter out before feeding to addfips
-    df = df.astype({state_col: pd.StringDtype()})
+    df = add_state_id_fips(df, geocodes, state_col)
     if county_col:
-        df = df.astype({county_col: pd.StringDtype()})
-    af = addfips.AddFIPS(vintage=vintage)
-    # Lookup the state and county FIPS IDs and add them to the dataframe:
-    df["state_id_fips"] = df.apply(
-        lambda x: (
-            af.get_state_fips(state=x[state_col]) if pd.notnull(x[state_col]) else pd.NA
-        ),
-        axis=1,
+        df = add_county_fips_id(df, geocodes, county_col)
+    return df
+
+
+def add_state_id_fips(
+    df: pd.DataFrame, geocodes: pd.DataFrame, state_col: str
+) -> pd.DataFrame:
+    """Add the State FIPS codes."""
+    states = (
+        geocodes.loc[geocodes["fips_level"] == "040", ["state", "state_id_fips"]]
+        .rename(columns={"state": state_col})
+        .drop_duplicates()
     )
-
-    # force the code columns to be nullable strings - the leading zeros are
-    # important
-    df = df.astype({"state_id_fips": pd.StringDtype()})
-
+    df = df.merge(states, on=state_col, how="left", validate="m:1")
     logger.info(
         f"Assigned state FIPS codes for "
         f"{len(df[df.state_id_fips.notnull()]) / len(df):.2%} of records."
     )
-    if county_col:
-        df["county_id_fips"] = df.apply(
-            lambda x: (
-                af.get_county_fips(state=x[state_col], county=x[county_col])
-                if pd.notnull(x[county_col]) and pd.notnull(x[state_col])
-                else pd.NA
-            ),
-            axis=1,
+    return df
+
+
+def add_county_fips_id(
+    df: pd.DataFrame, geocodes: pd.DataFrame, county_col: str
+) -> pd.DataFrame:
+    """Add the County FIPS codes to a table with State FIPS codes."""
+
+    def _clean_area_name_col(area_name_col: pd.Series, replace_dict: dict):
+        """Clean a area name column - meant for use in FIPS code adding."""
+        return area_name_col.str.lower().replace(to_replace=replace_dict, regex=True)
+
+    diacritics = {
+        r"ñ": "n",
+        r"'": "",
+        r"ó": "o",
+        r"í": "i",
+        r"á": "a",
+        r"ü": "u",
+        r"é": "e",
+        r"î": "i",
+        r"è": "e",
+        r"à": "a",
+        r"ì": "i",
+        r"å": "a",
+    }
+    abbrevs = {"ft. ": "fort ", "st. ": "saint ", "ste. ": "sainte "}
+
+    county_types = {
+        r" (county|city|city and borough|borough|census area|municipio|municipality|district|parish|island)$": ""
+    }
+
+    # compile the counties.
+    counties = geocodes.loc[
+        geocodes["fips_level"] == "050",
+        ["area_name", "state_id_fips", "county_id_fips"],
+    ]  # compile all of the many possible ways these county columns could show up.
+    counties = pd.concat(
+        [
+            counties.assign(
+                county_tmp=_clean_area_name_col(counties["area_name"], replace_dict)
+            )
+            for replace_dict in [
+                {},
+                diacritics | abbrevs,
+                county_types,
+                diacritics | abbrevs | county_types,
+                county_types | {"'s": "s"},
+            ]
+        ]
+    ).drop_duplicates()
+
+    # see assertion note below. we keep the city records because all instances
+    # of the city as county reported we've seen always note lone city as county
+    # name instead of lone county. There is one exception which is Bedford.. #3531
+    city_county_dupe_mask = counties.duplicated(
+        ["state_id_fips", "county_tmp"], keep=False
+    ) & (
+        (
+            counties.area_name.str.lower().str.contains("county|borough")
+            & ~counties.area_name.str.lower().str.contains("bedford")
         )
-        # force the code columns to be nullable strings - the leading zeros are
-        # important
-        df = df.astype({"county_id_fips": pd.StringDtype()})
-        logger.info(
-            f"Assigned county FIPS codes for "
-            f"{len(df[df.county_id_fips.notnull()]) / len(df):.2%} of records."
+        | (counties.area_name.str.lower() == "bedford city")
+    )
+    if len(city_county_dupes := counties[city_county_dupe_mask]) > 9:
+        raise AssertionError(
+            "We expect there to be 9 county records that have the same name and state "
+            "but have different county fips codes. This is due to pair counties that have "
+            "a city jurisdiction and a corresponding county jurisdiction (ex. Baltimore "
+            "County and Baltimore City which is also a county). We found "
+            f"{len(city_county_dupes)}:\n{city_county_dupes.sort_values('county_tmp')}"
         )
+    counties = counties[~city_county_dupe_mask]
+
+    df = (
+        df.astype({county_col: pd.StringDtype()})
+        .assign(county_tmp=lambda x: _clean_area_name_col(x[county_col], {}))
+        .merge(counties, on=["state_id_fips", "county_tmp"], how="left", validate="m:1")
+        .drop(columns=["county_tmp", "area_name"])
+    )
+
+    logger.info(
+        f"Assigned county FIPS codes for "
+        f"{len(df[df.county_id_fips.notnull()]) / len(df):.2%} of records."
+    )
     return df
 
 
@@ -245,7 +311,7 @@ def clean_eia_counties(
     state_col: str = "state",
     county_col: str = "county",
 ) -> pd.DataFrame:
-    """Replace non-standard county names with county nmes from US Census."""
+    """Replace non-standard county names with county names from US Census."""
     df = df.copy()
     df[county_col] = (
         df[county_col]
@@ -840,9 +906,9 @@ def fix_int_na(
 
     """
     return (
-        df.replace({c: float_na for c in columns}, int_na)
-        .astype({c: int for c in columns})
-        .astype({c: str for c in columns})
+        df.replace(dict.fromkeys(columns, float_na), int_na)
+        .astype(dict.fromkeys(columns, int))
+        .astype(dict.fromkeys(columns, str))
         .replace({c: str(int_na) for c in columns}, str_na)
     )
 
@@ -1185,9 +1251,9 @@ def convert_cols_dtypes(
         df = df.astype({"utility_id_eia": "float"})
     df = (
         df.astype(non_bool_cols)
-        .astype({col: "boolean" for col in bool_cols})
-        .replace(to_replace="nan", value={col: pd.NA for col in string_cols})
-        .replace(to_replace="<NA>", value={col: pd.NA for col in string_cols})
+        .astype(dict.fromkeys(bool_cols, "boolean"))
+        .replace(to_replace="nan", value=dict.fromkeys(string_cols, pd.NA))
+        .replace(to_replace="<NA>", value=dict.fromkeys(string_cols, pd.NA))
     )
 
     # Zip codes are highly correlated with datatype. If they datatype gets
@@ -1863,7 +1929,7 @@ def fix_boolean_columns(
     have "U" values, presumably for "Unknown," which must be set to null in order to
     convert the columns to datatype Boolean.
     """
-    fillna_cols = {col: pd.NA for col in boolean_columns_to_fix}
+    fillna_cols = dict.fromkeys(boolean_columns_to_fix, pd.NA)
     boolean_replace_cols = {
         col: {"Y": True, "N": False, "X": False, "U": pd.NA}
         for col in boolean_columns_to_fix

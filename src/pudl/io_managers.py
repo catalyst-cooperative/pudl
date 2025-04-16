@@ -44,16 +44,8 @@ def get_table_name_from_context(context: OutputContext) -> str:
 class PudlMixedFormatIOManager(IOManager):
     """Format switching IOManager that supports sqlite and parquet.
 
-    This IOManager allows experimental output of parquet files along
-    the standard sqlite database produced by PUDL. During this experimental
-    phase sqlite will always be output, while parquet support will be turned
-    off by default.
-
-    Parquet support can be enabled either using environment variables or
-    the dagster UI (see :func:`pudl_mixed_format_io_manager` for more info on the enviroment
-    variables). Parquet writing and reading can both be toggled independently. If
-    parquet writing is enabled, both parquet and sqlite tables will be produced, while
-    if parquet reading is enabled, assets will only be read from the parquet files.
+    This IOManager provides for the use of parquet files along with the standard SQLite
+    database produced by PUDL.
     """
 
     # Defaults should be provided here and should be potentially
@@ -92,11 +84,6 @@ class PudlMixedFormatIOManager(IOManager):
             db_name="pudl",
         )
         self._parquet_io_manager = PudlParquetIOManager()
-        if self.write_to_parquet or self.read_from_parquet:
-            logger.warning(
-                f"pudl_io_manager: experimental support for parquet enabled. "
-                f"(read={self.read_from_parquet}, write={self.write_to_parquet})"
-            )
 
     def handle_output(
         self, context: OutputContext, obj: pd.DataFrame | str

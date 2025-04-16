@@ -38,8 +38,13 @@ class DbtTable(BaseModel):
     """Define yaml structure of a dbt table."""
 
     name: str
-    data_tests: list | None
+    data_tests: list | None = None
     columns: list[DbtColumn]
+
+    def add_source_tests(self, source_tests: list) -> "DbtSource":
+        """Add data tests to source in dbt config."""
+        data_tests = self.data_tests if self.data_tests is not None else []
+        return self.model_copy(update={"data_tests": data_tests + source_tests})
 
     def add_column_tests(self, column_tests: dict[str, list]) -> "DbtSource":
         """Add data tests to columns in dbt config."""
@@ -83,6 +88,13 @@ class DbtSource(BaseModel):
 
     name: str = "pudl"
     tables: list[DbtTable]
+    data_tests: list | None = None
+
+    def add_source_tests(self, source_tests: list) -> "DbtSource":
+        """Add data tests to source in dbt config."""
+        return self.model_copy(
+            update={"tables": [self.tables[0].add_source_tests(source_tests)]}
+        )
 
     def add_column_tests(self, column_tests: dict[list]) -> "DbtSource":
         """Add data tests to columns in dbt config."""
@@ -97,6 +109,21 @@ class DbtSchema(BaseModel):
     version: int = 2
     sources: list[DbtSource]
     models: list[DbtTable] | None = None
+
+    def add_source_tests(
+        self, source_tests: list, model_name: str | None = None
+    ) -> "DbtSchema":
+        """Add data tests to source in dbt config."""
+        if model_name is None:
+            schema = self.model_copy(
+                update={"sources": [self.sources[0].add_source_tests(source_tests)]}
+            )
+        else:
+            models = {model.name: model for model in self.models}
+            models[model_name] = models[model_name].add_source_tests(source_tests)
+            schema = self.model_copy(update={"models": list(models.values())})
+
+        return schema
 
     def add_column_tests(
         self, column_tests: dict[list], model_name: str | None = None
@@ -198,8 +225,10 @@ def generate_row_counts(
     new_row_counts = duckdb.sql(row_count_query).df().astype({"partition": str})
     new_row_counts["table_name"] = table_name
 
-    all_row_counts = pd.concat([row_counts_df, new_row_counts]).drop_duplicates(
-        subset=["partition", "table_name"], keep="last"
+    all_row_counts = (
+        pd.concat([row_counts_df, new_row_counts])
+        .drop_duplicates(subset=["partition", "table_name"], keep="last")
+        .sort_values(["table_name", "partition"])
     )
 
     all_row_counts.to_csv(csv_path, index=False)
@@ -442,7 +471,7 @@ def migrate_tests(table_name: str, test_config_name: str, model_name: str | None
 
     Example usage:
 
-    python devtools/dbt_helper.py migrate-tests \
+    dbt_helper migrate-tests \
         --table-name out_eia__yearly_generators \
         --test-config-name mcoe_gas_capacity_factor
     """
@@ -468,7 +497,9 @@ def migrate_tests(table_name: str, test_config_name: str, model_name: str | None
     _write_dbt_yaml_config(schema_path, schema)
 
 
-@click.group()
+@click.group(
+    context_settings={"help_option_names": ["-h", "--help"]},
+)
 def dbt_helper():
     """Script for auto-generating dbt configuration and migrating existing tests.
 
@@ -478,8 +509,7 @@ def dbt_helper():
     used to migrate ``vs_bounds`` tests. This command uses configuration defined in
     ``validate.py`` to generate dbt tests.
 
-    Run ``python devtools/dbt_helper.py {command} --help`` for detailed usage on each
-    command.
+    Run ``dbt_helper {command} --help`` for detailed usage on each command.
     """
 
 

@@ -202,6 +202,13 @@ jobs:
           include-hidden-files: true
           path: .coverage
 
+      - name: Upload dbt test failure database artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dbt-failures
+          path: pudl_dbt_tests.duckdb
+
       - name: Log post-test Zenodo datastore contents
         run: find ${{ env.PUDL_INPUT }}
 

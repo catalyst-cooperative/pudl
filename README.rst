@@ -179,6 +179,9 @@ For details on how to access PUDL data, see the `data access documentation
 <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html>`__. A quick
 summary:
 
+* `PUDL Viewer <https://viewer.catalyst.coop>`__ provides search, live preview,
+  and CSV export for our processed data. Currently it doesn't provide access to
+  the *raw* FERC data - you'll still have to go to Datasette for that.
 * `Datasette <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html#-access-datasette>`__
   provides browsable and queryable data from our nightly builds on the web:
   https://data.catalyst.coop
@@ -255,11 +258,7 @@ Gigawatt Tier (≥$25,000/year)
 Megawatt Tier (≥$16,000/year)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. image:: docs/images/logos/ZEROLab.png
-   :width: 400
-   :target: https://zero.lab.princeton.edu/
-   :alt: ZERO Lab at Princeton University
-   :align: center
+Become our first `Megawatt tier sustainer <https://opencollective.com/pudl>`__!
 
 Kilowatt Tier (≥$8,000/year)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^

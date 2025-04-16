@@ -11,15 +11,15 @@ ferc_to_sqlite_settings:
   ferc2_dbf_to_sqlite_settings:
     years: [2019, 2020]
   ferc2_xbrl_to_sqlite_settings:
-    years: [2021, 2022]
+    years: [2021, 2023]
   ferc6_dbf_to_sqlite_settings:
     years: [2019, 2020]
   ferc6_xbrl_to_sqlite_settings:
-    years: [2021, 2022]
+    years: [2021, 2023]
   ferc60_dbf_to_sqlite_settings:
     years: [2019, 2020]
   ferc60_xbrl_to_sqlite_settings:
-    years: [2021, 2022]
+    years: [2021, 2023]
   ferc714_xbrl_to_sqlite_settings:
     years: [2021, 2023]
 
@@ -98,6 +98,17 @@ datasets:
     technology_types: ["wind"]
     processing_levels: ["extended"]
     daily_weather: true
+  sec10k:
+    years: [2020, 2023]
+    tables:
+      [
+        "raw_sec10k__quarterly_filings",
+        "raw_sec10k__quarterly_company_information",
+        "raw_sec10k__parents_and_subsidiaries",
+        "raw_sec10k__exhibit_21_company_ownership",
+      ]
   vcerare:
     years: [2023]
     fips: True
+  censuspep:
+    years: [2023, 2015, 2009]

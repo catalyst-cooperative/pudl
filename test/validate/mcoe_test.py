@@ -91,59 +91,6 @@ def test_no_null_rows_mcoe(pudl_out_mcoe, live_dbs, df_name, thresh):
     )
 
 
-@pytest.mark.parametrize(
-    "df_name,monthly_rows,annual_rows",
-    [
-        ("hr_by_unit", 415_117, 34_589),
-        ("hr_by_gen", 648_072, 53_995),
-        ("fuel_cost", 648_072, 53_995),
-        ("capacity_factor", 5_756_595, 479_605),
-        ("mcoe", 5_756_666, 479_609),
-    ],
-)
-def test_minmax_rows_mcoe(pudl_out_mcoe, live_dbs, monthly_rows, annual_rows, df_name):
-    """Verify that output DataFrames don't have too many or too few rows."""
-    if not live_dbs:
-        pytest.skip("Data validation only works with a live PUDL DB.")
-    if pudl_out_mcoe.freq is None:
-        pytest.skip()
-    if pudl_out_mcoe.freq == "MS":
-        expected_rows = monthly_rows
-    else:
-        assert pudl_out_mcoe.freq == "YS"
-        expected_rows = annual_rows
-    _ = (
-        pudl_out_mcoe.__getattribute__(df_name)()
-        .pipe(
-            pv.check_min_rows, expected_rows=expected_rows, margin=0.0, df_name=df_name
-        )
-        .pipe(
-            pv.check_max_rows, expected_rows=expected_rows, margin=0.0, df_name=df_name
-        )
-    )
-
-
-@pytest.mark.parametrize(
-    "df_name,unique_subset",
-    [
-        ("hr_by_unit", ["report_date", "plant_id_eia", "unit_id_pudl"]),
-        ("hr_by_gen", ["report_date", "plant_id_eia", "generator_id"]),
-        ("fuel_cost", ["report_date", "plant_id_eia", "generator_id"]),
-        ("capacity_factor", ["report_date", "plant_id_eia", "generator_id"]),
-        ("mcoe", ["report_date", "plant_id_eia", "generator_id"]),
-    ],
-)
-def test_unique_rows_mcoe(pudl_out_mcoe, live_dbs, unique_subset, df_name):
-    """Test whether dataframe has unique records within a subset of columns."""
-    if not live_dbs:
-        pytest.skip("Data validation only works with a live PUDL DB.")
-    if pudl_out_mcoe.freq is None:
-        pytest.skip()
-    pv.check_unique_rows(
-        pudl_out_mcoe.__getattribute__(df_name)(), subset=unique_subset, df_name=df_name
-    )
-
-
 ###############################################################################
 # Tests that look at distributions of MCOE calculation outputs.
 ###############################################################################
@@ -215,8 +162,6 @@ def test_fuel_cost_per_mwh(pudl_out_mcoe, live_dbs):
     # The annual numbers for MCOE costs have too many NA values:
     if pudl_out_mcoe.freq != "MS":
         pytest.skip()
-    for args in pv.mcoe_self_fuel_cost_per_mwh:
-        pv.vs_self(pudl_out_mcoe.mcoe_generators(), **args)
 
     for args in pv.mcoe_fuel_cost_per_mwh:
         pv.vs_bounds(pudl_out_mcoe.mcoe_generators(), **args)
@@ -229,18 +174,6 @@ def test_fuel_cost_per_mmbtu(pudl_out_mcoe, live_dbs):
     # The annual numbers for MCOE costs have too many NA values:
     if pudl_out_mcoe.freq != "MS":
         pytest.skip()
-    for args in pv.mcoe_self_fuel_cost_per_mmbtu:
-        pv.vs_self(pudl_out_mcoe.mcoe_generators(), **args)
 
     for args in pv.mcoe_fuel_cost_per_mmbtu:
         pv.vs_bounds(pudl_out_mcoe.mcoe_generators(), **args)
-
-
-def test_mcoe_self(pudl_out_mcoe, live_dbs):
-    """Test MCOE outputs against their historical selves..."""
-    if not live_dbs:
-        pytest.skip("Data validation only works with a live PUDL DB.")
-    if pudl_out_mcoe.freq is None:
-        pytest.skip()
-    for args in pv.mcoe_self:
-        pv.vs_self(pudl_out_mcoe.mcoe_generators(), **args)
