@@ -84,7 +84,7 @@ dependencies:
   - cachetools=5.5.2=pyhd8ed1ab_0
   - cairo=1.18.4=h3394656_0
   - catalystcoop.dbfread=3.0.0=pyhd8ed1ab_1
-  - catalystcoop.ferc_xbrl_extractor=1.5.1=pyhd8ed1ab_1
+  - catalystcoop.ferc_xbrl_extractor=1.5.2=pyhd8ed1ab_0
   - cattrs=24.1.2=pyhd8ed1ab_1
   - certifi=2025.1.31=pyhd8ed1ab_0
   - cffi=1.17.1=py312h06ac9bb_0
@@ -433,7 +433,7 @@ dependencies:
   - prometheus_flask_exporter=0.23.2=pyhd8ed1ab_0
   - prompt-toolkit=3.0.50=pyha770c72_0
   - prompt_toolkit=3.0.50=hd8ed1ab_0
-  - propcache=0.2.1=py312h178313f_1
+  - propcache=0.3.1=py312h178313f_0
   - proto-plus=1.26.1=pyhd8ed1ab_0
   - protobuf=5.29.3=py312h0f4f066_0
   - psutil=5.9.8=py312h98912ed_0
