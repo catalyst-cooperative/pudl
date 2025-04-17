@@ -165,10 +165,8 @@ class DbtSchema(BaseModel):
 def get_data_source(table_name: str) -> str:
     """Return data source for a table or 'output' if there's more than one source."""
     resource = PUDL_PACKAGE.get_resource(table_name)
-    if len(resource.sources) > 1:
-        return "output"
 
-    return resource.sources[0].name
+    return "output" if len(resource.sources) > 1 else resource.sources[0].name
 
 
 UpdateResult = namedtuple("UpdateResult", ["success", "message"])
@@ -218,9 +216,7 @@ def _calculate_row_counts(
             f"FROM '{table_path}' GROUP BY YEAR({partition_column})"  # noqa: S608
         )
     else:
-        row_count_query = (
-            f"SELECT '' as partition, COUNT(*) as row_count FROM '{table_path}'"  # noqa: S608
-        )
+        row_count_query = f"SELECT '' as partition, COUNT(*) as row_count FROM '{table_path}'"  # noqa: S608
 
     new_row_counts = duckdb.sql(row_count_query).df().astype({"partition": str})
     new_row_counts["table_name"] = table_name
