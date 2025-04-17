@@ -273,7 +273,7 @@ def _write_dbt_yaml_config(schema_path: Path, schema: DbtSchema):
         )
 
 
-def generate_table_yaml(
+def add_new_table_yaml(
     table_name: str,
     data_source: str,
     partition_column: str = "report_year",
@@ -320,8 +320,8 @@ def _infer_partition_column(table_name: str) -> str:
 
 
 @dataclass
-class AddTablesArgs:
-    """Define a single class to collect all args for add-tables command."""
+class TableUpdateArgs:
+    """Define a single class to collect all args for all table update commands."""
 
     tables: list[str]
     use_local_tables: bool = False
@@ -380,7 +380,7 @@ def add_tables(**kwargs):
     Note: if ``--clobber`` is set, any manually added configuration for tables
     will be overwritten.
     """
-    args = AddTablesArgs(**kwargs)
+    args = TableUpdateArgs(**kwargs)
 
     tables = args.tables
     if "all" in tables:
@@ -397,7 +397,7 @@ def add_tables(**kwargs):
 
         if not args.row_counts_only:
             _log_update_result(
-                generate_table_yaml(
+                add_new_table_yaml(
                     table_name,
                     data_source,
                     partition_column=partition_column,
