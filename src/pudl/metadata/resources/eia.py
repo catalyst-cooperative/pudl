@@ -17,6 +17,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_timezone",
                 "balancing_authority_retirement_date",
                 "is_generation_only",
+                "interconnect_code_eia",
             ],
             "primary_key": ["code"],
             "foreign_key_rules": {

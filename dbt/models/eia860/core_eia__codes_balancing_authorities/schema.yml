@@ -16,3 +16,4 @@ sources:
           - name: report_timezone
           - name: balancing_authority_retirement_date
           - name: is_generation_only
+          - name: interconnect_code_eia
