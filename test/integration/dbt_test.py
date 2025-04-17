@@ -4,6 +4,8 @@ import shutil
 from contextlib import chdir
 from pathlib import Path
 
+import pytest
+
 from dbt.cli.main import dbtRunner, dbtRunnerResult
 from pudl.io_managers import PudlMixedFormatIOManager
 
@@ -87,3 +89,24 @@ def test_dbt(
             shutil.move(db_path, test_dir.parent / "pudl_dbt_tests.duckdb")
 
     assert test_result.success
+
+
+@pytest.mark.script_launch_mode("inprocess")
+def test_dbt_helper(pudl_io_manager: PudlMixedFormatIOManager, script_runner):
+    """Run add-tables. Should detect everything already exists, and do nothing.
+
+    The dependency on pudl_io_manager is necessary because it ensures that the dbt
+    tests don't run until after the ETL has completed and the Parquet files are
+    available.
+    """
+    ret = script_runner.run(
+        [
+            "dbt_helper",
+            "add-tables",
+            "--etl-fast",
+            "--use-local-tables",
+            "all",
+        ],
+        print_result=True,
+    )
+    assert ret.success

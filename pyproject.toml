@@ -35,7 +35,7 @@ dependencies = [
     "fsspec>=2025",
     "furo>=2024",
     "gcsfs>=2025",
-    "gdal==3.10.1", # pinned, because we need it to work with pudl-archiver
+    "gdal==3.10.3", # pinned, because we need it to work with pudl-archiver
     "geopandas>=1.0",
     "grpcio==1.71.0", # Required by dagster, binary dependencies are flaky
     "grpcio-health-checking==1.71.0", # Required by dagster, binary dependencies are flaky
@@ -137,6 +137,7 @@ pudl_check_fks = "pudl.etl.check_foreign_keys:pudl_check_fks"
 pudl_datastore = "pudl.workspace.datastore:pudl_datastore"
 pudl_etl = "pudl.etl.cli:pudl_etl"
 pudl_service_territories = "pudl.analysis.service_territory:pudl_service_territories"
+dbt_helper = "pudl.scripts.dbt_helper:dbt_helper"
 
 [project.urls]
 "Homepage" = "https://catalyst.coop/pudl/"

@@ -14,4 +14,6 @@ sources:
           - name: report_date
           - name: datetime_utc
           - name: timezone
-          - name: demand_mwh
+          - name: demand_reported_mwh
+          - name: demand_imputed_pudl_mwh
+          - name: demand_imputed_pudl_mwh_imputation_code
