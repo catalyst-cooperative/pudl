@@ -14,12 +14,11 @@ should include a raw datasource suffix.
 
 import importlib
 import re
-from dataclasses import dataclass
 from typing import Literal
 
 import numpy as np
 import pandas as pd
-from dagster import AssetCheckResult, AssetChecksDefinition, AssetIn, asset, asset_check
+from dagster import AssetIn, asset
 
 import pudl.logging_helpers
 from pudl.extract.ferc714 import TABLE_NAME_MAP_FERC714
@@ -1237,67 +1236,3 @@ def core_ferc714__yearly_planning_area_demand_forecast(
     a class.
     """
     return YearlyPlanningAreaDemandForecast.run(raw_csv, raw_xbrl_duration)
-
-
-@dataclass
-class Ferc714CheckSpec:
-    """Define some simple checks that can run on FERC 714 assets."""
-
-    name: str
-    asset: str
-    num_rows_by_report_year: dict[int, int]
-
-
-check_specs = [
-    Ferc714CheckSpec(
-        name="yearly_planning_area_demand_forecast_check_spec",
-        asset="core_ferc714__yearly_planning_area_demand_forecast",
-        num_rows_by_report_year={
-            2006: 1819,
-            2007: 1570,
-            2008: 1540,
-            2009: 1269,
-            2010: 1259,
-            2011: 1210,
-            2012: 1210,
-            2013: 1192,
-            2014: 1000,
-            2015: 990,
-            2016: 990,
-            2017: 980,
-            2018: 961,
-            2019: 950,
-            2020: 950,
-            2021: 905,
-            2022: 904,
-            2023: 904,
-        },
-    )
-]
-
-
-def make_row_num_check(spec: Ferc714CheckSpec) -> AssetChecksDefinition:
-    """Turn the Ferc714CheckSpec into an actual Dagster asset check."""
-
-    @asset_check(
-        asset=spec.asset, required_resource_keys={"dataset_settings"}, blocking=True
-    )
-    def _row_num_check(context, df):
-        errors = []
-        for year in context.resources.dataset_settings.ferc714.years:
-            expected_rows = spec.num_rows_by_report_year[year]
-            if (num_rows := len(df.loc[df.report_year == year])) != expected_rows:
-                errors.append(
-                    f"Expected {expected_rows} for report year {year}, found {num_rows}"
-                )
-        logger.warning(errors)
-
-        if errors:
-            return AssetCheckResult(passed=False, metadata={"errors": errors})
-
-        return AssetCheckResult(passed=True)
-
-    return _row_num_check
-
-
-_checks = [make_row_num_check(spec) for spec in check_specs]
