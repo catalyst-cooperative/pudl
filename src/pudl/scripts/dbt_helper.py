@@ -26,7 +26,10 @@ class DbtColumn(BaseModel):
     """Define yaml structure of a dbt column."""
 
     name: str
+    description: str | None = None
     data_tests: list | None = None
+    meta: dict | None = None
+    tags: list[str] | None = None
 
     def add_column_tests(self, column_tests: list) -> "DbtColumn":
         """Add data tests to columns in dbt config."""
@@ -38,8 +41,12 @@ class DbtTable(BaseModel):
     """Define yaml structure of a dbt table."""
 
     name: str
+    description: str | None = None
     data_tests: list | None = None
     columns: list[DbtColumn]
+    meta: dict | None = None
+    tags: list[str] | None = None
+    config: dict | None = None  # only for models
 
     def add_source_tests(self, source_tests: list) -> "DbtSource":
         """Add data tests to source in dbt config."""
@@ -89,6 +96,8 @@ class DbtSource(BaseModel):
     name: str = "pudl"
     tables: list[DbtTable]
     data_tests: list | None = None
+    description: str | None = None
+    meta: dict | None = None
 
     def add_source_tests(self, source_tests: list) -> "DbtSource":
         """Add data tests to source in dbt config."""
