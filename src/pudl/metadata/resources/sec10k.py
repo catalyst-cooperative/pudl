@@ -3,6 +3,35 @@
 from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
+    "core_sec10k__assn_exhibit_21_subsidiaries_and_filers": {
+        "description": """A table matching subsidiary companies listed in Exhibit 21
+attachments to its SEC central index key when the subsidiary also files a 10k.
+We match these subsidiaries to companies that file an SEC 10k based on an
+exact match on name and shared location of incorporation attributes.
+``subsidiary_company_id_sec10k`` is an ID created from the subsidiary's filing,
+name, and location of incorporation.""",
+        "schema": {
+            "fields": ["subsidiary_company_id_sec10k", "central_index_key"],
+            "primary_key": ["subsidiary_company_id_sec10k"],
+        },
+        "sources": ["sec10k"],
+        "etl_group": "sec10k",
+        "field_namespace": "sec",
+    },
+    "core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities": {
+        "description": """A table matching subsidiary companies in Exhibit 21 attachments to
+EIA utilities. Only subsidiaries which don't file an SEC 10-K filing themselves are included in
+this table. We match these subsidiaries to EIA utilities with an exact match on company
+name. ``subsidiary_company_id_sec10k`` is an ID created from the subsidiary's filing,
+name, and location of incorporation.""",
+        "schema": {
+            "fields": ["subsidiary_company_id_sec10k", "utility_id_eia"],
+            "primary_key": ["subsidiary_company_id_sec10k"],
+        },
+        "sources": ["sec10k"],
+        "etl_group": "sec10k",
+        "field_namespace": "sec",
+    },
     "core_sec10k__assn_sec10k_filers_and_eia_utilities": {
         "description": """An association (crosswalk) table relating SEC 10-K filers and EIA utilities.
 
@@ -87,10 +116,14 @@ and is not complete or entirely accurate and should be used with caution.""",
         "schema": {
             "fields": [
                 "filename_sec10k",
+                "report_date",
+                "parent_company_central_index_key",
+                "parent_company_name",
                 "subsidiary_company_name",
                 "subsidiary_company_location",
+                "subsidiary_company_id_sec10k",
                 "fraction_owned",
-                "report_date",
+                "filing_date",
             ],
         },
         "sources": ["sec10k"],
@@ -254,34 +287,61 @@ well as providing a link to the source URL for the filing."""
         "etl_group": "sec10k",
         "field_namespace": "sec",
     },
-    "core_sec10k__parents_and_subsidiaries": {
+    "out_sec10k__parents_and_subsidiaries": {
         "description": (
-            "Denormalized table containing SEC 10-K company information with mapping "
-            "between subsidiary and parent companies, as well as a linkage to EIA "
-            "utilities."
+            """Denormalized table containing SEC company ownership data
+extracted from Exhibit 21 attachments with attributes about the parent and
+subsidiary companies. Company attributes are extracted from the headers of
+the SEC 10k filing. Company information is present for subsidiary companies
+when that subsidiary in turn files a 10k. The connection between SEC filers
+and EIA utilities is conducted with probabilistic record linkage. The connection
+between Ex. 21 subsidiaries (who don't file a 10k) and EIA utilities is done with
+a fuzzy match on the company name."""
         ),
         "schema": {
             "fields": [
-                "company_id_sec10k",
                 "filename_sec10k",
-                "report_date",
-                "central_index_key",
-                "utility_id_eia",
-                "street_address",
-                "address_2",
-                "city",
-                "state",
-                "company_name_raw",
-                "name_change_date",
-                "company_name_old",
-                "industry_name_sic",
-                "industry_id_sic",
-                "incorporation_state",
-                "location_of_incorporation",
-                "taxpayer_id_irs",
-                "files_sec10k",
-                "parent_company_central_index_key",
+                "subsidiary_company_name",
+                "subsidiary_company_location",
+                "subsidiary_company_id_sec10k",
                 "fraction_owned",
+                "parent_company_central_index_key",
+                "parent_company_name",
+                "filing_date",
+                "report_date",
+                "parent_company_phone_number",
+                "parent_company_business_city",
+                "parent_company_business_state",
+                "parent_company_business_street_address",
+                "parent_company_business_street_address_2",
+                "parent_company_business_zip_code",
+                "parent_company_business_zip_code_4",
+                "parent_company_mail_city",
+                "parent_company_mail_state",
+                "parent_company_mail_street_address",
+                "parent_company_mail_street_address_2",
+                "parent_company_mail_zip_code",
+                "parent_company_mail_zip_code_4",
+                "parent_company_incorporation_state",
+                "parent_company_utility_id_eia",
+                "parent_company_utility_name_eia",
+                "subsidiary_company_central_index_key",
+                "subsidiary_company_phone_number",
+                "subsidiary_company_business_city",
+                "subsidiary_company_business_state",
+                "subsidiary_company_business_street_address",
+                "subsidiary_company_business_street_address_2",
+                "subsidiary_company_business_zip_code",
+                "subsidiary_company_business_zip_code_4",
+                "subsidiary_company_mail_city",
+                "subsidiary_company_mail_state",
+                "subsidiary_company_mail_street_address",
+                "subsidiary_company_mail_street_address_2",
+                "subsidiary_company_mail_zip_code",
+                "subsidiary_company_mail_zip_code_4",
+                "subsidiary_company_incorporation_state",
+                "subsidiary_company_utility_id_eia",
+                "subsidiary_company_utility_name_eia",
             ],
         },
         "sources": ["sec10k"],

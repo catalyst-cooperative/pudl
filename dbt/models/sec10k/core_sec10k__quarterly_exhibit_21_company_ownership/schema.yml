@@ -13,3 +13,7 @@ sources:
           - name: subsidiary_company_location
           - name: fraction_owned
           - name: report_date
+          - name: parent_company_central_index_key
+          - name: parent_company_name
+          - name: filing_date
+          - name: subsidiary_company_id_sec10k
