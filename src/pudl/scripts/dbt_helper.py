@@ -216,9 +216,7 @@ def _calculate_row_counts(
             f"FROM '{table_path}' GROUP BY YEAR({partition_column})"  # noqa: S608
         )
     else:
-        row_count_query = (
-            f"SELECT '' as partition, COUNT(*) as row_count FROM '{table_path}'"  # noqa: S608
-        )
+        row_count_query = f"SELECT '' as partition, COUNT(*) as row_count FROM '{table_path}'"  # noqa: S608
 
     new_row_counts = duckdb.sql(row_count_query).df().astype({"partition": str})
     new_row_counts["table_name"] = table_name
@@ -323,7 +321,7 @@ def _infer_partition_column(table_name: str) -> str:
 
 @dataclass
 class TableUpdateArgs:
-    """Define a single class to collect all args for all table update commands."""
+    """Define a single class to collect the args for all table update commands."""
 
     tables: list[str]
     use_local_tables: bool = False
