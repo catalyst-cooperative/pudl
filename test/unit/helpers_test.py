@@ -19,11 +19,12 @@ from pudl.helpers import (
     dedupe_and_drop_nas,
     diff_wide_tables,
     expand_timeseries,
-    fix_eia_na,
     flatten_list,
     remove_leading_zeros_from_numeric_strings,
     retry,
+    standardize_na_values,
     standardize_percentages_ratio,
+    standardize_phone_column,
     zero_pad_numeric_string,
 )
 from pudl.output.sql.helpers import sql_asset_factory
@@ -443,7 +444,7 @@ def test_convert_to_date():
     assert_frame_equal(out_df, expected_df)
 
 
-def test_fix_eia_na():
+def test_standardize_na_values():
     """Test cleanup of bad EIA spreadsheet NA values."""
     in_df = pd.DataFrame(
         {
@@ -479,7 +480,7 @@ def test_fix_eia_na():
             ]
         }
     )
-    out_df = fix_eia_na(in_df)
+    out_df = standardize_na_values(in_df)
     assert_frame_equal(out_df, expected_df)
 
 
@@ -889,3 +890,73 @@ Bedford city,VA,51,51515"""
     )
     out = add_fips_ids(df, geocodes)
     pd.testing.assert_frame_equal(out, expected)
+
+
+def test_standardize_phone_column():
+    """Test standardizing phone numbers."""
+    data = {
+        "phone1": [
+            "123-456-7890",
+            "1234567890",
+            "123.456.7890",
+            "(123) 456-7890",
+            "123-456-7890x123",
+            "123-456-7890X123",
+            "123-456-7890.0",
+            "123456789",
+            "000-000-0000",
+            "invalid",
+            pd.NA,
+        ],
+        "phone2": [
+            "987-654-3210",
+            "9876543210",
+            "987.654.3210",
+            "(987) 654-3210",
+            "987-654-3210x456",
+            "987-654-3210X456",
+            "987-654-3210.0",
+            "987654321",
+            "000-000-0000",
+            "invalid",
+            pd.NA,
+        ],
+    }
+    df = pd.DataFrame(data).astype("string")
+
+    # Expected results
+    expected_data = {
+        "phone1": [
+            "123-456-7890",
+            "123-456-7890",
+            "123-456-7890",
+            "123-456-7890",
+            "123-456-7890x123",
+            "123-456-7890x123",
+            "123-456-7890",
+            "123456789",
+            pd.NA,
+            pd.NA,
+            pd.NA,
+        ],
+        "phone2": [
+            "987-654-3210",
+            "987-654-3210",
+            "987-654-3210",
+            "987-654-3210",
+            "987-654-3210x456",
+            "987-654-3210x456",
+            "987-654-3210",
+            "987654321",
+            pd.NA,
+            pd.NA,
+            pd.NA,
+        ],
+    }
+    expected_df = pd.DataFrame(expected_data).astype("string")
+
+    # Apply the function
+    result_df = standardize_phone_column(df, ["phone1", "phone2"])
+
+    # Assert the results
+    pd.testing.assert_frame_equal(result_df, expected_df)
