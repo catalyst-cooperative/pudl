@@ -11,12 +11,7 @@ section below for examples using these profiles.
 # Development
 
 To setup the `dbt` project, simply install the PUDL `conda` environment as normal,
-then run the following commands from this directory.
-
-```
-dbt deps
-dbt seed
-```
+then run `dbt seed` from within this directory.
 
 ## Adding new tables
 
