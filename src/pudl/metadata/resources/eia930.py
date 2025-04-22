@@ -192,7 +192,7 @@ vetted yet."""
         "etl_group": "eia930",
         "create_database_schema": False,
     },
-    "out_eia930__hourly_demand": {
+    "out_eia930__hourly_aggregated_demand": {
         "description": (
             """EXPERIMENTAL / WORK-IN-PROGRESS, 2025-04-04.
 
