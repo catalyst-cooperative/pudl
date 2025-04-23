@@ -6629,7 +6629,7 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
             "description": "A manually assigned PUDL utility ID for the owner company that is responsible for the day-to-day operations of the generator, not the operator utility. May not be stable over time."
         }
     },
-    "out_eia930__hourly_demand": {
+    "out_eia930__hourly_aggregated_demand": {
         "aggregation_group": {
             "description": "Label identifying a group of balancing authorities to be used in aggregating demand E.g. a region of the US or a whole interconnect."
         }

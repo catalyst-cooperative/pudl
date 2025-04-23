@@ -96,7 +96,7 @@ imputed_ba_demand_assets = impute_timeseries_asset_factory(
 
 
 @asset(io_manager_key="parquet_io_manager")
-def out_eia930__hourly_demand(
+def out_eia930__hourly_aggregated_demand(
     out_eia930__hourly_operations: pd.DataFrame,
     core_eia__codes_balancing_authorities: pd.DataFrame,
 ) -> pd.DataFrame:
