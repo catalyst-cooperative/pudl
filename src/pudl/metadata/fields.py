@@ -6631,7 +6631,7 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     },
     "out_eia930__hourly_demand": {
         "aggregation_group": {
-            "description": "Label identifying an group of balancing authorities to be used in aggregating demand E.g. a region of the US or a whole interconnect."
+            "description": "Label identifying a group of balancing authorities to be used in aggregating demand E.g. a region of the US or a whole interconnect."
         }
     },
 }
