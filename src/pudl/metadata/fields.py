@@ -83,6 +83,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "A label identifying a group of aggregated generator capacity factors.",
     },
+    "aggregation_level": {
+        "type": "string",
+        "description": "Indicates the spacial granularity of aggregated value.",
+        "constraints": {
+            "enum": ["region", "interconnect", "conus"],
+        },
+    },
     "air_flow_100pct_load_cubic_feet_per_minute": {
         "type": "number",
         "unit": "cfm",
@@ -2519,6 +2526,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Original reported energy interchange between adjacent balancing authorities.",
         "unit": "MWh",
+    },
+    "interconnect_code_eia": {
+        "type": "string",
+        "description": "EIA interconnect code.",
+        "constraints": {"enum": {"eastern", "western", "ercot"}},
     },
     "taxpayer_id_irs": {
         "type": "string",
@@ -6615,6 +6627,11 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     "out_eia860__yearly_ownership": {
         "utility_id_pudl": {
             "description": "A manually assigned PUDL utility ID for the owner company that is responsible for the day-to-day operations of the generator, not the operator utility. May not be stable over time."
+        }
+    },
+    "out_eia930__hourly_aggregated_demand": {
+        "aggregation_group": {
+            "description": "Label identifying a group of balancing authorities to be used in aggregating demand E.g. a region of the US or a whole interconnect."
         }
     },
 }
