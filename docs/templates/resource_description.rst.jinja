@@ -1,0 +1,22 @@
+{% raw %}{{ resource.description_time() }} {{ resource.description_tabletype() }}{% endraw %}
+
+Processing layer:
+  {% raw %}{{ resource.description_layer() }}{% endraw %}
+
+Data source:
+  {% raw %}{{ resource.description_datasource() }}{% endraw %}
+
+Primary key:
+  {% if resource.meta.schema.primary_key -%}{{ ", ".join(resource.meta.schema.primary_key) }}
+  {%- else -%}This table has no primary key. Each row represents [...]{%- endif %}
+
+Usage Warnings
+^^^^^^^^^^^^^^
+
+{% if resource.meta.sources|length > 1 %}* {% raw %}{{ warnings.multiple_inputs }}{% endraw %}{% endif %}
+{%- if "ferc" in resource.name %}* {% raw %}{{ warnings.ferc_is_hard }}{% endraw %}{% endif %}
+
+Additional Details
+^^^^^^^^^^^^^^^^^^
+
+{% if "^" not in resource.meta.description %}{{ resource.meta.description|safe }}{% endif %}
