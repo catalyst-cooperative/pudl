@@ -377,26 +377,45 @@ SOURCES: dict[str, Any] = {
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
-    "eia_bulk_elec": {
-        "title": "EIA Bulk Electricity API Data",
+    "eia_bulk": {
+        "title": "EIA Bulk API Data",
         "path": "https://www.eia.gov/opendata/bulkfiles.php",
         "description": (
-            "Aggregate national, state, and plant-level electricity generation "
-            "statistics, including fuel quality and consumption, for grid-connected "
-            "plants with nameplate capacity of 1 megawatt or greater."
-            "\n"
+            "All data made available in bulk through the EIA Open Data API, "
+            "including:\n"
+            "the Annual Energy Outlook, the International Energy Outlook and the Short "
+            "Term Energy Outlook;\n"
+            "aggregate national, state, and mine-level coal production statistics, "
+            "including imports and exports, reciepts of coal at electric power plants, "
+            "consumption and quality, market sales, reserves, and productive capacity; "
+            "U.S. electric system operating data;\n"
+            "aggregate national, state, and plant-level electricity generation "
+            "statistics, including fuel quality and consumption, for grid-connected"
+            "plants with nameplate capacity of 1 megawatt or greater;\n"
+            "CO2 emissions aggregates, CO2 emissions and carbon coefficients by fuel, "
+            "state, and sector;\n"
+            "International Energy System (IES) data containing production, reserves, "
+            "consumption, capacity, storage, imports, exports, and emissions time "
+            "series by country for electricity, petroleum, natural gas, coal, nuclear, "
+            "and renewable energy;\n"
+            "statistics of U.S. natural gas production, imports, exploration, pipelines, "
+            "exports, prices, consumption, stocks, and reserves;\n"
+            "statistics of U.S. petroleum and other liquid fuel production, imports, "
+            "refining, exports, prices, consumption, stocks, and reserves;\n"
+            "aggregate national, PADD, state, city, port, and refinery petroleum imports "
+            "data for various grades of crude oil and country of origin;\n"
+            "state and national energy production and consumption, using survey and "
+            "estimates to create comprehensive state energy statistics and flows;\n"
+            "U.S. total energy production, prices, carbon dioxide emissions, and "
+            "consumption of energy from all sources by sector.\n"
             "At present, PUDL integrates only a few specific data series related to "
-            "fuel receipts and costs figures."
+            "fuel receipts and costs figures from the Bulk Electricity API."
         ),
         "source_file_dict": {
-            "respondents": (
-                "Electric, CHP plants, and sometimes fuel transfer termianls with "
-                "either 1MW+ or the ability to receive and deliver power to the grid."
-            ),
             "source_format": "JSON",
         },
         "field_namespace": "eia",
-        "working_partitions": {},
+        "working_partitions": {"data_set": "electricity"},
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
         ],
@@ -406,6 +425,20 @@ SOURCES: dict[str, Any] = {
                 + KEYWORDS["us_govt"]
                 + KEYWORDS["electricity"]
                 + KEYWORDS["environment"]
+                + [
+                    "eia aeo",
+                    "annual energy outlook",
+                    "eia seo",
+                    "short-term energy outlook",
+                    "eia seds",
+                    "state energy data system",
+                    "eia ieo",
+                    "international energy outlook",
+                    "nems",
+                    "fuel projections",
+                    "energy supply",
+                    "energy consumption",
+                ]
             )
         ),
         "license_raw": LICENSES["us-govt"],
@@ -808,7 +841,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             # 1970 - 1989 are all in one CSV in multiple tabs with multi-column headers
             # and will need to be more extensively processed, not currently integrated.
-            "years": sorted(set(range(1990, 2023))),
+            "years": sorted(set(range(1990, 2024))),
         },
         "keywords": sorted(set(KEYWORDS["phmsa"] + KEYWORDS["us_govt"])),
         "license_raw": LICENSES["us-govt"],
