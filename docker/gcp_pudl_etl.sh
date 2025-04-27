@@ -164,7 +164,10 @@ function merge_tag_into_branch() {
     git config --unset http.https://github.com/.extraheader && \
     git config user.email "pudl@catalyst.coop" && \
     git config user.name "pudlbot" && \
+    set +x && \
+    echo "Setting authenticated git remote URL using PAT" && \
     git remote set-url origin "https://pudlbot:$PUDL_BOT_PAT@github.com/catalyst-cooperative/pudl.git" && \
+    set -x && \
     echo "Updating $BRANCH branch to point at $TAG." && \
     git fetch --force --tags origin "$TAG" && \
     git fetch origin "$BRANCH":"$BRANCH" && \
