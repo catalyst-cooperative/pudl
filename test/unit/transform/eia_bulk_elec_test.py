@@ -1,11 +1,11 @@
-"""Tests for pudl.transform.eia_bulk_elec functions."""
+"""Tests for pudl.transform.eia_bulk functions."""
 
 from io import BytesIO
 
 import pandas as pd
 import pytest
 
-import pudl.transform.eia_bulk_elec as bulk
+import pudl.transform.eia_bulk as bulk
 
 
 @pytest.fixture()

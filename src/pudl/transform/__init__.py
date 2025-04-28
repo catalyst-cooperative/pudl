@@ -70,7 +70,7 @@ from . import (
     eia861,
     eia923,
     eia930,
-    eia_bulk_elec,
+    eia_bulk,
     eiaaeo,
     epacems,
     ferc,

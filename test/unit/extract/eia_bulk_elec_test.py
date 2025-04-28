@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-import pudl.extract.eia_bulk_elec as bulk
+import pudl.extract.eia_bulk as bulk
 
 
 @pytest.fixture()

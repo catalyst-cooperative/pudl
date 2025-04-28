@@ -26,7 +26,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ],
         },
         "sources": ["eia_bulk"],
-        "field_namespace": "eia_bulk_elec",
-        "etl_group": "eia_bulk_elec",
+        "field_namespace": "eia_bulk",
+        "etl_group": "eia_bulk",
     },
 }
