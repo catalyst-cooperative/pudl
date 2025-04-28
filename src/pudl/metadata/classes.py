@@ -1286,7 +1286,7 @@ class Resource(PudlMeta):
         Literal[
             "eia",
             "eiaaeo",
-            "eia_bulk",
+            "eiaapi",
             "epacems",
             "ferc1",
             "ferc714",
@@ -1319,7 +1319,7 @@ class Resource(PudlMeta):
             "static_ferc1",
             "static_eia",
             "static_eia_disabled",
-            "eia_bulk",
+            "eiaapi",
             "state_demand",
             "static_pudl",
             "service_territories",

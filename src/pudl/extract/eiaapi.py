@@ -120,6 +120,6 @@ def extract(ds: Datastore) -> dict[str, pd.DataFrame]:
     Returns:
         Dictionary of dataframes with keys 'metadata' and 'timeseries'
     """
-    raw_zipfile = ds.get_unique_resource("eia_bulk")
+    raw_zipfile = ds.get_unique_resource("eiaapi")
     dfs = _extract(BytesIO(raw_zipfile))
     return dfs

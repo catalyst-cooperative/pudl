@@ -20,5 +20,5 @@ def core_eia__yearly_fuel_receipts_costs_aggs(context):
     """
     logger.info("Processing EIA bulk electricity aggregates.")
     ds = context.resources.datastore
-    raw_bulk_dfs = pudl.extract.eia_bulk.extract(ds)
-    return pudl.transform.eia_bulk.transform(raw_bulk_dfs)
+    raw_bulk_dfs = pudl.extract.eiaapi.extract(ds)
+    return pudl.transform.eiaapi.transform(raw_bulk_dfs)

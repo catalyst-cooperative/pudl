@@ -377,7 +377,7 @@ SOURCES: dict[str, Any] = {
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
-    "eia_bulk": {
+    "eiaapi": {
         "title": "EIA Bulk API Data",
         "path": "https://www.eia.gov/opendata/bulkfiles.php",
         "description": (

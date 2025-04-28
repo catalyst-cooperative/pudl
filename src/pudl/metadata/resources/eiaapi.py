@@ -25,8 +25,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_date",
             ],
         },
-        "sources": ["eia_bulk"],
-        "field_namespace": "eia_bulk",
-        "etl_group": "eia_bulk",
+        "sources": ["eiaapi"],
+        "field_namespace": "eiaapi",
+        "etl_group": "eiaapi",
     },
 }
