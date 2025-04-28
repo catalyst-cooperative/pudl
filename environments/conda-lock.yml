@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: 4aef5e38bd81aff85c961e1dfe20904332fea08b2248427881cc4e23147377e7
-    osx-64: fa3777d823ccabbc4736bbdc0b3b002ccac4bf751386f5deb49a3b4b4ebdd717
-    osx-arm64: 97827f550779e59f357fef5438b2adfce2c55861c647d8c5f37f71d9aeae9cc2
+    linux-64: b9f26b4cd6739733847ca34e69a7764a285ce28acdf8845a1eece7d3c626c1ab
+    osx-64: 6ce518bf96058807324bef0beac0ddc3ba2e2835de51360dcfede05f3e3bbc47
+    osx-arm64: 4e921e331e195329069f97ed5a326708d3f03d6dd4551a497724eee97802547c
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -3358,7 +3358,7 @@ package:
     category: main
     optional: false
   - name: catalystcoop.ferc_xbrl_extractor
-    version: 1.5.2
+    version: 1.6.0
     manager: conda
     platform: linux-64
     dependencies:
@@ -3373,14 +3373,14 @@ package:
       python: ">=3.10,<3.14"
       sqlalchemy: ">=1.4,<3"
       stringcase: ">=1.2,<2"
-    url: https://conda.anaconda.org/conda-forge/noarch/catalystcoop.ferc_xbrl_extractor-1.5.2-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/catalystcoop.ferc_xbrl_extractor-1.6.0-pyhd8ed1ab_0.conda
     hash:
-      md5: a08b2e111aed02021f34dec0387cd512
-      sha256: 1f00d94cd70daedce1add64ebd67bf19777ab874b8bfec5cf8698c74ecaf3e5d
+      md5: a850763491b2443f540705b418cf0a6a
+      sha256: f286e0a45b952a6cbedf2c92d52a5e2be2fbcd755372e782511305b79a4e2a2b
     category: main
     optional: false
   - name: catalystcoop.ferc_xbrl_extractor
-    version: 1.5.2
+    version: 1.6.0
     manager: conda
     platform: osx-64
     dependencies:
@@ -3395,14 +3395,14 @@ package:
       python: ">=3.10,<3.14"
       sqlalchemy: ">=1.4,<3"
       stringcase: ">=1.2,<2"
-    url: https://conda.anaconda.org/conda-forge/noarch/catalystcoop.ferc_xbrl_extractor-1.5.2-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/catalystcoop.ferc_xbrl_extractor-1.6.0-pyhd8ed1ab_0.conda
     hash:
-      md5: a08b2e111aed02021f34dec0387cd512
-      sha256: 1f00d94cd70daedce1add64ebd67bf19777ab874b8bfec5cf8698c74ecaf3e5d
+      md5: a850763491b2443f540705b418cf0a6a
+      sha256: f286e0a45b952a6cbedf2c92d52a5e2be2fbcd755372e782511305b79a4e2a2b
     category: main
     optional: false
   - name: catalystcoop.ferc_xbrl_extractor
-    version: 1.5.2
+    version: 1.6.0
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -3417,10 +3417,10 @@ package:
       python: ">=3.10,<3.14"
       sqlalchemy: ">=1.4,<3"
       stringcase: ">=1.2,<2"
-    url: https://conda.anaconda.org/conda-forge/noarch/catalystcoop.ferc_xbrl_extractor-1.5.2-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/catalystcoop.ferc_xbrl_extractor-1.6.0-pyhd8ed1ab_0.conda
     hash:
-      md5: a08b2e111aed02021f34dec0387cd512
-      sha256: 1f00d94cd70daedce1add64ebd67bf19777ab874b8bfec5cf8698c74ecaf3e5d
+      md5: a850763491b2443f540705b418cf0a6a
+      sha256: f286e0a45b952a6cbedf2c92d52a5e2be2fbcd755372e782511305b79a4e2a2b
     category: main
     optional: false
   - name: cattrs
@@ -16254,39 +16254,39 @@ package:
     category: main
     optional: false
   - name: narwhals
-    version: 1.36.0
+    version: 1.37.0
     manager: conda
     platform: linux-64
     dependencies:
       python: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/narwhals-1.36.0-pyh29332c3_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/narwhals-1.37.0-pyh29332c3_0.conda
     hash:
-      md5: 3def833a2e07af8713090bb484e1f0b1
-      sha256: b7d441bb1358ff9111cc0408238f63393c12ca36f10b9ee7355de3d1f53b1887
+      md5: f9ae420fa431efd502a5d5c4c1f08263
+      sha256: 95b289ce33c20d3d6156d5562105c74e99b651514fb4a1130c272a2e19e0dd1a
     category: main
     optional: false
   - name: narwhals
-    version: 1.36.0
+    version: 1.37.0
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.9"
-    url: https://conda.anaconda.org/conda-forge/noarch/narwhals-1.36.0-pyh29332c3_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/narwhals-1.37.0-pyh29332c3_0.conda
     hash:
-      md5: 3def833a2e07af8713090bb484e1f0b1
-      sha256: b7d441bb1358ff9111cc0408238f63393c12ca36f10b9ee7355de3d1f53b1887
+      md5: f9ae420fa431efd502a5d5c4c1f08263
+      sha256: 95b289ce33c20d3d6156d5562105c74e99b651514fb4a1130c272a2e19e0dd1a
     category: main
     optional: false
   - name: narwhals
-    version: 1.36.0
+    version: 1.37.0
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.9"
-    url: https://conda.anaconda.org/conda-forge/noarch/narwhals-1.36.0-pyh29332c3_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/narwhals-1.37.0-pyh29332c3_0.conda
     hash:
-      md5: 3def833a2e07af8713090bb484e1f0b1
-      sha256: b7d441bb1358ff9111cc0408238f63393c12ca36f10b9ee7355de3d1f53b1887
+      md5: f9ae420fa431efd502a5d5c4c1f08263
+      sha256: 95b289ce33c20d3d6156d5562105c74e99b651514fb4a1130c272a2e19e0dd1a
     category: main
     optional: false
   - name: nbclient
@@ -23856,78 +23856,78 @@ package:
     category: main
     optional: false
   - name: sqlglot
-    version: 26.16.1
+    version: 26.16.2
     manager: conda
     platform: linux-64
     dependencies:
       python: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/sqlglot-26.16.1-pyh29332c3_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/sqlglot-26.16.2-pyh29332c3_0.conda
     hash:
-      md5: 56808eb27570a4e2abf7bda167df50f2
-      sha256: 19287e2bca28ee6a9a92e91f0b56050a90f204aa30246415a8e1874f92be3d25
+      md5: c5c22249041ee424b7bfa912c33eed7d
+      sha256: dddf5c34839cfc52a98809804f243b82d5d1090ee05fbe12c36d4504dfb9283d
     category: main
     optional: false
   - name: sqlglot
-    version: 26.16.1
+    version: 26.16.2
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.9"
-    url: https://conda.anaconda.org/conda-forge/noarch/sqlglot-26.16.1-pyh29332c3_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/sqlglot-26.16.2-pyh29332c3_0.conda
     hash:
-      md5: 56808eb27570a4e2abf7bda167df50f2
-      sha256: 19287e2bca28ee6a9a92e91f0b56050a90f204aa30246415a8e1874f92be3d25
+      md5: c5c22249041ee424b7bfa912c33eed7d
+      sha256: dddf5c34839cfc52a98809804f243b82d5d1090ee05fbe12c36d4504dfb9283d
     category: main
     optional: false
   - name: sqlglot
-    version: 26.16.1
+    version: 26.16.2
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.9"
-    url: https://conda.anaconda.org/conda-forge/noarch/sqlglot-26.16.1-pyh29332c3_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/sqlglot-26.16.2-pyh29332c3_0.conda
     hash:
-      md5: 56808eb27570a4e2abf7bda167df50f2
-      sha256: 19287e2bca28ee6a9a92e91f0b56050a90f204aa30246415a8e1874f92be3d25
+      md5: c5c22249041ee424b7bfa912c33eed7d
+      sha256: dddf5c34839cfc52a98809804f243b82d5d1090ee05fbe12c36d4504dfb9283d
     category: main
     optional: false
   - name: sqlglot-rs
-    version: 26.16.1
+    version: 26.16.2
     manager: conda
     platform: linux-64
     dependencies:
-      sqlglot: ==26.16.1
+      sqlglot: ==26.16.2
       sqlglotrs: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/sqlglot-rs-26.16.1-hdeec7bc_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/sqlglot-rs-26.16.2-hcf79a86_0.conda
     hash:
-      md5: a96bb3f9aaedfec4dc703ac2e01e7be6
-      sha256: 63f1266402220225308d42923a4b9ec532f335bb5f43aa55cb09caa9e6ddc7ec
+      md5: f2978a8a60a8f958e308c9c3f16e4089
+      sha256: 1b7c17abb4a2adb42151951f44bcbb0e364dfee263e704ee058c2334de850f30
     category: main
     optional: false
   - name: sqlglot-rs
-    version: 26.16.1
+    version: 26.16.2
     manager: conda
     platform: osx-64
     dependencies:
-      sqlglot: ==26.16.1
+      sqlglot: ==26.16.2
       sqlglotrs: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/sqlglot-rs-26.16.1-hdeec7bc_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/sqlglot-rs-26.16.2-hcf79a86_0.conda
     hash:
-      md5: a96bb3f9aaedfec4dc703ac2e01e7be6
-      sha256: 63f1266402220225308d42923a4b9ec532f335bb5f43aa55cb09caa9e6ddc7ec
+      md5: f2978a8a60a8f958e308c9c3f16e4089
+      sha256: 1b7c17abb4a2adb42151951f44bcbb0e364dfee263e704ee058c2334de850f30
     category: main
     optional: false
   - name: sqlglot-rs
-    version: 26.16.1
+    version: 26.16.2
     manager: conda
     platform: osx-arm64
     dependencies:
-      sqlglot: ==26.16.1
+      sqlglot: ==26.16.2
       sqlglotrs: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/sqlglot-rs-26.16.1-hdeec7bc_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/sqlglot-rs-26.16.2-hcf79a86_0.conda
     hash:
-      md5: a96bb3f9aaedfec4dc703ac2e01e7be6
-      sha256: 63f1266402220225308d42923a4b9ec532f335bb5f43aa55cb09caa9e6ddc7ec
+      md5: f2978a8a60a8f958e308c9c3f16e4089
+      sha256: 1b7c17abb4a2adb42151951f44bcbb0e364dfee263e704ee058c2334de850f30
     category: main
     optional: false
   - name: sqlglotrs

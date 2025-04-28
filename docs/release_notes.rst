@@ -61,6 +61,8 @@ Expanded Data Coverage
 
 Bug Fixes
 ^^^^^^^^^
+* Fixed a bug in FERC XBRL extraction that led to quietly skipping tables with names
+  that didn't conform to expected format.
 
 Major Dependency Updates
 ^^^^^^^^^^^^^^^^^^^^^^^^
