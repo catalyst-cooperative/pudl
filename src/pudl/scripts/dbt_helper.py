@@ -162,6 +162,12 @@ class DbtSchema(BaseModel):
             ],
         )
 
+    @classmethod
+    def from_yaml(cls, schema_path: Path) -> "DbtSchema":
+        """Load a DbtSchema object from a YAML file."""
+        with schema_path.open("r") as schema_yaml:
+            return cls.model_validate(yaml.safe_load(schema_yaml))
+
 
 def get_data_source(table_name: str) -> str:
     """Return data source for a table or 'output' if there's more than one source."""
@@ -217,9 +223,7 @@ def _calculate_row_counts(
             f"FROM '{table_path}' GROUP BY YEAR({partition_column})"  # noqa: S608
         )
     else:
-        row_count_query = (
-            f"SELECT '' as partition, COUNT(*) as row_count FROM '{table_path}'"  # noqa: S608
-        )
+        row_count_query = f"SELECT '' as partition, COUNT(*) as row_count FROM '{table_path}'"  # noqa: S608
 
     new_row_counts = duckdb.sql(row_count_query).df().astype({"partition": str})
     new_row_counts["table_name"] = table_name
@@ -423,11 +427,6 @@ def _get_config(test_config_name: str) -> list[dict]:
     return validate.__getattribute__(test_config_name)
 
 
-def _load_schema_yaml(schema_path: Path) -> DbtSchema:
-    with schema_path.open("r") as schema_yaml:
-        return DbtSchema(**yaml.safe_load(schema_yaml))
-
-
 def _clean_row_condition(row_condition: str) -> str:
     row_condition = (
         re.sub(
@@ -443,9 +442,9 @@ def _clean_row_condition(row_condition: str) -> str:
 
 def _check_matching(key, value, list_of_dicts):
     for d in list_of_dicts:
-        assert value == d[key], (
-            f"Mismatched {key} among\n{'\n'.join(str(d) for d in list_of_dicts)}"
-        )
+        assert (
+            value == d[key]
+        ), f"Mismatched {key} among\n{'\n'.join(str(d) for d in list_of_dicts)}"
 
 
 def _generate_quantile_bounds_test(test_configs: list[dict]) -> list[dict]:
@@ -541,7 +540,7 @@ def migrate_tests(table_name: str, test_config_name: str, model_name: str | None
             f"(expected at {schema_path})."
         )
 
-    schema = _load_schema_yaml(schema_path)
+    schema = DbtSchema.from_yaml(schema_path)
 
     quantile_tests = _convert_config_variable_to_quantile_tests(test_config_name)
     schema = schema.add_column_tests(quantile_tests, model_name=model_name)
