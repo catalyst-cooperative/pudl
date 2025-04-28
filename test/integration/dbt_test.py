@@ -97,7 +97,8 @@ def test_dbt_helper(
         [
             "dbt_helper",
             "add-tables",
-            f"--{dbt_target}",
+            "--target",
+            dbt_target,
             "--use-local-tables",
             "all",
         ],

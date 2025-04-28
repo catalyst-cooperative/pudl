@@ -4,6 +4,7 @@ import re
 from collections import defaultdict, namedtuple
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Literal
 
 import click
 import duckdb
@@ -184,14 +185,14 @@ def _get_model_path(table_name: str, data_source: str) -> Path:
     return Path("./dbt") / "models" / data_source / table_name
 
 
-def _get_row_count_csv_path(etl_fast: bool = False) -> Path:
-    if etl_fast:
+def _get_row_count_csv_path(target: str = "etl-full") -> Path:
+    if target == "etl-fast":
         return Path("./dbt") / "seeds" / "etl_fast_row_counts.csv"
     return Path("./dbt") / "seeds" / "etl_full_row_counts.csv"
 
 
-def _get_existing_row_counts(etl_fast: bool = False) -> pd.DataFrame:
-    return pd.read_csv(_get_row_count_csv_path(etl_fast), dtype={"partition": str})
+def _get_existing_row_counts(target: str = "etl-full") -> pd.DataFrame:
+    return pd.read_csv(_get_row_count_csv_path(target), dtype={"partition": str})
 
 
 def _calculate_row_counts(
@@ -234,8 +235,8 @@ def _combine_row_counts(existing: pd.DataFrame, new: pd.DataFrame) -> pd.DataFra
     )
 
 
-def _write_row_counts(row_counts: pd.DataFrame, etl_fast: bool = False):
-    csv_path = _get_row_count_csv_path(etl_fast)
+def _write_row_counts(row_counts: pd.DataFrame, target: str = "etl-full"):
+    csv_path = _get_row_count_csv_path(target)
     row_counts.to_csv(csv_path, index=False)
 
 
@@ -243,11 +244,11 @@ def update_row_counts(
     table_name: str,
     partition_column: str = "report_year",
     use_local_tables: bool = False,
-    etl_fast: bool = False,
+    target: str = "etl-full",
     clobber: bool = False,
 ) -> UpdateResult:
     """Generate updated row counts per partition and write to csv file within dbt project."""
-    existing = _get_existing_row_counts(etl_fast)
+    existing = _get_existing_row_counts(target)
     if table_name in existing["table_name"].to_numpy() and not clobber:
         return UpdateResult(
             success=False,
@@ -256,7 +257,7 @@ def update_row_counts(
 
     new = _calculate_row_counts(table_name, partition_column, use_local_tables)
     combined = _combine_row_counts(existing, new)
-    _write_row_counts(combined, etl_fast)
+    _write_row_counts(combined, target)
 
     return UpdateResult(
         success=True,
@@ -328,7 +329,7 @@ class TableUpdateArgs:
     tables: list[str]
     use_local_tables: bool = False
     clobber: bool = False
-    etl_fast: bool = False
+    target: Literal["etl-full", "etl-fast"] = "etl-full"
     yaml_only: bool = False
     row_counts_only: bool = False
 
@@ -353,11 +354,11 @@ class TableUpdateArgs:
     help="Overwrite existing yaml and row counts. If false command will fail if yaml or row counts already exist.",
 )
 @click.option(
-    "--etl-fast",
-    default=False,
-    is_flag=True,
-    type=bool,
-    help="Update row counts for fast ETL counts.",
+    "--target",
+    default="etl-full",
+    type=click.Choice(["etl-full", "etl-fast"]),
+    show_default=True,
+    help="What dbt target should be used as the source of new row counts.",
 )
 @click.option(
     "--yaml-only",
@@ -412,7 +413,7 @@ def add_tables(**kwargs):
                     table_name=table_name,
                     partition_column=partition_column,
                     use_local_tables=args.use_local_tables,
-                    etl_fast=args.etl_fast,
+                    target=args.target,
                     clobber=args.clobber,
                 )
             )
