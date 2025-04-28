@@ -192,7 +192,7 @@ python devtools/dbt_helper.py add-tables {table_name} --target etl-full --row-co
 
 This will tell the helper script to overwrite the existing row counts with new row
 counts from the table in your local `PUDL_OUTPUT` stash. If you want to update the
-`etl-fast` row counts, use `--target etl-fast` instead of `--target etl-full`.
+`etl-fast` row counts, use `--target etl-fast` instead of the default `--target etl-full`.
 
 ### Test migration example
 
