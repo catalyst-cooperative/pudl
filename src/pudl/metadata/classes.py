@@ -1886,8 +1886,7 @@ class MetaFromResourceName(PudlMeta):
         ),
         "_core": (
             "Data has been cleaned but not tidied/normalized. Published only "
-            "temporarily; [will be removed when [condition] / may be removed without "
-            "notice]."
+            "temporarily and may be removed without notice."
         ),
         "core": (
             "Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses."
@@ -1895,8 +1894,7 @@ class MetaFromResourceName(PudlMeta):
         "_out": "Intermediate output table.",
         "out": (
             "Data has been expanded into a wide/denormalized format, with IDs and codes "
-            "accompanied by human-readable names and descriptions. [Includes "
-            "calculations / imputations / records borrowed from other sources.]"
+            "accompanied by human-readable names and descriptions."
         ),
     }
     layer_string: str = "|".join(layer_map.keys())
@@ -1925,29 +1923,35 @@ class MetaFromResourceName(PudlMeta):
     datasource_strings: str = "|".join(datasource_map.keys())
 
     time_detail_map: dict = {
-        "yearly": "Annual time series",
-        "monthly": "Monthly time series",
-        "hourly": "Hourly time series",
+        "yearly": "Annual",
+        "monthly": "Monthly",
+        "hourly": "Hourly",
     }
     time_string: str = "|".join(time_detail_map.keys())
 
     tabletype_map: dict = {
-        "assn": "Association table providing connections between [entities].",
+        "assn": "Association table providing connections between",
         "codes": (
             "Code table containing descriptions of categorical "
-            "codes for [topic]. [typically] Manually compiled from source data dictionaries."
+            "codes for"
         ),
-        "entity": ("Entity table containing static information about [entities]."),
+        "entity": ("Entity table containing static information about"),
         "scd": (
-            "Slowly changing dimension (SCD) table describing attributes of [entities] "
-            "that rarely change."
+            "Slowly changing dimension (SCD) table describing attributes of"
         ),
         "timeseries": (
-            "containing [attributes about entities] expected to change for each reported timestamp."
+            "time series of"
         ),
     }
     tabletype_string: str = "|".join(tabletype_map.keys())
     table_name_pattern: str = rf"^(?P<layer>{layer_string})_(?P<datasource>{datasource_strings})__(?P<time>{time_string}|)(?:_|)(?P<tabletype>{tabletype_string}|)(?:_|)(?:_|)(?P<slug>.*)$"
+    tabletype_prompt_map: dict = {
+        "assn": "[entities].",
+        "codes": "[topic]. [typically] Manually compiled from [source data dictionaries].",
+        "entity": "[entities].",
+        "scd": "[entities] that rarely change.",
+        "timeseries": "[attributes about entities] expected to change for each reported timestamp.",
+    }
 
     _match = None
 
@@ -2021,11 +2025,26 @@ class MetaFromResourceName(PudlMeta):
         """Return a description of the table type from the table name."""
         return self.tabletype_map.get(self.tabletype)
 
+    def description_tabletype_prompt(self) -> str:
+        """Return a description prompt for the table type."""
+        return self.tabletype_prompt_map.get(self.tabletype)
+
     def description_time(self) -> str:
         """Return a description of the time-dimension from table name."""
         # TODO: ?maybe? we could add the date column into the description.
         # we'd need to look into the table's columns via its metadata
         return self.time_detail_map.get(self.time, None)
+
+    def description_primarykey(self) -> str:
+        """Return a description of the primary key from structured metadata."""
+        if "primary_key" in self.meta["schema"]:
+            return ", ".join(self.meta["schema"]["primary_key"])
+        return "This table has no primary key."
+
+    def description_primarykey_prompt(self) -> str:
+        if "primary_key" in self.meta["schema"]:
+            return ""
+        return "Each row represents [...]"
 
 
 class Package(PudlMeta):

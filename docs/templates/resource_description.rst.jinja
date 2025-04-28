@@ -1,4 +1,4 @@
-{% raw %}{{ resource.description_time() }} {{ resource.description_tabletype() }}{% endraw %}
+{% raw %}{{ resource.description_time() }} {{ resource.description_tabletype() }}{% endraw %} {{ resource.description_tabletype_prompt() }}
 
 Processing layer:
   {% raw %}{{ resource.description_layer() }}{% endraw %}
@@ -7,8 +7,7 @@ Data source:
   {% raw %}{{ resource.description_datasource() }}{% endraw %}
 
 Primary key:
-  {% if resource.meta.schema.primary_key -%}{{ ", ".join(resource.meta.schema.primary_key) }}
-  {%- else -%}This table has no primary key. Each row represents [...]{%- endif %}
+  {% raw %}{{ resource.description_primarykey() }}{% endraw %} {{ resource.description_primarykey_prompt() }}
 
 Usage Warnings
 ^^^^^^^^^^^^^^
