@@ -12,21 +12,30 @@ from pudl.io_managers import PudlMixedFormatIOManager
 logger = logging.getLogger(__name__)
 
 
-# These tables need to be excluded from our GitHub CI until they are being brought into
-# PUDL in the normal way via a Zenodo archive. Currently the row count checks don't
-# fail -- they result in an error (since the tables don't exist at all.)
-SEC10K_EXCLUDE = [
-    "core_sec10k__quarterly_company_information",
-    "core_sec10k__quarterly_exhibit_21_company_ownership",
-    "core_sec10k__quarterly_filings",
-    "out_sec10k__parents_and_subsidiaries",
-]
+@pytest.fixture(scope="module")
+def dbt_target(test_dir: Path, request) -> str:
+    """Fixture defining the dbt target based on the full/fast ETL spec."""
+    # Identify whether we're running the full or fast ETL, and set the dbt target
+    # appropriately (since we have different test expectations in the two cases)
+    if request.config.getoption("--etl-settings"):
+        etl_settings_yml = Path(request.config.getoption("--etl-settings"))
+    else:
+        etl_settings_yml = Path(
+            test_dir.parent / "src/pudl/package_data/settings/etl_fast.yml"
+        )
+    if etl_settings_yml.name == "etl_full.yml":
+        dbt_target = "etl-full"
+    elif etl_settings_yml.name == "etl_fast.yml":
+        dbt_target = "etl-fast"
+    else:
+        raise ValueError(f"Unexpected ETL settings file: {etl_settings_yml}")
+    return dbt_target
 
 
 def test_dbt(
     pudl_io_manager: PudlMixedFormatIOManager,
     test_dir: Path,
-    request,
+    dbt_target,
 ):
     """Run the dbt data validations programmatically.
 
@@ -42,20 +51,6 @@ def test_dbt(
     See https://docs.getdbt.com/reference/programmatic-invocations/ for more details on
     how to invoke dbt programmatically.
     """
-    # Identify whether we're running the full or fast ETL, and set the dbt target
-    # appropriately (since we have different test expectations in the two cases)
-    if request.config.getoption("--etl-settings"):
-        etl_settings_yml = Path(request.config.getoption("--etl-settings"))
-    else:
-        etl_settings_yml = Path(
-            test_dir.parent / "src/pudl/package_data/settings/etl_fast.yml"
-        )
-    if etl_settings_yml.name == "etl_full.yml":
-        dbt_target = "etl-full"
-    elif etl_settings_yml.name == "etl_fast.yml":
-        dbt_target = "etl-fast"
-    else:
-        raise ValueError(f"Unexpected ETL settings file: {etl_settings_yml}")
 
     # NOTE 2025-03-14: running this with more threads was causing segfaults
     logger.info("Initializing dbt test runner")
@@ -66,11 +61,6 @@ def test_dbt(
         "1",
         "--target",
         dbt_target,
-    ] + [
-        arg
-        for table in SEC10K_EXCLUDE
-        if os.getenv("GITHUB_ACTIONS", False)
-        for arg in ("--exclude", f"source:pudl.{table}")
     ]
 
     # Change to the dbt directory so we can run dbt commands
@@ -92,7 +82,11 @@ def test_dbt(
 
 
 @pytest.mark.script_launch_mode("inprocess")
-def test_dbt_helper(pudl_io_manager: PudlMixedFormatIOManager, script_runner):
+def test_dbt_helper(
+    pudl_io_manager: PudlMixedFormatIOManager,
+    dbt_target: str,
+    script_runner,
+):
     """Run add-tables. Should detect everything already exists, and do nothing.
 
     The dependency on pudl_io_manager is necessary because it ensures that the dbt
@@ -103,7 +97,7 @@ def test_dbt_helper(pudl_io_manager: PudlMixedFormatIOManager, script_runner):
         [
             "dbt_helper",
             "add-tables",
-            "--etl-fast",
+            f"--{dbt_target}",
             "--use-local-tables",
             "all",
         ],
