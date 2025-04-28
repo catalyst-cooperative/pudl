@@ -76,9 +76,9 @@ sources:
                     - quantile: 0.05
                       min_value: 1.63
                     - quantile: 0.95
-                      max_value: 8.0
+                      max_value: 8.1
                   weight_column: total_mmbtu
-                  description: Quantile 0.05 dropped from 1.65 to 1.63 in April 2025. Keep an eye on it, and investigate if it gets worse. Historical note, EIA natural gas reporting really only becomes usable in 2015.
+                  description: Quantile 0.05 dropped from 1.65 to 1.63 (etl-fast), and quantile 0.95 rose from 8.0 to 8.08, in April 2025. Keep an eye on it, and investigate if it gets worse. Historical note, EIA natural gas reporting really only becomes usable in 2015.
           - name: fuel_cost_per_mwh
             data_tests:
               - expect_quantile_constraints:

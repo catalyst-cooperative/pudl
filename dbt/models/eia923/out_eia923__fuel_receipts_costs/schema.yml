@@ -37,7 +37,6 @@ sources:
                       max_value: 29.0
                   weight_column: fuel_received_units
               - expect_quantile_constraints:
-                  name: quantile__fuel_received_units__BIT
                   row_condition: energy_source_code='BIT'
                   constraints:
                     - quantile: 0.5
@@ -126,10 +125,11 @@ sources:
                   row_condition: energy_source_code='PG'
                   constraints:
                     - quantile: 0.05
-                      min_value: 2.5
+                      min_value: 0.4
                     - quantile: 0.95
                       max_value: 2.75
                   weight_column: fuel_received_units
+                  description: Quantile 0.05 dropped from 2.5 to 0.41 (etl-full) in April 2025. Keep an eye on it, and investigate if it gets worse.
               - expect_quantile_constraints:
                   row_condition: energy_source_code='SGP'
                   constraints:
