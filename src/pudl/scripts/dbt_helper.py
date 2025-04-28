@@ -26,7 +26,10 @@ class DbtColumn(BaseModel):
     """Define yaml structure of a dbt column."""
 
     name: str
+    description: str | None = None
     data_tests: list | None = None
+    meta: dict | None = None
+    tags: list[str] | None = None
 
     def add_column_tests(self, column_tests: list) -> "DbtColumn":
         """Add data tests to columns in dbt config."""
@@ -38,8 +41,17 @@ class DbtTable(BaseModel):
     """Define yaml structure of a dbt table."""
 
     name: str
-    data_tests: list | None
+    description: str | None = None
+    data_tests: list | None = None
     columns: list[DbtColumn]
+    meta: dict | None = None
+    tags: list[str] | None = None
+    config: dict | None = None  # only for models
+
+    def add_source_tests(self, source_tests: list) -> "DbtSource":
+        """Add data tests to source in dbt config."""
+        data_tests = self.data_tests if self.data_tests is not None else []
+        return self.model_copy(update={"data_tests": data_tests + source_tests})
 
     def add_column_tests(self, column_tests: dict[str, list]) -> "DbtSource":
         """Add data tests to columns in dbt config."""
@@ -83,6 +95,15 @@ class DbtSource(BaseModel):
 
     name: str = "pudl"
     tables: list[DbtTable]
+    data_tests: list | None = None
+    description: str | None = None
+    meta: dict | None = None
+
+    def add_source_tests(self, source_tests: list) -> "DbtSource":
+        """Add data tests to source in dbt config."""
+        return self.model_copy(
+            update={"tables": [self.tables[0].add_source_tests(source_tests)]}
+        )
 
     def add_column_tests(self, column_tests: dict[list]) -> "DbtSource":
         """Add data tests to columns in dbt config."""
@@ -97,6 +118,21 @@ class DbtSchema(BaseModel):
     version: int = 2
     sources: list[DbtSource]
     models: list[DbtTable] | None = None
+
+    def add_source_tests(
+        self, source_tests: list, model_name: str | None = None
+    ) -> "DbtSchema":
+        """Add data tests to source in dbt config."""
+        if model_name is None:
+            schema = self.model_copy(
+                update={"sources": [self.sources[0].add_source_tests(source_tests)]}
+            )
+        else:
+            models = {model.name: model for model in self.models}
+            models[model_name] = models[model_name].add_source_tests(source_tests)
+            schema = self.model_copy(update={"models": list(models.values())})
+
+        return schema
 
     def add_column_tests(
         self, column_tests: dict[list], model_name: str | None = None
@@ -129,13 +165,11 @@ class DbtSchema(BaseModel):
 def get_data_source(table_name: str) -> str:
     """Return data source for a table or 'output' if there's more than one source."""
     resource = PUDL_PACKAGE.get_resource(table_name)
-    if len(resource.sources) > 1:
-        return "output"
 
-    return resource.sources[0].name
+    return "output" if len(resource.sources) > 1 else resource.sources[0].name
 
 
-AddTableResult = namedtuple("AddTableResult", ["success", "message"])
+UpdateResult = namedtuple("UpdateResult", ["success", "message"])
 
 
 def _get_nightly_url(table_name: str) -> str:
@@ -156,29 +190,20 @@ def _get_row_count_csv_path(etl_fast: bool = False) -> Path:
     return Path("./dbt") / "seeds" / "etl_full_row_counts.csv"
 
 
-def generate_row_counts(
+def _get_existing_row_counts(etl_fast: bool = False) -> pd.DataFrame:
+    return pd.read_csv(_get_row_count_csv_path(etl_fast), dtype={"partition": str})
+
+
+def _calculate_row_counts(
     table_name: str,
     partition_column: str = "report_year",
     use_local_tables: bool = False,
-    etl_fast: bool = False,
-    clobber: bool = False,
-) -> AddTableResult:
-    """Generate row counts per partition and write to csv file within dbt project."""
-    # Get existing row counts table
-    csv_path = _get_row_count_csv_path(etl_fast)
-    row_counts_df = pd.read_csv(csv_path, dtype={"partition": str})
-
-    if table_name in row_counts_df["table_name"].to_numpy() and not clobber:
-        return AddTableResult(
-            success=False,
-            message=f"There are already row counts for table {table_name} in row counts table and clobber is not set.",
-        )
-
-    # Load table of interest
-    if not use_local_tables:
-        table_path = _get_nightly_url(table_name)
-    else:
-        table_path = _get_local_table_path(table_name)
+) -> pd.DataFrame:
+    table_path = (
+        _get_local_table_path(table_name)
+        if use_local_tables
+        else _get_nightly_url(table_name)
+    )
 
     if partition_column == "report_year":
         row_count_query = (
@@ -198,15 +223,42 @@ def generate_row_counts(
     new_row_counts = duckdb.sql(row_count_query).df().astype({"partition": str})
     new_row_counts["table_name"] = table_name
 
-    all_row_counts = (
-        pd.concat([row_counts_df, new_row_counts])
+    return new_row_counts
+
+
+def _combine_row_counts(existing: pd.DataFrame, new: pd.DataFrame) -> pd.DataFrame:
+    return (
+        pd.concat([existing, new])
         .drop_duplicates(subset=["partition", "table_name"], keep="last")
         .sort_values(["table_name", "partition"])
     )
 
-    all_row_counts.to_csv(csv_path, index=False)
 
-    return AddTableResult(
+def _write_row_counts(row_counts: pd.DataFrame, etl_fast: bool = False):
+    csv_path = _get_row_count_csv_path(etl_fast)
+    row_counts.to_csv(csv_path, index=False)
+
+
+def update_row_counts(
+    table_name: str,
+    partition_column: str = "report_year",
+    use_local_tables: bool = False,
+    etl_fast: bool = False,
+    clobber: bool = False,
+) -> UpdateResult:
+    """Generate updated row counts per partition and write to csv file within dbt project."""
+    existing = _get_existing_row_counts(etl_fast)
+    if table_name in existing["table_name"].to_numpy() and not clobber:
+        return UpdateResult(
+            success=False,
+            message=f"Row counts for {table_name} already exist (run with clobber to overwrite).",
+        )
+
+    new = _calculate_row_counts(table_name, partition_column, use_local_tables)
+    combined = _combine_row_counts(existing, new)
+    _write_row_counts(combined, etl_fast)
+
+    return UpdateResult(
         success=True,
         message=f"Successfully updated row count table with counts from {table_name}.",
     )
@@ -223,16 +275,16 @@ def _write_dbt_yaml_config(schema_path: Path, schema: DbtSchema):
         )
 
 
-def generate_table_yaml(
+def add_new_table_yaml(
     table_name: str,
     data_source: str,
     partition_column: str = "report_year",
     clobber: bool = False,
-) -> AddTableResult:
+) -> UpdateResult:
     """Generate yaml defining a new table."""
     model_path = _get_model_path(table_name, data_source)
     if model_path.exists() and not clobber:
-        return AddTableResult(
+        return UpdateResult(
             success=False,
             message=f"DBT configuration already exists for table {table_name} and clobber is not set.",
         )
@@ -245,13 +297,13 @@ def generate_table_yaml(
 
     model_path.mkdir(parents=True, exist_ok=True)
 
-    return AddTableResult(
+    return UpdateResult(
         success=True,
         message=f"Wrote yaml configuration for table {table_name} at {model_path / 'schema.yml'}.",
     )
 
 
-def _log_add_table_result(result: AddTableResult):
+def _log_update_result(result: UpdateResult):
     if result.success:
         logger.info(result.message)
     else:
@@ -270,8 +322,8 @@ def _infer_partition_column(table_name: str) -> str:
 
 
 @dataclass
-class AddTablesArgs:
-    """Define a single class to collect all args for add-tables command."""
+class TableUpdateArgs:
+    """Define a single class to collect the args for all table update commands."""
 
     tables: list[str]
     use_local_tables: bool = False
@@ -330,7 +382,7 @@ def add_tables(**kwargs):
     Note: if ``--clobber`` is set, any manually added configuration for tables
     will be overwritten.
     """
-    args = AddTablesArgs(**kwargs)
+    args = TableUpdateArgs(**kwargs)
 
     tables = args.tables
     if "all" in tables:
@@ -346,8 +398,8 @@ def add_tables(**kwargs):
         partition_column = _infer_partition_column(table_name)
 
         if not args.row_counts_only:
-            _log_add_table_result(
-                generate_table_yaml(
+            _log_update_result(
+                add_new_table_yaml(
                     table_name,
                     data_source,
                     partition_column=partition_column,
@@ -355,8 +407,8 @@ def add_tables(**kwargs):
                 )
             )
         if not args.yaml_only:
-            _log_add_table_result(
-                generate_row_counts(
+            _log_update_result(
+                update_row_counts(
                     table_name=table_name,
                     partition_column=partition_column,
                     use_local_tables=args.use_local_tables,
@@ -444,7 +496,7 @@ def migrate_tests(table_name: str, test_config_name: str, model_name: str | None
 
     Example usage:
 
-    python devtools/dbt_helper.py migrate-tests \
+    dbt_helper migrate-tests \
         --table-name out_eia__yearly_generators \
         --test-config-name mcoe_gas_capacity_factor
     """
@@ -470,7 +522,9 @@ def migrate_tests(table_name: str, test_config_name: str, model_name: str | None
     _write_dbt_yaml_config(schema_path, schema)
 
 
-@click.group()
+@click.group(
+    context_settings={"help_option_names": ["-h", "--help"]},
+)
 def dbt_helper():
     """Script for auto-generating dbt configuration and migrating existing tests.
 
@@ -480,8 +534,7 @@ def dbt_helper():
     used to migrate ``vs_bounds`` tests. This command uses configuration defined in
     ``validate.py`` to generate dbt tests.
 
-    Run ``python devtools/dbt_helper.py {command} --help`` for detailed usage on each
-    command.
+    Run ``dbt_helper {command} --help`` for detailed usage on each command.
     """
 
 

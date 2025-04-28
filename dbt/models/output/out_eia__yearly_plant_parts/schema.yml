@@ -7,6 +7,11 @@ sources:
           - check_row_counts_per_partition:
               table_name: out_eia__yearly_plant_parts
               partition_column: report_year
+          - expect_valid_plantparts_ownership_fraction
+          - expect_includes_all_value_combinations_from:
+              compare_table_name: out_eia__yearly_assn_plant_parts_plant_gen
+              compare_cols:
+                - record_id_eia
         columns:
           - name: record_id_eia
           - name: plant_id_eia

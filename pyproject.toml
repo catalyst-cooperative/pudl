@@ -11,7 +11,6 @@ requires-python = ">=3.12,<3.13"
 dynamic = ["version"]
 license = { file = "LICENSE.txt" }
 dependencies = [
-    "addfips>=0.4",
     "alembic>=1.13",
     "boto3>=1.35",
     "bottleneck>=1.4.0", # pandas[performance]; 1.3.7 required for Python 3.12
@@ -20,11 +19,11 @@ dependencies = [
     "catalystcoop.ferc-xbrl-extractor>=1.5.1,<2",
     "click>=8",
     "coloredlogs>=14.0", # Dagster requires 14.0
-    "conda-lock>=2.5.7",
+    "conda-lock>=3",
     "coverage>=7.6",
     "dagster>=1.10.5",
-    "dagster-dbt",  # Automatically follows dagster version
-    "dagster-postgres",  # Automatically follows dagster version
+    "dagster-dbt", # Automatically follows dagster version
+    "dagster-postgres", # Automatically follows dagster version
     "dask>=2025",
     "dask-expr>=2", # Required for dask[dataframe]
     "datasette>=0.65",
@@ -36,7 +35,7 @@ dependencies = [
     "fsspec>=2025",
     "furo>=2024",
     "gcsfs>=2025",
-    "gdal==3.10.1",  # pinned, because we need it to work with pudl-archiver
+    "gdal==3.10.3", # pinned, because we need it to work with pudl-archiver
     "geopandas>=1.0",
     "grpcio==1.71.0", # Required by dagster, binary dependencies are flaky
     "grpcio-health-checking==1.71.0", # Required by dagster, binary dependencies are flaky
@@ -50,9 +49,9 @@ dependencies = [
     "nbconvert>=7",
     "nbformat>=5.10",
     "networkx>=3.4",
-    "numba>=0.61", # pandas[performance]; 0.60 required for Numpy 2.0
+    "numba>=0.61.2", # pandas[performance]; 0.61.2 required for Numpy 2.2
     "numexpr>=2.10", # pandas[performance]
-    "numpy>=2",
+    "numpy>=2.2",
     "packaging>=24",
     "pandas>=2.2.3",
     "pandera>=0.23.1",
@@ -88,7 +87,7 @@ dependencies = [
     "s3fs>=2024",
     "timezonefinder>=6.2",
     "universal_pathlib>=0.2",
-    "urllib3>=1.26.18",
+    "urllib3>=2",
     "xlsxwriter>=3.2", # pandas[excel]
 ]
 classifiers = [
@@ -138,6 +137,7 @@ pudl_check_fks = "pudl.etl.check_foreign_keys:pudl_check_fks"
 pudl_datastore = "pudl.workspace.datastore:pudl_datastore"
 pudl_etl = "pudl.etl.cli:pudl_etl"
 pudl_service_territories = "pudl.analysis.service_territory:pudl_service_territories"
+dbt_helper = "pudl.scripts.dbt_helper:dbt_helper"
 
 [project.urls]
 "Homepage" = "https://catalyst.coop/pudl/"
@@ -157,7 +157,7 @@ dev = [
     "ruff-lsp",
     "jupyter-resource-usage",
     "pygraphviz",
-    "terraform>=1.9.2"
+    "terraform>=1.9.2",
 ]
 
 [tool.setuptools]
@@ -326,7 +326,7 @@ addopts = """\
     """
 log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
 log_date_format = "%Y-%m-%d %H:%M:%S"
-log_cli = "true"
+log_cli = true
 log_cli_level = "DEBUG"
 doctest_optionflags = ["NORMALIZE_WHITESPACE", "IGNORE_EXCEPTION_DETAIL", "ELLIPSIS"]
 
@@ -382,4 +382,7 @@ exclude_lines = [
 ]
 
 [tool.dagster]
-modules = [{ type = "module", name = "pudl.etl" }, { type = "module", name = "pudl.ferc_to_sqlite" }]
+modules = [
+    { type = "module", name = "pudl.etl" },
+    { type = "module", name = "pudl.ferc_to_sqlite" },
+]

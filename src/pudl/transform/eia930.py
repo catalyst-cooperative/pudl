@@ -76,6 +76,17 @@ def core_eia930__hourly_operations_assets(
         .reset_index()
     )
 
+    netgen_by_source = netgen_by_source.rename(
+        columns={"net_generation_imputed_mwh": "net_generation_imputed_eia_mwh"}
+    )
+    operations = operations.rename(
+        columns={
+            "net_generation_imputed_mwh": "net_generation_imputed_eia_mwh",
+            "demand_imputed_mwh": "demand_imputed_eia_mwh",
+            "interchange_imputed_mwh": "interchange_imputed_eia_mwh",
+        }
+    )
+
     # NOTE: currently there are some BIG differences between the calculated totals and
     # the reported for net generation.
     return (

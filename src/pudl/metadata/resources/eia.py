@@ -17,6 +17,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_timezone",
                 "balancing_authority_retirement_date",
                 "is_generation_only",
+                "interconnect_code_eia",
             ],
             "primary_key": ["code"],
             "foreign_key_rules": {
@@ -773,6 +774,14 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     # also exclude the 860 changelog table bc that table doesn't get harvested
                     # and therefor there are a few straggler generators that don't end up in this table
                     "core_eia860m__changelog_generators",
+                    # These have to be excluded because the record-linkage between SEC
+                    # companies and EIA utilities is not time-dependent -- if any SEC
+                    # CIK is ever matched with an EIA utility ID, that utility ID shows
+                    # up across all years of data, even if that utility doesn't show up
+                    # in the EIA data for that year.
+                    "core_sec10k__assn_sec10k_filers_and_eia_utilities",
+                    "out_sec10k__quarterly_company_information",
+                    "core_sec10k__parents_and_subsidiaries",
                 ],
             },
         },

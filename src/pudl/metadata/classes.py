@@ -9,6 +9,7 @@ import warnings
 from collections import namedtuple
 from collections.abc import Callable, Iterable
 from functools import cached_property, lru_cache
+from hashlib import sha1
 from pathlib import Path
 from typing import Annotated, Any, Literal, Self, TypeVar
 
@@ -704,14 +705,22 @@ class Field(PudlMeta):
                 checks.append(f"{name} <= {maximum}")
             if self.constraints.pattern:
                 pattern = _format_for_sql(self.constraints.pattern)
-                checks.append(f"{name} REGEXP {pattern}")
+                # Need to escape colons in regex to avoid this issue:
+                # https://github.com/sqlalchemy/sqlalchemy/discussions/12498
+                checks.append(f"{name} REGEXP {pattern.replace(':', r'\:')}")
             if self.constraints.enum:
                 enum = [_format_for_sql(x) for x in self.constraints.enum]
                 checks.append(f"{name} IN ({', '.join(enum)})")
         return sa.Column(
             self.name,
             self.to_sql_dtype(),
-            *[sa.CheckConstraint(check, name=hash(check)) for check in checks],
+            *[
+                sa.CheckConstraint(
+                    check,
+                    name=sha1(check.encode("utf-8")).hexdigest()[:8],  # noqa: S324
+                )
+                for check in checks
+            ],
             nullable=not self.constraints.required,
             unique=self.constraints.unique,
             comment=self.description,
@@ -1289,7 +1298,7 @@ class Resource(PudlMeta):
             "pudl",
             "nrelatb",
             "vcerare",
-            "sec10k",
+            "sec",
         ]
         | None
     ) = None
@@ -1318,7 +1327,7 @@ class Resource(PudlMeta):
             "service_territories",
             "nrelatb",
             "vcerare",
-            "pudl_models",
+            "sec10k",
         ]
         | None
     ) = None
@@ -1931,17 +1940,10 @@ class MetaFromResourceName(PudlMeta):
 
     tabletype_map: dict = {
         "assn": "Association table providing connections between",
-        "codes": (
-            "Code table containing descriptions of categorical "
-            "codes for"
-        ),
+        "codes": ("Code table containing descriptions of categorical codes for"),
         "entity": ("Entity table containing static information about"),
-        "scd": (
-            "Slowly changing dimension (SCD) table describing attributes of"
-        ),
-        "timeseries": (
-            "time series of"
-        ),
+        "scd": ("Slowly changing dimension (SCD) table describing attributes of"),
+        "timeseries": ("time series of"),
     }
     tabletype_string: str = "|".join(tabletype_map.keys())
     table_name_pattern: str = rf"^(?P<layer>{layer_string})_(?P<datasource>{datasource_strings})__(?P<time>{time_string}|)(?:_|)(?P<tabletype>{tabletype_string}|)(?:_|)(?:_|)(?P<slug>.*)$"
@@ -2042,6 +2044,7 @@ class MetaFromResourceName(PudlMeta):
         return "This table has no primary key."
 
     def description_primarykey_prompt(self) -> str:
+        """Return a description prompt for the primary key."""
         if "primary_key" in self.meta["schema"]:
             return ""
         return "Each row represents [...]"
@@ -2228,7 +2231,7 @@ class Package(PudlMeta):
             naming_convention={
                 "ix": "ix_%(column_0_label)s",
                 "uq": "uq_%(table_name)s_%(column_0_name)s",
-                "ck": "ck_%(table_name)s_`%(constraint_name)s`",
+                "ck": "ck_%(table_name)s_%(constraint_name)s",
                 "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
                 "pk": "pk_%(table_name)s",
             }

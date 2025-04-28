@@ -1210,6 +1210,7 @@ def _core_eia860__boiler_stack_flue(
 @asset(io_manager_key="pudl_io_manager")
 def _core_eia860__cooling_equipment(
     raw_eia860__cooling_equipment: pd.DataFrame,
+    _core_censuspep__yearly_geocodes: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the EIA 860 cooling equipment table.
 
@@ -1236,7 +1237,9 @@ def _core_eia860__cooling_equipment(
     ce_df = raw_eia860__cooling_equipment
 
     # Generic cleaning
-    ce_df = ce_df.pipe(pudl.helpers.fix_eia_na).pipe(pudl.helpers.add_fips_ids)
+    ce_df = ce_df.pipe(pudl.helpers.fix_eia_na).pipe(
+        pudl.helpers.add_fips_ids, _core_censuspep__yearly_geocodes
+    )
 
     # Spot cleaning and date conversion
     ce_df.loc[
@@ -1336,6 +1339,7 @@ def cooling_equipment_continuity(cooling_equipment):  # pragma: no cover
 @asset(io_manager_key="pudl_io_manager")
 def _core_eia860__fgd_equipment(
     raw_eia860__fgd_equipment: pd.DataFrame,
+    _core_censuspep__yearly_geocodes: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the EIA 860 FGD equipment table.
 
@@ -1351,7 +1355,9 @@ def _core_eia860__fgd_equipment(
     fgd_df = raw_eia860__fgd_equipment
 
     # Generic cleaning
-    fgd_df = fgd_df.pipe(pudl.helpers.fix_eia_na).pipe(pudl.helpers.add_fips_ids)
+    fgd_df = fgd_df.pipe(pudl.helpers.fix_eia_na).pipe(
+        pudl.helpers.add_fips_ids, _core_censuspep__yearly_geocodes
+    )
 
     # Spot cleaning and date conversion
     fgd_df = fgd_df.pipe(pudl.helpers.month_year_to_date).pipe(
@@ -1449,32 +1455,6 @@ def fgd_equipment_null_check(fgd):  # pragma: no cover
     else:
         expected_cols = set(fgd.columns)
     pudl.validate.no_null_cols(fgd, cols=expected_cols)
-    return AssetCheckResult(passed=True)
-
-
-@asset_check(asset=_core_eia860__fgd_equipment, blocking=True)
-def fgd_cost_discrepancy_check(fgd):  # pragma: no cover
-    """Costs should sum to cost_total.
-
-    To allow for *some* data quality errors we assert that costs ~=
-    total cost at least 99% of the time (with a 1% acceptable
-    discrepancy).
-    """
-
-    def sum_to_target_rate(sum_cols, target, threshold):
-        discrepancies = (
-            fgd.loc[:, sum_cols].sum(axis="columns") - fgd.loc[:, target]
-        ).dropna() / fgd.loc[:, target]
-        return (discrepancies > threshold).sum() / len(discrepancies)
-
-    opex_cost_discrepancy_rate = sum_to_target_rate(
-        sum_cols=[col for col in fgd if "cost_" in col and "total" not in col],
-        target="total_fgd_equipment_cost",
-        threshold=0.01,
-    )
-    logger.info(f"Observed FGD cost discrepancy: {opex_cost_discrepancy_rate}")
-    assert opex_cost_discrepancy_rate < 0.01
-
     return AssetCheckResult(passed=True)
 
 

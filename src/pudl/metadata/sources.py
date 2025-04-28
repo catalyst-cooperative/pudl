@@ -33,15 +33,9 @@ SOURCES: dict[str, Any] = {
             "Reference files for Federal Information Processing Series (FIPS) Geographic Codes. "
             "These FIPS Codes are a subset of a broader Population Estimates dataset."
         ),
-        "working_partitions": {"years": [2023]},
+        "working_partitions": {"years": [2023, 2015, 2009]},
         "keywords": sorted(
-            {
-                "fips",
-                "census",
-                "county",
-                "state",
-                "geography",
-            }
+            {"fips", "census", "county", "state", "geography", "geocodes"}
         ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
@@ -868,16 +862,33 @@ SOURCES: dict[str, Any] = {
         "email": "pudl@catalyst.coop",
     },
     "sec10k": {
-        "title": "Securities and Exchange Commission form 10-K",
+        "title": "U.S. Securities and Exchange Commission Form 10-K",
         "label": "SEC 10-K",
-        "path": "https://www.sec.gov/files/form10-k.pdf",
+        "path": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
         "description": (
-            "10-K offers a detailed picture of a company’s business, the risks it"
-            "faces, and the operating and financial results for the fiscal year."
+            """The SEC Form 10-K is an annual report required by the U.S. Securities and
+Exchange Commission (SEC), that gives a comprehensive summary of a company's financial
+performance.
+
+The full contents of the SEC 10-K are available through the SEC's EDGAR
+database. PUDL integrates only some of the 10-K metadata and data extracted from the
+unstructured Exhibit 21 attachement, which describes the ownershp relationships between
+the parent company and its subsidiaries. This data is used to create a linkage between
+EIA utilities and SEC reporting companies, to better understand the relationships
+between utlities and their affiliates, and the resulting economic and political impacts.
+
+This data was originally downloaded from the SEC and processed using a machine learning
+pipeline found here: https://github.com/catalyst-cooperative/mozilla-sec-eia"""
         ),
         "field_namespace": "sec",
         "working_partitions": {
-            "years": sorted(set(range(1994, 2023))),
+            "tables": [
+                "raw_sec10k__quarterly_filings",
+                "raw_sec10k__quarterly_company_information",
+                "raw_sec10k__parents_and_subsidiaries",
+                "raw_sec10k__exhibit_21_company_ownership",
+            ],
+            "years": sorted(range(1993, 2024)),
         },
         "keywords": sorted(
             set(KEYWORDS["sec"] + KEYWORDS["us_govt"] + KEYWORDS["finance"])
