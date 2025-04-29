@@ -38,9 +38,9 @@ def with_name(mock, name):
 
 def test_get_data_source(mocker):
     mock_resource = mocker.Mock()
-    mocker.patch("pudl.scripts.dbt_helper.PUDL_PACKAGE").get_resource.return_value = (
-        mock_resource
-    )
+    mocker.patch(
+        "pudl.scripts.dbt_helper.PUDL_PACKAGE"
+    ).get_resource.return_value = mock_resource
     mock_resource.sources = [""] * 2
     assert get_data_source("multiple sources") == "output"
     mock_resource.sources = [with_name(mocker.Mock(), str(mocker.sentinel.source))]
@@ -67,9 +67,9 @@ def test__get_row_count_csv_path():
 @pytest.mark.parametrize("key", ["report_year", "report_date", "datetime_utc", None])
 def test__infer_partition_column(mocker, key):
     mock_resource = mocker.Mock()
-    mocker.patch("pudl.scripts.dbt_helper.PUDL_PACKAGE").get_resource.return_value = (
-        mock_resource
-    )
+    mocker.patch(
+        "pudl.scripts.dbt_helper.PUDL_PACKAGE"
+    ).get_resource.return_value = mock_resource
     mock_resource.schema.fields = [with_name(mocker.Mock(), key)]
     assert _infer_partition_column("") == key
 
