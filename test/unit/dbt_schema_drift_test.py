@@ -4,7 +4,7 @@ from collections import defaultdict
 from pathlib import Path
 
 from pudl.metadata.classes import PUDL_PACKAGE
-from pudl.scripts.dbt_helper import _get_model_path, _load_schema_yaml, get_data_source
+from pudl.scripts.dbt_helper import DbtSchema, _get_model_path, get_data_source
 
 
 def generate_legible_output(
@@ -66,12 +66,12 @@ def test_dbt_schema_drift():
         try:
             all_dbt_schema_paths.remove(schema_path)
         except KeyError:  # pragma: no cover
-            assert not schema_path.exists(), (
-                f"Something is wrong with {schema_path}: the file exists as generated from the model path but was not found by glob"
-            )
+            assert (
+                not schema_path.exists()
+            ), f"Something is wrong with {schema_path}: the file exists as generated from the model path but was not found by glob"
             pudl_tables_not_in_dbt.add(table_name)
             continue
-        schema = _load_schema_yaml(schema_path)
+        schema = DbtSchema.from_yaml(schema_path)
         schema_fields = {
             column.name
             for source in schema.sources
@@ -90,7 +90,7 @@ def test_dbt_schema_drift():
             dbt_fields_not_in_pudl[table_name].update(schema_fields)
     # all_dbt_schema_paths should be empty if pudl had all the tables dbt knows about
     for schema_path in all_dbt_schema_paths:  # pragma: no cover
-        schema = _load_schema_yaml(schema_path)
+        schema = DbtSchema.from_yaml(schema_path)
         dbt_tables_not_in_pudl.update(
             table.name for source in schema.sources for table in source.tables
         )
