@@ -66,9 +66,9 @@ def test_dbt_schema_drift():
         try:
             all_dbt_schema_paths.remove(schema_path)
         except KeyError:  # pragma: no cover
-            assert (
-                not schema_path.exists()
-            ), f"Something is wrong with {schema_path}: the file exists as generated from the model path but was not found by glob"
+            assert not schema_path.exists(), (
+                f"Something is wrong with {schema_path}: the file exists as generated from the model path but was not found by glob"
+            )
             pudl_tables_not_in_dbt.add(table_name)
             continue
         schema = DbtSchema.from_yaml(schema_path)
