@@ -4,12 +4,11 @@ from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_sec10k__assn_exhibit_21_subsidiaries_and_filers": {
-        "description": """A table matching subsidiary companies listed in Exhibit 21
-attachments to its SEC central index key when the subsidiary also files a 10k.
-We match these subsidiaries to companies that file an SEC 10k based on an
-exact match on name and shared location of incorporation attributes.
-``subsidiary_company_id_sec10k`` is an ID created from the subsidiary's filing,
-name, and location of incorporation.""",
+        "description": """A table associating subsidiaries listed in Exhibit 21 with
+their SEC central index key, if the subsidiary also files Form 10-K.
+
+Exhibit 21 subsidiaries and SEC 10-K filers are considered matched if they have
+identical names and the same location of incorporation.""",
         "schema": {
             "fields": ["subsidiary_company_id_sec10k", "central_index_key"],
             "primary_key": ["subsidiary_company_id_sec10k"],
@@ -19,11 +18,13 @@ name, and location of incorporation.""",
         "field_namespace": "sec",
     },
     "core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities": {
-        "description": """A table matching subsidiary companies in Exhibit 21 attachments to
-EIA utilities. Only subsidiaries which don't file an SEC 10-K filing themselves are included in
-this table. We match these subsidiaries to EIA utilities with an exact match on company
-name. ``subsidiary_company_id_sec10k`` is an ID created from the subsidiary's filing,
-name, and location of incorporation.""",
+        "description": """A table matching subsidiaries listed in Exhibit 21 with EIA
+utilities.
+
+An Exhibit 21 subsidiary is considered matched to an EIA utility if their names are
+identical. Only subsidiaries that don't file SEC 10-K themselves are included in this
+table. SEC 10-K filers have much more information available and can be matched using
+probabilistic record linkage.""",
         "schema": {
             "fields": ["subsidiary_company_id_sec10k", "utility_id_eia"],
             "primary_key": ["subsidiary_company_id_sec10k"],
@@ -289,13 +290,16 @@ well as providing a link to the source URL for the filing."""
     },
     "out_sec10k__parents_and_subsidiaries": {
         "description": (
-            """Denormalized table containing SEC company ownership data
-extracted from Exhibit 21 attachments with attributes about the parent and
-subsidiary companies. Company attributes are extracted from the headers of
-the SEC 10k filing. Company information is present for subsidiary companies
-when that subsidiary in turn files a 10k. The connection between SEC filers
-and EIA utilities is conducted with probabilistic record linkage. The connection
-between Ex. 21 subsidiaries (who don't file a 10k) and EIA utilities is done with
+            """A denormalized table containing information about parent companies that
+file SEC Form 10-K and their subsidiaries, which may or may not file Form 10-K.
+
+Company ownership fractions are extracted from SEC 10-K Exhibit 21. Information about
+the companies is extracted primarily from the headers of the SEC 10-K filing.
+Subsidiaries that file Form 10-K will have much more information available than those
+that only appear as subsidiaries in Exhibit 21.
+
+SEC 10-K filers and EIA utilities are matched using probabilistic record linkage.
+Exhibit 21 subsidiaries that don't file a Form 10-K are matched to EIA utilities using
 a fuzzy match on the company name."""
         ),
         "schema": {

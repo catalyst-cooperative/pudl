@@ -149,7 +149,7 @@ def _standardize_company_name(col: pd.Series) -> pd.Series:
         col: The series of names that is to be cleaned.
 
     Returns:
-        pd.Series: The original Series now containing cleaned names.
+        The original Series now containing cleaned names.
     """
     col = col.fillna(pd.NA).str.strip().str.lower()
     col = company_name_cleaner.apply_name_cleaning(col).str.strip()

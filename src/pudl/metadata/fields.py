@@ -1719,7 +1719,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "filing_date": {
         "type": "date",
-        "description": "Date filing was submitted, reported at a daily frequency.",
+        "description": "Date of the day on which the filing was submitted.",
     },
     "film_number": {
         "type": "string",
@@ -4771,7 +4771,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "subsidiary_company_id_sec10k": {
         "type": "string",
-        "description": "PUDL-assigned ID for subsidiaries extracted from SEC 10k Ex. 21 attachments. May not be stable over time.",
+        "description": """PUDL-assigned ID for subsidiaries found in SEC 10-K Exhibit 21.
+
+The ID is created by concatenating the CIK of the company whose filing the subsidiary
+was found in, the subsidiary company's name, and location of incorporation. It is not
+guaranteed to be stable across different releases of PUDL and so should never be
+hard-coded in analyses.""",
     },
     "subsidiary_company_location": {
         "type": "string",
