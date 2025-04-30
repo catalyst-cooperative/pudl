@@ -8,6 +8,10 @@ more user-friendly and easier to work with than the normalized core tables.
 import dagster as dg
 import pandas as pd
 
+from pudl import logging_helpers
+
+logger = logging_helpers.get_logger(__name__)
+
 
 def _filename_sec10k_to_source_url(
     filename_sec10k: pd.Series,
@@ -106,3 +110,135 @@ def out_sec10k__changelog_company_name(
         name_changelog["company_name_old"] != name_changelog["company_name_new"]
     ]
     return name_changelog
+
+
+def _get_n_duplicate_filer_records(company_info_df, ownership_df, key):
+    filers_count_df = (
+        company_info_df.groupby(key).size().reset_index(name="filer_count")
+    )
+    non_unique_filers_df = filers_count_df[filers_count_df.filer_count > 1]
+    return len(
+        ownership_df.merge(
+            non_unique_filers_df,
+            on=key,
+            how="inner",
+        ).drop_duplicates(subset=key)
+    )
+
+
+@dg.asset(
+    io_manager_key="pudl_io_manager",
+    group_name="out_sec10k",
+)
+def out_sec10k__parents_and_subsidiaries(
+    core_sec10k__quarterly_exhibit_21_company_ownership: pd.DataFrame,
+    out_sec10k__quarterly_company_information: pd.DataFrame,
+    core_sec10k__assn_exhibit_21_subsidiaries_and_filers: pd.DataFrame,
+    core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities: pd.DataFrame,
+    core_eia__entity_utilities: pd.DataFrame,
+) -> pd.DataFrame:
+    """Denormalized output table with SEC 10-K company and ownership info linked to EIA."""
+    # We want to merge company info records onto ownership records on filename, report_date, and CIK
+    # but this key is not unique in the company info records because it doesn't include filer_count.
+    # Log the number of non unique records from the information table that appear as
+    # parent companies in the ownership table.
+    parent_co_merge_key = [
+        "filename_sec10k",
+        "parent_company_central_index_key",
+        "report_date",
+    ]
+    n_parent_dupes = _get_n_duplicate_filer_records(
+        out_sec10k__quarterly_company_information.rename(
+            columns={"central_index_key": "parent_company_central_index_key"}
+        ),
+        core_sec10k__quarterly_exhibit_21_company_ownership,
+        key=parent_co_merge_key,
+    )
+    if n_parent_dupes > 0:
+        logger.warning(
+            f"""There are {n_parent_dupes} duplicate filenames, CIKs, and report date records that are parent companies in the Ex. 21 ownership table."""
+        )
+    # merge parent attributes on
+    parents_info_df = out_sec10k__quarterly_company_information.add_prefix(
+        "parent_company_"
+    ).drop(columns=["parent_company_company_name"])
+    df = core_sec10k__quarterly_exhibit_21_company_ownership.merge(
+        parents_info_df,
+        how="left",
+        left_on=["filename_sec10k", "parent_company_central_index_key", "report_date"],
+        right_on=[
+            "parent_company_filename_sec10k",
+            "parent_company_central_index_key",
+            "parent_company_report_date",
+        ],
+    ).drop(columns=["parent_company_report_date", "parent_company_filename_sec10k"])
+
+    # merge central index key on for subsidiaries that file a 10k
+    df = df.merge(
+        core_sec10k__assn_exhibit_21_subsidiaries_and_filers,
+        how="left",
+        on="subsidiary_company_id_sec10k",
+    ).rename(columns={"central_index_key": "subsidiary_company_central_index_key"})
+
+    # merge utility_id_eia onto subsidiaries
+    df = df.merge(
+        core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities,
+        how="left",
+        on="subsidiary_company_id_sec10k",
+    )
+
+    # merge utility name onto subsidiaries
+    df = df.merge(core_eia__entity_utilities, how="left", on="utility_id_eia").rename(
+        columns={
+            "utility_id_eia": "sub_only_utility_id_eia",
+            "utility_name_eia": "sub_only_utility_name_eia",
+        }
+    )
+    # Log the number of non unique filename, CIK, report_date records from the
+    # information table that appear as subsidiary companies in the ownership table.
+    sub_co_merge_key = [
+        "filename_sec10k",
+        "subsidiary_company_central_index_key",
+        "report_date",
+    ]
+    n_sub_dupes = _get_n_duplicate_filer_records(
+        out_sec10k__quarterly_company_information.rename(
+            columns={"central_index_key": "subsidiary_company_central_index_key"}
+        ),
+        df,
+        key=sub_co_merge_key,
+    )
+    if n_sub_dupes > 0:
+        logger.warning(
+            f"""There are {n_sub_dupes} duplicate filenames, CIKs, and report date records that are subsidiary companies in the Ex. 21 ownership table."""
+        )
+    subs_info_df = out_sec10k__quarterly_company_information.add_prefix(
+        "subsidiary_company_"
+    ).drop(columns=["subsidiary_company_company_name"])
+    # merge subsidiary company attributes on
+    df = df.merge(
+        subs_info_df,
+        how="left",
+        left_on=[
+            "filename_sec10k",
+            "subsidiary_company_central_index_key",
+            "report_date",
+        ],
+        right_on=[
+            "subsidiary_company_filename_sec10k",
+            "subsidiary_company_central_index_key",
+            "subsidiary_company_report_date",
+        ],
+    ).drop(
+        columns=["subsidiary_company_report_date", "subsidiary_company_filename_sec10k"]
+    )
+    # combine the sub-only and filing-subs EIA utility columns
+    df["subsidiary_company_utility_id_eia"] = df[
+        "subsidiary_company_utility_id_eia"
+    ].fillna(df["sub_only_utility_id_eia"])
+    df["subsidiary_company_utility_name_eia"] = df[
+        "subsidiary_company_utility_name_eia"
+    ].fillna(df["sub_only_utility_name_eia"])
+    df = df.drop(columns=["sub_only_utility_id_eia", "sub_only_utility_name_eia"])
+
+    return df
