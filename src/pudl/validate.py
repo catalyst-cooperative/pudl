@@ -229,6 +229,15 @@ def weighted_quantile(data: pd.Series, weights: pd.Series, quantile: float) -> f
         pd.DataFrame({"data": data, "weights": weights})
         .replace([np.inf, -np.inf], np.nan)
         .dropna()
+        # dbt weighted quantiles detour: the following group/sum operation is necessary to
+        # match our weighted quantile definition in dbt, which treats repeated data values
+        # as an n-way tie and pools the weights. see "Migrate vs_bounds" issue on github
+        # for details:
+        # https://github.com/catalyst-cooperative/pudl/issues/4106#issuecomment-2810774598
+        .groupby("data")
+        .sum()
+        .reset_index()
+        # /end dbt weighted quantiles detour
         .sort_values(by="data")
     )
     Sn = df.weights.cumsum()  # noqa: N806
