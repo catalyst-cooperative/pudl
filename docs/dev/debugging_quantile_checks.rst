@@ -12,16 +12,16 @@ In this example, we're running quantile checks for table ``out_eia__monthly_gene
     [...]
     17:54:02  9 of 9 START test source_test_idle_capacity_pudl_out_eia__monthly_generators_ .. [RUN]
     17:54:02  9 of 9 PASS source_test_idle_capacity_pudl_out_eia__monthly_generators_ ........ [PASS in 0.02s]
-    17:54:02  
+    17:54:02
     17:54:02  Finished running 9 data tests in 0 hours 0 minutes and 0.81 seconds (0.81s).
-    17:54:02  
+    17:54:02
     17:54:02  Completed with 1 error, 0 partial successes, and 0 warnings:
-    17:54:02  
+    17:54:02
     17:54:02  Failure in test source_expect_quantile_constraints_pudl_out_eia__monthly_generators_capacity_factor___quantile_0_6_min_value_0_5_max_value_0_9____quantile_0_1_min_value_0_04____quantile_0_95_max_value_0_95___fuel_type_code_pudl_coal_and_capacity_factor_0_0__capacity_mw (models/output/out_eia__monthly_generators/schema.yml)
     17:54:02    Got 1 result, configured to fail if != 0
-    17:54:02  
+    17:54:02
     17:54:02    compiled code at target/compiled/pudl_dbt/models/output/out_eia__monthly_generators/schema.yml/source_expect_quantile_constra_a53737dceb68a29ccc347708c9467242.sql
-    17:54:02  
+    17:54:02
     17:54:02  Done. PASS=8 WARN=0 ERROR=1 SKIP=0 TOTAL=9
 
 In this example, one quantile was out of bounds.
@@ -73,4 +73,3 @@ Depending on the situation, from here you can:
 * investigate further in a Python notebook
 * fix a bug, re-run the pipeline, and repeat the check
 * adjust the quantile constraints (& consider leaving a dated note for followup in case it gets worse)
-
