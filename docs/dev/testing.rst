@@ -244,4 +244,6 @@ data to a temporary datastore that's later deleted automatically:
 When dbt tests fail
 -------------------------------------------------------------------------------
 
-If the test that failed is a quantile constraint (starts with ``expect_quantile_constraints`` or ``source_expect_quantile_constraints``), we have a macro that can help debug the problem: :doc:`/dev/debugging_quantile_checks`
+If the test that failed is a quantile constraint (starts with
+``expect_quantile_constraints`` or ``source_expect_quantile_constraints``), we have a
+macro that can help debug the problem: :doc:`/dev/debugging_quantile_checks`
