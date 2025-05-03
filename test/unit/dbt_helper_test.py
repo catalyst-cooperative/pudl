@@ -60,8 +60,8 @@ def test__get_model_path():
 
 
 def test__get_row_count_csv_path():
-    assert _get_row_count_csv_path(etl_fast=True) != _get_row_count_csv_path(
-        etl_fast=False
+    assert _get_row_count_csv_path(target="etl-fast") != _get_row_count_csv_path(
+        target="etl-full"
     )
 
 
