@@ -2,9 +2,12 @@
 How to debug a quantile check
 ==================================================
 
-Run the quantile check by selecting a local target and the table you want to check. If you want to check all the tables, you can instead select all the quantile checks by using ``test_name:expect_quantile_constraints`` in the select clause.
+Run the quantile check by selecting a local target and the table you want to check.
+If you want to check all the tables, you can instead select all the quantile checks
+by using ``test_name:expect_quantile_constraints`` in the select clause.
 
-In this example, we're running quantile checks for table ``out_eia__monthly_generators``.
+In this example, we're running quantile checks for table
+``out_eia__monthly_generators``.
 
 .. code-block:: console
 
@@ -26,7 +29,8 @@ In this example, we're running quantile checks for table ``out_eia__monthly_gene
 
 In this example, one quantile was out of bounds.
 
-Grab the quantile that's failing by running the "compiled code at" SQL file against the tests db.
+Grab the quantile that's failing by running the "compiled code at" SQL file against
+the tests db.
 
 .. code-block:: console
 
@@ -40,7 +44,10 @@ Grab the quantile that's failing by running the "compiled code at" SQL file agai
 
 In this example, the quantile that failed was quantile 0.1.
 
-Find out how severe it is by running the "debug_quantile_constraints" operation. You will need the table name (grab from the "compiled code at" path) and the test name (grab from the "Failure in test" line in the original output). Remember to specify the same local target.
+Find out how severe it is by running the "debug_quantile_constraints" operation. You
+will need the table name (grab from the "compiled code at" path) and the test name
+(grab from the "Failure in test" line in the original output). Remember to specify
+the same local target.
 
 .. code-block:: console
 
@@ -58,11 +65,16 @@ Find out how severe it is by running the "debug_quantile_constraints" operation.
   17:59:43      0.10 |    0.036 |     0.04 |     None
   17:59:43      0.95 |    0.826 |     None |     0.95
 
-In this example, quantile 0.1 was expected to be at least 0.04, but was found to be 0.036, which is too low.
+In this example, quantile 0.1 was expected to be at least 0.04, but was found to be
+0.036, which is too low.
 
-Locate the quantile check in the table's schema.yml file. The path is the same as the "compiled code at" path with the heads and tails trimmed off -- copy starting from ``models/`` and stop at ``schema.yml``.
+Locate the quantile check in the table's schema.yml file. The path is the same as the
+"compiled code at" path with the heads and tails trimmed off -- copy starting from
+``models/`` and stop at ``schema.yml``.
 
-Find the column name and the row condition in the debug_quantile_constraints output. In this example, the check we want is for column ``capacity_factor``, and it's the entry with a row condition ``fuel_type_code_pudl='coal' and capacity_factor<>0.0``.
+Find the column name and the row condition in the debug_quantile_constraints output.
+In this example, the check we want is for column ``capacity_factor``, and it's the
+entry with a row condition ``fuel_type_code_pudl='coal' and capacity_factor<>0.0``.
 
 .. code-block:: console
 
@@ -72,4 +84,5 @@ Depending on the situation, from here you can:
 
 * investigate further in a Python notebook
 * fix a bug, re-run the pipeline, and repeat the check
-* adjust the quantile constraints (& consider leaving a dated note for followup in case it gets worse)
+* adjust the quantile constraints (& consider leaving a dated note for followup in
+  case it gets worse)
