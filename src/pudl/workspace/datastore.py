@@ -210,7 +210,7 @@ class ZenodoDoiSettings(BaseSettings):
     nrelatb: ZenodoDoi = "10.5281/zenodo.12658647"
     phmsagas: ZenodoDoi = "10.5281/zenodo.10493790"
     sec10k: ZenodoDoi = "10.5281/zenodo.15161694"
-    vcerare: ZenodoDoi = "10.5281/zenodo.13937523"
+    vcerare: ZenodoDoi = "10.5281/zenodo.15166129"
 
     model_config = SettingsConfigDict(
         env_prefix="pudl_zenodo_doi_", env_file=".env", extra="ignore"
