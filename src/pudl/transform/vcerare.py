@@ -36,7 +36,7 @@ def _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips: pd.DataFrame) -> pd.DataFr
 
     The county portion of the county_state column does not map directly to FIPS ID.
     Some of the county names are actually subregions like cities or lakes. For this
-    reason we've named the column county_or_lake_name and it should be considered
+    reason we've named the column place_name and it should be considered
     part of the primary key. There are several instances of multiple subregions that
     map to a single county_id_fips value.
 
@@ -72,7 +72,7 @@ def _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips: pd.DataFrame) -> pd.DataFr
         )
         # Extract the county or lake name from the county_state_name field
         .assign(
-            county_or_lake_name=lambda x: x.county_state_names.str.extract(
+            place_name=lambda x: x.county_state_names.str.extract(
                 rf"([a-z_]+)_({state_pattern})$"
             )[0].astype("category")
         )
@@ -292,7 +292,7 @@ def one_year_hourly_available_capacity_factor(
     """Transform raw Vibrant Clean Energy renewable generation profiles.
 
     Concatenates the solar and wind capacity factors into a single table and turns
-    the columns for each county or subregion into a single county_or_lake_name column.
+    the columns for each county or subregion into a single place_name column.
     """
     logger.info(
         f"Transforming the VCE RARE hourly available capacity factor tables for {year}."
@@ -321,7 +321,7 @@ def one_year_hourly_available_capacity_factor(
     return apply_pudl_dtypes(
         _combine_all_cap_fac_dfs(clean_dict)
         .pipe(_combine_cap_fac_with_fips_df, fips_df)
-        .sort_values(by=["state", "county_or_lake_name", "datetime_utc"])
+        .sort_values(by=["state", "place_name", "datetime_utc"])
         .reset_index(drop=True)
     )
 
@@ -336,7 +336,7 @@ def out_vcerare__hourly_available_capacity_factor(
     """Transform raw Vibrant Clean Energy renewable generation profiles.
 
     Concatenates the solar and wind capacity factors into a single table and turns
-    the columns for each county or subregion into a single county_or_lake_name column.
+    the columns for each county or subregion into a single place_name column.
     Asset will process 1 year of data at a time to limit peak memory usage.
     """
 
@@ -558,7 +558,7 @@ def check_unexpected_counties() -> AssetCheckResult:
     )
     unexpected_counties = duckdb.query(
         "SELECT * FROM vce "
-        "WHERE county_or_lake_name in ("
+        "WHERE place_name in ("
         "'bedford_city','clifton_forge_city',"
         "'lake_hurron','lake_st_clair'"
         ")"
