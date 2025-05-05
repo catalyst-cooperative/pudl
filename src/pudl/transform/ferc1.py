@@ -2322,11 +2322,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         )
 
     def get_xbrl_calculation_fixes(self: Self) -> pd.DataFrame:
-        """Grab the XBRL calculations fixes for this table.
-
-        This
-
-        """
+        """Grab the XBRL calculations fixes for this table."""
         calc_fixes = read_xbrl_calculation_fixes()
         # grab the fixes from this table only!
         calc_fixes = calc_fixes[calc_fixes.table_name_parent == self.table_id.value]
@@ -2488,7 +2484,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         # this is really a xbrl_factoid-level flag, but we need it while using this
         # calc components.
         calc_comps["is_within_table_calc"] = (
-            # make a temp bool col to check if all the componets are intra table
+            # make a temp bool col to check if all the components are intra table
             # should the non-calc guys get a null or a true here? rn its true bc fillna
             calc_comps.assign(
                 intra_table_calc_comp_flag=lambda x: (
