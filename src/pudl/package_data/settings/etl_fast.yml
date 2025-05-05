@@ -89,7 +89,7 @@ datasets:
     # Note that the CEMS data relies on EIA 860 data for plant locations,
     # so if you're loading CEMS data for a particular year, you should
     # also load the EIA 860 data for that year if possible
-    year_quarters: ["2023q1"]
+    year_quarters: ["2023q4"]
   phmsagas:
     years: [2022]
   nrelatb:
