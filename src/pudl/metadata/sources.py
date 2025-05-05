@@ -516,7 +516,7 @@ SOURCES: dict[str, Any] = {
         ),
         "source_file_dict": {
             "respondents": "Major electric utilities and licenses.",
-            "records_liberated": "~13.2 million (116 raw tables), ~307,000 (7 clean tables)",
+            "records_liberated": "~13.2 million (116 raw tables), ~4.7 million (23 clean tables)",
             "source_format": "XBRL (.XBRL) and Visual FoxPro Database (.DBC/.DBF)",
         },
         "field_namespace": "ferc1",
