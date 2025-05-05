@@ -3,6 +3,12 @@
 ===============================================================================
 Testing PUDL
 ===============================================================================
+
+.. toctree::
+   :hidden:
+
+   debugging_quantile_checks
+
 We use `pytest <https://pytest.org>`__ to specify software unit & integration tests,
 and to coordinate data validation tests.  There are several ``pytest`` commands stored
 as targets in the PUDL ``Makefile`` for convenience and to ensure that we're all running
