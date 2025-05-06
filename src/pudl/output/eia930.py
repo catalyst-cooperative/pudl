@@ -5,6 +5,7 @@ from dagster import asset
 
 from pudl.analysis.timeseries_cleaning import (
     ImputeTimeseriesSettings,
+    SimulateNullsSettings,
     impute_timeseries_asset_factory,
 )
 
@@ -100,7 +101,9 @@ imputed_subregion_demand_assets = impute_timeseries_asset_factory(
     value_col="demand_reported_mwh",
     imputed_value_col="demand_imputed_pudl_mwh",
     id_col="generic_id",
-    settings=ImputeTimeseriesSettings(),
+    settings=ImputeTimeseriesSettings(
+        simulate_nulls_settings=SimulateNullsSettings(),
+    ),
     output_io_manager_key="io_manager",
 )
 

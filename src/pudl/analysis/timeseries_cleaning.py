@@ -42,6 +42,7 @@ import pandera as pa
 import scipy.stats
 from dagster import AssetIn, AssetOut, asset, multi_asset
 from pandera.typing import DataFrame, Index, Series
+from sklearn.metrics import mean_squared_error
 
 from pudl.logging_helpers import get_logger
 from pudl.metadata.dfs import ImputationReasonCodes
@@ -177,6 +178,24 @@ def pivot_aligned_timeseries_dataframe(
     end = matrix.index.max().replace(hour=23)
     all_hours = pd.date_range(start=start, end=end, freq="h", name="datetime")
     return matrix.reindex(all_hours)
+
+
+@pa.check_types
+def score_simulated_imputation(
+    imputed_df: DataFrame[AlignedTimeseriesDataFrame],
+) -> float:
+    """Compute mean-squared-error on simulated imputed data."""
+    simulated_values = imputed_df.loc[imputed_df["flags"] == "simulated"]
+    simulated_values["original_id"] = simulated_values["id_col"].str.removesuffix(
+        "_SIMULATED"
+    )
+    simulated_values = simulated_values.merge(
+        imputed_df,
+        left_on=["original_id", "datetime"],
+        right_on=["id_col", "datetime"],
+    )
+
+    return mean_squared_error(simulated_values["value_col_y", "value_col_x"])
 
 
 @pa.check_types
@@ -1561,6 +1580,121 @@ def filter_missing_values(
 
 
 @dataclass
+class SimulateNullsSettings:
+    """Define settings used to simulate null values for scoring imputation."""
+
+    num_sections: int = 30
+    """The number of sections of data to simulate."""
+    min_flag_rate: float = 0.1
+    """Min ratio of bad points in a section of data to be used for reference."""
+    max_flag_rate: float = 0.5
+    """Min ratio of bad points in a section of data to be used for reference."""
+
+
+def _get_simulation_data(df, reference_df):
+    reference_df["period"] = reference_df["reference_month"].dt.to_period("M")
+    df["period"] = df["datetime"].dt.to_period("M")
+
+    # Merge on name and month period
+    merged = df.merge(
+        reference_df,
+        left_on=["id_col", "period"],
+        right_on=["reference_id_col", "period"],
+        how="inner",
+    )
+
+    # Filter where value is null
+    filtered = merged[merged["value_col"].isnull()]
+    filtered["simulation_datetime"] = (
+        filtered["datetime"]
+        - filtered["reference_month"]
+        + filtered["simulation_month"]
+    )
+
+    return filtered[["simulation_datetime", "simulation_id_col"]]
+
+
+@pa.check_types
+def simulate_flags(
+    settings: SimulateNullsSettings,
+    timeseries_matrix: DataFrame[TimeseriesMatrix],
+    flag_matrix: DataFrame[TimeseriesMatrix],
+) -> pd.DataFrame:
+    """Simulate null values for scoring imputation.
+
+    Finds sections of data with high rate of flagged values, and uses these sections
+    as a reference to flag values in otherwise good sections of data. This allows us
+    to impute data in a realistic scenario where we have good reported data, which
+    we can compare to in order to compute quantitative metrics to validate the
+    quality of our imputation.
+    """
+    # Calculate the rate of imputation per month/ID
+    df = timeseries_matrix.melt(
+        value_name="value_col", ignore_index=False
+    ).reset_index()
+
+    monthly_imputation_rate = (
+        (
+            df.groupby(
+                ["id_col", pd.Grouper(key="datetime", freq="MS")], observed=True
+            )["value_col"].apply(lambda x: x.isnull().mean())
+        )
+        .reset_index()
+        .rename(columns={"value_col": "imputation_rate", "datetime": "month"})
+    )
+
+    # Find a set of months with a high level of imputation to use as reference to simulate flagged data
+    bad_months = (
+        monthly_imputation_rate[
+            (monthly_imputation_rate.imputation_rate >= settings.min_flag_rate)
+            & (monthly_imputation_rate.imputation_rate <= settings.max_flag_rate)
+        ]
+        .sample(settings.num_sections)
+        .rename(
+            columns={
+                "id_col": "reference_id_col",
+                "month": "reference_month",
+            }
+        )[["reference_id_col", "reference_month"]]
+    )
+
+    # Find months which didn't have any values flagged to drop data from
+    good_months = (
+        monthly_imputation_rate[monthly_imputation_rate.imputation_rate == 0.0]
+        .sample(settings.num_sections)
+        .rename(
+            columns={
+                "id_col": "simulation_id_col",
+                "month": "simulation_month",
+            }
+        )[["simulation_id_col", "simulation_month"]]
+    )
+
+    simulation_data = _get_simulation_data(
+        df, pd.concat([bad_months.reset_index(), good_months.reset_index()], axis=1)
+    )
+
+    for simulation_id in simulation_data.simulation_id_col.unique():
+        timeseries_matrix[f"{simulation_id}_SIMULATED"] = timeseries_matrix[
+            simulation_id
+        ]
+        flag_matrix[f"{simulation_id}_SIMULATED"] = flag_matrix[simulation_id]
+        timeseries_matrix.loc[
+            simulation_data[simulation_data["simulation_id_col"] == simulation_id][
+                "simulation_datetime"
+            ],
+            f"{simulation_id}_SIMULATED",
+        ] = None
+        flag_matrix.loc[
+            simulation_data[simulation_data["simulation_id_col"] == simulation_id][
+                "simulation_datetime"
+            ],
+            f"{simulation_id}_SIMULATED",
+        ] = "simulated"
+    return timeseries_matrix, flag_matrix
+
+
+@dataclass
 class ImputeTimeseriesSettings:
     """Define settings used for timeseries imputation."""
 
@@ -1579,6 +1713,7 @@ Default of 24 is meant for hourly data with a diurnal periodicity.
     """Imputation method to use ('tubal': :func:`impute_latc_tubal`, 'tnn': :func:`impute_latc_tnn`)."""
     method_overrides: dict[int, str] = field(default_factory=dict)
     """Override imputation method for specific years ('tubal': :func:`impute_latc_tubal`, 'tnn': :func:`impute_latc_tnn`)."""
+    simulate_nulls_settings: SimulateNullsSettings | None = None
 
 
 def impute_timeseries_asset_factory(
@@ -1664,6 +1799,9 @@ def impute_timeseries_asset_factory(
     ) -> tuple[pd.DataFrame, pd.DataFrame]:
         """Flag/Null anomalous and missing values."""
         matrix, flags = flag_ruggles(matrix)
+        if (simulate_nulls_settings := settings.simulate_nulls_settings) is not None:
+            matrix, flags = simulate_flags(simulate_nulls_settings, matrix, flags)
+
         matrix = filter_missing_values(
             matrix,
             min_data=settings.min_data,
@@ -1708,6 +1846,10 @@ def impute_timeseries_asset_factory(
         """Perform imputation and prepare output asset."""
         # Melt imputed matrix/flag matrix to long format
         imputed_df = melt_imputed_timeseries_matrix(matrix, flags)
+        if settings.simulate_nulls_settings is not None:
+            logger.info(
+                f"Simulated imputation mean squared error: {score_simulated_imputation(imputed_df)}"
+            )
 
         # Merge back on core table
         df = aligned_df.merge(imputed_df, on=["id_col", "datetime"], how="left")
