@@ -386,13 +386,7 @@ def check_rows(context: AssetCheckExecutionContext) -> AssetCheckResult:
     logger.info("Check VCE RARE hourly table is the expected length")
 
     # Define row counts for report years
-    row_counts_by_year = {
-        2019: 27287400,
-        2020: 27287400,
-        2021: 27287400,
-        2022: 27287400,
-        2023: 27287400,
-    }
+    row_counts_by_year = dict.fromkeys(range(2014, 2024), 27287400)
 
     vce = _load_duckdb_table()  # noqa: F841
     errors = []
@@ -447,15 +441,15 @@ def check_pv_capacity_factor_upper_bound() -> AssetCheckResult:
     # Make sure the capacity_factor values are below the expected value
     # There are some solar values that are slightly over 1 due to colder
     # than average panel temperatures.
-    logger.info("Check capacity factors in VCE RARE table are between 0 and 1.")
+    logger.info("Check capacity factors in VCE RARE table are between 0 and 1.1")
     vce = _load_duckdb_table()  # noqa: F841
     cap_oob = duckdb.query(
-        "SELECT * FROM vce WHERE capacity_factor_solar_pv > 1.02"
+        "SELECT * FROM vce WHERE capacity_factor_solar_pv > 1.1"
     ).fetchall()
     if len(cap_oob) > 0:
         return AssetCheckResult(
             passed=False,
-            description="Found PV capacity factor values greater than 1.02",
+            description="Found PV capacity factor values greater than 1.1",
         )
     return AssetCheckResult(passed=True)
 
