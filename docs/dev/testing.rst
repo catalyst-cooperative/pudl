@@ -3,6 +3,12 @@
 ===============================================================================
 Testing PUDL
 ===============================================================================
+
+.. toctree::
+   :hidden:
+
+   debugging_quantile_checks
+
 We use `pytest <https://pytest.org>`__ to specify software unit & integration tests,
 and to coordinate data validation tests.  There are several ``pytest`` commands stored
 as targets in the PUDL ``Makefile`` for convenience and to ensure that we're all running
@@ -239,3 +245,11 @@ data to a temporary datastore that's later deleted automatically:
 .. code-block:: console
 
    $ pytest --tmp-data test/integration/etl_test.py
+
+-------------------------------------------------------------------------------
+When dbt tests fail
+-------------------------------------------------------------------------------
+
+If the test that failed is a quantile constraint (starts with
+``expect_quantile_constraints`` or ``source_expect_quantile_constraints``), we have a
+macro that can help debug the problem: :doc:`/dev/debugging_quantile_checks`
