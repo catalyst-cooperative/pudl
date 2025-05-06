@@ -68,6 +68,8 @@ FERC Form 1
 
 Bug Fixes
 ^^^^^^^^^
+* Fixed a bug in FERC XBRL extraction that led to quietly skipping tables with names
+  that didn't conform to expected format.
 
 Major Dependency Updates
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -78,6 +80,11 @@ Quality of Life Improvements
 * We now publish a `Frictionless data package
   <https://datapackage.org/standard/data-package/>`__ describing our Parquet
   outputs, with the name ``pudl_datapackage.json``. See :issue:`4069` and :pr:`4070`.
+* We renamed ``eia_bulk_elec`` to ``eiaapi`` to conform to our dataset naming protocols
+  and reflect the expansion of the EIA Bulk API archive to include all datasets
+  published through the EIA API, not just the bulk electricity data. See `this PUDL
+  archiver issue <https://github.com/catalyst-cooperative/pudl-archiver/issues/628>`__
+  and PR :pr:`4212`.
 
 New Tests
 ^^^^^^^^^
