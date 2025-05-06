@@ -8,7 +8,7 @@ sources:
               table_name: _out_eia__yearly_generators
               partition_column: report_date
           - expect_consistent_generator_ids:
-              # Number of failures as of March 2025:
+              description: There are 60 known failures as of March 2025.
               n_acceptable_failures: 60
         columns:
           - name: report_date
@@ -23,6 +23,28 @@ sources:
           - name: bga_source
           - name: bypass_heat_recovery
           - name: capacity_mw
+            data_tests:
+              - expect_quantile_constraints:
+                  row_condition: energy_source_code_1='BIT'
+                  constraints:
+                    - quantile: 0.45
+                      min_value: 30.0
+                    - quantile: 0.9
+                      max_value: 700.0
+              - expect_quantile_constraints:
+                  row_condition: energy_source_code_1='SUB' or energy_source_code_1='LIG'
+                  constraints:
+                    - quantile: 0.35
+                      min_value: 30.0
+                    - quantile: 0.9
+                      max_value: 800.0
+              - expect_quantile_constraints:
+                  row_condition: energy_source_code_1='NG'
+                  constraints:
+                    - quantile: 0.55
+                      min_value: 30.0
+                    - quantile: 0.9
+                      max_value: 250.0
           - name: carbon_capture
           - name: city
           - name: can_cofire_fuels
