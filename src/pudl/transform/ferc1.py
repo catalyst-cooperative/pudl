@@ -2347,10 +2347,11 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
           weight.
 
         Some common errors occurs when ingesting new metadata which flags the
-        AssertionError in this method. If a calculation component that was
-        previously being removed with the fixes is newly removed in the new
-        metadata the AssertionError will be raised and you'll have to remove
-        the line from the calculation fixes.
+        AssertionError in this method. If you're trying to remove a calculation component
+        manually and it doesn't actually exist as a calculation component in the metadata,
+        an AssertionError will be raised. Similarly, if you're trying to add a
+        calculation component manually that already exists, an AssertionError will be
+        raised.
 
         """
         calc_comp_idx = [
