@@ -2337,7 +2337,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
 
         * To add a calculation component that is missing from the raw metadata,
           add a new line in the ``xbrl_calculation_component_fixes.csv`` with a
-          the parent and child portion of the calculation a weight.
+          the parent and child portion of the calculation and a weight.
         * To remove a calculation component that exists incorrectly in the raw
           metadata, add a line in the ``xbrl_calculation_component_fixes.csv``
           with the parent and child portion of the calculation without a weight.
