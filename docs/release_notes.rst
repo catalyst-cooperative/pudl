@@ -63,6 +63,10 @@ EPA CEMS
 ~~~~~~~~
 * Added 2025 Q1 of CEMS data. See :issue:`4236` and :pr:`4238`.
 
+EIA 930
+~~~~~~~~
+* Updated 2025 half-1 of EIA 930 data. See :issue:`4235` and :pr:`4242`.
+
 Bug Fixes
 ^^^^^^^^^
 * Fixed a bug in FERC XBRL extraction that led to quietly skipping tables with names
