@@ -94,7 +94,7 @@ def _out_eia930__combined_demand(
     )
 
 
-imputed_subregion_demand_assets = impute_timeseries_asset_factory(
+imputed_combined_demand_assets = impute_timeseries_asset_factory(
     input_asset_name="_out_eia930__combined_demand",
     output_asset_name="_out_eia930__combined_imputed_demand",
     years_from_context=_years_from_context,
@@ -109,7 +109,27 @@ imputed_subregion_demand_assets = impute_timeseries_asset_factory(
 
 
 @asset(io_manager_key="parquet_io_manager")
-def out_eia930__hourly_subregion_demand(
+def out_eia930__hourly_operations_from_combined_imputation(
+    _out_eia930__hourly_operations: pd.DataFrame,
+    _out_eia930__combined_imputed_demand: pd.DataFrame,
+) -> pd.DataFrame:
+    """Merge imputed subregion demand back on subregion table."""
+    return _out_eia930__hourly_operations.merge(
+        _out_eia930__combined_imputed_demand[
+            [
+                "datetime_utc",
+                "generic_id",
+                "demand_imputed_pudl_mwh",
+                "demand_imputed_pudl_mwh_imputation_code",
+            ]
+        ],
+        left_on=["datetime_utc", "combined_subregion_ba_id"],
+        right_on=["datetime_utc", "generic_id"],
+    )
+
+
+@asset(io_manager_key="parquet_io_manager")
+def out_eia930__hourly_subregion_demand_from_combined_imputation(
     _out_eia930__hourly_subregion_demand: pd.DataFrame,
     _out_eia930__combined_imputed_demand: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -128,7 +148,6 @@ def out_eia930__hourly_subregion_demand(
     )
 
 
-"""
 imputed_subregion_demand_assets = impute_timeseries_asset_factory(
     input_asset_name="_out_eia930__hourly_subregion_demand",
     output_asset_name="out_eia930__hourly_subregion_demand",
@@ -136,7 +155,10 @@ imputed_subregion_demand_assets = impute_timeseries_asset_factory(
     value_col="demand_reported_mwh",
     imputed_value_col="demand_imputed_pudl_mwh",
     id_col="combined_subregion_ba_id",
-    settings=ImputeTimeseriesSettings(method_overrides={2019: "tnn", 2025: "tnn"}),
+    settings=ImputeTimeseriesSettings(
+        method_overrides={2019: "tnn", 2025: "tnn"},
+        simulate_nulls_settings=SimulateNullsSettings(),
+    ),
 )
 
 
@@ -147,5 +169,7 @@ imputed_ba_demand_assets = impute_timeseries_asset_factory(
     value_col="demand_reported_mwh",
     imputed_value_col="demand_imputed_pudl_mwh",
     id_col="balancing_authority_code_eia",
+    settings=ImputeTimeseriesSettings(
+        simulate_nulls_settings=SimulateNullsSettings(),
+    ),
 )
-"""

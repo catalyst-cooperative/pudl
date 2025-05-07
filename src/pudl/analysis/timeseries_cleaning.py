@@ -195,7 +195,9 @@ def score_simulated_imputation(
         right_on=["id_col", "datetime"],
     )
 
-    return mean_squared_error(simulated_values["value_col_y", "value_col_x"])
+    return mean_squared_error(
+        simulated_values["value_col_y"], simulated_values["value_col_x"]
+    )
 
 
 @pa.check_types
