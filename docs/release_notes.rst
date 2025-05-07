@@ -65,7 +65,11 @@ EPA CEMS
 
 EIA 930
 ~~~~~~~~
-* Updated 2025 half-1 of EIA 930 data. See :issue:`4235` and :pr:`4242`.
+* Updated EIA 930 to include data published up through the beginning of May 2025.
+  See :issue:`4235` and :pr:`4242`. Raw data now includes adjusted and imputed
+  values for the ``unknown`` fuel source, making it behave like other fuel sources;
+  see :ref:`data-sources-eia930-changes-in-energy-source-granularity-over-time` for
+  more information.
 
 Bug Fixes
 ^^^^^^^^^
