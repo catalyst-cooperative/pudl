@@ -59,6 +59,10 @@ SEC 10-K
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+EPA CEMS
+~~~~~~~~
+* Added 2025 Q1 of CEMS data. See :issue:`4236` and :pr:`4238`.
+
 Bug Fixes
 ^^^^^^^^^
 * Fixed a bug in FERC XBRL extraction that led to quietly skipping tables with names
