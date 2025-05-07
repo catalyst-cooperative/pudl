@@ -65,6 +65,10 @@ EIA Bulk Electricity
   2025-05-01. Also adapted the extractor to handle changes in formatting for the
   EIA Bulk API archive. See :issue:`4237` and PR :pr:`4246`.
 
+EPA CEMS
+~~~~~~~~
+* Added 2025 Q1 of CEMS data. See :issue:`4236` and :pr:`4238`.
+
 Bug Fixes
 ^^^^^^^^^
 * Fixed a bug in FERC XBRL extraction that led to quietly skipping tables with names
