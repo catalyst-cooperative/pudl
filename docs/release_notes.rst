@@ -107,6 +107,10 @@ So far we have converted the following tests:
   can find the implementation in the `expect_includes_all_value_combinations_from.sql
   <../../dbt/tests/data_tests/generic_tests/expect_includes_all_value_combinations_from.sql>`__
   file.
+* ``expect_quantile_constraints`` - a more generic replacement for the old
+  ``vs_bounds`` pytest. See :issue:`4106`, :pr:`4090`, and :pr:`4171`. You can find the
+  implementation in the `expect_quantile_constraints.sql
+  <../../dbt/tests/data_tests/generic_tests/expect_quantile_constraints.sql>`__ file.
 * 19 tests which required special handling; see :issue:`4093`, :pr:`4114`, :pr:`4151`.
 
 .. _release-v2025.2.0:
