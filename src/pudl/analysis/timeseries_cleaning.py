@@ -1582,8 +1582,8 @@ def filter_missing_values(
 
 
 @dataclass
-class SimulateNullsSettings:
-    """Define settings used to simulate null values for scoring imputation."""
+class SimulateFlagsSettings:
+    """Define settings used to simulate flagged values for scoring imputation."""
 
     num_sections: int = 30
     """The number of sections of data to simulate."""
@@ -1593,36 +1593,59 @@ class SimulateNullsSettings:
     """Min ratio of bad points in a section of data to be used for reference."""
 
 
-def _get_simulation_data(df, reference_df):
-    reference_df["period"] = reference_df["reference_month"].dt.to_period("M")
+class SimulationDataFrame(pa.DataFrameModel):
+    """Collect months of data which will be used to simulate flagged values.
+
+    Each row in this dataframe will contain a reference ID and month, and a simulation
+    ID and month. The reference ID/month points to a month of reported data where
+    a high ratio of values were flagged for imputation, and the simulation ID/month
+    points to a month of reported data with no flagged values. The flagged values
+    in the reference month will be used to simulate flagged values in the simulation
+    month.
+    """
+
+    reference_id_col: Series[Any]
+    reference_month: Series[pa.dtypes.DateTime]
+    simulation_id_col: Series[Any]
+    simulation_month: Series[pa.dtypes.DateTime]
+
+
+@pa.check_types
+def _get_simulation_data(
+    df: DataFrame[AlignedTimeseriesDataFrame],
+    simulation_df: DataFrame[SimulationDataFrame],
+):
+    """Transform flagged pattern from reference periods to simulation periods."""
+    # Merge simulation dataframe with aligned timeseries dataframe to get all
+    # Hours in the reference month
+    simulation_df["period"] = simulation_df["reference_month"].dt.to_period("M")
     df["period"] = df["datetime"].dt.to_period("M")
 
-    # Merge on name and month period
-    merged = df.merge(
-        reference_df,
+    simulation_df = df.merge(
+        simulation_df,
         left_on=["id_col", "period"],
         right_on=["reference_id_col", "period"],
         how="inner",
     )
 
-    # Filter where value is null
-    filtered = merged[merged["value_col"].isnull()]
-    filtered["simulation_datetime"] = (
-        filtered["datetime"]
-        - filtered["reference_month"]
-        + filtered["simulation_month"]
+    # Filter to hours where values where flagged (NULL) in reference month
+    flagged = simulation_df[simulation_df["value_col"].isnull()]
+
+    # Transform hours in reference month to hours in simulation month
+    flagged["simulation_datetime"] = (
+        flagged["datetime"] - flagged["reference_month"] + flagged["simulation_month"]
     )
 
-    return filtered[["simulation_datetime", "simulation_id_col"]]
+    return flagged[["simulation_datetime", "simulation_id_col"]]
 
 
 @pa.check_types
 def simulate_flags(
-    settings: SimulateNullsSettings,
+    settings: SimulateFlagsSettings,
     timeseries_matrix: DataFrame[TimeseriesMatrix],
     flag_matrix: DataFrame[TimeseriesMatrix],
 ) -> pd.DataFrame:
-    """Simulate null values for scoring imputation.
+    """Simulate flagged values for scoring imputation.
 
     Finds sections of data with high rate of flagged values, and uses these sections
     as a reference to flag values in otherwise good sections of data. This allows us
@@ -1672,10 +1695,13 @@ def simulate_flags(
         )[["simulation_id_col", "simulation_month"]]
     )
 
+    # Use reference month to get hours which should be flagged in simulation month
     simulation_data = _get_simulation_data(
         df, pd.concat([bad_months.reset_index(), good_months.reset_index()], axis=1)
     )
 
+    # Add new columns to timeseries/flag matricies with simulated data
+    # These columns are identical to original columns with simulated flagged values Nulled
     for simulation_id in simulation_data.simulation_id_col.unique():
         timeseries_matrix[f"{simulation_id}_SIMULATED"] = timeseries_matrix[
             simulation_id
@@ -1715,7 +1741,7 @@ Default of 24 is meant for hourly data with a diurnal periodicity.
     """Imputation method to use ('tubal': :func:`impute_latc_tubal`, 'tnn': :func:`impute_latc_tnn`)."""
     method_overrides: dict[int, str] = field(default_factory=dict)
     """Override imputation method for specific years ('tubal': :func:`impute_latc_tubal`, 'tnn': :func:`impute_latc_tnn`)."""
-    simulate_nulls_settings: SimulateNullsSettings | None = None
+    simulate_nulls_settings: SimulateFlagsSettings | None = None
 
 
 def impute_timeseries_asset_factory(
