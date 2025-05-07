@@ -44,6 +44,11 @@ def _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips: pd.DataFrame) -> pd.DataFr
     state_names = cleanstrings_snake(
         ps_usa_df, ["subdivision_name"]
     ).subdivision_name.tolist()
+
+    # Handle west virginia as a special case
+    state_names.remove("west_virginia")
+    state_names.insert(0, "west-virginia")
+
     state_pattern = "|".join(state_names)
     lat_long_fips = (
         # Making the county_state_names lowercase to match the values in the capacity factor tables
@@ -68,9 +73,11 @@ def _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips: pd.DataFrame) -> pd.DataFr
         )
         # Extract the county or lake name from the county_state_name field
         .assign(
-            place_name=lambda x: x.county_state_names.str.extract(
-                rf"([a-z_]+)_({state_pattern})$"
-            )[0].astype("category")
+            place_name=lambda x: x.county_state_names.str.replace(
+                "west_virginia", "west-virginia"
+            )
+            .str.extract(rf"([a-z_]+)_({state_pattern})$")[0]
+            .astype("category")
         )
         # Add state column: e.g.: MA, RI, CA, TX
         .merge(
@@ -89,8 +96,6 @@ def _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips: pd.DataFrame) -> pd.DataFr
         # Remove state FIPS code column in favor of the newly added state column.
         .drop(columns=["state_id_fips", "fips", "subdivision_code"])
     )
-
-    logger.info("Spot check: fixed typos in great lakes.")
 
     logger.info("Nulling FIPS IDs for non-county regions.")
     lake_county_state_names = [
@@ -278,17 +283,23 @@ def _spot_fix_great_lakes_columns(df: pd.DataFrame) -> pd.DataFrame:
     )
 
 
+def _standardize_census_names(df: pd.DataFrame, census_pep_data: pd.DataFrame):
+    """Make sure that the county names correspond to the latest census vintage."""
+
+
 def one_year_hourly_available_capacity_factor(
     year: int,
     raw_vcerare__lat_lon_fips: pd.DataFrame,
     raw_vcerare__fixed_solar_pv_lat_upv: pd.DataFrame,
     raw_vcerare__offshore_wind_power_140m: pd.DataFrame,
     raw_vcerare__onshore_wind_power_100m: pd.DataFrame,
+    census_pep_data: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform raw Vibrant Clean Energy renewable generation profiles.
 
     Concatenates the solar and wind capacity factors into a single table and turns
-    the columns for each county or subregion into a single place_name column.
+    the columns for each county or subregion into a single place_name column. Harmonizes
+    county names with the latest Census PEP FIPS data.
     """
     logger.info(
         f"Transforming the VCE RARE hourly available capacity factor tables for {year}."
@@ -328,6 +339,7 @@ def out_vcerare__hourly_available_capacity_factor(
     raw_vcerare__fixed_solar_pv_lat_upv: pd.DataFrame,
     raw_vcerare__offshore_wind_power_140m: pd.DataFrame,
     raw_vcerare__onshore_wind_power_100m: pd.DataFrame,
+    _core_censuspep__yearly_geocodes: pd.DataFrame,
 ):
     """Transform raw Vibrant Clean Energy renewable generation profiles.
 
@@ -338,6 +350,15 @@ def out_vcerare__hourly_available_capacity_factor(
 
     def _get_year(df, year):
         return df.loc[df["report_year"] == year]
+
+    # Get census vintage to conform the data to.
+    assert int(_core_censuspep__yearly_geocodes.report_year.max()) >= int(
+        raw_vcerare__fixed_solar_pv_lat_upv["report_year"].max()
+    )  # Check these are in sync
+    census_data = _core_censuspep__yearly_geocodes.loc[
+        _core_censuspep__yearly_geocodes.report_year
+        == _core_censuspep__yearly_geocodes.report_year.max()
+    ]
 
     parquet_path = _get_parquet_path()
     schema = Resource.from_id(
@@ -360,6 +381,7 @@ def out_vcerare__hourly_available_capacity_factor(
                 raw_vcerare__onshore_wind_power_100m=_get_year(
                     raw_vcerare__onshore_wind_power_100m, year
                 ),
+                census_pep_data=census_data,
             )
             parquet_writer.write_table(
                 pa.Table.from_pandas(df, schema=schema, preserve_index=False)
