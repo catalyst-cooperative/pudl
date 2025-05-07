@@ -3579,7 +3579,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Second line of the street portion of the parent company's mailing address.",
     },
     "parent_company_utility_id_eia": {
-        "type": "string",
+        "type": "integer",
         "description": "The EIA utility ID of the parent company.",
     },
     "parent_company_utility_name_eia": {
@@ -4822,7 +4822,7 @@ hard-coded in analyses.""",
         "description": "Second line of the street portion of the subsidiary company's mailing address.",
     },
     "subsidiary_company_utility_id_eia": {
-        "type": "string",
+        "type": "integer",
         "description": "The EIA utility ID of the subsidiary company.",
     },
     "subsidiary_company_utility_name_eia": {
@@ -5945,10 +5945,6 @@ hard-coded in analyses.""",
         "type": "integer",
         "description": "A counter indicating which observation of company data within an SEC 10-K filing header the record pertains to.",
     },
-    # "fraction_owned": {
-    #    "type": "number",
-    #    "description": "Fraction of subsidiary company owned by parent.",
-    # },
     "mail_street_address": {
         "type": "string",
         "description": "Street portion of the company's mailing address.",
@@ -6025,6 +6021,12 @@ FIELD_METADATA_BY_GROUP: dict[str, dict[str, Any]] = {
     },
     "nrelatb": {
         "technology_description": {"constraints": {"enum": TECH_DESCRIPTIONS_NRELATB}}
+    },
+    "sec10k": {
+        "fraction_owned": {
+            "type": "number",
+            "description": "Fraction of a subsidiary company owned by the parent.",
+        },
     },
 }
 """Field attributes by resource group (`resource.group`) and PUDL identifier.
