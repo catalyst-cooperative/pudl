@@ -5,15 +5,12 @@ This module contains routines for reshaping, cleaning, and standardizing the raw
 for denormalized output tables.
 """
 
-import re
-from importlib import resources
-from pathlib import Path
-
 import dagster as dg
 import pandas as pd
 
 from pudl import logging_helpers
 from pudl.analysis.record_linkage import name_cleaner
+from pudl.metadata.dfs import ALPHA_2_COUNTRY_CODES, SEC_EDGAR_STATE_AND_COUNTRY_CODES
 
 logger = logging_helpers.get_logger(__name__)
 
@@ -191,61 +188,17 @@ def _remove_bad_subsidiary_names(col: pd.Series) -> pd.Series:
     return col.where(~clean_col.isnull(), pd.NA)
 
 
-def _get_edgar_state_code_dict() -> dict[str, str]:
-    """Create a dictionary mapping state codes to their names.
-
-    Table found at https://www.sec.gov/submit-filings/filer-support-resources/edgar-state-country-codes .
-    Published by SEC and reports valid state codes
-    for filers of Form D. Used to standardize the state codes
-    in the SEC 10K filings. The expanded names of the state codes
-    are comments in the XML file, so we have to read the XML in as
-    text and parse it.
-    """
-    xml_filepath = resources.files("pudl.package_data.sec") / "formDStateCodes.xsd.xml"
-    with Path.open(xml_filepath) as file:
-        xml_text = file.read()
-
-    pattern = r'<xs:enumeration value="(.*?)"/>.*?<!--\s*(.*?)\s*-->'
-    state_code_dict = {
-        code.lower(): name.lower()
-        for code, name in re.findall(pattern, xml_text, re.DOTALL)
-    }
-    return state_code_dict
-
-
-def _get_alpha_2_country_code_dict() -> dict[str, str]:
-    """Create a dictionary mapping alpha 2 country codes to their names.
-
-    Table found at https://github.com/lukes/ISO-3166-Countries-with-Regional-Codes/blob/master/all/all.csv .
-    Most SEC locations from Ex. 21 attachments match the two digit EDGAR codes, however
-    some use alpha 2 country codes, i.e. us -> united states and ch -> switzerland.
-    Get a dictionary mapping these codes as well for use during location standardization.
-    """
-    df = pd.read_csv(
-        resources.files("pudl.package_data.sec") / "alpha-2_country_codes.csv",
-        dtype={"alpha-2": "string", "name": "string"},
-        keep_default_na=False,
-    )[["alpha-2", "name"]]
-    country_code_dict = df.set_index("alpha-2").to_dict()["name"]
-    country_code_dict = {k.lower(): v.lower() for k, v in country_code_dict.items()}
-    # do some adhoc standardization for the sake of better matching
-    # with common Ex. 21 location strings, e.g. one of the most common
-    # two digit strings that aren't already captured by these dictionaries
-    # is uk -> united kingdom
-    country_code_dict["uk"] = "united kingdom"
-    country_code_dict["us"] = "united states"
-    return country_code_dict
-
-
 def _standardize_location(loc_col: pd.Series) -> pd.Series:
     """Map two letter state codes to full names using EDGAR state and country code mapping."""
-    edgar_code_to_name = _get_edgar_state_code_dict()
-    country_code_to_name = _get_alpha_2_country_code_dict()
     out = (
         loc_col.str.strip()
         .str.lower()
-        .replace(edgar_code_to_name)
-        .replace(country_code_to_name)
+        .replace(
+            SEC_EDGAR_STATE_AND_COUNTRY_CODES.set_index("state_or_country_code")[
+                "state_or_country_name"
+            ]
+        )
+        .replace(ALPHA_2_COUNTRY_CODES.set_index("country_code")["country_name"])
         .fillna(pd.NA)
         .replace("", pd.NA)
     )
