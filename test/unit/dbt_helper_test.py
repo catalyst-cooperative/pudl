@@ -2,6 +2,7 @@ import unittest
 from collections import namedtuple
 from dataclasses import dataclass
 from io import StringIO
+from pathlib import Path
 
 import pytest
 
@@ -11,19 +12,22 @@ from pudl.scripts.dbt_helper import (
     DbtSource,
     DbtTable,
     _clean_row_condition,
+    _convert_config_variable_to_quantile_tests,
     _generate_quantile_bounds_test,
+    _get_config,
     _get_local_table_path,
     _get_model_path,
     _get_row_count_csv_path,
     _infer_partition_column,
     _load_schema_yaml,
     get_data_source,
+    migrate_tests,
 )
 
 TEMPLATE = {
     "data_col": "data",
     "query": "",
-    "weight_col": "",
+    "weight_col": "weight",
 }
 
 
@@ -75,50 +79,106 @@ GivenExpect = namedtuple("GivenExpect", ["given", "expect"])
 
 GENERATE_QUANTILE_BOUNDS = [
     GivenExpect(
-        given=dict(title="Hi only", hi_q=0, hi_bound=1, **TEMPLATE),
+        given=[dict(title="Hi only", hi_q=0, hi_bound=1, **TEMPLATE)],
         expect=[
             {
-                "dbt_expectations.expect_column_quantile_values_to_be_between": {
-                    "quantile": 0,
-                    "max_value": 1,
+                "expect_quantile_constraints": {
                     "row_condition": "",
-                    "weight_column": "",
+                    "weight_column": "weight",
+                    "constraints": [
+                        {
+                            "quantile": 0,
+                            "max_value": 1,
+                        }
+                    ],
                 }
             }
         ],
     ),
     GivenExpect(
-        given=dict(title="Low only", low_q=0, low_bound=1, **TEMPLATE),
+        given=[dict(title="Low only", low_q=0, low_bound=1, **TEMPLATE)],
         expect=[
             {
-                "dbt_expectations.expect_column_quantile_values_to_be_between": {
-                    "quantile": 0,
-                    "min_value": 1,
+                "expect_quantile_constraints": {
                     "row_condition": "",
-                    "weight_column": "",
+                    "weight_column": "weight",
+                    "constraints": [
+                        {
+                            "quantile": 0,
+                            "min_value": 1,
+                        }
+                    ],
                 }
             }
         ],
     ),
     GivenExpect(
-        given=dict(title="Both", low_q=0, low_bound=1, hi_q=2, hi_bound=3, **TEMPLATE),
+        given=[
+            dict(title="Both", low_q=0, low_bound=1, hi_q=2, hi_bound=3, **TEMPLATE)
+        ],
         expect=[
             {
-                "dbt_expectations.expect_column_quantile_values_to_be_between": {
-                    "quantile": 0,
-                    "min_value": 1,
+                "expect_quantile_constraints": {
                     "row_condition": "",
-                    "weight_column": "",
+                    "weight_column": "weight",
+                    "constraints": [
+                        {
+                            "quantile": 0,
+                            "min_value": 1,
+                        },
+                        {
+                            "quantile": 2,
+                            "max_value": 3,
+                        },
+                    ],
                 }
             },
+        ],
+    ),
+    GivenExpect(
+        given=[
+            dict(title="Median", low_q=0, low_bound=1, hi_q=0, hi_bound=3, **TEMPLATE)
+        ],
+        expect=[
             {
-                "dbt_expectations.expect_column_quantile_values_to_be_between": {
-                    "quantile": 2,
-                    "max_value": 3,
+                "expect_quantile_constraints": {
                     "row_condition": "",
-                    "weight_column": "",
+                    "weight_column": "weight",
+                    "constraints": [
+                        {
+                            "quantile": 0,
+                            "min_value": 1,
+                            "max_value": 3,
+                        }
+                    ],
                 }
             },
+        ],
+    ),
+    GivenExpect(
+        given=[
+            dict(
+                title="One-tailed",
+                low_q=False,
+                low_bound=False,
+                hi_q=0,
+                hi_bound=1,
+                **TEMPLATE,
+            )
+        ],
+        expect=[
+            {
+                "expect_quantile_constraints": {
+                    "row_condition": "",
+                    "weight_column": "weight",
+                    "constraints": [
+                        {
+                            "quantile": 0,
+                            "max_value": 1,
+                        }
+                    ],
+                }
+            }
         ],
     ),
 ]
@@ -238,6 +298,143 @@ def test__load_schema_yaml(mocker, dbt_schema_mocks):
     assert actual == dbt_schema_mocks.schema
 
 
+QUANTILE_TESTS = [
+    GivenExpect(
+        given=[
+            dict(
+                title="one entry, median",
+                low_q=0,
+                low_bound=1,
+                hi_q=0,
+                hi_bound=3,
+                **TEMPLATE,
+            )
+        ],
+        expect={
+            "data": [
+                {
+                    "expect_quantile_constraints": {
+                        "row_condition": "",
+                        "weight_column": "weight",
+                        "constraints": [
+                            {
+                                "quantile": 0,
+                                "min_value": 1,
+                                "max_value": 3,
+                            },
+                        ],
+                    },
+                }
+            ],
+        },
+    ),
+    GivenExpect(
+        given=[
+            dict(
+                title="two entries, median and tail (1)",
+                low_q=0,
+                low_bound=1,
+                hi_q=0,
+                hi_bound=3,
+                **TEMPLATE,
+            ),
+            dict(
+                title="two entries, median and tail (2)",
+                low_q=False,
+                low_bound=False,
+                hi_q=10,
+                hi_bound=11,
+                **TEMPLATE,
+            ),
+        ],
+        expect={
+            "data": [
+                {
+                    "expect_quantile_constraints": {
+                        "row_condition": "",
+                        "weight_column": "weight",
+                        "constraints": [
+                            {
+                                "quantile": 0,
+                                "min_value": 1,
+                                "max_value": 3,
+                            },
+                            {
+                                "quantile": 10,
+                                "max_value": 11,
+                            },
+                        ],
+                    },
+                }
+            ],
+        },
+    ),
+    GivenExpect(
+        given=[
+            {
+                "title": "two entries, differing query (1)",
+                "low_q": 0,
+                "low_bound": 1,
+                "hi_q": 0,
+                "hi_bound": 3,
+                "query": "a",
+                "data_col": "data",
+                "weight_col": "",
+            },
+            {
+                "title": "two entries, differing query (2)",
+                "low_q": 0,
+                "low_bound": 5,
+                "hi_q": 0,
+                "hi_bound": 7,
+                "query": "b",
+                "data_col": "data",
+                "weight_col": "",
+            },
+        ],
+        expect={
+            "data": [
+                {
+                    "expect_quantile_constraints": {
+                        "row_condition": "a",
+                        "constraints": [
+                            {
+                                "quantile": 0,
+                                "min_value": 1,
+                                "max_value": 3,
+                            },
+                        ],
+                    },
+                },
+                {
+                    "expect_quantile_constraints": {
+                        "row_condition": "b",
+                        "constraints": [
+                            {
+                                "quantile": 0,
+                                "min_value": 5,
+                                "max_value": 7,
+                            },
+                        ],
+                    },
+                },
+            ],
+        },
+    ),
+]
+
+
+@pytest.mark.parametrize(
+    "config,expected",
+    QUANTILE_TESTS,
+)
+def test__convert_config_variable_to_quantile_tests(mocker, config, expected):
+    mock_get_config = mocker.patch("pudl.scripts.dbt_helper._get_config")
+    mock_get_config.return_value = config
+    actual = _convert_config_variable_to_quantile_tests("")
+    assert actual == expected
+
+
 @pytest.fixture
 def blank_schema():
     return DbtSchema(
@@ -347,3 +544,19 @@ def test_dbt_schema__add_column_tests(mocker, blank_schema):
         mocker.sentinel.second_model_test
         in two_model_tests.models[0].columns[0].data_tests
     )
+
+
+def test_migrate_tests_dne(mocker):
+    mocker.patch("pudl.scripts.dbt_helper._get_model_path", return_value=Path("/xyzzy"))
+    mocker.patch("pudl.scripts.dbt_helper.get_data_source")
+    with pytest.raises(RuntimeError):
+        migrate_tests("", "", "")
+
+
+def test__get_config(mocker):
+    mocker.patch(
+        "pudl.scripts.dbt_helper.validate",
+        test_config_variable=mocker.sentinel.test_config_variable,
+    )
+    actual = _get_config("test_config_variable")
+    assert actual == mocker.sentinel.test_config_variable
