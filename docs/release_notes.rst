@@ -69,6 +69,14 @@ EPA CEMS
 ~~~~~~~~
 * Added 2025 Q1 of CEMS data. See :issue:`4236` and :pr:`4238`.
 
+EIA 930
+~~~~~~~~
+* Updated EIA 930 to include data published up through the beginning of May 2025.
+  See :issue:`4235` and :pr:`4242`. Raw data now includes adjusted and imputed
+  values for the ``unknown`` fuel source, making it behave like other fuel sources;
+  see :ref:`data-sources-eia930-changes-in-energy-source-granularity-over-time` for
+  more information.
+
 Bug Fixes
 ^^^^^^^^^
 * Fixed a bug in FERC XBRL extraction that led to quietly skipping tables with names
