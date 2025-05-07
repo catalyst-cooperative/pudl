@@ -59,6 +59,12 @@ SEC 10-K
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+EIA Bulk Electricity
+~~~~~~~~~~~~~~~~~~~~
+* Updated the EIA Bulk Electricity data to include data published up through
+  2025-05-01. Also adapted the extractor to handle changes in formatting for the
+  EIA Bulk API archive. See :issue:`4237` and PR :pr:`4246`.
+
 Bug Fixes
 ^^^^^^^^^
 * Fixed a bug in FERC XBRL extraction that led to quietly skipping tables with names
