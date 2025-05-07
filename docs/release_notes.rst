@@ -59,6 +59,13 @@ SEC 10-K
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+VCE RARE
+^^^^^^^^
+* Integrated 2014-2018 RARE data into PUDL. Also fixed misleading latitude and longitude
+  field descriptions, and renamed the field ``county_or_lake_name`` to ``place_name``.
+  Updated county names to conform with the 2023 Census PEP data. See issue :issue:`4226`
+  and PR :pr:`4239`.
+
 Bug Fixes
 ^^^^^^^^^
 * Fixed a bug in FERC XBRL extraction that led to quietly skipping tables with names

@@ -961,13 +961,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "County name as specified in Census DP1 Data.",
     },
-    "county_or_lake_name": {
-        "type": "string",
-        "description": (
-            "County or lake name. Lake names may also appear several times--once for "
-            "each state it touches. FIPS ID values for lakes have been nulled."
-        ),
-    },
     "country_code": {
         "type": "string",
         "description": "Three letter ISO-3166 country code (e.g. USA or CAN).",
@@ -3608,6 +3601,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Additional owner or operator of natural gas pipeline.",
     },
+    "place_name": {
+        "type": "string",
+        "description": (
+            "County or lake name. Lake names may also appear several times--once for "
+            "each state it touches. FIPS ID values for lakes have been nulled."
+        ),
+    },
     "planned_derate_date": {
         "type": "date",
         "description": "Planned effective month that the generator is scheduled to enter operation after the derate modification.",
@@ -5876,6 +5876,14 @@ FIELD_METADATA_BY_GROUP: dict[str, dict[str, Any]] = {
     },
     "nrelatb": {
         "technology_description": {"constraints": {"enum": TECH_DESCRIPTIONS_NRELATB}}
+    },
+    "vcerare": {
+        "latitude": {
+            "description": "Latitude of the place centroid (e.g., county centroid)."
+        },
+        "longitude": {
+            "description": "Longitude of the place centroid (e.g., county centroid)."
+        },
     },
 }
 """Field attributes by resource group (`resource.group`) and PUDL identifier.

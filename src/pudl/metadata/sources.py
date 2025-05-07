@@ -915,7 +915,7 @@ pipeline found here: https://github.com/catalyst-cooperative/mozilla-sec-eia"""
             "onshore wind, offshore wind, and fixed-tilt solar generation types."
         ),
         "source_file_dict": {
-            "sorce_format": "Comma Separated Value (.csv)",
+            "source_format": "Comma Separated Value (.csv)",
         },
         "keywords": sorted(
             {
@@ -938,7 +938,7 @@ pipeline found here: https://github.com/catalyst-cooperative/mozilla-sec-eia"""
         ),
         "license_raw": LICENSES["cc-by-4.0"],
         "license_pudl": LICENSES["cc-by-4.0"],
-        "working_partitions": {"years": sorted(set(range(2019, 2024)))},
+        "working_partitions": {"years": sorted(set(range(2014, 2024)))},
         "contributors": [CONTRIBUTORS["vibrant-clean-energy"]],
     },
 }
