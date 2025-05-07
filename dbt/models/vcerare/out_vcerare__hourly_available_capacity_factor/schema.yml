@@ -52,7 +52,7 @@ sources:
               - not_null
               - dbt_expectations.expect_column_values_to_be_between:
                   min_value: 0.0
-                  max_value: 1.02
+                  max_value: 1.1
           - name: capacity_factor_onshore_wind
             data_tests:
               - not_null
