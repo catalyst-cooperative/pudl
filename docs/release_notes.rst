@@ -62,9 +62,10 @@ Expanded Data Coverage
 FERC Form 1
 ~~~~~~~~~~~
 * Integrated FERC Form 1 data from 2024 into the main PUDL SQLite DB. See issue
-  :issue:`4207` and PR :pr:`4215`. FERC Form 1 responses are submitted on a rolling
-  basis with no definitive completion. This update includes most ~90% of the expected
-  utility responses for 2024.
+  :issue:`4207` and PR :pr:`4215`. FERC Form 1 has a filing deadline of
+  `April 18th <https://www.ferc.gov/general-information-0/electric-industry-forms>`__
+  for utility respondents, but late filings may come throughout the year. This update
+  includes ~95% of the expected utility responses for 2024.
 
 Bug Fixes
 ^^^^^^^^^
