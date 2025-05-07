@@ -67,9 +67,23 @@ FERC Form 1
   for utility respondents, but late filings may come throughout the year. This update
   includes ~95% of the expected utility responses for 2024.
 
+EIA Bulk Electricity
+~~~~~~~~~~~~~~~~~~~~
+* Updated the EIA Bulk Electricity data to include data published up through
+  2025-05-01. Also adapted the extractor to handle changes in formatting for the
+  EIA Bulk API archive. See :issue:`4237` and PR :pr:`4246`.
+
 EPA CEMS
 ~~~~~~~~
 * Added 2025 Q1 of CEMS data. See :issue:`4236` and :pr:`4238`.
+
+EIA 930
+~~~~~~~~
+* Updated EIA 930 to include data published up through the beginning of May 2025.
+  See :issue:`4235` and :pr:`4242`. Raw data now includes adjusted and imputed
+  values for the ``unknown`` fuel source, making it behave like other fuel sources;
+  see :ref:`data-sources-eia930-changes-in-energy-source-granularity-over-time` for
+  more information.
 
 Bug Fixes
 ^^^^^^^^^
