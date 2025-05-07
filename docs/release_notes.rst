@@ -61,6 +61,8 @@ Expanded Data Coverage
 
 Bug Fixes
 ^^^^^^^^^
+* Fixed a bug in FERC XBRL extraction that led to quietly skipping tables with names
+  that didn't conform to expected format.
 
 Major Dependency Updates
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -71,6 +73,11 @@ Quality of Life Improvements
 * We now publish a `Frictionless data package
   <https://datapackage.org/standard/data-package/>`__ describing our Parquet
   outputs, with the name ``pudl_datapackage.json``. See :issue:`4069` and :pr:`4070`.
+* We renamed ``eia_bulk_elec`` to ``eiaapi`` to conform to our dataset naming protocols
+  and reflect the expansion of the EIA Bulk API archive to include all datasets
+  published through the EIA API, not just the bulk electricity data. See `this PUDL
+  archiver issue <https://github.com/catalyst-cooperative/pudl-archiver/issues/628>`__
+  and PR :pr:`4212`.
 
 New Tests
 ^^^^^^^^^
@@ -88,6 +95,10 @@ So far we have converted the following tests:
   can find the implementation in the `expect_includes_all_value_combinations_from.sql
   <../../dbt/tests/data_tests/generic_tests/expect_includes_all_value_combinations_from.sql>`__
   file.
+* ``expect_quantile_constraints`` - a more generic replacement for the old
+  ``vs_bounds`` pytest. See :issue:`4106`, :pr:`4090`, and :pr:`4171`. You can find the
+  implementation in the `expect_quantile_constraints.sql
+  <../../dbt/tests/data_tests/generic_tests/expect_quantile_constraints.sql>`__ file.
 * 19 tests which required special handling; see :issue:`4093`, :pr:`4114`, :pr:`4151`.
 
 .. _release-v2025.2.0:

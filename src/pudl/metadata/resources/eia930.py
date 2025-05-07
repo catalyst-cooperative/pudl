@@ -192,6 +192,33 @@ vetted yet."""
         "etl_group": "eia930",
         "create_database_schema": False,
     },
+    "out_eia930__hourly_aggregated_demand": {
+        "description": (
+            """EXPERIMENTAL / WORK-IN-PROGRESS, 2025-04-04.
+
+This aggregates imputed demand from the ``out_eia930__hourly_operations`` table.
+It aggregates demand to the level of EIA regions, interconnects, and the contiguous
+United States. The spatial granularity of each record is indicated by
+``aggregation_level``."""
+        ),
+        "schema": {
+            "fields": [
+                "datetime_utc",
+                "aggregation_level",
+                "aggregation_group",
+                "demand_imputed_pudl_mwh",
+            ],
+            "primary_key": [
+                "datetime_utc",
+                "aggregation_level",
+                "aggregation_group",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia930"],
+        "etl_group": "eia930",
+        "create_database_schema": False,
+    },
     "out_eia930__hourly_subregion_demand": {
         "description": (
             """EXPERIMENTAL / WORK-IN-PROGRESS, 2025-03-31.
