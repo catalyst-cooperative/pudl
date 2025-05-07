@@ -1286,7 +1286,7 @@ def _core_eia860__cooling_equipment(
 
 
 @asset_check(asset=_core_eia860__cooling_equipment, blocking=True)
-def cooling_equipment_null_cols(cooling_equipment):  # pragma: no cover
+def cooling_equipment_null_cols(cooling_equipment):
     """The only completely null cols we expect are tower type 3 and 4.
 
     In fast-ETL, i.e. recent years, we also expect a few other columns to be
@@ -1310,14 +1310,14 @@ def cooling_equipment_null_cols(cooling_equipment):  # pragma: no cover
 
 
 @asset_check(asset=_core_eia860__cooling_equipment, blocking=True)
-def cooling_equipment_continuity(cooling_equipment):  # pragma: no cover
+def cooling_equipment_continuity(cooling_equipment):
     """Check to see if columns vary as slowly as expected.
 
     2024-03-04: pond cost, tower cost, and tower cost all have one-off
     discontinuities that are worth investigating, but we're punting on that
     investigation since we're out of time.
     """
-    return pudl.validate.group_mean_continuity_check(  # pragma: no cover
+    return pudl.validate.group_mean_continuity_check(
         df=cooling_equipment,
         thresholds={
             "intake_rate_100pct_gallons_per_minute": 0.1,
@@ -1437,7 +1437,7 @@ def _core_eia860__fgd_equipment(
 
 
 @asset_check(asset=_core_eia860__fgd_equipment, blocking=True)
-def fgd_equipment_null_check(fgd):  # pragma: no cover
+def fgd_equipment_null_check(fgd):
     """Check that columns other than expected columns aren't null."""
     fast_run_null_cols = {
         "county",
@@ -1459,7 +1459,7 @@ def fgd_equipment_null_check(fgd):  # pragma: no cover
 
 
 @asset_check(asset=_core_eia860__fgd_equipment, blocking=True)
-def fgd_equipment_continuity(fgd):  # pragma: no cover
+def fgd_equipment_continuity(fgd):
     """Check to see if columns vary as slowly as expected."""
     return pudl.validate.group_mean_continuity_check(
         df=fgd,

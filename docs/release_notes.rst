@@ -67,6 +67,10 @@ FERC Form 1
   for utility respondents, but late filings may come throughout the year. This update
   includes ~95% of the expected utility responses for 2024.
 
+EPA CEMS
+~~~~~~~~
+* Added 2025 Q1 of CEMS data. See :issue:`4236` and :pr:`4238`.
+
 Bug Fixes
 ^^^^^^^^^
 * Fixed a bug in FERC XBRL extraction that led to quietly skipping tables with names
