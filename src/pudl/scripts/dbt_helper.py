@@ -1,5 +1,6 @@
 """A basic CLI to autogenerate dbt data test configurations."""
 
+import json
 import re
 from collections import defaultdict, namedtuple
 from dataclasses import dataclass
@@ -549,6 +550,72 @@ def migrate_tests(table_name: str, test_config_name: str, model_name: str | None
     _write_dbt_yaml_config(schema_path, schema)
 
 
+@click.command
+@click.option(
+    "--verbose",
+    type=bool,
+    default=False,
+    is_flag=True,
+    help="Report exact year by year row count changes, otherwise report total percent change.",
+)
+def summarize_row_count_failures(verbose: bool = False):
+    """Load all row count failures from duckdb file and summarize.
+
+    After running dbt tests, this command can be used to summarize row count changes.
+    It uses a json file dbt saves at 'dbt/target/run_results.json'. The verbose option
+    will output the exact changes per partition, while the default will output the total
+    percent change in row counts.
+
+    Example usage:
+        dbt_helper summarize-row-count-failures
+    """
+    # Load failures
+    with Path("./dbt/target/run_results.json").open() as f:
+        failures = [
+            result
+            for result in json.load(f)["results"]
+            if (result["status"] == "fail")
+            and ("check_row_counts" in result["unique_id"])
+        ]
+
+    # Connect to duckdb database
+    db = duckdb.connect(PudlPaths().output_dir / "pudl_dbt_tests.duckdb")
+
+    # Load expected row counts
+    etl_full_row_counts = (
+        _get_existing_row_counts().groupby("table_name").sum()["row_count"]
+    )
+    etl_fast_row_counts = (
+        _get_existing_row_counts("etl-fast").groupby("table_name").sum()["row_count"]
+    )
+
+    # Loop through failures and output results
+    extract_table_name_pattern = r"table_name = '(\w+)'"
+    for failure in failures:
+        table_name = re.search(
+            extract_table_name_pattern, failure["compiled_code"]
+        ).group(1)
+        row_counts_df = db.sql(f"SELECT * FROM {failure['relation_name']}").df()  # noqa: S608
+
+        if verbose:
+            logger.warning(
+                f"Row count failures found for table: {table_name}\n{row_counts_df}"
+            )
+        else:
+            total_diff = (
+                row_counts_df["observed_count"] - row_counts_df["expected_count"]
+            ).sum()
+            if "etl_fast" in failure["compiled_code"]:
+                total_count = etl_fast_row_counts[table_name]
+            else:
+                total_count = etl_full_row_counts[table_name]
+
+            percent_diff = (total_diff / total_count) * 100
+            logger.warning(
+                f"Row counts for table {table_name} changed by {percent_diff}%"
+            )
+
+
 def _convert_config_variable_to_quantile_tests(test_config_name) -> dict:
     test_config = _get_config(test_config_name)
 
@@ -584,6 +651,7 @@ def dbt_helper():
 
 dbt_helper.add_command(add_tables)
 dbt_helper.add_command(migrate_tests)
+dbt_helper.add_command(summarize_row_count_failures)
 
 
 if __name__ == "__main__":
