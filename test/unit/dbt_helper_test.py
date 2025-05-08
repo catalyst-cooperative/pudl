@@ -19,7 +19,6 @@ from pudl.scripts.dbt_helper import (
     _get_model_path,
     _get_row_count_csv_path,
     _infer_partition_column,
-    _load_schema_yaml,
     get_data_source,
     migrate_tests,
 )
@@ -290,11 +289,11 @@ def test_dbt_schema__from_table_name(dbt_schema_mocks):
     assert actual == dbt_schema_mocks.schema
 
 
-def test__load_schema_yaml(mocker, dbt_schema_mocks):
+def test_dbt_schema__from_yaml(mocker, dbt_schema_mocks):
     with StringIO(dbt_schema_mocks.yaml) as f:
         mock_path = mocker.Mock()
         mock_path.open.return_value = f
-        actual = _load_schema_yaml(mock_path)
+        actual = DbtSchema.from_yaml(mock_path)
     assert actual == dbt_schema_mocks.schema
 
 
