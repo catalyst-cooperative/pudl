@@ -558,7 +558,7 @@ def migrate_tests(table_name: str, test_config_name: str, model_name: str | None
     is_flag=True,
     help="Report exact year by year row count changes, otherwise report total percent change.",
 )
-def summarize_row_count_failures(verbose: bool = False):
+def summarize_row_count_diffs(verbose: bool = False):
     """Load all row count failures from duckdb file and summarize.
 
     After running dbt tests, this command can be used to summarize row count changes.
@@ -567,7 +567,7 @@ def summarize_row_count_failures(verbose: bool = False):
     percent change in row counts.
 
     Example usage:
-        dbt_helper summarize-row-count-failures
+        dbt_helper summarize-row-count-diffs
     """
     # Load failures
     with Path("./dbt/target/run_results.json").open() as f:
@@ -592,11 +592,15 @@ def summarize_row_count_failures(verbose: bool = False):
     # Loop through failures and output results
     extract_table_name_pattern = r"table_name = '(\w+)'"
     for failure in failures:
+        # Extract table name from json
         table_name = re.search(
             extract_table_name_pattern, failure["compiled_code"]
         ).group(1)
+
+        # Get row count diffs from duckdb
         row_counts_df = db.sql(f"SELECT * FROM {failure['relation_name']}").df()  # noqa: S608
 
+        # Write full or summarized results
         if verbose:
             logger.warning(
                 f"Row count failures found for table: {table_name}\n{row_counts_df}"
@@ -651,7 +655,7 @@ def dbt_helper():
 
 dbt_helper.add_command(add_tables)
 dbt_helper.add_command(migrate_tests)
-dbt_helper.add_command(summarize_row_count_failures)
+dbt_helper.add_command(summarize_row_count_diffs)
 
 
 if __name__ == "__main__":
