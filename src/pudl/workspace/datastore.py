@@ -201,7 +201,7 @@ class ZenodoDoiSettings(BaseSettings):
     eiaapi: ZenodoDoi = "10.5281/zenodo.15351327"
     epacamd_eia: ZenodoDoi = "10.5281/zenodo.14834878"
     epacems: ZenodoDoi = "10.5281/zenodo.15340994"
-    ferc1: ZenodoDoi = "10.5281/zenodo.13149094"
+    ferc1: ZenodoDoi = "10.5281/zenodo.15294981"
     ferc2: ZenodoDoi = "10.5281/zenodo.13149082"
     ferc6: ZenodoDoi = "10.5281/zenodo.13149089"
     ferc60: ZenodoDoi = "10.5281/zenodo.13149090"

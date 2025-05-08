@@ -873,7 +873,8 @@ class EtlSettings(BaseSettings):
             ) and not set(pudl_ferc.xbrl_years).issubset(set(sqlite_ferc.years)):
                 raise AssertionError(
                     "You are trying to build a PUDL database with different XBRL years "
-                    f"than the ferc_to_sqlite_settings years for {which_ferc}."
+                    f"than the ferc_to_sqlite_settings years for {which_ferc}.\nPUDL years: {pudl_ferc.xbrl_years}\n"
+                    f"SQLite Years: {sqlite_ferc.years}"
                 )
         return self
 
