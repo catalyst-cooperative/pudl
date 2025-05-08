@@ -223,7 +223,9 @@ def _calculate_row_counts(
             f"FROM '{table_path}' GROUP BY YEAR({partition_column})"  # noqa: S608
         )
     else:
-        row_count_query = f"SELECT '' as partition, COUNT(*) as row_count FROM '{table_path}'"  # noqa: S608
+        row_count_query = (
+            f"SELECT '' as partition, COUNT(*) as row_count FROM '{table_path}'"  # noqa: S608
+        )
 
     new_row_counts = duckdb.sql(row_count_query).df().astype({"partition": str})
     new_row_counts["table_name"] = table_name
@@ -442,9 +444,9 @@ def _clean_row_condition(row_condition: str) -> str:
 
 def _check_matching(key, value, list_of_dicts):
     for d in list_of_dicts:
-        assert (
-            value == d[key]
-        ), f"Mismatched {key} among\n{'\n'.join(str(d) for d in list_of_dicts)}"
+        assert value == d[key], (
+            f"Mismatched {key} among\n{'\n'.join(str(d) for d in list_of_dicts)}"
+        )
 
 
 def _generate_quantile_bounds_test(test_configs: list[dict]) -> list[dict]:
