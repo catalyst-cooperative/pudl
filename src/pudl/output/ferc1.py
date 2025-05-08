@@ -2725,7 +2725,7 @@ def out_ferc1__yearly_rate_base(
         )
     )
 
-    in_rate_base_df = rate_base_df[rate_base_df.in_rate_base == "yes"]
+    in_rate_base_df = rate_base_df[rate_base_df.in_rate_base == True]  # noqa: E712
     return in_rate_base_df.dropna(subset=["ending_balance"])
 
 
@@ -2764,6 +2764,8 @@ check_specs = [
             "utility_type",
             "plant_function",
             "plant_status",
+            "table_name",
+            "is_disaggregated_utility_type",
         ],
     ),
     Ferc1DetailedCheckSpec(
@@ -2858,7 +2860,7 @@ def prep_cash_working_capital(
         .assign(
             dollar_value=lambda x: x.dollar_value.divide(8),
             xbrl_factoid="cash_working_capital",  # newly definied xbrl_factoid
-            in_rate_base="yes",
+            in_rate_base=True,
             rate_base_category="net_working_capital",
             aggregatable_utility_type="electric",
             table_name="core_ferc1__yearly_operating_expenses_sched320",

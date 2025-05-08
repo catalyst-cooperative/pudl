@@ -7,7 +7,7 @@ ferc_to_sqlite_settings:
     # What years of original FERC data should be cloned into the SQLite DB?
     years: [2019, 2020]
   ferc1_xbrl_to_sqlite_settings:
-    years: [2021, 2023]
+    years: [2021, 2024]
   ferc2_dbf_to_sqlite_settings:
     years: [2019, 2020]
   ferc2_xbrl_to_sqlite_settings:
@@ -35,7 +35,7 @@ description: >
 version: 0.1.0
 datasets:
   ferc1:
-    years: [2020, 2021, 2023]
+    years: [2020, 2021, 2024]
   ferc714:
     years: [2020, 2023]
   eia:
@@ -88,7 +88,9 @@ datasets:
   epacems:
     # Note that the CEMS data relies on EIA 860 data for plant locations,
     # so if you're loading CEMS data for a particular year, you should
-    # also load the EIA 860 data for that year if possible
+    # also load the EIA 860 data for that year if possible.
+    #
+    # We only use q1 for epacems etl_fast even if later quarters are available.
     year_quarters: ["2023q1"]
   phmsagas:
     years: [2022]
