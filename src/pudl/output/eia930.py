@@ -102,7 +102,7 @@ imputed_combined_demand_assets = impute_timeseries_asset_factory(
     imputed_value_col="demand_imputed_pudl_mwh",
     id_col="generic_id",
     settings=ImputeTimeseriesSettings(
-        simulate_nulls_settings=SimulateFlagsSettings(),
+        simulate_flags_settings=SimulateFlagsSettings(),
     ),
     output_io_manager_key="io_manager",
 )
@@ -157,7 +157,7 @@ imputed_subregion_demand_assets = impute_timeseries_asset_factory(
     id_col="combined_subregion_ba_id",
     settings=ImputeTimeseriesSettings(
         method_overrides={2019: "tnn", 2025: "tnn"},
-        simulate_nulls_settings=SimulateFlagsSettings(),
+        simulate_flags_settings=SimulateFlagsSettings(),
     ),
 )
 
@@ -170,7 +170,7 @@ imputed_ba_demand_assets = impute_timeseries_asset_factory(
     imputed_value_col="demand_imputed_pudl_mwh",
     id_col="balancing_authority_code_eia",
     settings=ImputeTimeseriesSettings(
-        simulate_nulls_settings=SimulateFlagsSettings(),
+        simulate_flags_settings=SimulateFlagsSettings(),
     ),
 )
 
