@@ -103,7 +103,7 @@ def explode(gdf: gpd.GeoDataFrame, ratios: Iterable[str] = None) -> gpd.GeoDataF
     gdf = gdf.reset_index(drop=True)
     is_mpoly = gdf.geometry.geom_type == "MultiPolygon"
     if ratios and is_mpoly.any():
-        union_area = gdf.geometry[is_mpoly].apply(shapely.ops.union_all()).area
+        union_area = gdf.geometry[is_mpoly].apply(shapely.ops.unary_union).area
         if (union_area != gdf.geometry[is_mpoly].area).any():
             raise ValueError("Geometry contains self-intersecting MultiPolygon")
     result = gdf.explode(index_parts=False)
