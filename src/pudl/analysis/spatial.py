@@ -103,7 +103,7 @@ def explode(gdf: gpd.GeoDataFrame, ratios: Iterable[str] = None) -> gpd.GeoDataF
     gdf = gdf.reset_index(drop=True)
     is_mpoly = gdf.geometry.geom_type == "MultiPolygon"
     if ratios and is_mpoly.any():
-        union_area = gdf.geometry[is_mpoly].apply(shapely.ops.unary_union).area
+        union_area = gdf.geometry[is_mpoly].apply(shapely.ops.union_all()).area
         if (union_area != gdf.geometry[is_mpoly].area).any():
             raise ValueError("Geometry contains self-intersecting MultiPolygon")
     result = gdf.explode(index_parts=False)
@@ -144,7 +144,7 @@ def self_union(gdf: gpd.GeoDataFrame, ratios: Iterable[str] = None) -> gpd.GeoDa
     pairs = itertools.combinations(gdf.geometry, 2)
     intersections = gpd.GeoSeries([a.intersection(b) for a, b in pairs])
     # Form polygons from the boundaries of the original polygons and their intersections
-    boundaries = pd.concat([gdf.geometry, intersections]).boundary.unary_union
+    boundaries = pd.concat([gdf.geometry, intersections]).boundary.union_all()
     polygons = gpd.GeoSeries(shapely.ops.polygonize(boundaries))
     # Determine origin of each polygon by a spatial join on representative points
     points = gpd.GeoDataFrame(geometry=polygons.representative_point())
@@ -185,7 +185,7 @@ def dissolve(
         by: Names of columns to group features by.
         func: Aggregation function for data columns (see :meth:`pd.DataFrame.groupby`).
         how: Aggregation function for geometry column.
-            Either 'union' (:meth:`gpd.GeoSeries.unary_union`),
+            Either 'union' (:meth:`gpd.GeoSeries.union_all()`),
             'first' (first geometry in group),
             or a function aggregating multiple geometries into one.
 
@@ -194,7 +194,7 @@ def dissolve(
         and grouping columns set as the index.
     """
     check_gdf(gdf)
-    merges = {"union": lambda x: x.unary_union, "first": lambda x: x.iloc[0]}
+    merges = {"union": lambda x: x.union_all(), "first": lambda x: x.iloc[0]}
     data = gdf.drop(columns=gdf.geometry.name).groupby(by=by).aggregate(func)
     geometry = gdf.groupby(by=by, group_keys=False)[gdf.geometry.name].aggregate(
         merges.get(how, how)
@@ -227,7 +227,7 @@ def overlay(
         gdfs: GeoDataFrames with non-empty (Multi)Polygon geometries
             assumed to contain no self-overlaps (see :func:`self_union`).
             Names of (non-geometry) columns cannot be used more than once.
-            Any index colums are ignored.
+            Any index columns are ignored.
         how: Spatial overlay method (see :func:`gpd.overlay`).
         ratios: Names of columns to rescale by the area fraction of the split feature
             relative to the original. By default, the original value is used unchanged.
