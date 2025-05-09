@@ -59,6 +59,32 @@ SEC 10-K
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+FERC Form 1
+~~~~~~~~~~~
+* Integrated FERC Form 1 data from 2024 into the main PUDL SQLite DB. See issue
+  :issue:`4207` and PR :pr:`4215`. FERC Form 1 has a filing deadline of
+  `April 18th <https://www.ferc.gov/general-information-0/electric-industry-forms>`__
+  for utility respondents, but late filings may come throughout the year. This update
+  includes ~95% of the expected utility responses for 2024.
+
+EIA Bulk Electricity
+~~~~~~~~~~~~~~~~~~~~
+* Updated the EIA Bulk Electricity data to include data published up through
+  2025-05-01. Also adapted the extractor to handle changes in formatting for the
+  EIA Bulk API archive. See :issue:`4237` and PR :pr:`4246`.
+
+EPA CEMS
+~~~~~~~~
+* Added 2025 Q1 of CEMS data. See :issue:`4236` and :pr:`4238`.
+
+EIA 930
+~~~~~~~~
+* Updated EIA 930 to include data published up through the beginning of May 2025.
+  See :issue:`4235` and :pr:`4242`. Raw data now includes adjusted and imputed
+  values for the ``unknown`` fuel source, making it behave like other fuel sources;
+  see :ref:`data-sources-eia930-changes-in-energy-source-granularity-over-time` for
+  more information.
+
 Bug Fixes
 ^^^^^^^^^
 * Fixed a bug in FERC XBRL extraction that led to quietly skipping tables with names
