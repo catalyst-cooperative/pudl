@@ -1705,7 +1705,10 @@ def simulate_flags(
 
     # Use reference month to get hours which should be flagged in simulation month
     simulation_data = _get_simulation_data(
-        df, pd.concat([bad_months.reset_index(), good_months.reset_index()], axis=1)
+        df,
+        pd.concat(
+            [bad_months.reset_index(), good_months.reset_index()], axis="columns"
+        ),
     )
 
     # Add new timeseries columns to the timeseries matrix with simulated data
