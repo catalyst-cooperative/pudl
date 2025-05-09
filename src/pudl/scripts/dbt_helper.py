@@ -581,7 +581,7 @@ def summarize_row_count_diffs(verbose: bool = False):
     # Connect to duckdb database
     db = duckdb.connect(PudlPaths().output_dir / "pudl_dbt_tests.duckdb")
 
-    # Load expected row counts
+    # Load expected row counts and sum all partitions so we can calculate percent change
     etl_full_row_counts = (
         _get_existing_row_counts().groupby("table_name").sum()["row_count"]
     )
@@ -600,11 +600,12 @@ def summarize_row_count_diffs(verbose: bool = False):
         # Get row count diffs from duckdb
         row_counts_df = db.sql(f"SELECT * FROM {failure['relation_name']}").df()  # noqa: S608
 
-        # Write full or summarized results
+        # Log per partition diffs
         if verbose:
             logger.warning(
                 f"Row count failures found for table: {table_name}\n{row_counts_df}"
             )
+        # Otherwise log percent change across all partitions
         else:
             total_diff = (
                 row_counts_df["observed_count"] - row_counts_df["expected_count"]
