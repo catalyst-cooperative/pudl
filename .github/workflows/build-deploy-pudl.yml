@@ -8,7 +8,7 @@ on:
   schedule:
     # 6am UTC daily (11pm PDT, 2am EDT)
     # But only if there are changes since the last nightly build.
-    - cron: "15 22 * * *"
+    - cron: "20 18 * * *"
 
 env:
   GCP_BILLING_PROJECT: ${{ secrets.GCP_BILLING_PROJECT }}
