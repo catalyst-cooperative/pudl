@@ -680,7 +680,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             # 2021 and later data is in XBRL.
             # 2006-2020 data is in monolithic CSV files, so any year means all years.
-            "years": sorted(set(range(2006, 2024))),
+            "years": sorted(set(range(2006, 2025))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
