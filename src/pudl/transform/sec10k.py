@@ -614,7 +614,6 @@ def core_sec10k__changelog_company_name(
 )
 def core_sec10k__quarterly_exhibit_21_company_ownership(
     raw_sec10k__exhibit_21_company_ownership: pd.DataFrame,
-    core_sec10k__quarterly_filings: pd.DataFrame,
 ) -> pd.DataFrame:
     """Standardize the contents of the SEC 10-K exhibit 21 company ownership table."""
     df = raw_sec10k__exhibit_21_company_ownership.rename(
@@ -625,6 +624,7 @@ def core_sec10k__quarterly_exhibit_21_company_ownership(
         }
     ).assign(
         filename_sec10k=lambda x: _simplify_filename_sec10k(x["filename_sec10k"]),
+        report_date=lambda x: _year_quarter_to_date(x["year_quarter"]),
         fraction_owned=lambda x: _compute_fraction_owned(x["ownership_percentage"]),
         subsidiary_company_location=lambda x: _standardize_location(
             x["subsidiary_company_location"]
@@ -635,24 +635,10 @@ def core_sec10k__quarterly_exhibit_21_company_ownership(
     )
     # a record is not meaningful if the subsidiary name is null
     df = df.dropna(subset=["subsidiary_company_name"])
-    df = df.merge(
-        core_sec10k__quarterly_filings[
-            [
-                "filename_sec10k",
-                "central_index_key",
-                "company_name",
-                "filing_date",
-                "report_date",
-            ]
-        ],
-        how="left",
-        on="filename_sec10k",
-    )
-    df = df.rename(
-        columns={
-            "company_name": "parent_company_name",
-            "central_index_key": "parent_company_central_index_key",
-        }
+    # get the CIK of the parent company in order to
+    # construct subsidiary_company_id_sec10k
+    df.loc[:, "parent_company_central_index_key"] = (
+        df["filename_sec10k"].apply(lambda x: x.split("/")[0]).str.zfill(10)
     )
     # sometimes there are subsidiaries with the same name but different
     # locations of incorporation listed in the same ex. 21, so include
@@ -664,7 +650,7 @@ def core_sec10k__quarterly_exhibit_21_company_ownership(
         + "_"
         + df["subsidiary_company_location"].fillna("")
     )
-
+    df = df.drop(columns="parent_company_central_index_key")
     return df
 
 
