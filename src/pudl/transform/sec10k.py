@@ -14,25 +14,6 @@ from pudl.metadata.dfs import ALPHA_2_COUNTRY_CODES, SEC_EDGAR_STATE_AND_COUNTRY
 
 logger = logging_helpers.get_logger(__name__)
 
-company_name_cleaner = name_cleaner.CompanyNameCleaner(
-    cleaning_rules_list=[
-        "replace_ampersand_in_spaces_by_AND",
-        "replace_hyphen_by_space",
-        "replace_underscore_by_space",
-        "remove_text_punctuation",
-        "remove_parentheses",
-        "remove_brackets",
-        "remove_curly_brackets",
-        "remove_words_between_slashes",
-        "enforce_single_space_between_words",
-    ],
-    legal_term_location=2,
-)
-
-legal_term_remover = name_cleaner.CompanyNameCleaner(
-    cleaning_rules_list=[], handle_legal_terms=2
-)
-
 
 ######################################################################
 ### Helper functions for cleaning and reshaping the SEC 10-K data. ###
@@ -149,6 +130,20 @@ def _standardize_company_name(col: pd.Series) -> pd.Series:
         The original Series now containing cleaned names.
     """
     col = col.fillna(pd.NA).str.strip().str.lower()
+    company_name_cleaner = name_cleaner.CompanyNameCleaner(
+        cleaning_rules_list=[
+            "replace_ampersand_in_spaces_by_AND",
+            "replace_hyphen_by_space",
+            "replace_underscore_by_space",
+            "remove_text_punctuation",
+            "remove_parentheses",
+            "remove_brackets",
+            "remove_curly_brackets",
+            "remove_words_between_slashes",
+            "enforce_single_space_between_words",
+        ],
+        legal_term_location=2,
+    )
     col = company_name_cleaner.apply_name_cleaning(col).str.strip()
     col = col.replace("", pd.NA)
 
@@ -164,6 +159,9 @@ def _remove_bad_subsidiary_names(col: pd.Series) -> pd.Series:
     of other common erroneous names. Replace these bad names with
     NaNs.
     """
+    legal_term_remover = name_cleaner.CompanyNameCleaner(
+        cleaning_rules_list=[], handle_legal_terms=2
+    )
     clean_col = legal_term_remover.apply_name_cleaning(col).str.strip()
     # some common bad names that aren't removed by the legal term remover
     clean_col = clean_col.replace(
