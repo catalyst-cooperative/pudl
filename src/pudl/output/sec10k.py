@@ -138,6 +138,7 @@ def out_sec10k__parents_and_subsidiaries(
     core_eia__entity_utilities: pd.DataFrame,
 ) -> pd.DataFrame:
     """Denormalized output table with SEC 10-K company and ownership info linked to EIA."""
+    # own_df = core_sec10k__quarterly_exhibit_21_company_ownership.merge(out_sec10k__quarterly_company_information)
     # We want to merge company info records onto ownership records on filename, report_date, and CIK
     # but this key is not unique in the company info records because it doesn't include filer_count.
     # Log the number of non unique records from the information table that appear as

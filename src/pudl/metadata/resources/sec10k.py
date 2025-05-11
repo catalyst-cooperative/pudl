@@ -117,7 +117,6 @@ and is not complete or entirely accurate and should be used with caution.""",
         "schema": {
             "fields": [
                 "filename_sec10k",
-                "report_date",
                 "subsidiary_company_name",
                 "subsidiary_company_location",
                 "subsidiary_company_id_sec10k",

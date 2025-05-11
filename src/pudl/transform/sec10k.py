@@ -211,8 +211,8 @@ def _match_ex21_subsidiaries_to_filer_company(
 
     We want to assign CIKs to Ex. 21 subsidiaries if they in turn
     file a 10k. To do this, we merge the Ex. 21 subsidiaries to 10k
-    filers on comapny name. If there are multiple matches with the same
-    company name we take the company with the most overlap in location of
+    filers on company name. If there are multiple matches with the same
+    company name we choose the pair with the most overlap in location of
     incorporation and nearest report years. Then we merge the CIK back onto
     the Ex. 21 df.
 
@@ -624,7 +624,6 @@ def core_sec10k__quarterly_exhibit_21_company_ownership(
         }
     ).assign(
         filename_sec10k=lambda x: _simplify_filename_sec10k(x["filename_sec10k"]),
-        report_date=lambda x: _year_quarter_to_date(x["year_quarter"]),
         fraction_owned=lambda x: _compute_fraction_owned(x["ownership_percentage"]),
         subsidiary_company_location=lambda x: _standardize_location(
             x["subsidiary_company_location"]
@@ -691,17 +690,31 @@ def core_sec10k__assn_exhibit_21_subsidiaries_and_filers(
 ) -> pd.DataFrame:
     """Match Ex. 21 subsidiaries to SEC 10k filing companies.
 
-    Create an association between ``subsidiary_company_id_sec10k``
-    and ``central_index_key``.
+    Create a table associating ``subsidiary_company_id_sec10k``
+    to that subsidiary company's ``central_index_key`` if that subsidiary
+    also files its own 10-K filing. The association is created by
+    matching subsidiary companies reported in
+    ``core_sec10k__quarterly_exhibit_21_company_ownership`` to their own
+    filing information in ``core_sec10k__quarterly_company_information``,
+    which contains attributes reported in the main body of a 10-K filing.
+    To infer the match we merge the Ex.21 subsidiaries to 10k filers
+    on company name. If there are multiple
+    matches with the same company name we choose the pair with the
+    most overlap in location of incorporation and nearest report years.
     """
     filer_info_df = core_sec10k__quarterly_company_information.merge(
         core_sec10k__quarterly_filings[["filename_sec10k", "report_date"]],
         how="left",
         on="filename_sec10k",
     )
+    ownership_df = core_sec10k__quarterly_exhibit_21_company_ownership.merge(
+        core_sec10k__quarterly_filings[["filename_sec10k", "report_date"]],
+        how="left",
+        on="filename_sec10k",
+    )
     matched_df = _match_ex21_subsidiaries_to_filer_company(
         filer_info_df=filer_info_df,
-        ownership_df=core_sec10k__quarterly_exhibit_21_company_ownership,
+        ownership_df=ownership_df,
     )
     out_df = matched_df[
         [
