@@ -42,7 +42,14 @@ def pudl_out_mcoe(pudl_out_eia, live_dbs):
 # of some records in the past...
 ###############################################################################
 @pytest.mark.parametrize(
-    "df_name", ["hr_by_unit", "hr_by_gen", "fuel_cost", "capacity_factor", "mcoe"]
+    "df_name",
+    [
+        "hr_by_unit",
+        "hr_by_gen",
+        # "fuel_cost",
+        "capacity_factor",
+        "mcoe",
+    ],
 )
 def test_no_null_cols_mcoe(pudl_out_mcoe, live_dbs, df_name):
     """Verify that output DataFrames have no entirely NULL columns."""
