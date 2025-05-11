@@ -4,7 +4,7 @@ name: update-conda-lockfile
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 9 * * 1" # Mondays at 9AM UTC
+    - cron: "0 7 * * 0" # Sundays at 7AM UTC
 
 # What branch does this action run on?
 # - workflow_dispatch: Whatever branch it was run against.
