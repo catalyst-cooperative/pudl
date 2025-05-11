@@ -5,8 +5,8 @@ from contextlib import chdir
 from pathlib import Path
 
 import pytest
-
 from dbt.cli.main import dbtRunner, dbtRunnerResult
+
 from pudl.io_managers import PudlMixedFormatIOManager
 
 logger = logging.getLogger(__name__)
