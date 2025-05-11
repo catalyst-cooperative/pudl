@@ -1082,42 +1082,42 @@ package:
     category: main
     optional: false
   - name: astroid
-    version: 3.3.9
+    version: 3.3.10
     manager: conda
     platform: linux-64
     dependencies:
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/astroid-3.3.9-py312h7900ff3_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/astroid-3.3.10-py312h7900ff3_0.conda
     hash:
-      md5: ebbc44c436cf6fda9681e871df39097f
-      sha256: bcb0b7965d305d2f9159a2f29e4236e3c90d537f45c5facd204c202490974ce2
+      md5: 60b9f877a7d36f146c30eb6683e4611b
+      sha256: e6f627d1e72fae042e072081b9419db3efeddca29f0bdc5bb2b12ed7d298ff2f
     category: main
     optional: false
   - name: astroid
-    version: 3.3.9
+    version: 3.3.10
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/astroid-3.3.9-py312hb401068_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/astroid-3.3.10-py312hb401068_0.conda
     hash:
-      md5: 6169a734cb9f346ae5e6f976ab208a94
-      sha256: 67d3b6baa2378f58687a01652177b3b06aaab32030f8c6b0bcdb640165bbaf61
+      md5: 7da5186b541797891a5319257035db59
+      sha256: 0df2aab4a06f8547fd7749843fac14ebd61356da05a838d68a5e6d81350d2973
     category: main
     optional: false
   - name: astroid
-    version: 3.3.9
+    version: 3.3.10
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/astroid-3.3.9-py312h81bd7bf_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/astroid-3.3.10-py312h81bd7bf_0.conda
     hash:
-      md5: 9407dd287dedc68b9331cdd1f07955e8
-      sha256: e8ed30e29ccfc65d10808430f6e9f994b46bf625df517aeaab669c347e1c774a
+      md5: 9fc87d5cd9a3db86daf0890deda0f785
+      sha256: bce23c75ac51c296d7cc98d0f871702c21ee8ecff535b536282bc4ef4b3b48ed
     category: main
     optional: false
   - name: asttokens
