@@ -473,7 +473,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "year_quarters": [
                 str(q).lower()
-                for q in pd.period_range(start="1995q1", end="2024q4", freq="Q")
+                for q in pd.period_range(start="1995q1", end="2025q1", freq="Q")
             ]
         },
         "contributors": [
@@ -549,12 +549,12 @@ SOURCES: dict[str, Any] = {
         ),
         "source_file_dict": {
             "respondents": "Major electric utilities and licenses.",
-            "records_liberated": "~13.2 million (116 raw tables), ~307,000 (7 clean tables)",
+            "records_liberated": "~13.2 million (116 raw tables), ~4.7 million (23 clean tables)",
             "source_format": "XBRL (.XBRL) and Visual FoxPro Database (.DBC/.DBF)",
         },
         "field_namespace": "ferc1",
         "working_partitions": {
-            "years": sorted(set(range(1994, 2024))),
+            "years": sorted(set(range(1994, 2025))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
