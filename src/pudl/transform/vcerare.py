@@ -74,7 +74,8 @@ def _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips: pd.DataFrame) -> pd.DataFr
         # Extract the county or lake name from the county_state_name field
         .assign(
             place_name=lambda x: x.county_state_names.str.replace(
-                "west_virginia", "west-virginia"
+                "west_virginia",
+                "west-virginia",  # Temporary workaround to make sure we don't split 'west' from 'virginia'
             )
             .str.extract(rf"([a-z_]+)_({state_pattern})$")[0]
             .astype("category")
@@ -231,6 +232,46 @@ def _check_for_valid_counties(
     return df
 
 
+def _handle_2015_nulls(df: pd.DataFrame, year: str):
+    """Handle unexpected null values in 2015.
+
+    In 2015, there are a few hundred null values for PV capacity factors that
+    should be zeroed out, according to correspondence with the data provider.
+    This function narrowly zeroes out these nulls, expecting that the rest of the
+    data should conform to the expectation of no-null values.
+    """
+    if year == 2015:
+        logger.info(
+            f"{len(df.loc[(df.capacity_factor_solar_pv.isnull()) & (df.report_year == 2015)])} null PV capacity values found in the 2015 data. Zeroing out these values."
+        )
+        # assert len(df.loc[df.capacity_factor_solar_pv.isnull() == x
+        df.loc[
+            (df.capacity_factor_solar_pv.isnull()) & (df.report_year == 2015),
+            "capacity_factor_solar_pv",
+        ] = 0
+    return df
+
+
+def _clip_unexpected_2016_pv_capacity(df: pd.DataFrame, df_name: str, year: int):
+    """Handle unexpectedly large PV capacity values in 2016.
+
+    In 2016, there are a few values for PV capacity factors that exceed the maximum
+    allowed values noted in the read-me (110%).
+    should be zeroed out, according to correspondence with the data provider.
+    This function narrowly zeroes out these nulls, expecting that the rest of the
+    data should conform to the expectation of no-null values.
+    """
+    if (year == 2016) and (df_name == "solar_pv"):
+        logger.info(
+            f"{len(df.loc[df.capacity_factor_solar_pv > 1.10])} out-of-bounds PV capacity factor values found in the 2016 data. Clipping these values."
+        )
+        assert len(df.loc[df.capacity_factor_solar_pv > 1.10]) == 365, (
+            f"Found {len(df.loc[df.capacity_factor_solar_pv > 1.10])} solar capacity values over 1.10, expected 365."
+        )
+        df.loc[df.capacity_factor_solar_pv > 1.10, "capacity_factor_solar_pv"] = 1.10
+    return df
+
+
 def _combine_all_cap_fac_dfs(cap_fac_dict: dict[str, pd.DataFrame]) -> pd.DataFrame:
     """Combine capacity factor tables."""
     logger.info("Merging all the capacity factor tables into one")
@@ -285,6 +326,27 @@ def _spot_fix_great_lakes_columns(df: pd.DataFrame) -> pd.DataFrame:
 
 def _standardize_census_names(df: pd.DataFrame, census_pep_data: pd.DataFrame):
     """Make sure that the county names correspond to the latest census vintage."""
+    # inter = one_day[[1, 5]]
+    # inter.columns = ["place_name", "county_id_fips"]
+    # county_fips = inter.drop_duplicates()
+    # county_fips = county_fips.dropna(subset=["county_id_fips"])
+    # census_fips = census_pep_data[["county_id_fips", "area_name"]].drop_duplicates()
+    # census_fips = census_fips.loc[
+    #     census_fips.area_name.str.contains(r"County$|Parish$", na=False)
+    # ]
+    # df = county_fips.merge(census_fips, on="county_id_fips", how="left", validate="1:1")
+    # df["area_name"] = df["area_name"].str.lower()
+    # df["area_name"] = (
+    #     df["area_name"].str.replace("county", "").str.replace("parish", "").str.strip()
+    # )
+    # df["place_name"] = df["place_name"].str.replace("_", " ")
+
+    # test = df[df.place_name != df.area_name].set_index("county_id_fips")
+    # test = test.rename(
+    #     columns={"place_name": "place_name_old", "area_name": "place_name"}
+    # )
+    # inter.set_index("county_id_fips", inplace=True)
+    # inter.update(test).reset_index()
 
 
 def one_year_hourly_available_capacity_factor(
@@ -321,8 +383,10 @@ def one_year_hourly_available_capacity_factor(
         .pipe(_drop_city_cols, df_name)
         .pipe(_make_cap_fac_frac, df_name)
         .pipe(_stack_cap_fac_df, df_name)
+        .pipe(_clip_unexpected_2016_pv_capacity, df_name, year)
         for df_name, df in raw_dict.items()
     }
+
     # Combine the data and perform a few last cleaning mechanisms
     # Sort the data by primary key columns to produce compact row groups
     return apply_pudl_dtypes(
@@ -330,6 +394,7 @@ def one_year_hourly_available_capacity_factor(
         .pipe(_combine_cap_fac_with_fips_df, fips_df)
         .sort_values(by=["state", "place_name", "datetime_utc"])
         .reset_index(drop=True)
+        .pipe(_handle_2015_nulls, year)
     )
 
 
@@ -370,7 +435,7 @@ def out_vcerare__hourly_available_capacity_factor(
     ) as parquet_writer:
         for year in raw_vcerare__fixed_solar_pv_lat_upv["report_year"].unique():
             df = one_year_hourly_available_capacity_factor(
-                year=year,
+                year=int(year),
                 raw_vcerare__lat_lon_fips=raw_vcerare__lat_lon_fips,
                 raw_vcerare__fixed_solar_pv_lat_upv=_get_year(
                     raw_vcerare__fixed_solar_pv_lat_upv, year
