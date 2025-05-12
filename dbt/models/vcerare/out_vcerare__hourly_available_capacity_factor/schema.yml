@@ -14,6 +14,8 @@ sources:
                 - datetime_utc
         columns:
           - name: state
+            data_tests:
+              - not_null
           - name: county_or_lake_name
             data_tests:
               - not_null
@@ -21,6 +23,8 @@ sources:
                   value_set:
                     - bedford_city
                     - clifton_forge_city
+                    - lake_hurron
+                    - lake_st_clair
           - name: datetime_utc
             data_tests:
               - not_null
@@ -28,27 +32,36 @@ sources:
                   value_set:
                     - "{{ dbt_date.date(2020, 12, 31) }}"
           - name: report_year
+            data_tests:
+              - not_null
           - name: hour_of_year
             data_tests:
               - not_null
               - dbt_expectations.expect_column_max_to_be_between:
-                  min_value: 8759
-                  max_value: 8761
+                  min_value: 8760
+                  max_value: 8760
           - name: county_id_fips
           - name: latitude
+            data_tests:
+              - not_null
           - name: longitude
+            data_tests:
+              - not_null
           - name: capacity_factor_solar_pv
             data_tests:
               - not_null
-              - dbt_expectations.expect_column_max_to_be_between:
-                  max_value: 1.02
-              - dbt_expectations.expect_column_min_to_be_between:
+              - dbt_expectations.expect_column_values_to_be_between:
                   min_value: 0.0
+                  max_value: 1.02
           - name: capacity_factor_onshore_wind
+            data_tests:
+              - not_null
+              - dbt_expectations.expect_column_values_to_be_between:
+                  min_value: 0.0
+                  max_value: 1.0
           - name: capacity_factor_offshore_wind
             data_tests:
               - not_null
-              - dbt_expectations.expect_column_max_to_be_between:
-                  max_value: 1.0
-              - dbt_expectations.expect_column_min_to_be_between:
+              - dbt_expectations.expect_column_values_to_be_between:
                   min_value: 0.0
+                  max_value: 1.0

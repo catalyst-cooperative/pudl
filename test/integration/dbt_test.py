@@ -5,8 +5,8 @@ from contextlib import chdir
 from pathlib import Path
 
 import pytest
-
 from dbt.cli.main import dbtRunner, dbtRunnerResult
+
 from pudl.io_managers import PudlMixedFormatIOManager
 
 logger = logging.getLogger(__name__)
@@ -97,7 +97,8 @@ def test_dbt_helper(
         [
             "dbt_helper",
             "add-tables",
-            f"--{dbt_target}",
+            "--target",
+            dbt_target,
             "--use-local-tables",
             "all",
         ],

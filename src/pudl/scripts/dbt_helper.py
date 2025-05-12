@@ -4,6 +4,7 @@ import re
 from collections import defaultdict, namedtuple
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Literal
 
 import click
 import duckdb
@@ -161,6 +162,12 @@ class DbtSchema(BaseModel):
             ],
         )
 
+    @classmethod
+    def from_yaml(cls, schema_path: Path) -> "DbtSchema":
+        """Load a DbtSchema object from a YAML file."""
+        with schema_path.open("r") as schema_yaml:
+            return cls.model_validate(yaml.safe_load(schema_yaml))
+
 
 def get_data_source(table_name: str) -> str:
     """Return data source for a table or 'output' if there's more than one source."""
@@ -184,14 +191,14 @@ def _get_model_path(table_name: str, data_source: str) -> Path:
     return Path("./dbt") / "models" / data_source / table_name
 
 
-def _get_row_count_csv_path(etl_fast: bool = False) -> Path:
-    if etl_fast:
+def _get_row_count_csv_path(target: str = "etl-full") -> Path:
+    if target == "etl-fast":
         return Path("./dbt") / "seeds" / "etl_fast_row_counts.csv"
     return Path("./dbt") / "seeds" / "etl_full_row_counts.csv"
 
 
-def _get_existing_row_counts(etl_fast: bool = False) -> pd.DataFrame:
-    return pd.read_csv(_get_row_count_csv_path(etl_fast), dtype={"partition": str})
+def _get_existing_row_counts(target: str = "etl-full") -> pd.DataFrame:
+    return pd.read_csv(_get_row_count_csv_path(target), dtype={"partition": str})
 
 
 def _calculate_row_counts(
@@ -234,8 +241,8 @@ def _combine_row_counts(existing: pd.DataFrame, new: pd.DataFrame) -> pd.DataFra
     )
 
 
-def _write_row_counts(row_counts: pd.DataFrame, etl_fast: bool = False):
-    csv_path = _get_row_count_csv_path(etl_fast)
+def _write_row_counts(row_counts: pd.DataFrame, target: str = "etl-full"):
+    csv_path = _get_row_count_csv_path(target)
     row_counts.to_csv(csv_path, index=False)
 
 
@@ -243,11 +250,11 @@ def update_row_counts(
     table_name: str,
     partition_column: str = "report_year",
     use_local_tables: bool = False,
-    etl_fast: bool = False,
+    target: str = "etl-full",
     clobber: bool = False,
 ) -> UpdateResult:
     """Generate updated row counts per partition and write to csv file within dbt project."""
-    existing = _get_existing_row_counts(etl_fast)
+    existing = _get_existing_row_counts(target)
     if table_name in existing["table_name"].to_numpy() and not clobber:
         return UpdateResult(
             success=False,
@@ -256,7 +263,7 @@ def update_row_counts(
 
     new = _calculate_row_counts(table_name, partition_column, use_local_tables)
     combined = _combine_row_counts(existing, new)
-    _write_row_counts(combined, etl_fast)
+    _write_row_counts(combined, target)
 
     return UpdateResult(
         success=True,
@@ -328,7 +335,7 @@ class TableUpdateArgs:
     tables: list[str]
     use_local_tables: bool = False
     clobber: bool = False
-    etl_fast: bool = False
+    target: Literal["etl-full", "etl-fast"] = "etl-full"
     yaml_only: bool = False
     row_counts_only: bool = False
 
@@ -353,11 +360,11 @@ class TableUpdateArgs:
     help="Overwrite existing yaml and row counts. If false command will fail if yaml or row counts already exist.",
 )
 @click.option(
-    "--etl-fast",
-    default=False,
-    is_flag=True,
-    type=bool,
-    help="Update row counts for fast ETL counts.",
+    "--target",
+    default="etl-full",
+    type=click.Choice(["etl-full", "etl-fast"]),
+    show_default=True,
+    help="What dbt target should be used as the source of new row counts.",
 )
 @click.option(
     "--yaml-only",
@@ -412,7 +419,7 @@ def add_tables(**kwargs):
                     table_name=table_name,
                     partition_column=partition_column,
                     use_local_tables=args.use_local_tables,
-                    etl_fast=args.etl_fast,
+                    target=args.target,
                     clobber=args.clobber,
                 )
             )
@@ -420,19 +427,6 @@ def add_tables(**kwargs):
 
 def _get_config(test_config_name: str) -> list[dict]:
     return validate.__getattribute__(test_config_name)
-
-
-def _load_schema_yaml(schema_path: Path) -> DbtSchema:
-    with schema_path.open("r") as schema_yaml:
-        return DbtSchema(**yaml.safe_load(schema_yaml))
-
-
-def _get_test_name(test_config: dict) -> str:
-    if not test_config.get("weight_col"):
-        test_name = "dbt_expectations.expect_column_quantile_values_to_be_between"
-    else:
-        test_name = "expect_column_weighted_quantile_values_to_be_between"
-    return test_name
 
 
 def _clean_row_condition(row_condition: str) -> str:
@@ -448,23 +442,61 @@ def _clean_row_condition(row_condition: str) -> str:
     return row_condition
 
 
-def _generate_quantile_bounds_test(test_config: dict) -> list[dict]:
-    """Convert dict of config from `validate.py` to construct config for dbt test."""
-    return [
-        {
-            _get_test_name(test_config): {
-                "quantile": test_config[quantile_key],
-                min_max_value: test_config[bound_key],
-                "row_condition": _clean_row_condition(test_config.get("query")),
-                "weight_column": test_config.get("weight_col"),
-            }
-        }
-        for quantile_key, bound_key, min_max_value in [
-            ("low_q", "low_bound", "min_value"),
-            ("hi_q", "hi_bound", "max_value"),
-        ]
-        if quantile_key in test_config
-    ]
+def _check_matching(key, value, list_of_dicts):
+    for d in list_of_dicts:
+        assert value == d[key], (
+            f"Mismatched {key} among\n{'\n'.join(str(d) for d in list_of_dicts)}"
+        )
+
+
+def _generate_quantile_bounds_test(test_configs: list[dict]) -> list[dict]:
+    """Convert config dicts from `validate.py` to dbt test."""
+    test_name = "expect_quantile_constraints"
+
+    row_condition = test_configs[0].get("query")
+    _check_matching("query", row_condition, test_configs[1:])
+
+    weight_column = test_configs[0].get("weight_col")
+    _check_matching("weight_col", weight_column, test_configs[1:])
+
+    constraints = []
+    base_entry = {
+        "row_condition": _clean_row_condition(row_condition),
+        "constraints": constraints,
+    }
+    if weight_column:
+        base_entry["weight_column"] = weight_column
+    for test_config in test_configs:
+        if (
+            "low_q" in test_config
+            and "hi_q" in test_config
+            and test_config["low_q"] is test_config["hi_q"]
+        ):
+            # then we're trying to capture a single quantile between two bounds;
+            # this can be specified with a single test entry
+            constraints.append(
+                {
+                    "quantile": test_config["low_q"],
+                    "min_value": test_config["low_bound"],
+                    "max_value": test_config["hi_bound"],
+                }
+            )
+        # otherwise, we need separate entries for each quantile
+        else:
+            for quantile_key, bound_key, min_max_value in [
+                ("low_q", "low_bound", "min_value"),
+                ("hi_q", "hi_bound", "max_value"),
+            ]:
+                if (quantile_key in test_config) and test_config[
+                    quantile_key
+                ] is not False:
+                    constraints.append(
+                        {
+                            "quantile": test_config[quantile_key],
+                            min_max_value: test_config[bound_key],
+                        }
+                    )
+    return [{test_name: base_entry}]
 
 
 @click.command
@@ -506,20 +538,33 @@ def migrate_tests(table_name: str, test_config_name: str, model_name: str | None
     if not schema_path.exists():
         raise RuntimeError(
             f"Can not migrate tests for table {table_name}, "
-            "because no dbt configuration exists for the table."
+            "because no dbt configuration exists for the table "
+            f"(expected at {schema_path})."
         )
 
-    schema = _load_schema_yaml(schema_path)
-    test_config = _get_config(test_config_name)
+    schema = DbtSchema.from_yaml(schema_path)
 
-    dbt_tests = defaultdict(list)
-    for config in test_config:
-        logger.info(f"Adding test {config['title']}")
-        dbt_tests[config["data_col"]] += _generate_quantile_bounds_test(config)
-
-    schema = schema.add_column_tests(dbt_tests)
+    quantile_tests = _convert_config_variable_to_quantile_tests(test_config_name)
+    schema = schema.add_column_tests(quantile_tests, model_name=model_name)
 
     _write_dbt_yaml_config(schema_path, schema)
+
+
+def _convert_config_variable_to_quantile_tests(test_config_name) -> dict:
+    test_config = _get_config(test_config_name)
+
+    configs_by_group = defaultdict(list)
+    for config in test_config:
+        configs_by_group[(config["data_col"], config["query"])].append(config)
+
+    dbt_tests = defaultdict(list)
+    for (data_col, query), configs in configs_by_group.items():
+        logger.info(
+            f"Adding test {data_col} @ {query}: {', '.join(config['title'] for config in configs)}"
+        )
+        dbt_tests[data_col] += _generate_quantile_bounds_test(configs)
+
+    return dbt_tests
 
 
 @click.group(
