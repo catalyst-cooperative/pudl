@@ -85,6 +85,15 @@ EIA 930
   see :ref:`data-sources-eia930-changes-in-energy-source-granularity-over-time` for
   more information.
 
+EIA 860M
+~~~~~~~~
+* Added EIA 860M data from January, Febrary, and March 2025. See :issue:`4233` and
+  PR :pr:`4242`.
+
+EIA 923
+~~~~~~~
+* Added EIA 923 from January and Febrary 2025. See :issue:`4234` and PR :pr:`4242`.
+
 Bug Fixes
 ^^^^^^^^^
 * Fixed a bug in FERC XBRL extraction that led to quietly skipping tables with names
