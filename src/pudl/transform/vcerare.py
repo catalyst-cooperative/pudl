@@ -244,7 +244,7 @@ def _handle_2015_nulls(df: pd.DataFrame, year: str):
         logger.info(
             f"{len(df.loc[(df.capacity_factor_solar_pv.isnull()) & (df.report_year == 2015)])} null PV capacity values found in the 2015 data. Zeroing out these values."
         )
-        # assert len(df.loc[df.capacity_factor_solar_pv.isnull() == x
+        assert len(df.loc[df.capacity_factor_solar_pv.isnull()]) == 1320
         df.loc[
             (df.capacity_factor_solar_pv.isnull()) & (df.report_year == 2015),
             "capacity_factor_solar_pv",
