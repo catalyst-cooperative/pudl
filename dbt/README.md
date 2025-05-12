@@ -277,7 +277,7 @@ WITH CumulativeWeights AS (
         capacity_mw,
         SUM(capacity_mw) OVER (ORDER BY capacity_factor) AS cumulative_weight,
         SUM(capacity_mw) OVER () AS total_weight
-    FROM 'https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/out_eia__yearly_generators.parquet'
+    FROM '/your/local/pudl_output/parquet/out_eia__yearly_generators.parquet'
     WHERE capacity_factor IS NOT NULL OR capacity_mw IS NOT NULL
 ),
 QuantileData AS (
