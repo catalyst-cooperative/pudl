@@ -2,11 +2,10 @@
 
 This directory contains an initial setup of a `dbt` project meant to write [data
 tests](https://docs.getdbt.com/docs/build/data-tests) for PUDL data. The project is
-setup with profiles that allow you to select running tests on `nightly` builds,
-`etl-full`, or `etl-fast` outputs. The `nightly` profile will operate directly on
-parquet files in our S3 bucket, while both the `etl-full` and `etl-fast` profiles will
-look for parquet files based on your `PUDL_OUTPUT` environment variable. See the `Usage`
-section below for examples using these profiles.
+setup with profiles that allow you to select running tests on `etl-full`, or `etl-fast`
+outputs. Both the `etl-full` and `etl-fast` profiles will look for parquet files based
+on your `PUDL_OUTPUT` environment variable. See the `Usage` section below for examples
+using these profiles. `etl-full` is the default.
 
 # Development
 
@@ -138,8 +137,8 @@ dbt build --select {model_name}
 
 ### Selecting target profile
 
-To select between `nightly`, `etl-full`, and `etl-fast` profiles, append `--target
-{target_name}` to any of the previous commands.
+To select between `etl-full`, and `etl-fast` profiles, append `--target {target_name}`
+to any of the previous commands.
 
 ## Updating a table
 
@@ -278,7 +277,7 @@ WITH CumulativeWeights AS (
         capacity_mw,
         SUM(capacity_mw) OVER (ORDER BY capacity_factor) AS cumulative_weight,
         SUM(capacity_mw) OVER () AS total_weight
-    FROM 'https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/out_eia__yearly_generators.parquet'
+    FROM '/your/local/pudl_output/parquet/out_eia__yearly_generators.parquet'
     WHERE capacity_factor IS NOT NULL OR capacity_mw IS NOT NULL
 ),
 QuantileData AS (
