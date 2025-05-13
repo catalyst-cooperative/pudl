@@ -76,9 +76,7 @@ def _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips: pd.DataFrame) -> pd.DataFr
             place_name=lambda x: x.county_state_names.str.replace(
                 "west_virginia",
                 "west-virginia",  # Temporary workaround to make sure we don't split 'west' from 'virginia'
-            )
-            .str.extract(rf"([a-z_]+)_({state_pattern})$")[0]
-            .astype("category")
+            ).str.extract(rf"([a-z_]+)_({state_pattern})$")[0]
         )
         # Add state column: e.g.: MA, RI, CA, TX
         .merge(
@@ -232,7 +230,7 @@ def _check_for_valid_counties(
     return df
 
 
-def _handle_2015_nulls(df: pd.DataFrame, year: str):
+def _handle_2015_nulls(combined_df: pd.DataFrame, year: int):
     """Handle unexpected null values in 2015.
 
     In 2015, there are a few hundred null values for PV capacity factors that
@@ -242,14 +240,23 @@ def _handle_2015_nulls(df: pd.DataFrame, year: str):
     """
     if year == 2015:
         logger.info(
-            f"{len(df.loc[(df.capacity_factor_solar_pv.isnull()) & (df.report_year == 2015)])} null PV capacity values found in the 2015 data. Zeroing out these values."
+            f"{len(combined_df.loc[(combined_df.capacity_factor_solar_pv.isnull()) & (combined_df.report_year == '2015')])} null PV capacity values found in the 2015 data. Zeroing out these values."
         )
-        assert len(df.loc[df.capacity_factor_solar_pv.isnull()]) == 1320
-        df.loc[
-            (df.capacity_factor_solar_pv.isnull()) & (df.report_year == 2015),
+        assert (
+            len(
+                combined_df.loc[
+                    combined_df.capacity_factor_solar_pv.isnull()
+                    & (combined_df.report_year == "2015")
+                ]
+            )
+            == 1320
+        )
+        combined_df.loc[
+            (combined_df.capacity_factor_solar_pv.isnull())
+            & (combined_df.report_year == "2015"),
             "capacity_factor_solar_pv",
         ] = 0
-    return df
+    return combined_df
 
 
 def _clip_unexpected_2016_pv_capacity(df: pd.DataFrame, df_name: str, year: int):
@@ -324,29 +331,49 @@ def _spot_fix_great_lakes_columns(df: pd.DataFrame) -> pd.DataFrame:
     )
 
 
-def _standardize_census_names(df: pd.DataFrame, census_pep_data: pd.DataFrame):
+def _standardize_census_names(combined_df: pd.DataFrame, census_pep_data: pd.DataFrame):
     """Make sure that the county names correspond to the latest census vintage."""
-    # inter = one_day[[1, 5]]
-    # inter.columns = ["place_name", "county_id_fips"]
-    # county_fips = inter.drop_duplicates()
-    # county_fips = county_fips.dropna(subset=["county_id_fips"])
-    # census_fips = census_pep_data[["county_id_fips", "area_name"]].drop_duplicates()
-    # census_fips = census_fips.loc[
-    #     census_fips.area_name.str.contains(r"County$|Parish$", na=False)
-    # ]
-    # df = county_fips.merge(census_fips, on="county_id_fips", how="left", validate="1:1")
-    # df["area_name"] = df["area_name"].str.lower()
-    # df["area_name"] = (
-    #     df["area_name"].str.replace("county", "").str.replace("parish", "").str.strip()
-    # )
-    # df["place_name"] = df["place_name"].str.replace("_", " ")
+    # Get unique list of county and place name combinations
+    county_fips = combined_df[["place_name", "county_id_fips"]].drop_duplicates()
+    county_fips = county_fips.dropna(
+        subset=["county_id_fips"]
+    )  # Drop non-FIPS place names (e.g., lakes)
+    census_fips = census_pep_data[["county_id_fips", "area_name"]].drop_duplicates()
+    census_fips = census_fips.loc[
+        census_fips.area_name.str.contains(
+            r"County$|Parish$", na=False
+        )  # Drop city and township census data
+    ]
+    # Create a map of place names from VCE to Census data
+    names_df = county_fips.merge(
+        census_fips, on="county_id_fips", how="left", validate="1:1"
+    )
+    names_df["area_name"] = names_df["area_name"].str.lower()
+    names_df["area_name"] = (
+        names_df["area_name"]
+        .str.replace("county", "")
+        .str.replace("parish", "")
+        .str.strip()
+    )
+    names_df["place_name"] = names_df["place_name"].str.replace("_", " ")
 
-    # test = df[df.place_name != df.area_name].set_index("county_id_fips")
-    # test = test.rename(
-    #     columns={"place_name": "place_name_old", "area_name": "place_name"}
-    # )
-    # inter.set_index("county_id_fips", inplace=True)
-    # inter.update(test).reset_index()
+    name_map = names_df.loc[names_df.place_name != names_df.area_name].set_index(
+        "county_id_fips"
+    )
+    name_map = name_map.rename(
+        columns={"place_name": "place_name_old", "area_name": "place_name"}
+    )
+    logger.info(
+        f"Replacing {len(name_map.dropna(how='any'))} county names with data from the latest Census."
+    )
+    logger.info(
+        f"The following place names are getting replaced:\n{name_map.dropna(how='any')}"
+    )
+    combined_df = combined_df.set_index("county_id_fips")
+    combined_df.update(name_map)
+    # Now that we've updated the dataframe, convert to categorical dtype to save memory
+    combined_df.place_name = combined_df.place_name.astype("category")
+    return combined_df.reset_index()
 
 
 def one_year_hourly_available_capacity_factor(
@@ -391,10 +418,11 @@ def one_year_hourly_available_capacity_factor(
     # Sort the data by primary key columns to produce compact row groups
     return apply_pudl_dtypes(
         _combine_all_cap_fac_dfs(clean_dict)
+        .pipe(_handle_2015_nulls, year)
         .pipe(_combine_cap_fac_with_fips_df, fips_df)
+        .pipe(_standardize_census_names, census_pep_data)
         .sort_values(by=["state", "place_name", "datetime_utc"])
         .reset_index(drop=True)
-        .pipe(_handle_2015_nulls, year)
     )
 
 
