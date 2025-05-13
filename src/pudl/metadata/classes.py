@@ -61,8 +61,9 @@ from pudl.metadata.helpers import (
     most_and_more_frequent,
     split_period,
 )
-from pudl.metadata.resources import FOREIGN_KEYS, RESOURCE_METADATA, eia861
+from pudl.metadata.resources import FOREIGN_KEYS, RESOURCE_METADATA
 from pudl.metadata.sources import SOURCES
+from pudl.metadata.warnings import USAGE_WARNINGS
 from pudl.workspace.datastore import Datastore, ZenodoDoi
 from pudl.workspace.setup import PudlPaths
 
@@ -1431,6 +1432,16 @@ class Resource(PudlMeta):
         if "foreign_key_rules" in schema:
             del schema["foreign_key_rules"]
 
+        # Render description
+        obj["description"] = (
+            _get_jinja_environment()
+            .from_string(obj["description"])
+            .render(
+                resource=MetaFromResourceName(name=resource_id, seed=obj),
+                warnings=USAGE_WARNINGS,
+            )
+        )
+
         # Add encoders to columns as appropriate, based on FKs.
         # Foreign key relationships determine the set of codes to use
         for fk in obj["schema"]["foreign_keys"]:
@@ -1883,6 +1894,9 @@ class MetaFromResourceName(PudlMeta):
     name: SnakeCase
     """Resource name (aka table name)."""
 
+    seed: dict | None = None
+    """Seed metadata; the Resource dict, if known."""
+
     layer_map: dict = {
         "raw": (
             "Data has been extracted from original format, columns have been renamed for "
@@ -1894,12 +1908,17 @@ class MetaFromResourceName(PudlMeta):
             "temporarily and may be removed without notice."
         ),
         "core": (
-            "Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses."
+            "Data has been cleaned and organized into well-modeled tables that serve as "
+            "building blocks for downstream wide tables and analyses."
         ),
         "_out": "Intermediate output table.",
         "out": (
             "Data has been expanded into a wide/denormalized format, with IDs and codes "
             "accompanied by human-readable names and descriptions."
+        ),
+        "test": (
+            "Only used in unit and integration testing; not intended for public "
+            "consumption."
         ),
     }
     layer_string: str = "|".join(layer_map.keys())
@@ -2000,6 +2019,8 @@ class MetaFromResourceName(PudlMeta):
     @property
     def meta(self):
         """Metadata dict for table."""
+        if self.seed:
+            return self.seed
         return RESOURCE_METADATA[self.name]
 
     @model_validator(mode="after")
