@@ -325,6 +325,51 @@ def _spot_fix_great_lakes_columns(df: pd.DataFrame) -> pd.DataFrame:
     )
 
 
+def _standardize_census_names(combined_df: pd.DataFrame, census_pep_data: pd.DataFrame):
+    """Make sure that the county names correspond to the latest census vintage."""
+    # Get unique list of county and place name combinations
+    county_fips = combined_df[["place_name", "county_id_fips"]].drop_duplicates()
+    county_fips = county_fips.dropna(
+        subset=["county_id_fips"]
+    )  # Drop non-FIPS place names (e.g., lakes)
+    census_fips = census_pep_data[["county_id_fips", "area_name"]].drop_duplicates()
+    census_fips = census_fips.loc[
+        census_fips.area_name.str.contains(
+            r"County$|Parish$", na=False
+        )  # Drop city and township census data
+    ]
+    # Create a map of place names from VCE to Census data
+    names_df = county_fips.merge(
+        census_fips, on="county_id_fips", how="left", validate="1:1"
+    )
+    names_df["area_name"] = names_df["area_name"].str.lower()
+    names_df["area_name"] = (
+        names_df["area_name"]
+        .str.replace("county", "")
+        .str.replace("parish", "")
+        .str.strip()
+    )
+    names_df["place_name"] = names_df["place_name"].str.replace("_", " ")
+
+    name_map = names_df.loc[names_df.place_name != names_df.area_name].set_index(
+        "county_id_fips"
+    )
+    name_map = name_map.rename(
+        columns={"place_name": "place_name_old", "area_name": "place_name"}
+    )
+    logger.info(
+        f"Replacing {len(name_map.dropna(how='any'))} county names with data from the latest Census."
+    )
+    logger.info(
+        f"The following place names are getting replaced:\n{name_map.dropna(how='any')}"
+    )
+    combined_df = combined_df.set_index("county_id_fips")
+    combined_df.update(name_map)
+    # Now that we've updated the dataframe, convert to categorical dtype to save memory
+    combined_df.place_name = combined_df.place_name.astype("category")
+    return combined_df.reset_index()
+
+
 def one_year_hourly_available_capacity_factor(
     year: int,
     raw_vcerare__lat_lon_fips: pd.DataFrame,
@@ -367,6 +412,7 @@ def one_year_hourly_available_capacity_factor(
         _combine_all_cap_fac_dfs(clean_dict)
         .pipe(_handle_2015_nulls, year)
         .pipe(_combine_cap_fac_with_fips_df, fips_df)
+        .pipe(_standardize_census_names, census_pep_data)
         .sort_values(by=["state", "place_name", "datetime_utc"])
         .reset_index(drop=True)
     )
