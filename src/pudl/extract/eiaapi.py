@@ -92,7 +92,11 @@ def _parse_data_column(elec_df: pd.DataFrame) -> pd.DataFrame:
         out.append(data_df)
     out = pd.concat(out, ignore_index=True, axis=0)
     out = out.convert_dtypes()
-    out.loc[:, "series_id"] = out.loc[:, "series_id"].astype("category", copy=False)
+    out.loc[:, "series_id"] = (
+        out.loc[:, "series_id"]
+        .astype("string", copy=False)
+        .astype("category", copy=False)
+    )
     return out.loc[:, ["series_id", "date", "value"]]  # reorder cols
 
 
@@ -111,7 +115,9 @@ def _extract(raw_zipfile) -> dict[str, pd.DataFrame]:
     return {"metadata": metadata, "timeseries": timeseries}
 
 
-def extract(ds: Datastore) -> dict[str, pd.DataFrame]:
+def extract(
+    ds: Datastore, partition: dict[str, str] = {"data_set": "electricity"}
+) -> dict[str, pd.DataFrame]:
     """Extract metadata and timeseries from raw EIA bulk electricity data.
 
     Args:
@@ -120,6 +126,6 @@ def extract(ds: Datastore) -> dict[str, pd.DataFrame]:
     Returns:
         Dictionary of dataframes with keys 'metadata' and 'timeseries'
     """
-    raw_zipfile = ds.get_unique_resource("eia_bulk_elec")
+    raw_zipfile = ds.get_unique_resource("eiaapi", **partition)
     dfs = _extract(BytesIO(raw_zipfile))
     return dfs

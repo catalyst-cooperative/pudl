@@ -35,12 +35,8 @@ ferc_to_sqlite_settings:
         2019,
         2020,
       ]
-      # A list of tables to be loaded into the local SQLite database. These are
-      # the table names as they appear in the 2015 FERC Form 1 database.
   ferc1_xbrl_to_sqlite_settings:
-    years: [2021, 2022, 2023]
-    # A list of tables to be loaded into the local SQLite database. These are
-    # the table names as created from the 2022 XBRL taxonomy.
+    years: [2021, 2022, 2023, 2024]
   ferc2_dbf_to_sqlite_settings:
     years:
       [
@@ -166,6 +162,7 @@ datasets:
         2021,
         2022,
         2023,
+        2024,
       ]
   ferc714:
     years:
