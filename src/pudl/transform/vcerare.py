@@ -239,21 +239,15 @@ def _handle_2015_nulls(combined_df: pd.DataFrame, year: int):
     data should conform to the expectation of no-null values.
     """
     if year == 2015:
+        null_selector = (combined_df.capacity_factor_solar_pv.isnull()) & (
+            combined_df.report_year == "2015"
+        )
         logger.info(
-            f"{len(combined_df.loc[(combined_df.capacity_factor_solar_pv.isnull()) & (combined_df.report_year == '2015')])} null PV capacity values found in the 2015 data. Zeroing out these values."
+            f"{len(combined_df.loc[null_selector])} null PV capacity values found in the 2015 data. Zeroing out these values."
         )
-        assert (
-            len(
-                combined_df.loc[
-                    combined_df.capacity_factor_solar_pv.isnull()
-                    & (combined_df.report_year == "2015")
-                ]
-            )
-            == 1320
-        )
+        assert len(combined_df.loc[null_selector]) == 1320
         combined_df.loc[
-            (combined_df.capacity_factor_solar_pv.isnull())
-            & (combined_df.report_year == "2015"),
+            null_selector,
             "capacity_factor_solar_pv",
         ] = 0
     return combined_df

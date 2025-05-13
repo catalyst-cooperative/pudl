@@ -7,11 +7,10 @@ import pudl.transform.vcerare as vcerare
 
 def test_standardize_census_names():
     """Make sure that census names are correctly standardized."""
-    # The test df includes a value for plant_id_epa whose value for plant_id_eia
-    # is different. Because the crosswalk gets trancated for the short tests based
-    # on available plant/gen and plant/boiler keys, not all of the plant ids are
-    # included. I had to find an example (2713-->58697) that would exist in the
-    # version of the crosswalk created by the fast etl (i.e. the last few years).
+    # Testing the following cases:
+    # 1) rename
+    # 2) no rename because the census data row is for a city
+    # 3) no rename because there's no match in the census data
     census_test_df = pd.DataFrame(
         {
             "county_id_fips": ["00001", "00002", "00003", "00004"],
