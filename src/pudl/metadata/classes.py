@@ -960,11 +960,7 @@ class DataSource(PudlMeta):
 
     def get_resource_ids(self) -> list[str]:
         """Compile list of resource IDs associated with this data source."""
-        # Temporary check to use eia861.RESOURCE_METADATA directly
-        # eia861 is not currently included in the general RESOURCE_METADATA dict
         resources = RESOURCE_METADATA
-        if self.name == "eia861":
-            resources = eia861.RESOURCE_METADATA
 
         return sorted(
             name
