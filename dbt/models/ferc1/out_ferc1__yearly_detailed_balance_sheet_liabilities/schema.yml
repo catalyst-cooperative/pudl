@@ -10,6 +10,8 @@ sources:
         columns:
           - name: report_year
           - name: utility_id_ferc1
+          - name: utility_id_pudl
+          - name: utility_name_ferc1
           - name: xbrl_factoid
           - name: utility_type
           - name: ending_balance
