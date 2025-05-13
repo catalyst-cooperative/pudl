@@ -55,3 +55,6 @@ dbt/dbt_packages/
 dbt/target/
 dbt/logs/
 dbt/.user.yml
+
+# lockfile made by dagster dbt integration
+dbt/package-lock.concurrent-update-lock
