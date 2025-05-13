@@ -329,6 +329,17 @@ def _infer_partition_column(table_name: str) -> str:
     return None
 
 
+def _get_tables(tables: list[str]) -> list[str]:
+    if "all" in tables:
+        tables = ALL_TABLES
+    elif len(bad_tables := [name for name in tables if name not in ALL_TABLES]) > 0:
+        raise RuntimeError(
+            f"The following table(s) could not be found in PUDL metadata: {bad_tables}"
+        )
+
+    return tables
+
+
 @dataclass
 class TableUpdateArgs:
     """Define a single class to collect the args for all table update commands."""
@@ -392,13 +403,7 @@ def add_tables(**kwargs):
     """
     args = TableUpdateArgs(**kwargs)
 
-    tables = args.tables
-    if "all" in tables:
-        tables = ALL_TABLES
-    elif len(bad_tables := [name for name in tables if name not in ALL_TABLES]) > 0:
-        raise RuntimeError(
-            f"The following table(s) could not be found in PUDL metadata: {bad_tables}"
-        )
+    tables = _get_tables(args.tables)
 
     for table_name in tables:
         data_source = get_data_source(table_name)
@@ -559,7 +564,13 @@ def migrate_tests(table_name: str, test_config_name: str, model_name: str | None
     is_flag=True,
     help="Report exact year by year row count changes, otherwise report total percent change.",
 )
-def summarize_row_count_diffs(verbose: bool = False):
+@click.option(
+    "--table",
+    type=str,
+    default="all",
+    help="Specify a single table to get row count diffs for. If not set this command will display row count diffs for all tables.",
+)
+def summarize_row_count_diffs(table: str, verbose: bool = False):
     """Load all row count failures from duckdb file and summarize.
 
     After running dbt tests, this command can be used to summarize row count changes.
@@ -570,6 +581,7 @@ def summarize_row_count_diffs(verbose: bool = False):
     Example usage:
         dbt_helper summarize-row-count-diffs
     """
+    tables = _get_tables([table])
     # Load failures
     with Path("./dbt/target/run_results.json").open() as f:
         failures = [
@@ -597,6 +609,10 @@ def summarize_row_count_diffs(verbose: bool = False):
         table_name = re.search(
             extract_table_name_pattern, failure["compiled_code"]
         ).group(1)
+
+        # Filter to requested table
+        if table_name not in tables:
+            continue
 
         # Get row count diffs from duckdb
         row_counts_df = db.sql(f"SELECT * FROM {failure['relation_name']}").df()  # noqa: S608
