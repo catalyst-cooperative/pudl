@@ -105,7 +105,7 @@ def _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips: pd.DataFrame) -> pd.DataFr
         "lake_michigan_michigan",
         "lake_michigan_wisconsin",
         "lake_ontario_new_york",
-        "lake_saint_clair_michigan",
+        "lake_st_clair_michigan",
         "lake_superior_minnesota",
         "lake_superior_michigan",
         "lake_superior_wisconsin",
@@ -310,9 +310,7 @@ def _get_parquet_path():
 
 def _spot_fix_great_lakes_values(sr: pd.Series) -> pd.Series:
     """Normalize spelling of great lakes in cell values."""
-    return sr.replace("lake_hurron_michigan", "lake_huron_michigan").replace(
-        "lake_st_clair_michigan", "lake_saint_clair_michigan"
-    )
+    return sr.replace("lake_hurron_michigan", "lake_huron_michigan")
 
 
 def _spot_fix_great_lakes_columns(df: pd.DataFrame) -> pd.DataFrame:
@@ -320,7 +318,6 @@ def _spot_fix_great_lakes_columns(df: pd.DataFrame) -> pd.DataFrame:
     return df.rename(
         columns={
             "lake_hurron_michigan": "lake_huron_michigan",
-            "lake_st_clair_michigan": "lake_saint_clair_michigan",
         }
     )
 

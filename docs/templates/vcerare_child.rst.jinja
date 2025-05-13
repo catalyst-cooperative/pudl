@@ -59,14 +59,18 @@ areas as well).
 
 Name and ID issues
 ------------------
-* The place name for Lake Huron is misspelled "Hurron" in the original data.
-* The place name for Lake Saint Claire in the original data uses the abbreviation "St."
-  including the period character -- this is the only abbreviation and only non
-  alphabetical or underscore character in any of the place names.
-* In 2015 Shannon County, South Dakota was renamed Oglala Lakota County and assigned a
-  new FIPS code. The VCE data includes the new FIPS code (46102) but the old name, while
-  the Census DP1 dataset included with PUDL is from 2010, and so uses both the old name
-  and the old FIPS code (46113).
+To ensure standardization in county naming conventions (e.g., St. Joseph vs. Saint
+Joseph), and to handle changes in county names over time, we ensure that county names
+conform to the most recent year of Census Population Estimates Program (PEP) data,
+using table :ref:`_core_censuspep__yearly_geocodes`. For each FIPS code, we default
+to using the Census PEP spelling. In all, we update 40 county names. The vast majority
+of these are changes in punctuation, spaces and abbreviations. In 2015 Shannon County,
+South Dakota was renamed Oglala Lakota County and assigned a new FIPS code. The VCE data
+includes the new FIPS code (46102) but the old name, so this county now appears as
+Oglala Lakota County in the transformed dataset.
+
+The place name for Lake Huron is misspelled "Hurron" in the original data, and is
+corrected in the transformed data.
 
 Capacity factors > 1
 --------------------
@@ -75,7 +79,14 @@ the maximum value of 1 for capacity factor (or 100 for the raw data--PUDL conver
 data from a percentage to a fraction to match other reported capacity factor data). This
 is due to power production performance being correlated with panel temperatures. During
 cold sunny periods, some solar capacity factor values are greater than 1 (but less that
-1.1).
+1.1). In 2016, 365 solar values exceeded 1.1 in the raw data and were clipped to 1.1.
+
+Null values
+-----------
+In the original data, 1,320 solar capacity values were reported as null in the year 2015.
+In conversation with the data providers, it was determined that these values should
+have been reported as zero and accordingly they have been updated as part of the
+transformation process.
 
 8760-hour years
 ---------------
