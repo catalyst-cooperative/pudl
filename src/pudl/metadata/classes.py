@@ -2001,7 +2001,7 @@ class MetaFromResourceName(PudlMeta):
             return tt
         if self.match.group("time"):
             return "timeseries"
-        return None
+        return ""
 
     @property
     def time(self):
@@ -2021,7 +2021,7 @@ class MetaFromResourceName(PudlMeta):
         """Metadata dict for table."""
         if self.seed:
             return self.seed
-        return RESOURCE_METADATA[self.name]
+        return RESOURCE_METADATA.get(self.name, {})
 
     @model_validator(mode="after")
     def table_name_check(self: Self):
@@ -2042,29 +2042,44 @@ class MetaFromResourceName(PudlMeta):
 
     def description_tabletype(self) -> str:
         """Return a description of the table type from the table name."""
-        return self.tabletype_map.get(self.tabletype)
+        return self.tabletype_map.get(self.tabletype, "")
 
     def description_tabletype_prompt(self) -> str:
         """Return a description prompt for the table type."""
-        return self.tabletype_prompt_map.get(self.tabletype)
+        return self.tabletype_prompt_map.get(self.tabletype, "")
 
     def description_time(self) -> str:
         """Return a description of the time-dimension from table name."""
         # TODO: ?maybe? we could add the date column into the description.
         # we'd need to look into the table's columns via its metadata
-        return self.time_detail_map.get(self.time, None)
+        return self.time_detail_map.get(self.time, "")
 
     def description_primarykey(self) -> str:
         """Return a description of the primary key from structured metadata."""
+        if "schema" not in self.meta:
+            return "This table is not listed in RESOURCE_METADATA and I can not find its schema."
         if "primary_key" in self.meta["schema"]:
             return ", ".join(self.meta["schema"]["primary_key"])
         return "This table has no primary key."
 
     def description_primarykey_prompt(self) -> str:
         """Return a description prompt for the primary key."""
+        if "schema" not in self.meta:
+            return "This table is not listed in RESOURCE_METADATA and I can not find its schema."
         if "primary_key" in self.meta["schema"]:
             return ""
         return "Each row represents [...]"
+
+    def summarize(self) -> str:
+        """Return a summary of extracted table attributes."""
+        return f"""
+{self.name}
+Layer  [{self.layer}]: {self.description_layer()}
+Source [{self.datasource}]: {self.description_datasource()}
+Time   [{self.time}]: {self.description_time()}
+Type   [{self.tabletype}]: {self.description_tabletype()}
+Slug:  {self.slug}
+PK:    {self.description_primarykey()}"""
 
 
 class Package(PudlMeta):

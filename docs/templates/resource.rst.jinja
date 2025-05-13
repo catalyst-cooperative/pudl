@@ -4,15 +4,14 @@
 
 {{ resource.description if resource.description else 'No table description available.' }}
 
+{% if "^" not in resource.description -%}
 {% if resource.schema.primary_key -%}
 The table has the following primary key columns:
-""""""""""""""""""""""""""""""""""""""""""""""""
-{% for key in resource.schema.primary_key %}
-* {{ key }}
+{% for key in resource.schema.primary_key %}* {{ key }}
 {% endfor %}
 {% else -%}
 This table has no primary key.
-""""""""""""""""""""""""""""""
+{%- endif %}
 {%- endif %}
 
 Access methods
