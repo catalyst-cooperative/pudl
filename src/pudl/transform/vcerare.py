@@ -105,7 +105,7 @@ def _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips: pd.DataFrame) -> pd.DataFr
         "lake_michigan_michigan",
         "lake_michigan_wisconsin",
         "lake_ontario_new_york",
-        "lake_st_clair_michigan",
+        "lake_saint_clair_michigan",
         "lake_superior_minnesota",
         "lake_superior_michigan",
         "lake_superior_wisconsin",

@@ -59,18 +59,14 @@ areas as well).
 
 Name and ID issues
 ------------------
-To ensure standardization in county naming conventions (e.g., St. Joseph vs. Saint
-Joseph), and to handle changes in county names over time, we ensure that county names
-conform to the most recent year of Census Population Estimates Program (PEP) data,
-using table ``_core_censuspep__yearly_geocodes``. For each FIPS code, we default
-to using the Census PEP spelling. In all, we update 40 county names. The vast majority
-of these are changes in punctuation, spaces and abbreviations. In 2015 Shannon County,
-South Dakota was renamed Oglala Lakota County and assigned a new FIPS code. The VCE data
-includes the new FIPS code (46102) but the old name, so this county now appears as
-Oglala Lakota County in the transformed dataset.
-
-The place name for Lake Huron is misspelled "Hurron" in the original data, and is
-corrected in the transformed data.
+* The place name for Lake Huron is misspelled "Hurron" in the original data.
+* The place name for Lake Saint Claire in the original data uses the abbreviation "St."
+  including the period character -- this is the only abbreviation and only non
+  alphabetical or underscore character in any of the place names.
+* In 2015 Shannon County, South Dakota was renamed Oglala Lakota County and assigned a
+  new FIPS code. The VCE data includes the new FIPS code (46102) but the old name, while
+  the Census DP1 dataset included with PUDL is from 2010, and so uses both the old name
+  and the old FIPS code (46113).
 
 Capacity factors > 1
 --------------------
