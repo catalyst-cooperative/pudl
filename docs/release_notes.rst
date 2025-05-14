@@ -94,6 +94,13 @@ EIA 930
   see :ref:`data-sources-eia930-changes-in-energy-source-granularity-over-time` for
   more information.
 
+VCE RARE
+~~~~~~~~
+* Integrated 2014-2018 RARE data into PUDL. Also fixed misleading latitude and longitude
+  field descriptions, and renamed the field ``county_or_lake_name`` to ``place_name``.
+  See issue :issue:`4226`
+  and PR :pr:`4239`.
+
 Bug Fixes
 ^^^^^^^^^
 * Fixed a bug in FERC XBRL extraction that led to quietly skipping tables with names
