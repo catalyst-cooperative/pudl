@@ -335,8 +335,7 @@ def one_year_hourly_available_capacity_factor(
     """Transform raw Vibrant Clean Energy renewable generation profiles.
 
     Concatenates the solar and wind capacity factors into a single table and turns
-    the columns for each county or subregion into a single place_name column. Harmonizes
-    county names with the latest Census PEP FIPS data.
+    the columns for each county or subregion into a single place_name column.
     """
     logger.info(
         f"Transforming the VCE RARE hourly available capacity factor tables for {year}."
