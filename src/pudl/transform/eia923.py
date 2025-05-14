@@ -486,7 +486,7 @@ def _coalmine_cleanup(
                 x.county_id_fips,
                 n_digits=3,
             ),
-            # As of writing this there is one mine_id that uses the letter O instead of a 0.
+            # 2025-05-14: there is one mine_id that uses the letter O instead of a 0.
             # In addition, mine_ids from 2024 are reported as strings and have a leading 0.
             # I checked the same id from other years in the raw data, and the leading 0s
             # only appear in 2024, so this function removes them so the years line up.
