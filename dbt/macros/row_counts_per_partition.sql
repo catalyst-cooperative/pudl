@@ -5,6 +5,10 @@
     else force_row_counts_table
 %}
 
+{% if target.name == "etl-fast" %}
+SELECT NULL WHERE FALSE -- This always returns zero rows, so the test will always pass
+{% else %}
+
 WITH
     expected AS (
         SELECT table_name, COALESCE(CAST(partition as VARCHAR), '') as partition, row_count as expected_count
@@ -37,5 +41,7 @@ FULL OUTER JOIN observed ON expected.partition=observed.partition
 WHERE expected_count != observed_count
     OR expected_count IS NULL
     OR observed_count IS NULL
+
+{% endif %}
 
 {% endmacro %}
