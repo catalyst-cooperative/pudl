@@ -310,7 +310,9 @@ def _get_parquet_path():
 
 def _spot_fix_great_lakes_values(sr: pd.Series) -> pd.Series:
     """Normalize spelling of great lakes in cell values."""
-    return sr.replace("lake_hurron_michigan", "lake_huron_michigan")
+    return sr.replace("lake_hurron_michigan", "lake_huron_michigan").replace(
+        "lake_st_clair_michigan", "lake_saint_clair_michigan"
+    )
 
 
 def _spot_fix_great_lakes_columns(df: pd.DataFrame) -> pd.DataFrame:
@@ -318,53 +320,9 @@ def _spot_fix_great_lakes_columns(df: pd.DataFrame) -> pd.DataFrame:
     return df.rename(
         columns={
             "lake_hurron_michigan": "lake_huron_michigan",
+            "lake_st_clair_michigan": "lake_saint_clair_michigan",
         }
     )
-
-
-def _standardize_census_names(combined_df: pd.DataFrame, census_pep_data: pd.DataFrame):
-    """Make sure that the county names correspond to the latest census vintage."""
-    # Get unique list of county and place name combinations
-    county_fips = combined_df[["place_name", "county_id_fips"]].drop_duplicates()
-    county_fips = county_fips.dropna(
-        subset=["county_id_fips"]
-    )  # Drop non-FIPS place names (e.g., lakes)
-    census_fips = census_pep_data[["county_id_fips", "area_name"]].drop_duplicates()
-    census_fips = census_fips.loc[
-        census_fips.area_name.str.contains(
-            r"County$|Parish$", na=False
-        )  # Drop city and township census data
-    ]
-    # Create a map of place names from VCE to Census data
-    names_df = county_fips.merge(
-        census_fips, on="county_id_fips", how="left", validate="1:1"
-    )
-    names_df["area_name"] = names_df["area_name"].str.lower()
-    names_df["area_name"] = (
-        names_df["area_name"]
-        .str.replace("county", "")
-        .str.replace("parish", "")
-        .str.strip()
-    )
-    names_df["place_name"] = names_df["place_name"].str.replace("_", " ")
-
-    name_map = names_df.loc[names_df.place_name != names_df.area_name].set_index(
-        "county_id_fips"
-    )
-    name_map = name_map.rename(
-        columns={"place_name": "place_name_old", "area_name": "place_name"}
-    )
-    logger.info(
-        f"Replacing {len(name_map.dropna(how='any'))} county names with data from the latest Census."
-    )
-    logger.info(
-        f"The following place names are getting replaced:\n{name_map.dropna(how='any')}"
-    )
-    combined_df = combined_df.set_index("county_id_fips")
-    combined_df.update(name_map)
-    # Now that we've updated the dataframe, convert to categorical dtype to save memory
-    combined_df.place_name = combined_df.place_name.astype("category")
-    return combined_df.reset_index()
 
 
 def one_year_hourly_available_capacity_factor(
@@ -373,7 +331,6 @@ def one_year_hourly_available_capacity_factor(
     raw_vcerare__fixed_solar_pv_lat_upv: pd.DataFrame,
     raw_vcerare__offshore_wind_power_140m: pd.DataFrame,
     raw_vcerare__onshore_wind_power_100m: pd.DataFrame,
-    census_pep_data: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform raw Vibrant Clean Energy renewable generation profiles.
 
@@ -411,7 +368,6 @@ def one_year_hourly_available_capacity_factor(
         _combine_all_cap_fac_dfs(clean_dict)
         .pipe(_handle_2015_nulls, year)
         .pipe(_combine_cap_fac_with_fips_df, fips_df)
-        .pipe(_standardize_census_names, census_pep_data)
         .sort_values(by=["state", "place_name", "datetime_utc"])
         .reset_index(drop=True)
     )
@@ -423,7 +379,6 @@ def out_vcerare__hourly_available_capacity_factor(
     raw_vcerare__fixed_solar_pv_lat_upv: pd.DataFrame,
     raw_vcerare__offshore_wind_power_140m: pd.DataFrame,
     raw_vcerare__onshore_wind_power_100m: pd.DataFrame,
-    _core_censuspep__yearly_geocodes: pd.DataFrame,
 ):
     """Transform raw Vibrant Clean Energy renewable generation profiles.
 
@@ -434,15 +389,6 @@ def out_vcerare__hourly_available_capacity_factor(
 
     def _get_year(df, year):
         return df.loc[df["report_year"] == year]
-
-    # Get census vintage to conform the data to.
-    assert int(_core_censuspep__yearly_geocodes.report_year.max()) >= int(
-        raw_vcerare__fixed_solar_pv_lat_upv["report_year"].max()
-    )  # Check these are in sync
-    census_data = _core_censuspep__yearly_geocodes.loc[
-        _core_censuspep__yearly_geocodes.report_year
-        == _core_censuspep__yearly_geocodes.report_year.max()
-    ]
 
     parquet_path = _get_parquet_path()
     schema = Resource.from_id(
@@ -465,7 +411,6 @@ def out_vcerare__hourly_available_capacity_factor(
                 raw_vcerare__onshore_wind_power_100m=_get_year(
                     raw_vcerare__onshore_wind_power_100m, year
                 ),
-                census_pep_data=census_data,
             )
             parquet_writer.write_table(
                 pa.Table.from_pandas(df, schema=schema, preserve_index=False)
