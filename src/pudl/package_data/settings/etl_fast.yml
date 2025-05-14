@@ -11,15 +11,15 @@ ferc_to_sqlite_settings:
   ferc2_dbf_to_sqlite_settings:
     years: [2019, 2020]
   ferc2_xbrl_to_sqlite_settings:
-    years: [2021, 2023]
+    years: [2021, 2024]
   ferc6_dbf_to_sqlite_settings:
     years: [2019, 2020]
   ferc6_xbrl_to_sqlite_settings:
-    years: [2021, 2023]
+    years: [2021, 2024]
   ferc60_dbf_to_sqlite_settings:
     years: [2019, 2020]
   ferc60_xbrl_to_sqlite_settings:
-    years: [2021, 2023]
+    years: [2021, 2024]
   ferc714_xbrl_to_sqlite_settings:
     years: [2021, 2023]
 
