@@ -96,7 +96,7 @@ EIA 930
 
 EIA 860M
 ~~~~~~~~
-* Added EIA 860M data from January, Febrary, and March 2025. See :issue:`4233` and
+* Added EIA 860M data from January, February, and March 2025. See :issue:`4233` and
   PR :pr:`4242`.
 
 EIA 923
