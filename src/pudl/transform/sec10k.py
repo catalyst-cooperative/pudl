@@ -220,6 +220,10 @@ def _match_ex21_subsidiaries_to_filer_company(
         A dataframe of the Ex. 21 subsidiaries with a column for the
         subsidiaries CIK (null if the subsidiary doesn't file).
     """
+    # filer_info_df = filer_info_df[filer_info_df.company_name.str.contains("skillsoft")]
+    # ownership_df = ownership_df[
+    #     ownership_df.subsidiary_company_name.str.contains("skillsoft")
+    # ]
     filer_info_df["subsidiary_company_name"] = _standardize_company_name(
         filer_info_df["company_name"]
     )
@@ -275,41 +279,22 @@ def _match_ex21_subsidiaries_to_filer_company(
         ],
         ascending=[True, True, False, True],
     )
-    # Select the row with the highest loc overlap and nearest report dates
-    # for each company name and location.
-    # We could choose the best match for each subsidiary_company_id_sec10k
-    # but we don't, because if a company name is the same but locations are actually
-    # different (not just NaN) then they shouldn't be matched
+    # Select the filer with the highest loc overlap and nearest report dates
+    # for each subsidiary_company_id_sec10k
     closest_match_df = merged_df.groupby(
-        ["subsidiary_company_name", "subsidiary_company_location"], as_index=False
+        ["subsidiary_company_id_sec10k"],
+        as_index=False,
     ).first()
     ownership_with_cik_df = ownership_df.merge(
         closest_match_df[
             [
-                "subsidiary_company_name",
-                "subsidiary_company_location",
+                "subsidiary_company_id_sec10k",
                 "central_index_key",
             ]
         ],
         how="left",
-        on=["subsidiary_company_name", "subsidiary_company_location"],
+        on=["subsidiary_company_id_sec10k"],
     ).rename(columns={"central_index_key": "subsidiary_company_central_index_key"})
-    # if a subsidiary has a null location and doesn't have a matched CIK,
-    # but the same company name with a non-null location was assigned a CIK
-    # then assign that CIK to the null location subsidiary
-    ownership_with_cik_df = ownership_with_cik_df.merge(
-        closest_match_df[["subsidiary_company_name", "central_index_key"]],
-        how="left",
-        on="subsidiary_company_name",
-    ).rename(columns={"central_index_key": "company_name_merge_cik"})
-    ownership_with_cik_df["subsidiary_company_central_index_key"] = (
-        ownership_with_cik_df["subsidiary_company_central_index_key"].where(
-            ~(ownership_with_cik_df.subsidiary_company_central_index_key.isnull())
-            | ~(ownership_with_cik_df.subsidiary_company_location.isnull()),
-            ownership_with_cik_df["company_name_merge_cik"],
-        )
-    )
-    ownership_with_cik_df = ownership_with_cik_df.drop(columns="company_name_merge_cik")
 
     return ownership_with_cik_df
 
@@ -682,7 +667,9 @@ def core_sec10k__assn_sec10k_filers_and_eia_utilities(
     return sec_eia_assn
 
 
-@dg.asset(io_manager_key="pudl_io_manager", group_name="core_sec10k")
+@dg.asset(  # io_manager_key="pudl_io_manager",
+    group_name="core_sec10k"
+)
 def core_sec10k__assn_exhibit_21_subsidiaries_and_filers(
     core_sec10k__quarterly_filings,
     core_sec10k__quarterly_company_information,
@@ -716,23 +703,17 @@ def core_sec10k__assn_exhibit_21_subsidiaries_and_filers(
         filer_info_df=filer_info_df,
         ownership_df=ownership_df,
     )
-    out_df = matched_df[
-        [
-            "subsidiary_company_id_sec10k",
-            "subsidiary_company_central_index_key",
-            "report_date",
+    out_df = (
+        matched_df[
+            [
+                "subsidiary_company_id_sec10k",
+                "subsidiary_company_central_index_key",
+            ]
         ]
-    ].dropna(subset="subsidiary_company_central_index_key")
-    # Sometimes a company will change CIK in the SEC
-    # database (without changing name).
-    # We only want one CIK per subsidiary company ID, so keep the
-    # most recent CIK match for each subsidiary company.
-    out_df = out_df.sort_values(
-        by=["subsidiary_company_id_sec10k", "report_date"], ascending=[True, False]
-    ).drop_duplicates(subset="subsidiary_company_id_sec10k", keep="first")
-    out_df = out_df[
-        ["subsidiary_company_id_sec10k", "subsidiary_company_central_index_key"]
-    ].rename(columns={"subsidiary_company_central_index_key": "central_index_key"})
+        .dropna(subset="subsidiary_company_central_index_key")
+        .drop_duplicates()
+        .rename(columns={"subsidiary_company_central_index_key": "central_index_key"})
+    )
     return out_df
 
 
