@@ -917,10 +917,11 @@ class HourlyPlanningAreaDemand:
         df["gap"] = df[["respondent_id_ferc714", "report_date"]].sort_values(
             by=["respondent_id_ferc714", "report_date"]
         ).groupby("respondent_id_ferc714").diff() > pd.to_timedelta("1h")
-        if len(gappy_dates := df[df.gap]) > (41 if source == "xbrl" else 10):
+        max_gaps = 41 if source == "xbrl" else 10
+        if len(gappy_dates := df[df.gap]) > max_gaps:
             raise AssertionError(
-                "We expect there to be nearly no gaps in the time series."
-                f"but we found these gaps:\n{gappy_dates}"
+                f"We expect there to be fewer than {max_gaps} gaps in the {source} time "
+                f"series but we found these {len(gappy_dates)} gaps:\n{gappy_dates}"
             )
         return df.drop(columns=["gap"])
 
