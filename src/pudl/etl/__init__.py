@@ -2,8 +2,6 @@
 
 import importlib.resources
 import itertools
-import os
-import warnings
 
 import pandera as pr
 from dagster import (
@@ -11,7 +9,6 @@ from dagster import (
     AssetChecksDefinition,
     AssetKey,
     AssetsDefinition,
-    AssetSelection,
     Definitions,
     SourceAsset,
     asset_check,
@@ -20,8 +17,18 @@ from dagster import (
     load_assets_from_modules,
 )
 from dagster._core.definitions.cacheable_assets import CacheableAssetsDefinition
+from dagster_dbt import (
+    DbtCliResource,
+)
 
 import pudl
+from pudl.etl import (
+    dbt_asset_checks,
+    eia_bulk_elec_assets,
+    epacems_assets,
+    glue_assets,
+    static_assets,
+)
 from pudl.io_managers import (
     epacems_io_manager,
     ferc1_dbf_sqlite_io_manager,
@@ -33,13 +40,7 @@ from pudl.io_managers import (
 from pudl.metadata import PUDL_PACKAGE
 from pudl.resources import dataset_settings, datastore, ferc_to_sqlite_settings
 from pudl.settings import EtlSettings
-
-from . import (
-    eia_bulk_elec_assets,
-    epacems_assets,
-    glue_assets,
-    static_assets,
-)
+from pudl.workspace.setup import PUDL_ROOT_DIR
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -113,7 +114,13 @@ out_module_groups = {
     "out_state_demand_ferc714": [pudl.analysis.state_demand],
 }
 
-all_asset_modules = raw_module_groups | core_module_groups | out_module_groups
+all_asset_modules = (
+    raw_module_groups
+    | core_module_groups
+    | out_module_groups
+    | {"dbt_assets": [dbt_asset_checks]}
+)
+
 default_assets = list(
     itertools.chain.from_iterable(
         load_assets_from_modules(
@@ -124,7 +131,6 @@ default_assets = list(
     )
 )
 
-
 default_asset_checks = list(
     itertools.chain.from_iterable(
         load_asset_checks_from_modules(
@@ -132,7 +138,7 @@ default_asset_checks = list(
         )
         for modules in all_asset_modules.values()
     )
-)
+) + list(load_asset_checks_from_modules([dbt_asset_checks]))
 
 
 def asset_check_from_schema(
@@ -212,6 +218,9 @@ default_asset_checks += [
     if check is not None
 ]
 
+dbt_cli_resource = DbtCliResource(project_dir=PUDL_ROOT_DIR / "dbt")
+
+
 default_resources = {
     "datastore": datastore,
     "pudl_io_manager": pudl_mixed_format_io_manager,
@@ -222,6 +231,7 @@ default_resources = {
     "ferc_to_sqlite_settings": ferc_to_sqlite_settings,
     "epacems_io_manager": epacems_io_manager,
     "parquet_io_manager": parquet_io_manager,
+    "dbt": dbt_cli_resource,
 }
 
 # Limit the number of concurrent workers when launch assets that use a lot of memory.

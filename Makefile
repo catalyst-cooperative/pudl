@@ -6,9 +6,9 @@ etl_full_yml := src/pudl/package_data/settings/etl_full.yml
 
 # We use mamba locally, but micromamba in CI, so choose the right binary:
 ifdef GITHUB_ACTIONS
-  mamba := micromamba
+	mamba := micromamba
 else
-  mamba := mamba
+	mamba := ${MAKE_MAMBA_COMMAND:-mamba}
 endif
 
 # Tell make to look in the environments and output directory for targets and sources.

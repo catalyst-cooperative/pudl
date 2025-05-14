@@ -21,7 +21,7 @@ dependencies = [
     "coloredlogs>=14.0", # Dagster requires 14.0
     "conda-lock>=3",
     "coverage>=7.6",
-    "dagster>=1.10.5",
+    "dagster>=1.10.13",
     "dagster-dbt", # Automatically follows dagster version
     "dagster-postgres", # Automatically follows dagster version
     "dask>=2025",
