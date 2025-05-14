@@ -114,7 +114,13 @@ out_module_groups = {
     "out_state_demand_ferc714": [pudl.analysis.state_demand],
 }
 
-all_asset_modules = raw_module_groups | core_module_groups | out_module_groups
+all_asset_modules = (
+    raw_module_groups
+    | core_module_groups
+    | out_module_groups
+    | {"dbt_assets": [dbt_asset_checks]}
+)
+
 default_assets = list(
     itertools.chain.from_iterable(
         load_assets_from_modules(
