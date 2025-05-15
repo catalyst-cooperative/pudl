@@ -43,7 +43,6 @@ def test_nuclear_fraction(fast_out, df_name, expected_nuke_fraction, tolerance):
     assert abs(actual_nuke_fraction - expected_nuke_fraction) <= tolerance
 
 
-@pytest.skip(reason="Memory intensive, GHA CI failing. Migrate to dbt ASAP.")
 @pytest.mark.parametrize(
     "df1_name,df2_name,mult,kwargs",
     [
@@ -75,6 +74,7 @@ def test_nuclear_fraction(fast_out, df_name, expected_nuke_fraction, tolerance):
 )
 def test_eia_outputs(fast_out, df1_name, df2_name, mult, kwargs):
     """Check EIA output functions and date frequencies of output dataframes."""
+    pytest.skip(reason="Memory intensive, GHA CI failing. Migrate to dbt ASAP.")
     df1 = fast_out.__getattribute__(df1_name)()
     logger.info(f"Running fast_out.{df2_name}() with freq={fast_out.freq}.")
     df2 = fast_out.__getattribute__(df2_name)(**kwargs)
