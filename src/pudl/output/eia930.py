@@ -5,6 +5,7 @@ from dagster import asset
 
 from pudl.analysis.timeseries_cleaning import (
     ImputeTimeseriesSettings,
+    SimulateFlagsSettings,
     impute_timeseries_asset_factory,
 )
 
@@ -74,6 +75,39 @@ def _years_from_context(context) -> list[int]:
     ]
 
 
+@asset
+def _out_eia930__combined_demand(
+    _out_eia930__hourly_operations: pd.DataFrame,
+    _out_eia930__hourly_subregion_demand: pd.DataFrame,
+) -> pd.DataFrame:
+    """Combine subregion and BA demand into a single DataFrame to perform imputation."""
+    common_cols = ["datetime_utc", "demand_reported_mwh", "timezone", "generic_id"]
+    return pd.concat(
+        [
+            _out_eia930__hourly_subregion_demand.rename(
+                columns={"combined_subregion_ba_id": "generic_id"}
+            )[common_cols],
+            _out_eia930__hourly_operations.rename(
+                columns={"balancing_authority_code_eia": "generic_id"}
+            )[common_cols],
+        ]
+    )
+
+
+imputed_combined_demand_assets = impute_timeseries_asset_factory(
+    input_asset_name="_out_eia930__combined_demand",
+    output_asset_name="_out_eia930__combined_imputed_demand",
+    years_from_context=_years_from_context,
+    value_col="demand_reported_mwh",
+    imputed_value_col="demand_imputed_pudl_mwh",
+    id_col="generic_id",
+    settings=ImputeTimeseriesSettings(
+        simulate_flags_settings=SimulateFlagsSettings(),
+    ),
+    output_io_manager_key="io_manager",
+)
+
+
 imputed_subregion_demand_assets = impute_timeseries_asset_factory(
     input_asset_name="_out_eia930__hourly_subregion_demand",
     output_asset_name="out_eia930__hourly_subregion_demand",
@@ -81,7 +115,14 @@ imputed_subregion_demand_assets = impute_timeseries_asset_factory(
     value_col="demand_reported_mwh",
     imputed_value_col="demand_imputed_pudl_mwh",
     id_col="combined_subregion_ba_id",
-    settings=ImputeTimeseriesSettings(method_overrides={2019: "tnn", 2025: "tnn"}),
+    real_id_cols=[
+        "balancing_authority_code_eia",
+        "balancing_authority_subregion_code_eia",
+    ],
+    settings=ImputeTimeseriesSettings(
+        method_overrides={2019: "tnn", 2025: "tnn"},
+        simulate_flags_settings=SimulateFlagsSettings(),
+    ),
 )
 
 
@@ -92,6 +133,9 @@ imputed_ba_demand_assets = impute_timeseries_asset_factory(
     value_col="demand_reported_mwh",
     imputed_value_col="demand_imputed_pudl_mwh",
     id_col="balancing_authority_code_eia",
+    settings=ImputeTimeseriesSettings(
+        simulate_flags_settings=SimulateFlagsSettings(),
+    ),
 )
 
 
