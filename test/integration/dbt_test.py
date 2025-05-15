@@ -89,7 +89,7 @@ def test_dbt_helper(
     dbt_target: str,
     script_runner,
 ):
-    """Run add-tables. Should detect everything already exists, and do nothing.
+    """Run update-tables. Should detect everything already exists, and do nothing.
 
     The dependency on pudl_io_manager is necessary because it ensures that the dbt
     tests don't run until after the ETL has completed and the Parquet files are
@@ -102,7 +102,8 @@ def test_dbt_helper(
             "--target",
             dbt_target,
             "--row-counts",
-            "--schema",
+            # Uncomment once we have schema-preserving updates
+            # "--schema",
             "all",
         ],
         print_result=True,
