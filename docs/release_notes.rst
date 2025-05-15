@@ -34,7 +34,7 @@ is being done in collaboration with :user:`awongel` at
   :pr:`4162`
 
 SEC 10-K
-^^^^^^^^
+~~~~~~~~
 * Reorganized the preliminary SEC 10-K data that was integrated into our last release.
   See issue :issue:`4078` and PR :pr:`4134`. The SEC 10-K tables are now more fully
   normalized and better conform to existing PUDL naming conventions. Overall revision of
@@ -59,13 +59,54 @@ SEC 10-K
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+FERC Form 1
+~~~~~~~~~~~
+* Integrated FERC Form 1 data from 2024 into the main PUDL SQLite DB. See issue
+  :issue:`4207` and PR :pr:`4215`. FERC Form 1 has a filing deadline of
+  `April 18th <https://www.ferc.gov/general-information-0/electric-industry-forms>`__
+  for utility respondents, but late filings may come throughout the year. This update
+  includes ~95% of the expected utility responses for 2024.
+
+FERC Forms 2, 6, & 60
+~~~~~~~~~~~~~~~~~~~~~
+* Updated the FERC archive DOIs and ``ferc_to_sqlite`` settings to extract 2024 XBRL
+  data for FERC Forms 2, 6, and 60 and add them to their respective SQLite databases.
+  Note that this data is not yet being processed beyond the conversion from XBRL to
+  SQLite. See PR :pr:`4250`. The reporting deadline for these forms was April 18th, 2025
+  so they should include the vast bulk of the expected data, however there may be some
+  late filings which will be added in the next quarterly release.
+
+EIA Bulk Electricity
+~~~~~~~~~~~~~~~~~~~~
+* Updated the EIA Bulk Electricity data to include data published up through
+  2025-05-01. Also adapted the extractor to handle changes in formatting for the
+  EIA Bulk API archive. See :issue:`4237` and PR :pr:`4246`.
+
+EPA CEMS
+~~~~~~~~
+* Added 2025 Q1 of CEMS data. See :issue:`4236` and :pr:`4238`.
+
+EIA 930
+~~~~~~~~
+* Updated EIA 930 to include data published up through the beginning of May 2025.
+  See :issue:`4235` and :pr:`4242`. Raw data now includes adjusted and imputed
+  values for the ``unknown`` fuel source, making it behave like other fuel sources;
+  see :ref:`data-sources-eia930-changes-in-energy-source-granularity-over-time` for
+  more information.
+
+VCE RARE
+~~~~~~~~
+* Integrated 2014-2018 RARE data into PUDL. Also fixed misleading latitude and longitude
+  field descriptions, and renamed the field ``county_or_lake_name`` to ``place_name``.
+  See issue :issue:`4226`
+  and PR :pr:`4239`.
+
 Bug Fixes
 ^^^^^^^^^
 * Fixed a bug in FERC XBRL extraction that led to quietly skipping tables with names
-  that didn't conform to expected format.
-
-Major Dependency Updates
-^^^^^^^^^^^^^^^^^^^^^^^^
+  that didn't conform to expected format. The only known table affected was in the FERC
+  Form 6. See issue :issue:`4203` and PRs :pr:`4224` and
+  `catalyst-cooperative/ferc-xbrl-extractor #320 <https://github.com/catalyst-cooperative/ferc-xbrl-extractor/pull/320>`__.
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -81,7 +122,7 @@ Quality of Life Improvements
 
 New Tests
 ^^^^^^^^^
-We're in the process of migrating our tests to use the
+We're in the process of migrating our data validations to use the
 `dbt <https://docs.getdbt.com/docs/introduction>`__ framework.
 So far we have converted the following tests:
 
@@ -95,6 +136,10 @@ So far we have converted the following tests:
   can find the implementation in the `expect_includes_all_value_combinations_from.sql
   <../../dbt/tests/data_tests/generic_tests/expect_includes_all_value_combinations_from.sql>`__
   file.
+* ``expect_quantile_constraints`` - a more generic replacement for the old
+  ``vs_bounds`` pytest. See :issue:`4106`, :pr:`4090`, and :pr:`4171`. You can find the
+  implementation in the `expect_quantile_constraints.sql
+  <../../dbt/tests/data_tests/generic_tests/expect_quantile_constraints.sql>`__ file.
 * 19 tests which required special handling; see :issue:`4093`, :pr:`4114`, :pr:`4151`.
 
 .. _release-v2025.2.0:
