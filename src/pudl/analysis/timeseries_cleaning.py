@@ -42,7 +42,7 @@ import pandera as pa
 import scipy.stats
 from dagster import AssetIn, AssetOut, asset, multi_asset
 from pandera.typing import DataFrame, Index, Series
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_absolute_percentage_error
 
 from pudl.logging_helpers import get_logger
 from pudl.metadata.dfs import ImputationReasonCodes
@@ -178,26 +178,6 @@ def pivot_aligned_timeseries_dataframe(
     end = matrix.index.max().replace(hour=23)
     all_hours = pd.date_range(start=start, end=end, freq="h", name="datetime")
     return matrix.reindex(all_hours)
-
-
-@pa.check_types
-def score_simulated_imputation(
-    imputed_df: DataFrame[AlignedTimeseriesDataFrame],
-) -> float:
-    """Compute mean-squared-error on simulated imputed data."""
-    simulated_values = imputed_df.loc[imputed_df["flags"] == "simulated"]
-    simulated_values["original_id"] = simulated_values["id_col"].str.removesuffix(
-        "_SIMULATED"
-    )
-    simulated_values = simulated_values.merge(
-        imputed_df,
-        left_on=["original_id", "datetime"],
-        right_on=["id_col", "datetime"],
-    )
-
-    return mean_squared_error(
-        simulated_values["value_col_y"], simulated_values["value_col_x"]
-    )
 
 
 @pa.check_types
@@ -1682,7 +1662,7 @@ def simulate_flags(
             (monthly_imputation_rate.imputation_rate >= settings.min_flag_rate)
             & (monthly_imputation_rate.imputation_rate <= settings.max_flag_rate)
         ]
-        .sample(settings.num_sections)
+        .sample(settings.num_months)
         .rename(
             columns={
                 "id_col": "reference_id_col",
@@ -1694,7 +1674,7 @@ def simulate_flags(
     # Find months which didn't have any values flagged to drop data from
     good_months = (
         monthly_imputation_rate[monthly_imputation_rate.imputation_rate == 0.0]
-        .sample(settings.num_sections)
+        .sample(settings.num_months)
         .rename(
             columns={
                 "id_col": "simulation_id_col",
@@ -1702,6 +1682,9 @@ def simulate_flags(
             }
         )[["simulation_id_col", "simulation_month"]]
     )
+
+    # Get all years with simulated data to filter timeseries
+    simulated_years = good_months["simulation_month"].dt.year.unique()
 
     # Use reference month to get hours which should be flagged in simulation month
     simulation_data = _get_simulation_data(
@@ -1715,26 +1698,23 @@ def simulate_flags(
     # These new columns mimic real timeseries' with simulated months that have
     # flagged values which weren't flagged in the original data
     for simulation_id in simulation_data.simulation_id_col.unique():
-        # Create new simulated columns in timeseries/flag matricies
-        timeseries_matrix[f"{simulation_id}_SIMULATED"] = timeseries_matrix[
-            simulation_id
-        ]
-        flag_matrix[f"{simulation_id}_SIMULATED"] = flag_matrix[simulation_id]
-
         # Apply simulated flags to each matrix
         timeseries_matrix.loc[
             simulation_data[simulation_data["simulation_id_col"] == simulation_id][
                 "simulation_datetime"
             ],
-            f"{simulation_id}_SIMULATED",
+            simulation_id,
         ] = None
         flag_matrix.loc[
             simulation_data[simulation_data["simulation_id_col"] == simulation_id][
                 "simulation_datetime"
             ],
-            f"{simulation_id}_SIMULATED",
+            simulation_id,
         ] = "simulated"
-    return timeseries_matrix, flag_matrix
+    return (
+        timeseries_matrix[timeseries_matrix.index.year.isin(simulated_years)],
+        flag_matrix[flag_matrix.index.year.isin(simulated_years)],
+    )
 
 
 @dataclass
@@ -1760,7 +1740,7 @@ Default of 24 is meant for hourly data with a diurnal periodicity.
     """Settings to simulate flagged values and score imputation. Defaults to None which will not do any simulation/scoring."""
 
 
-def impute_timeseries_asset_factory(
+def impute_timeseries_asset_factory(  # noqa: C901
     input_asset_name: str,
     output_asset_name: str,
     years_from_context: Callable,
@@ -1769,6 +1749,7 @@ def impute_timeseries_asset_factory(
     imputed_value_col: str = "demand_imputed_mwh",
     reported_value_col: str = "demand_reported_mwh",
     output_io_manager_key: str = "parquet_io_manager",
+    real_id_cols: tuple[str, str] | None = None,
     settings: ImputeTimeseriesSettings = ImputeTimeseriesSettings(),
 ) -> pd.DataFrame:
     """Produces assets to impute values for a given timeseries table/column.
@@ -1792,13 +1773,25 @@ def impute_timeseries_asset_factory(
         reported_value_col: Name of column in output asset with original reported values.
         id_col: Name of column identifying entities to group timeseries by.
         output_io_manager_key: IO-manager to use for final output asset.
+        real_id_cols: The imputation process requires a single ID per timeseries', but some
+            tables like EIA 930 subregion demand actually have two ID columns. We use
+            a temp combined ID in these cases, but this temp column gets dropped
+            on the output asset, which is used for scoring our simulated imputation.
+            If specified, these columns will be used instead during scoring.
         settings: Configurable options for imputation (see :class:`ImputeTimeseriesSettings`).
     """
     timeseries_matrix_asset = f"_{output_asset_name}_timeseries_matrix"
     aligned_input_asset = f"_{input_asset_name}_aligned"
     cleaned_timeseries_matrix_asset = f"_{output_asset_name}_cleaned_timeseries_matrix"
     flags_asset = f"_{output_asset_name}_timeseries_matrix_flags"
+    simulated_timeseries_matrix_asset = (
+        f"_{output_asset_name}_simulated_timeseries_matrix"
+    )
+    simulated_flags_asset = f"_{output_asset_name}_timeseries_matrix_simulated_flags"
     imputed_asset = f"_{output_asset_name}_imputed_matrix"
+    imputed_simulated_asset = f"_{output_asset_name}_imputed_simulated_matrix"
+    simulated_output_asset = f"_{output_asset_name}_simulated"
+    imputation_score_asset = f"_{output_asset_name}_score"
 
     @multi_asset(
         ins={"input_df": AssetIn(input_asset_name)},
@@ -1844,8 +1837,6 @@ def impute_timeseries_asset_factory(
     ) -> tuple[pd.DataFrame, pd.DataFrame]:
         """Flag/Null anomalous and missing values."""
         matrix, flags = flag_ruggles(matrix)
-        if (simulate_flags_settings := settings.simulate_flags_settings) is not None:
-            matrix, flags = simulate_flags(simulate_flags_settings, matrix, flags)
 
         matrix = filter_missing_values(
             matrix,
@@ -1853,6 +1844,25 @@ def impute_timeseries_asset_factory(
             min_data_fraction=settings.min_data_fraction,
         )
         return matrix, flags
+
+    @multi_asset(
+        ins={
+            "matrix": AssetIn(cleaned_timeseries_matrix_asset),
+            "flags": AssetIn(flags_asset),
+        },
+        outs={
+            simulated_timeseries_matrix_asset: AssetOut(
+                key=simulated_timeseries_matrix_asset
+            ),
+            simulated_flags_asset: AssetOut(key=simulated_flags_asset),
+        },
+        name=f"_{output_asset_name}_simulate_flag_timeseries_matrix",
+    )
+    def _simulate_flags(
+        matrix: pd.DataFrame,
+        flags: pd.DataFrame,
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
+        return simulate_flags(settings.simulate_flags_settings, matrix, flags)
 
     @asset(
         required_resource_keys={"dataset_settings"},
@@ -1875,26 +1885,33 @@ def impute_timeseries_asset_factory(
         )
 
     @asset(
+        required_resource_keys={"dataset_settings"},
         ins={
-            "matrix": AssetIn(imputed_asset),
-            "flags": AssetIn(flags_asset),
-            "aligned_df": AssetIn(aligned_input_asset),
+            "matrix": AssetIn(simulated_timeseries_matrix_asset),
         },
-        name=output_asset_name,
-        io_manager_key=output_io_manager_key,
+        name=imputed_simulated_asset,
     )
-    def _create_output_asset(
+    def _impute_simulated_timeseries(context, matrix: pd.DataFrame) -> pd.DataFrame:
+        """Perform imputation on asset with simulated flags and return TimeseriesMatrix with imputed values."""
+        # Impute flagged/missing values
+        years = years_from_context(context)
+        method = dict.fromkeys(years, settings.method) | settings.method_overrides
+        return impute_flagged_values(
+            matrix,
+            years=years,
+            periods=settings.periods,
+            blocks=settings.blocks,
+            method=method,
+        )
+
+    def _merge_imputed(
         aligned_df: pd.DataFrame,
         matrix: pd.DataFrame,
         flags: pd.DataFrame,
     ) -> pd.DataFrame:
-        """Perform imputation and prepare output asset."""
+        """Helper function to melt imputed timeseries matrix and merge back on input asset."""
         # Melt imputed matrix/flag matrix to long format
         imputed_df = melt_imputed_timeseries_matrix(matrix, flags)
-        if settings.simulate_flags_settings is not None:
-            logger.info(
-                f"Simulated imputation mean squared error: {score_simulated_imputation(imputed_df)}"
-            )
 
         # Merge back on core table
         df = aligned_df.merge(imputed_df, on=["id_col", "datetime"], how="left")
@@ -1908,9 +1925,76 @@ def impute_timeseries_asset_factory(
             }
         )
 
+    @asset(
+        ins={
+            "imputed_matrix": AssetIn(imputed_asset),
+            "imputed_flags": AssetIn(flags_asset),
+            "aligned_df": AssetIn(aligned_input_asset),
+        },
+        name=output_asset_name,
+        io_manager_key=output_io_manager_key,
+    )
+    def _create_output_asset(
+        aligned_df: pd.DataFrame,
+        imputed_matrix: pd.DataFrame,
+        imputed_flags: pd.DataFrame,
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
+        """Merge imputed data on input asset to create output asset."""
+        return _merge_imputed(aligned_df, imputed_matrix, imputed_flags)
+
+    @asset(
+        ins={
+            "matrix": AssetIn(imputed_simulated_asset),
+            "flags": AssetIn(simulated_flags_asset),
+            "aligned_df": AssetIn(aligned_input_asset),
+        },
+        name=simulated_output_asset,
+    )
+    def _create_simulated_output_asset(
+        aligned_df: pd.DataFrame,
+        matrix: pd.DataFrame,
+        flags: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """Merge simulated imputed data on input asset to create simulated output asset."""
+        return _merge_imputed(aligned_df, matrix, flags)
+
+    @asset(
+        ins={
+            "imputed_df": AssetIn(output_asset_name),
+            "simulated_df": AssetIn(simulated_output_asset),
+        },
+        name=imputation_score_asset,
+    )
+    def _score_imputation(
+        imputed_df: pd.DataFrame,
+        simulated_df: pd.DataFrame,
+    ) -> float:
+        id_cols = real_id_cols
+        if id_cols is None:
+            id_cols = [id_col]
+
+        simulated_df = simulated_df[
+            simulated_df[f"{imputed_value_col}_imputation_code"] == "simulated"
+        ]
+        combined_df = simulated_df.merge(imputed_df, on=["datetime_utc"] + id_cols)
+
+        mean_percent_error = mean_absolute_percentage_error(
+            combined_df[f"{imputed_value_col}_x"], combined_df[f"{imputed_value_col}_y"]
+        )
+        logger.info(
+            f"Imputed simulated NULLS with mean percent error: {mean_percent_error}"
+        )
+
+        return mean_percent_error
+
     return [
         _prepare_timeseries_matrix,
         _flag_timeseries_matrix,
         _impute_timeseries,
         _create_output_asset,
+    ] + [
+        _simulate_flags,
+        _impute_simulated_timeseries,
+        _create_simulated_output_asset,
+        _score_imputation,
     ]
