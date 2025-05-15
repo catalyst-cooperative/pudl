@@ -101,7 +101,7 @@ EIA 860M
 
 EIA 923
 ~~~~~~~
-* Added EIA 923 from January and Febrary 2025. See :issue:`4234` and PR :pr:`4242`.
+* Added EIA 923 from January and February 2025. See :issue:`4234` and PR :pr:`4242`.
 
 VCE RARE
 ~~~~~~~~
