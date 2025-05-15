@@ -1969,15 +1969,26 @@ def impute_timeseries_asset_factory(  # noqa: C901
         imputed_df: pd.DataFrame,
         simulated_df: pd.DataFrame,
     ) -> float:
+        """Compute a performance metric on imputed simulated data.
+
+        This takes the real output asset and the simulated output asset, and will
+        compute a metric comparing the imputed simulated data to the real data. The
+        metric used is ``mean_absolute_percentage_error`` as percent error is more robust
+        to magnitude changes in the underlying data than total error.
+        """
         id_cols = real_id_cols
         if id_cols is None:
             id_cols = [id_col]
 
+        # Get just rows where we simultated NULLS
         simulated_df = simulated_df[
             simulated_df[f"{imputed_value_col}_imputation_code"] == "simulated"
         ]
+
+        # Combine with real data
         combined_df = simulated_df.merge(imputed_df, on=["datetime_utc"] + id_cols)
 
+        # Compute metric
         mean_percent_error = mean_absolute_percentage_error(
             combined_df[f"{imputed_value_col}_x"], combined_df[f"{imputed_value_col}_y"]
         )
