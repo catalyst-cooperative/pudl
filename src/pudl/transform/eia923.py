@@ -1492,3 +1492,41 @@ def _core_eia923__energy_storage(
     ] = "mcf"
 
     return es_df
+
+
+@asset
+def _core_eia923__byproduct_disposition(
+    raw_eia923__byproduct_disposition: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transforms the eia923__byproduct_disposition table.
+
+    Transformations include:
+
+    * Replace . values with NA
+    * Drop rows with NA byproduct_description
+        * This also removes all duplicates based on report_year, plant_id_eia, and byproduct_description
+    * Drop early_release column with no data values
+    * Drop data_maturity column with only a single value ("final") for all records
+
+    Args:
+        raw_eia923__byproduct_disposition: The raw ``raw_eia923__byproduct_disposition`` dataframe.
+
+    Returns:
+        Cleaned ``core_eia923__byproduct_disposition`` dataframe ready for harvesting.
+    """
+    df = raw_eia923__byproduct_disposition
+
+    # TODO: Confirm these fields are droppable
+    # Need to stop dropping fields that contain harvestable entity attributes.
+    # See https://github.com/catalyst-cooperative/pudl/issues/509
+    cols_to_drop = [
+        "early_release",
+        "data_maturity",
+    ]
+    df = df.drop(cols_to_drop, axis=1)
+    df = pudl.helpers.fix_eia_na(df)
+    df = df.dropna(subset=["byproduct_description"])
+
+    df = PUDL_PACKAGE.encode(df)
+
+    return df

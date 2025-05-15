@@ -1,0 +1,23 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia923__byproduct_disposition
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_eia923__byproduct_disposition
+              partition_column: null
+        columns:
+          - name: byproduct_description
+          - name: byproducts_to_report
+          - name: disposal_landfill_1000_tons
+          - name: disposal_offsite_1000_tons
+          - name: disposal_ponds_1000_tons
+          - name: plant_id_eia
+          - name: report_year
+          - name: sold_1000_tons_or_mmbtu
+          - name: stored_offsite_1000_tons
+          - name: stored_onsite_1000_tons
+          - name: total_disposal_1000_tons
+          - name: used_offsite_1000_tons
+          - name: used_onsite_1000_tons
