@@ -1009,7 +1009,7 @@ core_eia861__yearly_utility_data_rto,2020,1551
 core_eia861__yearly_utility_data_rto,2021,1562
 core_eia861__yearly_utility_data_rto,2022,1590
 core_eia861__yearly_utility_data_rto,2023,1619
-core_eia923__entity_coalmine,,4623
+core_eia923__entity_coalmine,,4458
 core_eia923__monthly_boiler_fuel,2008,77537
 core_eia923__monthly_boiler_fuel,2009,79002
 core_eia923__monthly_boiler_fuel,2010,81197
@@ -2008,7 +2008,7 @@ core_nrelatb__yearly_technology_status,2021,131
 core_nrelatb__yearly_technology_status,2022,195
 core_nrelatb__yearly_technology_status,2023,189
 core_nrelatb__yearly_technology_status,2024,197
-core_pudl__assn_eia_pudl_plants,,17939
+core_pudl__assn_eia_pudl_plants,,18280
 core_pudl__assn_eia_pudl_utilities,,16488
 core_pudl__assn_ferc1_dbf_pudl_utilities,,411
 core_pudl__assn_ferc1_pudl_plants,,8101
