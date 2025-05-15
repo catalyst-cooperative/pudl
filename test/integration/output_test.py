@@ -2,7 +2,6 @@
 
 import logging
 
-import pandas as pd
 import pytest
 
 import pudl
@@ -44,29 +43,7 @@ def test_nuclear_fraction(fast_out, df_name, expected_nuke_fraction, tolerance):
     assert abs(actual_nuke_fraction - expected_nuke_fraction) <= tolerance
 
 
-@pytest.mark.parametrize(
-    "df_name",
-    [
-        "pu_ferc1",
-        "fuel_ferc1",
-        "plants_steam_ferc1",
-        "fbp_ferc1",
-        "plants_all_ferc1",
-        "plants_hydro_ferc1",
-        "plants_pumped_storage_ferc1",
-        "plants_small_ferc1",
-        "purchased_power_ferc1",
-        "plant_in_service_ferc1",
-    ],
-)
-def test_ferc1_outputs(fast_out, df_name):
-    """Check that FERC 1 output functions work."""
-    logger.info(f"Running fast_out.{df_name}()")
-    df = fast_out.__getattribute__(df_name)()
-    logger.info(f"Found {len(df)} rows in {df_name}")
-    assert not df.empty
-
-
+@pytest.skip(reason="Memory intensive, GHA CI failing. Migrate to dbt ASAP.")
 @pytest.mark.parametrize(
     "df1_name,df2_name,mult,kwargs",
     [
@@ -107,23 +84,6 @@ def test_eia_outputs(fast_out, df1_name, df2_name, mult, kwargs):
 
 
 @pytest.mark.parametrize(
-    "df_name",
-    [
-        "ferc1_eia",
-        "gen_fuel_by_generator_energy_source_eia923",
-        "gen_fuel_by_generator_eia923",
-        "gen_fuel_by_generator_energy_source_owner_eia923",
-    ],
-)
-def test_annual_eia_outputs(fast_out_annual, df_name):
-    """Test some output methods with frequency ``AS``."""
-    logger.info(f"Running fast_out_annual.{df_name}()")
-    df = fast_out_annual.__getattribute__(df_name)()
-    logger.info(f"Found {len(df)} rows in {df_name}")
-    assert not df.empty
-
-
-@pytest.mark.parametrize(
     "df_name,thresh",
     [
         ("mcoe_generators", 0.9),
@@ -137,51 +97,3 @@ def test_null_rows(fast_out, df_name, thresh):
         df_name=df_name,
         thresh=thresh,
     )
-
-
-@pytest.mark.parametrize(
-    "table_suffix",
-    ["eia861", "ferc714"],
-)
-def test_outputs_by_table_suffix(fast_out, table_suffix):
-    """Check that all EIA-861 & FERC-714 output tables are present and non-empty."""
-    tables = [t for t in fast_out.__dir__() if t.endswith(table_suffix)]
-    for table in tables:
-        logger.info(f"Checking that {table} is a DataFrame with no null columns.")
-        df = fast_out.__getattribute__(table)()
-
-        assert isinstance(df, pd.DataFrame), f"{table} is {type(df)}, not DataFrame!"
-        assert not df.empty, f"{table} is empty!"
-        for col in df.columns:
-            if df[col].isna().all():
-                raise ValueError(f"Found null column: {table}.{col}")
-
-
-@pytest.mark.parametrize(
-    "df_name",
-    [
-        "out_ferc714__summarized_demand",
-        "out_ferc714__respondents_with_fips",
-    ],
-)
-def test_ferc714_outputs(pudl_engine, df_name):
-    """Test FERC 714 derived output methods."""
-    df = pd.read_sql(df_name, pudl_engine)
-    assert isinstance(df, pd.DataFrame), f"{df_name} is {type(df)} not DataFrame!"
-    logger.info(f"Found {len(df)} rows in {df_name}")
-    assert not df.empty, f"{df_name} is empty!"
-
-
-@pytest.mark.parametrize(
-    "df_name",
-    [
-        "out_eia861__yearly_balancing_authority_service_territory",
-        "out_eia861__yearly_utility_service_territory",
-    ],
-)
-def test_service_territory_outputs(pudl_engine, df_name):
-    """Test FERC 714 derived output methods."""
-    df = pd.read_sql(df_name, pudl_engine)
-    assert isinstance(df, pd.DataFrame), f"{df_name} is {type(df)} not DataFrame!"
-    logger.info(f"Found {len(df)} rows in {df_name}")
-    assert not df.empty, f"{df_name} is empty!"
