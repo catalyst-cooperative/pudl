@@ -98,10 +98,11 @@ def test_dbt_helper(
     ret = script_runner.run(
         [
             "dbt_helper",
-            "add-tables",
+            "update-tables",
             "--target",
             dbt_target,
-            "--use-local-tables",
+            "--row-counts",
+            "--schema",
             "all",
         ],
         print_result=True,
