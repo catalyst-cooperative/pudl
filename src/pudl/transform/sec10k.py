@@ -220,10 +220,6 @@ def _match_ex21_subsidiaries_to_filer_company(
         A dataframe of the Ex. 21 subsidiaries with a column for the
         subsidiaries CIK (null if the subsidiary doesn't file).
     """
-    # filer_info_df = filer_info_df[filer_info_df.company_name.str.contains("skillsoft")]
-    # ownership_df = ownership_df[
-    #     ownership_df.subsidiary_company_name.str.contains("skillsoft")
-    # ]
     filer_info_df["subsidiary_company_name"] = _standardize_company_name(
         filer_info_df["company_name"]
     )
@@ -619,8 +615,8 @@ def core_sec10k__quarterly_exhibit_21_company_ownership(
     )
     # a record is not meaningful if the subsidiary name is null
     df = df.dropna(subset=["subsidiary_company_name"])
-    # get the CIK of the parent company in order to
-    # construct subsidiary_company_id_sec10k
+    # construct the CIK of the parent company in order to
+    # create subsidiary_company_id_sec10k
     df.loc[:, "parent_company_central_index_key"] = (
         df["filename_sec10k"].apply(lambda x: x.split("/")[0]).str.zfill(10)
     )
@@ -635,6 +631,27 @@ def core_sec10k__quarterly_exhibit_21_company_ownership(
         + df["subsidiary_company_location"].fillna("")
     )
     df = df.drop(columns="parent_company_central_index_key")
+    # filename_sec10k and subsidiary_company_id_sec10k should be a primary key
+    # for this table, however there are many instances where the model erroneously
+    # created two different records for the same subsidiary and location in
+    # one Ex. 21 attachment. Often, the fraction_owned field is null for one
+    # record and not the other. Keep only one of these records for each
+    # subsidiary_company_id_sec10k and filename_sec10k
+    n_dupes = len(
+        df[df.duplicated(subset=["filename_sec10k", "subsidiary_company_id_sec10k"])]
+    )
+    logger.info(
+        f"""There are {n_dupes} / {len(df)} ({n_dupes / len(df)}) """
+        f"""duplicate filename_sec10k and subsidiary_company_id_sec10k records """
+        f"""from the extracted Ex. 21 ownership data which are dropped."""
+    )
+    df = (
+        df.sort_values(by=["fraction_owned"])
+        .groupby(["filename_sec10k", "subsidiary_company_id_sec10k"])
+        .first()
+        .reset_index()
+    )
+
     return df
 
 

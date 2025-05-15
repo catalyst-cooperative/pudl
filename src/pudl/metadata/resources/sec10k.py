@@ -122,6 +122,7 @@ and is not complete or entirely accurate and should be used with caution.""",
                 "subsidiary_company_id_sec10k",
                 "fraction_owned",
             ],
+            "primary_key": ["filename_sec10k", "subsidiary_company_id_sec10k"],
         },
         "sources": ["sec10k"],
         "etl_group": "sec10k",
@@ -296,7 +297,7 @@ that only appear as subsidiaries in Exhibit 21.
 
 SEC 10-K filers and EIA utilities are matched using probabilistic record linkage.
 Exhibit 21 subsidiaries that don't file a Form 10-K are matched to EIA utilities using
-a fuzzy match on the company name."""
+the company name."""
         ),
         "schema": {
             "fields": [
@@ -343,6 +344,7 @@ a fuzzy match on the company name."""
                 "subsidiary_company_utility_id_eia",
                 "subsidiary_company_utility_name_eia",
             ],
+            "primary_key": ["filename_sec10k", "subsidiary_company_id_sec10k"],
         },
         "sources": ["sec10k"],
         "etl_group": "sec10k",
