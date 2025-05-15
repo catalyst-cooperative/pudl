@@ -43,7 +43,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "state",
-                "county_or_lake_name",
+                "place_name",
                 "datetime_utc",
                 "report_year",
                 "hour_of_year",
@@ -54,7 +54,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "capacity_factor_onshore_wind",
                 "capacity_factor_offshore_wind",
             ],
-            "primary_key": ["state", "county_or_lake_name", "datetime_utc"],
+            "primary_key": ["state", "place_name", "datetime_utc"],
         },
         "sources": ["vcerare"],
         "field_namespace": "vcerare",

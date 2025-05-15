@@ -32,7 +32,7 @@ def _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips: pd.DataFrame) -> pd.DataFr
 
     The county portion of the county_state column does not map directly to FIPS ID.
     Some of the county names are actually subregions like cities or lakes. For this
-    reason we've named the column county_or_lake_name and it should be considered
+    reason we've named the column place_name and it should be considered
     part of the primary key. There are several instances of multiple subregions that
     map to a single county_id_fips value.
 
@@ -44,6 +44,11 @@ def _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips: pd.DataFrame) -> pd.DataFr
     state_names = cleanstrings_snake(
         ps_usa_df, ["subdivision_name"]
     ).subdivision_name.tolist()
+
+    # Handle west virginia as a special case
+    state_names.remove("west_virginia")
+    state_names.insert(0, "west-virginia")
+
     state_pattern = "|".join(state_names)
     lat_long_fips = (
         # Making the county_state_names lowercase to match the values in the capacity factor tables
@@ -68,9 +73,10 @@ def _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips: pd.DataFrame) -> pd.DataFr
         )
         # Extract the county or lake name from the county_state_name field
         .assign(
-            county_or_lake_name=lambda x: x.county_state_names.str.extract(
-                rf"([a-z_]+)_({state_pattern})$"
-            )[0].astype("category")
+            place_name=lambda x: x.county_state_names.str.replace(
+                "west_virginia",
+                "west-virginia",  # Temporary workaround to make sure we don't split 'west' from 'virginia'
+            ).str.extract(rf"([a-z_]+)_({state_pattern})$")[0]
         )
         # Add state column: e.g.: MA, RI, CA, TX
         .merge(
@@ -89,8 +95,6 @@ def _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips: pd.DataFrame) -> pd.DataFr
         # Remove state FIPS code column in favor of the newly added state column.
         .drop(columns=["state_id_fips", "fips", "subdivision_code"])
     )
-
-    logger.info("Spot check: fixed typos in great lakes.")
 
     logger.info("Nulling FIPS IDs for non-county regions.")
     lake_county_state_names = [
@@ -226,6 +230,49 @@ def _check_for_valid_counties(
     return df
 
 
+def _handle_2015_nulls(combined_df: pd.DataFrame, year: int):
+    """Handle unexpected null values in 2015.
+
+    In 2015, there are a few hundred null values for PV capacity factors that
+    should be zeroed out, according to correspondence with the data provider.
+    This function narrowly zeroes out these nulls, expecting that the rest of the
+    data should conform to the expectation of no-null values.
+    """
+    if year == 2015:
+        null_selector = (combined_df.capacity_factor_solar_pv.isnull()) & (
+            combined_df.report_year == "2015"
+        )
+        logger.info(
+            f"{len(combined_df.loc[null_selector])} null PV capacity values found in the 2015 data. Zeroing out these values."
+        )
+        assert len(combined_df.loc[null_selector]) == 1320
+        combined_df.loc[
+            null_selector,
+            "capacity_factor_solar_pv",
+        ] = 0
+    return combined_df
+
+
+def _clip_unexpected_2016_pv_capacity(df: pd.DataFrame, df_name: str, year: int):
+    """Handle unexpectedly large PV capacity values in 2016.
+
+    In 2016, there are a few values for PV capacity factors that exceed the maximum
+    allowed values noted in the read-me (110%).
+    should be zeroed out, according to correspondence with the data provider.
+    This function narrowly zeroes out these nulls, expecting that the rest of the
+    data should conform to the expectation of no-null values.
+    """
+    if (year == 2016) and (df_name == "solar_pv"):
+        logger.info(
+            f"{len(df.loc[df.capacity_factor_solar_pv > 1.10])} out-of-bounds PV capacity factor values found in the 2016 data. Clipping these values."
+        )
+        assert len(df.loc[df.capacity_factor_solar_pv > 1.10]) == 365, (
+            f"Found {len(df.loc[df.capacity_factor_solar_pv > 1.10])} solar capacity values over 1.10, expected 365."
+        )
+        df.loc[df.capacity_factor_solar_pv > 1.10, "capacity_factor_solar_pv"] = 1.10
+    return df
+
+
 def _combine_all_cap_fac_dfs(cap_fac_dict: dict[str, pd.DataFrame]) -> pd.DataFrame:
     """Combine capacity factor tables."""
     logger.info("Merging all the capacity factor tables into one")
@@ -288,7 +335,7 @@ def one_year_hourly_available_capacity_factor(
     """Transform raw Vibrant Clean Energy renewable generation profiles.
 
     Concatenates the solar and wind capacity factors into a single table and turns
-    the columns for each county or subregion into a single county_or_lake_name column.
+    the columns for each county or subregion into a single place_name column.
     """
     logger.info(
         f"Transforming the VCE RARE hourly available capacity factor tables for {year}."
@@ -310,14 +357,17 @@ def one_year_hourly_available_capacity_factor(
         .pipe(_drop_city_cols, df_name)
         .pipe(_make_cap_fac_frac, df_name)
         .pipe(_stack_cap_fac_df, df_name)
+        .pipe(_clip_unexpected_2016_pv_capacity, df_name, year)
         for df_name, df in raw_dict.items()
     }
+
     # Combine the data and perform a few last cleaning mechanisms
     # Sort the data by primary key columns to produce compact row groups
     return apply_pudl_dtypes(
         _combine_all_cap_fac_dfs(clean_dict)
+        .pipe(_handle_2015_nulls, year)
         .pipe(_combine_cap_fac_with_fips_df, fips_df)
-        .sort_values(by=["state", "county_or_lake_name", "datetime_utc"])
+        .sort_values(by=["state", "place_name", "datetime_utc"])
         .reset_index(drop=True)
     )
 
@@ -332,7 +382,7 @@ def out_vcerare__hourly_available_capacity_factor(
     """Transform raw Vibrant Clean Energy renewable generation profiles.
 
     Concatenates the solar and wind capacity factors into a single table and turns
-    the columns for each county or subregion into a single county_or_lake_name column.
+    the columns for each county or subregion into a single place_name column.
     Asset will process 1 year of data at a time to limit peak memory usage.
     """
 
@@ -349,7 +399,7 @@ def out_vcerare__hourly_available_capacity_factor(
     ) as parquet_writer:
         for year in raw_vcerare__fixed_solar_pv_lat_upv["report_year"].unique():
             df = one_year_hourly_available_capacity_factor(
-                year=year,
+                year=int(year),
                 raw_vcerare__lat_lon_fips=raw_vcerare__lat_lon_fips,
                 raw_vcerare__fixed_solar_pv_lat_upv=_get_year(
                     raw_vcerare__fixed_solar_pv_lat_upv, year

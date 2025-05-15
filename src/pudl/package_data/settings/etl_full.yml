@@ -67,7 +67,7 @@ ferc_to_sqlite_settings:
         2020,
       ]
   ferc2_xbrl_to_sqlite_settings:
-    years: [2021, 2022, 2023]
+    years: [2021, 2022, 2023, 2024]
   ferc6_dbf_to_sqlite_settings:
     years:
       [
@@ -94,7 +94,7 @@ ferc_to_sqlite_settings:
         2020,
       ]
   ferc6_xbrl_to_sqlite_settings:
-    years: [2021, 2022, 2023]
+    years: [2021, 2022, 2023, 2024]
   ferc60_dbf_to_sqlite_settings:
     years:
       [
@@ -115,7 +115,7 @@ ferc_to_sqlite_settings:
         2020,
       ]
   ferc60_xbrl_to_sqlite_settings:
-    years: [2021, 2022, 2023]
+    years: [2021, 2022, 2023, 2024]
   ferc714_xbrl_to_sqlite_settings:
     years: [2021, 2022, 2023]
 
@@ -402,7 +402,7 @@ datasets:
         "raw_sec10k__exhibit_21_company_ownership",
       ]
   vcerare:
-    years: [2019, 2020, 2021, 2022, 2023]
+    years: [2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023]
     fips: True
   censuspep:
     years: [2023, 2015, 2009]

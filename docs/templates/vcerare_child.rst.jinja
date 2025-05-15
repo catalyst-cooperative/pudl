@@ -20,9 +20,11 @@ detailed information.
 
 
 {% block availability %}
-Hourly, county-level data from 2019 - 2023 is integrated into PUDL. There is a
-second release of data for the years 2014 - 2018 expected in Q1 of 2025, which will be
-integrated into PUDL pending funding availability.
+Hourly, county-level data from 2014 - 2023 is integrated into PUDL. Annual releases of
+the data are expected in Q1 while the high resolution rapid refresh (HRRR) remains an
+operational model at the National Oceanic and Atmospheric Administration (NOAA), with
+2024 data expected in Q1 of 2026. New releases will be integrated into PUDL pending
+funding availability.
 
 You can explore the VCE RARE dataset with
 `this Jupyter notebook on Kaggle <https://www.kaggle.com/code/catalystcooperative/04-renewable-generation-profiles>`__.
@@ -73,7 +75,14 @@ the maximum value of 1 for capacity factor (or 100 for the raw data--PUDL conver
 data from a percentage to a fraction to match other reported capacity factor data). This
 is due to power production performance being correlated with panel temperatures. During
 cold sunny periods, some solar capacity factor values are greater than 1 (but less that
-1.1).
+1.1). In 2016, 365 solar values exceeded 1.1 in the raw data and were clipped to 1.1.
+
+Null values
+-----------
+In the original data, 1,320 solar capacity values were reported as null in the year 2015.
+In conversation with the data providers, it was determined that these values should
+have been reported as zero and accordingly they have been updated as part of the
+transformation process.
 
 8760-hour years
 ---------------

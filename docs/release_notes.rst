@@ -34,7 +34,7 @@ is being done in collaboration with :user:`awongel` at
   :pr:`4162`
 
 SEC 10-K
-^^^^^^^^
+~~~~~~~~
 * Reorganized the preliminary SEC 10-K data that was integrated into our last release.
   See issue :issue:`4078` and PR :pr:`4134`. The SEC 10-K tables are now more fully
   normalized and better conform to existing PUDL naming conventions. Overall revision of
@@ -66,6 +66,15 @@ FERC Form 1
   for utility respondents, but late filings may come throughout the year. This update
   includes ~95% of the expected utility responses for 2024.
 
+FERC Forms 2, 6, & 60
+~~~~~~~~~~~~~~~~~~~~~
+* Updated the FERC archive DOIs and ``ferc_to_sqlite`` settings to extract 2024 XBRL
+  data for FERC Forms 2, 6, and 60 and add them to their respective SQLite databases.
+  Note that this data is not yet being processed beyond the conversion from XBRL to
+  SQLite. See PR :pr:`4250`. The reporting deadline for these forms was April 18th, 2025
+  so they should include the vast bulk of the expected data, however there may be some
+  late filings which will be added in the next quarterly release.
+
 EIA Bulk Electricity
 ~~~~~~~~~~~~~~~~~~~~
 * Updated the EIA Bulk Electricity data to include data published up through
@@ -84,13 +93,19 @@ EIA 930
   see :ref:`data-sources-eia930-changes-in-energy-source-granularity-over-time` for
   more information.
 
+VCE RARE
+~~~~~~~~
+* Integrated 2014-2018 RARE data into PUDL. Also fixed misleading latitude and longitude
+  field descriptions, and renamed the field ``county_or_lake_name`` to ``place_name``.
+  See issue :issue:`4226`
+  and PR :pr:`4239`.
+
 Bug Fixes
 ^^^^^^^^^
 * Fixed a bug in FERC XBRL extraction that led to quietly skipping tables with names
-  that didn't conform to expected format.
-
-Major Dependency Updates
-^^^^^^^^^^^^^^^^^^^^^^^^
+  that didn't conform to expected format. The only known table affected was in the FERC
+  Form 6. See issue :issue:`4203` and PRs :pr:`4224` and
+  `catalyst-cooperative/ferc-xbrl-extractor #320 <https://github.com/catalyst-cooperative/ferc-xbrl-extractor/pull/320>`__.
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -106,7 +121,7 @@ Quality of Life Improvements
 
 New Tests
 ^^^^^^^^^
-We're in the process of migrating our tests to use the
+We're in the process of migrating our data validations to use the
 `dbt <https://docs.getdbt.com/docs/introduction>`__ framework.
 So far we have converted the following tests:
 
