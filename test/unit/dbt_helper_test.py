@@ -2,7 +2,6 @@ import unittest
 from collections import namedtuple
 from dataclasses import dataclass
 from io import StringIO
-from pathlib import Path
 
 import pytest
 
@@ -11,16 +10,11 @@ from pudl.scripts.dbt_helper import (
     DbtSchema,
     DbtSource,
     DbtTable,
-    _clean_row_condition,
-    _convert_config_variable_to_quantile_tests,
-    _generate_quantile_bounds_test,
-    _get_config,
     _get_local_table_path,
     _get_model_path,
     _get_row_count_csv_path,
     _infer_partition_column,
     get_data_source,
-    migrate_tests,
 )
 
 TEMPLATE = {
@@ -181,28 +175,6 @@ GENERATE_QUANTILE_BOUNDS = [
         ],
     ),
 ]
-
-
-@pytest.mark.parametrize(
-    "test_config,expected",
-    GENERATE_QUANTILE_BOUNDS,
-)
-def test__generate_quantile_bounds_test(test_config, expected):
-    actual = _generate_quantile_bounds_test(test_config)
-    assert actual == expected
-
-
-@pytest.mark.parametrize(
-    "row_condition,expected",
-    [
-        ("'0000-00-00'", "CAST('0000-00-00' AS DATE)"),
-        ("x == 0", "x = 0"),
-        ("x != 0", "x <> 0"),
-    ],
-)
-def test__clean_row_condition(row_condition, expected):
-    actual = _clean_row_condition(row_condition)
-    assert actual == expected
 
 
 @dataclass
@@ -423,17 +395,6 @@ QUANTILE_TESTS = [
 ]
 
 
-@pytest.mark.parametrize(
-    "config,expected",
-    QUANTILE_TESTS,
-)
-def test__convert_config_variable_to_quantile_tests(mocker, config, expected):
-    mock_get_config = mocker.patch("pudl.scripts.dbt_helper._get_config")
-    mock_get_config.return_value = config
-    actual = _convert_config_variable_to_quantile_tests("")
-    assert actual == expected
-
-
 @pytest.fixture
 def blank_schema():
     return DbtSchema(
@@ -543,19 +504,3 @@ def test_dbt_schema__add_column_tests(mocker, blank_schema):
         mocker.sentinel.second_model_test
         in two_model_tests.models[0].columns[0].data_tests
     )
-
-
-def test_migrate_tests_dne(mocker):
-    mocker.patch("pudl.scripts.dbt_helper._get_model_path", return_value=Path("/xyzzy"))
-    mocker.patch("pudl.scripts.dbt_helper.get_data_source")
-    with pytest.raises(RuntimeError):
-        migrate_tests("", "", "")
-
-
-def test__get_config(mocker):
-    mocker.patch(
-        "pudl.scripts.dbt_helper.validate",
-        test_config_variable=mocker.sentinel.test_config_variable,
-    )
-    actual = _get_config("test_config_variable")
-    assert actual == mocker.sentinel.test_config_variable
