@@ -196,7 +196,8 @@ function clean_up_outputs_for_distribution() {
     popd && \
     # Remove any remaiining files and directories we don't want to distribute
     rm -rf "$PUDL_OUTPUT/parquet" && \
-    rm -f "$PUDL_OUTPUT/metadata.yml"
+    rm -f "$PUDL_OUTPUT/metadata.yml" && \
+    rm -f "$PUDL_OUTPUT/pudl_duckdb_tests.duckdb"
 }
 
 ########################################################################################
