@@ -1,6 +1,7 @@
 """PyTest based testing of the FERC DBF Extraction logic."""
 
 import logging
+import os
 
 import pytest
 import sqlalchemy as sa
@@ -34,10 +35,14 @@ def test_ferc_schema(ferc_to_sqlite_settings, pudl_datastore_fixture, extractor_
 
     Exhaustively enumerate all historical sets of FERC Form N database tables and their
     constituent fields. Check to make sure that the current database definition, based
-    on the given reference year and our compilation of the DBF filename to table name
-    mapping from 2015, includes every single table and field that appears in the
-    historical FERC Form 1 data.
+    on the given reference year includes every single table and field that appears in the
+    historical FERC Form N data.
     """
+    if os.getenv("GITHUB_ACTIONS", False):
+        pytest.skip(
+            reason="Downloading these datasets exceeds free GHA runner disk space."
+        )
+
     dataset = extractor_class.DATASET
     dbf_settings = getattr(ferc_to_sqlite_settings, f"{dataset}_dbf_to_sqlite_settings")
     refyear = dbf_settings.refyear
