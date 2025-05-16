@@ -248,7 +248,10 @@ def ferc1_output_asset_factory(table_name: str) -> AssetsDefinition:
         Merge in utility IDs from ``core_pudl__assn_ferc1_pudl_utilities``.
         """
         return_df = kwargs[f"core_ferc1__{table_name}"].merge(
-            kwargs["core_pudl__assn_ferc1_pudl_utilities"], on="utility_id_ferc1"
+            kwargs["core_pudl__assn_ferc1_pudl_utilities"],
+            on="utility_id_ferc1",
+            how="left",
+            validate="many_to_one",
         )
         return return_df
 
@@ -741,7 +744,7 @@ def add_mean_cap_additions(steam_df):
             .pipe(pudl.helpers.convert_cols_dtypes, "ferc1"),
             how="left",
             on=idx_steam_no_date,
-            validate="m:1",
+            validate="many_to_one",
         )
         .merge(
             gb_cap_an.mean()
@@ -750,7 +753,7 @@ def add_mean_cap_additions(steam_df):
             .pipe(pudl.helpers.convert_cols_dtypes, "ferc1"),
             how="left",
             on=idx_steam_no_date,
-            validate="m:1",
+            validate="many_to_one",
         )
         .assign(
             capex_annual_addition_diff_mean=lambda x: x.capex_annual_addition
@@ -933,6 +936,9 @@ def exploded_table_asset_factory(
             "_core_ferc1_xbrl__calculation_components"
         ),
         "_out_ferc1__detailed_tags": AssetIn("_out_ferc1__detailed_tags"),
+        "core_pudl__assn_ferc1_pudl_utilities": AssetIn(
+            "core_pudl__assn_ferc1_pudl_utilities"
+        ),
     }
     ins |= {table_name: AssetIn(table_name) for table_name in table_names}
 
@@ -958,18 +964,28 @@ def exploded_table_asset_factory(
                 "_core_ferc1_xbrl__calculation_components",
                 "_out_ferc1__detailed_tags",
                 "off_by_facts",
+                "core_pudl__assn_ferc1_pudl_utilities",
             ]
         }
-        return Exploder(
-            table_names=tables_to_explode.keys(),
-            root_table=root_table,
-            metadata_xbrl_ferc1=_core_ferc1_xbrl__metadata,
-            calculation_components_xbrl_ferc1=_core_ferc1_xbrl__calculation_components,
-            seed_nodes=seed_nodes,
-            tags=tags,
-            group_metric_checks=group_metric_checks,
-            off_by_facts=off_by_facts,
-        ).boom(tables_to_explode=tables_to_explode)
+        return (
+            Exploder(
+                table_names=tables_to_explode.keys(),
+                root_table=root_table,
+                metadata_xbrl_ferc1=_core_ferc1_xbrl__metadata,
+                calculation_components_xbrl_ferc1=_core_ferc1_xbrl__calculation_components,
+                seed_nodes=seed_nodes,
+                tags=tags,
+                group_metric_checks=group_metric_checks,
+                off_by_facts=off_by_facts,
+            )
+            .boom(tables_to_explode=tables_to_explode)
+            .merge(
+                kwargs["core_pudl__assn_ferc1_pudl_utilities"],
+                on="utility_id_ferc1",
+                how="left",
+                validate="many_to_one",
+            )
+        )
 
     return exploded_tables_asset
 
@@ -1491,7 +1507,7 @@ class Exploder:
             right=exploded_meta,
             how="left",
             on=meta_idx,
-            validate="m:1",
+            validate="many_to_one",
         )
         return exploded
 
@@ -2679,6 +2695,7 @@ def out_ferc1__yearly_rate_base(
     out_ferc1__yearly_detailed_balance_sheet_assets: pd.DataFrame,
     out_ferc1__yearly_detailed_balance_sheet_liabilities: pd.DataFrame,
     core_ferc1__yearly_operating_expenses_sched320: pd.DataFrame,
+    core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
 ) -> pd.DataFrame:
     """Make a table of granular utility rate base data.
 
@@ -2704,6 +2721,11 @@ def out_ferc1__yearly_rate_base(
     )
     cash_working_capital = prep_cash_working_capital(
         core_ferc1__yearly_operating_expenses_sched320
+    ).merge(
+        core_pudl__assn_ferc1_pudl_utilities,
+        on="utility_id_ferc1",
+        how="left",
+        validate="many_to_one",
     )
 
     # concat then select only the leafy exploded records that are in rate base
@@ -2725,7 +2747,7 @@ def out_ferc1__yearly_rate_base(
         )
     )
 
-    in_rate_base_df = rate_base_df[rate_base_df.in_rate_base == "yes"]
+    in_rate_base_df = rate_base_df[rate_base_df.in_rate_base == True]  # noqa: E712
     return in_rate_base_df.dropna(subset=["ending_balance"])
 
 
@@ -2764,6 +2786,8 @@ check_specs = [
             "utility_type",
             "plant_function",
             "plant_status",
+            "table_name",
+            "is_disaggregated_utility_type",
         ],
     ),
     Ferc1DetailedCheckSpec(
@@ -2858,7 +2882,7 @@ def prep_cash_working_capital(
         .assign(
             dollar_value=lambda x: x.dollar_value.divide(8),
             xbrl_factoid="cash_working_capital",  # newly definied xbrl_factoid
-            in_rate_base="yes",
+            in_rate_base=True,
             rate_base_category="net_working_capital",
             aggregatable_utility_type="electric",
             table_name="core_ferc1__yearly_operating_expenses_sched320",
@@ -2912,7 +2936,7 @@ def disaggregate_null_or_total_tag(
             ratio_df,
             on=ratio_idx,
             how="left",
-            validate="m:m",
+            validate="many_to_many",
             suffixes=("_total_or_null", ""),
         )
         # na values from this ratio_{tag_col} should be treated like a 100%.

@@ -70,6 +70,15 @@ with ``entity_id``'s, which we rename to ``utility_id_ferc1_dbf`` and
 ``utility_id_ferc1``. These IDs are assigned and stored in
 ``pudl/package_data/glue/utility_id_ferc1.csv``.
 
+.. warning::
+    When there are new FERC1 utilities to be mapped, you will probably need to map the
+    utility ID's before the tables will be able to be transformed because the
+    PUDL-assigned utility ID is used as a merge key.
+
+.. warning::
+    To fully map the FERC1 utilities you'll need to run the `make unmapped_ids`
+    step - documented below - twice because there are two layers of ID's as described
+    above.
 
 Checking for Unmapped Records
 -----------------------------

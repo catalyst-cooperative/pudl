@@ -1214,8 +1214,8 @@ def calculate_values_from_components(
         )
     except pd.errors.MergeError as err:  # Make debugging easier.
         raise pd.errors.MergeError(
-            "Merge failed, duplicated merge keys in left dataset:\n"
-            f"{calculation_components[calculation_components.duplicated(calc_idx, keep=False)]}"
+            f"Merge failed, duplicated merge keys in left dataset with merge key of {calc_idx}:\n"
+            f"{calculation_components[calculation_components.duplicated(calc_idx, keep=False)].set_index(calc_idx).sort_index()}"
         ) from err
     # remove the _parent suffix so we can merge these calculated values back onto
     # the data using the original pks
@@ -2322,7 +2322,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         )
 
     def get_xbrl_calculation_fixes(self: Self) -> pd.DataFrame:
-        """Grab the XBRL calculation file."""
+        """Grab the XBRL calculations fixes for this table."""
         calc_fixes = read_xbrl_calculation_fixes()
         # grab the fixes from this table only!
         calc_fixes = calc_fixes[calc_fixes.table_name_parent == self.table_id.value]
@@ -2333,8 +2333,26 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     ) -> pd.DataFrame:
         """Use the fixes we've compiled to update calculations in the XBRL metadata.
 
-        Note: Temp fix. These updates should probably be moved into the table params
-        and integrated into the calculations via TableCalcs.
+        Instructions for updating the calculation component fixes file:
+
+        * To add a calculation component that is missing from the raw metadata,
+          add a new line in the ``xbrl_calculation_component_fixes.csv`` with a
+          the parent and child portion of the calculation and a weight.
+        * To remove a calculation component that exists incorrectly in the raw
+          metadata, add a line in the ``xbrl_calculation_component_fixes.csv``
+          with the parent and child portion of the calculation without a weight.
+        * To edit the weight of a calculation component that exists in the raw
+          metadata, add a line in the ``xbrl_calculation_component_fixes.csv``
+          with the parent and child portion of the calculation with the corrected
+          weight.
+
+        Some common errors occurs when ingesting new metadata which flags the
+        AssertionError in this method. If you're trying to remove a calculation component
+        manually and it doesn't actually exist as a calculation component in the metadata,
+        an AssertionError will be raised. Similarly, if you're trying to add a
+        calculation component manually that already exists, an AssertionError will be
+        raised.
+
         """
         calc_comp_idx = [
             "table_name_parent",
@@ -2467,7 +2485,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         # this is really a xbrl_factoid-level flag, but we need it while using this
         # calc components.
         calc_comps["is_within_table_calc"] = (
-            # make a temp bool col to check if all the componets are intra table
+            # make a temp bool col to check if all the components are intra table
             # should the non-calc guys get a null or a true here? rn its true bc fillna
             calc_comps.assign(
                 intra_table_calc_comp_flag=lambda x: (

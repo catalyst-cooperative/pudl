@@ -83,6 +83,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "A label identifying a group of aggregated generator capacity factors.",
     },
+    "aggregation_level": {
+        "type": "string",
+        "description": "Indicates the spacial granularity of aggregated value.",
+        "constraints": {
+            "enum": ["region", "interconnect", "conus"],
+        },
+    },
     "air_flow_100pct_load_cubic_feet_per_minute": {
         "type": "number",
         "unit": "cfm",
@@ -953,13 +960,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "county_name_census": {
         "type": "string",
         "description": "County name as specified in Census DP1 Data.",
-    },
-    "county_or_lake_name": {
-        "type": "string",
-        "description": (
-            "County or lake name. Lake names may also appear several times--once for "
-            "each state it touches. FIPS ID values for lakes have been nulled."
-        ),
     },
     "country_code": {
         "type": "string",
@@ -2520,6 +2520,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Original reported energy interchange between adjacent balancing authorities.",
         "unit": "MWh",
     },
+    "interconnect_code_eia": {
+        "type": "string",
+        "description": "EIA interconnect code.",
+        "constraints": {"enum": {"eastern", "western", "ercot"}},
+    },
     "taxpayer_id_irs": {
         "type": "string",
         "description": "Taxpayer ID of the company with the IRS.",
@@ -3595,6 +3600,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "pipeline_notes": {
         "type": "string",
         "description": "Additional owner or operator of natural gas pipeline.",
+    },
+    "place_name": {
+        "type": "string",
+        "description": (
+            "County or lake name. Lake names may also appear several times--once for "
+            "each state it touches. FIPS ID values for lakes have been nulled."
+        ),
     },
     "planned_derate_date": {
         "type": "date",
@@ -5865,6 +5877,14 @@ FIELD_METADATA_BY_GROUP: dict[str, dict[str, Any]] = {
     "nrelatb": {
         "technology_description": {"constraints": {"enum": TECH_DESCRIPTIONS_NRELATB}}
     },
+    "vcerare": {
+        "latitude": {
+            "description": "Latitude of the place centroid (e.g., county centroid)."
+        },
+        "longitude": {
+            "description": "Longitude of the place centroid (e.g., county centroid)."
+        },
+    },
 }
 """Field attributes by resource group (`resource.group`) and PUDL identifier.
 
@@ -6615,6 +6635,11 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     "out_eia860__yearly_ownership": {
         "utility_id_pudl": {
             "description": "A manually assigned PUDL utility ID for the owner company that is responsible for the day-to-day operations of the generator, not the operator utility. May not be stable over time."
+        }
+    },
+    "out_eia930__hourly_aggregated_demand": {
+        "aggregation_group": {
+            "description": "Label identifying a group of balancing authorities to be used in aggregating demand E.g. a region of the US or a whole interconnect."
         }
     },
 }

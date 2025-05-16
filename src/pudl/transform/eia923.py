@@ -486,6 +486,11 @@ def _coalmine_cleanup(
                 x.county_id_fips,
                 n_digits=3,
             ),
+            # 2025-05-14: there is one mine_id that uses the letter O instead of a 0.
+            # In addition, mine_ids from 2024 are reported as strings and have a leading 0.
+            # I checked the same id from other years in the raw data, and the leading 0s
+            # only appear in 2024, so this function removes them so the years line up.
+            mine_id_msha=lambda x: x.mine_id_msha.str.replace("O", "0").astype("Int64"),
         )
         # No leading or trailing whitespace:
         .pipe(pudl.helpers.simplify_strings, columns=["mine_name"])
@@ -1291,7 +1296,7 @@ def _core_eia923__cooling_system_information(
 
 
 @asset_check(asset=_core_eia923__cooling_system_information, blocking=True)
-def cooling_system_information_null_check(csi):  # pragma: no cover
+def cooling_system_information_null_check(csi):
     """We do not expect any columns to be completely null.
 
     In fast-ETL context (only recent years), the annual columns may also be
@@ -1306,7 +1311,7 @@ def cooling_system_information_null_check(csi):  # pragma: no cover
 
 
 @asset_check(asset=_core_eia923__cooling_system_information, blocking=True)
-def cooling_system_information_continuity(csi):  # pragma: no cover
+def cooling_system_information_continuity(csi):
     """Check to see if columns vary as slowly as expected."""
     return pudl.validate.group_mean_continuity_check(
         df=csi,
@@ -1404,7 +1409,7 @@ def _core_eia923__fgd_operation_maintenance(
 
 
 @asset_check(asset=_core_eia923__fgd_operation_maintenance, blocking=True)
-def fgd_operation_maintenance_null_check(fgd):  # pragma: no cover
+def fgd_operation_maintenance_null_check(fgd):
     """Check that columns other than expected columns aren't null."""
     fast_run_null_cols = {
         "fgd_control_flag",
@@ -1426,7 +1431,7 @@ def fgd_operation_maintenance_null_check(fgd):  # pragma: no cover
 
 
 @asset_check(asset=_core_eia923__fgd_operation_maintenance, blocking=True)
-def fgd_continuity_check(fgd):  # pragma: no cover
+def fgd_continuity_check(fgd):
     """Check to see if columns vary as slowly as expected."""
     return pudl.validate.group_mean_continuity_check(
         df=fgd,
