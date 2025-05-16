@@ -1133,6 +1133,13 @@ class PudlResourceDescriptor(PudlMeta):
     # resources would have one...
     title: str | None = None
     description: str
+    # extended metadata
+    # these are intended to be optional/only present to override defaults
+    table_type: str | None = None
+    timeseries_resolution: str | None = None
+    layer: str | None = None
+    usage_warnings: list[str] | None = None
+    # /extended metadata
     schema_: PudlSchemaDescriptor = pydantic.Field(alias="schema")
     encoder: PudlCodeMetadata | None = None
     source_ids: list[str] = pydantic.Field(alias="sources")
@@ -1268,6 +1275,17 @@ class Resource(PudlMeta):
     name: SnakeCase
     title: String | None = None
     description: String
+    table_type: Literal["assn", "codes", "entity", "scd", "timeseries"] | None
+    timeseries_resolution: (
+        Literal[
+            "yearly",
+            "monthly",
+            "hourly",
+        ]
+        | None
+    ) = None
+    layer: Literal["raw", "_core", "core", "_out", "out", "test"] | None
+    usage_warnings: list[String]  # could be list[Literal]
     harvest: ResourceHarvest = ResourceHarvest()
     schema: Schema
     # Alias required to avoid shadowing Python built-in format()
@@ -1432,15 +1450,27 @@ class Resource(PudlMeta):
         if "foreign_key_rules" in schema:
             del schema["foreign_key_rules"]
 
+        meta_from_name = MetaFromResourceName(name=resource_id, seed=obj)
+        if obj["table_type"] is None:
+            obj["table_type"] = meta_from_name.tabletype or None
+        if obj["timeseries_resolution"] is None:
+            obj["timeseries_resolution"] = meta_from_name.time or None
+        if obj["layer"] is None:
+            obj["layer"] = meta_from_name.layer
+        if obj["usage_warnings"] is None:
+            obj["usage_warnings"] = list() #default_usage_warnings(obj)
+        # TODO: do we want to pull in the full text of each usage warning in the structured data as well, or just in the rendered table description below?
+        # TODO: if uws are specified, do we skip the defaults or merge with them?
+
         # Render description
         obj["description"] = (
             _get_jinja_environment()
             .from_string(obj["description"])
             .render(
-                resource=MetaFromResourceName(name=resource_id, seed=obj),
+                resource=meta_from_name,
                 warnings=USAGE_WARNINGS,
             )
-        )
+        ).strip()
 
         # Add encoders to columns as appropriate, based on FKs.
         # Foreign key relationships determine the set of codes to use
@@ -1518,6 +1548,13 @@ class Resource(PudlMeta):
             description=self.description,
             schema=schema,
             path=f"{self.name}.parquet",
+            table_type=self.table_type,
+            timeseries_resolution=self.timeseries_resolution,
+            layer=self.layer,
+            usage_warnings=[
+                frictionless.Field(name=uw, description=USAGE_WARNINGS[uw])
+                for uw in self.usage_warnings
+            ]
         )
 
     def to_pyarrow(self) -> pa.Schema:
