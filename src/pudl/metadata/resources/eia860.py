@@ -502,7 +502,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "core_eia861__yearly_utility_data_misc",
                     "core_eia861__yearly_utility_data_nerc",
                     "core_eia861__yearly_utility_data_rto",
-                    "core_sec10k__parents_and_subsidiaries",
                     "out_sec10k__quarterly_company_information",
                 ],
             },
