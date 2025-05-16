@@ -309,6 +309,35 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eiaaeo",
         "etl_group": "eiaaeo",
     },
+    "core_eiaaeo__yearly_projected_delivered_energy": {
+        "description": (
+            "Projected energy delivered to residential, commercial, industrial, and "
+            "transportation sectors. Industrial includes energy for "
+            "combined-heat-and-power plants that have a non-regulatory status and "
+            "small on-site generating systems."
+        ),
+        "schema": {
+            "fields": [
+                "report_year",
+                "region_name_eiaaeo",
+                "region_type_eiaaeo",
+                "model_case_eiaaeo",
+                "projection_year",
+                "sector_eiaaeo",
+                "delivered_energy_mmbtu",
+            ],
+            "primary_key": [
+                "report_year",
+                "region_name_eiaaeo",
+                "model_case_eiaaeo",
+                "projection_year",
+                "sector_eiaaeo",
+            ],
+        },
+        "sources": ["eiaaeo"],
+        "field_namespace": "eiaaeo",
+        "etl_group": "eiaaeo",
+    },
 }
 
 # 2024-04-24: A holding pen so it's easy to see what the field definitions are.
@@ -404,5 +433,6 @@ RESOURCE_METADATA = {
         "core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type",
         "core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology",
         "core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type",
+        "core_eiaaeo__yearly_projected_delivered_energy",
     }
 }

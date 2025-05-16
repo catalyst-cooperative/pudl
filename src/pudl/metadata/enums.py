@@ -336,7 +336,9 @@ FUEL_TYPES_EIAAEO: list[str] = [
 
 MODEL_CASES_EIAAEO: list[str] = [
     "aeo2022",
+    "fast_builds_plus_high_lng_price",
     "high_economic_growth",
+    "high_lng_price",
     "high_macro_and_high_zero_carbon_technology_cost",
     "high_macro_and_low_zero_carbon_technology_cost",
     "high_oil_and_gas_supply",
@@ -344,6 +346,7 @@ MODEL_CASES_EIAAEO: list[str] = [
     "high_uptake_of_inflation_reduction_act",
     "high_zero_carbon_technology_cost",
     "low_economic_growth",
+    "low_lng_price",
     "low_macro_and_high_zero_carbon_technology_cost",
     "low_macro_and_low_zero_carbon_technology_cost",
     "low_oil_and_gas_supply",
