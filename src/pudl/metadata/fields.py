@@ -1087,6 +1087,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Indicate whether the generator can deliver power to the transmission grid.",
     },
+    "delivered_energy_mmbtu": {  # created for eiaaeo
+        "type": "number",
+        "description": ("Energy delivered to the point of use."),
+        "unit": "MMBtu",
+    },
     "delivered_mwh": {
         "type": "number",
         "description": "Gross megawatt-hours delivered in power exchanges and used as the basis for settlement.",
@@ -3940,9 +3945,27 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.",
     },
+    "region_name_eiaaeo": {
+        "type": "string",
+        "description": (
+            "EIA AEO energy demand region"
+        ),  # = us census divisions (the real ones not the version that splits pacific), plus united states
+        # could also call this EIA AEO energy use, EIA AEO delivered energy
+    },
     "region_name_us_census": {
         "type": "string",
         "description": "Human-readable name of a US Census region.",
+    },
+    "region_type_eiaaeo": {
+        "type": "string",
+        "description": ("Region type for EIA AEO energy demand"),
+        # could also call this EIA AEO energy use, EIA AEO delivered energy
+        "constraints": {
+            "enum": [
+                "us_census_division",
+                "nation",
+            ],
+        },
     },
     "has_regulatory_limits": {
         "type": "boolean",
@@ -4288,6 +4311,18 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "sector_name_eia": {
         "type": "string",
         "description": "EIA assigned sector name, corresponding to high level NAICS sector, designated by the primary purpose, regulatory status and plant-level combined heat and power status",
+    },
+    "sector_eiaaeo": {
+        "type": "string",
+        "description": ("EIA AEO energy demand sector"),
+        "constraints": {
+            "enum": [
+                "commercial",
+                "industrial",
+                "residential",
+                "transportation",
+            ],
+        },
     },
     "seller_name": {
         "type": "string",
