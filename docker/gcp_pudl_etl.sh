@@ -143,7 +143,6 @@ function notify_slack() {
     message+="SAVE_OUTPUTS_SUCCESS: $SAVE_OUTPUTS_SUCCESS\n"
     message+="UPDATE_NIGHTLY_SUCCESS: $UPDATE_NIGHTLY_SUCCESS\n"
     message+="UPDATE_STABLE_SUCCESS: $UPDATE_STABLE_SUCCESS\n"
-    message+="DATASETTE_SUCCESS: $DATASETTE_SUCCESS\n"
     message+="CLEAN_UP_OUTPUTS_SUCCESS: $CLEAN_UP_OUTPUTS_SUCCESS\n"
     message+="DISTRIBUTION_BUCKET_SUCCESS: $DISTRIBUTION_BUCKET_SUCCESS\n"
     message+="GCS_TEMPORARY_HOLD_SUCCESS: $GCS_TEMPORARY_HOLD_SUCCESS \n"
@@ -210,7 +209,6 @@ ETL_SUCCESS=0
 SAVE_OUTPUTS_SUCCESS=0
 UPDATE_NIGHTLY_SUCCESS=0
 UPDATE_STABLE_SUCCESS=0
-DATASETTE_SUCCESS=0
 WRITE_DATAPACKAGE_SUCCESS=0
 CLEAN_UP_OUTPUTS_SUCCESS=0
 DISTRIBUTION_BUCKET_SUCCESS=0
@@ -268,9 +266,6 @@ fi
 if [[ "$BUILD_TYPE" == "nightly" ]]; then
     merge_tag_into_branch "$NIGHTLY_TAG" nightly 2>&1 | tee -a "$LOGFILE"
     UPDATE_NIGHTLY_SUCCESS=${PIPESTATUS[0]}
-    # Update our datasette deployment
-    python ~/pudl/devtools/datasette/publish.py --production 2>&1 | tee -a "$LOGFILE"
-    DATASETTE_SUCCESS=${PIPESTATUS[0]}
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
     clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
     CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
@@ -341,7 +336,6 @@ if [[ $ETL_SUCCESS == 0 && \
       $SAVE_OUTPUTS_SUCCESS == 0 && \
       $UPDATE_NIGHTLY_SUCCESS == 0 && \
       $UPDATE_STABLE_SUCCESS == 0 && \
-      $DATASETTE_SUCCESS == 0 && \
       $CLEAN_UP_OUTPUTS_SUCCESS == 0 && \
       $DISTRIBUTION_BUCKET_SUCCESS == 0 && \
       $GCS_TEMPORARY_HOLD_SUCCESS == 0 && \
