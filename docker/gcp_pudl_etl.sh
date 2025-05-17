@@ -39,7 +39,7 @@ function run_pudl_etl() {
     ferc_to_sqlite \
         --loglevel DEBUG \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
-        --workers 8 \
+        --workers 16 \
         "$PUDL_SETTINGS_YML" \
     && pudl_etl \
         --loglevel DEBUG \
@@ -49,13 +49,7 @@ function run_pudl_etl() {
         -n auto \
         --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
         --etl-settings "$PUDL_SETTINGS_YML" \
-        --live-dbs test/integration test/unit \
-        --no-cov \
-    && pytest \
-        -n auto \
-        --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
-        --etl-settings "$PUDL_SETTINGS_YML" \
-        --live-dbs test/validate \
+        --live-dbs --doctest-modules src/pudl test/unit test/integration test/validate \
         --no-cov \
     && touch "$PUDL_OUTPUT/success"
 }
