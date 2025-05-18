@@ -17,11 +17,11 @@ dependencies = [
     "build>=1.2",
     "catalystcoop.dbfread>=3.0,<3.1",
     "catalystcoop.ferc-xbrl-extractor>=1.6.0,<2",
-    "click>=8",
+    "click>=8,!=8.2.0",
     "coloredlogs>=14.0", # Dagster requires 14.0
     "conda-lock>=3",
     "coverage>=7.6",
-    "dagster>=1.10.5",
+    "dagster>=1.10.15",
     "dagster-dbt", # Automatically follows dagster version
     "dagster-postgres", # Automatically follows dagster version
     "dask>=2025",
