@@ -490,7 +490,7 @@ def summarize_row_count_diffs(table: str, verbose: bool = False):
 
             percent_diff = (total_diff / total_count) * 100
             logger.warning(
-                f"Row counts for table {table_name} changed by {percent_diff}%"
+                f"Row counts for table {table_name} changed by {percent_diff:3.3f}%"
             )
 
 
