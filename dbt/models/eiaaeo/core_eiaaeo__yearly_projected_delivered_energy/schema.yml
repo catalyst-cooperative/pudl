@@ -13,5 +13,5 @@ sources:
           - name: region_type_eiaaeo
           - name: model_case_eiaaeo
           - name: projection_year
-          - name: sector_eiaaeo
+          - name: customer_class
           - name: delivered_energy_mmbtu

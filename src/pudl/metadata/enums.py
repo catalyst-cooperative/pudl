@@ -356,9 +356,13 @@ MODEL_CASES_EIAAEO: list[str] = [
     "no_inflation_reduction_act",
     "reference",
 ]
-"""Modeling cases for EIA AEO.
+"""Modeling cases for EIA AEO 2023.
 
-See https://eia.gov/outlooks/aeo/assumptions/case_descriptions.php .
+See https://www.eia.gov/outlooks/archive/aeo23/assumptions/case_descriptions.php .
+
+EIA's browser (https://www.eia.gov/outlooks/aeo/data/browser/#/?id=2-AEO2023) and
+data API also include the AEO2022 Reference case, which is not listed on the case
+descriptions page.
 """
 
 ENERGY_SOURCE_TYPES_FERC1: list[str] = [

@@ -3948,9 +3948,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "region_name_eiaaeo": {
         "type": "string",
         "description": (
-            "EIA AEO energy demand region"
-        ),  # = us census divisions (the real ones not the version that splits pacific), plus united states
-        # could also call this EIA AEO energy use, EIA AEO delivered energy
+            "EIA AEO region for energy consumption. Includes US Census Divisions plus United States."
+        ),
     },
     "region_name_us_census": {
         "type": "string",
@@ -3958,12 +3957,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "region_type_eiaaeo": {
         "type": "string",
-        "description": ("Region type for EIA AEO energy demand"),
-        # could also call this EIA AEO energy use, EIA AEO delivered energy
+        "description": (
+            "Region type for EIA AEO energy consumption, indicating whether region_name_eiaaeo is a US Census Division or country (United States)"
+        ),
         "constraints": {
             "enum": [
                 "us_census_division",
-                "nation",
+                "country",
             ],
         },
     },
@@ -4311,18 +4311,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "sector_name_eia": {
         "type": "string",
         "description": "EIA assigned sector name, corresponding to high level NAICS sector, designated by the primary purpose, regulatory status and plant-level combined heat and power status",
-    },
-    "sector_eiaaeo": {
-        "type": "string",
-        "description": ("EIA AEO energy demand sector"),
-        "constraints": {
-            "enum": [
-                "commercial",
-                "industrial",
-                "residential",
-                "transportation",
-            ],
-        },
     },
     "seller_name": {
         "type": "string",

@@ -536,8 +536,8 @@ def core_eiaaeo__yearly_projected_delivered_energy(
         "dimension": {"commercial", "industrial", "residential", "transportation"},
     }
     for column, expected in expected_values.items():
-        assert set(sanitized[column].unique()) == expected, (
-            f"Unexpected values in {column}"
+        assert (actual := set(sanitized[column].unique())) == expected, (
+            f"Unexpected values in {column}: Expected {expected}; found {actual}"
         )
 
     # 1 quad = 1 quadrillion btu = 1e9 mmbtu
@@ -570,7 +570,7 @@ def core_eiaaeo__yearly_projected_delivered_energy(
         columns={
             "region": "region_name_eiaaeo",
             "region_type": "region_type_eiaaeo",
-            "dimension": "sector_eiaaeo",
+            "dimension": "customer_class",
             "delivered_energy": "delivered_energy_mmbtu",
         }
     )

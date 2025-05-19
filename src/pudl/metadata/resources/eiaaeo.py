@@ -323,7 +323,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "region_type_eiaaeo",
                 "model_case_eiaaeo",
                 "projection_year",
-                "sector_eiaaeo",
+                "customer_class",
                 "delivered_energy_mmbtu",
             ],
             "primary_key": [
@@ -331,7 +331,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "region_name_eiaaeo",
                 "model_case_eiaaeo",
                 "projection_year",
-                "sector_eiaaeo",
+                "customer_class",
             ],
         },
         "sources": ["eiaaeo"],
