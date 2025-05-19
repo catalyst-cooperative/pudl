@@ -62,6 +62,23 @@ To see all options for this command run:
 dbt_helper update-tables --help
 ```
 
+#### ``summarize-row-count-diffs``
+When integrating new data, we often have to update row counts for many tables at once.
+In these cases, ``dbt`` does not provide any easy way to quickly see all failures from
+the ``check_row_counts_per_partition`` test, so we've added this command to grab all
+the failures from the most recent run of ``dbt`` tests, and summarize the results.
+
+The basic usage of this command is:
+
+```bash
+dbt_helper summarize-row-count-diffs
+```
+
+This will output the percent change in total row counts for all tables which have changed.
+To get more detailed results, containing the exact per-partition results, you can add
+the ``--verbose`` option to the command above. To only get results for a single table,
+add ``--table {table_name}``.
+
 ## Adding tests
 
 ### Default case
