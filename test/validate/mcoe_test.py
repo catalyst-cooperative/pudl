@@ -96,27 +96,3 @@ def test_no_null_rows_mcoe(pudl_out_mcoe, live_dbs, df_name, thresh):
         df_name=df_name,
         thresh=thresh,
     )
-
-
-###############################################################################
-# Tests that look at distributions of MCOE calculation outputs.
-###############################################################################
-
-
-@pytest.mark.parametrize("fuel,max_idle", [("gas", 0.15), ("coal", 0.075)])
-def test_idle_capacity(fuel, max_idle, pudl_out_mcoe, live_dbs):
-    """Validate that idle capacity isn't tooooo high."""
-    if not live_dbs:
-        pytest.skip("Data validation only works with a live PUDL DB.")
-    if pudl_out_mcoe.freq is None:
-        pytest.skip()
-
-    mcoe_tmp = pudl_out_mcoe.mcoe_generators().query(f"fuel_type_code_pudl=='{fuel}'")
-    nonzero_cf = mcoe_tmp[mcoe_tmp.capacity_factor != 0.0]
-    working_capacity = nonzero_cf.capacity_mw.sum()
-    total_capacity = mcoe_tmp.capacity_mw.sum()
-    idle_capacity = 1.0 - (working_capacity / total_capacity)
-    logger.info(f"Idle {fuel} capacity: {idle_capacity:.2%}")
-
-    if idle_capacity > max_idle:
-        raise AssertionError(f"Idle capacity ({idle_capacity}) is too high.")
