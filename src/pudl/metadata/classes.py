@@ -1278,13 +1278,13 @@ class Resource(PudlMeta):
     table_type: Literal["assn", "codes", "entity", "scd", "timeseries"] | None
     timeseries_resolution: (
         Literal[
-            "annual",
+            "yearly",
             "monthly",
             "hourly",
         ]
         | None
     ) = None
-    layer: Literal["raw", "_core", "core", "_out", "out", "test"]
+    layer: Literal["raw", "_core", "core", "_out", "out", "test"] | None
     usage_warnings: list[String]  # could be list[Literal]
     harvest: ResourceHarvest = ResourceHarvest()
     schema: Schema
@@ -1451,14 +1451,14 @@ class Resource(PudlMeta):
             del schema["foreign_key_rules"]
 
         meta_from_name = MetaFromResourceName(name=resource_id, seed=obj)
-        if "table_type" not in obj:
+        if obj["table_type"] is None:
             obj["table_type"] = meta_from_name.tabletype or None
-        if "timeseries_resolution" not in obj:
+        if obj["timeseries_resolution"] is None:
             obj["timeseries_resolution"] = meta_from_name.time or None
-        if "layer" not in obj:
+        if obj["layer"] is None:
             obj["layer"] = meta_from_name.layer
-        if "usage_warnings" not in obj:
-            obj["usage_warnings"] = default_usage_warnings(obj)
+        if obj["usage_warnings"] is None:
+            obj["usage_warnings"] = list() #default_usage_warnings(obj)
         # TODO: do we want to pull in the full text of each usage warning?
         # TODO: if uws are specified, do we skip the defaults or merge with them?
 
