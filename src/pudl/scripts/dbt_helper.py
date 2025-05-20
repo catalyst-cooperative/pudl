@@ -340,13 +340,14 @@ def update_row_counts(
     partition_column: str = "report_year",
     target: str = "etl-full",
     clobber: bool = False,
+    update: bool = False,
 ) -> UpdateResult:
     """Generate updated row counts per partition and write to csv file within dbt project."""
     existing = _get_existing_row_counts(target)
-    if table_name in existing["table_name"].to_numpy() and not clobber:
+    if table_name in existing["table_name"].to_numpy() and not (clobber or update):
         return UpdateResult(
             success=False,
-            message=f"Row counts for {table_name} already exist (run with clobber to overwrite).",
+            message=f"Row counts for {table_name} already exist (run with clobber or update to overwrite).",
         )
 
     new = _calculate_row_counts(table_name, partition_column)
@@ -713,6 +714,7 @@ def update_tables(
                     data_source,
                     partition_column=partition_column,
                     clobber=args.clobber,
+                    update=args.update,
                 )
             )
         if args.row_counts:
@@ -722,6 +724,7 @@ def update_tables(
                     partition_column=partition_column,
                     target=args.target,
                     clobber=args.clobber,
+                    update=args.update,
                 )
             )
 
