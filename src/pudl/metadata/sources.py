@@ -196,7 +196,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "year_months": [
                 str(q).lower()
-                for q in pd.period_range(start="2015-07", end="2024-12", freq="M")
+                for q in pd.period_range(start="2015-07", end="2025-03", freq="M")
             ],
         },
         "keywords": sorted(
@@ -272,7 +272,7 @@ SOURCES: dict[str, Any] = {
         },
         "field_namespace": "eia",
         "working_partitions": {
-            "years": sorted(set(range(2001, 2025))),
+            "years": sorted(set(range(2001, 2026))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -473,7 +473,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "year_quarters": [
                 str(q).lower()
-                for q in pd.period_range(start="1995q1", end="2024q4", freq="Q")
+                for q in pd.period_range(start="1995q1", end="2025q1", freq="Q")
             ]
         },
         "contributors": [
@@ -549,12 +549,12 @@ SOURCES: dict[str, Any] = {
         ),
         "source_file_dict": {
             "respondents": "Major electric utilities and licenses.",
-            "records_liberated": "~13.2 million (116 raw tables), ~307,000 (7 clean tables)",
+            "records_liberated": "~13.2 million (116 raw tables), ~4.7 million (23 clean tables)",
             "source_format": "XBRL (.XBRL) and Visual FoxPro Database (.DBC/.DBF)",
         },
         "field_namespace": "ferc1",
         "working_partitions": {
-            "years": sorted(set(range(1994, 2024))),
+            "years": sorted(set(range(1994, 2025))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -915,7 +915,7 @@ pipeline found here: https://github.com/catalyst-cooperative/mozilla-sec-eia"""
             "onshore wind, offshore wind, and fixed-tilt solar generation types."
         ),
         "source_file_dict": {
-            "sorce_format": "Comma Separated Value (.csv)",
+            "source_format": "Comma Separated Value (.csv)",
         },
         "keywords": sorted(
             {
@@ -938,7 +938,7 @@ pipeline found here: https://github.com/catalyst-cooperative/mozilla-sec-eia"""
         ),
         "license_raw": LICENSES["cc-by-4.0"],
         "license_pudl": LICENSES["cc-by-4.0"],
-        "working_partitions": {"years": sorted(set(range(2019, 2024)))},
+        "working_partitions": {"years": sorted(set(range(2014, 2024)))},
         "contributors": [CONTRIBUTORS["vibrant-clean-energy"]],
     },
 }
