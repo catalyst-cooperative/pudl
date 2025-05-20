@@ -1591,10 +1591,10 @@ class SimulationDataFrame(pa.DataFrameModel):
 
 
 @pa.check_types
-def _get_simulation_data(
-    df: DataFrame[AlignedTimeseriesDataFrame],
+def _get_simulation_datetimes(
+    aligned_df: DataFrame[AlignedTimeseriesDataFrame],
     simulation_df: DataFrame[SimulationDataFrame],
-):
+) -> pd.DataFrame:
     """Transform flagged pattern from reference periods to simulation periods.
 
     This will find all flagged values from a reference month and apply the flag
@@ -1603,23 +1603,35 @@ def _get_simulation_data(
     month), and flagging the corresponding hour in the simulation month. Reference
     months are chosen by finding months with a relatively high rate of imputation,
     while simulation months have no values which were flagged for imputation.
-    """
-    # Merge simulation dataframe with aligned timeseries dataframe to get all
-    # Hours in the reference month
-    simulation_df["period"] = simulation_df["reference_month"].dt.to_period("M")
-    df["period"] = df["datetime"].dt.to_period("M")
 
-    simulation_df = df.merge(
+    Args:
+        aligned_df: DataFrame with ID and datetime columns, which is used to get
+            the full set of hours in the simulation/reference months.
+        simulation_df: DataFrame with reference and simulation months.
+
+    Returns:
+        DataFrame which contains all ID/datetime pairs that should be flagged for simulated imputation.
+    """
+    # Add a column to both dataframes, which contains the start date of the month
+    # In the ``datetime`` column.
+    simulation_df["period"] = simulation_df["reference_month"].dt.to_period("M")
+    aligned_df["period"] = aligned_df["datetime"].dt.to_period("M")
+
+    # Merge on month and ID to get a DataFrame with all hours in the reference months
+    simulation_df = aligned_df.merge(
         simulation_df,
         left_on=["id_col", "period"],
         right_on=["reference_id_col", "period"],
         how="inner",
     )
 
-    # Filter to hours where values where flagged (NULL) in reference month
+    # Filter to hours where values were flagged (NULL) in reference month
     flagged = simulation_df[simulation_df["value_col"].isnull()]
 
-    # Transform hours in reference month to hours in simulation month
+    # For each flagged value in a reference month, get the number of hours after midnight
+    # of the first day of the month for this value. Then, use this timedelta to find
+    # the corresponding hour in the simulation month. These hours will then be flagged
+    # for imputation during the simulated imputation.
     flagged["simulation_datetime"] = (
         flagged["datetime"] - flagged["reference_month"] + flagged["simulation_month"]
     )
@@ -1687,7 +1699,7 @@ def simulate_flags(
     simulated_years = good_months["simulation_month"].dt.year.unique()
 
     # Use reference month to get hours which should be flagged in simulation month
-    simulation_data = _get_simulation_data(
+    simulation_data = _get_simulation_datetimes(
         df,
         pd.concat(
             [bad_months.reset_index(), good_months.reset_index()], axis="columns"
