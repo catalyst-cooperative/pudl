@@ -511,7 +511,7 @@ def _print_schema_diff(diff: dict, old_schema: DbtSchema, new_schema: DbtSchema)
 def _print_schema_diff_summary(diff: dict, indent: int = 0):
     """
     Recursively print a summary of the schema diff.
-    
+
     The diff is expected to be a nested dictionary as produced by diff_dbt_schema.
     """
     pad = " " * indent
@@ -572,7 +572,7 @@ def update_table_schema(
             success=False,
             message=f"DBT configuration already exists for table {table_name} and clobber or update is not set.",
         )
-    
+
     new_schema = DbtSchema.from_table_name(
         table_name, partition_column=partition_column
     )
@@ -598,7 +598,7 @@ def update_table_schema(
                 message=(f"Schema for {table_name} has deletions. Please update manually."),
             )
 
-    
+
     model_path.mkdir(parents=True, exist_ok=True)
     _write_dbt_schema(schema_path, new_schema)
 
@@ -684,7 +684,7 @@ def update_tables(
     'all'. If 'all' the script will update configurations for for all PUDL tables.
 
     If ``--clobber`` is set, existing configurations for tables will be overwritten.
-    If ``--update`` is set, existing configurations for tables will be updated only 
+    If ``--update`` is set, existing configurations for tables will be updated only
     if this does not result in deletions.
     """
     args = TableUpdateArgs(
