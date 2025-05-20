@@ -170,28 +170,44 @@ class DbtSchema(BaseModel):
 def diff_scalar(field, old, new):
     return {field: {"old": old, "new": new}} if old != new else {}
 
+
 def diff_list(field, old, new):
     old_set, new_set = set(old or []), set(new or [])
     added, removed = list(new_set - old_set), list(old_set - new_set)
     return {field: {"added": added, "removed": removed}} if added or removed else {}
+
 
 def diff_dict_keys(field, old, new):
     old_keys, new_keys = set((old or {}).keys()), set((new or {}).keys())
     added, removed = list(new_keys - old_keys), list(old_keys - new_keys)
     return {field: {"added": added, "removed": removed}} if added or removed else {}
 
+
 def diff_dbt_column(o, n):
     diff = {}
     diff.update(diff_scalar("description", o.description, n.description))
-    diff.update(diff_list("data_tests", list(map(str, o.data_tests or [])), list(map(str, n.data_tests or []))))
+    diff.update(
+        diff_list(
+            "data_tests",
+            list(map(str, o.data_tests or [])),
+            list(map(str, n.data_tests or [])),
+        )
+    )
     diff.update(diff_list("tags", o.tags, n.tags))
     diff.update(diff_dict_keys("meta", o.meta, n.meta))
     return diff
 
+
 def diff_dbt_table(o, n):
     diff = {}
     diff.update(diff_scalar("description", o.description, n.description))
-    diff.update(diff_list("data_tests", list(map(str, o.data_tests or [])), list(map(str, n.data_tests or []))))
+    diff.update(
+        diff_list(
+            "data_tests",
+            list(map(str, o.data_tests or [])),
+            list(map(str, n.data_tests or [])),
+        )
+    )
     diff.update(diff_dict_keys("meta", o.meta, n.meta))
     diff.update(diff_list("tags", o.tags, n.tags))
     diff.update(diff_dict_keys("config", o.config, n.config))
@@ -208,13 +224,21 @@ def diff_dbt_table(o, n):
             d = diff_dbt_column(old_cols[col], new_cols[col])
             if d:
                 cols[col] = d
-    if cols: diff["columns"] = cols
+    if cols:
+        diff["columns"] = cols
     return diff
+
 
 def diff_dbt_source(o, n):
     diff = {}
     diff.update(diff_scalar("description", o.description, n.description))
-    diff.update(diff_list("data_tests", list(map(str, o.data_tests or [])), list(map(str, n.data_tests or []))))
+    diff.update(
+        diff_list(
+            "data_tests",
+            list(map(str, o.data_tests or [])),
+            list(map(str, n.data_tests or [])),
+        )
+    )
     diff.update(diff_dict_keys("meta", o.meta, n.meta))
     # Tables
     tables = {}
@@ -229,8 +253,10 @@ def diff_dbt_source(o, n):
             d = diff_dbt_table(old_tbl[tbl], new_tbl[tbl])
             if d:
                 tables[tbl] = d
-    if tables: diff["tables"] = tables
+    if tables:
+        diff["tables"] = tables
     return diff
+
 
 def diff_dbt_schema(o, n):
     diff = {}
@@ -248,7 +274,8 @@ def diff_dbt_schema(o, n):
             d = diff_dbt_source(old_src[s], new_src[s])
             if d:
                 sources[s] = d
-    if sources: diff["sources"] = sources
+    if sources:
+        diff["sources"] = sources
     # Models (if present)
     if o.models or n.models:
         models = {}
@@ -263,7 +290,8 @@ def diff_dbt_schema(o, n):
                 d = diff_dbt_table(old_mod[m], new_mod[m])
                 if d:
                     models[m] = d
-        if models: diff["models"] = models
+        if models:
+            diff["models"] = models
     return diff
 
 
@@ -384,7 +412,7 @@ def _print_schema_diff(diff: dict, old_schema: DbtSchema, new_schema: DbtSchema)
     print("\n======================")
 
     print("🔍 Schema Diff Summary:\n")
-    _print_schema_diff_summary(diff))
+    _print_schema_diff_summary(diff)
 
     print("======================\n")
 
