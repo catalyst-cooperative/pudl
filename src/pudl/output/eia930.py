@@ -81,7 +81,15 @@ def _out_eia930__combined_demand(
     _out_eia930__hourly_subregion_demand: pd.DataFrame,
 ) -> pd.DataFrame:
     """Combine subregion and BA demand into a single DataFrame to perform imputation."""
-    common_cols = ["datetime_utc", "demand_reported_mwh", "timezone", "generic_id"]
+    _out_eia930__hourly_operations["simulation_group"] = "ba"
+    _out_eia930__hourly_subregion_demand["simulation_group"] = "subregion"
+    common_cols = [
+        "datetime_utc",
+        "demand_reported_mwh",
+        "timezone",
+        "generic_id",
+        "simulation_group",
+    ]
     return pd.concat(
         [
             _out_eia930__hourly_subregion_demand.rename(
@@ -101,6 +109,7 @@ imputed_combined_demand_assets = impute_timeseries_asset_factory(
     value_col="demand_reported_mwh",
     imputed_value_col="demand_imputed_pudl_mwh",
     id_col="generic_id",
+    simulation_group_col="simulation_group",
     settings=ImputeTimeseriesSettings(
         simulate_flags_settings=SimulateFlagsSettings(),
     ),

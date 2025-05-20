@@ -1704,7 +1704,7 @@ def simulate_flags(
                 "simulation_datetime"
             ],
             simulation_id,
-        ] = None
+        ] = pd.NA
         flag_matrix.loc[
             simulation_data[simulation_data["simulation_id_col"] == simulation_id][
                 "simulation_datetime"
@@ -1748,6 +1748,7 @@ def impute_timeseries_asset_factory(  # noqa: C901
     value_col: str = "demand_mwh",
     imputed_value_col: str = "demand_imputed_mwh",
     reported_value_col: str = "demand_reported_mwh",
+    simulation_group_col: str | None = None,
     output_io_manager_key: str = "parquet_io_manager",
     real_id_cols: tuple[str, str] | None = None,
     settings: ImputeTimeseriesSettings = ImputeTimeseriesSettings(),
@@ -1814,8 +1815,18 @@ def impute_timeseries_asset_factory(  # noqa: C901
         """
         # Convert from datetime_utc to local datetime
         aligned_df = utc_dataframe_to_aligned(
-            input_df.rename(columns={value_col: "value_col", id_col: "id_col"})
+            input_df.rename(
+                columns={
+                    value_col: "value_col",
+                    id_col: "id_col",
+                    simulation_group_col: "simulation_group",
+                }
+            )
         )
+
+        # If no simulation group column is specified, create one with a monolithic group
+        if simulation_group_col is None:
+            aligned_df["simulation_group"] = "monolithic"
 
         # Pivot to timeseries matrix
         matrix = pivot_aligned_timeseries_dataframe(aligned_df, settings.periods)
@@ -1847,6 +1858,7 @@ def impute_timeseries_asset_factory(  # noqa: C901
 
     @multi_asset(
         ins={
+            "aligned_df": AssetIn(aligned_input_asset),
             "matrix": AssetIn(cleaned_timeseries_matrix_asset),
             "flags": AssetIn(flags_asset),
         },
@@ -1859,10 +1871,25 @@ def impute_timeseries_asset_factory(  # noqa: C901
         name=f"_{output_asset_name}_simulate_flag_timeseries_matrix",
     )
     def _simulate_flags(
+        aligned_df: pd.DataFrame,
         matrix: pd.DataFrame,
         flags: pd.DataFrame,
     ) -> tuple[pd.DataFrame, pd.DataFrame]:
-        return simulate_flags(settings.simulate_flags_settings, matrix, flags)
+        kept_columns = set(matrix.columns)
+        simulated_timeseries_matricies = []
+        simulated_flag_matricies = []
+        for _, gdf in aligned_df.groupby("simulation_group"):
+            group_matrix, group_flags = simulate_flags(
+                settings.simulate_flags_settings,
+                matrix[list(set(gdf["id_col"].unique()) & kept_columns)],
+                flags,
+            )
+            simulated_timeseries_matricies.append(group_matrix)
+            simulated_flag_matricies.append(group_flags)
+        return (
+            pd.concat(simulated_timeseries_matricies, axis="columns"),
+            pd.concat(simulated_flag_matricies, axis="columns"),
+        )
 
     @asset(
         required_resource_keys={"dataset_settings"},
@@ -1968,7 +1995,7 @@ def impute_timeseries_asset_factory(  # noqa: C901
     def _score_imputation(
         imputed_df: pd.DataFrame,
         simulated_df: pd.DataFrame,
-    ) -> float:
+    ) -> dict[str, float]:
         """Compute a performance metric on imputed simulated data.
 
         This takes the real output asset and the simulated output asset, and will
@@ -1980,23 +2007,26 @@ def impute_timeseries_asset_factory(  # noqa: C901
         if id_cols is None:
             id_cols = [id_col]
 
-        # Get just rows where we simultated NULLS
-        simulated_df = simulated_df[
-            simulated_df[f"{imputed_value_col}_imputation_code"] == "simulated"
-        ]
+        mape_dict = {}
+        for group_name, gdf in simulated_df.groupby("simulation_group"):
+            # Get just rows where we simultated NULLS
+            simulated_gdf = gdf[
+                gdf[f"{imputed_value_col}_imputation_code"] == "simulated"
+            ]
 
-        # Combine with real data
-        combined_df = simulated_df.merge(imputed_df, on=["datetime_utc"] + id_cols)
+            # Combine with real data
+            combined_df = simulated_gdf.merge(imputed_df, on=["datetime_utc"] + id_cols)
 
-        # Compute metric
-        mean_percent_error = mean_absolute_percentage_error(
-            combined_df[f"{imputed_value_col}_x"], combined_df[f"{imputed_value_col}_y"]
-        )
-        logger.info(
-            f"Imputed simulated NULLS with mean percent error: {mean_percent_error}"
-        )
+            # Compute metric
+            mape_dict[group_name] = mean_absolute_percentage_error(
+                combined_df[f"{imputed_value_col}_x"],
+                combined_df[f"{imputed_value_col}_y"],
+            )
+            logger.info(
+                f"Imputed simulated NULLS for group {group_name} with mean percent error: {mape_dict[group_name]}"
+            )
 
-        return mean_percent_error
+        return mape_dict
 
     return [
         _prepare_timeseries_matrix,
