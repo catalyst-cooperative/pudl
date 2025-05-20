@@ -1636,6 +1636,11 @@ def _get_simulation_datetimes(
         flagged["datetime"] - flagged["reference_month"] + flagged["simulation_month"]
     )
 
+    # Drop hours that crossed over into the next month
+    flagged = flagged[
+        flagged["simulation_datetime"].dt.to_period("M") == flagged["simulation_month"]
+    ]
+
     return flagged[["simulation_datetime", "simulation_id_col"]]
 
 
