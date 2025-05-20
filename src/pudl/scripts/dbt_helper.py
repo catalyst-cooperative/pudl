@@ -268,6 +268,20 @@ def diff_dbt_schema(o, n):
     return diff
 
 
+def _has_removals_or_modifications(diff: dict) -> bool:
+    """Recursively checks if any removal or modification exists in a diff dict."""
+    if isinstance(diff, dict):
+        for key, value in diff.items():
+            if key in {"removed", "modified"} and value:
+                return True
+            if _has_removals_or_modifications(value):
+                return True
+    elif isinstance(diff, list):
+        for item in diff:
+            if _has_removals_or_modifications(item):
+                return True
+    return False
+
 
 def get_data_source(table_name: str) -> str:
     """Return data source for a table or 'output' if there's more than one source."""
@@ -360,138 +374,6 @@ def update_row_counts(
     )
 
 
-def _compare_schema_yaml(old_schema: DbtSchema, new_schema: DbtSchema) -> dict:
-    """Compare two DbtSchema objects and report added/removed fields."""
-    report = {
-        "columns_added": [],
-        "columns_removed": [],
-        "description_added": [],
-        "description_removed": [],
-        "tests_added": [],
-        "tests_removed": [],
-        "meta_added": [],
-        "meta_removed": [],
-        "tags_added": [],
-        "tags_removed": [],
-        "config_added": [],
-        "config_removed": [],
-    }
-
-    old_tables = {t.name: t for s in old_schema.sources for t in s.tables}
-    new_tables = {t.name: t for s in new_schema.sources for t in s.tables}
-
-    for table_name in set(old_tables) | set(new_tables):
-        old_table = old_tables.get(table_name)
-        new_table = new_tables.get(table_name)
-
-        if not old_table:
-            report["columns_added"].extend([c.name for c in new_table.columns])
-            continue
-        if not new_table:
-            report["columns_removed"].extend([c.name for c in old_table.columns])
-            continue
-
-        # Columns
-        old_columns = {c.name: c for c in old_table.columns}
-        new_columns = {c.name: c for c in new_table.columns}
-
-        old_col_names = set(old_columns)
-        new_col_names = set(new_columns)
-
-        report["columns_added"].extend(new_col_names - old_col_names)
-        report["columns_removed"].extend(old_col_names - new_col_names)
-
-        # Compare matching columns
-        for col_name in old_col_names & new_col_names:
-            old_col = old_columns[col_name]
-            new_col = new_columns[col_name]
-
-            # Descriptions
-            if old_col.description != new_col.description:
-                if old_col.description is None and new_col.description is not None:
-                    report["description_added"].append(f"column:{col_name}")
-                elif old_col.description is not None and new_col.description is None:
-                    report["description_removed"].append(f"column:{col_name}")
-
-            # Data tests
-            old_tests = set(map(str, old_col.data_tests or []))
-            new_tests = set(map(str, new_col.data_tests or []))
-
-            report["tests_added"].extend([(col_name, t) for t in new_tests - old_tests])
-            report["tests_removed"].extend(
-                [(col_name, t) for t in old_tests - new_tests]
-            )
-
-            # Meta
-            old_meta = set((old_col.meta or {}).keys())
-            new_meta = set((new_col.meta or {}).keys())
-
-            report["meta_added"].extend([(col_name, k) for k in new_meta - old_meta])
-            report["meta_removed"].extend([(col_name, k) for k in old_meta - new_meta])
-
-            # Tags
-            old_tags = set(old_col.tags or [])
-            new_tags = set(new_col.tags or [])
-
-            report["tags_added"].extend([(col_name, t) for t in new_tags - old_tags])
-            report["tags_removed"].extend([(col_name, t) for t in old_tags - new_tags])
-
-        # Now handle table-level fields
-
-        # Table description
-        if old_table.description != new_table.description:
-            if old_table.description is None and new_table.description is not None:
-                report["description_added"].append(f"table:{table_name}")
-            elif old_table.description is not None and new_table.description is None:
-                report["description_removed"].append(f"table:{table_name}")
-
-        # Table data tests
-        old_tests = set(map(str, old_table.data_tests or []))
-        new_tests = set(map(str, new_table.data_tests or []))
-
-        report["tests_added"].extend(
-            [(f"table:{table_name}", t) for t in new_tests - old_tests]
-        )
-        report["tests_removed"].extend(
-            [(f"table:{table_name}", t) for t in old_tests - new_tests]
-        )
-
-        # Table meta
-        old_meta = set((old_table.meta or {}).keys())
-        new_meta = set((new_table.meta or {}).keys())
-
-        report["meta_added"].extend(
-            [(f"table:{table_name}", k) for k in new_meta - old_meta]
-        )
-        report["meta_removed"].extend(
-            [(f"table:{table_name}", k) for k in old_meta - new_meta]
-        )
-
-        # Table tags
-        old_tags = set(old_table.tags or [])
-        new_tags = set(new_table.tags or [])
-
-        report["tags_added"].extend(
-            [(f"table:{table_name}", t) for t in new_tags - old_tags]
-        )
-        report["tags_removed"].extend(
-            [(f"table:{table_name}", t) for t in old_tags - new_tags]
-        )
-
-        # Config
-        old_config = set((old_table.config or {}).keys())
-        new_config = set((new_table.config or {}).keys())
-
-        report["config_added"].extend(
-            [(f"table:{table_name}", k) for k in new_config - old_config]
-        )
-        report["config_removed"].extend(
-            [(f"table:{table_name}", k) for k in old_config - new_config]
-        )
-
-    return report
-
-
 def _print_schema_diff(diff: dict, old_schema: DbtSchema, new_schema: DbtSchema):
     """Print old and new YAML, and summary of schema changes."""
     print("\n======================")
@@ -582,22 +464,14 @@ def update_table_schema(
         old_schema = DbtSchema.from_yaml(schema_path)
 
         # Generate the diff report
-        diff_report = _compare_schema_yaml(old_schema, new_schema)
-
-        # Check if anything is deleted
-        deletions = []
-        for category, changes in diff_report.items():
-            if category.endswith("_removed") and changes:
-                deletions.extend(changes)
-
-        if deletions:
+        diff = diff_dbt_schema(old_schema, new_schema)
+        if _has_removals_or_modifications(diff):
             print("\n⚠️ WARNING: Some elements would be deleted by this update!")
-            _print_schema_diff(diff_report, old_schema, new_schema)
+            _print_schema_diff(diff, old_schema, new_schema)
             return UpdateResult(
                 success=False,
-                message=(f"Schema for {table_name} has deletions. Please update manually."),
+                message=f"DBT configuration for table {table_name} has information the would be deleted. Update manually or run with clobber.",
             )
-
 
     model_path.mkdir(parents=True, exist_ok=True)
     _write_dbt_schema(schema_path, new_schema)
