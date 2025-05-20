@@ -62,7 +62,7 @@ To see all options for this command run:
 dbt_helper update-tables --help
 ```
 
-#### `summarize-row-count-diffs` {#summarize-row-count-diffs}
+#### `summarize-row-count-diffs`
 When integrating new data, we often have to update row counts for many tables at once.
 In these cases, `dbt` does not provide any easy way to quickly see all failures from
 the `check_row_counts_per_partition` test, so we've added this command to grab all
