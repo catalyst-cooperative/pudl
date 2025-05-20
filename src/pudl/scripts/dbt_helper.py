@@ -9,7 +9,6 @@ import click
 import duckdb
 import pandas as pd
 import yaml
-from enum import Enum
 from pydantic import BaseModel
 
 from pudl.logging_helpers import configure_root_logger, get_logger
