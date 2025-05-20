@@ -355,7 +355,9 @@ def _calculate_row_counts(
             f"FROM '{table_path}' GROUP BY YEAR({partition_column})"  # noqa: S608
         )
     else:
-        row_count_query = f"SELECT '' as partition, COUNT(*) as row_count FROM '{table_path}'"  # noqa: S608
+        row_count_query = (
+            f"SELECT '' as partition, COUNT(*) as row_count FROM '{table_path}'"  # noqa: S608
+        )
 
     new_row_counts = duckdb.sql(row_count_query).df().astype({"partition": str})
     new_row_counts["table_name"] = table_name
@@ -418,8 +420,7 @@ def _print_schema_diff(diff: dict, old_schema: DbtSchema, new_schema: DbtSchema)
 
 
 def _print_schema_diff_summary(diff: dict, indent: int = 0):
-    """
-    Recursively print a summary of the schema diff.
+    """Recursively print a summary of the schema diff.
 
     The diff is expected to be a nested dictionary as produced by diff_dbt_schema.
     """
