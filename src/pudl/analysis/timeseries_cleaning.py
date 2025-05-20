@@ -1644,7 +1644,7 @@ def simulate_flags(
     settings: SimulateFlagsSettings,
     timeseries_matrix: DataFrame[TimeseriesMatrix],
     flag_matrix: DataFrame[TimeseriesMatrix],
-) -> DataFrame[TimeseriesMatrix]:
+) -> tuple[DataFrame[TimeseriesMatrix], DataFrame[TimeseriesMatrix]]:
     """Simulate flagged values for scoring imputation.
 
     Find months of data with high rate of flagged values, and uses these sections
@@ -1652,6 +1652,14 @@ def simulate_flags(
     to impute data in a realistic scenario where we have good reported data, which
     we can compare to in order to compute quantitative metrics to validate the
     quality of our imputation.
+
+    Args:
+        settings: Settings object, which contains all configurable settings for simulation.
+        timeseries_matrix: Timeseries matrix demand values.
+        flag_matrix: Flag matrix, which mirrors ``timeseries_matrix``, but only contains flags.
+
+    Returns:
+        Tuple of ``timeseries_matrix``, and ``flag_matrix`` modified with simulation data.
     """
     # Calculate the rate of imputation per month/ID
     df = timeseries_matrix.melt(
