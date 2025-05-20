@@ -168,22 +168,26 @@ class DbtSchema(BaseModel):
 
 
 def diff_scalar(field, old, new):
+    """Return a diff of a scalar field value as a nested dictionary."""
     return {field: {"old": old, "new": new}} if old != new else {}
 
 
 def diff_list(field, old, new):
+    """Return a diff of a list field value as a nested dictionary."""
     old_set, new_set = set(old or []), set(new or [])
     added, removed = list(new_set - old_set), list(old_set - new_set)
     return {field: {"added": added, "removed": removed}} if added or removed else {}
 
 
 def diff_dict_keys(field, old, new):
+    """Return a diff of dictionary keys as a nested dictionary."""
     old_keys, new_keys = set((old or {}).keys()), set((new or {}).keys())
     added, removed = list(new_keys - old_keys), list(old_keys - new_keys)
     return {field: {"added": added, "removed": removed}} if added or removed else {}
 
 
 def diff_dbt_column(o, n):
+    """Return a diff of a column in a dbt schema as a nested dictionary."""
     diff = {}
     diff.update(diff_scalar("description", o.description, n.description))
     diff.update(
@@ -199,6 +203,7 @@ def diff_dbt_column(o, n):
 
 
 def diff_dbt_table(o, n):
+    """Return a diff of a table in a dbt schema as a nested dictionary."""
     diff = {}
     diff.update(diff_scalar("description", o.description, n.description))
     diff.update(
@@ -230,6 +235,7 @@ def diff_dbt_table(o, n):
 
 
 def diff_dbt_source(o, n):
+    """Return a diff of a source in a dbt schema as a nested dictionary."""
     diff = {}
     diff.update(diff_scalar("description", o.description, n.description))
     diff.update(
@@ -259,6 +265,7 @@ def diff_dbt_source(o, n):
 
 
 def diff_dbt_schema(o, n):
+    """Return a diff of a dbt schema as a nested dictionary."""
     diff = {}
     diff.update(diff_scalar("version", o.version, n.version))
     # Sources
