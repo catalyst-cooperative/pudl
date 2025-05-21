@@ -24,12 +24,14 @@ class ImputationReasonCodes(Enum):
     SINGLE_DELTA = (
         "Indicates value is significantly different from nearest unflagged value."
     )
+    SIMULATED = "Used for scoring imputation using simulated data. SHOULD NOT APPEAR IN PRODUCTION DATA."
 
 
 IMPUTATION_REASON_CODES = pd.DataFrame(
     [
         {"code": code.name.lower(), "description": code.value}
         for code in ImputationReasonCodes
+        if code != ImputationReasonCodes.SIMULATED
     ]
 )
 

@@ -124,10 +124,6 @@ imputed_subregion_demand_assets = impute_timeseries_asset_factory(
     value_col="demand_reported_mwh",
     imputed_value_col="demand_imputed_pudl_mwh",
     id_col="combined_subregion_ba_id",
-    real_id_cols=[
-        "balancing_authority_code_eia",
-        "balancing_authority_subregion_code_eia",
-    ],
     settings=ImputeTimeseriesSettings(
         method_overrides={2019: "tnn", 2025: "tnn"},
         simulate_flags_settings=SimulateFlagsSettings(),
