@@ -124,6 +124,8 @@ sources:
                   severity: warn
           - name: plant_type
           - name: record_id
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_unique
           - name: water_limited_capacity_mw
 models:
   - name: validate_ferc1__yearly_steam_plants_sched402
