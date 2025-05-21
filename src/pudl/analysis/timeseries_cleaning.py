@@ -30,6 +30,7 @@ And described at:
 """
 
 import functools
+import re
 import uuid
 import warnings
 from collections.abc import Callable, Sequence
@@ -1740,6 +1741,9 @@ def get_simulated_flag_mask(
             }
         )[["simulation_id_col", "simulation_month"]]
     )
+
+    # Take good months and bad months, and combine into a single dataframe
+    # It doesn't matter which months in particular get matched up
     simulation_df = pd.concat(
         [bad_months.reset_index(), good_months.reset_index()], axis="columns"
     )
@@ -1822,17 +1826,25 @@ def impute_timeseries_asset_factory(  # noqa: C901
             If specified, these columns will be used instead during scoring.
         settings: Configurable options for imputation (see :class:`ImputeTimeseriesSettings`).
     """
-    timeseries_matrix_asset = f"_{output_asset_name}_timeseries_matrix"
-    aligned_input_asset = f"_{input_asset_name}_aligned"
-    cleaned_timeseries_matrix_asset = f"_{output_asset_name}_cleaned_timeseries_matrix"
-    flags_asset = f"_{output_asset_name}_timeseries_matrix_flags"
-    imputed_asset = f"_{output_asset_name}_imputed"
-    simulated_timeseries_matrix_asset = (
-        f"_{output_asset_name}_simulated_timeseries_matrix"
+    timeseries_matrix_asset = re.sub(
+        r"^__", "_", f"_{output_asset_name}_timeseries_matrix"
     )
-    simulated_flags_asset = f"_{output_asset_name}_timeseries_matrix_simulated_flags"
-    imputed_simulated_asset = f"_{output_asset_name}_imputed_simulated_matrix"
-    imputation_score_asset = f"_{output_asset_name}_score"
+    aligned_input_asset = re.sub(r"^__", "_", f"_{input_asset_name}_aligned")
+    cleaned_timeseries_matrix_asset = re.sub(
+        r"^__", "_", f"_{output_asset_name}_cleaned_timeseries_matrix"
+    )
+    flags_asset = re.sub(r"^__", "_", f"_{output_asset_name}_timeseries_matrix_flags")
+    imputed_asset = re.sub(r"^__", "_", f"_{output_asset_name}_imputed")
+    simulated_timeseries_matrix_asset = re.sub(
+        r"^__", "_", f"_{output_asset_name}_simulated_timeseries_matrix"
+    )
+    simulated_flags_asset = re.sub(
+        r"^__", "_", f"_{output_asset_name}_timeseries_matrix_simulated_flags"
+    )
+    imputed_simulated_asset = re.sub(
+        r"^__", "_", f"_{output_asset_name}_imputed_simulated_matrix"
+    )
+    imputation_score_asset = re.sub(r"^__", "_", f"_{output_asset_name}_score")
 
     @multi_asset(
         ins={"input_df": AssetIn(input_asset_name)},
@@ -2041,17 +2053,15 @@ def impute_timeseries_asset_factory(  # noqa: C901
         mape_dict = {}
         for group_name, gdf in simulated_df.groupby("simulation_group"):
             # Get just rows where we simultated NULLS
-            simulated_gdf = gdf[
-                gdf[f"{imputed_value_col}_imputation_code"] == "simulated"
-            ]
+            simulated_gdf = gdf[gdf["flags"] == "simulated"]
 
             # Combine with real data
             combined_df = simulated_gdf.merge(imputed_df, on=["datetime_utc", "id_col"])
 
             # Compute metric
             mape_dict[group_name] = mean_absolute_percentage_error(
-                combined_df[f"{imputed_value_col}_x"],
-                combined_df[f"{imputed_value_col}_y"],
+                combined_df["value_col_x"],
+                combined_df["value_col_y"],
             )
             logger.info(
                 f"Imputed simulated NULLS for group {group_name} with mean percent error: {mape_dict[group_name]}"
