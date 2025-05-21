@@ -217,20 +217,9 @@ def diff_dbt_table(o, n):
     diff.update(diff_list("tags", o.tags, n.tags))
     diff.update(diff_dict_keys("config", o.config, n.config))
     # Columns
-    cols = {}
-    old_cols = {c.name: c for c in o.columns}
-    new_cols = {c.name: c for c in n.columns}
-    for col in set(old_cols) | set(new_cols):
-        if col not in old_cols:
-            cols[col] = {"added": new_cols[col].dict(exclude_none=True)}
-        elif col not in new_cols:
-            cols[col] = {"removed": old_cols[col].dict(exclude_none=True)}
-        else:
-            d = diff_dbt_column(old_cols[col], new_cols[col])
-            if d:
-                cols[col] = d
-    if cols:
-        diff["columns"] = cols
+    cols_diff = _diff_named_items(o.columns or [], n.columns or [], diff_dbt_column)
+    if cols_diff:
+        diff["columns"] = cols_diff
     return diff
 
 
@@ -246,59 +235,45 @@ def diff_dbt_source(o, n):
         )
     )
     diff.update(diff_dict_keys("meta", o.meta, n.meta))
+
     # Tables
-    tables = {}
-    old_tbl = {t.name: t for t in o.tables}
-    new_tbl = {t.name: t for t in n.tables}
-    for tbl in set(old_tbl) | set(new_tbl):
-        if tbl not in old_tbl:
-            tables[tbl] = {"added": new_tbl[tbl].dict(exclude_none=True)}
-        elif tbl not in new_tbl:
-            tables[tbl] = {"removed": old_tbl[tbl].dict(exclude_none=True)}
-        else:
-            d = diff_dbt_table(old_tbl[tbl], new_tbl[tbl])
-            if d:
-                tables[tbl] = d
-    if tables:
-        diff["tables"] = tables
+    tables_diff = _diff_named_items(o.tables or [], n.tables or [], diff_dbt_table)
+    if tables_diff:
+        diff["tables"] = tables_diff
     return diff
+
+
+def _diff_named_items(old_items, new_items, diff_func):
+    """Generic function returning a nested dictionary of a diff of named items in a dbt schema."""
+    result = {}
+    old = {item.name: item for item in old_items}
+    new = {item.name: item for item in new_items}
+
+    for name in set(old) | set(new):
+        if name not in old:
+            result[name] = {"added": new[name].dict(exclude_none=True)}
+        elif name not in new:
+            result[name] = {"removed": old[name].dict(exclude_none=True)}
+        else:
+            diff = diff_func(old[name], new[name])
+            if diff:
+                result[name] = diff
+    return result
 
 
 def diff_dbt_schema(o, n):
     """Return a diff of a dbt schema as a nested dictionary."""
     diff = {}
     diff.update(diff_scalar("version", o.version, n.version))
-    # Sources
-    sources = {}
-    old_src = {s.name: s for s in o.sources}
-    new_src = {s.name: s for s in n.sources}
-    for s in set(old_src) | set(new_src):
-        if s not in old_src:
-            sources[s] = {"added": new_src[s].dict(exclude_none=True)}
-        elif s not in new_src:
-            sources[s] = {"removed": old_src[s].dict(exclude_none=True)}
-        else:
-            d = diff_dbt_source(old_src[s], new_src[s])
-            if d:
-                sources[s] = d
-    if sources:
-        diff["sources"] = sources
-    # Models (if present)
-    if o.models or n.models:
-        models = {}
-        old_mod = {m.name: m for m in o.models or []}
-        new_mod = {m.name: m for m in n.models or []}
-        for m in set(old_mod) | set(new_mod):
-            if m not in old_mod:
-                models[m] = {"added": new_mod[m].dict(exclude_none=True)}
-            elif m not in new_mod:
-                models[m] = {"removed": old_mod[m].dict(exclude_none=True)}
-            else:
-                d = diff_dbt_table(old_mod[m], new_mod[m])
-                if d:
-                    models[m] = d
-        if models:
-            diff["models"] = models
+
+    sources_diff = _diff_named_items(o.sources, n.sources, diff_dbt_source)
+    if sources_diff:
+        diff["sources"] = sources_diff
+
+    models_diff = _diff_named_items(o.models or [], n.models or [], diff_dbt_table)
+    if models_diff:
+        diff["models"] = models_diff
+
     return diff
 
 
