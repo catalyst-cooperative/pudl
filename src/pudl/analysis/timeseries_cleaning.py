@@ -1988,8 +1988,8 @@ def impute_timeseries_asset_factory(  # noqa: C901
         # flags will not impact results
         matrix, flags = ts.to_dataframes()
         return (
-            matrix.index.year.isin(simulated_years),
-            flags.index.year.isin(simulated_years),
+            matrix[matrix.index.year.isin(simulated_years)],
+            flags[flags.index.year.isin(simulated_years)],
         )
 
     @asset(
