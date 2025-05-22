@@ -84,6 +84,11 @@ def _out_eia930__combined_demand(
     _out_eia930__hourly_operations["granularity"] = "ba"
     _out_eia930__hourly_subregion_demand["granularity"] = "subregion"
 
+    # Set combined subregion/ba ID to just BA for BA specific data
+    _out_eia930__hourly_operations["combined_subregion_ba_id"] = (
+        _out_eia930__hourly_operations["balancing_authority_code_eia"]
+    )
+
     common_cols = [
         "datetime_utc",
         "demand_reported_mwh",
