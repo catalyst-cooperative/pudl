@@ -174,14 +174,14 @@ use it to easily produce visualizations of the imputation on these simulated sec
         "schema": {
             "fields": [
                 "datetime_utc",
-                "combined_subregion_ba_id",
+                "combined_subregion_ba_code_eia",
                 "demand_reported_mwh",
                 "demand_imputed_pudl_mwh",
                 "demand_imputed_pudl_mwh_imputation_code",
             ],
             "primary_key": [
                 "datetime_utc",
-                "combined_subregion_ba_id",
+                "combined_subregion_ba_code_eia",
             ],
         },
         "field_namespace": "eia",

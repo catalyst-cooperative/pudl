@@ -61,7 +61,7 @@ def _out_eia930__hourly_subregion_demand(
         core_eia__codes_balancing_authorities,
     )
 
-    core_eia930__hourly_subregion_demand["combined_subregion_ba_id"] = (
+    core_eia930__hourly_subregion_demand["combined_subregion_ba_code_eia"] = (
         core_eia930__hourly_subregion_demand["balancing_authority_code_eia"]
         + core_eia930__hourly_subregion_demand["balancing_authority_subregion_code_eia"]
     )
@@ -85,7 +85,7 @@ def _out_eia930__combined_demand(
     _out_eia930__hourly_subregion_demand["granularity"] = "subregion"
 
     # Set combined subregion/ba ID to just BA for BA specific data
-    _out_eia930__hourly_operations["combined_subregion_ba_id"] = (
+    _out_eia930__hourly_operations["combined_subregion_ba_code_eia"] = (
         _out_eia930__hourly_operations["balancing_authority_code_eia"]
     )
 
@@ -93,7 +93,7 @@ def _out_eia930__combined_demand(
         "datetime_utc",
         "demand_reported_mwh",
         "timezone",
-        "combined_subregion_ba_id",
+        "combined_subregion_ba_code_eia",
         "granularity",
     ]
     return pd.concat(
@@ -110,7 +110,7 @@ imputed_combined_demand_assets = impute_timeseries_asset_factory(
     years_from_context=_years_from_context,
     value_col="demand_reported_mwh",
     imputed_value_col="demand_imputed_pudl_mwh",
-    id_col="combined_subregion_ba_id",
+    id_col="combined_subregion_ba_code_eia",
     simulation_group_col="granularity",
     settings=ImputeTimeseriesSettings(
         simulate_flags_settings=SimulateFlagsSettings(
