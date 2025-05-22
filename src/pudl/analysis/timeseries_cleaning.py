@@ -165,7 +165,7 @@ def utc_dataframe_to_aligned(
 def pivot_aligned_timeseries_dataframe(
     aligned_df: DataFrame[AlignedTimeseriesDataFrame],
     periods: int = 24,
-    values_col: str = "value_col",
+    value_col: str = "value_col",
 ) -> DataFrame[TimeseriesMatrix]:
     """Pivot aligned timeseries dataframe into timeseries matrix and pad if needed.
 
@@ -173,7 +173,7 @@ def pivot_aligned_timeseries_dataframe(
     present in the timeseries to the end of the last, and then fills any missing hours
     with NULLs.
     """
-    matrix = aligned_df.pivot(index="datetime", columns="id_col", values=values_col)
+    matrix = aligned_df.pivot(index="datetime", columns="id_col", values=value_col)
 
     # Pad matrix with any missing hours from timeseries
     start = matrix.index.min().replace(hour=0)
@@ -1582,14 +1582,16 @@ class SimulateFlagsSettings:
 
 
 class SimulationDataFrame(pa.DataFrameModel):
-    """Collect months of data which will be used to simulate flagged values.
+    """Collection of months of data which will be used to simulate flagged values.
 
-    Each row in this dataframe will contain a reference ID and month, and a simulation
-    ID and month. The reference ID/month points to a month of reported data where
-    a high ratio of values were flagged for imputation, and the simulation ID/month
-    points to a month of reported data with no flagged values. The flagged values
-    in the reference month will be used to simulate flagged values in the simulation
-    month.
+    Each row in this dataframe identifies a pairing of two entity IDs and two months
+    that can be used to evaluate the performance of the imputation. The "reference"
+    is a month in which a high proportion of reported values were flagged for
+    imputation, and the "simulation" is a month in which there were no values flagged
+    for imputation. The pattern of flagged (null) values in the reference month will be
+    used to mask the reported values found in the simulation month so they can be
+    imputed, and then the imputed values will be compared to the originally reported
+    data to evaluate the imputation's performance.
     """
 
     reference_id_col: Series[Any]
@@ -1636,7 +1638,8 @@ def _add_simulated_flag_col(
         simulation_df: DataFrame with reference and simulation months.
 
     Returns:
-        DataFrame which contains all ID/datetime pairs that should be flagged for simulated imputation.
+        DataFrame which contains all ID/datetime pairs that should be flagged for
+        simulated imputation.
     """
     # Add a column to both dataframes, which contains the start date of the month
     # In the ``datetime`` column.
@@ -1756,7 +1759,7 @@ def get_simulated_flag_mask(
 
     # Pivot simulated flag column to get mask which can be used to flag a timeseries matrix
     flags = pivot_aligned_timeseries_dataframe(
-        imputed_df, periods=24, values_col="simulated_flags"
+        imputed_df, periods=24, value_col="simulated_flags"
     )
     flags[flags.isna()] = False
 
@@ -1813,18 +1816,21 @@ def impute_timeseries_asset_factory(  # noqa: C901
     Args:
         input_asset_name: Name of upstream asset to perform imputation on.
         output_asset_name: Name of final output asset with imputed column.
-        years: List of years to perform imputation on.
+        years_from_context: Function to generate the list of years on which to perform
+            imputation on.
+        id_col: Name of column identifying entities to group timeseries by.
         value_col: Column imputation will be performed on.
         imputed_value_col: Name of column in output asset with imputed values.
-        reported_value_col: Name of column in output asset with original reported values.
-        id_col: Name of column identifying entities to group timeseries by.
+        reported_value_col: Name of column in output asset with original reported
+            values.
         output_io_manager_key: IO-manager to use for final output asset.
-        real_id_cols: The imputation process requires a single ID per timeseries', but some
-            tables like EIA 930 subregion demand actually have two ID columns. We use
-            a temp combined ID in these cases, but this temp column gets dropped
-            on the output asset, which is used for scoring our simulated imputation.
-            If specified, these columns will be used instead during scoring.
-        settings: Configurable options for imputation (see :class:`ImputeTimeseriesSettings`).
+        real_id_cols: The imputation process requires a single ID per timeseries', but
+            some tables like EIA 930 subregion demand actually have two ID columns. We
+            use a temp combined ID in these cases, but this temp column gets dropped on
+            the output asset, which is used for scoring our simulated imputation.  If
+            specified, these columns will be used instead during scoring.
+        settings: Configurable options for imputation
+            (see :class:`ImputeTimeseriesSettings`).
     """
     timeseries_matrix_asset = re.sub(
         r"^__", "_", f"_{output_asset_name}_timeseries_matrix"
@@ -1860,10 +1866,10 @@ def impute_timeseries_asset_factory(  # noqa: C901
         """Take input timeseries table and convert to timeseries matrix for imputation.
 
         Returns:
-            Input table as a matrix with a `datetime` row index
+            Input table as a matrix with a ``datetime`` row index
             (e.g. '2006-01-01 00:00:00', ..., '2019-12-31 23:00:00')
             in local time ignoring daylight-savings,
-            and a `id_col` column index (e.g. 101, ..., 329).
+            and a ``id_col`` column index (e.g. 101, ..., 329).
         """
         # Convert from datetime_utc to local datetime
         aligned_df = utc_dataframe_to_aligned(
@@ -2047,8 +2053,8 @@ def impute_timeseries_asset_factory(  # noqa: C901
 
         This takes the real output asset and the simulated output asset, and will
         compute a metric comparing the imputed simulated data to the real data. The
-        metric used is ``mean_absolute_percentage_error`` as percent error is more robust
-        to magnitude changes in the underlying data than total error.
+        metric used is ``mean_absolute_percentage_error`` as percent error is more
+        robust to magnitude changes in the underlying data than total error.
         """
         mape_dict = {}
         for group_name, gdf in simulated_df.groupby("simulation_group"):
