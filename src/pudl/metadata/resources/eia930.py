@@ -154,6 +154,41 @@ below provides more information on subregions."""
         "etl_group": "eia930",
         "create_database_schema": False,
     },
+    "_out_eia930__combined_imputed_demand_simulated": {
+        "description": (
+            """EXPERIMENTAL / WORK-IN-PROGRESS, 2025-04-04.
+
+This asset is used to validate the imputation of hourly demand we do for the
+``out_eia930__hourly_operations`` and ``out_eia930__hourly_subregion_demand`` tables.
+We combine Balancing Authority (BA) and Subregion data into a single table for imputation,
+which then gets split into those two tables. This table mirrors the intermediate table
+that gets split into the BA/subregion tables, but with simulated data we use to score
+the performance of our imputation. For this simulation, we impute a selection of values
+that otherwise would not need to be imputed. We then compare this simulated data to the
+reported data to compute a percent error rate for our imputation. This error rate is
+checked during every nightly build, and will raise an error if it's above a threshold.
+This allows us to catch issues with the imputation that may arise over time with new data,
+or changes to the underlying logic. We include this table in our distribution so we can
+use it to easily produce visualizations of the imputation on these simulated sections of data."""
+        ),
+        "schema": {
+            "fields": [
+                "datetime_utc",
+                "combined_subregion_ba_id",
+                "demand_reported_mwh",
+                "demand_imputed_pudl_mwh",
+                "demand_imputed_pudl_mwh_imputation_code",
+            ],
+            "primary_key": [
+                "datetime_utc",
+                "combined_subregion_ba_id",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia930"],
+        "etl_group": "eia930",
+        "create_database_schema": False,
+    },
     "out_eia930__hourly_operations": {
         "description": (
             """EXPERIMENTAL / WORK-IN-PROGRESS, 2025-04-04.

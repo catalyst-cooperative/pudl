@@ -1,7 +1,7 @@
 """Functions for compiling derived aspects of the EIA 930 data."""
 
 import pandas as pd
-from dagster import asset
+from dagster import AssetOut, asset, multi_asset
 
 from pudl.analysis.timeseries_cleaning import (
     ImputeTimeseriesSettings,
@@ -81,22 +81,20 @@ def _out_eia930__combined_demand(
     _out_eia930__hourly_subregion_demand: pd.DataFrame,
 ) -> pd.DataFrame:
     """Combine subregion and BA demand into a single DataFrame to perform imputation."""
-    _out_eia930__hourly_operations["simulation_group"] = "ba"
-    _out_eia930__hourly_subregion_demand["simulation_group"] = "subregion"
+    _out_eia930__hourly_operations["granularity"] = "ba"
+    _out_eia930__hourly_subregion_demand["granularity"] = "subregion"
     common_cols = [
         "datetime_utc",
         "demand_reported_mwh",
         "timezone",
-        "generic_id",
-        "simulation_group",
+        "combined_subregion_ba_id",
+        "granularity",
     ]
     return pd.concat(
         [
-            _out_eia930__hourly_subregion_demand.rename(
-                columns={"combined_subregion_ba_id": "generic_id"}
-            )[common_cols],
+            _out_eia930__hourly_subregion_demand[common_cols],
             _out_eia930__hourly_operations.rename(
-                columns={"balancing_authority_code_eia": "generic_id"}
+                columns={"balancing_authority_code_eia": "combined_subregion_ba_id"}
             )[common_cols],
         ]
     )
@@ -108,40 +106,36 @@ imputed_combined_demand_assets = impute_timeseries_asset_factory(
     years_from_context=_years_from_context,
     value_col="demand_reported_mwh",
     imputed_value_col="demand_imputed_pudl_mwh",
-    id_col="generic_id",
-    simulation_group_col="simulation_group",
+    id_col="combined_subregion_ba_id",
+    simulation_group_col="ganularity",
     settings=ImputeTimeseriesSettings(
-        simulate_flags_settings=SimulateFlagsSettings(),
+        simulate_flags_settings=SimulateFlagsSettings(
+            output_io_manager_key="parquet_io_manager"
+        ),
     ),
     output_io_manager_key="io_manager",
 )
 
 
-imputed_subregion_demand_assets = impute_timeseries_asset_factory(
-    input_asset_name="_out_eia930__hourly_subregion_demand",
-    output_asset_name="out_eia930__hourly_subregion_demand",
-    years_from_context=_years_from_context,
-    value_col="demand_reported_mwh",
-    imputed_value_col="demand_imputed_pudl_mwh",
-    id_col="combined_subregion_ba_id",
-    settings=ImputeTimeseriesSettings(
-        method_overrides={2019: "tnn", 2025: "tnn"},
-        simulate_flags_settings=SimulateFlagsSettings(),
-    ),
+@multi_asset(
+    outs={
+        "out_eia930__hourly_subregion_demand": AssetOut(
+            io_manager_key="parquet_io_manager"
+        ),
+        "out_eia930__hourly_operations": AssetOut(io_manager_key="parquet_io_manager"),
+    }
 )
-
-
-imputed_ba_demand_assets = impute_timeseries_asset_factory(
-    input_asset_name="_out_eia930__hourly_operations",
-    output_asset_name="out_eia930__hourly_operations",
-    years_from_context=_years_from_context,
-    value_col="demand_reported_mwh",
-    imputed_value_col="demand_imputed_pudl_mwh",
-    id_col="balancing_authority_code_eia",
-    settings=ImputeTimeseriesSettings(
-        simulate_flags_settings=SimulateFlagsSettings(),
-    ),
-)
+def split_ba_subregion_demand(
+    _out_eia930__combined_imputed_demand: pd.DataFrame,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Split combined imputed demand into separate BA/subregion tables."""
+    ba_demand = _out_eia930__combined_imputed_demand[
+        _out_eia930__combined_imputed_demand["granularity"] == "ba"
+    ]
+    subregion_demand = _out_eia930__combined_imputed_demand[
+        _out_eia930__combined_imputed_demand["granularity"] == "subregion"
+    ]
+    return ba_demand, subregion_demand
 
 
 @asset(io_manager_key="parquet_io_manager")

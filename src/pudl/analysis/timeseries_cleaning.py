@@ -1579,6 +1579,8 @@ class SimulateFlagsSettings:
     """Min ratio of bad points in a section of data to be used for reference."""
     max_flag_rate: float = 0.5
     """Max ratio of bad points in a section of data to be used for reference."""
+    output_io_manager_key: str = "io_manager"
+    """Specify io-manager for final simulated asset. In some cases we use the parquet IO-manager so we can build notebooks/visualizations on simulated data."""
 
 
 class SimulationDataFrame(pa.DataFrameModel):
@@ -1652,7 +1654,7 @@ def _add_simulated_flag_col(
     )
 
     # Filter to hours where values were flagged (NULL) in reference month
-    flagged = simulation_df[simulation_df["value_col"].isnull()]
+    flagged = simulation_df[simulation_df["flags"].notnull()]
 
     # For each flagged value in a reference month, get the number of hours after midnight
     # of the first day of the month for this value. Then, use this timedelta to find
@@ -1709,10 +1711,10 @@ def get_simulated_flag_mask(
         (
             imputation_group_df.groupby(
                 ["id_col", pd.Grouper(key="datetime", freq="MS")], observed=True
-            )["value_col"].apply(lambda x: x.isnull().mean())
+            )["flags"].apply(lambda x: x.notnull().mean())
         )
         .reset_index()
-        .rename(columns={"value_col": "imputation_rate", "datetime": "month"})
+        .rename(columns={"flags": "imputation_rate", "datetime": "month"})
     )
 
     # Find a set of months with a high level of imputation to use as reference to simulate flagged data
@@ -1845,6 +1847,7 @@ def impute_timeseries_asset_factory(  # noqa: C901
         r"^__", "_", f"_{output_asset_name}_imputed_simulated_matrix"
     )
     imputation_score_asset = re.sub(r"^__", "_", f"_{output_asset_name}_score")
+    simulated_output_asset = re.sub(r"^__", "_", f"_{output_asset_name}_simulated")
 
     @multi_asset(
         ins={"input_df": AssetIn(input_asset_name)},
@@ -2034,6 +2037,28 @@ def impute_timeseries_asset_factory(  # noqa: C901
 
     @asset(
         ins={
+            "imputed_df": AssetIn(imputed_simulated_asset),
+        },
+        name=simulated_output_asset,
+        io_manager_key=settings.simulate_flags_settings.output_io_manager_key
+        if settings.simulate_flags_settings
+        else "io_manager",
+    )
+    def _create_simulated_output_asset(
+        imputed_df: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """Rename columns back to original names and output to desired IO-manager."""
+        return imputed_df.rename(
+            columns={
+                "id_col": id_col,
+                "imputed_value_col": imputed_value_col,
+                "flags": f"{imputed_value_col}_imputation_code",
+                "value_col": reported_value_col,
+            }
+        )
+
+    @asset(
+        ins={
             "imputed_df": AssetIn(imputed_asset),
             "simulated_df": AssetIn(imputed_simulated_asset),
         },
@@ -2069,13 +2094,20 @@ def impute_timeseries_asset_factory(  # noqa: C901
 
         return mape_dict
 
-    return [
+    production_assets = [
         _prepare_timeseries_matrix,
         _flag_timeseries_matrix,
         _impute_timeseries,
         _create_output_asset,
-    ] + [
+    ]
+    simulation_assets = [
         _simulate_flags,
         _impute_simulated_timeseries,
         _score_imputation,
+        _create_simulated_output_asset,
     ]
+
+    # Only return simulation assets if passed simulation settings
+    if settings.simulate_flags_settings is not None:
+        return production_assets + simulation_assets
+    return production_assets

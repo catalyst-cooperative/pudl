@@ -1,0 +1,11 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: _out_eia930__combined_imputed_demand_simulated
+        columns:
+          - name: datetime_utc
+          - name: combined_subregion_ba_id
+          - name: demand_reported_mwh
+          - name: demand_imputed_pudl_mwh
+          - name: demand_imputed_pudl_mwh_imputation_code
