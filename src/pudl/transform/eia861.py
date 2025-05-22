@@ -1056,19 +1056,19 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
             group = group.set_index(idx_cols)
             non_num_group = group[non_num_cols].iloc[[0]]
             num_group = group.drop(columns=non_num_cols).groupby(idx_cols).sum()
-            return pd.concat([non_num_group, num_group], axis=1).reset_index()
+            return pd.concat([non_num_group, num_group], axis="columns").reset_index()
         # Exclude rows with 88888 utility_id_eia that can't be combined due to different values in
         # non-numeric columns.
         return None
 
-        utils_88888 = df[df["utility_id_eia"] == 88888]
-        agg_utils_88888 = utils_88888.groupby(idx_cols, group_keys=False).apply(
-            custom_group_agg
-        )
-        recombined_df = pd.concat(
-            [df[df["utility_id_eia"] != 88888], agg_utils_88888], ignore_index=True
-        )
-        return recombined_df
+    utils_88888 = df[df["utility_id_eia"] == 88888]
+    agg_utils_88888 = utils_88888.groupby(idx_cols, group_keys=False).apply(
+        custom_group_agg
+    )
+    recombined_df = pd.concat(
+        [df[df["utility_id_eia"] != 88888], agg_utils_88888], ignore_index=True
+    )
+    return recombined_df
 
     return df
 
