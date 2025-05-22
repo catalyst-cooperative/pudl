@@ -84,24 +84,17 @@ def _out_eia930__combined_demand(
     _out_eia930__hourly_operations["granularity"] = "ba"
     _out_eia930__hourly_subregion_demand["granularity"] = "subregion"
 
-    # Add an empty subregion ID column to prepare for combining BA/subregion data into a single imputation
-    _out_eia930__hourly_subregion_demand["balancing_authority_subregion_code_eia"] = ""
-
     common_cols = [
         "datetime_utc",
         "demand_reported_mwh",
         "timezone",
         "combined_subregion_ba_id",
         "granularity",
-        "balancing_authority_code_eia",
-        "balancing_authority_subregion_code_eia",
     ]
     return pd.concat(
         [
             _out_eia930__hourly_subregion_demand[common_cols],
-            _out_eia930__hourly_operations.rename(
-                columns={"balancing_authority_code_eia": "combined_subregion_ba_id"}
-            )[common_cols],
+            _out_eia930__hourly_operations[common_cols],
         ]
     )
 
@@ -116,7 +109,7 @@ imputed_combined_demand_assets = impute_timeseries_asset_factory(
     simulation_group_col="granularity",
     settings=ImputeTimeseriesSettings(
         simulate_flags_settings=SimulateFlagsSettings(
-            output_io_manager_key="parquet_io_manager"
+            num_months=10, output_io_manager_key="parquet_io_manager"
         ),
     ),
     output_io_manager_key="io_manager",
@@ -133,15 +126,30 @@ imputed_combined_demand_assets = impute_timeseries_asset_factory(
 )
 def split_ba_subregion_demand(
     _out_eia930__combined_imputed_demand: pd.DataFrame,
+    core_eia930__hourly_subregion_demand: pd.DataFrame,
+    core_eia930__hourly_operations: pd.DataFrame,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Split combined imputed demand into separate BA/subregion tables."""
     ba_demand = _out_eia930__combined_imputed_demand[
         _out_eia930__combined_imputed_demand["granularity"] == "ba"
-    ]
+    ].merge(
+        core_eia930__hourly_operations.drop(columns=["demand_reported_mwh"]),
+        on=["datetime_utc", "balancing_authority_code_eia"],
+        validate="one_to_one",
+    )
     subregion_demand = _out_eia930__combined_imputed_demand[
         _out_eia930__combined_imputed_demand["granularity"] == "subregion"
-    ]
-    return ba_demand, subregion_demand
+    ].merge(
+        core_eia930__hourly_subregion_demand.drop(columns=["demand_reported_mwh"]),
+        on=[
+            "datetime_utc",
+            "balancing_authority_code_eia",
+            "balancing_authority_subregion_code_eia",
+        ],
+        validate="one_to_one",
+    )
+
+    return subregion_demand, ba_demand
 
 
 @asset(io_manager_key="parquet_io_manager")

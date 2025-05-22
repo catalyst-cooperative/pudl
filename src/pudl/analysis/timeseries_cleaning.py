@@ -1979,6 +1979,7 @@ def impute_timeseries_asset_factory(  # noqa: C901
                 "imputed_value_col": imputed_value_col,
                 "flags": f"{imputed_value_col}_imputation_code",
                 "value_col": reported_value_col,
+                "simulation_group": simulation_group_col,
             }
         )
 
