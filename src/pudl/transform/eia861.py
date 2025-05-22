@@ -2048,8 +2048,11 @@ def core_net_metering_eia861(raw_eia861__net_metering: pd.DataFrame):
     misc_cols = ["pv_current_flow_type"]
 
     # Pre-tidy clean specific to net_metering table
-    raw_nm = _pre_process(raw_eia861__net_metering, idx_cols).assign(
-        short_form=lambda x: _make_yn_bool(x.short_form)
+    raw_nm = _pre_process(
+        raw_eia861__net_metering.assign(
+            short_form=lambda x: _make_yn_bool(x.short_form)
+        ),
+        idx_cols,
     )
 
     # Separate customer class data from misc data (in this case just one col: current flow)
