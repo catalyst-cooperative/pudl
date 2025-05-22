@@ -191,7 +191,7 @@ def melt_imputed_timeseries_matrix(
     df = imputed_matrix.melt(value_name="value_col", ignore_index=False).reset_index()
     flags = flag_matrix.melt(value_name="flags", ignore_index=False).reset_index()
 
-    df = df.merge(flags, on=["id_col", "datetime"], validate="one_to_one")
+    df = df.merge(flags, on=["id_col", "datetime"], validate="one_to_one", how="left")
     return df
 
 
@@ -2103,6 +2103,7 @@ def impute_timeseries_asset_factory(  # noqa: C901
             # Combine with real data
             combined_df = simulated_gdf.merge(
                 imputed_df,
+                how="inner",
                 on=["datetime_utc", "id_col"],
                 validate="one_to_one",
             )

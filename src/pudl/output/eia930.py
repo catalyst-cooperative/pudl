@@ -139,6 +139,7 @@ def split_ba_subregion_demand(
         core_eia930__hourly_operations.drop(columns=["demand_reported_mwh"]),
         on=["datetime_utc", "balancing_authority_code_eia"],
         validate="one_to_one",
+        how="left",
     )
 
     # Repeat with subregion demand
@@ -152,6 +153,7 @@ def split_ba_subregion_demand(
             "balancing_authority_subregion_code_eia",
         ],
         validate="one_to_one",
+        how="left",
     )
 
     return subregion_demand, ba_demand
