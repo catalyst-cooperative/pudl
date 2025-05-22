@@ -191,7 +191,7 @@ def melt_imputed_timeseries_matrix(
     df = imputed_matrix.melt(value_name="value_col", ignore_index=False).reset_index()
     flags = flag_matrix.melt(value_name="flags", ignore_index=False).reset_index()
 
-    df = df.merge(flags, on=["id_col", "datetime"])
+    df = df.merge(flags, on=["id_col", "datetime"], validate="one_to_one")
     return df
 
 
@@ -1617,6 +1617,7 @@ def _merge_imputed(
         imputed_df.rename(columns={"value_col": "imputed_value_col"}),
         on=["id_col", "datetime"],
         how="left",
+        validate="one_to_one",
     )
 
 
@@ -1654,6 +1655,7 @@ def _add_simulated_flag_col(
         left_on=["id_col", "period"],
         right_on=["reference_id_col", "period"],
         how="inner",
+        validate="many_to_one",
     )
 
     # Filter to hours where values were flagged (NULL) in reference month
@@ -1815,6 +1817,15 @@ def impute_timeseries_asset_factory(  # noqa: C901
     2. Flag anomalous and missing values in timeseries
     3. Perform imputation and melt back to expected output table structure
 
+    This factory also has the ability to produce a set of simulation assets. These
+    assets mirror the production assets, but they will impute a selection of values
+    which were not actually flagged for imputation. This means we can impute data
+    where the reported data is actually deemed "good", allowing us to compare the
+    imputed values to the reported. We then compute Mean Absolute Percentage Error
+    to score the imputation. We can produce these simulated assets during our nightly
+    builds for ongoing monitoring of the imputation, or just as one off way to validate
+    or compare imputation methods.
+
     Args:
         input_asset_name: Name of upstream asset to perform imputation on.
         output_asset_name: Name of final output asset with imputed column.
@@ -1826,14 +1837,16 @@ def impute_timeseries_asset_factory(  # noqa: C901
         reported_value_col: Name of column in output asset with original reported
             values.
         output_io_manager_key: IO-manager to use for final output asset.
-        real_id_cols: The imputation process requires a single ID per timeseries', but
-            some tables like EIA 930 subregion demand actually have two ID columns. We
-            use a temp combined ID in these cases, but this temp column gets dropped on
-            the output asset, which is used for scoring our simulated imputation.  If
-            specified, these columns will be used instead during scoring.
+        simulation_group_col: In cases where we are combining multiple datasets into
+            a single imputation run (like BA/subregion demand), this column is used
+            to compute simulation results for each set independently. This should
+            point to a categorical column which defines which group a row belongs to.
         settings: Configurable options for imputation
             (see :class:`ImputeTimeseriesSettings`).
     """
+    # Regex substitution is used to create asset names, so if the specified
+    # ``output_asset_name`` already starts with an underscore, it won't add a
+    # second one
     timeseries_matrix_asset = re.sub(
         r"^__", "_", f"_{output_asset_name}_timeseries_matrix"
     )
@@ -2087,7 +2100,11 @@ def impute_timeseries_asset_factory(  # noqa: C901
             simulated_gdf = gdf[gdf["flags"] == "simulated"]
 
             # Combine with real data
-            combined_df = simulated_gdf.merge(imputed_df, on=["datetime_utc", "id_col"])
+            combined_df = simulated_gdf.merge(
+                imputed_df,
+                on=["datetime_utc", "id_col"],
+                validate="one_to_one",
+            )
 
             # Compute metric
             mape_dict[group_name] = mean_absolute_percentage_error(
