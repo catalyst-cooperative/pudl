@@ -1219,15 +1219,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "disposal_landfill_1000_tons": {
         "type": "integer",
-        "description": "PLACEHOLDER",
+        "description": "Disposed by-products in landfill, in thousand tons.",
     },
     "disposal_offsite_1000_tons": {
         "type": "integer",
-        "description": "PLACEHOLDER",
+        "description": "Disposed by-products offsite, in thousand tons.",
     },
     "disposal_ponds_1000_tons": {
         "type": "integer",
-        "description": "PLACEHOLDER",
+        "description": "Disposed by-products in ponds, in thousand tons.",
     },
     "distributed_generation": {
         "type": "boolean",
@@ -4520,7 +4520,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "sold_1000_tons_or_mmbtu": {
         "type": "integer",
-        "description": "PLACEHOLDER",
+        "description": "Sold by-products, in thousand tons or, for Steam, MMBtu.",
     },
     "sold_to_utility_mwh": {
         "type": "number",
@@ -4707,11 +4707,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "stored_offsite_1000_tons": {
         "type": "integer",
-        "description": "PLACEHOLDER",
+        "unit": "1000_tons",
+        "description": "Stored by-products offsite, in thousand tons.",
     },
     "stored_onsite_1000_tons": {
         "type": "integer",
-        "description": "PLACEHOLDER",
+        "unit": "1000_tons",
+        "description": "Stored by-products onsite, in thousand tons.",
     },
     "street_address": {
         "type": "string",
@@ -4940,7 +4942,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "total_disposal_1000_tons": {
         "type": "integer",
-        "description": "PLACEHOLDER",
+        "unit": "1000_tons",
+        "description": "Total by-product disposal, in thousand tons.",
     },
     "total_disposition_mwh": {
         "type": "number",
@@ -5135,11 +5138,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "used_offsite_1000_tons": {
         "type": "integer",
-        "description": "PLACEHOLDER",
+        "unit": "1000_tons",
+        "description": "Used offsite by-products, in thousand tons.",
     },
     "used_onsite_1000_tons": {
         "type": "integer",
-        "description": "PLACEHOLDER",
+        "unit": "1000_tons",
+        "description": "Used onsite by-products, in thousand tons.",
     },
     "utility_id_eia": {
         "type": "integer",
