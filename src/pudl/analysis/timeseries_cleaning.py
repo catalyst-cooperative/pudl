@@ -2060,8 +2060,8 @@ def impute_timeseries_asset_factory(  # noqa: C901
 
             # Compute metric
             mape_dict[group_name] = mean_absolute_percentage_error(
-                combined_df["value_col_x"],
-                combined_df["value_col_y"],
+                combined_df["imputed_value_col_x"],
+                combined_df["imputed_value_col_y"],
             )
             logger.info(
                 f"Imputed simulated NULLS for group {group_name} with mean percent error: {mape_dict[group_name]}"
