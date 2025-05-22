@@ -2002,7 +2002,14 @@ def impute_timeseries_asset_factory(  # noqa: C901
         matrix: pd.DataFrame,
         flags: pd.DataFrame,
     ) -> tuple[pd.DataFrame, pd.DataFrame]:
-        """Simulate flag values to impute for scoring imputation."""
+        """Flag values to impute for simulation purposes.
+
+        This method will flag a set of otherwise 'good' reported values, so they
+        can be imputed and compared back to the 'good' values for scoring/validation
+        of the imputation performance. After creating the simulation data, only return
+        years that contain simulated flags, as we do imputation 1 year at a time, so
+        including years without simulated data would have no impact on the results.
+        """
         simulated_years = set()
         ts = FlaggedTimeseries.from_timeseries_matrix(matrix, flags=flags)
         for simulation_group in imputed_df["simulation_group"].unique():
