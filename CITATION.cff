@@ -9,8 +9,6 @@ authors:
     orcid: https://orcid.org/0009-0004-2979-6142
   - family-names: Sharpe
     given-names: Austen
-  - family-names: Norman
-    given-names: Bennett
   - family-names: Schira
     given-names: Zachary
   - family-names: Lamb
@@ -21,6 +19,6 @@ authors:
     given-names: Dazhong
 
 title: "The Public Utility Data Liberation (PUDL) Project"
-version: 2025.2.0
+version: 2025.5.0
 doi: 10.5281/zenodo.3404014
-date-released: 2025-02-13
+date-released: 2025-05-20
