@@ -130,13 +130,18 @@ def split_ba_subregion_demand(
     core_eia930__hourly_operations: pd.DataFrame,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Split combined imputed demand into separate BA/subregion tables."""
+    # Merge core asset on imputed output asset to get columns dropped during imputation
     ba_demand = _out_eia930__combined_imputed_demand[
+        # Just merge BA data so we have a one-one merge
         _out_eia930__combined_imputed_demand["granularity"] == "ba"
     ].merge(
+        # Drop reported demand so we don't have duplicates
         core_eia930__hourly_operations.drop(columns=["demand_reported_mwh"]),
         on=["datetime_utc", "balancing_authority_code_eia"],
         validate="one_to_one",
     )
+
+    # Repeat with subregion demand
     subregion_demand = _out_eia930__combined_imputed_demand[
         _out_eia930__combined_imputed_demand["granularity"] == "subregion"
     ].merge(
