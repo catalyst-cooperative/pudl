@@ -95,3 +95,5 @@ sources:
           - name: fuel_type_code_pudl
           - name: fuel_units
           - name: record_id
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_unique
