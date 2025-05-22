@@ -1852,8 +1852,11 @@ def core_eia861__yearly_dynamic_pricing(
         "variable_peak_pricing",
     ]
 
-    raw_dp = _pre_process(raw_eia861__dynamic_pricing, idx_cols).assign(
-        short_form=lambda x: _make_yn_bool(x.short_form)
+    raw_dp = _pre_process(
+        raw_eia861__dynamic_pricing.assign(
+            short_form=lambda x: _make_yn_bool(x.short_form)
+        ),
+        idx_cols,
     )
 
     ###########################################################################
