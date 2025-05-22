@@ -515,6 +515,87 @@ def core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type(
 
 
 @asset(io_manager_key="pudl_io_manager")
+def core_eiaaeo__yearly_projected_delivered_energy(
+    raw_eiaaeo__energy_consumption_by_sector_and_source,
+):
+    """Projected delivered energy for commercial, industrial, residential, and transportation sectors.
+
+    The "Delivered Energy" series in Table 2 are a subtotal, and include purchased
+    electricity, renewable energy, and an array of fuels based on sector. It
+    explicitly excludes electricity-related losses. There is detailed information in
+    the footnotes of the online data browser:
+
+      https://www.eia.gov/outlooks/aeo/data/browser/#/?id=2-AEO2023
+
+    In that link, subtotal series are displayed indented, and include all lines above
+    them which are one level out, up to the next indented line. Delivered Energy is a
+    special case which includes those plus the subtotals above it.
+
+    AEO Delivered Energy figures are variously referred to as delivered energy,
+    energy consumption, energy use, and energy demand, depending on which org and
+    which document is describing them. In PUDL we say delivered energy or energy
+    consumption.
+    """
+    sanitized = filter_enrich_sanitize(
+        raw_df=raw_eiaaeo__energy_consumption_by_sector_and_source,
+        relevant_series_names=(
+            "Energy Use : Commercial : Delivered Energy",
+            "Energy Use : Industrial : Delivered Energy",
+            "Energy Use : Residential : Delivered Energy",
+            "Energy Use : Transportation : Delivered Energy",
+        ),
+    ).rename(columns={"subtopic": "dimension"})
+
+    expected_values = {
+        "topic": {"energy_use"},
+        "variable_name": {"delivered_energy"},
+        "units": {"quads"},
+        "dimension": {"commercial", "industrial", "residential", "transportation"},
+    }
+    for column, expected in expected_values.items():
+        assert (actual := set(sanitized[column].unique())) == expected, (
+            f"Unexpected values in {column}: Expected {expected}; found {actual}"
+        )
+
+    # 1 quad = 1 quadrillion btu = 1e9 mmbtu
+    sanitized.loc[sanitized.units == "quads", "value"] *= 1e9
+
+    trimmed = sanitized.drop(
+        columns=[
+            "topic",
+            "units",
+        ]
+    )
+
+    unstacked = (
+        unstack(
+            df=trimmed,
+            eventual_pk=[
+                "report_year",
+                "model_case_eiaaeo",
+                "region",
+                "dimension",
+                "projection_year",
+            ],
+        )
+        .assign(region_type="us_census_division")
+        .reset_index()
+    )
+    unstacked.loc[unstacked.region == "united_states", "region_type"] = "nation"
+
+    renamed_for_pudl = unstacked.rename(
+        columns={
+            "region": "region_name_eiaaeo",
+            "region_type": "region_type_eiaaeo",
+            "dimension": "customer_class",
+            "delivered_energy": "delivered_energy_mmbtu",
+        }
+    )
+
+    return renamed_for_pudl
+
+
+@asset(io_manager_key="pudl_io_manager")
 def core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type(
     raw_eiaaeo__electric_power_projections_regional,
 ):
