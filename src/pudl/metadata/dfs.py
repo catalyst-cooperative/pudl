@@ -31,7 +31,6 @@ IMPUTATION_REASON_CODES = pd.DataFrame(
     [
         {"code": code.name.lower(), "description": code.value}
         for code in ImputationReasonCodes
-        if code != ImputationReasonCodes.SIMULATED
     ]
 )
 
