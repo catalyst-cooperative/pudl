@@ -83,12 +83,18 @@ def _out_eia930__combined_demand(
     """Combine subregion and BA demand into a single DataFrame to perform imputation."""
     _out_eia930__hourly_operations["granularity"] = "ba"
     _out_eia930__hourly_subregion_demand["granularity"] = "subregion"
+
+    # Add an empty subregion ID column to prepare for combining BA/subregion data into a single imputation
+    _out_eia930__hourly_subregion_demand["balancing_authority_subregion_code_eia"] = ""
+
     common_cols = [
         "datetime_utc",
         "demand_reported_mwh",
         "timezone",
         "combined_subregion_ba_id",
         "granularity",
+        "balancing_authority_code_eia",
+        "balancing_authority_subregion_code_eia",
     ]
     return pd.concat(
         [
