@@ -1459,7 +1459,7 @@ class Resource(PudlMeta):
             obj["layer"] = meta_from_name.layer
         if obj["usage_warnings"] is None:
             obj["usage_warnings"] = list() #default_usage_warnings(obj)
-        # TODO: do we want to pull in the full text of each usage warning?
+        # TODO: do we want to pull in the full text of each usage warning in the structured data as well, or just in the rendered table description below?
         # TODO: if uws are specified, do we skip the defaults or merge with them?
 
         # Render description
@@ -1470,7 +1470,7 @@ class Resource(PudlMeta):
                 resource=meta_from_name,
                 warnings=USAGE_WARNINGS,
             )
-        )
+        ).strip()
 
         # Add encoders to columns as appropriate, based on FKs.
         # Foreign key relationships determine the set of codes to use
@@ -1548,6 +1548,13 @@ class Resource(PudlMeta):
             description=self.description,
             schema=schema,
             path=f"{self.name}.parquet",
+            table_type=self.table_type,
+            timeseries_resolution=self.timeseries_resolution,
+            layer=self.layer,
+            usage_warnings=[
+                frictionless.Field(name=uw, description=USAGE_WARNINGS[uw])
+                for uw in self.usage_warnings
+            ]
         )
 
     def to_pyarrow(self) -> pa.Schema:
