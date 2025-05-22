@@ -164,7 +164,6 @@ def utc_dataframe_to_aligned(
 @pa.check_types
 def pivot_aligned_timeseries_dataframe(
     aligned_df: DataFrame[AlignedTimeseriesDataFrame],
-    periods: int = 24,
     value_col: str = "value_col",
 ) -> DataFrame[TimeseriesMatrix]:
     """Pivot aligned timeseries dataframe into timeseries matrix and pad if needed.
@@ -175,10 +174,12 @@ def pivot_aligned_timeseries_dataframe(
     """
     matrix = aligned_df.pivot(index="datetime", columns="id_col", values=value_col)
 
-    # Pad matrix with any missing hours from timeseries
+    # Get the full set of hours from the start of the first day in the series to the end of the last
     start = matrix.index.min().replace(hour=0)
     end = matrix.index.max().replace(hour=23)
     all_hours = pd.date_range(start=start, end=end, freq="h", name="datetime")
+
+    # Reindex matrix with all hours. This will fill in any missing hours with NULLS
     return matrix.reindex(all_hours)
 
 
@@ -1762,9 +1763,7 @@ def get_simulated_flag_mask(
     )
 
     # Pivot simulated flag column to get mask which can be used to flag a timeseries matrix
-    flags = pivot_aligned_timeseries_dataframe(
-        imputed_df, periods=24, value_col="simulated_flags"
-    )
+    flags = pivot_aligned_timeseries_dataframe(imputed_df, value_col="simulated_flags")
     flags[flags.isna()] = False
 
     return flags, set(good_months["simulation_month"].dt.year.unique())
@@ -1903,7 +1902,7 @@ def impute_timeseries_asset_factory(  # noqa: C901
             aligned_df["simulation_group"] = "monolithic"
 
         # Pivot to timeseries matrix
-        matrix = pivot_aligned_timeseries_dataframe(aligned_df, settings.periods)
+        matrix = pivot_aligned_timeseries_dataframe(aligned_df)
         return matrix, aligned_df
 
     @multi_asset(
