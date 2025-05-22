@@ -9,6 +9,17 @@ v2025.XX.x (2025-MM-DD)
 New Data
 ^^^^^^^^
 
+EIA AEO
+~~~~~~~
+
+* Extracted table 2 from the EIA Annual Energy Outlook 2023, which includes future
+  projections for energy use through the year 2050 across a variety of scenarios.
+  Integrated a subset of available table 2 series as a new core table:
+
+  * ``core_eiaaeo__yearly_projected_delivered_energy`` contains projected energy
+    delivery requirements for the commercial, industrial, residential, and
+    transportation sectors. See :issue:`4228` and :pr:`4273`.
+
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 

@@ -1089,7 +1089,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "delivered_energy_mmbtu": {  # created for eiaaeo
         "type": "number",
-        "description": ("Energy delivered to the point of use."),
+        "description": (
+            "Energy delivered to the point of use, as a proxy for energy consumption. Includes fuels and electric power; excludes losses from generation and transmission."
+        ),
         "unit": "MMBtu",
     },
     "delivered_mwh": {
