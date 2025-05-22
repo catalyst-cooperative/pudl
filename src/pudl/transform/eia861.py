@@ -1038,27 +1038,28 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
     Returns:
         A dataframe with the combined or dropped 88888 utiltiy_id_eia values.
     """
-    if 88888 in df.utility_id_eia.unique():
-        non_num_cols = (
-            df.set_index(idx_cols).select_dtypes(exclude="number").columns.tolist()
-        )
+    if 88888 not in df.utility_id_eia.unique():
+        return df
+    non_num_cols = (
+        df.set_index(idx_cols).select_dtypes(exclude="number").columns.tolist()
+    )
 
-        def custom_group_agg(group):
-            if len(group) <= 1:
-                return group
-            # If there are no non-numeric columns, or all non-numeric columns have the same value,
-            # Sum the numeric columns and return the result.
-            if (
-                len(non_num_cols) == 0
-                or ((group[non_num_cols] == group[non_num_cols].iloc[0]).all()).all()
-            ):
-                group = group.set_index(idx_cols)
-                non_num_group = group[non_num_cols].iloc[[0]]
-                num_group = group.drop(columns=non_num_cols).groupby(idx_cols).sum()
-                return pd.concat([non_num_group, num_group], axis=1).reset_index()
-            # Exclude rows with 88888 utility_id_eia that can't be combined due to different values in
-            # non-numeric columns.
-            return None
+    def custom_group_agg(group):
+        if len(group) <= 1:
+            return group
+        # If there are no non-numeric columns, or all non-numeric columns have the same value,
+        # Sum the numeric columns and return the result.
+        if (
+            len(non_num_cols) == 0
+            or ((group[non_num_cols] == group[non_num_cols].iloc[0]).all()).all()
+        ):
+            group = group.set_index(idx_cols)
+            non_num_group = group[non_num_cols].iloc[[0]]
+            num_group = group.drop(columns=non_num_cols).groupby(idx_cols).sum()
+            return pd.concat([non_num_group, num_group], axis=1).reset_index()
+        # Exclude rows with 88888 utility_id_eia that can't be combined due to different values in
+        # non-numeric columns.
+        return None
 
         utils_88888 = df[df["utility_id_eia"] == 88888]
         agg_utils_88888 = utils_88888.groupby(idx_cols, group_keys=False).apply(
@@ -1068,6 +1069,7 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
             [df[df["utility_id_eia"] != 88888], agg_utils_88888], ignore_index=True
         )
         return recombined_df
+
     return df
 
 
