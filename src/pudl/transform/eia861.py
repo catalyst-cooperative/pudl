@@ -6,6 +6,7 @@ All transformations include:
 
 import pandas as pd
 from dagster import AssetIn, AssetOut, Output, asset, multi_asset
+from dagster._utils.forked_pdb import ForkedPdb
 
 import pudl
 from pudl.helpers import (
@@ -1049,10 +1050,7 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
             return group
         # If there are no non-numeric columns, or all non-numeric columns have the same value,
         # Sum the numeric columns and return the result.
-        if (
-            len(non_num_cols) == 0
-            or ((group[non_num_cols] == group[non_num_cols].iloc[0]).all()).all()
-        ):
+        if len(non_num_cols) == 0 or group[non_num_cols].iloc[0].all().all():
             group = group.set_index(idx_cols)
             non_num_group = group[non_num_cols].iloc[[0]]
             num_group = group.drop(columns=non_num_cols).groupby(idx_cols).sum()
@@ -1068,6 +1066,14 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
     recombined_df = pd.concat(
         [df[df["utility_id_eia"] != 88888], agg_utils_88888], ignore_index=True
     )
+    # Make sure that the number of rows altered stays somewhat small. We don't expect
+    # there to be a lot of dropped or combined 88888 rows.
+    if (len(df) - len(recombined_df)) > 15:
+        ForkedPdb().set_trace()
+        raise AssertionError(
+            f"Number of 88888 rows has changed by more than expected: {len(df) - len(recombined_df)}!"
+        )
+    # Check to make sure that the idx_cols are actually valid primary key cols:
     return recombined_df
 
     return df
