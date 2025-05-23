@@ -50,7 +50,7 @@ data remains in Visual FoxPro databases. The new data remains difficult to acces
 are in the process of understanding the underlying data and integrating this new format
 into PUDL.
 
-Previously the data was strutured as follows:
+Previously the data was structured as follows:
 
 The data is published as a collection of Visual FoxPro databases: one per year
 beginning in 1994. The databases all share a very similar structure and contain a total
@@ -62,12 +62,19 @@ application which allowed this database to be used in Microsoft Access has been
 discontinued. FERC's use of this database format creates a significant
 barrier to data access.
 
-New data is released as a collection of XBRL filings and we are in the process of
-integrating this data into PUDL.
+New data is released as a collection of XBRL filings and the structure of the XBRL
+and DBF data are reconciled so they can be used together seamlessly in PUDL.
 
 The FERC 1 database is poorly normalized and the data itself does not appear to be
 subject to much quality control. For more detailed context and documentation on a
 table-by-table basis, look at :doc:`/data_dictionaries/ferc1_db`.
+
+Many of the FERC Form 1 tables contain a ``record_id`` that indicates what original
+table and record in either the XBRL or DBF derived SQLite databases the data came from
+for forensic / data provenance purposes. The ``record_id`` is NOT in general a unique
+identifier within a given PUDL database table, because in many cases the original
+data has been reshaped and normalized such that several records in the PUDL database
+can be traced back to a single record in the original data.
 {% endblock %}
 
 {% block notable_irregularities %}

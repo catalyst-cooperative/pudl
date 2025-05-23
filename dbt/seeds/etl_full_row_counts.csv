@@ -1009,7 +1009,7 @@ core_eia861__yearly_utility_data_rto,2020,1551
 core_eia861__yearly_utility_data_rto,2021,1562
 core_eia861__yearly_utility_data_rto,2022,1590
 core_eia861__yearly_utility_data_rto,2023,1619
-core_eia923__entity_coalmine,,4623
+core_eia923__entity_coalmine,,4458
 core_eia923__monthly_boiler_fuel,2008,77537
 core_eia923__monthly_boiler_fuel,2009,79002
 core_eia923__monthly_boiler_fuel,2010,81197
@@ -2008,7 +2008,7 @@ core_nrelatb__yearly_technology_status,2021,131
 core_nrelatb__yearly_technology_status,2022,195
 core_nrelatb__yearly_technology_status,2023,189
 core_nrelatb__yearly_technology_status,2024,197
-core_pudl__assn_eia_pudl_plants,,17939
+core_pudl__assn_eia_pudl_plants,,18280
 core_pudl__assn_eia_pudl_utilities,,16488
 core_pudl__assn_ferc1_dbf_pudl_utilities,,411
 core_pudl__assn_ferc1_pudl_plants,,8101
@@ -3390,11 +3390,11 @@ out_ferc1__yearly_purchased_power_and_exchanges_sched326,2021,6899
 out_ferc1__yearly_purchased_power_and_exchanges_sched326,2022,7052
 out_ferc1__yearly_purchased_power_and_exchanges_sched326,2023,7066
 out_ferc1__yearly_purchased_power_and_exchanges_sched326,2024,7065
-out_ferc1__yearly_rate_base,1994,14718
-out_ferc1__yearly_rate_base,1995,14407
-out_ferc1__yearly_rate_base,1996,14810
-out_ferc1__yearly_rate_base,1997,14547
-out_ferc1__yearly_rate_base,1998,14309
+out_ferc1__yearly_rate_base,1994,14707
+out_ferc1__yearly_rate_base,1995,14387
+out_ferc1__yearly_rate_base,1996,14768
+out_ferc1__yearly_rate_base,1997,14515
+out_ferc1__yearly_rate_base,1998,14298
 out_ferc1__yearly_rate_base,1999,14340
 out_ferc1__yearly_rate_base,2000,14450
 out_ferc1__yearly_rate_base,2001,14032
@@ -3417,9 +3417,9 @@ out_ferc1__yearly_rate_base,2017,13311
 out_ferc1__yearly_rate_base,2018,13367
 out_ferc1__yearly_rate_base,2019,13597
 out_ferc1__yearly_rate_base,2020,13703
-out_ferc1__yearly_rate_base,2021,15219
-out_ferc1__yearly_rate_base,2022,15077
-out_ferc1__yearly_rate_base,2023,15385
+out_ferc1__yearly_rate_base,2021,15215
+out_ferc1__yearly_rate_base,2022,15076
+out_ferc1__yearly_rate_base,2023,15380
 out_ferc1__yearly_rate_base,2024,15196
 out_ferc1__yearly_retained_earnings_sched118,1994,2183
 out_ferc1__yearly_retained_earnings_sched118,1995,2054

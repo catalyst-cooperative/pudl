@@ -273,7 +273,7 @@ def heat_rate_by_unit(gen_fuel_by_energy_source: pd.DataFrame, bga: pd.DataFrame
         .groupby(["report_date", "plant_id_eia", "unit_id_pudl"], as_index=False)[
             ["net_generation_mwh", "fuel_consumed_for_electricity_mmbtu"]
         ]
-        .sum()
+        .sum(min_count=1)
         .convert_dtypes()
         .assign(
             unit_heat_rate_mmbtu_per_mwh=lambda x: x.fuel_consumed_for_electricity_mmbtu
