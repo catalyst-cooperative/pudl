@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PUDL Resource Profile",
+  "type": "object",
+  "allOf": [
+    { "$ref": "https://datapackage.org/profiles/2.0/dataresource.json" },
+    { "$ref": "#/definitions/layerMixin" }
+  ],
+  "definitions": {
+    "layerMixin": {
+      "type": "object",
+      "properties": {
+        "layer": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
