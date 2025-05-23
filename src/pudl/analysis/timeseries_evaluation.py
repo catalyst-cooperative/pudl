@@ -220,13 +220,14 @@ def plot_imputation(
         alpha=0.5,
     )
     plt.plot(filtered.index, filtered[imputed_col], lw=1, label="imputed")
-    for code in IMPUTATION_CODES:
+    for code in IMPUTATION_CODES | {"simulated"}:
         mask = filtered[imputed_col + "_imputation_code"] == code
         plt.scatter(
             filtered.index[mask],
             filtered[imputed_col][mask],
             label=code,
             s=3,
+            alpha=0.9,
         )
     plt.title(f"Reported vs Imputed Values for {idx_vals}")
     plt.ylabel(ylabel)
