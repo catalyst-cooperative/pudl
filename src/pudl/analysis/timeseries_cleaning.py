@@ -2159,7 +2159,7 @@ def impute_timeseries_asset_factory(  # noqa: C901
     def _check_score(mape_dict: dict[str, float]):
         return AssetCheckResult(
             passed=all(
-                mape > settings.simulate_flags_settings.mape_threshold
+                mape < settings.simulate_flags_settings.mape_threshold
                 for mape in mape_dict.values()
             ),
             metadata=mape_dict,
