@@ -12,6 +12,13 @@ New Data
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+Re-introduce 88888 and 99999 utility_id_eia
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These values, representing redacted values and state aggregates, were
+intentionally dropped from eia923 and eia861 due to primary key and
+data inconsistency issues. We're adding them back in! See :issue:`808`
+and PR :pr:`4291`.
+
 Bug Fixes
 ^^^^^^^^^
 
