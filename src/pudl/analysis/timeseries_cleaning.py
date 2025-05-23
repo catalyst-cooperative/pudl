@@ -1734,36 +1734,34 @@ def get_simulated_flag_mask(
     )
 
     # Find a set of months with a high level of imputation to use as reference to simulate flagged data
-    bad_months = (
-        monthly_imputation_rate[
-            (monthly_imputation_rate.imputation_rate >= settings.min_flag_rate)
-            & (monthly_imputation_rate.imputation_rate <= settings.max_flag_rate)
-        ]
-        .sample(settings.num_months)
-        .rename(
-            columns={
-                "id_col": "reference_id_col",
-                "month": "reference_month",
-            }
-        )[["reference_id_col", "reference_month"]]
-    )
-
+    bad_months = monthly_imputation_rate[
+        (monthly_imputation_rate.imputation_rate >= settings.min_flag_rate)
+        & (monthly_imputation_rate.imputation_rate <= settings.max_flag_rate)
+    ]
     # Find months which didn't have any values flagged to drop data from
-    good_months = (
-        monthly_imputation_rate[monthly_imputation_rate.imputation_rate == 0.0]
-        .sample(settings.num_months)
-        .rename(
-            columns={
-                "id_col": "simulation_id_col",
-                "month": "simulation_month",
-            }
-        )[["simulation_id_col", "simulation_month"]]
-    )
+    good_months = monthly_imputation_rate[
+        monthly_imputation_rate.imputation_rate == 0.0
+    ]
+
+    # Select num_months for simulation if there are enough months to choose from
+    num_months = min(len(bad_months), len(good_months), settings.num_months)
 
     # Take good months and bad months, and combine into a single dataframe
     # It doesn't matter which months in particular get matched up
     simulation_df = pd.concat(
-        [bad_months.reset_index(), good_months.reset_index()], axis="columns"
+        bad_months.sample(num_months).rename(
+            columns={
+                "id_col": "reference_id_col",
+                "month": "reference_month",
+            }
+        )[["reference_id_col", "reference_month"]],
+        good_months.sample(num_months).rename(
+            columns={
+                "id_col": "simulation_id_col",
+                "month": "simulation_month",
+            }
+        )[["simulation_id_col", "simulation_month"]],
+        axis="columns",
     )
 
     # Use reference month to get hours which should be flagged in simulation month
