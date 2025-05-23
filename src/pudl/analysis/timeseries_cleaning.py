@@ -2156,10 +2156,13 @@ def impute_timeseries_asset_factory(  # noqa: C901
     @asset_check(
         asset=imputation_score_asset, name=f"{imputation_score_asset}_asset_check"
     )
-    def _check_score(mape: float):
+    def _check_score(mape_dict: dict[str, float]):
         return AssetCheckResult(
-            passed=mape > settings.simulate_flags_settings.mape_threshold,
-            metadata={"mape": mape},
+            passed=all(
+                mape > settings.simulate_flags_settings.mape_threshold
+                for mape in mape_dict.values()
+            ),
+            metadata=mape_dict,
             description="Checks mean absolute percent error computed on simulated imputed data, and compared to a configurable threshold.",
         )
 
