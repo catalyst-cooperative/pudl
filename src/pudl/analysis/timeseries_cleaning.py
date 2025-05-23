@@ -1853,29 +1853,23 @@ def impute_timeseries_asset_factory(  # noqa: C901
         settings: Configurable options for imputation
             (see :class:`ImputeTimeseriesSettings`).
     """
-    # Regex substitution is used to create asset names, so if the specified
-    # ``output_asset_name`` already starts with an underscore, it won't add a
-    # second one
-    timeseries_matrix_asset = re.sub(
-        r"^__", "_", f"_{output_asset_name}_timeseries_matrix"
-    )
-    aligned_input_asset = re.sub(r"^__", "_", f"_{input_asset_name}_aligned")
-    cleaned_timeseries_matrix_asset = re.sub(
-        r"^__", "_", f"_{output_asset_name}_cleaned_timeseries_matrix"
-    )
-    flags_asset = re.sub(r"^__", "_", f"_{output_asset_name}_timeseries_matrix_flags")
-    imputed_asset = re.sub(r"^__", "_", f"_{output_asset_name}_imputed")
-    simulated_timeseries_matrix_asset = re.sub(
-        r"^__", "_", f"_{output_asset_name}_simulated_timeseries_matrix"
-    )
-    simulated_flags_asset = re.sub(
-        r"^__", "_", f"_{output_asset_name}_timeseries_matrix_simulated_flags"
-    )
-    imputed_simulated_asset = re.sub(
-        r"^__", "_", f"_{output_asset_name}_imputed_simulated_matrix"
-    )
-    imputation_score_asset = re.sub(r"^__", "_", f"_{output_asset_name}_score")
-    simulated_output_asset = re.sub(r"^__", "_", f"_{output_asset_name}_simulated")
+    # Create an asset prefix from `output_asset_name` so we can create unique asset
+    # Names for all intermediate assets in the imputation.
+    # Uses regex substitution so prefix starts with exactly one underscore even
+    # if `output_asset_name` starts with an underscore
+    asset_prefix = re.sub(r"^__", "_", f"_{output_asset_name}")
+
+    # Asset names
+    timeseries_matrix_asset = f"{asset_prefix}_timeseries_matrix"
+    aligned_input_asset = f"{asset_prefix}_aligned"
+    cleaned_timeseries_matrix_asset = f"{asset_prefix}_cleaned_timeseries_matrix"
+    flags_asset = f"{asset_prefix}_timeseries_matrix_flags"
+    imputed_asset = f"{asset_prefix}_imputed"
+    simulated_timeseries_matrix_asset = f"{asset_prefix}_simulated_timeseries_matrix"
+    simulated_flags_asset = f"{asset_prefix}_timeseries_matrix_simulated_flags"
+    imputed_simulated_asset = f"{asset_prefix}_imputed_simulated_matrix"
+    imputation_score_asset = f"{asset_prefix}_score"
+    simulated_output_asset = f"{asset_prefix}_simulated"
 
     @multi_asset(
         ins={"input_df": AssetIn(input_asset_name)},
@@ -1883,7 +1877,7 @@ def impute_timeseries_asset_factory(  # noqa: C901
             timeseries_matrix_asset: AssetOut(key=timeseries_matrix_asset),
             aligned_input_asset: AssetOut(key=aligned_input_asset),
         },
-        name=f"_{output_asset_name}_prepare_timeseries_matrix",
+        name=f"{asset_prefix}_prepare_timeseries_matrix",
     )
     def _prepare_timeseries_matrix(
         input_df: pd.DataFrame,
@@ -1933,7 +1927,7 @@ def impute_timeseries_asset_factory(  # noqa: C901
             flags_asset: AssetOut(key=flags_asset),
         },
         op_tags={"memory-use": "high"},
-        name=f"_{output_asset_name}_flag_timeseries_matrix",
+        name=f"{asset_prefix}_flag_timeseries_matrix",
     )
     def _flag_timeseries_matrix(
         matrix: pd.DataFrame,
@@ -2022,7 +2016,7 @@ def impute_timeseries_asset_factory(  # noqa: C901
             ),
             simulated_flags_asset: AssetOut(key=simulated_flags_asset),
         },
-        name=f"_{output_asset_name}_simulate_flag_timeseries_matrix",
+        name=f"{asset_prefix}_simulate_flag_timeseries_matrix",
     )
     def _simulate_flags(
         imputed_df: pd.DataFrame,
