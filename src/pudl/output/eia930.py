@@ -107,20 +107,22 @@ def _out_eia930__combined_demand(
     )
 
 
-imputed_combined_demand_assets = impute_timeseries_asset_factory(
-    input_asset_name="_out_eia930__combined_demand",
-    output_asset_name="_out_eia930__combined_imputed_demand",
-    years_from_context=_years_from_context,
-    value_col="demand_reported_mwh",
-    imputed_value_col="demand_imputed_pudl_mwh",
-    id_col="combined_subregion_ba_code_eia",
-    simulation_group_col="granularity",
-    settings=ImputeTimeseriesSettings(
-        simulate_flags_settings=SimulateFlagsSettings(
-            num_months=10, output_io_manager_key="parquet_io_manager"
+imputed_combined_demand_assets, imputation_asset_check = (
+    impute_timeseries_asset_factory(
+        input_asset_name="_out_eia930__combined_demand",
+        output_asset_name="_out_eia930__combined_imputed_demand",
+        years_from_context=_years_from_context,
+        value_col="demand_reported_mwh",
+        imputed_value_col="demand_imputed_pudl_mwh",
+        id_col="combined_subregion_ba_code_eia",
+        simulation_group_col="granularity",
+        settings=ImputeTimeseriesSettings(
+            simulate_flags_settings=SimulateFlagsSettings(
+                num_months=10, output_io_manager_key="parquet_io_manager"
+            ),
         ),
-    ),
-    output_io_manager_key="io_manager",
+        output_io_manager_key="io_manager",
+    )
 )
 
 
@@ -136,7 +138,7 @@ def split_ba_subregion_demand(
     _out_eia930__combined_imputed_demand: pd.DataFrame,
     core_eia930__hourly_subregion_demand: pd.DataFrame,
     core_eia930__hourly_operations: pd.DataFrame,
-) -> tuple[pd.DataFrame, pd.DataFrame]:
+):
     """Split combined imputed demand into separate BA/subregion tables."""
     # Merge core asset on imputed output asset to get columns dropped during imputation
     ba_demand = _out_eia930__combined_imputed_demand[

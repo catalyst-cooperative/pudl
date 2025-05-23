@@ -41,7 +41,15 @@ import numpy as np
 import pandas as pd
 import pandera as pa
 import scipy.stats
-from dagster import AssetIn, AssetOut, Output, asset, multi_asset
+from dagster import (
+    AssetCheckResult,
+    AssetIn,
+    AssetOut,
+    Output,
+    asset,
+    asset_check,
+    multi_asset,
+)
 from pandera.typing import DataFrame, Index, Series
 from sklearn.metrics import mean_absolute_percentage_error
 
@@ -1582,6 +1590,8 @@ class SimulateFlagsSettings:
     """Max ratio of bad points in a section of data to be used for reference."""
     output_io_manager_key: str = "io_manager"
     """Specify io-manager for final simulated asset. In some cases we use the parquet IO-manager so we can build notebooks/visualizations on simulated data."""
+    mape_threshold: float = 0.05
+    """Maximum allowable mean absolute percent error computed on simulated values. Will be checked in an asset check."""
 
 
 class SimulationDataFrame(pa.DataFrameModel):
@@ -1877,7 +1887,7 @@ def impute_timeseries_asset_factory(  # noqa: C901
     )
     def _prepare_timeseries_matrix(
         input_df: pd.DataFrame,
-    ) -> tuple[pd.DataFrame, pd.DataFrame]:
+    ):
         """Take input timeseries table and convert to timeseries matrix for imputation.
 
         Returns:
@@ -1927,7 +1937,7 @@ def impute_timeseries_asset_factory(  # noqa: C901
     )
     def _flag_timeseries_matrix(
         matrix: pd.DataFrame,
-    ) -> tuple[pd.DataFrame, pd.DataFrame]:
+    ):
         """Flag/Null anomalous and missing values."""
         matrix, flags = flag_ruggles(matrix)
 
@@ -2018,7 +2028,7 @@ def impute_timeseries_asset_factory(  # noqa: C901
         imputed_df: pd.DataFrame,
         matrix: pd.DataFrame,
         flags: pd.DataFrame,
-    ) -> tuple[pd.DataFrame, pd.DataFrame]:
+    ):
         """Flag values to impute for simulation purposes.
 
         This method will flag a set of otherwise 'good' reported values, so they
@@ -2149,6 +2159,16 @@ def impute_timeseries_asset_factory(  # noqa: C901
 
         return mape_dict
 
+    @asset_check(
+        asset=imputation_score_asset, name=f"{imputation_score_asset}_asset_check"
+    )
+    def _check_score(mape: float):
+        return AssetCheckResult(
+            passed=mape > settings.simulate_flags_settings.mape_threshold,
+            metadata={"mape": mape},
+            description="Checks mean absolute percent error computed on simulated imputed data, and compared to a configurable threshold.",
+        )
+
     production_assets = [
         _prepare_timeseries_matrix,
         _flag_timeseries_matrix,
@@ -2164,5 +2184,5 @@ def impute_timeseries_asset_factory(  # noqa: C901
 
     # Only return simulation assets if passed simulation settings
     if settings.simulate_flags_settings is not None:
-        return production_assets + simulation_assets
+        return (production_assets + simulation_assets, _check_score)
     return production_assets
