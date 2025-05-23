@@ -1,21 +1,26 @@
-{% raw %}{{ resource.description_time() }} {{ resource.description_tabletype() }}{% endraw %} {{ resource.description_tabletype_prompt() }}
+{{ resource.description_time() }} {{ resource.description_tabletype() }} {{ resource.meta.description_summary|default("", true) }}
 
 Processing layer:
-  {% raw %}{{ resource.description_layer() }}{% endraw %}
+  {{ resource.description_layer() }} {{ resource.meta.description_layer|default("", true) }}
 
 Data source:
-  {% raw %}{{ resource.description_datasource() }}{% endraw %}
+  {{ resource.description_datasource() }} {{ resource.meta.description_datasource|default("", true) }}
 
 Primary key:
-  {% raw %}{{ resource.description_primarykey() }}{% endraw %} {{ resource.description_primarykey_prompt() }}
+  {{ resource.description_primarykey() }} {{ resource.meta.description_primarykey|default("", true) }}
 
 Usage Warnings
 ^^^^^^^^^^^^^^
 
-{% if resource.meta.sources|length > 1 %}* {% raw %}{{ warnings.multiple_inputs }}{% endraw %}{% endif %}
-{%- if "ferc" in resource.name %}* {% raw %}{{ warnings.ferc_is_hard }}{% endraw %}{% endif %}
+{% for uw in resource.meta.usage_warnings %}
+{% if uw is mapping %}* {{ uw.text }}{% else %}* {{ warnings[uw] }}{% endif -%}
+{% endfor %}
+{% if resource.meta.sources|length > 1 %}* {{ warnings.multiple_inputs }}{% endif %}
+{%- if "ferc" in resource.name %}* {{ warnings.ferc_is_hard }}{% endif %}
 
+{% if resource.meta.description_details %}
 Additional Details
 ^^^^^^^^^^^^^^^^^^
 
-{% if "^" not in resource.meta.description %}{{ resource.meta.description|safe }}{% endif %}
+{{ resource.meta.description_details }}
+{% endif %}

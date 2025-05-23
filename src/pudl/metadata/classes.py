@@ -1132,13 +1132,20 @@ class PudlResourceDescriptor(PudlMeta):
     # TODO (daz) 2024-02-09: with a name like "title" you might imagine all
     # resources would have one...
     title: str | None = None
-    description: str
+    # this is a legacy field until we get all the metadata migrated
+    description: str | None = None
     # extended metadata
-    # these are intended to be optional/only present to override defaults
+    # these are the new sections; all are optional and are presented alongside basic info
+    description_summary: str | None = None
+    description_layer: str | None = None
+    description_datasource: str | None = None
+    description_primarykey: str | None = None
+    description_details: str | None = None
+    # these are overrides for extracted basic info
     table_type: str | None = None
     timeseries_resolution: str | None = None
     layer: str | None = None
-    usage_warnings: list[str] | None = None
+    usage_warnings: list[Any] | None = None
     # /extended metadata
     schema_: PudlSchemaDescriptor = pydantic.Field(alias="schema")
     encoder: PudlCodeMetadata | None = None
@@ -1275,7 +1282,7 @@ class Resource(PudlMeta):
     name: SnakeCase
     title: String | None = None
     description: String
-    table_type: Literal["assn", "codes", "entity", "scd", "timeseries"] | None
+    table_type: Literal["assn", "codes", "entity", "scd", "timeseries"] | None = None
     timeseries_resolution: (
         Literal[
             "yearly",
@@ -1284,8 +1291,8 @@ class Resource(PudlMeta):
         ]
         | None
     ) = None
-    layer: Literal["raw", "_core", "core", "_out", "out", "test"] | None
-    usage_warnings: list[String]  # could be list[Literal]
+    layer: Literal["raw", "_core", "core", "_out", "out", "test"] | None = None
+    usage_warnings: list[String] = []  # could be list[Literal]
     harvest: ResourceHarvest = ResourceHarvest()
     schema: Schema
     # Alias required to avoid shadowing Python built-in format()
@@ -1458,19 +1465,33 @@ class Resource(PudlMeta):
         if obj["layer"] is None:
             obj["layer"] = meta_from_name.layer
         if obj["usage_warnings"] is None:
-            obj["usage_warnings"] = list() #default_usage_warnings(obj)
-        # TODO: do we want to pull in the full text of each usage warning in the structured data as well, or just in the rendered table description below?
+            obj["usage_warnings"] = []  # default_usage_warnings(obj)
+        obj["usage_warnings"] = [
+            uw["text"] if isinstance(uw, dict) else USAGE_WARNINGS[uw]
+            for uw in obj["usage_warnings"]
+        ]
+
         # TODO: if uws are specified, do we skip the defaults or merge with them?
 
         # Render description
-        obj["description"] = (
-            _get_jinja_environment()
-            .from_string(obj["description"])
-            .render(
-                resource=meta_from_name,
-                warnings=USAGE_WARNINGS,
-            )
-        ).strip()
+        if obj["description"] is None:
+            obj["description"] = (
+                _get_jinja_environment(
+                    (Path(__file__).parent.parent.parent.parent / "docs").resolve()
+                )
+                .get_template("resource_description.rst.jinja")
+                .render(
+                    resource=meta_from_name,
+                    warnings=USAGE_WARNINGS,
+                )
+            ).strip()
+
+        # drop the structured metadata keys
+        del obj["description_summary"]
+        del obj["description_layer"]
+        del obj["description_datasource"]
+        del obj["description_primarykey"]
+        del obj["description_details"]
 
         # Add encoders to columns as appropriate, based on FKs.
         # Foreign key relationships determine the set of codes to use
@@ -1548,13 +1569,6 @@ class Resource(PudlMeta):
             description=self.description,
             schema=schema,
             path=f"{self.name}.parquet",
-            table_type=self.table_type,
-            timeseries_resolution=self.timeseries_resolution,
-            layer=self.layer,
-            usage_warnings=[
-                frictionless.Field(name=uw, description=USAGE_WARNINGS[uw])
-                for uw in self.usage_warnings
-            ]
         )
 
     def to_pyarrow(self) -> pa.Schema:

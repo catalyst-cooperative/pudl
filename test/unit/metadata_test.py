@@ -3,7 +3,6 @@
 import pandas as pd
 import pandera as pr
 import pytest
-from docutils.core import publish_doctree
 
 from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.classes import (
@@ -196,12 +195,28 @@ def test_frictionless_data_package_non_empty():
     assert len(datapackage.resources) == len(RESOURCE_METADATA)
 
 
+METADATA_OVERRIDE_KEYS = [
+    "layer",
+    "table_type",
+    "timeseries_resolution",
+    "description_summary",
+    "description_layer",
+    "description_datasource",
+    "description_primarykey",
+    "description_details",
+]
+
+
 def test_frictionless_data_package_resources_populated():
     datapackage = PUDL_PACKAGE.to_frictionless()
     for resource in datapackage.resources:
         assert resource.name in RESOURCE_METADATA
         expected_resource = RESOURCE_METADATA[resource.name]
-        assert expected_resource["description"] == resource.description
+        assert any(
+            expected_resource.get(candidate)
+            and (resource.description.find(expected_resource[candidate]) >= 0)
+            for candidate in ["description"] + METADATA_OVERRIDE_KEYS
+        )
         assert expected_resource["schema"]["fields"] == [
             f.name for f in resource.schema.fields
         ]
@@ -209,44 +224,6 @@ def test_frictionless_data_package_resources_populated():
             expected_resource["schema"].get("primary_key", [])
             == resource.schema.primary_key
         )
-
-
-def _parse_description(desc):
-    tree = publish_doctree(desc)
-    front_matter = []
-    for c in tree.children:
-        if c.tagname == "paragraph":
-            front_matter.append(c.astext())
-        elif c.tagname == "definition_list":
-            for d in c.children:
-                front_matter.append(d.astext())
-        else:
-            break
-    return tree, front_matter
-
-
-def _description_source_checks(front_matter, source_labels, properties):
-    """Some entry should declare what sources this table is derived from."""
-    for paragraph in front_matter:
-        if paragraph.startswith("Derived from") and (
-            any((s in paragraph) for s in source_labels)
-            or (properties.datasource_labels.label in paragraph)
-        ):
-            return True
-    return False
-
-
-def _description_pk_checks(front_matter):
-    """Some paragraph should declare no primary key and explain why."""
-    for paragraph in front_matter:
-        if paragraph.startswith("This table has no primary key."):
-            paragraph_sentences = paragraph.split(".")
-            if len(paragraph_sentences[1].strip()) > 5:
-                # okay so technically "This table has no primary key. lololol" will
-                # pass this test but ideally that kind of hijinks gets caught in
-                # review
-                return True
-    return False
 
 
 description_compliant_tables = [
@@ -261,29 +238,27 @@ description_compliant_tables = [
 )  # someday: sorted(PUDL_RESOURCES.keys()))
 def test_description_compliance(resource_name):
     properties = MetaFromResourceName(name=resource_name)
-    meta = RESOURCE_METADATA[resource_name]
-    desc = meta["description"]
-    tree, front_matter = _parse_description(desc)
-    source_labels = [SOURCES[s]["label"] for s in meta["sources"]]
-    has_pk = "primary_key" in meta["schema"]
+    name_parse = {
+        "layer": (properties.layer or properties.meta.get("layer")),
+        "description_datasource": (
+            properties.datasource or properties.meta.get("description_datasource")
+        ),
+        "table_type": (properties.tabletype or properties.meta.get("table_type")),
+        "timeseries_resolution": (
+            (properties.tabletype or properties.meta.get("table_type")) != "timeseries"
+            or (properties.time or properties.meta.get("timeseries_resolution"))
+        ),
+    }
+    for override, has_value in name_parse.items():
+        assert has_value, (
+            f"""Table {resource_name} could not be parsed as layer_source__tabletype_slug and no overrides were set in the table metadata. Rename {resource_name} or set the following override keys: {override} (TODO add options)"""
+        )
     # todo: layer-based checks
-    # source-based checks
-    # todo: refer to a template or wizard for additional help
-    assert _description_source_checks(
-        front_matter, source_labels, properties
-    ), f"""Table {resource_name} has sources {str(meta["sources"])} and/or
-{properties.datasource_labels.label}, but the description does not explain them in
-the required format. We expect a paragraph in the front matter starting with 'Derived
-from' and including any of the source labels {str(source_labels)} as exact
-strings."""
     # todo: asset_type-based checks
     # pk-based checks
+    has_pk = "primary_key" in properties.meta["schema"]
     if not has_pk:
         # todo: refer to a template or wizard for additional help
-        assert _description_pk_checks(
-            front_matter
-        ), """Table {resource_name} has no primary key, but the
-description does not explain it in the required format. We expect a paragraph in the
-front matter to start with 'This table has no primary key.' and go on to briefly
-describe what each record represents and, if needed, why no primary key is
-possible."""
+        assert "description_primarykey" in properties.meta, (
+            """Table {resource_name} has no primary key, but the table metadata does not include an explanation in the required format. We expect the key "description_primarykey" to briefly describe what each record represents and, if needed, why no primary key is possible."""
+        )
