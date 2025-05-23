@@ -1721,8 +1721,16 @@ def get_simulated_flag_mask(
     Returns:
         Tuple of ``timeseries_matrix``, and ``flag_matrix`` modified with simulation data.
     """
+    # Get rows in specified simulation_group, and filter any cases where an ID/month
+    # Combo have very few values. This is important because we are going to compute
+    # the rate of values imputed per month, and should make sure we're using complete months
+    imputation_group_df = (
+        imputed_df[imputed_df["simulation_group"] == simulation_group]
+        .groupby(["id_col", pd.Grouper(key="datetime", freq="MS")], observed=True)
+        .filter(lambda group: len(group) > 1)
+    )
+
     # Calculate the rate of imputation per month/ID
-    imputation_group_df = imputed_df[imputed_df["simulation_group"] == simulation_group]
     monthly_imputation_rate = (
         (
             imputation_group_df.groupby(
@@ -1750,18 +1758,22 @@ def get_simulated_flag_mask(
     # It doesn't matter which months in particular get matched up
     simulation_df = pd.concat(
         [
-            bad_months.sample(num_months).rename(
+            bad_months.sample(num_months)
+            .rename(
                 columns={
                     "id_col": "reference_id_col",
                     "month": "reference_month",
                 }
-            )[["reference_id_col", "reference_month"]].reset_index(),
-            good_months.sample(num_months).rename(
+            )[["reference_id_col", "reference_month"]]
+            .reset_index(),
+            good_months.sample(num_months)
+            .rename(
                 columns={
                     "id_col": "simulation_id_col",
                     "month": "simulation_month",
                 }
-            )[["simulation_id_col", "simulation_month"]].reset_index(),
+            )[["simulation_id_col", "simulation_month"]]
+            .reset_index(),
         ],
         axis="columns",
     )
