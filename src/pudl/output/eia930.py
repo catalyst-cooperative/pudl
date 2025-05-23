@@ -1,7 +1,7 @@
 """Functions for compiling derived aspects of the EIA 930 data."""
 
 import pandas as pd
-from dagster import AssetOut, asset, multi_asset
+from dagster import AssetOut, Output, asset, multi_asset
 
 from pudl.analysis.timeseries_cleaning import (
     ImputeTimeseriesSettings,
@@ -164,7 +164,16 @@ def split_ba_subregion_demand(
         how="left",
     )
 
-    return subregion_demand, ba_demand
+    return (
+        Output(
+            output_name="out_eia930__hourly_subregion_demand",
+            value=subregion_demand,
+        ),
+        Output(
+            output_name="out_eia930__hourly_operations",
+            value=ba_demand,
+        ),
+    )
 
 
 @asset(io_manager_key="parquet_io_manager")

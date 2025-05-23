@@ -41,7 +41,7 @@ import numpy as np
 import pandas as pd
 import pandera as pa
 import scipy.stats
-from dagster import AssetIn, AssetOut, asset, multi_asset
+from dagster import AssetIn, AssetOut, Output, asset, multi_asset
 from pandera.typing import DataFrame, Index, Series
 from sklearn.metrics import mean_absolute_percentage_error
 
@@ -1903,7 +1903,16 @@ def impute_timeseries_asset_factory(  # noqa: C901
 
         # Pivot to timeseries matrix
         matrix = pivot_aligned_timeseries_dataframe(aligned_df)
-        return matrix, aligned_df
+        return (
+            Output(
+                output_name=timeseries_matrix_asset,
+                value=matrix,
+            ),
+            Output(
+                output_name=aligned_input_asset,
+                value=aligned_df,
+            ),
+        )
 
     @multi_asset(
         ins={"matrix": AssetIn(timeseries_matrix_asset)},
@@ -1930,7 +1939,16 @@ def impute_timeseries_asset_factory(  # noqa: C901
 
         # Drop any respondents that were filtered out by ``filter_missing_values``
         flags = flags.drop(columns=flags.columns.difference(matrix.columns))
-        return matrix, flags
+        return (
+            Output(
+                output_name=cleaned_timeseries_matrix_asset,
+                value=matrix,
+            ),
+            Output(
+                output_name=flags_asset,
+                value=flags,
+            ),
+        )
 
     @asset(
         required_resource_keys={"dataset_settings"},
@@ -2029,8 +2047,14 @@ def impute_timeseries_asset_factory(  # noqa: C901
         # flags will not impact results
         matrix, flags = ts.to_dataframes()
         return (
-            matrix[matrix.index.year.isin(simulated_years)],
-            flags[flags.index.year.isin(simulated_years)],
+            Output(
+                output_name=simulated_timeseries_matrix_asset,
+                value=matrix[matrix.index.year.isin(simulated_years)],
+            ),
+            Output(
+                output_name=simulated_flags_asset,
+                value=flags[flags.index.year.isin(simulated_years)],
+            ),
         )
 
     @asset(
