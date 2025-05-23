@@ -88,6 +88,7 @@ def _out_eia930__combined_demand(
     _out_eia930__hourly_operations["combined_subregion_ba_code_eia"] = (
         _out_eia930__hourly_operations["balancing_authority_code_eia"]
     )
+    _out_eia930__hourly_operations["balancing_authority_subregion_code_eia"] = ""
 
     common_cols = [
         "datetime_utc",
@@ -95,6 +96,8 @@ def _out_eia930__combined_demand(
         "timezone",
         "combined_subregion_ba_code_eia",
         "granularity",
+        "balancing_authority_subregion_code_eia",
+        "balancing_authority_code_eia",
     ]
     return pd.concat(
         [
@@ -140,7 +143,7 @@ def split_ba_subregion_demand(
         # Just merge BA data so we have a one-one merge
         _out_eia930__combined_imputed_demand["granularity"] == "ba"
     ].merge(
-        # Drop reported demand so we don't have duplicates
+        # Drop reported demand so we don't have duplicate columns
         core_eia930__hourly_operations.drop(columns=["demand_reported_mwh"]),
         on=["datetime_utc", "balancing_authority_code_eia"],
         validate="one_to_one",
