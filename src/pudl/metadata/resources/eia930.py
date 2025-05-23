@@ -156,20 +156,19 @@ below provides more information on subregions."""
     },
     "_out_eia930__combined_imputed_demand_simulated": {
         "description": (
-            """EXPERIMENTAL / WORK-IN-PROGRESS, 2025-04-04.
+            """SIMULATED DATA FOR TESTING AND QUALITY CONTROL PURPOSES ONLY.
 
-This asset is used to validate the imputation of hourly demand we do for the
-``out_eia930__hourly_operations`` and ``out_eia930__hourly_subregion_demand`` tables.
-We combine Balancing Authority (BA) and Subregion data into a single table for imputation,
-which then gets split into those two tables. This table mirrors the intermediate table
-that gets split into the BA/subregion tables, but with simulated data we use to score
-the performance of our imputation. For this simulation, we impute a selection of values
-that otherwise would not need to be imputed. We then compare this simulated data to the
-reported data to compute a percent error rate for our imputation. This error rate is
-checked during every nightly build, and will raise an error if it's above a threshold.
-This allows us to catch issues with the imputation that may arise over time with new data,
-or changes to the underlying logic. We include this table in our distribution so we can
-use it to easily produce visualizations of the imputation on these simulated sections of data."""
+This table is used to evaluate the imputation of bad or missing hourly demand values
+that we apply to the ``out_eia930__hourly_operations`` and
+``out_eia930__hourly_subregion_demand`` tables. It contains both balancing authority
+(BA) and BA subregion demand data. Rather than imputing actual bad or missing values,
+in this table we knock out a selection of values that would otherwise not need to be
+imputed, attempt to impute them, and then compare the imputed values to the original
+values by calculating the mean absolute percent error (MAPE). This error metric is
+calculated during the ETL process and an exception is raised if it exceeds a certain
+threshold. This allows us to catch issues with the imputation that may arise over time
+with new data, or changes to the underlying logic. We distribute this table
+so that users can see examples of the performance of the imputation process."""
         ),
         "schema": {
             "fields": [
