@@ -1749,18 +1749,20 @@ def get_simulated_flag_mask(
     # Take good months and bad months, and combine into a single dataframe
     # It doesn't matter which months in particular get matched up
     simulation_df = pd.concat(
-        bad_months.sample(num_months).rename(
-            columns={
-                "id_col": "reference_id_col",
-                "month": "reference_month",
-            }
-        )[["reference_id_col", "reference_month"]],
-        good_months.sample(num_months).rename(
-            columns={
-                "id_col": "simulation_id_col",
-                "month": "simulation_month",
-            }
-        )[["simulation_id_col", "simulation_month"]],
+        [
+            bad_months.sample(num_months).rename(
+                columns={
+                    "id_col": "reference_id_col",
+                    "month": "reference_month",
+                }
+            )[["reference_id_col", "reference_month"]],
+            good_months.sample(num_months).rename(
+                columns={
+                    "id_col": "simulation_id_col",
+                    "month": "simulation_month",
+                }
+            )[["simulation_id_col", "simulation_month"]],
+        ],
         axis="columns",
     )
 
