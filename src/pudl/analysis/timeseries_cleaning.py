@@ -1755,13 +1755,13 @@ def get_simulated_flag_mask(
                     "id_col": "reference_id_col",
                     "month": "reference_month",
                 }
-            )[["reference_id_col", "reference_month"]],
+            )[["reference_id_col", "reference_month"]].reset_index(),
             good_months.sample(num_months).rename(
                 columns={
                     "id_col": "simulation_id_col",
                     "month": "simulation_month",
                 }
-            )[["simulation_id_col", "simulation_month"]],
+            )[["simulation_id_col", "simulation_month"]].reset_index(),
         ],
         axis="columns",
     )
@@ -1776,7 +1776,7 @@ def get_simulated_flag_mask(
     flags = pivot_aligned_timeseries_dataframe(imputed_df, value_col="simulated_flags")
     flags[flags.isna()] = False
 
-    return flags, set(good_months["simulation_month"].dt.year.unique())
+    return flags, set(simulation_df["simulation_month"].dt.year.unique())
 
 
 @dataclass
