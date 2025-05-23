@@ -9,6 +9,7 @@
   "definitions": {
     "layerMixin": {
       "type": "object",
+      "required": ["layer"],
       "properties": {
         "layer": {
           "type": "string"
