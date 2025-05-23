@@ -190,14 +190,12 @@ so that users can see examples of the performance of the imputation process."""
     },
     "out_eia930__hourly_operations": {
         "description": (
-            """EXPERIMENTAL / WORK-IN-PROGRESS, 2025-04-04.
-
-This adds imputed demand to the ``core_eia930__hourly_operations`` table where the
-original data was missing or anomalous.  Codes explaining why values have been imputed
-can be found in the ``core_pudl__codes_imputation_reasons`` table.
-
-This table is available in the nightly builds during development, but has not been fully
-vetted yet."""
+            """This adds imputed demand to the ``core_eia930__hourly_operations``
+table where the original data was missing or anomalous.  Codes explaining why values
+have been imputed can be found in the ``core_pudl__codes_imputation_reasons`` table.
+During nightly builds, we compute a percent error rate for the imputation, and validate
+that this remains below 5%. For detailed documentation of the imputation process
+see :doc:`dev/timeseries_imputation`."""
         ),
         "schema": {
             "fields": [
@@ -255,14 +253,13 @@ United States. The spatial granularity of each record is indicated by
     },
     "out_eia930__hourly_subregion_demand": {
         "description": (
-            """EXPERIMENTAL / WORK-IN-PROGRESS, 2025-03-31.
-
-This table is based on ``core_eia930__hourly_subregion_demand``, but adds imputed demand
-values where the original data was missing or anomalous.  Codes explaining why values
-have been imputed can be found in the ``core_pudl__codes_imputation_reasons`` table.
-
-This table is available in the nightly builds during development, but has not been fully
-vetted yet."""
+            """This table is based on ``core_eia930__hourly_subregion_demand``, but
+adds imputed demand values where the original data was missing or anomalous.  Codes
+explaining why values have been imputed can be found in the
+``core_pudl__codes_imputation_reasons`` table.
+During nightly builds, we compute a percent error rate for the imputation, and validate
+that this remains below 5%. For detailed documentation of the imputation process
+see :doc:`dev/timeseries_imputation`."""
         ),
         "schema": {
             "fields": [
