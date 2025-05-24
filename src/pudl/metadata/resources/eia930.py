@@ -195,7 +195,7 @@ table where the original data was missing or anomalous.  Codes explaining why va
 have been imputed can be found in the ``core_pudl__codes_imputation_reasons`` table.
 During nightly builds, we compute a percent error rate for the imputation, and validate
 that this remains below 5%. For detailed documentation of the imputation process
-see :doc:`dev/timeseries_imputation`."""
+see :doc:`/dev/timeseries_imputation`."""
         ),
         "schema": {
             "fields": [
@@ -259,7 +259,7 @@ explaining why values have been imputed can be found in the
 ``core_pudl__codes_imputation_reasons`` table.
 During nightly builds, we compute a percent error rate for the imputation, and validate
 that this remains below 5%. For detailed documentation of the imputation process
-see :doc:`dev/timeseries_imputation`."""
+see :doc:`/dev/timeseries_imputation`."""
         ),
         "schema": {
             "fields": [
