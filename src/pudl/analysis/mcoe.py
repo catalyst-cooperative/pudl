@@ -1,9 +1,18 @@
 """A module with functions to aid generating MCOE."""
 
+from dataclasses import dataclass
 from typing import Literal
 
 import pandas as pd
-from dagster import AssetIn, AssetsDefinition, Field, asset
+from dagster import (
+    AssetCheckResult,
+    AssetChecksDefinition,
+    AssetIn,
+    AssetsDefinition,
+    Field,
+    asset,
+    asset_check,
+)
 
 import pudl
 from pudl.metadata.fields import apply_pudl_dtypes
@@ -231,6 +240,57 @@ mcoe_assets = [
         freq=freq,
     )
 ]
+
+
+@dataclass
+class McoeCheckSpec:
+    """A dataclass to hold the specification for a MCOE check."""
+
+    asset: str
+    max_null_fraction: float = 0.8
+    blocking: bool = True
+
+
+mcoe_asset_check_specs = [
+    McoeCheckSpec(
+        asset="out_eia__yearly_generators",
+        max_null_fraction=0.9,
+    ),
+    McoeCheckSpec(
+        asset="out_eia__monthly_generators",
+        max_null_fraction=0.9,
+    ),
+    McoeCheckSpec(
+        asset="_out_eia__yearly_derived_generator_attributes",
+        max_null_fraction=0.8,
+    ),
+    McoeCheckSpec(
+        asset="_out_eia__monthly_derived_generator_attributes",
+        max_null_fraction=0.8,
+    ),
+]
+
+
+def mcoe_asset_check_factory(spec: McoeCheckSpec) -> AssetChecksDefinition:
+    """Turn a MCOE check spec into an AssetChecksDefinition."""
+
+    @asset_check(asset=spec.asset, blocking=spec.blocking)
+    def excessively_null_rows(df: pd.DataFrame) -> AssetCheckResult:
+        """Check that the MCOE dataframe has no excessively null rows."""
+        excessively_null_rows = (
+            df.isna().sum(axis="columns") / len(df.columns) > spec.max_null_fraction
+        )
+        if excessively_null_rows.any():
+            return AssetCheckResult(
+                passed=False,
+                metadata={"excessively_null_row_count": sum(excessively_null_rows)},
+            )
+        return AssetCheckResult(passed=True)
+
+    return excessively_null_rows
+
+
+mcoe_asset_checks = [mcoe_asset_check_factory(spec) for spec in mcoe_asset_check_specs]
 
 
 def heat_rate_by_unit(gen_fuel_by_energy_source: pd.DataFrame, bga: pd.DataFrame):
@@ -647,7 +707,7 @@ def mcoe(
         .pipe(
             pudl.validate.no_null_rows,
             df_name="fuel_cost + capacity_factor",
-            thresh=0.9,
+            max_null_fraction=0.9,
         )
         .pipe(pudl.validate.no_null_cols, df_name="fuel_cost + capacity_factor")
     )
@@ -693,7 +753,9 @@ def mcoe_generators(
             date_on=["year"],
             how="left" if all_gens else "right",
             freq=freq,
-        ).pipe(pudl.validate.no_null_rows, df_name="mcoe_all_gens", thresh=0.9)
+        ).pipe(
+            pudl.validate.no_null_rows, df_name="mcoe_all_gens", max_null_fraction=0.9
+        )
     else:
         mcoe_gens_out = pudl.helpers.date_merge(
             left=gens,
@@ -701,7 +763,9 @@ def mcoe_generators(
             on=["plant_id_eia", "generator_id"],
             date_on=["year"],
             how="left" if all_gens else "right",
-        ).pipe(pudl.validate.no_null_rows, df_name="mcoe_all_gens", thresh=0.9)
+        ).pipe(
+            pudl.validate.no_null_rows, df_name="mcoe_all_gens", max_null_fraction=0.9
+        )
 
     # Organize the dataframe for easier legibility
     mcoe_gens_out = (
