@@ -2166,7 +2166,9 @@ def impute_timeseries_asset_factory(  # noqa: C901
         return mape_dict
 
     @asset_check(
-        asset=imputation_score_asset, name=f"{imputation_score_asset}_asset_check"
+        asset=imputation_score_asset,
+        name=f"{imputation_score_asset}_asset_check",
+        blocking=True,
     )
     def _check_score(mape_dict: dict[str, float]):
         return AssetCheckResult(
