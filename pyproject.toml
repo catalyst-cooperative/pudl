@@ -40,7 +40,7 @@ dependencies = [
     "grpcio==1.71.0", # Required by dagster, binary dependencies are flaky
     "grpcio-health-checking==1.71.0", # Required by dagster, binary dependencies are flaky
     "grpcio-status==1.71.0", # Required by dagster, binary dependencies are flaky
-    "hypothesis>=6.123.7",
+    "hypothesis>=6.123",
     "jellyfish>=1",
     "jinja2>=3.1",
     "jupyter",
@@ -57,7 +57,7 @@ dependencies = [
     "pandera>=0.23.1",
     "pre-commit>=4",
     "pyarrow>=19", # pandas[parquet]
-    "pydantic>=2.11",
+    "pydantic>=2.10",
     "pydantic-settings>=2.7",
     "pytest>=8",
     "pytest-console-scripts>=1.4",
@@ -150,7 +150,7 @@ dbt_helper = "pudl.scripts.dbt_helper:dbt_helper"
 
 [project.optional-dependencies]
 dev = [
-    "dagster-webserver>=1.10.12",
+    "dagster-webserver>=1.10",
     "jupyterlab>4.3",
     "jupyter-lsp",
     "jupyterlab-lsp",
