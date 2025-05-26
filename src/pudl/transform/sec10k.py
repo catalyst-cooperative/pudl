@@ -207,18 +207,17 @@ def _match_ex21_subsidiaries_to_filer_company(
     filer_info_df: pd.DataFrame,
     ownership_df: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Match Ex. 21 subsidiaries to filer companies.
+    """Match Exhibit 21 subsidiaries to companies that file SEC Form 10-K.
 
-    We want to assign CIKs to Ex. 21 subsidiaries if they in turn
-    file a 10k. To do this, we merge the Ex. 21 subsidiaries to 10k
-    filers on company name. If there are multiple matches with the same
-    company name we choose the pair with the most overlap in location of
-    incorporation and nearest report years. Then we merge the CIK back onto
-    the Ex. 21 df.
+    We want to assign CIKs to Ex. 21 subsidiaries if they in turn file a 10k. To do
+    this, we merge the Ex. 21 subsidiaries to 10k filers on company name. If there are
+    multiple matches with the same company name we choose the pair with the most overlap
+    in location of incorporation and nearest report years. Then we merge the CIK back
+    onto the Ex. 21 DataFrame.
 
     Returns:
-        A dataframe of the Ex. 21 subsidiaries with a column for the
-        subsidiaries CIK (null if the subsidiary doesn't file).
+        A dataframe of the Ex. 21 subsidiaries with a column for the subsidiaries CIK
+        (null if the subsidiary doesn't file).
     """
     filer_info_df["subsidiary_company_name"] = _standardize_company_name(
         filer_info_df["company_name"]
@@ -694,17 +693,15 @@ def core_sec10k__assn_exhibit_21_subsidiaries_and_filers(
 ) -> pd.DataFrame:
     """Match Ex. 21 subsidiaries to SEC 10k filing companies.
 
-    Create a table associating ``subsidiary_company_id_sec10k``
-    to that subsidiary company's ``central_index_key`` if that subsidiary
-    also files its own 10-K filing. The association is created by
-    matching subsidiary companies reported in
-    ``core_sec10k__quarterly_exhibit_21_company_ownership`` to their own
-    filing information in ``core_sec10k__quarterly_company_information``,
-    which contains attributes reported in the main body of a 10-K filing.
-    To infer the match we merge the Ex.21 subsidiaries to 10k filers
-    on company name. If there are multiple
-    matches with the same company name we choose the pair with the
-    most overlap in location of incorporation and nearest report years.
+    Create a table associating ``subsidiary_company_id_sec10k`` to that subsidiary
+    company's ``central_index_key`` if that subsidiary also files its own 10-K filing.
+    The association is created by matching subsidiary companies reported in
+    ``core_sec10k__quarterly_exhibit_21_company_ownership`` to their own filing
+    information in ``core_sec10k__quarterly_company_information``, which contains
+    attributes reported in the main body of a 10-K filing.  To infer the match we merge
+    the Ex.21 subsidiaries to 10k filers on company name. If there are multiple matches
+    with the same company name we choose the pair with the most overlap in location of
+    incorporation and nearest report years.
     """
     filer_info_df = core_sec10k__quarterly_company_information.merge(
         core_sec10k__quarterly_filings[["filename_sec10k", "report_date"]],

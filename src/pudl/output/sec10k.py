@@ -112,7 +112,11 @@ def out_sec10k__changelog_company_name(
     return name_changelog
 
 
-def _get_n_duplicate_filer_records(company_info_df, ownership_df, cik_col_name):
+def _get_n_duplicate_filer_records(
+    company_info_df: pd.DataFrame,
+    ownership_df: pd.DataFrame,
+    cik_col_name: str,
+) -> int:
     filers_count_df = (
         company_info_df.groupby(["filename_sec10k", "central_index_key"])
         .size()
@@ -127,7 +131,7 @@ def _get_n_duplicate_filer_records(company_info_df, ownership_df, cik_col_name):
             how="inner",
             left_on=["filename_sec10k", cik_col_name],
             right_on=["filename_sec10k", "central_index_key"],
-            validate="m:1",
+            validate="many_to_one",
         ).drop_duplicates(subset=["filename_sec10k", "central_index_key"])
     )
 
@@ -143,21 +147,20 @@ def out_sec10k__parents_and_subsidiaries(
     core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities: pd.DataFrame,
     core_eia__entity_utilities: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Denormalized output table with SEC 10-K company and ownership info linked to EIA."""
-    # In order to merge parent company attributes onto the ownership records
-    # we need to make the assumption that the Ex. 21 attachment for filing
-    # is the ownership information of the filer itself. Under this assumption
-    # we can construct the parent company's central index key from the first
-    # token of the filename.
+    """Denormalized output table linking SEC 10-K company ownership to EIA Utilities."""
+    # In order to merge parent company attributes onto the ownership records we need to
+    # assume that the Ex. 21 attachment to a given filing describes the subsidiary
+    # companies of the entity filing the 10-K. Given this assumption we can extract
+    # the parent company's central index key from the first token of the filename.
     core_sec10k__quarterly_exhibit_21_company_ownership.loc[
         :, "parent_company_central_index_key"
     ] = core_sec10k__quarterly_exhibit_21_company_ownership["filename_sec10k"].apply(
         lambda x: x.split("/")[0].zfill(10)
     )
     # We want to merge company info records onto ownership records on filename and CIK
-    # but this key is not unique in the company info records because it doesn't include filer_count,
-    # i.e. the same filing might report two different filer information blocks for
-    # the same company.
+    # but this key is not unique in the company info records because it doesn't include
+    # filer_count, i.e. the same filing might report two different filer information
+    # blocks for the same company.
     # Log the number of non unique filer records from the company information table that
     # appear as parent companies in the ownership table.
     n_parent_dupes = _get_n_duplicate_filer_records(
@@ -189,7 +192,7 @@ def out_sec10k__parents_and_subsidiaries(
                 "parent_company_filename_sec10k",
                 "parent_company_central_index_key",
             ],
-            validate="m:1",
+            validate="many_to_one",
         )
         .drop(columns=["parent_company_filename_sec10k"])
         .rename(
@@ -205,7 +208,7 @@ def out_sec10k__parents_and_subsidiaries(
         core_sec10k__assn_exhibit_21_subsidiaries_and_filers,
         how="left",
         on="subsidiary_company_id_sec10k",
-        validate="m:1",
+        validate="many_to_one",
     ).rename(columns={"central_index_key": "subsidiary_company_central_index_key"})
 
     # merge utility_id_eia onto subsidiaries
@@ -213,12 +216,15 @@ def out_sec10k__parents_and_subsidiaries(
         core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities,
         how="left",
         on="subsidiary_company_id_sec10k",
-        validate="m:1",
+        validate="many_to_one",
     )
 
     # merge utility name onto subsidiaries
     df = df.merge(
-        core_eia__entity_utilities, how="left", on="utility_id_eia", validate="m:1"
+        core_eia__entity_utilities,
+        how="left",
+        on="utility_id_eia",
+        validate="many_to_one",
     ).rename(
         columns={
             "utility_id_eia": "sub_only_utility_id_eia",
@@ -251,7 +257,7 @@ def out_sec10k__parents_and_subsidiaries(
             "subsidiary_company_filename_sec10k",
             "subsidiary_company_central_index_key",
         ],
-        validate="m:1",
+        validate="many_to_one",
     )
     # combine the sub-only and filing-subs EIA utility columns
     df["subsidiary_company_utility_id_eia"] = df[
