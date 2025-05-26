@@ -105,17 +105,15 @@ def _out_eia930__combined_demand(
     )
 
 
-imputed_combined_demand_assets = (
-    impute_timeseries_asset_factory(
-        input_asset_name="_out_eia930__combined_demand",
-        output_asset_name="_out_eia930__combined_imputed_demand",
-        years_from_context=_years_from_context,
-        value_col="demand_reported_mwh",
-        imputed_value_col="demand_imputed_pudl_mwh",
-        id_col="combined_subregion_ba_code_eia",
-        simulation_group_col="granularity",
-        output_io_manager_key="io_manager",
-    )
+imputed_combined_demand_assets = impute_timeseries_asset_factory(
+    input_asset_name="_out_eia930__combined_demand",
+    output_asset_name="_out_eia930__combined_imputed_demand",
+    years_from_context=_years_from_context,
+    value_col="demand_reported_mwh",
+    imputed_value_col="demand_imputed_pudl_mwh",
+    id_col="combined_subregion_ba_code_eia",
+    simulation_group_col="granularity",
+    output_io_manager_key="io_manager",
 )
 
 
