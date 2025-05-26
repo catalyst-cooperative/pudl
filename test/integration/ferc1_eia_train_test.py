@@ -14,6 +14,7 @@ don't have to update this manually.
 
 import importlib.resources
 import logging
+import os
 from pathlib import Path
 
 import pandas as pd
@@ -28,6 +29,12 @@ from pudl.analysis.record_linkage.eia_ferc1_train import (
 )
 
 logger = logging.getLogger(__name__)
+
+if os.getenv("GITHUB_ACTIONS", False):
+    pytest.skip(
+        reason="As of 2025-05-25 this test is causing the GitHub runner to run out of memory.",
+        allow_module_level=True,
+    )
 
 
 @pytest.fixture(scope="module")
