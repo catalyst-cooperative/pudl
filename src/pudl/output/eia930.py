@@ -116,11 +116,6 @@ imputed_combined_demand_assets, imputation_asset_check = (
         imputed_value_col="demand_imputed_pudl_mwh",
         id_col="combined_subregion_ba_code_eia",
         simulation_group_col="granularity",
-        settings=ImputeTimeseriesSettings(
-            simulate_flags_settings=SimulateFlagsSettings(
-                num_months=10, output_io_manager_key="parquet_io_manager"
-            ),
-        ),
         output_io_manager_key="io_manager",
     )
 )
