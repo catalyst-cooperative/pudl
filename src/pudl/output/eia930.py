@@ -107,7 +107,7 @@ def _out_eia930__combined_demand(
     )
 
 
-imputed_combined_demand_assets, imputation_asset_check = (
+imputed_combined_demand_assets = (
     impute_timeseries_asset_factory(
         input_asset_name="_out_eia930__combined_demand",
         output_asset_name="_out_eia930__combined_imputed_demand",
