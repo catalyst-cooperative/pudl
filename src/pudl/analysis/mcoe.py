@@ -15,6 +15,7 @@ from dagster import (
 )
 
 import pudl
+import pudl.validate as pv
 from pudl.metadata.fields import apply_pudl_dtypes
 
 DEFAULT_GENS_COLS = [
@@ -277,15 +278,25 @@ def mcoe_asset_check_factory(spec: McoeCheckSpec) -> AssetChecksDefinition:
     @asset_check(asset=spec.asset, blocking=spec.blocking)
     def excessively_null_rows(df: pd.DataFrame) -> AssetCheckResult:
         """Check that the MCOE dataframe has no excessively null rows."""
-        excessively_null_rows = (
-            df.isna().sum(axis="columns") / len(df.columns) > spec.max_null_fraction
-        )
-        if excessively_null_rows.any():
+        try:
+            _ = pv.no_null_rows(
+                df,
+                df_name=spec.asset,
+                max_null_fraction=spec.max_null_fraction,
+            )
+        except pv.ExcessiveNullRowsError as exc:
             return AssetCheckResult(
                 passed=False,
-                metadata={"excessively_null_row_count": sum(excessively_null_rows)},
+                metadata={"excessively_null_row_count": sum(exc.null_rows)},
+                description=(
+                    f"{spec.asset} has {sum(exc.null_rows)} excessively null rows!"
+                ),
             )
-        return AssetCheckResult(passed=True)
+        return AssetCheckResult(
+            passed=True,
+            metadata={"excessively_null_row_count": 0},
+            description=f"{spec.asset} has no excessively null rows.",
+        )
 
     return excessively_null_rows
 

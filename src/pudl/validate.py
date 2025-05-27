@@ -95,6 +95,15 @@ def check_date_freq(df1: pd.DataFrame, df2: pd.DataFrame, mult: int) -> None:
         )
 
 
+class ExcessiveNullRowsError(ValueError):
+    """Exception raised when rows have excessive null values."""
+
+    def __init__(self, message: str, null_rows: pd.DataFrame):
+        """Initialize the ExcessiveNullRowsError with a message and DataFrame of null rows."""
+        super().__init__(message)
+        self.null_rows = null_rows
+
+
 def no_null_rows(
     df: pd.DataFrame,
     cols="all",
@@ -117,7 +126,7 @@ def no_null_rows(
         The input DataFrame, for use with DataFrame.pipe().
 
     Raises:
-        ValueError: If the fraction of NA values in any row is greater than
+        ExcessiveNullRowsError: If the fraction of NA values in any row is greater than
         ``max_null_fraction``.
     """
     if cols == "all":
@@ -125,9 +134,12 @@ def no_null_rows(
 
     null_rows = df[cols].isna().sum(axis="columns") / len(cols) > max_null_fraction
     if null_rows.any():
-        raise ValueError(
-            f"Found {null_rows.sum(axis='rows')} excessively  null rows in {df_name}.\n"
-            f"{df[null_rows]}"
+        raise ExcessiveNullRowsError(
+            message=(
+                f"Found {null_rows.sum(axis='rows')} excessively null rows in {df_name}.\n"
+                f"{df[null_rows]}"
+            ),
+            null_rows=null_rows,
         )
 
     return df

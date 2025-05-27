@@ -152,9 +152,15 @@ from this module directly in a notebook or script like this:
 
 .. code-block:: python
 
-    gens_mega = MakeMegaGenTbl().execute(mcoe, own_eia860)
-    parts_compiler = MakePlantParts()
-    plant_parts_eia = parts_compiler.execute(gens_mega=gens_mega)
+    gens_mega = MakeMegaGenTbl().execute(
+        mcoe=out_eia__yearly_generators,
+        own_eia860=out_eia860__yearly_ownership,
+    )
+    plant_parts_eia = MakePlantParts().execute(
+        gens_mega=out_eia__yearly_generators_by_ownership,
+        plants_eia860=out_eia__yearly_plants,
+        utils_eia860=out_eia__yearly_utilities,
+    )
 """
 
 from collections import OrderedDict
@@ -639,7 +645,7 @@ class MakePlantParts:
                 `pudl.package_data.glue`.
 
         Returns:
-            Master unit list table with one-to-many matches aggregated as plant parts.
+            The EIA plant parts table with one-to-many matches aggregated as plant parts.
         """
         # Read in csv.
         try:
@@ -722,7 +728,7 @@ class MakePlantParts:
         This method adds a set of either calculated columns or PUDL ID columns.
 
         Returns:
-            Master unit list table with these additional columns:
+            The EIA plant parts table with these additional columns:
 
             * utility_id_pudl +
             * plant_id_pudl +
