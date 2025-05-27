@@ -154,40 +154,6 @@ below provides more information on subregions."""
         "etl_group": "eia930",
         "create_database_schema": False,
     },
-    "_out_eia930__combined_imputed_demand_simulated": {
-        "description": (
-            """SIMULATED DATA FOR TESTING AND QUALITY CONTROL PURPOSES ONLY.
-
-This table is used to evaluate the imputation of bad or missing hourly demand values
-that we apply to the ``out_eia930__hourly_operations`` and
-``out_eia930__hourly_subregion_demand`` tables. It contains both balancing authority
-(BA) and BA subregion demand data. Rather than imputing actual bad or missing values,
-in this table we knock out a selection of values that would otherwise not need to be
-imputed, attempt to impute them, and then compare the imputed values to the original
-values by calculating the mean absolute percent error (MAPE). This error metric is
-calculated during the ETL process and an exception is raised if it exceeds a certain
-threshold. This allows us to catch issues with the imputation that may arise over time
-with new data, or changes to the underlying logic. We distribute this table
-so that users can see examples of the performance of the imputation process."""
-        ),
-        "schema": {
-            "fields": [
-                "datetime_utc",
-                "combined_subregion_ba_code_eia",
-                "demand_reported_mwh",
-                "demand_imputed_pudl_mwh",
-                "demand_imputed_pudl_mwh_imputation_code",
-            ],
-            "primary_key": [
-                "datetime_utc",
-                "combined_subregion_ba_code_eia",
-            ],
-        },
-        "field_namespace": "eia",
-        "sources": ["eia930"],
-        "etl_group": "eia930",
-        "create_database_schema": False,
-    },
     "out_eia930__hourly_operations": {
         "description": (
             """EXPERIMENTAL / WORK-IN-PROGRESS, 2025-04-04.
