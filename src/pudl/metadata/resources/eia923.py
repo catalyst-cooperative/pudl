@@ -26,34 +26,6 @@ data. The same variables present in this table may show up in other _core
 tables in other years. Once this table has been harvested, it will be removed
 from the PUDL database."""
     ),
-    "core_eia923__monthly_boiler_fuel": (
-        """
-Time series of boiler fuel consumption and emissions.
-
-Layer:
-  Core. Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
-
-Type:
-  Monthly time series containing boiler fuel consumption and emissions figures which are expected to change for each reported timestamp.
-
-Derived from:
-  EIA Form 923 Schedule 3
-
-Usage Warnings
-^^^^^^^^^^^^^^
-This table provides better coverage of the entire fleet of generators than the ``core_eia923__monthly_generation_fuel`` table, but the fuel consumption reported here is not directly associated with a generator. This complicates the heat rate calculation, since the associations between individual boilers and generators are incomplete and can be complex.
-
-A small number of respondents only report annual fuel consumption, and all of
-it is reported in December.
-
-Additional Details
-^^^^^^^^^^^^^^^^^^
-Reports the quantity of each type of fuel consumed by each boiler, as
-well as the sulfur and ash content of those fuels. Fuel quantity is reported in standard
-EIA fuel units (tons, barrels, Mcf). Heat content per unit of fuel is also reported,
-making this table useful for calculating the thermal efficiency (heat rate) of various
-generation units.""".strip()
-    ),
     "core_eia923__monthly_fuel_receipts_costs": (
         """Data describing fuel deliveries to power plants, reported in EIA-923 Schedule 2, Part A.
 
@@ -143,9 +115,23 @@ and consumption is the net generation."""
     ),
 }
 
+BOILER_FUEL_METADATA = {
+    "description_summary": "boiler fuel consumption and emissions.",
+    "description_datasource": "(Schedule 3)",
+    "usage_warnings": [
+        {
+            "text": "This table provides better coverage of the entire fleet of generators than the ``core_eia923__monthly_generation_fuel`` table, but the fuel consumption reported here is not directly associated with a generator. This complicates the heat rate calculation, since the associations between individual boilers and generators are incomplete and can be complex."
+        },
+        {
+            "text": "A small number of respondents only report annual fuel consumption, and all of it is reported in December."
+        },
+    ],
+    "description_details": "Reports the quantity of each type of fuel consumed by each boiler, as well as the sulfur and ash content of those fuels. Fuel quantity is reported in standard EIA fuel units (tons, barrels, Mcf). Heat content per unit of fuel is also reported, making this table useful for calculating the thermal efficiency (heat rate) of various generation units.",
+}
+
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
-    "core_eia923__monthly_boiler_fuel": {
-        "description": TABLE_DESCRIPTIONS["core_eia923__monthly_boiler_fuel"],
+    "core_eia923__monthly_boiler_fuel": BOILER_FUEL_METADATA
+    | {
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -172,8 +158,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia923"],
         "etl_group": "eia923",
     },
-    "out_eia923__boiler_fuel": {
-        "description": TABLE_DESCRIPTIONS["core_eia923__monthly_boiler_fuel"],
+    "out_eia923__boiler_fuel": BOILER_FUEL_METADATA
+    | {
         "schema": {
             "fields": [
                 "report_date",
@@ -207,8 +193,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia923"],
         "etl_group": "outputs",
     },
-    "out_eia923__yearly_boiler_fuel": {
-        "description": TABLE_DESCRIPTIONS["core_eia923__monthly_boiler_fuel"],
+    "out_eia923__yearly_boiler_fuel": BOILER_FUEL_METADATA
+    | {
         "schema": {
             "fields": [
                 "report_date",
@@ -242,8 +228,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["eia923"],
         "etl_group": "outputs",
     },
-    "out_eia923__monthly_boiler_fuel": {
-        "description": TABLE_DESCRIPTIONS["core_eia923__monthly_boiler_fuel"],
+    "out_eia923__monthly_boiler_fuel": BOILER_FUEL_METADATA
+    | {
         "schema": {
             "fields": [
                 "report_date",
