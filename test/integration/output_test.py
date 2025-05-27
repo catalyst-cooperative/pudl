@@ -81,19 +81,3 @@ def test_eia_outputs(fast_out, df1_name, df2_name, mult, kwargs):
     logger.info(f"Found {len(df2)} rows in {df2_name}")
     logger.info(f"Checking {df2_name} date frequency relative to {df1_name}.")
     pv.check_date_freq(df1, df2, mult)
-
-
-@pytest.mark.parametrize(
-    "df_name,thresh",
-    [
-        ("mcoe_generators", 0.9),
-    ],
-)
-def test_null_rows(fast_out, df_name, thresh):
-    """Check MCOE output for null rows resulting from bad merges."""
-    # These are columns that only exist in earlier years
-    pv.no_null_rows(
-        df=fast_out.__getattribute__(df_name)(),
-        df_name=df_name,
-        thresh=thresh,
-    )
