@@ -790,10 +790,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Average monthly coincident peak (CP) demand (for requirements purchases, and any transactions involving demand charges). Monthly CP demand is the metered demand during the hour (60-minute integration) in which the supplier's system reaches its monthly peak. In megawatts.",
         "unit": "MW",
     },
-    "combined_subregion_ba_code_eia": {
-        "type": "string",
-        "description": "Identifies either an EIA Balancing Authority (BA) or Subregion. If the row refers to a subregion this will be a concatenated string with both the BA and subregion ID's, while if it's a BA it will only have the BA code.",
-    },
     "company_id_sec10k": {
         "type": "string",
         "description": (
