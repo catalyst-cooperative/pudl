@@ -19,7 +19,6 @@ In the long run, this is a probably a kind of prototype for pre-packaged API out
 data products that we might want to be able to provide to users a la carte.
 """
 
-from collections import defaultdict
 from datetime import date, datetime
 from functools import partial
 from typing import Literal, Self
@@ -126,9 +125,6 @@ class PudlTabl:
         self.fill_net_gen: bool = fill_net_gen
         self.fill_tech_desc = fill_tech_desc  # only for eia860 table.
         self.unit_ids = unit_ids
-
-        # Used to persist the output tables. Returns None if they don't exist.
-        self._dfs = defaultdict(lambda: None)
 
         self._register_output_methods()
 

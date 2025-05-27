@@ -20,6 +20,11 @@ Quality of Life Improvements
 
 New Tests
 ^^^^^^^^^
+* Added a validation pipline for our EIA 930 hourly demand imputation. This
+  pipeline will perform imputation on a set of values which did not require imputation,
+  so there is ground truth data to compare against. It will then compute the percent
+  error for all of these imputed values against the reported data. This metric is
+  checked during nightly builds and will result in an error if it ever drifts too high.
 
 .. _release-v2025.5.0:
 
