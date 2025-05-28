@@ -309,12 +309,30 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eiaaeo",
         "etl_group": "eiaaeo",
     },
-    "core_eiaaeo__yearly_projected_delivered_energy": {
+    "core_eiaaeo__yearly_projected_energy_use_by_sector_and_type": {
         "description": (
-            "Projected energy delivered to residential, commercial, industrial, and "
-            "transportation sectors. Industrial includes energy for "
-            "combined-heat-and-power plants that have a non-regulatory status and "
-            "small on-site generating systems."
+            """Projected energy use for commercial, electric power, industrial, residential, and transportation sectors, drawn from AEO Table 2.
+
+The series in Table 2 which track energy use by sector do not always define each type
+of use the same way across sectors. There is detailed information about what is
+included or excluded in each use type for each sector in the footnotes of the EIA's
+online AEO data browser:
+
+  https://www.eia.gov/outlooks/aeo/data/browser/#/?id=2-AEO2023
+
+Use caution when aggregating across use types! Energy Use has a tricky system of
+subtotals, and summing all types within a sector will result in double-counting.
+Consult the EIA's data browser for visibility into which use types are subtotals, and
+what they contain: subtotal series are displayed indented, and include all lines
+above them which are one level out, up to the next indented line. Delivered Energy
+and Total are special cases which include those plus all subtotals above. In this
+way, "Delivered Energy" includes purchased electricity, renewable energy, and an
+array of fuels based on sector, and explicitly excludes electricity-related losses.
+
+AEO Energy Use figures are variously referred to as delivered energy, energy
+consumption, energy use, and energy demand, depending on which use types are
+being discussed, and which org and which document is describing them. In PUDL we
+say energy use or energy consumption."""
         ),
         "schema": {
             "fields": [
@@ -323,15 +341,17 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "region_type_eiaaeo",
                 "model_case_eiaaeo",
                 "projection_year",
-                "customer_class",
-                "delivered_energy_mmbtu",
+                "energy_use_sector",
+                "energy_use_type",
+                "energy_use_mmbtu",
             ],
             "primary_key": [
                 "report_year",
                 "region_name_eiaaeo",
                 "model_case_eiaaeo",
                 "projection_year",
-                "customer_class",
+                "energy_use_sector",
+                "energy_use_type",
             ],
         },
         "sources": ["eiaaeo"],
@@ -433,6 +453,6 @@ RESOURCE_METADATA = {
         "core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type",
         "core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology",
         "core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type",
-        "core_eiaaeo__yearly_projected_delivered_energy",
+        "core_eiaaeo__yearly_projected_energy_use_by_sector_and_type",
     }
 }

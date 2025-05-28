@@ -515,42 +515,58 @@ def core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type(
 
 
 @asset(io_manager_key="pudl_io_manager")
-def core_eiaaeo__yearly_projected_delivered_energy(
+def core_eiaaeo__yearly_projected_energy_use_by_sector_and_type(
     raw_eiaaeo__energy_consumption_by_sector_and_source,
 ):
-    """Projected delivered energy for commercial, industrial, residential, and transportation sectors.
+    """Projected energy use for commercial, electric power, industrial, residential, and transportation sectors.
 
-    The "Delivered Energy" series in Table 2 are a subtotal, and include purchased
-    electricity, renewable energy, and an array of fuels based on sector. It
-    explicitly excludes electricity-related losses. There is detailed information in
-    the footnotes of the online data browser:
+    The "Energy Use" series in Table 2 which track figures by sector do not always
+    define each type of usage the same way across sectors. There is detailed
+    information about what is included or excluded in each usage type for each sector
+    in the footnotes of the EIA's online AEO data browser:
 
       https://www.eia.gov/outlooks/aeo/data/browser/#/?id=2-AEO2023
 
-    In that link, subtotal series are displayed indented, and include all lines above
-    them which are one level out, up to the next indented line. Delivered Energy is a
-    special case which includes those plus the subtotals above it.
+    The data browser also gives some visibility into the tricky system of subtotals
+    within the Energy Use series. To identify and map subtotal usage types, look for
+    the following features in the data browser display: subtotal series are displayed
+    indented, and include all lines above them which are one level out, up to the
+    next indented line. Delivered Energy and Total are special cases which include
+    those plus all subtotals above. In this way, "Delivered Energy" includes
+    purchased electricity, renewable energy, and an array of fuels based on sector,
+    and explicitly excludes electricity-related losses.
 
-    AEO Delivered Energy figures are variously referred to as delivered energy,
-    energy consumption, energy use, and energy demand, depending on which org and
-    which document is describing them. In PUDL we say delivered energy or energy
-    consumption.
+    AEO Energy Use figures are variously referred to as delivered energy, energy
+    consumption, energy use, and energy demand, depending on which usage types are
+    being discussed, and which org and which document is describing them. In PUDL we
+    say energy use or energy consumption.
     """
     sanitized = filter_enrich_sanitize(
         raw_df=raw_eiaaeo__energy_consumption_by_sector_and_source,
         relevant_series_names=(
-            "Energy Use : Commercial : Delivered Energy",
-            "Energy Use : Industrial : Delivered Energy",
-            "Energy Use : Residential : Delivered Energy",
-            "Energy Use : Transportation : Delivered Energy",
+            "Energy Use : Commercial",
+            "Energy Use : Electric Power",
+            "Energy Use : Industrial",
+            "Energy Use : Residential",
+            "Energy Use : Total",
+            "Energy Use : Transportation",
+            "Energy Use : Unspecified",
         ),
     ).rename(columns={"subtopic": "dimension"})
 
     expected_values = {
         "topic": {"energy_use"},
-        "variable_name": {"delivered_energy"},
+        #         "variable_name": {"delivered_energy"},
         "units": {"quads"},
-        "dimension": {"commercial", "industrial", "residential", "transportation"},
+        "dimension": {
+            "commercial",
+            "electric_power",
+            "industrial",
+            "residential",
+            "total",
+            "transportation",
+            "unspecified",
+        },
     }
     for column, expected in expected_values.items():
         assert (actual := set(sanitized[column].unique())) == expected, (
@@ -568,16 +584,17 @@ def core_eiaaeo__yearly_projected_delivered_energy(
     )
 
     unstacked = (
-        unstack(
-            df=trimmed,
-            eventual_pk=[
+        trimmed.set_index(
+            [
                 "report_year",
                 "model_case_eiaaeo",
                 "region",
                 "dimension",
                 "projection_year",
-            ],
+                "variable_name",
+            ]
         )
+        .sort_index()
         .assign(region_type="us_census_division")
         .reset_index()
     )
@@ -587,8 +604,9 @@ def core_eiaaeo__yearly_projected_delivered_energy(
         columns={
             "region": "region_name_eiaaeo",
             "region_type": "region_type_eiaaeo",
-            "dimension": "customer_class",
-            "delivered_energy": "delivered_energy_mmbtu",
+            "dimension": "energy_use_sector",
+            "variable_name": "energy_use_type",
+            "value": "energy_use_mmbtu",
         }
     )
 

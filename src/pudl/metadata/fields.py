@@ -1087,13 +1087,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Indicate whether the generator can deliver power to the transmission grid.",
     },
-    "delivered_energy_mmbtu": {  # created for eiaaeo
-        "type": "number",
-        "description": (
-            "Energy delivered to the point of use, as a proxy for energy consumption. Includes fuels and electric power; excludes losses from generation and transmission."
-        ),
-        "unit": "MMBtu",
-    },
     "delivered_mwh": {
         "type": "number",
         "description": "Gross megawatt-hours delivered in power exchanges and used as the basis for settlement.",
@@ -1541,6 +1534,24 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Energy storage capacity in MWh (e.g. for batteries).",
         "unit": "MWh",
+    },
+    "energy_use_type": {
+        "type": "string",
+        "description": "Type of energy use, indicating the name of the series from AEO Table 2. Includes fuels, electricity, losses, and various subtotals; consult table documentation for aggregation guidelines.",
+        # "constraints": {"enum": #TODO},
+    },
+    "energy_use_mmbtu": {
+        "type": "number",
+        "description": "Energy use, in MMBtu; also referred to as energy consumption, energy demand, or delivered energy, depending on type.",
+        "unit": "MMBtu",
+    },
+    "energy_use_sector": {
+        "type": "string",
+        "description": "Sector for energy use figures in AEO Table 2. Similar to customer class, but with some missing and some extra values.",
+        "constraints": {
+            "enum": set(CUSTOMER_CLASSES) - {"direct_connection"}
+            | {"electric_power", "unspecified"}
+        },
     },
     "energy_used_for_pumping_mwh": {
         "type": "number",
