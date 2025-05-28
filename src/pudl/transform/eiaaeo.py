@@ -626,7 +626,7 @@ check_specs = [
 def make_check(spec: AeoCheckSpec) -> AssetChecksDefinition:
     """Turn the AeoCheckSpec into an actual Dagster asset check."""
 
-    @asset_check(asset=spec.asset)
+    @asset_check(asset=spec.asset, blocking=True)
     def _check(df):
         errors = []
         for year, expected_rows in spec.num_rows_by_report_year.items():
