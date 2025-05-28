@@ -5,4 +5,4 @@ Methodology
 .. toctree::
   :maxdepth: 2
 
-  demand_imputation
+  timeseries_imputation
