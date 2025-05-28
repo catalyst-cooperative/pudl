@@ -1,11 +1,13 @@
 """Screen timeseries for anomalies and impute missing and anomalous values.
 
-The screening methods were originally designed to identify unrealistic data in the
-electricity demand timeseries reported to EIA on Form 930, and have also been
-applied to the FERC Form 714, and various historical demand timeseries
-published by regional grid operators like MISO, PJM, ERCOT, and SPP.
+For a narrative discussion of these methods aimed at data users, see
+:doc:`/methodology/timeseries_imputation`.
 
-They are adapted from code published and modified by:
+The screening methods were originally designed to identify unrealistic data in the
+electricity demand timeseries reported in :doc:`/data_sources/eia930`, and we have also
+applied them to demand data from :doc:`/data_sources/ferc714`.
+
+Screening methods are adapted from code published and modified by:
 
 * Tyler Ruggles <truggles@carnegiescience.edu>
 * Greg Schivley <greg.schivley@princeton.edu>
@@ -16,13 +18,9 @@ And described at:
 * https://zenodo.org/record/3737085
 * https://github.com/truggles/EIA_Cleaned_Hourly_Electricity_Demand_Code
 
-The imputation methods were designed for multivariate time series forecasting.
-
-They are adapted from code published by:
-
-* Xinyu Chen <chenxy346@gmail.com>
-
-And described at:
+The imputation methods were designed for multivariate time series forecasting. They are
+adapted from code published by `Xinyu Chen <https://xinychen.github.io/>`__ and
+described at:
 
 * https://arxiv.org/abs/2006.10436
 * https://arxiv.org/abs/2008.03194
@@ -35,7 +33,7 @@ import uuid
 import warnings
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any, Literal, Optional
 
 import numpy as np
 import pandas as pd
@@ -86,7 +84,7 @@ class UTCTimeseriesDataFrame(pa.DataFrameModel):
 
     This model defines the expected structure of an input dataframe to the timeseries
     imputation process. It will be be immediately converted to a
-    ``AlignedTimeseriesDataFrame``, then pivoted to a ``TimeseriesMatrix``.
+    :class:`AlignedTimeseriesDataFrame`, then pivoted to a :class:`TimeseriesMatrix`.
     """
 
     id_col: Series[Any]
@@ -1303,14 +1301,15 @@ def simulate_nulls(
     """Find non-null values to null to match a run-length distribution.
 
     Args:
-        x: Timeseries matrix as described in :func:`_prepare_timeseries_matrix`.
+        x: Timeseries matrix as described in :func:`_prepare_timeseries_matrix`
+            defined within :func:`impute_timeseries_asset_factory`.
         length: Length of null runs to simulate for each series.
             By default, uses the run lengths of null values in each series.
         padding: Minimum number of non-null values between simulated null runs
             and between simulated and existing null runs.
         intersect: Whether simulated null runs can intersect each other.
-        overlap: Whether simulated null runs can overlap existing null runs.
-            If `True`, `padding` is ignored.
+        overlap: Whether simulated null runs can overlap existing null runs. If
+            ``True``, ``padding`` is ignored.
 
     Returns:
         Boolean mask of current non-null values to set to null.
@@ -1392,8 +1391,8 @@ def impute(
     """Impute null values.
 
     .. note::
-        The imputation method requires that nulls be replaced by zeros,
-        so the series cannot already contain zeros.
+       The imputation method requires that nulls be replaced by zeros,
+       so the series cannot already contain zeros.
 
     Args:
         mask: Boolean mask of values to impute in addition to
@@ -1477,30 +1476,33 @@ def summarize_imputed(
 def impute_flagged_values(
     df: DataFrame[TimeseriesMatrix],
     years: list[int],
-    method: dict[int, str],
+    method: dict[int, Literal["tubal", "tnn"]],
     periods: int = 24,
     blocks: int = 1,
 ) -> DataFrame[TimeseriesMatrix]:
     """Impute null values in input timeseries matrix.
 
-    Imputation is performed separately for each year,
-    with only the respondents reporting data in that year.
+    Imputation is performed separately for each year, with only the respondents
+    reporting data in that year.
 
     .. note::
-        Takes about 15 minutes.
+       The imputation is parallelized internally, and by default will use all available
+       CPU cores. If you want to limit the number of cores used, you can set the
+       ``OPM_NUM_THREADS`` environment variable to the desired number of threads.
 
     Args:
-        df: Timeseries matrix as described in :func:`_prepare_timeseries_matrix`.
+        df: Timeseries matrix as described in :func:`_prepare_timeseries_matrix`
+            defined within :func:`impute_timeseries_asset_factory`.
         years: list of years to input
-        periods: Number of consecutive values in each series to fold into a group.
-            See :meth:`fold_tensor`.
+        periods: Number of consecutive values in each series to fold into a group. See
+            :meth:`fold_tensor`.
         blocks: Number of blocks into which to split the series for imputation.
-            This has been found to reduce processing time for `method='tnn'`.
-        method: Map year to imputation method, which must be one of the following
-            ('tubal': :func:`impute_latc_tubal`, 'tnn': :func:`impute_latc_tnn`).
+            This has been found to reduce processing time for the tnn method.
+        method: Maps each year to the appropriate imputation method. "tubal" uses
+            :func:`impute_latc_tubal` and  "tnn" uses :func:`impute_latc_tnn`.
 
     Returns:
-        Copy of `df` with imputed values.
+        Copy of ``df`` with imputed values.
     """
     results = []
     # sort here and then don't sort in the groupby so we can process
@@ -1516,7 +1518,12 @@ def impute_flagged_values(
         if year in years:
             logger.info(f"Imputing year {year}")
             keep = df.columns[~gdf.isnull().all()]
-            result = impute(gdf[keep], method=method[year])
+            result = impute(
+                gdf[keep],
+                method=method[year],
+                periods=periods,
+                blocks=blocks,
+            )
             results.append(result)
     return pd.concat(results)
 
@@ -1529,8 +1536,8 @@ def filter_missing_values(
 ) -> DataFrame[TimeseriesMatrix]:
     """Filter incomplete years from timseries matrix.
 
-    Nulls respondent-years with too few data and
-    drops respondents with no data across all years.
+    Nulls respondent-years with too few data and drops respondents with no data across
+    all years.
 
     Args:
         df: Timeseries matrix as described in :class:`TimeseriesMatrix`.
@@ -1589,7 +1596,11 @@ class SimulateFlagsSettings:
     max_flag_rate: float = 0.5
     """Max ratio of bad points in a section of data to be used for reference."""
     output_io_manager_key: str = "io_manager"
-    """Specify io-manager for final simulated asset. In some cases we use the parquet IO-manager so we can build notebooks/visualizations on simulated data."""
+    """Specify io-manager for final simulated asset.
+
+    In some cases we use the parquet IO-manager so we can build notebooks/visualizations
+    on simulated data.
+    """
     mape_threshold: float = 0.05
     """Maximum allowable mean absolute percent error computed on simulated values. Will be checked in an asset check."""
 
@@ -1705,21 +1716,24 @@ def get_simulated_flag_mask(
 ) -> tuple[DataFrame[TimeseriesMatrix], set[int]]:
     """Return a flag mask to flag values for simulated imputation.
 
-    Find months of data with high rate of flagged values, and use these sections
-    as a reference to flag values in otherwise good sections of data. This allows us
-    to impute data in a realistic scenario where we have good reported data, which
-    we can compare to in order to compute quantitative metrics to validate the
-    quality of our imputation.
+    Find months of data with high rate of flagged values, and use these sections as a
+    reference to flag values in otherwise good sections of data. This allows us to
+    impute data in a realistic scenario where we have good reported data, which we can
+    compare to in order to compute quantitative metrics to validate the quality of our
+    imputation.
 
     Args:
-        settings: Settings object, which contains all configurable settings for simulation.
+        settings: Settings object, which contains all configurable settings for
+            simulation.
         imputed_df: Production DataFrame with imputed values, which is used to find
             sections with high rates of imputation.
-        simulation_group: Allows testing imputation performance on different groups of data
-            like BA/subregion demand, which can be combined into a single imputation.
+        simulation_group: Allows testing imputation performance on different groups of
+            data like BA/subregion demand, which can be combined into a single
+            imputation.
 
     Returns:
-        Tuple of ``timeseries_matrix``, and ``flag_matrix`` modified with simulation data.
+        Tuple of ``timeseries_matrix``, and ``flag_matrix`` modified with simulation
+        data.
     """
     # Get rows in specified simulation_group, and filter any cases where an ID/month
     # Combo have very few values. This is important because we are going to compute
@@ -1800,18 +1814,26 @@ class ImputeTimeseriesSettings:
     min_data: int = 100
     """Minimum number of values which must be non-null to do imputation on year."""
     periods: int = 24
-    """Number of consecutive values in each series to fold into a group. See :meth:`fold_tensor`
+    """Number of consecutive values in each series to fold into a group.
 
-Default of 24 is meant for hourly data with a diurnal periodicity.
+    See :meth:`fold_tensor` Default of 24 is meant for hourly data with a diurnal
+    periodicity.
     """
     blocks: int = 1
     """Split timeseries matrix into equal sized blocks before running imputation."""
-    method: str = "tubal"
-    """Imputation method to use ('tubal': :func:`impute_latc_tubal`, 'tnn': :func:`impute_latc_tnn`)."""
-    method_overrides: dict[int, str] = field(default_factory=dict)
-    """Override imputation method for specific years ('tubal': :func:`impute_latc_tubal`, 'tnn': :func:`impute_latc_tnn`)."""
+    method: Literal["tubal", "tnn"] = "tubal"
+    """Imputation method to use.
+
+    * tubal indicates :func:`impute_latc_tubal`
+    * tnn indicates :func:`impute_latc_tnn`
+    """
+    method_overrides: dict[int, Literal["tubal", "tnn"]] = field(default_factory=dict)
+    """Override stated imputation method for specific years."""
     simulate_flags_settings: SimulateFlagsSettings | None = None
-    """Settings to simulate flagged values and score imputation. Defaults to None which will not do any simulation/scoring."""
+    """Settings to simulate flagged values and score imputation.
+
+    Defaults to None which will not do any simulation/scoring.
+    """
 
 
 def impute_timeseries_asset_factory(  # noqa: C901
@@ -2088,7 +2110,7 @@ def impute_timeseries_asset_factory(  # noqa: C901
         matrix: pd.DataFrame,
         flags: pd.DataFrame,
     ) -> pd.DataFrame:
-        """Perform imputation on asset with simulated flags and return TimeseriesMatrix with imputed values."""
+        """Perform imputation on asset with simulated flags and return :class:TimeseriesMatrix with imputed values."""
         # Impute flagged/missing values
         years = years_from_context(context)
         method = dict.fromkeys(years, settings.method) | settings.method_overrides

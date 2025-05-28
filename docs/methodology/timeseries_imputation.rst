@@ -108,11 +108,11 @@ pipeline works as follows:
 2. Identify "good" months where no values were imputed.
 3. Match one "good" month with one "bad" month.
 4. Use the pattern of flagged values from the "bad" month to null values in the "good"
-   months and flag them as "simulated".
+   month and flag them as "simulated".
 5. Impute any null values with the "simulated".
-6. Compare imputed values vs reported and compute MAPE.
-7. (in production) Check that the MAPE is less than a configurable threshold (currently
-   set to 5%) and raise an error if it is not.
+6. Compare imputed and reported values and compute MAPE.
+7. (optionally, in production) Check that the MAPE is less than a configurable threshold
+   (currently set to 5%) and raise an error if it is not.
 
 This validation pipeline can be enabled in production to make sure it runs every night,
 or it can be used as a one off way to validate imputation or compare methods. Currently
@@ -120,39 +120,42 @@ it is only enabled manually for development and testing purposes as it is fairly
 resource intensive and causes issues in our GitHub CI.
 
 The validation process is stochastic, since it selects different reference months and
-different imputation masks for each run. As a result, the MAPE values will vary between
-different runs. However across many runs we've seen the following results consistently:
+imputation masks for each run. As a result, the MAPE values will vary between different
+runs. However across many runs we've seen the following results consistently:
 
 - EIA-930 BAs: MAPE of 2-3%
-- EIA-930 BA subregions: MAPE of 1-2%
+- EIA-930 BA subregions: MAPE of 1%
 - FERC-714: MAPE of 3-4%
 
-Interface
-~~~~~~~~~~
+Visual inspections of heavily imputed months don't show any obvious individual outliers.
 
-We've developed an `asset factory
+Programming Interface (for developers)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+We use an `asset factory
 <https://docs.dagster.io/guides/build/assets/creating-asset-factories>`__ called
-``impute_timeseries_asset_factory``, which can generate a set of assets to apply
-imputation to an upstream asset containing timeseries data. These generated assets
-expect the upstream input asset to contain an hourly ``datetime`` column, an ID column,
-and a column with values to impute. For example:
+:func:`pudl.analysis.timeseries_cleaning.impute_timeseries_asset_factory`, to generate
+a set of assets that impute an upstream timeseries. These generated assets expect the
+input to contain an hourly ``datetime`` column, an ID column, and a column with values
+to impute. For example:
 
 ============================ =================== ===================
 balancing_authority_code_eia datetime_utc        demand_reported_mwh
 ============================ =================== ===================
 AEC                          2019-01-01 00:00:00 1000.14
 AEC                          2019-01-01 01:00:00 1001.23
-                                    ...
+...                          ...                 ...
 YAD                          2024-12-31 22:00:00 983.12
 YAD                          2024-12-31 23:00:00 982.94
 ============================ =================== ===================
 
 In this instance, the final asset produced from the imputation would contain two new
-columns, ``demand_imputed_mwh`` and ``demand_imputed_pudl_mwh_imputation_code``
-(and any other columns which were in the input table). The ``imputation_code`` will
-contain a code for each imputed value, which corresponds to one of those described in
-``core_pudl__codes_imputation_reasons``.
+columns, ``demand_imputed_pudl_mwh`` and ``demand_imputed_pudl_mwh_imputation_code``
+(and any other columns which were in the input table). The ``imputation_code`` column
+will contain a code for each imputed value, which corresponds to one of those described
+in :ref:`core_pudl__codes_imputation_reasons`.
 
 To configure the asset factory, there are a number of parameters to the function, which
 are used to specify the names of columns, and there is a settings object called
-``ImputeTimeseriesSettings``, which configures the actual imputation methods.
+:class:`pudl.analysis.timeseries_cleaning.ImputeTimeseriesSettings`, which configures
+the actual imputation methods.

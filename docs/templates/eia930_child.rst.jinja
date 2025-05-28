@@ -129,6 +129,12 @@ it includes many irregularities including oulying and missing values, which they
 to manage in their aggregated (daily or nationwide) data, but which are present in the
 original reported data.
 
+For the EIA-930 output tables published in PUDL, we replace outlying and missing values
+in the electricity demand data with imputed estimates so they can be used in capacity
+expansion modeling and other applications where having complete and plausible (if not
+exactly correct) values is desirable. For an overview of that process and links to
+additional references, see :doc:`/methodology/timeseries_imputation`
+
 .. _data-sources-eia930-changes-in-energy-source-granularity-over-time:
 
 Changes in energy source granularity over time
