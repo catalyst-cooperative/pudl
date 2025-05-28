@@ -95,32 +95,51 @@ def check_date_freq(df1: pd.DataFrame, df2: pd.DataFrame, mult: int) -> None:
         )
 
 
-def no_null_rows(df, cols="all", df_name="", thresh=0.9):
-    """Check for rows filled with NA values indicating bad merges.
+class ExcessiveNullRowsError(ValueError):
+    """Exception raised when rows have excessive null values."""
 
-    Sum up the number of NA values in each row and the columns specified by
-    ``cols``. If the NA values make up more than ``thresh`` of the columns
-    overall, the row is considered Null and the check fails.
+    def __init__(self, message: str, null_rows: pd.DataFrame):
+        """Initialize the ExcessiveNullRowsError with a message and DataFrame of null rows."""
+        super().__init__(message)
+        self.null_rows = null_rows
+
+
+def no_null_rows(
+    df: pd.DataFrame,
+    cols="all",
+    df_name: str = "",
+    max_null_fraction: float = 0.9,
+) -> pd.DataFrame:
+    """Check for rows with excessive missing values, usually due to a merge gone wrong.
+
+    Sum up the number of NA values in each row and the columns specified by ``cols``.
+    If the NA values make up more than ``max_null_fraction`` of the columns overall, the
+    row is considered Null and the check fails.
 
     Args:
-        df (pandas.DataFrame): DataFrame to check for null rows.
-        cols (iterable or "all"): The labels of columns to check for
-            all-null values. If "all" check all columns.
+        df: Table to check for null rows.
+        cols: Columns to check for excessive null value. If "all" check all columns.
+        df_name: Name of the dataframe, to aid in debugging/logging.
+        max_null_fraction: The maximum fraction of NA values allowed in any row.
 
     Returns:
-        pandas.DataFrame: The input DataFrame, for use with DataFrame.pipe().
+        The input DataFrame, for use with DataFrame.pipe().
 
     Raises:
-        ValueError: If the fraction of NA values in any row is greater than
-        ``thresh``.
+        ExcessiveNullRowsError: If the fraction of NA values in any row is greater than
+        ``max_null_fraction``.
     """
     if cols == "all":
         cols = df.columns
 
-    null_rows = df[cols].isna().sum(axis="columns") / len(cols) > thresh
+    null_rows = df[cols].isna().sum(axis="columns") / len(cols) > max_null_fraction
     if null_rows.any():
-        raise ValueError(
-            f"Found {null_rows.sum(axis='rows')} null rows in {df_name}./n {df[null_rows]}"
+        raise ExcessiveNullRowsError(
+            message=(
+                f"Found {null_rows.sum(axis='rows')} excessively null rows in {df_name}.\n"
+                f"{df[null_rows]}"
+            ),
+            null_rows=null_rows,
         )
 
     return df
