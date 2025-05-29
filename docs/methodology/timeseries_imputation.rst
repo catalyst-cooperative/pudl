@@ -57,12 +57,15 @@ First we identify any values which are missing or deemed anomalous using the heu
 developed by Ruggels et al., and then we impute those "flagged" values. You can see the
 list of reasons why a value might be flagged for imputation in the
 :ref:`core_pudl__codes_imputation_reasons` table. After we've flagged the missing and
-anomalous values, we impute each year of data independently. The imputation algorithm
-aligns all of the timeseries in the input table based on their offset from UTC. Because
-the primary electricity demand periodicity is diurnal, the data is reshaped to allow all
-the individual days of data to be compared with each other. Then it identifies which
-sets of timeseries serve as the best references for each other to impute missing values
-using information from those best referenece timeseries.
+anomalous values, each year is imputed independently, meaning the imputation within a
+given year does not depend on the values in any other year. This is done to limit the
+memory usage of the process.
+
+The imputation algorithm aligns all of the timeseries in the input table based on their
+offset from UTC. Because the primary electricity demand periodicity is diurnal, the data
+is reshaped to allow all the individual days of data to be compared with each other.
+Then it identifies which sets of timeseries serve as the best references for each other
+to impute missing values using information from those best referenece timeseries.
 
 This means we have to choose what collection of timeseries make sense to impute together
 in a single run. For example, the EIA-930 includes both BA-level data and more granular
@@ -90,45 +93,40 @@ distinct tables, since they are each associated with different additional column
 Evaluating Imputation Performance
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To validate the performance of our imputation, we have a separate validation pipeline
-that can be enabled in the PUDL ETL and used to compute a quantitative metric scoring
-the imputation results.
+We use a form of hold-out or simulation-based validation to measure the performance of
+our imputation. We artificially remove reported values from months of data that have no
+values flagged for imputation using real patterns of missignness observed in months
+where many values were flagged for imputation. Then we impute the missing values in a
+validation pipeline that is separate from the main ETL pipeline, and calculate an error
+metric comparing the originally reported values to the imputed values. The error metric
+we're using is the Mean Absolute Percentage Error (MAPE) via
+:func:`sklearn.metrics.mean_absolute_percentage_error`.
 
-In this pipeline we compile a collection of simulated data-years in which we've nulled
-a set of values that are actually reported in the original data, using masks derived
-from observed anomalous or missing values. The masks are selected from months with
-particularly high rates of imputation, and applied to months in which there are no
-missing or anomalous values.
-
-After imputation we can compare the results to the originally reported values by
-computing the Mean Absolute Percentage Error (MAPE) with
-:mod:`sklearn.metrics.mean_absolute_percentage_error`. So, in outline the validation
-pipeline works as follows:
+In outline the validation pipeline works as follows:
 
 1. Identify "bad" months where many values were imputed (a month in this case is
-   specific to a single reporting entity).
-2. Identify "good" months where no values were imputed.
+   specific to a single reporting organization).
+2. Identify "good" months with no imputed values (from any reporting organization).
 3. Match one "good" month with one "bad" month.
 4. Use the pattern of flagged values from the "bad" month to null values in the "good"
-   month and flag them as "simulated".
+   month, flagging them as "simulated".
 5. Impute any "simulated" null values using all the other time series available to
    inform the imputation.
 6. Compare the imputed and reported values and compute the MAPE.
 7. (optionally, in production) Check that the MAPE is less than a configurable threshold
    (currently set to 5%) and raise an error if it is not.
 
-This validation pipeline can be enabled in production to make sure it runs every night,
-or it can be used as a one off way to validate imputation or compare methods. Currently
-it is only enabled manually for development and testing purposes as it is fairly
-resource intensive and causes issues in our GitHub CI.
+This validation pipeline can be enabled in production so it runs every night, or it can
+be used as a one-off way to validate imputation or compare methods. Currently it is only
+enabled manually for development and testing purposes as it is resource intensive.
 
 The validation process is stochastic, since it selects different reference months and
 imputation masks for each run. As a result, the MAPE values will vary slightly between
 different runs. However, across many runs we've seen the following results consistently:
 
-- EIA-930 BAs: MAPE of 2-3%
-- EIA-930 BA subregions: MAPE of 1%
-- FERC-714: MAPE of 3-4%
+- EIA-930 Balancing Authorities: 2-3% average error
+- EIA-930 Balancing Authority Subregions: 1% average error
+- FERC-714: Electricity Planning Areas 3-4% average error
 
 Visual inspections of heavily imputed months don't show any obvious individual outliers.
 
