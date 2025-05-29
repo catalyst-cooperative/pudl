@@ -18,7 +18,7 @@ For example:
 * Estimating state-level hourly electricity demand based on overlapping utility service
   territories
 
-It's primarily intended to help end users of the data understand what went into makeing
+It's primarily intended to help end users of the data understand what went into making
 the data, even if they aren't digging into the code itself.  We're just getting started
 fleshing it out, in response to our 2025 PUDL User Survey.
 
