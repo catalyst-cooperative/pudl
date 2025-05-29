@@ -23,7 +23,7 @@ heuristics developed and maintained by:
 - `Greg Schivley <https://github.com/gschivley>`__
 - `David Farnham <https://github.com/d-farnham>`__
 
-Their anomaly detection heuristics were originally implemented in 
+Their anomaly detection heuristics were originally implemented in
 `the truggles GitHub repo, "EIA Cleaned Hourly Electricity Demand Code,"
 <https://github.com/truggles/EIA_Cleaned_Hourly_Electricity_Demand_Code>`__ (also
 `archived on Zenodo <http://doi.org/10.5281/zenodo.3737085>`__) and published in
