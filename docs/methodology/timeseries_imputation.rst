@@ -15,7 +15,7 @@ work lives in the :mod:`pudl.analysis.timeseries_cleaning` module. Thus far we h
 applied these methods to the :doc:`/data_sources/eia930` and
 :doc:`/data_sources/ferc714` hourly electricity demand data.
 
-For both of these demand timeseries, we flag anomolous values for imputation using
+For both of these demand timeseries, we flag anomalous values for imputation using
 heuristics developed and maintained by:
 
 - `Tyler Ruggles <https://github.com/truggles>`__
