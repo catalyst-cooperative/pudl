@@ -157,30 +157,8 @@ def out_sec10k__parents_and_subsidiaries(
     ] = core_sec10k__quarterly_exhibit_21_company_ownership["filename_sec10k"].apply(
         lambda x: x.split("/")[0].zfill(10)
     )
-    # We want to merge company info records onto ownership records on filename and CIK
-    # but this key is not unique in the company info records because it doesn't include
-    # filer_count, i.e. the same filing might report two different filer information
-    # blocks for the same company.
-    # Log the number of non unique filer records from the company information table that
-    # appear as parent companies in the ownership table.
-    n_parent_dupes = _get_n_duplicate_filer_records(
-        out_sec10k__quarterly_company_information,
-        core_sec10k__quarterly_exhibit_21_company_ownership,
-        cik_col_name="parent_company_central_index_key",
-    )
-    if n_parent_dupes > 0:
-        logger.warning(
-            f"""There are {n_parent_dupes} duplicate company records from the company information table that appear as parent companies in the Ex. 21 ownership table."""
-        )
-    unique_company_info_per_filename_df = (
-        out_sec10k__quarterly_company_information.groupby(
-            ["filename_sec10k", "central_index_key"]
-        )
-        .first()
-        .reset_index()
-    )
-    # merge parent attributes on
-    parents_info_df = unique_company_info_per_filename_df.add_prefix(
+    # merge parent company attributes on
+    parents_info_df = out_sec10k__quarterly_company_information.add_prefix(
         "parent_company_"
     ).rename(columns={"parent_company_company_name": "parent_company_name"})
     df = (
@@ -231,18 +209,7 @@ def out_sec10k__parents_and_subsidiaries(
             "utility_name_eia": "sub_only_utility_name_eia",
         }
     )
-    # Log the number of non unique filename, CIK, report_date records from the
-    # information table that appear as subsidiary companies in the ownership table.
-    n_sub_dupes = _get_n_duplicate_filer_records(
-        out_sec10k__quarterly_company_information,
-        df,
-        cik_col_name="subsidiary_company_central_index_key",
-    )
-    if n_sub_dupes > 0:
-        logger.warning(
-            f"""There are {n_sub_dupes} duplicate company records from the company information table that appear as subsidiary companies in the Ex. 21 ownership table."""
-        )
-    subs_info_df = unique_company_info_per_filename_df.add_prefix(
+    subs_info_df = out_sec10k__quarterly_company_information.add_prefix(
         "subsidiary_company_"
     ).drop(columns=["subsidiary_company_company_name"])
     # merge subsidiary company attributes on

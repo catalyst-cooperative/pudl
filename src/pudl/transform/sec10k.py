@@ -545,6 +545,38 @@ def core_sec10k__quarterly_company_information(
     assert sum(invalid_sec10k_type.dropna()) < 11
     clean_info.loc[invalid_sec10k_type, "sec10k_type"] = pd.NA
 
+    # Enforce filename_sec10k and central_index_key as a primary key.
+    # Ocasionally a file will contain two blocks of info for the same
+    # CIK. Resolve these duplicates by filling null values, except for
+    # in filer_count and film_number which uniquely identify an info block,
+    # and then drop duplicates.
+    cols_to_fill = clean_info.columns.drop(
+        ["filer_count", "film_number", "block_count"]
+    )
+    dupes_df = clean_info[
+        clean_info.duplicated(
+            subset=["filename_sec10k", "central_index_key"], keep=False
+        )
+    ]
+    filled_dupes = dupes_df.groupby(["filename_sec10k", "central_index_key"])[
+        cols_to_fill
+    ].transform(lambda group: group.ffill().bfill())
+    clean_info.loc[filled_dupes.index, cols_to_fill] = filled_dupes
+    clean_info = clean_info.drop_duplicates(subset=cols_to_fill)
+    n_remaining_dupes = len(
+        clean_info[
+            clean_info.duplicated(subset=["filename_sec10k", "central_index_key"])
+        ]
+    )
+    if n_remaining_dupes > 0:
+        raise AssertionError(
+            logger.error(
+                f"There are {n_remaining_dupes} duplicate filename_sec10k and central_index_key "
+                "company info blocks in the core_sec10k__quarterly_company_information table "
+                "after filling null values. Filename and CIK should be a primary key."
+            )
+        )
+
     return clean_info
 
 

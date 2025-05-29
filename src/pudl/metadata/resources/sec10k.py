@@ -151,8 +151,8 @@ as inputs into the probabalistic record linkage process."""
         "schema": {
             "fields": [
                 "filename_sec10k",
-                "filer_count",
                 "central_index_key",
+                "filer_count",
                 "company_name",
                 "fiscal_year_end",
                 "taxpayer_id_irs",
@@ -179,7 +179,7 @@ as inputs into the probabalistic record linkage process."""
                 "mail_zip_code_4",
                 "mail_postal_code",
             ],
-            "primary_key": ["filename_sec10k", "filer_count"],
+            "primary_key": ["filename_sec10k", "central_index_key"],
         },
         "sources": ["sec10k"],
         "etl_group": "sec10k",
@@ -246,8 +246,8 @@ well as providing a link to the source URL for the filing."""
         "schema": {
             "fields": [
                 "filename_sec10k",
-                "filer_count",
                 "central_index_key",
+                "filer_count",
                 "utility_id_eia",
                 "utility_name_eia",
                 "report_date",
@@ -279,7 +279,7 @@ well as providing a link to the source URL for the filing."""
                 "mail_postal_code",
                 "source_url",
             ],
-            "primary_key": ["filename_sec10k", "filer_count"],
+            "primary_key": ["filename_sec10k", "central_index_key"],
         },
         "sources": ["sec10k"],
         "etl_group": "sec10k",
