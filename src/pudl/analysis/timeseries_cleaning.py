@@ -1816,7 +1816,7 @@ class ImputeTimeseriesSettings:
     periods: int = 24
     """Number of consecutive values in each series to fold into a group.
 
-    See :meth:`fold_tensor` Default of 24 is meant for hourly data with a diurnal
+    See :meth:`fold_tensor`. The default of 24 is meant for hourly data with a diurnal
     periodicity.
     """
     blocks: int = 1
