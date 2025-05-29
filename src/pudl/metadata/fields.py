@@ -429,9 +429,32 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Can this generator operate while bypassing the heat recovery steam generator?",
     },
+    "byproduct_description": {
+        "type": "string",
+        "description": "Description of combustion by-product.",
+        "constraints": {
+            "enum": [
+                "Ash from coal gasification (IGCC) units",
+                "Bottom ash from standard boiler units",
+                "Bottom (bed) ash from FBC units",
+                "FGD Gypsum",
+                "Fly ash from FBC units",
+                "Fly ash from standard boiler/PCD units",
+                "Fly ash from units with dry FGD",
+                "Other FGD byproducts",
+                "Other (specify via footnote on Schedule 9)",
+                "Steam Sales (MMBtu)",
+            ],
+        },
+    },
     "byproduct_recovery": {
         "type": "boolean",
         "description": "Is salable byproduct is recovered by the unit?",
+    },
+    "byproducts_to_report": {
+        "type": "string",
+        "description": "Y or N, if combustion by-products were produced.",
+        "constraints": {"enum": ["Y", "N"]},
     },
     "caidi_w_major_event_days_minutes": {
         "type": "number",
@@ -1193,6 +1216,18 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "customer’s electrical equipment (e.g. air conditioner, water heater) on "
             "short notice."
         ),
+    },
+    "disposal_landfill_1000_tons": {
+        "type": "integer",
+        "description": "Disposed by-products in landfill, in thousand tons.",
+    },
+    "disposal_offsite_1000_tons": {
+        "type": "integer",
+        "description": "Disposed by-products offsite, in thousand tons.",
+    },
+    "disposal_ponds_1000_tons": {
+        "type": "integer",
+        "description": "Disposed by-products in ponds, in thousand tons.",
     },
     "distributed_generation": {
         "type": "boolean",
@@ -4483,6 +4518,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "date",
         "description": "Date of most recent test for sulfur dioxide removal efficiency.",
     },
+    "sold_1000_tons_or_mmbtu": {
+        "type": "integer",
+        "description": "Sold by-products, in thousand tons or, for Steam, MMBtu.",
+    },
     "sold_to_utility_mwh": {
         "type": "number",
         "description": (
@@ -4665,6 +4704,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "stored_excess_wind_and_solar_generation": {
         "type": "boolean",
         "description": "Whether the energy storage device was used to store excess wind/solar generation during the reporting year.",
+    },
+    "stored_offsite_1000_tons": {
+        "type": "integer",
+        "unit": "1000_tons",
+        "description": "Stored by-products offsite, in thousand tons.",
+    },
+    "stored_onsite_1000_tons": {
+        "type": "integer",
+        "unit": "1000_tons",
+        "description": "Stored by-products onsite, in thousand tons.",
     },
     "street_address": {
         "type": "string",
@@ -4891,6 +4940,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
+    "total_disposal_1000_tons": {
+        "type": "integer",
+        "unit": "1000_tons",
+        "description": "Total by-product disposal, in thousand tons.",
+    },
     "total_disposition_mwh": {
         "type": "number",
         "description": (
@@ -5081,6 +5135,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "uprate_derate_during_year": {
         "type": "boolean",
         "description": "Was an uprate or derate completed on this generator during the reporting year?",
+    },
+    "used_offsite_1000_tons": {
+        "type": "integer",
+        "unit": "1000_tons",
+        "description": "Used offsite by-products, in thousand tons.",
+    },
+    "used_onsite_1000_tons": {
+        "type": "integer",
+        "unit": "1000_tons",
+        "description": "Used onsite by-products, in thousand tons.",
     },
     "utility_id_eia": {
         "type": "integer",
