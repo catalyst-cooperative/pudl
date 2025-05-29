@@ -36,7 +36,7 @@ applied them to the very similar FERC-714 demand data reported by electricity pl
 areas, which has a much longer history (going back to 2006, vs. 2015 for the EIA-930).
 
 We also adopted a different imputation method designed for correlated timeseries that
-display periodicity. It is very computationally efficient, allowing these timeseries
+display periodicity. It is very computationally efficient, allowing timeseries
 with tens of millions of values to be imputed in a few minutes on a laptop. The
 algorithm was designed for multivariate time series forecasting and we adapted it
 from code published by: `Xinyu Chen <https://xinychen.github.io/>`__ in their `Tensor
@@ -53,11 +53,11 @@ For example, we've considered applying these methods to EIA 930 hourly net gener
 How it Works
 ~~~~~~~~~~~~
 
-First we identify any values which are missing or deemed anomolous using the heuristics
+First we identify any values which are missing or deemed anomalous using the heuristics
 developed by Ruggels et al., and then we impute those "flagged" values. You can see the
 list of reasons why a value might be flagged for imputation in the
 :ref:`core_pudl__codes_imputation_reasons` table. After we've flagged the missing and
-anomolous values, we impute each year of data independently. The imputation algorithm
+anomalous values, we impute each year of data independently. The imputation algorithm
 aligns all of the timeseries in the input table based on their offset from UTC. Because
 the primary electricity demand periodicity is diurnal, the data is reshaped to allow all
 the individual days of data to be compared with each other. Then it identifies which
@@ -96,9 +96,9 @@ the imputation results.
 
 In this pipeline we compile a collection of simulated data-years in which we've nulled
 a set of values that are actually reported in the original data, using masks derived
-from observed anomolous or missing values. The masks are selected from months with
+from observed anomalous or missing values. The masks are selected from months with
 particularly high rates of imputation, and applied to months in which there are no
-missing or anomolous values.
+missing or anomalous values.
 
 After imputation we can compare the results to the originally reported values by
 computing the Mean Absolute Percentage Error (MAPE) with
@@ -139,7 +139,7 @@ We use an `asset factory
 <https://docs.dagster.io/guides/build/assets/creating-asset-factories>`__ called
 :func:`pudl.analysis.timeseries_cleaning.impute_timeseries_asset_factory`, to generate
 a set of assets that impute an upstream timeseries. These generated assets expect the
-input to contain an hourly ``datetime`` column, an ID column, and a column with values
+input to contain an ID column, an hourly ``datetime`` column, and a column with values
 to impute. For example:
 
 ============================ =================== ===================
