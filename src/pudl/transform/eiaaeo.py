@@ -556,7 +556,6 @@ def core_eiaaeo__yearly_projected_energy_use_by_sector_and_type(
 
     expected_values = {
         "topic": {"energy_use"},
-        #         "variable_name": {"delivered_energy"},
         "units": {"quads"},
         "dimension": {
             "commercial",
