@@ -5,7 +5,7 @@ Overview
 ~~~~~~~~
 
 In energy systems there are many instances of correlated timeseries data that have some
-seasonaility or periodicity, such as hourly electricity demand or net generation over a
+seasonality or periodicity, such as hourly electricity demand or net generation over a
 large region. Often these data as they are reported to and published by public agencies
 will have missing or anomolous values, which can make them unsuitable for use in some
 modeling or analysis tasks. To better support these applications PUDL does outlier
