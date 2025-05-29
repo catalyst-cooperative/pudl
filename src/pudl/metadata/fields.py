@@ -17,6 +17,7 @@ from pudl.metadata.enums import (
     ELECTRICITY_MARKET_MODULE_REGIONS,
     ENERGY_DISPOSITION_TYPES_FERC1,
     ENERGY_SOURCE_TYPES_FERC1,
+    ENERGY_USE_TYPES_EIAAEO,
     EPACEMS_MEASUREMENT_CODES,
     EPACEMS_STATES,
     FUEL_CLASSES,
@@ -1538,7 +1539,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "energy_use_type": {
         "type": "string",
         "description": "Type of energy use, indicating the name of the series from AEO Table 2. Includes fuels, electricity, losses, and various subtotals; consult table documentation for aggregation guidelines.",
-        # "constraints": {"enum": #TODO},
+        "constraints": {"enum": ENERGY_USE_TYPES_EIAAEO},
     },
     "energy_use_mmbtu": {
         "type": "number",
@@ -3963,6 +3964,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "EIA AEO region for energy consumption. Includes US Census Divisions plus United States."
         ),
+        "constraints": {
+            "enum": [
+                # 2025-05 kmm: we can't use POLITICAL_SUBDIVISIONS here because
+                # it splits Pacific into Contiguous and Noncontiguous.
+                "East North Central",
+                "East South Central",
+                "Middle Atlantic",
+                "Mountain",
+                "New England",
+                "Pacific",
+                "South Atlantic",
+                "West North Central",
+                "West South Central",
+                "United States",
+            ],
+        },
     },
     "region_name_us_census": {
         "type": "string",

@@ -365,6 +365,48 @@ data API also include the AEO2022 Reference case, which is not listed on the cas
 descriptions page.
 """
 
+ENERGY_USE_TYPES_EIAAEO: list[str] = [
+    "biofuels_heat_and_coproducts",
+    "coal",
+    "coal_subtotal",
+    "coal_to_liquids_heat_and_power",
+    "delivered_energy",
+    "distillate_fuel_oil",
+    "e85",
+    "electricity",
+    "electricity_imports",
+    "electricity_related_losses",
+    "hydrocarbon_gas_liquids",
+    "hydrogen",
+    "jet_fuel",
+    "kerosene",
+    "lease_and_plant_fuel",
+    "liquefaction",
+    "liquid_fuels_subtotal",
+    "metallurgical_coal",
+    "motor_gasoline",
+    "natural_gas",
+    "natural_gas_subtotal",
+    "natural_gas_to_liquids_heat_and_power",
+    "net_coal_coke_imports",
+    "non_biogenic_municipal_waste",
+    "nuclear",
+    "other_industrial_coal",
+    "other_petroleum",
+    "petrochemical_feedstocks",
+    "pipeline_fuel_natural_gas",
+    "propane",
+    "renewable_energy",
+    "residual_fuel_oil",
+    "steam_coal",
+    "total",
+]
+"""Energy use types from Table 2 of EIA AEO 2023.
+
+These are from the series titles, not the display titles in the EIA's data browser tool,
+which may show different text."""
+
+
 ENERGY_SOURCE_TYPES_FERC1: list[str] = [
     "steam_generation",
     "net_energy_generation",
