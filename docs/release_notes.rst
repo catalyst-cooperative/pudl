@@ -16,9 +16,10 @@ EIA AEO
   projections for energy use through the year 2050 across a variety of scenarios.
   Integrated a subset of available table 2 series as a new core table:
 
-  * ``core_eiaaeo__yearly_projected_delivered_energy`` contains projected energy
-    delivery requirements for the commercial, industrial, residential, and
-    transportation sectors. See :issue:`4228` and :pr:`4273`.
+  * ``core_eiaaeo__yearly_projected_energy_use_by_sector_and_type`` contains
+    projected energy use for the commercial, electric power, industrial,
+    residential, and transportation sectors across different fuels and electricity
+    modes. See :issue:`4228` and :pr:`4273`.
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
