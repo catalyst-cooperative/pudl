@@ -349,7 +349,7 @@ class PudlTabl:
         # Read with filters and optimizations
         read_kwargs = {
             "source": parquet_path,
-            "schema": res.to_pyarrow(),
+            "schema": pyarrow_schema,
             "use_threads": True,  # Enable multi-threading for faster reads
             "memory_map": True,  # Use memory mapping for better memory efficiency
         }
