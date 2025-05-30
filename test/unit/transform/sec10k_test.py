@@ -7,7 +7,7 @@ import pandas as pd
 from pudl.transform.sec10k import _match_ex21_subsidiaries_to_filer_company
 
 
-def test_subsidiaries_to_filers_match():
+def test_match_ex21_subsidiaries_to_filer_company():
     """Test if subsidiaries are correctly matched to their own filing information."""
     ownership_df_test = pd.read_csv(
         StringIO(
