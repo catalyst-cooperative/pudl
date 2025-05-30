@@ -25,11 +25,14 @@ from typing import Literal, Self
 
 # Useful high-level external modules.
 import pandas as pd
+import pyarrow as pa
+import pyarrow.parquet as pq
 import sqlalchemy as sa
 
 import pudl
 from pudl.metadata.classes import Resource
 from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -53,6 +56,7 @@ class PudlTabl:
         fill_net_gen: bool = False,
         fill_tech_desc: bool = True,
         unit_ids: bool = False,
+        table_source: Literal["sqlite", "parquet"] = "sqlite",
     ) -> Self:
         """Initialize the PUDL output object.
 
@@ -87,6 +91,8 @@ class PudlTabl:
                 code.
             unit_ids: If True, use several heuristics to assign
                 individual generators to functional units. EXPERIMENTAL.
+            table_source: Indicates whether to pull tables from the PUDL SQLite database
+                or from the PUDL parquet files.
         """
         logger.warning(
             "PudlTabl is deprecated and will be removed from the pudl package "
@@ -125,6 +131,12 @@ class PudlTabl:
         self.fill_net_gen: bool = fill_net_gen
         self.fill_tech_desc = fill_tech_desc  # only for eia860 table.
         self.unit_ids = unit_ids
+        self.table_source: Literal["sqlite", "parquet"] = table_source
+        if self.table_source not in ("sqlite", "parquet"):
+            raise ValueError(
+                f"table_source must be one of 'sqlite' or 'parquet', "
+                f"but we got {self.table_source}."
+            )
 
         self._register_output_methods()
 
@@ -249,29 +261,113 @@ class PudlTabl:
                     "explicitly defined class method. One of these should be deleted."
                 )
 
+        if self.table_source == "parquet":
+            self.__dict__["get_table"] = self._get_table_from_parquet
+        else:
+            self.__dict__["get_table"] = self._get_table_from_sqlite
+
         for table_name, method_name in table_method_map_any_freq.items():
             # Create method called table_name that will read the asset from DB
             self.__dict__[method_name] = partial(
-                self._get_table_from_db,
+                self.get_table,
                 table_name=table_name,
                 allowed_freqs=[None, "YS", "MS"],
             )
 
         for table_name, method_name in table_method_map_any_agg.items():
             self.__dict__[method_name] = partial(
-                self._get_table_from_db,
+                self.get_table,
                 table_name=table_name,
                 allowed_freqs=["YS", "MS"],
             )
 
         for table_name, method_name in table_method_map_yearly_only.items():
             self.__dict__[method_name] = partial(
-                self._get_table_from_db,
+                self.get_table,
                 table_name=table_name,
                 allowed_freqs=["YS"],
             )
 
-    def _get_table_from_db(
+    def _get_table_from_parquet(  # noqa: C901
+        self: Self,
+        table_name: str,
+        allowed_freqs: list[str | None] = [None, "YS", "MS"],
+    ) -> pd.DataFrame:
+        """Grab an output table from PUDL parquet files.
+
+        Args:
+            table_name: Name of table to get.
+            allowed_freqs: List of allowed aggregation frequencies for table.
+        """
+        if self.freq not in allowed_freqs:
+            raise ValueError(
+                f"{table_name} needs one of these frequencies {allowed_freqs}, "
+                f"but got {self.freq}"
+            )
+        table_name = self._agg_table_name(table_name)
+        logger.warning(
+            "PudlTabl is deprecated and will be removed from the pudl package "
+            "once known users have migrated to accessing the data directly from "
+            "pudl.sqlite. To access the data returned by this method, "
+            f"use the {table_name} table in the pudl.sqlite database."
+        )
+        parquet_path = PudlPaths().parquet_path(table_name)
+        res = Resource.from_id(table_name)
+
+        # Build filters for date range if start_date or end_date are specified
+        filters = []
+
+        # Get schema to check available columns
+        pyarrow_schema: pa.Schema = res.to_pyarrow()
+        column_names = pyarrow_schema.names
+
+        # Determine which date column to use and prepare date values
+        date_col = None
+        start_filter_value = None
+        end_filter_value = None
+
+        if "report_date" in column_names:
+            date_col = "report_date"
+            if self.start_date is not None:
+                start_filter_value = pd.to_datetime(self.start_date).date()
+            if self.end_date is not None:
+                end_filter_value = pd.to_datetime(self.end_date).date()
+        elif "report_year" in column_names:
+            date_col = "report_year"
+            if self.start_date is not None:
+                start_filter_value = pd.to_datetime(self.start_date).year
+            if self.end_date is not None:
+                end_filter_value = pd.to_datetime(self.end_date).year
+
+        # Add date filters if applicable
+        if date_col is not None:
+            if start_filter_value is not None:
+                filters.append((date_col, ">=", start_filter_value))
+            if end_filter_value is not None:
+                filters.append((date_col, "<=", end_filter_value))
+
+        # Read with filters and optimizations
+        read_kwargs = {
+            "source": parquet_path,
+            "schema": res.to_pyarrow(),
+            "use_threads": True,  # Enable multi-threading for faster reads
+            "memory_map": True,  # Use memory mapping for better memory efficiency
+        }
+
+        # Only add filters if we have any
+        if filters:
+            read_kwargs["filters"] = filters
+
+        # Read only the columns we need based on the resource schema
+        columns_to_read = res.get_field_names()
+        if columns_to_read:
+            read_kwargs["columns"] = columns_to_read
+
+        df = pq.read_table(**read_kwargs).to_pandas()
+
+        return res.enforce_schema(df)
+
+    def _get_table_from_sqlite(
         self: Self,
         table_name: str,
         allowed_freqs: list[str | None] = [None, "YS", "MS"],
@@ -403,12 +499,12 @@ class PudlTabl:
             table_name = self._agg_table_name(
                 "out_eia923__AGG_generation_fuel_by_generator"
             )
-            gen_df = self._get_table_from_db(table_name)
+            gen_df = self.get_table(table_name)
             resource = Resource.from_id(table_name)
             gen_df = gen_df.loc[:, resource.get_field_names()]
         else:
             table_name = self._agg_table_name("out_eia923__AGG_generation")
-            gen_df = self._get_table_from_db(table_name)
+            gen_df = self.get_table(table_name)
         return gen_df
 
     ###########################################################################

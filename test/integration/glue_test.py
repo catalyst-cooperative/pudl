@@ -29,6 +29,7 @@ def pudl_out(pudl_engine):
     return PudlTabl(
         pudl_engine,
         freq=None,
+        table_source="parquet",
         fill_tech_desc=False,
         fill_net_gen=False,
     )
