@@ -2,18 +2,20 @@
 {{ resource.name }}
 -------------------------------------------------------------------------------
 
-{{ resource.description | wordwrap(78) if resource.description else 'No table description available.' }}
+{{ resource.description if resource.description else 'No table description available.' }}
 
+{% if "^" not in resource.description -%}
 {% if resource.schema.primary_key -%}
-**The table has the following primary key columns:**
-{% for key in resource.schema.primary_key %}
-* {{ key }}
+The table has the following primary key columns:
+{% for key in resource.schema.primary_key %}* {{ key }}
 {% endfor %}
 {% else -%}
-**This table has no primary key.**
+This table has no primary key.
+{%- endif %}
 {%- endif %}
 
-**Access methods:**
+Access methods
+^^^^^^^^^^^^^^^
 
 {% if resource.create_database_schema -%}
 * `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/{{ resource.name }}>`__
@@ -21,6 +23,9 @@
 * This table is not published to Datasette.
 {%- endif %}
 * `Download this table as a Parquet file. <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/{{ resource.name }}.parquet>`__
+
+Columns
+^^^^^^^
 
 .. list-table::
   :widths: auto

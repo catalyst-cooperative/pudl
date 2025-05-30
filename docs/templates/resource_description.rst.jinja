@@ -1,0 +1,21 @@
+{% raw %}{{ resource.description_time() }} {{ resource.description_tabletype() }}{% endraw %} {{ resource.description_tabletype_prompt() }}
+
+Processing layer:
+  {% raw %}{{ resource.description_layer() }}{% endraw %}
+
+Data source:
+  {% raw %}{{ resource.description_datasource() }}{% endraw %}
+
+Primary key:
+  {% raw %}{{ resource.description_primarykey() }}{% endraw %} {{ resource.description_primarykey_prompt() }}
+
+Usage Warnings
+^^^^^^^^^^^^^^
+
+{% if resource.meta.sources|length > 1 %}* {% raw %}{{ warnings.multiple_inputs }}{% endraw %}{% endif %}
+{%- if "ferc" in resource.name %}* {% raw %}{{ warnings.ferc_is_hard }}{% endraw %}{% endif %}
+
+Additional Details
+^^^^^^^^^^^^^^^^^^
+
+{% if "^" not in resource.meta.description %}{{ resource.meta.description|safe }}{% endif %}
