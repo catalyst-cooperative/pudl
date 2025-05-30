@@ -1,4 +1,8 @@
-"""Functions & classes for compiling derived aspects of the FERC Form 714 data."""
+"""Functions & classes for compiling derived aspects of the FERC Form 714 data.
+
+For a narrative overview of the timeseries imputation process, see the documentation
+at :doc:`/methodology/timeseries_imputation`
+"""
 
 from typing import Any
 
