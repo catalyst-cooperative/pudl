@@ -575,15 +575,14 @@ def core_eiaaeo__yearly_projected_energy_use_by_sector_and_type(
     # 1 quad = 1 quadrillion btu = 1e9 mmbtu
     sanitized.loc[sanitized.units == "quads", "value"] *= 1e9
 
-    trimmed = sanitized.drop(
-        columns=[
-            "topic",
-            "units",
-        ]
-    )
-
-    unstacked = (
-        trimmed.set_index(
+    trimmed = (
+        sanitized.drop(
+            columns=[
+                "topic",
+                "units",
+            ]
+        )
+        .set_index(
             [
                 "report_year",
                 "model_case_eiaaeo",
@@ -597,9 +596,9 @@ def core_eiaaeo__yearly_projected_energy_use_by_sector_and_type(
         .assign(region_type="us_census_division")
         .reset_index()
     )
-    unstacked.loc[unstacked.region == "united_states", "region_type"] = "nation"
+    trimmed.loc[trimmed.region == "united_states", "region_type"] = "country"
 
-    renamed_for_pudl = unstacked.rename(
+    renamed_for_pudl = trimmed.rename(
         columns={
             "region": "region_name_eiaaeo",
             "region_type": "region_type_eiaaeo",
