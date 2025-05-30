@@ -7,10 +7,12 @@ The screening methods were originally designed to identify unrealistic data in t
 electricity demand timeseries reported in :doc:`/data_sources/eia930`, and we have also
 applied them to demand data from :doc:`/data_sources/ferc714`.
 
-Screening methods are adapted from code published and modified by:
+Screening methods are adapted from code written and maintained by:
 
-* Tyler Ruggles <truggles@carnegiescience.edu>
-* Greg Schivley <greg.schivley@princeton.edu>
+* `Tyler Ruggles <https://github.com/truggles>`__
+* `Alicia Wongel <https://github.com/awongel>`__
+* `Greg Schivley <https://github.com/gschivley>`__
+* `David Farnham <https://github.com/d-farnham>`__
 
 And described at:
 

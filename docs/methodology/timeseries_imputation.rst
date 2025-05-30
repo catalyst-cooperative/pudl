@@ -8,47 +8,57 @@ In energy systems there are many instances of correlated timeseries data that ha
 seasonality or periodicity, such as hourly electricity demand or net generation over a
 large region. Often these data as they are reported to and published by public agencies
 will have missing or anomalous values, which can make them unsuitable for use in some
-modeling or analysis tasks. To better support these applications PUDL does outlier
-detection and missing value imputation on some of the timeseries data we publish, while
+modeling or analysis tasks. To better support these applications PUDL detects and
+imputes anomalous and missing values in some of the timeseries data we publish, while
 also providing access to the originally reported values. The infrastructure for this
 work lives in the :mod:`pudl.analysis.timeseries_cleaning` module. Thus far we have only
 applied these methods to the :doc:`/data_sources/eia930` and
 :doc:`/data_sources/ferc714` hourly electricity demand data.
 
-For both of these demand timeseries, we flag anomalous values for imputation using
-heuristics developed and maintained by:
+Anomaly Detection Heuristics
+----------------------------
+
+For both of these hourly electricity demand timeseries, we flag anomalous values for
+imputation using heuristics developed and maintained by:
 
 - `Tyler Ruggles <https://github.com/truggles>`__
 - `Alicia Wongel <https://github.com/awongel>`__
 - `Greg Schivley <https://github.com/gschivley>`__
 - `David Farnham <https://github.com/d-farnham>`__
 
-Their anomaly detection heuristics were originally implemented in
-`the truggles GitHub repo, "EIA Cleaned Hourly Electricity Demand Code,"
+Their anomaly detection heuristics for electricity demand were originally implemented in
+the `EIA Cleaned Hourly Electricity Demand Code GitHub repository
 <https://github.com/truggles/EIA_Cleaned_Hourly_Electricity_Demand_Code>`__ (also
 `archived on Zenodo <http://doi.org/10.5281/zenodo.3737085>`__) and published in
 `Developing reliable hourly electricity demand data through screening and imputation
 <https://doi.org/10.1038/s41597-020-0483-x>`__.
 
-This work was originally applied only to the EIA-930 hourly electricity demand data
-reported by balancing authorities (BAs). We re-implemented the heuristics in PUDL and
-applied them to the very similar FERC-714 demand data reported by electricity planning
-areas, which has a much longer history (going back to 2006, vs. 2015 for the EIA-930).
+The above authors applied their methods to the EIA-930 hourly electricity demand data
+reported by balancing authorities (BAs). We re-implemented the anomaly detection
+heuristics in PUDL and now apply them to both EIA-930 and the very similar FERC-714
+demand data reported by electricity planning areas. The FERC-714 longer history (going
+back to 2006, vs.  2015 for the EIA-930).
 
-We also adopted a different imputation method designed for correlated timeseries that
-display periodicity. It is very computationally efficient, allowing timeseries
-with tens of millions of values to be imputed in a few minutes on a laptop. The
-algorithm was designed for multivariate time series forecasting and we adapted it
-from code published by: `Xinyu Chen <https://xinychen.github.io/>`__ in their `Tensor
-decomposition for machine learning repository
-<https://github.com/xinychen/tensor-learning>`__. The method is described in more detail
-in the following papers:
+Imputation Algorithm
+--------------------
+
+PUDL adopts a different imputation method than that of Ruggles et al., developed by
+`Xinyu Chen <https://xinychen.github.io/>`__. Chen's algorithm was designed for
+multivariate time series forecasting and we adapted it from their reference
+implementation, which can be found in their `Tensor decomposition for machine learning
+repository <https://github.com/xinychen/tensor-learning>`__ on GitHub. The method is
+described in more detail in the following papers:
 
 - `Low-Rank Autoregressive Tensor Completion for Multivariate Time Series Forecasting <https://arxiv.org/abs/2006.10436>`__
 - `Scalable Low-Rank Tensor Learning for Spatiotemporal Traffic Data Imputation <https://arxiv.org/abs/2008.03194>`__
 
-This method could potentially be applied to other instances of correlated periodic data.
-For example, we've considered applying these methods to EIA 930 hourly net generation.
+It works particularly well on collections of correlated periodic timeseries, and is very
+computationally efficient, allowing timeseries with tens of millions of values to be
+imputed in a few minutes on a laptop.
+
+This method could potentially be applied to other instances of correlated periodic
+electricity data. For example, we've considered applying these methods to EIA 930 hourly
+net generation.
 
 How it Works
 ~~~~~~~~~~~~
@@ -94,23 +104,25 @@ Evaluating Imputation Performance
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 We use a form of hold-out or simulation-based validation to measure the performance of
-our imputation. We artificially remove reported values from months of data that have no
-values flagged for imputation using real patterns of missignness observed in months
-where many values were flagged for imputation. Then we impute the missing values in a
-validation pipeline that is separate from the main ETL pipeline, and calculate an error
-metric comparing the originally reported values to the imputed values. The error metric
-we're using is the Mean Absolute Percentage Error (MAPE) via
+our imputation. We artificially remove reported values from 30 randomly selected months
+of data that have no values flagged for imputation, using observed patterns of missing
+or anomalous values from 30 randomly selected months that have a significant fraction
+(10-50%) of such values.  Then we impute the removed values in a validation pipeline
+that is separate from the main ETL pipeline, and calculate an error metric comparing the
+originally reported values to the imputed values. The error metric we're using is the
+Mean Absolute Percentage Error (MAPE) via
 :func:`sklearn.metrics.mean_absolute_percentage_error`.
 
-In outline the validation pipeline works as follows:
+In summary we:
 
-1. Identify "bad" months where many values were imputed (a month in this case is
-   specific to a single reporting organization).
-2. Identify "good" months with no imputed values (from any reporting organization).
-3. Match one "good" month with one "bad" month.
-4. Use the pattern of flagged values from the "bad" month to null values in the "good"
-   month, flagging them as "simulated".
-5. Impute any "simulated" null values using all the other time series available to
+1. Randomly select 30 "bad" months where 10-50% of all values were imputed for a single
+   reporting organization (e.g., a balancing authority or electricity planning area).
+2. Randomly select 30 "good" months with no imputed values, which could be from any
+   reporting organization.
+3. Associate each "good" month with one "bad" month.
+4. Use the pattern of values flagged for imputation in the "bad" month to remove values
+   from the "good" month, flagging them as "simulated".
+5. Impute any "simulated" null values using all the other available time series to
    inform the imputation.
 6. Compare the imputed and reported values and compute the MAPE.
 7. (optionally, in production) Check that the MAPE is less than a configurable threshold
