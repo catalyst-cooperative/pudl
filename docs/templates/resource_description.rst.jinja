@@ -1,9 +1,9 @@
 {{ resource.description_time() }} {{ resource.description_tabletype() }} {{ resource.meta.description_summary|default("", true) }}
 
-Processing layer:
+Processing:
   {{ resource.description_layer() }} {{ resource.meta.description_layer|default("", true) }}
 
-Data source:
+Source:
   {{ resource.description_datasource() }} {{ resource.meta.description_datasource|default("", true) }}
 
 Primary key:
@@ -12,15 +12,17 @@ Primary key:
 Usage Warnings
 ^^^^^^^^^^^^^^
 
-{% for uw in resource.meta.usage_warnings %}
+{% set hasuw = resource.meta.usage_warnings %}
+{% for uw in (resource.meta.usage_warnings|default([], true)) %}
 {% if uw is mapping %}* {{ uw.text }}{% else %}* {{ warnings[uw] }}{% endif -%}
 {% endfor %}
-{% if resource.meta.sources|length > 1 %}* {{ warnings.multiple_inputs }}{% endif %}
-{%- if "ferc" in resource.name %}* {{ warnings.ferc_is_hard }}{% endif %}
+{% if resource.meta.sources|length > 1 %}* {{ warnings.multiple_inputs }}{% set hasuw = true %}{% endif %}
+{%- if "ferc" in resource.name %}* {{ warnings.ferc_is_hard }}{% set hasuw = true %}{% endif %}
+{% if not hasuw %}* No warnings documented yet.{% endif %}
 
 {% if resource.meta.description_details %}
 Additional Details
 ^^^^^^^^^^^^^^^^^^
 
-{{ resource.meta.description_details }}
+{{ resource.meta.description_details|safe }}
 {% endif %}

@@ -1383,6 +1383,53 @@ class Resource(PudlMeta):
         return value
 
     @staticmethod
+    def _compile_description(resource_id: str, obj: dict, cleanup: bool = True):
+        meta_from_name = MetaFromResourceName(name=resource_id, seed=obj)
+        if obj["table_type"] is None:
+            obj["table_type"] = meta_from_name.tabletype or None
+        if obj["timeseries_resolution"] is None:
+            obj["timeseries_resolution"] = meta_from_name.time or None
+        if obj["layer"] is None:
+            obj["layer"] = meta_from_name.layer
+        if obj["usage_warnings"] is None or "usage_warnings" not in obj:
+            obj["usage_warnings"] = []  # default_usage_warnings(obj)
+        obj["usage_warnings"] = [
+            uw["text"] if isinstance(uw, dict) else USAGE_WARNINGS[uw]
+            for uw in obj["usage_warnings"]
+        ]
+
+        # TODO: if uws are specified, do we skip the defaults or merge with them?
+
+        # Render description
+        # First, move any description text from unmigrated tables into Additional Details
+        if obj["description"]:
+            assert obj["description_details"] is None, (
+                f"Both 'description' and 'description_details' are filled for table {resource_id}; you must use only one"
+            )
+            # for some reason setting this on obj doesn't work :(
+            meta_from_name.meta["description_details"] = obj["description"]
+        # okay now render the rst
+        obj["description"] = (
+            _get_jinja_environment(
+                (Path(__file__).parent.parent.parent.parent / "docs").resolve()
+            )
+            .get_template("resource_description.rst.jinja")
+            .render(
+                resource=meta_from_name,
+                warnings=USAGE_WARNINGS,
+            )
+        ).strip()
+
+        if cleanup:
+            # drop the structured metadata keys; all their text has been sorted into
+            # the description field
+            del obj["description_summary"]
+            del obj["description_layer"]
+            del obj["description_datasource"]
+            del obj["description_primarykey"]
+            del obj["description_details"]
+
+    @staticmethod
     def dict_from_id(resource_id: str) -> dict:
         """Construct dictionary from PUDL identifier (`resource.name`)."""
         descriptor = PudlResourceDescriptor.model_validate(
@@ -1457,41 +1504,7 @@ class Resource(PudlMeta):
         if "foreign_key_rules" in schema:
             del schema["foreign_key_rules"]
 
-        meta_from_name = MetaFromResourceName(name=resource_id, seed=obj)
-        if obj["table_type"] is None:
-            obj["table_type"] = meta_from_name.tabletype or None
-        if obj["timeseries_resolution"] is None:
-            obj["timeseries_resolution"] = meta_from_name.time or None
-        if obj["layer"] is None:
-            obj["layer"] = meta_from_name.layer
-        if obj["usage_warnings"] is None:
-            obj["usage_warnings"] = []  # default_usage_warnings(obj)
-        obj["usage_warnings"] = [
-            uw["text"] if isinstance(uw, dict) else USAGE_WARNINGS[uw]
-            for uw in obj["usage_warnings"]
-        ]
-
-        # TODO: if uws are specified, do we skip the defaults or merge with them?
-
-        # Render description
-        if obj["description"] is None:
-            obj["description"] = (
-                _get_jinja_environment(
-                    (Path(__file__).parent.parent.parent.parent / "docs").resolve()
-                )
-                .get_template("resource_description.rst.jinja")
-                .render(
-                    resource=meta_from_name,
-                    warnings=USAGE_WARNINGS,
-                )
-            ).strip()
-
-        # drop the structured metadata keys
-        del obj["description_summary"]
-        del obj["description_layer"]
-        del obj["description_datasource"]
-        del obj["description_primarykey"]
-        del obj["description_details"]
+        Resource._compile_description(resource_id, obj)
 
         # Add encoders to columns as appropriate, based on FKs.
         # Foreign key relationships determine the set of codes to use
@@ -2109,7 +2122,10 @@ class MetaFromResourceName(PudlMeta):
         """Return a description of the primary key from structured metadata."""
         if "schema" not in self.meta:
             return "This table is not listed in RESOURCE_METADATA and I can not find its schema."
-        if "primary_key" in self.meta["schema"]:
+        if (
+            "primary_key" in self.meta["schema"]
+            and len(self.meta["schema"]["primary_key"]) > 0
+        ):
             return ", ".join(self.meta["schema"]["primary_key"])
         return "This table has no primary key."
 
@@ -2117,7 +2133,10 @@ class MetaFromResourceName(PudlMeta):
         """Return a description prompt for the primary key."""
         if "schema" not in self.meta:
             return "This table is not listed in RESOURCE_METADATA and I can not find its schema."
-        if "primary_key" in self.meta["schema"]:
+        if (
+            "primary_key" in self.meta["schema"]
+            and len(self.meta["schema"]["primary_key"]) > 0
+        ):
             return ""
         return "Each row represents [...]"
 
