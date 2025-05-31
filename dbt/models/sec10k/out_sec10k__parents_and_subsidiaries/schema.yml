@@ -33,6 +33,9 @@ sources:
           - name: parent_company_incorporation_state
           - name: parent_company_utility_id_eia
           - name: parent_company_utility_name_eia
+          - name: parent_company_industry_name_sic
+          - name: parent_company_industry_id_sic
+          - name: parent_company_taxpayer_id_irs
           - name: subsidiary_company_central_index_key
           - name: subsidiary_company_phone_number
           - name: subsidiary_company_business_city
@@ -50,3 +53,6 @@ sources:
           - name: subsidiary_company_incorporation_state
           - name: subsidiary_company_utility_id_eia
           - name: subsidiary_company_utility_name_eia
+          - name: subsidiary_company_industry_name_sic
+          - name: subsidiary_company_industry_id_sic
+          - name: subsidiary_company_taxpayer_id_irs

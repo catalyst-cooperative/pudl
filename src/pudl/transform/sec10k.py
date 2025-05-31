@@ -37,6 +37,11 @@ def _simplify_filename_sec10k(filename_sec10k: pd.Series) -> pd.Series:
     )
 
 
+def _extract_filer_cik_from_filename(filename_col: pd.Series) -> pd.Series:
+    """Extract filer company's central index key from the first token of filename."""
+    return filename_col.apply(lambda x: x.split("/")[0]).str.zfill(10)
+
+
 def _compute_fraction_owned(percent_ownership: pd.Series) -> pd.Series:
     """Clean percent ownership, convert to float, then convert percent to ratio."""
     return (
@@ -244,6 +249,7 @@ def _match_ex21_subsidiaries_to_filer_company(
         how="inner",
         on="subsidiary_company_name",
         suffixes=("_sec", "_ex21"),
+        validate="m:m",
     )
     # split up the location of incorporation on whitespace, creating a column
     # with lists of word tokens
@@ -256,7 +262,22 @@ def _match_ex21_subsidiaries_to_filer_company(
     # get the fraction of overlapping words between location of incorporation tokens
     # this could be done with a set similarity metric but is probably good enough
     # for now
-    merged_df["loc_overlap"] = merged_df.apply(
+    intersection_lens = [
+        len(set(a) & set(b))
+        for a, b in zip(
+            merged_df["loc_tokens_sec"], merged_df["loc_tokens_ex21"], strict=True
+        )
+    ]
+    max_lens = [
+        max(len(a), len(b), 1)
+        for a, b in zip(
+            merged_df["loc_tokens_sec"], merged_df["loc_tokens_ex21"], strict=True
+        )
+    ]
+    merged_df["loc_overlap"] = [
+        i / m for i, m in zip(intersection_lens, max_lens, strict=True)
+    ]
+    merged_df["loc_overlap_apply"] = merged_df.apply(
         lambda row: len(set(row["loc_tokens_sec"]) & set(row["loc_tokens_ex21"]))
         / max(len(row["loc_tokens_sec"]), len(row["loc_tokens_ex21"]), 1),
         axis=1,
@@ -289,6 +310,7 @@ def _match_ex21_subsidiaries_to_filer_company(
         ],
         how="left",
         on=["subsidiary_company_id_sec10k"],
+        validate="m:1",
     ).rename(columns={"central_index_key": "subsidiary_company_central_index_key"})
 
     return ownership_with_cik_df
@@ -648,8 +670,8 @@ def core_sec10k__quarterly_exhibit_21_company_ownership(
     df = df.dropna(subset=["subsidiary_company_name"])
     # construct the CIK of the parent company in order to
     # create subsidiary_company_id_sec10k
-    df.loc[:, "parent_company_central_index_key"] = (
-        df["filename_sec10k"].apply(lambda x: x.split("/")[0]).str.zfill(10)
+    df.loc[:, "parent_company_central_index_key"] = _extract_filer_cik_from_filename(
+        df["filename_sec10k"]
     )
     # sometimes there are subsidiaries with the same name but different
     # locations of incorporation listed in the same ex. 21, so include
@@ -739,11 +761,13 @@ def core_sec10k__assn_exhibit_21_subsidiaries_and_filers(
         core_sec10k__quarterly_filings[["filename_sec10k", "report_date"]],
         how="left",
         on="filename_sec10k",
+        validate="m:1",
     )
     ownership_df = core_sec10k__quarterly_exhibit_21_company_ownership.merge(
         core_sec10k__quarterly_filings[["filename_sec10k", "report_date"]],
         how="left",
         on="filename_sec10k",
+        validate="m:1",
     )
     matched_df = _match_ex21_subsidiaries_to_filer_company(
         filer_info_df=filer_info_df,
@@ -807,6 +831,7 @@ def core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities(
         ),
         how="left",
         on="subsidiary_company_name",
+        validate="m:m",
     ).dropna(subset="utility_id_eia")[
         ["subsidiary_company_id_sec10k", "utility_id_eia"]
     ]

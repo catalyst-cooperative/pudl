@@ -9,6 +9,7 @@ import dagster as dg
 import pandas as pd
 
 from pudl import logging_helpers
+from pudl.transform.sec10k import _extract_filer_cik_from_filename
 
 logger = logging_helpers.get_logger(__name__)
 
@@ -112,30 +113,6 @@ def out_sec10k__changelog_company_name(
     return name_changelog
 
 
-def _get_n_duplicate_filer_records(
-    company_info_df: pd.DataFrame,
-    ownership_df: pd.DataFrame,
-    cik_col_name: str,
-) -> int:
-    filers_count_df = (
-        company_info_df.groupby(["filename_sec10k", "central_index_key"])
-        .size()
-        .reset_index(name="filer_count_within_file")
-    )
-    non_unique_filers_df = filers_count_df[
-        (filers_count_df.filer_count_within_file > 1)
-    ]
-    return len(
-        ownership_df.merge(
-            non_unique_filers_df,
-            how="inner",
-            left_on=["filename_sec10k", cik_col_name],
-            right_on=["filename_sec10k", "central_index_key"],
-            validate="many_to_one",
-        ).drop_duplicates(subset=["filename_sec10k", "central_index_key"])
-    )
-
-
 @dg.asset(
     io_manager_key="pudl_io_manager",
     group_name="out_sec10k",
@@ -154,8 +131,8 @@ def out_sec10k__parents_and_subsidiaries(
     # the parent company's central index key from the first token of the filename.
     core_sec10k__quarterly_exhibit_21_company_ownership.loc[
         :, "parent_company_central_index_key"
-    ] = core_sec10k__quarterly_exhibit_21_company_ownership["filename_sec10k"].apply(
-        lambda x: x.split("/")[0].zfill(10)
+    ] = _extract_filer_cik_from_filename(
+        core_sec10k__quarterly_exhibit_21_company_ownership["filename_sec10k"]
     )
     # merge parent company attributes on
     parents_info_df = out_sec10k__quarterly_company_information.add_prefix(
