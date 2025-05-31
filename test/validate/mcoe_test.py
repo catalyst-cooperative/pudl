@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
     [
         "hr_by_unit",
         "hr_by_gen",
-        # "fuel_cost",
+        "fuel_cost",
         "capacity_factor",
         "mcoe_generators",
     ],
