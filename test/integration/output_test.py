@@ -16,6 +16,7 @@ def fast_out(pudl_engine):
     return pudl.output.pudltabl.PudlTabl(
         pudl_engine,
         freq="MS",
+        table_source="parquet",
         fill_fuel_cost=True,
         roll_fuel_cost=True,
         fill_net_gen=True,

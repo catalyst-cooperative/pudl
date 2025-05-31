@@ -333,7 +333,12 @@ class PudlParquetIOManager(IOManager):
         table_name = get_table_name_from_context(context)
         parquet_path = PudlPaths().parquet_path(table_name)
         res = Resource.from_id(table_name)
-        df = pq.read_table(source=parquet_path, schema=res.to_pyarrow()).to_pandas()
+        df = pq.read_table(
+            source=parquet_path,
+            schema=res.to_pyarrow(),
+            use_threads=True,  # Enable multi-threading for faster reads
+            memory_map=True,  # Use memory mapping for better memory efficiency
+        ).to_pandas()
         return res.enforce_schema(df)
 
 

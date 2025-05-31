@@ -308,7 +308,6 @@ elif [[ "$BUILD_TYPE" == "workflow_dispatch" ]]; then
     # Upload to GCS / S3 just to test that it works.
     upload_to_dist_path "$BUILD_ID" | tee -a "$LOGFILE"
     DISTRIBUTION_BUCKET_SUCCESS=${PIPESTATUS[0]}
-    Remove the uploaded files:
     # Remove those uploads since they were just for testing.
     remove_dist_path "$BUILD_ID" | tee -a "$LOGFILE"
     # Remove individual parquet outputs and distribute just the zipped parquet
