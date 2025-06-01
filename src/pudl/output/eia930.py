@@ -1,4 +1,8 @@
-"""Functions for compiling derived aspects of the EIA 930 data."""
+"""Functions for compiling derived aspects of the EIA 930 data.
+
+For a narrative overview of the timeseries imputation process, see the documentation
+at :doc:`/methodology/timeseries_imputation`
+"""
 
 import pandas as pd
 from dagster import AssetOut, Output, asset, multi_asset
