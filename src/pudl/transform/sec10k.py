@@ -826,11 +826,10 @@ def core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities(
         unmatched_subs_df["subsidiary_company_name"]
     )
     out_df = unmatched_subs_df.merge(
-        unmatched_eia_utils_df[["utility_id_eia", "utility_name_eia"]].rename(
-            columns={"utility_name_eia": "subsidiary_company_name"}
-        ),
+        unmatched_eia_utils_df[["utility_id_eia", "utility_name_eia"]],
         how="left",
-        on="subsidiary_company_name",
+        left_on="subsidiary_company_name",
+        right_on="utility_name_eia",
         validate="m:m",
     ).dropna(subset="utility_id_eia")[
         ["subsidiary_company_id_sec10k", "utility_id_eia"]
