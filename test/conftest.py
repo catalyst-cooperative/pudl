@@ -168,7 +168,7 @@ def pudl_out_ferc1(live_dbs: bool, pudl_engine: sa.Engine, request) -> PudlTabl:
     """Define parameterized PudlTabl output object fixture for FERC 1 tests."""
     if not live_dbs:
         pytest.skip("Validation tests only work with a live PUDL DB.")
-    return PudlTabl(pudl_engine=pudl_engine, freq=request.param, table_source="parquet")
+    return PudlTabl(freq=request.param)
 
 
 @pytest.fixture(
@@ -181,11 +181,7 @@ def pudl_out_eia(live_dbs: bool, pudl_engine: sa.Engine, request) -> PudlTabl:
     if not live_dbs:
         pytest.skip("Validation tests only work with a live PUDL DB.")
     return PudlTabl(
-        pudl_engine=pudl_engine,
         freq=request.param,
-        table_source="parquet",
-        fill_fuel_cost=True,
-        roll_fuel_cost=True,
         fill_net_gen=True,
     )
 
@@ -197,11 +193,7 @@ def fast_out_annual(
 ) -> PudlTabl:
     """A PUDL output object for use in CI."""
     return PudlTabl(
-        pudl_engine,
         freq="YS",
-        table_source="parquet",
-        fill_fuel_cost=True,
-        roll_fuel_cost=True,
         fill_net_gen=True,
     )
 
@@ -211,7 +203,7 @@ def pudl_out_orig(live_dbs: bool, pudl_engine: sa.Engine) -> PudlTabl:
     """Create an unaggregated PUDL output object for checking raw data."""
     if not live_dbs:
         pytest.skip("Validation tests only work with a live PUDL DB.")
-    return PudlTabl(pudl_engine=pudl_engine, table_source="parquet")
+    return PudlTabl()
 
 
 @pytest.fixture(scope="session")

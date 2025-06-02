@@ -4,8 +4,8 @@ import logging
 
 import pytest
 
-import pudl
 import pudl.validate as pv
+from pudl.output.pudltabl import PudlTabl
 
 logger = logging.getLogger(__name__)
 
@@ -13,14 +13,9 @@ logger = logging.getLogger(__name__)
 @pytest.fixture(scope="module")
 def fast_out(pudl_engine):
     """A PUDL output object for use in CI."""
-    return pudl.output.pudltabl.PudlTabl(
-        pudl_engine,
+    return PudlTabl(
         freq="MS",
-        table_source="parquet",
-        fill_fuel_cost=True,
-        roll_fuel_cost=True,
         fill_net_gen=True,
-        fill_tech_desc=True,
     )
 
 

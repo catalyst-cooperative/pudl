@@ -27,10 +27,7 @@ logger = logging.getLogger(__name__)
 def pudl_out(pudl_engine):
     """A PUDL output object for use in CI."""
     return PudlTabl(
-        pudl_engine,
         freq=None,
-        table_source="parquet",
-        fill_tech_desc=False,
         fill_net_gen=False,
     )
 
