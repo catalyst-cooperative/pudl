@@ -1,6 +1,7 @@
 """A basic CLI to autogenerate dbt data test configurations."""
 
 from collections import namedtuple
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
@@ -19,6 +20,7 @@ configure_root_logger()
 logger = get_logger(__file__)
 
 ALL_TABLES = [r.name for r in PUDL_PACKAGE.resources]
+Scalar = int | float | str | bool
 
 
 class DbtColumn(BaseModel):
@@ -167,83 +169,83 @@ class DbtSchema(BaseModel):
             return cls.model_validate(yaml.safe_load(schema_yaml))
 
 
-def diff_scalar(field, old, new):
+def diff_scalar(field: str, old: Scalar, new: Scalar) -> dict:
     """Return a diff of a scalar field value as a nested dictionary."""
     return {field: {"old": old, "new": new}} if old != new else {}
 
 
-def diff_list(field, old, new):
+def diff_list(field: str, old: list | None, new: list | None) -> dict:
     """Return a diff of a list field value as a nested dictionary."""
     old_set, new_set = set(old or []), set(new or [])
     added, removed = list(new_set - old_set), list(old_set - new_set)
     return {field: {"added": added, "removed": removed}} if added or removed else {}
 
 
-def diff_dict_keys(field, old, new):
+def diff_dict_keys(field: str, old: dict | None, new: dict | None) -> dict:
     """Return a diff of dictionary keys as a nested dictionary."""
     old_keys, new_keys = set((old or {}).keys()), set((new or {}).keys())
     added, removed = list(new_keys - old_keys), list(old_keys - new_keys)
     return {field: {"added": added, "removed": removed}} if added or removed else {}
 
 
-def diff_dbt_column(o, n):
+def diff_dbt_column(old: DbtColumn, new: DbtColumn) -> dict:
     """Return a diff of a column in a dbt schema as a nested dictionary."""
     diff = {}
-    diff.update(diff_scalar("description", o.description, n.description))
+    diff.update(diff_scalar("description", old.description, new.description))
     diff.update(
         diff_list(
             "data_tests",
-            list(map(str, o.data_tests or [])),
-            list(map(str, n.data_tests or [])),
+            list(map(str, old.data_tests or [])),
+            list(map(str, new.data_tests or [])),
         )
     )
-    diff.update(diff_list("tags", o.tags, n.tags))
-    diff.update(diff_dict_keys("meta", o.meta, n.meta))
+    diff.update(diff_list("tags", old.tags, new.tags))
+    diff.update(diff_dict_keys("meta", old.meta, new.meta))
     return diff
 
 
-def diff_dbt_table(o, n):
+def diff_dbt_table(old: DbtTable, new: DbtTable) -> dict:
     """Return a diff of a table in a dbt schema as a nested dictionary."""
     diff = {}
-    diff.update(diff_scalar("description", o.description, n.description))
+    diff.update(diff_scalar("description", old.description, new.description))
     diff.update(
         diff_list(
             "data_tests",
-            list(map(str, o.data_tests or [])),
-            list(map(str, n.data_tests or [])),
+            list(map(str, old.data_tests or [])),
+            list(map(str, new.data_tests or [])),
         )
     )
-    diff.update(diff_dict_keys("meta", o.meta, n.meta))
-    diff.update(diff_list("tags", o.tags, n.tags))
-    diff.update(diff_dict_keys("config", o.config, n.config))
+    diff.update(diff_dict_keys("meta", old.meta, new.meta))
+    diff.update(diff_list("tags", old.tags, new.tags))
+    diff.update(diff_dict_keys("config", old.config, new.config))
     # Columns
-    cols_diff = _diff_named_items(o.columns or [], n.columns or [], diff_dbt_column)
+    cols_diff = _diff_named_items(old.columns or [], new.columns or [], diff_dbt_column)
     if cols_diff:
         diff["columns"] = cols_diff
     return diff
 
 
-def diff_dbt_source(o, n):
+def diff_dbt_source(old: DbtSource, new: DbtSource) -> dict:
     """Return a diff of a source in a dbt schema as a nested dictionary."""
     diff = {}
-    diff.update(diff_scalar("description", o.description, n.description))
+    diff.update(diff_scalar("description", old.description, new.description))
     diff.update(
         diff_list(
             "data_tests",
-            list(map(str, o.data_tests or [])),
-            list(map(str, n.data_tests or [])),
+            list(map(str, old.data_tests or [])),
+            list(map(str, new.data_tests or [])),
         )
     )
-    diff.update(diff_dict_keys("meta", o.meta, n.meta))
+    diff.update(diff_dict_keys("meta", old.meta, new.meta))
 
     # Tables
-    tables_diff = _diff_named_items(o.tables or [], n.tables or [], diff_dbt_table)
+    tables_diff = _diff_named_items(old.tables or [], new.tables or [], diff_dbt_table)
     if tables_diff:
         diff["tables"] = tables_diff
     return diff
 
 
-def _diff_named_items(old_items, new_items, diff_func):
+def _diff_named_items(old_items: list, new_items: list, diff_func: Callable) -> dict:
     """Generic function returning a nested dictionary of a diff of named items in a dbt schema."""
     result = {}
     old = {item.name: item for item in old_items}
@@ -261,16 +263,16 @@ def _diff_named_items(old_items, new_items, diff_func):
     return result
 
 
-def diff_dbt_schema(o, n):
+def diff_dbt_schema(old: DbtSchema, new: DbtSchema) -> dict:
     """Return a diff of a dbt schema as a nested dictionary."""
     diff = {}
-    diff.update(diff_scalar("version", o.version, n.version))
+    diff.update(diff_scalar("version", old.version, new.version))
 
-    sources_diff = _diff_named_items(o.sources, n.sources, diff_dbt_source)
+    sources_diff = _diff_named_items(old.sources, new.sources, diff_dbt_source)
     if sources_diff:
         diff["sources"] = sources_diff
 
-    models_diff = _diff_named_items(o.models or [], n.models or [], diff_dbt_table)
+    models_diff = _diff_named_items(old.models or [], new.models or [], diff_dbt_table)
     if models_diff:
         diff["models"] = models_diff
 
