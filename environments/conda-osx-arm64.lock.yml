@@ -81,7 +81,7 @@ dependencies:
   - cairo=1.18.4=h6a3b0d2_0
   - catalystcoop.dbfread=3.0.0=pyhd8ed1ab_1
   - catalystcoop.ferc_xbrl_extractor=1.6.0=pyhd8ed1ab_0
-  - cattrs=24.1.2=pyhd8ed1ab_1
+  - cattrs=25.1.0=pyhd8ed1ab_0
   - certifi=2025.4.26=pyhd8ed1ab_0
   - cffi=1.17.1=py312h0fad829_0
   - cfgv=3.3.1=pyhd8ed1ab_1
@@ -166,8 +166,8 @@ dependencies:
   - gcsfs=2025.5.1=pyhd8ed1ab_0
   - gdal=3.11.0=py312hcfce236_4
   - gdk-pixbuf=2.42.12=h7ddc832_0
-  - geopandas=1.0.1=pyhd8ed1ab_3
-  - geopandas-base=1.0.1=pyha770c72_3
+  - geopandas=1.1.0=pyhd8ed1ab_0
+  - geopandas-base=1.1.0=pyha770c72_0
   - geos=3.13.1=hc9a1286_0
   - gflags=2.2.2=hf9b8971_1005
   - giflib=5.2.2=h93a5062_0
@@ -504,7 +504,7 @@ dependencies:
   - scipy=1.15.2=py312h99a188d_0
   - semver=3.0.4=pyhd8ed1ab_0
   - send2trash=1.8.3=pyh31c8845_1
-  - setuptools=80.8.0=pyhff2d567_0
+  - setuptools=80.9.0=pyhff2d567_0
   - shapely=2.1.1=py312hf733f26_0
   - shellingham=1.5.4=pyhd8ed1ab_1
   - simpleeval=0.9.13=pyhd8ed1ab_1
@@ -580,8 +580,8 @@ dependencies:
   - uri-template=1.3.0=pyhd8ed1ab_1
   - uriparser=0.9.8=h00cdb27_0
   - urllib3=2.4.0=pyhd8ed1ab_0
-  - uvicorn=0.34.2=pyh31011fe_0
-  - uvicorn-standard=0.34.2=h31011fe_0
+  - uvicorn=0.34.3=pyh31011fe_0
+  - uvicorn-standard=0.34.3=h31011fe_0
   - uvloop=0.21.0=py312h0bf5046_1
   - validators=0.35.0=pyhd8ed1ab_0
   - virtualenv=20.31.2=pyhd8ed1ab_0
