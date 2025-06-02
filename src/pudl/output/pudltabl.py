@@ -270,11 +270,7 @@ class PudlTabl:
             schema=pyarrow_schema,
             use_threads=True,  # Enable multi-threading for faster reads
             memory_map=True,  # Use memory mapping for better memory efficiency
-            filters=self._build_parquet_date_filters(
-                start_date=self.start_date,
-                end_date=self.end_date,
-                pyarrow_schema=pyarrow_schema,
-            ),
+            filters=self._build_parquet_date_filters(pyarrow_schema=pyarrow_schema),
         ).to_pandas()
         # Enforce the expected PUDL dtypes and other constraints on the DataFrame:
         return res.enforce_schema(df)
