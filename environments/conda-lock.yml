@@ -3424,48 +3424,48 @@ package:
     category: main
     optional: false
   - name: cattrs
-    version: 24.1.2
+    version: 25.1.0
     manager: conda
     platform: linux-64
     dependencies:
-      attrs: ">=23.1.0"
+      attrs: ">=24.3.0"
       exceptiongroup: ">=1.1.1"
       python: ">=3.9"
-      typing-extensions: ">=4.1.0,!=4.6.3"
-    url: https://conda.anaconda.org/conda-forge/noarch/cattrs-24.1.2-pyhd8ed1ab_1.conda
+      typing_extensions: ">=4.12.2"
+    url: https://conda.anaconda.org/conda-forge/noarch/cattrs-25.1.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 53eca64665361194ca4bbaf87c0ded99
-      sha256: 6561a73cb712d8972d64968d6de709fcb2c85cf77d06f996537e4f1768535d76
+      md5: feb8a2cd208950ab0d56030eff7ba591
+      sha256: b6cb4a020747e7142926e2bea6d1078a26207baff84db14aad8ce0331acd5642
     category: dev
     optional: true
   - name: cattrs
-    version: 24.1.2
+    version: 25.1.0
     manager: conda
     platform: osx-64
     dependencies:
-      attrs: ">=23.1.0"
+      attrs: ">=24.3.0"
       exceptiongroup: ">=1.1.1"
       python: ">=3.9"
-      typing-extensions: ">=4.1.0,!=4.6.3"
-    url: https://conda.anaconda.org/conda-forge/noarch/cattrs-24.1.2-pyhd8ed1ab_1.conda
+      typing_extensions: ">=4.12.2"
+    url: https://conda.anaconda.org/conda-forge/noarch/cattrs-25.1.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 53eca64665361194ca4bbaf87c0ded99
-      sha256: 6561a73cb712d8972d64968d6de709fcb2c85cf77d06f996537e4f1768535d76
+      md5: feb8a2cd208950ab0d56030eff7ba591
+      sha256: b6cb4a020747e7142926e2bea6d1078a26207baff84db14aad8ce0331acd5642
     category: dev
     optional: true
   - name: cattrs
-    version: 24.1.2
+    version: 25.1.0
     manager: conda
     platform: osx-arm64
     dependencies:
-      attrs: ">=23.1.0"
+      attrs: ">=24.3.0"
       exceptiongroup: ">=1.1.1"
       python: ">=3.9"
-      typing-extensions: ">=4.1.0,!=4.6.3"
-    url: https://conda.anaconda.org/conda-forge/noarch/cattrs-24.1.2-pyhd8ed1ab_1.conda
+      typing_extensions: ">=4.12.2"
+    url: https://conda.anaconda.org/conda-forge/noarch/cattrs-25.1.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 53eca64665361194ca4bbaf87c0ded99
-      sha256: 6561a73cb712d8972d64968d6de709fcb2c85cf77d06f996537e4f1768535d76
+      md5: feb8a2cd208950ab0d56030eff7ba591
+      sha256: b6cb4a020747e7142926e2bea6d1078a26207baff84db14aad8ce0331acd5642
     category: dev
     optional: true
   - name: certifi
@@ -7475,108 +7475,108 @@ package:
     category: dev
     optional: true
   - name: geopandas
-    version: 1.0.1
+    version: 1.1.0
     manager: conda
     platform: linux-64
     dependencies:
       folium: ""
-      geopandas-base: 1.0.1
-      mapclassify: ">=2.4.0"
+      geopandas-base: 1.1.0
+      mapclassify: ">=2.5.0"
       matplotlib-base: ""
       pyogrio: ">=0.7.2"
-      pyproj: ">=3.3.0"
-      python: ">=3.9"
+      pyproj: ">=3.5.0"
+      python: ">=3.10"
       xyzservices: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/geopandas-1.0.1-pyhd8ed1ab_3.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/geopandas-1.1.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 1baca589eb35814a392eaad6d152447e
-      sha256: 04f7e616ebbf6352ff852b53c57901e43f14e2b3c92411f99b5547f106bc192e
+      md5: 6172cf7532433bf6b19ba5012444ee06
+      sha256: 6f5658fc545065c71a61523a9b35c888a44d008d908963b7686e7e8a302bb61e
     category: main
     optional: false
   - name: geopandas
-    version: 1.0.1
+    version: 1.1.0
     manager: conda
     platform: osx-64
     dependencies:
       folium: ""
-      geopandas-base: 1.0.1
-      mapclassify: ">=2.4.0"
+      geopandas-base: 1.1.0
+      mapclassify: ">=2.5.0"
       matplotlib-base: ""
       pyogrio: ">=0.7.2"
-      pyproj: ">=3.3.0"
-      python: ">=3.9"
+      pyproj: ">=3.5.0"
+      python: ">=3.10"
       xyzservices: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/geopandas-1.0.1-pyhd8ed1ab_3.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/geopandas-1.1.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 1baca589eb35814a392eaad6d152447e
-      sha256: 04f7e616ebbf6352ff852b53c57901e43f14e2b3c92411f99b5547f106bc192e
+      md5: 6172cf7532433bf6b19ba5012444ee06
+      sha256: 6f5658fc545065c71a61523a9b35c888a44d008d908963b7686e7e8a302bb61e
     category: main
     optional: false
   - name: geopandas
-    version: 1.0.1
+    version: 1.1.0
     manager: conda
     platform: osx-arm64
     dependencies:
       folium: ""
-      geopandas-base: 1.0.1
-      mapclassify: ">=2.4.0"
+      geopandas-base: 1.1.0
+      mapclassify: ">=2.5.0"
       matplotlib-base: ""
       pyogrio: ">=0.7.2"
-      pyproj: ">=3.3.0"
-      python: ">=3.9"
+      pyproj: ">=3.5.0"
+      python: ">=3.10"
       xyzservices: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/geopandas-1.0.1-pyhd8ed1ab_3.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/geopandas-1.1.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 1baca589eb35814a392eaad6d152447e
-      sha256: 04f7e616ebbf6352ff852b53c57901e43f14e2b3c92411f99b5547f106bc192e
+      md5: 6172cf7532433bf6b19ba5012444ee06
+      sha256: 6f5658fc545065c71a61523a9b35c888a44d008d908963b7686e7e8a302bb61e
     category: main
     optional: false
   - name: geopandas-base
-    version: 1.0.1
+    version: 1.1.0
     manager: conda
     platform: linux-64
     dependencies:
-      numpy: ">=1.22"
+      numpy: ">=1.24"
       packaging: ""
-      pandas: ">=1.4.0"
-      python: ">=3.9"
+      pandas: ">=2.0.0"
+      python: ">=3.10"
       shapely: ">=2.0.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/geopandas-base-1.0.1-pyha770c72_3.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/geopandas-base-1.1.0-pyha770c72_0.conda
     hash:
-      md5: e8343d1b635bf09dafdd362d7357f395
-      sha256: 2d031871b57c6d4e5e2d6cc23bd6d4e0084bb52ebca5c1b20bf06d03749e0f24
+      md5: 5b43489c3db62cadc1adf7e4c700a01c
+      sha256: b024c1eb615e6086af136a1efd6599c96d6a70204c15b1ed1e51b060ecd7adce
     category: main
     optional: false
   - name: geopandas-base
-    version: 1.0.1
+    version: 1.1.0
     manager: conda
     platform: osx-64
     dependencies:
-      numpy: ">=1.22"
+      numpy: ">=1.24"
       packaging: ""
-      pandas: ">=1.4.0"
-      python: ">=3.9"
+      pandas: ">=2.0.0"
+      python: ">=3.10"
       shapely: ">=2.0.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/geopandas-base-1.0.1-pyha770c72_3.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/geopandas-base-1.1.0-pyha770c72_0.conda
     hash:
-      md5: e8343d1b635bf09dafdd362d7357f395
-      sha256: 2d031871b57c6d4e5e2d6cc23bd6d4e0084bb52ebca5c1b20bf06d03749e0f24
+      md5: 5b43489c3db62cadc1adf7e4c700a01c
+      sha256: b024c1eb615e6086af136a1efd6599c96d6a70204c15b1ed1e51b060ecd7adce
     category: main
     optional: false
   - name: geopandas-base
-    version: 1.0.1
+    version: 1.1.0
     manager: conda
     platform: osx-arm64
     dependencies:
-      numpy: ">=1.22"
+      numpy: ">=1.24"
       packaging: ""
-      pandas: ">=1.4.0"
-      python: ">=3.9"
+      pandas: ">=2.0.0"
+      python: ">=3.10"
       shapely: ">=2.0.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/geopandas-base-1.0.1-pyha770c72_3.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/geopandas-base-1.1.0-pyha770c72_0.conda
     hash:
-      md5: e8343d1b635bf09dafdd362d7357f395
-      sha256: 2d031871b57c6d4e5e2d6cc23bd6d4e0084bb52ebca5c1b20bf06d03749e0f24
+      md5: 5b43489c3db62cadc1adf7e4c700a01c
+      sha256: b024c1eb615e6086af136a1efd6599c96d6a70204c15b1ed1e51b060ecd7adce
     category: main
     optional: false
   - name: geos
@@ -22810,39 +22810,39 @@ package:
     category: main
     optional: false
   - name: setuptools
-    version: 80.8.0
+    version: 80.9.0
     manager: conda
     platform: linux-64
     dependencies:
       python: ">=3.9"
-    url: https://conda.anaconda.org/conda-forge/noarch/setuptools-80.8.0-pyhff2d567_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/setuptools-80.9.0-pyhff2d567_0.conda
     hash:
-      md5: ea075e94dc0106c7212128b6a25bbc4c
-      sha256: 56ce31d15786e1df2f1105076f3650cd7c1892e0afeeb9aa92a08d2551af2e34
+      md5: 4de79c071274a53dcaf2a8c749d1499e
+      sha256: 972560fcf9657058e3e1f97186cc94389144b46dbdf58c807ce62e83f977e863
     category: main
     optional: false
   - name: setuptools
-    version: 80.8.0
+    version: 80.9.0
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.9"
-    url: https://conda.anaconda.org/conda-forge/noarch/setuptools-80.8.0-pyhff2d567_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/setuptools-80.9.0-pyhff2d567_0.conda
     hash:
-      md5: ea075e94dc0106c7212128b6a25bbc4c
-      sha256: 56ce31d15786e1df2f1105076f3650cd7c1892e0afeeb9aa92a08d2551af2e34
+      md5: 4de79c071274a53dcaf2a8c749d1499e
+      sha256: 972560fcf9657058e3e1f97186cc94389144b46dbdf58c807ce62e83f977e863
     category: main
     optional: false
   - name: setuptools
-    version: 80.8.0
+    version: 80.9.0
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.9"
-    url: https://conda.anaconda.org/conda-forge/noarch/setuptools-80.8.0-pyhff2d567_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/setuptools-80.9.0-pyhff2d567_0.conda
     hash:
-      md5: ea075e94dc0106c7212128b6a25bbc4c
-      sha256: 56ce31d15786e1df2f1105076f3650cd7c1892e0afeeb9aa92a08d2551af2e34
+      md5: 4de79c071274a53dcaf2a8c749d1499e
+      sha256: 972560fcf9657058e3e1f97186cc94389144b46dbdf58c807ce62e83f977e863
     category: main
     optional: false
   - name: shapely
@@ -25871,7 +25871,7 @@ package:
     category: main
     optional: false
   - name: uvicorn
-    version: 0.34.2
+    version: 0.34.3
     manager: conda
     platform: linux-64
     dependencies:
@@ -25880,14 +25880,14 @@ package:
       h11: ">=0.8"
       python: ">=3.9"
       typing_extensions: ">=4.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/uvicorn-0.34.2-pyh31011fe_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/uvicorn-0.34.3-pyh31011fe_0.conda
     hash:
-      md5: 7e9f164470d693a5d2537c6b2ce1d9ea
-      sha256: d6c504920400354a89e597c5d355288e77481d638cca0489fea3530167895f15
+      md5: 1520c1396715d45d02f5aa045854a65c
+      sha256: 4edebc7b6b96ebf92db8b5488c4b39594982eab79db44b267d8a3502e12b051b
     category: main
     optional: false
   - name: uvicorn
-    version: 0.34.2
+    version: 0.34.3
     manager: conda
     platform: osx-64
     dependencies:
@@ -25896,14 +25896,14 @@ package:
       h11: ">=0.8"
       python: ">=3.9"
       typing_extensions: ">=4.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/uvicorn-0.34.2-pyh31011fe_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/uvicorn-0.34.3-pyh31011fe_0.conda
     hash:
-      md5: 7e9f164470d693a5d2537c6b2ce1d9ea
-      sha256: d6c504920400354a89e597c5d355288e77481d638cca0489fea3530167895f15
+      md5: 1520c1396715d45d02f5aa045854a65c
+      sha256: 4edebc7b6b96ebf92db8b5488c4b39594982eab79db44b267d8a3502e12b051b
     category: main
     optional: false
   - name: uvicorn
-    version: 0.34.2
+    version: 0.34.3
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -25912,14 +25912,14 @@ package:
       h11: ">=0.8"
       python: ">=3.9"
       typing_extensions: ">=4.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/uvicorn-0.34.2-pyh31011fe_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/uvicorn-0.34.3-pyh31011fe_0.conda
     hash:
-      md5: 7e9f164470d693a5d2537c6b2ce1d9ea
-      sha256: d6c504920400354a89e597c5d355288e77481d638cca0489fea3530167895f15
+      md5: 1520c1396715d45d02f5aa045854a65c
+      sha256: 4edebc7b6b96ebf92db8b5488c4b39594982eab79db44b267d8a3502e12b051b
     category: main
     optional: false
   - name: uvicorn-standard
-    version: 0.34.2
+    version: 0.34.3
     manager: conda
     platform: linux-64
     dependencies:
@@ -25927,18 +25927,18 @@ package:
       httptools: ">=0.6.3"
       python-dotenv: ">=0.13"
       pyyaml: ">=5.1"
-      uvicorn: 0.34.2
+      uvicorn: 0.34.3
       uvloop: ">=0.14.0,!=0.15.0,!=0.15.1"
       watchfiles: ">=0.13"
       websockets: ">=10.4"
-    url: https://conda.anaconda.org/conda-forge/noarch/uvicorn-standard-0.34.2-h31011fe_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/uvicorn-standard-0.34.3-h31011fe_0.conda
     hash:
-      md5: 62676324fa57eb76b542a6a2e85d35e2
-      sha256: c323cc4986f4fea91dedbee68dce8071cade48be2e71cf9c575faf3f3ccc42a9
+      md5: 6d80b382cafd45723e75dccef6496c67
+      sha256: 7de45d9cc878424f65b6ae936f35314e8abc031b60c464258c0a7ef65778c548
     category: main
     optional: false
   - name: uvicorn-standard
-    version: 0.34.2
+    version: 0.34.3
     manager: conda
     platform: osx-64
     dependencies:
@@ -25946,18 +25946,18 @@ package:
       httptools: ">=0.6.3"
       python-dotenv: ">=0.13"
       pyyaml: ">=5.1"
-      uvicorn: 0.34.2
+      uvicorn: 0.34.3
       uvloop: ">=0.14.0,!=0.15.0,!=0.15.1"
       watchfiles: ">=0.13"
       websockets: ">=10.4"
-    url: https://conda.anaconda.org/conda-forge/noarch/uvicorn-standard-0.34.2-h31011fe_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/uvicorn-standard-0.34.3-h31011fe_0.conda
     hash:
-      md5: 62676324fa57eb76b542a6a2e85d35e2
-      sha256: c323cc4986f4fea91dedbee68dce8071cade48be2e71cf9c575faf3f3ccc42a9
+      md5: 6d80b382cafd45723e75dccef6496c67
+      sha256: 7de45d9cc878424f65b6ae936f35314e8abc031b60c464258c0a7ef65778c548
     category: main
     optional: false
   - name: uvicorn-standard
-    version: 0.34.2
+    version: 0.34.3
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -25965,14 +25965,14 @@ package:
       httptools: ">=0.6.3"
       python-dotenv: ">=0.13"
       pyyaml: ">=5.1"
-      uvicorn: 0.34.2
+      uvicorn: 0.34.3
       uvloop: ">=0.14.0,!=0.15.0,!=0.15.1"
       watchfiles: ">=0.13"
       websockets: ">=10.4"
-    url: https://conda.anaconda.org/conda-forge/noarch/uvicorn-standard-0.34.2-h31011fe_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/uvicorn-standard-0.34.3-h31011fe_0.conda
     hash:
-      md5: 62676324fa57eb76b542a6a2e85d35e2
-      sha256: c323cc4986f4fea91dedbee68dce8071cade48be2e71cf9c575faf3f3ccc42a9
+      md5: 6d80b382cafd45723e75dccef6496c67
+      sha256: 7de45d9cc878424f65b6ae936f35314e8abc031b60c464258c0a7ef65778c548
     category: main
     optional: false
   - name: uvloop
