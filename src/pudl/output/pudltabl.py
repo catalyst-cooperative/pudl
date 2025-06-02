@@ -78,22 +78,19 @@ class PudlTabl:
                 f"freq must be one of None, 'MS', or 'YS', but we got {freq}."
             )
         self.freq: Literal["YS", "MS", None] = freq
-
-        # grab all working eia dates to use to set start and end dates if they
-        # are not set
-        if start_date is None:
-            self.start_date = min(pudl.helpers.get_working_dates_by_datasource("ferc1"))
-        else:
-            # Make sure it's a date... and not a string.
-            self.start_date = pd.to_datetime(start_date)
-
-        if end_date is None:
-            self.end_date = max(pudl.helpers.get_working_dates_by_datasource("eia"))
-        else:
-            # Make sure it's a date... and not a string.
-            self.end_date = pd.to_datetime(end_date)
-
         self.fill_net_gen: bool = fill_net_gen
+
+        # grab full working date range if start or end date are not set
+        self.start_date = (
+            min(pudl.helpers.get_working_dates_by_datasource("ferc1"))
+            if start_date is None
+            else pd.to_datetime(start_date)
+        )
+        self.end_date = (
+            max(pudl.helpers.get_working_dates_by_datasource("eia"))
+            if end_date is None
+            else pd.to_datetime(end_date)
+        )
 
         self._register_output_methods()
 
