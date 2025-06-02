@@ -1,0 +1,18 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eiaaeo__yearly_projected_energy_use_by_sector_and_type
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_eiaaeo__yearly_projected_energy_use_by_sector_and_type
+              partition_column: report_year
+        columns:
+          - name: report_year
+          - name: region_name_eiaaeo
+          - name: region_type_eiaaeo
+          - name: model_case_eiaaeo
+          - name: projection_year
+          - name: energy_use_sector
+          - name: energy_use_type
+          - name: energy_use_mmbtu

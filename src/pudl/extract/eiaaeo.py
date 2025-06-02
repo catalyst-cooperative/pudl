@@ -396,6 +396,9 @@ class AEOTaxonomy:
 
 @multi_asset(
     outs={
+        "raw_eiaaeo__energy_consumption_by_sector_and_source": AssetOut(
+            is_required=False
+        ),
         "raw_eiaaeo__natural_gas_supply_disposition_and_prices": AssetOut(
             is_required=False
         ),
@@ -427,6 +430,7 @@ def raw_eiaaeo(context: AssetExecutionContext):
     try to infer those here and leave that to the transformation step.
     """
     name_to_number = {
+        "raw_eiaaeo__energy_consumption_by_sector_and_source": 2,
         "raw_eiaaeo__natural_gas_supply_disposition_and_prices": 13,
         "raw_eiaaeo__coal_supply_disposition_and_price": 15,
         "raw_eiaaeo__macroeconomic_indicators": 20,
