@@ -15,6 +15,7 @@ import logging
 import pytest
 
 from pudl import validate as pv
+from pudl.output.pudltabl import PudlTabl
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +35,9 @@ logger = logging.getLogger(__name__)
         "mcoe_generators",
     ],
 )
-def test_no_null_cols_mcoe(pudl_out_eia, live_dbs, df_name):
+def test_no_null_cols_mcoe(
+    pudl_out_eia: PudlTabl, live_dbs: bool, df_name: str
+) -> None:
     """Verify that output DataFrames have no entirely NULL columns."""
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")

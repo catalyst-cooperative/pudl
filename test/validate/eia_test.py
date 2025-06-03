@@ -5,6 +5,7 @@ import logging
 import pytest
 
 from pudl import validate as pv
+from pudl.output.pudltabl import PudlTabl
 from test.conftest import skip_table_if_null_freq_table
 
 logger = logging.getLogger(__name__)
@@ -31,7 +32,9 @@ logger = logging.getLogger(__name__)
         ("boiler_cooling_assn_eia860", "all"),
     ],
 )
-def test_no_null_cols_eia(pudl_out_eia, live_dbs, cols, df_name):
+def test_no_null_cols_eia(
+    pudl_out_eia: PudlTabl, live_dbs: bool, cols: list[str], df_name: str
+) -> None:
     """Verify that output DataFrames have no entirely NULL columns."""
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
