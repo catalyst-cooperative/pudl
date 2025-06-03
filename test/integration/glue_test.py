@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pandas as pd
 import pytest
+import sqlalchemy as sa
 
 from pudl.glue.ferc1_eia import (
     get_missing_ids,
@@ -24,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.fixture(scope="module")
-def pudl_out(pudl_engine):
+def pudl_out(pudl_engine: sa.Engine) -> PudlTabl:
     """A PUDL output object for use in CI."""
     return PudlTabl(
         freq=None,
@@ -56,8 +57,8 @@ def plants_ferc1_raw(dataset_settings_config) -> pd.DataFrame:
 @pytest.fixture(scope="module")
 def glue_test_dfs(
     pudl_out: PudlTabl,
-    ferc1_engine_xbrl,
-    ferc1_engine_dbf,
+    ferc1_engine_xbrl: sa.Engine,
+    ferc1_engine_dbf: sa.Engine,
     etl_settings,
     dataset_settings_config,
 ) -> dict[str, pd.DataFrame]:
@@ -186,7 +187,6 @@ def test_for_fk_validation_and_unmapped_ids(
         id_cols: list of ID column(s)
         label_df: If a labeling table is provided, label the missing ID's with flags
             and columns needed for manual mapping
-        pudl_out: an instance of a pudl output object
         glue_test_dfs: a dictionary of dataframes
         save_unmapped_ids: If ``True``, export any missing ID's.
         test_dir: path to the ``test`` directory. Will be used to construct path to the
@@ -264,7 +264,11 @@ def test_for_unmapped_ids_minus_one(
 
 
 def test_unmapped_utils_eia(
-    pudl_out, pudl_engine, glue_test_dfs, save_unmapped_ids, test_dir
+    pudl_out: PudlTabl,
+    pudl_engine: sa.Engine,
+    glue_test_dfs: dict[str, pd.DataFrame],
+    save_unmapped_ids: bool,
+    test_dir,
 ):
     """Check for unmapped EIA Plants.
 
