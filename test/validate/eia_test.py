@@ -3,6 +3,7 @@
 import logging
 
 import pytest
+import sqlalchemy as sa
 
 from pudl import validate as pv
 from pudl.helpers import get_parquet_table
@@ -48,7 +49,11 @@ logger = logging.getLogger(__name__)
         "core_eia860__assn_boiler_cooling",
     ],
 )
-def test_no_null_cols_eia(live_dbs: bool, table_name: str) -> None:
+def test_no_null_cols_eia(
+    live_dbs: bool,
+    table_name: str,
+    pudl_engine: sa.Engine,  # Required to ensure that the data is available.
+) -> None:
     """Verify that output DataFrames have no entirely NULL columns."""
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
