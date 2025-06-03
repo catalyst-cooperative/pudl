@@ -163,14 +163,6 @@ def pudl_etl_parameters(etl_settings: EtlSettings) -> DatasetsSettings:
     return etl_settings.datasets
 
 
-@pytest.fixture(scope="session", params=["YS"], ids=["ferc1_annual"])
-def pudl_out_ferc1(live_dbs: bool, pudl_engine: sa.Engine, request) -> PudlTabl:
-    """Define parameterized PudlTabl output object fixture for FERC 1 tests."""
-    if not live_dbs:
-        pytest.skip("Validation tests only work with a live PUDL DB.")
-    return PudlTabl(freq=request.param)
-
-
 @pytest.fixture(
     scope="session",
     params=[None, "YS", "MS"],
@@ -196,14 +188,6 @@ def fast_out_annual(
         freq="YS",
         fill_net_gen=True,
     )
-
-
-@pytest.fixture(scope="session")
-def pudl_out_orig(live_dbs: bool, pudl_engine: sa.Engine) -> PudlTabl:
-    """Create an unaggregated PUDL output object for checking raw data."""
-    if not live_dbs:
-        pytest.skip("Validation tests only work with a live PUDL DB.")
-    return PudlTabl()
 
 
 @pytest.fixture(scope="session")
