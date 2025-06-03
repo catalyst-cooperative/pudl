@@ -582,6 +582,11 @@ def update_tables(
         update=update,
     )
 
+    if args.clobber and args.update:
+        raise click.UsageError(
+            "Cannot use --clobber and --update at the same time. Choose one."
+        )
+
     tables = args.tables
     if "all" in tables:
         tables = ALL_TABLES
