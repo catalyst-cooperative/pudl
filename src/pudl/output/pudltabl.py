@@ -26,11 +26,10 @@ from typing import Literal, Self
 # Useful high-level external modules.
 import pandas as pd
 import pyarrow as pa
-import pyarrow.parquet as pq
 
 import pudl
+from pudl.helpers import get_parquet_table
 from pudl.metadata.classes import Resource
-from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -265,15 +264,9 @@ class PudlTabl:
         res = Resource.from_id(table_name)
         pyarrow_schema: pa.Schema = res.to_pyarrow()
 
-        df = pq.read_table(
-            source=PudlPaths().parquet_path(table_name),
-            schema=pyarrow_schema,
-            use_threads=True,  # Enable multi-threading for faster reads
-            memory_map=True,  # Use memory mapping for better memory efficiency
-            filters=self._build_parquet_date_filters(pyarrow_schema=pyarrow_schema),
-        ).to_pandas()
-        # Enforce the expected PUDL dtypes and other constraints on the DataFrame:
-        return res.enforce_schema(df)
+        # Build date filters and use the helper function
+        filters = self._build_parquet_date_filters(pyarrow_schema=pyarrow_schema)
+        return get_parquet_table(table_name, filters=filters)
 
     def _build_parquet_date_filters(
         self: Self, pyarrow_schema: pa.Schema

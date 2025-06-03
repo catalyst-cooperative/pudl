@@ -3,51 +3,14 @@
 import logging
 
 import pandas as pd
-import pyarrow.parquet as pq
 import pytest
 import sqlalchemy as sa
 
 import pudl.validate as pv
+from pudl.helpers import get_parquet_table
 from pudl.metadata.classes import Resource
-from pudl.metadata.fields import apply_pudl_dtypes
-from pudl.workspace.setup import PudlPaths
 
 logger = logging.getLogger(__name__)
-
-
-def get_table(table_name: str, columns: list[str] = None) -> pd.DataFrame:
-    """Read a table from Parquet files.
-
-    Args:
-        table_name: Name of the table to read.
-        columns: List of columns to read. If None, all columns are read.
-
-    Returns:
-        DataFrame with the requested data.
-    """
-    paths = PudlPaths()
-
-    # Get the Parquet file path
-    parquet_path = paths.parquet_path(table_name)
-
-    # Get the schema for validation
-    resource = Resource.from_id(table_name)
-    pyarrow_schema = resource.to_pyarrow()
-
-    # Read the Parquet file
-    df = pq.read_table(
-        source=parquet_path,
-        schema=pyarrow_schema,
-        columns=columns,
-        use_threads=True,
-        memory_map=True,
-    ).to_pandas()
-
-    # Only enforce schema if we're reading all columns
-    if columns is None:
-        return resource.enforce_schema(df)
-    # For specific columns, apply PUDL dtypes for the columns we have
-    return apply_pudl_dtypes(df)
 
 
 def nuke_gen_fraction(df: pd.DataFrame) -> float:
@@ -71,7 +34,9 @@ def test_nuclear_fraction(
     pudl_engine: sa.Engine,  # Required to ensure that the data is available.
 ):
     """Ensure that overall nuclear generation fractions are as expected."""
-    df = get_table(table_name, columns=["fuel_type_code_pudl", "net_generation_mwh"])
+    df = get_parquet_table(
+        table_name, columns=["fuel_type_code_pudl", "net_generation_mwh"]
+    )
     actual_nuke_fraction = nuke_gen_fraction(df)
     assert abs(actual_nuke_fraction - expected_nuke_fraction) <= tolerance
 
@@ -116,11 +81,11 @@ def test_eia_outputs(
             columns.append("data_maturity")
         return columns
 
-    yearly_gens_df = get_table(
+    yearly_gens_df = get_parquet_table(
         yearly_gens_name, columns=get_date_freq_columns(yearly_gens_name)
     )
     logger.info(f"Reading {test_table} table.")
-    test_df = get_table(test_table, columns=get_date_freq_columns(test_table))
+    test_df = get_parquet_table(test_table, columns=get_date_freq_columns(test_table))
     logger.info(f"Found {len(test_df)} rows in {test_table}")
     logger.info(f"Checking {test_table} date frequency relative to {yearly_gens_name}.")
     pv.check_date_freq(yearly_gens_df, test_df, mult)
