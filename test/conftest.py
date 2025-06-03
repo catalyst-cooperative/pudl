@@ -33,7 +33,6 @@ from pudl.io_managers import (
     pudl_mixed_format_io_manager,
 )
 from pudl.metadata import PUDL_PACKAGE
-from pudl.output.pudltabl import PudlTabl
 from pudl.settings import (
     DatasetsSettings,
     EtlSettings,
@@ -161,33 +160,6 @@ def ferc_to_sqlite_parameters(etl_settings: EtlSettings) -> FercToSqliteSettings
 def pudl_etl_parameters(etl_settings: EtlSettings) -> DatasetsSettings:
     """Read PUDL ETL parameters out of test settings dictionary."""
     return etl_settings.datasets
-
-
-@pytest.fixture(
-    scope="session",
-    params=[None, "YS", "MS"],
-    ids=["eia_raw", "eia_annual", "eia_monthly"],
-)
-def pudl_out_eia(live_dbs: bool, pudl_engine: sa.Engine, request) -> PudlTabl:
-    """Define parameterized PudlTabl output object fixture for EIA tests."""
-    if not live_dbs:
-        pytest.skip("Validation tests only work with a live PUDL DB.")
-    return PudlTabl(
-        freq=request.param,
-        fill_net_gen=True,
-    )
-
-
-@pytest.fixture(scope="session", name="fast_out_annual")
-def fast_out_annual(
-    pudl_engine: sa.Engine,
-    pudl_datastore_fixture: Datastore,
-) -> PudlTabl:
-    """A PUDL output object for use in CI."""
-    return PudlTabl(
-        freq="YS",
-        fill_net_gen=True,
-    )
 
 
 @pytest.fixture(scope="session")

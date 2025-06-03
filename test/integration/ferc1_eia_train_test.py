@@ -18,6 +18,7 @@ from pathlib import Path
 
 import pandas as pd
 import pytest
+import sqlalchemy as sa
 
 from pudl.analysis.record_linkage.eia_ferc1_inputs import (
     restrict_train_connections_on_date_range,
@@ -26,28 +27,9 @@ from pudl.analysis.record_linkage.eia_ferc1_train import (
     generate_all_override_spreadsheets,
     validate_override_fixes,
 )
-from pudl.output.pudltabl import PudlTabl
+from pudl.helpers import get_parquet_table
 
 logger = logging.getLogger(__name__)
-
-
-@pytest.fixture(scope="module")
-def utils_eia860(fast_out_annual: PudlTabl) -> pd.DataFrame:
-    """The utils_eia860 output table."""
-    return fast_out_annual.utils_eia860()
-
-
-@pytest.fixture(scope="module")
-def plant_parts_eia(fast_out_annual: PudlTabl) -> pd.DataFrame:
-    """The plant_parts_eia output table."""
-    return fast_out_annual.plant_parts_eia().reset_index()
-
-
-@pytest.fixture(scope="module")
-def eia_ferc1(fast_out_annual: PudlTabl) -> pd.DataFrame:
-    """The eia_ferc1 output table."""
-    # the pudl_out name here is the old, non-alphabetized ordering.
-    return fast_out_annual.ferc1_eia()
 
 
 @pytest.fixture(scope="module")
@@ -130,16 +112,19 @@ def eia_ferc1_training_data() -> pd.DataFrame:
     ],
 )
 def test_validate_override_fixes(
-    plant_parts_eia: pd.DataFrame,
-    eia_ferc1: pd.DataFrame,
     eia_ferc1_training_data: pd.DataFrame,
     verified: list[str],
     report_year: list[int],
     record_id_eia_override_1: list[str],
     record_id_ferc1: list[str],
     utility_id_pudl_ferc1: list[int],
+    pudl_engine: sa.Engine,  # Required to ensure that the data is available.
 ) -> None:
     """Test the validate override fixes function."""
+    # Get data tables directly
+    plant_parts_eia = get_parquet_table("out_eia__yearly_plant_parts").reset_index()
+    eia_ferc1 = get_parquet_table("out_pudl__yearly_assn_eia_ferc1_plant_parts")
+
     test_df = pd.DataFrame(
         {
             "verified": verified,
@@ -165,8 +150,15 @@ def test_validate_override_fixes(
     )
 
 
-def test_generate_all_override_spreadsheets(plant_parts_eia, eia_ferc1, utils_eia860):
+def test_generate_all_override_spreadsheets(
+    pudl_engine: sa.Engine,  # Required to ensure that the data is available.
+):
     """Test the genation of the override spreadsheet for mapping FERC-EIA records."""
+    # Get data tables directly
+    plant_parts_eia = get_parquet_table("out_eia__yearly_plant_parts").reset_index()
+    eia_ferc1 = get_parquet_table("out_pudl__yearly_assn_eia_ferc1_plant_parts")
+    utils_eia860 = get_parquet_table("out_eia__yearly_utilities")
+
     # Create the test spreadsheet
     generate_all_override_spreadsheets(
         eia_ferc1,
