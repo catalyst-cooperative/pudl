@@ -788,8 +788,8 @@ def cleanstrings_series(
         col: A pandas Series, typically a single column of a
             dataframe, containing the freeform strings that are to be cleaned.
         str_map: A dictionary of lists of strings, in which the keys are
-            the simplified canonical strings, with which each string found in col
-            that is not NA will be replaced with.
+            the simplified canonical strings, with which each string found in
+            the corresponding list will be replaced with.
         unmapped: A value with which to replace any string found in col
             that is not found in one of the lists of strings in map. Typically
             the null string ''. If None, these strings will not be replaced.
@@ -1780,9 +1780,8 @@ def get_eia_ferc_acct_map() -> pd.DataFrame:
             (USOA) accouting names. Read more about USOA
             `here
             <https://www.ferc.gov/enforcement-legal/enforcement/accounting-matters>`__
-            The output table has the following columns: `['technology_description',
-
-            'prime_mover_code', 'ferc_acct_name']`
+            The output table has the following columns: ``['technology_description',
+            'prime_mover_code', 'ferc_acct_name']``
     """
     eia_ferc_acct_map = pd.read_csv(
         importlib.resources.files("pudl.package_data.glue")
@@ -2321,4 +2320,4 @@ def get_parquet_table(
     if columns is None:
         return resource.enforce_schema(df)
     # For specific columns, apply PUDL dtypes for the columns we have
-    return apply_pudl_dtypes(df)
+    return apply_pudl_dtypes(df, group=resource.field_namespace)
