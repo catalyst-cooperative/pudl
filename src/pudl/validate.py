@@ -79,8 +79,8 @@ def check_date_freq(df1: pd.DataFrame, df2: pd.DataFrame, mult: int) -> None:
     if "data_maturity" in df2:
         df2 = df2[df2["data_maturity"] != "incremental_ytd"].copy()
 
-    idx1 = pd.DatetimeIndex(df1.report_date.unique())
-    idx2 = pd.DatetimeIndex(df2.report_date.unique())
+    idx1 = pd.DatetimeIndex(df1["report_date"].unique())
+    idx2 = pd.DatetimeIndex(df2["report_date"].unique())
 
     overlap = intersect_indexes([idx1, idx2])
     overlap1 = [d for d in idx1 if d.year in overlap.year]
