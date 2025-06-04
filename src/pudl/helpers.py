@@ -789,7 +789,7 @@ def cleanstrings_series(
             dataframe, containing the freeform strings that are to be cleaned.
         str_map: A dictionary of lists of strings, in which the keys are
             the simplified canonical strings, with which each string found in
-            the corresponding list will be replaced with.
+            the corresponding list will be replaced.
         unmapped: A value with which to replace any string found in col
             that is not found in one of the lists of strings in map. Typically
             the null string ''. If None, these strings will not be replaced.
@@ -1277,7 +1277,7 @@ def generate_rolling_avg(
     Args:
         df: Original dataframe. Must have group_cols column, a data_col column and a
             ``report_date`` column.
-        group_cols: a list of columns to group by.
+        group_cols: a list of columns to groupby.
         data_col: the name of the data column.
         window: rolling window argument to pass to :meth:`pandas.Series.rolling`.
         kwargs: Additional arguments to pass to :meth:`pandas.Series.rolling`.
