@@ -92,7 +92,7 @@ def eia_ferc1_training_data() -> pd.DataFrame:
             [246],
             pytest.raises(
                 AssertionError,
-                match=r"The following EIA records area already in the training data",
+                match=r"The following EIA records are already in the training data",
             ),
         ),
         pytest.param(
