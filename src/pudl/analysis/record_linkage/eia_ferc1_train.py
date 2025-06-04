@@ -585,8 +585,7 @@ def validate_override_fixes(
             x for x in new_training_eia_ids if x in existing_training_eia_ids
         ]:
             raise AssertionError(
-                f"""
-The following EIA records area already in the training data: {eia_overrides}"""
+                f"""The following EIA records are already in the training data: {eia_overrides}"""
             )
         existing_training_ferc1_ids = training_data.record_id_ferc1.dropna().unique()
         new_training_ferc1_ids = only_overrides["record_id_ferc1"].unique()
@@ -594,8 +593,7 @@ The following EIA records area already in the training data: {eia_overrides}"""
             x for x in new_training_ferc1_ids if x in existing_training_ferc1_ids
         ]:
             raise AssertionError(
-                f"""
-The following FERC 1 records area already in the training data: {ferc_overrides}"""
+                f"""The following FERC 1 records are already in the training data: {ferc_overrides}"""
             )
 
     # Only return the results that have been verified
