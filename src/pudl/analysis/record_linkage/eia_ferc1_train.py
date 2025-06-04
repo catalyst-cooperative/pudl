@@ -426,25 +426,25 @@ def check_if_already_in_training(training_data, validated_connections):
 
 
 def validate_override_fixes(
-    validated_connections,
-    ppe,
-    eia_ferc1,
-    training_data,
-    expect_override_overrides=False,
-    allow_mismatched_utilities=True,
+    validated_connections: pd.DataFrame,
+    ppe: pd.DataFrame,
+    eia_ferc1: pd.DataFrame,
+    training_data: pd.DataFrame,
+    expect_override_overrides: bool = False,
+    allow_mismatched_utilities: bool = True,
 ) -> pd.DataFrame:
     """Process the verified and/or fixed matches and look for human error.
 
     Args:
-        validated_connections (pd.DataFrame): A dataframe in the add_to_training
+        validated_connections: A dataframe in the add_to_training
             directory that is ready to be added to be validated and subsumed into the
             training data.
-        ppe (pd.DataFrame): The dataframe resulting from pudl_out.plant_parts_eia
-        eia_ferc1 (pd.DataFrame): The dataframe resulting from pudl_out.ferc1_eia
-        training_data (pd.DataFrame): The current FERC-EIA training data
-        expect_override_overrides (boolean): Whether you expect the tables to have
+        ppe: The dataframe resulting from pudl_out.plant_parts_eia
+        eia_ferc1: The dataframe resulting from pudl_out.ferc1_eia
+        training_data: The current FERC-EIA training data
+        expect_override_overrides: Whether you expect the tables to have
             overridden matches already in the training data.
-        allow_mismatched_utilities (boolean): Whether you want to allow FERC and EIA
+        allow_mismatched_utilities: Whether you want to allow FERC and EIA
             record ids to come from different utilities.
 
     Raises:
@@ -462,8 +462,7 @@ def validate_override_fixes(
             data implies an override to the existing training data.
 
     Returns:
-        pd.DataFrame: The validated FERC-EIA dataframe you're trying to add to the
-            training data.
+        The validated FERC-EIA dataframe you're trying to add to the training data.
     """
     logger.info("Validating overrides")
     # When there are NA values in the verified column in the excel doc, it seems that
