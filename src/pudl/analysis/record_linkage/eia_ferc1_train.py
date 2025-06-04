@@ -515,6 +515,20 @@ def validate_override_fixes(
     {override_dups.record_id_eia_override_1.unique()}"
     )
 
+    # Make sure there are no duplicate FERC1 id overrides
+    logger.debug("Checking for duplicate FERC1 override ids")
+    assert (
+        len(
+            ferc_override_dups := only_overrides[
+                only_overrides["record_id_ferc1"].duplicated(keep=False)
+            ]
+        )
+        == 0
+    ), (
+        f"Found record_id_ferc1 duplicates: \
+    {ferc_override_dups.record_id_ferc1.unique()}"
+    )
+
     if not allow_mismatched_utilities:
         # Make sure the EIA utility id from the override matches the PUDL id from the
         # FERC record. Start by mapping utility_id_pudl from PPE onto each
