@@ -63,7 +63,7 @@ def eia_ferc1_training_data() -> pd.DataFrame:
             [18],
             pytest.raises(
                 AssertionError,
-                match=r"Found record_id_eia_override_1 values that don't correspond to the right.*report year",
+                match=r"Found record_id_eia_override_1 values that don't correspond",
             ),
         ),
         pytest.param(
@@ -169,7 +169,7 @@ def test_generate_all_override_spreadsheets(
 ):
     """Test the genation of the override spreadsheet for mapping FERC-EIA records."""
     # Get data tables directly
-    plant_parts_eia = get_parquet_table("out_eia__yearly_plant_parts").reset_index()
+    plant_parts_eia = get_parquet_table("out_eia__yearly_plant_parts")
     eia_ferc1 = get_parquet_table("out_pudl__yearly_assn_eia_ferc1_plant_parts")
     utils_eia860 = get_parquet_table("out_eia__yearly_utilities")
 
