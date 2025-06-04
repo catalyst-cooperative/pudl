@@ -13,33 +13,46 @@ production costs have yet to be integrated.
 import logging
 
 import pytest
+import sqlalchemy as sa
 
 from pudl import validate as pv
+from pudl.helpers import get_parquet_table
 
 logger = logging.getLogger(__name__)
 
 
 ###############################################################################
-# Tests that look check for existence and uniqueness of some MCOE outputs:
+# Tests that check for existence and uniqueness of some MCOE outputs:
 # These tests were inspired by some bad merges that generated multiple copies
 # of some records in the past...
 ###############################################################################
 @pytest.mark.parametrize(
-    "df_name",
+    "table_name",
     [
-        "hr_by_unit",
-        "hr_by_gen",
-        # "fuel_cost",
-        "capacity_factor",
-        "mcoe_generators",
+        # Yearly tables
+        "_out_eia__yearly_heat_rate_by_unit",
+        "_out_eia__yearly_heat_rate_by_generator",
+        "_out_eia__yearly_fuel_cost_by_generator",
+        "_out_eia__yearly_capacity_factor_by_generator",
+        "_out_eia__yearly_derived_generator_attributes",
+        "out_eia__yearly_generators",
+        # Monthly tables
+        "_out_eia__monthly_heat_rate_by_unit",
+        "_out_eia__monthly_heat_rate_by_generator",
+        "_out_eia__monthly_fuel_cost_by_generator",
+        "_out_eia__monthly_capacity_factor_by_generator",
+        "_out_eia__monthly_derived_generator_attributes",
+        "out_eia__monthly_generators",
     ],
 )
-def test_no_null_cols_mcoe(pudl_out_eia, live_dbs, df_name):
+def test_no_null_cols_mcoe(
+    live_dbs: bool,
+    table_name: str,
+    pudl_engine: sa.Engine,  # Required to ensure that the data is available.
+) -> None:
     """Verify that output DataFrames have no entirely NULL columns."""
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
-    if pudl_out_eia.freq is None:
-        pytest.skip()
 
     # These are columns that only exist in 2006 and older data, beyond the time
     # for which we can calculate the MCOE:
@@ -56,6 +69,6 @@ def test_no_null_cols_mcoe(pudl_out_eia, live_dbs, df_name):
         "summer_capacity_estimate",
         "winter_capacity_estimate",
     ]
-    df = pudl_out_eia.__getattribute__(df_name)()
+    df = get_parquet_table(table_name)
     cols = [col for col in df.columns if col not in deprecated_cols]
-    pv.no_null_cols(df, cols=cols, df_name=df_name)
+    pv.no_null_cols(df, cols=cols, df_name=table_name)

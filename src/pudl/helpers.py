@@ -24,6 +24,7 @@ from typing import Any, Literal, NamedTuple
 import datasette
 import numpy as np
 import pandas as pd
+import pyarrow.parquet as pq
 import requests
 import sqlalchemy as sa
 import yaml
@@ -558,7 +559,8 @@ def date_merge(
             ``on`` argument.
         right: The right dataframe in the merge. Typically annual in our uses
             cases if doing a left merge E.g. ``core_eia860__scd_generators``.
-            Must contain columns specified by ``right_date_col`` and ``on`` argument.
+            Must contain columns specified by ``right_date_col`` and
+            ``on`` argument.
         on: The columns to merge on that are shared between both
             dataframes. Typically ID columns like ``plant_id_eia``, ``generator_id``
             or ``boiler_id``.
@@ -1778,8 +1780,8 @@ def get_eia_ferc_acct_map() -> pd.DataFrame:
             (USOA) accouting names. Read more about USOA
             `here
             <https://www.ferc.gov/enforcement-legal/enforcement/accounting-matters>`__
-            The output table has the following columns: `['technology_description',
-            'prime_mover_code', 'ferc_acct_name']`
+            The output table has the following columns: ``['technology_description',
+            'prime_mover_code', 'ferc_acct_name']``
     """
     eia_ferc_acct_map = pd.read_csv(
         importlib.resources.files("pudl.package_data.glue")
@@ -2263,3 +2265,59 @@ def retry(
             )
             time.sleep(delay)
     return func(**kwargs)
+
+
+def get_parquet_table(
+    table_name: str,
+    columns: list[str] | None = None,
+    filters: list[tuple[str, str, Any]]
+    | list[list[tuple[str, str, Any]]]
+    | None = None,
+) -> pd.DataFrame:
+    """Read a table from Parquet files with optional column selection and filtering.
+
+    This function provides a general-purpose interface for reading PUDL tables from
+    Parquet files. It supports selective column reading for performance, optional
+    filters for data subsetting, and automatic schema validation.
+
+    Args:
+        table_name: Name of the table to read.
+        columns: List of columns to read. If None, all columns are read.
+        filters: Optional filters to apply when reading the Parquet file. See the
+            :func:`pyarrow.parquet.read_table` documentation for details on filter
+            syntax. If None, no filters are applied.
+
+    Returns:
+        DataFrame with the requested data, with PUDL schema validation applied.
+
+    Raises:
+        FileNotFoundError: If the Parquet file for the table doesn't exist.
+        ValueError: If the table_name is not a valid PUDL resource.
+    """
+    # Import here to avoid circular imports
+    from pudl.metadata.classes import Resource
+
+    paths = PudlPaths()
+
+    # Get the Parquet file path
+    parquet_path = paths.parquet_path(table_name)
+
+    # Get the schema for validation
+    resource = Resource.from_id(table_name)
+    pyarrow_schema = resource.to_pyarrow()
+
+    # Read the Parquet file
+    df = pq.read_table(
+        source=parquet_path,
+        schema=pyarrow_schema,
+        columns=columns,
+        filters=filters,
+        use_threads=True,
+        memory_map=True,
+    ).to_pandas()
+
+    # Only enforce schema if we're reading all columns
+    if columns is None:
+        return resource.enforce_schema(df)
+    # For specific columns, apply PUDL dtypes for the columns we have
+    return apply_pudl_dtypes(df, group=resource.field_namespace)
