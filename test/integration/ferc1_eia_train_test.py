@@ -121,9 +121,16 @@ def test_validate_override_fixes(
     pudl_engine: sa.Engine,  # Required to ensure that the data is available.
 ) -> None:
     """Test the validate override fixes function."""
-    # Get data tables directly
-    plant_parts_eia = get_parquet_table("out_eia__yearly_plant_parts").reset_index()
-    eia_ferc1 = get_parquet_table("out_pudl__yearly_assn_eia_ferc1_plant_parts")
+    # Get data tables with only the columns needed by validate_override_fixes
+    # to reduce memory usage during testing
+    plant_parts_eia = get_parquet_table(
+        "out_eia__yearly_plant_parts",
+        columns=["record_id_eia", "utility_id_pudl", "report_year"],
+    )
+    eia_ferc1 = get_parquet_table(
+        "out_pudl__yearly_assn_eia_ferc1_plant_parts",
+        columns=["record_id_ferc1", "report_date"],
+    )
 
     test_df = pd.DataFrame(
         {
