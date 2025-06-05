@@ -112,8 +112,9 @@ constructed from the filename.""",
 Exhibit 21 is an unstructured text or PDF attachment to the main SEC 10-K filing
 that is used to describe the subsidiaries owned by the filing company. It may or may not
 provide the percentage of the subsidiary that is owned by the filing company, or the
-location of the subsidiary. This data has been extracted using a machine learning model
-and is not complete or entirely accurate and should be used with caution.""",
+location of the subsidiary. This data has been extracted probabilistically using
+a machine learning model and contains some incompletions and errors. It should not be
+treated as ground truth data.""",
         "schema": {
             "fields": [
                 "filename_sec10k",
