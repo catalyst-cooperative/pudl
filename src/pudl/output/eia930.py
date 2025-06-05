@@ -64,8 +64,12 @@ def _out_eia930__hourly_subregion_demand(
     )
 
     core_eia930__hourly_subregion_demand["combined_subregion_ba_code_eia"] = (
-        core_eia930__hourly_subregion_demand["balancing_authority_code_eia"]
-        + core_eia930__hourly_subregion_demand["balancing_authority_subregion_code_eia"]
+        core_eia930__hourly_subregion_demand["balancing_authority_code_eia"].astype(
+            "string"
+        )
+        + core_eia930__hourly_subregion_demand[
+            "balancing_authority_subregion_code_eia"
+        ].astype("string")
     )
     return core_eia930__hourly_subregion_demand
 
