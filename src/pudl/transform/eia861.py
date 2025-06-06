@@ -528,6 +528,7 @@ NERC_SPELLCHECK: dict[str, str] = {
     "NY": "NPCC",
     "NEW": "NPCC",
     "YORK": "NPCC",
+    "MISE": "MISO",
 }
 
 
@@ -844,7 +845,7 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
             logger.debug(f"{df_name}: for column {col} all total values are NaN")
 
 
-def clean_nerc(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame:
+def clean_nerc(nerc_df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame:
     """Clean NERC region entries.
 
     This function examines reported NERC regions and makes sure the output column of the
@@ -855,19 +856,12 @@ def clean_nerc(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame:
     to 'UNK'.
 
     Args:
-        df: A DataFrame with the column 'nerc_region' to be cleaned.
+        nerc_df: A DataFrame with the column 'nerc_region' to be cleaned.
         idx_cols: A list of the primary keys and `nerc_region`.
 
     Returns:
         A DataFrame with correct and clean NERC regions.
     """
-    idx_no_nerc = idx_cols.copy()
-    if "nerc_region" in idx_no_nerc:
-        idx_no_nerc.remove("nerc_region")
-    # Split raw df into primary keys plus nerc region and other value cols
-    nerc_df = df[idx_cols].copy()
-    other_df = df.drop(columns="nerc_region").set_index(idx_no_nerc)
-
     # Make all values upper-case
     # Replace all NA values with UNK
     # Make nerc values into lists to see how many separate values are stuffed into one row (ex: 'SPP & ERCOT' --> ['SPP', 'ERCOT'])
@@ -910,10 +904,7 @@ def clean_nerc(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame:
         .apply(lambda x: _remove_nerc_duplicates(x))
         .str.join("_")
     )
-    # Merge all data back together
-    full_df = pd.merge(nerc_df, other_df, on=idx_no_nerc)
-
-    return full_df
+    return nerc_df
 
 
 def _compare_nerc_physical_w_nerc_operational(df: pd.DataFrame) -> pd.DataFrame:
