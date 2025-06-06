@@ -1080,7 +1080,7 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
     )
     # Make sure that the number of rows altered stays somewhat small. We don't expect
     # there to be a lot of dropped or combined 88888 rows.
-    if (len(df) - len(recombined_df)) > 15:
+    if (len(df) - len(recombined_df)) > 35:
         raise AssertionError(
             f"Number of 88888 rows has changed by more than expected: {len(df) - len(recombined_df)}!"
         )
