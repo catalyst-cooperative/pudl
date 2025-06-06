@@ -112,6 +112,7 @@ raw_eia923__all_dfs = raw_df_factory(Extractor, name="eia923")
                 "raw_eia923__boiler_nox_operation",
                 "raw_eia923__fgp_operation",
                 "raw_eia923__puerto_rico_generation_fuel",
+                "raw_eia923__puerto_rico_plant_frame",
             )
         )
     },
