@@ -816,6 +816,7 @@ is for those supplies."""
                 "total_disposal_1000_tons",
                 "used_offsite_1000_tons",
                 "used_onsite_1000_tons",
+                "data_maturity",
             ],
             "primary_key": [
                 "plant_id_eia",
