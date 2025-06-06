@@ -29,7 +29,6 @@ class Extractor(excel.ExcelExtractor):
         super().__init__(*args, **kwargs)
 
     # Pages not supported by the metadata:
-    # energy_storage, github issue #458
     # oil_stocks, coal_stocks, petcoke_stocks
 
     def process_raw(self, df, page, **partition):
