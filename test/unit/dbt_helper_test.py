@@ -10,10 +10,15 @@ from pudl.scripts.dbt_helper import (
     DbtSchema,
     DbtSource,
     DbtTable,
+    _diff_named_items,
     _get_local_table_path,
     _get_model_path,
     _get_row_count_csv_path,
     _infer_partition_column,
+    diff_dbt_column,
+    diff_dbt_schema,
+    diff_dbt_source,
+    diff_dbt_table,
     get_data_source,
 )
 
@@ -504,3 +509,353 @@ def test_dbt_schema__add_column_tests(mocker, blank_schema):
         mocker.sentinel.second_model_test
         in two_model_tests.models[0].columns[0].data_tests
     )
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        GivenExpect(
+            given=(
+                "description change",
+                lambda: (
+                    DbtColumn(name="col", description="old"),
+                    DbtColumn(name="col", description="new"),
+                ),
+            ),
+            expect={"description": {"old": "old", "new": "new"}},
+        ),
+        GivenExpect(
+            given=(
+                "add data test",
+                lambda: (
+                    DbtColumn(name="col", data_tests=[]),
+                    DbtColumn(name="col", data_tests=[{"expect_column_to_exist": {}}]),
+                ),
+            ),
+            expect={
+                "data_tests": {
+                    "added": ["{'expect_column_to_exist': {}}"],
+                    "removed": [],
+                }
+            },
+        ),
+        GivenExpect(
+            given=(
+                "remove data test",
+                lambda: (
+                    DbtColumn(name="col", data_tests=[{"expect_column_to_exist": {}}]),
+                    DbtColumn(name="col", data_tests=[]),
+                ),
+            ),
+            expect={
+                "data_tests": {
+                    "added": [],
+                    "removed": ["{'expect_column_to_exist': {}}"],
+                }
+            },
+        ),
+        GivenExpect(
+            given=(
+                "add tag",
+                lambda: (
+                    DbtColumn(name="col", tags=[]),
+                    DbtColumn(name="col", tags=["new"]),
+                ),
+            ),
+            expect={
+                "tags": {
+                    "added": ["new"],
+                    "removed": [],
+                }
+            },
+        ),
+    ],
+)
+def test_diff_dbt_column(case):
+    label, column_builder = case.given
+    old, new = column_builder()
+    actual = diff_dbt_column(old, new)
+    assert actual == case.expect
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        GivenExpect(
+            given=(
+                "description changed",
+                lambda: (
+                    DbtTable(name="t", description="old", columns=[]),
+                    DbtTable(name="t", description="new", columns=[]),
+                ),
+            ),
+            expect={"description": {"old": "old", "new": "new"}},
+        ),
+        GivenExpect(
+            given=(
+                "columns changed",
+                lambda: (
+                    DbtTable(name="t", columns=[DbtColumn(name="a")]),
+                    DbtTable(name="t", columns=[DbtColumn(name="b")]),
+                ),
+            ),
+            expect={
+                "columns": {
+                    "a": {"removed": {"name": "a"}},
+                    "b": {"added": {"name": "b"}},
+                }
+            },
+        ),
+    ],
+)
+def test_diff_dbt_table(case):
+    label, builder = case.given
+    old, new = builder()
+    actual = diff_dbt_table(old, new)
+    assert actual == case.expect
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        GivenExpect(
+            given=(
+                "description change",
+                lambda: (
+                    DbtSource(name="source", description="old", tables=[]),
+                    DbtSource(name="source", description="new", tables=[]),
+                ),
+            ),
+            expect={"description": {"old": "old", "new": "new"}},
+        ),
+        GivenExpect(
+            given=(
+                "add data test",
+                lambda: (
+                    DbtSource(name="source", data_tests=[], tables=[]),
+                    DbtSource(name="source", data_tests=[{"test": "val"}], tables=[]),
+                ),
+            ),
+            expect={
+                "data_tests": {
+                    "added": ["{'test': 'val'}"],
+                    "removed": [],
+                }
+            },
+        ),
+        GivenExpect(
+            given=(
+                "table description change",
+                lambda: (
+                    DbtSource(
+                        name="source",
+                        tables=[
+                            DbtTable(name="table", description="old", columns=[]),
+                        ],
+                    ),
+                    DbtSource(
+                        name="source",
+                        tables=[
+                            DbtTable(name="table", description="new", columns=[]),
+                        ],
+                    ),
+                ),
+            ),
+            expect={
+                "tables": {
+                    "table": {
+                        "description": {"old": "old", "new": "new"},
+                    }
+                }
+            },
+        ),
+        GivenExpect(
+            given=(
+                "table name changed",
+                lambda: (
+                    DbtSource(
+                        name="source",
+                        tables=[
+                            DbtTable(name="old_name", description="same", columns=[]),
+                        ],
+                    ),
+                    DbtSource(
+                        name="source",
+                        tables=[
+                            DbtTable(name="new_name", description="same", columns=[]),
+                        ],
+                    ),
+                ),
+            ),
+            expect={
+                "tables": {
+                    "new_name": {
+                        "added": {
+                            "name": "new_name",
+                            "description": "same",
+                            "columns": [],
+                        }
+                    },
+                    "old_name": {
+                        "removed": {
+                            "name": "old_name",
+                            "description": "same",
+                            "columns": [],
+                        }
+                    },
+                }
+            },
+        ),
+    ],
+)
+def test_diff_dbt_source(case):
+    label, source_builder = case.given
+    old, new = source_builder()
+    actual = diff_dbt_source(old, new)
+    assert actual == case.expect
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        GivenExpect(
+            given=(
+                "complex schema diff",
+                lambda: (
+                    DbtSchema(
+                        version=1,
+                        sources=[
+                            DbtSource(
+                                name="source1",
+                                tables=[
+                                    DbtTable(
+                                        name="table1", description="desc", columns=[]
+                                    ),
+                                ],
+                            )
+                        ],
+                        models=[
+                            DbtTable(name="model1", description="old", columns=[]),
+                        ],
+                    ),
+                    DbtSchema(
+                        version=2,
+                        sources=[
+                            DbtSource(
+                                name="source1",
+                                tables=[
+                                    DbtTable(
+                                        name="table1", description="updated", columns=[]
+                                    ),
+                                ],
+                            ),
+                            DbtSource(
+                                name="source2",
+                                tables=[
+                                    DbtTable(
+                                        name="new_table", description="new", columns=[]
+                                    ),
+                                ],
+                            ),
+                        ],
+                        models=[
+                            DbtTable(name="model1", description="new", columns=[]),
+                            DbtTable(name="model2", description="added", columns=[]),
+                        ],
+                    ),
+                ),
+            ),
+            expect={
+                "version": {"old": 1, "new": 2},
+                "sources": {
+                    "source1": {
+                        "tables": {
+                            "table1": {
+                                "description": {"old": "desc", "new": "updated"},
+                            }
+                        }
+                    },
+                    "source2": {
+                        "added": {
+                            "name": "source2",
+                            "tables": [
+                                {
+                                    "name": "new_table",
+                                    "description": "new",
+                                    "columns": [],
+                                }
+                            ],
+                        }
+                    },
+                },
+                "models": {
+                    "model1": {
+                        "description": {"old": "old", "new": "new"},
+                    },
+                    "model2": {
+                        "added": {
+                            "name": "model2",
+                            "description": "added",
+                            "columns": [],
+                        }
+                    },
+                },
+            },
+        )
+    ],
+)
+def test_diff_dbt_schema(case):
+    label, schema_builder = case.given
+    old, new = schema_builder()
+    actual = diff_dbt_schema(old, new)
+    assert actual == case.expect
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        GivenExpect(
+            given=(
+                "add item",
+                lambda: (
+                    [DbtTable(name="a", description="desc", columns=[])],
+                    [
+                        DbtTable(name="a", description="desc", columns=[]),
+                        DbtTable(name="b", description="new", columns=[]),
+                    ],
+                ),
+            ),
+            expect={"b": {"added": {"name": "b", "description": "new", "columns": []}}},
+        ),
+        GivenExpect(
+            given=(
+                "remove item",
+                lambda: (
+                    [
+                        DbtTable(name="a", description="desc", columns=[]),
+                        DbtTable(name="b", description="gone", columns=[]),
+                    ],
+                    [DbtTable(name="a", description="desc", columns=[])],
+                ),
+            ),
+            expect={
+                "b": {"removed": {"name": "b", "description": "gone", "columns": []}}
+            },
+        ),
+        GivenExpect(
+            given=(
+                "change item",
+                lambda: (
+                    [DbtTable(name="a", description="old", columns=[])],
+                    [DbtTable(name="a", description="new", columns=[])],
+                ),
+            ),
+            expect={"a": {"description": {"old": "old", "new": "new"}}},
+        ),
+    ],
+)
+def test_diff_named_items(case):
+    label, builder = case.given
+    old, new = builder()
+    actual = _diff_named_items(old, new, diff_dbt_table)
+    assert actual == case.expect
