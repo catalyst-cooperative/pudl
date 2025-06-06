@@ -6,7 +6,6 @@ All transformations include:
 
 import pandas as pd
 from dagster import AssetIn, AssetOut, Output, asset, multi_asset
-from dagster._utils.forked_pdb import ForkedPdb
 
 import pudl
 from pudl.helpers import (
@@ -1051,25 +1050,38 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
         # If there are no non-numeric columns, or all non-numeric columns have the same value,
         # Sum the numeric columns and return the result.
         if len(non_num_cols) == 0 or group[non_num_cols].iloc[0].all().all():
-            group = group.set_index(idx_cols)
+            # Special case: if there are NA values in the index columns we can't
+            # combine two dfs with the same index without creating two rows.
+            # This messes up the results, so we drop the NA values from the index
+            # when combining the newly aggregated groups. This does affect the
+            # actual primary key, it's just a slightly hacky way to combine the rows correctly.
+            idx_has_na = group[idx_cols].isna().any()
+            na_cols = idx_has_na[idx_has_na].index.tolist()
+            mod_idx_cols = [x for x in idx_cols if x not in na_cols]
+            # Now we can safely sum the numeric columns, recombine with the non-numeric
+            # columns, and return the result.
+            group = group.set_index(mod_idx_cols)
             non_num_group = group[non_num_cols].iloc[[0]]
-            num_group = group.drop(columns=non_num_cols).groupby(idx_cols).sum()
+            num_group = (
+                group.drop(columns=non_num_cols)
+                .groupby(mod_idx_cols, dropna=False)
+                .sum()
+            )
             return pd.concat([non_num_group, num_group], axis="columns").reset_index()
         # Exclude rows with 88888 utility_id_eia that can't be combined due to different values in
         # non-numeric columns.
         return None
 
     utils_88888 = df[df["utility_id_eia"] == 88888]
-    agg_utils_88888 = utils_88888.groupby(idx_cols, group_keys=False).apply(
-        custom_group_agg
-    )
+    agg_utils_88888 = utils_88888.groupby(
+        idx_cols, group_keys=False, dropna=False
+    ).apply(custom_group_agg)
     recombined_df = pd.concat(
         [df[df["utility_id_eia"] != 88888], agg_utils_88888], ignore_index=True
     )
     # Make sure that the number of rows altered stays somewhat small. We don't expect
     # there to be a lot of dropped or combined 88888 rows.
     if (len(df) - len(recombined_df)) > 15:
-        ForkedPdb().set_trace()
         raise AssertionError(
             f"Number of 88888 rows has changed by more than expected: {len(df) - len(recombined_df)}!"
         )
@@ -2439,7 +2451,6 @@ def core_utility_data_eia861(raw_eia861__utility_data: pd.DataFrame):
         class_list=[x.lower() for x in NERC_REGIONS],
         class_type="nerc_regions_of_operation",
     )
-
     tidy_ud_rto, _ = _tidy_class_dfs(
         df=raw_ud_rto,
         df_name="Utility Data RTOs",
@@ -2447,7 +2458,6 @@ def core_utility_data_eia861(raw_eia861__utility_data: pd.DataFrame):
         class_list=RTO_CLASSES,
         class_type="rtos_of_operation",
     )
-
     ###########################################################################
     # Transform Data Round 2:
     # * Re-code operating_in_XX to boolean:
