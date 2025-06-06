@@ -452,9 +452,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Is salable byproduct is recovered by the unit?",
     },
     "byproducts_to_report": {
-        "type": "string",
-        "description": "Y or N, if combustion by-products were produced.",
-        "constraints": {"enum": ["Y", "N"]},
+        "type": "boolean",
+        "description": "Whether combustion by-products were produced.",
     },
     "caidi_w_major_event_days_minutes": {
         "type": "number",

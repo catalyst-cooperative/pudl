@@ -1506,7 +1506,6 @@ def _core_eia923__byproduct_disposition(
     * Drop rows with NA byproduct_description
         * This also removes all duplicates based on report_year, plant_id_eia, and byproduct_description
     * Drop early_release column with no data values
-    * Drop data_maturity column with only a single value ("final") for all records
 
     Args:
         raw_eia923__byproduct_disposition: The raw ``raw_eia923__byproduct_disposition`` dataframe.
@@ -1521,10 +1520,11 @@ def _core_eia923__byproduct_disposition(
     # See https://github.com/catalyst-cooperative/pudl/issues/509
     cols_to_drop = [
         "early_release",
-        "data_maturity",
     ]
     df = df.drop(cols_to_drop, axis=1)
-    df = pudl.helpers.fix_eia_na(df)
+    df = pudl.helpers.fix_eia_na(df).pipe(
+        pudl.helpers.fix_boolean_columns, ["byproducts_to_report"]
+    )
     df = df.dropna(subset=["byproduct_description"])
 
     df = PUDL_PACKAGE.encode(df)

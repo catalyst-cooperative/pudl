@@ -131,7 +131,7 @@ units. The total MWh discharged from the energy storage unit during the
 reporting period is the gross generation and the difference between gross generation
 and consumption is the net generation."""
     ),
-    "core_eia923__byproduct_disposition": (
+    "_core_eia923__byproduct_disposition": (
         """EIA-923 Yearly Byproduct Disposition. From EIA-923 Schedule 8A.
 
 Annual quantities of by-products reported by thermoelectric power plants with total steam turbine
@@ -799,8 +799,8 @@ is for those supplies."""
         "sources": ["eia923"],
         "etl_group": "eia923",
     },
-    "core_eia923__byproduct_disposition": {
-        "description": TABLE_DESCRIPTIONS["core_eia923__byproduct_disposition"],
+    "_core_eia923__byproduct_disposition": {
+        "description": TABLE_DESCRIPTIONS["_core_eia923__byproduct_disposition"],
         "schema": {
             "fields": [
                 "byproduct_description",
