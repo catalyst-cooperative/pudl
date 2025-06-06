@@ -724,7 +724,6 @@ def _tidy_class_dfs(
     # Now stack the customer classes into their own categorical column,
     data_cols = data_cols.stack(level=0, dropna=False).reset_index()
     denorm_cols = _filter_non_class_cols(raw_df, class_list).reset_index()
-
     # Check to make sure that the idx_cols are actually valid primary key cols:
     # This is tricky, because NA values in the BA Code column creates actual duplicate
     # values. These NA values are filled with UNK and the duplicates are later dropped,
@@ -756,7 +755,6 @@ def _tidy_class_dfs(
         denorm_cols = denorm_cols.drop_duplicates(subset=idx_cols)
     else:
         raise AssertionError(err_msg)
-
     # Merge the index, data, and denormalized columns back together
     tidy_df = pd.merge(denorm_cols, data_cols, on=idx_cols, validate="1:m")
 
@@ -866,7 +864,6 @@ def clean_nerc(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame:
     idx_no_nerc = idx_cols.copy()
     if "nerc_region" in idx_no_nerc:
         idx_no_nerc.remove("nerc_region")
-
     # Split raw df into primary keys plus nerc region and other value cols
     nerc_df = df[idx_cols].copy()
     other_df = df.drop(columns="nerc_region").set_index(idx_no_nerc)
@@ -913,7 +910,6 @@ def clean_nerc(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame:
         .apply(lambda x: _remove_nerc_duplicates(x))
         .str.join("_")
     )
-
     # Merge all data back together
     full_df = pd.merge(nerc_df, other_df, on=idx_no_nerc)
 
@@ -1033,7 +1029,14 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
     This function sums rows with a utility_id_eia of 88888 into a single row by
     primary key. It drops rows with a utility_id_eia of 88888 if there are non-numeric
     columns with different values that are impossible to combine. E.g.: boolean
-    columns where one value is Y and the other is N.
+    columns where one value is Y and the other is N. This results in a small loss of
+    data, but is necessary to ensure that the primary key remains unique.
+
+    There's a similar de-duplication process happening in the ``_tidy_class_dfs`` function,
+    but the procedure for 88888 has been abstracted out here to avoid confusion and the
+    ability to treat these cases differently as we see fit. The 88888 utility_id_eia
+    values are known withholdings whereas the duplicate primary key rows are unknown data
+    quality issues.
 
     Args:
         df: The dataframe to process.
@@ -1041,7 +1044,7 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
             identify unique records in the input data.
 
     Returns:
-        A dataframe with the combined or dropped 88888 utiltiy_id_eia values.
+        A dataframe with the combined or dropped 88888 utiltiy_id_eia values and unique pks.
     """
     if 88888 not in df.utility_id_eia.unique():
         return df
@@ -1090,7 +1093,6 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
         raise AssertionError(
             f"Number of 88888 rows has changed by more than expected: {len(df) - len(recombined_df)}!"
         )
-    # Check to make sure that the idx_cols are actually valid primary key cols:
     return recombined_df
 
     return df
@@ -2414,13 +2416,11 @@ def core_utility_data_eia861(raw_eia861__utility_data: pd.DataFrame):
 
     # Pre-tidy clean specific to operational data table
     raw_ud = _pre_process(raw_eia861__utility_data, idx_cols)
-
     ##############################################################################
     # Transform Data Round 1 (must be done to avoid issues with nerc_region col in
     # _tidy_class_dfs())
     # * Clean NERC region col
     ##############################################################################
-
     transformed_ud = clean_nerc(raw_ud, idx_cols).assign(
         short_form=lambda x: _make_yn_bool(x.short_form)
     )
@@ -2487,9 +2487,7 @@ def core_utility_data_eia861(raw_eia861__utility_data: pd.DataFrame):
 
     # Transform RTO table
     transformed_ud_rto = tidy_ud_rto.assign(
-        rto_operation=lambda x: (
-            x.rto_operation.fillna(False).replace({"N": False, "Y": True})
-        ),
+        rto_operation=lambda x: (_make_yn_bool(x.rto_operation.fillna(False))),
     )
 
     # Only keep true values and drop bool col
