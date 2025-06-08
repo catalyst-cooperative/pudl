@@ -2,8 +2,6 @@
 
 import importlib.resources
 import itertools
-import os
-import warnings
 
 import pandera as pr
 from dagster import (
@@ -11,9 +9,8 @@ from dagster import (
     AssetChecksDefinition,
     AssetKey,
     AssetsDefinition,
-    AssetSelection,
+    AssetSpec,
     Definitions,
-    SourceAsset,
     asset_check,
     define_asset_job,
     load_asset_checks_from_modules,
@@ -119,6 +116,7 @@ default_assets = list(
         load_assets_from_modules(
             modules,
             group_name=group_name,
+            include_specs=True,
         )
         for group_name, modules in all_asset_modules.items()
     )
@@ -170,7 +168,7 @@ def asset_check_from_schema(
 
 
 def _get_keys_from_assets(
-    asset_def: AssetsDefinition | SourceAsset | CacheableAssetsDefinition,
+    asset_def: AssetsDefinition | AssetSpec | CacheableAssetsDefinition,
 ) -> list[AssetKey]:
     """Get a list of asset keys.
 
@@ -180,14 +178,14 @@ def _get_keys_from_assets(
     Multi-assets have multiple keys, which can also be retrieved as a list from
     ``asset.keys``.
 
-    SourceAssets always only have one key, and don't have ``asset.keys``. So we
+    AssetSpecs always only have one key, and don't have ``asset.keys``. So we
     look for ``asset.key`` and wrap it in a list.
 
     We don't handle CacheableAssetsDefinitions yet.
     """
     if isinstance(asset_def, AssetsDefinition):
         return list(asset_def.keys)
-    if isinstance(asset_def, SourceAsset):
+    if isinstance(asset_def, AssetSpec):
         return [asset_def.key]
     return []
 

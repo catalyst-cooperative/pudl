@@ -28,7 +28,7 @@ import pyarrow.parquet as pq
 import requests
 import sqlalchemy as sa
 import yaml
-from dagster import AssetKey, AssetsDefinition, AssetSelection, SourceAsset
+from dagster import AssetKey, AssetsDefinition, AssetSelection, AssetSpec
 from pandas._libs.missing import NAType
 
 import pudl.logging_helpers
@@ -1826,22 +1826,22 @@ def convert_df_to_excel_file(df: pd.DataFrame, **kwargs) -> pd.ExcelFile:
 
 
 def get_asset_keys(
-    assets: list[AssetsDefinition], exclude_source_assets: bool = True
+    assets: list[AssetsDefinition], exclude_asset_specs: bool = True
 ) -> set[AssetKey]:
     """Get a set of asset keys from a list of asset definitions.
 
     Args:
         assets: list of asset definitions.
-        exclude_source_assets: exclude SourceAssets in the returned list.
-            Some selection operations don't allow SourceAsset keys.
+        exclude_asset_specs: exclude AssetSpecs in the returned list.
+            Some selection operations don't allow AssetSpec keys.
 
     Returns:
         A set of asset keys.
     """
     asset_keys = set()
     for asset in assets:
-        if isinstance(asset, SourceAsset):
-            if not exclude_source_assets:
+        if isinstance(asset, AssetSpec):
+            if not exclude_asset_specs:
                 asset_keys = asset_keys.union(asset.key)
         else:
             asset_keys = asset_keys.union(asset.keys)

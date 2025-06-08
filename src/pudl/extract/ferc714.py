@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 import pandas as pd
-from dagster import AssetKey, AssetsDefinition, SourceAsset, asset
+from dagster import AssetKey, AssetsDefinition, AssetSpec, asset
 
 import pudl
 from pudl.workspace.setup import PudlPaths
@@ -170,16 +170,16 @@ def raw_ferc714_xbrl__metadata_json(
     return xbrl_meta_out
 
 
-def create_raw_ferc714_xbrl_assets() -> list[SourceAsset]:
-    """Create SourceAssets for raw FERC 714 XBRL tables.
+def create_raw_ferc714_xbrl_assets() -> list[AssetSpec]:
+    """Create AssetSpecs for raw FERC 714 XBRL tables.
 
-    SourceAssets allow you to access assets that are generated elsewhere.
-    In our case, the XBRL database contains the raw FERC 714 assets from
-    2021 onward. Prior to that, the assets are distributed as CSVs and
-    are extracted with the ``raw_ferc714_csv_asset_factory`` function.
+    AssetSpecs allow you to specify and access assets that are generated elsewhere.  In
+    our case, the XBRL database contains the raw FERC 714 assets from 2021 onward. Prior
+    to that, the assets are distributed as CSVs and are extracted with the
+    ``raw_ferc714_csv_asset_factory`` function.
 
     Returns:
-        A list of FERC 714 SourceAssets.
+        A list of FERC 714 AssetSpecs.
     """
     # Create assets for the duration and instant tables
     xbrls = (v["xbrl"] for v in TABLE_NAME_MAP_FERC714.values())
@@ -191,9 +191,8 @@ def create_raw_ferc714_xbrl_assets() -> list[SourceAsset]:
     )
     xbrl_table_names = tuple(set(xbrls_with_periods))
     raw_ferc714_xbrl_assets = [
-        SourceAsset(
-            key=AssetKey(f"raw_ferc714_xbrl__{table_name}"),
-            io_manager_key="ferc714_xbrl_sqlite_io_manager",
+        AssetSpec(key=AssetKey(f"raw_ferc714_xbrl__{table_name}")).with_io_manager_key(
+            "ferc714_xbrl_sqlite_io_manager"
         )
         for table_name in xbrl_table_names
     ]
