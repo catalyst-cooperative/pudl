@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: 20a21497c98a0a3f4a70361f6491b1450835fe4ccee5b7fbdf9b9dd18052205b
-    osx-64: 46a2cdbc017a8e7c0667c141715f7af2067ef2eddaef9f5be19bff85b73881a0
-    osx-arm64: d4a6e9a9c1d46b3dbdc840ef7e9ad3937144c9b4cd201b81c1afaaf5aaadb10e
+    linux-64: 224c140544544af5589e7454d9f1ac4be49d883aff8d36e5a71a7f548f1587b1
+    osx-64: 7108c537272a4a3b562e14c1f38bfe3a9999d0d504ef11987171d4a36499604f
+    osx-arm64: 12150b4510ae1eb535a12546c376d1e362063c046ebe140e707d552a39e0bfbd
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -9661,7 +9661,7 @@ package:
     category: main
     optional: false
   - name: hypothesis
-    version: 6.135.1
+    version: 6.135.2
     manager: conda
     platform: linux-64
     dependencies:
@@ -9671,14 +9671,14 @@ package:
       python: ">=3.9"
       setuptools: ""
       sortedcontainers: ">=2.1.0,<3.0.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.135.1-pyha770c72_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.135.2-pyha770c72_0.conda
     hash:
-      md5: 1e9cb033c35e73498278b1a4fd6ea380
-      sha256: 9c3990e4cfc462d3e66d95936c35441d44973ae746a136b6e9f31450ceac206f
+      md5: 3d04f3c8ad90ff9d522b6b9f341114d2
+      sha256: 896e58163f730955e9b9e1d166fd5fd4be6041d82b6ebab4a9916a6a1c579fa2
     category: main
     optional: false
   - name: hypothesis
-    version: 6.135.1
+    version: 6.135.2
     manager: conda
     platform: osx-64
     dependencies:
@@ -9688,14 +9688,14 @@ package:
       python: ">=3.9"
       setuptools: ""
       sortedcontainers: ">=2.1.0,<3.0.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.135.1-pyha770c72_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.135.2-pyha770c72_0.conda
     hash:
-      md5: 1e9cb033c35e73498278b1a4fd6ea380
-      sha256: 9c3990e4cfc462d3e66d95936c35441d44973ae746a136b6e9f31450ceac206f
+      md5: 3d04f3c8ad90ff9d522b6b9f341114d2
+      sha256: 896e58163f730955e9b9e1d166fd5fd4be6041d82b6ebab4a9916a6a1c579fa2
     category: main
     optional: false
   - name: hypothesis
-    version: 6.135.1
+    version: 6.135.2
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -9705,10 +9705,10 @@ package:
       python: ">=3.9"
       setuptools: ""
       sortedcontainers: ">=2.1.0,<3.0.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.135.1-pyha770c72_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.135.2-pyha770c72_0.conda
     hash:
-      md5: 1e9cb033c35e73498278b1a4fd6ea380
-      sha256: 9c3990e4cfc462d3e66d95936c35441d44973ae746a136b6e9f31450ceac206f
+      md5: 3d04f3c8ad90ff9d522b6b9f341114d2
+      sha256: 896e58163f730955e9b9e1d166fd5fd4be6041d82b6ebab4a9916a6a1c579fa2
     category: main
     optional: false
   - name: icu
@@ -26678,17 +26678,17 @@ package:
     category: main
     optional: false
   - name: xkeyboard-config
-    version: "2.44"
+    version: "2.45"
     manager: conda
     platform: linux-64
     dependencies:
       __glibc: ">=2.17,<3.0.a0"
       libgcc: ">=13"
       xorg-libx11: ">=1.8.12,<2.0a0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/xkeyboard-config-2.44-hb9d3cd8_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/xkeyboard-config-2.45-hb9d3cd8_0.conda
     hash:
-      md5: 7c91bfc90672888259675ad2ad28af9c
-      sha256: 83ad2be5eb1d359b4cd7d7a93a6b25cdbfdce9d27b37508e2a4efe90d3a4ed80
+      md5: 397a013c2dc5145a70737871aaa87e98
+      sha256: a5d4af601f71805ec67403406e147c48d6bad7aaeae92b0622b7e2396842d3fe
     category: dev
     optional: true
   - name: xlsxwriter
