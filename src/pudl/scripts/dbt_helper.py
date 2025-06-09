@@ -283,7 +283,7 @@ def _has_removals_or_modifications(diff: dict) -> bool:
     """Recursively checks if any removal or modification exists in a diff dict."""
     if isinstance(diff, dict):
         for key, value in diff.items():
-            if key in {"removed", "modified"} and value:
+            if key in {"removed", "old"} and value:
                 return True
             if _has_removals_or_modifications(value):
                 return True

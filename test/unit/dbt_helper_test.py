@@ -14,6 +14,7 @@ from pudl.scripts.dbt_helper import (
     _get_local_table_path,
     _get_model_path,
     _get_row_count_csv_path,
+    _has_removals_or_modifications,
     _infer_partition_column,
     diff_dbt_column,
     diff_dbt_schema,
@@ -859,3 +860,25 @@ def test_diff_named_items(case):
     old, new = builder()
     actual = _diff_named_items(old, new, diff_dbt_table)
     assert actual == case.expect
+
+
+@pytest.mark.parametrize(
+    "diff,expected",
+    [
+        ({"description": {"added": "foo"}}, False),  # Add only
+        ({"description": {"old": "x", "new": "y"}}, True),  # Scalar mod
+        (
+            {"columns": {"col_a": {"removed": {"name": "col_a"}}}},
+            True,
+        ),  # Removed column
+        (
+            {"columns": {"col_b": {"tags": {"old": ["a"], "new": ["b"]}}}},
+            True,
+        ),  # Nested mod
+        ({}, False),  # Empty
+        ({"meta": {"notes": {"added": "info"}}}, False),  # Add in nested key
+        ({"meta": {"notes": {"old": "foo", "new": "bar"}}}, True),  # Nested old
+    ],
+)
+def test__has_removals_or_modifications(diff, expected):
+    assert _has_removals_or_modifications(diff) == expected
