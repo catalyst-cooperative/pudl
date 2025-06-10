@@ -65,11 +65,13 @@ class InputManager:
     def get_plants_ferc1(self, clobber: bool = False) -> pd.DataFrame:
         """Prepare FERC1 plants data for record linkage with EIA plant-parts.
 
-        This method grabs two tables (``plants_all_ferc1`` and ``fuel_by_plant_ferc1``,
-        accessed originally via :meth:`pudl.output.pudltabl.PudlTabl.plants_all_ferc1`
-        and :meth:`pudl.output.pudltabl.PudlTabl.fbp_ferc1` respectively) and ensures
-        that the columns the same as their EIA counterparts, because the output of this
-        method will be used to link FERC and EIA.
+        This method ensures that two internally cached dataframes (``plants_all_ferc1``
+        and ``fuel_by_plant_ferc1``, originally obtained from
+        ref:`out_ferc1__yearly_all_plants`
+        and :ref:`out_ferc1__yearly_steam_plants_fuel_by_plant_sched402`
+        respectively) and ensures
+        that key columns are formatted the same as their EIA counterparts, because the
+        output of this method will be used to link FERC and EIA based on those columns.
 
         Returns:
             A cleaned table of FERC1 plants plant records with fuel cost data.

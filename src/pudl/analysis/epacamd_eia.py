@@ -7,7 +7,6 @@ that show up in EPA CAMD.
 Usage Example:
 
 epacems = pudl.output.epacems.epacems(states=['ID'], years=[2020]) # subset for test
-core_epa__assn_eia_epacamd = pudl_out.epacamd_eia()
 filtered_crosswalk = filter_crosswalk(core_epa__assn_eia_epacamd, epacems)
 crosswalk_with_subplant_ids = pudl.etl.make_subplant_ids(filtered_crosswalk)
 """
