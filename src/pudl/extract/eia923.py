@@ -34,7 +34,6 @@ class Extractor(excel.ExcelExtractor):
     # Pages not supported by the metadata:
     # puerto_rico, github issue #457
     # energy_storage, github issue #458
-    # oil_stocks, coal_stocks, petcoke_stocks
 
     def process_raw(self, df, page, **partition):
         """Drops reserved columns."""
@@ -115,6 +114,9 @@ raw_eia923__all_dfs = raw_df_factory(Extractor, name="eia923")
                 "raw_eia923__cooling_system_information",
                 "raw_eia923__boiler_nox_operation",
                 "raw_eia923__fgp_operation",
+                "raw_eia923__coal_stocks",
+                "raw_eia923__petcoke_stocks",
+                "raw_eia923__oil_stocks",
             )
         )
     },
