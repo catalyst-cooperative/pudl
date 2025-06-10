@@ -1041,7 +1041,7 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
         df.set_index(idx_cols).select_dtypes(exclude="number").columns.tolist()
     )
 
-    def custom_group_agg(group):
+    def sum_numeric_values_when_strings_match(group):
         if len(group) <= 1:
             return group
         # If there are no non-numeric columns, or all non-numeric columns have the same value,
@@ -1077,7 +1077,7 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
     utils_88888 = df[df["utility_id_eia"] == 88888]
     agg_utils_88888 = utils_88888.groupby(
         idx_cols, group_keys=False, dropna=False
-    ).apply(custom_group_agg)
+    ).apply(sum_numeric_values_when_strings_match)
     recombined_df = pd.concat(
         [df[df["utility_id_eia"] != 88888], agg_utils_88888], ignore_index=True
     )
