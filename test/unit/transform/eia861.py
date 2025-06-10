@@ -93,15 +93,14 @@ expected_4 = pd.read_csv(
 @pytest.mark.parametrize(
     "actual,expected",
     [
-        (actual_1, expected_1),
-        (actual_2, expected_2),
-        (actual_3, expected_3),
-        (actual_4, expected_4),
+        pytest.param(actual_1, expected_1, id="same_pk_does_combine"),
+        pytest.param(actual_2, expected_2, id="no_88888_does_not_combine"),
+        pytest.param(actual_3, expected_3, id="non_numeric_does_not_combine"),
+        pytest.param(actual_4, expected_4, id="na_index_col_does_not_duplicate"),
     ],
 )
 def test__combine_88888_values(actual, expected):
     """Test that combine_88888 correctly combines data from multiple sources."""
     idx_cols = ["report_date", "utility_id_eia", "state"]
-    actual_test = eia861._combine_88888_values(actual, idx_cols)
-    actual_test.to_pickle("/Users/austensharpe/Desktop/actual_test.pkl")
-    pd.testing.assert_frame_equal(expected, actual_test)
+    actual_outcome = eia861._combine_88888_values(actual, idx_cols)
+    pd.testing.assert_frame_equal(expected, actual_outcome)
