@@ -1048,7 +1048,10 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
             return group
         # If there are no non-numeric columns, or all non-numeric columns have the same value,
         # Sum the numeric columns and return the result.
-        if len(non_num_cols) == 0 or group[non_num_cols].iloc[0].all().all():
+        if (
+            len(non_num_cols) == 0
+            or (group[non_num_cols] == group[non_num_cols].iloc[0]).all().all()
+        ):
             # Special case: if there are NA values in the index columns we can't
             # combine two dfs with the same index without creating two rows.
             # This messes up the results, so we drop the NA values from the index
@@ -1067,9 +1070,11 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
                 .sum()
             )
             return pd.concat([non_num_group, num_group], axis="columns").reset_index()
-        # Exclude rows with 88888 utility_id_eia that can't be combined due to different values in
-        # non-numeric columns.
-        return None
+        # When there are rows that can't be combined due to discrepencies in the non-numeric
+        # columns, we drop the duplicates and return the first row.
+        # This is a bit of a hack, but it ensures that we don't end up with multiple rows
+        # with the same primary key, which would cause problems later on.
+        return group.drop_duplicates(subset=idx_cols)
 
     utils_88888 = df[df["utility_id_eia"] == 88888]
     agg_utils_88888 = utils_88888.groupby(
