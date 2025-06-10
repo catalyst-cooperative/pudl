@@ -34,7 +34,7 @@ class Extractor(excel.ExcelExtractor):
     # Pages not supported by the metadata:
     # puerto_rico, github issue #457
     # energy_storage, github issue #458
-    # oil_stocks, coal_stocks, petcoke_stocks
+    # oil stocks, coal stocks, petcoke stocks: file- and pagemapped but not columnmapped
 
     def process_raw(self, df, page, **partition):
         """Drops reserved columns."""
