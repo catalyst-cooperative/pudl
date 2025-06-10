@@ -49,7 +49,7 @@ expected_2 = pd.read_csv(
     ),
 ).pipe(apply_pudl_dtypes, group="eia")
 
-# Test that rows get dropped when not all non numberic values match
+# Test that duplicate rows get dropped when non numeric values don't match
 actual_3 = pd.read_csv(
     StringIO(
         """report_date,utility_id_eia,state,ba_code,value
@@ -63,7 +63,28 @@ actual_3 = pd.read_csv(
 expected_3 = pd.read_csv(
     StringIO(
         """report_date,utility_id_eia,state,ba_code,value
+    2019-01-01,88888,TX,ERCOT,100
+    2019-01-01,88888,pd.NA,ERCOT,800
+"""
+    ),
+).pipe(apply_pudl_dtypes, group="eia")
+
+# Test that NA values in the index cols aren't converted into two rows
+actual_4 = pd.read_csv(
+    StringIO(
+        """report_date,utility_id_eia,state,ba_code,value
+2019-01-01,88888,TX,ERCOT,100
+2019-01-01,88888,pd.NA,ERCOT,300
 2019-01-01,88888,pd.NA,ERCOT,800
+"""
+    ),
+).pipe(apply_pudl_dtypes, group="eia")
+
+expected_4 = pd.read_csv(
+    StringIO(
+        """report_date,utility_id_eia,state,ba_code,value
+2019-01-01,88888,TX,ERCOT,100
+2019-01-01,88888,pd.NA,ERCOT,1100
 """
     ),
 ).pipe(apply_pudl_dtypes, group="eia")
@@ -74,11 +95,13 @@ expected_3 = pd.read_csv(
     [
         (actual_1, expected_1),
         (actual_2, expected_2),
-        # (actual_3, expected_3),
+        (actual_3, expected_3),
+        (actual_4, expected_4),
     ],
 )
 def test__combine_88888_values(actual, expected):
     """Test that combine_88888 correctly combines data from multiple sources."""
     idx_cols = ["report_date", "utility_id_eia", "state"]
     actual_test = eia861._combine_88888_values(actual, idx_cols)
+    actual_test.to_pickle("/Users/austensharpe/Desktop/actual_test.pkl")
     pd.testing.assert_frame_equal(expected, actual_test)
