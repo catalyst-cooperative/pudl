@@ -1216,17 +1216,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "short notice."
         ),
     },
-    "disposal_landfill_1000_tons": {
+    "disposal_landfill_tons": {
         "type": "integer",
-        "description": "Disposed by-products in landfill, in thousand tons.",
+        "description": "Disposed by-products in landfill, to the nearest 0.1 thousand ton.",
     },
-    "disposal_offsite_1000_tons": {
+    "disposal_offsite_tons": {
         "type": "integer",
-        "description": "Disposed by-products offsite, in thousand tons.",
+        "description": "Disposed by-products offsite, to the nearest 0.1 thousand ton.",
     },
-    "disposal_ponds_1000_tons": {
+    "disposal_ponds_tons": {
         "type": "integer",
-        "description": "Disposed by-products in ponds, in thousand tons.",
+        "description": "Disposed by-products in ponds, to the nearest 0.1 thousand ton.",
     },
     "distributed_generation": {
         "type": "boolean",
@@ -4517,9 +4517,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "date",
         "description": "Date of most recent test for sulfur dioxide removal efficiency.",
     },
-    "sold_1000_tons_or_mmbtu": {
+    "sold_tons_or_mmbtu": {
         "type": "integer",
-        "description": "Sold by-products, in thousand tons or, for Steam, MMBtu.",
+        "description": "Sold by-products, in tons (to the nearest 0.1 thousand ton) or, for Steam, MMBtu.",
     },
     "sold_to_utility_mwh": {
         "type": "number",
@@ -4704,15 +4704,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Whether the energy storage device was used to store excess wind/solar generation during the reporting year.",
     },
-    "stored_offsite_1000_tons": {
+    "stored_offsite_tons": {
         "type": "integer",
-        "unit": "1000_tons",
-        "description": "Stored by-products offsite, in thousand tons.",
+        "unit": "tons",
+        "description": "Stored by-products offsite, to the nearest 0.1 thousand ton.",
     },
-    "stored_onsite_1000_tons": {
+    "stored_onsite_tons": {
         "type": "integer",
-        "unit": "1000_tons",
-        "description": "Stored by-products onsite, in thousand tons.",
+        "unit": "tons",
+        "description": "Stored by-products onsite, to the nearest 0.1 thousand ton.",
     },
     "street_address": {
         "type": "string",
@@ -4939,10 +4939,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
-    "total_disposal_1000_tons": {
+    "total_disposal_tons": {
         "type": "integer",
-        "unit": "1000_tons",
-        "description": "Total by-product disposal, in thousand tons.",
+        "unit": "tons",
+        "description": "Total by-product disposal, to the nearest 0.1 thousand ton.",
     },
     "total_disposition_mwh": {
         "type": "number",
@@ -5135,15 +5135,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Was an uprate or derate completed on this generator during the reporting year?",
     },
-    "used_offsite_1000_tons": {
+    "used_offsite_tons": {
         "type": "integer",
-        "unit": "1000_tons",
-        "description": "Used offsite by-products, in thousand tons.",
+        "unit": "tons",
+        "description": "Used offsite by-products, to the nearest 0.1 thousand ton.",
     },
-    "used_onsite_1000_tons": {
+    "used_onsite_tons": {
         "type": "integer",
-        "unit": "1000_tons",
-        "description": "Used onsite by-products, in thousand tons.",
+        "unit": "tons",
+        "description": "Used onsite by-products, to the nearest 0.1 thousand ton.",
     },
     "utility_id_eia": {
         "type": "integer",

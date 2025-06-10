@@ -1503,9 +1503,11 @@ def _core_eia923__byproduct_disposition(
     Transformations include:
 
     * Replace . values with NA
+    * Convert byproducts_to_report to boolean
     * Drop rows with NA byproduct_description
         * This also removes all duplicates based on report_year, plant_id_eia, and byproduct_description
     * Drop early_release column with no data values
+    * Convert 1000 tons to tons
 
     Args:
         raw_eia923__byproduct_disposition: The raw ``raw_eia923__byproduct_disposition`` dataframe.
@@ -1515,9 +1517,6 @@ def _core_eia923__byproduct_disposition(
     """
     df = raw_eia923__byproduct_disposition
 
-    # TODO: Confirm these fields are droppable
-    # Need to stop dropping fields that contain harvestable entity attributes.
-    # See https://github.com/catalyst-cooperative/pudl/issues/509
     cols_to_drop = [
         "early_release",
     ]
@@ -1526,6 +1525,16 @@ def _core_eia923__byproduct_disposition(
         pudl.helpers.fix_boolean_columns, ["byproducts_to_report"]
     )
     df = df.dropna(subset=["byproduct_description"])
+
+    # Convert 1000 tons to tons
+    df.loc[:, df.columns.str.endswith("_1000_tons")] *= 1000
+    # This column is not converted when the unit is MMBtu, which is determined from byproduct_description
+    df["sold_1000_tons_or_mmbtu"] = np.where(
+        df["byproduct_description"] != "Steam Sales (MMBtu)",
+        df["sold_1000_tons_or_mmbtu"] * 1000,
+        df["sold_1000_tons_or_mmbtu"],
+    )
+    df.columns = df.columns.str.replace("_1000_tons", "_tons")
 
     df = PUDL_PACKAGE.encode(df)
 
