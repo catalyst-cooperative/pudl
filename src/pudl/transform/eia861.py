@@ -665,9 +665,7 @@ def _tidy_class_dfs(
     that they pertain to.
 
     This function also checks for duplicate primary key values in the reshaped data, and
-    consolidates them by summing the data values. This is necessary because the EIA-861
-    data is not always clean, and sometimes contains duplicate records that are
-    identical except for the values in the class columns.
+    consolidates them by summing the data values.
 
     Args:
         df: The dataframe containing the data to be reshaped.
