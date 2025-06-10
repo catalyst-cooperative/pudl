@@ -543,6 +543,8 @@ def _pre_process(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame:
       data is an early release, and we extract this information from the filenames, as
       it's uniform across the whole dataset.
     * Convert report_year column to report_date.
+    * Aggregate values for rows with utility id 88888 (anonymized) - see _combine_88888_values
+      for details.
     """
     prep_df = (
         fix_eia_na(df)
