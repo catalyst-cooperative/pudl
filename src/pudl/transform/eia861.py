@@ -1033,7 +1033,7 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
             identify unique records in the input data.
 
     Returns:
-        A dataframe with the combined or dropped 88888 utiltiy_id_eia values and unique pks.
+        A dataframe with the combined or dropped 88888 utility_id_eia values and unique pks.
     """
     if 88888 not in df.utility_id_eia.unique():
         return df
