@@ -168,6 +168,18 @@ class DbtSchema(BaseModel):
         with schema_path.open("r") as schema_yaml:
             return cls.model_validate(yaml.safe_load(schema_yaml))
 
+    @classmethod
+    def to_yaml(cls, schema_path: Path):
+        """Write DbtSchema object to YAML file."""
+        with schema_path.open("w") as schema_file:
+            yaml.dump(
+                cls.model_dump(exclude_none=True),
+                schema_file,
+                default_flow_style=False,
+                sort_keys=False,
+                width=float("inf"),
+            )
+
 
 def diff_scalar(field: str, old: Scalar, new: Scalar) -> dict:
     """Return a diff of a scalar field value as a nested dictionary."""
@@ -439,17 +451,6 @@ def _print_schema_diff_summary(diff: dict, indent: int = 0):
             print(f"{pad}{key}: {value}")
 
 
-def _write_dbt_schema(schema_path: Path, schema: DbtSchema):
-    with schema_path.open("w") as schema_file:
-        yaml.dump(
-            schema.model_dump(exclude_none=True),
-            schema_file,
-            default_flow_style=False,
-            sort_keys=False,
-            width=float("inf"),
-        )
-
-
 def update_table_schema(
     table_name: str,
     data_source: str,
@@ -486,7 +487,7 @@ def update_table_schema(
             )
 
     model_path.mkdir(parents=True, exist_ok=True)
-    _write_dbt_schema(schema_path, new_schema)
+    new_schema.to_yaml(schema_path)
 
     return UpdateResult(
         success=True,
