@@ -34,7 +34,7 @@ def test_standardize_census_names():
                 "example_bad_arizona",
                 "incorrectly_named_west_virginia",
                 "real_fake_idaho",
-                "another_massachusetts",
+                "another_massachusetts",  # Check what happens when there's no corresponding Census data
             ],
             "lat county": [1.1, 1.2, 1.2, 1.3, 1.4, 1.5],
             "long county": [0.0, 0.1, 0.1, 0.2, 0.3, 0.4],

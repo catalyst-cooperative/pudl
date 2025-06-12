@@ -300,7 +300,10 @@ def _standardize_census_names(vce_fips_df: pd.DataFrame, census_pep_data: pd.Dat
         ["place_name", "area_name"],
     ].rename(columns={"place_name": "vce_place_name", "area_name": "census_place_name"})
     logger.debug(f"Updating the following place names:\n{log_df}")
-    assert len(log_df) <= 74
+    # Identified 74 replacements in 2025-06, expect this shouldn't change much.
+    # If it does, manually inspect the debug log above and make sure name changes
+    # are reasonable and expected.
+    assert len(log_df) <= 74, f"Expected 74 replacements, found {len(log_df)}"
 
     names_df = (
         names_df.drop(columns=["place_name", "state_census"])
@@ -430,8 +433,9 @@ def one_year_hourly_available_capacity_factor(
         f"Transforming the VCE RARE hourly available capacity factor tables for {year}."
     )
     # Clean up the FIPS table and update state_county names to match Census data
-    fips_df = _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips)
-    fips_df_census = _standardize_census_names(fips_df, census_pep_data)
+    fips_df_census = _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips).pipe(
+        _standardize_census_names, census_pep_data
+    )
 
     # Apply the same transforms to all the capacity factor tables. This is slower
     # than doing it to a concatenated table but less memory intensive because

@@ -30,7 +30,8 @@ Bug Fixes
 VCE RARE
 ~~~~~~~~
 * Standardized ``place_name`` using data from the latest Census PEP vintage,
-  found in ``_core_censuspep__yearly_geocodes``. See :issue:`3914` and PR :pr:`4319`.
+  found in ``_core_censuspep__yearly_geocodes``. See issue :issue:`3914` and PR
+  :pr:`4319`.
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
