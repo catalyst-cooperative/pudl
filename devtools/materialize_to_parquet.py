@@ -1,4 +1,13 @@
-"""Materialize an asset and export it to Parquet for sharing."""
+#! /usr/bin/env python3
+
+"""Materialize an asset and export it to Parquet for sharing.
+
+Particularly useful for assets that don't get persisted normally.
+
+Example usage:
+
+    ./materialize_to_parquet.py --asset raw_eia860__generator --out generators.parquet
+"""
 
 from pathlib import Path
 
@@ -19,7 +28,7 @@ def materialize_asset(asset_name: str, output_file: Path) -> None:
     from pudl.etl import defs
 
     asset = dg.AssetSelection.assets(asset_name)
-    asset_and_deps = asset | asset.upstream()
+    asset_and_deps = asset | asset.upstream() | asset.required_multi_asset_neighbors()
 
     full_etl_job = defs.get_job_def("etl_full")
     execution_result = dg.materialize(
@@ -36,7 +45,7 @@ def materialize_asset(asset_name: str, output_file: Path) -> None:
         raise RuntimeError(f"Value for {asset_name} is not a pandas DataFrame!")
 
 
-@click.command()
+@click.command(help=__doc__)
 @click.option("--asset", "-a", required=True, help="Name of asset to materialize.")
 @click.option("--out", "-o", required=True, type=click.Path(), help="Output filepath.")
 def cli(asset, out):
