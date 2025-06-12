@@ -30,6 +30,12 @@ Bug Fixes
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* We've added a new devtool in ``devtools/materialize_to_parquet.py`` - this
+  lets you export and share assets that were previously not persisted to Parquet,
+  such as ``raw`` assets that have been extracted but not cleaned. Run
+  ``./materialize_to_parquet --help`` from within the ``devtools`` directory for
+  details. See :pr:`4320`.
+
 New Tests
 ^^^^^^^^^
 * Added a validation pipline for our EIA 930 hourly demand imputation. This
