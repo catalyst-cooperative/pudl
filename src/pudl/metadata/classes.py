@@ -6,6 +6,7 @@ import json
 import re
 import sys
 import warnings
+from collections import namedtuple
 from collections.abc import Callable, Iterable
 from functools import cached_property, lru_cache
 from hashlib import sha1
@@ -60,8 +61,9 @@ from pudl.metadata.helpers import (
     most_and_more_frequent,
     split_period,
 )
-from pudl.metadata.resources import FOREIGN_KEYS, RESOURCE_METADATA, eia861
+from pudl.metadata.resources import FOREIGN_KEYS, RESOURCE_METADATA
 from pudl.metadata.sources import SOURCES
+from pudl.metadata.warnings import USAGE_WARNINGS
 from pudl.workspace.datastore import Datastore, ZenodoDoi
 from pudl.workspace.setup import PudlPaths
 
@@ -943,6 +945,7 @@ class DataSource(PudlMeta):
 
     name: SnakeCase
     title: String | None = None
+    label: String | None = None
     description: String | None = None
     field_namespace: String | None = None
     keywords: list[str] = []
@@ -958,11 +961,7 @@ class DataSource(PudlMeta):
 
     def get_resource_ids(self) -> list[str]:
         """Compile list of resource IDs associated with this data source."""
-        # Temporary check to use eia861.RESOURCE_METADATA directly
-        # eia861 is not currently included in the general RESOURCE_METADATA dict
         resources = RESOURCE_METADATA
-        if self.name == "eia861":
-            resources = eia861.RESOURCE_METADATA
 
         return sorted(
             name
@@ -1433,6 +1432,16 @@ class Resource(PudlMeta):
         if "foreign_key_rules" in schema:
             del schema["foreign_key_rules"]
 
+        # Render description
+        obj["description"] = (
+            _get_jinja_environment()
+            .from_string(obj["description"])
+            .render(
+                resource=MetaFromResourceName(name=resource_id, seed=obj),
+                warnings=USAGE_WARNINGS,
+            )
+        )
+
         # Add encoders to columns as appropriate, based on FKs.
         # Foreign key relationships determine the set of codes to use
         for fk in obj["schema"]["foreign_keys"]:
@@ -1875,6 +1884,202 @@ class Resource(PudlMeta):
 
 
 # ---- Package ---- #
+
+SourceLabels = namedtuple("SourceLabels", "label title")
+
+
+class MetaFromResourceName(PudlMeta):
+    """Class to extract standard metadata to add to Resource.description."""
+
+    name: SnakeCase
+    """Resource name (aka table name)."""
+
+    seed: dict | None = None
+    """Seed metadata; the Resource dict, if known."""
+
+    layer_map: dict = {
+        "raw": (
+            "Data has been extracted from original format, columns have been renamed for "
+            "consistency, and multiple reporting periods have been concatenated, but no "
+            "transformations or cleaning have been applied."
+        ),
+        "_core": (
+            "Data has been cleaned but not tidied/normalized. Published only "
+            "temporarily and may be removed without notice."
+        ),
+        "core": (
+            "Data has been cleaned and organized into well-modeled tables that serve as "
+            "building blocks for downstream wide tables and analyses."
+        ),
+        "_out": "Intermediate output table.",
+        "out": (
+            "Data has been expanded into a wide/denormalized format, with IDs and codes "
+            "accompanied by human-readable names and descriptions."
+        ),
+        "test": (
+            "Only used in unit and integration testing; not intended for public "
+            "consumption."
+        ),
+    }
+    layer_string: str = "|".join(layer_map.keys())
+
+    # TODO: add link to https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/{datasource_name}.html
+    # if we have a data_sources page for it.
+    datasource_map: dict = {
+        datasource_name: SourceLabels(
+            SOURCES[datasource_name]["label"], SOURCES[datasource_name]["title"]
+        )
+        for datasource_name in SOURCES
+    } | {
+        "eia": SourceLabels("EIA", "EIA -- Mix of multiple EIA Forms"),
+        "epa": SourceLabels("EPA", "EPA -- Mix of multiple EPA sources."),
+        "ferc": SourceLabels("FERC", "FERC -- Mix of multiple FERC Forms."),
+        "ferc1_xbrl": SourceLabels(
+            "FERC 1 XBRL",
+            "FERC 1 XBRL -- Post-2021 years of Annual Report of Major Electric Utilities.",
+        ),
+        "ferc1_dbf": SourceLabels(
+            "FERC 1 DBF",
+            "FERC 1 DBF -- Pre-2021 years of Annual Report of Major Electric Utilities.",
+        ),
+    }
+
+    datasource_strings: str = "|".join(datasource_map.keys())
+
+    time_detail_map: dict = {
+        "yearly": "Annual",
+        "monthly": "Monthly",
+        "hourly": "Hourly",
+    }
+    time_string: str = "|".join(time_detail_map.keys())
+
+    tabletype_map: dict = {
+        "assn": "Association table providing connections between",
+        "codes": ("Code table containing descriptions of categorical codes for"),
+        "entity": ("Entity table containing static information about"),
+        "scd": ("Slowly changing dimension (SCD) table describing attributes of"),
+        "timeseries": ("time series of"),
+    }
+    tabletype_string: str = "|".join(tabletype_map.keys())
+    table_name_pattern: str = rf"^(?P<layer>{layer_string})_(?P<datasource>{datasource_strings})__(?P<time>{time_string}|)(?:_|)(?P<tabletype>{tabletype_string}|)(?:_|)(?:_|)(?P<slug>.*)$"
+    tabletype_prompt_map: dict = {
+        "assn": "[entities].",
+        "codes": "[topic]. [typically] Manually compiled from [source data dictionaries].",
+        "entity": "[entities].",
+        "scd": "[entities] that rarely change.",
+        "timeseries": "[attributes about entities] expected to change for each reported timestamp.",
+    }
+
+    _match = None
+
+    @property
+    def match(self):
+        """Return the regex match for the table name."""
+        if self._match is None:
+            self._match = re.match(self.table_name_pattern, self.name)
+        return self._match
+
+    @property
+    def layer(self):
+        """Layer extracted from table name."""
+        return self.match.group("layer")
+
+    @property
+    def datasource(self):
+        """Datasource extracted from table name."""
+        return self.match.group("datasource")
+
+    @property
+    def datasource_labels(self):
+        """Labels (label, title) for datasource extracted from table name."""
+        return self.datasource_map[self.datasource]
+
+    @property
+    def tabletype(self):
+        """Table type extracted from table name."""
+        if tt := self.match.group("tabletype"):
+            return tt
+        if self.match.group("time"):
+            return "timeseries"
+        return ""
+
+    @property
+    def time(self):
+        """Time (detail) extracted from table name."""
+        return self.match.group("time")
+
+    @property
+    def slug(self):
+        """Slug extracted from table name.
+
+        Possible use case: extract what is being associated from an assn table.
+        """
+        return self.match.group("slug")
+
+    @property
+    def meta(self):
+        """Metadata dict for table."""
+        if self.seed:
+            return self.seed
+        return RESOURCE_METADATA.get(self.name, {})
+
+    @model_validator(mode="after")
+    def table_name_check(self: Self):
+        """Check the expected pattern of the table name."""
+        if not self.match:
+            raise ValueError(
+                f"Table name not formatted as expected. Table name found: {self.name}.\nExpected table name pattern: {self.table_name_pattern}"
+            )
+        return self
+
+    def description_layer(self) -> str:
+        """Return a layer description from the resource name."""
+        return self.layer_map[self.layer]
+
+    def description_datasource(self) -> str:
+        """Return a description of the datasource from the table name."""
+        return self.datasource_labels.title
+
+    def description_tabletype(self) -> str:
+        """Return a description of the table type from the table name."""
+        return self.tabletype_map.get(self.tabletype, "")
+
+    def description_tabletype_prompt(self) -> str:
+        """Return a description prompt for the table type."""
+        return self.tabletype_prompt_map.get(self.tabletype, "")
+
+    def description_time(self) -> str:
+        """Return a description of the time-dimension from table name."""
+        # TODO: ?maybe? we could add the date column into the description.
+        # we'd need to look into the table's columns via its metadata
+        return self.time_detail_map.get(self.time, "")
+
+    def description_primarykey(self) -> str:
+        """Return a description of the primary key from structured metadata."""
+        if "schema" not in self.meta:
+            return "This table is not listed in RESOURCE_METADATA and I can not find its schema."
+        if "primary_key" in self.meta["schema"]:
+            return ", ".join(self.meta["schema"]["primary_key"])
+        return "This table has no primary key."
+
+    def description_primarykey_prompt(self) -> str:
+        """Return a description prompt for the primary key."""
+        if "schema" not in self.meta:
+            return "This table is not listed in RESOURCE_METADATA and I can not find its schema."
+        if "primary_key" in self.meta["schema"]:
+            return ""
+        return "Each row represents [...]"
+
+    def summarize(self) -> str:
+        """Return a summary of extracted table attributes."""
+        return f"""
+{self.name}
+Layer  [{self.layer}]: {self.description_layer()}
+Source [{self.datasource}]: {self.description_datasource()}
+Time   [{self.time}]: {self.description_time()}
+Type   [{self.tabletype}]: {self.description_tabletype()}
+Slug:  {self.slug}
+PK:    {self.description_primarykey()}"""
 
 
 class Package(PudlMeta):
