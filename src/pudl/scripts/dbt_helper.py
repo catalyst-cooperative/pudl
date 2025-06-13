@@ -1,7 +1,6 @@
 """A basic CLI to autogenerate dbt data test configurations."""
 
 from collections import namedtuple
-from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
@@ -10,6 +9,7 @@ import click
 import duckdb
 import pandas as pd
 import yaml
+from deepdiff import DeepDiff
 from pydantic import BaseModel
 
 from pudl.logging_helpers import configure_root_logger, get_logger
@@ -20,7 +20,6 @@ configure_root_logger()
 logger = get_logger(__file__)
 
 ALL_TABLES = [r.name for r in PUDL_PACKAGE.resources]
-Scalar = int | float | str | bool
 
 
 class DbtColumn(BaseModel):
@@ -181,129 +180,46 @@ class DbtSchema(BaseModel):
             )
 
 
-def diff_scalar(field: str, old: Scalar, new: Scalar) -> dict:
-    """Return a diff of a scalar field value as a nested dictionary."""
-    return {field: {"old": old, "new": new}} if old != new else {}
+def schema_has_removals_or_modifications(diff: DeepDiff) -> bool:
+    """Check if the DeepDiff includes any removals or modifications."""
+    change_keys = {
+        "values_changed",
+        "type_changes",
+        "dictionary_item_removed",
+        "iterable_item_removed",
+        "attribute_deleted",
+    }
+
+    return any(key in diff and diff[key] for key in change_keys)
 
 
-def diff_list(field: str, old: list | None, new: list | None) -> dict:
-    """Return a diff of a list field value as a nested dictionary."""
-    old_set, new_set = set(old or []), set(new or [])
-    added, removed = list(new_set - old_set), list(old_set - new_set)
-    return {field: {"added": added, "removed": removed}} if added or removed else {}
+def _print_schema_diff(diff: DeepDiff, old_schema: DbtSchema, new_schema: DbtSchema):
+    """Print old and new YAML, and summary of schema changes."""
+    print("\n======================")
+    print("📜 Old YAML:")
+    print(yaml.dump(old_schema.model_dump(exclude_none=True), sort_keys=False))
+    print("\n======================")
+    print("📜 New YAML:")
+    print(yaml.dump(new_schema.model_dump(exclude_none=True), sort_keys=False))
+    print("\n======================")
+
+    print("🔍 Schema Diff Summary:\n")
+    _print_schema_diff_summary(diff)
+
+    print("======================\n")
 
 
-def diff_dict_keys(field: str, old: dict | None, new: dict | None) -> dict:
-    """Return a diff of dictionary keys as a nested dictionary."""
-    old_keys, new_keys = set((old or {}).keys()), set((new or {}).keys())
-    added, removed = list(new_keys - old_keys), list(old_keys - new_keys)
-    return {field: {"added": added, "removed": removed}} if added or removed else {}
-
-
-def diff_dbt_column(old: DbtColumn, new: DbtColumn) -> dict:
-    """Return a diff of a column in a dbt schema as a nested dictionary."""
-    diff = {}
-    diff.update(diff_scalar("description", old.description, new.description))
-    diff.update(
-        diff_list(
-            "data_tests",
-            list(map(str, old.data_tests or [])),
-            list(map(str, new.data_tests or [])),
-        )
-    )
-    diff.update(diff_list("tags", old.tags, new.tags))
-    diff.update(diff_dict_keys("meta", old.meta, new.meta))
-    return diff
-
-
-def diff_dbt_table(old: DbtTable, new: DbtTable) -> dict:
-    """Return a diff of a table in a dbt schema as a nested dictionary."""
-    diff = {}
-    diff.update(diff_scalar("description", old.description, new.description))
-    diff.update(
-        diff_list(
-            "data_tests",
-            list(map(str, old.data_tests or [])),
-            list(map(str, new.data_tests or [])),
-        )
-    )
-    diff.update(diff_dict_keys("meta", old.meta, new.meta))
-    diff.update(diff_list("tags", old.tags, new.tags))
-    diff.update(diff_dict_keys("config", old.config, new.config))
-    # Columns
-    cols_diff = _diff_named_items(old.columns or [], new.columns or [], diff_dbt_column)
-    if cols_diff:
-        diff["columns"] = cols_diff
-    return diff
-
-
-def diff_dbt_source(old: DbtSource, new: DbtSource) -> dict:
-    """Return a diff of a source in a dbt schema as a nested dictionary."""
-    diff = {}
-    diff.update(diff_scalar("description", old.description, new.description))
-    diff.update(
-        diff_list(
-            "data_tests",
-            list(map(str, old.data_tests or [])),
-            list(map(str, new.data_tests or [])),
-        )
-    )
-    diff.update(diff_dict_keys("meta", old.meta, new.meta))
-
-    # Tables
-    tables_diff = _diff_named_items(old.tables or [], new.tables or [], diff_dbt_table)
-    if tables_diff:
-        diff["tables"] = tables_diff
-    return diff
-
-
-def _diff_named_items(old_items: list, new_items: list, diff_func: Callable) -> dict:
-    """Generic function returning a nested dictionary of a diff of named items in a dbt schema."""
-    result = {}
-    old = {item.name: item for item in old_items}
-    new = {item.name: item for item in new_items}
-
-    for name in set(old) | set(new):
-        if name not in old:
-            result[name] = {"added": new[name].dict(exclude_none=True)}
-        elif name not in new:
-            result[name] = {"removed": old[name].dict(exclude_none=True)}
+def _print_schema_diff_summary(diff: DeepDiff):
+    """Print all changes in a DeepDiff between two schemas."""
+    print("🔍 DeepDiff Summary:")
+    for change_type, changes in diff.items():
+        print(f"\n{change_type}:")
+        if isinstance(changes, dict):
+            for path, value in changes.items():
+                print(f"  - {path}: {value}")
         else:
-            diff = diff_func(old[name], new[name])
-            if diff:
-                result[name] = diff
-    return result
-
-
-def diff_dbt_schema(old: DbtSchema, new: DbtSchema) -> dict:
-    """Return a diff of a dbt schema as a nested dictionary."""
-    diff = {}
-    diff.update(diff_scalar("version", old.version, new.version))
-
-    sources_diff = _diff_named_items(old.sources, new.sources, diff_dbt_source)
-    if sources_diff:
-        diff["sources"] = sources_diff
-
-    models_diff = _diff_named_items(old.models or [], new.models or [], diff_dbt_table)
-    if models_diff:
-        diff["models"] = models_diff
-
-    return diff
-
-
-def _has_removals_or_modifications(diff: dict) -> bool:
-    """Recursively checks if any removal or modification exists in a diff dict."""
-    if isinstance(diff, dict):
-        for key, value in diff.items():
-            if key in {"removed", "old"} and value:
-                return True
-            if _has_removals_or_modifications(value):
-                return True
-    elif isinstance(diff, list):
-        for item in diff:
-            if _has_removals_or_modifications(item):
-                return True
-    return False
+            for item in changes:
+                print(f"  - {item}")
 
 
 def get_data_source(table_name: str) -> str:
@@ -399,58 +315,6 @@ def update_row_counts(
     )
 
 
-def _print_schema_diff(diff: dict, old_schema: DbtSchema, new_schema: DbtSchema):
-    """Print old and new YAML, and summary of schema changes."""
-    print("\n======================")
-    print("📜 Old YAML:")
-    print(yaml.dump(old_schema.model_dump(exclude_none=True), sort_keys=False))
-    print("\n======================")
-    print("📜 New YAML:")
-    print(yaml.dump(new_schema.model_dump(exclude_none=True), sort_keys=False))
-    print("\n======================")
-
-    print("🔍 Schema Diff Summary:\n")
-    _print_schema_diff_summary(diff)
-
-    print("======================\n")
-
-
-def _print_schema_diff_summary(diff: dict, indent: int = 0):
-    """Recursively print a summary of the schema diff.
-
-    The diff is expected to be a nested dictionary as produced by diff_dbt_schema.
-    """
-    pad = " " * indent
-    for key, value in diff.items():
-        if isinstance(value, dict):
-            # If the dictionary is a leaf-level diff (has 'added', 'removed', etc.), print it directly.
-            if any(sub_key in value for sub_key in ("added", "removed", "old", "new")):
-                if "added" in value:
-                    print(f"{pad}{key} added:")
-                    # For added/removed items, value can be a dict or a direct value.
-                    if isinstance(value["added"], dict):
-                        _print_schema_diff_summary(value["added"], indent + 2)
-                    else:
-                        print(f"{pad}  {value['added']}")
-                if "removed" in value:
-                    print(f"{pad}{key} removed:")
-                    if isinstance(value["removed"], dict):
-                        _print_schema_diff_summary(value["removed"], indent + 2)
-                    else:
-                        print(f"{pad}  {value['removed']}")
-                if "old" in value and "new" in value:
-                    print(f"{pad}{key} modified:")
-                    print(f"{pad}  old: {value['old']}")
-                    print(f"{pad}  new: {value['new']}")
-            else:
-                # Otherwise, this key groups further nested diffs.
-                print(f"{pad}{key}:")
-                _print_schema_diff_summary(value, indent + 2)
-        else:
-            # In case the value isn't a dict (unlikely in our diff structure)
-            print(f"{pad}{key}: {value}")
-
-
 def update_table_schema(
     table_name: str,
     data_source: str,
@@ -477,9 +341,18 @@ def update_table_schema(
         old_schema = DbtSchema.from_yaml(schema_path)
 
         # Generate the diff report
-        diff = diff_dbt_schema(old_schema, new_schema)
-        if _has_removals_or_modifications(diff):
-            print("\n⚠️ WARNING: Some elements would be deleted by this update!")
+        diff = DeepDiff(
+            old_schema.model_dump(exclude_none=True),
+            new_schema.model_dump(exclude_none=True),
+            ignore_order=True,
+            verbose_level=2,
+            view="tree",
+        )
+
+        if schema_has_removals_or_modifications(diff):
+            print(
+                "\n⚠️ WARNING: Some elements would be deleted by this update! Please update manually instead."
+            )
             _print_schema_diff(diff, old_schema, new_schema)
             return UpdateResult(
                 success=False,
