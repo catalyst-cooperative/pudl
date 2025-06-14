@@ -1528,7 +1528,13 @@ def _core_eia923__byproduct_disposition(
     # More accurate name for what this column contains
     df = df.rename(columns={"byproducts_to_report": "no_byproducts_to_report"})
 
-    # Drops duplicate primary keys and no meaningful data
+    # Drops known duplicate primary keys
+    #   These rows contain no meaningful data, to prevent dropping future rows unexpectedly, we
+    #   expect a set number of rows to be dropped
+    null_byproduct_descriptions = df["byproduct_description"].isnull().sum()
+    assert null_byproduct_descriptions == 18, (
+        f"More NULLs for `byproduct_description` than expected: {null_byproduct_descriptions} vs 18"
+    )
     df = df.dropna(subset=["byproduct_description"])
 
     # Convert 1000 tons to tons
