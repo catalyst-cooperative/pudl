@@ -9,7 +9,7 @@ sources:
               partition_column: null
         columns:
           - name: byproduct_description
-          - name: byproducts_to_report
+          - name: no_byproducts_to_report
           - name: disposal_landfill_tons
           - name: disposal_offsite_tons
           - name: disposal_ponds_tons

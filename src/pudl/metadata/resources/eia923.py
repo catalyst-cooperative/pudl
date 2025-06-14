@@ -804,7 +804,7 @@ is for those supplies."""
         "schema": {
             "fields": [
                 "byproduct_description",
-                "byproducts_to_report",
+                "no_byproducts_to_report",
                 "disposal_landfill_tons",
                 "disposal_offsite_tons",
                 "disposal_ponds_tons",

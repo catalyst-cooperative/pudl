@@ -1503,7 +1503,9 @@ def _core_eia923__byproduct_disposition(
     Transformations include:
 
     * Replace . values with NA
-    * Convert byproducts_to_report to boolean
+    * Rename byproducts_to_report to no_byproducts_to_report
+        * "Y" is supposed to be checked if no byproducts are being reported
+        * We do not standardize further as the data is too messy/could be better interpreted from other columns
     * Drop rows with NA byproduct_description
         * This also removes all duplicates based on report_year, plant_id_eia, and byproduct_description
     * Drop early_release column with no data values
@@ -1521,9 +1523,12 @@ def _core_eia923__byproduct_disposition(
         "early_release",
     ]
     df = df.drop(cols_to_drop, axis=1)
-    df = pudl.helpers.fix_eia_na(df).pipe(
-        pudl.helpers.fix_boolean_columns, ["byproducts_to_report"]
-    )
+    df = pudl.helpers.fix_eia_na(df)
+
+    # More accurate name for what this column contains
+    df = df.rename(columns={"byproducts_to_report": "no_byproducts_to_report"})
+
+    # Drops duplicate primary keys and no meaningful data
     df = df.dropna(subset=["byproduct_description"])
 
     # Convert 1000 tons to tons

@@ -451,9 +451,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Is salable byproduct is recovered by the unit?",
     },
-    "byproducts_to_report": {
-        "type": "boolean",
-        "description": "Whether combustion by-products were produced.",
+    "no_byproducts_to_report": {
+        "type": "string",
+        "description": (
+            "Whether combustion by-products were produced. 'Y' indicates no byproducts "
+            "to report. The 'Y' and 'N' values do not align with expected values of "
+            "reported byproducts. This column is messy and requires standardization."
+        ),
     },
     "caidi_w_major_event_days_minutes": {
         "type": "number",
