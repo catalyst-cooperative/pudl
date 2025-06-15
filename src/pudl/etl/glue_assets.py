@@ -557,7 +557,7 @@ def make_subplant_ids(crosswalk: pd.DataFrame) -> pd.DataFrame:
     Usage Example:
 
     epacems = pudl.output.epacems.epacems(states=['ID']) # small subset for quick test
-    core_epa__assn_eia_epacamd = pudl_out.epacamd_eia()
+    core_epa__assn_eia_epacamd = pudl.helpers.get_parquet_table("core_epa__assn_eia_epacamd")
     filtered_crosswalk = pudl.analysis.epacamd_eia.filter_crosswalk(core_epa__assn_eia_epacamd, epacems)
     crosswalk_with_subplant_ids = make_subplant_ids(filtered_crosswalk)
 
@@ -566,11 +566,11 @@ def make_subplant_ids(crosswalk: pd.DataFrame) -> pd.DataFrame:
     the transform process.
 
     Args:
-        crosswalk (pd.DataFrame): The core_epa__assn_eia_epacamd crosswalk
+        crosswalk: The core_epa__assn_eia_epacamd crosswalk
 
     Returns:
-        pd.DataFrame: An edge list connecting EPA units to EIA generators, with
-            connected pieces issued a subplant_id
+        An edge list connecting EPA units to EIA generators, with connected pieces
+        issued a subplant_id
     """
     edge_list = _prep_for_networkx(crosswalk)
     edge_list = _subplant_ids_from_prepped_crosswalk(edge_list)
