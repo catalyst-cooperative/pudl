@@ -3623,8 +3623,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "place_name": {
         "type": "string",
         "description": (
-            "County or lake name. Lake names may also appear several times--once for "
-            "each state it touches. FIPS ID values for lakes have been nulled."
+            "County or lake name, sourced from the latest Census PEP vintage based on "
+            "county FIPS ID. Lake names originate from VCE RARE directly, and may also "
+            "appear several times--once for each state it touches. FIPS ID values for "
+            "lakes have been nulled."
         ),
     },
     "planned_derate_date": {
