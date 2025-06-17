@@ -29,7 +29,7 @@ repos:
   # Formatters: hooks that re-write Python & documentation files
   ####################################################################################
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.12
+    rev: v0.11.13
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
@@ -53,7 +53,7 @@ repos:
 
   # Check for errors in restructuredtext (.rst) files under the doc hierarchy
   - repo: https://github.com/PyCQA/doc8
-    rev: v1.1.2
+    rev: v2.0.0
     hooks:
       - id: doc8
         args: [--config, pyproject.toml]
