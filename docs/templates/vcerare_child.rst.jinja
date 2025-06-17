@@ -60,13 +60,8 @@ areas as well).
 Name and ID issues
 ------------------
 * The place name for Lake Huron is misspelled "Hurron" in the original data.
-* The place name for Lake Saint Claire in the original data uses the abbreviation "St."
-  including the period character -- this is the only abbreviation and only non
-  alphabetical or underscore character in any of the place names.
-* In 2015 Shannon County, South Dakota was renamed Oglala Lakota County and assigned a
-  new FIPS code. The VCE data includes the new FIPS code (46102) but the old name, while
-  the Census DP1 dataset included with PUDL is from 2010, and so uses both the old name
-  and the old FIPS code (46113).
+* We update the ``place_name`` column using the latest Census PEP vintage data, to
+  ensure consistency of place names between this dataset and other PUDL data.
 
 Capacity factors > 1
 --------------------
