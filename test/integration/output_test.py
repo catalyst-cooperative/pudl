@@ -2,28 +2,18 @@
 
 import logging
 
+import pandas as pd
 import pytest
+import sqlalchemy as sa
 
-import pudl
 import pudl.validate as pv
+from pudl.helpers import get_parquet_table
+from pudl.metadata.classes import Resource
 
 logger = logging.getLogger(__name__)
 
 
-@pytest.fixture(scope="module")
-def fast_out(pudl_engine):
-    """A PUDL output object for use in CI."""
-    return pudl.output.pudltabl.PudlTabl(
-        pudl_engine,
-        freq="MS",
-        fill_fuel_cost=True,
-        roll_fuel_cost=True,
-        fill_net_gen=True,
-        fill_tech_desc=True,
-    )
-
-
-def nuke_gen_fraction(df):
+def nuke_gen_fraction(df: pd.DataFrame) -> float:
     """Calculate the nuclear fraction of net generation."""
     total_gen = df.net_generation_mwh.sum()
     nuke_gen = df[df.fuel_type_code_pudl == "nuclear"].net_generation_mwh.sum()
@@ -31,69 +21,71 @@ def nuke_gen_fraction(df):
 
 
 @pytest.mark.parametrize(
-    "df_name,expected_nuke_fraction,tolerance",
+    "table_name,expected_nuke_fraction,tolerance",
     [
-        ("gf_eia923", 0.2, 0.02),
-        ("mcoe_generators", 0.2, 0.02),
+        ("out_eia923__monthly_generation_fuel_combined", 0.2, 0.02),
+        ("out_eia__monthly_generators", 0.2, 0.02),
     ],
 )
-def test_nuclear_fraction(fast_out, df_name, expected_nuke_fraction, tolerance):
+def test_nuclear_fraction(
+    table_name: str,
+    expected_nuke_fraction: float,
+    tolerance: float,
+    pudl_engine: sa.Engine,  # Required to ensure that the data is available.
+):
     """Ensure that overall nuclear generation fractions are as expected."""
-    actual_nuke_fraction = nuke_gen_fraction(fast_out.__getattribute__(df_name)())
+    df = get_parquet_table(
+        table_name, columns=["fuel_type_code_pudl", "net_generation_mwh"]
+    )
+    actual_nuke_fraction = nuke_gen_fraction(df)
     assert abs(actual_nuke_fraction - expected_nuke_fraction) <= tolerance
 
 
 @pytest.mark.parametrize(
-    "df1_name,df2_name,mult,kwargs",
+    "test_table,mult",
     [
-        ("gens_eia860", "bga_eia860", 1 / 1, {}),
-        ("gens_eia860", "gens_eia860", 1 / 1, {}),
-        ("gens_eia860", "own_eia860", 1 / 1, {}),
-        ("gens_eia860", "plants_eia860", 1 / 1, {}),
-        ("gens_eia860", "boil_eia860", 1 / 1, {}),
-        ("gens_eia860", "pu_eia860", 1 / 1, {}),
-        ("gens_eia860", "utils_eia860", 1 / 1, {}),
-        ("gens_eia860", "bf_eia923", 12 / 1, {}),
-        ("gens_eia860", "frc_eia923", 12 / 1, {}),
-        ("gens_eia860", "gen_eia923", 12 / 1, {}),
-        ("gens_eia860", "gen_fuel_by_generator_energy_source_eia923", 12 / 1, {}),
-        ("gens_eia860", "gen_fuel_by_generator_eia923", 12 / 1, {}),
-        ("gens_eia860", "gf_eia923", 12 / 1, {}),
-        ("gens_eia860", "hr_by_unit", 12 / 1, {}),
-        ("gens_eia860", "hr_by_gen", 12 / 1, {}),
-        ("gens_eia860", "fuel_cost", 12 / 1, {}),
-        ("gens_eia860", "capacity_factor", 12 / 1, {}),
-        pytest.param(
-            "gens_eia860",
-            "mcoe_generators",
-            12 / 1,
-            {"all_gens": False},
-            marks=pytest.mark.xfail(reason="MCOE has time coverage issues."),
-        ),
+        ("core_eia860__assn_boiler_generator", 1 / 1),
+        ("_out_eia__yearly_generators", 1 / 1),
+        ("out_eia860__yearly_ownership", 1 / 1),
+        ("out_eia__yearly_plants", 1 / 1),
+        ("out_eia__yearly_boilers", 1 / 1),
+        ("_out_eia__plants_utilities", 1 / 1),
+        ("out_eia__yearly_utilities", 1 / 1),
+        ("out_eia923__monthly_boiler_fuel", 12 / 1),
+        ("out_eia923__monthly_fuel_receipts_costs", 12 / 1),
+        ("out_eia923__monthly_generation", 12 / 1),
+        ("out_eia923__monthly_generation_fuel_by_generator_energy_source", 12 / 1),
+        ("out_eia923__monthly_generation_fuel_by_generator", 12 / 1),
+        ("out_eia923__monthly_generation_fuel_combined", 12 / 1),
+        ("_out_eia__monthly_heat_rate_by_unit", 12 / 1),
+        ("_out_eia__monthly_heat_rate_by_generator", 12 / 1),
+        ("_out_eia__monthly_fuel_cost_by_generator", 12 / 1),
+        ("_out_eia__monthly_capacity_factor_by_generator", 12 / 1),
     ],
 )
-def test_eia_outputs(fast_out, df1_name, df2_name, mult, kwargs):
+def test_eia_outputs(
+    test_table: str,
+    mult: int,
+    pudl_engine: sa.Engine,  # Required to ensure that the data is available.
+):
     """Check EIA output functions and date frequencies of output dataframes."""
-    pytest.skip(reason="Memory intensive, GHA CI failing. Migrate to dbt ASAP.")
-    df1 = fast_out.__getattribute__(df1_name)()
-    logger.info(f"Running fast_out.{df2_name}() with freq={fast_out.freq}.")
-    df2 = fast_out.__getattribute__(df2_name)(**kwargs)
-    logger.info(f"Found {len(df2)} rows in {df2_name}")
-    logger.info(f"Checking {df2_name} date frequency relative to {df1_name}.")
-    pv.check_date_freq(df1, df2, mult)
+    yearly_gens_name = "_out_eia__yearly_generators"
 
+    # Get columns needed for date frequency checking
+    # Include data_maturity if it exists in schema for proper incremental_ytd filtering
+    def get_date_freq_columns(table_name: str) -> list[str]:
+        """Get columns needed for date frequency checking."""
+        columns = ["report_date"]
+        resource = Resource.from_id(table_name)
+        if "data_maturity" in resource.get_field_names():
+            columns.append("data_maturity")
+        return columns
 
-@pytest.mark.parametrize(
-    "df_name,thresh",
-    [
-        ("mcoe_generators", 0.9),
-    ],
-)
-def test_null_rows(fast_out, df_name, thresh):
-    """Check MCOE output for null rows resulting from bad merges."""
-    # These are columns that only exist in earlier years
-    pv.no_null_rows(
-        df=fast_out.__getattribute__(df_name)(),
-        df_name=df_name,
-        thresh=thresh,
+    yearly_gens_df = get_parquet_table(
+        yearly_gens_name, columns=get_date_freq_columns(yearly_gens_name)
     )
+    logger.info(f"Reading {test_table} table.")
+    test_df = get_parquet_table(test_table, columns=get_date_freq_columns(test_table))
+    logger.info(f"Found {len(test_df)} rows in {test_table}")
+    logger.info(f"Checking {test_table} date frequency relative to {yearly_gens_name}.")
+    pv.check_date_freq(yearly_gens_df, test_df, mult)

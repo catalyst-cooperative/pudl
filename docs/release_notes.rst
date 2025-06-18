@@ -9,17 +9,46 @@ v2025.XX.x (2025-MM-DD)
 New Data
 ^^^^^^^^
 
+EIA AEO
+~~~~~~~
+
+* Extracted table 2 from the EIA Annual Energy Outlook 2023, which includes future
+  projections for energy use through the year 2050 across a variety of scenarios.
+  Integrated a subset of available table 2 series as a new core table:
+
+  * ``core_eiaaeo__yearly_projected_energy_use_by_sector_and_type`` contains
+    projected energy use for the commercial, electric power, industrial,
+    residential, and transportation sectors across different fuels and electricity
+    modes. See :issue:`4228` and :pr:`4273`.
+
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
 Bug Fixes
 ^^^^^^^^^
 
+VCE RARE
+~~~~~~~~
+* Standardized ``place_name`` using data from the latest Census PEP vintage,
+  found in ``_core_censuspep__yearly_geocodes``. See issue :issue:`3914` and PR
+  :pr:`4319`.
+
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* We've added a new devtool in ``devtools/materialize_to_parquet.py`` - this
+  lets you export and share assets that were previously not persisted to Parquet,
+  such as ``raw`` assets that have been extracted but not cleaned. Run
+  ``./materialize_to_parquet --help`` from within the ``devtools`` directory for
+  details. See :pr:`4320`.
+
 New Tests
 ^^^^^^^^^
+* Added a validation pipline for our EIA 930 hourly demand imputation. This
+  pipeline will perform imputation on a set of values which did not require imputation,
+  so there is ground truth data to compare against. It will then compute the percent
+  error for all of these imputed values against the reported data. This metric is
+  checked during nightly builds and will result in an error if it ever drifts too high.
 
 .. _release-v2025.5.0:
 

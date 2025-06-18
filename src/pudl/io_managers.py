@@ -25,6 +25,7 @@ from packaging import version
 from upath import UPath
 
 import pudl
+from pudl.helpers import get_parquet_table
 from pudl.metadata.classes import PUDL_PACKAGE, Package, Resource
 from pudl.workspace.setup import PudlPaths
 
@@ -331,10 +332,7 @@ class PudlParquetIOManager(IOManager):
     def load_input(self, context: InputContext) -> pd.DataFrame:
         """Loads pudl table from parquet file."""
         table_name = get_table_name_from_context(context)
-        parquet_path = PudlPaths().parquet_path(table_name)
-        res = Resource.from_id(table_name)
-        df = pq.read_table(source=parquet_path, schema=res.to_pyarrow()).to_pandas()
-        return res.enforce_schema(df)
+        return get_parquet_table(table_name)
 
 
 class PudlSQLiteIOManager(SQLiteIOManager):

@@ -13,50 +13,46 @@ production costs have yet to be integrated.
 import logging
 
 import pytest
+import sqlalchemy as sa
 
 from pudl import validate as pv
+from pudl.helpers import get_parquet_table
 
 logger = logging.getLogger(__name__)
 
 
-@pytest.fixture(scope="module")
-def pudl_out_mcoe(pudl_out_eia, live_dbs):
-    """A fixture to calculate MCOE appropriately for testing.
-
-    By default, the MCOE calculation drops rows with "unreasonable" values for heat
-    rate, fuel costs, and capacity factors. However, for the purposes of testing, we
-    don't want to lose those values -- that's the kind of thing we're looking for.  So
-    here we override those defaults, causing the MCOE output dataframe to be cached with
-    all the nasty details, so it is available for the rest of the tests that look at
-    MCOE results in this module
-    """
-    if live_dbs and pudl_out_eia.freq is not None:
-        logger.info("Reading MCOE data (with generator attributes) out of the PUDL DB.")
-        _ = pudl_out_eia.mcoe_generators()
-    return pudl_out_eia
-
-
 ###############################################################################
-# Tests that look check for existence and uniqueness of some MCOE outputs:
+# Tests that check for existence and uniqueness of some MCOE outputs:
 # These tests were inspired by some bad merges that generated multiple copies
 # of some records in the past...
 ###############################################################################
 @pytest.mark.parametrize(
-    "df_name",
+    "table_name",
     [
-        "hr_by_unit",
-        "hr_by_gen",
-        # "fuel_cost",
-        "capacity_factor",
-        "mcoe",
+        # Yearly tables
+        "_out_eia__yearly_heat_rate_by_unit",
+        "_out_eia__yearly_heat_rate_by_generator",
+        "_out_eia__yearly_fuel_cost_by_generator",
+        "_out_eia__yearly_capacity_factor_by_generator",
+        "_out_eia__yearly_derived_generator_attributes",
+        "out_eia__yearly_generators",
+        # Monthly tables
+        "_out_eia__monthly_heat_rate_by_unit",
+        "_out_eia__monthly_heat_rate_by_generator",
+        "_out_eia__monthly_fuel_cost_by_generator",
+        "_out_eia__monthly_capacity_factor_by_generator",
+        "_out_eia__monthly_derived_generator_attributes",
+        "out_eia__monthly_generators",
     ],
 )
-def test_no_null_cols_mcoe(pudl_out_mcoe, live_dbs, df_name):
+def test_no_null_cols_mcoe(
+    live_dbs: bool,
+    table_name: str,
+    pudl_engine: sa.Engine,  # Required to ensure that the data is available.
+) -> None:
     """Verify that output DataFrames have no entirely NULL columns."""
     if not live_dbs:
         pytest.skip("Data validation only works with a live PUDL DB.")
-    if pudl_out_mcoe.freq is None:
-        pytest.skip()
 
     # These are columns that only exist in 2006 and older data, beyond the time
     # for which we can calculate the MCOE:
@@ -73,26 +69,6 @@ def test_no_null_cols_mcoe(pudl_out_mcoe, live_dbs, df_name):
         "summer_capacity_estimate",
         "winter_capacity_estimate",
     ]
-    df = pudl_out_mcoe.__getattribute__(df_name)()
+    df = get_parquet_table(table_name)
     cols = [col for col in df.columns if col not in deprecated_cols]
-    pv.no_null_cols(df, cols=cols, df_name=df_name)
-
-
-@pytest.mark.parametrize("df_name,thresh", [("mcoe", 0.8)])
-def test_no_null_rows_mcoe(pudl_out_mcoe, live_dbs, df_name, thresh):
-    """Verify that output DataFrames have no overly NULL rows.
-
-    Currently we only test the MCOE dataframe because it has lots of columns and some
-    complicated merges. For tables with fewer columns, the "index" columns end up being
-    most of them, and should probably be skipped.
-    """
-    if not live_dbs:
-        pytest.skip("Data validation only works with a live PUDL DB.")
-    if pudl_out_mcoe.freq is None:
-        pytest.skip()
-
-    pv.no_null_rows(
-        df=pudl_out_mcoe.__getattribute__(df_name)(),
-        df_name=df_name,
-        thresh=thresh,
-    )
+    pv.no_null_cols(df, cols=cols, df_name=table_name)

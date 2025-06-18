@@ -1,9 +1,6 @@
 """Retrieves data from EIA Form 923 spreadsheets for analysis.
 
-This modules pulls data from EIA's published Excel spreadsheets.
-
-This code is for use analyzing EIA Form 923 data. Currenly only years 2009-2016 work, as
-they share nearly identical file formatting.
+This module pulls data from archived copies of EIA's published Excel spreadsheets.
 """
 
 import pandas as pd
@@ -32,8 +29,6 @@ class Extractor(excel.ExcelExtractor):
         super().__init__(*args, **kwargs)
 
     # Pages not supported by the metadata:
-    # puerto_rico, github issue #457
-    # energy_storage, github issue #458
     # oil_stocks, coal_stocks, petcoke_stocks
 
     def process_raw(self, df, page, **partition):
@@ -115,6 +110,8 @@ raw_eia923__all_dfs = raw_df_factory(Extractor, name="eia923")
                 "raw_eia923__cooling_system_information",
                 "raw_eia923__boiler_nox_operation",
                 "raw_eia923__fgp_operation",
+                "raw_eia923__puerto_rico_generation_fuel",
+                "raw_eia923__puerto_rico_plant_frame",
             )
         )
     },
