@@ -21,7 +21,7 @@ dependencies = [
     "coloredlogs>=14.0", # Dagster requires 14.0
     "conda-lock>=3",
     "coverage>=7.6",
-    "dagster>=1.10.15,!=1.10.16", # bugs in 1.10.16
+    "dagster>=1.10.20",
     "dagster-dbt", # Automatically follows dagster version
     "dagster-postgres", # Automatically follows dagster version
     "dask>=2025",
@@ -150,7 +150,7 @@ dbt_helper = "pudl.scripts.dbt_helper:dbt_helper"
 
 [project.optional-dependencies]
 dev = [
-    "dagster-webserver>=1.10",
+    "dagster-webserver>=1.10.20",
     "jupyterlab>4.4",
     "jupyter-lsp",
     "jupyterlab-lsp",
