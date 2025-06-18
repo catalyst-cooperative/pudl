@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from io import StringIO
 
 import pytest
+from deepdiff import DeepDiff
 
 from pudl.scripts.dbt_helper import (
     DbtColumn,
@@ -14,7 +15,9 @@ from pudl.scripts.dbt_helper import (
     _get_model_path,
     _get_row_count_csv_path,
     _infer_partition_column,
+    _schema_diff_summary,
     get_data_source,
+    schema_has_removals_or_modifications,
 )
 
 TEMPLATE = {
@@ -504,3 +507,139 @@ def test_dbt_schema__add_column_tests(mocker, blank_schema):
         mocker.sentinel.second_model_test
         in two_model_tests.models[0].columns[0].data_tests
     )
+
+
+@pytest.mark.parametrize(
+    "diff, expected",
+    [
+        pytest.param(
+            {"dictionary_item_added": {"root['description']"}}, False, id="Add only"
+        ),
+        pytest.param(
+            {
+                "values_changed": {
+                    "root['description']": {"old_value": "x", "new_value": "y"}
+                }
+            },
+            True,
+            id="Scalar mod",
+        ),
+        pytest.param(
+            {"dictionary_item_removed": {"root['columns']['col_a']"}},
+            True,
+            id="Removed column",
+        ),
+        pytest.param(
+            {
+                "values_changed": {
+                    "root['columns']['col_b']['tags']": {
+                        "old_value": ["a"],
+                        "new_value": ["b"],
+                    }
+                }
+            },
+            True,
+            id="Nested mod",
+        ),
+        pytest.param({}, False, id="Empty"),
+        pytest.param(
+            {"dictionary_item_added": {"root['meta']['notes']"}},
+            False,
+            id="Add in nested key",
+        ),
+        pytest.param(
+            {
+                "values_changed": {
+                    "root['meta']['notes']": {"old_value": "foo", "new_value": "bar"}
+                }
+            },
+            True,
+            id="Nested old",
+        ),
+    ],
+)
+def test_schema_has_removals_or_modifications(diff, expected):
+    assert schema_has_removals_or_modifications(diff) == expected
+
+
+def test_complex_schema_diff_output(capsys):
+    old_schema = DbtSchema(
+        version=1,
+        sources=[
+            DbtSource(
+                name="source1",
+                tables=[
+                    DbtTable(
+                        name="table1",
+                        description="desc",
+                        columns=[],
+                    )
+                ],
+            )
+        ],
+        models=[
+            DbtTable(name="model1", description="old", columns=[]),
+        ],
+    )
+
+    new_schema = DbtSchema(
+        version=2,
+        sources=[
+            DbtSource(
+                name="source1",
+                tables=[
+                    DbtTable(
+                        name="table1",
+                        description="updated",
+                        columns=[],
+                    )
+                ],
+            ),
+            DbtSource(
+                name="source2",
+                tables=[
+                    DbtTable(
+                        name="new_table",
+                        description="new",
+                        columns=[],
+                    )
+                ],
+            ),
+        ],
+        models=[
+            DbtTable(name="model1", description="new", columns=[]),
+            DbtTable(name="model2", description="added", columns=[]),
+        ],
+    )
+
+    diff = DeepDiff(
+        old_schema.model_dump(exclude_none=True),
+        new_schema.model_dump(exclude_none=True),
+        ignore_order=True,
+    )
+    output = _schema_diff_summary(diff)
+
+    # Version change
+    assert "version" in output, output
+    assert "'old_value': 1" in output, output
+    assert "'new_value': 2" in output, output
+
+    # source1 table1 description update
+    assert "source1" in output, output
+    assert "table1" in output, output
+    assert "'description': 'desc'" in output, output
+    assert "'description': 'updated'" in output, output
+
+    # Added source2 and new_table
+    assert "source2" in output, output
+    assert "new_table" in output, output
+    assert "'description': 'new'" in output, output
+
+    # model1 description update
+    assert "model1" in output, output
+    assert "'description': 'old'" in output, output
+    assert "'description': 'new'" in output, output
+
+    # model2 addition
+    assert "model2" in output, output
+    assert "'description': 'added'" in output, output
