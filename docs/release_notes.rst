@@ -9,6 +9,82 @@ v2025.XX.x (2025-MM-DD)
 New Data
 ^^^^^^^^
 
+EIA AEO
+~~~~~~~
+
+* Extracted table 2 from the EIA Annual Energy Outlook 2023, which includes future
+  projections for energy use through the year 2050 across a variety of scenarios.
+  Integrated a subset of available table 2 series as a new core table:
+
+  * ``core_eiaaeo__yearly_projected_energy_use_by_sector_and_type`` contains
+    projected energy use for the commercial, electric power, industrial,
+    residential, and transportation sectors across different fuels and electricity
+    modes. See :issue:`4228` and :pr:`4273`.
+
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+Bug Fixes
+^^^^^^^^^
+
+VCE RARE
+~~~~~~~~
+* Standardized ``place_name`` using data from the latest Census PEP vintage,
+  found in ``_core_censuspep__yearly_geocodes``. See issue :issue:`3914` and PR
+  :pr:`4319`.
+
+Quality of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* We've added a new devtool in ``devtools/materialize_to_parquet.py`` - this
+  lets you export and share assets that were previously not persisted to Parquet,
+  such as ``raw`` assets that have been extracted but not cleaned. Run
+  ``./materialize_to_parquet --help`` from within the ``devtools`` directory for
+  details. See :pr:`4320`.
+
+New Tests
+^^^^^^^^^
+* Added a validation pipline for our EIA 930 hourly demand imputation. This
+  pipeline will perform imputation on a set of values which did not require imputation,
+  so there is ground truth data to compare against. It will then compute the percent
+  error for all of these imputed values against the reported data. This metric is
+  checked during nightly builds and will result in an error if it ever drifts too high.
+
+.. _release-v2025.5.0:
+
+---------------------------------------------------------------------------------------
+v2025.5.0 (2025-05-20)
+---------------------------------------------------------------------------------------
+
+This is our regular quarterly PUDL data release for 2025Q2. It includes sub-annual
+updates to the EIA-860M, EIA-923, EIA-930, EIA bulk electricity API, and EPA CEMS
+datasets. It also includes preliminary 2024 data for FERC Form 1 (integrated into PUDL)
+and FERC Forms 2, 6, and 60 (as stand-alone SQLite databases). The VCE RARE hourly
+county-level renewable energy generation curves have been extended back to cover
+2014-2018.
+
+This release also includes new imputed versions of the FERC-714 and EIA-930 hourly
+demand curves with missing values filled in and a better organized verion of the SEC
+10-K company ownership data. Note that work on the demand imputations and SEC 10-K data
+is ongoing.
+
+All federal data was archived from the publishing agencies on May 1st, 2025.
+
+Upcoming Deprecations
+^^^^^^^^^^^^^^^^^^^^^
+
+* Due to the growing size of PUDL database, we are no longer updating our `Datasette
+  deployment <https://data.catalyst.coop>`__ and that URL will soon begin redirecting
+  users to the `PUDL Data Viewer <https://viewer.catalyst.coop>`__. You can track our
+  progress toward feature parity with the old Datasette deployment in
+  `this issue <https://github.com/catalyst-cooperative/eel-hole/issues/36>`__.
+* When we complete the migration of our data validation tests to the ``dbt`` framework,
+  we will remove the deprecated :class:`pudl.output.pudltabl.PudlTabl` output class.
+  This will also happen before our next quarterly release.
+
+New Data
+^^^^^^^^
+
 FERC 714
 ~~~~~~~~
 * We refactored our timseries imputation functions to be more generalized and reusable,
@@ -54,7 +130,6 @@ SEC 10-K
   * :ref:`core_sec10k__assn_sec10k_filers_and_eia_utilities`
   * :ref:`out_sec10k__quarterly_filings`
   * :ref:`out_sec10k__changelog_company_name`
-  * :ref:`out_sec10k__changelog_company_name`
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -94,19 +169,31 @@ EIA 930
   see :ref:`data-sources-eia930-changes-in-energy-source-granularity-over-time` for
   more information.
 
+EIA 860M
+~~~~~~~~
+* Added EIA 860M data from January, February, and March 2025. See :issue:`4233` and
+  PR :pr:`4242`.
+
+EIA 923
+~~~~~~~
+* Added EIA 923 from January and February 2025. See :issue:`4234` and PR :pr:`4242`.
+
 VCE RARE
 ~~~~~~~~
 * Integrated 2014-2018 RARE data into PUDL. Also fixed misleading latitude and longitude
   field descriptions, and renamed the field ``county_or_lake_name`` to ``place_name``.
-  See issue :issue:`4226`
-  and PR :pr:`4239`.
+  See issue :issue:`4226` and PR :pr:`4239`.
 
 Bug Fixes
 ^^^^^^^^^
+
 * Fixed a bug in FERC XBRL extraction that led to quietly skipping tables with names
   that didn't conform to expected format. The only known table affected was in the FERC
   Form 6. See issue :issue:`4203` and PRs :pr:`4224` and
   `catalyst-cooperative/ferc-xbrl-extractor #320 <https://github.com/catalyst-cooperative/ferc-xbrl-extractor/pull/320>`__.
+* As part of :pr:`4215` we fixed a bug introduced in the last release that was causing
+  most values in the ``out_ferc1__yearly_rate_base`` table to be dropped. See
+  `this commit <https://github.com/catalyst-cooperative/pudl/pull/4215/commits/65b36e3121bdfb792ae59c0b94b0ed473307bd78>`__.
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -119,12 +206,22 @@ Quality of Life Improvements
   published through the EIA API, not just the bulk electricity data. See `this PUDL
   archiver issue <https://github.com/catalyst-cooperative/pudl-archiver/issues/628>`__
   and PR :pr:`4212`.
+* To improve human readability, we added ``utility_id_pudl`` and ``utility_name_ferc1``
+  columns to a number of derived FERC 1 output tables including:
+
+  * :ref:`out_ferc1__yearly_rate_base`
+  * :ref:`out_ferc1__yearly_detailed_income_statements`
+  * :ref:`out_ferc1__yearly_detailed_balance_sheet_assets`
+  * :ref:`out_ferc1__yearly_detailed_balance_sheet_liabilities`
+
+  See PR :pr:`4260`.
 
 New Tests
 ^^^^^^^^^
-We're in the process of migrating our data validations to use the
-`dbt <https://docs.getdbt.com/docs/introduction>`__ framework.
-So far we have converted the following tests:
+
+We're in the process of migrating hundrds of data validation tests to use the `dbt
+<https://docs.getdbt.com/docs/introduction>`__ framework. We have converted at least the
+following classes of tests:
 
 * ``check_column_correlation`` – a more generic replacement for the old
   ``test_fbp_ferc1_mmbtu_cost_correlation`` pytest.

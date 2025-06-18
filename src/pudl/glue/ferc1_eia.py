@@ -39,6 +39,7 @@ from pudl.extract.ferc1 import raw_ferc1_assets, raw_ferc1_xbrl__metadata_json
 from pudl.helpers import simplify_strings
 from pudl.io_managers import ferc1_dbf_sqlite_io_manager, ferc1_xbrl_sqlite_io_manager
 from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.output.pudltabl import PudlTabl
 from pudl.resources import dataset_settings
 from pudl.transform.classes import StringNormalization, normalize_strings_multicol
 from pudl.transform.ferc1 import (
@@ -121,19 +122,16 @@ def get_utility_map_ferc1() -> pd.DataFrame:
     return pd.read_csv(UTIL_ID_FERC_MAP_CSV).convert_dtypes()
 
 
-def get_mapped_plants_eia():
+def get_mapped_plants_eia() -> pd.DataFrame:
     """Get a list of all EIA plants that have been assigned PUDL Plant IDs.
 
     Read in the list of already mapped EIA plants from the FERC 1 / EIA plant
     and utility mapping spreadsheet kept in the package_data.
 
-    Args:
-        None
-
     Returns:
-        pandas.DataFrame: A DataFrame listing the plant_id_eia and
-        plant_name_eia values for every EIA plant which has already been
-        assigned a PUDL Plant ID.
+        A DataFrame listing the plant_id_eia and plant_name_eia values for every EIA
+        plant which has already been assigned a PUDL Plant ID.
+
     """
     mapped_plants_eia = (
         get_plant_map()
@@ -360,7 +358,7 @@ def label_missing_ids_for_manual_mapping(
     return label_df.set_index(missing_ids.name or missing_ids.names).loc[missing_ids]
 
 
-def label_plants_eia(pudl_out: pudl.output.pudltabl.PudlTabl):
+def label_plants_eia(pudl_out: PudlTabl) -> pd.DataFrame:
     """Label plants with columns helpful in manual mapping."""
     plants = pudl_out.plants_eia860()
     # generator table for capacity
@@ -416,7 +414,7 @@ def label_utilities_ferc1_xbrl(
     )
 
 
-def get_utility_most_recent_capacity(pudl_engine) -> pd.DataFrame:
+def get_utility_most_recent_capacity(pudl_engine: sa.Engine) -> pd.DataFrame:
     """Calculate total generation capacity by utility in most recent reported year."""
     gen_caps = pd.read_sql(
         "SELECT utility_id_eia, capacity_mw, report_date FROM core_eia860__scd_generators",
@@ -434,7 +432,7 @@ def get_utility_most_recent_capacity(pudl_engine) -> pd.DataFrame:
     return utility_caps
 
 
-def get_plants_ids_eia923(pudl_out: pudl.output.pudltabl.PudlTabl) -> pd.DataFrame:
+def get_plants_ids_eia923(pudl_out: PudlTabl) -> pd.DataFrame:
     """Get a list of plant_id_eia's that show up in EIA 923 tables."""
     pudl_out_methods_eia923 = [
         method_name
@@ -452,7 +450,9 @@ def get_plants_ids_eia923(pudl_out: pudl.output.pudltabl.PudlTabl) -> pd.DataFra
 
 
 def get_util_ids_eia_unmapped(
-    pudl_out, pudl_engine, utilities_eia_mapped
+    pudl_out: PudlTabl,
+    pudl_engine: sa.Engine,
+    utilities_eia_mapped: pd.DataFrame,
 ) -> pd.DataFrame:
     """Get a list of all the EIA Utilities in the PUDL DB without PUDL IDs.
 
@@ -513,7 +513,7 @@ def get_util_ids_eia_unmapped(
 #################
 # Glue Tables ETL
 #################
-def glue(ferc1=False, eia=False):
+def glue(ferc1: bool = False, eia: bool = False):
     """Generates a dictionary of dataframes for glue tables between FERC1, EIA.
 
     That data is primarily stored in the plant_output and

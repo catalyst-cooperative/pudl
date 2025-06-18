@@ -147,34 +147,20 @@ The two main classes which enable the generation of the plant-part table are:
 
 **Generating the plant-parts list**
 
-There are two ways to generate the plant-parts table: one directly using the
-:class:`pudl.output.pudltabl.PudlTabl` object and the other using the classes
-from this module. Either option needs a :class:`pudl.output.pudltabl.PudlTabl`
-object.
-
-Create the :class:`pudl.output.pudltabl.PudlTabl` object:
+For debugging and development purposes, you can build the plant parts using the classes
+from this module directly in a notebook or script like this:
 
 .. code-block:: python
 
-    import pudl
-    from pudl.workspace.setup import PudlPaths
-    pudl_engine = sa.create_engine(PudlPaths().pudl_db)
-    pudl_out = pudl.output.pudltabl.PudlTabl(pudl_engine,freq='YS')
-
-Then make the table via pudl_out:
-
-.. code-block:: python
-
-    plant_parts_eia = pudl_out.plant_parts_eia()
-
-
-OR make the table via objects in this module:
-
-.. code-block:: python
-
-    gens_mega = MakeMegaGenTbl().execute(mcoe, own_eia860)
-    parts_compiler = MakePlantParts(pudl_out)
-    plant_parts_eia = parts_compiler.execute(gens_mega=gens_mega)
+    gens_mega = MakeMegaGenTbl().execute(
+        mcoe=out_eia__yearly_generators,
+        own_eia860=out_eia860__yearly_ownership,
+    )
+    plant_parts_eia = MakePlantParts().execute(
+        gens_mega=out_eia__yearly_generators_by_ownership,
+        plants_eia860=out_eia__yearly_plants,
+        utils_eia860=out_eia__yearly_utilities,
+    )
 """
 
 from collections import OrderedDict
@@ -590,11 +576,11 @@ class MakePlantParts:
         # for all of the plant parts
         self.id_cols_list = make_id_cols_list()
 
-    def execute(self, gens_mega, plants_eia860, utils_eia860):
+    def execute(self, gens_mega, plants_eia860, utils_eia860) -> pd.DataFrame:
         """Aggregate and slice data points by each plant part.
 
         Returns:
-            pandas.DataFrame: The complete plant parts list
+            The complete plant parts list
         """
         # aggregate everything by each plant part
         part_dfs = []
@@ -653,14 +639,13 @@ class MakePlantParts:
         the validation stage of.
 
         Args:
-            plant_parts_eia (pandas.DataFrame): the master unit list table.
+            plant_parts_eia: the master unit list table.
             part_name: should always be "plant_match_ferc1".
-            path_to_one_to_many: a Path to the one_to_many csv
-            file in `pudl.package_data.glue`.
+            path_to_one_to_many: a Path to the one_to_many csv file in
+                `pudl.package_data.glue`.
 
         Returns:
-            pandas.DataFrame: master unit list table with one-to-many matches aggregated
-            as plant parts.
+            The EIA plant parts table with one-to-many matches aggregated as plant parts.
         """
         # Read in csv.
         try:
@@ -732,14 +717,18 @@ class MakePlantParts:
 
         return pd.concat([plant_parts_eia, part_df])
 
-    def add_additional_cols(self, plant_parts_eia, plants_eia860, utils_eia860):
+    def add_additional_cols(
+        self,
+        plant_parts_eia: pd.DataFrame,
+        plants_eia860: pd.DataFrame,
+        utils_eia860: pd.DataFrame,
+    ) -> pd.DataFrame:
         """Add additional data and id columns.
 
         This method adds a set of either calculated columns or PUDL ID columns.
 
         Returns:
-            pandas.DataFrame: master unit list table with these additional
-            columns:
+            The EIA plant parts table with these additional columns:
 
             * utility_id_pudl +
             * plant_id_pudl +

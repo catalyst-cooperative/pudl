@@ -14,6 +14,8 @@ sources:
           - name: utility_name_ferc1
           - name: plant_name_ferc1
           - name: record_id
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_unique
           - name: asset_retirement_cost
           - name: avg_num_employees
           - name: capacity_factor
