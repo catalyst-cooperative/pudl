@@ -15,7 +15,7 @@ from pudl.scripts.dbt_helper import (
     _get_model_path,
     _get_row_count_csv_path,
     _infer_partition_column,
-    _print_schema_diff_summary,
+    _schema_diff_summary,
     get_data_source,
     schema_has_removals_or_modifications,
 )
@@ -617,8 +617,7 @@ def test_complex_schema_diff_output(capsys):
         new_schema.model_dump(exclude_none=True),
         ignore_order=True,
     )
-    _print_schema_diff_summary(diff)
-    output = capsys.readouterr().out
+    output = _schema_diff_summary(diff)
 
     # Version change
     assert "version" in output, output

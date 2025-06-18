@@ -193,33 +193,38 @@ def schema_has_removals_or_modifications(diff: DeepDiff) -> bool:
     return any(key in diff and diff[key] for key in change_keys)
 
 
-def _print_schema_diff(diff: DeepDiff, old_schema: DbtSchema, new_schema: DbtSchema):
+def _log_schema_diff(diff: DeepDiff, old_schema: DbtSchema, new_schema: DbtSchema):
     """Print old and new YAML, and summary of schema changes."""
-    print("\n======================")
-    print("📜 Old YAML:")
-    print(yaml.dump(old_schema.model_dump(exclude_none=True), sort_keys=False))
-    print("\n======================")
-    print("📜 New YAML:")
-    print(yaml.dump(new_schema.model_dump(exclude_none=True), sort_keys=False))
-    print("\n======================")
+    logger.info(
+        "\n======================\n\n📜 Old YAML:\n%s\n\n======================",
+        yaml.dump(old_schema.model_dump(exclude_none=True), sort_keys=False),
+    )
 
-    print("🔍 Schema Diff Summary:\n")
-    _print_schema_diff_summary(diff)
+    logger.info(
+        "📜 New YAML:\n%s\n\n======================",
+        yaml.dump(new_schema.model_dump(exclude_none=True), sort_keys=False),
+    )
 
-    print("======================\n")
+    logger.info(
+        "🔍 Schema Diff Summary:\n%s\n======================\n",
+        _schema_diff_summary(diff),
+    )
 
 
-def _print_schema_diff_summary(diff: DeepDiff):
-    """Print all changes in a DeepDiff between two schemas."""
-    print("🔍 DeepDiff Summary:")
+def _schema_diff_summary(diff: DeepDiff) -> str:
+    """Return all changes in a DeepDiff between two schemas as a string."""
+    summary_elements = ["🔍 DeepDiff Summary:"]
+
     for change_type, changes in diff.items():
-        print(f"\n{change_type}:")
+        summary_elements.append(f"\n{change_type}:")
         if isinstance(changes, dict):
             for path, value in changes.items():
-                print(f"  - {path}: {value}")
+                summary_elements.append(f"  - {path}: {value}")
         else:
             for item in changes:
-                print(f"  - {item}")
+                summary_elements.append(f"  - {item}")
+
+    return "\n".join(summary_elements)
 
 
 def get_data_source(table_name: str) -> str:
@@ -350,10 +355,10 @@ def update_table_schema(
         )
 
         if schema_has_removals_or_modifications(diff):
-            print(
+            logger.warning(
                 "\n⚠️ WARNING: Some elements would be deleted by this update! Please update manually instead."
             )
-            _print_schema_diff(diff, old_schema, new_schema)
+            _log_schema_diff(diff, old_schema, new_schema)
             return UpdateResult(
                 success=False,
                 message=f"DBT configuration for table {table_name} has information the would be deleted. Update manually or run with clobber.",
