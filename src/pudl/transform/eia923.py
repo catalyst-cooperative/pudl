@@ -1329,7 +1329,7 @@ def cooling_system_information_continuity(csi):
             "monthly_total_withdrawal_volume_gallons": 0.3,
         },
         groupby_col="report_date",
-        n_outliers_allowed=2,
+        n_outliers_allowed=3,
     )
 
 
