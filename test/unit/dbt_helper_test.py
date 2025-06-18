@@ -510,22 +510,26 @@ def test_dbt_schema__add_column_tests(mocker, blank_schema):
 
 
 @pytest.mark.parametrize(
-    "diff,expected",
+    "diff, expected",
     [
-        ({"dictionary_item_added": {"root['description']"}}, False),  # Add only
-        (
+        pytest.param(
+            {"dictionary_item_added": {"root['description']"}}, False, id="Add only"
+        ),
+        pytest.param(
             {
                 "values_changed": {
                     "root['description']": {"old_value": "x", "new_value": "y"}
                 }
             },
             True,
-        ),  # Scalar mod
-        (
+            id="Scalar mod",
+        ),
+        pytest.param(
             {"dictionary_item_removed": {"root['columns']['col_a']"}},
             True,
-        ),  # Removed column
-        (
+            id="Removed column",
+        ),
+        pytest.param(
             {
                 "values_changed": {
                     "root['columns']['col_b']['tags']": {
@@ -535,20 +539,23 @@ def test_dbt_schema__add_column_tests(mocker, blank_schema):
                 }
             },
             True,
-        ),  # Nested mod
-        ({}, False),  # Empty
-        (
+            id="Nested mod",
+        ),
+        pytest.param({}, False, id="Empty"),
+        pytest.param(
             {"dictionary_item_added": {"root['meta']['notes']"}},
             False,
-        ),  # Add in nested key
-        (
+            id="Add in nested key",
+        ),
+        pytest.param(
             {
                 "values_changed": {
                     "root['meta']['notes']": {"old_value": "foo", "new_value": "bar"}
                 }
             },
             True,
-        ),  # Nested old
+            id="Nested old",
+        ),
     ],
 )
 def test_schema_has_removals_or_modifications(diff, expected):
