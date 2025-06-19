@@ -105,7 +105,7 @@ of this match can be found in the
 
 Matching SEC Subsidiary Companies to EIA Utilities
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-After constructing the ``core_sec10k__assn_sec10k_filers_and_eia_utilities``
+After constructing the :ref:`core_sec10k__assn_sec10k_filers_and_eia_utilities`
 table, we take the remaining EIA utilities which have not been matched
 to an SEC filer and match them to subsidiary companies reported in Ex. 21
 attachments. We don't have all the additional attributes about these
