@@ -21,8 +21,6 @@ def get_failed_nodes(results: RunExecutionResult) -> list[GenericTestNode]:
 class NodeContext(NamedTuple):
     """Associate a node's *name* with information describing what went wrong."""
 
-    # TODO 2025-06-09: consider adding whether this failed or errored, and a
-    # free-form text description field
     name: str
     context: pd.DataFrame
 
@@ -49,14 +47,24 @@ def get_context_for_nodes(nodes: list[GenericTestNode]) -> list[NodeContext]:
     return contexts
 
 
-def run_build(model_selection):
+class BuildResult(NamedTuple):
+    """Combine overall result with any useful failure context."""
+
+    success: bool
+    failure_contexts: list[NodeContext]
+
+    def format_failure_contexts(self) -> str:
+        """Nice legible output for logs."""
+        return "\n=====\n".join(ctx.pretty_print() for ctx in self.failure_contexts)
+
+
+def build_with_context(model_selection: str, dbt_target: str) -> BuildResult:
     """Run the DBT build and get failure information back.
 
     * run the DBT build using our selection, returning test failures
     * get extra context for each test failure
     * print out test failure context
     """
-    dbt_target = "etl-full"
     cli_args = ["--target", dbt_target, "--select", model_selection]
     dbt = dbtRunner()
     dbt_dir = PUDL_ROOT_PATH / "dbt"
@@ -71,4 +79,4 @@ def run_build(model_selection):
     failed_nodes = get_failed_nodes(build_results)
     failure_contexts = get_context_for_nodes(failed_nodes)
 
-    print("\n\n====\n\n".join(c.pretty_print() for c in failure_contexts))
+    return BuildResult(success=build_output.success, failure_contexts=failure_contexts)
