@@ -12,6 +12,7 @@ import yaml
 from deepdiff import DeepDiff
 from pydantic import BaseModel
 
+from pudl.dbt_wrapper import build_with_context
 from pudl.logging_helpers import configure_root_logger, get_logger
 from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.workspace.setup import PudlPaths
@@ -499,25 +500,53 @@ def update_tables(
             )
 
 
+@click.command()
+@click.option(
+    "--select", default="*", help="DBT selector for the asset(s) you want to validate."
+)
+@click.option(
+    "--target",
+    default="etl-full",
+    type=click.Choice(["etl-full", "etl-fast"]),
+    help="DBT target - etl-full or etl-fast.",
+)
+def validate(select: str = "*", target: str = "etl-full") -> None:
+    """Validate a selection of DBT models / sources.
+
+    Wraps the ``dbt build`` command line which doesn't give you the actual data
+    that was returned from the test query.
+    """
+    test_result = build_with_context(model_selection=select, dbt_target=target)
+
+    if not test_result.success:
+        raise AssertionError(
+            f"failure contexts:\n{test_result.format_failure_contexts()}"
+        )
+
+
 @click.group(
     context_settings={"help_option_names": ["-h", "--help"]},
 )
 def dbt_helper():
     """Script for auto-generating dbt configuration and migrating existing tests.
 
-    This CLI currently provides one sub-command: ``update-tables`` which can update or
-    create a dbt table (model) schema.yml file under the ``dbt/models`` repo. These
-    configuration files tell dbt about the structure of the table and what data tests
-    are specified for it. It also adds a (required) row count test by default. The
-    script can also generate or update the expected row counts for existing tables,
-    assuming they have been materialized to parquet files and are sitting in your
-    $PUDL_OUT directory.
+    This CLI currently provides the following sub-commands:
+
+    * ``update-tables`` which can update or create a dbt table (model)
+      schema.yml file under the ``dbt/models`` repo. These configuration files
+      tell dbt about the structure of the table and what data tests are specified
+      for it. It also adds a (required) row count test by default. The script
+      can also generate or update the expected row counts for existing tables,
+      assuming they have been materialized to parquet files and are sitting in
+      your $PUDL_OUT directory.
+    * ``validate``: run validation tests for a selection of DBT models/sources.
 
     Run ``dbt_helper {command} --help`` for detailed usage on each command.
     """
 
 
 dbt_helper.add_command(update_tables)
+dbt_helper.add_command(validate)
 
 
 if __name__ == "__main__":
