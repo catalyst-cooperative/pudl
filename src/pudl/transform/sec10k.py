@@ -830,7 +830,7 @@ def core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities(
         how="left",
         left_on="subsidiary_company_name",
         right_on="utility_name_eia",
-        validate="m:m",
+        validate="many_to_many",
     ).dropna(subset="utility_id_eia")[
         ["subsidiary_company_id_sec10k", "utility_id_eia"]
     ]
