@@ -249,7 +249,7 @@ def _match_ex21_subsidiaries_to_filer_company(
         how="inner",
         on="subsidiary_company_name",
         suffixes=("_sec", "_ex21"),
-        validate="m:m",
+        validate="many_to_many",
     )
     # split up the location of incorporation on whitespace, creating a column
     # with lists of word tokens
