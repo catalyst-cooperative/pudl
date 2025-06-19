@@ -69,8 +69,8 @@ Matching Subsidiary Companies to a Central Index Key
 Some subsidiary companies reported in Ex. 21 attachments also file
 their own 10-K filing and thus have an implicit central index key.
 This CIK is not reported in the Ex. 21 attachments, so we connected the
-subsidiary companies in ``core_sec10k__quarterly_exhibit_21_company_ownership``
-to the filing companies in ``core_sec10k__quarterly_company_information``.
+subsidiary companies in :ref:`core_sec10k__quarterly_exhibit_21_company_ownership`
+to the filing companies in :ref:`core_sec10k__quarterly_company_information`.
 
 To do this, we match the subsidiary companies to 10-K filers on company name.
 If there are multiple matches with the same company name we choose
