@@ -18,14 +18,15 @@ an initial round of modeling, so this dataset is a beta version and its
 contents and connectons to other datasets are probabilitic in nature.
 
 The following output tables are created from this process:
-* ``out_sec10k__quarterly_filings``: contains information about the filings
-themselves
-* ``out_sec10k__quarterly_company_information``: contains attributes describing the
-companies which file 10-K's
-* ``out_sec10k__parents_and_subsidiaries``: contains ownership information about
-parent companies and their subsidiary companies
-* ``out_sec10k__changelog_company_name``: contains information about company name
-changes
+
+* :ref:`out_sec10k__quarterly_filings`: contains information about the filings
+  themselves
+* :ref:`out_sec10k__quarterly_company_information`: contains attributes
+  describing the companies which file 10-K's
+* :ref:`out_sec10k__parents_and_subsidiaries`: contains ownership information
+  about parent companies and their subsidiary companies
+* :ref:`out_sec10k__changelog_company_name`: contains information about company
+  name changes
 
 Extracting Ownership Data From Exhibit 21 Attachments
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -46,7 +47,7 @@ and subsequently attributes about the subsidiary and parent companies are
 merged on in the ``out_sec10k__quarterly_exhibit_21_company_ownership`` table.
 
 Assigning ``subsidiary_company_id_sec10k`` to Extracted Subsidiary Companies
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 To track subsidiaries over time, we assign a unique identifier called
 ``subsidiary_company_id_sec10k`` to each subsidiary extracted from an
 Exhibit 21 filing and reported in the
