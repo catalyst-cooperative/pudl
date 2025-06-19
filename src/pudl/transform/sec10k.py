@@ -761,7 +761,7 @@ def core_sec10k__assn_exhibit_21_subsidiaries_and_filers(
         core_sec10k__quarterly_filings[["filename_sec10k", "report_date"]],
         how="left",
         on="filename_sec10k",
-        validate="m:1",
+        validate="many_to_one",
     )
     ownership_df = core_sec10k__quarterly_exhibit_21_company_ownership.merge(
         core_sec10k__quarterly_filings[["filename_sec10k", "report_date"]],
