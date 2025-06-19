@@ -36,6 +36,10 @@ VCE RARE
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* We've added a new sub-command to ``dbt_helper`` - ``dbt_helper validate``.
+  This lets you run validation tests for a selection of DBT models and also
+  see what the failing outputs are, instead of doing a bunch of digging after
+  the fact.
 * We've added a new devtool in ``devtools/materialize_to_parquet.py`` - this
   lets you export and share assets that were previously not persisted to Parquet,
   such as ``raw`` assets that have been extracted but not cleaned. Run
