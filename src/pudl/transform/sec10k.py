@@ -310,7 +310,7 @@ def _match_ex21_subsidiaries_to_filer_company(
         ],
         how="left",
         on=["subsidiary_company_id_sec10k"],
-        validate="m:1",
+        validate="many_to_one",
     ).rename(columns={"central_index_key": "subsidiary_company_central_index_key"})
 
     return ownership_with_cik_df
