@@ -282,6 +282,19 @@ defs: Definitions = Definitions(
             },
             description="This job executes the most recent year of each asset.",
         ),
+        define_asset_job(
+            name="eia_update_full",
+            description="This job updates all EIA quarterly assets (EIA 860, 923, 860M) and everything downstream. Use for development only.",
+            selection='group:"raw_eia860"+ or group:"raw_eia860m"+ or group:"raw_eia923"+',
+            config=default_config
+            | {
+                "resources": {
+                    "dataset_settings": {
+                        "config": load_dataset_settings_from_file("etl_full")
+                    }
+                }
+            },
+        ),
     ],
 )
 
