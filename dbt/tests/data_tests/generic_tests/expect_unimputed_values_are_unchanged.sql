@@ -3,7 +3,7 @@
     original,
     imputed,
     imputation_code,
-    atol=1,
+    atol=0.1,
     rtol=0.001
 ) %}
 SELECT * FROM {{ model }}

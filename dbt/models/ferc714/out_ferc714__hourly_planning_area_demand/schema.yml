@@ -11,6 +11,7 @@ sources:
               original: demand_reported_mwh
               imputed: demand_imputed_pudl_mwh
               imputation_code: demand_imputed_pudl_mwh_imputation_code
+              atol: 1.0
               severity: warn
         columns:
           - name: respondent_id_ferc714
