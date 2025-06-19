@@ -14,6 +14,7 @@ _core_eia860__cooling_equipment,2020,1882
 _core_eia860__cooling_equipment,2021,1860
 _core_eia860__cooling_equipment,2022,1835
 _core_eia860__cooling_equipment,2023,1810
+_core_eia860__cooling_equipment,2024,1800
 _core_eia860__fgd_equipment,2009,722
 _core_eia860__fgd_equipment,2010,748
 _core_eia860__fgd_equipment,2011,787
@@ -29,6 +30,7 @@ _core_eia860__fgd_equipment,2020,864
 _core_eia860__fgd_equipment,2021,850
 _core_eia860__fgd_equipment,2022,842
 _core_eia860__fgd_equipment,2023,827
+_core_eia860__fgd_equipment,2024,811
 _core_eia923__cooling_system_information,2008,1525
 _core_eia923__cooling_system_information,2009,1486
 _core_eia923__cooling_system_information,2010,17129
@@ -45,6 +47,7 @@ _core_eia923__cooling_system_information,2020,15450
 _core_eia923__cooling_system_information,2021,15080
 _core_eia923__cooling_system_information,2022,14676
 _core_eia923__cooling_system_information,2023,14383
+_core_eia923__cooling_system_information,2024,11376
 _core_eia923__fgd_operation_maintenance,2008,608
 _core_eia923__fgd_operation_maintenance,2009,622
 _core_eia923__fgd_operation_maintenance,2010,647
@@ -61,6 +64,7 @@ _core_eia923__fgd_operation_maintenance,2020,813
 _core_eia923__fgd_operation_maintenance,2021,794
 _core_eia923__fgd_operation_maintenance,2022,789
 _core_eia923__fgd_operation_maintenance,2023,767
+_core_eia923__fgd_operation_maintenance,2024,514
 _out_eia__monthly_capacity_factor_by_generator,2001,192108
 _out_eia__monthly_capacity_factor_by_generator,2002,199764
 _out_eia__monthly_capacity_factor_by_generator,2003,205020
@@ -139,6 +143,7 @@ _out_eia__monthly_heat_rate_by_generator,2020,44028
 _out_eia__monthly_heat_rate_by_generator,2021,43356
 _out_eia__monthly_heat_rate_by_generator,2022,42357
 _out_eia__monthly_heat_rate_by_generator,2023,42072
+_out_eia__monthly_heat_rate_by_generator,2024,38460
 _out_eia__monthly_heat_rate_by_unit,2008,12984
 _out_eia__monthly_heat_rate_by_unit,2009,28637
 _out_eia__monthly_heat_rate_by_unit,2010,28782
@@ -155,6 +160,7 @@ _out_eia__monthly_heat_rate_by_unit,2020,24120
 _out_eia__monthly_heat_rate_by_unit,2021,23448
 _out_eia__monthly_heat_rate_by_unit,2022,22639
 _out_eia__monthly_heat_rate_by_unit,2023,22380
+_out_eia__monthly_heat_rate_by_unit,2024,20244
 _out_eia__plants_utilities,2001,5646
 _out_eia__plants_utilities,2002,5726
 _out_eia__plants_utilities,2003,5832
@@ -265,8 +271,8 @@ _out_eia__yearly_generators,2020,30053
 _out_eia__yearly_generators,2021,31237
 _out_eia__yearly_generators,2022,32353
 _out_eia__yearly_generators,2023,33486
-_out_eia__yearly_generators,2024,35451
-_out_eia__yearly_generators,2025,35912
+_out_eia__yearly_generators,2024,34704
+_out_eia__yearly_generators,2025,36006
 _out_eia__yearly_heat_rate_by_generator,2008,1129
 _out_eia__yearly_heat_rate_by_generator,2009,2911
 _out_eia__yearly_heat_rate_by_generator,2010,2921
@@ -283,6 +289,7 @@ _out_eia__yearly_heat_rate_by_generator,2020,3669
 _out_eia__yearly_heat_rate_by_generator,2021,3613
 _out_eia__yearly_heat_rate_by_generator,2022,3528
 _out_eia__yearly_heat_rate_by_generator,2023,3506
+_out_eia__yearly_heat_rate_by_generator,2024,3205
 _out_eia__yearly_heat_rate_by_unit,2008,1082
 _out_eia__yearly_heat_rate_by_unit,2009,2389
 _out_eia__yearly_heat_rate_by_unit,2010,2400
@@ -299,6 +306,7 @@ _out_eia__yearly_heat_rate_by_unit,2020,2010
 _out_eia__yearly_heat_rate_by_unit,2021,1954
 _out_eia__yearly_heat_rate_by_unit,2022,1886
 _out_eia__yearly_heat_rate_by_unit,2023,1865
+_out_eia__yearly_heat_rate_by_unit,2024,1687
 _out_ferc1__yearly_plants_utilities,,8101
 core_eia860__assn_boiler_cooling,2009,2586
 core_eia860__assn_boiler_cooling,2010,2834
@@ -315,6 +323,7 @@ core_eia860__assn_boiler_cooling,2020,3005
 core_eia860__assn_boiler_cooling,2021,2967
 core_eia860__assn_boiler_cooling,2022,2938
 core_eia860__assn_boiler_cooling,2023,2904
+core_eia860__assn_boiler_cooling,2024,2894
 core_eia860__assn_boiler_generator,2008,1129
 core_eia860__assn_boiler_generator,2009,5832
 core_eia860__assn_boiler_generator,2010,5861
@@ -331,6 +340,7 @@ core_eia860__assn_boiler_generator,2020,12218
 core_eia860__assn_boiler_generator,2021,12135
 core_eia860__assn_boiler_generator,2022,12037
 core_eia860__assn_boiler_generator,2023,11987
+core_eia860__assn_boiler_generator,2024,11070
 core_eia860__assn_boiler_stack_flue,2009,3054
 core_eia860__assn_boiler_stack_flue,2010,3084
 core_eia860__assn_boiler_stack_flue,2011,3127
@@ -346,6 +356,7 @@ core_eia860__assn_boiler_stack_flue,2020,2993
 core_eia860__assn_boiler_stack_flue,2021,2953
 core_eia860__assn_boiler_stack_flue,2022,2939
 core_eia860__assn_boiler_stack_flue,2023,2906
+core_eia860__assn_boiler_stack_flue,2024,2882
 core_eia860__assn_yearly_boiler_emissions_control_equipment,2009,3305
 core_eia860__assn_yearly_boiler_emissions_control_equipment,2010,3329
 core_eia860__assn_yearly_boiler_emissions_control_equipment,2011,3399
@@ -361,6 +372,7 @@ core_eia860__assn_yearly_boiler_emissions_control_equipment,2020,6539
 core_eia860__assn_yearly_boiler_emissions_control_equipment,2021,6462
 core_eia860__assn_yearly_boiler_emissions_control_equipment,2022,6379
 core_eia860__assn_yearly_boiler_emissions_control_equipment,2023,6281
+core_eia860__assn_yearly_boiler_emissions_control_equipment,2024,6191
 core_eia860__scd_boilers,2008,3598
 core_eia860__scd_boilers,2009,4348
 core_eia860__scd_boilers,2010,4693
@@ -377,8 +389,8 @@ core_eia860__scd_boilers,2020,5892
 core_eia860__scd_boilers,2021,5833
 core_eia860__scd_boilers,2022,5785
 core_eia860__scd_boilers,2023,5749
-core_eia860__scd_boilers,2024,3259
-core_eia860__scd_boilers,2025,3197
+core_eia860__scd_boilers,2024,5664
+core_eia860__scd_boilers,2025,3196
 core_eia860__scd_emissions_control_equipment,2013,5094
 core_eia860__scd_emissions_control_equipment,2014,5450
 core_eia860__scd_emissions_control_equipment,2015,5811
@@ -390,6 +402,7 @@ core_eia860__scd_emissions_control_equipment,2020,5712
 core_eia860__scd_emissions_control_equipment,2021,5653
 core_eia860__scd_emissions_control_equipment,2022,5601
 core_eia860__scd_emissions_control_equipment,2023,5504
+core_eia860__scd_emissions_control_equipment,2024,5435
 core_eia860__scd_generators,2001,18162
 core_eia860__scd_generators,2002,18802
 core_eia860__scd_generators,2003,19177
@@ -413,8 +426,8 @@ core_eia860__scd_generators,2020,30053
 core_eia860__scd_generators,2021,31237
 core_eia860__scd_generators,2022,32353
 core_eia860__scd_generators,2023,33489
-core_eia860__scd_generators,2024,35451
-core_eia860__scd_generators,2025,35912
+core_eia860__scd_generators,2024,34704
+core_eia860__scd_generators,2025,36006
 core_eia860__scd_generators_energy_storage,2016,78
 core_eia860__scd_generators_energy_storage,2017,110
 core_eia860__scd_generators_energy_storage,2018,146
@@ -423,6 +436,7 @@ core_eia860__scd_generators_energy_storage,2020,244
 core_eia860__scd_generators_energy_storage,2021,368
 core_eia860__scd_generators_energy_storage,2022,501
 core_eia860__scd_generators_energy_storage,2023,1154
+core_eia860__scd_generators_energy_storage,2024,1419
 core_eia860__scd_generators_multifuel,2004,3452
 core_eia860__scd_generators_multifuel,2005,3461
 core_eia860__scd_generators_multifuel,2006,3343
@@ -443,6 +457,7 @@ core_eia860__scd_generators_multifuel,2020,3817
 core_eia860__scd_generators_multifuel,2021,3802
 core_eia860__scd_generators_multifuel,2022,3785
 core_eia860__scd_generators_multifuel,2023,3799
+core_eia860__scd_generators_multifuel,2024,3783
 core_eia860__scd_generators_solar,2013,1060
 core_eia860__scd_generators_solar,2014,1461
 core_eia860__scd_generators_solar,2015,1879
@@ -454,6 +469,7 @@ core_eia860__scd_generators_solar,2020,4906
 core_eia860__scd_generators_solar,2021,5566
 core_eia860__scd_generators_solar,2022,6105
 core_eia860__scd_generators_solar,2023,6776
+core_eia860__scd_generators_solar,2024,7565
 core_eia860__scd_generators_wind,2013,1032
 core_eia860__scd_generators_wind,2014,1081
 core_eia860__scd_generators_wind,2015,1169
@@ -465,6 +481,7 @@ core_eia860__scd_generators_wind,2020,1561
 core_eia860__scd_generators_wind,2021,1621
 core_eia860__scd_generators_wind,2022,1646
 core_eia860__scd_generators_wind,2023,1684
+core_eia860__scd_generators_wind,2024,1709
 core_eia860__scd_ownership,2001,2803
 core_eia860__scd_ownership,2002,3073
 core_eia860__scd_ownership,2003,3339
@@ -488,6 +505,7 @@ core_eia860__scd_ownership,2020,4832
 core_eia860__scd_ownership,2021,5129
 core_eia860__scd_ownership,2022,5300
 core_eia860__scd_ownership,2023,5378
+core_eia860__scd_ownership,2024,5459
 core_eia860__scd_plants,2001,5886
 core_eia860__scd_plants,2002,5832
 core_eia860__scd_plants,2003,5843
@@ -511,8 +529,8 @@ core_eia860__scd_plants,2020,12670
 core_eia860__scd_plants,2021,13490
 core_eia860__scd_plants,2022,14274
 core_eia860__scd_plants,2023,15108
-core_eia860__scd_plants,2024,16232
-core_eia860__scd_plants,2025,16513
+core_eia860__scd_plants,2024,15993
+core_eia860__scd_plants,2025,16576
 core_eia860__scd_utilities,2001,3424
 core_eia860__scd_utilities,2002,6816
 core_eia860__scd_utilities,2003,3534
@@ -536,8 +554,8 @@ core_eia860__scd_utilities,2020,6938
 core_eia860__scd_utilities,2021,7255
 core_eia860__scd_utilities,2022,7526
 core_eia860__scd_utilities,2023,7806
-core_eia860__scd_utilities,2024,7155
-core_eia860__scd_utilities,2025,7270
+core_eia860__scd_utilities,2024,8254
+core_eia860__scd_utilities,2025,7310
 core_eia860m__changelog_generators,2015,49530
 core_eia860m__changelog_generators,2016,58745
 core_eia860m__changelog_generators,2017,22122
@@ -548,7 +566,7 @@ core_eia860m__changelog_generators,2021,9705
 core_eia860m__changelog_generators,2022,15952
 core_eia860m__changelog_generators,2023,10090
 core_eia860m__changelog_generators,2024,11548
-core_eia860m__changelog_generators,2025,4752
+core_eia860m__changelog_generators,2025,5500
 core_eia861__assn_balancing_authority,2001,3114
 core_eia861__assn_balancing_authority,2002,3396
 core_eia861__assn_balancing_authority,2003,3348
@@ -1026,8 +1044,8 @@ core_eia923__monthly_boiler_fuel,2020,108743
 core_eia923__monthly_boiler_fuel,2021,106812
 core_eia923__monthly_boiler_fuel,2022,103536
 core_eia923__monthly_boiler_fuel,2023,102180
-core_eia923__monthly_boiler_fuel,2024,75039
-core_eia923__monthly_boiler_fuel,2025,72520
+core_eia923__monthly_boiler_fuel,2024,90999
+core_eia923__monthly_boiler_fuel,2025,72307
 core_eia923__monthly_energy_storage,2014,824
 core_eia923__monthly_energy_storage,2015,699
 core_eia923__monthly_energy_storage,2016,1757
@@ -1038,8 +1056,8 @@ core_eia923__monthly_energy_storage,2020,4162
 core_eia923__monthly_energy_storage,2021,5663
 core_eia923__monthly_energy_storage,2022,8228
 core_eia923__monthly_energy_storage,2023,10271
-core_eia923__monthly_energy_storage,2024,5331
-core_eia923__monthly_energy_storage,2025,1026
+core_eia923__monthly_energy_storage,2024,12111
+core_eia923__monthly_energy_storage,2025,1569
 core_eia923__monthly_fuel_receipts_costs,2008,61849
 core_eia923__monthly_fuel_receipts_costs,2009,60141
 core_eia923__monthly_fuel_receipts_costs,2010,58993
@@ -1056,8 +1074,8 @@ core_eia923__monthly_fuel_receipts_costs,2020,35294
 core_eia923__monthly_fuel_receipts_costs,2021,37183
 core_eia923__monthly_fuel_receipts_costs,2022,38792
 core_eia923__monthly_fuel_receipts_costs,2023,36835
-core_eia923__monthly_fuel_receipts_costs,2024,22632
-core_eia923__monthly_fuel_receipts_costs,2025,3861
+core_eia923__monthly_fuel_receipts_costs,2024,34467
+core_eia923__monthly_fuel_receipts_costs,2025,5647
 core_eia923__monthly_generation,2008,34931
 core_eia923__monthly_generation,2009,34912
 core_eia923__monthly_generation,2010,35407
@@ -1074,8 +1092,8 @@ core_eia923__monthly_generation,2020,46008
 core_eia923__monthly_generation,2021,45156
 core_eia923__monthly_generation,2022,44280
 core_eia923__monthly_generation,2023,43944
-core_eia923__monthly_generation,2024,32304
-core_eia923__monthly_generation,2025,31380
+core_eia923__monthly_generation,2024,40260
+core_eia923__monthly_generation,2025,31224
 core_eia923__monthly_generation_fuel,2001,82887
 core_eia923__monthly_generation_fuel,2002,91753
 core_eia923__monthly_generation_fuel,2003,97476
@@ -1099,8 +1117,8 @@ core_eia923__monthly_generation_fuel,2020,171627
 core_eia923__monthly_generation_fuel,2021,179589
 core_eia923__monthly_generation_fuel,2022,189321
 core_eia923__monthly_generation_fuel,2023,196299
-core_eia923__monthly_generation_fuel,2024,65301
-core_eia923__monthly_generation_fuel,2025,11144
+core_eia923__monthly_generation_fuel,2024,194203
+core_eia923__monthly_generation_fuel,2025,16743
 core_eia923__monthly_generation_fuel_nuclear,2001,792
 core_eia923__monthly_generation_fuel_nuclear,2002,792
 core_eia923__monthly_generation_fuel_nuclear,2003,1224
@@ -1125,7 +1143,7 @@ core_eia923__monthly_generation_fuel_nuclear,2021,1121
 core_eia923__monthly_generation_fuel_nuclear,2022,1111
 core_eia923__monthly_generation_fuel_nuclear,2023,1111
 core_eia923__monthly_generation_fuel_nuclear,2024,1126
-core_eia923__monthly_generation_fuel_nuclear,2025,188
+core_eia923__monthly_generation_fuel_nuclear,2025,282
 core_eia930__hourly_interchange,2015,1388960
 core_eia930__hourly_interchange,2016,2725242
 core_eia930__hourly_interchange,2017,2723687
@@ -2130,6 +2148,7 @@ out_eia860__yearly_emissions_control_equipment,2020,5712
 out_eia860__yearly_emissions_control_equipment,2021,5653
 out_eia860__yearly_emissions_control_equipment,2022,5601
 out_eia860__yearly_emissions_control_equipment,2023,5504
+out_eia860__yearly_emissions_control_equipment,2024,5435
 out_eia860__yearly_ownership,2001,2803
 out_eia860__yearly_ownership,2002,3073
 out_eia860__yearly_ownership,2003,3339
@@ -2153,6 +2172,7 @@ out_eia860__yearly_ownership,2020,4832
 out_eia860__yearly_ownership,2021,5129
 out_eia860__yearly_ownership,2022,5300
 out_eia860__yearly_ownership,2023,5378
+out_eia860__yearly_ownership,2024,5459
 out_eia861__yearly_balancing_authority_service_territory,2001,4958
 out_eia861__yearly_balancing_authority_service_territory,2002,5807
 out_eia861__yearly_balancing_authority_service_territory,2003,5666
@@ -2215,8 +2235,8 @@ out_eia923__boiler_fuel,2020,108635
 out_eia923__boiler_fuel,2021,106812
 out_eia923__boiler_fuel,2022,103500
 out_eia923__boiler_fuel,2023,102060
-out_eia923__boiler_fuel,2024,75039
-out_eia923__boiler_fuel,2025,72520
+out_eia923__boiler_fuel,2024,90999
+out_eia923__boiler_fuel,2025,72307
 out_eia923__fuel_receipts_costs,2008,61341
 out_eia923__fuel_receipts_costs,2009,59674
 out_eia923__fuel_receipts_costs,2010,58273
@@ -2233,8 +2253,8 @@ out_eia923__fuel_receipts_costs,2020,34574
 out_eia923__fuel_receipts_costs,2021,36513
 out_eia923__fuel_receipts_costs,2022,38075
 out_eia923__fuel_receipts_costs,2023,35869
-out_eia923__fuel_receipts_costs,2024,21592
-out_eia923__fuel_receipts_costs,2025,3676
+out_eia923__fuel_receipts_costs,2024,33427
+out_eia923__fuel_receipts_costs,2025,5383
 out_eia923__generation,2008,34931
 out_eia923__generation,2009,34912
 out_eia923__generation,2010,35371
@@ -2251,8 +2271,8 @@ out_eia923__generation,2020,45996
 out_eia923__generation,2021,45144
 out_eia923__generation,2022,44244
 out_eia923__generation,2023,43908
-out_eia923__generation,2024,32304
-out_eia923__generation,2025,31380
+out_eia923__generation,2024,40260
+out_eia923__generation,2025,31224
 out_eia923__generation_fuel_combined,2001,80526
 out_eia923__generation_fuel_combined,2002,91193
 out_eia923__generation_fuel_combined,2003,98147
@@ -2276,8 +2296,8 @@ out_eia923__generation_fuel_combined,2020,171663
 out_eia923__generation_fuel_combined,2021,179580
 out_eia923__generation_fuel_combined,2022,189250
 out_eia923__generation_fuel_combined,2023,196256
-out_eia923__generation_fuel_combined,2024,65288
-out_eia923__generation_fuel_combined,2025,11142
+out_eia923__generation_fuel_combined,2024,193043
+out_eia923__generation_fuel_combined,2025,16740
 out_eia923__monthly_boiler_fuel,2008,77537
 out_eia923__monthly_boiler_fuel,2009,79002
 out_eia923__monthly_boiler_fuel,2010,81161
@@ -2294,8 +2314,8 @@ out_eia923__monthly_boiler_fuel,2020,108635
 out_eia923__monthly_boiler_fuel,2021,106812
 out_eia923__monthly_boiler_fuel,2022,103500
 out_eia923__monthly_boiler_fuel,2023,102060
-out_eia923__monthly_boiler_fuel,2024,75039
-out_eia923__monthly_boiler_fuel,2025,72520
+out_eia923__monthly_boiler_fuel,2024,90999
+out_eia923__monthly_boiler_fuel,2025,72307
 out_eia923__monthly_fuel_receipts_costs,2008,23191
 out_eia923__monthly_fuel_receipts_costs,2009,22797
 out_eia923__monthly_fuel_receipts_costs,2010,22661
@@ -2312,8 +2332,8 @@ out_eia923__monthly_fuel_receipts_costs,2020,13992
 out_eia923__monthly_fuel_receipts_costs,2021,14374
 out_eia923__monthly_fuel_receipts_costs,2022,14395
 out_eia923__monthly_fuel_receipts_costs,2023,13909
-out_eia923__monthly_fuel_receipts_costs,2024,10127
-out_eia923__monthly_fuel_receipts_costs,2025,1739
+out_eia923__monthly_fuel_receipts_costs,2024,13202
+out_eia923__monthly_fuel_receipts_costs,2025,2557
 out_eia923__monthly_generation,2008,34931
 out_eia923__monthly_generation,2009,34912
 out_eia923__monthly_generation,2010,35371
@@ -2330,8 +2350,8 @@ out_eia923__monthly_generation,2020,45996
 out_eia923__monthly_generation,2021,45144
 out_eia923__monthly_generation,2022,44244
 out_eia923__monthly_generation,2023,43908
-out_eia923__monthly_generation,2024,32304
-out_eia923__monthly_generation,2025,31380
+out_eia923__monthly_generation,2024,40260
+out_eia923__monthly_generation,2025,31224
 out_eia923__monthly_generation_fuel_by_generator,2001,192108
 out_eia923__monthly_generation_fuel_by_generator,2002,199764
 out_eia923__monthly_generation_fuel_by_generator,2003,205020
@@ -2354,7 +2374,8 @@ out_eia923__monthly_generation_fuel_by_generator,2019,294289
 out_eia923__monthly_generation_fuel_by_generator,2020,302100
 out_eia923__monthly_generation_fuel_by_generator,2021,317800
 out_eia923__monthly_generation_fuel_by_generator,2022,327729
-out_eia923__monthly_generation_fuel_by_generator,2023,337632
+out_eia923__monthly_generation_fuel_by_generator,2023,337536
+out_eia923__monthly_generation_fuel_by_generator,2024,342672
 out_eia923__monthly_generation_fuel_by_generator_energy_source,2001,275508
 out_eia923__monthly_generation_fuel_by_generator_energy_source,2002,284684
 out_eia923__monthly_generation_fuel_by_generator_energy_source,2003,301432
@@ -2377,7 +2398,8 @@ out_eia923__monthly_generation_fuel_by_generator_energy_source,2019,403952
 out_eia923__monthly_generation_fuel_by_generator_energy_source,2020,409416
 out_eia923__monthly_generation_fuel_by_generator_energy_source,2021,424343
 out_eia923__monthly_generation_fuel_by_generator_energy_source,2022,432466
-out_eia923__monthly_generation_fuel_by_generator_energy_source,2023,441153
+out_eia923__monthly_generation_fuel_by_generator_energy_source,2023,441057
+out_eia923__monthly_generation_fuel_by_generator_energy_source,2024,440864
 out_eia923__monthly_generation_fuel_combined,2001,80526
 out_eia923__monthly_generation_fuel_combined,2002,91193
 out_eia923__monthly_generation_fuel_combined,2003,98147
@@ -2401,8 +2423,8 @@ out_eia923__monthly_generation_fuel_combined,2020,171663
 out_eia923__monthly_generation_fuel_combined,2021,179580
 out_eia923__monthly_generation_fuel_combined,2022,189250
 out_eia923__monthly_generation_fuel_combined,2023,196256
-out_eia923__monthly_generation_fuel_combined,2024,65288
-out_eia923__monthly_generation_fuel_combined,2025,11142
+out_eia923__monthly_generation_fuel_combined,2024,193043
+out_eia923__monthly_generation_fuel_combined,2025,16740
 out_eia923__yearly_boiler_fuel,2008,6783
 out_eia923__yearly_boiler_fuel,2009,6748
 out_eia923__yearly_boiler_fuel,2010,6901
@@ -2419,7 +2441,7 @@ out_eia923__yearly_boiler_fuel,2020,9056
 out_eia923__yearly_boiler_fuel,2021,8901
 out_eia923__yearly_boiler_fuel,2022,8625
 out_eia923__yearly_boiler_fuel,2023,8505
-out_eia923__yearly_boiler_fuel,2024,6257
+out_eia923__yearly_boiler_fuel,2024,7587
 out_eia923__yearly_fuel_receipts_costs,2008,2285
 out_eia923__yearly_fuel_receipts_costs,2009,2240
 out_eia923__yearly_fuel_receipts_costs,2010,2210
@@ -2436,7 +2458,7 @@ out_eia923__yearly_fuel_receipts_costs,2020,1354
 out_eia923__yearly_fuel_receipts_costs,2021,1389
 out_eia923__yearly_fuel_receipts_costs,2022,1375
 out_eia923__yearly_fuel_receipts_costs,2023,1338
-out_eia923__yearly_fuel_receipts_costs,2024,981
+out_eia923__yearly_fuel_receipts_costs,2024,1243
 out_eia923__yearly_generation,2008,2937
 out_eia923__yearly_generation,2009,2933
 out_eia923__yearly_generation,2010,2963
@@ -2453,7 +2475,7 @@ out_eia923__yearly_generation,2020,3833
 out_eia923__yearly_generation,2021,3762
 out_eia923__yearly_generation,2022,3687
 out_eia923__yearly_generation,2023,3659
-out_eia923__yearly_generation,2024,2692
+out_eia923__yearly_generation,2024,3355
 out_eia923__yearly_generation_fuel_by_generator,2001,16009
 out_eia923__yearly_generation_fuel_by_generator,2002,16638
 out_eia923__yearly_generation_fuel_by_generator,2003,17075
@@ -2476,7 +2498,8 @@ out_eia923__yearly_generation_fuel_by_generator,2019,24524
 out_eia923__yearly_generation_fuel_by_generator,2020,25175
 out_eia923__yearly_generation_fuel_by_generator,2021,26481
 out_eia923__yearly_generation_fuel_by_generator,2022,27307
-out_eia923__yearly_generation_fuel_by_generator,2023,28136
+out_eia923__yearly_generation_fuel_by_generator,2023,28130
+out_eia923__yearly_generation_fuel_by_generator,2024,28560
 out_eia923__yearly_generation_fuel_by_generator_energy_source,2001,22999
 out_eia923__yearly_generation_fuel_by_generator_energy_source,2002,23745
 out_eia923__yearly_generation_fuel_by_generator_energy_source,2003,25267
@@ -2499,7 +2522,8 @@ out_eia923__yearly_generation_fuel_by_generator_energy_source,2019,33768
 out_eia923__yearly_generation_fuel_by_generator_energy_source,2020,34247
 out_eia923__yearly_generation_fuel_by_generator_energy_source,2021,35442
 out_eia923__yearly_generation_fuel_by_generator_energy_source,2022,36149
-out_eia923__yearly_generation_fuel_by_generator_energy_source,2023,36900
+out_eia923__yearly_generation_fuel_by_generator_energy_source,2023,36894
+out_eia923__yearly_generation_fuel_by_generator_energy_source,2024,36875
 out_eia923__yearly_generation_fuel_by_generator_energy_source_owner,2001,50136
 out_eia923__yearly_generation_fuel_by_generator_energy_source_owner,2002,51994
 out_eia923__yearly_generation_fuel_by_generator_energy_source_owner,2003,55636
@@ -2546,7 +2570,7 @@ out_eia923__yearly_generation_fuel_combined,2020,14846
 out_eia923__yearly_generation_fuel_combined,2021,15485
 out_eia923__yearly_generation_fuel_combined,2022,16168
 out_eia923__yearly_generation_fuel_combined,2023,16732
-out_eia923__yearly_generation_fuel_combined,2024,5689
+out_eia923__yearly_generation_fuel_combined,2024,16361
 out_eia930__hourly_aggregated_demand,2015,74971
 out_eia930__hourly_aggregated_demand,2016,149328
 out_eia930__hourly_aggregated_demand,2017,148920
@@ -2642,8 +2666,8 @@ out_eia__yearly_boilers,2020,5892
 out_eia__yearly_boilers,2021,5833
 out_eia__yearly_boilers,2022,5785
 out_eia__yearly_boilers,2023,5749
-out_eia__yearly_boilers,2024,3259
-out_eia__yearly_boilers,2025,3197
+out_eia__yearly_boilers,2024,5664
+out_eia__yearly_boilers,2025,3196
 out_eia__yearly_generators,2001,18162
 out_eia__yearly_generators,2002,18802
 out_eia__yearly_generators,2003,19177
@@ -3391,8 +3415,8 @@ out_ferc1__yearly_purchased_power_and_exchanges_sched326,2023,7066
 out_ferc1__yearly_purchased_power_and_exchanges_sched326,2024,7065
 out_ferc1__yearly_rate_base,1994,14707
 out_ferc1__yearly_rate_base,1995,14387
-out_ferc1__yearly_rate_base,1996,14768
-out_ferc1__yearly_rate_base,1997,14515
+out_ferc1__yearly_rate_base,1996,14776
+out_ferc1__yearly_rate_base,1997,14514
 out_ferc1__yearly_rate_base,1998,14298
 out_ferc1__yearly_rate_base,1999,14340
 out_ferc1__yearly_rate_base,2000,14450
@@ -3418,7 +3442,7 @@ out_ferc1__yearly_rate_base,2019,13597
 out_ferc1__yearly_rate_base,2020,13703
 out_ferc1__yearly_rate_base,2021,15215
 out_ferc1__yearly_rate_base,2022,15076
-out_ferc1__yearly_rate_base,2023,15380
+out_ferc1__yearly_rate_base,2023,15383
 out_ferc1__yearly_rate_base,2024,15196
 out_ferc1__yearly_retained_earnings_sched118,1994,2183
 out_ferc1__yearly_retained_earnings_sched118,1995,2054
