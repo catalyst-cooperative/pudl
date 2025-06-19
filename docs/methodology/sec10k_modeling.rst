@@ -101,7 +101,7 @@ to connect the :ref:`core_sec10k__quarterly_company_information` to the
 allowed to change over time. In cases where there were multiple candidate
 matches, the match with the highest probability is selected. This result
 of this match can be found in the
-``core_sec10k__assn_sec10k_filers_and_eia_utilities`` table.
+:ref:`core_sec10k__assn_sec10k_filers_and_eia_utilities` table.
 
 Matching SEC Subsidiary Companies to EIA Utilities
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
