@@ -42,9 +42,9 @@ incorporation, ownership percentage, or other. After classifying the word
 tokens, we applied a set of heuristics to organize the data into structured
 tables. This rules-based model leveraged the position of bounding box coordinates
 and the order of entity tags assigned by LayoutLM. The extracted data is
-structured into the ``core_sec10k__quarterly_exhibit_21_company_ownership`` table,
+structured into the :ref:`core_sec10k__quarterly_exhibit_21_company_ownership` table,
 and subsequently attributes about the subsidiary and parent companies are
-merged on in the ``out_sec10k__quarterly_exhibit_21_company_ownership`` table.
+merged on in the :ref:`out_sec10k__quarterly_exhibit_21_company_ownership` table.
 
 Assigning ``subsidiary_company_id_sec10k`` to Extracted Subsidiary Companies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
