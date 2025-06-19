@@ -51,7 +51,7 @@ Assigning ``subsidiary_company_id_sec10k`` to Extracted Subsidiary Companies
 To track subsidiaries over time, we assign a unique identifier called
 ``subsidiary_company_id_sec10k`` to each subsidiary extracted from an
 Exhibit 21 filing and reported in the
-``core_sec10k__quarterly_exhibit_21_company_ownership`` table. This identifier
+:ref:`core_sec10k__quarterly_exhibit_21_company_ownership` table. This identifier
 is constructed from three components: the filer company’s Central Index Key (CIK),
 the subsidiary company name, and the subsidiary’s location of incorporation.
 
