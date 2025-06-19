@@ -44,7 +44,7 @@ structured into the ``core_sec10k__quarterly_exhibit_21_company_ownership`` tabl
 and subsequently attributes about the subsidiary and parent companies are
 merged on in the ``out_sec10k__quarterly_exhibit_21_company_ownership`` table.
 
-Assigning ``subsidiary_company_id_sc10k`` to Extracted Subsidiary Companies
+Assigning ``subsidiary_company_id_sec10k`` to Extracted Subsidiary Companies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 To track subsidiaries over time, we assign a unique identifier called
 ``subsidiary_company_id_sec10k`` to each subsidiary extracted from an
