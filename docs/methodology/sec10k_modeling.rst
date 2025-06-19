@@ -32,7 +32,8 @@ Extracting Ownership Data From Exhibit 21 Attachments
 The ownership tables contained in the Exhibit 21 attachments are not consistently
 formatted and lack standardization in content and layout. Extracting this
 information required a machine learning model to generalize across the many
-different layouts. We used LayoutLMv3, a pre-trained model from the Hugging Face
+different layouts. We used `LayoutLMv3 <https://huggingface.co/microsoft/layoutlmv3-base>`__,
+a pre-trained model from the Hugging Face
 Transformers library designed for document layout-aware information extraction.
 We fine-tuned LayoutLM for named entity recognition on Exhibit 21 documents,
 classifying each word as one of four labels: subsidiary name, location of
