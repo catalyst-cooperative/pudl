@@ -78,7 +78,7 @@ the pair with the most overlap in location of incorporation and then nearest
 report years. This is a fairly conservative matching process, meaning that
 many subsidiaries are not matched to their CIK, but there are unlikely
 to be subsidiaries that are erroneously matched to a CIK. This process
-produces the ``core_sec10k__assn_exhibit_21_subsidiaries_and_filers`` table.
+produces the :ref:`core_sec10k__assn_exhibit_21_subsidiaries_and_filers` table.
 
 In this table, 26,109 unique ``subsidiary_company_id_sec10k`` are matched to
 7,582 unique ``central_index_key``, or 2% of ``subsidiary_company_id_sec10k``
