@@ -44,7 +44,7 @@ tables. This rules-based model leveraged the position of bounding box coordinate
 and the order of entity tags assigned by LayoutLM. The extracted data is
 structured into the :ref:`core_sec10k__quarterly_exhibit_21_company_ownership` table,
 and subsequently attributes about the subsidiary and parent companies are
-merged on in the :ref:`out_sec10k__quarterly_exhibit_21_company_ownership` table.
+merged on in the :ref:`out_sec10k__parents_and_subsidiaries` table.
 
 Assigning ``subsidiary_company_id_sec10k`` to Extracted Subsidiary Companies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
