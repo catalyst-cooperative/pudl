@@ -7,13 +7,29 @@ sources:
           - check_row_counts_per_partition:
               table_name: out_eia930__hourly_subregion_demand
               partition_column: datetime_utc
+          - expect_unimputed_values_are_unchanged:
+              original: demand_reported_mwh
+              imputed: demand_imputed_pudl_mwh
+              imputation_code: demand_imputed_pudl_mwh_imputation_code
+              severity: warn
         columns:
           - name: datetime_utc
           - name: balancing_authority_code_eia
           - name: balancing_authority_subregion_code_eia
           - name: demand_reported_mwh
+            tests:
+              - expect_missingness_between:
+                  lower_bound: 0.0
+                  upper_bound: 0.03
           - name: demand_imputed_pudl_mwh
+            tests:
+              - expect_missingness_between:
+                  lower_bound: 0.06
+                  upper_bound: 0.12
           - name: demand_imputed_pudl_mwh_imputation_code
             tests:
               - dbt_expectations.expect_column_values_to_not_be_in_set:
                   value_set: ["simulated"]
+              - expect_missingness_between:
+                  lower_bound: 0.94
+                  upper_bound: 0.98
