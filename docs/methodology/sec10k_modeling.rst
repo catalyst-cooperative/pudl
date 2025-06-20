@@ -91,10 +91,12 @@ different owners.
 
 Matching SEC Filing Companies to EIA Utilities
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-We can collect attributes about SEC 10-K filing companies, such as
-address information, and thus can perform probabilistic record linkage
-to connect these companies to the companies that report to EIA. We use
-a model built with the Python package `Splink <https://github.com/moj-analytical-services/splink>`__
+The :ref:`core_sec10k__quarterly_company_information` table contains
+attributes about SEC 10-K filing companies, such as
+address information, that can be used to connect these companies
+to the companies that report to EIA using probabilistic record linkage
+We use a model built with the Python package
+`Splink <https://github.com/moj-analytical-services/splink>`__
 to connect the :ref:`core_sec10k__quarterly_company_information` to the
 ``out_eia__yearly_utilities`` table. The match between
 ``central_index_key`` and ``utility_id_eia`` is one-to-one and is not
