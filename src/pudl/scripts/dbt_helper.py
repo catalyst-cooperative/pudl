@@ -508,13 +508,13 @@ def update_tables(
     "--target",
     default="etl-full",
     type=click.Choice(["etl-full", "etl-fast"]),
-    help="DBT target - etl-full or etl-fast.",
+    help="DBT target - etl-full (default) or etl-fast.",
 )
 def validate(select: str = "*", target: str = "etl-full") -> None:
-    """Validate a selection of DBT models / sources.
+    """Validate a selection of DBT nodes.
 
-    Wraps the ``dbt build`` command line which doesn't give you the actual data
-    that was returned from the test query.
+    Wraps the ``dbt build`` command line so we can annotate the result with the
+    actual data that was returned from the test query.
     """
     test_result = build_with_context(model_selection=select, dbt_target=target)
 
@@ -539,7 +539,7 @@ def dbt_helper():
       can also generate or update the expected row counts for existing tables,
       assuming they have been materialized to parquet files and are sitting in
       your $PUDL_OUT directory.
-    * ``validate``: run validation tests for a selection of DBT models/sources.
+    * ``validate``: run validation tests for a selection of DBT nodes.
 
     Run ``dbt_helper {command} --help`` for detailed usage on each command.
     """
