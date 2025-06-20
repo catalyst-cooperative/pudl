@@ -24,6 +24,7 @@ class ImputationReasonCodes(Enum):
     SINGLE_DELTA = (
         "Indicates value is significantly different from nearest unflagged value."
     )
+    BAD_YEAR = "Indicates the entire year of data for a respondent was dropped due to too much missing data."
     SIMULATED = "Used for scoring imputation using simulated data. SHOULD NOT APPEAR IN PRODUCTION DATA."
 
 

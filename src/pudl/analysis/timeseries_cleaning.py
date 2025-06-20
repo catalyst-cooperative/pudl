@@ -1223,9 +1223,59 @@ def flag_anomalous_region(
     return ts.flag(mask, ImputationReasonCodes.ANOMALOUS_REGION)
 
 
+def flag_bad_years(
+    ts: FlaggedTimeseries,
+    min_data: int = 100,
+    min_data_fraction: float = 0.9,
+) -> FlaggedTimeseries:
+    """Flag entire years, which are missing a large portion of values (BAD_YEAR).
+
+    Nulls respondent-years with too few data.
+
+    Args:
+        ts: Timeseries matrix as described in :class:`FlaggedTimeseries`.
+        min_data: Minimum number of non-null hours in a year.
+        min_data_fraction: Minimum fraction of non-null hours between the first and last
+          non-null hour in a year.
+    """
+    # Identify respondent-years where data coverage is below thresholds
+    df, _ = ts.to_dataframes()
+    has_data = ~df.isnull()
+    coverage = (
+        # Last timestamp with demand in year
+        has_data.iloc[::-1].groupby(df.index.year[::-1]).idxmax()
+        -
+        # First timestamp with demand in year
+        has_data.groupby(df.index.year).idxmax()
+    ).apply(lambda x: 1 + x.dt.days * 24 + x.dt.seconds / 3600, axis=1)
+    fraction = has_data.groupby(df.index.year).sum() / coverage
+    short = coverage.lt(min_data)
+    bad = fraction.gt(0) & fraction.lt(min_data_fraction)
+
+    # Report nulled respondent-years
+    for mask, msg in [
+        (short, "Nulled short respondent-years (below min_data)"),
+        (bad, "Nulled bad respondent-years (below min_data_fraction)"),
+    ]:
+        row, col = mask.to_numpy().nonzero()
+        report = (
+            pd.DataFrame({"id": mask.columns[col], "year": mask.index[row]})
+            .groupby("id")["year"]
+            .apply(lambda x: np.sort(x))
+        )
+        with pd.option_context("display.max_colwidth", None):
+            logger.info(f"{msg}:\n{report}")
+
+    # Set all values in short or bad respondent-years to null
+    mask = (short | bad).loc[df.index.year].to_numpy()
+    return ts.flag(mask, ImputationReasonCodes.BAD_YEAR)
+
+
 @pa.check_types
 def flag_ruggles(
     timeseries_matrix: DataFrame[TimeseriesMatrix],
+    min_data: int = 100,
+    min_data_fraction: float = 0.9,
 ) -> tuple[DataFrame[TimeseriesMatrix], DataFrame[TimeseriesMatrix]]:
     """Flag values following the method of Ruggles and others (2020).
 
@@ -1233,6 +1283,11 @@ def flag_ruggles(
 
     * description: https://doi.org/10.1038/s41597-020-0483-x
     * code: https://github.com/truggles/EIA_Cleaned_Hourly_Electricity_Demand_Code
+
+    Args:
+        ts: Aligned timeseries matrix for imputation.
+        min_data: Minimum number of non-null hours in a year.
+        min_data_fraction: Minimum fraction of non-null hours between the first and last
 
     Returns:
         Two ``TimeseriesMatrix`` dataframes with the same shape. The first contains
@@ -1273,6 +1328,7 @@ def flag_ruggles(
         rel_multiplier=15,
     )
     ts = flag_anomalous_region(ts, window=window + 1, threshold=0.15)
+    ts = flag_bad_years(ts, min_data, min_data_fraction)
     return ts.to_dataframes()
 
 
@@ -1528,63 +1584,6 @@ def impute_flagged_values(
             )
             results.append(result)
     return pd.concat(results)
-
-
-@pa.check_types
-def filter_missing_values(
-    df: DataFrame[TimeseriesMatrix],
-    min_data: int = 100,
-    min_data_fraction: float = 0.9,
-) -> DataFrame[TimeseriesMatrix]:
-    """Filter incomplete years from timseries matrix.
-
-    Nulls respondent-years with too few data and drops respondents with no data across
-    all years.
-
-    Args:
-        df: Timeseries matrix as described in :class:`TimeseriesMatrix`.
-        min_data: Minimum number of non-null hours in a year.
-        min_data_fraction: Minimum fraction of non-null hours between the first and last
-          non-null hour in a year.
-
-    Returns:
-        :class:`TimeseriesMatrix` with nulled values.
-    """
-    # Identify respondent-years where data coverage is below thresholds
-    has_data = ~df.isnull()
-    coverage = (
-        # Last timestamp with demand in year
-        has_data.iloc[::-1].groupby(df.index.year[::-1]).idxmax()
-        -
-        # First timestamp with demand in year
-        has_data.groupby(df.index.year).idxmax()
-    ).apply(lambda x: 1 + x.dt.days * 24 + x.dt.seconds / 3600, axis=1)
-    fraction = has_data.groupby(df.index.year).sum() / coverage
-    short = coverage.lt(min_data)
-    bad = fraction.gt(0) & fraction.lt(min_data_fraction)
-    # Set all values in short or bad respondent-years to null
-    mask = (short | bad).loc[df.index.year]
-    mask.index = df.index
-    df[mask] = np.nan
-    # Report nulled respondent-years
-    for mask, msg in [
-        (short, "Nulled short respondent-years (below min_data)"),
-        (bad, "Nulled bad respondent-years (below min_data_fraction)"),
-    ]:
-        row, col = mask.to_numpy().nonzero()
-        report = (
-            pd.DataFrame({"id": mask.columns[col], "year": mask.index[row]})
-            .groupby("id")["year"]
-            .apply(lambda x: np.sort(x))
-        )
-        with pd.option_context("display.max_colwidth", None):
-            logger.info(f"{msg}:\n{report}")
-    # Drop respondents with no data
-    blank = df.columns[df.isnull().all()].tolist()
-    df = df.drop(columns=blank)
-    # Report dropped respondents (with no data)
-    logger.info(f"Dropped blank respondents: {blank}")
-    return df
 
 
 @dataclass
@@ -1971,14 +1970,15 @@ def impute_timeseries_asset_factory(  # noqa: C901
         """Flag/Null anomalous and missing values."""
         matrix, flags = flag_ruggles(matrix)
 
-        matrix = filter_missing_values(
-            matrix,
-            min_data=settings.min_data,
-            min_data_fraction=settings.min_data_fraction,
-        )
+        # Find respondents that are missing all data
+        blank = matrix.columns[matrix.isnull().all()].tolist()
 
-        # Drop any respondents that were filtered out by ``filter_missing_values``
-        flags = flags.drop(columns=flags.columns.difference(matrix.columns))
+        # Drop missing respondents from timeseries matrix/flag matrix
+        matrix = matrix.drop(columns=blank)
+        flags = flags.drop(columns=blank)
+        # Report dropped respondents (with no data)
+        logger.info(f"Dropped blank respondents: {blank}")
+
         return (
             Output(
                 output_name=cleaned_timeseries_matrix_asset,
