@@ -1497,3 +1497,61 @@ def _core_eia923__energy_storage(
     ] = "mcf"
 
     return es_df
+
+
+@asset
+def _core_eia923__byproduct_disposition(
+    raw_eia923__byproduct_disposition: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transforms the eia923__byproduct_disposition table.
+
+    Transformations include:
+
+    * Replace . values with NA
+    * Rename byproducts_to_report to no_byproducts_to_report
+        * "Y" is supposed to be checked if no byproducts are being reported
+        * We do not standardize further as the data is too messy/could be better interpreted from other columns
+    * Drop rows with NA byproduct_description
+        * This also removes all duplicates based on report_year, plant_id_eia, and byproduct_description
+    * Drop early_release column with no data values
+    * Convert 1000 tons to tons
+
+    Args:
+        raw_eia923__byproduct_disposition: The raw ``raw_eia923__byproduct_disposition`` dataframe.
+
+    Returns:
+        Cleaned ``core_eia923__byproduct_disposition`` dataframe ready for harvesting.
+    """
+    df = raw_eia923__byproduct_disposition
+
+    cols_to_drop = [
+        "early_release",
+    ]
+    df = df.drop(cols_to_drop, axis=1)
+    df = pudl.helpers.fix_eia_na(df)
+
+    # More accurate name for what this column contains
+    df = df.rename(columns={"byproducts_to_report": "no_byproducts_to_report"})
+
+    # Drops known duplicate primary keys
+    #   These rows contain no meaningful data, to prevent dropping future rows unexpectedly, we
+    #   expect a set number of rows to be dropped
+    null_byproduct_descriptions = df["byproduct_description"].isnull().sum()
+    assert null_byproduct_descriptions == 18, (
+        f"More NULLs for `byproduct_description` than expected: {null_byproduct_descriptions} vs 18"
+    )
+    df = df.dropna(subset=["byproduct_description"])
+
+    # Convert 1000 tons to tons
+    df.loc[:, df.columns.str.endswith("_1000_tons")] *= 1000
+    # This column is not converted when the unit is MMBtu, which is determined from byproduct_description
+    df["sold_1000_tons_or_mmbtu"] = np.where(
+        df["byproduct_description"] != "Steam Sales (MMBtu)",
+        df["sold_1000_tons_or_mmbtu"] * 1000,
+        df["sold_1000_tons_or_mmbtu"],
+    )
+    df.columns = df.columns.str.replace("_1000_tons", "_tons")
+
+    df = PUDL_PACKAGE.encode(df)
+
+    return df
