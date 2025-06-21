@@ -791,13 +791,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Average monthly coincident peak (CP) demand (for requirements purchases, and any transactions involving demand charges). Monthly CP demand is the metered demand during the hour (60-minute integration) in which the supplier's system reaches its monthly peak. In megawatts.",
         "unit": "MW",
     },
-    "company_id_sec10k": {
-        "type": "string",
-        "description": (
-            "PUDL-assigned ID for companies that file SEC Form 10-K or are referenced "
-            "in exhibit 21 attachments to Form 10-K. May not be stable over time."
-        ),
-    },
     "company_name": {
         "type": "string",
         "description": "Name of company submitting SEC 10k filing.",
@@ -809,10 +802,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "company_name_old": {
         "type": "string",
         "description": "Name of company prior to name change.",
-    },
-    "company_name_raw": {
-        "type": "string",
-        "description": "Uncleaned name of company.",
     },
     "compliance_year_nox": {
         "type": "integer",
@@ -1740,13 +1729,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "extension."
         ),
     },
-    "files_sec10k": {
-        "type": "boolean",
-        "description": "Indicates whether the company files an SEC 10-K.",
-    },
     "filing_date": {
         "type": "date",
-        "description": "Date filing was submitted, reported at a daily frequency.",
+        "description": "Date of the day on which the filing was submitted.",
     },
     "film_number": {
         "type": "string",
@@ -2678,14 +2663,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
-    "location_of_incorporation": {
-        "type": "string",
-        "description": (
-            "Location of the company's incorporation. This can be a full US state "
-            "name, a state abbreviation, the name of a foreign country, etc. Not yet "
-            "standardized / cleaned."
-        ),
-    },
     "longitude": {
         "type": "number",
         "description": "Longitude of the plant's location, in degrees.",
@@ -3567,7 +3544,105 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "parent_company_central_index_key": {
         "type": "string",
-        "description": "Central index key (CIK) of the company's parent company.",
+        "description": "Central index key (CIK) of the parent company.",
+    },
+    "parent_company_business_city": {
+        "type": "string",
+        "description": "City where the parent company's place of business is located.",
+    },
+    "parent_company_business_state": {
+        "type": "string",
+        "description": "State where the parent company's place of business is located.",
+    },
+    "parent_company_business_street_address": {
+        "type": "string",
+        "description": "Street address of the parent company's place of business.",
+    },
+    "parent_company_business_street_address_2": {
+        "type": "string",
+        "description": "Second line of the street address of the parent company's place of business.",
+    },
+    "parent_company_business_zip_code": {
+        "type": "string",
+        "description": "Zip code of the parent company's place of business.",
+        "constraints": {
+            "pattern": r"^\d{5}$",
+        },
+    },
+    "parent_company_business_zip_code_4": {
+        "type": "string",
+        "description": "Zip code suffix of the company's place of business.",
+        "constraints": {
+            "pattern": r"^\d{4}$",
+        },
+    },
+    "parent_company_incorporation_state": {
+        "type": "string",
+        "description": "Two letter state code where parent company is incorporated.",
+    },
+    "parent_company_industry_name_sic": {
+        "type": "string",
+        "description": "Text description of the parent company's Standard Industrial Classification (SIC)",
+    },
+    "parent_company_industry_id_sic": {
+        "type": "string",
+        "description": "Four-digit Standard Industrial Classification (SIC) code identifying "
+        "the parent company's primary industry. SIC codes have been replaced by NAICS "
+        "codes in many applications, but are still used by the SEC. See e.g. "
+        "https://www.osha.gov/data/sic-manual for code definitions.",
+    },
+    "parent_company_mail_city": {
+        "type": "string",
+        "description": "City of the parent company's mailing address.",
+    },
+    "parent_company_mail_state": {
+        "type": "string",
+        "description": "State of the parent company's mailing address.",
+    },
+    "parent_company_mail_street_address": {
+        "type": "string",
+        "description": "Street portion of the parent company's mailing address.",
+    },
+    "parent_company_mail_street_address_2": {
+        "type": "string",
+        "description": "Second line of the street portion of the parent company's mailing address.",
+    },
+    "parent_company_mail_zip_code": {
+        "type": "string",
+        "description": "Zip code of the parent company's mailing address.",
+        "constraints": {
+            "pattern": r"^\d{5}$",
+        },
+    },
+    "parent_company_mail_zip_code_4": {
+        "type": "string",
+        "description": "Zip code suffix of the parent company's mailing address.",
+        "constraints": {
+            "pattern": r"^\d{4}$",
+        },
+    },
+    "parent_company_name": {
+        "type": "string",
+        "description": "Name of the parent company.",
+    },
+    "parent_company_phone_number": {
+        "type": "string",
+        "description": "Phone number of the parent company.",
+    },
+    "parent_company_taxpayer_id_irs": {
+        "type": "string",
+        "description": "Taxpayer ID of the parent company with the IRS.",
+        "constraints": {
+            "pattern": r"^\d{2}-\d{7}$",
+        },
+    },
+    "parent_company_utility_id_eia": {
+        "type": "integer",
+        "description": "The EIA utility ID of the parent company.",
+    },
+    "parent_company_utility_name_eia": {
+        "type": "string",
+        "description": "The EIA reported utility name of the parent company.",
     },
     "particulate_control_id_eia": {
         "type": "string",
@@ -4755,13 +4830,124 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "Sub-plant ID links EPA CEMS emissions units to EIA units.",
     },
+    "subsidiary_company_central_index_key": {
+        "type": "string",
+        "description": "Central index key (CIK) of the subsidiary company.",
+    },
+    "subsidiary_company_business_city": {
+        "type": "string",
+        "description": "City where the subsidiary company's place of business is located.",
+    },
+    "subsidiary_company_business_state": {
+        "type": "string",
+        "description": "State where the subsidiary company's place of business is located.",
+    },
+    "subsidiary_company_business_street_address": {
+        "type": "string",
+        "description": "Street address of the subsidiary company's place of business.",
+    },
+    "subsidiary_company_business_street_address_2": {
+        "type": "string",
+        "description": "Second line of the street address of the subsidiary company's place of business.",
+    },
+    "subsidiary_company_business_zip_code": {
+        "type": "string",
+        "description": "Zip code of the subsidiary company's place of business.",
+        "constraints": {
+            "pattern": r"^\d{5}$",
+        },
+    },
+    "subsidiary_company_business_zip_code_4": {
+        "type": "string",
+        "description": "Zip code suffix of the subsidiary company's place of business.",
+        "constraints": {
+            "pattern": r"^\d{4}$",
+        },
+    },
+    "subsidiary_company_incorporation_state": {
+        "type": "string",
+        "description": "Two letter state code where subisidary company is incorporated.",
+    },
+    "subsidiary_company_id_sec10k": {
+        "type": "string",
+        "description": (
+            "PUDL-assigned ID for subsidiaries found in SEC 10-K Exhibit 21. "
+            "The ID is created by concatenating the CIK of the company whose filing the subsidiary "
+            "was found in, the subsidiary company's name, and location of incorporation. It is not "
+            "guaranteed to be stable across different releases of PUDL and so should never be "
+            "hard-coded in analyses."
+        ),
+    },
+    "subsidiary_company_industry_name_sic": {
+        "type": "string",
+        "description": "Text description of the subsidiary company's Standard Industrial Classification (SIC)",
+    },
+    "subsidiary_company_industry_id_sic": {
+        "type": "string",
+        "description": "Four-digit Standard Industrial Classification (SIC) code identifying "
+        "the subsidiary company's primary industry. SIC codes have been replaced by NAICS "
+        "codes in many applications, but are still used by the SEC. See e.g. "
+        "https://www.osha.gov/data/sic-manual for code definitions.",
+    },
+    "subsidiary_company_location": {
+        "type": "string",
+        "description": (
+            "Location of subsidiary company. This is the full US state name or country name "
+            "and occasionally a two digit code that was not mapped to a full name during cleaning."
+        ),
+    },
+    "subsidiary_company_mail_city": {
+        "type": "string",
+        "description": "City of the subsidiary company's mailing address.",
+    },
+    "subsidiary_company_mail_state": {
+        "type": "string",
+        "description": "State of the parent company's mailing address.",
+    },
+    "subsidiary_company_mail_street_address": {
+        "type": "string",
+        "description": "Street portion of the subsidiary company's mailing address.",
+    },
+    "subsidiary_company_mail_street_address_2": {
+        "type": "string",
+        "description": "Second line of the street portion of the subsidiary company's mailing address.",
+    },
+    "subsidiary_company_mail_zip_code": {
+        "type": "string",
+        "description": "Zip code of the subsidiary company's mailing address.",
+        "constraints": {
+            "pattern": r"^\d{5}$",
+        },
+    },
+    "subsidiary_company_mail_zip_code_4": {
+        "type": "string",
+        "description": "Zip code suffix of the subsidiary company's mailing address.",
+        "constraints": {
+            "pattern": r"^\d{4}$",
+        },
+    },
     "subsidiary_company_name": {
         "type": "string",
         "description": "Name of subsidiary company.",
     },
-    "subsidiary_company_location": {
+    "subsidiary_company_phone_number": {
         "type": "string",
-        "description": "Location of subsidiary company.",
+        "description": "Phone number of the subsidiary company.",
+    },
+    "subsidiary_company_taxpayer_id_irs": {
+        "type": "string",
+        "description": "Taxpayer ID of the subsidiary company with the IRS.",
+        "constraints": {
+            "pattern": r"^\d{2}-\d{7}$",
+        },
+    },
+    "subsidiary_company_utility_id_eia": {
+        "type": "integer",
+        "description": "The EIA utility ID of the subsidiary company.",
+    },
+    "subsidiary_company_utility_name_eia": {
+        "type": "string",
+        "description": "The EIA reported utility name of the subsidiary company.",
     },
     "sulfur_content_pct": {
         "type": "number",
@@ -5851,13 +6037,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "A counter indicating which observation of company data within an SEC 10-K filing header the record pertains to.",
     },
-    # "fraction_owned": {
-    #    "type": "number",
-    #    "description": "Fraction of subsidiary company owned by parent.",
-    # },
     "mail_street_address": {
         "type": "string",
-        "description": "Street portion of the company's for mailing address.",
+        "description": "Street portion of the company's mailing address.",
     },
     "mail_street_address_2": {
         "type": "string",
@@ -5931,6 +6113,12 @@ FIELD_METADATA_BY_GROUP: dict[str, dict[str, Any]] = {
     },
     "nrelatb": {
         "technology_description": {"constraints": {"enum": TECH_DESCRIPTIONS_NRELATB}}
+    },
+    "sec10k": {
+        "fraction_owned": {
+            "type": "number",
+            "description": "Fraction of a subsidiary company owned by the parent.",
+        },
     },
     "vcerare": {
         "latitude": {

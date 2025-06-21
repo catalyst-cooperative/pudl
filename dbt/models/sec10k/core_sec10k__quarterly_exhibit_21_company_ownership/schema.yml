@@ -12,4 +12,4 @@ sources:
           - name: subsidiary_company_name
           - name: subsidiary_company_location
           - name: fraction_owned
-          - name: report_date
+          - name: subsidiary_company_id_sec10k
