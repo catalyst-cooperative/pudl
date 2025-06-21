@@ -560,10 +560,13 @@ def core_sec10k__quarterly_company_information(
     clean_info.loc[invalid_sec10k_type, "sec10k_type"] = pd.NA
 
     # Enforce filename_sec10k and central_index_key as a primary key.
-    # Ocasionally a file will contain two blocks of info for the same
-    # CIK. Resolve these duplicates by filling null values, except for
-    # in filer_count and film_number which uniquely identify an info block,
-    # and then drop duplicates.
+    # Occasionally a file will contain two blocks of info for the same
+    # CIK. Ensure that records with duplicate values of filename_sec10k and
+    # central_index_key differ ONLY in that some of them may have
+    # null values that are non-null in some other duplicate,
+    # OR that they have different values for filer_count, block_count
+    # or film_number -- which are not meaningful information and
+    # we're okay losing one of the original values in those columns.
     cols_to_fill = clean_info.columns.drop(
         ["filer_count", "film_number", "block_count"]
     )
@@ -577,6 +580,9 @@ def core_sec10k__quarterly_company_information(
     ].transform(lambda group: group.ffill().bfill())
     clean_info.loc[filled_dupes.index, cols_to_fill] = filled_dupes
     clean_info = clean_info.drop_duplicates(subset=cols_to_fill)
+    # After we've filled in the NA values and dropped duplicates
+    # on the full set of columns we care about preserving,
+    # we expect that there will only be unique values of the natural PK
     n_remaining_dupes = len(
         clean_info[
             clean_info.duplicated(subset=["filename_sec10k", "central_index_key"])
