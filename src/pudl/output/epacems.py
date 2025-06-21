@@ -6,6 +6,7 @@ from pathlib import Path
 
 import dask.dataframe as dd
 
+from pudl.helpers import get_parquet_table
 from pudl.workspace.setup import PudlPaths
 
 
@@ -57,7 +58,7 @@ def year_state_filter(
     return filters
 
 
-def get_plant_states(plant_ids, pudl_out):
+def get_plant_states(plant_ids: list[int]) -> list[str]:
     """Determine what set of states a given set of EIA plant IDs are within.
 
     If you only want to select data about a particular set of power plants from the EPA
@@ -65,21 +66,25 @@ def get_plant_states(plant_ids, pudl_out):
     you will need to search.
 
     Args:
-        plant_ids (iterable): A collection of integers representing valid plant_id_eia
-            values within the PUDL DB.
-        pudl_out (pudl.output.pudltabl.PudlTabl): A PudlTabl output object to use to
-            access the PUDL DB.
+        plant_ids: A collection of integers representing valid plant_id_eia values
+            within the PUDL DB.
 
     Returns:
-        list: A list containing the 2-letter state abbreviations for any state that was
-        found in association with one or more of the plant_ids.
+        A list containing the 2-letter state abbreviations for any state that was found
+        in association with one or more of the plant_ids.
     """
-    return list(
-        pudl_out.plants_eia860().query("plant_id_eia in @plant_ids").state.unique()
+    return (
+        get_parquet_table(
+            "out_eia__yearly_plants",
+            columns=["plant_id_eia", "state"],
+            filters=[("plant_id_eia", "in", plant_ids)],
+        )["state"]
+        .unique()
+        .tolist()
     )
 
 
-def get_plant_years(plant_ids, pudl_out):
+def get_plant_years(plant_ids: list[int]) -> list[int]:
     """Determine which years a given set of EIA plant IDs appear in.
 
     If you only want to select data about a particular set of power plants from the EPA
@@ -91,19 +96,21 @@ def get_plant_years(plant_ids, pudl_out):
     include all years, or manually specify the years of interest instead.
 
     Args:
-        plant_ids (iterable): A collection of integers representing valid plant_id_eia
-            values within the PUDL DB.
-        pudl_out (pudl.output.pudltabl.PudlTabl): A PudlTabl output object to use to
-            access the PUDL DB.
+        plant_ids: A collection of integers representing valid plant_id_eia values
+            within the PUDL DB.
 
     Returns:
-        list: A list containing the 4-digit integer years found in association with one
-        or more of the plant_ids.
+        A list containing the 4-digit integer years found in association with one or
+        more of the plant_ids.
     """
-    return list(
-        pudl_out.plants_eia860()
-        .query("plant_id_eia in @plant_ids")
-        .report_date.dt.year.unique()
+    return (
+        get_parquet_table(
+            "out_eia__yearly_plants",
+            columns=["plant_id_eia", "report_date"],
+            filters=[("plant_id_eia", "in", plant_ids)],
+        )["report_date"]
+        .dt.year.unique()
+        .tolist()
     )
 
 

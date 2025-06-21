@@ -833,22 +833,6 @@ columns.""",
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
     },
-    "_out_ferc1__yearly_plants_utilities": {
-        "description": "Denormalized table that contains FERC plant and utility information.",
-        "schema": {
-            "fields": [
-                "utility_id_ferc1",
-                "plant_name_ferc1",
-                "plant_id_pudl",
-                "utility_name_ferc1",
-                "utility_id_pudl",
-            ],
-            "primary_key": ["utility_id_ferc1", "plant_name_ferc1"],
-        },
-        "field_namespace": "ferc1",
-        "etl_group": "outputs",
-        "sources": ["ferc1"],
-    },
     "out_ferc1__yearly_balance_sheet_assets_sched110": {
         "description": "Denormalized table that contains FERC balance sheet asset information.",
         "schema": {

@@ -37,10 +37,9 @@ logger = logging.getLogger(__name__)
         # EIA860 tables
         "core_eia860__assn_boiler_generator",
         "out_eia__yearly_boilers",
-        "_out_eia__yearly_generators",
+        "out_eia__yearly_generators",
         "out_eia860__yearly_ownership",
         "out_eia__yearly_plants",
-        "_out_eia__plants_utilities",
         "out_eia__yearly_utilities",
         "core_eia860__scd_emissions_control_equipment",
         "core_eia860__assn_yearly_boiler_emissions_control_equipment",

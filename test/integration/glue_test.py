@@ -19,18 +19,9 @@ from pudl.glue.ferc1_eia import (
     label_utilities_ferc1_dbf,
     label_utilities_ferc1_xbrl,
 )
-from pudl.output.pudltabl import PudlTabl
+from pudl.helpers import get_parquet_table
 
 logger = logging.getLogger(__name__)
-
-
-@pytest.fixture(scope="module")
-def pudl_out(pudl_engine: sa.Engine) -> PudlTabl:
-    """A PUDL output object for use in CI."""
-    return PudlTabl(
-        freq=None,
-        fill_net_gen=False,
-    )
 
 
 def plants_ferc1_raw(dataset_settings_config) -> pd.DataFrame:
@@ -56,7 +47,7 @@ def plants_ferc1_raw(dataset_settings_config) -> pd.DataFrame:
 
 @pytest.fixture(scope="module")
 def glue_test_dfs(
-    pudl_out: PudlTabl,
+    pudl_engine: sa.Engine,  # Necessary to ensure data is already available.
     ferc1_engine_xbrl: sa.Engine,
     ferc1_engine_dbf: sa.Engine,
     etl_settings,
@@ -64,11 +55,14 @@ def glue_test_dfs(
 ) -> dict[str, pd.DataFrame]:
     """Make a dictionary of the dataframes required for this test module."""
     glue_test_dfs = {
-        "plants_eia_pudl_db": pudl_out.plants_eia860(),
         "util_ids_ferc1_raw_xbrl": get_util_ids_ferc1_raw_xbrl(ferc1_engine_xbrl),
         "util_ids_ferc1_raw_dbf": get_util_ids_ferc1_raw_dbf(ferc1_engine_dbf),
         "plants_ferc1_raw": plants_ferc1_raw(dataset_settings_config),
-        "plants_eia_labeled": label_plants_eia(pudl_out),
+        "plants_eia_pudl_db": get_parquet_table("out_eia__yearly_plants"),
+        "plants_eia_labeled": label_plants_eia(
+            get_parquet_table("out_eia__yearly_plants"),
+            get_parquet_table("out_eia__yearly_generators"),
+        ),
     }
     glue_test_dfs.update(glue(eia=True, ferc1=True))
     # more glue test input tables that are compiled from tables already in glue_test_dfs
@@ -84,7 +78,7 @@ def glue_test_dfs(
             ),
         }
     )
-    # Make everything lowercase
+    # Make all strings in the glue_test_dfs lower case to ensure consistency
     glue_test_dfs = {
         df_name: df.map(lambda x: x.lower() if isinstance(x, str) else x)
         for (df_name, df) in glue_test_dfs.items()
@@ -264,22 +258,15 @@ def test_for_unmapped_ids_minus_one(
 
 
 def test_unmapped_utils_eia(
-    pudl_out: PudlTabl,
-    pudl_engine: sa.Engine,
     glue_test_dfs: dict[str, pd.DataFrame],
     save_unmapped_ids: bool,
     test_dir,
 ):
-    """Check for unmapped EIA Plants.
-
-    This test has its own call signature because its more complex. In order to label the
-    missing utilities, we use both the ``pudl_out`` object as well as direct SQL
-    queries. This test is duplicative with the sql foreign key constraints.
-    """
+    """Check for unmapped EIA Utilities and save them for mapping if requested."""
     unmapped_utils_eia = get_util_ids_eia_unmapped(
-        pudl_out,
-        pudl_engine,
-        glue_test_dfs["core_pudl__assn_eia_pudl_utilities"],
+        out_eia__yearly_utilities=get_parquet_table("out_eia__yearly_utilities"),
+        out_eia__yearly_generators=get_parquet_table("out_eia__yearly_generators"),
+        utilities_eia_mapped=glue_test_dfs["core_pudl__assn_eia_pudl_utilities"],
     )
 
     if save_unmapped_ids:

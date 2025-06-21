@@ -29,19 +29,7 @@ logger = logging.getLogger(__name__)
 @pytest.mark.parametrize(
     "table_name",
     [
-        # Yearly tables
-        "_out_eia__yearly_heat_rate_by_unit",
-        "_out_eia__yearly_heat_rate_by_generator",
-        "_out_eia__yearly_fuel_cost_by_generator",
-        "_out_eia__yearly_capacity_factor_by_generator",
-        "_out_eia__yearly_derived_generator_attributes",
         "out_eia__yearly_generators",
-        # Monthly tables
-        "_out_eia__monthly_heat_rate_by_unit",
-        "_out_eia__monthly_heat_rate_by_generator",
-        "_out_eia__monthly_fuel_cost_by_generator",
-        "_out_eia__monthly_capacity_factor_by_generator",
-        "_out_eia__monthly_derived_generator_attributes",
         "out_eia__monthly_generators",
     ],
 )

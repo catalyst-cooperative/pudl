@@ -20,7 +20,6 @@ logger = logging.getLogger(__name__)
         ("out_ferc1__yearly_pumped_storage_plants_sched408", "all"),
         ("out_ferc1__yearly_small_plants_sched410", "all"),
         ("out_ferc1__yearly_steam_plants_sched402", "all"),
-        ("_out_ferc1__yearly_plants_utilities", "all"),
         ("out_ferc1__yearly_purchased_power_and_exchanges_sched326", "all"),
     ],
 )
