@@ -251,36 +251,28 @@ def _match_ex21_subsidiaries_to_filer_company(
         suffixes=("_sec", "_ex21"),
         validate="many_to_many",
     )
-    # split up the location of incorporation on whitespace, creating a column
-    # with lists of word tokens
-    merged_df.loc[:, "loc_tokens_sec"] = (
-        merged_df["incorporation_state"].fillna("").str.lower().str.split()
+    # split up the location of incorporation on whitespace, creating
+    # sets of word tokens
+    words1 = (
+        merged_df["incorporation_state"]
+        .fillna("")
+        .str.lower()
+        .str.split()
+        .apply(lambda words: set(words) if words != [""] else set())
     )
-    merged_df.loc[:, "loc_tokens_ex21"] = (
-        merged_df["subsidiary_company_location"].fillna("").str.lower().str.split()
+    words2 = (
+        merged_df["subsidiary_company_location"]
+        .fillna("")
+        .str.lower()
+        .str.split()
+        .apply(lambda words: set(words) if words != [""] else set())
     )
-    # get the fraction of overlapping words between location of incorporation tokens
-    # this could be done with a set similarity metric but is probably good enough
-    # for now
     intersection_lens = [
-        len(set(a) & set(b))
-        for a, b in zip(
-            merged_df["loc_tokens_sec"], merged_df["loc_tokens_ex21"], strict=True
-        )
+        len(w1.intersection(w2)) for w1, w2 in zip(words1, words2, strict=True)
     ]
-    max_lens = [
-        max(len(a), len(b), 1)
-        for a, b in zip(
-            merged_df["loc_tokens_sec"], merged_df["loc_tokens_ex21"], strict=True
-        )
-    ]
-    merged_df["loc_overlap"] = [
-        i / m for i, m in zip(intersection_lens, max_lens, strict=True)
-    ]
-    merged_df["loc_overlap_apply"] = merged_df.apply(
-        lambda row: len(set(row["loc_tokens_sec"]) & set(row["loc_tokens_ex21"]))
-        / max(len(row["loc_tokens_sec"]), len(row["loc_tokens_ex21"]), 1),
-        axis=1,
+    max_lens = [max(len(w1), len(w2), 1) for w1, w2 in zip(words1, words2, strict=True)]
+    merged_df["loc_overlap"] = pd.Series(
+        [i / m for i, m in zip(intersection_lens, max_lens, strict=True)]
     )
     # get the difference in report dates
     merged_df["report_date_diff_days"] = abs(
