@@ -277,8 +277,8 @@ def _core_eia860__generators(
     ]
     gens_df = (
         pd.concat([ge_df, gp_df, gr_df, g_df], sort=True)
-        .dropna(subset=["generator_id", "plant_id_eia"])
         .pipe(pudl.helpers.fix_eia_na)
+        .dropna(subset=["generator_id", "plant_id_eia"])
         .pipe(
             pudl.helpers.fix_boolean_columns,
             boolean_columns_to_fix=boolean_columns_to_fix,
@@ -386,7 +386,7 @@ def _core_eia860__generators_energy_storage(
     storage_pr = raw_eia860__generator_energy_storage_proposed.pipe(
         drop_records_with_null_in_column,
         column="generator_id",
-        num_of_expected_nulls=1,
+        num_of_expected_nulls=2,  # Plant ID 62844 in 2023-4
     )
     storage_re = raw_eia860__generator_energy_storage_retired
 

@@ -1602,11 +1602,13 @@ def drop_all_null_records_with_multiindex(
     """
     # ensure there isn't more than the expected number of nulls before dropping
     df = df.set_index(idx_cols)
-    assert df.loc[idx_records].isnull().all().all(), (
-        "Non-null data found where no data was expected:",
-        f"{df.loc[idx_records].dropna(axis='columns', how='all')}",
-    )  # Make sure all values in all rows and columns here are null
-    return df.drop(idx_records).reset_index()
+    if any(record in df.index for record in idx_records):  # Handle fast ETL
+        assert df.loc[idx_records].isnull().all().all(), (
+            "Non-null data found where no data was expected:",
+            f"{df.loc[idx_records].dropna(axis='columns', how='all')}",
+        )  # Make sure all values in all rows and columns here are null
+        return df.drop(idx_records).reset_index()
+    return df.reset_index()
 
 
 def standardize_percentages_ratio(

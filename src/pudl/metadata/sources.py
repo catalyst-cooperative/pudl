@@ -160,7 +160,7 @@ SOURCES: dict[str, Any] = {
             CONTRIBUTORS["catalyst-cooperative"],
         ],
         "working_partitions": {
-            "years": sorted(set(range(2001, 2024))),
+            "years": sorted(set(range(2001, 2025))),
         },
         "keywords": sorted(
             set(
@@ -196,7 +196,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "year_months": [
                 str(q).lower()
-                for q in pd.period_range(start="2015-07", end="2025-03", freq="M")
+                for q in pd.period_range(start="2015-07", end="2025-04", freq="M")
             ],
         },
         "keywords": sorted(
