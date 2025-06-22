@@ -176,31 +176,26 @@ for a piece can help catch misspellings in the plant name, which are more common
 in the FERC records. Use the ``devtools/pudl_id_mapping_help.ipynb`` notebook to speed
 up this process.
 
-    * **If co-located EIA plants have distinct plant IDs and no FERC 1 plant:**
-        they should not be lumped under a single PUDL Plant ID, as that artificially
-        reduces the granularity of data without providing any additional linkage to
-        other datasets.
-
-    * **If a record has the same plant and utility name as another record:**
-        assign it the same PUDL ID as the other record **by reference** to the cell in
-        which the first instance of that PUDL ID appears. **Never simply enter the PUDL
-        ID as a number**, as it will not update automatically when IDs change due to
-        re-mapping or other alterations. If the new plant name is similar in that it’s a
-        different unit or a part of a facility that uses a different fuel type (e.g.
-        ``Conemaugh (Steam)`` and ``Conemaugh (CT)``, they should still share the same
-        PUDL ID. That’s because co-located fossil-fueled generators are considered parts
-        of the same plant.
-
-    * **If the plant name looks similar but there are discrepancies:**
-        such as different operators (e.g. a facility ``keystone`` with operators
-        ``baltimore gas and electric`` and ``atlantic gas and electric``), then it’s
-        best to look at the capacity first to see if the facilities are the same. If
-        that’s indeterminate, you can Google the plant to see if it has the same
-        location or if there is ownership or construction history that helps determine
-        if the facilities are the same or co-located. Presuming you've run the ETL with
-        the ``--ignore-foreign-key-constraints`` flag, you can also look at the PUDL
-        ``plants_eia860`` and ``plants_all_ferc1`` tables to compare the records'
-        location information.
+* **If co-located EIA plants have distinct plant IDs and no FERC 1 plant:**
+  they should not be lumped under a single PUDL Plant ID, as that artificially reduces
+  the granularity of data without providing any additional linkage to other datasets.
+* **If a record has the same plant and utility name as another record:**
+  assign it the same PUDL ID as the other record **by reference** to the cell in which
+  the first instance of that PUDL ID appears. **Never simply enter the PUDL ID as a
+  number**, as it will not update automatically when IDs change due to re-mapping or
+  other alterations. If the new plant name is similar in that it’s a different unit or a
+  part of a facility that uses a different fuel type (e.g.  ``Conemaugh (Steam)`` and
+  ``Conemaugh (CT)``, they should still share the same PUDL ID. That’s because
+  co-located fossil-fueled generators are considered parts of the same plant.
+* **If the plant name looks similar but there are discrepancies:**
+  such as different operators (e.g. a facility ``keystone`` with operators ``baltimore
+  gas and electric`` and ``atlantic gas and electric``), then it’s best to look at the
+  capacity first to see if the facilities are the same. If that’s indeterminate, you can
+  Google the plant to see if it has the same location or if there is ownership or
+  construction history that helps determine if the facilities are the same or
+  co-located. Presuming you've run the ETL with the ``--ignore-foreign-key-constraints``
+  flag, you can also look at the PUDL ``plants_eia860`` and ``plants_all_ferc1`` tables
+  to compare the records' location information.
 
 Mapping Utilities
 ^^^^^^^^^^^^^^^^^
