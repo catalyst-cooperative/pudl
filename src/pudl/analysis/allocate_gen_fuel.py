@@ -1518,7 +1518,7 @@ def distribute_annually_reported_data_to_months_if_annual(
     ``core_eia860__scd_plants`` table). See Issue #1933.
 
     Args:
-        df: A dataframe of either generation or boiler-fule data, loaded from
+        df: A dataframe of either generation or boiler-fuel data, loaded from
             :ref:`out_eia923__monthly_generation` or
             :ref:`out_eia923__yearly_generation` and
             :ref:`out_eia923__monthly_boiler_fuel` or
