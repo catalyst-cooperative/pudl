@@ -69,6 +69,7 @@ function write_pudl_datapackage() {
 function save_outputs_to_gcs() {
     echo "Copying outputs to GCP bucket $PUDL_GCS_OUTPUT" && \
     gcloud storage --quiet cp -r "$PUDL_OUTPUT" "$PUDL_GCS_OUTPUT" && \
+    gcloud storage --quiet cp -r "$PUDL_REPO"/dbt/seeds/etl_full_row_counts.csv "$PUDL_GCS_OUTPUT" && \
     rm -f "$PUDL_OUTPUT/success"
 }
 
