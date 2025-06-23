@@ -57,7 +57,6 @@ def _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips: pd.DataFrame) -> pd.DataFr
             county_state_names=lambda x: x.county_state_names.str.lower()
             .replace({r"\.": "", "-": "_"}, regex=True)
             .pipe(_spot_fix_great_lakes_values)
-            .astype("category")
         )
         # Fix FIPS codes with no leading zeros
         .assign(
@@ -105,7 +104,7 @@ def _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips: pd.DataFrame) -> pd.DataFr
         "lake_michigan_michigan",
         "lake_michigan_wisconsin",
         "lake_ontario_new_york",
-        "lake_saint_clair_michigan",
+        "lake_st_clair_michigan",
         "lake_superior_minnesota",
         "lake_superior_michigan",
         "lake_superior_wisconsin",
@@ -128,6 +127,8 @@ def _add_time_cols(df: pd.DataFrame, df_name: str) -> pd.DataFrame:
     For leap years (2020), December 31st is excluded.
     """
     logger.info(f"Adding time columns for {df_name} table")
+    df.report_year = df.report_year.astype(int)  # Ensure this is getting read as an int
+
     # This data is compiled for modeling purposes and skips the last
     # day of a leap year. When adding a datetime column, we need
     # to make sure that we skip the 31st of December, 2020 and that
@@ -230,6 +231,95 @@ def _check_for_valid_counties(
     return df
 
 
+def _standardize_census_names(vce_fips_df: pd.DataFrame, census_pep_data: pd.DataFrame):
+    """Make sure that the VCE place names correspond to the latest census vintage.
+
+    This function solves a problem of slight inconsistencies between Census PEP data and
+    the county names provided by VCE RARE. We join the latest version of the Census PEP
+    data onto the VCE RARE lat lon FIPS dataframe by FIPS ID, and then we take the
+    Census PEP version of the county name wherever these values differ.
+
+    Because the county_state_name column corresponds to the column names of each
+    spreadsheet, we avoid altering it and only update the place_name column.
+    In the final dataframe, we join all the dataframes on the original county_state_name
+    value and drop this column, leaving only an updated place_name value in the final
+    output.
+
+    The function returns the cleaned VCE FIPS dataframe with updated place_name,
+    as compared to the original VCE RARE values. Lakes and city names are not updated,
+    as lakes don't have comparable values in the Census PEP data and we drop the city values.
+    """
+    census_fips = census_pep_data[
+        ["county_id_fips", "area_name", "state"]
+    ].drop_duplicates()
+
+    census_fips["area_name"] = census_fips["area_name"].str.lower()
+    # VCE RARE data does not include the place type,
+    # so we drop these from the census data
+    census_fips["area_name"] = (
+        census_fips["area_name"]
+        .str.replace("county", "")
+        .str.replace("parish", "")
+        .str.strip()
+    )
+
+    # Drop lakes and two cities we're going to remove from our dataset later
+    vce_fips_df_sub = vce_fips_df.loc[
+        ~vce_fips_df.county_state_names.isin(
+            ["bedford_city_virginia", "clifton_forge_city_virginia"]
+        )
+    ].dropna(subset="county_id_fips")
+
+    # Combine both dataframes on FIPS ID and state
+    names_df = vce_fips_df_sub.merge(
+        census_fips,
+        on="county_id_fips",
+        how="left",
+        validate="one_to_one",
+        suffixes=["", "_census"],
+    )
+
+    # Add back in our weirdos
+    lakes_and_cities = vce_fips_df.loc[
+        ~vce_fips_df.county_state_names.isin(names_df.county_state_names)
+    ]
+    names_df = pd.concat([names_df, lakes_and_cities])
+
+    # Where there is no county data, fill in with VCE data
+    names_df["area_name"] = names_df["area_name"].fillna(
+        names_df["place_name"].astype(str)
+    )
+    names_df["area_name"] = names_df["area_name"].str.replace(
+        "_", " "
+    )  # Clean up the place name
+
+    # Log differences, but only show ones that don't have a difference of "_"
+    # to make this actually informative when debugging
+    log_df = names_df.loc[
+        names_df.place_name.str.replace("_", " ") != names_df.area_name,
+        ["place_name", "area_name"],
+    ].rename(columns={"place_name": "vce_place_name", "area_name": "census_place_name"})
+    logger.debug(f"Updating the following place names:\n{log_df}")
+    # Identified 74 replacements in 2025-06, expect this shouldn't change much.
+    # If it does, manually inspect the debug log above and make sure name changes
+    # are reasonable and expected.
+    assert len(log_df) <= 74, f"Expected 74 replacements, found {len(log_df)}"
+
+    names_df = (
+        names_df.drop(columns=["place_name", "state_census"])
+        .rename(
+            columns={
+                "area_name": "place_name",
+            }
+            # This gets converted to a string in the merge, so we reconvert to categorical
+        )
+        .assign(county_id_fips=lambda x: x.county_id_fips.astype("category"))
+        .assign(place_name=lambda x: x.place_name.astype("category"))
+    )
+
+    return names_df
+
+
 def _handle_2015_nulls(combined_df: pd.DataFrame, year: int):
     """Handle unexpected null values in 2015.
 
@@ -240,12 +330,14 @@ def _handle_2015_nulls(combined_df: pd.DataFrame, year: int):
     """
     if year == 2015:
         null_selector = (combined_df.capacity_factor_solar_pv.isnull()) & (
-            combined_df.report_year == "2015"
+            combined_df.report_year == 2015
         )
         logger.info(
             f"{len(combined_df.loc[null_selector])} null PV capacity values found in the 2015 data. Zeroing out these values."
         )
-        assert len(combined_df.loc[null_selector]) == 1320
+        assert len(combined_df.loc[null_selector]) == 1320, (
+            f"Expected 1320 null values but found {len(combined_df.loc[null_selector])}."
+        )
         combined_df.loc[
             null_selector,
             "capacity_factor_solar_pv",
@@ -300,7 +392,9 @@ def _combine_cap_fac_with_fips_df(
     )
     combined_df = pd.merge(
         cap_fac_df, fips_df, on="county_state_names", how="left", validate="m:1"
-    )
+    ).drop(columns="county_state_names")
+    # We need the _vcerare columns earlier when we check that no counties are missing, but
+    # at this point they are extraneous
     return combined_df
 
 
@@ -310,9 +404,7 @@ def _get_parquet_path():
 
 def _spot_fix_great_lakes_values(sr: pd.Series) -> pd.Series:
     """Normalize spelling of great lakes in cell values."""
-    return sr.replace("lake_hurron_michigan", "lake_huron_michigan").replace(
-        "lake_st_clair_michigan", "lake_saint_clair_michigan"
-    )
+    return sr.replace("lake_hurron_michigan", "lake_huron_michigan")
 
 
 def _spot_fix_great_lakes_columns(df: pd.DataFrame) -> pd.DataFrame:
@@ -320,7 +412,6 @@ def _spot_fix_great_lakes_columns(df: pd.DataFrame) -> pd.DataFrame:
     return df.rename(
         columns={
             "lake_hurron_michigan": "lake_huron_michigan",
-            "lake_st_clair_michigan": "lake_saint_clair_michigan",
         }
     )
 
@@ -331,6 +422,7 @@ def one_year_hourly_available_capacity_factor(
     raw_vcerare__fixed_solar_pv_lat_upv: pd.DataFrame,
     raw_vcerare__offshore_wind_power_140m: pd.DataFrame,
     raw_vcerare__onshore_wind_power_100m: pd.DataFrame,
+    census_pep_data: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform raw Vibrant Clean Energy renewable generation profiles.
 
@@ -340,8 +432,11 @@ def one_year_hourly_available_capacity_factor(
     logger.info(
         f"Transforming the VCE RARE hourly available capacity factor tables for {year}."
     )
-    # Clean up the FIPS table
-    fips_df = _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips)
+    # Clean up the FIPS table and update state_county names to match Census data
+    fips_df_census = _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips).pipe(
+        _standardize_census_names, census_pep_data
+    )
+
     # Apply the same transforms to all the capacity factor tables. This is slower
     # than doing it to a concatenated table but less memory intensive because
     # it doesn't need to process the ginormous table all at once.
@@ -352,7 +447,7 @@ def one_year_hourly_available_capacity_factor(
     }
     clean_dict = {
         df_name: _spot_fix_great_lakes_columns(df)
-        .pipe(_check_for_valid_counties, fips_df, df_name)
+        .pipe(_check_for_valid_counties, fips_df_census, df_name)
         .pipe(_add_time_cols, df_name)
         .pipe(_drop_city_cols, df_name)
         .pipe(_make_cap_fac_frac, df_name)
@@ -366,7 +461,7 @@ def one_year_hourly_available_capacity_factor(
     return apply_pudl_dtypes(
         _combine_all_cap_fac_dfs(clean_dict)
         .pipe(_handle_2015_nulls, year)
-        .pipe(_combine_cap_fac_with_fips_df, fips_df)
+        .pipe(_combine_cap_fac_with_fips_df, fips_df_census)
         .sort_values(by=["state", "place_name", "datetime_utc"])
         .reset_index(drop=True)
     )
@@ -374,10 +469,12 @@ def one_year_hourly_available_capacity_factor(
 
 @asset(op_tags={"memory-use": "high"})
 def out_vcerare__hourly_available_capacity_factor(
+    context,
     raw_vcerare__lat_lon_fips: pd.DataFrame,
     raw_vcerare__fixed_solar_pv_lat_upv: pd.DataFrame,
     raw_vcerare__offshore_wind_power_140m: pd.DataFrame,
     raw_vcerare__onshore_wind_power_100m: pd.DataFrame,
+    _core_censuspep__yearly_geocodes: pd.DataFrame,
 ):
     """Transform raw Vibrant Clean Energy renewable generation profiles.
 
@@ -388,6 +485,23 @@ def out_vcerare__hourly_available_capacity_factor(
 
     def _get_year(df, year):
         return df.loc[df["report_year"] == year]
+
+    # Get census vintage to conform the data to.
+    assert int(_core_censuspep__yearly_geocodes.report_year.max()) >= int(
+        raw_vcerare__fixed_solar_pv_lat_upv["report_year"].max()
+    )  # Check these are in sync
+
+    # Only keep latest census data relating to the state-county level
+    # See: https://www.census.gov/programs-surveys/geography/technical-documentation/naming-convention/cartographic-boundary-file/carto-boundary-summary-level.html
+    census_pep_data = _core_censuspep__yearly_geocodes.loc[
+        (
+            _core_censuspep__yearly_geocodes.report_year
+            == _core_censuspep__yearly_geocodes.report_year.max()
+        )
+        & (
+            _core_censuspep__yearly_geocodes.fips_level == "050"
+        )  # Only keep state-county level records
+    ]
 
     parquet_path = _get_parquet_path()
     schema = Resource.from_id(
@@ -410,6 +524,7 @@ def out_vcerare__hourly_available_capacity_factor(
                 raw_vcerare__onshore_wind_power_100m=_get_year(
                     raw_vcerare__onshore_wind_power_100m, year
                 ),
+                census_pep_data=census_pep_data,
             )
             parquet_writer.write_table(
                 pa.Table.from_pandas(df, schema=schema, preserve_index=False)

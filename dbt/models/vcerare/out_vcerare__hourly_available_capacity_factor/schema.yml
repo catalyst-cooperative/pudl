@@ -25,6 +25,10 @@ sources:
                     - clifton_forge_city
                     - lake_hurron
                     - lake_st_clair
+              - dbt_expectations.expect_column_values_to_be_in_set:
+                  value_set:
+                    - oglala lakota
+                  row_condition: "county_id_fips = '46012'"
           - name: datetime_utc
             data_tests:
               - not_null

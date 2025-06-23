@@ -34,8 +34,20 @@ and PR :pr:`4291`.
 Bug Fixes
 ^^^^^^^^^
 
+VCE RARE
+~~~~~~~~
+* Standardized ``place_name`` using data from the latest Census PEP vintage,
+  found in ``_core_censuspep__yearly_geocodes``. See issue :issue:`3914` and PR
+  :pr:`4319`.
+
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* We've added a new devtool in ``devtools/materialize_to_parquet.py`` - this
+  lets you export and share assets that were previously not persisted to Parquet,
+  such as ``raw`` assets that have been extracted but not cleaned. Run
+  ``./materialize_to_parquet --help`` from within the ``devtools`` directory for
+  details. See :pr:`4320`.
 
 New Tests
 ^^^^^^^^^
