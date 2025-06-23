@@ -299,6 +299,7 @@ _out_eia__yearly_heat_rate_by_unit,2020,2010
 _out_eia__yearly_heat_rate_by_unit,2021,1954
 _out_eia__yearly_heat_rate_by_unit,2022,1886
 _out_eia__yearly_heat_rate_by_unit,2023,1865
+_out_ferc1__yearly_plants_utilities,,8101
 core_eia860__assn_boiler_cooling,2009,2586
 core_eia860__assn_boiler_cooling,2010,2834
 core_eia860__assn_boiler_cooling,2011,2963
