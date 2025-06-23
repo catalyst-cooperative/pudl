@@ -416,6 +416,16 @@ def _core_eia860__generators_energy_storage(
         )
     )
 
+    # capitalize the direct_support generator IDs
+    gen_support_columns = [
+        col
+        for col in storage_df.columns
+        if col.startswith("generator_id_direct_support_")
+    ]
+    storage_df.loc[:, gen_support_columns] = storage_df.loc[
+        :, gen_support_columns
+    ].apply(lambda x: x.str.upper())
+
     return storage_df
 
 

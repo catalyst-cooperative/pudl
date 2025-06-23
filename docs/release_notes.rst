@@ -24,6 +24,19 @@ EIA AEO
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+EIA 860
+~~~~~~~
+* Added EIA 860 early release data from 2024. See :issue:`4323` and PR :pr:`4332`.
+
+EIA 860M
+~~~~~~~~
+* Added EIA 860M data from April 2025. See :issue:`4324` and PR :pr:`4332`.
+
+EIA 923
+~~~~~~~
+* Added EIA 923 early release data from 2024 and monthly data from March 2025. See
+  :issue:`4325` and PR :pr:`4332`.
+
 Bug Fixes
 ^^^^^^^^^
 

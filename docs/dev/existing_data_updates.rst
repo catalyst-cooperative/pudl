@@ -431,6 +431,13 @@ settings file.
 **8.2)** Once the fast ETL works, run the full ETL using the ``etl_full.yml`` settings
 to populate complete FERC 1 & PUDL DBs and EPA CEMS Parquet files.
 
+* Run crashing? Open the launchpad for the job.
+* Note that running the full ETL can take many hours on a standard laptop. If you are
+  only updating one data source, consider downloading the latest nightly build outputs
+  and then generating the corresponding raw asset group and all downstream assets.
+  You can do so on dagster by going to the "Assets" tab and searching for assets.
+  For example, key:"\*raw_eia860\*"+ can be used to search for all 860 raw assets and
+  downstream assets. You can then select all assets and use "Materialize selected".
 
 9. Run and Update Data Validations
 ----------------------------------

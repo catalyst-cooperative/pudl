@@ -5,7 +5,6 @@ import pandas as pd
 from dagster import Field, asset
 
 import pudl
-from pudl.helpers import drop_all_null_records_with_multiindex
 from pudl.transform.eia import occurrence_consistency
 from pudl.transform.eia861 import add_backfilled_ba_code_column
 
@@ -145,7 +144,7 @@ def _out_eia__yearly_generators(
     )
 
     # If any generator data is completely empty, drop it.
-    # These are three known generators that originate from harvesting the plant and
+    # These are a handful of known generators that originate from harvesting the plant and
     # generator IDs found in the plant_id_eia_direct_support_x and
     # generator_id_direct_support_x in EIA 860 energy storage tables, in
     # order to enable foreign key relationships with these columns.
@@ -155,10 +154,78 @@ def _out_eia__yearly_generators(
         (9170, "3093", "2023-01-01"),
         (34516, "SOL1", "2023-01-01"),
         (64966, "GEN1", "2023-01-01"),
+        (65084, "ELDPV", "2023-01-01"),
+        (67744, "RS1", "2023-01-01"),
+        (66502, "FWSOL", "2023-01-01"),
+        (1, "HB2PV", "2023-01-01"),
+        (64876, "OHAMP", "2023-01-01"),
+        (66897, "ALBPV", "2023-01-01"),
+        (63210, "SAINT", "2023-01-01"),
+        (62355, "2WPSO", "2023-01-01"),
+        (65859, "GEN03", "2023-01-01"),
+        (65647, "GEN1", "2023-01-01"),
+        (58644, "ALL", "2023-01-01"),
+        (62760, "SONRI", "2023-01-01"),
+        (1, "TE1PV", "2023-01-01"),
+        (64436, "WLB", "2023-01-01"),
+        (64182, "PRAPV", "2023-01-01"),
+        (64094, "PBS0L", "2023-01-01"),
+        (1, "RDYPV", "2023-01-01"),
+        (62975, "SYNLB", "2023-01-01"),
+        (57991, "PV2", "2023-01-01"),
+        (1, "MIDPV", "2023-01-01"),
+        (1, "LUNPV", "2023-01-01"),
+        (1, "CFCPV", "2023-01-01"),
+        (9170, "3093", "2024-01-01"),
+        (64966, "GEN1", "2024-01-01"),
+        (69312, "EcheB", "2024-01-01"),
+        (65859, "GEN03", "2024-01-01"),
+        (65084, "ELDPV", "2024-01-01"),
+        (67744, "RS1", "2024-01-01"),
+        (66394, "GEN01", "2024-01-01"),
+        (64094, "PBS0L", "2024-01-01"),
+        (64246, "99MTB", "2024-01-01"),
+        (69312, "ECHEB", "2024-01-01"),
+        (58644, "ALL", "2024-01-01"),
+        (66502, "FWSOL", "2024-01-01"),
+        (62760, "SONRI", "2024-01-01"),
+        (66574, "USFL", "2024-01-01"),
+        (1, "HB2PV", "2024-01-01"),
+        (1, "LUNPV", "2024-01-01"),
+        (56951, "VESTA", "2024-01-01"),
+        (64245, "90FIB", "2024-01-01"),
+        (1, "RDYPV", "2024-01-01"),
+        (68239, "C234B", "2024-01-01"),
+        (1, "MIDPV", "2024-01-01"),
+        (1, "TE1PV", "2024-01-01"),
+        (66897, "ALBPV", "2024-01-01"),
+        (1, "CFCPV", "2024-01-01"),
+        (64996, "ARCPV", "2024-01-01"),
+        (57991, "PV2", "2024-01-01"),
     ]
-    out_df = drop_all_null_records_with_multiindex(
-        out_df, ["plant_id_eia", "generator_id", "report_date"], empty_generator_ids
-    )
+
+    non_null_cols = [
+        "report_date",
+        "plant_id_eia",
+        "generator_id",
+        "fuel_type_count",
+    ]  # Columns that will have values
+    all_null_gens = out_df[
+        out_df[[col for col in out_df.columns if col not in non_null_cols]]
+        .isnull()
+        .all(axis=1)
+    ]
+    all_null_gens_ids = [
+        (int(row.plant_id_eia), row.generator_id, str(row.report_date.date()))
+        for row in all_null_gens.itertuples()
+    ]
+    unexpected_gens = set(all_null_gens_ids) - set(empty_generator_ids)
+    if unexpected_gens:
+        raise ValueError(
+            f"Got unexpected all-null generators:\n{unexpected_gens}\nCheck the expected_generator_id list in _out_eia__yearly_generators."
+        )
+
+    out_df = out_df.drop(all_null_gens.index)
 
     # Add core entity data about EIA plants
     out_df = pd.merge(
