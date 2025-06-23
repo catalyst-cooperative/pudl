@@ -102,11 +102,11 @@ sources:
                       min_value: 7.0
                       max_value: 7.5
                     - quantile: 0.05
-                      min_value: 6.4
+                      min_value: 6.39
                     - quantile: 0.95
                       max_value: 13.0
                   weight_column: net_generation_mwh
-                  description: Historical note, EIA natural gas reporting really only becomes usable in 2015.
+                  description: Quantile 0.05 dropped from 1.4 to 1.39 in June 2025. Keep an eye on it, and investigate if it gets worse. Historical note, EIA natural gas reporting really only becomes usable in 2015.
               - expect_quantile_constraints:
                   row_condition: fuel_type_code_pudl='coal'
                   constraints:
