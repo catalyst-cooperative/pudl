@@ -35,7 +35,7 @@ import uuid
 import warnings
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
-from typing import Any, Literal, Optional
+from typing import Any, Literal
 
 import numpy as np
 import pandas as pd
@@ -93,7 +93,7 @@ class UTCTimeseriesDataFrame(pa.DataFrameModel):
     """Entity ID column(s). Used to group timeseries by entity."""
     datetime_utc: Series[pa.dtypes.DateTime]
     """Datetimes in UTC timezone."""
-    timezone: Optional[Series[str]]
+    timezone: Series[str] | None
     """Local timezone of entity."""
     value_col: Series[pd.Float64Dtype] = pa.Field(nullable=True)
     """Column containing actual values to impute."""
@@ -113,7 +113,7 @@ class AlignedTimeseriesDataFrame(pa.DataFrameModel):
     """Datetimes shifted by UTC offset to align all timeseries'."""
     value_col: Series[pd.Float64Dtype] = pa.Field(nullable=True)
     """Column containing actual values to impute."""
-    flags: Optional[Series[str]] = pa.Field(nullable=True)
+    flags: Series[str] | None = pa.Field(nullable=True)
     """Column indicating why value was flagged for imputation."""
 
 

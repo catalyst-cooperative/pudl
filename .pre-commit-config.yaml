@@ -29,10 +29,10 @@ repos:
   # Formatters: hooks that re-write Python & documentation files
   ####################################################################################
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.13
+    rev: v0.12.0
     hooks:
-      - id: ruff
-        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-check
+        args: [--fix]
       - id: ruff-format
 
   - repo: https://github.com/rbubley/mirrors-prettier
