@@ -267,13 +267,16 @@ def _match_ex21_subsidiaries_to_filer_company(
         .str.split()
         .apply(lambda words: set(words) if words != [""] else set())
     )
+    # Note that these dataframe column assignments to lists work based on the ORDER
+    # of the rows/list elements, not the index, so it's important that no reordering
+    # happen in here.
     intersection_lens = [
         len(w1.intersection(w2)) for w1, w2 in zip(words1, words2, strict=True)
     ]
     max_lens = [max(len(w1), len(w2), 1) for w1, w2 in zip(words1, words2, strict=True)]
-    merged_df["loc_overlap"] = pd.Series(
-        [i / m for i, m in zip(intersection_lens, max_lens, strict=True)]
-    )
+    # Don't convert the list to a Series before assignment to avoid accidentally having it align
+    # based on index rather than order
+    merged_df["loc_overlap"] = [i / m for i, m in zip(intersection_lens, max_lens, strict=True)]
     # get the difference in report dates
     merged_df["report_date_diff_days"] = abs(
         (merged_df["report_date_sec"] - merged_df["report_date_ex21"]).dt.days
