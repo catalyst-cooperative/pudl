@@ -1,5 +1,6 @@
 """Test helper functions associated with the EPA CEMS outputs."""
 
+import io
 import logging
 from unittest.mock import patch
 
@@ -12,23 +13,19 @@ logger = logging.getLogger(__name__)
 
 
 # Test data containing plants across multiple states and years
-TEST_PLANT_DATA = pd.DataFrame(
-    {
-        "plant_id_eia": [1001, 1001, 1002, 1002, 1003, 1004, 1004, 1005],
-        "state": ["CA", "CA", "TX", "TX", "NY", "FL", "FL", "CA"],
-        "report_date": pd.to_datetime(
-            [
-                "2019-01-01",
-                "2020-01-01",
-                "2020-01-01",
-                "2021-06-01",
-                "2022-01-01",
-                "2020-07-01",
-                "2021-01-01",
-                "2020-12-01",
-            ]
-        ),
-    }
+TEST_PLANT_DATA = pd.read_csv(
+    io.StringIO(
+        """plant_id_eia,state,report_date
+1001,CA,2019-01-01
+1001,CA,2020-01-01
+1002,TX,2020-01-01
+1002,TX,2021-06-01
+1003,NY,2022-01-01
+1004,FL,2020-07-01
+1004,FL,2021-01-01
+1005,CA,2020-12-01"""
+    ),
+    parse_dates=["report_date"],
 )
 
 
