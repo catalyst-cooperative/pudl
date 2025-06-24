@@ -33,6 +33,14 @@ VCE RARE
   found in ``_core_censuspep__yearly_geocodes``. See issue :issue:`3914` and PR
   :pr:`4319`.
 
+Deprecations
+^^^^^^^^^^^^
+
+* After more than a year of deprecation warnings, we've removed the ``PudlTabl``
+  output management class, and have stopped distributing a handful of tables that were
+  only around to allow the behavior of that class to be maintained. See issues
+  :issue:`3215,2911` and PR :pr:`4316`.
+
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
