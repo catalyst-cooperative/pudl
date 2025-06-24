@@ -146,8 +146,17 @@ database:
 The data validation cases that pertain to the contents of the data tables are
 currently stored as part of the :mod:`pudl.validate` module.
 
-The expected number of records in each output table is stored in the validation
-test modules under ``test/validate`` as pytest parameterizations.
+To catch unexpected changes to the data, we keep track of the expected number of rows in
+each data table we distribute. These expectations are stored in
+``dbt/seeds/etl_full_row_counts.csv`` and they can be updated using the ``dbt_helper``
+script. If you can't run the full ETL locally, the nightly builds / branch deployments
+also generate updated row count expectations. So you can kick off the
+``build-deploy-pudl`` GitHub Action using the ``workflow_dispatch`` trigger on your
+branch on GitHub, and then download the updated ``etl_full_row_counts.csv`` file from
+the build outputs that are uploaded to
+``gs://builds.catalyst.coop/<build-id>/etl_full_row_counts.csv`` once the build has
+completed. See the :doc:`nightly_data_builds` documentation for more details on the
+nightly builds.
 
 Data Validation Notebooks
 ^^^^^^^^^^^^^^^^^^^^^^^^^
