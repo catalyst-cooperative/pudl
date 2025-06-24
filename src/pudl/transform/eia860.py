@@ -416,7 +416,12 @@ def _core_eia860__generators_energy_storage(
         )
     )
 
-    # capitalize the direct_support generator IDs
+    # Capitalize the direct_support generator IDs
+    # We harvest these values into our generator tables, but they aren't as
+    # well-normalized as the directly reported generator IDs. The differences in
+    # capitalization were marking a larger number of generators as non-existent
+    # than are actually the case (e.g., a plant reporting both generator GEN1 and Gen1).
+    # See PR#3699 and PR#4332.
     gen_support_columns = [
         col
         for col in storage_df.columns

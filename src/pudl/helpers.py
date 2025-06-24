@@ -1582,35 +1582,6 @@ def drop_records_with_null_in_column(
     return df.dropna(subset=[column])
 
 
-def drop_all_null_records_with_multiindex(
-    df: pd.DataFrame, idx_cols: list[str], idx_records: list[tuple[str | int | bool]]
-) -> pd.DataFrame:
-    """Given a set of multi-index values, drop expected all null rows.
-
-    Take a dataframe, and check that a row with given values in idx_cols (e.g.,
-    plant_id_eia, generator_id) is null in all other rows. If so, drop these rows from
-    the dataframe. If not, raise an assertion error to prevent accidentally dropping
-    data.
-
-    Args:
-        df: table with data to drop.
-        idx_cols: list of multi-index columns to index against.
-        idx_records: corresponding index values for each row to be dropped.
-
-    Raises:
-        AssertionError: If there is data in the expected rows.
-    """
-    # ensure there isn't more than the expected number of nulls before dropping
-    df = df.set_index(idx_cols)
-    if any(record in df.index for record in idx_records):  # Handle fast ETL
-        assert df.loc[idx_records].isnull().all().all(), (
-            "Non-null data found where no data was expected:",
-            f"{df.loc[idx_records].dropna(axis='columns', how='all')}",
-        )  # Make sure all values in all rows and columns here are null
-        return df.drop(idx_records).reset_index()
-    return df.reset_index()
-
-
 def standardize_percentages_ratio(
     frac_df: pd.DataFrame,
     mixed_cols: list[str],
