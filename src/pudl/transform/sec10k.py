@@ -575,11 +575,12 @@ def core_sec10k__quarterly_company_information(
             subset=["filename_sec10k", "central_index_key"], keep=False
         )
     ]
-    filled_dupes = dupes_df.groupby(["filename_sec10k", "central_index_key"])[
-        cols_to_fill
-    ].transform(lambda group: group.ffill().bfill())
-    clean_info.loc[filled_dupes.index, cols_to_fill] = filled_dupes
-    clean_info = clean_info.drop_duplicates(subset=cols_to_fill)
+    if len(dupes_df) > 0:
+        filled_dupes = dupes_df.groupby(["filename_sec10k", "central_index_key"])[
+            cols_to_fill
+        ].transform(lambda group: group.ffill().bfill())
+        clean_info.loc[filled_dupes.index, cols_to_fill] = filled_dupes
+        clean_info = clean_info.drop_duplicates(subset=cols_to_fill)
     # After we've filled in the NA values and dropped duplicates
     # on the full set of columns we care about preserving,
     # we expect that there will only be unique values of the natural PK
@@ -735,9 +736,7 @@ def core_sec10k__assn_sec10k_filers_and_eia_utilities(
     return sec_eia_assn
 
 
-@dg.asset(  # io_manager_key="pudl_io_manager",
-    group_name="core_sec10k"
-)
+@dg.asset(io_manager_key="pudl_io_manager", group_name="core_sec10k")
 def core_sec10k__assn_exhibit_21_subsidiaries_and_filers(
     core_sec10k__quarterly_filings,
     core_sec10k__quarterly_company_information,
