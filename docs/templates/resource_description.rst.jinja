@@ -1,4 +1,6 @@
-{{ resource.description_time() }} {{ resource.description_tabletype() }} {{ resource.meta.description_summary|default("", true) }}
+{% set tabletype_parts = resource.description_tabletype() %}
+{{ resource.description_time() }} {{ tabletype_parts.0 }}
+{% if resource.meta.description_summary %}{{ tabletype_parts.1 }} {{ resource.meta.description_summary }}{% endif %}
 
 Processing:
   {{ resource.description_layer() }} {{ resource.meta.description_layer|default("", true) }}
@@ -17,7 +19,7 @@ Usage Warnings
 {% if uw is mapping %}* {{ uw.text }}{% else %}* {{ warnings[uw] }}{% endif -%}
 {% endfor %}
 {% if resource.meta.sources|length > 1 %}* {{ warnings.multiple_inputs }}{% set hasuw = true %}{% endif %}
-{%- if "ferc" in resource.name %}* {{ warnings.ferc_is_hard }}{% set hasuw = true %}{% endif %}
+{% if "ferc" in resource.name %}* {{ warnings.ferc_is_hard }}{% set hasuw = true %}{% endif %}
 {% if not hasuw %}* No warnings documented yet.{% endif %}
 
 {% if resource.meta.description_details %}

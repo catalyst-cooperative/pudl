@@ -1285,6 +1285,7 @@ class Resource(PudlMeta):
     table_type: Literal["assn", "codes", "entity", "scd", "timeseries"] | None = None
     timeseries_resolution: (
         Literal[
+            "quarterly",
             "yearly",
             "monthly",
             "hourly",
@@ -2011,6 +2012,7 @@ class MetaFromResourceName(PudlMeta):
     datasource_strings: str = "|".join(datasource_map.keys())
 
     time_detail_map: dict = {
+        "quarterly": "Quarterly",
         "yearly": "Annual",
         "monthly": "Monthly",
         "hourly": "Hourly",
@@ -2018,11 +2020,11 @@ class MetaFromResourceName(PudlMeta):
     time_string: str = "|".join(time_detail_map.keys())
 
     tabletype_map: dict = {
-        "assn": "Association table providing connections between",
-        "codes": ("Code table containing descriptions of categorical codes for"),
-        "entity": ("Entity table containing static information about"),
-        "scd": ("Slowly changing dimension (SCD) table describing attributes of"),
-        "timeseries": ("time series of"),
+        "assn": ("Association table", "providing connections between"),
+        "codes": ("Code table containing descriptions of categorical codes", "for"),
+        "entity": ("Entity table containing static information", "about"),
+        "scd": ("Slowly changing dimension (SCD) table", "describing attributes of"),
+        "timeseries": ("time series", "of"),
     }
     tabletype_string: str = "|".join(tabletype_map.keys())
     table_name_pattern: str = rf"^(?P<layer>{layer_string})_(?P<datasource>{datasource_strings})__(?P<time>{time_string}|)(?:_|)(?P<tabletype>{tabletype_string}|)(?:_|)(?:_|)(?P<slug>.*)$"
