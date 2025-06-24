@@ -435,11 +435,11 @@ def _prep_for_networkx(crosswalk: pd.DataFrame) -> pd.DataFrame:
     """Make surrogate keys for combustors and generators.
 
     Args:
-        crosswalk: The ``core_epa__assn_eia_epacamd`` crosswalk
+        crosswalk: The :ref:`core_epa__assn_eia_epacamd` crosswalk
 
     Returns:
-        A copy of ``core_epa__assn_eia_epacamd`` crosswalk with new surrogate ID columns
-            'combustor_id' and 'generator_id'
+        A copy of :ref:`core_epa__assn_eia_epacamd` crosswalk with new surrogate ID
+        columns `combustor_id` and `generator_id`.
     """
     prepped = crosswalk.copy()
     # networkx can't handle composite keys, so make surrogates
@@ -602,7 +602,8 @@ def update_subplant_ids(subplant_crosswalk: pd.DataFrame) -> pd.DataFrame:
 
     Args:
         subplant_crosswalk: a dataframe containing the output of
-        :func:`make_subplant_ids`
+            :func:`make_subplant_ids`
+
     """
     # Step 1: Create corrected versions of subplant_id and unit_id_pudl
     # if multiple unit_id_pudl are connected by a single subplant_id,
@@ -653,6 +654,7 @@ def connect_ids(
             andconnecting_id
         id_to_update: List of ID columns
         connecting_id: ID column
+
     """
     # get a table with all unique subplant to unit pairs
     subplant_unit_pairs = subplant_crosswalk[
