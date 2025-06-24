@@ -421,15 +421,27 @@ def _core_eia860__generators_energy_storage(
     # well-normalized as the directly reported generator IDs. The differences in
     # capitalization were marking a larger number of generators as non-existent
     # than are actually the case (e.g., a plant reporting both generator GEN1 and Gen1).
-    # See PR#3699 and PR#4332.
-    gen_support_columns = [
-        col
-        for col in storage_df.columns
-        if col.startswith("generator_id_direct_support_")
+    # See PR#3699 and PR#4332. We manually fix a known list of these.
+
+    # Any remaining 'fake' generator IDs get dropped in _out_eia__yearly_generators
+
+    known_bad_caps = [
+        "SunB",
+        "EcheB",
+        "MayB",
+        "IssaP",
+        "Matad",
+        "WolfB",
+        "IrisB",
+        "TwinB",
     ]
-    storage_df.loc[:, gen_support_columns] = storage_df.loc[
-        :, gen_support_columns
-    ].apply(lambda x: x.str.upper())
+    filter_condition = (storage_df.report_date == "2024-01-01") & (
+        storage_df.generator_id_direct_support_1.isin(known_bad_caps)
+    )
+
+    storage_df.loc[filter_condition, "generator_id_direct_support_1"] = storage_df.loc[
+        filter_condition, "generator_id_direct_support_1"
+    ].str.upper()
 
     return storage_df
 

@@ -162,7 +162,7 @@ def _out_eia__yearly_generators(
             (34516, "SOL1"),
             (56951, "VESTA"),
             (57991, "PV2"),
-            (58644, "ALL"),
+            (58644, "All"),
             (62355, "2WPSO"),
             (62760, "SONRI"),
             (62975, "SYNLB"),
