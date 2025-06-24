@@ -217,20 +217,6 @@ def _prep_eia_ferc1(
     return eia_ferc1_prep
 
 
-def _prep_ppe(ppe: pd.DataFrame) -> pd.DataFrame:
-    """Prep PPE table for use in override output sheet pre-utility subgroups.
-
-    Args:
-        ppe: The :ref:`out_eia__yearly_plant_parts` table as a dataframe.
-
-    Returns:
-        A version of the plant_parts_eia table that's been modified for the purposes of
-        creating an manual mapping spreadsheet.
-    """
-    logger.debug("Prepping Plant Parts Table")
-    return ppe.reset_index()[RELEVANT_COLS_PPE].copy()
-
-
 def _prep_deprish(deprish, utils_eia860) -> pd.DataFrame:
     """Prep depreciation data for use in override output sheet pre-utility subgroups."""
     # Not using this function ATM.
@@ -353,7 +339,7 @@ def generate_all_override_spreadsheets(
     """
     inputs_dict = {
         "eia_ferc1": _prep_eia_ferc1(eia_ferc1, utils_eia860),
-        "ppe": _prep_ppe(ppe),
+        "ppe": ppe.reset_index()[RELEVANT_COLS_PPE],
     }
 
     # For each utility, make an override sheet with the correct input table slices
