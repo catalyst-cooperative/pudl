@@ -2033,8 +2033,8 @@ core_nrelatb__yearly_technology_status,2021,131
 core_nrelatb__yearly_technology_status,2022,195
 core_nrelatb__yearly_technology_status,2023,189
 core_nrelatb__yearly_technology_status,2024,197
-core_pudl__assn_eia_pudl_plants,,18280
-core_pudl__assn_eia_pudl_utilities,,16488
+core_pudl__assn_eia_pudl_plants,,18378
+core_pudl__assn_eia_pudl_utilities,,16617
 core_pudl__assn_ferc1_dbf_pudl_utilities,,411
 core_pudl__assn_ferc1_pudl_plants,,8101
 core_pudl__assn_ferc1_pudl_utilities,,427
@@ -2042,13 +2042,13 @@ core_pudl__assn_ferc1_xbrl_pudl_utilities,,277
 core_pudl__assn_ferc714_csv_pudl_respondents,,213
 core_pudl__assn_ferc714_pudl_respondents,,218
 core_pudl__assn_ferc714_xbrl_pudl_respondents,,118
-core_pudl__assn_utilities_plants,,19201
+core_pudl__assn_utilities_plants,,19298
 core_pudl__codes_data_maturities,,4
 core_pudl__codes_datasources,,13
 core_pudl__codes_imputation_reasons,,11
 core_pudl__codes_subdivisions,,69
-core_pudl__entity_plants_pudl,,20222
-core_pudl__entity_utilities_pudl,,16932
+core_pudl__entity_plants_pudl,,20320
+core_pudl__entity_utilities_pudl,,17061
 core_sec10k__assn_sec10k_filers_and_eia_utilities,,529
 core_sec10k__changelog_company_name,,17796
 core_sec10k__parents_and_subsidiaries,1994,8716
