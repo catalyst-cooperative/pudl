@@ -17,6 +17,7 @@ from pudl.metadata.enums import (
     ELECTRICITY_MARKET_MODULE_REGIONS,
     ENERGY_DISPOSITION_TYPES_FERC1,
     ENERGY_SOURCE_TYPES_FERC1,
+    ENERGY_USE_TYPES_EIAAEO,
     EPACEMS_MEASUREMENT_CODES,
     EPACEMS_STATES,
     FUEL_CLASSES,
@@ -961,13 +962,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "County name as specified in Census DP1 Data.",
     },
-    "county_or_lake_name": {
-        "type": "string",
-        "description": (
-            "County or lake name. Lake names may also appear several times--once for "
-            "each state it touches. FIPS ID values for lakes have been nulled."
-        ),
-    },
     "country_code": {
         "type": "string",
         "description": "Three letter ISO-3166 country code (e.g. USA or CAN).",
@@ -1541,6 +1535,24 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Energy storage capacity in MWh (e.g. for batteries).",
         "unit": "MWh",
+    },
+    "energy_use_type": {
+        "type": "string",
+        "description": "Type of energy use, indicating the name of the series from AEO Table 2. Includes fuels, electricity, losses, and various subtotals; consult table documentation for aggregation guidelines.",
+        "constraints": {"enum": ENERGY_USE_TYPES_EIAAEO},
+    },
+    "energy_use_mmbtu": {
+        "type": "number",
+        "description": "Energy use, in MMBtu; also referred to as energy consumption, energy demand, or delivered energy, depending on type.",
+        "unit": "MMBtu",
+    },
+    "energy_use_sector": {
+        "type": "string",
+        "description": "Sector for energy use figures in AEO Table 2. Similar to customer class, but with some missing and some extra values.",
+        "constraints": {
+            "enum": set(CUSTOMER_CLASSES) - {"direct_connection"}
+            | {"electric_power", "unspecified"}
+        },
     },
     "energy_used_for_pumping_mwh": {
         "type": "number",
@@ -3608,6 +3620,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Additional owner or operator of natural gas pipeline.",
     },
+    "place_name": {
+        "type": "string",
+        "description": (
+            "County or lake name, sourced from the latest Census PEP vintage based on "
+            "county FIPS ID. Lake names originate from VCE RARE directly, and may also "
+            "appear several times--once for each state it touches. FIPS ID values for "
+            "lakes have been nulled."
+        ),
+    },
     "planned_derate_date": {
         "type": "date",
         "description": "Planned effective month that the generator is scheduled to enter operation after the derate modification.",
@@ -3940,9 +3961,43 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.",
     },
+    "region_name_eiaaeo": {
+        "type": "string",
+        "description": (
+            "EIA AEO region for energy consumption. Includes US Census Divisions plus United States."
+        ),
+        "constraints": {
+            "enum": [
+                # 2025-05 kmm: we can't use POLITICAL_SUBDIVISIONS here because
+                # it splits Pacific into Contiguous and Noncontiguous.
+                "east_north_central",
+                "east_south_central",
+                "middle_atlantic",
+                "mountain",
+                "new_england",
+                "pacific",
+                "south_atlantic",
+                "west_north_central",
+                "west_south_central",
+                "united_states",
+            ],
+        },
+    },
     "region_name_us_census": {
         "type": "string",
         "description": "Human-readable name of a US Census region.",
+    },
+    "region_type_eiaaeo": {
+        "type": "string",
+        "description": (
+            "Region type for EIA AEO energy consumption, indicating whether region_name_eiaaeo is a US Census Division or country (United States)"
+        ),
+        "constraints": {
+            "enum": [
+                "us_census_division",
+                "country",
+            ],
+        },
     },
     "has_regulatory_limits": {
         "type": "boolean",
@@ -5876,6 +5931,14 @@ FIELD_METADATA_BY_GROUP: dict[str, dict[str, Any]] = {
     },
     "nrelatb": {
         "technology_description": {"constraints": {"enum": TECH_DESCRIPTIONS_NRELATB}}
+    },
+    "vcerare": {
+        "latitude": {
+            "description": "Latitude of the place centroid (e.g., county centroid)."
+        },
+        "longitude": {
+            "description": "Longitude of the place centroid (e.g., county centroid)."
+        },
     },
 }
 """Field attributes by resource group (`resource.group`) and PUDL identifier.

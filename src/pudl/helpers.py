@@ -10,6 +10,7 @@ with cleaning and restructing dataframes.
 import importlib.resources
 import itertools
 import json
+import multiprocessing
 import pathlib
 import re
 import shutil
@@ -23,10 +24,11 @@ from typing import Any, Literal, NamedTuple
 import datasette
 import numpy as np
 import pandas as pd
+import pyarrow.parquet as pq
 import requests
 import sqlalchemy as sa
 import yaml
-from dagster import AssetKey, AssetsDefinition, AssetSelection, SourceAsset
+from dagster import AssetKey, AssetsDefinition, AssetSelection, AssetSpec
 from pandas._libs.missing import NAType
 
 import pudl.logging_helpers
@@ -557,7 +559,8 @@ def date_merge(
             ``on`` argument.
         right: The right dataframe in the merge. Typically annual in our uses
             cases if doing a left merge E.g. ``core_eia860__scd_generators``.
-            Must contain columns specified by ``right_date_col`` and ``on`` argument.
+            Must contain columns specified by ``right_date_col`` and
+            ``on`` argument.
         on: The columns to merge on that are shared between both
             dataframes. Typically ID columns like ``plant_id_eia``, ``generator_id``
             or ``boiler_id``.
@@ -1777,8 +1780,8 @@ def get_eia_ferc_acct_map() -> pd.DataFrame:
             (USOA) accouting names. Read more about USOA
             `here
             <https://www.ferc.gov/enforcement-legal/enforcement/accounting-matters>`__
-            The output table has the following columns: `['technology_description',
-            'prime_mover_code', 'ferc_acct_name']`
+            The output table has the following columns: ``['technology_description',
+            'prime_mover_code', 'ferc_acct_name']``
     """
     eia_ferc_acct_map = pd.read_csv(
         importlib.resources.files("pudl.package_data.glue")
@@ -1823,22 +1826,22 @@ def convert_df_to_excel_file(df: pd.DataFrame, **kwargs) -> pd.ExcelFile:
 
 
 def get_asset_keys(
-    assets: list[AssetsDefinition], exclude_source_assets: bool = True
+    assets: list[AssetsDefinition], exclude_asset_specs: bool = True
 ) -> set[AssetKey]:
     """Get a set of asset keys from a list of asset definitions.
 
     Args:
         assets: list of asset definitions.
-        exclude_source_assets: exclude SourceAssets in the returned list.
-            Some selection operations don't allow SourceAsset keys.
+        exclude_asset_specs: exclude AssetSpecs in the returned list.
+            Some selection operations don't allow AssetSpec keys.
 
     Returns:
         A set of asset keys.
     """
     asset_keys = set()
     for asset in assets:
-        if isinstance(asset, SourceAsset):
-            if not exclude_source_assets:
+        if isinstance(asset, AssetSpec):
+            if not exclude_asset_specs:
                 asset_keys = asset_keys.union(asset.key)
         else:
             asset_keys = asset_keys.union(asset.keys)
@@ -2033,9 +2036,13 @@ def get_dagster_execution_config(
     """Get the dagster execution config for a given number of workers.
 
     If num_workers is 0, then the dagster execution config will not include
-    any limits. With num_workesr set to 1, we will use in-process serial
+    any limits. With num_workers set to 1, we will use in-process serial
     executor, otherwise multi-process executor with maximum of num_workers
     will be used.
+
+    If we use the multi-process executor AND the ``forkserver`` start method is
+    available, we pre-import the ``pudl`` package in the template process. This
+    allows us to reduce the startup latency of each op.
 
     Args:
         num_workers: The number of workers to use for the dagster execution config.
@@ -2045,11 +2052,12 @@ def get_dagster_execution_config(
             particular tags. This is helpful for applying concurrency limits to
             highly concurrent and memory intensive portions of the ETL like CEMS.
 
-            Dagster description: If a value is set, the limit is applied to only
-            that key-value pair. If no value is set, the limit is applied across
-            all values of that key. If the value is set to a dict with
-            `applyLimitPerUniqueValue: true`, the limit will apply to the number
-            of unique values for that key. Note that these limits are per run, not global.
+            Dagster description: If a value is set, the limit is applied to
+            only that key-value pair. If no value is set, the limit is applied
+            across all values of that key. If the value is set to a dict with
+            `applyLimitPerUniqueValue: true`, the limit will apply to the
+            number of unique values for that key. Note that these limits are
+            per run, not global.
 
     Returns:
         A dagster execution config.
@@ -2062,12 +2070,18 @@ def get_dagster_execution_config(
                 },
             },
         }
+
+    start_method_config = {}
+    if "forkserver" in multiprocessing.get_all_start_methods():
+        start_method_config = {"forkserver": {"preload_modules": ["pudl"]}}
+
     return {
         "execution": {
             "config": {
                 "multiprocess": {
                     "max_concurrent": num_workers,
                     "tag_concurrency_limits": tag_concurrency_limits,
+                    "start_method": start_method_config,
                 },
             },
         },
@@ -2251,3 +2265,59 @@ def retry(
             )
             time.sleep(delay)
     return func(**kwargs)
+
+
+def get_parquet_table(
+    table_name: str,
+    columns: list[str] | None = None,
+    filters: list[tuple[str, str, Any]]
+    | list[list[tuple[str, str, Any]]]
+    | None = None,
+) -> pd.DataFrame:
+    """Read a table from Parquet files with optional column selection and filtering.
+
+    This function provides a general-purpose interface for reading PUDL tables from
+    Parquet files. It supports selective column reading for performance, optional
+    filters for data subsetting, and automatic schema validation.
+
+    Args:
+        table_name: Name of the table to read.
+        columns: List of columns to read. If None, all columns are read.
+        filters: Optional filters to apply when reading the Parquet file. See the
+            :func:`pyarrow.parquet.read_table` documentation for details on filter
+            syntax. If None, no filters are applied.
+
+    Returns:
+        DataFrame with the requested data, with PUDL schema validation applied.
+
+    Raises:
+        FileNotFoundError: If the Parquet file for the table doesn't exist.
+        ValueError: If the table_name is not a valid PUDL resource.
+    """
+    # Import here to avoid circular imports
+    from pudl.metadata.classes import Resource
+
+    paths = PudlPaths()
+
+    # Get the Parquet file path
+    parquet_path = paths.parquet_path(table_name)
+
+    # Get the schema for validation
+    resource = Resource.from_id(table_name)
+    pyarrow_schema = resource.to_pyarrow()
+
+    # Read the Parquet file
+    df = pq.read_table(
+        source=parquet_path,
+        schema=pyarrow_schema,
+        columns=columns,
+        filters=filters,
+        use_threads=True,
+        memory_map=True,
+    ).to_pandas()
+
+    # Only enforce schema if we're reading all columns
+    if columns is None:
+        return resource.enforce_schema(df)
+    # For specific columns, apply PUDL dtypes for the columns we have
+    return apply_pudl_dtypes(df, group=resource.field_namespace)

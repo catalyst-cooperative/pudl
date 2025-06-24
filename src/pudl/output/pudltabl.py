@@ -19,18 +19,17 @@ In the long run, this is a probably a kind of prototype for pre-packaged API out
 data products that we might want to be able to provide to users a la carte.
 """
 
-from collections import defaultdict
 from datetime import date, datetime
 from functools import partial
 from typing import Literal, Self
 
 # Useful high-level external modules.
 import pandas as pd
-import sqlalchemy as sa
+import pyarrow as pa
 
 import pudl
+from pudl.helpers import get_parquet_table
 from pudl.metadata.classes import Resource
-from pudl.metadata.fields import apply_pudl_dtypes
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -45,90 +44,52 @@ class PudlTabl:
 
     def __init__(
         self: Self,
-        pudl_engine: sa.Engine,
         freq: Literal["YS", "MS", None] = None,
         start_date: str | date | datetime | pd.Timestamp = None,
         end_date: str | date | datetime | pd.Timestamp = None,
-        fill_fuel_cost: bool = False,
-        roll_fuel_cost: bool = False,
         fill_net_gen: bool = False,
-        fill_tech_desc: bool = True,
-        unit_ids: bool = False,
     ) -> Self:
         """Initialize the PUDL output object.
 
-        Private data members are not initialized until they are requested.  They are
-        then cached within the object unless they get re-initialized via a method that
-        includes update=True.
-
-        Some methods (e.g mcoe) will take a while to run, since they need to pull
-        substantial data and do a bunch of calculations.
+        This class provides a thin wrapper around the PUDL Parquet outputs, reproducing
+        the behavior of the old PudlTabl output caching object.
 
         Args:
-            pudl_engine: A connection engine for the PUDL DB.
-            freq: A string indicating the time frequency at which to aggregate
-                reported data. ``MS`` is monthly and ``YS`` is yearly. If
-                None, the data will not be aggregated.
-            start_date: Beginning date for data to pull from the PUDL DB. If
-                a string, it should use the ISO 8601 ``YYYY-MM-DD`` format.
-            end_date: End date for data to pull from the PUDL DB. If a string,
+            freq: A string indicating the time frequency at which to aggregate reported
+                data. ``MS`` is monthly and ``YS`` is yearly. If None, the data will not
+                be aggregated.
+
+            start_date: Beginning date for data to pull from the PUDL DB. If a string,
                 it should use the ISO 8601 ``YYYY-MM-DD`` format.
-            fill_fuel_cost: if True, fill in missing ``frc_eia923()`` fuel cost
-                data with state-fuel averages from EIA's bulk electricity data.
-            roll_fuel_cost: if True, apply a rolling average to a subset of
-                output table's columns (currently only ``fuel_cost_per_mmbtu``
-                for the ``core_eia923__monthly_fuel_receipts_costs`` table.)
+            end_date: End date for data to pull from the PUDL DB. If a string, it should
+                use the ISO 8601 ``YYYY-MM-DD`` format.
             fill_net_gen: if True, use the net generation from the
                 core_eia923__monthly_generation_fuel - which is reported at the
-                plant/fuel/prime mover level and  re-allocated to generators in
+                plant/fuel/prime mover level and re-allocated to generators in
                 ``mcoe()``, ``capacity_factor()`` and ``heat_rate_by_unit()``.
-            fill_tech_desc: If True, fill the technology_description
-                field to years earlier than 2013 based on plant and
-                energy_source_code_1 and fill in technologies with only one matching
-                code.
-            unit_ids: If True, use several heuristics to assign
-                individual generators to functional units. EXPERIMENTAL.
         """
         logger.warning(
-            "PudlTabl is deprecated and will be removed from the pudl package "
-            "once known users have migrated to accessing the data directly from "
-            "pudl.sqlite. "
+            "PudlTabl is deprecated and will be removed in mid-2025. Please read data"
+            "directly from the PUDL SQLite database or access the PUDL parquet files in the PUDL outputs."
         )
-        if not isinstance(pudl_engine, sa.engine.base.Engine):
-            raise TypeError(
-                "PudlTabl needs pudl_engine to be a SQLAlchemy Engine, but we "
-                f"got a {type(pudl_engine)}."
-            )
-        self.pudl_engine: sa.Engine = pudl_engine
-
         if freq not in (None, "YS", "MS"):
             raise ValueError(
                 f"freq must be one of None, 'MS', or 'YS', but we got {freq}."
             )
         self.freq: Literal["YS", "MS", None] = freq
-
-        # grab all working eia dates to use to set start and end dates if they
-        # are not set
-        if start_date is None:
-            self.start_date = min(pudl.helpers.get_working_dates_by_datasource("ferc1"))
-        else:
-            # Make sure it's a date... and not a string.
-            self.start_date = pd.to_datetime(start_date)
-
-        if end_date is None:
-            self.end_date = max(pudl.helpers.get_working_dates_by_datasource("eia"))
-        else:
-            # Make sure it's a date... and not a string.
-            self.end_date = pd.to_datetime(end_date)
-
-        self.roll_fuel_cost: bool = roll_fuel_cost
-        self.fill_fuel_cost: bool = fill_fuel_cost
         self.fill_net_gen: bool = fill_net_gen
-        self.fill_tech_desc = fill_tech_desc  # only for eia860 table.
-        self.unit_ids = unit_ids
 
-        # Used to persist the output tables. Returns None if they don't exist.
-        self._dfs = defaultdict(lambda: None)
+        # grab full working date range if start or end date are not set
+        self.start_date = (
+            min(pudl.helpers.get_working_dates_by_datasource("ferc1"))
+            if start_date is None
+            else pd.to_datetime(start_date)
+        )
+        self.end_date = (
+            max(pudl.helpers.get_working_dates_by_datasource("eia"))
+            if end_date is None
+            else pd.to_datetime(end_date)
+        )
 
         self._register_output_methods()
 
@@ -214,6 +175,8 @@ class PudlTabl:
             "out_eia923__AGG_fuel_receipts_costs": "frc_eia923",
             "out_eia923__AGG_generation": "gen_original_eia923",
             "out_eia923__AGG_generation_fuel_combined": "gf_eia923",
+            # EPA CAMD to EIA crosswalk
+            "core_epa__assn_eia_epacamd": "epacamd_eia",
             # ferc714
             "core_ferc714__respondent_id": "respondent_id_ferc714",
             "out_ferc714__respondents_with_fips": "fipsified_respondents_ferc714",
@@ -256,66 +219,81 @@ class PudlTabl:
         for table_name, method_name in table_method_map_any_freq.items():
             # Create method called table_name that will read the asset from DB
             self.__dict__[method_name] = partial(
-                self._get_table_from_db,
+                self.get_table,
                 table_name=table_name,
                 allowed_freqs=[None, "YS", "MS"],
             )
 
         for table_name, method_name in table_method_map_any_agg.items():
             self.__dict__[method_name] = partial(
-                self._get_table_from_db,
+                self.get_table,
                 table_name=table_name,
                 allowed_freqs=["YS", "MS"],
             )
 
         for table_name, method_name in table_method_map_yearly_only.items():
             self.__dict__[method_name] = partial(
-                self._get_table_from_db,
+                self.get_table,
                 table_name=table_name,
                 allowed_freqs=["YS"],
             )
 
-    def _get_table_from_db(
+    def get_table(
         self: Self,
         table_name: str,
         allowed_freqs: list[str | None] = [None, "YS", "MS"],
-        update: bool = False,
     ) -> pd.DataFrame:
-        """Grab output table from PUDL DB.
+        """Grab an output table from PUDL parquet files.
 
         Args:
             table_name: Name of table to get.
             allowed_freqs: List of allowed aggregation frequencies for table.
-            update: Ignored. Retained for backwards compatibility only.
         """
         if self.freq not in allowed_freqs:
             raise ValueError(
                 f"{table_name} needs one of these frequencies {allowed_freqs}, "
                 f"but got {self.freq}"
             )
-        if update:
-            logger.warning(
-                "The update parameter is deprecated and has no effect."
-                "It is retained for backwards compatibility only."
-            )
         table_name = self._agg_table_name(table_name)
         logger.warning(
-            "PudlTabl is deprecated and will be removed from the pudl package "
-            "once known users have migrated to accessing the data directly from "
-            "pudl.sqlite. To access the data returned by this method, "
-            f"use the {table_name} table in the pudl.sqlite database."
+            "PudlTabl is deprecated and will be removed in mid-2025. To access the "
+            f"data returned by this method, read from the {table_name} table in the "
+            f"pudl.sqlite database or access the {table_name}.parquet file in the PUDL "
+            "outputs."
         )
-        resource = Resource.from_id(table_name)
-        return pd.concat(
-            [
-                resource.enforce_schema(df)
-                for df in pd.read_sql(
-                    self._select_between_dates(table_name),
-                    self.pudl_engine,
-                    chunksize=100_000,
-                )
-            ]
-        )
+        res = Resource.from_id(table_name)
+        pyarrow_schema: pa.Schema = res.to_pyarrow()
+
+        # Build date filters and use the helper function
+        filters = self._build_parquet_date_filters(pyarrow_schema=pyarrow_schema)
+        return get_parquet_table(table_name, filters=filters)
+
+    def _build_parquet_date_filters(
+        self: Self, pyarrow_schema: pa.Schema
+    ) -> list[tuple[str, str, date | int]] | None:
+        """Build filters to read records from parquet between start and end dates."""
+        # Determine date column and value converter
+        if "report_date" in pyarrow_schema.names:
+            date_col = "report_date"
+
+            def convert_date(d):
+                return pd.to_datetime(d).date()
+        elif "report_year" in pyarrow_schema.names:
+            date_col = "report_year"
+
+            def convert_date(d):
+                return pd.to_datetime(d).year
+        else:
+            return None
+
+        # Build filters
+        filters = []
+        if self.start_date is not None:
+            filters.append((date_col, ">=", convert_date(self.start_date)))
+        if self.end_date is not None:
+            filters.append((date_col, "<=", convert_date(self.end_date)))
+
+        return filters if filters else None
 
     def _agg_table_name(self: Self, table_name: str) -> str:
         """Substitute appropriate frequency in aggregated table names.
@@ -333,67 +311,22 @@ class PudlTabl:
                 table_name = table_name.replace("_AGG", "")
         return table_name
 
-    def _select_between_dates(self: Self, table: str) -> sa.sql.expression.Select:
-        """For a given table, returns an SQL query that filters by date, if specified.
-
-        Method uses the PudlTabl ``start_date`` and ``end_date`` attributes.  For EIA
-        and most other tables, it compares ``report_date`` column against start and end
-        dates.  For FERC1 ``report_year`` is used.  If neither ``report_date`` nor
-        ``report_year`` are present, no date filtering is done.
-
-        Arguments:
-            table: name of table to be called in SQL query.
-
-        Returns:
-            A SQLAlchemy select object restricting the date column (either
-            ``report_date`` or ``report_year``) to lie between ``self.start_date`` and
-            ``self.end_date`` (inclusive).
-        """
-        md = sa.MetaData()
-        md.reflect(self.pudl_engine)
-        try:
-            tbl = md.tables[f"{table}"]
-        except KeyError:
-            print(f"{table} not found in the metadata.")
-        tbl_select = sa.sql.select(tbl)
-
-        start_date = pd.to_datetime(self.start_date)
-        end_date = pd.to_datetime(self.end_date)
-
-        if "report_date" in tbl.columns:  # Date format
-            date_col = tbl.c.report_date
-        elif "report_year" in tbl.columns:  # Integer format
-            date_col = tbl.c.report_year
-            if self.start_date is not None:
-                start_date = pd.to_datetime(self.start_date).year
-            if self.end_date is not None:
-                end_date = pd.to_datetime(self.end_date).year
-        else:
-            date_col = None
-        if self.start_date and date_col is not None:
-            tbl_select = tbl_select.where(date_col >= start_date)
-        if self.end_date and date_col is not None:
-            tbl_select = tbl_select.where(date_col <= end_date)
-        return tbl_select
-
     ###########################################################################
     # Tables requiring special treatment:
     ###########################################################################
-    def gen_eia923(self: Self, update: bool = False) -> pd.DataFrame:
+    def gen_eia923(self: Self) -> pd.DataFrame:
         """Pull EIA 923 net generation data by generator.
 
         Net generation is reported in two seperate tables in EIA 923: in the
-        core_eia923__monthly_generation and core_eia923__monthly_generation_fuel tables. While the
-        core_eia923__monthly_generation_fuel table is more complete (the core_eia923__monthly_generation
-        table includes only ~55% of the reported MWhs), the core_eia923__monthly_generation
-        table is more granular (it is reported at the generator level).
+        core_eia923__monthly_generation and core_eia923__monthly_generation_fuel tables.
+        While the core_eia923__monthly_generation_fuel table is more complete (the
+        core_eia923__monthly_generation table includes only ~55% of the reported MWhs),
+        the core_eia923__monthly_generation table is more granular (it is reported at
+        the generator level).
 
-        This method either grabs the core_eia923__monthly_generation table that is reported
-        by generator, or allocates net generation from the
+        This method either grabs the core_eia923__monthly_generation table that is
+        reported by generator, or allocates net generation from the
         core_eia923__monthly_generation_fuel table to the generator level.
-
-        Args:
-            update: Ignored. Retained for backwards compatibility only.
 
         Returns:
             A denormalized generation table for interactive use.
@@ -407,19 +340,10 @@ class PudlTabl:
             table_name = self._agg_table_name(
                 "out_eia923__AGG_generation_fuel_by_generator"
             )
-            gen_df = self._get_table_from_db(table_name)
+            gen_df = self.get_table(table_name)
             resource = Resource.from_id(table_name)
             gen_df = gen_df.loc[:, resource.get_field_names()]
         else:
             table_name = self._agg_table_name("out_eia923__AGG_generation")
-            gen_df = self._get_table_from_db(table_name)
+            gen_df = self.get_table(table_name)
         return gen_df
-
-    ###########################################################################
-    # GLUE OUTPUTS
-    ###########################################################################
-    def epacamd_eia(self: Self) -> pd.DataFrame:
-        """Read the EPACAMD-EIA Crosswalk from the PUDL DB."""
-        return pd.read_sql("core_epa__assn_eia_epacamd", self.pudl_engine).pipe(
-            apply_pudl_dtypes, group="glue"
-        )

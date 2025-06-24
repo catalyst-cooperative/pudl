@@ -23,51 +23,44 @@ dbt seed
 
 To add a new table to the project, you must add it as a [dbt
 source](https://docs.getdbt.com/docs/build/sources). We've included a helper script to
-automate the process at `devtools/dbt_helper.py`.
+automate the process which is installed as the `dbt_helper` command. The script
+itself lives in `src/pudl/scripts/dbt_helper.py`
 
 ### Usage
 
-#### `add-tables`
+#### `update-tables`
 
-The first command provided by the helper script is `add-tables`. This has already been
-run for all existing tables, but may be useful when we add new tables to PUDL.
+The first command provided by the helper script is `update-tables`. It is useful
+when adding new tables or changing the schemas or row count expectations of existing
+tables.
+
+When adding new tables, the command:
 
 ```bash
-python devtools/dbt_helper.py add-tables {table_name(s)}
+dbt_helper update-tables --schema {table_name(s)}
 ```
 
-This will add a file called `dbt/models/{data_source}/{table_name}/schema.yml` for each
-table. This yaml file tells `dbt` about the table and it's schema. It will also apply
-the test `check_row_counts_per_partition`. This test works by storing row counts per
-year (or all row counts for time independent tables) in the csv files called
-`etl_fast_row_counts.csv` and `etl_full_row_counts.csv` and checking these row counts
-against the actual table.
+will add a file called `dbt/models/{data_source}/{table_name}/schema.yml` for each
+listed table. This yaml file tells `dbt` about the table and its schema. If the
+table already exists and you need to update it, you'll have to add `--clobber`
+
+It will also specify the `check_row_counts_per_partition` test. This test works by
+comparing expected row counts for partitions within a table (typically distinct
+`report_date` values) stored in `etl_fast_row_counts.csv` and `etl_full_row_counts.csv`
+against the actual row counts in the materialized tables.
+
+To update the expected row counts based on the number of rows found in existing
+materialized tables, you can run:
+
+```bash
+dbt_helper update-tables --target etl-full --row-counts {table_name(s)}
+```
 
 To see all options for this command run:
 
 ```bash
-python devtools/dbt_helper.py add-tables --help
+dbt_helper update-tables --help
 ```
-
-#### `migrate-tests`
-
-The second command in the helper script is called `migrate-tests`. This command is used
-to migrate existing `vs_bounds` tests. There are many of these tests in our existing
-validation framework, and the configuration is relatively verbose, so this script should
-be very useful for migrating these tests quickly.
-
-The basic usage of this command looks like:
-
-```bash
-python devtools/dbt_helper.py migrate-tests \
-    --test-config-name {config_variable}
-    --table-name {table_name}
-```
-
-Where `config_variable` points to a variable defined in `src/pudl/validate.py`, which
-contains a list of configuration `dict`s for the `vs_bounds` tests, and `table_name`
-refers to the table the test should be applied to. See below for an example of using
-this command.
 
 ## Adding tests
 
@@ -120,7 +113,7 @@ dbt build
 
 This command will first run any models, then execute all tests.
 
-For more finegrained control, you can use the `--select` option to only run tests
+For more fine grained control, you can use the `--select` option to only run tests
 on a specific table.
 
 To run all tests for a single source table:
@@ -150,18 +143,18 @@ maintained/updated manually in the future. For example, we can add
 docs, or add/remove columns if the table schema is changed.
 
 In the future we might migrate much of our schema/constraint testing into `dbt` as well.
-In this case the easiest approach would be to update the `dbt_helper.py` script to
+In this case the easiest approach would be to update the `dbt_helper` script to
 generate the necessary configuration from our existing metadata structures. In this
 case, we should be careful to make the script not overwrite any manual configuration
 changes that we make between now and then.
 
 ### Update row counts
 
-When we run the `add-tables` command, it generates a test for each table called
-`check_row_counts_per_partition`. This test uses row counts that are stored in csv files
-called `etl_fast_row_counts.csv` and `etl_full_row_counts.csv` and compares these counts
+When we run the `update-tables` command, it generates a test for each table called
+`check_row_counts_per_partition`. This test uses row counts that are stored in CSV files
+`etl_fast_row_counts.csv` and `etl_full_row_counts.csv` and compares these counts
 to the row counts found in the actual table when the test is run. The test partitions
-row counts by year, so there are a number of rows in these csv files for each table
+row counts by year, so there are a number of rows in these CSV files for each table
 (unless the table has no time dimension).
 
 During development row counts often change for normal and expected reasons like adding
@@ -186,89 +179,30 @@ changes seem reasonable and expected, you can manually update these files, or yo
 run the command:
 
 ```bash
-python devtools/dbt_helper.py add-tables {table_name} --target etl-full --row-counts-only --clobber --use-local-tables
+dbt_helper update-tables --target etl-full --row-counts --clobber {table_name}
 ```
 
 This will tell the helper script to overwrite the existing row counts with new row
 counts from the table in your local `PUDL_OUTPUT` stash. If you want to update the
 `etl-fast` row counts, use `--target etl-fast` instead of the default `--target etl-full`.
 
-### Test migration example
+### Debugging dbt test failures
 
-This section will walk through migrating an existing collection of validation tests. As
-an example, we'll use the tests in `test/validate/mcoe_test.py`. This file contains a
-collection of tests which use some common methods defined in `pudl/validate.py`. These
-tests are representative of many of the types of tests we're looking to migrate.
-
-### `vs_bounds` tests
-
-We'll start with a set of tests which use the `vs_bounds` method defined in
-`validate.py`. These check that a specified quantile of a numeric column is within a
-configurable set of bounds. The values to configure the quantiles and the bounds are
-defined in config `dict`'s, in `validate.py`. For example, the test,
-`test_gas_capacity_factor`, references configuration stored in the variable
-`mcoe_gas_capacity_factor`. Once we know where the configuration is stored, we need to
-identify the specific tables used in the test. This test is producing tables with the
-`PudlTabl` method `mcoe_generators`. This method returns the tables
-`out_eia__monthly_generators`, and `out_eia__yearly_generators`. To migrate these tests
-we'll first want generate `dbt` configuration for these tables.
-
-```bash
-python devtools/dbt_helper.py add-tables out_eia__monthly_generators out_eia__yearly_generators
-```
-
-This will create the files `dbt/models/output/out_eia__{AGG}_generators/schema.yml`,
-which will tell `dbt` about the table and generate row count tests. Note the exact
-format of this file might be modified by our linting tools, but this does not change
-functionality.
-
-Next, we want to update the `dbt` configuration to add tests equivalent to the
-`vs_bounds` tests. The `dbt_helper` script contains a command that can automatically
-generate this `dbt` configuration from the exisitng python config. To do this you can
-use a command like:
-
-```bash
-python devtools/dbt_helper.py migrate-tests \
-    --table-name out_eia__AGG_generators \
-    --test-config-name mcoe_gas_capacity_factor
-```
-
-This command will add the necessary tests. There is a chance that formatting could get
-messed up slightly in the translation, but will work out of the box in the general case.
-
-To see the tests generated by these commands, look to the `schema.yml` files mentioned
-above. You can also execute these tests with the following command.
-
-```bash
-dbt test --select source:pudl.out_eia__AGG_generators
-```
-
-When we run these tests, if there were errors in the
-`expect_column_weighted_quantile_values_to_be_between` due to changes in the
-distribution of the underlying data, or because they SQL based calculation isn't exactly
-the same as the Python based calculation, in say, this example test:
-
-```yaml
-- expect_column_weighted_quantile_values_to_be_between:
-  quantile: 0.65
-  max_value: 0.7
-  row_condition: fuel_type_code_pudl='gas' and report_date>=CAST('2015-01-01' AS DATE) and capacity_factor<>0.0
-  weight_column: capacity_mw
-```
-
-You debug it using `duckdb`. There are many ways to interact with
-`duckdb`, here will use the CLI. See the [here](https://duckdb.org/docs/installation/)
-for installation directions. To launch the CLI, navigate to the directory that your
-`PUDL_OUTPUT` environment variable points to, and execute:
+When a more complex test that relies on custom SQL fails, we can debug it using `duckdb`.
+There are many ways to interact with `duckdb`, here will use the CLI. See the
+[here](https://duckdb.org/docs/installation/) for installation directions. To launch the
+CLI, navigate to the directory that your `PUDL_OUTPUT` environment variable points to,
+and execute:
 
 ```bash
 duckdb pudl_dbt_tests.duckdb
 ```
 
-Now we want to execute portions of the compiled SQL produced by `dbt`. To find this,
-look at the output of the test failure, and you should see a line under the test failure
-that looks like `compiled code at {path_to_sql}`. Looking at this file, we'll pull out
-the section
+For debugging purposes, we'll often want to execute portions of the compiled SQL
+produced by `dbt`. To find this, look at the output of the test failure, and you should
+see a line under the test failure that looks like `compiled code at {path_to_sql}`.
+Looking at this file, for a failing test that looks at weighted quantiles, we might
+pull out the section:
 
 ```sql
 WITH CumulativeWeights AS (
@@ -304,47 +238,10 @@ the output:
 |-----------------------|
 |            0.82587963 |
 
-This is failing because the `max_value` is set to `0.7`. If we change this value to
-0.83, this test should now pass.
-
-### `no_null_cols` tests
-
-The method `test_no_null_cols_mcoe` in `mcoe_test.py` checks a number of tables to
-validate that there are no completely null columns. We've added a custom test to the
-`dbt` project that can accomplish this. To use this test, simply apply the
-`not_all_null` test to a column in question:
-
-```yaml
-    columns:
-    - name: report_date
-      data_tests:
-      - not_all_null
-```
-
-See `dbt/models/_out_eia__monthly_heat_rate_by_unit/schema.yml` for specific examples.
-
-Note: there is also a builtin test in `dbt` called `not_null` that will make sure
-there are no null values at all in a column.
-
-### `no_null_rows` tests
-
-The method `test_no_null_rows_mcoe` in `mcoe_test.py` checks a number of tables to
-validate that there are no completely null rows. We've added a custom test
-to the `dbt` project that can accomplish this. To use this test, simply apply the
-`no_null_rows` test to a table:
-
-```yaml
-version: 2
-sources:
-  - name: pudl
-    tables:
-      - name: _out_eia__monthly_derived_generator_attributes
-        data_tests:
-          - no_null_rows
-```
-
-See `dbt/models/_out_eia__monthly_derived_generator_attributes/schema.yml` for
-a specific example.
+This is failing because the `max_value` is set to `0.65`. If we change this value to
+0.83, this test should now pass (though if this is an unexpected change in the
+capacity factor, you would want to investigate why it changed before updating the
+test threshold!)
 
 ### `bespoke` tests
 
@@ -354,12 +251,13 @@ tests can also potentially make use of builtin tests provided by `dbt_expectatio
 `dbt_utils`, and `dbt` itself.
 
 For an example, we'll demonstrate migrating the test `test_idle_capacity`. This
-test is applied to the `out_eia__{freq}_generators` tables. Because this test is applied
-to two different tables, we'll define it as a
-[generic data test](https://docs.getdbt.com/docs/build/data-tests#generic-data-tests).
-This allows us to reuse a single test on both tables. If this test was only used
-on a single table, we could create a
-[singular data test](https://docs.getdbt.com/docs/build/data-tests#singular-data-tests).
+test is applied to the `out_eia__{freq}_generators` tables (where `freq` can be
+yearly or monthly). Because this test is applied to two different tables, we'll define
+it as a [generic data
+test](https://docs.getdbt.com/docs/build/data-tests#generic-data-tests). This allows us
+to reuse a single test on both tables. If this test was only used on a single table, we
+could create a [singular data
+test](https://docs.getdbt.com/docs/build/data-tests#singular-data-tests).
 
 To create a new generic test, we will add a new file called `dbt/macros/test_idle_capacity.sql`.
 Then, we develop a SQL query to mimic the behavior of the original test. For details

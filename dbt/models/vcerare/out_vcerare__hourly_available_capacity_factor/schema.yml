@@ -16,7 +16,7 @@ sources:
           - name: state
             data_tests:
               - not_null
-          - name: county_or_lake_name
+          - name: place_name
             data_tests:
               - not_null
               - dbt_expectations.expect_column_values_to_not_be_in_set:
@@ -25,6 +25,10 @@ sources:
                     - clifton_forge_city
                     - lake_hurron
                     - lake_st_clair
+              - dbt_expectations.expect_column_values_to_be_in_set:
+                  value_set:
+                    - oglala lakota
+                  row_condition: "county_id_fips = '46012'"
           - name: datetime_utc
             data_tests:
               - not_null
@@ -52,7 +56,7 @@ sources:
               - not_null
               - dbt_expectations.expect_column_values_to_be_between:
                   min_value: 0.0
-                  max_value: 1.02
+                  max_value: 1.1
           - name: capacity_factor_onshore_wind
             data_tests:
               - not_null

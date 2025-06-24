@@ -2,25 +2,22 @@ import unittest
 from collections import namedtuple
 from dataclasses import dataclass
 from io import StringIO
-from pathlib import Path
 
 import pytest
+from deepdiff import DeepDiff
 
 from pudl.scripts.dbt_helper import (
     DbtColumn,
     DbtSchema,
     DbtSource,
     DbtTable,
-    _clean_row_condition,
-    _convert_config_variable_to_quantile_tests,
-    _generate_quantile_bounds_test,
-    _get_config,
     _get_local_table_path,
     _get_model_path,
     _get_row_count_csv_path,
     _infer_partition_column,
+    _schema_diff_summary,
     get_data_source,
-    migrate_tests,
+    schema_has_removals_or_modifications,
 )
 
 TEMPLATE = {
@@ -181,28 +178,6 @@ GENERATE_QUANTILE_BOUNDS = [
         ],
     ),
 ]
-
-
-@pytest.mark.parametrize(
-    "test_config,expected",
-    GENERATE_QUANTILE_BOUNDS,
-)
-def test__generate_quantile_bounds_test(test_config, expected):
-    actual = _generate_quantile_bounds_test(test_config)
-    assert actual == expected
-
-
-@pytest.mark.parametrize(
-    "row_condition,expected",
-    [
-        ("'0000-00-00'", "CAST('0000-00-00' AS DATE)"),
-        ("x == 0", "x = 0"),
-        ("x != 0", "x <> 0"),
-    ],
-)
-def test__clean_row_condition(row_condition, expected):
-    actual = _clean_row_condition(row_condition)
-    assert actual == expected
 
 
 @dataclass
@@ -423,17 +398,6 @@ QUANTILE_TESTS = [
 ]
 
 
-@pytest.mark.parametrize(
-    "config,expected",
-    QUANTILE_TESTS,
-)
-def test__convert_config_variable_to_quantile_tests(mocker, config, expected):
-    mock_get_config = mocker.patch("pudl.scripts.dbt_helper._get_config")
-    mock_get_config.return_value = config
-    actual = _convert_config_variable_to_quantile_tests("")
-    assert actual == expected
-
-
 @pytest.fixture
 def blank_schema():
     return DbtSchema(
@@ -545,17 +509,137 @@ def test_dbt_schema__add_column_tests(mocker, blank_schema):
     )
 
 
-def test_migrate_tests_dne(mocker):
-    mocker.patch("pudl.scripts.dbt_helper._get_model_path", return_value=Path("/xyzzy"))
-    mocker.patch("pudl.scripts.dbt_helper.get_data_source")
-    with pytest.raises(RuntimeError):
-        migrate_tests("", "", "")
+@pytest.mark.parametrize(
+    "diff, expected",
+    [
+        pytest.param(
+            {"dictionary_item_added": {"root['description']"}}, False, id="Add only"
+        ),
+        pytest.param(
+            {
+                "values_changed": {
+                    "root['description']": {"old_value": "x", "new_value": "y"}
+                }
+            },
+            True,
+            id="Scalar mod",
+        ),
+        pytest.param(
+            {"dictionary_item_removed": {"root['columns']['col_a']"}},
+            True,
+            id="Removed column",
+        ),
+        pytest.param(
+            {
+                "values_changed": {
+                    "root['columns']['col_b']['tags']": {
+                        "old_value": ["a"],
+                        "new_value": ["b"],
+                    }
+                }
+            },
+            True,
+            id="Nested mod",
+        ),
+        pytest.param({}, False, id="Empty"),
+        pytest.param(
+            {"dictionary_item_added": {"root['meta']['notes']"}},
+            False,
+            id="Add in nested key",
+        ),
+        pytest.param(
+            {
+                "values_changed": {
+                    "root['meta']['notes']": {"old_value": "foo", "new_value": "bar"}
+                }
+            },
+            True,
+            id="Nested old",
+        ),
+    ],
+)
+def test_schema_has_removals_or_modifications(diff, expected):
+    assert schema_has_removals_or_modifications(diff) == expected
 
 
-def test__get_config(mocker):
-    mocker.patch(
-        "pudl.scripts.dbt_helper.validate",
-        test_config_variable=mocker.sentinel.test_config_variable,
+def test_complex_schema_diff_output(capsys):
+    old_schema = DbtSchema(
+        version=1,
+        sources=[
+            DbtSource(
+                name="source1",
+                tables=[
+                    DbtTable(
+                        name="table1",
+                        description="desc",
+                        columns=[],
+                    )
+                ],
+            )
+        ],
+        models=[
+            DbtTable(name="model1", description="old", columns=[]),
+        ],
     )
-    actual = _get_config("test_config_variable")
-    assert actual == mocker.sentinel.test_config_variable
+
+    new_schema = DbtSchema(
+        version=2,
+        sources=[
+            DbtSource(
+                name="source1",
+                tables=[
+                    DbtTable(
+                        name="table1",
+                        description="updated",
+                        columns=[],
+                    )
+                ],
+            ),
+            DbtSource(
+                name="source2",
+                tables=[
+                    DbtTable(
+                        name="new_table",
+                        description="new",
+                        columns=[],
+                    )
+                ],
+            ),
+        ],
+        models=[
+            DbtTable(name="model1", description="new", columns=[]),
+            DbtTable(name="model2", description="added", columns=[]),
+        ],
+    )
+
+    diff = DeepDiff(
+        old_schema.model_dump(exclude_none=True),
+        new_schema.model_dump(exclude_none=True),
+        ignore_order=True,
+    )
+    output = _schema_diff_summary(diff)
+
+    # Version change
+    assert "version" in output, output
+    assert "'old_value': 1" in output, output
+    assert "'new_value': 2" in output, output
+
+    # source1 table1 description update
+    assert "source1" in output, output
+    assert "table1" in output, output
+    assert "'description': 'desc'" in output, output
+    assert "'description': 'updated'" in output, output
+
+    # Added source2 and new_table
+    assert "source2" in output, output
+    assert "new_table" in output, output
+    assert "'description': 'new'" in output, output
+
+    # model1 description update
+    assert "model1" in output, output
+    assert "'description': 'old'" in output, output
+    assert "'description': 'new'" in output, output
+
+    # model2 addition
+    assert "model2" in output, output
+    assert "'description': 'added'" in output, output
