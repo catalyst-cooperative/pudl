@@ -556,13 +556,15 @@ def make_subplant_ids(crosswalk: pd.DataFrame) -> pd.DataFrame:
 
     Usage Example:
 
-    epacems = pudl.output.epacems.epacems(states=['ID']) # small subset for quick test
-    core_epa__assn_eia_epacamd = pudl.helpers.get_parquet_table("core_epa__assn_eia_epacamd")
-    filtered_crosswalk = pudl.analysis.epacamd_eia.filter_crosswalk(core_epa__assn_eia_epacamd, epacems)
-    crosswalk_with_subplant_ids = make_subplant_ids(filtered_crosswalk)
+    .. code-block:: python
 
-    Note that sub-plant ids should be used in conjunction with `plant_id_eia` vs.
-    `plant_id_epa` because the former is more granular and integrated into CEMS during
+       epacems = pudl.output.epacems.epacems(states=['ID'])
+       core_epa__assn_eia_epacamd = pudl.helpers.get_parquet_table("core_epa__assn_eia_epacamd")
+       filtered_crosswalk = pudl.analysis.epacamd_eia.filter_crosswalk(core_epa__assn_eia_epacamd, epacems)
+       crosswalk_with_subplant_ids = make_subplant_ids(filtered_crosswalk)
+
+    Note that sub-plant ids should be used in conjunction with ``plant_id_eia`` vs.
+    ``plant_id_epa`` because the former is more granular and integrated into CEMS during
     the transform process.
 
     Args:
@@ -599,7 +601,8 @@ def update_subplant_ids(subplant_crosswalk: pd.DataFrame) -> pd.DataFrame:
     #.  All of the new unique ids are renumbered in consecutive ascending order
 
     Args:
-        subplant_crosswalk: a dataframe containing the output of :func:`make_subplant_ids`
+        subplant_crosswalk: a dataframe containing the output of
+        :func:`make_subplant_ids`
     """
     # Step 1: Create corrected versions of subplant_id and unit_id_pudl
     # if multiple unit_id_pudl are connected by a single subplant_id,
@@ -641,12 +644,13 @@ def connect_ids(
 ) -> pd.DataFrame:
     """Corrects an id value if it is connected by an id value in another column.
 
-    If multiple subplant_id are connected by a single unit_id_pudl, this groups these
-    subplant_id together. If multiple unit_id_pudl are connected by a single subplant_id,
-    this groups these unit_id_pudl together.
+    If multiple ``subplant_id`` are connected by a single ``unit_id_pudl``, this groups
+    these ``subplant_id`` together. If multiple ``unit_id_pudl`` are connected by a
+    single ``subplant_id``, this groups these ``unit_id_pudl`` together.
 
     Args:
-        subplant_crosswalk: dataframe containing columns of id_to_update andconnecting_id
+        subplant_crosswalk: dataframe containing columns of id_to_update
+            andconnecting_id
         id_to_update: List of ID columns
         connecting_id: ID column
     """
@@ -655,13 +659,15 @@ def connect_ids(
         ["plant_id_eia", "subplant_id", "unit_id_pudl"]
     ].drop_duplicates()
 
-    # identify if any non-NA id_to_update are duplicated, indicated that it is associated with multiple connecting_id
+    # identify if any non-NA id_to_update are duplicated, indicated that it is
+    # associated with multiple connecting_id
     duplicates = subplant_unit_pairs[
         (subplant_unit_pairs.duplicated(subset=id_to_update, keep=False))
         & (~subplant_unit_pairs[id_to_update].isna())
     ].copy()
 
-    # if there are any duplicate units, indicating an incorrect id_to_update, fix the id_to_update
+    # if there are any duplicate units, indicating an incorrect id_to_update, fix the
+    # id_to_update
     subplant_crosswalk[f"{connecting_id}_connected"] = subplant_crosswalk[connecting_id]
     if len(duplicates) > 0:
         # find the lowest number subplant id associated with each duplicated unit_id_pudl
@@ -670,7 +676,8 @@ def connect_ids(
             .min()
             .iloc[0]
         )
-        # merge this replacement subplant_id into the dataframe and use it to update the existing subplant id
+        # merge this replacement subplant_id into the dataframe and use it to update the
+        # existing subplant id
         subplant_crosswalk = subplant_crosswalk.merge(
             duplicates,
             how="left",
@@ -687,7 +694,7 @@ def manually_update_subplant_id(subplant_crosswalk: pd.DataFrame) -> pd.DataFram
     """Mannually update the subplant_id for ``plant_id_eia`` 1391.
 
     This function lumps all records within ``plant_id_eia`` 1391 into the same
-    ``subplant_id`` group. See `comment<https://github.com/singularity-energy/open-grid-emissions/pull/142#issuecomment-1186579260>_`
+    ``subplant_id`` group. See `comment <https://github.com/singularity-energy/open-grid-emissions/pull/142#issuecomment-1186579260>_`
     for expanation of why.
     """
     # set all generators in plant 1391 to the same subplant

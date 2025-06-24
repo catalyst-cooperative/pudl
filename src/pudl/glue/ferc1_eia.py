@@ -544,11 +544,11 @@ def glue(ferc1: bool = False, eia: bool = False):
     plants in FERC1.
 
     Args:
-        ferc1 (bool): Are we ingesting FERC Form 1 data?
-        eia (bool): Are we ingesting EIA data?
+        ferc1: Are we ingesting FERC Form 1 data?
+        eia: Are we ingesting EIA data?
 
     Returns:
-        dict: a dictionary of glue table DataFrames
+        A dictionary of glue table DataFrames.
     """
     # ferc glue tables are structurally entity tables w/ foreign key
     # relationships to ferc datatables, so we need some of the eia/ferc 'glue'

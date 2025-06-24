@@ -67,7 +67,7 @@ class InputManager:
 
         This method merges two internally cached dataframes (``self.plants_all_ferc1``
         and ``self.fuel_by_plant_ferc1`` (originally obtained from
-        ref:`out_ferc1__yearly_all_plants` and
+        :ref:`out_ferc1__yearly_all_plants` and
         :ref:`out_ferc1__yearly_steam_plants_fuel_by_plant_sched402`) respectively) and
         ensures that key columns are have the same names and dtypes as the analogous
         EIA columns so that they can be used in the FERC-EIA record linkage model

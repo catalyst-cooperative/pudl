@@ -1376,7 +1376,7 @@ def make_parts_to_ids_dict() -> dict[str, Any]:
     plant_id_eia column is always first, so we're going to grab the last column.
 
     Returns:
-        Dictionary iwth plant-part names (keys) corresponding to the main ID column
+        Dictionary with plant-part names (keys) corresponding to the main ID column
         (value).
     """
     parts_to_ids = {}
