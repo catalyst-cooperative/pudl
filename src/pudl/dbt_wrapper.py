@@ -58,7 +58,11 @@ class BuildResult(NamedTuple):
         return "\n=====\n".join(ctx.pretty_print() for ctx in self.failure_contexts)
 
 
-def build_with_context(node_selection: str, dbt_target: str) -> BuildResult:
+def build_with_context(
+    node_selection: str,
+    dbt_target: str,
+    node_exclusion: str | None = None,
+) -> BuildResult:
     """Run the DBT build and get failure information back.
 
     * run the DBT build using our selection, returning test failures
@@ -66,6 +70,8 @@ def build_with_context(node_selection: str, dbt_target: str) -> BuildResult:
     * print out test failure context
     """
     cli_args = ["--target", dbt_target, "--select", node_selection]
+    if node_exclusion is not None:
+        cli_args += ["--exclude", node_exclusion]
     dbt = dbtRunner()
     dbt_dir = PUDL_ROOT_PATH / "dbt"
 

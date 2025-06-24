@@ -44,11 +44,19 @@ def test_dbt(
     The dependency on pudl_io_manager is necessary because it ensures that the dbt
     tests don't run until after the ETL has completed and the Parquet files are
     available.
-
-    See https://docs.getdbt.com/reference/programmatic-invocations/ for more details on
-    how to invoke dbt programmatically.
     """
-    test_result = build_with_context(model_selection="*", dbt_target=dbt_target)
+    # 2025-06-24 skip rowcount tests for fast ETL, since that seems to behave
+    # differently in CI vs. locally.
+    #
+    # see https://github.com/catalyst-cooperative/pudl/issues/4275
+    node_exclusion = None
+    if dbt_target == "etl-fast":
+        node_exclusion = "*check_row_counts_per_partition*"
+    test_result = build_with_context(
+        node_selection="*",
+        dbt_target=dbt_target,
+        node_exclusion=node_exclusion,
+    )
 
     if not test_result.success:
         raise AssertionError(

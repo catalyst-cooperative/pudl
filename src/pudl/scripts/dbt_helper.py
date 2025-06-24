@@ -505,18 +505,29 @@ def update_tables(
     "--select", default="*", help="DBT selector for the asset(s) you want to validate."
 )
 @click.option(
+    "--exclude",
+    default="*",
+    help="DBT selector for the asset(s) you want to exclude from validation.",
+)
+@click.option(
     "--target",
     default="etl-full",
     type=click.Choice(["etl-full", "etl-fast"]),
     help="DBT target - etl-full (default) or etl-fast.",
 )
-def validate(select: str = "*", target: str = "etl-full") -> None:
+def validate(
+    select: str = "*", exclude: str | None = None, target: str = "etl-full"
+) -> None:
     """Validate a selection of DBT nodes.
 
     Wraps the ``dbt build`` command line so we can annotate the result with the
     actual data that was returned from the test query.
     """
-    test_result = build_with_context(model_selection=select, dbt_target=target)
+    test_result = build_with_context(
+        node_selection=select,
+        dbt_target=target,
+        node_exclusion=exclude,
+    )
 
     if not test_result.success:
         raise AssertionError(
