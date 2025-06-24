@@ -103,6 +103,7 @@ def test_dbt_helper(
             dbt_target,
             "--row-counts",
             # Uncomment once we have schema-preserving updates
+            # And are also outputting prettier compatible YAML
             # "--schema",
             "all",
         ],

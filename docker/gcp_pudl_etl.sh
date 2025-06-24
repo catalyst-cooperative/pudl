@@ -254,6 +254,9 @@ ETL_SUCCESS=${PIPESTATUS[0]}
 write_pudl_datapackage 2>&1 | tee -a "$LOGFILE"
 WRITE_DATAPACKAGE_SUCCESS=${PIPESTATUS[0]}
 
+# Generate new row counts for all tables in the PUDL database
+dbt_helper update-tables --clobber --row-counts all 2>&1 | tee -a "$LOGFILE"
+
 # This needs to happen regardless of the ETL outcome:
 pg_ctlcluster "$PG_VERSION" dagster stop 2>&1 | tee -a "$LOGFILE"
 
