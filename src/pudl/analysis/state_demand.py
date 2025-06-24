@@ -21,9 +21,6 @@ import geopandas as gpd
 import pandas as pd
 from dagster import Field, asset
 
-# For some reason this unused import prevents a circular import
-# We are removing PudlTabl shortly so this should be resolved then.
-import pudl.output.pudltabl  # noqa: F401
 from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
 
 # --- Constants --- #
