@@ -1,12 +1,9 @@
 import logging
-import os
-import shutil
-from contextlib import chdir
 from pathlib import Path
 
 import pytest
-from dbt.cli.main import dbtRunner, dbtRunnerResult
 
+from pudl.dbt_wrapper import build_with_context
 from pudl.io_managers import PudlMixedFormatIOManager
 
 logger = logging.getLogger(__name__)
@@ -47,44 +44,28 @@ def test_dbt(
     The dependency on pudl_io_manager is necessary because it ensures that the dbt
     tests don't run until after the ETL has completed and the Parquet files are
     available.
-
-    See https://docs.getdbt.com/reference/programmatic-invocations/ for more details on
-    how to invoke dbt programmatically.
     """
+    # 2025-06-24 skip rowcount tests for fast ETL, since that seems to behave
+    # differently in CI vs. locally.
+    #
+    # see https://github.com/catalyst-cooperative/pudl/issues/4275
+    node_exclusion = None
+    if dbt_target == "etl-fast":
+        node_exclusion = "*check_row_counts_per_partition*"
+    test_result = build_with_context(
+        node_selection="*",
+        dbt_target=dbt_target,
+        node_exclusion=node_exclusion,
+    )
 
-    # NOTE 2025-03-14: running this with more threads was causing segfaults
-    logger.info("Initializing dbt test runner")
-    dbt = dbtRunner()
-    cli_args = [
-        "--store-failures",
-        "--threads",
-        "1",
-        "--target",
-        dbt_target,
-        "--exclude",  # this is a temporary workaround for these tests failing the CI but passing locally
-        "test_row_counts*",
-    ]
-
-    # Change to the dbt directory so we can run dbt commands
-    with chdir(test_dir.parent / "dbt"):
-        _ = dbt.invoke(["deps"])
-        _ = dbt.invoke(["seed"])
-        _ = dbt.invoke(["build"] + cli_args)
-        test_result: dbtRunnerResult = dbt.invoke(["test"] + cli_args)
-
-    # copy the output database to a known location if we are in CI
-    # so it can be uploaded as an artifact
-    if os.getenv("GITHUB_ACTIONS", False):
-        db_path = Path(os.environ["PUDL_OUTPUT"]) / "pudl_dbt_tests.duckdb"
-        if db_path.exists():
-            logger.info("PUDL dbt tests DB exists.")
-            shutil.move(db_path, test_dir.parent / "pudl_dbt_tests.duckdb")
-
-    assert test_result.success
+    if not test_result.success:
+        raise AssertionError(
+            f"failure contexts:\n{test_result.format_failure_contexts()}"
+        )
 
 
 @pytest.mark.script_launch_mode("inprocess")
-def test_dbt_helper(
+def test_update_tables(
     pudl_io_manager: PudlMixedFormatIOManager,
     dbt_target: str,
     script_runner,

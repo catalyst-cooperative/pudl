@@ -1518,8 +1518,11 @@ def distribute_annually_reported_data_to_months_if_annual(
     ``core_eia860__scd_plants`` table). See Issue #1933.
 
     Args:
-        df: a pandas dataframe, either loaded from pudl_out.gen_original_eia923() or
-            pudl_out.bf_eia923()
+        df: A dataframe of either generation or boiler-fuel data, loaded from
+            :ref:`out_eia923__monthly_generation` or
+            :ref:`out_eia923__yearly_generation` and
+            :ref:`out_eia923__monthly_boiler_fuel` or
+            :ref:`out_eia923__yearly_boiler_fuel` or respectively.
         key_columns: a list of the primary key column names, either
             ``["plant_id_eia","boiler_id","energy_source_code"]`` or
             ``["plant_id_eia","generator_id"]``
@@ -1528,7 +1531,8 @@ def distribute_annually_reported_data_to_months_if_annual(
         freq: frequency of input df. Must be either ``YS`` or ``MS``.
 
     Returns:
-        df with the annually reported values allocated to each month
+        Dataframe with the annually reported generation or fuel consumption values
+        allocated to each month.
     """
     if freq == "MS":
 

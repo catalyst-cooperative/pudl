@@ -121,7 +121,7 @@ datastore instead by using our custom ``--tmp-data`` with ``pytest``:
     * :doc:`datastore` for more on how to work with the datastore in general.
 
 -------------------------------------------------------------------------------
-Data Validation
+Data Validation Tests
 -------------------------------------------------------------------------------
 Given the processed outputs of the PUDL ETL pipeline, we have a collection of
 tests that can be run to verify that the outputs look correct. We run all
@@ -157,16 +157,6 @@ the build outputs that are uploaded to
 ``gs://builds.catalyst.coop/<build-id>/etl_full_row_counts.csv`` once the build has
 completed. See the :doc:`nightly_data_builds` documentation for more details on the
 nightly builds.
-
-Data Validation Notebooks
-^^^^^^^^^^^^^^^^^^^^^^^^^
-We have a collection of Jupyter Notebooks that run the same functions as the
-data validation. The notebooks also produce some visualizations of the data
-to make it easier to understand what's wrong when validation fails. These
-notebooks are stored in ``test/validate/notebooks``
-
-Like the data validations, the notebooks will only run successfully when
-there's a full PUDL SQLite database available in your PUDL workspace.
 
 -------------------------------------------------------------------------------
 Running pytest Directly
