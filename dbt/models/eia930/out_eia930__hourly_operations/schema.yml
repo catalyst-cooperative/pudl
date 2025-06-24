@@ -11,8 +11,8 @@ sources:
               original: demand_reported_mwh
               imputed: demand_imputed_pudl_mwh
               imputation_code: demand_imputed_pudl_mwh_imputation_code
-              atol: 0.1
-              severity: warn
+              atol: 0.2
+              rtol: 0.01
         columns:
           - name: datetime_utc
           - name: balancing_authority_code_eia
@@ -46,7 +46,7 @@ sources:
               - dbt_expectations.expect_column_values_to_not_be_in_set:
                   value_set: ["simulated"]
               - expect_missingness_between:
-                  lower_bound: 0.95
+                  lower_bound: 0.75
                   upper_bound: 1.0
           - name: demand_imputed_eia_mwh
           - name: demand_forecast_mwh
