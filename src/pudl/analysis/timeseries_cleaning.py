@@ -1575,13 +1575,21 @@ def impute_flagged_values(
         # and having only one record
         if year in years:
             logger.info(f"Imputing year {year}")
-            keep = df.columns[~gdf.isnull().all()]
+
+            # Drop completely empty columns and impute
+            blank = df.columns[gdf.isnull().all()]
+            logger.info(
+                f"Dropping following respondents from {year} imputation: {blank}"
+            )
             result = impute(
-                gdf[keep],
+                gdf.drop(columns=blank),
                 method=method[year],
                 periods=periods,
                 blocks=blocks,
             )
+
+            # Add empty columns back and save result
+            result[blank] = np.nan
             results.append(result)
     return pd.concat(results)
 
@@ -1969,15 +1977,6 @@ def impute_timeseries_asset_factory(  # noqa: C901
     ):
         """Flag/Null anomalous and missing values."""
         matrix, flags = flag_ruggles(matrix)
-
-        # Find respondents that are missing all data
-        blank = matrix.columns[matrix.isnull().all()].tolist()
-
-        # Drop missing respondents from timeseries matrix/flag matrix
-        matrix = matrix.drop(columns=blank)
-        flags = flags.drop(columns=blank)
-        # Report dropped respondents (with no data)
-        logger.info(f"Dropped blank respondents: {blank}")
 
         return (
             Output(
