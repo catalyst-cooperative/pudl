@@ -36,10 +36,10 @@ from dagster import AssetIn, Definitions, JobDefinition, asset, define_asset_job
 
 import pudl
 from pudl.extract.ferc1 import raw_ferc1_assets, raw_ferc1_xbrl__metadata_json
-from pudl.helpers import simplify_strings
+from pudl.helpers import get_parquet_table, simplify_strings
 from pudl.io_managers import ferc1_dbf_sqlite_io_manager, ferc1_xbrl_sqlite_io_manager
+from pudl.metadata.classes import Package
 from pudl.metadata.fields import apply_pudl_dtypes
-from pudl.output.pudltabl import PudlTabl
 from pudl.resources import dataset_settings
 from pudl.transform.classes import StringNormalization, normalize_strings_multicol
 from pudl.transform.ferc1 import (
@@ -358,18 +358,21 @@ def label_missing_ids_for_manual_mapping(
     return label_df.set_index(missing_ids.name or missing_ids.names).loc[missing_ids]
 
 
-def label_plants_eia(pudl_out: PudlTabl) -> pd.DataFrame:
+def label_plants_eia(
+    out_eia__yearly_plants: pd.DataFrame,
+    out_eia__yearly_generators: pd.DataFrame,
+) -> pd.DataFrame:
     """Label plants with columns helpful in manual mapping."""
-    plants = pudl_out.plants_eia860()
     # generator table for capacity
     plant_capacity = (
-        pudl_out.gens_eia860()
-        .groupby(["plant_id_eia", "report_date"], as_index=False)[["capacity_mw"]]
+        out_eia__yearly_generators.groupby(
+            ["plant_id_eia", "report_date"], as_index=False
+        )[["capacity_mw"]]
         .sum(min_count=1)
         .pipe(apply_pudl_dtypes, group="eia")
     )
     plants_w_capacity = (
-        plants.merge(
+        out_eia__yearly_plants.merge(
             plant_capacity,
             on=["plant_id_eia", "report_date"],
             how="outer",
@@ -414,14 +417,12 @@ def label_utilities_ferc1_xbrl(
     )
 
 
-def get_utility_most_recent_capacity(pudl_engine: sa.Engine) -> pd.DataFrame:
+def get_utility_most_recent_capacity() -> pd.DataFrame:
     """Calculate total generation capacity by utility in most recent reported year."""
-    gen_caps = pd.read_sql(
-        "SELECT utility_id_eia, capacity_mw, report_date FROM core_eia860__scd_generators",
-        con=pudl_engine,
-        parse_dates=["report_date"],
+    gen_caps = get_parquet_table(
+        "core_eia860__scd_generators",
+        columns=["utility_id_eia", "capacity_mw", "report_date"],
     )
-    gen_caps["utility_id_eia"] = gen_caps["utility_id_eia"].astype("Int64")
 
     most_recent_gens_idx = (
         gen_caps.groupby("utility_id_eia")["report_date"].transform("max")
@@ -432,26 +433,26 @@ def get_utility_most_recent_capacity(pudl_engine: sa.Engine) -> pd.DataFrame:
     return utility_caps
 
 
-def get_plants_ids_eia923(pudl_out: PudlTabl) -> pd.DataFrame:
-    """Get a list of plant_id_eia's that show up in EIA 923 tables."""
-    pudl_out_methods_eia923 = [
-        method_name
-        for method_name in dir(pudl_out)
-        if callable(getattr(pudl_out, method_name))
-        and "_eia923" in method_name
-        and "gen_fuel_by_generator" not in method_name
+def get_core_eia923_plant_ids():
+    """Compile Plant IDs for all plants that appear in core EIA-923 tables."""
+    pudl_pkg = Package.from_resource_ids()
+    core_eia923_plants = [
+        r.name
+        for r in pudl_pkg.resources
+        if "core_eia923" in r.name
+        and "plant_id_eia" in [field.name for field in r.schema.fields]
     ]
-    list_of_plant_ids = []
-    for eia923_meth in pudl_out_methods_eia923:
-        new_ids = getattr(pudl_out, eia923_meth)()[["plant_id_eia"]]
-        list_of_plant_ids.append(new_ids)
-    plant_ids_in_eia923 = pd.concat(list_of_plant_ids).drop_duplicates()
-    return plant_ids_in_eia923
+    all_plant_ids = set()
+    for table in core_eia923_plants:
+        all_plant_ids.update(
+            get_parquet_table(table, columns=["plant_id_eia"])["plant_id_eia"].unique()
+        )
+    return all_plant_ids
 
 
 def get_util_ids_eia_unmapped(
-    pudl_out: PudlTabl,
-    pudl_engine: sa.Engine,
+    out_eia__yearly_utilities: pd.DataFrame,
+    out_eia__yearly_generators: pd.DataFrame,
     utilities_eia_mapped: pd.DataFrame,
 ) -> pd.DataFrame:
     """Get a list of all the EIA Utilities in the PUDL DB without PUDL IDs.
@@ -464,7 +465,7 @@ def get_util_ids_eia_unmapped(
     plants and include that in the output dataframe so that we can effectively
     prioritize mapping them.
     """
-    utilities_eia_db = pudl_out.utils_eia860()[
+    utilities_eia_db = out_eia__yearly_utilities[
         ["utility_id_eia", "utility_name_eia"]
     ].drop_duplicates(["utility_id_eia"])
     unmapped_utils_eia_index = get_missing_ids(
@@ -474,7 +475,7 @@ def get_util_ids_eia_unmapped(
     # Get the most recent total capacity for the unmapped utils.
     utilities_eia_db = utilities_eia_db.set_index(["utility_id_eia"])
     unmapped_utils_eia = utilities_eia_db.loc[unmapped_utils_eia_index]
-    util_recent_cap = get_utility_most_recent_capacity(pudl_engine)
+    util_recent_cap = get_utility_most_recent_capacity()
 
     unmapped_utils_eia = pd.merge(
         unmapped_utils_eia,
@@ -484,22 +485,21 @@ def get_util_ids_eia_unmapped(
         how="left",
     )
 
-    plant_ids_in_eia923 = get_plants_ids_eia923(pudl_out=pudl_out)
+    plant_ids_in_eia923 = get_core_eia923_plant_ids()
     utils_with_plants = (
-        pudl_out.gens_eia860()
-        .loc[:, ["utility_id_eia", "plant_id_eia"]]
+        out_eia__yearly_generators.loc[:, ["utility_id_eia", "plant_id_eia"]]
         .drop_duplicates()
         .dropna()
     )
     utils_with_data_in_eia923 = utils_with_plants.loc[
-        utils_with_plants.plant_id_eia.isin(plant_ids_in_eia923), "utility_id_eia"
+        utils_with_plants["plant_id_eia"].isin(plant_ids_in_eia923), "utility_id_eia"
     ].to_frame()
 
     # Most unmapped utilities have no EIA 923 data and so don't need to be linked:
     unmapped_utils_eia["link_to_ferc1"] = False
     # Any utility ID that's both unmapped and has EIA 923 data should get linked:
     idx_to_link = unmapped_utils_eia.index.intersection(
-        utils_with_data_in_eia923.utility_id_eia
+        utils_with_data_in_eia923["utility_id_eia"]
     )
     unmapped_utils_eia.loc[idx_to_link, "link_to_ferc1"] = True
 
@@ -544,11 +544,11 @@ def glue(ferc1: bool = False, eia: bool = False):
     plants in FERC1.
 
     Args:
-        ferc1 (bool): Are we ingesting FERC Form 1 data?
-        eia (bool): Are we ingesting EIA data?
+        ferc1: Are we ingesting FERC Form 1 data?
+        eia: Are we ingesting EIA data?
 
     Returns:
-        dict: a dictionary of glue table DataFrames
+        A dictionary of glue table DataFrames.
     """
     # ferc glue tables are structurally entity tables w/ foreign key
     # relationships to ferc datatables, so we need some of the eia/ferc 'glue'

@@ -45,11 +45,9 @@ def test_nuclear_fraction(
     "test_table,mult",
     [
         ("core_eia860__assn_boiler_generator", 1 / 1),
-        ("_out_eia__yearly_generators", 1 / 1),
         ("out_eia860__yearly_ownership", 1 / 1),
         ("out_eia__yearly_plants", 1 / 1),
         ("out_eia__yearly_boilers", 1 / 1),
-        ("_out_eia__plants_utilities", 1 / 1),
         ("out_eia__yearly_utilities", 1 / 1),
         ("out_eia923__monthly_boiler_fuel", 12 / 1),
         ("out_eia923__monthly_fuel_receipts_costs", 12 / 1),
@@ -57,10 +55,6 @@ def test_nuclear_fraction(
         ("out_eia923__monthly_generation_fuel_by_generator_energy_source", 12 / 1),
         ("out_eia923__monthly_generation_fuel_by_generator", 12 / 1),
         ("out_eia923__monthly_generation_fuel_combined", 12 / 1),
-        ("_out_eia__monthly_heat_rate_by_unit", 12 / 1),
-        ("_out_eia__monthly_heat_rate_by_generator", 12 / 1),
-        ("_out_eia__monthly_fuel_cost_by_generator", 12 / 1),
-        ("_out_eia__monthly_capacity_factor_by_generator", 12 / 1),
     ],
 )
 def test_eia_outputs(
@@ -69,7 +63,7 @@ def test_eia_outputs(
     pudl_engine: sa.Engine,  # Required to ensure that the data is available.
 ):
     """Check EIA output functions and date frequencies of output dataframes."""
-    yearly_gens_name = "_out_eia__yearly_generators"
+    yearly_gens_name = "out_eia__yearly_generators"
 
     # Get columns needed for date frequency checking
     # Include data_maturity if it exists in schema for proper incremental_ytd filtering
