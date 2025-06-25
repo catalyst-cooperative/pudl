@@ -62,6 +62,20 @@ To see all options for this command run:
 dbt_helper update-tables --help
 ```
 
+#### `validate`
+
+If you want to check if a materialized asset passes the validation tests defined in DBT, you can use `dbt_helper validate`. You can pass in the `--select` parameter to filter to a specific set of validation tests, and `--target` to set the DBT target.
+
+This will run the associated tests, then print out the test query output so you can see what went wrong.
+
+Example usage:
+
+```bash
+dbt_helper validate --select "source:pudl_dbt.pudl.out_eia__yearly_generators"
+```
+
+See [official selection syntax documentation](https://docs.getdbt.com/reference/node-selection/syntax) for details.
+
 ## Adding tests
 
 ### Default case

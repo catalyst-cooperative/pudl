@@ -1324,10 +1324,9 @@ def fillna_w_rolling_avg(
     window: int = 12,
     **kwargs,
 ) -> pd.DataFrame:
-    """Filling NaNs with a rolling average.
+    """Fill NA values with a rolling average.
 
-    Imputes null values from a dataframe on a rolling monthly average. To note,
-    this was designed to work with the PudlTabl object's tables.
+    Imputes null values from a dataframe using a rolling monthly average.
 
     Args:
         df_og: Original dataframe. Must have ``group_cols`` columns, a ``data_col``

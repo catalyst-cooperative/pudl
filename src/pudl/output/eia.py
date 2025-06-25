@@ -94,7 +94,6 @@ def out_eia__yearly_plants(
 
 
 @asset(
-    io_manager_key="pudl_io_manager",
     config_schema={
         "fill_tech_desc": Field(
             bool,
@@ -398,7 +397,7 @@ def out_eia__yearly_boilers(
     return out_df
 
 
-@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
+@asset(compute_kind="Python")
 def _out_eia__plants_utilities(
     out_eia__yearly_plants: pd.DataFrame,
     out_eia__yearly_utilities: pd.DataFrame,
