@@ -12,7 +12,7 @@ sources:
               imputed: demand_imputed_pudl_mwh
               imputation_code: demand_imputed_pudl_mwh_imputation_code
               atol: 1.0
-              rtol: 1.0
+              rtol: 0.8
         columns:
           - name: respondent_id_ferc714
           - name: respondent_id_ferc714_csv
