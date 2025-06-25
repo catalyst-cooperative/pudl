@@ -1,4 +1,4 @@
--- Generic test: expect_temporal_year_consistency
+-- Generic test: expect_consistent_years
 --
 -- This test validates that two temporal columns in a model have consistent years
 -- for the vast majority of records. It's designed for tables with both a high-frequency
