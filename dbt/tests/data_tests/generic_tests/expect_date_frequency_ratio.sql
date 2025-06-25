@@ -2,7 +2,9 @@
     model,
     compare_model,
     multiplier,
-    date_column='report_date'
+    date_column='report_date',
+    model_has_data_maturity=true,
+    compare_model_has_data_maturity=true
 ) %}
 
 WITH model_years AS (
@@ -11,8 +13,8 @@ WITH model_years AS (
         COUNT(DISTINCT {{ date_column }}) as date_count
     FROM {{ model }}
     WHERE {{ date_column }} IS NOT NULL
-    {% if 'data_maturity' in adapter.get_columns_in_relation(model) %}
-        AND (data_maturity != 'incremental_ytd' OR data_maturity IS NULL)
+    {% if model_has_data_maturity %}
+        AND (data_maturity NOT IN ('incremental_ytd', 'monthly_update') OR data_maturity IS NULL)
     {% endif %}
     GROUP BY EXTRACT(YEAR FROM {{ date_column }})
 ),
@@ -23,8 +25,8 @@ compare_years AS (
         COUNT(DISTINCT {{ date_column }}) as date_count
     FROM {{ compare_model }}
     WHERE {{ date_column }} IS NOT NULL
-    {% if 'data_maturity' in adapter.get_columns_in_relation(model) %}
-        AND (data_maturity != 'incremental_ytd' OR data_maturity IS NULL)
+    {% if compare_model_has_data_maturity %}
+        AND (data_maturity NOT IN ('incremental_ytd', 'monthly_update') OR data_maturity IS NULL)
     {% endif %}
     GROUP BY EXTRACT(YEAR FROM {{ date_column }})
 ),

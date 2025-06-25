@@ -11,6 +11,7 @@ sources:
               compare_model: source("pudl", "out_eia__yearly_generators")
               multiplier: 12
               date_column: report_date
+              model_has_data_maturity: false
         columns:
           - name: report_date
           - name: plant_id_eia
