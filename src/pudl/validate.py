@@ -35,68 +35,6 @@ def intersect_indexes(indexes: list[pd.Index]) -> pd.Index:
     return shared_idx
 
 
-def check_date_freq(df1: pd.DataFrame, df2: pd.DataFrame, mult: int) -> None:
-    """Verify an expected relationship between time frequencies of two dataframes.
-
-    Identify all distinct values of ``report_date`` in each of the input
-    dataframes and check that the number of distinct ``report_date`` values in
-    ``df2`` is ``mult`` times the number of ``report_date`` values in ``df1``
-    across only those years which appear in both dataframes. This is primarily
-    aimed at comparing annual and monthly dataframes, but should
-    also work with e.g. annual (df1) and quarterly (df2) frequency data using
-    ``mult=4``.
-
-    Note the function assumes that a dataframe with sub-annual frequency will
-    cover the entire year it's part of. If you have a partial year of monthly
-    data in one dataframe that overlaps with annual data in another dataframe
-    you'll probably get unexpected behavior.
-
-    We use this method rather than attempting to infer a frequency from the
-    observed values because often we have only a single year of data, and you
-    need at least 3 values in a DatetimeIndex to infer the frequency.
-
-    Args:
-        df1: A dataframe with a column named ``report_date`` which contains dates.
-        df2: A dataframe with a column named ``report_date`` which contains dates.
-        mult: A multiplicative factor indicating the expected ratio between the number
-            of distinct date values found in ``df1`` and ``df2``.  E.g. if ``df1`` is
-            annual and ``df2`` is monthly, ``mult`` should be 12.
-
-    Returns:
-        None
-
-    Raises:
-        AssertionError: if the number of distinct ``report_date`` values in
-            ``df2`` is not ``mult`` times the number of distinct
-            ``report_date`` values in ``df1``.
-        ValueError: if either ``df1`` or ``df2`` does not have a
-            column named ``report_date``
-    """
-    if ("report_date" not in df1.columns) or ("report_date" not in df2.columns):
-        raise ValueError("Missing report_date column in one or both input DataFrames")
-
-    # Remove ytd values that mess up ratio assumptions
-    if "data_maturity" in df1.columns:
-        df1 = df1.loc[df1["data_maturity"] != "incremental_ytd"]
-    if "data_maturity" in df2.columns:
-        df2 = df2.loc[df2["data_maturity"] != "incremental_ytd"]
-
-    idx1 = pd.DatetimeIndex(df1["report_date"].unique())
-    idx2 = pd.DatetimeIndex(df2["report_date"].unique())
-
-    overlap = intersect_indexes([idx1, idx2])
-    overlap1 = [d for d in idx1 if d.year in overlap.year]
-    overlap2 = [d for d in idx2 if d.year in overlap.year]
-
-    n1 = len(overlap1)
-    n2 = len(overlap2)
-    if mult * n1 != n2:
-        raise AssertionError(
-            f"Expected ratio of distinct report_date values to be {mult}, "
-            f"but found {n2} / {n1} = {n2 / n1}"
-        )
-
-
 class ExcessiveNullRowsError(ValueError):
     """Exception raised when rows have excessive null values."""
 
