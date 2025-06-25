@@ -5,7 +5,7 @@ with NukeGens as (
         plant_id_eia,
         generator_id,
         'generator' as generator
-    from {{ source('pudl', '_out_eia__yearly_generators') }}
+    from {{ source('pudl', 'out_eia__yearly_generators') }}
     where energy_source_code_1 = 'NUC'
 ), NukeGenerationFuel as (
     -- Get generator IDs for nuclear units that have them
