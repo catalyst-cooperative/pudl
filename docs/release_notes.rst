@@ -33,9 +33,21 @@ VCE RARE
   found in ``_core_censuspep__yearly_geocodes``. See issue :issue:`3914` and PR
   :pr:`4319`.
 
+Deprecations
+^^^^^^^^^^^^
+
+* After more than a year of deprecation warnings, we've removed the ``PudlTabl``
+  output management class, and have stopped distributing a handful of tables that were
+  only around to allow the behavior of that class to be maintained. See issues
+  :issue:`3215,2911` and PR :pr:`4316`.
+
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* We've added a new sub-command to ``dbt_helper`` - ``dbt_helper validate``.
+  This lets you run validation tests for a selection of DBT models and also
+  see what the failing outputs are, instead of doing a bunch of digging after
+  the fact.
 * We've added a new devtool in ``devtools/materialize_to_parquet.py`` - this
   lets you export and share assets that were previously not persisted to Parquet,
   such as ``raw`` assets that have been extracted but not cleaned. Run
