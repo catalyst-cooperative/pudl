@@ -15,8 +15,8 @@
 -- - compare_model: The reference model to compare against (typically lower frequency, e.g. annual)
 -- - multiplier: Expected ratio (e.g. 12 for monthly:annual comparison)
 -- - date_column: Date column name (default: 'report_date')
--- - model_has_data_maturity: Filter provisional data from model (default: true)
--- - compare_model_has_data_maturity: Filter provisional data from compare_model (default: true)
+-- - model_has_data_maturity: Tell the test that the data_maturity column exists in the model (default: true). If this column is available, it will be used to filter out incomplete years of data.
+-- - compare_model_has_data_maturity: Tell the test that the data_maturity column exists in the model (default: true). If this column is available, it will be used to filter out incomplete years of data.
 --
 -- Data Filtering:
 -- - Excludes NULL dates
