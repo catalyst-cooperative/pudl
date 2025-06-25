@@ -414,6 +414,14 @@ ACI = "ACI"
 EDE = "EDE"
 TOU = "TOU"
 PN = "PN"
+cll = "cll"
+ser = "ser"
+fillin = "fillin"
+AKS = "AKS"
+Kake = "Kake"
+Moure = "Moure"
+LaMoure = "LaMoure"
+Worchester = "Worchester"
 
 [tool.typos.files]
-extend-exclude = ["*.yml", "*.toml", "*.bib", "*.csv", "*.html", "src/pudl/metadata/codes.py", "migrations/*"]
+extend-exclude = ["*.yml", "*.toml", "*.bib", "*.csv", "*.html", "src/pudl/metadata/codes.py", "migrations/", "src/pudl/transform/params/ferc1.py"]
