@@ -76,8 +76,10 @@ def check_date_freq(df1: pd.DataFrame, df2: pd.DataFrame, mult: int) -> None:
         raise ValueError("Missing report_date column in one or both input DataFrames")
 
     # Remove ytd values that mess up ratio assumptions
-    if "data_maturity" in df2:
-        df2 = df2[df2["data_maturity"] != "incremental_ytd"].copy()
+    if "data_maturity" in df1.columns:
+        df1 = df1.loc[df1["data_maturity"] != "incremental_ytd"]
+    if "data_maturity" in df2.columns:
+        df2 = df2.loc[df2["data_maturity"] != "incremental_ytd"]
 
     idx1 = pd.DatetimeIndex(df1["report_date"].unique())
     idx2 = pd.DatetimeIndex(df2["report_date"].unique())
