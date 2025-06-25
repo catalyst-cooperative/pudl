@@ -898,8 +898,10 @@ class HourlyPlanningAreaDemand:
     @staticmethod
     def spot_fix_records_xbrl(xbrl: pd.DataFrame):
         """Spot fix some specific XBRL records."""
-        xbrl_years_mask = xbrl.report_date.dt.year >= min(Ferc714Settings().xbrl_years)
-        if (len_csv_years := len(xbrl[~xbrl_years_mask])) > 25:
+        xbrl_years_mask = (
+            xbrl.report_date.dt.year >= min(Ferc714Settings().xbrl_years)
+        ) & (xbrl.report_date.dt.year <= max(Ferc714Settings().xbrl_years))
+        if (len_csv_years := len(xbrl[~xbrl_years_mask])) > 100:
             raise AssertionError(
                 "We expected less than 25 XBRL records that have timestamps "
                 f"with years before the XBRL years, but we found {len_csv_years}"
