@@ -506,7 +506,6 @@ def update_tables(
 )
 @click.option(
     "--exclude",
-    default="*",
     help="DBT selector for the asset(s) you want to exclude from validation.",
 )
 @click.option(

@@ -14,14 +14,6 @@ endif
 # Tell make to look in the environments and output directory for targets and sources.
 VPATH = environments:${PUDL_OUTPUT}
 
-########################################################################################
-# Targets for starting up interactive web-interfaces
-# Note that these commands do not return until you quit out of the server with ^C
-########################################################################################
-.PHONY: dagster
-dagster:
-	dagster-webserver
-
 .PHONY: jlab
 jlab:
 	jupyter lab --no-browser
