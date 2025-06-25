@@ -1,13 +1,6 @@
 """PUDL data validation functions and test case specifications.
 
-What defines a data validation?
-  * What data are we checking?
-    * What table or output does it come from?
-    * What selection criteria do we apply to that table or output?
-  * What are we checking it against?
-    * Itself (helps validate that the tests themselves are working)
-    * A processed version of itself (aggregation or derived values)
-    * A hard-coded external standard (e.g. heat rates, fuel heat content)
+Note that this module is being cannibalized and translated into dbt tests.
 """
 
 import numpy as np
@@ -18,21 +11,6 @@ from matplotlib import pyplot as plt
 import pudl.logging_helpers
 
 logger = pudl.logging_helpers.get_logger(__name__)
-
-
-def intersect_indexes(indexes: list[pd.Index]) -> pd.Index:
-    """Calculate the intersection of a collection of pandas Indexes.
-
-    Args:
-        indexes: a list of pandas.Index objects
-
-    Returns:
-        The intersection of all values found in the input indexes.
-    """
-    shared_idx = indexes[0]
-    for idx in indexes:
-        shared_idx = shared_idx.intersection(idx, sort=None)
-    return shared_idx
 
 
 class ExcessiveNullRowsError(ValueError):
