@@ -1,29 +1,27 @@
-{#
-  Generic test: expect_date_frequency_ratio
-
-  This test validates that two models have the expected ratio of distinct dates
-  for overlapping years. It's commonly used to verify that monthly and annual
-  data have the correct 12:1 relationship, but works for any frequency ratio.
-
-  Test Logic:
-  1. Extract years and count distinct dates per year for both models
-  2. Join on overlapping years only (ignores years present in just one model)
-  3. Sum the total distinct dates across all overlapping years
-  4. Verify that model_total = compare_total * multiplier
-
-  Parameters:
-  - model: The model to test (typically higher frequency, e.g. monthly)
-  - compare_model: The reference model to compare against (typically lower frequency, e.g. annual)
-  - multiplier: Expected ratio (e.g. 12 for monthly:annual comparison)
-  - date_column: Date column name (default: 'report_date')
-  - model_has_data_maturity: Filter provisional data from model (default: true)
-  - compare_model_has_data_maturity: Filter provisional data from compare_model (default: true)
-
-  Data Filtering:
-  - Excludes NULL dates
-  - Excludes provisional records (data_maturity = 'incremental_ytd' or 'monthly_update')
-    when the respective has_data_maturity parameter is true
-#}
+-- Generic test: expect_date_frequency_ratio
+--
+-- This test validates that two models have the expected ratio of distinct dates
+-- for overlapping years. It's commonly used to verify that monthly and annual
+-- data have the correct 12:1 relationship, but works for any frequency ratio.
+--
+-- Test Logic:
+-- 1. Extract years and count distinct dates per year for both models
+-- 2. Join on overlapping years only (ignores years present in just one model)
+-- 3. Sum the total distinct dates across all overlapping years
+-- 4. Verify that model_total = compare_total * multiplier
+--
+-- Parameters:
+-- - model: The model to test (typically higher frequency, e.g. monthly)
+-- - compare_model: The reference model to compare against (typically lower frequency, e.g. annual)
+-- - multiplier: Expected ratio (e.g. 12 for monthly:annual comparison)
+-- - date_column: Date column name (default: 'report_date')
+-- - model_has_data_maturity: Filter provisional data from model (default: true)
+-- - compare_model_has_data_maturity: Filter provisional data from compare_model (default: true)
+--
+-- Data Filtering:
+-- - Excludes NULL dates
+-- - Excludes provisional records (data_maturity = 'incremental_ytd' or 'monthly_update')
+--   when the respective has_data_maturity parameter is true
 
 {% test expect_date_frequency_ratio(
     model,
