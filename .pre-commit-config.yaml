@@ -58,7 +58,7 @@ repos:
             |.*\.bib
             |.*\.csv
             |.*\.html
-          )$ | migrations/* | src/pudl/metadata/codes.py | src/pudl/transform/params/ferc1.py
+          )$ | migrations/ | devtools/ | test/ | src/pudl/metadata/codes.py | src/pudl/transform/params/ferc1.py
         args: [] # Make this read, not write
 
   # Lint Dockerfiles for errors and to ensure best practices

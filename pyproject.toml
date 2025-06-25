@@ -424,4 +424,4 @@ LaMoure = "LaMoure"
 Worchester = "Worchester"
 
 [tool.typos.files]
-extend-exclude = ["*.yml", "*.toml", "*.bib", "*.csv", "*.html", "src/pudl/metadata/codes.py", "migrations/", "src/pudl/transform/params/ferc1.py"]
+extend-exclude = ["*.yml", "*.toml", "*.bib", "*.csv", "*.html", "src/pudl/metadata/codes.py", "migrations/", "devtools/","test/","src/pudl/transform/params/ferc1.py"]
