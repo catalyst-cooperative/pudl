@@ -69,7 +69,7 @@ Quality of Life Improvements
 
 New Tests
 ^^^^^^^^^
-* Added a validation pipline for our EIA 930 hourly demand imputation. This
+* Added a validation pipeline for our EIA 930 hourly demand imputation. This
   pipeline will perform imputation on a set of values which did not require imputation,
   so there is ground truth data to compare against. It will then compute the percent
   error for all of these imputed values against the reported data. This metric is
@@ -89,7 +89,7 @@ county-level renewable energy generation curves have been extended back to cover
 2014-2018.
 
 This release also includes new imputed versions of the FERC-714 and EIA-930 hourly
-demand curves with missing values filled in and a better organized verion of the SEC
+demand curves with missing values filled in and a better organized version of the SEC
 10-K company ownership data. Note that work on the demand imputations and SEC 10-K data
 is ongoing.
 
@@ -271,7 +271,7 @@ v2025.2.0 (2025-02-13)
 ---------------------------------------------------------------------------------------
 
 This is our regular quarterly release for 2025Q1. It includes updates to all the
-datasets that are published with quarterly or higher frequency, plus initial verisons
+datasets that are published with quarterly or higher frequency, plus initial versions
 of a few new data sources that have been in the works for a while.
 
 One major change this quarter is that we are now publishing all processed PUDL data as
@@ -337,7 +337,7 @@ SEC Form 10-K Parent-Subsidiary Ownership
   off as nearly finished products to the PUDL ETL pipeline. **Note that these are
   preliminary, experimental data products and are known to be incomplete and to contain
   errors.** Extracting data tables from unstructured PDFs and the SEC to EIA record
-  linkage are necessarily probabalistic processes.
+  linkage are necessarily probabilistic processes.
 * See PRs :pr:`4026,4031,4035,4046,4048,4050,4079` and check out the table descriptions
   in the PUDL data dictionary:
 
@@ -531,7 +531,7 @@ Schema Changes
 Bug Fixes
 ^^^^^^^^^
 * Included more retiring generators in the net generation and fuel consumption
-  allocation. Thanks to :user:`grgmiller` for this contirbution :pr:`3690`.
+  allocation. Thanks to :user:`grgmiller` for this contribution :pr:`3690`.
 * Fixed a bug found in the rolling averages used to impute missing values in
   ``fuel_cost_per_mmbtu`` and to calculate ``capex_annual_addition_rolling``. Thanks
   to RMI for identifying this bug! See issue :issue:`3889` and PR :pr:`3892`.
@@ -1621,7 +1621,7 @@ Helper Function Updates
   The coordinating function :mod:`pudl.helpers.full_timeseries_date_merge` first calls
   :mod:`pudl.helpers.date_merge` to merge two dataframes of different temporal
   granularities, and then calls :mod:`pudl.helpers.expand_timeseries` to expand the
-  merged dataframe to a full timeseries. The added ``timeseries_fillin`` argument,
+  merged dataframe to a full timeseries. The added ``timeseries_filling`` argument,
   makes this function optionally used to generate the MCOE table that includes a full
   monthly timeseries even in years when annually reported generators don't have
   matching monthly data. See :pr:`1550`

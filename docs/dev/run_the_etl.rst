@@ -162,7 +162,7 @@ Running the ETL via the Dagster UI
 
 Dagster needs a directory to store run logs and some interim assets. We don't
 distribute these outputs, so we want to store them separately from
-``PUDL_OUTPUT``. Create a new directory outside of the pudl respository
+``PUDL_OUTPUT``. Create a new directory outside of the pudl repository
 directory called ``dagster_home/``. Then set the ``DAGSTER_HOME`` environment
 variable to the path of the new directory:
 
@@ -262,7 +262,7 @@ are organized by asset groups. These groups are helfpul for visualizing and
 executing subsets of the asset graph.
 
 To execute the job, select ``etl_fast`` or ``etl_full`` and click "Materialize all".
-You can congifure which years to process by shift+clicking "Materialize all".
+You can configure which years to process by shift+clicking "Materialize all".
 Read the :ref:`resource_config` section to learn more.
 To view the status of the run, click the date next to "Latest run:".
 

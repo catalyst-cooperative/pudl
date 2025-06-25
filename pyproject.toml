@@ -399,6 +399,7 @@ Tabl = "Tabl"
 PudlTabl = "PudlTabl"
 ND = "ND"
 BCK = "BCK"
+MAPE = "MAPE"
 
 [tool.typos.files]
 extend-exclude = ["*.yml", "*.toml", "*.bib", "*.csv", "*.html"]
