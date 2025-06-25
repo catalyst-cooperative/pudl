@@ -72,7 +72,7 @@ macros:
         description: "Maximum allowed fraction of mismatched records (default: 0.001)."
   - name: test_expect_consistent_generator_ids
     description: >
-      Check whether generator ids have entries that vary only in punctuation or case. Designed for use on ``_out_eia__yearly_generators``. Fails when any ``plant_id_eia`` has multiple generators with the same id after dropping all [^A-Z0-9] characters.
+      Check whether generator ids have entries that vary only in punctuation or case. Designed for use on ``out_eia__yearly_generators``. Fails when any ``plant_id_eia`` has multiple generators with the same id after dropping all [^A-Z0-9] characters.
     arguments:
       - name: n_acceptable_failures
         type: integer
