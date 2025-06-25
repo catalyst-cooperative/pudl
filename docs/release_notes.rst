@@ -40,6 +40,11 @@ EIA 923
 Bug Fixes
 ^^^^^^^^^
 
+* Fixed a number of typos in our documentation and code database, which resulted in
+  renaming ``synchronized_transmission_grid`` in :ref:`core_eia860__scd_generators`,
+  :ref:`out_eia__monthly_generators`, and :ref:`out_eia__yearly_generators`.
+  See issue :issue:`3783` and :pr:`4355`.
+
 VCE RARE
 ~~~~~~~~
 * Standardized ``place_name`` using data from the latest Census PEP vintage,
