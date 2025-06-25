@@ -96,7 +96,7 @@ macros:
         description: "Date column name (default: 'report_date')."
       - name: model_has_data_maturity
         type: boolean
-        description: "Filter provisional data from model (default: true)."
+        description: "Tell the test that the data_maturity column exists in the model (default: true). If this column is available, it will be used to filter out incomplete years of data."
       - name: compare_model_has_data_maturity
         type: boolean
         description: "Filter provisional data from compare_model (default: true)."
