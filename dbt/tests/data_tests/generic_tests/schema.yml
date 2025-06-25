@@ -46,13 +46,30 @@ macros:
     description: >
       Check whether ``fraction_owned`` columns sum too high (for any individual
       generator) or too low (for too many generators). Designed for use on
-      ```out_eia860__yearly_ownership``. Fails when any generator has
+      ``out_eia860__yearly_ownership``. Fails when any generator has
       sum(fraction_owned) more than 1.02, or when more than half of generators have
       sum(fraction_owned) less than 0.98.
     arguments:
       - name: n_acceptable_failures
         type: integer
         description: The number of generators allowed to have sum(fraction_owned) more than 1.02; default 0.
+  - name: test_expect_consistent_years
+    description: >
+      Check whether two temporal columns in a model have consistent years for the vast majority of records.
+      Designed for tables with both a high-frequency datetime column (hourly or more frequent) and a separate
+      date/year column that describes the reporting period. Due to timezone adjustments, a small fraction of
+      records may have different years between these columns. Fails when the mismatch ratio exceeds the
+      specified threshold.
+    arguments:
+      - name: datetime_column
+        type: string
+        description: High-frequency datetime column (e.g., 'datetime_utc').
+      - name: date_column
+        type: string
+        description: Reporting period date/year column (e.g., 'report_date').
+      - name: max_mismatch_ratio
+        type: float
+        description: "Maximum allowed fraction of mismatched records (default: 0.001)."
   - name: test_expect_consistent_generator_ids
     description: >
       Check whether generator ids have entries that vary only in punctuation or case. Designed for use on ``_out_eia__yearly_generators``. Fails when any ``plant_id_eia`` has multiple generators with the same id after dropping all [^A-Z0-9] characters.
@@ -60,6 +77,29 @@ macros:
       - name: n_acceptable_failures
         type: integer
         description: The number of generators allowed to have inconsistent spellings.
+  - name: test_expect_date_frequency_ratio
+    description: >
+      Check whether two models have the expected ratio of distinct dates for overlapping years.
+      Commonly used to verify that monthly and annual data have the correct 12:1 relationship,
+      but works for any frequency ratio. Excludes provisional data (incremental_ytd, monthly_update)
+      when data_maturity columns are present. Fails when the ratio of distinct dates doesn't match
+      the expected multiplier for years present in both models.
+    arguments:
+      - name: compare_model
+        type: string
+        description: The reference model to compare against (typically lower frequency, e.g. annual).
+      - name: multiplier
+        type: integer
+        description: Expected ratio (e.g. 12 for monthly:annual comparison).
+      - name: date_column
+        type: string
+        description: "Date column name (default: 'report_date')."
+      - name: model_has_data_maturity
+        type: boolean
+        description: "Filter provisional data from model (default: true)."
+      - name: compare_model_has_data_maturity
+        type: boolean
+        description: "Filter provisional data from compare_model (default: true)."
   - name: test_expect_fgd_cost_totals_to_agree
     description: >
       Check whether the sum of itemized costs matches the total cost. Designed for use on ``_core_eia860__fgd_equipment``. Fails when more than 1% of rows have a sum that differs from the total by more than 1%. Includes careful null and nan handling.
