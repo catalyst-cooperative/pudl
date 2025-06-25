@@ -582,7 +582,7 @@ def out_ferc1__yearly_steam_plants_fuel_by_plant_sched402(
         """Internal function to drop other fuel type.
 
         Fuel type other indicates we didn't know how to categorize the reported fuel
-        type, which leads to records with incomplete and unsable data.
+        type, which leads to records with incomplete and unusable data.
         """
         return df[df.fuel_type_code_pudl != "other"].copy()
 
@@ -702,7 +702,7 @@ def calc_annual_capital_additions_ferc1(
     )
 
     steam_df_w_addts = add_mean_cap_additions(steam_df_w_addts)
-    # bb tests for volumne of negative annual capex
+    # bb tests for volume of negative annual capex
     neg_cap_addts = len(
         steam_df_w_addts[steam_df_w_addts.capex_annual_addition_rolling < 0]
     ) / len(steam_df_w_addts)
@@ -735,7 +735,7 @@ def add_mean_cap_additions(steam_df):
     """Add mean capital additions over lifetime of plant."""
     idx_steam_no_date = ["utility_id_ferc1", "plant_id_ferc1"]
     gb_cap_an = steam_df.groupby(idx_steam_no_date)[["capex_annual_addition"]]
-    # calcuate the standard deviatoin of each generator's capex over time
+    # calculate the standard deviatoin of each generator's capex over time
     df = (
         steam_df.merge(
             gb_cap_an.std()
@@ -850,7 +850,7 @@ def _out_ferc1__detailed_tags(_core_ferc1__table_dimensions) -> pd.DataFrame:
         .drop(columns=["notes"])
     )
     # special case: condense the two hydro plant_functions from _core_ferc1__table_dimensions.
-    # we didn't add yet the ablity to change aggregatable_plant_function by
+    # we didn't add yet the ability to change aggregatable_plant_function by
     # plant_function. we could but this seems simpler.
     tags.aggregatable_plant_function = tags.aggregatable_plant_function.replace(
         to_replace={
@@ -1266,7 +1266,7 @@ class Exploder:
 
     @cached_property
     def exploded_meta(self: Self) -> pd.DataFrame:
-        """Combine a set of interrelated table's metatada for use in :class:`Exploder`.
+        """Combine a set of interrelated table's metadata for use in :class:`Exploder`.
 
         Any calculations containing components that are part of tables outside the
         set of exploded tables will be converted to reported values with an empty
@@ -1445,7 +1445,7 @@ class Exploder:
            records (i.e. the seed to leaves calculation) (not yet implemented).
 
         Args:
-            tables_to_explode: dictionary of table name (key) to transfomed table (value).
+            tables_to_explode: dictionary of table name (key) to transformed table (value).
         """
         exploded = (
             self.initial_explosion_concatenation(tables_to_explode)
@@ -1454,7 +1454,7 @@ class Exploder:
             .pipe(self.reconcile_intertable_calculations)
             .pipe(self.calculation_forest.leafy_data, value_col=self.value_col)
         )
-        # remove the tag_ prefix. the tag verbage is helpful in the context
+        # remove the tag_ prefix. the tag verbiage is helpful in the context
         # of the forest construction but after that its distracting
         exploded.columns = exploded.columns.str.removeprefix("tags_")
         exploded = replace_dimension_columns_with_aggregatable(exploded)
@@ -1464,7 +1464,7 @@ class Exploder:
         # data from the leaf nodes:
         # root_calcs = self.calculation_forest.root_calculations
 
-        # convert_cols_dtypes mostly to properly conver the booleans!
+        # convert_cols_dtypes mostly to properly convert the booleans!
         return pudl.helpers.convert_cols_dtypes(exploded)
 
     def initial_explosion_concatenation(
@@ -1484,7 +1484,7 @@ class Exploder:
             explosion_tables.append(tbl)
         exploded = pd.concat(explosion_tables)
 
-        # Identify which dimensions apply to the curent explosion -- not all collections
+        # Identify which dimensions apply to the current explosion -- not all collections
         # of tables have all dimensions.
         meta_idx = list(NodeId._fields)
         missing_dims = list(set(meta_idx).difference(exploded.columns))
@@ -1572,7 +1572,7 @@ class Exploder:
             ]
             .reset_index()
         )
-        # Idenfity the calculations with one missing other fact
+        # Identify the calculations with one missing other fact
         # when the diff is the same as the value of another fact, then that
         # calculated value could have been perfect with the addition of the
         # missing facoid.
@@ -2550,7 +2550,7 @@ def _propagate_tags_to_corrections(annotated_forest: nx.DiGraph) -> nx.DiGraph:
     for correction_node in correction_nodes:
         # for every correction node, we assume that that nodes parent tags can apply
         parents = list(annotated_forest.predecessors(correction_node))
-        # all correction records shoul have a parent and only one
+        # all correction records should have a parent and only one
         if len(parents) != 1:
             raise AssertionError(
                 f"Found more than one parent node for {correction_node=}\n{parents=}"
@@ -2578,14 +2578,14 @@ def check_tag_propagation_compared_to_compiled_tags(
             ``exploded_income_statement_ferc1`` table does not currently have propagated
             tags.
         propagated_tag: name of tag. Currently ``in_rate_base`` is the only propagated tag.
-        _out_ferc1__explosion_tags: mannually compiled tags. This table includes tags from
+        _out_ferc1__explosion_tags: manually compiled tags. This table includes tags from
             many of the explosion tables so we will filter it before checking if the tag was
             propagated.
 
     Raises:
-        AssertionError: If there are more mannually compiled tags for the ``xbrl_factoids``
+        AssertionError: If there are more manually compiled tags for the ``xbrl_factoids``
             in ``df`` than found in ``_out_ferc1__explosion_tags``.
-        AssertionError: If there are more mannually compiled tags for the correction
+        AssertionError: If there are more manually compiled tags for the correction
             ``xbrl_factoids`` in ``df`` than found in ``_out_ferc1__explosion_tags``.
     """
     # the tag df has all tags - not just those in a specific explosion
@@ -2599,7 +2599,7 @@ def check_tag_propagation_compared_to_compiled_tags(
     detailed_tagged = df[df[propagated_tag].notnull()].xbrl_factoid.unique()
     if len(detailed_tagged) < len(manually_tagged):
         raise AssertionError(
-            f"Found more {len(manually_tagged)} mannually compiled tagged xbrl_factoids"
+            f"Found more {len(manually_tagged)} manually compiled tagged xbrl_factoids"
             " than tags in propagated detailed data."
         )
     manually_tagged_corrections = df_tags[
@@ -2611,7 +2611,7 @@ def check_tag_propagation_compared_to_compiled_tags(
     ].xbrl_factoid.unique()
     if len(detailed_tagged_corrections) < len(manually_tagged_corrections):
         raise AssertionError(
-            f"Found more {len(manually_tagged_corrections)} mannually compiled "
+            f"Found more {len(manually_tagged_corrections)} manually compiled "
             "tagged xbrl_factoids than tags in propagated detailed data."
         )
 
@@ -2637,7 +2637,7 @@ def check_for_correction_xbrl_factoids_with_tag(
     ].xbrl_factoid.unique()
     if len(detailed_tagged_corrections) == 0:
         raise AssertionError(
-            "We expect there to be more than zero correction recrods with tags, but "
+            "We expect there to be more than zero correction records with tags, but "
             f"found {len(detailed_tagged_corrections)}."
         )
 
@@ -2752,7 +2752,7 @@ def out_ferc1__yearly_rate_base(
 
 
 def replace_dimension_columns_with_aggregatable(df: pd.DataFrame) -> pd.DataFrame:
-    """Replace the dimenion columns with their aggregatable counterparts."""
+    """Replace the dimension columns with their aggregatable counterparts."""
     # some tables have a dimension column but we didn't augment them
     # with tags so they never got aggregatable_ columns so we skip those
     dimensions = [
@@ -2836,7 +2836,7 @@ def make_idx_check(spec: Ferc1DetailedCheckSpec) -> AssetChecksDefinition:
         if "plant_function" in dupes:
             # this needs to be here bc we condensed two kinds of hydro
             # plant functions (conventional & pumped storage) into one
-            # categeory for easier id-ing of all the hydro assets/liabiltiies
+            # category for easier id-ing of all the hydro assets/liabiltiies
             dupes = dupes[dupes.plant_function != "hydraulic_production"]
 
         if not dupes.empty:
@@ -2860,20 +2860,20 @@ def prep_cash_working_capital(
     In standard ratemaking processes, utilities are allowed to include working
     capital - sometimes referred to as cash on hand or cash reverves - in their rate
     base. A standard ratemaking process considers the available rate-baseable working
-    capital to be one eigth of the average operations and maintenance expense. This
+    capital to be one eighth of the average operations and maintenance expense. This
     function grabs that expense and calculated this new ``xbrl_factoid`` in preparation
     to concatenate it with the rest of the assets and liabilities from the detailed rate
     base data.
 
     ``cash_working_capital`` is a new ``xbrl_factiod`` because it is not reported
-    in the FERC1 data, but it is included in rate base so we had to calcluate it.
+    in the FERC1 data, but it is included in rate base so we had to calculate it.
     """
     # get the factoid name to grab the right part of the table
     xbrl_factoid_name = pudl.transform.ferc1.FERC1_TFR_CLASSES[
         "core_ferc1__yearly_operating_expenses_sched320"
     ]().params.xbrl_factoid_name
     # First grab the working capital out of the operating expense table.
-    # then prep it for concating. Calculate working capital & add tags
+    # then prep it for concatenating. Calculate working capital & add tags
     cash_working_capital_df = (
         core_ferc1__yearly_operating_expenses_sched320[
             core_ferc1__yearly_operating_expenses_sched320[xbrl_factoid_name]
@@ -2881,7 +2881,7 @@ def prep_cash_working_capital(
         ]
         .assign(
             dollar_value=lambda x: x.dollar_value.divide(8),
-            xbrl_factoid="cash_working_capital",  # newly definied xbrl_factoid
+            xbrl_factoid="cash_working_capital",  # newly defined xbrl_factoid
             in_rate_base=True,
             rate_base_category="net_working_capital",
             aggregatable_utility_type="electric",
@@ -2902,7 +2902,7 @@ def disaggregate_null_or_total_tag(
 
     We have records in the rate base table with total and/or null values for
     key tag columns which we want to separate into component parts because the
-    null or total values does not convery a level of detail we want for the
+    null or total values does not convert a level of detail we want for the
     rate base table. This is done in two steps:
 
     * :func:`get_tag_col_ratio` : for each ``report_year`` and ``utility_id_ferc1``,
@@ -2949,7 +2949,7 @@ def disaggregate_null_or_total_tag(
         )
         .assign(**{f"is_disaggregated_{tag_col}": True})
         .drop(columns=[f"ratio_{tag_col}", f"{tag_col}_total_or_null"])
-        # this automatially gets converted to a pandas Float64 which
+        # this automatically gets converted to a pandas Float64 which
         # results in nulls from any sum.
         .astype({"ending_balance": float})
     )

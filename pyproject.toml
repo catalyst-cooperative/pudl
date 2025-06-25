@@ -400,6 +400,9 @@ PudlTabl = "PudlTabl"
 ND = "ND"
 BCK = "BCK"
 MAPE = "MAPE"
+wrk = "wrk"
+othr = "othr"
+consit = "consit"
 
 [tool.typos.files]
 extend-exclude = ["*.yml", "*.toml", "*.bib", "*.csv", "*.html"]
