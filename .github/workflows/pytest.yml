@@ -28,7 +28,7 @@ jobs:
           fetch-depth: 2
 
       - name: Install conda-lock environment with micromamba
-        uses: mamba-org/setup-micromamba@v1
+        uses: mamba-org/setup-micromamba@v2
         with:
           environment-file: environments/conda-lock.yml
           environment-name: pudl-dev
@@ -78,7 +78,7 @@ jobs:
           fetch-depth: 2
 
       - name: Install conda-lock environment with micromamba
-        uses: mamba-org/setup-micromamba@v1
+        uses: mamba-org/setup-micromamba@v2
         with:
           environment-file: environments/conda-lock.yml
           environment-name: pudl-dev
@@ -120,9 +120,7 @@ jobs:
           path: .coverage
 
   ci-integration:
-    runs-on:
-      group: large-runner-group
-      labels: ubuntu-latest-4core
+    runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch' || github.event.merge_group
     permissions:
       contents: read
@@ -139,7 +137,7 @@ jobs:
           fetch-depth: 2
 
       - name: Install Conda environment using mamba
-        uses: mamba-org/setup-micromamba@v1
+        uses: mamba-org/setup-micromamba@v2
         with:
           environment-file: environments/conda-lock.yml
           environment-name: pudl-dev
@@ -187,7 +185,7 @@ jobs:
       - name: Run integration tests, trying to use GCS cache if possible
         run: |
           pip install --no-deps --editable .
-          pudl_datastore --dataset epacems --partition year_quarter=2022q1
+          pudl_datastore --dataset epacems --partition year_quarter=2023q1
           make pytest-integration
 
       - name: Coverage debugging output
@@ -203,6 +201,13 @@ jobs:
           name: coverage-integration
           include-hidden-files: true
           path: .coverage
+
+      - name: Upload dbt test failure database artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dbt-failures
+          path: pudl_dbt_tests.duckdb
 
       - name: Log post-test Zenodo datastore contents
         run: find ${{ env.PUDL_INPUT }}
@@ -224,7 +229,7 @@ jobs:
         run: |
           find coverage -type f
       - name: Install Micromamba
-        uses: mamba-org/setup-micromamba@v1
+        uses: mamba-org/setup-micromamba@v2
         with:
           init-shell: bash
           environment-name: coverage
@@ -236,13 +241,13 @@ jobs:
           micromamba run -n coverage coverage combine coverage/*/.coverage
           micromamba run -n coverage coverage xml --fail-under=0
       - name: Upload XML coverage report to CodeCov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           disable_search: true
-          file: ./coverage.xml
+          files: ./coverage.xml
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true # optional (default = false)
-          plugin: noop
+          plugins: noop
           verbose: true
       - name: Display coverage report and ensure it meets required minimum
         # Required coverage is set in pyproject.toml section [tool.coverage.report]

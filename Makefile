@@ -20,7 +20,7 @@ VPATH = environments:${PUDL_OUTPUT}
 ########################################################################################
 .PHONY: dagster
 dagster:
-	dagster-webserver -m pudl.etl -m pudl.ferc_to_sqlite
+	dagster-webserver
 
 .PHONY: jlab
 jlab:
@@ -37,7 +37,7 @@ conda-clean:
 
 # Regenerate the conda lockfile and render platform specific conda environments.
 conda-lock.yml: pyproject.toml
-	${mamba} run --name base ${mamba} install --quiet --yes "conda-lock>=2.5.7" prettier
+	${mamba} run --name base ${mamba} install --quiet --yes "conda-lock>=3" prettier
 	${mamba} run --name base conda-lock \
 		--${mamba} \
 		--file=pyproject.toml \
@@ -51,8 +51,11 @@ conda-lock.yml: pyproject.toml
 # Create the pudl-dev conda environment based on the universal lockfile
 .PHONY: pudl-dev
 pudl-dev:
-	${mamba} run --name base ${mamba} install --quiet --yes "conda-lock>=2.5.7"
-	${mamba} run --name base ${mamba} env remove --yes --name pudl-dev
+	${mamba} run --name base ${mamba} install --quiet --yes "conda-lock>=3"
+# Only attempt to remove the pudl-dev environment if it already exists.
+	if ${mamba} env list | grep -q pudl-dev; then \
+		${mamba} env remove --quiet --yes --name pudl-dev; \
+	fi
 	${mamba} run --name base conda-lock install \
 		--name pudl-dev \
 		--${mamba} \
@@ -157,12 +160,6 @@ nuke: coverage-erase docs-build pytest-unit ferc pudl
 .PHONY: pytest-jupyter
 pytest-jupyter:
 	pytest --live-dbs test/integration/jupyter_notebooks_test.py
-
-# Compare actual and expected number of rows in many tables. This will run any test
-# whose name contains "minmax_rows" so it's important to follow that naming convention.
-.PHONY: pytest-minmax-rows
-pytest-minmax-rows:
-	pytest -n 8 --no-cov --live-dbs test/validate -k minmax_rows
 
 # Build the FERC 1 and PUDL DBs, ignoring foreign key constraints.
 # Identify any plant or utility IDs in the DBs that haven't yet been mapped

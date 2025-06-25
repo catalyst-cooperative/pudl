@@ -51,28 +51,38 @@ def core_eia930__hourly_operations_assets(
                 f"net_generation_{fuel}_{status}_mwh"
                 for fuel in GENERATION_ENERGY_SOURCES_EIA930
                 for status in ["reported", "adjusted", "imputed"]
-                if fuel != "unknown"
             ]
-            + ["net_generation_unknown_reported_mwh"]
         ]
         .rename(
             # Rename columns so that they contain only the energy source and the level
             # of processing with the pattern: energysource_levelofprocessing so the
-            # column name can be split on "_" to build a MultiIndex before stacking.
-            # Note that this means energy_source CAN'T have an underscore in it.
+            # column name can be rsplit on "_" to build a MultiIndex before stacking.
             lambda col: col.removeprefix("net_generation_").removesuffix("_mwh"),
             axis="columns",
         )
         .set_index(nondata_cols)
     )
     netgen_by_source.columns = pd.MultiIndex.from_tuples(
-        [x.split("_") for x in netgen_by_source.columns],
+        # Some of our energy sources have multiple terms in them, so we rsplit on
+        # a maximum of one underscore to ensure we get the exact two results we need:
+        [x.rsplit("_", maxsplit=1) for x in netgen_by_source.columns],
         names=["generation_energy_source", None],
     )
     netgen_by_source = (
         netgen_by_source.stack(level="generation_energy_source", future_stack=True)
         .rename(columns=lambda x: f"net_generation_{x}_mwh")
         .reset_index()
+    )
+
+    netgen_by_source = netgen_by_source.rename(
+        columns={"net_generation_imputed_mwh": "net_generation_imputed_eia_mwh"}
+    )
+    operations = operations.rename(
+        columns={
+            "net_generation_imputed_mwh": "net_generation_imputed_eia_mwh",
+            "demand_imputed_mwh": "demand_imputed_eia_mwh",
+            "interchange_imputed_mwh": "interchange_imputed_eia_mwh",
+        }
     )
 
     # NOTE: currently there are some BIG differences between the calculated totals and

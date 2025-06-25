@@ -1,0 +1,71 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_vcerare__hourly_available_capacity_factor
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: out_vcerare__hourly_available_capacity_factor
+              partition_column: report_year
+          - expect_valid_hour_of_year
+          - expect_unique_column_combination:
+              columns:
+                - county_id_fips
+                - datetime_utc
+        columns:
+          - name: state
+            data_tests:
+              - not_null
+          - name: place_name
+            data_tests:
+              - not_null
+              - dbt_expectations.expect_column_values_to_not_be_in_set:
+                  value_set:
+                    - bedford_city
+                    - clifton_forge_city
+                    - lake_hurron
+                    - lake_st_clair
+              - dbt_expectations.expect_column_values_to_be_in_set:
+                  value_set:
+                    - oglala lakota
+                  row_condition: "county_id_fips = '46012'"
+          - name: datetime_utc
+            data_tests:
+              - not_null
+              - dbt_expectations.expect_column_values_to_not_be_in_set:
+                  value_set:
+                    - "{{ dbt_date.date(2020, 12, 31) }}"
+          - name: report_year
+            data_tests:
+              - not_null
+          - name: hour_of_year
+            data_tests:
+              - not_null
+              - dbt_expectations.expect_column_max_to_be_between:
+                  min_value: 8760
+                  max_value: 8760
+          - name: county_id_fips
+          - name: latitude
+            data_tests:
+              - not_null
+          - name: longitude
+            data_tests:
+              - not_null
+          - name: capacity_factor_solar_pv
+            data_tests:
+              - not_null
+              - dbt_expectations.expect_column_values_to_be_between:
+                  min_value: 0.0
+                  max_value: 1.1
+          - name: capacity_factor_onshore_wind
+            data_tests:
+              - not_null
+              - dbt_expectations.expect_column_values_to_be_between:
+                  min_value: 0.0
+                  max_value: 1.0
+          - name: capacity_factor_offshore_wind
+            data_tests:
+              - not_null
+              - dbt_expectations.expect_column_values_to_be_between:
+                  min_value: 0.0
+                  max_value: 1.0

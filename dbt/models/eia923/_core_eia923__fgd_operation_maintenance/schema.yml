@@ -1,0 +1,39 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: _core_eia923__fgd_operation_maintenance
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: _core_eia923__fgd_operation_maintenance
+              partition_column: report_date
+          - expect_sum_close_to_total_column:
+              name: opex_cost_discrepancy_rate
+              sum_columns:
+                - opex_fgd_feed_materials_chemical
+                - opex_fgd_labor_supervision
+                - opex_fgd_land_acquisition
+                - opex_fgd_maintenance_material_other
+                - opex_fgd_waste_disposal
+              total_column: opex_fgd_total_cost
+              discrepancy_threshold: 0.01
+              max_discrepancy_rate: 0.01
+        columns:
+          - name: report_date
+          - name: plant_id_eia
+          - name: so2_control_id_eia
+          - name: opex_fgd_feed_materials_chemical
+          - name: opex_fgd_labor_supervision
+          - name: opex_fgd_land_acquisition
+          - name: opex_fgd_maintenance_material_other
+          - name: opex_fgd_waste_disposal
+          - name: opex_fgd_total_cost
+          - name: fgd_control_flag
+          - name: fgd_operational_status_code
+          - name: fgd_hours_in_service
+          - name: fgd_electricity_consumption_mwh
+          - name: fgd_sorbent_consumption_1000_tons
+          - name: so2_removal_efficiency_tested
+          - name: so2_removal_efficiency_annual
+          - name: so2_test_date
+          - name: data_maturity

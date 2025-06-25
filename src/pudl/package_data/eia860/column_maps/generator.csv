@@ -41,7 +41,7 @@ energy_source_2_transport_1,transmode2,transmode2,transmode2,es2trans_1,es2trans
 energy_source_2_transport_2,,,,es2trans_2,es2trans_2,es2trans_2,,
 energy_source_2_transport_3,,,,es2trans_3,es2trans_3,es2trans_3,,
 turbines_num,wind,wind,wind,windturbines,windturbines,windturbines,turbines,turbines
-multiple_fuels,,,,,,multifuels,multiple_fuels,multiple_fuels
+can_burn_multiple_fuels,,,,,,multifuels,multiple_fuels,multiple_fuels
 planned_modifications,,,,,,,planned_modifications,planned_modifications
 planned_net_summer_capacity_uprate_mw,,,,,,,planned_uprates_net_summer_cap,planned_uprates_net_summer_cap
 planned_net_winter_capacity_uprate_mw,,,,,,,planned_uprates_net_winter_cap,planned_uprates_net_winter_cap

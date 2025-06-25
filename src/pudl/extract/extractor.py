@@ -19,6 +19,7 @@ from dagster import (
 )
 
 import pudl
+from pudl.workspace.datastore import Datastore
 
 StrInt = str | int
 PartitionSelection = list[StrInt] | tuple[StrInt] | StrInt
@@ -49,12 +50,7 @@ class GenericMetadata:
         self._dataset_name = dataset_name
         self._pkg = f"pudl.package_data.{dataset_name}"
         column_map_pkg = self._pkg + ".column_maps"
-        self._column_map = {}
-        for res_path in importlib.resources.files(column_map_pkg).iterdir():
-            # res_path is expected to end with ${page}.csv
-            if res_path.suffix == ".csv":
-                column_map = self._load_csv(column_map_pkg, res_path.name)
-                self._column_map[res_path.stem] = column_map
+        self._column_map = self._load_column_maps(column_map_pkg)
 
     def get_dataset_name(self) -> str:
         """Returns the name of the dataset described by this metadata."""
@@ -65,6 +61,21 @@ class GenericMetadata:
         return pd.read_csv(
             importlib.resources.files(package) / filename, index_col=0, comment="#"
         )
+
+    def _load_column_maps(self, column_map_pkg: str) -> dict:
+        """Create a dictionary of all column mapping CSVs to use in get_column_map()."""
+        column_dict = {}
+        for res_path in importlib.resources.files(column_map_pkg).iterdir():
+            # res_path is expected to end with ${page}.csv
+            if res_path.suffix == ".csv":
+                try:
+                    column_map = self._load_csv(column_map_pkg, res_path.name)
+                except pd.errors.ParserError as e:
+                    raise AssertionError(
+                        f"Expected well-formed column map file at {column_map_pkg} {res_path.name}"
+                    ) from e
+                column_dict[res_path.stem] = column_map
+        return column_dict
 
     def _get_partition_selection(self, partition: dict[str, PartitionSelection]) -> str:
         """Grab the partition key."""
@@ -111,11 +122,11 @@ class GenericExtractor(ABC):
     BLACKLISTED_PAGES = []
     """List of supported pages that should not be extracted."""
 
-    def __init__(self, ds):
+    def __init__(self, ds: Datastore):
         """Create new extractor object and load metadata.
 
         Args:
-            ds (datastore.Datastore): An initialized datastore, or subclass
+            ds: An initialized datastore, or subclass
         """
         if not self.METADATA:
             raise NotImplementedError("self.METADATA must be set.")
@@ -391,9 +402,9 @@ def partitions_from_settings_factory(name: str) -> OpDefinition:
                 for date_partition in ["years", "half_years", "year_quarters"]
             )
         ]
-        assert (
-            len(partition) == 1
-        ), f"Only one working partition is supported: {partition}."
+        assert len(partition) == 1, (
+            f"Only one working partition is supported: {partition}."
+        )
         partition = partition[0]
         parts = getattr(data_settings, partition)  # Get the actual values
         # In Zenodo we use "year", "half_year" as the partition, but in our settings

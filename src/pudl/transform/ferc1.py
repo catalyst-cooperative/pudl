@@ -40,6 +40,7 @@ from pudl.transform.classes import (
     cache_df,
     enforce_snake_case,
 )
+from pudl.transform.ferc import filter_for_freshest_data_xbrl, get_primary_key_raw_xbrl
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -305,7 +306,7 @@ def wide_to_tidy(df: pd.DataFrame, params: WideToTidy) -> pd.DataFrame:
     )
     df_out.columns = new_cols
     df_out = (
-        df_out.stack(params.stacked_column_name, dropna=False)
+        df_out.stack(params.stacked_column_name, future_stack=True)
         .loc[:, params.value_types]
         .reset_index()
     )
@@ -421,7 +422,7 @@ def drop_duplicate_rows_dbf(
         .drop(columns=["null_data"])
     )
     logger.info(
-        f"Dropped {len_og - len(df)} duplicate records: {(len_og - len(df))/len_og:.1%}"
+        f"Dropped {len_og - len(df)} duplicate records: {(len_og - len(df)) / len_og:.1%}"
         " of total rows."
     )
     return df
@@ -1091,7 +1092,7 @@ def _calculation_components_subdimension_calculations(
 ) -> pd.DataFrame:
     """Add total to subdimension calculations into calculation components."""
     meta_w_dims = xbrl_metadata.assign(
-        **{dim: pd.NA for dim in dim_cols} | {"table_name": table_name}
+        **dict.fromkeys(dim_cols, pd.NA) | {"table_name": table_name}
     ).pipe(
         make_xbrl_factoid_dimensions_explicit,
         table_dimensions_ferc1=table_dims,
@@ -1213,8 +1214,8 @@ def calculate_values_from_components(
         )
     except pd.errors.MergeError as err:  # Make debugging easier.
         raise pd.errors.MergeError(
-            "Merge failed, duplicated merge keys in left dataset:\n"
-            f"{calculation_components[calculation_components.duplicated(calc_idx, keep=False)]}"
+            f"Merge failed, duplicated merge keys in left dataset with merge key of {calc_idx}:\n"
+            f"{calculation_components[calculation_components.duplicated(calc_idx, keep=False)].set_index(calc_idx).sort_index()}"
         ) from err
     # remove the _parent suffix so we can merge these calculated values back onto
     # the data using the original pks
@@ -1667,6 +1668,30 @@ class Ferc1TableTransformParams(TableTransformParams):
         if self.reconcile_table_calculations.subdimension_column:
             dims.update({self.reconcile_table_calculations.subdimension_column})
         return list(dims)
+
+
+def select_current_year_annual_records_duration_xbrl(df: pd.DataFrame, table_name: str):
+    """Select for annual records within their report_year.
+
+    Select only records that have a start_date at beginning of the report_year and
+    have an end_date at the end of the report_year.
+    """
+    len_og = len(df)
+    df = df.astype({"start_date": "datetime64[s]", "end_date": "datetime64[s]"})
+    df = df[
+        (df.start_date.dt.year == df.report_year)
+        & (df.start_date.dt.month == 1)
+        & (df.start_date.dt.day == 1)
+        & (df.end_date.dt.year == df.report_year)
+        & (df.end_date.dt.month == 12)
+        & (df.end_date.dt.day == 31)
+    ]
+    len_out = len(df)
+    logger.info(
+        f"{table_name}: After selection of dates based on the report year,"
+        f" we have {len_out / len_og:.1%} of the original table."
+    )
+    return df
 
 
 ################################################################################
@@ -2297,7 +2322,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         )
 
     def get_xbrl_calculation_fixes(self: Self) -> pd.DataFrame:
-        """Grab the XBRL calculation file."""
+        """Grab the XBRL calculations fixes for this table."""
         calc_fixes = read_xbrl_calculation_fixes()
         # grab the fixes from this table only!
         calc_fixes = calc_fixes[calc_fixes.table_name_parent == self.table_id.value]
@@ -2308,8 +2333,26 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     ) -> pd.DataFrame:
         """Use the fixes we've compiled to update calculations in the XBRL metadata.
 
-        Note: Temp fix. These updates should probably be moved into the table params
-        and integrated into the calculations via TableCalcs.
+        Instructions for updating the calculation component fixes file:
+
+        * To add a calculation component that is missing from the raw metadata,
+          add a new line in the ``xbrl_calculation_component_fixes.csv`` with a
+          the parent and child portion of the calculation and a weight.
+        * To remove a calculation component that exists incorrectly in the raw
+          metadata, add a line in the ``xbrl_calculation_component_fixes.csv``
+          with the parent and child portion of the calculation without a weight.
+        * To edit the weight of a calculation component that exists in the raw
+          metadata, add a line in the ``xbrl_calculation_component_fixes.csv``
+          with the parent and child portion of the calculation with the corrected
+          weight.
+
+        Some common errors occurs when ingesting new metadata which flags the
+        AssertionError in this method. If you're trying to remove a calculation component
+        manually and it doesn't actually exist as a calculation component in the metadata,
+        an AssertionError will be raised. Similarly, if you're trying to add a
+        calculation component manually that already exists, an AssertionError will be
+        raised.
+
         """
         calc_comp_idx = [
             "table_name_parent",
@@ -2442,7 +2485,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         # this is really a xbrl_factoid-level flag, but we need it while using this
         # calc components.
         calc_comps["is_within_table_calc"] = (
-            # make a temp bool col to check if all the componets are intra table
+            # make a temp bool col to check if all the components are intra table
             # should the non-calc guys get a null or a true here? rn its true bc fillna
             calc_comps.assign(
                 intra_table_calc_comp_flag=lambda x: (
@@ -2610,7 +2653,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
             df = df[df.report_prd == 12].copy()
             logger.info(
                 f"{self.table_id.value}: After selection of only annual records,"
-                f" we have {len(df)/len_og:.1%} of the original table."
+                f" we have {len(df) / len_og:.1%} of the original table."
             )
         return df
 
@@ -2714,7 +2757,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         information from header and note rows. Outer merging messes up the order, so we
         need to use a one-sided merge. So far, it seems like the duration df contains
         all the index values in the instant df. To be sure, there's a check that makes
-        sure there are no unique intant df index values. If that passes, we merge the
+        sure there are no unique instant df index values. If that passes, we merge the
         instant table into the duration table, and the row order is preserved.
 
         Note: This should always be applied before :meth:``rename_columns``
@@ -2731,8 +2774,13 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         """
         drop_cols = ["filing_name", "index"]
         # Ignore errors in case not all drop_cols are present.
-        instant = raw_xbrl_instant.drop(columns=drop_cols, errors="ignore")
-        duration = raw_xbrl_duration.drop(columns=drop_cols, errors="ignore")
+        # Do any table-specific preprocessing of the instant and duration tables
+        instant = raw_xbrl_instant.drop(columns=drop_cols, errors="ignore").pipe(
+            self.process_instant_xbrl
+        )
+        duration = raw_xbrl_duration.drop(columns=drop_cols, errors="ignore").pipe(
+            self.process_duration_xbrl
+        )
 
         instant_axes = [
             col for col in raw_xbrl_instant.columns if col.endswith("_axis")
@@ -2750,10 +2798,6 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 f"    instant: {instant_axes}\n"
                 f"    duration: {duration_axes}"
             )
-
-        # Do any table-specific preprocessing of the instant and duration tables
-        instant = self.process_instant_xbrl(instant)
-        duration = self.process_duration_xbrl(duration)
 
         if instant.empty:
             logger.info(f"{self.table_id.value}: No XBRL instant table found.")
@@ -2838,31 +2882,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         """
         if not df.empty:
             df = self.rename_columns(df, rename_stage="duration_xbrl").pipe(
-                self.select_current_year_annual_records_duration_xbrl
+                select_current_year_annual_records_duration_xbrl, self.table_id.name
             )
-        return df
-
-    def select_current_year_annual_records_duration_xbrl(self, df):
-        """Select for annual records within their report_year.
-
-        Select only records that have a start_date at begining of the report_year and
-        have an end_date at the end of the report_year.
-        """
-        len_og = len(df)
-        df = df.astype({"start_date": "datetime64[s]", "end_date": "datetime64[s]"})
-        df = df[
-            (df.start_date.dt.year == df.report_year)
-            & (df.start_date.dt.month == 1)
-            & (df.start_date.dt.day == 1)
-            & (df.end_date.dt.year == df.report_year)
-            & (df.end_date.dt.month == 12)
-            & (df.end_date.dt.day == 31)
-        ]
-        len_out = len(df)
-        logger.info(
-            f"{self.table_id.value}: After selection of dates based on the report year,"
-            f" we have {len_out/len_og:.1%} of the original table."
-        )
         return df
 
     @cache_df(key="dbf")
@@ -4371,10 +4392,10 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
         useful_rows_len = len(df[df["row_type"].isna()])
 
         logger.info(
-            f"Added fuel types to {new_fuel_type_count-old_fuel_type_count} plant rows "
-            f"({round((new_fuel_type_count-old_fuel_type_count)/useful_rows_len*100)}%). "
-            f"Added plant types to {new_plant_type_count-old_plant_type_count} plant "
-            f"rows ({round((new_plant_type_count-old_plant_type_count)/useful_rows_len*100)}%)."
+            f"Added fuel types to {new_fuel_type_count - old_fuel_type_count} plant rows "
+            f"({round((new_fuel_type_count - old_fuel_type_count) / useful_rows_len * 100)}%). "
+            f"Added plant types to {new_plant_type_count - old_plant_type_count} plant "
+            f"rows ({round((new_plant_type_count - old_plant_type_count) / useful_rows_len * 100)}%)."
         )
 
         return df
@@ -5104,7 +5125,7 @@ class IncomeStatementsTableTransformer(Ferc1AbstractTableTransformer):
             )
         ].copy()
         logger.info(
-            f"Dropped {len_og - len(raw_dbf)} records ({(len_og - len(raw_dbf))/len_og:.1%} of"
+            f"Dropped {len_og - len(raw_dbf)} records ({(len_og - len(raw_dbf)) / len_og:.1%} of"
             "total) records from 2003 from the f1_incm_stmnt_2 DBF table that have "
             "known incorrect row numbers."
         )
@@ -6045,10 +6066,10 @@ class SalesByRateSchedulesTableTransformer(Ferc1AbstractTableTransformer):
     ) -> pd.DataFrame:
         """Rename columns before running wide_to_tidy."""
         logger.info(f"{self.table_id.value}: Processing XBRL data pre-concatenation.")
+        instant_xbrl = self.process_instant_xbrl(raw_xbrl_instant)
+        duration_xbrl = self.process_duration_xbrl(raw_xbrl_duration)
         return (
-            self.merge_instant_and_duration_tables_xbrl(
-                raw_xbrl_instant, raw_xbrl_duration
-            )
+            self.merge_instant_and_duration_tables_xbrl(instant_xbrl, duration_xbrl)
             .pipe(self.rename_columns, rename_stage="xbrl")
             .pipe(self.combine_axis_columns_xbrl)
             .pipe(self.add_axis_to_total_table_rows)
@@ -6121,13 +6142,13 @@ def ferc1_transform_asset_factory(
     dbf_tables = listify(TABLE_NAME_MAP_FERC1[table_name]["dbf"])
     xbrl_tables = listify(TABLE_NAME_MAP_FERC1[table_name]["xbrl"])
 
-    ins = {f"raw_dbf__{tn}": AssetIn(f"raw_ferc1_dbf__{tn}") for tn in dbf_tables}
+    ins = {f"raw_ferc1_dbf__{tn}": AssetIn(f"raw_ferc1_dbf__{tn}") for tn in dbf_tables}
     ins |= {
-        f"raw_xbrl_instant__{tn}": AssetIn(f"raw_ferc1_xbrl__{tn}_instant")
+        f"raw_ferc1_xbrl__{tn}_instant": AssetIn(f"raw_ferc1_xbrl__{tn}_instant")
         for tn in xbrl_tables
     }
     ins |= {
-        f"raw_xbrl_duration__{tn}": AssetIn(f"raw_ferc1_xbrl__{tn}_duration")
+        f"raw_ferc1_xbrl__{tn}_duration": AssetIn(f"raw_ferc1_xbrl__{tn}_duration")
         for tn in xbrl_tables
     }
     ins["_core_ferc1_xbrl__metadata_json"] = AssetIn("_core_ferc1_xbrl__metadata_json")
@@ -6160,13 +6181,30 @@ def ferc1_transform_asset_factory(
             )
 
         raw_dbf = pd.concat(
-            [df for key, df in kwargs.items() if key.startswith("raw_dbf__")]
+            [df for key, df in kwargs.items() if key.startswith("raw_ferc1_dbf__")]
         )
+        raw_xbrls = {
+            tn: filter_for_freshest_data_xbrl(
+                df,
+                get_primary_key_raw_xbrl(tn.removeprefix("raw_ferc1_xbrl__"), "ferc1"),
+            )
+            for tn, df in kwargs.items()
+            if tn.startswith("raw_ferc1_xbrl__")
+        }
+        for raw_xbrl_table_name in listify(TABLE_NAME_MAP_FERC1[table_name]["xbrl"]):
+            if (
+                raw_xbrls[f"raw_ferc1_xbrl__{raw_xbrl_table_name}_instant"].empty
+                and raw_xbrls[f"raw_ferc1_xbrl__{raw_xbrl_table_name}_duration"].empty
+            ):
+                raise AssertionError(
+                    f"{raw_xbrl_table_name} has neither instant nor duration tables. "
+                    "Is it spelled correctly in pudl.extract.ferc1.TABLE_NAME_MAP_FERC1"
+                )
         raw_xbrl_instant = pd.concat(
-            [df for key, df in kwargs.items() if key.startswith("raw_xbrl_instant__")]
+            [df for key, df in raw_xbrls.items() if key.endswith("_instant")]
         )
         raw_xbrl_duration = pd.concat(
-            [df for key, df in kwargs.items() if key.startswith("raw_xbrl_duration__")]
+            [df for key, df in raw_xbrls.items() if key.endswith("_duration")]
         )
         df = transformer.transform(
             raw_dbf=raw_dbf,
@@ -6193,6 +6231,10 @@ def create_ferc1_transform_assets() -> list[AssetsDefinition]:
 
 
 ferc1_assets = create_ferc1_transform_assets()
+
+##########################################
+# Post-core tables/XBLR Calculations Stuff
+##########################################
 
 
 def other_dimensions(table_names: list[str]) -> list[str]:
@@ -6299,7 +6341,7 @@ def _core_ferc1_xbrl__metadata(**kwargs) -> pd.DataFrame:
     metadata_all = (
         pd.concat(tbl_metas)
         .reset_index(drop=True)
-        .assign(**{dim: pd.NA for dim in dimensions})
+        .assign(**dict.fromkeys(dimensions, pd.NA))
         .pipe(
             make_xbrl_factoid_dimensions_explicit,
             table_dimensions_ferc1=_core_ferc1__table_dimensions,

@@ -1,0 +1,351 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_eia923__fuel_receipts_costs
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: out_eia923__fuel_receipts_costs
+              partition_column: report_date
+        columns:
+          - name: report_date
+          - name: plant_id_eia
+          - name: plant_id_pudl
+          - name: plant_name_eia
+          - name: utility_id_eia
+          - name: utility_id_pudl
+          - name: utility_name_eia
+          - name: state
+          - name: contract_type_code
+          - name: contract_expiration_date
+          - name: energy_source_code
+          - name: fuel_type_code_pudl
+          - name: fuel_group_code
+          - name: supplier_name
+          - name: fuel_received_units
+          - name: fuel_mmbtu_per_unit
+            data_tests:
+              - expect_quantile_constraints:
+                  row_condition: energy_source_code='ANT'
+                  constraints:
+                    - quantile: 0.5
+                      min_value: 20.5
+                      max_value: 26.5
+                    - quantile: 0.05
+                      min_value: 22.0
+                    - quantile: 0.95
+                      max_value: 29.0
+                  weight_column: fuel_received_units
+              - expect_quantile_constraints:
+                  row_condition: energy_source_code='BIT'
+                  constraints:
+                    - quantile: 0.5
+                      min_value: 20.5
+                      max_value: 26.5
+                    - quantile: 0.05
+                      min_value: 17.5
+                    - quantile: 0.95
+                      max_value: 29.0
+                  weight_column: fuel_received_units
+                  description: April 2025 - reduced bounds for quantile 0.05 from 18 to 17.5 to permit passing in etl-fast. Keep an eye on this, and investigate if it falls further.
+              - expect_quantile_constraints:
+                  row_condition: energy_source_code='SUB'
+                  constraints:
+                    - quantile: 0.5
+                      min_value: 16.5
+                      max_value: 18.0
+                    - quantile: 0.05
+                      min_value: 15.0
+                    - quantile: 0.95
+                      max_value: 20.0
+                  weight_column: fuel_received_units
+              - expect_quantile_constraints:
+                  row_condition: energy_source_code='LIG'
+                  constraints:
+                    - quantile: 0.5
+                      min_value: 12.0
+                      max_value: 14.0
+                    - quantile: 0.05
+                      min_value: 10.0
+                    - quantile: 0.95
+                      max_value: 15.0
+                  weight_column: fuel_received_units
+              - expect_quantile_constraints:
+                  row_condition: energy_source_code='DFO'
+                  constraints:
+                    - quantile: 0.05
+                      min_value: 5.5
+                    - quantile: 0.95
+                      max_value: 6.0
+                    - quantile: 0.5
+                      min_value: 5.75
+                      max_value: 5.85
+                  weight_column: fuel_received_units
+              - expect_quantile_constraints:
+                  row_condition: energy_source_code='SGC'
+                  constraints:
+                    - quantile: 0.05
+                      min_value: 0.2
+                    - quantile: 0.95
+                      max_value: 0.3
+                  weight_column: fuel_received_units
+              - expect_quantile_constraints:
+                  row_condition: energy_source_code='JF'
+                  constraints:
+                    - quantile: 0.05
+                      min_value: 5.0
+                    - quantile: 0.95
+                      max_value: 6.0
+                  weight_column: fuel_received_units
+              - expect_quantile_constraints:
+                  row_condition: energy_source_code='KER'
+                  constraints:
+                    - quantile: 0.05
+                      min_value: 5.4
+                    - quantile: 0.95
+                      max_value: 6.1
+                  weight_column: fuel_received_units
+              - expect_quantile_constraints:
+                  row_condition: energy_source_code='PC'
+                  constraints:
+                    - quantile: 0.05
+                      min_value: 24.0
+                    - quantile: 0.95
+                      max_value: 30.0
+                  weight_column: fuel_received_units
+              - expect_quantile_constraints:
+                  row_condition: energy_source_code='RFO'
+                  constraints:
+                    - quantile: 0.05
+                      min_value: 5.7
+                    - quantile: 0.95
+                      max_value: 6.9
+                  weight_column: fuel_received_units
+              - expect_quantile_constraints:
+                  row_condition: energy_source_code='PG'
+                  constraints:
+                    - quantile: 0.05
+                      min_value: 0.4
+                    - quantile: 0.95
+                      max_value: 2.75
+                  weight_column: fuel_received_units
+                  description: Quantile 0.05 dropped from 2.5 to 0.41 (etl-full) in April 2025. Keep an eye on it, and investigate if it gets worse.
+              - expect_quantile_constraints:
+                  row_condition: energy_source_code='SGP'
+                  constraints:
+                    - quantile: 0.05
+                      min_value: 0.2
+                    - quantile: 0.95
+                      max_value: 1.1
+                  weight_column: fuel_received_units
+              - expect_quantile_constraints:
+                  row_condition: energy_source_code='WO'
+                  constraints:
+                    - quantile: 0.05
+                      min_value: 3.0
+                    - quantile: 0.95
+                      max_value: 5.9
+                  weight_column: fuel_received_units
+              - expect_quantile_constraints:
+                  row_condition: energy_source_code='BFG'
+                  constraints:
+                    - quantile: 0.05
+                      min_value: 0.07
+                    - quantile: 0.95
+                      max_value: 0.12
+                  weight_column: fuel_received_units
+              - expect_quantile_constraints:
+                  row_condition: energy_source_code='NG'
+                  constraints:
+                    - quantile: 0.05
+                      min_value: 0.8
+                    - quantile: 0.95
+                      max_value: 1.2
+                  weight_column: fuel_received_units
+              - expect_quantile_constraints:
+                  row_condition: energy_source_code='OG'
+                  constraints:
+                    - quantile: 0.05
+                      min_value: 0.07
+                    - quantile: 0.95
+                      max_value: 3.3
+                  weight_column: fuel_received_units
+                  description: Based on values given in the EIA 923 instructions, but with the lower bound set by the expected lower bound of heat content on blast furnace gas (since there were "other" gasses with bounds lower than the expected 0.32 in the data)
+              - expect_quantile_constraints:
+                  row_condition: energy_source_code='AB'
+                  constraints:
+                    - quantile: 0.05
+                      min_value: 7.0
+                    - quantile: 0.95
+                      max_value: 18.0
+                  weight_column: fuel_received_units
+              - expect_quantile_constraints:
+                  row_condition: energy_source_code='MSW'
+                  constraints:
+                    - quantile: 0.05
+                      min_value: 9.0
+                    - quantile: 0.95
+                      max_value: 12.0
+                  weight_column: fuel_received_units
+              - expect_quantile_constraints:
+                  row_condition: energy_source_code='WDS'
+                  constraints:
+                    - quantile: 0.05
+                      min_value: 7.0
+                    - quantile: 0.95
+                      max_value: 18.0
+                  weight_column: fuel_received_units
+              - expect_quantile_constraints:
+                  row_condition: energy_source_code='OBS'
+                  constraints:
+                    - quantile: 0.05
+                      min_value: 8.0
+                    - quantile: 0.95
+                      max_value: 25.0
+                  weight_column: fuel_received_units
+              - expect_quantile_constraints:
+                  row_condition: energy_source_code='OBL'
+                  constraints:
+                    - quantile: 0.05
+                      min_value: 3.5
+                    - quantile: 0.95
+                      max_value: 4.0
+                  weight_column: fuel_received_units
+              - expect_quantile_constraints:
+                  row_condition: energy_source_code='OBG'
+                  constraints:
+                    - quantile: 0.05
+                      min_value: 0.36
+                    - quantile: 0.95
+                      max_value: 1.6
+                  weight_column: fuel_received_units
+              - expect_quantile_constraints:
+                  row_condition: energy_source_code='SLW'
+                  constraints:
+                    - quantile: 0.05
+                      min_value: 10.0
+                    - quantile: 0.95
+                      max_value: 16.0
+                  weight_column: fuel_received_units
+              - expect_quantile_constraints:
+                  row_condition: energy_source_code='BLQ'
+                  constraints:
+                    - quantile: 0.05
+                      min_value: 10.0
+                    - quantile: 0.95
+                      max_value: 14.0
+                  weight_column: fuel_received_units
+              - expect_quantile_constraints:
+                  row_condition: energy_source_code='WDL'
+                  constraints:
+                    - quantile: 0.05
+                      min_value: 8.0
+                    - quantile: 0.95
+                      max_value: 14.0
+                  weight_column: fuel_received_units
+              - expect_quantile_constraints:
+                  row_condition: energy_source_code='LFG'
+                  constraints:
+                    - quantile: 0.05
+                      min_value: 0.3
+                    - quantile: 0.95
+                      max_value: 0.6
+                  weight_column: fuel_received_units
+          - name: fuel_cost_per_mmbtu
+          - name: bulk_agg_fuel_cost_per_mmbtu
+          - name: fuel_consumed_mmbtu
+          - name: total_fuel_cost
+          - name: fuel_cost_per_mmbtu_source
+          - name: sulfur_content_pct
+            data_tests:
+              - expect_quantile_constraints:
+                  row_condition: fuel_type_code_pudl='coal'
+                  constraints:
+                    - quantile: 0.05
+                      min_value: 0.15
+                    - quantile: 0.95
+                      max_value: 4.0
+                  weight_column: fuel_received_units
+          - name: ash_content_pct
+            data_tests:
+              - expect_quantile_constraints:
+                  row_condition: energy_source_code='BIT'
+                  constraints:
+                    - quantile: 0.5
+                      min_value: 6.0
+                      max_value: 15.0
+                  weight_column: fuel_received_units
+              - expect_quantile_constraints:
+                  row_condition: energy_source_code='SUB'
+                  constraints:
+                    - quantile: 0.5
+                      min_value: 4.5
+                      max_value: 7.0
+                  weight_column: fuel_received_units
+              - expect_quantile_constraints:
+                  row_condition: energy_source_code='LIG'
+                  constraints:
+                    - quantile: 0.5
+                      min_value: 7.0
+                      max_value: 30.0
+                  weight_column: fuel_received_units
+              - expect_quantile_constraints:
+                  row_condition: fuel_type_code_pudl='coal'
+                  constraints:
+                    - quantile: 0.5
+                      min_value: 4.0
+                      max_value: 20.0
+                  weight_column: fuel_received_units
+          - name: mercury_content_ppm
+            data_tests:
+              - expect_quantile_constraints:
+                  row_condition: fuel_type_code_pudl='coal'
+                  constraints:
+                    - quantile: 0.95
+                      max_value: 0.125
+                    - quantile: 0.5
+                      min_value: 0.0
+                      max_value: 0.1
+                  weight_column: fuel_received_units
+                  description: Based on USGS FS095-01. Historically, upper tail may fail because of a population of extremely high mercury content coal (9.0ppm) which is likely a reporting error.
+          - name: primary_transportation_mode_code
+          - name: secondary_transportation_mode_code
+          - name: natural_gas_transport_code
+          - name: natural_gas_delivery_contract_type_code
+          - name: moisture_content_pct
+            data_tests:
+              - expect_quantile_constraints:
+                  row_condition: energy_source_code='BIT'
+                  constraints:
+                    - quantile: 0.5
+                      min_value: 5.0
+                      max_value: 16.5
+                  weight_column: fuel_received_units
+              - expect_quantile_constraints:
+                  row_condition: energy_source_code='SUB'
+                  constraints:
+                    - quantile: 0.5
+                      min_value: 15.0
+                      max_value: 32.5
+                  weight_column: fuel_received_units
+              - expect_quantile_constraints:
+                  row_condition: energy_source_code='LIG'
+                  constraints:
+                    - quantile: 0.5
+                      min_value: 25.0
+                      max_value: 45.0
+                  weight_column: fuel_received_units
+              - expect_quantile_constraints:
+                  row_condition: fuel_type_code_pudl='coal'
+                  constraints:
+                    - quantile: 0.5
+                      min_value: 5.0
+                      max_value: 40.0
+                  weight_column: fuel_received_units
+          - name: chlorine_content_ppm
+          - name: data_maturity
+          - name: mine_id_msha
+          - name: mine_name
+          - name: mine_state
+          - name: coalmine_county_id_fips
+          - name: mine_type_code

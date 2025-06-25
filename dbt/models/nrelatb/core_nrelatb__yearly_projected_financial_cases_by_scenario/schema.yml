@@ -1,0 +1,22 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_nrelatb__yearly_projected_financial_cases_by_scenario
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_nrelatb__yearly_projected_financial_cases_by_scenario
+              partition_column: report_year
+        columns:
+          - name: report_year
+          - name: model_case_nrelatb
+          - name: model_tax_credit_case_nrelatb
+          - name: projection_year
+          - name: technology_description
+          - name: scenario_atb
+          - name: cost_recovery_period_years
+          - name: capital_recovery_factor
+          - name: debt_fraction
+          - name: fixed_charge_rate
+          - name: wacc_nominal
+          - name: wacc_real

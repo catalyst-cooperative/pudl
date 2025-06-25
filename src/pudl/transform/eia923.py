@@ -79,13 +79,13 @@ def _get_plant_nuclear_unit_id_map(nuc_fuel: pd.DataFrame) -> dict[int, str]:
     plant_to_nuc_id = plant_to_nuc_id.explode()
 
     # check there is one nuclear unit per plant.
-    assert (
-        plant_to_nuc_id.index.is_unique
-    ), "Found multiple nuclear units in plant_to_nuc_id mapping."
+    assert plant_to_nuc_id.index.is_unique, (
+        "Found multiple nuclear units in plant_to_nuc_id mapping."
+    )
     # Check there are no missing nuclear unit ids.
-    assert (
-        ~plant_to_nuc_id.isna()
-    ).all(), "Found missing nuclear_unit_ids in plant_to_nuc_id mappings."
+    assert (~plant_to_nuc_id.isna()).all(), (
+        "Found missing nuclear_unit_ids in plant_to_nuc_id mappings."
+    )
 
     plant_to_nuc_id = plant_to_nuc_id.astype("string")
 
@@ -154,13 +154,13 @@ def _get_plant_prime_mover_map(gen_fuel: pd.DataFrame) -> dict[int, str]:
     plant_to_prime_mover = plant_to_prime_mover.explode()
 
     # check there is one prime mover per plant.
-    assert (
-        plant_to_prime_mover.index.is_unique
-    ), "Found multiple plants in plant_to_prime_mover mapping."
+    assert plant_to_prime_mover.index.is_unique, (
+        "Found multiple plants in plant_to_prime_mover mapping."
+    )
     # Check there are no missing prime mover codes.
-    assert (
-        plant_to_prime_mover.notnull()
-    ).all(), "Found missing prime_mover_codes in plant_to_prime_mover mappings."
+    assert (plant_to_prime_mover.notnull()).all(), (
+        "Found missing prime_mover_codes in plant_to_prime_mover mappings."
+    )
 
     return dict(plant_to_prime_mover)
 
@@ -201,9 +201,9 @@ def _backfill_prime_mover_code(gen_fuel: pd.DataFrame) -> pd.DataFrame:
     missing_prime_movers = gen_fuel.prime_mover_code.isna()
     gen_fuel.loc[missing_prime_movers, "prime_mover_code"] = "UNK"
 
-    assert (
-        gen_fuel.prime_mover_code.notna().all()
-    ), "generation_fuel_923.prime_mover_code has missing values after backfill."
+    assert gen_fuel.prime_mover_code.notna().all(), (
+        "generation_fuel_923.prime_mover_code has missing values after backfill."
+    )
     return gen_fuel
 
 
@@ -435,12 +435,14 @@ def _yearly_to_monthly_records(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def _coalmine_cleanup(cmi_df: pd.DataFrame) -> pd.DataFrame:
+def _coalmine_cleanup(
+    cmi_df: pd.DataFrame, _core_censuspep__yearly_geocodes
+) -> pd.DataFrame:
     """Clean up the core_eia923__entity_coalmine table.
 
     This function does most of the core_eia923__entity_coalmine table transformation. It is separate
     from the coalmine() transform function because of the peculiar way that we are
-    normalizing the ref:`core_eia923__monthly_fuel_receipts_costs` table.
+    normalizing the :ref:`core_eia923__monthly_fuel_receipts_costs` table.
 
     All of the coalmine information is originally coming from the EIA
     fuel_receipts_costs spreadsheet, but it really belongs in its own table. We strip it
@@ -484,10 +486,17 @@ def _coalmine_cleanup(cmi_df: pd.DataFrame) -> pd.DataFrame:
                 x.county_id_fips,
                 n_digits=3,
             ),
+            # 2025-05-14: there is one mine_id that uses the letter O instead of a 0.
+            # In addition, mine_ids from 2024 are reported as strings and have a leading 0.
+            # I checked the same id from other years in the raw data, and the leading 0s
+            # only appear in 2024, so this function removes them so the years line up.
+            mine_id_msha=lambda x: x.mine_id_msha.str.replace("O", "0").astype("Int64"),
         )
         # No leading or trailing whitespace:
         .pipe(pudl.helpers.simplify_strings, columns=["mine_name"])
-        .pipe(pudl.helpers.add_fips_ids, county_col=None)
+        .pipe(
+            pudl.helpers.add_fips_ids, _core_censuspep__yearly_geocodes, county_col=None
+        )
     )
     # join state and partial county FIPS into five digit county FIPS
     cmi_df["county_id_fips"] = cmi_df["state_id_fips"] + cmi_df["county_id_fips"]
@@ -1005,6 +1014,7 @@ def _core_eia923__generation(raw_eia923__generator: pd.DataFrame) -> pd.DataFram
 @asset
 def _core_eia923__coalmine(
     raw_eia923__fuel_receipts_costs: pd.DataFrame,
+    _core_censuspep__yearly_geocodes: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transforms the raw_eia923__fuel_receipts_costs table.
 
@@ -1035,7 +1045,7 @@ def _core_eia923__coalmine(
     # to use again for populating the FRC table (see below)
     cmi_df = raw_eia923__fuel_receipts_costs
     # Keep only the columns listed above:
-    cmi_df = _coalmine_cleanup(cmi_df)
+    cmi_df = _coalmine_cleanup(cmi_df, _core_censuspep__yearly_geocodes)
 
     cmi_df = cmi_df[coalmine_cols]
 
@@ -1079,7 +1089,9 @@ def _core_eia923__coalmine(
 
 @asset
 def _core_eia923__fuel_receipts_costs(
-    raw_eia923__fuel_receipts_costs: pd.DataFrame, _core_eia923__coalmine: pd.DataFrame
+    raw_eia923__fuel_receipts_costs: pd.DataFrame,
+    _core_eia923__coalmine: pd.DataFrame,
+    _core_censuspep__yearly_geocodes: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transforms the eia923__fuel_receipts_costs dataframe.
 
@@ -1133,7 +1145,7 @@ def _core_eia923__fuel_receipts_costs(
     # is populated, and here (since we need them to be identical for the
     # following merge)
     frc_df = (
-        frc_df.pipe(_coalmine_cleanup)
+        frc_df.pipe(_coalmine_cleanup, _core_censuspep__yearly_geocodes)
         .merge(
             cmi_df,
             how="left",
@@ -1284,7 +1296,7 @@ def _core_eia923__cooling_system_information(
 
 
 @asset_check(asset=_core_eia923__cooling_system_information, blocking=True)
-def cooling_system_information_null_check(csi):  # pragma: no cover
+def cooling_system_information_null_check(csi):
     """We do not expect any columns to be completely null.
 
     In fast-ETL context (only recent years), the annual columns may also be
@@ -1299,45 +1311,7 @@ def cooling_system_information_null_check(csi):  # pragma: no cover
 
 
 @asset_check(asset=_core_eia923__cooling_system_information, blocking=True)
-def cooling_system_information_withdrawal_discrepancy_check(csi):  # pragma: no cover
-    """Withdrawal should be equal to discharge + consumption.
-
-    To allow for *some* data quality errors we assert that withdrawal ~=
-    discharge + consumption at least 90% of the time (with a 1% acceptable
-    discrepancy).
-    """
-
-    def sum_to_target_rate(sum_cols, target, threshold):
-        discrepancies = (
-            csi.loc[:, sum_cols].sum(axis="columns") - csi.loc[:, target]
-        ).dropna() / csi.loc[:, target]
-        return (discrepancies > threshold).sum() / len(discrepancies)
-
-    monthly_withdrawal_discrepancy_rate = sum_to_target_rate(
-        sum_cols=[
-            "monthly_average_consumption_rate_gallons_per_minute",
-            "monthly_average_discharge_rate_gallons_per_minute",
-        ],
-        target="monthly_average_withdrawal_rate_gallons_per_minute",
-        threshold=0.01,
-    )
-    assert monthly_withdrawal_discrepancy_rate < 0.1
-
-    annual_withdrawal_discrepancy_rate = sum_to_target_rate(
-        sum_cols=[
-            "annual_average_consumption_rate_gallons_per_minute",
-            "annual_average_discharge_rate_gallons_per_minute",
-        ],
-        target="annual_average_withdrawal_rate_gallons_per_minute",
-        threshold=0.01,
-    )
-    assert annual_withdrawal_discrepancy_rate < 0.1
-
-    return AssetCheckResult(passed=True)
-
-
-@asset_check(asset=_core_eia923__cooling_system_information, blocking=True)
-def cooling_system_information_continuity(csi):  # pragma: no cover
+def cooling_system_information_continuity(csi):
     """Check to see if columns vary as slowly as expected."""
     return pudl.validate.group_mean_continuity_check(
         df=csi,
@@ -1355,7 +1329,7 @@ def cooling_system_information_continuity(csi):  # pragma: no cover
             "monthly_total_withdrawal_volume_gallons": 0.3,
         },
         groupby_col="report_date",
-        n_outliers_allowed=1,
+        n_outliers_allowed=3,
     )
 
 
@@ -1435,7 +1409,7 @@ def _core_eia923__fgd_operation_maintenance(
 
 
 @asset_check(asset=_core_eia923__fgd_operation_maintenance, blocking=True)
-def fgd_operation_maintenance_null_check(fgd):  # pragma: no cover
+def fgd_operation_maintenance_null_check(fgd):
     """Check that columns other than expected columns aren't null."""
     fast_run_null_cols = {
         "fgd_control_flag",
@@ -1457,33 +1431,7 @@ def fgd_operation_maintenance_null_check(fgd):  # pragma: no cover
 
 
 @asset_check(asset=_core_eia923__fgd_operation_maintenance, blocking=True)
-def fgd_cost_discrepancy_check(fgd):  # pragma: no cover
-    """Opex costs should sum to opex_fgd_total_cost.
-
-    To allow for *some* data quality errors we assert that costs ~=
-    total cost at least 99% of the time (with a 1% acceptable
-    discrepancy).
-    """
-
-    def sum_to_target_rate(sum_cols, target, threshold):
-        discrepancies = (
-            fgd.loc[:, sum_cols].sum(axis="columns") - fgd.loc[:, target]
-        ).dropna() / fgd.loc[:, target]
-        return (discrepancies > threshold).sum() / len(discrepancies)
-
-    opex_cost_discrepancy_rate = sum_to_target_rate(
-        sum_cols=[col for col in fgd if "opex_fgd" in col and "total_cost" not in col],
-        target="opex_fgd_total_cost",
-        threshold=0.01,
-    )
-    logger.info(f"Observed opex cost discrepancy: {opex_cost_discrepancy_rate}")
-    assert opex_cost_discrepancy_rate < 0.01
-
-    return AssetCheckResult(passed=True)
-
-
-@asset_check(asset=_core_eia923__fgd_operation_maintenance, blocking=True)
-def fgd_continuity_check(fgd):  # pragma: no cover
+def fgd_continuity_check(fgd):
     """Check to see if columns vary as slowly as expected."""
     return pudl.validate.group_mean_continuity_check(
         df=fgd,

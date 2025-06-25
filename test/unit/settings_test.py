@@ -17,8 +17,11 @@ from pudl.settings import (
     Eia923Settings,
     EiaSettings,
     EpaCemsSettings,
+    EtlSettings,
     Ferc1DbfToSqliteSettings,
     Ferc1Settings,
+    Ferc1XbrlToSqliteSettings,
+    FercToSqliteSettings,
     GenericDatasetSettings,
     _convert_settings_to_dagster_config,
 )
@@ -269,6 +272,23 @@ class TestDatasetsSettings:
         assert isinstance(dct["eia"]["eia923"]["years"], Field)
 
 
+class TestEtlSettings:
+    """Test pydantic model that validates all the full ETL Settings."""
+
+    @staticmethod
+    def test_validate_xbrl_years():
+        """Test validation error is raised when FERC XBRL->SQLite years don't overlap with PUDL years."""
+        with pytest.raises(ValidationError):
+            _ = EtlSettings(
+                datasets=DatasetsSettings(ferc1=Ferc1Settings(years=[2021])),
+                ferc_to_sqlite_settings=FercToSqliteSettings(
+                    ferc1_xbrl_to_sqlite_settings=Ferc1XbrlToSqliteSettings(
+                        years=[2023]
+                    )
+                ),
+            )
+
+
 class TestGlobalConfig:
     """Test global pydantic model config works."""
 
@@ -331,8 +351,7 @@ def test_partitions_with_json_normalize(pudl_etl_settings):
     cems_parts = json_normalize(datasets["epacems"].partitions)
     if list(cems_parts.columns) != ["year_quarter"]:
         raise AssertionError(
-            "CEMS paritions should have year_quarter columns only, found:"
-            f"{cems_parts}"
+            f"CEMS paritions should have year_quarter columns only, found:{cems_parts}"
         )
 
 

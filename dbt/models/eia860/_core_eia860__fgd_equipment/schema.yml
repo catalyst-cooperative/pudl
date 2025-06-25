@@ -1,0 +1,54 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: _core_eia860__fgd_equipment
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: _core_eia860__fgd_equipment
+              partition_column: report_date
+          - expect_fgd_cost_totals_to_agree
+        columns:
+          - name: report_date
+          - name: plant_id_eia
+          - name: so2_control_id_eia
+          - name: utility_id_eia
+          - name: utility_name_eia
+          - name: state
+          - name: state_id_fips
+          - name: county
+          - name: county_id_fips
+          - name: fgd_operating_date
+          - name: fgd_operational_status_code
+          - name: flue_gas_bypass_fgd
+          - name: byproduct_recovery
+          - name: sludge_pond
+          - name: sludge_pond_lined
+          - name: pond_landfill_requirements_acre_foot_per_year
+          - name: fgd_structure_cost
+          - name: fgd_other_cost
+          - name: sludge_disposal_cost
+          - name: total_fgd_equipment_cost
+          - name: fgd_trains_100pct
+          - name: fgd_trains_total
+          - name: flue_gas_entering_fgd_pct_of_total
+          - name: flue_gas_exit_rate_cubic_feet_per_minute
+          - name: flue_gas_exit_temperature_fahrenheit
+          - name: so2_emission_rate_lbs_per_hour
+          - name: so2_equipment_type_1
+          - name: so2_equipment_type_2
+          - name: so2_equipment_type_3
+          - name: so2_equipment_type_4
+          - name: so2_removal_efficiency_design
+          - name: specifications_of_coal_ash
+          - name: specifications_of_coal_sulfur
+          - name: sorbent_type_1
+          - name: sorbent_type_2
+          - name: sorbent_type_3
+          - name: sorbent_type_4
+          - name: fgd_manufacturer
+          - name: fgd_manufacturer_code
+          - name: steam_plant_type_code
+          - name: plant_summer_capacity_mw
+          - name: water_source
+          - name: data_maturity

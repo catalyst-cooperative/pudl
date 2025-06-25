@@ -7,21 +7,21 @@ ferc_to_sqlite_settings:
     # What years of original FERC data should be cloned into the SQLite DB?
     years: [2019, 2020]
   ferc1_xbrl_to_sqlite_settings:
-    years: [2021, 2023]
+    years: [2021, 2024]
   ferc2_dbf_to_sqlite_settings:
     years: [2019, 2020]
   ferc2_xbrl_to_sqlite_settings:
-    years: [2021, 2022]
+    years: [2021, 2024]
   ferc6_dbf_to_sqlite_settings:
     years: [2019, 2020]
   ferc6_xbrl_to_sqlite_settings:
-    years: [2021, 2022]
+    years: [2021, 2024]
   ferc60_dbf_to_sqlite_settings:
     years: [2019, 2020]
   ferc60_xbrl_to_sqlite_settings:
-    years: [2021, 2022]
+    years: [2021, 2024]
   ferc714_xbrl_to_sqlite_settings:
-    years: [2021, 2022]
+    years: [2021, 2023]
 
 ###########################################################################
 # Settings for pudl_etl script
@@ -35,23 +35,23 @@ description: >
 version: 0.1.0
 datasets:
   ferc1:
-    years: [2020, 2021, 2023]
+    years: [2020, 2021, 2024]
   ferc714:
-    years: [2019, 2020]
+    years: [2020, 2023]
   eia:
     eia176:
-      years: [2020, 2022]
+      years: [2020, 2023]
     eia191:
       years: [2020, 2023]
     eia757a:
       years: [2014, 2017]
     eia923:
-      years: [2020, 2024]
+      years: [2020, 2025]
     eia860:
-      years: [2020, 2023]
+      years: [2020, 2024]
       eia860m: true
     eia860m:
-      year_months: ["2024-05", "2024-06"]
+      year_months: ["2025-03", "2025-04"]
     eia861:
       # eia861 runs fast. Discontinued tables break single-year ETL.
       # This is a temporary hack to make the tests pass!
@@ -79,6 +79,7 @@ datasets:
           2020,
           2021,
           2022,
+          2023,
         ]
     eia930:
       half_years: ["2024half2"]
@@ -87,7 +88,9 @@ datasets:
   epacems:
     # Note that the CEMS data relies on EIA 860 data for plant locations,
     # so if you're loading CEMS data for a particular year, you should
-    # also load the EIA 860 data for that year if possible
+    # also load the EIA 860 data for that year if possible.
+    #
+    # We only use q1 for epacems etl_fast even if later quarters are available.
     year_quarters: ["2023q1"]
   phmsagas:
     years: [2022]
@@ -97,3 +100,17 @@ datasets:
     technology_types: ["wind"]
     processing_levels: ["extended"]
     daily_weather: true
+  sec10k:
+    years: [2020, 2023]
+    tables:
+      [
+        "raw_sec10k__quarterly_filings",
+        "raw_sec10k__quarterly_company_information",
+        "raw_sec10k__parents_and_subsidiaries",
+        "raw_sec10k__exhibit_21_company_ownership",
+      ]
+  vcerare:
+    years: [2023]
+    fips: True
+  censuspep:
+    years: [2023, 2015, 2009]

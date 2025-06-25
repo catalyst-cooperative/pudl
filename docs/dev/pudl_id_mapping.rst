@@ -70,6 +70,15 @@ with ``entity_id``'s, which we rename to ``utility_id_ferc1_dbf`` and
 ``utility_id_ferc1``. These IDs are assigned and stored in
 ``pudl/package_data/glue/utility_id_ferc1.csv``.
 
+.. warning::
+    When there are new FERC1 utilities to be mapped, you will probably need to map the
+    utility ID's before the tables will be able to be transformed because the
+    PUDL-assigned utility ID is used as a merge key.
+
+.. warning::
+    To fully map the FERC1 utilities you'll need to run the `make unmapped_ids`
+    step - documented below - twice because there are two layers of ID's as described
+    above.
 
 Checking for Unmapped Records
 -----------------------------
@@ -91,12 +100,15 @@ a complete database based on the settings files stored in
 unmapped IDs to the ``devtools/ferc1-eia-glue`` directory that correspond to unmapped
 plants and utilities from FERC 1 and EIA.
 
-If you have already generated a databse without foreign-key constraints, you can run
+If you have already generated a database without foreign-key constraints, you can run
 just the script that extracts the umapped IDs with:
 
 .. code-block:: console
 
     $ pytest test/integration/glue_test.py --live-dbs --save-unmapped-ids
+
+The ``--save-unmapped-ids`` flag saves unmapped plants and utilities in the
+``devtools/ferc1-eia-glue`` folder by default.
 
 Assigning PUDL IDs to Unmapped Records
 --------------------------------------
@@ -114,10 +126,11 @@ same PUDL ID.
 Mapping Plants
 ^^^^^^^^^^^^^^
 
-The ``unmapped_plants_ferc1/eia.csv`` files should display basic plant information such
-as the facility name, utility name, and capacity. We show capacity here so that we can
-prioritize which plants to map. The larger the capacity, the more important it is to get
-it mapped. Sort the records by capacity so the highest priority records at the top.
+The ``missing_plant_id_in_plants_ferc1/eia.csv`` files should display basic plant
+information such as the facility name, utility name, and capacity. We show capacity here
+so that we can prioritize which plants to map. The larger the capacity, the more
+important it is to get it mapped. Sort the records by capacity so the highest priority
+records at the top.
 
 From the FERC and EIA unmapped plants spreadsheets, copy the ``plant_id_eia`` (only in
 EIA), ``plant_name_ferc1/eia``, ``utility_id_ferc1/eia``, and ``utility_name_ferc1/eia``
@@ -160,33 +173,29 @@ plant name string (e.g. for ``chenango solar``, you could search for ``chen``,
 or ``chenan``). Searching the entire plant tab helps find other records within
 both FERC and EIA that may be the same or part of the same facility. Searching
 for a piece can help catch misspellings in the plant name, which are more common
-in the FERC records.
+in the FERC records. Use the ``devtools/pudl_id_mapping_help.ipynb`` notebook to speed
+up this process.
 
-    * **If co-located EIA plants have distinct plant IDs and no FERC 1 plant:**
-        they should not be lumped under a single PUDL Plant ID, as that artificially
-        reduces the granularity of data without providing any additional linkage to
-        other datasets.
-
-    * **If a record has the same plant and utility name as another record:**
-        assign it the same PUDL ID as the other record **by reference** to the cell in
-        which the first instance of that PUDL ID appears. **Never simply enter the PUDL
-        ID as a number**, as it will not update automatically when IDs change due to
-        re-mapping or other alterations. If the new plant name is similar in that it’s a
-        different unit or a part of a facility that uses a different fuel type (e.g.
-        ``Conemaugh (Steam)`` and ``Conemaugh (CT)``, they should still share the same
-        PUDL ID. That’s because co-located fossil-fueled generators are considered parts
-        of the same plant.
-
-    * **If the plant name looks similar but there are discrepancies:**
-        such as different operators (e.g. a facility ``keystone`` with operators
-        ``baltimore gas and electric`` and ``atlantic gas and electric``), then it’s
-        best to look at the capacity first to see if the facilities are the same. If
-        that’s indeterminate, you can Google the plant to see if it has the same
-        location or if there is ownership or construction history that helps determine
-        if the facilities are the same or co-located. Presuming you've run the ETL with
-        the ``--ignore-foreign-key-constraints`` flag, you can also look at the PUDL
-        ``plants_eia860`` and ``plants_all_ferc1`` tables to compare the records'
-        location information.
+* **If co-located EIA plants have distinct plant IDs and no FERC 1 plant:**
+  they should not be lumped under a single PUDL Plant ID, as that artificially reduces
+  the granularity of data without providing any additional linkage to other datasets.
+* **If a record has the same plant and utility name as another record:**
+  assign it the same PUDL ID as the other record **by reference** to the cell in which
+  the first instance of that PUDL ID appears. **Never simply enter the PUDL ID as a
+  number**, as it will not update automatically when IDs change due to re-mapping or
+  other alterations. If the new plant name is similar in that it’s a different unit or a
+  part of a facility that uses a different fuel type (e.g.  ``Conemaugh (Steam)`` and
+  ``Conemaugh (CT)``, they should still share the same PUDL ID. That’s because
+  co-located fossil-fueled generators are considered parts of the same plant.
+* **If the plant name looks similar but there are discrepancies:**
+  such as different operators (e.g. a facility ``keystone`` with operators ``baltimore
+  gas and electric`` and ``atlantic gas and electric``), then it’s best to look at the
+  capacity first to see if the facilities are the same. If that’s indeterminate, you can
+  Google the plant to see if it has the same location or if there is ownership or
+  construction history that helps determine if the facilities are the same or
+  co-located. Presuming you've run the ETL with the ``--ignore-foreign-key-constraints``
+  flag, you can also look at the PUDL ``plants_eia860`` and ``plants_all_ferc1`` tables
+  to compare the records' location information.
 
 Mapping Utilities
 ^^^^^^^^^^^^^^^^^
@@ -202,17 +211,16 @@ Linking FERC1-EIA Records
     The following section needs to be updated to include new steps for mapping FERC1
     XBRL utilities with DBF utilities.
 
-Copy the information output to the ``unmapped_utils_eia/ferc1.csv`` files and paste it
-in the appropriate columns at the bottom of the ``pudl_id_mapping.xlsx``  sheet. Note
-that FERC 1 utility information goes in the left-hand columns and EIA utility
-information goes in the right-hand columns.
+Copy the information output to the ``missing_utility_id_in_utilities_eia/ferc1.csv``
+files and paste it in the appropriate columns at the bottom of the
+``utility_id_pudl.csv``  sheet. Note that FERC 1 utility information goes in the
+left-hand columns and EIA utility information goes in the right-hand columns.
 
 Next, you'll have to manually assign ``utility_id_pudl`` values to each row. There is no
 formula you can drag down, so just find the largest ``utility_id_pudl`` and create new
 values incrementing from there. To double check whether a utility has already appeared,
-drag down the formulas in the ``check_utility_id_ferc1`` and ``check_utility_id_eia``
-columns. If there's a match, the correct ``utility_id_pudl`` will show up in the column,
-and you can create a reference to the original ``utility_id_pudl`` assignment above.
+search by name, creating a reference to the original ``utility_id_pudl`` assignment
+above.
 
 Make sure to save the file when you're done!
 
@@ -235,5 +243,5 @@ Integrating Newly Mapped Records into PUDL
 Once you’ve successfully mapped all unmapped PUDL IDs, you’ll want to rerun the ETL!
 This ensures that the newly mapped IDs get integrated into the PUDL database and output
 tables that folks are using. Make sure to tell everyone else to do so as well so that
-you can all use the newly mapped PUDL IDs. But furst, make sure to head back to the
+you can all use the newly mapped PUDL IDs. But first, make sure to head back to the
 :doc:`existing_data_updates` page to wrap up the validation tests!

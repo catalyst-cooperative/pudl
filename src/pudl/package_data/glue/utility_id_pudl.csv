@@ -4814,7 +4814,6 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 4824,,,60245,Three Peaks Power LLC
 4825,,,60258,Paulding Wind Farm III LLC
 4826,,,60330,"SR South Loving, LLC"
-4827,,,60352,"Golden Fields Solar I, LLC"
 4828,,,60353,"Solar Star California, XLI, LLC"
 4829,,,60354,"Kelly Creek Wind, LLC"
 4830,,,60359,Summit Farms LLC
@@ -16375,3 +16374,772 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 16417,,,66303,PFMD LL Jessup LLC
 16418,,,66306,Town Of Cary
 16419,,,66343,"Catalyze Rochelle Wiscold Drive Microgrid, LLC"
+16420,,,66397,CG Northwestern Solar I LLC
+16421,,,66469,"Holtec Palisades, LLC"
+16422,,,66464,"210MS 8me, LLC"
+16423,,,66373,Gransolar Texas Two LLC
+16424,,,66466,"452HL 8me, LLC"
+16425,,,66462,Dunns Bridge II Solar and Storage Generation LLC
+16426,,,66369,Mission Clean Energy Devco LLC
+16427,,,66374,Gransolar Texas Four LLC
+16428,,,66361,Stampede Solar Project LLC
+16429,,,66463,"51LV 8me, LLC"
+16430,,,66467,Escape Solar LLC
+16431,,,66365,"Golden Fields Solar IV, LLC"
+16432,,,66413,Ray Ranch Solar LLC
+16433,,,66430,Kingstree East 230 LLC
+16434,,,66381,Gransolar Texas Twelve LLC
+16435,,,66363,Bypass BESS LLC
+16436,,,66444,"Troutdale Grid, LLC"
+16437,,,66420,"Luna Valley Solar I, LLC"
+16438,,,66394,Randolph Solar Park LLC
+16439,,,66424,Hardy Hills Solar LLC
+16440,,,66384,"GRS BESS Texas Seven, LLC"
+16441,,,66337,Exus New Mexico
+16442,,,66473,Timbermill Wind
+16443,,,66461,Two Oaks Solar and Storage
+16444,,,66380,Gransolar Texas Twenty Two LLC
+16445,,,66364,"Hart Wind, LLC"
+16446,,,66387,"Babacomari Solar, LLC"
+16447,,,66366,"Compadre Solar, LLC"
+16448,,,66448,Parks Valley Energy LLC
+16449,,,66441,Ratts 1 Solar LLC
+16450,,,66371,Gransolar Texas Twenty LLC
+16451,,,66382,Gransolar Texas Eleven LLC
+16452,,,66431,Liberty 1 Solar LLC
+16453,,,66433,Giga Texas Energy LLC
+16454,,,66432,"BT Connolly Storage, LLC"
+16455,,,66446,Clermont Solar LLC
+16456,,,66376,Gransolar Texas Five LLC
+16457,,,66402,Hickory Solar LLC
+16458,,,66359,"Fort Duncan BESS,  LLC"
+16459,,,66375,"Gransolar Texas Sixteen, LLC"
+16460,,,66465,"229HD 8me, LLC"
+16461,,,66385,Gransolar Texas Ten LLC
+16462,,,66344,Kingstree West 115 LLC
+16463,,,66454,Wyatt Mill Solar LLC
+16464,,,66422,ORNI 30 LLC
+16465,,,66372,Gransolar BESS Texas Six LLC
+16466,,,66386,Gransolar Texas Six LLC
+16467,,,66447,Gladys Solar LLC
+16468,,,66378,Gransolar Texas Seven LLC
+16469,,,66450,Spout Spring Solar LLC
+16470,,,66442,"Heirloom Solar (Ratts 1 Phase 2 Solar, LLC)"
+16471,,,66383,Gransolar Texas Nineteen LLC
+16472,,,66377,"Gransolar Texas Seventeen, LLC"
+16473,,,66421,"BT Signal Ranch, LLC"
+16474,,,66409,Great Bend Solar LLC
+16475,,,66370,Gransolar Texas Nine LLC
+16476,,,66449,Potter Solar LLC
+16477,,,66445,"NineDot Holdings, LLC"
+16478,,,66412,"Emeren US, LLC"
+16479,,,66405,Mordor ES1 LLC
+16480,,,66406,Mordor ES2 LLC
+16481,,,66423,VESI 34 LLC
+16482,,,66358,Russell Pacific LLC
+16483,,,66451,Stony Creek Solar LLC
+16484,,,66414,Rivanna Solar LLC
+16485,,,66426,Dill Holdings LLC
+16486,,,66417,SBESS TX6 LLC
+16487,,,66416,SBESS TX7 LLC
+16488,,,66395,Temo Renewables LLC
+16489,,,66418,SBESS TX5 LLC
+16490,,,66357,Shapham Place Solar Project 2020 LLC
+16491,,,66470,Los Angeles County DHS
+16492,,,66434,"Foster Clean Power B, LLC"
+16493,,,66475,"Catskill View Solar, LLC"
+16494,,,66476,"Claverack Creek Solar, LLC"
+16495,,,66410,"127 CVF, LLC"
+16496,,,66440,RMQ Ventures LLC
+16497,,,66368,Valley Sun Solar LLC
+16498,,,66396,"Solar Powered Ag, LLC"
+16499,,,66419,ME Fort Fairfield LLC
+16500,,,66367,"Pittsburg RV & Boat Storage, LLC"
+16501,,,66296,"EFR Solar, LLC"
+16502,,,66297,"EFR Solar 2, LLC"
+16503,,,66353,"Solar DG IL 2, LLC"
+16504,,,66411,Kearsarge Onset LLC
+16505,,,66349,"DG Harlem, LLC"
+16506,,,66427,McDowell Creek Solar LLC
+16507,,,66356,Milford Pepes Farm Road Solar LLC
+16508,,,66362,"All World Machinery Supply, Inc."
+16509,,,66355,Bollinger Canyon Road BR 1-X Solar Project 2020
+16510,,,66438,Harris Farms Inc
+16511,,,66425,Delta Electronics (Americas) Ltd
+16512,,,66456,Darwin Winter Garden LLC
+16513,,,66455,Bullard Garden LLC
+16514,,,66457,Ganzer Garden LLC
+16515,,,66458,Horseshoe Garden LLC
+16516,,,66459,Jones Garden LLC
+16517,,,66460,Koronis Garden LLC
+16518,,,66298,Zonneveld Dairies INC
+16519,,,66299,River Ranch Farms LLC
+16520,,,66302,"Generate C&I Warehouse, LLC"
+16521,,,66307,Hardin Holdco LLC
+16522,,,66308,Crosswind Holdco LLC
+16523,,,66309,Junction Hilltop 1 LLC
+16524,,,66310,Junction Hilltop 2 LLC
+16525,,,66311,Junction Hilltop 3 LLC
+16526,,,66312,Junction Hilltop 4 LLC
+16527,,,66313,Junction Hilltop 5 LLC
+16528,,,66315,"Arlington Energy Storage, LLC"
+16529,,,66339,AL-Spring Lane LLC
+16530,,,66388,"Heedeh Solar, LLC"
+16531,,,66389,"Hanover Solar, LLC"
+16532,,,66390,"Arthur Solar, LLC"
+16533,,,66391,"County Home Solar, LLC"
+16534,,,66392,"ESA Church Road Solar, LLC"
+16535,,,66393,"NorWest Energy 9, LLC"
+16536,,,66404,Open Sky Ranch
+16537,,,66408,Dixie Creek Dairy
+16538,,,66415,Gibson Renewables LLC
+16539,,,66428,Dill & McDowell LLC
+16540,,,66429,"Adapture Solar Investments 6, LLC"
+16541,,,66443,TWC
+16542,,,66468,Estuary Power LLC
+16543,,,66474,Apex Clean Energy
+16544,,,66508,"Moonlight Flats Solar Power, LLC"
+16545,,,66509,Red River Clean Energy
+16546,,,66506,Willow Creek Wind LLC
+16547,,,66524,Cattlemen Solar Park II LLC
+16548,,,66479,"Crossroads Solar, LLC - (IN)"
+16549,,,66527,May Renewables LLC
+16550,,,66487,"Goshen Solar, LLC"
+16551,,,66542,"Piney Woods Solar, LLC"
+16552,,,66515,"Crossover Wind, LLC"
+16553,,,66486,"Clearview Solar I, LLC"
+16554,,,66536,"Cherry Valley PV I, LLC"
+16555,,,66488,"Flora Solar, LLC"
+16556,,,66480,Daggett Solar Power 1 LLC
+16557,,,66485,"Vernon Solar and Storage, LLC"
+16558,,,66526,"Burksol, LLC"
+16559,,,66534,"Cooks Mill PV I, LLC"
+16560,,,66538,"Crooked Creek PV I, LLC"
+16561,,,66531,"Drawhorn Solar, LLC"
+16562,,,66513,"East Atmore Solar, LLC"
+16563,,,66491,"Zenith Solar, LLC"
+16564,,,66490,"Pigeon Run Solar, LLC"
+16565,,,66516,"Dans Mountain Wind Force, LLC"
+16566,,,66530,"Sandersville Solar, LLC"
+16567,,,66525,"Quaker Creek Farm Solar, LLC"
+16568,,,66517,"Two Hearted Solar, LLC"
+16569,,,66489,RREF IV-P CP III Marietta Street LLC
+16570,,,66533,"Ozark Hydro Management, LLC"
+16571,,,66528,Brookhaven 1
+16572,,,66481,"Bodhi Solar, LLC"
+16573,,,66550,Telyon AMZ Windsor LLC
+16574,,,66478,City of Springfield (MO)
+16575,,,66501,MaxSolar
+16576,,,66529,Mompano
+16577,,,66541,"Solar DG CA Long Beach, LLC"
+16578,,,66518,180th Fighter Wing
+16579,,,66520,Wells Garden LLC
+16580,,,66519,Caron Garden LLC
+16581,,,66514,DSI Julie Solar LLC
+16582,,,66500,700Eubanks LLC
+16583,,,66499,"Lyonsdale Hydroelectric Co., Inc."
+16584,,,66737,"HOHI bn, LLC"
+16585,,,66778,"Sunstone Solar, LLC"
+16586,,,66607,"Belltown Power Texas 2, LLC"
+16587,,,66731,BrightNight Power
+16588,,,66705,"TUAL bn, LLC"
+16589,,,66697,Alpin Holding LLC
+16590,,,66695,Gigawatt Solar LLC
+16591,,,66636,"IP Roman, LLC"
+16592,,,66715,"Yuma bn, LLC"
+16593,,,66713,"DUTC bn, LLC"
+16594,,,66687,MS1
+16595,,,66796,Equinor Wind US LLC
+16596,,,66681,"EAGL bn, LLC"
+16597,,,66554,Cowboy Solar I
+16598,,,66650,Noble Solar LLC
+16599,,,66640,"IP Meitner, LLC"
+16600,,,66712,"BIGL bn, LLC"
+16601,,,66704,"THIS BN, LLC"
+16602,,,66739,"LOSN, LLC"
+16603,,,66700,"BOCA bn, LLC"
+16604,,,66757,La Salle ESS LLC
+16605,,,66758,La Salle Solar LLC
+16606,,,66755,Clairemont Solar LLC
+16607,,,66784,"311SV 8me, LLC"
+16608,,,66634,Sequoia 1 Solar Project
+16609,,,66684,"JUGU bn, LLC"
+16610,,,66711,"ARFL bn, LLC"
+16611,,,66812,Callisto II Energy Center LLC
+16612,,,66740,"OPPO bn, LLC"
+16613,,,66735,"DEGA bn, LLC"
+16614,,,66696,Ion Solar LLC (TX)
+16615,,,66718,Atlas VIII LLC
+16616,,,66576,Chillingham Solar LLC
+16617,,,66831,Key Energy Storage LLC
+16618,,,66717,Atlas VII LLC
+16619,,,66647,"Prosperity Wind, LLC"
+16620,,,66702,"DESA bn, LLC"
+16621,,,66620,"Coles Wind, LLC"
+16622,,,66616,"Fremont Solar, LLC"
+16623,,,66622,"Firelands Wind, LLC"
+16624,,,66483,"BHS Solar, LLC"
+16625,,,66761,Lazy U Solar 1 LLC
+16626,,,66785,Fairbanks Solar Energy Center LLC
+16627,,,66769,"Old 300 Storage Center, LLC"
+16628,,,66728,"Show Me State Solar, LLC"
+16629,,,66762,Lazy U Solar 2 LLC
+16630,,,66760,Lazy U ESS 2 LLC
+16631,,,66823,"Stafford Solar, LLC"
+16632,,,66759,Lazy U ESS 1 LLC
+16633,,,66865,"Freedom Pine Solar, LLC"
+16634,,,66714,Lake Trout Solar
+16635,,,66797,Cadence Solar Energy LLC
+16636,,,66688,Rich Road Solar Energy Center
+16637,,,66581,GRS BESS Texas Eight LLC
+16638,,,66835,"Diver Solar, LLC"
+16639,,,66771,"Dos Rios Wind Farm, LLC"
+16640,,,66535,Belgian Renewable Energy Group (BREG)
+16641,,,66632,"Two Rivers Solar, LLC"
+16642,,,66691,Erin Solar LLC
+16643,,,66606,"Templeton Wind Energy Center, LLC"
+16644,,,66615,"Big Elm Solar, LLC"
+16645,,,66768,Tex-Bar ESS LLC
+16646,,,66767,SunShiner ESS LLC
+16647,,,66766,Sun Angel ESS LLC
+16648,,,66765,Rush ESS LLC
+16649,,,66764,Prost ESS LLC
+16650,,,66701,"CENT bn, LLC"
+16651,,,66754,Bravo ESS LLC
+16652,,,66752,Avant Prairie ESS LLC
+16653,,,66618,"Bowman Wind, LLC"
+16654,,,66751,Alamo City ESS LLC
+16655,,,66560,Elliot Solar LLC
+16656,,,66703,"Green River Solar, LLC"
+16657,,,66815,Tidwell Prairie II LLC
+16658,,,66750,Abeja Solar Farm LLC
+16659,,,66864,"Broadleaf Solar, LLC"
+16660,,,66706,"SINC bn, LLC"
+16661,,,66682,"MAHI bn, LLC"
+16662,,,66738,"GRVA bn, LLC"
+16663,,,66683,"DYSP, LLC"
+16664,,,66826,"Gibson Solar, LLC"
+16665,,,66736,"GREE bn, LLC"
+16666,,,66818,301AK 8me LLC
+16667,,,66685,"GGSO, LLC"
+16668,,,65800,"Angelo Solar, LLC"
+16669,,,66710,"Industrial Kilo Project, LLC"
+16670,,,66624,"Heritage Wind, LLC"
+16671,,,66726,Nimbus Wind Farm LLC
+16672,,,66842,Azalea Springs Solar Park LLC
+16673,,,66774,Old Town Wind LLC
+16674,,,66690,"Morris Ridge Solar Energy Center, LLC"
+16675,,,66822,"Bob Creek Wind, LLC"
+16676,,,66775,"Quick Draw Wind, LLC"
+16677,,,66579,Cape HoldCo LLC
+16678,,,66825,"Blue Summit II Storage, LLC"
+16679,,,66680,Mondu Solar LLC
+16680,,,66716,"ATLAS BESS IV, LLC"
+16681,,,66719,Atlas IX LLC
+16682,,,66821,Roadrunner Crossing Energy Storage LLC
+16683,,,66593,"SR Jasper, LLC"
+16684,,,66733,"Crossroads bn, LLC"
+16685,,,66619,"Coldwater River Solar, LLC"
+16686,,,66571,Clenera DevCo LLC
+16687,,,66567,"Prospect Power, LLC"
+16688,,,66630,"Riverstone Solar, LLC"
+16689,,,66566,Wolf Run Solar LLC
+16690,,,66665,"SR Quincy Valley, LLC"
+16691,,,66772,Swan Creek Wind LLC
+16692,,,66621,"Downeast Wind, LLC"
+16693,,,66852,"PVS 2, LLC"
+16694,,,66633,"Wheatsborough Solar, LLC"
+16695,,,66635,"Rio Lago Solar, LLC"
+16696,,,66763,Pepper Solar Farm LLC
+16697,,,66686,"FRON bn, LLC"
+16698,,,66588,"SR Copeland, LLC"
+16699,,,66814,Tibbits Energy Storage LLC
+16700,,,66707,Puuloa Energy LLC
+16701,,,66786,Gatsby Energy Storage LLC
+16702,,,66742,Evans Creek Energy Storage LLC
+16703,,,66604,"SR Lambert II, LLC"
+16704,,,66617,"Big Elm Storage, LLC"
+16705,,,66813,St Gall Energy Storage II LLC
+16706,,,66623,"Great Kiskadee Storage, LLC"
+16707,,,66756,Girasol Solar Farm LLC
+16708,,,66641,"Greenwood Solar I, LLC"
+16709,,,66816,Voyager Energy Storage LLC
+16710,,,65803,"Raven Storage, LLC"
+16711,,,65801,"Angelo Storage, LLC"
+16712,,,66694,Sandman Solar LLC
+16713,,,66549,Caballero CA Storage LLC
+16714,,,66689,Sweetleaf Solar LLC
+16715,,,66666,"SR Rochelle I, LLC"
+16716,,,66655,"SR Bacon, LLC"
+16717,,,66605,"MPH AL Pierce, LLC"
+16718,,,66544,"Foley Solar, LLC"
+16719,,,66773,"Cotton Belle Solar, LLC"
+16720,,,66543,"Old Hayneville Solar, LLC"
+16721,,,66602,"SR Hope Hull, LLC"
+16722,,,66858,Garnet Mesa Solar LLC
+16723,,,66568,"Alabama Creek Solar, LLC"
+16724,,,66664,"SR Metter, LLC"
+16725,,,66663,"SR Horus, LLC"
+16726,,,66631,"Rocky Forge Wind, LLC"
+16727,,,66819,Kentucky Municipal Energy Agency
+16728,,,66734,"CVSO, LLC"
+16729,,,66748,Peoples Electric Cooperative
+16730,,,66570,"Catalina Solar, LLC"
+16731,,,66741,Lotus Solar LLC
+16732,,,66699,"SR Millington II, LLC"
+16733,,,66744,Bronson Solar LLC
+16734,,,66552,Blue Moon Energy LLC
+16735,,,66661,SR Georgetown. LLC
+16736,,,66649,Viridis Solar
+16737,,,66676,"Gransolar Texas One, LLC"
+16738,,,66572,"Montpelier Solar, LLC"
+16739,,,66669,"Solar Star 3, LLC"
+16740,,,66670,"Solar Star 4, LLC"
+16741,,,66646,"ReWild Renewables, LLC"
+16742,,,66657,"SR Denmark, LLC"
+16743,,,66677,"BT Jungmann, LLC"
+16744,,,66521,Hodson Greendefine Jay Desoto LLC
+16745,,,66569,Whetstone Power Operations LLC
+16746,,,66540,"Apex NC Solar, LLC"
+16747,,,66555,BCE Seal Beach
+16748,,,66698,"Eagle Point Energy Center, LLC"
+16749,,,66653,"SR Adamsville, LLC"
+16750,,,66866,University of Massachusetts Amherst
+16751,,,66824,Walden Solar Maine V LLC
+16752,,,66512,"Boyles Run Solar II, LLC"
+16753,,,66511,"Boyles Run Solar I, LLC"
+16754,,,66817,"KDC Solar Madera, LLC"
+16755,,,66708,Puuloa Solar LLC
+16756,,,66800,"NorCal FPV 1, LLC"
+16757,,,66671,"SR Shelby, LLC"
+16758,,,66667,"SR Sequatchie, LLC"
+16759,,,66559,Leprino Foods
+16760,,,66595,"SR Maryville East, LLC"
+16761,,,66600,"SR Trezevant, LLC"
+16762,,,66594,"SR Lexington, LLC"
+16763,,,66662,"SR Gray, LLC"
+16764,,,66592,"SR Hickman, LLC"
+16765,,,66749,"Warrior Solar Partners, LLC"
+16766,,,66561,Selkirk Solar LLC
+16767,,,66548,Above Grid Binghamton Solar LLC
+16768,,,66547,Above Grid Montour Solar LLC
+16769,,,66546,"NY CDG Ontario 2, LLC"
+16770,,,66609,"NSF Enfield Site 2, LLC"
+16771,,,66577,"DG Niagara, LLC"
+16772,,,66608,"NSF Enfield Site 3, LLC"
+16773,,,66644,"Trousdale Solar II, LLC"
+16774,,,66643,Trousdale Solar I
+16775,,,66627,Helios Energy New York 13 LLC
+16776,,,66613,"NSF Coventry Site 3, LLC"
+16777,,,66612,"NSF Coventry Site 2, LLC"
+16778,,,66610,"NSF Enfield Site 1, LLC"
+16779,,,66614,"Rush Solar Farm 1, LLC"
+16780,,,66601,"Ticon Solar, LLC"
+16781,,,66783,"OneEnergy, Inc."
+16782,,,66642,City of Little Rock
+16783,,,66598,"SR South Gibson, LLC"
+16784,,,66557,"SL Jamestown II, LLC"
+16785,,,66586,"SR Cherry Valley, LLC"
+16786,,,66590,"SR Fisher, LLC"
+16787,,,66589,"SR Dumas, LLC"
+16788,,,66654,"SR Altheimer, LLC"
+16789,,,66674,"SR Wynne South, LLC"
+16790,,,66673,"SR Winnsboro, LLC"
+16791,,,66672,"SR South Bastrop, LLC"
+16792,,,66668,"SR North Bastrop, LLC"
+16793,,,66656,"SR Delhi, LLC"
+16794,,,66658,"SR Des Arc, LLC"
+16795,,,65581,Grand Valley Power LLC
+16796,,,66583,"SR Arcadia South, LLC"
+16797,,,66660,"SR Bear Creek, LLC"
+16798,,,66870,"Delaware Ave Solar, LLC"
+16799,,,66692,GCC Trident LLC
+16800,,,66869,"Rifle Range Road Solar, LLC"
+16801,,,66580,"Old Frontier Solar III PV, LLC"
+16802,,,66801,"Ellis Creek Solar, LLC"
+16803,,,66545,"Catalyze Breesport Road Microgrid, LLC"
+16804,,,66578,Poet Bioprocessing Emmetsburg
+16805,,,66679,NY CDG Oneida 2 LLC
+16806,,,66830,Kootenai Renewable Energy LLC
+16807,,,66693,"Catalyze Oxnard 2600 Sakioka Drive Microgrid, LLC"
+16808,,,66556,"SL Jamestown, LLC"
+16809,,,66584,"SR Benton, LLC"
+16810,,,66585,"SR Brownsville, LLC"
+16811,,,66811,"Belvedere Solar, LLC"
+16812,,,66659,"SR Dunn, LLC"
+16813,,,66732,Verde Light Community Solar LLC
+16814,,,66799,"WPR RE Holdings, LLC"
+16815,,,66596,"SR Milan, LLC"
+16816,,,66808,"Clayfield Solar, LLC"
+16817,,,66591,"SR Forked Deer, LLC"
+16818,,,66855,"Mars Hill Road Solar Farm, LLC"
+16819,,,66806,"Gun Club Solar, LLC"
+16820,,,66611,"Maumee Solar, LLC"
+16821,,,66574,EDPRNA DG CA Livermore LLC
+16822,,,66599,"SR Trenton, LLC"
+16823,,,66805,"Antelope Creek Solar, LLC"
+16824,,,66833,Orchard Knob Solar LLC
+16825,,,66790,Downing Parkway Solar LLC
+16826,,,66573,EDPRNA DG VA Manassas LLC
+16827,,,66810,"Dover Solar, LLC"
+16828,,,66840,Solar DG IL 3 LLC
+16829,,,66743,"DG Sand Prairie, LLC"
+16830,,,66798,"Imperator Solar, LLC"
+16831,,,66807,"Marquam Creek Solar, LLC"
+16832,,,66645,Northern Power & Light
+16833,,,66788,Aegean Drive Solar LLC
+16834,,,66564,Rodatherm Energy Corporation
+16835,,,66839,Solar DG IL 1 LLC
+16836,,,66725,Whitemarsh Continuing Care Retirement Community
+16837,,,66789,Banner Solar Ironwood LLC
+16838,,,66727,Blackwell Creek Solar LLC
+16839,,,66832,Pine Grove Solar LLC
+16840,,,66603,"SR Maryville, LLC"
+16841,,,66809,"Cork Solar, LLC"
+16842,,,66794,Sutter Santa Rosa Solar LLC
+16843,,,66787,515 Main Saugus LLC
+16844,,,66776,DIVOCSG 13 LLC
+16845,,,66563,"Lake Lilian Solar, LLC"
+16846,,,66562,"Lake Wilson Solar, LLC"
+16847,,,66795,Wendell MA 1 LLC
+16848,,,66834,Round Lake Solar LLC
+16849,,,66820,DIVOCSG 14 LLC
+16850,,,66638,MN CSG 2019-82 LLC
+16851,,,66639,MN CSG 2019-60 LLC
+16852,,,66745,MN CSG 2019-105 LLC
+16853,,,66791,Millbury MA #1092 LLC
+16854,,,66792,Millis MA 1 LLC
+16855,,,66793,Rochester MA 2 LLC
+16856,,,66675,DG Green Arrow LLC
+16857,,,66746,MN CSG 2019-67 LLC
+16858,448,citizens s-line transmission llc,,
+16859,449,"dcr transmission, l.l.c",,
+16860,450,northwestern energy public service corporation,,
+16861,451,firstenergy pennsylvania electric company,,
+16862,452,keystone appalachian transmission company,,
+16863,,,67058,"DECH bn, LLC"
+16864,,,66950,Lydian Energy
+16865,,,66841,"SL Energy Power Plant I, LLC"
+16866,,,67038,"IP Easley, LLC"
+16867,,,66991,CAMS (Georgia) Washington County Power
+16868,,,66975,Cedar Bayou 5 LLC
+16869,,,66992,CAMS (Georgia) AL Sandersville
+16870,,,66827,"Wichita Solar I, LLC"
+16871,,,67009,Kingbird Solar Energy LLC
+16872,,,67013,US SFR Owner LLC
+16873,,,67057,Chalk Bluff Solar Energy LLC
+16874,,,66976,Pelicans Jaw Solar LLC
+16875,,,66861,Rock Creek Wind II LLC
+16876,,,66856,22SV 8ME LLC
+16877,,,66905,HEC Renewable Energy America LLC
+16878,,,67040,"IP Quantum, LLC"
+16879,,,67042,"IP Quantum II, LLC"
+16880,,,67041,"IP Quantum II BESS, LLC"
+16881,,,67039,"IP Quantum BESS, LLC"
+16882,,,66972,Exus Pennsylvania Wind Holdings
+16883,,,67080,TC Energy
+16884,,,66980,Dahlia Energy LLC
+16885,,,66781,Mammoth Central II LLC
+16886,,,66874,"Excelsior Energy Center, LLC"
+16887,,,66960,Hardin Solar Energy III
+16888,,,66911,OE_MS7
+16889,,,66844,Pediment BESS I LLC
+16890,,,66965,"OE_RHA, LLC"
+16891,,,66994,"Guajillo Energy Storage, LLC"
+16892,,,67079,Evelyn Energy Storage LLC
+16893,,,66942,"SR Tullahoma, LLC"
+16894,,,66901,"Greer Solar, LLC"
+16895,,,66625,"Lotus Wind, LLC"
+16896,,,66908,Flatland Storage LLC
+16897,,,66974,MPH Cross Island Power
+16898,,,66963,"Dominguez Grid, LLC"
+16899,,,66829,"Hill Solar II, LLC"
+16900,,,67047,"Greenalia Solar Power Blackwelder Ranch, LLC"
+16901,,,67018,64NB 8me LLC
+16902,,,66862,"Rock Creek Wind I, LLC"
+16903,,,66863,Pixley Solar Energy LLC
+16904,,,67048,"Greenlia Solar Power Misae III, LLC"
+16905,,,66853,"Sun Pond, LLC"
+16906,,,66777,"McCrae Wind Energy II, LLC"
+16907,,,66933,"SR Magnolia, LLC"
+16908,,,67017,"OE_SLW, LLC"
+16909,,,66836,"Mustang Creek Solar I, LLC"
+16910,,,66828,"Laurens Solar I, LLC"
+16911,,,66904,Boot Hill Solar LLC
+16912,,,66910,OE_IN1
+16913,,,66912,OE_SAS1
+16914,,,67045,"Greenalia Wind Power Pioneer Field, LLC"
+16915,,,66782,"Brazoria Solar i, LLC"
+16916,,,67044,"Greenalia Solar Power Hutcherson, LLC"
+16917,,,66927,"SR Bacon II, LLC"
+16918,,,66907,Laketricity USA Inc.
+16919,,,67046,"Greenalia Wind Power Blackwelder Ranch, LLC"
+16920,,,66857,44ST 8ME LLC
+16921,,,66937,"SR Norwood, LLC"
+16922,,,66956,OE_SAS2
+16923,,,66928,"SR Bacon III, LLC"
+16924,,,66957,OE_SAS3
+16925,,,66902,"Wildwood Solar, LLC"
+16926,,,66929,"SR Cordova, LLC"
+16927,,,66988,Sky Ranch Bess II
+16928,,,67037,"Tierra Seca BESS, LLC"
+16929,,,67016,"OE_CHA, LLC"
+16930,,,67014,"OE_ALH, LLC"
+16931,,,66924,"Pineview Solar, LLC"
+16932,,,67015,"OE_ALG, LLC"
+16933,,,66884,Tabletop Solar NY LLC
+16934,,,66848,VESI 15 LLC
+16935,,,66968,"OE_FL8, LLC"
+16936,,,66482,"PCR Rapids 1 Op, LLC"
+16937,,,66930,"SR Durhamville, LLC"
+16938,,,66949,Breckinridge Energy Storage LLC
+16939,,,67074,Minco II Energy Storage LLC
+16940,,,66966,"OE_RHC, LLC"
+16941,,,66850,VESI 38 LLC
+16942,,,66849,VESI 37 LLC
+16943,,,66935,"SR Middleton, LLC"
+16944,,,66729,"Industrial Bravo Project, LLC"
+16945,,,67071,Kingman Energy Storage LLC
+16946,,,66936,"SR Mount Pleasant, LLC"
+16947,,,66938,"SR Puryear, LLC"
+16948,,,66939,"SR Rochelle II, LLC"
+16949,,,66837,Clinton Solar (OH) LLC
+16950,,,67035,Prologis Logistics Services Incorporated BESS
+16951,,,66989,Route 66 Energy Storage
+16952,,,66999,USG Paper LLC
+16953,,,66951,"Woodward Energy Storage, LLC"
+16954,,,66753,"Ryan Companies US, Inc."
+16955,,,66967,"OE_RHD, LLC"
+16956,,,66880,Highview Solar NY LLC
+16957,,,66881,Hills Solar NY LLC
+16958,,,66886,Watkins Road Solar NY LLC
+16959,,,66876,Dog Corners Solar NY LLC
+16960,,,66885,Valley Solar NY LLC
+16961,,,66883,Limestone Solar NY LLC
+16962,,,66952,"Aspenall Energies (Delaware), LLC"
+16963,,,66877,Fairway Solar NY LLC
+16964,,,66878,Flat Hill Solar NY LLC
+16965,,,66879,Grassy Knoll Solar NY LLC
+16966,,,66882,Hilltop Solar NY LLC
+16967,,,66934,"SR Marion Junction, LLC"
+16968,,,66918,"Mountain Street Solar Project 2019, LLC"
+16969,,,66843,Kearsarge Riverpark I LLC
+16970,,,66940,"SR Sipsey, LLC"
+16971,,,66978,"SunE B9 Holdings, LLC"
+16972,,,66982,Tule Hydro LLC
+16973,,,66932,"SR Lott, LLC"
+16974,,,66922,Pacifico Power
+16975,,,66891,Apex Power Generation Corp.
+16976,,,67004,"Dowmont Solar, LLC"
+16977,,,67005,"Hidden Meadows Solar, LLC"
+16978,,,67023,CVE US EI5 Manlius West LLC
+16979,,,67007,"Heuvelton Solar, LLC"
+16980,,,67025,Sunrise on Knight Rd. LLC
+16981,,,67021,CVE US EI5 Manlius East LLC
+16982,,,67020,Kilmer Solar LLC
+16983,,,66803,"Bradford Solar, LLC"
+16984,,,67027,CVE US EI8 Quaker LLC
+16985,,,67028,Rak 1 Solar LLC
+16986,,,67024,Mantisi Solar LLC
+16987,,,67030,Sunrise on Clubhouse Rd. LLC
+16988,,,67053,USS Ducks Solar LLC
+16989,,,67049,"Port Huron Multimodal Hub, LLC"
+16990,,,67031,Sunrise on Montague Rd. LLC
+16991,,,67008,"REC RWD, LLC"
+16992,,,66969,"TMF-RIG, LLC"
+16993,,,66931,"SR Forrest City, LLC"
+16994,,,66943,"SR Ulm, LLC"
+16995,,,66944,"SR West Helena, LLC"
+16996,,,66983,SCV Water
+16997,,,66941,"SR Sunset, LLC"
+16998,,,67051,USS Origami Solar LLC
+16999,,,66981,Barber Pool Hydro LLC
+17000,,,67019,CVE US EI7 Belair LLC
+17001,,,67033,CVE US EI3 Wheatfield LLC
+17002,,,66925,"NY Thompson III, LLC"
+17003,,,67061,Sunrise on Wing Ln. LLC
+17004,,,67034,Wolf Solar LLC
+17005,,,66953,United Parcel Service
+17006,,,66926,Bullrock-NxtGenREA
+17007,,,67054,USS Beard Solar LLC
+17008,,,67059,Rak 2 Solar LLC
+17009,,,67026,Sunrise on West Main Rd. LLC
+17010,,,66917,"East Avenue Q Solar Project 2022, LLC"
+17011,,,67050,"Flying Goose Solar, LLC"
+17012,,,67060,"Hays Ranches, LLC"
+17013,,,67029,Sunrise on Blandford Rd. LLC
+17014,,,67011,"Lock 11 Hydro Partners, LLC"
+17015,,,67032,Sunrise on Drift Rd. LLC
+17016,,,66887,Zena Solar LLC
+17017,,,65992,"ADP Boulevard Solar Project 2021, LLC"
+17018,,,66914,"Catalyze University Park Central Ave Microgrid, LLC"
+17019,,,66920,"Kelly Creek Solar, LLC"
+17020,,,66945,"South Springfield Avenue Solar Project 2022, LLC"
+17021,,,66946,"South Springfield Avenue II Solar Project 2022, LLC"
+17022,,,67052,USS Cattail Solar LLC
+17023,,,67068,ME CDG 005 LLC
+17024,,,67065,MD CDG 001 LLC
+17025,,,66921,"Catalyze Bedford Park 6901 W 65th Street Microgrid, LLC"
+17026,,,67066,MD CDG 002 LLC
+17027,,,66971,"Anatolian Energy, LLC"
+17028,,,66854,"Catalyze Bedford Park 7035 W 65th Street Microgrid, LLC"
+17029,,,67036,NW Stadium Solar Plant
+17030,,,66804,LSE Corona Austrina LLC
+17031,,,67078,A2B Development LLC dba Mars Energy Development
+17032,,,67067,ME CDG 004 LLC
+17033,,,66993,"REC CSD, LLC"
+17034,,,67064,"Catalyze Chicago S Western Avenue 2 Microgrid, LLC"
+17035,,,67062,Taft Associates c/o Wilson Associates
+17036,,,66954,Stamford Health Tully Health Center
+17037,,,66893,Executive Parkway BR8-O Solar Project 2020 LLC
+17038,,,66897,Barrier Solar Inc
+17039,,,67022,CVE US EI4 Manlius North LLC
+17040,,,66977,"Las Virgenes Road Solar Project 2022, LLC"
+17041,,,66916,"Camino del Sol 2 Solar Project 2022, LLC"
+17042,,,66970,Macadamia Nut Road Solar Project 2019
+17043,,,66895,Alcosta Boulevard BR 15-AA Solar Project 2020 LLC
+17044,,,66996,"REC KDO, LLC"
+17045,,,67070,NY CDG 010 LLC
+17046,,,66894,Executive Parkway BR8-Q Solar Project 2020 LLC
+17047,,,66896,"Alcosta Boulevard BR 15-CC Solar Project 2020, LLC"
+17048,,,67006,"REC SHW, LLC"
+17049,,,66915,"Catalyze Bolingbrook 279 Marquette Drive Microgrid, LLC"
+17050,,,66947,"North Narragansett Avenue Solar Project 2022, LLC"
+17051,,,67063,Cushman Wakefield
+17052,,,66913,MN CSG 2019-77 LLC
+17053,,,67069,NY CDG 009 LLC
+17054,,,66872,MN CSG 2019-79 LLC
+17055,,,66873,MN CSG 2019-22 LLC
+17056,,,67073,Franklin CSG 1 LLC
+17057,,,66995,Corix Cleveland Thermal Generating LP
+17058,,,66802,LSE Crater LLC
+17059,,,66948,"Riverside Drive Solar Project 2022, LLC"
+17060,,,67083,"1000 Mile Solar, LLC"
+17061,,,67114,Santa Teresa Solar
+17062,,,67127,"Big Sampson Wind Project, LLC"
+17063,,,67092,"Scatter Wash Energy Storage, LLC"
+17064,,,67097,Limewood Bell Renewables LLC
+17065,,,67090,Tupper Lake
+17066,,,67115,"Shallow Basket Energy, LLC"
+17067,,,67132,Longhorn Storage LLC
+17068,,,67130,Bocanova Power LLC
+17069,,,67117,Pleasantville Solar Park LLC
+17070,,,67086,Chillingham Storage LLC
+17071,,,67133,"Okolona Solar, LLC"
+17072,,,67095,"Bell 1 Solar, LLC"
+17073,,,67096,"Bell 1 Storage, LLC"
+17074,,,67098,Gambit Energy Storage LLC
+17075,,,67109,"Tyson Nick Solar Project, LLC"
+17076,,,67084,Hermes BESS LLC
+17077,,,67134,"Wildcat Ranch Energy Storage, LLC"
+17078,,,67111,Angiola East LLC
+17079,,,67136,P66 Rodeo Solar
+17080,,,67120,"CoreSite Real Estate 3045 Stender, LP"
+17081,,,67088,CalPortland Company
+17082,,,67128,Inertia Energy Storage LLC
+17083,,,67085,"MSS Energy Holdings, LLC (d.b.a. Calibrant Energy)"
+17084,,,67101,"Bridgewater Solar 2, LLC"
+17085,,,67129,Lightshift Energy
+17086,,,67104,CP Tully Four LLC
+17087,,,67100,"Bridgewater Solar, LLC"
+17088,,,67102,"Bloomfield Solar, LLC"
+17089,,,67103,"Emerson Solar, LLC"
+17090,,,67106,"Endicott NY Solar Farm, LLC"
+17091,,,67110,"Tracy Renewable Energy, LLC"
+17092,,,67124,"NY Union II, LLC"
+17093,,,67123,"NY Union I, LLC"
+17094,,,67082,"Headwater Energy, LLC"
+17095,,,67126,"NY Tioga IV, LLC"
+17096,,,67137,"Chapman Creek Solar, LLC"
+17097,,,67131,PAC Aviation
+17098,,,67107,"Cavern Solar, LLC"
+17099,,,67087,"Aligned Digesters Co., LLC"
+17100,,,67105,CP Tully Five LLC
+17101,,,67108,"DG Richmond, LLC"
+17102,,,67118,"Newark Road Kendall Solar 1, LLC"
+17103,,,67089,Bavaria Solar LLC
+17104,,,64227,Eaton Corporation - Arecibo - Puerto Rico
+17105,,,66471,"TPC Solar Investors 2022, LLC"
+17106,,,66472,"Perkins Solar Holdings, LLC"
+17107,,,66477,Wonderful Orchards LLC
+17108,,,66492,"AZ-REA 2021 Solar Holdings ME, LLC"
+17109,,,66493,"Solar Holdings 2023 I, LLC"
+17110,,,66494,"SB-REA 2021 Solar Holdings, LLC"
+17111,,,66495,"Lake Street 2022 Parent, LLC"
+17112,,,66496,"Nobleboro Solar Holdings, LLC"
+17113,,,66497,"Nutting Ridge 2023 Parent, LLC"
+17114,,,66502,"Route 3 China 2022 Parent, LLC"
+17115,,,66503,"Sherburne Solar Holdings, LLC"
+17116,,,66504,"Solar Acquisition 2023 II, LLC"
+17117,,,66505,"Skyway 2023 Parent, LLC"
+17118,,,66507,"Ward Solar Holdings, LLC"
+17119,,,66522,"Greenvolt Power USA, Inc"
+17120,,,66523,"Cowboy Energy, LLC"
+17121,,,66551,Renewco Power Holdings
+17122,,,66565,"Robeson Solar I, LLC"
+17123,,,66575,"hep Solar Holdings I, LLC"
+17124,,,66587,"SR Clifton, LLC"
+17125,,,66597,"SR Robins I, LLC"
+17126,,,66628,Apex SA Investor
+17127,,,66629,"GridFlex Storage, LLC"
+17128,,,66651,Thomas Baker
+17129,,,66652,"ESCA-PLD-FONTANA1, LLC"
+17130,,,66709,U.S. BANCORP Community Development Corporation
+17131,,,66720,Cabin Creek Solar LLC
+17132,,,66721,"WestDevCo bn, LLC"
+17133,,,66722,"Cordelio BNC Holdings, LLC"
+17134,,,66723,"WestDevco, LLC"
+17135,,,66724,"Cordelio Power Holdings, LLC"
+17136,,,66747,KKR/GA
+17137,,,66845,Brookside Solar LLC
+17138,,,66847,Open Sky Dairy
+17139,,,66871,Division of Capital Asset Management and Maintenance
+17140,,,66875,Clay Solar NY LLC
+17141,,,66890,"Morgantown Power, LLC"
+17142,,,66892,"Three Rivers District Energy, LLC"
+17143,,,66898,J&D Food Service
+17144,,,66899,Northern Farms LLC
+17145,,,66900,Town of Orrington
+17146,,,66955,Linea Energy Development Co LLC
+17147,,,66961,"UPC Power Asset Management, LLC"
+17148,,,66973,Cottonwood Energy Company LP
+17149,,,66985,Digihost Technology Inc
+17150,,,66987,"Gregory Power Holdings, LLC"
+17151,,,66990,EGCO Tower
+17152,,,66997,"Alamosa Enhanced, LLC"
+17153,,,66998,"Prairie Enhanced, LLC"
+17154,,,67000,"JERA Power Linden, LLC"
+17155,,,67001,"EGCO Linden II, LLC"
+17156,,,67002,Rose Capital Investment Inc
+17157,,,67003,HPJV1 LLC
+17158,,,67010,"Tenaska TVP General, LLC"
+17159,,,67012,Avalon Dairy
+17160,,,67056,Superior Almond Hulling
+17161,,,67075,Hudson River-Black River Regulating District
+17162,,,67077,Pome BESS LLC
+17163,,,67081,Dos Palos Cooperative Gin
+17164,,,67091,Da Silva Dairy
+17165,,,67094,"EdSan 1C Solar, LLC"
+17166,,,67135,Riverstart Solar Park IV LLC
+17167,,,67138,Onyx Renewables LLC
+17168,,,67139,Libra Storage LLC
+17169,,,67140,Eagle Creek Solar Park LLC
+17170,,,67141,Clover Creek Solar Project LLC d/b/a New Frontiers Solar Park
+17171,,,67142,Sun Valley Storage LLC
+17172,,,67143,Mississippi State University
+17173,,,67144,"Shining Solar Partners, LLC"
+17174,,,67145,"Buckner Creek Solar, LLC"
+17175,,,67146,Badger State Solar LLC
+17176,,,67148,"BT Claxton Solar, LLC"
+17177,,,67149,"BT Ferguson Solar, LLC"
+17178,,,67150,"BT Thompson Solar, LLC"
+17179,,,67151,"Pine Forest Solar I, LLC"
+17180,,,67152,CDH Vidal LLC
+17181,,,67153,Tesoro RV & Boat Storage
+17182,,,67154,Imperial Sun Solar LLC
+17183,,,67156,Toledo Zoological Society
+17184,,,67157,Flint
+17185,,,67158,Padua 1
+17186,,,67159,Padua 2
+17187,,,67160,Padua 3
+17188,,,67165,"Beavertail Solar, LLC"

@@ -1,0 +1,17 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_sec10k__quarterly_filings
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_sec10k__quarterly_filings
+              partition_column: report_date
+        columns:
+          - name: filename_sec10k
+          - name: central_index_key
+          - name: company_name
+          - name: sec10k_type
+          - name: filing_date
+          - name: exhibit_21_version
+          - name: report_date

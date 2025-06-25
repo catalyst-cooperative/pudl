@@ -202,9 +202,9 @@ class TestFerc1ExtractDebugFunctions:
         ferc1_dbf_raw_dfs = pudl.extract.ferc1.extract_dbf(configured_dataset_settings)
 
         for table_name, df in ferc1_dbf_raw_dfs.items():
-            assert (df.report_year >= 2020).all() and (
-                df.report_year < 2022
-            ).all(), f"Unexpected years found in table: {table_name}"
+            assert (df.report_year >= 2020).all() and (df.report_year < 2022).all(), (
+                f"Unexpected years found in table: {table_name}"
+            )
 
     def test_extract_xbrl(self, ferc1_engine_dbf):
         """Test extract_xbrl."""

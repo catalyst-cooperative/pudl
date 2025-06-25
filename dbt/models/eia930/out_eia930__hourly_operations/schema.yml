@@ -1,0 +1,27 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_eia930__hourly_operations
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: out_eia930__hourly_operations
+              partition_column: datetime_utc
+        columns:
+          - name: datetime_utc
+          - name: balancing_authority_code_eia
+          - name: net_generation_reported_mwh
+          - name: net_generation_adjusted_mwh
+          - name: net_generation_imputed_eia_mwh
+          - name: interchange_reported_mwh
+          - name: interchange_adjusted_mwh
+          - name: interchange_imputed_eia_mwh
+          - name: demand_reported_mwh
+          - name: demand_adjusted_mwh
+          - name: demand_imputed_pudl_mwh
+          - name: demand_imputed_pudl_mwh_imputation_code
+            tests:
+              - dbt_expectations.expect_column_values_to_not_be_in_set:
+                  value_set: ["simulated"]
+          - name: demand_imputed_eia_mwh
+          - name: demand_forecast_mwh

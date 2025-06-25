@@ -45,13 +45,13 @@ electric system."""
                 "balancing_authority_code_eia",
                 "net_generation_reported_mwh",
                 "net_generation_adjusted_mwh",
-                "net_generation_imputed_mwh",
+                "net_generation_imputed_eia_mwh",
                 "interchange_reported_mwh",
                 "interchange_adjusted_mwh",
-                "interchange_imputed_mwh",
+                "interchange_imputed_eia_mwh",
                 "demand_reported_mwh",
                 "demand_adjusted_mwh",
-                "demand_imputed_mwh",
+                "demand_imputed_eia_mwh",
                 "demand_forecast_mwh",
             ],
             "primary_key": [
@@ -87,7 +87,7 @@ investigation."""
                 "generation_energy_source",
                 "net_generation_reported_mwh",
                 "net_generation_adjusted_mwh",
-                "net_generation_imputed_mwh",
+                "net_generation_imputed_eia_mwh",
             ],
             "primary_key": [
                 "datetime_utc",
@@ -142,6 +142,102 @@ below provides more information on subregions."""
                 "balancing_authority_code_eia",
                 "balancing_authority_subregion_code_eia",
                 "demand_reported_mwh",
+            ],
+            "primary_key": [
+                "datetime_utc",
+                "balancing_authority_code_eia",
+                "balancing_authority_subregion_code_eia",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia930"],
+        "etl_group": "eia930",
+        "create_database_schema": False,
+    },
+    "out_eia930__hourly_operations": {
+        "description": (
+            """EXPERIMENTAL / WORK-IN-PROGRESS, 2025-04-04.
+
+This adds imputed demand to the ``core_eia930__hourly_operations`` table where the
+original data was missing or anomalous.  Codes explaining why values have been imputed
+can be found in the ``core_pudl__codes_imputation_reasons`` table.
+
+This table is available in the nightly builds during development, but has not been fully
+vetted yet."""
+        ),
+        "schema": {
+            "fields": [
+                "datetime_utc",
+                "balancing_authority_code_eia",
+                "net_generation_reported_mwh",
+                "net_generation_adjusted_mwh",
+                "net_generation_imputed_eia_mwh",
+                "interchange_reported_mwh",
+                "interchange_adjusted_mwh",
+                "interchange_imputed_eia_mwh",
+                "demand_reported_mwh",
+                "demand_adjusted_mwh",
+                "demand_imputed_pudl_mwh",
+                "demand_imputed_pudl_mwh_imputation_code",
+                "demand_imputed_eia_mwh",
+                "demand_forecast_mwh",
+            ],
+            "primary_key": [
+                "datetime_utc",
+                "balancing_authority_code_eia",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia930"],
+        "etl_group": "eia930",
+        "create_database_schema": False,
+    },
+    "out_eia930__hourly_aggregated_demand": {
+        "description": (
+            """EXPERIMENTAL / WORK-IN-PROGRESS, 2025-04-04.
+
+This aggregates imputed demand from the ``out_eia930__hourly_operations`` table.
+It aggregates demand to the level of EIA regions, interconnects, and the contiguous
+United States. The spatial granularity of each record is indicated by
+``aggregation_level``."""
+        ),
+        "schema": {
+            "fields": [
+                "datetime_utc",
+                "aggregation_level",
+                "aggregation_group",
+                "demand_imputed_pudl_mwh",
+            ],
+            "primary_key": [
+                "datetime_utc",
+                "aggregation_level",
+                "aggregation_group",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia930"],
+        "etl_group": "eia930",
+        "create_database_schema": False,
+    },
+    "out_eia930__hourly_subregion_demand": {
+        "description": (
+            """EXPERIMENTAL / WORK-IN-PROGRESS, 2025-03-31.
+
+This table is based on ``core_eia930__hourly_subregion_demand``, but adds imputed demand
+values where the original data was missing or anomalous.  Codes explaining why values
+have been imputed can be found in the ``core_pudl__codes_imputation_reasons`` table.
+
+This table is available in the nightly builds during development, but has not been fully
+vetted yet."""
+        ),
+        "schema": {
+            "fields": [
+                "datetime_utc",
+                "balancing_authority_code_eia",
+                "balancing_authority_subregion_code_eia",
+                "demand_reported_mwh",
+                "demand_imputed_pudl_mwh",
+                "demand_imputed_pudl_mwh_imputation_code",
             ],
             "primary_key": [
                 "datetime_utc",

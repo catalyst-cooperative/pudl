@@ -30,6 +30,7 @@ at the "Years Liberated" field.
 * :doc:`/data_sources/eia860` (and eia860m)
 * :doc:`/data_sources/eia861`
 * :doc:`/data_sources/eia923`
+* :doc:`/data_sources/eia930`
 * :doc:`/data_sources/epacems`
 * :doc:`/data_sources/ferc1`
 * :doc:`/data_sources/ferc714`
@@ -190,7 +191,7 @@ Currently, our FERC and EIA tables utilize different transform processes.
 
 A. EIA Forms
 ^^^^^^^^^^^^
-**4.A.1)** You can either materialize the ``_core`` (clean) and ``_core`` (normalized)
+**4.A.1)** You can either materialize the ``_core`` (clean) and ``core`` (normalized)
 dagster asset groups for your dataset of interest (ex: ``_core_eia860`` and
 ``core_eia860``) or use the EIA ETL Debugging notebook mentioned above to run the
 initial transform step on all tables of the new year of data. As mentioned in 3.A.1,
@@ -411,36 +412,37 @@ In some cases you may need to resort to Google Maps. If no coordinates can be fo
 then at least the plant's state should be included so that an approximate timezone can
 be inferred.
 
-7. Run the ETL
---------------
-Once the FERC 1 and EIA utilities and plants have been associated with each other, you
-can try and run the ETL with all datasets included. See: :doc:`run_the_etl`.
-
-**7.1)** First run the ETL for just the new year of data, using the ``etl_fast.yml``
-settings file.
-
-**7.2)** Once the fast ETL works, run the full ETL using the ``etl_full.yml`` settings
-to populate complete FERC 1 & PUDL DBs and EPA CEMS Parquet files.
-
-8. Update the Output Routines and Run Full Tests
-------------------------------------------------
-**8.1)** With a full PUDL DB, update the denormalized table outputs and derived
-analytical routines to accommodate the new data if necessary. These are generally
-called from within the :class:`pudl.output.pudltabl.PudlTabl` class.
+7. Update the Output Routines
+-----------------------------
+**7.1)** Update the denormalized table outputs and derived analytical routines to
+accommodate the new data if necessary.
 
 * Are there new columns that should be incorporated into the output tables?
 * Are there new tables that need to have an output function defined for them?
 
-**8.2)** To ensure that you fully exercise all of the possible output functions,
+8. Run the ETL
+--------------
+Once the FERC 1 and EIA utilities and plants have been associated with each other, you
+can try and run the ETL with all datasets included. See: :doc:`run_the_etl`.
+
+**8.1)** First run the ETL for just the new year of data, using the ``etl_fast.yml``
+settings file.
+
+**8.2)** Once the fast ETL works, run the full ETL using the ``etl_full.yml`` settings
+to populate complete FERC 1 & PUDL DBs and EPA CEMS Parquet files.
+
+
+9. Run and Update Data Validations
+----------------------------------
+
+**9.1)** To ensure that you fully exercise all of the possible output functions,
 run all the integration tests against your live PUDL DB with:
 
 .. code-block:: console
 
     $ make pytest-integration-full
 
-9. Run and Update Data Validations
------------------------------------
-**9.1)** When the CI tests are passing against all years of data, sanity check the data
+**9.2)** When the CI tests are passing against all years of data, sanity check the data
 in the database and the derived outputs by running
 
 .. code-block:: console
@@ -450,12 +452,12 @@ in the database and the derived outputs by running
 We expect at least some of the validation tests to fail initially because we haven't
 updated the number of records we expect to see in each table.
 
-**9.2)** You may also need to update the expected distribution of fuel prices if they
+**9.3)** You may also need to update the expected distribution of fuel prices if they
 were particularly high or low in the new year of data. Other values like expected heat
 content per unit of fuel should be relatively stable. If the required adjustments are
 large, or there are other types of validations failing, they should be investigated.
 
-**9.3)** Update the expected number of rows in the minmax_row validation tests. Pay
+**9.4)** Update the expected number of rows in the ``dbt`` row count tests. Pay
 attention to how far off of previous expectations the new tables are. E.g. if there
 are already 20 years of data, and you're integrating 1 new year of data, probably the
 number of rows in the tables should be increasing by around 5% (since 1/20 = 0.05).

@@ -74,7 +74,7 @@ import pandas as pd
 import sqlalchemy as sa
 from dagster import (
     AssetKey,
-    SourceAsset,
+    AssetSpec,
     asset,
     build_init_resource_context,
     build_input_context,
@@ -197,7 +197,7 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
             "sales_of_electricity_by_rate_schedules_account_445_other_sales_to_public_authorities_304",
             "sales_of_electricity_by_rate_schedules_account_446_sales_to_railroads_and_railways_304",
             "sales_of_electricity_by_rate_schedules_account_448_interdepartmental_sales_304",
-            "sales_of_electricity_by_rate_schedules_account_4491_provision_for_rate_refunds_304",
+            "sales_of_electricity_by_rate_schedules_account_449_1_provision_for_rate_refunds_304",
             "sales_of_electricity_by_rate_schedules_account_totals_304",
         ],
     },
@@ -342,14 +342,15 @@ class Ferc1DbfExtractor(FercDbfExtractor):
 
 
 # DAGSTER ASSETS
-def create_raw_ferc1_assets() -> list[SourceAsset]:
-    """Create SourceAssets for raw ferc1 tables.
+def create_raw_ferc1_assets() -> list[AssetSpec]:
+    """Create AssetSpecs for raw ferc1 tables.
 
-    SourceAssets allow you to access assets that are generated elsewhere.
-    In our case, the xbrl and dbf database are created in a separate dagster Definition.
+    An :class:`dagster.AssetSpec` allows you to access assets that are generated
+    elsewhere.  In our case, the xbrl and dbf database are created in a separate dagster
+    Definition.
 
     Returns:
-        A list of ferc1 SourceAssets.
+        A list of ferc1 AssetSpecs.
     """
     # Deduplicate the table names because f1_elctrc_erg_acct feeds into multiple pudl tables.
     dbfs = (v["dbf"] for v in TABLE_NAME_MAP_FERC1.values())
@@ -358,9 +359,8 @@ def create_raw_ferc1_assets() -> list[SourceAsset]:
     )
     dbf_table_names = tuple(set(flattened_dbfs))
     raw_ferc1_dbf_assets = [
-        SourceAsset(
-            key=AssetKey(f"raw_ferc1_dbf__{table_name}"),
-            io_manager_key="ferc1_dbf_sqlite_io_manager",
+        AssetSpec(key=AssetKey(f"raw_ferc1_dbf__{table_name}")).with_io_manager_key(
+            "ferc1_dbf_sqlite_io_manager"
         )
         for table_name in dbf_table_names
     ]
@@ -375,9 +375,8 @@ def create_raw_ferc1_assets() -> list[SourceAsset]:
     )
     xbrl_table_names = tuple(set(xbrls_with_periods))
     raw_ferc1_xbrl_assets = [
-        SourceAsset(
-            key=AssetKey(f"raw_ferc1_xbrl__{table_name}"),
-            io_manager_key="ferc1_xbrl_sqlite_io_manager",
+        AssetSpec(key=AssetKey(f"raw_ferc1_xbrl__{table_name}")).with_io_manager_key(
+            "ferc1_xbrl_sqlite_io_manager"
         )
         for table_name in xbrl_table_names
     ]

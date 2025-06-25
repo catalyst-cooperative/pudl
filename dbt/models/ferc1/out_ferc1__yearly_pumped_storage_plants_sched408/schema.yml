@@ -1,0 +1,58 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_ferc1__yearly_pumped_storage_plants_sched408
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: out_ferc1__yearly_pumped_storage_plants_sched408
+              partition_column: report_year
+        columns:
+          - name: report_year
+          - name: utility_id_ferc1
+          - name: utility_id_pudl
+          - name: utility_name_ferc1
+          - name: plant_name_ferc1
+          - name: record_id
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_unique
+          - name: asset_retirement_cost
+          - name: avg_num_employees
+          - name: capacity_factor
+          - name: capacity_mw
+          - name: capex_equipment_electric
+          - name: capex_equipment_misc
+          - name: capex_facilities
+          - name: capex_land
+          - name: capex_per_mw
+          - name: capex_roads
+          - name: capex_structures
+          - name: capex_total
+          - name: capex_wheels_turbines_generators
+          - name: construction_type
+          - name: construction_year
+          - name: energy_used_for_pumping_mwh
+          - name: installation_year
+          - name: net_generation_mwh
+          - name: net_load_mwh
+          - name: opex_dams
+          - name: opex_electric
+          - name: opex_engineering
+          - name: opex_generation_misc
+          - name: opex_misc_plant
+          - name: opex_operations
+          - name: opex_per_mwh
+          - name: opex_plant
+          - name: opex_production_before_pumping
+          - name: opex_pumped_storage
+          - name: opex_pumping
+          - name: opex_rents
+          - name: opex_structures
+          - name: opex_total
+          - name: opex_total_nonfuel
+          - name: opex_water_for_power
+          - name: peak_demand_mw
+          - name: plant_capability_mw
+          - name: plant_hours_connected_while_generating
+          - name: plant_id_pudl
+          - name: project_num

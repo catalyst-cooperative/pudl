@@ -110,7 +110,7 @@ meant for use as an input into the record linkage between FERC1 plants and EIA."
                 "fuel_type_code_pudl",
                 "planned_generator_retirement_date",
                 "capacity_factor",
-                "fuel_cost_from_eiaapi",
+                "fuel_cost_per_mmbtu_source",
                 "fuel_cost_per_mmbtu",
                 "fuel_cost_per_mwh",
                 "unit_heat_rate_mmbtu_per_mwh",

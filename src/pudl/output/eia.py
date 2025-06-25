@@ -5,7 +5,6 @@ import pandas as pd
 from dagster import Field, asset
 
 import pudl
-from pudl.helpers import drop_all_null_records_with_multiindex
 from pudl.transform.eia import occurrence_consistency
 from pudl.transform.eia861 import add_backfilled_ba_code_column
 
@@ -95,7 +94,6 @@ def out_eia__yearly_plants(
 
 
 @asset(
-    io_manager_key="pudl_io_manager",
     config_schema={
         "fill_tech_desc": Field(
             bool,
@@ -145,22 +143,96 @@ def _out_eia__yearly_generators(
     )
 
     # If any generator data is completely empty, drop it.
-    # These are five known generators that originate from harvesting the plant and
+    # These are a handful of known generators that originate from harvesting the plant and
     # generator IDs found in the plant_id_eia_direct_support_x and
     # generator_id_direct_support_x in EIA 860 energy storage tables, in
     # order to enable foreign key relationships with these columns.
     # They do not show up in any other tables and thus lack data in all columns.
     # For more, see issue #3695 and PR #3699.
-    empty_generator_ids = [
-        (9170, "3093", "2023-01-01"),
-        (18170, "B8170", "2023-01-01"),
-        (34516, "SOL1", "2023-01-01"),
-        (64966, "GEN1", "2023-01-01"),
-        (60321, "PV1", "2023-01-01"),
-    ]
-    out_df = drop_all_null_records_with_multiindex(
-        out_df, ["plant_id_eia", "generator_id", "report_date"], empty_generator_ids
+    empty_generator_ids = pd.MultiIndex.from_tuples(
+        [
+            (1, "CFCPV"),
+            (1, "HB2PV"),
+            (1, "LUNPV"),
+            (1, "MIDPV"),
+            (1, "RDYPV"),
+            (1, "TE1PV"),
+            (9170, "3093"),
+            (34516, "SOL1"),
+            (56951, "VESTA"),
+            (57151, "1"),
+            (57991, "PV2"),
+            (58644, "All"),
+            (60441, "1"),
+            (60797, "61168"),
+            (61153, "61552"),
+            (61169, "60798"),
+            (61716, "26"),
+            (61720, "30"),
+            (61722, "32"),
+            (61752, "49"),
+            (61807, "66"),
+            (62355, "2WPSO"),
+            (62652, "63359"),
+            (62760, "SONRI"),
+            (62975, "SYNLB"),
+            (63210, "SAINT"),
+            (63506, "63243"),
+            (63541, "63257"),
+            (64094, "PBS0L"),
+            (64182, "PRAPV"),
+            (64245, "90FIB"),
+            (64246, "99MTB"),
+            (64436, "WLB"),
+            (64876, "OHAMP"),
+            (64966, "GEN1"),
+            (64996, "ARCPV"),
+            (65084, "ELDPV"),
+            (65550, "63843"),
+            (65550, "64921"),
+            (65550, "65789"),
+            (66574, "USFL"),
+            (65647, "GEN1"),
+            (65859, "GEN03"),
+            (66502, "FWSOL"),
+            (66147, "5653"),
+            (66222, "61194"),
+            (66394, "GEN01"),
+            (66502, "FWSOL"),
+            (66821, "7137"),
+            (66890, "63137"),
+            (66897, "ALBPV"),
+            (67295, "3658"),
+            (67744, "RS1"),
+            (68239, "C234B"),
+            (68609, "16501"),
+            (69312, "ECHEB"),
+        ]
     )
+    non_null_cols = [
+        "report_date",
+        "plant_id_eia",
+        "generator_id",
+        "fuel_type_count",
+    ]  # Columns that will have values
+
+    # Get all rows where all other columns have an NA value.
+    all_null_gens = out_df[
+        out_df[[col for col in out_df.columns if col not in non_null_cols]]
+        .isnull()
+        .all(axis=1)
+    ]
+
+    # Check to see if any generators are null but not in the expected list
+    unexpected_gens = all_null_gens.set_index(
+        ["plant_id_eia", "generator_id"]
+    ).index.difference(empty_generator_ids)
+    if not unexpected_gens.empty:
+        raise ValueError(
+            f"Got unexpected all-null generators:\n{unexpected_gens}\nCheck the expected_generator_id list in _out_eia__yearly_generators."
+        )
+
+    out_df = out_df.drop(all_null_gens.index)
 
     # Add core entity data about EIA plants
     out_df = pd.merge(
@@ -325,7 +397,7 @@ def out_eia__yearly_boilers(
     return out_df
 
 
-@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
+@asset(compute_kind="Python")
 def _out_eia__plants_utilities(
     out_eia__yearly_plants: pd.DataFrame,
     out_eia__yearly_utilities: pd.DataFrame,
@@ -424,7 +496,7 @@ def add_consistent_ba_code_column(plants: pd.DataFrame) -> pd.DataFrame:
     )
     plants_w_ba_codes = plants[plants.balancing_authority_code_eia_consistent.notnull()]
     logger.info(
-        f"{len(plants_w_ba_codes)/len(plants):.1%} of plant records have consistently "
+        f"{len(plants_w_ba_codes) / len(plants):.1%} of plant records have consistently "
         "reported BA Codes"
     )
     return plants
@@ -474,7 +546,7 @@ def fill_in_missing_ba_codes(plants: pd.DataFrame) -> pd.DataFrame:
         """
         currently_null_len = len(plants[plants.balancing_authority_code_eia.isnull()])
         logger.info(
-            f"{method_str}. {currently_null_len/len(plants):.1%} of records have no BA codes"
+            f"{method_str}. {currently_null_len / len(plants):.1%} of records have no BA codes"
         )
 
     # add a column for each of our backfilling options

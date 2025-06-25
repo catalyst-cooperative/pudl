@@ -5,12 +5,12 @@ from io import StringIO
 import numpy as np
 import pandas as pd
 import pytest
-from dagster import AssetKey
 from pandas.testing import assert_frame_equal, assert_series_equal
 from pandas.tseries.offsets import BYearEnd
 
 import pudl
 from pudl.helpers import (
+    add_fips_ids,
     apply_pudl_dtypes,
     convert_col_to_bool,
     convert_df_to_excel_file,
@@ -606,14 +606,6 @@ def test_flatten_mix_types():
     assert list(flatten_list(list1a)) == ["1", 22, "333", 4, "5", 666]
 
 
-def test_cems_selection():
-    """Test CEMS asset selection remove cems assets."""
-    cems_selection = pudl.etl.create_non_cems_selection(pudl.etl.default_assets)
-    assert AssetKey("core_epacems__hourly_emissions") not in cems_selection.resolve(
-        pudl.etl.default_assets
-    ), "core_epacems__hourly_emissions or downstream asset present in selection."
-
-
 def test_sql_asset_factory_missing_file():
     """Test sql_asset_factory throws a file not found error if file doesn't exist for an
     asset name."""
@@ -798,3 +790,102 @@ def test_retry(mocker):
 
     assert sleep_mock.call_count == 3
     sleep_mock.assert_has_calls([mocker.call(2**x) for x in range(3)])
+
+
+def test_generate_rolling_avg():
+    # I put the og values and the rolled values in the same starting
+    # df bc less duplication and its easier to see imo
+    test_rolled = pd.read_csv(
+        StringIO(
+            """
+plant_id_eia,energy_source_code,report_date,fuel_cost_per_mmbtu,fuel_cost_per_mmbtu_rolling
+8102,BIT,2023-01-01,2.61,
+8102,BIT,2023-02-01,2.63,2.6
+8102,BIT,2023-03-01,2.56,2.6
+8102,BIT,2023-04-01,,2.6
+8102,BIT,2023-05-01,2.59,2.62
+8102,BIT,2023-06-01,2.5,2.64
+8102,BIT,2023-07-01,2.69,2.68
+8102,BIT,2023-08-01,2.76,2.72
+8102,BIT,2023-09-01,2.78,2.76
+8102,BIT,2023-10-01,2.88,2.8
+8102,BIT,2023-11-01,3.0,2.83
+8102,BIT,2023-12-01,2.89,2.86
+8102,BIT,2024-01-01,,2.88
+8102,BIT,2024-02-01,,
+8102,DFO,2023-01-01,12.1,
+8102,DFO,2023-02-01,13.75,13.60
+8102,DFO,2023-03-01,,14.09
+8102,DFO,2023-05-01,12.49,14.49
+8102,DFO,2023-06-01,15.11,14.92
+8102,DFO,2023-08-01,16.78,15.44
+8102,DFO,2023-09-01,19.23,16.02
+8102,DFO,2023-11-01,,
+8102,DFO,2024-02-01,,
+"""
+        )
+    ).astype({"report_date": "datetime64[ns]"})
+    out = pudl.helpers.generate_rolling_avg(
+        test_rolled.drop(columns=["fuel_cost_per_mmbtu_rolling"]),
+        group_cols=["plant_id_eia", "energy_source_code"],
+        data_col="fuel_cost_per_mmbtu",
+        window=12,
+        min_periods=6,
+        win_type="triang",
+    ).round(2)
+    pd.testing.assert_frame_equal(test_rolled, out, check_exact=False)
+    # reorder the input df using sample to make sure this works
+    # no matter how the input df is sorted
+    out_reordered = pudl.helpers.generate_rolling_avg(
+        test_rolled.sample(frac=1).drop(columns=["fuel_cost_per_mmbtu_rolling"]),
+        group_cols=["plant_id_eia", "energy_source_code"],
+        data_col="fuel_cost_per_mmbtu",
+        window=12,
+        min_periods=6,
+        win_type="triang",
+    ).round(2)
+    pd.testing.assert_frame_equal(test_rolled, out_reordered, check_exact=False)
+
+
+def test_add_fips_ids():
+    geocodes = pd.read_csv(
+        StringIO(
+            """
+area_name,county_id_fips,fips_level,report_year,state_id_fips,state
+Maryland,00000,040,2023,24,MD
+Virginia,00000,040,2023,51,VA
+Baltimore County,24005,050,2023,24,MD
+Baltimore city,24510,050,2023,24,MD
+Bedford County,51019,050,2023,51,VA
+Bedford city,51515,050,2009,51,VA"""
+        ),
+        dtype=pd.StringDtype(),
+    )
+    df = pd.read_csv(
+        StringIO(
+            """
+county,state
+Baltimore County,MD
+Baltimore city,MD
+Baltimore,MD
+Bedford County,VA
+Bedford,VA
+Bedford city,VA"""
+        ),
+        dtype=pd.StringDtype(),
+    )
+    expected = pd.read_csv(
+        StringIO(
+            """
+county,state,state_id_fips,county_id_fips
+Baltimore County,MD,24,24005
+Baltimore city,MD,24,24510
+Baltimore,MD,24,24510
+Bedford County,VA,51,51019
+Bedford,VA,51,51019
+Bedford city,VA,51,51515"""
+        ),
+        dtype=pd.StringDtype(),
+    )
+    out = add_fips_ids(df, geocodes)
+    pd.testing.assert_frame_equal(out, expected)

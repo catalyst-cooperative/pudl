@@ -1,7 +1,6 @@
 """Unit tests for allocation of net generation."""
 
 from io import StringIO
-from typing import Literal
 
 import pandas as pd
 import pytest
@@ -102,141 +101,75 @@ def test_distribute_annually_reported_data_to_months_if_annual():
     pd.testing.assert_frame_equal(monthly_in, monthly_out)
 
 
-class PudlTablMock:
-    """Mock ``pudl_out`` object."""
+# Test data constants
 
-    freq: Literal["YS", "MS"]
+# Base generators EIA860 data
+GENS_EIA860_BASE = pd.read_csv(
+    StringIO(
+        """report_date,plant_id_eia,generator_id,prime_mover_code,unit_id_pudl,capacity_mw,fuel_type_count,operational_status,generator_retirement_date,energy_source_code_1,energy_source_code_2,energy_source_code_3,energy_source_code_4,energy_source_code_5,energy_source_code_6,energy_source_code_7,planned_energy_source_code_1,startup_source_code_1,startup_source_code_2,startup_source_code_3,startup_source_code_4
+2019-01-01,8023,1,ST,1,556.0,1,existing,nan,SUB,BIT,null,null,nan,nan,nan,nan,DFO,nan,nan,nan
+2019-01-01,8023,2,ST,2,556.0,1,existing,nan,SUB,SUB,BIT,nan,nan,nan,nan,DFO,nan,nan,nan
+"""
+    ),
+).pipe(apply_pudl_dtypes, group="eia")
 
-    def __init__(
-        self,
-        gens_eia860=None,
-        gen_eia923=None,
-        gen_original_eia923=None,
-        generation_fuel_eia923=None,
-        plants_eia860=None,
-        boiler_fuel_eia923=None,
-        boiler_generator_assn_eia860=None,
-        freq: Literal["YS"] = "YS",
-    ):
-        self._gens_eia860 = gens_eia860
-        self._gen_eia923 = gen_eia923
-        self._gen_original_eia923 = gen_original_eia923
-        self._generation_fuel_eia923 = generation_fuel_eia923
-        self._plants_eia860 = plants_eia860
-        self._boiler_fuel_eia923 = boiler_fuel_eia923
-        self._boiler_generator_assn_eia860 = boiler_generator_assn_eia860
+# Base boiler fuel EIA923 data
+BOILER_FUEL_EIA923_BASE = pd.read_csv(
+    StringIO(
+        """report_date,plant_id_eia,boiler_id,energy_source_code,prime_mover_code,fuel_consumed_mmbtu
+2019-01-01,8023,1,DFO,ST,17853.519999999997
+2019-01-01,8023,1,RC,ST,27681065.276
+2019-01-01,8023,2,DFO,ST,17712.999999999996
+2019-01-01,8023,2,RC,ST,29096935.279
+"""
+    ),
+).pipe(apply_pudl_dtypes, group="eia")
 
-        self.freq = freq
+# Base generation EIA923 data
+GEN_EIA923_BASE = pd.read_csv(
+    StringIO(
+        """report_date,plant_id_eia,generator_id,net_generation_mwh
+2019-01-01,8023,1,2606737.0
+2019-01-01,8023,2,2759826.0
+"""
+    ),
+).pipe(apply_pudl_dtypes, group="eia")
 
-    def gens_eia860(self):
-        """Access to generators_eia860 table."""
-        return self._gens_eia860
+# Base boiler generator association EIA860 data
+BOILER_GENERATOR_ASSN_EIA860_BASE = pd.read_csv(
+    StringIO(
+        """plant_id_eia,boiler_id,generator_id,report_date
+8023,1,1,2019-01-01
+8023,2,2,2019-01-01
+"""
+    ),
+).pipe(apply_pudl_dtypes, group="eia")
 
-    def gen_eia923(self):
-        """Access to generation_eia923 table."""
-        return self._gen_eia923
+# Base generation fuel EIA923 data
+GENERATION_FUEL_EIA923_BASE = pd.read_csv(
+    StringIO(
+        """report_date,plant_id_eia,energy_source_code,prime_mover_code,net_generation_mwh,fuel_consumed_mmbtu,fuel_consumed_for_electricity_mmbtu
+2019-01-01,8023,DFO,ST,3369.286,35566.0,35566.0
+2019-01-01,8023,RC,ST,5363193.71,56777578.0,56777578.0
+2019-01-01,8023,SUB,ST,10000.0, 100000.0,100000.0
+"""
+    ),
+).pipe(apply_pudl_dtypes, group="eia")
 
-    def gen_original_eia923(self):
-        """Access to generation_eia923 table."""
-        return self._gen_original_eia923
+# Generation fuel EIA923 data with extra energy source code
+GENERATION_FUEL_EIA923_EXTRA_ESC = pd.read_csv(
+    StringIO(
+        """report_date,plant_id_eia,energy_source_code,prime_mover_code,net_generation_mwh,fuel_consumed_mmbtu,fuel_consumed_for_electricity_mmbtu
+2019-01-01,8023,DFO,ST,3369.286,35566.0,35566.0
+2019-01-01,8023,RC,ST,5363193.71,56777578.0,56777578.0
+2019-01-01,8023,SUB,ST,10000.0, 100000.0,100000.0
+"""
+    ),
+).pipe(apply_pudl_dtypes, group="eia")
 
-    def gf_eia923(self):
-        """Access to generation_fuel_eia923 table."""
-        return self._generation_fuel_eia923
-
-    def plants_eia860(self):
-        """Access to plants_eia860 table."""
-        return self._plants_eia860
-
-    def bf_eia923(self):
-        """Access to boiler_fuel_eia923 table."""
-        return self._boiler_fuel_eia923
-
-    def bga_eia860(self):
-        """Access to boiler_generators_assn_eia860 table."""
-        return self._boiler_generator_assn_eia860
-
-
-@pytest.fixture
-def base_case():
-    gens_eia860 = pd.read_csv(
-        StringIO(
-            """report_date,plant_id_eia,generator_id,prime_mover_code,unit_id_pudl,capacity_mw,fuel_type_count,operational_status,generator_retirement_date,energy_source_code_1,energy_source_code_2,energy_source_code_3,energy_source_code_4,energy_source_code_5,energy_source_code_6,energy_source_code_7,planned_energy_source_code_1,startup_source_code_1,startup_source_code_2,startup_source_code_3,startup_source_code_4
-    2019-01-01,8023,1,ST,1,556.0,1,existing,nan,SUB,BIT,null,null,nan,nan,nan,nan,DFO,nan,nan,nan
-    2019-01-01,8023,2,ST,2,556.0,1,existing,nan,SUB,SUB,BIT,nan,nan,nan,nan,DFO,nan,nan,nan
-    """
-        ),
-    ).pipe(apply_pudl_dtypes, group="eia")
-
-    boiler_fuel_eia923 = pd.read_csv(
-        StringIO(
-            """report_date,plant_id_eia,boiler_id,energy_source_code,prime_mover_code,fuel_consumed_mmbtu
-    2019-01-01,8023,1,DFO,ST,17853.519999999997
-    2019-01-01,8023,1,RC,ST,27681065.276
-    2019-01-01,8023,2,DFO,ST,17712.999999999996
-    2019-01-01,8023,2,RC,ST,29096935.279
-    """
-        ),
-    ).pipe(apply_pudl_dtypes, group="eia")
-    # generation_eia923
-    gen_eia923 = pd.read_csv(
-        StringIO(
-            """report_date,plant_id_eia,generator_id,net_generation_mwh
-    2019-01-01,8023,1,2606737.0
-    2019-01-01,8023,2,2759826.0
-    """
-        ),
-    ).pipe(apply_pudl_dtypes, group="eia")
-
-    # boiler_generator_association_eia860
-    boiler_generator_assn_eia860 = pd.read_csv(
-        StringIO(
-            """plant_id_eia,boiler_id,generator_id,report_date
-    8023,1,1,2019-01-01
-    8023,2,2,2019-01-01
-    """
-        ),
-    ).pipe(apply_pudl_dtypes, group="eia")
-
-    generation_fuel_eia923 = pd.read_csv(
-        StringIO(
-            """report_date,plant_id_eia,energy_source_code,prime_mover_code,net_generation_mwh,fuel_consumed_mmbtu,fuel_consumed_for_electricity_mmbtu
-    2019-01-01,8023,DFO,ST,3369.286,35566.0,35566.0
-    2019-01-01,8023,RC,ST,5363193.71,56777578.0,56777578.0
-    2019-01-01,8023,SUB,ST,10000.0, 100000.0,100000.0
-    """
-        ),
-    ).pipe(apply_pudl_dtypes, group="eia")
-
-    return PudlTablMock(
-        gens_eia860=gens_eia860,
-        gen_eia923=gen_eia923,
-        gen_original_eia923=gen_eia923,
-        generation_fuel_eia923=generation_fuel_eia923,
-        boiler_fuel_eia923=boiler_fuel_eia923,
-        boiler_generator_assn_eia860=boiler_generator_assn_eia860,
-        freq="YS",
-    )
-
-
-@pytest.fixture
-def extra_esc_in_gf(base_case):
-    base_case._generation_fuel_eia923 = pd.read_csv(
-        StringIO(
-            """report_date,plant_id_eia,energy_source_code,prime_mover_code,net_generation_mwh,fuel_consumed_mmbtu,fuel_consumed_for_electricity_mmbtu
-    2019-01-01,8023,DFO,ST,3369.286,35566.0,35566.0
-    2019-01-01,8023,RC,ST,5363193.71,56777578.0,56777578.0
-    2019-01-01,8023,SUB,ST,10000.0, 100000.0,100000.0
-    """
-        ),
-    ).pipe(apply_pudl_dtypes, group="eia")
-    return base_case
-
-
-@pytest.fixture
-def extra_pm_in_bf(base_case):
-    base_case.bf_eia923().loc[0, "prime_mover_code"] = "CT"
-    return base_case
+# Boiler fuel EIA923 data with extra prime mover
+BOILER_FUEL_EIA923_EXTRA_PM = BOILER_FUEL_EIA923_BASE.copy()
+BOILER_FUEL_EIA923_EXTRA_PM.loc[0, "prime_mover_code"] = "CT"
 
 
 def get_ratio_from_bf_and_allocated_by_boiler(
@@ -280,63 +213,54 @@ def get_ratio_from_bf_and_allocated_by_boiler(
 
 
 @pytest.mark.parametrize(
-    "fixture_name",
+    "gf,bf",
     [
-        "base_case",
-        "extra_esc_in_gf",
-        "extra_pm_in_bf",
+        (GENERATION_FUEL_EIA923_BASE, BOILER_FUEL_EIA923_BASE),
+        (GENERATION_FUEL_EIA923_EXTRA_ESC, BOILER_FUEL_EIA923_BASE),
+        (GENERATION_FUEL_EIA923_BASE, BOILER_FUEL_EIA923_EXTRA_PM),
     ],
 )
-def test_allocate_gen_fuel_sums_match(fixture_name, request):
-    pudl_out = request.getfixturevalue(fixture_name)
+def test_allocate_gen_fuel_sums_match(gf, bf):
+    """Test that fuel consumption sums match between input and output."""
 
-    gf, bf, gen, bga, gens = allocate_gen_fuel.select_input_data(
-        gf=pudl_out.gf_eia923(),
-        bf=pudl_out.bf_eia923(),
-        gen=pudl_out.gen_eia923(),
-        bga=pudl_out.bga_eia860(),
-        gens=pudl_out.gens_eia860(),
-    )
-    allocated = allocate_gen_fuel.allocate_gen_fuel_by_generator_energy_source(
+    gf_selected, bf_selected, gen, bga, gens = allocate_gen_fuel.select_input_data(
         gf=gf,
         bf=bf,
+        gen=GEN_EIA923_BASE,
+        bga=BOILER_GENERATOR_ASSN_EIA860_BASE,
+        gens=GENS_EIA860_BASE,
+    )
+    allocated = allocate_gen_fuel.allocate_gen_fuel_by_generator_energy_source(
+        gf=gf_selected,
+        bf=bf_selected,
         gen=gen,
         bga=bga,
         gens=gens,
-        freq=pudl_out.freq,
+        freq="YS",
     )
 
-    assert (
-        pudl_out.gf_eia923().fuel_consumed_mmbtu.sum()
-        == allocated.fuel_consumed_mmbtu.sum()
-    )
+    assert gf.fuel_consumed_mmbtu.sum() == allocated.fuel_consumed_mmbtu.sum()
 
 
 @pytest.mark.parametrize(
-    "fixture_name",
-    [
-        "base_case",
-        "extra_esc_in_gf",
-    ],
+    "gf",
+    [GENERATION_FUEL_EIA923_BASE, GENERATION_FUEL_EIA923_EXTRA_ESC],
 )
-def test_allocate_gen_fuel_dfo_ratios_match(fixture_name, request):
-    pudl_out = request.getfixturevalue(fixture_name)
+def test_allocate_gen_fuel_dfo_ratios_match(gf):
+    """Test that DFO fuel ratios match between boiler and allocated data."""
 
-    gf, bf, gen, bga, gens = allocate_gen_fuel.select_input_data(
-        gf=pudl_out.gf_eia923(),
-        bf=pudl_out.bf_eia923(),
-        gen=pudl_out.gen_eia923(),
-        bga=pudl_out.bga_eia860(),
-        gens=pudl_out.gens_eia860(),
+    gf_selected, bf, gen, bga, gens = allocate_gen_fuel.select_input_data(
+        gf=gf,
+        bf=BOILER_FUEL_EIA923_BASE,
+        gen=GEN_EIA923_BASE,
+        bga=BOILER_GENERATOR_ASSN_EIA860_BASE,
+        gens=GENS_EIA860_BASE,
     )
     allocated = allocate_gen_fuel.allocate_gen_fuel_by_generator_energy_source(
-        gf=gf, bf=bf, gen=gen, bga=bga, gens=gens, freq=pudl_out.freq
+        gf=gf_selected, bf=bf, gen=gen, bga=bga, gens=gens, freq="YS"
     )
 
-    assert (
-        pudl_out.gf_eia923().fuel_consumed_mmbtu.sum()
-        == allocated.fuel_consumed_mmbtu.sum()
-    )
+    assert gf.fuel_consumed_mmbtu.sum() == allocated.fuel_consumed_mmbtu.sum()
     ratio_bf, ratio_allocated = get_ratio_from_bf_and_allocated_by_boiler(
         bf, allocated, bga, boiler_id_to_check="1", energy_source_code_to_check="DFO"
     )
@@ -346,26 +270,28 @@ def test_allocate_gen_fuel_dfo_ratios_match(fixture_name, request):
 # Implementation and special cases
 
 
-def test_add_missing_energy_source(extra_esc_in_gf):
+def test_add_missing_energy_source():
+    """Test adding missing energy source codes to generators."""
     gf, bf, _, _, gens = allocate_gen_fuel.select_input_data(
-        gf=extra_esc_in_gf.gf_eia923(),
-        bf=extra_esc_in_gf.bf_eia923(),
-        gen=extra_esc_in_gf.gen_eia923(),
-        bga=extra_esc_in_gf.bga_eia860(),
-        gens=extra_esc_in_gf.gens_eia860(),
+        gf=GENERATION_FUEL_EIA923_EXTRA_ESC,
+        bf=BOILER_FUEL_EIA923_BASE,
+        gen=GEN_EIA923_BASE,
+        bga=BOILER_GENERATOR_ASSN_EIA860_BASE,
+        gens=GENS_EIA860_BASE,
     )
     gens = allocate_gen_fuel.add_missing_energy_source_codes_to_gens(gens, gf, bf)
     # assert that the missing energy source code is RC
     assert gens.energy_source_code_8.unique() == "RC"
 
 
-def test_allocate_bf_data_to_gens_drops_pm_code(extra_pm_in_bf):
+def test_allocate_bf_data_to_gens_drops_pm_code():
+    """Test that non-matching prime mover codes are dropped."""
     _, bf, _, bga, gens = allocate_gen_fuel.select_input_data(
-        gf=extra_pm_in_bf.gf_eia923(),
-        bf=extra_pm_in_bf.bf_eia923(),
-        gen=extra_pm_in_bf.gen_eia923(),
-        bga=extra_pm_in_bf.bga_eia860(),
-        gens=extra_pm_in_bf.gens_eia860(),
+        gf=GENERATION_FUEL_EIA923_BASE,
+        bf=BOILER_FUEL_EIA923_EXTRA_PM,
+        gen=GEN_EIA923_BASE,
+        bga=BOILER_GENERATOR_ASSN_EIA860_BASE,
+        gens=GENS_EIA860_BASE,
     )
     bf_by_gens = allocate_gen_fuel.allocate_bf_data_to_gens(bf, gens, bga)
     # allocate_bf_data_to_gens quietly drops and records with non-matching PM codes.
@@ -379,13 +305,14 @@ def test_allocate_bf_data_to_gens_drops_pm_code(extra_pm_in_bf):
     )
 
 
-def test_allocate_gen_fuel_by_generator_drops_pm_data(extra_pm_in_bf):
+def test_allocate_gen_fuel_by_generator_drops_pm_data():
+    """Test that prime mover data not in BGA is handled correctly."""
     gf, bf, gen, bga, gens = allocate_gen_fuel.select_input_data(
-        gf=extra_pm_in_bf.gf_eia923(),
-        bf=extra_pm_in_bf.bf_eia923(),
-        gen=extra_pm_in_bf.gen_eia923(),
-        bga=extra_pm_in_bf.bga_eia860(),
-        gens=extra_pm_in_bf.gens_eia860(),
+        gf=GENERATION_FUEL_EIA923_BASE,
+        bf=BOILER_FUEL_EIA923_EXTRA_PM,
+        gen=GEN_EIA923_BASE,
+        bga=BOILER_GENERATOR_ASSN_EIA860_BASE,
+        gens=GENS_EIA860_BASE,
     )
 
     allocated = allocate_gen_fuel.allocate_gen_fuel_by_generator_energy_source(
@@ -394,7 +321,7 @@ def test_allocate_gen_fuel_by_generator_drops_pm_data(extra_pm_in_bf):
         gen=gen,
         bga=bga,
         gens=gens,
-        freq=extra_pm_in_bf.freq,
+        freq="YS",
     )
 
     # the data associated with the PM code from BF that's not in the BGA is
@@ -409,3 +336,54 @@ def test_allocate_gen_fuel_by_generator_drops_pm_data(extra_pm_in_bf):
         bf, allocated, bga, boiler_id_to_check="1", energy_source_code_to_check="DFO"
     )
     assert ratio_bf != ratio_allocated
+
+
+def test_identify_retiring_generators():
+    """Ensure identify_retiring_generators grabs all months from the year a generator is retiring."""
+    # i added a few records from the year before and after the retiring year to make sure those are not included in the output
+    gena_retiring = (
+        pd.read_csv(
+            StringIO(
+                """plant_id_eia,generator_id,report_date,operational_status,generator_retirement_date,net_generation_mwh_g_tbl,fuel_consumed_mmbtu_gf_tbl
+50937,GENA,2021-12-01,existing,,,0.0
+50937,GENA,2022-01-01,retired,2022-09-01,,85.0
+50937,GENA,2022-02-01,retired,2022-09-01,,91.0
+50937,GENA,2022-03-01,retired,2022-09-01,,278.0
+50937,GENA,2022-04-01,retired,2022-09-01,,127.0
+50937,GENA,2022-05-01,retired,2022-09-01,,79.0
+50937,GENA,2022-06-01,retired,2022-09-01,,85.0
+50937,GENA,2022-07-01,retired,2022-09-01,,91.0
+50937,GENA,2022-08-01,retired,2022-09-01,,85.0
+50937,GENA,2022-09-01,retired,2022-09-01,,48.0
+50937,GENA,2022-10-01,retired,2022-09-01,,67.0
+50937,GENA,2022-11-01,retired,2022-09-01,,67.0
+50937,GENA,2022-12-01,retired,2022-09-01,,
+50937,GENA,2023-01-01,retired,2022-09-01,,
+"""
+            )
+        )
+        .convert_dtypes()
+        .assign(report_date=lambda x: pd.to_datetime(x.report_date))
+    )
+    expected_retiring = (
+        pd.read_csv(
+            StringIO("""plant_id_eia,generator_id,report_date,operational_status,generator_retirement_date,net_generation_mwh_g_tbl,fuel_consumed_mmbtu_gf_tbl
+50937,GENA,2022-01-01,retired,2022-09-01,,85.0
+50937,GENA,2022-02-01,retired,2022-09-01,,91.0
+50937,GENA,2022-03-01,retired,2022-09-01,,278.0
+50937,GENA,2022-04-01,retired,2022-09-01,,127.0
+50937,GENA,2022-05-01,retired,2022-09-01,,79.0
+50937,GENA,2022-06-01,retired,2022-09-01,,85.0
+50937,GENA,2022-07-01,retired,2022-09-01,,91.0
+50937,GENA,2022-08-01,retired,2022-09-01,,85.0
+50937,GENA,2022-09-01,retired,2022-09-01,,48.0
+50937,GENA,2022-10-01,retired,2022-09-01,,67.0
+50937,GENA,2022-11-01,retired,2022-09-01,,67.0
+50937,GENA,2022-12-01,retired,2022-09-01,,
+""")
+        )
+        .convert_dtypes()
+        .assign(report_date=lambda x: pd.to_datetime(x.report_date))
+    )
+    out = allocate_gen_fuel.identify_retiring_generators(gena_retiring)
+    pd.testing.assert_frame_equal(expected_retiring, out, check_exact=False)

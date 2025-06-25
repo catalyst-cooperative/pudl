@@ -1,0 +1,16 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_sec10k__assn_sec10k_filers_and_eia_utilities
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_sec10k__assn_sec10k_filers_and_eia_utilities
+              partition_column: null
+        columns:
+          - name: central_index_key
+            tests:
+              - unique
+          - name: utility_id_eia
+            tests:
+              - unique

@@ -24,6 +24,21 @@ SOURCES: dict[str, Any] = {
         "license_pudl": LICENSES["cc-by-4.0"],
         "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
     },
+    "censuspep": {
+        "title": "Population Estimates Program's (PEP) Federal Information Processing Series (FIPS) Codes",
+        "path": "https://www.census.gov/geographies/reference-files/2023/demo/popest/2023-fips.html",
+        "description": (
+            "Reference files for Federal Information Processing Series (FIPS) Geographic Codes. "
+            "These FIPS Codes are a subset of a broader Population Estimates dataset."
+        ),
+        "working_partitions": {"years": [2023, 2015, 2009]},
+        "keywords": sorted(
+            {"fips", "census", "county", "state", "geography", "geocodes"}
+        ),
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
+        "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
+    },
     "eia176": {
         "title": "EIA Form 176 -- Annual Report of Natural and Supplemental Gas Supply and Disposition",
         "path": "https://www.eia.gov/naturalgas/ngqs/",
@@ -47,7 +62,7 @@ SOURCES: dict[str, Any] = {
             "source_format": "Comma Separated Value (.csv)",
         },
         "field_namespace": "eia",
-        "working_partitions": {"years": sorted(set(range(1997, 2023)))},
+        "working_partitions": {"years": sorted(set(range(1997, 2024)))},
         "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
         "keywords": sorted(
             set(
@@ -145,7 +160,7 @@ SOURCES: dict[str, Any] = {
             CONTRIBUTORS["catalyst-cooperative"],
         ],
         "working_partitions": {
-            "years": sorted(set(range(2001, 2024))),
+            "years": sorted(set(range(2001, 2025))),
         },
         "keywords": sorted(
             set(
@@ -181,7 +196,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "year_months": [
                 str(q).lower()
-                for q in pd.period_range(start="2015-07", end="2024-06", freq="M")
+                for q in pd.period_range(start="2015-07", end="2025-04", freq="M")
             ],
         },
         "keywords": sorted(
@@ -206,12 +221,11 @@ SOURCES: dict[str, Any] = {
         "title": "EIA Form 861 -- Annual Electric Power Industry Report",
         "path": "https://www.eia.gov/electricity/data/eia861",
         "description": (
-            "EIA Form 861 Annual Electric Power Industry Report, detailed "
-            "data files."
+            "EIA Form 861 Annual Electric Power Industry Report, detailed data files."
         ),
         "field_namespace": "eia",
         "working_partitions": {
-            "years": sorted(set(range(2001, 2023))),
+            "years": sorted(set(range(2001, 2024))),
         },
         "contributors": [],
         "keywords": sorted(
@@ -258,7 +272,7 @@ SOURCES: dict[str, Any] = {
         },
         "field_namespace": "eia",
         "working_partitions": {
-            "years": sorted(set(range(2001, 2025))),
+            "years": sorted(set(range(2001, 2026))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -302,8 +316,8 @@ SOURCES: dict[str, Any] = {
         "field_namespace": "eia",
         "working_partitions": {
             "half_years": [
-                f"{year}half{half}" for year in range(2015, 2025) for half in [1, 2]
-            ][1:]  # Begins in H2 of 2015 and currently ends in H2 of 2024
+                f"{year}half{half}" for year in range(2015, 2026) for half in [1, 2]
+            ][1:-1]  # Begins in H2 of 2015 and currently ends in H1 of 2025
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -363,26 +377,45 @@ SOURCES: dict[str, Any] = {
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
-    "eia_bulk_elec": {
-        "title": "EIA Bulk Electricity API Data",
+    "eiaapi": {
+        "title": "EIA Bulk API Data",
         "path": "https://www.eia.gov/opendata/bulkfiles.php",
         "description": (
-            "Aggregate national, state, and plant-level electricity generation "
-            "statistics, including fuel quality and consumption, for grid-connected "
-            "plants with nameplate capacity of 1 megawatt or greater."
-            "\n"
+            "All data made available in bulk through the EIA Open Data API, "
+            "including:\n"
+            "* the Annual Energy Outlook, the International Energy Outlook and the Short "
+            "Term Energy Outlook;\n"
+            "* aggregate national, state, and mine-level coal production statistics, "
+            "including imports and exports, reciepts of coal at electric power plants, "
+            "consumption and quality, market sales, reserves, and productive capacity; "
+            "* U.S. electric system operating data;\n"
+            "* aggregate national, state, and plant-level electricity generation "
+            "statistics, including fuel quality and consumption, for grid-connected"
+            "plants with nameplate capacity of 1 megawatt or greater;\n"
+            "* CO2 emissions aggregates, CO2 emissions and carbon coefficients by fuel, "
+            "state, and sector;\n"
+            "* International Energy System (IES) data containing production, reserves, "
+            "consumption, capacity, storage, imports, exports, and emissions time "
+            "series by country for electricity, petroleum, natural gas, coal, nuclear, "
+            "and renewable energy;\n"
+            "* statistics of U.S. natural gas production, imports, exploration, pipelines, "
+            "exports, prices, consumption, stocks, and reserves;\n"
+            "* statistics of U.S. petroleum and other liquid fuel production, imports, "
+            "refining, exports, prices, consumption, stocks, and reserves;\n"
+            "* aggregate national, PADD, state, city, port, and refinery petroleum imports "
+            "data for various grades of crude oil and country of origin;\n"
+            "* state and national energy production and consumption, using survey and "
+            "estimates to create comprehensive state energy statistics and flows;\n"
+            "* U.S. total energy production, prices, carbon dioxide emissions, and "
+            "consumption of energy from all sources by sector.\n\n"
             "At present, PUDL integrates only a few specific data series related to "
-            "fuel receipts and costs figures."
+            "fuel receipts and costs figures from the Bulk Electricity API."
         ),
         "source_file_dict": {
-            "respondents": (
-                "Electric, CHP plants, and sometimes fuel transfer termianls with "
-                "either 1MW+ or the ability to receive and deliver power to the grid."
-            ),
             "source_format": "JSON",
         },
         "field_namespace": "eia",
-        "working_partitions": {},
+        "working_partitions": {"data_set": "electricity"},
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
         ],
@@ -392,6 +425,20 @@ SOURCES: dict[str, Any] = {
                 + KEYWORDS["us_govt"]
                 + KEYWORDS["electricity"]
                 + KEYWORDS["environment"]
+                + [
+                    "eia aeo",
+                    "annual energy outlook",
+                    "eia seo",
+                    "short-term energy outlook",
+                    "eia seds",
+                    "state energy data system",
+                    "eia ieo",
+                    "international energy outlook",
+                    "nems",
+                    "fuel projections",
+                    "energy supply",
+                    "energy consumption",
+                ]
             )
         ),
         "license_raw": LICENSES["us-govt"],
@@ -426,7 +473,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "year_quarters": [
                 str(q).lower()
-                for q in pd.period_range(start="1995q1", end="2024q2", freq="Q")
+                for q in pd.period_range(start="1995q1", end="2025q1", freq="Q")
             ]
         },
         "contributors": [
@@ -465,7 +512,7 @@ SOURCES: dict[str, Any] = {
             "source_format": "Comma Separated Value (.csv)",
         },
         "field_namespace": "glue",
-        "working_partitions": {},
+        "working_partitions": {"year": sorted(set(range(2018, 2024)))},
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
         ],
@@ -502,12 +549,12 @@ SOURCES: dict[str, Any] = {
         ),
         "source_file_dict": {
             "respondents": "Major electric utilities and licenses.",
-            "records_liberated": "~13.2 million (116 raw tables), ~307,000 (7 clean tables)",
+            "records_liberated": "~13.2 million (116 raw tables), ~4.7 million (23 clean tables)",
             "source_format": "XBRL (.XBRL) and Visual FoxPro Database (.DBC/.DBF)",
         },
         "field_namespace": "ferc1",
         "working_partitions": {
-            "years": sorted(set(range(1994, 2024))),
+            "years": sorted(set(range(1994, 2025))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -631,9 +678,9 @@ SOURCES: dict[str, Any] = {
         ),
         "field_namespace": "ferc714",
         "working_partitions": {
-            # 2021 and later data is in XBRL and not yet supported.
+            # 2021 and later data is in XBRL.
             # 2006-2020 data is in monolithic CSV files, so any year means all years.
-            "years": sorted(set(range(2006, 2021))),
+            "years": sorted(set(range(2006, 2024))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -727,6 +774,9 @@ SOURCES: dict[str, Any] = {
                 "wind_capacity_aggregations",
             ]
         },
+        "contributors": [
+            CONTRIBUTORS["elaine-hart"],
+        ],
     },
     "mshamines": {
         "title": "Mine Safety and Health Administration (MSHA) Mines",
@@ -791,7 +841,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             # 1970 - 1989 are all in one CSV in multiple tabs with multi-column headers
             # and will need to be more extensively processed, not currently integrated.
-            "years": sorted(set(range(1990, 2023))),
+            "years": sorted(set(range(1990, 2024))),
         },
         "keywords": sorted(set(KEYWORDS["phmsa"] + KEYWORDS["us_govt"])),
         "license_raw": LICENSES["us-govt"],
@@ -819,21 +869,77 @@ SOURCES: dict[str, Any] = {
         "email": "pudl@catalyst.coop",
     },
     "sec10k": {
-        "title": "Securities and Exchange Commission form 10-K",
-        "path": "https://www.sec.gov/files/form10-k.pdf",
+        "title": "U.S. Securities and Exchange Commission Form 10-K",
+        "path": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
         "description": (
-            "10-K offers a detailed picture of a company’s business, the risks it"
-            "faces, and the operating and financial results for the fiscal year."
+            """The SEC Form 10-K is an annual report required by the U.S. Securities and
+Exchange Commission (SEC), that gives a comprehensive summary of a company's financial
+performance.
+
+The full contents of the SEC 10-K are available through the SEC's EDGAR
+database. PUDL integrates only some of the 10-K metadata and data extracted from the
+unstructured Exhibit 21 attachement, which describes the ownershp relationships between
+the parent company and its subsidiaries. This data is used to create a linkage between
+EIA utilities and SEC reporting companies, to better understand the relationships
+between utlities and their affiliates, and the resulting economic and political impacts.
+
+This data was originally downloaded from the SEC and processed using a machine learning
+pipeline found here: https://github.com/catalyst-cooperative/mozilla-sec-eia"""
         ),
         "field_namespace": "sec",
         "working_partitions": {
-            "years": sorted(set(range(1994, 2023))),
+            "tables": [
+                "raw_sec10k__quarterly_filings",
+                "raw_sec10k__quarterly_company_information",
+                "raw_sec10k__parents_and_subsidiaries",
+                "raw_sec10k__exhibit_21_company_ownership",
+            ],
+            "years": sorted(range(1993, 2024)),
         },
         "keywords": sorted(
             set(KEYWORDS["sec"] + KEYWORDS["us_govt"] + KEYWORDS["finance"])
         ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
+    },
+    "vcerare": {
+        "title": "Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset",
+        "path": "https://vibrantcleanenergy.com/products/datasets/",
+        "description": (
+            "This dataset was produced by Vibrant Clean Energy and is licensed to "
+            "the public under the Creative Commons Attribution 4.0 International "
+            "license (CC-BY-4.0). The data consists of hourly, county-level renewable "
+            "generation profiles in the continental United States and was compiled "
+            "based on outputs from the NOAA HRRR weather model. Profiles are stated "
+            "as a capacity factor (a percentage of nameplate capacity) and exist for "
+            "onshore wind, offshore wind, and fixed-tilt solar generation types."
+        ),
+        "source_file_dict": {
+            "source_format": "Comma Separated Value (.csv)",
+        },
+        "keywords": sorted(
+            {
+                "solar",
+                "wind",
+                "time series",
+                "energy",
+                "electricity",
+                "generation",
+                "weather",
+                "capacity factor",
+                "hourly",
+                "united states",
+                "usa",
+                "resource adequacy",
+                "gridpath",
+                "vibrant clean energy",
+                "county",
+            }
+        ),
+        "license_raw": LICENSES["cc-by-4.0"],
+        "license_pudl": LICENSES["cc-by-4.0"],
+        "working_partitions": {"years": sorted(set(range(2014, 2024)))},
+        "contributors": [CONTRIBUTORS["vibrant-clean-energy"]],
     },
 }
 """Data source attributes by PUDL identifier."""

@@ -368,6 +368,9 @@ FUEL_CATEGORIES: dict[str, set[str]] = {
             "steam-common production",
             "steam-common production plant",
             "tons",
+            "steam:",
+            "steam heating plant",
+            "steam plant",
         },
         "oil": {
             "# 2  oil",
@@ -569,6 +572,8 @@ FUEL_CATEGORIES: dict[str, set[str]] = {
             "solar plants:",
             "solar:",
             "other production - solar",
+            "customer hosted solar:",
+            "solar farms",
         },
         "wind": {
             "rosiere wind turbines",
@@ -626,6 +631,9 @@ FUEL_CATEGORIES: dict[str, set[str]] = {
             "unallocated hydros",
             "unallocated - hydros",
             "water",
+            "lewiston canal facilities:",
+            "hydro plants hydro plants",
+            "neal shoals-hydro license",
         },
         "nuclear": {
             "nuclear",
@@ -673,7 +681,8 @@ FUEL_CATEGORIES: dict[str, set[str]] = {
             "woodchips",
             "woodships",
         },
-        "other": {  # This should really be NA but we require a fuel_type_code_pudl
+        # This should really be NA but we require a fuel_type_code_pudl
+        "other": {
             "",
             "# 6 & used",
             "*",
@@ -745,6 +754,8 @@ FUEL_CATEGORIES: dict[str, set[str]] = {
             "--",
             "---------",
             '"',
+            "storage/pipelines",
+            "hydrogen",
         },
         "na_category": {
             "na_category",
@@ -793,6 +804,8 @@ FUEL_UNIT_CATEGORIES: dict[str, set[str]] = {
             "c.t.",
             "t",
             "toncoalequiv",
+            "coal - ton",
+            "toons",
         },
         "mcf": {
             "mcf",
@@ -819,6 +832,7 @@ FUEL_UNIT_CATEGORIES: dict[str, set[str]] = {
             "mcf00",
             "m.cu.ft..",
             "1000 c.f",
+            "gas - mcf",
         },
         "bbl": {
             "bbl",
@@ -884,8 +898,13 @@ FUEL_UNIT_CATEGORIES: dict[str, set[str]] = {
             "oil-bbls",
             "oil-bbs",
             "boe",
+            "oil- bbl",
         },
-        "mmbbl": {"mmbbl", "mmbbls"},
+        "mmbbl": {
+            "mmbbl",
+            "mmbbls",
+            "mmboe",
+        },
         "gal": {"gal", "gallons", "gal.", "gals", "gals.", "gallon", "galllons"},
         "kgal": {
             "kgal",
@@ -1340,6 +1359,7 @@ PLANT_TYPE_CATEGORIES: dict[str, set[str]] = {
             "steam comb cycle",
             "steam/gas turb.",
             "steam/gas turbine",
+            "combined cycle-40%",
         },
         "nuclear": {
             "nuclear",
@@ -1463,6 +1483,7 @@ PLANT_TYPE_CATEGORIES: dict[str, set[str]] = {
             "solar:",
             "proj dvlpmnt div solar photovoltaic project:",
             "photo voltaic generating plants:",
+            "customer hosted solar:",
         },
         "solar_thermal": {"solar thermal", "solar_thermal"},
         "fuel_cell": {
@@ -1798,6 +1819,7 @@ CONSTRUCTION_TYPE_CATEGORIES: dict[str, set[str]] = {
             "outdoor boiler &fuel",
             "conventional; outdoor",
             "coven./outdoor",
+            "conv & outdoor boiler",
         },
         "semioutdoor": {
             "semioutdoor",
@@ -1917,6 +1939,7 @@ CONSTRUCTION_TYPE_CATEGORIES: dict[str, set[str]] = {
             "4 indr/outdr boilerr",
             "4 indr/outdr boiler",
             "indoor & outdoof",
+            "convet. semi-outdoor",
         },
         "conventional": {
             "conventional",
@@ -2102,6 +2125,9 @@ CONSTRUCTION_TYPE_CATEGORIES: dict[str, set[str]] = {
             "see note",
             "not appicable",
             "pv tracking",
+            "r of r/storage",
+            "simple and reciprocating",
+            "simple & reciprocating",
         },
     }
 }
@@ -4649,8 +4675,8 @@ TRANSFORM_PARAMS = {
                     "row_seq": "row_seq",
                     "row_prvlg": "row_prvlg",
                     "report_prd": "report_prd",
-                    "beg_yr_bal": "ending_balance",
-                    "end_yr_bal": "starting_balance",
+                    "beg_yr_bal": "starting_balance",
+                    "end_yr_bal": "ending_balance",
                     "dr_acct_num": "account_detail",
                     "dr_amount": "decrease_in_other_regulatory_liabilities",
                     "credits": "increase_in_other_regulatory_liabilities",
@@ -4854,6 +4880,7 @@ TRANSFORM_PARAMS = {
                 "other_sales_to_public_authorities_axis",
                 "sales_to_railroads_and_railways_axis",
                 "interdepartmental_sales_axis",
+                "provision_for_rate_refunds_axis",
             ],
             "new_axis_column_name": "sales_axis",
         },

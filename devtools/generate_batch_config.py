@@ -56,9 +56,9 @@ def to_config(
                         }
                     ],
                     "computeResource": {
-                        "cpuMilli": 8000,
-                        "memoryMib": int(63 * MIB_PER_GB),
-                        "bootDiskMib": 80 * 1024,
+                        "cpuMilli": 16000,
+                        "memoryMib": int(127 * MIB_PER_GB),
+                        "bootDiskMib": 200 * 1024,
                     },
                     "maxRunDuration": f"{60 * 60 * 12}s",
                 }

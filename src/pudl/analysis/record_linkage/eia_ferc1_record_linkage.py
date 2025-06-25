@@ -20,6 +20,7 @@ We train the parameters of the ``splink`` model using manually labeled training 
 that links together several thousand EIA and FERC plant records. This trained model is
 used to predict matches on the full dataset (see :func:`get_model_predictions`) using a
 threshold match probability to predict if records are a match or not.
+
 The model can return multiple EIA match options for each FERC1 record, so we rank the
 matches and choose the one with the highest score. Any matches identified by the model
 which are in conflict with our training data are overwritten with the manually
@@ -36,7 +37,7 @@ import mlflow
 import numpy as np
 import pandas as pd
 from dagster import Out, graph, op
-from splink.duckdb.linker import DuckDBLinker
+from splink import DuckDBAPI, Linker, SettingsCreator
 
 import pudl
 from pudl.analysis.ml_tools import experiment_tracking, models
@@ -77,11 +78,9 @@ plant_name_cleaner = name_cleaner.CompanyNameCleaner(
     cleaning_rules_list=[
         "remove_word_the_from_the_end",
         "remove_word_the_from_the_beginning",
-        "replace_amperstand_between_space_by_AND",
+        "replace_ampersand_by_AND",
         "replace_hyphen_by_space",
-        "replace_hyphen_between_spaces_by_single_space",
         "replace_underscore_by_space",
-        "replace_underscore_between_spaces_by_single_space",
         "remove_all_punctuation",
         "remove_numbers",
         "remove_math_symbols",
@@ -211,29 +210,30 @@ def get_training_data_df(inputs):
 @op
 def get_model_predictions(eia_df, ferc_df, train_df, experiment_tracker):
     """Train splink model and output predicted matches."""
-    settings_dict = {
-        "link_type": "link_only",
-        "unique_id_column_name": "record_id",
-        "additional_columns_to_retain": ["plant_id_pudl", "utility_id_pudl"],
-        "comparisons": COMPARISONS,
-        "blocking_rules_to_generate_predictions": BLOCKING_RULES,
-        "retain_matching_columns": True,
-        "retain_intermediate_calculation_columns": True,
-        "probability_two_random_records_match": 1 / len(eia_df),
-    }
-    linker = DuckDBLinker(
-        [eia_df, ferc_df],
-        input_table_aliases=["eia_df", "ferc_df"],
-        settings_dict=settings_dict,
+    settings = SettingsCreator(
+        link_type="link_only",
+        unique_id_column_name="record_id",
+        additional_columns_to_retain=["plant_id_pudl", "utility_id_pudl"],
+        comparisons=COMPARISONS,
+        blocking_rules_to_generate_predictions=BLOCKING_RULES,
+        retain_matching_columns=True,
+        retain_intermediate_calculation_columns=True,
+        probability_two_random_records_match=(1.0 / len(eia_df)),
     )
-    linker.register_table(train_df, "training_labels", overwrite=True)
-    linker.estimate_u_using_random_sampling(max_pairs=1e7)
-    linker.estimate_m_from_pairwise_labels("training_labels")
+    linker = Linker(
+        [eia_df, ferc_df],
+        settings=settings,
+        input_table_aliases=["eia_df", "ferc_df"],
+        db_api=DuckDBAPI(),
+    )
+    linker.table_management.register_table(train_df, "training_labels", overwrite=True)
+    linker.training.estimate_u_using_random_sampling(max_pairs=1e7)
+    linker.training.estimate_m_from_pairwise_labels("training_labels")
     threshold_prob = 0.9
     experiment_tracker.execute_logging(
         lambda: mlflow.log_params({"threshold match probability": threshold_prob})
     )
-    preds_df = linker.predict(threshold_match_probability=threshold_prob)
+    preds_df = linker.inference.predict(threshold_match_probability=threshold_prob)
     return preds_df.as_pandas_dataframe()
 
 
@@ -262,9 +262,9 @@ def get_best_matches(
         f"   True positives:  {true_pos}\n"
         f"   False positives: {false_pos}\n"
         f"   False negatives: {false_neg}\n"
-        f"   Precision:       {true_pos/(true_pos + false_pos):.03}\n"
-        f"   Recall:          {true_pos/(true_pos + false_neg):.03}\n"
-        f"   Accuracy:        {true_pos/len(train_df):.03}\n"
+        f"   Precision:       {true_pos / (true_pos + false_pos):.03}\n"
+        f"   Recall:          {true_pos / (true_pos + false_neg):.03}\n"
+        f"   Accuracy:        {true_pos / len(train_df):.03}\n"
         "Precision = of the training data FERC records that the model predicted a match for, this percentage was correct.\n"
         "A measure of accuracy when the model makes a prediction.\n"
         "Recall = of all of the training data FERC records, the model predicted a match for this percentage.\n"

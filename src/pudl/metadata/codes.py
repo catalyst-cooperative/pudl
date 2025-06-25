@@ -1475,6 +1475,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
             "OOG": "OG",
             "Sun": "SUN",
             "sub": "SUB",
+            "PV": "SUN",  # Plant ID 59898 and 59899 in 2024 ER
         },
         "ignored_codes": [
             0,
@@ -1552,6 +1553,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
             "rr": "RR",
             "pl": "PL",
             "rv": "RV",
+            "RT": "TR",  # This is based on a guess. No definitive proof. Culprit is plant_id_eia 3935 in October 2024 in the coalmine table.
         },
         "ignored_codes": ["UN"],
     },
@@ -1809,104 +1811,105 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia__codes_balancing_authorities": {
         "df": pd.read_csv(
             StringIO(
-                """code,label,description,report_timezone,balancing_authority_region_name_eia,balancing_authority_retirement_date,balancing_authority_region_code_eia,is_generation_only
-AEC,power_south_coop,PowerSouth Energy Cooperative,America/Chicago,Southeast,2021-09-01,SE,False
-AESO,alberta_electric_system_operator,Alberta Electric System Operator,,Canada,,CAN,False
-AECI,associated_electric_coop,"Associated Electric Cooperative, Inc.",America/Chicago,Midwest,,MIDW,False
-AVA,avista,Avista Corporation,America/Los_Angeles,Northwest,,NW,False
-AVRN,avangrid,Avangrid Renewables LLC,America/Los_Angeles,Northwest,,NW,True
-AZPS,arizona_public_service,Arizona Public Service Company,America/Phoenix,Southwest,,SW,False
-BANC,northern_california,Balancing Authority of Northern California,America/Los_Angeles,California,,CAL,False
-BCHA,bc_hydro,British Columbia Hydro and Power Authority,,Canada,,CAN,False
-BPAT,bonneville_power,Bonneville Power Administration,America/Los_Angeles,Northwest,,NW,False
-CHPD,public_utility_district_of_chelan_county,Public Utility District No. 1 of Chelan County,America/Los_Angeles,Northwest,,NW,False
-CISO,california_iso,California Independent System Operator,America/Los_Angeles,California,,CAL,False
-CEN,centro_nacional_de_control_de_energia,Centro Nacional de Control de Energia,,Mexico,,MEX,False
-CFE,comision_federal_de_electricidad,Comisión Federal de Electricidad,,Mexico,2018-07-01,MEX,False
-CPLE,duke_energy_progress_east,Duke Energy Progress East,America/New_York,Carolinas,,CAR,False
-CPLW,duke_energy_progress_west,Duke Energy Progress West,America/New_York,Carolinas,,CAR,False
-CSTO,constellation,"Constellation Energy Control and Dispatch, LLC",,,,,False
-CSWS,public_service_company_of_oklahoma_and_southwestern_electric,American Electric Power Service Corp. As Agent For Public Svc. Co. Of Oklahoma & SW Ele Pwr Co.,,,,,False
-DEAA,arlington_valley,"Arlington Valley, LLC - AVBA",America/Phoenix,Southwest,,SW,True
-DOPD,public_utility_of_douglas_county,PUD No. 1 of Douglas County,America/Los_Angeles,Northwest,,NW,False
-DUK,duke_energy_carolinas,Duke Energy Carolinas,America/New_York,Carolinas,,CAR,False
-EDE,empire_district,The Empire District Electric Company,,,,,False
-EEI,electric_energy,"Electric Energy, Inc.",America/Chicago,Midwest,2020-02-29,MIDW,False
-EPE,el_paso_electric,El Paso Electric Company,America/Phoenix,Southwest,,SW,False
-ERCO,electric_reliability_council_of_texas,"Electric Reliability Council of Texas, Inc.",America/Chicago,Texas,,TEX,False
-FMPP,florida_municipal_power_pool,Florida Municipal Power Pool,America/New_York,Florida,,FLA,False
-FPC,progress_energy_florida,Progress Energy Florida,America/New_York,Florida,,FLA,False
-FPL,florida_power_and_light,Florida Power & Light Company,America/New_York,Florida,,FLA,False
-GCPD,public_utility_grant_county,"Public Utility District No. 2 of Grant County, Washington",America/Los_Angeles,Northwest,,NW,False
-GLHB,gridliance,GridLiance (GLHB),America/Chicago,Midwest,2022-09-01,MIDW,True
-GRDA,grand_river_dam,Grand River Dam Authority,,,,,False
-GRID,gridforce_energy_management,"Gridforce Energy Management, LLC",America/Los_Angeles,Pacific Northwest,,,True
-GRIF,griffith_energy,"Griffith Energy, LLC",America/Phoenix,Southwest,2023-11-01,SW,True
-GRIS,gridforce_south,Gridforce South,,,,,False
-GRMA,gila_river_power,"Gila River Power, LLC",America/Phoenix,Southwest,2018-05-03,SW,True
-GVL,gainesville_regional,Gainesville Regional Utilities,America/New_York,Florida,,FLA,False
-GWA,naturener_power_watch,"NaturEner Power Watch, LLC (GWA)",America/Denver,Northwest,,NW,True
-HECO,hawaiian_electric,Hawaiian Electric Co Inc,,,,,False
-HGMA,new_harquahala,"New Harquahala Generating Company, LLC - HGBA",America/Phoenix,Southwest,,SW,True
-HQT,hydro_quebec,Hydro-Québec TransEnergie,,Canada,,CAN,False
-HST,city_of_homestead,City of Homestead,America/New_York,Florida,,FLA,False
-IESO,ontario_ieso,Ontario Independent Electric System Operator,,Canada,,CAN,False
-IID,imperial_irrigation,Imperial Irrigation District,America/Los_Angeles,California,,CAL,False
-INDN,independence_power_and_light,"Independence Power & Light (Independence,Missouri)",,,,,False
-IPCO,idaho_power,Idaho Power Company,America/Los_Angeles,Northwest,,NW,False
-ISNE,iso_new_england,ISO New England Inc.,America/New_York,New England,,NE,False
-JEA,jacksonville_energy,Jacksonville Energy,America/New_York,Florida,,FLA,False
-KACY,kansas_city,Board Of Public Utilities (Kansas City KS),,,,,False
-KCPL,kansas_city_power_and_light,Kansas City Power & Light Company,,,,,False
-LDWP,los_angeles_dept_of_water_and_power,Los Angeles Department of Water and Power,America/Los_Angeles,California,,CAL,False
-LES,lincoln_electric,Lincoln Electric System,,,,,False
-LGEE,louisville_gas_and_electric_and_kentucky,LG&E and KU Services Company as agent for Louisville Gas and Electric Company and Kentucky Utilities,America/New_York,Midwest,,MIDW,False
-MHEB,manitoba_hydro,Manitoba Hydro,,Canada,,CAN,False
-MISO,midcontinent_iso,"Midcontinent Independent Transmission System Operator, Inc..",America/New_York,Midwest,,MIDW,False
-MPS,kansas_city_power_and_light_missouri,KCPL - Greater Missouri Operations,,,,,False
-NBSO,new_brunswick_system_operator,New Brunswick System Operator,,Canada,,CAN,False
-NEVP,nevada_power,Nevada Power Company,America/Los_Angeles,Northwest,,NW,False
-NPPD,nebraska_public_power,Nebraska Public Power District,,,,,False
-NSB,new_smyrna_beach,"New Smyrna Beach, Utilities Commission of",America/New_York,Florida,2020-01-08,FLA,False
-NWMT,northwestern_energy,NorthWestern Energy (NWMT),America/Denver,Northwest,,NW,False
-NYIS,new_york_iso,New York Independent System Operator,America/New_York,New York,,NY,False
-OKGE,oklahoma_gas_and_electric,Oklahoma Gas And Electric Co.,,,,,False
-OPPD,omaha_public_power,Omaha Public Power District,,,,,False
-OVEC,ohio_valley,Ohio Valley Electric Corporation,America/New_York,Mid-Atlantic,2018-12-01,MIDA,False
-PACE,pacificorp_east,PacifiCorp - East,America/Denver,Northwest,,NW,False
-PACW,pacificorp_west,PacifiCorp - West,America/Los_Angeles,Northwest,,NW,False
-PGE,portland_general_electric,Portland General Electric Company,America/Los_Angeles,Northwest,,NW,False
-PJM,pjm_interconnection,"PJM Interconnection, LLC",America/New_York,Mid-Atlantic,,MIDA,False
-PNM,public_service_company_of_new_mexico,Public Service Company of New Mexico,America/Phoenix,Southwest,,SW,False
-PSCO,public_service_company_of_colorado,Public Service Company of Colorado,America/Denver,Northwest,,NW,False
-PSEI,pugent_sound_energy,Puget Sound Energy,America/Los_Angeles,Northwest,,NW,False
-SC,south_carolina_public_service,South Carolina Public Service Authority,America/New_York,Carolinas,,CAR,False
-SCEG,south_carolina_electric_and_gas,South Carolina Electric & Gas Company,America/New_York,Carolinas,,CAR,False
-SCL,seattle_city_light,Seattle City Light,America/Los_Angeles,Northwest,,NW,False
-SEC,seminole_electric_coop,Seminole Electric Cooperative,America/New_York,Florida,,FLA,False
-SECI,sunflower_electric_power,Sunflower Electric Power Corporation,,,,,False
-SEPA,southeastern_power,Southeastern Power Administration,America/Chicago,Southeast,,SE,True
-SOCO,southern_company_services,"Southern Company Services, Inc. - Trans",America/Chicago,Southeast,,SE,False
-SPA,southwestern_power,Southwestern Power Administration,America/Chicago,Central,,CENT,False
-SPC,saskatchewan_power_corporation,Saskatchewan Power Corporation,,Canada,,CAN,False
-SPRM,city_utilities_of_springfield,"City Utilities Of Springfield, MO",,,,,False
-SPS,southwestern_public_service,Southwestern Public Service Co. (Xcel Energy),,,,,False
-SRP,salt_river_project,Salt River Project,America/Phoenix,Southwest,,SW,False
-SWPP,southwest_power_pool,Southwest Power Pool,America/Chicago,Central,,CENT,False
-TAL,city_of_tallahassee,City of Tallahassee,America/New_York,Florida,,FLA,False
-TEC,tampa_electric,Tampa Electric Company,America/New_York,Florida,,FLA,False
-TEPC,tuscon_electric_power,Tucson Electric Power Company,America/Phoenix,Southwest,,SW,False
-TIDC,turlock_irrigation_district,Turlock Irrigation District,America/Los_Angeles,California,,CAL,False
-TPWR,city_of_tacoma,"City of Tacoma, Department of Public Utilities, Light Division",America/Los_Angeles,Northwest,,NW,False
-TVA,tennessee_valley_authority,Tennessee Valley Authority,America/Chicago,Tennessee,,,False
-WACM,western_area_power_mountain,Western Area Power Administration - Rocky Mountain Region,America/Phoenix,Northwest,,NW,False
-WALC,western_area_power_southwest,Western Area Power Administration - Desert Southwest Region,America/Phoenix,Southwest,,SW,False
-WAUE,western_area_power_east,Western Area Power Administration - Upper Great Plains East,,,,,False
-WAUW,western_area_power_west,Western Area Power Administration UGP West,America/Denver,Northwest,,NW,False
-WFEC,western_farmers_electric_coop,Western Farmers Electric Cooperative,,,,,False
-WR,westar_energy,Westar Energy,,,,,False
-WWA,naturener_wind,"NaturEner Wind Watch, LLC",America/Denver,Northwest,,NW,True
-YAD,alcoa_power_yadkin,"Alcoa Power Generating, Inc. - Yadkin Division",America/New_York,Carolinas,,CAR,True""",
+                """code,label,description,report_timezone,balancing_authority_region_name_eia,balancing_authority_retirement_date,balancing_authority_region_code_eia,interconnect_code_eia,is_generation_only
+AEC,power_south_coop,PowerSouth Energy Cooperative,America/Chicago,Southeast,2021-09-01,SE,eastern,False
+AESO,alberta_electric_system_operator,Alberta Electric System Operator,,Canada,,CAN,,False
+AECI,associated_electric_coop,"Associated Electric Cooperative, Inc.",America/Chicago,Midwest,,MIDW,eastern,False
+AVA,avista,Avista Corporation,America/Los_Angeles,Northwest,,NW,western,False
+AVRN,avangrid,Avangrid Renewables LLC,America/Los_Angeles,Northwest,,NW,,True
+AZPS,arizona_public_service,Arizona Public Service Company,America/Phoenix,Southwest,,SW,western,False
+BANC,northern_california,Balancing Authority of Northern California,America/Los_Angeles,California,,CAL,western,False
+BCHA,bc_hydro,British Columbia Hydro and Power Authority,,Canada,,CAN,,False
+BPAT,bonneville_power,Bonneville Power Administration,America/Los_Angeles,Northwest,,NW,western,False
+CHPD,public_utility_district_of_chelan_county,Public Utility District No. 1 of Chelan County,America/Los_Angeles,Northwest,,NW,western,False
+CISO,california_iso,California Independent System Operator,America/Los_Angeles,California,,CAL,western,False
+CEA,chugach_electric,Chugach Electric Assn Inc,Anchorage,,,,,
+CEN,centro_nacional_de_control_de_energia,Centro Nacional de Control de Energia,,Mexico,,MEX,,False
+CFE,comision_federal_de_electricidad,Comisión Federal de Electricidad,,Mexico,2018-07-01,MEX,,False
+CPLE,duke_energy_progress_east,Duke Energy Progress East,America/New_York,Carolinas,,CAR,eastern,False
+CPLW,duke_energy_progress_west,Duke Energy Progress West,America/New_York,Carolinas,,CAR,eastern,False
+CSTO,constellation,"Constellation Energy Control and Dispatch, LLC",,,,,,False
+CSWS,public_service_company_of_oklahoma_and_southwestern_electric,American Electric Power Service Corp. As Agent For Public Svc. Co. Of Oklahoma & SW Ele Pwr Co.,,,,,,False
+DEAA,arlington_valley,"Arlington Valley, LLC - AVBA",America/Phoenix,Southwest,,SW,western,True
+DOPD,public_utility_of_douglas_county,PUD No. 1 of Douglas County,America/Los_Angeles,Northwest,,NW,western,False
+DUK,duke_energy_carolinas,Duke Energy Carolinas,America/New_York,Carolinas,,CAR,eastern,False
+EDE,empire_district,The Empire District Electric Company,,,,,,False
+EEI,electric_energy,"Electric Energy, Inc.",America/Chicago,Midwest,2020-02-29,MIDW,eastern,False
+EPE,el_paso_electric,El Paso Electric Company,America/Phoenix,Southwest,,SW,western,False
+ERCO,electric_reliability_council_of_texas,"Electric Reliability Council of Texas, Inc.",America/Chicago,Texas,,TEX,ercot,False
+FMPP,florida_municipal_power_pool,Florida Municipal Power Pool,America/New_York,Florida,,FLA,eastern,False
+FPC,progress_energy_florida,Progress Energy Florida,America/New_York,Florida,,FLA,eastern,False
+FPL,florida_power_and_light,Florida Power & Light Company,America/New_York,Florida,,FLA,eastern,False
+GCPD,public_utility_grant_county,"Public Utility District No. 2 of Grant County, Washington",America/Los_Angeles,Northwest,,NW,western,False
+GLHB,gridliance,GridLiance (GLHB),America/Chicago,Midwest,2022-09-01,MIDW,,True
+GRDA,grand_river_dam,Grand River Dam Authority,,,,,,False
+GRID,gridforce_energy_management,"Gridforce Energy Management, LLC",America/Los_Angeles,Pacific Northwest,,,western,True
+GRIF,griffith_energy,"Griffith Energy, LLC",America/Phoenix,Southwest,2023-11-01,SW,western,True
+GRIS,gridforce_south,Gridforce South,,,,,,False
+GRMA,gila_river_power,"Gila River Power, LLC",America/Phoenix,Southwest,2018-05-03,SW,western,True
+GVL,gainesville_regional,Gainesville Regional Utilities,America/New_York,Florida,,FLA,eastern,False
+GWA,naturener_power_watch,"NaturEner Power Watch, LLC (GWA)",America/Denver,Northwest,,NW,western,True
+HECO,hawaiian_electric,Hawaiian Electric Co Inc,,,,,,False
+HGMA,new_harquahala,"New Harquahala Generating Company, LLC - HGBA",America/Phoenix,Southwest,,SW,western,True
+HQT,hydro_quebec,Hydro-Québec TransEnergie,,Canada,,CAN,,False
+HST,city_of_homestead,City of Homestead,America/New_York,Florida,,FLA,eastern,False
+IESO,ontario_ieso,Ontario Independent Electric System Operator,,Canada,,CAN,,False
+IID,imperial_irrigation,Imperial Irrigation District,America/Los_Angeles,California,,CAL,western,False
+INDN,independence_power_and_light,"Independence Power & Light (Independence,Missouri)",,,,,,False
+IPCO,idaho_power,Idaho Power Company,America/Los_Angeles,Northwest,,NW,western,False
+ISNE,iso_new_england,ISO New England Inc.,America/New_York,New England,,NE,eastern,False
+JEA,jacksonville_energy,Jacksonville Energy,America/New_York,Florida,,FLA,eastern,False
+KACY,kansas_city,Board Of Public Utilities (Kansas City KS),,,,,,False
+KCPL,kansas_city_power_and_light,Kansas City Power & Light Company,,,,,,False
+LDWP,los_angeles_dept_of_water_and_power,Los Angeles Department of Water and Power,America/Los_Angeles,California,,CAL,western,False
+LES,lincoln_electric,Lincoln Electric System,,,,,,False
+LGEE,louisville_gas_and_electric_and_kentucky,LG&E and KU Services Company as agent for Louisville Gas and Electric Company and Kentucky Utilities,America/New_York,Midwest,,MIDW,eastern,False
+MHEB,manitoba_hydro,Manitoba Hydro,,Canada,,CAN,,False
+MISO,midcontinent_iso,"Midcontinent Independent Transmission System Operator, Inc..",America/New_York,Midwest,,MIDW,eastern,False
+MPS,kansas_city_power_and_light_missouri,KCPL - Greater Missouri Operations,,,,,,False
+NBSO,new_brunswick_system_operator,New Brunswick System Operator,,Canada,,CAN,,False
+NEVP,nevada_power,Nevada Power Company,America/Los_Angeles,Northwest,,NW,western,False
+NPPD,nebraska_public_power,Nebraska Public Power District,,,,,,False
+NSB,new_smyrna_beach,"New Smyrna Beach, Utilities Commission of",America/New_York,Florida,2020-01-08,FLA,eastern,False
+NWMT,northwestern_energy,NorthWestern Energy (NWMT),America/Denver,Northwest,,NW,western,False
+NYIS,new_york_iso,New York Independent System Operator,America/New_York,New York,,NY,eastern,False
+OKGE,oklahoma_gas_and_electric,Oklahoma Gas And Electric Co.,,,,,,False
+OPPD,omaha_public_power,Omaha Public Power District,,,,,,False
+OVEC,ohio_valley,Ohio Valley Electric Corporation,America/New_York,Mid-Atlantic,2018-12-01,MIDA,eastern,False
+PACE,pacificorp_east,PacifiCorp - East,America/Denver,Northwest,,NW,western,False
+PACW,pacificorp_west,PacifiCorp - West,America/Los_Angeles,Northwest,,NW,western,False
+PGE,portland_general_electric,Portland General Electric Company,America/Los_Angeles,Northwest,,NW,western,False
+PJM,pjm_interconnection,"PJM Interconnection, LLC",America/New_York,Mid-Atlantic,,MIDA,eastern,False
+PNM,public_service_company_of_new_mexico,Public Service Company of New Mexico,America/Phoenix,Southwest,,SW,western,False
+PSCO,public_service_company_of_colorado,Public Service Company of Colorado,America/Denver,Northwest,,NW,western,False
+PSEI,pugent_sound_energy,Puget Sound Energy,America/Los_Angeles,Northwest,,NW,western,False
+SC,south_carolina_public_service,South Carolina Public Service Authority,America/New_York,Carolinas,,CAR,eastern,False
+SCEG,south_carolina_electric_and_gas,South Carolina Electric & Gas Company,America/New_York,Carolinas,,CAR,eastern,False
+SCL,seattle_city_light,Seattle City Light,America/Los_Angeles,Northwest,,NW,western,False
+SEC,seminole_electric_coop,Seminole Electric Cooperative,America/New_York,Florida,,FLA,eastern,False
+SECI,sunflower_electric_power,Sunflower Electric Power Corporation,,,,,,False
+SEPA,southeastern_power,Southeastern Power Administration,America/Chicago,Southeast,,SE,eastern,True
+SOCO,southern_company_services,"Southern Company Services, Inc. - Trans",America/Chicago,Southeast,,SE,eastern,False
+SPA,southwestern_power,Southwestern Power Administration,America/Chicago,Central,,CENT,eastern,False
+SPC,saskatchewan_power_corporation,Saskatchewan Power Corporation,,Canada,,CAN,,False
+SPRM,city_utilities_of_springfield,"City Utilities Of Springfield, MO",,,,,,False
+SPS,southwestern_public_service,Southwestern Public Service Co. (Xcel Energy),,,,,,False
+SRP,salt_river_project,Salt River Project,America/Phoenix,Southwest,,SW,western,False
+SWPP,southwest_power_pool,Southwest Power Pool,America/Chicago,Central,,CENT,eastern,False
+TAL,city_of_tallahassee,City of Tallahassee,America/New_York,Florida,,FLA,eastern,False
+TEC,tampa_electric,Tampa Electric Company,America/New_York,Florida,,FLA,eastern,False
+TEPC,tuscon_electric_power,Tucson Electric Power Company,America/Phoenix,Southwest,,SW,western,False
+TIDC,turlock_irrigation_district,Turlock Irrigation District,America/Los_Angeles,California,,CAL,western,False
+TPWR,city_of_tacoma,"City of Tacoma, Department of Public Utilities, Light Division",America/Los_Angeles,Northwest,,NW,western,False
+TVA,tennessee_valley_authority,Tennessee Valley Authority,America/Chicago,Tennessee,,TEN,eastern,False
+WACM,western_area_power_mountain,Western Area Power Administration - Rocky Mountain Region,America/Phoenix,Northwest,,NW,western,False
+WALC,western_area_power_southwest,Western Area Power Administration - Desert Southwest Region,America/Phoenix,Southwest,,SW,western,False
+WAUE,western_area_power_east,Western Area Power Administration - Upper Great Plains East,,,,,,False
+WAUW,western_area_power_west,Western Area Power Administration UGP West,America/Denver,Northwest,,NW,western,False
+WFEC,western_farmers_electric_coop,Western Farmers Electric Cooperative,,,,,,False
+WR,westar_energy,Westar Energy,,,,,,False
+WWA,naturener_wind,"NaturEner Wind Watch, LLC",America/Denver,Northwest,,NW,western,True
+YAD,alcoa_power_yadkin,"Alcoa Power Generating, Inc. - Yadkin Division",America/New_York,Carolinas,,CAR,eastern,True""",
             ),
             parse_dates=["balancing_authority_retirement_date"],
         ).convert_dtypes(),

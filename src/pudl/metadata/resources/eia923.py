@@ -357,7 +357,7 @@ is for those supplies."""
                 "bulk_agg_fuel_cost_per_mmbtu",
                 "fuel_consumed_mmbtu",
                 "total_fuel_cost",
-                "fuel_cost_from_eiaapi",
+                "fuel_cost_per_mmbtu_source",
                 "sulfur_content_pct",
                 "ash_content_pct",
                 "mercury_content_ppm",
@@ -397,7 +397,7 @@ is for those supplies."""
                 "fuel_cost_per_mmbtu",
                 "fuel_consumed_mmbtu",
                 "total_fuel_cost",
-                "fuel_cost_from_eiaapi",
+                "fuel_cost_per_mmbtu_source",
                 "sulfur_content_pct",
                 "ash_content_pct",
                 "mercury_content_ppm",
@@ -428,7 +428,7 @@ is for those supplies."""
                 "fuel_cost_per_mmbtu",
                 "fuel_consumed_mmbtu",
                 "total_fuel_cost",
-                "fuel_cost_from_eiaapi",
+                "fuel_cost_per_mmbtu_source",
                 "sulfur_content_pct",
                 "ash_content_pct",
                 "mercury_content_ppm",
@@ -480,7 +480,10 @@ is for those supplies."""
         "etl_group": "outputs",
     },
     "out_eia923__monthly_generation": {
-        "description": TABLE_DESCRIPTIONS["core_eia923__monthly_generation"],
+        "description": TABLE_DESCRIPTIONS["core_eia923__monthly_generation"]
+        + "\n\nThis table exists for naming consistency. While it is technically "
+        "aggregated by month, it ends up being identical to the "
+        "``out_eia923__generation`` table from which it is derived.",
         "schema": {
             "fields": [
                 "report_date",

@@ -172,7 +172,7 @@ variable to the path of the new directory:
     $ echo "export DAGSTER_HOME=/path/to/dagster_home" >> ~/.bashrc # bash
     $ set -Ux DAGSTER_HOME /path/to/dagster_home # fish
 
-Add ``DAGSTER_HOME`` to the currecnt session with
+Add ``DAGSTER_HOME`` to the current session with
 
 .. code-block:: console
 
@@ -182,16 +182,7 @@ Once ``DAGSTER_HOME`` is set, launch the dagster UI by running:
 
 .. code-block:: console
 
-    $ dagster-webserver -m pudl.etl -m pudl.ferc_to_sqlite
-
-To avoid typing out the ``dagster-webserver`` command each time you want to launch
-the UI, you can create an alias for the command in your shell:
-
-.. code-block:: console
-
-    $ echo "alias launch_dagster='dagster-webserver -m pudl.etl -m pudl.ferc_to_sqlite'" >> ~/.zshrc # zsh
-    $ echo "alias launch_dagster='dagster-webserver -m pudl.etl -m pudl.ferc_to_sqlite'" >> ~/.bashrc # bash
-    $ alias launch_dagster="dagster-webserver -m pudl.etl -m pudl.ferc_to_sqlite" # fish
+    $ make dagster
 
 .. note::
 

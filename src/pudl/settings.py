@@ -40,7 +40,7 @@ class XbrlFormNumber(Enum):
 class FrozenBaseModel(BaseModel):
     """BaseModel with global configuration."""
 
-    model_config = ConfigDict(frozen=True, extra="forbid")
+    model_config: ConfigDict = ConfigDict(frozen=True, extra="forbid")
 
 
 class GenericDatasetSettings(FrozenBaseModel):
@@ -48,13 +48,13 @@ class GenericDatasetSettings(FrozenBaseModel):
 
     Each dataset must specify working partitions. A dataset can have an arbitrary number
     of partitions.
-
-    Args:
-        disabled: if true, skip processing this dataset.
     """
 
     disabled: bool = False
+    """If true, skip processing this dataset."""
+
     data_source: ClassVar[DataSource]
+    """The DataSource metadata object for this dataset."""
 
     @model_validator(mode="after")
     def validate_partitions(self: Self):
@@ -110,15 +110,12 @@ class GenericDatasetSettings(FrozenBaseModel):
 
 
 class Ferc1Settings(GenericDatasetSettings):
-    """An immutable pydantic model to validate Ferc1Settings.
-
-    Args:
-        data_source: DataSource metadata object
-        years: list of years to validate.
-    """
+    """An immutable pydantic model to validate Ferc1Settings."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc1")
+
     years: list[int] = data_source.working_partitions["years"]
+    """The list of years to validate."""
 
     @property
     def dbf_years(self):
@@ -127,35 +124,39 @@ class Ferc1Settings(GenericDatasetSettings):
 
     @property
     def xbrl_years(self):
-        """Return validated years for which DBF data is available."""
+        """Return validated years for which XBRL data is available."""
         return [year for year in self.years if year >= 2021]
 
 
 class Ferc714Settings(GenericDatasetSettings):
-    """An immutable pydantic model to validate Ferc714Settings.
-
-    Args:
-        data_source: DataSource metadata object
-    """
+    """An immutable pydantic model to validate Ferc714Settings."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc714")
 
-    # Note: Only older data is currently supported. Starting in 2021 FERC-714 is being
-    # published as XBRL, and we haven't integrated it. The older data is published as
-    # monolithic CSV files, so asking for any year processes all of them.
     years: list[int] = data_source.working_partitions["years"]
+    """The list of years to validate."""
+
+    # The older 714 data is distributed as CSV files and has a different extraction
+    # process than the FERC DBF extraction process.
+
+    @property
+    def csv_years(self):
+        """Return validated years for which CSV data is available."""
+        return [year for year in self.years if year < 2021]
+
+    @property
+    def xbrl_years(self):
+        """Return validated years for which XBRL data is available."""
+        return [year for year in self.years if year >= 2021]
 
 
 class EpaCemsSettings(GenericDatasetSettings):
-    """An immutable pydantic model to validate EPA CEMS settings.
-
-    Args:
-        data_source: DataSource metadata object
-        year_quarters: list of year_quarters to validate.
-    """
+    """An immutable pydantic model to validate EPA CEMS settings."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("epacems")
+
     year_quarters: list[str] = data_source.working_partitions["year_quarters"]
+    """The list of years-quarters to validate."""
 
     @field_validator("year_quarters")
     @classmethod
@@ -167,51 +168,45 @@ class EpaCemsSettings(GenericDatasetSettings):
 
 
 class PhmsaGasSettings(GenericDatasetSettings):
-    """An immutable pydantic model to validate PHMSA settings.
-
-    Args:
-        data_source: DataSource metadata object
-        years: list of zipped data start years to validate.
-    """
+    """An immutable pydantic model to validate PHMSA settings."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("phmsagas")
+
     years: list[int] = data_source.working_partitions["years"]
+    """The list of years to validate."""
+
+
+class Sec10kSettings(GenericDatasetSettings):
+    """An immutable Pydantic model to validate SEC 10-K settings."""
+
+    data_source: ClassVar[DataSource] = DataSource.from_id("sec10k")
+    years: list[int] = data_source.working_partitions["years"]
+    """The list of valid years for which SEC 10-K data is available."""
+    tables: list[str] = data_source.working_partitions["tables"]
 
 
 class NrelAtbSettings(GenericDatasetSettings):
-    """An immutable pydantic model to validate NREL ATB settings.
-
-    Args:
-        data_source: DataSource metadata object
-        years: list of years to validate.
-    """
+    """An immutable pydantic model to validate NREL ATB settings."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("nrelatb")
     years: list[int] = data_source.working_partitions["years"]
+    """The list of years to validate."""
 
 
 class Eia923Settings(GenericDatasetSettings):
-    """An immutable pydantic model to validate EIA 923 settings.
-
-    Args:
-        data_source: DataSource metadata object
-        years: list of years to validate.
-    """
+    """An immutable pydantic model to validate EIA 923 settings."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia923")
     years: list[int] = data_source.working_partitions["years"]
+    """The list of years to validate."""
 
 
 class Eia930Settings(GenericDatasetSettings):
-    """An immutable pydantic model to validate EIA 930 settings.
-
-    Args:
-        data_source: DataSource metadata object
-        half_years: list of years to validate.
-    """
+    """An immutable pydantic model to validate EIA 930 settings."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia930")
     half_years: list[str] = data_source.working_partitions["half_years"]
+    """The list of half years to validate."""
 
     @field_validator("half_years")
     @classmethod
@@ -223,37 +218,33 @@ class Eia930Settings(GenericDatasetSettings):
 
 
 class Eia861Settings(GenericDatasetSettings):
-    """An immutable pydantic model to validate EIA 861 settings.
-
-    Args:
-        data_source: DataSource metadata object
-        years: list of years to validate.
-        transform_functions: list of transform functions to be applied to eia861
-    """
+    """An immutable pydantic model to validate EIA 861 settings."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia861")
     years: list[int] = data_source.working_partitions["years"]
+    """The list of years to validate."""
 
 
 class Eia860Settings(GenericDatasetSettings):
     """An immutable pydantic model to validate EIA 860 settings.
 
     This model also check 860m settings.
-
-    Args:
-        data_source: DataSource metadata object
-        years: list of years to validate.
-        eia860m: whether or not to incorporate an EIA-860m month.
-        eia860m_year_months ClassVar[str]: The 860m year-months to incorporate.
     """
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia860")
     years: list[int] = data_source.working_partitions["years"]
+    """The list of years to validate."""
+
     eia860m: bool = True
+    """Whether or not to incorporate an EIA-860m month."""
+
     all_eia860m_year_months: list[str] = DataSource.from_id(
         "eia860m"
     ).working_partitions["year_months"]
+    """The list of all EIA-860m year-months."""
+
     eia860m_year_months: list[str] = Field(validate_default=True, default=[])
+    """The 860m year-months to incorporate."""
 
     @field_validator("eia860m_year_months")
     @classmethod
@@ -325,15 +316,11 @@ class Eia860Settings(GenericDatasetSettings):
 
 
 class Eia860mSettings(GenericDatasetSettings):
-    """An immutable pydantic model to validate EIA 860m settings.
-
-    Args:
-        data_source: DataSource metadata object
-        year_months ClassVar[str]: The 860m year to date.
-    """
+    """An immutable pydantic model to validate EIA 860m settings."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia860m")
     year_months: list[str] = data_source.working_partitions["year_months"]
+    """The 860m year to date."""
 
     @field_validator("year_months")
     @classmethod
@@ -345,63 +332,64 @@ class Eia860mSettings(GenericDatasetSettings):
 
 
 class Eia757aSettings(GenericDatasetSettings):
-    """An immutable pydantic model to validate EIA 757a settings.
-
-    Args:
-        data_source: DataSource metadata object
-        years: list of years to validate.
-    """
+    """An immutable pydantic model to validate EIA 757a settings."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia757a")
     years: list[int] = data_source.working_partitions["years"]
+    """The list of years to validate."""
 
 
 class Eia191Settings(GenericDatasetSettings):
-    """An immutable pydantic model to validate EIA 191 settings.
-
-    Args:
-        data_source: DataSource metadata object
-        years: list of years to validate.
-    """
+    """An immutable pydantic model to validate EIA 191 settings."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia191")
     years: list[int] = data_source.working_partitions["years"]
+    """The list of years to validate."""
 
 
 class Eia176Settings(GenericDatasetSettings):
-    """An immutable pydantic model to validate EIA 176 settings.
-
-    Args:
-        data_source: DataSource metadata object
-        years: list of years to validate.
-    """
+    """An immutable pydantic model to validate EIA 176 settings."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eia176")
     years: list[int] = data_source.working_partitions["years"]
+    """The list of years to validate."""
 
 
 class EiaAeoSettings(GenericDatasetSettings):
-    """An immutable pydantic model to validate EIA 176 settings.
-
-    Args:
-        data_source: DataSource metadata object
-        years: AEO report years to use.
-    """
+    """An immutable pydantic model to validate EIA 176 settings."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("eiaaeo")
     years: list[int] = data_source.working_partitions["years"]
+    """The list of years to validate."""
+
+
+class VCERareSettings(GenericDatasetSettings):
+    """An immutable pydantic model to validate VCE RARE Power Dataset settings."""
+
+    data_source: ClassVar[DataSource] = DataSource.from_id("vcerare")
+    years: list[int] = data_source.working_partitions["years"]
+    """The list of years to validate."""
+
+    fips: bool = True
+    """Include FIPS codes in VCE RARE Power Dataset."""
+
+
+class CensusPepSettings(GenericDatasetSettings):
+    """An immutable pydantic model to validate Census PEP settings."""
+
+    data_source: ClassVar[DataSource] = DataSource.from_id("censuspep")
+    years: list[int] = data_source.working_partitions["years"]
+    """The list of years to validate."""
 
 
 class GlueSettings(FrozenBaseModel):
-    """An immutable pydantic model to validate Glue settings.
-
-    Args:
-        eia: Include eia in glue settings.
-        ferc1: Include ferc1 in glue settings.
-    """
+    """An immutable pydantic model to validate Glue settings."""
 
     eia: bool = True
+    """Include eia in glue settings."""
+
     ferc1: bool = True
+    """Include ferc1 in glue settings."""
 
 
 @unique
@@ -491,13 +479,7 @@ class GridPathRAToolkitSettings(GenericDatasetSettings):
 
 
 class EiaSettings(FrozenBaseModel):
-    """An immutable pydantic model to validate EIA datasets settings.
-
-    Args:
-        eia860: Immutable pydantic model to validate eia860 settings.
-        eia861: Immutable pydantic model to validate eia861 settings.
-        eia923: Immutable pydantic model to validate eia923 settings.
-    """
+    """An immutable pydantic model to validate EIA datasets settings."""
 
     eia176: Eia176Settings | None = None
     eia191: Eia191Settings | None = None
@@ -559,9 +541,12 @@ class DatasetsSettings(FrozenBaseModel):
     ferc1: Ferc1Settings | None = None
     ferc714: Ferc714Settings | None = None
     glue: GlueSettings | None = None
-    phmsagas: PhmsaGasSettings | None = None
-    nrelatb: NrelAtbSettings | None = None
     gridpathratoolkit: GridPathRAToolkitSettings | None = None
+    nrelatb: NrelAtbSettings | None = None
+    phmsagas: PhmsaGasSettings | None = None
+    sec10k: Sec10kSettings | None = None
+    vcerare: VCERareSettings | None = None
+    censuspep: CensusPepSettings | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -580,9 +565,12 @@ class DatasetsSettings(FrozenBaseModel):
             data["ferc1"] = Ferc1Settings()
             data["ferc714"] = Ferc714Settings()
             data["glue"] = GlueSettings()
-            data["phmsagas"] = PhmsaGasSettings()
-            data["nrelatb"] = NrelAtbSettings()
             data["gridpathratoolkit"] = GridPathRAToolkitSettings()
+            data["nrelatb"] = NrelAtbSettings()
+            data["phmsagas"] = PhmsaGasSettings()
+            data["sec10k"] = Sec10kSettings()
+            data["vcerare"] = VCERareSettings()
+            data["censuspep"] = CensusPepSettings()
 
         return data
 
@@ -665,102 +653,82 @@ class DatasetsSettings(FrozenBaseModel):
 
 
 class Ferc1DbfToSqliteSettings(GenericDatasetSettings):
-    """An immutable Pydantic model to validate FERC 1 to SQLite settings.
-
-    Args:
-        years: List of years to validate.
-    """
+    """An immutable Pydantic model to validate FERC 1 to SQLite settings."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc1")
     years: list[int] = [
         year for year in data_source.working_partitions["years"] if year <= 2020
     ]
+    """The list of years to validate."""
 
     refyear: ClassVar[int] = max(years)
+    """The reference year for the dataset."""
 
 
 class FercGenericXbrlToSqliteSettings(BaseSettings):
-    """An immutable pydantic model to validate Ferc1 to SQLite settings.
-
-    Args:
-        years: list of years to validate.
-        disabled: if True, skip processing this dataset.
-    """
+    """An immutable pydantic model to validate Ferc1 to SQLite settings."""
 
     years: list[int]
+    """The list of years to validate."""
     disabled: bool = False
 
 
 class Ferc1XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
-    """An immutable pydantic model to validate Ferc1 to SQLite settings.
-
-    Args:
-        years: list of years to validate.
-    """
+    """An immutable pydantic model to validate Ferc1 to SQLite settings.."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc1")
     years: list[int] = [
         year for year in data_source.working_partitions["years"] if year >= 2021
     ]
+    """The list of years to validate."""
 
 
 class Ferc2XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
-    """An immutable pydantic model to validate FERC from 2 XBRL to SQLite settings.
-
-    Args:
-        years: List of years to validate.
-    """
+    """An immutable pydantic model to validate FERC from 2 XBRL to SQLite settings."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc2")
     years: list[int] = [
         year for year in data_source.working_partitions["years"] if year >= 2021
     ]
+    """The list of years to validate."""
 
 
 class Ferc2DbfToSqliteSettings(GenericDatasetSettings):
-    """An immutable Pydantic model to validate FERC 2 to SQLite settings.
-
-    Args:
-        years: List of years to validate.
-        disabled: if True, skip processing this dataset.
-    """
+    """An immutable Pydantic model to validate FERC 2 to SQLite settings."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc2")
     years: list[int] = [
         year for year in data_source.working_partitions["years"] if year <= 2020
     ]
+    """The list of years to validate."""
 
     refyear: ClassVar[int] = max(years)
+    """The reference year for the dataset."""
 
 
 class Ferc6DbfToSqliteSettings(GenericDatasetSettings):
-    """An immutable Pydantic model to validate FERC 6 to SQLite settings.
-
-    Args:
-        years: List of years to validate.
-        disabled: if True, skip processing this dataset.
-    """
+    """An immutable Pydantic model to validate FERC 6 to SQLite settings."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc6")
     years: list[int] = [
         year for year in data_source.working_partitions["years"] if year <= 2020
     ]
+    """The list of years to validate."""
+
     disabled: bool = False
 
     refyear: ClassVar[int] = max(years)
+    """The reference year for the dataset."""
 
 
 class Ferc6XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
-    """An immutable pydantic model to validate FERC from 6 XBRL to SQLite settings.
-
-    Args:
-        years: List of years to validate.
-    """
+    """An immutable pydantic model to validate FERC from 6 XBRL to SQLite settings."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc6")
     years: list[int] = [
         year for year in data_source.working_partitions["years"] if year >= 2021
     ]
+    """The list of years to validate."""
 
 
 class Ferc60DbfToSqliteSettings(GenericDatasetSettings):
@@ -775,44 +743,36 @@ class Ferc60DbfToSqliteSettings(GenericDatasetSettings):
     years: list[int] = [
         year for year in data_source.working_partitions["years"] if year <= 2020
     ]
+    """The list of years to validate."""
+
     disabled: bool = False
 
     refyear: ClassVar[int] = max(years)
+    """The reference year for the dataset."""
 
 
 class Ferc60XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
-    """An immutable pydantic model to validate FERC from 60 XBRL to SQLite settings.
-
-    Args:
-        years: List of years to validate.
-    """
+    """An immutable pydantic model to validate FERC from 60 XBRL to SQLite settings."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc60")
     years: list[int] = [
         year for year in data_source.working_partitions["years"] if year >= 2021
     ]
+    """The list of years to validate."""
 
 
 class Ferc714XbrlToSqliteSettings(FercGenericXbrlToSqliteSettings):
-    """An immutable pydantic model to validate FERC from 714 XBRL to SQLite settings.
-
-    Args:
-        years: List of years to validate.
-    """
+    """An immutable pydantic model to validate FERC from 714 XBRL to SQLite settings."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("ferc714")
-    years: list[int] = [2021, 2022, 2023]
+    years: list[int] = [
+        year for year in data_source.working_partitions["years"] if year >= 2021
+    ]
+    """The list of years to validate."""
 
 
 class FercToSqliteSettings(BaseSettings):
-    """An immutable pydantic model to validate FERC XBRL to SQLite settings.
-
-    Args:
-        ferc1_dbf_to_sqlite_settings: Settings for converting FERC 1 DBF data to SQLite.
-        ferc1_xbrl_to_sqlite_settings: Settings for converting FERC 1 XBRL data to
-            SQLite.
-        other_xbrl_forms: List of non-FERC1 forms to convert from XBRL to SQLite.
-    """
+    """An immutable pydantic model to validate FERC XBRL to SQLite settings."""
 
     ferc1_dbf_to_sqlite_settings: Ferc1DbfToSqliteSettings | None = None
     ferc1_xbrl_to_sqlite_settings: Ferc1XbrlToSqliteSettings | None = None
@@ -876,8 +836,8 @@ class EtlSettings(BaseSettings):
     description: str | None = None
     version: str | None = None
 
-    # This is list of fsspec compatible paths to publish the output datasets to.
     publish_destinations: list[str] = []
+    """This is list of fsspec compatible paths to publish the output datasets to."""
 
     @classmethod
     def from_yaml(cls, path: str) -> "EtlSettings":
@@ -892,6 +852,31 @@ class EtlSettings(BaseSettings):
         with fsspec.open(path) as f:
             yaml_file = yaml.safe_load(f)
         return cls.model_validate(yaml_file)
+
+    @model_validator(mode="after")
+    def validate_xbrl_years(self):
+        """Ensure the XBRL years in DatasetsSettings align with FercToSqliteSettings.
+
+        For each of the FERC forms that we are processing in PUDL, check to ensure
+        that the years we are trying to process in the PUDL ETL are included in the
+        XBRL to SQLite settings.
+        """
+        for which_ferc in ["ferc1", "ferc714"]:
+            if (
+                (pudl_ferc := getattr(self.datasets, which_ferc))
+                and (
+                    sqlite_ferc := getattr(
+                        self.ferc_to_sqlite_settings,
+                        f"{which_ferc}_xbrl_to_sqlite_settings",
+                    )
+                )
+            ) and not set(pudl_ferc.xbrl_years).issubset(set(sqlite_ferc.years)):
+                raise AssertionError(
+                    "You are trying to build a PUDL database with different XBRL years "
+                    f"than the ferc_to_sqlite_settings years for {which_ferc}.\nPUDL years: {pudl_ferc.xbrl_years}\n"
+                    f"SQLite Years: {sqlite_ferc.years}"
+                )
+        return self
 
 
 def _convert_settings_to_dagster_config(settings_dict: dict[str, Any]) -> None:

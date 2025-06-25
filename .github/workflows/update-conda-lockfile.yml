@@ -4,7 +4,7 @@ name: update-conda-lockfile
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 9 * * 1" # Mondays at 9AM UTC
+    - cron: "0 7 * * 0" # Sundays at 7AM UTC
 
 # What branch does this action run on?
 # - workflow_dispatch: Whatever branch it was run against.
@@ -25,26 +25,28 @@ jobs:
         with:
           token: ${{ secrets.PUDL_BOT_PAT }}
       - name: Install Micromamba
-        uses: mamba-org/setup-micromamba@v1
+        uses: mamba-org/setup-micromamba@v2
         with:
           environment-name: conda-lock
           create-args: >-
             python=3.12
-            conda-lock>=2.5.2
+            conda-lock>=3
             prettier
-      - name: Run conda-lock to recreate lockfile from scratch
+            pre-commit
+      - name: Run conda-lock to recreate lockfiles and update pre-commit hooks
         run: |
           make conda-clean
           make conda-lock.yml
+          pre-commit autoupdate
       - name: Make a PR to merge updated conda lockfiles
         # If we are relocking dependencies on a schedule or workflow_dispatch, we need
         # to make our own PR to check whether the updated environment actually solves
         # and the tests pass.
         if: ${{ (github.event_name == 'schedule' && github.repository == 'catalyst-cooperative/pudl') || (github.event_name == 'workflow_dispatch') }}
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.PUDL_BOT_PAT }}
-          commit-message: "Update conda-lock.yml and rendered conda environment files."
+          commit-message: "Update conda-lock.yml and re-render conda environment files. Autoupdate pre-commit hooks."
           title: Update conda lockfile for week of ${{ env.TODAY }}
           body: >
             This pull request relocks the dependencies with conda-lock.

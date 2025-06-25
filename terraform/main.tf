@@ -6,7 +6,7 @@ terraform {
   required_providers {
     google = {
       source  = "hashicorp/google"
-      version = "5.39.0"
+      version = "6.14.1"
     }
   }
 }
@@ -70,57 +70,98 @@ module "gh_oidc" {
       sa_name   = "projects/catalyst-cooperative-mozilla/serviceAccounts/mozilla-dev-sa@catalyst-cooperative-mozilla.iam.gserviceaccount.com"
       attribute = "attribute.repository/catalyst-cooperative/mozilla-sec-eia"
     }
+    "nrel-finito-inputs-gha" = {
+      sa_name   = "projects/${var.project_id}/serviceAccounts/${google_service_account.nrel_finito_inputs_gha.email}"
+      attribute = "attribute.repository/catalyst-cooperative/nrel-fuel-and-industry-inputs"
+    }
+    "pudl-usage-metrics-dashboard-deploy-gha" = {
+      sa_name   = "projects/${var.project_id}/serviceAccounts/${google_service_account.pudl_usage_metrics_dashboard_deploy_gha.email}"
+      attribute = "attribute.repository/catalyst-cooperative/pudl-usage-metrics-dashboard"
+    }
   }
 }
 
-# 2024-04-18: separate from the others because this was the first one - if we
-# combined the two, this would delete and recreate the service account
-resource "google_service_account" "service_account" {
-  account_id   = "rmi-beta-access"
-  display_name = "rmi_beta_access"
+# Generate a random password for the mlflow db user
+resource "random_password" "mlflow_postgresql_password" {
+  length  = 16   # Adjust the password length as needed
+  special = true # Include special characters
+  upper   = true # Include uppercase letters
+  lower   = true # Include lowercase letters
+  numeric = true # Include numbers
 }
 
-# 2024-04-18: after creating a new SA you will have to also create a keypair
-# for the user.
-resource "google_service_account" "beta_access_service_accounts" {
-  for_each = tomap({
-    zerolab_beta_access  = "zerolab-beta-access"
-    gridpath_beta_access = "gridpath-beta-access"
-  })
-  account_id   = each.value
-  display_name = each.key
-}
-
-resource "google_storage_bucket_iam_binding" "binding" {
-  bucket = "parquet.catalyst.coop"
-  role   = "roles/storage.objectViewer"
-  members = [
-    "serviceAccount:rmi-beta-access@catalyst-cooperative-pudl.iam.gserviceaccount.com",
-    "serviceAccount:zerolab-beta-access@catalyst-cooperative-pudl.iam.gserviceaccount.com",
-    "serviceAccount:gridpath-beta-access@catalyst-cooperative-pudl.iam.gserviceaccount.com",
-    "serviceAccount:dgm-github-action@dbcp-dev-350818.iam.gserviceaccount.com",
-    "user:aengel@rmi.org",
-  ]
-}
-
-  resource "google_artifact_registry_repository" "pudl-superset-repo" {
-    location = "us-central1"
-    repository_id = "pudl-superset"
-    description = "Docker image of PUDL superset deployment."
-    format = "docker"
+# Create secret to store mlflow db password
+resource "google_secret_manager_secret" "mlflow_postgresql_password_secret" {
+  secret_id = "mlflow-postgresql-password"
+  replication {
+    auto {}
   }
+}
+
+# Create version of secret with mlflow password set
+resource "google_secret_manager_secret_version" "mlflow_postgresql_password_version" {
+  secret      = google_secret_manager_secret.mlflow_postgresql_password_secret.id
+  secret_data = random_password.mlflow_postgresql_password.result
+}
+
+# Create mlflow postgresql instance for backend storage
+resource "google_sql_database_instance" "mlflow_backend_store" {
+  name             = "mlflow-backend-store"
+  region           = "us-central1"
+  database_version = "POSTGRES_14"
+  settings {
+    tier = "db-f1-micro"
+    password_validation_policy {
+      min_length                  = 6
+      reuse_interval              = 2
+      complexity                  = "COMPLEXITY_DEFAULT"
+      disallow_username_substring = true
+      password_change_interval    = "30s"
+      enable_password_policy      = true
+    }
+
+  }
+  # set `deletion_protection` to true, will ensure that one cannot accidentally delete this instance by
+  # use of Terraform whereas `deletion_protection_enabled` flag protects this instance at the GCP level.
+  deletion_protection = true
+}
+
+resource "google_storage_bucket" "pudl_models_outputs" {
+  name          = "model-outputs.catalyst.coop"
+  location      = "US"
+  storage_class = "STANDARD"
+}
+
+resource "google_sql_user" "mlflow_postgresql_user" {
+  name     = "postgres"
+  instance = google_sql_database_instance.mlflow_backend_store.name
+  password = random_password.mlflow_postgresql_password.result
+}
+
+# Optional: Create a database in the PostgreSQL instance
+resource "google_sql_database" "mlflow_postgresql_database" {
+  name     = "mlflow"
+  instance = google_sql_database_instance.mlflow_backend_store.name
+}
+
+resource "google_artifact_registry_repository" "pudl-superset-repo" {
+  location      = "us-central1"
+  repository_id = "pudl-superset"
+  description   = "Docker image of PUDL superset deployment."
+  format        = "docker"
+}
 
 resource "google_cloud_run_v2_service" "pudl-superset" {
   name     = "pudl-superset"
   location = "us-central1"
   client   = "terraform"
 
-  launch_stage = "BETA"
+  launch_stage = "GA"
 
   template {
     execution_environment = "EXECUTION_ENVIRONMENT_GEN2"
     containers {
-      name = "pudl-superset-1"
+      name  = "pudl-superset-1"
       image = "us-central1-docker.pkg.dev/catalyst-cooperative-pudl/pudl-superset/pudl-superset:latest"
 
       volume_mounts {
@@ -132,14 +173,14 @@ resource "google_cloud_run_v2_service" "pudl-superset" {
         mount_path = "/cloudsql"
       }
       env {
-        name = "IS_CLOUD_RUN"
+        name  = "IS_CLOUD_RUN"
         value = "True"
       }
       env {
         name = "SUPERSET_DB_USER"
         value_source {
           secret_key_ref {
-            secret = "superset-database-username"
+            secret  = "superset-database-username"
             version = "1"
           }
         }
@@ -148,7 +189,7 @@ resource "google_cloud_run_v2_service" "pudl-superset" {
         name = "SUPERSET_DB_NAME"
         value_source {
           secret_key_ref {
-            secret = "superset-database-database"
+            secret  = "superset-database-database"
             version = "1"
           }
         }
@@ -157,7 +198,7 @@ resource "google_cloud_run_v2_service" "pudl-superset" {
         name = "SUPERSET_DB_PASS"
         value_source {
           secret_key_ref {
-            secret = "superset-database-password"
+            secret  = "superset-database-password"
             version = "1"
           }
         }
@@ -166,7 +207,7 @@ resource "google_cloud_run_v2_service" "pudl-superset" {
         name = "SUPERSET_SECRET_KEY"
         value_source {
           secret_key_ref {
-            secret = "superset-secret-key"
+            secret  = "superset-secret-key"
             version = "1"
           }
         }
@@ -175,7 +216,7 @@ resource "google_cloud_run_v2_service" "pudl-superset" {
         name = "CLOUD_SQL_CONNECTION_NAME"
         value_source {
           secret_key_ref {
-            secret = "superset-database-connection-name"
+            secret  = "superset-database-connection-name"
             version = "1"
           }
         }
@@ -184,7 +225,7 @@ resource "google_cloud_run_v2_service" "pudl-superset" {
         name = "AUTH0_CLIENT_ID"
         value_source {
           secret_key_ref {
-            secret = "superset-auth0-client-id"
+            secret  = "superset-auth0-client-id"
             version = "1"
           }
         }
@@ -193,7 +234,7 @@ resource "google_cloud_run_v2_service" "pudl-superset" {
         name = "AUTH0_CLIENT_SECRET"
         value_source {
           secret_key_ref {
-            secret = "superset-auth0-client-secret"
+            secret  = "superset-auth0-client-secret"
             version = "2"
           }
         }
@@ -202,7 +243,16 @@ resource "google_cloud_run_v2_service" "pudl-superset" {
         name = "AUTH0_DOMAIN"
         value_source {
           secret_key_ref {
-            secret = "superset-auth0-domain"
+            secret  = "superset-auth0-domain"
+            version = "1"
+          }
+        }
+      }
+      env {
+        name = "MAPBOX_API_KEY"
+        value_source {
+          secret_key_ref {
+            secret  = "superset-mapbox-api-key"
             version = "1"
           }
         }
@@ -214,8 +264,9 @@ resource "google_cloud_run_v2_service" "pudl-superset" {
       resources {
         limits = {
           cpu    = "4"
-          memory = "2048Mi"
+          memory = "4096Mi"
         }
+        startup_cpu_boost = true
       }
     }
     volumes {
@@ -228,7 +279,7 @@ resource "google_cloud_run_v2_service" "pudl-superset" {
     volumes {
       name = "cloudsql"
       cloud_sql_instance {
-        instances = ["catalyst-cooperative-pudl:us-central1:superset-database"]
+        instances = ["catalyst-cooperative-pudl:us-central1:superset-database", "catalyst-cooperative-pudl:us-central1:pudl-usage-metrics-db"]
       }
     }
   }
@@ -248,6 +299,13 @@ resource "google_secret_manager_secret" "superset_secret_key" {
   }
 }
 
+resource "google_secret_manager_secret" "superset_mapbox_api_key" {
+  secret_id = "superset-mapbox-api-key"
+  replication {
+    auto {}
+  }
+}
+
 resource "google_sql_database_instance" "postgres_pvp_instance_name" {
   name             = "superset-database"
   region           = "us-central1"
@@ -262,6 +320,7 @@ resource "google_sql_database_instance" "postgres_pvp_instance_name" {
       password_change_interval    = "30s"
       enable_password_policy      = true
     }
+
   }
   # set `deletion_protection` to true, will ensure that one cannot accidentally delete this instance by
   # use of Terraform whereas `deletion_protection_enabled` flag protects this instance at the GCP level.
@@ -314,6 +373,12 @@ resource "google_secret_manager_secret_iam_member" "superset_database_database_c
 
 resource "google_secret_manager_secret_iam_member" "superset_secret_key_compute_iam" {
   secret_id = google_secret_manager_secret.superset_secret_key.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:345950277072-compute@developer.gserviceaccount.com"
+}
+
+resource "google_secret_manager_secret_iam_member" "superset_mapbox_api_key_compute_iam" {
+  secret_id = google_secret_manager_secret.superset_mapbox_api_key.id
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:345950277072-compute@developer.gserviceaccount.com"
 }
@@ -377,7 +442,7 @@ resource "google_storage_bucket" "superset_storage" {
 
 resource "google_storage_bucket_iam_member" "superset_storage_compute_iam" {
   bucket = google_storage_bucket.superset_storage.name
-  role = "roles/storage.objectViewer"
+  role   = "roles/storage.objectViewer"
   member = "serviceAccount:345950277072-compute@developer.gserviceaccount.com"
 }
 
@@ -395,4 +460,80 @@ resource "google_service_account_iam_member" "gce-default-account-iam" {
   service_account_id = data.google_compute_default_service_account.google_compute_default_service_account_data.name
   role               = "roles/iam.serviceAccountUser"
   member             = "serviceAccount:345950277072@cloudbuild.gserviceaccount.com"
+}
+
+resource "google_secret_manager_secret" "pudl_usage_metrics_db_connection_string" {
+  secret_id = "pudl-usage-metrics-db-connection-string"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_storage_bucket" "pudl_usage_metrics_archive_bucket" {
+  name          = "pudl-usage-metrics-archives.catalyst.coop"
+  location      = "US"
+  storage_class = "STANDARD"
+
+  uniform_bucket_level_access = true
+}
+
+resource "google_service_account" "usage_metrics_archiver" {
+  account_id   = "usage-metrics-archiver"
+  display_name = "PUDL usage metrics archiver github action service account"
+}
+
+resource "google_storage_bucket_iam_member" "usage_metrics_archiver_gcs_iam" {
+  for_each = toset(["roles/storage.objectCreator", "roles/storage.objectViewer", "roles/storage.insightsCollectorService"])
+
+  bucket = google_storage_bucket.pudl_usage_metrics_archive_bucket.name
+  role   = each.key
+  member = "serviceAccount:${google_service_account.usage_metrics_archiver.email}"
+}
+
+resource "google_storage_bucket_iam_member" "usage_metrics_etl_gcs_iam" {
+  for_each = toset(["roles/storage.legacyBucketReader", "roles/storage.objectViewer"])
+
+  bucket = google_storage_bucket.pudl_usage_metrics_archive_bucket.name
+  role   = each.key
+  member = "serviceAccount:pudl-usage-metrics-etl@catalyst-cooperative-pudl.iam.gserviceaccount.com"
+}
+
+resource "google_storage_bucket_iam_member" "usage_metrics_etl_s3_logs_gcs_iam" {
+  for_each = toset(["roles/storage.legacyBucketReader", "roles/storage.objectViewer"])
+
+  bucket = "pudl-s3-logs.catalyst.coop"
+  role   = each.key
+  member = "serviceAccount:pudl-usage-metrics-etl@catalyst-cooperative-pudl.iam.gserviceaccount.com"
+}
+
+resource "google_secret_manager_secret" "superset_bot_password" {
+  secret_id = "superset-bot-password"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_storage_bucket" "pudl_archive_bucket" {
+  name          = "archives.catalyst.coop"
+  location      = "US-EAST1"
+  storage_class = "STANDARD"
+
+  uniform_bucket_level_access = true
+}
+
+resource "google_service_account" "nrel_finito_inputs_gha" {
+  account_id   = "nrel-finito-inputs-gha"
+  display_name = "NREL FINITO inputs github action service account"
+}
+
+resource "google_storage_bucket_iam_member" "nrel_finito_inputs_archiver_gcs_iam" {
+  for_each = toset([
+    "roles/storage.objectCreator",
+    "roles/storage.objectViewer",
+    "roles/storage.insightsCollectorService"
+  ])
+
+  bucket = google_storage_bucket.pudl_archive_bucket.name
+  role   = each.key
+  member = "serviceAccount:${google_service_account.nrel_finito_inputs_gha.email}"
 }

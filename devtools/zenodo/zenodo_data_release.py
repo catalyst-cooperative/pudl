@@ -4,6 +4,7 @@
 import datetime
 import logging
 import os
+import re
 import tempfile
 import time
 from dataclasses import dataclass
@@ -87,24 +88,26 @@ class ZenodoClient:
 
         logger.info(f"Using Zenodo token: {token[:4]}...{token[-4:]}")
 
-    def retry_request(self, *, method, url, max_tries=5, timeout=5, **kwargs):
+    def retry_request(self, *, method, url, max_tries=6, timeout=2, **kwargs):
         """Wrap requests.request in retry logic.
 
         Passes method, url, and **kwargs to requests.request.
         """
-        base_timeout = 2
         for try_num in range(1, max_tries):
             try:
                 return requests.request(
-                    method=method, url=url, timeout=timeout, **kwargs
+                    method=method, url=url, timeout=timeout**try_num, **kwargs
                 )
-            except requests.RequestException as e:
-                timeout = base_timeout**try_num
-                logger.warning(f"Attempt #{try_num} Got {e}, retrying in {timeout} s")
-                time.sleep(timeout)
+            except (requests.RequestException, OSError) as e:
+                logger.warning(
+                    f"Attempt #{try_num} Got {e}, retrying in {timeout**try_num} s"
+                )
+                time.sleep(timeout**try_num)
 
         # don't catch errors on the last try.
-        return requests.request(method=method, url=url, timeout=timeout, **kwargs)
+        return requests.request(
+            method=method, url=url, timeout=timeout**max_tries, **kwargs
+        )
 
     def get_deposition(self, deposition_id: int) -> _LegacyDeposition:
         """LEGACY API: Get JSON describing a deposition.
@@ -115,7 +118,6 @@ class ZenodoClient:
             method="GET",
             url=f"{self.base_url}/deposit/depositions/{deposition_id}",
             headers=self.auth_headers,
-            timeout=5,
         )
         logger.debug(
             f"License from JSON for {deposition_id} is "
@@ -132,7 +134,6 @@ class ZenodoClient:
             method="GET",
             url=f"{self.base_url}/records/{record_id}",
             headers=self.auth_headers,
-            timeout=5,
         )
         return _NewRecord(**response.json())
 
@@ -146,7 +147,6 @@ class ZenodoClient:
             method="POST",
             url=f"{self.base_url}/records/{record_id}/versions",
             headers=self.auth_headers,
-            timeout=5,
         )
         return _NewRecord(**response.json())
 
@@ -162,7 +162,7 @@ class ZenodoClient:
         data = {"metadata": metadata.model_dump()}
         logger.debug(f"Setting metadata for {deposition_id} to {data}")
         response = self.retry_request(
-            method="PUT", url=url, json=data, headers=self.auth_headers, timeout=5
+            method="PUT", url=url, json=data, headers=self.auth_headers
         )
         return _LegacyDeposition(**response.json())
 
@@ -175,7 +175,6 @@ class ZenodoClient:
             method="DELETE",
             url=f"{self.base_url}/deposit/depositions/{deposition_id}/files/{file_id}",
             headers=self.auth_headers,
-            timeout=5,
         )
 
     def create_bucket_file(
@@ -196,7 +195,7 @@ class ZenodoClient:
             url=url,
             headers=self.auth_headers,
             data=file_content,
-            timeout=5,
+            stream=True,
         )
         return response
 
@@ -206,7 +205,6 @@ class ZenodoClient:
             method="POST",
             url=f"{self.base_url}/deposit/depositions/{deposition_id}/actions/publish",
             headers=self.auth_headers,
-            timeout=5,
         )
         return _LegacyDeposition(**response.json())
 
@@ -276,7 +274,7 @@ class EmptyDraft(State):
         openable_file.fs.get(openable_file.path, tmpfile.name)
         return tmpfile
 
-    def sync_directory(self, source_dir: str) -> "ContentComplete":
+    def sync_directory(self, source_dir: str, ignore: tuple[str]) -> "ContentComplete":
         """Read data from source_dir and upload it."""
         logger.info(f"Syncing files from {source_dir} to draft {self.record_id}...")
         bucket_url = self.zenodo_client.get_deposition(self.record_id).links.bucket
@@ -297,8 +295,14 @@ class EmptyDraft(State):
                 for p in maybe_dir.fs.ls(maybe_dir.path)
             ]
         )
+        all_ignore_regex = re.compile("|".join(ignore))
         for openable_file in files:
             name = Path(openable_file.path).name
+            if all_ignore_regex.search(openable_file.path):
+                logger.info(
+                    f"Ignoring {openable_file.path} because it matched {all_ignore_regex}"
+                )
+                continue
             with self._open_fsspec_file(openable_file) as upload_source:
                 response = self.zenodo_client.create_bucket_file(
                     bucket_url=bucket_url, file_name=name, file_content=upload_source
@@ -375,7 +379,15 @@ class CompleteDraft(State):
     required=True,
     help="Path to a directory whose contents will be uploaded to Zenodo. "
     "Subdirectories are ignored. Can get files from GCS as well - just prefix "
-    "with gs://.",
+    "with gs://. NOTE: nightly build outputs are NOT suitable for creating a Zenodo "
+    "data release, as they include hundreds of individual Parquet files, which we "
+    "archive on Zenodo as a single zipfile. Check what files should actually be "
+    "distributed. E.g. it may be *.log *.zip *.json ",
+)
+@click.option(
+    "--ignore",
+    multiple=True,
+    help="Filenames that match these regex patterns will be ignored.",
 )
 @click.option(
     "--publish/--no-publish",
@@ -383,7 +395,9 @@ class CompleteDraft(State):
     help="Whether to publish the new record without confirmation, or leave it as a draft to be reviewed.",
     show_default=True,
 )
-def pudl_zenodo_data_release(env: str, source_dir: str, publish: bool):
+def pudl_zenodo_data_release(
+    env: str, source_dir: str, publish: bool, ignore: tuple[str]
+):
     """Publish a new PUDL data release to Zenodo."""
     zenodo_client = ZenodoClient(env)
     if env == SANDBOX:
@@ -395,7 +409,7 @@ def pudl_zenodo_data_release(env: str, source_dir: str, publish: bool):
     completed_draft = (
         InitialDataset(zenodo_client=zenodo_client, record_id=rec_id)
         .get_empty_draft()
-        .sync_directory(source_dir)
+        .sync_directory(source_dir, ignore)
         .update_metadata()
     )
 

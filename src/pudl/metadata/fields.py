@@ -17,11 +17,13 @@ from pudl.metadata.enums import (
     ELECTRICITY_MARKET_MODULE_REGIONS,
     ENERGY_DISPOSITION_TYPES_FERC1,
     ENERGY_SOURCE_TYPES_FERC1,
+    ENERGY_USE_TYPES_EIAAEO,
     EPACEMS_MEASUREMENT_CODES,
     EPACEMS_STATES,
     FUEL_CLASSES,
     FUEL_TYPES_EIAAEO,
     GENERATION_ENERGY_SOURCES_EIA930,
+    IMPUTATION_CODES,
     INCOME_TYPES_FERC1,
     LIABILITY_TYPES_FERC1,
     MODEL_CASES_EIAAEO,
@@ -81,6 +83,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "aggregation_group": {
         "type": "string",
         "description": "A label identifying a group of aggregated generator capacity factors.",
+    },
+    "aggregation_level": {
+        "type": "string",
+        "description": "Indicates the spacial granularity of aggregated value.",
+        "constraints": {
+            "enum": ["region", "interconnect", "conus"],
+        },
     },
     "air_flow_100pct_load_cubic_feet_per_minute": {
         "type": "number",
@@ -449,6 +458,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "min",
     },
+    "can_cofire_100_oil": {
+        "type": "boolean",
+        "description": "Whether the generator can co-fire 100 oil.",
+    },
+    "can_cofire_oil_and_gas": {
+        "type": "boolean",
+        "description": "Whether the generator can co-fire oil and gas.",
+    },
+    "can_fuel_switch": {
+        "type": "boolean",
+        "description": "Whether a unit is able to switch fuels.",
+    },
+    "can_switch_when_operating": {
+        "type": "boolean",
+        "description": "Whether the generator can switch fuel while operating.",
+    },
     "capacity_eoy_mw": {
         "type": "number",
         "description": "Total end of year installed (nameplate) capacity for a plant part, in megawatts.",
@@ -465,6 +490,56 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "capacity_factor_ferc1": {
         "type": "number",
         "description": "Fraction of potential generation that was actually reported for a plant part.",
+    },
+    "capacity_factor_offshore_wind": {
+        "type": "number",
+        "description": (
+            "Estimated capacity factor (0-1) calculated for offshore wind "
+            "assuming a 140m hub height and 120m rotor diameter."
+            "Based on outputs from the NOAA HRRR operational numerical "
+            "weather prediction model. Capacity factors are normalized "
+            "to unity for maximal power output. "
+            "Vertical slices of the atmosphere are considered across the "
+            "defined rotor swept area. Bringing together wind speed, density, "
+            "temperature and icing information, a power capacity is estimated "
+            "using a representative power coefficient (Cp) curve to determine "
+            "the power from a given wind speed, atmospheric density and "
+            "temperature. There is no wake modeling included in the dataset."
+        ),
+    },
+    "capacity_factor_onshore_wind": {
+        "type": "number",
+        "description": (
+            "Estimated capacity factor (0-1) calculated for onshore wind "
+            "assuming a 100m hub height and 120m rotor diameter."
+            "Based on outputs from the NOAA HRRR operational numerical "
+            "weather prediction model. Capacity factors are normalized "
+            "to unity for maximal power output. "
+            "Vertical slices of the atmosphere are considered across the "
+            "defined rotor swept area. Bringing together wind speed, density, "
+            "temperature and icing information, a power capacity is estimated "
+            "using a representative power coefficient (Cp) curve to determine "
+            "the power from a given wind speed, atmospheric density and "
+            "temperature. There is no wake modeling included in the dataset."
+        ),
+    },
+    "capacity_factor_solar_pv": {
+        "type": "number",
+        "description": (
+            "Estimated capacity factor (0-1) calculated for solar PV "
+            "assuming a fixed axis panel tilted at latitude and DC power "
+            "outputs. Due to power production performance being correlated "
+            "with panel temperatures, during cold sunny periods, some solar "
+            "capacity factor values are greater than 1 (but less that 1.1)."
+            "All values are based on outputs from the NOAA HRRR operational "
+            "numerical weather prediction model. Capacity factors are "
+            "normalized to unity for maximal power output. "
+            "Pertinent surface weather variables are pulled such as "
+            "incoming short wave radiation, direct normal irradiance "
+            "(calculated in the HRRR 2016 forward), surface temperature "
+            "and other parameters. These are used in a non-linear I-V curve "
+            "translation to power capacity factors."
+        ),
     },
     "capacity_mw": {
         "type": "number",
@@ -609,6 +684,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Indicates whether the generator uses carbon capture technology.",
     },
+    "central_index_key": {
+        "type": "string",
+        "description": "Identifier of the company in SEC database.",
+    },
     "chlorine_equipment_cost": {
         "description": (
             "Actual installed cost for the existing chlorine discharge "
@@ -679,14 +758,61 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Originally reported short code.",
     },
-    "cofire_fuels": {
+    "can_cofire_fuels": {
         "type": "boolean",
-        "description": "Can the generator co-fire fuels?.",
+        "description": "Whether the generator can co-fire fuels.",
+    },
+    "cofire_energy_source_1": {
+        "type": "string",
+        "description": "The codes representing the type of fuel that will be co-fired.",
+    },
+    "cofire_energy_source_2": {
+        "type": "string",
+        "description": "The codes representing the type of fuel that will be co-fired.",
+    },
+    "cofire_energy_source_3": {
+        "type": "string",
+        "description": "The codes representing the type of fuel that will be co-fired.",
+    },
+    "cofire_energy_source_4": {
+        "type": "string",
+        "description": "The codes representing the type of fuel that will be co-fired.",
+    },
+    "cofire_energy_source_5": {
+        "type": "string",
+        "description": "The codes representing the type of fuel that will be co-fired.",
+    },
+    "cofire_energy_source_6": {
+        "type": "string",
+        "description": "The codes representing the type of fuel that will be co-fired.",
     },
     "coincident_peak_demand_mw": {
         "type": "number",
         "description": "Average monthly coincident peak (CP) demand (for requirements purchases, and any transactions involving demand charges). Monthly CP demand is the metered demand during the hour (60-minute integration) in which the supplier's system reaches its monthly peak. In megawatts.",
         "unit": "MW",
+    },
+    "company_id_sec10k": {
+        "type": "string",
+        "description": (
+            "PUDL-assigned ID for companies that file SEC Form 10-K or are referenced "
+            "in exhibit 21 attachments to Form 10-K. May not be stable over time."
+        ),
+    },
+    "company_name": {
+        "type": "string",
+        "description": "Name of company submitting SEC 10k filing.",
+    },
+    "company_name_new": {
+        "type": "string",
+        "description": "Name of company after name change.",
+    },
+    "company_name_old": {
+        "type": "string",
+        "description": "Name of company prior to name change.",
+    },
+    "company_name_raw": {
+        "type": "string",
+        "description": "Uncleaned name of company.",
     },
     "compliance_year_nox": {
         "type": "integer",
@@ -979,10 +1105,20 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Day ahead demand forecast.",
         "unit": "MWh",
     },
-    "demand_imputed_mwh": {
+    "demand_imputed_eia_mwh": {
         "type": "number",
         "description": "Electricity demand calculated by subtracting BA interchange from net generation, with outliers and missing values imputed by EIA.",
         "unit": "MWh",
+    },
+    "demand_imputed_pudl_mwh": {
+        "type": "number",
+        "description": "Electricity demand calculated by subtracting BA interchange from net generation, with outliers and missing values imputed in PUDL.",
+        "unit": "MWh",
+    },
+    "demand_imputed_pudl_mwh_imputation_code": {
+        "type": "string",
+        "description": "Code describing why a demand value was flagged for imputation.",
+        "constraints": {"enum": IMPUTATION_CODES},
     },
     "demand_reported_mwh": {
         "type": "number",
@@ -1014,9 +1150,25 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Annual demand per km2 of a given service territory.",
         "unit": "MWh/km2",
     },
+    "has_air_permit_limits": {
+        "type": "boolean",
+        "description": "Whether air permit limits are a factor that limits the generator's ability to switch between oil and natural gas.",
+    },
     "has_demand_side_management": {
         "type": "boolean",
         "description": "Whether there were strategies or measures used to control electricity demand by customers",
+    },
+    "has_factors_that_limit_switching": {
+        "type": "boolean",
+        "description": "Whether there are factors that limit the generator's ability to switch between oil and natural gas.",
+    },
+    "has_other_factors_that_limit_switching": {
+        "type": "boolean",
+        "description": "Whether there are factors other than air permit limits and storage that limit the generator's ability to switch between oil and natural gas.",
+    },
+    "has_storage_limits": {
+        "type": "boolean",
+        "description": "Whether limited on-site fuel storage is a factor that limits the generator's ability to switch between oil and natural gas.",
     },
     "depreciation_type": {
         "type": "string",
@@ -1166,6 +1318,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Account balance at end of year.",
         "unit": "USD",
+    },
+    "energy_capacity_mwh": {
+        "type": "number",
+        "description": "The total amount of energy which the system can supply power before recharging is necessary, in megawatt-hours.",
+        "unit": "MWh",
     },
     "energy_charges": {
         "type": "number",
@@ -1379,6 +1536,24 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Energy storage capacity in MWh (e.g. for batteries).",
         "unit": "MWh",
     },
+    "energy_use_type": {
+        "type": "string",
+        "description": "Type of energy use, indicating the name of the series from AEO Table 2. Includes fuels, electricity, losses, and various subtotals; consult table documentation for aggregation guidelines.",
+        "constraints": {"enum": ENERGY_USE_TYPES_EIAAEO},
+    },
+    "energy_use_mmbtu": {
+        "type": "number",
+        "description": "Energy use, in MMBtu; also referred to as energy consumption, energy demand, or delivered energy, depending on type.",
+        "unit": "MMBtu",
+    },
+    "energy_use_sector": {
+        "type": "string",
+        "description": "Sector for energy use figures in AEO Table 2. Similar to customer class, but with some missing and some extra values.",
+        "constraints": {
+            "enum": set(CUSTOMER_CLASSES) - {"direct_connection"}
+            | {"electric_power", "unspecified"}
+        },
+    },
     "energy_used_for_pumping_mwh": {
         "type": "number",
         "description": "Energy used for pumping, in megawatt-hours.",
@@ -1418,6 +1593,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "through tolling arrangements."
         ),
         "unit": "MWh",
+    },
+    "exhibit_21_version": {
+        "type": "string",
+        "description": "Version of exhibit 21 submitted (if applicable).",
+        "constraints": {
+            "pattern": r"^21\.*\d*$",
+        },
     },
     "expense_type": {"type": "string", "description": "The type of expense."},
     "ferc1_generator_agg_id": {
@@ -1549,6 +1731,27 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Total number of flue gas desulfurization unit scrubber trains.",
     },
+    "filename_sec10k": {
+        "type": "string",
+        "description": (
+            "Unique portion of the filename associated with the SEC 10-K filing in the "
+            "EDGAR database. The full source URL can be reconstructed by prepending "
+            "https://www.sec.gov/Archives/edgar/data/ and adding the .txt file type "
+            "extension."
+        ),
+    },
+    "files_sec10k": {
+        "type": "boolean",
+        "description": "Indicates whether the company files an SEC 10-K.",
+    },
+    "filing_date": {
+        "type": "date",
+        "description": "Date filing was submitted, reported at a daily frequency.",
+    },
+    "film_number": {
+        "type": "string",
+        "description": "Document control number used in the SEC EDGAR database. The first four digits can be used to access scans of the document in the SEC's Virtual Private Reference Room.",
+    },
     "firing_rate_using_coal_tons_per_hour": {
         "type": "number",
         "unit": "tons_per_hour",
@@ -1579,6 +1782,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "firing_type_3": {
         "type": "string",
         "description": "EIA short code indicating the type of firing used by this boiler.",
+    },
+    "fiscal_year_end": {
+        "type": "string",
+        "description": "The end date of an SEC filing company's fiscal year, in MMDD format.",
+        # This REGEXP constraint was causing issues w/ SQLAlchemy / SQLite.
+        # https://github.com/sqlalchemy/sqlalchemy/discussions/12498
+        "constraints": {
+            "pattern": r"^(?:(?:0[1-9]|1[0-2])(?:0[1-9]|1\d|2\d|3[01])|(?:0[13-9]|1[0-2])(?:29|30)|(?:0[13578]|1[02])31)$",
+        },
     },
     "flow_rate_method": {
         "description": (
@@ -1667,9 +1879,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Total fuel cost for plant (in $USD).",
         "unit": "USD",
     },
-    "fuel_cost_from_eiaapi": {
-        "type": "boolean",
-        "description": "Indicates whether the fuel cost was derived from the EIA API.",
+    "fuel_cost_per_mmbtu_source": {
+        "type": "string",
+        "description": (
+            "Indicates the source of the values in the fuel_cost_per_mmbtu "
+            "column. The fuel cost either comes directly from the EIA forms "
+            "(original), was filled in from the EIA's API using state-level averages "
+            "(eiaapi), was filled in using a rolling average (rolling_avg) or "
+            "When the records get aggregated together and contain multiple "
+            "sources (mixed)."
+        ),
+        "constraints": {"enum": ["original", "eiaapi", "rolling_avg", "mixed"]},
     },
     "fuel_mmbtu": {
         "type": "number",
@@ -1788,6 +2008,30 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "fuel_received_units": {
         "type": "number",
         "description": "Quanity of fuel received in tons, barrel, or Mcf.",
+    },
+    "fuel_switch_energy_source_1": {
+        "type": "string",
+        "description": "The codes representing the type of fuel that will be able to be used as a sole source of fuel for this unit.",
+    },
+    "fuel_switch_energy_source_2": {
+        "type": "string",
+        "description": "The codes representing the type of fuel that will be able to be used as a sole source of fuel for this unit.",
+    },
+    "fuel_switch_energy_source_3": {
+        "type": "string",
+        "description": "The codes representing the type of fuel that will be able to be used as a sole source of fuel for this unit.",
+    },
+    "fuel_switch_energy_source_4": {
+        "type": "string",
+        "description": "The codes representing the type of fuel that will be able to be used as a sole source of fuel for this unit.",
+    },
+    "fuel_switch_energy_source_5": {
+        "type": "string",
+        "description": "The codes representing the type of fuel that will be able to be used as a sole source of fuel for this unit.",
+    },
+    "fuel_switch_energy_source_6": {
+        "type": "string",
+        "description": "The codes representing the type of fuel that will be able to be used as a sole source of fuel for this unit.",
     },
     "fuel_type": {
         "type": "string",
@@ -1962,6 +2206,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "The energy contained in fuel burned, measured in million BTU.",
         "unit": "MMBtu",
     },
+    "hour_of_year": {
+        "type": "integer",
+        "description": "Integer between 1 and 8670 representing the hour in a given year.",
+    },
     "unit_heat_rate_mmbtu_per_mwh": {
         "type": "number",
         "description": "Fuel content per unit of electricity generated. Coming from MCOE calculation.",
@@ -2001,6 +2249,26 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "hrsg": {
         "type": "boolean",
         "description": "indicates if the boiler is a heat recovery steam generator (HRSG).",
+    },
+    "in_rate_base": {
+        "type": "boolean",
+        "description": (
+            "Whether or not a record from the detailed FERC1 accounting tables should "
+            "be considered allowable in a utility's rate base based on utility "
+            "accounting standards. "
+            "This flag was mannually compiled by RMI utility accounting experts "
+            "based on the xbrl_factoid and sometimes varies based on the utility_type, "
+            "plant_status or plant_function."
+        ),
+    },
+    "in_revenue_requirement": {
+        "type": "boolean",
+        "description": (
+            "Whether or not a record from the detailed income statement data is typically "
+            "included in a utility's revenue requirement. This flag was mannually "
+            "compiled by RMI utility accounting experts based on the xbrl_factoid and "
+            "sometimes varies based on the utility_type or plant_function."
+        ),
     },
     "inactive_accounts_included": {
         "type": "boolean",
@@ -2211,6 +2479,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
+    "industry_name_sic": {
+        "type": "string",
+        "description": "Text description of Standard Industrial Classification (SIC)",
+    },
+    "industry_id_sic": {
+        "type": "string",
+        "description": (
+            "Four-digit Standard Industrial Classification (SIC) code identifying "
+            "the company's primary industry. SIC codes have been replaced by NAICS "
+            "codes in many applications, but are still used by the SEC. See e.g. "
+            "https://www.osha.gov/data/sic-manual for code definitions."
+        ),
+        "constraints": {
+            "pattern": r"^\d{4}$",
+        },
+    },
     "installation_year": {
         "type": "integer",
         "description": "Year the plant's most recently built unit was installed.",
@@ -2245,7 +2529,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Energy interchange between adjacent balancing authorities, adjusted by EIA to reflect non-physical commercial transfers through pseudo-ties and dynamic scheduling.",
         "unit": "MWh",
     },
-    "interchange_imputed_mwh": {
+    "interchange_imputed_eia_mwh": {
         "type": "number",
         "description": "Energy interchange between adjacent balancing authorities, with outliers and missing values imputed by EIA.",
         "unit": "MWh",
@@ -2254,6 +2538,18 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Original reported energy interchange between adjacent balancing authorities.",
         "unit": "MWh",
+    },
+    "interconnect_code_eia": {
+        "type": "string",
+        "description": "EIA interconnect code.",
+        "constraints": {"enum": {"eastern", "western", "ercot"}},
+    },
+    "taxpayer_id_irs": {
+        "type": "string",
+        "description": "Taxpayer ID of the company with the IRS.",
+        "constraints": {
+            "pattern": r"^\d{2}-\d{7}$",
+        },
     },
     "is_epacems_state": {
         "type": "boolean",
@@ -2382,6 +2678,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
+    "location_of_incorporation": {
+        "type": "string",
+        "description": (
+            "Location of the company's incorporation. This can be a full US state "
+            "name, a state abbreviation, the name of a foreign country, etc. Not yet "
+            "standardized / cleaned."
+        ),
+    },
     "longitude": {
         "type": "number",
         "description": "Longitude of the plant's location, in degrees.",
@@ -2416,6 +2720,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Maximum heat content per physical unit of fuel in MMBtu.",
         "unit": "MMBtu",
+    },
+    "max_oil_heat_input": {
+        "type": "number",
+        "description": "The maximum oil heat input (percent of MMBtus) expected for proposed unit when co-firing with natural gas",
+        "unit": "% MMBtu",
+    },
+    "max_oil_output_mw": {
+        "type": "number",
+        "description": "The maximum output (net MW) expected for proposed unit, when making the maximum use of oil and co-firing natural gas.",
+        "unit": "MW",
     },
     "max_steam_flow_1000_lbs_per_hour": {
         "type": "number",
@@ -2610,9 +2924,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "unit": "gal",
     },
-    "multiple_fuels": {
+    "can_burn_multiple_fuels": {
         "type": "boolean",
-        "description": "Can the generator burn multiple fuels?",
+        "description": "Whether the generator can burn multiple fuels.",
+    },
+    "name_change_date": {
+        "type": "date",
+        "description": "Date of last name change of the company.",
     },
     "nameplate_power_factor": {
         "type": "number",
@@ -2680,9 +2998,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
-    "net_demand_mwh": {
+    "net_demand_forecast_mwh": {
         "type": "number",
-        "description": "Net electricity demand for the specified period in megawatt-hours (MWh).",
+        "description": "Net forecasted electricity demand for the specific period in megawatt-hours (MWh).",
         "unit": "MWh",
     },
     "net_generation_adjusted_mwh": {
@@ -2690,7 +3008,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Reported net generation adjusted by EIA to reflect non-physical commercial transfers through pseudo-ties and dynamic scheduling.",
         "unit": "MWh",
     },
-    "net_generation_imputed_mwh": {
+    "net_generation_imputed_eia_mwh": {
         "type": "number",
         "description": "Reported net generation with outlying values removed and missing values imputed by EIA.",
         "unit": "MWh",
@@ -2741,6 +3059,26 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "or sold to regulated companies or unregulated companies for other systems."
         ),
         "unit": "MWh",
+    },
+    "net_summer_capacity_natural_gas_mw": {
+        "type": "number",
+        "description": "The maximum net summer output achievable when running on natural gas.",
+        "unit": "MW",
+    },
+    "net_summer_capacity_oil_mw": {
+        "type": "number",
+        "description": "The maximum net summer output achievable when running on oil.",
+        "unit": "MW",
+    },
+    "net_winter_capacity_natural_gas_mw": {
+        "type": "number",
+        "description": "The maximum net winter output achievable when running on natural gas.",
+        "unit": "MW",
+    },
+    "net_winter_capacity_oil_mw": {
+        "type": "number",
+        "description": "The maximum net summer output achievable when running on oil.",
+        "unit": "MW",
     },
     "net_wheeled_power_mwh": {
         "type": "number",
@@ -2941,6 +3279,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "The operating status of the asset using PUDL categories of the record_id_eia_plant_gen record .",
         "constraints": {"enum": ["operating", "retired", "proposed"]},
+    },
+    "operator_utility_id_eia": {
+        "type": "integer",
+        "description": "The EIA utility Identification number for the operator utility.",
     },
     "opex_allowances": {"type": "number", "description": "Allowances.", "unit": "USD"},
     "opex_boiler": {
@@ -3223,6 +3565,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Whether a plant part record has a duplicate record with different ownership status.",
     },
+    "parent_company_central_index_key": {
+        "type": "string",
+        "description": "Central index key (CIK) of the company's parent company.",
+    },
     "particulate_control_id_eia": {
         "type": "string",
         "description": "Particulate matter control identification number. This ID is not a unique identifier.",
@@ -3273,6 +3619,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "pipeline_notes": {
         "type": "string",
         "description": "Additional owner or operator of natural gas pipeline.",
+    },
+    "place_name": {
+        "type": "string",
+        "description": (
+            "County or lake name, sourced from the latest Census PEP vintage based on "
+            "county FIPS ID. Lake names originate from VCE RARE directly, and may also "
+            "appear several times--once for each state it touches. FIPS ID values for "
+            "lakes have been nulled."
+        ),
     },
     "planned_derate_date": {
         "type": "date",
@@ -3606,9 +3961,47 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.",
     },
+    "region_name_eiaaeo": {
+        "type": "string",
+        "description": (
+            "EIA AEO region for energy consumption. Includes US Census Divisions plus United States."
+        ),
+        "constraints": {
+            "enum": [
+                # 2025-05 kmm: we can't use POLITICAL_SUBDIVISIONS here because
+                # it splits Pacific into Contiguous and Noncontiguous.
+                "east_north_central",
+                "east_south_central",
+                "middle_atlantic",
+                "mountain",
+                "new_england",
+                "pacific",
+                "south_atlantic",
+                "west_north_central",
+                "west_south_central",
+                "united_states",
+            ],
+        },
+    },
     "region_name_us_census": {
         "type": "string",
         "description": "Human-readable name of a US Census region.",
+    },
+    "region_type_eiaaeo": {
+        "type": "string",
+        "description": (
+            "Region type for EIA AEO energy consumption, indicating whether region_name_eiaaeo is a US Census Division or country (United States)"
+        ),
+        "constraints": {
+            "enum": [
+                "us_census_division",
+                "country",
+            ],
+        },
+    },
+    "has_regulatory_limits": {
+        "type": "boolean",
+        "description": "Whether there are factors that limit the operation of the generator when running on 100 percent oil",
     },
     "regulation_mercury": {
         "type": "string",
@@ -3660,7 +4053,30 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "respondent_id_ferc714": {
         "type": "integer",
-        "description": "FERC Form 714 respondent ID. Note that this ID does not correspond to FERC respondent IDs from other forms.",
+        "description": (
+            "PUDL-assigned identifying a respondent to FERC Form 714. This ID associates "
+            "natively reported respondent IDs from the orignal CSV and XBRL data sources."
+        ),
+    },
+    "respondent_id_ferc714_csv": {
+        "type": "integer",
+        "description": (
+            "FERC Form 714 respondent ID from CSV reported data - published from years: 2006-2020. "
+            "This ID is linked to the newer years of reported XBRL data through the PUDL-assigned "
+            "respondent_id_ferc714 ID. "
+            "This ID was originally reported as respondent_id. "
+            "Note that this ID does not correspond to FERC respondent IDs from other forms."
+        ),
+    },
+    "respondent_id_ferc714_xbrl": {
+        "type": "string",
+        "description": (
+            "FERC Form 714 respondent ID from XBRL reported data - published from years: 2021-present. "
+            "This ID is linked to the older years of reported CSV data through the PUDL-assigned "
+            "respondent_id_ferc714 ID. "
+            "This ID was originally reported as entity_id. "
+            "Note that this ID does not correspond to FERC respondent IDs from other forms."
+        ),
     },
     "respondent_name_ferc714": {
         "type": "string",
@@ -3709,6 +4125,66 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "revenue_type": {
         "type": "string",
         "description": "Label describing types of revenues.",
+    },
+    "revenue_requirement_category": {
+        "type": "string",
+        "description": (
+            "The category of revenue requirement associated with each component of utility's"
+            "income statements. "
+            "These categories were mannually compiled by RMI utility accounting experts "
+            "based on the xbrl_factoid and sometimes vary based on the utility_type or "
+            "plant_function. This column is intended to be used to aggregate this "
+            "table."
+        ),
+        "constraints": {
+            "enum": [
+                "depreciation_amortization_depletion",
+                "depreciation_arc",
+                "fuel",
+                "investment_tax_credit",
+                "maintenance",
+                "non_fuel_operation",
+                "other",
+                "purchased_power",
+                "regulatory_debits_credits",
+                "taxes",
+            ]
+        },
+    },
+    "revenue_requirement_technology": {
+        "type": "string",
+        "description": (
+            "The technology type associated with components of a utility's "
+            "revenue requirement. "
+            "These categories were mannually compiled by RMI utility accounting experts "
+            "based on the xbrl_factoid and sometimes vary based on the utility_type or "
+            "plant_function as well. This column is intended to be used to aggregate this "
+            "table."
+        ),
+        "constraints": {
+            "enum": [
+                "administrative",
+                "common_plant_electric",
+                "customer_accounts",
+                "customer_service",
+                "distribution",
+                "general",
+                "hydraulic_production",
+                "hydraulic_production_conventional",
+                "hydraulic_production_pumped_storage",
+                "intangible",
+                "nuclear_production",
+                "other",
+                "other_electric_plant",
+                "other_power_supply",
+                "other_production",
+                "purchased_power",
+                "regional_transmission_and_market_operation",
+                "sales",
+                "steam_production",
+                "transmission",
+            ]
+        },
     },
     "row_type_xbrl": {
         "type": "string",
@@ -3814,6 +4290,43 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Estimated electricity demand scaled by the total sales within a state.",
         "unit": "MWh",
+    },
+    "sec_act": {
+        "type": "string",
+        "description": "SEC Act through which the form was enacted, e.g. 1934 act.",
+        "constraints": {
+            "enum": ["1934 act"],
+        },
+    },
+    "filing_number_sec": {
+        "type": "string",
+        "description": "Filing number used internally by the SEC commission to track filing.",
+    },
+    "sec10k_type": {
+        "type": "string",
+        "description": (
+            "Specific version of SEC 10-K that was filed. 10-k: the standard annual "
+            "report. 10-k/a: an amended version of the annual report. 10-k405: filed "
+            "to report insider trading that was not reported in a timely fashion. "
+            "10-k405/a: an amended version of the 10-k405. 10-kt: submitted in lieu of "
+            "or in addition to a standard 10-K annual report when a company changes "
+            "the end of its fiscal year (e.g. due to a merger) leaving the company "
+            "with a longer or shorter reporting period. 10-kt/a: an amended version of "
+            "the 10-kt. 10-ksb: the annual report for small businesses, also known as "
+            "penny stocks. 10-ksb/a: an amended version of the 10-ksb."
+        ),
+        "constraints": {
+            "enum": [
+                "10-k",
+                "10-k/a",
+                "10-k405",
+                "10-k405/a",
+                "10-kt",
+                "10-kt/a",
+                "10-ksb",
+                "10-ksb/a",
+            ]
+        },
     },
     "secondary_transportation_mode_code": {
         "type": "string",
@@ -4053,6 +4566,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Indicates whether the generator is part of a solid fuel gasification system",
     },
+    "source_url": {
+        "type": "string",
+        "description": "URL pointing to the original source of the data in the record.",
+        "constraints": {
+            "pattern": r"^https?://.+",
+        },
+    },
     "specifications_of_coal_ash": {
         "type": "number",
         "description": (
@@ -4160,6 +4680,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "pattern": r"^\d{2}$",
         },
     },
+    "incorporation_state": {
+        "type": "string",
+        "description": "Two letter state code where company is incorporated.",
+    },
     "steam_load_1000_lbs": {
         "type": "number",
         "description": "Total steam pressure produced by a unit during the reported hour.",
@@ -4231,6 +4755,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "Sub-plant ID links EPA CEMS emissions units to EIA units.",
     },
+    "subsidiary_company_name": {
+        "type": "string",
+        "description": "Name of subsidiary company.",
+    },
+    "subsidiary_company_location": {
+        "type": "string",
+        "description": "Location of subsidiary company.",
+    },
     "sulfur_content_pct": {
         "type": "number",
         "description": "Sulfur content percentage by weight to the nearest 0.01 percent.",
@@ -4268,6 +4800,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "EIA estimated summer capacity (in MWh).",
         "unit": "MWh",
     },
+    "summer_peak_demand_forecast_mw": {
+        "type": "number",
+        "description": (
+            "The maximum forecasted hourly sumemr load (for the months of June through "
+            "September)."
+        ),
+        "unit": "MW",
+    },
     "summer_peak_demand_mw": {
         "type": "number",
         "description": (
@@ -4293,9 +4833,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Supporting structure of the transmission line.",
     },
-    "switch_oil_gas": {
+    "can_switch_oil_gas": {
         "type": "boolean",
-        "description": "Indicates whether the generator switch between oil and natural gas.",
+        "description": "Whether the generator can switch between oil and natural gas.",
     },
     "syncronized_transmission_grid": {
         "type": "boolean",
@@ -4357,6 +4897,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "off-peak prices are lower than a “standard” rate. Price schedule is fixed "
             "and predefined, based on season, day of week, and time of day."
         ),
+    },
+    "time_to_switch_gas_to_oil": {
+        "type": "string",
+        "description": "The time required to switch the generator from running 100 percent natural gas to running 100 percent oil.",
+    },
+    "time_to_switch_oil_to_gas": {
+        "type": "string",
+        "description": "The time required to switch the generator from running 100 percent oil to running 100 percent natural gas.",
     },
     "has_time_responsive_programs": {
         "type": "boolean",
@@ -4814,6 +5362,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "EIA estimated winter capacity (in MWh).",
         "unit": "MWh",
     },
+    "winter_peak_demand_forecast_mw": {
+        "type": "number",
+        "description": (
+            "The maximum forecasted hourly winter load (for the months of January "
+            "through March)."
+        ),
+        "unit": "MW",
+    },
     "winter_peak_demand_mw": {
         "type": "number",
         "description": (
@@ -5135,6 +5691,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
                 "general_plant",
                 "regional_transmission_and_market_operation",
                 "other_production",
+                "other_noncurrent_liabilities",
                 "hydro",
                 "net_utility_plant",
                 "intangible_plant",
@@ -5143,6 +5700,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
                 "net_ADIT",
                 "asset_retirement_costs",
                 "utility_plant",
+                "electric_plant_leased_to_others",
+                "electric_plant_held_for_future_use",
+                "non_utility_plant",
+                "construction_work_in_progress",
                 "AROs",
                 "correction",
             ]
@@ -5252,11 +5813,84 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Indicates whether bifacial solar panels are used at this solar generating unit."
         ),
     },
+    "business_city": {
+        "type": "string",
+        "description": "City where the company's place of business is located.",
+    },
+    "business_state": {
+        "type": "string",
+        "description": "State where the company's place of business is located.",
+    },
+    "business_street_address": {
+        "type": "string",
+        "description": "Street address of the company's place of business.",
+    },
+    "business_street_address_2": {
+        "type": "string",
+        "description": "Second line of the street address of the company's place of business.",
+    },
+    "business_zip_code": {
+        "type": "string",
+        "description": "Zip code of the company's place of business.",
+        "constraints": {
+            "pattern": r"^\d{5}$",
+        },
+    },
+    "business_zip_code_4": {
+        "type": "string",
+        "description": "Zip code suffix of the company's place of business.",
+        "constraints": {
+            "pattern": r"^\d{4}$",
+        },
+    },
+    "business_postal_code": {
+        "type": "string",
+        "description": "Non-US postal code of the company's place of business.",
+    },
+    "filer_count": {
+        "type": "integer",
+        "description": "A counter indicating which observation of company data within an SEC 10-K filing header the record pertains to.",
+    },
+    # "fraction_owned": {
+    #    "type": "number",
+    #    "description": "Fraction of subsidiary company owned by parent.",
+    # },
+    "mail_street_address": {
+        "type": "string",
+        "description": "Street portion of the company's for mailing address.",
+    },
+    "mail_street_address_2": {
+        "type": "string",
+        "description": "Second line of the street portion of the company's mailing address.",
+    },
+    "mail_city": {
+        "type": "string",
+        "description": "City of the company's mailing address.",
+    },
+    "mail_state": {
+        "type": "string",
+        "description": "State of the company's mailing address.",
+    },
+    "mail_zip_code": {
+        "type": "string",
+        "description": "Zip code of the company's mailing address.",
+        "constraints": {
+            "pattern": r"^\d{5}$",
+        },
+    },
+    "mail_zip_code_4": {
+        "type": "string",
+        "description": "Zip code suffix of the company's mailing address.",
+        "constraints": {
+            "pattern": r"^\d{4}$",
+        },
+    },
+    "mail_postal_code": {
+        "type": "string",
+        "description": "Non-US postal code of the company's mailing address.",
+    },
 }
-"""Field attributes by PUDL identifier (`field.name`).
-
-Keys are in alphabetical order.
-"""
+"""Field attributes by PUDL identifier (`field.name`)."""
 
 FIELD_METADATA_BY_GROUP: dict[str, dict[str, Any]] = {
     "epacems": {
@@ -5297,6 +5931,14 @@ FIELD_METADATA_BY_GROUP: dict[str, dict[str, Any]] = {
     },
     "nrelatb": {
         "technology_description": {"constraints": {"enum": TECH_DESCRIPTIONS_NRELATB}}
+    },
+    "vcerare": {
+        "latitude": {
+            "description": "Latitude of the place centroid (e.g., county centroid)."
+        },
+        "longitude": {
+            "description": "Longitude of the place centroid (e.g., county centroid)."
+        },
     },
 }
 """Field attributes by resource group (`resource.group`) and PUDL identifier.
@@ -5987,6 +6629,30 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
             "unit": "USD_per_MWh",
         }
     },
+    "core_sec10k__changelog_company_name": {
+        "central_index_key": {
+            "constraints": {
+                "required": True,
+            }
+        },
+        "name_change_date": {
+            "constraints": {
+                "required": True,
+            }
+        },
+    },
+    "out_sec10k__changelog_company_name": {
+        "central_index_key": {
+            "constraints": {
+                "required": True,
+            }
+        },
+        "name_change_date": {
+            "constraints": {
+                "required": True,
+            }
+        },
+    },
     "out_ferc1__yearly_rate_base": {
         "plant_function": {
             "type": "string",
@@ -6019,6 +6685,16 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     "out_eia__yearly_assn_plant_parts_plant_gen": {
         "generators_number": {
             "description": "The number of generators associated with each ``record_id_eia``."
+        }
+    },
+    "out_eia860__yearly_ownership": {
+        "utility_id_pudl": {
+            "description": "A manually assigned PUDL utility ID for the owner company that is responsible for the day-to-day operations of the generator, not the operator utility. May not be stable over time."
+        }
+    },
+    "out_eia930__hourly_aggregated_demand": {
+        "aggregation_group": {
+            "description": "Label identifying a group of balancing authorities to be used in aggregating demand E.g. a region of the US or a whole interconnect."
         }
     },
 }

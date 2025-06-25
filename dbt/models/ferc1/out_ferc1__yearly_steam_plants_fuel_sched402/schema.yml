@@ -1,0 +1,99 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_ferc1__yearly_steam_plants_fuel_sched402
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: out_ferc1__yearly_steam_plants_fuel_sched402
+              partition_column: report_year
+        columns:
+          - name: report_year
+          - name: utility_id_ferc1
+          - name: utility_id_pudl
+          - name: utility_name_ferc1
+          - name: plant_id_pudl
+          - name: plant_name_ferc1
+          - name: fuel_consumed_mmbtu
+          - name: fuel_consumed_total_cost
+          - name: fuel_consumed_units
+          - name: fuel_cost_per_mmbtu
+            data_tests:
+              - expect_quantile_constraints:
+                  row_condition: fuel_type_code_pudl='coal'
+                  constraints:
+                    - quantile: 0.05
+                      min_value: 0.75
+                    - quantile: 0.95
+                      max_value: 4.2
+                  weight_column: fuel_consumed_mmbtu
+              - expect_quantile_constraints:
+                  row_condition: fuel_type_code_pudl='oil'
+                  constraints:
+                    - quantile: 0.05
+                      min_value: 5.0
+                    - quantile: 0.95
+                      max_value: 25.0
+                  weight_column: fuel_consumed_mmbtu
+              - expect_quantile_constraints:
+                  row_condition: fuel_type_code_pudl='gas'
+                  constraints:
+                    - quantile: 0.05
+                      min_value: 1.8
+                    - quantile: 0.95
+                      max_value: 12.0
+                  weight_column: fuel_consumed_mmbtu
+          - name: fuel_cost_per_unit_burned
+            data_tests:
+              - expect_quantile_constraints:
+                  row_condition: fuel_type_code_pudl='coal'
+                  constraints:
+                    - quantile: 0.1
+                      min_value: 7.0
+                    - quantile: 0.95
+                      max_value: 100.0
+                  weight_column: fuel_consumed_units
+              - expect_quantile_constraints:
+                  row_condition: fuel_type_code_pudl='oil'
+                  constraints:
+                    - quantile: 0.05
+                      min_value: 25.0
+                    - quantile: 0.95
+                      max_value: 140.0
+                  weight_column: fuel_consumed_units
+                  description: Demoted to warning April 2025 when quantile 0.05 dropped from 25.0 to 1.6. Investigate in issue 4189.
+                  severity: warn
+              - expect_quantile_constraints:
+                  row_condition: fuel_type_code_pudl='gas'
+                  constraints:
+                    - quantile: 0.05
+                      min_value: 1.6
+                    - quantile: 0.95
+                      max_value: 12.0
+                  weight_column: fuel_consumed_units
+                  description: Quantile 0.05 may have dropped from 2.0 to 1.63 (etl-full) in April 2025 (had been marked xfail with tracking issue 2073).
+          - name: fuel_cost_per_unit_delivered
+          - name: fuel_mmbtu_per_unit
+            data_tests:
+              - expect_quantile_constraints:
+                  row_condition: fuel_type_code_pudl='oil'
+                  constraints:
+                    - quantile: 0.05
+                      min_value: 5.5
+                    - quantile: 0.95
+                      max_value: 6.8
+                  weight_column: fuel_consumed_units
+              - expect_quantile_constraints:
+                  row_condition: fuel_type_code_pudl='gas'
+                  constraints:
+                    - quantile: 0.05
+                      min_value: 0.98
+                    - quantile: 0.95
+                      max_value: 1.096
+                  weight_column: fuel_consumed_units
+                  description: Quantile 0.95 rose from 1.08 to 1.096 April 2025. Keep an eye on it, and investigate if it gets worse.
+          - name: fuel_type_code_pudl
+          - name: fuel_units
+          - name: record_id
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_unique

@@ -13,11 +13,14 @@
 **This table has no primary key.**
 {%- endif %}
 
+**Access methods:**
+
 {% if resource.create_database_schema -%}
-`Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/{{ resource.name }}>`__
+* `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/{{ resource.name }}>`__
 {% else -%}
-This table is not published to Datasette.
+* This table is not published to Datasette.
 {%- endif %}
+* `Download this table as a Parquet file. <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/{{ resource.name }}.parquet>`__
 
 .. list-table::
   :widths: auto

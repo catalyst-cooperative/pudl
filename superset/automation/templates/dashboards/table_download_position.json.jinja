@@ -1,0 +1,187 @@
+{
+  "CHART-row-count": {
+    "children": [],
+    "id": "CHART-row-count",
+    "meta": {
+      "chartId": {{ row_count_chart_id }},
+      "height": 23,
+      "sliceName": "Row Count",
+      "uuid": "64d19894-3010-4d0a-9113-314e2b4b3808",
+      "width": 6
+    },
+    "parents": ["ROOT_ID", "GRID_ID", "ROW-nak4_7Cn2"],
+    "type": "CHART"
+  },
+  "CHART-data-dictionary": {
+    "children": [],
+    "id": "CHART-data-dictionary",
+    "meta": {
+      "chartId": {{ data_dictionary_chart_id }},
+      "height": 50,
+      "sliceName": "out_eia__yearly_generators Data Dictionary",
+      "sliceNameOverride": "Columns",
+      "uuid": "9e7c41d6-0fd0-44c9-8d19-d1822ca34993",
+      "width": 12
+    },
+    "parents": [
+      "ROOT_ID",
+      "GRID_ID",
+      "TABS-GjUWIRoTMN",
+      "TAB-LJe76Bn2r0",
+      "ROW-qnbk56yRr"
+    ],
+    "type": "CHART"
+  },
+  "CHART-table": {
+    "children": [],
+    "id": "CHART-table",
+    "meta": {
+      "chartId": {{ table_chart_id }},
+      "height": 95,
+      "sliceName": "out_eia__yearly_generators",
+      "uuid": "a21652c8-b24d-4a54-aef3-688459dd39aa",
+      "width": 12
+    },
+    "parents": [
+      "ROOT_ID",
+      "GRID_ID",
+      "TABS-GjUWIRoTMN",
+      "TAB-z5mgEFBTs",
+      "ROW-YNi5k5hBq"
+    ],
+    "type": "CHART"
+  },
+  "DASHBOARD_VERSION_KEY": "v2",
+  "GRID_ID": {
+    "children": ["ROW-nak4_7Cn2", "TABS-GjUWIRoTMN"],
+    "id": "GRID_ID",
+    "parents": ["ROOT_ID"],
+    "type": "GRID"
+  },
+  "HEADER_ID": {
+    "id": "HEADER_ID",
+    "meta": { "text": "out_eia__yearly_generators" },
+    "type": "HEADER"
+  },
+  "MARKDOWN-BJIpSWoyPa": {
+    "children": [],
+    "id": "MARKDOWN-BJIpSWoyPa",
+    "meta": {
+      "code": "You can explore the table using this UI. You can also:\n- [Create a superset chart from this table](https://superset.catalyst.coop/explore/?datasource_type=table&datasource_id={{ table_dataset_id }})\n- [Download the whole table as a Parquet file](https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/{{ table_name }}.parquet)\n- ...",
+      "height": 50,
+      "width": 4
+    },
+    "parents": [
+      "ROOT_ID",
+      "GRID_ID",
+      "TABS-GjUWIRoTMN",
+      "TAB-a26sHIPYH",
+      "ROW-0UbZzo7c1L"
+    ],
+    "type": "MARKDOWN"
+  },
+  "MARKDOWN-aJ9s4dNh_m": {
+    "children": [],
+    "id": "MARKDOWN-aJ9s4dNh_m",
+    "meta": {
+      "code": "[[ INSERT TABLE DESCRIPTION HERE ]]",
+      "height": 23,
+      "width": 12
+    },
+    "parents": [
+      "ROOT_ID",
+      "GRID_ID",
+      "TABS-GjUWIRoTMN",
+      "TAB-LJe76Bn2r0",
+      "ROW-WbSay15QW"
+    ],
+    "type": "MARKDOWN"
+  },
+  "MARKDOWN-iqitTAoMQ1": {
+    "children": [],
+    "id": "MARKDOWN-iqitTAoMQ1",
+    "meta": {
+      "code": "# How to download the data\nTo download data from this table as a CSV or Excel file, filter the data on at least one column using the filter options on the left hand side of the dashboard. **Note: You must apply a filter because you can only download 100k rows at a time.** Once you've filtered the data, click the three vertical dots in the upper right hand corner of the \"Data\" tab and select \"Download > Export as (Excel/CSV)\".",
+      "height": 23,
+      "width": 6
+    },
+    "parents": ["ROOT_ID", "GRID_ID", "ROW-nak4_7Cn2"],
+    "type": "MARKDOWN"
+  },
+  "ROOT_ID": { "children": ["GRID_ID"], "id": "ROOT_ID", "type": "ROOT" },
+  "ROW-0UbZzo7c1L": {
+    "children": ["MARKDOWN-BJIpSWoyPa"],
+    "id": "ROW-0UbZzo7c1L",
+    "meta": { "background": "BACKGROUND_TRANSPARENT" },
+    "parents": ["ROOT_ID", "GRID_ID", "TABS-GjUWIRoTMN", "TAB-a26sHIPYH"],
+    "type": "ROW"
+  },
+  "ROW-WbSay15QW": {
+    "children": ["MARKDOWN-aJ9s4dNh_m"],
+    "id": "ROW-WbSay15QW",
+    "meta": { "background": "BACKGROUND_TRANSPARENT" },
+    "parents": ["ROOT_ID", "GRID_ID", "TABS-GjUWIRoTMN", "TAB-LJe76Bn2r0"],
+    "type": "ROW"
+  },
+  "ROW-YNi5k5hBq": {
+    "children": ["CHART-table"],
+    "id": "ROW-YNi5k5hBq",
+    "meta": { "background": "BACKGROUND_TRANSPARENT" },
+    "parents": ["ROOT_ID", "GRID_ID", "TABS-GjUWIRoTMN", "TAB-z5mgEFBTs"],
+    "type": "ROW"
+  },
+  "ROW-nak4_7Cn2": {
+    "children": ["CHART-row-count", "MARKDOWN-iqitTAoMQ1"],
+    "id": "ROW-nak4_7Cn2",
+    "meta": { "background": "BACKGROUND_TRANSPARENT" },
+    "parents": ["ROOT_ID", "GRID_ID"],
+    "type": "ROW"
+  },
+  "ROW-qnbk56yRr": {
+    "children": ["CHART-data-dictionary"],
+    "id": "ROW-qnbk56yRr",
+    "meta": { "background": "BACKGROUND_TRANSPARENT" },
+    "parents": ["ROOT_ID", "GRID_ID", "TABS-GjUWIRoTMN", "TAB-LJe76Bn2r0"],
+    "type": "ROW"
+  },
+  "TAB-LJe76Bn2r0": {
+    "children": ["ROW-WbSay15QW", "ROW-qnbk56yRr"],
+    "id": "TAB-LJe76Bn2r0",
+    "meta": {
+      "defaultText": "Tab title",
+      "placeholder": "Tab title",
+      "text": "Data Dictionary"
+    },
+    "parents": ["ROOT_ID", "GRID_ID", "TABS-GjUWIRoTMN"],
+    "type": "TAB"
+  },
+  "TAB-a26sHIPYH": {
+    "children": ["ROW-0UbZzo7c1L"],
+    "id": "TAB-a26sHIPYH",
+    "meta": {
+      "defaultText": "Tab title",
+      "placeholder": "Tab title",
+      "text": "Other Access methods"
+    },
+    "parents": ["ROOT_ID", "GRID_ID", "TABS-GjUWIRoTMN"],
+    "type": "TAB"
+  },
+  "TAB-z5mgEFBTs": {
+    "children": ["ROW-YNi5k5hBq"],
+    "id": "TAB-z5mgEFBTs",
+    "meta": {
+      "defaultText": "Tab title",
+      "placeholder": "Tab title",
+      "text": "Data"
+    },
+    "parents": ["ROOT_ID", "GRID_ID", "TABS-GjUWIRoTMN"],
+    "type": "TAB"
+  },
+  "TABS-GjUWIRoTMN": {
+    "children": ["TAB-z5mgEFBTs", "TAB-LJe76Bn2r0", "TAB-a26sHIPYH"],
+    "id": "TABS-GjUWIRoTMN",
+    "meta": {},
+    "parents": ["ROOT_ID", "GRID_ID"],
+    "type": "TABS"
+  }
+}

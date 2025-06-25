@@ -1,63 +1,55 @@
 {
-    "creators": [
-        {
-            "orcid": "0000-0002-9961-7208",
-            "affiliation": "Catalyst Cooperative",
-            "name": "Selvans, Zane"
-        },
-        {
-            "orcid": "0009-0004-2979-6142",
-            "affiliation": "Catalyst Cooperative",
-            "name": "Gosnell, Christina"
-        },
-        {
-            "affiliation": "Catalyst Cooperative",
-            "name": "Sharpe, Austen"
-        },
-        {
-            "affiliation": "Catalyst Cooperative",
-            "name": "Bush, Trenton"
-        },
-        {
-            "affiliation": "Catalyst Cooperative",
-            "name": "Norman, Bennett"
-        },
-        {
-            "affiliation": "Catalyst Cooperative",
-            "name": "Schira, Zachary"
-        },
-        {
-            "affiliation": "Catalyst Cooperative",
-            "name": "Lamb, Katherine"
-        },
-        {
-            "affiliation": "Catalyst Cooperative",
-            "name": "Xia, Dazhong"
-        },
-        {
-            "affiliation": "Catalyst Cooperative",
-            "name": "Belfer, Ella"
-        }
-    ],
-    "language": "eng",
-    "keywords": [
-        "electricity",
-        "energy",
-        "coal",
-        "wind",
-        "solar",
-        "renewable energy",
-        "python",
-        "open data",
-        "dagster",
-        "natural gas",
-        "utility",
-        "power",
-        "regulation",
-        "policy",
-        "EIA",
-        "EPA",
-        "FERC",
-        "NREL"
-    ]
+  "creators": [
+    {
+      "orcid": "0000-0002-9961-7208",
+      "affiliation": "Catalyst Cooperative",
+      "name": "Selvans, Zane"
+    },
+    {
+      "orcid": "0009-0004-2979-6142",
+      "affiliation": "Catalyst Cooperative",
+      "name": "Gosnell, Christina"
+    },
+    {
+      "affiliation": "Catalyst Cooperative",
+      "name": "Sharpe, Austen"
+    },
+    {
+      "affiliation": "Catalyst Cooperative",
+      "name": "Schira, Zachary"
+    },
+    {
+      "affiliation": "Catalyst Cooperative",
+      "name": "Lamb, Katherine"
+    },
+    {
+      "affiliation": "Catalyst Cooperative",
+      "name": "Xia, Dazhong"
+    },
+    {
+      "affiliation": "Catalyst Cooperative",
+      "name": "Belfer, Ella"
+    }
+  ],
+  "language": "eng",
+  "keywords": [
+    "electricity",
+    "energy",
+    "coal",
+    "wind",
+    "solar",
+    "renewable energy",
+    "python",
+    "open data",
+    "dagster",
+    "natural gas",
+    "utility",
+    "power",
+    "regulation",
+    "policy",
+    "EIA",
+    "EPA",
+    "FERC",
+    "NREL"
+  ]
 }

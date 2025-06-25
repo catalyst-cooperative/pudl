@@ -1,0 +1,23 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia860__scd_ownership
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_eia860__scd_ownership
+              partition_column: report_date
+        columns:
+          - name: report_date
+          - name: owner_utility_id_eia
+          - name: plant_id_eia
+          - name: generator_id
+          - name: operator_utility_id_eia
+          - name: owner_utility_name_eia
+          - name: owner_state
+          - name: owner_city
+          - name: owner_country
+          - name: owner_street_address
+          - name: owner_zip_code
+          - name: fraction_owned
+          - name: data_maturity

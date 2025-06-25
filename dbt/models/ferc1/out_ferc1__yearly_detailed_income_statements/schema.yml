@@ -1,0 +1,22 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_ferc1__yearly_detailed_income_statements
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: out_ferc1__yearly_detailed_income_statements
+              partition_column: report_year
+        columns:
+          - name: report_year
+          - name: utility_id_ferc1
+          - name: utility_id_pudl
+          - name: utility_name_ferc1
+          - name: xbrl_factoid
+          - name: utility_type
+          - name: plant_function
+          - name: revenue_requirement_technology
+          - name: dollar_value
+          - name: in_revenue_requirement
+          - name: revenue_requirement_category
+          - name: table_name

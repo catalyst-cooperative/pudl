@@ -56,64 +56,6 @@ occurred:
     process. If the "transient" problem persists, bring it up with the person
     managing the builds.
 
-Debugging a Broken Build
-------------------------
-
-If a build has failed, usually the VM will have shut down. You'll have to figure out
-which VM it was running on and then restart it before you can do anything else.
-
-To find the VM name, go into the `Github Action listing
-<https://github.com/catalyst-cooperative/pudl/actions/workflows/build-deploy-pudl.yml>`__
-and click on your run. The ``GCE_INSTANCE_NAME`` that gets printed in "Print
-action vars" is what you're after.
-
-Then you can go to the `Google Compute Engine
-<https://console.cloud.google.com/compute/instances?project=catalyst-cooperative-pudl>`__
-page and restart it.
-
-Once that's started, you should be able to SSH to the VM using a command like:
-
-.. code::
-
-    gcloud compute ssh pudl-deployment-tag --zone=us-west1-a
-
-You may run into some permissions issues here, in which case you probably need the
-``Service Account User`` role on your gcloud user.
-
-Now you want to get some logs about what's failing.
-
-First, try ``docker ps`` - this should show two images, one ``pudl``-ey one and
-one that's the Google ``stackdriver-agent`` which handles monitoring::
-
-   CONTAINER ID   IMAGE                     <snip>  NAMES
-   d678f709d1f5   catalystcoop/pudl-etl...  <snip>  klt-pudl-deployment-tag-luui
-   aa3163671da4   gcr.io/stackdriver-ag...  <snip>  stackdriver-logging-agent
-
-If the image is running, great! You can get logs via ``docker logs
-<container ID or name>`` (use ``docker logs -f`` if the process is still
-going and you want to stream logs from the container.)
-
-You can also attach a shell to the container and poke around with ``docker exec
--it <ID or name> bash``. This is really helpful if something has failed and you
-want to try to fix the code & re-run, without having to re-run everything
-before the failed task.
-
-.. Warning::
-
-   If you use ``docker attach`` as recommended by the login message, and then
-   hit Ctrl-C, you will interrupt the running build!
-
-Sometimes you'll see two containers running, but neither of them are PUDL.
-That's because the VM first spins up a "loader" container that downloads the
-PUDL image, then exits the loader and starts the PUDL image.
-
-If you don't see two containers running, then there's probably some issue with
-the PUDL container startup itself. To find logs about that, run ``sudo
-journalctl -u konlet-startup | tail -n 1000 | less``. You should be able to see
-any errors that occurred during container startup, and also the container ID,
-which you can then boot into via ``docker run -it <ID> bash``.
-
-
 The GitHub Action
 -----------------
 The ``build-deploy-pudl`` GitHub action contains the main coordination logic for
@@ -123,35 +65,24 @@ on code releases, and PUDL's code and data are tested every night. The action is
 modeled after an `example from the setup-gcloud GitHub action repository <https://github.com/google-github-actions/setup-gcloud/tree/main/example-workflows/gce>`__.
 
 The ``gcloud`` command in ``build-deploy-pudl`` requires certain Google Cloud
-Platform (GCP) permissions to start and update the GCE instance. The
-``gcloud`` command authenticates using a service account key for the
-``deploy-pudl-github-action`` service account stored in PUDL's GitHub secrets
-as ``DEPLOY_PUDL_SA_KEY``. The ``deploy-pudl-github-action`` service account has
-the `Compute Instance Admin (v1) IAM <https://cloud.google.com/iam/docs/understanding-roles#compute-engine>`__
-role on the GCE instances to update the container and start the instance.
+Platform (GCP) permissions to start and update the GCE instance. We use Workflow
+Identity Federation to authenticate the GitHub Action with GCP in the GitHub Action
+workflow.
 
 Google Compute Engine
 ---------------------
 The PUDL image is deployed on a `Container Optimized GCE
 <https://cloud.google.com/container-optimized-os/docs/concepts/features-and-benefits>`__
-instance, a type of virtual machine (VM) built to run containers. The
-``pudl-deployment-dev`` and ``pudl-deployment-tag`` instances in the
-``catalyst-cooperative-pudl`` GCP project handle deployments from the ``main`` branch
-and tags or manually initiated ``workflow_dispatch`` runs respectively. There are two
-VMs so a scheduled and a tag build can run at the same time.
+instance, a type of virtual machine (VM) built to run containers.
 
-.. note::
+We use ephemeral VMs created with `Google Batch <https://cloud.google.com/batch/docs>`__
+to run the nightly builds. Once the build has finished -- successfully or not -- the VM
+is shut down.  The build VMs use the ``e2-highmem-8`` machine type (8 CPUs and 64GB of
+RAM) to accommodate the PUDL ETL's memory-intensive steps. Currently, these VMs do not
+have swap space enabled, so if they run out of memory, the build will immediately
+terminate.
 
-    If a tag build starts before the previous tag build has finished, the previous build
-    will be interrupted.
-
-The build VMs use the e2-highmem-8 machine type (64 GB of RAM and 8 CPUs) to accommodate
-the PUDL ETL's memory-intensive steps. Currently, these VMs do not have swap space
-enabled, so if they run out of memory, the build will immediately terminate.
-
-Each GCE VM has a service account that gives the VM permissions to GCP resources.
-The two PUDL deployment VMs share the ``deploy-pudl-vm-service-account``. This
-service account has permissions to:
+The ``deploy-pudl-vm-service-account`` service account has permissions to:
 
 1. Write logs to Cloud Logging.
 2. Start and stop the VM so the container can shut the instance off when the ETL
@@ -159,11 +90,15 @@ service account has permissions to:
 3. Bill the ``catalyst-cooperative-pudl`` project for egress fees from accessing
    the ``zenodo-cache.catalyst.coop`` bucket. Note: The ``catalyst-cooperative-pudl``
    won't be charged anything because the data stays within Google's network.
-4. Write logs and outputs to the ``gs://builds.catalyst.coop``,
+4. Write logs and build outputs to the ``gs://builds.catalyst.coop``,
    ``gs://pudl.catalyst.coop`` and ``s3://pudl.catalyst.coop`` buckets.
-   The egress and storage fees of the s3 bucket are covered by
+   Egress and storage costs for the S3 bucket are covered by
    `Amazon Web Services's Open Data Sponsorship Program
    <https://aws.amazon.com/opendata/open-data-sponsorship-program/>`__.
+
+Build outputs and logs are saved to the ``gs://builds.catalyst.coop`` bucket so you can
+access them later. Build logs and outputs are retained for 30 days and then deleted
+automatically.
 
 Docker
 ------
@@ -173,8 +108,9 @@ are configured to run the ``docker/gcp_pudl_etl.sh`` script. This script:
 1. Notifies the ``pudl-deployments`` Slack channel that a deployment has started.
    Note: if the container is manually stopped, slack will not be notified.
 2. Runs the ETL and full test suite.
-3. Copies the outputs and logs to a directory in the ``pudl-etl-logs`` bucket. The
-   directory is named using the git SHA of the commit that launched the build.
+3. Copies the outputs and logs to a directory in the ``gs://builds.catalyst.coop``
+   bucket. The directory is named using the git SHA of the commit that launched the
+   build.
 4. Copies the outputs to the ``gs://pudl.catalyst.coop`` and ``s3://pudl.catalyst.coop``
    buckets if the ETL and test suite run successfully.
 5. Notifies the ``pudl-deployments`` Slack channel with the final build status.
@@ -184,8 +120,8 @@ permissions.
 
 How to access the nightly build outputs from AWS
 ------------------------------------------------
-To access the nightly build outputs you can download
-the data directly from the ``s3://pudl.catalyst.coop`` bucket. To do this, you'll
+You can download the outputs from a successful nightly build data directly from the
+``s3://pudl.catalyst.coop`` bucket. To do this, you'll
 need to `follow the instructions
 <https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html>`__
 for installing the AWS CLI tool.
@@ -206,10 +142,9 @@ You should see a list of directories with version names:
    PRE v2023.12.01/
    ...
 
-The ``--no-sign-request`` flag allows you to make requsts to the
-public bucket without having to load AWS credentials. If you don't
-include this flag when interacting with the ``s3://pudl.catalyst.coop``
-bucket, ``aws`` will give you an authentication error.
+The ``--no-sign-request`` flag allows you to make requsts to the public bucket without
+having to load AWS credentials. If you don't include this flag when interacting with the
+``s3://pudl.catalyst.coop`` bucket, ``aws`` will give you an authentication error.
 
 .. warning::
 
@@ -222,23 +157,10 @@ which behaves very much like the Unix ``cp`` command:
 
 .. code::
 
-   aws s3 cp s3://pudl.catalyst.coop/nightly/pudl.sqlite.gz ./ --no-sign-request
+   aws s3 cp s3://pudl.catalyst.coop/nightly/pudl.sqlite.zip ./ --no-sign-request
 
-.. note::
-
-   To reduce network transfer times, we ``gzip`` the SQLite database files, which can
-   be quite large when uncompressed. To decompress them locally, at the command line
-   on Linux, MacOS, or Windows you can use the ``gunzip`` command.
-
-   .. code-block:: console
-
-      $ gunzip *.sqlite.gz
-
-  On Windows you can also use a 3rd party tool like
-  `7zip <https://www.7-zip.org/download.html>`__.
-
-If you wanted to download all of the build outputs (more than 10GB!) you could use ``cp
---recursive`` flag on the whole directory:
+If you wanted to download all of the build outputs (more than 10GB!) you can use a
+recursive copy:
 
 .. code::
 
@@ -254,20 +176,11 @@ For more details on how to use ``aws`` in general see the
 How to access the nightly build outputs and logs (for the Catalyst team only)
 -----------------------------------------------------------------------------
 
-Sometimes it is helpful to download the logs and data outputs of
-nightly builds when debugging failures. To do this you'll need to
-set up the Google Cloud software Development Kit (SDK).
+Sometimes it is helpful to download the logs and data outputs of nightly builds when
+debugging failures. To do this you'll need to set up the Google Cloud software
+Development Kit (SDK). It is installed as part of the ``pudl-dev`` conda environment.
 
-Install the `gcloud utilities <https://cloud.google.com/sdk/docs/install>`__ on your
-computer. There are several ways to do this. We recommend using ``conda`` or its faster
-sibling ``mamba``. If you're not using ``conda`` environments, there are other
-ways to install the Google Cloud SDK explained in the link above.
-
-.. code::
-
-  conda install -c conda-forge google-cloud-sdk
-
-Log into the account you used to create your new project above by running:
+To authenticate with Google Cloud Platform (GCP) you'll need to run the following:
 
 .. code::
 
@@ -297,62 +210,62 @@ that are available:
 
 .. code::
 
-   gsutil ls -lh gs://builds.catalyst.coop
+   gcloud storage ls --long --readable-sizes gs://builds.catalyst.coop
 
 You should see a list of directories with build IDs that have a naming convention:
 ``<YYYY-MM-DD-HHMM>-<short git commit SHA>-<git branch>``.
 
-To see what the outputs are for a given nightly build, you can use ``gsutil`` like this:
+To see what the outputs are for a given nightly build, you can use ``gcloud storage``
+like this:
 
 .. code::
 
-    gsutil ls -lh gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/
+    gcloud storage ls --long --readable-sizes gcloud storage ls --long --readable-sizes gs://builds.catalyst.coop/2024-11-15-0603-60f488239-main
 
-    804.57 MiB  2024-01-03T11:19:15Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/censusdp1tract.sqlite
-      5.01 GiB  2024-01-03T11:20:02Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/core_epacems__hourly_emissions.parquet
-    759.32 MiB  2024-01-03T11:19:17Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc1_dbf.sqlite
-    813.52 MiB  2024-01-03T11:19:18Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc1_xbrl.sqlite
-      1.65 MiB  2024-01-03T11:18:18Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc1_xbrl_datapackage.json
-      6.94 MiB  2024-01-03T11:18:19Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc1_xbrl_taxonomy_metadata.json
-    282.71 MiB  2024-01-03T11:19:02Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc2_dbf.sqlite
-     89.55 MiB  2024-01-03T11:18:40Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc2_xbrl.sqlite
-      1.88 MiB  2024-01-03T11:18:18Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc2_xbrl_datapackage.json
-      6.78 MiB  2024-01-03T11:18:18Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc2_xbrl_taxonomy_metadata.json
-      8.25 MiB  2024-01-03T11:18:20Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc60_dbf.sqlite
-     20.02 MiB  2024-01-03T11:18:22Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc60_xbrl.sqlite
-    731.31 KiB  2024-01-03T11:18:18Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc60_xbrl_datapackage.json
-      1.77 MiB  2024-01-03T11:18:19Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc60_xbrl_taxonomy_metadata.json
-    153.72 MiB  2024-01-03T11:18:54Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc6_dbf.sqlite
-     62.01 MiB  2024-01-03T11:18:28Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc6_xbrl.sqlite
-      1.02 MiB  2024-01-03T11:18:18Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc6_xbrl_datapackage.json
-      2.74 MiB  2024-01-03T11:18:18Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc6_xbrl_taxonomy_metadata.json
-    905.31 MiB  2024-01-03T11:19:17Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc714_xbrl.sqlite
-     58.41 KiB  2024-01-03T11:18:18Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc714_xbrl_datapackage.json
-    187.86 KiB  2024-01-03T11:18:18Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/ferc714_xbrl_taxonomy_metadata.json
-      4.05 MiB  2024-01-03T11:18:19Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/metadata.yml
-         4 MiB  2024-01-03T12:09:34Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/pudl-etl.log
-      13.1 GiB  2024-01-03T11:21:41Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/pudl.sqlite
-           0 B  2024-01-03T11:18:18Z  gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/success
-                                     gs://builds.catalyst.coop/2024-01-03-0605-e9a91be-dev/core_epacems__hourly_emissions/
-    TOTAL: 25 objects, 23557650395 bytes (21.94 GiB)
+       6.60MiB  2024-11-15T13:28:20Z  gs://builds.catalyst.coop/2024-11-15-0603-60f488239-main/2024-11-15-0603-60f488239-main-pudl-etl.log
+     804.57MiB  2024-11-15T12:40:35Z  gs://builds.catalyst.coop/2024-11-15-0603-60f488239-main/censusdp1tract.sqlite
+     759.32MiB  2024-11-15T12:41:01Z  gs://builds.catalyst.coop/2024-11-15-0603-60f488239-main/ferc1_dbf.sqlite
+       1.19GiB  2024-11-15T12:41:12Z  gs://builds.catalyst.coop/2024-11-15-0603-60f488239-main/ferc1_xbrl.sqlite
+       2.16MiB  2024-11-15T12:39:23Z  gs://builds.catalyst.coop/2024-11-15-0603-60f488239-main/ferc1_xbrl_datapackage.json
+       6.95MiB  2024-11-15T12:39:23Z  gs://builds.catalyst.coop/2024-11-15-0603-60f488239-main/ferc1_xbrl_taxonomy_metadata.json
+     282.71MiB  2024-11-15T12:40:40Z  gs://builds.catalyst.coop/2024-11-15-0603-60f488239-main/ferc2_dbf.sqlite
+     127.39MiB  2024-11-15T12:39:59Z  gs://builds.catalyst.coop/2024-11-15-0603-60f488239-main/ferc2_xbrl.sqlite
+       2.46MiB  2024-11-15T12:40:54Z  gs://builds.catalyst.coop/2024-11-15-0603-60f488239-main/ferc2_xbrl_datapackage.json
+       6.82MiB  2024-11-15T12:40:48Z  gs://builds.catalyst.coop/2024-11-15-0603-60f488239-main/ferc2_xbrl_taxonomy_metadata.json
+       8.25MiB  2024-11-15T12:39:22Z  gs://builds.catalyst.coop/2024-11-15-0603-60f488239-main/ferc60_dbf.sqlite
+      27.89MiB  2024-11-15T12:39:24Z  gs://builds.catalyst.coop/2024-11-15-0603-60f488239-main/ferc60_xbrl.sqlite
+     942.19kiB  2024-11-15T12:39:22Z  gs://builds.catalyst.coop/2024-11-15-0603-60f488239-main/ferc60_xbrl_datapackage.json
+       1.77MiB  2024-11-15T12:39:22Z  gs://builds.catalyst.coop/2024-11-15-0603-60f488239-main/ferc60_xbrl_taxonomy_metadata.json
+     153.72MiB  2024-11-15T12:41:03Z  gs://builds.catalyst.coop/2024-11-15-0603-60f488239-main/ferc6_dbf.sqlite
+      90.51MiB  2024-11-15T12:41:09Z  gs://builds.catalyst.coop/2024-11-15-0603-60f488239-main/ferc6_xbrl.sqlite
+       1.32MiB  2024-11-15T12:40:47Z  gs://builds.catalyst.coop/2024-11-15-0603-60f488239-main/ferc6_xbrl_datapackage.json
+       2.74MiB  2024-11-15T12:39:22Z  gs://builds.catalyst.coop/2024-11-15-0603-60f488239-main/ferc6_xbrl_taxonomy_metadata.json
+       1.38GiB  2024-11-15T12:41:06Z  gs://builds.catalyst.coop/2024-11-15-0603-60f488239-main/ferc714_xbrl.sqlite
+      83.39kiB  2024-11-15T12:40:46Z  gs://builds.catalyst.coop/2024-11-15-0603-60f488239-main/ferc714_xbrl_datapackage.json
+     187.86kiB  2024-11-15T12:40:46Z  gs://builds.catalyst.coop/2024-11-15-0603-60f488239-main/ferc714_xbrl_taxonomy_metadata.json
+      15.06GiB  2024-11-15T12:42:17Z  gs://builds.catalyst.coop/2024-11-15-0603-60f488239-main/pudl.sqlite
+            0B  2024-11-15T12:39:22Z  gs://builds.catalyst.coop/2024-11-15-0603-60f488239-main/success
+                                      gs://builds.catalyst.coop/2024-11-15-0603-60f488239-main/parquet/
+   TOTAL: 23 objects, 21331056422 bytes (19.87GiB)
 
 If you want to copy these files down directly to your computer, you can use
-the ``gsutil cp`` command, which behaves very much like the Unix ``cp`` command:
+the ``gcloud storage cp`` command, which behaves very much like the Unix ``cp`` command:
 
 .. code::
 
-   gsutil cp gs://builds.catalyst.coop/<build ID>/pudl.sqlite ./
+   gcloud storage cp gs://builds.catalyst.coop/<build ID>/pudl.sqlite ./
 
-If you wanted to download all of the build outputs (more than 10GB!) you could use ``cp
--r`` on the whole directory:
-
-.. code::
-
-   gsutil cp -r gs://builds.catalyst.coop/<build ID>/ ./
-
-For more details on how to use ``gsutil`` in general see the
-`online documentation <https://cloud.google.com/storage/docs/gsutil>`__ or run:
+If you need to download all of the build outputs (~20GB!) you can do a recursive copy of
+the whole directory hierarchy (note that this will incurr egress charges):
 
 .. code::
 
-   gsutil --help
+   gcloud storage cp --recursive gs://builds.catalyst.coop/<build ID>/ ./
+
+For more background on ``gcloud storage`` see the
+`quickstart guide <https://cloud.google.com/storage/docs/discover-object-storage-gcloud>`__
+or check out the CLI documentation with:
+
+.. code::
+
+   gcloud storage --help

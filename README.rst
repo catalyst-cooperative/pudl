@@ -29,10 +29,31 @@ The Public Utility Data Liberation Project (PUDL)
    :alt: Schedule a 1-on-1 chat with us about PUDL.
 .. |mastodon| image:: https://img.shields.io/mastodon/follow/110855618428885893?domain=https%3A%2F%2Fmastodon.energy&style=social&color=%23000000&link=https%3A%2F%2Fmastodon.energy%2F%40catalystcoop
    :target: https://mastodon.energy/@catalystcoop
-   :alt: Follow CatalystCoop on Mastodon
+   :alt: Follow Catalyst Cooperative on Mastodon
+.. |slack| image:: https://img.shields.io/badge/Slack-4A154B?logo=slack&logoColor=fff
+   :target: https://join.slack.com/t/catalystcooperative/shared_invite/zt-2yg1v2sb7-GsoGlA9Ojc_LCJ00vPWKbQ
+.. |linkedin| image:: https://img.shields.io/badge/LinkedIn-0077B5?style=flat&logo=linkedin&logoColor=white
+   :target: https://linkedin.com/company/catalyst-cooperative/
+   :alt: Follow Catalyst Cooperative on LinkedIn
+.. |bluesky| image:: https://img.shields.io/badge/Bluesky-0285FF?logo=bluesky&logoColor=fff&style=flat
+   :target: https://bsky.app/profile/catalyst.coop
+   :alt: Follow @catalyst.coop on BlueSky
+.. |kaggle| image:: https://img.shields.io/badge/Kaggle-20BEFF?style=flat&logo=Kaggle&logoColor=white
+   :target: https://www.kaggle.com/datasets/catalystcooperative/pudl-project
+   :alt: The PUDL Dataset on Kaggle
+.. |youtube| image:: https://img.shields.io/badge/YouTube-%23FF0000.svg?logo=YouTube&logoColor=white
+   :target: https://youtube.com/@CatalystCooperative
+   :alt: Catalyst Cooperative on YouTube
+.. |twitter| image:: https://img.shields.io/badge/X-%23000000.svg?logo=X&logoColor=white
+   :target: https://x.com/CatalystCoop
+   :alt: Catalyst Cooperative on Twitter
+.. |aws| image:: https://img.shields.io/badge/Amazon_AWS-FF9900?style=flat&logo=amazonaws&logoColor=white
+   :target: https://registry.opendata.aws/catalyst-cooperative-pudl/
+   :alt: PUDL in the AWS Open Data Registry
 
 |repo-status| |pytest| |codecov| |rtd| |ruff| |pre-commit-ci| |zenodo-doi|
-|office-hours| |mastodon|
+|office-hours| |mastodon| |linkedin| |bluesky| |kaggle| |slack| |youtube| |twitter|
+|aws|
 
 What is PUDL?
 -------------
@@ -158,20 +179,21 @@ For details on how to access PUDL data, see the `data access documentation
 <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html>`__. A quick
 summary:
 
+* `PUDL Viewer <https://viewer.catalyst.coop>`__ provides search, live preview,
+  and CSV export for our processed data. Currently it doesn't provide access to
+  the *raw* FERC data - you'll still have to go to Datasette for that.
 * `Datasette <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html#-access-datasette>`__
   provides browsable and queryable data from our nightly builds on the web:
   https://data.catalyst.coop
 * `Kaggle <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html#access-kaggle>`__
   provides easy Jupyter notebook access to the PUDL data, updated weekly:
   https://www.kaggle.com/datasets/catalystcooperative/pudl-project
+* `Cloud storage <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html#access-cloud>`__
+  is populated by our nightly data builds, and is free to access thanks to the `AWS
+  Open Data Registry <https://registry.opendata.aws/catalyst-cooperative-pudl/>`__.
 * `Zenodo <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html#access-zenodo>`__
   provides stable long-term access to our versioned data releases with a citeable DOI:
   https://doi.org/10.5281/zenodo.3653158
-* `Nightly Data Builds <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html#access-nightly-builds>`__
-  push their outputs to the AWS Open Data Registry:
-  https://registry.opendata.aws/catalyst-cooperative-pudl/
-  See `the nightly build docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html#access-nightly-builds>`__
-  for direct download links.
 * `The PUDL Development Environment <https://catalystcoop-pudl.readthedocs.io/en/nightly/dev/dev_setup.html>`__
   lets you run the PUDL data processing pipeline locally.
 
@@ -185,15 +207,16 @@ If your organization uses PUDL we'd love to list you here! Please open a
 pull request or email us at `hello@catalyst.coop <mailto:hello@catalyst.coop>`__!
 
 * `RMI <https://rmi.org>`__ via both their `Utility Transition Hub <https://utilitytransitionhub.rmi.org/>`__ and `Optimus financial modeling tool <https://utilitytransitionhub.rmi.org/optimus/>`__
-* The `PowerGenome Project <https://github.com/PowerGenome/PowerGenome>`__ out of `Jesse Jenkins' <https://mae.princeton.edu/people/faculty/jenkins>`__ ZERO Lab at Princeton University
+* `The ZERO Lab at Princeton University <https://zero.lab.princeton.edu>`__
+* `PyPSA-USA <https://github.com/PyPSA/pypsa-usa>`__ an open source power systems model.
 * `Energy Innovation <https://energyinnovation.org>`__
-* `Singularity Energy <https://singularity.energy>`__ via the `Open Grid Emissions Initiative <https://singularity.energy/open-grid-emissions>`__
-* The open source `PyPSA-USA <https://github.com/PyPSA/pypsa-usa>`__ capacity expansion model.
+* `The PowerGenome Project <https://github.com/PowerGenome/PowerGenome>`__
+* `Singularity Energy <https://singularity.energy>`__
+* `The Open Grid Emissions Initiative <https://singularity.energy/open-grid-emissions>`__
 * `Win Climate <https://climate.win>`__
 * `The Deployment Gap Model Education Fund <https://www.deploymentgap.fund/>`__
 
 .. _pudl_orgs_end:
-
 
 Contributing to PUDL
 --------------------
@@ -206,10 +229,72 @@ Find PUDL useful? Want to help make it better? There are lots of ways to help!
   `Github issue tracker <https://github.com/catalyst-cooperative/pudl/issues>`__.
 * Feel free to fork the project and make a pull request with new code, better
   documentation, or example notebooks.
-* `Make a recurring financial contribution <https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=PZBZDFNKBJW5E&source=url>`__
-  to support our work liberating public energy data.
 * `Hire us to do some custom analysis <https://catalyst.coop/hire-catalyst/>`__ and
   allow us to integrate the resulting code into PUDL.
+
+PUDL Sustainers
+---------------
+
+The PUDL Sustainers provide ongoing financial support to ensure the open data keeps
+flowing, and the project is sustainable long term. They're also involved in our
+quarterly planning process. To learn more see `the PUDL Project page on Open Collective
+<https://opencollective.com/pudl>`__.
+
+Gigawatt Tier (≥$25,000/year)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. image:: docs/images/logos/RMI.png
+   :width: 600
+   :target: https://rmi.org
+   :alt: RMI
+   :align: center
+
+.. image:: docs/images/logos/GridLab.png
+   :width: 600
+   :target: https://gridlab.org
+   :alt: GridLab
+   :align: center
+
+Megawatt Tier (≥$16,000/year)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Become our first `Megawatt tier sustainer <https://opencollective.com/pudl>`__!
+
+Kilowatt Tier (≥$8,000/year)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Become our first `kilowatt tier sustainer <https://opencollective.com/pudl>`__!
+
+Major Grant Funders
+-------------------
+
+Alfred P. Sloan Foundation
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. image:: docs/images/logos/Sloan.png
+   :width: 400
+   :target: https://sloan.org/programs/research/energy-and-environment/
+   :alt: Alfred P. Sloan Foundation Energy and Environment Program
+   :align: center
+
+The PUDL Project has been supported by three grants from the `Alfred P. Sloan
+Foundation's Energy and Environment Program
+<https://sloan.org/programs/research/energy-and-environment>`__, in 2019, 2021, and
+2024.
+
+National Science Foundation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. image:: docs/images/logos/NSF.png
+   :width: 400
+   :target: https://new.nsf.gov/funding/opportunities/pathways-enable-open-source-ecosystems-pose
+   :alt: National Science Foundation Pathways to Enable Open Source Ecosystems (POSE)
+   :align: center
+
+The PUDL Project was awarded a grant from the National Science Foundation's `Pathways to
+Enable Open Source Ecosystems (POSE) program
+<https://new.nsf.gov/funding/opportunities/pathways-enable-open-source-ecosystems-pose>`__
+(`award 2346139 <https://www.nsf.gov/awardsearch/showAward?AWD_ID=2346139>`__) in 2024.
 
 Licensing
 ---------
@@ -243,6 +328,8 @@ Contact Us
 * `Follow us on HuggingFace <https://huggingface.co/catalystcooperative>`__
 * Follow us on Twitter: `@CatalystCoop <https://twitter.com/CatalystCoop>`__
 * `Follow us on Kaggle <https://www.kaggle.com/catalystcooperative/>`__
+* `Follow us on YouTube <https://youtube.com/@CatalystCooperative>`__
+* `Join our Slack <https://join.slack.com/t/catalystcooperative/shared_invite/zt-2yg1v2sb7-GsoGlA9Ojc_LCJ00vPWKbQ>`__
 * More info on our website: https://catalyst.coop
 * Email us if you'd like to hire us to provide customized data extraction and analysis:
   `hello@catalyst.coop <mailto:hello@catalyst.coop>`__

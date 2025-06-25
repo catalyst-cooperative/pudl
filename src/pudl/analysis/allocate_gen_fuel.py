@@ -841,7 +841,7 @@ def remove_inactive_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
             proposed_plants,
             unassociated_plants,
         ]
-    )
+    ).drop_duplicates(keep="first")
 
     return gen_assoc_removed
 
@@ -849,17 +849,30 @@ def remove_inactive_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
 def identify_retiring_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     """Identify any generators that retire mid-year.
 
-    These are generators with a retirement date after the earliest report_date or which
-    report generator-specific generation data in the g table after their retirement
-    date.
+    We want to include all of the generator records within any given year that
+    retired mid-year or any generators that reported any fuel use or generation.
+    These are generators with a mid-year retirement date or which report
+    generator-specific generation or fuel use after they are labeled as retired.
     """
-    retiring_generators = gen_assoc.loc[
+    gen_assoc = gen_assoc.assign(report_year=lambda x: x.report_date.dt.year)
+    # identify the complete set of generator ids that are retiring mid year
+    # or have fuel or generation use while being labeled as retired.
+    retiring_generator_identities = gen_assoc.loc[
         (gen_assoc.operational_status == "retired")
         & (
             (gen_assoc.report_date <= gen_assoc.generator_retirement_date)
-            | (gen_assoc.net_generation_mwh_g_tbl.notnull())
-        )
-    ]
+            | gen_assoc.filter(like="net_generation_mwh").notnull().any(axis=1)
+            | gen_assoc.filter(like="fuel_consumed").notnull().any(axis=1)
+        ),
+        ["plant_id_eia", "generator_id", "report_year"],
+    ].drop_duplicates()
+
+    # merge these ids into gen_assoc and keep all months of data for these gens
+    retiring_generators = gen_assoc.merge(
+        retiring_generator_identities,
+        how="inner",
+        on=["plant_id_eia", "generator_id", "report_year"],
+    ).drop(columns=["report_year"])
 
     return retiring_generators
 
@@ -1028,7 +1041,7 @@ def _allocate_unassociated_pm_records(
     )
     logger.info(
         f"Associating and allocating {len(eia_generators_unassociated)} "
-        f"({len(eia_generators_unassociated)/len(gen_assoc):.1%}) records with "
+        f"({len(eia_generators_unassociated) / len(gen_assoc):.1%}) records with "
         f"unexpected {col_w_unexpected_codes}."
     )
 
@@ -1505,8 +1518,11 @@ def distribute_annually_reported_data_to_months_if_annual(
     ``core_eia860__scd_plants`` table). See Issue #1933.
 
     Args:
-        df: a pandas dataframe, either loaded from pudl_out.gen_original_eia923() or
-            pudl_out.bf_eia923()
+        df: A dataframe of either generation or boiler-fuel data, loaded from
+            :ref:`out_eia923__monthly_generation` or
+            :ref:`out_eia923__yearly_generation` and
+            :ref:`out_eia923__monthly_boiler_fuel` or
+            :ref:`out_eia923__yearly_boiler_fuel` or respectively.
         key_columns: a list of the primary key column names, either
             ``["plant_id_eia","boiler_id","energy_source_code"]`` or
             ``["plant_id_eia","generator_id"]``
@@ -1515,7 +1531,8 @@ def distribute_annually_reported_data_to_months_if_annual(
         freq: frequency of input df. Must be either ``YS`` or ``MS``.
 
     Returns:
-        df with the annually reported values allocated to each month
+        Dataframe with the annually reported generation or fuel consumption values
+        allocated to each month.
     """
     if freq == "MS":
 
@@ -1566,7 +1583,7 @@ def distribute_annually_reported_data_to_months_if_annual(
         ]
 
         logger.info(
-            f"Distributing {len(annual_reporters)/len(reporters):.1%} annually reported"
+            f"Distributing {len(annual_reporters) / len(reporters):.1%} annually reported"
             " records to months."
         )
         # first convert the december month to january bc expand_timeseries expands from
@@ -1952,7 +1969,7 @@ def _test_gen_pm_fuel_output(
         & (gen_pm_fuel_test.net_generation_mwh_diff.notnull())
     ]
     logger.info(
-        f"{len(bad_diff)/len(gen_pm_fuel):.03%} of records have are partially "
+        f"{len(bad_diff) / len(gen_pm_fuel):.03%} of records have are partially "
         "off from their 'IDX_PM_ESC' group"
     )
     no_cap_gen = gen_pm_fuel_test[
@@ -1965,11 +1982,11 @@ def _test_gen_pm_fuel_output(
     fuel_net_gen = gf[gf.plant_id_eia != "99999"].net_generation_mwh.sum()
     logger.info(
         "gen v fuel table net gen diff:      "
-        f"{(gen.net_generation_mwh.sum())/fuel_net_gen:.1%}"
+        f"{(gen.net_generation_mwh.sum()) / fuel_net_gen:.1%}"
     )
     logger.info(
         "new v fuel table net gen diff:      "
-        f"{(gen_pm_fuel_test.net_generation_mwh.sum())/fuel_net_gen:.1%}"
+        f"{(gen_pm_fuel_test.net_generation_mwh.sum()) / fuel_net_gen:.1%}"
     )
 
     gen_pm_fuel_test = gen_pm_fuel_test.drop(

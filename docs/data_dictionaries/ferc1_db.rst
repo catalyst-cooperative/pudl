@@ -1,5 +1,5 @@
 ===============================================================================
-FERC Form 1 Data Dictionary
+Raw FERC Form 1 Data Dictionary
 ===============================================================================
 
 We have mapped the Visual FoxPro DBF files to their corresponding FERC Form 1

@@ -1,8 +1,39 @@
 """Static database tables."""
 
+from enum import Enum, unique
 from io import StringIO
 
 import pandas as pd
+
+
+@unique
+class ImputationReasonCodes(Enum):
+    """Defines all reasons a value might be flagged for imputation."""
+
+    MISSING_VALUE = "Indicates that reported value was already NULL."
+    ANOMALOUS_REGION = "Indicates that value is surrounded by flagged values."
+    NEGATIVE_OR_ZERO = "Indicates value is negative or zero."
+    IDENTICAL_RUN = "Indicates value is part of an identical run of values, excluding first value in run."
+    GLOBAL_OUTLIER = (
+        "Indicates value is greater or less than n times the global median."
+    )
+    GLOBAL_OUTLIER_NEIGHBOR = "Indicates value neighbors global outliers."
+    LOCAL_OUTLIER_HIGH = "Indicates value is a local outlier on the high end."
+    LOCAL_OUTLIER_LOW = "Indicates value is a local outlier on the low end."
+    DOUBLE_DELTA = "Indicates value is very different from neighbors on either side."
+    SINGLE_DELTA = (
+        "Indicates value is significantly different from nearest unflagged value."
+    )
+    SIMULATED = "Used for scoring imputation using simulated data. SHOULD NOT APPEAR IN PRODUCTION DATA."
+
+
+IMPUTATION_REASON_CODES = pd.DataFrame(
+    [
+        {"code": code.name.lower(), "description": code.value}
+        for code in ImputationReasonCodes
+    ]
+)
+
 
 FERC_ACCOUNTS: pd.DataFrame = pd.DataFrame(
     columns=["row_number", "ferc_account_id", "ferc_account_description"],

@@ -164,12 +164,12 @@ def filter_enrich_sanitize(
         )
     )
 
-    assert (
-        sanitized.region_series == sanitized.region_category
-    ).all(), "Series and category must agree on region!"
-    assert (
-        sanitized.case_series == sanitized.model_case_eiaaeo
-    ).all(), "Series and taxonomy must agree on case!"
+    assert (sanitized.region_series == sanitized.region_category).all(), (
+        "Series and category must agree on region!"
+    )
+    assert (sanitized.case_series == sanitized.model_case_eiaaeo).all(), (
+        "Series and taxonomy must agree on case!"
+    )
 
     # TODO 2024-04-20: one day we'll include report year in the extract step -
     # at that point we'll have to compare that with the report year extracted
@@ -237,9 +237,9 @@ def core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology(
             year over year. The index is set when passing ``eventual_pk`` to
             ``unstack()``.
         """
-        assert (
-            df.index.names[-1] == "projection_year"
-        ), "Projection year must be last level of index!"
+        assert df.index.names[-1] == "projection_year", (
+            "Projection year must be last level of index!"
+        )
         new_columns = {}
         for decumulate_column in decumulate_columns:
             cumulative_colname = f"cumulative_{decumulate_column}"
@@ -268,9 +268,9 @@ def core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology(
             ],
             dimension_column="dimension",
         )
-        assert (
-            0.999 < ratio_close_reported_calculated <= 1.0
-        ), f"reported vs. calculated totals: {ratio_close_reported_calculated}"
+        assert 0.999 < ratio_close_reported_calculated <= 1.0, (
+            f"reported vs. calculated totals: {ratio_close_reported_calculated}"
+        )
 
         totals = unstacked.xs("total", level="dimension")
         ratio_close_additions_to_total = series_sum_ratio(
@@ -279,9 +279,9 @@ def core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology(
             ],
             total=totals.cumulative_total_additions,
         )
-        assert (
-            0.999 < ratio_close_additions_to_total <= 1.0
-        ), f"planned + unplanned vs. total: {ratio_close_additions_to_total}"
+        assert 0.999 < ratio_close_additions_to_total <= 1.0, (
+            f"planned + unplanned vs. total: {ratio_close_additions_to_total}"
+        )
         return
 
     sanitized = (
@@ -515,6 +515,103 @@ def core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type(
 
 
 @asset(io_manager_key="pudl_io_manager")
+def core_eiaaeo__yearly_projected_energy_use_by_sector_and_type(
+    raw_eiaaeo__energy_consumption_by_sector_and_source,
+):
+    """Projected energy use for commercial, electric power, industrial, residential, and transportation sectors.
+
+    The "Energy Use" series in Table 2 which track figures by sector do not always
+    define each type of usage the same way across sectors. There is detailed
+    information about what is included or excluded in each usage type for each sector
+    in the footnotes of the EIA's online AEO data browser:
+
+      https://www.eia.gov/outlooks/aeo/data/browser/#/?id=2-AEO2023
+
+    The data browser also gives some visibility into the tricky system of subtotals
+    within the Energy Use series. To identify and map subtotal usage types, look for
+    the following features in the data browser display: subtotal series are displayed
+    indented, and include all lines above them which are one level out, up to the
+    next indented line. Delivered Energy and Total are special cases which include
+    those plus all subtotals above. In this way, "Delivered Energy" includes
+    purchased electricity, renewable energy, and an array of fuels based on sector,
+    and explicitly excludes electricity-related losses.
+
+    AEO Energy Use figures are variously referred to as delivered energy, energy
+    consumption, energy use, and energy demand, depending on which usage types are
+    being discussed, and which org and which document is describing them. In PUDL we
+    say energy use or energy consumption.
+    """
+    sanitized = filter_enrich_sanitize(
+        raw_df=raw_eiaaeo__energy_consumption_by_sector_and_source,
+        relevant_series_names=(
+            "Energy Use : Commercial",
+            "Energy Use : Electric Power",
+            "Energy Use : Industrial",
+            "Energy Use : Residential",
+            "Energy Use : Total",
+            "Energy Use : Transportation",
+            "Energy Use : Unspecified",
+        ),
+    ).rename(columns={"subtopic": "dimension"})
+
+    expected_values = {
+        "topic": {"energy_use"},
+        "units": {"quads"},
+        "dimension": {
+            "commercial",
+            "electric_power",
+            "industrial",
+            "residential",
+            "total",
+            "transportation",
+            "unspecified",
+        },
+    }
+    for column, expected in expected_values.items():
+        assert (actual := set(sanitized[column].unique())) == expected, (
+            f"Unexpected values in {column}: Expected {expected}; found {actual}"
+        )
+
+    # 1 quad = 1 quadrillion btu = 1e9 mmbtu
+    sanitized.loc[sanitized.units == "quads", "value"] *= 1e9
+
+    trimmed = (
+        sanitized.drop(
+            columns=[
+                "topic",
+                "units",
+            ]
+        )
+        .set_index(
+            [
+                "report_year",
+                "model_case_eiaaeo",
+                "region",
+                "dimension",
+                "projection_year",
+                "variable_name",
+            ]
+        )
+        .sort_index()
+        .assign(region_type="us_census_division")
+        .reset_index()
+    )
+    trimmed.loc[trimmed.region == "united_states", "region_type"] = "country"
+
+    renamed_for_pudl = trimmed.rename(
+        columns={
+            "region": "region_name_eiaaeo",
+            "region_type": "region_type_eiaaeo",
+            "dimension": "energy_use_sector",
+            "variable_name": "energy_use_type",
+            "value": "energy_use_mmbtu",
+        }
+    )
+
+    return renamed_for_pudl
+
+
+@asset(io_manager_key="pudl_io_manager")
 def core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type(
     raw_eiaaeo__electric_power_projections_regional,
 ):
@@ -626,7 +723,7 @@ check_specs = [
 def make_check(spec: AeoCheckSpec) -> AssetChecksDefinition:
     """Turn the AeoCheckSpec into an actual Dagster asset check."""
 
-    @asset_check(asset=spec.asset)
+    @asset_check(asset=spec.asset, blocking=True)
     def _check(df):
         errors = []
         for year, expected_rows in spec.num_rows_by_report_year.items():

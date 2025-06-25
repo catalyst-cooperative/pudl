@@ -61,19 +61,24 @@ tables is normalized as a whole.
 """
 
 from . import (
+    censuspep,
     classes,
     eia,
+    eia176,
     eia860,
     eia860m,
     eia861,
     eia923,
     eia930,
-    eia_bulk_elec,
     eiaaeo,
+    eiaapi,
     epacems,
+    ferc,
     ferc1,
     ferc714,
     gridpathratoolkit,
     nrelatb,
     params,
+    sec10k,
+    vcerare,
 )

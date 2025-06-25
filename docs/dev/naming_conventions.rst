@@ -27,7 +27,7 @@ names should generally follow this naming convention:
   ``raw``, ``core`` and ``out``. ``layer`` is required for all assets in all layers.
 * ``source`` is an abbreviation of the original source of the data. For example,
   ``eia860``, ``ferc1`` and ``epacems``.
-* ``asset_type`` describes how the asset in modeled.
+* ``asset_type`` describes how the asset is modeled.
 * ``asset_name`` should describe the entity, categorical code type, or measurement of
   the asset. Note: FERC Form 1 assets typically include the schedule number in the
   ``asset_name`` so users and contributors know which schedule the cleaned asset
@@ -52,7 +52,7 @@ well-modeled tables that serve as building blocks for downstream wide tables
 and analyses. Well-modeled means tables in the database have logical
 primary keys, foreign keys, datatypes and generally follow
 :ref:`Tidy Data standards <tidy-data>`. Assets in this layer create
-consistent categorical variables, decuplicate and impute data.
+consistent categorical variables, deduplicate and impute data.
 These assets are typically stored in parquet files or tables in a database.
 
 Naming convention: ``core_{source}__{asset_type}_{asset_name}``
@@ -186,6 +186,10 @@ quantities are actually different.
 * Regardless of what label utilities are given in the original data source
   (e.g. ``operator`` in EIA or ``respondent`` in FERC) we refer to them as
   ``utilities`` in PUDL.
+* Include verb prefixes (e.g.: ``is_{x}``, ``has_{x}``, or ``served_{x}``)
+  to boolean columns to highlight their binary nature. (Not all columns in
+  the PUDL database follow this standard, but we'd like them to moving
+  forward).
 
 Naming Conventions in Code
 --------------------------

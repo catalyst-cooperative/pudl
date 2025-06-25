@@ -8,9 +8,11 @@ import sys
 import warnings
 from collections.abc import Callable, Iterable
 from functools import cached_property, lru_cache
+from hashlib import sha1
 from pathlib import Path
 from typing import Annotated, Any, Literal, Self, TypeVar
 
+import frictionless
 import jinja2
 import numpy as np
 import pandas as pd
@@ -470,7 +472,7 @@ class Encoder(PudlMeta):
         """A mapping of all known codes to their standardized values, or NA."""
         code_map = {code: code for code in self.df["code"]}
         code_map.update(self.code_fixes)
-        code_map.update({code: pd.NA for code in self.ignored_codes})
+        code_map.update(dict.fromkeys(self.ignored_codes, pd.NA))
         return code_map
 
     def encode(
@@ -606,8 +608,7 @@ class Field(PudlMeta):
         dtype = info.data["type"]
         if dtype not in ["string", "integer"]:
             errors.append(
-                "Encoding only supported for string and integer fields, found "
-                f"{dtype}"
+                f"Encoding only supported for string and integer fields, found {dtype}"
             )
         if errors:
             raise ValueError(format_errors(*errors, pydantic=True))
@@ -703,14 +704,22 @@ class Field(PudlMeta):
                 checks.append(f"{name} <= {maximum}")
             if self.constraints.pattern:
                 pattern = _format_for_sql(self.constraints.pattern)
-                checks.append(f"{name} REGEXP {pattern}")
+                # Need to escape colons in regex to avoid this issue:
+                # https://github.com/sqlalchemy/sqlalchemy/discussions/12498
+                checks.append(f"{name} REGEXP {pattern.replace(':', r'\:')}")
             if self.constraints.enum:
                 enum = [_format_for_sql(x) for x in self.constraints.enum]
                 checks.append(f"{name} IN ({', '.join(enum)})")
         return sa.Column(
             self.name,
             self.to_sql_dtype(),
-            *[sa.CheckConstraint(check, name=hash(check)) for check in checks],
+            *[
+                sa.CheckConstraint(
+                    check,
+                    name=sha1(check.encode("utf-8")).hexdigest()[:8],  # noqa: S324
+                )
+                for check in checks
+            ],
             nullable=not self.constraints.required,
             unique=self.constraints.unique,
             comment=self.description,
@@ -1035,25 +1044,27 @@ class DataSource(PudlMeta):
             sys.stdout.write(rendered)
 
     @classmethod
-    def from_field_namespace(cls, x: str) -> list["DataSource"]:
+    def from_field_namespace(
+        cls, x: str, sources: dict[str, Any] = SOURCES
+    ) -> list["DataSource"]:
         """Return list of DataSource objects by field namespace."""
         return [
-            cls(**cls.dict_from_id(name))
-            for name, val in SOURCES.items()
+            cls(**cls.dict_from_id(name, sources))
+            for name, val in sources.items()
             if val.get("field_namespace") == x
         ]
 
     @staticmethod
-    def dict_from_id(x: str) -> dict:
+    def dict_from_id(x: str, sources: dict[str, Any]) -> dict:
         """Look up the source by source name in the metadata."""
         # If ID ends with _xbrl strip end to find data source
         lookup_id = x.replace("_xbrl", "")
-        return {"name": x, **copy.deepcopy(SOURCES[lookup_id])}
+        return {"name": x, **copy.deepcopy(sources[lookup_id])}
 
     @classmethod
-    def from_id(cls, x: str) -> "DataSource":
+    def from_id(cls, x: str, sources: dict[str, Any] = SOURCES) -> "DataSource":
         """Construct Source by source name in the metadata."""
-        return cls(**cls.dict_from_id(x))
+        return cls(**cls.dict_from_id(x, sources=sources))
 
 
 class ResourceHarvest(PudlMeta):
@@ -1275,7 +1286,7 @@ class Resource(PudlMeta):
         Literal[
             "eia",
             "eiaaeo",
-            "eia_bulk_elec",
+            "eiaapi",
             "epacems",
             "ferc1",
             "ferc714",
@@ -1284,6 +1295,8 @@ class Resource(PudlMeta):
             "ppe",
             "pudl",
             "nrelatb",
+            "vcerare",
+            "sec",
         ]
         | None
     ) = None
@@ -1306,11 +1319,13 @@ class Resource(PudlMeta):
             "static_ferc1",
             "static_eia",
             "static_eia_disabled",
-            "eia_bulk_elec",
+            "eiaapi",
             "state_demand",
             "static_pudl",
             "service_territories",
             "nrelatb",
+            "vcerare",
+            "sec10k",
         ]
         | None
     ) = None
@@ -1480,6 +1495,22 @@ class Resource(PudlMeta):
             constraints.append(key.to_sql())
         return sa.Table(self.name, metadata, *columns, *constraints)
 
+    def to_frictionless(self) -> frictionless.Resource:
+        """Convert to a Frictionless Resource."""
+        schema = frictionless.Schema(
+            fields=[
+                frictionless.Field(name=f.name, description=f.description)
+                for f in self.schema.fields
+            ],
+            primary_key=self.schema.primary_key,
+        )
+        return frictionless.Resource(
+            name=self.name,
+            description=self.description,
+            schema=schema,
+            path=f"{self.name}.parquet",
+        )
+
     def to_pyarrow(self) -> pa.Schema:
         """Construct a PyArrow schema for the resource."""
         fields = [field.to_pyarrow() for field in self.schema.fields]
@@ -1642,11 +1673,21 @@ class Resource(PudlMeta):
                 f"schema: {missing_cols}"
             )
 
+        # Log warning if columns in dataframe are getting dropped in write
+        dropped_columns = list(df.columns.difference(expected_cols))
+        if dropped_columns:
+            logger.info(
+                "The following columns are getting dropped when the table is written:"
+                f"{dropped_columns}. This is often the intended behavior. If you want "
+                "to keep any of these columns, add them to the metadata.resources "
+                "fields and update alembic."
+            )
+
         df = self.format_df(df)
         pk = self.schema.primary_key
         if pk and not (dupes := df[df.duplicated(subset=pk)]).empty:
             raise ValueError(
-                f"{self.name} {len(dupes)}/{len(df)} duplicate primary keys ({pk=}) when enforcing schema."
+                f"{self.name} {len(dupes)}/{len(df)} duplicate primary keys ({pk=}) when enforcing schema:\n{dupes.head()}{'\n...' if len(dupes) > 5 else ''}"
             )
         if pk and not (nulls := df[df[pk].isna().any(axis=1)]).empty:
             raise ValueError(
@@ -2017,7 +2058,7 @@ class Package(PudlMeta):
             naming_convention={
                 "ix": "ix_%(column_0_label)s",
                 "uq": "uq_%(table_name)s_%(column_0_name)s",
-                "ck": "ck_%(table_name)s_`%(constraint_name)s`",
+                "ck": "ck_%(table_name)s_%(constraint_name)s",
                 "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
                 "pk": "pk_%(table_name)s",
             }
@@ -2095,6 +2136,12 @@ class Package(PudlMeta):
                     encoded_df[col], dtype=Field.from_id(col).to_pandas_dtype()
                 )
         return encoded_df
+
+    def to_frictionless(self) -> frictionless.Package:
+        """Convert to a Frictionless Datapackage."""
+        resources = [r.to_frictionless() for r in self.resources]
+        package = frictionless.Package(name=self.name, resources=resources)
+        return package
 
 
 PUDL_PACKAGE = Package.from_resource_ids()

@@ -13,6 +13,8 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 PotentialDirectoryPath = DirectoryPath | NewPath
 
+PUDL_ROOT_PATH = Path(__file__).parent.parent.parent.parent
+
 
 class PudlPaths(BaseSettings):
     """These settings provide access to various PUDL directories.
@@ -30,6 +32,7 @@ class PudlPaths(BaseSettings):
         """Create PUDL input and output directories if they don't already exist."""
         self.input_dir.mkdir(parents=True, exist_ok=True)
         self.output_dir.mkdir(parents=True, exist_ok=True)
+        return self
 
     @property
     def input_dir(self) -> Path:

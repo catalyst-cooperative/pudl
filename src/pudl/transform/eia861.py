@@ -582,7 +582,7 @@ def add_backfilled_ba_code_column(df, by_cols: list[str]) -> pd.DataFrame:
     start_nas = len(df.loc[df.balancing_authority_code_eia.isnull()])
     logger.info(
         f"Started with {start_nas} missing BA Codes out of {start_len} "
-        f"records ({start_nas/start_len:.2%})"
+        f"records ({start_nas / start_len:.2%})"
     )
     ba_ids = (
         df[by_cols + ["balancing_authority_code_eia", "report_date"]]
@@ -606,7 +606,7 @@ def add_backfilled_ba_code_column(df, by_cols: list[str]) -> pd.DataFrame:
     )
     logger.info(
         f"Ended with {end_nas} missing BA Codes out of {end_len} "
-        f"records ({end_nas/end_len:.2%})"
+        f"records ({end_nas / end_len:.2%})"
     )
     return ba_eia861_filled
 
@@ -768,9 +768,9 @@ def _drop_dupes(df, df_name, subset):
     deduped_df = df.drop_duplicates(subset=subset)
     deduped_nrows = len(df)
     logger.info(
-        f"Dropped {tidy_nrows-deduped_nrows} duplicate records from EIA 861 "
+        f"Dropped {tidy_nrows - deduped_nrows} duplicate records from EIA 861 "
         f"{df_name} table, out of a total of {tidy_nrows} records "
-        f"({(tidy_nrows-deduped_nrows)/tidy_nrows:.4%} of all records). "
+        f"({(tidy_nrows - deduped_nrows) / tidy_nrows:.4%} of all records). "
     )
     return deduped_df
 
@@ -840,20 +840,21 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
 
 
 def clean_nerc(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame:
-    """Clean NERC region entries and make new rows for multiple nercs.
+    """Clean NERC region entries.
 
     This function examines reported NERC regions and makes sure the output column of the
     same name has reliable, singular NERC region acronyms. To do so, this function
     identifies entries where there are two or more NERC regions specified in a single
-    cell (such as SPP & ERCOT) and makes new, duplicate rows for each NERC region. It
-    also converts non-recognized reported nerc regions to 'UNK'.
+    cell (such as SPP & ERCOT) and makes a standardized hybrid entry separated by an
+    underscore (e.g., FRCC_SERC). It also converts non-recognized reported NERC regions
+    to 'UNK'.
 
     Args:
         df: A DataFrame with the column 'nerc_region' to be cleaned.
         idx_cols: A list of the primary keys and `nerc_region`.
 
     Returns:
-        A DataFrame with correct and clean nerc regions.
+        A DataFrame with correct and clean NERC regions.
     """
     idx_no_nerc = idx_cols.copy()
     if "nerc_region" in idx_no_nerc:
@@ -1025,6 +1026,7 @@ def _harvest_associations(dfs: list[pd.DataFrame], cols: list[str]) -> pd.DataFr
 @asset(io_manager_key="pudl_io_manager")
 def core_eia861__yearly_service_territory(
     raw_eia861__service_territory: pd.DataFrame,
+    _core_censuspep__yearly_geocodes: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the EIA 861 utility service territory table.
 
@@ -1049,18 +1051,10 @@ def core_eia861__yearly_service_territory(
         # Ensure that we have the canonical US Census county names:
         .pipe(clean_eia_counties, fixes=EIA_FIPS_COUNTY_FIXES)
         # Add FIPS IDs based on county & state names:
-        .pipe(add_fips_ids)
+        .pipe(add_fips_ids, _core_censuspep__yearly_geocodes)
         .assign(short_form=lambda x: _make_yn_bool(x.short_form))
         .pipe(_post_process)
     )
-    # The Virgin Islands and Guam aren't covered by addfips but they have FIPS:
-    st_croix = (df.state == "VI") & (df.county.isin(["St. Croix", "Saint Croix"]))
-    df.loc[st_croix, "county_id_fips"] = "78010"
-    st_john = (df.state == "VI") & (df.county.isin(["St. John", "Saint John"]))
-    df.loc[st_john, "county_id_fips"] = "78020"
-    st_thomas = (df.state == "VI") & (df.county.isin(["St. Thomas", "Saint Thomas"]))
-    df.loc[st_thomas, "county_id_fips"] = "78030"
-    df.loc[df.state == "GU", "county_id_fips"] = "66010"
 
     pk = PUDL_PACKAGE.get_resource(
         "core_eia861__yearly_service_territory"

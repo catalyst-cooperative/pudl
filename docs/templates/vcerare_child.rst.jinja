@@ -1,0 +1,88 @@
+{% extends "data_source_parent.rst.jinja" %}
+{% block background %}
+The data in the Resource Adequacy Renewable Energy (RARE) Power Dataset was produced by
+Vibrant Clean Energy based on outputs from the NOA HRRR model and are licensed
+to the public under the Creative Commons Attribution 4.0 International license
+(CC-BY-4.0).
+
+See the `README <https://doi.org/10.5281/zenodo.13937523>`__ archived on Zenodo for more
+detailed information.
+{% endblock %}
+
+{% block download_docs %}
+{% for filename in download_paths %}
+* :download:`{{ filename.stem.replace("_", " ").title() }} ({{ filename.suffix.replace('.', '').upper() }}) <{{ filename }}>`
+{% endfor %}
+* `NOAA High Resolution Rapid Refresh (HRRR) Model Overview <https://rapidrefresh.noaa.gov/hrrr/>`__
+* `ESIG Weather Data for Power System Planning <https://www.esig.energy/weather-data-for-power-system-planning/>`__
+  White Paper
+{% endblock %}
+
+
+{% block availability %}
+Hourly, county-level data from 2014 - 2023 is integrated into PUDL. Annual releases of
+the data are expected in Q1 while the high resolution rapid refresh (HRRR) remains an
+operational model at the National Oceanic and Atmospheric Administration (NOAA), with
+2024 data expected in Q1 of 2026. New releases will be integrated into PUDL pending
+funding availability.
+
+You can explore the VCE RARE dataset with
+`this Jupyter notebook on Kaggle <https://www.kaggle.com/code/catalystcooperative/04-renewable-generation-profiles>`__.
+{% endblock %}
+
+{% block respondents %}
+This data does not come from a government agency, and is not the result of compulsory
+data reporting.
+{% endblock %}
+
+{% block original_data %}
+The contents of the original CSVs are formatted so that Excel can display the
+data without crashing. There's one file per year per generation type, and each
+file contains an index column for time (simply 1, 2, 3...8760 to
+represent the hours in a year) and columns for each county populated with capacity
+factor values as a percentage from 0-100.
+{% endblock %}
+
+{% block notable_irregularities %}
+Non-county regions
+------------------
+
+The original data include capacity factors for some non-county areas including the Great
+Lakes and 2 small cities (Bedford City, VA and Clifton Forge City, VA). It associated
+"county" FIPS IDs with those areas, meaning that there was not a 1:1 relationship
+between the FIPS IDs and the named areas, and the geographic region implied by the
+FIPS IDs did not correspond to the named area. We've dropped the cities -- one of which
+contained no data -- and set the FIPS codes for the Great Lakes to NA. Note that lakes
+bordering multiple states will appear more than once in the data. VCE used a nearest
+neighbor technique to assign the state waters to the counties (this pertains to coastal
+areas as well).
+
+Name and ID issues
+------------------
+* The place name for Lake Huron is misspelled "Hurron" in the original data.
+* We update the ``place_name`` column using the latest Census PEP vintage data, to
+  ensure consistency of place names between this dataset and other PUDL data.
+
+Capacity factors > 1
+--------------------
+There are a couple of capacity factor values for the solar pv data that exceed
+the maximum value of 1 for capacity factor (or 100 for the raw data--PUDL converts the
+data from a percentage to a fraction to match other reported capacity factor data). This
+is due to power production performance being correlated with panel temperatures. During
+cold sunny periods, some solar capacity factor values are greater than 1 (but less that
+1.1). In 2016, 365 solar values exceeded 1.1 in the raw data and were clipped to 1.1.
+
+Null values
+-----------
+In the original data, 1,320 solar capacity values were reported as null in the year 2015.
+In conversation with the data providers, it was determined that these values should
+have been reported as zero and accordingly they have been updated as part of the
+transformation process.
+
+8760-hour years
+---------------
+This data is primarily used for modeling purposes and conforms to the 8760 hour/year
+standard regardless of leap years. This means that 2020 is missing data for December
+31st.
+
+{% endblock %}

@@ -1,6 +1,9 @@
 {% extends "data_source_parent.rst.jinja" %}
 
 {% block background %}
+FERC Form 714, otherwise known as the Annual Electric Balancing Authority Area and
+Planning Area Report, collects data and provides insights about balancing authority
+area and planning area operations.
 
 {% endblock %}
 
@@ -13,28 +16,21 @@
 {% block availability %}
 The data we've integrated from FERC Form 714 includes:
 
-* hourly electricity demand by utility or balancing authority from 2006-2020
-* a table identifying the form respondents including their EIA utility or balancing
+* Hourly electricity demand by utility or balancing authority.
+* Annual demand forecast.
+* A table identifying the form respondents including their EIA utility or balancing
   authority ID, which allows us to link the FERC-714 data to other information
   reported in :doc:`eia860` and :doc:`eia861`.
 
-We have not yet had the opportunity to work with the most recent FERC-714 data (2021 and
-later), which is now being published using the new XBRL format.
-
-The hourly demand data for 2006-2020 is about 15 million records. There are about 200
-respondents that show up in the respondents table.
-
-WIth the EIA IDs, we link the hourly electricity demand to a particular georgraphic
-region at the county level, because utilities and balancing authorities report their
-service territories in :ref:`core_eia861__yearly_service_territory`, and from that
-information we can estimate historical hourly electricity demand by state.
+With the EIA IDs we can link the hourly electricity demand to a particular geographic
+region at the county level because utilities and balancing authorities report their
+service territories in :ref:`core_eia861__yearly_service_territory`. From that
+information we estimate historical hourly electricity demand by state.
 
 Plant operators reported in :ref:`core_eia860__scd_plants` and generator ownership
 information reported in :ref:`core_eia860__scd_ownership` are linked to
 :ref:`core_eia860__scd_utilities` and :ref:`core_eia861__yearly_balancing_authority` and
-so can also be linked to the :ref:`core_ferc714__respondent_id` table, as well as the
-:ref:`core_epacems__hourly_emissions` unit-level emissions and generation data reported
-in :doc:`epacems`.
+can therefore be linked to the :ref:`core_ferc714__respondent_id` table.
 
 {% endblock %}
 
@@ -56,13 +52,16 @@ formats:
 * **2021-present**: Standardized electronic filing using the XBRL (eXtensible Business
   Reporting Language) dialect of XML.
 
-We only have plans to integrate the data from the standardized electronic reporting era
-since the format of the earlier data varies for each reporting balancing authority and
-utility, and would be very labor intensive to parse and reconcile.
+We only plan to integrate the data from the standardized electronic reporting era
+(2006+) since the format of the earlier data varies for each reporting balancing authority
+and utility, and would be very labor intensive to parse and reconcile.
 
 {% endblock %}
 
 {% block notable_irregularities %}
+
+Timezone errors
+---------------
 
 The original hourly electricity demand time series is plagued with timezone and daylight
 savings vs. standard time irregularities, which we have done our best to clean up. The
@@ -70,18 +69,31 @@ timestamps in the clean data are all in UTC, with a timezone code stored in a se
 column, so that the times can be easily localized or converted. It's certainly not
 perfect, but its much better than the original data and it's easy to work with!
 
+Sign errors
+-----------
+
 Not all respondents use the same sign convention for reporting "demand." The vast
 majority consider demand / load that they serve to be a positive number, and so we've
 standardized the data to use that convention.
 
+Reporting gaps
+--------------
+
 There are a lot of reporting gaps, especially for smaller respondents. Sometimes these
 are brief, and sometimes they are entire years. There are also a number of outliers and
-suspicious values (e.g. a long series of identical consecutive values). We have some
-tools that we've built to clean up these outliers in
-:mod:`pudl.analysis.timeseries_cleaning`.
+suspicious values (e.g. a long series of identical consecutive values). For the FERC-714
+output tables published in PUDL, in addition to the original reported electricity
+demand, we provide a column with anomalous and missing values replaced by imputed values
+so the data can be more easily used in capacity expansion modeling and other
+applications where having complete and plausible (if not exactly correct) values is
+desirable. For an overview of that process and links to additional references, see
+:doc:`/methodology/timeseries_imputation`
+
+Respondent-to-balancing-authority inconsistencies
+-------------------------------------------------
 
 Because utilities and balancing authorities occasionally change their service
-territories or merge, the demand reproted by any individual "respondent" may correspond
+territories or merge, the demand reported by any individual "respondent" may correspond
 to wildly different consumers in different years. To make it at least somewhat possible
 to compare the reported data across time, we've also compiled historical service
 territory maps for the respondents based on data reported in :doc:`eia861`. However,
@@ -92,5 +104,35 @@ be found in :mod:`pudl.analysis.service_territory` and :mod:`pudl.analysis.spati
 
 The :mod:`pudl.analysis.state_demand` script brings together all of the above to
 estimate historical hourly electricity demand by state for 2006-2020.
+
+Combining XBRL and CSV data
+---------------------------
+
+The format of the company identifiers (CIDs) used in the CSV data (2006-2020) and the
+XBRL data (2021+) differs. To link respondents between both data formats, we manually
+map the IDs from both datasets and create a ``respondent_id_ferc714`` in
+:mod:`pudl.package_data.glue.respondent_id_ferc714.csv`.
+
+This CSV builds on the `migrated data
+<https://www.ferc.gov/filing-forms/eforms-refresh/migrated-data-downloads>`__ provided
+by FERC during the transition from CSV to XBRL data, which notes that:
+
+  Companies that did not have a CID prior to the migration have been assigned a CID that
+  begins with R, i.e., a temporary RID. These RIDs will be replaced in future with the
+  accurate CIDs and new datasets will be published.
+
+The file names of the migrated data (which correspond to CSV IDs) and the respondent
+CIDs in the migrated files provide the basis for ID mapping. Though CIDs are intended to
+be static, some of the CIDs in the migrated data weren't found in the actual XBRL data,
+and the same respondents were reporting data using different CIDs. To ensure accurate
+record matching, we manually reviewed the CIDs for each respondent, matching based on
+name and location. Some quirks to note:
+
+* All respondents are matched 1:1 from CSV to XBRL data. Unmatched respondents mostly
+  occur due to mergers, splits, acquisitions, and companies that no longer exist.
+* Some CIDs assigned during the migration process do not appear in the data. Given the
+  intention by FERC to make these CIDs permanent, they are still included in the mapping
+  CSV in case these respondents re-appear. All temporary IDs (beginning with R) were
+  removed.
 
 {% endblock %}

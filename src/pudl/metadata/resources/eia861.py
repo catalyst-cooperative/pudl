@@ -466,6 +466,7 @@ are broken down by sector and technology type."""
             "fields": [
                 "balancing_authority_code_eia",
                 "capacity_mw",
+                "energy_capacity_mwh",
                 "customer_class",
                 "customers",
                 "report_date",
@@ -513,6 +514,7 @@ and convert capacity reported in DC units to AC units."""
             "fields": [
                 "balancing_authority_code_eia",
                 "capacity_mw",
+                "energy_capacity_mwh",
                 "customer_class",
                 "report_date",
                 "state",

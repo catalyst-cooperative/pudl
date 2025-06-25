@@ -263,6 +263,26 @@ class RenameColumns(TransformParams):
     """A dictionary of columns to be renamed."""
 
 
+def rename_columns(
+    df: pd.DataFrame, params: RenameColumns | None = None, **kwargs
+) -> pd.DataFrame:
+    """Rename the whole collection of dataframe columns using input params.
+
+    Raise an error if there's any mismatch between the columns in the dataframe, and
+    the columns that have been defined in the mapping for renaming.
+    """
+    # If we are attempting to rename columns that do *not* appear in the dataframe,
+    # raise an error.
+    if len(params.columns) > 0:
+        missing_cols = set(params.columns).difference(set(df.columns))
+        if missing_cols:
+            raise ValueError(
+                f"Attempting to rename columns which are not present in the dataframe.\n"
+                f"Missing columns: {sorted(missing_cols)}\nExisting Columns: {df.columns}"
+            )
+    return df.rename(columns=params.columns)
+
+
 ################################################################################
 # Normalize Strings
 ################################################################################
@@ -728,7 +748,7 @@ def correct_units(df: pd.DataFrame, params: UnitCorrections) -> pd.DataFrame:
     na_after = sum(selected.isna())
     total_nullified = na_after - na_before
     logger.info(
-        f"{total_nullified}/{len(selected)} ({total_nullified/len(selected):.2%}) "
+        f"{total_nullified}/{len(selected)} ({total_nullified / len(selected):.2%}) "
         "of records could not be corrected and were set to NA."
     )
     # Combine our cleaned up values with the other values we didn't select.
@@ -839,7 +859,7 @@ def drop_invalid_rows(df: pd.DataFrame, params: InvalidRows) -> pd.DataFrame:
     # Mask the input dataframe and make a copy to avoid returning a slice.
     df_out = df[mask].copy()
     logger.info(
-        f"{1 - (len(df_out)/pre_drop_len):.1%} of records ({pre_drop_len-len(df_out)} "
+        f"{1 - (len(df_out) / pre_drop_len):.1%} of records ({pre_drop_len - len(df_out)} "
         f"rows) contain only {params.invalid_values} values in required columns. "
         "Dropped these 💩💩💩 records."
     )
@@ -1047,8 +1067,7 @@ def cache_df(key: str = "main") -> Callable[..., pd.DataFrame]:
                 )
             if self.cache_dfs:
                 logger.debug(
-                    f"{self.table_id.value}: Caching df to {key=} "
-                    f"in {func.__name__}()"
+                    f"{self.table_id.value}: Caching df to {key=} in {func.__name__}()"
                 )
                 self._cached_dfs[key] = df.copy()
             return df
@@ -1230,18 +1249,7 @@ class AbstractTableTransformer(ABC):
             f"{self.table_id.value}: Attempting to rename {len(params.columns)} "
             "columns."
         )
-
-        # If we are attempting to rename columns that do *not* appear in the dataframe,
-        # raise an error.
-        if len(params.columns) > 0:
-            missing_cols = set(params.columns).difference(set(df.columns))
-            if missing_cols:
-                raise ValueError(
-                    f"{self.table_id.value}: Attempting to rename columns which are not "
-                    "present in the dataframe.\n"
-                    f"Missing columns: {sorted(missing_cols)}\nExisting Columns: {df.columns}"
-                )
-        return df.rename(columns=params.columns)
+        return rename_columns(df, params)
 
     def normalize_strings(
         self,

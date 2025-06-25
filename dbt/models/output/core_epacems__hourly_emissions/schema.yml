@@ -1,0 +1,26 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_epacems__hourly_emissions
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_epacems__hourly_emissions
+              partition_column: null
+        columns:
+          - name: plant_id_eia
+          - name: plant_id_epa
+          - name: emissions_unit_id_epa
+          - name: operating_datetime_utc
+          - name: year
+          - name: state
+          - name: operating_time_hours
+          - name: gross_load_mw
+          - name: heat_content_mmbtu
+          - name: steam_load_1000_lbs
+          - name: so2_mass_lbs
+          - name: so2_mass_measurement_code
+          - name: nox_mass_lbs
+          - name: nox_mass_measurement_code
+          - name: co2_mass_tons
+          - name: co2_mass_measurement_code

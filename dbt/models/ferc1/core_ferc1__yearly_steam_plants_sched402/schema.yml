@@ -1,0 +1,51 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_ferc1__yearly_steam_plants_sched402
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_ferc1__yearly_steam_plants_sched402
+              partition_column: report_year
+        columns:
+          - name: record_id
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_unique
+          - name: utility_id_ferc1
+          - name: report_year
+          - name: plant_name_ferc1
+          - name: plant_type
+          - name: construction_type
+          - name: construction_year
+          - name: installation_year
+          - name: capacity_mw
+          - name: peak_demand_mw
+          - name: plant_hours_connected_while_generating
+          - name: plant_capability_mw
+          - name: water_limited_capacity_mw
+          - name: not_water_limited_capacity_mw
+          - name: avg_num_employees
+          - name: net_generation_mwh
+          - name: capex_land
+          - name: capex_structures
+          - name: capex_equipment
+          - name: capex_total
+          - name: capex_per_mw
+          - name: opex_operations
+          - name: opex_fuel
+          - name: opex_coolants
+          - name: opex_steam
+          - name: opex_steam_other
+          - name: opex_transfer
+          - name: opex_electric
+          - name: opex_misc_power
+          - name: opex_rents
+          - name: opex_allowances
+          - name: opex_engineering
+          - name: opex_structures
+          - name: opex_boiler
+          - name: opex_plants
+          - name: opex_misc_steam
+          - name: opex_production_total
+          - name: opex_per_mwh
+          - name: asset_retirement_cost
