@@ -13,6 +13,10 @@ sources:
               imputation_code: demand_imputed_pudl_mwh_imputation_code
               atol: 1.0
               rtol: 0.8
+          - expect_consistent_years:
+              datetime_column: datetime_utc
+              date_column: report_date
+              max_mismatch_ratio: 0.001
         columns:
           - name: respondent_id_ferc714
           - name: respondent_id_ferc714_csv
