@@ -99,7 +99,7 @@ macros:
         description: "Tell the test that the data_maturity column exists in the model (default: true). If this column is available, it will be used to filter out incomplete years of data."
       - name: compare_model_has_data_maturity
         type: boolean
-        description: "Filter provisional data from compare_model (default: true)."
+        description: "Tell the test that the data_maturity column exists in the model (default: true). If this column is available, it will be used to filter out incomplete years of data."
   - name: test_expect_fgd_cost_totals_to_agree
     description: >
       Check whether the sum of itemized costs matches the total cost. Designed for use on ``_core_eia860__fgd_equipment``. Fails when more than 1% of rows have a sum that differs from the total by more than 1%. Includes careful null and nan handling.
