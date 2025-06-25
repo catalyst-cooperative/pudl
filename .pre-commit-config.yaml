@@ -58,6 +58,13 @@ repos:
       - id: doc8
         args: [--config, pyproject.toml]
 
+  # Check docstring RST
+  - repo: https://github.com/jsh9/pydoclint
+    rev: 0.6.7
+    hooks:
+      - id: pydoclint
+        args: [--config=pyproject.toml]
+
   # Check Github Actions
   - repo: https://github.com/rhysd/actionlint
     rev: v1.7.7

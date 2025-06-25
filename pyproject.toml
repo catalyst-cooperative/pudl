@@ -387,3 +387,8 @@ modules = [
     { type = "module", name = "pudl.etl" },
     { type = "module", name = "pudl.ferc_to_sqlite" },
 ]
+
+[tool.pydoclint]
+style = "google"
+arg-type-hints-in-docstring = "false"
+arg-type-hints-in-signature = "true"
