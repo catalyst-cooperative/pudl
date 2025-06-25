@@ -74,7 +74,7 @@ FERC_ACCOUNTS: pd.DataFrame = pd.DataFrame(
             "326",
             "Nuclear production: Asset retirement costs for nuclear production plant (Major only)",
         ),
-        (25, "subtotal_nuclear_produciton", "Subtotal: Nuclear Production Plant"),
+        (25, "subtotal_nuclear_production", "Subtotal: Nuclear Production Plant"),
         #  C. hydraulic production
         (27, "330", "Hydraulic production: Land and land rights"),
         (28, "331", "Hydraulic production: Structures and improvements"),

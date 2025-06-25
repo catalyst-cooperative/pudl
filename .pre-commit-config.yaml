@@ -58,7 +58,7 @@ repos:
             |.*\.bib
             |.*\.csv
             |.*\.html
-          )$
+          )$ | migrations/* | src/pudl/metadata/codes.py
         args: [] # Make this read, not write
 
   # Lint Dockerfiles for errors and to ensure best practices

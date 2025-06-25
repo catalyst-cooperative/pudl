@@ -83,8 +83,8 @@ potential and actual peak savings, and associated costs.
 The EIA861 demand-side management (DSM) table (split into three normalized tables in
 PUDL) contain data through 2012. The form changed in 2013 and split the contents of the
 DSM table into energy efficiency and demand response tables. Though similar, the
-information collected before and after 2012 are not comprable enough to combine into a
-singular, continous table. We were discouraged from doing so after contacting a
+information collected before and after 2012 are not comparable enough to combine into a
+singular, continuous table. We were discouraged from doing so after contacting a
 representative from EIA."""
         ),
         "schema": {
@@ -150,8 +150,8 @@ customers enrolled in price-responsive and time-responsive programs.
 The raw EIA861 demand-side management (DSM) table (split into three normalized tables in
 PUDL) contain data through 2012. The form changed in 2013 and split the contents of the
 DSM table into energy efficiency and demand response tables. Though similar, the
-information collected before and after 2012 are not comprable enough to combine into a
-singular, continous table. We were discouraged from doing so after contacting a
+information collected before and after 2012 are not comparable enough to combine into a
+singular, continuous table. We were discouraged from doing so after contacting a
 representative from EIA."""
         ),
         "schema": {
@@ -197,8 +197,8 @@ are reported under another company, and if so which one.
 The raw EIA861 demand-side management (DSM) table (split into three normalized tables in
 PUDL) contain data through 2012. The form changed in 2013 and split the contents of the
 DSM table into energy efficiency and demand response tables. Though similar, the
-information collected before and after 2012 are not comprable enough to combine into a
-singular, continous table. We were discouraged from doing so after contacting a
+information collected before and after 2012 are not comparable enough to combine into a
+singular, continuous table. We were discouraged from doing so after contacting a
 representative from EIA."""
         ),
         "schema": {
@@ -230,8 +230,8 @@ representative from EIA."""
 The raw EIA861 demand-side management (DSM) table (split into three normalized tables in
 PUDL) contain data through 2012. The form changed in 2013 and split the contents of the
 DSM table into energy efficiency and demand response tables. Though similar, the
-information collected before and after 2012 are not comprable enough to combine into a
-singular, continous table. We were discouraged from doing so after contacting a
+information collected before and after 2012 are not comparable enough to combine into a
+singular, continuous table. We were discouraged from doing so after contacting a
 representative from EIA."""
         ),
         "schema": {
@@ -278,7 +278,7 @@ and convert capacity reported in DC units to AC units."""
         # TODO: might want to rename this table to be _capacity
         "description": (
             """Information on the capacity of utility or customer-owned distributed
-generation. Includes the number of generators, whether the capacity is esimated or
+generation. Includes the number of generators, whether the capacity is estimated or
 actual, the amount of backup capacity, and how much capacity is from generators with
 less than 1 MW of nameplate capacity.
 
@@ -382,8 +382,8 @@ programs.
 The EIA861 demand-side management (DSM) table (split into three normalized tables in
 PUDL) contain data through 2012. The form changed in 2013 and split the contents of the
 DSM table into energy efficiency and demand response tables. Though similar, the
-information collected before and after 2012 are not comprable enough to combine into a
-singular, continous table. We were discouraged from doing so after contacting a
+information collected before and after 2012 are not comparable enough to combine into a
+singular, continuous table. We were discouraged from doing so after contacting a
 representative from EIA."""
         ),
         "schema": {
@@ -557,12 +557,12 @@ and convert capacity reported in DC units to AC units."""
         "etl_group": "eia861",
     },
     "core_eia861__yearly_operational_data_misc": {
-        # TODO: misc might be a missleading name
+        # TODO: misc might be a misleading name
         "description": (
             """The annual megawatt hours (MWH) for all a utility's sources of
 electricity and disposition of electricity listed. Sources include: net generation
 purchases from electricity suppliers, exchanges received, exchanges delivered, exchanges
-net, wheeled recieved, wheeled delivered, wheeled net, transmission by others, and
+net, wheeled received, wheeled delivered, wheeled net, transmission by others, and
 losses."""
         ),
         "schema": {
@@ -819,7 +819,7 @@ they engage in wholesale and/or retail markets."""
         "etl_group": "eia861",
     },
     "core_eia861__yearly_utility_data_nerc": {
-        "description": "The NERC regions that a utiltiy operates in.",
+        "description": "The NERC regions that a utility operates in.",
         "schema": {
             "fields": [
                 "nerc_region",

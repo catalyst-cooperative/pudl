@@ -115,7 +115,7 @@ associated with the filing they appeared in and their filer count. Note that all
 references to a particular company may not be perfectly consistent across all filings in
 which they appear. The various company names, addresses, and other information
 associated with the company's unique and permanent ``central_index_key`` are later used
-as inputs into the probabalistic record linkage process."""
+as inputs into the probabilistic record linkage process."""
         ),
         "schema": {
             "fields": [
