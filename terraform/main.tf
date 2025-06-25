@@ -111,6 +111,7 @@ resource "google_sql_database_instance" "mlflow_backend_store" {
   database_version = "POSTGRES_14"
   settings {
     tier = "db-f1-micro"
+    activation_policy = "NEVER"
     password_validation_policy {
       min_length                  = 6
       reuse_interval              = 2
@@ -148,15 +149,6 @@ resource "google_project_iam_member" "cloud_sql_client_role" {
   project = var.project_id
   role    = "roles/cloudsql.client"
   member  = "serviceAccount:345950277072-compute@developer.gserviceaccount.com"
-}
-
-data "google_compute_default_service_account" "google_compute_default_service_account_data" {
-}
-
-resource "google_service_account_iam_member" "gce-default-account-iam" {
-  service_account_id = data.google_compute_default_service_account.google_compute_default_service_account_data.name
-  role               = "roles/iam.serviceAccountUser"
-  member             = "serviceAccount:345950277072@cloudbuild.gserviceaccount.com"
 }
 
 resource "google_secret_manager_secret" "pudl_usage_metrics_db_connection_string" {
