@@ -7,6 +7,10 @@ sources:
           - check_row_counts_per_partition:
               table_name: out_eia923__monthly_generation_fuel_combined
               partition_column: report_date
+          - expect_date_frequency_ratio:
+              compare_model: source("pudl", "out_eia__yearly_generators")
+              multiplier: 12
+              date_column: report_date
           - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
               column_A: fuel_consumed_mmbtu
               column_B: fuel_consumed_for_electricity_mmbtu
