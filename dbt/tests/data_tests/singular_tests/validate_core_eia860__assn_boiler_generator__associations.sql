@@ -5,7 +5,7 @@ with GensSimple as (
         plant_id_eia,
         generator_id,
         fuel_type_code_pudl
-    from {{ source('pudl', '_out_eia__yearly_generators') }}
+    from {{ source('pudl', 'out_eia__yearly_generators') }}
 ), BgaGens as (
     select distinct
         report_date,
