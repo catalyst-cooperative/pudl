@@ -1,0 +1,4 @@
+# these are GitHub-hosted but for some reason actionlint couldn't find them
+self-hosted-runner:
+  labels:
+    - ubuntu-latest-8core
