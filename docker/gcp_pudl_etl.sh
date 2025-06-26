@@ -69,6 +69,7 @@ function write_pudl_datapackage() {
 function save_outputs_to_gcs() {
     echo "Copying outputs to GCP bucket $PUDL_GCS_OUTPUT" && \
     gcloud storage --quiet cp -r "$PUDL_OUTPUT" "$PUDL_GCS_OUTPUT" && \
+    gcloud storage --quiet cp -r "$PUDL_REPO"/dbt/seeds/etl_full_row_counts.csv "$PUDL_GCS_OUTPUT" && \
     rm -f "$PUDL_OUTPUT/success"
 }
 
@@ -252,6 +253,9 @@ ETL_SUCCESS=${PIPESTATUS[0]}
 # Write out a datapackage.json for external consumption
 write_pudl_datapackage 2>&1 | tee -a "$LOGFILE"
 WRITE_DATAPACKAGE_SUCCESS=${PIPESTATUS[0]}
+
+# Generate new row counts for all tables in the PUDL database
+dbt_helper update-tables --clobber --row-counts all 2>&1 | tee -a "$LOGFILE"
 
 # This needs to happen regardless of the ETL outcome:
 pg_ctlcluster "$PG_VERSION" dagster stop 2>&1 | tee -a "$LOGFILE"

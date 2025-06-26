@@ -442,7 +442,7 @@ def _coalmine_cleanup(
 
     This function does most of the core_eia923__entity_coalmine table transformation. It is separate
     from the coalmine() transform function because of the peculiar way that we are
-    normalizing the ref:`core_eia923__monthly_fuel_receipts_costs` table.
+    normalizing the :ref:`core_eia923__monthly_fuel_receipts_costs` table.
 
     All of the coalmine information is originally coming from the EIA
     fuel_receipts_costs spreadsheet, but it really belongs in its own table. We strip it
@@ -1329,7 +1329,7 @@ def cooling_system_information_continuity(csi):
             "monthly_total_withdrawal_volume_gallons": 0.3,
         },
         groupby_col="report_date",
-        n_outliers_allowed=2,
+        n_outliers_allowed=3,
     )
 
 

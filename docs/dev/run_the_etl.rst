@@ -182,13 +182,14 @@ Once ``DAGSTER_HOME`` is set, launch the dagster UI by running:
 
 .. code-block:: console
 
-    $ make dagster
+    $ dagster dev
 
 .. note::
 
-    If ``DAGSTER_HOME`` is not set, you will still be able to execute jobs but
-    dagster logs and outputs of assets that use the default `fs_io_manager <https://docs.dagster.io/_apidocs/io-managers#dagster.fs_io_manager>`__
-    will be saved to a temporary directory that is deleted when the ``dagster-webserver`` process exits.
+    If ``DAGSTER_HOME`` is not set, you will still be able to execute jobs but dagster
+    logs and outputs of assets that use the default `fs_io_manager
+    <https://docs.dagster.io/_apidocs/io-managers#dagster.fs_io_manager>`__ will be
+    saved to a temporary directory that is deleted when the ``dagster`` process exits.
 
 This will launch the dagster UI at http://localhost:3000/. You should see
 a window that looks like this:

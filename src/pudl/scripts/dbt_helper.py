@@ -9,8 +9,10 @@ import click
 import duckdb
 import pandas as pd
 import yaml
+from deepdiff import DeepDiff
 from pydantic import BaseModel
 
+from pudl.dbt_wrapper import build_with_context
 from pudl.logging_helpers import configure_root_logger, get_logger
 from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.workspace.setup import PudlPaths
@@ -166,6 +168,65 @@ class DbtSchema(BaseModel):
         with schema_path.open("r") as schema_yaml:
             return cls.model_validate(yaml.safe_load(schema_yaml))
 
+    @classmethod
+    def to_yaml(cls, schema_path: Path):
+        """Write DbtSchema object to YAML file."""
+        with schema_path.open("w") as schema_file:
+            yaml.dump(
+                cls.model_dump(exclude_none=True),
+                schema_file,
+                default_flow_style=False,
+                sort_keys=False,
+                width=float("inf"),
+            )
+
+
+def schema_has_removals_or_modifications(diff: DeepDiff) -> bool:
+    """Check if the DeepDiff includes any removals or modifications."""
+    change_keys = {
+        "values_changed",
+        "type_changes",
+        "dictionary_item_removed",
+        "iterable_item_removed",
+        "attribute_deleted",
+    }
+
+    return any(key in diff and diff[key] for key in change_keys)
+
+
+def _log_schema_diff(diff: DeepDiff, old_schema: DbtSchema, new_schema: DbtSchema):
+    """Print old and new YAML, and summary of schema changes."""
+    logger.info(
+        "\n======================\n\n📜 Old YAML:\n%s\n\n======================",
+        yaml.dump(old_schema.model_dump(exclude_none=True), sort_keys=False),
+    )
+
+    logger.info(
+        "📜 New YAML:\n%s\n\n======================",
+        yaml.dump(new_schema.model_dump(exclude_none=True), sort_keys=False),
+    )
+
+    logger.info(
+        "🔍 Schema Diff Summary:\n%s\n======================\n",
+        _schema_diff_summary(diff),
+    )
+
+
+def _schema_diff_summary(diff: DeepDiff) -> str:
+    """Return all changes in a DeepDiff between two schemas as a string."""
+    summary_elements = ["🔍 DeepDiff Summary:"]
+
+    for change_type, changes in diff.items():
+        summary_elements.append(f"\n{change_type}:")
+        if isinstance(changes, dict):
+            for path, value in changes.items():
+                summary_elements.append(f"  - {path}: {value}")
+        else:
+            for item in changes:
+                summary_elements.append(f"  - {item}")
+
+    return "\n".join(summary_elements)
+
 
 def get_data_source(table_name: str) -> str:
     """Return data source for a table or 'output' if there's more than one source."""
@@ -240,13 +301,14 @@ def update_row_counts(
     partition_column: str = "report_year",
     target: str = "etl-full",
     clobber: bool = False,
+    update: bool = False,
 ) -> UpdateResult:
     """Generate updated row counts per partition and write to csv file within dbt project."""
     existing = _get_existing_row_counts(target)
-    if table_name in existing["table_name"].to_numpy() and not clobber:
+    if table_name in existing["table_name"].to_numpy() and not (clobber or update):
         return UpdateResult(
             success=False,
-            message=f"Row counts for {table_name} already exist (run with clobber to overwrite).",
+            message=f"Row counts for {table_name} already exist (run with clobber or update to overwrite).",
         )
 
     new = _calculate_row_counts(table_name, partition_column)
@@ -259,40 +321,56 @@ def update_row_counts(
     )
 
 
-def _write_dbt_schema(schema_path: Path, schema: DbtSchema):
-    with schema_path.open("w") as schema_file:
-        yaml.dump(
-            schema.model_dump(exclude_none=True),
-            schema_file,
-            default_flow_style=False,
-            sort_keys=False,
-            width=float("inf"),
-        )
-
-
 def update_table_schema(
     table_name: str,
     data_source: str,
     partition_column: str = "report_year",
     clobber: bool = False,
+    update: bool = False,
 ) -> UpdateResult:
     """Generate and write out a schema.yaml file defining a new or updated table."""
     model_path = _get_model_path(table_name, data_source)
-    if model_path.exists() and not clobber:
+    schema_path = model_path / "schema.yml"
+
+    if model_path.exists() and not (clobber or update):
         return UpdateResult(
             success=False,
-            message=f"DBT configuration already exists for table {table_name} and clobber is not set.",
+            message=f"DBT configuration already exists for table {table_name} and clobber or update is not set.",
         )
 
-    table_config = DbtSchema.from_table_name(
+    new_schema = DbtSchema.from_table_name(
         table_name, partition_column=partition_column
     )
+
+    if model_path.exists() and update:
+        # Load existing schema
+        old_schema = DbtSchema.from_yaml(schema_path)
+
+        # Generate the diff report
+        diff = DeepDiff(
+            old_schema.model_dump(exclude_none=True),
+            new_schema.model_dump(exclude_none=True),
+            ignore_order=True,
+            verbose_level=2,
+            view="tree",
+        )
+
+        if schema_has_removals_or_modifications(diff):
+            logger.warning(
+                "\n⚠️ WARNING: Some elements would be deleted by this update! Please update manually instead."
+            )
+            _log_schema_diff(diff, old_schema, new_schema)
+            return UpdateResult(
+                success=False,
+                message=f"DBT configuration for table {table_name} has information the would be deleted. Update manually or run with clobber.",
+            )
+
     model_path.mkdir(parents=True, exist_ok=True)
-    _write_dbt_schema(model_path / "schema.yml", table_config)
+    new_schema.to_yaml(schema_path)
 
     return UpdateResult(
         success=True,
-        message=f"Wrote schema config for table {table_name} at {model_path / 'schema.yml'}.",
+        message=f"Wrote schema config for table {table_name} at {schema_path}.",
     )
 
 
@@ -323,6 +401,7 @@ class TableUpdateArgs:
     schema: bool = False
     row_counts: bool = False
     clobber: bool = False
+    update: bool = False
 
 
 @click.command
@@ -352,10 +431,16 @@ class TableUpdateArgs:
     default=False,
     help="Overwrite existing table schema config and row counts. Otherwise, the script will fail if the table configuration already exists.",
 )
+@click.option(
+    "--update/--no-update",
+    default=False,
+    help="Allow the table schema to be updated if the new schema is a superset of the existing schema.",
+)
 def update_tables(
     tables: list[str],
     target: str,
     clobber: bool,
+    update: bool,
     schema: bool,
     row_counts: bool,
 ):
@@ -365,6 +450,8 @@ def update_tables(
     'all'. If 'all' the script will update configurations for for all PUDL tables.
 
     If ``--clobber`` is set, existing configurations for tables will be overwritten.
+    If ``--update`` is set, existing configurations for tables will be updated only
+    if this does not result in deletions.
     """
     args = TableUpdateArgs(
         tables=list(tables),
@@ -372,7 +459,13 @@ def update_tables(
         schema=schema,
         row_counts=row_counts,
         clobber=clobber,
+        update=update,
     )
+
+    if args.clobber and args.update:
+        raise click.UsageError(
+            "Cannot use --clobber and --update at the same time. Choose one."
+        )
 
     tables = args.tables
     if "all" in tables:
@@ -392,6 +485,7 @@ def update_tables(
                     data_source,
                     partition_column=partition_column,
                     clobber=args.clobber,
+                    update=args.update,
                 )
             )
         if args.row_counts:
@@ -401,8 +495,43 @@ def update_tables(
                     partition_column=partition_column,
                     target=args.target,
                     clobber=args.clobber,
+                    update=args.update,
                 )
             )
+
+
+@click.command()
+@click.option(
+    "--select", default="*", help="DBT selector for the asset(s) you want to validate."
+)
+@click.option(
+    "--exclude",
+    help="DBT selector for the asset(s) you want to exclude from validation.",
+)
+@click.option(
+    "--target",
+    default="etl-full",
+    type=click.Choice(["etl-full", "etl-fast"]),
+    help="DBT target - etl-full (default) or etl-fast.",
+)
+def validate(
+    select: str = "*", exclude: str | None = None, target: str = "etl-full"
+) -> None:
+    """Validate a selection of DBT nodes.
+
+    Wraps the ``dbt build`` command line so we can annotate the result with the
+    actual data that was returned from the test query.
+    """
+    test_result = build_with_context(
+        node_selection=select,
+        dbt_target=target,
+        node_exclusion=exclude,
+    )
+
+    if not test_result.success:
+        raise AssertionError(
+            f"failure contexts:\n{test_result.format_failure_contexts()}"
+        )
 
 
 @click.group(
@@ -411,19 +540,23 @@ def update_tables(
 def dbt_helper():
     """Script for auto-generating dbt configuration and migrating existing tests.
 
-    This CLI currently provides one sub-command: ``update-tables`` which can update or
-    create a dbt table (model) schema.yml file under the ``dbt/models`` repo. These
-    configuration files tell dbt about the structure of the table and what data tests
-    are specified for it. It also adds a (required) row count test by default. The
-    script can also generate or update the expected row counts for existing tables,
-    assuming they have been materialized to parquet files and are sitting in your
-    $PUDL_OUT directory.
+    This CLI currently provides the following sub-commands:
+
+    * ``update-tables`` which can update or create a dbt table (model)
+      schema.yml file under the ``dbt/models`` repo. These configuration files
+      tell dbt about the structure of the table and what data tests are specified
+      for it. It also adds a (required) row count test by default. The script
+      can also generate or update the expected row counts for existing tables,
+      assuming they have been materialized to parquet files and are sitting in
+      your $PUDL_OUT directory.
+    * ``validate``: run validation tests for a selection of DBT nodes.
 
     Run ``dbt_helper {command} --help`` for detailed usage on each command.
     """
 
 
 dbt_helper.add_command(update_tables)
+dbt_helper.add_command(validate)
 
 
 if __name__ == "__main__":
