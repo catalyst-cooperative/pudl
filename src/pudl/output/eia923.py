@@ -216,7 +216,7 @@ def out_eia923__generation_fuel_combined(
     )
     # Nuclear plants don't report units of fuel consumed, so fuel heat content ends up
     # being calculated as infinite. However, some nuclear plants report using small
-    # amounts of DFO. Ensure infite heat contents are set to NA instead:
+    # amounts of DFO. Ensure infinite heat contents are set to NA instead:
     gfn_agg = gfn_agg.assign(
         fuel_mmbtu_per_unit=np.where(
             gfn_agg.fuel_consumed_units != 0,
@@ -430,7 +430,7 @@ def time_aggregated_eia923_asset_factory(
         ).reset_index()
         # Nuclear plants don't report units of fuel consumed, so fuel heat content ends
         # up being calculated as infinite. However, some nuclear plants report using
-        # small amounts of DFO. Ensure infinte heat contents are set to NA instead:
+        # small amounts of DFO. Ensure infinite heat contents are set to NA instead:
         # Duplicates pudl.output.eia923.generation_fuel_all_eia923(). Should figure out
         # how to consolidate.
         gf = gf_both.loc[gf_both.energy_source_code != "NUC"]

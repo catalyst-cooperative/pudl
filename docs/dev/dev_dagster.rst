@@ -39,7 +39,7 @@ stored in the Dagster event log, will not be associated with any
 Dagster metadata (such as step key, run id, etc.), and will not show
 up in the default view of the Dagster UI.
 
-If you need to find the PUDL logs for a previous run, you can seach for the
+If you need to find the PUDL logs for a previous run, you can search for the
 run ID in the CLI where you launched the dagster UI. The `Dagster docs <https://docs.dagster.io/concepts/logging/python-logging>`__
 have more information on how dagster handles logs from Python's logging module.
 
@@ -66,7 +66,7 @@ depends on A. We execute A and B on ``branch-1``. Then we
 update and execute asset A to return an integer instead
 of a string. Then we switch to ``branch-2`` where we are
 working on some improvements to asset B. If we only execute
-asset B on ``branch-2``, it will recieve A's value on
+asset B on ``branch-2``, it will receive A's value on
 ``branch-1``. This is a problem because on ``branch-2``
 asset B expects asset A to be a string not an integer.
 **To avoid a scenario like this, it is recommended you

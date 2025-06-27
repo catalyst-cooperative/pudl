@@ -384,7 +384,7 @@ class Encoder(PudlMeta):
 
     The intended meanings of some non-standard codes are clear, and therefore they can
     be mapped to the standardized, canonical codes with confidence. Sometimes these are
-    the result of data entry errors or changes in the stanard codes over time.
+    the result of data entry errors or changes in the standard codes over time.
     """
 
     name: String | None = None
@@ -513,7 +513,7 @@ class Encoder(PudlMeta):
     def to_rst(
         self, top_dir: DirectoryPath, csv_subdir: DirectoryPath, is_header: StrictBool
     ) -> String:
-        """Ouput dataframe to a csv for use in jinja template.
+        """Output dataframe to a csv for use in jinja template.
 
         Then output to an RST file.
         """
@@ -1078,7 +1078,7 @@ class ResourceHarvest(PudlMeta):
     """
 
     tolerance: PositiveFloat = 0.0
-    """Fraction of invalid fields above which result is considerd invalid."""
+    """Fraction of invalid fields above which result is considered invalid."""
 
 
 class PudlResourceDescriptor(PudlMeta):
@@ -1342,9 +1342,9 @@ class Resource(PudlMeta):
         Sphinx throws an error when creating a cross ref target for
         a resource that has a preceding underscore. It is
         also possible for resources to have identical names
-        when the preceeding underscore is removed. This function
-        adds a preceeding 'i' to cross ref targets for resources
-        with preceeding underscores. The 'i' will not be rendered
+        when the preceding underscore is removed. This function
+        adds a preceding 'i' to cross ref targets for resources
+        with preceding underscores. The 'i' will not be rendered
         in the docs, only in the .rst files the hyperlinks.
         """
         if self.name.startswith("_"):
@@ -1706,7 +1706,7 @@ class Resource(PudlMeta):
 
         The report is formatted as follows:
 
-        * `valid` (bool): Whether resouce is valid.
+        * `valid` (bool): Whether resource is valid.
         * `stats` (dict): Error statistics for resource fields.
         * `fields` (dict):
 
@@ -1976,7 +1976,7 @@ class Package(PudlMeta):
         coding tables defined in :mod:`pudl.metadata.codes` and if so, associate the
         coding table's encoder with those columns for later use cleaning them up.
 
-        The result is cached, since we so often need to generate the metdata for
+        The result is cached, since we so often need to generate the metadata for
         the full collection of PUDL tables.
 
         Args:
@@ -2145,7 +2145,7 @@ class Package(PudlMeta):
 
 
 PUDL_PACKAGE = Package.from_resource_ids()
-"""Define a gobal PUDL package object for use across the entire codebase.
+"""Define a global PUDL package object for use across the entire codebase.
 
 This needs to happen after the definition of the Package class above, and it is used in
 some of the class definitions below, but having it defined in the middle of this module

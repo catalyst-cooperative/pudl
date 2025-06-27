@@ -50,7 +50,7 @@ class PudlMixedFormatIOManager(IOManager):
     """
 
     # Defaults should be provided here and should be potentially
-    # overriden by os env variables. This now resides in the
+    # overridden by os env variables. This now resides in the
     # @io_manager constructor of this, see pudl_mixed_format_io_manager".
     write_to_parquet: bool
     """If true, data will be written to parquet files."""
@@ -362,7 +362,7 @@ class PudlSQLiteIOManager(SQLiteIOManager):
                 specified, defaults to a Package with all metadata stored in the
                 :mod:`pudl.metadata.resources` subpackage.
 
-                Every table that appears in `self.md` is sepcified in `self.package`
+                Every table that appears in `self.md` is specified in `self.package`
                 as a :class:`pudl.metadata.classes.Resources`. However, not every
                 :class:`pudl.metadata.classes.Resources` in `self.package` is included
                 in `self.md` as a table. This is because `self.package` is used to ensure
@@ -531,7 +531,7 @@ class FercSQLiteIOManager(SQLiteIOManager):
     This class should be subclassed and the load_input and handle_output methods should
     be implemented.
 
-    This IOManager exepcts the database to already exist.
+    This IOManager expects the database to already exist.
     """
 
     def __init__(
@@ -634,7 +634,7 @@ class FercDBFSQLiteIOManager(FercSQLiteIOManager):
         ferc1_settings = context.resources.dataset_settings.ferc1
 
         table_name = get_table_name_from_context(context)
-        # Remove preceeding asset name metadata
+        # Remove preceding asset name metadata
         table_name = table_name.replace("raw_ferc1_dbf__", "")
 
         # Check if the table_name exists in the self.md object
@@ -730,7 +730,7 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
         )
 
         table_name = get_table_name_from_context(context)
-        # Remove preceeding asset name metadata
+        # Remove preceding asset name metadata
         table_name = table_name.replace(f"raw_{self.db_name}__", "")
 
         # TODO (bendnorman): Figure out a better to handle tables that

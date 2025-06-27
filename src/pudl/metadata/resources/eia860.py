@@ -182,7 +182,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "can_burn_multiple_fuels",
                 "deliver_power_transgrid",
                 "distributed_generation",
-                "syncronized_transmission_grid",
+                "synchronized_transmission_grid",
                 "turbines_num",
                 "planned_modifications",
                 "planned_net_summer_capacity_uprate_mw",

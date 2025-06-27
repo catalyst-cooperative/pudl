@@ -465,7 +465,7 @@ def add_consistent_ba_code_column(plants: pd.DataFrame) -> pd.DataFrame:
 
     Employ the harvesting function :func:`occurrence_consistency` which determines how
     consistent the values in a table are across all records within each plant. This
-    function grabs only the values determined to be at least 70% consitent and merges
+    function grabs only the values determined to be at least 70% consistent and merges
     them onto the plants table as a new column:
     ``balancing_authority_code_eia_consistent``
     """
@@ -537,7 +537,7 @@ def fill_in_missing_ba_codes(plants: pd.DataFrame) -> pd.DataFrame:
     """
 
     def log_current_ba_code_nulls(plants: pd.DataFrame, method_str: str) -> None:
-        """Internal function to log progress on fillin in BA codes.
+        """Internal function to log progress on filling in BA codes.
 
         Args:
             plants: the current plants table to check
@@ -1088,7 +1088,7 @@ def assign_cc_unit_ids(gens_df: pd.DataFrame) -> pd.DataFrame:
 
     Orphaned generators are still assigned a ``unit_id_pudl`` so that they can
     potentially be associated with other generators in the same unit across
-    years. It's likely that these orphans are a result of mislabled or missing
+    years. It's likely that these orphans are a result of mislabeled or missing
     generators. Note that as generators are added or removed over time, the
     flags associated with each generator may change, even though it remains
     part of the same inferred unit.

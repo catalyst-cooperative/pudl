@@ -30,7 +30,7 @@ def census_asset_factory(layer: str) -> AssetsDefinition:
 
         Uses information within the Census DP1 database to set the coordinate reference
         system and to identify the column containing the geometry. The geometry column
-        is renamed to "geom" as that's the default withing Geopandas. No other column
+        is renamed to "geom" as that's the default within Geopandas. No other column
         names or types are altered.
         """
         census_conn = f"sqlite:///{raw_censusdp1tract__all_tables}"

@@ -25,7 +25,7 @@ planned_generator_retirement_year,,,,,,,planned_retirement_year,planned_retireme
 deliver_power_transgrid,,,,deliver_power_transgrid,deliver_power_transgrid,deliver_power_transgrid,deliver_power_transgrid,deliver_power_transgrid
 associated_combined_heat_power,cogen,cogen,cogen,cogen,cogen,cogen,cogenerator,cogenerator
 distributed_generation,distgen,distgen,distgen,distgen,distgen,distgen,,
-syncronized_transmission_grid,,,,synchronized_grid,synchronized_grid,synchronized_grid,synchronized_grid,synchronized_grid
+synchronized_transmission_grid,,,,synchronized_grid,synchronized_grid,synchronized_grid,synchronized_grid,synchronized_grid
 duct_burners,,,,,,,duct_burners,duct_burners
 solid_fuel_gasification,,,,sfg_system,sfg_system,sfg_system,sfg_system,sfg_system
 energy_source_code_1,ensource1,ensource1,ensource1,energy_source_1,energy_source_1,energy_source_1,energy_source_1,energy_source_1

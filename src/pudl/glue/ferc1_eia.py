@@ -460,7 +460,7 @@ def get_util_ids_eia_unmapped(
     Identify any EIA Utility that appears in the data but does not have a
     utility_id_pudl associated with it in our ID mapping spreadsheet. Label some of
     those utilities for potential linkage to FERC 1 utilities, but only if they have
-    plants which report data somewhere in the EIA-923 data tables. For those utilites
+    plants which report data somewhere in the EIA-923 data tables. For those utilities
     that do have plants reporting in EIA-923, sum up the total capacity of all of their
     plants and include that in the output dataframe so that we can effectively
     prioritize mapping them.
@@ -668,7 +668,7 @@ def glue(ferc1: bool = False, eia: bool = False):
         if df[pd.isnull(df).any(axis="columns")].shape[0] > 1:
             logger.warning(
                 f"FERC to EIA glue breaking in {df_n}. There are too many null "
-                "fields. Check the mapping spreadhseet."
+                "fields. Check the mapping spreadsheet."
             )
         df = df.dropna()
 

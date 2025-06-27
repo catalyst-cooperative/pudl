@@ -268,7 +268,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "balancing_authority_code_adjacent_eia": {
         "type": "string",
-        "description": "EIA short code for the other adjacent balancing authority, with which interchange is occuring. Includes Canadian and Mexican BAs.",
+        "description": "EIA short code for the other adjacent balancing authority, with which interchange is occurring. Includes Canadian and Mexican BAs.",
     },
     "balancing_authority_code_eia": {
         "type": "string",
@@ -1223,7 +1223,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "doi": {
         "type": "string",
-        "description": "Unique digitial object identifier of Zenodo archive.",
+        "description": "Unique digital object identifier of Zenodo archive.",
     },
     "dollar_value": {
         "type": "number",
@@ -1992,7 +1992,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "fuel_received_units": {
         "type": "number",
-        "description": "Quanity of fuel received in tons, barrel, or Mcf.",
+        "description": "Quantity of fuel received in tons, barrel, or Mcf.",
     },
     "fuel_switch_energy_source_1": {
         "type": "string",
@@ -2163,17 +2163,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "grid_voltage_1_kv": {
         "type": "number",
-        "description": "Plant's grid voltage at point of interconnection to transmission or distibution facilities",
+        "description": "Plant's grid voltage at point of interconnection to transmission or distribution facilities",
         "unit": "kV",
     },
     "grid_voltage_2_kv": {
         "type": "number",
-        "description": "Plant's grid voltage at point of interconnection to transmission or distibution facilities",
+        "description": "Plant's grid voltage at point of interconnection to transmission or distribution facilities",
         "unit": "kV",
     },
     "grid_voltage_3_kv": {
         "type": "number",
-        "description": "Plant's grid voltage at point of interconnection to transmission or distibution facilities",
+        "description": "Plant's grid voltage at point of interconnection to transmission or distribution facilities",
         "unit": "kV",
     },
     "gross_generation_mwh": {
@@ -2241,7 +2241,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Whether or not a record from the detailed FERC1 accounting tables should "
             "be considered allowable in a utility's rate base based on utility "
             "accounting standards. "
-            "This flag was mannually compiled by RMI utility accounting experts "
+            "This flag was manually compiled by RMI utility accounting experts "
             "based on the xbrl_factoid and sometimes varies based on the utility_type, "
             "plant_status or plant_function."
         ),
@@ -2250,7 +2250,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": (
             "Whether or not a record from the detailed income statement data is typically "
-            "included in a utility's revenue requirement. This flag was mannually "
+            "included in a utility's revenue requirement. This flag was manually "
             "compiled by RMI utility accounting experts based on the xbrl_factoid and "
             "sometimes varies based on the utility_type or plant_function."
         ),
@@ -2650,7 +2650,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "The change in energy use incurred in a given reporting year by "
             "new participants in existing load management programs and all "
-            "participants in new load managment programs."
+            "participants in new load management programs."
         ),
         "unit": "MWh",
     },
@@ -2915,7 +2915,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "natural_gas_delivery_contract_type_code": {
         "type": "string",
-        "description": "Contract type for natrual gas delivery service:",
+        "description": "Contract type for natural gas delivery service:",
         "constraints": {"enum": ["firm", "interruptible"]},
     },
     "natural_gas_local_distribution_company": {
@@ -3063,7 +3063,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "The difference between the amount of energy entering the respondent's "
             "system (wheeled received) for transmission through the respondent's "
             "system and the amount of energy leaving the respondent's system (wheeled "
-            "delievered). Wheeled net represents the energy losses on the respondent's "
+            "delivered). Wheeled net represents the energy losses on the respondent's "
             "system associated with the wheeling of energy for other systems."
         ),
         "unit": "MWh",
@@ -3662,7 +3662,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "partitions": {
         "type": "string",
-        "description": "The data parititions used to generate this instance of the database.",
+        "description": "The data partitions used to generate this instance of the database.",
     },
     "peak_demand_mw": {
         "type": "number",
@@ -4130,7 +4130,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": (
             "PUDL-assigned identifying a respondent to FERC Form 714. This ID associates "
-            "natively reported respondent IDs from the orignal CSV and XBRL data sources."
+            "natively reported respondent IDs from the original CSV and XBRL data sources."
         ),
     },
     "respondent_id_ferc714_csv": {
@@ -4192,7 +4192,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "revenue_per_kwh": {
         "type": "number",
         "description": (
-            "The amount of revenue per kWh by rate schedule aquired in the given "
+            "The amount of revenue per kWh by rate schedule acquired in the given "
             "report year."
         ),
         "unit": "USD",
@@ -4206,7 +4206,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "The category of revenue requirement associated with each component of utility's"
             "income statements. "
-            "These categories were mannually compiled by RMI utility accounting experts "
+            "These categories were manually compiled by RMI utility accounting experts "
             "based on the xbrl_factoid and sometimes vary based on the utility_type or "
             "plant_function. This column is intended to be used to aggregate this "
             "table."
@@ -4231,7 +4231,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "The technology type associated with components of a utility's "
             "revenue requirement. "
-            "These categories were mannually compiled by RMI utility accounting experts "
+            "These categories were manually compiled by RMI utility accounting experts "
             "based on the xbrl_factoid and sometimes vary based on the utility_type or "
             "plant_function as well. This column is intended to be used to aggregate this "
             "table."
@@ -4279,7 +4279,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "rto_iso_location_wholesale_reporting_id": {
         "type": "string",
-        "description": "The designation used to report ths specific location of the wholesale sales transactions to FERC for the Electric Quarterly Report",
+        "description": "The designation used to report the specific location of the wholesale sales transactions to FERC for the Electric Quarterly Report",
     },
     "rtos_of_operation": {
         "type": "string",
@@ -4666,7 +4666,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": (
             "The stack or flue identification value reported to EIA. This denotes the "
-            "place where emissions from the combusion process are released into the "
+            "place where emissions from the combustion process are released into the "
             "atmosphere. Prior to 2013, this was reported as `stack_id_eia` and "
             "`flue_id_eia`."
         ),
@@ -4678,7 +4678,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "of the primary key for the stack flue equipment and boiler association "
             "tables. For 2013 and onward, this value is equal to the value for "
             "stack_flue_id_eia. Prior to 2013, this value is equal to the value for "
-            "stack_id_eia and the value for flue_id_eia seperated by an underscore or "
+            "stack_id_eia and the value for flue_id_eia separated by an underscore or "
             "just the stack_flue_eia in cases where flue_id_eia is NA."
         ),
     },
@@ -4809,7 +4809,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": (
             "Two-letter ISO-3166 political subdivision code (e.g. US state "
-            "or Canadian provice abbreviations like CA or AB)."
+            "or Canadian province abbreviations like CA or AB)."
         ),
         "constraints": {"enum": SUBDIVISION_CODES_ISO3166},
     },
@@ -5013,7 +5013,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "supplier_name": {
         "type": "string",
-        "description": "Company that sold the fuel to the plant or, in the case of Natural Gas, pipline owner.",
+        "description": "Company that sold the fuel to the plant or, in the case of Natural Gas, pipeline owner.",
     },
     "supporting_structure_type": {
         "type": "string",
@@ -5023,7 +5023,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Whether the generator can switch between oil and natural gas.",
     },
-    "syncronized_transmission_grid": {
+    "synchronized_transmission_grid": {
         "type": "boolean",
         "description": "Indicates whether standby generators (SB status) can be synchronized to the grid.",
     },
@@ -5738,7 +5738,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "model_case_nrelatb": {
         "type": "string",
         "description": (
-            "NREL's financial assumption cases. There are two cases which effect project finanical "
+            "NREL's financial assumption cases. There are two cases which effect project financial "
             "assumptions: R&D Only Case and Market + Policies Case. R&D Only includes only projected "
             "R&D improvements while Market + Policy case includes policy and tax incentives. "
             "https://atb.nrel.gov/electricity/2024/financial_cases_&_methods"

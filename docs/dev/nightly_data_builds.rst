@@ -142,7 +142,7 @@ You should see a list of directories with version names:
    PRE v2023.12.01/
    ...
 
-The ``--no-sign-request`` flag allows you to make requsts to the public bucket without
+The ``--no-sign-request`` flag allows you to make requests to the public bucket without
 having to load AWS credentials. If you don't include this flag when interacting with the
 ``s3://pudl.catalyst.coop`` bucket, ``aws`` will give you an authentication error.
 
@@ -256,7 +256,7 @@ the ``gcloud storage cp`` command, which behaves very much like the Unix ``cp`` 
    gcloud storage cp gs://builds.catalyst.coop/<build ID>/pudl.sqlite ./
 
 If you need to download all of the build outputs (~20GB!) you can do a recursive copy of
-the whole directory hierarchy (note that this will incurr egress charges):
+the whole directory hierarchy (note that this will incur egress charges):
 
 .. code::
 

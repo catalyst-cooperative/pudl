@@ -1,4 +1,4 @@
-"""A script using Dagster to convert FERC data fom DBF and XBRL to SQLite databases."""
+"""A script using Dagster to convert FERC data from DBF and XBRL to SQLite databases."""
 
 import pathlib
 import sys
@@ -144,7 +144,7 @@ def main(
     loglevel: str,
     dataset_only: str,
 ):
-    """Use Dagster to convert FERC data fom DBF and XBRL to SQLite databases.
+    """Use Dagster to convert FERC data from DBF and XBRL to SQLite databases.
 
     Reads settings specifying which forms and years to convert from ETL_SETTINGS_YML.
 

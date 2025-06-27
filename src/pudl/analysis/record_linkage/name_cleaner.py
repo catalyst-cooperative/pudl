@@ -174,7 +174,7 @@ class CompanyNameCleaner(BaseModel):
 
         Arguments:
             col (pd.Series): The column that needs to be cleaned.
-            dict_regex_rules (dict): a dictionary of cleaning rules writen in regex with the format
+            dict_regex_rules (dict): a dictionary of cleaning rules written in regex with the format
                 [rule name] : ['replacement', 'regex rule']
 
         Returns:

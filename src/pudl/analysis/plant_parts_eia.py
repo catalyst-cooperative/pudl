@@ -178,7 +178,7 @@ from pudl.metadata.classes import Resource
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
-# HALP: I need both of these setting set in order for the dfs in the docstrings
+# HELP: I need both of these setting set in order for the dfs in the docstrings
 # to pass the doctests. Without them the formatting get all jumbled.
 # but obviously this is the wrong place to do this.
 # I tried adding these into conftest.py in pandas_terminal_width().
@@ -969,10 +969,10 @@ class PlantPart:
         This method takes a dataframe of records that are aggregated to the
         level of a plant-part (with certain ``id_cols``) and appends a
         fraction_owned column, which indicates the % ownership that a
-        particular utility owner has for each aggreated plant-part record.
+        particular utility owner has for each aggregated plant-part record.
 
         For partial owner records (ownership_record_type == "owned"), fraction_owned is
-        calcuated based on the portion of the capacity and the total capacity
+        calculated based on the portion of the capacity and the total capacity
         of the plant. For total owner records (ownership_record_type == "total"), the
         fraction_owned is always 1.
 

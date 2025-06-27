@@ -112,7 +112,7 @@ def core_epa__assn_eia_epacamd(
     In terms of cleaning, we implement the standard column name changes: lower-case, no
     special characters, and underscores instead of spaces. We also rename some of the
     columns for clarity and to match how they appear in the tables you will merge with.
-    Besides standardizing datatypes (again for merge compatability) the only meaningful
+    Besides standardizing datatypes (again for merge compatibility) the only meaningful
     data alteration we employ here is removing leading zeros from numeric strings on
     the ``generator_id`` and ``emissions_unit_id_epa`` fields. This is because the same
     function is used to clean those same fields in all the other tables in which they
@@ -121,7 +121,7 @@ def core_epa__assn_eia_epacamd(
     values because that means that they are unmatched and do not provide any useful
     information to users.
 
-    It's important to note that the crosswalk is kept intact (and not seperated into
+    It's important to note that the crosswalk is kept intact (and not separated into
     smaller reference tables) because the relationship between the ids is not 1:1. For
     example, you can't isolate the plant_id fields, drop duplicates, and call it a day.
     The plant discrepancies depend on which generator ids it's referring to. This goes
@@ -138,7 +138,7 @@ def core_epa__assn_eia_epacamd(
     values from various years. To keep the crosswalk in alignment with the available eia
     data, we'll restrict it based on the generator entity table which has
     ``plant_id_eia`` and ``generator_id`` so long as it's not using the full suite of
-    avilable years. If it is, we don't want to restrict the crosswalk so we can get
+    available years. If it is, we don't want to restrict the crosswalk so we can get
     warnings and errors from any foreign key discrepancies. This isn't an ideal
     solution, but it works for now.
 
@@ -195,7 +195,7 @@ def core_epa__assn_eia_epacamd(
     # Restrict crosswalk for tests if running fast etl
     if not processing_all_eia_years:
         logger.info(
-            "Selected subset of avilable EIA years--restricting EPACAMD-EIA Crosswalk \
+            "Selected subset of available EIA years--restricting EPACAMD-EIA Crosswalk \
             to chosen subset of EIA years"
         )
         crosswalk_clean = pd.merge(
@@ -269,7 +269,7 @@ def _core_epa__assn_eia_epacamd_unique(
 
 
 def correct_epa_eia_plant_id_mapping(df: pd.DataFrame) -> pd.DataFrame:
-    """Mannually correct one plant ID.
+    """Manually correct one plant ID.
 
     The EPA's power sector data crosswalk incorrectly maps plant_id_epa 55248 to
     plant_id_eia 55248, when it should be mapped to id 2847.
@@ -348,7 +348,7 @@ def core_epa__assn_eia_epacamd_subplant_ids(
         "Edited subplant_ids after update_subplant_ids: "
         f"{len(subplant_id_diff) / len(subplant_ids_updated):.1}%"
     )
-    # overwrite the subplant ids and apply mannual update
+    # overwrite the subplant ids and apply manual update
     subplant_ids_updated = (
         subplant_ids_updated.assign(subplant_id=lambda x: x.subplant_id_updated)
         .reset_index(drop=True)
@@ -693,11 +693,11 @@ def connect_ids(
 
 
 def manually_update_subplant_id(subplant_crosswalk: pd.DataFrame) -> pd.DataFrame:
-    """Mannually update the subplant_id for ``plant_id_eia`` 1391.
+    """Manually update the subplant_id for ``plant_id_eia`` 1391.
 
     This function lumps all records within ``plant_id_eia`` 1391 into the same
     ``subplant_id`` group. See `comment <https://github.com/singularity-energy/open-grid-emissions/pull/142#issuecomment-1186579260>_`
-    for expanation of why.
+    for explanation of why.
     """
     # set all generators in plant 1391 to the same subplant
     subplant_crosswalk.loc[

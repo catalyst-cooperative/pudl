@@ -82,6 +82,6 @@ def test_missing_cems_partition(pudl_datastore_fixture):
     """Test that the extract step returns an empty df.
 
     Note: This could be a unit test, but it interacts with zenodo which is sometimes
-    slow. It must retrive the datapacakge.json associated with the archive.
+    slow. It must retrieve the datapacakge.json associated with the archive.
     """
     assert extract("2051q4", ds=pudl_datastore_fixture).empty

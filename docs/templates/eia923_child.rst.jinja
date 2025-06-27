@@ -96,7 +96,7 @@ Boiler Fuel Primary Keys
 The :ref:`core_eia923__monthly_boiler_fuel` table has several sneaky primary keys and duplicate rows.
 The main primary keys for the table are: ``plant_id_eia, boiler_id, energy_source_code, prime_mover_code,
 report_date``. There are some rows that also differ based on ``associated_combined_heat_power``, due
-to mid-year retirement of units that are assocated with combine heat and power systems, and
+to mid-year retirement of units that are associated with combine heat and power systems, and
 ``operator_name``, due to lenient standards for string columns (the all have the same ``operator_id``
 value). We drop both the ``associated_combined_heat_power`` and ``operator_name`` fields from the final
 normalized table, causing duplicate rows. Luckily, these rows don't provide any conflicting information.

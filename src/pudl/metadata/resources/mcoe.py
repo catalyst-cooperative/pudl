@@ -118,7 +118,7 @@ estimates."""
                 "summer_estimated_capability_mw",
                 "supercritical_tech",
                 "can_switch_oil_gas",
-                "syncronized_transmission_grid",
+                "synchronized_transmission_grid",
                 "time_cold_shutdown_full_load_code",
                 "timezone",
                 "topping_bottoming_code",

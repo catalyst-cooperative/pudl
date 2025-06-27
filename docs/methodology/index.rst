@@ -10,7 +10,7 @@ For example:
 * Estimating per-unit heat rates (thermal efficiency)
 * Allocating reported fuel consumption and net generation to individual generators
 * Estimating generator capacity factors
-* Estimating CapEx ond O&M costs by plant based on FERC Form 1 data
+* Estimating CapEx and O&M costs by plant based on FERC Form 1 data
 * Matching FERC & EIA plants and utilities
 * Extending EIA's boiler-generator association to cover more units
 * Matching EIA Utilities and SEC Companies

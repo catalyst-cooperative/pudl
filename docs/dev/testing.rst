@@ -57,7 +57,7 @@ each with its own subdirectory:
 Running tests with Make
 -------------------------------------------------------------------------------
 
-The ``Makefile`` targets that pertain to software and data tests which are coordianted
+The ``Makefile`` targets that pertain to software and data tests which are coordinated
 by ``pytest`` are prefixed with ``pytest-``
 
 In addition to running the ``pytest-unit`` and ``pytest-integration`` targets mentioned

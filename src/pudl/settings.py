@@ -609,7 +609,7 @@ class DatasetsSettings(FrozenBaseModel):
         eia860m is a monthly update of a few tables in the larger eia860 dataset.
 
         Args:
-            ds: An initalized PUDL Datastore from which the DOI's for each raw input
+            ds: An initialized PUDL Datastore from which the DOI's for each raw input
                 dataset can be obtained.
 
         Returns:
@@ -884,7 +884,7 @@ def _convert_settings_to_dagster_config(settings_dict: dict[str, Any]) -> None:
 
     For each partition parameter in a :class:`GenericDatasetSettings` subclass, create a
     corresponding :class:`DagsterField`. By default the :class:`GenericDatasetSettings`
-    subclasses will default to include all working paritions if the partition value is
+    subclasses will default to include all working partitions if the partition value is
     None. Get the value type so dagster can do some basic type checking in the UI.
 
     Args:

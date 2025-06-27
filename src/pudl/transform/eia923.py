@@ -419,7 +419,7 @@ def _yearly_to_monthly_records(df: pd.DataFrame) -> pd.DataFrame:
         return df
     index_cols = df.columns[~ends_with_month_filter]
     # performance note: this was good enough for eia923 data size.
-    # Using .set_index() is simple but inefficient due to unecessary index creation.
+    # Using .set_index() is simple but inefficient due to unnecessary index creation.
     # Performance may be improved by separating into two dataframes,
     # .stack()ing the monthly data, then joining back together on the original index.
     df = df.set_index(list(index_cols), append=True)
@@ -469,7 +469,7 @@ def _coalmine_cleanup(
     # of the values here (case, removing whitespace, punctuation, etc.) will
     # affect the total number of "unique" mines that we end up having in the
     # table... and we probably want to minimize it (without creating
-    # collisions).  We will need to do exactly the same transofrmations in the
+    # collisions).  We will need to do exactly the same transformations in the
     # FRC ingest function before merging these values in, or they won't match
     # up.
     cmi_df = (

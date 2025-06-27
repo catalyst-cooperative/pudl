@@ -40,7 +40,7 @@ def test_run_aggregations(live_dbs: bool, pudl_engine: sa.Engine) -> None:
     gens_mega = MakeMegaGenTbl().execute(mcoe, own_eia860)
 
     for part_name in PLANT_PARTS:
-        logger.info(f"Begining tests for {part_name}:")
+        logger.info(f"Beginning tests for {part_name}:")
         if part_name == "plant_match_ferc1":
             test_merge = prep_test_merge(
                 part_name,
@@ -53,7 +53,7 @@ def test_run_aggregations(live_dbs: bool, pudl_engine: sa.Engine) -> None:
         else:
             test_merge = prep_test_merge(part_name, plant_parts_eia, gens_mega)
         for test_col in SUM_COLS:
-            # Check if test aggregation is the same as generated aggreation
+            # Check if test aggregation is the same as generated aggregation
             # Apply a boolean column to the test df.
             test_merge[f"test_{test_col}"] = (
                 (test_merge[f"{test_col}_test"] == test_merge[f"{test_col}"])

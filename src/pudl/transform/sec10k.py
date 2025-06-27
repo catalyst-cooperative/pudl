@@ -384,7 +384,7 @@ def core_sec10k__company_info(
 
     This information is used elsewhere for matching SEC 10-K filers to EIA utilities
     and for identifying the companies that are mentioned in the unstructured Exhibit 21
-    attachements.
+    attachments.
 
     There is a 1-to-1 correspondence between the company_data and filing_values blocks,
     and virtually all business_address blocks (99.9%), but a substantial number (~5%) of
@@ -415,7 +415,7 @@ def core_sec10k__company_info(
     mail_address = _pivot_info_block(raw_company_info, block="mail_address")
     former_company = _pivot_info_block(raw_company_info, block="former_company")
 
-    # Add prefixes where needed to ensure that column names are distinct after concatentation.
+    # Add prefixes where needed to ensure that column names are distinct after concatenation.
     business_address.columns = [f"business_{col}" for col in business_address.columns]
     mail_address.columns = [f"mail_{col}" for col in mail_address.columns]
 
@@ -460,7 +460,7 @@ def core_sec10k__company_info(
     assert len(orphan_mail_address) <= 22_612
 
     # This merge is necessary to ensure that the company name changelog table has access
-    # to the current company name that was found in the associated filing. Inutitively
+    # to the current company name that was found in the associated filing. Intuitively
     # we would want to merge this information in based on the CIK in the output table,
     # but we don't have a well normalized table associating all CIKs with the
     # corresponding company name as a function of time -- this is the information that

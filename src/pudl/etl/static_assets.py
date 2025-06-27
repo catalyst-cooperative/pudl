@@ -95,7 +95,7 @@ def static_eia_tables():
     },
 )
 def static_ferc1_tables():
-    """Compile static tables for FERC1 for foriegn key constaints.
+    """Compile static tables for FERC1 for foreign key constraints.
 
     This function grabs static encoded tables via :func:`_read_static_encoding_tables`
     as well as two static tables that are non-encoded tables (``ferc_accounts``).

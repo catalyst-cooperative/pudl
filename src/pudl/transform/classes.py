@@ -14,14 +14,14 @@ code.
 Transform functions take data (either a Series or DataFrame) and a TransformParams
 object as inputs, and return transformed data of the same type that they consumed
 (Series or DataFrame). They operate on the data, and their particular behavior is
-controled by the TransformParams. Like the TableTransformer classes discussed below,
+controlled by the TransformParams. Like the TableTransformer classes discussed below,
 they are organized into 3 separate levels of abstraction:
 
   * general-purpose: always available from the abstract base class.
   * dataset-specific: used repeatedly by a dataset, from an intermediate abstract class.
   * table-specific: used only once for a particular table, defined in a concrete class.
 
-These functions are not generally meant to be used independent of a ``TableTransfomer``
+These functions are not generally meant to be used independent of a ``TableTransformer``
 class. They are wrapped by methods within the class definitions which handle logging
 and intermediate dataframe caching.
 
@@ -410,7 +410,7 @@ def strip_non_numeric_values(
       decimal place followed by any number of digits (including zero)
     * OR an optional ``+`` or ``-`` followed by a period followed by at least one digit
 
-    Unless the found mathc is followed by a letter (this is done using a negative
+    Unless the found match is followed by a letter (this is done using a negative
     lookback).
 
     Note: This will not work with exponential values. If there are two possible matches
@@ -804,7 +804,7 @@ class InvalidRows(TransformParams):
 
 
 def drop_invalid_rows(df: pd.DataFrame, params: InvalidRows) -> pd.DataFrame:
-    """Drop rows with only invalid values in all specificed columns.
+    """Drop rows with only invalid values in all specified columns.
 
     This method finds all rows in a dataframe that contain ONLY invalid data in ALL of
     the columns that we are checking, and drops those rows, logging the % of all rows
@@ -970,7 +970,7 @@ class TableTransformParams(TransformParams):
     :class:`pudl.transform.ferc1.Ferc1TableTransformParams`
     """
 
-    # MultiColumnTransformParams can be initilized to empty dictionaries, since they
+    # MultiColumnTransformParams can be initialized to empty dictionaries, since they
     # all iterate over the columns they apply to. Empty means... do nothing.
     convert_units: dict[str, UnitConversion] = {}
     categorize_strings: dict[str, StringCategories] = {}
@@ -1080,7 +1080,7 @@ def cache_df(key: str = "main") -> Callable[..., pd.DataFrame]:
 class AbstractTableTransformer(ABC):
     """An abstract base table transformer class.
 
-    This class provides methods for applying the general purpose transform funcitons to
+    This class provides methods for applying the general purpose transform functions to
     dataframes. These methods should each log that they are running, and the
     ``table_id`` of the table they're beiing applied to. By default they should obtain
     their parameters from the ``params`` which are stored in the class, but should allow
@@ -1334,7 +1334,7 @@ class AbstractTableTransformer(ABC):
     def drop_invalid_rows(
         self, df: pd.DataFrame, params: list[InvalidRows] | None = None
     ) -> pd.DataFrame:
-        """Drop rows with only invalid values in all specificed columns."""
+        """Drop rows with only invalid values in all specified columns."""
         if params is None:
             params = self.params.drop_invalid_rows
         logger.info(f"{self.table_id.value}: Dropping remaining invalid rows.")

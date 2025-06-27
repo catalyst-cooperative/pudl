@@ -96,7 +96,7 @@ class ExcelExtractor(GenericExtractor):
     This class implements the generic dataset agnostic logic to load data
     from excel spreadsheet simply by using excel Metadata for given dataset.
 
-    It is expected that individual datasets wil subclass this code and add
+    It is expected that individual datasets will subclass this code and add
     custom business logic by overriding necessary methods.
 
     When implementing custom business logic, the following should be modified:

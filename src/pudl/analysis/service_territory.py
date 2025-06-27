@@ -92,7 +92,7 @@ def get_territory_fips(
         limit_by_state: Whether to require that the counties associated
             with the balancing authority are inside a state that has also been
             seen in association with the balancing authority and the utility
-            whose service territory contians the county.
+            whose service territory contains the county.
 
     Returns:
         A table associating the entity IDs with a collection of
@@ -232,7 +232,7 @@ def get_territory_geometries(
         limit_by_state: Whether to require that the counties associated
             with the balancing authority are inside a state that has also been
             seen in association with the balancing authority and the utility
-            whose service territory contians the county.
+            whose service territory contains the county.
         dissolve: If False, each record in the compiled territory will correspond
             to a single county, with a county-level geometry, and there will be many
             records enumerating all the counties associated with a given
@@ -276,7 +276,7 @@ def _save_geoparquet(
         gdf: GeoDataframe containing utility or balancing authority geometries.
         entity_type: string indicating whether we're outputting utility or balancing
             authority geometries.
-        dissolve: Wether the individual county geometries making up the service
+        dissolve: Whether the individual county geometries making up the service
             territories have been merged together. Used to construct filename.
         limit_by_state: Whether service territories have been limited to include only
             counties in states where the utilities reported sales. Used to construct

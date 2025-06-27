@@ -188,7 +188,7 @@ def out_eia930__hourly_aggregated_demand(
         "interconnect": "interconnect_code_eia",
     }
 
-    # Mege with ``core_eia__codes_balancing_authorities`` to get mapping between
+    # Merge with ``core_eia__codes_balancing_authorities`` to get mapping between
     # Balancing authorities and regions/interconnects
     other = core_eia__codes_balancing_authorities[
         [

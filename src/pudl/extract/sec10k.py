@@ -22,7 +22,7 @@ def extract(ds: Datastore, table: str, years: list[int]) -> pd.DataFrame:
 
     Allows filtering by year to enable testing of the pipeline with a smaller amount
     of data, like a pseudo-partition. This is necessary because the SEC 10-K data is
-    not partitioned uppstream.
+    not partitioned upstream.
 
     Args:
         ds: Initialized PUDL datastore.

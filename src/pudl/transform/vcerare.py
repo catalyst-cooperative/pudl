@@ -156,7 +156,7 @@ def _add_time_cols(df: pd.DataFrame, df_name: str) -> pd.DataFrame:
 def _drop_city_cols(df: pd.DataFrame, df_name: str) -> pd.DataFrame:
     """Drop city columns from the capacity factor tables before stacking.
 
-    We do this early since the columns can be droped by name here, and we don't have to
+    We do this early since the columns can be dropped by name here, and we don't have to
     search through all of the stacked rows to find matching records.
     """
     city_cols = [

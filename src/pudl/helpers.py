@@ -4,7 +4,7 @@ The functions in this module are used in various stages of the ETL and post-etl
 processes. They are usually not dataset specific, but not always. If a function is
 designed to be used as a general purpose tool, applicable in multiple scenarios, it
 should probably live here. There are lost of transform type functions in here that help
-with cleaning and restructing dataframes.
+with cleaning and restructuring dataframes.
 """
 
 import importlib.resources
@@ -66,7 +66,7 @@ def label_map(
             and ``to_col``.
         from_col: Label of column containing the existing codes to be replaced.
         to_col: Label of column containing the new codes to be swapped in.
-        null_value: Defualt (Null) value to map to when a value which doesn't
+        null_value: Default (Null) value to map to when a value which doesn't
             appear in ``from_col`` is encountered.
 
 
@@ -437,7 +437,7 @@ def is_doi(doi: str) -> bool:
     """Determine if a string is a valid digital object identifier (DOI).
 
     Function simply checks whether the offered string matches a regular
-    expresssion -- it doesn't check whether the DOI is actually registered
+    expression -- it doesn't check whether the DOI is actually registered
     with the relevant authority.
 
     Args:
@@ -1051,7 +1051,7 @@ def remove_leading_zeros_from_numeric_strings(
     zeros and sometimes it won't. For example, in the Excel spreadsheets published by
     EIA, the same generator may show up with the ID "0001" and "1" in different years
     This function strips the leading zeros from those numeric strings so the data can
-    be mapped accross years and datasets more reliably.
+    be mapped across years and datasets more reliably.
 
     Alphanumeric generator IDs with leadings zeroes are not affected, as we found no
     instances in which an alphanumeric ID appeared both with and without leading zeroes.
@@ -1131,7 +1131,7 @@ def drop_tables(engine: sa.Engine, clobber: bool = False) -> None:
     drop all existing tables.
 
     Args:
-        engine: An SQL Alchemy SQLite database Engine pointing at an exising SQLite
+        engine: An SQL Alchemy SQLite database Engine pointing at an existing SQLite
             database to be deleted.
         clobber: Whether or not to allow a non-empty DB to be removed.
 
@@ -1154,7 +1154,7 @@ def drop_tables(engine: sa.Engine, clobber: bool = False) -> None:
 
 
 def merge_dicts(lods: list[dict[Any, Any]]) -> dict[Any, Any]:
-    """Merge multipe dictionaries together.
+    """Merge multiple dictionaries together.
 
     Given any number of dicts, shallow copy and merge into a new dict, precedence goes
     to key value pairs in latter dicts within the input list.
@@ -1508,9 +1508,9 @@ def get_working_dates_by_datasource(datasource: str) -> pd.DatetimeIndex:
 def dedupe_on_category(
     dedup_df: pd.DataFrame, base_cols: list[str], category_name: str, sorter: list[str]
 ) -> pd.DataFrame:
-    """Deduplicate a df using a sorted category to retain prefered values.
+    """Deduplicate a df using a sorted category to retain preferred values.
 
-    Use a sorted category column to retain your prefered values when a
+    Use a sorted category column to retain your preferred values when a
     dataframe is deduplicated.
 
     Args:
@@ -1629,7 +1629,7 @@ def calc_capacity_factor(
 ) -> pd.DataFrame:
     """Calculate capacity factor.
 
-    Capacity factor is calcuated from the capcity, the net generation over a
+    Capacity factor is calculated from the capacity, the net generation over a
     time period and the hours in that same time period. The dates from that
     dataframe are pulled out to determine the hours in each period based on
     the frequency. The number of hours is used in calculating the capacity
@@ -1689,7 +1689,7 @@ def weighted_average(
             parameters data_col and weight_col.
         data_col: column name of data column to average
         weight_col: column name to weight on
-        by: List of columns to group by when calcuating the weighted average value.
+        by: List of columns to group by when calculating the weighted average value.
 
     Returns:
         A table with ``by`` columns as the index and the weighted ``data_col``.
@@ -1712,7 +1712,7 @@ def sum_and_weighted_average_agg(
 ) -> pd.DataFrame:
     """Aggregate dataframe by summing and using weighted averages.
 
-    Many times we want to aggreate a data table using the same groupby columns but with
+    Many times we want to aggregate a data table using the same groupby columns but with
     different aggregation methods. This function combines two of our most common
     aggregation methods (summing and applying a weighted average) into one function.
     Because pandas does not have a built-in weighted average method for groupby we use
@@ -1749,7 +1749,7 @@ def get_eia_ferc_acct_map() -> pd.DataFrame:
     Returns:
         pandas.DataFrame: table which maps the combination of EIA's technology
             description and prime mover code to FERC Uniform System of Accounts
-            (USOA) accouting names. Read more about USOA
+            (USOA) accounting names. Read more about USOA
             `here
             <https://www.ferc.gov/enforcement-legal/enforcement/accounting-matters>`__
             The output table has the following columns: ``['technology_description',
@@ -1866,7 +1866,7 @@ def convert_col_to_bool(
         x for x in df[col_name].dropna().unique() if x not in true_values + false_values
     ]:
         raise AssertionError(
-            "Found values besides NA that are not categoriezed as True or False: "
+            "Found values besides NA that are not categorized as True or False: "
             f"{unspecified_values}"
         )
     if [x for x in true_values if x in false_values]:
@@ -1917,7 +1917,7 @@ def scale_by_ownership(
     relatively clearly in their ownership table. On the other hand, in
     FERC1, sometimes a partial owner reports the full plant-part, sometimes
     they report only their ownership portion of the plant-part. And of
-    course it is not labeld in FERC1. Because of this, we need to compile
+    course it is not labeled in FERC1. Because of this, we need to compile
     all of the possible ownership slices of the EIA generators.
 
     In order to accumulate every possible version of how a generator could
@@ -1987,7 +1987,7 @@ def scale_by_ownership(
         .rename(columns={"owner_utility_id_eia": "utility_id_eia"})
     )
 
-    # duplicate all of these "owned" records, asign 1 to all of the
+    # duplicate all of these "owned" records, assign 1 to all of the
     # fraction_owned column to indicate 100% ownership, and add these new
     # "total" records to the "owned"
     gens = pd.concat(

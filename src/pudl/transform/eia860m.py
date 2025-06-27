@@ -55,7 +55,7 @@ def core_eia860m__changelog_generators(
         raw_eia860__generator_retired=raw_eia860m__generator_retired.assign(
             operational_status_code=pd.NA
         ),
-        # pass an empty genertor df here. 860 old years had one big gens tab
+        # pass an empty generator df here. 860 old years had one big gens tab
         # but 860m doesn't. we do this just to enable us to run the 860 transform
         # function. We add all of the columns to it so we don't have any errors
         # from missing columns

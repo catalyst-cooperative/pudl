@@ -81,7 +81,7 @@ class ForeignKeyError(sa.exc.SQLAlchemyError):
         Args:
             child_table: The table that a foreign key constraint is applied to.
             parent_table: The table that a foreign key constraint refers to.
-            foreign_key: Comma seperated string of key(s) that make up foreign key.
+            foreign_key: Comma separated string of key(s) that make up foreign key.
             rowids: Rowid(s) of child_table where constraint failed (See
                 https://www.sqlite.org/lang_createtable.html#rowid for more on rowid's).
         """
