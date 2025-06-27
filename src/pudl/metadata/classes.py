@@ -1395,9 +1395,7 @@ class Resource(PudlMeta):
         return usage_warnings
 
     @staticmethod
-    def _compile_description(
-        resource_id: str, obj: dict, cleanup: bool = True, docs_dir: Path | None = None
-    ):
+    def _compile_description(resource_id: str, obj: dict, cleanup: bool = True):
         meta_from_name = MetaFromResourceName(name=resource_id, seed=obj)
         if obj["table_type"] is None:
             obj["table_type"] = meta_from_name.tabletype or None
@@ -1439,20 +1437,17 @@ class Resource(PudlMeta):
             del obj["description_details"]
 
     @staticmethod
-    def dict_from_id(resource_id: str, docs_dir: Path | None = None) -> dict:
+    def dict_from_id(resource_id: str) -> dict:
         """Construct dictionary from PUDL identifier (`resource.name`)."""
         descriptor = PudlResourceDescriptor.model_validate(
             RESOURCE_METADATA[resource_id]
         )
-        return Resource.dict_from_resource_descriptor(
-            resource_id, descriptor, docs_dir=docs_dir
-        )
+        return Resource.dict_from_resource_descriptor(resource_id, descriptor)
 
     @staticmethod
     def dict_from_resource_descriptor(  # noqa: C901
         resource_id: str,
         descriptor: PudlResourceDescriptor,
-        docs_dir: Path | None = None,
     ) -> dict:
         """Get a Resource-shaped dict from a PudlResourceDescriptor.
 
@@ -1517,7 +1512,7 @@ class Resource(PudlMeta):
         if "foreign_key_rules" in schema:
             del schema["foreign_key_rules"]
 
-        Resource._compile_description(resource_id, obj, docs_dir=docs_dir)
+        Resource._compile_description(resource_id, obj)
 
         # Add encoders to columns as appropriate, based on FKs.
         # Foreign key relationships determine the set of codes to use
@@ -2258,7 +2253,6 @@ class Package(PudlMeta):
         resource_ids: tuple[str] = tuple(sorted(RESOURCE_METADATA)),
         resolve_foreign_keys: bool = False,
         excluded_etl_groups: tuple[str] = (),
-        docs_dir: Path | None = None,
     ) -> "Package":
         """Construct a collection of Resources from PUDL identifiers (`resource.name`).
 
@@ -2291,9 +2285,7 @@ class Package(PudlMeta):
                             names.append(name)
                 i = len(resources)
                 if len(names) > i:
-                    resources += [
-                        Resource.dict_from_id(x, docs_dir=docs_dir) for x in names[i:]
-                    ]
+                    resources += [Resource.dict_from_id(x) for x in names[i:]]
 
         if excluded_etl_groups:
             resources = [
