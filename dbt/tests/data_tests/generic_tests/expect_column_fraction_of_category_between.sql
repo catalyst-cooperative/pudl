@@ -8,7 +8,13 @@
 ) %}
 
 SELECT
-    SUM(CASE WHEN {{ category_column }} = {{ category_value | repr }} THEN {{ column_name }} ELSE 0 END) * 1.0
+    SUM(WHEN {{ category_column }} =
+                {% if category_value is string %}
+                    '{{ category_value }}'
+                {% else %}
+                    {{ category_value }}
+                {% endif %}
+        THEN {{ column_name }} ELSE 0 END) * 1.0
     / SUM({{ column_name }}) AS fraction
 FROM {{ model }}
 HAVING fraction < {{ lower_bound }}
