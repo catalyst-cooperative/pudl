@@ -8,6 +8,7 @@ from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.classes import (
     DataSource,
     Field,
+    MetaFromResourceName,
     Package,
     PudlResourceDescriptor,
     Resource,
@@ -194,16 +195,67 @@ def test_frictionless_data_package_non_empty():
     assert len(datapackage.resources) == len(RESOURCE_METADATA)
 
 
+METADATA_OVERRIDE_KEYS = [
+    "layer",
+    "table_type",
+    "timeseries_resolution",
+    "description_summary",
+    "description_layer",
+    "description_datasource",
+    "description_primarykey",
+    "description_details",
+]
+
+
 def test_frictionless_data_package_resources_populated():
     datapackage = PUDL_PACKAGE.to_frictionless()
     for resource in datapackage.resources:
         assert resource.name in RESOURCE_METADATA
         expected_resource = RESOURCE_METADATA[resource.name]
-        assert expected_resource["description"] == resource.description
+        assert any(
+            expected_resource.get(candidate)
+            and (resource.description.find(expected_resource[candidate]) >= 0)
+            for candidate in ["description"] + METADATA_OVERRIDE_KEYS
+        )
         assert expected_resource["schema"]["fields"] == [
             f.name for f in resource.schema.fields
         ]
         assert (
             expected_resource["schema"].get("primary_key", [])
             == resource.schema.primary_key
+        )
+
+
+description_compliant_tables = [
+    # list here once we have some
+]
+
+
+@pytest.mark.parametrize(
+    "resource_name", sorted(description_compliant_tables)
+)  # someday: sorted(PUDL_RESOURCES.keys()))
+def test_description_compliance(resource_name):
+    properties = MetaFromResourceName(name=resource_name)
+    name_parse = {
+        "layer": (properties.layer or properties.meta.get("layer")),
+        "description_datasource": (
+            properties.datasource or properties.meta.get("description_datasource")
+        ),
+        "table_type": (properties.tabletype or properties.meta.get("table_type")),
+        "timeseries_resolution": (
+            (properties.tabletype or properties.meta.get("table_type")) != "timeseries"
+            or (properties.time or properties.meta.get("timeseries_resolution"))
+        ),
+    }
+    for override, has_value in name_parse.items():
+        assert has_value, (
+            f"""Table {resource_name} could not be parsed as layer_source__tabletype_slug and no overrides were set in the table metadata. Rename {resource_name} or set the following override keys: {override}"""
+        )
+    # todo: layer-based checks
+    # todo: asset_type-based checks
+    # pk-based checks
+    has_pk = "primary_key" in properties.meta["schema"]
+    if not has_pk:
+        assert "description_primarykey" in properties.meta, (
+            """Table {resource_name} has no primary key, but the table metadata does not include an explanation in the required format. We expect the key "description_primarykey" to briefly describe what each record represents and, if needed, why no primary key is possible."""
         )

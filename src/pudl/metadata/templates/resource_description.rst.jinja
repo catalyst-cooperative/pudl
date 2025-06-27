@@ -1,0 +1,28 @@
+{% set tabletype_parts = resource.description_tabletype() %}
+{{ resource.description_time() }} {{ tabletype_parts.0 }}
+{% if resource.meta.description_summary %}{{ tabletype_parts.1 }} {{ resource.meta.description_summary }}{% endif %}
+
+Processing:
+  {{ resource.description_layer() }} {{ resource.meta.description_layer|default("", true) }}
+
+Source:
+  {{ resource.description_datasource() }} {{ resource.meta.description_datasource|default("", true) }}
+
+Primary key:
+  {{ resource.description_primarykey() }} {{ resource.meta.description_primarykey|default("", true) }}
+
+{% if resource.meta.usage_warnings|default([], true)|length > 0 %}
+Usage Warnings
+^^^^^^^^^^^^^^
+
+{% for uw in resource.meta.usage_warnings %}
+* {{ uw }}
+{% endfor %}
+{% endif %}
+
+{% if resource.meta.description_details %}
+Additional Details
+^^^^^^^^^^^^^^^^^^
+
+{{ resource.meta.description_details|safe }}
+{% endif %}
