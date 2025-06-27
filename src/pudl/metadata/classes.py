@@ -1420,10 +1420,8 @@ class Resource(PudlMeta):
             # for some reason setting this on obj doesn't work :(
             meta_from_name.meta["description_details"] = obj["description"]
         # okay now render the rst
-        if docs_dir is None:
-            docs_dir = (Path(__file__).parent.parent.parent.parent / "docs").resolve()
         obj["description"] = (
-            _get_jinja_environment(docs_dir)
+            _get_jinja_environment()
             .get_template("resource_description.rst.jinja")
             .render(
                 resource=meta_from_name,
