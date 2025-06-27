@@ -283,7 +283,7 @@ out_ferc1_assets = [
 ]
 
 
-@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
+@asset(compute_kind="Python")
 def _out_ferc1__yearly_plants_utilities(
     core_pudl__assn_ferc1_pudl_plants: pd.DataFrame,
     core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,

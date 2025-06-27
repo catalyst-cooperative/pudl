@@ -24,6 +24,19 @@ EIA AEO
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+EIA 860
+~~~~~~~
+* Added EIA 860 early release data from 2024. See :issue:`4323` and PR :pr:`4332`.
+
+EIA 860M
+~~~~~~~~
+* Added EIA 860M data from April 2025. See :issue:`4324` and PR :pr:`4332`.
+
+EIA 923
+~~~~~~~
+* Added EIA 923 early release data from 2024 and monthly data from March 2025. See
+  :issue:`4325` and PR :pr:`4332`.
+
 Bug Fixes
 ^^^^^^^^^
 
@@ -33,9 +46,21 @@ VCE RARE
   found in ``_core_censuspep__yearly_geocodes``. See issue :issue:`3914` and PR
   :pr:`4319`.
 
+Deprecations
+^^^^^^^^^^^^
+
+* After more than a year of deprecation warnings, we've removed the ``PudlTabl``
+  output management class, and have stopped distributing a handful of tables that were
+  only around to allow the behavior of that class to be maintained. See issues
+  :issue:`3215,2911` and PR :pr:`4316`.
+
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* We've added a new sub-command to ``dbt_helper`` - ``dbt_helper validate``.
+  This lets you run validation tests for a selection of DBT models and also
+  see what the failing outputs are, instead of doing a bunch of digging after
+  the fact.
 * We've added a new devtool in ``devtools/materialize_to_parquet.py`` - this
   lets you export and share assets that were previously not persisted to Parquet,
   such as ``raw`` assets that have been extracted but not cleaned. Run
@@ -126,7 +151,6 @@ SEC 10-K
   * :ref:`core_sec10k__quarterly_company_information`
   * :ref:`core_sec10k__changelog_company_name`
   * :ref:`core_sec10k__quarterly_exhibit_21_company_ownership`
-  * :ref:`core_sec10k__parents_and_subsidiaries`
   * :ref:`core_sec10k__assn_sec10k_filers_and_eia_utilities`
   * :ref:`out_sec10k__quarterly_filings`
   * :ref:`out_sec10k__changelog_company_name`
@@ -316,7 +340,6 @@ SEC Form 10-K Parent-Subsidiary Ownership
 * See PRs :pr:`4026,4031,4035,4046,4048,4050,4079` and check out the table descriptions
   in the PUDL data dictionary:
 
-  * :ref:`core_sec10k__parents_and_subsidiaries`
   * :ref:`core_sec10k__quarterly_filings`
   * :ref:`core_sec10k__quarterly_exhibit_21_company_ownership`
   * :ref:`core_sec10k__quarterly_company_information`

@@ -91,9 +91,9 @@ def test_defined_fields_are_used():
 
 
 def test_get_sorted_resources() -> None:
-    """Test that resources are returned in this order (out, core, _out)."""
+    """Test that resources are returned in this order (out, core, _core)."""
     resource_ids = (
-        "_out_eia__plants_utilities",
+        "_core_eia860__fgd_equipment",
         "core_eia__entity_boilers",
         "out_eia__yearly_boilers",
     )
@@ -106,8 +106,8 @@ def test_get_sorted_resources() -> None:
     assert first_resource_name.startswith("out"), (
         f"{first_resource_name} is the first resource. Expected a resource with the prefix 'out'"
     )
-    assert last_resource_name.startswith("_out"), (
-        f"{last_resource_name} is the last resource. Expected a resource with the prefix '_out'"
+    assert last_resource_name.startswith("_core"), (
+        f"{last_resource_name} is the last resource. Expected a resource with the prefix '_core'"
     )
 
 

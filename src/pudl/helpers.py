@@ -1324,10 +1324,9 @@ def fillna_w_rolling_avg(
     window: int = 12,
     **kwargs,
 ) -> pd.DataFrame:
-    """Filling NaNs with a rolling average.
+    """Fill NA values with a rolling average.
 
-    Imputes null values from a dataframe on a rolling monthly average. To note,
-    this was designed to work with the PudlTabl object's tables.
+    Imputes null values from a dataframe using a rolling monthly average.
 
     Args:
         df_og: Original dataframe. Must have ``group_cols`` columns, a ``data_col``
@@ -1580,33 +1579,6 @@ def drop_records_with_null_in_column(
             f"Expected {num_of_expected_nulls} or less records with a null values {column} but found {null_records}"
         )
     return df.dropna(subset=[column])
-
-
-def drop_all_null_records_with_multiindex(
-    df: pd.DataFrame, idx_cols: list[str], idx_records: list[tuple[str | int | bool]]
-) -> pd.DataFrame:
-    """Given a set of multi-index values, drop expected all null rows.
-
-    Take a dataframe, and check that a row with given values in idx_cols (e.g.,
-    plant_id_eia, generator_id) is null in all other rows. If so, drop these rows from
-    the dataframe. If not, raise an assertion error to prevent accidentally dropping
-    data.
-
-    Args:
-        df: table with data to drop.
-        idx_cols: list of multi-index columns to index against.
-        idx_records: corresponding index values for each row to be dropped.
-
-    Raises:
-        AssertionError: If there is data in the expected rows.
-    """
-    # ensure there isn't more than the expected number of nulls before dropping
-    df = df.set_index(idx_cols)
-    assert df.loc[idx_records].isnull().all().all(), (
-        "Non-null data found where no data was expected:",
-        f"{df.loc[idx_records].dropna(axis='columns', how='all')}",
-    )  # Make sure all values in all rows and columns here are null
-    return df.drop(idx_records).reset_index()
 
 
 def standardize_percentages_ratio(

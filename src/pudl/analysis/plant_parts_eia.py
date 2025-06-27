@@ -167,7 +167,7 @@ from collections import OrderedDict
 from copy import deepcopy
 from importlib import resources
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 import numpy as np
 import pandas as pd
@@ -433,20 +433,20 @@ class MakeMegaGenTbl:
         mcoe: pd.DataFrame,
         own_eia860: pd.DataFrame,
         slice_cols: list[str] = SUM_COLS,
-        validate_own_merge: str = "1:m",
+        validate_own_merge: str = "one_to_many",
     ) -> pd.DataFrame:
         """Make the mega generators table with ownership integrated.
 
         Args:
             mcoe: generator-based mcoe table with DEFAULT_GENS_COLS generator attributes
-                from :meth:`pudl.output.PudlTabl.mcoe_generators()`
-            own_eia860: ownership table from :meth:`pudl.output.PudlTabl.own_eia860()`
+                from :ref:`out_eia__yearly_generators`
+            own_eia860: ownership table from :ref:`out_eia__yearly_generators`
             scale_cols: list of columns to slice by ownership fraction in
                 :meth:`pudl.helpers.scale_by_ownership`. Default is :py:const:`SUM_COLS`
             validate_own_merge: how the merge between ``mcoe`` and ``own_eia860``
                 is to be validated via ``pd.merge``. If there should be one
                 record for each plant/generator/date in ``mcoe`` then the default
-                `1:m` should be used.
+                ``one_to_many`` should be used.
 
         Returns:
             a table of all of the generators with identifying columns and data
@@ -474,18 +474,18 @@ class MakeMegaGenTbl:
         gens_mega = gens_mega.convert_dtypes()
         return gens_mega
 
-    def get_gens_mega_table(self, mcoe):
+    def get_gens_mega_table(self, mcoe: pd.DataFrame) -> pd.DataFrame:
         """Compile the main generators table that will be used as base of PPL.
 
-        Get a table of all of the generators there ever were and all of the
-        data PUDL has to offer about those generators. This generator table
-        will be used to compile all of the "plant-parts", so we need to ensure
-        that any of the id columns from the other plant-parts are in this
+        This generator table will be used to compile all of the "plant-parts", so we
+        need to ensure that any of the id columns from the other plant-parts are in this
         generator table as well as all of the data columns that we are going to
         aggregate to the various plant-parts.
 
         Returns:
-            pandas.DataFrame
+            A dataframe of all of the generators there ever were and all of the data
+            PUDL has to offer about those generators.
+
         """
         all_gens = pd.merge(  # Add EIA FERC acct fields
             mcoe,
@@ -514,11 +514,11 @@ class MakeMegaGenTbl:
         isn't "existing", its EOY capacity should be zero.
 
         Args:
-            gen_df (pandas.DataFrame): annual table of all generators from EIA.
+            gen_df: annual table of all generators from EIA.
 
         Returns:
-            pandas.DataFrame: annual table of all generators from EIA that
-            operated within each reporting year.
+            An annual table of all generators from EIA that operated within each
+            reporting year.
 
         Todo:
             This function results in warning: `PerformanceWarning: DataFrame
@@ -576,7 +576,12 @@ class MakePlantParts:
         # for all of the plant parts
         self.id_cols_list = make_id_cols_list()
 
-    def execute(self, gens_mega, plants_eia860, utils_eia860) -> pd.DataFrame:
+    def execute(
+        self,
+        gens_mega: pd.DataFrame,
+        plants_eia860: pd.DataFrame,
+        utils_eia860: pd.DataFrame,
+    ) -> pd.DataFrame:
         """Aggregate and slice data points by each plant part.
 
         Returns:
@@ -642,10 +647,11 @@ class MakePlantParts:
             plant_parts_eia: the master unit list table.
             part_name: should always be "plant_match_ferc1".
             path_to_one_to_many: a Path to the one_to_many csv file in
-                `pudl.package_data.glue`.
+                :mod:`pudl.package_data.glue`.
 
         Returns:
-            The EIA plant parts table with one-to-many matches aggregated as plant parts.
+            The EIA plant parts table with one-to-many matches aggregated as plant
+            parts.
         """
         # Read in csv.
         try:
@@ -671,7 +677,8 @@ class MakePlantParts:
             columns={"record_id_eia_plant_gen": "gen_id"}
         )
 
-        # If any 'duplicate records' actually match to the same generator, these aren't 1:m matches. Drop them and any corresponding non-matches.
+        # If any 'duplicate records' actually match to the same generator, these aren't
+        # 1:m matches. Drop them and any corresponding non-matches.
         one_to_many = one_to_many.merge(
             one_to_many_single, on="record_id_eia", validate="1:m"
         ).drop_duplicates("gen_id")
@@ -1003,13 +1010,17 @@ class PlantPart:
         )
         return part_frac
 
-    def add_new_plant_name(self, part_df, gens_mega):
+    def add_new_plant_name(
+        self,
+        part_df: pd.DataFrame,
+        gens_mega: pd.DataFrame,
+    ) -> pd.DataFrame:
         """Add plants names into the compiled plant part df.
 
         Args:
-            part_df (pandas.DataFrame):  dataframe containing records associated
+            part_df:  dataframe containing records associated
                 with one plant part (ex: all plant's or  plant_prime_mover's).
-            gens_mega (pandas.DataFrame): a table of all of the generators with
+            gens_mega: a table of all of the generators with
                 identifying columns and data columns, sliced by ownership which
                 makes "total" and "owned" records for each generator owner.
         """
@@ -1053,7 +1064,7 @@ class TrueGranLabeler:
     The coordinating function here is :meth``execute``.
     """
 
-    def execute(self, ppe):
+    def execute(self, ppe: pd.DataFrame) -> pd.DataFrame:
         """Merge the true granularity labels onto the plant part df.
 
         This method will add the columns ``true_gran``, ``appro_part_label``, and
@@ -1139,11 +1150,11 @@ class AddAttribute:
         """Initialize a attribute adder.
 
         Args:
-            attribute_col (string): name of qualifier record that you want added.
+            attribute_col: name of qualifier record that you want added.
                 Must be in :py:const:`CONSISTENT_ATTRIBUTE_COLS` or a key in
                 :py:const:`PRIORITY_ATTRIBUTES_DICT`
                 or :py:const:`MAX_MIN_ATTRIBUTES_DICT`.
-            part_name (str): the name of the part to aggregate to. Names can be
+            part_name: the name of the part to aggregate to. Names can be
                 only those in :py:const:`PLANT_PARTS` or `plant_match_ferc1`
         """
         assert attribute_col in CONSISTENT_ATTRIBUTE_COLS + list(
@@ -1166,7 +1177,11 @@ class AddAttribute:
 class AddConsistentAttributes(AddAttribute):
     """Adder of attributes records to a plant-part table."""
 
-    def execute(self, part_df, gens_mega):
+    def execute(
+        self,
+        part_df: pd.DataFrame,
+        gens_mega: pd.DataFrame,
+    ) -> pd.DataFrame:
         """Get qualifier records.
 
         For an individual dataframe of one plant part (e.g. only
@@ -1193,11 +1208,10 @@ class AddConsistentAttributes(AddAttribute):
         every component generator from each record.
 
         Args:
-            part_df (pandas.DataFrame): dataframe containing records associated
-                with one plant part.
-            gens_mega (pandas.DataFrame): a table of all of the generators with
-                identifying columns and data columns, sliced by ownership which
-                makes "total" and "owned" records for each generator owner.
+            part_df: dataframe containing records associated with one plant part.
+            gens_mega: a table of all of the generators with identifying columns and
+                data columns, sliced by ownership which makes "total" and "owned"
+                records for each generator owner.
         """
         attribute_col = self.attribute_col
         if attribute_col in part_df.columns:
@@ -1213,7 +1227,7 @@ class AddConsistentAttributes(AddAttribute):
         logger.debug(f"merging in consistent {attribute_col}: {len(non_nulls)}")
         return part_df.merge(consistent_records, how="left")
 
-    def get_consistent_qualifiers(self, record_df):
+    def get_consistent_qualifiers(self, record_df: pd.DataFrame) -> pd.DataFrame:
         """Get fully consistent qualifier records.
 
         When data is a qualifier column is identical for every record in a
@@ -1222,9 +1236,7 @@ class AddConsistentAttributes(AddAttribute):
         nothing is associated with the record.
 
         Args:
-            record_df (pandas.DataFrame): the dataframe with the record
-            base_cols (list) : list of identifying columns.
-            record_name (string) : name of qualitative record
+            record_df: the dataframe with the record
         """
         # TODO: determine if we can move this up the chain so we can do this
         # once per plant-part, not once per plant-part * qualifier record
@@ -1298,24 +1310,24 @@ class AddMaxMinAttribute(AddAttribute):
 
     def execute(
         self,
-        part_df,
-        gens_mega,
+        part_df: pd.DataFrame,
+        gens_mega: pd.DataFrame,
         att_dtype: str,
         keep: Literal["first", "last"] = "first",
-    ):
+    ) -> pd.DataFrame:
         """Add the attribute to the plant part df based on sorting of another attribute.
 
         Args:
-            part_df (pandas.DataFrame): dataframe containing records associated
+            part_df: dataframe containing records associated
                 with one plant part.
-            gens_mega (pandas.DataFrame): a table of all of the generators with
+            gens_mega: a table of all of the generators with
                 identifying columns and data columns, sliced by ownership which
                 makes "total" and "owned" records for each generator owner.
-            att_dtype (string): Pandas data type of the new attribute
-            keep (string): Whether to keep the first or last record in a sorted
+            att_dtype: Pandas data type of the new attribute
+            keep: Whether to keep the first or last record in a sorted
                 grouping of attributes. Passing in "first" indicates the new
                 attribute is a maximum attribute.
-                See :func:`pandas.drop_duplicates`.
+                See :meth:`pandas.DataFrame.drop_duplicates`.
         """
         attribute_col = self.attribute_col
         if attribute_col in part_df.columns:
@@ -1344,7 +1356,7 @@ class AddMaxMinAttribute(AddAttribute):
 #########################
 
 
-def make_id_cols_list():
+def make_id_cols_list() -> list[Any]:
     """Get a list of the id columns (primary keys) for all of the plant parts.
 
     Returns:
@@ -1356,7 +1368,7 @@ def make_id_cols_list():
     )
 
 
-def make_parts_to_ids_dict():
+def make_parts_to_ids_dict() -> dict[str, Any]:
     """Make dict w/ plant-part names (keys) to the main id column (values).
 
     All plant-parts have 1 or 2 ID columns in :py:const:`PLANT_PARTS` plant_id_eia and
@@ -1364,7 +1376,7 @@ def make_parts_to_ids_dict():
     plant_id_eia column is always first, so we're going to grab the last column.
 
     Returns:
-        dictionary: plant-part names (keys) corresponding to the main ID column
+        Dictionary with plant-part names (keys) corresponding to the main ID column
         (value).
     """
     parts_to_ids = {}
@@ -1373,7 +1385,12 @@ def make_parts_to_ids_dict():
     return parts_to_ids
 
 
-def add_record_id(part_df, id_cols, plant_part_col="plant_part", year=True):
+def add_record_id(
+    part_df: pd.DataFrame,
+    id_cols: list[str],
+    plant_part_col: str = "plant_part",
+    year: bool = True,
+) -> pd.DataFrame:
     """Add a record id to a compiled part df.
 
     We need a standardized way to refer to these compiled records that contains enough
