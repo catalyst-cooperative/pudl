@@ -155,7 +155,9 @@ def data_dictionary_metadata_to_rst(app):
     print("Exporting PUDL DB data dictionary metadata to RST.")
     skip_names = ["datasets", "accumulated_depreciation_ferc1"]
     names = [name for name in RESOURCE_METADATA if name not in skip_names]
-    package = Package.from_resource_ids(resource_ids=tuple(sorted(names)))
+    package = Package.from_resource_ids(
+        resource_ids=tuple(sorted(names)), docs_dir=DOCS_DIR
+    )
     # Sort fields within each resource by name:
     for resource in package.resources:
         resource.schema.fields = sorted(resource.schema.fields, key=lambda x: x.name)

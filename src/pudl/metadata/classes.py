@@ -1395,7 +1395,9 @@ class Resource(PudlMeta):
         return usage_warnings
 
     @staticmethod
-    def _compile_description(resource_id: str, obj: dict, cleanup: bool = True):
+    def _compile_description(
+        resource_id: str, obj: dict, cleanup: bool = True, docs_dir: Path | None = None
+    ):
         meta_from_name = MetaFromResourceName(name=resource_id, seed=obj)
         if obj["table_type"] is None:
             obj["table_type"] = meta_from_name.tabletype or None
@@ -1418,10 +1420,10 @@ class Resource(PudlMeta):
             # for some reason setting this on obj doesn't work :(
             meta_from_name.meta["description_details"] = obj["description"]
         # okay now render the rst
+        if docs_dir is None:
+            docs_dir = (Path(__file__).parent.parent.parent.parent / "docs").resolve()
         obj["description"] = (
-            _get_jinja_environment(
-                (Path(__file__).parent.parent.parent.parent / "docs").resolve()
-            )
+            _get_jinja_environment(docs_dir)
             .get_template("resource_description.rst.jinja")
             .render(
                 resource=meta_from_name,
@@ -1439,16 +1441,20 @@ class Resource(PudlMeta):
             del obj["description_details"]
 
     @staticmethod
-    def dict_from_id(resource_id: str) -> dict:
+    def dict_from_id(resource_id: str, docs_dir: Path | None = None) -> dict:
         """Construct dictionary from PUDL identifier (`resource.name`)."""
         descriptor = PudlResourceDescriptor.model_validate(
             RESOURCE_METADATA[resource_id]
         )
-        return Resource.dict_from_resource_descriptor(resource_id, descriptor)
+        return Resource.dict_from_resource_descriptor(
+            resource_id, descriptor, docs_dir=docs_dir
+        )
 
     @staticmethod
     def dict_from_resource_descriptor(  # noqa: C901
-        resource_id: str, descriptor: PudlResourceDescriptor
+        resource_id: str,
+        descriptor: PudlResourceDescriptor,
+        docs_dir: Path | None = None,
     ) -> dict:
         """Get a Resource-shaped dict from a PudlResourceDescriptor.
 
@@ -1513,7 +1519,7 @@ class Resource(PudlMeta):
         if "foreign_key_rules" in schema:
             del schema["foreign_key_rules"]
 
-        Resource._compile_description(resource_id, obj)
+        Resource._compile_description(resource_id, obj, docs_dir=docs_dir)
 
         # Add encoders to columns as appropriate, based on FKs.
         # Foreign key relationships determine the set of codes to use
@@ -2254,6 +2260,7 @@ class Package(PudlMeta):
         resource_ids: tuple[str] = tuple(sorted(RESOURCE_METADATA)),
         resolve_foreign_keys: bool = False,
         excluded_etl_groups: tuple[str] = (),
+        docs_dir: Path | None = None,
     ) -> "Package":
         """Construct a collection of Resources from PUDL identifiers (`resource.name`).
 
@@ -2286,7 +2293,9 @@ class Package(PudlMeta):
                             names.append(name)
                 i = len(resources)
                 if len(names) > i:
-                    resources += [Resource.dict_from_id(x) for x in names[i:]]
+                    resources += [
+                        Resource.dict_from_id(x, docs_dir=docs_dir) for x in names[i:]
+                    ]
 
         if excluded_etl_groups:
             resources = [
