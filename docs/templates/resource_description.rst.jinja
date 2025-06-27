@@ -11,16 +11,14 @@ Source:
 Primary key:
   {{ resource.description_primarykey() }} {{ resource.meta.description_primarykey|default("", true) }}
 
+{% if resource.meta.usage_warnings|default([], true)|length > 0 %}
 Usage Warnings
 ^^^^^^^^^^^^^^
 
-{% set hasuw = resource.meta.usage_warnings %}
-{% for uw in (resource.meta.usage_warnings|default([], true)) %}
-{% if uw is mapping %}* {{ uw.text }}{% else %}* {{ warnings[uw] }}{% endif -%}
+{% for uw in resource.meta.usage_warnings %}
+* {{ uw }}
 {% endfor %}
-{% if resource.meta.sources|length > 1 %}* {{ warnings.multiple_inputs }}{% set hasuw = true %}{% endif %}
-{% if "ferc" in resource.name %}* {{ warnings.ferc_is_hard }}{% set hasuw = true %}{% endif %}
-{% if not hasuw %}* No warnings documented yet.{% endif %}
+{% endif %}
 
 {% if resource.meta.description_details %}
 Additional Details

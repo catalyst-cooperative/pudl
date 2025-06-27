@@ -1384,6 +1384,17 @@ class Resource(PudlMeta):
         return value
 
     @staticmethod
+    def _usage_warnings(resource_id: str, obj: dict) -> list:
+        usage_warnings = []
+        if "usage_warnings" in obj and obj["usage_warnings"]:
+            usage_warnings = list(obj["usage_warnings"])
+        if len(obj["sources"]) > 1:
+            usage_warnings.append("multiple_inputs")
+        if "ferc" in resource_id:
+            usage_warnings.append("ferc_is_hard")
+        return usage_warnings
+
+    @staticmethod
     def _compile_description(resource_id: str, obj: dict, cleanup: bool = True):
         meta_from_name = MetaFromResourceName(name=resource_id, seed=obj)
         if obj["table_type"] is None:
@@ -1392,14 +1403,11 @@ class Resource(PudlMeta):
             obj["timeseries_resolution"] = meta_from_name.time or None
         if obj["layer"] is None:
             obj["layer"] = meta_from_name.layer
-        if obj["usage_warnings"] is None or "usage_warnings" not in obj:
-            obj["usage_warnings"] = []  # default_usage_warnings(obj)
-        obj["usage_warnings"] = [
+        obj["usage_warnings"] = Resource._usage_warnings(resource_id, obj)
+        meta_from_name.meta["usage_warnings"] = [
             uw["text"] if isinstance(uw, dict) else USAGE_WARNINGS[uw]
             for uw in obj["usage_warnings"]
         ]
-
-        # TODO: if uws are specified, do we skip the defaults or merge with them?
 
         # Render description
         # First, move any description text from unmigrated tables into Additional Details
