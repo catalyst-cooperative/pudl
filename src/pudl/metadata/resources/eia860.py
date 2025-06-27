@@ -718,14 +718,13 @@ system IDs."""
         "etl_group": "eia860",
     },
     "_core_eia860__fgd_equipment": {
-        "table_type": "entity",
-        "description_summary": "Catalogs available flue gas desulfurization equipment at generation facilities.",
-        "description_datasource": "; Schedule 6E",
-        "usage_warnings": [
-            {
-                "text": "The same variables present in this table may show up in other _core tables in other years."
-            },
-        ],
+        "description": (
+            "Information about flue gas desulfurization equipment at generation facilities, "
+            "from EIA-860 Schedule 6E. Note: This table has been cleaned, but not "
+            "harvested with other EIA 923 or 860 data. The same variables present in "
+            "this table may show up in other _core tables in other years. Once this "
+            "table has been harvested, it will be removed from the PUDL database."
+        ),
         "schema": {
             "fields": [
                 "report_date",

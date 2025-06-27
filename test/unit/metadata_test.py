@@ -227,9 +227,7 @@ def test_frictionless_data_package_resources_populated():
 
 
 description_compliant_tables = [
-    "_core_eia860__fgd_equipment",
-    "core_eia923__monthly_boiler_fuel",
-    # "core_eia861__yearly_demand_side_management_ee_dr", # noncompliant for testing unit test
+    # list here once we have some
 ]
 
 
@@ -251,14 +249,13 @@ def test_description_compliance(resource_name):
     }
     for override, has_value in name_parse.items():
         assert has_value, (
-            f"""Table {resource_name} could not be parsed as layer_source__tabletype_slug and no overrides were set in the table metadata. Rename {resource_name} or set the following override keys: {override} (TODO add options)"""
+            f"""Table {resource_name} could not be parsed as layer_source__tabletype_slug and no overrides were set in the table metadata. Rename {resource_name} or set the following override keys: {override}"""
         )
     # todo: layer-based checks
     # todo: asset_type-based checks
     # pk-based checks
     has_pk = "primary_key" in properties.meta["schema"]
     if not has_pk:
-        # todo: refer to a template or wizard for additional help
         assert "description_primarykey" in properties.meta, (
             """Table {resource_name} has no primary key, but the table metadata does not include an explanation in the required format. We expect the key "description_primarykey" to briefly describe what each record represents and, if needed, why no primary key is possible."""
         )
