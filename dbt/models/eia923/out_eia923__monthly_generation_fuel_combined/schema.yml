@@ -32,4 +32,9 @@ sources:
           - name: fuel_consumed_mmbtu
           - name: fuel_consumed_for_electricity_mmbtu
           - name: net_generation_mwh
+            data_tests:
+              - expect_column_fraction_with_condition:
+                  column_condition: fuel_type_code_pudl='nuclear'
+                  expected_fraction: 0.2
+                  tol: 0.02
           - name: data_maturity

@@ -119,6 +119,11 @@ sources:
                       max_value: 12.5
                   weight_column: net_generation_mwh
           - name: net_generation_mwh
+            data_tests:
+              - expect_column_fraction_with_condition:
+                  column_condition: fuel_type_code_pudl='nuclear'
+                  expected_fraction: 0.2
+                  tol: 0.02
           - name: total_fuel_cost
           - name: total_mmbtu
           - name: associated_combined_heat_power
