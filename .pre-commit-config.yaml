@@ -30,14 +30,14 @@ repos:
   ####################################################################################
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.12.0
+    rev: v0.12.1
     hooks:
       - id: ruff-check
         args: [--fix]
       - id: ruff-format
 
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: v3.6.0
+    rev: v3.6.2
     hooks:
       - id: prettier
         types_or: [yaml]
@@ -85,6 +85,17 @@ repos:
   #####################################################################################
   - repo: local
     hooks:
+      - id: sort-row-counts
+        name: sort-row-counts
+        stages: [pre-commit]
+        language: python
+        additional_dependencies: [csvkit]
+        verbose: false
+        files: "^dbt/seeds/etl_(full|fast)_row_counts\\.csv$"
+        pass_filenames: true
+        always_run: false
+        entry: bash -c 'for file in "$@"; do csvsort -c "table_name,partition" "$file" > "$file.tmp" && mv "$file.tmp" "$file"; done' --
+
       - id: nb-output-clear
         name: nb-output-clear
         stages: [pre-commit]
