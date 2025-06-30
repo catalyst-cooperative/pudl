@@ -222,12 +222,14 @@ Linting and Formatting
 * `typos <https://github.com/crate-ci/typos>`__ checks for typos in the committed files.
   If you get an error, run ``typos path/to/file``. Review all proposed corrections
   manually. If typos marks an issue as having more than
-  one possible correction,
-  manually identify and implement the desired fix in the file. If anything shouldn't be updated
-  (e.g., PUDL is not a typo!), add it to the pyproject.toml file under tool.typos.default.extend-words,
-  using the format word="word". Run ``typos path/to/file`` again to verify that the remaining flagged
-  typos are as anticipated. Once you're satisfied, run ``typos path/to/directory -w`` to
-  auto-correct any remaining typos. 
+  one possible correction, manually identify and implement the desired fix in the file.
+  If anything shouldn't be updated (e.g., PUDL is not a typo!), add it to the
+  pyproject.toml file under tool.typos.default.extend-words, using the format
+  word="word". Run ``typos path/to/file`` again to verify that the remaining flagged
+  typos are as anticipated. Once you're satisfied, run ``typos path/to/directory -w``
+  to auto-correct any remaining typos. To ignore typos in a single line (e.g., code
+  that corrects a typos), add ``# spellchecker:ignore`` as a comment to the end of the
+  line.
 
 Linting Within Your Editor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
