@@ -33,7 +33,7 @@ jobs:
             conda-lock>=3
             prettier>=3.6
             pre-commit>=4.2
-            dbt>=1.10
+            dbt-core>=1.10
       - name: Update conda lockfiles, pre-commit hooks, & dbt deps
         run: |
           make conda-clean
