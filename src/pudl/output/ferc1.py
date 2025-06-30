@@ -735,7 +735,7 @@ def add_mean_cap_additions(steam_df):
     """Add mean capital additions over lifetime of plant."""
     idx_steam_no_date = ["utility_id_ferc1", "plant_id_ferc1"]
     gb_cap_an = steam_df.groupby(idx_steam_no_date)[["capex_annual_addition"]]
-    # calculate the standard deviatoin of each generator's capex over time
+    # calculate the standard deviation of each generator's capex over time
     df = (
         steam_df.merge(
             gb_cap_an.std()
@@ -1266,7 +1266,7 @@ class Exploder:
 
     @cached_property
     def exploded_meta(self: Self) -> pd.DataFrame:
-        """Combine a set of interrelated table's metadata for use in :class:`Exploder`.
+        """Combine a set of interrelated tables' metadata for use in :class:`Exploder`.
 
         Any calculations containing components that are part of tables outside the
         set of exploded tables will be converted to reported values with an empty
@@ -2902,7 +2902,7 @@ def disaggregate_null_or_total_tag(
 
     We have records in the rate base table with total and/or null values for
     key tag columns which we want to separate into component parts because the
-    null or total values does not convert a level of detail we want for the
+    null or total values does not convey a level of detail we want for the
     rate base table. This is done in two steps:
 
     * :func:`get_tag_col_ratio` : for each ``report_year`` and ``utility_id_ferc1``,

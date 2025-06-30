@@ -40,7 +40,7 @@ EIA 923
 Bug Fixes
 ^^^^^^^^^
 
-* Fixed a number of typos in our documentation and code database, which resulted in
+* Fixed a number of typos in our documentation and codebase, which resulted in
   renaming ``synchronized_transmission_grid`` in :ref:`core_eia860__scd_generators`,
   :ref:`out_eia__monthly_generators`, and :ref:`out_eia__yearly_generators`.
   See issue :issue:`3783` and :pr:`4355`.
@@ -1541,7 +1541,7 @@ Nightly Data Builds
   to automatically update the `PUDL Intake data catalogs <https://github.com/catalyst-cooperative/pudl-catalog>`__
   when there are new code releases. See :issue:`1177` for more details.
 * Created a `docker image <https://hub.docker.com/r/catalystcoop/pudl-etl>`__
-  that installs PUDL and it's dependencies. The ``build-deploy-pudl.yaml`` GitHub
+  that installs PUDL and its dependencies. The ``build-deploy-pudl.yaml`` GitHub
   Action builds and pushes the image to Docker Hub and deploys the image on
   a Google Compute Engine instance. The ETL outputs are then loaded to Google
   Cloud buckets for the data catalogs to access.

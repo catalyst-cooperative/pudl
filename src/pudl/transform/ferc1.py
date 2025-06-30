@@ -5103,7 +5103,7 @@ class IncomeStatementsTableTransformer(Ferc1AbstractTableTransformer):
 
         In 2003, two rows were added to the ``f1_income_stmnt`` dbf table, which bumped
         the starting ``row_number`` of ``f1_incm_stmnt_2`` from 25 to 27. A small
-        handful of respondents seem to have not gotten the memo about this this in
+        handful of respondents seem to have not gotten the memo about this in
         2003 and have information on these row numbers that shouldn't exist at all for
         this table.
 
