@@ -69,6 +69,17 @@ repos:
   #####################################################################################
   - repo: local
     hooks:
+      - id: sort-row-counts
+        name: sort-row-counts
+        stages: [pre-commit]
+        language: python
+        additional_dependencies: [csvkit]
+        verbose: false
+        files: "^dbt/seeds/etl_(full|fast)_row_counts\\.csv$"
+        pass_filenames: true
+        always_run: false
+        entry: bash -c 'for file in "$@"; do csvsort -c "table_name,partition" "$file" > "$file.tmp" && mv "$file.tmp" "$file"; done' --
+
       - id: nb-output-clear
         name: nb-output-clear
         stages: [pre-commit]
@@ -96,17 +107,6 @@ repos:
         files: "pyproject.toml"
         always_run: false
         entry: make conda-clean conda-lock.yml
-
-      - id: sort-row-counts
-        name: sort-row-counts
-        stages: [pre-commit]
-        language: python
-        additional_dependencies: [csvkit]
-        verbose: false
-        files: "^dbt/seeds/etl_(full|fast)_row_counts\\.csv$"
-        pass_filenames: true
-        always_run: false
-        entry: bash -c 'for file in "$@"; do csvsort -c "table_name,partition" "$file" > "$file.tmp" && mv "$file.tmp" "$file"; done' --
 
 # Configuration for pre-commit.ci
 ci:
