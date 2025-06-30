@@ -178,7 +178,7 @@ from pudl.metadata.classes import Resource
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
-# HELP: I need both of these setting set in order for the dfs in the docstrings
+# HELP: I need both of these settings set in order for the dfs in the docstrings
 # to pass the doctests. Without them the formatting get all jumbled.
 # but obviously this is the wrong place to do this.
 # I tried adding these into conftest.py in pandas_terminal_width().

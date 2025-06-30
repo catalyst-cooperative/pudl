@@ -46,7 +46,7 @@ repos:
   # Linters: hooks that check but don't alter files
   ####################################################################################
 
-  # Spell check our documentation (just the .rst files for now)
+  # Spell check our documentation and code comments
   - repo: https://github.com/crate-ci/typos
     rev: v1.24.5
     hooks:
