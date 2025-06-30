@@ -1,7 +1,10 @@
 packages:
-  - package: metaplane/dbt_expectations
+  - name: dbt_expectations
+    package: metaplane/dbt_expectations
     version: 0.10.9
-  - package: dbt-labs/dbt_utils
+  - name: dbt_utils
+    package: dbt-labs/dbt_utils
     version: 1.3.0
-  - package: godatadriven/dbt_date
+  - name: dbt_date
+    package: godatadriven/dbt_date
     version: 0.14.2
