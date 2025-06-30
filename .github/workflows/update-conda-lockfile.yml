@@ -33,13 +33,11 @@ jobs:
             conda-lock>=3
             prettier>=3.6
             pre-commit>=4.2
-            dbt-core>=1.10
-      - name: Update conda lockfiles, pre-commit hooks, & dbt deps
+      - name: Update conda lockfiles, pre-commit hooks
         run: |
           make conda-clean
           make conda-lock.yml
           pre-commit autoupdate
-          (cd dbt && dbt deps --upgrade)
       - name: Make a PR to merge updated conda lockfiles
         # If we are relocking dependencies on a schedule or workflow_dispatch, we need
         # to make our own PR to check whether the updated environment actually solves
