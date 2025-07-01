@@ -26,7 +26,7 @@ repos:
       - id: end-of-file-fixer
 
   ####################################################################################
-  # Formatters: hooks that re-write Python & documentation files
+  # Formatters: hooks that re-write code & documentation files
   ####################################################################################
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.12.1
@@ -40,6 +40,11 @@ repos:
     hooks:
       - id: prettier
         types_or: [yaml]
+
+  - repo: https://github.com/koalaman/shellcheck-precommit
+    rev: v0.10.0
+    hooks:
+      - id: shellcheck
 
   ####################################################################################
   # Linters: hooks that check but don't alter files
@@ -118,5 +123,5 @@ ci:
   autoupdate_branch: main
   autoupdate_commit_msg: "[pre-commit.ci] pre-commit autoupdate"
   autoupdate_schedule: weekly
-  skip: [unit-tests, nb-output-clear, conda-lock]
+  skip: [unit-tests, nb-output-clear, conda-lock, shellcheck]
   submodules: false
