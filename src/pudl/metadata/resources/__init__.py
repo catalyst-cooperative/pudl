@@ -133,7 +133,7 @@ ENTITIES: dict[str, dict[str, list[str] | dict[str, str]]] = {
             "startup_source_code_3",
             "startup_source_code_4",
             "time_cold_shutdown_full_load_code",
-            "syncronized_transmission_grid",
+            "synchronized_transmission_grid",
             "turbines_num",
             "operational_status_code",
             "operational_status",
