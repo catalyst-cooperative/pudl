@@ -1,7 +1,7 @@
 """Fix column name typo
 
 Revision ID: fff6efbd14db
-Revises: 74711993da70
+Revises: d8b39f16e69e
 Create Date: 2025-06-25 17:05:17.410415
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = 'fff6efbd14db'
-down_revision = '74711993da70'
+down_revision = 'd8b39f16e69e'
 branch_labels = None
 depends_on = None
 
