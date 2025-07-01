@@ -7,12 +7,11 @@ sources:
           - check_row_counts_per_partition:
               table_name: out_eia930__hourly_operations
               partition_column: datetime_utc
-          - expect_unimputed_values_are_unchanged:
-              original: demand_reported_mwh
-              imputed: demand_imputed_pudl_mwh
-              imputation_code: demand_imputed_pudl_mwh_imputation_code
+          - expect_columns_are_close:
+              column_a: demand_reported_mwh
+              column_b: demand_imputed_pudl_mwh
+              row_condition: "demand_imputed_pudl_mwh_imputation_code IS NULL"
               atol: 0.2
-              rtol: 0.01
         columns:
           - name: datetime_utc
           - name: balancing_authority_code_eia

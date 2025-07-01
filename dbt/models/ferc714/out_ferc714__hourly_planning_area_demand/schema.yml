@@ -7,12 +7,16 @@ sources:
           - check_row_counts_per_partition:
               table_name: out_ferc714__hourly_planning_area_demand
               partition_column: report_date
-          - expect_unimputed_values_are_unchanged:
-              original: demand_reported_mwh
-              imputed: demand_imputed_pudl_mwh
-              imputation_code: demand_imputed_pudl_mwh_imputation_code
+          - expect_columns_are_close:
+              column_a: demand_reported_mwh
+              column_b: demand_imputed_pudl_mwh
+              row_condition: "demand_imputed_pudl_mwh_imputation_code IS NULL and demand_reported_mwh > 300"
+              atol: 0.15
+          - expect_columns_are_close:
+              column_a: demand_reported_mwh
+              column_b: demand_imputed_pudl_mwh
+              row_condition: "demand_imputed_pudl_mwh_imputation_code IS NULL and demand_reported_mwh < 300"
               atol: 1.0
-              rtol: 0.8
           - expect_consistent_years:
               datetime_column: datetime_utc
               date_column: report_date
