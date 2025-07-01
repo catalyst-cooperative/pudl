@@ -344,7 +344,7 @@ def insert_run_length(  # noqa: C901
     Raises:
         ValueError: Padding must zero or greater.
         ValueError: Run length must be greater than zero.
-        ValueError: Cound not find space for run of length {length}.
+        ValueError: Could not find space for run of length {length}.
 
     Returns:
         Copy of array `x` with values inserted.
@@ -531,7 +531,7 @@ def simulate_nulls(  # pragma: no cover
         Boolean mask of current non-null values to set to null.
 
     Raises:
-        ValueError: Cound not find space for run of length {length}.
+        ValueError: Could not find space for run of length {length}.
     """
     new_nulls = np.zeros(self.x.shape, dtype=bool)
     for col in range(self.x.shape[1]):

@@ -15,7 +15,7 @@ probabilistic record linkage to connect these owner and subsidiary companies
 to utility companies that file with EIA. This connection in turn enables a
 connection to data reported to FERC and EIA contained in PUDL. We only conducted
 an initial round of modeling, so this dataset is a beta version and its
-contents and connectons to other datasets are probabilitic in nature.
+contents and connections to other datasets are probabilistic in nature.
 
 The following output tables are created from this process:
 

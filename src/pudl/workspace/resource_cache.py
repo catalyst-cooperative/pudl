@@ -172,7 +172,7 @@ class LayeredCache(AbstractCache):
 
     This allows building multi-layered system of caches. The idea is that you can have
     faster local caches with fall-back to the more remote or expensive caches that can
-    be acessed in case of missing content.
+    be accessed in case of missing content.
 
     Only the closest layer is being written to (set, delete), while all remaining layers
     are read-only (get).

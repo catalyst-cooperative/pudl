@@ -197,7 +197,7 @@ sources:
           - name: summer_estimated_capability_mw
           - name: supercritical_tech
           - name: can_switch_oil_gas
-          - name: syncronized_transmission_grid
+          - name: synchronized_transmission_grid
           - name: time_cold_shutdown_full_load_code
           - name: timezone
           - name: topping_bottoming_code

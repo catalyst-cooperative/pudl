@@ -26,8 +26,9 @@ repos:
       - id: end-of-file-fixer
 
   ####################################################################################
-  # Formatters: hooks that re-write Python & documentation files
+  # Formatters: hooks that re-write code & documentation files
   ####################################################################################
+
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.12.1
     hooks:
@@ -41,9 +42,29 @@ repos:
       - id: prettier
         types_or: [yaml]
 
+  - repo: https://github.com/koalaman/shellcheck-precommit
+    rev: v0.10.0
+    hooks:
+      - id: shellcheck
+
   ####################################################################################
   # Linters: hooks that check but don't alter files
   ####################################################################################
+
+  # Spell check our documentation and code comments
+  - repo: https://github.com/crate-ci/typos
+    rev: v1.24.5
+    hooks:
+      - id: typos
+        exclude: |
+          (?x)^(
+            .*\.yml
+            |.*\.toml
+            |.*\.bib
+            |.*\.csv
+            |.*\.html
+          )$ | migrations/ | devtools/ | test/ | notebooks/ | src/pudl/metadata/codes.py | src/pudl/transform/params/ferc1.py
+        args: [] # Make this read, not write
 
   # Lint Dockerfiles for errors and to ensure best practices
   - repo: https://github.com/AleksaC/hadolint-py
@@ -118,5 +139,5 @@ ci:
   autoupdate_branch: main
   autoupdate_commit_msg: "[pre-commit.ci] pre-commit autoupdate"
   autoupdate_schedule: weekly
-  skip: [unit-tests, nb-output-clear, conda-lock]
+  skip: [unit-tests, nb-output-clear, conda-lock, shellcheck]
   submodules: false
