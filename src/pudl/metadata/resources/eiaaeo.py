@@ -405,7 +405,7 @@ _STAGING_FIELD_METADATA: dict[str, dict[str, Any]] = {
                 "gross_international_imports",
                 "gross_international_exports",
                 "gross_interregional_electricity_imports",
-                "gross_interregional_electricty_exports",
+                "gross_interregional_electricity_exports",
                 "purchases_from_combined_heat_and_power",
                 "electric_power_sector_generation_for_customer",
             ]
