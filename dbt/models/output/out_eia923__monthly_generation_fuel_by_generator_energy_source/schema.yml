@@ -1,0 +1,24 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_eia923__monthly_generation_fuel_by_generator_energy_source
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: out_eia923__monthly_generation_fuel_by_generator_energy_source
+              partition_column: report_date
+          - expect_date_frequency_ratio:
+              compare_model: source("pudl", "out_eia__yearly_generators")
+              multiplier: 12
+              date_column: report_date
+              model_has_data_maturity: false
+        columns:
+          - name: report_date
+          - name: plant_id_eia
+          - name: generator_id
+          - name: prime_mover_code
+          - name: energy_source_code
+          - name: energy_source_code_num
+          - name: net_generation_mwh
+          - name: fuel_consumed_mmbtu
+          - name: fuel_consumed_for_electricity_mmbtu

@@ -19,7 +19,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "3) Utility solar assuming a fixed axis panel tilted at latitude.\n\n"
             "The foundation of the capacity factors provided here is the NOAA HRRR "
             "operational numerical weather prediction model. The HRRR covers the entire "
-            "contiguous US at a horizontal resolution of 3 km. Forecasts are intialized each "
+            "contiguous US at a horizontal resolution of 3 km. Forecasts are initialized each "
             "hour of the year. Forecast hour two (2) is used as the input data for the power "
             "algorithms. This forecast hour is chosen to trade-off the impact of the measurement "
             "and data assimilation procedure of the HRRR with the physics of the model to derive "
@@ -43,7 +43,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "state",
-                "county_or_lake_name",
+                "place_name",
                 "datetime_utc",
                 "report_year",
                 "hour_of_year",
@@ -54,7 +54,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "capacity_factor_onshore_wind",
                 "capacity_factor_offshore_wind",
             ],
-            "primary_key": ["state", "county_or_lake_name", "datetime_utc"],
+            "primary_key": ["state", "place_name", "datetime_utc"],
         },
         "sources": ["vcerare"],
         "field_namespace": "vcerare",

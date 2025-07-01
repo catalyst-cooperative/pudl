@@ -8,9 +8,11 @@ import sys
 import warnings
 from collections.abc import Callable, Iterable
 from functools import cached_property, lru_cache
+from hashlib import sha1
 from pathlib import Path
 from typing import Annotated, Any, Literal, Self, TypeVar
 
+import frictionless
 import jinja2
 import numpy as np
 import pandas as pd
@@ -36,7 +38,6 @@ from pydantic import (
 )
 
 import pudl.logging_helpers
-from pudl.analysis.pudl_models import get_model_table_schemas
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.constants import (
     CONSTRAINT_DTYPES,
@@ -383,7 +384,7 @@ class Encoder(PudlMeta):
 
     The intended meanings of some non-standard codes are clear, and therefore they can
     be mapped to the standardized, canonical codes with confidence. Sometimes these are
-    the result of data entry errors or changes in the stanard codes over time.
+    the result of data entry errors or changes in the standard codes over time.
     """
 
     name: String | None = None
@@ -471,7 +472,7 @@ class Encoder(PudlMeta):
         """A mapping of all known codes to their standardized values, or NA."""
         code_map = {code: code for code in self.df["code"]}
         code_map.update(self.code_fixes)
-        code_map.update({code: pd.NA for code in self.ignored_codes})
+        code_map.update(dict.fromkeys(self.ignored_codes, pd.NA))
         return code_map
 
     def encode(
@@ -512,7 +513,7 @@ class Encoder(PudlMeta):
     def to_rst(
         self, top_dir: DirectoryPath, csv_subdir: DirectoryPath, is_header: StrictBool
     ) -> String:
-        """Ouput dataframe to a csv for use in jinja template.
+        """Output dataframe to a csv for use in jinja template.
 
         Then output to an RST file.
         """
@@ -572,24 +573,6 @@ class Field(PudlMeta):
     constraints: FieldConstraints = FieldConstraints()
     harvest: FieldHarvest = FieldHarvest()
     encoder: Encoder | None = None
-
-    @classmethod
-    def from_pyarrow_field(cls, field: pa.Field) -> "Field":
-        """Construct from pyarrow field."""
-        # Reverse map from frictionless -> pyarrow to pyarrow -> frictionless
-        type_map = {
-            value: key for value, key in FIELD_DTYPES_PYARROW.items() if key != "year"
-        } | {
-            pa.bool8(): "boolean",
-            pa.int32(): "integer",
-            pa.int64(): "integer",
-            pa.date32(): "date",
-        }
-        return cls(
-            name=field.name,
-            type=type_map[field.type],
-            description=field.metadata[b"description"].decode(),
-        )
 
     @field_validator("constraints")
     @classmethod
@@ -721,14 +704,22 @@ class Field(PudlMeta):
                 checks.append(f"{name} <= {maximum}")
             if self.constraints.pattern:
                 pattern = _format_for_sql(self.constraints.pattern)
-                checks.append(f"{name} REGEXP {pattern}")
+                # Need to escape colons in regex to avoid this issue:
+                # https://github.com/sqlalchemy/sqlalchemy/discussions/12498
+                checks.append(f"{name} REGEXP {pattern.replace(':', r'\:')}")
             if self.constraints.enum:
                 enum = [_format_for_sql(x) for x in self.constraints.enum]
                 checks.append(f"{name} IN ({', '.join(enum)})")
         return sa.Column(
             self.name,
             self.to_sql_dtype(),
-            *[sa.CheckConstraint(check, name=hash(check)) for check in checks],
+            *[
+                sa.CheckConstraint(
+                    check,
+                    name=sha1(check.encode("utf-8")).hexdigest()[:8],  # noqa: S324
+                )
+                for check in checks
+            ],
             nullable=not self.constraints.required,
             unique=self.constraints.unique,
             comment=self.description,
@@ -811,15 +802,6 @@ class Schema(PudlMeta):
     _check_unique = _validator(
         "missing_values", "primary_key", "foreign_keys", fn=_check_unique
     )
-
-    @classmethod
-    def from_pyarrow_schema(cls, schema: pa.Schema) -> "Schema":
-        """Construct from a pyarrow schema."""
-        return cls(
-            fields=[
-                Field.from_pyarrow_field(schema.field(name)) for name in schema.names
-            ]
-        )
 
     @field_validator("fields")
     @classmethod
@@ -1096,7 +1078,7 @@ class ResourceHarvest(PudlMeta):
     """
 
     tolerance: PositiveFloat = 0.0
-    """Fraction of invalid fields above which result is considerd invalid."""
+    """Fraction of invalid fields above which result is considered invalid."""
 
 
 class PudlResourceDescriptor(PudlMeta):
@@ -1304,7 +1286,7 @@ class Resource(PudlMeta):
         Literal[
             "eia",
             "eiaaeo",
-            "eia_bulk_elec",
+            "eiaapi",
             "epacems",
             "ferc1",
             "ferc714",
@@ -1314,6 +1296,7 @@ class Resource(PudlMeta):
             "pudl",
             "nrelatb",
             "vcerare",
+            "sec",
         ]
         | None
     ) = None
@@ -1336,12 +1319,13 @@ class Resource(PudlMeta):
             "static_ferc1",
             "static_eia",
             "static_eia_disabled",
-            "eia_bulk_elec",
+            "eiaapi",
             "state_demand",
             "static_pudl",
             "service_territories",
             "nrelatb",
             "vcerare",
+            "sec10k",
         ]
         | None
     ) = None
@@ -1358,9 +1342,9 @@ class Resource(PudlMeta):
         Sphinx throws an error when creating a cross ref target for
         a resource that has a preceding underscore. It is
         also possible for resources to have identical names
-        when the preceeding underscore is removed. This function
-        adds a preceeding 'i' to cross ref targets for resources
-        with preceeding underscores. The 'i' will not be rendered
+        when the preceding underscore is removed. This function
+        adds a preceding 'i' to cross ref targets for resources
+        with preceding underscores. The 'i' will not be rendered
         in the docs, only in the .rst files the hyperlinks.
         """
         if self.name.startswith("_"):
@@ -1477,18 +1461,6 @@ class Resource(PudlMeta):
         """Construct from PUDL identifier (`resource.name`)."""
         return cls(**cls.dict_from_id(x))
 
-    @classmethod
-    def from_pyarrow_schema(
-        cls, name: str, description: str, schema: pa.Schema
-    ) -> "Resource":
-        """Construct from a pyarrow schema."""
-        return cls(
-            name=name,
-            description=description,
-            schema=Schema.from_pyarrow_schema(schema),
-            create_database_schema=False,
-        )
-
     def get_field(self, name: str) -> Field:
         """Return field with the given name if it's part of the Resources."""
         names = [field.name for field in self.schema.fields]
@@ -1522,6 +1494,22 @@ class Resource(PudlMeta):
         for key in self.schema.foreign_keys:
             constraints.append(key.to_sql())
         return sa.Table(self.name, metadata, *columns, *constraints)
+
+    def to_frictionless(self) -> frictionless.Resource:
+        """Convert to a Frictionless Resource."""
+        schema = frictionless.Schema(
+            fields=[
+                frictionless.Field(name=f.name, description=f.description)
+                for f in self.schema.fields
+            ],
+            primary_key=self.schema.primary_key,
+        )
+        return frictionless.Resource(
+            name=self.name,
+            description=self.description,
+            schema=schema,
+            path=f"{self.name}.parquet",
+        )
 
     def to_pyarrow(self) -> pa.Schema:
         """Construct a PyArrow schema for the resource."""
@@ -1699,7 +1687,7 @@ class Resource(PudlMeta):
         pk = self.schema.primary_key
         if pk and not (dupes := df[df.duplicated(subset=pk)]).empty:
             raise ValueError(
-                f"{self.name} {len(dupes)}/{len(df)} duplicate primary keys ({pk=}) when enforcing schema."
+                f"{self.name} {len(dupes)}/{len(df)} duplicate primary keys ({pk=}) when enforcing schema:\n{dupes.head()}{'\n...' if len(dupes) > 5 else ''}"
             )
         if pk and not (nulls := df[df[pk].isna().any(axis=1)]).empty:
             raise ValueError(
@@ -1718,7 +1706,7 @@ class Resource(PudlMeta):
 
         The report is formatted as follows:
 
-        * `valid` (bool): Whether resouce is valid.
+        * `valid` (bool): Whether resource is valid.
         * `stats` (dict): Error statistics for resource fields.
         * `fields` (dict):
 
@@ -1988,7 +1976,7 @@ class Package(PudlMeta):
         coding tables defined in :mod:`pudl.metadata.codes` and if so, associate the
         coding table's encoder with those columns for later use cleaning them up.
 
-        The result is cached, since we so often need to generate the metdata for
+        The result is cached, since we so often need to generate the metadata for
         the full collection of PUDL tables.
 
         Args:
@@ -2015,12 +2003,6 @@ class Package(PudlMeta):
                 if len(names) > i:
                     resources += [Resource.dict_from_id(x) for x in names[i:]]
 
-        resources += [
-            Resource.from_pyarrow_schema(name, description, schema).model_dump(
-                by_alias=True
-            )
-            for name, description, schema in get_model_table_schemas()
-        ]
         if excluded_etl_groups:
             resources = [
                 resource
@@ -2076,7 +2058,7 @@ class Package(PudlMeta):
             naming_convention={
                 "ix": "ix_%(column_0_label)s",
                 "uq": "uq_%(table_name)s_%(column_0_name)s",
-                "ck": "ck_%(table_name)s_`%(constraint_name)s`",
+                "ck": "ck_%(table_name)s_%(constraint_name)s",
                 "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
                 "pk": "pk_%(table_name)s",
             }
@@ -2155,9 +2137,15 @@ class Package(PudlMeta):
                 )
         return encoded_df
 
+    def to_frictionless(self) -> frictionless.Package:
+        """Convert to a Frictionless Datapackage."""
+        resources = [r.to_frictionless() for r in self.resources]
+        package = frictionless.Package(name=self.name, resources=resources)
+        return package
+
 
 PUDL_PACKAGE = Package.from_resource_ids()
-"""Define a gobal PUDL package object for use across the entire codebase.
+"""Define a global PUDL package object for use across the entire codebase.
 
 This needs to happen after the definition of the Package class above, and it is used in
 some of the class definitions below, but having it defined in the middle of this module

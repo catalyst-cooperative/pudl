@@ -162,7 +162,7 @@ Running the ETL via the Dagster UI
 
 Dagster needs a directory to store run logs and some interim assets. We don't
 distribute these outputs, so we want to store them separately from
-``PUDL_OUTPUT``. Create a new directory outside of the pudl respository
+``PUDL_OUTPUT``. Create a new directory outside of the pudl repository
 directory called ``dagster_home/``. Then set the ``DAGSTER_HOME`` environment
 variable to the path of the new directory:
 
@@ -172,7 +172,7 @@ variable to the path of the new directory:
     $ echo "export DAGSTER_HOME=/path/to/dagster_home" >> ~/.bashrc # bash
     $ set -Ux DAGSTER_HOME /path/to/dagster_home # fish
 
-Add ``DAGSTER_HOME`` to the currecnt session with
+Add ``DAGSTER_HOME`` to the current session with
 
 .. code-block:: console
 
@@ -182,13 +182,14 @@ Once ``DAGSTER_HOME`` is set, launch the dagster UI by running:
 
 .. code-block:: console
 
-    $ make dagster
+    $ dagster dev
 
 .. note::
 
-    If ``DAGSTER_HOME`` is not set, you will still be able to execute jobs but
-    dagster logs and outputs of assets that use the default `fs_io_manager <https://docs.dagster.io/_apidocs/io-managers#dagster.fs_io_manager>`__
-    will be saved to a temporary directory that is deleted when the ``dagster-webserver`` process exits.
+    If ``DAGSTER_HOME`` is not set, you will still be able to execute jobs but dagster
+    logs and outputs of assets that use the default `fs_io_manager
+    <https://docs.dagster.io/_apidocs/io-managers#dagster.fs_io_manager>`__ will be
+    saved to a temporary directory that is deleted when the ``dagster`` process exits.
 
 This will launch the dagster UI at http://localhost:3000/. You should see
 a window that looks like this:
@@ -262,7 +263,7 @@ are organized by asset groups. These groups are helfpul for visualizing and
 executing subsets of the asset graph.
 
 To execute the job, select ``etl_fast`` or ``etl_full`` and click "Materialize all".
-You can congifure which years to process by shift+clicking "Materialize all".
+You can configure which years to process by shift+clicking "Materialize all".
 Read the :ref:`resource_config` section to learn more.
 To view the status of the run, click the date next to "Latest run:".
 

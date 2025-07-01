@@ -1,0 +1,14 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_sec10k__quarterly_exhibit_21_company_ownership
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_sec10k__quarterly_exhibit_21_company_ownership
+        columns:
+          - name: filename_sec10k
+          - name: subsidiary_company_name
+          - name: subsidiary_company_location
+          - name: fraction_owned
+          - name: subsidiary_company_id_sec10k

@@ -2,8 +2,11 @@
 {% block database_text %}
 Clicking on the links will show you a description of the table as well as the names and
 descriptions of each of its fields. Due to the size of the CEMS data we only publish
-it as Parquet files, which are not browseable online. See :ref:`access-kaggle` and
-:ref:`access-nightly-builds` for information on how to access these outputs.
+it as Parquet files, which are not browsable online, but which can be downloaded
+directly from :ref:`access-cloud` using the links embedded in the
+:doc:`/data_dictionaries/pudl_db` or accessed with a Jupyter Notebook on
+:ref:`access-kaggle`. See :ref:`access-cloud` for more information on how to query
+the Parquet outputs.
 {% endblock %}
 
 {% block background %}
@@ -80,10 +83,10 @@ EPA units vs. EIA units
 -----------------------
 Another important thing to note is the difference between EPA "units" and EIA "units".
 Power plants are complex entities that have multiple subcomponents. In fossil powered
-plants, emissions come from the combusion of fuel. This occurs in the boiler for coal
+plants, emissions come from the combustion of fuel. This occurs in the boiler for coal
 plants or the gas turbine for gas plants. When the EPA uses the term "unit" it is
-refering to the emissions unit or smokestack where the CEMS equipment are (i.e., the
-boiler or gas turbine). When the EIA refers to a "unit" it's usually refering to the
+referring to the emissions unit or smokestack where the CEMS equipment are (i.e., the
+boiler or gas turbine). When the EIA refers to a "unit" it's usually referring to the
 electricity generating unit (i.e. the generator). Some plants have a one-to-one
 relationship between boilers and generators or gas turbines and generators, but many do
 not.

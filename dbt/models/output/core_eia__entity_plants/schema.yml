@@ -1,0 +1,20 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia__entity_plants
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_eia__entity_plants
+              partition_column: null
+        columns:
+          - name: plant_id_eia
+          - name: plant_name_eia
+          - name: city
+          - name: county
+          - name: latitude
+          - name: longitude
+          - name: state
+          - name: street_address
+          - name: zip_code
+          - name: timezone

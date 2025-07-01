@@ -119,7 +119,7 @@ Updating the PUDL Development Environment
 -------------------------------------------------------------------------------
 
 You will need to periodically update your installed development (``pudl-dev``) conda
-environment to get you newer versions of existing dependencies and incorporate any
+environment to get newer versions of existing dependencies and incorporate any
 changes to the environment specification that have been made by other contributors. The
 most reliable way to do this is to remove the existing environment and recreate it.
 
@@ -219,6 +219,17 @@ Linting and Formatting
   <https://www.sphinx-doc.org/en/master/>`__. This is the de-facto standard for Python
   documentation. The ``doc8`` tool checks for syntax errors and other formatting issues
   in the documentation source files under the ``docs/`` directory.
+* `typos <https://github.com/crate-ci/typos>`__ checks for typos in the committed files.
+  If you get an error, run ``typos path/to/file``. Review all proposed corrections
+  manually. If typos marks an issue as having more than
+  one possible correction, manually identify and implement the desired fix in the file.
+  If anything shouldn't be updated (e.g., PUDL is not a typo!), add it to the
+  pyproject.toml file under tool.typos.default.extend-words, using the format
+  word="word". Run ``typos path/to/file`` again to verify that the remaining flagged
+  typos are as anticipated. Once you're satisfied, run ``typos path/to/directory -w``
+  to auto-correct any remaining typos. To ignore typos in a single line (e.g., code
+  that corrects a typos), add ``# spellchecker:ignore`` as a comment to the end of the
+  line.
 
 Linting Within Your Editor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^

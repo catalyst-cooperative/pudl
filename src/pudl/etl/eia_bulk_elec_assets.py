@@ -1,4 +1,4 @@
-"""EIA Bulk Electricty Aggregate assets."""
+"""EIA Bulk Electricity Aggregate assets."""
 
 from dagster import asset
 
@@ -20,5 +20,5 @@ def core_eia__yearly_fuel_receipts_costs_aggs(context):
     """
     logger.info("Processing EIA bulk electricity aggregates.")
     ds = context.resources.datastore
-    raw_bulk_dfs = pudl.extract.eia_bulk_elec.extract(ds)
-    return pudl.transform.eia_bulk_elec.transform(raw_bulk_dfs)
+    raw_bulk_dfs = pudl.extract.eiaapi.extract(ds)
+    return pudl.transform.eiaapi.transform(raw_bulk_dfs)

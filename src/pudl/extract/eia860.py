@@ -85,6 +85,7 @@ raw_table_names = (
     "raw_eia860__generator_wind_existing",
     "raw_eia860__generator_wind_retired",
     "raw_eia860__multifuel_existing",
+    "raw_eia860__multifuel_proposed",
     "raw_eia860__multifuel_retired",
     "raw_eia860__ownership",
     "raw_eia860__plant",
@@ -96,7 +97,7 @@ raw_table_names = (
 raw_eia860__all_dfs = raw_df_factory(Extractor, name="eia860")
 
 
-# TODO (bendnorman): Figure out type hint for context keyword and mutli_asset return
+# TODO (bendnorman): Figure out type hint for context keyword and multi_asset return
 @multi_asset(
     outs={table_name: AssetOut() for table_name in sorted(raw_table_names)},
     required_resource_keys={"datastore", "dataset_settings"},

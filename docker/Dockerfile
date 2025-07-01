@@ -1,4 +1,4 @@
-FROM mambaorg/micromamba:2.0.3-ubuntu24.04
+FROM mambaorg/micromamba:2.3.0-ubuntu24.04
 
 ENV CONTAINER_HOME=/home/$MAMBA_USER
 ENV PGDATA=${CONTAINER_HOME}/pgdata
@@ -22,7 +22,7 @@ RUN printf '[GoogleCompute]\nservice_account = default' > /etc/boto.cfg
 # hadolint ignore=DL3059
 RUN usermod -aG postgres "$MAMBA_USER"
 
-# We use an enviroment variable to set the Postgres version because it is also used in
+# We use an environment variable to set the Postgres version because it is also used in
 # the nightly build script and this makes it easier to ensure they are all the same.
 # Remember to bump the Postgres version. Postgres 17 was released in September, 2024.
 ENV PG_VERSION=16
@@ -42,7 +42,6 @@ ENV CONTAINER_PUDL_WORKSPACE=${CONTAINER_HOME}/pudl_work
 ENV PUDL_INPUT=${CONTAINER_PUDL_WORKSPACE}/input
 ENV PUDL_OUTPUT=${CONTAINER_PUDL_WORKSPACE}/output
 ENV DAGSTER_HOME=${CONTAINER_PUDL_WORKSPACE}/dagster_home
-ENV USE_PUDL_MODELS=True
 
 RUN mkdir -p ${PUDL_INPUT} ${PUDL_OUTPUT} ${DAGSTER_HOME} ${PUDL_REPO}
 

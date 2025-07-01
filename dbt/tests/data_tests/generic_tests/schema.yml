@@ -1,0 +1,161 @@
+version: 2
+
+macros:
+  - name: test_check_column_correlation
+    description: Check the correlation between two columns
+    arguments:
+      - name: column1
+        type: string
+        description: The name of the first column
+      - name: column2
+        type: string
+        description: The name of the second column
+      - name: correlation_coef
+        type: float
+        description: The minimum correlation coefficient we expect between the two columns.
+  - name: test_check_row_counts_per_partition
+    description: Check that the number of rows in each partition is as expected
+    arguments:
+      - name: table_name
+        type: string
+        description: The name of the table to check
+      - name: partition_column
+        type: string
+        description: The name of the column to partition by
+  - name: test_expect_includes_all_value_combinations_from
+    description:
+      Check that all values in a column or set of columns are the same
+      as the same set of columns in another table. Similar to a foreign key
+      constraint, but rather than check if values from the model table exist in a comparison table,
+      this checks if the comparison table has values that don't exist in the model table. Note that
+      this check is only one way. If you also want to check whether the model table has values that
+      don't exist in the comparison table, you'll need to call this function in the schema of the
+      comparison table as well.
+    arguments:
+      - name: compare_table_name
+        type: string
+        description: The name of the table to compare columns with
+      - name: compare_cols
+        type: list
+        description: A list of column names present in both tables. The test will succeed only if all combinations of column values present in at least one row in the comparison table are present in this table.
+  - name: test_no_null_rows
+    description: Check that there are no null rows in the table
+  - name: test_not_all_null
+    description: Check that not all values in a column are null
+  - name: test_expect_complete_valid_ownership
+    description: >
+      Check whether ``fraction_owned`` columns sum too high (for any individual
+      generator) or too low (for too many generators). Designed for use on
+      ``out_eia860__yearly_ownership``. Fails when any generator has
+      sum(fraction_owned) more than 1.02, or when more than half of generators have
+      sum(fraction_owned) less than 0.98.
+    arguments:
+      - name: n_acceptable_failures
+        type: integer
+        description: The number of generators allowed to have sum(fraction_owned) more than 1.02; default 0.
+  - name: test_expect_consistent_years
+    description: >
+      Check whether two temporal columns in a model have consistent years for the vast majority of records.
+      Designed for tables with both a high-frequency datetime column (hourly or more frequent) and a separate
+      date/year column that describes the reporting period. Due to timezone adjustments, a small fraction of
+      records may have different years between these columns. Fails when the mismatch ratio exceeds the
+      specified threshold.
+    arguments:
+      - name: datetime_column
+        type: string
+        description: High-frequency datetime column (e.g., 'datetime_utc').
+      - name: date_column
+        type: string
+        description: Reporting period date/year column (e.g., 'report_date').
+      - name: max_mismatch_ratio
+        type: float
+        description: "Maximum allowed fraction of mismatched records (default: 0.001)."
+  - name: test_expect_consistent_generator_ids
+    description: >
+      Check whether generator ids have entries that vary only in punctuation or case. Designed for use on ``out_eia__yearly_generators``. Fails when any ``plant_id_eia`` has multiple generators with the same id after dropping all [^A-Z0-9] characters.
+    arguments:
+      - name: n_acceptable_failures
+        type: integer
+        description: The number of generators allowed to have inconsistent spellings.
+  - name: test_expect_date_frequency_ratio
+    description: >
+      Check whether two models have the expected ratio of distinct dates for overlapping years.
+      Commonly used to verify that monthly and annual data have the correct 12:1 relationship,
+      but works for any frequency ratio. Excludes provisional data (incremental_ytd, monthly_update)
+      when data_maturity columns are present. Fails when the ratio of distinct dates doesn't match
+      the expected multiplier for years present in both models.
+    arguments:
+      - name: compare_model
+        type: string
+        description: The reference model to compare against (typically lower frequency, e.g. annual).
+      - name: multiplier
+        type: integer
+        description: Expected ratio (e.g. 12 for monthly:annual comparison).
+      - name: date_column
+        type: string
+        description: "Date column name (default: 'report_date')."
+      - name: model_has_data_maturity
+        type: boolean
+        description: "Tell the test that the data_maturity column exists in the model (default: true). If this column is available, it will be used to filter out incomplete years of data."
+      - name: compare_model_has_data_maturity
+        type: boolean
+        description: "Tell the test that the data_maturity column exists in the model (default: true). If this column is available, it will be used to filter out incomplete years of data."
+  - name: test_expect_fgd_cost_totals_to_agree
+    description: >
+      Check whether the sum of itemized costs matches the total cost. Designed for use on ``_core_eia860__fgd_equipment``. Fails when more than 1% of rows have a sum that differs from the total by more than 1%. Includes careful null and nan handling.
+  - name: test_expect_matching_primary_fuel_by_cost_and_mmbtu
+    description: >
+      Check whether the primary fuel by cost matches the primary fuel by mmbtu. Designed for use on ``out_ferc1__yearly_steam_plants_fuel_by_plant_sched402``. Fails when more than 5% of rows have different cost vs mmbtu primary fuels.
+  - name: test_expect_one2one_mapping
+    description: >
+      Check whether there is a 1:1 mapping between two columns by grouping by the first column and counting the number of distinct values of the second. Fails when a value in ``groupby_column`` is paired with more than one ``counted_column`` value.
+    arguments:
+      - name: groupby_column
+        type: string
+        description: The name of the column to group by.
+      - name: counted_column
+        type: string
+        description: The name of the column to count.
+      - name: n_acceptable
+        type: integer
+        description: The number of acceptable ``groupby_column`` values having more than one ``counted_column`` value associated with them.
+  - name: test_expect_unique_column_combination
+    description: >
+      Check whether the combination of values of the specified columns is unique. Fails when any combination occurs more than once.
+    arguments:
+      - name: columns
+        type: list[string]
+        description: The columns in the unique combination.
+  - name: test_expect_unique_utility_id_eia
+    description: >
+      Check whether each generator has exactly one operator utility on any particular date. Designed for use on ``out_eia860__yearly_ownership``. Fails when any (``report_date``, ``plant_id_eia``, ``generator_id``) combination has more than one unique value for ``operator_utility_id_eia``.
+    arguments:
+      - name: n_acceptable_failures
+        type: integer
+        description: The number of generators allowed to multiple operator utilities on any particular date; default 0.
+  - name: test_expect_valid_hour_of_year
+    description: >
+      Check whether ``hour_of_year`` is consistent with ``datetime_utc``. Designed for use on ``out_vcerare__hourly_available_capacity_factor``. Fails when the hour computed from the datetime does not match.
+  - name: test_expect_valid_plantparts_ownership_fraction
+    description: >
+      Check whether ``fraction_owned`` columns sum too high (for any individual plant
+      part) or too low (for too many plant parts). Designed for use on
+      ```out_eia__yearly_plant_parts``. Fails when any owned plant part with nonzero
+      capacity has sum(fraction_owned) more than 1e-6 away from 1, or when more than
+      60 plant parts have capacity 0 and fraction_owned 0.
+  - name: test_expect_sum_close_to_total_column
+    description: >
+      Check whether the sum of the specified columns matches a designated total column. Fails when the fraction of records with more than ``discrepancy_threshold`` difference to the value of the total column (as a fraction of the value of the total column) exceeds ``max_discrepancy_rate``. Records with null in total column do not count as discrepancies. Nulls in sum columns are coerced to 0.
+    arguments:
+      - name: sum_columns
+        type: list[str]
+        description: The columns whose sum should match the value in the total column.
+      - name: total_column
+        type: str
+        description: The column containing the intended total value.
+      - name: discrepancy_threshold
+        type: float
+        description: Count a record as a discrepancy if the sum of the sum columns, minus the value in the total column, divided by the value in the total column, exceeds this value.
+      - name: max_discrepancy_rate
+        type: float
+        description: Maximum acceptable fraction of records which can be counted as a discrepancy before the test should fail.

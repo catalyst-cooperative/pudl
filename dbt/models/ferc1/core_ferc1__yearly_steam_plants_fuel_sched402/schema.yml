@@ -1,0 +1,23 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_ferc1__yearly_steam_plants_fuel_sched402
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_ferc1__yearly_steam_plants_fuel_sched402
+              partition_column: report_year
+        columns:
+          - name: record_id
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_unique
+          - name: utility_id_ferc1
+          - name: report_year
+          - name: plant_name_ferc1
+          - name: fuel_type_code_pudl
+          - name: fuel_units
+          - name: fuel_consumed_units
+          - name: fuel_mmbtu_per_unit
+          - name: fuel_cost_per_unit_burned
+          - name: fuel_cost_per_unit_delivered
+          - name: fuel_cost_per_mmbtu

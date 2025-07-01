@@ -1,0 +1,41 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_eia__yearly_utilities
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: out_eia__yearly_utilities
+              partition_column: report_date
+          - expect_date_frequency_ratio:
+              compare_model: source("pudl", "out_eia__yearly_generators")
+              multiplier: 1
+              date_column: report_date
+        columns:
+          - name: utility_id_eia
+          - name: utility_id_pudl
+          - name: utility_name_eia
+          - name: report_date
+          - name: street_address
+          - name: city
+          - name: state
+          - name: zip_code
+          - name: plants_reported_owner
+          - name: plants_reported_operator
+          - name: plants_reported_asset_manager
+          - name: plants_reported_other_relationship
+          - name: entity_type
+          - name: attention_line
+          - name: address_2
+          - name: zip_code_4
+          - name: contact_firstname
+          - name: contact_lastname
+          - name: contact_title
+          - name: phone_number
+          - name: phone_extension
+          - name: contact_firstname_2
+          - name: contact_lastname_2
+          - name: contact_title_2
+          - name: phone_number_2
+          - name: phone_extension_2
+          - name: data_maturity

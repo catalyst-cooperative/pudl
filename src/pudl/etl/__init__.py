@@ -2,7 +2,6 @@
 
 import importlib.resources
 import itertools
-import warnings
 
 import pandera as pr
 from dagster import (
@@ -10,9 +9,8 @@ from dagster import (
     AssetChecksDefinition,
     AssetKey,
     AssetsDefinition,
-    AssetSelection,
+    AssetSpec,
     Definitions,
-    SourceAsset,
     asset_check,
     define_asset_job,
     load_asset_checks_from_modules,
@@ -21,7 +19,6 @@ from dagster import (
 from dagster._core.definitions.cacheable_assets import CacheableAssetsDefinition
 
 import pudl
-from pudl.analysis.pudl_models import get_pudl_models_assets
 from pudl.io_managers import (
     epacems_io_manager,
     ferc1_dbf_sqlite_io_manager,
@@ -44,6 +41,7 @@ from . import (
 logger = pudl.logging_helpers.get_logger(__name__)
 
 raw_module_groups = {
+    "raw_censuspep": [pudl.extract.censuspep],
     "raw_eia176": [pudl.extract.eia176],
     "raw_eia191": [pudl.extract.eia191],
     "raw_eia757a": [pudl.extract.eia757a],
@@ -56,23 +54,25 @@ raw_module_groups = {
     "raw_ferc1": [pudl.extract.ferc1],
     "raw_ferc714": [pudl.extract.ferc714],
     "raw_gridpathratoolkit": [pudl.extract.gridpathratoolkit],
-    "raw_phmsagas": [pudl.extract.phmsagas],
     "raw_nrelatb": [pudl.extract.nrelatb],
+    "raw_phmsagas": [pudl.extract.phmsagas],
+    "raw_sec10k": [pudl.extract.sec10k],
     "raw_vcerare": [pudl.extract.vcerare],
 }
 
 
 core_module_groups = {
-    "core_eia176": [pudl.transform.eia176],
     "core_assn": [glue_assets],
     "core_censusdp1tract": [
         pudl.convert.censusdp1tract_to_sqlite,
         pudl.output.censusdp1tract,
     ],
+    "core_censuspep": [pudl.transform.censuspep],
     "core_codes": [static_assets],
     "core_eia": [pudl.transform.eia],
     "core_eiaaeo": [pudl.transform.eiaaeo],
     "core_eia_bulk_elec": [eia_bulk_elec_assets],
+    "core_eia176": [pudl.transform.eia176],
     "core_eia860": [pudl.transform.eia860, pudl.transform.eia860m],
     "core_eia861": [pudl.transform.eia861],
     "core_eia923": [pudl.transform.eia923],
@@ -81,6 +81,7 @@ core_module_groups = {
     "core_ferc1": [pudl.transform.ferc1],
     "core_ferc714": [pudl.transform.ferc714],
     "core_gridpathratoolkit": [pudl.transform.gridpathratoolkit],
+    "core_sec10k": [pudl.transform.sec10k],
     "core_nrelatb": [pudl.transform.nrelatb],
     "core_vcerare": [pudl.transform.vcerare],
 }
@@ -96,30 +97,31 @@ out_module_groups = {
         pudl.output.eia,
         pudl.output.eia860,
         pudl.output.eia923,
-        pudl.output.eia_bulk_elec,
+        pudl.output.eia930,
+        pudl.output.eiaapi,
     ],
     "out_ferc1": [
         pudl.output.ferc1,
         pudl.analysis.record_linkage.classify_plants_ferc1,
     ],
     "out_respondents_ferc714": [pudl.output.ferc714],
+    "out_sec10k": [pudl.output.sec10k],
     "out_service_territory_eia861": [pudl.analysis.service_territory],
     "out_state_demand_ferc714": [pudl.analysis.state_demand],
 }
 
 all_asset_modules = raw_module_groups | core_module_groups | out_module_groups
-default_assets = (
-    list(
-        itertools.chain.from_iterable(
-            load_assets_from_modules(
-                modules,
-                group_name=group_name,
-            )
-            for group_name, modules in all_asset_modules.items()
+default_assets = list(
+    itertools.chain.from_iterable(
+        load_assets_from_modules(
+            modules,
+            group_name=group_name,
+            include_specs=True,
         )
+        for group_name, modules in all_asset_modules.items()
     )
-    + get_pudl_models_assets()
 )
+
 
 default_asset_checks = list(
     itertools.chain.from_iterable(
@@ -166,7 +168,7 @@ def asset_check_from_schema(
 
 
 def _get_keys_from_assets(
-    asset_def: AssetsDefinition | SourceAsset | CacheableAssetsDefinition,
+    asset_def: AssetsDefinition | AssetSpec | CacheableAssetsDefinition,
 ) -> list[AssetKey]:
     """Get a list of asset keys.
 
@@ -176,14 +178,14 @@ def _get_keys_from_assets(
     Multi-assets have multiple keys, which can also be retrieved as a list from
     ``asset.keys``.
 
-    SourceAssets always only have one key, and don't have ``asset.keys``. So we
+    AssetSpecs always only have one key, and don't have ``asset.keys``. So we
     look for ``asset.key`` and wrap it in a list.
 
     We don't handle CacheableAssetsDefinitions yet.
     """
     if isinstance(asset_def, AssetsDefinition):
         return list(asset_def.keys)
-    if isinstance(asset_def, SourceAsset):
+    if isinstance(asset_def, AssetSpec):
         return [asset_def.key]
     return []
 
@@ -234,22 +236,6 @@ default_config = pudl.helpers.get_dagster_execution_config(
 default_config |= pudl.analysis.ml_tools.get_ml_models_config()
 
 
-def create_non_cems_selection(all_assets: list[AssetsDefinition]) -> AssetSelection:
-    """Create a selection of assets excluding CEMS and all downstream assets.
-
-    Args:
-        all_assets: A list of asset definitions to remove CEMS assets from.
-
-    Returns:
-        An asset selection with all_assets assets excluding CEMS assets.
-    """
-    all_asset_keys = pudl.helpers.get_asset_keys(all_assets)
-    all_selection = AssetSelection.assets(*all_asset_keys)
-
-    cems_selection = AssetSelection.assets(AssetKey("core_epacems__hourly_emissions"))
-    return all_selection - cems_selection.downstream()
-
-
 def load_dataset_settings_from_file(setting_filename: str) -> dict:
     """Load dataset settings from a settings file in `pudl.package_data.settings`.
 
@@ -285,12 +271,6 @@ defs: Definitions = Definitions(
             },
         ),
         define_asset_job(
-            name="etl_full_no_cems",
-            selection=create_non_cems_selection(default_assets),
-            description="This job executes all years of all assets except the "
-            "core_epacems__hourly_emissions asset and all assets downstream.",
-        ),
-        define_asset_job(
             name="etl_fast",
             config=default_config
             | {
@@ -301,19 +281,6 @@ defs: Definitions = Definitions(
                 }
             },
             description="This job executes the most recent year of each asset.",
-        ),
-        define_asset_job(
-            name="etl_fast_no_cems",
-            selection=create_non_cems_selection(default_assets),
-            config={
-                "resources": {
-                    "dataset_settings": {
-                        "config": load_dataset_settings_from_file("etl_fast")
-                    }
-                }
-            },
-            description="This job executes the most recent year of each asset except the "
-            "core_epacems__hourly_emissions asset and all assets downstream.",
         ),
     ],
 )

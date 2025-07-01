@@ -30,6 +30,7 @@ at the "Years Liberated" field.
 * :doc:`/data_sources/eia860` (and eia860m)
 * :doc:`/data_sources/eia861`
 * :doc:`/data_sources/eia923`
+* :doc:`/data_sources/eia930`
 * :doc:`/data_sources/epacems`
 * :doc:`/data_sources/ferc1`
 * :doc:`/data_sources/ferc714`
@@ -190,7 +191,7 @@ Currently, our FERC and EIA tables utilize different transform processes.
 
 A. EIA Forms
 ^^^^^^^^^^^^
-**4.A.1)** You can either materialize the ``_core`` (clean) and ``_core`` (normalized)
+**4.A.1)** You can either materialize the ``_core`` (clean) and ``core`` (normalized)
 dagster asset groups for your dataset of interest (ex: ``_core_eia860`` and
 ``core_eia860``) or use the EIA ETL Debugging notebook mentioned above to run the
 initial transform step on all tables of the new year of data. As mentioned in 3.A.1,
@@ -233,7 +234,7 @@ the relationship between DBF rows and XBRL rows in
     from the XBRL data therefore allowing us to merge the data into one continuous
     timeseries. The ``row_literal`` column is the DBF label for the ``row_number`` in
     question. This ``row_literal`` must be mapped to an ``xbrl_factoid`` from the XBRL
-    data. These ``xbrl_factoid`` entires are the value columns from the raw XBRL data.
+    data. These ``xbrl_factoid`` entries are the value columns from the raw XBRL data.
 
     Look at the ``row_literal`` values for a given table and see which XBRL columns they
     correspond to. It's helpful to
@@ -278,7 +279,7 @@ you'll need to include it in the ``rename_columns`` dictionary in
 
 * Consider whether the column could benefit from custom transformations. If it's
   something that could be applicable to other tables from other sources, consider
-  building it in :mod:`pudl.tranform.classes`. If it's specific to FERC1, build it in
+  building it in :mod:`pudl.transform.classes`. If it's specific to FERC1, build it in
   :mod:`pudl.transform.ferc1`. If it will only ever be relevant to one table in FERC1,
   build it in the table-specific class in :mod:`pudl.transform.ferc1`, create an
   override for one of the high-level transform functions, and call it there. Make sure
@@ -456,7 +457,7 @@ were particularly high or low in the new year of data. Other values like expecte
 content per unit of fuel should be relatively stable. If the required adjustments are
 large, or there are other types of validations failing, they should be investigated.
 
-**9.4)** Update the expected number of rows in the minmax_row validation tests. Pay
+**9.4)** Update the expected number of rows in the ``dbt`` row count tests. Pay
 attention to how far off of previous expectations the new tables are. E.g. if there
 are already 20 years of data, and you're integrating 1 new year of data, probably the
 number of rows in the tables should be increasing by around 5% (since 1/20 = 0.05).

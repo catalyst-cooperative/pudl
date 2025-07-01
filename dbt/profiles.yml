@@ -1,0 +1,13 @@
+pudl_dbt:
+  outputs:
+    # Define targets for local full/fast ETL outputs
+    etl-full:
+      threads: 1
+      type: duckdb
+      path: "{{ env_var('PUDL_OUTPUT') }}/pudl_dbt_tests.duckdb"
+    etl-fast:
+      threads: 1
+      type: duckdb
+      path: "{{ env_var('PUDL_OUTPUT') }}/pudl_dbt_tests.duckdb"
+
+  target: etl-full

@@ -1,0 +1,79 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia860__scd_generators
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_eia860__scd_generators
+              partition_column: report_date
+        columns:
+          - name: plant_id_eia
+          - name: generator_id
+          - name: utility_id_eia
+          - name: report_date
+          - name: operational_status_code
+          - name: operational_status
+          - name: ownership_code
+          - name: capacity_mw
+          - name: summer_capacity_mw
+          - name: summer_capacity_estimate
+          - name: winter_capacity_mw
+          - name: winter_capacity_estimate
+          - name: net_capacity_mwdc
+          - name: energy_storage_capacity_mwh
+          - name: prime_mover_code
+          - name: energy_source_code_1
+          - name: energy_source_code_2
+          - name: energy_source_code_3
+          - name: energy_source_code_4
+          - name: energy_source_code_5
+          - name: energy_source_code_6
+          - name: energy_source_1_transport_1
+          - name: energy_source_1_transport_2
+          - name: energy_source_1_transport_3
+          - name: energy_source_2_transport_1
+          - name: energy_source_2_transport_2
+          - name: energy_source_2_transport_3
+          - name: fuel_type_code_pudl
+          - name: can_burn_multiple_fuels
+          - name: deliver_power_transgrid
+          - name: distributed_generation
+          - name: synchronized_transmission_grid
+          - name: turbines_num
+          - name: planned_modifications
+          - name: planned_net_summer_capacity_uprate_mw
+          - name: planned_net_winter_capacity_uprate_mw
+          - name: planned_uprate_date
+          - name: planned_net_summer_capacity_derate_mw
+          - name: planned_net_winter_capacity_derate_mw
+          - name: planned_derate_date
+          - name: planned_new_prime_mover_code
+          - name: planned_energy_source_code_1
+          - name: planned_repower_date
+          - name: other_planned_modifications
+          - name: other_modifications_date
+          - name: planned_generator_retirement_date
+          - name: carbon_capture
+          - name: startup_source_code_1
+          - name: startup_source_code_2
+          - name: startup_source_code_3
+          - name: startup_source_code_4
+          - name: technology_description
+          - name: turbines_inverters_hydrokinetics
+          - name: time_cold_shutdown_full_load_code
+          - name: planned_new_capacity_mw
+          - name: can_cofire_fuels
+          - name: can_switch_oil_gas
+          - name: nameplate_power_factor
+          - name: minimum_load_mw
+          - name: uprate_derate_during_year
+          - name: uprate_derate_completed_date
+          - name: current_planned_generator_operating_date
+          - name: summer_estimated_capability_mw
+          - name: winter_estimated_capability_mw
+          - name: generator_retirement_date
+          - name: owned_by_non_utility
+          - name: reactive_power_output_mvar
+          - name: ferc_qualifying_facility
+          - name: data_maturity

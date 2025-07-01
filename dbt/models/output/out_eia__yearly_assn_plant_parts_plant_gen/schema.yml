@@ -1,0 +1,30 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_eia__yearly_assn_plant_parts_plant_gen
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: out_eia__yearly_assn_plant_parts_plant_gen
+              partition_column: report_date
+          - expect_includes_all_value_combinations_from:
+              compare_table_name: out_eia__yearly_plant_parts
+              compare_cols:
+                - record_id_eia
+        columns:
+          - name: record_id_eia
+          - name: record_id_eia_plant_gen
+          - name: report_date
+          - name: plant_id_eia
+          - name: utility_id_eia
+          - name: ownership_record_type
+          - name: generator_id_plant_gen
+          - name: energy_source_code_1_plant_gen
+          - name: prime_mover_code_plant_gen
+          - name: unit_id_pudl_plant_gen
+          - name: technology_description_plant_gen
+          - name: ferc_acct_name_plant_gen
+          - name: ferc1_generator_agg_id_plant_gen
+          - name: generator_operating_year_plant_gen
+          - name: operational_status_pudl_plant_gen
+          - name: generators_number

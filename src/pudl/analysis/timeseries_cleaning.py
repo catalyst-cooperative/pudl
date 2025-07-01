@@ -1,14 +1,18 @@
 """Screen timeseries for anomalies and impute missing and anomalous values.
 
+For a narrative discussion of these methods aimed at data users, see
+:doc:`/methodology/timeseries_imputation`.
+
 The screening methods were originally designed to identify unrealistic data in the
-electricity demand timeseries reported to EIA on Form 930, and have also been
-applied to the FERC Form 714, and various historical demand timeseries
-published by regional grid operators like MISO, PJM, ERCOT, and SPP.
+electricity demand timeseries reported in :doc:`/data_sources/eia930`, and we have also
+applied them to demand data from :doc:`/data_sources/ferc714`.
 
-They are adapted from code published and modified by:
+Screening methods are adapted from code written and maintained by:
 
-* Tyler Ruggles <truggles@carnegiescience.edu>
-* Greg Schivley <greg.schivley@princeton.edu>
+* `Tyler Ruggles <https://github.com/truggles>`__
+* `Alicia Wongel <https://github.com/awongel>`__
+* `Greg Schivley <https://github.com/gschivley>`__
+* `David Farnham <https://github.com/d-farnham>`__
 
 And described at:
 
@@ -16,13 +20,9 @@ And described at:
 * https://zenodo.org/record/3737085
 * https://github.com/truggles/EIA_Cleaned_Hourly_Electricity_Demand_Code
 
-The imputation methods were designed for multivariate time series forecasting.
-
-They are adapted from code published by:
-
-* Xinyu Chen <chenxy346@gmail.com>
-
-And described at:
+The imputation methods were designed for multivariate time series forecasting. They are
+adapted from code published by `Xinyu Chen <https://xinychen.github.io/>`__ and
+described at:
 
 * https://arxiv.org/abs/2006.10436
 * https://arxiv.org/abs/2008.03194
@@ -30,14 +30,241 @@ And described at:
 """
 
 import functools
+import re
+import uuid
 import warnings
-from collections.abc import Iterable, Sequence
-from typing import Any
+from collections.abc import Callable, Sequence
+from dataclasses import dataclass, field
+from typing import Any, Literal
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import pandera as pa
 import scipy.stats
+from dagster import (
+    AssetCheckResult,
+    AssetIn,
+    AssetOut,
+    Output,
+    asset,
+    asset_check,
+    multi_asset,
+)
+from pandera.typing import DataFrame, Index, Series
+from sklearn.metrics import mean_absolute_percentage_error
+
+from pudl.logging_helpers import get_logger
+from pudl.metadata.dfs import ImputationReasonCodes
+
+logger = get_logger(__file__)
+
+# --- Constants --- #
+
+STANDARD_UTC_OFFSETS: dict[str, str] = {
+    "Pacific/Honolulu": -10,
+    "America/Anchorage": -9,
+    "America/Los_Angeles": -8,
+    "America/Denver": -7,
+    "America/Phoenix": -7,
+    "America/Chicago": -6,
+    "America/New_York": -5,
+    "America/Halifax": -4,
+}
+"""Hour offset from Coordinated Universal Time (UTC) by time zone.
+
+Time zones are canonical names (e.g. 'America/Denver') from tzdata (
+https://www.iana.org/time-zones)
+mapped to their standard-time UTC offset.
+"""
+
+
+# --- Data structures --- #
+
+
+class UTCTimeseriesDataFrame(pa.DataFrameModel):
+    """Define schema of input tables for timeseries cleaning.
+
+    This model defines the expected structure of an input dataframe to the timeseries
+    imputation process. It will be be immediately converted to a
+    :class:`AlignedTimeseriesDataFrame`, then pivoted to a :class:`TimeseriesMatrix`.
+    """
+
+    id_col: Series[Any]
+    """Entity ID column(s). Used to group timeseries by entity."""
+    datetime_utc: Series[pa.dtypes.DateTime]
+    """Datetimes in UTC timezone."""
+    timezone: Series[str] | None
+    """Local timezone of entity."""
+    value_col: Series[pd.Float64Dtype] = pa.Field(nullable=True)
+    """Column containing actual values to impute."""
+
+
+class AlignedTimeseriesDataFrame(pa.DataFrameModel):
+    """Define schema of input tables for timeseries cleaning.
+
+    This model is nearly identical to a ``UTCTimeseriesDataFrame``, but the
+    ``datetime_utc`` values are aligned to "local" ``datetime``'s using a fixed UTC
+    offset.
+    """
+
+    id_col: Series[Any]
+    """Entity ID column(s). Used to group timeseries by entity."""
+    datetime: Series[pa.dtypes.DateTime]
+    """Datetimes shifted by UTC offset to align all timeseries'."""
+    value_col: Series[pd.Float64Dtype] = pa.Field(nullable=True)
+    """Column containing actual values to impute."""
+    flags: Series[str] | None = pa.Field(nullable=True)
+    """Column indicating why value was flagged for imputation."""
+
+
+class TimeseriesMatrix(pa.DataFrameModel):
+    """Define schema for timeseries matrix used during imputation.
+
+    TimeseriesMatrix is the main type used during imputation. It is a dataframe with a
+    `datetime` row index (e.g. '2006-01-01 00:00:00', ..., '2019-12-31 23:00:00') in
+    local time ignoring daylight-savings, and a `id_col` column index (e.g. 101, ...,
+    329). Since the columns are dynamically generated by pivoting a
+    ``AlignedTimeseriesDataFrame``, this model only explicitly defines the ``datetime``
+    index. The primary purpose of this type is to annotate methods in this module, so
+    the expected inputs and outputs are immediately clear.
+    """
+
+    datetime: Index[pa.dtypes.DateTime]
+    """Index timeseries matrix by datetime."""
+
+
+def _shift_utc(utc: pd.Series, utc_offset: pd.Series) -> pd.Series:
+    """Shift ``utc`` by UTC offset.
+
+    Args:
+        utc: UTC times (tz-naive ``datetime64[ns]`` or ``datetime64[ns, UTC]``).
+        utc_offset: For each datetime in ``utc`` a corresponding offset in hours.
+
+    Returns:
+        Shifted datetimes (tz-naive ``datetime64[ns]``).
+
+    Examples:
+        >>> s = pd.Series([pd.Timestamp(2020, 1, 1), pd.Timestamp(2020, 1, 1)])
+        >>> _shift_utc(s, [-7, -6])
+        0   2019-12-31 17:00:00
+        1   2019-12-31 18:00:00
+        dtype: datetime64[ns]
+    """
+    return utc + pd.to_timedelta(utc_offset, unit="hours")
+
+
+@pa.check_types
+def utc_dataframe_to_aligned(
+    input_df: DataFrame[UTCTimeseriesDataFrame],
+) -> DataFrame[AlignedTimeseriesDataFrame]:
+    """Return DataFrame with ``datetime_utc`` shifted by offset to align timeseries'."""
+    input_df["utc_offset"] = input_df["timezone"].map(STANDARD_UTC_OFFSETS).astype(int)
+    input_df["datetime"] = _shift_utc(
+        input_df["datetime_utc"],
+        input_df["utc_offset"],
+    )
+
+    # List timezone by year for each respondent by the datetime
+    input_df["year"] = input_df["datetime"].dt.year
+    return input_df
+
+
+@pa.check_types
+def pivot_aligned_timeseries_dataframe(
+    aligned_df: DataFrame[AlignedTimeseriesDataFrame],
+    value_col: str = "value_col",
+) -> DataFrame[TimeseriesMatrix]:
+    """Pivot aligned timeseries dataframe into timeseries matrix and pad if needed.
+
+    Padding finds the complete list of hours from the start of the first day
+    present in the timeseries to the end of the last, and then fills any missing hours
+    with NULLs.
+    """
+    matrix = aligned_df.pivot(index="datetime", columns="id_col", values=value_col)
+
+    # Get the full set of hours from the start of the first day in the series to the end of the last
+    start = matrix.index.min().replace(hour=0)
+    end = matrix.index.max().replace(hour=23)
+    all_hours = pd.date_range(start=start, end=end, freq="h", name="datetime")
+
+    # Reindex matrix with all hours. This will fill in any missing hours with NULLS
+    return matrix.reindex(all_hours)
+
+
+@pa.check_types
+def melt_imputed_timeseries_matrix(
+    imputed_matrix: DataFrame[TimeseriesMatrix],
+    flag_matrix: DataFrame[TimeseriesMatrix],
+) -> DataFrame[AlignedTimeseriesDataFrame]:
+    """Melt imputed timeseries matrix and flag matrix to time-aligned dataframe."""
+    df = imputed_matrix.melt(value_name="value_col", ignore_index=False).reset_index()
+    flags = flag_matrix.melt(value_name="flags", ignore_index=False).reset_index()
+
+    df = df.merge(flags, on=["id_col", "datetime"], validate="one_to_one", how="left")
+    return df
+
+
+@dataclass
+class FlaggedTimeseries:
+    """Container class used to flag values in a timeseries matrix for imputation."""
+
+    x: np.ndarray
+    columns: pd.Index
+    index: pd.Index
+    flags: np.ndarray
+    uuid: str
+
+    def __hash__(self):
+        """Implement hash for lru_cache."""
+        return hash(self.uuid)
+
+    @classmethod
+    def from_timeseries_matrix(
+        cls,
+        matrix: pd.DataFrame,
+        flags: pd.DataFrame | None = None,
+    ) -> "FlaggedTimeseries":
+        """Create a timeseries object from a dataframe."""
+        x = matrix.to_numpy()
+        flags = np.empty(x.shape, dtype=object) if flags is None else flags.to_numpy()
+
+        return cls(
+            x=x,
+            index=matrix.index,
+            columns=matrix.columns,
+            flags=flags,
+            uuid=uuid.uuid4(),
+        )
+
+    def to_dataframes(self) -> tuple[pd.DataFrame, pd.DataFrame]:
+        """Convert back to a dataframe."""
+        return (
+            pd.DataFrame(self.x, columns=self.columns, index=self.index),
+            pd.DataFrame(self.flags, columns=self.columns, index=self.index),
+        )
+
+    def flag(
+        self, mask: np.ndarray, flag: ImputationReasonCodes
+    ) -> "FlaggedTimeseries":
+        """Flag values.
+
+        Flags values (if not already flagged) and nulls flagged values.
+
+        Args:
+            mask: Boolean mask of the values to flag.
+            flag: Flag name.
+        """
+        # Only flag unflagged values
+        if flag != ImputationReasonCodes.MISSING_VALUE:
+            # This would assume missing values were flagged for a different
+            # reason, so don't do this check for `MISSING_VALUE` flag
+            mask = mask & ~np.isnan(self.x)
+        self.flags[mask] = flag.name.lower()
+        # Null flagged values
+        self.x[mask] = np.nan
+        self.uuid = uuid.uuid4()
+        return self
+
 
 # ---- Helpers ---- #
 
@@ -166,7 +393,7 @@ def insert_run_length(  # noqa: C901
     Raises:
         ValueError: Padding must zero or greater.
         ValueError: Run length must be greater than zero.
-        ValueError: Cound not find space for run of length {length}.
+        ValueError: Could not find space for run of length {length}.
 
     Returns:
         Copy of array `x` with values inserted.
@@ -291,7 +518,7 @@ def _mat2ten(matrix: np.ndarray, shape: np.ndarray, mode: int) -> np.ndarray:
     """Fold matrix into a tensor."""
     index = [mode] + [i for i in range(len(shape)) if i != mode]
     return np.moveaxis(
-        np.reshape(matrix, newshape=shape[index], order="F"), source=0, destination=mode
+        np.reshape(matrix, shape=shape[index], order="F"), source=0, destination=mode
     )
 
 
@@ -299,7 +526,7 @@ def _ten2mat(tensor: np.ndarray, mode: int) -> np.ndarray:
     """Unfold tensor into a matrix."""
     return np.reshape(
         np.moveaxis(tensor, source=mode, destination=0),
-        newshape=(tensor.shape[mode], -1),
+        shape=(tensor.shape[mode], -1),
         order="F",
     )
 
@@ -530,772 +757,1467 @@ def impute_latc_tubal(  # noqa: C901
 
 
 # ---- Anomaly detection ---- #
+def flag_null(ts: FlaggedTimeseries) -> FlaggedTimeseries:
+    """Flag null values (MISSING_VALUE)."""
+    mask = np.isnan(ts.x)
+    return ts.flag(mask, ImputationReasonCodes.MISSING_VALUE)
 
 
-class Timeseries:
-    """Multivariate timeseries for anomaly detection and imputation."""
+def flag_negative_or_zero(ts: FlaggedTimeseries) -> FlaggedTimeseries:
+    """Flag negative or zero values (NEGATIVE_OR_ZERO)."""
+    mask = ts.x <= 0
+    return ts.flag(mask, ImputationReasonCodes.NEGATIVE_OR_ZERO)
 
-    def __init__(self, x: np.ndarray | pd.DataFrame) -> None:
-        """Initialize a multivariate timeseries.
 
-        Args:
-            x: Timeseries with shape (n observations, m variables).
-                If :class:`pandas.DataFrame`, :attr:`index` and :attr:`columns`
-                are equal to `x.index` and `x.columns`, respectively.
-                Otherwise, :attr:`index` and :attr:`columns` are the default
-                `pandas.RangeIndex`.
-        """
-        self.xi: np.ndarray
-        """Reference to the original values (can be null).
+def flag_identical_run(ts: FlaggedTimeseries, length: int = 3) -> FlaggedTimeseries:
+    """Flag the last values in identical runs (IDENTICAL_RUN).
 
-        Many methods assume that these represent chronological, regular timeseries.
-        """
+    Args:
+        length: Run length to flag.
+            If `3`, the third (and subsequent) identical values are flagged.
 
-        self.index: pd.Index
-        """Row index."""
+    Raises:
+        ValueError: Run length must be 2 or greater.
+    """
+    if length < 2:
+        raise ValueError("Run length must be 2 or greater")
+    mask = np.ones(ts.x.shape, dtype=bool)
+    mask[0] = False
+    for n in range(1, length):
+        mask[n:] &= ts.x[n:] == ts.x[:-n]
+    return ts.flag(mask, ImputationReasonCodes.IDENTICAL_RUN)
 
-        self.columns: pd.Index
-        """Column names."""
 
-        if isinstance(x, pd.DataFrame):
-            self.xi = x.to_numpy()
-            self.index = x.index
-            self.columns = x.columns
+def flag_global_outlier(ts: FlaggedTimeseries, medians: float = 9) -> FlaggedTimeseries:
+    """Flag values greater or less than n times the global median (GLOBAL_OUTLIER).
+
+    Args:
+        medians: Number of times the median the value must exceed the median.
+    """
+    median = np.nanmedian(ts.x, axis=0)
+    mask = np.abs(ts.x - median) > np.abs(median * medians)
+    return ts.flag(mask, ImputationReasonCodes.GLOBAL_OUTLIER)
+
+
+def flag_global_outlier_neighbor(
+    ts: FlaggedTimeseries, neighbors: int = 1
+) -> FlaggedTimeseries:
+    """Flag values neighboring global outliers (GLOBAL_OUTLIER_NEIGHBOR).
+
+    Args:
+        neighbors: Number of neighbors to flag on either side of each outlier.
+
+    Raises:
+        ValueError: Global outliers must be flagged first.
+    """
+    mask = np.zeros(ts.x.shape, dtype=bool)
+    outliers = ts.flags == "GLOBAL_OUTLIER"
+    for shift in range(1, neighbors + 1):
+        # Neighbors before
+        mask[:-shift][outliers[shift:]] = True
+        # Neighbors after
+        mask[shift:][outliers[:-shift]] = True
+    return ts.flag(mask, ImputationReasonCodes.GLOBAL_OUTLIER_NEIGHBOR)
+
+
+@functools.lru_cache(maxsize=2)  # noqa: B019
+def rolling_median(ts: FlaggedTimeseries, window: int = 48) -> np.ndarray:
+    """Rolling median of values.
+
+    Args:
+        window: Number of values in the moving window.
+    """
+    # RUGGLES: rollingDem, rollingDemLong (window=480)
+    df = pd.DataFrame(ts.x, copy=False)
+    return df.rolling(window, min_periods=1, center=True).median().to_numpy()
+
+
+def rolling_median_offset(ts: FlaggedTimeseries, window: int = 48) -> np.ndarray:
+    """Values minus the rolling median.
+
+    Estimates the local cycle in cyclical data by removing longterm trends.
+
+    Args:
+        window: Number of values in the moving window.
+    """
+    # RUGGLES: dem_minus_rolling
+    m = rolling_median(ts, window=window)
+    return ts.x - m
+
+
+def median_of_rolling_median_offset(
+    ts: FlaggedTimeseries,
+    window: int = 48,
+    shifts: Sequence[int] = range(-240, 241, 24),
+) -> np.ndarray:
+    """Median of the offset from the rolling median.
+
+    Calculated by shifting the rolling median offset (:meth:`rolling_median_offset`)
+    by different numbers of values, then taking the median at each position.
+    Estimates the typical local cycle in cyclical data.
+
+    Args:
+        window: Number of values in the moving window for the rolling median.
+        shifts: Number of values to shift the rolling median offset by.
+    """
+    # RUGGLES: vals_dem_minus_rolling
+    offset = rolling_median_offset(ts, window=window)
+    # Fast numpy implementation of pd.DataFrame.shift
+    shifted = np.empty([len(shifts), *offset.shape], dtype=float)
+    for i, shift in enumerate(shifts):
+        if shift > 0:
+            shifted[i, :shift] = np.nan
+            shifted[i, shift:] = offset[:-shift]
+        elif shift < 0:
+            shifted[i, shift:] = np.nan
+            shifted[i, :shift] = offset[-shift:]
         else:
-            self.xi = x
-            self.index = pd.RangeIndex(x.shape[0])
-            self.columns = pd.RangeIndex(x.shape[1])
+            shifted[i, :] = offset
+    # Ignore warning for rows with all null values
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore", category=RuntimeWarning, message="All-NaN slice encountered"
+        )
+        return np.nanmedian(shifted, axis=0)
 
-        self.x: np.ndarray = self.xi.copy()
-        """Copy of :attr:`xi` with any flagged values replaced with null."""
 
-        self.flags: np.ndarray = np.empty(self.x.shape, dtype=object)
-        """Flag label for each value, or null if not flagged."""
+def rolling_iqr_of_rolling_median_offset(
+    ts: FlaggedTimeseries, window: int = 48, iqr_window: int = 240
+) -> np.ndarray:
+    """Rolling interquartile range (IQR) of rolling median offset.
 
-        self.flagged: list[str] = []
-        """Running list of flags that have been checked so far."""
+    Estimates the spread of the local cycles in cyclical data.
 
-    def to_dataframe(self, array: np.ndarray = None, copy: bool = True) -> pd.DataFrame:
-        """Return multivariate timeseries as a :class:`pandas.DataFrame`.
+    Args:
+        window: Number of values in the moving window for the rolling median.
+        iqr_window: Number of values in the moving window for the rolling IQR.
+    """
+    # RUGGLES: dem_minus_rolling_IQR
+    offset = rolling_median_offset(ts, window=window)
+    df = pd.DataFrame(offset, copy=False)
+    rolling = df.rolling(iqr_window, min_periods=1, center=True)
+    return (rolling.quantile(0.75) - rolling.quantile(0.25)).to_numpy()
 
-        Args:
-            array: Two-dimensional array to use. If `None`, uses :attr:`x`.
-            copy: Whether to use a copy of `array`.
-        """
-        x = self.x if array is None else array
-        return pd.DataFrame(x, columns=self.columns, index=self.index, copy=copy)
 
-    def flag(self, mask: np.ndarray, flag: str) -> None:
-        """Flag values.
+def median_prediction(
+    ts: FlaggedTimeseries,
+    window: int = 48,
+    shifts: Sequence[int] = range(-240, 241, 24),
+    long_window: int = 480,
+) -> np.ndarray:
+    """Values predicted from local and regional rolling medians.
 
-        Flags values (if not already flagged) and nulls flagged values.
+    Calculated as `{ local median } +
+    { median of local median offset } * { local median } / { regional median }`.
 
-        Args:
-            mask: Boolean mask of the values to flag.
-            flag: Flag name.
-        """
-        # Only flag unflagged values
-        mask = mask & ~np.isnan(self.x)
-        self.flags[mask] = flag
-        self.flagged.append(flag)
-        # Null flagged values
-        self.x[mask] = np.nan
-        # Clear cached metrics
-        for name in dir(self):
-            attr = getattr(self, name)
-            if hasattr(attr, "cache_clear"):
-                attr.cache_clear()
+    Args:
+        window: Number of values in the moving window for the local rolling median.
+        shifts: Positions to shift the local rolling median offset by,
+            for computing its median.
+        long_window: Number of values in the moving window
+            for the regional (long) rolling median.
+    """
+    # RUGGLES: hourly_median_dem_dev (multiplied by rollingDem)
+    m = rolling_median(ts, window=window)
+    return m * (
+        1
+        + median_of_rolling_median_offset(ts, window=window, shifts=shifts)
+        / rolling_median(ts, window=long_window)
+    )
 
-    def unflag(self, flags: Iterable[str] = None) -> None:
-        """Unflag values.
 
-        Unflags values by restoring their original values and removing their flag.
+def flag_local_outlier(
+    ts: FlaggedTimeseries,
+    window: int = 48,
+    shifts: Sequence[int] = range(-240, 241, 24),
+    long_window: int = 480,
+    iqr_window: int = 240,
+    multiplier: tuple[float, float] = (3.5, 2.5),
+) -> FlaggedTimeseries:
+    """Flag local outliers (LOCAL_OUTLIER_HIGH, LOCAL_OUTLIER_LOW).
 
-        Args:
-            flags: Flag names. If `None`, all flags are removed.
-        """
-        mask = slice(None) if flags is None else np.isin(self.flags, flags)
-        self.flags[mask] = None
-        self.x[mask] = self.xi[mask]
-        self.flagged = [f for f in self.flagged if flags is not None and f not in flags]
+    Flags values which are above or below the :meth:`median_prediction` by more than
+    a `multiplier` times the :meth:`rolling_iqr_of_rolling_median_offset`.
 
-    def flag_negative_or_zero(self) -> None:
-        """Flag negative or zero values (NEGATIVE_OR_ZERO)."""
-        mask = self.x <= 0
-        self.flag(mask, "NEGATIVE_OR_ZERO")
+    Args:
+        window: Number of values in the moving window for the local rolling median.
+        shifts: Positions to shift the local rolling median offset by,
+            for computing its median.
+        long_window: Number of values in the moving window
+            for the regional (long) rolling median.
+        iqr_window: Number of values in the moving window
+            for the rolling interquartile range (IQR).
+        multiplier: Number of times the :meth:`rolling_iqr_of_rolling_median_offset`
+            the value must be above (HIGH) and below (LOW)
+            the :meth:`median_prediction` to be flagged.
+    """
+    # Compute constants
+    prediction = median_prediction(
+        ts, window=window, shifts=shifts, long_window=long_window
+    )
+    iqr = rolling_iqr_of_rolling_median_offset(ts, window=window, iqr_window=iqr_window)
+    mask = ts.x > prediction + multiplier[0] * iqr
+    ts = ts.flag(mask, ImputationReasonCodes.LOCAL_OUTLIER_HIGH)
+    # As in original code, do not recompute constants with new nulls
+    mask = ts.x < prediction - multiplier[1] * iqr
+    return ts.flag(mask, ImputationReasonCodes.LOCAL_OUTLIER_LOW)
 
-    def flag_identical_run(self, length: int = 3) -> None:
-        """Flag the last values in identical runs (IDENTICAL_RUN).
 
-        Args:
-            length: Run length to flag.
-                If `3`, the third (and subsequent) identical values are flagged.
+def diff(ts: FlaggedTimeseries, shift: int = 1) -> np.ndarray:
+    """Values minus the value of their neighbor.
 
-        Raises:
-            ValueError: Run length must be 2 or greater.
-        """
-        if length < 2:
-            raise ValueError("Run length must be 2 or greater")
-        mask = np.ones(self.x.shape, dtype=bool)
-        mask[0] = False
-        for n in range(1, length):
-            mask[n:] &= self.x[n:] == self.x[:-n]
-        self.flag(mask, "IDENTICAL_RUN")
+    Args:
+        shift: Positions to shift for calculating the difference.
+            Positive values select a preceding (left) neighbor.
+    """
+    # RUGGLES: delta_pre (shift=1), delta_post (shift=-1)
+    return array_diff(ts.x, shift)
 
-    def flag_global_outlier(self, medians: float = 9) -> None:
-        """Flag values greater or less than n times the global median (GLOBAL_OUTLIER).
 
-        Args:
-            medians: Number of times the median the value must exceed the median.
-        """
-        median = np.nanmedian(self.x, axis=0)
-        mask = np.abs(self.x - median) > np.abs(median * medians)
-        self.flag(mask, "GLOBAL_OUTLIER")
+def rolling_iqr_of_diff(
+    ts: FlaggedTimeseries, shift: int = 1, window: int = 240
+) -> np.ndarray:
+    """Rolling interquartile range (IQR) of difference between neighboring values.
 
-    def flag_global_outlier_neighbor(self, neighbors: int = 1) -> None:
-        """Flag values neighboring global outliers (GLOBAL_OUTLIER_NEIGHBOR).
+    Args:
+        shift: Positions to shift for calculating the difference.
+        window: Number of values in the moving window for the rolling IQR.
+    """
+    # RUGGLES: delta_rolling_iqr
+    d = diff(ts, shift=shift)
+    df = pd.DataFrame(d, copy=False)
+    rolling = df.rolling(window, min_periods=1, center=True)
+    return (rolling.quantile(0.75) - rolling.quantile(0.25)).to_numpy()
 
-        Args:
-            neighbors: Number of neighbors to flag on either side of each outlier.
 
-        Raises:
-            ValueError: Global outliers must be flagged first.
-        """
-        if "GLOBAL_OUTLIER" not in self.flagged:
-            raise ValueError("Global outliers must be flagged first")
-        mask = np.zeros(self.x.shape, dtype=bool)
-        outliers = self.flags == "GLOBAL_OUTLIER"
-        for shift in range(1, neighbors + 1):
-            # Neighbors before
-            mask[:-shift][outliers[shift:]] = True
-            # Neighors after
-            mask[shift:][outliers[:-shift]] = True
-        self.flag(mask, "GLOBAL_OUTLIER_NEIGHBOR")
+def flag_double_delta(
+    ts: FlaggedTimeseries, iqr_window: int = 240, multiplier: float = 2
+) -> FlaggedTimeseries:
+    """Flag values very different from neighbors on either side (DOUBLE_DELTA).
 
-    @functools.lru_cache(maxsize=2)  # noqa: B019
-    def rolling_median(self, window: int = 48) -> np.ndarray:
-        """Rolling median of values.
+    Flags values whose differences to both neighbors on either side exceeds a
+    `multiplier` times the rolling interquartile range (IQR) of neighbor difference.
 
-        Args:
-            window: Number of values in the moving window.
-        """
-        # RUGGLES: rollingDem, rollingDemLong (window=480)
-        df = pd.DataFrame(self.x, copy=False)
-        return df.rolling(window, min_periods=1, center=True).median().to_numpy()
+    Args:
+        iqr_window: Number of values in the moving window for the rolling IQR
+            of neighbor difference.
+        multiplier: Number of times the rolling IQR of neighbor difference
+            the value's difference to its neighbors must exceed
+            for the value to be flagged.
+    """
+    before = diff(ts, shift=1)
+    after = diff(ts, shift=-1)
+    iqr = multiplier * rolling_iqr_of_diff(ts, shift=1, window=iqr_window)
+    mask = (np.minimum(before, after) > iqr) | (np.maximum(before, after) < -iqr)
+    return ts.flag(mask, ImputationReasonCodes.DOUBLE_DELTA)
 
-    def rolling_median_offset(self, window: int = 48) -> np.ndarray:
-        """Values minus the rolling median.
 
-        Estimates the local cycle in cyclical data by removing longterm trends.
+@functools.lru_cache(maxsize=2)  # noqa: B019
+def relative_median_prediction(ts: FlaggedTimeseries, **kwargs: Any) -> np.ndarray:
+    """Values divided by their value predicted from medians.
 
-        Args:
-            window: Number of values in the moving window.
-        """
-        # RUGGLES: dem_minus_rolling
-        return self.x - self.rolling_median(window=window)
+    Args:
+        kwargs: Arguments to :meth:`median_prediction`.
+    """
+    # RUGGLES: dem_rel_diff_wrt_hourly, dem_rel_diff_wrt_hourly_long (window=480)
+    return ts.x / median_prediction(ts, **kwargs)
 
-    def median_of_rolling_median_offset(
-        self, window: int = 48, shifts: Sequence[int] = range(-240, 241, 24)
-    ) -> np.ndarray:
-        """Median of the offset from the rolling median.
 
-        Calculated by shifting the rolling median offset (:meth:`rolling_median_offset`)
-        by different numbers of values, then taking the median at each position.
-        Estimates the typical local cycle in cyclical data.
+def iqr_of_diff_of_relative_median_prediction(
+    ts: FlaggedTimeseries, shift: int = 1, **kwargs: Any
+) -> np.ndarray:
+    """Interquartile range of running difference of relative median prediction.
 
-        Args:
-            window: Number of values in the moving window for the rolling median.
-            shifts: Number of values to shift the rolling median offset by.
-        """
-        # RUGGLES: vals_dem_minus_rolling
-        offset = self.rolling_median_offset(window=window)
-        # Fast numpy implementation of pd.DataFrame.shift
-        shifted = np.empty([len(shifts), *offset.shape], dtype=float)
-        for i, shift in enumerate(shifts):
-            if shift > 0:
-                shifted[i, :shift] = np.nan
-                shifted[i, shift:] = offset[:-shift]
-            elif shift < 0:
-                shifted[i, shift:] = np.nan
-                shifted[i, :shift] = offset[-shift:]
+    Args:
+        shift: Positions to shift for calculating the difference.
+            Positive values select a preceding (left) neighbor.
+        kwargs: Arguments to :meth:`relative_median_prediction`.
+    """
+    # RUGGLES: iqr_relative_deltas
+    d = array_diff(relative_median_prediction(ts, **kwargs), shift)
+    return scipy.stats.iqr(d, nan_policy="omit", axis=0)
+
+
+def _find_single_delta(
+    ts: FlaggedTimeseries,
+    relative_median_prediction: np.ndarray,
+    relative_median_prediction_long: np.ndarray,
+    rolling_iqr_of_diff: np.ndarray,
+    iqr_of_diff_of_relative_median_prediction: np.ndarray,
+    reverse: bool = False,
+) -> np.ndarray:
+    not_nan = ~np.isnan(ts.x)
+    mask = np.zeros(ts.x.shape, dtype=bool)
+    for col in range(ts.x.shape[1]):
+        indices = np.flatnonzero(not_nan[:, col])[:: (-1 if reverse else 1)]
+        previous, current = indices[:-1], indices[1:]
+        while len(current):
+            # Evaluate value pairs
+            d = np.abs(ts.x[current, col] - ts.x[previous, col])
+            diff_relative_median_prediction = np.abs(
+                relative_median_prediction[current, col]
+                - relative_median_prediction[previous, col]
+            )
+            # Compare max deviation across short and long rolling median
+            # to catch when outliers pull short median towards themselves.
+            previous_max = np.maximum(
+                np.abs(1 - relative_median_prediction[previous, col]),
+                np.abs(1 - relative_median_prediction_long[previous, col]),
+            )
+            current_max = np.maximum(
+                np.abs(1 - relative_median_prediction[current, col]),
+                np.abs(1 - relative_median_prediction_long[current, col]),
+            )
+            flagged = (
+                (d > rolling_iqr_of_diff[current, col])
+                & (
+                    diff_relative_median_prediction
+                    > iqr_of_diff_of_relative_median_prediction[col]
+                )
+                & (current_max > previous_max)
+            )
+            flagged_indices = current[flagged]
+            if not flagged_indices.size:
+                break
+            # Find position of flagged indices in index
+            if reverse:
+                indices_idx = indices.size - (
+                    indices[::-1].searchsorted(flagged_indices, side="right")
+                )
             else:
-                shifted[i, :] = offset
-        # Ignore warning for rows with all null values
-        with warnings.catch_warnings():
-            warnings.filterwarnings(
-                "ignore", category=RuntimeWarning, message="All-NaN slice encountered"
+                indices_idx = indices.searchsorted(flagged_indices, side="left")
+            # Only flag first of consecutive flagged indices
+            # TODO: May not be necessary after first iteration
+            unflagged = np.concatenate(([False], np.diff(indices_idx) == 1))
+            flagged_indices = np.delete(flagged_indices, unflagged)
+            indices_idx = np.delete(indices_idx, unflagged)
+            mask[flagged_indices, col] = True
+            flagged[flagged] = ~unflagged
+            # Bump current index of flagged pairs to next unflagged index
+            # Next index always unflagged because flagged runs are not permitted
+            next_indices_idx = indices_idx + 1
+            if next_indices_idx[-1] == len(indices):
+                # Drop last index if out of range
+                next_indices_idx = next_indices_idx[:-1]
+            current = indices[next_indices_idx]
+            # Trim previous values to length of current values
+            previous = previous[flagged][: len(current)]
+            # Delete flagged indices
+            indices = np.delete(indices, indices_idx)
+    return mask
+
+
+def flag_single_delta(
+    ts: FlaggedTimeseries,
+    window: int = 48,
+    shifts: Sequence[int] = range(-240, 241, 24),
+    long_window: int = 480,
+    iqr_window: int = 240,
+    multiplier: float = 5,
+    rel_multiplier: float = 15,
+) -> FlaggedTimeseries:
+    """Flag values very different from the nearest unflagged value (SINGLE_DELTA).
+
+    Flags values whose difference to the nearest unflagged value,
+    with respect to value and relative median prediction,
+    differ by less than a multiplier times the rolling interquartile range (IQR)
+    of the difference -
+    `multiplier` times :meth:`rolling_iqr_of_diff` and
+    `rel_multiplier` times :meth:`iqr_of_diff_of_relative_mean_prediction`,
+    respectively.
+
+    Args:
+        window: Number of values in the moving window for the rolling median
+            (for the relative median prediction).
+        shifts: Positions to shift the local rolling median offset by,
+            for computing its median (for the relative median prediction).
+        long_window: Number of values in the moving window for the long rolling
+            median (for the relative median prediction).
+        iqr_window: Number of values in the moving window for the rolling IQR
+            of neighbor difference.
+        multiplier: Number of times the rolling IQR of neighbor difference
+            the value's difference to its neighbor must exceed
+            for the value to be flagged.
+        rel_multiplier: Number of times the rolling IQR of relative median
+            prediction the value's prediction difference to its neighbor must exceed
+            for the value to be flagged.
+    """
+    # Compute constants used in both forward and reverse pass
+    relative_median_pred = relative_median_prediction(
+        ts, window=window, shifts=shifts, long_window=long_window
+    )
+    relative_median_pred_long = relative_median_prediction(
+        ts, window=long_window, shifts=shifts, long_window=long_window
+    )
+    rolling_iqr_of_d = multiplier * rolling_iqr_of_diff(ts, shift=1, window=iqr_window)
+    iqr_of_diff_of_relative_median_pred = rel_multiplier * (
+        iqr_of_diff_of_relative_median_prediction(
+            ts, shift=1, window=window, shifts=shifts, long_window=long_window
+        )
+    )
+    # Set values flagged in forward pass to null before reverse pass
+    mask = _find_single_delta(
+        ts,
+        relative_median_pred,
+        relative_median_pred_long,
+        rolling_iqr_of_d,
+        iqr_of_diff_of_relative_median_pred,
+        reverse=False,
+    )
+    ts = ts.flag(mask, ImputationReasonCodes.SINGLE_DELTA)
+    # Repeat in reverse to get all options.
+    # As in original code, do not recompute constants with new nulls
+    mask = _find_single_delta(
+        ts,
+        relative_median_pred,
+        relative_median_pred_long,
+        rolling_iqr_of_d,
+        iqr_of_diff_of_relative_median_pred,
+        reverse=True,
+    )
+    return ts.flag(mask, ImputationReasonCodes.SINGLE_DELTA)
+
+
+def flag_anomalous_region(
+    ts: FlaggedTimeseries, window: int = 48, threshold: float = 0.15
+) -> FlaggedTimeseries:
+    """Flag values surrounded by flagged values (ANOMALOUS_REGION).
+
+    Original null values are not considered flagged values.
+
+    Args:
+        window: Width of regions.
+        threshold: Fraction of flagged values required for a region to be flagged.
+    """
+    # Check whether unflagged
+    mask = np.equal(ts.flags, None)
+    # Check whether after or before half-width region with 1+ flagged values
+    half_window = window // 2
+    is_after = (
+        pd.DataFrame(mask, copy=False)
+        .rolling(window=half_window)
+        .mean()
+        .lt(1)
+        .to_numpy()
+    )
+    is_before = np.roll(is_after, -(half_window - 1), axis=0)
+    # Check whether not part of a run of unflagged values longer than a half-width
+    is_not_run = np.empty_like(mask)
+    for col in range(mask.shape[1]):
+        rvalues, rlengths = encode_run_length(mask[:, col])
+        is_short_run = np.where(rvalues, rlengths, 0) <= half_window
+        is_not_run[:, col] = np.repeat(is_short_run, rlengths)
+    # Check whether within full-width region with too many flagged values
+    is_region = (
+        pd.DataFrame(~mask, copy=False)
+        .rolling(window=window, center=True)
+        .mean()
+        .gt(threshold)
+        .rolling(window=window, center=True)
+        .max()
+        .eq(True)
+        .to_numpy()
+    )
+    # Flag if all conditions are met
+    mask &= is_after & is_before & is_not_run & is_region
+    return ts.flag(mask, ImputationReasonCodes.ANOMALOUS_REGION)
+
+
+@pa.check_types
+def flag_ruggles(
+    timeseries_matrix: DataFrame[TimeseriesMatrix],
+) -> tuple[DataFrame[TimeseriesMatrix], DataFrame[TimeseriesMatrix]]:
+    """Flag values following the method of Ruggles and others (2020).
+
+    Assumes values are hourly electricity demand.
+
+    * description: https://doi.org/10.1038/s41597-020-0483-x
+    * code: https://github.com/truggles/EIA_Cleaned_Hourly_Electricity_Demand_Code
+
+    Returns:
+        Two ``TimeseriesMatrix`` dataframes with the same shape. The first contains
+        the input timeseries with flagged values Nulled out in preparation for
+        imputation. The second contains the actual flags for reference.
+    """
+    ts = FlaggedTimeseries.from_timeseries_matrix(timeseries_matrix)
+
+    # Step 1
+    ts = flag_null(ts)
+    ts = flag_negative_or_zero(ts)
+    ts = flag_identical_run(ts, length=3)
+    ts = flag_global_outlier(ts, medians=9)
+    ts = flag_global_outlier_neighbor(ts, neighbors=1)
+    # Step 2
+    # NOTE: In original code, statistics used for the flags below are precomputed
+    # here, rather than computed for each flag with nulls added by previous flags.
+    window = 48
+    long_window = 480
+    iqr_window = 240
+    shifts = range(-240, 241, 24)
+    ts = flag_local_outlier(
+        ts,
+        window=window,
+        shifts=shifts,
+        long_window=long_window,
+        iqr_window=iqr_window,
+        multiplier=(3.5, 2.5),
+    )
+    ts = flag_double_delta(ts, iqr_window=iqr_window, multiplier=2)
+    ts = flag_single_delta(
+        ts,
+        window=window,
+        shifts=shifts,
+        long_window=long_window,
+        iqr_window=iqr_window,
+        multiplier=5,
+        rel_multiplier=15,
+    )
+    ts = flag_anomalous_region(ts, window=window + 1, threshold=0.15)
+    return ts.to_dataframes()
+
+
+def summarize_flags(
+    imputed_df: pd.DataFrame,
+    id_col: str,
+    value_col: str,
+    flag_col: str,
+) -> pd.DataFrame:
+    """Summarize flagged values by flag, count and median.
+
+    Args:
+        imputed_df: DataFrame
+    """
+    grouped = imputed_df.groupby([id_col, flag_col])
+    return pd.DataFrame(
+        {"count": grouped.size(), "median": grouped[value_col].median()}
+    )
+
+
+def simulate_nulls(
+    x: np.ndarray,
+    lengths: Sequence[int] = None,
+    padding: int = 1,
+    intersect: bool = False,
+    overlap: bool = False,
+) -> np.ndarray:
+    """Find non-null values to null to match a run-length distribution.
+
+    Args:
+        x: Timeseries matrix as described in :func:`_prepare_timeseries_matrix`
+            defined within :func:`impute_timeseries_asset_factory`.
+        length: Length of null runs to simulate for each series.
+            By default, uses the run lengths of null values in each series.
+        padding: Minimum number of non-null values between simulated null runs
+            and between simulated and existing null runs.
+        intersect: Whether simulated null runs can intersect each other.
+        overlap: Whether simulated null runs can overlap existing null runs. If
+            ``True``, ``padding`` is ignored.
+
+    Returns:
+        Boolean mask of current non-null values to set to null.
+
+    Raises:
+        ValueError: Could not find space for run of length {length}.
+
+    Examples:
+        >>> x = np.column_stack([[1, 2, np.nan, 4, 5, 6, 7, np.nan, np.nan]])
+        >>> simulate_nulls(x).ravel()
+        array([ True, False, False, False, True, True, False, False, False])
+        >>> simulate_nulls(x, lengths=[4], padding=0).ravel()
+        array([False, False, False, True, True, True, True, False, False])
+    """
+    new_nulls = np.zeros(x.shape, dtype=bool)
+    for col in range(x.shape[1]):
+        is_null = np.isnan(x[:, col])
+        if lengths is None:
+            run_values, run_lengths = encode_run_length(is_null)
+            run_lengths = run_lengths[run_values]
+        else:
+            run_lengths = lengths
+        is_new_null = insert_run_length(
+            new_nulls[:, col],
+            values=np.ones(len(run_lengths), dtype=bool),
+            lengths=run_lengths,
+            mask=None if overlap else ~is_null,
+            padding=0 if overlap else padding,
+            intersect=intersect,
+        )
+        if overlap:
+            is_new_null &= ~is_null
+        new_nulls[:, col] = is_new_null
+    return new_nulls
+
+
+def fold_tensor(x: np.ndarray, periods: int = 24) -> np.ndarray:
+    """Fold into a 3-dimensional tensor representation.
+
+    Folds the series `x` (number of observations, number of series)
+    into a 3-d tensor (number of series, number of groups, number of periods),
+    splitting observations into groups of length `periods`.
+    For example, each group may represent a day and each period the hour of the day.
+
+    Args:
+        x: Series array to fold. Uses :attr:`x` by default.
+        periods: Number of consecutive values in each series to fold into a group.
+
+    Returns:
+        >>> x = np.column_stack([[1, 2, 3, 4, 5, 6], [10, 20, 30, 40, 50, 60]])
+        >>> tensor = fold_tensor(x, periods=3)
+        >>> tensor[0]
+        array([[1, 2, 3],
+               [4, 5, 6]])
+        >>> np.all(x == unfold_tensor(tensor, x.shape))
+        np.True_
+    """
+    tensor_shape = x.shape[1], x.shape[0] // periods, periods
+    return x.T.reshape(tensor_shape)
+
+
+def unfold_tensor(tensor: np.ndarray, shape) -> np.ndarray:
+    """Unfold a 3-dimensional tensor representation.
+
+    Performs the reverse of :meth:`fold_tensor`.
+    """
+    return tensor.T.reshape(shape, order="F")
+
+
+@pa.check_types
+def impute(
+    df: DataFrame[TimeseriesMatrix],
+    mask: np.ndarray = None,
+    periods: int = 24,
+    blocks: int = 1,
+    method: str = "tubal",
+    **kwargs: Any,
+) -> DataFrame[TimeseriesMatrix]:
+    """Impute null values.
+
+    .. note::
+       The imputation method requires that nulls be replaced by zeros,
+       so the series cannot already contain zeros.
+
+    Args:
+        mask: Boolean mask of values to impute in addition to
+            any null values in :attr:`x`.
+        periods: Number of consecutive values in each series to fold into a group.
+            See :meth:`fold_tensor`. Default of 24 is meant for hourly data with a
+            diurnal periodicity.
+        blocks: Number of blocks into which to split the series for imputation.
+            This has been found to reduce processing time for `method='tnn'`.
+        method: Imputation method to use
+            ('tubal': :func:`impute_latc_tubal`, 'tnn': :func:`impute_latc_tnn`).
+        kwargs: Optional arguments to `method`.
+
+    Returns:
+        Array of same shape as :attr:`x` with all null values
+        (and those selected by `mask`) replaced with imputed values.
+
+    Raises:
+        ValueError: Zero values present. Replace with very small value.
+    """
+    imputer = {"tubal": impute_latc_tubal, "tnn": impute_latc_tnn}[method]
+    x = df.to_numpy()
+    if (x == 0).any():
+        raise ValueError("Zero values present. Replace with very small value.")
+    tensor = fold_tensor(x, periods=periods)
+    n = tensor.shape[1]
+    ends = [*range(0, n, int(np.ceil(n / blocks))), n]
+    for i in range(blocks):
+        if blocks > 1:
+            print(f"Block: {i}")
+        idx = slice(None), slice(ends[i], ends[i + 1]), slice(None)
+        tensor[idx] = imputer(tensor[idx], **kwargs)
+    x = unfold_tensor(tensor, x.shape)
+    return pd.DataFrame(x, columns=df.columns, index=df.index)
+
+
+@pa.check_types
+def summarize_imputed(
+    matrix: DataFrame[TimeseriesMatrix],
+    imputed_matrix: DataFrame[TimeseriesMatrix],
+    mask: np.ndarray,
+) -> pd.DataFrame:
+    """Summarize the fit of imputed values to actual values.
+
+    Summarizes the agreement between actual and imputed values with the
+    following statistics:
+
+    * `mpe`: Mean percent error, `(actual - imputed) / actual`.
+    * `mape`: Mean absolute percent error, `abs(mpe)`.
+
+    Args:
+        imputed: Series of same shape as :attr:`x` with imputed values.
+            See :meth:`impute`.
+        mask: Boolean mask of imputed values that were not null in :attr:`x`.
+            See :meth:`simulate_nulls`.
+
+    Returns:
+        Table of imputed value statistics for each series.
+    """
+    stats = []
+    x = matrix.to_numpy()
+    imputed = imputed_matrix.to_numpy()
+    for col in range(x.shape[1]):
+        flagged_vals = x[mask[:, col], col]
+        if not flagged_vals.size:
+            continue
+        pe = (flagged_vals - imputed[mask[:, col], col]) / flagged_vals
+        pe = pe[~np.isnan(pe)]
+        stats.append(
+            {
+                "column": matrix.columns[col],
+                "count": flagged_vals.size,
+                "mpe": np.mean(pe),
+                "mape": np.mean(np.abs(pe)),
+            }
+        )
+    return pd.DataFrame(stats)
+
+
+@pa.check_types
+def impute_flagged_values(
+    df: DataFrame[TimeseriesMatrix],
+    years: list[int],
+    method: dict[int, Literal["tubal", "tnn"]],
+    periods: int = 24,
+    blocks: int = 1,
+) -> DataFrame[TimeseriesMatrix]:
+    """Impute null values in input timeseries matrix.
+
+    Imputation is performed separately for each year, with only the respondents
+    reporting data in that year.
+
+    .. note::
+       The imputation is parallelized internally, and by default will use all available
+       CPU cores. If you want to limit the number of cores used, you can set the
+       ``OPM_NUM_THREADS`` environment variable to the desired number of threads.
+
+    Args:
+        df: Timeseries matrix as described in :func:`_prepare_timeseries_matrix`
+            defined within :func:`impute_timeseries_asset_factory`.
+        years: list of years to input
+        periods: Number of consecutive values in each series to fold into a group. See
+            :meth:`fold_tensor`.
+        blocks: Number of blocks into which to split the series for imputation.
+            This has been found to reduce processing time for the tnn method.
+        method: Maps each year to the appropriate imputation method. "tubal" uses
+            :func:`impute_latc_tubal` and  "tnn" uses :func:`impute_latc_tnn`.
+
+    Returns:
+        Copy of ``df`` with imputed values.
+    """
+    results = []
+    # sort here and then don't sort in the groupby so we can process
+    # the newer years of data first. This is so we can see early if
+    # new data causes any failures.
+    df = df.sort_index(ascending=False)
+    for year, gdf in df.groupby(df.index.year, sort=False):
+        # remove the records o/s of the working years because some
+        # respondents report one record of midnight of January first
+        # of the next year (report_date.dt.year + 1). and
+        # timeseries matrix chunks over years at a time
+        # and having only one record
+        if year in years:
+            logger.info(f"Imputing year {year}")
+            keep = df.columns[~gdf.isnull().all()]
+            result = impute(
+                gdf[keep],
+                method=method[year],
+                periods=periods,
+                blocks=blocks,
             )
-            return np.nanmedian(shifted, axis=0)
+            results.append(result)
+    return pd.concat(results)
 
-    def rolling_iqr_of_rolling_median_offset(
-        self, window: int = 48, iqr_window: int = 240
-    ) -> np.ndarray:
-        """Rolling interquartile range (IQR) of rolling median offset.
 
-        Estimates the spread of the local cycles in cyclical data.
+@pa.check_types
+def filter_missing_values(
+    df: DataFrame[TimeseriesMatrix],
+    min_data: int = 100,
+    min_data_fraction: float = 0.9,
+) -> DataFrame[TimeseriesMatrix]:
+    """Filter incomplete years from timseries matrix.
 
-        Args:
-            window: Number of values in the moving window for the rolling median.
-            iqr_window: Number of values in the moving window for the rolling IQR.
-        """
-        # RUGGLES: dem_minus_rolling_IQR
-        offset = self.rolling_median_offset(window=window)
-        df = pd.DataFrame(offset, copy=False)
-        rolling = df.rolling(iqr_window, min_periods=1, center=True)
-        return (rolling.quantile(0.75) - rolling.quantile(0.25)).to_numpy()
+    Nulls respondent-years with too few data and drops respondents with no data across
+    all years.
 
-    def median_prediction(
-        self,
-        window: int = 48,
-        shifts: Sequence[int] = range(-240, 241, 24),
-        long_window: int = 480,
-    ) -> np.ndarray:
-        """Values predicted from local and regional rolling medians.
+    Args:
+        df: Timeseries matrix as described in :class:`TimeseriesMatrix`.
+        min_data: Minimum number of non-null hours in a year.
+        min_data_fraction: Minimum fraction of non-null hours between the first and last
+          non-null hour in a year.
 
-        Calculated as `{ local median } +
-        { median of local median offset } * { local median } / { regional median }`.
-
-        Args:
-            window: Number of values in the moving window for the local rolling median.
-            shifts: Positions to shift the local rolling median offset by,
-                for computing its median.
-            long_window: Number of values in the moving window
-                for the regional (long) rolling median.
-        """
-        # RUGGLES: hourly_median_dem_dev (multiplied by rollingDem)
-        return self.rolling_median(window=window) * (
-            1
-            + self.median_of_rolling_median_offset(window=window, shifts=shifts)
-            / self.rolling_median(window=long_window)
+    Returns:
+        :class:`TimeseriesMatrix` with nulled values.
+    """
+    # Identify respondent-years where data coverage is below thresholds
+    has_data = ~df.isnull()
+    coverage = (
+        # Last timestamp with demand in year
+        has_data.iloc[::-1].groupby(df.index.year[::-1]).idxmax()
+        -
+        # First timestamp with demand in year
+        has_data.groupby(df.index.year).idxmax()
+    ).apply(lambda x: 1 + x.dt.days * 24 + x.dt.seconds / 3600, axis=1)
+    fraction = has_data.groupby(df.index.year).sum() / coverage
+    short = coverage.lt(min_data)
+    bad = fraction.gt(0) & fraction.lt(min_data_fraction)
+    # Set all values in short or bad respondent-years to null
+    mask = (short | bad).loc[df.index.year]
+    mask.index = df.index
+    df[mask] = np.nan
+    # Report nulled respondent-years
+    for mask, msg in [
+        (short, "Nulled short respondent-years (below min_data)"),
+        (bad, "Nulled bad respondent-years (below min_data_fraction)"),
+    ]:
+        row, col = mask.to_numpy().nonzero()
+        report = (
+            pd.DataFrame({"id": mask.columns[col], "year": mask.index[row]})
+            .groupby("id")["year"]
+            .apply(lambda x: np.sort(x))
         )
+        with pd.option_context("display.max_colwidth", None):
+            logger.info(f"{msg}:\n{report}")
+    # Drop respondents with no data
+    blank = df.columns[df.isnull().all()].tolist()
+    df = df.drop(columns=blank)
+    # Report dropped respondents (with no data)
+    logger.info(f"Dropped blank respondents: {blank}")
+    return df
 
-    def flag_local_outlier(
-        self,
-        window: int = 48,
-        shifts: Sequence[int] = range(-240, 241, 24),
-        long_window: int = 480,
-        iqr_window: int = 240,
-        multiplier: tuple[float, float] = (3.5, 2.5),
-    ) -> None:
-        """Flag local outliers (LOCAL_OUTLIER_HIGH, LOCAL_OUTLIER_LOW).
 
-        Flags values which are above or below the :meth:`median_prediction` by more than
-        a `multiplier` times the :meth:`rolling_iqr_of_rolling_median_offset`.
+@dataclass
+class SimulateFlagsSettings:
+    """Define settings used to simulate flagged values for scoring imputation."""
 
-        Args:
-            window: Number of values in the moving window for the local rolling median.
-            shifts: Positions to shift the local rolling median offset by,
-                for computing its median.
-            long_window: Number of values in the moving window
-                for the regional (long) rolling median.
-            iqr_window: Number of values in the moving window
-                for the rolling interquartile range (IQR).
-            multiplier: Number of times the :meth:`rolling_iqr_of_rolling_median_offset`
-                the value must be above (HIGH) and below (LOW)
-                the :meth:`median_prediction` to be flagged.
-        """
-        # Compute constants
-        prediction = self.median_prediction(
-            window=window, shifts=shifts, long_window=long_window
+    num_months: int = 30
+    """The number of months of data to simulate."""
+    min_flag_rate: float = 0.1
+    """Min ratio of bad points in a section of data to be used for reference."""
+    max_flag_rate: float = 0.5
+    """Max ratio of bad points in a section of data to be used for reference."""
+    output_io_manager_key: str = "io_manager"
+    """Specify io-manager for final simulated asset.
+
+    In some cases we use the parquet IO-manager so we can build notebooks/visualizations
+    on simulated data.
+    """
+    mape_threshold: float = 0.05
+    """Maximum allowable mean absolute percent error computed on simulated values. Will be checked in an asset check."""
+
+
+class SimulationDataFrame(pa.DataFrameModel):
+    """Collection of months of data which will be used to simulate flagged values.
+
+    Each row in this dataframe identifies a pairing of two entity IDs and two months
+    that can be used to evaluate the performance of the imputation. The "reference"
+    is a month in which a high proportion of reported values were flagged for
+    imputation, and the "simulation" is a month in which there were no values flagged
+    for imputation. The pattern of flagged (null) values in the reference month will be
+    used to mask the reported values found in the simulation month so they can be
+    imputed, and then the imputed values will be compared to the originally reported
+    data to evaluate the imputation's performance.
+    """
+
+    reference_id_col: Series[Any]
+    reference_month: Series[pa.dtypes.DateTime]
+    simulation_id_col: Series[Any]
+    simulation_month: Series[pa.dtypes.DateTime]
+
+
+@pa.check_types
+def _merge_imputed(
+    aligned_df: DataFrame[AlignedTimeseriesDataFrame],
+    matrix: DataFrame[TimeseriesMatrix],
+    flags: DataFrame[TimeseriesMatrix],
+) -> pd.DataFrame:
+    """Helper function to melt imputed timeseries matrix and merge back on input asset."""
+    # Melt imputed matrix/flag matrix to long format
+    imputed_df = melt_imputed_timeseries_matrix(matrix, flags)
+
+    # Merge back on core table
+    return aligned_df.merge(
+        imputed_df.rename(columns={"value_col": "imputed_value_col"}),
+        on=["id_col", "datetime"],
+        how="left",
+        validate="one_to_one",
+    )
+
+
+@pa.check_types
+def _add_simulated_flag_col(
+    imputed_df: DataFrame[AlignedTimeseriesDataFrame],
+    simulation_df: DataFrame[SimulationDataFrame],
+) -> DataFrame[AlignedTimeseriesDataFrame]:
+    """Return a modified ``imputed_df`` with a column indicating which rows should be flagged for simulation.
+
+    This will find all flagged values from a reference month and apply the flag
+    pattern to a simulation month. The flag pattern is determined by calculating the
+    hour of the month for each flagged (how many hours is this after the start of the
+    month), and flagging the corresponding hour in the simulation month. Reference
+    months are chosen by finding months with a relatively high rate of imputation,
+    while simulation months have no values which were flagged for imputation.
+
+    Args:
+        imputed_df: Production DataFrame with imputed values, which is used to find
+            sections with high rates of imputation.
+        simulation_df: DataFrame with reference and simulation months.
+
+    Returns:
+        DataFrame which contains all ID/datetime pairs that should be flagged for
+        simulated imputation.
+    """
+    # Add a column to both dataframes, which contains the start date of the month
+    # In the ``datetime`` column.
+    simulation_df["period"] = simulation_df["reference_month"].dt.to_period("M")
+    imputed_df["period"] = imputed_df["datetime"].dt.to_period("M")
+
+    # Merge on month and ID to get a DataFrame with all hours in the reference months
+    simulation_df = imputed_df.merge(
+        simulation_df,
+        left_on=["id_col", "period"],
+        right_on=["reference_id_col", "period"],
+        how="inner",
+        validate="many_to_one",
+    )
+
+    # Filter to hours where values were flagged (NULL) in reference month
+    flagged = simulation_df[simulation_df["flags"].notnull()]
+
+    # For each flagged value in a reference month, get the number of hours after midnight
+    # of the first day of the month for this value. Then, use this timedelta to find
+    # the corresponding hour in the simulation month. These hours will then be flagged
+    # for imputation during the simulated imputation.
+    flagged["simulation_datetime"] = (
+        flagged["datetime"] - flagged["reference_month"] + flagged["simulation_month"]
+    )
+
+    # Drop hours that crossed over into the next month
+    flagged = flagged[
+        flagged["simulation_datetime"].dt.to_period("M")
+        == flagged["simulation_month"].dt.to_period("M")
+    ]
+
+    # Append column with simulated flags to imputed dataframe
+    imputed_df["simulated_flags"] = False
+    imputed_df = imputed_df.set_index(["datetime", "id_col"])
+    imputed_df.loc[
+        (flagged["simulation_datetime"], flagged["simulation_id_col"]),
+        "simulated_flags",
+    ] = True
+
+    return imputed_df.reset_index()
+
+
+@pa.check_types
+def get_simulated_flag_mask(
+    settings: SimulateFlagsSettings,
+    imputed_df: DataFrame[AlignedTimeseriesDataFrame],
+    simulation_group: str,
+) -> tuple[DataFrame[TimeseriesMatrix], set[int]]:
+    """Return a flag mask to flag values for simulated imputation.
+
+    Find months of data with high rate of flagged values, and use these sections as a
+    reference to flag values in otherwise good sections of data. This allows us to
+    impute data in a realistic scenario where we have good reported data, which we can
+    compare to in order to compute quantitative metrics to validate the quality of our
+    imputation.
+
+    Args:
+        settings: Settings object, which contains all configurable settings for
+            simulation.
+        imputed_df: Production DataFrame with imputed values, which is used to find
+            sections with high rates of imputation.
+        simulation_group: Allows testing imputation performance on different groups of
+            data like BA/subregion demand, which can be combined into a single
+            imputation.
+
+    Returns:
+        Tuple of ``timeseries_matrix``, and ``flag_matrix`` modified with simulation
+        data.
+    """
+    # Get rows in specified simulation_group, and filter any cases where an ID/month
+    # Combo have very few values. This is important because we are going to compute
+    # the rate of values imputed per month, and should make sure we're using complete months
+    imputation_group_df = (
+        imputed_df[imputed_df["simulation_group"] == simulation_group]
+        .groupby(["id_col", pd.Grouper(key="datetime", freq="MS")], observed=True)
+        .filter(lambda group: len(group) > 1)
+    )
+
+    # Calculate the rate of imputation per month/ID
+    monthly_imputation_rate = (
+        (
+            imputation_group_df.groupby(
+                ["id_col", pd.Grouper(key="datetime", freq="MS")], observed=True
+            )["flags"].apply(lambda x: x.notnull().mean())
         )
-        iqr = self.rolling_iqr_of_rolling_median_offset(
-            window=window, iqr_window=iqr_window
-        )
-        mask = self.x > prediction + multiplier[0] * iqr
-        self.flag(mask, "LOCAL_OUTLIER_HIGH")
-        # As in original code, do not recompute constants with new nulls
-        mask = self.x < prediction - multiplier[1] * iqr
-        self.flag(mask, "LOCAL_OUTLIER_LOW")
+        .reset_index()
+        .rename(columns={"flags": "imputation_rate", "datetime": "month"})
+    )
 
-    def diff(self, shift: int = 1) -> np.ndarray:
-        """Values minus the value of their neighbor.
+    # Find a set of months with a high level of imputation to use as reference to simulate flagged data
+    bad_months = monthly_imputation_rate[
+        (monthly_imputation_rate.imputation_rate >= settings.min_flag_rate)
+        & (monthly_imputation_rate.imputation_rate <= settings.max_flag_rate)
+    ]
+    # Find months which didn't have any values flagged to drop data from
+    good_months = monthly_imputation_rate[
+        monthly_imputation_rate.imputation_rate == 0.0
+    ]
 
-        Args:
-            shift: Positions to shift for calculating the difference.
-                Positive values select a preceding (left) neighbor.
-        """
-        # RUGGLES: delta_pre (shift=1), delta_post (shift=-1)
-        return array_diff(self.x, shift)
+    # Select num_months for simulation if there are enough months to choose from
+    num_months = min(len(bad_months), len(good_months), settings.num_months)
 
-    def rolling_iqr_of_diff(self, shift: int = 1, window: int = 240) -> np.ndarray:
-        """Rolling interquartile range (IQR) of difference between neighboring values.
+    # Take good months and bad months, and combine into a single dataframe
+    # It doesn't matter which months in particular get matched up
+    simulation_df = pd.concat(
+        [
+            bad_months.sample(num_months)
+            .rename(
+                columns={
+                    "id_col": "reference_id_col",
+                    "month": "reference_month",
+                }
+            )[["reference_id_col", "reference_month"]]
+            .reset_index(),
+            good_months.sample(num_months)
+            .rename(
+                columns={
+                    "id_col": "simulation_id_col",
+                    "month": "simulation_month",
+                }
+            )[["simulation_id_col", "simulation_month"]]
+            .reset_index(),
+        ],
+        axis="columns",
+    )
 
-        Args:
-            shift: Positions to shift for calculating the difference.
-            window: Number of values in the moving window for the rolling IQR.
-        """
-        # RUGGLES: delta_rolling_iqr
-        diff = self.diff(shift=shift)
-        df = pd.DataFrame(diff, copy=False)
-        rolling = df.rolling(window, min_periods=1, center=True)
-        return (rolling.quantile(0.75) - rolling.quantile(0.25)).to_numpy()
+    # Use reference month to get hours which should be flagged in simulation month
+    imputed_df = _add_simulated_flag_col(
+        imputed_df,
+        simulation_df,
+    )
 
-    def flag_double_delta(self, iqr_window: int = 240, multiplier: float = 2) -> None:
-        """Flag values very different from neighbors on either side (DOUBLE_DELTA).
+    # Pivot simulated flag column to get mask which can be used to flag a timeseries matrix
+    flags = pivot_aligned_timeseries_dataframe(imputed_df, value_col="simulated_flags")
+    flags[flags.isna()] = False
 
-        Flags values whose differences to both neighbors on either side exceeds a
-        `multiplier` times the rolling interquartile range (IQR) of neighbor difference.
+    return flags, set(simulation_df["simulation_month"].dt.year.unique())
 
-        Args:
-            iqr_window: Number of values in the moving window for the rolling IQR
-                of neighbor difference.
-            multiplier: Number of times the rolling IQR of neighbor difference
-                the value's difference to its neighbors must exceed
-                for the value to be flagged.
-        """
-        before = self.diff(shift=1)
-        after = self.diff(shift=-1)
-        iqr = multiplier * self.rolling_iqr_of_diff(shift=1, window=iqr_window)
-        mask = (np.minimum(before, after) > iqr) | (np.maximum(before, after) < -iqr)
-        self.flag(mask, "DOUBLE_DELTA")
 
-    @functools.lru_cache(maxsize=2)  # noqa: B019
-    def relative_median_prediction(self, **kwargs: Any) -> np.ndarray:
-        """Values divided by their value predicted from medians.
+@dataclass
+class ImputeTimeseriesSettings:
+    """Define settings used for timeseries imputation."""
 
-        Args:
-            kwargs: Arguments to :meth:`median_prediction`.
-        """
-        # RUGGLES: dem_rel_diff_wrt_hourly, dem_rel_diff_wrt_hourly_long (window=480)
-        return self.x / self.median_prediction(**kwargs)
+    min_data_fraction: float = 0.7
+    """Fraction of values in a year which must be non-null to do imputation on year."""
+    min_data: int = 100
+    """Minimum number of values which must be non-null to do imputation on year."""
+    periods: int = 24
+    """Number of consecutive values in each series to fold into a group.
 
-    def iqr_of_diff_of_relative_median_prediction(
-        self, shift: int = 1, **kwargs: Any
-    ) -> np.ndarray:
-        """Interquartile range of running difference of relative median prediction.
+    See :meth:`fold_tensor`. The default of 24 is meant for hourly data with a diurnal
+    periodicity.
+    """
+    blocks: int = 1
+    """Split timeseries matrix into equal sized blocks before running imputation."""
+    method: Literal["tubal", "tnn"] = "tubal"
+    """Imputation method to use.
 
-        Args:
-            shift: Positions to shift for calculating the difference.
-                Positive values select a preceding (left) neighbor.
-            kwargs: Arguments to :meth:`relative_median_prediction`.
-        """
-        # RUGGLES: iqr_relative_deltas
-        diff = array_diff(self.relative_median_prediction(**kwargs), shift)
-        return scipy.stats.iqr(diff, nan_policy="omit", axis=0)
+    * tubal indicates :func:`impute_latc_tubal`
+    * tnn indicates :func:`impute_latc_tnn`
+    """
+    method_overrides: dict[int, Literal["tubal", "tnn"]] = field(default_factory=dict)
+    """Override stated imputation method for specific years."""
+    simulate_flags_settings: SimulateFlagsSettings | None = None
+    """Settings to simulate flagged values and score imputation.
 
-    def _find_single_delta(
-        self,
-        relative_median_prediction: np.ndarray,
-        relative_median_prediction_long: np.ndarray,
-        rolling_iqr_of_diff: np.ndarray,
-        iqr_of_diff_of_relative_median_prediction: np.ndarray,
-        reverse: bool = False,
-    ) -> np.ndarray:
-        not_nan = ~np.isnan(self.x)
-        mask = np.zeros(self.x.shape, dtype=bool)
-        for col in range(self.x.shape[1]):
-            indices = np.flatnonzero(not_nan[:, col])[:: (-1 if reverse else 1)]
-            previous, current = indices[:-1], indices[1:]
-            while len(current):
-                # Evaluate value pairs
-                diff = np.abs(self.x[current, col] - self.x[previous, col])
-                diff_relative_median_prediction = np.abs(
-                    relative_median_prediction[current, col]
-                    - relative_median_prediction[previous, col]
-                )
-                # Compare max deviation across short and long rolling median
-                # to catch when outliers pull short median towards themselves.
-                previous_max = np.maximum(
-                    np.abs(1 - relative_median_prediction[previous, col]),
-                    np.abs(1 - relative_median_prediction_long[previous, col]),
-                )
-                current_max = np.maximum(
-                    np.abs(1 - relative_median_prediction[current, col]),
-                    np.abs(1 - relative_median_prediction_long[current, col]),
-                )
-                flagged = (
-                    (diff > rolling_iqr_of_diff[current, col])
-                    & (
-                        diff_relative_median_prediction
-                        > iqr_of_diff_of_relative_median_prediction[col]
-                    )
-                    & (current_max > previous_max)
-                )
-                flagged_indices = current[flagged]
-                if not flagged_indices.size:
-                    break
-                # Find position of flagged indices in index
-                if reverse:
-                    indices_idx = indices.size - (
-                        indices[::-1].searchsorted(flagged_indices, side="right")
-                    )
-                else:
-                    indices_idx = indices.searchsorted(flagged_indices, side="left")
-                # Only flag first of consecutive flagged indices
-                # TODO: May not be necessary after first iteration
-                unflagged = np.concatenate(([False], np.diff(indices_idx) == 1))
-                flagged_indices = np.delete(flagged_indices, unflagged)
-                indices_idx = np.delete(indices_idx, unflagged)
-                mask[flagged_indices, col] = True
-                flagged[flagged] = ~unflagged
-                # Bump current index of flagged pairs to next unflagged index
-                # Next index always unflagged because flagged runs are not permitted
-                next_indices_idx = indices_idx + 1
-                if next_indices_idx[-1] == len(indices):
-                    # Drop last index if out of range
-                    next_indices_idx = next_indices_idx[:-1]
-                current = indices[next_indices_idx]
-                # Trim previous values to length of current values
-                previous = previous[flagged][: len(current)]
-                # Delete flagged indices
-                indices = np.delete(indices, indices_idx)
-        return mask
+    Defaults to None which will not do any simulation/scoring.
+    """
 
-    def flag_single_delta(
-        self,
-        window: int = 48,
-        shifts: Sequence[int] = range(-240, 241, 24),
-        long_window: int = 480,
-        iqr_window: int = 240,
-        multiplier: float = 5,
-        rel_multiplier: float = 15,
-    ) -> None:
-        """Flag values very different from the nearest unflagged value (SINGLE_DELTA).
 
-        Flags values whose difference to the nearest unflagged value,
-        with respect to value and relative median prediction,
-        differ by less than a multiplier times the rolling interquartile range (IQR)
-        of the difference -
-        `multiplier` times :meth:`rolling_iqr_of_diff` and
-        `rel_multiplier` times :meth:`iqr_of_diff_of_relative_mean_prediction`,
-        respectively.
+def impute_timeseries_asset_factory(  # noqa: C901
+    input_asset_name: str,
+    output_asset_name: str,
+    years_from_context: Callable,
+    id_col: str,
+    value_col: str = "demand_mwh",
+    imputed_value_col: str = "demand_imputed_mwh",
+    reported_value_col: str = "demand_reported_mwh",
+    simulation_group_col: str | None = None,
+    output_io_manager_key: str = "parquet_io_manager",
+    settings: ImputeTimeseriesSettings = ImputeTimeseriesSettings(),
+) -> pd.DataFrame:
+    """Produces assets to impute values for a given timeseries table/column.
 
-        Args:
-            window: Number of values in the moving window for the rolling median
-                (for the relative median prediction).
-            shifts: Positions to shift the local rolling median offset by,
-                for computing its median (for the relative median prediction).
-            long_window: Number of values in the moving window for the long rolling
-                median (for the relative median prediction).
-            iqr_window: Number of values in the moving window for the rolling IQR
-                of neighbor difference.
-            multiplier: Number of times the rolling IQR of neighbor difference
-                the value's difference to its neighbor must exceed
-                for the value to be flagged.
-            rel_multiplier: Number of times the rolling IQR of relative median
-                prediction the value's prediction difference to its neighbor must exceed
-                for the value to be flagged.
-        """
-        # Compute constants used in both forward and reverse pass
-        relative_median_prediction = self.relative_median_prediction(
-            window=window, shifts=shifts, long_window=long_window
-        )
-        relative_median_prediction_long = self.relative_median_prediction(
-            window=long_window, shifts=shifts, long_window=long_window
-        )
-        rolling_iqr_of_diff = multiplier * self.rolling_iqr_of_diff(
-            shift=1, window=iqr_window
-        )
-        iqr_of_diff_of_relative_median_prediction = rel_multiplier * (
-            self.iqr_of_diff_of_relative_median_prediction(
-                shift=1, window=window, shifts=shifts, long_window=long_window
-            )
-        )
-        # Set values flagged in forward pass to null before reverse pass
-        mask = self._find_single_delta(
-            relative_median_prediction,
-            relative_median_prediction_long,
-            rolling_iqr_of_diff,
-            iqr_of_diff_of_relative_median_prediction,
-            reverse=False,
-        )
-        self.flag(mask, "SINGLE_DELTA")
-        # Repeat in reverse to get all options.
-        # As in original code, do not recompute constants with new nulls
-        mask = self._find_single_delta(
-            relative_median_prediction,
-            relative_median_prediction_long,
-            rolling_iqr_of_diff,
-            iqr_of_diff_of_relative_median_prediction,
-            reverse=True,
-        )
-        self.flag(mask, "SINGLE_DELTA")
+    This factory function produces a set of assets which perform timeseries imputation
+    on one column in a specified table. This process is split into a series of assets
+    to reduce peak memory usage by offloading intermediate products onto disk. The
+    assets also correspond with the three steps that make up the the timeseries
+    imputation process:
 
-    def flag_anomalous_region(self, window: int = 48, threshold: float = 0.15) -> None:
-        """Flag values surrounded by flagged values (ANOMALOUS_REGION).
+    1. Convert datetime UTC to local datetimes and pivot dataframe to timeseries matrix
+    2. Flag anomalous and missing values in timeseries
+    3. Perform imputation and melt back to expected output table structure
 
-        Original null values are not considered flagged values.
+    This factory also has the ability to produce a set of simulation assets. These
+    assets mirror the production assets, but they will impute a selection of values
+    which were not actually flagged for imputation. This means we can impute data
+    where the reported data is actually deemed "good", allowing us to compare the
+    imputed values to the reported. We then compute Mean Absolute Percentage Error
+    to score the imputation. We can produce these simulated assets during our nightly
+    builds for ongoing monitoring of the imputation, or just as one off way to validate
+    or compare imputation methods.
 
-        Args:
-            window: Width of regions.
-            threshold: Fraction of flagged values required for a region to be flagged.
-        """
-        # Check whether unflagged
-        mask = np.equal(self.flags, None)
-        # Check whether after or before half-width region with 1+ flagged values
-        half_window = window // 2
-        is_after = (
-            pd.DataFrame(mask, copy=False)
-            .rolling(window=half_window)
-            .mean()
-            .lt(1)
-            .to_numpy()
-        )
-        is_before = np.roll(is_after, -(half_window - 1), axis=0)
-        # Check whether not part of a run of unflagged values longer than a half-width
-        is_not_run = np.empty_like(mask)
-        for col in range(mask.shape[1]):
-            rvalues, rlengths = encode_run_length(mask[:, col])
-            is_short_run = np.where(rvalues, rlengths, 0) <= half_window
-            is_not_run[:, col] = np.repeat(is_short_run, rlengths)
-        # Check whether within full-width region with too many flagged values
-        is_region = (
-            pd.DataFrame(~mask, copy=False)
-            .rolling(window=window, center=True)
-            .mean()
-            .gt(threshold)
-            .rolling(window=window, center=True)
-            .max()
-            .eq(True)
-            .to_numpy()
-        )
-        # Flag if all conditions are met
-        mask &= is_after & is_before & is_not_run & is_region
-        self.flag(mask, "ANOMALOUS_REGION")
+    Args:
+        input_asset_name: Name of upstream asset to perform imputation on.
+        output_asset_name: Name of final output asset with imputed column.
+        years_from_context: Function to generate the list of years on which to perform
+            imputation on.
+        id_col: Name of column identifying entities to group timeseries by.
+        value_col: Column imputation will be performed on.
+        imputed_value_col: Name of column in output asset with imputed values.
+        reported_value_col: Name of column in output asset with original reported
+            values.
+        output_io_manager_key: IO-manager to use for final output asset.
+        simulation_group_col: In cases where we are combining multiple datasets into
+            a single imputation run (like BA/subregion demand), this column is used
+            to compute simulation results for each set independently. This should
+            point to a categorical column which defines which group a row belongs to.
+        settings: Configurable options for imputation
+            (see :class:`ImputeTimeseriesSettings`).
+    """
+    # Create an asset prefix from `output_asset_name` so we can create unique asset
+    # Names for all intermediate assets in the imputation.
+    # Uses regex substitution so prefix starts with exactly one underscore even
+    # if `output_asset_name` starts with an underscore
+    asset_prefix = re.sub(r"^__", "_", f"_{output_asset_name}")
 
-    def flag_ruggles(self) -> None:
-        """Flag values following the method of Ruggles and others (2020).
+    # Asset names
+    timeseries_matrix_asset = f"{asset_prefix}_timeseries_matrix"
+    aligned_input_asset = f"{asset_prefix}_aligned"
+    cleaned_timeseries_matrix_asset = f"{asset_prefix}_cleaned_timeseries_matrix"
+    flags_asset = f"{asset_prefix}_timeseries_matrix_flags"
+    imputed_asset = f"{asset_prefix}_imputed"
+    simulated_timeseries_matrix_asset = f"{asset_prefix}_simulated_timeseries_matrix"
+    simulated_flags_asset = f"{asset_prefix}_timeseries_matrix_simulated_flags"
+    imputed_simulated_asset = f"{asset_prefix}_imputed_simulated_matrix"
+    imputation_score_asset = f"{asset_prefix}_score"
+    simulated_output_asset = f"{asset_prefix}_simulated"
 
-        Assumes values are hourly electricity demand.
-
-        * description: https://doi.org/10.1038/s41597-020-0483-x
-        * code: https://github.com/truggles/EIA_Cleaned_Hourly_Electricity_Demand_Code
-        """
-        # Step 1
-        self.flag_negative_or_zero()
-        self.flag_identical_run(length=3)
-        self.flag_global_outlier(medians=9)
-        self.flag_global_outlier_neighbor(neighbors=1)
-        # Step 2
-        # NOTE: In original code, statistics used for the flags below are precomputed
-        # here, rather than computed for each flag with nulls added by previous flags.
-        window = 48
-        long_window = 480
-        iqr_window = 240
-        shifts = range(-240, 241, 24)
-        self.flag_local_outlier(
-            window=window,
-            shifts=shifts,
-            long_window=long_window,
-            iqr_window=iqr_window,
-            multiplier=(3.5, 2.5),
-        )
-        self.flag_double_delta(iqr_window=iqr_window, multiplier=2)
-        self.flag_single_delta(
-            window=window,
-            shifts=shifts,
-            long_window=long_window,
-            iqr_window=iqr_window,
-            multiplier=5,
-            rel_multiplier=15,
-        )
-        self.flag_anomalous_region(window=window + 1, threshold=0.15)
-
-    def summarize_flags(self) -> pd.DataFrame:
-        """Summarize flagged values by flag, count and median."""
-        stats = {}
-        for col in range(self.xi.shape[1]):
-            stats[self.columns[col]] = (
-                pd.Series(self.xi[:, col])
-                .groupby(self.flags[:, col])
-                .agg(["count", "median"])
-            )
-        df = pd.concat(stats, names=["column", "flag"]).reset_index()
-        # Sort flags by flagged order
-        ordered = df["flag"].astype(pd.CategoricalDtype(set(self.flagged)))
-        return df.assign(flag=ordered).sort_values(["column", "flag"])
-
-    def plot_flags(self, name: Any = 0) -> None:
-        """Plot cleaned series and anomalous values colored by flag.
-
-        Args:
-            name: Series to plot, as either an integer index or name in :attr:`columns`.
-        """
-        if name not in self.columns:
-            name = self.columns[name]
-        col = list(self.columns).index(name)
-        plt.plot(self.index, self.x[:, col], color="lightgrey", marker=".", zorder=1)
-        colors = {
-            "NEGATIVE_OR_ZERO": "pink",
-            "IDENTICAL_RUN": "blue",
-            "GLOBAL_OUTLIER": "brown",
-            "GLOBAL_OUTLIER_NEIGHBOR": "brown",
-            "LOCAL_OUTLIER_HIGH": "purple",
-            "LOCAL_OUTLIER_LOW": "purple",
-            "DOUBLE_DELTA": "green",
-            "SINGLE_DELTA": "red",
-            "ANOMALOUS_REGION": "orange",
-        }
-        for flag in colors:
-            mask = self.flags[:, col] == flag
-            x, y = self.index[mask], self.xi[mask, col]
-            # Set zorder manually to ensure flagged points are drawn on top
-            plt.scatter(x, y, c=colors[flag], label=flag, zorder=2)
-        plt.legend()
-
-    def simulate_nulls(
-        self,
-        lengths: Sequence[int] = None,
-        padding: int = 1,
-        intersect: bool = False,
-        overlap: bool = False,
-    ) -> np.ndarray:
-        """Find non-null values to null to match a run-length distribution.
-
-        Args:
-            length: Length of null runs to simulate for each series.
-                By default, uses the run lengths of null values in each series.
-            padding: Minimum number of non-null values between simulated null runs
-                and between simulated and existing null runs.
-            intersect: Whether simulated null runs can intersect each other.
-            overlap: Whether simulated null runs can overlap existing null runs.
-                If `True`, `padding` is ignored.
+    @multi_asset(
+        ins={"input_df": AssetIn(input_asset_name)},
+        outs={
+            timeseries_matrix_asset: AssetOut(key=timeseries_matrix_asset),
+            aligned_input_asset: AssetOut(key=aligned_input_asset),
+        },
+        name=f"{asset_prefix}_prepare_timeseries_matrix",
+    )
+    def _prepare_timeseries_matrix(
+        input_df: pd.DataFrame,
+    ):
+        """Take input timeseries table and convert to timeseries matrix for imputation.
 
         Returns:
-            Boolean mask of current non-null values to set to null.
-
-        Raises:
-            ValueError: Cound not find space for run of length {length}.
-
-        Examples:
-            >>> x = np.column_stack([[1, 2, np.nan, 4, 5, 6, 7, np.nan, np.nan]])
-            >>> s = Timeseries(x)
-            >>> s.simulate_nulls().ravel()
-            array([ True, False, False, False, True, True, False, False, False])
-            >>> s.simulate_nulls(lengths=[4], padding=0).ravel()
-            array([False, False, False, True, True, True, True, False, False])
+            Input table as a matrix with a ``datetime`` row index
+            (e.g. '2006-01-01 00:00:00', ..., '2019-12-31 23:00:00')
+            in local time ignoring daylight-savings,
+            and a ``id_col`` column index (e.g. 101, ..., 329).
         """
-        new_nulls = np.zeros(self.x.shape, dtype=bool)
-        for col in range(self.x.shape[1]):
-            is_null = np.isnan(self.x[:, col])
-            if lengths is None:
-                run_values, run_lengths = encode_run_length(is_null)
-                run_lengths = run_lengths[run_values]
-            else:
-                run_lengths = lengths
-            is_new_null = insert_run_length(
-                new_nulls[:, col],
-                values=np.ones(len(run_lengths), dtype=bool),
-                lengths=run_lengths,
-                mask=None if overlap else ~is_null,
-                padding=0 if overlap else padding,
-                intersect=intersect,
-            )
-            if overlap:
-                is_new_null &= ~is_null
-            new_nulls[:, col] = is_new_null
-        return new_nulls
-
-    def fold_tensor(self, x: np.ndarray = None, periods: int = 24) -> np.ndarray:
-        """Fold into a 3-dimensional tensor representation.
-
-        Folds the series `x` (number of observations, number of series)
-        into a 3-d tensor (number of series, number of groups, number of periods),
-        splitting observations into groups of length `periods`.
-        For example, each group may represent a day and each period the hour of the day.
-
-        Args:
-            x: Series array to fold. Uses :attr:`x` by default.
-            periods: Number of consecutive values in each series to fold into a group.
-
-        Returns:
-            >>> x = np.column_stack([[1, 2, 3, 4, 5, 6], [10, 20, 30, 40, 50, 60]])
-            >>> s = Timeseries(x)
-            >>> tensor = s.fold_tensor(periods=3)
-            >>> tensor[0]
-            array([[1, 2, 3],
-                   [4, 5, 6]])
-            >>> np.all(x == s.unfold_tensor(tensor))
-            np.True_
-        """
-        tensor_shape = self.x.shape[1], self.x.shape[0] // periods, periods
-        x = self.x if x is None else x
-        return x.T.reshape(tensor_shape)
-
-    def unfold_tensor(self, tensor: np.ndarray) -> np.ndarray:
-        """Unfold a 3-dimensional tensor representation.
-
-        Performs the reverse of :meth:`fold_tensor`.
-        """
-        return tensor.T.reshape(self.x.shape, order="F")
-
-    def impute(
-        self,
-        mask: np.ndarray = None,
-        periods: int = 24,
-        blocks: int = 1,
-        method: str = "tubal",
-        **kwargs: Any,
-    ) -> np.ndarray:
-        """Impute null values.
-
-        .. note::
-            The imputation method requires that nulls be replaced by zeros,
-            so the series cannot already contain zeros.
-
-        Args:
-            mask: Boolean mask of values to impute in addition to
-                any null values in :attr:`x`.
-            periods: Number of consecutive values in each series to fold into a group.
-                See :meth:`fold_tensor`.
-            blocks: Number of blocks into which to split the series for imputation.
-                This has been found to reduce processing time for `method='tnn'`.
-            method: Imputation method to use
-                ('tubal': :func:`impute_latc_tubal`, 'tnn': :func:`impute_latc_tnn`).
-            kwargs: Optional arguments to `method`.
-
-        Returns:
-            Array of same shape as :attr:`x` with all null values
-            (and those selected by `mask`) replaced with imputed values.
-
-        Raises:
-            ValueError: Zero values present. Replace with very small value.
-        """
-        imputer = {"tubal": impute_latc_tubal, "tnn": impute_latc_tnn}[method]
-        x = self.x.copy() if mask is None else np.where(mask, np.nan, self.x)
-        if (x == 0).any():
-            raise ValueError("Zero values present. Replace with very small value.")
-        tensor = self.fold_tensor(x, periods=periods)
-        n = tensor.shape[1]
-        ends = [*range(0, n, int(np.ceil(n / blocks))), n]
-        for i in range(blocks):
-            if blocks > 1:
-                print(f"Block: {i}")
-            idx = slice(None), slice(ends[i], ends[i + 1]), slice(None)
-            tensor[idx] = imputer(tensor[idx], **kwargs)
-        return self.unfold_tensor(tensor)
-
-    def summarize_imputed(self, imputed: np.ndarray, mask: np.ndarray) -> pd.DataFrame:
-        """Summarize the fit of imputed values to actual values.
-
-        Summarizes the agreement between actual and imputed values with the
-        following statistics:
-
-        * `mpe`: Mean percent error, `(actual - imputed) / actual`.
-        * `mape`: Mean absolute percent error, `abs(mpe)`.
-
-        Args:
-            imputed: Series of same shape as :attr:`x` with imputed values.
-                See :meth:`impute`.
-            mask: Boolean mask of imputed values that were not null in :attr:`x`.
-                See :meth:`simulate_nulls`.
-
-        Returns:
-            Table of imputed value statistics for each series.
-        """
-        stats = []
-        for col in range(self.x.shape[1]):
-            x = self.x[mask[:, col], col]
-            if not x.size:
-                continue
-            pe = (x - imputed[mask[:, col], col]) / x
-            pe = pe[~np.isnan(pe)]
-            stats.append(
-                {
-                    "column": self.columns[col],
-                    "count": x.size,
-                    "mpe": np.mean(pe),
-                    "mape": np.mean(np.abs(pe)),
+        # Convert from datetime_utc to local datetime
+        aligned_df = utc_dataframe_to_aligned(
+            input_df.rename(
+                columns={
+                    value_col: "value_col",
+                    id_col: "id_col",
+                    simulation_group_col: "simulation_group",
                 }
             )
-        return pd.DataFrame(stats)
+        )
+
+        # If no simulation group column is specified, create one with a monolithic group
+        if simulation_group_col is None:
+            aligned_df["simulation_group"] = "monolithic"
+
+        # Pivot to timeseries matrix
+        matrix = pivot_aligned_timeseries_dataframe(aligned_df)
+        return (
+            Output(
+                output_name=timeseries_matrix_asset,
+                value=matrix,
+            ),
+            Output(
+                output_name=aligned_input_asset,
+                value=aligned_df,
+            ),
+        )
+
+    @multi_asset(
+        ins={"matrix": AssetIn(timeseries_matrix_asset)},
+        outs={
+            cleaned_timeseries_matrix_asset: AssetOut(
+                key=cleaned_timeseries_matrix_asset
+            ),
+            flags_asset: AssetOut(key=flags_asset),
+        },
+        op_tags={"memory-use": "high"},
+        name=f"{asset_prefix}_flag_timeseries_matrix",
+    )
+    def _flag_timeseries_matrix(
+        matrix: pd.DataFrame,
+    ):
+        """Flag/Null anomalous and missing values."""
+        matrix, flags = flag_ruggles(matrix)
+
+        matrix = filter_missing_values(
+            matrix,
+            min_data=settings.min_data,
+            min_data_fraction=settings.min_data_fraction,
+        )
+
+        # Drop any respondents that were filtered out by ``filter_missing_values``
+        flags = flags.drop(columns=flags.columns.difference(matrix.columns))
+        return (
+            Output(
+                output_name=cleaned_timeseries_matrix_asset,
+                value=matrix,
+            ),
+            Output(
+                output_name=flags_asset,
+                value=flags,
+            ),
+        )
+
+    @asset(
+        required_resource_keys={"dataset_settings"},
+        ins={
+            "matrix": AssetIn(cleaned_timeseries_matrix_asset),
+            "flags": AssetIn(flags_asset),
+            "aligned_df": AssetIn(aligned_input_asset),
+        },
+        name=imputed_asset,
+    )
+    def _impute_timeseries(
+        context,
+        aligned_df: pd.DataFrame,
+        matrix: pd.DataFrame,
+        flags: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """Perform imputation and return TimeseriesMatrix with imputed values."""
+        # Impute flagged/missing values
+        years = years_from_context(context)
+        method = dict.fromkeys(years, settings.method) | settings.method_overrides
+        imputed_matrix = impute_flagged_values(
+            matrix,
+            years=years,
+            periods=settings.periods,
+            blocks=settings.blocks,
+            method=method,
+        )
+
+        return _merge_imputed(aligned_df, imputed_matrix, flags)
+
+    @asset(
+        ins={
+            "imputed_df": AssetIn(imputed_asset),
+        },
+        name=output_asset_name,
+        io_manager_key=output_io_manager_key,
+    )
+    def _create_output_asset(
+        imputed_df: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """Rename columns back to original names and output to desired IO-manager."""
+        return imputed_df.rename(
+            columns={
+                "id_col": id_col,
+                "imputed_value_col": imputed_value_col,
+                "flags": f"{imputed_value_col}_imputation_code",
+                "value_col": reported_value_col,
+                "simulation_group": simulation_group_col,
+            }
+        )
+
+    @multi_asset(
+        ins={
+            "imputed_df": AssetIn(imputed_asset),
+            "matrix": AssetIn(cleaned_timeseries_matrix_asset),
+            "flags": AssetIn(flags_asset),
+        },
+        outs={
+            simulated_timeseries_matrix_asset: AssetOut(
+                key=simulated_timeseries_matrix_asset
+            ),
+            simulated_flags_asset: AssetOut(key=simulated_flags_asset),
+        },
+        name=f"{asset_prefix}_simulate_flag_timeseries_matrix",
+    )
+    def _simulate_flags(
+        imputed_df: pd.DataFrame,
+        matrix: pd.DataFrame,
+        flags: pd.DataFrame,
+    ):
+        """Flag values to impute for simulation purposes.
+
+        This method will flag a set of otherwise 'good' reported values, so they
+        can be imputed and compared back to the 'good' values for scoring/validation
+        of the imputation performance. After creating the simulation data, only return
+        years that contain simulated flags, as we do imputation 1 year at a time, so
+        including years without simulated data would have no impact on the results.
+        """
+        simulated_years = set()
+        ts = FlaggedTimeseries.from_timeseries_matrix(matrix, flags=flags)
+        for simulation_group in imputed_df["simulation_group"].unique():
+            # Get simulated flag mask for simulation group and set of years with simulated flags
+            mask, years = get_simulated_flag_mask(
+                settings.simulate_flags_settings, imputed_df, simulation_group
+            )
+            simulated_years |= years
+
+            # Drop columns that were filtered out by ``filter_missing_values`` in original imputation
+            mask = mask.drop(columns=mask.columns.difference(matrix.columns))
+
+            # Flag simulated values
+            ts = ts.flag(mask.to_numpy(dtype=bool), ImputationReasonCodes.SIMULATED)
+
+        # Get flag/timeseries matrices and filter to only years with simulated data
+        # Given that we only impute 1 year at a time, removing years without any simulated
+        # flags will not impact results
+        matrix, flags = ts.to_dataframes()
+        return (
+            Output(
+                output_name=simulated_timeseries_matrix_asset,
+                value=matrix[matrix.index.year.isin(simulated_years)],
+            ),
+            Output(
+                output_name=simulated_flags_asset,
+                value=flags[flags.index.year.isin(simulated_years)],
+            ),
+        )
+
+    @asset(
+        required_resource_keys={"dataset_settings"},
+        ins={
+            "aligned_df": AssetIn(aligned_input_asset),
+            "matrix": AssetIn(simulated_timeseries_matrix_asset),
+            "flags": AssetIn(simulated_flags_asset),
+        },
+        name=imputed_simulated_asset,
+    )
+    def _impute_simulated_timeseries(
+        context,
+        aligned_df: pd.DataFrame,
+        matrix: pd.DataFrame,
+        flags: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """Perform imputation on asset with simulated flags and return :class:TimeseriesMatrix with imputed values."""
+        # Impute flagged/missing values
+        years = years_from_context(context)
+        method = dict.fromkeys(years, settings.method) | settings.method_overrides
+        imputed_matrix = impute_flagged_values(
+            matrix,
+            years=years,
+            periods=settings.periods,
+            blocks=settings.blocks,
+            method=method,
+        )
+        return _merge_imputed(aligned_df, imputed_matrix, flags)
+
+    @asset(
+        ins={
+            "imputed_df": AssetIn(imputed_simulated_asset),
+        },
+        name=simulated_output_asset,
+        io_manager_key=settings.simulate_flags_settings.output_io_manager_key
+        if settings.simulate_flags_settings
+        else "io_manager",
+    )
+    def _create_simulated_output_asset(
+        imputed_df: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """Rename columns back to original names and output to desired IO-manager."""
+        return imputed_df.rename(
+            columns={
+                "id_col": id_col,
+                "imputed_value_col": imputed_value_col,
+                "flags": f"{imputed_value_col}_imputation_code",
+                "value_col": reported_value_col,
+            }
+        )
+
+    @asset(
+        ins={
+            "imputed_df": AssetIn(imputed_asset),
+            "simulated_df": AssetIn(imputed_simulated_asset),
+        },
+        name=imputation_score_asset,
+    )
+    def _score_imputation(
+        imputed_df: pd.DataFrame,
+        simulated_df: pd.DataFrame,
+    ) -> dict[str, float]:
+        """Compute a performance metric on imputed simulated data.
+
+        This takes the real output asset and the simulated output asset, and will
+        compute a metric comparing the imputed simulated data to the real data. The
+        metric used is ``mean_absolute_percentage_error`` as percent error is more
+        robust to magnitude changes in the underlying data than total error.
+        """
+        mape_dict = {}
+        for group_name, gdf in simulated_df.groupby("simulation_group"):
+            # Get just rows where we simultated NULLS
+            simulated_gdf = gdf[gdf["flags"] == "simulated"]
+
+            # Combine with real data
+            combined_df = simulated_gdf.merge(
+                imputed_df,
+                how="inner",
+                on=["datetime_utc", "id_col"],
+                validate="one_to_one",
+            )
+
+            # Compute metric
+            mape_dict[group_name] = mean_absolute_percentage_error(
+                combined_df["imputed_value_col_x"],
+                combined_df["imputed_value_col_y"],
+            )
+            logger.info(
+                f"Imputed simulated NULLS for group {group_name} with mean percent error: {mape_dict[group_name]}"
+            )
+
+        return mape_dict
+
+    @asset_check(
+        asset=imputation_score_asset,
+        name=f"{imputation_score_asset}_asset_check",
+        blocking=True,
+    )
+    def _check_score(mape_dict: dict[str, float]):
+        return AssetCheckResult(
+            passed=all(
+                mape < settings.simulate_flags_settings.mape_threshold
+                for mape in mape_dict.values()
+            ),
+            metadata=mape_dict,
+            description="Checks mean absolute percent error computed on simulated imputed data, and compared to a configurable threshold.",
+        )
+
+    production_assets = [
+        _prepare_timeseries_matrix,
+        _flag_timeseries_matrix,
+        _impute_timeseries,
+        _create_output_asset,
+    ]
+    simulation_assets = [
+        _simulate_flags,
+        _impute_simulated_timeseries,
+        _score_imputation,
+        _create_simulated_output_asset,
+    ]
+
+    # Only return simulation assets if passed simulation settings
+    if settings.simulate_flags_settings is not None:
+        return (production_assets + simulation_assets, _check_score)
+    return production_assets

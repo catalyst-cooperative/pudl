@@ -1,0 +1,58 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_sec10k__parents_and_subsidiaries
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: out_sec10k__parents_and_subsidiaries
+              partition_column: report_date
+        columns:
+          - name: filename_sec10k
+          - name: subsidiary_company_name
+          - name: subsidiary_company_location
+          - name: subsidiary_company_id_sec10k
+          - name: fraction_owned
+          - name: parent_company_central_index_key
+          - name: parent_company_name
+          - name: filing_date
+          - name: report_date
+          - name: parent_company_phone_number
+          - name: parent_company_business_city
+          - name: parent_company_business_state
+          - name: parent_company_business_street_address
+          - name: parent_company_business_street_address_2
+          - name: parent_company_business_zip_code
+          - name: parent_company_business_zip_code_4
+          - name: parent_company_mail_city
+          - name: parent_company_mail_state
+          - name: parent_company_mail_street_address
+          - name: parent_company_mail_street_address_2
+          - name: parent_company_mail_zip_code
+          - name: parent_company_mail_zip_code_4
+          - name: parent_company_incorporation_state
+          - name: parent_company_utility_id_eia
+          - name: parent_company_utility_name_eia
+          - name: parent_company_industry_name_sic
+          - name: parent_company_industry_id_sic
+          - name: parent_company_taxpayer_id_irs
+          - name: subsidiary_company_central_index_key
+          - name: subsidiary_company_phone_number
+          - name: subsidiary_company_business_city
+          - name: subsidiary_company_business_state
+          - name: subsidiary_company_business_street_address
+          - name: subsidiary_company_business_street_address_2
+          - name: subsidiary_company_business_zip_code
+          - name: subsidiary_company_business_zip_code_4
+          - name: subsidiary_company_mail_city
+          - name: subsidiary_company_mail_state
+          - name: subsidiary_company_mail_street_address
+          - name: subsidiary_company_mail_street_address_2
+          - name: subsidiary_company_mail_zip_code
+          - name: subsidiary_company_mail_zip_code_4
+          - name: subsidiary_company_incorporation_state
+          - name: subsidiary_company_utility_id_eia
+          - name: subsidiary_company_utility_name_eia
+          - name: subsidiary_company_industry_name_sic
+          - name: subsidiary_company_industry_id_sic
+          - name: subsidiary_company_taxpayer_id_irs

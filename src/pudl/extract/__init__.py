@@ -9,6 +9,7 @@ are ready for normalization and data cleaning by the data source specific module
 """
 
 from . import (
+    censuspep,
     eia176,
     eia191,
     eia757a,
@@ -17,8 +18,8 @@ from . import (
     eia861,
     eia923,
     eia930,
-    eia_bulk_elec,
     eiaaeo,
+    eiaapi,
     epacems,
     excel,
     ferc1,
@@ -26,6 +27,7 @@ from . import (
     gridpathratoolkit,
     nrelatb,
     phmsagas,
+    sec10k,
     vcerare,
     xbrl,
 )

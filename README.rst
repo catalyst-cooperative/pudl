@@ -179,20 +179,21 @@ For details on how to access PUDL data, see the `data access documentation
 <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html>`__. A quick
 summary:
 
+* `PUDL Viewer <https://viewer.catalyst.coop>`__ provides search, live preview,
+  and CSV export for our processed data. Currently it doesn't provide access to
+  the *raw* FERC data - you'll still have to go to Datasette for that.
 * `Datasette <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html#-access-datasette>`__
   provides browsable and queryable data from our nightly builds on the web:
   https://data.catalyst.coop
 * `Kaggle <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html#access-kaggle>`__
   provides easy Jupyter notebook access to the PUDL data, updated weekly:
   https://www.kaggle.com/datasets/catalystcooperative/pudl-project
+* `Cloud storage <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html#access-cloud>`__
+  is populated by our nightly data builds, and is free to access thanks to the `AWS
+  Open Data Registry <https://registry.opendata.aws/catalyst-cooperative-pudl/>`__.
 * `Zenodo <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html#access-zenodo>`__
   provides stable long-term access to our versioned data releases with a citeable DOI:
   https://doi.org/10.5281/zenodo.3653158
-* `Nightly Data Builds <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html#access-nightly-builds>`__
-  push their outputs to the AWS Open Data Registry:
-  https://registry.opendata.aws/catalyst-cooperative-pudl/
-  See `the nightly build docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html#access-nightly-builds>`__
-  for direct download links.
 * `The PUDL Development Environment <https://catalystcoop-pudl.readthedocs.io/en/nightly/dev/dev_setup.html>`__
   lets you run the PUDL data processing pipeline locally.
 
@@ -257,11 +258,7 @@ Gigawatt Tier (≥$25,000/year)
 Megawatt Tier (≥$16,000/year)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. image:: docs/images/logos/ZEROLab.png
-   :width: 400
-   :target: https://zero.lab.princeton.edu/
-   :alt: ZERO Lab at Princeton University
-   :align: center
+Become our first `Megawatt tier sustainer <https://opencollective.com/pudl>`__!
 
 Kilowatt Tier (≥$8,000/year)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^

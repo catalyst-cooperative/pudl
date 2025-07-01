@@ -1,6 +1,6 @@
 """Code for transforming EIA data that pertains to more than one EIA Form.
 
-This module helps normalize EIA datasets and infers additonal connections
+This module helps normalize EIA datasets and infers additional connections
 between EIA entities (i.e. utilities, plants, units, generators...). This
 includes:
 
@@ -11,7 +11,7 @@ includes:
   the EIA entities, storing the static fields with the entity table, and the
   variable fields in an annual table.
 
-The boiler generator association inferrence (bga) takes the associations
+The boiler generator association inference (bga) takes the associations
 provided by the EIA 860, and expands on it using several methods which can be
 found in :func:`pudl.transform.eia._boiler_generator_assn`.
 """
@@ -103,12 +103,12 @@ def occurrence_consistency(
     cols_to_consit: list[str],
     strictness: float = 0.7,
 ) -> pd.DataFrame:
-    """Find the occurence of entities & the consistency of records.
+    """Find the occurrence of entities & the consistency of records.
 
     We need to determine how consistent a reported value is in the records
     across all of the years or tables that the value is being reported, so we
-    want to compile two key numbers: the number of occurances of the entity and
-    the number of occurances of each reported record for each entity. With that
+    want to compile two key numbers: the number of occurrences of the entity and
+    the number of occurrences of each reported record for each entity. With that
     information we can determine if the reported records are strict enough.
 
     Args:
@@ -129,7 +129,7 @@ def occurrence_consistency(
         A transformed version of compiled_df with NaNs removed and with new columns with
         information about the consistency of the reported values.
     """
-    # select only the colums you want and drop the NaNs
+    # select only the columns you want and drop the NaNs
     # we want to drop the NaNs because
     col_df = compiled_df[entity_idx + ["report_date", col]].copy()
     if get_pudl_dtypes(group="eia")[col] == "string":
@@ -140,35 +140,35 @@ def occurrence_consistency(
     if len(col_df) == 0:
         col_df[f"{col}_is_consistent"] = pd.NA
         col_df[f"{col}_consistent_rate"] = pd.NA
-        col_df["entity_occurences"] = pd.NA
+        col_df["entity_occurrences"] = pd.NA
         return col_df
     # determine how many times each entity occurs in col_df
     occur = (
-        col_df.assign(entity_occurences=1)
-        .groupby(by=cols_to_consit, observed=True)[["entity_occurences"]]
+        col_df.assign(entity_occurrences=1)
+        .groupby(by=cols_to_consit, observed=True)[["entity_occurrences"]]
         .count()
         .reset_index()
     )
 
-    # add the occurances into the main dataframe
+    # add the occurrences into the main dataframe
     col_df = col_df.merge(occur, on=cols_to_consit)
 
     # determine how many instances of each of the records in col exist
     consist_df = (
-        col_df.assign(record_occurences=1)
-        .groupby(by=cols_to_consit + [col], observed=True)[["record_occurences"]]
+        col_df.assign(record_occurrences=1)
+        .groupby(by=cols_to_consit + [col], observed=True)[["record_occurrences"]]
         .count()
         .reset_index()
     )
-    # now in col_df we have # of times an entity occurred accross the tables
-    # and we are going to merge in the # of times each value occured for each
-    # entity record. When we merge the consistency in with the occurances, we
+    # now in col_df we have # of times an entity occurred across the tables
+    # and we are going to merge in the # of times each value occurred for each
+    # entity record. When we merge the consistency in with the occurrences, we
     # can determine if the records are more than 70% consistent across the
-    # occurances of the entities.
+    # occurrences of the entities.
     col_df = col_df.merge(consist_df, how="outer")
     # change all of the fully consistent records to True
     col_df[f"{col}_consistent_rate"] = (
-        col_df["record_occurences"] / col_df["entity_occurences"]
+        col_df["record_occurrences"] / col_df["entity_occurrences"]
     )
     col_df[f"{col}_is_consistent"] = col_df[f"{col}_consistent_rate"] > strictness
     col_df = col_df.sort_values(f"{col}_consistent_rate")
@@ -463,7 +463,7 @@ def harvest_entity_tables(  # noqa: C901
 ) -> tuple:
     """Compile consistent records for various entities.
 
-    For each entity (plants, generators, boilers, utilties), this function
+    For each entity (plants, generators, boilers, utilities), this function
     finds all the harvestable columns from any table that they show up
     in. It then determines how consistent the records are and keeps the values
     that are mostly consistent. It compiles those consistent records into
@@ -488,7 +488,7 @@ def harvest_entity_tables(  # noqa: C901
     the real world.
 
     Args:
-        entity: One of: plants, generators, boilers, or utilties
+        entity: One of: plants, generators, boilers, or utilities
         clean_dfs: A dictionary of table names (keys) and clean dfs (values).
         eia860m: if True, the etl run is attempting to include year-to-date updated from
             EIA 860M.
@@ -609,7 +609,7 @@ def harvest_entity_tables(  # noqa: C901
                 entity_df = entity_df.drop(columns=[col]).merge(clean_df, on=id_cols)
             elif col in annual_cols:
                 raise AssertionError(
-                    "Method currenty not configured to work with annual values."
+                    "Method currently not configured to work with annual values."
                 )
 
         if debug:
@@ -706,7 +706,7 @@ def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:
     existence as part of the plants.
 
     For years 2014 and on, EIA860 contains a ``unit_id_eia`` value, allowing the
-    combined cycle plant compoents to be associated with each other. For many plants not
+    combined cycle plant components to be associated with each other. For many plants not
     listed in the reported boiler generator associations, it is nonetheless possible to
     associate boilers and generators on a one-to-one basis, as they use identical
     strings to describe the units.
@@ -793,7 +793,7 @@ def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:
     bga_unassn = bga_unassn.drop(["boiler_id"], axis=1)
 
     # Side note: there are only 6 generators that appear in bga8 that don't
-    # apear in gens9 or gens8 (must uncomment-out the og_tag creation above)
+    # appear in gens9 or gens8 (must uncomment-out the og_tag creation above)
     # bga_compiled_1[bga_compiled_1['og_tag'].isnull()]
 
     bf_eia923 = clean_dfs["_core_eia923__boiler_fuel"].assign(
@@ -1112,7 +1112,7 @@ def fillna_balancing_authority_codes_via_names(df: pd.DataFrame) -> pd.DataFrame
 
     There are a handful of missing ``balancing_authority_code_eia``'s that are easy to
     map given the balancing_authority_name_eia. This function fills in null BA codes
-    using the BA names. The map ofo the BA names to codes is generated via
+    using the BA names. The map of the BA names to codes is generated via
     :func:`map_balancing_authority_names_to_codes`.
 
     Args:
@@ -1247,6 +1247,7 @@ def harvested_entity_asset_factory(
         "_core_eia860__generators_energy_storage",
         "_core_eia860__generators_wind",
         "_core_eia860__generators_solar",
+        "_core_eia860__generators_multifuel",
         "_core_eia860__ownership",
         "_core_eia860__plants",
         "_core_eia860__utilities",
@@ -1349,5 +1350,6 @@ finished_eia_assets = [
         "core_eia860__scd_generators_wind": "_core_eia860__generators_wind",
         "core_eia860__scd_generators_solar": "_core_eia860__generators_solar",
         "core_eia860__scd_generators_energy_storage": "_core_eia860__generators_energy_storage",
+        "core_eia860__scd_generators_multifuel": "_core_eia860__generators_multifuel",
     }.items()
 ]

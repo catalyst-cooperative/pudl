@@ -4,7 +4,7 @@ name: update-conda-lockfile
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 9 * * 1" # Mondays at 9AM UTC
+    - cron: "0 7 * * 0" # Sundays at 7AM UTC
 
 # What branch does this action run on?
 # - workflow_dispatch: Whatever branch it was run against.
@@ -30,12 +30,14 @@ jobs:
           environment-name: conda-lock
           create-args: >-
             python=3.12
-            conda-lock>=2.5.7
-            prettier
-      - name: Run conda-lock to recreate lockfile from scratch
+            conda-lock>=3
+            prettier>=3.6
+            pre-commit>=4.2
+      - name: Update conda lockfiles, pre-commit hooks
         run: |
           make conda-clean
           make conda-lock.yml
+          pre-commit autoupdate
       - name: Make a PR to merge updated conda lockfiles
         # If we are relocking dependencies on a schedule or workflow_dispatch, we need
         # to make our own PR to check whether the updated environment actually solves
@@ -44,7 +46,7 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.PUDL_BOT_PAT }}
-          commit-message: "Update conda-lock.yml and rendered conda environment files."
+          commit-message: "Update conda-lock.yml and re-render conda environment files. Autoupdate pre-commit hooks."
           title: Update conda lockfile for week of ${{ env.TODAY }}
           body: >
             This pull request relocks the dependencies with conda-lock.

@@ -25,7 +25,7 @@ from packaging import version
 from upath import UPath
 
 import pudl
-from pudl.analysis.pudl_models import get_model_tables
+from pudl.helpers import get_parquet_table
 from pudl.metadata.classes import PUDL_PACKAGE, Package, Resource
 from pudl.workspace.setup import PudlPaths
 
@@ -45,20 +45,12 @@ def get_table_name_from_context(context: OutputContext) -> str:
 class PudlMixedFormatIOManager(IOManager):
     """Format switching IOManager that supports sqlite and parquet.
 
-    This IOManager allows experimental output of parquet files along
-    the standard sqlite database produced by PUDL. During this experimental
-    phase sqlite will always be output, while parquet support will be turned
-    off by default.
-
-    Parquet support can be enabled either using environment variables or
-    the dagster UI (see :func:`pudl_mixed_format_io_manager` for more info on the enviroment
-    variables). Parquet writing and reading can both be toggled independently. If
-    parquet writing is enabled, both parquet and sqlite tables will be produced, while
-    if parquet reading is enabled, assets will only be read from the parquet files.
+    This IOManager provides for the use of parquet files along with the standard SQLite
+    database produced by PUDL.
     """
 
     # Defaults should be provided here and should be potentially
-    # overriden by os env variables. This now resides in the
+    # overridden by os env variables. This now resides in the
     # @io_manager constructor of this, see pudl_mixed_format_io_manager".
     write_to_parquet: bool
     """If true, data will be written to parquet files."""
@@ -93,11 +85,6 @@ class PudlMixedFormatIOManager(IOManager):
             db_name="pudl",
         )
         self._parquet_io_manager = PudlParquetIOManager()
-        if self.write_to_parquet or self.read_from_parquet:
-            logger.warning(
-                f"pudl_io_manager: experimental support for parquet enabled. "
-                f"(read={self.read_from_parquet}, write={self.write_to_parquet})"
-            )
 
     def handle_output(
         self, context: OutputContext, obj: pd.DataFrame | str
@@ -322,22 +309,13 @@ class SQLiteIOManager(IOManager):
 class PudlParquetIOManager(IOManager):
     """IOManager that writes pudl tables to pyarrow parquet files."""
 
-    def _get_table_resource(self, table_name: str) -> Resource:
-        """Return resource class for table."""
-        if table_name not in get_model_tables():
-            res = Resource.from_id(table_name)
-        else:
-            # For tables coming from PUDL modelling repo just use already parsed resource metadata
-            [res] = [r for r in PUDL_PACKAGE.resources if r.name == table_name]
-        return res
-
     def handle_output(self, context: OutputContext, df: Any) -> None:
         """Writes pudl dataframe to parquet file."""
         assert isinstance(df, pd.DataFrame), "Only panda dataframes are supported."
         table_name = get_table_name_from_context(context)
         parquet_path = PudlPaths().parquet_path(table_name)
         parquet_path.parent.mkdir(parents=True, exist_ok=True)
-        res = self._get_table_resource(table_name)
+        res = Resource.from_id(table_name)
 
         df = res.enforce_schema(df)
         schema = res.to_pyarrow()
@@ -354,10 +332,7 @@ class PudlParquetIOManager(IOManager):
     def load_input(self, context: InputContext) -> pd.DataFrame:
         """Loads pudl table from parquet file."""
         table_name = get_table_name_from_context(context)
-        parquet_path = PudlPaths().parquet_path(table_name)
-        res = self._get_table_resource(table_name)
-        df = pq.read_table(source=parquet_path, schema=res.to_pyarrow()).to_pandas()
-        return res.enforce_schema(df)
+        return get_parquet_table(table_name)
 
 
 class PudlSQLiteIOManager(SQLiteIOManager):
@@ -387,7 +362,7 @@ class PudlSQLiteIOManager(SQLiteIOManager):
                 specified, defaults to a Package with all metadata stored in the
                 :mod:`pudl.metadata.resources` subpackage.
 
-                Every table that appears in `self.md` is sepcified in `self.package`
+                Every table that appears in `self.md` is specified in `self.package`
                 as a :class:`pudl.metadata.classes.Resources`. However, not every
                 :class:`pudl.metadata.classes.Resources` in `self.package` is included
                 in `self.md` as a table. This is because `self.package` is used to ensure
@@ -556,7 +531,7 @@ class FercSQLiteIOManager(SQLiteIOManager):
     This class should be subclassed and the load_input and handle_output methods should
     be implemented.
 
-    This IOManager exepcts the database to already exist.
+    This IOManager expects the database to already exist.
     """
 
     def __init__(
@@ -659,7 +634,7 @@ class FercDBFSQLiteIOManager(FercSQLiteIOManager):
         ferc1_settings = context.resources.dataset_settings.ferc1
 
         table_name = get_table_name_from_context(context)
-        # Remove preceeding asset name metadata
+        # Remove preceding asset name metadata
         table_name = table_name.replace("raw_ferc1_dbf__", "")
 
         # Check if the table_name exists in the self.md object
@@ -755,7 +730,7 @@ class FercXBRLSQLiteIOManager(FercSQLiteIOManager):
         )
 
         table_name = get_table_name_from_context(context)
-        # Remove preceeding asset name metadata
+        # Remove preceding asset name metadata
         table_name = table_name.replace(f"raw_{self.db_name}__", "")
 
         # TODO (bendnorman): Figure out a better to handle tables that

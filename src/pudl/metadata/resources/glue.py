@@ -5,17 +5,16 @@ from typing import Any
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_epa__assn_eia_epacamd": {
         "description": """This crosswalk table comes from the
-EPA's Github repo camd-eia-crosswalk:
-https://github.com/USEPA/camd-eia-crosswalk.
+PUDL fork of the EPA camd-eia-crosswalk Github repo:
+https://github.com/catalyst-cooperative/camd-eia-crosswalk-latest.
 It's purpose is to connect EPA units with EIA plants, boilers, and generators.
 The camd-eia-crosswalk README and our Data Source documentation page on
 :doc:`../data_sources/epacems` depict the complicated relationship between EIA and EPA
 data, specifically the nature of EPA vs. EIA "units" and the level of granularity that
 one can connect the two sources.
 
-The crosswalk table is generated using EIA data from 2018 meaning that any plants that
-have shifted before or since then aren't accurately reflected in the data. We're hoping
-to create a temporal version of the crosswalk at some point.
+The original EPA crosswalk runs on 2018 EIA data. We adapted the crosswalk code to run on
+each new year of EIA data, capturing changes in plant information over time.
 
 Our version of the crosswalk clarifies some of the column names and removes unmatched
 rows. The :func:`pudl.etl.glue_assets.core_epa__assn_eia_epacamd` function doc strings explain
@@ -37,7 +36,7 @@ what changes are made from the EPA's version.""",
     },
     "core_epa__assn_eia_epacamd_subplant_ids": {
         "description": """This table is an augmented version of the core_epa__assn_eia_epacamd
-crosswalk table which initally comes from the EPA's Github repo camd-eia-crosswalk:
+crosswalk table which initially comes from the EPA's Github repo camd-eia-crosswalk:
 https://github.com/USEPA/camd-eia-crosswalk.
 It's purpose is to connect EPA units with EIA units, and generators.
 
@@ -48,7 +47,7 @@ power plants, even of different technology or fuel types.
 EPA CEMS data combines information from several parts of a power plant:
 * emissions from smokestacks
 * fuel use from combustors
-* electricty production from generators
+* electricity production from generators
 But smokestacks, combustors, and generators can be connected in complex, many-to-many
 relationships. This complexity makes attribution difficult for, as an example,
 allocating pollution to energy producers. Furthermore, heterogeneity within plant_ids

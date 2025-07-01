@@ -65,11 +65,13 @@ class InputManager:
     def get_plants_ferc1(self, clobber: bool = False) -> pd.DataFrame:
         """Prepare FERC1 plants data for record linkage with EIA plant-parts.
 
-        This method grabs two tables (``plants_all_ferc1`` and ``fuel_by_plant_ferc1``,
-        accessed originally via :meth:`pudl.output.pudltabl.PudlTabl.plants_all_ferc1`
-        and :meth:`pudl.output.pudltabl.PudlTabl.fbp_ferc1` respectively) and ensures
-        that the columns the same as their EIA counterparts, because the output of this
-        method will be used to link FERC and EIA.
+        This method merges two internally cached dataframes (``self.plants_all_ferc1``
+        and ``self.fuel_by_plant_ferc1`` (originally obtained from
+        :ref:`out_ferc1__yearly_all_plants` and
+        :ref:`out_ferc1__yearly_steam_plants_fuel_by_plant_sched402`) respectively) and
+        ensures that key columns are have the same names and dtypes as the analogous
+        EIA columns so that they can be used in the FERC-EIA record linkage model
+        easily.
 
         Returns:
             A cleaned table of FERC1 plants plant records with fuel cost data.
@@ -226,7 +228,7 @@ def restrict_train_connections_on_date_range(
 
     The training data is only the record IDs, which contain the report year inside them.
     This function compiles a regex using the date range to grab only training records
-    which contain the years in the date range followed by and preceeded by ``_`` - in
+    which contain the years in the date range followed by and preceded by ``_`` - in
     the format of ``record_id_eia``and ``record_id_ferc1``. We use that extracted year
     to determine
     """

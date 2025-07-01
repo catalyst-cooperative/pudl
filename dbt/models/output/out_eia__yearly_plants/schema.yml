@@ -1,0 +1,68 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_eia__yearly_plants
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: out_eia__yearly_plants
+              partition_column: report_date
+          - expect_date_frequency_ratio:
+              compare_model: source("pudl", "out_eia__yearly_generators")
+              multiplier: 1
+              date_column: report_date
+        columns:
+          - name: plant_id_eia
+          - name: plant_name_eia
+          - name: city
+          - name: county
+          - name: latitude
+          - name: longitude
+          - name: state
+          - name: street_address
+          - name: zip_code
+          - name: timezone
+          - name: report_date
+          - name: ash_impoundment
+          - name: ash_impoundment_lined
+          - name: ash_impoundment_status
+          - name: balancing_authority_code_eia
+          - name: balancing_authority_name_eia
+          - name: datum
+          - name: energy_storage
+          - name: ferc_cogen_docket_no
+          - name: ferc_cogen_status
+          - name: ferc_exempt_wholesale_generator_docket_no
+          - name: ferc_exempt_wholesale_generator
+          - name: ferc_small_power_producer_docket_no
+          - name: ferc_small_power_producer
+          - name: ferc_qualifying_facility_docket_no
+          - name: grid_voltage_1_kv
+          - name: grid_voltage_2_kv
+          - name: grid_voltage_3_kv
+          - name: iso_rto_code
+          - name: liquefied_natural_gas_storage
+          - name: natural_gas_local_distribution_company
+          - name: natural_gas_storage
+          - name: natural_gas_pipeline_name_1
+          - name: natural_gas_pipeline_name_2
+          - name: natural_gas_pipeline_name_3
+          - name: nerc_region
+          - name: has_net_metering
+          - name: pipeline_notes
+          - name: primary_purpose_id_naics
+          - name: regulatory_status_code
+          - name: reporting_frequency_code
+          - name: sector_id_eia
+          - name: sector_name_eia
+          - name: service_area
+          - name: transmission_distribution_owner_id
+          - name: transmission_distribution_owner_name
+          - name: transmission_distribution_owner_state
+          - name: utility_id_eia
+          - name: water_source
+          - name: data_maturity
+          - name: plant_id_pudl
+          - name: utility_name_eia
+          - name: utility_id_pudl
+          - name: balancing_authority_code_eia_consistent_rate

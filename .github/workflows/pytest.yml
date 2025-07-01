@@ -120,7 +120,7 @@ jobs:
           path: .coverage
 
   ci-integration:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-8core
     if: github.event_name == 'workflow_dispatch' || github.event.merge_group
     permissions:
       contents: read
@@ -185,7 +185,7 @@ jobs:
       - name: Run integration tests, trying to use GCS cache if possible
         run: |
           pip install --no-deps --editable .
-          pudl_datastore --dataset epacems --partition year_quarter=2022q1
+          pudl_datastore --dataset epacems --partition year_quarter=2023q1
           make pytest-integration
 
       - name: Coverage debugging output
@@ -201,6 +201,13 @@ jobs:
           name: coverage-integration
           include-hidden-files: true
           path: .coverage
+
+      - name: Upload dbt test failure database artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dbt-failures
+          path: pudl_dbt_tests.duckdb
 
       - name: Log post-test Zenodo datastore contents
         run: find ${{ env.PUDL_INPUT }}

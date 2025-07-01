@@ -1,0 +1,208 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_ferc1__yearly_steam_plants_sched402
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: out_ferc1__yearly_steam_plants_sched402
+              partition_column: report_year
+          - expect_one2one_mapping:
+              groupby_column: plant_id_ferc1
+              counted_column: plant_id_pudl
+              n_acceptable: 6
+          - expect_unique_column_combination:
+              columns:
+                - plant_id_ferc1
+                - report_year
+        columns:
+          - name: report_year
+          - name: utility_id_ferc1
+          - name: utility_id_pudl
+          - name: utility_name_ferc1
+          - name: plant_id_pudl
+          - name: plant_id_ferc1
+          - name: plant_name_ferc1
+          - name: asset_retirement_cost
+          - name: avg_num_employees
+          - name: capacity_factor
+          - name: capacity_mw
+            data_tests:
+              - expect_quantile_constraints:
+                  constraints:
+                    - quantile: 0.95
+                      max_value: 2000.0
+              - expect_quantile_constraints:
+                  row_condition: plant_type='steam'
+                  constraints:
+                    - quantile: 0.95
+                      max_value: 2500.0
+          - name: capex_annual_addition
+          - name: capex_annual_addition_rolling
+          - name: capex_annual_per_kw
+          - name: capex_annual_per_mw
+          - name: capex_annual_per_mw_rolling
+          - name: capex_annual_per_mwh
+          - name: capex_annual_per_mwh_rolling
+          - name: capex_equipment
+          - name: capex_land
+          - name: capex_per_mw
+            data_tests:
+              - expect_quantile_constraints:
+                  constraints:
+                    - quantile: 0.5
+                      min_value: 200000.0
+                      max_value: 600000.0
+                    - quantile: 0.95
+                      max_value: 2350000.0
+                  weight_column: capacity_mw
+                  description: Quantile 0.95 raised from 2.2M to 2.35M April 2025 to pass etl-fast. Demoted to warning in April 2025 when quantile 0.5 rose from 600K to 740K. Investigate this in issue 4191.
+                  severity: warn
+          - name: capex_structures
+          - name: capex_total
+          - name: capex_wo_retirement_total
+          - name: construction_type
+          - name: construction_year
+          - name: installation_year
+          - name: net_generation_mwh
+          - name: not_water_limited_capacity_mw
+          - name: opex_allowances
+          - name: opex_boiler
+          - name: opex_coolants
+          - name: opex_electric
+          - name: opex_engineering
+          - name: opex_fuel
+          - name: opex_fuel_per_mwh
+            data_tests:
+              - expect_quantile_constraints:
+                  row_condition: opex_fuel_per_mwh>0
+                  constraints:
+                    - quantile: 0.5
+                      min_value: 10.0
+                      max_value: 25.0
+                    - quantile: 0.95
+                      max_value: 80.0
+                  weight_column: net_generation_mwh
+          - name: opex_misc_power
+          - name: opex_misc_steam
+          - name: opex_nonfuel_per_mwh
+            data_tests:
+              - expect_quantile_constraints:
+                  row_condition: opex_nonfuel_per_mwh>0
+                  constraints:
+                    - quantile: 0.3
+                      min_value: 2.5
+                      max_value: 5.0
+                    - quantile: 0.05
+                      min_value: 1.2
+                    - quantile: 0.95
+                      max_value: 25.1
+                  weight_column: net_generation_mwh
+                  description: Quantile 0.95 raised from 25.0 to 25.1 April 2025 to pass etl-fast. Keep an eye on it, and investigate if it gets worse.
+          - name: opex_operations
+          - name: opex_per_mwh
+          - name: opex_plants
+          - name: opex_production_total
+          - name: opex_rents
+          - name: opex_steam
+          - name: opex_steam_other
+          - name: opex_structures
+          - name: opex_total_nonfuel
+          - name: opex_transfer
+          - name: peak_demand_mw
+          - name: plant_capability_mw
+          - name: plant_hours_connected_while_generating
+            data_tests:
+              - expect_quantile_constraints:
+                  constraints:
+                    - quantile: 0.0
+                      min_value: 0.0
+                    - quantile: 1.0
+                      max_value: 8760.0
+                  weight_column: capacity_mw
+                  description: Migrated xfail in April 2025; ~10% (weighted) report over 8760 hours.
+                  severity: warn
+          - name: plant_type
+          - name: record_id
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_unique
+          - name: water_limited_capacity_mw
+models:
+  - name: validate_ferc1__yearly_steam_plants_sched402
+    description: >
+      This is a validation model which takes the above table as input and computes
+      values more convenient for testing, including:
+
+      - capacity ratios; not currently tested
+    columns:
+      - name: report_year
+      - name: plant_capability_mw
+      - name: capacity_factor
+        data_tests:
+          - expect_quantile_constraints:
+              row_condition: capacity_factor>0.05
+              constraints:
+                - quantile: 0.5
+                  min_value: 0.5
+                - quantile: 0.95
+                  max_value: 0.9
+                - quantile: 0.7
+                  min_value: 0.6
+                  max_value: 0.8
+              description: Demoted to warning in April 2025 when quantile 0.5 dropped from 0.5 to 0.33 and quantile 0.7 dropped from 0.6 to 0.5. Investigate in issue 4194.
+              severity: warn
+      - name: water_limited_ratio
+        data_tests:
+          - expect_quantile_constraints:
+              constraints:
+                - quantile: 0.5
+                  min_value: 0.88
+                  max_value: 0.95
+                - quantile: 0.05
+                  min_value: 0.6
+                - quantile: 0.95
+                  max_value: 1.15
+              description: Demoted to warning in April 2025 when quantile 0.05 dropped from 0.6 to 0.0. Investigate in issue 4197. Quantile 0.5 dropped from 0.89 to 0.88 in April 2025. Keep an eye on it, and investigate if it gets worse.
+              severity: warn
+      - name: not_water_limited_ratio
+        data_tests:
+          - expect_quantile_constraints:
+              constraints:
+                - quantile: 0.5
+                  min_value: 0.92
+                  max_value: 1.0
+                - quantile: 0.05
+                  min_value: 0.7
+                - quantile: 0.95
+                  max_value: 1.2
+              description: Demoted to warning in April 2025 when quantile 0.05 dropped from 0.7 to 0.0. Investigate in issue 4195.
+              severity: warn
+      - name: peak_demand_ratio
+        data_tests:
+          - expect_quantile_constraints:
+              constraints:
+                - quantile: 0.5
+                  min_value: 0.91
+                  max_value: 1.0
+                - quantile: 0.05
+                  min_value: 0.4
+                - quantile: 0.95
+                  max_value: 1.3
+              description: Demoted to warning in April 2025 when quantile 0.05 dropped from 0.4 to 0.31. Investigate in issue 4196.
+              severity: warn
+      - name: capability_ratio
+        data_tests:
+          - expect_quantile_constraints:
+              constraints:
+                - quantile: 0.5
+                  min_value: 0.85
+                  max_value: 0.98
+                  description: Quantile 0.5 reduced from 0.9 to 0.85 in April 2025 to pass etl-fast. Keep an eye on it, and investigate if it gets worse.
+          - expect_quantile_constraints:
+              row_condition: report_year < 2021 or plant_capability_mw > 0
+              constraints:
+                - quantile: 0.05
+                  min_value: 0.5
+                - quantile: 0.95
+                  max_value: 1.18
+              description: XBRL data (post-2021) reports 0 capability for ~22% of plants, so we exclude.

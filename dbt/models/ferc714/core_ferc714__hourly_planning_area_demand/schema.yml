@@ -1,0 +1,21 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_ferc714__hourly_planning_area_demand
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_ferc714__hourly_planning_area_demand
+              partition_column: report_date
+          - expect_consistent_years:
+              datetime_column: datetime_utc
+              date_column: report_date
+              max_mismatch_ratio: 0.001
+        columns:
+          - name: respondent_id_ferc714
+          - name: respondent_id_ferc714_csv
+          - name: respondent_id_ferc714_xbrl
+          - name: report_date
+          - name: datetime_utc
+          - name: timezone
+          - name: demand_mwh

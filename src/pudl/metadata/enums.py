@@ -1,7 +1,8 @@
 """Enumerations of valid field values."""
 
-from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
+from pudl.metadata.dfs import IMPUTATION_REASON_CODES, POLITICAL_SUBDIVISIONS
 
+IMPUTATION_CODES: set[str] = set(IMPUTATION_REASON_CODES.code)
 COUNTRY_CODES_ISO3166: set[str] = set(POLITICAL_SUBDIVISIONS.country_code)
 SUBDIVISION_CODES_ISO3166: set[str] = set(POLITICAL_SUBDIVISIONS.subdivision_code)
 EPACEMS_STATES: set[str] = set(
@@ -94,15 +95,18 @@ GENERATION_ENERGY_SOURCES_EIA930 = [
     "solar",
     "unknown",
     "wind",
+    "battery_storage",
+    "geothermal",
+    "hydro_excluding_pumped_storage",
+    "other_energy_storage",
+    "pumped_storage",
+    "solar_w_integrated_battery_storage",
+    "solar_wo_integrated_battery_storage",
+    "unknown_energy_storage",
+    "wind_w_integrated_battery_storage",
+    "wind_wo_integrated_battery_storage",
 ]
-"""Energy sources used to categorize generation in the EIA 930 data.
-
-These strings are used to construct a multi-index for stacking the net generation data
-and must not contain underscores, as that character is used to split the longer column
-names into different parts.
-"""
-for energy_source in GENERATION_ENERGY_SOURCES_EIA930:
-    assert "_" not in energy_source
+"""Energy sources used to categorize generation in the EIA 930 data."""
 
 ELECTRICITY_MARKET_MODULE_REGIONS: list[str] = [
     "florida_reliability_coordinating_council",
@@ -332,7 +336,9 @@ FUEL_TYPES_EIAAEO: list[str] = [
 
 MODEL_CASES_EIAAEO: list[str] = [
     "aeo2022",
+    "fast_builds_plus_high_lng_price",
     "high_economic_growth",
+    "high_lng_price",
     "high_macro_and_high_zero_carbon_technology_cost",
     "high_macro_and_low_zero_carbon_technology_cost",
     "high_oil_and_gas_supply",
@@ -340,6 +346,7 @@ MODEL_CASES_EIAAEO: list[str] = [
     "high_uptake_of_inflation_reduction_act",
     "high_zero_carbon_technology_cost",
     "low_economic_growth",
+    "low_lng_price",
     "low_macro_and_high_zero_carbon_technology_cost",
     "low_macro_and_low_zero_carbon_technology_cost",
     "low_oil_and_gas_supply",
@@ -349,10 +356,59 @@ MODEL_CASES_EIAAEO: list[str] = [
     "no_inflation_reduction_act",
     "reference",
 ]
-"""Modeling cases for EIA AEO.
+"""Modeling cases for EIA AEO 2023.
 
-See https://eia.gov/outlooks/aeo/assumptions/case_descriptions.php .
+See https://www.eia.gov/outlooks/archive/aeo23/assumptions/case_descriptions.php .
+
+EIA's browser (https://www.eia.gov/outlooks/aeo/data/browser/#/?id=2-AEO2023) and
+data API also include the AEO2022 Reference case, which is not listed on the case
+descriptions page.
 """
+
+ENERGY_USE_TYPES_EIAAEO: list[str] = [
+    "biofuels_heat_and_coproducts",
+    "coal",
+    "coal_subtotal",
+    "coal_to_liquids_heat_and_power",
+    "delivered_energy",
+    "distillate_fuel_oil",
+    "e85",
+    "electricity",
+    "electricity_imports",
+    "electricity_related_losses",
+    "hydrocarbon_gas_liquids",
+    "hydrogen",
+    "jet_fuel",
+    "kerosene",
+    "lease_and_plant_fuel",
+    "liquefaction",
+    "liquid_fuels_subtotal",
+    "liquefied_petroleum_gases",
+    "metallurgical_coal",
+    "motor_gasoline",
+    "natural_gas",
+    "natural_gas_subtotal",
+    "natural_gas_to_liquids_heat_and_power",
+    "net_coal_coke_imports",
+    "non_biogenic_municipal_waste",
+    "nuclear",
+    "other_industrial_coal",
+    "other_petroleum",
+    "other_coal",
+    "petrochemical_feedstocks",
+    "pipeline_fuel_natural_gas",
+    "pipeline_natural_gas",
+    "propane",
+    "renewable_energy",
+    "residual_fuel_oil",
+    "steam_coal",
+    "total",
+]
+"""Energy use types from Table 2 of EIA AEO 2023.
+
+These are from the series titles, not the display titles in the EIA's data browser tool,
+which may show different text."""
+
 
 ENERGY_SOURCE_TYPES_FERC1: list[str] = [
     "steam_generation",

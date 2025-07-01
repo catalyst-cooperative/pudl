@@ -25,7 +25,7 @@ planned_generator_retirement_year,,,,,,,planned_retirement_year,planned_retireme
 deliver_power_transgrid,,,,deliver_power_transgrid,deliver_power_transgrid,deliver_power_transgrid,deliver_power_transgrid,deliver_power_transgrid
 associated_combined_heat_power,cogen,cogen,cogen,cogen,cogen,cogen,cogenerator,cogenerator
 distributed_generation,distgen,distgen,distgen,distgen,distgen,distgen,,
-syncronized_transmission_grid,,,,synchronized_grid,synchronized_grid,synchronized_grid,synchronized_grid,synchronized_grid
+synchronized_transmission_grid,,,,synchronized_grid,synchronized_grid,synchronized_grid,synchronized_grid,synchronized_grid
 duct_burners,,,,,,,duct_burners,duct_burners
 solid_fuel_gasification,,,,sfg_system,sfg_system,sfg_system,sfg_system,sfg_system
 energy_source_code_1,ensource1,ensource1,ensource1,energy_source_1,energy_source_1,energy_source_1,energy_source_1,energy_source_1
@@ -41,7 +41,7 @@ energy_source_2_transport_1,transmode2,transmode2,transmode2,es2trans_1,es2trans
 energy_source_2_transport_2,,,,es2trans_2,es2trans_2,es2trans_2,,
 energy_source_2_transport_3,,,,es2trans_3,es2trans_3,es2trans_3,,
 turbines_num,wind,wind,wind,windturbines,windturbines,windturbines,turbines,turbines
-multiple_fuels,,,,,,multifuels,multiple_fuels,multiple_fuels
+can_burn_multiple_fuels,,,,,,multifuels,multiple_fuels,multiple_fuels
 planned_modifications,,,,,,,planned_modifications,planned_modifications
 planned_net_summer_capacity_uprate_mw,,,,,,,planned_uprates_net_summer_cap,planned_uprates_net_summer_cap
 planned_net_winter_capacity_uprate_mw,,,,,,,planned_uprates_net_winter_cap,planned_uprates_net_winter_cap

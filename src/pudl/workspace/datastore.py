@@ -187,28 +187,30 @@ class ZenodoDoiSettings(BaseSettings):
     """Digital Object Identifiers pointing to currently used Zenodo archives."""
 
     censusdp1tract: ZenodoDoi = "10.5281/zenodo.4127049"
+    censuspep: ZenodoDoi = "10.5281/zenodo.14648211"
     eia176: ZenodoDoi = "10.5281/zenodo.14589676"
     eia191: ZenodoDoi = "10.5281/zenodo.10607837"
     eia757a: ZenodoDoi = "10.5281/zenodo.10607839"
-    eia860: ZenodoDoi = "10.5281/zenodo.13682785"
-    eia860m: ZenodoDoi = "10.5281/zenodo.14026426"
+    eia860: ZenodoDoi = "10.5281/zenodo.15629904"
+    eia860m: ZenodoDoi = "10.5281/zenodo.15516497"
     eia861: ZenodoDoi = "10.5281/zenodo.13907096"
-    eia923: ZenodoDoi = "10.5281/zenodo.13922907"
-    eia930: ZenodoDoi = "10.5281/zenodo.14026427"
+    eia923: ZenodoDoi = "10.5281/zenodo.15680893"
+    eia930: ZenodoDoi = "10.5281/zenodo.15341001"
     eiawater: ZenodoDoi = "10.5281/zenodo.10806016"
     eiaaeo: ZenodoDoi = "10.5281/zenodo.10838488"
-    eia_bulk_elec: ZenodoDoi = "10.5281/zenodo.14026418"
-    epacamd_eia: ZenodoDoi = "10.5281/zenodo.7900974"
-    epacems: ZenodoDoi = "10.5281/zenodo.14037184"
-    ferc1: ZenodoDoi = "10.5281/zenodo.13149094"
-    ferc2: ZenodoDoi = "10.5281/zenodo.13149082"
-    ferc6: ZenodoDoi = "10.5281/zenodo.13149089"
-    ferc60: ZenodoDoi = "10.5281/zenodo.13149090"
+    eiaapi: ZenodoDoi = "10.5281/zenodo.15351327"
+    epacamd_eia: ZenodoDoi = "10.5281/zenodo.14834878"
+    epacems: ZenodoDoi = "10.5281/zenodo.15340994"
+    ferc1: ZenodoDoi = "10.5281/zenodo.15294981"
+    ferc2: ZenodoDoi = "10.5281/zenodo.15315314"
+    ferc6: ZenodoDoi = "10.5281/zenodo.15340979"
+    ferc60: ZenodoDoi = "10.5281/zenodo.15340980"
     ferc714: ZenodoDoi = "10.5281/zenodo.13149091"
     gridpathratoolkit: ZenodoDoi = "10.5281/zenodo.10892394"
-    phmsagas: ZenodoDoi = "10.5281/zenodo.10493790"
     nrelatb: ZenodoDoi = "10.5281/zenodo.12658647"
-    vcerare: ZenodoDoi = "10.5281/zenodo.13937523"
+    phmsagas: ZenodoDoi = "10.5281/zenodo.10493790"
+    sec10k: ZenodoDoi = "10.5281/zenodo.15161694"
+    vcerare: ZenodoDoi = "10.5281/zenodo.15166129"
 
     model_config = SettingsConfigDict(
         env_prefix="pudl_zenodo_doi_", env_file=".env", extra="ignore"
@@ -470,7 +472,7 @@ def validate_cache(
 ) -> None:
     """Validate elements in the datastore cache.
 
-    Delete invalid entires from cache.
+    Delete invalid entries from cache.
     """
     for single_ds in datasets:
         num_total = 0

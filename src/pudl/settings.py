@@ -176,6 +176,15 @@ class PhmsaGasSettings(GenericDatasetSettings):
     """The list of years to validate."""
 
 
+class Sec10kSettings(GenericDatasetSettings):
+    """An immutable Pydantic model to validate SEC 10-K settings."""
+
+    data_source: ClassVar[DataSource] = DataSource.from_id("sec10k")
+    years: list[int] = data_source.working_partitions["years"]
+    """The list of valid years for which SEC 10-K data is available."""
+    tables: list[str] = data_source.working_partitions["tables"]
+
+
 class NrelAtbSettings(GenericDatasetSettings):
     """An immutable pydantic model to validate NREL ATB settings."""
 
@@ -365,6 +374,14 @@ class VCERareSettings(GenericDatasetSettings):
     """Include FIPS codes in VCE RARE Power Dataset."""
 
 
+class CensusPepSettings(GenericDatasetSettings):
+    """An immutable pydantic model to validate Census PEP settings."""
+
+    data_source: ClassVar[DataSource] = DataSource.from_id("censuspep")
+    years: list[int] = data_source.working_partitions["years"]
+    """The list of years to validate."""
+
+
 class GlueSettings(FrozenBaseModel):
     """An immutable pydantic model to validate Glue settings."""
 
@@ -524,10 +541,12 @@ class DatasetsSettings(FrozenBaseModel):
     ferc1: Ferc1Settings | None = None
     ferc714: Ferc714Settings | None = None
     glue: GlueSettings | None = None
-    phmsagas: PhmsaGasSettings | None = None
-    nrelatb: NrelAtbSettings | None = None
     gridpathratoolkit: GridPathRAToolkitSettings | None = None
+    nrelatb: NrelAtbSettings | None = None
+    phmsagas: PhmsaGasSettings | None = None
+    sec10k: Sec10kSettings | None = None
     vcerare: VCERareSettings | None = None
+    censuspep: CensusPepSettings | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -546,10 +565,12 @@ class DatasetsSettings(FrozenBaseModel):
             data["ferc1"] = Ferc1Settings()
             data["ferc714"] = Ferc714Settings()
             data["glue"] = GlueSettings()
-            data["phmsagas"] = PhmsaGasSettings()
-            data["nrelatb"] = NrelAtbSettings()
             data["gridpathratoolkit"] = GridPathRAToolkitSettings()
+            data["nrelatb"] = NrelAtbSettings()
+            data["phmsagas"] = PhmsaGasSettings()
+            data["sec10k"] = Sec10kSettings()
             data["vcerare"] = VCERareSettings()
+            data["censuspep"] = CensusPepSettings()
 
         return data
 
@@ -588,7 +609,7 @@ class DatasetsSettings(FrozenBaseModel):
         eia860m is a monthly update of a few tables in the larger eia860 dataset.
 
         Args:
-            ds: An initalized PUDL Datastore from which the DOI's for each raw input
+            ds: An initialized PUDL Datastore from which the DOI's for each raw input
                 dataset can be obtained.
 
         Returns:
@@ -852,7 +873,8 @@ class EtlSettings(BaseSettings):
             ) and not set(pudl_ferc.xbrl_years).issubset(set(sqlite_ferc.years)):
                 raise AssertionError(
                     "You are trying to build a PUDL database with different XBRL years "
-                    f"than the ferc_to_sqlite_settings years for {which_ferc}."
+                    f"than the ferc_to_sqlite_settings years for {which_ferc}.\nPUDL years: {pudl_ferc.xbrl_years}\n"
+                    f"SQLite Years: {sqlite_ferc.years}"
                 )
         return self
 
@@ -862,7 +884,7 @@ def _convert_settings_to_dagster_config(settings_dict: dict[str, Any]) -> None:
 
     For each partition parameter in a :class:`GenericDatasetSettings` subclass, create a
     corresponding :class:`DagsterField`. By default the :class:`GenericDatasetSettings`
-    subclasses will default to include all working paritions if the partition value is
+    subclasses will default to include all working partitions if the partition value is
     None. Get the value type so dagster can do some basic type checking in the UI.
 
     Args:

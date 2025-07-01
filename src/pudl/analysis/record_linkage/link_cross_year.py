@@ -211,7 +211,7 @@ def split_clusters(
     ]
 
     for duplicated_id in duplicated_ids.unique():
-        # IDs of -1 will be handled seperately
+        # IDs of -1 will be handled separately
         if duplicated_id == -1:
             continue
 
@@ -254,7 +254,7 @@ def match_orphaned_records(
 ) -> pd.DataFrame:
     """DBSCAN assigns 'noisy' records a label of '-1', which will be labeled by this step.
 
-    To label orphaned records, points are seperated into clusters where each orphaned record
+    To label orphaned records, points are separated into clusters where each orphaned record
     is a cluster of a single point. Then, a distance matrix is computed with the average
     distance between each cluster, and is used in a round of agglomerative clustering.
     This will match orphaned records to existing clusters, or assign them unique ID's if

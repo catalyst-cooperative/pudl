@@ -3,6 +3,12 @@
 ===============================================================================
 Testing PUDL
 ===============================================================================
+
+.. toctree::
+   :hidden:
+
+   debugging_quantile_checks
+
 We use `pytest <https://pytest.org>`__ to specify software unit & integration tests,
 and to coordinate data validation tests.  There are several ``pytest`` commands stored
 as targets in the PUDL ``Makefile`` for convenience and to ensure that we're all running
@@ -51,7 +57,7 @@ each with its own subdirectory:
 Running tests with Make
 -------------------------------------------------------------------------------
 
-The ``Makefile`` targets that pertain to software and data tests which are coordianted
+The ``Makefile`` targets that pertain to software and data tests which are coordinated
 by ``pytest`` are prefixed with ``pytest-``
 
 In addition to running the ``pytest-unit`` and ``pytest-integration`` targets mentioned
@@ -64,9 +70,6 @@ above there are also:
   PUDL DB.
 * ``pytest-jupyter``: Check that select Jupyter notebooks checked into the repository
   can run successfully. (Currently disabled)
-* ``pytest-minmax-rows``: Check that various database tables have the expected number of
-  records in them, and report back the actual number of records found. Requires an
-  existing PUDL DB.
 * ``pytest-coverage``: Run all the software tests and generate a test coverage report.
   This will fail if test coverage has fallen below the threshold defined in
   ``pyproject.toml``.
@@ -118,7 +121,7 @@ datastore instead by using our custom ``--tmp-data`` with ``pytest``:
     * :doc:`datastore` for more on how to work with the datastore in general.
 
 -------------------------------------------------------------------------------
-Data Validation
+Data Validation Tests
 -------------------------------------------------------------------------------
 Given the processed outputs of the PUDL ETL pipeline, we have a collection of
 tests that can be run to verify that the outputs look correct. We run all
@@ -143,18 +146,17 @@ database:
 The data validation cases that pertain to the contents of the data tables are
 currently stored as part of the :mod:`pudl.validate` module.
 
-The expected number of records in each output table is stored in the validation
-test modules under ``test/validate`` as pytest parameterizations.
-
-Data Validation Notebooks
-^^^^^^^^^^^^^^^^^^^^^^^^^
-We have a collection of Jupyter Notebooks that run the same functions as the
-data validation. The notebooks also produce some visualizations of the data
-to make it easier to understand what's wrong when validation fails. These
-notebooks are stored in ``test/validate/notebooks``
-
-Like the data validations, the notebooks will only run successfully when
-there's a full PUDL SQLite database available in your PUDL workspace.
+To catch unexpected changes to the data, we keep track of the expected number of rows in
+each data table we distribute. These expectations are stored in
+``dbt/seeds/etl_full_row_counts.csv`` and they can be updated using the ``dbt_helper``
+script. If you can't run the full ETL locally, the nightly builds / branch deployments
+also generate updated row count expectations. So you can kick off the
+``build-deploy-pudl`` GitHub Action using the ``workflow_dispatch`` trigger on your
+branch on GitHub, and then download the updated ``etl_full_row_counts.csv`` file from
+the build outputs that are uploaded to
+``gs://builds.catalyst.coop/<build-id>/etl_full_row_counts.csv`` once the build has
+completed. See the :doc:`nightly_data_builds` documentation for more details on the
+nightly builds.
 
 -------------------------------------------------------------------------------
 Running pytest Directly
@@ -242,3 +244,11 @@ data to a temporary datastore that's later deleted automatically:
 .. code-block:: console
 
    $ pytest --tmp-data test/integration/etl_test.py
+
+-------------------------------------------------------------------------------
+When dbt tests fail
+-------------------------------------------------------------------------------
+
+If the test that failed is a quantile constraint (starts with
+``expect_quantile_constraints`` or ``source_expect_quantile_constraints``), we have a
+macro that can help debug the problem: :doc:`/dev/debugging_quantile_checks`

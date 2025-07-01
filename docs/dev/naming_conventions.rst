@@ -27,7 +27,7 @@ names should generally follow this naming convention:
   ``raw``, ``core`` and ``out``. ``layer`` is required for all assets in all layers.
 * ``source`` is an abbreviation of the original source of the data. For example,
   ``eia860``, ``ferc1`` and ``epacems``.
-* ``asset_type`` describes how the asset in modeled.
+* ``asset_type`` describes how the asset is modeled.
 * ``asset_name`` should describe the entity, categorical code type, or measurement of
   the asset. Note: FERC Form 1 assets typically include the schedule number in the
   ``asset_name`` so users and contributors know which schedule the cleaned asset
@@ -52,7 +52,7 @@ well-modeled tables that serve as building blocks for downstream wide tables
 and analyses. Well-modeled means tables in the database have logical
 primary keys, foreign keys, datatypes and generally follow
 :ref:`Tidy Data standards <tidy-data>`. Assets in this layer create
-consistent categorical variables, decuplicate and impute data.
+consistent categorical variables, deduplicate and impute data.
 These assets are typically stored in parquet files or tables in a database.
 
 Naming convention: ``core_{source}__{asset_type}_{asset_name}``
@@ -205,7 +205,7 @@ as we come across them again in maintaining the code.
   (e.g. connect_db), unless the function returns a simple value (e.g. datadir).
 * No duplication of information (e.g. form names).
 * lowercase, underscores separate words (i.e. ``snake_case``).
-* Add a preceeding underscore to semi-private helper functions (functions used
+* Add a preceding underscore to semi-private helper functions (functions used
   within a single module only and not exposed via the public API).
 * When the object is a table, use the full table name (e.g. ingest_fuel_ferc1).
 * When dataframe outputs are built from multiple tables, identify the type of

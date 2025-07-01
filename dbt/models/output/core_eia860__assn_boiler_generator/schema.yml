@@ -1,0 +1,24 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia860__assn_boiler_generator
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_eia860__assn_boiler_generator
+              partition_column: report_date
+          - expect_date_frequency_ratio:
+              compare_model: source("pudl", "out_eia__yearly_generators")
+              multiplier: 1
+              date_column: report_date
+        columns:
+          - name: plant_id_eia
+          - name: report_date
+          - name: generator_id
+          - name: boiler_id
+          - name: unit_id_eia
+          - name: unit_id_pudl
+          - name: boiler_generator_assn_type_code
+          - name: steam_plant_type_code
+          - name: bga_source
+          - name: data_maturity

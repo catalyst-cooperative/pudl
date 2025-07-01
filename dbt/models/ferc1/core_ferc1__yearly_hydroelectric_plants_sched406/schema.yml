@@ -1,0 +1,55 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_ferc1__yearly_hydroelectric_plants_sched406
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_ferc1__yearly_hydroelectric_plants_sched406
+              partition_column: report_year
+          - dbt_utils.unique_combination_of_columns:
+              combination_of_columns:
+                - report_year
+                - utility_id_ferc1
+                - plant_name_ferc1
+                - capacity_mw
+        columns:
+          - name: record_id
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_unique
+          - name: utility_id_ferc1
+          - name: report_year
+          - name: plant_name_ferc1
+          - name: project_num
+          - name: plant_type
+          - name: construction_type
+          - name: construction_year
+          - name: installation_year
+          - name: capacity_mw
+          - name: peak_demand_mw
+          - name: plant_hours_connected_while_generating
+          - name: net_capacity_favorable_conditions_mw
+          - name: net_capacity_adverse_conditions_mw
+          - name: avg_num_employees
+          - name: net_generation_mwh
+          - name: capex_land
+          - name: capex_structures
+          - name: capex_facilities
+          - name: capex_equipment
+          - name: capex_roads
+          - name: asset_retirement_cost
+          - name: capex_total
+          - name: capex_per_mw
+          - name: opex_operations
+          - name: opex_water_for_power
+          - name: opex_hydraulic
+          - name: opex_electric
+          - name: opex_generation_misc
+          - name: opex_rents
+          - name: opex_engineering
+          - name: opex_structures
+          - name: opex_dams
+          - name: opex_plant
+          - name: opex_misc_plant
+          - name: opex_total
+          - name: opex_per_mwh

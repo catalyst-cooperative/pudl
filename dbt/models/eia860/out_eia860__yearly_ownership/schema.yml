@@ -1,0 +1,40 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_eia860__yearly_ownership
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: out_eia860__yearly_ownership
+              partition_column: report_date
+          - expect_date_frequency_ratio:
+              compare_model: source("pudl", "out_eia__yearly_generators")
+              multiplier: 1
+              date_column: report_date
+          - expect_complete_valid_ownership:
+              # Known failures as of June 2025:
+              # 341 CT5 has 1.5 total ownership fraction for 2021, 2022, 2023, 2024
+              # 56032 generator 1 has a 2.0 total ownership fraction in 2024
+              n_acceptable_failures: 5
+          - expect_unique_utility_id_eia
+        columns:
+          - name: report_date
+          - name: plant_id_eia
+          - name: plant_id_pudl
+          - name: plant_name_eia
+          - name: operator_utility_id_eia
+          - name: owner_utility_id_eia
+          - name: utility_id_pudl
+          - name: owner_utility_name_eia
+          - name: generator_id
+          - name: owner_state
+          - name: owner_city
+          - name: owner_country
+          - name: owner_street_address
+          - name: owner_zip_code
+          - name: fraction_owned
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  min_value: 0.0
+                  max_value: 1.0
+          - name: data_maturity

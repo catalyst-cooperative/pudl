@@ -1,0 +1,97 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_ferc1__yearly_steam_plants_fuel_by_plant_sched402
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: out_ferc1__yearly_steam_plants_fuel_by_plant_sched402
+              partition_column: report_year
+          - expect_matching_primary_fuel_by_cost_and_mmbtu
+          - check_column_correlation:
+              column1: gas_fraction_mmbtu
+              column2: gas_fraction_cost
+              correlation_coef: 0.8
+          - check_column_correlation:
+              column1: oil_fraction_mmbtu
+              column2: oil_fraction_cost
+              correlation_coef: 0.8
+          - check_column_correlation:
+              column1: coal_fraction_mmbtu
+              column2: coal_fraction_cost
+              correlation_coef: 0.76
+              description: Reduced from 0.8 to 0.76 in March 2025 to pass etl-fast. Keep an eye on it, and investigate if it gets worse.
+        columns:
+          - name: report_year
+          - name: utility_id_ferc1
+          - name: utility_id_pudl
+          - name: utility_name_ferc1
+          - name: plant_id_pudl
+          - name: plant_name_ferc1
+          - name: coal_fraction_cost
+          - name: coal_fraction_mmbtu
+          - name: fuel_cost
+          - name: fuel_mmbtu
+          - name: gas_fraction_cost
+          - name: gas_fraction_mmbtu
+          - name: nuclear_fraction_cost
+          - name: nuclear_fraction_mmbtu
+          - name: oil_fraction_cost
+          - name: oil_fraction_mmbtu
+          - name: primary_fuel_by_cost
+          - name: primary_fuel_by_mmbtu
+          - name: waste_fraction_cost
+          - name: waste_fraction_mmbtu
+models:
+  - name: validate_ferc1__yearly_steam_plants_fuel_by_plant_sched402
+    description: >
+      This is a validation model which takes the above table as input and computes
+      values more convenient for testing, including:
+
+      - total cost and mmbtu fractions for range tests
+      - fuel costs per mmbtu for quantile and median tests
+    columns:
+      - name: gas_cost_per_mmbtu
+        data_tests:
+          - expect_quantile_constraints:
+              constraints:
+                - quantile: 0.05
+                  min_value: 1.5
+                - quantile: 0.9
+                  max_value: 15.0
+                - quantile: 0.5
+                  min_value: 2.0
+                  max_value: 10.0
+      - name: oil_cost_per_mmbtu
+        data_tests:
+          - expect_quantile_constraints:
+              constraints:
+                - quantile: 0.1
+                  min_value: 3.5
+                - quantile: 0.9
+                  max_value: 26.1
+                - quantile: 0.5
+                  min_value: 6.5
+                  max_value: 17.0
+              description: Quantile 0.9 raised from 25.0 to 26.1 April 2025 to pass etl-fast. Keep an eye on it, and investigate if it gets worse.
+      - name: coal_cost_per_mmbtu
+        data_tests:
+          - expect_quantile_constraints:
+              constraints:
+                - quantile: 0.1
+                  min_value: 0.75
+                - quantile: 0.95
+                  max_value: 4.5
+                - quantile: 0.5
+                  min_value: 1.0
+                  max_value: 2.5
+      - name: total_cost_fraction
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0.999999
+              max_value: 1.000001
+      - name: total_mmbtu_fraction
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0.999999
+              max_value: 1.000001

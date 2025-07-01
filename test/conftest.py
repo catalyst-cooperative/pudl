@@ -7,6 +7,7 @@ import logging
 from pathlib import Path
 from typing import Any
 
+import duckdb
 import pydantic
 import pytest
 import sqlalchemy as sa
@@ -32,7 +33,6 @@ from pudl.io_managers import (
     pudl_mixed_format_io_manager,
 )
 from pudl.metadata import PUDL_PACKAGE
-from pudl.output.pudltabl import PudlTabl
 from pudl.settings import (
     DatasetsSettings,
     EtlSettings,
@@ -48,6 +48,13 @@ AS_MS_ONLY_FREQ_TABLES = [
     "gen_eia923",
     "gen_fuel_by_generator_eia923",
 ]
+
+# In general we run our tests and some subprocesses using more than one thread, and
+# sometimes we access remote HTTPS / S3 resources. When this happens it's possible
+# for DuckDB to get confused about whether the httpfs extension is installed and error
+# out if one processes is trying to install it after another one already has. Doing
+# this forced installation during setup avoids that issue.
+duckdb.execute("FORCE INSTALL httpfs")
 
 
 def pytest_addoption(parser):
@@ -153,55 +160,6 @@ def ferc_to_sqlite_parameters(etl_settings: EtlSettings) -> FercToSqliteSettings
 def pudl_etl_parameters(etl_settings: EtlSettings) -> DatasetsSettings:
     """Read PUDL ETL parameters out of test settings dictionary."""
     return etl_settings.datasets
-
-
-@pytest.fixture(scope="session", params=["YS"], ids=["ferc1_annual"])
-def pudl_out_ferc1(live_dbs: bool, pudl_engine: sa.Engine, request) -> PudlTabl:
-    """Define parameterized PudlTabl output object fixture for FERC 1 tests."""
-    if not live_dbs:
-        pytest.skip("Validation tests only work with a live PUDL DB.")
-    return PudlTabl(pudl_engine=pudl_engine, freq=request.param)
-
-
-@pytest.fixture(
-    scope="session",
-    params=[None, "YS", "MS"],
-    ids=["eia_raw", "eia_annual", "eia_monthly"],
-)
-def pudl_out_eia(live_dbs: bool, pudl_engine: sa.Engine, request) -> PudlTabl:
-    """Define parameterized PudlTabl output object fixture for EIA tests."""
-    if not live_dbs:
-        pytest.skip("Validation tests only work with a live PUDL DB.")
-    return PudlTabl(
-        pudl_engine=pudl_engine,
-        freq=request.param,
-        fill_fuel_cost=True,
-        roll_fuel_cost=True,
-        fill_net_gen=True,
-    )
-
-
-@pytest.fixture(scope="session", name="fast_out_annual")
-def fast_out_annual(
-    pudl_engine: sa.Engine,
-    pudl_datastore_fixture: Datastore,
-) -> PudlTabl:
-    """A PUDL output object for use in CI."""
-    return PudlTabl(
-        pudl_engine,
-        freq="YS",
-        fill_fuel_cost=True,
-        roll_fuel_cost=True,
-        fill_net_gen=True,
-    )
-
-
-@pytest.fixture(scope="session")
-def pudl_out_orig(live_dbs: bool, pudl_engine: sa.Engine) -> PudlTabl:
-    """Create an unaggregated PUDL output object for checking raw data."""
-    if not live_dbs:
-        pytest.skip("Validation tests only work with a live PUDL DB.")
-    return PudlTabl(pudl_engine=pudl_engine)
 
 
 @pytest.fixture(scope="session")

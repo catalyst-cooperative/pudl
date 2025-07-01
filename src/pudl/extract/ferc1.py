@@ -31,7 +31,7 @@ PUDL uses the most recently released year of DBF data (2020) as a template for t
 database schema, since it is capable of containing all the= fields and tables found in
 the other years.  The structure of the database is also informed by other documentation
 we have been able to compile over the years from the FERC website and other sources.
-Copies of these resoruces are included in the :doc:`FERC Form 1 data source
+Copies of these resources are included in the :doc:`FERC Form 1 data source
 documentation </data_sources/ferc1>`
 
 Using this inferred structure PUDL creates an SQLite database mirroring the FERC
@@ -74,7 +74,7 @@ import pandas as pd
 import sqlalchemy as sa
 from dagster import (
     AssetKey,
-    SourceAsset,
+    AssetSpec,
     asset,
     build_init_resource_context,
     build_input_context,
@@ -342,14 +342,15 @@ class Ferc1DbfExtractor(FercDbfExtractor):
 
 
 # DAGSTER ASSETS
-def create_raw_ferc1_assets() -> list[SourceAsset]:
-    """Create SourceAssets for raw ferc1 tables.
+def create_raw_ferc1_assets() -> list[AssetSpec]:
+    """Create AssetSpecs for raw ferc1 tables.
 
-    SourceAssets allow you to access assets that are generated elsewhere.
-    In our case, the xbrl and dbf database are created in a separate dagster Definition.
+    An :class:`dagster.AssetSpec` allows you to access assets that are generated
+    elsewhere.  In our case, the xbrl and dbf database are created in a separate dagster
+    Definition.
 
     Returns:
-        A list of ferc1 SourceAssets.
+        A list of ferc1 AssetSpecs.
     """
     # Deduplicate the table names because f1_elctrc_erg_acct feeds into multiple pudl tables.
     dbfs = (v["dbf"] for v in TABLE_NAME_MAP_FERC1.values())
@@ -358,9 +359,8 @@ def create_raw_ferc1_assets() -> list[SourceAsset]:
     )
     dbf_table_names = tuple(set(flattened_dbfs))
     raw_ferc1_dbf_assets = [
-        SourceAsset(
-            key=AssetKey(f"raw_ferc1_dbf__{table_name}"),
-            io_manager_key="ferc1_dbf_sqlite_io_manager",
+        AssetSpec(key=AssetKey(f"raw_ferc1_dbf__{table_name}")).with_io_manager_key(
+            "ferc1_dbf_sqlite_io_manager"
         )
         for table_name in dbf_table_names
     ]
@@ -375,9 +375,8 @@ def create_raw_ferc1_assets() -> list[SourceAsset]:
     )
     xbrl_table_names = tuple(set(xbrls_with_periods))
     raw_ferc1_xbrl_assets = [
-        SourceAsset(
-            key=AssetKey(f"raw_ferc1_xbrl__{table_name}"),
-            io_manager_key="ferc1_xbrl_sqlite_io_manager",
+        AssetSpec(key=AssetKey(f"raw_ferc1_xbrl__{table_name}")).with_io_manager_key(
+            "ferc1_xbrl_sqlite_io_manager"
         )
         for table_name in xbrl_table_names
     ]
@@ -546,7 +545,7 @@ def extract_xbrl(
 
     Returns:
         A dictionary where keys are the names of the PUDL database tables, values are
-        dictionaries of DataFrames coresponding to the instant and duration tables from
+        dictionaries of DataFrames corresponding to the instant and duration tables from
         the XBRL derived FERC 1 database.
     """
     ferc1_xbrl_raw_dfs = {}

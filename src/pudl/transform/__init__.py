@@ -32,7 +32,7 @@ This raw data is transformed in 3 main steps:
    may need to set them individually, rather than using the systemwide dictionary of
    column data types.
 
-3. Value based data cleaning: At this point every column should have a known, homogenous
+3. Value based data cleaning: At this point every column should have a known, homogeneous
    type, allowing it to be reliably manipulated as a Series, so we can move on to
    cleaning up the values themselves. This includes re-coding freeform string fields to
    impose a controlled vocabulary, converting column units (e.g. kWh to MWh) and
@@ -61,6 +61,7 @@ tables is normalized as a whole.
 """
 
 from . import (
+    censuspep,
     classes,
     eia,
     eia176,
@@ -69,8 +70,8 @@ from . import (
     eia861,
     eia923,
     eia930,
-    eia_bulk_elec,
     eiaaeo,
+    eiaapi,
     epacems,
     ferc,
     ferc1,
@@ -78,5 +79,6 @@ from . import (
     gridpathratoolkit,
     nrelatb,
     params,
+    sec10k,
     vcerare,
 )

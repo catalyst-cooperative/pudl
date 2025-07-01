@@ -1,0 +1,29 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_ferc1__yearly_small_plants_sched410
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_ferc1__yearly_small_plants_sched410
+              partition_column: report_year
+        columns:
+          - name: record_id
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_unique
+          - name: utility_id_ferc1
+          - name: report_year
+          - name: plant_name_ferc1
+          - name: plant_type
+          - name: license_id_ferc1
+          - name: construction_year
+          - name: capacity_mw
+          - name: peak_demand_mw
+          - name: net_generation_mwh
+          - name: capex_total
+          - name: capex_per_mw
+          - name: opex_operations
+          - name: opex_fuel
+          - name: opex_maintenance
+          - name: fuel_type
+          - name: fuel_cost_per_mmbtu

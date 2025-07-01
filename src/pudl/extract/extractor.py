@@ -19,6 +19,7 @@ from dagster import (
 )
 
 import pudl
+from pudl.workspace.datastore import Datastore
 
 StrInt = str | int
 PartitionSelection = list[StrInt] | tuple[StrInt] | StrInt
@@ -67,7 +68,12 @@ class GenericMetadata:
         for res_path in importlib.resources.files(column_map_pkg).iterdir():
             # res_path is expected to end with ${page}.csv
             if res_path.suffix == ".csv":
-                column_map = self._load_csv(column_map_pkg, res_path.name)
+                try:
+                    column_map = self._load_csv(column_map_pkg, res_path.name)
+                except pd.errors.ParserError as e:
+                    raise AssertionError(
+                        f"Expected well-formed column map file at {column_map_pkg} {res_path.name}"
+                    ) from e
                 column_dict[res_path.stem] = column_map
         return column_dict
 
@@ -116,11 +122,11 @@ class GenericExtractor(ABC):
     BLACKLISTED_PAGES = []
     """List of supported pages that should not be extracted."""
 
-    def __init__(self, ds):
+    def __init__(self, ds: Datastore):
         """Create new extractor object and load metadata.
 
         Args:
-            ds (datastore.Datastore): An initialized datastore, or subclass
+            ds: An initialized datastore, or subclass
         """
         if not self.METADATA:
             raise NotImplementedError("self.METADATA must be set.")

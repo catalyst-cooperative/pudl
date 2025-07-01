@@ -1,0 +1,23 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_ferc1__yearly_rate_base
+        columns:
+          - name: report_year
+          - name: utility_id_ferc1
+          - name: utility_id_pudl
+          - name: utility_name_ferc1
+          - name: utility_type
+          - name: plant_function
+          - name: plant_status
+          - name: xbrl_factoid
+          - name: ending_balance
+          - name: utility_type_other
+          - name: rate_base_category
+          - name: ferc_account
+          - name: row_type_xbrl
+          - name: record_id
+          - name: is_disaggregated_utility_type
+          - name: is_disaggregated_in_rate_base
+          - name: table_name

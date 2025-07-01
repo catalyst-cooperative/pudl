@@ -4,12 +4,13 @@ The functions in this module are used in various stages of the ETL and post-etl
 processes. They are usually not dataset specific, but not always. If a function is
 designed to be used as a general purpose tool, applicable in multiple scenarios, it
 should probably live here. There are lost of transform type functions in here that help
-with cleaning and restructing dataframes.
+with cleaning and restructuring dataframes.
 """
 
 import importlib.resources
 import itertools
 import json
+import multiprocessing
 import pathlib
 import re
 import shutil
@@ -20,14 +21,14 @@ from functools import partial
 from io import BytesIO
 from typing import Any, Literal, NamedTuple
 
-import addfips
 import datasette
 import numpy as np
 import pandas as pd
+import pyarrow.parquet as pq
 import requests
 import sqlalchemy as sa
 import yaml
-from dagster import AssetKey, AssetsDefinition, AssetSelection, SourceAsset
+from dagster import AssetKey, AssetsDefinition, AssetSelection, AssetSpec
 from pandas._libs.missing import NAType
 
 import pudl.logging_helpers
@@ -65,7 +66,7 @@ def label_map(
             and ``to_col``.
         from_col: Label of column containing the existing codes to be replaced.
         to_col: Label of column containing the new codes to be swapped in.
-        null_value: Defualt (Null) value to map to when a value which doesn't
+        null_value: Default (Null) value to map to when a value which doesn't
             appear in ``from_col`` is encountered.
 
 
@@ -190,52 +191,119 @@ def download_zip_url(
 
 def add_fips_ids(
     df: pd.DataFrame,
+    geocodes: pd.DataFrame,
     state_col: str = "state",
     county_col: str = "county",
-    vintage: int = 2015,
 ) -> pd.DataFrame:
     """Add State and County FIPS IDs to a dataframe.
 
     To just add State FIPS IDs, make county_col = None.
     """
-    # force the columns to be the nullable string types so we have a consistent
-    # null value to filter out before feeding to addfips
-    df = df.astype({state_col: pd.StringDtype()})
+    df = add_state_id_fips(df, geocodes, state_col)
     if county_col:
-        df = df.astype({county_col: pd.StringDtype()})
-    af = addfips.AddFIPS(vintage=vintage)
-    # Lookup the state and county FIPS IDs and add them to the dataframe:
-    df["state_id_fips"] = df.apply(
-        lambda x: (
-            af.get_state_fips(state=x[state_col]) if pd.notnull(x[state_col]) else pd.NA
-        ),
-        axis=1,
+        df = add_county_fips_id(df, geocodes, county_col)
+    return df
+
+
+def add_state_id_fips(
+    df: pd.DataFrame, geocodes: pd.DataFrame, state_col: str
+) -> pd.DataFrame:
+    """Add the State FIPS codes."""
+    states = (
+        geocodes.loc[geocodes["fips_level"] == "040", ["state", "state_id_fips"]]
+        .rename(columns={"state": state_col})
+        .drop_duplicates()
     )
-
-    # force the code columns to be nullable strings - the leading zeros are
-    # important
-    df = df.astype({"state_id_fips": pd.StringDtype()})
-
+    df = df.merge(states, on=state_col, how="left", validate="m:1")
     logger.info(
         f"Assigned state FIPS codes for "
         f"{len(df[df.state_id_fips.notnull()]) / len(df):.2%} of records."
     )
-    if county_col:
-        df["county_id_fips"] = df.apply(
-            lambda x: (
-                af.get_county_fips(state=x[state_col], county=x[county_col])
-                if pd.notnull(x[county_col]) and pd.notnull(x[state_col])
-                else pd.NA
-            ),
-            axis=1,
+    return df
+
+
+def add_county_fips_id(
+    df: pd.DataFrame, geocodes: pd.DataFrame, county_col: str
+) -> pd.DataFrame:
+    """Add the County FIPS codes to a table with State FIPS codes."""
+
+    def _clean_area_name_col(area_name_col: pd.Series, replace_dict: dict):
+        """Clean a area name column - meant for use in FIPS code adding."""
+        return area_name_col.str.lower().replace(to_replace=replace_dict, regex=True)
+
+    diacritics = {
+        r"ñ": "n",
+        r"'": "",
+        r"ó": "o",
+        r"í": "i",
+        r"á": "a",
+        r"ü": "u",
+        r"é": "e",
+        r"î": "i",
+        r"è": "e",
+        r"à": "a",
+        r"ì": "i",
+        r"å": "a",
+    }
+    abbrevs = {"ft. ": "fort ", "st. ": "saint ", "ste. ": "sainte "}
+
+    county_types = {
+        r" (county|city|city and borough|borough|census area|municipio|municipality|district|parish|island)$": ""
+    }
+
+    # compile the counties.
+    counties = geocodes.loc[
+        geocodes["fips_level"] == "050",
+        ["area_name", "state_id_fips", "county_id_fips"],
+    ]  # compile all of the many possible ways these county columns could show up.
+    counties = pd.concat(
+        [
+            counties.assign(
+                county_tmp=_clean_area_name_col(counties["area_name"], replace_dict)
+            )
+            for replace_dict in [
+                {},
+                diacritics | abbrevs,
+                county_types,
+                diacritics | abbrevs | county_types,
+                county_types | {"'s": "s"},
+            ]
+        ]
+    ).drop_duplicates()
+
+    # see assertion note below. we keep the city records because all instances
+    # of the city as county reported we've seen always note lone city as county
+    # name instead of lone county. There is one exception which is Bedford.. #3531
+    city_county_dupe_mask = counties.duplicated(
+        ["state_id_fips", "county_tmp"], keep=False
+    ) & (
+        (
+            counties.area_name.str.lower().str.contains("county|borough")
+            & ~counties.area_name.str.lower().str.contains("bedford")
         )
-        # force the code columns to be nullable strings - the leading zeros are
-        # important
-        df = df.astype({"county_id_fips": pd.StringDtype()})
-        logger.info(
-            f"Assigned county FIPS codes for "
-            f"{len(df[df.county_id_fips.notnull()]) / len(df):.2%} of records."
+        | (counties.area_name.str.lower() == "bedford city")
+    )
+    if len(city_county_dupes := counties[city_county_dupe_mask]) > 9:
+        raise AssertionError(
+            "We expect there to be 9 county records that have the same name and state "
+            "but have different county fips codes. This is due to pair counties that have "
+            "a city jurisdiction and a corresponding county jurisdiction (ex. Baltimore "
+            "County and Baltimore City which is also a county). We found "
+            f"{len(city_county_dupes)}:\n{city_county_dupes.sort_values('county_tmp')}"
         )
+    counties = counties[~city_county_dupe_mask]
+
+    df = (
+        df.astype({county_col: pd.StringDtype()})
+        .assign(county_tmp=lambda x: _clean_area_name_col(x[county_col], {}))
+        .merge(counties, on=["state_id_fips", "county_tmp"], how="left", validate="m:1")
+        .drop(columns=["county_tmp", "area_name"])
+    )
+
+    logger.info(
+        f"Assigned county FIPS codes for "
+        f"{len(df[df.county_id_fips.notnull()]) / len(df):.2%} of records."
+    )
     return df
 
 
@@ -245,7 +313,7 @@ def clean_eia_counties(
     state_col: str = "state",
     county_col: str = "county",
 ) -> pd.DataFrame:
-    """Replace non-standard county names with county nmes from US Census."""
+    """Replace non-standard county names with county names from US Census."""
     df = df.copy()
     df[county_col] = (
         df[county_col]
@@ -369,7 +437,7 @@ def is_doi(doi: str) -> bool:
     """Determine if a string is a valid digital object identifier (DOI).
 
     Function simply checks whether the offered string matches a regular
-    expresssion -- it doesn't check whether the DOI is actually registered
+    expression -- it doesn't check whether the DOI is actually registered
     with the relevant authority.
 
     Args:
@@ -491,7 +559,8 @@ def date_merge(
             ``on`` argument.
         right: The right dataframe in the merge. Typically annual in our uses
             cases if doing a left merge E.g. ``core_eia860__scd_generators``.
-            Must contain columns specified by ``right_date_col`` and ``on`` argument.
+            Must contain columns specified by ``right_date_col`` and
+            ``on`` argument.
         on: The columns to merge on that are shared between both
             dataframes. Typically ID columns like ``plant_id_eia``, ``generator_id``
             or ``boiler_id``.
@@ -840,9 +909,9 @@ def fix_int_na(
 
     """
     return (
-        df.replace({c: float_na for c in columns}, int_na)
-        .astype({c: int for c in columns})
-        .astype({c: str for c in columns})
+        df.replace(dict.fromkeys(columns, float_na), int_na)
+        .astype(dict.fromkeys(columns, int))
+        .astype(dict.fromkeys(columns, str))
         .replace({c: str(int_na) for c in columns}, str_na)
     )
 
@@ -982,7 +1051,7 @@ def remove_leading_zeros_from_numeric_strings(
     zeros and sometimes it won't. For example, in the Excel spreadsheets published by
     EIA, the same generator may show up with the ID "0001" and "1" in different years
     This function strips the leading zeros from those numeric strings so the data can
-    be mapped accross years and datasets more reliably.
+    be mapped across years and datasets more reliably.
 
     Alphanumeric generator IDs with leadings zeroes are not affected, as we found no
     instances in which an alphanumeric ID appeared both with and without leading zeroes.
@@ -1062,7 +1131,7 @@ def drop_tables(engine: sa.Engine, clobber: bool = False) -> None:
     drop all existing tables.
 
     Args:
-        engine: An SQL Alchemy SQLite database Engine pointing at an exising SQLite
+        engine: An SQL Alchemy SQLite database Engine pointing at an existing SQLite
             database to be deleted.
         clobber: Whether or not to allow a non-empty DB to be removed.
 
@@ -1085,7 +1154,7 @@ def drop_tables(engine: sa.Engine, clobber: bool = False) -> None:
 
 
 def merge_dicts(lods: list[dict[Any, Any]]) -> dict[Any, Any]:
-    """Merge multipe dictionaries together.
+    """Merge multiple dictionaries together.
 
     Given any number of dicts, shallow copy and merge into a new dict, precedence goes
     to key value pairs in latter dicts within the input list.
@@ -1176,9 +1245,9 @@ def convert_cols_dtypes(
         df = df.astype({"utility_id_eia": "float"})
     df = (
         df.astype(non_bool_cols)
-        .astype({col: "boolean" for col in bool_cols})
-        .replace(to_replace="nan", value={col: pd.NA for col in string_cols})
-        .replace(to_replace="<NA>", value={col: pd.NA for col in string_cols})
+        .astype(dict.fromkeys(bool_cols, "boolean"))
+        .replace(to_replace="nan", value=dict.fromkeys(string_cols, pd.NA))
+        .replace(to_replace="<NA>", value=dict.fromkeys(string_cols, pd.NA))
     )
 
     # Zip codes are highly correlated with datatype. If they datatype gets
@@ -1255,10 +1324,9 @@ def fillna_w_rolling_avg(
     window: int = 12,
     **kwargs,
 ) -> pd.DataFrame:
-    """Filling NaNs with a rolling average.
+    """Fill NA values with a rolling average.
 
-    Imputes null values from a dataframe on a rolling monthly average. To note,
-    this was designed to work with the PudlTabl object's tables.
+    Imputes null values from a dataframe using a rolling monthly average.
 
     Args:
         df_og: Original dataframe. Must have ``group_cols`` columns, a ``data_col``
@@ -1440,9 +1508,9 @@ def get_working_dates_by_datasource(datasource: str) -> pd.DatetimeIndex:
 def dedupe_on_category(
     dedup_df: pd.DataFrame, base_cols: list[str], category_name: str, sorter: list[str]
 ) -> pd.DataFrame:
-    """Deduplicate a df using a sorted category to retain prefered values.
+    """Deduplicate a df using a sorted category to retain preferred values.
 
-    Use a sorted category column to retain your prefered values when a
+    Use a sorted category column to retain your preferred values when a
     dataframe is deduplicated.
 
     Args:
@@ -1513,33 +1581,6 @@ def drop_records_with_null_in_column(
     return df.dropna(subset=[column])
 
 
-def drop_all_null_records_with_multiindex(
-    df: pd.DataFrame, idx_cols: list[str], idx_records: list[tuple[str | int | bool]]
-) -> pd.DataFrame:
-    """Given a set of multi-index values, drop expected all null rows.
-
-    Take a dataframe, and check that a row with given values in idx_cols (e.g.,
-    plant_id_eia, generator_id) is null in all other rows. If so, drop these rows from
-    the dataframe. If not, raise an assertion error to prevent accidentally dropping
-    data.
-
-    Args:
-        df: table with data to drop.
-        idx_cols: list of multi-index columns to index against.
-        idx_records: corresponding index values for each row to be dropped.
-
-    Raises:
-        AssertionError: If there is data in the expected rows.
-    """
-    # ensure there isn't more than the expected number of nulls before dropping
-    df = df.set_index(idx_cols)
-    assert df.loc[idx_records].isnull().all().all(), (
-        "Non-null data found where no data was expected:",
-        f"{df.loc[idx_records].dropna(axis='columns', how='all')}",
-    )  # Make sure all values in all rows and columns here are null
-    return df.drop(idx_records).reset_index()
-
-
 def standardize_percentages_ratio(
     frac_df: pd.DataFrame,
     mixed_cols: list[str],
@@ -1588,7 +1629,7 @@ def calc_capacity_factor(
 ) -> pd.DataFrame:
     """Calculate capacity factor.
 
-    Capacity factor is calcuated from the capcity, the net generation over a
+    Capacity factor is calculated from the capacity, the net generation over a
     time period and the hours in that same time period. The dates from that
     dataframe are pulled out to determine the hours in each period based on
     the frequency. The number of hours is used in calculating the capacity
@@ -1648,7 +1689,7 @@ def weighted_average(
             parameters data_col and weight_col.
         data_col: column name of data column to average
         weight_col: column name to weight on
-        by: List of columns to group by when calcuating the weighted average value.
+        by: List of columns to group by when calculating the weighted average value.
 
     Returns:
         A table with ``by`` columns as the index and the weighted ``data_col``.
@@ -1671,7 +1712,7 @@ def sum_and_weighted_average_agg(
 ) -> pd.DataFrame:
     """Aggregate dataframe by summing and using weighted averages.
 
-    Many times we want to aggreate a data table using the same groupby columns but with
+    Many times we want to aggregate a data table using the same groupby columns but with
     different aggregation methods. This function combines two of our most common
     aggregation methods (summing and applying a weighted average) into one function.
     Because pandas does not have a built-in weighted average method for groupby we use
@@ -1708,11 +1749,11 @@ def get_eia_ferc_acct_map() -> pd.DataFrame:
     Returns:
         pandas.DataFrame: table which maps the combination of EIA's technology
             description and prime mover code to FERC Uniform System of Accounts
-            (USOA) accouting names. Read more about USOA
+            (USOA) accounting names. Read more about USOA
             `here
             <https://www.ferc.gov/enforcement-legal/enforcement/accounting-matters>`__
-            The output table has the following columns: `['technology_description',
-            'prime_mover_code', 'ferc_acct_name']`
+            The output table has the following columns: ``['technology_description',
+            'prime_mover_code', 'ferc_acct_name']``
     """
     eia_ferc_acct_map = pd.read_csv(
         importlib.resources.files("pudl.package_data.glue")
@@ -1757,22 +1798,22 @@ def convert_df_to_excel_file(df: pd.DataFrame, **kwargs) -> pd.ExcelFile:
 
 
 def get_asset_keys(
-    assets: list[AssetsDefinition], exclude_source_assets: bool = True
+    assets: list[AssetsDefinition], exclude_asset_specs: bool = True
 ) -> set[AssetKey]:
     """Get a set of asset keys from a list of asset definitions.
 
     Args:
         assets: list of asset definitions.
-        exclude_source_assets: exclude SourceAssets in the returned list.
-            Some selection operations don't allow SourceAsset keys.
+        exclude_asset_specs: exclude AssetSpecs in the returned list.
+            Some selection operations don't allow AssetSpec keys.
 
     Returns:
         A set of asset keys.
     """
     asset_keys = set()
     for asset in assets:
-        if isinstance(asset, SourceAsset):
-            if not exclude_source_assets:
+        if isinstance(asset, AssetSpec):
+            if not exclude_asset_specs:
                 asset_keys = asset_keys.union(asset.key)
         else:
             asset_keys = asset_keys.union(asset.keys)
@@ -1825,7 +1866,7 @@ def convert_col_to_bool(
         x for x in df[col_name].dropna().unique() if x not in true_values + false_values
     ]:
         raise AssertionError(
-            "Found values besides NA that are not categoriezed as True or False: "
+            "Found values besides NA that are not categorized as True or False: "
             f"{unspecified_values}"
         )
     if [x for x in true_values if x in false_values]:
@@ -1854,7 +1895,7 @@ def fix_boolean_columns(
     have "U" values, presumably for "Unknown," which must be set to null in order to
     convert the columns to datatype Boolean.
     """
-    fillna_cols = {col: pd.NA for col in boolean_columns_to_fix}
+    fillna_cols = dict.fromkeys(boolean_columns_to_fix, pd.NA)
     boolean_replace_cols = {
         col: {"Y": True, "N": False, "X": False, "U": pd.NA}
         for col in boolean_columns_to_fix
@@ -1876,7 +1917,7 @@ def scale_by_ownership(
     relatively clearly in their ownership table. On the other hand, in
     FERC1, sometimes a partial owner reports the full plant-part, sometimes
     they report only their ownership portion of the plant-part. And of
-    course it is not labeld in FERC1. Because of this, we need to compile
+    course it is not labeled in FERC1. Because of this, we need to compile
     all of the possible ownership slices of the EIA generators.
 
     In order to accumulate every possible version of how a generator could
@@ -1946,7 +1987,7 @@ def scale_by_ownership(
         .rename(columns={"owner_utility_id_eia": "utility_id_eia"})
     )
 
-    # duplicate all of these "owned" records, asign 1 to all of the
+    # duplicate all of these "owned" records, assign 1 to all of the
     # fraction_owned column to indicate 100% ownership, and add these new
     # "total" records to the "owned"
     gens = pd.concat(
@@ -1967,9 +2008,13 @@ def get_dagster_execution_config(
     """Get the dagster execution config for a given number of workers.
 
     If num_workers is 0, then the dagster execution config will not include
-    any limits. With num_workesr set to 1, we will use in-process serial
+    any limits. With num_workers set to 1, we will use in-process serial
     executor, otherwise multi-process executor with maximum of num_workers
     will be used.
+
+    If we use the multi-process executor AND the ``forkserver`` start method is
+    available, we pre-import the ``pudl`` package in the template process. This
+    allows us to reduce the startup latency of each op.
 
     Args:
         num_workers: The number of workers to use for the dagster execution config.
@@ -1979,11 +2024,12 @@ def get_dagster_execution_config(
             particular tags. This is helpful for applying concurrency limits to
             highly concurrent and memory intensive portions of the ETL like CEMS.
 
-            Dagster description: If a value is set, the limit is applied to only
-            that key-value pair. If no value is set, the limit is applied across
-            all values of that key. If the value is set to a dict with
-            `applyLimitPerUniqueValue: true`, the limit will apply to the number
-            of unique values for that key. Note that these limits are per run, not global.
+            Dagster description: If a value is set, the limit is applied to
+            only that key-value pair. If no value is set, the limit is applied
+            across all values of that key. If the value is set to a dict with
+            `applyLimitPerUniqueValue: true`, the limit will apply to the
+            number of unique values for that key. Note that these limits are
+            per run, not global.
 
     Returns:
         A dagster execution config.
@@ -1996,12 +2042,18 @@ def get_dagster_execution_config(
                 },
             },
         }
+
+    start_method_config = {}
+    if "forkserver" in multiprocessing.get_all_start_methods():
+        start_method_config = {"forkserver": {"preload_modules": ["pudl"]}}
+
     return {
         "execution": {
             "config": {
                 "multiprocess": {
                     "max_concurrent": num_workers,
                     "tag_concurrency_limits": tag_concurrency_limits,
+                    "start_method": start_method_config,
                 },
             },
         },
@@ -2185,3 +2237,59 @@ def retry(
             )
             time.sleep(delay)
     return func(**kwargs)
+
+
+def get_parquet_table(
+    table_name: str,
+    columns: list[str] | None = None,
+    filters: list[tuple[str, str, Any]]
+    | list[list[tuple[str, str, Any]]]
+    | None = None,
+) -> pd.DataFrame:
+    """Read a table from Parquet files with optional column selection and filtering.
+
+    This function provides a general-purpose interface for reading PUDL tables from
+    Parquet files. It supports selective column reading for performance, optional
+    filters for data subsetting, and automatic schema validation.
+
+    Args:
+        table_name: Name of the table to read.
+        columns: List of columns to read. If None, all columns are read.
+        filters: Optional filters to apply when reading the Parquet file. See the
+            :func:`pyarrow.parquet.read_table` documentation for details on filter
+            syntax. If None, no filters are applied.
+
+    Returns:
+        DataFrame with the requested data, with PUDL schema validation applied.
+
+    Raises:
+        FileNotFoundError: If the Parquet file for the table doesn't exist.
+        ValueError: If the table_name is not a valid PUDL resource.
+    """
+    # Import here to avoid circular imports
+    from pudl.metadata.classes import Resource
+
+    paths = PudlPaths()
+
+    # Get the Parquet file path
+    parquet_path = paths.parquet_path(table_name)
+
+    # Get the schema for validation
+    resource = Resource.from_id(table_name)
+    pyarrow_schema = resource.to_pyarrow()
+
+    # Read the Parquet file
+    df = pq.read_table(
+        source=parquet_path,
+        schema=pyarrow_schema,
+        columns=columns,
+        filters=filters,
+        use_threads=True,
+        memory_map=True,
+    ).to_pandas()
+
+    # Only enforce schema if we're reading all columns
+    if columns is None:
+        return resource.enforce_schema(df)
+    # For specific columns, apply PUDL dtypes for the columns we have
+    return apply_pudl_dtypes(df, group=resource.field_namespace)

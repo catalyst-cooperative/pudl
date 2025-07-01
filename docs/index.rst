@@ -21,6 +21,7 @@ pages for each source:
 * :doc:`data_sources/eia860`
 * :doc:`data_sources/eia861`
 * :doc:`data_sources/eia923`
+* :doc:`data_sources/eia930`
 * :doc:`data_sources/epacems`
 * :doc:`data_sources/ferc1`
 * :doc:`data_sources/ferc714`
@@ -173,11 +174,9 @@ variety of output tables that contain all of the useful information in one place
 some cases, like with EIA, the output tables are composed to closely resemble the raw
 spreadsheet tables you're familiar with.
 
-The Output layer also contains tables produced by analytical routines for
-calculating derived values like the heat rate by generation unit (:meth:`hr_by_unit
-<pudl.output.pudltabl.PudlTabl.hr_by_unit>`) or the capacity factor by generator
-(:meth:`capacity_factor <pudl.output.pudltabl.PudlTabl.capacity_factor>`). We intend to
-integrate more analytical outputs into the library over time.
+The Output layer also contains tables produced by analytical routines for calculating
+derived values like the heat rate by generation unit, the capacity factor by
+generator, or hourly electricity demand with missing and outlying values imputed.
 
 .. seealso::
 
@@ -248,11 +247,7 @@ Gigawatt Tier (≥$25,000/year)
 Megawatt Tier (≥$16,000/year)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. image:: images/logos/ZEROLab.png
-   :width: 400
-   :target: https://zero.lab.princeton.edu/
-   :alt: ZERO Lab at Princeton University
-   :align: center
+Become our first `Megawatt tier sustainer <https://opencollective.com/pudl>`__!
 
 Kilowatt Tier (≥$8,000/year)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -297,8 +292,10 @@ Enable Open Source Ecosystems (POSE) program
 
   About PUDL <self>
   data_access
+  PUDL Database Viewer <https://viewer.catalyst.coop>
   data_sources/index
   data_dictionaries/index
+  methodology/index
   Contributing <CONTRIBUTING>
   dev/index
   Licensing <LICENSE>

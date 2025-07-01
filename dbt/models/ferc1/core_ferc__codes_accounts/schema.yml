@@ -1,0 +1,12 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_ferc__codes_accounts
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: core_ferc__codes_accounts
+              partition_column: null
+        columns:
+          - name: ferc_account_id
+          - name: ferc_account_description

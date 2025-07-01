@@ -1,0 +1,31 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_eia923__yearly_generation_fuel_combined
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: out_eia923__yearly_generation_fuel_combined
+              partition_column: report_date
+          - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
+              column_A: fuel_consumed_mmbtu
+              column_B: fuel_consumed_for_electricity_mmbtu
+              or_equal: True
+        columns:
+          - name: report_date
+          - name: plant_id_eia
+          - name: plant_id_pudl
+          - name: plant_name_eia
+          - name: utility_id_eia
+          - name: utility_id_pudl
+          - name: utility_name_eia
+          - name: energy_source_code
+          - name: fuel_type_code_pudl
+          - name: prime_mover_code
+          - name: fuel_consumed_units
+          - name: fuel_consumed_for_electricity_units
+          - name: fuel_mmbtu_per_unit
+          - name: fuel_consumed_mmbtu
+          - name: fuel_consumed_for_electricity_mmbtu
+          - name: net_generation_mwh
+          - name: data_maturity

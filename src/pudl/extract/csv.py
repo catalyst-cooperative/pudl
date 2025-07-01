@@ -23,7 +23,7 @@ class CsvExtractor(GenericExtractor):
     """Keyword arguments that are passed to :meth:`pandas.read_csv`.
 
     These allow customization of the CSV parsing process. For example, you can specify
-    the column delimeter, data types, date parsing, etc. This can greatly reduce peak
+    the column delimiter, data types, date parsing, etc. This can greatly reduce peak
     memory usage and speed up the extraction process. Unfortunately you must refer to
     the column headers using their original names as they appear in the CSV.
 

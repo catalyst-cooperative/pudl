@@ -1,0 +1,207 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_eia__monthly_generators
+        data_tests:
+          - test_idle_capacity
+          - check_row_counts_per_partition:
+              table_name: out_eia__monthly_generators
+              partition_column: report_date
+        columns:
+          - name: plant_id_eia
+          - name: generator_id
+          - name: report_date
+          - name: unit_id_pudl
+          - name: plant_id_pudl
+          - name: plant_name_eia
+          - name: utility_id_eia
+          - name: utility_id_pudl
+          - name: utility_name_eia
+          - name: technology_description
+          - name: energy_source_code_1
+          - name: prime_mover_code
+          - name: generator_operating_date
+          - name: generator_retirement_date
+          - name: operational_status
+          - name: capacity_mw
+          - name: fuel_type_code_pudl
+          - name: planned_generator_retirement_date
+          - name: capacity_factor
+            data_tests:
+              - expect_quantile_constraints:
+                  row_condition: fuel_type_code_pudl='coal' and capacity_factor<>0.0
+                  constraints:
+                    - quantile: 0.6
+                      min_value: 0.5
+                      max_value: 0.9
+                    - quantile: 0.1
+                      min_value: 0.036
+                    - quantile: 0.95
+                      max_value: 0.95
+                  weight_column: capacity_mw
+                  description: Quantile 0.1 dropped from 0.04 to 0.036 in April 2025. Keep an eye on it, and investigate if it gets worse.
+          - name: fuel_cost_per_mmbtu_source
+          - name: fuel_cost_per_mmbtu
+            data_tests:
+              - expect_quantile_constraints:
+                  row_condition: fuel_type_code_pudl='coal'
+                  constraints:
+                    - quantile: 0.5
+                      min_value: 1.5
+                      max_value: 3.0
+                    - quantile: 0.05
+                      min_value: 1.2
+                    - quantile: 0.95
+                      max_value: 4.5
+                  weight_column: total_mmbtu
+              - expect_quantile_constraints:
+                  row_condition: fuel_type_code_pudl='gas' and report_date>=CAST('2015-01-01' AS DATE)
+                  constraints:
+                    - quantile: 0.5
+                      min_value: 2.0
+                      max_value: 4.0
+                    - quantile: 0.05
+                      min_value: 1.48
+                    - quantile: 0.95
+                      max_value: 8.0
+                  weight_column: total_mmbtu
+                  description: Quantile 0.05 dropped from 1.65 to 1.489 in April 2025. Keep an eye on it, and investigate if it gets worse. Historical note, EIA natural gas reporting really only becomes usable in 2015.
+          - name: fuel_cost_per_mwh
+            data_tests:
+              - expect_quantile_constraints:
+                  row_condition: fuel_type_code_pudl='coal'
+                  constraints:
+                    - quantile: 0.5
+                      min_value: 18.0
+                      max_value: 27.0
+                    - quantile: 0.05
+                      min_value: 10.0
+                    - quantile: 0.95
+                      max_value: 50.0
+                  weight_column: net_generation_mwh
+              - expect_quantile_constraints:
+                  row_condition: fuel_type_code_pudl='gas' and report_date>=CAST('2015-01-01' AS DATE)
+                  constraints:
+                    - quantile: 0.5
+                      min_value: 20.0
+                      max_value: 30.0
+                    - quantile: 0.05
+                      min_value: 10.0
+                    - quantile: 0.95
+                      max_value: 61.4
+                  weight_column: net_generation_mwh
+                  description: Demoted to warning in April 2025 when quantile 0.5 dropped from 20.0 to 16.42. Investigate in issue 4187. Historical note, EIA natural gas reporting really only becomes usable in 2015.
+                  severity: warn
+          - name: unit_heat_rate_mmbtu_per_mwh
+            data_tests:
+              - expect_quantile_constraints:
+                  row_condition: fuel_type_code_pudl='gas' and report_date>=CAST('2015-01-01' AS DATE)
+                  constraints:
+                    - quantile: 0.5
+                      min_value: 7.0
+                      max_value: 7.5
+                    - quantile: 0.05
+                      min_value: 6.39
+                    - quantile: 0.95
+                      max_value: 13.0
+                  weight_column: net_generation_mwh
+                  description: Quantile 0.05 dropped from 6.4 to 6.39 in June 2025. Keep an eye on it, and investigate if it gets worse. Historical note, EIA natural gas reporting really only becomes usable in 2015.
+              - expect_quantile_constraints:
+                  row_condition: fuel_type_code_pudl='coal'
+                  constraints:
+                    - quantile: 0.5
+                      min_value: 10.0
+                      max_value: 11.0
+                    - quantile: 0.05
+                      min_value: 9.0
+                    - quantile: 0.95
+                      max_value: 12.5
+                  weight_column: net_generation_mwh
+          - name: net_generation_mwh
+          - name: total_fuel_cost
+          - name: total_mmbtu
+          - name: associated_combined_heat_power
+          - name: bga_source
+          - name: bypass_heat_recovery
+          - name: carbon_capture
+          - name: city
+          - name: can_cofire_fuels
+          - name: county
+          - name: current_planned_generator_operating_date
+          - name: data_maturity
+          - name: deliver_power_transgrid
+          - name: distributed_generation
+          - name: duct_burners
+          - name: energy_source_1_transport_1
+          - name: energy_source_1_transport_2
+          - name: energy_source_1_transport_3
+          - name: energy_source_2_transport_1
+          - name: energy_source_2_transport_2
+          - name: energy_source_2_transport_3
+          - name: energy_source_code_2
+          - name: energy_source_code_3
+          - name: energy_source_code_4
+          - name: energy_source_code_5
+          - name: energy_source_code_6
+          - name: energy_storage_capacity_mwh
+          - name: ferc_qualifying_facility
+          - name: fluidized_bed_tech
+          - name: fuel_type_count
+          - name: latitude
+          - name: longitude
+          - name: minimum_load_mw
+          - name: can_burn_multiple_fuels
+          - name: nameplate_power_factor
+          - name: net_capacity_mwdc
+          - name: operating_switch
+          - name: operational_status_code
+          - name: original_planned_generator_operating_date
+          - name: other_combustion_tech
+          - name: other_modifications_date
+          - name: other_planned_modifications
+          - name: owned_by_non_utility
+          - name: ownership_code
+          - name: planned_derate_date
+          - name: planned_energy_source_code_1
+          - name: planned_modifications
+          - name: planned_net_summer_capacity_derate_mw
+          - name: planned_net_summer_capacity_uprate_mw
+          - name: planned_net_winter_capacity_derate_mw
+          - name: planned_net_winter_capacity_uprate_mw
+          - name: planned_new_capacity_mw
+          - name: planned_new_prime_mover_code
+          - name: planned_repower_date
+          - name: planned_uprate_date
+          - name: previously_canceled
+          - name: pulverized_coal_tech
+          - name: reactive_power_output_mvar
+          - name: rto_iso_lmp_node_id
+          - name: rto_iso_location_wholesale_reporting_id
+          - name: solid_fuel_gasification
+          - name: startup_source_code_1
+          - name: startup_source_code_2
+          - name: startup_source_code_3
+          - name: startup_source_code_4
+          - name: state
+          - name: stoker_tech
+          - name: street_address
+          - name: subcritical_tech
+          - name: summer_capacity_estimate
+          - name: summer_capacity_mw
+          - name: summer_estimated_capability_mw
+          - name: supercritical_tech
+          - name: can_switch_oil_gas
+          - name: synchronized_transmission_grid
+          - name: time_cold_shutdown_full_load_code
+          - name: timezone
+          - name: topping_bottoming_code
+          - name: turbines_inverters_hydrokinetics
+          - name: turbines_num
+          - name: ultrasupercritical_tech
+          - name: uprate_derate_completed_date
+          - name: uprate_derate_during_year
+          - name: winter_capacity_estimate
+          - name: winter_capacity_mw
+          - name: winter_estimated_capability_mw
+          - name: zip_code
