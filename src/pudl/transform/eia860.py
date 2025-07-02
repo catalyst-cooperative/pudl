@@ -248,7 +248,7 @@ def _core_eia860__generators(
         "duct_burners",
         "can_burn_multiple_fuels",
         "deliver_power_transgrid",
-        "syncronized_transmission_grid",
+        "synchronized_transmission_grid",
         "solid_fuel_gasification",
         "pulverized_coal_tech",
         "fluidized_bed_tech",
@@ -277,8 +277,8 @@ def _core_eia860__generators(
     ]
     gens_df = (
         pd.concat([ge_df, gp_df, gr_df, g_df], sort=True)
-        .dropna(subset=["generator_id", "plant_id_eia"])
         .pipe(pudl.helpers.fix_eia_na)
+        .dropna(subset=["generator_id", "plant_id_eia"])
         .pipe(
             pudl.helpers.fix_boolean_columns,
             boolean_columns_to_fix=boolean_columns_to_fix,
@@ -386,7 +386,7 @@ def _core_eia860__generators_energy_storage(
     storage_pr = raw_eia860__generator_energy_storage_proposed.pipe(
         drop_records_with_null_in_column,
         column="generator_id",
-        num_of_expected_nulls=1,
+        num_of_expected_nulls=2,  # Plant ID 62844 in 2023-4
     )
     storage_re = raw_eia860__generator_energy_storage_retired
 
@@ -415,6 +415,33 @@ def _core_eia860__generators_energy_storage(
             )
         )
     )
+
+    # Capitalize the direct_support generator IDs
+    # We harvest these values into our generator tables, but they aren't as
+    # well-normalized as the directly reported generator IDs. The differences in
+    # capitalization were marking a larger number of generators as non-existent
+    # than are actually the case (e.g., a plant reporting both generator GEN1 and Gen1).
+    # See PR#3699 and PR#4332. We manually fix a known list of these.
+
+    # Any remaining 'fake' generator IDs get dropped in _out_eia__yearly_generators
+
+    known_bad_caps = [
+        "SunB",
+        "EcheB",
+        "MayB",
+        "IssaP",
+        "Matad",
+        "WolfB",
+        "IrisB",
+        "TwinB",
+    ]
+    filter_condition = (storage_df.report_date == "2024-01-01") & (
+        storage_df.generator_id_direct_support_1.isin(known_bad_caps)
+    )
+
+    storage_df.loc[filter_condition, "generator_id_direct_support_1"] = storage_df.loc[
+        filter_condition, "generator_id_direct_support_1"
+    ].str.upper()
 
     return storage_df
 
@@ -694,7 +721,7 @@ def _core_eia860__utilities(raw_eia860__utility: pd.DataFrame) -> pd.DataFrame:
 
     # Combine phone number columns into one
     def _make_phone_number(col1, col2, col3):
-        """Make and validate full phone number seperated by dashes."""
+        """Make and validate full phone number separated by dashes."""
         p_num = (
             col1.astype("string")
             + "-"
@@ -1195,7 +1222,7 @@ def _core_eia860__boiler_stack_flue(
     # the individual stack or flue id columns because we can't be sure whether a
     # stack_flue_id_eia value is the stack or flue id. And we don't want to
     # missrepresent complicated relationships between stacks and flues. Also there's
-    # several instances where flue_id_eia is NA (hense the last fillna(x.stack_id_eia))
+    # several instances where flue_id_eia is NA (hence the last fillna(x.stack_id_eia))
     bsf_assn = bsf_assn.assign(
         stack_flue_id_pudl=lambda x: (
             x.stack_flue_id_eia.fillna(

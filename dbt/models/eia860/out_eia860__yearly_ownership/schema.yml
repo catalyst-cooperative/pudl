@@ -7,10 +7,15 @@ sources:
           - check_row_counts_per_partition:
               table_name: out_eia860__yearly_ownership
               partition_column: report_date
+          - expect_date_frequency_ratio:
+              compare_model: source("pudl", "out_eia__yearly_generators")
+              multiplier: 1
+              date_column: report_date
           - expect_complete_valid_ownership:
-              # Known failures as of March 2025:
-              # 341 CT5 has 1.5 total ownership fraction for 2021, 2022, and 2023
-              n_acceptable_failures: 3
+              # Known failures as of June 2025:
+              # 341 CT5 has 1.5 total ownership fraction for 2021, 2022, 2023, 2024
+              # 56032 generator 1 has a 2.0 total ownership fraction in 2024
+              n_acceptable_failures: 5
           - expect_unique_utility_id_eia
         columns:
           - name: report_date

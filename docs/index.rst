@@ -174,11 +174,9 @@ variety of output tables that contain all of the useful information in one place
 some cases, like with EIA, the output tables are composed to closely resemble the raw
 spreadsheet tables you're familiar with.
 
-The Output layer also contains tables produced by analytical routines for
-calculating derived values like the heat rate by generation unit (:meth:`hr_by_unit
-<pudl.output.pudltabl.PudlTabl.hr_by_unit>`) or the capacity factor by generator
-(:meth:`capacity_factor <pudl.output.pudltabl.PudlTabl.capacity_factor>`). We intend to
-integrate more analytical outputs into the library over time.
+The Output layer also contains tables produced by analytical routines for calculating
+derived values like the heat rate by generation unit, the capacity factor by
+generator, or hourly electricity demand with missing and outlying values imputed.
 
 .. seealso::
 

@@ -9,6 +9,8 @@ import dagster as dg
 import pandas as pd
 
 from pudl import logging_helpers
+from pudl.analysis.record_linkage import name_cleaner
+from pudl.metadata.dfs import ALPHA_2_COUNTRY_CODES, SEC_EDGAR_STATE_AND_COUNTRY_CODES
 
 logger = logging_helpers.get_logger(__name__)
 
@@ -33,6 +35,11 @@ def _simplify_filename_sec10k(filename_sec10k: pd.Series) -> pd.Series:
         .str.removesuffix(".txt")
         .astype("string")
     )
+
+
+def _extract_filer_cik_from_filename(filename_col: pd.Series) -> pd.Series:
+    """Extract filer company's central index key from the first token of filename."""
+    return filename_col.apply(lambda x: x.split("/")[0]).str.zfill(10)
 
 
 def _compute_fraction_owned(percent_ownership: pd.Series) -> pd.Series:
@@ -114,6 +121,198 @@ def _pivot_info_block(df: pd.DataFrame, block: str) -> pd.DataFrame:
     return pivoted
 
 
+def _standardize_company_name(col: pd.Series) -> pd.Series:
+    """Clean a company name column and standardize legal terms.
+
+    Uses the PUDL name cleaner object to do basic cleaning on `col_name` column
+    such as stripping punctuation, correcting case, and normalizing legal
+    terms, i.e. llc -> limited liability company.
+
+    Arguments:
+        col: The series of names that is to be cleaned.
+
+    Returns:
+        The original Series now containing cleaned names.
+    """
+    col = col.fillna(pd.NA).str.strip().str.lower()
+    company_name_cleaner = name_cleaner.CompanyNameCleaner(
+        cleaning_rules_list=[
+            "replace_ampersand_in_spaces_by_AND",
+            "replace_hyphen_by_space",
+            "replace_underscore_by_space",
+            "remove_text_punctuation",
+            "remove_parentheses",
+            "remove_brackets",
+            "remove_curly_brackets",
+            "remove_words_between_slashes",
+            "enforce_single_space_between_words",
+        ],
+        legal_term_location=2,
+    )
+    col = company_name_cleaner.apply_name_cleaning(col).str.strip()
+    col = col.replace("", pd.NA)
+
+    return col
+
+
+def _remove_bad_subsidiary_names(col: pd.Series) -> pd.Series:
+    """Remove subsidiary names that are obviously erroneous.
+
+    The model makes common mistakes while extracting subsidiary
+    names from Ex. 21 filings, such as extracting "llc" as a complete
+    name. Remove names that are just legal terms as well as a list
+    of other common erroneous names. Replace these bad names with
+    NaNs.
+    """
+    legal_term_remover = name_cleaner.CompanyNameCleaner(
+        cleaning_rules_list=[], handle_legal_terms=2
+    )
+    clean_col = legal_term_remover.apply_name_cleaning(col).str.strip()
+    # some common bad names that aren't removed by the legal term remover
+    clean_col = clean_col.replace(
+        [
+            "the",
+            "",
+            "gmbh",
+            "i",
+            "name",
+            "of",
+            "branch",
+            "international",
+            "partnership",
+            "s.a",  # spanish language legal term
+            "b.v",
+            "c.v",  # spanish language legal term
+            "services",
+            "holdings",
+        ],
+        pd.NA,
+    )
+    return col.where(~clean_col.isnull(), pd.NA)
+
+
+def _standardize_location(loc_col: pd.Series) -> pd.Series:
+    """Map two letter state codes to full names using EDGAR state and country code mapping."""
+    out = (
+        loc_col.str.strip()
+        .str.lower()
+        .replace(
+            SEC_EDGAR_STATE_AND_COUNTRY_CODES.set_index("state_or_country_code")[
+                "state_or_country_name"
+            ]
+        )
+        .replace(ALPHA_2_COUNTRY_CODES.set_index("country_code")["country_name"])
+        .fillna(pd.NA)
+        .replace("", pd.NA)
+    )
+    return out
+
+
+def _match_ex21_subsidiaries_to_filer_company(
+    filer_info_df: pd.DataFrame,
+    ownership_df: pd.DataFrame,
+) -> pd.DataFrame:
+    """Match Exhibit 21 subsidiaries to companies that file SEC Form 10-K.
+
+    We want to assign CIKs to Ex. 21 subsidiaries if they in turn file a 10k. To do
+    this, we merge the Ex. 21 subsidiaries to 10k filers on company name. If there are
+    multiple matches with the same company name we choose the pair with the most overlap
+    in location of incorporation and nearest report years. Then we merge the CIK back
+    onto the Ex. 21 DataFrame.
+
+    Returns:
+        A dataframe of the Ex. 21 subsidiaries with a column for the subsidiaries CIK
+        (null if the subsidiary doesn't file).
+    """
+    filer_info_df["subsidiary_company_name"] = _standardize_company_name(
+        filer_info_df["company_name"]
+    )
+    ownership_df["subsidiary_company_name"] = _standardize_company_name(
+        ownership_df["subsidiary_company_name"]
+    )
+    filer_info_df = filer_info_df.dropna(subset="subsidiary_company_name")
+    ownership_df = ownership_df.dropna(subset="subsidiary_company_name")
+    # expand two letter states codes to full location names to match
+    # the subsidiary_company_location column of the ownership table
+    filer_info_df["incorporation_state"] = _standardize_location(
+        filer_info_df["incorporation_state"]
+    )
+    merged_df = filer_info_df.merge(
+        ownership_df[
+            [
+                "subsidiary_company_name",
+                "subsidiary_company_id_sec10k",
+                "subsidiary_company_location",
+                "report_date",
+            ]
+        ],
+        how="inner",
+        on="subsidiary_company_name",
+        suffixes=("_sec", "_ex21"),
+        validate="many_to_many",
+    )
+    # split up the location of incorporation on whitespace, creating
+    # sets of word tokens
+    words1 = (
+        merged_df["incorporation_state"]
+        .fillna("")
+        .str.lower()
+        .str.split()
+        .apply(lambda words: set(words) if words != [""] else set())
+    )
+    words2 = (
+        merged_df["subsidiary_company_location"]
+        .fillna("")
+        .str.lower()
+        .str.split()
+        .apply(lambda words: set(words) if words != [""] else set())
+    )
+    # Note that these dataframe column assignments to lists work based on the ORDER
+    # of the rows/list elements, not the index, so it's important that no reordering
+    # happen in here.
+    intersection_lens = [
+        len(w1.intersection(w2)) for w1, w2 in zip(words1, words2, strict=True)
+    ]
+    max_lens = [max(len(w1), len(w2), 1) for w1, w2 in zip(words1, words2, strict=True)]
+    # Don't convert the list to a Series before assignment to avoid accidentally having it align
+    # based on index rather than order
+    merged_df["loc_overlap"] = [
+        i / m for i, m in zip(intersection_lens, max_lens, strict=True)
+    ]
+    # get the difference in report dates
+    merged_df["report_date_diff_days"] = abs(
+        (merged_df["report_date_sec"] - merged_df["report_date_ex21"]).dt.days
+    )
+    merged_df = merged_df.sort_values(
+        by=[
+            "subsidiary_company_name",
+            "subsidiary_company_location",
+            "loc_overlap",
+            "report_date_diff_days",
+        ],
+        ascending=[True, True, False, True],
+    )
+    # Select the filer with the highest loc overlap and nearest report dates
+    # for each subsidiary_company_id_sec10k
+    closest_match_df = merged_df.groupby(
+        ["subsidiary_company_id_sec10k"],
+        as_index=False,
+    ).first()
+    ownership_with_cik_df = ownership_df.merge(
+        closest_match_df[
+            [
+                "subsidiary_company_id_sec10k",
+                "central_index_key",
+            ]
+        ],
+        how="left",
+        on=["subsidiary_company_id_sec10k"],
+        validate="many_to_one",
+    ).rename(columns={"central_index_key": "subsidiary_company_central_index_key"})
+
+    return ownership_with_cik_df
+
+
 #######################################
 ### SEC 10-K core asset definitions ###
 #######################################
@@ -185,7 +384,7 @@ def core_sec10k__company_info(
 
     This information is used elsewhere for matching SEC 10-K filers to EIA utilities
     and for identifying the companies that are mentioned in the unstructured Exhibit 21
-    attachements.
+    attachments.
 
     There is a 1-to-1 correspondence between the company_data and filing_values blocks,
     and virtually all business_address blocks (99.9%), but a substantial number (~5%) of
@@ -216,7 +415,7 @@ def core_sec10k__company_info(
     mail_address = _pivot_info_block(raw_company_info, block="mail_address")
     former_company = _pivot_info_block(raw_company_info, block="former_company")
 
-    # Add prefixes where needed to ensure that column names are distinct after concatentation.
+    # Add prefixes where needed to ensure that column names are distinct after concatenation.
     business_address.columns = [f"business_{col}" for col in business_address.columns]
     mail_address.columns = [f"mail_{col}" for col in mail_address.columns]
 
@@ -261,7 +460,7 @@ def core_sec10k__company_info(
     assert len(orphan_mail_address) <= 22_612
 
     # This merge is necessary to ensure that the company name changelog table has access
-    # to the current company name that was found in the associated filing. Inutitively
+    # to the current company name that was found in the associated filing. Intuitively
     # we would want to merge this information in based on the CIK in the output table,
     # but we don't have a well normalized table associating all CIKs with the
     # corresponding company name as a function of time -- this is the information that
@@ -365,6 +564,45 @@ def core_sec10k__quarterly_company_information(
     assert sum(invalid_sec10k_type.dropna()) < 11
     clean_info.loc[invalid_sec10k_type, "sec10k_type"] = pd.NA
 
+    # Enforce filename_sec10k and central_index_key as a primary key.
+    # Occasionally a file will contain two blocks of info for the same
+    # CIK. Ensure that records with duplicate values of filename_sec10k and
+    # central_index_key differ ONLY in that some of them may have
+    # null values that are non-null in some other duplicate,
+    # OR that they have different values for filer_count, block_count
+    # or film_number -- which are not meaningful information and
+    # we're okay losing one of the original values in those columns.
+    cols_to_fill = clean_info.columns.drop(
+        ["filer_count", "film_number", "block_count"]
+    )
+    dupes_df = clean_info[
+        clean_info.duplicated(
+            subset=["filename_sec10k", "central_index_key"], keep=False
+        )
+    ]
+    if len(dupes_df) > 0:
+        filled_dupes = dupes_df.groupby(["filename_sec10k", "central_index_key"])[
+            cols_to_fill
+        ].transform(lambda group: group.ffill().bfill())
+        clean_info.loc[filled_dupes.index, cols_to_fill] = filled_dupes
+        clean_info = clean_info.drop_duplicates(subset=cols_to_fill)
+    # After we've filled in the NA values and dropped duplicates
+    # on the full set of columns we care about preserving,
+    # we expect that there will only be unique values of the natural PK
+    n_remaining_dupes = len(
+        clean_info[
+            clean_info.duplicated(subset=["filename_sec10k", "central_index_key"])
+        ]
+    )
+    if n_remaining_dupes > 0:
+        raise AssertionError(
+            logger.error(
+                f"There are {n_remaining_dupes} duplicate filename_sec10k and central_index_key "
+                "company info blocks in the core_sec10k__quarterly_company_information table "
+                "after filling null values. Filename and CIK should be a primary key."
+            )
+        )
+
     return clean_info
 
 
@@ -412,49 +650,6 @@ def core_sec10k__changelog_company_name(
     io_manager_key="pudl_io_manager",
     group_name="core_sec10k",
 )
-def core_sec10k__parents_and_subsidiaries(
-    raw_sec10k__parents_and_subsidiaries: pd.DataFrame,
-) -> pd.DataFrame:
-    """Standardize the contents of the SEC 10-K parents and subsidiaries table."""
-    df = raw_sec10k__parents_and_subsidiaries.rename(
-        columns={
-            "sec10k_filename": "filename_sec10k",
-            "sec_company_id": "company_id_sec10k",
-            "street_address_2": "address_2",
-            "former_conformed_name": "company_name_old",
-            "location_of_inc": "location_of_incorporation",
-            "state_of_incorporation": "incorporation_state",
-            "irs_number": "taxpayer_id_irs",
-            "parent_company_cik": "parent_company_central_index_key",
-            "files_10k": "files_sec10k",
-            "date_of_name_change": "name_change_date",
-        }
-    ).assign(
-        filename_sec10k=lambda x: _simplify_filename_sec10k(x["filename_sec10k"]),
-        fraction_owned=lambda x: _compute_fraction_owned(x["ownership_percentage"]),
-    )
-
-    df[["industry_name_sic", "industry_id_sic"]] = (
-        _standardize_industrial_classification(df["standard_industrial_classification"])
-    )
-    df["taxpayer_id_irs"] = _standardize_taxpayer_id_irs(df["taxpayer_id_irs"])
-
-    # Some utilities harvested from EIA 861 data that don't show up in our entity
-    # tables. These didn't end up improving coverage, and so will be removed upstream.
-    # Hack for now is to just drop them so the FK constraint is respected.
-    # See https://github.com/catalyst-cooperative/pudl/issues/4050
-    bad_utility_ids = [
-        3579,  # Cirro Group, Inc. in Texas
-    ]
-    df = df[~df.utility_id_eia.isin(bad_utility_ids)]
-
-    return df
-
-
-@dg.asset(
-    io_manager_key="pudl_io_manager",
-    group_name="core_sec10k",
-)
 def core_sec10k__quarterly_exhibit_21_company_ownership(
     raw_sec10k__exhibit_21_company_ownership: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -468,8 +663,52 @@ def core_sec10k__quarterly_exhibit_21_company_ownership(
     ).assign(
         filename_sec10k=lambda x: _simplify_filename_sec10k(x["filename_sec10k"]),
         fraction_owned=lambda x: _compute_fraction_owned(x["ownership_percentage"]),
-        report_date=lambda x: _year_quarter_to_date(x["year_quarter"]),
+        subsidiary_company_location=lambda x: _standardize_location(
+            x["subsidiary_company_location"]
+        ),
     )
+    df["subsidiary_company_name"] = _remove_bad_subsidiary_names(
+        df["subsidiary_company_name"].str.strip().str.lower()
+    )
+    # a record is not meaningful if the subsidiary name is null
+    df = df.dropna(subset=["subsidiary_company_name"])
+    # construct the CIK of the parent company in order to
+    # create subsidiary_company_id_sec10k
+    df.loc[:, "parent_company_central_index_key"] = _extract_filer_cik_from_filename(
+        df["filename_sec10k"]
+    )
+    # sometimes there are subsidiaries with the same name but different
+    # locations of incorporation listed in the same ex. 21, so include
+    # location in the ID
+    df.loc[:, "subsidiary_company_id_sec10k"] = (
+        df["parent_company_central_index_key"]
+        + "_"
+        + df["subsidiary_company_name"]
+        + "_"
+        + df["subsidiary_company_location"].fillna("")
+    )
+    df = df.drop(columns="parent_company_central_index_key")
+    # filename_sec10k and subsidiary_company_id_sec10k should be a primary key
+    # for this table, however there are many instances where the model erroneously
+    # created two different records for the same subsidiary and location in
+    # one Ex. 21 attachment. Often, the fraction_owned field is null for one
+    # record and not the other. Keep only one of these records for each
+    # subsidiary_company_id_sec10k and filename_sec10k
+    n_dupes = len(
+        df[df.duplicated(subset=["filename_sec10k", "subsidiary_company_id_sec10k"])]
+    )
+    logger.info(
+        f"""There are {n_dupes} / {len(df)} ({n_dupes / len(df)}) """
+        f"""duplicate filename_sec10k and subsidiary_company_id_sec10k records """
+        f"""from the extracted Ex. 21 ownership data which are dropped."""
+    )
+    df = (
+        df.sort_values(by=["fraction_owned"])
+        .groupby(["filename_sec10k", "subsidiary_company_id_sec10k"])
+        .first()
+        .reset_index()
+    )
+
     return df
 
 
@@ -478,7 +717,7 @@ def core_sec10k__quarterly_exhibit_21_company_ownership(
     group_name="core_sec10k",
 )
 def core_sec10k__assn_sec10k_filers_and_eia_utilities(
-    core_sec10k__parents_and_subsidiaries: pd.DataFrame,
+    raw_sec10k__parents_and_subsidiaries: pd.DataFrame,
 ) -> pd.DataFrame:
     """Create an association table between SEC 10-K companies and EIA utilities.
 
@@ -493,10 +732,108 @@ def core_sec10k__assn_sec10k_filers_and_eia_utilities(
     companies are not utilities, and most utilities are still unmatched.
     """
     sec_eia_assn = (
-        core_sec10k__parents_and_subsidiaries.loc[
+        raw_sec10k__parents_and_subsidiaries.loc[
             :, ["central_index_key", "utility_id_eia"]
         ]
         .dropna()
         .drop_duplicates(subset=["central_index_key", "utility_id_eia"])
     )
     return sec_eia_assn
+
+
+@dg.asset(io_manager_key="pudl_io_manager", group_name="core_sec10k")
+def core_sec10k__assn_exhibit_21_subsidiaries_and_filers(
+    core_sec10k__quarterly_filings,
+    core_sec10k__quarterly_company_information,
+    core_sec10k__quarterly_exhibit_21_company_ownership,
+) -> pd.DataFrame:
+    """Match Ex. 21 subsidiaries to SEC 10k filing companies.
+
+    Create a table associating ``subsidiary_company_id_sec10k`` to that subsidiary
+    company's ``central_index_key`` if that subsidiary also files its own 10-K filing.
+    The association is created by matching subsidiary companies reported in
+    ``core_sec10k__quarterly_exhibit_21_company_ownership`` to their own filing
+    information in ``core_sec10k__quarterly_company_information``, which contains
+    attributes reported in the main body of a 10-K filing.  To infer the match we merge
+    the Ex.21 subsidiaries to 10k filers on company name. If there are multiple matches
+    with the same company name we choose the pair with the most overlap in location of
+    incorporation and nearest report years.
+    """
+    filer_info_df = core_sec10k__quarterly_company_information.merge(
+        core_sec10k__quarterly_filings[["filename_sec10k", "report_date"]],
+        how="left",
+        on="filename_sec10k",
+        validate="many_to_one",
+    )
+    ownership_df = core_sec10k__quarterly_exhibit_21_company_ownership.merge(
+        core_sec10k__quarterly_filings[["filename_sec10k", "report_date"]],
+        how="left",
+        on="filename_sec10k",
+        validate="many_to_one",
+    )
+    matched_df = _match_ex21_subsidiaries_to_filer_company(
+        filer_info_df=filer_info_df,
+        ownership_df=ownership_df,
+    )
+    out_df = (
+        matched_df[
+            [
+                "subsidiary_company_id_sec10k",
+                "subsidiary_company_central_index_key",
+            ]
+        ]
+        .dropna(subset="subsidiary_company_central_index_key")
+        .drop_duplicates()
+        .rename(columns={"subsidiary_company_central_index_key": "central_index_key"})
+    )
+    return out_df
+
+
+@dg.asset(io_manager_key="pudl_io_manager", group_name="core_sec10k")
+def core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities(
+    core_sec10k__assn_sec10k_filers_and_eia_utilities: pd.DataFrame,
+    core_eia__entity_utilities: pd.DataFrame,
+    core_sec10k__quarterly_exhibit_21_company_ownership: pd.DataFrame,
+    core_sec10k__assn_exhibit_21_subsidiaries_and_filers: pd.DataFrame,
+) -> pd.DataFrame:
+    """An association table between Exhibit 21 subsidiaries and EIA utilities.
+
+    Take the EIA utilities that haven't been matched to a filer company
+    and merge them by company name onto the Ex. 21 subsidiaries.
+    """
+    unmatched_eia_utils_df = core_eia__entity_utilities[
+        ~core_eia__entity_utilities["utility_id_eia"].isin(
+            core_sec10k__assn_sec10k_filers_and_eia_utilities["utility_id_eia"].unique()
+        )
+    ]
+    unmatched_eia_utils_df["utility_name_eia"] = _standardize_company_name(
+        unmatched_eia_utils_df["utility_name_eia"]
+    )
+    unmatched_eia_utils_df = unmatched_eia_utils_df.drop_duplicates(
+        subset=["utility_name_eia"]
+    )
+    # if a subsidiary is already matched to an SEC filer then
+    # it would have gone through the record linkage process to be
+    # matched to an EIA utility
+    unmatched_subs_df = core_sec10k__quarterly_exhibit_21_company_ownership[
+        ~core_sec10k__quarterly_exhibit_21_company_ownership[
+            "subsidiary_company_id_sec10k"
+        ].isin(
+            core_sec10k__assn_exhibit_21_subsidiaries_and_filers[
+                "subsidiary_company_id_sec10k"
+            ].unique()
+        )
+    ][["subsidiary_company_name", "subsidiary_company_id_sec10k"]].drop_duplicates()
+    unmatched_subs_df["subsidiary_company_name"] = _standardize_company_name(
+        unmatched_subs_df["subsidiary_company_name"]
+    )
+    out_df = unmatched_subs_df.merge(
+        unmatched_eia_utils_df[["utility_id_eia", "utility_name_eia"]],
+        how="left",
+        left_on="subsidiary_company_name",
+        right_on="utility_name_eia",
+        validate="many_to_many",
+    ).dropna(subset="utility_id_eia")[
+        ["subsidiary_company_id_sec10k", "utility_id_eia"]
+    ]
+    return out_df

@@ -86,7 +86,7 @@ When choosing an access method you'll want to consider:
 Data Platform
 ^^^^^^^^^^^^^
 
-PUDL data is distributed on a number of different platforms to acommodate a variety of
+PUDL data is distributed on a number of different platforms to accommodate a variety of
 different use cases. These include :ref:`access-viewer`,
 :ref:`access-datasette`, :ref:`access-kaggle`,
 :ref:`access-cloud`, and :ref:`access-zenodo`.

@@ -271,7 +271,7 @@ The values that come from from the totals table are marked with the string
 product of the transition to XBRL, so these distinguishable totals are only
 available for data post-2020 (otherwise you could try keyword searching for
 "total" in rate_schedule_description). The total table contains two types of
-totals, the utility totals accross all rate schedules in a given year
+totals, the utility totals across all rate schedules in a given year
 (marked with rate_schedule_description = "total" and rate_schedule_type =
 "total") and each of the utility's individual rate schedule totals in a
 given year (marked with rate_schedule_description = "total" and
@@ -284,10 +284,10 @@ This is important to consider if you're endeavoring to compare the subtotal
 values with the total values. We have not attempted to fix or verify any
 subtotals or totals that don't add up.
 
-Another important note is the possability of unit discrepancies in certain
+Another important note is the possibility of unit discrepancies in certain
 columns. The revenue_per_kwh column does not specify reporting units, and
 closer inspection of the data reveals two clear peaks approximate two orders
-of magnitude appart. This indicates that values may be reported in both
+of magnitude apart. This indicates that values may be reported in both
 dollars and cents. However, because the price of energy per kwh varies
 so much regionally, we cannot guarantee which is which and have not put
 any cleaning mechanisms in place to account for this."""
@@ -492,7 +492,7 @@ any cleaning mechanisms in place to account for this."""
     "core_ferc1__yearly_pumped_storage_plants_sched408": {
         "description": (
             "Generating plant statistics for hydroelectric pumped storage plants with "
-            "an installed nameplate capacity of 10+ MW. As reported in Scheudle 408 of "
+            "an installed nameplate capacity of 10+ MW. As reported in Schedule 408 of "
             "FERC Form 1 and extracted from the f1_pumped_storage table in FERC's "
             "Visual FoxPro Database."
         ),
@@ -779,7 +779,7 @@ columns.""",
         "field_namespace": "ferc1",
     },
     "core_ferc1__yearly_retained_earnings_sched118": {
-        "description": "Retained Earnings - The structed part of schedule 118.",
+        "description": "Retained Earnings - The structured part of schedule 118.",
         "schema": {
             "fields": [
                 "utility_id_ferc1",
@@ -832,22 +832,6 @@ columns.""",
         "sources": ["ferc1"],
         "etl_group": "ferc1",
         "field_namespace": "ferc1",
-    },
-    "_out_ferc1__yearly_plants_utilities": {
-        "description": "Denormalized table that contains FERC plant and utility information.",
-        "schema": {
-            "fields": [
-                "utility_id_ferc1",
-                "plant_name_ferc1",
-                "plant_id_pudl",
-                "utility_name_ferc1",
-                "utility_id_pudl",
-            ],
-            "primary_key": ["utility_id_ferc1", "plant_name_ferc1"],
-        },
-        "field_namespace": "ferc1",
-        "etl_group": "outputs",
-        "sources": ["ferc1"],
     },
     "out_ferc1__yearly_balance_sheet_assets_sched110": {
         "description": "Denormalized table that contains FERC balance sheet asset information.",

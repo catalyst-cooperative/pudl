@@ -419,7 +419,7 @@ def _yearly_to_monthly_records(df: pd.DataFrame) -> pd.DataFrame:
         return df
     index_cols = df.columns[~ends_with_month_filter]
     # performance note: this was good enough for eia923 data size.
-    # Using .set_index() is simple but inefficient due to unecessary index creation.
+    # Using .set_index() is simple but inefficient due to unnecessary index creation.
     # Performance may be improved by separating into two dataframes,
     # .stack()ing the monthly data, then joining back together on the original index.
     df = df.set_index(list(index_cols), append=True)
@@ -442,7 +442,7 @@ def _coalmine_cleanup(
 
     This function does most of the core_eia923__entity_coalmine table transformation. It is separate
     from the coalmine() transform function because of the peculiar way that we are
-    normalizing the ref:`core_eia923__monthly_fuel_receipts_costs` table.
+    normalizing the :ref:`core_eia923__monthly_fuel_receipts_costs` table.
 
     All of the coalmine information is originally coming from the EIA
     fuel_receipts_costs spreadsheet, but it really belongs in its own table. We strip it
@@ -469,7 +469,7 @@ def _coalmine_cleanup(
     # of the values here (case, removing whitespace, punctuation, etc.) will
     # affect the total number of "unique" mines that we end up having in the
     # table... and we probably want to minimize it (without creating
-    # collisions).  We will need to do exactly the same transofrmations in the
+    # collisions).  We will need to do exactly the same transformations in the
     # FRC ingest function before merging these values in, or they won't match
     # up.
     cmi_df = (
@@ -1325,7 +1325,7 @@ def cooling_system_information_continuity(csi):
             "monthly_total_withdrawal_volume_gallons": 0.3,
         },
         groupby_col="report_date",
-        n_outliers_allowed=2,
+        n_outliers_allowed=3,
     )
 
 

@@ -1,4 +1,4 @@
-"""PyTest cases related to generating dervied outputs."""
+"""PyTest cases related to generating derived outputs."""
 
 import logging
 
@@ -6,9 +6,7 @@ import pandas as pd
 import pytest
 import sqlalchemy as sa
 
-import pudl.validate as pv
 from pudl.helpers import get_parquet_table
-from pudl.metadata.classes import Resource
 
 logger = logging.getLogger(__name__)
 
@@ -39,53 +37,3 @@ def test_nuclear_fraction(
     )
     actual_nuke_fraction = nuke_gen_fraction(df)
     assert abs(actual_nuke_fraction - expected_nuke_fraction) <= tolerance
-
-
-@pytest.mark.parametrize(
-    "test_table,mult",
-    [
-        ("core_eia860__assn_boiler_generator", 1 / 1),
-        ("_out_eia__yearly_generators", 1 / 1),
-        ("out_eia860__yearly_ownership", 1 / 1),
-        ("out_eia__yearly_plants", 1 / 1),
-        ("out_eia__yearly_boilers", 1 / 1),
-        ("_out_eia__plants_utilities", 1 / 1),
-        ("out_eia__yearly_utilities", 1 / 1),
-        ("out_eia923__monthly_boiler_fuel", 12 / 1),
-        ("out_eia923__monthly_fuel_receipts_costs", 12 / 1),
-        ("out_eia923__monthly_generation", 12 / 1),
-        ("out_eia923__monthly_generation_fuel_by_generator_energy_source", 12 / 1),
-        ("out_eia923__monthly_generation_fuel_by_generator", 12 / 1),
-        ("out_eia923__monthly_generation_fuel_combined", 12 / 1),
-        ("_out_eia__monthly_heat_rate_by_unit", 12 / 1),
-        ("_out_eia__monthly_heat_rate_by_generator", 12 / 1),
-        ("_out_eia__monthly_fuel_cost_by_generator", 12 / 1),
-        ("_out_eia__monthly_capacity_factor_by_generator", 12 / 1),
-    ],
-)
-def test_eia_outputs(
-    test_table: str,
-    mult: int,
-    pudl_engine: sa.Engine,  # Required to ensure that the data is available.
-):
-    """Check EIA output functions and date frequencies of output dataframes."""
-    yearly_gens_name = "_out_eia__yearly_generators"
-
-    # Get columns needed for date frequency checking
-    # Include data_maturity if it exists in schema for proper incremental_ytd filtering
-    def get_date_freq_columns(table_name: str) -> list[str]:
-        """Get columns needed for date frequency checking."""
-        columns = ["report_date"]
-        resource = Resource.from_id(table_name)
-        if "data_maturity" in resource.get_field_names():
-            columns.append("data_maturity")
-        return columns
-
-    yearly_gens_df = get_parquet_table(
-        yearly_gens_name, columns=get_date_freq_columns(yearly_gens_name)
-    )
-    logger.info(f"Reading {test_table} table.")
-    test_df = get_parquet_table(test_table, columns=get_date_freq_columns(test_table))
-    logger.info(f"Found {len(test_df)} rows in {test_table}")
-    logger.info(f"Checking {test_table} date frequency relative to {yearly_gens_name}.")
-    pv.check_date_freq(yearly_gens_df, test_df, mult)

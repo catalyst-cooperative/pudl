@@ -19,6 +19,7 @@ CLEANING_RULES_DICT = {
     "remove_word_the_from_the_beginning": ["", r"^the\s+"],
     "remove_www_address": [" ", r"https?://[.\w]{3,}|www.[.\w]{3,}"],
     "enforce_single_space_between_words": [" ", r"\s+"],
+    "replace_ampersand_in_spaces_by_AND": [" and ", r"\s+&\s+"],
     "replace_ampersand_by_AND": [" and ", r"\s*&\s*"],
     "add_space_between_ampersand": [" & ", r"&"],
     "add_space_before_opening_parentheses": [" (", r"\("],
@@ -41,6 +42,10 @@ CLEANING_RULES_DICT = {
     "remove_single_quote": [" ", r"'"],
     "remove_double_quote": [" ", r'"'],
     "remove_words_in_parentheses": [" ", r"\([^()]*\)"],
+    "remove_words_between_slashes": [
+        " ",
+        r"/.*?/",
+    ],  # commonly comes up in SEC company names
     "repeat_remove_words_in_parentheses": [" ", r"remove_words_in_parentheses"],
 }
 
@@ -169,7 +174,7 @@ class CompanyNameCleaner(BaseModel):
 
         Arguments:
             col (pd.Series): The column that needs to be cleaned.
-            dict_regex_rules (dict): a dictionary of cleaning rules writen in regex with the format
+            dict_regex_rules (dict): a dictionary of cleaning rules written in regex with the format
                 [rule name] : ['replacement', 'regex rule']
 
         Returns:

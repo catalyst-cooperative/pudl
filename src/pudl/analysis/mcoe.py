@@ -67,7 +67,6 @@ def mcoe_asset_factory(
             "bga": AssetIn(key="core_eia860__assn_boiler_generator"),
         },
         compute_kind="Python",
-        io_manager_key="pudl_io_manager",
     )
     def hr_by_unit_asset(gen: pd.DataFrame, bga: pd.DataFrame) -> pd.DataFrame:
         return heat_rate_by_unit(gen_fuel_by_energy_source=gen, bga=bga)
@@ -80,7 +79,6 @@ def mcoe_asset_factory(
             "gens": AssetIn(key="_out_eia__yearly_generators"),
         },
         compute_kind="Python",
-        io_manager_key="pudl_io_manager",
     )
     def hr_by_gen_asset(
         bga: pd.DataFrame, hr_by_unit: pd.DataFrame, gens: pd.DataFrame
@@ -97,7 +95,6 @@ def mcoe_asset_factory(
             "frc": AssetIn(key=f"out_eia923__{agg_freqs[freq]}_fuel_receipts_costs"),
         },
         compute_kind="Python",
-        io_manager_key="pudl_io_manager",
     )
     def fc_asset(
         hr_by_gen: pd.DataFrame, gens: pd.DataFrame, frc: pd.DataFrame
@@ -113,7 +110,6 @@ def mcoe_asset_factory(
             "gens": AssetIn(key="_out_eia__yearly_generators"),
         },
         compute_kind="Python",
-        io_manager_key="pudl_io_manager",
     )
     def cf_asset(gens: pd.DataFrame, gen: pd.DataFrame) -> pd.DataFrame:
         return capacity_factor(gens=gens, gen=gen, freq=freq)
@@ -168,7 +164,6 @@ def mcoe_asset_factory(
                 ),
             ),
         },
-        io_manager_key="pudl_io_manager",
     )
     def mcoe_asset(
         context, fuel_cost: pd.DataFrame, capacity_factor: pd.DataFrame
@@ -356,7 +351,9 @@ def heat_rate_by_unit(gen_fuel_by_energy_source: pd.DataFrame, bga: pd.DataFrame
 
 
 def heat_rate_by_gen(
-    bga: pd.DataFrame, hr_by_unit: pd.DataFrame, gens: pd.DataFrame
+    bga: pd.DataFrame,
+    hr_by_unit: pd.DataFrame,
+    gens: pd.DataFrame,
 ) -> pd.DataFrame:
     """Convert per-unit heat rate to by-generator, adding fuel type & count.
 
@@ -372,9 +369,9 @@ def heat_rate_by_gen(
 
     Returns:
         DataFrame with columns report_date, plant_id_eia, unit_id_pudl, generator_id,
-        unit_heat_rate_mmbtu_per_mwh, fuel_type_code_pudl, fuel_type_count, prime_mover_code.
-        The output will have a time frequency corresponding to that of the input
-        pudl_out. Output data types are set to their canonical values before returning.
+        unit_heat_rate_mmbtu_per_mwh, fuel_type_code_pudl, fuel_type_count,
+        prime_mover_code.  The output will have a time frequency corresponding to that
+        of the input data.
     """
     bga_gens = bga.loc[
         :, ["report_date", "plant_id_eia", "unit_id_pudl", "generator_id"]
@@ -429,7 +426,7 @@ def fuel_cost(
     by type of fuel (coal, oil, gas), and we know which generators use which fuel based
     on their energy_source_code and reported prime_mover. Coal plants use a little bit
     of natural gas or diesel to get started, but based on our analysis of the "pure"
-    coal plants, this amounts to only a fraction of a percent of their overal fuel
+    coal plants, this amounts to only a fraction of a percent of their overall fuel
     consumption on a heat content basis, so we're ignoring it for now.
 
     For plants whose generators all rely on the same fuel source, we simply attribute
@@ -647,8 +644,7 @@ def mcoe(
     """Compile marginal cost of electricity (MCOE) at the generator level.
 
     Use data from EIA 923, EIA 860, and (someday) FERC Form 1 to estimate
-    the MCOE of individual generating units. The calculation is performed over
-    the range of times and at the time resolution of the input pudl_out object.
+    the MCOE of individual generating units.
 
     Args:
         min_heat_rate: lowest plausible heat rate, in mmBTU/MWh. Any

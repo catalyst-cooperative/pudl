@@ -10,7 +10,7 @@ report_year, plant_id_pudl,
 {% for fuel_type in fuel_types %}
     coalesce({{ fuel_type }}_fraction_{{ fraction_type }}, 0) {% if not loop.last %}+ {% endif %}
 {% endfor %}
-    else 1.0 -- othewise trivially pass this row
+    else 1.0 -- otherwise trivially pass this row
     end as total_{{ fraction_type }}_fraction,
 {% endfor %}
 {% for fuel_type in fuel_types %}
