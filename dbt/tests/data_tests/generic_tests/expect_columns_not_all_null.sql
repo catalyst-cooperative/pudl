@@ -4,7 +4,7 @@
     conditional_columns={}
 ) %}
 
--- Get all column names using DuckDB's DESCRIBE
+-- DESCRIBE implementations vary; this assumes DuckDB's
 {% set get_columns_query %}
     SELECT column_name
     FROM (DESCRIBE {{ model }})
